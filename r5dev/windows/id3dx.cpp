@@ -8,6 +8,7 @@
 #include "windows/input.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
+#include "engine/sys_mainwind.h"
 #include "inputsystem/inputsystem.h"
 #include "public/bitmap/stb_image.h"
 
@@ -29,24 +30,15 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-static BOOL                     s_bInitialized              = false;
-static BOOL                     s_bImGuiInitialized         = false;
+static BOOL                     s_bInitialized = false;
+static BOOL                     s_bImGuiInitialized = false;
 
 ///////////////////////////////////////////////////////////////////////////////////
-static WNDPROC                  s_oWndProc                  = NULL;
-static HWND                     s_hGameWindow               = NULL;
-///////////////////////////////////////////////////////////////////////////////////
-static IPostMessageA            s_oPostMessageA             = NULL;
-static IPostMessageW            s_oPostMessageW             = NULL;
+static IPostMessageA            s_oPostMessageA = NULL;
+static IPostMessageW            s_oPostMessageW = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////////
-static IDXGIResizeBuffers       s_oResizeBuffers            = NULL;
-static IDXGISwapChainPresent    s_fnSwapChainPresent        = NULL;
-static IDXGISwapChain*          s_pSwapChain                = nullptr;
-static ID3D11DeviceContext*     s_pDeviceContext            = nullptr;
-static ID3D11Device*            s_pDevice                   = nullptr;
-static ID3D11RenderTargetView*  s_pRenderTargetView         = nullptr;
-static ID3D11DepthStencilView*  s_pDepthStencilView         = nullptr;
+static IDXGISwapChainPresent    s_fnSwapChainPresent = NULL;
 
 //#################################################################################
 // WINDOW PROCEDURE
@@ -55,63 +47,6 @@ static ID3D11DepthStencilView*  s_pDepthStencilView         = nullptr;
 LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
-
-	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
-	{
-		if (wParam == g_pImGuiConfig->m_ConsoleConfig.m_nBind0 || wParam == g_pImGuiConfig->m_ConsoleConfig.m_nBind1)
-		{
-			g_pConsole->m_bActivate ^= true;
-			ResetInput(); // Disable input to game when console is drawn.
-		}
-
-		if (wParam == g_pImGuiConfig->m_BrowserConfig.m_nBind0 || wParam == g_pImGuiConfig->m_BrowserConfig.m_nBind1)
-		{
-			g_pBrowser->m_bActivate ^= true;
-			ResetInput(); // Disable input to game when browser is drawn.
-		}
-	}
-
-	if (g_pConsole->m_bActivate || g_pBrowser->m_bActivate)
-	{//////////////////////////////////////////////////////////////////////////////
-		g_bBlockInput = true;
-
-		switch (uMsg)
-		{
-			case WM_LBUTTONDOWN:
-			case WM_LBUTTONUP:
-			case WM_LBUTTONDBLCLK:
-			case WM_RBUTTONDOWN:
-			case WM_RBUTTONUP:
-			case WM_RBUTTONDBLCLK:
-			case WM_MBUTTONDOWN:
-			case WM_MBUTTONUP:
-			case WM_MBUTTONDBLCLK:
-			case WM_KEYDOWN:
-			case WM_KEYUP:
-			case WM_MOUSEACTIVATE:
-			case WM_MOUSEHOVER:
-			case WM_MOUSEHWHEEL:
-			case WM_MOUSELEAVE:
-			case WM_MOUSEMOVE:
-			case WM_MOUSEWHEEL:
-			case WM_SETCURSOR:
-				return 1L;
-			default:
-				break;
-		}
-	}//////////////////////////////////////////////////////////////////////////////
-	else
-	{
-		g_bBlockInput = false;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////
-	return CallWindowProc(s_oWndProc, hWnd, uMsg, wParam, lParam);
 }
 
 //#################################################################################
@@ -139,90 +74,7 @@ BOOL WINAPI HPostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 }
 
 //#################################################################################
-// IDXGI PRESENT
-//#################################################################################
-
-void GetPresent()
-{
-	WNDCLASSEXA wc = { sizeof(WNDCLASSEX), CS_CLASSDC, DXGIMsgProc, 0L, 0L, GetModuleHandleA(NULL), NULL, NULL, NULL, NULL, "GameSDK001", NULL };
-	RegisterClassExA(&wc);
-
-	HWND hWnd = CreateWindowA("GameSDK001", NULL, WS_OVERLAPPEDWINDOW, 100, 100, 300, 300, NULL, NULL, wc.hInstance, NULL);
-	DXGI_SWAP_CHAIN_DESC sd                = { 0 };
-	D3D_FEATURE_LEVEL    nFeatureLevelsSet = D3D_FEATURE_LEVEL_11_0;
-	D3D_FEATURE_LEVEL    nFeatureLevelsSupported;
-
-	ZeroMemory(&sd, sizeof(sd));
-
-	///////////////////////////////////////////////////////////////////////////////
-	sd.BufferCount                          = 1;
-	sd.BufferUsage                          = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	sd.BufferDesc.Height                    = 800;
-	sd.BufferDesc.Width                     = 600;
-	sd.BufferDesc.RefreshRate               = { 60, 1 };
-	sd.BufferDesc.ScanlineOrdering          = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sd.BufferDesc.Scaling                   = DXGI_MODE_SCALING_UNSPECIFIED;
-	sd.Windowed                             = TRUE;
-	sd.OutputWindow                         = hWnd;
-	sd.SampleDesc.Count                     = 1;
-	sd.SampleDesc.Quality                   = 0;
-	sd.SwapEffect                           = DXGI_SWAP_EFFECT_DISCARD;
-	sd.Flags                                = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-	///////////////////////////////////////////////////////////////////////////////
-	s_hGameWindow                           = sd.OutputWindow;
-	UINT       nFeatureLevelsRequested      = 1;
-	HRESULT                 hr              = NULL;
-	IDXGISwapChain*         pSwapChain      = nullptr;
-	ID3D11Device*           pDevice         = nullptr;
-	ID3D11DeviceContext*    pContext        = nullptr;
-
-	///////////////////////////////////////////////////////////////////////////////
-	if (FAILED(hr = D3D11CreateDeviceAndSwapChain(NULL,
-		D3D_DRIVER_TYPE_HARDWARE,
-		NULL,
-		NULL,
-		&nFeatureLevelsSet,
-		nFeatureLevelsRequested,
-		D3D11_SDK_VERSION,
-		&sd,
-		&pSwapChain,
-		&pDevice,
-		&nFeatureLevelsSupported,
-		&pContext)))
-	{
-		Error(eDLL_T::MS, EXIT_FAILURE, "Failed to create device and swap chain: error code = %08x\n", hr);
-		return;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////
-	DWORD_PTR* pSwapChainVtable             = nullptr;
-	DWORD_PTR* pContextVTable               = nullptr;
-	DWORD_PTR* pDeviceVTable                = nullptr;
-
-	pSwapChainVtable          = reinterpret_cast<DWORD_PTR*>(pSwapChain);
-	pSwapChainVtable          = reinterpret_cast<DWORD_PTR*>(pSwapChainVtable[0]);
-	pContextVTable            = reinterpret_cast<DWORD_PTR*>(pContext);
-	pContextVTable            = reinterpret_cast<DWORD_PTR*>(pContextVTable[0]);
-	pDeviceVTable             = reinterpret_cast<DWORD_PTR*>(pDevice);
-	pDeviceVTable             = reinterpret_cast<DWORD_PTR*>(pDeviceVTable[0]);
-
-	int pIDX                  = static_cast<int>(DXGISwapChainVTbl::Present);
-	int rIDX                  = static_cast<int>(DXGISwapChainVTbl::ResizeBuffers);
-
-	s_fnSwapChainPresent      = reinterpret_cast<IDXGISwapChainPresent>(pSwapChainVtable[pIDX]);
-	s_oResizeBuffers          = reinterpret_cast<IDXGIResizeBuffers>(pSwapChainVtable[rIDX]);
-
-	pSwapChain->Release();
-	pContext->Release();
-	pDevice->Release();
-
-	///////////////////////////////////////////////////////////////////////////////
-}
-
-//#################################################################################
-// INITIALIZATION
+// IMGUI
 //#################################################################################
 
 void SetupImGui()
@@ -230,9 +82,9 @@ void SetupImGui()
 	///////////////////////////////////////////////////////////////////////////////
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGui_ImplWin32_Init(s_hGameWindow);
-	ImGui_ImplDX11_Init(s_pDevice, s_pDeviceContext);
-	ImGui::GetIO().ImeWindowHandle = s_hGameWindow;
+	ImGui_ImplWin32_Init(*g_pGameWindow);
+	ImGui_ImplDX11_Init(*g_ppGameDevice, *g_ppImmediateContext);
+	ImGui::GetIO().ImeWindowHandle = *g_pGameWindow;
 
 	///////////////////////////////////////////////////////////////////////////////
 	ImGuiIO& io = ImGui::GetIO();
@@ -264,124 +116,20 @@ void DrawImGui()
 	ImGui::EndFrame();
 	ImGui::Render();
 
-	s_pDeviceContext->OMSetRenderTargets(1, &s_pRenderTargetView, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-void CreateRenderTarget(IDXGISwapChain* pSwapChain)
-{
-	///////////////////////////////////////////////////////////////////////////////
-	DXGI_SWAP_CHAIN_DESC            sd                 {};
-	D3D11_RENDER_TARGET_VIEW_DESC   rd                 {};
-	ID3D11Texture2D*                pBackBuffer = nullptr;
-
-	///////////////////////////////////////////////////////////////////////////////
-	pSwapChain->GetDesc(&sd);
-	ZeroMemory(&rd, sizeof(rd));
-
-	s_hGameWindow        = sd.OutputWindow;
-	rd.Format            = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	rd.ViewDimension     = D3D11_RTV_DIMENSION_TEXTURE2D;
-
-	///////////////////////////////////////////////////////////////////////////////
-	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<LPVOID*>(&pBackBuffer));
-	if (pBackBuffer)
-	{
-		s_pDevice->CreateRenderTargetView(pBackBuffer, &rd, &s_pRenderTargetView);
-	}
-
-	s_pDeviceContext->OMSetRenderTargets(1, &s_pRenderTargetView, NULL);
-	pBackBuffer->Release();
-}
-
-void CreateViewPort(UINT nWidth, UINT nHeight)
-{
-	FLOAT width  = *reinterpret_cast<FLOAT*>(&nWidth);
-	FLOAT height = *reinterpret_cast<FLOAT*>(&nHeight);
-	D3D11_VIEWPORT vp;
-
-	///////////////////////////////////////////////////////////////////////////////
-	vp.Width             = width;
-	vp.Height            = height;
-	vp.MinDepth          = 0.0f;
-	vp.MaxDepth          = 1.0f;
-	vp.TopLeftX          = 0;
-	vp.TopLeftY          = 0;
-
-	///////////////////////////////////////////////////////////////////////////////
-	s_pDeviceContext->RSSetViewports(1, &vp);
-}
-
-void DestroyRenderTarget()
-{
-	if (s_pRenderTargetView)
-	{
-		s_pRenderTargetView->Release();
-		s_pRenderTargetView = nullptr;
-		s_pDeviceContext->OMSetRenderTargets(0, 0, 0);
-
-		if (mat_showdxoutput->GetBool())
-		{
-			DevMsg(eDLL_T::MS, "+----------------------------------------------------------------+\n");
-			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>| !! RENDER TARGET VIEW DESTROYED !! |<<<<<<<<<<<< |\n");
-			DevMsg(eDLL_T::MS, "+----------------------------------------------------------------+\n");
-		}
-	}
-}
-
 //#################################################################################
-// INTERNALS
+// IDXGI
 //#################################################################################
-
-HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** ppDevice, ID3D11DeviceContext** ppContext)
-{
-	HRESULT ret = pSwapChain->GetDevice(__uuidof(ID3D11Device), reinterpret_cast<PVOID*>(ppDevice));
-	if (SUCCEEDED(ret))
-	{
-		(*ppDevice)->GetImmediateContext(ppContext);
-	}
-	return ret;
-}
-
-HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
-{
-	g_pConsole->m_bActivate = false;
-	g_pBrowser->m_bActivate = false;
-
-	s_bInitialized  = false;
-	g_nWindowWidth  = nWidth;
-	g_nWindowHeight = nHeight;
-
-	///////////////////////////////////////////////////////////////////////////////
-	ResetInput();
-	DestroyRenderTarget();
-
-	///////////////////////////////////////////////////////////////////////////////
-	return s_oResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags);
-}
 
 HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
 {
 	if (!s_bInitialized)
 	{
-		HRESULT hr;
-		if (FAILED(hr = GetDeviceAndCtxFromSwapchain(pSwapChain, &s_pDevice, &s_pDeviceContext)))
-		{
-			Error(eDLL_T::MS, EXIT_FAILURE, "Failed to get device and context from swap chain: error code = %08x\n", hr);
-			return s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
-		}
-
-		CreateRenderTarget(pSwapChain);
-
-		if (!s_oWndProc) // Only initialize HwndProc pointer once to avoid stack overflow during ResizeBuffers(..)
-		{
-			SetupImGui();
-			s_oWndProc  = reinterpret_cast<WNDPROC>(SetWindowLongPtr(s_hGameWindow, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(HwndProc)));
-		}
-
-		s_pSwapChain           = pSwapChain;
+		SetupImGui();
 		g_ThreadRenderThreadID = GetCurrentThreadId();
-		s_bInitialized  = true;
+		s_bInitialized = true;
 	}
 
 	DrawImGui();
@@ -389,59 +137,63 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	return s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 }
 
+//#################################################################################
+// INTERNALS
+//#################################################################################
+
 bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height)
 {
 	// Load PNG buffer to a raw RGBA buffer
-	int image_width  = 0;
-	int image_height = 0;
-	unsigned char* image_data = stbi_load_from_memory(buffer, len, &image_width, &image_height, NULL, 4);
+	int nImageWidth = 0;
+	int nImageHeight = 0;
+	unsigned char* pImageData = stbi_load_from_memory(buffer, len, &nImageWidth, &nImageHeight, NULL, 4);
 
-	if (!image_data)
+	if (!pImageData)
 	{
-		assert(image_data);
+		assert(pImageData);
 		return false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
-	ID3D11Texture2D*                pTexture = nullptr;
+	ID3D11Texture2D* pTexture = nullptr;
 	D3D11_TEXTURE2D_DESC            desc;
 	D3D11_SUBRESOURCE_DATA          subResource;
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 
 	///////////////////////////////////////////////////////////////////////////////
 	ZeroMemory(&desc, sizeof(desc));
-	desc.Width                        = image_width;
-	desc.Height                       = image_height;
-	desc.MipLevels                    = 1;
-	desc.ArraySize                    = 1;
-	desc.Format                       = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	desc.SampleDesc.Count             = 1;
-	desc.Usage                        = D3D11_USAGE_DEFAULT;
-	desc.BindFlags                    = D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags               = 0;
+	desc.Width = nImageWidth;
+	desc.Height = nImageHeight;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	desc.SampleDesc.Count = 1;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
 
 	///////////////////////////////////////////////////////////////////////////////
-	subResource.pSysMem               = image_data;
-	subResource.SysMemPitch           = desc.Width * 4;
-	subResource.SysMemSlicePitch      = 0;
-	s_pDevice->CreateTexture2D(&desc, &subResource, &pTexture);
+	subResource.pSysMem = pImageData;
+	subResource.SysMemPitch = desc.Width * 4;
+	subResource.SysMemSlicePitch = 0;
+	(*g_ppGameDevice)->CreateTexture2D(&desc, &subResource, &pTexture);
 
 	// Create texture view
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels       = desc.MipLevels;
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = desc.MipLevels;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 
 	if (pTexture)
 	{
-		s_pDevice->CreateShaderResourceView(pTexture, &srvDesc, out_srv);
+		(*g_ppGameDevice)->CreateShaderResourceView(pTexture, &srvDesc, out_srv);
 		pTexture->Release();
 	}
 
-	*out_width = image_width;
-	*out_height = image_height;
-	stbi_image_free(image_data);
+	*out_width = nImageWidth;
+	*out_height = nImageHeight;
+	stbi_image_free(pImageData);
 
 	return true;
 }
@@ -462,10 +214,10 @@ bool PanelsVisible()
 }
 
 //#################################################################################
-// MANAGEMENT
+// ENTRYPOINT
 //#################################################################################
 
-void InstallDXHooks()
+void DirectX_Init()
 {
 	///////////////////////////////////////////////////////////////////////////////
 	s_oPostMessageA = (IPostMessageA)DetourFindFunction("user32.dll", "PostMessageA");
@@ -480,8 +232,13 @@ void InstallDXHooks()
 	DetourAttach(&(LPVOID&)s_oPostMessageW, (PBYTE)HPostMessageW);
 
 	// Hook SwapChain
+
+	DWORD_PTR* pSwapChainVtable = *reinterpret_cast<DWORD_PTR**>(g_ppSwapChain[0]);
+
+	int pIDX = static_cast<int>(DXGISwapChainVTbl::Present);
+	s_fnSwapChainPresent = reinterpret_cast<IDXGISwapChainPresent>(pSwapChainVtable[pIDX]);
+
 	DetourAttach(&(LPVOID&)s_fnSwapChainPresent, (PBYTE)Present);
-	DetourAttach(&(LPVOID&)s_oResizeBuffers, (PBYTE)GetResizeBuffers);
 
 	// Commit the transaction
 	HRESULT hr = DetourTransactionCommit();
@@ -504,7 +261,6 @@ void DirectX_Shutdown()
 
 	// Unhook SwapChain
 	DetourDetach(&(LPVOID&)s_fnSwapChainPresent, (PBYTE)Present);
-	DetourDetach(&(LPVOID&)s_oResizeBuffers, (PBYTE)GetResizeBuffers);
 
 	// Commit the transaction
 	DetourTransactionCommit();
@@ -524,33 +280,25 @@ void VDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
 	LogFunAdr("IDXGISwapChain::Present", reinterpret_cast<uintptr_t>(s_fnSwapChainPresent));
-	LogVarAdr("s_pSwapChain", reinterpret_cast<uintptr_t>(s_pSwapChain));
-	LogVarAdr("s_pRenderTargetView", reinterpret_cast<uintptr_t>(s_pRenderTargetView));
-	LogVarAdr("s_pDeviceContext", reinterpret_cast<uintptr_t>(s_pDeviceContext));
-	LogVarAdr("s_pDevice", reinterpret_cast<uintptr_t>(s_pDevice));
+	LogVarAdr("g_pSwapChain", reinterpret_cast<uintptr_t>(g_ppSwapChain));
 	LogVarAdr("g_pGameDevice", reinterpret_cast<uintptr_t>(g_ppGameDevice));
 	LogVarAdr("g_pImmediateContext", reinterpret_cast<uintptr_t>(g_ppImmediateContext));
 }
 
-//#################################################################################
-// ENTRYPOINT
-//#################################################################################
-
-DWORD __stdcall DXSwapChainWorker(LPVOID)
+void VDXGI::GetVar(void) const
 {
-	GetPresent();
-	InstallDXHooks();
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	CMemory pBase = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 53 48 83 EC 50 48 8B 05 ?? ?? ?? ??");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	CMemory pBase = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B 08 48 83 EC 58");
+#endif
+	// Grab device pointers..
+	g_ppGameDevice = pBase.FindPattern("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11Device**>();
+	g_ppImmediateContext = pBase.FindPattern("48 89 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11DeviceContext**>();
 
-	return NULL;
+	// Grab swap chain..
+	pBase = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 45 33 C0 33 D2");
+	g_ppSwapChain = pBase.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<IDXGISwapChain**>();
 }
 
-void DirectX_Init()
-{
-	// Create a worker thread for the in-game console frontend
-	HANDLE hThread = CreateThread(NULL, 0, DXSwapChainWorker, NULL, 0, NULL);
-	if (hThread)
-	{
-		CloseHandle(hThread);
-	}
-}
 #endif // !DEDICATED

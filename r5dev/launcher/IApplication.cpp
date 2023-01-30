@@ -29,6 +29,8 @@
 #ifndef DEDICATED
 #include "game/client/cliententitylist.h"
 #include "gameui/IConsole.h"
+#include "windows/id3dx.h"
+#include "windows/input.h"
 #endif // !DEDICATED
 #include "public/idebugoverlay.h"
 
@@ -94,6 +96,10 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		g_pConsole->m_vsvCommandBases.push_back(
 			CSuggest(map.first, map.second->GetFlags()));
 	}
+
+	Input_Init();
+	DirectX_Init();
+
 #endif // !DEDICATED
 	if (CommandLine()->CheckParm("-devsdk"))
 	{

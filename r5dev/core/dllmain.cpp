@@ -51,11 +51,6 @@ void SDK_Init()
 
     Systems_Init();
     WinSys_Attach();
-
-#ifndef DEDICATED
-    Input_Init();
-    DirectX_Init();
-#endif // !DEDICATED
 }
 
 //#############################################################################

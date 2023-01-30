@@ -4,15 +4,8 @@
 #include <d3d11.h>
 
 /////////////////////////////////////////////////////////////////////////////
-// Initialization
-void SetupImGui();
-void DirectX_Init();
-void DrawImGui();
-void DestroyRenderTarget();
-
-/////////////////////////////////////////////////////////////////////////////
 // Internals
-void InstallDXHooks();
+void DirectX_Init();
 void DirectX_Shutdown();
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -117,21 +110,13 @@ enum class DXGISwapChainVTbl : short
 #ifndef BUILDING_LIBIMGUI
 inline ID3D11Device** g_ppGameDevice = nullptr;
 inline ID3D11DeviceContext** g_ppImmediateContext = nullptr;
+inline IDXGISwapChain** g_ppSwapChain = nullptr;
 
 class VDXGI : public IDetour
 {
 	virtual void GetAdr(void) const;
 	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const
-	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		CMemory pBase = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 53 48 83 EC 50 48 8B 05 ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		CMemory pBase = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B 08 48 83 EC 58");
-#endif
-		g_ppGameDevice = pBase.FindPattern("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11Device**>();
-		g_ppImmediateContext = pBase.FindPattern("48 89 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11DeviceContext**>();
-	}
+	virtual void GetVar(void) const;
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
