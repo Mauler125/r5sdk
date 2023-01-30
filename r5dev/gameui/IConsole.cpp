@@ -115,29 +115,33 @@ void CConsole::RunFrame(void)
         }
 
         int nVars = 0;
+        float flWidth;
         float flHeight;
         if (m_Style == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
 
+            flWidth = 621.f;
             flHeight = 532.f;
         }
         else
         {
             if (m_Style == ImGuiStyle_t::LEGACY)
             {
+                flWidth = 619.f;
                 flHeight = 526.f;
             }
             else
             {
+                flWidth = 618.f;
                 flHeight = 524.f;
             }
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
         }
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(618.f, flHeight)); nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(flWidth, flHeight)); nVars++;
 
         DrawSurface();
         ImGui::PopStyleVar(nVars);
