@@ -528,7 +528,8 @@ void VDXGI::GetAdr(void) const
 	LogVarAdr("s_pRenderTargetView", reinterpret_cast<uintptr_t>(s_pRenderTargetView));
 	LogVarAdr("s_pDeviceContext", reinterpret_cast<uintptr_t>(s_pDeviceContext));
 	LogVarAdr("s_pDevice", reinterpret_cast<uintptr_t>(s_pDevice));
-	LogVarAdr("g_ppGameDevice", reinterpret_cast<uintptr_t>(g_ppGameDevice));
+	LogVarAdr("g_pGameDevice", reinterpret_cast<uintptr_t>(g_ppGameDevice));
+	LogVarAdr("g_pImmediateContext", reinterpret_cast<uintptr_t>(g_ppImmediateContext));
 }
 
 //#################################################################################

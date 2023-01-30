@@ -115,8 +115,8 @@ enum class DXGISwapChainVTbl : short
 };
 
 #ifndef BUILDING_LIBIMGUI
-inline CMemory p_gGameDevice;
 inline ID3D11Device** g_ppGameDevice = nullptr;
+inline ID3D11DeviceContext** g_ppImmediateContext = nullptr;
 
 class VDXGI : public IDetour
 {
@@ -124,8 +124,13 @@ class VDXGI : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		p_gGameDevice = g_GameDll.FindPatternSIMD("D3 EA 48 8B 0D ?? ?? ?? ??").FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7);
-		g_ppGameDevice = p_gGameDevice.RCast<ID3D11Device**>(); /*D3 EA 48 8B 0D ? ? ? ?*/
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		CMemory pBase = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 53 48 83 EC 50 48 8B 05 ?? ?? ?? ??");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		CMemory pBase = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B 08 48 83 EC 58");
+#endif
+		g_ppGameDevice = pBase.FindPattern("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11Device**>();
+		g_ppImmediateContext = pBase.FindPattern("48 89 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11DeviceContext**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
