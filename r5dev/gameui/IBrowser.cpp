@@ -103,13 +103,10 @@ void CBrowser::RunFrame(void)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
-    }
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(928.f, 524.f));    nVars++;
 
-    if (m_Style != ImGuiStyle_t::MODERN)
-    {
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
     }
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(928.f, 524.f));    nVars++;
 
     if (m_bActivate && m_bReclaimFocus) // Reclaim focus on window apparition.
     {
@@ -235,6 +232,9 @@ void CBrowser::BrowserPanel(void)
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), m_svServerListMessage.c_str());
     ImGui::Separator();
 
+    int iVars = 0; // Eliminate borders around server list table.
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  iVars++;
+
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
@@ -302,6 +302,7 @@ void CBrowser::BrowserPanel(void)
     }
 
     ImGui::EndChild();
+    ImGui::PopStyleVar(iVars);
 
     ImGui::Separator();
     ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth() / 4);
@@ -346,10 +347,28 @@ void CBrowser::RefreshServerList(void)
 //-----------------------------------------------------------------------------
 void CBrowser::HiddenServersModal(void)
 {
+    float flHeight; // Set the padding accordingly for each theme.
+    switch (m_Style)
+    {
+    case ImGuiStyle_t::LEGACY:
+        flHeight = 207.f;
+        break;
+    case ImGuiStyle_t::MODERN:
+        flHeight = 214.f;
+        break;
+    default:
+        flHeight = 206.f;
+        break;
+    }
+
+    int nVars = 0;
     bool bModalOpen = true;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(408.f, flHeight));    nVars++;
+
     if (ImGui::BeginPopupModal("Private Server", &bModalOpen, ImGuiWindowFlags_NoResize))
     {
-        ImGui::SetWindowSize(ImVec2(408.f, 204.f), ImGuiCond_Always);
+        ImGui::SetWindowSize(ImVec2(408.f, flHeight), ImGuiCond_Always);
 
         if (!m_idLockedIcon)
         {
@@ -412,10 +431,16 @@ void CBrowser::HiddenServersModal(void)
         }
 
         ImGui::EndPopup();
+        ImGui::PopStyleVar(nVars);
     }
     else if (!bModalOpen)
     {
         m_svHiddenServerRequestMessage.clear();
+        ImGui::PopStyleVar(nVars);
+    }
+    else
+    {
+        ImGui::PopStyleVar(nVars);
     }
 }
 
@@ -431,7 +456,7 @@ void CBrowser::HostPanel(void)
     ImGui::InputTextWithHint("##ServerHost_ServerDesc", "Server description (optional)", &g_pServerListManager->m_Server.m_svDescription);
     ImGui::Spacing();
 
-    if (ImGui::BeginCombo("Playlist", g_pServerListManager->m_Server.m_svPlaylist.c_str()))
+    if (ImGui::BeginCombo("Mode", g_pServerListManager->m_Server.m_svPlaylist.c_str()))
     {
         g_PlaylistsVecMutex.lock();
         for (const string& svPlaylist : g_vAllPlaylists)
@@ -446,7 +471,7 @@ void CBrowser::HostPanel(void)
         ImGui::EndCombo();
     }
 
-    if (ImGui::BeginCombo("##ServerHost_MapListBox", g_pServerListManager->m_Server.m_svHostMap.c_str()))
+    if (ImGui::BeginCombo("Map", g_pServerListManager->m_Server.m_svHostMap.c_str()))
     {
         g_MapVecMutex.lock();
         for (const string& svMap : g_vAllMaps)
