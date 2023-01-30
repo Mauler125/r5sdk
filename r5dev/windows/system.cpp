@@ -97,7 +97,12 @@ void WinSys_Attach()
 	//DetourAttach(&(LPVOID&)VPeekMessageW, (PBYTE)HPeekMessage);
 
 	///////////////////////////////////////////////////////////////////////////
-	DetourTransactionCommit();
+	HRESULT hr = DetourTransactionCommit();
+	if (hr != NO_ERROR)
+	{
+		// Failed to hook into the process, terminate
+		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
+	}
 #endif // DEDICATED
 }
 
