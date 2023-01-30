@@ -12,8 +12,8 @@
 //-----------------------------------------------------------------------------
 bool HCVideoMode_Common__CreateGameWindow(int* pnRect)
 {
-	g_nWindowWidth  = pnRect[0];
-	g_nWindowHeight = pnRect[1];
+	g_nWindowRect[0] = pnRect[0];
+	g_nWindowRect[1] = pnRect[1];
 	return CVideoMode_Common__CreateGameWindow(pnRect);
 }
 

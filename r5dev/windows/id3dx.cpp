@@ -38,6 +38,7 @@ static IPostMessageA            s_oPostMessageA = NULL;
 static IPostMessageW            s_oPostMessageW = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////////
+static IDXGIResizeBuffers       s_fnResizeBuffers    = NULL;
 static IDXGISwapChainPresent    s_fnSwapChainPresent = NULL;
 
 //#################################################################################
@@ -135,6 +136,15 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	DrawImGui();
 	///////////////////////////////////////////////////////////////////////////////
 	return s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+}
+
+HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
+{
+	g_nWindowRect[0] = nWidth;
+	g_nWindowRect[1] = nHeight;
+
+	///////////////////////////////////////////////////////////////////////////////
+	return s_fnResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags);
 }
 
 //#################################################################################
@@ -238,7 +248,11 @@ void DirectX_Init()
 	int pIDX = static_cast<int>(DXGISwapChainVTbl::Present);
 	s_fnSwapChainPresent = reinterpret_cast<IDXGISwapChainPresent>(pSwapChainVtable[pIDX]);
 
+	int rIDX = static_cast<int>(DXGISwapChainVTbl::ResizeBuffers);
+	s_fnResizeBuffers = reinterpret_cast<IDXGIResizeBuffers>(pSwapChainVtable[rIDX]);
+
 	DetourAttach(&(LPVOID&)s_fnSwapChainPresent, (PBYTE)Present);
+	DetourAttach(&(LPVOID&)s_fnResizeBuffers, (PBYTE)ResizeBuffers);
 
 	// Commit the transaction
 	HRESULT hr = DetourTransactionCommit();
@@ -261,6 +275,7 @@ void DirectX_Shutdown()
 
 	// Unhook SwapChain
 	DetourDetach(&(LPVOID&)s_fnSwapChainPresent, (PBYTE)Present);
+	DetourDetach(&(LPVOID&)s_fnResizeBuffers, (PBYTE)ResizeBuffers);
 
 	// Commit the transaction
 	DetourTransactionCommit();

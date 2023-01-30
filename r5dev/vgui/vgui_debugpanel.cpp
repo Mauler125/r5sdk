@@ -83,8 +83,8 @@ void CTextOverlay::AddLog(const EGlobalContext_t context, const string& svText)
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawNotify(void)
 {
-	int x = con_notify_invert_x->GetBool() ? g_nWindowWidth - con_notify_offset_x->GetInt() : con_notify_offset_x->GetInt();
-	int y = con_notify_invert_y->GetBool() ? g_nWindowHeight - con_notify_offset_y->GetInt() : con_notify_offset_y->GetInt();
+	int x = con_notify_invert_x->GetBool() ? g_nWindowRect[0] - con_notify_offset_x->GetInt() : con_notify_offset_x->GetInt();
+	int y = con_notify_invert_y->GetBool() ? g_nWindowRect[1] - con_notify_offset_y->GetInt() : con_notify_offset_y->GetInt();
 
 	std::lock_guard<std::mutex> l(m_Mutex);
 	for (size_t i = 0, j = m_vNotifyText.size(); i < j; i++)
@@ -182,8 +182,8 @@ void CTextOverlay::ShouldDraw(const float flFrameTime)
 void CTextOverlay::DrawHostStats(void) const
 {
 	static const Color c = { 255, 255, 255, 255 };
-	const int nWidth = cl_hoststats_invert_x->GetBool() ? g_nWindowWidth - cl_hoststats_offset_x->GetInt() : cl_hoststats_offset_x->GetInt();
-	const int nHeight = cl_hoststats_invert_y->GetBool() ? g_nWindowHeight - cl_hoststats_offset_y->GetInt() : cl_hoststats_offset_y->GetInt();
+	const int nWidth  = cl_hoststats_invert_x->GetBool() ? g_nWindowRect[0] - cl_hoststats_offset_x->GetInt() : cl_hoststats_offset_x->GetInt();
+	const int nHeight = cl_hoststats_invert_y->GetBool() ? g_nWindowRect[1] - cl_hoststats_offset_y->GetInt() : cl_hoststats_offset_y->GetInt();
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), m_pszCon_NPrintf_Buf);
 }
@@ -194,8 +194,8 @@ void CTextOverlay::DrawHostStats(void) const
 void CTextOverlay::DrawSimStats(void) const
 {
 	static const Color c = { 255, 255, 255, 255 };
-	const int nWidth = cl_simstats_invert_x->GetBool() ? g_nWindowWidth - cl_simstats_offset_x->GetInt() : cl_simstats_offset_x->GetInt();
-	const int nHeight = cl_simstats_invert_y->GetBool() ? g_nWindowHeight - cl_simstats_offset_y->GetInt() : cl_simstats_offset_y->GetInt();
+	const int nWidth  = cl_simstats_invert_x->GetBool() ? g_nWindowRect[0] - cl_simstats_offset_x->GetInt() : cl_simstats_offset_x->GetInt();
+	const int nHeight = cl_simstats_invert_y->GetBool() ? g_nWindowRect[1] - cl_simstats_offset_y->GetInt() : cl_simstats_offset_y->GetInt();
 
 	DrawFormat(nWidth, nHeight, c, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n", 
 		g_pClientState->GetServerTickCount(), g_pClientState->GetClientTickCount(), *g_nRenderTickCount);
@@ -207,8 +207,8 @@ void CTextOverlay::DrawSimStats(void) const
 void CTextOverlay::DrawGPUStats(void) const
 {
 	static const Color c = { 255, 255, 255, 255 };
-	const int nWidth  = cl_gpustats_invert_x->GetBool() ? g_nWindowWidth - cl_gpustats_offset_x->GetInt() : cl_gpustats_offset_x->GetInt();
-	const int nHeight = cl_gpustats_invert_y->GetBool() ? g_nWindowHeight - cl_gpustats_offset_y->GetInt() : cl_gpustats_offset_y->GetInt();
+	const int nWidth  = cl_gpustats_invert_x->GetBool() ? g_nWindowRect[0] - cl_gpustats_offset_x->GetInt() : cl_gpustats_offset_x->GetInt();
+	const int nHeight = cl_gpustats_invert_y->GetBool() ? g_nWindowRect[1] - cl_gpustats_offset_y->GetInt() : cl_gpustats_offset_y->GetInt();
 
 	DrawFormat(nWidth, nHeight, c, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n",
 		*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nTotalStreamingTextureMemory / 1024);
