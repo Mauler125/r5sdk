@@ -115,17 +115,29 @@ void CConsole::RunFrame(void)
         }
 
         int nVars = 0;
+        float flHeight;
         if (m_Style == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+
+            flHeight = 532.f;
         }
         else
         {
+            if (m_Style == ImGuiStyle_t::LEGACY)
+            {
+                flHeight = 526.f;
+            }
+            else
+            {
+                flHeight = 524.f;
+            }
+
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
         }
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(618, 524));        nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(618.f, flHeight)); nVars++;
 
         DrawSurface();
         ImGui::PopStyleVar(nVars);
@@ -243,6 +255,8 @@ void CConsole::DrawSurface(void)
     m_nScrollBack = 0;
 
     ///////////////////////////////////////////////////////////////////////
+    int iVars = 0; // Eliminate borders around log window.
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  iVars++;
     ImGui::BeginChild(m_pszLoggingLabel, ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
 
     // Mutex is locked here, as we start using/modifying
@@ -260,6 +274,8 @@ void CConsole::DrawSurface(void)
     m_flScrollY = ImGui::GetScrollY();
 
     ImGui::EndChild();
+    ImGui::PopStyleVar(iVars);
+
     ImGui::Separator();
 
     ///////////////////////////////////////////////////////////////////////
