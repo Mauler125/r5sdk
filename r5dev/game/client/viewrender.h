@@ -37,8 +37,6 @@ class V_ViewRender : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_pViewRender_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCViewRender@@");
-
 		p_CViewRender_GetWorldMatrixForView = g_pViewRender_VFTable.WalkVTable(16).Deref(); // 16th vfunc.
 		CViewRender_GetWorldMatrixForView = p_CViewRender_GetWorldMatrixForView.RCast<VMatrix* (*)(CViewRender*, int8_t)>();
 	}
@@ -51,7 +49,10 @@ class V_ViewRender : public IDetour
 
 		g_pViewRender = g_GameDll.FindPatternSIMD("48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC CC 48 8B C4").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CViewRender*>(); /*48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC CC 48 8B C4*/
 	}
-	virtual void GetCon(void) const { }
+	virtual void GetCon(void) const
+	{
+		g_pViewRender_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCViewRender@@");
+	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };
