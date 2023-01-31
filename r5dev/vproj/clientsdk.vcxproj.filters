@@ -651,9 +651,6 @@
     <ClCompile Include="..\public\utility\vtable.cpp">
       <Filter>sdk\public\utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\crashhandler.cpp">
-      <Filter>sdk\public\utility</Filter>
-    </ClCompile>
     <ClCompile Include="..\game\shared\collisionproperty.cpp">
       <Filter>sdk\game\shared</Filter>
     </ClCompile>
@@ -680,6 +677,9 @@
     </ClCompile>
     <ClCompile Include="..\public\appframework\IAppSystemGroup.cpp">
       <Filter>sdk\public\appframework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\crashhandler.cpp">
+      <Filter>sdk\tier0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1904,9 +1904,6 @@
     <ClInclude Include="..\public\utility\vtable.h">
       <Filter>sdk\public\utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\crashhandler.h">
-      <Filter>sdk\public\utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\eiface.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
@@ -1993,6 +1990,9 @@
     </ClInclude>
     <ClInclude Include="..\public\appframework\IAppSystem.h">
       <Filter>sdk\public\appframework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\crashhandler.h">
+      <Filter>sdk\tier0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,8 +4,8 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
+#include "tier0/crashhandler.h"
 #include "tier1/cvar.h"
-#include "public/utility/crashhandler.h"
 #include "vpc/keyvalues.h"
 #include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"

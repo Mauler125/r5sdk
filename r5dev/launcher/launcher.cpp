@@ -5,9 +5,9 @@
 // $NoKeywords: $
 //===========================================================================//
 #include "core/stdafx.h"
+#include "tier0/crashhandler.h"
 #include "tier0/commandline.h"
 #include "tier1/strtools.h"
-#include "public/utility/crashhandler.h"
 #include "launcher/launcher.h"
 
 int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)

@@ -127,7 +127,6 @@
     <ClCompile Include="..\public\dt_recv.cpp" />
     <ClCompile Include="..\public\networkvar.cpp" />
     <ClCompile Include="..\public\utility\binstream.cpp" />
-    <ClCompile Include="..\public\utility\crashhandler.cpp" />
     <ClCompile Include="..\public\utility\memaddr.cpp" />
     <ClCompile Include="..\public\utility\module.cpp" />
     <ClCompile Include="..\public\utility\sigcache.cpp" />
@@ -148,6 +147,7 @@
     <ClCompile Include="..\tier0\commandline.cpp" />
     <ClCompile Include="..\tier0\cpu.cpp" />
     <ClCompile Include="..\tier0\cputopology.cpp" />
+    <ClCompile Include="..\tier0\crashhandler.cpp" />
     <ClCompile Include="..\tier0\dbg.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
     <ClCompile Include="..\tier0\frametask.cpp" />
@@ -400,7 +400,6 @@
     <ClInclude Include="..\core\resource.h" />
     <ClInclude Include="..\public\trace.h" />
     <ClInclude Include="..\public\utility\binstream.h" />
-    <ClInclude Include="..\public\utility\crashhandler.h" />
     <ClInclude Include="..\public\utility\memaddr.h" />
     <ClInclude Include="..\public\utility\module.h" />
     <ClInclude Include="..\public\utility\sigcache.h" />
@@ -604,6 +603,7 @@
     <ClInclude Include="..\tier0\commonmacros.h" />
     <ClInclude Include="..\tier0\cpu.h" />
     <ClInclude Include="..\tier0\cputopology.h" />
+    <ClInclude Include="..\tier0\crashhandler.h" />
     <ClInclude Include="..\tier0\dbg.h" />
     <ClInclude Include="..\tier0\dbgflag.h" />
     <ClInclude Include="..\tier0\fasttimer.h" />

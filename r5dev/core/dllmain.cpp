@@ -2,6 +2,7 @@
 #include "core/r5dev.h"
 #include "core/init.h"
 #include "core/logdef.h"
+#include "tier0/crashhandler.h"
 /*****************************************************************************/
 #ifndef DEDICATED
 #include "windows/id3dx.h"
@@ -11,7 +12,6 @@
 #include "windows/system.h"
 #include "mathlib/mathlib.h"
 #include "launcher/launcher.h"
-#include "public/utility/crashhandler.h"
 
 //#############################################################################
 // INITIALIZATION
