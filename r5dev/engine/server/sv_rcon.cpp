@@ -377,8 +377,8 @@ bool CRConServer::Comparator(std::string svPassword) const
 	if (sv_rcon_debug->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
-		DevMsg(eDLL_T::SERVER, "] Server: '%s'[\n", m_svPasswordHash.c_str());
-		DevMsg(eDLL_T::SERVER, "] Client: '%s'[\n", svPassword.c_str());
+		DevMsg(eDLL_T::SERVER, "[ Server: '%s']\n", m_svPasswordHash.c_str());
+		DevMsg(eDLL_T::SERVER, "[ Client: '%s']\n", svPassword.c_str());
 		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
 	}
 	if (std::memcmp(svPassword.data(), m_svPasswordHash.data(), SHA256::DIGEST_SIZE) == 0)
