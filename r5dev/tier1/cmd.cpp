@@ -536,7 +536,7 @@ bool ConCommand::IsCommand(void) const
 //-----------------------------------------------------------------------------
 bool ConCommandBase::IsCommand(void) const
 {
-	return m_pConCommandBaseVFTable != g_pConVarVFTable.RCast<void*>();
+	return m_pConCommandBaseVFTable != g_pConVarVBTable.RCast<void*>();
 }
 
 //-----------------------------------------------------------------------------

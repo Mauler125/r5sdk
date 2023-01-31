@@ -105,8 +105,8 @@ inline auto v_ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar* thispt
 inline CMemory p_ConVar_PrintDescription;
 inline auto v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void* (*)(ConCommandBase* pVar)>();
 
+inline CMemory g_pConVarVBTable;
 inline CMemory g_pConVarVFTable;
-inline CMemory g_pIConVarVFTable;
 
 ///////////////////////////////////////////////////////////////////////////////
 void ConVar_PrintDescription(ConCommandBase* pVar);
@@ -116,7 +116,7 @@ class VConVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("IConVar::`vftable'", g_pIConVarVFTable.GetPtr());
+		LogConAdr("ConVar::`vbtable'", g_pConVarVBTable.GetPtr());
 		LogConAdr("ConVar::`vftable'", g_pConVarVFTable.GetPtr());
 		LogFunAdr("ConVar::IsFlagSet", p_ConVar_IsFlagSet.GetPtr());
 		LogFunAdr("ConVar::Register", p_ConVar_Register.GetPtr());
@@ -139,8 +139,8 @@ class VConVar : public IDetour
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		g_pConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 0);
-		g_pIConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 1);
+		g_pConVarVBTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 0);
+		g_pConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 1);
 	}
 	virtual void Attach(void) const;
 	virtual void Detach(void) const;
