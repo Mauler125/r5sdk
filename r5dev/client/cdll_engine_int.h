@@ -3,6 +3,7 @@
 #include "public/client_class.h"
 #include "public/icliententitylist.h"
 #endif // !DEDICATED
+#include "game/shared/usercmd.h"
 
 enum class ClientFrameStage_t : int
 {
@@ -35,10 +36,10 @@ public:
 	ClientClass* GetAllClasses();
 #endif
 
-	void* /* CUserCmd* */ GetUserCmd(int sequenceNumber) // @0x1405BB020 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	CUserCmd* GetUserCmd(int sequenceNumber) // @0x1405BB020 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
 		const static int index = 28;
-		return CallVFunc<void*>(index, this, sequenceNumber); /*48 83 EC 28 48 8B 05 ? ? ? ? 48 8D 0D ? ? ? ? 44 8B C2*/
+		return CallVFunc<CUserCmd*>(index, this, sequenceNumber); /*48 83 EC 28 48 8B 05 ? ? ? ? 48 8D 0D ? ? ? ? 44 8B C2*/
 	}
 };
 
@@ -75,7 +76,7 @@ class VDll_Engine_Int : public IDetour
 		LogFunAdr("CHLClient::FrameStageNotify", p_CHLClient_FrameStageNotify.GetPtr());
 		LogFunAdr("CHLClient::GetAllClasses", p_CHLClient_GetAllClasses.GetPtr());
 #endif // !DEDICATED
-		LogVarAdr("gHLClient", reinterpret_cast<uintptr_t>(gHLClient));
+		LogVarAdr("g_HLClient", reinterpret_cast<uintptr_t>(gHLClient));
 		LogVarAdr("g_pHLClient", reinterpret_cast<uintptr_t>(g_pHLClient));
 	}
 	virtual void GetFun(void) const
