@@ -39,7 +39,7 @@ public:
 	int GetClassBits(void) const { return m_nServerClassBits; }
 	bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
 	bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
-	bool IsDedicated(void) const { return g_bDedicated; }
+	bool IsDedicated(void) const { return m_bIsDedicated; }
 	bool AuthClient(user_creds_s* pChallenge);
 	void RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage);
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
