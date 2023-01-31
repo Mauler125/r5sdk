@@ -22,6 +22,10 @@ public:
 
 	CModule(void) = default;
 	CModule(const string& moduleName);
+	CModule(const uintptr_t nModuleBase, const string& svModuleName);
+
+	void Init();
+	void LoadSections();
 #ifndef PLUGINSDK
 	CMemory FindPatternSIMD(const string& svPattern, const ModuleSections_t* moduleSection = nullptr) const;
 	CMemory FindString(const string& string, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
@@ -29,6 +33,7 @@ public:
 
 	CMemory          GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex = 0);
 #endif // !PLUGINSDK
+	CMemory          GetImportedFunction(const string& svModuleName, const string& svFunctionName, const bool bGetFunctionReference) const;
 	CMemory          GetExportedFunction(const string& svFunctionName) const;
 	ModuleSections_t GetSectionByName(const string& svSectionName) const;
 	uintptr_t        GetModuleBase(void) const;
