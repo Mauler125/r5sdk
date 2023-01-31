@@ -5,5 +5,5 @@ WINAPI
 ConsoleHandlerRoutine(
 	DWORD eventCode);
 
-void WinSys_Attach();
-void WinSys_Detach();
+void WinSys_Init();
+void WinSys_Shutdown();

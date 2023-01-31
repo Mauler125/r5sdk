@@ -77,15 +77,10 @@ ConsoleHandlerRoutine(
 
 void WinSys_Init()
 {
+#ifdef DEDICATED
 	VGetVersionExA = (IGetVersionExA)DetourFindFunction("KERNEL32.dll", "GetVersionExA");
 	VPeekMessageA = (IPeekMessage)DetourFindFunction("USER32.dll", "PeekMessageA");
 	VPeekMessageW = (IPeekMessage)DetourFindFunction("USER32.dll", "PeekMessageW");
-}
-
-void WinSys_Attach()
-{
-#ifdef DEDICATED
-	WinSys_Init();
 
 	///////////////////////////////////////////////////////////////////////////
 	DetourTransactionBegin();
@@ -106,7 +101,7 @@ void WinSys_Attach()
 #endif // DEDICATED
 }
 
-void WinSys_Detach()
+void WinSys_Shutdown()
 {
 #ifdef DEDICATED
 	///////////////////////////////////////////////////////////////////////////

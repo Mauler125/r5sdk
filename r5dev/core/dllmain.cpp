@@ -21,8 +21,6 @@ void SDK_Init()
     CheckCPU(); // Check CPU as early as possible, SpdLog also uses SSE intrinsics.
 
     MathLib_Init(); // Initialize Mathlib.
-    WinSock_Init(); // Initialize Winsock.
-
     curl_global_init(CURL_GLOBAL_ALL);
 
     if (strstr(GetCommandLineA(), "-launcher"))
@@ -42,6 +40,8 @@ void SDK_Init()
     Console_Init();
 #endif // !DEDICATED
     SpdLog_Init();
+    WinSock_Init(); // Initialize Winsock.
+
     for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
         std::string svEscaped = StringEscape(R5R_EMBLEM[i]);
@@ -50,7 +50,7 @@ void SDK_Init()
     spdlog::info("\n");
 
     Systems_Init();
-    WinSys_Attach();
+    WinSys_Init();
 
 #ifndef DEDICATED
     Input_Init();
@@ -77,7 +77,7 @@ void SDK_Shutdown()
 
     WinSock_Shutdown();
     Systems_Shutdown();
-    WinSys_Detach();
+    WinSys_Shutdown();
 
 #ifndef DEDICATED
     Input_Shutdown();

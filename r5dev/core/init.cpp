@@ -153,7 +153,7 @@ void Systems_Init()
 	initTimer.End();
 
 	spdlog::info("+-------------------------------------------------------------+\n");
-	spdlog::info("Detour->Init()   '{:10.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
+	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Init()", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
 
@@ -179,7 +179,7 @@ void Systems_Init()
 	}
 
 	initTimer.End();
-	spdlog::info("Detour->Attach() '{:10.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
+	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Attach()", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 
 	ConVar::Init();
@@ -219,7 +219,7 @@ void Systems_Shutdown()
 	DetourTransactionCommit();
 
 	shutdownTimer.End();
-	spdlog::info("Detour->Detach() '{:10.6f}' seconds ('{:12d}' clocks)\n", shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
+	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Detach()", shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 }
 
@@ -240,7 +240,7 @@ void WinSock_Init()
 	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (nError != 0)
 	{
-		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+		spdlog::error("{:s}: Failed to start Winsock: ({:s})\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
 void WinSock_Shutdown()
@@ -248,7 +248,7 @@ void WinSock_Shutdown()
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		std::cerr << "Failed to stop Winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+		spdlog::error("{:s}: Failed to stop Winsock: ({:s})\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
 void QuerySystemInfo()
@@ -404,6 +404,8 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// Launcher
 	REGISTER(VPRX);
 	REGISTER(VLauncher);
+
+	REGISTER(VAppSystemGroup);
 	REGISTER(VApplication);
 
 	// FileSystem
