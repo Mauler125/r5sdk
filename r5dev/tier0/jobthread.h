@@ -5,6 +5,8 @@ struct JobFifoLock_s
 {
 };
 
+typedef uint32_t JobID_t;
+
 inline CMemory p_JT_ParallelCall;
 inline auto JT_ParallelCall = p_JT_ParallelCall.RCast<void (*)(void)>();
 

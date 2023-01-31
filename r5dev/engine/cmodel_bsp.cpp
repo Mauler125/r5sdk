@@ -16,6 +16,9 @@
 #include "vpc/keyvalues.h"
 #include "datacache/mdlcache.h"
 #include "filesystem/filesystem.h"
+#ifndef DEDICATED
+#include "client/clientstate.h"
+#endif // !DEDICATED
 
 vector<string> g_vAllMaps;
 string s_svLevelName;
@@ -158,7 +161,13 @@ void Mod_ProcessPakQueue()
     __int64 v25{}; // rcx
 
     v0 = 0;
-    if (*(float*)&*dword_14B383420 == 1.0 && *qword_167ED7BB8 && *((int*)&*qword_14180A098/* + 36*/) < 2)
+#ifndef DEDICATED
+    bool bUnconnected = !(*g_pClientState_Shifted)->IsConnected();
+#else // !DEDICATED
+    bool bUnconnected = false; // Always false for dedicated.
+#endif
+
+    if (*(float*)&*dword_14B383420 == 1.0 && *qword_167ED7BB8 && bUnconnected)
     {
         *byte_16709DDDF = 0;
         v0 = 1;
@@ -292,7 +301,7 @@ void Mod_ProcessPakQueue()
                     {
                         if (!*(_BYTE*)(*g_pMTVFTaskItem + 4))
                         {
-                            if (*qword_167ED7BC0 || WORD2(*qword_167ED7C68) != HIWORD(*qword_167ED7C68))
+                            if (*qword_167ED7BC0 || WORD2(*g_pPakLoadJobID) != HIWORD(*g_pPakLoadJobID))
                             {
                                 if (!JT_AcquireFifoLock(&*g_pPakFifoLock)
                                     && !(unsigned __int8)sub_14045BAC0((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))g_pPakFifoLockWrapper, &*g_pPakFifoLock, -1i64, 0i64))

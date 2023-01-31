@@ -258,7 +258,7 @@ void Pak_ListPaks_f(const CCommand& args)
 
 	uint32_t nTotalLoaded = 0;
 
-	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *g_pLoadedPakCount; ++i)
 	{
 		const RPakLoadedInfo_t& info = g_pLoadedPakInfo[i];
 
@@ -294,7 +294,7 @@ void Pak_ListTypes_f(const CCommand& args)
 
 	for (int8_t i = 0; i < 64; ++i)
 	{
-		RPakAssetBinding_t* type = &g_pUnknownPakStruct->m_nAssetBindings[i];
+		RPakAssetBinding_t* type = &g_pPakGlobals->m_nAssetBindings[i];
 
 		if (!type->m_szDescription)
 			continue;

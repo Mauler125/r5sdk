@@ -650,15 +650,15 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 			*fileSizeOut = fileSize.QuadPart;
 	}
 
-	AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pPakFileSlotLock));
+	AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*s_pFileArrayMutex));
 	const int32_t fileIdx = RTech_FindFreeSlotInFiles(s_pFileArray);
-	ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pPakFileSlotLock));
+	ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*s_pFileArrayMutex));
 
 	const int32_t fileHandleIdx =  (fileIdx & 0x3FF); // Something with ArraySize.
 
-	m_FileHandles->self[fileHandleIdx].m_nFileNumber = fileIdx;
-	m_FileHandles->self[fileHandleIdx].m_hFileHandle = hFile;
-	m_FileHandles->self[fileHandleIdx].m_nCurOfs = 1;
+	s_pFileHandles->self[fileHandleIdx].m_nFileNumber = fileIdx;
+	s_pFileHandles->self[fileHandleIdx].m_hFileHandle = hFile;
+	s_pFileHandles->self[fileHandleIdx].m_nCurOfs = 1;
 
 	return fileIdx;
 }
@@ -668,7 +668,7 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 //-----------------------------------------------------------------------------
 RPakLoadedInfo_t* RTech::GetPakLoadedInfo(RPakHandle_t nHandle)
 {
-	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *g_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
 		if (!info)
@@ -689,7 +689,7 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(RPakHandle_t nHandle)
 //-----------------------------------------------------------------------------
 RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 {
-	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *g_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
 		if (!info)
@@ -715,7 +715,7 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* pAsset)
 {
 	RPakDescriptor_t* pGuidDescriptors = &pPak->m_pGuidDescriptors[pAsset->m_nUsesStartIdx];
-	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pUnknownPakStruct) + 0x17 * (pPak->qword578 & 0x1FF) + 0x160212));
+	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pPakGlobals) + 0x17 * (pPak->qword578 & 0x1FF) + 0x160212));
 	const bool bDebug = rtech_debug->GetBool();
 
 	if (bDebug)
@@ -730,7 +730,7 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 
 		// Get asset index.
 		int assetIdx = currentGuid & 0x3FFFF;
-		uint64_t assetIdxEntryGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_Guid;
+		uint64_t assetIdxEntryGuid = g_pPakGlobals->m_Assets[assetIdx].m_Guid;
 
 		const int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
 		*reinterpret_cast<uint64_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 2])) = currentGuid;
@@ -757,7 +757,7 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 				}
 
 				assetIdx &= 0x3FFFF;
-				assetIdxEntryGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_Guid;
+				assetIdxEntryGuid = g_pPakGlobals->m_Assets[assetIdx].m_Guid;
 
 				if (assetIdxEntryGuid == currentGuid)
 					return true;
@@ -786,7 +786,7 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 		}
 
 		// Finally write the pointer to the guid entry.
-		*pCurrentGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_pHead;
+		*pCurrentGuid = g_pPakGlobals->m_Assets[assetIdx].m_pHead;
 	}
 }
 

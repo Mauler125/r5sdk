@@ -15,14 +15,12 @@ inline auto v_Mod_ProcessPakQueue = p_Mod_ProcessPakQueue.RCast<void(*)(void)>()
 inline float* dword_14B383420;
 inline int32_t * dword_1634F445C;
 inline void** qword_167ED7BB8;
-inline void** qword_14180A098;
 inline bool* byte_16709DDDF;
 inline char** off_141874660;
 inline void** unk_141874555;
 inline void** unk_1418749B0;
 inline void** unk_141874550;
 inline int64_t* qword_167ED7BC0;
-inline int64_t* qword_167ED7C68;
 
 inline auto sub_14045BAC0 = p_Mod_ProcessPakQueue.RCast<__int64(*)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4)>();
 inline auto sub_14045A1D0 = p_Mod_ProcessPakQueue.RCast<__int64(*)(unsigned __int8(__fastcall* a1)(_QWORD), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6)>();
@@ -51,14 +49,12 @@ class VModel_BSP : public IDetour
 		LogVarAdr("dword_14B383420", reinterpret_cast<uintptr_t>(dword_14B383420));
 		LogVarAdr("dword_1634F445C", reinterpret_cast<uintptr_t>(dword_1634F445C));
 		LogVarAdr("qword_167ED7BB8", reinterpret_cast<uintptr_t>(qword_167ED7BB8));
-		LogVarAdr("qword_14180A098", reinterpret_cast<uintptr_t>(qword_14180A098));
 		LogVarAdr("byte_16709DDDF", reinterpret_cast<uintptr_t>(byte_16709DDDF));
 		LogVarAdr("off_141874660", reinterpret_cast<uintptr_t>(off_141874660));
 		LogVarAdr("unk_141874555", reinterpret_cast<uintptr_t>(unk_141874555));
 		LogVarAdr("unk_1418749B0", reinterpret_cast<uintptr_t>(unk_1418749B0));
 		LogVarAdr("unk_141874550", reinterpret_cast<uintptr_t>(unk_141874550));
 		LogVarAdr("qword_167ED7BC0", reinterpret_cast<uintptr_t>(qword_167ED7BC0));
-		LogVarAdr("qword_167ED7C68", reinterpret_cast<uintptr_t>(qword_167ED7C68));
 	}
 	virtual void GetFun(void) const
 	{
@@ -85,16 +81,12 @@ class VModel_BSP : public IDetour
 		dword_14B383420 = p_Mod_ProcessPakQueue.FindPattern("F3 0F 10").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
 		dword_1634F445C = p_Mod_ProcessPakQueue.FindPattern("8B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<int32_t*>();
 		qword_167ED7BB8 = p_Mod_ProcessPakQueue.Offset(0x10).FindPatternSelf("48 83").ResolveRelativeAddressSelf(0x3, 0x8).RCast<void**>();
-		qword_14180A098 = p_Mod_ProcessPakQueue.Offset(0x20).FindPatternSelf("83 3D").ResolveRelativeAddressSelf(0x2, 0x7).RCast<void**>();
 		byte_16709DDDF = p_Mod_ProcessPakQueue.Offset(0x20).FindPatternSelf("88 1D").ResolveRelativeAddressSelf(0x2, 0x6).RCast<bool*>();
 		off_141874660 = p_Mod_ProcessPakQueue.Offset(0x40).FindPatternSelf("4C 8D 15").ResolveRelativeAddressSelf(0x3, 0x7).RCast<char**>();
 		unk_141874555 = p_Mod_ProcessPakQueue.Offset(0x40).FindPatternSelf("4C 8D 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		unk_1418749B0 = p_Mod_ProcessPakQueue.Offset(0xA0).FindPatternSelf("48 8D 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		unk_141874550 = p_Mod_ProcessPakQueue.Offset(0x150).FindPatternSelf("48 8D 2D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		qword_167ED7BC0 = p_Mod_ProcessPakQueue.Offset(0x200).FindPatternSelf("48 83 3D").ResolveRelativeAddressSelf(0x3, 0x8).RCast<int64_t*>();
-		qword_167ED7C68 = p_Mod_ProcessPakQueue.Offset(0x200).FindPatternSelf("0F B7 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
-
-		(*((char**)(&qword_167ED7C68))) -= 6;
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;

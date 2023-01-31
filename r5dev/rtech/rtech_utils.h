@@ -138,7 +138,7 @@ struct RPakAssetEntryShort
 	void* m_pCpu;
 };
 
-struct RPakUnknownStruct_t
+struct RPakGlobals_t
 {
 	RPakAssetBinding_t m_nAssetBindings[64]; // [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
 	RPakAssetEntryShort m_Assets[0x40000];
@@ -332,13 +332,14 @@ inline CMemory p_StreamDB_Init;
 inline auto v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszLevelName)>();
 
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;
-inline int16_t* s_pLoadedPakCount;
-inline int16_t* s_pParsedPakCount;
-inline RPakUnknownStruct_t* g_pUnknownPakStruct;
+inline int16_t* g_pRequestedPakCount;
+inline int16_t* g_pLoadedPakCount;
+inline JobID_t* g_pPakLoadJobID;
+inline RPakGlobals_t* g_pPakGlobals;
 
 inline int32_t* s_pFileArray;
-inline PSRWLOCK* g_pPakFileSlotLock;
-inline pFileHandleTracker_t* m_FileHandles;
+inline PSRWLOCK* s_pFileArrayMutex;
+inline pFileHandleTracker_t* s_pFileHandles;
 
 inline JobFifoLock_s* g_pPakFifoLock;
 inline void* g_pPakFifoLockWrapper; // Pointer to functor that takes the global pak fifolock as argument.
@@ -383,16 +384,20 @@ class V_RTechUtils : public IDetour
 		LogFunAdr("GetStreamOverlay", p_GetStreamOverlay.GetPtr());
 #endif // !DEDICATED
 		LogFunAdr("StreamDB_Init", p_StreamDB_Init.GetPtr());
-		LogVarAdr("g_pLoadedPakInfo", reinterpret_cast<uintptr_t>(g_pLoadedPakInfo));
-		LogVarAdr("s_pLoadedPakCount", reinterpret_cast<uintptr_t>(s_pLoadedPakCount));
-		LogVarAdr("s_pParsedPakCount", reinterpret_cast<uintptr_t>(s_pParsedPakCount));
-		LogVarAdr("s_pFileArray", reinterpret_cast<uintptr_t>(s_pFileArray));
-		LogVarAdr("g_pPakFileSlotLock", reinterpret_cast<uintptr_t>(g_pPakFileSlotLock));
-		LogVarAdr("m_FileHandles", reinterpret_cast<uintptr_t>(m_FileHandles));
-		LogVarAdr("g_pUnknownPakStruct", reinterpret_cast<uintptr_t>(g_pUnknownPakStruct));
-		LogVarAdr("g_pPakFifoLock", reinterpret_cast<uintptr_t>(g_pPakFifoLock));
-		LogVarAdr("g_pPakFifoLockWrapper", reinterpret_cast<uintptr_t>(g_pPakFifoLockWrapper));
-		LogVarAdr("g_bPakFifoLockAcquired", reinterpret_cast<uintptr_t>(g_bPakFifoLockAcquired));
+		LogVarAdr("s_FileArray", reinterpret_cast<uintptr_t>(s_pFileArray));
+		LogVarAdr("s_FileArrayMutex", reinterpret_cast<uintptr_t>(s_pFileArrayMutex));
+		LogVarAdr("s_FileHandles", reinterpret_cast<uintptr_t>(s_pFileHandles));
+
+		LogVarAdr("g_loadedPakInfo", reinterpret_cast<uintptr_t>(g_pLoadedPakInfo));
+		LogVarAdr("g_loadedPakCount", reinterpret_cast<uintptr_t>(g_pLoadedPakCount));
+		LogVarAdr("g_requestedPakCount", reinterpret_cast<uintptr_t>(g_pRequestedPakCount));
+
+		LogVarAdr("g_pakGlobals", reinterpret_cast<uintptr_t>(g_pPakGlobals));
+		LogVarAdr("g_pakLoadJobID", reinterpret_cast<uintptr_t>(g_pPakLoadJobID));
+
+		LogVarAdr("g_pakFifoLock", reinterpret_cast<uintptr_t>(g_pPakFifoLock));
+		LogVarAdr("g_pakFifoLockWrapper", reinterpret_cast<uintptr_t>(g_pPakFifoLockWrapper));
+		LogVarAdr("g_pakFifoLockAcquired", reinterpret_cast<uintptr_t>(g_bPakFifoLockAcquired));
 	}
 	virtual void GetFun(void) const 
 	{
@@ -426,15 +431,16 @@ class V_RTechUtils : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pLoadedPakInfo  = p_CPakFile_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
-		s_pLoadedPakCount = p_CPakFile_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
-		s_pParsedPakCount = &*s_pLoadedPakCount - 1; // '-1' shifts it back with sizeof(int16_t).
+		s_pFileArray      = p_StreamDB_Init.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(0x3, 0x7).RCast<int32_t*>();
+		s_pFileHandles    = p_StreamDB_Init.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<pFileHandleTracker_t*>();
+		s_pFileArrayMutex = p_StreamDB_Init.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<PSRWLOCK*>();
 
-		g_pPakFileSlotLock = p_StreamDB_Init.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<PSRWLOCK*>();
-		s_pFileArray       = p_StreamDB_Init.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(0x3, 0x7).RCast<int32_t*>();
-		m_FileHandles      = p_StreamDB_Init.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<pFileHandleTracker_t*>();
+		g_pLoadedPakInfo     = p_CPakFile_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
+		g_pRequestedPakCount = p_CPakFile_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
+		g_pLoadedPakCount    = &*g_pRequestedPakCount - 1; // '-1' shifts it back with sizeof(int16_t).
 
-		g_pUnknownPakStruct = g_GameDll.FindPatternSIMD("48 8D 1D ?? ?? ?? ?? 45 8D 5A 0E").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakUnknownStruct_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
+		g_pPakGlobals   = g_GameDll.FindPatternSIMD("48 8D 1D ?? ?? ?? ?? 45 8D 5A 0E").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakGlobals_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
+		g_pPakLoadJobID = reinterpret_cast<JobID_t*>(&*g_pLoadedPakCount - 2);
 
 		g_pPakFifoLock         = p_JT_HelpWithAnything.Offset(0x155).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<JobFifoLock_s*>();
 		g_pPakFifoLockWrapper  = p_JT_HelpWithAnything.Offset(0x1BC).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
