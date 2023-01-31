@@ -23,6 +23,9 @@ namespace VSquirrel
 		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
 		SQRESULT ShutdownHostGame(HSQUIRRELVM v);
+#ifndef DEDICATED
+		SQRESULT IsClientDLL(HSQUIRRELVM v);
+#endif // !DEDICATED
 #ifndef CLIENT_DLL
 		SQRESULT KickPlayerByName(HSQUIRRELVM v);
 		SQRESULT KickPlayerById(HSQUIRRELVM v);
@@ -36,6 +39,7 @@ namespace VSquirrel
 	{
 		SQRESULT GetNumHumanPlayers(HSQUIRRELVM v);
 		SQRESULT GetNumFakeClients(HSQUIRRELVM v);
+		SQRESULT IsDedicated(HSQUIRRELVM v);
 	}
 #endif // !CLIENT_DLL
 #ifndef DEDICATED

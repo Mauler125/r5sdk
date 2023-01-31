@@ -76,6 +76,8 @@ void Script_RegisterServerFunctions(CSquirrelVM* s)
 	Script_RegisterFunction(s, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SHARED::UnbanPlayer);
 
 	Script_RegisterFunction(s, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+
+	Script_RegisterFunction(s, "IsDedicated", "Script_IsDedicated", "Returns whether this is a dedicated server", "bool", "", &VSquirrel::SERVER::IsDedicated);
 }
 #endif // !CLIENT_DLL
 
@@ -137,6 +139,7 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 	Script_RegisterFunction(s, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SHARED::UnbanPlayer);
 #endif // !CLIENT_DLL
 	Script_RegisterFunction(s, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+	Script_RegisterFunction(s, "IsClientDLL", "Script_IsClientDLL", "Returns whether this build is client only", "bool", "", &VSquirrel::SHARED::IsClientDLL);
 }
 
 //---------------------------------------------------------------------------------

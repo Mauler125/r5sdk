@@ -156,6 +156,21 @@ namespace VSquirrel
 
             return SQ_OK;
         }
+#ifndef DEDICATED
+        //-----------------------------------------------------------------------------
+        // Purpose: checks whether this SDK build is a client dll
+        //-----------------------------------------------------------------------------
+        SQRESULT IsClientDLL(HSQUIRRELVM v)
+        {
+#ifdef CLIENT_DLL
+            constexpr SQBool bClientOnly = true;
+#else
+            constexpr SQBool bClientOnly = false;
+#endif
+            sq_pushbool(v, bClientOnly);
+            return SQ_OK;
+        }
+#endif // !DEDICATED
     }
 #ifndef CLIENT_DLL
     namespace SERVER
@@ -175,6 +190,15 @@ namespace VSquirrel
         SQRESULT GetNumFakeClients(HSQUIRRELVM v)
         {
             sq_pushinteger(v, g_pServer->GetNumFakeClients());
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: checks whether this SDK build is a dedicated server
+        //-----------------------------------------------------------------------------
+        SQRESULT IsDedicated(HSQUIRRELVM v)
+        {
+            sq_pushbool(v, *s_bDedicated);
             return SQ_OK;
         }
     }
