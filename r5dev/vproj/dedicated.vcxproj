@@ -299,7 +299,6 @@
     <ClInclude Include="..\squirrel\sqstdaux.h" />
     <ClInclude Include="..\squirrel\sqtype.h" />
     <ClInclude Include="..\squirrel\sqvm.h" />
-    <ClInclude Include="..\studiorender\studiorendercontext.h" />
     <ClInclude Include="..\thirdparty\detours\include\detours.h" />
     <ClInclude Include="..\thirdparty\detours\include\detver.h" />
     <ClInclude Include="..\thirdparty\detours\include\idetour.h" />

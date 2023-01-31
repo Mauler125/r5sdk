@@ -440,6 +440,9 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VMaterialGlue);
 	REGISTER(VShaderGlue);
 
+	// Studio
+	REGISTER(VStudioRenderContext);
+
 	// VGui
 	REGISTER(VEngineVGui); // REGISTER CLIENT ONLY!
 	REGISTER(VFPSPanel); // REGISTER CLIENT ONLY!
@@ -460,15 +463,19 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 
 #endif // !CLIENT_DLL
 
+	// Engine/client
+	REGISTER(VClient);
+#ifndef DEDICATED
+	REGISTER(VClientState);
+	REGISTER(VCL_Main);
+#endif // !DEDICATED
+
 	// Squirrel
 	REGISTER(VSqInit);
 	REGISTER(VSqapi);
 	REGISTER(HSQVM);
 	REGISTER(VSquirrelVM);
 	REGISTER(VSqStdAux);
-
-	// Studio
-	REGISTER(VStudioRenderContext);
 
 	// RTech
 	REGISTER(V_RTechGame);
@@ -478,13 +485,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #ifndef DEDICATED
 	REGISTER(V_Rui);
 	REGISTER(V_CL_Ents_Parse); // REGISTER CLIENT ONLY!
-#endif // !DEDICATED
-
-	// Engine/client
-	REGISTER(VClient);
-#ifndef DEDICATED
-	REGISTER(VClientState);
-	REGISTER(VCL_Main);
 #endif // !DEDICATED
 
 	// Engine
