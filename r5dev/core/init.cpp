@@ -513,9 +513,11 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VGL_Screen);
 #endif // !DEDICATED
 
+#ifndef CLIENT_DLL
 	// !!! SERVER DLL ONLY !!!
 	REGISTER(HSV_Main);
 	// !!! END SERVER DLL ONLY !!!
+#endif // !CLIENT_DLL
 
 #ifndef DEDICATED
 	REGISTER(VGame); // REGISTER CLIENT ONLY!
