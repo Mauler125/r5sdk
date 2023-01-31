@@ -584,6 +584,26 @@ long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CCrashHandler::Init()
+{
+	m_hExceptionHandler = AddVectoredExceptionHandler(TRUE, BottomLevelExceptionFilter);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CCrashHandler::Shutdown()
+{
+	if (m_hExceptionHandler)
+	{
+		RemoveVectoredExceptionHandler(m_hExceptionHandler);
+		m_hExceptionHandler = nullptr;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 CCrashHandler::CCrashHandler()
 	: m_ppStackTrace()
 	, m_pExceptionPointers(nullptr)
@@ -593,7 +613,7 @@ CCrashHandler::CCrashHandler()
 	, m_bExceptionHandled(false)
 	, m_bCrashMsgCreated(false)
 {
-	m_hExceptionHandler = AddVectoredExceptionHandler(TRUE, BottomLevelExceptionFilter);
+	Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -601,7 +621,7 @@ CCrashHandler::CCrashHandler()
 //-----------------------------------------------------------------------------
 CCrashHandler::~CCrashHandler()
 {
-	RemoveVectoredExceptionHandler(m_hExceptionHandler);
+	Shutdown();
 }
 
 CCrashHandler* g_CrashHandler = new CCrashHandler();

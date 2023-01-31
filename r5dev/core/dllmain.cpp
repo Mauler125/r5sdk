@@ -11,6 +11,7 @@
 #include "windows/system.h"
 #include "mathlib/mathlib.h"
 #include "launcher/launcher.h"
+#include "public/utility/crashhandler.h"
 
 //#############################################################################
 // INITIALIZATION
@@ -108,6 +109,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
             if (!s_bNoWorkerDll)
             {
                 SDK_Init();
+            }
+            else // Destroy crash handler.
+            {
+                g_CrashHandler->~CCrashHandler();
+                g_CrashHandler = nullptr;
             }
             break;
         }
