@@ -941,7 +941,7 @@ FORCEINLINE void StoreAligned3SIMD(VectorAligned* RESTRICT pSIMD, const fltx4& a
 //    pDestination[0],  pDestination[1],  pDestination[2],  pDestination[3]
 // The Vectors are assumed to be unaligned.
 FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
-	Vector* const pDestination)
+	Vector3D* const pDestination)
 {
 	StoreUnaligned3SIMD(pDestination->Base(), a);
 	StoreUnaligned3SIMD((pDestination + 1)->Base(), b);
@@ -955,7 +955,7 @@ FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 
 // The Vectors are assumed to start on an ALIGNED address, that is, 
 // pDestination is 16-byte aligned (though obviously pDestination+1 is not).
 FORCEINLINE void StoreFourAlignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
-	Vector* const pDestination)
+	Vector3D* const pDestination)
 {
 	StoreUnaligned3SIMD(pDestination->Base(), a);
 	StoreUnaligned3SIMD((pDestination + 1)->Base(), b);
@@ -1975,7 +1975,7 @@ FORCEINLINE fltx4 LoadGatherSIMD(const float& x, const float& y, const float& z,
 //    pDestination[0],  pDestination[1],  pDestination[2],  pDestination[3]
 // The Vectors are assumed to be unaligned.
 FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
-	Vector* const pDestination)
+	Vector3D* const pDestination)
 {
 	StoreUnaligned3SIMD(pDestination->Base(), a);
 	StoreUnaligned3SIMD((pDestination + 1)->Base(), b);
@@ -1989,7 +1989,7 @@ FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 
 // The Vectors are assumed to start on an ALIGNED address, that is, 
 // pDestination is 16-byte aligned (though obviously pDestination+1 is not).
 FORCEINLINE void StoreFourAlignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
-	Vector* const pDestination)
+	Vector3D* const pDestination)
 {
 	StoreUnaligned3SIMD(pDestination->Base(), a);
 	StoreUnaligned3SIMD((pDestination + 1)->Base(), b);
@@ -3029,7 +3029,7 @@ FORCEINLINE void StoreAligned3SIMD(VectorAligned* RESTRICT pSIMD, const fltx4& a
 //    pDestination[0],  pDestination[1],  pDestination[2],  pDestination[3]
 // The Vectors are assumed to be unaligned.
 FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
-	Vector* const pDestination)
+	Vector3D* const pDestination)
 {
 	// since four Vec3s == 48 bytes, we can use full-vector stores here, so long as 
 	// we arrange the data properly first.
@@ -3054,7 +3054,7 @@ FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 
 // The Vectors are assumed to start on an ALIGNED address, that is, 
 // pDestination is 16-byte aligned (though obviously pDestination+1 is not).
 FORCEINLINE void StoreFourAlignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
-	Vector* const pDestination)
+	Vector3D* const pDestination)
 {
 	// since four Vec3s == 48 bytes, we can use full-vector stores here, so long as 
 	// we arrange the data properly first.
@@ -4986,7 +4986,7 @@ public:
 	}
 
 #if !defined(__SPU__)
-	/// Store a FourVectors into four NON-CONTIGUOUS Vector*'s. 
+	/// Store a FourVectors into four NON-CONTIGUOUS Vector3D*'s. 
 	FORCEINLINE void StoreUnalignedVector3SIMD(Vector3D* RESTRICT out0, Vector3D* RESTRICT out1, Vector3D* RESTRICT out2, Vector3D* RESTRICT out3) const;
 #endif
 
@@ -5299,7 +5299,7 @@ FORCEINLINE FourVectors VectorNormalizeFast(const FourVectors& src)
 }
 
 #if !defined(__SPU__)
-/// Store a FourVectors into four NON-CONTIGUOUS Vector*'s. 
+/// Store a FourVectors into four NON-CONTIGUOUS Vector3D*'s. 
 FORCEINLINE void FourVectors::StoreUnalignedVector3SIMD(Vector3D* RESTRICT out0, Vector3D* RESTRICT out1, Vector3D* RESTRICT out2, Vector3D* RESTRICT out3) const
 {
 #ifdef _X360
