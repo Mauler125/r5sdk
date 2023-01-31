@@ -198,7 +198,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT IsDedicated(HSQUIRRELVM v)
         {
-            sq_pushbool(v, *s_bDedicated);
+            sq_pushbool(v, *s_bIsDedicated);
             return SQ_OK;
         }
     }
