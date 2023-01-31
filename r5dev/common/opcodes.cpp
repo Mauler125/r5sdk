@@ -391,5 +391,5 @@ void RuntimePtc_Init() /* .TEXT */
 	#endif
 	};
 
-	p_CPakFile_LoadPak_OpenFileOffset.Patch(starPakOpenFile);
+	p_CPakFile_OpenFileOffset.Patch(starPakOpenFile);
 }

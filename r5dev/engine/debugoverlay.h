@@ -189,7 +189,7 @@ class VDebugOverlay : public IDetour
 		LogFunAdr("RenderLine", p_RenderLine.GetPtr());
 		LogFunAdr("RenderBox", p_RenderBox.GetPtr());
 		LogFunAdr("RenderWireframeSphere", p_RenderWireframeSphere.GetPtr());
-		LogVarAdr("s_pOverlays", reinterpret_cast<uintptr_t>(s_pOverlays));
+		LogVarAdr("s_Overlays", reinterpret_cast<uintptr_t>(s_pOverlays));
 		LogVarAdr("s_OverlayMutex", reinterpret_cast<uintptr_t>(s_OverlayMutex));
 		LogVarAdr("g_nOverlayTickCount", reinterpret_cast<uintptr_t>(g_nOverlayTickCount));
 		LogVarAdr("g_nRenderTickCount", reinterpret_cast<uintptr_t>(g_nRenderTickCount));

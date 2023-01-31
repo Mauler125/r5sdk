@@ -34,7 +34,7 @@ inline auto CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void* t
 inline CMemory p_CPakFile_UnloadPak;
 inline auto CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void (*)(RPakHandle_t handle)>();
 
-inline CMemory p_CPakFile_LoadPak_OpenFileOffset;
+inline CMemory p_CPakFile_OpenFileOffset; // Offset to inlined 'CPakFile::LoadPak_OpenFile'.
 
 class CPakFile
 {
@@ -54,7 +54,7 @@ class V_RTechGame : public IDetour
 		LogFunAdr("CPakFile::LoadAsync", p_CPakFile_LoadAsync.GetPtr());
 		LogFunAdr("CPakFile::LoadPak", p_CPakFile_LoadPak.GetPtr());
 		LogFunAdr("CPakFile::UnloadPak", p_CPakFile_UnloadPak.GetPtr());
-		LogConAdr("CPakFile::LoadPak_OpenFileOffset", p_CPakFile_LoadPak_OpenFileOffset.GetPtr());
+		LogFunAdr("CPakFile::OpenFile", p_CPakFile_OpenFileOffset.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -78,7 +78,7 @@ class V_RTechGame : public IDetour
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		p_CPakFile_LoadPak_OpenFileOffset = g_GameDll.FindPatternSIMD("48 89 7C 24 30 C7 44 24 28 ?? ?? ?? 40"); /*48 89 7C 24 30 C7 44 24 28 00 00 00 40*/
+		p_CPakFile_OpenFileOffset = g_GameDll.FindPatternSIMD("48 89 7C 24 30 C7 44 24 28 ?? ?? ?? 40"); /*48 89 7C 24 30 C7 44 24 28 00 00 00 40*/
 	}
 	virtual void Attach(void) const;
 	virtual void Detach(void) const;
