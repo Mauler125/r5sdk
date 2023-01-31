@@ -61,7 +61,7 @@ class VNet : public IDetour
 		LogFunAdr("NET_ReceiveDatagram", p_NET_ReceiveDatagram.GetPtr());
 		LogFunAdr("NET_SendDatagram", p_NET_SendDatagram.GetPtr());
 		LogFunAdr("NET_PrintFunc", p_NET_PrintFunc.GetPtr());
-		LogVarAdr("g_pNetKey", g_pNetKey);
+		LogVarAdr("g_NetKey", g_pNetKey);
 	}
 	virtual void GetFun(void) const
 	{
