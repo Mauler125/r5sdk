@@ -65,7 +65,7 @@ ThreadId_t ThreadGetCurrentId();
 //
 //-----------------------------------------------------------------------------
 
-LONG ThreadInterlockedCompareExchange64(LONG volatile* pDest, int64 value, int64 comperand);
+int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand);
 bool ThreadInterlockedAssignIf(LONG volatile* p, int32 value, int32 comperand);
 int64 ThreadInterlockedCompareExchange64(int64 volatile* pDest, int64 value, int64 comperand);
 bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value, int64 comperand);

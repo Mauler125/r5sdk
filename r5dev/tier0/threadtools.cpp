@@ -9,7 +9,7 @@
 #include "core/stdafx.h"
 #include "threadtools.h"
 
-LONG ThreadInterlockedCompareExchange64(LONG volatile* pDest, int64 value, int64 comperand)
+int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand)
 {
 	return _InterlockedCompareExchange(pDest, comperand, value);
 }
