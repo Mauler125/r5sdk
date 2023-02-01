@@ -8,19 +8,19 @@ protected:
     typedef unsigned int uint32;
     typedef unsigned long long uint64;
  
-    const static uint32 sha256_k[];
-    static const unsigned int SHA224_256_BLOCK_SIZE = (512/8);
+    static const uint32 sha256_k[];
+    static const uint32 SHA224_256_BLOCK_SIZE = (512/8);
 public:
     void init();
-    void update(const unsigned char *message, unsigned int len);
-    void final(unsigned char *digest);
-    static const unsigned int DIGEST_SIZE = ( 256 / 8);
+    void update(const uint8* message, uint64 len);
+    void final(uint8* digest);
+    static const uint32 DIGEST_SIZE = ( 256 / 8);
  
 protected:
-    void transform(const unsigned char *message, unsigned int block_nb);
-    unsigned int m_tot_len;
-    unsigned int m_len;
-    unsigned char m_block[2*SHA224_256_BLOCK_SIZE];
+    void transform(const uint8* message, uint64 block_nb);
+    uint64 m_tot_len;
+    uint64 m_len;
+    uint8 m_block[2*SHA224_256_BLOCK_SIZE];
     uint32 m_h[8];
 };
  
