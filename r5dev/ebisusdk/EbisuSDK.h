@@ -16,8 +16,8 @@ inline uint64_t* g_NucleusID = nullptr;
 inline char* g_NucleusToken = nullptr; /*SIZE = 1024*/
 inline char* g_OriginAuthCode = nullptr; /*SIZE = 256*/
 inline int* g_OriginErrorLevel = nullptr;
-inline bool* g_bEbisuSDKInitialized = nullptr;
-inline bool* g_bEbisuSDKCvarInitialized = nullptr;
+inline bool* g_EbisuSDKInit = nullptr;
+inline bool* g_EbisuProfileInit = nullptr;
 //#endif // DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,10 +38,10 @@ class VEbisuSDK : public IDetour
 		LogFunAdr("EbisuSDK_SetState", p_EbisuSDK_SetState.GetPtr());
 		LogVarAdr("g_NucleusID", reinterpret_cast<uintptr_t>(g_NucleusID));
 		LogVarAdr("g_NucleusToken", reinterpret_cast<uintptr_t>(g_NucleusToken));
-		LogVarAdr("g_OriginErrorLevel", reinterpret_cast<uintptr_t>(g_OriginErrorLevel));
 		LogVarAdr("g_OriginAuthCode", reinterpret_cast<uintptr_t>(g_OriginAuthCode));
-		LogVarAdr("g_bEbisuSDKInitialized", reinterpret_cast<uintptr_t>(g_bEbisuSDKInitialized));
-		LogVarAdr("g_bEbisuSDKCvarInitialized", reinterpret_cast<uintptr_t>(g_bEbisuSDKCvarInitialized));
+		LogVarAdr("g_OriginErrorLevel", reinterpret_cast<uintptr_t>(g_OriginErrorLevel));
+		LogVarAdr("g_EbisuProfileInit", reinterpret_cast<uintptr_t>(g_EbisuProfileInit));
+		LogVarAdr("g_EbisuSDKInit", reinterpret_cast<uintptr_t>(g_EbisuSDKInit));
 	}
 	virtual void GetFun(void) const
 	{
@@ -64,8 +64,8 @@ class VEbisuSDK : public IDetour
 #endif
 		g_OriginAuthCode = p_EbisuSDK_SetState.Offset(0x1BF).FindPatternSelf("0F B6", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<char*>();
 		g_OriginErrorLevel = p_EbisuSDK_SetState.Offset(0x20).FindPatternSelf("89 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
-		g_bEbisuSDKInitialized = p_EbisuSDK_Tier0_Init.Offset(0x0).FindPatternSelf("80 3D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
-		g_bEbisuSDKCvarInitialized = p_EbisuSDK_CVar_Init.Offset(0x12A).FindPatternSelf("C6 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
+		g_EbisuProfileInit = p_EbisuSDK_CVar_Init.Offset(0x12A).FindPatternSelf("C6 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
+		g_EbisuSDKInit = p_EbisuSDK_Tier0_Init.Offset(0x0).FindPatternSelf("80 3D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

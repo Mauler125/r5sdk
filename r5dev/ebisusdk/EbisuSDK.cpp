@@ -8,9 +8,9 @@ bool IsOriginInitialized()
 {
 #ifndef DEDICATED
 	if ((!(*g_OriginErrorLevel)
-		&& (*g_bEbisuSDKInitialized)
+		&& (*g_EbisuSDKInit)
 		&& (*g_NucleusID)
-		&& (*g_bEbisuSDKCvarInitialized)))
+		&& (*g_EbisuProfileInit)))
 	//	&& (*g_OriginAuthCode)
 	//		&& (g_NucleusToken[0])))
 #endif // DEDICATED
