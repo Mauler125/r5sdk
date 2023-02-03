@@ -3,25 +3,26 @@
 class CIOStream
 {
 public:
-	enum class Mode_t
+	enum Mode_t
 	{
 		NONE = 0,
-		READ,
-		WRITE
+		READ = std::ios::in,
+		WRITE = std::ios::out,
+		BINARY = std::ios::binary,
 	};
 
 	CIOStream();
-	CIOStream(const fs::path& fsFileFullPath, Mode_t eMode);
+	CIOStream(const fs::path& fsFileFullPath, int nFlags);
 	~CIOStream();
 
-	bool Open(const fs::path& fsFileFullPath, Mode_t eMode);
+	bool Open(const fs::path& fsFileFullPath, int nFlags);
 	void Close();
 	void Flush();
 
 	void ComputeFileSize();
 
-	std::streampos GetPosition();
-	void SetPosition(std::streampos nOffset);
+	std::streampos GetPosition(Mode_t mode);
+	void SetPosition(std::streampos nOffset, Mode_t mode);
 
 	const std::filebuf* GetData() const;
 	const std::streampos GetSize() const;
@@ -64,7 +65,7 @@ public:
 		m_Stream.read(reinterpret_cast<char*>(&value), sizeof(value));
 		return value;
 	}
-	string ReadString();
+	bool ReadString(string& svOut);
 
 	//-----------------------------------------------------------------------------
 	// Purpose: writes any value to the file
@@ -76,6 +77,7 @@ public:
 			return;
 
 		m_Stream.write(reinterpret_cast<const char*>(&tValue), sizeof(tValue));
+		m_nSize += sizeof(tValue);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -88,12 +90,12 @@ public:
 			return;
 
 		m_Stream.write(reinterpret_cast<const char*>(tValue), nSize);
+		m_nSize += nSize;
 	}
-	void WriteString(const string& svInput);
+	bool WriteString(const string& svInput);
 
 private:
-
-	std::streampos  m_nSize;        // Size of ifstream.
-	Mode_t          m_eCurrentMode; // Current active mode.
-	fstream         m_Stream;       // I/O file stream.
+	std::streampos  m_nSize;  // File size.
+	int             m_nFlags; // Stream flags.
+	fstream         m_Stream; // I/O stream.
 };

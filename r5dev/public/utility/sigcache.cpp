@@ -93,8 +93,8 @@ bool CSigCache::LoadCache(const string& svCacheFile)
 		return false;
 	}
 
-	CIOStream reader(svCacheFile, CIOStream::Mode_t::READ);
-	if (!reader.IsReadable())
+	CIOStream reader;
+	if (!reader.Open(svCacheFile, CIOStream::READ | CIOStream::BINARY))
 	{
 		return false;
 	}
@@ -127,13 +127,17 @@ bool CSigCache::LoadCache(const string& svCacheFile)
 	header.m_nBlobSizeDisk = reader.Read<uint64_t>();
 	header.m_nBlobChecksum = reader.Read<uint32_t>();
 
-	uint32_t nAdler32;
-
 	std::unique_ptr<uint8_t[]> pSrcBuf(new uint8_t[header.m_nBlobSizeDisk]);
 	std::unique_ptr<uint8_t[]> pDstBuf(new uint8_t[header.m_nBlobSizeMem]);
 
 	reader.Read<uint8_t>(*pSrcBuf.get(), header.m_nBlobSizeDisk);
-	DecompressBlob(header.m_nBlobSizeDisk, header.m_nBlobSizeMem, nAdler32, pSrcBuf.get(), pDstBuf.get());
+	uint32_t nAdler32;
+
+	if (!DecompressBlob(header.m_nBlobSizeDisk, header.m_nBlobSizeMem, 
+		nAdler32, pSrcBuf.get(), pDstBuf.get()))
+	{
+		return false;
+	}
 
 	if (header.m_nBlobChecksum != nAdler32)
 	{
@@ -161,10 +165,11 @@ bool CSigCache::WriteCache(const string& svCacheFile) const
 		return false;
 	}
 
-	CIOStream writer(svCacheFile, CIOStream::Mode_t::WRITE);
-	if (!writer.IsWritable())
+	CIOStream writer;
+	if (!writer.Open(svCacheFile, CIOStream::WRITE | CIOStream::BINARY))
 	{
-		Error(eDLL_T::COMMON, NO_ERROR, "Failed to write cache file: (read-only?)\n");
+		Error(eDLL_T::COMMON, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", 
+			__FUNCTION__, svCacheFile.c_str());
 		return false;
 	}
 
@@ -179,7 +184,8 @@ bool CSigCache::WriteCache(const string& svCacheFile) const
 	header.m_nBlobSizeMem = svBuffer.size();
 	uint64_t nCompSize = svBuffer.size();
 
-	if (!CompressBlob(svBuffer.size(), nCompSize, header.m_nBlobChecksum, reinterpret_cast<const uint8_t*>(svBuffer.data()), pBuffer.get()))
+	if (!CompressBlob(svBuffer.size(), nCompSize, header.m_nBlobChecksum, 
+		reinterpret_cast<const uint8_t*>(svBuffer.data()), pBuffer.get()))
 	{
 		return false;
 	}
@@ -201,7 +207,8 @@ bool CSigCache::WriteCache(const string& svCacheFile) const
 //			*pDstBuf - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::DecompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
+bool CSigCache::DecompressBlob(const size_t nSrcLen, size_t& nDstLen, 
+	uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
 {
 	lzham_decompress_params lzDecompParams{};
 	lzDecompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
@@ -228,7 +235,8 @@ bool CSigCache::DecompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& 
 //			*pDstBuf - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::CompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
+bool CSigCache::CompressBlob(const size_t nSrcLen, size_t& nDstLen, 
+	uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
 {
 	lzham_compress_params lzCompParams{};
 	lzCompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
