@@ -42,6 +42,7 @@ public:
 private:
     bool m_bInitialized;
     bool m_bReclaimFocus;
+    bool m_bReclaimFocusTokenField;
     bool m_bQueryListNonRecursive; // When set, refreshes the server list once the next frame.
     bool m_bQueryGlobalBanList;
     char m_szServerAddressBuffer[256];

@@ -45,6 +45,7 @@ CBrowser::CBrowser(void)
     , m_bActivate(false)
     , m_bInitialized(false)
     , m_bReclaimFocus(false)
+    , m_bReclaimFocusTokenField(false)
     , m_bQueryListNonRecursive(false)
     , m_bQueryGlobalBanList(true)
     , m_flFadeAlpha(0.f)
@@ -176,8 +177,9 @@ void CBrowser::RunTask()
     }
     else // Refresh server list the next time 'm_bActivate' evaluates to true.
     {
-        m_bQueryListNonRecursive = true;
         m_bReclaimFocus = true;
+        m_bReclaimFocusTokenField = true;
+        m_bQueryListNonRecursive = true;
     }
 }
 
@@ -408,6 +410,12 @@ void CBrowser::HiddenServersModal(void)
         ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", &m_svHiddenServerToken);
         ImGui::PopItemWidth();
 
+        if (m_bReclaimFocusTokenField)
+        {
+            ImGui::SetKeyboardFocusHere(-1); // -1 means previous widget.
+            m_bReclaimFocusTokenField = false;
+        }
+
         ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f)); // Place a dummy, basically making space inserting a blank element.
 
         ImGui::TextColored(m_ivHiddenServerMessageColor, m_svHiddenServerRequestMessage.c_str());
@@ -416,6 +424,8 @@ void CBrowser::HiddenServersModal(void)
         if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
         {
             m_svHiddenServerRequestMessage.clear();
+            m_bReclaimFocusTokenField = true;
+
             if (!m_svHiddenServerToken.empty())
             {
                 NetGameServer_t server;
@@ -443,6 +453,8 @@ void CBrowser::HiddenServersModal(void)
         if (ImGui::Button("Close", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
         {
             m_svHiddenServerRequestMessage.clear();
+            m_bReclaimFocusTokenField = true;
+
             ImGui::CloseCurrentPopup();
         }
 
@@ -452,6 +464,8 @@ void CBrowser::HiddenServersModal(void)
     else if (!bModalOpen)
     {
         m_svHiddenServerRequestMessage.clear();
+        m_bReclaimFocusTokenField = true;
+
         ImGui::PopStyleVar(nVars);
     }
     else
