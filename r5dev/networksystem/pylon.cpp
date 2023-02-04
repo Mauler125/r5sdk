@@ -149,60 +149,54 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
     if (bDebugLog)
     {
         DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, status);
-        try
-        {
-            string jsResultBody = nlohmann::json::parse(svResponseBuf).dump(4);
-            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, jsResultBody.c_str());
-        }
-        catch (const std::exception& ex)
-        {
-            DevMsg(eDLL_T::ENGINE, "%s - Encountered error parsing Comp-server response body: '%s'\n", __FUNCTION__, ex.what());
-        }
     }
 
     try
     {
         if (status == 200) // STATUS_OK
         {
-            if (!svResponseBuf.empty())
-            {
-                nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
+            nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
 
-                if (jsResultBody["success"].is_boolean() && jsResultBody["success"])
+            if (bDebugLog)
+            {
+                string svResultBody = jsResultBody.dump(4);
+                DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, svResultBody.c_str());
+            }
+
+            if (jsResultBody["success"].is_boolean() && jsResultBody["success"])
+            {
+                slOutServer = NetGameServer_t
                 {
-                    slOutServer = NetGameServer_t
-                    {
-                            jsResultBody["server"].value("name",""),
-                            jsResultBody["server"].value("description",""),
-                            jsResultBody["server"].value("hidden","false") == "true",
-                            jsResultBody["server"].value("map",""),
-                            jsResultBody["server"].value("playlist",""),
-                            jsResultBody["server"].value("ip",""),
-                            jsResultBody["server"].value("port", ""),
-                            jsResultBody["server"].value("key",""),
-                            jsResultBody["server"].value("checksum",""),
-                            jsResultBody["server"].value("version", SDK_VERSION),
-                            jsResultBody["server"].value("playerCount", ""),
-                            jsResultBody["server"].value("maxPlayers", ""),
-                            jsResultBody["server"].value("timeStamp", 0),
-                            jsResultBody["server"].value("publicRef", ""),
-                            jsResultBody["server"].value("cachedId", ""),
-                    };
-                    return true;
+                        jsResultBody["server"].value("name",""),
+                        jsResultBody["server"].value("description",""),
+                        jsResultBody["server"].value("hidden","false") == "true",
+                        jsResultBody["server"].value("map",""),
+                        jsResultBody["server"].value("playlist",""),
+                        jsResultBody["server"].value("ip",""),
+                        jsResultBody["server"].value("port", ""),
+                        jsResultBody["server"].value("key",""),
+                        jsResultBody["server"].value("checksum",""),
+                        jsResultBody["server"].value("version", SDK_VERSION),
+                        jsResultBody["server"].value("playerCount", ""),
+                        jsResultBody["server"].value("maxPlayers", ""),
+                        jsResultBody["server"].value("timeStamp", 0),
+                        jsResultBody["server"].value("publicRef", ""),
+                        jsResultBody["server"].value("cachedId", ""),
+                };
+                return true;
+            }
+            else
+            {
+                if (jsResultBody["error"].is_string())
+                {
+                    svOutMessage = jsResultBody["error"].get<string>();
                 }
                 else
                 {
-                    if (jsResultBody["error"].is_string())
-                    {
-                        svOutMessage = jsResultBody["error"].get<string>();
-                    }
-                    else
-                    {
-                        svOutMessage = fmt::format("Unknown error with status: {:d}", status);
-                    }
-
-                    return false;
+                    svOutMessage = fmt::format("Unknown error with status: {:d}", status);
                 }
+
+                return false;
             }
         }
         else
@@ -271,7 +265,6 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
     string svResponseBuf;
 
     const bool bDebugLog = pylon_showdebuginfo->GetBool();
-
     if (bDebugLog)
     {
         DevMsg(eDLL_T::ENGINE, "%s - Sending post host request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
@@ -286,15 +279,6 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
     if (bDebugLog)
     {
         DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, status);
-        try
-        {
-            string svResultBody = nlohmann::json::parse(svResponseBuf).dump(4);
-            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, svResultBody.c_str());
-        }
-        catch (const std::exception& ex)
-        {
-            DevMsg(eDLL_T::ENGINE, "%s - Encountered error parsing Comp-server response body: '%s'\n", __FUNCTION__, ex.what());
-        }
     }
 
     try
@@ -302,6 +286,13 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
         if (status == 200) // STATUS_OK
         {
             nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
+
+            if (bDebugLog)
+            {
+                string svResultBody = jsResultBody.dump(4);
+                DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, svResultBody.c_str());
+            }
+
             if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
             {
                 if (jsResultBody["token"].is_string())
@@ -368,25 +359,45 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
     return false;
 }
 
+#ifdef DEDICATED
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
 // Input  : &netGameServer - 
 // Output : Returns true on success, false otherwise.
 //-----------------------------------------------------------------------------
-bool CPylon::KeepAlive(const NetGameServer_t& netGameServer) const
+bool CPylon::KeepAlive(const NetGameServer_t& netGameServer)
 {
-#ifndef CLIENT_DLL
-    if (g_pServer->IsActive() && sv_pylonVisibility->GetBool()) // Check for active game.
+    if (!g_pServer->IsActive() || !sv_pylonVisibility->GetBool()) // Check for active game.
     {
-        string m_szHostToken;
-        string m_szHostRequestMessage;
-
-        bool result = PostServerHost(m_szHostRequestMessage, m_szHostToken, netGameServer);
-        return result;
+        return false;
     }
-#endif // !CLIENT_DLL
-    return false;
+
+    string svHostToken;
+    string svErrorMsg;
+
+    bool result = PostServerHost(svErrorMsg, svHostToken, netGameServer);
+    if (!result)
+    {
+        if (!svErrorMsg.empty() && m_ErrorMsg.compare(svErrorMsg) != NULL)
+        {
+            m_ErrorMsg = svErrorMsg;
+            Error(eDLL_T::SERVER, NO_ERROR, "%s\n", svErrorMsg.c_str());
+        }
+    }
+    else // Attempt to log the token, if there is one.
+    {
+        if (!svHostToken.empty() && m_Token.compare(svHostToken) != NULL)
+        {
+            m_Token = svHostToken;
+            DevMsg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
+                g_svReset.c_str(), g_svGreyB.c_str(),
+                svHostToken.c_str(), g_svReset.c_str());
+        }
+    }
+
+    return result;
 }
+#endif // DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: Checks if client is banned on the comp server.

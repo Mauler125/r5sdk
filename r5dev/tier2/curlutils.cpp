@@ -79,7 +79,9 @@ bool CURLHandleError(CURL* curl, CURLcode res, string& outMessage)
     const char* curlError = curl_easy_strerror(res);
     Error(eDLL_T::ENGINE, NO_ERROR, "CURL: %s\n", curlError);
 
+#ifndef DEDICATED // Error already gets logged to the console.
     outMessage = curlError;
+#endif // !DEDICATED
     curl_easy_cleanup(curl);
 
     return false;
