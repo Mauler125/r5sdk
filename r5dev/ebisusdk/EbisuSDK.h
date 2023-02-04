@@ -24,10 +24,6 @@ inline bool* g_EbisuProfileInit = nullptr;
 bool IsOriginInitialized();
 void HEbisuSDK_Init();
 
-void EbisuSDK_Attach();
-void EbisuSDK_Detach();
-
-
 ///////////////////////////////////////////////////////////////////////////////
 class VEbisuSDK : public IDetour
 {
