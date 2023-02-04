@@ -22,8 +22,6 @@ public:
 	void Think(void);
 	void RunFrame(void);
 
-	void Send(const std::string& svMessage) const;
-	void Send(const SocketHandle_t hSocket, const std::string& svMessage) const;
 	void Send(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId = -4);
 	void Send(const SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId = -4);
 	void Recv(void);
@@ -46,6 +44,8 @@ public:
 	bool IsInitialized(void) const;
 
 private:
+	void Send(const std::string& svMessage) const;
+	void Send(const SocketHandle_t hSocket, const std::string& svMessage) const;
 
 	bool                     m_bInitialized;
 	int                      m_nConnIndex;

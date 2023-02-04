@@ -81,7 +81,7 @@ void CRConServer::Think(void)
 		for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
 		{
 			const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
-			if (strcmp(netAdr.ToString(true), sv_rcon_whitelist_address->GetString()) != 0) // TODO: doesn't work
+			if (strcmp(netAdr.ToString(true), sv_rcon_whitelist_address->GetString()) != 0)
 			{
 				const CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
 				if (!pData->m_bAuthorized)
@@ -195,6 +195,11 @@ void CRConServer::Send(const SocketHandle_t hSocket, const std::string& svMessag
 //-----------------------------------------------------------------------------
 void CRConServer::Send(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId)
 {
+	if (!m_bInitialized)
+	{
+		return;
+	}
+
 	if (responseType == sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG)
 	{
 		if (!sv_rcon_sendlogs->GetBool())
@@ -215,6 +220,11 @@ void CRConServer::Send(const std::string& svRspBuf, const std::string& svRspVal,
 //-----------------------------------------------------------------------------
 void CRConServer::Send(const SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId)
 {
+	if (!m_bInitialized)
+	{
+		return;
+	}
+
 	if (responseType == sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG)
 	{
 		if (!sv_rcon_sendlogs->GetBool())
