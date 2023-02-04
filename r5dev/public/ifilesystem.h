@@ -9,7 +9,7 @@
 typedef void* FileHandle_t;
 typedef void* FileNameHandle_t; // !TODO: Check if this is 4 or 8 bytes (model_t was 4 bytes in mem).
 typedef void* FileCacheHandle_t;
-typedef int FileFindHandle_t;
+typedef void* FileFindHandle_t;
 
 #define FILESYSTEM_INVALID_HANDLE	( FileHandle_t )nullptr
 
