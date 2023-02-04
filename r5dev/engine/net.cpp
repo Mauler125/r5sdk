@@ -74,8 +74,8 @@ void NET_SetKey(const string& svNetKey)
 	{
 		v_NET_SetKey(g_pNetKey, g_svNetKey.c_str());
 
-		DevMsg(eDLL_T::ENGINE, "Installed NetKey: '%s%s%s'\n",
-			g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
+		DevMsg(eDLL_T::ENGINE, "Installed NetKey: %s'%s%s%s'\n",
+			g_svReset.c_str(), g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
 	}
 	else
 	{
