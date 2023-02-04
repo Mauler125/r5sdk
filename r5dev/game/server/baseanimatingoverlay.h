@@ -14,6 +14,7 @@
 
 class CBaseAnimatingOverlay : public CBaseAnimating
 {
+	char gap_11E4[8];
 	int m_maxOverlays;
 	char gap_11f4[4];
 	CAnimationLayer m_AnimOverlay;
