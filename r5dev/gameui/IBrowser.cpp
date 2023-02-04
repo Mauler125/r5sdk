@@ -94,19 +94,35 @@ void CBrowser::RunFrame(void)
     }
 
     int nVars = 0;
+    float flWidth;
+    float flHeight;
     if (m_Style == ImGuiStyle_t::MODERN)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+
+        flWidth = 621.f;
+        flHeight = 532.f;
     }
     else
     {
+        if (m_Style == ImGuiStyle_t::LEGACY)
+        {
+            flWidth = 619.f;
+            flHeight = 526.f;
+        }
+        else
+        {
+            flWidth = 618.f;
+            flHeight = 524.f;
+        }
+
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
 
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
     }
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(928.f, 524.f));    nVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(flWidth, flHeight)); nVars++;
 
     if (m_bActivate && m_bReclaimFocus) // Reclaim focus on window apparition.
     {
@@ -233,7 +249,7 @@ void CBrowser::BrowserPanel(void)
     ImGui::Separator();
 
     int iVars = 0; // Eliminate borders around server list table.
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  iVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 0.f });  iVars++;
 
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
