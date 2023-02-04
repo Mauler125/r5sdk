@@ -374,7 +374,7 @@ string CreateTimedFileName()
 
 ///////////////////////////////////////////////////////////////////////////////
 // For creating directories for output streams.
-string CreateDirectories(string svInput, bool bWindows)
+void CreateDirectories(string svInput, string* pszOutput, bool bWindows)
 {
     if (bWindows)
     {
@@ -388,12 +388,14 @@ string CreateDirectories(string svInput, bool bWindows)
     }
 
     fs::path fspPathOut(svInput);
-    string result = fspPathOut.u8string();
+
+    if (pszOutput)
+    {
+        *pszOutput = fspPathOut.u8string();
+    }
 
     fspPathOut = fspPathOut.parent_path();
     fs::create_directories(fspPathOut);
-
-    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -432,14 +434,17 @@ string ConvertToUnixPath(const string& svInput)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if input is a valid Base64.
-bool IsValidBase64(string& svInput)
+bool IsValidBase64(const string& svInput, string* psvOutput)
 {
     static const std::regex rx(R"((?:[A-Za-z0-9+\/]{4}?)*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=))");
     std::smatch mh;
 
     if (std::regex_search(svInput, mh, rx))
     {
-        svInput = mh[0].str();
+        if (psvOutput)
+        {
+            *psvOutput = mh[0].str();
+        }
         return true;
     }
     return false;

@@ -140,7 +140,7 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace, K
 
 	if (!pManifestKV)
 	{
-		Warning(eDLL_T::FS, "Invalid VPK manifest KV; unable to build entry list\n");
+		Warning(eDLL_T::FS, "Invalid VPK build manifest KV; unable to parse entry list\n");
 		return vEntryValues;
 	}
 
@@ -317,7 +317,7 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 
 	kv.RecursiveSaveToFile(uBuf, 0);
 
-	FileSystem()->CreateDirHierarchy(string(svWorkspace + "manifest/").c_str(), "GAME");
+	FileSystem()->CreateDirHierarchy(fmt::format("{:s}{:s}", svWorkspace, "manifest/").c_str(), "GAME");
 	FileSystem()->WriteFile(svPathOut.c_str(), "GAME", uBuf);
 }
 
@@ -510,7 +510,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 			}
 			else // Chunk belongs to this block.
 			{
-				const string svFilePath = CreateDirectories(svWorkspace + vEntryBlock.m_svEntryPath);
+				string svFilePath;
+				CreateDirectories(svWorkspace + vEntryBlock.m_svEntryPath, &svFilePath);
 				FileHandle_t hAsset = FileSystem()->Open(svFilePath.c_str(), "wb", "GAME");
 
 				if (!hAsset)
@@ -597,12 +598,11 @@ VPKEntryBlock_t::VPKEntryBlock_t(FileHandle_t hDirectoryFile, const string& svEn
 {
 	m_svEntryPath = svEntryPath; // Set the entry path.
 	StringReplace(m_svEntryPath, "\\", "/"); // Flip windows-style backslash to forward slash.
-	StringReplace(m_svEntryPath, " /", ""); // Remove space character representing VPK root.
+	StringReplace(m_svEntryPath, " /", "");  // Remove space character representing VPK root.
 
 	FileSystem()->Read(&m_nFileCRC, sizeof(uint32_t), hDirectoryFile);       //
 	FileSystem()->Read(&m_iPreloadSize, sizeof(uint16_t), hDirectoryFile);   //
 	FileSystem()->Read(&m_iPackFileIndex, sizeof(uint16_t), hDirectoryFile); //
-
 
 	uint16_t nMarker = 0;
 	do // Loop through all chunks in the entry and add to list.

@@ -30,12 +30,12 @@ string GetFileName(const string& svInput, bool bRemoveExtension = false, bool bW
 string RemoveFileName(const string& svInput, bool bWindows = false);
 
 string CreateTimedFileName();
-string CreateDirectories(string svInput, bool bWindows = false);
+void CreateDirectories(string svInput, string* pszOutput = nullptr, bool bWindows = false);
 
 string ConvertToWinPath(const string& svInput);
 string ConvertToUnixPath(const string& svInput);
 
-bool IsValidBase64(string& svInput);
+bool IsValidBase64(const string& svInput, string* psvOutput = nullptr);
 string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
 
