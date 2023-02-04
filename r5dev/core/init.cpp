@@ -234,21 +234,21 @@ void Systems_Shutdown()
 //
 /////////////////////////////////////////////////////
 
-void WinSock_Init()
+void Winsock_Init()
 {
 	WSAData wsaData{};
 	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (nError != 0)
 	{
-		spdlog::error("{:s}: Failed to start Winsock: ({:s})\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to start Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
-void WinSock_Shutdown()
+void Winsock_Shutdown()
 {
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		spdlog::error("{:s}: Failed to stop Winsock: ({:s})\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to stop Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
 void QuerySystemInfo()

@@ -41,7 +41,7 @@ void SDK_Init()
     Console_Init();
 #endif // !DEDICATED
     SpdLog_Init();
-    WinSock_Init(); // Initialize Winsock.
+    Winsock_Init(); // Initialize Winsock.
 
     for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
@@ -76,7 +76,7 @@ void SDK_Shutdown()
 
     curl_global_cleanup();
 
-    WinSock_Shutdown();
+    Winsock_Shutdown();
     Systems_Shutdown();
     WinSys_Shutdown();
 
