@@ -503,7 +503,7 @@ void CCrashHandler::CreateMessageProcess()
 	PEXCEPTION_RECORD pExceptionRecord = m_pExceptionPointers->ExceptionRecord;
 	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
 
-	if (pExceptionRecord->ExceptionCode == 0xC0000005 &&
+	if (pExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION &&
 		pExceptionRecord->ExceptionInformation[0] == 8 &&
 		pExceptionRecord->ExceptionInformation[1] != pContextRecord->Rip)
 	{
