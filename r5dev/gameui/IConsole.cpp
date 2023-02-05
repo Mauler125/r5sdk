@@ -286,7 +286,7 @@ void CConsole::DrawSurface(void)
     ImGui::PushItemWidth(flFooterWidthReserve - 80);
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
-        if (m_nSuggestPos != -1)
+        if (m_nSuggestPos > -1)
         {
             BuildInputFromSelected(m_vSuggest[m_nSuggestPos], m_svInputConVar);
             m_bModifyInput = true;
@@ -440,7 +440,7 @@ void CConsole::SuggestPanel(void)
             BuildInputFromSelected(suggest, svConVar);
 
             memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
-            ResetAutoComplete();
+            ClearAutoComplete();
 
             // Mutex lock is obtained here are we modify m_vHistory
             // which is used in the main and render thread.
@@ -481,7 +481,10 @@ bool CConsole::AutoComplete(void)
     // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
     if (!m_szInputBuf[0] || strstr(m_szInputBuf, ";"))
     {
-        ResetAutoComplete();
+        if (m_bSuggestActive)
+        {
+            ResetAutoComplete();
+        }
         return false;
     }
 
@@ -559,9 +562,7 @@ void CConsole::ResetAutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClearAutoComplete(void)
 {
-    m_bCanAutoComplete = false;
-    m_nSuggestPos = -1;
-    m_bSuggestUpdate = true;
+    ResetAutoComplete();
     m_vSuggest.clear();
 }
 
@@ -969,6 +970,8 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             {
                 iData->InsertChars(0, m_svInputConVar.c_str());
                 m_svInputConVar.clear();
+
+                ClearAutoComplete();
             }
             m_bModifyInput = false;
         }
