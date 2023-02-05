@@ -48,8 +48,8 @@
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
 #include "client/vengineclient_impl.h"
-#endif // !DEDICATED
 #include "client/cdll_engine_int.h"
+#endif // !DEDICATED
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #include "server/persistence.h"
@@ -450,9 +450,8 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 
 	// Client
 	REGISTER(HVEngineClient);
-#endif // !DEDICATED
-
 	REGISTER(VDll_Engine_Int);
+#endif // !DEDICATED
 
 #ifndef CLIENT_DLL
 

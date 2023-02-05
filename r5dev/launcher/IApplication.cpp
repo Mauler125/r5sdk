@@ -17,16 +17,14 @@
 #include "engine/sys_engine.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
+#include "engine/enginetrace.h"
 #include "engine/server/sv_main.h"
 #ifndef CLIENT_DLL
 #include "server/vengineserver_impl.h"
-#endif // !CLIENT_DLL
-#include "client/cdll_engine_int.h"
-#include "engine/enginetrace.h"
-#ifndef CLIENT_DLL
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
+#include "client/cdll_engine_int.h"
 #include "game/client/cliententitylist.h"
 #include "gameui/IConsole.h"
 #include "windows/id3dx.h"
@@ -103,11 +101,6 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	if (CommandLine()->CheckParm("-devsdk"))
 	{
 		cv->EnableDevCvars();
-	}
-	if (pModAppSystemGroup->IsServerOnly())
-	{
-		*g_pHLClient = nullptr;
-		*gHLClient = nullptr;
 	}
 
 	g_FrameTasks.push_back(std::move(g_TaskScheduler));

@@ -4,9 +4,6 @@
     <Filter Include="sdk">
       <UniqueIdentifier>{f97c7e9b-cc5e-4ec1-8c2a-19cf941b5c90}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\client">
-      <UniqueIdentifier>{c9b133cf-3943-49c9-abb0-c6f9e83a696c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\common">
       <UniqueIdentifier>{f280958c-f362-4918-a1f3-ca66f4bf1ec6}</UniqueIdentifier>
     </Filter>
@@ -659,9 +656,6 @@
     </ClInclude>
     <ClInclude Include="..\networksystem\pylon.h">
       <Filter>sdk\networksystem</Filter>
-    </ClInclude>
-    <ClInclude Include="..\client\cdll_engine_int.h">
-      <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="..\game\server\fairfight_impl.h">
       <Filter>sdk\game\server</Filter>
@@ -1753,9 +1747,6 @@
     </ClCompile>
     <ClCompile Include="..\game\server\baseentity.cpp">
       <Filter>sdk\game\server</Filter>
-    </ClCompile>
-    <ClCompile Include="..\client\cdll_engine_int.cpp">
-      <Filter>sdk\client</Filter>
     </ClCompile>
     <ClCompile Include="..\common\netmessages.cpp">
       <Filter>sdk\common</Filter>

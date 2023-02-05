@@ -126,7 +126,6 @@
   <ItemGroup>
     <ClInclude Include="..\appframework\engine_launcher_api.h" />
     <ClInclude Include="..\bsplib\bsplib.h" />
-    <ClInclude Include="..\client\cdll_engine_int.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
     <ClInclude Include="..\common\netmessages.h" />
     <ClInclude Include="..\common\opcodes.h" />
@@ -524,7 +523,6 @@
   <ItemGroup>
     <ClCompile Include="..\bonesetup\bone_utils.cpp" />
     <ClCompile Include="..\bsplib\bsplib.cpp" />
-    <ClCompile Include="..\client\cdll_engine_int.cpp" />
     <ClCompile Include="..\common\netmessages.cpp" />
     <ClCompile Include="..\common\opcodes.cpp" />
     <ClCompile Include="..\core\dllmain.cpp" />
