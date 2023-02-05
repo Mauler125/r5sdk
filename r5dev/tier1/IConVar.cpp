@@ -33,6 +33,14 @@ ConVar* ConVar::Create(const char* pszName, const char* pszDefaultValue, int nFl
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: destroy
+//-----------------------------------------------------------------------------
+void ConVar::Destroy(void)
+{
+	v_ConVar_Unregister(this);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: construct/allocate
 //-----------------------------------------------------------------------------
 ConVar::ConVar(void)

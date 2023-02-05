@@ -260,38 +260,10 @@ private:
 
 extern CCvarUtilities* cv;
 
-class CCvar // TODO: interface class !!!
-{
+class CCvar : public CBaseAppSystem< ICvar >
+{ 	// Implementation in engine.
 public:
-	ConCommandBase* RegisterConCommand(ConCommandBase* pCommandToAdd);
-	ConCommandBase* UnregisterConCommand(ConCommandBase* pCommandToRemove);
-	ConCommandBase* FindCommandBase(const char* pszCommandName); // @0x1405983A0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	ConVar* FindVar(const char* pszVarName);                     // @0x1405983B0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	ConCommand* FindCommand(const char* pszCommandName);
-	ConCommandBase* GetCommands(void) const { return m_pConCommandList; };
-
-	void CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString);
-	bool IsMaterialThreadSetAllowed(void);
-	void QueueMaterialThreadSetValue(ConVar* pConVar, float flValue);
-	void QueueMaterialThreadSetValue(ConVar* pConVar, int nValue);
-	void QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue);
-
-	class CCVarIteratorInternal : public ICVarIteratorInternal
-	{
-	public:
-		virtual void            SetFirst(void) = 0; //0
-		virtual void            Next(void) = 0; //1
-		virtual	bool            IsValid(void) = 0; //2
-		virtual ConCommandBase* Get(void) = 0; //3
-
-		CCvar* const m_pOuter;
-		CConCommandHash* const m_pHash;
-		CConCommandHash::CCommandHashIterator_t m_hashIter;
-	};
-
-	CCVarIteratorInternal* FactoryInternalIterator(void);
 	unordered_map<string, ConCommandBase*> DumpToMap(void);
-	friend class CCVarIteratorInternal;
 
 protected:
 	enum ConVarSetType_t
@@ -310,8 +282,25 @@ protected:
 		//CUtlString m_String; // !TODO:
 	};
 
+	class CCVarIteratorInternal : public ICVarIteratorInternal
+	{
+	public:
+		virtual void            SetFirst(void) = 0; //0
+		virtual void            Next(void) = 0; //1
+		virtual	bool            IsValid(void) = 0; //2
+		virtual ConCommandBase* Get(void) = 0; //3
+
+		CCvar* const m_pOuter;
+		CConCommandHash* const m_pHash;
+		CConCommandHash::CCommandHashIterator_t m_hashIter;
+	};
+
+	virtual CCVarIteratorInternal* FactoryInternalIterator(void) = 0;
+
+	friend class CCVarIteratorInternal;
+	friend class CCvarUtilities;
+
 private:
-	void* m_pVFTable;
 	CUtlVector< FnChangeCallback_t > m_GlobalChangeCallbacks;
 	char pad0[30];           //!TODO:
 	int m_nNextDLLIdentifier;

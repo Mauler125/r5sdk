@@ -12,6 +12,8 @@ class ConVar : public ConCommandBase
 public:
 	static ConVar* Create(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString,
 		bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString);
+	void Destroy(void);
+
 	ConVar(void);
 	~ConVar(void);
 
@@ -96,11 +98,14 @@ public:
 static_assert(sizeof(ConVar) == 0xA0);
 
 /* ==== ICONVAR ========================================================================================================================================================= */
-inline CMemory p_ConVar_IsFlagSet;
-inline auto v_ConVar_IsFlagSet = p_ConVar_IsFlagSet.RCast<bool (*)(ConVar* pConVar, int nFlag)>();
-
 inline CMemory p_ConVar_Register;
 inline auto v_ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar* thisptr, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString)>();
+
+inline CMemory p_ConVar_Unregister;
+inline auto v_ConVar_Unregister = p_ConVar_Unregister.RCast<void (*)(ConVar* thisptr)>();
+
+inline CMemory p_ConVar_IsFlagSet;
+inline auto v_ConVar_IsFlagSet = p_ConVar_IsFlagSet.RCast<bool (*)(ConVar* pConVar, int nFlag)>();
 
 inline CMemory p_ConVar_PrintDescription;
 inline auto v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void* (*)(ConCommandBase* pVar)>();
@@ -118,23 +123,27 @@ class VConVar : public IDetour
 	{
 		LogConAdr("ConVar::`vbtable'", g_pConVarVBTable.GetPtr());
 		LogConAdr("ConVar::`vftable'", g_pConVarVFTable.GetPtr());
-		LogFunAdr("ConVar::IsFlagSet", p_ConVar_IsFlagSet.GetPtr());
 		LogFunAdr("ConVar::Register", p_ConVar_Register.GetPtr());
+		LogFunAdr("ConVar::Unregister", p_ConVar_Unregister.GetPtr());
+		LogFunAdr("ConVar::IsFlagSet", p_ConVar_IsFlagSet.GetPtr());
 		LogFunAdr("ConVar_PrintDescription", p_ConVar_PrintDescription.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
-		p_ConVar_IsFlagSet = g_GameDll.FindPatternSIMD("48 8B 41 48 85 50 38");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_ConVar_Register = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 F3 0F 10 44 24 ??");
+		p_ConVar_Unregister = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 8B 59 58 48 8D 05 ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_ConVar_Register = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40 F3 0F 10 84 24 ?? ?? ?? ??");
+		p_ConVar_Unregister = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 79 58");
 #endif
+		p_ConVar_IsFlagSet = g_GameDll.FindPatternSIMD("48 8B 41 48 85 50 38");
 		p_ConVar_PrintDescription = g_GameDll.FindPatternSIMD("B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 01 48 89 9C 24 ?? ?? ?? ??");
 
-		v_ConVar_IsFlagSet = p_ConVar_IsFlagSet.RCast<bool (*)(ConVar*, int)>();                                                                                                  /*48 8B 41 48 85 50 38*/
-		v_ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, FnChangeCallback_t, const char*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 F3 0F 10 84 24 ? ? ? ?*/
-		v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void* (*)(ConCommandBase*)>();                                                                                /*B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B 01 48 89 9C 24 ? ? ? ?*/
+		v_ConVar_IsFlagSet = p_ConVar_IsFlagSet.RCast<bool (*)(ConVar*, int)>();
+		v_ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, FnChangeCallback_t, const char*)>();
+		v_ConVar_Unregister = p_ConVar_Unregister.RCast<void (*)(ConVar*)>();
+		v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void* (*)(ConCommandBase*)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
