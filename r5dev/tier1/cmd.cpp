@@ -394,10 +394,12 @@ void ConCommand::InitShipped(void)
 	///------------------------------------------------------ [ CALLBACK SWAP ]
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
+#ifndef CLIENT_DLL
 	ConCommand* changelevel = g_pCVar->FindCommand("changelevel");
 	ConCommand* map = g_pCVar->FindCommand("map");
 	ConCommand* map_background = g_pCVar->FindCommand("map_background");
 	ConCommand* ss_map = g_pCVar->FindCommand("ss_map");
+#endif // !CLIENT_DLL
 	ConCommand* migrateme = g_pCVar->FindCommand("migrateme");
 	ConCommand* help = g_pCVar->FindCommand("help");
 	ConCommand* convar_list =  g_pCVar->FindCommand("convar_list");
@@ -407,19 +409,29 @@ void ConCommand::InitShipped(void)
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM
 	ConCommand* mat_crosshair = g_pCVar->FindCommand("mat_crosshair"); // Patch callback function to working callback.
-	mat_crosshair->m_fnCommandCallback = Mat_CrossHair_f;
+	//-------------------------------------------------------------------------
+	// CLIENT DLL                                                             |
+	ConCommand* give = g_pCVar->FindCommand("give");
 #endif // !DEDICATED
 
 	help->m_fnCommandCallback = CVHelp_f;
-	changelevel->m_fnCommandCallback = Host_Changelevel_f;
 	convar_list->m_fnCommandCallback = CVList_f;
 	convar_differences->m_fnCommandCallback = CVDiff_f;
 	convar_findByFlags->m_fnCommandCallback = CVFlag_f;
 
+#ifndef CLIENT_DLL
+	changelevel->m_fnCommandCallback = Host_Changelevel_f;
+	changelevel->m_fnCompletionCallback = Host_Changelevel_f_CompletionFunc;
+
 	map->m_fnCompletionCallback = Host_Map_f_CompletionFunc;
 	map_background->m_fnCompletionCallback = Host_Background_f_CompletionFunc;
 	ss_map->m_fnCompletionCallback = Host_SSMap_f_CompletionFunc;
-	changelevel->m_fnCompletionCallback = Host_Changelevel_f_CompletionFunc;
+#endif // !CLIENT_DLL
+
+#ifndef DEDICATED
+	mat_crosshair->m_fnCommandCallback = Mat_CrossHair_f;
+	give->m_fnCompletionCallback = Game_Give_f_CompletionFunc;
+#endif // !DEDICATED
 
 	/// ------------------------------------------------------ [ FLAG REMOVAL ]
 	//-------------------------------------------------------------------------
@@ -452,14 +464,17 @@ void ConCommand::InitShipped(void)
 			}
 		}
 
-		changelevel->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_list->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_differences->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_findByFlags->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		help->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+		migrateme->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
+#ifndef CLIENT_DLL
+		changelevel->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		map->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
 		map_background->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
-		migrateme->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
+		ss_map->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
+#endif // !CLIENT_DLL
 	}
 }
 

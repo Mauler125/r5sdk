@@ -8,6 +8,7 @@
 #include "engine/cmodel_bsp.h"
 #include "tier1/strtools.h"
 #include "completion.h"
+#include "autocompletefilelist.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -106,3 +107,10 @@ int Host_Changelevel_f_CompletionFunc(char const* partial, char commands[COMMAND
 	char const* cmdname = "changelevel ";
 	return _Host_Map_f_CompletionFunc(cmdname, partial, commands);
 }
+
+static CAutoCompleteFileList s_GiveAutoFileList("give", "scripts/weapons", "txt");
+int Game_Give_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
+{
+	return s_GiveAutoFileList.AutoCompletionFunc(partial, commands);
+}
+

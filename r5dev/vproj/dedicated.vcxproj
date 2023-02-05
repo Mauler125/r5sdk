@@ -512,6 +512,7 @@
     <ClInclude Include="..\vpc\kvleaktrace.h" />
     <ClInclude Include="..\vphysics\QHull.h" />
     <ClInclude Include="..\vpklib\packedstore.h" />
+    <ClInclude Include="..\vstdlib\autocompletefilelist.h" />
     <ClInclude Include="..\vstdlib\callback.h" />
     <ClInclude Include="..\vstdlib\completion.h" />
     <ClInclude Include="..\vstdlib\concommandhash.h" />
@@ -654,6 +655,7 @@
     <ClCompile Include="..\vphysics\physics_collide.cpp" />
     <ClCompile Include="..\vphysics\QHull.cpp" />
     <ClCompile Include="..\vpklib\packedstore.cpp" />
+    <ClCompile Include="..\vstdlib\autocompletefilelist.cpp" />
     <ClCompile Include="..\vstdlib\callback.cpp" />
     <ClCompile Include="..\vstdlib\completion.cpp" />
     <ClCompile Include="..\vstdlib\keyvaluessystem.cpp" />

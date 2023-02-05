@@ -1380,6 +1380,9 @@
     <ClInclude Include="..\tier0\crashhandler.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="..\vstdlib\autocompletefilelist.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1762,6 +1765,9 @@
     </ClCompile>
     <ClCompile Include="..\tier0\crashhandler.cpp">
       <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\autocompletefilelist.cpp">
+      <Filter>sdk\vstdlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
