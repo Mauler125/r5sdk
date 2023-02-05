@@ -11,6 +11,7 @@
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "tier1/characterset.h"
+#include "vstdlib/completion.h"
 #include "vstdlib/callback.h"
 
 //-----------------------------------------------------------------------------
@@ -393,9 +394,12 @@ void ConCommand::InitShipped(void)
 	///------------------------------------------------------ [ CALLBACK SWAP ]
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
+	ConCommand* changelevel = g_pCVar->FindCommand("changelevel");
+	ConCommand* map = g_pCVar->FindCommand("map");
+	ConCommand* map_background = g_pCVar->FindCommand("map_background");
+	ConCommand* ss_map = g_pCVar->FindCommand("ss_map");
 	ConCommand* migrateme = g_pCVar->FindCommand("migrateme");
 	ConCommand* help = g_pCVar->FindCommand("help");
-	ConCommand* changelevel = g_pCVar->FindCommand("changelevel");
 	ConCommand* convar_list =  g_pCVar->FindCommand("convar_list");
 	ConCommand* convar_differences = g_pCVar->FindCommand("convar_differences");
 	ConCommand* convar_findByFlags = g_pCVar->FindCommand("convar_findByFlags");
@@ -407,12 +411,15 @@ void ConCommand::InitShipped(void)
 #endif // !DEDICATED
 
 	help->m_fnCommandCallback = CVHelp_f;
-#ifndef CLIENT_DLL
 	changelevel->m_fnCommandCallback = Host_Changelevel_f;
-#endif // !CLIENT_DLL
 	convar_list->m_fnCommandCallback = CVList_f;
 	convar_differences->m_fnCommandCallback = CVDiff_f;
 	convar_findByFlags->m_fnCommandCallback = CVFlag_f;
+
+	map->m_fnCompletionCallback = Host_Map_f_CompletionFunc;
+	map_background->m_fnCompletionCallback = Host_Background_f_CompletionFunc;
+	ss_map->m_fnCompletionCallback = Host_SSMap_f_CompletionFunc;
+	changelevel->m_fnCompletionCallback = Host_Changelevel_f_CompletionFunc;
 
 	/// ------------------------------------------------------ [ FLAG REMOVAL ]
 	//-------------------------------------------------------------------------
@@ -428,8 +435,6 @@ void ConCommand::InitShipped(void)
 			"set",
 			"ping",
 #endif // !DEDICATED
-			"map",
-			"map_background",
 			"launchplaylist",
 			"quit",
 			"exit",
@@ -447,12 +452,14 @@ void ConCommand::InitShipped(void)
 			}
 		}
 
-		migrateme->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
-		help->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		changelevel->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_list->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_differences->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_findByFlags->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+		help->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+		map->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
+		map_background->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
+		migrateme->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
 	}
 }
 
