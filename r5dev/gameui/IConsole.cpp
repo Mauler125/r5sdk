@@ -478,13 +478,6 @@ void CConsole::SuggestPanel(void)
 //-----------------------------------------------------------------------------
 bool CConsole::AutoComplete(void)
 {
-    // Show ConVar/ConCommand suggestions when something has been entered.
-    if (!m_szInputBuf[0])
-    {
-        ResetAutoComplete();
-        return false;
-    }
-
     // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
     if (!m_szInputBuf[0] || strstr(m_szInputBuf, ";"))
     {
@@ -496,18 +489,12 @@ bool CConsole::AutoComplete(void)
     {
         if (m_bCanAutoComplete)
         {
-            m_bCanAutoComplete = false;
             FindFromPartial();
         }
-        if (m_vSuggest.empty())
-        {
-            ResetAutoComplete();
-            return false;
-        }
     }
-    else // Command completion callback.
+    else if (m_bCanAutoComplete) // Command completion callback.
     {
-        m_vSuggest.clear();
+        ClearAutoComplete();
         string svCommand;
 
         for (size_t i = 0; i < sizeof(m_szInputBuf); i++)
@@ -544,6 +531,12 @@ bool CConsole::AutoComplete(void)
             ResetAutoComplete();
             return false;
         }
+    }
+
+    if (m_vSuggest.empty())
+    {
+        ResetAutoComplete();
+        return false;
     }
 
     m_bSuggestActive = true;
