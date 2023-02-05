@@ -292,6 +292,8 @@ void CConsole::DrawSurface(void)
             m_bModifyInput = true;
 
             ResetAutoComplete();
+            m_bReclaimFocus = true;
+
             BuildSummary(m_svInputConVar);
         }
         else
@@ -303,6 +305,8 @@ void CConsole::DrawSurface(void)
             }
 
             ResetAutoComplete();
+            m_bReclaimFocus = true;
+
             BuildSummary();
         }
     }
@@ -328,6 +332,8 @@ void CConsole::DrawSurface(void)
             m_bModifyInput = true;
         }
         ResetAutoComplete();
+        m_bReclaimFocus = true;
+
         BuildSummary();
     }
     ImGui::End();
@@ -441,6 +447,7 @@ void CConsole::SuggestPanel(void)
 
             memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
             ClearAutoComplete();
+            m_bReclaimFocus = true;
 
             // Mutex lock is obtained here are we modify m_vHistory
             // which is used in the main and render thread.
@@ -554,7 +561,6 @@ void CConsole::ResetAutoComplete(void)
     m_bCanAutoComplete = false;
     m_bSuggestActive = false;
     m_nSuggestPos = -1;
-    m_bReclaimFocus = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -972,6 +978,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 m_svInputConVar.clear();
 
                 ClearAutoComplete();
+                m_bReclaimFocus = true;
             }
             m_bModifyInput = false;
         }
