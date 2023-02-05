@@ -288,8 +288,7 @@ void CConsole::DrawSurface(void)
     {
         if (m_nSuggestPos != -1)
         {
-            // Remove the default value from ConVar before assigning it to the input buffer.
-            m_svInputConVar = m_vSuggest[m_nSuggestPos].m_svName.substr(0, m_vSuggest[m_nSuggestPos].m_svName.find(' ')) + ' ';
+            BuildInputFromSelected(m_vSuggest[m_nSuggestPos], m_svInputConVar);
             m_bModifyInput = true;
 
             ResetAutoComplete();
@@ -396,7 +395,8 @@ void CConsole::SuggestPanel(void)
             ImGui::Image(mainRes.m_idIcon, ImVec2(mainRes.m_nWidth, mainRes.m_nHeight)); 
 
             // Show a more detailed description of the flag when user hovers over the texture.
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly))
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly) &&
+                suggest.m_nFlags != COMMAND_COMPLETION_MARKER)
             {
                 std::function<void(const ConVarFlagsToString_t&)> fnAddHint = [&](const ConVarFlagsToString_t& cvarInfo)
                 {
@@ -436,8 +436,8 @@ void CConsole::SuggestPanel(void)
         {
             ImGui::Separator();
 
-            // Remove the default value from ConVar before assigning it to the input buffer.
-            const string svConVar = suggest.m_svName.substr(0, suggest.m_svName.find(' ')) + ' ';
+            string svConVar;
+            BuildInputFromSelected(suggest, svConVar);
 
             memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
             ResetAutoComplete();
@@ -479,7 +479,20 @@ void CConsole::SuggestPanel(void)
 bool CConsole::AutoComplete(void)
 {
     // Show ConVar/ConCommand suggestions when something has been entered.
-    if (m_szInputBuf[0])
+    if (!m_szInputBuf[0])
+    {
+        ResetAutoComplete();
+        return false;
+    }
+
+    // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
+    if (!m_szInputBuf[0] || strstr(m_szInputBuf, ";"))
+    {
+        ResetAutoComplete();
+        return false;
+    }
+
+    if (!strstr(m_szInputBuf, " "))
     {
         if (m_bCanAutoComplete)
         {
@@ -488,30 +501,51 @@ bool CConsole::AutoComplete(void)
         }
         if (m_vSuggest.empty())
         {
-            m_bSuggestActive = false;
-            m_nSuggestPos = -1;
-
+            ResetAutoComplete();
             return false;
         }
     }
-    else
+    else // Command completion callback.
     {
-        m_bSuggestActive = false;
-        m_nSuggestPos = -1;
+        m_vSuggest.clear();
+        string svCommand;
 
-        return false;
+        for (size_t i = 0; i < sizeof(m_szInputBuf); i++)
+        {
+            if (isspace(m_szInputBuf[i]))
+            {
+                break;
+            }
+            svCommand += m_szInputBuf[i];
+        }
+
+        const ConCommand* pCommand = g_pCVar->FindCommand(svCommand.c_str());
+        if (pCommand && pCommand->m_bHasCompletionCallback)
+        {
+            const char* szPartial = m_szInputBuf;
+
+            char rgpchCommands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH];
+            int iret = (pCommand->m_fnCompletionCallback)(szPartial, rgpchCommands);
+
+            if (!iret)
+            {
+                ResetAutoComplete();
+                return false;
+            }
+
+            for (int i = 0; i < iret; ++i)
+            {
+                const char* str = rgpchCommands[i];
+                m_vSuggest.push_back(CSuggest(str, COMMAND_COMPLETION_MARKER));
+            }
+        }
+        else
+        {
+            ResetAutoComplete();
+            return false;
+        }
     }
 
-    // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
-    if (strstr(m_szInputBuf, " ") || strstr(m_szInputBuf, ";"))
-    {
-        // !TODO: Add IConVar completion logic here.
-        m_bCanAutoComplete = false;
-        m_bSuggestActive = false;
-        m_nSuggestPos = -1;
-
-        return false;
-    }
     m_bSuggestActive = true;
     return true;
 }
@@ -663,6 +697,22 @@ void CConsole::BuildSummary(string svConVar)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: builds the selected suggestion for input field
+// Input  : &suggest - 
+//-----------------------------------------------------------------------------
+void CConsole::BuildInputFromSelected(const CSuggest& suggest, string& svInput)
+{
+    if (suggest.m_nFlags == COMMAND_COMPLETION_MARKER)
+    {
+        svInput = suggest.m_svName + ' ';
+    }
+    else // Remove the default value from ConVar before assigning it to the input buffer.
+    {
+        svInput = suggest.m_svName.substr(0, suggest.m_svName.find(' ')) + ' ';
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: builds the suggestion panel rect
 //-----------------------------------------------------------------------------
 void CConsole::BuildSuggestPanelRect(void)
@@ -726,7 +776,7 @@ bool CConsole::LoadFlagIcons(void)
     bool ret = false;
 
     // Get all flag image resources for displaying flags.
-    for (int i = IDB_PNG3, k = NULL; i <= IDB_PNG31; i++, k++)
+    for (int i = IDB_PNG3, k = NULL; i <= IDB_PNG32; i++, k++)
     {
         m_vFlagIcons.push_back(MODULERESOURCE(GetModuleResource(i)));
         MODULERESOURCE& rFlagIcon = m_vFlagIcons[k];
@@ -788,6 +838,8 @@ int CConsole::GetFlagTextureIndex(int nFlags) const
         return 27;
     case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_RELEASE:
         return 28;
+    case COMMAND_COMPLETION_MARKER:
+        return 29;
 
     default: // Hit when flag is zero/non-indexed or 3+ bits are set.
 

@@ -33,6 +33,7 @@ private:
     void ProcessCommand(string svCommand);
 
     void BuildSummary(string svConVar = "");
+    void BuildInputFromSelected(const CSuggest& suggest, string& svInput);
     void BuildSuggestPanelRect(void);
 
     void ClampLogSize(void);

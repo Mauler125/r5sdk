@@ -84,6 +84,7 @@ IDB_PNG28               PNG                     "png\\vf_clientdll_cheat.png"
 IDB_PNG29               PNG                     "png\\vf_clientdll_release.png"
 IDB_PNG30               PNG                     "png\\vf_msthread_cheat.png"
 IDB_PNG31               PNG                     "png\\vf_msthread_release.png"
+IDB_PNG32               PNG                     "png\\completion_marker.png"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

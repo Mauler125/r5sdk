@@ -33,6 +33,7 @@
 #define IDB_PNG29                       129
 #define IDB_PNG30                       130
 #define IDB_PNG31                       131
+#define IDB_PNG32                       132
 #define DEV                             256
 #define PNG                             256
 
