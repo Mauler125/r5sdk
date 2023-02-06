@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "sdklauncher/sdklauncher_res.h"
+#include "../sdklauncher/sdklauncher_res.h"
 //#define RELEASE
 #ifndef DEDI_LAUNCHER
 
@@ -29,7 +29,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 1 TEXTINCLUDE 
 BEGIN
-    "sdklauncher/sdklauncher_res.h\0"
+    "../sdklauncher/sdklauncher_res.h\0"
 END
 
 2 TEXTINCLUDE 
@@ -56,9 +56,9 @@ END
 // remains consistent on all systems.
 
 #ifdef RELEASE
-IDI_ICON1               ICON                    "resource\\ico\\sdklauncher_rel.ico"
+IDI_ICON1               ICON                    "..\\resource\\ico\\sdklauncher_rel.ico"
 #else
-IDI_ICON1               ICON                    "resource\\ico\\sdklauncher_dbg.ico"
+IDI_ICON1               ICON                    "..\\resource\\ico\\sdklauncher_dbg.ico"
 #endif
 
 #endif    // English (United States) resources
