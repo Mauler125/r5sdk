@@ -291,7 +291,7 @@ void CConsole::DrawSurface(void)
             BuildInputFromSelected(m_vSuggest[m_nSuggestPos], m_svInputConVar);
             m_bModifyInput = true;
 
-            ResetAutoComplete();
+            ClearAutoComplete();
             m_bReclaimFocus = true;
 
             BuildSummary(m_svInputConVar);
@@ -304,7 +304,7 @@ void CConsole::DrawSurface(void)
                 m_bModifyInput = true;
             }
 
-            ResetAutoComplete();
+            ClearAutoComplete();
             m_bReclaimFocus = true;
 
             BuildSummary();
@@ -331,7 +331,7 @@ void CConsole::DrawSurface(void)
             ProcessCommand(m_szInputBuf);
             m_bModifyInput = true;
         }
-        ResetAutoComplete();
+        ClearAutoComplete();
         m_bReclaimFocus = true;
 
         BuildSummary();
@@ -447,6 +447,8 @@ void CConsole::SuggestPanel(void)
 
             memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
             ClearAutoComplete();
+
+            m_bCanAutoComplete = true;
             m_bReclaimFocus = true;
 
             // Mutex lock is obtained here are we modify m_vHistory
@@ -490,7 +492,8 @@ bool CConsole::AutoComplete(void)
     {
         if (m_bSuggestActive)
         {
-            ResetAutoComplete();
+            ClearAutoComplete();
+            m_bCanAutoComplete = false;
         }
         return false;
     }
@@ -505,6 +508,8 @@ bool CConsole::AutoComplete(void)
     else if (m_bCanAutoComplete) // Command completion callback.
     {
         ClearAutoComplete();
+        m_bCanAutoComplete = false;
+
         string svCommand;
 
         for (size_t i = 0; i < sizeof(m_szInputBuf); i++)
@@ -526,7 +531,6 @@ bool CConsole::AutoComplete(void)
 
             if (!iret)
             {
-                ResetAutoComplete();
                 return false;
             }
 
@@ -538,7 +542,6 @@ bool CConsole::AutoComplete(void)
         }
         else
         {
-            ResetAutoComplete();
             return false;
         }
     }
@@ -546,6 +549,8 @@ bool CConsole::AutoComplete(void)
     if (m_vSuggest.empty())
     {
         ResetAutoComplete();
+        m_bCanAutoComplete = false;
+
         return false;
     }
 
@@ -558,7 +563,6 @@ bool CConsole::AutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::ResetAutoComplete(void)
 {
-    m_bCanAutoComplete = false;
     m_bSuggestActive = false;
     m_nSuggestPos = -1;
 }
@@ -579,6 +583,7 @@ void CConsole::ClearAutoComplete(void)
 void CConsole::FindFromPartial(void)
 {
     ClearAutoComplete();
+    m_bCanAutoComplete = false;
 
     for (const CSuggest& suggest : m_vsvCommandBases)
     {
@@ -978,6 +983,8 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 m_svInputConVar.clear();
 
                 ClearAutoComplete();
+
+                m_bCanAutoComplete = true;
                 m_bReclaimFocus = true;
             }
             m_bModifyInput = false;
@@ -1015,12 +1022,13 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
 
         if (iData->BufTextLen) // Attempt to build a summary..
         {
-            m_bCanAutoComplete = true;
             BuildSummary(iData->Buf);
+            m_bCanAutoComplete = true;
         }
         else // Reset state and enable history scrolling when buffer is empty.
         {
             ResetAutoComplete();
+            m_bCanAutoComplete = false;
         }
 
         break;
