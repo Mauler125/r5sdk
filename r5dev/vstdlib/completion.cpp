@@ -66,13 +66,13 @@ int _Host_Pak_f_CompletionFunc(CAutoCompleteFileList* autocomplete, char const* 
 		for (size_t i = 0; i < count; i++)
 		{
 			size_t cmdsize = strlen(commands[i]);
-			if (cmdsize < COMMAND_COMPLETION_ITEM_LENGTH - 4)
+			if (cmdsize < COMMAND_COMPLETION_ITEM_LENGTH - 5)
 			{
 				snprintf(&commands[i][cmdsize], 5, "%s", "rpak");
 			}
 			else
 			{
-				snprintf(commands[i], COMMAND_COMPLETION_ITEM_LENGTH, "%s", "BUFFER_TOO_SMALL");
+				snprintf(commands[i], COMMAND_COMPLETION_ITEM_LENGTH, "%s", "BUFFER_TOO_SMALL!");
 			}
 		}
 	}
