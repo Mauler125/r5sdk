@@ -70,8 +70,9 @@ void CVHelp_f(const CCommand& args);
 void CVList_f(const CCommand& args);
 void CVDiff_f(const CCommand& args);
 void CVFlag_f(const CCommand& args);
-
+#ifndef CLIENT_DLL
 void CC_CreateFakePlayer_f(const CCommand& args);
+#endif // !CLIENT_DLL
 ///////////////////////////////////////////////////////////////////////////////
 class VCallback : public IDetour
 {

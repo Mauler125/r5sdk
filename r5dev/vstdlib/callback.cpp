@@ -1250,9 +1250,9 @@ CC_CreateFakePlayer_f
   on the server
 =====================
 */
+#ifndef CLIENT_DLL
 void CC_CreateFakePlayer_f(const CCommand& args)
 {
-#ifndef CLIENT_DLL
 	if (args.ArgC() < 3)
 	{
 		DevMsg(eDLL_T::SERVER, "usage 'sv_addbot': name(string) teamid(int)\n");
@@ -1265,5 +1265,5 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 	g_pServerGameClients->ClientFullyConnect(nHandle, false);
 
 	g_pEngineServer->LockNetworkStringTables(false);
-#endif // !CLIENT_DLL
 }
+#endif // !CLIENT_DLL
