@@ -282,6 +282,20 @@ void CConsole::DrawSurface(void)
 
     ImGui::Separator();
 
+    std::function<void(void)> fnHandleInput = [&](void)
+    {
+        if (m_szInputBuf[0])
+        {
+            ProcessCommand(m_szInputBuf);
+            ClearAutoComplete();
+
+            m_bModifyInput = true;
+        }
+
+        BuildSummary();
+        m_bReclaimFocus = true;
+    };
+
     ///////////////////////////////////////////////////////////////////////
     ImGui::PushItemWidth(flFooterWidthReserve - 80);
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
@@ -289,25 +303,14 @@ void CConsole::DrawSurface(void)
         if (m_nSuggestPos > -1)
         {
             BuildInputFromSelected(m_vSuggest[m_nSuggestPos], m_svInputConVar);
-            m_bModifyInput = true;
-
-            ClearAutoComplete();
-            m_bReclaimFocus = true;
-
             BuildSummary(m_svInputConVar);
+
+            m_bModifyInput = true;
+            m_bReclaimFocus = true;
         }
         else
         {
-            if (m_szInputBuf[0])
-            {
-                ProcessCommand(m_szInputBuf);
-                m_bModifyInput = true;
-            }
-
-            ClearAutoComplete();
-            m_bReclaimFocus = true;
-
-            BuildSummary();
+            fnHandleInput();
         }
     }
 
@@ -326,15 +329,7 @@ void CConsole::DrawSurface(void)
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
     {
-        if (m_szInputBuf[0])
-        {
-            ProcessCommand(m_szInputBuf);
-            m_bModifyInput = true;
-        }
-        ClearAutoComplete();
-        m_bReclaimFocus = true;
-
-        BuildSummary();
+        fnHandleInput();
     }
     ImGui::End();
 }
@@ -441,19 +436,14 @@ void CConsole::SuggestPanel(void)
         if (ImGui::Selectable(suggest.m_svName.c_str(), bIsIndexActive))
         {
             ImGui::Separator();
-
             string svConVar;
-            BuildInputFromSelected(suggest, svConVar);
 
+            BuildInputFromSelected(suggest, svConVar);
             memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
-            ClearAutoComplete();
 
             m_bCanAutoComplete = true;
             m_bReclaimFocus = true;
 
-            // Mutex lock is obtained here are we modify m_vHistory
-            // which is used in the main and render thread.
-            std::lock_guard<std::mutex> l(m_Mutex);
             BuildSummary(svConVar);
         }
         ImGui::PopID();
@@ -696,8 +686,7 @@ void CConsole::BuildSummary(string svConVar)
             return;
         }
     }
-    // Display amount of history items if ConVar cannot be found or input is empty.
-    ClampHistorySize();
+
     snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
 }
 
@@ -982,8 +971,6 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 iData->InsertChars(0, m_svInputConVar.c_str());
                 m_svInputConVar.clear();
 
-                ClearAutoComplete();
-
                 m_bCanAutoComplete = true;
                 m_bReclaimFocus = true;
             }
@@ -1027,7 +1014,6 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         }
         else // Reset state and enable history scrolling when buffer is empty.
         {
-            ResetAutoComplete();
             m_bCanAutoComplete = false;
         }
 
