@@ -372,6 +372,8 @@
     <ClInclude Include="..\thirdparty\nlohmann\json.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\json_fwd.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\ordered_map.hpp" />
+    <ClInclude Include="..\thirdparty\nlohmann\thirdparty\hedley\hedley.hpp" />
+    <ClInclude Include="..\thirdparty\nlohmann\thirdparty\hedley\hedley_undef.hpp" />
     <ClInclude Include="..\thirdparty\spdlog\include\async.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\async_logger-inl.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\async_logger.h" />

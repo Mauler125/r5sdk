@@ -1383,6 +1383,12 @@
     <ClInclude Include="..\vstdlib\autocompletefilelist.h">
       <Filter>sdk\vstdlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\thirdparty\hedley\hedley.hpp">
+      <Filter>thirdparty\nlohmann\thirdparty\hedley</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\thirdparty\hedley\hedley_undef.hpp">
+      <Filter>thirdparty\nlohmann\thirdparty\hedley</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
