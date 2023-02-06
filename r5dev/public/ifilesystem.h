@@ -178,19 +178,6 @@ public:
 abstract_class IFileSystem : public IAppSystem, public IBaseFileSystem
 {
 public:
-	virtual ~IFileSystem() = 0;
-
-	//--------------------------------------------------------
-	// IAppSystem methods
-	//--------------------------------------------------------
-	virtual bool Connect(CreateInterfaceFn factory) = 0;
-	virtual void Disconnect() = 0;
-	virtual void* QueryInterface(const char* pInterfaceName) = 0;
-	virtual InitReturnVal_t Init() = 0;
-	virtual void Shutdown() = 0;
-	virtual AppSystemTier_t GetTier() = 0;
-	virtual void Reconnect(CreateInterfaceFn factory, const char* pInterfaceName) = 0;
-
 	//--------------------------------------------------------
 	virtual bool			IsSteam() const = 0;
 

@@ -60,8 +60,6 @@ public:
 	virtual void			UnregisterConCommand( ConCommandBase *pCommandBase ) = 0;
 	virtual void			UnregisterConCommands( CVarDLLIdentifier_t id ) = 0;
 
-	virtual void sub_14062B1F0() = 0;
-
 	// If there is a +<varname> <value> on the command line, this returns the value.
 	// Otherwise, it returns NULL.
 	virtual const char*		GetCommandLineValue( const char *pVariableName ) = 0;

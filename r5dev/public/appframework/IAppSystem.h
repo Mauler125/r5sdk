@@ -54,6 +54,8 @@ enum AppSystemTier_t
 abstract_class IAppSystem
 {
 public:
+	virtual ~IAppSystem() = 0; // Prepended on each class derived class in assembly.
+
 	// Here's where the app systems get to learn about each other 
 	virtual bool Connect(CreateInterfaceFn factory) = 0;
 	virtual void Disconnect() = 0;
@@ -83,6 +85,8 @@ template< class IInterface >
 class CBaseAppSystem : public IInterface
 {
 public:
+	virtual ~CBaseAppSystem() = 0; // Prepended on each class derived class in assembly.
+
 	// Here's where the app systems get to learn about each other 
 	virtual bool Connect(CreateInterfaceFn factory) = 0;
 	virtual void Disconnect() = 0;
