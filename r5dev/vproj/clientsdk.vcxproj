@@ -411,6 +411,7 @@
     <ClInclude Include="..\thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.h" />
     <ClInclude Include="..\thirdparty\nlohmann\adl_serializer.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\byte_container_with_subtype.hpp" />
+    <ClInclude Include="..\thirdparty\nlohmann\detail\abi_macros.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\detail\conversions\from_json.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\detail\conversions\to_chars.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\detail\conversions\to_json.hpp" />
@@ -438,6 +439,7 @@
     <ClInclude Include="..\thirdparty\nlohmann\detail\meta\detected.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\detail\meta\identity_tag.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\detail\meta\is_sax.hpp" />
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\std_fs.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\detail\meta\type_traits.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\detail\meta\void_t.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\detail\output\binary_writer.hpp" />
@@ -690,7 +692,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/D GAMESDK /D CLIENT_DLL /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -732,7 +734,7 @@
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalOptions>/D GAMESDK /D CLIENT_DLL /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

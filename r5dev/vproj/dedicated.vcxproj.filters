@@ -1389,6 +1389,12 @@
     <ClInclude Include="..\thirdparty\nlohmann\thirdparty\hedley\hedley_undef.hpp">
       <Filter>thirdparty\nlohmann\thirdparty\hedley</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\abi_macros.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\std_fs.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
