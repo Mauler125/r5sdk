@@ -1,3 +1,11 @@
+//     __ _____ _____ _____
+//  __|  |   __|     |   | |  JSON for Modern C++
+// |  |  |__   |  |  | | | |  version 3.11.2
+// |_____|_____|_____|_|___|  https://github.com/nlohmann/json
+//
+// SPDX-FileCopyrightText: 2013-2022 Niels Lohmann <https://nlohmann.me>
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <algorithm> // generate_n
@@ -12,20 +20,18 @@
 #include <string> // char_traits, string
 #include <utility> // make_pair, move
 #include <vector> // vector
-#include <map> // map
 
-#include <thirdparty/nlohmann/detail/exceptions.hpp>
-#include <thirdparty/nlohmann/detail/input/input_adapters.hpp>
-#include <thirdparty/nlohmann/detail/input/json_sax.hpp>
-#include <thirdparty/nlohmann/detail/input/lexer.hpp>
-#include <thirdparty/nlohmann/detail/macro_scope.hpp>
-#include <thirdparty/nlohmann/detail/meta/is_sax.hpp>
-#include <thirdparty/nlohmann/detail/meta/type_traits.hpp>
-#include <thirdparty/nlohmann/detail/string_concat.hpp>
-#include <thirdparty/nlohmann/detail/value_t.hpp>
+#include <nlohmann/detail/exceptions.hpp>
+#include <nlohmann/detail/input/input_adapters.hpp>
+#include <nlohmann/detail/input/json_sax.hpp>
+#include <nlohmann/detail/input/lexer.hpp>
+#include <nlohmann/detail/macro_scope.hpp>
+#include <nlohmann/detail/meta/is_sax.hpp>
+#include <nlohmann/detail/meta/type_traits.hpp>
+#include <nlohmann/detail/string_concat.hpp>
+#include <nlohmann/detail/value_t.hpp>
 
-namespace nlohmann
-{
+NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
 
@@ -618,7 +624,8 @@ class binary_reader
             case 0x95:
             case 0x96:
             case 0x97:
-                return get_cbor_array(static_cast<std::size_t>(static_cast<unsigned int>(current) & 0x1Fu), tag_handler);
+                return get_cbor_array(
+                           conditional_static_cast<std::size_t>(static_cast<unsigned int>(current) & 0x1Fu), tag_handler);
 
             case 0x98: // array (one-byte uint8_t for n follows)
             {
@@ -635,13 +642,13 @@ class binary_reader
             case 0x9A: // array (four-byte uint32_t for n follow)
             {
                 std::uint32_t len{};
-                return get_number(input_format_t::cbor, len) && get_cbor_array(static_cast<std::size_t>(len), tag_handler);
+                return get_number(input_format_t::cbor, len) && get_cbor_array(conditional_static_cast<std::size_t>(len), tag_handler);
             }
 
             case 0x9B: // array (eight-byte uint64_t for n follow)
             {
                 std::uint64_t len{};
-                return get_number(input_format_t::cbor, len) && get_cbor_array(detail::conditional_static_cast<std::size_t>(len), tag_handler);
+                return get_number(input_format_t::cbor, len) && get_cbor_array(conditional_static_cast<std::size_t>(len), tag_handler);
             }
 
             case 0x9F: // array (indefinite length)
@@ -672,7 +679,7 @@ class binary_reader
             case 0xB5:
             case 0xB6:
             case 0xB7:
-                return get_cbor_object(static_cast<std::size_t>(static_cast<unsigned int>(current) & 0x1Fu), tag_handler);
+                return get_cbor_object(conditional_static_cast<std::size_t>(static_cast<unsigned int>(current) & 0x1Fu), tag_handler);
 
             case 0xB8: // map (one-byte uint8_t for n follows)
             {
@@ -689,13 +696,13 @@ class binary_reader
             case 0xBA: // map (four-byte uint32_t for n follow)
             {
                 std::uint32_t len{};
-                return get_number(input_format_t::cbor, len) && get_cbor_object(static_cast<std::size_t>(len), tag_handler);
+                return get_number(input_format_t::cbor, len) && get_cbor_object(conditional_static_cast<std::size_t>(len), tag_handler);
             }
 
             case 0xBB: // map (eight-byte uint64_t for n follow)
             {
                 std::uint64_t len{};
-                return get_number(input_format_t::cbor, len) && get_cbor_object(detail::conditional_static_cast<std::size_t>(len), tag_handler);
+                return get_number(input_format_t::cbor, len) && get_cbor_object(conditional_static_cast<std::size_t>(len), tag_handler);
             }
 
             case 0xBF: // map (indefinite length)
@@ -1342,7 +1349,7 @@ class binary_reader
             case 0x8D:
             case 0x8E:
             case 0x8F:
-                return get_msgpack_object(static_cast<std::size_t>(static_cast<unsigned int>(current) & 0x0Fu));
+                return get_msgpack_object(conditional_static_cast<std::size_t>(static_cast<unsigned int>(current) & 0x0Fu));
 
             // fixarray
             case 0x90:
@@ -1361,7 +1368,7 @@ class binary_reader
             case 0x9D:
             case 0x9E:
             case 0x9F:
-                return get_msgpack_array(static_cast<std::size_t>(static_cast<unsigned int>(current) & 0x0Fu));
+                return get_msgpack_array(conditional_static_cast<std::size_t>(static_cast<unsigned int>(current) & 0x0Fu));
 
             // fixstr
             case 0xA0:
@@ -1498,7 +1505,7 @@ class binary_reader
             case 0xDD: // array 32
             {
                 std::uint32_t len{};
-                return get_number(input_format_t::msgpack, len) && get_msgpack_array(static_cast<std::size_t>(len));
+                return get_number(input_format_t::msgpack, len) && get_msgpack_array(conditional_static_cast<std::size_t>(len));
             }
 
             case 0xDE: // map 16
@@ -1510,7 +1517,7 @@ class binary_reader
             case 0xDF: // map 32
             {
                 std::uint32_t len{};
-                return get_number(input_format_t::msgpack, len) && get_msgpack_object(static_cast<std::size_t>(len));
+                return get_number(input_format_t::msgpack, len) && get_msgpack_object(conditional_static_cast<std::size_t>(len));
             }
 
             // negative fixint
@@ -1938,13 +1945,14 @@ class binary_reader
     {
         std::pair<std::size_t, char_int_type> size_and_type;
         size_t dimlen = 0;
+        bool no_ndarray = true;
 
-        if (JSON_HEDLEY_UNLIKELY(!get_ubjson_size_type(size_and_type)))
+        if (JSON_HEDLEY_UNLIKELY(!get_ubjson_size_type(size_and_type, no_ndarray)))
         {
             return false;
         }
 
-        if (size_and_type.first != string_t::npos)
+        if (size_and_type.first != npos)
         {
             if (size_and_type.second != 0)
             {
@@ -1952,7 +1960,7 @@ class binary_reader
                 {
                     for (std::size_t i = 0; i < size_and_type.first; ++i)
                     {
-                        if (JSON_HEDLEY_UNLIKELY(!get_ubjson_size_value(dimlen, size_and_type.second)))
+                        if (JSON_HEDLEY_UNLIKELY(!get_ubjson_size_value(dimlen, no_ndarray, size_and_type.second)))
                         {
                             return false;
                         }
@@ -1964,7 +1972,7 @@ class binary_reader
             {
                 for (std::size_t i = 0; i < size_and_type.first; ++i)
                 {
-                    if (JSON_HEDLEY_UNLIKELY(!get_ubjson_size_value(dimlen)))
+                    if (JSON_HEDLEY_UNLIKELY(!get_ubjson_size_value(dimlen, no_ndarray)))
                     {
                         return false;
                     }
@@ -1976,7 +1984,7 @@ class binary_reader
         {
             while (current != ']')
             {
-                if (JSON_HEDLEY_UNLIKELY(!get_ubjson_size_value(dimlen, current)))
+                if (JSON_HEDLEY_UNLIKELY(!get_ubjson_size_value(dimlen, no_ndarray, current)))
                 {
                     return false;
                 }
@@ -1989,9 +1997,16 @@ class binary_reader
 
     /*!
     @param[out] result  determined size
+    @param[in,out] is_ndarray  for input, `true` means already inside an ndarray vector
+                               or ndarray dimension is not allowed; `false` means ndarray
+                               is allowed; for output, `true` means an ndarray is found;
+                               is_ndarray can only return `true` when its initial value
+                               is `false`
+    @param[in] prefix  type marker if already read, otherwise set to 0
+
     @return whether size determination completed
     */
-    bool get_ubjson_size_value(std::size_t& result, char_int_type prefix = 0)
+    bool get_ubjson_size_value(std::size_t& result, bool& is_ndarray, char_int_type prefix = 0)
     {
         if (prefix == 0)
         {
@@ -2018,6 +2033,11 @@ class binary_reader
                 {
                     return false;
                 }
+                if (number < 0)
+                {
+                    return sax->parse_error(chars_read, get_token_string(), parse_error::create(113, chars_read,
+                                            exception_message(input_format, "count in an optimized container must be positive", "size"), nullptr));
+                }
                 result = static_cast<std::size_t>(number); // NOLINT(bugprone-signed-char-misuse,cert-str34-c): number is not a char
                 return true;
             }
@@ -2028,6 +2048,11 @@ class binary_reader
                 if (JSON_HEDLEY_UNLIKELY(!get_number(input_format, number)))
                 {
                     return false;
+                }
+                if (number < 0)
+                {
+                    return sax->parse_error(chars_read, get_token_string(), parse_error::create(113, chars_read,
+                                            exception_message(input_format, "count in an optimized container must be positive", "size"), nullptr));
                 }
                 result = static_cast<std::size_t>(number);
                 return true;
@@ -2040,6 +2065,11 @@ class binary_reader
                 {
                     return false;
                 }
+                if (number < 0)
+                {
+                    return sax->parse_error(chars_read, get_token_string(), parse_error::create(113, chars_read,
+                                            exception_message(input_format, "count in an optimized container must be positive", "size"), nullptr));
+                }
                 result = static_cast<std::size_t>(number);
                 return true;
             }
@@ -2050,6 +2080,16 @@ class binary_reader
                 if (JSON_HEDLEY_UNLIKELY(!get_number(input_format, number)))
                 {
                     return false;
+                }
+                if (number < 0)
+                {
+                    return sax->parse_error(chars_read, get_token_string(), parse_error::create(113, chars_read,
+                                            exception_message(input_format, "count in an optimized container must be positive", "size"), nullptr));
+                }
+                if (!value_in_range_of<std::size_t>(number))
+                {
+                    return sax->parse_error(chars_read, get_token_string(), out_of_range::create(408,
+                                            exception_message(input_format, "integer value overflow", "size"), nullptr));
                 }
                 result = static_cast<std::size_t>(number);
                 return true;
@@ -2081,7 +2121,7 @@ class binary_reader
                 {
                     return false;
                 }
-                result = static_cast<std::size_t>(number);
+                result = conditional_static_cast<std::size_t>(number);
                 return true;
             }
 
@@ -2096,6 +2136,11 @@ class binary_reader
                 {
                     return false;
                 }
+                if (!value_in_range_of<std::size_t>(number))
+                {
+                    return sax->parse_error(chars_read, get_token_string(), out_of_range::create(408,
+                                            exception_message(input_format, "integer value overflow", "size"), nullptr));
+                }
                 result = detail::conditional_static_cast<std::size_t>(number);
                 return true;
             }
@@ -2105,6 +2150,10 @@ class binary_reader
                 if (input_format != input_format_t::bjdata)
                 {
                     break;
+                }
+                if (is_ndarray) // ndarray dimensional vector can only contain integers, and can not embed another array
+                {
+                    return sax->parse_error(chars_read, get_token_string(), parse_error::create(113, chars_read, exception_message(input_format, "ndarray dimentional vector is not allowed", "size"), nullptr));
                 }
                 std::vector<size_t> dim;
                 if (JSON_HEDLEY_UNLIKELY(!get_ubjson_ndarray_size(dim)))
@@ -2118,6 +2167,15 @@ class binary_reader
                 }
                 if (!dim.empty())  // if ndarray, convert to an object in JData annotated array format
                 {
+                    for (auto i : dim) // test if any dimension in an ndarray is 0, if so, return a 1D empty container
+                    {
+                        if ( i == 0 )
+                        {
+                            result = 0;
+                            return true;
+                        }
+                    }
+
                     string_t key = "_ArraySize_";
                     if (JSON_HEDLEY_UNLIKELY(!sax->start_object(3) || !sax->key(key) || !sax->start_array(dim.size())))
                     {
@@ -2127,12 +2185,16 @@ class binary_reader
                     for (auto i : dim)
                     {
                         result *= i;
-                        if (JSON_HEDLEY_UNLIKELY(!sax->number_integer(static_cast<number_integer_t>(i))))
+                        if (result == 0 || result == npos) // because dim elements shall not have zeros, result = 0 means overflow happened; it also can't be npos as it is used to initialize size in get_ubjson_size_type()
+                        {
+                            return sax->parse_error(chars_read, get_token_string(), out_of_range::create(408, exception_message(input_format, "excessive ndarray size caused overflow", "size"), nullptr));
+                        }
+                        if (JSON_HEDLEY_UNLIKELY(!sax->number_unsigned(static_cast<number_unsigned_t>(i))))
                         {
                             return false;
                         }
                     }
-                    result |= (1ull << (sizeof(result) * 8 - 1)); // low 63 bit of result stores the total element count, sign-bit indicates ndarray
+                    is_ndarray = true;
                     return sax->end_array();
                 }
                 result = 0;
@@ -2163,29 +2225,30 @@ class binary_reader
     for a more compact representation.
 
     @param[out] result  pair of the size and the type
+    @param[in] inside_ndarray  whether the parser is parsing an ND array dimensional vector
 
     @return whether pair creation completed
     */
-    bool get_ubjson_size_type(std::pair<std::size_t, char_int_type>& result)
+    bool get_ubjson_size_type(std::pair<std::size_t, char_int_type>& result, bool inside_ndarray = false)
     {
-        result.first = string_t::npos; // size
+        result.first = npos; // size
         result.second = 0; // type
+        bool is_ndarray = false;
 
         get_ignore_noop();
 
         if (current == '$')
         {
-            std::vector<char_int_type> bjdx = {'[', '{', 'S', 'H', 'T', 'F', 'N', 'Z'}; // excluded markers in bjdata optimized type
-
             result.second = get();  // must not ignore 'N', because 'N' maybe the type
-            if (JSON_HEDLEY_UNLIKELY( input_format == input_format_t::bjdata && std::find(bjdx.begin(), bjdx.end(), result.second) != bjdx.end() ))
+            if (input_format == input_format_t::bjdata
+                    && JSON_HEDLEY_UNLIKELY(std::binary_search(bjd_optimized_type_markers.begin(), bjd_optimized_type_markers.end(), result.second)))
             {
                 auto last_token = get_token_string();
                 return sax->parse_error(chars_read, last_token, parse_error::create(112, chars_read,
                                         exception_message(input_format, concat("marker 0x", last_token, " is not a permitted optimized array type"), "type"), nullptr));
             }
 
-            if (JSON_HEDLEY_UNLIKELY(!unexpect_eof(input_format, "type") || (input_format == input_format_t::bjdata && std::find(bjdx.begin(), bjdx.end(), result.second) != bjdx.end() )))
+            if (JSON_HEDLEY_UNLIKELY(!unexpect_eof(input_format, "type")))
             {
                 return false;
             }
@@ -2202,12 +2265,28 @@ class binary_reader
                                         exception_message(input_format, concat("expected '#' after type information; last byte: 0x", last_token), "size"), nullptr));
             }
 
-            return get_ubjson_size_value(result.first);
+            bool is_error = get_ubjson_size_value(result.first, is_ndarray);
+            if (input_format == input_format_t::bjdata && is_ndarray)
+            {
+                if (inside_ndarray)
+                {
+                    return sax->parse_error(chars_read, get_token_string(), parse_error::create(112, chars_read,
+                                            exception_message(input_format, "ndarray can not be recursive", "size"), nullptr));
+                }
+                result.second |= (1 << 8); // use bit 8 to indicate ndarray, all UBJSON and BJData markers should be ASCII letters
+            }
+            return is_error;
         }
 
         if (current == '#')
         {
-            return get_ubjson_size_value(result.first);
+            bool is_error = get_ubjson_size_value(result.first, is_ndarray);
+            if (input_format == input_format_t::bjdata && is_ndarray)
+            {
+                return sax->parse_error(chars_read, get_token_string(), parse_error::create(112, chars_read,
+                                        exception_message(input_format, "ndarray requires both type and size", "size"), nullptr));
+            }
+            return is_error;
         }
 
         return true;
@@ -2408,17 +2487,26 @@ class binary_reader
             return false;
         }
 
-        // detect and encode bjdata ndarray as an object in JData annotated array format (https://github.com/NeuroJSON/jdata):
+        // if bit-8 of size_and_type.second is set to 1, encode bjdata ndarray as an object in JData annotated array format (https://github.com/NeuroJSON/jdata):
         // {"_ArrayType_" : "typeid", "_ArraySize_" : [n1, n2, ...], "_ArrayData_" : [v1, v2, ...]}
 
-        if (input_format == input_format_t::bjdata && size_and_type.first != string_t::npos && size_and_type.first >= (1ull << (sizeof(std::size_t) * 8 - 1)))
+        if (input_format == input_format_t::bjdata && size_and_type.first != npos && (size_and_type.second & (1 << 8)) != 0)
         {
-            std::map<char_int_type, string_t> bjdtype = {{'U', "uint8"},  {'i', "int8"},  {'u', "uint16"}, {'I', "int16"},
-                {'m', "uint32"}, {'l', "int32"}, {'M', "uint64"}, {'L', "int64"}, {'d', "single"}, {'D', "double"}, {'C', "char"}
-            };
-
+            size_and_type.second &= ~(static_cast<char_int_type>(1) << 8);  // use bit 8 to indicate ndarray, here we remove the bit to restore the type marker
+            auto it = std::lower_bound(bjd_types_map.begin(), bjd_types_map.end(), size_and_type.second, [](const bjd_type & p, char_int_type t)
+            {
+                return p.first < t;
+            });
             string_t key = "_ArrayType_";
-            if (JSON_HEDLEY_UNLIKELY(bjdtype.count(size_and_type.second) == 0 || !sax->key(key) || !sax->string(bjdtype[size_and_type.second]) ))
+            if (JSON_HEDLEY_UNLIKELY(it == bjd_types_map.end() || it->first != size_and_type.second))
+            {
+                auto last_token = get_token_string();
+                return sax->parse_error(chars_read, last_token, parse_error::create(112, chars_read,
+                                        exception_message(input_format, "invalid byte: 0x" + last_token, "type"), nullptr));
+            }
+
+            string_t type = it->second; // sax->string() takes a reference
+            if (JSON_HEDLEY_UNLIKELY(!sax->key(key) || !sax->string(type)))
             {
                 return false;
             }
@@ -2428,7 +2516,6 @@ class binary_reader
                 size_and_type.second = 'U';
             }
 
-            size_and_type.first &= ~(1ull << (sizeof(std::size_t) * 8 - 1));
             key = "_ArrayData_";
             if (JSON_HEDLEY_UNLIKELY(!sax->key(key) || !sax->start_array(size_and_type.first) ))
             {
@@ -2446,7 +2533,7 @@ class binary_reader
             return (sax->end_array() && sax->end_object());
         }
 
-        if (size_and_type.first != string_t::npos)
+        if (size_and_type.first != npos)
         {
             if (JSON_HEDLEY_UNLIKELY(!sax->start_array(size_and_type.first)))
             {
@@ -2508,13 +2595,16 @@ class binary_reader
             return false;
         }
 
-        if (input_format == input_format_t::bjdata && size_and_type.first != string_t::npos && size_and_type.first >= (1ull << (sizeof(std::size_t) * 8 - 1)))
+        // do not accept ND-array size in objects in BJData
+        if (input_format == input_format_t::bjdata && size_and_type.first != npos && (size_and_type.second & (1 << 8)) != 0)
         {
-            return false;
+            auto last_token = get_token_string();
+            return sax->parse_error(chars_read, last_token, parse_error::create(112, chars_read,
+                                    exception_message(input_format, "BJData object does not support ND-array size in optimized format", "object"), nullptr));
         }
 
         string_t key;
-        if (size_and_type.first != string_t::npos)
+        if (size_and_type.first != npos)
         {
             if (JSON_HEDLEY_UNLIKELY(!sax->start_object(size_and_type.first)))
             {
@@ -2584,7 +2674,8 @@ class binary_reader
     {
         // get size of following number string
         std::size_t size{};
-        auto res = get_ubjson_size_value(size);
+        bool no_ndarray = true;
+        auto res = get_ubjson_size_value(size, no_ndarray);
         if (JSON_HEDLEY_UNLIKELY(!res))
         {
             return res;
@@ -2857,6 +2948,8 @@ class binary_reader
     }
 
   private:
+    static JSON_INLINE_VARIABLE constexpr std::size_t npos = static_cast<std::size_t>(-1);
+
     /// input adapter
     InputAdapterType ia;
 
@@ -2874,6 +2967,44 @@ class binary_reader
 
     /// the SAX parser
     json_sax_t* sax = nullptr;
+
+    // excluded markers in bjdata optimized type
+#define JSON_BINARY_READER_MAKE_BJD_OPTIMIZED_TYPE_MARKERS_ \
+    make_array<char_int_type>('F', 'H', 'N', 'S', 'T', 'Z', '[', '{')
+
+#define JSON_BINARY_READER_MAKE_BJD_TYPES_MAP_ \
+    make_array<bjd_type>(                      \
+    bjd_type{'C', "char"},                     \
+    bjd_type{'D', "double"},                   \
+    bjd_type{'I', "int16"},                    \
+    bjd_type{'L', "int64"},                    \
+    bjd_type{'M', "uint64"},                   \
+    bjd_type{'U', "uint8"},                    \
+    bjd_type{'d', "single"},                   \
+    bjd_type{'i', "int8"},                     \
+    bjd_type{'l', "int32"},                    \
+    bjd_type{'m', "uint32"},                   \
+    bjd_type{'u', "uint16"})
+
+  JSON_PRIVATE_UNLESS_TESTED:
+    // lookup tables
+    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
+    const decltype(JSON_BINARY_READER_MAKE_BJD_OPTIMIZED_TYPE_MARKERS_) bjd_optimized_type_markers =
+        JSON_BINARY_READER_MAKE_BJD_OPTIMIZED_TYPE_MARKERS_;
+
+    using bjd_type = std::pair<char_int_type, string_t>;
+    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
+    const decltype(JSON_BINARY_READER_MAKE_BJD_TYPES_MAP_) bjd_types_map =
+        JSON_BINARY_READER_MAKE_BJD_TYPES_MAP_;
+
+#undef JSON_BINARY_READER_MAKE_BJD_OPTIMIZED_TYPE_MARKERS_
+#undef JSON_BINARY_READER_MAKE_BJD_TYPES_MAP_
 };
+
+#ifndef JSON_HAS_CPP_17
+    template<typename BasicJsonType, typename InputAdapterType, typename SAX>
+    constexpr std::size_t binary_reader<BasicJsonType, InputAdapterType, SAX>::npos;
+#endif
+
 }  // namespace detail
-}  // namespace nlohmann
+NLOHMANN_JSON_NAMESPACE_END

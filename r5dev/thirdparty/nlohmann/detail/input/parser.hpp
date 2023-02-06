@@ -1,3 +1,11 @@
+//     __ _____ _____ _____
+//  __|  |   __|     |   | |  JSON for Modern C++
+// |  |  |__   |  |  | | | |  version 3.11.2
+// |_____|_____|_____|_|___|  https://github.com/nlohmann/json
+//
+// SPDX-FileCopyrightText: 2013-2022 Niels Lohmann <https://nlohmann.me>
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <cmath> // isfinite
@@ -7,17 +15,16 @@
 #include <utility> // move
 #include <vector> // vector
 
-#include <thirdparty/nlohmann/detail/exceptions.hpp>
-#include <thirdparty/nlohmann/detail/input/input_adapters.hpp>
-#include <thirdparty/nlohmann/detail/input/json_sax.hpp>
-#include <thirdparty/nlohmann/detail/input/lexer.hpp>
-#include <thirdparty/nlohmann/detail/macro_scope.hpp>
-#include <thirdparty/nlohmann/detail/meta/is_sax.hpp>
-#include <thirdparty/nlohmann/detail/string_concat.hpp>
-#include <thirdparty/nlohmann/detail/value_t.hpp>
+#include <nlohmann/detail/exceptions.hpp>
+#include <nlohmann/detail/input/input_adapters.hpp>
+#include <nlohmann/detail/input/json_sax.hpp>
+#include <nlohmann/detail/input/lexer.hpp>
+#include <nlohmann/detail/macro_scope.hpp>
+#include <nlohmann/detail/meta/is_sax.hpp>
+#include <nlohmann/detail/string_concat.hpp>
+#include <nlohmann/detail/value_t.hpp>
 
-namespace nlohmann
-{
+NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
 ////////////
@@ -497,4 +504,4 @@ class parser
 };
 
 }  // namespace detail
-}  // namespace nlohmann
+NLOHMANN_JSON_NAMESPACE_END

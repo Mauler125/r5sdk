@@ -1,3 +1,11 @@
+//     __ _____ _____ _____
+//  __|  |   __|     |   | |  JSON for Modern C++
+// |  |  |__   |  |  | | | |  version 3.11.2
+// |_____|_____|_____|_|___|  https://github.com/nlohmann/json
+//
+// SPDX-FileCopyrightText: 2013-2022 Niels Lohmann <https://nlohmann.me>
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <algorithm> // reverse
@@ -11,15 +19,15 @@
 #include <utility> // move
 #include <vector> // vector
 
-#include <thirdparty/nlohmann/detail/input/binary_reader.hpp>
-#include <thirdparty/nlohmann/detail/macro_scope.hpp>
-#include <thirdparty/nlohmann/detail/output/output_adapters.hpp>
-#include <thirdparty/nlohmann/detail/string_concat.hpp>
+#include <nlohmann/detail/input/binary_reader.hpp>
+#include <nlohmann/detail/macro_scope.hpp>
+#include <nlohmann/detail/output/output_adapters.hpp>
+#include <nlohmann/detail/string_concat.hpp>
 
-namespace nlohmann
-{
+NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
+
 ///////////////////
 // binary writer //
 ///////////////////
@@ -1825,5 +1833,6 @@ class binary_writer
     /// the output
     output_adapter_t<CharType> oa = nullptr;
 };
+
 }  // namespace detail
-}  // namespace nlohmann
+NLOHMANN_JSON_NAMESPACE_END

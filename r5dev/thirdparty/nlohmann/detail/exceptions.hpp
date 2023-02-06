@@ -1,3 +1,11 @@
+//     __ _____ _____ _____
+//  __|  |   __|     |   | |  JSON for Modern C++
+// |  |  |__   |  |  | | | |  version 3.11.2
+// |_____|_____|_____|_|___|  https://github.com/nlohmann/json
+//
+// SPDX-FileCopyrightText: 2013-2022 Niels Lohmann <https://nlohmann.me>
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <cstddef> // nullptr_t
@@ -6,19 +14,19 @@
 #include <string> // to_string
 #include <vector> // vector
 
-#include <thirdparty/nlohmann/detail/value_t.hpp>
-#include <thirdparty/nlohmann/detail/string_escape.hpp>
-#include <thirdparty/nlohmann/detail/input/position_t.hpp>
-#include <thirdparty/nlohmann/detail/macro_scope.hpp>
-#include <thirdparty/nlohmann/detail/meta/cpp_future.hpp>
-#include <thirdparty/nlohmann/detail/meta/type_traits.hpp>
-#include <thirdparty/nlohmann/detail/string_concat.hpp>
+#include <nlohmann/detail/value_t.hpp>
+#include <nlohmann/detail/string_escape.hpp>
+#include <nlohmann/detail/input/position_t.hpp>
+#include <nlohmann/detail/macro_scope.hpp>
+#include <nlohmann/detail/meta/cpp_future.hpp>
+#include <nlohmann/detail/meta/type_traits.hpp>
+#include <nlohmann/detail/string_concat.hpp>
 
 
-namespace nlohmann
-{
+NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
+
 ////////////////
 // exceptions //
 ////////////////
@@ -244,4 +252,4 @@ class other_error : public exception
 };
 
 }  // namespace detail
-}  // namespace nlohmann
+NLOHMANN_JSON_NAMESPACE_END

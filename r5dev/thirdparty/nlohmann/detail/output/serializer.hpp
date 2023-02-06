@@ -1,3 +1,12 @@
+//     __ _____ _____ _____
+//  __|  |   __|     |   | |  JSON for Modern C++
+// |  |  |__   |  |  | | | |  version 3.11.2
+// |_____|_____|_____|_|___|  https://github.com/nlohmann/json
+//
+// SPDX-FileCopyrightText: 2008-2009 Björn Hoehrmann <bjoern@hoehrmann.de>
+// SPDX-FileCopyrightText: 2013-2022 Niels Lohmann <https://nlohmann.me>
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <algorithm> // reverse, remove, fill, find, none_of
@@ -13,19 +22,19 @@
 #include <type_traits> // is_same
 #include <utility> // move
 
-#include <thirdparty/nlohmann/detail/conversions/to_chars.hpp>
-#include <thirdparty/nlohmann/detail/exceptions.hpp>
-#include <thirdparty/nlohmann/detail/macro_scope.hpp>
-#include <thirdparty/nlohmann/detail/meta/cpp_future.hpp>
-#include <thirdparty/nlohmann/detail/output/binary_writer.hpp>
-#include <thirdparty/nlohmann/detail/output/output_adapters.hpp>
-#include <thirdparty/nlohmann/detail/string_concat.hpp>
-#include <thirdparty/nlohmann/detail/value_t.hpp>
+#include <nlohmann/detail/conversions/to_chars.hpp>
+#include <nlohmann/detail/exceptions.hpp>
+#include <nlohmann/detail/macro_scope.hpp>
+#include <nlohmann/detail/meta/cpp_future.hpp>
+#include <nlohmann/detail/output/binary_writer.hpp>
+#include <nlohmann/detail/output/output_adapters.hpp>
+#include <nlohmann/detail/string_concat.hpp>
+#include <nlohmann/detail/value_t.hpp>
 
-namespace nlohmann
-{
+NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
+
 ///////////////////
 // serialization //
 ///////////////////
@@ -974,5 +983,6 @@ class serializer
     /// error_handler how to react on decoding errors
     const error_handler_t error_handler;
 };
+
 }  // namespace detail
-}  // namespace nlohmann
+NLOHMANN_JSON_NAMESPACE_END
