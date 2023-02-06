@@ -9,6 +9,9 @@ int Host_Changelevel_f_CompletionFunc(char const* partial, char commands[COMMAND
 
 int Game_Give_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 
+int RTech_PakLoad_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
+int RTech_PakUnload_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
+
 inline CMemory p_CAutoCompleteFileList_AutoCompletionFunc;
 inline auto v_CAutoCompleteFileList_AutoCompletionFunc = p_CAutoCompleteFileList_AutoCompletionFunc.RCast<int(*)(
 	CAutoCompleteFileList* thisp, const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])>();
