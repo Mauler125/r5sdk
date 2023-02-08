@@ -471,9 +471,9 @@ void ConCommand::InitShipped(void)
 		migrateme->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
 #ifndef CLIENT_DLL
 		changelevel->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-		map->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
-		map_background->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
-		ss_map->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
+		map->RemoveFlags(FCVAR_DEVELOPMENTONLY|FCVAR_SERVER_CAN_EXECUTE);
+		map_background->RemoveFlags(FCVAR_DEVELOPMENTONLY|FCVAR_SERVER_CAN_EXECUTE);
+		ss_map->RemoveFlags(FCVAR_DEVELOPMENTONLY|FCVAR_SERVER_CAN_EXECUTE);
 #endif // !CLIENT_DLL
 	}
 }
