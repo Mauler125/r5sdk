@@ -13,25 +13,26 @@ size_t CURLWriteStringCallback(char* contents, size_t size, size_t nmemb, void* 
     return size * nmemb;
 }
 
-CURL* CURLInitRequest(const string& hostname, const string& request, string& response, curl_slist* slist)
+CURL* CURLInitRequest(const string& hostname, const string& request, string& response, curl_slist*& slist)
 {
     std::function<void(const char*)> fnError = [&](const char* errorMsg)
     {
         Error(eDLL_T::ENGINE, NO_ERROR, "CURL: %s\n", errorMsg);
         curl_slist_free_all(slist);
-        return nullptr;
     };
 
     slist = curl_slist_append(slist, "Content-Type: application/json");
     if (!slist)
     {
         fnError("Slist init failed");
+        return nullptr;
     }
 
     CURL* curl = curl_easy_init();
     if (!curl)
     {
         fnError("Easy init failed");
+        return nullptr;
     }
 
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
@@ -45,6 +46,7 @@ CURL* CURLInitRequest(const string& hostname, const string& request, string& res
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
     curl_easy_setopt(curl, CURLOPT_VERBOSE, curl_debug->GetBool());
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
 
     if (!ssl_verify_peer->GetBool())
     {
@@ -54,7 +56,7 @@ CURL* CURLInitRequest(const string& hostname, const string& request, string& res
     return curl;
 }
 
-CURLcode CURLSubmitRequest(CURL* curl, curl_slist* slist)
+CURLcode CURLSubmitRequest(CURL* curl, curl_slist*& slist)
 {
     CURLcode res = curl_easy_perform(curl);
     curl_slist_free_all(slist);
