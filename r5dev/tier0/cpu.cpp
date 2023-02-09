@@ -96,7 +96,7 @@ inline static IntelCacheDesc_t s_IntelL3DataCacheDesc[] = {
 	{ 0x29, 4 * 1024 },
 	{ 0x46, 4 * 1024 },
 	{ 0x47, 8 * 1024 },
-	// { 49, 
+	{ 0x49, 4 * 1024 }, // Only valid when: family == 0x0F && model == 0x06.
 	{ 0x4a, 6 * 1024 },
 	{ 0x4b, 8 * 1024 },
 	{ 0x4c, 12 * 1024 },
@@ -139,7 +139,7 @@ static bool cpuidex(unsigned long function, unsigned long subfunction, CpuIdResu
 	out.ebx = pCPUInfo[1];
 	out.ecx = pCPUInfo[2];
 	out.edx = pCPUInfo[3];
-	return false;
+	return true;
 }
 
 
@@ -548,6 +548,8 @@ const CPUInformation& GetCPUInformation(void)
 	CpuIdResult_t cpuid0ex = cpuid(0x80000000);
 	if (bAuthenticAMD)
 	{
+		// TODO: add '0x8000001D' (newer AMD cpu's).
+		// Fall back to below if value doesn't equal/exceed it.
 		if (cpuid0ex.eax >= 0x80000005)
 		{
 			CpuIdResult_t cpuid5ex = cpuid(0x80000005);
