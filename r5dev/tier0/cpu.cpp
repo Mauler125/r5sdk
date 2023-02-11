@@ -521,7 +521,7 @@ const CPUInformation& GetCPUInformation(void)
 							uint32_t nCacheSizeBytes   = nCacheWays * nCachePartitions * nCacheLineSize * nCacheSets;
 
 							nCacheSizeKiB[nCacheLevel] = nCacheSizeBytes >> 10;
-							nCacheDesc[nCacheLevel] = ((nCacheWays << 16) + (nCachePartitions << 8) + nCacheLineSize);
+							nCacheDesc[nCacheLevel] = 1 + cpuid4.ebx;
 						}
 					}
 				}
@@ -574,7 +574,10 @@ const CPUInformation& GetCPUInformation(void)
 		if (cpuid0ex.eax >= 0x80000006)
 		{
 			// Make sure we got the L2 cache info right.
-			pi.m_nL2CacheSizeKb = (cpuid(0x80000006).ecx >> 16);
+			CpuIdResult_t cpuid6ex = cpuid(0x80000006);
+
+			pi.m_nL2CacheSizeKb = cpuid6ex.ecx >> 16;
+			pi.m_nL2CacheDesc = cpuid6ex.ecx & 0xFFFF;
 		}
 	}
 	return pi;
