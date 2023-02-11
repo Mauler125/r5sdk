@@ -400,7 +400,7 @@ static void FindIntelCacheDesc(uint8_t nDesc, const IntelCacheDesc_t* pDesc, int
 }
 
 // See "Output of the CPUID instruction" from Intel, page 26.
-static void InterpretIntelCacheDescriptors(uint32_t nPackedDesc)
+static void InterpretIntelCacheDescriptors(uint32_t nPackedDesc, CPUInformation& pi)
 {
 	if (nPackedDesc & 0x80000000)
 	{
@@ -408,9 +408,9 @@ static void InterpretIntelCacheDescriptors(uint32_t nPackedDesc)
 	}
 	for (int i = 0; i < 4; ++i)
 	{
-		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL1DataCacheDesc, ARRAYSIZE(s_IntelL1DataCacheDesc), s_cpuInformation.m_nL1CacheSizeKb, s_cpuInformation.m_nL1CacheDesc);
-		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL2DataCacheDesc, ARRAYSIZE(s_IntelL2DataCacheDesc), s_cpuInformation.m_nL2CacheSizeKb, s_cpuInformation.m_nL2CacheDesc);
-		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL3DataCacheDesc, ARRAYSIZE(s_IntelL3DataCacheDesc), s_cpuInformation.m_nL3CacheSizeKb, s_cpuInformation.m_nL3CacheDesc);
+		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL1DataCacheDesc, ARRAYSIZE(s_IntelL1DataCacheDesc), pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
+		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL2DataCacheDesc, ARRAYSIZE(s_IntelL2DataCacheDesc), pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
+		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL3DataCacheDesc, ARRAYSIZE(s_IntelL3DataCacheDesc), pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
 		nPackedDesc >>= 8;
 	}
 }
@@ -539,10 +539,10 @@ const CPUInformation& GetCPUInformation(void)
 				CpuIdResult_t cpuid2 = cpuid(2);
 				for (int i = (cpuid2.eax & 0xFF); i-- > 0; )
 				{
-					InterpretIntelCacheDescriptors(cpuid2.eax & ~0xFF);
-					InterpretIntelCacheDescriptors(cpuid2.ebx);
-					InterpretIntelCacheDescriptors(cpuid2.ecx);
-					InterpretIntelCacheDescriptors(cpuid2.edx);
+					InterpretIntelCacheDescriptors(cpuid2.eax & ~0xFF, pi);
+					InterpretIntelCacheDescriptors(cpuid2.ebx, pi);
+					InterpretIntelCacheDescriptors(cpuid2.ecx, pi);
+					InterpretIntelCacheDescriptors(cpuid2.edx, pi);
 					cpuid2 = cpuid(2); // Read the next.
 				}
 			}
