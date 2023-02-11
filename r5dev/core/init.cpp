@@ -153,7 +153,7 @@ void Systems_Init()
 	initTimer.End();
 
 	spdlog::info("+-------------------------------------------------------------+\n");
-	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Init()", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
+	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->InitDB()", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
 
@@ -266,33 +266,30 @@ void QuerySystemInfo()
 		{
 			char szDeviceName[128];
 			wcstombs(szDeviceName, dd.DeviceString, sizeof(szDeviceName));
-			spdlog::info("GPU model identifier     : '{:s}'\n", szDeviceName);
+			spdlog::info("{:25s}: '{:s}'\n", "GPU model identifier", szDeviceName);
 		}
 	}
 
 	const CPUInformation& pi = GetCPUInformation();
 
-	spdlog::info("CPU model identifier     : '{:s}'\n", pi.m_szProcessorBrand);
-	spdlog::info("CPU vendor tag           : '{:s}'\n", pi.m_szProcessorID);
-	spdlog::info("CPU core count           : '{:12d}' ({:s})\n", pi.m_nPhysicalProcessors, "Physical");
-	spdlog::info("CPU core count           : '{:12d}' ({:s})\n", pi.m_nLogicalProcessors, "Logical");
-	spdlog::info("L1 cache            (KiB): '{:12d}'\n", pi.m_nL1CacheSizeKb);
-	spdlog::info("L1 cache            (Dsc): '{:#12x}'\n" , pi.m_nL1CacheDesc);
-	spdlog::info("L2 cache            (KiB): '{:12d}'\n", pi.m_nL2CacheSizeKb);
-	spdlog::info("L2 cache            (Dsc): '{:#12x}'\n" , pi.m_nL2CacheDesc);
-	spdlog::info("L3 cache            (KiB): '{:12d}'\n", pi.m_nL3CacheSizeKb);
-	spdlog::info("L3 cache            (Dsc): '{:#12x}'\n" , pi.m_nL3CacheDesc);
-	spdlog::info("Clock speed         (CPS): '{:12d}'\n", pi.m_Speed);
+	spdlog::info("{:25s}: '{:s}'\n","CPU model identifier", pi.m_szProcessorBrand);
+	spdlog::info("{:25s}: '{:s}'\n","CPU vendor tag", pi.m_szProcessorID);
+	spdlog::info("{:25s}: '{:12d}' ({:12s})\n", "CPU core count", pi.m_nPhysicalProcessors, "Physical");
+	spdlog::info("{:25s}: '{:12d}' ({:12s})\n", "CPU core count", pi.m_nLogicalProcessors, "Logical");
+	spdlog::info("{:25s}: '{:12d}' ({:12s})\n", "CPU core speed", pi.m_Speed, "Cycles");
+	spdlog::info("{:20s}{:s}: '{:12d}' (0x{:<10X})\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
+	spdlog::info("{:20s}{:s}: '{:12d}' (0x{:<10X})\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
+	spdlog::info("{:20s}{:s}: '{:12d}' (0x{:<10X})\n", "L3 cache", "(KiB)", pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
 
 	MEMORYSTATUSEX statex{};
 	statex.dwLength = sizeof(statex);
 
 	if (GlobalMemoryStatusEx(&statex))
 	{
-		spdlog::info("Total system memory (MiB): '{:12d}' ({:s})\n", (statex.ullTotalPhys / 1024) / 1024, "Physical");
-		spdlog::info("Avail system memory (MiB): '{:12d}' ({:s})\n", (statex.ullAvailPhys / 1024) / 1024, "Physical");
-		spdlog::info("Total system memory (MiB): '{:12d}' ({:s})\n", (statex.ullTotalVirtual / 1024) / 1024, "Virtual");
-		spdlog::info("Avail system memory (MiB): '{:12d}' ({:s})\n", (statex.ullAvailVirtual / 1024) / 1024, "Virtual");
+		spdlog::info("{:20s}{:s}: '{:12d}' ({:12s})\n", "Total system memory", "(MiB)", (statex.ullTotalPhys / 1024) / 1024, "Physical");
+		spdlog::info("{:20s}{:s}: '{:12d}' ({:12s})\n", "Avail system memory", "(MiB)", (statex.ullAvailPhys / 1024) / 1024, "Physical");
+		spdlog::info("{:20s}{:s}: '{:12d}' ({:12s})\n", "Total system memory", "(MiB)", (statex.ullTotalVirtual / 1024) / 1024, "Virtual");
+		spdlog::info("{:20s}{:s}: '{:12d}' ({:12s})\n", "Avail system memory", "(MiB)", (statex.ullAvailVirtual / 1024) / 1024, "Virtual");
 	}
 	else
 	{
