@@ -136,14 +136,14 @@ ReturnType CallVFunc(int index, void* thisPtr, Args... args)
 
 inline void LogFunAdr(const char* szFun, uintptr_t nAdr) // Logging function addresses.
 {
-	spdlog::debug("| FUN: {:42s}: {:#18x} |\n", szFun, nAdr);
+	spdlog::debug("| {:s}: {:42s}: {:#18x} |\n", "FUN", szFun, nAdr);
 }
 inline void LogVarAdr(const char* szVar, uintptr_t nAdr) // Logging variable addresses.
 {
-	spdlog::debug("| VAR: {:42s}: {:#18x} |\n", szVar, nAdr);
+	spdlog::debug("| {:s}: {:42s}: {:#18x} |\n", "VAR", szVar, nAdr);
 }
 inline void LogConAdr(const char* szCon, uintptr_t nAdr) // Logging constant addresses.
 {
-	spdlog::debug("| CON: {:42s}: {:#18x} |\n", szCon, nAdr);
+	spdlog::debug("| {:s}: {:42s}: {:#18x} |\n", "CON", szCon, nAdr);
 }
 #endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
