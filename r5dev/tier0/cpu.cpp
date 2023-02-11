@@ -389,9 +389,10 @@ static void FindIntelCacheDesc(uint8_t nDesc, const IntelCacheDesc_t* pDesc, int
 {
 	for (int i = 0; i < nDescCount; ++i)
 	{
-		if (pDesc->nDesc == nDesc)
+		const IntelCacheDesc_t& desc = pDesc[i];
+		if (desc.nDesc == nDesc)
 		{
-			nCache = pDesc->nCacheSize;
+			nCache = desc.nCacheSize;
 			nCacheDesc = nDesc;
 			break;
 		}
