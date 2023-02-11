@@ -408,9 +408,19 @@ static void InterpretIntelCacheDescriptors(uint32_t nPackedDesc, CPUInformation&
 	}
 	for (int i = 0; i < 4; ++i)
 	{
-		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL1DataCacheDesc, ARRAYSIZE(s_IntelL1DataCacheDesc), pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
-		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL2DataCacheDesc, ARRAYSIZE(s_IntelL2DataCacheDesc), pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
-		FindIntelCacheDesc(nPackedDesc & 0xFF, s_IntelL3DataCacheDesc, ARRAYSIZE(s_IntelL3DataCacheDesc), pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
+		uint8_t nDesc = nPackedDesc & 0xFF;
+		FindIntelCacheDesc(nDesc, s_IntelL1DataCacheDesc, ARRAYSIZE(s_IntelL1DataCacheDesc), pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
+		FindIntelCacheDesc(nDesc, s_IntelL2DataCacheDesc, ARRAYSIZE(s_IntelL2DataCacheDesc), pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
+		FindIntelCacheDesc(nDesc, s_IntelL3DataCacheDesc, ARRAYSIZE(s_IntelL3DataCacheDesc), pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
+
+		int nFamily = (pi.m_nModel >> 8) & 0xF;
+		int nModel = (pi.m_nModel >> 4) & 0xF;
+		if (nDesc == 49 && (nFamily != 0x0F || nModel != 0x06))
+		{
+			pi.m_nL3CacheSizeKb = 0;
+			pi.m_nL3CacheDesc = 0;
+		}
+
 		nPackedDesc >>= 8;
 	}
 }
