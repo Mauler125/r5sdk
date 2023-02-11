@@ -464,7 +464,7 @@ const CPUInformation& GetCPUInformation(void)
 	if (cpuid0.eax >= 1)
 	{
 		CpuIdResult_t cpuid1 = cpuid(1);
-		uint32_t bFPU = cpuid1.edx & 1; // This should always be on on anything we support.
+		uint32_t bFPU = cpuid1.edx & 1; // This should always be set on anything we support.
 		// Determine Processor Features:
 		pi.m_bRDTSC = (cpuid1.edx >> 4) & 1;
 		pi.m_bCMOV  = (cpuid1.edx >> 15) & 1;
@@ -496,10 +496,8 @@ const CPUInformation& GetCPUInformation(void)
 				// We have CPUID.4, use it to find all the cache parameters.
 				const uint32_t nCachesToQuery = 4; // Level 0 is not used.
 				uint32_t nCacheSizeKiB[nCachesToQuery]{};
-				for (uint32_t i = 0; i < nCachesToQuery; ++i)
-				{
-					nCacheSizeKiB[i] = 0;
-				}
+				uint32_t nCacheDesc[nCachesToQuery]{};
+
 				for (unsigned long nSub = 0; nSub < 1024; ++nSub)
 				{
 					CpuIdResult_t cpuid4 = cpuidex(4, nSub);
@@ -520,14 +518,19 @@ const CPUInformation& GetCPUInformation(void)
 							uint32_t nCacheLineSize    = 1 + (cpuid4.ebx & 0xFF);
 							uint32_t nCacheSets        = 1 + cpuid4.ecx;
 							uint32_t nCacheSizeBytes   = nCacheWays * nCachePartitions * nCacheLineSize * nCacheSets;
+
 							nCacheSizeKiB[nCacheLevel] = nCacheSizeBytes >> 10;
+							nCacheDesc[nCacheLevel] = ((nCacheWays << 16) + (nCachePartitions << 8) + nCacheLineSize);
 						}
 					}
 				}
 
 				pi.m_nL1CacheSizeKb = nCacheSizeKiB[1];
+				pi.m_nL1CacheDesc = nCacheDesc[1];
 				pi.m_nL2CacheSizeKb = nCacheSizeKiB[2];
+				pi.m_nL2CacheDesc = nCacheDesc[2];
 				pi.m_nL3CacheSizeKb = nCacheSizeKiB[3];
+				pi.m_nL3CacheDesc = nCacheDesc[3];
 			}
 			else if (cpuid0.eax >= 2)
 			{
