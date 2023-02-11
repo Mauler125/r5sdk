@@ -266,6 +266,7 @@ void ConVar::InitShipped(void)
 	model_defaultFadeDistScale       = g_pCVar->FindVar("model_defaultFadeDistScale");
 	model_defaultFadeDistMin         = g_pCVar->FindVar("model_defaultFadeDistMin");
 #ifndef DEDICATED
+	miles_language                   = g_pCVar->FindVar("miles_language");
 	rui_defaultDebugFontFace         = g_pCVar->FindVar("rui_defaultDebugFontFace");
 	r_visualizetraces                = g_pCVar->FindVar("r_visualizetraces");
 	r_visualizetraces_duration       = g_pCVar->FindVar("r_visualizetraces_duration");
@@ -288,11 +289,10 @@ void ConVar::InitShipped(void)
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 #ifndef CLIENT_DLL
 	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
+	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
 
 	sv_showhitboxes->SetMin(-1); // Allow user to go over each entity manually without going out of bounds.
 	sv_showhitboxes->SetMax(NUM_ENT_ENTRIES - 1);
-
-	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
 
 	sv_forceChatToTeamOnly->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	sv_forceChatToTeamOnly->AddFlags(FCVAR_REPLICATED);

@@ -1,5 +1,6 @@
 #include "core/stdafx.h"
 #include "miles_impl.h"
+#include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 
 //-----------------------------------------------------------------------------
@@ -19,20 +20,27 @@ void AIL_LogFunc(int64_t nLogLevel, const char* pszMessage)
 //-----------------------------------------------------------------------------
 bool Miles_Initialize()
 {
-	DevMsg(eDLL_T::AUDIO, "%s: initializing Miles Sound System\n", __FUNCTION__);
+	const char* pszLanguage = miles_language->GetString();
+	if (!pszLanguage[0])
+	{
+		pszLanguage = MILES_DEFAULT_LANGUAGE;
+	}
 
+	DevMsg(eDLL_T::AUDIO, "%s: initializing MSS with language: '%s'\n", __FUNCTION__, pszLanguage);
+	CFastTimer initTimer;
+
+	initTimer.Start();
 	bool bResult = v_Miles_Initialize();
+	initTimer.End();
 
-	bResult	? DevMsg(eDLL_T::AUDIO, "%s: %s\n", __FUNCTION__, "initialized successfully")
-			: Warning(eDLL_T::AUDIO, "%s: %s\n", __FUNCTION__, "failed to initialize");
-
+	DevMsg(eDLL_T::AUDIO, "%s: %s ('%f' seconds)\n", __FUNCTION__, bResult ? "success" : "failure", initTimer.GetDuration().GetSeconds());
 	return bResult;
 }
 
 void MilesQueueEventRun(Miles::Queue* queue, const char* eventName)
 {
 	if(miles_debug->GetBool())
-		DevMsg(eDLL_T::AUDIO, "%s: running event '%s'\n", __FUNCTION__, eventName);
+		DevMsg(eDLL_T::AUDIO, "%s: running event: '%s'\n", __FUNCTION__, eventName);
 
 	v_MilesQueueEventRun(queue, eventName);
 }

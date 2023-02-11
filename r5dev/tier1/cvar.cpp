@@ -214,6 +214,7 @@ ConVar* rui_defaultDebugFontFace           = nullptr;
 // MILES                                                                      |
 #ifndef DEDICATED
 ConVar* miles_debug                        = nullptr;
+ConVar* miles_language                     = nullptr;
 #endif
 
 

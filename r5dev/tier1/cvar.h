@@ -210,6 +210,7 @@ extern ConVar* rui_defaultDebugFontFace;
 // MILES                                                                      |
 #ifndef DEDICATED
 extern ConVar* miles_debug;
+extern ConVar* miles_language;
 #endif
 
 //-----------------------------------------------------------------------------

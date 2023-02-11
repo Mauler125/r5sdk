@@ -1,5 +1,7 @@
 #pragma once
 
+constexpr char MILES_DEFAULT_LANGUAGE[] = "english";
+
 namespace Miles
 {
 	struct Queue
