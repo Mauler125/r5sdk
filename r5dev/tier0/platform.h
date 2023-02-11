@@ -791,6 +791,7 @@ struct CPUInformation
 
 	int64_t m_Speed;                    // In cycles per second.
 
+	// Any member below doesn't exist in the game engine!
 	char* m_szProcessorID;              // Processor vendor Identification.
 	char* m_szProcessorBrand;           // Processor brand string, if available
 
