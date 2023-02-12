@@ -398,8 +398,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(IncludePath);</IncludePath>
-    <IntDir>$(SolutionDir)build\$(ProjectName)\win32\release\</IntDir>
-    <OutDir>$(SolutionDir)lib\win32\release\</OutDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\win32\debug\</IntDir>
+    <OutDir>$(SolutionDir)lib\win32\debug\</OutDir>
     <TargetName>libcurl_x86</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
