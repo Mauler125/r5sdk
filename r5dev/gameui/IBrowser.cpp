@@ -714,7 +714,7 @@ void CBrowser::UpdateHostingStatus(void)
 
         g_TaskScheduler->Dispatch([this]()
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> f(g_pServerListManager->m_Mutex);
             NetGameServer_t netGameServer
             {
                 g_pServerListManager->m_Server.m_svHostName,
