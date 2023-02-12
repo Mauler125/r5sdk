@@ -126,7 +126,7 @@ void ConVar::Init(void)
 	sv_rcon_sendlogs    = ConVar::Create("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = ConVar::Create("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = ConVar::Create("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_maxignores  = ConVar::Create("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxignores  = ConVar::Create("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the instruction message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = ConVar::Create("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = ConVar::Create("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'");
 #endif // !CLIENT_DLL
