@@ -727,7 +727,7 @@ void CBrowser::UpdateHostingStatus(void)
                 g_pNetKey->GetBase64NetKey(),
                 std::to_string(*g_nServerRemoteChecksum),
                 SDK_VERSION,
-                std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
+                std::to_string(g_pServer->GetNumClients()),
                 std::to_string(g_ServerGlobalVariables->m_nMaxClients),
                 std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::system_clock::now().time_since_epoch()

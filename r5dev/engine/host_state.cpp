@@ -267,7 +267,7 @@ FORCEINLINE void CHostState::Think(void) const
 			g_pNetKey->GetBase64NetKey(),
 			std::to_string(*g_nServerRemoteChecksum),
 			SDK_VERSION,
-			std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
+			std::to_string(g_pServer->GetNumClients()),
 			std::to_string(g_ServerGlobalVariables->m_nMaxClients),
 			std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch()
@@ -290,7 +290,7 @@ FORCEINLINE void CHostState::Think(void) const
 	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
 	{
 		string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
-		int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
+		int32_t nPlayerCount = g_pServer->GetNumClients();
 
 		SetConsoleTitleA(fmt::format("{:s} - {:d}/{:d} Players ({:s} on {:s})",
 			hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist, m_levelName).c_str());
