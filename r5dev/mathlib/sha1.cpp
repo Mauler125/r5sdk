@@ -69,7 +69,7 @@ std::string SHA1::final()
  
     /* Padding */
     buffer += 0x80;
-    unsigned int orig_size = buffer.size();
+    size_t orig_size = buffer.size();
     while (buffer.size() < BLOCK_BYTES)
     {
         buffer += (char)0x00;
@@ -81,7 +81,7 @@ std::string SHA1::final()
     if (orig_size > BLOCK_BYTES - 8)
     {
         transform(block);
-        for (unsigned int i = 0; i < BLOCK_INTS - 2; i++)
+        for (size_t i = 0; i < BLOCK_INTS - 2; i++)
         {
             block[i] = 0;
         }
@@ -94,7 +94,7 @@ std::string SHA1::final()
  
     /* Hex std::string */
     std::ostringstream result;
-    for (unsigned int i = 0; i < DIGEST_INTS; i++)
+    for (size_t i = 0; i < DIGEST_INTS; i++)
     {
         result << std::hex << std::setfill('0') << std::setw(8);
         result << (digest[i] & 0xffffffff);
@@ -242,7 +242,7 @@ void SHA1::transform(uint32 block[BLOCK_BYTES])
 void SHA1::buffer_to_block(const std::string &buffer, uint32 block[BLOCK_BYTES])
 {
     /* Convert the std::string (byte buffer) to a uint32 array (MSB) */
-    for (unsigned int i = 0; i < BLOCK_INTS; i++)
+    for (size_t i = 0; i < BLOCK_INTS; i++)
     {
         block[i] = (buffer[4*i+3] & 0xff)
                    | (buffer[4*i+2] & 0xff)<<8
@@ -252,7 +252,7 @@ void SHA1::buffer_to_block(const std::string &buffer, uint32 block[BLOCK_BYTES])
 }
  
  
-void SHA1::read(std::istream &is, std::string &s, int max)
+void SHA1::read(std::istream &is, std::string &s, size_t max)
 {
     char* sbuf = new char[max];
     is.read(sbuf, max);
