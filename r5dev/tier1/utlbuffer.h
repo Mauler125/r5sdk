@@ -44,30 +44,30 @@ public:
 		char* m_pReplacementString;
 	};
 
-	CUtlCharConversion(char nEscapeChar, const char* pDelimiter, int nCount, ConversionArray_t* pArray);
+	CUtlCharConversion(char nEscapeChar, const char* pDelimiter, int64 nCount, ConversionArray_t* pArray);
 	char GetEscapeChar() const;
 	const char* GetDelimiter() const;
-	int GetDelimiterLength() const;
+	int64 GetDelimiterLength() const;
 
 	const char* GetConversionString(char c) const;
-	int GetConversionLength(char c) const;
-	int MaxConversionLength() const;
+	int64 GetConversionLength(char c) const;
+	int64 MaxConversionLength() const;
 
 	// Finds a conversion for the passed-in string, returns length
-	virtual char FindConversion(const char* pString, int* pLength);
+	virtual char FindConversion(const char* pString, int64* pLength);
 
 protected:
 	struct ConversionInfo_t
 	{
-		int m_nLength;
+		int64 m_nLength;
 		char* m_pReplacementString;
 	};
 
 	char m_nEscapeChar;
 	const char* m_pDelimiter;
-	int m_nDelimiterLength;
-	int m_nCount;
-	int m_nMaxConversionLength;
+	int64 m_nDelimiterLength;
+	int64 m_nCount;
+	int64 m_nMaxConversionLength;
 	char m_pList[256];
 	ConversionInfo_t m_pReplacements[256];
 };
@@ -198,9 +198,9 @@ public:
 	void* AccessForDirectRead(int64 nBytes);
 
 	// Attaches the buffer to external memory....
-	void			SetExternalBuffer(void* pMemory, int nSize, int nInitialPut, int nFlags = 0);
+	void			SetExternalBuffer(void* pMemory, int64 nSize, int64 nInitialPut, int nFlags = 0);
 	bool			IsExternallyAllocated() const;
-	void			AssumeMemory(void* pMemory, int nSize, int nInitialPut, int nFlags = 0);
+	void			AssumeMemory(void* pMemory, int64 nSize, int64 nInitialPut, int nFlags = 0);
 	void* Detach();
 	void* DetachMemory();
 
@@ -250,27 +250,27 @@ public:
 	float			GetFloat();
 	double			GetDouble();
 	void* GetPtr();
-	void			GetString(char* pString, int nMaxChars);
-	bool			Get(void* pMem, int size);
-	void			GetLine(char* pLine, int nMaxChars);
+	void			GetString(char* pString, int64 nMaxChars);
+	bool			Get(void* pMem, int64 size);
+	void			GetLine(char* pLine, int64 nMaxChars);
 
 	// Used for getting objects that have a byteswap datadesc defined
-	template <typename T> void GetObjects(T* dest, int count = 1);
+	template <typename T> void GetObjects(T* dest, int64 count = 1);
 
 	// This will get at least 1 byte and up to nSize bytes. 
 	// It will return the number of bytes actually read.
-	int				GetUpTo(void* pMem, int nSize);
+	int64			GetUpTo(void* pMem, int64 nSize);
 
 	// This version of GetString converts \" to \\ and " to \, etc.
 	// It also reads a " at the beginning and end of the string
-	void			GetDelimitedString(CUtlCharConversion* pConv, char* pString, int nMaxChars = 0);
+	void			GetDelimitedString(CUtlCharConversion* pConv, char* pString, int64 nMaxChars = 0);
 	char			GetDelimitedChar(CUtlCharConversion* pConv);
 
 	// This will return the # of characters of the string about to be read out
 	// NOTE: The count will *include* the terminating 0!!
 	// In binary mode, it's the number of characters until the next 0
 	// In text mode, it's the number of characters until the next space.
-	int				PeekStringLength();
+	int64			PeekStringLength();
 
 	// This version of PeekStringLength converts \" to \\ and " to \, etc.
 	// It also reads a " at the beginning and end of the string
@@ -280,11 +280,11 @@ public:
 	// Specifying false for bActualSize will return the pre-translated number of characters
 	// including the delimiters and the escape characters. So, \n counts as 2 characters when bActualSize == false
 	// and only 1 character when bActualSize == true
-	int				PeekDelimitedStringLength(CUtlCharConversion* pConv, bool bActualSize = true);
+	int64			PeekDelimitedStringLength(CUtlCharConversion* pConv, bool bActualSize = true);
 
 	// Just like scanf, but doesn't work in binary mode
-	int				Scanf(SCANF_FORMAT_STRING const char* pFmt, ...);
-	int				VaScanf(const char* pFmt, va_list list);
+	int64			Scanf(SCANF_FORMAT_STRING const char* pFmt, ...);
+	int64			VaScanf(const char* pFmt, va_list list);
 
 	// Eats white space, advances Get index
 	void			EatWhiteSpace();
@@ -298,7 +298,7 @@ public:
 	// (skipping whitespace that leads + trails both delimiters).
 	// If successful, the get index is advanced and the function returns true,
 	// otherwise the index is not advanced and the function returns false.
-	bool			ParseToken(const char* pStartingDelim, const char* pEndingDelim, char* pString, int nMaxLen);
+	bool			ParseToken(const char* pStartingDelim, const char* pEndingDelim, char* pString, int64 nMaxLen);
 
 	// Advance the get index until after the particular string is found
 	// Do not eat whitespace before starting. Return false if it failed
@@ -307,7 +307,7 @@ public:
 
 	// Parses the next token, given a set of character breaks to stop at
 	// Returns the length of the token parsed in bytes (-1 if none parsed)
-	int				ParseToken(characterset_t* pBreaks, char* pTokenBuf, int nMaxLen, bool bParseComments = true);
+	int64			ParseToken(characterset_t* pBreaks, char* pTokenBuf, int64 nMaxLen, bool bParseComments = true);
 
 	// Write stuff in
 	// Binary mode: it'll just write the bits directly in, and strings will be
@@ -329,7 +329,7 @@ public:
 	void			Put(const void* pMem, int64 size);
 
 	// Used for putting objects that have a byteswap datadesc defined
-	template <typename T> void PutObjects(T* src, int count = 1);
+	template <typename T> void PutObjects(T* src, int64 count = 1);
 
 	// This version of PutString converts \ to \\ and " to \", etc.
 	// It also places " at the beginning and end of the string
@@ -341,7 +341,7 @@ public:
 	void			VaPrintf(const char* pFmt, va_list list);
 
 	// What am I writing (put)/reading (get)?
-	void* PeekPut(int offset = 0);
+	void* PeekPut(int64 offset = 0);
 	const void* PeekGet(int64 offset = 0) const;
 	const void* PeekGet(int64 nMaxSize, int64 nOffset);
 
@@ -437,20 +437,20 @@ protected:
 	bool GetOverflow(int64 nSize);
 
 	// Does the next bytes of the buffer match a pattern?
-	bool PeekStringMatch(int nOffset, const char* pString, int nLen);
+	bool PeekStringMatch(int64 nOffset, const char* pString, int64 nLen);
 
 	// Peek size of line to come, check memory bound
-	int	PeekLineLength();
+	int64	PeekLineLength();
 
 	// How much whitespace should I skip?
-	int PeekWhiteSpace(int nOffset);
+	int64 PeekWhiteSpace(int64 nOffset);
 
 	// Checks if a peek get is ok
-	bool CheckPeekGet(int nOffset, int nSize);
+	bool CheckPeekGet(int64 nOffset, int64 nSize);
 
 	// Call this to peek arbitrarily long into memory. It doesn't fail unless
 	// it can't read *anything* new
-	bool CheckArbitraryPeekGet(int nOffset, int& nIncrement);
+	bool CheckArbitraryPeekGet(int64 nOffset, int64& nIncrement);
 
 	template <typename T> void GetType(T& dest);
 	template <typename T> void GetTypeBin(T& dest);
@@ -559,7 +559,7 @@ inline CUtlBuffer& operator<<(CUtlBuffer& b, const Vector2D& v)
 class CUtlInplaceBuffer : public CUtlBuffer
 {
 public:
-	CUtlInplaceBuffer(int growSize = 0, int initSize = 0, int nFlags = 0);
+	CUtlInplaceBuffer(int64 growSize = 0, int64 initSize = 0, int nFlags = 0);
 
 	//
 	// Routines returning buffer-inplace-pointers
@@ -595,7 +595,7 @@ public:
 	// @returns	true				if line was successfully read
 	//			false				when EOF is reached or error occurs
 	//
-	bool InplaceGetLinePtr( /* out */ char** ppszInBufferPtr, /* out */ int* pnLineLength);
+	bool InplaceGetLinePtr( /* out */ char** ppszInBufferPtr, /* out */ int64* pnLineLength);
 
 	//
 	// Determines the line length, advances the "get" pointer offset by the line length,
@@ -677,9 +677,9 @@ inline void CUtlBuffer::GetObject(T* dest)
 
 
 template <typename T>
-inline void CUtlBuffer::GetObjects(T* dest, int count)
+inline void CUtlBuffer::GetObjects(T* dest, int64 count)
 {
-	for (int i = 0; i < count; ++i, ++dest)
+	for (int64 i = 0; i < count; ++i, ++dest)
 	{
 		GetObject<T>(dest);
 	}
@@ -845,7 +845,7 @@ template <typename T>
 inline bool CUtlBuffer::GetTypeText(T& value, int nRadix /*= 10*/)
 {
 	// NOTE: This is not bullet-proof; it assumes numbers are < 128 characters
-	int nLength = 128;
+	int64 nLength = 128;
 	if (!CheckArbitraryPeekGet(0, nLength))
 	{
 		value = 0;
@@ -1022,7 +1022,7 @@ inline int64 CUtlBuffer::TellMaxPut() const
 //-----------------------------------------------------------------------------
 // What am I reading?
 //-----------------------------------------------------------------------------
-inline void* CUtlBuffer::PeekPut(int offset)
+inline void* CUtlBuffer::PeekPut(int64 offset)
 {
 	return &m_Memory[m_Put + offset - m_nOffset];
 }
@@ -1052,9 +1052,9 @@ inline void CUtlBuffer::PutObject(T* src)
 
 
 template <typename T>
-inline void CUtlBuffer::PutObjects(T* src, int count)
+inline void CUtlBuffer::PutObjects(T* src, int64 count)
 {
-	for (int i = 0; i < count; ++i, ++src)
+	for (int64 i = 0; i < count; ++i, ++src)
 	{
 		PutObject<T>(src);
 	}

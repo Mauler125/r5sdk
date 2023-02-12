@@ -65,7 +65,7 @@ char* V_stristr(char* pStr, char const* pSearch)
 //-----------------------------------------------------------------------------
 // Finds a string in another string with a case insensitive test w/ length validation
 //-----------------------------------------------------------------------------
-const char* V_strnistr(const char* pStr, const char* pSearch, int n)
+const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n)
 {
 	Assert(pStr);
 	Assert(pSearch);
@@ -117,7 +117,7 @@ const char* V_strnistr(const char* pStr, const char* pSearch, int n)
 	return 0;
 }
 
-const char* V_strnchr(const char* pStr, char c, int n)
+const char* V_strnchr(const char* pStr, char c, int64_t n)
 {
 	const char* pLetter = pStr;
 	const char* pLast = pStr + n;

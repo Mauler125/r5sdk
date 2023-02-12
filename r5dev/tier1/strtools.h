@@ -42,8 +42,8 @@
 
 
 char const* V_stristr(char const* pStr, char const* pSearch);
-const char* V_strnistr(const char* pStr, const char* pSearch, int n);
-const char* V_strnchr(const char* pStr, char c, int n);
+const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n);
+const char* V_strnchr(const char* pStr, char c, int64_t n);
 bool V_isspace(int c);
 
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes);
