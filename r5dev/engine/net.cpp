@@ -301,5 +301,6 @@ void VNet::Detach() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+netadr_t* g_pNetAdr = nullptr;
 netkey_t* g_pNetKey = nullptr;
 #endif // !NETCONSOLE
