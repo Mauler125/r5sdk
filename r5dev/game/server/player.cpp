@@ -17,20 +17,20 @@ void CPlayer::RunNullCommand(void)
 {
 	CUserCmd cmd;
 
-	float flOldFrameTime = (*g_pGlobals)->m_fFrameTime;
-	float flOldCurTime = (*g_pGlobals)->m_fCurTime;
+	float flOldFrameTime = (*g_pGlobals)->m_flFrameTime;
+	float flOldCurTime = (*g_pGlobals)->m_flCurTime;
 
 	pl.fixangle = FIXANGLE_NONE;
 	EyeAngles(&cmd.viewangles);
 
-	SetTimeBase((*g_pGlobals)->m_fCurTime);
+	SetTimeBase((*g_pGlobals)->m_flCurTime);
 	MoveHelperServer()->SetHost(this);
 
 	PlayerRunCommand(&cmd, MoveHelperServer());
 	SetLastUserCommand(&cmd);
 
-	(*g_pGlobals)->m_fFrameTime = flOldFrameTime;
-	(*g_pGlobals)->m_fCurTime = flOldCurTime;
+	(*g_pGlobals)->m_flFrameTime = flOldFrameTime;
+	(*g_pGlobals)->m_flCurTime = flOldCurTime;
 
 	MoveHelperServer()->SetHost(NULL);
 }
@@ -58,7 +58,7 @@ inline void CPlayer::SetTimeBase(float flTimeBase)
 
 	SetLastUCmdSimulationRemainderTime(flTime);
 
-	float flSomeTime = flTimeBase - m_lastUCmdSimulationRemainderTime * (*g_pGlobals)->m_nTickInterval;
+	float flSomeTime = flTimeBase - m_lastUCmdSimulationRemainderTime * (*g_pGlobals)->m_flTickInterval;
 	if (flSomeTime >= 0.0)
 	{
 		flTime = flSomeTime;
@@ -78,7 +78,7 @@ void CPlayer::SetLastUCmdSimulationRemainderTime(float flRemainderTime)
 		edict_t nEdict = NetworkProp()->GetEdict();
 		if (nEdict != FL_EDICT_INVALID)
 		{
-			_InterlockedOr16((SHORT*)(*g_pGlobals)->m_pInterlock + nEdict + 32, 0x200u);
+			_InterlockedOr16((SHORT*)(*g_pGlobals)->m_pEdicts + nEdict + 32, 0x200u);
 		}
 
 		m_lastUCmdSimulationRemainderTime = flRemainderTime;
@@ -96,7 +96,7 @@ void CPlayer::SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime)
 		edict_t nEdict = NetworkProp()->GetEdict();
 		if (nEdict != FL_EDICT_INVALID)
 		{
-			_InterlockedOr16((SHORT*)(*g_pGlobals)->m_pInterlock + nEdict + 32, 0x200u);
+			_InterlockedOr16((SHORT*)(*g_pGlobals)->m_pEdicts + nEdict + 32, 0x200u);
 		}
 
 		m_totalExtraClientCmdTimeAttempted = flAttemptedTime;
