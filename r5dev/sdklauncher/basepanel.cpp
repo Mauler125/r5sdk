@@ -59,7 +59,7 @@ void CUIBaseSurface::Init()
 	this->m_MapCombo->SetSize({ 347, 25 });
 	this->m_MapCombo->SetLocation({ 15, 25 });
 	this->m_MapCombo->SetTabIndex(0);
-	this->m_MapCombo->SetSelectedIndex(-1);
+	this->m_MapCombo->SetSelectedIndex(0);
 	this->m_MapCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MapCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_MapCombo);
@@ -77,7 +77,7 @@ void CUIBaseSurface::Init()
 	this->m_PlaylistCombo->SetSize({ 347, 25 });
 	this->m_PlaylistCombo->SetLocation({ 15, 50 });
 	this->m_PlaylistCombo->SetTabIndex(0);
-	this->m_PlaylistCombo->SetSelectedIndex(-1);
+	this->m_PlaylistCombo->SetSelectedIndex(0);
 	this->m_PlaylistCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_PlaylistCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_PlaylistCombo);
@@ -569,6 +569,7 @@ void CUIBaseSurface::ParseMaps()
 	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 	std::smatch smRegexMatches;
 
+	m_MapCombo->Items.Add("");
 	for (const fs::directory_entry& dEntry : fsDir)
 	{
 		std::string svFileName = dEntry.path().u8string();
@@ -604,6 +605,7 @@ void CUIBaseSurface::ParsePlaylists()
 	const string svBaseDir = "platform\\";
 	fs::path fsPlaylistPath(svBaseDir + this->m_PlaylistFileTextBox->Text().ToCString());
 
+	m_PlaylistCombo->Items.Add("");
 	if (fs::exists(fsPlaylistPath))
 	{
 		bool bOk{ };
