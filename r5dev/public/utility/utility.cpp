@@ -844,7 +844,7 @@ vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
 
     if (bNullTerminator)
     {
-        vBytes.push_back(0x0);
+        vBytes.push_back('\0');
     }
     return vBytes;
 };
@@ -862,13 +862,13 @@ pair<vector<uint8_t>, string> StringToMaskedBytes(const string& svInput, bool bN
     {
         // Dereference character and push back the byte.
         vBytes.push_back(*pszCurrentByte);
-        svMask.append("x");
+        svMask += 'x';
     }
 
     if (bNullTerminator)
     {
         vBytes.push_back(0x0);
-        svMask.append("x");
+        svMask += 'x';
     }
     return make_pair(vBytes, svMask);
 };
@@ -931,12 +931,12 @@ pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput)
                 ++pszCurrentByte; // Skip double wildcard.
             }
             vBytes.push_back(0); // Push the byte back as invalid.
-            svMask.append("?");
+            svMask += '?';
         }
         else
         {
             vBytes.push_back(strtoul(pszCurrentByte, &pszCurrentByte, 16));
-            svMask.append("x");
+            svMask += 'x';
         }
     }
     return make_pair(vBytes, svMask);
