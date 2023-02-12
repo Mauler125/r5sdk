@@ -483,10 +483,11 @@ protected:
 
 	CByteSwap	m_Byteswap;
 
-	// [ AMOS ] TODO: Reverse these.. could be part of the CByteSwap class.
-	__declspec(align(16)) __int64 KeyValuesPtrUnk;
-	__int64 KeyValuesCountUnk;
+	void* m_pUnk; // Possibly padding?
+	const char* m_pName;
+	int64 m_Count; // Unknown count.
 };
+static_assert(sizeof(CUtlBuffer) == 0x70);
 
 // Stream style output operators for CUtlBuffer
 inline CUtlBuffer& operator<<(CUtlBuffer& b, char v)
