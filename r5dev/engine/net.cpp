@@ -67,15 +67,15 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool
 //-----------------------------------------------------------------------------
 void NET_SetKey(const string& svNetKey)
 {
-	std::lock_guard<std::mutex> l(g_NetKeyMutex);
+	string svTokenizedKey;
 
 	if (svNetKey.size() == AES_128_B64_ENCODED_SIZE &&
-		IsValidBase64(svNetKey, &g_svNetKey)) // Results are tokenized by 'IsValidBase64()'.
+		IsValidBase64(svNetKey, &svTokenizedKey)) // Results are tokenized by 'IsValidBase64()'.
 	{
-		v_NET_SetKey(g_pNetKey, g_svNetKey.c_str());
+		v_NET_SetKey(g_pNetKey, svTokenizedKey.c_str());
 
 		DevMsg(eDLL_T::ENGINE, "Installed NetKey: %s'%s%s%s'\n",
-			g_svReset.c_str(), g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
+			g_svReset.c_str(), g_svGreyB.c_str(), g_pNetKey->GetBase64NetKey(), g_svReset.c_str());
 	}
 	else
 	{
@@ -301,6 +301,5 @@ void VNet::Detach() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-string g_svNetKey = DEFAULT_NET_ENCRYPTION_KEY;
 netkey_t* g_pNetKey = nullptr;
 #endif // !NETCONSOLE

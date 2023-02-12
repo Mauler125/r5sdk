@@ -708,7 +708,6 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
-        g_NetKeyMutex.lock();
         NetGameServer_t netGameServer // !FIXME: create from main thread.
         {
             g_pServerListManager->m_Server.m_svHostName,
@@ -718,7 +717,7 @@ void CBrowser::UpdateHostingStatus(void)
             mp_gamemode->GetString(),
             hostip->GetString(),
             hostport->GetString(),
-            g_svNetKey,
+            g_pNetKey->GetBase64NetKey(),
             std::to_string(*g_nServerRemoteChecksum),
             SDK_VERSION,
             std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
@@ -727,7 +726,6 @@ void CBrowser::UpdateHostingStatus(void)
                 std::chrono::system_clock::now().time_since_epoch()
                 ).count()
         };
-        g_NetKeyMutex.unlock();
 
         std::thread post(&CBrowser::SendHostingPostRequest, this, netGameServer);
         post.detach();
@@ -795,8 +793,9 @@ void CBrowser::SettingsPanel(void)
         ProcessCommand(fmt::format("{:s} \"{:s}\"", "pylon_matchmaking_hostname", m_szMatchmakingHostName).c_str());
     }
 
-    std::lock_guard<std::mutex> l(g_NetKeyMutex);
-    ImGui::InputTextWithHint("Netkey", "Network encryption key", const_cast<char*>(g_svNetKey.c_str()), ImGuiInputTextFlags_ReadOnly);
+    // The 'const' qualifier has been casted away, however the readonly flag is set.
+    // Still a hack, but better than modifying the Dear ImGui lib even more..
+    ImGui::InputTextWithHint("Netkey", "Network encryption key", const_cast<char*>(g_pNetKey->GetBase64NetKey()), ImGuiInputTextFlags_ReadOnly);
     if (ImGui::Button("Regenerate encryption key"))
     {
         g_TaskScheduler->Dispatch(NET_GenerateKey, 0);

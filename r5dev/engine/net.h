@@ -46,9 +46,7 @@ void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRe
 void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 
 ///////////////////////////////////////////////////////////////////////////////
-extern string g_svNetKey;
 extern netkey_t* g_pNetKey;
-inline std::mutex g_NetKeyMutex;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VNet : public IDetour
