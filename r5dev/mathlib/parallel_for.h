@@ -2,6 +2,7 @@
 #include <thread>
 #include <functional>
 #include <vector>
+#pragma once
 
 /// @param[in] nb_elements : size of your for loop
 /// @param[in] functor(start, end) :

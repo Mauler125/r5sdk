@@ -1,3 +1,6 @@
+#ifndef DROIDSANS_H
+#define DROIDSANS_H
+
 // File: 'DroidSans.ttf' (108796 bytes)
 // Exported using binary_to_compressed_c.cpp
 static const unsigned int droidsans_size = 108796;
@@ -2271,3 +2274,5 @@ static const unsigned int droidsans_data[108796 / 4] =
     0x3032696e, 0x75073730, 0x3032696e, 0x75073830, 0x3032696e, 0x75073930, 0x3032696e, 0x75074130, 0x3032696e, 0x75074230, 0x4546696e, 0x75074646,
     0x4646696e, 0x75074346, 0x4646696e, 0x00004446, 0x02000000, 0x02000500, 0x0300ffff,
 };
+
+#endif // DROIDSANS_H
