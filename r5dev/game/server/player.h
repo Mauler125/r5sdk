@@ -135,7 +135,7 @@ struct CurrentData_LocalPlayer
 	int m_pushedFixedPointOffsetReplayCompensated[3];
 	Quaternion m_localGravityRotation;
 };
-struct __declspec(align(1)) MatchMetrics
+struct MatchMetrics
 {
 	bool hotDropped;
 	bool relinquished;
