@@ -750,6 +750,9 @@
     <ClCompile Include="..\vstdlib\autocompletefilelist.cpp">
       <Filter>sdk\vstdlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier1\NetKey.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -2182,6 +2185,9 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\nlohmann\detail\abi_macros.hpp">
       <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\NetKey.h">
+      <Filter>sdk\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

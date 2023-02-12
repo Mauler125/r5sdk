@@ -9,6 +9,7 @@
 
 #include "tier1/bitbuf.h"
 #include "tier1/NetAdr.h"
+#include "tier1/NetKey.h"
 #include "tier1/utlmemory.h"
 #include "tier1/utlvector.h"
 #include "common/netmessages.h"

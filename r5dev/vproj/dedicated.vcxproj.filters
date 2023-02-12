@@ -1395,6 +1395,9 @@
     <ClInclude Include="..\thirdparty\nlohmann\detail\meta\std_fs.hpp">
       <Filter>thirdparty\nlohmann\detail\meta</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier1\NetKey.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1780,6 +1783,9 @@
     </ClCompile>
     <ClCompile Include="..\vstdlib\autocompletefilelist.cpp">
       <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\NetKey.cpp">
+      <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

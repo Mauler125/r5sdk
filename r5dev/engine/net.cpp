@@ -302,5 +302,5 @@ void VNet::Detach() const
 
 ///////////////////////////////////////////////////////////////////////////////
 string g_svNetKey = DEFAULT_NET_ENCRYPTION_KEY;
-uintptr_t g_pNetKey = NULL;
+netkey_t* g_pNetKey = nullptr;
 #endif // !NETCONSOLE

@@ -25,7 +25,7 @@ inline CMemory p_NET_Shutdown;
 inline auto v_NET_Shutdown = p_NET_Shutdown.RCast<void (*)(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow)>();
 
 inline CMemory p_NET_SetKey;
-inline auto v_NET_SetKey = p_NET_SetKey.RCast<void (*)(uintptr_t pKey, const char* szHash)>();
+inline auto v_NET_SetKey = p_NET_SetKey.RCast<void (*)(netkey_t* pKey, const char* szHash)>();
 
 inline CMemory p_NET_ReceiveDatagram;
 inline auto v_NET_ReceiveDatagram = p_NET_ReceiveDatagram.RCast<bool (*)(int iSocket, netpacket_s* pInpacket, bool bRaw)>();
@@ -47,7 +47,7 @@ void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8
 
 ///////////////////////////////////////////////////////////////////////////////
 extern string g_svNetKey;
-extern uintptr_t g_pNetKey;
+extern netkey_t* g_pNetKey;
 inline std::mutex g_NetKeyMutex;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ class VNet : public IDetour
 		LogFunAdr("NET_ReceiveDatagram", p_NET_ReceiveDatagram.GetPtr());
 		LogFunAdr("NET_SendDatagram", p_NET_SendDatagram.GetPtr());
 		LogFunAdr("NET_PrintFunc", p_NET_PrintFunc.GetPtr());
-		LogVarAdr("g_NetKey", g_pNetKey);
+		LogVarAdr("g_NetKey", reinterpret_cast<uintptr_t>(g_pNetKey));
 	}
 	virtual void GetFun(void) const
 	{
@@ -79,7 +79,7 @@ class VNet : public IDetour
 
 		v_NET_Init            = p_NET_Init.RCast<void* (*)(bool)>();                                        /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 81 EC F0 01 00*/
 		v_NET_Shutdown        = p_NET_Shutdown.RCast<void (*)(void*, const char*, uint8_t, bool)>();        /*48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9 D0*/
-		v_NET_SetKey          = p_NET_SetKey.RCast<void (*)(uintptr_t, const char*)>();                     /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 41 B8*/
+		v_NET_SetKey          = p_NET_SetKey.RCast<void (*)(netkey_t*, const char*)>();                     /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 41 B8*/
 		v_NET_ReceiveDatagram = p_NET_ReceiveDatagram.RCast<bool (*)(int, netpacket_s*, bool)>();           /*E8 ?? ?? ?? ?? 84 C0 75 35 48 8B D3*/
 		v_NET_SendDatagram    = p_NET_SendDatagram.RCast<int (*)(SOCKET, void*, int, netadr_t*, bool)>();   /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 00 00*/
 		v_NET_PrintFunc       = p_NET_PrintFunc.RCast<void(*)(const char*)>();                              /*48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 C3 48*/
@@ -87,7 +87,7 @@ class VNet : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pNetKey = g_GameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ?? ?? ?? ?? ?? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+		g_pNetKey = g_GameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ?? ?? ?? ?? ?? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).RCast<netkey_t*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;
