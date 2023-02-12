@@ -415,7 +415,7 @@ static void InterpretIntelCacheDescriptors(uint32_t nPackedDesc, CPUInformation&
 
 		int nFamily = (pi.m_nModel >> 8) & 0xF;
 		int nModel = (pi.m_nModel >> 4) & 0xF;
-		if (nDesc == 49 && (nFamily != 0x0F || nModel != 0x06))
+		if (nDesc == 0x49 && (nFamily != 0x0F || nModel != 0x06))
 		{
 			pi.m_nL3CacheSizeKb = 0;
 			pi.m_nL3CacheDesc = 0;
