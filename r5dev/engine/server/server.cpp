@@ -58,6 +58,26 @@ int CServer::GetNumFakeClients(void) const
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: Gets the number of clients on the server
+// Output : int
+//---------------------------------------------------------------------------------
+int CServer::GetNumClients(void) const
+{
+	int nClients = 0;
+	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	{
+		CClient* pClient = g_pClient->GetClient(i);
+		if (!pClient)
+			continue;
+
+		if (pClient->IsConnected())
+			nClients++;
+	}
+
+	return nClients;
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: client to server authentication
 // Input  : *pChallenge - 
 // Output : true if user isn't banned, false otherwise

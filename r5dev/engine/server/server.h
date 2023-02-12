@@ -33,6 +33,7 @@ public:
 #ifndef CLIENT_DLL // Only the connectionless packet handler is implemented on the client via the IServer base class.
 	int GetNumHumanPlayers(void) const;
 	int GetNumFakeClients(void) const;
+	int GetNumClients(void) const;
 	const char* GetMapName(void) const { return m_szMapname; }
 	const char* GetMapGroupName(void) const { return m_szMapGroupName; }
 	int GetNumClasses(void) const { return m_nServerClasses; }
