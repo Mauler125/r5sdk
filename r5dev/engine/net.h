@@ -83,7 +83,6 @@ class VNet : public IDetour
 		v_NET_ReceiveDatagram = p_NET_ReceiveDatagram.RCast<bool (*)(int, netpacket_s*, bool)>();           /*E8 ?? ?? ?? ?? 84 C0 75 35 48 8B D3*/
 		v_NET_SendDatagram    = p_NET_SendDatagram.RCast<int (*)(SOCKET, void*, int, netadr_t*, bool)>();   /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 00 00*/
 		v_NET_PrintFunc       = p_NET_PrintFunc.RCast<void(*)(const char*)>();                              /*48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 C3 48*/
-
 	}
 	virtual void GetVar(void) const
 	{

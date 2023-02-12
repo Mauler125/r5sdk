@@ -264,7 +264,7 @@ FORCEINLINE void CHostState::Think(void) const
 			mp_gamemode->GetString(),
 			hostip->GetString(),
 			hostport->GetString(),
-			g_svNetKey,
+			g_pNetKey->GetBase64NetKey(),
 			std::to_string(*g_nServerRemoteChecksum),
 			SDK_VERSION,
 			std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
