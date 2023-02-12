@@ -29,7 +29,6 @@ public:
 	// Current map
 	const char*     m_pszMapName;
 	int             m_nMapVersion;
-	char            m_pad0[4];
 	const char*     m_pszStartSpot;   // Seems empty at all times.
 	MapLoadType_t   m_eLoadType;      // How the current map was loaded.
 	bool            m_bMapLoadFailed; // Map has failed to load, we need to kick back to the main menu (unused?).
@@ -39,6 +38,7 @@ public:
 	void*           m_pUnk2;          // r5apex_ds.exe 'CServer::FrameJob()  + 0x20'
 	void*           m_pUnk3;
 }; // Size 0x0098
+static_assert(sizeof(CGlobalVars) == 0x98);
 
 #ifndef CLIENT_DLL
 inline CGlobalVars* g_ServerGlobalVariables = nullptr;
