@@ -382,7 +382,7 @@ static CURLcode ReceivedServerConnect(struct Curl_easy *data, bool *received)
   /* First check whether there is a cached response from server */
   if(pp->cache_size && pp->cache && pp->cache[0] > '3') {
     /* Data connection could not be established, let's return */
-    infof(data, "There is negative response in cache while serv connect");
+    infof(data, "Negative response in cache while server connect");
     (void)Curl_GetFTPResponse(data, &nread, &ftpcode);
     return CURLE_FTP_ACCEPT_FAILED;
   }
