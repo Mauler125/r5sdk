@@ -903,7 +903,7 @@ inline bool MatricesAreEqual(const VMatrix& src1, const VMatrix& src2, float flT
 //
 //-----------------------------------------------------------------------------
 void MatrixBuildOrtho(VMatrix& dst, double left, double top, double right, double bottom, double zNear, double zFar);
-void MatrixBuildOrthoLH(VMatrix& dst, double left, double top, double right, double bottom, double zNear, double zFar);
+void MatrixBuildOrthoLH(VMatrix& dst, vec_t left, vec_t top, vec_t right, vec_t bottom, vec_t zNear, vec_t zFar);
 void MatrixBuildPerspectiveX(VMatrix& dst, double flFovX, double flAspect, double flZNear, double flZFar);
 void MatrixBuildPerspectiveOffCenterX(VMatrix& dst, double flFovX, double flAspect, double flZNear, double flZFar, double bottom, double top, double left, double right);
 
@@ -917,7 +917,7 @@ inline void MatrixOrtho(VMatrix& dst, double left, double top, double right, dou
 	dst = temp;
 }
 
-inline void MatrixBuildOrthoLH(VMatrix& dst, double left, double top, double right, double bottom, double zNear, double zFar)
+inline void MatrixBuildOrthoLH(VMatrix& dst, vec_t left, vec_t top, vec_t right, vec_t bottom, vec_t zNear, vec_t zFar)
 {
 	// Same as XMMatrixOrthographicOffCenterLH().
 	dst.Init(

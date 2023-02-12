@@ -131,9 +131,9 @@ FourVectors DNoiseSIMD(const fltx4& x, const fltx4& y, const fltx4& z)
     {	unsigned int xi = SubInt( x_idx, i );								\
 		unsigned int yi = SubInt( y_idx, i );								\
 		unsigned int zi = SubInt( z_idx, i );								\
-		SubFloat( xfrac, i ) = (xi & 0xff)*(1.0/256.0);						\
-		SubFloat( yfrac, i ) = (yi & 0xff)*(1.0/256.0);						\
-		SubFloat( zfrac, i ) = (zi & 0xff)*(1.0/256.0);						\
+		SubFloat( xfrac, i ) = (xi & 0xff)*(1.0f/256.0f);					\
+		SubFloat( yfrac, i ) = (yi & 0xff)*(1.0f/256.0f);					\
+		SubFloat( zfrac, i ) = (zi & 0xff)*(1.0f/256.0f);					\
 		xi>>=8;																\
 		yi>>=8;																\
 		zi>>=8;																\
@@ -213,13 +213,13 @@ FourVectors CurlNoiseSIMD(FourVectors const& pos)
 {
 	FourVectors fl4Comp1 = DNoiseSIMD(pos);
 	FourVectors fl4Pos = pos;
-	fl4Pos.x = AddSIMD(fl4Pos.x, ReplicateX4(43.256));
-	fl4Pos.y = AddSIMD(fl4Pos.y, ReplicateX4(-67.89));
-	fl4Pos.z = AddSIMD(fl4Pos.z, ReplicateX4(1338.2));
+	fl4Pos.x = AddSIMD(fl4Pos.x, ReplicateX4(43.256f));
+	fl4Pos.y = AddSIMD(fl4Pos.y, ReplicateX4(-67.89f));
+	fl4Pos.z = AddSIMD(fl4Pos.z, ReplicateX4(1338.2f));
 	FourVectors fl4Comp2 = DNoiseSIMD(fl4Pos);
-	fl4Pos.x = AddSIMD(fl4Pos.x, ReplicateX4(-129.856));
-	fl4Pos.y = AddSIMD(fl4Pos.y, ReplicateX4(-967.23));
-	fl4Pos.z = AddSIMD(fl4Pos.z, ReplicateX4(2338.98));
+	fl4Pos.x = AddSIMD(fl4Pos.x, ReplicateX4(-129.856f));
+	fl4Pos.y = AddSIMD(fl4Pos.y, ReplicateX4(-967.23f));
+	fl4Pos.z = AddSIMD(fl4Pos.z, ReplicateX4(2338.98f));
 	FourVectors fl4Comp3 = DNoiseSIMD(fl4Pos);
 
 	// now we have the 3 derivatives of a vector valued field. return the curl of the field.

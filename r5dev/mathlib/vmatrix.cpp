@@ -204,7 +204,7 @@ bool PlaneIntersection(const VPlane& vp1, const VPlane& vp2, const VPlane& vp3, 
 	if (fabs(flDenom) < FLT_EPSILON)
 		return false;
 	Vector3D vRet = vp1.m_Dist * v2Cross3 + vp2.m_Dist * CrossProduct(vp3.m_Normal, vp1.m_Normal) + vp3.m_Dist * CrossProduct(vp1.m_Normal, vp2.m_Normal);
-	vOut = vRet * (1.0 / flDenom);
+	vOut = vRet * (1.0f / flDenom);
 	return true;
 }
 #else  // old slow inaccurate code

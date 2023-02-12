@@ -31,7 +31,7 @@ public:
 		{
 			for (int j = 0; j < 4; j++)
 			{
-				SubFloat(m_RandY[i], j) = (seed >> 16) / 65536.0;
+				SubFloat(m_RandY[i], j) = (seed >> 16) / 65536.0f;
 				seed = (seed + 1) * 3141592621u;
 			}
 		}

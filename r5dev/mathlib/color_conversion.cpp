@@ -139,7 +139,7 @@ void BuildGammaTable(float gamma, float texGamma, float brightness, int overbrig
 
 	if (brightness <= 0.0)
 	{
-		g3 = 0.125;
+		g3 = 0.125f;
 	}
 	else if (brightness > 1.0)
 	{
@@ -147,7 +147,7 @@ void BuildGammaTable(float gamma, float texGamma, float brightness, int overbrig
 	}
 	else
 	{
-		g3 = 0.125f - (brightness * brightness) * 0.075;
+		g3 = 0.125f - (brightness * brightness) * 0.075f;
 	}
 
 	for (i = 0; i < 256; i++)
