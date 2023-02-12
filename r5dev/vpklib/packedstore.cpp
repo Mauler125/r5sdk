@@ -167,18 +167,19 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace, K
 			{
 				if (!dir->file_size()) // Empty files are not supported.
 				{
-					Warning(eDLL_T::FS, "File '%s' listed in build manifest appears truncated\n", dir->path().relative_path().c_str());
-					continue;
+					Warning(eDLL_T::FS, "File '%s' listed in build manifest appears truncated\n", dir->path().relative_path().string().c_str());
 				}
-
-				vEntryValues.push_back(VPKKeyValues_t(
-					ConvertToUnixPath(svFullPath),
-					pEntryKV->GetInt("preloadSize", NULL),
-					pEntryKV->GetInt("loadFlags", static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE)),
-					pEntryKV->GetInt("textureFlags", static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT)),
-					pEntryKV->GetBool("useCompression", true),
-					pEntryKV->GetBool("useDataSharing", true))
-				);
+				else
+				{
+					vEntryValues.push_back(VPKKeyValues_t(
+						ConvertToUnixPath(svFullPath),
+						pEntryKV->GetInt("preloadSize", NULL),
+						pEntryKV->GetInt("loadFlags", static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE)),
+						pEntryKV->GetInt("textureFlags", static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT)),
+						pEntryKV->GetBool("useCompression", true),
+						pEntryKV->GetBool("useDataSharing", true))
+					);
+				}
 			}
 		}
 		dir++;
