@@ -672,7 +672,11 @@ void CBrowser::UpdateHostingStatus(void)
     {
     case EHostStatus_t::NOT_HOSTING:
     {
-        m_svHostToken.clear();
+        std::lock_guard<std::mutex> g(m_Mutex);
+        if (!m_svHostToken.empty())
+        {
+            m_svHostToken.clear();
+        }
 
         if (ImGui::ColorConvertFloat4ToU32(m_HostRequestMessageColor) == // Only clear if this is green (a valid hosting message).
             ImGui::ColorConvertFloat4ToU32(ImVec4(0.00f, 1.00f, 0.00f, 1.00f)))
@@ -690,7 +694,7 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
-        if (*g_nClientRemoteChecksum == NULL) // Check if script checksum is valid yet.
+        if (*g_nServerRemoteChecksum == NULL) // Check if script checksum is valid yet.
         {
             break;
         }
@@ -708,27 +712,32 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
-        NetGameServer_t netGameServer // !FIXME: create from main thread.
+        g_TaskScheduler->Dispatch([this]()
         {
-            g_pServerListManager->m_Server.m_svHostName,
-            g_pServerListManager->m_Server.m_svDescription,
-            g_pServerListManager->m_Server.m_bHidden,
-            g_pHostState->m_levelName,
-            mp_gamemode->GetString(),
-            hostip->GetString(),
-            hostport->GetString(),
-            g_pNetKey->GetBase64NetKey(),
-            std::to_string(*g_nServerRemoteChecksum),
-            SDK_VERSION,
-            std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
-            std::to_string(g_ServerGlobalVariables->m_nMaxClients),
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now().time_since_epoch()
-                ).count()
-        };
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            NetGameServer_t netGameServer
+            {
+                g_pServerListManager->m_Server.m_svHostName,
+                g_pServerListManager->m_Server.m_svDescription,
+                g_pServerListManager->m_Server.m_bHidden,
+                g_pHostState->m_levelName,
+                mp_gamemode->GetString(),
+                hostip->GetString(),
+                hostport->GetString(),
+                g_pNetKey->GetBase64NetKey(),
+                std::to_string(*g_nServerRemoteChecksum),
+                SDK_VERSION,
+                std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
+                std::to_string(g_ServerGlobalVariables->m_nMaxClients),
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now().time_since_epoch()
+                    ).count()
+            };
 
         std::thread post(&CBrowser::SendHostingPostRequest, this, netGameServer);
         post.detach();
+
+            }, 0);
 
         break;
     }
