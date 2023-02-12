@@ -1137,6 +1137,7 @@ playlists
 
 				survival_jumpkit_enabled                       1
 				survival_wallrun_enabled                       1
+				survival_circle_spawn                          0
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_64k_x_64k                    1
