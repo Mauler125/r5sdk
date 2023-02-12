@@ -167,7 +167,7 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace, K
 			{
 				if (!dir->file_size()) // Empty files are not supported.
 				{
-					Warning(eDLL_T::FS, "File '%s' listed in build manifest appears truncated\n", dir->path().relative_path().string().c_str());
+					Warning(eDLL_T::FS, "File '%s' listed in build manifest appears truncated\n", dir->path().relative_path().u8string().c_str());
 				}
 				else
 				{
