@@ -13,7 +13,7 @@
 //-----------------------------------------------------------------------------
 int CStudioHdr::LookupSequence(CStudioHdr* pStudio, const char* pszName)
 {
-	if (!pStudio->m_pMdlCacheVTable)
+	if (!pStudio->m_pMDLCache)
 		return -1; // animations are unavailable for missing dynamic props! (mdl/error.rmdl).
 
 	return v_CStudioHdr__LookupSequence(pStudio, pszName);
