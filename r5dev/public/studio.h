@@ -94,6 +94,11 @@
 // If this flag is present the model has a secondary UV layer, and by extension (previously) a VVC (IDVC) file.
 #define STUDIOHDR_FLAGS_USES_UV2 (1 << 25) // 0x2000000
 
+//-------------------------------------------------------------------------------------
+// Forward declarations
+//-------------------------------------------------------------------------------------
+class CMDLCache;
+
 enum
 {
 	STUDIODATA_FLAGS_STUDIOMESH_LOADED = 0x0001,
@@ -1049,13 +1054,16 @@ private:
 	void* vtbl;
 	studiohdr_t* m_pStudioHdr;
 	void* m_pVModel; // !TODO: 'virtualmodel_t'.
-	char gap0[156];
+	char gap_18[156];
 	mstudiobbox_t m_pHitBox;
-	char gap_10[1896];
+	char gap_e0[1888];
+	const char* m_pModelName;
 	int m_nPerfAnimatedBones;
 	int m_nPerfUsedBones;
 	int m_nPerfAnimationLayers;
-	void* m_pMdlCacheVTable;
+	void* m_pAnimData_Maybe;
+	char gap_860[16];
+	CMDLCache* m_pMDLCache;
 };
 
 class CStudioHWDataRef
