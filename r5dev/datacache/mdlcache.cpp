@@ -44,7 +44,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
                     g_pMDLFallback->m_pErrorHDR = pStudioHDR;
                     g_pMDLFallback->m_hErrorMDL = handle;
                 }
-                if (svStudio.compare(EMPTY_MODEL) == NULL)
+                else if (svStudio.compare(EMPTY_MODEL) == NULL)
                 {
                     g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
                     g_pMDLFallback->m_hEmptyMDL = handle;
@@ -63,8 +63,6 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
                 Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             else
                 Error(eDLL_T::ENGINE, NO_ERROR, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
-
-            g_vBadMDLHandles.push_back(handle);
         }
 
         return pStudioHdr;
@@ -150,8 +148,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             else
                 Error(eDLL_T::ENGINE, NO_ERROR, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
-
-            g_vBadMDLHandles.push_back(handle);
         }
 
         pStudioData->m_Mutex.ReleaseWaiter();
@@ -172,8 +168,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 Error(eDLL_T::ENGINE, EXIT_FAILURE, "Attempted to load old model \"%s\" and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
             else
                 Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
-
-            g_vBadMDLHandles.push_back(handle);
         }
 
         pStudioData->m_Mutex.ReleaseWaiter();
@@ -200,8 +194,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                     Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
                 else
                     Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" not found; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
-
-                g_vBadMDLHandles.push_back(handle);
             }
 
             pStudioData->m_Mutex.ReleaseWaiter();
@@ -222,8 +214,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                         Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has bad studio data and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
                     else
                         Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has bad studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
-
-                    g_vBadMDLHandles.push_back(handle);
                 }
             }
             else
@@ -238,8 +228,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                     Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has no studio data and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
                 else
                     Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has no studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
-
-                g_vBadMDLHandles.push_back(handle);
             }
         }
     }
@@ -343,18 +331,21 @@ void* CMDLCache::GetMaterialTable(CMDLCache* cache, MDLHandle_t handle)
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::GetErrorModel(void)
 {
-    old_gather_props->SetValue(true); // !TODO [AMOS]: mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
+    if (!old_gather_props->GetBool())
+        old_gather_props->SetValue(true); // !TODO [AMOS]: mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
+
     return g_pMDLFallback->m_pErrorHDR;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if this model handle is within the vector of bad models
+// Purpose: checks if this model handle is within the set of bad models
 // Input  : handle - 
 // Output : true if exist, false otherwise
 //-----------------------------------------------------------------------------
 bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
 {
-    return std::find(g_vBadMDLHandles.begin(), g_vBadMDLHandles.end(), handle) != g_vBadMDLHandles.end();
+    auto p = g_vBadMDLHandles.insert(handle);
+    return !p.second;
 }
 
 void VMDLCache::Attach() const

@@ -61,7 +61,7 @@ struct studiodata_t
 };
 
 inline RMDLFallBack_t* g_pMDLFallback = new RMDLFallBack_t();
-inline vector<MDLHandle_t> g_vBadMDLHandles;
+inline std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
 
 class CMDLCache
 {
