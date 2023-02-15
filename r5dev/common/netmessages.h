@@ -87,6 +87,31 @@ public:
 	bf_write	m_DataOut;
 };
 
+class SVC_ServerTick : public CNetMessage, IServerMessageHandler
+{
+public:
+	virtual	~SVC_ServerTick() {};
+
+	virtual void	SetNetChannel(INetChannel* netchan) = 0;
+	virtual void	SetReliable(bool state) = 0;
+
+	virtual bool	Process(void) = 0;
+
+	virtual	bool	ReadFromBuffer(bf_read& buffer) = 0;
+	virtual	bool	WriteToBuffer(bf_write& buffer) = 0;
+
+	virtual bool	IsReliable(void) const = 0;
+
+	virtual int          GetGroup(void) const = 0;
+	virtual int          GetType(void) const = 0;
+	virtual const char* GetName(void) const = 0;
+	virtual INetChannel* GetNetChannel(void) const = 0;
+	virtual const char* ToString(void) const = 0;
+	virtual size_t       GetSize(void) const = 0;
+
+	nettick_t m_NetTick;
+};
+
 struct NET_StringCmd : CNetMessage, INetMessageHandler
 {
 	const char* cmd;
