@@ -67,8 +67,8 @@ static_assert(sizeof(netpacket_t) == 0x88);
 
 typedef struct nettick_s
 {
-	int m_nTickUnused;
-	int m_nTick;
+	int m_nServerTick;
+	int m_nClientTick;
 	float m_flHostFrameTime;
 	float m_flHostFrameTimeStdDeviation;
 	bool m_bStruggling;
