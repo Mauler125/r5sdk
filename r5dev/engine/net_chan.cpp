@@ -154,9 +154,10 @@ int CNetChan::GetSequenceNr(int flow) const
 // Purpose: gets the netchannel connect time
 // Output : double
 //-----------------------------------------------------------------------------
-double CNetChan::GetConnectTime(void) const
+double CNetChan::GetTimeConnected(void) const
 {
-	return this->connect_time;
+	double t = *g_pNetTime - connect_time;
+	return (t > 0.0) ? t : 0.0;
 }
 
 //-----------------------------------------------------------------------------

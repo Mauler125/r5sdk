@@ -97,7 +97,7 @@ public:
 	int         GetSequenceNr(int flow) const;
 
 	float       GetTimeoutSeconds(void) const;
-	double      GetConnectTime(void) const;
+	double      GetTimeConnected(void) const;
 	int         GetSocket(void) const;
 
 	bool        IsOverflowed(void) const;
