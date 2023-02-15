@@ -7,6 +7,7 @@
 
 #pragma once
 #include "tier1/bitbuf.h"
+#include "public/inetchannel.h"
 #include "public/inetmessage.h"
 #include "public/inetmsghandler.h"
 

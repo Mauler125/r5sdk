@@ -5,6 +5,7 @@
 #define FLOW_OUTGOING     0
 #define FLOW_INCOMING     1
 #define MAX_FLOWS         2 // in & out
+#include "tier1/NetAdr.h"
 
 class IClientMessageHandler
 {
@@ -38,7 +39,7 @@ class INetChannelHandler
 {
 public:
 	virtual ~INetChannelHandler(void) = 0;
-	virtual void*ConnectionStart(INetChannel* chan) = 0;
+	virtual void*ConnectionStart(INetChannelHandler* chan) = 0;
 	virtual void ConnectionClosing(const char* reason, int unk) = 0;
 	virtual void ConnectionCrashed(const char* reason) = 0;
 	virtual void PacketStart(int incoming_sequence, int outgoing_acknowledged) = 0;
