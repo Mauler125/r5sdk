@@ -8,7 +8,7 @@ struct TickUpdate
 	float m_flHostFrameTime;
 	float m_flHostFrameTimeStdDeviation;
 	bool m_bStruggling;
-	char m_nUnkStat_maybe_load;
+	char m_nServerCPU;
 	int command_number;
 };
 

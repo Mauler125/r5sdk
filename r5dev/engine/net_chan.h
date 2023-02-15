@@ -153,7 +153,7 @@ private:
 	int                 m_nQueuedPackets;
 	float               m_flRemoteFrameTime;
 	float               m_flRemoteFrameTimeStdDeviation;
-	uint8_t             m_bUnkTickBool;
+	uint8_t             m_nServerCPU;
 	int                 m_nMaxRoutablePayloadSize;
 	int                 m_nSplitPacketSequence;
 	int64_t             m_StreamSendBuffer;
@@ -167,7 +167,6 @@ private:
 	uint32_t            m_nLiftimeRecvs;
 	bool                m_bPad;
 	char                m_Name[NET_CHANNELNAME_MAXLEN];
-	uint8_t             m_bRetrySendLong;
 	netadr_t            remote_address;
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
