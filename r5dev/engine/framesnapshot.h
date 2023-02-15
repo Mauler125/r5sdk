@@ -1,16 +1,6 @@
 #if !defined( FRAMESNAPSHOT_H )
 #define FRAMESNAPSHOT_H
-
-struct TickUpdate
-{
-	int m_nTickUnused;
-	int m_nTick;
-	float m_flHostFrameTime;
-	float m_flHostFrameTimeStdDeviation;
-	bool m_bStruggling;
-	char m_nServerCPU;
-	int command_number;
-};
+#include "public/inetchannel.h"
 
 struct CFrameSnapshot
 {
@@ -30,7 +20,7 @@ struct CFrameSnapshot
 	_BYTE snap_byte26;
 	__unaligned __declspec(align(1)) _WORD word27;
 	_BYTE gap29[3];
-	TickUpdate snap_tick_update;
+	nettick_t snap_tick_update;
 	_BYTE gap44[4];
 	_QWORD qword48;
 	_QWORD qword50;

@@ -50,8 +50,7 @@ public:
 struct CS_INetChannelHandler : INetChannelHandler
 {};
 
-typedef struct netpacket_s netpacket_t;
-typedef struct __declspec(align(8)) netpacket_s
+typedef struct netpacket_s
 {
 	netadr_t from;
 	int source;
@@ -63,4 +62,18 @@ typedef struct __declspec(align(8)) netpacket_s
 	char stream;
 	netpacket_s* pNext;
 } netpacket_t;
+static_assert(sizeof(netpacket_t) == 0x88);
+
+typedef struct nettick_s
+{
+	int m_nTickUnused;
+	int m_nTick;
+	float m_flHostFrameTime;
+	float m_flHostFrameTimeStdDeviation;
+	bool m_bStruggling;
+	char m_nServerCPU;
+	int command_number;
+} nettick_t;
+static_assert(sizeof(nettick_s) == 0x18);
+
 #endif // !INETCHANNEL_H
