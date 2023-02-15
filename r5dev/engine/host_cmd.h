@@ -2,6 +2,11 @@
 #include "tier1/cmd.h"
 #include "launcher/IApplication.h"
 
+//-------------------------------------------------------------------------------------
+// Forward declarations
+//-------------------------------------------------------------------------------------
+class CClient;
+
 struct EngineParms_t
 {
 	char* baseDirectory;
@@ -22,6 +27,9 @@ inline auto Host_NewGame = p_Host_NewGame.RCast<bool (*)(char* pszMapName, char*
 inline CMemory p_Host_ChangeLevel;
 inline auto Host_ChangeLevel = p_Host_ChangeLevel.RCast<bool (*)(bool bLoadFromSavedGame, const char* pszMapName, const char* pszMapGroup)>();
 
+inline CMemory p_Host_Status_PrintClient;
+inline auto v_Host_Status_PrintClient = p_Host_Status_PrintClient.RCast<void (*)(CClient* client, bool bShowAddress, void (*print) (const char* fmt, ...))>();
+
 inline CMemory p_SetLaunchOptions;
 inline auto v_SetLaunchOptions = p_SetLaunchOptions.RCast<int (*)(const CCommand& args)>();
 
@@ -40,6 +48,7 @@ class VHostCmd : public IDetour
 		LogFunAdr("Host_Init", p_Host_Init.GetPtr());
 		LogFunAdr("Host_NewGame", p_Host_NewGame.GetPtr());
 		LogFunAdr("Host_ChangeLevel", p_Host_ChangeLevel.GetPtr());
+		LogFunAdr("Host_Status_PrintClient", p_Host_Status_PrintClient.GetPtr());
 		LogFunAdr("SetLaunchOptions", p_SetLaunchOptions.GetPtr());
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 		LogFunAdr("DFS_InitializeFeatureFlagDefinitions", p_DFS_InitializeFeatureFlagDefinitions.GetPtr());
@@ -59,6 +68,7 @@ class VHostCmd : public IDetour
 		p_Host_ChangeLevel = g_GameDll.FindPatternSIMD("40 56 57 41 56 48 81 EC ?? ?? ?? ??");
 		p_SetLaunchOptions = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B E9 48 85 DB");
 #endif
+		p_Host_Status_PrintClient = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 60 48 8B A9 ?? ?? ?? ??");
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 		p_DFS_InitializeFeatureFlagDefinitions = g_GameDll.FindPatternSIMD("48 8B C4 55 53 48 8D 68 E8");
 		v_DFS_InitializeFeatureFlagDefinitions = p_DFS_InitializeFeatureFlagDefinitions.RCast<bool (*)(const char*)>(); /*48 8B C4 55 53 48 8D 68 E8*/
@@ -66,6 +76,7 @@ class VHostCmd : public IDetour
 		Host_Init = p_Host_Init.RCast<void* (*)(bool*)>();                                        /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9*/
 		Host_NewGame = p_Host_NewGame.RCast<bool (*)(char*, char*, bool, char, LARGE_INTEGER)>(); /*48 8B C4 ?? 41 54 41 55 48 81 EC 70 04 00 00 F2 0F 10 05 ?? ?? ?? 0B*/
 		Host_ChangeLevel = p_Host_ChangeLevel.RCast<bool (*)(bool, const char*, const char*)>();  /*40 56 57 41 56 48 81 EC ?? ?? ?? ??*/
+		v_Host_Status_PrintClient = p_Host_Status_PrintClient.RCast<void (*)(CClient*, bool, void (*) (const char*, ...))>();
 		v_SetLaunchOptions = p_SetLaunchOptions.RCast<int (*)(const CCommand&)>();                /*48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B E9 48 85 DB*/
 	}
 	virtual void GetVar(void) const
