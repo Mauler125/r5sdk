@@ -32,7 +32,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 // server messages:
 ///////////////////////////////////////////////////////////////////////////////////////
-class SVC_Print : public CNetMessage, IServerMessageHandler
+class SVC_Print : public CNetMessage
 {
 public:
 	virtual	~SVC_Print() {};
@@ -54,13 +54,14 @@ public:
 	virtual const char*  ToString(void) const = 0;
 	virtual size_t       GetSize(void) const = 0;
 
+	IServerMessageHandler* m_pMessageHandler;
 	const void* m_pData;
 	const char* m_szText;
 private:
 	char m_szTextBuffer[2048];
 };
 
-class SVC_UserMessage : public CNetMessage, IServerMessageHandler
+class SVC_UserMessage : public CNetMessage
 {
 public:
 	virtual	~SVC_UserMessage() {};
@@ -82,13 +83,14 @@ public:
 	virtual const char*  ToString(void) const = 0;
 	virtual size_t       GetSize(void) const = 0;
 
+	IServerMessageHandler* m_pMessageHandler;
 	int			m_nMsgType;
 	int			m_nLength;	// data length in bits
 	bf_read		m_DataIn;
 	bf_write	m_DataOut;
 };
 
-class SVC_ServerTick : public CNetMessage, IServerMessageHandler
+class SVC_ServerTick : public CNetMessage
 {
 public:
 	virtual	~SVC_ServerTick() {};
@@ -110,11 +112,13 @@ public:
 	virtual const char* ToString(void) const = 0;
 	virtual size_t       GetSize(void) const = 0;
 
+	IServerMessageHandler* m_pMessageHandler;
 	nettick_t m_NetTick;
 };
 
-struct NET_StringCmd : CNetMessage, INetMessageHandler
+struct NET_StringCmd : CNetMessage
 {
+	INetMessageHandler* m_pMessageHandler;
 	const char* cmd;
 	char buffer[1024];
 };
