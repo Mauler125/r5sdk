@@ -7,6 +7,7 @@ inline auto COM_InitFilesystem = p_COM_InitFilesystem.RCast<void* (*)(const char
 inline CMemory p_COM_ExplainDisconnection;
 inline auto COM_ExplainDisconnection = p_COM_ExplainDisconnection.RCast<void* (*)(uint64_t level, const char* fmt, ...)>();
 
+const char* COM_FormatSeconds(int seconds);
 ///////////////////////////////////////////////////////////////////////////////
 class VCommon : public IDetour
 {
