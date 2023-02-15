@@ -303,4 +303,6 @@ void VNet::Detach() const
 ///////////////////////////////////////////////////////////////////////////////
 netadr_t* g_pNetAdr = nullptr;
 netkey_t* g_pNetKey = nullptr;
+
+double* g_pNetTime = nullptr;
 #endif // !NETCONSOLE

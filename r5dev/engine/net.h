@@ -49,6 +49,8 @@ void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8
 extern netadr_t* g_pNetAdr;
 extern netkey_t* g_pNetKey;
 
+extern double* g_pNetTime;
+
 ///////////////////////////////////////////////////////////////////////////////
 class VNet : public IDetour
 {
@@ -62,6 +64,7 @@ class VNet : public IDetour
 		LogFunAdr("NET_PrintFunc", p_NET_PrintFunc.GetPtr());
 		LogVarAdr("g_NetAdr", reinterpret_cast<uintptr_t>(g_pNetAdr));
 		LogVarAdr("g_NetKey", reinterpret_cast<uintptr_t>(g_pNetKey));
+		LogVarAdr("g_NetTime", reinterpret_cast<uintptr_t>(g_pNetTime));
 	}
 	virtual void GetFun(void) const
 	{
@@ -88,6 +91,7 @@ class VNet : public IDetour
 	{
 		g_pNetAdr = g_GameDll.FindPatternSIMD("C7 05 ?? ?? ?? ?? ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 66 89 05 ?? ?? ?? ?? 88 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 33 C0").ResolveRelativeAddressSelf(0x2, 0xA).RCast<netadr_t*>();
 		g_pNetKey = g_GameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ?? ?? ?? ?? ?? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).RCast<netkey_t*>();
+		g_pNetTime = p_NET_Init.Offset(0xA).FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;
