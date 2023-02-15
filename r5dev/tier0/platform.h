@@ -476,6 +476,8 @@ inline int64 CastPtrToInt64(const void* p)
 #define FORCEINLINE_TEMPLATE	__forceinline
 #define NULLTERMINATED			__nullterminated
 
+#define FORCENOINLINE __declspec(noinline)
+
 // This can be used to ensure the size of pointers to members when declaring
 // a pointer type for a class that has only been forward declared
 #define SINGLE_INHERITANCE		__single_inheritance
