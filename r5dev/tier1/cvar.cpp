@@ -87,6 +87,7 @@ ConVar* sv_quota_stringCmdsPerSecond       = nullptr;
 
 ConVar* sv_simulateBots                    = nullptr;
 ConVar* sv_showhitboxes                    = nullptr;
+ConVar* sv_stats                           = nullptr;
 
 //#ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;

@@ -289,6 +289,7 @@ void ConVar::InitShipped(void)
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 #ifndef CLIENT_DLL
 	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
+	sv_stats = g_pCVar->FindVar("sv_stats");
 	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
 
 	sv_showhitboxes->SetMin(-1); // Allow user to go over each entity manually without going out of bounds.
