@@ -38,6 +38,7 @@ public:
 	const char* GetMapGroupName(void) const { return m_szMapGroupName; }
 	int GetNumClasses(void) const { return m_nServerClasses; }
 	int GetClassBits(void) const { return m_nServerClassBits; }
+	float GetCPUUsage(void) const { return m_fCPUPercent; }
 	bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
 	bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
 	bool IsDedicated(void) const { return m_bIsDedicated; }
@@ -71,9 +72,13 @@ private:
 	int                           m_nServerClasses;              // number of unique server classes
 	int                           m_nServerClassBits;            // log2 of serverclasses
 	char                          m_szHostInfo[128];             // see '[r5apex_ds.exe + 0x237740]' for more details. fmt: '[IPv6]:PORT:TIMEi64u'
-	char                          m_nGap0[0x4A290];              // TODO: Reverse the rest in this gap.
+	char                          m_nGap0[640];
+	float                         m_fCPUPercent;
+	float                         m_fStartTime;
+	float                         m_fLastCPUCheckTime;
+	char                          m_nGap1[303108];               // TODO: Reverse the rest in this gap.
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	char                          m_nGap1[0x80];
+	char                          m_nGap2[0x80];
 #endif
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
@@ -103,7 +108,7 @@ class VServer : public IDetour
 		LogFunAdr("CServer::FrameJob", p_CServer_FrameJob.GetPtr());
 		LogFunAdr("CServer::ConnectClient", p_CServer_Authenticate.GetPtr());
 		LogFunAdr("CServer::RejectConnection", p_CServer_RejectConnection.GetPtr());
-		LogVarAdr("g_pServer[128]", reinterpret_cast<uintptr_t>(g_pServer));
+		LogVarAdr("g_Server[128]", reinterpret_cast<uintptr_t>(g_pServer));
 #endif // !CLIENT_DLL
 	}
 	virtual void GetFun(void) const

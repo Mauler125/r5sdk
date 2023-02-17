@@ -20,6 +20,41 @@ enum Reputation_t
 class CServer;
 class CClient;
 
+struct Spike_t
+{
+public:
+	Spike_t() :
+		m_nBits(0)
+	{
+		m_szDesc[0] = 0;
+	}
+
+	// !TODO: !unconfirmed!
+	char	m_szDesc[64];
+	int		m_nBits;
+};
+
+class CNetworkStatTrace
+{
+public:
+	CNetworkStatTrace() :
+		m_nStartBit(0), m_nCurBit(0), m_nMinWarningBytes(0)
+	{
+	}
+	int						m_nStartBit;
+	int						m_nCurBit;
+	int						m_nMinWarningBytes;
+	CUtlVector< Spike_t >	m_Records;
+};
+
+class CClientFrame
+{
+	// !TODO: !unconfirmed!
+	int last_entity;
+	int tick_count;
+	CClientFrame* m_pNext;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 extern CClient* g_pClient;
 
@@ -33,6 +68,8 @@ public:
 	SIGNONSTATE GetSignonState(void) const;
 	PERSISTENCE GetPersistenceState(void) const;
 	CNetChan* GetNetChan(void) const;
+	CServer* GetServer(void) const;
+	int GetCommandTick(void) const;
 	const char* GetServerName(void) const;
 	const char* GetClientName(void) const;
 	void SetHandle(edict_t nHandle);
@@ -48,12 +85,17 @@ public:
 	bool IsPersistenceReady(void) const;
 	bool IsFakeClient(void) const;
 	bool IsHumanPlayer(void) const;
+
+	bool SendNetMsg(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
 	bool Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
 	void Disconnect(const Reputation_t nRepLvl, const char* szReason, ...);
 	static bool VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
 	void Clear(void);
+
+public: // Hook statics:
 	static void VClear(CClient* pClient);
 	static bool VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg);
+	static void* VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
 
 private:
 	uint32_t m_nUserID;              //0x0010
@@ -62,7 +104,9 @@ private:
 	int64_t m_nReputation;           //0x0058
 	char pad_0014[182];              //0x0060
 	char m_szClientName[64];         //0x0116
-	char pad_0015[522];              //0x0156
+	char pad_0156[450];              //0x0156
+	int m_nCommandTick;              //0x0318
+	char pad_031C[68];               //0x031C
 	KeyValues* m_ConVars;            //0x0360
 	char pad_0368[8];                //0x0368
 	CServer* m_pServer;              //0x0370
@@ -84,7 +128,10 @@ private:
 	bool m_bFullyAuthenticated;      //0x05A3
 	char pad_05A4[24];               //0x05A4
 	PERSISTENCE m_nPersistenceState; //0x05BC
-	char pad_05C0[302676];           //0x05C0
+	char pad_05C0[295312];           //0x05C0
+	int m_iTracing;                  //0x48750
+	CNetworkStatTrace m_Trace;       //0x48754
+	char pad_4878C[7304];            //0x4878C
 	int32_t m_LastMovementTick;      //0x4A414
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	char pad_4A418[120];             //0x4A418
@@ -114,6 +161,12 @@ inline auto v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (
 inline CMemory p_CClient_SetSignonState;
 inline auto v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient* pClient, SIGNONSTATE signon)>();
 
+inline CMemory p_CClient_SendNetMsg;
+inline auto v_CClient_SendNetMsg = p_CClient_SendNetMsg.RCast<bool (*)(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)>();
+
+inline CMemory p_CClient_SendSnapshot;
+inline auto v_CClient_SendSnapshot = p_CClient_SendSnapshot.RCast<void* (*)(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck)>();
+
 ///////////////////////////////////////////////////////////////////////////////
 class VClient : public IDetour
 {
@@ -124,7 +177,9 @@ class VClient : public IDetour
 		LogFunAdr("CClient::Clear", p_CClient_Clear.GetPtr());
 		LogFunAdr("CClient::ProcessStringCmd", p_CClient_ProcessStringCmd.GetPtr());
 		LogFunAdr("CClient::SetSignonState", p_CClient_SetSignonState.GetPtr());
-		LogVarAdr("g_pClient[128]", reinterpret_cast<uintptr_t>(g_pClient));
+		LogFunAdr("CClient::SendNetMsg", p_CClient_SendNetMsg.GetPtr());
+		LogFunAdr("CClient::SendSnapshot", p_CClient_SendSnapshot.GetPtr());
+		LogVarAdr("g_Client[128]", reinterpret_cast<uintptr_t>(g_pClient));
 	}
 	virtual void GetFun(void) const
 	{
@@ -137,8 +192,12 @@ class VClient : public IDetour
 		p_CClient_Clear      = g_GameDll.FindPatternSIMD("40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 83 EC 28 4C 8B 42 20");
+		p_CClient_SendNetMsg = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 45 0F B6 F1");
+		p_CClient_SendSnapshot = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 55");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20");
+		p_CClient_SendNetMsg = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??");
+		p_CClient_SendSnapshot = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 41 55 41 56 41 57 48 8D 6C 24 ??");
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 		p_CClient_SetSignonState = g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2");
 
@@ -146,7 +205,9 @@ class VClient : public IDetour
 		v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient*, const Reputation_t, const char*, ...)>();     /*48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2*/
 		v_CClient_Clear      = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 		v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (*)(CClient*, NET_StringCmd*)>();               /*48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20*/
-		v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient* pClient, SIGNONSTATE signon)>();
+		v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient*, SIGNONSTATE)>();
+		v_CClient_SendNetMsg = p_CClient_SendNetMsg.RCast<bool (*)(CClient*, CNetMessage*, char, bool, bool)>();
+		v_CClient_SendSnapshot = p_CClient_SendSnapshot.RCast<void* (*)(CClient*, CClientFrame*, int, int)>();
 	}
 	virtual void GetVar(void) const
 	{
@@ -159,12 +220,14 @@ class VClient : public IDetour
 		DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
 		DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
 		DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+		//DetourAttach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
 	}
 	virtual void Detach(void) const
 	{
 		DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
 		DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
 		DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+		//DetourDetach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -10,6 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
+#include "engine/host.h"
 #include "engine/server/server.h"
 #include "engine/client/client.h"
 
@@ -68,6 +69,22 @@ PERSISTENCE CClient::GetPersistenceState(void) const
 CNetChan* CClient::GetNetChan(void) const
 {
 	return m_NetChannel;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: gets the pointer to the server object
+//---------------------------------------------------------------------------------
+CServer* CClient::GetServer(void) const
+{
+	return m_pServer;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: gets the command tick
+//---------------------------------------------------------------------------------
+int CClient::GetCommandTick(void) const
+{
+	return m_nCommandTick;
 }
 
 //---------------------------------------------------------------------------------
@@ -284,6 +301,16 @@ void CClient::Disconnect(const Reputation_t nRepLvl, const char* szReason, ...)
 		}/////////////////////////////
 		v_CClient_Disconnect(this, nRepLvl, szBuf);
 	}
+}
+
+bool CClient::SendNetMsg(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
+{
+	return v_CClient_SendNetMsg(this, pMsg, bLocal, bForceReliable, bVoice);
+}
+
+void* CClient::VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck)
+{
+	return v_CClient_SendSnapshot(pClient, pFrame, nTick, nTickAck);
 }
 
 //---------------------------------------------------------------------------------
