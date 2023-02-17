@@ -5,7 +5,12 @@
 // $NoKeywords: $
 //===========================================================================//
 #include "core/stdafx.h"
-#include "engine/networkstringtable.h"
+#include "tier1/cvar.h"
+#ifndef CLIENT_DLL
+#include "server/server.h"
+#include "host.h"
+#endif // !CLIENT_DLL
+#include "networkstringtable.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -76,4 +81,48 @@ bool CNetworkStringTable::Lock(bool bLock)
 	bool bState = m_bLocked;
 	m_bLocked = bLock;
 	return bState;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Writes network string table delta's to snapshot buffer
+// Input  : *pClient - 
+//			nTickAck - 
+//			*pMsg - 
+//-----------------------------------------------------------------------------
+static uint8_t s_OldCPUPercentage;
+void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContainer* thisp, CClient* pClient, unsigned int nTickAck, bf_write* pMsg)
+{
+#ifndef CLIENT_DLL
+	if (sv_stats->GetBool())
+	{
+		uint8_t nCPUPercentage = g_pServer[MAX_PLAYERS].GetCPUUsage() * 100.0f;
+		if (s_OldCPUPercentage != nCPUPercentage)
+		{
+			s_OldCPUPercentage = nCPUPercentage;
+			SVC_ServerTick serverTick(g_pServer->GetTick(), *host_frametime_unbounded, *host_frametime_stddeviation, nCPUPercentage);
+
+			serverTick.m_nGroup = 0;
+			serverTick.m_bReliable = 1;
+			serverTick.m_NetTick.m_nCommandTick = -1; // Statistics only, see 'CClientState::VProcessServerTick'.
+
+			// Send individually instead of writing into snapshot buffer to avoid overflow.
+			pClient->SendNetMsg(&serverTick, false, true, false);
+		}
+	}
+#endif // !CLIENT_DLL
+	v_CNetworkStringTableContainer__WriteUpdateMessage(thisp, pClient, nTickAck, pMsg);
+}
+
+void VNetworkStringTableContainer::Attach() const
+{
+#ifndef CLIENT_DLL
+	DetourAttach(&v_CNetworkStringTableContainer__WriteUpdateMessage, &CNetworkStringTableContainer::WriteUpdateMessage);
+#endif // !CLIENT_DLL
+}
+
+void VNetworkStringTableContainer::Detach() const
+{
+#ifndef CLIENT_DLL
+	DetourDetach(&v_CNetworkStringTableContainer__WriteUpdateMessage, &CNetworkStringTableContainer::WriteUpdateMessage);
+#endif // !CLIENT_DLL
 }
