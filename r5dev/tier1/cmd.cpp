@@ -728,7 +728,7 @@ bool Cmd_ForwardToServer(const CCommand* args)
 		{
 			// If we are over quota commands per second, dump this on the floor.
 			// If we spam the server with too many commands, it will kick us.
-			Warning(eDLL_T::CLIENT, "Command '%s' ignored (submission quota of '%d' per second exceeded!)\n", args->ArgS(), nCmdQuotaLimit);
+			Warning(eDLL_T::CLIENT, "Command '%s' ignored (submission quota of '%d' per second exceeded!)\n", pszCmdString, nCmdQuotaLimit);
 			return false;
 		}
 	}
