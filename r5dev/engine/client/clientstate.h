@@ -23,6 +23,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
 {
+public: // Hook statics.
+	static bool VProcessServerTick(CClientState* thisptr, SVC_ServerTick* msg);
+
 public:
 	bool IsPaused() const;
 	bool IsActive(void) const;
@@ -189,6 +192,9 @@ inline auto CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CCli
 inline CMemory p_CClientState__Disconnect; /*48 89 5C 24 ?? 55 57 41 56 48 83 EC 30 0F B6 EA*/
 inline auto CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>();
 
+inline CMemory p_CClientState__ProcessServerTick;
+inline auto CClientState__ProcessServerTick = p_CClientState__ProcessServerTick.RCast<bool(*)(CClientState* thisptr, SVC_ServerTick* msg)>();
+
 
 ///////////////////////////////////////////////////////////////////////////////
 class VClientState : public IDetour
@@ -197,6 +203,7 @@ class VClientState : public IDetour
 	{
 		LogFunAdr("CClientState::RunFrame", p_CClientState__RunFrame.GetPtr());
 		LogFunAdr("CClientState::Disconnect", p_CClientState__Disconnect.GetPtr());
+		LogFunAdr("CClientState::ProcessServerTick", p_CClientState__ProcessServerTick.GetPtr());
 		LogVarAdr("g_pClientState", reinterpret_cast<uintptr_t>(g_pClientState));
 		LogVarAdr("g_pClientState_Shifted", reinterpret_cast<uintptr_t>(g_pClientState_Shifted));
 	}
@@ -215,6 +222,8 @@ class VClientState : public IDetour
 		p_CClientState__Disconnect = g_GameDll.FindPatternSIMD("40 56 57 41 54 41 55 41 57 48 83 EC 30 44 0F B6 FA");
 		CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>(); /*40 56 57 41 54 41 55 41 57 48 83 EC 30 44 0F B6 FA*/
 #endif
+		p_CClientState__ProcessServerTick = g_GameDll.FindPatternSIMD("40 57 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B F9 7C 66");
+		CClientState__ProcessServerTick = p_CClientState__ProcessServerTick.RCast<bool(*)(CClientState*, SVC_ServerTick*)>();
 	}
 	virtual void GetVar(void) const
 	{
@@ -222,7 +231,7 @@ class VClientState : public IDetour
 		g_pClientState_Shifted = reinterpret_cast<CClientState**>(reinterpret_cast<int64_t*>(g_pClientState)+1); // Shift by 8 bytes.
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

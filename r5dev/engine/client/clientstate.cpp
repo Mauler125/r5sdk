@@ -102,6 +102,38 @@ void CClientState::SetClientTickCount(int tick)
     m_ClockDriftMgr.m_nClientTick = tick;
 }
 
+//------------------------------------------------------------------------------
+// Purpose: 
+//------------------------------------------------------------------------------
+bool CClientState::VProcessServerTick(CClientState* pClientState, SVC_ServerTick* pServerTick)
+{
+    if (pServerTick->m_NetTick.m_nCommandTick != -1)
+    {
+        return CClientState__ProcessServerTick(pClientState, pServerTick);
+    }
+    else // Statistics only.
+    {
+        char* pShifted = reinterpret_cast<char*>(pClientState) - 0x10; // Shifted due to compiled optimizations.
+        CClientState* pClient_Adj = reinterpret_cast<CClientState*>(pShifted);
+
+        CNetChan* pChan = pClient_Adj->m_NetChannel;
+        pChan->SetRemoteFramerate(pServerTick->m_NetTick.m_flHostFrameTime, pServerTick->m_NetTick.m_flHostFrameTimeStdDeviation);
+        pChan->SetRemoteCPUStatistics(pServerTick->m_NetTick.m_nServerCPU);
+
+        return true;
+    }
+}
+
+void VClientState::Attach() const
+{
+    DetourAttach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
+}
+
+void VClientState::Detach() const
+{
+    DetourDetach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 CClientState* g_pClientState = nullptr;
 CClientState** g_pClientState_Shifted = nullptr;
