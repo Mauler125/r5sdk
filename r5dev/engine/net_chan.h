@@ -104,6 +104,9 @@ public:
 	void        Clear(bool bStopProcessing);
 
 	static bool ProcessMessages(CNetChan* pChan, bf_read* pMsg);
+
+	void SetRemoteFramerate(float flFrameTime, float flFrameTimeStdDeviation);
+	void SetRemoteCPUStatistics(uint8_t nStats);
 	//-----------------------------------------------------------------------------
 private:
 	bool                m_bProcessingMessages;
@@ -181,7 +184,7 @@ inline auto v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan* pChannel,
 inline CMemory p_NetChan_ProcessMessages;
 inline auto v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();
 ///////////////////////////////////////////////////////////////////////////////
-class VNetChannel : public IDetour
+class VNetChan : public IDetour
 {
 	virtual void GetAdr(void) const
 	{

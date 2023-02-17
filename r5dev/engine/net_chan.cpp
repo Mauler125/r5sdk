@@ -241,12 +241,32 @@ bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 #endif
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: sets the remote frame times
+// Input  : flFrameTime - 
+//			flFrameTimeStdDeviation - 
+//-----------------------------------------------------------------------------
+void CNetChan::SetRemoteFramerate(float flFrameTime, float flFrameTimeStdDeviation)
+{
+	m_flRemoteFrameTime = flFrameTime;
+	m_flRemoteFrameTimeStdDeviation = flFrameTimeStdDeviation;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: sets the remote cpu statistics
+// Input  : nStats - 
+//-----------------------------------------------------------------------------
+void CNetChan::SetRemoteCPUStatistics(uint8_t nStats)
+{
+	m_nServerCPU = nStats;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
-void VNetChannel::Attach() const
+void VNetChan::Attach() const
 {
 	DetourAttach(&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
 }
-void VNetChannel::Detach() const
+void VNetChan::Detach() const
 {
 	DetourDetach(&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
 }

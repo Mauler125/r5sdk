@@ -72,8 +72,8 @@ typedef struct nettick_s
 	float m_flHostFrameTime;
 	float m_flHostFrameTimeStdDeviation;
 	bool m_bStruggling;
-	char m_nServerCPU;
-	int command_number;
+	uint8_t m_nServerCPU;
+	int m_nCommandTick;
 } nettick_t;
 static_assert(sizeof(nettick_s) == 0x18);
 

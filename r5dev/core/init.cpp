@@ -492,7 +492,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VHostState);
 	REGISTER(VModelLoader);
 	REGISTER(VNet);
-	REGISTER(VNetChannel);
+	REGISTER(VNetChan);
 
 	REGISTER(VSys_Dll);
 	REGISTER(VSys_Dll2);
