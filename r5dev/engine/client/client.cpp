@@ -10,7 +10,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
-#include "engine/host.h"
 #include "engine/server/server.h"
 #include "engine/client/client.h"
 
