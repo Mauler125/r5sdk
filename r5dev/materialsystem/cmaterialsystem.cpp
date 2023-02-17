@@ -68,7 +68,7 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 // Input  : **pCandidate - 
 // Output : true if valid and material, false otherwise
 //-----------------------------------------------------------------------------
-__declspec(noinline) bool IsMaterialInternal(void** pCandidate)
+FORCENOINLINE bool CMaterialSystem::IsMaterialInternal(void** pCandidate)
 {
 	// NOTE: this is a dirty fix, but for running technically broken BSP's, this is the only fix 
 	// besides going bare metal inline assembly (which on its own isn't directly the problem, but 
@@ -134,7 +134,7 @@ void VMaterialSystem::Attach() const
 {
 	// TODO: This has to be removed!!!
 #ifndef _DEBUG
-	vector<CMemory> find_IMI_ref = CMemory(IsMaterialInternal).FindAllCallReferences(reinterpret_cast<uintptr_t>(BuildPropStaticFrustumCullMap), 1000);
+	vector<CMemory> find_IMI_ref = CMemory(CMaterialSystem::IsMaterialInternal).FindAllCallReferences(reinterpret_cast<uintptr_t>(BuildPropStaticFrustumCullMap), 1000);
 	if (!find_IMI_ref.empty())
 	{
 		void* imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();

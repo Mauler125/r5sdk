@@ -7,6 +7,7 @@
 class CMaterialSystem
 {
 public:
+	FORCENOINLINE static bool IsMaterialInternal(void** pCandidate);
 #ifndef DEDICATED
 	static CMaterialGlue* FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 	static Vector2D GetScreenSize(CMaterialSystem* pMatSys = nullptr);
@@ -42,8 +43,6 @@ inline int* g_nTotalStreamingTextureMemory    = nullptr;
 inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline int* g_nUnusableStreamingTextureMemory = nullptr;
 #endif // !DEDICATED
-
-__declspec(noinline) bool IsMaterialInternal(void** pCandidate);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VMaterialSystem : public IDetour
