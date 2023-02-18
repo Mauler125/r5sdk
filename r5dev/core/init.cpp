@@ -84,6 +84,7 @@
 #include "engine/modelloader.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
+#include "engine/networkstringtable.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_main.h"
 #endif // !CLIENT_DLL
