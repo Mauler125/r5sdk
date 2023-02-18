@@ -69,9 +69,9 @@ class VAI_NetworkManager : public IDetour
 		LogFunAdr("CAI_NetworkManager::ShouldRebuild", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
 		LogFunAdr("CAI_NetworkBuilder::Build", p_CAI_NetworkBuilder__Build.GetPtr());
 		LogVarAdr("g_nAiNodeClusters", reinterpret_cast<uintptr_t>(g_nAiNodeClusters));
-		LogVarAdr("g_pppAiNodeClusters", reinterpret_cast<uintptr_t>(g_pppAiNodeClusters));
+		LogVarAdr("g_pAiNodeClusters", reinterpret_cast<uintptr_t>(g_pppAiNodeClusters));
 		LogVarAdr("g_nAiNodeClusterLinks", reinterpret_cast<uintptr_t>(g_nAiNodeClusterLinks));
-		LogVarAdr("g_pppAiNodeClusterLinks", reinterpret_cast<uintptr_t>(g_pppAiNodeClusterLinks));
+		LogVarAdr("g_pAiNodeClusterLinks", reinterpret_cast<uintptr_t>(g_pppAiNodeClusterLinks));
 	}
 	virtual void GetFun(void) const
 	{

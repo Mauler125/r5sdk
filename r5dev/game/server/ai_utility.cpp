@@ -10,7 +10,7 @@
 #include "game/server/detour_impl.h"
 #include "game/server/ai_networkmanager.h"
 
-inline uint32_t g_pHullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
+inline uint32_t g_HullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
 {
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0xfffffffb, 0xfffffffa, 0xfffffff9, 0xfffffff8, 0x00040200
@@ -28,6 +28,25 @@ dtNavMesh* GetNavMeshForHull(int hullSize)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: gets the navmesh by hull from global array [small, med_short, medium, large, extra_large]
+// input  : hull - 
+// Output : pointer to navmesh
+//-----------------------------------------------------------------------------
+void ClearNavMeshForHull(int hullSize)
+{
+    Assert(hullSize >= NULL && hullSize < MAX_HULLS); // Programmer error.
+    dtNavMesh* nav = g_pNavMesh[hullSize];
+
+    if (nav) // Only free if NavMesh for hull is loaded.
+    {
+        v_Detour_FreeNavMesh(nav);      // Frees tiles, polys, tris, etc.
+        MemAllocSingleton()->Free(nav); // Frees the main navmesh memory.
+
+        g_pNavMesh[hullSize] = nullptr;
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: gets hull mask by id
 // input  : hullId - 
 // Output : hull mask
@@ -35,7 +54,7 @@ dtNavMesh* GetNavMeshForHull(int hullSize)
 uint32_t GetHullMaskById(int hullId)
 {
     Assert(hullId >= NULL && hullId < SDK_ARRAYSIZE(g_pHullMasks)); // Programmer error.
-    return (hullId + g_pHullMasks[hullId]);
+    return (hullId + g_HullMasks[hullId]);
 }
 
 //-----------------------------------------------------------------------------
@@ -48,8 +67,8 @@ uint32_t GetHullMaskById(int hullId)
 //-----------------------------------------------------------------------------
 uint8_t IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef, int hullId)
 {
-	if (navmesh_always_reachable->GetBool())
-		return true;
+    if (navmesh_always_reachable->GetBool())
+        return true;
 
     return v_dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);
 }
@@ -70,12 +89,7 @@ void Detour_LevelShutdown()
 {
     for (int i = 0; i < MAX_HULLS; i++)
     {
-        dtNavMesh* nav = GetNavMeshForHull(i);
-        if (nav) // Only free if NavMesh for hull is loaded.
-        {
-            v_Detour_FreeNavMesh(nav);
-            MemAllocSingleton()->Free(nav);
-        }
+        ClearNavMeshForHull(i);
     }
 }
 
