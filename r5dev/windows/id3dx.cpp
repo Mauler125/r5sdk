@@ -85,10 +85,10 @@ void SetupImGui()
 	ImGui::CreateContext();
 	ImGui_ImplWin32_Init(*g_pGameWindow);
 	ImGui_ImplDX11_Init(*g_ppGameDevice, *g_ppImmediateContext);
-	ImGui::GetIO().ImeWindowHandle = *g_pGameWindow;
 
 	///////////////////////////////////////////////////////////////////////////////
 	ImGuiIO& io = ImGui::GetIO();
+	io.ImeWindowHandle = *g_pGameWindow;
 	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
 
 	s_bImGuiInitialized = true;
