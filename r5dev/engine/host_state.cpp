@@ -194,13 +194,18 @@ FORCEINLINE void CHostState::Init(void)
 		}
 	}
 	m_flShortFrameTime = 1.0f;
+	m_bActiveGame = false;
+	m_bRememberLocation = false;
+	m_bBackgroundLevel = false;
+	m_bWaitingForConnection = false;
 	m_levelName[0] = 0;
 	m_landMarkName[0] = 0;
 	m_mapGroupName[0] = 0;
-	m_nSplitScreenPlayers = 256;
+	m_bSplitScreenConnect = false;
+	m_bGameHasShutDownAndFlushedMemory = true;
 	m_vecLocation.Init();
 	m_angLocation.Init();
-	m_iCurrentState = HostStates_t::HS_NEW_GAME;
+	m_iServerState = HostStates_t::HS_NEW_GAME;
 }
 
 //-----------------------------------------------------------------------------
@@ -357,8 +362,8 @@ FORCEINLINE void CHostState::State_NewGame(void)
 	DevMsg(eDLL_T::ENGINE, "%s: Loading level: '%s'\n", __FUNCTION__, g_pHostState->m_levelName);
 
 	LARGE_INTEGER time{};
-	uint16_t nSplitScreenPlayers = m_nSplitScreenPlayers;
-	m_nSplitScreenPlayers = 0;
+	bool bSplitScreenConnect = m_bSplitScreenConnect;
+	m_bSplitScreenConnect = 0;
 #ifndef CLIENT_DLL
 	if (!g_pServerGameClients) // Init Game if it ain't valid.
 	{
@@ -368,7 +373,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 
 #ifndef CLIENT_DLL
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
-		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, nSplitScreenPlayers, time) || !g_pServerGameClients)
+		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, bSplitScreenConnect, time) || !g_pServerGameClients)
 	{
 		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Error: Level not valid\n", __FUNCTION__);
 #ifndef DEDICATED

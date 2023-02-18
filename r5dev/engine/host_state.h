@@ -45,7 +45,9 @@ public:
 	bool         m_bRememberLocation;                //0x0265
 	bool         m_bBackgroundLevel;                 //0x0266
 	bool         m_bWaitingForConnection;            //0x0267
-	uint16_t     m_nSplitScreenPlayers;              //0x0268
+	bool         m_bSplitScreenConnect;              //0x0268
+	bool         m_bGameHasShutDownAndFlushedMemory; //0x0269
+	HostStates_t m_iServerState;                     //0x026C
 };
 
 /* ==== CHOSTSTATE ====================================================================================================================================================== */
