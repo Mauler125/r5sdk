@@ -11,7 +11,7 @@ int HSys_Error_Internal(char* fmt, va_list args)
 	Error(eDLL_T::COMMON, NO_ERROR, "_______________________________________________________________\n");
 	Error(eDLL_T::COMMON, NO_ERROR, "] ENGINE ERROR ################################################\n");
 	vsprintf(buffer, fmt, args);
-	Error(eDLL_T::COMMON, NO_ERROR, "%s\n", buffer);
+	Error(eDLL_T::COMMON, NO_ERROR, "%s", buffer);
 
 	///////////////////////////////////////////////////////////////////////////
 	return Sys_Error_Internal(fmt, args);
