@@ -26,7 +26,7 @@ struct user_creds_s
 	char* m_pUserID;
 };
 
-class CServer : public IServer
+class CServer : public IConnectionlessPacketHandler
 {
 public:
 	int	GetTick(void) const { return m_nTickCount; }
@@ -45,6 +45,7 @@ public:
 	bool AuthClient(user_creds_s* pChallenge);
 	void RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage);
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
+	static void RunFrame(CServer* pServer);
 	static void FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval);
 #endif // !CLIENT_DLL
 
@@ -72,13 +73,15 @@ private:
 	int                           m_nServerClasses;              // number of unique server classes
 	int                           m_nServerClassBits;            // log2 of serverclasses
 	char                          m_szHostInfo[128];             // see '[r5apex_ds.exe + 0x237740]' for more details. fmt: '[IPv6]:PORT:TIMEi64u'
-	char                          m_nGap0[640];
+	char                          m_nGap0[520];
+	int                           m_nSpawnCount;
+	char                          m_nGap1[116];
 	float                         m_fCPUPercent;
 	float                         m_fStartTime;
 	float                         m_fLastCPUCheckTime;
-	char                          m_nGap1[303108];               // TODO: Reverse the rest in this gap.
+	char                          m_nGap2[303108];               // TODO: Reverse the rest in this gap.
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	char                          m_nGap2[0x80];
+	char                          m_nGap3[0x80];
 #endif
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
@@ -93,8 +96,11 @@ extern CServer* g_pServer;
 inline CMemory p_CServer_FrameJob;
 inline auto v_CServer_FrameJob = p_CServer_FrameJob.RCast<void (*)(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval)>();
 
-inline CMemory p_CServer_Authenticate;
-inline auto v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer* pServer, user_creds_s* pCreds)>();
+inline CMemory p_CServer_RunFrame;
+inline auto v_CServer_RunFrame = p_CServer_RunFrame.RCast<void (*)(CServer* pServer)>();
+
+inline CMemory p_CServer_ConnectClient;
+inline auto v_CServer_ConnectClient = p_CServer_ConnectClient.RCast<CClient* (*)(CServer* pServer, user_creds_s* pCreds)>();
 
 inline CMemory p_CServer_RejectConnection;
 inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, int iSocket, netadr_t* pNetAdr, const char* szMessage)>();
@@ -106,7 +112,8 @@ class VServer : public IDetour
 	{
 #ifndef CLIENT_DLL
 		LogFunAdr("CServer::FrameJob", p_CServer_FrameJob.GetPtr());
-		LogFunAdr("CServer::ConnectClient", p_CServer_Authenticate.GetPtr());
+		LogFunAdr("CServer::RunFrame", p_CServer_RunFrame.GetPtr());
+		LogFunAdr("CServer::ConnectClient", p_CServer_ConnectClient.GetPtr());
 		LogFunAdr("CServer::RejectConnection", p_CServer_RejectConnection.GetPtr());
 		LogVarAdr("g_Server[128]", reinterpret_cast<uintptr_t>(g_pServer));
 #endif // !CLIENT_DLL
@@ -120,12 +127,19 @@ class VServer : public IDetour
 #elif defined (GAMEDLL_S2)
 		p_CServer_Authenticate = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 56 57 48 81 EC ?? ?? ?? ??");
 #else
-		p_CServer_Authenticate = g_GameDll.FindPatternSIMD("40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??");
+		p_CServer_ConnectClient = g_GameDll.FindPatternSIMD("40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??");
+#endif
+
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+		p_CServer_RunFrame = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 48 81 EC ?? ?? ?? ?? 0F 29 B4 24 ?? ?? ?? ??");
+#else
+		p_CServer_RunFrame = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 81 EC ?? ?? ?? ?? 0F 29 B4 24 ?? ?? ?? ??");
 #endif
 		p_CServer_RejectConnection = g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9");
 
 		v_CServer_FrameJob = p_CServer_FrameJob.RCast<void (*)(double, bool, bool)>();                                       /*48 89 6C 24 ?? 56 41 54 41 56*/
-		v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer*, user_creds_s*)>();                     /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
+		v_CServer_RunFrame = p_CServer_RunFrame.RCast<void (*)(CServer*)>();
+		v_CServer_ConnectClient = p_CServer_ConnectClient.RCast<CClient* (*)(CServer*, user_creds_s*)>();                     /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
 		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer*, int, netadr_t*, const char*)>();   /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
 #endif // !CLIENT_DLL
 	}

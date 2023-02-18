@@ -152,7 +152,7 @@ void CServer::RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMes
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: Runs the server frame
+// Purpose: Runs the server frame job
 // Input  : flFrameTime - 
 //			bRunOverlays - 
 //			bUniformSnapshotInterval - 
@@ -162,9 +162,19 @@ void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnaps
 	v_CServer_FrameJob(flFrameTime, bRunOverlays, bUniformSnapshotInterval);
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: Runs the server frame
+// Input  : *pServer - 
+//---------------------------------------------------------------------------------
+void CServer::RunFrame(CServer* pServer)
+{
+	v_CServer_RunFrame(pServer);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void VServer::Attach() const
 {
+	DetourAttach(&v_CServer_RunFrame, &CServer::RunFrame);
 #if	defined(GAMEDLL_S3)
 	DetourAttach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
 	DetourAttach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
@@ -173,6 +183,7 @@ void VServer::Attach() const
 
 void VServer::Detach() const
 {
+	DetourDetach(&v_CServer_RunFrame, &CServer::RunFrame);
 #if	defined(GAMEDLL_S3)
 	DetourDetach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
 	DetourDetach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
