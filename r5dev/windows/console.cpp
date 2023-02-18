@@ -110,7 +110,7 @@ void Console_Init()
 			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
 				"Please omit the '-ansiclr' parameter and restart \nthe game if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
 		}
-		SetConsoleBackgroundColor(0x0000);
+		SetConsoleBackgroundColor(0x00000000);
 		AnsiColors_Init();
 	}
 	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
