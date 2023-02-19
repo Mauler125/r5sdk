@@ -163,3 +163,15 @@ int RTech_PakUnload_f_CompletionFunc(char const* partial, char commands[COMMAND_
 {
 	return _Host_Pak_f_CompletionFunc(&s_PakUnloadAutoFileList, partial, commands);
 }
+
+static CBaseAutoCompleteFileList s_PakDecompress("pak_decompress", "paks/Win64", "rpak");
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *partial - 
+//			**commands - 
+// Output : int
+//-----------------------------------------------------------------------------
+int RTech_PakDecompress_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
+{
+	return _Host_Pak_f_CompletionFunc(&s_PakDecompress, partial, commands);
+}

@@ -11,6 +11,7 @@ int Game_Give_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLE
 
 int RTech_PakLoad_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 int RTech_PakUnload_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
+int RTech_PakDecompress_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 
 inline CMemory p_CBaseAutoCompleteFileList_AutoCompletionFunc;
 inline auto v_CBaseAutoCompleteFileList_AutoCompletionFunc = p_CBaseAutoCompleteFileList_AutoCompletionFunc.RCast<int(*)(

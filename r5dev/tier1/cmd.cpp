@@ -374,7 +374,7 @@ void ConCommand::Init(void)
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	ConCommand::Create("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, RTech_StringToGUID_f, nullptr);
-	ConCommand::Create("rtech_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, RTech_Decompress_f, nullptr);
+	ConCommand::Create("pak_decompress", "Decompresses specified RPAK file.", FCVAR_DEVELOPMENTONLY, RTech_Decompress_f, RTech_PakDecompress_f_CompletionFunc);
 	ConCommand::Create("pak_requestload", "Requests asynchronous load for specified RPAK file.", FCVAR_DEVELOPMENTONLY, Pak_RequestLoad_f, RTech_PakLoad_f_CompletionFunc);
 	ConCommand::Create("pak_requestunload", "Requests unload for specified RPAK file or ID.", FCVAR_DEVELOPMENTONLY, Pak_RequestUnload_f, RTech_PakUnload_f_CompletionFunc);
 	ConCommand::Create("pak_swap", "Requests swap for specified RPAK file or ID", FCVAR_DEVELOPMENTONLY, Pak_Swap_f, nullptr);
