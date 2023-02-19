@@ -108,10 +108,10 @@ extern ConVar* bhit_abs_origin;
 extern ConVar* cl_rcon_request_sendlogs;
 extern ConVar* cl_quota_stringCmdsPerSecond;
 
-extern ConVar* cl_hoststats_invert_x;
-extern ConVar* cl_hoststats_invert_y;
-extern ConVar* cl_hoststats_offset_x;
-extern ConVar* cl_hoststats_offset_y;
+extern ConVar* cl_notify_invert_x;
+extern ConVar* cl_notify_invert_y;
+extern ConVar* cl_notify_offset_x;
+extern ConVar* cl_notify_offset_y;
 
 extern ConVar* cl_showsimstats;
 extern ConVar* cl_simstats_invert_x;

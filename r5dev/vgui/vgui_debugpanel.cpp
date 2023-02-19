@@ -184,8 +184,8 @@ void CTextOverlay::Con_NPrintf(void)
 	}
 
 	static const Color c = { 255, 255, 255, 255 };
-	const int nWidth = cl_hoststats_invert_x->GetBool() ? g_nWindowRect[0] - cl_hoststats_offset_x->GetInt() : cl_hoststats_offset_x->GetInt() + m_nCon_NPrintf_Idx * m_nFontHeight;
-	const int nHeight = cl_hoststats_invert_y->GetBool() ? g_nWindowRect[1] - cl_hoststats_offset_y->GetInt() : cl_hoststats_offset_y->GetInt();
+	const int nWidth = cl_notify_invert_x->GetBool() ? g_nWindowRect[0] - cl_notify_offset_x->GetInt() : cl_notify_offset_x->GetInt() + m_nCon_NPrintf_Idx * m_nFontHeight;
+	const int nHeight = cl_notify_invert_y->GetBool() ? g_nWindowRect[1] - cl_notify_offset_y->GetInt() : cl_notify_offset_y->GetInt();
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), m_szCon_NPrintf_Buf);
 
