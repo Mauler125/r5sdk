@@ -112,8 +112,7 @@ ConVar* bhit_abs_origin                    = nullptr;
 ConVar* cl_rcon_request_sendlogs           = nullptr;
 ConVar* cl_quota_stringCmdsPerSecond       = nullptr;
 
-ConVar* cl_showhoststats                   = nullptr;
-ConVar* cl_hoststats_invert_x              = nullptr;
+ConVar* cl_hoststats_invert_x              = nullptr; // RENAME!
 ConVar* cl_hoststats_invert_y              = nullptr;
 ConVar* cl_hoststats_offset_x              = nullptr;
 ConVar* cl_hoststats_offset_y              = nullptr;

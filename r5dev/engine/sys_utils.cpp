@@ -15,16 +15,21 @@
 #include "vgui/vgui_debugpanel.h"
 #endif // !DEDICATED
 
+#if !defined( _X360 )
+#define	MAXPRINTMSG	4096
+#else
+#define	MAXPRINTMSG	1024
+#endif
 
 //-----------------------------------------------------------------------------
-// Purpose: Exit engine with error
+// Purpose: Show error in the console
 // Input  : *error - 
 //			... - 
-// Output : void Sys_Error
+// Output : void _Error
 //-----------------------------------------------------------------------------
-void HSys_Error(char* fmt, ...)
+void _Error(char* fmt, ...)
 {
-	static char buf[1024] = {};
+	char buf[4096];
 
 	va_list args{};
 	va_start(args, fmt);
@@ -35,18 +40,18 @@ void HSys_Error(char* fmt, ...)
 	va_end(args);
 
 	Error(eDLL_T::ENGINE, NO_ERROR, "%s", buf);
-	return v_Sys_Error(buf);
+	v_Error(buf);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Show warning in the console, exit engine with error when level 5
 // Input  : level -
 //			*error - ... - 
-// Output : void* Sys_Warning
+// Output : void* _Warning
 //-----------------------------------------------------------------------------
-void* HSys_Warning(int level, char* fmt, ...)
+void* _Warning(int level, char* fmt, ...)
 {
-	static char buf[1024] = {};
+	char buf[10000];
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -57,8 +62,12 @@ void* HSys_Warning(int level, char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	Warning(eDLL_T::COMMON, "Warning(%d):%s", level, buf);
-	return v_Sys_Warning(level, buf);
+	if (level < 5)
+	{
+		Warning(eDLL_T::COMMON, "Warning(%d):%s", level, buf);
+	}
+
+	v_Warning(level, buf);
 }
 
 #ifndef DEDICATED
@@ -68,24 +77,22 @@ void* HSys_Warning(int level, char* fmt, ...)
 //			*fmt - ... - 
 // Output : void NPrintf
 //-----------------------------------------------------------------------------
-void HCon_NPrintf(int pos, const char* fmt, ...)
+void _Con_NPrintf(int pos, const char* fmt, ...)
 {
-	if (cl_showhoststats->GetBool())
-	{
-		static char buf[1024] = {};
-		{/////////////////////////////
-			va_list args{};
-			va_start(args, fmt);
+	char buf[MAXPRINTMSG];
+	{/////////////////////////////
+		va_list args{};
+		va_start(args, fmt);
 
-			vsnprintf(buf, sizeof(buf), fmt, args);
+		vsnprintf(buf, sizeof(buf), fmt, args);
 
-			buf[sizeof(buf) - 1] = '\0';
-			va_end(args);
-		}/////////////////////////////
+		buf[sizeof(buf) - 1] = '\0';
+		va_end(args);
+	}/////////////////////////////
 
-		snprintf(g_pOverlay->m_pszCon_NPrintf_Buf, 
-			sizeof(g_pOverlay->m_pszCon_NPrintf_Buf), buf);
-	}
+	g_pOverlay->m_nCon_NPrintf_Idx = pos;
+	snprintf(g_pOverlay->m_szCon_NPrintf_Buf,
+		sizeof(g_pOverlay->m_szCon_NPrintf_Buf), buf);
 }
 #endif // !DEDICATED
 
@@ -101,18 +108,18 @@ int Sys_GetProcessUpTime(char* szBuffer)
 
 void VSys_Utils::Attach() const
 {
-	//DetourAttach(&Sys_Error, &HSys_Error);
-	DetourAttach(&v_Sys_Warning, &HSys_Warning);
+	DetourAttach((LPVOID*)&v_Error, &_Error);
+	DetourAttach((LPVOID*)&v_Warning, &_Warning);
 #ifndef DEDICATED
-	DetourAttach(&v_Con_NPrintf, &HCon_NPrintf);
+	DetourAttach((LPVOID*)&v_Con_NPrintf, &_Con_NPrintf);
 #endif // !DEDICATED
 }
 
 void VSys_Utils::Detach() const
 {
-	//DetourDetach(&Sys_Error, &HSys_Error);
-	DetourDetach(&v_Sys_Warning, &HSys_Warning);
+	DetourDetach((LPVOID*)&v_Error, &_Error);
+	DetourDetach((LPVOID*)&v_Warning, &_Warning);
 #ifndef DEDICATED
-	DetourDetach(&v_Con_NPrintf, &HCon_NPrintf);
+	DetourDetach((LPVOID*)&v_Con_NPrintf, &_Con_NPrintf);
 #endif // !DEDICATED
 }

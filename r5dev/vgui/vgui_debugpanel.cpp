@@ -32,6 +32,7 @@ void CTextOverlay::Update(void)
 	{
 		return;
 	}
+	Con_NPrintf();
 	if (con_drawnotify->GetBool())
 	{
 		DrawNotify();
@@ -43,10 +44,6 @@ void CTextOverlay::Update(void)
 	if (cl_showgpustats->GetBool())
 	{
 		DrawGPUStats();
-	}
-	if (cl_showhoststats->GetBool())
-	{
-		DrawHostStats();
 	}
 	if (cl_showmaterialinfo->GetBool())
 	{
@@ -177,15 +174,23 @@ void CTextOverlay::ShouldDraw(const float flFrameTime)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draws live host stats on screen.
+// Purpose: draws console messages on screen (only used for 'host_speeds'!, deprecated!!).
 //-----------------------------------------------------------------------------
-void CTextOverlay::DrawHostStats(void) const
+void CTextOverlay::Con_NPrintf(void)
 {
+	if (!m_szCon_NPrintf_Buf[0])
+	{
+		return;
+	}
+
 	static const Color c = { 255, 255, 255, 255 };
-	const int nWidth  = cl_hoststats_invert_x->GetBool() ? g_nWindowRect[0] - cl_hoststats_offset_x->GetInt() : cl_hoststats_offset_x->GetInt();
+	const int nWidth = cl_hoststats_invert_x->GetBool() ? g_nWindowRect[0] - cl_hoststats_offset_x->GetInt() : cl_hoststats_offset_x->GetInt() + m_nCon_NPrintf_Idx * m_nFontHeight;
 	const int nHeight = cl_hoststats_invert_y->GetBool() ? g_nWindowRect[1] - cl_hoststats_offset_y->GetInt() : cl_hoststats_offset_y->GetInt();
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), m_pszCon_NPrintf_Buf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), m_szCon_NPrintf_Buf);
+
+	m_nCon_NPrintf_Idx = 0;
+	m_szCon_NPrintf_Buf[0] = '\0';
 }
 
 //-----------------------------------------------------------------------------

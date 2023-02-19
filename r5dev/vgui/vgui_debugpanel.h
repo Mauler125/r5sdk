@@ -21,7 +21,8 @@ public:
 	CTextOverlay()
 	{
 		m_nFontHeight = 16;
-		memset(m_pszCon_NPrintf_Buf, '\0', sizeof(m_pszCon_NPrintf_Buf));
+		m_nCon_NPrintf_Idx = 0;
+		memset(m_szCon_NPrintf_Buf, '\0', sizeof(m_szCon_NPrintf_Buf));
 	}
 
 	void Update(void);
@@ -29,11 +30,12 @@ public:
 	void DrawNotify(void);
 	void DrawFormat(const int x, const int y, const Color c, const char* pszFormat, ...) const;
 	void ShouldDraw(const float flFrameTime);
-	void DrawHostStats(void) const;
 	void DrawSimStats(void) const;
 	void DrawGPUStats(void) const;
 	void DrawCrosshairMaterial(void) const;
 	void DrawStreamOverlay(void) const;
+
+	void Con_NPrintf(void);
 
 private:
 	Color GetLogColorForType(const EGlobalContext_t type) const;
@@ -43,7 +45,8 @@ private:
 	mutable std::mutex m_Mutex;
 
 public:
-	char m_pszCon_NPrintf_Buf[4096]{};
+	int m_nCon_NPrintf_Idx;
+	char m_szCon_NPrintf_Buf[4096];
 };
 
 ///////////////////////////////////////////////////////////////////////////////
