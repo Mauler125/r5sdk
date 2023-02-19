@@ -7,7 +7,7 @@ inline auto v_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void* unused, float 
 //inline auto v_Host_RunFrame_Render = p_Host_RunFrame_Render.RCast<void(*)(void)>();
 
 inline CMemory p_Host_Error;
-inline auto v_Host_Error = p_Host_Error.RCast<int(*)(const char* error, ...)>();
+inline auto v_Host_Error = p_Host_Error.RCast<void(*)(const char* error, ...)>();
 
 //inline CMemory p_VCR_EnterPausedState; // DEDICATED PATCH!
 //inline auto v_VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();
@@ -47,7 +47,7 @@ class VHost : public IDetour
 
 		v_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void*, float)>();
 		//v_Host_RunFrame_Render = p_Host_Error.RCast<void(*)(void)>();
-		v_Host_Error = p_Host_Error.RCast<int(*)(const char*, ...)>();
+		v_Host_Error = p_Host_Error.RCast<void(*)(const char*, ...)>();
 		//v_VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();
 	}
 	virtual void GetVar(void) const
