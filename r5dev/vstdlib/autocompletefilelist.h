@@ -15,10 +15,10 @@
 //-----------------------------------------------------------------------------
 // Purpose: Simple helper class for doing autocompletion of all files in a specific directory by extension
 //-----------------------------------------------------------------------------
-class CAutoCompleteFileList
+class CBaseAutoCompleteFileList
 {
 public:
-	CAutoCompleteFileList(const char* cmdname, const char* subdir, const char* extension)
+	CBaseAutoCompleteFileList(const char* cmdname, const char* subdir, const char* extension)
 	{
 		m_pszCommandName = cmdname;
 		m_pszSubDir = subdir;

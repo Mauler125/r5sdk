@@ -14,7 +14,7 @@
 //  commandname subdir/filename2.ext
 // Returns number of files in list for autocompletion
 //-----------------------------------------------------------------------------
-int CAutoCompleteFileList::AutoCompletionFunc(const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
+int CBaseAutoCompleteFileList::AutoCompletionFunc(const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
 {
-	return v_CAutoCompleteFileList_AutoCompletionFunc(this, partial, commands);
+	return v_CBaseAutoCompleteFileList_AutoCompletionFunc(this, partial, commands);
 }

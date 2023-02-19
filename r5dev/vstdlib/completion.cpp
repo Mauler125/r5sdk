@@ -58,7 +58,7 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 //			**commands - 
 // Output : int
 //-----------------------------------------------------------------------------
-int _Host_Pak_f_CompletionFunc(CAutoCompleteFileList* autocomplete, char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
+int _Host_Pak_f_CompletionFunc(CBaseAutoCompleteFileList* autocomplete, char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
 {
 	int count = autocomplete->AutoCompletionFunc(partial, commands);
 	if (count > 0)
@@ -128,7 +128,7 @@ int Host_Changelevel_f_CompletionFunc(char const* partial, char commands[COMMAND
 	return _Host_Map_f_CompletionFunc(cmdname, partial, commands);
 }
 
-static CAutoCompleteFileList s_GiveAutoFileList("give", "scripts/weapons", "txt");
+static CBaseAutoCompleteFileList s_GiveAutoFileList("give", "scripts/weapons", "txt");
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *partial - 
@@ -140,7 +140,7 @@ int Game_Give_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLE
 	return s_GiveAutoFileList.AutoCompletionFunc(partial, commands);
 }
 
-static CAutoCompleteFileList s_PakLoadAutoFileList("pak_requestload", "paks/Win64", "rpak");
+static CBaseAutoCompleteFileList s_PakLoadAutoFileList("pak_requestload", "paks/Win64", "rpak");
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *partial - 
@@ -152,7 +152,7 @@ int RTech_PakLoad_f_CompletionFunc(char const* partial, char commands[COMMAND_CO
 	return _Host_Pak_f_CompletionFunc(&s_PakLoadAutoFileList, partial, commands);
 }
 
-static CAutoCompleteFileList s_PakUnloadAutoFileList("pak_requestunload", "paks/Win64", "rpak");
+static CBaseAutoCompleteFileList s_PakUnloadAutoFileList("pak_requestunload", "paks/Win64", "rpak");
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *partial - 
