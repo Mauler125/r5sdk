@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -125,7 +124,7 @@ static void walkContour(int x, int y, int i,
 			bool isAreaBorder = false;
 			int px = x;
 			int py = y;
-			int pz = getCornerHeight(x, y, i, dir, chf, isBorderVertex); 
+			int pz = getCornerHeight(x, y, i, dir, chf, isBorderVertex);
 			switch(dir)
 			{
 				case 0: py++; break;
@@ -396,8 +395,8 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 			if (tess)
 			{
 				int dx = bx - ax;
-				int dy = by - ay;
-				if (dx*dx + dy*dy > maxEdgeLen*maxEdgeLen)
+				int dz = by - ay;
+				if (dx*dx + dz*dz > maxEdgeLen*maxEdgeLen)
 				{
 					// Round based on the segments in lexilogical order so that the
 					// max tesselation is consistent regardles in which direction
@@ -473,7 +472,7 @@ inline int area2(const int* a, const int* b, const int* c)
 	return (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1]);
 }
 
-//	Exclusive or: true iff exactly one argument is true.
+//	Exclusive or: true if exactly one argument is true.
 //	The arguments are negated to ensure that they are 0/1
 //	values.  Then the bitwise Xor operator may apply.
 //	(This idea is due to Michael Baldwin.)
