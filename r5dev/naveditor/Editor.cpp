@@ -197,15 +197,15 @@ void Editor::handleCommonSettings()
 	
 	imguiSeparator();
 	imguiLabel("Agent");
-	imguiSlider("Height", &m_agentHeight, 0.1f, 300.0f, 0.1f);
-	imguiSlider("Radius", &m_agentRadius, 0.0f, 100.0f, 0.1f);
+	imguiSlider("Height", &m_agentHeight, 0.1f, 500.0f, 0.1f);
+	imguiSlider("Radius", &m_agentRadius, 0.0f, 500.0f, 0.1f);
 	imguiSlider("Max Climb", &m_agentMaxClimb, 0.1f, 120.0f, 0.1f);
 	imguiSlider("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f, 1.0f);
 	
 	imguiSeparator();
 	imguiLabel("Region");
-	imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 150.0f, 1.0f);
-	imguiSlider("Merged Region Size", &m_regionMergeSize, 0.0f, 150.0f, 1.0f);
+	imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 750.0f, 1.0f);
+	imguiSlider("Merged Region Size", &m_regionMergeSize, 0.0f, 750.0f, 1.0f);
 
 	imguiSeparator();
 	imguiLabel("Partitioning");
