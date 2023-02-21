@@ -184,6 +184,9 @@ NavMeshPruneTool::NavMeshPruneTool() :
 	m_flags(0),
 	m_hitPosSet(false)
 {
+	m_hitPos[0] = 0.0f;
+	m_hitPos[1] = 0.0f;
+	m_hitPos[2] = 0.0f;
 }
 
 NavMeshPruneTool::~NavMeshPruneTool()
