@@ -319,7 +319,7 @@ inline float dtVdot2D(const float* u, const float* v)
 /// Derives the xy-plane 2D perp product of the two vectors. (uy*vx - ux*vy)
 ///  @param[in]		u		The LHV vector [(x, y, z)]
 ///  @param[in]		v		The RHV vector [(x, y, z)]
-/// @return The dot product on the xy-plane.
+/// @return The perp dot product on the xy-plane.
 ///
 /// The vectors are projected onto the xy-plane, so the z-values are ignored.
 inline float dtVperp2D(const float* u, const float* v)

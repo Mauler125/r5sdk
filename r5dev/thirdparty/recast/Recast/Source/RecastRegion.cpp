@@ -1512,8 +1512,8 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 /// If multiple regions form an area that is smaller than @p minRegionArea, then all spans will be
 /// re-assigned to the zero (null) region.
 /// 
-/// Watershed partitioning can result in smaller than necessary regions, especially in diagonal corridors. 
-/// @p mergeRegionArea helps reduce unecessarily small regions.
+/// Watershed partitioning can result in smaller than necessary regions, especially in diagonal corridors.
+/// @p mergeRegionArea helps reduce unnecessary small regions.
 /// 
 /// See the #rcConfig documentation for more information on the configuration parameters.
 /// 
@@ -1638,7 +1638,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	{
 		rcScopedTimer timerFilter(ctx, RC_TIMER_BUILD_REGIONS_FILTER);
 
-		// Merge regions and filter out smalle regions.
+		// Merge regions and filter out small regions.
 		rcIntArray overlaps;
 		chf.maxRegions = regionId;
 		if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))
