@@ -275,8 +275,7 @@ void QuerySystemInfo()
 
 	spdlog::info("{:25s}: '{:s}'\n","CPU model identifier", pi.m_szProcessorBrand);
 	spdlog::info("{:25s}: '{:s}'\n","CPU vendor tag", pi.m_szProcessorID);
-	spdlog::info("{:25s}: '{:12d}' ({:12s})\n", "CPU core count", pi.m_nPhysicalProcessors, "Physical");
-	spdlog::info("{:25s}: '{:12d}' ({:12s})\n", "CPU core count", pi.m_nLogicalProcessors, "Logical");
+	spdlog::info("{:25s}: '{:12d}' ('{:2d}' {:s})\n", "CPU core count", pi.m_nPhysicalProcessors, pi.m_nLogicalProcessors, "logical");
 	spdlog::info("{:25s}: '{:12d}' ({:12s})\n", "CPU core speed", pi.m_Speed, "Cycles");
 	spdlog::info("{:20s}{:s}: '{:12d}' (0x{:<10X})\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
 	spdlog::info("{:20s}{:s}: '{:12d}' (0x{:<10X})\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
@@ -287,10 +286,14 @@ void QuerySystemInfo()
 
 	if (GlobalMemoryStatusEx(&statex))
 	{
-		spdlog::info("{:20s}{:s}: '{:12d}' ({:12s})\n", "Total system memory", "(MiB)", (statex.ullTotalPhys / 1024) / 1024, "Physical");
-		spdlog::info("{:20s}{:s}: '{:12d}' ({:12s})\n", "Avail system memory", "(MiB)", (statex.ullAvailPhys / 1024) / 1024, "Physical");
-		spdlog::info("{:20s}{:s}: '{:12d}' ({:12s})\n", "Total system memory", "(MiB)", (statex.ullTotalVirtual / 1024) / 1024, "Virtual");
-		spdlog::info("{:20s}{:s}: '{:12d}' ({:12s})\n", "Avail system memory", "(MiB)", (statex.ullAvailVirtual / 1024) / 1024, "Virtual");
+		DWORDLONG totalPhysical = (statex.ullTotalPhys / 1024) / 1024;
+		DWORDLONG totalVirtual = (statex.ullTotalVirtual / 1024) / 1024;
+
+		DWORDLONG availPhysical = (statex.ullAvailPhys / 1024) / 1024;
+		DWORDLONG availVirtual = (statex.ullAvailVirtual / 1024) / 1024;
+
+		spdlog::info("{:20s}{:s}: '{:12d}' ('{:9d}' {:s})\n", "Total system memory", "(MiB)", totalPhysical, totalVirtual, "virtual");
+		spdlog::info("{:20s}{:s}: '{:12d}' ('{:9d}' {:s})\n", "Avail system memory", "(MiB)", availPhysical, availVirtual, "virtual");
 	}
 	else
 	{
