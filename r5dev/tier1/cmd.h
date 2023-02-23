@@ -126,7 +126,8 @@ class ConCommand : public ConCommandBase
 {
 	friend class CCvar;
 public:
-	static ConCommand* Create(const char* szName, const char* szHelpString, int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCommandCompletionCallback);
+	static ConCommand* Create(const char* szName, const char* szHelpString, const char* pszUsageString,
+		int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCommandCompletionCallback);
 
 	ConCommand(void);
 	~ConCommand(void);
