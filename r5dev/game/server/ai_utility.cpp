@@ -53,7 +53,7 @@ void ClearNavMeshForHull(int hullSize)
 //-----------------------------------------------------------------------------
 uint32_t GetHullMaskById(int hullId)
 {
-    Assert(hullId >= NULL && hullId < SDK_ARRAYSIZE(g_pHullMasks)); // Programmer error.
+    Assert(hullId >= NULL && hullId < SDK_ARRAYSIZE(g_HullMasks)); // Programmer error.
     return (hullId + g_HullMasks[hullId]);
 }
 
