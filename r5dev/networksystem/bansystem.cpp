@@ -203,36 +203,32 @@ bool CBanSystem::DeleteConnectionRefuse(const uint64_t nNucleusID)
 //-----------------------------------------------------------------------------
 void CBanSystem::BanListCheck(void)
 {
-	if (IsRefuseListValid())
+	if (!IsRefuseListValid())
+		return;
+
+	for (size_t i = 0; i < m_vRefuseList.size(); i++)
 	{
-		bool bSave = false;
-		for (size_t i = 0; i < m_vRefuseList.size(); i++)
+		for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
 		{
-			for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
-			{
-				CClient* pClient = g_pClient->GetClient(c);
-				if (!pClient)
-					continue;
+			CClient* pClient = g_pClient->GetClient(c);
+			if (!pClient)
+				continue;
 
-				CNetChan* pNetChan = pClient->GetNetChan();
-				if (!pNetChan)
-					continue;
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
 
-				if (pClient->GetNucleusID() != m_vRefuseList[i].second)
-					continue;
+			if (!pClient->IsConnected())
+				continue;
 
-				string svIpAddress = pNetChan->GetAddress();
+			if (pClient->GetNucleusID() != m_vRefuseList[i].second)
+				continue;
 
-				Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), c, pClient->GetNucleusID());
-				if (AddEntry(svIpAddress, pClient->GetNucleusID()) && !bSave)
-					bSave = true;
+			string svIpAddress = pNetChan->GetAddress();
 
-				pClient->Disconnect(Reputation_t::REP_MARK_BAD, m_vRefuseList[i].first.c_str());
-			}
+			Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), c, pClient->GetNucleusID());
+			pClient->Disconnect(Reputation_t::REP_MARK_BAD, m_vRefuseList[i].first.c_str());
 		}
-
-		if (bSave)
-			Save(); // Save banned list to file.
 	}
 }
 
@@ -290,20 +286,7 @@ void CBanSystem::KickPlayerByName(const string& svPlayerName)
 	if (svPlayerName.empty())
 		return;
 
-	for (int i = 0; i < MAX_PLAYERS; i++)
-	{
-		if (CClient* pClient = g_pClient->GetClient(i))
-		{
-			if (CNetChan* pNetChan = pClient->GetNetChan())
-			{
-				if (strlen(pNetChan->GetName()) > 0)
-				{
-					if (svPlayerName.compare(pNetChan->GetName()) == NULL) // Our wanted name?
-						pClient->Disconnect(REP_MARK_BAD, "Kicked from server");
-				}
-			}
-		}
-	}
+	AuthorPlayerByName(svPlayerName, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -315,51 +298,7 @@ void CBanSystem::KickPlayerById(const string& svHandle)
 	if (svHandle.empty())
 		return;
 
-	try
-	{
-		bool bOnlyDigits = StringIsDigit(svHandle);
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			CClient* pClient = g_pClient->GetClient(i);
-			if (!pClient)
-				continue;
-
-			CNetChan* pNetChan = pClient->GetNetChan();
-			if (!pNetChan)
-				continue;
-
-			if (bOnlyDigits)
-			{
-				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(svHandle));
-				if (nTargetID > MAX_PLAYERS) // Is it a possible nucleusID?
-				{
-					uint64_t nNucleusID = pClient->GetNucleusID();
-					if (nNucleusID != nTargetID)
-						continue;
-				}
-				else // If its not try by handle.
-				{
-					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
-					if (nClientID != nTargetID)
-						continue;
-				}
-
-				pClient->Disconnect(REP_MARK_BAD, "Kicked from server");
-			}
-			else
-			{
-				if (svHandle.compare(pNetChan->GetAddress()) != NULL)
-					continue;
-
-				pClient->Disconnect(REP_MARK_BAD, "Kicked from server");
-			}
-		}
-	}
-	catch (const std::exception& e)
-	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
-		return;
-	}
+	AuthorPlayerById(svHandle, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -371,30 +310,7 @@ void CBanSystem::BanPlayerByName(const string& svPlayerName)
 	if (svPlayerName.empty())
 		return;
 
-	bool bSave = false;
-
-	for (int i = 0; i < MAX_PLAYERS; i++)
-	{
-		if (CClient* pClient = g_pClient->GetClient(i))
-		{
-			if (CNetChan* pNetChan = pClient->GetNetChan())
-			{
-				if (strlen(pNetChan->GetName()) > 0)
-				{
-					if (svPlayerName.compare(pNetChan->GetName()) == NULL) // Our wanted name?
-					{
-						if (AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
-							bSave = true;
-
-						pClient->Disconnect(REP_MARK_BAD, "Banned from server");
-					}
-				}
-			}
-		}
-	}
-
-	if (bSave)
-		Save();
+	AuthorPlayerByName(svPlayerName, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -406,9 +322,104 @@ void CBanSystem::BanPlayerById(const string& svHandle)
 	if (svHandle.empty())
 		return;
 
+	AuthorPlayerById(svHandle, true);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unbans a player by given nucleus id or ip address
+// Input  : &svCriteria - 
+//-----------------------------------------------------------------------------
+void CBanSystem::UnbanPlayer(const string& svCriteria)
+{
+	try
+	{
+		bool bSave = false;
+		if (StringIsDigit(svCriteria)) // Check if we have an ip address or nucleus id.
+		{
+			if (DeleteEntry("<<invalid>>", std::stoll(svCriteria))) // Delete ban entry.
+			{
+				bSave = true;
+			}
+		}
+		else
+		{
+			if (DeleteEntry(svCriteria, 0)) // Delete ban entry.
+			{
+				bSave = true;
+			}
+		}
+
+		if (bSave)
+		{
+			Save(); // Save modified vector to file.
+			DevMsg(eDLL_T::SERVER, "Removed '%s' from banned list\n", svCriteria.c_str());
+		}
+	}
+	catch (const std::exception& e)
+	{
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
+		return;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: authors player by given name
+// Input  : &svPlayerName - 
+//			bBan          - (only kicks if false)
+//-----------------------------------------------------------------------------
+void CBanSystem::AuthorPlayerByName(const string& svPlayerName, const bool bBan)
+{
+	Assert(!svPlayerName.empty());
+	bool bDisconnect = false;
+	bool bSave = false;
+
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		CClient* pClient = g_pClient->GetClient(i);
+		if (!pClient)
+			continue;
+
+		CNetChan* pNetChan = pClient->GetNetChan();
+		if (!pNetChan)
+			continue;
+
+		if (strlen(pNetChan->GetName()) > 0)
+		{
+			if (svPlayerName.compare(pNetChan->GetName()) == NULL) // Our wanted name?
+			{
+				if (bBan && AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+					bSave = true;
+
+				pClient->Disconnect(REP_MARK_BAD, bBan ? "Banned from server" : "Kicked from server");
+				bDisconnect = true;
+			}
+		}
+	}
+
+	if (bSave)
+	{
+		Save();
+		DevMsg(eDLL_T::SERVER, "Added '%s' to banned list\n", svPlayerName.c_str());
+	}
+	else if (bDisconnect)
+	{
+		DevMsg(eDLL_T::SERVER, "Kicked '%s' from server\n", svPlayerName.c_str());
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: authors player by given nucleus id or ip address
+// Input  : &svHandle - 
+//			bBan      - (only kicks if false)
+//-----------------------------------------------------------------------------
+void CBanSystem::AuthorPlayerById(const string& svHandle, const bool bBan)
+{
+	Assert(!svHandle.empty());
+
 	try
 	{
 		bool bOnlyDigits = StringIsDigit(svHandle);
+		bool bDisconnect = false;
 		bool bSave = false;
 
 		for (int i = 0; i < MAX_PLAYERS; i++)
@@ -437,56 +448,33 @@ void CBanSystem::BanPlayerById(const string& svHandle)
 						continue;
 				}
 
-				if (AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+				if (bBan && AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
 					bSave = true;
 
-				Save();
-				pClient->Disconnect(REP_MARK_BAD, "Banned from server");
+				pClient->Disconnect(REP_MARK_BAD, bBan ? "Banned from server" : "Kicked from server");
+				bDisconnect = true;
 			}
 			else
 			{
 				if (svHandle.compare(pNetChan->GetAddress()) != NULL)
 					continue;
 
-				if (AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+				if (bBan && AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
 					bSave = true;
 
-				Save();
-				pClient->Disconnect(REP_MARK_BAD, "Banned from server");
+				pClient->Disconnect(REP_MARK_BAD, bBan ? "Banned from server" : "Kicked from server");
+				bDisconnect = true;
 			}
 		}
 
 		if (bSave)
+		{
 			Save();
-	}
-	catch (const std::exception& e)
-	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
-		return;
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: unbans a player by given nucleus id or ip address
-// Input  : &svCriteria - 
-//-----------------------------------------------------------------------------
-void CBanSystem::UnbanPlayer(const string& svCriteria)
-{
-	try
-	{
-		if (StringIsDigit(svCriteria)) // Check if we have an ip address or nucleus id.
-		{
-			if (DeleteEntry("<<invalid>>", std::stoll(svCriteria))) // Delete ban entry.
-			{
-				Save(); // Save modified vector to file.
-			}
+			DevMsg(eDLL_T::SERVER, "Added '%s' to banned list\n", svHandle.c_str());
 		}
-		else
+		else if (bDisconnect)
 		{
-			if (DeleteEntry(svCriteria, 0)) // Delete ban entry.
-			{
-				Save(); // Save modified vector to file.
-			}
+			DevMsg(eDLL_T::SERVER, "Kicked '%s' from server\n", svHandle.c_str());
 		}
 	}
 	catch (const std::exception& e)

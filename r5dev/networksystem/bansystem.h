@@ -27,6 +27,9 @@ public:
 	void UnbanPlayer(const string& svCriteria);
 
 private:
+	void AuthorPlayerByName(const string& svPlayerName, const bool bBan);
+	void AuthorPlayerById(const string& svHandle, const bool bBan);
+
 	vector<std::pair<string, uint64_t>> m_vRefuseList = {};
 	vector<std::pair<string, uint64_t>> m_vBanList = {};
 };
