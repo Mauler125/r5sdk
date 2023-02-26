@@ -426,7 +426,6 @@ bool CPylon::CheckForBan(const string& svIpAddress, const uint64_t nNucleusID, s
 
     if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), "/banlist/isBanned", svRequestBody, svResponseBuf, svOutMessage, status))
     {
-        Error(eDLL_T::ENGINE, NO_ERROR, "%s - Failed to query comp-server: %s\n", __FUNCTION__, svOutMessage.c_str());
         return false;
     }
 
