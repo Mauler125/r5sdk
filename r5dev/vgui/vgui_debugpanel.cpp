@@ -152,8 +152,8 @@ void CTextOverlay::ShouldDraw(const float flFrameTime)
 	{
 		std::lock_guard<std::mutex> l(m_Mutex);
 
-		int i;
-		int c = m_vNotifyText.size();
+		ssize_t i;
+		ssize_t c = m_vNotifyText.size();
 		for (i = c - 1; i >= 0; i--)
 		{
 			CTextNotify* pNotify = &m_vNotifyText[i];
