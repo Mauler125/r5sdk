@@ -6,8 +6,8 @@
 #define SIGDB_MAGIC	(('p'<<24)+('a'<<16)+('M'<<8)+'S')
 #define SIGDB_DICT_SIZE 20
 
-#define SIGDB_MAJOR_VERSION 0x1 // Increment when library changes are made.
-#define SIGDB_MINOR_VERSION 0xB // Increment when SDK updates are released.
+#define SIGDB_MAJOR_VERSION 0x2 // Increment when library changes are made.
+#define SIGDB_MINOR_VERSION 0x0 // Increment when SDK updates are released.
 
 #ifdef DEDICATED
 #define SIGDB_FILE "cfg\\server\\startup.bin"
