@@ -52,7 +52,7 @@ void Host_Status_PrintClient(CClient* client, bool bShowAddress, void (*print) (
 	}
 	else
 	{
-		print("#%2i \"%s\" %s %llu", client->GetUserID() + 1, client->GetServerName(), client->GetNucleusID(), state);
+		print("#%2i \"%s\" %llu %s", client->GetHandle(), client->GetServerName(), client->GetNucleusID(), state);
 	}
 
 	print("\n");
