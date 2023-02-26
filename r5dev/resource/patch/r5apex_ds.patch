@@ -3,3 +3,10 @@
 
 //---- PATCH1
 0x6DA10: "sub     rsp, 28h" --> "xor rax, rax; ret"; // CClientState constructor; Removed due to high mem allocation during init (100MiB+). 'CClientState' is useless on dedicated, and all its feature are thereof disabled.
+
+//---- PATCH2
+0x236354: "mov    edi, 0x2" --> "mov edi, 0x1"; // RPak array contains 2 elements: 1='common_eraly', 2='ui'. Changing size to 1 only loads 'common_early'. 'ui' is not needed for dedi.
+
+//---- PATCH3
+0x340D07: "mov     cs:g_pszMultiplayerUiPakName, rcx" --> "nop" // Prevent 'g_pszMultiplayerUiPakName' from being assigned to string "ui_mp.rpak" (prevents it from loading this pak file).
+0x340FEA: "mov     cs:g_pszMultiplayerUiPakName, rcx" --> "nop"
