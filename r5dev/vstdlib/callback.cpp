@@ -258,21 +258,17 @@ void Pak_ListPaks_f(const CCommand& args)
 
 	uint32_t nTotalLoaded = 0;
 
-	for (int16_t i = 0; i < *g_pLoadedPakCount; ++i)
+	for (int16_t i = 0, n = *g_pLoadedPakCount; i < n; ++i)
 	{
 		const RPakLoadedInfo_t& info = g_pLoadedPakInfo[i];
 
 		if (info.m_nStatus == RPakStatus_t::PAK_STATUS_FREED)
 			continue;
 
-		string rpakStatus = "RPAK_CREATED_A_NEW_STATUS_SOMEHOW";
-
-		auto it = g_PakStatusToString.find(info.m_nStatus);
-		if (it != g_PakStatusToString.end())
-			rpakStatus = it->second;
+		const char* szRpakStatus = g_pRTech->PakStatusToString(info.m_nStatus);
 
 		// todo: make status into a string from an array/vector
-		DevMsg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11i |\n", info.m_nHandle, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
+		DevMsg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11i |\n", info.m_nHandle, info.m_pszFileName, szRpakStatus, info.m_nAssetCount);
 		nTotalLoaded++;
 	}
 	DevMsg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
@@ -292,7 +288,7 @@ void Pak_ListTypes_f(const CCommand& args)
 
 	uint32_t nRegistered = 0;
 
-	for (int8_t i = 0; i < 64; ++i)
+	for (int8_t i = 0; i < PAK_MAX_TYPES; ++i)
 	{
 		RPakAssetBinding_t* type = &g_pPakGlobals->m_nAssetBindings[i];
 

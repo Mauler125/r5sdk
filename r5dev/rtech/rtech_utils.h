@@ -6,8 +6,8 @@
 #include "public/rendersystem/schema/texture.g.h"
 #endif // !DEDICATED
 
-#define PAK_PARAM_SIZE    0xB0
-#define DCMP_BUF_SIZE 0x400000
+#define PAK_MAX_TYPES 64
+#define PAK_PARAM_SIZE 0xB0
 
 #define RPAKHEADER	(('k'<<24)+('a'<<16)+('P'<<8)+'R')
 
@@ -72,25 +72,6 @@ enum class RPakStatus_t : int32_t
 	PAK_STATUS_ERROR = 13,
 	PAK_STATUS_INVALID_PAKHANDLE = 14,
 	PAK_STATUS_BUSY = 15
-};
-
-const static std::map<RPakStatus_t, string> g_PakStatusToString {
-	{ RPakStatus_t::PAK_STATUS_FREED,                  "PAK_STATUS_FREED" },
-	{ RPakStatus_t::PAK_STATUS_LOAD_PENDING,           "PAK_STATUS_LOAD_PENDING" },
-	{ RPakStatus_t::PAK_STATUS_REPAK_RUNNING,          "PAK_STATUS_REPAK_RUNNING" },
-	{ RPakStatus_t::PAK_STATUS_REPAK_DONE,             "PAK_STATUS_REPAK_DONE" },
-	{ RPakStatus_t::PAK_STATUS_LOAD_STARTING,          "PAK_STATUS_LOAD_STARTING" },
-	{ RPakStatus_t::PAK_STATUS_LOAD_PAKHDR,            "PAK_STATUS_LOAD_PAKHDR" },
-	{ RPakStatus_t::PAK_STATUS_LOAD_PATCH_INIT,        "PAK_STATUS_LOAD_PATCH_INIT" },
-	{ RPakStatus_t::PAK_STATUS_LOAD_PATCH_EDIT_STREAM, "PAK_STATUS_LOAD_PATCH_EDIT_STREAM" },
-	{ RPakStatus_t::PAK_STATUS_LOAD_ASSETS,            "PAK_STATUS_LOAD_ASSETS" },
-	{ RPakStatus_t::PAK_STATUS_LOADED,                 "PAK_STATUS_LOADED" },
-	{ RPakStatus_t::PAK_STATUS_UNLOAD_PENDING,         "PAK_STATUS_UNLOAD_PENDING" },
-	{ RPakStatus_t::PAK_STATUS_FREE_PENDING,           "PAK_STATUS_FREE_PENDING" },
-	{ RPakStatus_t::PAK_STATUS_CANCELING,              "PAK_STATUS_CANCELING" },
-	{ RPakStatus_t::PAK_STATUS_ERROR,                  "PAK_STATUS_ERROR" },
-	{ RPakStatus_t::PAK_STATUS_INVALID_PAKHANDLE,      "PAK_STATUS_INVALID_PAKHANDLE" },
-	{ RPakStatus_t::PAK_STATUS_BUSY,                   "PAK_STATUS_BUSY" },
 };
 
 struct RPakAssetBinding_t
@@ -353,6 +334,7 @@ public:
 	uint64_t __fastcall DecompressPakFileInit(RPakDecompState_t* state, uint8_t* fileBuffer, uint64_t fileSize, uint64_t offNoHeader, uint64_t headerSize);
 	RPakLoadedInfo_t* GetPakLoadedInfo(RPakHandle_t nPakId);
 	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
+	const char* PakStatusToString(RPakStatus_t status);
 
 	static int32_t OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut);
 

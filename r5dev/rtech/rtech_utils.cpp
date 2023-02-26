@@ -708,6 +708,32 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 	return nullptr;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: returns pak status as string
+//-----------------------------------------------------------------------------
+const char* RTech::PakStatusToString(RPakStatus_t status)
+{
+	switch (status)
+	{
+		case RPakStatus_t::PAK_STATUS_FREED:                  return "PAK_STATUS_FREED";
+		case RPakStatus_t::PAK_STATUS_LOAD_PENDING:           return "PAK_STATUS_LOAD_PENDING";
+		case RPakStatus_t::PAK_STATUS_REPAK_RUNNING:          return "PAK_STATUS_REPAK_RUNNING";
+		case RPakStatus_t::PAK_STATUS_REPAK_DONE:             return "PAK_STATUS_REPAK_DONE";
+		case RPakStatus_t::PAK_STATUS_LOAD_STARTING:          return "PAK_STATUS_LOAD_STARTING";
+		case RPakStatus_t::PAK_STATUS_LOAD_PAKHDR:            return "PAK_STATUS_LOAD_PAKHDR";
+		case RPakStatus_t::PAK_STATUS_LOAD_PATCH_INIT:        return "PAK_STATUS_LOAD_PATCH_INIT";
+		case RPakStatus_t::PAK_STATUS_LOAD_PATCH_EDIT_STREAM: return "PAK_STATUS_LOAD_PATCH_EDIT_STREAM";
+		case RPakStatus_t::PAK_STATUS_LOAD_ASSETS:            return "PAK_STATUS_LOAD_ASSETS";
+		case RPakStatus_t::PAK_STATUS_LOADED:                 return "PAK_STATUS_LOADED";
+		case RPakStatus_t::PAK_STATUS_UNLOAD_PENDING:         return "PAK_STATUS_UNLOAD_PENDING";
+		case RPakStatus_t::PAK_STATUS_FREE_PENDING:           return "PAK_STATUS_FREE_PENDING";
+		case RPakStatus_t::PAK_STATUS_CANCELING:              return "PAK_STATUS_CANCELING";
+		case RPakStatus_t::PAK_STATUS_ERROR:                  return "PAK_STATUS_ERROR";
+		case RPakStatus_t::PAK_STATUS_INVALID_PAKHANDLE:      return "PAK_STATUS_INVALID_PAKHANDLE";
+		case RPakStatus_t::PAK_STATUS_BUSY:                   return "PAK_STATUS_BUSY";
+		default:                                              return "PAK_STATUS_UNKNOWN";
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: process guid relations for asset
