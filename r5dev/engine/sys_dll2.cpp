@@ -19,6 +19,7 @@
 #include "client/vengineclient_impl.h"
 #endif // !DEDICATED
 #include "filesystem/filesystem.h"
+constexpr char DFS_ENABLE_PATH[] = "/vpk/enable.txt";
 
 //-----------------------------------------------------------------------------
 // Figure out if we're running a Valve mod or not.
@@ -48,15 +49,15 @@ static bool IsRespawnMod(const char* pModName)
 //-----------------------------------------------------------------------------
 static void InitVPKSystem()
 {
-    char szCacheEnableFilePath[280]; // [rsp+20h] [rbp-118h] BYREF
-    char bFixSlashes = FileSystem()->GetCurrentDirectory(szCacheEnableFilePath, 260) ? szCacheEnableFilePath[0] : '\0';
+    char szCacheEnableFilePath[260]; // [rsp+20h] [rbp-118h] BYREF
+    char bFixSlashes = FileSystem()->GetCurrentDirectory(szCacheEnableFilePath, sizeof(szCacheEnableFilePath)) ? szCacheEnableFilePath[0] : '\0';
 
     size_t nCachePathLen = strlen(szCacheEnableFilePath);
-    size_t nCacheFileLen = 15; // sizeof '/vpk/enable.txt' - 1;
+    size_t nCacheFileLen = sizeof(DFS_ENABLE_PATH)-1;
 
-    if ((nCachePathLen + nCacheFileLen) < 0x104 || (nCacheFileLen = 259 - nCachePathLen, nCachePathLen != 259))
+    if ((nCachePathLen + nCacheFileLen) < 0x104 || (nCacheFileLen = (sizeof(szCacheEnableFilePath)-1) - nCachePathLen, nCachePathLen != (sizeof(szCacheEnableFilePath)-1)))
     {
-        strncat(szCacheEnableFilePath, "/vpk/enable.txt", nCacheFileLen)[259] = '\0';
+        strncat(szCacheEnableFilePath, DFS_ENABLE_PATH, nCacheFileLen)[sizeof(szCacheEnableFilePath)-1] = '\0';
         bFixSlashes = szCacheEnableFilePath[0];
     }
     if (bFixSlashes)
@@ -69,9 +70,9 @@ static void InitVPKSystem()
 #ifndef DEDICATED
         FileSystem()->SetVPKCacheModeClient();
         FileSystem()->MountVPKFile("vpk/client_frontend.bsp");
-#else // Dedicated runs server vpk's and must have 'vpk/mp_lobby.bsp' mounted.
+#else // Dedicated runs server vpk's and must have 'vpk/mp_common.bsp' mounted.
         FileSystem()->SetVPKCacheModeServer();
-        FileSystem()->MountVPKFile("vpk/server_mp_lobby.bsp");
+        FileSystem()->MountVPKFile("vpk/server_mp_common.bsp");
 #endif // !DEDICATED
     }
 }
