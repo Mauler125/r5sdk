@@ -7,7 +7,7 @@
 class KeyValues;
 
 inline CMemory p_Mod_LoadPakForMap;
-inline auto v_Mod_LoadPakForMap = p_Mod_LoadPakForMap.RCast<bool(*)(const char* szLevelName)>();
+inline auto v_Mod_LoadPakForMap = p_Mod_LoadPakForMap.RCast<void(*)(const char* szLevelName)>();
 
 inline CMemory p_Mod_ProcessPakQueue;
 inline auto v_Mod_ProcessPakQueue = p_Mod_ProcessPakQueue.RCast<void(*)(void)>();
@@ -63,7 +63,7 @@ class VModel_BSP : public IDetour
 		v_MOD_LoadPakForMap = p_MOD_LoadPakForMap.RCast<bool(*)(const char*)>(); /*48 81 EC ? ? ? ? 4C 8B C1 48 8D 15 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? 4C 8D 0D ? ? ? ?*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_Mod_LoadPakForMap = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? 0F B6 05 ?? ?? ?? ?? 4C 8D 05 ?? ?? ?? ?? 84 C0");
-		v_Mod_LoadPakForMap = p_Mod_LoadPakForMap.RCast<bool(*)(const char*)>(); /*48 81 EC ? ? ? ? 0F B6 05 ? ? ? ? 4C 8D 05 ? ? ? ? 84 C0*/
+		v_Mod_LoadPakForMap = p_Mod_LoadPakForMap.RCast<void(*)(const char*)>(); /*48 81 EC ? ? ? ? 0F B6 05 ? ? ? ? 4C 8D 05 ? ? ? ? 84 C0*/
 #endif
 		p_Mod_ProcessPakQueue = g_GameDll.FindPatternSIMD("40 53 48 83 EC ?? F3 0F 10 05 ?? ?? ?? ?? 32 DB");
 		v_Mod_ProcessPakQueue = p_Mod_ProcessPakQueue.RCast<void(*)(void)>(); /*40 53 48 83 EC ?? F3 0F 10 05 ? ? ? ? 32 DB*/

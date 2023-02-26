@@ -136,12 +136,12 @@ void Mod_ProcessPakQueue()
 {
     char v0; // bl
     char** v1; // r10
-    int i; // er9
+    __int64 i; // er9
     char* v3; // rcx
     signed __int64 v4; // r8
     int v5; // eax
     int v6; // edx
-    int v7; // eax
+    __int64 v7; // eax
     __int64 v8; // rbp
     __int64 v9; // rsi
     char* v10; // rbx
@@ -150,7 +150,7 @@ void Mod_ProcessPakQueue()
     int v13; // edi
     char v14; // al
     char* v15; // rbx
-    int v16; // edi
+    __int64 v16; // edi
     char* v17; // rsi
     char* v18; // rax
     int v19; // ecx
@@ -164,7 +164,7 @@ void Mod_ProcessPakQueue()
 #ifndef DEDICATED
     bool bUnconnected = !(*g_pClientState_Shifted)->IsConnected();
 #else // !DEDICATED
-    bool bUnconnected = false; // Always false for dedicated.
+    bool bUnconnected = true; // Always true for dedicated.
 #endif
 
     if (*(float*)&*dword_14B383420 == 1.0 && *qword_167ED7BB8 && bUnconnected)
@@ -241,6 +241,7 @@ void Mod_ProcessPakQueue()
                                     g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_nHandle);
 
                             }
+#ifndef DEDICATED
                             else if (strcmp(pszLoadedPakName, "ui_mp.rpak") == 0)
                             {
                                 const RPakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("ui_sdk.rpak");
@@ -248,6 +249,7 @@ void Mod_ProcessPakQueue()
                                 if (pLoadedSdkPak) // Only unload if sdk pak file is loaded.
                                     g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_nHandle);
                             }
+#endif // !DEDICATED
                         }
 
                         g_pakLoadApi->UnloadPak(*(RPakHandle_t*)v10);
@@ -340,8 +342,10 @@ void Mod_ProcessPakQueue()
 
         if (strcmp(v17, "common_mp.rpak") == 0 || strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_pve.rpak") == 0)
             RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("common_sdk.rpak", g_pMallocPool, 4, 0);
+#ifndef DEDICATED
         if (strcmp(v17, "ui_mp.rpak") == 0)
             RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("ui_sdk.rpak", g_pMallocPool, 4, 0);
+#endif // !DEDICATED
 
     LABEL_37:
         v21 = *(_DWORD*)v15;
@@ -366,13 +370,17 @@ void Mod_ProcessPakQueue()
 // Input  : *szLevelName - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool Mod_LoadPakForMap(const char* pszLevelName)
+void Mod_LoadPakForMap(const char* pszLevelName)
 {
 	if (Mod_LevelHasChanged(pszLevelName))
 		s_bLevelResourceInitialized = false;
 
 	s_svLevelName = pszLevelName;
-	return v_Mod_LoadPakForMap(pszLevelName);
+
+	// Dedicated should not load loadscreens.
+#ifndef DEDICATED
+	v_Mod_LoadPakForMap(pszLevelName);
+#endif // !DEDICATED
 }
 
 //-----------------------------------------------------------------------------
