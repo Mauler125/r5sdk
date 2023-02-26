@@ -23,24 +23,6 @@ vector<RPakHandle_t> g_vLoadedPakHandle;
 RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, void* pMalloc, int nIdx, bool bUnk)
 {
 	RPakHandle_t pakHandle = INVALID_PAK_HANDLE;
-#ifdef DEDICATED
-	// Extraneous files (useless on the dedicated server).
-	if (strcmp(szPakFileName, "ui.rpak") == 0)
-	{
-		static const char* szReplacement = "empty.rpak";
-		// Returning INVALID_PAK_HANDLE triggers engine error, call is inline.
-		// Replacing the ui.rpak file here with a stub to avoid having to patch.
-		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s' for '%s'\n", szReplacement, szPakFileName);
-		return pakHandle = CPakFile_LoadAsync(szReplacement, pMalloc, nIdx, bUnk);
-	}
-	else if (strstr(szPakFileName, "ui")
-		|| strstr(szPakFileName, "loadscreen")
-		|| strstr(szPakFileName, "subtitles"))
-	{
-		return pakHandle;
-	}
-#endif // DEDICATED
-
 	string svPakFileModPath = "paks\\Win32\\" + string(szPakFileName);
 	string svPakFilePathBase = "paks\\Win64\\" + string(szPakFileName);
 
