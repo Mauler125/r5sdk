@@ -1,0 +1,5 @@
+//---- PATCH0
+0x2553C0: "mov qword ptr ss:[rsp+0x10], rsi" --> "xor rax, rax; ret"; // Unnecessary loop called from 'CModelLoader::UnloadModel'. This calls a 'nullsub' CMaterialGlue vtable method.
+
+//---- PATCH1
+0x6DA10: "sub     rsp, 28h" --> "xor rax, rax; ret"; // CClientState constructor; Removed due to high mem allocation during init (100MiB+). 'CClientState' is useless on dedicated, and all its feature are thereof disabled.
