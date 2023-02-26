@@ -46,5 +46,5 @@ static float TriangleArea(const Vector3D& p0, const Vector3D& p1, const Vector3D
 	Vector3D cross;
 
 	CrossProduct(e0, e1, cross);
-	return 0.5 * cross.Length();
+	return 0.5f * cross.Length();
 }
