@@ -83,7 +83,7 @@ const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n)
 		// Skip over non-matches
 		if (FastASCIIToLower(*pLetter) == FastASCIIToLower(*pSearch))
 		{
-			int n1 = n - 1;
+			int64_t n1 = n - 1;
 
 			// Check for match
 			const char* pMatch = pLetter + 1;
