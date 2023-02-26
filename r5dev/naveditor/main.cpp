@@ -48,14 +48,14 @@ void save_ply(std::vector<float>& pts,std::vector<int>& colors,rcIntArray& tris)
 	fprintf(f,
 R"(ply
 format ascii 1.0
-element vertex %d
+element vertex %zu
 property float x
 property float y
 property float z
 property uchar red
 property uchar green
 property uchar blue
-element face %d
+element face %zu
 property list uchar int vertex_index
 end_header
 )",pts.size()/3,tris.size()/3);
@@ -221,6 +221,8 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 		SDL_Quit();
 		return false;
 	}
+
+	return true;
 }
 
 #if 1
