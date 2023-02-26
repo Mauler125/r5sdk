@@ -49,7 +49,7 @@ void _Error(char* fmt, ...)
 //			*error - ... - 
 // Output : void* _Warning
 //-----------------------------------------------------------------------------
-void* _Warning(int level, char* fmt, ...)
+void _Warning(int level, char* fmt, ...)
 {
 	char buf[10000];
 	{/////////////////////////////
