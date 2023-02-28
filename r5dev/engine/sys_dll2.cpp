@@ -107,6 +107,7 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
 //-----------------------------------------------------------------------------
 void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo)
 {
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
     if (*g_bTextMode)
     {
         return;
@@ -143,6 +144,10 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
     COM_InitFilesystem(pEngineAPI->m_StartupInfo.m_szInitialMod);
 
     *g_bTextMode = true;
+#else
+    // !TODO: 'TRACEINIT' needs to be reimplemented in S0/S1 (inline).
+    v_CEngineAPI_SetStartupInfo(pEngineAPI, pStartupInfo);
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1)
 }
 
 ///////////////////////////////////////////////////////////////////////////////

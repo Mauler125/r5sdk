@@ -57,15 +57,17 @@ class VHost : public IDetour
 		g_bAbortServerSet = p_Host_Error.FindPattern("40 38 3D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(3, 7).RCast<bool*>();
 		host_abortserver = p_Host_Error.FindPattern("48 8D 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddress(3, 7).RCast<jmp_buf*>();
 
-		static const int n_host_frametime_unbounded_search_offset = 0x430;
+		static const int n_host_frametime_unbounded_search_offset = 0x380;
+		static const int n_host_frametime_stddeviation_search_offset = 0x1200;
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		g_bAbortServerSet = p_Host_Error.FindPattern("40 38 3D", CMemory::Direction::DOWN, 512, 4).ResolveRelativeAddress(3, 7).RCast<bool*>();
 		host_abortserver = p_Host_Error.FindPattern("48 8D 0D", CMemory::Direction::DOWN, 512, 5).ResolveRelativeAddress(3, 7).RCast<jmp_buf*>();
 
 		static const int n_host_frametime_unbounded_search_offset = 0x330;
+		static const int n_host_frametime_stddeviation_search_offset = 0xFAA;
 #endif
-		host_frametime_unbounded = p_Host_RunFrame.Offset(n_host_frametime_unbounded_search_offset).FindPatternSelf("F3 0F 11 1D").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
-		host_frametime_stddeviation = p_Host_RunFrame.Offset(0xFAA).FindPatternSelf("F3 0F 11 05").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
+		host_frametime_unbounded = p_Host_RunFrame.Offset(n_host_frametime_unbounded_search_offset).FindPatternSelf("F3 0F 11").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
+		host_frametime_stddeviation = p_Host_RunFrame.Offset(n_host_frametime_stddeviation_search_offset).FindPatternSelf("F3 0F 11").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;

@@ -95,8 +95,11 @@ private:
 	virtual void stub_74() const = 0;
 	virtual void stub_75() const = 0;
 	virtual void stub_76() const = 0;
+	// s0 and s1 builds have a smaller vtable size (2 methods less).
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	virtual void stub_77() const = 0;
 	virtual void stub_78() const = 0;
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 	// STUB_138 should be GetShaderGlue.
 };
 

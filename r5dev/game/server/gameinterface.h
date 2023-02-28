@@ -69,13 +69,15 @@ class VServerGameDLL : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-#if defined(GAMEDLL_S3)
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		p_CServerGameDLL__OnReceivedSayTextMessage = g_GameDll.FindPatternSIMD("40 55 57 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 4C 8B 15 ?? ?? ?? ??");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CServerGameDLL__OnReceivedSayTextMessage = g_GameDll.FindPatternSIMD("85 D2 0F 8E ?? ?? ?? ?? 4C 8B DC");
+#endif
 		CServerGameDLL__OnReceivedSayTextMessage = p_CServerGameDLL__OnReceivedSayTextMessage.RCast<void(__fastcall*)(void* thisptr, int senderId, const char* text, bool isTeamChat)>();
 
 		p_RunFrameServer = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 30 0F 29 74 24 ?? 48 8D 0D ?? ?? ?? ??");
 		v_RunFrameServer = p_RunFrameServer.RCast<void(*)(double, bool, bool)>();
-#endif
 	}
 	virtual void GetVar(void) const
 	{

@@ -52,6 +52,8 @@ class VMaterialSystem : public IDetour
 		LogConAdr("CMaterial::`vftable'", reinterpret_cast<uintptr_t>(g_pMaterialVFTable));
 		LogFunAdr("CMaterialSystem::Init", p_CMaterialSystem__Init.GetPtr());
 #ifndef DEDICATED
+		LogFunAdr("CMaterialSystem::FindMaterialEx", p_CMaterialSystem__FindMaterialEx.GetPtr());
+		LogFunAdr("CMaterialSystem::GetScreenSize", p_CMaterialSystem_GetScreenSize.GetPtr());
 		LogFunAdr("CMaterialSystem::DispatchDrawCall", p_DispatchDrawCall.GetPtr());
 		LogFunAdr("CMaterialSystem::DrawStreamOverlay", p_DrawStreamOverlay.GetPtr());
 		LogVarAdr("g_nTotalStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nTotalStreamingTextureMemory));

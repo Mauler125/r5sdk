@@ -191,7 +191,7 @@ class VClient : public IDetour
 #endif
 		p_CClient_Clear      = g_GameDll.FindPatternSIMD("40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 83 EC 28 4C 8B 42 20");
+		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 48 81 EC ?? ?? ?? ?? 49 8B D8");
 		p_CClient_SendNetMsg = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 45 0F B6 F1");
 		p_CClient_SendSnapshot = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 55");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)

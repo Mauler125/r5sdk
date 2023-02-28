@@ -197,7 +197,7 @@ class VSquirrelVM : public IDetour
 #if !defined (DEDICATED)
 		p_Script_CreateUIVM = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 1D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ??");
 #endif // !DEDICATED
-		p_Script_DestroySignalEntryListHead = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42 78");
+		p_Script_DestroySignalEntryListHead = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42");
 		p_Script_LoadRson = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B 08 57 48 81 EC A0 ?? ?? ?? 33");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_Script_LoadScript = g_GameDll.FindPatternSIMD("48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 48 89 4C 24 08 55 41 54 41 55 41 56 41 57 48 8D 6C");

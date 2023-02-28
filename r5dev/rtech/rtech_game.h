@@ -67,7 +67,7 @@ class V_RTechGame : public IDetour
 #endif
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 		p_CPakFile_LoadAsync = g_GameDll.FindPatternSIMD("40 53 48 83 EC 40 48 89 6C 24 ?? 41 8B E8");
-		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, uintptr_t, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 8B E8*/
+		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, void*, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 8B E8*/
 #elif defined (GAMEDLL_S3)
 		p_CPakFile_LoadAsync = g_GameDll.FindPatternSIMD("40 53 48 83 EC 40 48 89 6C 24 ?? 41 0F B6 E9");
 		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, void*, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 0F B6 E9*/

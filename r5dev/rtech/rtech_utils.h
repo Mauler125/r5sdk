@@ -235,7 +235,7 @@ struct RPakVirtualSegment_t
 	uint64_t m_nDataSize;
 };
 
-struct PakFile_t
+struct PakFile_t // !TODO: Map out on S1 and S2!
 {
 	int m_nDescCount;
 	int m_nProcessedAssetCount;
@@ -276,12 +276,27 @@ struct PakFile_t
 	uint32_t* m_pFileRelations;
 	char gap5E0[40];
 	RPakAssetEntry_t** m_ppAssetEntries;
-	char gap610[520];
+	char gap610[256];
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) // TODO: needs to be checked.
+	char gap710[256];
+#if !defined (GAMEDLL_S2)
+	char gap810[8];
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
+#endif
 	const char* m_pszFileName;
 	RPakHeader_t m_PakHdr;
 };
 
-static_assert(sizeof(PakFile_t) == 2208);
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
+#if !defined (GAMEDLL_S2)
+static_assert(sizeof(PakFile_t) == 2208); // S3+
+#else
+static_assert(sizeof(PakFile_t) == 2200); // S2
+#endif // !GAMEDLL_S2
+#else
+static_assert(sizeof(PakFile_t) == 1944); // S0/S1
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
+
 static_assert(sizeof(RPakDecompState_t) == 136);
 static_assert(sizeof(RPakPatchCompressedHeader_t) == 16);
 
@@ -337,11 +352,9 @@ public:
 	const char* PakStatusToString(RPakStatus_t status);
 
 	static int32_t OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut);
-
 #ifdef GAMEDLL_S3
 	static void PakProcessGuidRelationsForAsset(PakFile_t* pak, RPakAssetEntry_t* asset);
-#endif
-
+#endif // GAMEDLL_S3
 
 #if not defined DEDICATED
 	static void CreateDXTexture(TextureHeader_t* textureHeader, int64_t cpuArg);

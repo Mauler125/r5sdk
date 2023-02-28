@@ -100,7 +100,7 @@ class VModelLoader : public IDetour
 		p_CModelLoader__Studio_LoadModel  = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 56 48 8D AC 24 ?? ?? ?? ??");
 		p_CModelLoader__Map_LoadModelGuts = g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 55 53 41 54 41 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? FF 05 ?? ?? ?? ??"); // BSP.
 		p_CModelLoader__Map_IsValid       = g_GameDll.FindPatternSIMD("48 8B C4 53 48 81 EC ?? ?? ?? ?? 48 8B DA");
-		p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B AC 24 ?? ?? ?? ?? BE ?? ?? ?? ??");
+		//p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B AC 24 ?? ?? ?? ?? BE ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CModelLoader__FindModel         = g_GameDll.FindPatternSIMD("40 55 41 57 48 83 EC 48 80 3A 2A");
 		p_CModelLoader__LoadModel         = g_GameDll.FindPatternSIMD("40 53 57 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??");

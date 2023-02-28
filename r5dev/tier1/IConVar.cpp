@@ -298,7 +298,9 @@ void ConVar::InitShipped(void)
 	sv_forceChatToTeamOnly->AddFlags(FCVAR_REPLICATED);
 
 	ai_script_nodes_draw->SetValue(-1);
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	bhit_enable->SetValue(0);
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	cl_threaded_bone_setup->RemoveFlags(FCVAR_DEVELOPMENTONLY);

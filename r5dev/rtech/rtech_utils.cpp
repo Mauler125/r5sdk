@@ -734,14 +734,20 @@ const char* RTech::PakStatusToString(RPakStatus_t status)
 		default:                                              return "PAK_STATUS_UNKNOWN";
 	}
 }
-
+#ifdef GAMEDLL_S3
 //-----------------------------------------------------------------------------
 // Purpose: process guid relations for asset
 //-----------------------------------------------------------------------------
 void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* pAsset)
 {
+#if defined (GAMEDLL_S0) && defined (GAMEDLL_S1) && defined (GAMEDLL_S2)
+	static const int GLOBAL_MUL = 0x1D;
+#else
+	static const int GLOBAL_MUL = 0x17;
+#endif
+
 	RPakDescriptor_t* pGuidDescriptors = &pPak->m_pGuidDescriptors[pAsset->m_nUsesStartIdx];
-	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pPakGlobals) + 0x17 * (pPak->qword578 & 0x1FF) + 0x160212));
+	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pPakGlobals) + GLOBAL_MUL * (pPak->qword578 & 0x1FF) + 0x160212));
 	const bool bDebug = rtech_debug->GetBool();
 
 	if (bDebug)
@@ -815,7 +821,7 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 		*pCurrentGuid = g_pPakGlobals->m_Assets[assetIdx].m_pHead;
 	}
 }
-
+#endif // GAMEDLL_S3
 void V_RTechUtils::Attach() const
 {
 	DetourAttach(&RTech_OpenFile, &RTech::OpenFile);

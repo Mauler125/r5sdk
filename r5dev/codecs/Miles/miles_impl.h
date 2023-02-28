@@ -26,11 +26,13 @@ class MilesCore : public IDetour
 	{
 		p_AIL_LogFunc = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B DA 48 8D 15 ?? ?? ?? ??");
 		v_AIL_LogFunc = p_AIL_LogFunc.RCast<void(*)(int64_t, const char*)>();
-		// 0x1409D1420 // 40 53 48 83 EC 20 48 8B DA 48 8D 15 ? ? ? ? //
 
-		p_Miles_Initialize = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? FF 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ??").FollowNearCallSelf();
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+		p_Miles_Initialize = g_GameDll.FindPatternSIMD("40 53 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??");
+#else
+		p_Miles_Initialize = g_GameDll.FindPatternSIMD("40 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??");
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 		v_Miles_Initialize = p_Miles_Initialize.RCast<bool(*)()>();
-		// 0x14095A140 // E8 ? ? ? ? FF 0D ? ? ? ? C6 05 ? ? ? ? ?  //
 
 		p_MilesQueueEventRun = g_RadAudioSystemDll.GetExportedFunction("MilesQueueEventRun");
 		v_MilesQueueEventRun = p_MilesQueueEventRun.RCast<void(*)(Miles::Queue*, const char*)>();

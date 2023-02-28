@@ -4,6 +4,7 @@
 #include "common.h"
 #include "client/client.h"
 
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 /*
 ==================
 DFS_InitializeFeatureFlagDefinitions
@@ -19,6 +20,7 @@ bool DFS_InitializeFeatureFlagDefinitions(const char* pszFeatureFlags)
 
 	return v_DFS_InitializeFeatureFlagDefinitions(pszFeatureFlags);
 }
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 
 /*
 ==================
@@ -61,13 +63,17 @@ void Host_Status_PrintClient(CClient* client, bool bShowAddress, void (*print) (
 ///////////////////////////////////////////////////////////////////////////////
 void VHostCmd::Attach() const
 {
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	DetourAttach(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions);
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 	DetourAttach(&v_Host_Status_PrintClient, &Host_Status_PrintClient);
 }
 
 void VHostCmd::Detach() const
 {
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	DetourDetach(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions);
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 	DetourDetach(&v_Host_Status_PrintClient, &Host_Status_PrintClient);
 }
 

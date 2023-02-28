@@ -123,9 +123,9 @@ class VServer : public IDetour
 #ifndef CLIENT_DLL
 		p_CServer_FrameJob = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 56 41 54 41 56");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CServer_Authenticate = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 55 56 57 48 8D AC 24 ?? ?? ?? ??");
+		p_CServer_ConnectClient = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 55 56 57 48 8D AC 24 ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2)
-		p_CServer_Authenticate = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 56 57 48 81 EC ?? ?? ?? ??");
+		p_CServer_ConnectClient = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 56 57 48 81 EC ?? ?? ?? ??");
 #else
 		p_CServer_ConnectClient = g_GameDll.FindPatternSIMD("40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??");
 #endif
