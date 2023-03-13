@@ -31,7 +31,9 @@ public:
 	bool IsListening(void) const;
 	bool IsSocketBlocking(void) const;
 
+	int GetAuthorizedSocketCount(void) const;
 	int GetAcceptedSocketCount(void) const;
+
 	SocketHandle_t GetAcceptedSocketHandle(int nIndex) const;
 	const netadr_t& GetAcceptedSocketAddress(int nIndex) const;
 	CConnectedNetConsoleData* GetAcceptedSocketData(int nIndex) const;
@@ -39,9 +41,15 @@ public:
 public:
 	struct AcceptedSocket_t
 	{
-		SocketHandle_t            m_hSocket{};
-		netadr_t                  m_Address{};
-		CConnectedNetConsoleData* m_pData = nullptr;
+		AcceptedSocket_t(void)
+		{
+			m_hSocket = NULL;
+			m_pData = nullptr;
+		}
+
+		SocketHandle_t            m_hSocket;
+		netadr_t                  m_Address;
+		CConnectedNetConsoleData* m_pData;
 	};
 
 	std::vector<AcceptedSocket_t> m_hAcceptedSockets;

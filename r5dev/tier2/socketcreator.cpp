@@ -316,6 +316,25 @@ bool CSocketCreator::IsSocketBlocking(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: returns authorized socket count
+// Output : int
+//-----------------------------------------------------------------------------
+int CSocketCreator::GetAuthorizedSocketCount(void) const
+{
+	int ret = 0;
+
+	for (size_t i = 0; i < m_hAcceptedSockets.size(); ++i)
+	{
+		if (m_hAcceptedSockets[i].m_pData->m_bAuthorized)
+		{
+			ret++;
+		}
+	}
+
+	return ret;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: returns accepted socket count
 // Output : int
 //-----------------------------------------------------------------------------
