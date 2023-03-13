@@ -79,6 +79,9 @@ void PrintM128i64(__m128i in);
 void AppendPrintf(char* pBuffer, size_t nBufSize, char const* pFormat, ...);
 string PrintPercentageEscape(const string& svInput);
 
+string FormatV(const char* szFormat, va_list args);
+string Format(const char* szFormat, ...);
+
 /////////////////////////////////////////////////////////////////////////////
 // Time
 std::chrono::nanoseconds IntervalToDuration(const float flInterval);

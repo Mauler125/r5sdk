@@ -1015,6 +1015,48 @@ string PrintPercentageEscape(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For formatting a STL string using C-style format specifiers (va_list version).
+string FormatV(const char* szFormat, va_list args)
+{
+    // Initialize use of the variable argument array.
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+
+    // Dry run to obtain required buffer size.
+    const int iLen = std::vsnprintf(nullptr, 0, szFormat, argsCopy);
+    va_end(argsCopy);
+
+    assert(iLen >= 0);
+    string result;
+
+    if (iLen < 0)
+    {
+        result.clear();
+    }
+    else
+    {
+        result.resize(iLen);
+        std::vsnprintf(&result[0], iLen+sizeof(char), szFormat, args);
+    }
+
+    return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For formatting a STL string using C-style format specifiers.
+string Format(const char* szFormat, ...)
+{
+    string result;
+
+    va_list args;
+    va_start(args, szFormat);
+    result = FormatV(szFormat, args);
+    va_end(args);
+
+    return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For obtaining a duration from a certain interval.
 std::chrono::nanoseconds IntervalToDuration(const float flInterval)
 {
