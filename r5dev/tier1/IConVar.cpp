@@ -256,6 +256,7 @@ void ConVar::InitShipped(void)
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 #endif // !CLIENT_DLL
 	developer                        = g_pCVar->FindVar("developer");
+	fps_max                          = g_pCVar->FindVar("fps_max");
 #ifndef DEDICATED
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
 #endif // !DEDICATED
@@ -287,8 +288,12 @@ void ConVar::InitShipped(void)
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 #ifndef CLIENT_DLL
-	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
 	sv_stats = g_pCVar->FindVar("sv_stats");
+
+	sv_updaterate_mp = g_pCVar->FindVar("sv_updaterate_mp");
+	sv_updaterate_sp = g_pCVar->FindVar("sv_updaterate_sp");
+
+	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
 	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
 
 	sv_showhitboxes->SetMin(-1); // Allow user to go over each entity manually without going out of bounds.

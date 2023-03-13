@@ -13,6 +13,7 @@ extern ConVar* enable_debug_overlays;
 extern ConVar* debug_draw_box_depth_test;
 
 extern ConVar* developer;
+extern ConVar* fps_max;
 
 extern ConVar* staticProp_defaultBuildFrustum;
 extern ConVar* staticProp_no_fade_scalar;
@@ -77,6 +78,9 @@ extern ConVar* sv_pylonRefreshRate;
 extern ConVar* sv_banlistRefreshRate;
 extern ConVar* sv_statusRefreshRate;
 extern ConVar* sv_forceChatToTeamOnly;
+
+extern ConVar* sv_updaterate_mp;
+extern ConVar* sv_updaterate_sp;
 
 extern ConVar* sv_autoReloadRate;
 extern ConVar* sv_quota_stringCmdsPerSecond;

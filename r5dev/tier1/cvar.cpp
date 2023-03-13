@@ -17,6 +17,7 @@ ConVar* enable_debug_overlays              = nullptr;
 ConVar* debug_draw_box_depth_test          = nullptr;
 
 ConVar* developer                          = nullptr;
+ConVar* fps_max                            = nullptr;
 
 ConVar* staticProp_defaultBuildFrustum     = nullptr;
 ConVar* staticProp_no_fade_scalar          = nullptr;
@@ -81,6 +82,9 @@ ConVar* sv_pylonRefreshRate                = nullptr;
 ConVar* sv_banlistRefreshRate              = nullptr;
 ConVar* sv_statusRefreshRate               = nullptr;
 ConVar* sv_forceChatToTeamOnly             = nullptr;
+
+ConVar* sv_updaterate_mp                   = nullptr;
+ConVar* sv_updaterate_sp                   = nullptr;
 
 ConVar* sv_autoReloadRate                  = nullptr;
 ConVar* sv_quota_stringCmdsPerSecond       = nullptr;
