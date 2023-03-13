@@ -4,7 +4,7 @@
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
 
-constexpr char s_pszNoAuthMessage[]  = "This server is password protected for console access. Authenticate with 'PASS <password>' command.\n";
+constexpr char s_pszNoAuthMessage[]  = "This server is password protected for console access; authenticate with 'PASS <password>' command.\n";
 constexpr char s_pszWrongPwMessage[] = "Admin password incorrect.\n";
 constexpr char s_pszBannedMessage[]  = "Go away.\n";
 constexpr char s_pszAuthMessage[]    = "Authentication successful.\n";
@@ -41,6 +41,7 @@ public:
 	void CloseConnection(void);
 	void CloseNonAuthConnection(void);
 
+	bool ShouldSend(const sv_rcon::response_t responseType) const;
 	bool IsInitialized(void) const;
 
 private:

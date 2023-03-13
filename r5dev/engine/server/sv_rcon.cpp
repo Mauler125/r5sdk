@@ -150,22 +150,20 @@ void CRConServer::RunFrame(void)
 //-----------------------------------------------------------------------------
 void CRConServer::Send(const std::string& svMessage) const
 {
-	if (const int nCount = m_Socket.GetAcceptedSocketCount())
+	std::ostringstream ssSendBuf;
+	const u_long nLen = htonl(svMessage.size());
+
+	ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
+	ssSendBuf.write(svMessage.data(), svMessage.size());
+
+	const int nCount = m_Socket.GetAcceptedSocketCount();
+	for (int i = nCount - 1; i >= 0; i--)
 	{
-		std::ostringstream ssSendBuf;
-		const u_long nLen = htonl(svMessage.size());
+		CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(i);
 
-		ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
-		ssSendBuf.write(svMessage.data(), svMessage.size());
-
-		for (int i = nCount - 1; i >= 0; i--)
+		if (pData->m_bAuthorized)
 		{
-			CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(i);
-
-			if (pData->m_bAuthorized)
-			{
-				::send(pData->m_hSocket, ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
-			}
+			::send(pData->m_hSocket, ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
 		}
 	}
 }
@@ -195,19 +193,10 @@ void CRConServer::Send(const SocketHandle_t hSocket, const std::string& svMessag
 //-----------------------------------------------------------------------------
 void CRConServer::Send(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId)
 {
-	if (!m_bInitialized)
+	if (this->ShouldSend(responseType))
 	{
-		return;
+		this->Send(this->Serialize(svRspBuf, svRspVal, responseType, nResponseId));
 	}
-
-	if (responseType == sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG)
-	{
-		if (!sv_rcon_sendlogs->GetBool())
-		{
-			return;
-		}
-	}
-	this->Send(this->Serialize(svRspBuf, svRspVal, responseType, nResponseId));
 }
 
 //-----------------------------------------------------------------------------
@@ -220,19 +209,10 @@ void CRConServer::Send(const std::string& svRspBuf, const std::string& svRspVal,
 //-----------------------------------------------------------------------------
 void CRConServer::Send(const SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId)
 {
-	if (!m_bInitialized)
+	if (this->ShouldSend(responseType))
 	{
-		return;
+		this->Send(hSocket, this->Serialize(svRspBuf, svRspVal, responseType, nResponseId));
 	}
-
-	if (responseType == sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG)
-	{
-		if (!sv_rcon_sendlogs->GetBool())
-		{
-			return;
-		}
-	}
-	this->Send(hSocket, this->Serialize(svRspBuf, svRspVal, responseType, nResponseId));
 }
 
 //-----------------------------------------------------------------------------
@@ -610,6 +590,30 @@ void CRConServer::CloseNonAuthConnection(void)
 			m_Socket.CloseAcceptedSocket(i);
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if this message should be send or not
+// Output : true if it should send, false otherwise
+//-----------------------------------------------------------------------------
+bool CRConServer::ShouldSend(const sv_rcon::response_t responseType) const
+{
+	if (!this->IsInitialized() || !m_Socket.GetAcceptedSocketCount())
+	{
+		// Not initialized or no sockets...
+		return false;
+	}
+
+	if (responseType == sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG)
+	{
+		if (!sv_rcon_sendlogs->GetBool() || !m_Socket.GetAuthorizedSocketCount())
+		{
+			// Disabled or no authorized clients to send to...
+			return false;
+		}
+	}
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
