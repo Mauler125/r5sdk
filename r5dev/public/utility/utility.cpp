@@ -557,58 +557,56 @@ size_t UTF8CharLength(const uint8_t cInput)
 // For checking if input string is a valid UTF-8 encoded string.
 bool IsValidUTF8(char* pszString)
 {
-    char v1; // r9
-    char* v2; // rdx
-    char v4; // r10
-    int v5; // er8
+    char c;
+    char* it;
 
     while (true)
     {
         while (true)
         {
-            v1 = *pszString;
-            v2 = pszString++;
-            if (v1 < 0)
+            c = *pszString;
+            it = pszString++;
+            if (c < 0)
             {
                 break;
             }
-            if (!v1)
+            if (!c)
             {
                 return true;
             }
         }
 
-        v4 = *pszString;
+        char s = *pszString;
         if ((*pszString & 0xC0) != 0x80)
         {
             break;
         }
 
-        pszString = v2 + 2;
-        if (v1 >= 0xE0u)
+        pszString = it + 2;
+        if (c >= 0xE0u)
         {
-            v5 = *pszString & 0x3F | ((v4 & 0x3F | ((v1 & 0xF) << 6)) << 6);
+            int n = *pszString & 0x3F | ((s & 0x3F | ((c & 0xF) << 6)) << 6);
             if ((*pszString & 0xC0) != 0x80)
             {
                 return false;
             }
 
-            pszString = v2 + 3;
-            if (v1 >= 0xF0u)
+            pszString = it + 3;
+            if (c >= 0xF0u)
             {
-                if ((*pszString & 0xC0) != 0x80 || ((v5 << 6) | *pszString & 0x3Fu) > 0x10FFFF)
+                if ((*pszString & 0xC0) != 0x80 || ((n << 6) | *pszString & 0x3Fu) > 0x10FFFF)
                 {
                     return false;
                 }
 
-                pszString = v2 + 4;
+                pszString = it + 4;
             }
-            else if ((v5 - 55296) <= 0x7FF)
+            else if ((n - 55296) <= 0x7FF)
             {
                 return false;
             }
         }
-        else if (v1 < 0xC2u)
+        else if (c < 0xC2u)
         {
             return false;
         }
