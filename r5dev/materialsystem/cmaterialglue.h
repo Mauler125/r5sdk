@@ -72,8 +72,6 @@ inline CMemory p_GetMaterialAtCrossHair;
 inline auto GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>();
 #endif // !DEDICATED
 
-void CMaterialGlue_Attach();
-void CMaterialGlue_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VMaterialGlue : public IDetour
 {

@@ -7,12 +7,3 @@
 #include "materialsystem/cmaterialglue.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-void CMaterialGlue_Attach()
-{
-	
-}
-
-void CMaterialGlue_Detach()
-{
-	
-}
