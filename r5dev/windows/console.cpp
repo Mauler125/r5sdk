@@ -16,6 +16,8 @@
 #include "windows/console.h"
 #include "common/opcodes.h"
 
+static std::string s_ConsoleInput;
+
 //-----------------------------------------------------------------------------
 // Purpose: sets the windows terminal background color
 // Input  : color - 
@@ -37,7 +39,8 @@ void SetConsoleBackgroundColor(COLORREF color)
 //-----------------------------------------------------------------------------
 // Purpose: flashes the windows terminal background color
 // Input  : nFlashCount - 
-//			nFlashInterval - color -
+//			nFlashInterval -
+//			color -
 //-----------------------------------------------------------------------------
 void FlashConsoleBackground(int nFlashCount, int nFlashInterval, COLORREF color)
 {
@@ -125,17 +128,15 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 {
 	while (true)
 	{
-		static std::string sCommand = "";
-
 		//printf("] ");
 		//-- Get the user input on the debug console
-		std::getline(std::cin, sCommand);
+		std::getline(std::cin, s_ConsoleInput);
 
 		// Execute the command.
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), sCommand.c_str(), cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), s_ConsoleInput.c_str(), cmd_source_t::kCommandSrcCode);
 
-		if (!sCommand.empty())
-			sCommand.clear();
+		if (!s_ConsoleInput.empty())
+			s_ConsoleInput.clear();
 
 		Sleep(50);
 	}
