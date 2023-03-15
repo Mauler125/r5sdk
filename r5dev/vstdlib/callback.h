@@ -40,6 +40,7 @@ void VPK_Unmount_f(const CCommand& args);
 void NET_SetKey_f(const CCommand& args);
 void NET_GenerateKey_f(const CCommand& args);
 void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
+void SIG_GetAdr_f(const CCommand& args);
 void CON_Help_f(const CCommand& args);
 #ifndef DEDICATED
 void CON_LogHistory_f(const CCommand& args);

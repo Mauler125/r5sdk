@@ -386,6 +386,9 @@ void ConCommand::Init(void)
 	// NETCHANNEL                                                             |
 	ConCommand::Create("net_setkey", "Sets user specified base64 net key.", nullptr, FCVAR_RELEASE, NET_SetKey_f, nullptr);
 	ConCommand::Create("net_generatekey", "Generates and sets a random base64 net key.", nullptr, FCVAR_RELEASE, NET_GenerateKey_f, nullptr);
+	//-------------------------------------------------------------------------
+	// TIER0                                                                  |
+	ConCommand::Create("sig_getadr", "Logs the sigscan results to the console.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN, SIG_GetAdr_f, nullptr);
 }
 
 //-----------------------------------------------------------------------------

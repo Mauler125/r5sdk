@@ -110,6 +110,7 @@ void Console_Init()
 			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
 				"Please omit the '-ansiclr' parameter and restart \nthe game if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
 		}
+
 		SetConsoleBackgroundColor(0x00000000);
 		AnsiColors_Init();
 	}
@@ -122,7 +123,6 @@ void Console_Init()
 
 DWORD __stdcall ProcessConsoleWorker(LPVOID)
 {
-	// Loop forever
 	while (true)
 	{
 		static std::string sCommand = "";
@@ -131,17 +131,12 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		//-- Get the user input on the debug console
 		std::getline(std::cin, sCommand);
 
-		//-- Debug toggles
-		if (sCommand == "sig_getadr") { DetourAddress(); continue; }
-
 		// Execute the command.
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), sCommand.c_str(), cmd_source_t::kCommandSrcCode);
-		//g_TaskScheduler->Dispatch(Cbuf_Execute, 0);
 
-		sCommand.clear();
+		if (!sCommand.empty())
+			sCommand.clear();
 
-		///////////////////////////////////////////////////////////////////////
-		// Sleep and loop
 		Sleep(50);
 	}
 	return NULL;

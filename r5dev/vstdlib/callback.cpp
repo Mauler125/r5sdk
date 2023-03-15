@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "core/init.h"
 #include "windows/id3dx.h"
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
@@ -737,6 +738,20 @@ void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float f
 			NET_SetKey(DEFAULT_NET_ENCRYPTION_KEY);
 	}
 }
+
+/*
+=====================
+SIG_GetAdr_f
+
+  Logs the sigscan
+  results to the console.
+=====================
+*/
+void SIG_GetAdr_f(const CCommand& args)
+{
+	DetourAddress();
+}
+
 /*
 =====================
 CON_Help_f
