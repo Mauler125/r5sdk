@@ -34,6 +34,7 @@ ConVar* host_hasIrreversibleShutdown       = nullptr;
 ConVar* mp_gamemode                        = nullptr;
 
 ConVar* curl_debug                         = nullptr;
+ConVar* curl_timeout                       = nullptr;
 ConVar* ssl_verify_peer                    = nullptr;
 
 ConVar* rcon_address                       = nullptr;

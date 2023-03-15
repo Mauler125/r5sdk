@@ -39,7 +39,7 @@ CURL* CURLInitRequest(const string& hostname, const string& request, string& res
     curl_easy_setopt(curl, CURLOPT_URL, hostname.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.c_str());
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, curl_timeout->GetInt());
     curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CURLWriteStringCallback);

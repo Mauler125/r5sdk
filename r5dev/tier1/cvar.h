@@ -31,6 +31,7 @@ extern ConVar* host_hasIrreversibleShutdown;
 extern ConVar* mp_gamemode;
 
 extern ConVar* curl_debug;
+extern ConVar* curl_timeout;
 extern ConVar* ssl_verify_peer;
 
 extern ConVar* rcon_address;
