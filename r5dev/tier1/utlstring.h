@@ -10,7 +10,6 @@
 #pragma once
 #endif
 
-
 #include "tier1/utlmemory.h"
 #include "tier1/strtools.h"
 #include "limits.h"
@@ -25,7 +24,7 @@
 class CUtlBinaryBlock
 {
 public:
-	CUtlBinaryBlock( int growSize = 0, int initSize = 0 );
+	CUtlBinaryBlock( int64 growSize = 0, int64 initSize = 0 );
 	~CUtlBinaryBlock()
 	{
 #ifdef _DEBUG
@@ -33,11 +32,19 @@ public:
 #else
 		m_nActualLength = 0;
 #endif
+
+		// Has to be explicitly called due to the
+		// current design of our SDK. Unlike other
+		// Source Engine games, we couldn't import
+		// the memalloc singleton; we obtain it post
+		// init (too late for binding it against the
+		// new/delete operators..).
+		m_Memory.~CUtlMemory();
 	}
 
 	// NOTE: nInitialLength indicates how much of the buffer starts full
-	CUtlBinaryBlock( void* pMemory, int nSizeInBytes, int nInitialLength );
-	CUtlBinaryBlock( const void* pMemory, int nSizeInBytes );
+	CUtlBinaryBlock( void* pMemory, int64 nSizeInBytes, int64 nInitialLength );
+	CUtlBinaryBlock( const void* pMemory, int64 nSizeInBytes );
 	
 	CUtlBinaryBlock( const CUtlBinaryBlock& src );
 	CUtlBinaryBlock &operator=( const CUtlBinaryBlock &src );
@@ -47,16 +54,16 @@ public:
 	CUtlBinaryBlock &operator=( CUtlBinaryBlock&& src );
 #endif
 
-	void		Get( void *pValue, int nMaxLen ) const;
-	void		Set( const void *pValue, int nLen );
+	void		Get( void *pValue, int64 nMaxLen ) const;
+	void		Set( const void *pValue, int64 nLen );
 	const void	*Get( ) const;
 	void		*Get( );
 
-	unsigned char& operator[]( int i );
-	const unsigned char& operator[]( int i ) const;
+	unsigned char& operator[]( int64 i );
+	const unsigned char& operator[]( int64 i ) const;
 
-	int			Length() const;
-	void		SetLength( int nLength );	// Undefined memory will result
+	int64		Length() const;
+	void		SetLength( int64 nLength );	// Undefined memory will result
 	bool		IsEmpty() const;
 	void		Clear();
 	void		Purge();
@@ -69,7 +76,7 @@ public:
 
 private:
 	CUtlMemory<unsigned char> m_Memory;
-	int m_nActualLength;
+	int64 m_nActualLength;
 };
 
 
@@ -87,7 +94,7 @@ inline CUtlBinaryBlock::CUtlBinaryBlock( CUtlBinaryBlock&& src )
 
 inline CUtlBinaryBlock& CUtlBinaryBlock::operator= ( CUtlBinaryBlock&& src )
 {
-	int length = src.m_nActualLength;
+	int64 length = src.m_nActualLength;
 	src.m_nActualLength = 0;
 
 	m_Memory = Move( src.m_Memory );
@@ -107,17 +114,17 @@ inline void *CUtlBinaryBlock::Get( )
 	return m_Memory.Base();
 }
 
-inline int CUtlBinaryBlock::Length() const
+inline int64 CUtlBinaryBlock::Length() const
 {
 	return m_nActualLength;
 }
 
-inline unsigned char& CUtlBinaryBlock::operator[]( int i )
+inline unsigned char& CUtlBinaryBlock::operator[]( int64 i )
 {
 	return m_Memory[i];
 }
 
-inline const unsigned char& CUtlBinaryBlock::operator[]( int i ) const
+inline const unsigned char& CUtlBinaryBlock::operator[]( int64 i ) const
 {
 	return m_Memory[i];
 }
@@ -155,8 +162,8 @@ public:
 	CUtlString( const char *pString ); // initialize from c-style string
 
 	// Attaches the string to external memory. Useful for avoiding a copy
-	CUtlString( void* pMemory, int nSizeInBytes, int nInitialLength );
-	CUtlString( const void* pMemory, int nSizeInBytes );
+	CUtlString( void* pMemory, int64 nSizeInBytes, int64 nInitialLength );
+	CUtlString( const void* pMemory, int64 nSizeInBytes );
 
 	// Copy/move constructor/assignment
 	// Moves are extremely efficient as the underlying memory is not copied, just the pointers.
@@ -167,6 +174,16 @@ public:
 	CUtlString( CUtlString&& moveFrom );    // = default;
 	CUtlString &operator=( CUtlString&& moveFrom ); // = default;
 #endif
+	~CUtlString()
+	{
+		// Has to be explicitly called due to the
+		// current design of our SDK. Unlike other
+		// Source Engine games, we couldn't import
+		// the memalloc singleton; we obtain it post
+		// init (too late for binding it against the
+		// new/delete operators..).
+		m_Storage.~CUtlBinaryBlock();
+	}
 
 	// Also can assign from a regular C-style string
 	CUtlString &operator=( const char *src );
@@ -186,7 +203,7 @@ public:
 	const char  *String() const { return Get(); }
 
 	// Returns strlen
-	int			Length() const;
+	int64		Length() const;
 	bool		IsEmpty() const;
 
 	// GS - Added for chromehtml
@@ -198,7 +215,7 @@ public:
 	// Sets the length (used to serialize into the buffer )
 	// Note: If nLen != 0, then this adds an extra byte for a null-terminator.	
 	void		Set( const char *pValue );
-	void		SetLength( int nLen );
+	void		SetLength( int64 nLen );
 	void		Purge();
 
 	void		Swap(CUtlString &src);
@@ -207,7 +224,7 @@ public:
 	void		ToUpper();
 	void		ToLower( );
 	void		Append( const char *pchAddition );
-	void		Append(const char *pchAddition, int nMaxChars);
+	void		Append(const char *pchAddition, int64 nMaxChars);
 	void		Append(char chAddition) {
 		char temp[2] = { chAddition, 0 };
 		Append(temp);
@@ -216,8 +233,8 @@ public:
 	// Strips the trailing slash
 	void		StripTrailingSlash();
 
-	char operator[] ( int idx ) const;
-	char& operator[] ( int idx );
+	char operator[] ( int64 idx ) const;
+	char& operator[] ( int64 idx );
 
 	// Test for equality
 	bool operator==( const CUtlString &src ) const;
@@ -233,11 +250,11 @@ public:
 	CUtlString &operator+=( const CUtlString &rhs );
 	CUtlString &operator+=( const char *rhs );
 	CUtlString &operator+=( char c );
-	CUtlString &operator+=( int rhs );
+	CUtlString &operator+=( int64 rhs );
 	CUtlString &operator+=( double rhs );
 	
 	CUtlString operator+( const char *pOther )const;
-	CUtlString operator+( int rhs )const;
+	//CUtlString operator+( int64 rhs )const;
 
 	bool MatchesPattern( const CUtlString &Pattern, int nFlags = 0 );		// case SENSITIVE, use * for wildcard in pattern string
 
@@ -250,7 +267,7 @@ public:
 	int FormatV( const char *pFormat, va_list marker );
 #endif
 	
-	void SetDirect( const char *pValue, int nChars );
+	void SetDirect( const char *pValue, int64 nChars );
 
 	// Defining AltArgumentType_t hints that associative container classes should
 	// also implement Find/Insert/Remove functions that take const char* params.
@@ -273,7 +290,7 @@ public:
 	/// Replace one string with the other (single pass).  Passing a NULL to pchTo is same as calling Remove
 	CUtlString Replace( char const *pchFrom, const char *pchTo, bool bCaseSensitive = false ) const; 
 
-		/// helper func for caseless replace
+	/// helper func for caseless replace
 	CUtlString ReplaceCaseless( char const *pchFrom, const char *pchTo ) const { return Replace( pchFrom, pchTo, false ); }
 
 	void RemoveDotSlashes(char separator = CORRECT_PATH_SEPARATOR);
@@ -318,14 +335,14 @@ public:
 	static CUtlString PathJoin( const char *pStr1, const char *pStr2 );
 
 	// These can be used for utlvector sorts.
-	static int __cdecl SortCaseInsensitive( const CUtlString *pString1, const CUtlString *pString2 );
-	static int __cdecl SortCaseSensitive( const CUtlString *pString1, const CUtlString *pString2 );
+	static int64 __cdecl SortCaseInsensitive( const CUtlString *pString1, const CUtlString *pString2 );
+	static int64 __cdecl SortCaseSensitive( const CUtlString *pString1, const CUtlString *pString2 );
 
 	// From Src2
 
 	void FixSlashes( char cSeparator = CORRECT_PATH_SEPARATOR )
 	{
-		for ( int nLength = Length() - 1; nLength >= 0; nLength-- )
+		for ( int64 nLength = Length() - 1; nLength >= 0; nLength-- )
 		{
 			char *pname = (char*)&m_Storage[ nLength ];
 			if ( *pname == INCORRECT_PATH_SEPARATOR || *pname == CORRECT_PATH_SEPARATOR )
@@ -380,22 +397,22 @@ inline bool CUtlString::IsEmpty() const
 	return Length() == 0;
 }
 
-inline int __cdecl CUtlString::SortCaseInsensitive( const CUtlString *pString1, const CUtlString *pString2 )
+inline int64 __cdecl CUtlString::SortCaseInsensitive( const CUtlString *pString1, const CUtlString *pString2 )
 {
 	return V_stricmp( pString1->String(), pString2->String() );
 }
 
-inline int __cdecl CUtlString::SortCaseSensitive( const CUtlString *pString1, const CUtlString *pString2 )
+inline int64 __cdecl CUtlString::SortCaseSensitive( const CUtlString *pString1, const CUtlString *pString2 )
 {
 	return V_strcmp( pString1->String(), pString2->String() );
 }
 
-inline char CUtlString::operator [] ( int index ) const
+inline char CUtlString::operator [] ( int64 index ) const
 {
 	return Get()[index];
 }
 
-inline char& CUtlString::operator[] ( int index )
+inline char& CUtlString::operator[] ( int64 index )
 {
 	return Access()[index];
 }
@@ -425,7 +442,7 @@ template < >
 class StringFuncs<char>
 {
 public:
-	static char		  *Duplicate( const char *pValue ) { return strdup( pValue ); }
+	static char		  *Duplicate( const char *pValue ) { return _strdup( pValue ); }
 	static void		   Copy( char *out_pOut, const char *pIn, int iLength ) { strncpy( out_pOut, pIn, iLength ); }
 	static int		   Compare( const char *pLhs, const char *pRhs ) { return strcmp( pLhs, pRhs ); }
 	static int		   Length( const char *pValue ) { return (int)strlen( pValue ); }
@@ -437,7 +454,7 @@ template < >
 class StringFuncs<wchar_t>
 {
 public:
-	static wchar_t		 *Duplicate( const wchar_t *pValue ) { return wcsdup( pValue ); }
+	static wchar_t		 *Duplicate( const wchar_t *pValue ) { return _wcsdup( pValue ); }
 	static void			  Copy( wchar_t *out_pOut, const wchar_t  *pIn, int iLength ) { wcsncpy( out_pOut, pIn, iLength ); }
 	static int			  Compare( const wchar_t *pLhs, const wchar_t *pRhs ) { return wcscmp( pLhs, pRhs ); }
 	static int			  Length( const wchar_t *pValue ) { return (int) wcslen( pValue ); }
@@ -608,7 +625,7 @@ public:
 	void Append(const CUtlStringBuilder &str) { Append(str.String(), str.Length()); }
 	//void Append( IFillStringFunctor& func );
 	void AppendChar(char ch) { Append(&ch, 1); }
-	void AppendRepeat(char ch, int cCount);
+	void AppendRepeat(char ch, int64 cCount);
 
 	// sets the string
 	void SetValue(const char *pchString);
@@ -808,7 +825,7 @@ private:
 		void FreeHeap()
 		{
 			if (IsHeap() && Heap.m_pchString)
-				MemAlloc_Free(Heap.m_pchString);
+				MemAllocSingleton()->Free(Heap.m_pchString);
 		}
 
 		// Back to a clean state, but retain the error state.
@@ -1188,7 +1205,7 @@ inline void CUtlStringBuilder::SetPtr(char *pchString, size_t nLength)
 	if (!pchString || !nLength)
 	{
 		if (pchString)
-			MemAlloc_Free(pchString); // we don't hang onto empty strings.
+			MemAllocSingleton()->Free(pchString); // we don't hang onto empty strings.
 		return;
 	}
 
@@ -1358,7 +1375,7 @@ inline void CUtlStringBuilder::Append(const char *pchAddition, size_t cbLen)
 //-----------------------------------------------------------------------------
 // Purpose: append a repeated series of a single character
 //-----------------------------------------------------------------------------
-inline void CUtlStringBuilder::AppendRepeat(char ch, int cCount)
+inline void CUtlStringBuilder::AppendRepeat(char ch, int64 cCount)
 {
 	size_t cbOld = Length();
 	char *pstrNew = PrepareBuffer(cbOld + cCount, true);

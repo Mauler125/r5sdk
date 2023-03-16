@@ -4,13 +4,14 @@
 //
 //=============================================================================
 
+#include "core/stdafx.h"
 #include "tier1/utlstring.h"
 #include "tier1/utlvector.h"
 #include "tier1/strtools.h"
 #include <ctype.h>
 
 // NOTE: This has to be the last file included!
-#include "tier0/memdbgon.h"
+//#include "tier0/memdbgon.h"
 
 static const int64 k_nMillion = 1000000;
 
@@ -65,20 +66,20 @@ int V_vscprintf(const char *format, va_list params)
 //-----------------------------------------------------------------------------
 // Base class, containing simple memory management
 //-----------------------------------------------------------------------------
-CUtlBinaryBlock::CUtlBinaryBlock( int growSize, int initSize ) 
+CUtlBinaryBlock::CUtlBinaryBlock( int64 growSize, int64 initSize )
 {
-	MEM_ALLOC_CREDIT();
+	//MEM_ALLOC_CREDIT();
 	m_Memory.Init( growSize, initSize );
 
 	m_nActualLength = 0;
 }
 
-CUtlBinaryBlock::CUtlBinaryBlock( void* pMemory, int nSizeInBytes, int nInitialLength ) : m_Memory( (unsigned char*)pMemory, nSizeInBytes )
+CUtlBinaryBlock::CUtlBinaryBlock( void* pMemory, int64 nSizeInBytes, int64 nInitialLength ) : m_Memory( (unsigned char*)pMemory, nSizeInBytes )
 {
 	m_nActualLength = nInitialLength;
 }
 
-CUtlBinaryBlock::CUtlBinaryBlock( const void* pMemory, int nSizeInBytes ) : m_Memory( (const unsigned char*)pMemory, nSizeInBytes )
+CUtlBinaryBlock::CUtlBinaryBlock( const void* pMemory, int64 nSizeInBytes ) : m_Memory( (const unsigned char*)pMemory, nSizeInBytes )
 {
 	m_nActualLength = nSizeInBytes;
 }
@@ -88,7 +89,7 @@ CUtlBinaryBlock::CUtlBinaryBlock( const CUtlBinaryBlock& src )
 	Set( src.Get(), src.Length() );
 }
 
-void CUtlBinaryBlock::Get( void *pValue, int nLen ) const
+void CUtlBinaryBlock::Get( void *pValue, int64 nLen ) const
 {
 	Assert( nLen > 0 );
 	if ( m_nActualLength < nLen )
@@ -102,15 +103,15 @@ void CUtlBinaryBlock::Get( void *pValue, int nLen ) const
 	}
 }
 
-void CUtlBinaryBlock::SetLength( int nLength )
+void CUtlBinaryBlock::SetLength(int64 nLength )
 {
-	MEM_ALLOC_CREDIT();
+	//MEM_ALLOC_CREDIT();
 	Assert( !m_Memory.IsReadOnly() );
 
 	m_nActualLength = nLength;
 	if ( nLength > m_Memory.NumAllocated() )
 	{
-		int nOverFlow = nLength - m_Memory.NumAllocated();
+		int64 nOverFlow = nLength - m_Memory.NumAllocated();
 		m_Memory.Grow( nOverFlow );
 
 		// If the reallocation failed, clamp length
@@ -129,7 +130,7 @@ void CUtlBinaryBlock::SetLength( int nLength )
 }
 
 
-void CUtlBinaryBlock::Set( const void *pValue, int nLen )
+void CUtlBinaryBlock::Set( const void *pValue, int64 nLen )
 {
 	Assert( !m_Memory.IsReadOnly() );
 
@@ -190,11 +191,11 @@ CUtlString::CUtlString( const CUtlString& string )
 }
 
 // Attaches the string to external memory. Useful for avoiding a copy
-CUtlString::CUtlString( void* pMemory, int nSizeInBytes, int nInitialLength ) : m_Storage( pMemory, nSizeInBytes, nInitialLength )
+CUtlString::CUtlString( void* pMemory, int64 nSizeInBytes, int64 nInitialLength ) : m_Storage( pMemory, nSizeInBytes, nInitialLength )
 {
 }
 
-CUtlString::CUtlString( const void* pMemory, int nSizeInBytes ) : m_Storage( pMemory, nSizeInBytes )
+CUtlString::CUtlString( const void* pMemory, int64 nSizeInBytes ) : m_Storage( pMemory, nSizeInBytes )
 {
 }
 
@@ -202,7 +203,7 @@ CUtlString::CUtlString( const void* pMemory, int nSizeInBytes ) : m_Storage( pMe
 //-----------------------------------------------------------------------------
 // Purpose: Set directly and don't look for a null terminator in pValue.
 //-----------------------------------------------------------------------------
-void CUtlString::SetDirect( const char *pValue, int nChars )
+void CUtlString::SetDirect( const char *pValue, int64 nChars )
 {
 	if ( nChars > 0 )
 	{
@@ -220,19 +221,19 @@ void CUtlString::SetDirect( const char *pValue, int nChars )
 void CUtlString::Set( const char *pValue )
 {
 	Assert( !m_Storage.IsReadOnly() );
-	int nLen = pValue ? Q_strlen(pValue) + 1 : 0;
+	int64 nLen = pValue ? Q_strlen(pValue) + 1 : 0;
 	m_Storage.Set( pValue, nLen );
 }
 
 
 // Returns strlen
-int CUtlString::Length() const
+int64 CUtlString::Length() const
 {
 	return m_Storage.Length() ? m_Storage.Length() - 1 : 0;
 }
 
 // Sets the length (used to serialize into the buffer )
-void CUtlString::SetLength( int nLen )
+void CUtlString::SetLength( int64 nLen )
 {
 	Assert( !m_Storage.IsReadOnly() );
 
@@ -278,7 +279,7 @@ void CUtlString::Purge()
 
 void CUtlString::ToUpper()
 {
-	for (int nLength = Length() - 1; nLength >= 0; nLength--)
+	for ( int64 nLength = Length() - 1; nLength >= 0; nLength--)
 	{
 		m_Storage[nLength] = toupper(m_Storage[nLength]);
 	}
@@ -286,7 +287,7 @@ void CUtlString::ToUpper()
 
 void CUtlString::ToLower()
 {
-	for( int nLength = Length() - 1; nLength >= 0; nLength-- )
+	for( int64 nLength = Length() - 1; nLength >= 0; nLength-- )
 	{
 		m_Storage[ nLength ] = tolower( m_Storage[ nLength ] );
 	}
@@ -362,7 +363,7 @@ CUtlString &CUtlString::operator+=( char c )
 	return *this;
 }
 
-CUtlString &CUtlString::operator+=( int rhs )
+CUtlString &CUtlString::operator+=( int64 rhs )
 {
 	Assert( !m_Storage.IsReadOnly() );
 	Assert( sizeof( rhs ) == 4 );
@@ -653,9 +654,9 @@ void CUtlString::Append( const char *pchAddition )
 	(*this) += pchAddition;
 }
 
-void CUtlString::Append(const char *pchAddition, int nMaxChars)
+void CUtlString::Append(const char *pchAddition, int64 nMaxChars)
 {
-	const int nLen = V_strlen(pchAddition);
+	const int64 nLen = V_strlen(pchAddition);
 	if (nMaxChars < 0 || nLen <= nMaxChars)
 	{
 		Append(pchAddition);
@@ -799,7 +800,7 @@ char *CUtlStringBuilder::InternalPrepareBuffer(size_t nChars, bool bCopyOld, siz
 		if (bWasHeap && bCopyOld)
 		{
 			// maybe we'll get lucky and get the same buffer back.
-			pszString = (char*)realloc(pszOld, nNewSize + 1);
+			pszString = MemAllocSingleton()->Realloc(pszOld, nNewSize + 1);
 			if (!pszString)
 			{
 				SetError();
@@ -813,9 +814,9 @@ char *CUtlStringBuilder::InternalPrepareBuffer(size_t nChars, bool bCopyOld, siz
 			// if we aren't doing a copy, don't use realloc since it will
 			// copy the data if it needs to make a new allocation.
 			if (bWasHeap)
-				free(pszOld);
+				MemAllocSingleton()->Free(pszOld);
 
-			pszString = (char*)malloc(nNewSize + 1);
+			pszString = MemAllocSingleton()->Alloc<char>(nNewSize + 1);
 			if (!pszString)
 			{
 				SetError();
@@ -851,7 +852,7 @@ char *CUtlStringBuilder::InternalPrepareBuffer(size_t nChars, bool bCopyOld, siz
 			if (bCopyOld)
 				memcpy(pszString, pszOldString, nChars); // null will be added at end of func.
 
-			free(pszOldString);
+			MemAllocSingleton()->Free(pszOldString);
 		}
 	}
 
@@ -866,7 +867,7 @@ char *CUtlStringBuilder::InternalPrepareBuffer(size_t nChars, bool bCopyOld, siz
 //-----------------------------------------------------------------------------
 size_t CUtlStringBuilder::Replace(const char *pstrTarget, const char *pstrReplacement)
 {
-	return ReplaceInternal(pstrTarget, pstrReplacement, (const char *(*)(const char *, const char *))_V_strstr);
+	return ReplaceInternal(pstrTarget, pstrReplacement, (const char *(*)(const char *, const char *))V_strstr);
 }
 
 
@@ -876,7 +877,7 @@ size_t CUtlStringBuilder::Replace(const char *pstrTarget, const char *pstrReplac
 //-----------------------------------------------------------------------------
 size_t CUtlStringBuilder::ReplaceFastCaseless(const char *pstrTarget, const char *pstrReplacement)
 {
-	return ReplaceInternal(pstrTarget, pstrReplacement, V_stristr_fast);
+	return ReplaceInternal(pstrTarget, pstrReplacement, V_stristr);
 }
 
 
@@ -933,7 +934,7 @@ size_t CUtlStringBuilder::ReplaceInternal(const char *pstrTarget, const char *ps
 				char *pstrNew;
 				if (nNewLength > Capacity())
 				{
-					pstrNew = (char*)malloc(nNewLength + 1);
+					pstrNew = MemAllocSingleton()->Alloc<char>(nNewLength + 1);
 					if (!pstrNew)
 					{
 						SetError();
@@ -1150,8 +1151,8 @@ void CUtlStringBuilder::Data::SetError(bool bEnableAssert)
 	// This is not meant to be used as a status bit. Setting the error state should
 	// mean something very unexpected happened that you would want a call stack for.
 	// That is why this asserts unconditionally when the state is being flipped.
-	if (bEnableAssert)
-		AssertMsg(false, "Error State on string being set.");
+	//if (bEnableAssert)
+	//	AssertMsg(false, "Error State on string being set.");
 
 	MoveToHeap();
 
@@ -1186,7 +1187,7 @@ bool CUtlStringBuilder::Data::MoveToHeap()
 	{
 		// try to recover the string at the point of failure, to help with debugging
 		size_t nLen = Length();
-		char *pszHeapString = (char*)malloc(nLen + 1);
+		char *pszHeapString = MemAllocSingleton()->Alloc<char>(nLen + 1);
 		if (pszHeapString)
 		{
 			// get the string copy before corrupting the stack union
