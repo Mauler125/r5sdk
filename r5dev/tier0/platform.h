@@ -374,6 +374,8 @@ template <typename T> const char* MemAllocClassName(T* p)
 // as little code as possible, and throw an assertion in debug.
 #define NO_DEFAULT default: UNREACHABLE();
 
+#define MAX_FILEPATH 512 
+
 // Defines MAX_PATH
 #ifndef MAX_PATH
 #define MAX_PATH  260
