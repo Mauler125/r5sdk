@@ -11,6 +11,7 @@
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "tier1/characterset.h"
+#include "tier1/utlstring.h"
 #include "vstdlib/completion.h"
 #include "vstdlib/callback.h"
 
@@ -550,6 +551,25 @@ void ConCommand::PurgeShipped(void)
 bool ConCommand::IsCommand(void) const
 {
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Calls the autocompletion method to get autocompletion suggestions
+// Input  : *partial - 
+//			&commands - 
+// Output : The number of autocompletion entries
+//-----------------------------------------------------------------------------
+int ConCommand::AutoCompleteSuggest(const char* partial, CUtlVector< CUtlString >& commands)
+{
+	return ConCommand_AutoCompleteSuggest(this, partial, commands);
+}
+
+//-----------------------------------------------------------------------------
+// Returns true if the console command can autocomplete 
+//-----------------------------------------------------------------------------
+bool ConCommand::CanAutoComplete(void) const
+{
+	return m_bHasCompletionCallback;
 }
 
 //-----------------------------------------------------------------------------

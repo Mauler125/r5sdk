@@ -1,4 +1,6 @@
 #pragma once
+#include "tier1/utlvector.h"
+#include "tier1/utlstring.h"
 #include "tier1/characterset.h"
 #include "public/iconvar.h"
 #include "public/iconcommand.h"
@@ -137,6 +139,9 @@ public:
 	static void PurgeShipped(void);
 	bool IsCommand(void) const;
 
+	/*virtual*/ int AutoCompleteSuggest(const char* partial, CUtlVector< CUtlString >& commands);
+	/*virtual*/ bool CanAutoComplete(void) const;
+
 	void*          m_nNullCallBack; //0x0040
 	void*          m_pSubCallback;  //0x0048
 	// Call this function when executing the command
@@ -169,6 +174,9 @@ inline CMemory p_Cmd_ForwardToServer;
 inline auto v_Cmd_ForwardToServer = p_Cmd_ForwardToServer.RCast<bool (*)(const CCommand* args)>();
 
 /* ==== CONCOMMAND ====================================================================================================================================================== */
+inline CMemory p_ConCommand_AutoCompleteSuggest;
+inline auto ConCommand_AutoCompleteSuggest = p_ConCommand_AutoCompleteSuggest.RCast<bool (*)(ConCommand* pCommand, const char* partial, CUtlVector< CUtlString >& commands)>();
+
 inline CMemory p_ConCommandBase_IsFlagSet;
 inline auto ConCommandBase_IsFlagSet = p_ConCommandBase_IsFlagSet.RCast<bool (*)(ConCommandBase* pCommand, int nFlag)>();
 
@@ -189,6 +197,7 @@ class VConCommand : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogConAdr("ConCommand::`vftable'", g_pConCommandVFTable.GetPtr());
+		LogConAdr("ConCommand::AutoCompleteSuggest", p_ConCommand_AutoCompleteSuggest.GetPtr());
 		LogFunAdr("ConCommandBase::IsFlagSet", p_ConCommandBase_IsFlagSet.GetPtr());
 		LogFunAdr("Cbuf_AddText", p_Cbuf_AddText.GetPtr());
 		LogFunAdr("Cbuf_Execute", p_Cbuf_Execute.GetPtr());
@@ -198,6 +207,7 @@ class VConCommand : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
+		p_ConCommand_AutoCompleteSuggest    = g_GameDll.FindPatternSIMD("40 ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 F6 41 60 04");
 		p_ConCommandBase_IsFlagSet          = g_GameDll.FindPatternSIMD("85 51 38 0F 95 C0 C3");
 		p_Cbuf_AddText                      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??");
 		p_Cbuf_Execute                      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??");
@@ -205,6 +215,7 @@ class VConCommand : public IDetour
 		p_NullSub                           = g_GameDll.FindPatternSIMD("C2 ?? ?? CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??");
 		p_CallbackStub                      = g_GameDll.FindPatternSIMD("33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08");
 
+		ConCommand_AutoCompleteSuggest = p_ConCommand_AutoCompleteSuggest.RCast<bool (*)(ConCommand*, const char*, CUtlVector< CUtlString >&)>();
 		Cbuf_AddText = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t, const char*, cmd_source_t)>();           /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??*/
 		Cbuf_Execute = p_Cbuf_Execute.RCast<void (*)(void)>();                                                  /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??*/
 		v_Cmd_ForwardToServer             = p_Cmd_ForwardToServer.RCast<bool (*)(const CCommand*)>();           /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 59 04*/
