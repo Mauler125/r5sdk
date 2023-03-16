@@ -511,13 +511,12 @@ bool CConsole::AutoComplete(void)
             svCommand += m_szInputBuf[i];
         }
 
-        const ConCommand* pCommand = g_pCVar->FindCommand(svCommand.c_str());
-        if (pCommand && pCommand->m_bHasCompletionCallback)
-        {
-            const char* szPartial = m_szInputBuf;
+        ConCommand* pCommand = g_pCVar->FindCommand(svCommand.c_str());
 
-            char rgpchCommands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH];
-            int iret = (pCommand->m_fnCompletionCallback)(szPartial, rgpchCommands);
+        if (pCommand && pCommand->CanAutoComplete())
+        {
+            CUtlVector< CUtlString > commands;
+            int iret = pCommand->AutoCompleteSuggest(svCommand.c_str(), commands);
 
             if (!iret)
             {
@@ -526,8 +525,7 @@ bool CConsole::AutoComplete(void)
 
             for (int i = 0; i < iret; ++i)
             {
-                const char* str = rgpchCommands[i];
-                m_vSuggest.push_back(CSuggest(str, COMMAND_COMPLETION_MARKER));
+                m_vSuggest.push_back(CSuggest(commands[i].String(), COMMAND_COMPLETION_MARKER));
             }
         }
         else
