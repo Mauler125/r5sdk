@@ -2,11 +2,21 @@
 
 #ifdef _WIN32
 #define CORRECT_PATH_SEPARATOR '\\'
+#define CORRECT_PATH_SEPARATOR_S "\\"
 #define INCORRECT_PATH_SEPARATOR '/'
-#elif POSIX
+#define INCORRECT_PATH_SEPARATOR_S "/"
+#define CHARACTERS_WHICH_SEPARATE_DIRECTORY_COMPONENTS_IN_PATHNAMES ":/\\"
+#define PATHSEPARATOR(c) ((c) == '\\' || (c) == '/')
+#elif POSIX || defined( _PS3 )
 #define CORRECT_PATH_SEPARATOR '/'
+#define CORRECT_PATH_SEPARATOR_S "/"
 #define INCORRECT_PATH_SEPARATOR '\\'
+#define INCORRECT_PATH_SEPARATOR_S "\\"
+#define CHARACTERS_WHICH_SEPARATE_DIRECTORY_COMPONENTS_IN_PATHNAMES "/"
+#define PATHSEPARATOR(c) ((c) == '/')
 #endif
+
+#define COPY_ALL_CHARACTERS -1
 
 /// Faster conversion of an ascii char to upper case. This function does not obey locale or any language
 /// setting. It should not be used to convert characters for printing, but it is a better choice
@@ -26,6 +36,9 @@
 #define V_strnicmp _strnicmp
 #define V_strcmp strcmp
 #define V_strncmp strncmp
+#define V_strstr strstr
+#define V_strncpy strncpy
+#define V_strdup _strdup
 
 #define Q_vsnprintf V_vsnprintf
 #define Q_snprintf V_snprintf
@@ -39,6 +52,11 @@
 #define Q_strcasecmp V_stricmp
 #define Q_strcmp V_strcmp
 #define Q_strncmp V_strncmp
+#define Q_strstr V_strstr
+#define Q_strncpy V_strncpy
+#define Q_strdup V_strdup
+
+template <size_t maxLenInCharacters> int V_vsprintf_safe(OUT_Z_ARRAY char(&pDest)[maxLenInCharacters], PRINTF_FORMAT_STRING const char* pFormat, va_list params) { return V_vsnprintf(pDest, maxLenInCharacters, pFormat, params); }
 
 
 char const* V_stristr(char const* pStr, char const* pSearch);
@@ -46,6 +64,71 @@ const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n);
 const char* V_strnchr(const char* pStr, char c, int64_t n);
 bool V_isspace(int c);
 
+// Strip white space at the beginning and end of a string
+int V_StrTrim(char* pStr);
+
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes);
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes);
+
+typedef enum
+{
+	PATTERN_NONE = 0x00000000,
+	PATTERN_DIRECTORY = 0x00000001
+} TStringPattern;
+
+// String matching using wildcards (*) for partial matches.
+bool V_StringMatchesPattern(const char* szString, const char* szPattern, int flags = 0);
+
 void V_FixSlashes(char* pname, char separator = CORRECT_PATH_SEPARATOR);
+
+// Adds a path separator to the end of the string if there isn't one already and the string is not empty.
+// Triggers a fatal error if it would run out of space.
+void V_AppendSlash(INOUT_Z_CAP(strSize) char* pStr, int strSize, char separator = CORRECT_PATH_SEPARATOR);
+
+// Remove the final characters of ppath if it's '\' or '/'.
+void V_StripTrailingSlash(char* ppath);
+
+// This removes "./" and "../" from the pathname. pFilename should be a full pathname.
+// Returns false if it tries to ".." past the root directory in the drive (in which case 
+// it is an invalid path).
+bool V_RemoveDotSlashes(char* pFilename, char separator = CORRECT_PATH_SEPARATOR);
+
+// Returns true if the path is an absolute path.
+bool V_IsAbsolutePath(IN_Z const char* pPath);
+
+// If pPath is a relative path, this function makes it into an absolute path
+// using the current working directory as the base, or pStartingDir if it's non-NULL.
+// Returns false if it runs out of room in the string, or if pPath tries to ".." past the root directory.
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+bool
+#else
+void
+#endif
+V_MakeAbsolutePath(char* pOut, int outLen, const char* pPath, const char* pStartingDir = NULL);
+inline void V_MakeAbsolutePath(char* pOut, int outLen, const char* pPath, const char* pStartingDir, bool bLowercaseName)
+{
+	V_MakeAbsolutePath(pOut, outLen, pPath, pStartingDir);
+	if (bLowercaseName)
+	{
+		V_strlower(pOut);
+	}
+}
+
+// Remove the final directory from the path
+bool V_StripLastDir(char* dirName, int maxlen);
+// Returns a pointer to the unqualified file name (no path) of a file name
+const char* V_UnqualifiedFileName(const char* in);
+// Given a path and a filename, composes "path\filename", inserting the (OS correct) separator if necessary
+void V_ComposeFileName(const char* path, const char* filename, char* dest, int destSize);
+
+// Remove any extension from in and return resulting string in out
+void V_StripExtension(const char* in, char* out, int outLen);
+
+// Copy out the file extension into dest
+void V_ExtractFileExtension(const char* path, char* dest, int destSize);
+
+// Returns a pointer to the file extension or NULL if one doesn't exist
+const char* V_GetFileExtension(const char* path);
+
+// Extracts the base name of a file (no path, no extension, assumes '/' or '\' as path separator)
+void V_FileBase(const char* in, OUT_Z_CAP(maxlen) char* out, int maxlen);
