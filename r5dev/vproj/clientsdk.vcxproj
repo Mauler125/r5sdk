@@ -146,6 +146,7 @@
     <ClCompile Include="..\tier1\splitstring.cpp" />
     <ClCompile Include="..\tier1\strtools.cpp" />
     <ClCompile Include="..\tier1\utlbuffer.cpp" />
+    <ClCompile Include="..\tier1\utlstring.cpp" />
     <ClCompile Include="..\tier2\curlutils.cpp" />
     <ClCompile Include="..\tier2\meshutils.cpp" />
     <ClCompile Include="..\tier2\renderutils.cpp" />
@@ -588,6 +589,7 @@
     <ClInclude Include="..\tier1\utllinkedlist.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />
     <ClInclude Include="..\tier1\utlrbtree.h" />
+    <ClInclude Include="..\tier1\utlstring.h" />
     <ClInclude Include="..\tier1\utlvector.h" />
     <ClInclude Include="..\tier2\curlutils.h" />
     <ClInclude Include="..\tier2\meshutils.h" />
