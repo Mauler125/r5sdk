@@ -36,8 +36,9 @@ public:
 		// Has to be explicitly called due to the
 		// current design of our SDK. Unlike other
 		// Source Engine games, we couldn't import
-		// the memalloc singleton; we obtain it post
-		// init (too late for binding it against the
+		// the memalloc singleton as the executable
+		// is monolithic; we obtain it post init
+		// (too late for binding it against the
 		// new/delete operators..).
 		m_Memory.~CUtlMemory();
 	}
@@ -179,8 +180,9 @@ public:
 		// Has to be explicitly called due to the
 		// current design of our SDK. Unlike other
 		// Source Engine games, we couldn't import
-		// the memalloc singleton; we obtain it post
-		// init (too late for binding it against the
+		// the memalloc singleton as the executable
+		// is monolithic; we obtain it post init
+		// (too late for binding it against the
 		// new/delete operators..).
 		m_Storage.~CUtlBinaryBlock();
 	}
