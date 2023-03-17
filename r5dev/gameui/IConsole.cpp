@@ -516,7 +516,7 @@ bool CConsole::AutoComplete(void)
         if (pCommand && pCommand->CanAutoComplete())
         {
             CUtlVector< CUtlString > commands;
-            int iret = pCommand->AutoCompleteSuggest(svCommand.c_str(), commands);
+            int iret = pCommand->AutoCompleteSuggest(m_szInputBuf, commands);
 
             if (!iret)
             {
