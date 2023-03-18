@@ -27,13 +27,13 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 		substring = (char*)partial + strlen(cmdname);
 	}
 
-	const size_t mapcount = g_vAllMaps.size();
-	const size_t longest = COMMAND_COMPLETION_ITEM_LENGTH;
-	const size_t count = MIN(mapcount, COMMAND_COMPLETION_MAXITEMS);
+	const int mapcount = (int)g_vAllMaps.size();
+	const int longest = COMMAND_COMPLETION_ITEM_LENGTH;
+	const int count = MIN(mapcount, COMMAND_COMPLETION_MAXITEMS);
 
 	if (count > 0)
 	{
-		for (size_t i = 0; i < count; i++)
+		for (int i = 0; i < count; i++)
 		{
 			strncpy(commands[i], g_vAllMaps[i].c_str(), longest);
 

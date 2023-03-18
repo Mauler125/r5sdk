@@ -95,7 +95,7 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 #ifndef CLIENT_DLL
 	if (sv_stats->GetBool())
 	{
-		uint8_t nCPUPercentage = g_pServer[MAX_PLAYERS].GetCPUUsage() * 100.0f;
+		uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer[MAX_PLAYERS].GetCPUUsage() * 100.0f);
 		if (s_OldCPUPercentage != nCPUPercentage)
 		{
 			s_OldCPUPercentage = nCPUPercentage;

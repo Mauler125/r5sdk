@@ -151,7 +151,7 @@ void CRConServer::RunFrame(void)
 void CRConServer::Send(const std::string& svMessage) const
 {
 	std::ostringstream ssSendBuf;
-	const u_long nLen = htonl(svMessage.size());
+	const u_long nLen = htonl(static_cast<u_long>(svMessage.size()));
 
 	ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
 	ssSendBuf.write(svMessage.data(), svMessage.size());
@@ -176,7 +176,7 @@ void CRConServer::Send(const std::string& svMessage) const
 void CRConServer::Send(const SocketHandle_t hSocket, const std::string& svMessage) const
 {
 	std::ostringstream ssSendBuf;
-	const u_long nLen = htonl(svMessage.size());
+	const u_long nLen = htonl(static_cast<u_long>(svMessage.size()));
 
 	ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
 	ssSendBuf.write(svMessage.data(), svMessage.size());

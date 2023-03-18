@@ -62,7 +62,7 @@ typedef ull             uint64;
 #endif
 
 // Non-standard boolean types. They are used when the decompiler cannot use
-// the standard "bool" type because of the size mistmatch but the possible
+// the standard "bool" type because of the size mismatch but the possible
 // values are only 0 and 1. See also 'BOOL' type below.
 typedef int8 _BOOL1;
 typedef int16 _BOOL2;
@@ -110,6 +110,12 @@ typedef int bool;       // we want to use bool in our C programs
 #define BYTEn(x, n)   (*((_BYTE*)&(x)+n))
 #define WORDn(x, n)   (*((_WORD*)&(x)+n))
 #define DWORDn(x, n)  (*((_DWORD*)&(x)+n))
+
+// Undefine Windows macro's
+#undef LOBYTE
+#undef LOWORD
+#undef HIBYTE
+#undef HIWORD
 
 #define LOBYTE(x)  BYTEn(x,LOW_IND(x,_BYTE))
 #define LOWORD(x)  WORDn(x,LOW_IND(x,_WORD))

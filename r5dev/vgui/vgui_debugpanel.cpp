@@ -98,7 +98,7 @@ void CTextOverlay::DrawNotify(void)
 
 			if (i == 0 && f < 0.2f)
 			{
-				y -= m_nFontHeight * (1.0f - f / 0.2f);
+				y -= m_nFontHeight * (static_cast<float>(1.0f - f / 0.2f));
 			}
 		}
 		else

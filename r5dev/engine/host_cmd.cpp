@@ -44,7 +44,8 @@ void Host_Status_PrintClient(CClient* client, bool bShowAddress, void (*print) (
 
 	if (nci != NULL)
 	{
-		print("# %i \"%s\" %llu %s %i %i %s %d", client->GetHandle(), client->GetServerName(), client->GetNucleusID(), COM_FormatSeconds(nci->GetTimeConnected()),
+		print("# %i \"%s\" %llu %s %i %i %s %d",
+			client->GetHandle(), client->GetServerName(), client->GetNucleusID(), COM_FormatSeconds(static_cast<int>(nci->GetTimeConnected())),
 			static_cast<int>(1000.0f * nci->GetAvgLatency(FLOW_OUTGOING)), static_cast<int>(100.0f * nci->GetAvgLoss(FLOW_INCOMING)), state, nci->GetDataRate());
 
 		if (bShowAddress)

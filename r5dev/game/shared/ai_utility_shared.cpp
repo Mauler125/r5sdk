@@ -81,7 +81,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 
         if (bDrawNearest) // Render links to the nearest node.
         {
-            int nNearest = GetNearestNodeToPos(pNetwork, &pScriptNode->m_vOrigin);
+            int64_t nNearest = GetNearestNodeToPos(pNetwork, &pScriptNode->m_vOrigin);
             if (nNearest != NO_NODE) // NO_NODE = -1
             {
                 auto p = uLinkSet.insert(PackNodeLink(i, nNearest).m128i_i64[1]);

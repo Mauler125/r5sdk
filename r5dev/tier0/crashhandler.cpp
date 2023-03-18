@@ -347,10 +347,10 @@ void CCrashHandler::FormatFPU(const CHAR* pszRegister, M128A* pxContent)
 {
 	DWORD nVec[4] =
 	{
-		pxContent->Low & UINT_MAX,
-		pxContent->Low >> 32,
-		pxContent->High & UINT_MAX,
-		pxContent->High >> 32,
+		static_cast<DWORD>(pxContent->Low & UINT_MAX),
+		static_cast<DWORD>(pxContent->Low >> 32),
+		static_cast<DWORD>(pxContent->High & UINT_MAX),
+		static_cast<DWORD>(pxContent->High >> 32),
 	};
 
 	m_svBuffer.append(fmt::format("\t{:s} = [ [{:.8g}, {:.8g}, {:.8g}, {:.8g}]", pszRegister,
