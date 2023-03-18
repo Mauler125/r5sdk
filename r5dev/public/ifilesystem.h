@@ -3,6 +3,8 @@
 
 #include <tier0/annotations.h>
 #include <tier0/threadtools.h>
+#include <tier1/utlvector.h>
+#include <tier1/utlstring.h>
 #include <public/ipackedstore.h>
 #include <public/appframework/iappsystem.h>
 
@@ -262,7 +264,7 @@ public:
 
 	// Searches for a file in all paths and results absolute path names for the file, works in pack files (zip and vpk) too
 	// Lets you search for something like sound/sound.cache and get a list of every sound cache
-	virtual void			FindFileAbsoluteList(void* outAbsolutePathNames, const char* pWildCard, const char* pPathID) = 0; // !TODO: First param = 'CUtlVector< CUtlString >&'.
+	virtual void			FindFileAbsoluteList(CUtlVector<CUtlString>& outAbsolutePathNames, const char* pWildCard, const char* pPathID) = 0;
 
 	//--------------------------------------------------------
 	// File name and directory operations
