@@ -98,7 +98,7 @@ void PrintLastError(void)
 // For dumping data from a buffer to a file on the disk.
 void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize)
 {
-    static unsigned char szAscii[17] = {};
+    static char szAscii[17] = {};
     static std::mutex m;
     static std::atomic<int> i = {}, j = {}, k = {};
     static std::shared_ptr<spdlog::logger> logger = spdlog::get("default_logger");
@@ -130,13 +130,17 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
     // Output the buffer to the file.
     for (i = 0; i < nSize; i++)
     {
-        if (i % nSize == 0) { logger->trace(" 0x{:04X}  ", i); }
-        logger->trace("{:02x} ", ((unsigned char*)pData)[i]);
-
-        if ((reinterpret_cast<rsig_t>(pData))[i] >= ' ' && 
-            (reinterpret_cast<rsig_t>(pData))[i] <= '~')
+        if (i % nSize == 0)
         {
-            szAscii[i % 16] = (reinterpret_cast<rsig_t>(pData))[i];
+            logger->trace(" 0x{:04X}  ", i);
+        }
+
+        logger->trace("{:02x} ", (reinterpret_cast<const uint8_t*>(pData))[i]);
+
+        if ((reinterpret_cast<const uint8_t*>(pData))[i] >= ' ' && 
+            (reinterpret_cast<const uint8_t*>(pData))[i] <= '~')
+        {
+            szAscii[i % 16] = (reinterpret_cast<const uint8_t*>(pData))[i];
         }
         else
         {
@@ -145,21 +149,18 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
 
         if ((i + 1) % 8 == 0 || i + 1 == nSize)
         {
-            logger->trace(" ");
+            logger->trace(' ');
 
             if ((i + 1) % 16 == 0)
             {
                 if (i + 1 == nSize)
                 {
-                    logger->trace("{:s}\n", szAscii);
-                    logger->trace("---------------------------------------------------------------------------\n");
-                    logger->trace("\n");
+                    logger->trace("{:s}\n---------------------------------------------------------------------------\n\n", szAscii);
                 }
                 else
                 {
                     i++;
-                    logger->trace("{:s}\n ", szAscii);
-                    logger->trace("0x{:04X}  ", i--);
+                    logger->trace("{:s}\n 0x{:04X}  ", szAscii, i--);
                 }
             }
             else if (i + 1 == nSize)
@@ -167,15 +168,13 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
                 szAscii[(i + 1) % 16] = '\0';
                 if ((i + 1) % 16 <= 8)
                 {
-                    logger->trace(" ");
+                    logger->trace(' ');
                 }
                 for (j = (i + 1) % 16; j < 16; j++)
                 {
                     logger->trace("   ");
                 }
-                logger->trace("{:s}\n", szAscii);
-                logger->trace("---------------------------------------------------------------------------\n");
-                logger->trace("\n");
+                logger->trace("{:s}\n---------------------------------------------------------------------------\n\n", szAscii);
             }
         }
     }
