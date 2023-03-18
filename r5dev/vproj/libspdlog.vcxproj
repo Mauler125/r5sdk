@@ -267,7 +267,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\spdlog\include\;$(SolutionDir)r5dev\thirdparty\spdlog\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\thirdparty\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
@@ -289,7 +289,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\spdlog\include\;$(SolutionDir)r5dev\thirdparty\spdlog\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\thirdparty\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
@@ -313,7 +313,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\spdlog\include\;$(SolutionDir)r5dev\thirdparty\spdlog\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\thirdparty\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <StringPooling>true</StringPooling>
@@ -337,7 +337,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\spdlog\include\;$(SolutionDir)r5dev\thirdparty\spdlog\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\thirdparty\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
@@ -359,7 +359,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\spdlog\include\;$(SolutionDir)r5dev\thirdparty\spdlog\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\thirdparty\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
@@ -384,7 +384,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\spdlog\include\;$(SolutionDir)r5dev\thirdparty\spdlog\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\thirdparty\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <StringPooling>true</StringPooling>

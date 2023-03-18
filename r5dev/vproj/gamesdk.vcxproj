@@ -685,7 +685,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/D GAMESDK /D SPDLOG_COMPILED_LIB /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\recast\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
@@ -728,7 +728,7 @@
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalOptions>/D GAMESDK /D SPDLOG_COMPILED_LIB /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\recast\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
@@ -774,7 +774,7 @@
       </CreateHotpatchableImage>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalOptions>/D GAMESDK /D SPDLOG_COMPILED_LIB /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\recast\</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
