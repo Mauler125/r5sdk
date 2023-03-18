@@ -3,6 +3,7 @@
 // stdafx.obj will contain the pre-compiled type information
 
 #include "core/stdafx.h"
+#pragma message("Finished pre-compiling headers.\n")
 
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
