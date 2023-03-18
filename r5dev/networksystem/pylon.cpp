@@ -78,7 +78,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                 }
                 else
                 {
-                    svOutMessage = fmt::format("Unknown error with status: {:d}", status);
+                    svOutMessage = fmt::format("Unknown error with status: {:d}", static_cast<int>(status));
                 }
             }
         }
@@ -96,13 +96,13 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                     }
                     else
                     {
-                        svOutMessage = fmt::format("Server list error: {:d}", status);
+                        svOutMessage = fmt::format("Server list error: {:d}", static_cast<int>(status));
                     }
 
                     return vslList;
                 }
 
-                svOutMessage = fmt::format("Failed comp-server query: {:d}", status);
+                svOutMessage = fmt::format("Failed comp-server query: {:d}", static_cast<int>(status));
                 return vslList;
             }
 
@@ -193,7 +193,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                 }
                 else
                 {
-                    svOutMessage = fmt::format("Unknown error with status: {:d}", status);
+                    svOutMessage = fmt::format("Unknown error with status: {:d}", static_cast<int>(status));
                 }
 
                 return false;
@@ -213,13 +213,13 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                     }
                     else
                     {
-                        svOutMessage = fmt::format("Server not found: {:d}", status);
+                        svOutMessage = fmt::format("Server not found: {:d}", static_cast<int>(status));
                     }
 
                     return false;
                 }
 
-                svOutMessage = fmt::format("Failed comp-server query: {:d}", status);
+                svOutMessage = fmt::format("Failed comp-server query: {:d}", static_cast<int>(status));
                 return false;
             }
 
@@ -301,7 +301,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutMessage = fmt::format("Invalid response with status: {:d}", status);
+                    svOutMessage = fmt::format("Invalid response with status: {:d}", static_cast<int>(status));
                     svOutToken.clear();
                 }
 
@@ -315,7 +315,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutMessage = fmt::format("Unknown error with status: {:d}", status);
+                    svOutMessage = fmt::format("Unknown error with status: {:d}", static_cast<int>(status));
                 }
                 return false;
             }
@@ -334,14 +334,14 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                     }
                     else
                     {
-                        svOutMessage = fmt::format("Server host error: {:d}", status);
+                        svOutMessage = fmt::format("Server host error: {:d}", static_cast<int>(status));
                     }
 
                     svOutToken.clear();
                     return false;
                 }
 
-                svOutMessage = fmt::format("Failed comp-server query: {:d}", status);
+                svOutMessage = fmt::format("Failed comp-server query: {:d}", static_cast<int>(status));
                 svOutToken.clear();
                 return false;
             }
