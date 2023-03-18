@@ -278,11 +278,11 @@ public:
 	// Take a piece out of the string.
 	// If you only specify nStart, it'll go from nStart to the end.
 	// You can use negative numbers and it'll wrap around to the start.
-	CUtlString Slice( int32 nStart=0, int32 nEnd=INT_MAX );
+	CUtlString Slice( int64 nStart=0, int64 nEnd=INT_MAX );
 
 	// Grab a substring starting from the left or the right side.
-	CUtlString Left( int32 nChars );
-	CUtlString Right( int32 nChars );
+	CUtlString Left( int64 nChars );
+	CUtlString Right( int64 nChars );
 
 	CUtlString Remove(char const *pTextToRemove, bool bCaseSensitive) const;
 

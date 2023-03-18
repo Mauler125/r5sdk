@@ -322,13 +322,13 @@ CUtlString &CUtlString::operator+=( const CUtlString &rhs )
 {
 	Assert( !m_Storage.IsReadOnly() );
 
-	const int lhsLength( Length() );
-	const int rhsLength( rhs.Length() );
-	const int requestedLength( lhsLength + rhsLength );
+	const int64 lhsLength( Length() );
+	const int64 rhsLength( rhs.Length() );
+	const int64 requestedLength( lhsLength + rhsLength );
 
 	SetLength( requestedLength );
-	const int allocatedLength( Length() );
-	const int copyLength( allocatedLength - lhsLength < rhsLength ? allocatedLength - lhsLength : rhsLength );
+	const int64 allocatedLength( Length() );
+	const int64 copyLength( allocatedLength - lhsLength < rhsLength ? allocatedLength - lhsLength : rhsLength );
 	memcpy( Get() + lhsLength, rhs.Get(), copyLength );
 	m_Storage[ allocatedLength ] = '\0';
 
@@ -339,13 +339,13 @@ CUtlString &CUtlString::operator+=( const char *rhs )
 {
 	Assert( !m_Storage.IsReadOnly() );
 
-	const int lhsLength( Length() );
-	const int rhsLength( Q_strlen( rhs ) );
-	const int requestedLength( lhsLength + rhsLength );
+	const int64 lhsLength( Length() );
+	const int64 rhsLength( Q_strlen( rhs ) );
+	const int64 requestedLength( lhsLength + rhsLength );
 
 	SetLength( requestedLength );
-	const int allocatedLength( Length() );
-	const int copyLength( allocatedLength - lhsLength < rhsLength ? allocatedLength - lhsLength : rhsLength );
+	const int64 allocatedLength( Length() );
+	const int64 copyLength( allocatedLength - lhsLength < rhsLength ? allocatedLength - lhsLength : rhsLength );
 	memcpy( Get() + lhsLength, rhs, copyLength );
 	m_Storage[ allocatedLength ] = '\0';
 
@@ -369,7 +369,7 @@ CUtlString &CUtlString::operator+=( int64 rhs )
 	Assert( sizeof( rhs ) == 4 );
 
 	char tmpBuf[ 12 ];	// Sufficient for a signed 32 bit integer [ -2147483648 to +2147483647 ]
-	Q_snprintf( tmpBuf, sizeof( tmpBuf ), "%d", rhs );
+	Q_snprintf( tmpBuf, sizeof( tmpBuf ), "%lld", rhs );
 	tmpBuf[ sizeof( tmpBuf ) - 1 ] = '\0';
 
 	return operator+=( tmpBuf );
@@ -429,7 +429,7 @@ void CUtlString::StripTrailingSlash()
 	if ( IsEmpty() )
 		return;
 
-	int nLastChar = Length() - 1;
+	int64 nLastChar = Length() - 1;
 	char c = m_Storage[ nLastChar ];
 	if ( c == '\\' || c == '/' )
 	{
@@ -438,14 +438,14 @@ void CUtlString::StripTrailingSlash()
 	}
 }
 
-CUtlString CUtlString::Slice( int32 nStart, int32 nEnd )
+CUtlString CUtlString::Slice( int64 nStart, int64 nEnd )
 {
 	if ( nStart < 0 )
 		nStart = Length() - (-nStart % Length());
 	else if ( nStart >= Length() )
 		nStart = Length();
 
-	if ( nEnd == INT32_MAX )
+	if ( nEnd == INT64_MAX )
 		nEnd = Length();
 	else if ( nEnd < 0 )
 		nEnd = Length() - (-nEnd % Length());
@@ -468,12 +468,12 @@ CUtlString CUtlString::Slice( int32 nStart, int32 nEnd )
 }
 
 // Grab a substring starting from the left or the right side.
-CUtlString CUtlString::Left( int32 nChars )
+CUtlString CUtlString::Left( int64 nChars )
 {
 	return Slice( 0, nChars );
 }
 
-CUtlString CUtlString::Right( int32 nChars )
+CUtlString CUtlString::Right( int64 nChars )
 {
 	return Slice( -nChars );
 }
@@ -482,7 +482,7 @@ CUtlString CUtlString::Right( int32 nChars )
 
 CUtlString CUtlString::Remove( char const *pTextToRemove, bool bCaseSensitive ) const
 {
-	int nTextToRemoveLength = pTextToRemove ? V_strlen( pTextToRemove ) : 0;
+	int64 nTextToRemoveLength = pTextToRemove ? V_strlen( pTextToRemove ) : 0;
 	CUtlString outputString;
 	const char *pSrc = Get();
 	if ( pSrc )
@@ -497,7 +497,7 @@ CUtlString CUtlString::Remove( char const *pTextToRemove, bool bCaseSensitive ) 
 				break;
 			}
 
-			int nNumCharsToCopy = pNextOccurrence - pSrc;
+			int64 nNumCharsToCopy = pNextOccurrence - pSrc;
 			if ( nNumCharsToCopy )
 			{
 				// append up to the undesired substring
@@ -521,7 +521,7 @@ CUtlString CUtlString::Replace( char const *pchFrom, const char *pchTo, bool bCa
 		return Remove( pchFrom, bCaseSensitive );
 	}
 
-	int nTextToReplaceLength = pchFrom ? V_strlen( pchFrom ) : 0;
+	int64 nTextToReplaceLength = pchFrom ? V_strlen( pchFrom ) : 0;
 	CUtlString outputString;
 	const char *pSrc = Get();
 	if ( pSrc )
@@ -536,7 +536,7 @@ CUtlString CUtlString::Replace( char const *pchFrom, const char *pchTo, bool bCa
 				break;
 			}
 
-			int nNumCharsToCopy = pNextOccurrence - pSrc;
+			int64 nNumCharsToCopy = pNextOccurrence - pSrc;
 			if ( nNumCharsToCopy )
 			{
 				// append up to the undesired substring
@@ -562,8 +562,8 @@ CUtlString CUtlString::Replace( char const *pchFrom, const char *pchTo, bool bCa
 CUtlString CUtlString::Replace( char cFrom, char cTo )
 {
 	CUtlString ret = *this;
-	int len = ret.Length();
-	for ( int i=0; i < len; i++ )
+	int64 len = ret.Length();
+	for ( int64 i=0; i < len; i++ )
 	{
 		if ( ret.m_Storage[i] == cFrom )
 			ret.m_Storage[i] = cTo;
@@ -616,7 +616,7 @@ CUtlString CUtlString::StripExtension() const
 CUtlString CUtlString::StripFilename() const
 {
 	const char *pFilename = V_UnqualifiedFileName( Get() ); // NOTE: returns 'Get()' on failure, never NULL
-	int nCharsToCopy = pFilename - Get();
+	int64 nCharsToCopy = pFilename - Get();
 	CUtlString result;
 	result.SetDirect( Get(), nCharsToCopy );
 	result.StripTrailingSlash();
@@ -715,8 +715,8 @@ void CUtlString::TrimLeft( const char *szTargets )
 
 void CUtlString::TrimRight( const char *szTargets )
 {
-	const int nLastCharIndex = Length() - 1;
-	int i;
+	const int64 nLastCharIndex = Length() - 1;
+	int64 i;
 
 	char* pSrc = Get();
 
