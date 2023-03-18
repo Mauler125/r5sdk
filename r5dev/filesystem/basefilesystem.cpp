@@ -66,11 +66,17 @@ bool CBaseFileSystem::VCheckDisk(const char* pszFilePath)
 	}
 
 	std::string svFilePath = ConvertToWinPath(pszFilePath);
-
 	if (svFilePath.find("\\*\\") != string::npos)
 	{
 		// Erase '//*/'.
 		svFilePath.erase(0, 4);
+	}
+
+	fs::path filePath(svFilePath);
+	if (filePath.is_absolute())
+	{
+		// Skip absolute file paths.
+		return false;
 	}
 
 	// TODO: obtain 'mod' SearchPath's instead.
