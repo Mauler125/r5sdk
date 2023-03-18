@@ -518,100 +518,6 @@
     <ClInclude Include="..\thirdparty\nlohmann\ordered_map.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\thirdparty\hedley\hedley.hpp" />
     <ClInclude Include="..\thirdparty\nlohmann\thirdparty\hedley\hedley_undef.hpp" />
-    <ClInclude Include="..\thirdparty\spdlog\include\async.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\async_logger-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\async_logger.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\cfg\argv.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\cfg\env.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\cfg\helpers-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\cfg\helpers.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\common-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\common.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\backtracer-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\backtracer.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\circular_q.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\console_globals.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\file_helper-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\file_helper.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\fmt_helper.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\log_msg-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\log_msg.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\log_msg_buffer-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\log_msg_buffer.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\mpmc_blocking_q.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\null_mutex.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\os-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\os.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\periodic_worker-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\periodic_worker.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\registry-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\registry.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\synchronous_factory.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\tcp_client-windows.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\tcp_client.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\thread_pool-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\thread_pool.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\details\windows_include.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bin_to_hex.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\args.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\chrono.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\color.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\compile.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\core.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\format-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\format.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\locale.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\os.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\ostream.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\printf.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\ranges.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\bundled\xchar.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\chrono.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\fmt.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\ostr.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fmt\xchar.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\formatter.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\fwd.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\logger-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\logger.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\pattern_formatter-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\pattern_formatter.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\android_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\ansicolor_sink-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\ansicolor_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\base_sink-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\base_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\basic_file_sink-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\basic_file_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\daily_file_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\dist_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\dup_filter_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\hourly_file_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\mongo_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\msvc_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\null_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\ostream_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\qt_sinks.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\ringbuffer_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\rotating_file_sink-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\rotating_file_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\sink-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\stdout_color_sinks-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\stdout_color_sinks.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\stdout_sinks-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\stdout_sinks.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\syslog_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\systemd_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\tcp_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\wincolor_sink-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\wincolor_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\sinks\win_eventlog_sink.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\spdlog-inl.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\spdlog.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\stopwatch.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\tweakme.h" />
-    <ClInclude Include="..\thirdparty\spdlog\include\version.h" />
     <ClInclude Include="..\tier0\annotations.h" />
     <ClInclude Include="..\tier0\basetypes.h" />
     <ClInclude Include="..\tier0\commandline.h" />
@@ -778,7 +684,7 @@
       </DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D SPDLOG_COMPILED_LIB /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
@@ -787,7 +693,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <StackReserveSize>8000000</StackReserveSize>
     </Link>
@@ -821,7 +727,7 @@
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D SPDLOG_COMPILED_LIB /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
@@ -832,7 +738,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
@@ -867,7 +773,7 @@
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D SPDLOG_COMPILED_LIB /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -881,7 +787,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>
       </SetChecksum>

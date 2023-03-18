@@ -11,6 +11,7 @@
 #include <Ws2tcpip.h>
 #include <bcrypt.h>
 #include <comdef.h>
+#include <direct.h>
 #include <gdiplus.h>
 #include <timeapi.h>
 #include <shellapi.h>
@@ -76,14 +77,14 @@
 #include "thirdparty/lzham/include/lzham.h"
 #endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
-#include "thirdparty/spdlog/include/spdlog.h"
-#include "thirdparty/spdlog/include/async.h"
-#include "thirdparty/spdlog/include/sinks/ostream_sink.h"
-#include "thirdparty/spdlog/include/sinks/basic_file_sink.h"
-#include "thirdparty/spdlog/include/sinks/stdout_sinks.h"
-#include "thirdparty/spdlog/include/sinks/stdout_color_sinks.h"
-#include "thirdparty/spdlog/include/sinks/ansicolor_sink.h"
-#include "thirdparty/spdlog/include/sinks/rotating_file_sink.h"
+#include "thirdparty/spdlog/spdlog.h"
+#include "thirdparty/spdlog/async.h"
+#include "thirdparty/spdlog/sinks/ostream_sink.h"
+#include "thirdparty/spdlog/sinks/basic_file_sink.h"
+#include "thirdparty/spdlog/sinks/stdout_sinks.h"
+#include "thirdparty/spdlog/sinks/stdout_color_sinks.h"
+#include "thirdparty/spdlog/sinks/ansicolor_sink.h"
+#include "thirdparty/spdlog/sinks/rotating_file_sink.h"
 
 #include "thirdparty/curl/include/curl/curl.h"
 
