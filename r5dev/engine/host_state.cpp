@@ -3,7 +3,7 @@
 // Purpose: Runs the state machine for the host & server.
 //
 //=============================================================================//
-// host_state.cpp: methods are declared inline to prevent stack corruption.
+// host_state.cpp:.
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
@@ -56,7 +56,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime)
+void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime)
 {
 	static bool bInitialized = false;
 	static bool bResetIdleName = false;
@@ -178,7 +178,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 //-----------------------------------------------------------------------------
 // Purpose: state machine initialization
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::Init(void)
+void CHostState::Init(void)
 {
 	if (m_iNextState != HostStates_t::HS_SHUTDOWN)
 	{
@@ -211,7 +211,7 @@ FORCEINLINE void CHostState::Init(void)
 //-----------------------------------------------------------------------------
 // Purpose: state machine setup
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::Setup(void) 
+void CHostState::Setup(void) 
 {
 	g_pHostState->LoadConfig();
 #ifndef CLIENT_DLL
@@ -230,7 +230,7 @@ FORCEINLINE void CHostState::Setup(void)
 //-----------------------------------------------------------------------------
 // Purpose: think
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::Think(void) const
+void CHostState::Think(void) const
 {
 	static bool bInitialized = false;
 	static CFastTimer banListTimer;
@@ -304,7 +304,7 @@ FORCEINLINE void CHostState::Think(void) const
 //-----------------------------------------------------------------------------
 // Purpose: load and execute configuration files
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::LoadConfig(void) const
+void CHostState::LoadConfig(void) const
 {
 	if (CommandLine()->ParmValue("-launcher", 0) < 1) // Launcher level 1 indicates everything is handled from the commandline/launcher.
 	{
@@ -342,7 +342,7 @@ FORCEINLINE void CHostState::LoadConfig(void) const
 //-----------------------------------------------------------------------------
 // Purpose: shutdown active game
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::GameShutDown(void)
+void CHostState::GameShutDown(void)
 {
 	if (m_bActiveGame)
 	{
@@ -357,7 +357,7 @@ FORCEINLINE void CHostState::GameShutDown(void)
 //-----------------------------------------------------------------------------
 // Purpose: initialize new game
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::State_NewGame(void)
+void CHostState::State_NewGame(void)
 {
 	DevMsg(eDLL_T::ENGINE, "%s: Loading level: '%s'\n", __FUNCTION__, g_pHostState->m_levelName);
 
@@ -395,7 +395,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 //-----------------------------------------------------------------------------
 // Purpose: change singleplayer level
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::State_ChangeLevelSP(void)
+void CHostState::State_ChangeLevelSP(void)
 {
 	DevMsg(eDLL_T::ENGINE, "%s: Changing singleplayer level to: '%s'\n", __FUNCTION__, m_levelName);
 	m_flShortFrameTime = 1.5; // Set frame time.
@@ -421,7 +421,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 //-----------------------------------------------------------------------------
 // Purpose: change multiplayer level
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::State_ChangeLevelMP(void)
+void CHostState::State_ChangeLevelMP(void)
 {
 	DevMsg(eDLL_T::ENGINE, "%s: Changing multiplayer level to: '%s'\n", __FUNCTION__, m_levelName);
 	m_flShortFrameTime = 0.5; // Set frame time.
@@ -453,7 +453,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 //-----------------------------------------------------------------------------
 // Purpose: resets the level name
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::ResetLevelName(void)
+void CHostState::ResetLevelName(void)
 {
 	static const char* szNoMap = "no_map";
 	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);

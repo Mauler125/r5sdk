@@ -16,21 +16,20 @@ enum class HostStates_t : int
 class CHostState
 {
 public:
+	static void FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime);
+	void LoadConfig(void) const;
 
-	FORCEINLINE static void FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime);
-	FORCEINLINE void LoadConfig(void) const;
+	void Init(void);
+	void Setup(void);
+	void Think(void) const;
 
-	FORCEINLINE void Init(void);
-	FORCEINLINE void Setup(void);
-	FORCEINLINE void Think(void) const;
+	void GameShutDown(void);
+	void State_NewGame(void);
 
-	FORCEINLINE void GameShutDown(void);
-	FORCEINLINE void State_NewGame(void);
+	void State_ChangeLevelSP(void);
+	void State_ChangeLevelMP(void);
 
-	FORCEINLINE void State_ChangeLevelSP(void);
-	FORCEINLINE void State_ChangeLevelMP(void);
-
-	FORCEINLINE void ResetLevelName(void);
+	void ResetLevelName(void);
 
 public:
 	HostStates_t m_iCurrentState;                    //0x0000
