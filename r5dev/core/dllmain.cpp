@@ -85,7 +85,8 @@ void SDK_Shutdown()
     DirectX_Shutdown();
 #endif // !DEDICATED
 
-    FreeConsole();
+    Console_Shutdown();
+    SpdLog_Shutdown();
 }
 
 //#############################################################################

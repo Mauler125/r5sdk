@@ -562,7 +562,12 @@ long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 
 	// Kill on recursive call.
 	if (g_CrashHandler->GetState())
+	{
+		// Shutdown SpdLog to flush all buffers.
+		SpdLog_Shutdown();
 		ExitProcess(1u);
+	}
+
 	g_CrashHandler->SetState(true);
 
 	g_CrashHandler->FormatCrash();

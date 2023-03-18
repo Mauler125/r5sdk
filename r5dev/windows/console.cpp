@@ -120,6 +120,20 @@ void Console_Init()
 	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: terminal window shutdown
+//-----------------------------------------------------------------------------
+void Console_Shutdown()
+{
+	///////////////////////////////////////////////////////////////////////////
+	// Destroy the console window
+	if (FreeConsole() == FALSE)
+	{
+		OutputDebugStringA("Failed to destroy console window!\n");
+		return;
+	}
+}
+
 //#############################################################################
 // WORKER THREAD
 //#############################################################################

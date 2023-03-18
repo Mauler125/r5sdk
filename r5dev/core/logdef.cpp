@@ -2,7 +2,7 @@
 #include "core/logdef.h"
 
 //#############################################################################
-// SPDLOG SETUP
+// SPDLOG INIT
 //#############################################################################
 void SpdLog_Init(void)
 {
@@ -65,6 +65,9 @@ void SpdLog_Init(void)
 	bInitialized = true;
 }
 
+//#############################################################################
+// SPDLOG POST INIT
+//#############################################################################
 void SpdLog_PostInit()
 {
 	std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
@@ -79,4 +82,12 @@ void SpdLog_PostInit()
 	}
 	else { wconsole->set_pattern("%v"); }
 	g_bSpdLog_PostInit = true;
+}
+
+//#############################################################################
+// SPDLOG SHUTDOWN
+//#############################################################################
+void SpdLog_Shutdown()
+{
+	spdlog::shutdown();
 }

@@ -15,3 +15,4 @@ inline auto g_spd_sys_p_ostream_sink = std::make_shared<spdlog::sinks::ostream_s
 
 void SpdLog_Init(void);
 void SpdLog_PostInit(void);
+void SpdLog_Shutdown(void);
