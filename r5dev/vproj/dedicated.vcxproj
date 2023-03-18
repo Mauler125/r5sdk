@@ -169,14 +169,18 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <OptimizeReferences>
+      </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
-      <SetChecksum>true</SetChecksum>
+      <SetChecksum>
+      </SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
+      <LinkTimeCodeGeneration />
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex_ds.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>

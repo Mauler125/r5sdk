@@ -817,15 +817,19 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <OptimizeReferences>
+      </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\ClientSDK.def</ModuleDefinitionFile>
       <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
-      <SetChecksum>true</SetChecksum>
+      <SetChecksum>
+      </SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
+      <LinkTimeCodeGeneration />
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\bin\x64_retail\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\x64_retail\</Command>

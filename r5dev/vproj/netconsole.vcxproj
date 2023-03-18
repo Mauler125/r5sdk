@@ -275,12 +275,16 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <OptimizeReferences>
+      </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
-      <SetChecksum>true</SetChecksum>
+      <SetChecksum>
+      </SetChecksum>
+      <LinkTimeCodeGeneration />
     </Link>
     <PreBuildEvent>
       <Command>
@@ -375,12 +379,16 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <OptimizeReferences>
+      </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
-      <SetChecksum>true</SetChecksum>
+      <SetChecksum>
+      </SetChecksum>
+      <LinkTimeCodeGeneration />
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\$(ProjectName).exe" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\</Command>
