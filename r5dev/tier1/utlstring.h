@@ -175,17 +175,6 @@ public:
 	CUtlString( CUtlString&& moveFrom );    // = default;
 	CUtlString &operator=( CUtlString&& moveFrom ); // = default;
 #endif
-	~CUtlString()
-	{
-		// Has to be explicitly called due to the
-		// current design of our SDK. Unlike other
-		// Source Engine games, we couldn't import
-		// the memalloc singleton as the executable
-		// is monolithic; we obtain it post init
-		// (too late for binding it against the
-		// new/delete operators..).
-		m_Storage.~CUtlBinaryBlock();
-	}
 
 	// Also can assign from a regular C-style string
 	CUtlString &operator=( const char *src );
