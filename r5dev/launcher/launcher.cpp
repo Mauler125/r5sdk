@@ -5,6 +5,7 @@
 // $NoKeywords: $
 //===========================================================================//
 #include "core/stdafx.h"
+#include "core/logdef.h"
 #include "tier0/crashhandler.h"
 #include "tier0/commandline.h"
 #include "tier1/strtools.h"
@@ -30,6 +31,8 @@ int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 
 int LauncherMain(HINSTANCE hInstance)
 {
+	SpdLog_PostInit();
+
 	int results = v_LauncherMain(hInstance);
 	spdlog::info("LauncherMain returned: {:s}\n", ExitCodeToString(results));
 	return results;

@@ -184,10 +184,6 @@ void Systems_Init()
 	spdlog::info("+-------------------------------------------------------------+\n");
 
 	ConVar::Init();
-	SpdLog_PostInit();
-
-	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
-	fixed.detach();
 }
 
 //////////////////////////////////////////////////////////////////////////

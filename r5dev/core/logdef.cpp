@@ -60,8 +60,6 @@ void SpdLog_Init(void)
 	}
 
 	spdlog::set_level(spdlog::level::trace);
-	spdlog::flush_every(std::chrono::seconds(5)); // Flush buffers every 5 seconds for every logger.
-
 	bInitialized = true;
 }
 
@@ -70,6 +68,8 @@ void SpdLog_Init(void)
 //#############################################################################
 void SpdLog_PostInit()
 {
+	spdlog::flush_every(std::chrono::seconds(5)); // Flush buffers every 5 seconds for every logger.
+
 	std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 

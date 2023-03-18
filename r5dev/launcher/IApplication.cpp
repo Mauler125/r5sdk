@@ -16,6 +16,7 @@
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"
 #include "engine/sys_dll2.h"
+#include "engine/sdk_dll.h"
 #include "engine/host_cmd.h"
 #include "engine/enginetrace.h"
 #include "engine/server/sv_main.h"
@@ -37,6 +38,9 @@
 //-----------------------------------------------------------------------------
 int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 {
+	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
+	fixed.detach();
+
 	int nRunResult = RUN_OK;
 	HEbisuSDK_Init(); // Not here in retail. We init EbisuSDK here though.
 
