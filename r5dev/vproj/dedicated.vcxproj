@@ -93,6 +93,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +128,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <OmitFramePointers>false</OmitFramePointers>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -166,6 +168,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\;$(SolutionDir)r5dev\thirdparty\recast\</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

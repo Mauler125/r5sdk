@@ -476,6 +476,7 @@
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL /D CURL_STATICLIB  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\curl\include\;$(SolutionDir)r5dev\thirdparty\curl\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -497,6 +498,7 @@
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\curl\include\;$(SolutionDir)r5dev\thirdparty\curl\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -523,6 +525,7 @@
       <Optimization>Full</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <StringPooling>true</StringPooling>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -543,6 +546,7 @@
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL /D CURL_STATICLIB  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\curl\include\;$(SolutionDir)r5dev\thirdparty\curl\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -565,6 +569,7 @@
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\curl\include\;$(SolutionDir)r5dev\thirdparty\curl\;$(SolutionDir)r5dev\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -591,6 +596,7 @@
       <Optimization>Full</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <StringPooling>true</StringPooling>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

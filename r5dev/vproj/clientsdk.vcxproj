@@ -726,6 +726,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/D GAMESDK /D CLIENT_DLL /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -768,6 +769,7 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalOptions>/D GAMESDK /D CLIENT_DLL /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -814,6 +816,7 @@
       <AdditionalOptions>/D GAMESDK /D CLIENT_DLL /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
