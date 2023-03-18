@@ -1,6 +1,10 @@
 #pragma once
 #pragma message("Pre-compiling headers.\n")
 
+#if defined(_DEBUG) || defined(_PROFILE)
+#pragma message ("Profiling is turned on; do not release this binary!\n")
+#endif // _DEBUG || _PROFILE
+
 #define WIN32_LEAN_AND_MEAN // Prevent winsock2 redefinition.
 #include <windows.h>
 #include <WinSock2.h>
