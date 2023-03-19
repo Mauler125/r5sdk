@@ -565,6 +565,11 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CUIBaseSurface::ParseMaps()
 {
+	if (!fs::exists("vpk"))
+	{
+		return;
+	}
+
 	fs::directory_iterator fsDir("vpk");
 	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 	std::smatch smRegexMatches;

@@ -5,20 +5,25 @@
 class CLauncher
 {
 public:
-    CLauncher()
+    CLauncher(const char* pszLoggerName)
     {
-        m_svCurrentDir = fs::current_path().u8string();
+		m_pSurface = nullptr;
+		m_pLogger = spdlog::stdout_color_mt(pszLoggerName);
+		m_svCurrentDir = fs::current_path().u8string();
     }
     ~CLauncher()
     {
-        delete[] m_pSurface;
+		if (m_pSurface)
+		{
+			delete m_pSurface;
+		}
     }
     template <typename T, typename ...P>
     void AddLog(spdlog::level::level_enum nLevel, T&& svFormat, P &&... vParams)
     {
         String svBuffer = fmt::format(std::forward<T>(svFormat), std::forward<P>(vParams)...).c_str();
-        wconsole->log(nLevel, svBuffer.ToCString());
-        wconsole->flush();
+        m_pLogger->log(nLevel, svBuffer.ToCString());
+        m_pLogger->flush();
 
         if (m_pSurface)
         {
@@ -41,12 +46,13 @@ public:
     CUIBaseSurface* GetMainSurface() const { return m_pSurface; }
 
 private:
-    CUIBaseSurface* m_pSurface = nullptr;
-    std::shared_ptr<spdlog::logger> wconsole = spdlog::stdout_color_mt("win_console");
+    CUIBaseSurface* m_pSurface;
+	std::shared_ptr<spdlog::logger> m_pLogger;
 
     string m_svWorkerDll;
     string m_svGameExe;
     string m_svCmdLine;
     string m_svCurrentDir;
 };
-inline CLauncher* g_pLauncher = new CLauncher();
+
+extern CLauncher* g_pLauncher;

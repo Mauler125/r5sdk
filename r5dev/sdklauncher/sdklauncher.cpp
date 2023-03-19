@@ -32,9 +32,9 @@ void CLauncher::InitConsole()
 ///////////////////////////////////////////////////////////////////////////////
 void CLauncher::InitLogger()
 {
-    wconsole->set_pattern("[%^%l%$] %v");
-    wconsole->set_level(spdlog::level::trace);
-    spdlog::set_default_logger(wconsole); // Set as default.
+    m_pLogger->set_pattern("[%^%l%$] %v");
+    m_pLogger->set_level(spdlog::level::trace);
+    spdlog::set_default_logger(m_pLogger); // Set as default.
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -265,7 +265,7 @@ int CLauncher::HandleInput()
         }
         catch (std::exception& e)
         {
-            g_pLauncher->AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input. Error: {:s}.\n", e.what());
+            g_pLauncher->AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input; error: {:s}.\n", e.what());
             Sleep(2000);
             return EXIT_FAILURE;
         }
@@ -285,7 +285,7 @@ int CLauncher::HandleInput()
 bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
 {
     ///////////////////////////////////////////////////////////////////////////
-    std::string svCmdLineArgs              = std::string();
+    std::string svCmdLineArgs;
 
     ///////////////////////////////////////////////////////////////////////////
     switch (lMode)
@@ -612,3 +612,8 @@ int main(int argc, char* argv[], char* envp[])
     }
     return EXIT_SUCCESS;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Singleton Launcher.
+///////////////////////////////////////////////////////////////////////////////
+CLauncher* g_pLauncher(new CLauncher("win_console"));
