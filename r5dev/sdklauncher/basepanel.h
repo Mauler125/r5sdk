@@ -38,8 +38,8 @@ private:
 
 	eLaunchMode BuildParameter(string& svParameter);
 
+	void AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument = nullptr);
 	void AppendReservedCoreCount(string& svParameter);
-
 	void AppendConsoleParameters(string& svParameter);
 	void AppendVideoParameters(string& svParameter);
 	void AppendHostParameters(string& svParameter);

@@ -543,7 +543,8 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 	fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_launcher.cfg";
 
 	ifstream cfgFile(cfgPath);
-	string svParameter = "-launcher\n";
+	string svParameter;
+	pSurface->AppendParameterInternal(svParameter, "-launcher");
 
 	if (cfgFile.good() && cfgFile)
 	{
@@ -552,7 +553,10 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 		svParameter.append(ss.str() + '\n');
 	}
 	else
-		pSurface->m_LogList.push_back(LogList_t(spdlog::level::warn, "Unable to load 'startup_launcher.cfg'\n"));
+	{
+		string svError = Format("Unable to load '%s'\n", "startup_launcher.cfg");
+		pSurface->m_LogList.push_back(LogList_t(spdlog::level::warn, svError.c_str()));
+	}
 
 	eLaunchMode launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
 
@@ -607,8 +611,7 @@ void CUIBaseSurface::ParseMaps()
 //-----------------------------------------------------------------------------
 void CUIBaseSurface::ParsePlaylists()
 {
-	const string svBaseDir = "platform\\";
-	fs::path fsPlaylistPath(svBaseDir + this->m_PlaylistFileTextBox->Text().ToCString());
+	fs::path fsPlaylistPath(Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString()));
 
 	m_PlaylistCombo->Items.Add("");
 	if (fs::exists(fsPlaylistPath))
@@ -620,7 +623,8 @@ void CUIBaseSurface::ParsePlaylists()
 		if (bOk)
 		{
 			const auto& vcPlaylists = vRoot.childs.at("Playlists");
-			for (auto [id, it] = std::tuple{ 1, vcPlaylists->childs.begin()}; it != vcPlaylists->childs.end(); id++, it++)
+			for (auto[id, it] = std::tuple<int, decltype(vcPlaylists->childs.begin())>
+				{ 1, vcPlaylists->childs.begin() }; it != vcPlaylists->childs.end(); id++, it++)
 			{
 				if (!this->m_PlaylistCombo->Items.Contains(it->first.c_str()))
 				{
@@ -662,7 +666,7 @@ void CUIBaseSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs
 
 	string svClipBoard;
 	for (uint32_t i = 0; i < lSelected.Count(); i++)
-		svClipBoard.append(pSurface->m_LogList[lSelected[i]].m_svText);
+		svClipBoard.append(pSurface->m_LogList[lSelected[i]].m_svText.ToCString());
 
 	clip::set_text(svClipBoard);
 }
@@ -728,7 +732,7 @@ void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
 	{
 		const String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
 		const char* szCommand = kzCommand.ToCString();
-		COPYDATASTRUCT cData = { 0, strnlen_s(szCommand, 259) + 1, (void*)szCommand };
+		COPYDATASTRUCT cData = { 0, (DWORD)strnlen_s(szCommand, 259) + 1, (void*)szCommand };
 
 		bool bProcessingMessage = SendMessageA(hWindow, WM_COPYDATA, NULL, (LPARAM)&cData); // WM_COPYDATA will only return 0 or 1, that's why we use a boolean.
 		if (bProcessingMessage)
@@ -742,6 +746,20 @@ void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: formats and appends parameters, arguments to the parameter list
+// Input  : &svParameterList - 
+//			*szParameter - 
+//			*szArgument - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument /*= nullptr*/)
+{
+	if (szArgument)
+		svParameterList.append(Format("%s \"%s\"\n", szParameter, szArgument));
+	else
+		svParameterList.append(Format("%s\n", szParameter));
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: appends the reversed core count value to the command line buffer
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
@@ -750,12 +768,9 @@ void CUIBaseSurface::AppendReservedCoreCount(string& svParameters)
 	int nReservedCores = atoi(this->m_ReservedCoresTextBox->Text().ToCString());
 	if (nReservedCores > -1) // A reserved core count of 0 seems to crash the game on some systems.
 	{
-		svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\"\n");
+		AppendParameterInternal(svParameters, "-numreservedcores", 
+			this->m_ReservedCoresTextBox->Text().ToCString());
 	}
-
-	int nWorkerThreads = atoi(this->m_WorkerThreadsTextBox->Text().ToCString());
-	if (nWorkerThreads > -1)
-		svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\"\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -765,13 +780,14 @@ void CUIBaseSurface::AppendReservedCoreCount(string& svParameters)
 void CUIBaseSurface::AppendConsoleParameters(string& svParameters)
 {
 	if (this->m_ConsoleToggle->Checked())
-		svParameters.append("-wconsole\n");
+		AppendParameterInternal(svParameters, "-wconsole");
 
 	if (this->m_ColorConsoleToggle->Checked())
-		svParameters.append("-ansiclr\n");
+		AppendParameterInternal(svParameters, "-ansiclr");
 
 	if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
-		svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\"\n");
+		AppendParameterInternal(svParameters, "-playlistfile", 
+			this->m_PlaylistFileTextBox->Text().ToCString());
 }
 
 //-----------------------------------------------------------------------------
@@ -781,23 +797,26 @@ void CUIBaseSurface::AppendConsoleParameters(string& svParameters)
 void CUIBaseSurface::AppendVideoParameters(string& svParameters)
 {
 	if (this->m_WindowedToggle->Checked())
-		svParameters.append("-windowed\n");
+		AppendParameterInternal(svParameters, "-windowed");
 	else
-		svParameters.append("-fullscreen\n");
+		AppendParameterInternal(svParameters, "-fullscreen");
 
 	if (this->m_NoBorderToggle->Checked())
-		svParameters.append("-noborder\n");
+		AppendParameterInternal(svParameters, "-noborder");
 	else
-		svParameters.append("-forceborder\n");
+		AppendParameterInternal(svParameters, "-forceborder");
 
 	if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
-		svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");
+		AppendParameterInternal(svParameters, "+fps_max", 
+			this->m_FpsTextBox->Text().ToCString());
 
 	if (!String::IsNullOrEmpty(this->m_WidthTextBox->Text()))
-		svParameters.append("-w \"" + this->m_WidthTextBox->Text() + "\"\n");
+		AppendParameterInternal(svParameters, "-w", 
+			this->m_WidthTextBox->Text().ToCString());
 
 	if (!String::IsNullOrEmpty(this->m_HeightTextBox->Text()))
-		svParameters.append("-h \"" + this->m_HeightTextBox->Text() + "\"\n");
+		AppendParameterInternal(svParameters, "-h", 
+			this->m_HeightTextBox->Text().ToCString());
 }
 
 //-----------------------------------------------------------------------------
@@ -808,26 +827,24 @@ void CUIBaseSurface::AppendHostParameters(string& svParameters)
 {
 	if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
 	{
-		svParameters.append("+hostname \"" + this->m_HostNameTextBox->Text() + "\"\n");
+		AppendParameterInternal(svParameters, "+hostname", this->m_HostNameTextBox->Text().ToCString());
+		const char* szMode = "0"; // '0' = Offline (default).
 
 		switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
 		{
 		case eVisibility::PUBLIC:
 		{
-			svParameters.append("+sv_pylonVisibility \"2\"\n");
+			szMode = "2";
 			break;
 		}
 		case eVisibility::HIDDEN:
 		{
-			svParameters.append("+sv_pylonVisibility \"1\"\n");
-			break;
-		}
-		default:
-		{
-			svParameters.append("+sv_pylonVisibility \"0\"\n");
+			szMode = "1";
 			break;
 		}
 		}
+
+		AppendParameterInternal(svParameters, "+sv_pylonVisibility", szMode);
 	}
 }
 
@@ -838,16 +855,16 @@ void CUIBaseSurface::AppendHostParameters(string& svParameters)
 void CUIBaseSurface::AppendNetParameters(string& svParameters)
 {
 	if (this->m_NetEncryptionToggle->Checked())
-		svParameters.append("+net_encryptionEnable \"1\"\n");
+		AppendParameterInternal(svParameters, "+net_encryptionEnable", "1");
 
 	if (this->m_NetRandomKeyToggle->Checked())
-		svParameters.append("+net_useRandomKey \"1\"\n");
+		AppendParameterInternal(svParameters, "+net_useRandomKey", "1");
 
 	if (this->m_NoQueuedPacketThread->Checked())
-		svParameters.append("+net_queued_packet_thread \"0\"\n");
+		AppendParameterInternal(svParameters, "+net_queued_packet_thread", "0");
 
 	if (this->m_NoTimeOutToggle->Checked())
-		svParameters.append("-notimeout\n");
+		AppendParameterInternal(svParameters, "-notimeout");
 }
 
 //-----------------------------------------------------------------------------
@@ -858,6 +875,7 @@ void CUIBaseSurface::AppendNetParameters(string& svParameters)
 eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 {
 	eLaunchMode results = eLaunchMode::LM_NONE;
+	return results;
 
 	switch (static_cast<eMode>(this->m_ModeCombo->SelectedIndex()))
 	{
@@ -866,16 +884,16 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		// GAME ###############################################################
 		if (!String::IsNullOrEmpty(this->m_MapCombo->Text()))
 		{
-			svParameters.append("+map \"" + this->m_MapCombo->Text() + "\"\n");
+			AppendParameterInternal(svParameters, "+map", this->m_MapCombo->Text().ToCString());
 		}
 		if (!String::IsNullOrEmpty(this->m_PlaylistCombo->Text()))
 		{
-			svParameters.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\"\n");
+			AppendParameterInternal(svParameters, "+launchplaylist", this->m_PlaylistCombo->Text().ToCString());
 		}
 		if (this->m_DeveloperToggle->Checked())
 		{
-			svParameters.append("-dev\n");
-			svParameters.append("-devsdk\n");
+			AppendParameterInternal(svParameters, "-dev");
+			AppendParameterInternal(svParameters, "-devsdk");
 			results = eLaunchMode::LM_HOST_DEV;
 		}
 		else
@@ -883,8 +901,8 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		if (this->m_CheatsToggle->Checked())
 		{
-			svParameters.append("-dev\n");
-			svParameters.append("-showdevmenu\n");
+			AppendParameterInternal(svParameters, "-dev");
+			AppendParameterInternal(svParameters, "-showdevmenu");
 		}
 
 		this->AppendConsoleParameters(svParameters);
@@ -893,25 +911,25 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		this->AppendReservedCoreCount(svParameters);
 
 		if (this->m_SingleCoreDediToggle->Checked())
-			svParameters.append("+sv_single_core_dedi \"1\"\n");
+			AppendParameterInternal(svParameters, "+sv_single_core_dedi", "1");
 
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
-			svParameters.append("-noasync\n");
-			svParameters.append("+async_serialize \"0\"\n");
-			svParameters.append("+buildcubemaps_async \"0\"\n");
-			svParameters.append("+sv_asyncAIInit \"0\"\n");
-			svParameters.append("+sv_asyncSendSnapshot \"0\"\n");
-			svParameters.append("+sv_scriptCompileAsync \"0\"\n");
-			svParameters.append("+cl_scriptCompileAsync \"0\"\n");
-			svParameters.append("+cl_async_bone_setup \"0\"\n");
-			svParameters.append("+cl_updatedirty_async \"0\"\n");
-			svParameters.append("+mat_syncGPU \"1\"\n");
-			svParameters.append("+mat_sync_rt \"1\"\n");
-			svParameters.append("+mat_sync_rt_flushes_gpu \"1\"\n");
-			svParameters.append("+net_async_sendto \"0\"\n");
-			svParameters.append("+physics_async_sv \"0\"\n");
-			svParameters.append("+physics_async_cl \"0\"\n");
+			AppendParameterInternal(svParameters, "-noasync");
+			AppendParameterInternal(svParameters, "+async_serialize", "0");
+			AppendParameterInternal(svParameters, "+buildcubemaps_async", "0");
+			AppendParameterInternal(svParameters, "+sv_asyncAIInit", "0");
+			AppendParameterInternal(svParameters, "+sv_asyncSendSnapshot", "0");
+			AppendParameterInternal(svParameters, "+sv_scriptCompileAsync", "0");
+			AppendParameterInternal(svParameters, "+cl_scriptCompileAsync", "0");
+			AppendParameterInternal(svParameters, "+cl_async_bone_setup", "0");
+			AppendParameterInternal(svParameters, "+cl_updatedirty_async", "0");
+			AppendParameterInternal(svParameters, "+mat_syncGPU", "1");
+			AppendParameterInternal(svParameters, "+mat_sync_rt", "1");
+			AppendParameterInternal(svParameters, "+mat_sync_rt_flushes_gpu", "1");
+			AppendParameterInternal(svParameters, "+net_async_sendto", "0");
+			AppendParameterInternal(svParameters, "+physics_async_sv", "0");
+			AppendParameterInternal(svParameters, "+physics_async_cl", "0");
 		}
 
 		this->AppendHostParameters(svParameters);
@@ -919,7 +937,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		this->AppendVideoParameters(svParameters);
 
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
-			svParameters.append(this->m_LaunchArgsTextBox->Text());
+			AppendParameterInternal(svParameters, this->m_LaunchArgsTextBox->Text().ToCString());
 
 		return results;
 	}
@@ -928,23 +946,23 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		// GAME ###############################################################
 		if (!String::IsNullOrEmpty(this->m_MapCombo->Text()))
 		{
-			svParameters.append("+map \"" + this->m_MapCombo->Text() + "\"\n");
+			AppendParameterInternal(svParameters, "+map", this->m_MapCombo->Text().ToCString());
 		}
 		if (!String::IsNullOrEmpty(this->m_PlaylistCombo->Text()))
 		{
-			svParameters.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\"\n");
+			AppendParameterInternal(svParameters, "+launchplaylist", this->m_PlaylistCombo->Text().ToCString());
 		}
 		if (this->m_DeveloperToggle->Checked())
 		{
-			svParameters.append("-dev\n");
-			svParameters.append("-devsdk\n");
+			AppendParameterInternal(svParameters, "-dev");
+			AppendParameterInternal(svParameters, "-devsdk");
 			results = eLaunchMode::LM_SERVER_DEV;
 		}
 		else
 			results = eLaunchMode::LM_SERVER;
 
 		if (this->m_CheatsToggle->Checked())
-			svParameters.append("+sv_cheats \"1\"\n");
+			AppendParameterInternal(svParameters, "+sv_cheats", "1");
 
 		this->AppendConsoleParameters(svParameters);
 
@@ -952,36 +970,36 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		this->AppendReservedCoreCount(svParameters);
 
 		if (this->m_SingleCoreDediToggle->Checked())
-			svParameters.append("+sv_single_core_dedi \"1\"\n");
+			AppendParameterInternal(svParameters, "+sv_single_core_dedi", "1");
 
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
-			svParameters.append("-noasync\n");
-			svParameters.append("+async_serialize \"0\"\n");
-			svParameters.append("+sv_asyncAIInit \"0\"\n");
-			svParameters.append("+sv_asyncSendSnapshot \"0\"\n");
-			svParameters.append("+sv_scriptCompileAsync \"0\"\n");
-			svParameters.append("+physics_async_sv \"0\"\n");
+			AppendParameterInternal(svParameters, "-noasync");
+			AppendParameterInternal(svParameters, "+async_serialize", "0");
+			AppendParameterInternal(svParameters, "+sv_asyncAIInit", "0");
+			AppendParameterInternal(svParameters, "+sv_asyncSendSnapshot", "0");
+			AppendParameterInternal(svParameters, "+sv_scriptCompileAsync", "0");
+			AppendParameterInternal(svParameters, "+physics_async_sv", "0");
 		}
 
 		this->AppendHostParameters(svParameters);
 		this->AppendNetParameters(svParameters);
 
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
-			svParameters.append(this->m_LaunchArgsTextBox->Text());
+			AppendParameterInternal(svParameters, this->m_LaunchArgsTextBox->Text().ToCString());
 
 		return results;
 	}
 	case eMode::CLIENT:
 	{
-		svParameters.append("-noworkerdll\n"); // This prevents init of worker dll 
+		AppendParameterInternal(svParameters, "-noworkerdll"); // This prevents init of worker dll 
 		//(this dll is always imported, but we want client.dll to do the work instead).
 
 		// GAME ###############################################################
 		if (this->m_DeveloperToggle->Checked())
 		{
-			svParameters.append("-dev\n");
-			svParameters.append("-devsdk\n");
+			AppendParameterInternal(svParameters, "-dev");
+			AppendParameterInternal(svParameters, "-devsdk");
 			results = eLaunchMode::LM_CLIENT_DEV;
 		}
 		else
@@ -989,8 +1007,8 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		if (this->m_CheatsToggle->Checked())
 		{
-			svParameters.append("-dev\n");
-			svParameters.append("-showdevmenu\n");
+			AppendParameterInternal(svParameters, "-dev");
+			AppendParameterInternal(svParameters, "-showdevmenu");
 		}
 
 		this->AppendConsoleParameters(svParameters);
@@ -999,21 +1017,21 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		this->AppendReservedCoreCount(svParameters);
 
 		if (this->m_SingleCoreDediToggle->Checked())
-			svParameters.append("+sv_single_core_dedi \"1\"\n");
+			AppendParameterInternal(svParameters, "+sv_single_core_dedi", "1");
 
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
-			svParameters.append("-noasync\n");
-			svParameters.append("+async_serialize \"0\"\n");
-			svParameters.append("+buildcubemaps_async \"0\"\n");
-			svParameters.append("+cl_scriptCompileAsync \"0\"\n");
-			svParameters.append("+cl_async_bone_setup \"0\"\n");
-			svParameters.append("+cl_updatedirty_async \"0\"\n");
-			svParameters.append("+mat_syncGPU \"1\"\n");
-			svParameters.append("+mat_sync_rt \"1\"\n");
-			svParameters.append("+mat_sync_rt_flushes_gpu \"1\"\n");
-			svParameters.append("+net_async_sendto \"0\"\n");
-			svParameters.append("+physics_async_cl \"0\"\n");
+			AppendParameterInternal(svParameters, "-noasync");
+			AppendParameterInternal(svParameters, "+async_serialize", "0");
+			AppendParameterInternal(svParameters, "+buildcubemaps_async", "0");
+			AppendParameterInternal(svParameters, "+cl_scriptCompileAsync", "0");
+			AppendParameterInternal(svParameters, "+cl_async_bone_setup", "0");
+			AppendParameterInternal(svParameters, "+cl_updatedirty_async", "0");
+			AppendParameterInternal(svParameters, "+mat_syncGPU", "1");
+			AppendParameterInternal(svParameters, "+mat_sync_rt", "1");
+			AppendParameterInternal(svParameters, "+mat_sync_rt_flushes_gpu", "1");
+			AppendParameterInternal(svParameters, "+net_async_sendto", "0");
+			AppendParameterInternal(svParameters, "+physics_async_cl", "0");
 		}
 
 		this->AppendNetParameters(svParameters);
@@ -1021,7 +1039,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		// MAIN ###############################################################
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
-			svParameters.append(this->m_LaunchArgsTextBox->Text());
+			AppendParameterInternal(svParameters, this->m_LaunchArgsTextBox->Text().ToCString());
 
 		return results;
 	}
