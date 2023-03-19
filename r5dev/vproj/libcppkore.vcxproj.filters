@@ -18,9 +18,6 @@
     <Filter Include="Header Files\Data">
       <UniqueIdentifier>{b84aef37-f23a-485e-ae6d-3b197fe20e3c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Data">
-      <UniqueIdentifier>{164a360e-4c3f-403d-8580-dd9b0f81a232}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Threading">
       <UniqueIdentifier>{bde97faa-f1dd-4c3b-acc6-55fe7bdb1ce4}</UniqueIdentifier>
     </Filter>
@@ -51,12 +48,6 @@
     <Filter Include="Source Files\Win32">
       <UniqueIdentifier>{a13074c4-3469-4489-b9d1-21348f5b3e88}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Compression">
-      <UniqueIdentifier>{374ef221-c5aa-48c9-b7e9-5fa7e662c8db}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Compression">
-      <UniqueIdentifier>{4781918a-7243-4750-a76b-394d3bca0267}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Forms">
       <UniqueIdentifier>{b3f9ae8f-54a1-433b-850d-2dace70a1439}</UniqueIdentifier>
     </Filter>
@@ -74,18 +65,6 @@
     </Filter>
     <Filter Include="Source Files\Drawing">
       <UniqueIdentifier>{55e4197d-9b85-4410-bdac-e27fd91d46be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Assets">
-      <UniqueIdentifier>{4afecb02-c985-41b4-adb2-26f3d5c90552}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Assets">
-      <UniqueIdentifier>{c1bdba66-5788-4c22-99d8-fab0836cbff6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Assets\Exporters">
-      <UniqueIdentifier>{3d66bc92-7d2e-47ed-a18d-1af3fec5d2e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Assets\Exporters">
-      <UniqueIdentifier>{b1907ef1-dedc-4ec2-916a-aec6de1d2715}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Hashing">
       <UniqueIdentifier>{bcfb9225-7966-41c7-bf52-4c817c907953}</UniqueIdentifier>
@@ -146,45 +125,6 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Stream.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\SeekOrigin.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileStream.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileMode.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileAccess.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileShare.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\BinaryReader.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\MemoryStream.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\BinaryWriter.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\IOError.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessStream.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessReader.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Pattern.h">
-      <Filter>Header Files\Data</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\Path.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
@@ -200,21 +140,6 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\stdext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\File.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Directory.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextReader.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\StreamReader.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextWriter.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\Thread.h">
       <Filter>Header Files\Threading</Filter>
     </ClInclude>
@@ -223,9 +148,6 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\Task.h">
       <Filter>Header Files\Threading</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\StreamWriter.h">
-      <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\Process.h">
       <Filter>Header Files\Diagnostics</Filter>
@@ -290,23 +212,11 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleKeyInfo.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleStream.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\__ConsoleInit.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleColor.h">
       <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZ4Stream.h">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\CompressionMode.h">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZ4Codec.h">
-      <Filter>Header Files\Compression</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\Application.h">
       <Filter>Header Files\Forms</Filter>
@@ -443,59 +353,14 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxOptions.h">
       <Filter>Header Files\Forms</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Model.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Bone.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\BoneFlags.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Mesh.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Face.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Vertex.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\VertexBuffer.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Material.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Exporter.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ImmutableStringBase.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\WavefrontOBJ.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\XXHash.h">
       <Filter>Header Files\Hashing</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\ValveSMD.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\XNALaraAscii.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\XNALaraBinary.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\Half.h">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\CoDXAssetExport.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\AutodeskMaya.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\CRC32.h">
       <Filter>Header Files\Hashing</Filter>
@@ -503,14 +368,8 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\OpenGLViewport.h">
       <Filter>Header Files\Forms</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderViewCamera.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\MathHelper.h">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderShader.h">
-      <Filter>Header Files\Assets</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\Mangler.h">
       <Filter>Header Files\MGL</Filter>
@@ -556,9 +415,6 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\PaintFrameEventArgs.h">
       <Filter>Header Files\Forms\EventArgs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Icon.h">
-      <Filter>Header Files\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\DropTarget.h">
       <Filter>Header Files\Forms</Filter>
@@ -617,9 +473,6 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\RetrieveVirtualItemEventArgs.h">
       <Filter>Header Files\Forms\EventArgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZHAMCodec.h">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewVirtualItemsSelectionRangeChangedEventArgs.h">
       <Filter>Header Files\Forms\EventArgs</Filter>
     </ClInclude>
@@ -644,9 +497,6 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ToolTipIcon.h">
       <Filter>Header Files\Forms</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\DDS.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\DictionaryBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -656,32 +506,8 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\HashComparer.h">
       <Filter>Header Files\Hashing</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\SEAsset.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Animation.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXButton.h">
       <Filter>Header Files\UIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\UnrealEngine.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZLibCodec.h">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\DeflateCodec.h">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZO1XCodec.h">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Texture.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextureGPUDecoder.h">
-      <Filter>Header Files\Assets</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ContainerControl.h">
       <Filter>Header Files\Forms</Filter>
@@ -694,9 +520,6 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\FontArial.h">
       <Filter>Header Files\MGL\Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderFont.h">
-      <Filter>Header Files\Assets</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ModelVertexShader.h">
       <Filter>Header Files\MGL\Shaders</Filter>
@@ -713,12 +536,6 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXProgressBar.h">
       <Filter>Header Files\UIX</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\KaydaraFBXContainer.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\KaydaraFBX.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXCheckBox.h">
       <Filter>Header Files\UIX</Filter>
     </ClInclude>
@@ -733,15 +550,6 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXTextBox.h">
       <Filter>Header Files\UIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZipArchive.h">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZipEntry.h">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\DeflateStream.h">
-      <Filter>Header Files\Compression</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\Uri.h">
       <Filter>Header Files\Net</Filter>
@@ -776,9 +584,6 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\SaveFileDialog.h">
       <Filter>Header Files\Forms</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\WAV.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\TextRenderer.h">
       <Filter>Header Files\Drawing</Filter>
     </ClInclude>
@@ -787,21 +592,6 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ParallelTask.h">
       <Filter>Header Files\Threading</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\AssetRenderer.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\CastAsset.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\CastNode.h">
-      <Filter>Header Files\Assets\Exporters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\AnimationTypes.h">
-      <Filter>Header Files\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Curve.h">
-      <Filter>Header Files\Assets</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\cppnet\cppkore\resource.h">
       <Filter>Header Files</Filter>
@@ -839,58 +629,19 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\clipboard\clip_lock_impl.h">
       <Filter>Header Files\Clipboard</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Icon.h">
+      <Filter>Header Files\Drawing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\FileStream.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\BinaryReader.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\MemoryStream.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\BinaryWriter.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\IOError.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\ProcessStream.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\ProcessReader.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Pattern.cpp">
-      <Filter>Source Files\Data</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Path.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\File.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Directory.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextReader.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\StreamReader.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Thread.cpp">
       <Filter>Source Files\Threading</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextWriter.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\StreamWriter.cpp">
-      <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Process.cpp">
       <Filter>Source Files\Diagnostics</Filter>
@@ -922,20 +673,11 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Console.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\ConsoleStream.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\__ConsoleInit.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\ConsoleColor.cpp">
       <Filter>Source Files\System</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZ4Stream.cpp">
-      <Filter>Source Files\Compression</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZ4Codec.cpp">
-      <Filter>Source Files\Compression</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Application.cpp">
       <Filter>Source Files\Forms</Filter>
@@ -1000,50 +742,11 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\TextBoxBase.cpp">
       <Filter>Source Files\Forms</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Bone.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Model.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Face.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Mesh.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\VertexBuffer.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Vertex.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Material.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\WavefrontOBJ.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\XXHash.cpp">
       <Filter>Source Files\Hashing</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\ValveSMD.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\XNALaraAscii.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\XNALaraBinary.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Half.cpp">
       <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\CoDXAssetExport.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\AutodeskMaya.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\CRC32.cpp">
       <Filter>Source Files\Hashing</Filter>
@@ -1051,17 +754,11 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\OpenGLViewport.cpp">
       <Filter>Source Files\Forms</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderViewCamera.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Mangler.cpp">
       <Filter>Source Files\MGL</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Mangle.cpp">
       <Filter>Source Files\MGL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderShader.cpp">
-      <Filter>Source Files\Assets</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\TextBox.cpp">
       <Filter>Source Files\Forms</Filter>
@@ -1077,9 +774,6 @@
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\PaintFrameEventArgs.cpp">
       <Filter>Source Files\Forms\EventArgs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Icon.cpp">
-      <Filter>Source Files\Drawing</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\DropTarget.cpp">
       <Filter>Source Files\Forms</Filter>
@@ -1114,9 +808,6 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\RetrieveVirtualItemEventArgs.cpp">
       <Filter>Source Files\Forms\EventArgs</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZHAMCodec.cpp">
-      <Filter>Source Files\Compression</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\ListViewVirtualItemsSelectionRangeChangedEventArgs.cpp">
       <Filter>Source Files\Forms\EventArgs</Filter>
     </ClCompile>
@@ -1135,35 +826,8 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\ToolTip.cpp">
       <Filter>Source Files\Forms</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\DDS.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\SEAsset.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Animation.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\UnrealEngine.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXButton.cpp">
       <Filter>Source Files\UIX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\ZLibCodec.cpp">
-      <Filter>Source Files\Compression</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\DeflateCodec.cpp">
-      <Filter>Source Files\Compression</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZO1XCodec.cpp">
-      <Filter>Source Files\Compression</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Texture.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextureGPUDecoder.cpp">
-      <Filter>Source Files\Assets</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\ContainerControl.cpp">
       <Filter>Source Files\Forms</Filter>
@@ -1174,9 +838,6 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawToolTipEventArgs.cpp">
       <Filter>Source Files\Drawing</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderFont.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXTheme.cpp">
       <Filter>Source Files\UIX</Filter>
     </ClCompile>
@@ -1185,12 +846,6 @@
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXProgressBar.cpp">
       <Filter>Source Files\UIX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\KaydaraFBXContainer.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\KaydaraFBX.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXCheckBox.cpp">
       <Filter>Source Files\UIX</Filter>
@@ -1203,12 +858,6 @@
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXTextBox.cpp">
       <Filter>Source Files\UIX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\ZipArchive.cpp">
-      <Filter>Source Files\Compression</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\DeflateStream.cpp">
-      <Filter>Source Files\Compression</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Uri.cpp">
       <Filter>Source Files\Net</Filter>
@@ -1237,23 +886,8 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\SaveFileDialog.cpp">
       <Filter>Source Files\Forms</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\WAV.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\TextRenderer.cpp">
       <Filter>Source Files\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\AssetRenderer.cpp">
-      <Filter>Source Files\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\CastNode.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\CastAsset.cpp">
-      <Filter>Source Files\Assets\Exporters</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Curve.cpp">
-      <Filter>Source Files\Assets</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\JobManager.cpp">
       <Filter>Source Files\Jobs</Filter>
@@ -1272,6 +906,9 @@
     </ClCompile>
     <ClCompile Include="..\thirdparty\cppnet\cppkore\clipboard\clip_win.cpp">
       <Filter>Source Files\Clipboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Icon.cpp">
+      <Filter>Source Files\Drawing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
