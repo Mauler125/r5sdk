@@ -502,7 +502,7 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 	return result;
 }
 
-#if not defined DEDICATED
+#if !defined(DEDICATED)
 
 #pragma warning( push )
 // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
@@ -830,7 +830,7 @@ void V_RTechUtils::Attach() const
 	DetourAttach(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
 #endif
 
-#if not defined DEDICATED && defined GAMEDLL_S3
+#if !defined (DEDICATED) && defined (GAMEDLL_S3)
 	DetourAttach(&RTech_CreateDXTexture, &RTech::CreateDXTexture);
 #endif // !DEDICATED
 }
@@ -843,7 +843,7 @@ void V_RTechUtils::Detach() const
 	DetourDetach(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
 #endif
 
-#if not defined DEDICATED && defined GAMEDLL_S3
+#if !defined (DEDICATED) && defined (GAMEDLL_S3)
 	DetourDetach(&RTech_CreateDXTexture, &RTech::CreateDXTexture);
 #endif // !DEDICATED
 }

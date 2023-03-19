@@ -197,7 +197,7 @@ public:
 	char* m_pszFileName; //0x0018
 	void* m_pMalloc; //0x0020
 	uint64_t* m_pAssetGuids; //0x0028 size of the array is m_nAssetCount
-#if defined GAMEDLL_S3
+#if defined (GAMEDLL_S3)
 	void* m_pVSegBuffers[4]; //0x0030
 	char pad_0050[16]; //0x0050
 	void* m_pPakInfo; //0x0060
@@ -208,7 +208,7 @@ public:
 	uint32_t m_nUnk4; //0x00A8
 	uint8_t m_nUnk5; //0x00AC
 #endif
-#if not defined GAMEDLL_S3
+#if !defined (GAMEDLL_S3)
 	char pad_0030[128]; //0x0030
 	char pad_00B0[48];  //0x00B0
 #endif // !GAMEDLL_S3
@@ -301,7 +301,7 @@ static_assert(sizeof(RPakDecompState_t) == 136);
 static_assert(sizeof(RPakPatchCompressedHeader_t) == 16);
 
 /* ==== RTECH =========================================================================================================================================================== */
-#if not defined DEDICATED
+#if !defined (DEDICATED)
 inline CMemory p_RTech_CreateDXTexture;
 inline auto RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(TextureHeader_t*, int64_t)>();
 
@@ -356,7 +356,7 @@ public:
 	static void PakProcessGuidRelationsForAsset(PakFile_t* pak, RPakAssetEntry_t* asset);
 #endif // GAMEDLL_S3
 
-#if not defined DEDICATED
+#if !defined (DEDICATED)
 	static void CreateDXTexture(TextureHeader_t* textureHeader, int64_t cpuArg);
 	void** LoadShaderSet(void** VTablePtr);
 #endif // !DEDICATED
@@ -370,12 +370,12 @@ class V_RTechUtils : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-#if not defined DEDICATED
+#if !defined (DEDICATED)
 		LogFunAdr("RTech::CreateDXTexture", p_RTech_CreateDXTexture.GetPtr());
 #endif // !DEDICATED
 		LogFunAdr("RTech::FindFreeSlotInFiles", p_RTech_FindFreeSlotInFiles.GetPtr());
 		LogFunAdr("RTech::OpenFile", p_RTech_OpenFile.GetPtr());
-#if not defined DEDICATED
+#if !defined (DEDICATED)
 		LogFunAdr("GetStreamOverlay", p_GetStreamOverlay.GetPtr());
 #endif // !DEDICATED
 		LogFunAdr("StreamDB_Init", p_StreamDB_Init.GetPtr());
@@ -396,7 +396,7 @@ class V_RTechUtils : public IDetour
 	}
 	virtual void GetFun(void) const 
 	{
-#if not defined DEDICATED
+#if !defined (DEDICATED)
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_RTech_CreateDXTexture = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 55 41 55");
 		RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*48 8B C4 48 89 48 08 53 55 41 55*/
