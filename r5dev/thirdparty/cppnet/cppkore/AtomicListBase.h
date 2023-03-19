@@ -35,7 +35,7 @@ template<typename T>
 inline void AtomicListBase<T>::Enqueue(T& Item)
 {
 	{
-		std::lock_guard lock(this->_SyncContext);
+		std::lock_guard<std::mutex> lock(this->_SyncContext);
 		this->_List.EmplaceBack(Item);
 	}
 
@@ -46,7 +46,7 @@ template<typename T>
 inline bool AtomicListBase<T>::Dequeue(T& Item)
 {
 	{
-		std::lock_guard lock(this->_SyncContext);
+		std::lock_guard<std::mutex> lock(this->_SyncContext);
 		const auto Length = this->_List.Count();
 
 		if (Length > 0)

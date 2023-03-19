@@ -5,7 +5,7 @@
 namespace System
 {
 	// This holds the global std handle for the input stream
-	__ConsoleInit Console::ConsoleInstance = __ConsoleInit();
+	__ConsoleInit Console::ConsoleInstance /*= __ConsoleInit()*/;
 
 	enum class ControlKeyState
 	{
