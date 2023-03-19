@@ -474,7 +474,7 @@ namespace vdf
                             continue;
 
                         // process value
-                        if (key != TYTI_L(charT, "#include") && key != TYTI_L(charT, "#base"))
+                        if (curObj && key != TYTI_L(charT, "#include") && key != TYTI_L(charT, "#base"))
                         {
                             curObj->add_attribute(std::move(key), std::move(value));
                         }
@@ -538,7 +538,7 @@ namespace vdf
     @param end end iterator
 
     can thow:
-            - "std::runtime_error" if a parsing error occured
+            - "std::runtime_error" if a parsing error occurred
             - "std::bad_alloc" if not enough memory coup be allocated
     */
     template <typename OutputT, typename IterT>
