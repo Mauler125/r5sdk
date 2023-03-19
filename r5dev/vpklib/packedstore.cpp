@@ -115,7 +115,7 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace) c
 		{
 			dir.disable_recursion_pending(); // Skip all ignored folders and extensions.
 		}
-		else if (dir->file_size() > 0) // Empty files are not supported.
+		else if (fs::file_size(*dir) > 0) // Empty files are not supported.
 		{
 			const string svEntryPath = dir->path().u8string();
 			if (!GetExtension(svEntryPath).empty())
@@ -165,7 +165,7 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace, K
 
 			if (pEntryKV)
 			{
-				if (!dir->file_size()) // Empty files are not supported.
+				if (!file_size(*dir)) // Empty files are not supported.
 				{
 					Warning(eDLL_T::FS, "File '%s' listed in build manifest appears truncated\n", dir->path().relative_path().u8string().c_str());
 				}

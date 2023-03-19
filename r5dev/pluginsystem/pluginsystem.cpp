@@ -19,7 +19,7 @@ void CPluginSystem::PluginSystem_Init()
 
 	for (auto& it : fs::directory_iterator("bin\\x64_retail\\plugins"))
 	{
-		if (!it.is_regular_file())
+		if (!fs::is_regular_file(it))
 			continue;
 
 		if (auto path = it.path(); path.has_filename() && path.has_extension() && path.extension().compare(".dll") == 0)
