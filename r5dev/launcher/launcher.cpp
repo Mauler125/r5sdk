@@ -34,7 +34,7 @@ int LauncherMain(HINSTANCE hInstance)
 	SpdLog_PostInit();
 
 	int results = v_LauncherMain(hInstance);
-	spdlog::info("LauncherMain returned: {:s}\n", ExitCodeToString(results));
+	spdlog::info("{:s} returned: {:s}\n", __FUNCTION__, ExitCodeToString(results));
 	return results;
 }
 
