@@ -17,7 +17,7 @@ bool CMemory::CheckOpCodes(const vector<uint8_t> vOpcodeArray) const
 	uintptr_t ref = ptr;
 
 	// Loop forward in the ptr class member.
-	for (auto [byteAtCurrentAddress, i] = std::tuple{ uint8_t(), (size_t)0 }; i < vOpcodeArray.size(); i++, ref++)
+	for (auto [byteAtCurrentAddress, i] = std::tuple<uint8_t, size_t>{ uint8_t(), (size_t)0 }; i < vOpcodeArray.size(); i++, ref++)
 	{
 		byteAtCurrentAddress = *reinterpret_cast<uint8_t*>(ref);
 
@@ -84,7 +84,7 @@ CMemory CMemory::FindPattern(const string& svPattern, const Direction searchDire
 	uint8_t* pScanBytes = reinterpret_cast<uint8_t*>(ptr); // Get the base of the module.
 
 	const vector<int> PatternBytes = PatternToBytes(svPattern); // Convert our pattern to a byte array.
-	const pair bytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+	const pair<size_t, const int*> bytesInfo = std::make_pair<size_t, const int*>(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
 	ptrdiff_t occurrences = 0;
 
 	for (long i = 01; i < opCodesToScan + bytesInfo.first; i++)
@@ -131,7 +131,7 @@ CMemory CMemory::FindPatternSelf(const string& svPattern, const Direction search
 	uint8_t* pScanBytes = reinterpret_cast<uint8_t*>(ptr); // Get the base of the module.
 
 	const vector<int> PatternBytes = PatternToBytes(svPattern); // Convert our pattern to a byte array.
-	const pair bytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+	const pair<size_t, const int*> bytesInfo = std::make_pair<size_t, const int*>(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
 	ptrdiff_t occurrences = 0;
 
 	for (long i = 01; i < opCodesToScan + bytesInfo.first; i++)

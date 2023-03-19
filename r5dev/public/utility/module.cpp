@@ -6,6 +6,7 @@
 #include "core/stdafx.h"
 #include "public/utility/utility.h"
 #include "public/utility/memaddr.h"
+#include "public/utility/sigcache.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor
@@ -152,7 +153,7 @@ CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t
 		return CMemory(nRVA + GetModuleBase());
 	}
 
-	const pair patternInfo = PatternToMaskedBytes(svPattern);
+	const pair<vector<uint8_t>, string> patternInfo = PatternToMaskedBytes(svPattern);
 	const CMemory memory = FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
 
 	g_SigCache.AddEntry(svPattern, GetRVA(memory.GetPtr()));
@@ -177,7 +178,7 @@ CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator
 	}
 
 	const vector<int> vBytes = StringToBytes(svString, bNullTerminator); // Convert our string to a byte array.
-	const pair bytesInfo = std::make_pair(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
+	const pair<size_t, const int*> bytesInfo = std::make_pair<size_t, const int*>(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
 
 	const uint8_t* pBase = reinterpret_cast<uint8_t*>(m_ReadOnlyData.m_pSectionBase); // Get start of .rdata section.
 
