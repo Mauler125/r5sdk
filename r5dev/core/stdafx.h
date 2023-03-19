@@ -32,7 +32,16 @@
 #include <iomanip>
 #include <cassert>
 #include <filesystem>
+#include <set>
 #include <unordered_set>
+
+// Windows specifics.
+#ifndef FILE_SUPPORTS_GHOSTING
+#define FILE_SUPPORTS_GHOSTING 0x40000000  // winnt
+#endif
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
 
 #if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include <d3d11.h>
