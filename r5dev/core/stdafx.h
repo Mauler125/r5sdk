@@ -95,6 +95,7 @@
 
 #include "thirdparty/curl/include/curl/curl.h"
 
+#include "common/experimental.h"
 #include "common/pseudodefs.h"
 #include "common/x86defs.h"
 #include "common/sdkdefs.h"

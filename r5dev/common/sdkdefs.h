@@ -16,8 +16,6 @@ using std::stringstream;
 using std::ostringstream;
 using std::unordered_map;
 
-namespace fs = std::filesystem;
-
 typedef DWORD ThreadId_t;
 typedef uintptr_t uintp;
 typedef intptr_t intp;

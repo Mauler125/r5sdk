@@ -317,8 +317,8 @@ void Editor::renderOverlayToolStates(double* proj, double* model, int* view)
 
 dtNavMesh* Editor::loadAll(std::string path)
 {
-	std::filesystem::path p = "..\\maps\\navmesh\\";
-	if (std::filesystem::is_directory(p))
+	fs::path p = "..\\maps\\navmesh\\";
+	if (fs::is_directory(p))
 	{
 		path.insert(0, p.string());
 	}
@@ -406,8 +406,8 @@ void Editor::saveAll(std::string path, dtNavMesh* mesh)
 	if (!mesh)
 		return;
 
-	std::filesystem::path p = "..\\maps\\navmesh\\";
-	if (std::filesystem::is_directory(p))
+	fs::path p = "..\\maps\\navmesh\\";
+	if (fs::is_directory(p))
 	{
 		path.insert(0, p.string());
 	}
