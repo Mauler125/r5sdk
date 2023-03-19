@@ -103,7 +103,6 @@
 #include "public/utility/utility.h"
 #include "public/utility/memaddr.h"
 #include "public/utility/module.h"
-#include "public/utility/sigcache.h"
 #include "public/utility/vdf_parser.h"
 
 #include "core/assert.h"
@@ -131,7 +130,6 @@ inline CModule g_SDKDll = CModule("client.dll");
 inline CModule g_GameDll = CModule("r5apex_ds.exe");
 inline CModule g_SDKDll = CModule("dedicated.dll");
 #endif // !DEDICATED
-inline CSigCache g_SigCache;
 
 #define VAR_NAME(varName)  #varName
 

@@ -67,7 +67,7 @@ bool CSigCache::FindEntry(const string& svPattern, uint64_t& nRVA) const
 {
 	if (!m_bDisabled && m_bInitialized)
 	{
-		google::protobuf::Map sMap = m_Cache.smap();
+		google::protobuf::Map<string, uint64_t> sMap = m_Cache.smap();
 		auto p = sMap.find(svPattern);
 
 		if (p != sMap.end())
@@ -253,3 +253,8 @@ bool CSigCache::CompressBlob(const size_t nSrcLen, size_t& nDstLen,
 
 	return true;
 }
+
+//-----------------------------------------------------------------------------
+// Singleton signature cache
+//-----------------------------------------------------------------------------
+CSigCache g_SigCache;

@@ -123,6 +123,7 @@
 #endif // !DEDICATED
 #include "public/edict.h"
 #include "public/utility/binstream.h"
+#include "public/utility/sigcache.h"
 #ifndef DEDICATED
 #include "public/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"

@@ -40,6 +40,7 @@ private:
 	bool m_bInitialized;
 	bool m_bDisabled;
 };
+extern CSigCache g_SigCache;
 
 #pragma pack(push, 1)
 struct SigDBHeader_t
