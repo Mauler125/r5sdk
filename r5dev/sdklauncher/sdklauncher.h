@@ -56,4 +56,6 @@ private:
     string m_svCurrentDir;
 };
 
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
+
 extern CLauncher* g_pLauncher;

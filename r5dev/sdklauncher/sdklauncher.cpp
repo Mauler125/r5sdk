@@ -53,22 +53,22 @@ int CLauncher::HandleCommandLine(int argc, char* argv[])
 {
     for (int i = 1; i < __argc; ++i)
     {
-        std::string arg = __argv[i];
-        eLaunchMode mode = eLaunchMode::LM_HOST;
+        string arg = __argv[i];
+        eLaunchMode mode = eLaunchMode::LM_NONE;
 
         if ((arg == "-developer") || (arg == "-dev"))
         {
-            mode = eLaunchMode::LM_HOST_DEV;
+            mode = eLaunchMode::LM_GAME_DEV;
         }
         else if ((arg == "-retail") || (arg == "-prod"))
         {
-            mode = eLaunchMode::LM_HOST;
+            mode = eLaunchMode::LM_GAME;
         }
-        else if ((arg == "-dedicated_dev") || (arg == "-dedid"))
+        else if ((arg == "-server_dev") || (arg == "-svd"))
         {
             mode = eLaunchMode::LM_SERVER_DEV;
         }
-        else if ((arg == "-dedicated") || (arg == "-dedi"))
+        else if ((arg == "-server") || (arg == "-sv"))
         {
             mode = eLaunchMode::LM_SERVER;
         }
@@ -81,15 +81,15 @@ int CLauncher::HandleCommandLine(int argc, char* argv[])
             mode = eLaunchMode::LM_CLIENT;
         }
 
-        if (CreateLaunchContext(mode) && LaunchProcess())
+        if (mode != eLaunchMode::LM_NONE)
         {
-            Sleep(2000);
-            return EXIT_SUCCESS;
+            if (CreateLaunchContext(mode) && LaunchProcess())
+            {
+                return EXIT_SUCCESS;
+            }
         }
-
-        Sleep(2000);
-        return EXIT_FAILURE;
     }
+
     return -1;
 }
 
@@ -100,23 +100,11 @@ int CLauncher::HandleCommandLine(int argc, char* argv[])
 int CLauncher::HandleInput()
 {
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::warn, "If a DEV option has been chosen as launch parameter, do not broadcast servers to the Server Browser!\n");
-    AddLog(spdlog::level::level_enum::warn, "All FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY ConVar's/ConCommand's will be enabled.\n");
-    AddLog(spdlog::level::level_enum::warn, "Connected clients will be able to set and execute anything marked FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY.\n");
+    AddLog(spdlog::level::level_enum::warn, "The '{:s}' options are for development purposes; use the '{:s}' options for default usage.\n", "DEV", "PROD");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::warn, "Use DEV HOST          [0] for research and development purposes.\n");
-    AddLog(spdlog::level::level_enum::warn, "Use RETAIL HOST       [1] for playing the game and creating servers.\n");
-    AddLog(spdlog::level::level_enum::warn, "Use DEV SERVER        [2] for research and development purposes.\n");
-    AddLog(spdlog::level::level_enum::warn, "Use RETAIL SERVER     [3] for running and hosting dedicated servers.\n");
-    AddLog(spdlog::level::level_enum::warn, "Use DEV CLIENT        [4] for research and development purposes.\n");
-    AddLog(spdlog::level::level_enum::warn, "Use RETAIL CLIENT     [5] for running the client only game.\n");
-    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::info, "Enter '0' for 'DEV HOST'.\n");
-    AddLog(spdlog::level::level_enum::info, "Enter '1' for 'RETAIL HOST'.\n");
-    AddLog(spdlog::level::level_enum::info, "Enter '2' for 'DEV SERVER'.\n");
-    AddLog(spdlog::level::level_enum::info, "Enter '3' for 'RETAIL SERVER'.\n");
-    AddLog(spdlog::level::level_enum::info, "Enter '4' for 'DEV CLIENT'.\n");
-    AddLog(spdlog::level::level_enum::info, "Enter '5' for 'RETAIL CLIENT'.\n");
+    AddLog(spdlog::level::level_enum::info, "{:6s} ('0' = {:s} | '1' = {:s}).\n", "GAME", "DEV", "PROD");
+    AddLog(spdlog::level::level_enum::info, "{:6s} ('2' = {:s} | '3' = {:s}).\n", "SERVER", "DEV", "PROD");
+    AddLog(spdlog::level::level_enum::info, "{:6s} ('4' = {:s} | '5' = {:s}).\n", "CLIENT", "DEV", "PROD");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
     std::cout << "User input: ";
 
@@ -129,26 +117,21 @@ int CLauncher::HandleInput()
 
             if (CreateLaunchContext(mode) && LaunchProcess())
             {
-                Sleep(2000);
                 return EXIT_SUCCESS;
             }
             else
             {
                 AddLog(spdlog::level::level_enum::err, "Invalid mode (range 0-5).\n");
-                Sleep(2000);
                 return EXIT_FAILURE;
             }
         }
         catch (const std::exception& e)
         {
-            AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input; error: {:s}.\n", e.what());
-            Sleep(2000);
+            AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input (error = {:s}).\n", e.what());
             return EXIT_FAILURE;
         }
     }
     AddLog(spdlog::level::level_enum::err, "SDK Launcher requires numerical input.\n");
-
-    Sleep(2000);
     return EXIT_FAILURE;
 }
 
@@ -164,20 +147,20 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
     ///////////////////////////////////////////////////////////////////////////
     switch (lMode)
     {
-    case eLaunchMode::LM_HOST_DEV:
+    case eLaunchMode::LM_GAME_DEV:
     {
         if (!szConfig) { szConfig = "startup_dev.cfg"; }
 
         SetupLaunchContext(szConfig, MAIN_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [DEV] ***\n");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [{:s}] ***\n", "DEV");
         break;
     }
-    case eLaunchMode::LM_HOST:
+    case eLaunchMode::LM_GAME:
     {
         if (!szConfig) { szConfig = "startup_retail.cfg"; }
 
         SetupLaunchContext(szConfig, MAIN_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [RETAIL] ***\n");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [{:s}] ***\n", "PROD");
         break;
     }
     case eLaunchMode::LM_SERVER_DEV:
@@ -185,7 +168,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_dedi_dev.cfg"; }
 
         SetupLaunchContext(szConfig, SERVER_WORKER_DLL, SERVER_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING DEDICATED [DEV] ***\n");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING SERVER [{:s}] ***\n", "DEV");
         break;
     }
     case eLaunchMode::LM_SERVER:
@@ -193,7 +176,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_dedi_retail.cfg"; }
 
         SetupLaunchContext(szConfig, SERVER_WORKER_DLL, SERVER_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING DEDICATED [RETAIL] ***\n");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING SERVER [{:s}] ***\n", "PROD");
         break;
     }
     case eLaunchMode::LM_CLIENT_DEV:
@@ -201,7 +184,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_client_dev.cfg"; }
 
         SetupLaunchContext(szConfig, CLIENT_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [DEV] ***\n");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [{:s}] ***\n", "DEV");
         break;
     }
     case eLaunchMode::LM_CLIENT:
@@ -209,12 +192,12 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_client_retail.cfg"; }
 
         SetupLaunchContext(szConfig, CLIENT_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [RETAIL] ***\n");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [{:s}] ***\n", "PROD");
         break;
     }
     default:
     {
-        AddLog(spdlog::level::level_enum::err, "*** NO LAUNCH MODE SPECIFIED ***\n");
+        AddLog(spdlog::level::level_enum::err, "No launch mode specified.\n");
         return false;
     }
     }
@@ -327,6 +310,33 @@ bool CLauncher::LaunchProcess() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Purpose: Window enumerator callback.
+// Input  : hwnd   -
+//          lParam - 
+// Output : TRUE on success, FALSE otherwise.
+///////////////////////////////////////////////////////////////////////////////
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+{
+    vector<HWND>* pHandles = reinterpret_cast<vector<HWND>*>(lParam);
+    if (!pHandles)
+    {
+        return FALSE;
+    }
+
+    char szClassName[256];
+    if (!GetClassNameA(hwnd, szClassName, 256))
+    {
+        return FALSE;
+    }
+
+    if (strcmp(szClassName, DEFAULT_WINDOW_CLASS_NAME) == 0)
+    {
+        pHandles->push_back(hwnd);
+    }
+    return TRUE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // EntryPoint.
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[], char* envp[])
@@ -334,7 +344,9 @@ int main(int argc, char* argv[], char* envp[])
     g_pLauncher->InitLogger();
     if (__argc < 2)
     {
+#ifdef NDEBUG
         FreeConsole();
+#endif // NDEBUG
         g_pLauncher->RunSurface();
     }
     else

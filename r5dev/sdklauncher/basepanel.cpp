@@ -705,28 +705,44 @@ void CSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEv
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: forward input command to the game
+// Purpose: forward input command to all game window instances
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
 void CSurface::ForwardCommandToGame(Forms::Control* pSender)
 {
 	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+	vector<HWND> vecHandles;
 
-	const HWND hWindow = FindWindowA("Respawn001", NULL);
-	if (hWindow)
+	if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&vecHandles)))
+		return;
+
+	if (vecHandles.empty())
+		return;
+
+	const String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
+	const char* szCommand = kzCommand.ToCString();
+
+	bool bSuccess = false;
+
+	for (const HWND hWindow : vecHandles)
 	{
-		const String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
-		const char* szCommand = kzCommand.ToCString();
-		COPYDATASTRUCT cData = { 0, (DWORD)strnlen_s(szCommand, 259) + 1, (void*)szCommand };
+		char szWindowName[256];
+		GetWindowTextA(hWindow, szWindowName, 256);
 
+		COPYDATASTRUCT cData = { 0, (DWORD)strnlen_s(szCommand, 259) + 1, (void*)szCommand };
 		bool bProcessingMessage = SendMessageA(hWindow, WM_COPYDATA, NULL, (LPARAM)&cData); // WM_COPYDATA will only return 0 or 1, that's why we use a boolean.
-		if (bProcessingMessage)
+		if (bProcessingMessage && !bSuccess)
 		{
-			pSurface->m_ConsoleCommandTextBox->SetText("");
-			pSurface->m_LogList.push_back(LogList_t((spdlog::level::level_enum)2, kzCommand));
-			pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
-			pSurface->m_ConsoleListView->Refresh();
+			bSuccess = true;
 		}
+	}
+
+	if (bSuccess) // At least one game instance received the command.
+	{
+		pSurface->m_LogList.push_back(LogList_t((spdlog::level::level_enum)2, kzCommand));
+		pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
+		pSurface->m_ConsoleListView->Refresh();
+		pSurface->m_ConsoleCommandTextBox->SetText("");
 	}
 }
 
@@ -878,10 +894,10 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 		{
 			AppendParameterInternal(svParameters, "-dev");
 			AppendParameterInternal(svParameters, "-devsdk");
-			results = eLaunchMode::LM_HOST_DEV;
+			results = eLaunchMode::LM_GAME_DEV;
 		}
 		else
-			results = eLaunchMode::LM_HOST;
+			results = eLaunchMode::LM_GAME;
 
 		if (this->m_CheatsToggle->Checked())
 		{
