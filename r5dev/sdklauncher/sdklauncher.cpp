@@ -17,7 +17,7 @@ void CLauncher::RunSurface()
     Forms::Application::EnableVisualStyles();
     UIX::UIXTheme::InitializeRenderer(new Themes::KoreTheme());
 
-    m_pSurface = new CUIBaseSurface();
+    m_pSurface = new CSurface();
     Forms::Application::Run(g_pLauncher->m_pSurface);
     UIX::UIXTheme::ShutdownRenderer();
 }

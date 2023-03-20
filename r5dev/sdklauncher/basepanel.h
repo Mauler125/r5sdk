@@ -13,11 +13,11 @@ struct LogList_t
 	String m_svText;
 };
 
-class CUIBaseSurface : public Forms::Form
+class CSurface : public Forms::Form
 {
 public:
-	CUIBaseSurface();
-	virtual ~CUIBaseSurface() = default;
+	CSurface();
+	virtual ~CSurface() = default;
 
 	std::vector<LogList_t> m_LogList;
 	UIX::UIXListView* m_ConsoleListView;

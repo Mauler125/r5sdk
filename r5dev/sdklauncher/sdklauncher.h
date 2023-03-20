@@ -44,10 +44,10 @@ public:
     void SetupLaunchContext(const char* szConfig, const char* szWorkerDll, const char* szGameDll, const char* szCommandLine);
     bool LaunchProcess() const;
 
-    CUIBaseSurface* GetMainSurface() const { return m_pSurface; }
+    CSurface* GetMainSurface() const { return m_pSurface; }
 
 private:
-    CUIBaseSurface* m_pSurface;
+    CSurface* m_pSurface;
 	std::shared_ptr<spdlog::logger> m_pLogger;
 
     string m_svWorkerDll;

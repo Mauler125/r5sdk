@@ -1,6 +1,6 @@
 //=============================================================================//
 //
-// Purpose:
+// Purpose: Launcher user interface implementation.
 //
 //=============================================================================//
 #include "core/stdafx.h"
@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::Init()
+void CSurface::Init()
 {
 	// START DESIGNER CODE
 	const INT WindowX = 800;
@@ -484,7 +484,7 @@ void CUIBaseSurface::Init()
 //-----------------------------------------------------------------------------
 // Purpose: post-init surface setup
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::Setup()
+void CSurface::Setup()
 {
 	this->ParseMaps();
 	this->ParsePlaylists();
@@ -506,9 +506,9 @@ void CUIBaseSurface::Setup()
 // Purpose: removes redundant files from the game install
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::CleanSDK(Forms::Control* pSender)
+void CSurface::CleanSDK(Forms::Control* pSender)
 {
-	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
 	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running cleaner for SDK installation\n"));
 	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
 
@@ -519,9 +519,9 @@ void CUIBaseSurface::CleanSDK(Forms::Control* pSender)
 // Purpose: updates the SDK
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::UpdateSDK(Forms::Control* pSender)
+void CSurface::UpdateSDK(Forms::Control* pSender)
 {
-	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
 	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running updater for SDK installation\n"));
 	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
 
@@ -532,9 +532,9 @@ void CUIBaseSurface::UpdateSDK(Forms::Control* pSender)
 // Purpose: launches the game with the SDK
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
+void CSurface::LaunchGame(Forms::Control* pSender)
 {
-	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
 
 	pSurface->m_LogList.clear(); // Clear console.
 	pSurface->m_ConsoleListView->SetVirtualListSize(0);
@@ -552,7 +552,7 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 // Purpose: parses all available maps from the main vpk directory
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::ParseMaps()
+void CSurface::ParseMaps()
 {
 	if (!fs::exists("vpk"))
 	{
@@ -594,7 +594,7 @@ void CUIBaseSurface::ParseMaps()
 //-----------------------------------------------------------------------------
 // Purpose: parses all playlists from user selected playlist file
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::ParsePlaylists()
+void CSurface::ParsePlaylists()
 {
 	fs::path fsPlaylistPath(Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString()));
 
@@ -624,9 +624,9 @@ void CUIBaseSurface::ParsePlaylists()
 // Purpose: clears the form and reloads the playlist
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::ReloadPlaylists(Forms::Control* pSender)
+void CSurface::ReloadPlaylists(Forms::Control* pSender)
 {
-	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
 
 	pSurface->m_PlaylistCombo->Items.Clear();
 	pSurface->m_PlaylistCombo->OnSizeChanged();
@@ -638,12 +638,12 @@ void CUIBaseSurface::ReloadPlaylists(Forms::Control* pSender)
 // Input  : &pEventArgs - 
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender)
+void CSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender)
 {
 	if (pEventArgs->Button != Forms::MouseButtons::Right)
 		return;
 
-	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
 	List<uint32_t> lSelected = pSurface->m_ConsoleListView->SelectedIndices();
 
 	if (!lSelected.Count())
@@ -661,9 +661,9 @@ void CUIBaseSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs
 // Input  : &pEventArgs - 
 //			*pSender - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
+void CSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
 {
-	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
 	if (static_cast<int>(pSurface->m_LogList.size()) <= 0)
 		return;
 
@@ -708,9 +708,9 @@ void CUIBaseSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtual
 // Purpose: forward input command to the game
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
+void CSurface::ForwardCommandToGame(Forms::Control* pSender)
 {
-	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
 
 	const HWND hWindow = FindWindowA("Respawn001", NULL);
 	if (hWindow)
@@ -736,7 +736,7 @@ void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
 //			*szParameter - 
 //			*szArgument - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument /*= nullptr*/)
+void CSurface::AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument /*= nullptr*/)
 {
 	if (szArgument)
 		svParameterList.append(Format("%s \"%s\"\n", szParameter, szArgument));
@@ -748,7 +748,7 @@ void CUIBaseSurface::AppendParameterInternal(string& svParameterList, const char
 // Purpose: appends the reversed core count value to the command line buffer
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::AppendReservedCoreCount(string& svParameters)
+void CSurface::AppendReservedCoreCount(string& svParameters)
 {
 	int nReservedCores = atoi(this->m_ReservedCoresTextBox->Text().ToCString());
 	if (nReservedCores > -1) // A reserved core count of 0 seems to crash the game on some systems.
@@ -762,7 +762,7 @@ void CUIBaseSurface::AppendReservedCoreCount(string& svParameters)
 // Purpose: appends the console parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::AppendConsoleParameters(string& svParameters)
+void CSurface::AppendConsoleParameters(string& svParameters)
 {
 	if (this->m_ConsoleToggle->Checked())
 		AppendParameterInternal(svParameters, "-wconsole");
@@ -779,7 +779,7 @@ void CUIBaseSurface::AppendConsoleParameters(string& svParameters)
 // Purpose: appends the video parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::AppendVideoParameters(string& svParameters)
+void CSurface::AppendVideoParameters(string& svParameters)
 {
 	if (this->m_WindowedToggle->Checked())
 		AppendParameterInternal(svParameters, "-windowed");
@@ -808,7 +808,7 @@ void CUIBaseSurface::AppendVideoParameters(string& svParameters)
 // Purpose: appends the host parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::AppendHostParameters(string& svParameters)
+void CSurface::AppendHostParameters(string& svParameters)
 {
 	if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
 	{
@@ -837,7 +837,7 @@ void CUIBaseSurface::AppendHostParameters(string& svParameters)
 // Purpose: appends the net parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::AppendNetParameters(string& svParameters)
+void CSurface::AppendNetParameters(string& svParameters)
 {
 	if (this->m_NetEncryptionToggle->Checked())
 		AppendParameterInternal(svParameters, "+net_encryptionEnable", "1");
@@ -857,7 +857,7 @@ void CUIBaseSurface::AppendNetParameters(string& svParameters)
 // Input  : &svParameters - 
 // Output : eLaunchMode [HOST - SERVER - CLIENT - NONE]
 //-----------------------------------------------------------------------------
-eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
+eLaunchMode CSurface::BuildParameter(string& svParameters)
 {
 	eLaunchMode results = eLaunchMode::LM_NONE;
 
@@ -1035,10 +1035,10 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CUIBaseSurface::CUIBaseSurface() : Forms::Form()
+CSurface::CSurface() : Forms::Form()
 {
 	this->Init();
 	this->Setup();
 }
 
-CUIBaseSurface* g_pMainUI;
+CSurface* g_pMainUI;
