@@ -161,7 +161,6 @@
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalOptions>/arch:AVX2 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
@@ -193,7 +192,6 @@
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalOptions>/arch:AVX2 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
@@ -229,7 +227,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalOptions>/arch:AVX2 %(AdditionalOptions)</AdditionalOptions>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
@@ -272,7 +269,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalOptions>/arch:AVX2 %(AdditionalOptions)</AdditionalOptions>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
@@ -315,7 +311,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalOptions>/arch:AVX2 %(AdditionalOptions)</AdditionalOptions>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
@@ -354,7 +349,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalOptions>/arch:AVX2 %(AdditionalOptions)</AdditionalOptions>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
