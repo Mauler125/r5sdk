@@ -152,7 +152,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D _CRT_SECURE_NO_WARNINGS </AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D "_CRT_SECURE_NO_WARNINGS" </AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -170,7 +170,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D _CRT_SECURE_NO_WARNINGS </AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D "_CRT_SECURE_NO_WARNINGS" </AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -195,7 +195,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_PROFILE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D _CRT_SECURE_NO_WARNINGS </AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D "_CRT_SECURE_NO_WARNINGS" </AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
@@ -223,7 +223,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D _CRT_SECURE_NO_WARNINGS </AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D "_CRT_SECURE_NO_WARNINGS" </AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -241,7 +241,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D _CRT_SECURE_NO_WARNINGS </AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D "_CRT_SECURE_NO_WARNINGS" </AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -266,7 +266,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_PROFILE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D _CRT_SECURE_NO_WARNINGS </AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D "_CRT_SECURE_NO_WARNINGS" </AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
