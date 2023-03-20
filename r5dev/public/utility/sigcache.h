@@ -10,9 +10,9 @@
 #define SIGDB_MINOR_VERSION 0x0 // Increment when SDK updates are released.
 
 #ifdef DEDICATED
-#define SIGDB_FILE "cfg\\server\\startup.bin"
+#define SIGDB_FILE "cfg/server/startup.bin"
 #else
-#define SIGDB_FILE "cfg\\client\\startup.bin"
+#define SIGDB_FILE "cfg/client/startup.bin"
 #endif
 
 class CSigCache
