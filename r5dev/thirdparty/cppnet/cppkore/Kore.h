@@ -16,7 +16,7 @@
 #include "ConsoleKey.h"
 #include "ConsoleColor.h"
 #include "ConsoleKeyInfo.h"
-#include "Settings.h"
+//#include "Settings.h"
 
 #ifndef KORE_ENABLE_IO
 #define KORE_ENABLE_IO 1
@@ -27,7 +27,7 @@
 #endif
 
 #ifndef KORE_ENABLE_THREAD
-#define KORE_ENABLE_THREAD 1
+#define KORE_ENABLE_THREAD 0
 #endif
 
 #ifndef KORE_ENABLE_DIAG
@@ -35,7 +35,7 @@
 #endif
 
 #ifndef KORE_ENABLE_MATH
-#define KORE_ENABLE_MATH 1
+#define KORE_ENABLE_MATH 0
 #endif
 
 #ifndef KORE_ENABLE_WIN32
@@ -43,11 +43,11 @@
 #endif
 
 #ifndef KORE_ENABLE_COMP
-#define KORE_ENABLE_COMP 1
+#define KORE_ENABLE_COMP 0
 #endif
 
 #ifndef KORE_ENABLE_HASH
-#define KORE_ENABLE_HASH 1
+#define KORE_ENABLE_HASH 0
 #endif
 
 #ifndef KORE_ENABLE_FORMS
@@ -59,7 +59,7 @@
 #endif
 
 #ifndef KORE_ENABLE_ASSETS
-#define KORE_ENABLE_ASSETS 1
+#define KORE_ENABLE_ASSETS 0
 #endif
 
 #if KORE_ENABLE_IO

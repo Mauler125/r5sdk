@@ -299,7 +299,6 @@
     <ClInclude Include="..\thirdparty\cppnet\cppkore\RetrieveVirtualItemEventArgs.h" />
     <ClInclude Include="..\thirdparty\cppnet\cppkore\ScrollBars.h" />
     <ClInclude Include="..\thirdparty\cppnet\cppkore\SecureString.h" />
-    <ClInclude Include="..\thirdparty\cppnet\cppkore\Settings.h" />
     <ClInclude Include="..\thirdparty\cppnet\cppkore\SortOrder.h" />
     <ClInclude Include="..\thirdparty\cppnet\cppkore\SpecialFolder.h" />
     <ClInclude Include="..\thirdparty\cppnet\cppkore\stdext.h" />
@@ -413,7 +412,6 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\Registry.cpp" />
     <ClCompile Include="..\thirdparty\cppnet\cppkore\RegistryKey.cpp" />
     <ClCompile Include="..\thirdparty\cppnet\cppkore\RetrieveVirtualItemEventArgs.cpp" />
-    <ClCompile Include="..\thirdparty\cppnet\cppkore\Settings.cpp" />
     <ClCompile Include="..\thirdparty\cppnet\cppkore\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
