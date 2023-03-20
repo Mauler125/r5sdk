@@ -540,28 +540,13 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 	pSurface->m_ConsoleListView->SetVirtualListSize(0);
 	pSurface->m_ConsoleListView->Refresh();
 
-	fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_launcher.cfg";
-
-	ifstream cfgFile(cfgPath);
 	string svParameter;
 	pSurface->AppendParameterInternal(svParameter, "-launcher");
 
-	if (cfgFile.good() && cfgFile)
-	{
-		stringstream ss;
-		ss << cfgFile.rdbuf();
-		svParameter.append(ss.str() + '\n');
-	}
-	else
-	{
-		string svError = Format("Unable to load '%s'\n", "startup_launcher.cfg");
-		pSurface->m_LogList.push_back(LogList_t(spdlog::level::warn, svError.c_str()));
-	}
-
 	eLaunchMode launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
 
-	if (g_pLauncher->Setup(launchMode, svParameter))
-		g_pLauncher->Launch();
+	if (g_pLauncher->CreateLaunchContext(launchMode, svParameter.c_str(), "startup_launcher.cfg"))
+		g_pLauncher->LaunchProcess();
 }
 
 //-----------------------------------------------------------------------------
@@ -875,7 +860,6 @@ void CUIBaseSurface::AppendNetParameters(string& svParameters)
 eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 {
 	eLaunchMode results = eLaunchMode::LM_NONE;
-	return results;
 
 	switch (static_cast<eMode>(this->m_ModeCombo->SelectedIndex()))
 	{

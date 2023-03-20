@@ -1,5 +1,14 @@
 #pragma once
 
+#define MAIN_WORKER_DLL "gamesdk.dll"
+#define SERVER_WORKER_DLL "dedicated.dll"
+#define CLIENT_WORKER_DLL "bin\\x64_retail\\client.dll"
+
+#define MAIN_GAME_DLL "r5apex.exe"
+#define SERVER_GAME_DLL "r5apex_ds.exe"
+
+#define GAME_CFG_PATH "platform\\cfg\\"
+
 //-----------------------------------------------------------------------------
 // Launch and inject specified dll based on launch mode
 //-----------------------------------------------------------------------------
@@ -12,15 +21,4 @@ enum class eLaunchMode : int
     LM_SERVER,
     LM_CLIENT_DEV,
     LM_CLIENT,
-};
-
-//-----------------------------------------------------------------------------
-// [TODO] Launch with FCVAR_DEVELOPMENTONLY and FCVAR_CHEATS disabled/enabled
-//-----------------------------------------------------------------------------
-enum class eLaunchState : int
-{
-    LS_NULL,
-    LS_NOCHEATS, // Disabled cheats
-    LS_CHEATS,   // Enable cheats
-    LS_DEV       // Enable devonly
 };

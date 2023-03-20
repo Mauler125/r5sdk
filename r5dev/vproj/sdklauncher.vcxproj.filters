@@ -40,6 +40,9 @@
     <ClCompile Include="..\public\utility\utility.cpp">
       <Filter>public</Filter>
     </ClCompile>
+    <ClCompile Include="..\public\utility\binstream.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\sdklauncher.rc">
@@ -75,6 +78,9 @@
       <Filter>launcher</Filter>
     </ClInclude>
     <ClInclude Include="..\public\utility\utility.h">
+      <Filter>public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\binstream.h">
       <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>

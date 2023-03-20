@@ -33,15 +33,16 @@ public:
         }
     }
 
-    void InitSurface();
+    void RunSurface();
     void InitConsole();
     void InitLogger();
-    int HandleCmdLine(int argc, char* argv[]);
+
+    int HandleCommandLine(int argc, char* argv[]);
     int HandleInput();
 
-    bool Setup(eLaunchMode lMode, eLaunchState lState);
-    bool Setup(eLaunchMode lMode, const string& svCommandLine);
-    bool Launch() const;
+    bool CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine = nullptr, const char* szConfig = nullptr);
+    void SetupLaunchContext(const char* szConfig, const char* szWorkerDll, const char* szGameDll, const char* szCommandLine);
+    bool LaunchProcess() const;
 
     CUIBaseSurface* GetMainSurface() const { return m_pSurface; }
 

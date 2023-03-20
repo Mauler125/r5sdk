@@ -1,17 +1,23 @@
+//=============================================================================//
+//
+// Purpose: SDK launcher implementation.
+//
+//=============================================================================//
 #include "core/stdafx.h"
 #include "basepanel.h"
 #include "sdklauncher_const.h"
 #include "sdklauncher.h"
+#include "public/utility/binstream.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// Purpose: initializes the user interface
+// Purpose: initializes and runs the user interface
 ///////////////////////////////////////////////////////////////////////////////
-void CLauncher::InitSurface()
+void CLauncher::RunSurface()
 {
     Forms::Application::EnableVisualStyles();
     UIX::UIXTheme::InitializeRenderer(new Themes::KoreTheme());
 
-    g_pLauncher->m_pSurface = new CUIBaseSurface();
+    m_pSurface = new CUIBaseSurface();
     Forms::Application::Run(g_pLauncher->m_pSurface);
     UIX::UIXTheme::ShutdownRenderer();
 }
@@ -43,95 +49,46 @@ void CLauncher::InitLogger()
 //          *argv - 
 // Output : exit_code (-1 if EntryPoint should continue to HandleInput)
 ///////////////////////////////////////////////////////////////////////////////
-int CLauncher::HandleCmdLine(int argc, char* argv[])
+int CLauncher::HandleCommandLine(int argc, char* argv[])
 {
     for (int i = 1; i < __argc; ++i)
     {
         std::string arg = __argv[i];
+        eLaunchMode mode = eLaunchMode::LM_HOST;
+
         if ((arg == "-developer") || (arg == "-dev"))
         {
-            if (g_pLauncher->Setup(eLaunchMode::LM_HOST_DEV, eLaunchState::LS_CHEATS))
-            {
-                if (g_pLauncher->Launch())
-                {
-                    Sleep(2000);
-                    return EXIT_SUCCESS;
-                }
-            }
-
-            Sleep(2000);
-            return EXIT_FAILURE;
+            mode = eLaunchMode::LM_HOST_DEV;
         }
-        if ((arg == "-retail") || (arg == "-prod"))
+        else if ((arg == "-retail") || (arg == "-prod"))
         {
-            if (g_pLauncher->Setup(eLaunchMode::LM_HOST, eLaunchState::LS_CHEATS))
-            {
-                if (g_pLauncher->Launch())
-                {
-                    Sleep(2000);
-                    return EXIT_SUCCESS;
-                }
-            }
-
-            Sleep(2000);
-            return EXIT_FAILURE;
+            mode = eLaunchMode::LM_HOST;
         }
-        if ((arg == "-dedicated_dev") || (arg == "-dedid"))
+        else if ((arg == "-dedicated_dev") || (arg == "-dedid"))
         {
-            if (g_pLauncher->Setup(eLaunchMode::LM_SERVER_DEV, eLaunchState::LS_CHEATS))
-            {
-                if (g_pLauncher->Launch())
-                {
-                    Sleep(2000);
-                    return EXIT_SUCCESS;
-                }
-            }
-
-            Sleep(2000);
-            return EXIT_FAILURE;
+            mode = eLaunchMode::LM_SERVER_DEV;
         }
-        if ((arg == "-dedicated") || (arg == "-dedi"))
+        else if ((arg == "-dedicated") || (arg == "-dedi"))
         {
-            if (g_pLauncher->Setup(eLaunchMode::LM_SERVER, eLaunchState::LS_CHEATS))
-            {
-                if (g_pLauncher->Launch())
-                {
-                    Sleep(2000);
-                    return EXIT_SUCCESS;
-                }
-            }
-
-            Sleep(2000);
-            return EXIT_FAILURE;
+            mode = eLaunchMode::LM_SERVER;
         }
-        if ((arg == "-client_dev") || (arg == "-cld"))
+        else if ((arg == "-client_dev") || (arg == "-cld"))
         {
-            if (g_pLauncher->Setup(eLaunchMode::LM_CLIENT_DEV, eLaunchState::LS_CHEATS))
-            {
-                if (g_pLauncher->Launch())
-                {
-                    Sleep(2000);
-                    return EXIT_SUCCESS;
-                }
-            }
-
-            Sleep(2000);
-            return EXIT_FAILURE;
+            mode = eLaunchMode::LM_CLIENT_DEV;
         }
-        if ((arg == "-client") || (arg == "-cl"))
+        else if ((arg == "-client") || (arg == "-cl"))
         {
-            if (g_pLauncher->Setup(eLaunchMode::LM_CLIENT, eLaunchState::LS_CHEATS))
-            {
-                if (g_pLauncher->Launch())
-                {
-                    Sleep(2000);
-                    return EXIT_SUCCESS;
-                }
-            }
-
-            Sleep(2000);
-            return EXIT_FAILURE;
+            mode = eLaunchMode::LM_CLIENT;
         }
+
+        if (CreateLaunchContext(mode) && LaunchProcess())
+        {
+            Sleep(2000);
+            return EXIT_SUCCESS;
+        }
+
+        Sleep(2000);
+        return EXIT_FAILURE;
     }
     return -1;
 }
@@ -143,288 +100,115 @@ int CLauncher::HandleCmdLine(int argc, char* argv[])
 int CLauncher::HandleInput()
 {
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "If a DEV option has been chosen as launch parameter, do not broadcast servers to the Server Browser!\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "All FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY ConVar's/ConCommand's will be enabled.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Connected clients will be able to set and execute anything marked FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY.\n");
+    AddLog(spdlog::level::level_enum::warn, "If a DEV option has been chosen as launch parameter, do not broadcast servers to the Server Browser!\n");
+    AddLog(spdlog::level::level_enum::warn, "All FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY ConVar's/ConCommand's will be enabled.\n");
+    AddLog(spdlog::level::level_enum::warn, "Connected clients will be able to set and execute anything marked FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY.\n");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use DEV HOST          [0] for research and development purposes.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use RETAIL HOST       [1] for playing the game and creating servers.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use DEV SERVER        [2] for research and development purposes.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use RETAIL SERVER     [3] for running and hosting dedicated servers.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use DEV CLIENT        [4] for research and development purposes.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use RETAIL CLIENT     [5] for running the client only game.\n");
+    AddLog(spdlog::level::level_enum::warn, "Use DEV HOST          [0] for research and development purposes.\n");
+    AddLog(spdlog::level::level_enum::warn, "Use RETAIL HOST       [1] for playing the game and creating servers.\n");
+    AddLog(spdlog::level::level_enum::warn, "Use DEV SERVER        [2] for research and development purposes.\n");
+    AddLog(spdlog::level::level_enum::warn, "Use RETAIL SERVER     [3] for running and hosting dedicated servers.\n");
+    AddLog(spdlog::level::level_enum::warn, "Use DEV CLIENT        [4] for research and development purposes.\n");
+    AddLog(spdlog::level::level_enum::warn, "Use RETAIL CLIENT     [5] for running the client only game.\n");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    g_pLauncher->AddLog(spdlog::level::level_enum::info, "Enter '0' for 'DEV HOST'.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::info, "Enter '1' for 'RETAIL HOST'.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::info, "Enter '2' for 'DEV SERVER'.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::info, "Enter '3' for 'RETAIL SERVER'.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::info, "Enter '4' for 'DEV CLIENT'.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::info, "Enter '5' for 'RETAIL CLIENT'.\n");
+    AddLog(spdlog::level::level_enum::info, "Enter '0' for 'DEV HOST'.\n");
+    AddLog(spdlog::level::level_enum::info, "Enter '1' for 'RETAIL HOST'.\n");
+    AddLog(spdlog::level::level_enum::info, "Enter '2' for 'DEV SERVER'.\n");
+    AddLog(spdlog::level::level_enum::info, "Enter '3' for 'RETAIL SERVER'.\n");
+    AddLog(spdlog::level::level_enum::info, "Enter '4' for 'DEV CLIENT'.\n");
+    AddLog(spdlog::level::level_enum::info, "Enter '5' for 'RETAIL CLIENT'.\n");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
     std::cout << "User input: ";
 
-    std::string input = std::string();
+    std::string input;
     if (std::cin >> input)
     {
         try
         {
             eLaunchMode mode = static_cast<eLaunchMode>(std::stoi(input));
-            switch (mode)
-            {
-            case eLaunchMode::LM_HOST_DEV:
-            {
-                if (g_pLauncher->Setup(mode, eLaunchState::LS_CHEATS))
-                {
-                    if (g_pLauncher->Launch())
-                    {
-                        Sleep(2000);
-                        return EXIT_SUCCESS;
-                    }
-                }
 
-                Sleep(2000);
-                return EXIT_FAILURE;
-            }
-            case eLaunchMode::LM_HOST:
+            if (CreateLaunchContext(mode) && LaunchProcess())
             {
-                if (g_pLauncher->Setup(mode, eLaunchState::LS_CHEATS))
-                {
-                    if (g_pLauncher->Launch())
-                    {
-                        Sleep(2000);
-                        return EXIT_SUCCESS;
-                    }
-                }
-
                 Sleep(2000);
-                return EXIT_FAILURE;
+                return EXIT_SUCCESS;
             }
-            case eLaunchMode::LM_SERVER_DEV:
+            else
             {
-                if (g_pLauncher->Setup(mode, eLaunchState::LS_CHEATS))
-                {
-                    if (g_pLauncher->Launch())
-                    {
-                        Sleep(2000);
-                        return EXIT_SUCCESS;
-                    }
-                }
-
+                AddLog(spdlog::level::level_enum::err, "Invalid mode (range 0-5).\n");
                 Sleep(2000);
                 return EXIT_FAILURE;
-            }
-            case eLaunchMode::LM_SERVER:
-            {
-                if (g_pLauncher->Setup(mode, eLaunchState::LS_CHEATS))
-                {
-                    if (g_pLauncher->Launch())
-                    {
-                        Sleep(2000);
-                        return EXIT_SUCCESS;
-                    }
-                }
-
-                Sleep(2000);
-                return EXIT_FAILURE;
-            }
-            case eLaunchMode::LM_CLIENT_DEV:
-            {
-                if (g_pLauncher->Setup(mode, eLaunchState::LS_CHEATS))
-                {
-                    if (g_pLauncher->Launch())
-                    {
-                        Sleep(2000);
-                        return EXIT_SUCCESS;
-                    }
-                }
-
-                Sleep(2000);
-                return EXIT_FAILURE;
-            }
-            case eLaunchMode::LM_CLIENT:
-            {
-                if (g_pLauncher->Setup(mode, eLaunchState::LS_CHEATS))
-                {
-                    if (g_pLauncher->Launch())
-                    {
-                        Sleep(2000);
-                        return EXIT_SUCCESS;
-                    }
-                }
-
-                Sleep(2000);
-                return EXIT_FAILURE;
-            }
-            default:
-            {
-                g_pLauncher->AddLog(spdlog::level::level_enum::err, "Invalid mode (range 0-5).\n");
-                Sleep(2000);
-                return EXIT_FAILURE;
-            }
             }
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
-            g_pLauncher->AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input; error: {:s}.\n", e.what());
+            AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input; error: {:s}.\n", e.what());
             Sleep(2000);
             return EXIT_FAILURE;
         }
     }
-    g_pLauncher->AddLog(spdlog::level::level_enum::err, "SDK Launcher requires numerical input.\n");
+    AddLog(spdlog::level::level_enum::err, "SDK Launcher requires numerical input.\n");
 
     Sleep(2000);
     return EXIT_FAILURE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Purpose: setup for game dll's and configurations
+// Purpose: create launch context.
 // Input  : lMode - 
 //          lState - 
-// Output : true on success, false otherwise
+//          *szCommandLine - 
+// Output : true on success, false otherwise.
 ///////////////////////////////////////////////////////////////////////////////
-bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
+bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine /*= nullptr*/, const char* szConfig /*= nullptr*/)
 {
-    ///////////////////////////////////////////////////////////////////////////
-    std::string svCmdLineArgs;
-
     ///////////////////////////////////////////////////////////////////////////
     switch (lMode)
     {
     case eLaunchMode::LM_HOST_DEV:
     {
-        fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_dev.cfg";
-        std::ifstream cfgFile(cfgPath);
-        if (cfgFile.good() && cfgFile)
-        {
-            std::stringstream ss;
-            ss << cfgFile.rdbuf();
-            svCmdLineArgs = ss.str() + "-launcher";
-        }
-        else
-        {
-            AddLog(spdlog::level::level_enum::err, "File 'platform\\cfg\\startup_dev.cfg' does not exist!\n");
-            return false;
-        }
+        if (!szConfig) { szConfig = "startup_dev.cfg"; }
 
-        m_svWorkerDll = m_svCurrentDir + "\\gamesdk.dll";
-        m_svGameExe   = m_svCurrentDir + "\\r5apex.exe";
-        m_svCmdLine   = m_svCurrentDir + "\\r5apex.exe " + svCmdLineArgs;
-
+        SetupLaunchContext(szConfig, MAIN_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
         AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [DEV] ***\n");
         break;
     }
     case eLaunchMode::LM_HOST:
     {
-        fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_retail.cfg";
-        std::ifstream cfgFile(cfgPath);
-        if (cfgFile.good() && cfgFile)
-        {
-            std::stringstream ss;
-            ss << cfgFile.rdbuf();
-            svCmdLineArgs = ss.str() + "-launcher";
-        }
-        else
-        {
-            AddLog(spdlog::level::level_enum::err, "File 'platform\\cfg\\startup_retail.cfg' does not exist!\n");
-            return false;
-        }
+        if (!szConfig) { szConfig = "startup_retail.cfg"; }
 
-        m_svWorkerDll = m_svCurrentDir + "\\gamesdk.dll";
-        m_svGameExe   = m_svCurrentDir + "\\r5apex.exe";
-        m_svCmdLine   = m_svCurrentDir + "\\r5apex.exe " + svCmdLineArgs;
-
+        SetupLaunchContext(szConfig, MAIN_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
         AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [RETAIL] ***\n");
         break;
     }
     case eLaunchMode::LM_SERVER_DEV:
     {
-        fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_dedi_dev.cfg";
-        std::ifstream cfgFile(cfgPath);
-        if (cfgFile.good() && cfgFile)
-        {
-            std::stringstream ss;
-            ss << cfgFile.rdbuf();
-            svCmdLineArgs = ss.str() + "-launcher";
-        }
-        else
-        {
-            AddLog(spdlog::level::level_enum::err, "File 'platform\\cfg\\startup_dedi_dev.cfg' does not exist!\n");
-            return false;
-        }
+        if (!szConfig) { szConfig = "startup_dedi_dev.cfg"; }
 
-        m_svWorkerDll = m_svCurrentDir + "\\dedicated.dll";
-        m_svGameExe   = m_svCurrentDir + "\\r5apex_ds.exe";
-        m_svCmdLine   = m_svCurrentDir + "\\r5apex_ds.exe " + svCmdLineArgs;
-
+        SetupLaunchContext(szConfig, SERVER_WORKER_DLL, SERVER_GAME_DLL, szCommandLine);
         AddLog(spdlog::level::level_enum::info, "*** LAUNCHING DEDICATED [DEV] ***\n");
         break;
     }
     case eLaunchMode::LM_SERVER:
     {
-        fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_dedi_retail.cfg";
-        std::ifstream cfgFile(cfgPath);
-        if (cfgFile.good() && cfgFile)
-        {
-            std::stringstream ss;
-            ss << cfgFile.rdbuf();
-            svCmdLineArgs = ss.str() + "-launcher";
-        }
-        else
-        {
-            AddLog(spdlog::level::level_enum::err, "File 'platform\\cfg\\startup_dedi_retail.cfg' does not exist!\n");
-            return false;
-        }
+        if (!szConfig) { szConfig = "startup_dedi_retail.cfg"; }
 
-        m_svWorkerDll = m_svCurrentDir + "\\dedicated.dll";
-        m_svGameExe   = m_svCurrentDir + "\\r5apex_ds.exe";
-        m_svCmdLine   = m_svCurrentDir + "\\r5apex_ds.exe " + svCmdLineArgs;
-
+        SetupLaunchContext(szConfig, SERVER_WORKER_DLL, SERVER_GAME_DLL, szCommandLine);
         AddLog(spdlog::level::level_enum::info, "*** LAUNCHING DEDICATED [RETAIL] ***\n");
         break;
     }
     case eLaunchMode::LM_CLIENT_DEV:
     {
-        fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_client_dev.cfg";
-        std::ifstream cfgFile(cfgPath);
-        if (cfgFile.good() && cfgFile)
-        {
-            std::stringstream ss;
-            ss << cfgFile.rdbuf();
-            svCmdLineArgs = ss.str() + "-launcher" + "-noworkerdll";
-        }
-        else
-        {
-            AddLog(spdlog::level::level_enum::err, "File 'platform\\cfg\\startup_client_dev.cfg' does not exist!\n");
-            return false;
-        }
+        if (!szConfig) { szConfig = "startup_client_dev.cfg"; }
 
-        m_svWorkerDll = m_svCurrentDir + "\\bin\\x64_retail\\client.dll";
-        m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
-        m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCmdLineArgs;
-
+        SetupLaunchContext(szConfig, CLIENT_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
         AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [DEV] ***\n");
         break;
     }
     case eLaunchMode::LM_CLIENT:
     {
-        fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_client_retail.cfg";
-        std::ifstream cfgFile(cfgPath);
-        if (cfgFile.good() && cfgFile)
-        {
-            std::stringstream ss;
-            ss << cfgFile.rdbuf();
-            svCmdLineArgs = ss.str() + "-launcher" + "-noworkerdll";
-        }
-        else
-        {
-            AddLog(spdlog::level::level_enum::err, "File 'platform\\cfg\\startup_client_retail.cfg' does not exist!\n");
-            return false;
-        }
+        if (!szConfig) { szConfig = "startup_client_retail.cfg"; }
 
-        m_svWorkerDll = m_svCurrentDir + "\\bin\\x64_retail\\client.dll";
-        m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
-        m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCmdLineArgs;
-
+        SetupLaunchContext(szConfig, CLIENT_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
         AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [RETAIL] ***\n");
         break;
     }
@@ -435,109 +219,60 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
     }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Print the file paths and arguments.
-    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    g_pLauncher->AddLog(spdlog::level::level_enum::debug, "- CWD: {:s}\n", m_svCurrentDir);
-    g_pLauncher->AddLog(spdlog::level::level_enum::debug, "- EXE: {:s}\n", m_svGameExe);
-    g_pLauncher->AddLog(spdlog::level::level_enum::debug, "- DLL: {:s}\n", m_svWorkerDll);
-    g_pLauncher->AddLog(spdlog::level::level_enum::debug, "- CLI: {:s}\n", svCmdLineArgs);
-    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-
     return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Purpose: setup for game dll's and configurations
-// Input  : lMode - 
-//          &svCommandLine - 
-// Output : true on success, false otherwise
+// Purpose: setup launch context.
+// Input  : *szConfig      - 
+//          *szWorkerDll   - 
+//          *szGameDll     - 
+//          *szCommandLine - 
 ///////////////////////////////////////////////////////////////////////////////
-bool CLauncher::Setup(eLaunchMode lMode, const string& svCommandLine)
+void CLauncher::SetupLaunchContext(const char* szConfig, const char* szWorkerDll, const char* szGameDll, const char* szCommandLine)
 {
-    ///////////////////////////////////////////////////////////////////////////
+    CIOStream cfgFile;
+    string commandLine;
 
-    ///////////////////////////////////////////////////////////////////////////
-    switch (lMode)
+    if (szConfig && szConfig[0])
     {
-    case eLaunchMode::LM_HOST_DEV:
-    {
-        m_svWorkerDll = m_svCurrentDir + "\\gamesdk.dll";
-        m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
-        m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCommandLine;
+        if (cfgFile.Open(Format(GAME_CFG_PATH"%s", szConfig), CIOStream::READ))
+        {
+            if (!cfgFile.ReadString(commandLine))
+            {
+                AddLog(spdlog::level::level_enum::err, Format("Failed to read file '%s'!\n", szConfig));
+            }
+        }
+        else // Failed to open config file.
+        {
+            AddLog(spdlog::level::level_enum::err, Format("Failed to open file '%s'!\n", szConfig));
+        }
+    }
 
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHER SETUP FOR HOST [DEV] ***\n");
-        break;
-    }
-    case eLaunchMode::LM_HOST:
+    if (szCommandLine && szCommandLine[0])
     {
-        m_svWorkerDll = m_svCurrentDir + "\\gamesdk.dll";
-        m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
-        m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCommandLine;
+        commandLine.append(szCommandLine);
+    }
 
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHER SETUP FOR HOST [RETAIL] ***\n");
-        break;
-    }
-    case eLaunchMode::LM_SERVER_DEV:
-    {
-        m_svWorkerDll = m_svCurrentDir + "\\dedicated.dll";
-        m_svGameExe = m_svCurrentDir + "\\r5apex_ds.exe";
-        m_svCmdLine = m_svCurrentDir + "\\r5apex_ds.exe " + svCommandLine;
-
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHER SETUP FOR DEDICATED [DEV] ***\n");
-        break;
-    }
-    case eLaunchMode::LM_SERVER:
-    {
-        m_svWorkerDll = m_svCurrentDir + "\\dedicated.dll";
-        m_svGameExe = m_svCurrentDir + "\\r5apex_ds.exe";
-        m_svCmdLine = m_svCurrentDir + "\\r5apex_ds.exe " + svCommandLine;
-
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHER SETUP FOR DEDICATED [RETAIL] ***\n");
-        break;
-    }
-    case eLaunchMode::LM_CLIENT_DEV:
-    {
-        m_svWorkerDll = m_svCurrentDir + "\\bin\\x64_retail\\client.dll";
-        m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
-        m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCommandLine;
-
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHER SETUP FOR CLIENT [DEV] ***\n");
-        break;
-    }
-    case eLaunchMode::LM_CLIENT:
-    {
-        m_svWorkerDll = m_svCurrentDir + "\\bin\\x64_retail\\client.dll";
-        m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
-        m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCommandLine;
-
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHER SETUP FOR CLIENT [RETAIL] ***\n");
-        break;
-    }
-    default:
-    {
-        AddLog(spdlog::level::level_enum::err, "*** INVALID LAUNCH MODE SPECIFIED ***\n");
-        return false;
-    }
-    }
+    m_svWorkerDll = Format("%s\\%s", m_svCurrentDir.c_str(), szWorkerDll);
+    m_svGameExe = Format("%s\\%s", m_svCurrentDir.c_str(), szGameDll);
+    m_svCmdLine = Format("%s\\%s %s", m_svCurrentDir.c_str(), szGameDll, commandLine.c_str());
 
     ///////////////////////////////////////////////////////////////////////////
     // Print the file paths and arguments.
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    g_pLauncher->AddLog(spdlog::level::level_enum::debug, "- CWD: {:s}\n", m_svCurrentDir);
-    g_pLauncher->AddLog(spdlog::level::level_enum::debug, "- EXE: {:s}\n", m_svGameExe);
-    g_pLauncher->AddLog(spdlog::level::level_enum::debug, "- DLL: {:s}\n", m_svWorkerDll);
-    g_pLauncher->AddLog(spdlog::level::level_enum::debug, "- CLI: {:s}\n", svCommandLine);
+    AddLog(spdlog::level::level_enum::debug, "- CWD: {:s}\n", m_svCurrentDir);
+    AddLog(spdlog::level::level_enum::debug, "- EXE: {:s}\n", m_svGameExe);
+    AddLog(spdlog::level::level_enum::debug, "- DLL: {:s}\n", m_svWorkerDll);
+    AddLog(spdlog::level::level_enum::debug, "- CLI: {:s}\n", commandLine);
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: launches the game with results from the setup
 // Output : true on success, false otherwise
 ///////////////////////////////////////////////////////////////////////////////
-bool CLauncher::Launch() const
+bool CLauncher::LaunchProcess() const
 {
     ///////////////////////////////////////////////////////////////////////////
     // Build our list of dlls to inject.
@@ -600,11 +335,11 @@ int main(int argc, char* argv[], char* envp[])
     if (__argc < 2)
     {
         FreeConsole();
-        g_pLauncher->InitSurface();
+        g_pLauncher->RunSurface();
     }
     else
     {
-        int results = g_pLauncher->HandleCmdLine(__argc, __argv);
+        int results = g_pLauncher->HandleCommandLine(__argc, __argv);
         if (results != -1)
             return results;
 
