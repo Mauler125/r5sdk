@@ -198,7 +198,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\</AdditionalIncludeDirectories>
@@ -207,7 +207,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;libspdlog_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
@@ -227,7 +227,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" /D "SPDLOG_NO_EXCEPTIONS" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -242,7 +242,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;libspdlog_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
     </Link>
@@ -263,7 +263,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_PROFILE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
@@ -283,7 +283,7 @@
       <OptimizeReferences>
       </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;libspdlog_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>
       </SetChecksum>
@@ -304,7 +304,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\</AdditionalIncludeDirectories>
@@ -313,7 +313,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -333,7 +333,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" /D "SPDLOG_NO_EXCEPTIONS" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -349,7 +349,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
     </Link>
@@ -370,7 +370,7 @@
       <PreprocessorDefinitions>NDEBUG;_PROFILE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
@@ -390,7 +390,7 @@
       <OptimizeReferences>
       </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>
       </SetChecksum>
