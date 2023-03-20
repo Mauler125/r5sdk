@@ -32,6 +32,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dedicated", "r5dev\vproj\de
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netconsole", "r5dev\vproj\netconsole.vcxproj", "{9579B31F-CE24-4852-A941-CD1AD71E2248}"
 	ProjectSection(ProjectDependencies) = postProject
+		{0B73CFB6-7C19-4BAF-A4A6-3825BDB82C09} = {0B73CFB6-7C19-4BAF-A4A6-3825BDB82C09}
 		{B273A875-6618-49FE-8CA4-0B693BA264D5} = {B273A875-6618-49FE-8CA4-0B693BA264D5}
 	EndProjectSection
 EndProject
@@ -89,6 +90,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcppkore", "r5dev\vproj\libcppkore.vcxproj", "{88BC2D60-A093-4E61-B194-59AB8BE4E33E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pluginsdk", "r5dev\vproj\pluginsdk.vcxproj", "{42214A91-2EEF-4717-BD99-6FD7FCCF2DBE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B73CFB6-7C19-4BAF-A4A6-3825BDB82C09} = {0B73CFB6-7C19-4BAF-A4A6-3825BDB82C09}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcurl", "r5dev\vproj\libcurl.vcxproj", "{8E2C49F6-0B51-414D-A391-F27FA2FBB8A4}"
 EndProject
