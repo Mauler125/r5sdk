@@ -445,7 +445,7 @@ class MapEntryLite : public MapEntryImpl<T, MessageLite, Key, Value,
   constexpr MapEntryLite() {}
   explicit MapEntryLite(Arena* arena) : SuperType(arena) {}
   ~MapEntryLite() override {
-    MessageLite::_internal_metadata_.template Delete<std::string>();
+    MessageLite::_internal_metadata_.Delete<std::string>();
   }
   void MergeFrom(const MapEntryLite& other) { MergeFromInternal(other); }
 
