@@ -444,10 +444,10 @@ CUtlMemory<T, I>::~CUtlMemory()
 {
 	Purge();
 
-#ifdef _DEBUG
-	m_pMemory = reinterpret_cast<T*>(0xFEFEBAAD);
-	m_nAllocationCount = 0x7BADF00D;
-#endif
+//#ifdef _DEBUG
+//	m_pMemory = reinterpret_cast<T*>(0xFEFEBAAD);
+//	m_nAllocationCount = 0x7BADF00D;
+//#endif
 }
 
 template< class T, class I >
