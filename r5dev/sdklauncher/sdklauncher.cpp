@@ -46,14 +46,14 @@ void CLauncher::InitLogger()
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: handles user input pre-init
 // Input  : argc - 
-//          *argv - 
+//          *argv[] - 
 // Output : exit_code (-1 if EntryPoint should continue to HandleInput)
 ///////////////////////////////////////////////////////////////////////////////
 int CLauncher::HandleCommandLine(int argc, char* argv[])
 {
-    for (int i = 1; i < __argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
-        string arg = __argv[i];
+        string arg = argv[i];
         eLaunchMode mode = eLaunchMode::LM_NONE;
 
         if ((arg == "-developer") || (arg == "-dev"))
@@ -100,11 +100,11 @@ int CLauncher::HandleCommandLine(int argc, char* argv[])
 int CLauncher::HandleInput()
 {
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::warn, "The '{:s}' options are for development purposes; use the '{:s}' options for default usage.\n", "DEV", "PROD");
+    AddLog(spdlog::level::level_enum::warn, "The '%s' options are for development purposes; use the '%s' options for default usage.\n", "DEV", "PROD");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::info, "{:6s} ('0' = {:s} | '1' = {:s}).\n", "GAME", "DEV", "PROD");
-    AddLog(spdlog::level::level_enum::info, "{:6s} ('2' = {:s} | '3' = {:s}).\n", "SERVER", "DEV", "PROD");
-    AddLog(spdlog::level::level_enum::info, "{:6s} ('4' = {:s} | '5' = {:s}).\n", "CLIENT", "DEV", "PROD");
+    AddLog(spdlog::level::level_enum::info, "%-6s ('0' = %s | '1' = %s).\n", "GAME", "DEV", "PROD");
+    AddLog(spdlog::level::level_enum::info, "%-6s ('2' = %s | '3' = %s).\n", "SERVER", "DEV", "PROD");
+    AddLog(spdlog::level::level_enum::info, "%-6s ('4' = %s | '5' = %s).\n", "CLIENT", "DEV", "PROD");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
     std::cout << "User input: ";
 
@@ -127,7 +127,7 @@ int CLauncher::HandleInput()
         }
         catch (const std::exception& e)
         {
-            AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input (error = {:s}).\n", e.what());
+            AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input (error = %s).\n", e.what());
             return EXIT_FAILURE;
         }
     }
@@ -152,7 +152,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_dev.cfg"; }
 
         SetupLaunchContext(szConfig, MAIN_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [{:s}] ***\n", "DEV");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [%s] ***\n", "DEV");
         break;
     }
     case eLaunchMode::LM_GAME:
@@ -160,7 +160,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_retail.cfg"; }
 
         SetupLaunchContext(szConfig, MAIN_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [{:s}] ***\n", "PROD");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [%s] ***\n", "PROD");
         break;
     }
     case eLaunchMode::LM_SERVER_DEV:
@@ -168,7 +168,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_dedi_dev.cfg"; }
 
         SetupLaunchContext(szConfig, SERVER_WORKER_DLL, SERVER_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING SERVER [{:s}] ***\n", "DEV");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING SERVER [%s] ***\n", "DEV");
         break;
     }
     case eLaunchMode::LM_SERVER:
@@ -176,7 +176,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_dedi_retail.cfg"; }
 
         SetupLaunchContext(szConfig, SERVER_WORKER_DLL, SERVER_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING SERVER [{:s}] ***\n", "PROD");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING SERVER [%s] ***\n", "PROD");
         break;
     }
     case eLaunchMode::LM_CLIENT_DEV:
@@ -184,7 +184,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_client_dev.cfg"; }
 
         SetupLaunchContext(szConfig, CLIENT_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [{:s}] ***\n", "DEV");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [%s] ***\n", "DEV");
         break;
     }
     case eLaunchMode::LM_CLIENT:
@@ -192,7 +192,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         if (!szConfig) { szConfig = "startup_client_retail.cfg"; }
 
         SetupLaunchContext(szConfig, CLIENT_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [{:s}] ***\n", "PROD");
+        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [%s] ***\n", "PROD");
         break;
     }
     default:
@@ -223,12 +223,12 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szWorkerDll
         {
             if (!cfgFile.ReadString(commandLine))
             {
-                AddLog(spdlog::level::level_enum::err, Format("Failed to read file '%s'!\n", szConfig));
+                AddLog(spdlog::level::level_enum::err, "Failed to read file '%s'!\n", szConfig);
             }
         }
         else // Failed to open config file.
         {
-            AddLog(spdlog::level::level_enum::err, Format("Failed to open file '%s'!\n", szConfig));
+            AddLog(spdlog::level::level_enum::err, "Failed to open file '%s'!\n", szConfig);
         }
     }
 
@@ -244,10 +244,10 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szWorkerDll
     ///////////////////////////////////////////////////////////////////////////
     // Print the file paths and arguments.
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::debug, "- CWD: {:s}\n", m_svCurrentDir);
-    AddLog(spdlog::level::level_enum::debug, "- EXE: {:s}\n", m_svGameExe);
-    AddLog(spdlog::level::level_enum::debug, "- DLL: {:s}\n", m_svWorkerDll);
-    AddLog(spdlog::level::level_enum::debug, "- CLI: {:s}\n", commandLine);
+    AddLog(spdlog::level::level_enum::debug, "- CWD: %s\n", m_svCurrentDir.c_str());
+    AddLog(spdlog::level::level_enum::debug, "- EXE: %s\n", m_svGameExe.c_str());
+    AddLog(spdlog::level::level_enum::debug, "- DLL: %s\n", m_svWorkerDll.c_str());
+    AddLog(spdlog::level::level_enum::debug, "- CLI: %s\n", commandLine.c_str());
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
 }
 
@@ -342,7 +342,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 int main(int argc, char* argv[], char* envp[])
 {
     g_pLauncher->InitLogger();
-    if (__argc < 2)
+    if (argc < 2)
     {
 #ifdef NDEBUG
         FreeConsole();
@@ -351,7 +351,7 @@ int main(int argc, char* argv[], char* envp[])
     }
     else
     {
-        int results = g_pLauncher->HandleCommandLine(__argc, __argv);
+        int results = g_pLauncher->HandleCommandLine(argc, argv);
         if (results != -1)
             return results;
 

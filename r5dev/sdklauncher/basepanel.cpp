@@ -651,7 +651,7 @@ void CSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEv
 
 	string svClipBoard;
 	for (uint32_t i = 0; i < lSelected.Count(); i++)
-		svClipBoard.append(pSurface->m_LogList[lSelected[i]].m_svText.ToCString());
+		svClipBoard.append(pSurface->m_LogList[lSelected[i]].m_svText);
 
 	clip::set_text(svClipBoard);
 }
@@ -719,9 +719,7 @@ void CSurface::ForwardCommandToGame(Forms::Control* pSender)
 	if (vecHandles.empty())
 		return;
 
-	const String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
-	const char* szCommand = kzCommand.ToCString();
-
+	const string kzCommand = pSurface->m_ConsoleCommandTextBox->Text().ToCString();
 	bool bSuccess = false;
 
 	for (const HWND hWindow : vecHandles)
@@ -729,7 +727,7 @@ void CSurface::ForwardCommandToGame(Forms::Control* pSender)
 		char szWindowName[256];
 		GetWindowTextA(hWindow, szWindowName, 256);
 
-		COPYDATASTRUCT cData = { 0, (DWORD)strnlen_s(szCommand, 259) + 1, (void*)szCommand };
+		COPYDATASTRUCT cData = { 0, (DWORD)(std::min)(kzCommand.size(), (size_t)259) + 1, (void*)kzCommand.c_str() };
 		bool bProcessingMessage = SendMessageA(hWindow, WM_COPYDATA, NULL, (LPARAM)&cData); // WM_COPYDATA will only return 0 or 1, that's why we use a boolean.
 		if (bProcessingMessage && !bSuccess)
 		{

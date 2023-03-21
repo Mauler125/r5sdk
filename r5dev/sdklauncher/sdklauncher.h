@@ -18,18 +18,23 @@ public:
 			delete m_pSurface;
 		}
     }
-    template <typename T, typename ...P>
-    void AddLog(spdlog::level::level_enum nLevel, T&& svFormat, P &&... vParams)
+
+    void AddLog(spdlog::level::level_enum nLevel, const char* szFormat, ...)
     {
-        String svBuffer = fmt::format(std::forward<T>(svFormat), std::forward<P>(vParams)...).c_str();
-        m_pLogger->log(nLevel, svBuffer.ToCString());
+        string svBuffer;
+        va_list args;
+        va_start(args, szFormat);
+        svBuffer = FormatV(szFormat, args);
+        va_end(args);
+
+        m_pLogger->log(nLevel, svBuffer);
         m_pLogger->flush();
 
         if (m_pSurface)
         {
             m_pSurface->m_LogList.push_back(LogList_t(nLevel, svBuffer));
-            m_pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_pSurface->m_LogList.size()));
-            m_pSurface->m_ConsoleListView->Refresh();
+            m_pSurface->ConsoleListView()->SetVirtualListSize(static_cast<int32_t>(m_pSurface->m_LogList.size()));
+            m_pSurface->ConsoleListView()->Refresh();
         }
     }
 
