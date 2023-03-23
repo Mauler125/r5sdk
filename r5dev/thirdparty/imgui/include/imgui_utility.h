@@ -1,6 +1,5 @@
 #pragma once
 
-constexpr char IMGUI_BIND_PATH[] = "cfg/imgui/";
 constexpr char IMGUI_BIND_FILE[] = "bind.json";
 
 enum class ImGuiStyle_t

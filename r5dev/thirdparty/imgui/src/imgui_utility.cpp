@@ -10,10 +10,10 @@
 
 void ImGuiConfig::Load()
 {
-    const string svPath = fmt::format("{:s}{:s}", IMGUI_BIND_PATH, IMGUI_BIND_FILE);
+    const string svPath = Format(SDK_SYSTEM_CFG_PATH"%s", IMGUI_BIND_FILE);
     DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", svPath.c_str());
 
-    FileSystem()->CreateDirHierarchy(IMGUI_BIND_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
+    FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
     FileHandle_t hFile = FileSystem()->Open(svPath.c_str(), "rt", "PLATFORM");
 
     if (!hFile)
@@ -54,10 +54,10 @@ void ImGuiConfig::Load()
 
 void ImGuiConfig::Save()
 {
-    const string svPath = fmt::format("{:s}{:s}", IMGUI_BIND_PATH, IMGUI_BIND_FILE);
+    const string svPath = Format(SDK_SYSTEM_CFG_PATH"%s", IMGUI_BIND_FILE);
     DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", svPath.c_str());
 
-    FileSystem()->CreateDirHierarchy(IMGUI_BIND_PATH, "PLATFORM");
+    FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM");
     FileHandle_t hFile = FileSystem()->Open(svPath.c_str(), "wt", "PLATFORM");
 
     if (!hFile)

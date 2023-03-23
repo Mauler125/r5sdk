@@ -149,10 +149,11 @@
 #define SDK_ARRAYSIZE(arr) ((sizeof(arr) / sizeof(*arr))) // Name due to IMGUI implementation and NT implementation that we shouldn't share across everywhere.
 
 #ifndef DEDICATED
-#define SDK_DEFAULT_CFG "platform\\cfg\\startup_default.cfg"
+#define SDK_DEFAULT_CFG "platform/cfg/startup_default.cfg"
 #else
-#define SDK_DEFAULT_CFG "platform\\cfg\\startup_dedi_default.cfg"
+#define SDK_DEFAULT_CFG "platform/cfg/startup_dedi_default.cfg"
 #endif
+#define SDK_SYSTEM_CFG_PATH "cfg/system/"
 
 // #define COMPILETIME_MAX and COMPILETIME_MIN for max/min in constant expressions
 #define COMPILETIME_MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
