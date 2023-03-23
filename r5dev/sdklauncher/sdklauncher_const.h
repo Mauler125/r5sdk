@@ -11,6 +11,8 @@
 
 #define DEFAULT_WINDOW_CLASS_NAME "Respawn001"
 
+#define LAUNCHER_SETTING_FILE "launcher.vdf"
+
 //-----------------------------------------------------------------------------
 // Launch and inject specified dll based on launch mode
 //-----------------------------------------------------------------------------

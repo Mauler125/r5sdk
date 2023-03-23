@@ -27,6 +27,9 @@ void CSurface::Init()
 	this->SetMaximizeBox(false);
 	this->SetBackColor(Drawing::Color(47, 54, 61));
 
+	this->Load += &OnLoad;
+	this->FormClosing += &OnClose;
+
 	// ########################################################################
 	//	GAME
 	// ########################################################################
@@ -500,6 +503,167 @@ void CSurface::Setup()
 	this->m_VisibilityCombo->Items.Add("Public");
 	this->m_VisibilityCombo->Items.Add("Hidden");
 	this->m_VisibilityCombo->Items.Add("Offline");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: load and apply settings
+//-----------------------------------------------------------------------------
+void CSurface::LoadSettings()
+{
+	const fs::path settingsPath(Format("platform/%s/%s", SDK_SYSTEM_CFG_PATH, LAUNCHER_SETTING_FILE));
+	if (!fs::exists(settingsPath))
+	{
+		return;
+	}
+
+	bool success{ };
+	std::ifstream fileStream(settingsPath, fstream::in);
+	vdf::object vRoot = vdf::read(fileStream, &success);
+
+	if (!success)
+	{
+		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__,
+			settingsPath.u8string().c_str());
+		return;
+	}
+
+	try
+	{
+		// Game.
+		string& attributeView = vRoot.attribs["playlistsFile"];
+		this->m_PlaylistFileTextBox->SetText(attributeView.data());
+
+		attributeView = vRoot.attribs["enableCheats"];
+		this->m_CheatsToggle->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["enableDeveloper"];
+		this->m_DeveloperToggle->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["enableConsole"];
+		this->m_ConsoleToggle->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["colorConsole"];
+		this->m_ColorConsoleToggle->SetChecked(attributeView != "0");
+
+		// Engine.
+		attributeView = vRoot.attribs["reservedCoreCount"];
+		this->m_ReservedCoresTextBox->SetText(attributeView.data());
+
+		attributeView = vRoot.attribs["workerThreadCount"];
+		this->m_WorkerThreadsTextBox->SetText(attributeView.data());
+
+		attributeView = vRoot.attribs["singleCoreServer"];
+		this->m_SingleCoreDediToggle->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["synchronizeJobs"]; // No-async
+		this->m_NoAsyncJobsToggle->SetChecked(attributeView != "0");
+
+		// Network.
+		attributeView = vRoot.attribs["encryptionEnable"];
+		this->m_NetEncryptionToggle->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["randomNetKey"];
+		this->m_NetRandomKeyToggle->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["noQueuedPackets"];
+		this->m_NoQueuedPacketThread->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["noTimeOut"];
+		this->m_NoTimeOutToggle->SetChecked(attributeView != "0");
+
+		// Video.
+		attributeView = vRoot.attribs["windowed"];
+		this->m_WindowedToggle->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["borderless"];
+		this->m_NoBorderToggle->SetChecked(attributeView != "0");
+
+		attributeView = vRoot.attribs["maxFPS"];
+		this->m_FpsTextBox->SetText(attributeView.data());
+
+		attributeView = vRoot.attribs["width"];
+		this->m_WidthTextBox->SetText(attributeView.data());
+
+		attributeView = vRoot.attribs["height"];
+		this->m_HeightTextBox->SetText(attributeView.data());
+	}
+	catch (const std::exception& e)
+	{
+		printf("%s: Exception while parsing VDF file: %s\n", e.what());
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: save current launcher state
+//-----------------------------------------------------------------------------
+void CSurface::SaveSettings()
+{
+	const fs::path settingsPath(Format("platform/%s/%s", SDK_SYSTEM_CFG_PATH, LAUNCHER_SETTING_FILE));
+	const fs::path parentPath = settingsPath.parent_path();
+
+	if (!fs::exists(parentPath) && !fs::create_directories(parentPath))
+	{
+		printf("%s: Failed to create directory: '%s'\n", __FUNCTION__,
+			parentPath.relative_path().u8string().c_str());
+		return;
+	}
+
+	std::ofstream fileStream(settingsPath, fstream::out);
+	if (!fileStream)
+	{
+		printf("%s: Failed to create VDF file: '%s'\n", __FUNCTION__,
+			settingsPath.u8string().c_str());
+		return;
+	}
+
+	vdf::object vRoot;
+	vRoot.set_name("LauncherSettings");
+
+	// Game.
+	vRoot.add_attribute("playlistsFile", GetControlValue(this->m_PlaylistFileTextBox));
+	vRoot.add_attribute("enableCheats", GetControlValue(this->m_CheatsToggle));
+	vRoot.add_attribute("enableDeveloper", GetControlValue(this->m_DeveloperToggle));
+	vRoot.add_attribute("enableConsole", GetControlValue(this->m_ConsoleToggle));
+	vRoot.add_attribute("colorConsole", GetControlValue(this->m_ColorConsoleToggle));
+
+	// Engine.
+	vRoot.add_attribute("reservedCoreCount", GetControlValue(this->m_ReservedCoresTextBox));
+	vRoot.add_attribute("workerThreadCount", GetControlValue(this->m_WorkerThreadsTextBox));
+	vRoot.add_attribute("singleCoreServer", GetControlValue(this->m_SingleCoreDediToggle));
+	vRoot.add_attribute("synchronizeJobs", GetControlValue(this->m_NoAsyncJobsToggle));
+
+	// Network.
+	vRoot.add_attribute("encryptionEnable", GetControlValue(this->m_NetEncryptionToggle));
+	vRoot.add_attribute("randomNetKey", GetControlValue(this->m_NetRandomKeyToggle));
+	vRoot.add_attribute("noQueuedPackets", GetControlValue(this->m_NoQueuedPacketThread));
+	vRoot.add_attribute("noTimeOut", GetControlValue(this->m_NoTimeOutToggle));
+
+	// Video.
+	vRoot.add_attribute("windowed", GetControlValue(this->m_WindowedToggle));
+	vRoot.add_attribute("borderless", GetControlValue(this->m_NoBorderToggle));
+	vRoot.add_attribute("maxFPS", GetControlValue(this->m_FpsTextBox));
+	vRoot.add_attribute("width", GetControlValue(this->m_WidthTextBox));
+	vRoot.add_attribute("height", GetControlValue(this->m_HeightTextBox));
+
+	vdf::write(fileStream, vRoot);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: load callback
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CSurface::OnLoad(Forms::Control* pSender)
+{
+	((CSurface*)pSender->FindForm())->LoadSettings();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: close callback
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CSurface::OnClose(const std::unique_ptr<FormClosingEventArgs>& pEventArgs, Forms::Control* pSender)
+{
+	((CSurface*)pSender->FindForm())->SaveSettings();
 }
 
 //-----------------------------------------------------------------------------
@@ -1043,6 +1207,26 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 	}
 	default:
 		return results;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the control item value
+// Input  : *pControl - 
+//-----------------------------------------------------------------------------
+const char* CSurface::GetControlValue(Forms::Control* pControl)
+{
+	switch (pControl->GetType())
+	{
+	case Forms::ControlTypes::CheckBox:
+	case Forms::ControlTypes::RadioButton:
+	{
+		return reinterpret_cast<UIX::UIXCheckBox*>(pControl)->Checked() ? "1" : "0";
+	}
+	default:
+	{
+		return pControl->Text().ToCString();
+	}
 	}
 }
 

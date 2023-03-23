@@ -26,8 +26,13 @@ public:
 private:
 	void Init();
 	void Setup();
+	void LoadSettings();
+	void SaveSettings();
 	void ParseMaps();
 	void ParsePlaylists();
+
+	static void OnLoad(Forms::Control* pSender);
+	static void OnClose(const std::unique_ptr<FormClosingEventArgs>& pEventArgs, Forms::Control* pSender);
 
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);
@@ -38,6 +43,7 @@ private:
 	static void ForwardCommandToGame(Forms::Control* pSender);
 
 	eLaunchMode BuildParameter(string& svParameter);
+	const char* GetControlValue(Forms::Control* pControl);
 
 	void AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument = nullptr);
 	void AppendReservedCoreCount(string& svParameter);
