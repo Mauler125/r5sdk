@@ -718,6 +718,11 @@ namespace Forms
 			{
 				OnClosing(EventArgs);
 				OnFormClosing(EventArgs);
+
+				if (EventArgs->Cancel)
+					_DialogResult = DialogResult::None;
+				else
+					SetCalledClosing(true);
 			}
 
 			if (Msg.Msg == WM_QUERYENDSESSION)
