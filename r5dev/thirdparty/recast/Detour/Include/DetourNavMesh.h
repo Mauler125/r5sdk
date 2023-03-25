@@ -177,7 +177,7 @@ struct dtPoly
 	/// @note Use the structure's set and get methods to access this value.
 	unsigned char areaAndtype;
 
-	unsigned short disjointSetId;			//IDK but looks filled
+	unsigned short disjointSetId;
 	unsigned short unk;						//IDK but looks filled
 	unsigned int unk1;						//!TODO: debug this if you ever find where this gets used in the engine..
 	float org[3];							// Seems to be used for AIN file generation (build from large navmesh).
