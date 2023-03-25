@@ -1,6 +1,6 @@
 #pragma once
 
-constexpr char IMGUI_BIND_FILE[] = "bind.json";
+constexpr char IMGUI_BIND_FILE[] = "keymap.vdf";
 
 enum class ImGuiStyle_t
 {
@@ -21,8 +21,8 @@ public:
 
     struct
     {
-        int m_nBind0 = VK_HOME;
-        int m_nBind1 = VK_F10;
+        int m_nBind0 = VK_F10;
+        int m_nBind1 = VK_HOME;
     } m_BrowserConfig;
 
     void Load();

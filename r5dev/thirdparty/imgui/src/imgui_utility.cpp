@@ -5,8 +5,12 @@
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
 #include "tier0/memstd.h"
+#include "vpc/keyvalues.h"
 #include "filesystem/filesystem.h"
 #include "thirdparty/imgui/include/imgui_utility.h"
+
+#define GAME_CONSOLE_KEY "Console"
+#define GAME_BROWSER_KEY "Browser"
 
 void ImGuiConfig::Load()
 {
@@ -14,42 +18,28 @@ void ImGuiConfig::Load()
     DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", svPath.c_str());
 
     FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
-    FileHandle_t hFile = FileSystem()->Open(svPath.c_str(), "rt", "PLATFORM");
-
-    if (!hFile)
+    KeyValues* pKeyMapKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_COMMON, svPath.c_str(), "PLATFORM");
+    if (!pKeyMapKV)
     {
+        //Warning(eDLL_T::FS, "Failed to parse VPK build manifest: '%s'\n", svPathOut.c_str());
         return;
     }
 
-    uint32_t nLen = FileSystem()->Size(hFile);
-    uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen + 1);
-
-    int nRead = FileSystem()->Read(pBuf, nLen, hFile);
-    FileSystem()->Close(hFile);
-
-    pBuf[nRead] = '\0';
-
-    try
+    KeyValues* pConsoleKV = pKeyMapKV->FindKey(GAME_CONSOLE_KEY);
+    if (pConsoleKV)
     {
-        nlohmann::json jsIn = nlohmann::json::parse(pBuf);
+		m_ConsoleConfig.m_nBind0 = pConsoleKV->GetInt("$bindDef", VK_OEM_3);
+		m_ConsoleConfig.m_nBind1 = pConsoleKV->GetInt("$bindExt", VK_INSERT);
+	}
 
-        if (!jsIn.is_null() || !jsIn["config"].is_null())
-        {
-            // IConsole
-            m_ConsoleConfig.m_nBind0 = jsIn["config"]["GameConsole"]["bind0"].get<int>();
-            m_ConsoleConfig.m_nBind1 = jsIn["config"]["GameConsole"]["bind1"].get<int>();
-
-            // IBrowser
-            m_BrowserConfig.m_nBind0 = jsIn["config"]["GameBrowser"]["bind0"].get<int>();
-            m_BrowserConfig.m_nBind1 = jsIn["config"]["GameBrowser"]["bind1"].get<int>();
-        }
-    }
-    catch (const std::exception& ex)
+    KeyValues* pBrowserKV = pKeyMapKV->FindKey(GAME_BROWSER_KEY);
+    if (pBrowserKV)
     {
-        Warning(eDLL_T::MS, "Exception while parsing ImGui config file:\n%s\n", ex.what());
+        m_BrowserConfig.m_nBind0 = pBrowserKV->GetInt("$bindDef", VK_F10);
+        m_BrowserConfig.m_nBind1 = pBrowserKV->GetInt("$bindExt", VK_HOME);
     }
 
-    MemAllocSingleton()->Free(pBuf);
+    pKeyMapKV->DeleteThis();
 }
 
 void ImGuiConfig::Save()
@@ -57,29 +47,23 @@ void ImGuiConfig::Save()
     const string svPath = Format(SDK_SYSTEM_CFG_PATH"%s", IMGUI_BIND_FILE);
     DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", svPath.c_str());
 
-    FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM");
-    FileHandle_t hFile = FileSystem()->Open(svPath.c_str(), "wt", "PLATFORM");
+    FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
 
-    if (!hFile)
-    {
-        Error(eDLL_T::MS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svPath.c_str());
-        return;
-    }
+    KeyValues kv("KeyMap");
+    KeyValues* pKeyMapKV = kv.FindKey("KeyMap", true);
 
-    nlohmann::json jsOut;
+    KeyValues* pConsoleKV = pKeyMapKV->FindKey(GAME_CONSOLE_KEY, true);
+    pConsoleKV->SetInt("$bindDef", m_ConsoleConfig.m_nBind0);
+    pConsoleKV->SetInt("$bindExt", m_ConsoleConfig.m_nBind1);
 
-    // IConsole
-    jsOut["config"]["GameConsole"]["bind0"] = m_ConsoleConfig.m_nBind0;
-    jsOut["config"]["GameConsole"]["bind1"] = m_ConsoleConfig.m_nBind1;
+    KeyValues* pBrowserKV = pKeyMapKV->FindKey(GAME_BROWSER_KEY, true);
+    pBrowserKV->SetInt("$bindDef", m_BrowserConfig.m_nBind0);
+    pBrowserKV->SetInt("$bindExt", m_BrowserConfig.m_nBind1);
 
-    // IBrowser
-    jsOut["config"]["GameBrowser"]["bind0"] = m_BrowserConfig.m_nBind0;
-    jsOut["config"]["GameBrowser"]["bind1"] = m_BrowserConfig.m_nBind1;
+    CUtlBuffer uBuf(0i64, 0, CUtlBuffer::TEXT_BUFFER);
 
-    const string svOutFile = jsOut.dump(4);
-
-    FileSystem()->Write(svOutFile.data(), svOutFile.size(), hFile);
-    FileSystem()->Close(hFile);
+    kv.RecursiveSaveToFile(uBuf, 0);
+    FileSystem()->WriteFile(svPath.c_str(), "PLATFORM", uBuf);
 }
 
 ImGuiStyle_t ImGuiConfig::InitStyle() const
