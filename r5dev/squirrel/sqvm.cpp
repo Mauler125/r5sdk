@@ -196,14 +196,14 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 				}
 			}
 
-			g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-			g_pOverlay->AddLog(static_cast<EGlobalContext_t>(nResponseId), g_spd_sys_w_oss.str());
+			g_pConsole->AddLog(ConLog_t(g_LogStream.str(), color));
+			g_pOverlay->AddLog(static_cast<EGlobalContext_t>(nResponseId), g_LogStream.str());
 		}
 #endif // !DEDICATED
 	}
 
-	g_spd_sys_w_oss.str("");
-	g_spd_sys_w_oss.clear();
+	g_LogStream.str("");
+	g_LogStream.clear();
 
 	g_LogMutex.unlock();
 	return SQ_OK;
@@ -289,13 +289,13 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 #ifndef DEDICATED
 		iconsole->debug(vmStr); // Emit to in-game console.
 
-		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
-		g_pOverlay->AddLog(EGlobalContext_t::WARNING_C, g_spd_sys_w_oss.str());
+		g_pConsole->AddLog(ConLog_t(g_LogStream.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
+		g_pOverlay->AddLog(EGlobalContext_t::WARNING_C, g_LogStream.str());
 #endif // !DEDICATED
 	}
 
-	g_spd_sys_w_oss.str("");
-	g_spd_sys_w_oss.clear();
+	g_LogStream.str("");
+	g_LogStream.clear();
 
 	g_LogMutex.unlock();
 	return result;

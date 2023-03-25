@@ -10,8 +10,8 @@ inline string g_svLogSessionDirectory;
 
 //-------------------------------------------------------------------------
 // IMGUI CONSOLE SINK                                                     |
-inline std::ostringstream g_spd_sys_w_oss;
-inline auto g_spd_sys_p_ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(g_spd_sys_w_oss);
+inline std::ostringstream g_LogStream;
+inline auto g_LogSink = std::make_shared<spdlog::sinks::ostream_sink_st>(g_LogStream);
 
 void SpdLog_Init(void);
 void SpdLog_PostInit(void);

@@ -172,11 +172,11 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 		ntlogger->debug(svOut);
 		iconsole->debug(svOut);
 
-		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-		g_pOverlay->AddLog(static_cast<EGlobalContext_t>(context), g_spd_sys_w_oss.str());
+		g_pConsole->AddLog(ConLog_t(g_LogStream.str(), color));
+		g_pOverlay->AddLog(static_cast<EGlobalContext_t>(context), g_LogStream.str());
 
-		g_spd_sys_w_oss.str("");
-		g_spd_sys_w_oss.clear();
+		g_LogStream.str("");
+		g_LogStream.clear();
 
 		g_LogMutex.unlock();
 
@@ -279,16 +279,148 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 		ntlogger->debug(svOut);
 		iconsole->info(svOut);
 
-		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-		g_pOverlay->AddLog(context, g_spd_sys_w_oss.str());
+		g_pConsole->AddLog(ConLog_t(g_LogStream.str(), color));
+		g_pOverlay->AddLog(context, g_LogStream.str());
 
-		g_spd_sys_w_oss.str("");
-		g_spd_sys_w_oss.clear();
+		g_LogStream.str("");
+		g_LogStream.clear();
 		g_LogMutex.unlock();
 		break;
 	}
 	}
 #endif // !DEDICATED
+}
+
+#ifndef DEDICATED
+ImVec4 GetColorForContext(eDLL_T context)
+{
+	switch (context)
+	{
+	case eDLL_T::SERVER:
+		return ImVec4(0.23f, 0.47f, 0.85f, 1.00f);
+	case eDLL_T::CLIENT:
+		return ImVec4(0.46f, 0.46f, 0.46f, 1.00f);
+	case eDLL_T::UI:
+		return ImVec4(0.59f, 0.35f, 0.46f, 1.00f);
+	case eDLL_T::ENGINE:
+		return ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
+	case eDLL_T::FS:
+		return ImVec4(0.32f, 0.64f, 0.72f, 1.00f);
+	case eDLL_T::RTECH:
+		return ImVec4(0.36f, 0.70f, 0.35f, 1.00f);
+	case eDLL_T::MS:
+		return ImVec4(0.75f, 0.30f, 0.68f, 1.00f);
+	case eDLL_T::AUDIO:
+		return ImVec4(0.93f, 0.42f, 0.12f, 1.00f);
+	case eDLL_T::VIDEO:
+		return ImVec4(0.73f, 0.00f, 0.92f, 1.00f);
+	case eDLL_T::NETCON:
+		return ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
+	case eDLL_T::COMMON:
+		return ImVec4(1.00f, 0.80f, 0.60f, 1.00f);
+	default:
+		return ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
+	}
+}
+
+#endif // !DEDICATED
+
+string MsgInternal(LogType_t type, eDLL_T context, const char* fmt, va_list args, const UINT code = NULL)
+{
+	std::lock_guard<std::mutex> lock(g_LogMutex);
+
+	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
+	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
+	static std::shared_ptr<spdlog::logger> ntlogger; // <-- Obtained by logger context.
+
+	const char* pszUpTime = Plat_GetProcessUpTime();
+	string result = pszUpTime;
+
+	const char* pszContext = sANSI_DLL_T[static_cast<int>(context)];
+	if (!g_bSpdLog_UseAnsiClr)
+	{
+		// Shift # chars to skip ansi row.
+		pszContext += sizeof(s_DefaultAnsiColor)-1;
+	}
+	result.append(pszContext);
+
+#ifndef DEDICATED
+	ImVec4 color;
+	EGlobalContext_t tLog;
+#endif // !DEDICATED
+
+	switch (type)
+	{
+	case LogType_t::LOG_INFO:
+#ifndef DEDICATED
+		color = GetColorForContext(context);
+		tLog = static_cast<EGlobalContext_t>(context);
+#endif // !DEDICATED
+		ntlogger = spdlog::get("sdk_info");
+		break;
+	case LogType_t::LOG_WARNING:
+#ifndef DEDICATED
+		color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f);
+		tLog = EGlobalContext_t::WARNING_C;
+#endif // !DEDICATED
+		ntlogger = spdlog::get("sdk_warn");
+		if (g_bSpdLog_UseAnsiClr)
+		{
+			result.append(g_svYellowF);
+		}
+		break;
+	case LogType_t::LOG_ERROR:
+#ifndef DEDICATED
+		color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+		tLog = EGlobalContext_t::ERROR_C;
+#endif // !DEDICATED
+		ntlogger = spdlog::get("sdk_error");
+		if (g_bSpdLog_UseAnsiClr)
+		{
+			result.append(g_svRedF);
+		}
+		break;
+	}
+
+	va_list argsCopy;
+	va_copy(argsCopy, args);
+	result.append(FormatV(fmt, argsCopy));
+	va_end(argsCopy);
+
+	if (result.back() != '\n')
+	{
+		result.append("\n");
+	}
+
+#ifndef CLIENT_DLL
+	RCONServer()->Send(result, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
+#endif // !CLIENT_DLL
+
+	wconsole->debug(result);
+	result = std::regex_replace(result, rANSI_EXP, "");
+	ntlogger->debug(result);
+#ifndef DEDICATED
+	iconsole->debug(result);
+
+	if (g_bSpdLog_PostInit)
+	{
+		g_pConsole->AddLog(ConLog_t(g_LogStream.str(), color));
+		g_pOverlay->AddLog(tLog, g_LogStream.str());
+	}
+
+	g_LogStream.str("");
+	g_LogStream.clear();
+#endif // !DEDICATED
+
+	if (code) // Terminate the process if an exit code was passed.
+	{
+		if (MessageBoxA(NULL, Format("%s- %s", pszUpTime, result.c_str()).c_str(), "SDK Error", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), code);
+		}
+	}
+
+	return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -298,198 +430,23 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void DevMsg(eDLL_T context, const char* fmt, ...)
 {
-	static char szBuf[4096] = {};
-
-	static std::string svOut;
-	static std::string svAnsiOut;
-
-	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_info");
-
-	g_LogMutex.lock();
-	const char* pszUpTime = Plat_GetProcessUpTime();
-
-	{/////////////////////////////
-		va_list args{};
-		va_start(args, fmt);
-
-		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
-
-		szBuf[sizeof(szBuf) - 1] = '\0';
-		va_end(args);
-	}/////////////////////////////
-
-	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
-	svOut.append(sDLL_T[static_cast<int>(context)]);
-	svOut.append(szBuf);
-	svOut = std::regex_replace(svOut, rANSI_EXP, "");
-
-	if (svOut.back() != '\n')
-	{
-		svOut.append("\n");
-	}
-
-	if (!g_bSpdLog_UseAnsiClr)
-	{
-		wconsole->debug(svOut);
-#ifndef CLIENT_DLL
-		RCONServer()->Send(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // !CLIENT_DLL
-	}
-	else
-	{
-		svAnsiOut = g_bSpdLog_PostInit ? pszUpTime : "";
-		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
-		svAnsiOut.append(szBuf);
-
-		if (svAnsiOut.back() != '\n')
-		{
-			svAnsiOut.append("\n");
-		}
-		wconsole->debug(svAnsiOut);
-#ifndef CLIENT_DLL
-		RCONServer()->Send(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // !CLIENT_DLL
-	}
-
-	sqlogger->debug(svOut);
-
-#ifndef DEDICATED
-	iconsole->info(svOut);
-
-	EGlobalContext_t tLog = static_cast<EGlobalContext_t>(context);
-	ImVec4 color;
-
-	switch (context)
-	{
-	case eDLL_T::SERVER:
-		color = ImVec4(0.23f, 0.47f, 0.85f, 1.00f);
-		break;
-	case eDLL_T::CLIENT:
-		color = ImVec4(0.46f, 0.46f, 0.46f, 1.00f);
-		break;
-	case eDLL_T::UI:
-		color = ImVec4(0.59f, 0.35f, 0.46f, 1.00f);
-		break;
-	case eDLL_T::ENGINE:
-		color = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
-		break;
-	case eDLL_T::FS:
-		color = ImVec4(0.32f, 0.64f, 0.72f, 1.00f);
-		break;
-	case eDLL_T::RTECH:
-		color = ImVec4(0.36f, 0.70f, 0.35f, 1.00f);
-		break;
-	case eDLL_T::MS:
-		color = ImVec4(0.75f, 0.30f, 0.68f, 1.00f);
-		break;
-	case eDLL_T::AUDIO:
-		color = ImVec4(0.93f, 0.42f, 0.12f, 1.00f);
-		break;
-	case eDLL_T::VIDEO:
-		color = ImVec4(0.73f, 0.00f, 0.92f, 1.00f);
-		break;
-	case eDLL_T::NETCON:
-		color = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
-		break;
-	case eDLL_T::COMMON:
-		color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f);
-		break;
-	default:
-		color = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
-		break;
-	}
-
-	if (g_bSpdLog_PostInit)
-	{
-		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-		g_pOverlay->AddLog(tLog, g_spd_sys_w_oss.str());
-	}
-
-	g_spd_sys_w_oss.str("");
-	g_spd_sys_w_oss.clear();
-#endif // !DEDICATED
-	g_LogMutex.unlock();
+	va_list args;
+	va_start(args, fmt);
+	MsgInternal(LogType_t::LOG_INFO, context, fmt, args);
+	va_end(args);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Print engine and SDK errors
+// Purpose: Print engine and SDK warnings
 // Input  : context - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
 void Warning(eDLL_T context, const char* fmt, ...)
 {
-	static char szBuf[4096] = {};
-
-	static std::string svOut;
-	static std::string svAnsiOut;
-
-	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_warn");
-
-	g_LogMutex.lock();
-	const char* pszUpTime = Plat_GetProcessUpTime();
-
-	{/////////////////////////////
-		va_list args{};
-		va_start(args, fmt);
-
-		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
-
-		szBuf[sizeof(szBuf) - 1] = '\0';
-		va_end(args);
-	}/////////////////////////////
-
-	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
-	svOut.append(sDLL_T[static_cast<int>(context)]);
-	svOut.append(szBuf);
-	svOut = std::regex_replace(svOut, rANSI_EXP, "");
-
-	if (svOut.back() != '\n')
-	{
-		svOut.append("\n");
-	}
-
-	if (!g_bSpdLog_UseAnsiClr)
-	{
-		wconsole->debug(svOut);
-#ifndef CLIENT_DLL
-		RCONServer()->Send(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // !CLIENT_DLL
-	}
-	else
-	{
-		svAnsiOut = g_bSpdLog_PostInit ? pszUpTime : "";
-		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
-		svAnsiOut.append(g_svYellowF);
-		svAnsiOut.append(szBuf);
-
-		if (svAnsiOut.back() != '\n')
-		{
-			svAnsiOut.append("\n");
-		}
-		wconsole->debug(svAnsiOut);
-#ifndef CLIENT_DLL
-		RCONServer()->Send(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // !CLIENT_DLL
-	}
-
-	sqlogger->debug(svOut);
-#ifndef DEDICATED
-	iconsole->info(svOut);
-
-	if (g_bSpdLog_PostInit)
-	{
-		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
-		g_pOverlay->AddLog(EGlobalContext_t::WARNING_C, g_spd_sys_w_oss.str());
-	}
-
-	g_spd_sys_w_oss.str("");
-	g_spd_sys_w_oss.clear();
-#endif // !DEDICATED
-	g_LogMutex.unlock();
+	va_list args;
+	va_start(args, fmt);
+	MsgInternal(LogType_t::LOG_WARNING, context, fmt, args);
+	va_end(args);
 }
 
 //-----------------------------------------------------------------------------
@@ -500,82 +457,8 @@ void Warning(eDLL_T context, const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void Error(eDLL_T context, const UINT code, const char* fmt, ...)
 {
-	static char szBuf[4096] = {};
-
-	static std::string svOut;
-	static std::string svAnsiOut;
-
-	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_error");
-
-	g_LogMutex.lock();
-	const char* pszUpTime = Plat_GetProcessUpTime();
-
-	{/////////////////////////////
-		va_list args{};
-		va_start(args, fmt);
-
-		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
-
-		szBuf[sizeof(szBuf) - 1] = '\0';
-		va_end(args);
-	}/////////////////////////////
-
-	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
-	svOut.append(sDLL_T[static_cast<int>(context)]);
-	svOut.append(szBuf);
-	svOut = std::regex_replace(svOut, rANSI_EXP, "");
-
-	if (svOut.back() != '\n')
-	{
-		svOut.append("\n");
-	}
-
-	if (!g_bSpdLog_UseAnsiClr)
-	{
-		wconsole->debug(svOut);
-#ifndef CLIENT_DLL
-		RCONServer()->Send(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // !CLIENT_DLL
-	}
-	else
-	{
-		svAnsiOut = g_bSpdLog_PostInit ? pszUpTime : "";
-		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
-		svAnsiOut.append(g_svRedF);
-		svAnsiOut.append(szBuf);
-
-		if (svAnsiOut.back() != '\n')
-		{
-			svAnsiOut.append("\n");
-		}
-		wconsole->debug(svAnsiOut);
-#ifndef CLIENT_DLL
-		RCONServer()->Send(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // !CLIENT_DLL
-	}
-
-	sqlogger->debug(svOut);
-
-#ifndef DEDICATED
-	iconsole->info(svOut);
-
-	if (g_bSpdLog_PostInit)
-	{
-		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
-		g_pOverlay->AddLog(EGlobalContext_t::ERROR_C, g_spd_sys_w_oss.str());
-	}
-
-	g_spd_sys_w_oss.str("");
-	g_spd_sys_w_oss.clear();
-#endif // !DEDICATED
-	if (code) // Terminate the process if an exit code was passed.
-	{
-		if (MessageBoxA(NULL, fmt::format("{:s}- {:s}", pszUpTime, szBuf).c_str(), "SDK Error", MB_ICONERROR | MB_OK))
-		{
-			TerminateProcess(GetCurrentProcess(), code);
-		}
-	}
-	g_LogMutex.unlock();
+	va_list args;
+	va_start(args, fmt);
+	MsgInternal(LogType_t::LOG_ERROR, context, fmt, args, code);
+	va_end(args);
 }

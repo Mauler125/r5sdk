@@ -50,7 +50,15 @@ enum class eDLL_T : int
 	COMMON = 10 // general                   (No specific subsystem)
 };
 
-static const string sDLL_T[11] = 
+enum class LogType_t
+{
+	LOG_INFO = 0,
+	LOG_NET,
+	LOG_WARNING,
+	LOG_ERROR
+};
+
+static const char* sDLL_T[11] = 
 {
 	"Native(S):",
 	"Native(C):",
@@ -65,7 +73,8 @@ static const string sDLL_T[11] =
 	""
 };
 
-static const string sANSI_DLL_T[11] =
+constexpr const char s_DefaultAnsiColor[] = "\033[38;2;255;204;153m";
+constexpr const char* sANSI_DLL_T[11] =
 {
 	"\033[38;2;059;120;218mNative(S):",
 	"\033[38;2;118;118;118mNative(C):",
@@ -77,9 +86,8 @@ static const string sANSI_DLL_T[11] =
 	"\033[38;2;238;108;030mNative(A):",
 	"\033[38;2;185;000;235mNative(V):",
 	"\033[38;2;204;204;204mNetcon(X):",
-	"\033[38;2;255;204;153m"
+	s_DefaultAnsiColor
 };
-
 
 static const std::regex rANSI_EXP("\\\033\\[.*?m");
 

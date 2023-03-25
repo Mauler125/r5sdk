@@ -19,7 +19,7 @@ void SpdLog_Init(void)
 	 * IMGUI LOGGER SETUP   *
 	 ************************/
 	{
-		auto iconsole = std::make_shared<spdlog::logger>("game_console", g_spd_sys_p_ostream_sink);
+		auto iconsole = std::make_shared<spdlog::logger>("game_console", g_LogSink);
 		spdlog::register_logger(iconsole); // in-game console logger.
 		iconsole->set_pattern("[0.000] %v");
 		iconsole->set_level(spdlog::level::trace);
