@@ -96,8 +96,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT KickPlayerByName(HSQUIRRELVM v)
         {
-            SQChar* szName = sq_getstring(v, 1);
-            g_pBanSystem->KickPlayerByName(szName);
+            SQChar* playerName = sq_getstring(v, 1);
+            g_pBanSystem->KickPlayerByName(playerName);
 
             return SQ_OK;
         }
@@ -107,8 +107,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT KickPlayerById(HSQUIRRELVM v)
         {
-            SQChar* szHandle = sq_getstring(v, 1);
-            g_pBanSystem->KickPlayerById(szHandle);
+            SQChar* playerHandle = sq_getstring(v, 1);
+            g_pBanSystem->KickPlayerById(playerHandle);
 
             return SQ_OK;
         }
@@ -118,8 +118,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT BanPlayerByName(HSQUIRRELVM v)
         {
-            SQChar* szName = sq_getstring(v, 1);
-            g_pBanSystem->BanPlayerByName(szName);
+            SQChar* playerName = sq_getstring(v, 1);
+            g_pBanSystem->BanPlayerByName(playerName);
 
             return SQ_OK;
         }
@@ -129,8 +129,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT BanPlayerById(HSQUIRRELVM v)
         {
-            SQChar* szHandle = sq_getstring(v, 1);
-            g_pBanSystem->BanPlayerById(szHandle);
+            SQChar* playerHandle = sq_getstring(v, 1);
+            g_pBanSystem->BanPlayerById(playerHandle);
 
             return SQ_OK;
         }
@@ -214,8 +214,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT RefreshServerCount(HSQUIRRELVM v)
         {
-            string svMessage; // Refresh svListing list.
-            size_t iCount = g_pServerListManager->RefreshServerList(svMessage);
+            string serverMessage; // Refresh list.
+            size_t iCount = g_pServerListManager->RefreshServerList(serverMessage);
 
             sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
@@ -238,8 +238,8 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            string svServerName = g_pServerListManager->m_vServerList[iServer].m_svHostName;
-            sq_pushstring(v, svServerName.c_str(), -1);
+            const string& serverName = g_pServerListManager->m_vServerList[iServer].m_svHostName;
+            sq_pushstring(v, serverName.c_str(), -1);
 
             return SQ_OK;
         }
@@ -260,8 +260,8 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            string svServerDescription = g_pServerListManager->m_vServerList[iServer].m_svDescription;
-            sq_pushstring(v, svServerDescription.c_str(), -1);
+            const string& serverDescription = g_pServerListManager->m_vServerList[iServer].m_svDescription;
+            sq_pushstring(v, serverDescription.c_str(), -1);
 
             return SQ_OK;
         }
@@ -282,7 +282,7 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            string svServerMapName = g_pServerListManager->m_vServerList[iServer].m_svHostMap;
+            const string& svServerMapName = g_pServerListManager->m_vServerList[iServer].m_svHostMap;
             sq_pushstring(v, svServerMapName.c_str(), -1);
 
             return SQ_OK;
@@ -304,8 +304,8 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            string svServerPlaylist = g_pServerListManager->m_vServerList[iServer].m_svPlaylist;
-            sq_pushstring(v, svServerPlaylist.c_str(), -1);
+            const string& serverPlaylist = g_pServerListManager->m_vServerList[iServer].m_svPlaylist;
+            sq_pushstring(v, serverPlaylist.c_str(), -1);
 
             return SQ_OK;
         }
@@ -326,7 +326,8 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            sq_pushinteger(v, strtol(g_pServerListManager->m_vServerList[iServer].m_svPlayerCount.c_str(), NULL, NULL));
+            const string& playerCount = g_pServerListManager->m_vServerList[iServer].m_svPlayerCount.c_str();
+            sq_pushinteger(v, strtol(playerCount.c_str(), NULL, NULL));
 
             return SQ_OK;
         }
@@ -347,7 +348,8 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            sq_pushinteger(v, strtol(g_pServerListManager->m_vServerList[iServer].m_svMaxPlayers.c_str(), NULL, NULL));
+            const string& maxPlayers = g_pServerListManager->m_vServerList[iServer].m_svMaxPlayers;
+            sq_pushinteger(v, strtol(maxPlayers.c_str(), NULL, NULL));
 
             return SQ_OK;
         }
@@ -379,48 +381,48 @@ namespace VSquirrel
             };
 
             R5RPromoData ePromoIndex = static_cast<R5RPromoData>(sq_getinteger(v, 1));
-            string svPromo;
+            const char* pszPromoKey;
 
             switch (ePromoIndex)
             {
             case R5RPromoData::PromoLargeTitle:
             {
-                svPromo = "#PROMO_LARGE_TITLE";
+                pszPromoKey = "#PROMO_LARGE_TITLE";
                 break;
             }
             case R5RPromoData::PromoLargeDesc:
             {
-                svPromo = "#PROMO_LARGE_DESCRIPTION";
+                pszPromoKey = "#PROMO_LARGE_DESCRIPTION";
                 break;
             }
             case R5RPromoData::PromoLeftTitle:
             {
-                svPromo = "#PROMO_LEFT_TITLE";
+                pszPromoKey = "#PROMO_LEFT_TITLE";
                 break;
             }
             case R5RPromoData::PromoLeftDesc:
             {
-                svPromo = "#PROMO_LEFT_DESCRIPTION";
+                pszPromoKey = "#PROMO_LEFT_DESCRIPTION";
                 break;
             }
             case R5RPromoData::PromoRightTitle:
             {
-                svPromo = "#PROMO_RIGHT_TITLE";
+                pszPromoKey = "#PROMO_RIGHT_TITLE";
                 break;
             }
             case R5RPromoData::PromoRightDesc:
             {
-                svPromo = "#PROMO_RIGHT_DESCRIPTION";
+                pszPromoKey = "#PROMO_RIGHT_DESCRIPTION";
                 break;
             }
             default:
             {
-                svPromo = "#PROMO_SDK_ERROR";
+                pszPromoKey = "#PROMO_SDK_ERROR";
                 break;
             }
             }
 
-            sq_pushstring(v, svPromo.c_str(), -1);
+            sq_pushstring(v, pszPromoKey, -1);
             return SQ_OK;
         }
 
@@ -430,22 +432,26 @@ namespace VSquirrel
         SQRESULT CreateServer(HSQUIRRELVM v)
         {
 #ifndef CLIENT_DLL
-            string svServerName = sq_getstring(v, 1);
-            string svServerDescription = sq_getstring(v, 2);
-            string svServerMapName = sq_getstring(v, 3);
-            string svServerPlaylist = sq_getstring(v, 4);
+            SQChar* serverName = sq_getstring(v, 1);
+            SQChar* serverDescription = sq_getstring(v, 2);
+            SQChar* serverMapName = sq_getstring(v, 3);
+            SQChar* serverPlaylist = sq_getstring(v, 4);
             EServerVisibility_t eServerVisibility = static_cast<EServerVisibility_t>(sq_getinteger(v, 5));
 
-            if (svServerName.empty() || svServerMapName.empty() || svServerPlaylist.empty())
+            if (!VALID_CHARSTAR(serverName) ||
+                !VALID_CHARSTAR(serverMapName) ||
+                !VALID_CHARSTAR(serverPlaylist))
+            {
                 return SQ_OK;
+            }
 
             // Adjust browser settings.
             std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
 
-            g_pServerListManager->m_Server.m_svHostName = svServerName;
-            g_pServerListManager->m_Server.m_svDescription = svServerDescription;
-            g_pServerListManager->m_Server.m_svHostMap = svServerMapName;
-            g_pServerListManager->m_Server.m_svPlaylist = svServerPlaylist;
+            g_pServerListManager->m_Server.m_svHostName = serverName;
+            g_pServerListManager->m_Server.m_svDescription = serverDescription;
+            g_pServerListManager->m_Server.m_svHostMap = serverMapName;
+            g_pServerListManager->m_Server.m_svPlaylist = serverPlaylist;
             g_pServerListManager->m_ServerVisibility = eServerVisibility;
 
             // Launch server.
@@ -463,14 +469,14 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToServer(HSQUIRRELVM v)
         {
-            string svIpAddr = sq_getstring(v, 1);
-            string svEncKey = sq_getstring(v, 2);
+            SQChar* ipAddress = sq_getstring(v, 1);
+            SQChar* cryptoKey = sq_getstring(v, 2);
 
-            if (svIpAddr.empty() || svEncKey.empty())
+            if (!VALID_CHARSTAR(ipAddress) || VALID_CHARSTAR(cryptoKey))
                 return SQ_OK;
 
-            DevMsg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
-            g_pServerListManager->ConnectToServer(svIpAddr, svEncKey);
+            DevMsg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", ipAddress, cryptoKey);
+            g_pServerListManager->ConnectToServer(ipAddress, cryptoKey);
 
             return SQ_OK;
         }
@@ -504,14 +510,22 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToHiddenServer(HSQUIRRELVM v)
         {
-            string svHiddenServerRequestMessage;
-            string svToken = sq_getstring(v, 1);
+            SQChar* privateToken = sq_getstring(v, 1);
 
-            NetGameServer_t svListing;
-            bool result = g_pMasterServer->GetServerByToken(svListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
+            if (!VALID_CHARSTAR(privateToken))
+                return SQ_OK;
+
+            string hiddenServerRequestMessage;
+            NetGameServer_t netListing;
+
+            bool result = g_pMasterServer->GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (result)
             {
-                g_pServerListManager->ConnectToServer(svListing.m_svIpAddress, svListing.m_svGamePort, svListing.m_svEncryptionKey);
+                g_pServerListManager->ConnectToServer(netListing.m_svIpAddress, netListing.m_svGamePort, netListing.m_svEncryptionKey);
+            }
+            else
+            {
+                DevMsg(eDLL_T::UI, "Failed to connect to private server: %s\n", hiddenServerRequestMessage.c_str());
             }
 
             return SQ_OK;
@@ -522,20 +536,24 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetHiddenServerConnectStatus(HSQUIRRELVM v)
         {
-            string svHiddenServerRequestMessage;
-            string svToken = sq_getstring(v, 1);
+            SQChar* privateToken = sq_getstring(v, 1);
 
+            if (!VALID_CHARSTAR(privateToken))
+                return SQ_OK;
+
+            string hiddenServerRequestMessage;
             NetGameServer_t serverListing;
-            bool result = g_pMasterServer->GetServerByToken(serverListing, svHiddenServerRequestMessage, svToken); // Send token connect request.
+
+            bool result = g_pMasterServer->GetServerByToken(serverListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (!serverListing.m_svHostName.empty())
             {
-                svHiddenServerRequestMessage = fmt::format("Found server: {:s}", serverListing.m_svHostName);
-                sq_pushstring(v, svHiddenServerRequestMessage.c_str(), -1);
+                hiddenServerRequestMessage = Format("Found server: %s", serverListing.m_svHostName.c_str());
+                sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
             else
             {
-                svHiddenServerRequestMessage = "Server not found";
-                sq_pushstring(v, svHiddenServerRequestMessage.c_str(), -1);
+                hiddenServerRequestMessage = Format("Server not found: %s", hiddenServerRequestMessage.c_str());
+                sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
 
             return SQ_OK;

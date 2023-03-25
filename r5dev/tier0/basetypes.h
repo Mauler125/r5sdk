@@ -155,6 +155,8 @@
 #endif
 #define SDK_SYSTEM_CFG_PATH "cfg/system/"
 
+#define VALID_CHARSTAR(star) (star && star[0]) // Check if char* is valid and not empty.
+
 // #define COMPILETIME_MAX and COMPILETIME_MIN for max/min in constant expressions
 #define COMPILETIME_MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
 #define COMPILETIME_MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
