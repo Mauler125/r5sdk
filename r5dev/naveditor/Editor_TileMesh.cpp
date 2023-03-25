@@ -275,16 +275,16 @@ void Editor_TileMesh::handleSettings()
 	imguiIndent();
 	imguiIndent();
 	
-	if (imguiButton("Save"))
-	{
-		Editor::saveAll(m_modelName.c_str(), m_navMesh);
-	}
-
 	if (imguiButton("Load"))
 	{
 		dtFreeNavMesh(m_navMesh);
 		m_navMesh = Editor::loadAll(m_modelName.c_str());
 		m_navQuery->init(m_navMesh, 2048);
+	}
+
+	if (imguiButton("Save"))
+	{
+		Editor::saveAll(m_modelName.c_str(), m_navMesh);
 	}
 
 	imguiUnindent();
