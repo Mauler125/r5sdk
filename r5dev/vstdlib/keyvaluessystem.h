@@ -8,13 +8,13 @@ public:
 	void RegisterSizeofKeyValues(int64_t nSize);
 	void* AllocKeyValuesMemory(int64_t nSize);
 	void FreeKeyValuesMemory(void* pMem);
-	HKeySymbol GetSymbolForString(const char* szName, bool bCreate = false);
+	HKeySymbol GetSymbolForString(const char* szName, bool bCreate = true);
 	const char* GetStringForSymbol(HKeySymbol symbol);
 
 	void* GetMemPool(void); // GetMemPool returns a global variable called m_pMemPool, it gets modified by AllocKeyValuesMemory and with FreeKeyValuesMemory you can see where to find it in FreeKeyValuesMemory.
 	void SetKeyValuesExpressionSymbol(const char* szName, bool bValue);
 	bool GetKeyValuesExpressionSymbol(const char* szName);
-	HKeySymbol GetSymbolForStringCaseSensitive(HKeySymbol& hCaseInsensitiveSymbol, const char* szName, bool bCreate = false);
+	HKeySymbol GetSymbolForStringCaseSensitive(HKeySymbol& hCaseInsensitiveSymbol, const char* szName, bool bCreate = true);
 
 	// Datatypes aren't accurate. But full fill the actual byte distance.
 public:
