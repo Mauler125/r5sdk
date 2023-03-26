@@ -36,6 +36,27 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+bool CSourceAppSystemGroup::PreInit(CSourceAppSystemGroup* pSourceAppSystemGroup)
+{
+	ConVar::InitShipped();
+	ConVar::PurgeShipped();
+	ConCommand::Init();
+	ConCommand::InitShipped();
+	ConCommand::PurgeShipped();
+	return CSourceAppSystemGroup__PreInit(pSourceAppSystemGroup);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CSourceAppSystemGroup::Create(CSourceAppSystemGroup* pSourceAppSystemGroup)
+{
+	return CSourceAppSystemGroup__Create(pSourceAppSystemGroup);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 {
 	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
@@ -67,7 +88,6 @@ int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 //-----------------------------------------------------------------------------
 bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 {
-	ConCommand::Init();
 #ifdef DEDICATED
 	pModAppSystemGroup->SetServerOnly();
 	*m_bIsDedicated = true;

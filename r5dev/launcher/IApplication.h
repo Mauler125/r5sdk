@@ -5,6 +5,16 @@
 //-------------------------------------------------------------------------
 // 
 //-------------------------------------------------------------------------
+class CSourceAppSystemGroup : public CAppSystemGroup
+{
+public:
+	static bool PreInit(CSourceAppSystemGroup* pSourceAppSystemGroup);
+	static bool Create(CSourceAppSystemGroup* pSourceAppSystemGroup);
+};
+
+//-------------------------------------------------------------------------
+// 
+//-------------------------------------------------------------------------
 class CModAppSystemGroup : public CAppSystemGroup
 {
 public:
@@ -36,10 +46,10 @@ inline CMemory p_CModAppSystemGroup_Create;
 inline auto CModAppSystemGroup_Create = p_CModAppSystemGroup_Create.RCast<bool(*)(CModAppSystemGroup* pModAppSystemGroup)>();
 
 inline CMemory p_CSourceAppSystemGroup__PreInit;
-inline auto CSourceAppSystemGroup__PreInit = p_CSourceAppSystemGroup__PreInit.RCast<bool(*)(CModAppSystemGroup* pModAppSystemGroup)>();
+inline auto CSourceAppSystemGroup__PreInit = p_CSourceAppSystemGroup__PreInit.RCast<bool(*)(CSourceAppSystemGroup* pModAppSystemGroup)>();
 
 inline CMemory p_CSourceAppSystemGroup__Create;
-inline auto CSourceAppSystemGroup__Create = p_CSourceAppSystemGroup__Create.RCast<bool(*)(CModAppSystemGroup* pModAppSystemGroup)>();
+inline auto CSourceAppSystemGroup__Create = p_CSourceAppSystemGroup__Create.RCast<bool(*)(CSourceAppSystemGroup* pModAppSystemGroup)>();
 
 inline bool g_bAppSystemInit = false;
 
@@ -68,21 +78,27 @@ class VApplication : public IDetour
 #endif
 		p_CSourceAppSystemGroup__PreInit = g_GameDll.FindPatternSIMD("48 89 74 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??");
 
-		CModAppSystemGroup_Main        = p_CModAppSystemGroup_Main.RCast<int(*)(CModAppSystemGroup*)>();         /*40 53 48 83 EC 20 80 B9 ?? ?? ?? ?? ?? BB ?? ?? ?? ??*/
-		CModAppSystemGroup_Create      = p_CModAppSystemGroup_Create.RCast<bool(*)(CModAppSystemGroup*)>();      /*48 8B C4 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60*/
-		CSourceAppSystemGroup__PreInit = p_CSourceAppSystemGroup__PreInit.RCast<bool(*)(CModAppSystemGroup*)>(); /*48 89 74 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??*/
-		CSourceAppSystemGroup__Create  = p_CSourceAppSystemGroup__Create.RCast<bool(*)(CModAppSystemGroup*)>();  /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 E8 ?? ?? ?? ?? 33 C9*/
+		CModAppSystemGroup_Main        = p_CModAppSystemGroup_Main.RCast<int(*)(CModAppSystemGroup*)>();            /*40 53 48 83 EC 20 80 B9 ?? ?? ?? ?? ?? BB ?? ?? ?? ??*/
+		CModAppSystemGroup_Create      = p_CModAppSystemGroup_Create.RCast<bool(*)(CModAppSystemGroup*)>();         /*48 8B C4 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60*/
+		CSourceAppSystemGroup__PreInit = p_CSourceAppSystemGroup__PreInit.RCast<bool(*)(CSourceAppSystemGroup*)>(); /*48 89 74 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??*/
+		CSourceAppSystemGroup__Create  = p_CSourceAppSystemGroup__Create.RCast<bool(*)(CSourceAppSystemGroup*)>();  /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 E8 ?? ?? ?? ?? 33 C9*/
 
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const
 	{
+		DetourAttach((LPVOID*)&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::PreInit);
+		DetourAttach((LPVOID*)&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::Create);
+
 		DetourAttach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::Main);
 		DetourAttach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::Create);
 	}
 	virtual void Detach(void) const
 	{
+		DetourDetach((LPVOID*)&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::PreInit);
+		DetourDetach((LPVOID*)&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::Create);
+
 		DetourDetach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::Main);
 		DetourDetach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::Create);
 	}

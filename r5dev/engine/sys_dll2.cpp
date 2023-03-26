@@ -79,10 +79,6 @@ static void InitVPKSystem()
 
 InitReturnVal_t CEngineAPI::VInit(CEngineAPI* pEngineAPI)
 {
-    ConCommand::InitShipped();
-    ConCommand::PurgeShipped();
-    ConVar::InitShipped();
-    ConVar::PurgeShipped();
     return CEngineAPI_Init(pEngineAPI);
 }
 
