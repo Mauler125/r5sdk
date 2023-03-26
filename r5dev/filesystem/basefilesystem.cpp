@@ -18,7 +18,7 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 	if (level >= FileWarningLevel_t::FILESYSTEM_WARNING_REPORTALLACCESSES)
 	{
 		// Logging reads is very verbose! Explicitly toggle..
-		if (!fs_showAllReads || !fs_showAllReads->GetBool())
+		if (!fs_showAllReads->GetBool())
 		{
 			return;
 		}
