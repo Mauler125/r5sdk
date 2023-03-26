@@ -345,8 +345,10 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char
 				g_pOverlay->AddLog(overlayContext, g_LogStream.str());
 			}
 		}
+#endif // !DEDICATED
 	}
 
+#ifndef DEDICATED
 	g_LogStream.str(string());
 	g_LogStream.clear();
 #endif // !DEDICATED
