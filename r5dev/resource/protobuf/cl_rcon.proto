@@ -14,8 +14,9 @@ enum request_t
 
 message request
 {
-    optional int32     requestID   = 1;
-    optional request_t requestType = 2;
-    optional string    requestBuf  = 3;
-    optional string    requestVal  = 4;
+	optional int32     messageID   = 1;
+	optional int32     messageType = 2;
+    optional request_t requestType = 3;
+    optional string    requestMsg  = 4;
+    optional string    requestVal  = 5;
 }

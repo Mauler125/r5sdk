@@ -14,8 +14,9 @@ enum response_t
 
 message response
 {
-    optional int32      responseID   = 1;
-    optional response_t responseType = 2;
-    optional string     responseBuf  = 3;
-    optional string     responseVal  = 4;
+	optional int32      messageID    = 1;
+	optional int32      messageType  = 2;
+    optional response_t responseType = 3;
+    optional string     responseMsg  = 4;
+    optional string     responseVal  = 5;
 }
