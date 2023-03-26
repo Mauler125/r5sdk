@@ -4,15 +4,15 @@
 
 struct CTextNotify
 {
-	CTextNotify(const EGlobalContext_t type, const float nTime, const string& svMessage)
+	CTextNotify(const eDLL_T type, const float nTime, const string& svMessage)
 	{
 		this->m_svMessage       = svMessage;
 		this->m_flLifeRemaining = nTime;
 		this->m_type            = type;
 	}
-	EGlobalContext_t m_type            = EGlobalContext_t::NONE;
-	float            m_flLifeRemaining = 0.0f;
-	string           m_svMessage       = "";
+	eDLL_T m_type            = eDLL_T::NONE;
+	float  m_flLifeRemaining = 0.0f;
+	string m_svMessage       = "";
 };
 
 class CTextOverlay
@@ -26,7 +26,7 @@ public:
 	}
 
 	void Update(void);
-	void AddLog(const EGlobalContext_t context, const string& svText);
+	void AddLog(const eDLL_T context, const string& svText);
 	void DrawNotify(void);
 	void DrawFormat(const int x, const int y, const Color c, const char* pszFormat, ...) const;
 	void ShouldDraw(const float flFrameTime);
@@ -38,7 +38,7 @@ public:
 	void Con_NPrintf(void);
 
 private:
-	Color GetLogColorForType(const EGlobalContext_t type) const;
+	Color GetLogColorForType(const eDLL_T type) const;
 	vector<CTextNotify> m_vNotifyText;
 	int m_nFontHeight; // Hardcoded to 16 in this engine.
 

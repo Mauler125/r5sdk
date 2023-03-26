@@ -229,7 +229,7 @@ void CRConServer::Recv(void)
 		{//////////////////////////////////////////////
 			if (this->CheckForBan(pData))
 			{
-				this->Send(pData->m_hSocket, this->Serialize(s_pszBannedMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(EGlobalContext_t::NETCON_S)));
+				this->Send(pData->m_hSocket, this->Serialize(s_pszBannedMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON)));
 				this->CloseConnection();
 				continue;
 			}
@@ -337,7 +337,7 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 			m_Socket.CloseListenSocket();
 
 			this->CloseNonAuthConnection();
-			this->Send(pData->m_hSocket, this->Serialize(s_pszAuthMessage, sv_rcon_sendlogs->GetString(), sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(EGlobalContext_t::NETCON_S)));
+			this->Send(pData->m_hSocket, this->Serialize(s_pszAuthMessage, sv_rcon_sendlogs->GetString(), sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON)));
 		}
 		else // Bad password.
 		{
@@ -347,7 +347,7 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 				DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
 			}
 
-			this->Send(pData->m_hSocket, this->Serialize(s_pszWrongPwMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(EGlobalContext_t::NETCON_S)));
+			this->Send(pData->m_hSocket, this->Serialize(s_pszWrongPwMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON)));
 
 			pData->m_bAuthorized = false;
 			pData->m_bValidated = false;
@@ -455,7 +455,7 @@ void CRConServer::ProcessMessage(const cl_rcon::request& cl_request)
 		&& cl_request.requesttype() != cl_rcon::request_t::SERVERDATA_REQUEST_AUTH)
 	{
 		// Notify net console that authentication is required.
-		this->Send(pData->m_hSocket, this->Serialize(s_pszNoAuthMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(EGlobalContext_t::NETCON_S)));
+		this->Send(pData->m_hSocket, this->Serialize(s_pszNoAuthMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON)));
 
 		pData->m_bValidated = false;
 		pData->m_nIgnoredMessage++;

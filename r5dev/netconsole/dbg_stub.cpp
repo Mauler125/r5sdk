@@ -28,7 +28,7 @@ void LogStub(const char* fmt, ...)
 // Input  : context - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
-void NetMsg(EGlobalContext_t context, const char* fmt, ...)
+void NetMsg(eDLL_T context, const char* fmt, ...)
 {
 	static char szBuf[4096] = {};
 

@@ -1,10 +1,10 @@
-//===== Copyright (c) Valve Corporation, All rights reserved. ========//
+//========== Copyright (c) Valve Corporation, All rights reserved. ==========//
 //
 // Purpose:  
 //
 // $NoKeywords: $
 //
-//====================================================================//
+//===========================================================================//
 #ifndef DBG_H
 #define DBG_H
 #define AssertDbg assert
@@ -13,30 +13,18 @@
 
 bool HushAsserts();
 //-----------------------------------------------------------------------------
-enum class EGlobalContext_t : int
-{
-	GLOBAL_NONE = -4,
-	SCRIPT_SERVER,
-	SCRIPT_CLIENT,
-	SCRIPT_UI,
-	NATIVE_SERVER,
-	NATIVE_CLIENT,
-	NATIVE_UI,
-	NATIVE_ENGINE,
-	NATIVE_FS,
-	NATIVE_RTECH,
-	NATIVE_MS,
-	NATIVE_AUDIO,
-	NATIVE_VIDEO,
-	NETCON_S,
-	COMMON_C,
-	WARNING_C,
-	ERROR_C,
-	NONE
-};
-
 enum class eDLL_T : int
 {
+	//-------------------------------------------------------------------------
+	// Script enumerants
+	//-------------------------------------------------------------------------
+	SCRIPT_SERVER = -3,
+	SCRIPT_CLIENT = -2,
+	SCRIPT_UI     = -1,
+
+	//-------------------------------------------------------------------------
+	// Native enumerants
+	//-------------------------------------------------------------------------
 	SERVER = 0, // server.dll                (GameDLL)
 	CLIENT = 1, // client.dll                (GameDLL)
 	UI     = 2, // ui.dll                    (GameDLL)
@@ -47,17 +35,33 @@ enum class eDLL_T : int
 	AUDIO  = 7, // binkawin64/mileswin64.dll (AudioSystem API)
 	VIDEO  = 8, // bink2w64                  (VideoSystem API)
 	NETCON = 9, // netconsole impl           (RCON wire)
-	COMMON = 10 // general                   (No specific subsystem)
-};
 
+	//-------------------------------------------------------------------------
+	// Common enumerants
+	//-------------------------------------------------------------------------
+	COMMON         = 10, // general         (No specific subsystem)
+	SYSTEM_WARNING = 11, // general warning (No specific subsystem)
+	SYSTEM_ERROR   = 12, // general error   (No specific subsystem)
+	NONE           = 13  // no context
+};
+//-----------------------------------------------------------------------------
 enum class LogType_t
 {
 	LOG_INFO = 0,
 	LOG_NET,
 	LOG_WARNING,
-	LOG_ERROR
+	LOG_ERROR,
+	SQ_INFO,
+	SQ_WARNING
 };
-
+//-----------------------------------------------------------------------------
+enum class LogLevel_t
+{
+	LEVEL_DISK_ONLY = 0,
+	LEVEL_CONSOLE, // Emit to console panels
+	LEVEL_NOTIFY   // Emit to in-game mini console
+};
+//-----------------------------------------------------------------------------
 static const char* sDLL_T[11] = 
 {
 	"Native(S):",
@@ -72,9 +76,9 @@ static const char* sDLL_T[11] =
 	"Netcon(X):",
 	""
 };
-
+//-----------------------------------------------------------------------------
 constexpr const char s_DefaultAnsiColor[] = "\033[38;2;255;204;153m";
-constexpr const char* sANSI_DLL_T[11] =
+constexpr const char* s_DllAnsiColor[11] =
 {
 	"\033[38;2;059;120;218mNative(S):",
 	"\033[38;2;118;118;118mNative(C):",
@@ -88,18 +92,30 @@ constexpr const char* sANSI_DLL_T[11] =
 	"\033[38;2;204;204;204mNetcon(X):",
 	s_DefaultAnsiColor
 };
+//-----------------------------------------------------------------------------
+constexpr const char* s_ScriptAnsiColor[4] =
+{
+	"\033[38;2;151;149;187mScript(S):",
+	"\033[38;2;151;149;163mScript(C):",
+	"\033[38;2;151;123;136mScript(U):",
+	"\033[38;2;151;149;163mScript(X):"
+};
 
-static const std::regex rANSI_EXP("\\\033\\[.*?m");
-
+static const std::regex s_AnsiRowRegex("\\\033\\[.*?m");
 extern std::mutex g_LogMutex;
 
 //////////////////////////////////////////////////////////////////////////
 // Legacy Logging System
 //////////////////////////////////////////////////////////////////////////
 
+void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char* pszLogger,
+	const char* pszFormat, va_list args, const UINT exitCode = NO_ERROR);
+void CoreMsg(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
+	const UINT exitCode, const char* pszLogger, const char* pszFormat, ...);
+
 // These functions do not return.
-PLATFORM_INTERFACE void NetMsg(EGlobalContext_t context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
+PLATFORM_INTERFACE void NetMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Error(eDLL_T context, const UINT code, const char* fmt, ...) FMTFUNCTION(3, 4);
 

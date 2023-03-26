@@ -200,8 +200,7 @@ void ConVar::Init(void)
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
-	fs_warning_level_sdk              = ConVar::Create("fs_warning_level_sdk"                  , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK FileSystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_show_warning_output            = ConVar::Create("fs_show_warning_output"                , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_show_warnings                  = ConVar::Create("fs_show_warnings"                      , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level' ( !slower! ).", true, 0.f, true, 2.f, nullptr, "1 = log to console. 2 = 1 + log to notify.");
 	fs_packedstore_entryblock_stats   = ConVar::Create("fs_packedstore_entryblock_stats"       , "0", FCVAR_DEVELOPMENTONLY, "Logs the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_workspace          = ConVar::Create("fs_packedstore_workspace" , "platform/ship/", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_compression_level  = ConVar::Create("fs_packedstore_compression_level", "default", FCVAR_DEVELOPMENTONLY, "Determines the VPK compression level.", false, 0.f, false, 0.f, nullptr, "fastest faster default better uber");
@@ -216,8 +215,8 @@ void ConVar::Init(void)
 	// SQUIRREL                                                               |
 	sq_showrsonloading   = ConVar::Create("sq_showrsonloading"  , "0", FCVAR_DEVELOPMENTONLY, "Logs all RSON files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sq_showscriptloading = ConVar::Create("sq_showscriptloading", "0", FCVAR_DEVELOPMENTONLY, "Logs all scripts loaded by the SQVM to be pre-compiled ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sq_showvmoutput      = ConVar::Create("sq_showvmoutput"     , "0", FCVAR_RELEASE, "Prints the VM output to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console. 3 = 1 + 2 + log to overhead console.");
-	sq_showvmwarning     = ConVar::Create("sq_showvmwarning"    , "0", FCVAR_RELEASE, "Prints the VM warning output to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console and overhead console.");
+	sq_showvmoutput      = ConVar::Create("sq_showvmoutput"     , "0", FCVAR_RELEASE, "Prints the VM output to the console ( !slower! ).", true, 0.f, true, 2.f, nullptr, "1 = log to console. 2 = 1 + log to notify.");
+	sq_showvmwarning     = ConVar::Create("sq_showvmwarning"    , "0", FCVAR_RELEASE, "Prints the VM warning output to the console ( !slower! ).", true, 0.f, true, 2.f, nullptr, "1 = log to console. 2 = 1 + log to notify.");
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
 	net_tracePayload           = ConVar::Create("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY                    , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);

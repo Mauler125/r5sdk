@@ -1,5 +1,6 @@
 #pragma once
 #include "sqtype.h"
+#include "sqvm.h"
 
 extern bool g_bSQAuxError;
 extern bool g_bSQAuxBadLogic;

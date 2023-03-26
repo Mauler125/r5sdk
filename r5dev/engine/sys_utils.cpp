@@ -30,14 +30,15 @@
 void _Error(char* fmt, ...)
 {
 	char buf[4096];
+	{/////////////////////////////
+		va_list args;
+		va_start(args, fmt);
 
-	va_list args{};
-	va_start(args, fmt);
+		vsnprintf(buf, sizeof(buf), fmt, args);
 
-	vsnprintf(buf, sizeof(buf), fmt, args);
-
-	buf[sizeof(buf) -1] = 0;
-	va_end(args);
+		buf[sizeof(buf) - 1] = '\0';
+		va_end(args);
+	}/////////////////////////////
 
 	Error(eDLL_T::ENGINE, NO_ERROR, "%s", buf);
 	v_Error(buf);
@@ -53,7 +54,7 @@ void _Warning(int level, char* fmt, ...)
 {
 	char buf[10000];
 	{/////////////////////////////
-		va_list args{};
+		va_list args;
 		va_start(args, fmt);
 
 		vsnprintf(buf, sizeof(buf), fmt, args);
@@ -81,7 +82,7 @@ void _Con_NPrintf(int pos, const char* fmt, ...)
 {
 	char buf[MAXPRINTMSG];
 	{/////////////////////////////
-		va_list args{};
+		va_list args;
 		va_start(args, fmt);
 
 		vsnprintf(buf, sizeof(buf), fmt, args);

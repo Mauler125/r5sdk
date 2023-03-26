@@ -32,180 +32,52 @@
 //---------------------------------------------------------------------------------
 SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 {
-	SQCONTEXT context;
-	int nResponseId;
+	eDLL_T remoteContext;
 	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
 	switch (static_cast<SQCONTEXT>(reinterpret_cast<int>(v)))
 	{
 	case SQCONTEXT::SERVER:
-		context = SQCONTEXT::SERVER;
-		nResponseId = -3;
+		remoteContext = eDLL_T::SCRIPT_SERVER;
 		break;
 	case SQCONTEXT::CLIENT:
-		context = SQCONTEXT::CLIENT;
-		nResponseId = -2;
+		remoteContext = eDLL_T::SCRIPT_CLIENT;
 		break;
 	case SQCONTEXT::UI:
-		context = SQCONTEXT::UI;
-		nResponseId = -1;
+		remoteContext = eDLL_T::SCRIPT_UI;
 		break;
 	case SQCONTEXT::NONE:
-		context = SQCONTEXT::NONE;
-		nResponseId = -4;
+		remoteContext = eDLL_T::NONE;
 		break;
 	default:
 
-		context = v->GetContext();
-		switch (context)
+		SQCONTEXT scriptContext = v->GetContext();
+		switch (scriptContext)
 		{
 		case SQCONTEXT::SERVER:
-			nResponseId = -3;
+			remoteContext = eDLL_T::SCRIPT_SERVER;
 			break;
 		case SQCONTEXT::CLIENT:
-			nResponseId = -2;
+			remoteContext = eDLL_T::SCRIPT_CLIENT;
 			break;
 		case SQCONTEXT::UI:
-			nResponseId = -1;
-			break;
-		case SQCONTEXT::NONE:
-			nResponseId = -4;
+			remoteContext = eDLL_T::SCRIPT_UI;
 			break;
 		default:
-			nResponseId = -4;
+			remoteContext = eDLL_T::NONE;
 			break;
 		}
 		break;
-	}
-
-	static SQChar buf[4096] = {};
-	static std::string vmStr;
-	static std::regex rxAnsiExp("\\\033\\[.*?m");
-
-	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_info");
-
-	g_LogMutex.lock();
-	const char* pszUpTime = Plat_GetProcessUpTime();
-
-	{/////////////////////////////
-		va_list args{};
-		va_start(args, fmt);
-
-		vsnprintf(buf, sizeof(buf), fmt, args);
-
-		buf[sizeof(buf) - 1] = '\0';
-		va_end(args);
-	}/////////////////////////////
-
-	vmStr = pszUpTime;
-	vmStr.append(SQVM_LOG_T[static_cast<SQInteger>(context)]);
-	vmStr.append(buf);
-
-	if (sq_showvmoutput->GetInt() > 0) {
-		sqlogger->debug(vmStr);
 	}
 
 	// Always show script errors.
 	bool bLogLevelOverride = (g_bSQAuxError || g_bSQAuxBadLogic && v == g_pErrorVM);
+	LogType_t type = bLogLevelOverride ? LogType_t::SQ_WARNING : LogType_t::SQ_INFO;
 
-	if (sq_showvmoutput->GetInt() > 1 || bLogLevelOverride)
-	{
-		bool bColorOverride = false;
-		bool bError = false;
+	va_list args;
+	va_start(args, fmt);
+	CoreMsgV(type, static_cast<LogLevel_t>(sq_showvmoutput->GetInt()), remoteContext, "squirrel_re", fmt, args);
+	va_end(args);
 
-		if (g_bSQAuxError)
-		{
-			bColorOverride = true;
-			if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> ")) {
-				bError = true;
-			}
-		}
-		if (g_bSQAuxBadLogic)
-		{
-			if (strstr(buf, "There was a problem processing game logic."))
-			{
-				bColorOverride = true;
-				bError = true;
-				g_bSQAuxBadLogic = false;
-			}
-		}
-
-		if (!g_bSpdLog_UseAnsiClr)
-		{
-			wconsole->debug(vmStr);
-#ifndef CLIENT_DLL
-			RCONServer()->Send(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
-#endif // !CLIENT_DLL
-		}
-		else // Use ANSI escape codes for the external console.
-		{
-			static std::string vmStrAnsi;
-			vmStrAnsi = pszUpTime;
-			if (bColorOverride)
-			{
-				if (bError) {
-					vmStrAnsi.append(SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)]);
-				}
-				else {
-					vmStrAnsi.append(SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)]);
-				}
-			}
-			else {
-				vmStrAnsi.append(SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)]);
-			}
-			vmStrAnsi.append(buf);
-			wconsole->debug(vmStrAnsi);
-#ifndef CLIENT_DLL
-			RCONServer()->Send(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
-#endif // !CLIENT_DLL
-		}
-
-#ifndef DEDICATED
-		vmStr = std::regex_replace(vmStr, rxAnsiExp, "");
-		iconsole->debug(vmStr);
-
-		if (sq_showvmoutput->GetInt() > 2 || bLogLevelOverride)
-		{
-			ImVec4 color;
-			if (bColorOverride)
-			{
-				if (bError) {
-					color = ImVec4(1.00f, 0.00f, 0.00f, 0.80f);
-				}
-				else {
-					color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f);
-				}
-			}
-			else
-			{
-				switch (context)
-				{
-				case SQCONTEXT::SERVER:
-					color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f);
-					break;
-				case SQCONTEXT::CLIENT:
-					color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
-					break;
-				case SQCONTEXT::UI:
-					color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f);
-					break;
-				default:
-					color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
-					break;
-				}
-			}
-
-			g_pConsole->AddLog(ConLog_t(g_LogStream.str(), color));
-			g_pOverlay->AddLog(static_cast<EGlobalContext_t>(nResponseId), g_LogStream.str());
-		}
-#endif // !DEDICATED
-	}
-
-	g_LogStream.str("");
-	g_LogStream.clear();
-
-	g_LogMutex.unlock();
 	return SQ_OK;
 }
 
@@ -220,84 +92,39 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
 	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
-	int nResponseId;
-	SQCONTEXT context;
+	eDLL_T remoteContext;
+	SQCONTEXT scriptContext;
 	SQRESULT result = v_SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
 
-	if (retaddr != _ReturnAddress() || !sq_showvmwarning->GetBool()) // Check if its SQVM_Warning calling.
+	if (retaddr != _ReturnAddress()) // Check if its SQVM_Warning calling.
 	{
 		return result;
 	}
 
-	g_LogMutex.lock();
-	const char* pszUpTime = Plat_GetProcessUpTime();
-#ifdef GAMEDLL_S3
-	context = v->GetContext();
-#else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
-	context = SQVM_GetContextIndex(v);
-#endif
+	scriptContext = v->GetContext();
 
-	switch (context)
+	switch (scriptContext)
 	{
 	case SQCONTEXT::SERVER:
-		nResponseId = -3;
+		remoteContext = eDLL_T::SCRIPT_SERVER;
 		break;
 	case SQCONTEXT::CLIENT:
-		nResponseId = -2;
+		remoteContext = eDLL_T::SCRIPT_CLIENT;
 		break;
 	case SQCONTEXT::UI:
-		nResponseId = -1;
+		remoteContext = eDLL_T::SCRIPT_UI;
 		break;
 	case SQCONTEXT::NONE:
-		nResponseId = -4;
+		remoteContext = eDLL_T::NONE;
 		break;
 	default:
-		nResponseId = -4;
 		break;
 	}
 
-	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn");
-
-	std::string vmStr = pszUpTime;
-	vmStr.append(SQVM_LOG_T[static_cast<int>(context)]);
 	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
-	vmStr.append(svConstructor);
+	CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(sq_showvmwarning->GetInt()),
+		remoteContext, NO_ERROR, "squirrel_re(warning)", "%s", svConstructor.c_str());
 
-	sqlogger->debug(vmStr); // Emit to file.
-	if (sq_showvmwarning->GetInt() > 1)
-	{
-		if (!g_bSpdLog_UseAnsiClr)
-		{
-			wconsole->debug(vmStr);
-#ifndef CLIENT_DLL
-			RCONServer()->Send(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
-#endif // !CLIENT_DLL
-		}
-		else
-		{
-			std::string vmStrAnsi = pszUpTime;
-			vmStrAnsi.append(SQVM_WARNING_ANSI_LOG_T[static_cast<int>(context)]);
-			vmStrAnsi.append(svConstructor);
-			wconsole->debug(vmStrAnsi);
-#ifndef CLIENT_DLL
-			RCONServer()->Send(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
-#endif // !CLIENT_DLL
-		}
-
-#ifndef DEDICATED
-		iconsole->debug(vmStr); // Emit to in-game console.
-
-		g_pConsole->AddLog(ConLog_t(g_LogStream.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
-		g_pOverlay->AddLog(EGlobalContext_t::WARNING_C, g_LogStream.str());
-#endif // !DEDICATED
-	}
-
-	g_LogStream.str("");
-	g_LogStream.clear();
-
-	g_LogMutex.unlock();
 	return result;
 }
 
@@ -314,12 +141,7 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 	static SQCONTEXT context{};
 	static char szContextBuf[256]{};
 
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	context = v->GetContext();
-#else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
-	context = SQVM_GetContextIndex(v);
-#endif
-
 	v_SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf) - 1);
 
 	Error(static_cast<eDLL_T>(context), NO_ERROR, "%s SCRIPT COMPILE ERROR: %s\n", SQVM_GetContextName(context), pszError);

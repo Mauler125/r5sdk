@@ -269,7 +269,7 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
-		NetMsg(static_cast<EGlobalContext_t>(sv_response.responseid()), PrintPercentageEscape(sv_response.responsebuf()).c_str());
+		NetMsg(static_cast<eDLL_T>(sv_response.responseid()), PrintPercentageEscape(sv_response.responsebuf()).c_str());
 		break;
 	}
 	default:

@@ -442,7 +442,7 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 		{
 			svOut.append(g_svReset);
 		}
-		NetMsg(EGlobalContext_t::GLOBAL_NONE, svOut.c_str());
+		NetMsg(eDLL_T::NONE, svOut.c_str());
 		break;
 	}
 	default:

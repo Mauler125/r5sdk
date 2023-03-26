@@ -58,7 +58,7 @@ void CTextOverlay::Update(void)
 //-----------------------------------------------------------------------------
 // Purpose: add a log to the vector.
 //-----------------------------------------------------------------------------
-void CTextOverlay::AddLog(const EGlobalContext_t context, const string& svText)
+void CTextOverlay::AddLog(const eDLL_T context, const string& svText)
 {
 	if (!con_drawnotify->GetBool() || svText.empty())
 	{
@@ -255,41 +255,41 @@ void CTextOverlay::DrawStreamOverlay(void) const
 // Input  : context - 
 // Output : Color
 //-----------------------------------------------------------------------------
-Color CTextOverlay::GetLogColorForType(const EGlobalContext_t context) const
+Color CTextOverlay::GetLogColorForType(const eDLL_T context) const
 {
 	switch (context)
 	{
-	case EGlobalContext_t::SCRIPT_SERVER:
+	case eDLL_T::SCRIPT_SERVER:
 		return { con_notify_script_server_clr->GetColor() };
-	case EGlobalContext_t::SCRIPT_CLIENT:
+	case eDLL_T::SCRIPT_CLIENT:
 		return { con_notify_script_client_clr->GetColor() };
-	case EGlobalContext_t::SCRIPT_UI:
+	case eDLL_T::SCRIPT_UI:
 		return { con_notify_script_ui_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_SERVER:
+	case eDLL_T::SERVER:
 		return { con_notify_native_server_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_CLIENT:
+	case eDLL_T::CLIENT:
 		return { con_notify_native_client_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_UI:
+	case eDLL_T::UI:
 		return { con_notify_native_ui_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_ENGINE:
+	case eDLL_T::ENGINE:
 		return { con_notify_native_engine_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_FS:
+	case eDLL_T::FS:
 		return { con_notify_native_fs_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_RTECH:
+	case eDLL_T::RTECH:
 		return { con_notify_native_rtech_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_MS:
+	case eDLL_T::MS:
 		return { con_notify_native_ms_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_AUDIO:
+	case eDLL_T::AUDIO:
 		return { con_notify_native_audio_clr->GetColor() };
-	case EGlobalContext_t::NATIVE_VIDEO:
+	case eDLL_T::VIDEO:
 		return { con_notify_native_video_clr->GetColor() };
-	case EGlobalContext_t::NETCON_S:
+	case eDLL_T::NETCON:
 		return { con_notify_netcon_clr->GetColor() };
-	case EGlobalContext_t::COMMON_C:
+	case eDLL_T::COMMON:
 		return { con_notify_common_clr->GetColor() };
-	case EGlobalContext_t::WARNING_C:
+	case eDLL_T::SYSTEM_WARNING:
 		return { con_notify_warning_clr->GetColor() };
-	case EGlobalContext_t::ERROR_C:
+	case eDLL_T::SYSTEM_ERROR:
 		return { con_notify_error_clr->GetColor() };
 	default:
 		return { con_notify_native_engine_clr->GetColor() };

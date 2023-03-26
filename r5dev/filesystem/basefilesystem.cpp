@@ -15,40 +15,10 @@
 //---------------------------------------------------------------------------------
 void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* pFmt, ...)
 {
-	if (fs_warning_level_sdk->GetInt() < static_cast<int>(level))
-	{
-		return;
-	}
-
-	static char szBuf[4096] = {};
-
-	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> fslogger = spdlog::get("fs_warn");
-
-	{/////////////////////////////
-		va_list args{};
-		va_start(args, pFmt);
-
-		vsnprintf(szBuf, sizeof(szBuf), pFmt, args);
-
-		szBuf[sizeof(szBuf) - 1] = '\0';
-		va_end(args);
-	}/////////////////////////////
-
-	fslogger->debug(szBuf);
-
-	if (fs_show_warning_output->GetBool())
-	{
-		wconsole->debug(szBuf);
-#ifndef DEDICATED
-		iconsole->debug(szBuf);
-		g_pConsole->AddLog(ConLog_t(g_LogStream.str(), ImVec4(1.00f, 1.00f, 0.00f, 1.00f)));
-
-		g_LogStream.str("");
-		g_LogStream.clear();
-#endif // !DEDICATED
-	}
+	va_list args;
+	va_start(args, pFmt);
+	CoreMsgV(LogType_t::LOG_WARNING, static_cast<LogLevel_t>(fs_show_warnings->GetInt()), eDLL_T::FS, "filesystem", pFmt, args);
+	va_end(args);
 }
 
 //---------------------------------------------------------------------------------

@@ -31,7 +31,7 @@ enum class SQCONTEXT : SQInteger
 	NONE
 };
 
-const static string SQVM_TYPE_T[4] =
+constexpr const char* s_SqContext[4] =
 {
 	"SERVER",
 	"CLIENT",
@@ -39,35 +39,11 @@ const static string SQVM_TYPE_T[4] =
 	"NONE"
 };
 
-const static string SQVM_LOG_T[4] =
+constexpr const char* s_ScriptContext[4] =
 {
 	"Script(S):",
 	"Script(C):",
 	"Script(U):",
 	"Script(X):"
-};
-
-const static string SQVM_ANSI_LOG_T[4] =
-{
-	"\033[38;2;151;149;187mScript(S):",
-	"\033[38;2;151;149;163mScript(C):",
-	"\033[38;2;151;123;136mScript(U):",
-	"\033[38;2;151;149;163mScript(X):"
-};
-
-const static string SQVM_WARNING_ANSI_LOG_T[4] =
-{
-	"\033[38;2;151;149;187mScript(S):\033[38;2;255;255;000m",
-	"\033[38;2;151;149;163mScript(C):\033[38;2;255;255;000m",
-	"\033[38;2;151;123;136mScript(U):\033[38;2;255;255;000m",
-	"\033[38;2;151;149;163mScript(X):\033[38;2;255;255;000m"
-};
-
-const static string SQVM_ERROR_ANSI_LOG_T[4] =
-{
-	"\033[38;2;151;149;187mScript(S):\033[38;2;255;000;000m",
-	"\033[38;2;151;149;163mScript(C):\033[38;2;255;000;000m",
-	"\033[38;2;151;123;136mScript(U):\033[38;2;255;000;000m",
-	"\033[38;2;151;149;163mScript(X):\033[38;2;255;000;000m"
 };
 #endif // SQTYPE_H
