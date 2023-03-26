@@ -75,7 +75,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 
 	va_list args;
 	va_start(args, fmt);
-	CoreMsgV(type, static_cast<LogLevel_t>(sq_showvmoutput->GetInt()), remoteContext, "squirrel_re", fmt, args);
+	CoreMsgV(type, static_cast<LogLevel_t>(script_show_output->GetInt()), remoteContext, "squirrel_re", fmt, args);
 	va_end(args);
 
 	return SQ_OK;
@@ -122,7 +122,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 	}
 
 	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
-	CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(sq_showvmwarning->GetInt()),
+	CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(script_show_warning->GetInt()),
 		remoteContext, NO_ERROR, "squirrel_re(warning)", "%s", svConstructor.c_str());
 
 	return result;

@@ -186,15 +186,12 @@ ConVar* fs_packedstore_max_helper_threads  = nullptr;
 //-----------------------------------------------------------------------------
 // MATERIALSYSTEM                                                             |
 #ifndef DEDICATED
-ConVar* mat_showdxoutput                   = nullptr;
 ConVar* mat_alwaysComplain                 = nullptr;
 #endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // SQUIRREL                                                                   |
-ConVar* sq_showrsonloading                 = nullptr;
-ConVar* sq_showscriptloading               = nullptr;
-ConVar* sq_showvmoutput                    = nullptr;
-ConVar* sq_showvmwarning                   = nullptr;
+ConVar* script_show_output                 = nullptr;
+ConVar* script_show_warning                = nullptr;
 //-----------------------------------------------------------------------------
 // NETCHANNEL                                                                 |
 ConVar* net_tracePayload                   = nullptr;

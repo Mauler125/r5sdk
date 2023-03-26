@@ -182,15 +182,12 @@ extern ConVar* fs_packedstore_max_helper_threads;
 //-------------------------------------------------------------------------
 // MATERIALSYSTEM                                                         |
 #ifndef DEDICATED
-extern ConVar* mat_showdxoutput;
 extern ConVar* mat_alwaysComplain;
 #endif // !DEDICATED
 //-------------------------------------------------------------------------
 // SQUIRREL                                                               |
-extern ConVar* sq_showrsonloading;
-extern ConVar* sq_showscriptloading;
-extern ConVar* sq_showvmoutput;
-extern ConVar* sq_showvmwarning;
+extern ConVar* script_show_output;
+extern ConVar* script_show_warning;
 //-------------------------------------------------------------------------
 // NETCHANNEL                                                             |
 extern ConVar* net_tracePayload;

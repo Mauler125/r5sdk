@@ -260,10 +260,7 @@ SQBool Script_DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQFloat 
 //---------------------------------------------------------------------------------
 SQInteger Script_LoadRson(const SQChar* rsonfile)
 {
-	if (sq_showrsonloading->GetBool())
-	{
-		DevMsg(eDLL_T::ENGINE, "Loading RSON: '%s'\n", rsonfile);
-	}
+	DevMsg(eDLL_T::ENGINE, "Loading RSON: '%s'\n", rsonfile);
 	return v_Script_LoadRson(rsonfile);
 }
 
@@ -276,11 +273,6 @@ SQInteger Script_LoadRson(const SQChar* rsonfile)
 //---------------------------------------------------------------------------------
 SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags)
 {
-	if (sq_showscriptloading->GetBool())
-	{
-		DevMsg(eDLL_T::ENGINE, "Loading script: '%s'\n", name);
-	}
-
 	///////////////////////////////////////////////////////////////////////////////
 	return v_Script_LoadScript(v, path, name, flags);
 }
@@ -344,7 +336,7 @@ void VSquirrelVM::Attach() const
 #endif // !DEDICATED
 	DetourAttach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourAttach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
-	DetourAttach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
+	//DetourAttach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
 }
 //---------------------------------------------------------------------------------
 void VSquirrelVM::Detach() const
@@ -363,5 +355,5 @@ void VSquirrelVM::Detach() const
 #endif // !DEDICATED
 	DetourDetach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourDetach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
-	DetourDetach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
+	//DetourDetach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
 }
