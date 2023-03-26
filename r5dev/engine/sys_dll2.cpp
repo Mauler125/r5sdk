@@ -77,16 +77,20 @@ static void InitVPKSystem()
     }
 }
 
+InitReturnVal_t CEngineAPI::VInit(CEngineAPI* pEngineAPI)
+{
+    ConCommand::InitShipped();
+    ConCommand::PurgeShipped();
+    ConVar::InitShipped();
+    ConVar::PurgeShipped();
+    return CEngineAPI_Init(pEngineAPI);
+}
+
 //-----------------------------------------------------------------------------
 // Initialization, shutdown of a mod.
 //-----------------------------------------------------------------------------
 bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const char* pGameDir)
 {
-	ConCommand::InitShipped();
-	ConCommand::PurgeShipped();
-	ConVar::InitShipped();
-	ConVar::PurgeShipped();
-
     // Register new Pak Assets here!
     //RTech_RegisterAsset(0, 1, "", nullptr, nullptr, nullptr, CMemory(0x1660AD0A8).RCast<void**>(), 8, 8, 8, 0, 0xFFFFFFC);
 
@@ -153,12 +157,14 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
 ///////////////////////////////////////////////////////////////////////////////
 void VSys_Dll2::Attach() const
 {
+	DetourAttach(&CEngineAPI_Init, &CEngineAPI::VInit);
 	DetourAttach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
 	DetourAttach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }
 
 void VSys_Dll2::Detach() const
 {
+	DetourDetach(&CEngineAPI_Init, &CEngineAPI::VInit);
 	DetourDetach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
 	DetourDetach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }

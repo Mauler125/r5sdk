@@ -30,7 +30,7 @@ public:
 	// Reset the map we're on
 	virtual void SetMap(const char* pMapName) = 0;
 
-
+	static InitReturnVal_t VInit(CEngineAPI* thisp);
 	static bool VModInit(CEngineAPI* pEngineAPI, const char* pModName, const char* pGameDir);
 	static void VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo);
 //private:
@@ -38,6 +38,12 @@ public:
 	bool m_bRunningSimulation;
 	StartupInfo_t m_StartupInfo;
 };
+
+inline CMemory p_CEngineAPI_Init;
+inline auto CEngineAPI_Init = p_CEngineAPI_Init.RCast<InitReturnVal_t(*)(CEngineAPI* thisp)>();
+
+inline CMemory p_CEngineAPI_Shutdown;
+inline auto CEngineAPI_Shutdown = p_CEngineAPI_Shutdown.RCast<void (*)(void)>();
 
 inline CMemory p_CEngineAPI_Connect;
 inline auto CEngineAPI_Connect = p_CEngineAPI_Connect.RCast<bool (*)(CEngineAPI* thisptr, CreateInterfaceFn factory)>();
@@ -67,6 +73,8 @@ class VSys_Dll2 : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("CEngineAPI::Init", p_CEngineAPI_Init.GetPtr());
+		LogFunAdr("CEngineAPI::Shutdown", p_CEngineAPI_Shutdown.GetPtr());
 		LogFunAdr("CEngineAPI::Connect", p_CEngineAPI_Connect.GetPtr());
 		LogFunAdr("CEngineAPI::ModInit", p_CEngineAPI_ModInit.GetPtr());
 		LogFunAdr("CEngineAPI::MainLoop", p_CEngineAPI_MainLoop.GetPtr());
@@ -82,12 +90,15 @@ class VSys_Dll2 : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
+		p_CEngineAPI_Init    = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F1 48 8D 3D ?? ?? ?? ?? 33 DB 48 8D 15 ?? ?? ?? ??");
 		p_CEngineAPI_Connect = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 89 15");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		p_CEngineAPI_Shutdown = g_GameDll.FindPatternSIMD("41 54 41 56 48 83 EC 38 48 8B 0D ?? ?? ?? ??");
 		p_CEngineAPI_ModInit  = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 4D 8B F0");
 		p_CEngineAPI_MainLoop = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 48 81 EC ?? ?? ?? ?? 45 33 C9");
 		p_PakFile_Init        = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 44 88 44 24 ?? 56 57 41 54 41 56 41 57 48 83 EC 20");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		p_CEngineAPI_Shutdown = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 33 D2 48 8B 01 FF 90 ?? ?? ?? ?? B1 01");
 		p_CEngineAPI_ModInit  = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 4D 8B F8");
 		p_CEngineAPI_MainLoop = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ?? 84 C0 B9 ?? ?? ?? ??").FollowNearCallSelf();
 		p_PakFile_Init        = g_GameDll.FindPatternSIMD("44 88 44 24 ?? 53 55 56 57");
@@ -95,6 +106,8 @@ class VSys_Dll2 : public IDetour
 		p_CEngineAPI_SetStartupInfo = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? ?? 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 48 8B DA");
 		p_ResetMTVFTaskItem = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 15 ?? ?? ?? ?? 48 85 D2 0F 84 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48 8B 01 FF 90 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? 0F 28 05 ?? ?? ?? ?? 0F 28 0D ?? ?? ?? ?? 0F 11 05 ?? ?? ?? ?? 0F 28 05 ?? ?? ?? ?? 0F 11 0D ?? ?? ?? ?? 0F 28 0D ?? ?? ?? ?? 0F 11 05 ?? ?? ?? ?? 0F 11 0D ?? ?? ?? ?? 48 C7 05 ?? ?? ?? ?? ?? ?? ?? ?? FF 15 ?? ?? ?? ??");
 
+		CEngineAPI_Init     = p_CEngineAPI_Init.RCast<InitReturnVal_t(*)(CEngineAPI*)>();
+		CEngineAPI_Shutdown = p_CEngineAPI_Shutdown.RCast<void (*)(void)>();
 		CEngineAPI_Connect  = p_CEngineAPI_Connect.RCast<bool (*)(CEngineAPI*, CreateInterfaceFn)>();             /*48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 89 15 ?? ?? ?? ??*/
 		CEngineAPI_ModInit  = p_CEngineAPI_ModInit.RCast<bool (*)(CEngineAPI*, const char*, const char*)>();      /*48 89 5C 24 ?? 48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 4D 8B F8*/
 		CEngineAPI_MainLoop = p_CEngineAPI_MainLoop.RCast<bool(*)(void)>();                                       /*E8 ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ?? 84 C0 B9 ?? ?? ?? ??*/
