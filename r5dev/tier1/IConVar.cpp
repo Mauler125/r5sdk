@@ -200,7 +200,7 @@ void ConVar::Init(void)
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
-	fs_show_warnings                  = ConVar::Create("fs_show_warnings"                      , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level' ( !slower! ).", true, 0.f, true, 2.f, nullptr, "1 = log to console. 2 = 1 + log to notify.");
+	fs_showWarnings                   = ConVar::Create("fs_showWarnings"                       , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level' ( !slower! ).", true, 0.f, true, 2.f, nullptr, "1 = log to console. 2 = 1 + log to notify.");
 	fs_packedstore_entryblock_stats   = ConVar::Create("fs_packedstore_entryblock_stats"       , "0", FCVAR_DEVELOPMENTONLY, "Logs the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_workspace          = ConVar::Create("fs_packedstore_workspace" , "platform/ship/", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_compression_level  = ConVar::Create("fs_packedstore_compression_level", "default", FCVAR_DEVELOPMENTONLY, "Determines the VPK compression level.", false, 0.f, false, 0.f, nullptr, "fastest faster default better uber");
@@ -257,6 +257,7 @@ void ConVar::InitShipped(void)
 #endif // !CLIENT_DLL
 	developer                        = g_pCVar->FindVar("developer");
 	fps_max                          = g_pCVar->FindVar("fps_max");
+	fs_showAllReads                  = g_pCVar->FindVar("fs_showAllReads");
 #ifndef DEDICATED
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
 #endif // !DEDICATED

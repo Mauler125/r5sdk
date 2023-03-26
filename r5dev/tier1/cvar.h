@@ -173,7 +173,8 @@ extern ConVar* origin_disconnectWhenOffline;
 #endif // !DEDICATED
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
-extern ConVar* fs_show_warnings;
+extern ConVar* fs_showWarnings;
+extern ConVar* fs_showAllReads;
 extern ConVar* fs_packedstore_entryblock_stats;
 extern ConVar* fs_packedstore_workspace;
 extern ConVar* fs_packedstore_compression_level;

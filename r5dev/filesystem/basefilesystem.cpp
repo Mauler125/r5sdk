@@ -15,9 +15,18 @@
 //---------------------------------------------------------------------------------
 void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* pFmt, ...)
 {
+	if (level >= FileWarningLevel_t::FILESYSTEM_WARNING_REPORTALLACCESSES)
+	{
+		// Logging reads is very verbose! Explicitly toggle..
+		if (!fs_showAllReads || !fs_showAllReads->GetBool())
+		{
+			return;
+		}
+	}
+
 	va_list args;
 	va_start(args, pFmt);
-	CoreMsgV(LogType_t::LOG_WARNING, static_cast<LogLevel_t>(fs_show_warnings->GetInt()), eDLL_T::FS, "filesystem", pFmt, args);
+	CoreMsgV(LogType_t::LOG_WARNING, static_cast<LogLevel_t>(fs_showWarnings->GetInt()), eDLL_T::FS, "filesystem", pFmt, args);
 	va_end(args);
 }
 
