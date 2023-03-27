@@ -61,6 +61,14 @@ public:
 	// Copy the array.
 	CUtlVector<T, A>& operator=(const CUtlVector<T, A>& other);
 
+	// NOTE<R5SDK>:
+	// Do not call after initialization or after adding elements.
+	// This is added so it could be constructed nicely. Since the
+	// game executable in monolithic, we couldn't import the malloc
+	// functions, and thus not construct automatically when using
+	// the game's memalloc singleton.
+	void Init();
+
 	// element access
 	T& operator[](int i);
 	const T& operator[](int i) const;
@@ -655,6 +663,14 @@ inline CUtlVector<T, A>& CUtlVector<T, A>::operator=(const CUtlVector<T, A>& oth
 	return *this;
 }
 
+template< typename T, class A >
+void CUtlVector<T, A>::Init()
+{
+	m_Memory.m_pMemory = nullptr;
+	m_Memory.m_nAllocationCount = 0;
+	m_Memory.m_nGrowSize = 0;
+	m_Size = 0;
+}
 
 //-----------------------------------------------------------------------------
 // element access

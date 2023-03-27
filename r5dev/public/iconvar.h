@@ -129,7 +129,7 @@ typedef void (*FnChangeCallback_t)(IConVar* var, const char* pOldValue, float fl
 abstract_class IConVar
 {
 public:
-	virtual ~IConVar() = 0;
+	virtual ~IConVar() { };
 
 	// Value set
 	virtual void SetValue(const char* pValue) = 0;

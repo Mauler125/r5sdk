@@ -7,7 +7,6 @@
 extern ConVar* sdk_fixedframe_tickinterval;
 extern ConVar* single_frame_shutdown_for_reload;
 extern ConVar* old_gather_props;
-extern ConVar* cm_unset_all_cmdquery;
 
 extern ConVar* enable_debug_overlays;
 extern ConVar* debug_draw_box_depth_test;
@@ -282,7 +281,7 @@ protected:
 		ConVarSetType_t m_nType;
 		int m_nInt;
 		float m_flFloat;
-		//CUtlString m_String; // !TODO:
+		CUtlString m_String;
 	};
 
 	class CCVarIteratorInternal : public ICVarIteratorInternal

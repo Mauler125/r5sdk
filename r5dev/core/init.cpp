@@ -382,7 +382,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// Tier1
 	REGISTER(VCommandLine);
 	REGISTER(VConCommand);
-	REGISTER(VConVar);
 	REGISTER(VCVar);
 
 	// VPC

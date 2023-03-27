@@ -11,7 +11,6 @@
 ConVar* sdk_fixedframe_tickinterval        = nullptr;
 ConVar* single_frame_shutdown_for_reload   = nullptr;
 ConVar* old_gather_props                   = nullptr;
-ConVar* cm_unset_all_cmdquery              = nullptr;
 
 ConVar* enable_debug_overlays              = nullptr;
 ConVar* debug_draw_box_depth_test          = nullptr;
