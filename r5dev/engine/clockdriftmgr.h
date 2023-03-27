@@ -1,7 +1,7 @@
 #ifndef CLOCKDRIFTMGR_H
 #define CLOCKDRIFTMGR_H
 
-struct __declspec(align(4)) CClockDriftMgr
+struct CClockDriftMgr
 {
 	void Clear();
 	float GetCurrentClockDifference() const;
@@ -24,5 +24,6 @@ struct __declspec(align(4)) CClockDriftMgr
 	int m_nClientTick;
 	int m_nServerTick;
 };
+static_assert(sizeof(CClockDriftMgr) == 0x94);
 
 #endif // CLOCKDRIFTMGR_H
