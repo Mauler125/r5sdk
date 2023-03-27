@@ -136,15 +136,17 @@ public:
 	virtual void SetValue(float flValue) = 0;
 	virtual void SetValue(int nValue) = 0;
 
-	// Return name of command
-	virtual const char* GetName(void) const = 0;
+	// Original name 'GetName'. Renamed due to name ambiguity
+	// as we are not implementing it in ConVar, we are just
+	// interfacing it with the game executable.
+	virtual const char* GetCommandName(void) const = 0;
 
 	// Return name of command (usually == GetName(), except in case of FCVAR_SS_ADDED vars
 	virtual const char* GetBaseName(void) const = 0;
 
 	// Accessors.. not as efficient as using GetState()/GetInfo()
 	// if you call these methods multiple times on the same IConVar
-	virtual bool IsFlagSet(int nFlag) const = 0;
+	virtual bool IsConVarFlagSet(int nFlag) const = 0; // Original name 'IsFlagSet'. Renamed for same reason as 'GetName'.
 
 	virtual int GetSplitScreenPlayerSlot() const = 0;
 };

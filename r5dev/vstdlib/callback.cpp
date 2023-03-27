@@ -727,7 +727,7 @@ NET_UseRandomKeyChanged_f
 */
 void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
 	{
 		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
 			return; // Same value.
@@ -931,7 +931,7 @@ RCON_PasswordChanged_f
 */
 void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
 	{
 		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
 			return; // Same password.

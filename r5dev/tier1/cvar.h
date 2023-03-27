@@ -402,9 +402,6 @@ public:
 	void InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke);
 	void RemoveChangeCallback(FnChangeCallback_t callback);
 
-	virtual bool IsFlagSet(int nFlags) { return (nFlags & m_pParent->m_nFlags) ? true : false; };
-	virtual const char* GetName(void) const { return m_pParent->m_pszName; };
-
 	struct CVValue_t
 	{
 		char* m_pszString;
