@@ -5,7 +5,6 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
-#include "tier1/IConVar.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "protoc/sv_rcon.pb.h"

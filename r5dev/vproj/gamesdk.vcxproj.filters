@@ -447,9 +447,6 @@
     <ClCompile Include="..\filesystem\basefilesystem.cpp">
       <Filter>sdk\filesystem</Filter>
     </ClCompile>
-    <ClCompile Include="..\tier1\IConVar.cpp">
-      <Filter>sdk\tier1</Filter>
-    </ClCompile>
     <ClCompile Include="..\tier1\cmd.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
@@ -1167,9 +1164,6 @@
       <Filter>sdk\filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\tier1\cmd.h">
-      <Filter>sdk\tier1</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier1\IConVar.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
     <ClInclude Include="..\tier1\cvar.h">

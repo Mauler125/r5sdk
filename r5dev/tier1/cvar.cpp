@@ -1,7 +1,6 @@
 #include "core/stdafx.h"
 #include "tier1/utlrbtree.h"
 #include "tier1/cvar.h"
-#include "tier1/IConVar.h"
 #include "public/const.h"
 #include "engine/sys_dll2.h"
 #include "filesystem/filesystem.h"

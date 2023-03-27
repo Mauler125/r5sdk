@@ -7,7 +7,6 @@
 #include "core/stdafx.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
-#include "tier1/IConVar.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
 #include "engine/net.h"

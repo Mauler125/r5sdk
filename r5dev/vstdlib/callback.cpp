@@ -9,7 +9,6 @@
 #include "windows/id3dx.h"
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
-#include "tier1/IConVar.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
 #endif // !CLIENT_DLL

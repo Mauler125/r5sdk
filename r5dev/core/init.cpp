@@ -16,7 +16,6 @@
 #include "tier0/commandline.h"
 #include "tier0/platform_internal.h"
 #include "tier1/cmd.h"
-#include "tier1/IConVar.h"
 #include "tier1/cvar.h"
 #include "vpc/IAppSystem.h"
 #include "vpc/keyvalues.h"

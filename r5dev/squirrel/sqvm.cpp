@@ -9,7 +9,6 @@
 #include "tier0/platform_internal.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
-#include "tier1/IConVar.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
 #endif // CLIENT_DLL

@@ -7,7 +7,6 @@
 /*****************************************************************************/
 #include "tier1/cvar.h"
 #include "tier0/commandline.h"
-#include "tier1/IConVar.h"
 #include "client/vengineclient_impl.h"
 #include "client/cdll_engine_int.h"
 #include "engine/net_chan.h"

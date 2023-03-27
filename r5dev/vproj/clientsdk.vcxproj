@@ -148,7 +148,6 @@
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />
     <ClCompile Include="..\tier1\generichash.cpp" />
-    <ClCompile Include="..\tier1\IConVar.cpp" />
     <ClCompile Include="..\tier1\NetAdr.cpp" />
     <ClCompile Include="..\tier1\NetKey.cpp" />
     <ClCompile Include="..\tier1\splitstring.cpp" />
@@ -491,7 +490,6 @@
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />
     <ClInclude Include="..\tier1\generichash.h" />
-    <ClInclude Include="..\tier1\IConVar.h" />
     <ClInclude Include="..\tier1\mempool.h" />
     <ClInclude Include="..\tier1\NetAdr.h" />
     <ClInclude Include="..\tier1\NetKey.h" />

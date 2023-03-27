@@ -1,5 +1,4 @@
 #pragma once
-#include "tier1/IConVar.h"
 
 inline CMemory p_SetupGamemode;
 inline auto SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char* pszPlayList)>();

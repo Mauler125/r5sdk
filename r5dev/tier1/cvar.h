@@ -12,7 +12,6 @@
 #ifndef CVAR_H
 #define CVAR_H
 
-#include "tier1/IConVar.h"
 #include "vstdlib/concommandhash.h"
 
 //-------------------------------------------------------------------------
