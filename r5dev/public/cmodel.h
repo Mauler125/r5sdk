@@ -76,4 +76,42 @@ struct cplanetrace_t
 	float dist;
 };
 
+struct dsurfaceproperty_t
+{
+	__int16 unk;
+	byte unk2;
+	byte contentMaskOffset;
+	int surfaceNameOffset;
+};
+
+struct dbvhnode_t
+{
+	__int16 mins_x[4];
+	__int16 mins_y[4];
+	__int16 mins_z[4];
+	__int16 maxs_x[4];
+	__int16 maxs_y[4];
+	__int16 maxs_z[4];
+	int index_child01_types;
+	int index_child23_types;
+	int index_cm;
+	int index_pad;
+};
+
+struct bspmodel_t
+{
+	dbvhnode_t* bvhnodes;
+	dsurfaceproperty_t* surfaceproperties;
+	int* bvhleafdata;
+	void* vertices;
+	int* contentmasks;
+	char* texdatastringdata;
+	int unk;
+	int unk2;
+	float unk_f1;
+	float unk_f2;
+	float unk_f3;
+	float unk_f4;
+};
+
 #endif // CMODEL_H

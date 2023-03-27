@@ -41,4 +41,22 @@ public:
 static_assert(sizeof(CGameTrace) == 0x180);
 typedef CGameTrace trace_t;
 
+//-----------------------------------------------------------------------------
+// Purpose: A collision query
+//-----------------------------------------------------------------------------
+struct CollisionQuery_t
+{
+	bspmodel_t* pModel;
+	char* pVertices;
+	char unk_10[16];
+	int trace_contents;
+	char unk[556];
+	void** func_table;
+	void* funcs_250[6];
+	char unk_288[80];
+	trace_t* trace;
+	char unk_2D8[54];
+};
+static_assert(sizeof(CollisionQuery_t) == 0x318);
+
 #endif // GAMETRACE_H
