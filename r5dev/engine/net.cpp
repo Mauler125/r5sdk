@@ -118,21 +118,25 @@ void NET_GenerateKey()
 //-----------------------------------------------------------------------------
 void NET_PrintFunc(const char* fmt, ...)
 {
-	static char buf[2048];
 #ifndef DEDICATED
 	const static eDLL_T context = eDLL_T::CLIENT;
 #else // !DEDICATED
 	const static eDLL_T context = eDLL_T::SERVER;
 #endif
+
+	string result;
+
 	va_list args;
 	va_start(args, fmt);
-
-	vsnprintf(buf, sizeof(buf), fmt, args);
-
-	buf[sizeof(buf) - 1] = '\0';
+	result = FormatV(fmt, args);
 	va_end(args);
 
-	DevMsg(context, "%s", buf);
+	if (result.back() != '\n')
+	{
+		result.push_back('\n');
+	}
+
+	DevMsg(context, "%s", result.c_str());
 }
 
 //-----------------------------------------------------------------------------

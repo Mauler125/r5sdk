@@ -6,8 +6,10 @@
 
 #include "core/stdafx.h"
 #include "core/termutil.h"
+#include "core/logdef.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
+#include "windows/console.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
 #include "public/utility/utility.h"
@@ -19,10 +21,9 @@
 //-----------------------------------------------------------------------------
 CNetCon::CNetCon(void)
 	: m_bInitialized(false)
-	, m_bNoColor(false)
 	, m_bQuitApplication(false)
-	, m_abPromptConnect(true)
-	, m_abConnEstablished(false)
+	, m_bPromptConnect(true)
+	, m_bConnEstablished(false)
 {
 }
 
@@ -44,11 +45,12 @@ bool CNetCon::Init(void)
 
 	if (nError != 0)
 	{
-		Error(eDLL_T::NETCON, NO_ERROR, "%s - Failed to start Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+		Error(eDLL_T::NONE, NO_ERROR, "%s - Failed to start Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 		return false;
 	}
 
 	this->TermSetup();
+	DevMsg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
 
 	static std::thread frame([this]()
 		{
@@ -68,16 +70,25 @@ bool CNetCon::Init(void)
 //-----------------------------------------------------------------------------
 bool CNetCon::Shutdown(void)
 {
+	bool bResult = false;
+
 	m_Socket.CloseAllAcceptedSockets();
-	m_abConnEstablished = false;
+	m_bConnEstablished = false;
 
 	const int nError = ::WSACleanup();
-	if (nError != 0)
+	if (nError == 0)
 	{
-		Error(eDLL_T::NETCON, NO_ERROR, "%s - Failed to stop Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
-		return false;
+		bResult = true;
 	}
-	return true;
+	else // WSACleanup() failed.
+	{
+		Error(eDLL_T::NONE, NO_ERROR, "%s - Failed to stop Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+	}
+
+	SpdLog_Shutdown();
+	Console_Shutdown();
+
+	return bResult;
 }
 
 //-----------------------------------------------------------------------------
@@ -85,36 +96,11 @@ bool CNetCon::Shutdown(void)
 //-----------------------------------------------------------------------------
 void CNetCon::TermSetup(void)
 {
-	DWORD dwMode = NULL;
-	HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
-	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	g_svCmdLine = GetCommandLineA();
 
-	if (!strstr(GetCommandLineA(), "-nocolor"))
-	{
-		GetConsoleMode(hOutput, &dwMode);
-		dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-		if (!SetConsoleMode(hOutput, dwMode)) // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
-		{
-			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
-			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
-				"Restart the net console with the '-nocolor'\n"
-				"parameter if output logging appears distorted.", "SDK Warning",
-				MB_ICONEXCLAMATION | MB_OK);
-		}
-		AnsiColors_Init();
-	}
-	else
-	{
-		m_bNoColor = true;
-	}
-
-	CONSOLE_SCREEN_BUFFER_INFOEX sbInfoEx{};
-	sbInfoEx.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
-
-	GetConsoleScreenBufferInfoEx(hOutput, &sbInfoEx);
-	sbInfoEx.ColorTable[0] = 0x0000;
-	SetConsoleScreenBufferInfoEx(hOutput, &sbInfoEx);
+	SpdLog_Init();
+	SpdLog_PostInit();
+	Console_Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -122,26 +108,24 @@ void CNetCon::TermSetup(void)
 //-----------------------------------------------------------------------------
 void CNetCon::UserInput(void)
 {
-	std::string svInput;
-
-	if (std::getline(std::cin, svInput))
+	if (std::getline(std::cin, m_Input))
 	{
-		if (svInput.compare("nquit") == 0)
+		if (m_Input.compare("nquit") == 0)
 		{
 			m_bQuitApplication = true;
 			return;
 		}
 
 		std::lock_guard<std::mutex> l(m_Mutex);
-		if (m_abConnEstablished)
+		if (m_bConnEstablished)
 		{
-			if (svInput.compare("disconnect") == 0)
+			if (m_Input.compare("disconnect") == 0)
 			{
 				this->Disconnect();
 				return;
 			}
 
-			const std::vector<std::string> vSubStrings = StringSplit(svInput, ' ', 2);
+			const std::vector<std::string> vSubStrings = StringSplit(m_Input, ' ', 2);
 			if (vSubStrings.size() > 1)
 			{
 				if (vSubStrings[0].compare("PASS") == 0) // Auth with RCON server.
@@ -159,41 +143,41 @@ void CNetCon::UserInput(void)
 				}
 				else // Execute command query.
 				{
-					std::string svSerialized = this->Serialize(svInput, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+					std::string svSerialized = this->Serialize(m_Input, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 					this->Send(svSerialized);
 				}
 			}
-			else if (!svInput.empty()) // Single arg command query.
+			else if (!m_Input.empty()) // Single arg command query.
 			{
-				std::string svSerialized = this->Serialize(svInput, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+				std::string svSerialized = this->Serialize(m_Input, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 				this->Send(svSerialized);
 			}
 		}
 		else // Setup connection from input.
 		{
-			const std::vector<std::string> vSubStrings = StringSplit(svInput, ' ', 2);
+			const std::vector<std::string> vSubStrings = StringSplit(m_Input, ' ', 2);
 			if (vSubStrings.size() > 1)
 			{
-				const string::size_type nPos = svInput.find(' ');
+				const string::size_type nPos = m_Input.find(' ');
 				if (nPos > 0
-					&& nPos < svInput.size()
-					&& nPos != svInput.size())
+					&& nPos < m_Input.size()
+					&& nPos != m_Input.size())
 				{
-					std::string svInPort = svInput.substr(nPos + 1);
-					std::string svInAdr = svInput.erase(svInput.find(' '));
+					std::string svInPort = m_Input.substr(nPos + 1);
+					std::string svInAdr = m_Input.erase(m_Input.find(' '));
 
 					if (!this->Connect(svInAdr, svInPort))
 					{
-						m_abPromptConnect = true;
+						m_bPromptConnect = true;
 						return;
 					}
 				}
 			}
 			else // Initialize as [ip]:port.
 			{
-				if (!this->Connect(svInput, ""))
+				if (!this->Connect(m_Input, ""))
 				{
-					m_abPromptConnect = true;
+					m_bPromptConnect = true;
 					return;
 				}
 			}
@@ -202,21 +186,29 @@ void CNetCon::UserInput(void)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: clears the input buffer
+//-----------------------------------------------------------------------------
+void CNetCon::ClearInput(void)
+{
+	m_Input.clear();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: client's main processing loop
 //-----------------------------------------------------------------------------
 void CNetCon::RunFrame(void)
 {
-	if (m_abConnEstablished)
+	if (m_bConnEstablished)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		std::lock_guard<std::mutex> l(m_Mutex);
 
 		this->Recv();
 	}
-	else if (m_abPromptConnect)
+	else if (m_bPromptConnect)
 	{
-		DevMsg(eDLL_T::NETCON, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
-		m_abPromptConnect = false;
+		DevMsg(eDLL_T::NONE, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
+		m_bPromptConnect = false;
 	}
 }
 
@@ -249,7 +241,7 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 			}
 		}
 
-		const string svFull = fmt::format("[{:s}]:{:s}", svLocalHost.empty() ? svInAdr : svLocalHost, svInPort);
+		const string svFull = Format("[%s]:%s", svLocalHost.empty() ? svInAdr.c_str() : svLocalHost.c_str(), svInPort.c_str());
 		if (!m_Address.SetFromString(svFull.c_str(), true))
 		{
 			Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", svFull.c_str());
@@ -264,18 +256,18 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 	}
 	else
 	{
-		Warning(eDLL_T::NETCON, "No IP address provided\n");
+		Warning(eDLL_T::NONE, "No IP address provided\n");
 		return false;
 	}
 
 	if (m_Socket.ConnectSocket(m_Address, true) == SOCKET_ERROR)
 	{
-		Error(eDLL_T::NETCON, NO_ERROR, "Failed to connect: error(%s); verify IP and PORT\n", "SOCKET_ERROR");
+		Error(eDLL_T::NONE, NO_ERROR, "Failed to connect: error(%s); verify IP and PORT\n", "SOCKET_ERROR");
 		return false;
 	}
-	DevMsg(eDLL_T::NETCON, "Connected to: %s\n", m_Address.ToString());
+	DevMsg(eDLL_T::NONE, "Connected to: %s\n", m_Address.ToString());
 
-	m_abConnEstablished = true;
+	m_bConnEstablished = true;
 	return true;
 }
 
@@ -285,8 +277,8 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 void CNetCon::Disconnect(void)
 {
 	m_Socket.CloseAcceptedSocket(0);
-	m_abPromptConnect = true;
-	m_abConnEstablished = false;
+	m_bPromptConnect = true;
+	m_bConnEstablished = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -305,7 +297,7 @@ void CNetCon::Send(const std::string& svMessage) const
 		ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
 	if (nSendResult == SOCKET_ERROR)
 	{
-		Error(eDLL_T::NETCON, NO_ERROR, "Failed to send message (%s)\n", "SOCKET_ERROR");
+		Error(eDLL_T::NONE, NO_ERROR, "Failed to send message (%s)\n", "SOCKET_ERROR");
 	}
 }
 
@@ -323,10 +315,10 @@ void CNetCon::Recv(void)
 		{
 			return;
 		}
-		if (nPendingLen <= 0 && m_abConnEstablished) // EOF or error.
+		if (nPendingLen <= 0 && m_bConnEstablished) // EOF or error.
 		{
 			this->Disconnect();
-			DevMsg(eDLL_T::NETCON, "Server closed connection\n");
+			DevMsg(eDLL_T::NONE, "Server closed connection\n");
 			return;
 		}
 	}//////////////////////////////////////////////
@@ -337,15 +329,15 @@ void CNetCon::Recv(void)
 	while (nReadLen > 0)
 	{
 		const int nRecvLen = ::recv(pData->m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
-		if (nRecvLen == 0 && m_abConnEstablished) // Socket was closed.
+		if (nRecvLen == 0 && m_bConnEstablished) // Socket was closed.
 		{
 			this->Disconnect();
-			DevMsg(eDLL_T::NETCON, "Server closed connection\n");
+			DevMsg(eDLL_T::NONE, "Server closed connection\n");
 			break;
 		}
 		if (nRecvLen < 0 && !m_Socket.IsSocketBlocking())
 		{
-			Error(eDLL_T::NETCON, NO_ERROR, "RCON Cmd: recv error (%s)\n", NET_ErrorString(WSAGetLastError()));
+			Error(eDLL_T::NONE, NO_ERROR, "RCON Cmd: recv error (%s)\n", NET_ErrorString(WSAGetLastError()));
 			break;
 		}
 
@@ -397,7 +389,7 @@ void CNetCon::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetCon
 			if (pData->m_nPayloadLen < 0 ||
 				pData->m_nPayloadLen > pData->m_RecvBuffer.max_size())
 			{
-				Error(eDLL_T::NETCON, NO_ERROR, "RCON Cmd: sync error (%zu)\n", pData->m_nPayloadLen);
+				Error(eDLL_T::NONE, NO_ERROR, "RCON Cmd: sync error (%zu)\n", pData->m_nPayloadLen);
 				this->Disconnect(); // Out of sync (irrecoverable).
 
 				break;
@@ -429,20 +421,15 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 				this->Send(svLogQuery);
 			}
 		}
-		[[fallthrough]];
+
+		DevMsg(eDLL_T::NETCON, "%s", PrintPercentageEscape(sv_response.responsemsg()).c_str());
+		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
-		std::string svOut = sv_response.responsebuf();
-		if (m_bNoColor)
-		{
-			svOut = std::regex_replace(svOut, std::regex("\\\033\\[.*?m"), "");
-		}
-		else
-		{
-			svOut.append(g_svReset);
-		}
-		NetMsg(eDLL_T::NONE, svOut.c_str());
+		NetMsg(static_cast<LogType_t>(sv_response.messagetype()),
+			static_cast<eDLL_T>(sv_response.messageid()), sv_response.responseval().c_str(),
+			PrintPercentageEscape(sv_response.responsemsg()).c_str());
 		break;
 	}
 	default:
@@ -463,7 +450,7 @@ std::string CNetCon::Serialize(const std::string& svReqBuf, const std::string& s
 {
 	cl_rcon::request cl_request;
 
-	cl_request.set_requestid(-1);
+	cl_request.set_messageid(-1);
 	cl_request.set_requesttype(request_t);
 
 	switch (request_t)
@@ -471,13 +458,13 @@ std::string CNetCon::Serialize(const std::string& svReqBuf, const std::string& s
 	case cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE:
 	case cl_rcon::request_t::SERVERDATA_REQUEST_AUTH:
 	{
-		cl_request.set_requestbuf(svReqBuf);
+		cl_request.set_requestmsg(svReqBuf);
 		cl_request.set_requestval(svReqVal);
 		break;
 	}
 	case cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND:
 	{
-		cl_request.set_requestbuf(svReqBuf);
+		cl_request.set_requestmsg(svReqBuf);
 		break;
 	}
 	}
@@ -504,8 +491,6 @@ sv_rcon::response CNetCon::Deserialize(const std::string& svBuf) const
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-	DevMsg(eDLL_T::NETCON, "R5Reloaded TCP net console [Version %s]\n", NETCON_VERSION);
-
 	if (!NetConsole()->Init())
 	{
 		return EXIT_FAILURE;
@@ -522,6 +507,7 @@ int main(int argc, char* argv[])
 	while (!NetConsole()->ShouldQuit())
 	{
 		NetConsole()->UserInput();
+		NetConsole()->ClearInput();
 	}
 
 	if (!NetConsole()->Shutdown())

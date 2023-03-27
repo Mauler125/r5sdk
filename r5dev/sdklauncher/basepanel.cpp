@@ -946,7 +946,7 @@ void CSurface::AppendConsoleParameters(string& svParameters)
 		AppendParameterInternal(svParameters, "-wconsole");
 
 	if (this->m_ColorConsoleToggle->Checked())
-		AppendParameterInternal(svParameters, "-ansiclr");
+		AppendParameterInternal(svParameters, "-ansicolor");
 
 	if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
 		AppendParameterInternal(svParameters, "-playlistfile", 

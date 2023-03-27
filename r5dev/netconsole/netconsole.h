@@ -20,6 +20,7 @@ public:
 
 	void TermSetup(void);
 	void UserInput(void);
+	void ClearInput(void);
 
 	void RunFrame(void);
 	bool ShouldQuit(void) const;
@@ -38,13 +39,13 @@ public:
 
 private:
 	bool m_bInitialized;
-	bool m_bNoColor;
 	bool m_bQuitApplication;
-	std::atomic<bool> m_abPromptConnect;
-	std::atomic<bool> m_abConnEstablished;
+	bool m_bPromptConnect;
+	bool m_bConnEstablished;
 
 	CNetAdr m_Address;
 	CSocketCreator m_Socket;
+	std::string m_Input;
 
 	mutable std::mutex m_Mutex;
 };

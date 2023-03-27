@@ -89,7 +89,7 @@ bool CRConClient::Connect(const char* szInAdr)
 		char szHostName[512];
 		if (!gethostname(szHostName, sizeof(szHostName)))
 		{
-			svLocalHost = fmt::format("[{:s}]:{:s}", szHostName, hostport->GetString());
+			svLocalHost = Format("[%s]:%s", szHostName, hostport->GetString());
 			szInAdr = svLocalHost.c_str();
 		}
 	}
@@ -264,12 +264,14 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 			}
 		}
 
-		DevMsg(eDLL_T::NETCON, "%s", PrintPercentageEscape(sv_response.responsebuf()).c_str());
+		DevMsg(eDLL_T::NETCON, "%s", PrintPercentageEscape(sv_response.responsemsg()).c_str());
 		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
-		NetMsg(static_cast<eDLL_T>(sv_response.responseid()), PrintPercentageEscape(sv_response.responsebuf()).c_str());
+		NetMsg(static_cast<LogType_t>(sv_response.messagetype()), 
+			static_cast<eDLL_T>(sv_response.messageid()), sv_response.responseval().c_str(),
+			PrintPercentageEscape(sv_response.responsemsg()).c_str());
 		break;
 	}
 	default:
@@ -290,7 +292,7 @@ string CRConClient::Serialize(const string& svReqBuf, const string& svReqVal, co
 {
 	cl_rcon::request cl_request;
 
-	cl_request.set_requestid(-1);
+	cl_request.set_messageid(-1);
 	cl_request.set_requesttype(request_t);
 
 	switch (request_t)
@@ -298,13 +300,13 @@ string CRConClient::Serialize(const string& svReqBuf, const string& svReqVal, co
 	case cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE:
 	case cl_rcon::request_t::SERVERDATA_REQUEST_AUTH:
 	{
-		cl_request.set_requestbuf(svReqBuf);
+		cl_request.set_requestmsg(svReqBuf);
 		cl_request.set_requestval(svReqVal);
 		break;
 	}
 	case cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND:
 	{
-		cl_request.set_requestbuf(svReqBuf);
+		cl_request.set_requestmsg(svReqBuf);
 		break;
 	}
 	}

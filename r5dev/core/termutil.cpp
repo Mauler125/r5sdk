@@ -19,7 +19,7 @@ std::string g_svCmdLine;
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the global ansi escape sequences.
-// If '-ansiclr' has not been passed to the sdk the char will be empty.
+// If '-ansicolor' has not been passed to the sdk the char will be empty.
 //-----------------------------------------------------------------------------
 void AnsiColors_Init()
 {

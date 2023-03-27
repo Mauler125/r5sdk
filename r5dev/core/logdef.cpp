@@ -1,6 +1,9 @@
 #include "core/stdafx.h"
 #include "core/logdef.h"
 
+std::shared_ptr<spdlog::logger> g_TermLogger;
+std::shared_ptr<spdlog::logger> g_ImGuiLogger;
+
 //#############################################################################
 // SPDLOG INIT
 //#############################################################################
@@ -14,60 +17,73 @@ void SpdLog_Init(void)
 		return;
 	}
 
+#ifndef NETCONSOLE
 	g_svLogSessionDirectory = fmt::format("platform\\logs\\{:s}\\", CreateTimedFileName());
 	/************************
 	 * IMGUI LOGGER SETUP   *
 	 ************************/
 	{
-		auto iconsole = std::make_shared<spdlog::logger>("game_console", g_LogSink);
-		spdlog::register_logger(iconsole); // in-game console logger.
-		iconsole->set_pattern("[0.000] %v");
-		iconsole->set_level(spdlog::level::trace);
+		g_ImGuiLogger = std::make_shared<spdlog::logger>("game_console", g_LogSink);
+		spdlog::register_logger(g_ImGuiLogger); // in-game console logger.
+		g_ImGuiLogger->set_pattern("[0.000] %v");
+		g_ImGuiLogger->set_level(spdlog::level::trace);
 	}
-
+#endif // !NETCONSOLE
 	/************************
 	 * WINDOWS LOGGER SETUP *
 	 ************************/
 	{
-		auto wconsole = spdlog::stdout_logger_mt("win_console");
+#ifdef NETCONSOLE
+		g_TermLogger = spdlog::default_logger();
+#else
+		g_TermLogger = spdlog::stdout_logger_mt("win_console");
+#endif // NETCONSOLE
 
 		// Determine if user wants ansi-color logging in the terminal.
-		if (g_svCmdLine.find("-ansiclr") != string::npos)
+		if (g_svCmdLine.find("-ansicolor") != string::npos)
 		{
-			wconsole->set_pattern("[0.000] %v\u001b[0m");
+			g_TermLogger->set_pattern("[0.000] %v\u001b[0m");
 			g_bSpdLog_UseAnsiClr = true;
 		}
-		else { wconsole->set_pattern("[0.000] %v"); }
-		wconsole->set_level(spdlog::level::trace);
-		spdlog::set_default_logger(wconsole); // Set as default.
+		else
+		{
+			g_TermLogger->set_pattern("[0.000] %v");
+		}
+		//g_TermLogger->set_level(spdlog::level::trace);
 	}
 
-	/************************
-	 * ROTATE LOGGER SETUP  *
-	 ************************/
-	{
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("squirrel_re(warning)"
-			, fmt::format("{:s}{:s}" , g_svLogSessionDirectory, "script_warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("squirrel_re"
-			, fmt::format("{:s}{:s}" , g_svLogSessionDirectory, "script.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(message)"
-			, fmt::format("{:s}{:s}" , g_svLogSessionDirectory, "message.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(warning)"
-			, fmt::format("{:s}{:s}" , g_svLogSessionDirectory, "warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(error)"
-			, fmt::format("{:s}{:s}" , g_svLogSessionDirectory, "error.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("net_trace"
-			, fmt::format("{:s}{:s}" , g_svLogSessionDirectory, "net_trace.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-#ifndef DEDICATED
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("netconsole"
-			, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "netconsole.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-#endif // !DEDICATED
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("filesystem"
-			, fmt::format("{:s}{:s}" ,g_svLogSessionDirectory, "filesystem.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-	}
+#ifndef NETCONSOLE
+	spdlog::set_default_logger(g_TermLogger); // Set as default.
+	SpdLog_Create();
+#endif // !NETCONSOLE
 
 	spdlog::set_level(spdlog::level::trace);
 	bInitialized = true;
+}
+
+void SpdLog_Create()
+{
+	/************************
+	* ROTATE LOGGER SETUP  *
+	 ************************/
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("squirrel_re(warning)"
+		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "script_warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("squirrel_re"
+		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "script.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(message)"
+		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "message.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(warning)"
+		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(error)"
+		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "error.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("net_trace"
+		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "net_trace.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+#ifndef DEDICATED
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("netconsole"
+		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "netconsole.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+#endif // !DEDICATED
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("filesystem"
+		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "filesystem.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 }
 
 //#############################################################################
@@ -75,19 +91,17 @@ void SpdLog_Init(void)
 //#############################################################################
 void SpdLog_PostInit()
 {
+#ifndef NETCONSOLE
 	spdlog::flush_every(std::chrono::seconds(5)); // Flush buffers every 5 seconds for every logger.
+	g_ImGuiLogger->set_pattern("%v");
+#endif // !NETCONSOLE
 
-	std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-
-	iconsole->set_pattern("%v");
-
-	if (g_svCmdLine.find("-ansiclr") != string::npos)
+	if (g_svCmdLine.find("-ansicolor") != string::npos)
 	{
-		wconsole->set_pattern("%v\u001b[0m");
+		g_TermLogger->set_pattern("%v\u001b[0m");
 		g_bSpdLog_UseAnsiClr = true;
 	}
-	else { wconsole->set_pattern("%v"); }
+	else { g_TermLogger->set_pattern("%v"); }
 	g_bSpdLog_PostInit = true;
 }
 

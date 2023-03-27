@@ -182,30 +182,31 @@ class response final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kResponseBufFieldNumber = 3,
-    kResponseValFieldNumber = 4,
-    kResponseIDFieldNumber = 1,
-    kResponseTypeFieldNumber = 2,
+    kResponseMsgFieldNumber = 4,
+    kResponseValFieldNumber = 5,
+    kMessageIDFieldNumber = 1,
+    kMessageTypeFieldNumber = 2,
+    kResponseTypeFieldNumber = 3,
   };
-  // optional string responseBuf = 3;
-  bool has_responsebuf() const;
+  // optional string responseMsg = 4;
+  bool has_responsemsg() const;
   private:
-  bool _internal_has_responsebuf() const;
+  bool _internal_has_responsemsg() const;
   public:
-  void clear_responsebuf();
-  const std::string& responsebuf() const;
+  void clear_responsemsg();
+  const std::string& responsemsg() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_responsebuf(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_responsebuf();
-  PROTOBUF_NODISCARD std::string* release_responsebuf();
-  void set_allocated_responsebuf(std::string* responsebuf);
+  void set_responsemsg(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_responsemsg();
+  PROTOBUF_NODISCARD std::string* release_responsemsg();
+  void set_allocated_responsemsg(std::string* responsemsg);
   private:
-  const std::string& _internal_responsebuf() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_responsebuf(const std::string& value);
-  std::string* _internal_mutable_responsebuf();
+  const std::string& _internal_responsemsg() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_responsemsg(const std::string& value);
+  std::string* _internal_mutable_responsemsg();
   public:
 
-  // optional string responseVal = 4;
+  // optional string responseVal = 5;
   bool has_responseval() const;
   private:
   bool _internal_has_responseval() const;
@@ -223,20 +224,33 @@ class response final :
   std::string* _internal_mutable_responseval();
   public:
 
-  // optional int32 responseID = 1;
-  bool has_responseid() const;
+  // optional int32 messageID = 1;
+  bool has_messageid() const;
   private:
-  bool _internal_has_responseid() const;
+  bool _internal_has_messageid() const;
   public:
-  void clear_responseid();
-  int32_t responseid() const;
-  void set_responseid(int32_t value);
+  void clear_messageid();
+  int32_t messageid() const;
+  void set_messageid(int32_t value);
   private:
-  int32_t _internal_responseid() const;
-  void _internal_set_responseid(int32_t value);
+  int32_t _internal_messageid() const;
+  void _internal_set_messageid(int32_t value);
   public:
 
-  // optional .sv_rcon.response_t responseType = 2;
+  // optional int32 messageType = 2;
+  bool has_messagetype() const;
+  private:
+  bool _internal_has_messagetype() const;
+  public:
+  void clear_messagetype();
+  int32_t messagetype() const;
+  void set_messagetype(int32_t value);
+  private:
+  int32_t _internal_messagetype() const;
+  void _internal_set_messagetype(int32_t value);
+  public:
+
+  // optional .sv_rcon.response_t responseType = 3;
   bool has_responsetype() const;
   private:
   bool _internal_has_responsetype() const;
@@ -259,9 +273,10 @@ class response final :
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr responsebuf_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr responsemsg_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr responseval_;
-    int32_t responseid_;
+    int32_t messageid_;
+    int32_t messagetype_;
     int responsetype_;
   };
   union { Impl_ _impl_; };
@@ -278,37 +293,65 @@ class response final :
 #endif  // __GNUC__
 // response
 
-// optional int32 responseID = 1;
-inline bool response::_internal_has_responseid() const {
+// optional int32 messageID = 1;
+inline bool response::_internal_has_messageid() const {
   bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   return value;
 }
-inline bool response::has_responseid() const {
-  return _internal_has_responseid();
+inline bool response::has_messageid() const {
+  return _internal_has_messageid();
 }
-inline void response::clear_responseid() {
-  _impl_.responseid_ = 0;
+inline void response::clear_messageid() {
+  _impl_.messageid_ = 0;
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
-inline int32_t response::_internal_responseid() const {
-  return _impl_.responseid_;
+inline int32_t response::_internal_messageid() const {
+  return _impl_.messageid_;
 }
-inline int32_t response::responseid() const {
-  // @@protoc_insertion_point(field_get:sv_rcon.response.responseID)
-  return _internal_responseid();
+inline int32_t response::messageid() const {
+  // @@protoc_insertion_point(field_get:sv_rcon.response.messageID)
+  return _internal_messageid();
 }
-inline void response::_internal_set_responseid(int32_t value) {
+inline void response::_internal_set_messageid(int32_t value) {
   _impl_._has_bits_[0] |= 0x00000004u;
-  _impl_.responseid_ = value;
+  _impl_.messageid_ = value;
 }
-inline void response::set_responseid(int32_t value) {
-  _internal_set_responseid(value);
-  // @@protoc_insertion_point(field_set:sv_rcon.response.responseID)
+inline void response::set_messageid(int32_t value) {
+  _internal_set_messageid(value);
+  // @@protoc_insertion_point(field_set:sv_rcon.response.messageID)
 }
 
-// optional .sv_rcon.response_t responseType = 2;
-inline bool response::_internal_has_responsetype() const {
+// optional int32 messageType = 2;
+inline bool response::_internal_has_messagetype() const {
   bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  return value;
+}
+inline bool response::has_messagetype() const {
+  return _internal_has_messagetype();
+}
+inline void response::clear_messagetype() {
+  _impl_.messagetype_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline int32_t response::_internal_messagetype() const {
+  return _impl_.messagetype_;
+}
+inline int32_t response::messagetype() const {
+  // @@protoc_insertion_point(field_get:sv_rcon.response.messageType)
+  return _internal_messagetype();
+}
+inline void response::_internal_set_messagetype(int32_t value) {
+  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_.messagetype_ = value;
+}
+inline void response::set_messagetype(int32_t value) {
+  _internal_set_messagetype(value);
+  // @@protoc_insertion_point(field_set:sv_rcon.response.messageType)
+}
+
+// optional .sv_rcon.response_t responseType = 3;
+inline bool response::_internal_has_responsetype() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000010u) != 0;
   return value;
 }
 inline bool response::has_responsetype() const {
@@ -316,7 +359,7 @@ inline bool response::has_responsetype() const {
 }
 inline void response::clear_responsetype() {
   _impl_.responsetype_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::sv_rcon::response_t response::_internal_responsetype() const {
   return static_cast< ::sv_rcon::response_t >(_impl_.responsetype_);
@@ -326,7 +369,7 @@ inline ::sv_rcon::response_t response::responsetype() const {
   return _internal_responsetype();
 }
 inline void response::_internal_set_responsetype(::sv_rcon::response_t value) {
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000010u;
   _impl_.responsetype_ = value;
 }
 inline void response::set_responsetype(::sv_rcon::response_t value) {
@@ -334,75 +377,75 @@ inline void response::set_responsetype(::sv_rcon::response_t value) {
   // @@protoc_insertion_point(field_set:sv_rcon.response.responseType)
 }
 
-// optional string responseBuf = 3;
-inline bool response::_internal_has_responsebuf() const {
+// optional string responseMsg = 4;
+inline bool response::_internal_has_responsemsg() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   return value;
 }
-inline bool response::has_responsebuf() const {
-  return _internal_has_responsebuf();
+inline bool response::has_responsemsg() const {
+  return _internal_has_responsemsg();
 }
-inline void response::clear_responsebuf() {
-  _impl_.responsebuf_.ClearToEmpty();
+inline void response::clear_responsemsg() {
+  _impl_.responsemsg_.ClearToEmpty();
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string& response::responsebuf() const {
-  // @@protoc_insertion_point(field_get:sv_rcon.response.responseBuf)
-  return _internal_responsebuf();
+inline const std::string& response::responsemsg() const {
+  // @@protoc_insertion_point(field_get:sv_rcon.response.responseMsg)
+  return _internal_responsemsg();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
-void response::set_responsebuf(ArgT0&& arg0, ArgT... args) {
+void response::set_responsemsg(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.responsebuf_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:sv_rcon.response.responseBuf)
+ _impl_.responsemsg_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:sv_rcon.response.responseMsg)
 }
-inline std::string* response::mutable_responsebuf() {
-  std::string* _s = _internal_mutable_responsebuf();
-  // @@protoc_insertion_point(field_mutable:sv_rcon.response.responseBuf)
+inline std::string* response::mutable_responsemsg() {
+  std::string* _s = _internal_mutable_responsemsg();
+  // @@protoc_insertion_point(field_mutable:sv_rcon.response.responseMsg)
   return _s;
 }
-inline const std::string& response::_internal_responsebuf() const {
-  return _impl_.responsebuf_.Get();
+inline const std::string& response::_internal_responsemsg() const {
+  return _impl_.responsemsg_.Get();
 }
-inline void response::_internal_set_responsebuf(const std::string& value) {
+inline void response::_internal_set_responsemsg(const std::string& value) {
   _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.responsebuf_.Set(value, GetArenaForAllocation());
+  _impl_.responsemsg_.Set(value, GetArenaForAllocation());
 }
-inline std::string* response::_internal_mutable_responsebuf() {
+inline std::string* response::_internal_mutable_responsemsg() {
   _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.responsebuf_.Mutable(GetArenaForAllocation());
+  return _impl_.responsemsg_.Mutable(GetArenaForAllocation());
 }
-inline std::string* response::release_responsebuf() {
-  // @@protoc_insertion_point(field_release:sv_rcon.response.responseBuf)
-  if (!_internal_has_responsebuf()) {
+inline std::string* response::release_responsemsg() {
+  // @@protoc_insertion_point(field_release:sv_rcon.response.responseMsg)
+  if (!_internal_has_responsemsg()) {
     return nullptr;
   }
   _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* p = _impl_.responsebuf_.Release();
+  auto* p = _impl_.responsemsg_.Release();
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.responsebuf_.IsDefault()) {
-    _impl_.responsebuf_.Set("", GetArenaForAllocation());
+  if (_impl_.responsemsg_.IsDefault()) {
+    _impl_.responsemsg_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
-inline void response::set_allocated_responsebuf(std::string* responsebuf) {
-  if (responsebuf != nullptr) {
+inline void response::set_allocated_responsemsg(std::string* responsemsg) {
+  if (responsemsg != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
   } else {
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
-  _impl_.responsebuf_.SetAllocated(responsebuf, GetArenaForAllocation());
+  _impl_.responsemsg_.SetAllocated(responsemsg, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.responsebuf_.IsDefault()) {
-    _impl_.responsebuf_.Set("", GetArenaForAllocation());
+  if (_impl_.responsemsg_.IsDefault()) {
+    _impl_.responsemsg_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:sv_rcon.response.responseBuf)
+  // @@protoc_insertion_point(field_set_allocated:sv_rcon.response.responseMsg)
 }
 
-// optional string responseVal = 4;
+// optional string responseVal = 5;
 inline bool response::_internal_has_responseval() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;

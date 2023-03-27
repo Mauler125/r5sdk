@@ -22,9 +22,10 @@ PROTOBUF_CONSTEXPR request::request(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_._has_bits_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
-  , /*decltype(_impl_.requestbuf_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.requestmsg_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.requestval_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.requestid_)*/0
+  , /*decltype(_impl_.messageid_)*/0
+  , /*decltype(_impl_.messagetype_)*/0
   , /*decltype(_impl_.requesttype_)*/0} {}
 struct requestDefaultTypeInternal {
   PROTOBUF_CONSTEXPR requestDefaultTypeInternal()
@@ -110,13 +111,16 @@ bool request_t_Parse(
 class request::_Internal {
  public:
   using HasBits = decltype(std::declval<request>()._impl_._has_bits_);
-  static void set_has_requestid(HasBits* has_bits) {
+  static void set_has_messageid(HasBits* has_bits) {
     (*has_bits)[0] |= 4u;
   }
-  static void set_has_requesttype(HasBits* has_bits) {
+  static void set_has_messagetype(HasBits* has_bits) {
     (*has_bits)[0] |= 8u;
   }
-  static void set_has_requestbuf(HasBits* has_bits) {
+  static void set_has_requesttype(HasBits* has_bits) {
+    (*has_bits)[0] |= 16u;
+  }
+  static void set_has_requestmsg(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
   static void set_has_requestval(HasBits* has_bits) {
@@ -136,18 +140,19 @@ request::request(const request& from)
   new (&_impl_) Impl_{
       decltype(_impl_._has_bits_){from._impl_._has_bits_}
     , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.requestbuf_){}
+    , decltype(_impl_.requestmsg_){}
     , decltype(_impl_.requestval_){}
-    , decltype(_impl_.requestid_){}
+    , decltype(_impl_.messageid_){}
+    , decltype(_impl_.messagetype_){}
     , decltype(_impl_.requesttype_){}};
 
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  _impl_.requestbuf_.InitDefault();
+  _impl_.requestmsg_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.requestbuf_.Set("", GetArenaForAllocation());
+    _impl_.requestmsg_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_requestbuf()) {
-    _this->_impl_.requestbuf_.Set(from._internal_requestbuf(), 
+  if (from._internal_has_requestmsg()) {
+    _this->_impl_.requestmsg_.Set(from._internal_requestmsg(), 
       _this->GetArenaForAllocation());
   }
   _impl_.requestval_.InitDefault();
@@ -158,9 +163,9 @@ request::request(const request& from)
     _this->_impl_.requestval_.Set(from._internal_requestval(), 
       _this->GetArenaForAllocation());
   }
-  ::memcpy(&_impl_.requestid_, &from._impl_.requestid_,
+  ::memcpy(&_impl_.messageid_, &from._impl_.messageid_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.requesttype_) -
-    reinterpret_cast<char*>(&_impl_.requestid_)) + sizeof(_impl_.requesttype_));
+    reinterpret_cast<char*>(&_impl_.messageid_)) + sizeof(_impl_.requesttype_));
   // @@protoc_insertion_point(copy_constructor:cl_rcon.request)
 }
 
@@ -171,14 +176,15 @@ inline void request::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_._has_bits_){}
     , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.requestbuf_){}
+    , decltype(_impl_.requestmsg_){}
     , decltype(_impl_.requestval_){}
-    , decltype(_impl_.requestid_){0}
+    , decltype(_impl_.messageid_){0}
+    , decltype(_impl_.messagetype_){0}
     , decltype(_impl_.requesttype_){0}
   };
-  _impl_.requestbuf_.InitDefault();
+  _impl_.requestmsg_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.requestbuf_.Set("", GetArenaForAllocation());
+    _impl_.requestmsg_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   _impl_.requestval_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -197,7 +203,7 @@ request::~request() {
 
 inline void request::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.requestbuf_.Destroy();
+  _impl_.requestmsg_.Destroy();
   _impl_.requestval_.Destroy();
 }
 
@@ -214,16 +220,16 @@ void request::Clear() {
   cached_has_bits = _impl_._has_bits_[0];
   if (cached_has_bits & 0x00000003u) {
     if (cached_has_bits & 0x00000001u) {
-      _impl_.requestbuf_.ClearNonDefaultToEmpty();
+      _impl_.requestmsg_.ClearNonDefaultToEmpty();
     }
     if (cached_has_bits & 0x00000002u) {
       _impl_.requestval_.ClearNonDefaultToEmpty();
     }
   }
-  if (cached_has_bits & 0x0000000cu) {
-    ::memset(&_impl_.requestid_, 0, static_cast<size_t>(
+  if (cached_has_bits & 0x0000001cu) {
+    ::memset(&_impl_.messageid_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&_impl_.requesttype_) -
-        reinterpret_cast<char*>(&_impl_.requestid_)) + sizeof(_impl_.requesttype_));
+        reinterpret_cast<char*>(&_impl_.messageid_)) + sizeof(_impl_.requesttype_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<std::string>();
@@ -236,37 +242,46 @@ const char* request::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // optional int32 requestID = 1;
+      // optional int32 messageID = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _Internal::set_has_requestid(&has_bits);
-          _impl_.requestid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          _Internal::set_has_messageid(&has_bits);
+          _impl_.messageid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // optional .cl_rcon.request_t requestType = 2;
+      // optional int32 messageType = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _Internal::set_has_messagetype(&has_bits);
+          _impl_.messagetype_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // optional .cl_rcon.request_t requestType = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_requesttype(static_cast<::cl_rcon::request_t>(val));
         } else
           goto handle_unusual;
         continue;
-      // optional string requestBuf = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
-          auto str = _internal_mutable_requestbuf();
+      // optional string requestMsg = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          auto str = _internal_mutable_requestmsg();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
           CHK_(::_pbi::VerifyUTF8(str, nullptr));
         } else
           goto handle_unusual;
         continue;
-      // optional string requestVal = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+      // optional string requestVal = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           auto str = _internal_mutable_requestval();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -304,37 +319,43 @@ uint8_t* request::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // optional int32 requestID = 1;
-  if (_internal_has_requestid()) {
+  // optional int32 messageID = 1;
+  if (_internal_has_messageid()) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_requestid(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_messageid(), target);
   }
 
-  // optional .cl_rcon.request_t requestType = 2;
+  // optional int32 messageType = 2;
+  if (_internal_has_messagetype()) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_messagetype(), target);
+  }
+
+  // optional .cl_rcon.request_t requestType = 3;
   if (_internal_has_requesttype()) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteEnumToArray(
-      2, this->_internal_requesttype(), target);
+      3, this->_internal_requesttype(), target);
   }
 
-  // optional string requestBuf = 3;
-  if (_internal_has_requestbuf()) {
+  // optional string requestMsg = 4;
+  if (_internal_has_requestmsg()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_requestbuf().data(), static_cast<int>(this->_internal_requestbuf().length()),
+      this->_internal_requestmsg().data(), static_cast<int>(this->_internal_requestmsg().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "cl_rcon.request.requestBuf");
+      "cl_rcon.request.requestMsg");
     target = stream->WriteStringMaybeAliased(
-        3, this->_internal_requestbuf(), target);
+        4, this->_internal_requestmsg(), target);
   }
 
-  // optional string requestVal = 4;
+  // optional string requestVal = 5;
   if (_internal_has_requestval()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_requestval().data(), static_cast<int>(this->_internal_requestval().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "cl_rcon.request.requestVal");
     target = stream->WriteStringMaybeAliased(
-        4, this->_internal_requestval(), target);
+        5, this->_internal_requestval(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -354,28 +375,33 @@ size_t request::ByteSizeLong() const {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x0000000fu) {
-    // optional string requestBuf = 3;
+  if (cached_has_bits & 0x0000001fu) {
+    // optional string requestMsg = 4;
     if (cached_has_bits & 0x00000001u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_requestbuf());
+          this->_internal_requestmsg());
     }
 
-    // optional string requestVal = 4;
+    // optional string requestVal = 5;
     if (cached_has_bits & 0x00000002u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
           this->_internal_requestval());
     }
 
-    // optional int32 requestID = 1;
+    // optional int32 messageID = 1;
     if (cached_has_bits & 0x00000004u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_requestid());
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_messageid());
     }
 
-    // optional .cl_rcon.request_t requestType = 2;
+    // optional int32 messageType = 2;
     if (cached_has_bits & 0x00000008u) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_messagetype());
+    }
+
+    // optional .cl_rcon.request_t requestType = 3;
+    if (cached_has_bits & 0x00000010u) {
       total_size += 1 +
         ::_pbi::WireFormatLite::EnumSize(this->_internal_requesttype());
     }
@@ -403,17 +429,20 @@ void request::MergeFrom(const request& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x0000000fu) {
+  if (cached_has_bits & 0x0000001fu) {
     if (cached_has_bits & 0x00000001u) {
-      _this->_internal_set_requestbuf(from._internal_requestbuf());
+      _this->_internal_set_requestmsg(from._internal_requestmsg());
     }
     if (cached_has_bits & 0x00000002u) {
       _this->_internal_set_requestval(from._internal_requestval());
     }
     if (cached_has_bits & 0x00000004u) {
-      _this->_impl_.requestid_ = from._impl_.requestid_;
+      _this->_impl_.messageid_ = from._impl_.messageid_;
     }
     if (cached_has_bits & 0x00000008u) {
+      _this->_impl_.messagetype_ = from._impl_.messagetype_;
+    }
+    if (cached_has_bits & 0x00000010u) {
       _this->_impl_.requesttype_ = from._impl_.requesttype_;
     }
     _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -439,8 +468,8 @@ void request::InternalSwap(request* other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &_impl_.requestbuf_, lhs_arena,
-      &other->_impl_.requestbuf_, rhs_arena
+      &_impl_.requestmsg_, lhs_arena,
+      &other->_impl_.requestmsg_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.requestval_, lhs_arena,
@@ -449,9 +478,9 @@ void request::InternalSwap(request* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(request, _impl_.requesttype_)
       + sizeof(request::_impl_.requesttype_)
-      - PROTOBUF_FIELD_OFFSET(request, _impl_.requestid_)>(
-          reinterpret_cast<char*>(&_impl_.requestid_),
-          reinterpret_cast<char*>(&other->_impl_.requestid_));
+      - PROTOBUF_FIELD_OFFSET(request, _impl_.messageid_)>(
+          reinterpret_cast<char*>(&_impl_.messageid_),
+          reinterpret_cast<char*>(&other->_impl_.messageid_));
 }
 
 std::string request::GetTypeName() const {

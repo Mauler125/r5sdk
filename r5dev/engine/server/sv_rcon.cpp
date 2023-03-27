@@ -186,32 +186,36 @@ void CRConServer::Send(const SocketHandle_t hSocket, const std::string& svMessag
 
 //-----------------------------------------------------------------------------
 // Purpose: send serialized message to all connected sockets
-// Input  : *svRspBuf - 
-//			*svRspVal - 
+// Input  : *responseMsg - 
+//			*responseVal - 
 //			responseType - 
-//			nResponseId - 
+//			nMessageId - 
+//			nMessageType - 
 //-----------------------------------------------------------------------------
-void CRConServer::Send(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId)
+void CRConServer::Send(const std::string& responseMsg, const std::string& responseVal,
+	const sv_rcon::response_t responseType, const int nMessageId, const int nMessageType)
 {
 	if (this->ShouldSend(responseType))
 	{
-		this->Send(this->Serialize(svRspBuf, svRspVal, responseType, nResponseId));
+		this->Send(this->Serialize(responseMsg, responseVal, responseType, nMessageId, nMessageType));
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: send serialized message to specific connected socket
 // Input  : hSocket - 
-//			*svRspBuf - 
-//			*svRspVal - 
+//			*responseMsg - 
+//			*responseVal - 
 //			responseType - 
-//			nResponseId - 
+//			nMessageId - 
+//			nMessageType - 
 //-----------------------------------------------------------------------------
-void CRConServer::Send(const SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId)
+void CRConServer::Send(const SocketHandle_t hSocket, const std::string& responseMsg,
+	const std::string& responseVal, const sv_rcon::response_t responseType, const int nMessageId, const int nMessageType)
 {
 	if (this->ShouldSend(responseType))
 	{
-		this->Send(hSocket, this->Serialize(svRspBuf, svRspVal, responseType, nResponseId));
+		this->Send(hSocket, this->Serialize(responseMsg, responseVal, responseType, nMessageId, nMessageType));
 	}
 }
 
@@ -271,30 +275,29 @@ void CRConServer::Recv(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: serializes input
-// Input  : *svRspBuf - 
-//			*svRspVal - 
+// Input  : *responseMsg - 
+//			*responseVal - 
 //			responseType - 
+//			nMessageId - 
+//			nMessageType - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
-std::string CRConServer::Serialize(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId) const
+std::string CRConServer::Serialize(const std::string& responseMsg, const std::string& responseVal, 
+	const sv_rcon::response_t responseType, const int nMessageId, const int nMessageType) const
 {
 	sv_rcon::response sv_response;
 
-	sv_response.set_responseid(nResponseId);
+	sv_response.set_messageid(nMessageId);
+	sv_response.set_messagetype(nMessageType);
 	sv_response.set_responsetype(responseType);
 
 	switch (responseType)
 	{
 		case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
-		{
-			sv_response.set_responsebuf(svRspBuf);
-			sv_response.set_responseval(svRspVal);
-			break;
-		}
 		case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 		{
-			sv_response.set_responsebuf(svRspBuf);
-			sv_response.set_responseval(svRspVal);
+			sv_response.set_responsemsg(responseMsg);
+			sv_response.set_responseval(responseVal);
 			break;
 		}
 		default:
@@ -331,7 +334,7 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 	}
 	else // Authorize.
 	{
-		if (this->Comparator(cl_request.requestbuf()))
+		if (this->Comparator(cl_request.requestmsg()))
 		{
 			pData->m_bAuthorized = true;
 			m_Socket.CloseListenSocket();
@@ -508,7 +511,7 @@ void CRConServer::Execute(const cl_rcon::request& cl_request, const bool bConVar
 {
 	if (bConVar)
 	{
-		ConVar* pConVar = g_pCVar->FindVar(cl_request.requestbuf().c_str());
+		ConVar* pConVar = g_pCVar->FindVar(cl_request.requestmsg().c_str());
 		if (pConVar) // Only run if this is a ConVar.
 		{
 			pConVar->SetValue(cl_request.requestval().c_str());
@@ -516,7 +519,7 @@ void CRConServer::Execute(const cl_rcon::request& cl_request, const bool bConVar
 	}
 	else // Execute command with "<val>".
 	{
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), cl_request.requestbuf().c_str(), cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), cl_request.requestmsg().c_str(), cmd_source_t::kCommandSrcCode);
 	}
 }
 

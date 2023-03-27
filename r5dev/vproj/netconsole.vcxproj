@@ -27,6 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\core\logdef.cpp" />
     <ClCompile Include="..\core\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -37,8 +38,8 @@
     </ClCompile>
     <ClCompile Include="..\core\termutil.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
-    <ClCompile Include="..\netconsole\dbg_stub.cpp" />
     <ClCompile Include="..\netconsole\netconsole.cpp" />
+    <ClCompile Include="..\netconsole\plat_time.cpp" />
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -56,10 +57,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\public\utility\utility.cpp" />
+    <ClCompile Include="..\tier0\dbg.cpp" />
     <ClCompile Include="..\tier1\NetAdr.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
+    <ClCompile Include="..\windows\console.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\core\logdef.h" />
     <ClInclude Include="..\core\stdafx.h" />
     <ClInclude Include="..\core\termutil.h" />
     <ClInclude Include="..\engine\net.h" />
@@ -70,6 +74,7 @@
     <ClInclude Include="..\tier0\dbg.h" />
     <ClInclude Include="..\tier1\NetAdr.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
+    <ClInclude Include="..\windows\console.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -207,7 +212,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;libspdlog_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x86.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
@@ -242,7 +247,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;libspdlog_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x86.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
     </Link>
@@ -283,7 +288,7 @@
       <OptimizeReferences>
       </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libprotobuf_x86.lib;libspdlog_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x86.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>
       </SetChecksum>

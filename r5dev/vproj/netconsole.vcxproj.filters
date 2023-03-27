@@ -29,6 +29,9 @@
     <Filter Include="sdk\tier0">
       <UniqueIdentifier>{7064c656-b1c1-4940-be0a-eeb46b78a221}</UniqueIdentifier>
     </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{2f5f6e2d-440a-472b-807d-aebfdf13dfe2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\core\stdafx.cpp">
@@ -55,11 +58,20 @@
     <ClCompile Include="..\public\utility\utility.cpp">
       <Filter>sdk\public</Filter>
     </ClCompile>
-    <ClCompile Include="..\netconsole\dbg_stub.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
     <ClCompile Include="..\tier1\NetAdr.cpp">
       <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\dbg.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\netconsole\plat_time.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\windows\console.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\logdef.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +104,12 @@
     </ClInclude>
     <ClInclude Include="..\tier1\NetAdr.h">
       <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\windows\console.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\logdef.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

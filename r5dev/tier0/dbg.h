@@ -109,13 +109,13 @@ extern std::mutex g_LogMutex;
 //////////////////////////////////////////////////////////////////////////
 
 void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char* pszLogger,
-	const char* pszFormat, va_list args, const UINT exitCode = NO_ERROR);
+	const char* pszFormat, va_list args, const UINT exitCode = NO_ERROR, const char* pszUptimeOverride = nullptr);
 void CoreMsg(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	const UINT exitCode, const char* pszLogger, const char* pszFormat, ...);
 
 // These functions do not return.
 PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
-PLATFORM_INTERFACE void NetMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
+PLATFORM_INTERFACE void NetMsg(LogType_t logType, eDLL_T context, const char* uptime, const char* fmt, ...) FMTFUNCTION(4, 5);
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Error(eDLL_T context, const UINT code, const char* fmt, ...) FMTFUNCTION(3, 4);
 

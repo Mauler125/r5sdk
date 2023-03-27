@@ -22,11 +22,14 @@ public:
 	void Think(void);
 	void RunFrame(void);
 
-	void Send(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId = -4);
-	void Send(const SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId = -4);
+	void Send(const std::string& responseMsg, const std::string& responseVal, const sv_rcon::response_t responseType,
+		const int nMessageId = static_cast<int>(eDLL_T::NETCON), const int nMessageType = static_cast<int>(LogType_t::LOG_NET));
+	void Send(const SocketHandle_t hSocket, const std::string& responseMsg, const std::string& responseVal,
+		const sv_rcon::response_t responseType, const int nMessageId = static_cast<int>(eDLL_T::NETCON), const int nMessageType = static_cast<int>(LogType_t::LOG_NET));
 	void Recv(void);
 
-	std::string Serialize(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId = -4) const;
+	std::string Serialize(const std::string& responseMsg, const std::string& responseVal, const sv_rcon::response_t responseType,
+		const int nMessageId = static_cast<int>(eDLL_T::NETCON), const int nMessageType = static_cast<int>(LogType_t::LOG_NET)) const;
 	cl_rcon::request Deserialize(const std::string& svBuf) const;
 
 	void Authenticate(const cl_rcon::request& cl_request, CConnectedNetConsoleData* pData);

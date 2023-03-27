@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#ifndef NETCONSOLE
 #include "core/init.h"
 #include "core/logdef.h"
 #include "tier0/frametask.h"
@@ -12,9 +13,9 @@
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED
+#endif // !NETCONSOLE
 #include "windows/system.h"
 #include "windows/console.h"
-#include "common/opcodes.h"
 
 static std::string s_ConsoleInput;
 
@@ -71,6 +72,7 @@ void FlashConsoleBackground(int nFlashCount, int nFlashInterval, COLORREF color)
 //-----------------------------------------------------------------------------
 void Console_Init()
 {
+#ifndef NETCONSOLE
 	///////////////////////////////////////////////////////////////////////////
 	// Create the console window
 	if (AllocConsole() == FALSE)
@@ -89,20 +91,21 @@ void Console_Init()
 	freopen_s(&fDummy, "CONOUT$", "w", stderr);
 
 	//-- Create a worker thread to process console commands
-	DWORD dwMode = NULL;
 	DWORD dwThreadId = NULL;
 	DWORD __stdcall ProcessConsoleWorker(LPVOID);
 	HANDLE hThread = CreateThread(NULL, 0, ProcessConsoleWorker, NULL, 0, &dwThreadId);
-
-	HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
-	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	
 	if (hThread)
 	{
 		CloseHandle(hThread);
 	}
+#endif // !NETCONSOLE
 
-	if (g_svCmdLine.find("-ansiclr") != string::npos)
+	HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	DWORD dwMode = NULL;
+
+	if (g_svCmdLine.find("-ansicolor") != string::npos)
 	{
 		GetConsoleMode(hOutput, &dwMode);
 		dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
@@ -111,13 +114,16 @@ void Console_Init()
 		{
 			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
 			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
-				"Please omit the '-ansiclr' parameter and restart \nthe game if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
+				"Please omit the '-ansicolor' parameter and restart \nthe program if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
 		}
 
 		SetConsoleBackgroundColor(0x00000000);
 		AnsiColors_Init();
 	}
+
+#ifndef NETCONSOLE
 	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
+#endif // !NETCONSOLE
 }
 
 //-----------------------------------------------------------------------------
@@ -134,10 +140,10 @@ void Console_Shutdown()
 	}
 }
 
+#ifndef NETCONSOLE
 //#############################################################################
-// WORKER THREAD
+// CONSOLE WORKER
 //#############################################################################
-
 DWORD __stdcall ProcessConsoleWorker(LPVOID)
 {
 	while (true)
@@ -156,3 +162,4 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 	}
 	return NULL;
 }
+#endif // !NETCONSOLE

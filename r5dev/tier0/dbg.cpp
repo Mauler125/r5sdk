@@ -10,6 +10,7 @@
 #include "core/logdef.h"
 #include "tier0/dbg.h"
 #include "tier0/platform.h"
+#ifndef NETCONSOLE
 #include "tier0/threadtools.h"
 #include "tier0/commandline.h"
 #ifndef DEDICATED
@@ -24,6 +25,7 @@
 #include "xbox/xbox_console.h"
 #endif
 #include "squirrel/sqstdaux.h"
+#endif // !NETCONSOLE
 std::mutex g_LogMutex;
 
 //-----------------------------------------------------------------------------
@@ -31,7 +33,7 @@ std::mutex g_LogMutex;
 //-----------------------------------------------------------------------------
 bool HushAsserts()
 {
-#ifdef DBGFLAG_ASSERT
+#if defined (DBGFLAG_ASSERT) && !defined (NETCONSOLE)
 	static bool s_bHushAsserts = !!CommandLine()->FindParm("-hushasserts");
 	return s_bHushAsserts;
 #else
@@ -91,7 +93,7 @@ PLATFORM_INTERFACE void AssertValidWStringPtr(const wchar_t* ptr, int maxchar/* 
 #endif
 }
 
-#ifndef DEDICATED
+#if !defined (DEDICATED) && !defined (NETCONSOLE)
 ImVec4 CheckForWarnings(LogType_t type, eDLL_T context, const ImVec4& defaultCol)
 {
 	ImVec4 color = defaultCol;
@@ -143,7 +145,7 @@ ImVec4 GetColorForContext(LogType_t type, eDLL_T context)
 		return CheckForWarnings(type, context, ImVec4(0.81f, 0.81f, 0.81f, 1.00f));
 	}
 }
-#endif // !DEDICATED
+#endif // !DEDICATED && !NETCONSOLE
 
 const char* GetContextNameByIndex(eDLL_T context, const bool ansiColor = false)
 {
@@ -199,15 +201,13 @@ const char* GetContextNameByIndex(eDLL_T context, const bool ansiColor = false)
 //			*pszFormat -
 //			args - 
 //			exitCode - 
+//			*pszUptimeOverride - 
 //-----------------------------------------------------------------------------
-void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char* pszLogger,
-	const char* pszFormat, va_list args, const UINT exitCode /*= NO_ERROR*/)
+void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
+	const char* pszLogger, const char* pszFormat, va_list args,
+	const UINT exitCode /*= NO_ERROR*/, const char* pszUptimeOverride /*= nullptr*/)
 {
-	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	std::shared_ptr<spdlog::logger> ntlogger = spdlog::get(pszLogger); // <-- Obtain by 'pszLogger'.
-
-	const char* pszUpTime = Plat_GetProcessUpTime();
+	const char* pszUpTime = pszUptimeOverride ? pszUptimeOverride : Plat_GetProcessUpTime();
 	string message = g_bSpdLog_PostInit ? pszUpTime : "";
 
 	const bool bToConsole = (logLevel >= LogLevel_t::LEVEL_CONSOLE);
@@ -216,14 +216,16 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char
 	const char* pszContext = GetContextNameByIndex(context, bUseColor);
 	message.append(pszContext);
 
-#ifndef DEDICATED
+#if !defined (DEDICATED) && !defined (NETCONSOLE)
 	ImVec4 overlayColor   = GetColorForContext(logType, context);
 	eDLL_T overlayContext = context;
-#endif // !DEDICATED
+#endif // !DEDICATED && !NETCONSOLE
 
 	bool bSquirrel = false;
+#if !defined (NETCONSOLE)
 	bool bWarning  = false;
 	bool bError    = false;
+#endif // !NETCONSOLE
 
 	//-------------------------------------------------------------------------
 	// Setup logger and context
@@ -231,23 +233,24 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char
 	switch (logType)
 	{
 	case LogType_t::LOG_WARNING:
-#ifndef DEDICATED
+#if !defined (DEDICATED) && !defined (NETCONSOLE)
 		overlayContext = eDLL_T::SYSTEM_WARNING;
-#endif // !DEDICATED
+#endif // !DEDICATED && !NETCONSOLE
 		if (bUseColor)
 		{
 			message.append(g_svYellowF);
 		}
 		break;
 	case LogType_t::LOG_ERROR:
-#ifndef DEDICATED
+#if !defined (DEDICATED) && !defined (NETCONSOLE)
 		overlayContext = eDLL_T::SYSTEM_ERROR;
-#endif // !DEDICATED
+#endif // !DEDICATED && !NETCONSOLE
 		if (bUseColor)
 		{
 			message.append(g_svRedF);
 		}
 		break;
+#ifndef NETCONSOLE
 	case LogType_t::SQ_INFO:
 		bSquirrel = true;
 		break;
@@ -259,6 +262,7 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char
 		bSquirrel = true;
 		bWarning = true;
 		break;
+#endif // !NETCONSOLE
 	}
 
 	//-------------------------------------------------------------------------
@@ -269,11 +273,13 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char
 	const string formatted = FormatV(pszFormat, argsCopy);
 	va_end(argsCopy);
 
+#ifndef NETCONSOLE
 	if (bUseColor && bSquirrel)
 	{
 		if (bWarning && g_bSQAuxError)
 		{
-			if (formatted.find("SCRIPT ERROR:") != string::npos || formatted.find(" -> ") != string::npos)
+			if (formatted.find("SCRIPT ERROR:") != string::npos ||
+				formatted.find(" -> ") != string::npos)
 			{
 				bError = true;
 			}
@@ -302,21 +308,16 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char
 			message.append(g_svYellowF);
 		}
 	}
-
+#endif // !NETCONSOLE
 	message.append(formatted);
-	if (!bSquirrel && message.back() != '\n')
-	{
-		message.append("\n");
-	}
-
-	std::lock_guard<std::mutex> lock(g_LogMutex);
 
 	//-------------------------------------------------------------------------
 	// Emit to all interfaces
 	//-------------------------------------------------------------------------
+	std::lock_guard<std::mutex> lock(g_LogMutex);
 	if (bToConsole)
 	{
-		wconsole->debug(message);
+		g_TermLogger->debug(message);
 
 		if (bUseColor)
 		{
@@ -325,16 +326,20 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char
 		}
 	}
 
+#ifndef NETCONSOLE
 	// Output is always logged to the file.
+	std::shared_ptr<spdlog::logger> ntlogger = spdlog::get(pszLogger); // <-- Obtain by 'pszLogger'.
+	assert(ntlogger.get() != nullptr);
 	ntlogger->debug(message);
 
 	if (bToConsole)
 	{
 #ifndef CLIENT_DLL
-		RCONServer()->Send(message, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
+		RCONServer()->Send(formatted, pszUpTime, sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG,
+			static_cast<int>(context), static_cast<int>(logType));
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		iconsole->debug(message);
+		g_ImGuiLogger->debug(message);
 
 		if (g_bSpdLog_PostInit)
 		{
@@ -353,9 +358,12 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context, const char
 	g_LogStream.clear();
 #endif // !DEDICATED
 
+#endif // !NETCONSOLE
+
 	if (exitCode) // Terminate the process if an exit code was passed.
 	{
-		if (MessageBoxA(NULL, Format("%s- %s", pszUpTime, message.c_str()).c_str(), "SDK Error", MB_ICONERROR | MB_OK))
+		if (MessageBoxA(NULL, Format("%s- %s", pszUpTime, message.c_str()).c_str(),
+			"SDK Error", MB_ICONERROR | MB_OK))
 		{
 			TerminateProcess(GetCurrentProcess(), exitCode);
 		}
@@ -399,12 +407,12 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 // Input  : context - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
-void NetMsg(eDLL_T context, const char* fmt, ...)
+void NetMsg(LogType_t logType, eDLL_T context, const char* uptime, const char* fmt, ...)
 {
 #ifndef DEDICATED
 	va_list args;
 	va_start(args, fmt);
-	CoreMsgV(LogType_t::LOG_NET, LogLevel_t::LEVEL_NOTIFY, context, "netconsole", fmt, args);
+	CoreMsgV(logType, LogLevel_t::LEVEL_NOTIFY, context, "netconsole", fmt, args, NO_ERROR, uptime);
 	va_end(args);
 #endif // !DEDICATED
 }
