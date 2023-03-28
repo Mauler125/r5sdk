@@ -1,128 +1,416 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\thirdparty\curl\curl_ntlm_wb.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_path.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_range.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_rtmp.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_sasl.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_sspi.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_threads.c" />
-    <ClCompile Include="..\thirdparty\curl\dict.c" />
-    <ClCompile Include="..\thirdparty\curl\doh.c" />
-    <ClCompile Include="..\thirdparty\curl\dynbuf.c" />
-    <ClCompile Include="..\thirdparty\curl\easy.c" />
-    <ClCompile Include="..\thirdparty\curl\easygetopt.c" />
-    <ClCompile Include="..\thirdparty\curl\easyoptions.c" />
-    <ClCompile Include="..\thirdparty\curl\escape.c" />
-    <ClCompile Include="..\thirdparty\curl\file.c" />
-    <ClCompile Include="..\thirdparty\curl\fileinfo.c" />
-    <ClCompile Include="..\thirdparty\curl\fopen.c" />
-    <ClCompile Include="..\thirdparty\curl\formdata.c" />
-    <ClCompile Include="..\thirdparty\curl\ftp.c" />
-    <ClCompile Include="..\thirdparty\curl\ftplistparser.c" />
-    <ClCompile Include="..\thirdparty\curl\getenv.c" />
-    <ClCompile Include="..\thirdparty\curl\getinfo.c" />
-    <ClCompile Include="..\thirdparty\curl\gopher.c" />
-    <ClCompile Include="..\thirdparty\curl\h2h3.c" />
-    <ClCompile Include="..\thirdparty\curl\hash.c" />
-    <ClCompile Include="..\thirdparty\curl\headers.c" />
-    <ClCompile Include="..\thirdparty\curl\hmac.c" />
-    <ClCompile Include="..\thirdparty\curl\hostasyn.c" />
-    <ClCompile Include="..\thirdparty\curl\hostip.c" />
-    <ClCompile Include="..\thirdparty\curl\hostip4.c" />
-    <ClCompile Include="..\thirdparty\curl\hostip6.c" />
-    <ClCompile Include="..\thirdparty\curl\hostsyn.c" />
-    <ClCompile Include="..\thirdparty\curl\hsts.c" />
-    <ClCompile Include="..\thirdparty\curl\http.c" />
-    <ClCompile Include="..\thirdparty\curl\http_aws_sigv4.c" />
-    <ClCompile Include="..\thirdparty\curl\http_chunks.c" />
-    <ClCompile Include="..\thirdparty\curl\http_digest.c" />
-    <ClCompile Include="..\thirdparty\curl\http_negotiate.c" />
-    <ClCompile Include="..\thirdparty\curl\http_ntlm.c" />
-    <ClCompile Include="..\thirdparty\curl\http_proxy.c" />
-    <ClCompile Include="..\thirdparty\curl\http2.c" />
-    <ClCompile Include="..\thirdparty\curl\idn.c" />
-    <ClCompile Include="..\thirdparty\curl\if2ip.c" />
-    <ClCompile Include="..\thirdparty\curl\imap.c" />
-    <ClCompile Include="..\thirdparty\curl\inet_ntop.c" />
-    <ClCompile Include="..\thirdparty\curl\inet_pton.c" />
-    <ClCompile Include="..\thirdparty\curl\krb5.c" />
-    <ClCompile Include="..\thirdparty\curl\ldap.c" />
-    <ClCompile Include="..\thirdparty\curl\llist.c" />
-    <ClCompile Include="..\thirdparty\curl\md4.c" />
-    <ClCompile Include="..\thirdparty\curl\md5.c" />
-    <ClCompile Include="..\thirdparty\curl\memdebug.c" />
-    <ClCompile Include="..\thirdparty\curl\mime.c" />
-    <ClCompile Include="..\thirdparty\curl\mprintf.c" />
-    <ClCompile Include="..\thirdparty\curl\mqtt.c" />
-    <ClCompile Include="..\thirdparty\curl\multi.c" />
-    <ClCompile Include="..\thirdparty\curl\netrc.c" />
-    <ClCompile Include="..\thirdparty\curl\nonblock.c" />
-    <ClCompile Include="..\thirdparty\curl\noproxy.c" />
-    <ClCompile Include="..\thirdparty\curl\openldap.c" />
-    <ClCompile Include="..\thirdparty\curl\parsedate.c" />
-    <ClCompile Include="..\thirdparty\curl\pingpong.c" />
-    <ClCompile Include="..\thirdparty\curl\pop3.c" />
-    <ClCompile Include="..\thirdparty\curl\progress.c" />
-    <ClCompile Include="..\thirdparty\curl\psl.c" />
-    <ClCompile Include="..\thirdparty\curl\rand.c" />
-    <ClCompile Include="..\thirdparty\curl\rename.c" />
-    <ClCompile Include="..\thirdparty\curl\rtsp.c" />
-    <ClCompile Include="..\thirdparty\curl\select.c" />
-    <ClCompile Include="..\thirdparty\curl\sendf.c" />
-    <ClCompile Include="..\thirdparty\curl\setopt.c" />
-    <ClCompile Include="..\thirdparty\curl\sha256.c" />
-    <ClCompile Include="..\thirdparty\curl\share.c" />
-    <ClCompile Include="..\thirdparty\curl\slist.c" />
-    <ClCompile Include="..\thirdparty\curl\smb.c" />
-    <ClCompile Include="..\thirdparty\curl\smtp.c" />
-    <ClCompile Include="..\thirdparty\curl\socketpair.c" />
-    <ClCompile Include="..\thirdparty\curl\socks.c" />
-    <ClCompile Include="..\thirdparty\curl\socks_gssapi.c" />
-    <ClCompile Include="..\thirdparty\curl\socks_sspi.c" />
-    <ClCompile Include="..\thirdparty\curl\speedcheck.c" />
-    <ClCompile Include="..\thirdparty\curl\splay.c" />
-    <ClCompile Include="..\thirdparty\curl\strcase.c" />
-    <ClCompile Include="..\thirdparty\curl\strdup.c" />
-    <ClCompile Include="..\thirdparty\curl\strerror.c" />
-    <ClCompile Include="..\thirdparty\curl\strtok.c" />
-    <ClCompile Include="..\thirdparty\curl\strtoofft.c" />
-    <ClCompile Include="..\thirdparty\curl\system_win32.c" />
-    <ClCompile Include="..\thirdparty\curl\telnet.c" />
-    <ClCompile Include="..\thirdparty\curl\tftp.c" />
-    <ClCompile Include="..\thirdparty\curl\timediff.c" />
-    <ClCompile Include="..\thirdparty\curl\timeval.c" />
-    <ClCompile Include="..\thirdparty\curl\transfer.c" />
-    <ClCompile Include="..\thirdparty\curl\url.c" />
-    <ClCompile Include="..\thirdparty\curl\urlapi.c" />
-    <ClCompile Include="..\thirdparty\curl\version.c" />
-    <ClCompile Include="..\thirdparty\curl\version_win32.c" />
-    <ClCompile Include="..\thirdparty\curl\warnless.c" />
-    <ClCompile Include="..\thirdparty\curl\wildcard.c" />
-    <ClCompile Include="..\thirdparty\curl\ws.c" />
-    <ClCompile Include="..\thirdparty\curl\altsvc.c" />
-    <ClCompile Include="..\thirdparty\curl\amigaos.c" />
-    <ClCompile Include="..\thirdparty\curl\asyn-ares.c" />
-    <ClCompile Include="..\thirdparty\curl\asyn-thread.c" />
-    <ClCompile Include="..\thirdparty\curl\base64.c" />
-    <ClCompile Include="..\thirdparty\curl\bufref.c" />
-    <ClCompile Include="..\thirdparty\curl\cfilters.c" />
-    <ClCompile Include="..\thirdparty\curl\c-hyper.c" />
-    <ClCompile Include="..\thirdparty\curl\conncache.c" />
-    <ClCompile Include="..\thirdparty\curl\connect.c" />
-    <ClCompile Include="..\thirdparty\curl\content_encoding.c" />
-    <ClCompile Include="..\thirdparty\curl\cookie.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_addrinfo.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_des.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_endian.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_fnmatch.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_get_line.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_gethostname.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_gssapi.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_memrchr.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_multibyte.c" />
-    <ClCompile Include="..\thirdparty\curl\curl_ntlm_core.c" />
+    <ClInclude Include="..\thirdparty\curl\vauth\vauth.h">
+      <Filter>vauth\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vauth\ntlm.h">
+      <Filter>vauth\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vauth\digest.h">
+      <Filter>vauth\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\axtls.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\cyassl.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\darwinssl.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\gskit.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\gtls.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\mbedtls.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\nssg.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\openssl.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\polarssl.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\polarssl_threadlock.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\schannel.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\vtls\vtls.h">
+      <Filter>vtls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\transfer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\url.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\urldata.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\warnless.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\wildcard.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\x509asn1.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-amigaos.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-dos.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-mac.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-os400.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-riscos.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-symbian.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-tpf.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-vxworks.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-win32.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\config-win32ce.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\conncache.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\connect.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\content_encoding.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\cookie.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_addrinfo.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_base64.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_des.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_endian.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_fnmatch.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_gethostname.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_gssapi.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_hmac.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_ldap.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_md4.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_md5.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_memory.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_memrchr.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_multibyte.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_ntlm_core.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_ntlm_wb.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_printf.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_rtmp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_sasl.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_sec.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_setup.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_setup_once.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_sspi.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curl_threads.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\curlx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\dict.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\dotdot.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\easyif.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\escape.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\file.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\fileinfo.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\formdata.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\ftp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\ftplistparser.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\getinfo.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\gopher.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\hash.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\hostcheck.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\hostip.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\http.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\http_chunks.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\http_digest.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\http_negotiate.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\http_ntlm.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\http_proxy.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\http2.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\if2ip.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\imap.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\inet_ntop.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\inet_pton.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\llist.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\memdebug.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\multihandle.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\multiif.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\netrc.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\non-ascii.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\nonblock.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\parsedate.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\pingpong.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\pipeline.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\pop3.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\progress.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\rand.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\rtsp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\select.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\sendf.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\setup-os400.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\setup-vms.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\share.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\sigpipe.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\slist.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\smb.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\smtp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\sockaddr.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\socks.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\speedcheck.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\splay.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\ssh.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\strcase.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\strdup.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\strerror.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\strtok.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\strtoofft.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\system_win32.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\telnet.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\tftp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\curl\timeval.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\curl\vtls\mbedtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\nss.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\openssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\polarssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\polarssl_threadlock.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\schannel.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\vtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\axtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\cyassl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\darwinssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\gskit.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vtls\gtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vauth\digest_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\vauth\krb5_gssapi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
     <ClCompile Include="..\thirdparty\curl\vauth\krb5_sspi.c">
       <Filter>vauth</Filter>
     </ClCompile>
@@ -153,591 +441,125 @@
     <ClCompile Include="..\thirdparty\curl\vauth\digest.c">
       <Filter>vauth</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vauth\digest_sspi.c">
-      <Filter>vauth</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vauth\gsasl.c">
-      <Filter>vauth</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vauth\krb5_gssapi.c">
-      <Filter>vauth</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vquic\quiche.c">
-      <Filter>vquic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vquic\vquic.c">
-      <Filter>vquic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vquic\msh3.c">
-      <Filter>vquic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vquic\ngtcp2.c">
-      <Filter>vquic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vssh\libssh2.c">
-      <Filter>vssh</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vssh\wolfssh.c">
-      <Filter>vssh</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vssh\libssh.c">
-      <Filter>vssh</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\mbedtls_threadlock.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\nss.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\openssl.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\rustls.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\schannel.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\schannel_verify.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\sectransp.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\vtls.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\wolfssl.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\x509asn1.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\bearssl.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\gskit.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\gtls.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\hostcheck.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\keylog.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\curl\vtls\mbedtls.c">
-      <Filter>vtls</Filter>
-    </ClCompile>
+    <ClCompile Include="..\thirdparty\curl\asyn-thread.c" />
+    <ClCompile Include="..\thirdparty\curl\base64.c" />
+    <ClCompile Include="..\thirdparty\curl\conncache.c" />
+    <ClCompile Include="..\thirdparty\curl\connect.c" />
+    <ClCompile Include="..\thirdparty\curl\content_encoding.c" />
+    <ClCompile Include="..\thirdparty\curl\cookie.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_addrinfo.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_des.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_endian.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_fnmatch.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_gethostname.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_gssapi.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_memrchr.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_multibyte.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_ntlm_core.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_ntlm_wb.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_rtmp.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_sasl.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_sspi.c" />
+    <ClCompile Include="..\thirdparty\curl\curl_threads.c" />
+    <ClCompile Include="..\thirdparty\curl\dict.c" />
+    <ClCompile Include="..\thirdparty\curl\dotdot.c" />
+    <ClCompile Include="..\thirdparty\curl\easy.c" />
+    <ClCompile Include="..\thirdparty\curl\escape.c" />
+    <ClCompile Include="..\thirdparty\curl\file.c" />
+    <ClCompile Include="..\thirdparty\curl\fileinfo.c" />
+    <ClCompile Include="..\thirdparty\curl\formdata.c" />
+    <ClCompile Include="..\thirdparty\curl\ftp.c" />
+    <ClCompile Include="..\thirdparty\curl\ftplistparser.c" />
+    <ClCompile Include="..\thirdparty\curl\getenv.c" />
+    <ClCompile Include="..\thirdparty\curl\getinfo.c" />
+    <ClCompile Include="..\thirdparty\curl\gopher.c" />
+    <ClCompile Include="..\thirdparty\curl\hash.c" />
+    <ClCompile Include="..\thirdparty\curl\hmac.c" />
+    <ClCompile Include="..\thirdparty\curl\hostasyn.c" />
+    <ClCompile Include="..\thirdparty\curl\hostcheck.c" />
+    <ClCompile Include="..\thirdparty\curl\hostip.c" />
+    <ClCompile Include="..\thirdparty\curl\hostip4.c" />
+    <ClCompile Include="..\thirdparty\curl\hostip6.c" />
+    <ClCompile Include="..\thirdparty\curl\hostsyn.c" />
+    <ClCompile Include="..\thirdparty\curl\http.c" />
+    <ClCompile Include="..\thirdparty\curl\http_chunks.c" />
+    <ClCompile Include="..\thirdparty\curl\http_digest.c" />
+    <ClCompile Include="..\thirdparty\curl\http_negotiate.c" />
+    <ClCompile Include="..\thirdparty\curl\http_ntlm.c" />
+    <ClCompile Include="..\thirdparty\curl\http_proxy.c" />
+    <ClCompile Include="..\thirdparty\curl\http2.c" />
+    <ClCompile Include="..\thirdparty\curl\idn_win32.c" />
+    <ClCompile Include="..\thirdparty\curl\if2ip.c" />
+    <ClCompile Include="..\thirdparty\curl\imap.c" />
+    <ClCompile Include="..\thirdparty\curl\inet_ntop.c" />
+    <ClCompile Include="..\thirdparty\curl\inet_pton.c" />
+    <ClCompile Include="..\thirdparty\curl\krb5.c" />
+    <ClCompile Include="..\thirdparty\curl\ldap.c" />
+    <ClCompile Include="..\thirdparty\curl\llist.c" />
+    <ClCompile Include="..\thirdparty\curl\md4.c" />
+    <ClCompile Include="..\thirdparty\curl\md5.c" />
+    <ClCompile Include="..\thirdparty\curl\memdebug.c" />
+    <ClCompile Include="..\thirdparty\curl\mprintf.c" />
+    <ClCompile Include="..\thirdparty\curl\multi.c" />
+    <ClCompile Include="..\thirdparty\curl\netrc.c" />
+    <ClCompile Include="..\thirdparty\curl\non-ascii.c" />
+    <ClCompile Include="..\thirdparty\curl\nonblock.c" />
+    <ClCompile Include="..\thirdparty\curl\nwlib.c" />
+    <ClCompile Include="..\thirdparty\curl\nwos.c" />
+    <ClCompile Include="..\thirdparty\curl\openldap.c" />
+    <ClCompile Include="..\thirdparty\curl\parsedate.c" />
+    <ClCompile Include="..\thirdparty\curl\pingpong.c" />
+    <ClCompile Include="..\thirdparty\curl\pipeline.c" />
+    <ClCompile Include="..\thirdparty\curl\pop3.c" />
+    <ClCompile Include="..\thirdparty\curl\progress.c" />
+    <ClCompile Include="..\thirdparty\curl\rand.c" />
+    <ClCompile Include="..\thirdparty\curl\rtsp.c" />
+    <ClCompile Include="..\thirdparty\curl\security.c" />
+    <ClCompile Include="..\thirdparty\curl\select.c" />
+    <ClCompile Include="..\thirdparty\curl\sendf.c" />
+    <ClCompile Include="..\thirdparty\curl\share.c" />
+    <ClCompile Include="..\thirdparty\curl\slist.c" />
+    <ClCompile Include="..\thirdparty\curl\smb.c" />
+    <ClCompile Include="..\thirdparty\curl\smtp.c" />
+    <ClCompile Include="..\thirdparty\curl\socks.c" />
+    <ClCompile Include="..\thirdparty\curl\socks_gssapi.c" />
+    <ClCompile Include="..\thirdparty\curl\socks_sspi.c" />
+    <ClCompile Include="..\thirdparty\curl\speedcheck.c" />
+    <ClCompile Include="..\thirdparty\curl\splay.c" />
+    <ClCompile Include="..\thirdparty\curl\ssh.c" />
+    <ClCompile Include="..\thirdparty\curl\strcase.c" />
+    <ClCompile Include="..\thirdparty\curl\strdup.c" />
+    <ClCompile Include="..\thirdparty\curl\strerror.c" />
+    <ClCompile Include="..\thirdparty\curl\strtok.c" />
+    <ClCompile Include="..\thirdparty\curl\strtoofft.c" />
+    <ClCompile Include="..\thirdparty\curl\system_win32.c" />
+    <ClCompile Include="..\thirdparty\curl\telnet.c" />
+    <ClCompile Include="..\thirdparty\curl\tftp.c" />
+    <ClCompile Include="..\thirdparty\curl\timeval.c" />
+    <ClCompile Include="..\thirdparty\curl\transfer.c" />
+    <ClCompile Include="..\thirdparty\curl\url.c" />
+    <ClCompile Include="..\thirdparty\curl\version.c" />
+    <ClCompile Include="..\thirdparty\curl\warnless.c" />
+    <ClCompile Include="..\thirdparty\curl\wildcard.c" />
+    <ClCompile Include="..\thirdparty\curl\x509asn1.c" />
+    <ClCompile Include="..\thirdparty\curl\amigaos.c" />
+    <ClCompile Include="..\thirdparty\curl\asyn-ares.c" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="include">
-      <UniqueIdentifier>{d877e4cc-ee25-4fb6-a43e-5f4a5c9ce621}</UniqueIdentifier>
+    <Filter Include="vtls">
+      <UniqueIdentifier>{b73fd367-1df1-4edc-9369-6b9365b7b55c}</UniqueIdentifier>
     </Filter>
     <Filter Include="vauth">
-      <UniqueIdentifier>{0e488bb1-91f9-414f-9c30-096af9c4160d}</UniqueIdentifier>
+      <UniqueIdentifier>{f7975f94-79e8-4052-88fc-7036b8487069}</UniqueIdentifier>
     </Filter>
     <Filter Include="vauth\include">
-      <UniqueIdentifier>{27a79737-2389-40dc-85d5-f2d6df922372}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="vquic">
-      <UniqueIdentifier>{4b6ccfd3-1137-4fba-a859-fabc7bb34775}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="vquic\include">
-      <UniqueIdentifier>{583cde4c-18f6-47d5-a0e5-4952cf910826}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="vssh">
-      <UniqueIdentifier>{12ceafbd-c381-467d-8637-1d74a1fc8f92}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="vssh\include">
-      <UniqueIdentifier>{b6fa0161-4761-4092-8765-9fe33af29a7f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="vtls">
-      <UniqueIdentifier>{6ec25a13-6526-49ed-979c-ab228ed8ff7c}</UniqueIdentifier>
+      <UniqueIdentifier>{4606427e-3b74-4855-97e0-c3b02a3e9e7b}</UniqueIdentifier>
     </Filter>
     <Filter Include="vtls\include">
-      <UniqueIdentifier>{cce40efd-79ac-496c-ac03-210d44b70963}</UniqueIdentifier>
+      <UniqueIdentifier>{7135506c-650f-41c7-9e06-0cc1e9bd0a66}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\thirdparty\curl\config-plan9.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\config-riscos.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\config-win32.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\config-win32ce.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\conncache.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\connect.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\content_encoding.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\cookie.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_addrinfo.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_base64.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_ctype.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_des.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_endian.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_fnmatch.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_get_line.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_gethostname.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_gssapi.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_hmac.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_krb5.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_ldap.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_md4.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_md5.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_memory.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_memrchr.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_multibyte.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_ntlm_core.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_ntlm_wb.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_path.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_printf.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_range.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_rtmp.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_sasl.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_setup.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_setup_once.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_sha256.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_sspi.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curl_threads.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\curlx.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\dict.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\doh.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\dynbuf.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\easy_lock.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\easyif.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\easyoptions.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\escape.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\file.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\fileinfo.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\fopen.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\formdata.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\ftp.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\ftplistparser.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\functypes.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\getinfo.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\gopher.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\h2h3.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\hash.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\headers.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\hostip.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\hsts.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\http.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\http_aws_sigv4.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\http_chunks.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\http_digest.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\http_negotiate.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\http_ntlm.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\http_proxy.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\http2.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\idn.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\if2ip.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\imap.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\inet_ntop.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\inet_pton.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\llist.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\memdebug.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\mime.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\mqtt.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\multihandle.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\multiif.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\netrc.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\nonblock.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\noproxy.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\parsedate.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\pingpong.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\pop3.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\progress.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\psl.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\quic.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\rand.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\rename.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\rtsp.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\select.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\sendf.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\setopt.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\setup-os400.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\setup-vms.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\setup-win32.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\share.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\sigpipe.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\slist.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\smb.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\smtp.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\sockaddr.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\socketpair.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\socks.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\speedcheck.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\splay.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\strcase.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\strdup.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\strerror.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\strtok.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\strtoofft.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\system_win32.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\telnet.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\tftp.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\timediff.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\timeval.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\transfer.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\url.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\urlapi-int.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\urldata.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\version_win32.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\warnless.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\wildcard.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\ws.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\altsvc.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\amigaos.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\arpa_telnet.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\asyn.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\bufref.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\cfilters.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\c-hyper.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\config-amigaos.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\config-dos.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\config-mac.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\config-os400.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vauth\ntlm.h">
-      <Filter>vauth\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vauth\vauth.h">
-      <Filter>vauth\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vauth\digest.h">
-      <Filter>vauth\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vquic\ngtcp2.h">
-      <Filter>vquic\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vquic\quiche.h">
-      <Filter>vquic\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vquic\vquic.h">
-      <Filter>vquic\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vquic\msh3.h">
-      <Filter>vquic\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vssh\ssh.h">
-      <Filter>vssh\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\schannel.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\sectransp.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\vtls.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\vtls_int.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\wolfssl.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\x509asn1.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\bearssl.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\gskit.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\gtls.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\hostcheck.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\keylog.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\mbedtls.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\mbedtls_threadlock.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\nssg.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\openssl.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\curl\vtls\rustls.h">
-      <Filter>vtls\include</Filter>
-    </ClInclude>
+    <Filter Include="include">
+      <UniqueIdentifier>{f3b420b8-6e86-4e88-a8b1-4dfb6056fc7e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

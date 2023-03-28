@@ -1,6 +1,6 @@
 /* This is from the BIND 4.9.4 release, modified to compile by itself */
 
-/* Copyright (c) 2003 - 2022 by Internet Software Consortium.
+/* Copyright (c) 1996 by Internet Software Consortium.
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,8 +14,6 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
- *
- * SPDX-License-Identifier: ISC
  */
 
 #include "curl_setup.h"
@@ -59,8 +57,8 @@ static int      inet_pton6(const char *src, unsigned char *dst);
  * notice:
  *      On Windows we store the error in the thread errno, not
  *      in the winsock error code. This is to avoid losing the
- *      actual last winsock error. So when this function returns
- *      -1, check errno not SOCKERRNO.
+ *      actual last winsock error. So use macro ERRNO to fetch the
+ *      errno this function sets when returning (-1), not SOCKERRNO.
  * author:
  *      Paul Vixie, 1996.
  */
@@ -75,7 +73,7 @@ Curl_inet_pton(int af, const char *src, void *dst)
     return (inet_pton6(src, (unsigned char *)dst));
 #endif
   default:
-    errno = EAFNOSUPPORT;
+    SET_ERRNO(EAFNOSUPPORT);
     return (-1);
   }
   /* NOTREACHED */
@@ -114,7 +112,7 @@ inet_pton4(const char *src, unsigned char *dst)
       if(val > 255)
         return (0);
       *tp = (unsigned char)val;
-      if(!saw_digit) {
+      if(! saw_digit) {
         if(++octets > 4)
           return (0);
         saw_digit = 1;
@@ -155,7 +153,7 @@ inet_pton6(const char *src, unsigned char *dst)
   static const char xdigits_l[] = "0123456789abcdef",
     xdigits_u[] = "0123456789ABCDEF";
   unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
+  const char *xdigits, *curtok;
   int ch, saw_xdigit;
   size_t val;
 
@@ -170,13 +168,12 @@ inet_pton6(const char *src, unsigned char *dst)
   saw_xdigit = 0;
   val = 0;
   while((ch = *src++) != '\0') {
-    const char *xdigits;
     const char *pch;
 
     pch = strchr((xdigits = xdigits_l), ch);
     if(!pch)
       pch = strchr((xdigits = xdigits_u), ch);
-    if(pch) {
+    if(pch != NULL) {
       val <<= 4;
       val |= (pch - xdigits);
       if(++saw_xdigit > 4)
@@ -213,7 +210,7 @@ inet_pton6(const char *src, unsigned char *dst)
     *tp++ = (unsigned char) ((val >> 8) & 0xff);
     *tp++ = (unsigned char) (val & 0xff);
   }
-  if(colonp) {
+  if(colonp != NULL) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we'll do the shift by hand.

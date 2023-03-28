@@ -7,11 +7,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -19,8 +19,6 @@
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
- *
- * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
 
@@ -75,7 +73,7 @@ char *decc$getenv(const char *__name);
 #   endif
 #endif
 
-    struct passwd *decc_getpwuid(uid_t uid);
+    struct passwd * decc_getpwuid(uid_t uid);
 
 #ifdef __DECC
 #   if __INITIAL_POINTER_SIZE == 32
@@ -89,7 +87,7 @@ static char *vms_translate_path(const char *path)
   /* See if the result is in VMS format, if not, we are done */
   /* Assume that this is a PATH, not just some data */
   test_str = strpbrk(path, ":[<^");
-  if(!test_str) {
+  if(test_str == NULL) {
     return (char *)path;
   }
 
@@ -121,7 +119,7 @@ static char *vms_getenv(const char *envvar)
 
   /* first use the DECC getenv() function */
   result = decc$getenv(envvar);
-  if(!result) {
+  if(result == NULL) {
     return result;
   }
 
@@ -140,9 +138,9 @@ static char *vms_getenv(const char *envvar)
 
 static struct passwd vms_passwd_cache;
 
-static struct passwd *vms_getpwuid(uid_t uid)
+static struct passwd * vms_getpwuid(uid_t uid)
 {
-  struct passwd *my_passwd;
+  struct passwd * my_passwd;
 
 /* Hack needed to support 64 bit builds, decc_getpwnam is 32 bit only */
 #ifdef __DECC
@@ -156,7 +154,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #endif
 
   my_passwd = decc_getpwuid(uid);
-  if(!my_passwd) {
+  if(my_passwd == NULL) {
     return my_passwd;
   }
 

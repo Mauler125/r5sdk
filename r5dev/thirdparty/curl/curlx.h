@@ -7,11 +7,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -19,8 +19,6 @@
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
- *
- * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
 
@@ -44,6 +42,16 @@
    curl_off_t number from a given string.
 */
 
+#include "timeval.h"
+/*
+  "timeval.h" sets up a 'struct timeval' even for platforms that otherwise
+  don't have one and has protos for these functions:
+
+  curlx_tvnow()
+  curlx_tvdiff()
+  curlx_tvdiff_secs()
+*/
+
 #include "nonblock.h"
 /* "nonblock.h" provides curlx_nonblock() */
 
@@ -54,19 +62,6 @@
   curlx_ultouc()
   curlx_uztosi()
 */
-
-#include "curl_multibyte.h"
-/* "curl_multibyte.h" provides these functions and macros:
-
-  curlx_convert_UTF8_to_wchar()
-  curlx_convert_wchar_to_UTF8()
-  curlx_convert_UTF8_to_tchar()
-  curlx_convert_tchar_to_UTF8()
-  curlx_unicodefree()
-*/
-
-#include "version_win32.h"
-/* "version_win32.h" provides curlx_verify_windows_version() */
 
 /* Now setup curlx_ * names for the functions that are to become curlx_ and
    be removed from a future libcurl official API:
@@ -96,23 +91,25 @@
 # undef printf
 # undef fprintf
 # undef sprintf
-# undef msnprintf
+# undef snprintf
 # undef vprintf
 # undef vfprintf
 # undef vsprintf
-# undef mvsnprintf
+# undef vsnprintf
 # undef aprintf
 # undef vaprintf
 
 # define printf curlx_mprintf
 # define fprintf curlx_mfprintf
 # define sprintf curlx_msprintf
-# define msnprintf curlx_msnprintf
+# define snprintf curlx_msnprintf
 # define vprintf curlx_mvprintf
 # define vfprintf curlx_mvfprintf
-# define mvsnprintf curlx_mvsnprintf
+# define vsprintf curlx_mvsprintf
+# define vsnprintf curlx_mvsnprintf
 # define aprintf curlx_maprintf
 # define vaprintf curlx_mvaprintf
 #endif /* ENABLE_CURLX_PRINTF */
 
 #endif /* HEADER_CURL_CURLX_H */
+

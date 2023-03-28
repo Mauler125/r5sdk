@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -17,8 +17,6 @@
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
- *
- * SPDX-License-Identifier: curl
  *
  * RFC2104 Keyed-Hashing for Message Authentication
  *
@@ -32,7 +30,6 @@
 
 #include "curl_hmac.h"
 #include "curl_memory.h"
-#include "warnless.h"
 
 /* The last #include file should be: */
 #include "memdebug.h"
@@ -41,8 +38,8 @@
  * Generic HMAC algorithm.
  *
  *   This module computes HMAC digests based on any hash function. Parameters
- * and computing procedures are set-up dynamically at HMAC computation context
- * initialization.
+ * and computing procedures are set-up dynamically at HMAC computation
+ * context initialisation.
  */
 
 static const unsigned char hmac_ipad = 0x36;
@@ -50,18 +47,18 @@ static const unsigned char hmac_opad = 0x5C;
 
 
 
-struct HMAC_context *
-Curl_HMAC_init(const struct HMAC_params *hashparams,
+HMAC_context *
+Curl_HMAC_init(const HMAC_params * hashparams,
                const unsigned char *key,
                unsigned int keylen)
 {
   size_t i;
-  struct HMAC_context *ctxt;
+  HMAC_context *ctxt;
   unsigned char *hkey;
   unsigned char b;
 
   /* Create HMAC context. */
-  i = sizeof(*ctxt) + 2 * hashparams->hmac_ctxtsize +
+  i = sizeof *ctxt + 2 * hashparams->hmac_ctxtsize +
     hashparams->hmac_resultlen;
   ctxt = malloc(i);
 
@@ -103,7 +100,7 @@ Curl_HMAC_init(const struct HMAC_params *hashparams,
   return ctxt;
 }
 
-int Curl_HMAC_update(struct HMAC_context *ctxt,
+int Curl_HMAC_update(HMAC_context * ctxt,
                      const unsigned char *data,
                      unsigned int len)
 {
@@ -113,9 +110,9 @@ int Curl_HMAC_update(struct HMAC_context *ctxt,
 }
 
 
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *result)
+int Curl_HMAC_final(HMAC_context *ctxt, unsigned char *result)
 {
-  const struct HMAC_params *hashparams = ctxt->hmac_hash;
+  const HMAC_params * hashparams = ctxt->hmac_hash;
 
   /* Do not get result if called with a null parameter: only release
      storage. */
@@ -130,43 +127,6 @@ int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *result)
   (*hashparams->hmac_hfinal)(result, ctxt->hmac_hashctxt2);
   free((char *) ctxt);
   return 0;
-}
-
-/*
- * Curl_hmacit()
- *
- * This is used to generate a HMAC hash, for the specified input data, given
- * the specified hash function and key.
- *
- * Parameters:
- *
- * hashparams [in]     - The hash function (Curl_HMAC_MD5).
- * key        [in]     - The key to use.
- * keylen     [in]     - The length of the key.
- * data       [in]     - The data to encrypt.
- * datalen    [in]     - The length of the data.
- * output     [in/out] - The output buffer.
- *
- * Returns CURLE_OK on success.
- */
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, const size_t datalen,
-                     unsigned char *output)
-{
-  struct HMAC_context *ctxt =
-    Curl_HMAC_init(hashparams, key, curlx_uztoui(keylen));
-
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
-
-  /* Update the digest with the given challenge */
-  Curl_HMAC_update(ctxt, data, curlx_uztoui(datalen));
-
-  /* Finalise the digest */
-  Curl_HMAC_final(ctxt, output);
-
-  return CURLE_OK;
 }
 
 #endif /* CURL_DISABLE_CRYPTO_AUTH */

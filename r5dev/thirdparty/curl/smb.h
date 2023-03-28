@@ -7,12 +7,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 2018, Bill Nagel <wnagel@tycoint.com>, Exacq Technologies
- * Copyright (C) 2018 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 2014, Bill Nagel <wnagel@tycoint.com>, Exacq Technologies
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -20,8 +19,6 @@
  *
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
- *
- * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
 
@@ -37,7 +34,6 @@ struct smb_conn {
   enum smb_conn_state state;
   char *user;
   char *domain;
-  char *share;
   unsigned char challenge[8];
   unsigned int session_key;
   unsigned short uid;
@@ -169,7 +165,11 @@ struct smb_nt_create {
   unsigned int flags;
   unsigned int root_fid;
   unsigned int access;
-  curl_off_t allocation_size;
+#ifdef HAVE_LONGLONG
+  unsigned long long allocation_size;
+#else
+  unsigned __int64 allocation_size;
+#endif
   unsigned int ext_file_attributes;
   unsigned int share_access;
   unsigned int create_disposition;
@@ -187,14 +187,25 @@ struct smb_nt_create_response {
   unsigned char op_lock_level;
   unsigned short fid;
   unsigned int create_disposition;
-
-  curl_off_t create_time;
-  curl_off_t last_access_time;
-  curl_off_t last_write_time;
-  curl_off_t last_change_time;
+#ifdef HAVE_LONGLONG
+  unsigned long long create_time;
+  unsigned long long last_access_time;
+  unsigned long long last_write_time;
+  unsigned long long last_change_time;
+#else
+  unsigned __int64 create_time;
+  unsigned __int64 last_access_time;
+  unsigned __int64 last_write_time;
+  unsigned __int64 last_change_time;
+#endif
   unsigned int ext_file_attributes;
-  curl_off_t allocation_size;
-  curl_off_t end_of_file;
+#ifdef HAVE_LONGLONG
+  unsigned long long allocation_size;
+  unsigned long long end_of_file;
+#else
+  unsigned __int64 allocation_size;
+  unsigned __int64 end_of_file;
+#endif
 } PACK;
 
 struct smb_read {
@@ -245,13 +256,16 @@ struct smb_tree_disconnect {
 
 #endif /* BUILDING_CURL_SMB_C */
 
-#if !defined(CURL_DISABLE_SMB) && defined(USE_CURL_NTLM_CORE) && \
-    (SIZEOF_CURL_OFF_T > 4)
+#if !defined(CURL_DISABLE_SMB) && defined(USE_NTLM) && \
+    (CURL_SIZEOF_CURL_OFF_T > 4)
+
+#if !defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_CRYPTO)
 
 extern const struct Curl_handler Curl_handler_smb;
 extern const struct Curl_handler Curl_handler_smbs;
 
-#endif /* CURL_DISABLE_SMB && USE_CURL_NTLM_CORE &&
-          SIZEOF_CURL_OFF_T > 4 */
+#endif /* !USE_WINDOWS_SSPI || USE_WIN32_CRYPTO */
+
+#endif /* CURL_DISABLE_SMB && USE_NTLM && CURL_SIZEOF_CURL_OFF_T > 4 */
 
 #endif /* HEADER_CURL_SMB_H */
