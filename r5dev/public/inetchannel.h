@@ -16,9 +16,9 @@ public:
 	virtual void* ProcessSetConVar(void) = 0;
 	virtual bool nullsub_0(void) = 0;
 	virtual char ProcessSignonState(void* msg) = 0; // NET_SignonState
-	virtual void* ProcessMove(void) = 0;;
-	virtual void* ProcessVoiceData(void) = 0;;
-	virtual void* ProcessDurangoVoiceData(void) = 0;;
+	virtual void* ProcessMove(void) = 0;
+	virtual void* ProcessVoiceData(void) = 0;
+	virtual void* ProcessDurangoVoiceData(void) = 0;
 	virtual bool nullsub_1(void) = 0;
 	virtual void* ProcessLoadingProgress(void) = 0;
 	virtual void* ProcessPersistenceRequestSave(void) = 0;

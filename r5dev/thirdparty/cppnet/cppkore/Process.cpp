@@ -591,7 +591,7 @@ namespace Diagnostics
 			Pi.ProcessId = NProcessId;
 			Pi.HandleCount = (uint32_t)NProcessInfo->HandleCount;
 			Pi.SessionId = (uint32_t)NProcessInfo->SessionId;
-			Pi.PoolPagedBytes = (uint64_t)NProcessInfo->QuotaPagedPoolUsage;;
+			Pi.PoolPagedBytes = (uint64_t)NProcessInfo->QuotaPagedPoolUsage;
 			Pi.PoolNonPagedBytes = (uint64_t)NProcessInfo->QuotaNonPagedPoolUsage;
 			Pi.VirtualBytes = (uint64_t)NProcessInfo->VirtualSize;
 			Pi.VirtualBytesPeak = (uint64_t)NProcessInfo->PeakVirtualSize;

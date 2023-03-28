@@ -9,12 +9,12 @@ namespace Forms
 	class DragEventArgs
 	{
 	public:
-		DragEventArgs(IDataObject* Data, const int32_t KeyState, const int32_t X, const int32_t Y, const DragDropEffects AllowedEffect, DragDropEffects Effect);;
+		DragEventArgs(IDataObject* Data, const int32_t KeyState, const int32_t X, const int32_t Y, const DragDropEffects AllowedEffect, DragDropEffects Effect);
 		~DragEventArgs() = default;
 
 		// The data associated with this event.
 		IDataObject* Data;
-		// The current statie of the shift, ctrl, and alt keys.
+		// The current state of the shift, ctrl, and alt keys.
 		const int32_t KeyState;
 
 		// The mouse X location.

@@ -68,7 +68,7 @@ namespace Forms
 		}
 		case WM_PAINT:
 		{
-			auto Result = CallWindowProc(Win32PerThreadInfo.lpMsgBoxProc, hWnd, uMsg, wParam, lParam);;
+			auto Result = CallWindowProc(Win32PerThreadInfo.lpMsgBoxProc, hWnd, uMsg, wParam, lParam);
 
 			RECT Rc{};
 			GetClientRect(hWnd, &Rc);
