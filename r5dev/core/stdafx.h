@@ -69,14 +69,14 @@
 #endif // SDKLAUNCHER
 
 #if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
-#include "thirdparty/imgui/include/imgui.h"
-#include "thirdparty/imgui/include/imgui_stdlib.h"
-#include "thirdparty/imgui/include/imgui_logger.h"
-#include "thirdparty/imgui/include/imgui_editor.h"
-#include "thirdparty/imgui/include/imgui_utility.h"
-#include "thirdparty/imgui/include/imgui_internal.h"
-#include "thirdparty/imgui/include/imgui_impl_dx11.h"
-#include "thirdparty/imgui/include/imgui_impl_win32.h"
+#include "thirdparty/imgui/imgui.h"
+#include "thirdparty/imgui/imgui_internal.h"
+#include "thirdparty/imgui/misc/imgui_logger.h"
+#include "thirdparty/imgui/misc/imgui_editor.h"
+#include "thirdparty/imgui/misc/imgui_utility.h"
+#include "thirdparty/imgui/misc/cpp/imgui_stdlib.h"
+#include "thirdparty/imgui/backends/imgui_impl_dx11.h"
+#include "thirdparty/imgui/backends/imgui_impl_win32.h"
 #endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)

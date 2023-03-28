@@ -3,8 +3,8 @@
 #include "common/sdkdefs.h"
 #include "windows/resource.h"
 #include "public/isurfacesystem.h"
-#include "thirdparty/imgui/include/imgui_logger.h"
-#include "thirdparty/imgui/include/imgui_utility.h"
+#include "thirdparty/imgui/misc/imgui_logger.h"
+#include "thirdparty/imgui/misc/imgui_utility.h"
 
 class CConsole : public ISurface
 {

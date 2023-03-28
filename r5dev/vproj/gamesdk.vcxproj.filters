@@ -55,9 +55,6 @@
     <Filter Include="thirdparty\imgui">
       <UniqueIdentifier>{c54c9382-0c06-4046-9e91-fb2a8019a22b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="thirdparty\imgui\include">
-      <UniqueIdentifier>{0ac635a8-3c25-4b4b-b382-1bb8bc882c55}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\tier0">
       <UniqueIdentifier>{a37df87a-dfda-47ab-a1be-1e49bdfecf44}</UniqueIdentifier>
     </Filter>
@@ -232,6 +229,9 @@
     <Filter Include="sdk\public\appframework">
       <UniqueIdentifier>{0c992b91-3491-4337-a630-c789e2654bc2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thirdparty\imgui\misc">
+      <UniqueIdentifier>{0ceb19d4-45ba-4dd0-8ce1-ae87598c7a72}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -392,9 +392,6 @@
     </ClCompile>
     <ClCompile Include="..\networksystem\pylon.cpp">
       <Filter>sdk\networksystem</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_utility.cpp">
-      <Filter>thirdparty\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\game\server\gameinterface.cpp">
       <Filter>sdk\game\server</Filter>
@@ -732,6 +729,9 @@
     <ClCompile Include="..\tier1\utlstring.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\thirdparty\imgui\misc\imgui_utility.cpp">
+      <Filter>thirdparty\imgui\misc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -805,36 +805,6 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\detours\include\detours.h">
       <Filter>thirdparty\detours\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_impl_dx11.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_impl_win32.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_internal.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_stdlib.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_utility.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imstb_rectpack.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imstb_textedit.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imstb_truetype.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imconfig.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui.h">
-      <Filter>thirdparty\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\basetypes.h">
       <Filter>sdk\tier0</Filter>
@@ -1885,6 +1855,9 @@
     </ClInclude>
     <ClInclude Include="..\tier1\utlstring.h">
       <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\misc\imgui_utility.h">
+      <Filter>thirdparty\imgui\misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

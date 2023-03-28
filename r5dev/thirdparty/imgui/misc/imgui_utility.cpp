@@ -7,7 +7,7 @@
 #include "tier0/memstd.h"
 #include "vpc/keyvalues.h"
 #include "filesystem/filesystem.h"
-#include "thirdparty/imgui/include/imgui_utility.h"
+#include "thirdparty/imgui/misc/imgui_utility.h"
 
 #define GAME_CONSOLE_KEY "Console"
 #define GAME_BROWSER_KEY "Browser"

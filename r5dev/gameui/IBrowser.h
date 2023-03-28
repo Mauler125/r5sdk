@@ -5,7 +5,7 @@
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
 #include "public/isurfacesystem.h"
-#include "thirdparty/imgui/include/imgui_utility.h"
+#include "thirdparty/imgui/misc/imgui_utility.h"
 
 class CBrowser : public ISurface
 {

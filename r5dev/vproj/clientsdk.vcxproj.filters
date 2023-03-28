@@ -52,9 +52,6 @@
     <Filter Include="thirdparty\imgui">
       <UniqueIdentifier>{c54c9382-0c06-4046-9e91-fb2a8019a22b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="thirdparty\imgui\include">
-      <UniqueIdentifier>{0ac635a8-3c25-4b4b-b382-1bb8bc882c55}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\tier0">
       <UniqueIdentifier>{a37df87a-dfda-47ab-a1be-1e49bdfecf44}</UniqueIdentifier>
     </Filter>
@@ -223,6 +220,9 @@
     <Filter Include="sdk\public\appframework">
       <UniqueIdentifier>{87c9d891-5df4-445a-941a-b479d8ce0436}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thirdparty\imgui\misc">
+      <UniqueIdentifier>{f43b13e8-00f9-4fd8-8624-8e6376ea354a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -377,9 +377,6 @@
     </ClCompile>
     <ClCompile Include="..\networksystem\pylon.cpp">
       <Filter>sdk\networksystem</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_utility.cpp">
-      <Filter>thirdparty\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\sys_getmodes.cpp">
       <Filter>sdk\engine</Filter>
@@ -666,6 +663,9 @@
     <ClCompile Include="..\tier1\utlstring.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\thirdparty\imgui\misc\imgui_utility.cpp">
+      <Filter>thirdparty\imgui\misc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -733,36 +733,6 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\detours\include\detours.h">
       <Filter>thirdparty\detours\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_impl_dx11.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_impl_win32.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_internal.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_stdlib.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui_utility.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imstb_rectpack.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imstb_textedit.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imstb_truetype.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imconfig.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\imgui\include\imgui.h">
-      <Filter>thirdparty\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\basetypes.h">
       <Filter>sdk\tier0</Filter>
@@ -1714,6 +1684,9 @@
     </ClInclude>
     <ClInclude Include="..\tier1\utlstring.h">
       <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\misc\imgui_utility.h">
+      <Filter>thirdparty\imgui\misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

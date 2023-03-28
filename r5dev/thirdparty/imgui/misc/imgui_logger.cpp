@@ -4,11 +4,11 @@
 #include <regex>
 #include <cmath>
 
-#include "thirdparty/imgui/include/imgui_logger.h"
+#include "imgui_logger.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include "thirdparty/imgui/include/imgui.h"
-#include "thirdparty/imgui/include/imgui_internal.h"
+#include "imgui.h"
+#include "imgui_internal.h"
 
 template<class InputIt1, class InputIt2, class BinaryPredicate>
 bool equals(InputIt1 first1, InputIt1 last1,
