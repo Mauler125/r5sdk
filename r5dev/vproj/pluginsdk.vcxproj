@@ -101,7 +101,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <StackReserveSize>8000000</StackReserveSize>
       <AdditionalDependencies>libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\x64_plugins\pluginsdk_x64.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\x64_plugins</Command>
@@ -132,7 +131,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <StackReserveSize>8000000</StackReserveSize>
       <AdditionalDependencies>libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\x64_plugins\pluginsdk_x64.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\x64_plugins</Command>
@@ -170,7 +168,6 @@
       <LinkTimeCodeGeneration />
       <SetChecksum />
       <AdditionalDependencies>libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\x64_plugins\pluginsdk_x64.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\x64_plugins</Command>

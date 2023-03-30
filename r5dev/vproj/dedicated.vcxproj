@@ -103,7 +103,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <StackReserveSize>8000000</StackReserveSize>
-      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex_ds.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
@@ -141,7 +140,6 @@
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <SetChecksum>true</SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
-      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex_ds.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
@@ -187,7 +185,6 @@
       </SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
       <LinkTimeCodeGeneration />
-      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex_ds.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
