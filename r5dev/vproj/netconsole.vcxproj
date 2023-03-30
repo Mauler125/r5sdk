@@ -201,13 +201,14 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -228,9 +229,8 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" /D "SPDLOG_NO_EXCEPTIONS" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -241,6 +241,7 @@
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -266,7 +267,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PROFILE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -280,6 +281,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <StringPooling>true</StringPooling>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -307,13 +309,14 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\</AdditionalIncludeDirectories>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -334,20 +337,21 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" /D "SPDLOG_NO_EXCEPTIONS" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
+      <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -373,7 +377,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_PROFILE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "NETCONSOLE" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -386,7 +390,8 @@
       <Optimization>Full</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <StringPooling>true</StringPooling>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

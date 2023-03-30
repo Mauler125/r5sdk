@@ -163,6 +163,8 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <ConformanceMode>Default</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -193,7 +195,8 @@
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -234,6 +237,8 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <ConformanceMode>Default</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -278,6 +283,8 @@
       <Optimization>Full</Optimization>
       <StringPooling>true</StringPooling>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <ConformanceMode>Default</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -310,15 +317,16 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <OmitFramePointers>false</OmitFramePointers>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <StringPooling>true</StringPooling>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -357,7 +365,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>Full</Optimization>
       <StringPooling>true</StringPooling>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

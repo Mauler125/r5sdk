@@ -612,7 +612,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;R5DEV_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>
@@ -621,7 +621,8 @@
       <LanguageStandard_C>Default</LanguageStandard_C>
       <AdditionalOptions>/D "GAMESDK" /D "CLIENT_DLL" /D "_CRT_SECURE_NO_WARNINGS" /D "CURL_STATICLIB" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -645,9 +646,8 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;R5DEV_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -664,7 +664,9 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalOptions>/D "GAMESDK" /D "CLIENT_DLL" /D "_CRT_SECURE_NO_WARNINGS" /D "CURL_STATICLIB" /D "SPDLOG_COMPILED_LIB" /D "SPDLOG_NO_EXCEPTIONS" %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -693,7 +695,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_PROFILE;R5DEV_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
@@ -711,7 +713,8 @@
       <AdditionalOptions>/D "GAMESDK" /D "CLIENT_DLL" /D "_CRT_SECURE_NO_WARNINGS" /D "CURL_STATICLIB" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

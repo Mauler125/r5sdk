@@ -176,11 +176,12 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>Default</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "BUILDING_LIBIMGUI" /D "IMGUI_DEFINE_MATH_OPERATORS" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -192,9 +193,8 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>Default</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "BUILDING_LIBIMGUI" /D "IMGUI_DEFINE_MATH_OPERATORS" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -203,6 +203,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -218,7 +219,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_PROFILE</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>Default</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "BUILDING_LIBIMGUI" /D "IMGUI_DEFINE_MATH_OPERATORS" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
@@ -230,6 +231,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <StringPooling>true</StringPooling>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -246,11 +248,12 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "BUILDING_LIBIMGUI" /D "IMGUI_DEFINE_MATH_OPERATORS" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -262,18 +265,20 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "BUILDING_LIBIMGUI" /D "IMGUI_DEFINE_MATH_OPERATORS" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <OmitFramePointers>true</OmitFramePointers>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>false</OmitFramePointers>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
       <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -289,7 +294,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_PROFILE</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "BUILDING_LIBIMGUI" /D "IMGUI_DEFINE_MATH_OPERATORS" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <OmitFramePointers>false</OmitFramePointers>
@@ -300,7 +305,8 @@
       <Optimization>Full</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <StringPooling>true</StringPooling>
-      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
