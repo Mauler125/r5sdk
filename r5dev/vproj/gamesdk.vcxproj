@@ -686,6 +686,7 @@
       <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <StackReserveSize>8000000</StackReserveSize>
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
@@ -733,6 +734,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
@@ -785,6 +787,7 @@
       </SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
       <LinkTimeCodeGeneration />
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>

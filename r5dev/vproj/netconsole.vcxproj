@@ -215,6 +215,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x86.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -252,6 +253,7 @@
       <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x86.lib;libprotobuf_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -296,6 +298,7 @@
       <SetChecksum>
       </SetChecksum>
       <LinkTimeCodeGeneration />
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -324,6 +327,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\$(ProjectName).exe" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\</Command>
@@ -363,6 +367,7 @@
       <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;libspdlog_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\$(ProjectName).exe" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\</Command>
@@ -407,6 +412,7 @@
       <SetChecksum>
       </SetChecksum>
       <LinkTimeCodeGeneration />
+      <TerminalServerAware>true</TerminalServerAware>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\$(ProjectName).exe" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\</Command>
