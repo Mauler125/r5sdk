@@ -56,13 +56,13 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetAvailableMaps(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_MapVecMutex);
+            std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
 
-            if (g_vAllMaps.empty())
+            if (g_InstalledMaps.empty())
                 return SQ_OK;
 
             sq_newarray(v, 0);
-            for (const string& it : g_vAllMaps)
+            for (const string& it : g_InstalledMaps)
             {
                 sq_pushstring(v, it.c_str(), -1);
                 sq_arrayappend(v, -2);

@@ -503,8 +503,8 @@ void CBrowser::HostPanel(void)
 
     if (ImGui::BeginCombo("Map", g_pServerListManager->m_Server.m_svHostMap.c_str()))
     {
-        g_MapVecMutex.lock();
-        for (const string& svMap : g_vAllMaps)
+        g_InstalledMapsMutex.lock();
+        for (const string& svMap : g_InstalledMaps)
         {
             if (ImGui::Selectable(svMap.c_str(), svMap == g_pServerListManager->m_Server.m_svHostMap))
             {
@@ -512,7 +512,7 @@ void CBrowser::HostPanel(void)
             }
         }
 
-        g_MapVecMutex.unlock();
+        g_InstalledMapsMutex.unlock();
         ImGui::EndCombo();
     }
 

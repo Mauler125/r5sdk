@@ -20,7 +20,7 @@
 #include "client/clientstate.h"
 #endif // !DEDICATED
 
-vector<string> g_vAllMaps;
+vector<string> g_InstalledMaps;
 string s_svLevelName;
 bool s_bLevelResourceInitialized = false;
 bool s_bBasePaksInitialized = false;
@@ -41,8 +41,8 @@ bool Mod_LevelHasChanged(const char* pszLevelName)
 //-----------------------------------------------------------------------------
 void Mod_GetAllInstalledMaps()
 {
-    std::lock_guard<std::mutex> l(g_MapVecMutex);
-    g_vAllMaps.clear(); // Clear current list.
+    std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
+    g_InstalledMaps.clear(); // Clear current list.
 
     fs::directory_iterator fsDir("vpk");
     std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
@@ -60,13 +60,13 @@ void Mod_GetAllInstalledMaps()
 
             else if (smRegexMatches[1].str().compare("mp_common") == 0)
             {
-                if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), "mp_lobby") == g_vAllMaps.end())
-                    g_vAllMaps.push_back("mp_lobby");
+                if (std::find(g_InstalledMaps.begin(), g_InstalledMaps.end(), "mp_lobby") == g_InstalledMaps.end())
+                    g_InstalledMaps.push_back("mp_lobby");
                 continue; // Common contains mp_lobby.
             }
 
-            if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), smRegexMatches[1].str()) == g_vAllMaps.end())
-                g_vAllMaps.push_back(smRegexMatches[1].str());
+            if (std::find(g_InstalledMaps.begin(), g_InstalledMaps.end(), smRegexMatches[1].str()) == g_InstalledMaps.end())
+                g_InstalledMaps.push_back(smRegexMatches[1].str());
         }
     }
 }

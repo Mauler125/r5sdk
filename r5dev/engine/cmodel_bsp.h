@@ -27,7 +27,7 @@ inline auto sub_14045A1D0 = p_Mod_ProcessPakQueue.RCast<__int64(*)(unsigned __in
 inline auto sub_140441220 = p_Mod_ProcessPakQueue.RCast<void(*)(__int64 a1, __int64 a2)>();
 
 extern bool s_bBasePaksInitialized;
-extern vector<string> g_vAllMaps;
+extern vector<string> g_InstalledMaps;
 
 bool Mod_LevelHasChanged(const char* pszLevelName);
 void Mod_GetAllInstalledMaps();

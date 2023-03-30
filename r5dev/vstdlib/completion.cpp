@@ -27,7 +27,7 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 		substring = (char*)partial + strlen(cmdname);
 	}
 
-	const int mapcount = (int)g_vAllMaps.size();
+	const int mapcount = (int)g_InstalledMaps.size();
 	const int longest = COMMAND_COMPLETION_ITEM_LENGTH;
 	const int count = MIN(mapcount, COMMAND_COMPLETION_MAXITEMS);
 
@@ -35,7 +35,7 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 	{
 		for (int i = 0; i < count; i++)
 		{
-			strncpy(commands[i], g_vAllMaps[i].c_str(), longest);
+			strncpy(commands[i], g_InstalledMaps[i].c_str(), longest);
 
 			char old[COMMAND_COMPLETION_ITEM_LENGTH];
 			strncpy(old, commands[i], sizeof(old));
