@@ -85,20 +85,20 @@ int CServer::GetNumClients(void) const
 //---------------------------------------------------------------------------------
 bool CServer::AuthClient(user_creds_s* pChallenge)
 {
-	char* pUserID = pChallenge->m_pUserID;
-	uint64_t nNucleusID = pChallenge->m_nNucleusID;
+	char* pszPersonaName = pChallenge->personaName;
+	uint64_t nNucleusID = pChallenge->personaId;
 
 	char pszAddresBuffer[INET6_ADDRSTRLEN]; // Render the client's address.
-	pChallenge->m_nAddr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer));
+	pChallenge->netAdr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer));
 
 	const bool bEnableLogging = sv_showconnecting->GetBool();
 	if (bEnableLogging)
 		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '%s' ('%llu')\n", pszAddresBuffer, nNucleusID);
 
 	// Only proceed connection if the client's name is valid and UTF-8 encoded.
-	if (!pUserID || !pUserID[0] || !IsValidUTF8(pUserID) || !IsValidPersonaName(pUserID))
+	if (!VALID_CHARSTAR(pszPersonaName) || !IsValidUTF8(pszPersonaName) || !IsValidPersonaName(pszPersonaName))
 	{
-		RejectConnection(m_Socket, &pChallenge->m_nAddr, "#Valve_Reject_Invalid_Name");
+		RejectConnection(m_Socket, &pChallenge->netAdr, "#Valve_Reject_Invalid_Name");
 		if (bEnableLogging)
 			Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' has an invalid name!)\n", pszAddresBuffer, nNucleusID);
 
@@ -109,7 +109,7 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 	{
 		if (g_pBanSystem->IsBanned(pszAddresBuffer, nNucleusID))
 		{
-			RejectConnection(m_Socket, &pChallenge->m_nAddr, "#Valve_Reject_Banned");
+			RejectConnection(m_Socket, &pChallenge->netAdr, "#Valve_Reject_Banned");
 			if (bEnableLogging)
 				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", pszAddresBuffer, nNucleusID);
 

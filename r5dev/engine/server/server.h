@@ -18,12 +18,12 @@ enum class server_state_t
 
 struct user_creds_s
 {
-	netadr_t m_nAddr;
-	int32_t  m_nProtocolVer;
-	int32_t  m_nChallenge;
-	uint32_t m_nReservation;
-	uint64_t m_nNucleusID;
-	char* m_pUserID;
+	netadr_t netAdr;
+	int32_t  protocolVer;
+	int32_t  challenge;
+	uint32_t reservation;
+	uint64_t personaId;
+	char* personaName;
 };
 
 class CServer : public IConnectionlessPacketHandler
