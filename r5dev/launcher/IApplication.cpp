@@ -36,7 +36,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CSourceAppSystemGroup::PreInit(CSourceAppSystemGroup* pSourceAppSystemGroup)
+bool CSourceAppSystemGroup::StaticPreInit(CSourceAppSystemGroup* pSourceAppSystemGroup)
 {
 	if (pSourceAppSystemGroup->GetCurrentStage() == CSourceAppSystemGroup::CREATION)
 	{
@@ -53,7 +53,7 @@ bool CSourceAppSystemGroup::PreInit(CSourceAppSystemGroup* pSourceAppSystemGroup
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CSourceAppSystemGroup::Create(CSourceAppSystemGroup* pSourceAppSystemGroup)
+bool CSourceAppSystemGroup::StaticCreate(CSourceAppSystemGroup* pSourceAppSystemGroup)
 {
 	return CSourceAppSystemGroup__Create(pSourceAppSystemGroup);
 }
@@ -61,7 +61,7 @@ bool CSourceAppSystemGroup::Create(CSourceAppSystemGroup* pSourceAppSystemGroup)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
+int CModAppSystemGroup::StaticMain(CModAppSystemGroup* pModAppSystemGroup)
 {
 	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
 	fixed.detach();
@@ -90,7 +90,7 @@ int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 //-----------------------------------------------------------------------------
 // Purpose: Instantiate all main libraries
 //-----------------------------------------------------------------------------
-bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
+bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 {
 #ifdef DEDICATED
 	pModAppSystemGroup->SetServerOnly();

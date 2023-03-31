@@ -8,8 +8,11 @@
 class CSourceAppSystemGroup : public CAppSystemGroup
 {
 public:
-	static bool PreInit(CSourceAppSystemGroup* pSourceAppSystemGroup);
-	static bool Create(CSourceAppSystemGroup* pSourceAppSystemGroup);
+	static bool StaticPreInit(CSourceAppSystemGroup* pSourceAppSystemGroup);
+	static bool StaticCreate(CSourceAppSystemGroup* pSourceAppSystemGroup);
+
+private:
+	CFileSystem_Stdio* m_pFileSystem;
 };
 
 //-------------------------------------------------------------------------
@@ -18,8 +21,8 @@ public:
 class CModAppSystemGroup : public CAppSystemGroup
 {
 public:
-	static int Main(CModAppSystemGroup* pModAppSystemGroup);
-	static bool Create(CModAppSystemGroup* pModAppSystemGroup);
+	static int StaticMain(CModAppSystemGroup* pModAppSystemGroup);
+	static bool StaticCreate(CModAppSystemGroup* pModAppSystemGroup);
 	static void InitPluginSystem(CModAppSystemGroup* pModAppSystemGroup);
 
 	bool IsServerOnly(void) const
@@ -88,19 +91,19 @@ class VApplication : public IDetour
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const
 	{
-		DetourAttach((LPVOID*)&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::PreInit);
-		DetourAttach((LPVOID*)&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::Create);
+		DetourAttach((LPVOID*)&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::StaticPreInit);
+		DetourAttach((LPVOID*)&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::StaticCreate);
 
-		DetourAttach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::Main);
-		DetourAttach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::Create);
+		DetourAttach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::StaticMain);
+		DetourAttach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::StaticCreate);
 	}
 	virtual void Detach(void) const
 	{
-		DetourDetach((LPVOID*)&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::PreInit);
-		DetourDetach((LPVOID*)&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::Create);
+		DetourDetach((LPVOID*)&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::StaticPreInit);
+		DetourDetach((LPVOID*)&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::StaticCreate);
 
-		DetourDetach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::Main);
-		DetourDetach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::Create);
+		DetourDetach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::StaticMain);
+		DetourDetach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::StaticCreate);
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: Initialize plugin system
 //-----------------------------------------------------------------------------
-void CAppSystemGroup::S_Destroy(CAppSystemGroup* pModAppSystemGroup)
+void CAppSystemGroup::StaticDestroy(CAppSystemGroup* pModAppSystemGroup)
 {
 	CAppSystemGroup_Destroy(pModAppSystemGroup);
 }
@@ -27,9 +27,9 @@ CAppSystemGroup::AppSystemGroupStage_t CAppSystemGroup::GetCurrentStage() const
 
 void VAppSystemGroup::Attach(void) const
 {
-	DetourAttach(&CAppSystemGroup_Destroy, &CAppSystemGroup::S_Destroy);
+	DetourAttach(&CAppSystemGroup_Destroy, &CAppSystemGroup::StaticDestroy);
 }
 void VAppSystemGroup::Detach(void) const
 {
-	DetourDetach(&CAppSystemGroup_Destroy, &CAppSystemGroup::S_Destroy);
+	DetourDetach(&CAppSystemGroup_Destroy, &CAppSystemGroup::StaticDestroy);
 }

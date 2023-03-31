@@ -71,7 +71,7 @@ public:
 	};
 
 	// Detour statics.
-	static void S_Destroy(CAppSystemGroup* pAppSystemGroup);
+	static void StaticDestroy(CAppSystemGroup* pAppSystemGroup);
 
 	// Returns the stage at which the app system group ran into an error
 	AppSystemGroupStage_t GetCurrentStage() const;
@@ -90,8 +90,8 @@ protected:
 	CUtlVector<CreateInterfaceFn> m_NonAppSystemFactories;
 	char m_Pad[56]; // <-- unknown
 	AppSystemGroupStage_t m_nCurrentStage;
-	CFileSystem_Stdio* m_pFileSystem;
 };
+static_assert(sizeof(CAppSystemGroup) == 0xA8);
 
 inline CMemory p_CAppSystemGroup_Destroy;
 inline auto CAppSystemGroup_Destroy = p_CAppSystemGroup_Destroy.RCast<void(*)(CAppSystemGroup* pAppSystemGroup)>();
