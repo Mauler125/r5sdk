@@ -1,10 +1,10 @@
 #pragma once
+#include "public/interface.h"
 
 /*-----------------------------------------------------------------------------
  * _interfaces.h
  *-----------------------------------------------------------------------------*/
 
-// Maybe make them constexpr.
 #define VENGINE_LAUNCHER_API_VERSION              "VENGINE_LAUNCHER_API_VERSION004"
 #define VENGINE_GAMEUIFUNCS_VERSION               "VENGINE_GAMEUIFUNCS_VERSION005"
 
@@ -41,42 +41,6 @@
 #define FACTORY_INTERFACE_VERSION                 "VFactorySystem001"
 #define FILESYSTEM_INTERFACE_VERSION              "VFileSystem017"
 #define BASEFILESYSTEM_INTERFACE_VERSION          "VBaseFileSystem011"
-//-----------------------------------------------------------------------------
-
-enum class InterfaceStatus_t : int
-{
-	IFACE_OK = 0,
-	IFACE_FAILED
-};
-
-//-----------------------------------------------------------------------------
-// Mapping of interface string to globals
-//-----------------------------------------------------------------------------
-typedef void* (*CreateInterfaceFn)(const char* pName, int* pReturnCode);
-typedef void* (*InstantiateInterfaceFn)();
-typedef HINSTANCE CSysModule;
-
-struct InterfaceGlobals_t
-{
-	InstantiateInterfaceFn m_pInterfacePtr;
-	const char* m_pInterfaceName;
-	InterfaceGlobals_t* m_pNextInterfacePtr;
-};
-//-----------------------------------------------------------------------------
-
-struct FactoryInfo_t
-{
-	CMemory m_pFactoryPtr;
-	string m_szFactoryFullName;
-	string m_szFactoryName;
-	string m_szFactoryVersion;
-
-	FactoryInfo_t() : m_szFactoryFullName(string()), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(nullptr) {}
-	FactoryInfo_t(string factoryFullName, string factoryName, string factoryVersion, uintptr_t factoryPtr) : 
-		m_szFactoryFullName(factoryFullName), m_szFactoryName(factoryName), m_szFactoryVersion(factoryVersion), m_pFactoryPtr(factoryPtr) {}
-	FactoryInfo_t(string factoryFullName, uintptr_t factoryPtr) : 
-		m_szFactoryFullName(factoryFullName), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(factoryPtr) {}
-};
 
 //-----------------------------------------------------------------------------
 // Class to hold all factories (interfaces)

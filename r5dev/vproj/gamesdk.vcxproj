@@ -390,6 +390,7 @@
     <ClInclude Include="..\public\inetchannel.h" />
     <ClInclude Include="..\public\inetmessage.h" />
     <ClInclude Include="..\public\inetmsghandler.h" />
+    <ClInclude Include="..\public\interface.h" />
     <ClInclude Include="..\public\ipackedstore.h" />
     <ClInclude Include="..\public\iserver.h" />
     <ClInclude Include="..\public\iserverentity.h" />

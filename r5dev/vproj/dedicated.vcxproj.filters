@@ -1095,6 +1095,9 @@
     <ClInclude Include="..\tier1\utlstring.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\interface.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">

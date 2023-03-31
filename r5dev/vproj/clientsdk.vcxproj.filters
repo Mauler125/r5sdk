@@ -1688,6 +1688,9 @@
     <ClInclude Include="..\thirdparty\imgui\misc\imgui_utility.h">
       <Filter>thirdparty\imgui\misc</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\interface.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">
