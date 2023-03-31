@@ -15,6 +15,7 @@
 #include "engine/server/server.h"
 #include "networksystem/pylon.h"
 #include "networksystem/bansystem.h"
+#include "ebisusdk/EbisuSDK.h"
 #include "public/edict.h"
 
 //---------------------------------------------------------------------------------
@@ -94,7 +95,8 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 	if (bEnableLogging)
 		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '%s' ('%llu')\n", pszAddresBuffer, nNucleusID);
 
-	if (!pUserID || !pUserID[0] || !IsValidUTF8(pUserID)) // Only proceed connection if the client's name is valid and UTF-8 encoded.
+	// Only proceed connection if the client's name is valid and UTF-8 encoded.
+	if (!pUserID || !pUserID[0] || !IsValidUTF8(pUserID) || !IsValidPersonaName(pUserID))
 	{
 		RejectConnection(m_Socket, &pChallenge->m_nAddr, "#Valve_Reject_Invalid_Name");
 		if (bEnableLogging)
@@ -103,11 +105,11 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 		return false;
 	}
 
-	if (g_pBanSystem->IsBanListValid()) // Is the banned list vector valid?
+	if (g_pBanSystem->IsBanListValid())
 	{
-		if (g_pBanSystem->IsBanned(pszAddresBuffer, nNucleusID)) // Is the client trying to connect banned?
+		if (g_pBanSystem->IsBanned(pszAddresBuffer, nNucleusID))
 		{
-			RejectConnection(m_Socket, &pChallenge->m_nAddr, "#Valve_Reject_Banned"); // RejectConnection for the client.
+			RejectConnection(m_Socket, &pChallenge->m_nAddr, "#Valve_Reject_Banned");
 			if (bEnableLogging)
 				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", pszAddresBuffer, nNucleusID);
 

@@ -87,13 +87,17 @@ ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_updaterate_mp                   = nullptr;
 ConVar* sv_updaterate_sp                   = nullptr;
-
 ConVar* sv_autoReloadRate                  = nullptr;
-ConVar* sv_quota_stringCmdsPerSecond       = nullptr;
 
 ConVar* sv_simulateBots                    = nullptr;
 ConVar* sv_showhitboxes                    = nullptr;
 ConVar* sv_stats                           = nullptr;
+
+ConVar* sv_quota_stringCmdsPerSecond       = nullptr;
+
+ConVar* sv_validatePersonaName             = nullptr;
+ConVar* sv_minPersonaNameLength            = nullptr;
+ConVar* sv_maxPersonaNameLength            = nullptr;
 
 //#ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
@@ -333,7 +337,6 @@ void ConVar::Init(void)
 	sv_banlistRefreshRate = ConVar::StaticCreate("sv_banlistRefreshRate", "1.0", FCVAR_RELEASE, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshRate  = ConVar::StaticCreate("sv_statusRefreshRate" , "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_autoReloadRate     = ConVar::StaticCreate("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
-	sv_quota_stringCmdsPerSecond = ConVar::StaticCreate("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_simulateBots = ConVar::StaticCreate("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.", true, 0.f, false, 0.f, nullptr, nullptr);
 
 	sv_rcon_debug       = ConVar::StaticCreate("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -343,6 +346,11 @@ void ConVar::Init(void)
 	sv_rcon_maxignores  = ConVar::StaticCreate("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the instruction message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = ConVar::StaticCreate("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = ConVar::StaticCreate("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'");
+
+	sv_quota_stringCmdsPerSecond = ConVar::StaticCreate("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_validatePersonaName  = ConVar::StaticCreate("sv_validatePersonaName" , "1" , FCVAR_RELEASE, "Validate the client's textual persona name on connect.", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_minPersonaNameLength = ConVar::StaticCreate("sv_minPersonaNameLength", "4" , FCVAR_RELEASE, "The minimum length of the client's textual persona name.", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_maxPersonaNameLength = ConVar::StaticCreate("sv_maxPersonaNameLength", "16", FCVAR_RELEASE, "The maximum length of the client's textual persona name.", true, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !CLIENT_DLL
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_depth_test = ConVar::StaticCreate("bhit_depth_test", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use depth test for bullet ray trace overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -449,7 +457,7 @@ void ConVar::Init(void)
 	//-------------------------------------------------------------------------
 	// MILES                                                                  |
 #ifndef DEDICATED
-	miles_debug = ConVar::StaticCreate("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System", false, 0.f, false, 0.f, nullptr, " 1 = Print, 0 = No Print");
+	miles_debug = ConVar::StaticCreate("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System.", false, 0.f, false, 0.f, nullptr, " 1 = Print, 0 = No Print");
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 }

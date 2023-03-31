@@ -93,13 +93,17 @@ extern ConVar* sv_forceChatToTeamOnly;
 
 extern ConVar* sv_updaterate_mp;
 extern ConVar* sv_updaterate_sp;
-
 extern ConVar* sv_autoReloadRate;
-extern ConVar* sv_quota_stringCmdsPerSecond;
 
 extern ConVar* sv_simulateBots;
 extern ConVar* sv_showhitboxes;
 extern ConVar* sv_stats;
+
+extern ConVar* sv_quota_stringCmdsPerSecond;
+
+extern ConVar* sv_validatePersonaName;
+extern ConVar* sv_minPersonaNameLength;
+extern ConVar* sv_maxPersonaNameLength;
 
 //#ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
