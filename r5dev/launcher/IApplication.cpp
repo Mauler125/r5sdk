@@ -38,11 +38,15 @@
 //-----------------------------------------------------------------------------
 bool CSourceAppSystemGroup::PreInit(CSourceAppSystemGroup* pSourceAppSystemGroup)
 {
-	ConVar::InitShipped();
-	ConVar::PurgeShipped();
-	ConCommand::StaticInit();
-	ConCommand::InitShipped();
-	ConCommand::PurgeShipped();
+	if (pSourceAppSystemGroup->GetCurrentStage() == CSourceAppSystemGroup::CREATION)
+	{
+		ConVar::InitShipped();
+		ConVar::PurgeShipped();
+		ConCommand::StaticInit();
+		ConCommand::InitShipped();
+		ConCommand::PurgeShipped();
+	}
+
 	return CSourceAppSystemGroup__PreInit(pSourceAppSystemGroup);
 }
 
