@@ -398,7 +398,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	CoreMsgV(LogType_t::LOG_INFO, LogLevel_t::LEVEL_NOTIFY, context, "sdk(message)", fmt, args);
+	CoreMsgV(LogType_t::LOG_INFO, LogLevel_t::LEVEL_NOTIFY, context, "sdk", fmt, args);
 	va_end(args);
 }
 

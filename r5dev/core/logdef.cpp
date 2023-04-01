@@ -64,13 +64,13 @@ void SpdLog_Init(void)
 void SpdLog_Create()
 {
 	/************************
-	* ROTATE LOGGER SETUP  *
+	 * ROTATE LOGGER SETUP  *
 	 ************************/
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("squirrel_re(warning)"
 		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "script_warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("squirrel_re"
 		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "script.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(message)"
+	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk"
 		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "message.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(warning)"
 		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
