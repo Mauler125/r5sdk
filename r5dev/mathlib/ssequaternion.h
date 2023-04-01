@@ -537,7 +537,7 @@ public:
 #endif
 
 	// rotate (in place) a FourVectors by this quaternion. there's a corresponding RotateBy in FourVectors.
-	FORCEINLINE void RotateFourVectors(FourVectors* RESTRICT vecs) const RESTRICT;
+	FORCEINLINE void RotateFourVectors(FourVectors* /*RESTRICT*/ vecs) const /*RESTRICT*/;
 
 
 	/// LoadAndSwizzleAligned - load 4 QuaternionAligneds into a FourQuaternions, performing transpose op.
@@ -890,7 +890,7 @@ FORCEINLINE FourQuaternions FourQuaternions::Mul(FourQuaternions const& q) const
 }
 
 
-FORCEINLINE void FourQuaternions::RotateFourVectors(FourVectors* RESTRICT vecs) const RESTRICT
+FORCEINLINE void FourQuaternions::RotateFourVectors(FourVectors* /*RESTRICT*/ vecs) const /*RESTRICT*/
 {
 	fltx4 tmpX, tmpY, tmpZ, tmpW;
 	fltx4 outX, outY, outZ;
