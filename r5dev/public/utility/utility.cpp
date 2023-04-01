@@ -600,7 +600,7 @@ bool IsValidUTF8(char* pszString)
 
                 pszString = it + 4;
             }
-            else if ((n - 55296) <= 0x7FF)
+            else if ((n - 0xD800) <= 0x7FF)
             {
                 return false;
             }
