@@ -354,7 +354,7 @@ public:
 	ConVar(void);
 	virtual ~ConVar(void) { };
 
-	static void Init(void);
+	static void StaticInit(void);
 	static void InitShipped(void);
 
 	static void PurgeShipped(void);

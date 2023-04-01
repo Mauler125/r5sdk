@@ -289,7 +289,7 @@ ConVar::ConVar(void)
 //-----------------------------------------------------------------------------
 // Purpose: initialize ConVar's
 //-----------------------------------------------------------------------------
-void ConVar::Init(void)
+void ConVar::StaticInit(void)
 {
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
@@ -1683,9 +1683,9 @@ CConCommandHash::CCommandHashHandle_t CConCommandHash::FastInsert(ConCommandBase
 //-----------------------------------------------------------------------------
 // Purpose: Remove a given element from the hash.
 //-----------------------------------------------------------------------------
-void CConCommandHash::Remove(CCommandHashHandle_t hHash) RESTRICT
+void CConCommandHash::Remove(CCommandHashHandle_t hHash) /*RESTRICT*/
 {
-	HashEntry_t* RESTRICT entry = &m_aDataPool[hHash];
+	HashEntry_t* /*RESTRICT*/ entry = &m_aDataPool[hHash];
 	HashKey_t iBucket = entry->m_uiKey & kBUCKETMASK;
 	if (m_aBuckets[iBucket] == hHash)
 	{
@@ -1714,7 +1714,7 @@ void CConCommandHash::RemoveAll(void)
 //-----------------------------------------------------------------------------
 // Find hash entry corresponding to a string name
 //-----------------------------------------------------------------------------
-CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const char* name, HashKey_t hashkey) const RESTRICT
+CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const char* name, HashKey_t hashkey) const /*RESTRICT*/
 {
 	// hash the "key" - get the correct hash table "bucket"
 	int iBucket = hashkey & kBUCKETMASK;
@@ -1736,7 +1736,7 @@ CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const char* name, Ha
 //-----------------------------------------------------------------------------
 // Find a command in the hash.
 //-----------------------------------------------------------------------------
-CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const ConCommandBase* cmd) const RESTRICT
+CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const ConCommandBase* cmd) const /*RESTRICT*/
 {
 	// Set this #if to 1 if the assert at bottom starts whining --
 	// that indicates that a console command is being double-registered,

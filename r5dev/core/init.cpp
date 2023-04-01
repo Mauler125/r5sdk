@@ -183,7 +183,7 @@ void Systems_Init()
 	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Attach()", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 
-	ConVar::Init();
+	ConVar::StaticInit();
 }
 
 //////////////////////////////////////////////////////////////////////////
