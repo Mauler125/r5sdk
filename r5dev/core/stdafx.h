@@ -35,6 +35,8 @@
 #include <set>
 #include <unordered_set>
 
+#include <smmintrin.h>
+
 // Windows specifics.
 #ifndef FILE_SUPPORTS_GHOSTING
 #define FILE_SUPPORTS_GHOSTING 0x40000000  // winnt
