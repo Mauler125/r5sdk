@@ -121,136 +121,144 @@ static const pair<uint8_t, uint8_t> s_pBytesPerPixel[] =
   { 0u, 0u }
 };
 
-// Map of dxgi format to txtr asset format
-static const std::map<DXGI_FORMAT, uint16_t> s_DxgiToTxtrTable{
-	{ DXGI_FORMAT_BC1_UNORM, 0 },
-	{ DXGI_FORMAT_BC1_UNORM_SRGB, 1 },
-	{ DXGI_FORMAT_BC2_UNORM, 2 },
-	{ DXGI_FORMAT_BC2_UNORM_SRGB, 3 },
-	{ DXGI_FORMAT_BC3_UNORM, 4 },
-	{ DXGI_FORMAT_BC3_UNORM_SRGB, 5 },
-	{ DXGI_FORMAT_BC4_UNORM, 6 },
-	{ DXGI_FORMAT_BC4_SNORM, 7 },
-	{ DXGI_FORMAT_BC5_UNORM, 8 },
-	{ DXGI_FORMAT_BC5_SNORM, 9 },
-	{ DXGI_FORMAT_BC6H_UF16, 10 },
-	{ DXGI_FORMAT_BC6H_SF16, 11 },
-	{ DXGI_FORMAT_BC7_UNORM, 12 },
-	{ DXGI_FORMAT_BC7_UNORM_SRGB, 13 },
-	{ DXGI_FORMAT_R32G32B32A32_FLOAT, 14 },
-	{ DXGI_FORMAT_R32G32B32A32_UINT, 15 },
-	{ DXGI_FORMAT_R32G32B32A32_SINT, 16 },
-	{ DXGI_FORMAT_R32G32B32_FLOAT, 17 },
-	{ DXGI_FORMAT_R32G32B32_UINT, 18 },
-	{ DXGI_FORMAT_R32G32B32_SINT, 19 },
-	{ DXGI_FORMAT_R16G16B16A16_FLOAT, 20 },
-	{ DXGI_FORMAT_R16G16B16A16_UNORM, 21 },
-	{ DXGI_FORMAT_R16G16B16A16_UINT, 22 },
-	{ DXGI_FORMAT_R16G16B16A16_SNORM, 23 },
-	{ DXGI_FORMAT_R16G16B16A16_SINT, 24 },
-	{ DXGI_FORMAT_R32G32_FLOAT, 25 },
-	{ DXGI_FORMAT_R32G32_UINT, 26 },
-	{ DXGI_FORMAT_R32G32_SINT, 27 },
-	{ DXGI_FORMAT_R10G10B10A2_UNORM, 28 },
-	{ DXGI_FORMAT_R10G10B10A2_UINT, 29 },
-	{ DXGI_FORMAT_R11G11B10_FLOAT, 30 },
-	{ DXGI_FORMAT_R8G8B8A8_UNORM, 31 },
-	{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 32 },
-	{ DXGI_FORMAT_R8G8B8A8_UINT, 33 },
-	{ DXGI_FORMAT_R8G8B8A8_SNORM, 34 },
-	{ DXGI_FORMAT_R8G8B8A8_SINT, 35 },
-	{ DXGI_FORMAT_R16G16_FLOAT, 36 },
-	{ DXGI_FORMAT_R16G16_UNORM, 37 },
-	{ DXGI_FORMAT_R16G16_UINT, 38 },
-	{ DXGI_FORMAT_R16G16_SNORM, 39 },
-	{ DXGI_FORMAT_R16G16_SINT, 40 },
-	{ DXGI_FORMAT_R32_FLOAT, 41 },
-	{ DXGI_FORMAT_R32_UINT, 42 },
-	{ DXGI_FORMAT_R32_SINT, 43 },
-	{ DXGI_FORMAT_R8G8_UNORM, 44 },
-	{ DXGI_FORMAT_R8G8_UINT, 45 },
-	{ DXGI_FORMAT_R8G8_SNORM, 46 },
-	{ DXGI_FORMAT_R8G8_SINT, 47 },
-	{ DXGI_FORMAT_R16_FLOAT, 48 },
-	{ DXGI_FORMAT_R16_UNORM, 49 },
-	{ DXGI_FORMAT_R16_UINT, 50 },
-	{ DXGI_FORMAT_R16_SNORM, 51 },
-	{ DXGI_FORMAT_R16_SINT, 52 },
-	{ DXGI_FORMAT_R8_UNORM, 53 },
-	{ DXGI_FORMAT_R8_UINT, 54 },
-	{ DXGI_FORMAT_R8_SNORM, 55 },
-	{ DXGI_FORMAT_R8_SINT, 56 },
-	{ DXGI_FORMAT_A8_UNORM, 57 },
-	{ DXGI_FORMAT_R9G9B9E5_SHAREDEXP, 58 },
-	{ DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM, 59 },
-	{ DXGI_FORMAT_D32_FLOAT, 60 },
-	{ DXGI_FORMAT_D16_UNORM, 61 },
-};
+// Map dxgi format to txtr asset format
+inline int DxgiFormatToTxtrAsset(DXGI_FORMAT dxgi)
+{
+	switch (dxgi)
+	{
+		case DXGI_FORMAT_BC1_UNORM                 : return 0;
+		case DXGI_FORMAT_BC1_UNORM_SRGB            : return 1;
+		case DXGI_FORMAT_BC2_UNORM                 : return 2;
+		case DXGI_FORMAT_BC2_UNORM_SRGB            : return 3;
+		case DXGI_FORMAT_BC3_UNORM                 : return 4;
+		case DXGI_FORMAT_BC3_UNORM_SRGB            : return 5;
+		case DXGI_FORMAT_BC4_UNORM                 : return 6;
+		case DXGI_FORMAT_BC4_SNORM                 : return 7;
+		case DXGI_FORMAT_BC5_UNORM                 : return 8;
+		case DXGI_FORMAT_BC5_SNORM                 : return 9;
+		case DXGI_FORMAT_BC6H_UF16                 : return 10;
+		case DXGI_FORMAT_BC6H_SF16                 : return 11;
+		case DXGI_FORMAT_BC7_UNORM                 : return 12;
+		case DXGI_FORMAT_BC7_UNORM_SRGB            : return 13;
+		case DXGI_FORMAT_R32G32B32A32_FLOAT        : return 14;
+		case DXGI_FORMAT_R32G32B32A32_UINT         : return 15;
+		case DXGI_FORMAT_R32G32B32A32_SINT         : return 16;
+		case DXGI_FORMAT_R32G32B32_FLOAT           : return 17;
+		case DXGI_FORMAT_R32G32B32_UINT            : return 18;
+		case DXGI_FORMAT_R32G32B32_SINT            : return 19;
+		case DXGI_FORMAT_R16G16B16A16_FLOAT        : return 20;
+		case DXGI_FORMAT_R16G16B16A16_UNORM        : return 21;
+		case DXGI_FORMAT_R16G16B16A16_UINT         : return 22;
+		case DXGI_FORMAT_R16G16B16A16_SNORM        : return 23;
+		case DXGI_FORMAT_R16G16B16A16_SINT         : return 24;
+		case DXGI_FORMAT_R32G32_FLOAT              : return 25;
+		case DXGI_FORMAT_R32G32_UINT               : return 26;
+		case DXGI_FORMAT_R32G32_SINT               : return 27;
+		case DXGI_FORMAT_R10G10B10A2_UNORM         : return 28;
+		case DXGI_FORMAT_R10G10B10A2_UINT          : return 29;
+		case DXGI_FORMAT_R11G11B10_FLOAT           : return 30;
+		case DXGI_FORMAT_R8G8B8A8_UNORM            : return 31;
+		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB       : return 32;
+		case DXGI_FORMAT_R8G8B8A8_UINT             : return 33;
+		case DXGI_FORMAT_R8G8B8A8_SNORM            : return 34;
+		case DXGI_FORMAT_R8G8B8A8_SINT             : return 35;
+		case DXGI_FORMAT_R16G16_FLOAT              : return 36;
+		case DXGI_FORMAT_R16G16_UNORM              : return 37;
+		case DXGI_FORMAT_R16G16_UINT               : return 38;
+		case DXGI_FORMAT_R16G16_SNORM              : return 39;
+		case DXGI_FORMAT_R16G16_SINT               : return 40;
+		case DXGI_FORMAT_R32_FLOAT                 : return 41;
+		case DXGI_FORMAT_R32_UINT                  : return 42;
+		case DXGI_FORMAT_R32_SINT                  : return 43;
+		case DXGI_FORMAT_R8G8_UNORM                : return 44;
+		case DXGI_FORMAT_R8G8_UINT                 : return 45;
+		case DXGI_FORMAT_R8G8_SNORM                : return 46;
+		case DXGI_FORMAT_R8G8_SINT                 : return 47;
+		case DXGI_FORMAT_R16_FLOAT                 : return 48;
+		case DXGI_FORMAT_R16_UNORM                 : return 49;
+		case DXGI_FORMAT_R16_UINT                  : return 50;
+		case DXGI_FORMAT_R16_SNORM                 : return 51;
+		case DXGI_FORMAT_R16_SINT                  : return 52;
+		case DXGI_FORMAT_R8_UNORM                  : return 53;
+		case DXGI_FORMAT_R8_UINT                   : return 54;
+		case DXGI_FORMAT_R8_SNORM                  : return 55;
+		case DXGI_FORMAT_R8_SINT                   : return 56;
+		case DXGI_FORMAT_A8_UNORM                  : return 57;
+		case DXGI_FORMAT_R9G9B9E5_SHAREDEXP        : return 58;
+		case DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM: return 59;
+		case DXGI_FORMAT_D32_FLOAT                 : return 60;
+		case DXGI_FORMAT_D16_UNORM                 : return 61;
+	}
+}
 
-// Map of txtr asset format to dxgi format
-static const std::map<uint16_t, DXGI_FORMAT> s_TxtrToDxgiTable{
-	{ 0, DXGI_FORMAT_BC1_UNORM },
-	{ 1, DXGI_FORMAT_BC1_UNORM_SRGB },
-	{ 2, DXGI_FORMAT_BC2_UNORM },
-	{ 3, DXGI_FORMAT_BC2_UNORM_SRGB },
-	{ 4, DXGI_FORMAT_BC3_UNORM },
-	{ 5, DXGI_FORMAT_BC3_UNORM_SRGB},
-	{ 6, DXGI_FORMAT_BC4_UNORM },
-	{ 7, DXGI_FORMAT_BC4_SNORM },
-	{ 8, DXGI_FORMAT_BC5_UNORM },
-	{ 9, DXGI_FORMAT_BC5_SNORM },
-	{ 10, DXGI_FORMAT_BC6H_UF16 },
-	{ 11, DXGI_FORMAT_BC6H_SF16 },
-	{ 12, DXGI_FORMAT_BC7_UNORM },
-	{ 13, DXGI_FORMAT_BC7_UNORM_SRGB },
-	{ 14, DXGI_FORMAT_R32G32B32A32_FLOAT },
-	{ 15, DXGI_FORMAT_R32G32B32A32_UINT },
-	{ 16, DXGI_FORMAT_R32G32B32A32_SINT },
-	{ 17, DXGI_FORMAT_R32G32B32_FLOAT },
-	{ 18, DXGI_FORMAT_R32G32B32_UINT },
-	{ 19, DXGI_FORMAT_R32G32B32_SINT },
-	{ 20, DXGI_FORMAT_R16G16B16A16_FLOAT },
-	{ 21, DXGI_FORMAT_R16G16B16A16_UNORM },
-	{ 22, DXGI_FORMAT_R16G16B16A16_UINT },
-	{ 23, DXGI_FORMAT_R16G16B16A16_SNORM },
-	{ 24, DXGI_FORMAT_R16G16B16A16_SINT },
-	{ 25, DXGI_FORMAT_R32G32_FLOAT },
-	{ 26, DXGI_FORMAT_R32G32_UINT },
-	{ 27, DXGI_FORMAT_R32G32_SINT },
-	{ 28, DXGI_FORMAT_R10G10B10A2_UNORM },
-	{ 29, DXGI_FORMAT_R10G10B10A2_UINT },
-	{ 30, DXGI_FORMAT_R11G11B10_FLOAT },
-	{ 31, DXGI_FORMAT_R8G8B8A8_UNORM },
-	{ 32, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB },
-	{ 33, DXGI_FORMAT_R8G8B8A8_UINT },
-	{ 34, DXGI_FORMAT_R8G8B8A8_SNORM },
-	{ 35, DXGI_FORMAT_R8G8B8A8_SINT },
-	{ 36, DXGI_FORMAT_R16G16_FLOAT },
-	{ 37, DXGI_FORMAT_R16G16_UNORM },
-	{ 38, DXGI_FORMAT_R16G16_UINT },
-	{ 39, DXGI_FORMAT_R16G16_SNORM },
-	{ 40, DXGI_FORMAT_R16G16_SINT },
-	{ 41, DXGI_FORMAT_R32_FLOAT },
-	{ 42, DXGI_FORMAT_R32_UINT },
-	{ 43, DXGI_FORMAT_R32_SINT },
-	{ 44, DXGI_FORMAT_R8G8_UNORM },
-	{ 45, DXGI_FORMAT_R8G8_UINT },
-	{ 46, DXGI_FORMAT_R8G8_SNORM },
-	{ 47, DXGI_FORMAT_R8G8_SINT },
-	{ 48, DXGI_FORMAT_R16_FLOAT },
-	{ 49, DXGI_FORMAT_R16_UNORM },
-	{ 50, DXGI_FORMAT_R16_UINT },
-	{ 51, DXGI_FORMAT_R16_SNORM },
-	{ 52, DXGI_FORMAT_R16_SINT },
-	{ 53, DXGI_FORMAT_R8_UNORM },
-	{ 54, DXGI_FORMAT_R8_UINT },
-	{ 55, DXGI_FORMAT_R8_SNORM },
-	{ 56, DXGI_FORMAT_R8_SINT },
-	{ 57, DXGI_FORMAT_A8_UNORM},
-	{ 58, DXGI_FORMAT_R9G9B9E5_SHAREDEXP },
-	{ 59, DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM },
-	{ 60, DXGI_FORMAT_D32_FLOAT },
-	{ 61, DXGI_FORMAT_D16_UNORM },
+// Map txtr asset format to dxgi format
+inline DXGI_FORMAT TxtrAssetToDxgiFormat(int txtr)
+{
+	switch (txtr)
+	{
+		case 0 : return DXGI_FORMAT_BC1_UNORM;
+		case 1 : return DXGI_FORMAT_BC1_UNORM_SRGB;
+		case 2 : return DXGI_FORMAT_BC2_UNORM;
+		case 3 : return DXGI_FORMAT_BC2_UNORM_SRGB;
+		case 4 : return DXGI_FORMAT_BC3_UNORM;
+		case 5 : return DXGI_FORMAT_BC3_UNORM_SRGB;
+		case 6 : return DXGI_FORMAT_BC4_UNORM;
+		case 7 : return DXGI_FORMAT_BC4_SNORM;
+		case 8 : return DXGI_FORMAT_BC5_UNORM;
+		case 9 : return DXGI_FORMAT_BC5_SNORM;
+		case 10: return DXGI_FORMAT_BC6H_UF16;
+		case 11: return DXGI_FORMAT_BC6H_SF16;
+		case 12: return DXGI_FORMAT_BC7_UNORM;
+		case 13: return DXGI_FORMAT_BC7_UNORM_SRGB;
+		case 14: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case 15: return DXGI_FORMAT_R32G32B32A32_UINT;
+		case 16: return DXGI_FORMAT_R32G32B32A32_SINT;
+		case 17: return DXGI_FORMAT_R32G32B32_FLOAT;
+		case 18: return DXGI_FORMAT_R32G32B32_UINT;
+		case 19: return DXGI_FORMAT_R32G32B32_SINT;
+		case 20: return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		case 21: return DXGI_FORMAT_R16G16B16A16_UNORM;
+		case 22: return DXGI_FORMAT_R16G16B16A16_UINT;
+		case 23: return DXGI_FORMAT_R16G16B16A16_SNORM;
+		case 24: return DXGI_FORMAT_R16G16B16A16_SINT;
+		case 25: return DXGI_FORMAT_R32G32_FLOAT;
+		case 26: return DXGI_FORMAT_R32G32_UINT;
+		case 27: return DXGI_FORMAT_R32G32_SINT;
+		case 28: return DXGI_FORMAT_R10G10B10A2_UNORM;
+		case 29: return DXGI_FORMAT_R10G10B10A2_UINT;
+		case 30: return DXGI_FORMAT_R11G11B10_FLOAT;
+		case 31: return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case 32: return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		case 33: return DXGI_FORMAT_R8G8B8A8_UINT;
+		case 34: return DXGI_FORMAT_R8G8B8A8_SNORM;
+		case 35: return DXGI_FORMAT_R8G8B8A8_SINT;
+		case 36: return DXGI_FORMAT_R16G16_FLOAT;
+		case 37: return DXGI_FORMAT_R16G16_UNORM;
+		case 38: return DXGI_FORMAT_R16G16_UINT;
+		case 39: return DXGI_FORMAT_R16G16_SNORM;
+		case 40: return DXGI_FORMAT_R16G16_SINT;
+		case 41: return DXGI_FORMAT_R32_FLOAT;
+		case 42: return DXGI_FORMAT_R32_UINT;
+		case 43: return DXGI_FORMAT_R32_SINT;
+		case 44: return DXGI_FORMAT_R8G8_UNORM;
+		case 45: return DXGI_FORMAT_R8G8_UINT;
+		case 46: return DXGI_FORMAT_R8G8_SNORM;
+		case 47: return DXGI_FORMAT_R8G8_SINT;
+		case 48: return DXGI_FORMAT_R16_FLOAT;
+		case 49: return DXGI_FORMAT_R16_UNORM;
+		case 50: return DXGI_FORMAT_R16_UINT;
+		case 51: return DXGI_FORMAT_R16_SNORM;
+		case 52: return DXGI_FORMAT_R16_SINT;
+		case 53: return DXGI_FORMAT_R8_UNORM;
+		case 54: return DXGI_FORMAT_R8_UINT;
+		case 55: return DXGI_FORMAT_R8_SNORM;
+		case 56: return DXGI_FORMAT_R8_SINT;
+		case 57: return DXGI_FORMAT_A8_UNORM;
+		case 58: return DXGI_FORMAT_R9G9B9E5_SHAREDEXP;
+		case 59: return DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM;
+		case 60: return DXGI_FORMAT_D32_FLOAT;
+		case 61: return DXGI_FORMAT_D16_UNORM;
+	}
 };
 
 #endif // TEXTURE_G_H
