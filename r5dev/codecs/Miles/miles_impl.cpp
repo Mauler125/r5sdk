@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 void AIL_LogFunc(int64_t nLogLevel, const char* pszMessage)
 {
-	DevMsg(eDLL_T::AUDIO, pszMessage);
+	DevMsg(eDLL_T::AUDIO, "%s\n", pszMessage);
 	v_AIL_LogFunc(nLogLevel, pszMessage);
 }
 
