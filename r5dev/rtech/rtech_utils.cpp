@@ -545,7 +545,7 @@ void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
 		} while (mipLevel != totalStreamedMips);
 	}
 
-	const DXGI_FORMAT dxgiFormat = TxtrAssetToDxgiFormat(textureHeader->m_nImageFormat); // Get dxgi format
+	const DXGI_FORMAT dxgiFormat = g_TxtrAssetToDxgiFormat[textureHeader->m_nImageFormat]; // Get dxgi format
 
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = textureHeader->m_nWidth >> mipLevel;
