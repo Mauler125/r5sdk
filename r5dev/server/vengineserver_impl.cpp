@@ -13,31 +13,21 @@
 //-----------------------------------------------------------------------------
 // Purpose: sets the persistence var in the CClient instance to 'ready'
 //-----------------------------------------------------------------------------
-bool CVEngineServer::PersistenceAvailable(void* entidx, int clienthandle)
+bool CVEngineServer::PersistenceAvailable(void* entidx, int clientidx)
 {
-	CClient* pClient = g_pClient->GetClient(clienthandle);        // Get client instance.
+	CClient* pClient = g_pClient->GetClient(clientidx);           // Get client instance.
 	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY); // Set the client instance to 'ready'.
 
-	if (!g_ServerPlayer[clienthandle].m_bPersistenceEnabled && sv_showconnecting->GetBool())
+	if (!g_ServerPlayer[clientidx].m_bPersistenceEnabled && sv_showconnecting->GetBool())
 	{
+		g_ServerPlayer[clientidx].m_bPersistenceEnabled = true;
 		CNetChan* pNetChan = pClient->GetNetChan();
 
-		string svClientName = pNetChan->GetName();
-		string svIpAddress = pNetChan->GetAddress();
-		uint64_t nNucleusID = pClient->GetNucleusID();
-
-		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "+- Enabled persistence for NetChannel:\n");
-		DevMsg(eDLL_T::SERVER, " |- IDX : | '#%d'\n", clienthandle);
-		DevMsg(eDLL_T::SERVER, " |- UID : | '%s'\n", svClientName.c_str());
-		DevMsg(eDLL_T::SERVER, " |- PID : | '%llu'\n", nNucleusID);
-		DevMsg(eDLL_T::SERVER, " |- ADR : | '%s'\n", svIpAddress.c_str());
-		DevMsg(eDLL_T::SERVER, " -------------------------------------------------------------\n");
-
-		g_ServerPlayer[clienthandle].m_bPersistenceEnabled = true;
+		DevMsg(eDLL_T::SERVER, "Enabled persistence for client #%d; channel %s(%s) ('%llu')\n",
+			clientidx, pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
 	}
 	///////////////////////////////////////////////////////////////////////////
-	return IVEngineServer__PersistenceAvailable(entidx, clienthandle);
+	return IVEngineServer__PersistenceAvailable(entidx, clientidx);
 }
 
 void HVEngineServer::Attach() const
