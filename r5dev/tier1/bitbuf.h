@@ -48,7 +48,7 @@ public:
 
 	////////////////////////////////////
 	uint32_t m_nInBufWord;
-	uint32_t m_nBitsAvail;
+	int m_nBitsAvail;
 	const uint32* m_pDataIn;
 	const uint32* m_pBufferEnd;
 	const uint32* m_pData;

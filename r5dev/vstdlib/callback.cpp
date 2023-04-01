@@ -1080,8 +1080,8 @@ void Line_f(const CCommand& args)
 	Vector3D start, end;
 	for (int i = 0; i < 3; ++i)
 	{
-		start[i] = atof(args[i + 1]);
-		end[i] = atof(args[i + 4]);
+		start[i] = float(atof(args[i + 1]));
+		end[i] = float(atof(args[i + 4]));
 	}
 
 	g_pDebugOverlay->AddLineOverlay(start, end, 255, 255, 0, !r_debug_draw_depth_test->GetBool(), 100);
@@ -1106,10 +1106,10 @@ void Sphere_f(const CCommand& args)
 	Vector3D start;
 	for (int i = 0; i < 3; ++i)
 	{
-		start[i] = atof(args[i + 1]);
+		start[i] = float(atof(args[i + 1]));
 	}
 
-	float radius = atof(args[4]);
+	float radius = float(atof(args[4]));
 	int theta = atoi(args[5]);
 	int phi = atoi(args[6]);
 
@@ -1135,9 +1135,9 @@ void Capsule_f(const CCommand& args)
 	Vector3D start, end, radius;
 	for (int i = 0; i < 3; ++i)
 	{
-		start[i] = atof(args[i + 1]);
-		end[i] = atof(args[i + 4]);
-		radius[i] = atof(args[i + 7]);
+		start[i] = float(atof(args[i + 1]));
+		end[i] = float(atof(args[i + 4]));
+		radius[i] = float(atof(args[i + 7]));
 	}
 	g_pDebugOverlay->AddCapsuleOverlay(start, end, radius, { 0,0,0 }, { 0,0,0 }, 141, 233, 135, 0, 100);
 }
@@ -1166,11 +1166,11 @@ void BHit_f(const CCommand& args)
 		Vector3D vecAbsEnd;
 
 		for (int i = 0; i < 3; ++i)
-			vecAbsStart[i] = atof(args[i + 4]);
+			vecAbsStart[i] = float(atof(args[i + 4]));
 
 		QAngle vecBulletAngles;
 		for (int i = 0; i < 2; ++i)
-			vecBulletAngles[i] = atof(args[i + 7]);
+			vecBulletAngles[i] = float(atof(args[i + 7]));
 
 		vecBulletAngles.z = 180.f; // Flipped axis.
 		AngleVectors(vecBulletAngles, &vecAbsEnd);

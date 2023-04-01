@@ -457,10 +457,10 @@ const CPUInformation& GetCPUInformation(void)
 
 	// Fixing: si.dwNumberOfProcessors is the number of logical processors according to experiments on i7, P4 and a DirectX sample (Aug'09).
 	// This is contrary to MSDN documentation on GetSystemInfo().
-	pi.m_nLogicalProcessors = si.dwNumberOfProcessors;
+	pi.m_nLogicalProcessors = uint8_t(si.dwNumberOfProcessors);
 
 	CpuTopology topo;
-	pi.m_nPhysicalProcessors = topo.NumberOfSystemCores();
+	pi.m_nPhysicalProcessors = uint8_t(topo.NumberOfSystemCores());
 
 	// Make sure I always report at least one, when running WinXP with the /ONECPU switch, 
 	// it likes to report 0 processors for some reason.

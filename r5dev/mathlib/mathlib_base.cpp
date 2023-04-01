@@ -5796,9 +5796,9 @@ const Quaternion RandomQuaternion()
 {
 	// Guarantee uniform distribution within S^3. Found on the internet, looked through the proof very briefly, looks sound enough to tentatively trust it before testing or checking the proof for real.
 	// http://mathproofs.blogspot.com/2005/05/uniformly-distributed-random-unit.html
-	float u = RandomFloat(0, 2 * M_PI), flSinU = sinf(u);
+	float u = RandomFloat(0, float(2 * M_PI)), flSinU = sinf(u);
 	float v = acosf(RandomFloat(-1, 1)), flSinV = sinf(v);
-	float w = 0.5f * (RandomFloat(0, M_PI) + acosf(RandomFloat(0, 1)) + M_PI / 2), flSinW = sinf(w);
+	float w = 0.5f * (RandomFloat(0, float(M_PI)) + acosf(RandomFloat(0, 1)) + M_PI / 2), flSinW = sinf(w);
 	return Quaternion(cosf(u), flSinU * cosf(v), flSinU * flSinV * cosf(w), flSinU * flSinV * flSinW);
 }
 
@@ -5806,9 +5806,9 @@ const Quaternion RandomQuaternion(IUniformRandomStream* pRnd)
 {
 	// Guarantee uniform distribution within S^3. Found on the internet, looked through the proof very briefly, looks sound enough to tentatively trust it before testing or checking the proof for real.
 	// http://mathproofs.blogspot.com/2005/05/uniformly-distributed-random-unit.html
-	float u = pRnd->RandomFloat(0, 2 * M_PI), flSinU = sinf(u);
+	float u = pRnd->RandomFloat(0, float(2 * M_PI)), flSinU = sinf(u);
 	float v = acosf(pRnd->RandomFloat(-1, 1)), flSinV = sinf(v);
-	float w = 0.5f * (pRnd->RandomFloat(0, M_PI) + acosf(pRnd->RandomFloat(0, 1)) + M_PI / 2), flSinW = sinf(w);
+	float w = 0.5f * (pRnd->RandomFloat(0, float(M_PI)) + acosf(pRnd->RandomFloat(0, 1)) + M_PI / 2), flSinW = sinf(w);
 	return Quaternion(cosf(u), flSinU * cosf(v), flSinU * flSinV * cosf(w), flSinU * flSinV * flSinW);
 }
 

@@ -65,7 +65,7 @@ const char* V_strnchr(const char* pStr, char c, int64_t n);
 bool V_isspace(int c);
 
 // Strip white space at the beginning and end of a string
-int V_StrTrim(char* pStr);
+int64_t V_StrTrim(char* pStr);
 
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes);
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes);
@@ -83,7 +83,7 @@ void V_FixSlashes(char* pname, char separator = CORRECT_PATH_SEPARATOR);
 
 // Adds a path separator to the end of the string if there isn't one already and the string is not empty.
 // Triggers a fatal error if it would run out of space.
-void V_AppendSlash(INOUT_Z_CAP(strSize) char* pStr, int strSize, char separator = CORRECT_PATH_SEPARATOR);
+void V_AppendSlash(INOUT_Z_CAP(strSize) char* pStr, size_t strSize, char separator = CORRECT_PATH_SEPARATOR);
 
 // Remove the final characters of ppath if it's '\' or '/'.
 void V_StripTrailingSlash(char* ppath);
@@ -104,8 +104,8 @@ bool
 #else
 void
 #endif
-V_MakeAbsolutePath(char* pOut, int outLen, const char* pPath, const char* pStartingDir = NULL);
-inline void V_MakeAbsolutePath(char* pOut, int outLen, const char* pPath, const char* pStartingDir, bool bLowercaseName)
+V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pStartingDir = NULL);
+inline void V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pStartingDir, bool bLowercaseName)
 {
 	V_MakeAbsolutePath(pOut, outLen, pPath, pStartingDir);
 	if (bLowercaseName)
@@ -115,20 +115,20 @@ inline void V_MakeAbsolutePath(char* pOut, int outLen, const char* pPath, const 
 }
 
 // Remove the final directory from the path
-bool V_StripLastDir(char* dirName, int maxlen);
+bool V_StripLastDir(char* dirName, size_t maxlen);
 // Returns a pointer to the unqualified file name (no path) of a file name
 const char* V_UnqualifiedFileName(const char* in);
 // Given a path and a filename, composes "path\filename", inserting the (OS correct) separator if necessary
-void V_ComposeFileName(const char* path, const char* filename, char* dest, int destSize);
+void V_ComposeFileName(const char* path, const char* filename, char* dest, size_t destSize);
 
 // Remove any extension from in and return resulting string in out
-void V_StripExtension(const char* in, char* out, int outLen);
+void V_StripExtension(const char* in, char* out, size_t outLen);
 
 // Copy out the file extension into dest
-void V_ExtractFileExtension(const char* path, char* dest, int destSize);
+void V_ExtractFileExtension(const char* path, char* dest, size_t destSize);
 
 // Returns a pointer to the file extension or NULL if one doesn't exist
 const char* V_GetFileExtension(const char* path);
 
 // Extracts the base name of a file (no path, no extension, assumes '/' or '\' as path separator)
-void V_FileBase(const char* in, OUT_Z_CAP(maxlen) char* out, int maxlen);
+void V_FileBase(const char* in, OUT_Z_CAP(maxlen) char* out, size_t maxlen);

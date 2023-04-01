@@ -55,7 +55,7 @@ public:
 		zvalue = 2 * zvalue - 1.0f;								// map from 0..1 to -1..1
 		float phi = acos(zvalue);
 		// now, generate a random rotation angle for x/y
-		float theta = 2.0f * M_PI * vrot.NextValue();
+		float theta = 2.0f * float(M_PI) * vrot.NextValue();
 		float sin_p = sin(phi);
 		return Vector3D(cos(theta) * sin_p,
 			sin(theta) * sin_p,

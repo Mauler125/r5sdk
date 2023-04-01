@@ -161,7 +161,7 @@ bool V_isspace(int c)
 #endif
 }
 
-int V_StrTrim(char* pStr)
+int64_t V_StrTrim(char* pStr)
 {
 	char* pSource = pStr;
 	char* pDest = pStr;
@@ -265,7 +265,7 @@ bool V_StringMatchesPattern(const char* pszSource, const char* pszPattern, int n
 			continue;
 		}
 
-		int nLength = 0;
+		size_t nLength = 0;
 
 		while ((*pszPattern) != '*' && (*pszPattern) != 0)
 		{
@@ -278,7 +278,7 @@ bool V_StringMatchesPattern(const char* pszSource, const char* pszPattern, int n
 			const char* pszStartPattern = pszPattern - nLength;
 			const char* pszSearch = pszSource;
 
-			for (int i = 0; i < nLength; i++, pszSearch++, pszStartPattern++)
+			for (size_t i = 0; i < nLength; i++, pszSearch++, pszStartPattern++)
 			{
 				if ((*pszSearch) == 0)
 				{
@@ -333,9 +333,9 @@ void V_FixSlashes(char* pName, char cSeperator /* = CORRECT_PATH_SEPARATOR */)
 	}
 }
 
-void V_AppendSlash(char* pStr, int strSize, char separator)
+void V_AppendSlash(char* pStr, size_t strSize, char separator)
 {
-	int len = V_strlen(pStr);
+	size_t len = V_strlen(pStr);
 	if (len > 0 && !PATHSEPARATOR(pStr[len - 1]))
 	{
 		if (len + 1 >= strSize)
@@ -354,7 +354,7 @@ void V_StripTrailingSlash(char* ppath)
 {
 	Assert(ppath);
 
-	int len = V_strlen(ppath);
+	size_t len = V_strlen(ppath);
 	if (len > 0)
 	{
 		if (PATHSEPARATOR(ppath[len - 1]))
@@ -412,7 +412,7 @@ bool V_RemoveDotSlashes(char* pFilename, char separator)
 	*pOut = 0;
 
 	// Get rid of a trailing "/." (needless).
-	int len = V_strlen(pFilename);
+	size_t len = V_strlen(pFilename);
 	if (len > 2 && pFilename[len - 1] == '.' && PATHSEPARATOR(pFilename[len - 2]))
 	{
 		pFilename[len - 2] = 0;
@@ -487,7 +487,7 @@ bool
 #else
 void
 #endif
-V_MakeAbsolutePath(char* pOut, int outLen, const char* pPath, const char* pStartingDir)
+V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pStartingDir)
 {
 	if (V_IsAbsolutePath(pPath))
 	{
@@ -547,14 +547,14 @@ V_MakeAbsolutePath(char* pOut, int outLen, const char* pPath, const char* pStart
 //			maxlen - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool V_StripLastDir(char* dirName, int maxlen)
+bool V_StripLastDir(char* dirName, size_t maxlen)
 {
 	if (dirName[0] == 0 ||
 		!V_stricmp(dirName, "./") ||
 		!V_stricmp(dirName, ".\\"))
 		return false;
 
-	int len = V_strlen(dirName);
+	size_t len = V_strlen(dirName);
 
 	Assert(len < maxlen);
 
@@ -627,7 +627,7 @@ const char* V_UnqualifiedFileName(const char* in)
 //			dest - buffer to compose result in
 //			destSize - size of destination buffer
 //-----------------------------------------------------------------------------
-void V_ComposeFileName(const char* path, const char* filename, char* dest, int destSize)
+void V_ComposeFileName(const char* path, const char* filename, char* dest, size_t destSize)
 {
 	V_strncpy(dest, path, destSize);
 	V_FixSlashes(dest);
@@ -642,13 +642,16 @@ void V_ComposeFileName(const char* path, const char* filename, char* dest, int d
 //			*out - 
 //			outSize - 
 //-----------------------------------------------------------------------------
-void V_StripExtension(const char* in, char* out, int outSize)
+void V_StripExtension(const char* in, char* out, size_t outSize)
 {
 	// Find the last dot. If it's followed by a dot or a slash, then it's part of a 
 	// directory specifier like ../../somedir/./blah.
 
+	if (!in || !in[0] || !outSize)
+		return;
+
 	// scan backward for '.'
-	int end = V_strlen(in) - 1;
+	size_t end = V_strlen(in) - 1;
 	while (end > 0 && in[end] != '.' && !PATHSEPARATOR(in[end]))
 	{
 		--end;
@@ -656,7 +659,7 @@ void V_StripExtension(const char* in, char* out, int outSize)
 
 	if (end > 0 && !PATHSEPARATOR(in[end]) && end < outSize)
 	{
-		int nChars = MIN(end, outSize - 1);
+		size_t nChars = MIN(end, outSize - 1);
 		if (out != in)
 		{
 			memcpy(out, in, nChars);
@@ -680,7 +683,7 @@ void V_StripExtension(const char* in, char* out, int outSize)
 //			destSize - 
 // Output : void V_ExtractFileExtension
 //-----------------------------------------------------------------------------
-void V_ExtractFileExtension(const char* path, char* dest, int destSize)
+void V_ExtractFileExtension(const char* path, char* dest, size_t destSize)
 {
 	*dest = 0;
 	const char* extension = V_GetFileExtension(path);
@@ -696,7 +699,7 @@ void V_ExtractFileExtension(const char* path, char* dest, int destSize)
 //-----------------------------------------------------------------------------
 const char* V_GetFileExtension(const char* path)
 {
-	int len = V_strlen(path);
+	size_t len = V_strlen(path);
 	if (len <= 1)
 		return NULL;
 
@@ -724,7 +727,7 @@ const char* V_GetFileExtension(const char* path)
 //			*out - 
 //			maxlen - 
 //-----------------------------------------------------------------------------
-void V_FileBase(const char* in, char* out, int maxlen)
+void V_FileBase(const char* in, char* out, size_t maxlen)
 {
 	Assert(maxlen >= 1);
 	Assert(in);
@@ -736,7 +739,7 @@ void V_FileBase(const char* in, char* out, int maxlen)
 		return;
 	}
 
-	int len, start, end;
+	size_t len, start, end;
 
 	len = V_strlen(in);
 
@@ -775,7 +778,7 @@ void V_FileBase(const char* in, char* out, int maxlen)
 	// Length of new sting
 	len = end - start + 1;
 
-	int maxcopy = MIN(len + 1, maxlen);
+	size_t maxcopy = MIN(len + 1, maxlen);
 
 	// Copy partial string
 	V_strncpy(out, &in[start], maxcopy);

@@ -512,11 +512,11 @@ string Base64Decode(const string& svInput)
 string UTF8Encode(const wstring& wsvInput)
 {
     string result;
-    int nLen = WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), wsvInput.length(), NULL, 0, NULL, NULL);
+    int nLen = WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), int(wsvInput.length()), NULL, 0, NULL, NULL);
     if (nLen > 0)
     {
         result.resize(nLen);
-        WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), wsvInput.length(), &result[0], nLen, NULL, NULL);
+        WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), int(wsvInput.length()), &result[0], nLen, NULL, NULL);
     }
     return result;
 }
@@ -932,7 +932,7 @@ pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput)
         }
         else
         {
-            vBytes.push_back(strtoul(pszCurrentByte, &pszCurrentByte, 16));
+            vBytes.push_back(uint8_t(strtoul(pszCurrentByte, &pszCurrentByte, 16)));
             svMask += 'x';
         }
     }

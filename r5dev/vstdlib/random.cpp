@@ -137,10 +137,10 @@ int CUniformRandomStream::GenerateRandomNumber()
 float CUniformRandomStream::RandomFloat(float flLow, float flHigh)
 {
 	// float in [0,1)
-	float fl = AM * GenerateRandomNumber();
+	float fl = float(AM) * GenerateRandomNumber();
 	if (fl > RNMX)
 	{
-		fl = RNMX;
+		fl = float(RNMX);
 	}
 	return (fl * (flHigh - flLow)) + flLow; // float in [low,high)
 }
@@ -148,10 +148,10 @@ float CUniformRandomStream::RandomFloat(float flLow, float flHigh)
 float CUniformRandomStream::RandomFloatExp(float flMinVal, float flMaxVal, float flExponent)
 {
 	// float in [0,1)
-	float fl = AM * GenerateRandomNumber();
+	float fl = float(AM) * GenerateRandomNumber();
 	if (fl > RNMX)
 	{
-		fl = RNMX;
+		fl = float(RNMX);
 	}
 	if (flExponent != 1.0f)
 	{

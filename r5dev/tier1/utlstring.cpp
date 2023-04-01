@@ -356,7 +356,7 @@ CUtlString &CUtlString::operator+=( char c )
 {
 	Assert( !m_Storage.IsReadOnly() );
 
-	int nLength = Length();
+	int64 nLength = Length();
 	SetLength( nLength + 1 );
 	m_Storage[ nLength ] = c;
 	m_Storage[ nLength+1 ] = '\0';
@@ -1088,7 +1088,7 @@ size_t CUtlStringBuilder::TrimWhitespace()
 		return 0;
 
 	char *pchString = m_data.Access();
-	int cChars = V_StrTrim(pchString);
+	int64 cChars = V_StrTrim(pchString);
 
 	if (cChars)
 		m_data.SetLength(cChars);

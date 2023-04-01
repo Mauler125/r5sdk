@@ -393,7 +393,7 @@ void CConsole::SuggestPanel(void)
             // Show the flag texture before the cvar name.
             const int mainTexIdx = GetFlagTextureIndex(suggest.m_nFlags);
             const MODULERESOURCE& mainRes = m_vFlagIcons[mainTexIdx];
-            ImGui::Image(mainRes.m_idIcon, ImVec2(mainRes.m_nWidth, mainRes.m_nHeight)); 
+            ImGui::Image(mainRes.m_idIcon, ImVec2(float(mainRes.m_nWidth), float(mainRes.m_nHeight)));
 
             // Show a more detailed description of the flag when user hovers over the texture.
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly) &&
@@ -404,7 +404,7 @@ void CConsole::SuggestPanel(void)
                     const int hintTexIdx = GetFlagTextureIndex(cvarInfo.m_nFlag);
                     const MODULERESOURCE& hintRes = m_vFlagIcons[hintTexIdx];
 
-                    ImGui::Image(hintRes.m_idIcon, ImVec2(hintRes.m_nWidth, hintRes.m_nHeight));
+                    ImGui::Image(hintRes.m_idIcon, ImVec2(float(hintRes.m_nWidth), float(hintRes.m_nHeight)));
                     ImGui::SameLine();
                     ImGui::Text(cvarInfo.m_pszDesc);
                 };

@@ -216,7 +216,7 @@ bool CBitRead::Seek(size_t nPosition)
 		}
 		m_pDataIn = (uint32 const*)pPartial;
 		m_nInBufWord >>= (nPosition & 31);
-		m_nBitsAvail = (nHead << 3) - (nPosition & 31);
+		m_nBitsAvail = int((nHead << 3) - (nPosition & 31));
 	}
 	else
 	{

@@ -51,7 +51,7 @@ QAngle* CPlayer::EyeAngles(QAngle* pAngles)
 //------------------------------------------------------------------------------
 inline void CPlayer::SetTimeBase(float flTimeBase)
 {
-	float flTime = TIME_TO_TICKS(flTimeBase);
+	float flTime = float(TIME_TO_TICKS(flTimeBase));
 
 	if (flTime < 0.0f)
 		flTime = 0.0f;

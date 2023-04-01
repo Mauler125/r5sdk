@@ -127,7 +127,7 @@ VMatrix SetupMatrixAxisRot(const Vector3D& vAxis, vec_t fDegrees)
 	vec_t fRadians;
 
 
-	fRadians = fDegrees * (M_PI / 180.0f);
+	fRadians = fDegrees * (float(M_PI) / 180.0f);
 
 	s = (vec_t)sin(fRadians);
 	c = (vec_t)cos(fRadians);
@@ -163,7 +163,7 @@ VMatrix	SetupMatrixAxisToAxisRot(const Vector3D& vFromAxis, const Vector3D& vToA
 
 	if (s > 0)
 	{
-		vAxis *= 1.0 / s;
+		vAxis *= 1.0f / s;
 
 		tx = t * vAxis.x;	ty = t * vAxis.y;	tz = t * vAxis.z;
 		sx = s * vAxis.x;	sy = s * vAxis.y;	sz = s * vAxis.z;
@@ -1030,7 +1030,7 @@ void MatrixBuildRotation(VMatrix& dst, const Vector3D& initialDirection, const V
 	{
 		CrossProduct(initialDirection, finalDirection, axis);
 		VectorNormalize(axis);
-		angle = acos(angle) * 180 / M_PI;
+		angle = acos(angle) * 180 / float(M_PI);
 	}
 
 	MatrixBuildRotationAboutAxis(dst, axis, angle);
@@ -1047,7 +1047,7 @@ void MatrixBuildRotation(VMatrix& dst, const Vector3D& initialDirection, const V
 //-----------------------------------------------------------------------------
 void MatrixBuildRotateZ(VMatrix& dst, float angleDegrees)
 {
-	float radians = angleDegrees * (M_PI / 180.0f);
+	float radians = angleDegrees * (float(M_PI) / 180.0f);
 
 	float fSin = (float)sin(radians);
 	float fCos = (float)cos(radians);
@@ -1075,8 +1075,8 @@ void MatrixBuildScale(VMatrix& dst, const Vector3D& scale)
 void MatrixBuildPerspective(VMatrix& dst, float fovX, float fovY, float zNear, float zFar)
 {
 	// FIXME: collapse all of this into one matrix after we figure out what all should be in here.
-	float width = 2 * zNear * tan(fovX * (M_PI / 180.0f) * 0.5f);
-	float height = 2 * zNear * tan(fovY * (M_PI / 180.0f) * 0.5f);
+	float width = 2 * zNear * (float)tan(fovX * (M_PI / 180.0f) * 0.5f);
+	float height = 2 * zNear * (float)tan(fovY * (M_PI / 180.0f) * 0.5f);
 
 	memset(dst.Base(), 0, sizeof(dst));
 	dst[0][0] = 2.0F * zNear / width;
@@ -1267,36 +1267,36 @@ void MatrixBuildOrtho(VMatrix& dst, double left, double top, double right, doubl
 	// introduces a -1 scale in the y coordinates
 	//		D3DXMatrixOrthoOffCenterRH( &matrix, left, right, top, bottom, zNear, zFar );
 
-	dst.Init(2.0f / (right - left), 0.0f, 0.0f, (left + right) / (left - right),
-		0.0f, 2.0f / (bottom - top), 0.0f, (bottom + top) / (top - bottom),
-		0.0f, 0.0f, 1.0f / (zNear - zFar), zNear / (zNear - zFar),
+	dst.Init(2.0f / vec_t(right - left), 0.0f, 0.0f, vec_t((left + right) / (left - right)),
+		0.0f, 2.0f / vec_t(bottom - top), 0.0f, vec_t((bottom + top) / (top - bottom)),
+		0.0f, 0.0f, 1.0f / vec_t(zNear - zFar), vec_t(zNear / (zNear - zFar)),
 		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void MatrixBuildPerspectiveX(VMatrix& dst, double flFovX, double flAspect, double flZNear, double flZFar)
 {
-	float flWidth = 2.0f * flZNear * tanf(flFovX * M_PI / 360.0f);
-	float flHeight = flWidth / flAspect;
-	dst.Init(2.0f * flZNear / flWidth, 0.0f, 0.0f, 0.0f,
-		0.0f, 2.0f * flZNear / flHeight, 0.0f, 0.0f,
-		0.0f, 0.0f, flZFar / (flZNear - flZFar), flZNear * flZFar / (flZNear - flZFar),
+	float flWidth = 2.0f * float(flZNear) * tanf(float(flFovX * M_PI) / 360.0f);
+	float flHeight = flWidth / float(flAspect);
+	dst.Init(2.0f * float(flZNear) / flWidth, 0.0f, 0.0f, 0.0f,
+		0.0f, 2.0f * float(flZNear) / flHeight, 0.0f, 0.0f,
+		0.0f, 0.0f, float(flZFar / (flZNear - flZFar)), float(flZNear * flZFar / (flZNear - flZFar)),
 		0.0f, 0.0f, -1.0f, 0.0f);
 }
 
 void MatrixBuildPerspectiveOffCenterX(VMatrix& dst, double flFovX, double flAspect, double flZNear, double flZFar, double bottom, double top, double left, double right)
 {
-	float flWidth = 2.0f * flZNear * tanf(flFovX * M_PI / 360.0f);
-	float flHeight = flWidth / flAspect;
+	float flWidth = 2.0f * float(flZNear) * tanf(float(flFovX * M_PI) / 360.0f);
+	float flHeight = flWidth / float(flAspect);
 
 	// bottom, top, left, right are 0..1 so convert to -<val>/2..<val>/2
-	float flLeft = -(flWidth / 2.0f) * (1.0f - left) + left * (flWidth / 2.0f);
-	float flRight = -(flWidth / 2.0f) * (1.0f - right) + right * (flWidth / 2.0f);
-	float flBottom = -(flHeight / 2.0f) * (1.0f - bottom) + bottom * (flHeight / 2.0f);
-	float flTop = -(flHeight / 2.0f) * (1.0f - top) + top * (flHeight / 2.0f);
+	float flLeft = -(flWidth / 2.0f) * (1.0f - float(left)) + float(left) * (flWidth / 2.0f);
+	float flRight = -(flWidth / 2.0f) * (1.0f - float(right)) + float(right) * (flWidth / 2.0f);
+	float flBottom = -(flHeight / 2.0f) * (1.0f - float(bottom)) + float(bottom) * (flHeight / 2.0f);
+	float flTop = -(flHeight / 2.0f) * (1.0f - float(top)) + float(top) * (flHeight / 2.0f);
 
-	dst.Init((2.0f * flZNear) / (flRight - flLeft), 0.0f, (flLeft + flRight) / (flRight - flLeft), 0.0f,
-		0.0f, 2.0f * flZNear / (flTop - flBottom), (flTop + flBottom) / (flTop - flBottom), 0.0f,
-		0.0f, 0.0f, flZFar / (flZNear - flZFar), flZNear * flZFar / (flZNear - flZFar),
+	dst.Init((2.0f * float(flZNear)) / (flRight - flLeft), 0.0f, (flLeft + flRight) / (flRight - flLeft), 0.0f,
+		0.0f, 2.0f * float(flZNear) / (flTop - flBottom), (flTop + flBottom) / (flTop - flBottom), 0.0f,
+		0.0f, 0.0f, float(flZFar) / float(flZNear - flZFar), float(flZNear * flZFar / (flZNear - flZFar)),
 		0.0f, 0.0f, -1.0f, 0.0f);
 }
 
