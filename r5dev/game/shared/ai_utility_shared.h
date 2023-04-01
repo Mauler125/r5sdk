@@ -4,8 +4,8 @@
 //------------------------------------------------------------------------------
 // Forward declarations
 //------------------------------------------------------------------------------
+struct dtMeshTile;
 class dtNavMesh;
-class dtMeshTile;
 class CAI_Network;
 class Vector3D;
 class Color;
