@@ -5,9 +5,15 @@
 #pragma intrinsic(__rdtsc)
 #endif
 
-
 #define TIER0_DLL_EXPORT
-#define COMPILER_MSVC
+
+#ifdef _MSC_VER
+#define COMPILER_MSVC 1 // !TODO: Set in CMake!
+#endif // _MSC_VER
+
+#ifdef __clang__
+#define COMPILER_CLANG 1 // !TODO: Set in CMake!
+#endif // __clang__
 
 //-----------------------------------------------------------------------------
 // Set up platform defines.
@@ -131,6 +137,11 @@
 
 #ifdef COMPILER_GCC
 #define GNUC 1
+#endif
+
+#ifdef COMPILER_CLANG
+#define CLANG 1
+#define POSIX_MATH 1
 #endif
 
 #if defined( _WIN32 )

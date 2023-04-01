@@ -5942,7 +5942,7 @@ inline const fltx4 Normalized3SIMD(const fltx4 vec)
 // Some convenience operator overloads, which are just aliasing the functions above.
 // Unnecessary on 360, as you already have them from xboxmath.h
 // Component wise add
-#ifndef COMPILER_GCC
+#if !defined (COMPILER_GCC) && !defined (COMPILER_CLANG)
 
 FORCEINLINE fltx4 operator+=(fltx4& a, FLTX4 b)
 {
