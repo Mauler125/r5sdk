@@ -22,7 +22,7 @@ public:
 	void DrawNavMeshPolys(dtNavMesh* mesh = nullptr) const;
 	void DrawNavMeshPolyBoundaries(dtNavMesh* mesh = nullptr) const;
 	__m128i PackNodeLink(int32_t a, int32_t b, int32_t c = 0, int32_t d = 0) const;
-	int64_t GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector3D* vec) const;
+	int GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector3D* vec) const;
 
 private:
 	Color m_BoxColor;

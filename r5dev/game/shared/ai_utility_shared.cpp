@@ -81,7 +81,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 
         if (bDrawNearest) // Render links to the nearest node.
         {
-            int64_t nNearest = GetNearestNodeToPos(pNetwork, &pScriptNode->m_vOrigin);
+            int nNearest = GetNearestNodeToPos(pNetwork, &pScriptNode->m_vOrigin);
             if (nNearest != NO_NODE) // NO_NODE = -1
             {
                 auto p = uLinkSet.insert(PackNodeLink(i, nNearest).m128i_i64[1]);
@@ -496,13 +496,13 @@ __m128i CAI_Utility::PackNodeLink(int32_t a, int32_t b, int32_t c, int32_t d) co
 
 //------------------------------------------------------------------------------
 // Purpose: gets the nearest node index to position
-// Input  : *vPos       - 
-//          *pAINetwork - 
+// Input  : *pAINetwork - 
+//          *vPos       - 
 // Output : node index ('NO_NODE' if no node has been found)
 //------------------------------------------------------------------------------
-int64_t CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector3D* vPos) const
+int CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector3D* vPos) const
 {
-    __int64 result; // rax
+    int result; // rax
     unsigned int v3; // er10
     __int64 v4; // rdx
     float v5; // xmm3_4
@@ -534,7 +534,7 @@ int64_t CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Ve
         v3 = pAINetwork->m_iNumScriptNodes;
         v4 = 0i64;
         v5 = 640000.0;
-        v6 = -1;
+        v6 = NO_NODE;
         if (v3 >= 4)
         {
             v7 = pAINetwork->m_ScriptNode;
@@ -549,34 +549,34 @@ int64_t CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Ve
                 v14 = (float)((float)((float)(*(v11 - 1) - v9) * (float)(*(v11 - 1) - v9)) + (float)((float)(*(v11 - 2) - v8) * (float)(*(v11 - 2) - v8))) + (float)((float)(*v11 - v10) * (float)(*v11 - v10));
                 if (v5 > v14)
                     v5 = (float)((float)((float)(*(v11 - 1) - v9) * (float)(*(v11 - 1) - v9)) + (float)((float)(*(v11 - 2) - v8) * (float)(*(v11 - 2) - v8))) + (float)((float)(*v11 - v10) * (float)(*v11 - v10));
-                v15 = v4;
+                v15 = (unsigned int)v4;
                 if (v13 <= v14)
                     v15 = v6;
                 v16 = v5;
                 v17 = (float)((float)((float)(*(v12 - 1) - v9) * (float)(*(v12 - 1) - v9)) + (float)((float)(v11[3] - v8) * (float)(v11[3] - v8))) + (float)((float)(*v12 - v10) * (float)(*v12 - v10));
                 if (v5 > v17)
                     v5 = (float)((float)((float)(*(v12 - 1) - v9) * (float)(*(v12 - 1) - v9)) + (float)((float)(v11[3] - v8) * (float)(v11[3] - v8))) + (float)((float)(*v12 - v10) * (float)(*v12 - v10));
-                v18 = v4 + 1;
+                v18 = (unsigned int)v4 + 1;
                 if (v16 <= v17)
                     v18 = v15;
                 v19 = v5;
                 v20 = (float)((float)((float)(v12[4] - v9) * (float)(v12[4] - v9)) + (float)((float)(v11[8] - v8) * (float)(v11[8] - v8))) + (float)((float)(v12[5] - v10) * (float)(v12[5] - v10));
                 if (v5 > v20)
                     v5 = (float)((float)((float)(v12[4] - v9) * (float)(v12[4] - v9)) + (float)((float)(v11[8] - v8) * (float)(v11[8] - v8))) + (float)((float)(v12[5] - v10) * (float)(v12[5] - v10));
-                v21 = v4 + 2;
+                v21 = (unsigned int)v4 + 2;
                 if (v19 <= v20)
                     v21 = v18;
                 v22 = v5;
                 v23 = (float)((float)((float)(v12[9] - v9) * (float)(v12[9] - v9)) + (float)((float)(v11[13] - v8) * (float)(v11[13] - v8))) + (float)((float)(v12[10] - v10) * (float)(v12[10] - v10));
                 if (v5 > v23)
                     v5 = (float)((float)((float)(v12[9] - v9) * (float)(v12[9] - v9)) + (float)((float)(v11[13] - v8) * (float)(v11[13] - v8))) + (float)((float)(v12[10] - v10) * (float)(v12[10] - v10));
-                v6 = v4 + 3;
+                v6 = (unsigned int)v4 + 3;
                 if (v22 <= v23)
                     v6 = v21;
                 v11 += 20;
                 v12 += 20;
                 v4 = (unsigned int)(v4 + 4);
-            }       while ((unsigned int)v4 < v3 - 3);
+            } while ((unsigned int)v4 < v3 - 3);
         }
         if ((unsigned int)v4 < v3)
         {
@@ -589,19 +589,19 @@ int64_t CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Ve
                 if (v5 > v26)
                     v5 = (float)((float)((float)(v24[1] - vPos->y) * (float)(v24[1] - vPos->y)) + (float)((float)(*v24 - vPos->x) * (float)(*v24 - vPos->x)))
                     + (float)((float)(v24[2] - vPos->z) * (float)(v24[2] - vPos->z));
-                v27 = v4;
+                v27 = (unsigned int)v4;
                 if (v25 <= v26)
                     v27 = v6;
                 v24 += 5;
-                LODWORD(v4) = v4 + 1;
+                LODWORD(v4) = (unsigned int)v4 + 1;
                 v6 = v27;
-            }       while ((unsigned int)v4 < v3);
+            } while ((unsigned int)v4 < v3);
         }
         result = v6;
     }
     else
     {
-        result = 0i64;
+        result = NULL;
     }
     return result;
 }
