@@ -29,17 +29,17 @@ class VDetour : public IDetour
 	virtual void Detach(void) const { }
 };
 
-inline std::vector<IDetour*> vDetour;
-inline std::unordered_set<IDetour*> sDetour;
+inline static std::vector<IDetour*> g_DetourVector;
+inline static std::unordered_set<IDetour*> g_DetourSet;
 inline std::size_t AddDetour(IDetour* pDetour, const char* pszName)
 {
 	IDetour* pVFTable = reinterpret_cast<IDetour**>(pDetour)[0];
-	auto p = sDetour.insert(pVFTable); // Only register if VFTable isn't already registered.
+	auto p = g_DetourSet.insert(pVFTable); // Only register if VFTable isn't already registered.
 
 	assert(p.second); // Code bug: duplicate registration!!! (called 'REGISTER(...)' from a header file?).
-	p.second ? vDetour.push_back(pDetour) : delete pDetour;
+	p.second ? g_DetourVector.push_back(pDetour) : delete pDetour;
 
-	return vDetour.size();
+	return g_DetourVector.size();
 }
 
 REGISTER(VDetour);

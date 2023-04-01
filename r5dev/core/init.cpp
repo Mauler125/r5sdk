@@ -163,7 +163,7 @@ void Systems_Init()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Hook functions
-	for (const IDetour* pDetour : vDetour)
+	for (const IDetour* pDetour : g_DetourVector)
 	{
 		pDetour->Attach();
 	}
@@ -207,7 +207,7 @@ void Systems_Shutdown()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Unhook functions
-	for (const IDetour* pDetour : vDetour)
+	for (const IDetour* pDetour : g_DetourVector)
 	{
 		pDetour->Detach();
 	}
@@ -332,7 +332,7 @@ void DetourInit() // Run the sigscan
 	g_SigCache.SetDisabled((strstr(pCommandLine, "-nosmap") != nullptr));
 	g_SigCache.LoadCache(SIGDB_FILE);
 
-	for (const IDetour* pDetour : vDetour)
+	for (const IDetour* pDetour : g_DetourVector)
 	{
 		pDetour->GetCon(); // Constants.
 		pDetour->GetFun(); // Functions.
@@ -362,7 +362,7 @@ void DetourInit() // Run the sigscan
 void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+---------------------------------------------------------------------+\n");
-	for (const IDetour* pDetour : vDetour)
+	for (const IDetour* pDetour : g_DetourVector)
 	{
 		pDetour->GetAdr();
 		spdlog::debug("+---------------------------------------------------------------------+\n");
