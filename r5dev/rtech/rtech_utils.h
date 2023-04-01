@@ -9,7 +9,7 @@
 #define PAK_MAX_TYPES 64
 #define PAK_PARAM_SIZE 0xB0
 
-#define RPAKHEADER	(('k'<<24)+('a'<<16)+('P'<<8)+'R')
+#define RPAK_MAGIC	(('k'<<24)+('a'<<16)+('P'<<8)+'R')
 
 static const inline unsigned char /*unk_141313180*/ s_PakFileCompressionLUT[0x720] =
 {
