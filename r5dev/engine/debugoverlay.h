@@ -1,7 +1,8 @@
 #pragma once
 #include "mathlib/vector.h"
-#include "mathlib/color.h"
 #include "mathlib/vector4d.h"
+#include "mathlib/color.h"
+#include "mathlib/ssemath.h"
 
 // Something has to be hardcoded..
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
@@ -64,14 +65,14 @@ struct OverlayBox_t : public OverlayBase_t
 	{
 		Transforms()
 		{
-			xmm[0] = _mm_setzero_ps();
-			xmm[1] = _mm_setzero_ps();
-			xmm[2] = _mm_setzero_ps();
+			xmm[0] = LoadZeroSIMD();
+			xmm[1] = LoadZeroSIMD();
+			xmm[2] = LoadZeroSIMD();
 		};
 		union
 		{
-			__m128 xmm[3];
-			matrix3x4_t mat;
+			fltx4 xmm[3];
+			matrix3x4a_t mat;
 		};
 	};
 

@@ -11,6 +11,7 @@
 #include "tier1/cvar.h"
 #include "mathlib/color.h"
 #include "mathlib/vector.h"
+#include "mathlib/ssemath.h"
 #include "engine/debugoverlay.h"
 #include "game/shared/ai_utility_shared.h"
 #include "game/server/ai_utility.h"
@@ -29,6 +30,13 @@ CAI_Utility::CAI_Utility(void)
 {
 }
 
+static const VectorAligned s_vMaxs = { 50.0f, 50.0f, 50.0f };
+static const VectorAligned s_vSubMask = { 25.0f, 25.0f, 25.0f };
+
+static const fltx4 s_xMins = LoadZeroSIMD();
+static const fltx4 s_xMaxs = LoadAlignedSIMD(s_vMaxs);
+static const fltx4 s_xSubMask = LoadAlignedSIMD(s_vSubMask);
+
 //------------------------------------------------------------------------------
 // Purpose: draw AI script network
 // Input  : *pAINetwork - 
@@ -44,10 +52,6 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
     const float flCameraRange = navmesh_debug_camera_range->GetFloat();
     const Vector3D vCamera = MainViewOrigin();
 
-    static const __m128 xMins = _mm_setzero_ps();
-    static const __m128 xMaxs = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
-    static const __m128 xSubMask = _mm_setr_ps(25.0f, 25.0f, 25.0f, 0.0f);
-
     OverlayBox_t::Transforms vTransforms;
     std::unordered_set<int64_t> uLinkSet;
 
@@ -57,34 +61,35 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
             break;
 
         const CAI_ScriptNode* pScriptNode = &pNetwork->m_ScriptNode[i];
-
-        __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, vCamera.z);
-        xOrigin = _mm_sub_ps(xOrigin, xSubMask); // Subtract 25.f from our scalars to align box with node.
+        fltx4 xOrigin = LoadUnaligned3SIMD(&pScriptNode->m_vOrigin);
+        xOrigin = SubSIMD(xOrigin, s_xSubMask); // Subtract 25.f from our scalars to align box with node.
 
         if (flCameraRange > 0.0f)
         {
             // Flip the script node Z axis with that of the camera, so that it won't be used for
             // the final distance computation. This allows for viewing the AI Network from above.
-            const __m128 xOriginCamZ = _mm_shuffle_ps(xOrigin, xOrigin, _MM_SHUFFLE(2, 3, 1, 0));
+            const fltx4 xOriginCamZ = SetComponentSIMD(xOrigin, 2, vCamera.z);
 
             if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xOriginCamZ)) > flCameraRange)
                 continue; // Do not render if node is not within range set by cvar 'navmesh_debug_camera_range'.
         }
 
-        // Construct box transforms.
-        vTransforms.xmm[0] = _mm_set_ps(xOrigin.m128_f32[0], 0.0f, 0.0f, 1.0f);
-        vTransforms.xmm[1] = _mm_set_ps(xOrigin.m128_f32[1], 0.0f, 1.0f, 0.0f);
-        vTransforms.xmm[2] = _mm_set_ps(xOrigin.m128_f32[2], 1.0f, 0.0f, 0.0f);
+        // Construct box matrix transforms.
+        vTransforms.mat.Init(
+            { 1.0f, 0.0f, 0.0f },
+            { 0.0f, 1.0f, 0.0f },
+            { 0.0f, 0.0f, 1.0f },
+            *reinterpret_cast<Vector3D*>(&xOrigin));
 
-        v_RenderBox(vTransforms.mat, *reinterpret_cast<const Vector3D*>(&xMins),
-            *reinterpret_cast<const Vector3D*>(&xMaxs), m_BoxColor, bUseDepthBuffer);
+        v_RenderBox(vTransforms.mat, *reinterpret_cast<const Vector3D*>(&s_xMins),
+            *reinterpret_cast<const Vector3D*>(&s_xMaxs), m_BoxColor, bUseDepthBuffer);
 
         if (bDrawNearest) // Render links to the nearest node.
         {
             int nNearest = GetNearestNodeToPos(pNetwork, &pScriptNode->m_vOrigin);
             if (nNearest != NO_NODE) // NO_NODE = -1
             {
-                auto p = uLinkSet.insert(PackNodeLink(i, nNearest).m128i_i64[1]);
+                auto p = uLinkSet.insert(_mm_extract_epi64(PackNodeLink(i, nNearest), 1));
                 if (p.second) // Only render if link hasn't already been rendered.
                 {
                     const CAI_ScriptNode* pNearestNode = &pNetwork->m_ScriptNode[nNearest];
@@ -123,20 +128,13 @@ void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
         if (!pTile->header)
             continue;
 
-        if (flCameraRange > 0.0f)
-        {
-            const __m128 xMinBound = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
-            const __m128 xMaxBound = _mm_setr_ps(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
-
-            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRange ||
-                vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRange)
-                continue;
-        }
+        if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
+            continue;
 
         const float flCellSize = 1.0f / pTile->header->bvQuantFactor;
 
-        const __m128 xTileAABB = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], pTile->header->bmin[2], 0.0f);
-        const __m128 xCellSize = _mm_setr_ps(flCellSize, flCellSize, flCellSize, 0.0f);
+        const fltx4 xTileAABB = LoadGatherSIMD(pTile->header->bmin[0], pTile->header->bmin[1], pTile->header->bmin[2], 0.0f);
+        const fltx4 xCellSize = LoadGatherSIMD(flCellSize, flCellSize, flCellSize, 0.0f);
 
         for (int j = 0, nc = pTile->header->bvNodeCount; j < nc; ++j)
         {
@@ -144,15 +142,13 @@ void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
             if (pNode->i < 0) // Leaf indices are positive.
                 continue;
 
-            vTransforms.xmm[0] = _mm_set_ps(0.0f, 0.0f, 0.0f, 1.0f);
-            vTransforms.xmm[1] = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
-            vTransforms.xmm[2] = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
+            vTransforms.xmm[0] = LoadGatherSIMD(1.0f, 0.0f, 0.0f, 0.0f);
+            vTransforms.xmm[1] = LoadGatherSIMD(0.0f, 1.0f, 0.0f, 0.0f);
+            vTransforms.xmm[2] = LoadGatherSIMD(0.0f, 0.0f, 1.0f, 0.0f);
 
-            // Parallel Vector3D construction.
-            const __m128 xMins = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis]+node->bmin[axis]*cs;
-                _mm_setr_ps(pNode->bmin[0], pNode->bmin[1], pNode->bmin[2], 0.0f), xCellSize));
-            const __m128 xMaxs = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmax[axis]+node->bmax[axis]*cs;
-                _mm_setr_ps(pNode->bmax[0], pNode->bmax[1], pNode->bmax[2], 0.0f), xCellSize));
+            // Formula: tile->header->bm##[axis]+node->bm##[axis]*cs;
+            const fltx4 xMins = MaddSIMD(LoadGatherSIMD(pNode->bmin[0], pNode->bmin[1], pNode->bmin[2], 0.0f), xCellSize, xTileAABB);
+            const fltx4 xMaxs = MaddSIMD(LoadGatherSIMD(pNode->bmax[0], pNode->bmax[1], pNode->bmax[2], 0.0f), xCellSize, xTileAABB);
 
             v_RenderBox(vTransforms.mat, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs),
                 Color(188, 188, 188, 255), bDepthBuffer);
@@ -185,15 +181,8 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
         if (!pTile->header)
             continue;
 
-        if (flCameraRange > 0.0f)
-        {
-            const __m128 xMinBound = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
-            const __m128 xMaxBound = _mm_setr_ps(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
-
-            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRange ||
-                vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRange)
-                continue;
-        }
+        if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
+            continue;
 
         // Draw portals
         const float flPadX = 0.04f;
@@ -224,29 +213,31 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
                      va + = 2 |      |
                      vb + = 3 +------+
                      *****************/
-                    __m128 xVerts = _mm_setr_ps(va[2], vb[2], va[2], vb[2]);
-                    xVerts = _mm_sub_ps(xVerts, _mm_setr_ps(flPadZ, flPadZ, 0.0f, 0.0f));
-                    xVerts = _mm_add_ps(xVerts, _mm_setr_ps(0.0f, 0.0f, flPadZ, flPadZ));
+                    fltx4 xVerts = LoadGatherSIMD(va[2], vb[2], va[2], vb[2]);
+                    Vector4D* vVerts = reinterpret_cast<Vector4D*>(&xVerts);
+
+                    xVerts = SubSIMD(xVerts, LoadGatherSIMD(flPadZ, flPadZ, 0.0f, 0.0f));
+                    xVerts = AddSIMD(xVerts, LoadGatherSIMD(0.0f, 0.0f, flPadZ, flPadZ));
 
                     if (nSide == 0 || nSide == 4)
                     {
                         Color col = nSide == 0 ? Color(188, 0, 0, 255) : Color(188, 0, 188, 255);
                         const float x = va[0] + ((nSide == 0) ? -flPadX : flPadX);
 
-                        __m128 xOrigin = _mm_setr_ps(x, va[1], xVerts.m128_f32[0], 0);
-                        __m128 xDest = _mm_setr_ps(x, va[1], xVerts.m128_f32[2], 0);
+                        fltx4 xOrigin = LoadGatherSIMD(x, va[1], vVerts->x, 0);
+                        fltx4 xDest = LoadGatherSIMD(x, va[1], vVerts->z, 0);
                         v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin), 
                             *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
-                        xOrigin = _mm_setr_ps(x, va[1], xVerts.m128_f32[2], 0);
-                        xDest = _mm_setr_ps(x, vb[1], xVerts.m128_f32[3], 0);
+                        xOrigin = LoadGatherSIMD(x, va[1], vVerts->z, 0);
+                        xDest = LoadGatherSIMD(x, vb[1], vVerts->w, 0);
                         v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin), 
                             *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
-                        xOrigin = _mm_setr_ps(x, vb[1], xVerts.m128_f32[3], 0);
-                        xDest = _mm_setr_ps(x, vb[1], xVerts.m128_f32[1], 0);
+                        xOrigin = LoadGatherSIMD(x, vb[1], vVerts->w, 0);
+                        xDest = LoadGatherSIMD(x, vb[1], vVerts->y, 0);
                         v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin), 
                             *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
-                        xOrigin = _mm_setr_ps(x, vb[1], xVerts.m128_f32[1], 0);
-                        xDest = _mm_setr_ps(x, va[1], xVerts.m128_f32[0], 0);
+                        xOrigin = LoadGatherSIMD(x, vb[1], vVerts->y, 0);
+                        xDest = LoadGatherSIMD(x, va[1], vVerts->x, 0);
                         v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin), 
                             *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
                     }
@@ -255,20 +246,20 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
                         Color col = nSide == 2 ? Color(0, 188, 0, 255) : Color(188, 188, 0, 255);
                         const float y = va[1] + ((nSide == 2) ? -flPadX : flPadX);
 
-                        __m128 xOrigin = _mm_setr_ps(va[0], y, xVerts.m128_f32[0], 0);
-                        __m128 xDest = _mm_setr_ps(va[0], y, xVerts.m128_f32[2], 0);
+                        fltx4 xOrigin = LoadGatherSIMD(va[0], y, vVerts->x, 0);
+                        fltx4 xDest = LoadGatherSIMD(va[0], y, vVerts->z, 0);
                         v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin),
                             *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
-                        xOrigin = _mm_setr_ps(va[0], y, xVerts.m128_f32[2], 0);
-                        xDest = _mm_setr_ps(vb[0], y, xVerts.m128_f32[3], 0);
+                        xOrigin = LoadGatherSIMD(va[0], y, vVerts->z, 0);
+                        xDest = LoadGatherSIMD(vb[0], y, vVerts->w, 0);
                         v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin),
                             *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
-                        xOrigin = _mm_setr_ps(vb[0], y, xVerts.m128_f32[3], 0);
-                        xDest = _mm_setr_ps(vb[0], y, xVerts.m128_f32[1], 0);
+                        xOrigin = LoadGatherSIMD(vb[0], y, vVerts->w, 0);
+                        xDest = LoadGatherSIMD(vb[0], y, vVerts->y, 0);
                         v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin),
                             *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
-                        xOrigin = _mm_setr_ps(vb[0], y, xVerts.m128_f32[1], 0);
-                        xDest = _mm_setr_ps(va[0], y, xVerts.m128_f32[0], 0);
+                        xOrigin = LoadGatherSIMD(vb[0], y, vVerts->y, 0);
+                        xDest = LoadGatherSIMD(va[0], y, vVerts->x, 0);
                         v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin),
                             *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
                     }
@@ -303,15 +294,8 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
         if (!pTile->header)
             continue;
 
-        if (flCameraRange > 0.0f)
-        {
-            const __m128 xMinBound = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
-            const __m128 xMaxBound = _mm_setr_ps(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
-
-            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRange ||
-                vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRange)
-                continue;
-        }
+        if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
+            continue;
 
         for (int j = 0; j < pTile->header->polyCount; j++)
         {
@@ -329,7 +313,7 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
             else
             {
                 const dtPolyDetail* pDetail = &pTile->detailMeshes[ip];
-                __m128 xTris[3] = { _mm_setzero_ps() };
+                fltx4 xTris[3] = { LoadZeroSIMD() };
                 for (int k = 0; k < pDetail->triCount; ++k)
                 {
                     const unsigned char* t = &pTile->detailTris[(pDetail->triBase + k) * 4];
@@ -338,12 +322,12 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
                         if (t[e] < pPoly->vertCount)
                         {
                             float* pflVerts = &pTile->verts[pPoly->verts[t[e]] * 3];
-                            xTris[e] = _mm_setr_ps(pflVerts[0], pflVerts[1], pflVerts[2], 0.0f);
+                            xTris[e] = LoadGatherSIMD(pflVerts[0], pflVerts[1], pflVerts[2], 0.0f);
                         }
                         else
                         {
                             float* pflVerts = &pTile->detailVerts[(pDetail->vertBase + t[e] - pPoly->vertCount) * 3];
-                            xTris[e] = _mm_setr_ps(pflVerts[0], pflVerts[1], pflVerts[2], 0.0f);
+                            xTris[e] = LoadGatherSIMD(pflVerts[0], pflVerts[1], pflVerts[2], 0.0f);
                         }
                     }
 
@@ -388,15 +372,8 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
         if (!pTile->header)
             continue;
 
-        if (flCameraRange > 0.0f)
-        {
-            const __m128 xMinBound = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
-            const __m128 xMaxBound = _mm_setr_ps(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
-
-            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRange ||
-                vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRange)
-                continue;
-        }
+        if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
+            continue;
 
         for (int i = 0; i < pTile->header->polyCount; ++i)
         {
@@ -492,6 +469,28 @@ __m128i CAI_Utility::PackNodeLink(int32_t a, int32_t b, int32_t c, int32_t d) co
         xResult = _mm_shuffle_epi32(xResult, _MM_SHUFFLE(3, 2, 0, 1));
 
     return xResult;
+}
+
+//------------------------------------------------------------------------------
+// Purpose: checks if the NavMesh tile is within the camera radius
+// Input  : *pTile - 
+//          &vCamera - 
+//          flCameraRadius - 
+// Output : true if within radius, false otherwise
+//------------------------------------------------------------------------------
+bool CAI_Utility::IsTileWithinRange(const dtMeshTile* pTile, const Vector3D& vCamera, const float flCameraRadius) const
+{
+    if (flCameraRadius <= 0.0f)
+        return false;
+
+    const fltx4 xMinBound = LoadGatherSIMD(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
+    const fltx4 xMaxBound = LoadGatherSIMD(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
+
+    if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRadius ||
+        vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRadius)
+        return false;
+
+    return true;
 }
 
 //------------------------------------------------------------------------------

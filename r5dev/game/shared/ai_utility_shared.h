@@ -5,6 +5,7 @@
 // Forward declarations
 //------------------------------------------------------------------------------
 class dtNavMesh;
+class dtMeshTile;
 class CAI_Network;
 class Vector3D;
 class Color;
@@ -23,6 +24,7 @@ public:
 	void DrawNavMeshPolyBoundaries(dtNavMesh* mesh = nullptr) const;
 	__m128i PackNodeLink(int32_t a, int32_t b, int32_t c = 0, int32_t d = 0) const;
 	int GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector3D* vec) const;
+	bool IsTileWithinRange(const dtMeshTile* pTile, const Vector3D& vCamera, const float flCameraRadius) const;
 
 private:
 	Color m_BoxColor;
