@@ -170,20 +170,21 @@ extern const fltx4 Four_GammaToLinearCoefficients_D;		// *x^0
 #ifndef ALIGN16_POST
 #define ALIGN16_POST
 #endif
-extern const ALIGN16 int32 g_SIMD_clear_signmask[] ALIGN16_POST;			// 0x7fffffff x 4
-extern const ALIGN16 int32 g_SIMD_signmask[] ALIGN16_POST;				// 0x80000000 x 4
-extern const ALIGN16 int32 g_SIMD_lsbmask[] ALIGN16_POST;				// 0xfffffffe x 4
-extern const ALIGN16 int32 g_SIMD_clear_wmask[] ALIGN16_POST;			// -1 -1 -1 0
-extern const ALIGN16 int32 g_SIMD_ComponentMask[4][4] ALIGN16_POST;		// [0xFFFFFFFF 0 0 0], [0 0xFFFFFFFF 0 0], [0 0 0xFFFFFFFF 0], [0 0 0 0xFFFFFFFF]
-extern const ALIGN16 int32 g_SIMD_AllOnesMask[] ALIGN16_POST;			// ~0,~0,~0,~0
 extern const fltx4 g_SIMD_Identity[4];									// [1 0 0 0], [0 1 0 0], [0 0 1 0], [0 0 0 1]
-extern const ALIGN16 int32 g_SIMD_Low16BitsMask[] ALIGN16_POST;			// 0xffff x 4
+
+extern const ALIGN16 uint32 g_SIMD_clear_signmask[] ALIGN16_POST;			// 0x7fffffff x 4
+extern const ALIGN16 uint32 g_SIMD_signmask[] ALIGN16_POST;				// 0x80000000 x 4
+extern const ALIGN16 uint32 g_SIMD_lsbmask[] ALIGN16_POST;				// 0xfffffffe x 4
+extern const ALIGN16 uint32 g_SIMD_clear_wmask[] ALIGN16_POST;			// -1 -1 -1 0
+extern const ALIGN16 uint32 g_SIMD_ComponentMask[4][4] ALIGN16_POST;		// [0xFFFFFFFF 0 0 0], [0 0xFFFFFFFF 0 0], [0 0 0xFFFFFFFF 0], [0 0 0 0xFFFFFFFF]
+extern const ALIGN16 uint32 g_SIMD_AllOnesMask[] ALIGN16_POST;			// ~0,~0,~0,~0
+extern const ALIGN16 uint32 g_SIMD_Low16BitsMask[] ALIGN16_POST;			// 0xffff x 4
 
 // this mask is used for skipping the tail of things. If you have N elements in an array, and wish
 // to mask out the tail, g_SIMD_SkipTailMask[N & 3] what you want to use for the last iteration.
-extern const int32 ALIGN16 g_SIMD_SkipTailMask[4][4] ALIGN16_POST;
+extern const uint32 ALIGN16 g_SIMD_SkipTailMask[4][4] ALIGN16_POST;
 
-extern const int32 ALIGN16 g_SIMD_EveryOtherMask[];				// 0, ~0, 0, ~0
+extern const uint32 ALIGN16 g_SIMD_EveryOtherMask[];				// 0, ~0, 0, ~0
 // Define prefetch macros.
 // The characteristics of cache and prefetch are completely 
 // different between the different platforms, so you DO NOT
@@ -3653,7 +3654,7 @@ FORCEINLINE fltx4 ReplicateX4(const float* flValue)
 FORCEINLINE float SubFloat(const fltx4& a, int idx)
 {
 	// NOTE: if the output goes into a register, this causes a Load-Hit-Store stall (don't mix fpu/vpu math!)
-#ifndef POSIX
+#ifndef POSIX_MATH
 	return a.m128_f32[idx];
 #else
 	return (reinterpret_cast<float const*>(&a))[idx];
@@ -3662,7 +3663,7 @@ FORCEINLINE float SubFloat(const fltx4& a, int idx)
 
 FORCEINLINE float& SubFloat(fltx4& a, int idx)
 {
-#ifndef POSIX
+#ifndef POSIX_MATH
 	return a.m128_f32[idx];
 #else
 	return (reinterpret_cast<float*>(&a))[idx];
@@ -3676,7 +3677,7 @@ FORCEINLINE uint32 SubFloatConvertToInt(const fltx4& a, int idx)
 
 FORCEINLINE uint32 SubInt(const fltx4& a, int idx)
 {
-#ifndef POSIX
+#ifndef POSIX_MATH
 	return a.m128_u32[idx];
 #else
 	return (reinterpret_cast<uint32 const*>(&a))[idx];
@@ -3685,7 +3686,7 @@ FORCEINLINE uint32 SubInt(const fltx4& a, int idx)
 
 FORCEINLINE uint32& SubInt(fltx4& a, int idx)
 {
-#ifndef POSIX
+#ifndef POSIX_MATH
 	return a.m128_u32[idx];
 #else
 	return (reinterpret_cast<uint32*>(&a))[idx];
@@ -4248,7 +4249,7 @@ FORCEINLINE fltx4 CompressSIMD(fltx4 const& a, fltx4 const& b)
 // using it heavily.
 FORCEINLINE fltx4 LoadAndConvertUint16SIMD(const uint16* pInts)
 {
-#ifdef POSIX
+#ifdef POSIX_MATH
 	fltx4 retval;
 	SubFloat(retval, 0) = pInts[0];
 	SubFloat(retval, 1) = pInts[1];
@@ -4398,7 +4399,7 @@ FORCEINLINE void RotateLeftDoubleSIMD(fltx4& a, fltx4& b)
 
 // // Some convenience operator overloads, which are just aliasing the functions above.
 // Unneccessary on 360, as you already have them from xboxmath.h (same for PS3 PPU and SPU)
-#if !defined(PLATFORM_PPC) && !defined( POSIX ) && !defined(SPU)
+#if !defined(PLATFORM_PPC) && !defined( POSIX_MATH ) && !defined(SPU)
 #if 1  // TODO: verify generation of non-bad code. 
 // Componentwise add
 FORCEINLINE fltx4 operator+(FLTX4 a, FLTX4 b)
@@ -5240,19 +5241,13 @@ inline FourVectors minimum(const FourVectors& a, const FourVectors& b)
 
 FORCEINLINE FourVectors RotateLeft(const FourVectors& src)
 {
-	FourVectors ret;
-	ret.x = RotateLeft(src.x);
-	ret.y = RotateLeft(src.y);
-	ret.z = RotateLeft(src.z);
+	FourVectors ret = RotateLeft(src);
 	return ret;
 }
 
 FORCEINLINE FourVectors RotateRight(const FourVectors& src)
 {
-	FourVectors ret;
-	ret.x = RotateRight(src.x);
-	ret.y = RotateRight(src.y);
-	ret.z = RotateRight(src.z);
+	FourVectors ret = RotateRight(src);
 	return ret;
 }
 FORCEINLINE FourVectors MaskedAssign(const bi32x4& ReplacementMask, const FourVectors& NewValue, const FourVectors& OldValue)
