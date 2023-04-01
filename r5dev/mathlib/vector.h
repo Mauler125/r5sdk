@@ -165,9 +165,9 @@ public:
 	inline bool IsZeroFast() const RESTRICT
 	{
 		static_assert(sizeof(vec_t) == sizeof(int));
-		return (*reinterpret_cast<const int*>(&x) == 0 &&
-			*reinterpret_cast<const int*>(&y) == 0 &&
-			*reinterpret_cast<const int*>(&z) == 0);
+		return (*(int*)(&x) == 0 &&
+			*(int*)(&y) == 0 &&
+			*(int*)(&z) == 0);
 	}
 
 	vec_t	NormalizeInPlace();								///< Normalize all components
