@@ -34,6 +34,7 @@ bool IsOriginInitialized()
 	return false;
 }
 
+#ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: validates if client's persona name meets EA's criteria
 // Input  : *pszName -
@@ -58,3 +59,4 @@ bool IsValidPersonaName(const char* pszName)
 	size_t pos = strspn(pszName, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_");
 	return pszName[pos] == '\0';
 }
+#endif // !CLIENT_DLL
