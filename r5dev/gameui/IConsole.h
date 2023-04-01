@@ -55,7 +55,7 @@ public:
     void ClearHistory(void);
 
 private: // Internal only.
-    void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
+    void AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)*/;
 
     ///////////////////////////////////////////////////////////////////////////
     virtual void SetStyleVar(void);

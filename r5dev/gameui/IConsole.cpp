@@ -1049,16 +1049,16 @@ void CConsole::AddLog(const ConLog_t& conLog)
 //          *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
+void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)*/
 {
-    char buf[4096];
-    va_list args{};
+    string result;
+    va_list args;
+
     va_start(args, fmt);
-    vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
-    buf[IM_ARRAYSIZE(buf) - 1] = 0;
+    result = FormatV(fmt, args);
     va_end(args);
 
-    m_Logger.InsertText(ConLog_t(buf, color));
+    m_Logger.InsertText(ConLog_t(result, color));
 }
 
 //-----------------------------------------------------------------------------
