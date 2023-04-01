@@ -1057,7 +1057,7 @@ void Mat_CrossHair_f(const CCommand& args)
 	}
 	else
 	{
-		DevMsg(eDLL_T::MS, __FUNCTION__": No material found >:(\n");
+		DevMsg(eDLL_T::MS, "%s: No material found >:(\n", __FUNCTION__);
 	}
 }
 
