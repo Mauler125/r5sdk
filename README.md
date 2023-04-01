@@ -6,13 +6,14 @@ In order to compile the SDK, you will need to install Visual Studio 2017, 2019 o
 * Desktop Development with C++ Package.
 * Windows SDK 10.0.10240.0 or higher.
 * C++ MFC build tools for x86 and x64.
+* [Optional] C++ Clang/LLVM compiler.
 
 Steps:
 1. Download or clone the solution to anywhere on your disk.
     1. In the folder `r5sdk.sln` resides, create a new folder called `game`.
     2. Move all the game files in the `game` folder so that the path `game/r5apex(_ds).exe` is valid.
 2. Open `r5sdk.sln` in Visual Studio and compile the solution.
-    1. Depending on your version of Visual Studio, you might need to re-target the solution.
+    1. Depending on your version of Visual Studio and the selected compiler, you might need to re-target the solution.
     2. All binaries and symbols are compiled in the `game` folder.
     3. Run `launcher.exe`, toggle and set the desired options and hit the `Launch Game` button.
 
