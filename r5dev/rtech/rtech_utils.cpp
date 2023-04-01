@@ -164,341 +164,323 @@ uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, uint8
 //-----------------------------------------------------------------------------
 uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t inLen, uint64_t outLen)
 {
-	uint64_t decompressed_position;        // r15
-	uint32_t byte_bit_offset;              // ebp
-	uint64_t byte;                         // rsi
-	uint64_t input_byte_pos;               // rdi
-	uint64_t some_size;                    // r12
-	uint32_t dword6C;                      // ecx MAPDST
-	uint64_t v12;                          // rsi
-	uint64_t i;                            // rax
-	uint64_t dword6c_shl8;                 // r8
-	int64_t dword6c_old;                   // r9
-	int32_t LUT_200_val;                   // ecx
-	uint64_t v17;                          // rax
-	uint64_t byte_new;                     // rsi
-	int64_t  LUT_0_VAL;                    // r14
-	int32_t byte_4bits_1;                  // ecx
-	uint64_t v21;                          // r11
-	int32_t v22;                           // edx
-	uint64_t out_mask;                     // rax
-	int32_t v24;                           // er8
-	uint32_t LUT_400_seek_backwards;       // er13
-	uint64_t out_seek_back;                // r10
-	uint64_t out_seekd_1;                  // rax
-	uint64_t* out_seekd_back;              // r10
-	uint64_t decompressed_size;            // r9
-	uint64_t inv_mask_in;                  // r10
-	uint64_t header_skip_bytes_bs;         // r8
-	uint64_t v32;                          // rax
-	uint64_t v33;                          // rax
-	uint64_t v34;                          // rax
-	uint64_t stream_decompressed_size_new; // rcx
-	int64_t  v36;                          // rdx
-	uint64_t len_needed_new;               // r14
-	uint64_t stream_compressed_size_new;   // r11
-	char v39;                                   // cl MAPDST
-	uint64_t v40;                          // rsi MAPDST
-	uint64_t v46;                               // rcx
-	int64_t v47;                           // r9
-	int64_t m;                             // r8
-	uint32_t v49;                          // er9
-	int64_t v50;                           // r8
-	int64_t v51;                           // rdx
-	int64_t k;                             // r8
-	char* v53;                                  // r10
-	int64_t  v54;                          // rdx
-	uint32_t lut0_val_abs;                 // er14
-	int64_t* in_seekd;                     // rdx
-	int64_t* out_seekd;                    // r8
-	int64_t  byte_3bits;                   // rax MAPDST
-	uint64_t byte_new_tmp;                 // r9 MAPDST
-	int32_t LUT_4D0_480;                   // er10 MAPDST
-	uint8_t LUT_4D8_4C0_nBits;             // cl MAPDST
-	uint64_t byte_4bits;                   // rax MAPDST
-	uint32_t copy_bytes_ammount;           // er14
-	uint32_t j;                            // ecx
-	int64_t v67;                           // rax
-	uint64_t v68;                          // rcx
-	uint8_t result;                        // al
+	char result;                          // al
+	uint64_t v5;                          // r15
+	uint64_t v6;                          // r11
+	uint32_t v7;                          // ebp
+	uint64_t v8;                          // rsi
+	uint64_t v9;                          // rdi
+	uint64_t v10;                         // r12
+	uint64_t v11;                         // r13
+	uint32_t v12;                         // ecx
+	uint64_t v13;                         // rsi
+	uint64_t i;                           // rax
+	uint64_t v15;                         // r8
+	int64_t v16;                          // r9
+	int v17;                              // ecx
+	uint64_t v18;                         // rax
+	uint64_t v19;                         // rsi
+	int64_t v20;                          // r14
+	int v21;                              // ecx
+	uint64_t v22;                         // r11
+	int v23;                              // edx
+	uint64_t v24;                         // rax
+	int v25;                              // er8
+	uint32_t v26;                         // er13
+	uint64_t v27;                         // r10
+	uint64_t v28;                         // rax
+	_QWORD* v29;                          // r10
+	uint64_t v30;                         // r9
+	uint64_t v31;                         // r10
+	uint64_t v32;                         // r8
+	uint64_t v33;                         // rax
+	uint64_t v34;                         // rax
+	uint64_t v35;                         // rax
+	uint64_t v36;                         // rcx
+	int64_t v37;                          // rdx
+	uint64_t v38;                         // r14
+	uint64_t v39;                         // r11
+	char v40;                             // cl
+	uint64_t v41;                         // rsi
+	int64_t v42;                          // rcx
+	uint64_t v43;                         // r8
+	int v44;                              // er11
+	uint8_t v45;                          // r9
+	uint64_t v46;                         // rcx
+	uint64_t v47;                         // rcx
+	int64_t v48;                          // r9
+	int64_t l;                            // r8
+	uint32_t v50;                         // er9
+	int64_t v51;                          // r8
+	int64_t v52;                          // rdx
+	int64_t k;                            // r8
+	char* v54;                            // r10
+	int64_t v55;                          // rdx
+	uint32_t v56;                         // er14
+	int64_t* v57;                         // rdx
+	int64_t* v58;                         // r8
+	char v59;                             // al
+	uint64_t v60;                         // rsi
+	int64_t v61;                          // rax
+	uint64_t v62;                         // r9
+	int v63;                              // er10
+	uint8_t v64;                          // cl
+	uint64_t v65;                         // rax
+	uint32_t v66;                         // er14
+	uint32_t j;                           // ecx
+	int64_t v68;                          // rax
+	uint64_t v69;                         // rcx
+	uint64_t v70;                         // [rsp+0h] [rbp-58h]
+	uint32_t v71;                         // [rsp+60h] [rbp+8h]
+	uint64_t v74;                         // [rsp+78h] [rbp+20h]
 
 	if (inLen < state->m_nLengthNeeded)
 		return 0;
-
-	decompressed_position = state->m_nDecompPosition;
-	if (outLen < state->m_nInvMaskOut + (decompressed_position & ~state->m_nInvMaskOut) + 1 && outLen < state->m_nDecompSize)
+	v5 = state->m_nDecompPosition;
+	if (outLen < state->m_nInvMaskOut + (v5 & ~state->m_nInvMaskOut) + 1 && outLen < state->m_nDecompSize)
 		return 0;
-
-	byte_bit_offset = state->m_nByteBitOffset; // Keeping copy since we increment it down below.
-	byte = state->byte; // Keeping copy since its getting overwritten down below.
-	input_byte_pos = state->m_nInputBytePos; // Keeping copy since we increment it down below.
-	some_size = state->qword70;
-	if (state->m_nCompressedStreamSize < some_size)
-		some_size = state->m_nCompressedStreamSize;
-	dword6C = state->dword6C;
-
-	if (!byte_bit_offset)
-		goto LABEL_9;
-
-	v12 = (*(uint64_t*)((input_byte_pos & state->m_nMask) + state->m_nInputBuf) << (64 - (uint8_t)byte_bit_offset)) | byte;
-	for (i = byte_bit_offset; ; i = byte_bit_offset)
+	v6 = state->m_nOut;
+	v7 = state->m_nByteBitOffset;
+	v8 = state->byte;
+	v9 = state->m_nInputBytePos;
+	v10 = state->qword70;
+	v11 = state->m_nInputBuf;
+	if (state->m_nCompressedStreamSize < v10)
+		v10 = state->m_nCompressedStreamSize;
+	v12 = state->dword6C;
+	v74 = v11;
+	v70 = v6;
+	v71 = v12;
+	if (!v7)
+		goto LABEL_11;
+	v13 = (*(_QWORD*)((v9 & state->m_nMask) + v11) << (64 - (unsigned __int8)v7)) | v8;
+	for (i = v7; ; i = v7)
 	{
-		byte_bit_offset &= 7u;
-		input_byte_pos += i >> 3;
-		byte = (0xFFFFFFFFFFFFFFFFui64 >> byte_bit_offset) & v12;
-	LABEL_9:
-		dword6c_shl8 = (uint64_t)dword6C << 8;
-		dword6c_old = dword6C;
-		LUT_200_val = LUT_200[(uint8_t)byte + dword6c_shl8];// LUT_200 - u8 - amount of bits
-		v17 = (uint8_t)byte + dword6c_shl8;
-		byte_bit_offset += LUT_200_val;
-		byte_new = byte >> LUT_200_val;
-		LUT_0_VAL = LUT_0[v17];// LUT_0 - i32 - signed, amount of bytes
-
-		if (LUT_0_VAL < 0)
+		v7 &= 7u;
+		v9 += i >> 3;
+		v12 = v71;
+		v8 = (0xFFFFFFFFFFFFFFFFui64 >> v7) & v13;
+	LABEL_11:
+		v15 = (unsigned __int64)v12 << 8;
+		v16 = v12;
+		v17 = *((unsigned __int8*)&s_PakFileCompressionLUT + (unsigned __int8)v8 + v15 + 512);
+		v18 = (unsigned __int8)v8 + v15;
+		v7 += v17;
+		v19 = v8 >> v17;
+		v20 = (unsigned int)*((char*)&s_PakFileCompressionLUT + v18);
+		if (*((char*)&s_PakFileCompressionLUT + v18) < 0)
 		{
-			lut0_val_abs = -(int32_t)LUT_0_VAL;
-			in_seekd = (int64_t*)(state->m_nInputBuf + (input_byte_pos & state->m_nMask));
-			dword6C = 1;
-			out_seekd = (int64_t*)(state->m_nOut + (decompressed_position & state->m_nOutMask));
-			if (lut0_val_abs == LUT_4E0[dword6c_old])
+			v56 = -(int)v20;
+			v57 = (__int64*)(v11 + (v9 & state->m_nMask));
+			v71 = 1;
+			v58 = (__int64*)(v6 + (v5 & state->m_nOutMask));
+			if (v56 == *((unsigned __int8*)&s_PakFileCompressionLUT + v16 + 1248))
 			{
-				if ((~input_byte_pos & state->m_nInvMaskIn) < 0xF
-					|| (state->m_nInvMaskOut & ~decompressed_position) < 0xF
-					|| state->m_nDecompSize - decompressed_position < 0x10)
+				if ((~v9 & state->m_nInvMaskIn) < 0xF || (state->m_nInvMaskOut & ~v5) < 15 || state->m_nDecompSize - v5 < 0x10)
+					v56 = 1;
+				v59 = char(v19);
+				v60 = v19 >> 3;
+				v61 = v59 & 7;
+				v62 = v60;
+				if (v61)
 				{
-					lut0_val_abs = 1;
-				}
-
-				v39 = byte_new;
-				v40 = byte_new >> 3;
-				byte_3bits = v39 & 7;
-				byte_new_tmp = v40;
-
-				if (byte_3bits)
-				{
-					LUT_4D0_480 = LUT_4D0[byte_3bits];// LUT_4D0 - u8
-					LUT_4D8_4C0_nBits = LUT_4D8[byte_3bits];// LUT_4D8 - u8 - amount of bits
+					v63 = *((unsigned __int8*)&s_PakFileCompressionLUT + v61 + 1232);
+					v64 = *((_BYTE*)&s_PakFileCompressionLUT + v61 + 1240);
 				}
 				else
 				{
-					byte_new_tmp = v40 >> 4;
-					byte_4bits = v40 & 15;
-					byte_bit_offset += 4;
-					LUT_4D0_480 = LUT_480[byte_4bits];// LUT_480 - u32
-					LUT_4D8_4C0_nBits = LUT_4C0[byte_4bits]; // LUT_4C0 - u8 - amount of bits???
+					v62 = v60 >> 4;
+					v65 = v60 & 0xF;
+					v7 += 4;
+					v63 = *((_DWORD*)&s_PakFileCompressionLUT + v65 + 288);
+					v64 = *((_BYTE*)&s_PakFileCompressionLUT + v65 + 1216);
 				}
-
-				byte_bit_offset += LUT_4D8_4C0_nBits + 3;
-				byte_new = byte_new_tmp >> LUT_4D8_4C0_nBits;
-				copy_bytes_ammount = LUT_4D0_480 + (byte_new_tmp & ((1 << LUT_4D8_4C0_nBits) - 1)) + lut0_val_abs;
-
-				for (j = copy_bytes_ammount >> 3; j; --j)// copy by 8 bytes
+				v7 += v64 + 3;
+				v19 = v62 >> v64;
+				v66 = v63 + (v62 & ((1 << v64) - 1)) + v56;
+				for (j = v66 >> 3; j; --j)
 				{
-					v67 = *in_seekd++;
-					*out_seekd++ = v67;
+					v68 = *v57++;
+					*v58++ = v68;
 				}
-
-				if ((copy_bytes_ammount & 4) != 0)    // copy by 4
+				if ((v66 & 4) != 0)
 				{
-					*(uint32_t*)out_seekd = *(uint32_t*)in_seekd;
-					out_seekd = (int64_t*)((char*)out_seekd + 4);
-					in_seekd = (int64_t*)((char*)in_seekd + 4);
+					*(_DWORD*)v58 = *(_DWORD*)v57;
+					v58 = (__int64*)((char*)v58 + 4);
+					v57 = (__int64*)((char*)v57 + 4);
 				}
-
-				if ((copy_bytes_ammount & 2) != 0)    // copy by 2
+				if ((v66 & 2) != 0)
 				{
-					*(uint16_t*)out_seekd = *(uint16_t*)in_seekd;
-					out_seekd = (int64_t*)((char*)out_seekd + 2);
-					in_seekd = (int64_t*)((char*)in_seekd + 2);
+					*(_WORD*)v58 = *(_WORD*)v57;
+					v58 = (__int64*)((char*)v58 + 2);
+					v57 = (__int64*)((char*)v57 + 2);
 				}
-
-				if ((copy_bytes_ammount & 1) != 0)    // copy by 1
-					*(uint8_t*)out_seekd = *(uint8_t*)in_seekd;
-
-				input_byte_pos += copy_bytes_ammount;
-				decompressed_position += copy_bytes_ammount;
+				if ((v66 & 1) != 0)
+					*(_BYTE*)v58 = *(_BYTE*)v57;
+				v9 += v66;
+				v5 += v66;
 			}
 			else
 			{
-				*out_seekd = *in_seekd;
-				out_seekd[1] = in_seekd[1];
-				input_byte_pos += lut0_val_abs;
-				decompressed_position += lut0_val_abs;
+				*v58 = *v57;
+				v58[1] = v57[1];
+				v9 += v56;
+				v5 += v56;
 			}
 		}
 		else
 		{
-			byte_4bits_1 = byte_new & 0xF;
-			dword6C = 0;
-			v21 = ((uint64_t)(uint32_t)byte_new >> (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)) & 0x3F;// 6 bits after shift for who knows how much???
-			v22 = 1 << (byte_4bits_1 + ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4)));// amount of bits to read???
-			byte_bit_offset += (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)// shit shit gets shifted by amount of bits it read or something
-				+ LUT_440[v21]
-				+ byte_4bits_1
-				+ ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
-			out_mask = state->m_nOutMask;
-			v24 = 16
-				* (v22
-					+ ((v22 - 1) & (byte_new >> ((((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)
-						+ LUT_440[v21]))));
-			byte_new >>= (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)
-				+ LUT_440[v21]
-				+ byte_4bits_1
-				+ ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
-			LUT_400_seek_backwards = v24 + LUT_400[v21] - 16;// LUT_400 - u8 - seek backwards
-			out_seek_back = out_mask & (decompressed_position - LUT_400_seek_backwards);
-			out_seekd_1 = state->m_nOut + (decompressed_position & out_mask);
-			out_seekd_back = (uint64_t*)(state->m_nOut + out_seek_back);
-			if ((int32_t)LUT_0_VAL == 17)
+			v21 = v19 & 0xF;
+			v71 = 0;
+			v22 = ((unsigned __int64)(unsigned int)v19 >> (((unsigned int)(v21 - 31) >> 3) & 6)) & 0x3F;
+			v23 = 1 << (v21 + ((v19 >> 4) & ((24 * (((unsigned int)(v21 - 31) >> 3) & 2)) >> 4)));
+			v7 += (((unsigned int)(v21 - 31) >> 3) & 6) + *((unsigned __int8*)&s_PakFileCompressionLUT + v22 + 1088) + v21 + ((v19 >> 4) & ((24 * (((unsigned int)(v21 - 31) >> 3) & 2)) >> 4));
+			v24 = state->m_nOutMask;
+			v25 = 16 * (v23 + ((v23 - 1) & (v19 >> ((((unsigned int)(v21 - 31) >> 3) & 6) + *((_BYTE*)&s_PakFileCompressionLUT + v22 + 1088)))));
+			v19 >>= (((unsigned int)(v21 - 31) >> 3) & 6) + *((_BYTE*)&s_PakFileCompressionLUT + v22 + 1088) + v21 + ((v19 >> 4) & ((24 * (((unsigned int)(v21 - 31) >> 3) & 2)) >> 4));
+			v26 = v25 + *((unsigned __int8*)&s_PakFileCompressionLUT + v22 + 1024) - 16;
+			v27 = v24 & (v5 - v26);
+			v28 = v70 + (v5 & v24);
+			v29 = (_QWORD*)(v70 + v27);
+			if ((_DWORD)v20 == 17)
 			{
-				v39 = byte_new;
-				v40 = byte_new >> 3;
-				byte_3bits = v39 & 7;
-				byte_new_tmp = v40;
-				if (byte_3bits)
+				v40 = char(v19);
+				v41 = v19 >> 3;
+				v42 = v40 & 7;
+				v43 = v41;
+				if (v42)
 				{
-					LUT_4D0_480 = LUT_4D0[byte_3bits];
-					LUT_4D8_4C0_nBits = LUT_4D8[byte_3bits];
+					v44 = *((unsigned __int8*)&s_PakFileCompressionLUT + v42 + 1232);
+					v45 = *((_BYTE*)&s_PakFileCompressionLUT + v42 + 1240);
 				}
 				else
 				{
-					byte_bit_offset += 4;
-					byte_4bits = v40 & 0xF;
-					byte_new_tmp = v40 >> 4;
-					LUT_4D0_480 = LUT_480[byte_4bits];
-					LUT_4D8_4C0_nBits = LUT_4C0[byte_4bits];
-					if (state->m_nInputBuf && byte_bit_offset + LUT_4D8_4C0_nBits >= 0x3D)
+					v7 += 4;
+					v46 = v41 & 0xF;
+					v43 = v41 >> 4;
+					v44 = *((_DWORD*)&s_PakFileCompressionLUT + v46 + 288);
+					v45 = *((_BYTE*)&s_PakFileCompressionLUT + v46 + 1216);
+					if (v74 && v7 + v45 >= 61)
 					{
-						v46 = input_byte_pos++ & state->m_nMask;
-						byte_new_tmp |= (uint64_t) * (uint8_t*)(v46 + state->m_nInputBuf) << (61
-							- (uint8_t)byte_bit_offset);
-						byte_bit_offset -= 8;
+						v47 = v9++ & state->m_nMask;
+						v43 |= (unsigned __int64)*(unsigned __int8*)(v47 + v74) << (61 - (unsigned __int8)v7);
+						v7 -= 8;
 					}
 				}
-				byte_bit_offset += LUT_4D8_4C0_nBits + 3;
-				byte_new = byte_new_tmp >> LUT_4D8_4C0_nBits;
-				v47 = ((uint32_t)byte_new_tmp & ((1 << LUT_4D8_4C0_nBits) - 1)) + LUT_4D0_480 + 17;
-				decompressed_position += v47;
-				if (LUT_400_seek_backwards < 8)
+				v7 += v45 + 3;
+				v19 = v43 >> v45;
+				v48 = ((unsigned int)v43 & ((1 << v45) - 1)) + v44 + 17;
+				v5 += v48;
+				if (v26 < 8)
 				{
-					v49 = v47 - 13;
-					decompressed_position -= 13i64;
-					if (LUT_400_seek_backwards == 1)    // 1 means copy v49 qwords?
+					v50 = uint32_t(v48 - 13);
+					v5 -= 13i64;
+					if (v26 == 1)
 					{
-						v50 = *(uint8_t*)out_seekd_back;
-						v51 = 0i64;
-						for (k = 0x101010101010101i64 * v50; (uint32_t)v51 < v49; v51 = (uint32_t)(v51 + 8))
-							*(uint64_t*)(v51 + out_seekd_1) = k;
+						v51 = *(unsigned __int8*)v29;
+						//++dword_14D40B2BC;
+						v52 = 0i64;
+						for (k = 0x101010101010101i64 * v51; (unsigned int)v52 < v50; v52 = (unsigned int)(v52 + 8))
+							*(_QWORD*)(v52 + v28) = k;
 					}
 					else
 					{
-						if (v49)
+						//++dword_14D40B2B8;
+						if (v50)
 						{
-							v53 = (char*)out_seekd_back - out_seekd_1;
-							v54 = v49;
+							v54 = (char*)v29 - v28;
+							v55 = v50;
 							do
 							{
-								*(uint8_t*)out_seekd_1 = v53[out_seekd_1];// seeked = seek_back; increment ptrs
-								++out_seekd_1;
-								--v54;
-							} while (v54);
+								*(_BYTE*)v28 = v54[v28];
+								++v28;
+								--v55;
+							} while (v55);
 						}
 					}
 				}
 				else
 				{
-					for (m = 0i64; (uint32_t)m < (uint32_t)v47; m = (uint32_t)(m + 8))
-						*(uint64_t*)(m + out_seekd_1) = *(uint64_t*)((char*)out_seekd_back + m);
+					//++dword_14D40B2AC;
+					for (l = 0i64; (unsigned int)l < (unsigned int)v48; l = (unsigned int)(l + 8))
+						*(_QWORD*)(l + v28) = *(_QWORD*)((char*)v29 + l);
 				}
 			}
 			else
 			{
-				decompressed_position += LUT_0_VAL;
-				*(uint64_t*)out_seekd_1 = *out_seekd_back;
-				*(uint64_t*)(out_seekd_1 + 8) = out_seekd_back[1];
+				v5 += v20;
+				*(_QWORD*)v28 = *v29;
+				*(_QWORD*)(v28 + 8) = v29[1];
 			}
+			v11 = v74;
 		}
-		if (input_byte_pos >= some_size)
+		if (v9 >= v10)
 			break;
-
-	LABEL_26:
-		v12 = (*(uint64_t*)((input_byte_pos & state->m_nMask) + state->m_nInputBuf) << (64 - (uint8_t)byte_bit_offset)) | byte_new;
+	LABEL_29:
+		v6 = v70;
+		v13 = (*(_QWORD*)((v9 & state->m_nMask) + v11) << (64 - (unsigned __int8)v7)) | v19;
 	}
-
-	if (decompressed_position != state->m_nDecompStreamSize)
-		goto LABEL_22;
-
-	decompressed_size = state->m_nDecompSize;
-	if (decompressed_position == decompressed_size)
+	if (v5 != state->m_nDecompStreamSize)
+		goto LABEL_25;
+	v30 = state->m_nDecompSize;
+	if (v5 == v30)
 	{
-		state->m_nInputBytePos = input_byte_pos;
 		result = 1;
-		state->m_nDecompPosition = decompressed_position;
-		return result;
+		goto LABEL_69;
 	}
-
-	inv_mask_in = state->m_nInvMaskIn;
-	header_skip_bytes_bs = state->m_nHeaderOffset;
-	v32 = inv_mask_in & -(int64_t)input_byte_pos;
-	byte_new >>= 1;
-	++byte_bit_offset;
-
-	if (header_skip_bytes_bs > v32)
+	v31 = state->m_nInvMaskIn;
+	v32 = state->m_nHeaderOffset;
+	v33 = v31 & -(__int64)v9;
+	v19 >>= 1;
+	++v7;
+	if (v32 > v33)
 	{
-		input_byte_pos += v32;
-		v33 = state->qword70;
-		if (input_byte_pos > v33)
-			state->qword70 = inv_mask_in + v33 + 1;
+		v9 += v33;
+		v34 = state->qword70;
+		if (v9 > v34)
+			state->qword70 = v31 + v34 + 1;
 	}
-
-	v34 = input_byte_pos & state->m_nMask;
-	input_byte_pos += header_skip_bytes_bs;
-	stream_decompressed_size_new = decompressed_position + state->m_nInvMaskOut + 1;
-	v36 = *(uint64_t*)(v34 + state->m_nInputBuf) & ((1LL << (8 * (uint8_t)header_skip_bytes_bs)) - 1);
-	len_needed_new = v36 + state->m_nLengthNeeded;
-	stream_compressed_size_new = v36 + state->m_nCompressedStreamSize;
-	state->m_nLengthNeeded = len_needed_new;
-	state->m_nCompressedStreamSize = stream_compressed_size_new;
-
-	if (stream_decompressed_size_new >= decompressed_size)
+	v35 = v9 & state->m_nMask;
+	v9 += v32;
+	v36 = v5 + state->m_nInvMaskOut + 1;
+	v37 = *(_QWORD*)(v35 + v11) & ((1i64 << (8 * (unsigned __int8)v32)) - 1);
+	v38 = v37 + state->m_nLengthNeeded;
+	v39 = v37 + state->m_nCompressedStreamSize;
+	state->m_nLengthNeeded = v38;
+	state->m_nCompressedStreamSize = v39;
+	if (v36 >= v30)
 	{
-		stream_decompressed_size_new = decompressed_size;
-		state->m_nCompressedStreamSize = header_skip_bytes_bs + stream_compressed_size_new;
+		v36 = v30;
+		state->m_nCompressedStreamSize = v32 + v39;
 	}
-
-	state->m_nDecompStreamSize = stream_decompressed_size_new;
-
-	if (inLen >= len_needed_new && outLen >= stream_decompressed_size_new)
+	state->m_nDecompStreamSize = v36;
+	if (inLen >= v38 && outLen >= v36)
 	{
-	LABEL_22:
-		some_size = state->qword70;
-		if (input_byte_pos >= some_size)
+	LABEL_25:
+		v10 = state->qword70;
+		if (v9 >= v10)
 		{
-			input_byte_pos = ~state->m_nInvMaskIn & (input_byte_pos + 7);
-			some_size += state->m_nInvMaskIn + 1;
-			state->qword70 = some_size;
+			v9 = ~state->m_nInvMaskIn & (v9 + 7);
+			v10 += state->m_nInvMaskIn + 1;
+			state->qword70 = v10;
 		}
-		if (state->m_nCompressedStreamSize < some_size)
-			some_size = state->m_nCompressedStreamSize;
-		goto LABEL_26;
+		if (state->m_nCompressedStreamSize < v10)
+			v10 = state->m_nCompressedStreamSize;
+		goto LABEL_29;
 	}
-
-	v68 = state->qword70;
-
-	if (input_byte_pos >= v68)
+	v69 = state->qword70;
+	if (v9 >= v69)
 	{
-		input_byte_pos = ~inv_mask_in & (input_byte_pos + 7);
-		state->qword70 = v68 + inv_mask_in + 1;
+		v9 = ~v31 & (v9 + 7);
+		state->qword70 = v69 + v31 + 1;
 	}
-
-	state->dword6C = dword6C;
+	state->dword6C = v71;
 	result = 0;
-	state->m_nInputBytePos = input_byte_pos;
-	state->m_nDecompPosition = decompressed_position;
-	state->byte = byte_new;
-	state->m_nByteBitOffset = byte_bit_offset;
-
+	state->byte = v19;
+	state->m_nByteBitOffset = v7;
+LABEL_69:
+	state->m_nDecompPosition = v5;
+	state->m_nInputBytePos = v9;
 	return result;
 }
 
