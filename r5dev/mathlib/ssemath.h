@@ -5241,14 +5241,18 @@ inline FourVectors minimum(const FourVectors& a, const FourVectors& b)
 
 FORCEINLINE FourVectors RotateLeft(const FourVectors& src)
 {
-	FourVectors ret = RotateLeft(src);
-	return ret;
+	FourVectors ret;
+	ret.x = RotateLeft(src.x);
+	ret.y = RotateLeft(src.y);
+	ret.z = RotateLeft(src.z);
 }
 
 FORCEINLINE FourVectors RotateRight(const FourVectors& src)
 {
-	FourVectors ret = RotateRight(src);
-	return ret;
+	FourVectors ret;
+	ret.x = RotateRight(src.x);
+	ret.y = RotateRight(src.y);
+	ret.z = RotateRight(src.z);
 }
 FORCEINLINE FourVectors MaskedAssign(const bi32x4& ReplacementMask, const FourVectors& NewValue, const FourVectors& OldValue)
 {
