@@ -13,7 +13,7 @@ size_t CURLWriteStringCallback(char* contents, size_t size, size_t nmemb, void* 
     return size * nmemb;
 }
 
-CURL* CURLInitRequest(const string& hostname, const string& request, string& response, curl_slist*& slist)
+CURL* CURLInitRequest(const string& remote, const string& request, string& response, curl_slist*& slist)
 {
     std::function<void(const char*)> fnError = [&](const char* errorMsg)
     {
@@ -36,7 +36,7 @@ CURL* CURLInitRequest(const string& hostname, const string& request, string& res
     }
 
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
-    curl_easy_setopt(curl, CURLOPT_URL, hostname.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, remote.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.c_str());
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, curl_timeout->GetInt());
