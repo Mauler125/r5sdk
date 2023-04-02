@@ -110,7 +110,7 @@ static void CheckExponentTable()
 {
 	for (int i = 0; i < 256; i++)
 	{
-		float testAgainst = pow(2.0f, i - 128) / 255.0f;
+		float testAgainst = float(pow(2.0f, i - 128)) / 255.0f;
 		float diff = testAgainst - power2_n[i];
 		float relativeDiff = diff / testAgainst;
 		Assert(testAgainst == 0 ?
@@ -157,7 +157,7 @@ void BuildGammaTable(float gamma, float texGamma, float brightness, int overbrig
 			inf = 0;
 		if (inf > 255)
 			inf = 255;
-		texgammatable[i] = inf;
+		texgammatable[i] = byte(inf);
 	}
 
 	for (i = 0; i < 1024; i++)
@@ -619,9 +619,9 @@ void VectorToColorRGBExp32(const Vector3D& vin, ColorRGBExp32& c)
 		int green = (int)(vin.y * scalar);
 		int blue = (int)(vin.z * scalar);
 
-		c.r = red;
-		c.g = green;
-		c.b = blue;
+		c.r = byte(red);
+		c.g = byte(green);
+		c.b = byte(blue);
 	}
 	/*
 	c.r = ( unsigned char )(vin.x * scalar);

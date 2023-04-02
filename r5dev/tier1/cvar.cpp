@@ -901,10 +901,10 @@ bool ConVar::SetColorFromString(const char* pszValue)
 
 			// Stuff all the values into each byte of our int.
 			unsigned char* pColorElement = (reinterpret_cast<unsigned char*>(&m_Value.m_nValue));
-			pColorElement[0] = nRGBA[0];
-			pColorElement[1] = nRGBA[1];
-			pColorElement[2] = nRGBA[2];
-			pColorElement[3] = nRGBA[3];
+			pColorElement[0] = unsigned char(nRGBA[0]);
+			pColorElement[1] = unsigned char(nRGBA[1]);
+			pColorElement[2] = unsigned char(nRGBA[2]);
+			pColorElement[3] = unsigned char(nRGBA[3]);
 
 			// Copy that value into our float.
 			m_Value.m_fValue = static_cast<float>(m_Value.m_nValue);
@@ -1398,7 +1398,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	{
 		PrintListHeader(f);
 	}
-	for (int i = sorted.FirstInorder(); i != sorted.InvalidIndex(); i = sorted.NextInorder(i))
+	for (unsigned short i = sorted.FirstInorder(); i != sorted.InvalidIndex(); i = sorted.NextInorder(i))
 	{
 		var = sorted[i];
 		if (var->IsCommand())

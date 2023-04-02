@@ -94,7 +94,7 @@ void CTextOverlay::DrawNotify(void)
 		if (flTimeleft < 1.0f)
 		{
 			float f = clamp(flTimeleft, 0.0f, 1.0f) / 1.0f;
-			c[3] = int(f * 255.0f);
+			c[3] = uint8_t(f * 255.0f);
 
 			if (i == 0 && f < 0.2f)
 			{

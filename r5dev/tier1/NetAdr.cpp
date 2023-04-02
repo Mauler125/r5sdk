@@ -231,7 +231,7 @@ bool CNetAdr::SetFromString(const char* pch, bool bUseDNS)
 		if (pchColon && strchr(portStart, ':') == pchColon)
 		{
 			pchColon[0] = '\0'; // Set the port.
-			SetPort(htons(atoi(&pchColon[1])));
+			SetPort(uint16_t(htons(uint16_t(atoi(&pchColon[1])))));
 		}
 	}
 

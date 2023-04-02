@@ -46,7 +46,7 @@ void CSocketCreator::ProcessAccept(void)
 {
 	sockaddr_storage inClient{};
 	int nLengthAddr = sizeof(inClient);
-	SocketHandle_t newSocket = ::accept(m_hListenSocket, reinterpret_cast<sockaddr*>(&inClient), &nLengthAddr);
+	SocketHandle_t newSocket = SocketHandle_t(::accept(SOCKET(m_hListenSocket), reinterpret_cast<sockaddr*>(&inClient), &nLengthAddr));
 	if (newSocket == -1)
 	{
 		if (!IsSocketBlocking())
@@ -128,7 +128,7 @@ bool CSocketCreator::CreateListenSocket(const netadr_t& netAdr, bool bListenOnAl
 {
 	CloseListenSocket();
 	m_ListenAddress = netAdr;
-	m_hListenSocket = ::socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
+	m_hListenSocket = SocketHandle_t(::socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP));
 
 	if (m_hListenSocket != INVALID_SOCKET)
 	{
@@ -187,7 +187,7 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 		CloseAllAcceptedSockets();
 	}
 
-	SocketHandle_t hSocket = ::socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+	SocketHandle_t hSocket = SocketHandle_t(::socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP));
 	if (hSocket == SOCKET_ERROR)
 	{
 		Warning(eDLL_T::ENGINE, "Unable to create socket (%s)\n", NET_ErrorString(WSAGetLastError()));

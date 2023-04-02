@@ -47,7 +47,7 @@ void CRConServer::Init(void)
 	}
 
 	m_Address.SetFromString(hostip->GetString(), true);
-	m_Address.SetPort(htons(hostport->GetInt()));
+	m_Address.SetPort(htons(uint16_t(hostport->GetInt())));
 
 	m_Socket.CreateListenSocket(m_Address, false);
 

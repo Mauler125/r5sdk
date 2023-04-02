@@ -94,7 +94,7 @@ void CBitRead::GrabNextDWord(bool bOverFlowImmediately)
 		}
 		else
 		{
-			assert(reinterpret_cast<int>(m_pDataIn) + 3 < reinterpret_cast<int>(m_pBufferEnd));
+			assert(reinterpret_cast<uintptr_t>(m_pDataIn) + 3 < reinterpret_cast<uintptr_t>(m_pBufferEnd));
 			m_nInBufWord = LittleDWord(*(m_pDataIn++));
 		}
 	}
@@ -242,7 +242,7 @@ bool CBitRead::Seek(int64_t nPosition)
 void CBitRead::StartReading(const void* pData, size_t nBytes, int64_t iStartBit, int64_t nBits)
 {
 	// Make sure it's dword aligned and padded.
-	assert(((unsigned long)pData & 3) == 0);
+	assert((int64_t(pData) & 3) == 0);
 	m_pData = (uint32*)pData;
 	m_pDataIn = m_pData;
 	m_nDataBytes = nBytes;
@@ -253,7 +253,7 @@ void CBitRead::StartReading(const void* pData, size_t nBytes, int64_t iStartBit,
 	}
 	else
 	{
-		assert(nBits <= nBytes * 8);
+		assert(nBits <= int64_t(nBytes * 8));
 		m_nDataBits = nBits;
 	}
 	m_bOverflow = false;
