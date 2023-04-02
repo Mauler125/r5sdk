@@ -241,13 +241,13 @@ void DrawOverlay(OverlayBase_t* pOverlay)
 
 //------------------------------------------------------------------------------
 // Purpose : overlay drawing entrypoint
-// Input  : bDraw - 
+// Input  : bRender - won't render anything if false
 //------------------------------------------------------------------------------
-void DrawAllOverlays(bool bDraw)
+void DrawAllOverlays(bool bRender)
 {
     EnterCriticalSection(&*s_OverlayMutex);
 
-    const bool bOverlayEnabled = enable_debug_overlays->GetBool();
+    const bool bOverlayEnabled = (bRender && enable_debug_overlays->GetBool());
     OverlayBase_t* pCurrOverlay = *s_pOverlays; // rdi
     OverlayBase_t* pPrevOverlay = nullptr;      // rsi
     OverlayBase_t* pNextOverlay = nullptr;      // rbx
@@ -273,27 +273,27 @@ void DrawAllOverlays(bool bDraw)
         }
         else
         {
-            bool bDraw{ };
+            bool bShouldDraw{ };
             if (pCurrOverlay->m_nCreationTick == -1)
             {
                 if (pCurrOverlay->m_nOverlayTick == *g_nOverlayTickCount)
                 {
                     // Draw overlay if unk0 == *overlay_tickcount
-                    bDraw = true;
+                    bShouldDraw = true;
                 }
                 if (pCurrOverlay->m_nOverlayTick == -1)
                 {
                     // Draw overlay if unk0 == -1
-                    bDraw = true;
+                    bShouldDraw = true;
                 }
             }
             else
             {
-                bDraw = pCurrOverlay->m_nCreationTick == *g_nRenderTickCount;
+                bShouldDraw = pCurrOverlay->m_nCreationTick == *g_nRenderTickCount;
             }
-            if (bOverlayEnabled && bDraw)
+            if (bOverlayEnabled && bShouldDraw)
             {
-                if (bDraw)
+                if (bShouldDraw)
                 {
                     DrawOverlay(pCurrOverlay);
                 }
