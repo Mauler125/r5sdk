@@ -35,7 +35,9 @@ void CreateDirectories(string svInput, string* pszOutput = nullptr, bool bWindow
 string ConvertToWinPath(const string& svInput);
 string ConvertToUnixPath(const string& svInput);
 
+bool IsEqualNoCase(const string& svInput, const string& svSecond);
 bool IsValidBase64(const string& svInput, string* psvOutput = nullptr);
+
 string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
 

@@ -343,10 +343,7 @@ CMemory CModule::GetImportedFunction(const string& svModuleName, const string& s
 		// Get virtual relative Address of the imported module name. Then add module base Address to get the actual location.
 		string svImportedModuleName = reinterpret_cast<char*>(reinterpret_cast<DWORD*>(m_pModuleBase + pIID->Name));
 
-		// Convert all characters to lower case because KERNEL32.DLL sometimes is kernel32.DLL, sometimes KERNEL32.dll.
-		std::transform(svImportedModuleName.begin(), svImportedModuleName.end(), svImportedModuleName.begin(), static_cast<int (*)(int)>(std::tolower));
-
-		if (svImportedModuleName.compare(svModuleName) == 0) // Is this our wanted imported module?.
+		if (IsEqualNoCase(svImportedModuleName, svModuleName)) // Is this our wanted imported module?.
 		{
 			// Original First Thunk to get function name.
 			IMAGE_THUNK_DATA* pOgFirstThunk = reinterpret_cast<IMAGE_THUNK_DATA*>(m_pModuleBase + pIID->OriginalFirstThunk);

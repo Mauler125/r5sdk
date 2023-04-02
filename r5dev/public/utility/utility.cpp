@@ -427,6 +427,17 @@ string ConvertToUnixPath(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For comparing two strings (case insensitive).
+bool IsEqualNoCase(const string& svInput, const string& svSecond)
+{
+    return std::equal(svInput.begin(), svInput.end(), svSecond.begin(), svSecond.end(),
+        [](unsigned char ci, unsigned char cs)
+        {
+            return std::toupper(ci) == std::toupper(cs);
+        });
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if input is a valid Base64.
 bool IsValidBase64(const string& svInput, string* psvOutput)
 {
