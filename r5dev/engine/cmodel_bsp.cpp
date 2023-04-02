@@ -119,7 +119,7 @@ __int64 __fastcall Mod_GetQueuedPakHandle(char* a1, char* a2, __int64 a3)
                 while ((v10[-v4] & 0xC0) == 0x80);
             }
             v11 = &v10[-v4];
-            if (v4 != ((0xE5000000 >> (((unsigned __int8)*v11 >> 3) & 0x1E)) & 3))
+            if (v4 != signed int(((0xE5000000 >> (((unsigned __int8)*v11 >> 3) & 0x1E)) & 3)))
             {
                 *v11 = 0;
                 v5 -= v4;
@@ -265,7 +265,7 @@ void Mod_ProcessPakQueue()
                     if (v13 && (unsigned int)(v13 - 13) > 1)
                         return;
                     *((_WORD*)v10 + 2) = 0;
-                    *(_DWORD*)v10 = -1;
+                    *(_DWORD*)v10 = 0xFFFFFFFF;
                 }
                 --v9;
                 v10 -= 280;
@@ -291,7 +291,7 @@ void Mod_ProcessPakQueue()
             Mod_GetQueuedPakHandle(v17, *((char**)v15 + 34), 260i64);
             if (v15[5])
                 break;
-            *(_DWORD*)v15 = -1;
+            *(_DWORD*)v15 = 0xFFFFFFFF;
         LABEL_40:
             ++v16;
             v15 += 280;
@@ -356,7 +356,7 @@ void Mod_ProcessPakQueue()
 #else
             v22 = 184i64 * (v21 & 0x1FF);
 #endif
-            if (*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22) != v21 || ((*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22 + 4) - 9) & 0xFFFFFFFB) != 0)
+            if (*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22) != _DWORD(v21) || ((*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22 + 4) - 9) & 0xFFFFFFFB) != 0)
             {
                 *byte_16709DDDF = 0;                return;
             }

@@ -535,7 +535,7 @@ long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 	g_CrashHandler->SetExceptionPointers(pExceptionInfo);
 
 	// Let the higher level exception handlers deal with this particular exception.
-	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(-1))
+	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(0xFFFFFFFF))
 	{
 		g_CrashHandler->End();
 		return EXCEPTION_CONTINUE_SEARCH;

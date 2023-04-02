@@ -31,7 +31,7 @@ public:
 	CMemory FindString(const string& string, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
 	CMemory FindStringReadOnly(const string& svString, bool nullTerminator) const;
 
-	CMemory          GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex = 0);
+	CMemory          GetVirtualMethodTable(const string& svTableName, const size_t nRefIndex = 0);
 #endif // !PLUGINSDK
 	CMemory          GetImportedFunction(const string& svModuleName, const string& svFunctionName, const bool bGetFunctionReference) const;
 	CMemory          GetExportedFunction(const string& svFunctionName) const;
@@ -50,7 +50,7 @@ public:
 	ModuleSections_t         m_ReadOnlyData;
 
 private:
-	CMemory FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection = nullptr, const uint32_t nOccurrence = 0) const;
+	CMemory FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection = nullptr, const size_t nOccurrence = 0) const;
 
 	string                   m_svModuleName;
 	uintptr_t                m_pModuleBase{};

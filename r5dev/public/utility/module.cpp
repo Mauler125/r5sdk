@@ -12,7 +12,8 @@
 // Purpose: constructor
 // Input  : *svModuleName
 //-----------------------------------------------------------------------------
-CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
+CModule::CModule(const string& svModuleName)
+	: m_svModuleName(svModuleName)
 {
 	m_pModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandleA(svModuleName.c_str()));
 
@@ -24,7 +25,9 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 // Purpose: constructor
 // Input  : nModuleBase
 //-----------------------------------------------------------------------------
-CModule::CModule(const uintptr_t nModuleBase, const string& svModuleName) : m_svModuleName(svModuleName), m_pModuleBase(nModuleBase)
+CModule::CModule(const uintptr_t nModuleBase, const string& svModuleName)
+	: m_svModuleName(svModuleName)
+	, m_pModuleBase(nModuleBase)
 {
 	Init();
 	LoadSections();
@@ -67,7 +70,7 @@ void CModule::LoadSections()
 //          *szMask - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection, const uint32_t nOccurrence) const
+CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection, const size_t nOccurrence) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
@@ -81,7 +84,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
 	const uint8_t* pEnd = pData + nSize - nMaskLen;
 
-	int nOccurrenceCount = 0;
+	size_t nOccurrenceCount = 0;
 	int nMasks[64]; // 64*16 = enough masks for 1024 bytes.
 	const int iNumMasks = static_cast<int>(ceil(static_cast<float>(nMaskLen) / 16.f));
 
@@ -274,9 +277,9 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence,
 // Purpose: get address of a virtual method table by rtti type descriptor name.
 // Input  : *svTableName - 
 //			nRefIndex - 
-// Output : CMemory
+// Output : address of virtual method table, null if not found.
 //-----------------------------------------------------------------------------
-CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex)
+CMemory CModule::GetVirtualMethodTable(const string& svTableName, const size_t nRefIndex)
 {
 	uint64_t nRVA; // Packed together as we can have multiple VFTable searches, but with different ref indexes.
 	string svPackedTableName = svTableName + std::to_string(nRefIndex);

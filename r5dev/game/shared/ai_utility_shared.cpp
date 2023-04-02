@@ -533,7 +533,7 @@ int CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector
         v3 = pAINetwork->m_iNumScriptNodes;
         v4 = 0i64;
         v5 = 640000.0;
-        v6 = NO_NODE;
+        v6 = unsigned int(NO_NODE);
         if (v3 >= 4)
         {
             v7 = pAINetwork->m_ScriptNode;

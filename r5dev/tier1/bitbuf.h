@@ -26,7 +26,7 @@ public:
 	////////////////////////////////////
 	const char* m_pDebugName;
 	uint8_t m_bOverflow;
-	size_t m_nDataBits;
+	int64_t m_nDataBits;
 	size_t m_nDataBytes;
 };
 
@@ -43,8 +43,8 @@ public:
 	int ReadChar();
 	bool ReadString(char* pStr, int bufLen, bool bLine = false, int* pOutNumChars = nullptr);
 
-	void StartReading(const void* pData, size_t nBytes, size_t iStartBit = 0, size_t nBits = -1);
-	bool Seek(size_t nPosition);
+	void StartReading(const void* pData, size_t nBytes, int64_t iStartBit = 0, int64_t nBits = -1);
+	bool Seek(int64_t nPosition);
 
 	////////////////////////////////////
 	uint32_t m_nInBufWord;

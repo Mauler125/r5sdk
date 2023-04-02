@@ -265,7 +265,7 @@ bool V_StringMatchesPattern(const char* pszSource, const char* pszPattern, int n
 			continue;
 		}
 
-		size_t nLength = 0;
+		ptrdiff_t nLength = 0;
 
 		while ((*pszPattern) != '*' && (*pszPattern) != 0)
 		{
@@ -278,7 +278,7 @@ bool V_StringMatchesPattern(const char* pszSource, const char* pszPattern, int n
 			const char* pszStartPattern = pszPattern - nLength;
 			const char* pszSearch = pszSource;
 
-			for (size_t i = 0; i < nLength; i++, pszSearch++, pszStartPattern++)
+			for (ptrdiff_t i = 0; i < nLength; i++, pszSearch++, pszStartPattern++)
 			{
 				if ((*pszSearch) == 0)
 				{

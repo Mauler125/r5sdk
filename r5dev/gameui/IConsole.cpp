@@ -384,7 +384,7 @@ void CConsole::SuggestPanel(void)
     for (size_t i = 0, ns = m_vSuggest.size(); i < ns; i++)
     {
         const CSuggest& suggest = m_vSuggest[i];
-        const bool bIsIndexActive = m_nSuggestPos == i;
+        const bool bIsIndexActive = m_nSuggestPos == ssize_t(i);
 
         ImGui::PushID(static_cast<int>(i));
 

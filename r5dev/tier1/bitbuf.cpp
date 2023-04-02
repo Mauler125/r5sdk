@@ -163,7 +163,7 @@ bool CBitRead::ReadString(char* pStr, int maxLen, bool bLine, int* pOutNumChars)
 	int iChar = 0;
 	while (1)
 	{
-		char val = ReadChar();
+		char val = char(ReadChar());
 		if (val == 0)
 			break;
 		else if (bLine && val == '\n')
@@ -189,7 +189,7 @@ bool CBitRead::ReadString(char* pStr, int maxLen, bool bLine, int* pOutNumChars)
 	return !IsOverflowed() && !bTooSmall;
 }
 
-bool CBitRead::Seek(size_t nPosition)
+bool CBitRead::Seek(int64_t nPosition)
 {
 	bool bSucc = true;
 	if (nPosition < 0 || nPosition > m_nDataBits)
@@ -239,7 +239,7 @@ bool CBitRead::Seek(size_t nPosition)
 	return bSucc;
 }
 
-void CBitRead::StartReading(const void* pData, size_t nBytes, size_t iStartBit, size_t nBits)
+void CBitRead::StartReading(const void* pData, size_t nBytes, int64_t iStartBit, int64_t nBits)
 {
 	// Make sure it's dword aligned and padded.
 	assert(((unsigned long)pData & 3) == 0);

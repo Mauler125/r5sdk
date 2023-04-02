@@ -503,7 +503,7 @@ void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
 	textureHeader->m_nTextureMipLevels = textureHeader->m_nPermanentMipCount;
 
 	const int totalStreamedMips = textureHeader->m_nOptStreamedMipCount + textureHeader->m_nStreamedMipCount;
-	uint32_t mipLevel = textureHeader->m_nPermanentMipCount + totalStreamedMips;
+	int mipLevel = textureHeader->m_nPermanentMipCount + totalStreamedMips;
 	if (mipLevel != totalStreamedMips)
 	{
 		do
