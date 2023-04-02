@@ -388,11 +388,12 @@ void CBrowser::HiddenServersModal(void)
     {
         ImGui::SetWindowSize(ImVec2(408.f, flHeight), ImGuiCond_Always);
 
-        if (!m_idLockedIcon)
+        if (!m_idLockedIcon) // !TODO: Fall-back texture.
         {
-            bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), static_cast<int>(m_rLockedIconBlob.m_nSize),
+            const bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
                 &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
             IM_ASSERT(ret);
+            NOTE_UNUSED(ret);
         }
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f)); // Override the style color for child bg.
@@ -431,7 +432,7 @@ void CBrowser::HiddenServersModal(void)
                 NetGameServer_t server;
                 bool result = g_pMasterServer->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
 
-                if (!server.m_svHostName.empty())
+                if (result && !server.m_svHostName.empty())
                 {
                     g_pServerListManager->ConnectToServer(server.m_svIpAddress, server.m_svGamePort, server.m_svEncryptionKey); // Connect to the server
                     m_svHiddenServerRequestMessage = fmt::format("Found server: {:s}", server.m_svHostName);
@@ -440,7 +441,14 @@ void CBrowser::HiddenServersModal(void)
                 }
                 else
                 {
-                    m_svHiddenServerRequestMessage = fmt::format("Error: {:s}", m_svHiddenServerRequestMessage);
+                    if (m_svHiddenServerRequestMessage.empty())
+                    {
+                        m_svHiddenServerRequestMessage = "Unknown error.";
+                    }
+                    else // Display error message.
+                    {
+                        m_svHiddenServerRequestMessage = fmt::format("Error: {:s}", m_svHiddenServerRequestMessage);
+                    }
                     m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
             }
