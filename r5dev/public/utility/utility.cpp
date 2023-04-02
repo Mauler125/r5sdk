@@ -243,8 +243,8 @@ char* StripQuotes(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize)
 // For finding a partial string within input (case insensitive).
 bool HasPartial(const string& svInput, const string& svPartial)
 {
-    auto it = std::search( svInput.begin(), svInput.end(),
-        svPartial.begin(), svPartial.end(), [](char ci, char cp)
+    auto it = std::search(svInput.begin(), svInput.end(),
+        svPartial.begin(), svPartial.end(), [](unsigned char ci, unsigned char cp)
         {
             return std::toupper(ci) == std::toupper(cp);
         }
