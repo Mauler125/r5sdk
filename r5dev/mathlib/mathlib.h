@@ -1741,7 +1741,7 @@ FORCEINLINE unsigned char RoundFloatToByte(float f)
 #ifdef Assert
 	Assert(nResult >= 0 && nResult <= 255);
 #endif 
-	return unsigned char(nResult);
+	return (unsigned char)nResult;
 
 #endif
 }

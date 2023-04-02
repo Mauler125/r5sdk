@@ -281,7 +281,7 @@ void CUtlString::ToUpper()
 {
 	for ( int64 nLength = Length() - 1; nLength >= 0; nLength--)
 	{
-		m_Storage[nLength] = unsigned char(toupper( m_Storage[ nLength ] ));
+		m_Storage[nLength] = (unsigned char)toupper( m_Storage[ nLength ] );
 	}
 }
 
@@ -289,7 +289,7 @@ void CUtlString::ToLower()
 {
 	for( int64 nLength = Length() - 1; nLength >= 0; nLength-- )
 	{
-		m_Storage[ nLength ] = unsigned char(tolower( m_Storage[ nLength ] ));
+		m_Storage[ nLength ] = (unsigned char)tolower( m_Storage[ nLength ] );
 	}
 }
 

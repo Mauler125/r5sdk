@@ -901,10 +901,10 @@ bool ConVar::SetColorFromString(const char* pszValue)
 
 			// Stuff all the values into each byte of our int.
 			unsigned char* pColorElement = (reinterpret_cast<unsigned char*>(&m_Value.m_nValue));
-			pColorElement[0] = unsigned char(nRGBA[0]);
-			pColorElement[1] = unsigned char(nRGBA[1]);
-			pColorElement[2] = unsigned char(nRGBA[2]);
-			pColorElement[3] = unsigned char(nRGBA[3]);
+			pColorElement[0] = (unsigned char)nRGBA[0];
+			pColorElement[1] = (unsigned char)nRGBA[1];
+			pColorElement[2] = (unsigned char)nRGBA[2];
+			pColorElement[3] = (unsigned char)nRGBA[3];
 
 			// Copy that value into our float.
 			m_Value.m_fValue = static_cast<float>(m_Value.m_nValue);

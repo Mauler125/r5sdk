@@ -119,7 +119,7 @@ __int64 __fastcall Mod_GetQueuedPakHandle(char* a1, char* a2, __int64 a3)
                 while ((v10[-v4] & 0xC0) == 0x80);
             }
             v11 = &v10[-v4];
-            if (v4 != signed int(((0xE5000000 >> (((unsigned __int8)*v11 >> 3) & 0x1E)) & 3)))
+            if (v4 != (signed int)((0xE5000000 >> (((unsigned __int8)*v11 >> 3) & 0x1E)) & 3))
             {
                 *v11 = 0;
                 v5 -= v4;

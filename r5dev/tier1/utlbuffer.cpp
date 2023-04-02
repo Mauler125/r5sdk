@@ -203,7 +203,7 @@ CUtlBuffer::CUtlBuffer(int64 growSize, int64 initSize, int nFlags) :
 	m_Put = 0;
 	m_nTab = 0;
 	m_nOffset = 0;
-	m_Flags = unsigned char(nFlags);
+	m_Flags = (unsigned char)nFlags;
 	if ((initSize != 0) && !IsReadOnly())
 	{
 		m_nMaxPut = -1;
@@ -225,7 +225,7 @@ CUtlBuffer::CUtlBuffer(const void* pBuffer, int64 nSize, int nFlags) :
 	m_Put = 0;
 	m_nTab = 0;
 	m_nOffset = 0;
-	m_Flags = unsigned char(nFlags);
+	m_Flags = (unsigned char)nFlags;
 	if (IsReadOnly())
 	{
 		m_nMaxPut = m_Put = nSize;
@@ -399,7 +399,7 @@ void CUtlBuffer::SetExternalBuffer(void* pMemory, int64 nSize, int64 nInitialPut
 	m_nTab = 0;
 	m_Error = 0;
 	m_nOffset = 0;
-	m_Flags = unsigned char(nFlags);
+	m_Flags = (unsigned char)nFlags;
 	m_nMaxPut = -1;
 	AddNullTermination(m_Put);
 }
@@ -417,7 +417,7 @@ void CUtlBuffer::AssumeMemory(void* pMemory, int64 nSize, int64 nInitialPut, int
 	m_nTab = 0;
 	m_Error = 0;
 	m_nOffset = 0;
-	m_Flags = unsigned char(nFlags);
+	m_Flags = (unsigned char)nFlags;
 	m_nMaxPut = -1;
 	AddNullTermination(m_Put);
 }
