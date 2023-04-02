@@ -1782,7 +1782,7 @@ inline Vector3D RandomVector(float minVal, float maxVal)
 //-----------------------------------------------------------------------------
 // Helper debugging stuff....
 //-----------------------------------------------------------------------------
-
+/*
 inline bool operator==(float const* f, const Vector3D& v)
 {
 	// AIIIEEEE!!!!
@@ -1810,7 +1810,7 @@ inline bool operator!=(const Vector3D& v, float const* f)
 	Assert(0);
 	return false;
 }
-
+*/
 
 // return a vector perpendicular to another, with smooth variation. The difference between this and
 // something like VectorVectors is that there are now discontinuities. _unlike_ VectorVectors,

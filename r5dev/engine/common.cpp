@@ -10,16 +10,10 @@
 
 /*
 ==============================
-COM_ExplainDisconnection
+COM_FormatSeconds
 
 ==============================
 */
-void* HCOM_ExplainDisconnection(void* unused, const char* fmt, ...)
-{
-	// !TODO: rebuild.
-	return nullptr;
-}
-
 const char* COM_FormatSeconds(int seconds)
 {
 	static char string[64];

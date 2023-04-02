@@ -341,10 +341,10 @@ void Mod_ProcessPakQueue()
         *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, g_pMallocPool, 4, 0);
 
         if (strcmp(v17, "common_mp.rpak") == 0 || strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_pve.rpak") == 0)
-            RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("common_sdk.rpak", g_pMallocPool, 4, 0);
+            g_pakLoadApi->LoadAsync("common_sdk.rpak", g_pMallocPool, 4, 0);
 #ifndef DEDICATED
         if (strcmp(v17, "ui_mp.rpak") == 0)
-            RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("ui_sdk.rpak", g_pMallocPool, 4, 0);
+            g_pakLoadApi->LoadAsync("ui_sdk.rpak", g_pMallocPool, 4, 0);
 #endif // !DEDICATED
 
     LABEL_37:

@@ -93,8 +93,11 @@ void SDK_Shutdown()
 // ENTRYPOINT
 //#############################################################################
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
+    NOTE_UNUSED(hModule);
+    NOTE_UNUSED(lpReserved);
+
 #if !defined (DEDICATED) && !defined (CLIENT_DLL)
     // This dll is imported by the game executable, we cannot circumvent it.
     // To solve the recursive init problem, we check if -noworkerdll is passed.

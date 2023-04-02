@@ -79,7 +79,7 @@ CNetVarTables::Table CNetVarTables::LoadTable(CRecvTable* recvTable)
 #endif // !DEDICATED
 
 #ifndef CLIENT_DLL
-CNetVarTables::Table CNetVarTables::LoadTable(SendTable* sendTable)
+CNetVarTables::Table CNetVarTables::LoadTable(SendTable* /*sendTable*/)
 {
 	Table nvTable = Table{};
 	return nvTable;

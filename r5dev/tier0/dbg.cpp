@@ -44,34 +44,46 @@ bool HushAsserts()
 //-----------------------------------------------------------------------------
 // Templates to assist in validating pointers:
 //-----------------------------------------------------------------------------
-PLATFORM_INTERFACE void _AssertValidReadPtr(void* ptr, int count/* = 1*/)
+/*PLATFORM_INTERFACE*/ void _AssertValidReadPtr(void* ptr, int count/* = 1*/)
 {
 #if defined( _WIN32 ) && !defined( _X360 )
 	Assert(!IsBadReadPtr(ptr, count));
 #else
 	Assert(!count || ptr);
 #endif
+#ifdef NDEBUG
+	NOTE_UNUSED(ptr);
+	NOTE_UNUSED(count);
+#endif // NDEBUG
 }
 
-PLATFORM_INTERFACE void _AssertValidWritePtr(void* ptr, int count/* = 1*/)
+/*PLATFORM_INTERFACE*/ void _AssertValidWritePtr(void* ptr, int count/* = 1*/)
 {
 #if defined( _WIN32 ) && !defined( _X360 )
 	Assert(!IsBadWritePtr(ptr, count));
 #else
 	Assert(!count || ptr);
 #endif
+#ifdef NDEBUG
+	NOTE_UNUSED(ptr);
+	NOTE_UNUSED(count);
+#endif // NDEBUG
 }
 
-PLATFORM_INTERFACE void _AssertValidReadWritePtr(void* ptr, int count/* = 1*/)
+/*PLATFORM_INTERFACE*/ void _AssertValidReadWritePtr(void* ptr, int count/* = 1*/)
 {
 #if defined( _WIN32 ) && !defined( _X360 )
 	Assert(!(IsBadWritePtr(ptr, count) || IsBadReadPtr(ptr, count)));
 #else
 	Assert(!count || ptr);
 #endif
+#ifdef NDEBUG
+	NOTE_UNUSED(ptr);
+	NOTE_UNUSED(count);
+#endif // NDEBUG
 }
 
-PLATFORM_INTERFACE void _AssertValidStringPtr(const TCHAR* ptr, int maxchar/* = 0xFFFFFF */)
+/*PLATFORM_INTERFACE*/ void _AssertValidStringPtr(const TCHAR* ptr, int maxchar/* = 0xFFFFFF */)
 {
 #if defined( _WIN32 ) && !defined( _X360 )
 #ifdef TCHAR_IS_CHAR
@@ -82,15 +94,23 @@ PLATFORM_INTERFACE void _AssertValidStringPtr(const TCHAR* ptr, int maxchar/* = 
 #else
 	Assert(ptr);
 #endif
+#ifdef NDEBUG
+	NOTE_UNUSED(ptr);
+	NOTE_UNUSED(maxchar);
+#endif // NDEBUG
 }
 
-PLATFORM_INTERFACE void AssertValidWStringPtr(const wchar_t* ptr, int maxchar/* = 0xFFFFFF */)
+/*PLATFORM_INTERFACE*/ void AssertValidWStringPtr(const wchar_t* ptr, int maxchar/* = 0xFFFFFF */)
 {
 #if defined( _WIN32 ) && !defined( _X360 )
 	Assert(!IsBadStringPtrW(ptr, maxchar));
 #else
 	Assert(ptr);
 #endif
+#ifdef NDEBUG
+	NOTE_UNUSED(ptr);
+	NOTE_UNUSED(maxchar);
+#endif // NDEBUG
 }
 
 #if !defined (DEDICATED) && !defined (NETCONSOLE)

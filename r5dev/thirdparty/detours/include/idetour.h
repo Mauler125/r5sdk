@@ -1,7 +1,7 @@
 #ifndef IDETOUR_H
 #define IDETOUR_H
 
-#define ADDDETOUR(x,y) static std::size_t dummy_reg_##y = AddDetour( new x(), #x );
+#define ADDDETOUR(x,y) static std::size_t dummy_reg_##y = AddDetour( new x() );
 #define XREGISTER(x,y)  ADDDETOUR(x, y)
 #define REGISTER(x)     XREGISTER(x, __COUNTER__)
 
@@ -31,7 +31,7 @@ class VDetour : public IDetour
 
 inline static std::vector<IDetour*> g_DetourVector;
 inline static std::unordered_set<IDetour*> g_DetourSet;
-inline std::size_t AddDetour(IDetour* pDetour, const char* pszName)
+inline std::size_t AddDetour(IDetour* pDetour)
 {
 	IDetour* pVFTable = reinterpret_cast<IDetour**>(pDetour)[0];
 	auto p = g_DetourSet.insert(pVFTable); // Only register if VFTable isn't already registered.

@@ -19,7 +19,7 @@ HaltonSequenceGenerator_t::HaltonSequenceGenerator_t(int b)
 
 }
 
-float HaltonSequenceGenerator_t::GetElement(int elem)
+float HaltonSequenceGenerator_t::GetElement(int /*elem*/)
 {
 	int tmpseed = seed;
 	float ret = 0.0f;

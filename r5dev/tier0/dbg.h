@@ -136,10 +136,10 @@ PLATFORM_INTERFACE void Error(eDLL_T context, const UINT code, const char* fmt, 
 // Templates to assist in validating pointers:
 
 // Have to use these stubs so we don't have to include windows.h here.
-PLATFORM_INTERFACE void _AssertValidReadPtr(void* ptr, int count = 1);
-PLATFORM_INTERFACE void _AssertValidWritePtr(void* ptr, int count = 1);
-PLATFORM_INTERFACE void _AssertValidReadWritePtr(void* ptr, int count = 1);
-PLATFORM_INTERFACE void _AssertValidStringPtr(const TCHAR* ptr, int maxchar);
+/*PLATFORM_INTERFACE*/ void _AssertValidReadPtr(void* ptr, int count = 1);
+/*PLATFORM_INTERFACE*/ void _AssertValidWritePtr(void* ptr, int count = 1);
+/*PLATFORM_INTERFACE*/ void _AssertValidReadWritePtr(void* ptr, int count = 1);
+/*PLATFORM_INTERFACE*/ void _AssertValidStringPtr(const TCHAR* ptr, int maxchar);
 
 #ifdef DBGFLAG_ASSERT
 inline void AssertValidStringPtr(const TCHAR* ptr, int maxchar = 0xFFFFFF) { _AssertValidStringPtr(ptr, maxchar); }
@@ -150,10 +150,11 @@ template<class T> inline void AssertValidReadWritePtr(T* ptr, int count = 1) { _
 
 #else
 
-inline void AssertValidStringPtr(const TCHAR* ptr, int maxchar = 0xFFFFFF) {	}
-template<class T> inline void AssertValidReadPtr(T* ptr, int count = 1) {  }
-template<class T> inline void AssertValidWritePtr(T* ptr, int count = 1) {  }
-template<class T> inline void AssertValidReadWritePtr(T* ptr, int count = 1) {  }
+inline void AssertValidStringPtr(const TCHAR* /*ptr*/, int maxchar = 0xFFFFFF) { NOTE_UNUSED(maxchar); }
+template<class T> inline void AssertValidReadPtr(T* /*ptr*/, int count = 1) { NOTE_UNUSED(count); }
+template<class T> inline void AssertValidWritePtr(T* /*ptr*/, int count = 1) { NOTE_UNUSED(count); }
+template<class T> inline void AssertValidReadWritePtr(T* /*ptr*/, int count = 1) { NOTE_UNUSED(count); }
 #define AssertValidThis() 
 #endif
+
 #endif /* DBG_H */

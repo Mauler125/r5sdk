@@ -773,10 +773,11 @@ bool CConsole::LoadFlagIcons(void)
         m_vFlagIcons.push_back(MODULERESOURCE(GetModuleResource(i)));
         MODULERESOURCE& rFlagIcon = m_vFlagIcons[k];
 
-        ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(rFlagIcon.m_pData), 
+        ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(rFlagIcon.m_pData), // !TODO: Fall-back texture.
             static_cast<int>(rFlagIcon.m_nSize), &rFlagIcon.m_idIcon, &rFlagIcon.m_nWidth, &rFlagIcon.m_nHeight);
 
         IM_ASSERT(ret);
+        NOTE_UNUSED(ret);
     }
     return ret;
 }

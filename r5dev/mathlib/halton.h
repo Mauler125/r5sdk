@@ -35,7 +35,6 @@ public:
 	{
 		return GetElement(seed++);
 	}
-
 };
 
 
