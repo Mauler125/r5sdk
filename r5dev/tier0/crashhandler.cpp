@@ -433,8 +433,6 @@ bool CCrashHandler::IsPageAccessible() const
 	{
 		return !(mbi.State & MEM_COMMIT);
 	}
-
-	return false;
 }
 
 //-----------------------------------------------------------------------------

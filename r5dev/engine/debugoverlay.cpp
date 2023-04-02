@@ -53,7 +53,6 @@ bool OverlayBase_t::IsDead() const
         {
             return m_nOverlayTick < *g_nOverlayTickCount;
         }
-        return false;
     }
     else
     {
