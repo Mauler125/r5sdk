@@ -14,8 +14,9 @@
 #include "public/iservernetworkable.h"
 #include "public/server_class.h"
 #include "public/edict.h"
+#include "game/shared/predictioncopy.h"
 
-struct CServerNetworkProperty : IServerNetworkable
+class CServerNetworkProperty : IServerNetworkable
 {
 public:
 	edict_t GetEdict() const;
@@ -23,8 +24,9 @@ public:
 private:
 	CBaseEntity* m_pOuter;
 	ServerClass* m_pServerClass;
-	int m_edict;
-	int m_hParent;
+	edict_t m_edict;
+	EHANDLE m_hParent;
 };
+static_assert(sizeof(CServerNetworkProperty) == 32);
 
 #endif // SERVERNETWORKPROPERTY_H
