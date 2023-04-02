@@ -91,12 +91,11 @@ void PrintLastError(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For dumping data from a buffer to a file on the disk.
-void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize)
+void HexDump(const char* szHeader, const char* szLogger, const void* pData, size_t nSize)
 {
-    static char szAscii[17] = {};
+    char szAscii[17];
     static std::mutex m;
-    static std::atomic<int> i = {}, j = {}, k = {};
-    static std::shared_ptr<spdlog::logger> logger = spdlog::get("default_logger");
+    static std::shared_ptr<spdlog::logger> logger = spdlog::default_logger();
 
     m.lock();
     szAscii[16] = '\0';
@@ -106,8 +105,9 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
         logger = spdlog::get(szLogger);
         if (!logger)
         {
+            logger = spdlog::default_logger();
             m.unlock();
-            assert(logger == nullptr);
+            assert(0);
             return;
         }
     }
@@ -115,19 +115,19 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
     // Add time stamp.
     logger->set_level(spdlog::level::trace);
     logger->set_pattern("%v [%H:%M:%S.%f]\n");
-    logger->trace("---------------------------------------------------------");
+    logger->trace("--------------------------------------------------------");
 
     // Disable EOL and create block header.
     logger->set_pattern("%v");
-    logger->trace("{:s} ---- LEN BYTES: {:d}\n:\n", szHeader, nSize);
-    logger->trace("--------  0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F  0123456789ABCDEF\n");
+    logger->trace("{:-<32s} LEN BYTES: {:<20d} {:<8s}:\n:{:<72s}:\n", szHeader, nSize, " ", " ");
+    logger->trace("-------  0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F  0123456789ABCDEF\n");
 
     // Output the buffer to the file.
-    for (i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
         if (i % nSize == 0)
         {
-            logger->trace(" 0x{:04X}  ", i);
+            logger->trace("0x{:04X}  ", i);
         }
 
         logger->trace("{:02x} ", (reinterpret_cast<const uint8_t*>(pData))[i]);
@@ -150,12 +150,12 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
             {
                 if (i + 1 == nSize)
                 {
-                    logger->trace("{:s}\n---------------------------------------------------------------------------\n\n", szAscii);
+                    logger->trace("{:s}\n--------------------------------------------------------------------------\n\n", szAscii);
                 }
                 else
                 {
                     i++;
-                    logger->trace("{:s}\n 0x{:04X}  ", szAscii, i--);
+                    logger->trace("{:s}\n0x{:04X}  ", szAscii, i--);
                 }
             }
             else if (i + 1 == nSize)
@@ -165,11 +165,11 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
                 {
                     logger->trace(' ');
                 }
-                for (j = (i + 1) % 16; j < 16; j++)
+                for (size_t j = (i + 1) % 16; j < 16; j++)
                 {
                     logger->trace("   ");
                 }
-                logger->trace("{:s}\n---------------------------------------------------------------------------\n\n", szAscii);
+                logger->trace("{:s}\n--------------------------------------------------------------------------\n\n", szAscii);
             }
         }
     }

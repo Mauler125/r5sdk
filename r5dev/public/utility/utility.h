@@ -11,7 +11,7 @@ MODULEINFO GetModuleInfo(const char* szModule);
 // Debug
 void DbgPrint(LPCSTR sFormat, ...);
 void PrintLastError(void);
-void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize);
+void HexDump(const char* szHeader, const char* szLogger, const void* pData, size_t nSize);
 
 /////////////////////////////////////////////////////////////////////////////
 // Char
