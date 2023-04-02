@@ -477,8 +477,6 @@ void RTech_Decompress_f(const CCommand& args)
 	FileSystem()->Close(hPakFile);
 
 	RPakHeader_t* pHeader = reinterpret_cast<RPakHeader_t*>(pPakBuf);
-
-	uint32_t nLen = FileSystem()->Size(hPakFile);
 	uint16_t flags = (pHeader->m_nFlags[0] << 8) | pHeader->m_nFlags[1];
 
 	SYSTEMTIME systemTime;
