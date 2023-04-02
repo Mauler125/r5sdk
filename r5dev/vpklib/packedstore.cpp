@@ -173,9 +173,9 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace, K
 				{
 					vEntryValues.push_back(VPKKeyValues_t(
 						ConvertToUnixPath(svFullPath),
-						pEntryKV->GetInt("preloadSize", NULL),
+						int16_t(pEntryKV->GetInt("preloadSize", NULL)),
 						pEntryKV->GetInt("loadFlags", static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE)),
-						pEntryKV->GetInt("textureFlags", static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT)),
+						int16_t(pEntryKV->GetInt("textureFlags", static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT))),
 						pEntryKV->GetBool("useCompression", true),
 						pEntryKV->GetBool("useDataSharing", true))
 					);
