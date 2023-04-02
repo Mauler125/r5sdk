@@ -241,7 +241,7 @@ template<class T> T __ROL__(T value, int count)
   {
     count %= nbits;
     T high = value >> (nbits - count);
-    if ( T(-1) < 0 ) // signed value
+    if constexpr ( T(-1) < 0 ) // signed value
       high &= ~((T(-1) << count));
     value <<= count;
     value |= high;
