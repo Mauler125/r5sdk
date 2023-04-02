@@ -167,21 +167,21 @@ CConCommandHash::CCommandHashIterator_t
 CConCommandHash::Next(const CConCommandHash::CCommandHashIterator_t& iter) const
 {
 	// look for the next entry in the current bucket
-	CCommandHashHandle_t next = m_aDataPool.Next(iter.handle);
+	CCommandHashHandle_t nextEntry = m_aDataPool.Next(iter.handle);
 	const CCommandHashHandle_t invalidIndex = m_aDataPool.InvalidIndex();
-	if (next != invalidIndex)
+	if (nextEntry != invalidIndex)
 	{
 		// this bucket still has more elements in it
-		return CCommandHashIterator_t(iter.bucket, next);
+		return CCommandHashIterator_t(iter.bucket, nextEntry);
 	}
 
 	// otherwise look for the next bucket with data
 	int bucketCount = m_aBuckets.Count();
 	for (int bucket = iter.bucket + 1; bucket < bucketCount; ++bucket)
 	{
-		CCommandHashHandle_t next = m_aBuckets[bucket]; // get the head of the bucket
-		if (next != invalidIndex)
-			return CCommandHashIterator_t(bucket, next);
+		CCommandHashHandle_t nextBucket = m_aBuckets[bucket]; // get the head of the bucket
+		if (nextBucket != invalidIndex)
+			return CCommandHashIterator_t(bucket, nextBucket);
 	}
 
 	// if we're here, there's no more data to be had
