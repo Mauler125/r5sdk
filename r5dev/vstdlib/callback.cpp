@@ -578,7 +578,7 @@ void RTech_Decompress_f(const CCommand& args)
 	}
 
 	memcpy_s(pDecompBuf, sizeof(RPakHeader_t), pPakBuf, sizeof(RPakHeader_t));// Overwrite first 0x80 bytes which are NULL with the header data.
-	FileSystem()->Write(pDecompBuf, decompState.m_nDecompSize, hDecompFile);
+	FileSystem()->Write(pDecompBuf, int(decompState.m_nDecompSize), hDecompFile);
 
 	DevMsg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
 	DevMsg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", svPakNameOut.c_str());

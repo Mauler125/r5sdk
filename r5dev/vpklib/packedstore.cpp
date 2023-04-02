@@ -416,7 +416,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 		{
 			VPKChunkDescriptor_t& vDescriptor = vEntryBlock.m_vFragments[j];
 
-			FileSystem()->Read(s_EntryBuf, vDescriptor.m_nCompressedSize, hAsset);
+			FileSystem()->Read(s_EntryBuf, int(vDescriptor.m_nCompressedSize), hAsset);
 			vDescriptor.m_nPackFileOffset = FileSystem()->Tell(hPackFile);
 
 			if (vEntryValue.m_bUseDataSharing)
@@ -455,7 +455,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 			}
 
 			vDescriptor.m_bIsCompressed = vDescriptor.m_nCompressedSize != vDescriptor.m_nUncompressedSize;
-			FileSystem()->Write(s_EntryBuf, vDescriptor.m_nCompressedSize, hPackFile);
+			FileSystem()->Write(s_EntryBuf, int(vDescriptor.m_nCompressedSize), hPackFile);
 		}
 
 		MemAllocSingleton()->Free(pBuf);
@@ -527,8 +527,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 					const VPKChunkDescriptor_t& vChunk = vEntryBlock.m_vFragments[k];
 					m_nChunkCount++;
 
-					FileSystem()->Seek(hPackFile, vChunk.m_nPackFileOffset, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-					FileSystem()->Read(s_EntryBuf, vChunk.m_nCompressedSize, hPackFile);
+					FileSystem()->Seek(hPackFile, int(vChunk.m_nPackFileOffset), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+					FileSystem()->Read(s_EntryBuf, int(vChunk.m_nCompressedSize), hPackFile);
 
 					if (vChunk.m_bIsCompressed)
 					{
@@ -548,12 +548,12 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 						}
 						else // If successfully decompressed, write to file.
 						{
-							FileSystem()->Write(s_DecompBuf, nDstLen, hAsset);
+							FileSystem()->Write(s_DecompBuf, int(nDstLen), hAsset);
 						}
 					}
 					else // If not compressed, write source data into output file.
 					{
-						FileSystem()->Write(s_EntryBuf, vChunk.m_nUncompressedSize, hAsset);
+						FileSystem()->Write(s_EntryBuf, int(vChunk.m_nUncompressedSize), hAsset);
 					}
 				}
 
@@ -881,14 +881,14 @@ uint64_t VPKDir_t::WriteDescriptor(FileHandle_t hDirectoryFile, std::map<string,
 
 	for (auto& iKeyValue : vMap)
 	{
-		FileSystem()->Write(iKeyValue.first.c_str(), (iKeyValue.first.length() + 1), hDirectoryFile);
+		FileSystem()->Write(iKeyValue.first.c_str(), int(iKeyValue.first.length() + 1), hDirectoryFile);
 		for (auto& jKeyValue : iKeyValue.second)
 		{
-			FileSystem()->Write(jKeyValue.first.c_str(), (jKeyValue.first.length() + 1), hDirectoryFile);
+			FileSystem()->Write(jKeyValue.first.c_str(), int(jKeyValue.first.length() + 1), hDirectoryFile);
 			for (auto& vEntry : jKeyValue.second)
 			{
 				string pszEntryPath = GetFileName(vEntry.m_svEntryPath, true);
-				FileSystem()->Write(pszEntryPath.c_str(), (pszEntryPath.length() + 1), hDirectoryFile);
+				FileSystem()->Write(pszEntryPath.c_str(), int(pszEntryPath.length() + 1), hDirectoryFile);
 
 				FileSystem()->Write(&vEntry.m_nFileCRC, sizeof(uint32_t), hDirectoryFile);
 				FileSystem()->Write(&vEntry.m_iPreloadSize, sizeof(uint16_t), hDirectoryFile);

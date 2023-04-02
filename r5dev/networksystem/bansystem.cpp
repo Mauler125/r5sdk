@@ -86,7 +86,7 @@ void CBanSystem::Save(void) const
 		jsOut["totalBans"] = m_vBanList.size();
 		string svJsOut = jsOut.dump(4);
 
-		FileSystem()->Write(svJsOut.data(), svJsOut.size(), pFile);
+		FileSystem()->Write(svJsOut.data(), int(svJsOut.size()), pFile);
 	}
 	catch (const std::exception& ex)
 	{
