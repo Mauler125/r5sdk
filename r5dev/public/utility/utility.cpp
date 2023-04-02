@@ -41,19 +41,13 @@ BOOL IsBadReadPtrV2(void* ptr)
 MODULEINFO GetModuleInfo(const char* szModule)
 {
     MODULEINFO modinfo = { 0 };
+    HMODULE hModule = GetModuleHandleA(szModule);
 
-    wchar_t szWtext[256]{};
-    mbstowcs(szWtext, szModule, strlen(szModule) + 1);
-
-    HMODULE hModule = GetModuleHandle(szWtext);
-    if (hModule == INVALID_HANDLE_VALUE)
-    {
-        return modinfo;
-    }
-    if (hModule)
+    if (hModule && hModule != INVALID_HANDLE_VALUE)
     {
         GetModuleInformation(GetCurrentProcess(), hModule, &modinfo, sizeof(MODULEINFO));
     }
+
     return modinfo;
 }
 
@@ -61,21 +55,14 @@ MODULEINFO GetModuleInfo(const char* szModule)
 // For printing output to the debugger.
 void DbgPrint(LPCSTR sFormat, ...)
 {
-    CHAR sBuffer[512] = { 0 };
-    va_list sArgs = {};
-
-    // Get the variable arg pointer.
+    va_list sArgs;
     va_start(sArgs, sFormat);
 
-    // Format print the string.
-    int length = vsnprintf(sBuffer, sizeof(sBuffer), sFormat, sArgs);
+    string result = FormatV(sFormat, sArgs);
     va_end(sArgs);
 
-    wchar_t szWtext[512]{}; // Convert to LPCWSTR.
-    mbstowcs(szWtext, sBuffer, strlen(sBuffer) + 1);
-
     // Output the string to the debugger.
-    OutputDebugString(szWtext);
+    OutputDebugStringA(result.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,12 +72,20 @@ void PrintLastError(void)
     DWORD errorMessageID = ::GetLastError();
     if (errorMessageID != NULL)
     {
-        LPSTR messageBuffer = nullptr;
-        size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        LPSTR messageBuffer;
+        DWORD size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
-        spdlog::error("{:s}\n", messageBuffer);
-        LocalFree(messageBuffer);
+        if (size > 0)
+        {
+            spdlog::error("{:s}\n", messageBuffer);
+            LocalFree(messageBuffer);
+        }
+        else // FormatMessageA failed.
+        {
+            spdlog::error("{:s}: Failed: {:s}\n", __FUNCTION__, 
+                std::system_category().message(static_cast<int>(::GetLastError())));
+        }
     }
 }
 
@@ -523,17 +518,17 @@ string UTF8Encode(const wstring& wsvInput)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For decoding data in UTF-8.
-string UTF8Decode(const string& svInput)
-{
-    //struct destructible_codecvt : public std::codecvt<char32_t, char, std::mbstate_t>
-    //{
-    //    using std::codecvt<char32_t, char, std::mbstate_t>::codecvt;
-    //    ~destructible_codecvt() = default;
-    //};
-    //std::wstring_convert<destructible_codecvt, char32_t> utf32_converter;
-    //return utf32_converter.from_bytes(svInput);
-    return "";
-}
+//string UTF8Decode(const string& svInput)
+//{
+//    struct destructible_codecvt : public std::codecvt<char32_t, char, std::mbstate_t>
+//    {
+//        using std::codecvt<char32_t, char, std::mbstate_t>::codecvt;
+//        ~destructible_codecvt() = default;
+//    };
+//    std::wstring_convert<destructible_codecvt, char32_t> utf32_converter;
+//    return utf32_converter.from_bytes(svInput);
+//    return "";
+//}
 
 ///////////////////////////////////////////////////////////////////////////////
 // For obtaining UTF-8 character length.

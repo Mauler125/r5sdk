@@ -40,7 +40,7 @@ string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
 
 string UTF8Encode(const wstring& wsvInput);
-string UTF8Decode(const string& svInput);
+//string UTF8Decode(const string& svInput);
 size_t UTF8CharLength(const uint8_t cInput);
 bool IsValidUTF8(char* pszString);
 
