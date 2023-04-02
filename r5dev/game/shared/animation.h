@@ -20,7 +20,7 @@ class CAnimationLayer
 	IHandleEntity* m_animationLayerOwner; // !TODO: CBaseEntity/C_BaseEntity?
 };
 
-struct __declspec(align(8)) PredictedAnimEventData
+struct PredictedAnimEventData
 {
 	char gap_0[8];
 	float m_predictedAnimEventTimes[8];
@@ -30,9 +30,10 @@ struct __declspec(align(8)) PredictedAnimEventData
 	int m_predictedAnimEventSequence;
 	int m_predictedAnimEventModel;
 	float m_predictedAnimEventsReadyToFireTime;
+	char gap_5C[4]; // <-- 64-BIT ALIGNMENT
 };
 
-struct __declspec(align(8)) AnimRelativeData
+struct AnimRelativeData
 {
 	char gap_0[8];
 	Vector3D m_animInitialPos;
@@ -50,6 +51,7 @@ struct __declspec(align(8)) AnimRelativeData
 	char gap_79[3];
 	int m_animMotionMode;
 	bool m_safePushMode;
+	char gap_81[7]; // <-- 64-BIT ALIGNMENT
 };
 
 struct Player_AnimViewEntityData
