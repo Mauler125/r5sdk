@@ -611,6 +611,7 @@ V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pSt
 	{
 		// pPath is not relative.. just copy it.
 		V_strncpy(pOut, pPath, outLen);
+		pOut[outLen - 1] = '\0';
 	}
 	else
 	{
@@ -618,6 +619,7 @@ V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pSt
 		if (pStartingDir && V_IsAbsolutePath(pStartingDir))
 		{
 			V_strncpy(pOut, pStartingDir, outLen);
+			pOut[outLen - 1] = '\0';
 		}
 		else
 		{
