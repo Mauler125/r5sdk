@@ -460,6 +460,124 @@ bool V_RemoveDotSlashes(char* pFilename, char separator)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: normalizes the file path
+// Input  : *pfilePath - 
+//			separator - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool V_NormalizePath(char* pfilePath, char separator)
+{
+	char v2; // al
+	char v3; // r9
+	char* v5; // rbx
+	char* i; // r8
+	char v7; // dl
+	char* v8; // r8
+	char v9; // al
+	char* j; // rcx
+	char v11; // dl
+	__int64 v12; // rax
+	__int64 v13; // rax
+	char v14; // cl
+	char v15; // al
+	char* v16; // rcx
+	char v17; // al
+	char v18; // al
+	_BYTE* v19; // rdx
+	char* k; // rcx
+	__int64 v21; // r8
+	char l; // al
+
+	v2 = *pfilePath;
+	v3 = 0;
+	v5 = pfilePath;
+	for (i = pfilePath; v2; v3 = v7)
+	{
+		if (v2 == '\\')
+		{
+			v2 = '\\';
+		}
+		else if (v2 != '/')
+		{
+			v7 = 0;
+		LABEL_7:
+			*pfilePath++ = v2;
+			goto LABEL_8;
+		}
+		v7 = 1;
+		if (!v3)
+			goto LABEL_7;
+	LABEL_8:
+		v2 = *++i;
+	}
+	*pfilePath = 0;
+	v8 = v5;
+	v9 = *v5;
+	for (j = v5; *j; v9 = *j)
+	{
+		if (v9 == '.' && ((v11 = j[1], v11 == '\\') || v11 == '/') && (j == v5 || (v9 = '.', *(j - 1) != '.')))
+		{
+			v12 = 2i64;
+		}
+		else
+		{
+			*v8++ = v9;
+			v12 = 1i64;
+		}
+		j += v12;
+	}
+	*v8 = 0;
+	v13 = -1i64;
+	do
+		++v13;
+	while (v5[v13]);
+	if (v13 > 2 && v5[v13 - 1] == '.')
+	{
+		v14 = v5[v13 - 2];
+		if (v14 == '\\' || v14 == '/')
+			v5[v13 - 2] = 0;
+	}
+	v15 = *v5;
+	v16 = v5;
+	if (*v5)
+	{
+		do
+		{
+			if (v15 == '.' && v16[1] == '.' && 
+				(v16 == v5 || (v17 = *(v16 - 1), v17 == '\\') || v17 == '/') &&
+				((v18 = v16[2], v19 = (uint8_t*)v16 + 2, !v18) || v18 == '\\' || v18 == '/'))
+			{
+				for (k = v16 - 2; ; --k)
+				{
+					if (k < v5)
+						return false;
+					if (*k == '\\' || *k == '/')
+						break;
+				}
+				v21 = -1i64;
+				do
+					++v21;
+				while (v19[v21]);
+				memmove(k, v19, v21 + 1);
+				v16 = v5;
+			}
+			else
+			{
+				++v16;
+			}
+			v15 = *v16;
+		} while (*v16);
+		for (l = *v5; l; ++v5)
+		{
+			if (l == '/' || l == '\\')
+				*v5 = separator;
+			l = v5[1];
+		}
+	}
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // small helper function shared by lots of modules
 //-----------------------------------------------------------------------------
 bool V_IsAbsolutePath(const char* pStr)
@@ -525,6 +643,9 @@ V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pSt
 		V_AppendSlash(pOut, outLen);
 		V_strncat(pOut, pPath, outLen/*, COPY_ALL_CHARACTERS*/);
 	}
+
+	if (!V_NormalizePath(pOut, CORRECT_PATH_SEPARATOR))
+		Error(eDLL_T::COMMON, EXIT_FAILURE, "V_MakeAbsolutePath: tried to \"..\" past the root.");
 
 	V_FixSlashes(pOut);
 

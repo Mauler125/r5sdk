@@ -93,6 +93,9 @@ void V_StripTrailingSlash(char* ppath);
 // it is an invalid path).
 bool V_RemoveDotSlashes(char* pFilename, char separator = CORRECT_PATH_SEPARATOR);
 
+// Returns true if the path could be normalized.
+bool V_NormalizePath(char* pfilePath, char separator);
+
 // Returns true if the path is an absolute path.
 bool V_IsAbsolutePath(IN_Z const char* pPath);
 
