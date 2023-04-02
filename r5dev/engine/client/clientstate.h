@@ -19,7 +19,7 @@ public:
 	void* m_Frames;
 	CUtlMemoryPool m_ClientFramePool;
 };
-#pragma pack(push, 4)
+
 ///////////////////////////////////////////////////////////////////////////////
 class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
 {
@@ -69,7 +69,10 @@ public:
 	int m_nProcesseedDeltaTick;
 	int m_nProcessedStringTableAckTick;
 	bool m_bPendingTicksAvailable;
-	__declspec(align(4)) _BYTE m_bPaused;
+	_BYTE field_15D;
+	_BYTE field_15E;
+	_BYTE field_15F;
+	_BYTE m_bPaused;
 	char field_161;
 	char field_162;
 	_DWORD dword164;
@@ -83,7 +86,8 @@ public:
 	int m_bInMpLobbyMenu;
 	int m_nTeam;
 	_DWORD m_nMaxClients;
-	__declspec(align(8)) _DWORD reconnect_unk;
+	_DWORD field_2FC;
+	_DWORD reconnect_unk;
 	float m_flTickTime;
 	float m_flOldTickTime;
 	_BYTE m_bSignonChallengeReceived;
@@ -99,7 +103,8 @@ public:
 	char pads0[8];
 #endif
 	_BYTE m_bPersistenceBaselineRecvd;
-	__unaligned __declspec(align(4)) _QWORD m_nPersistenceBaselineEntries;
+	int m_nPersistenceBaselineEntries;
+	int field_18350;
 	bool m_bRestrictServerCommands;
 	bool m_bRestrictClientCommands;
 	char buffer_0x400[1024];
@@ -167,7 +172,8 @@ public:
 	__int64 qword245F0;
 	int dword245F8;
 	char gap245FC[1024];
-	__unaligned __declspec(align(1)) __int64 qword249FC;
+	int dword249EC;//249EC
+	int dword249F0;
 	char gap24A04[4];
 	__int64 m_pModelPrecacheTable;
 	__int64 qword24A10;
@@ -179,7 +185,8 @@ public:
 	char byte34A38;
 	char field_34A39[7];
 };
-#pragma pack(pop)
+static_assert(sizeof(CClientState) == 0x34A30);
+
 #ifndef DEDICATED
 extern CClientState* g_pClientState;
 extern CClientState** g_pClientState_Shifted; // Shifted by 0x10 forward!
