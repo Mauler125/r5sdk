@@ -5,6 +5,14 @@
 #pragma intrinsic(__rdtsc)
 #endif
 
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+//C++17 specific
+#define SDK_HAS_CPP17 1
+#define V_CONSTEXPR constexpr
+#else
+#define V_CONSTEXPR
+#endif
+
 #define TIER0_DLL_EXPORT
 
 #ifdef _MSC_VER

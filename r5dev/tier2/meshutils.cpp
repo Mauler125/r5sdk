@@ -44,7 +44,7 @@ void GenerateQuadIndexBuffer(unsigned short* pIndices, int nIndexCount, int nFir
 		for (i = 0; i < numQuads; ++i)
 		{
 			// Have to deal with endian-ness
-			if constexpr (IsX360() || IsPS3())
+			if V_CONSTEXPR(IsX360() || IsPS3())
 			{
 				// this avoids compiler write reodering and prevents the write-combined out-of-order penalty
 				// _WriteBarrier won't compile here, and volatile is ignored

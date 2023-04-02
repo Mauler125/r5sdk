@@ -592,7 +592,7 @@ bool V_IsAbsolutePath(const char* pStr)
 	bool bIsAbsolute = (pStr[0] && pStr[1] == ':') || pStr[0] == '/' || pStr[0] == '\\';
 #endif
 
-	if constexpr (IsX360() && !bIsAbsolute)
+	if V_CONSTEXPR(IsX360() && !bIsAbsolute)
 	{
 		bIsAbsolute = (V_stristr(pStr, ":") != NULL);
 	}

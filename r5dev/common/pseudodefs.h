@@ -33,6 +33,15 @@
 #else
   #error "unknown compiler"
 #endif
+
+//C++17 specifics
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+#define SDK_HAS_CPP17 1
+#define HEXRAYS_CONSTEXPR constexpr
+#else
+#define HEXRAYS_CONSTEXPR
+#endif
+
 typedef unsigned int uint;
 typedef unsigned char uchar;
 typedef unsigned short ushort;
@@ -241,7 +250,7 @@ template<class T> T __ROL__(T value, int count)
   {
     count %= nbits;
     T high = value >> (nbits - count);
-    if constexpr ( T(-1) < 0 ) // signed value
+    if HEXRAYS_CONSTEXPR( T(-1) < 0 ) // signed value
       high &= ~((T(-1) << count));
     value <<= count;
     value |= high;

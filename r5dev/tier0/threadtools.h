@@ -136,7 +136,7 @@ public:
 
 	bool AssignIf(T conditionValue, T newValue)
 	{
-		if constexpr(sizeof(T) == sizeof(int32))
+		if V_CONSTEXPR(sizeof(T) == sizeof(int32))
 			return ThreadInterlockedAssignIf((LONG*)&m_value, (int32)newValue, (int32)conditionValue);
 		else
 			return ThreadInterlockedAssignIf64((int64*)&m_value, (int64)newValue, (int64)conditionValue);

@@ -214,7 +214,7 @@ public:
 
 	FORCEINLINE void ActivateByteSwappingIfBigEndian(void)
 	{
-		if constexpr ((IsX360() || IsPS3()))
+		if V_CONSTEXPR((IsX360() || IsPS3()))
 			ActivateByteSwapping(true);
 	}
 
@@ -714,7 +714,7 @@ inline void CUtlBuffer::GetTypeBin< float >(float& dest)
 	if (CheckGet(sizeof(float)))
 	{
 		uintptr_t pData = (uintptr_t)PeekGet();
-		if constexpr ((IsX360() || IsPS3()) && (pData & 0x03))
+		if V_CONSTEXPR((IsX360() || IsPS3()) && (pData & 0x03))
 		{
 			// handle unaligned read
 			((unsigned char*)&dest)[0] = ((unsigned char*)pData)[0];
@@ -745,7 +745,7 @@ inline void CUtlBuffer::GetTypeBin< double >(double& dest)
 	if (CheckGet(sizeof(double)))
 	{
 		uintptr_t pData = (uintptr_t)PeekGet();
-		if constexpr ((IsX360() || IsPS3()) && (pData & 0x07))
+		if V_CONSTEXPR((IsX360() || IsPS3()) && (pData & 0x07))
 		{
 			// handle unaligned read
 			((unsigned char*)&dest)[0] = ((unsigned char*)pData)[0];
