@@ -91,8 +91,6 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
 	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
-	eDLL_T remoteContext;
-	SQCONTEXT scriptContext;
 	SQRESULT result = v_SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
 
 	if (retaddr != _ReturnAddress()) // Check if its SQVM_Warning calling.
@@ -100,7 +98,8 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		return result;
 	}
 
-	scriptContext = v->GetContext();
+	SQCONTEXT scriptContext = v->GetContext();
+	eDLL_T remoteContext;
 
 	switch (scriptContext)
 	{
@@ -113,10 +112,8 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 	case SQCONTEXT::UI:
 		remoteContext = eDLL_T::SCRIPT_UI;
 		break;
-	case SQCONTEXT::NONE:
-		remoteContext = eDLL_T::NONE;
-		break;
 	default:
+		remoteContext = eDLL_T::NONE;
 		break;
 	}
 
