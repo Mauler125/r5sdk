@@ -3368,6 +3368,13 @@ void Cubic_Spline(
 	Assert(&output != &p3);
 	Assert(&output != &p4);
 
+#ifdef NDEBUG
+	NOTE_UNUSED(p1);
+	NOTE_UNUSED(p2);
+	NOTE_UNUSED(p3);
+	NOTE_UNUSED(p4);
+#endif // NDEBUG
+
 	output.Init();
 
 	Vector3D a, b, c, d;
@@ -3502,6 +3509,10 @@ void Parabolic_Spline(
 	Assert(&output != &p2);
 	Assert(&output != &p3);
 	Assert(&output != &p4);
+
+#ifdef NDEBUG
+	NOTE_UNUSED(p4);
+#endif // NDEBUG
 
 	output.Init();
 
@@ -4035,7 +4046,7 @@ bool CalcLineToLineIntersectionSegment(
 volatile static char const* pDebugString;
 #endif
 
-void MathLib_Init(float gamma, float texGamma, float brightness, int overbright, bool bAllow3DNow, bool bAllowSSE, bool bAllowSSE2, bool bAllowMMX)
+void MathLib_Init(float gamma, float texGamma, float brightness, int overbright)
 {
 	if (s_bMathlibInitialized)
 		return;
@@ -5397,9 +5408,9 @@ void Frustum_t::CreatePerspectiveFrustumFLU(const Vector3D& vOrigin, const Vecto
 	const Vector3D& vLeft, const Vector3D& vUp, float flZNear, float flZFar,
 	float flFovX, float flAspect)
 {
-	VPlane planes[FRUSTUM_NUMPLANES];
-	GeneratePerspectiveFrustumFLU(vOrigin, vForward, vLeft, vUp, flZNear, flZFar, flFovX, flAspect, planes);
-	SetPlanes(planes);
+	VPlane frustumPlanes[FRUSTUM_NUMPLANES];
+	GeneratePerspectiveFrustumFLU(vOrigin, vForward, vLeft, vUp, flZNear, flZFar, flFovX, flAspect, frustumPlanes);
+	SetPlanes(frustumPlanes);
 }
 
 //#ifndef YUP_ACTIVE
@@ -5416,19 +5427,19 @@ void Frustum_t::CreatePerspectiveFrustum(const Vector3D& origin, const Vector3D&
 // Version that accepts angles instead of vectors
 void Frustum_t::CreatePerspectiveFrustum(const Vector3D& origin, const QAngle& angles, float flZNear, float flZFar, float flFovX, float flAspectRatio)
 {
-	VPlane planes[FRUSTUM_NUMPLANES];
+	VPlane frustumPlanes[FRUSTUM_NUMPLANES];
 	Vector3D vecForward, vecLeft, vecUp;
 	AngleVectorsFLU(angles, &vecForward, &vecLeft, &vecUp);
-	GeneratePerspectiveFrustumFLU(origin, vecForward, vecLeft, vecUp, flZNear, flZFar, flFovX, flAspectRatio, planes);
-	SetPlanes(planes);
+	GeneratePerspectiveFrustumFLU(origin, vecForward, vecLeft, vecUp, flZNear, flZFar, flFovX, flAspectRatio, frustumPlanes);
+	SetPlanes(frustumPlanes);
 }
 
 // Generate a frustum based on orthographic parameters
 void Frustum_t::CreateOrthoFrustumFLU(const Vector3D& origin, const Vector3D& forward, const Vector3D& vLeft, const Vector3D& up, float flLeft, float flRight, float flBottom, float flTop, float flZNear, float flZFar)
 {
-	VPlane planes[FRUSTUM_NUMPLANES];
-	GenerateOrthoFrustumFLU(origin, forward, vLeft, up, flLeft, flRight, flBottom, flTop, flZNear, flZFar, planes);
-	SetPlanes(planes);
+	VPlane frustumPlanes[FRUSTUM_NUMPLANES];
+	GenerateOrthoFrustumFLU(origin, forward, vLeft, up, flLeft, flRight, flBottom, flTop, flZNear, flZFar, frustumPlanes);
+	SetPlanes(frustumPlanes);
 }
 
 //#ifndef YUP_ACTIVE
@@ -5448,41 +5459,41 @@ void Frustum_t::CreateOrthoFrustum(const Vector3D& origin, const Vector3D& forwa
 //	0--1
 bool Frustum_t::GetCorners(Vector3D* pPoints) const
 {
-	VPlane planes[FRUSTUM_NUMPLANES];
-	GetPlanes(planes);
+	VPlane frustumPlanes[FRUSTUM_NUMPLANES];
+	GetPlanes(frustumPlanes);
 
 	// Near face
 	// Bottom Left
-	if (!PlaneIntersection(planes[FRUSTUM_NEARZ], planes[FRUSTUM_LEFT], planes[FRUSTUM_BOTTOM], pPoints[0]))
+	if (!PlaneIntersection(frustumPlanes[FRUSTUM_NEARZ], frustumPlanes[FRUSTUM_LEFT], frustumPlanes[FRUSTUM_BOTTOM], pPoints[0]))
 		return false;
 
 	// Bottom right
-	if (!PlaneIntersection(planes[FRUSTUM_NEARZ], planes[FRUSTUM_RIGHT], planes[FRUSTUM_BOTTOM], pPoints[1]))
+	if (!PlaneIntersection(frustumPlanes[FRUSTUM_NEARZ], frustumPlanes[FRUSTUM_RIGHT], frustumPlanes[FRUSTUM_BOTTOM], pPoints[1]))
 		return false;
 
 	// Upper Left
-	if (!PlaneIntersection(planes[FRUSTUM_NEARZ], planes[FRUSTUM_LEFT], planes[FRUSTUM_TOP], pPoints[2]))
+	if (!PlaneIntersection(frustumPlanes[FRUSTUM_NEARZ], frustumPlanes[FRUSTUM_LEFT], frustumPlanes[FRUSTUM_TOP], pPoints[2]))
 		return false;
 
 	// Upper right
-	if (!PlaneIntersection(planes[FRUSTUM_NEARZ], planes[FRUSTUM_RIGHT], planes[FRUSTUM_TOP], pPoints[3]))
+	if (!PlaneIntersection(frustumPlanes[FRUSTUM_NEARZ], frustumPlanes[FRUSTUM_RIGHT], frustumPlanes[FRUSTUM_TOP], pPoints[3]))
 		return false;
 
 	// Far face
 	// Bottom Left
-	if (!PlaneIntersection(planes[FRUSTUM_FARZ], planes[FRUSTUM_LEFT], planes[FRUSTUM_BOTTOM], pPoints[4]))
+	if (!PlaneIntersection(frustumPlanes[FRUSTUM_FARZ], frustumPlanes[FRUSTUM_LEFT], frustumPlanes[FRUSTUM_BOTTOM], pPoints[4]))
 		return false;
 
 	// Bottom right
-	if (!PlaneIntersection(planes[FRUSTUM_FARZ], planes[FRUSTUM_RIGHT], planes[FRUSTUM_BOTTOM], pPoints[5]))
+	if (!PlaneIntersection(frustumPlanes[FRUSTUM_FARZ], frustumPlanes[FRUSTUM_RIGHT], frustumPlanes[FRUSTUM_BOTTOM], pPoints[5]))
 		return false;
 
 	// Upper Left
-	if (!PlaneIntersection(planes[FRUSTUM_FARZ], planes[FRUSTUM_LEFT], planes[FRUSTUM_TOP], pPoints[6]))
+	if (!PlaneIntersection(frustumPlanes[FRUSTUM_FARZ], frustumPlanes[FRUSTUM_LEFT], frustumPlanes[FRUSTUM_TOP], pPoints[6]))
 		return false;
 
 	// Upper right
-	if (!PlaneIntersection(planes[FRUSTUM_FARZ], planes[FRUSTUM_RIGHT], planes[FRUSTUM_TOP], pPoints[7]))
+	if (!PlaneIntersection(frustumPlanes[FRUSTUM_FARZ], frustumPlanes[FRUSTUM_RIGHT], frustumPlanes[FRUSTUM_TOP], pPoints[7]))
 		return false;
 
 

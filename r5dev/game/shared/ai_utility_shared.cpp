@@ -375,28 +375,28 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
         if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
             continue;
 
-        for (int i = 0; i < pTile->header->polyCount; ++i)
+        for (int j = 0; j < pTile->header->polyCount; ++j)
         {
-            const dtPoly* pPoly = &pTile->polys[i];
+            const dtPoly* pPoly = &pTile->polys[j];
 
             if (pPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
                 continue;
 
-            const dtPolyDetail* pd = &pTile->detailMeshes[i];
+            const dtPolyDetail* pd = &pTile->detailMeshes[j];
 
-            for (int j = 0, nj = static_cast<int>(pPoly->vertCount); j < nj; ++j)
+            for (int e = 0, ne = static_cast<int>(pPoly->vertCount); e < ne; ++e)
             {
                 if (bDrawInner)
                 {
-                    if (pPoly->neis[j] == 0)
+                    if (pPoly->neis[e] == 0)
                         continue;
 
-                    if (pPoly->neis[j] & DT_EXT_LINK)
+                    if (pPoly->neis[e] & DT_EXT_LINK)
                     {
                         bool bCon = false;
                         for (unsigned int k = pPoly->firstLink; k != DT_NULL_LINK; k = pTile->links[k].next)
                         {
-                            if (pTile->links[k].edge == j)
+                            if (pTile->links[k].edge == e)
                             {
                                 bCon = true;
                                 break;
@@ -412,16 +412,16 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
                 }
                 else
                 {
-                    if (pPoly->neis[j] != 0)
+                    if (pPoly->neis[e] != 0)
                         continue;
                 }
 
-                const float* v0 = &pTile->verts[pPoly->verts[j] * 3];
-                const float* v1 = &pTile->verts[pPoly->verts[(j + 1) % nj] * 3];
+                const float* v0 = &pTile->verts[pPoly->verts[e] * 3];
+                const float* v1 = &pTile->verts[pPoly->verts[(e + 1) % ne] * 3];
 
                 // Draw detail mesh edges which align with the actual poly edge.
                 // This is really slow.
-                for (int k = 0, e = pd->triCount; k < e; ++k)
+                for (int k = 0, ke = pd->triCount; k < ke; ++k)
                 {
                     const unsigned char* t = &pTile->detailTris[(pd->triBase + k) * 4];
                     const float* tv[3];
