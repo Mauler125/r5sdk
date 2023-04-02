@@ -33,6 +33,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 {
 	eDLL_T remoteContext;
 	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
+	// The compiler 'pointer truncation' warning couldn't be avoided, but it's safe to ignore it.
 	switch (static_cast<SQCONTEXT>(reinterpret_cast<int>(v)))
 	{
 	case SQCONTEXT::SERVER:

@@ -117,11 +117,11 @@ bool HushAsserts()
 ImVec4 CheckForWarnings(LogType_t type, eDLL_T context, const ImVec4& defaultCol)
 {
 	ImVec4 color = defaultCol;
-	if (type == LogType_t::LOG_WARNING)
+	if (type == LogType_t::LOG_WARNING || context == eDLL_T::SYSTEM_WARNING)
 	{
 		color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f);
 	}
-	else if (type == LogType_t::LOG_ERROR)
+	else if (type == LogType_t::LOG_ERROR || context == eDLL_T::SYSTEM_ERROR)
 	{
 		color = ImVec4(1.00f, 0.00f, 0.00f, 0.80f);
 	}

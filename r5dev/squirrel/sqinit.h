@@ -60,7 +60,7 @@ namespace VSquirrel
 		SQRESULT ConnectToListedServer(HSQUIRRELVM v);
 		SQRESULT CreateServer(HSQUIRRELVM v);
 		SQRESULT ConnectToHiddenServer(HSQUIRRELVM v);
-		SQRESULT GetHiddenServerConnectStatus(HSQUIRRELVM v);
+		SQRESULT GetHiddenServerName(HSQUIRRELVM v);
 		SQRESULT ConnectToServer(HSQUIRRELVM v);
 	}
 #endif // !DEDICATED

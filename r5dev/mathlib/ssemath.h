@@ -4302,10 +4302,10 @@ FORCEINLINE fltx4 LoadGatherSIMD(const float& x, const float& y, const float& z,
 FORCEINLINE fltx4 UnsignedIntConvertToFltSIMD(const u32x4& vSrcA)
 {
 	fltx4 retval;
-	SubFloat(retval, 0) = ((float)SubInt(retval, 0));
-	SubFloat(retval, 1) = ((float)SubInt(retval, 1));
-	SubFloat(retval, 2) = ((float)SubInt(retval, 2));
-	SubFloat(retval, 3) = ((float)SubInt(retval, 3));
+	SubFloat(retval, 0) = ((float)SubInt(vSrcA, 0));
+	SubFloat(retval, 1) = ((float)SubInt(vSrcA, 1));
+	SubFloat(retval, 2) = ((float)SubInt(vSrcA, 2));
+	SubFloat(retval, 3) = ((float)SubInt(vSrcA, 3));
 	return retval;
 }
 
@@ -5573,7 +5573,7 @@ inline fltx4 SimpleSpline(const fltx4& value)
 // remaps a value in [startInterval, startInterval+rangeInterval] from linear to
 // spline using SimpleSpline
 inline fltx4 SimpleSplineRemapValWithDeltas(const fltx4& val,
-	const fltx4& A, const fltx4& BMinusA,
+	const fltx4& A, /*const fltx4& BMinusA,*/
 	const fltx4& OneOverBMinusA, const fltx4& C,
 	const fltx4& DMinusC)
 {
@@ -5584,7 +5584,7 @@ inline fltx4 SimpleSplineRemapValWithDeltas(const fltx4& val,
 }
 
 inline fltx4 SimpleSplineRemapValWithDeltasClamped(const fltx4& val,
-	const fltx4& A, const fltx4& BMinusA,
+	const fltx4& A, /*const fltx4& BMinusA,*/
 	const fltx4& OneOverBMinusA, const fltx4& C,
 	const fltx4& DMinusC)
 {

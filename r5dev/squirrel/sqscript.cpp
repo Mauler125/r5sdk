@@ -121,12 +121,12 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 	Script_RegisterFunction(s, "GetPromoData", "Script_GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
 
 	// Functions for connecting to servers
-	Script_RegisterFunction(s, "CreateServer", "Script_CreateServer", "Start server with the specified settings", "void", "string, string, string, string, int", &VSquirrel::UI::CreateServer);
+	Script_RegisterFunction(s, "CreateServer", "Script_CreateServer", "Starts server with the specified settings", "void", "string, string, string, string, int", &VSquirrel::UI::CreateServer);
 	Script_RegisterFunction(s, "ConnectToServer", "Script_ConnectToServer", "Joins server by ip address and encryption key", "void", "string, string", &VSquirrel::UI::ConnectToServer);
 	Script_RegisterFunction(s, "ConnectToListedServer", "Script_ConnectToListedServer", "Joins listed server by index", "void", "int", &VSquirrel::UI::ConnectToListedServer);
 	Script_RegisterFunction(s, "ConnectToHiddenServer", "Script_ConnectToHiddenServer", "Joins hidden server by token", "void", "string", &VSquirrel::UI::ConnectToHiddenServer);
-	Script_RegisterFunction(s, "GetHiddenServerConnectStatus", "Script_GetHiddenServerConnectStatus", "Gets hidden server join status message", "string", "string", &VSquirrel::UI::GetHiddenServerConnectStatus);
 
+	Script_RegisterFunction(s, "GetHiddenServerName", "Script_GetHiddenServerName", "Gets hidden server name by token", "string", "string", &VSquirrel::UI::GetHiddenServerName);
 	Script_RegisterFunction(s, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VSquirrel::SHARED::GetAvailableMaps);
 	Script_RegisterFunction(s, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 #ifndef CLIENT_DLL
@@ -312,10 +312,15 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 	SQBufState bufState = SQBufState(code);
 	SQRESULT compileResult = sq_compilebuffer(v, &bufState, "console", -1);
 
-	if (compileResult >= NULL)
+	if (SQ_SUCCEEDED(compileResult))
 	{
 		sq_pushroottable(v);
 		SQRESULT callResult = sq_call(v, 1, false, false);
+
+		if (!SQ_SUCCEEDED(callResult))
+		{
+			Error(eDLL_T::ENGINE, NO_ERROR, "Failed to execute %s script \"%s\"\n", SQVM_GetContextName(context), code);
+		}
 	}
 }
 

@@ -525,7 +525,7 @@ namespace VSquirrel
             }
             else
             {
-                DevMsg(eDLL_T::UI, "Failed to connect to private server: %s\n", hiddenServerRequestMessage.c_str());
+                Warning(eDLL_T::UI, "Failed to connect to private server: %s\n", hiddenServerRequestMessage.c_str());
             }
 
             return SQ_OK;
@@ -534,7 +534,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: get response from private server request
         //-----------------------------------------------------------------------------
-        SQRESULT GetHiddenServerConnectStatus(HSQUIRRELVM v)
+        SQRESULT GetHiddenServerName(HSQUIRRELVM v)
         {
             SQChar* privateToken = sq_getstring(v, 1);
 
@@ -545,14 +545,37 @@ namespace VSquirrel
             NetGameServer_t serverListing;
 
             bool result = g_pMasterServer->GetServerByToken(serverListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
-            if (!serverListing.m_svHostName.empty())
+            if (!result)
             {
-                hiddenServerRequestMessage = Format("Found server: %s", serverListing.m_svHostName.c_str());
+                if (hiddenServerRequestMessage.empty())
+                {
+                    sq_pushstring(v, "Request failed", -1);
+                }
+                else
+                {
+                    hiddenServerRequestMessage = Format("Request failed: %s", hiddenServerRequestMessage.c_str());
+                    sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
+                }
+
+                return SQ_OK;
+            }
+
+            if (serverListing.m_svHostName.empty())
+            {
+                if (hiddenServerRequestMessage.empty())
+                {
+                    hiddenServerRequestMessage = Format("Server listing empty");
+                }
+                else
+                {
+                    hiddenServerRequestMessage = Format("Server listing empty: %s", hiddenServerRequestMessage.c_str());
+                }
+
                 sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
             else
             {
-                hiddenServerRequestMessage = Format("Server not found: %s", hiddenServerRequestMessage.c_str());
+                hiddenServerRequestMessage = Format("Found server: %s", serverListing.m_svHostName.c_str());
                 sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
 
