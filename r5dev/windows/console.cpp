@@ -31,8 +31,6 @@ void SetConsoleBackgroundColor(COLORREF color)
 	HANDLE consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	GetConsoleScreenBufferInfoEx(consoleOut, &sbInfoEx);
 
-	COLORREF storedBG = sbInfoEx.ColorTable[0];
-
 	sbInfoEx.ColorTable[0] = color;
 	SetConsoleScreenBufferInfoEx(consoleOut, &sbInfoEx);
 }
@@ -101,7 +99,6 @@ void Console_Init()
 	}
 #endif // !NETCONSOLE
 
-	HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
 	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD dwMode = NULL;
 
