@@ -1741,7 +1741,7 @@ FORCEINLINE unsigned char RoundFloatToByte(float f)
 #ifdef Assert
 	Assert(nResult >= 0 && nResult <= 255);
 #endif 
-	return nResult;
+	return unsigned char(nResult);
 
 #endif
 }
@@ -2604,13 +2604,13 @@ FORCEINLINE float* UnpackNormal_UBYTE4(const unsigned int* pPackedNormal, float*
 	unsigned char cX, cY;
 	if (bIsTangent)
 	{
-		cX = *pPackedNormal >> 16;					// Unpack Z
-		cY = *pPackedNormal >> 24;					// Unpack W
+		cX = (*pPackedNormal >> 16) & UINT8_MAX;	// Unpack Z
+		cY = (*pPackedNormal >> 24) & UINT8_MAX;	// Unpack W
 	}
 	else
 	{
-		cX = *pPackedNormal >> 0;					// Unpack X
-		cY = *pPackedNormal >> 8;					// Unpack Y
+		cX = (*pPackedNormal >> 0) & UINT8_MAX;		// Unpack X
+		cY = (*pPackedNormal >> 8) & UINT8_MAX;		// Unpack Y
 	}
 
 	float x = cX - 128.0f;
