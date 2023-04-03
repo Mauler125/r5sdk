@@ -58,16 +58,18 @@ property uchar blue
 element face %zu
 property list uchar int vertex_index
 end_header
-)",pts.size()/3,tris.size()/3);
+)", size_t(pts.size()/3), size_t(tris.size()/3));
 
-	for (size_t i = 0; i < pts.size(); i+=3)
+	for (size_t i = 0; i < size_t(pts.size()); i+=3)
 	{
 		auto c = colors[i / 3];
-		fprintf(f, "%g %g %g %d %d %d\n", pts[i], pts[i + 1], pts[i + 2], c & 0xff, (c >> 8) & 0xff, (c >> 16) & 0xff);
+		fprintf(f, "%g %g %g %d %d %d\n", 
+			pts[i], pts[i+1], pts[i+2], c & 0xff, (c >> 8) & 0xff, (c >> 16) & 0xff);
 	}
-	for (size_t i = 0; i < tris.size(); i += 3)
+	for (size_t i = 0; i < size_t(tris.size()); i += 3)
 	{
-		fprintf(f, "3 %d %d %d\n", tris[i], tris[i + 1], tris[i + 2]);
+		fprintf(f, "3 %d %d %d\n", 
+			tris[int(i)], tris[int(i+1)], tris[int(i+2)]);
 	}
 	
 	fclose(f);
@@ -78,8 +80,8 @@ float area2(const float* a, const float* b, const float* c)
 }
 void convex_hull(std::vector<float>& pts, std::vector<int>& hull)
 {
-	int pt_count = pts.size() / 3;
-	int cur_pt = 0;
+	size_t pt_count = pts.size() / 3;
+	size_t cur_pt = 0;
 	float min_x = pts[0];
 	for(size_t i=0;i<pt_count;i++)
 		if (pts[i * 3] < min_x)
@@ -89,13 +91,13 @@ void convex_hull(std::vector<float>& pts, std::vector<int>& hull)
 		}
 
 	
-	int point_on_hull = cur_pt;
-	int endpoint = 0;
+	size_t point_on_hull = cur_pt;
+	size_t endpoint = 0;
 	do
 	{
-		hull.push_back(point_on_hull);
+		hull.push_back(int(point_on_hull));
 		endpoint = (point_on_hull + 1) % pt_count;
-		for (int i = 0; i < pt_count; i++)
+		for (size_t i = 0; i < pt_count; i++)
 		{
 			if (area2(&pts[point_on_hull*3], &pts[i*3], &pts[endpoint*3]) > 0) //reverse this comparison for flipped hull direction
 				endpoint = i;

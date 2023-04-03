@@ -109,7 +109,7 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			poly.disjointSetId = -1;
+			poly.disjointSetId = (unsigned short)-1;
 		}
 	}
 	//first pass
@@ -136,12 +136,12 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 			}
 			if (nlabels.empty())
 			{
-				poly.disjointSetId = data.insert_new();
+				poly.disjointSetId = (unsigned short)data.insert_new();
 			}
 			else
 			{
 				auto l = *nlabels.begin();
-				poly.disjointSetId = l;
+				poly.disjointSetId = (unsigned short)l;
 				for (auto nl : nlabels)
 					data.set_union(l, nl);
 			}
@@ -158,7 +158,7 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 		{
 			dtPoly& poly = tile->polys[j];
 			int id = data.find(poly.disjointSetId);
-			poly.disjointSetId = id;
+			poly.disjointSetId = (unsigned short)id;
 		}
 	}
 }
