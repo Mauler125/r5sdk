@@ -171,7 +171,7 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace, K
 						pEntryKV->GetInt("loadFlags", static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE)),
 						int16_t(pEntryKV->GetInt("textureFlags", static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT))),
 						pEntryKV->GetBool("useCompression", true),
-						pEntryKV->GetBool("useDataSharing", true))
+						pEntryKV->GetBool("deDuplicate", true))
 					);
 				}
 			}
@@ -304,7 +304,7 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 		pEntryKV->SetInt("loadFlags", vDescriptor.m_nLoadFlags);
 		pEntryKV->SetInt("textureFlags", vDescriptor.m_nTextureFlags);
 		pEntryKV->SetBool("useCompression", vDescriptor.m_nCompressedSize != vDescriptor.m_nUncompressedSize);
-		pEntryKV->SetBool("useDataSharing", true);
+		pEntryKV->SetBool("deDuplicate", true);
 	}
 
 	string svPathOut = Format("%s%s%s.txt", svWorkspace.c_str(), "manifest/", svManifestName.c_str());
@@ -355,8 +355,8 @@ void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath, const uint
 void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspace, const string& svBuildPath, bool bManifestOnly)
 {
 	const string svPackFilePath = string(svBuildPath + vPair.m_svPackName);
-	FileHandle_t hPackFile = FileSystem()->Open(svPackFilePath.c_str(), "wb", "GAME");
 
+	FileHandle_t hPackFile = FileSystem()->Open(svPackFilePath.c_str(), "wb", "GAME");
 	if (!hPackFile)
 	{
 		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svPackFilePath.c_str());
@@ -420,7 +420,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 			FileSystem()->Read(pEntryBuffer, int(vDescriptor.m_nCompressedSize), hAsset);
 			vDescriptor.m_nPackFileOffset = FileSystem()->Tell(hPackFile);
 
-			if (vEntryValue.m_bUseDataSharing)
+			if (vEntryValue.m_bDeduplicate)
 			{
 				string svEntryHash = sha1(string(reinterpret_cast<char*>(pEntryBuffer), vDescriptor.m_nUncompressedSize));
 				auto p = m_mChunkHashMap.insert({ svEntryHash, vDescriptor });
@@ -588,16 +588,16 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 //          nLoadFlags - 
 //          nTextureFlags - 
 //          bUseCompression - 
-//          bUseDataSharing - 
+//          bDeduplicate - 
 //-----------------------------------------------------------------------------
-VPKKeyValues_t::VPKKeyValues_t(const string& svEntryPath, uint16_t iPreloadSize, uint32_t nLoadFlags, uint16_t nTextureFlags, bool bUseCompression, bool bUseDataSharing)
+VPKKeyValues_t::VPKKeyValues_t(const string& svEntryPath, uint16_t iPreloadSize, uint32_t nLoadFlags, uint16_t nTextureFlags, bool bUseCompression, bool bDeduplicate)
 {
 	m_svEntryPath = svEntryPath;
 	m_iPreloadSize = iPreloadSize;
 	m_nLoadFlags = nLoadFlags;
 	m_nTextureFlags = nTextureFlags;
 	m_bUseCompression = bUseCompression;
-	m_bUseDataSharing = bUseDataSharing;
+	m_bDeduplicate = bDeduplicate;
 }
 
 //-----------------------------------------------------------------------------

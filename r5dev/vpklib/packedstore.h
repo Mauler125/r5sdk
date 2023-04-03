@@ -53,10 +53,10 @@ struct VPKKeyValues_t
 	uint32_t m_nLoadFlags;
 	uint16_t m_nTextureFlags;
 	bool m_bUseCompression;
-	bool m_bUseDataSharing;
+	bool m_bDeduplicate;
 
 	VPKKeyValues_t(const string& svEntryPath = "", uint16_t iPreloadSize = NULL, uint32_t nLoadFlags = LOAD_FLAGS_DEFAULT, 
-		uint16_t nTextureFlags = TEXTURE_FLAGS_DEFAULT, bool bUseCompression = true, bool bUseDataSharing = true);
+		uint16_t nTextureFlags = TEXTURE_FLAGS_DEFAULT, bool bUseCompression = true, bool bDeduplicate = true);
 };
 
 struct VPKChunkDescriptor_t
