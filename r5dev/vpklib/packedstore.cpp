@@ -23,12 +23,6 @@
 #include "vpklib/packedstore.h"
 
 //-----------------------------------------------------------------------------
-// Static buffers for fragmenting/compressing the source files and decompressing
-//-----------------------------------------------------------------------------
-static uint8_t s_EntryBuf[ENTRY_MAX_LEN];
-static uint8_t s_DecompBuf[ENTRY_MAX_LEN];
-
-//-----------------------------------------------------------------------------
 // Purpose: initialize parameters for compression algorithm
 //-----------------------------------------------------------------------------
 void CPackedStore::InitLzCompParams(void)
@@ -369,6 +363,13 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 		return;
 	}
 
+	uint8_t* pEntryBuffer = MemAllocSingleton()->Alloc<uint8_t>(ENTRY_MAX_LEN);
+	if (!pEntryBuffer)
+	{
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
+		return;
+	}
+
 	vector<VPKKeyValues_t> vEntryValues;
 	vector<VPKEntryBlock_t> vEntryBlocks;
 	KeyValues* pManifestKV = nullptr;
@@ -416,12 +417,12 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 		{
 			VPKChunkDescriptor_t& vDescriptor = vEntryBlock.m_vFragments[j];
 
-			FileSystem()->Read(s_EntryBuf, int(vDescriptor.m_nCompressedSize), hAsset);
+			FileSystem()->Read(pEntryBuffer, int(vDescriptor.m_nCompressedSize), hAsset);
 			vDescriptor.m_nPackFileOffset = FileSystem()->Tell(hPackFile);
 
 			if (vEntryValue.m_bUseDataSharing)
 			{
-				string svEntryHash = sha1(string(reinterpret_cast<char*>(s_EntryBuf), vDescriptor.m_nUncompressedSize));
+				string svEntryHash = sha1(string(reinterpret_cast<char*>(pEntryBuffer), vDescriptor.m_nUncompressedSize));
 				auto p = m_mChunkHashMap.insert({ svEntryHash, vDescriptor });
 
 				if (!p.second) // Map to existing chunk to avoid having copies of the same data.
@@ -438,7 +439,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 
 			if (vEntryValue.m_bUseCompression)
 			{
-				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_lzCompParams, s_EntryBuf, &vDescriptor.m_nCompressedSize, s_EntryBuf,
+				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_lzCompParams, pEntryBuffer, &vDescriptor.m_nCompressedSize, pEntryBuffer,
 					vDescriptor.m_nUncompressedSize, nullptr);
 
 				if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
@@ -455,7 +456,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 			}
 
 			vDescriptor.m_bIsCompressed = vDescriptor.m_nCompressedSize != vDescriptor.m_nUncompressedSize;
-			FileSystem()->Write(s_EntryBuf, int(vDescriptor.m_nCompressedSize), hPackFile);
+			FileSystem()->Write(pEntryBuffer, int(vDescriptor.m_nCompressedSize), hPackFile);
 		}
 
 		MemAllocSingleton()->Free(pBuf);
@@ -466,7 +467,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 	FileSystem()->Close(hPackFile);
 
 	m_mChunkHashMap.clear();
-	memset(s_EntryBuf, '\0', sizeof(s_EntryBuf));
+	MemAllocSingleton()->Free(pEntryBuffer);
 
 	VPKDir_t vDirectory;
 	vDirectory.BuildDirectoryFile(svBuildPath + vPair.m_svDirectoryName, vEntryBlocks);
@@ -484,6 +485,14 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 		vDirectory.m_vHeader.m_nMinorVersion != VPK_MINOR_VERSION)
 	{
 		Error(eDLL_T::FS, NO_ERROR, "Unsupported VPK directory file (invalid header criteria)\n");
+		return;
+	}
+
+	uint8_t* pDestBuffer = MemAllocSingleton()->Alloc<uint8_t>(ENTRY_MAX_LEN);
+	uint8_t* pSourceBuffer = MemAllocSingleton()->Alloc<uint8_t>(ENTRY_MAX_LEN);
+	if (!pDestBuffer || !pSourceBuffer)
+	{
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
 		return;
 	}
 
@@ -528,18 +537,18 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 					m_nChunkCount++;
 
 					FileSystem()->Seek(hPackFile, int(vChunk.m_nPackFileOffset), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-					FileSystem()->Read(s_EntryBuf, int(vChunk.m_nCompressedSize), hPackFile);
+					FileSystem()->Read(pSourceBuffer, int(vChunk.m_nCompressedSize), hPackFile);
 
 					if (vChunk.m_bIsCompressed)
 					{
-						size_t nDstLen = sizeof(s_DecompBuf);
+						size_t nDstLen = ENTRY_MAX_LEN;
 						assert(vChunk.m_nCompressedSize <= nDstLen);
 
 						if (vChunk.m_nCompressedSize > nDstLen)
 							break; // Corrupt or invalid chunk descriptor.
 
-						lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, s_DecompBuf,
-							&nDstLen, s_EntryBuf, vChunk.m_nCompressedSize, nullptr);
+						lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pDestBuffer,
+							&nDstLen, pSourceBuffer, vChunk.m_nCompressedSize, nullptr);
 
 						if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
@@ -548,12 +557,12 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 						}
 						else // If successfully decompressed, write to file.
 						{
-							FileSystem()->Write(s_DecompBuf, int(nDstLen), hAsset);
+							FileSystem()->Write(pDestBuffer, int(nDstLen), hAsset);
 						}
 					}
 					else // If not compressed, write source data into output file.
 					{
-						FileSystem()->Write(s_EntryBuf, int(vChunk.m_nUncompressedSize), hAsset);
+						FileSystem()->Write(pSourceBuffer, int(vChunk.m_nUncompressedSize), hAsset);
 					}
 				}
 
@@ -567,8 +576,9 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 		}
 		FileSystem()->Close(hPackFile);
 	}
-	memset(s_EntryBuf, '\0', sizeof(s_EntryBuf));
-	memset(s_DecompBuf, '\0', sizeof(s_DecompBuf));
+
+	MemAllocSingleton()->Free(pDestBuffer);
+	MemAllocSingleton()->Free(pSourceBuffer);
 }
 
 //-----------------------------------------------------------------------------
