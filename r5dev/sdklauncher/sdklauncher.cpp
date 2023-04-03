@@ -339,7 +339,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 ///////////////////////////////////////////////////////////////////////////////
 // EntryPoint.
 ///////////////////////////////////////////////////////////////////////////////
-int main(int argc, char* argv[], char* envp[])
+int main(int argc, char* argv[]/*, char* envp[]*/)
 {
     g_pLauncher->InitLogger();
     if (argc < 2)
