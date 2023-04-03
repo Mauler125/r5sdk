@@ -23,12 +23,12 @@ constexpr int PACKFILEINDEX_END = 0xffff;
 static const std::regex BLOCK_REGEX{ R"(pak000_([0-9]{3}))" };
 static const std::regex DIR_REGEX{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
 
-static const vector<string> DIR_TARGET = 
+static const vector<const char*> DIR_TARGET = 
 {
 	"server",
 	"client"
 };
-static const vector<string> DIR_LOCALE  = 
+static const vector<const char*> DIR_LOCALE  =
 {
 	"english",
 	"french",
@@ -98,7 +98,7 @@ struct VPKPair_t
 	string m_svPackName;
 	string m_svDirectoryName;
 
-	VPKPair_t(string svLanguage, string svTarget, const string& svLevel, int nPatch);
+	VPKPair_t(const string& svLocale, const string& svTarget, const string& svLevel, int nPatch);
 };
 
 struct VPKDir_t

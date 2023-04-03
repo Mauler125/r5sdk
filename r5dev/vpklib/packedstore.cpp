@@ -341,7 +341,6 @@ void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath, const uint
 	if (nCrc32 != nFileCRC)
 	{
 		Warning(eDLL_T::FS, "Computed checksum '0x%lX' doesn't match expected checksum '0x%lX'. File may be corrupt!\n", nCrc32, nFileCRC);
-		nCrc32          = NULL;
 	}
 }
 
@@ -707,25 +706,30 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextur
 
 //-----------------------------------------------------------------------------
 // Purpose: builds a valid file name for the VPK
-// Input  : svLanguage - 
-//          svTarget - 
+// Input  : &svLocale - 
+//          &svTarget - 
 //          &svLevel - 
 //          nPatch - 
 // Output : a vpk file pair (block and directory file names)
 //-----------------------------------------------------------------------------
-VPKPair_t::VPKPair_t(string svLanguage, string svTarget, const string& svLevel, int nPatch)
+VPKPair_t::VPKPair_t(const string& svLocale, const string& svTarget, const string& svLevel, int nPatch)
 {
-	if (std::find(DIR_LOCALE.begin(), DIR_LOCALE.end(), svLanguage) == DIR_LOCALE.end())
+	const char* szLocale = svLocale.c_str();
+	const char* szTarget = svTarget.c_str();
+
+	if (std::find(DIR_LOCALE.begin(), DIR_LOCALE.end(), svLocale) == DIR_LOCALE.end())
 	{
-		svLanguage = DIR_LOCALE[0];
+		szLocale = DIR_LOCALE[0];
+		Warning(eDLL_T::FS, "Locale '%s' not supported; using default '%s'\n", svLocale.c_str(), szLocale);
 	}
 	if (std::find(DIR_TARGET.begin(), DIR_TARGET.end(), svTarget) == DIR_TARGET.end())
 	{
-		svTarget = DIR_TARGET[0];
+		szTarget = DIR_TARGET[0];
+		Warning(eDLL_T::FS, "Target '%s' not supported; using default '%s'\n", svTarget.c_str(), szTarget);
 	}
 
-	m_svPackName = Format("%s_%s.bsp.pak000_%03d.vpk", svTarget.c_str(), svLevel.c_str(), nPatch);
-	m_svDirectoryName = Format("%s%s_%s.bsp.pak000_dir.vpk", svLanguage.c_str(), svTarget.c_str(), svLevel.c_str());
+	m_svPackName = Format("%s_%s.bsp.pak000_%03d.vpk", szTarget, svLevel.c_str(), nPatch);
+	m_svDirectoryName = Format("%s%s_%s.bsp.pak000_dir.vpk", szLocale, szTarget, svLevel.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -739,7 +743,7 @@ VPKDir_t::VPKDir_t(const string& svDirectoryPath)
 
 //-----------------------------------------------------------------------------
 // Purpose: 'VPKDir_t' file constructor with sanitation
-// Input  : svDirectoryName - 
+// Input  : &svDirectoryName - 
 //          bSanitizeName - retrieve the directory file name from block name
 // Output : VPKDir_t
 //-----------------------------------------------------------------------------
