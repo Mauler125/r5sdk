@@ -44,29 +44,29 @@ void Mod_GetAllInstalledMaps()
     std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
     g_InstalledMaps.clear(); // Clear current list.
 
-    fs::directory_iterator fsDir("vpk");
-    std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
-    std::smatch smRegexMatches;
+    fs::directory_iterator directoryIterator("vpk");
+    std::regex archiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
+    std::smatch regexMatches;
 
-    for (const fs::directory_entry& dEntry : fsDir)
+    for (const fs::directory_entry& directoryEntry : directoryIterator)
     {
-        std::string svFileName = dEntry.path().u8string();
-        std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
+        std::string fileName = directoryEntry.path().u8string();
+        std::regex_search(fileName, regexMatches, archiveRegex);
 
-        if (!smRegexMatches.empty())
+        if (!regexMatches.empty())
         {
-            if (smRegexMatches[1].str().compare("frontend") == 0)
+            if (regexMatches[1].str().compare("frontend") == 0)
                 continue; // Frontend contains no BSP's.
 
-            else if (smRegexMatches[1].str().compare("mp_common") == 0)
+            else if (regexMatches[1].str().compare("mp_common") == 0)
             {
                 if (std::find(g_InstalledMaps.begin(), g_InstalledMaps.end(), "mp_lobby") == g_InstalledMaps.end())
                     g_InstalledMaps.push_back("mp_lobby");
                 continue; // Common contains mp_lobby.
             }
 
-            if (std::find(g_InstalledMaps.begin(), g_InstalledMaps.end(), smRegexMatches[1].str()) == g_InstalledMaps.end())
-                g_InstalledMaps.push_back(smRegexMatches[1].str());
+            if (std::find(g_InstalledMaps.begin(), g_InstalledMaps.end(), regexMatches[1].str()) == g_InstalledMaps.end())
+                g_InstalledMaps.push_back(regexMatches[1].str());
         }
     }
 }
