@@ -718,28 +718,29 @@ void CSurface::LaunchGame(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CSurface::ParseMaps()
 {
-	if (!fs::exists("vpk"))
+	const fs::path vpkPath("vpk");
+	if (!fs::exists(vpkPath))
 	{
 		return;
 	}
 
-	fs::directory_iterator fsDir("vpk");
-	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
-	std::smatch smRegexMatches;
+	fs::directory_iterator directoryIterator(vpkPath);
+	std::regex archiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
+	std::smatch regexMatches;
 
 	m_MapCombo->Items.Add("");
-	for (const fs::directory_entry& dEntry : fsDir)
+	for (const fs::directory_entry& directoryEntry : directoryIterator)
 	{
-		std::string svFileName = dEntry.path().u8string();
-		std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
+		std::string fileName = directoryEntry.path().u8string();
+		std::regex_search(fileName, regexMatches, archiveRegex);
 
-		if (!smRegexMatches.empty())
+		if (!regexMatches.empty())
 		{
-			if (smRegexMatches[1].str().compare("frontend") == 0)
+			if (regexMatches[1].str().compare("frontend") == 0)
 			{
 				continue;
 			}
-			else if (smRegexMatches[1].str().compare("mp_common") == 0)
+			else if (regexMatches[1].str().compare("mp_common") == 0)
 			{
 				if (!this->m_MapCombo->Items.Contains("mp_lobby"))
 				{
@@ -747,9 +748,9 @@ void CSurface::ParseMaps()
 				}
 				continue;
 			}
-			else if (!this->m_MapCombo->Items.Contains(smRegexMatches[1].str().c_str()))
+			else if (!this->m_MapCombo->Items.Contains(regexMatches[1].str().c_str()))
 			{
-				this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
+				this->m_MapCombo->Items.Add(regexMatches[1].str().c_str());
 			}
 		}
 	}
@@ -760,27 +761,40 @@ void CSurface::ParseMaps()
 //-----------------------------------------------------------------------------
 void CSurface::ParsePlaylists()
 {
-	fs::path fsPlaylistPath(Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString()));
-
+	fs::path playlistPath(Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString()));
 	m_PlaylistCombo->Items.Add("");
-	if (fs::exists(fsPlaylistPath))
-	{
-		bool bOk{ };
-		std::ifstream iFile(fsPlaylistPath);
-		vdf::object vRoot = vdf::read(iFile, &bOk);
 
-		if (bOk)
+	if (!fs::exists(playlistPath))
+	{
+		return;
+	}
+
+	bool success{ };
+	std::ifstream iFile(playlistPath);
+	vdf::object vRoot = vdf::read(iFile, &success);
+
+	if (!success)
+	{
+		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__,
+			playlistPath.u8string().c_str());
+		return;
+	}
+
+	try
+	{
+		const auto& vcPlaylists = vRoot.childs.at("Playlists");
+		for (auto [id, it] = std::tuple<int, decltype(vcPlaylists->childs.begin())>
+			{ 1, vcPlaylists->childs.begin() }; it != vcPlaylists->childs.end(); id++, it++)
 		{
-			const auto& vcPlaylists = vRoot.childs.at("Playlists");
-			for (auto[id, it] = std::tuple<int, decltype(vcPlaylists->childs.begin())>
-				{ 1, vcPlaylists->childs.begin() }; it != vcPlaylists->childs.end(); id++, it++)
+			if (!this->m_PlaylistCombo->Items.Contains(it->first.c_str()))
 			{
-				if (!this->m_PlaylistCombo->Items.Contains(it->first.c_str()))
-				{
-					this->m_PlaylistCombo->Items.Add(it->first.c_str());
-				}
+				this->m_PlaylistCombo->Items.Add(it->first.c_str());
 			}
 		}
+	}
+	catch (const std::exception& e)
+	{
+		printf("%s: Exception while parsing VDF file: %s\n", __FUNCTION__, e.what());
 	}
 }
 
