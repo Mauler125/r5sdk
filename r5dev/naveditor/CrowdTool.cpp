@@ -294,8 +294,8 @@ void CrowdToolState::handleRender()
 		if (!ag->active)
 			continue;
 			
-		const float radius = ag->params.radius;
-		const float* pos = ag->npos;
+		const float agentRadius = ag->params.radius;
+		const float* agentPos = ag->npos;
 		
 		if (m_toolParams.m_showCorners)
 		{
@@ -304,16 +304,16 @@ void CrowdToolState::handleRender()
 				dd.begin(DU_DRAW_LINES, 2.0f);
 				for (int j = 0; j < ag->ncorners; ++j)
 				{
-					const float* va = j == 0 ? pos : &ag->cornerVerts[(j-1)*3];
+					const float* va = j == 0 ? agentPos : &ag->cornerVerts[(j-1)*3];
 					const float* vb = &ag->cornerVerts[j*3];
-					dd.vertex(va[0],va[1],va[2]+radius, duRGBA(128,0,0,192));
-					dd.vertex(vb[0],vb[1],vb[2]+radius, duRGBA(128,0,0,192));
+					dd.vertex(va[0],va[1],va[2]+agentRadius, duRGBA(128,0,0,192));
+					dd.vertex(vb[0],vb[1],vb[2]+agentRadius, duRGBA(128,0,0,192));
 				}
 				if (ag->ncorners && ag->cornerFlags[ag->ncorners-1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
 				{
 					const float* v = &ag->cornerVerts[(ag->ncorners-1)*3];
 					dd.vertex(v[0],v[1],v[2], duRGBA(192,0,0,192));
-					dd.vertex(v[0],v[1],v[2]+radius*2, duRGBA(192,0,0,192));
+					dd.vertex(v[0],v[1],v[2]+agentRadius*2, duRGBA(192,0,0,192));
 				}
 				
 				dd.end();
@@ -346,8 +346,8 @@ void CrowdToolState::handleRender()
 		if (m_toolParams.m_showCollisionSegments)
 		{
 			const float* center = ag->boundary.getCenter();
-			duDebugDrawCross(&dd, center[0],center[1],center[2]+radius, 0.2f, duRGBA(192,0,128,255), 2.0f);
-			duDebugDrawCircle(&dd, center[0],center[1],center[2]+radius, ag->params.collisionQueryRange,
+			duDebugDrawCross(&dd, center[0],center[1],center[2]+agentRadius, 0.2f, duRGBA(192,0,128,255), 2.0f);
+			duDebugDrawCircle(&dd, center[0],center[1],center[2]+agentRadius, ag->params.collisionQueryRange,
 							  duRGBA(192,0,128,128), 2.0f);
 			
 			dd.begin(DU_DRAW_LINES, 3.0f);
@@ -355,7 +355,7 @@ void CrowdToolState::handleRender()
 			{
 				const float* s = ag->boundary.getSegment(j);
 				unsigned int col = duRGBA(192,0,128,192);
-				if (dtTriArea2D(pos, s, s+3) < 0.0f)
+				if (dtTriArea2D(agentPos, s, s+3) < 0.0f)
 					col = duDarkenCol(col);
 				
 				duAppendArrow(&dd, s[0],s[1],s[2]+0.2f, s[3],s[4],s[5]+0.2f, 0.0f, 30.0f, col);
@@ -365,7 +365,7 @@ void CrowdToolState::handleRender()
 		
 		if (m_toolParams.m_showNeis)
 		{
-			duDebugDrawCircle(&dd, pos[0],pos[1],pos[2]+radius, ag->params.collisionQueryRange,
+			duDebugDrawCircle(&dd, agentPos[0],agentPos[1],agentPos[2]+agentRadius, ag->params.collisionQueryRange,
 							  duRGBA(0,192,128,128), 2.0f);
 			
 			dd.begin(DU_DRAW_LINES, 2.0f);
@@ -376,8 +376,8 @@ void CrowdToolState::handleRender()
 				const dtCrowdAgent* nei = crowd->getAgent(ag->neis[j].idx);
 				if (nei)
 				{
-					dd.vertex(pos[0],pos[1],pos[2]+radius, duRGBA(0,192,128,128));
-					dd.vertex(nei->npos[0],nei->npos[1],nei->npos[2]+radius, duRGBA(0,192,128,128));
+					dd.vertex(agentPos[0],agentPos[1],agentPos[2]+agentRadius, duRGBA(0,192,128,128));
+					dd.vertex(nei->npos[0],nei->npos[1],nei->npos[2]+agentRadius, duRGBA(0,192,128,128));
 				}
 			}
 			dd.end();
