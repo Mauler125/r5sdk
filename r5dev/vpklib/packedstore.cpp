@@ -346,6 +346,31 @@ void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath, const uint
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: attempts to deduplicate a chunk of data by comparing it to existing chunks
+// Input  : *pEntryBuffer - 
+//          &descriptor - 
+//          chunkIndex
+// Output : true if the chunk was deduplicated, false otherwise
+//-----------------------------------------------------------------------------
+bool CPackedStore::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex)
+{
+	string entryHash(reinterpret_cast<const char*>(pEntryBuffer), descriptor.m_nUncompressedSize);
+	entryHash = sha1(entryHash);
+
+	auto p = m_mChunkHashMap.insert({ entryHash, descriptor });
+	if (!p.second) // Map to existing chunk to avoid having copies of the same data.
+	{
+		DevMsg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n", 
+			chunkIndex, entryHash.c_str(), p.first->second.m_nPackFileOffset);
+		descriptor = p.first->second;
+
+		return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: packs all files from workspace path into VPK file
 // Input  : &vPair - 
 //          &svWorkspace - 
@@ -354,7 +379,7 @@ void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath, const uint
 //-----------------------------------------------------------------------------
 void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspace, const string& svBuildPath, bool bManifestOnly)
 {
-	const string svPackFilePath = string(svBuildPath + vPair.m_svPackName);
+	const string svPackFilePath(svBuildPath + vPair.m_svPackName);
 
 	FileHandle_t hPackFile = FileSystem()->Open(svPackFilePath.c_str(), "wb", "GAME");
 	if (!hPackFile)
@@ -367,6 +392,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 	if (!pEntryBuffer)
 	{
 		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
+		FileSystem()->Close(hPackFile);
 		return;
 	}
 
@@ -420,21 +446,13 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 			FileSystem()->Read(pEntryBuffer, int(vDescriptor.m_nCompressedSize), hAsset);
 			vDescriptor.m_nPackFileOffset = FileSystem()->Tell(hPackFile);
 
-			if (vEntryValue.m_bDeduplicate)
+			if (vEntryValue.m_bDeduplicate && Deduplicate(pEntryBuffer, vDescriptor, j))
 			{
-				string svEntryHash = sha1(string(reinterpret_cast<char*>(pEntryBuffer), vDescriptor.m_nUncompressedSize));
-				auto p = m_mChunkHashMap.insert({ svEntryHash, vDescriptor });
+				nSharedTotal += vDescriptor.m_nCompressedSize;
+				nSharedCount++;
 
-				if (!p.second) // Map to existing chunk to avoid having copies of the same data.
-				{
-					DevMsg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n", j, svEntryHash.c_str(), p.first->second.m_nPackFileOffset);
-
-					vDescriptor = p.first->second;
-					nSharedTotal += vDescriptor.m_nCompressedSize;
-					nSharedCount++;
-
-					continue;
-				}
+				// Data was deduplicated.
+				continue;
 			}
 
 			if (vEntryValue.m_bUseCompression)
@@ -515,62 +533,60 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 			const VPKEntryBlock_t& vEntryBlock = vDirectory.m_vEntryBlocks[j];
 			if (vEntryBlock.m_iPackFileIndex != static_cast<uint16_t>(i))
 			{
+				// Chunk doesn't belongs to this block.
 				continue;
 			}
-			else // Chunk belongs to this block.
+
+			string svFilePath;
+			CreateDirectories(svWorkspace + vEntryBlock.m_svEntryPath, &svFilePath);
+			FileHandle_t hAsset = FileSystem()->Open(svFilePath.c_str(), "wb", "GAME");
+
+			if (!hAsset)
 			{
-				string svFilePath;
-				CreateDirectories(svWorkspace + vEntryBlock.m_svEntryPath, &svFilePath);
-				FileHandle_t hAsset = FileSystem()->Open(svFilePath.c_str(), "wb", "GAME");
+				Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svFilePath.c_str());
+				continue;
+			}
 
-				if (!hAsset)
+			DevMsg(eDLL_T::FS, "Unpacking entry '%zu' from block '%zu' ('%s')\n", j, i, vEntryBlock.m_svEntryPath.c_str());
+			for (size_t k = 0, cs = vEntryBlock.m_vFragments.size(); k < cs; k++)
+			{
+				const VPKChunkDescriptor_t& vChunk = vEntryBlock.m_vFragments[k];
+				m_nChunkCount++;
+
+				FileSystem()->Seek(hPackFile, int(vChunk.m_nPackFileOffset), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+				FileSystem()->Read(pSourceBuffer, int(vChunk.m_nCompressedSize), hPackFile);
+
+				if (vChunk.m_nCompressedSize == vChunk.m_nUncompressedSize) // Data is not compressed.
 				{
-					Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svFilePath.c_str());
-					continue;
+					FileSystem()->Write(pSourceBuffer, int(vChunk.m_nUncompressedSize), hAsset);
+					break;
 				}
 
-				DevMsg(eDLL_T::FS, "Unpacking entry '%zu' from block '%zu' ('%s')\n", j, i, vEntryBlock.m_svEntryPath.c_str());
-				for (size_t k = 0, cs = vEntryBlock.m_vFragments.size(); k < cs; k++)
+				size_t nDstLen = ENTRY_MAX_LEN;
+				assert(vChunk.m_nCompressedSize <= nDstLen);
+
+				if (vChunk.m_nCompressedSize > nDstLen)
+					break; // Corrupt or invalid chunk descriptor.
+
+				lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pDestBuffer,
+					&nDstLen, pSourceBuffer, vChunk.m_nCompressedSize, nullptr);
+
+				if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 				{
-					const VPKChunkDescriptor_t& vChunk = vEntryBlock.m_vFragments[k];
-					m_nChunkCount++;
-
-					FileSystem()->Seek(hPackFile, int(vChunk.m_nPackFileOffset), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-					FileSystem()->Read(pSourceBuffer, int(vChunk.m_nCompressedSize), hPackFile);
-
-					if (vChunk.m_nCompressedSize != vChunk.m_nUncompressedSize) // Data is compressed.
-					{
-						size_t nDstLen = ENTRY_MAX_LEN;
-						assert(vChunk.m_nCompressedSize <= nDstLen);
-
-						if (vChunk.m_nCompressedSize > nDstLen)
-							break; // Corrupt or invalid chunk descriptor.
-
-						lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pDestBuffer,
-							&nDstLen, pSourceBuffer, vChunk.m_nCompressedSize, nullptr);
-
-						if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
-						{
-							Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
-								lzDecompStatus, m_nChunkCount, i, vEntryBlock.m_iPackFileIndex);
-						}
-						else // If successfully decompressed, write to file.
-						{
-							FileSystem()->Write(pDestBuffer, int(nDstLen), hAsset);
-						}
-					}
-					else // If not compressed, write source data into output file.
-					{
-						FileSystem()->Write(pSourceBuffer, int(vChunk.m_nUncompressedSize), hAsset);
-					}
+					Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
+						lzDecompStatus, m_nChunkCount, i, vEntryBlock.m_iPackFileIndex);
 				}
-
-				FileSystem()->Close(hAsset);
-				if (m_nChunkCount == vEntryBlock.m_vFragments.size()) // Only validate after last entry in block had been written.
+				else // If successfully decompressed, write to file.
 				{
-					m_nChunkCount = NULL;
-					ValidateCRC32PostDecomp(svFilePath, vEntryBlock.m_nFileCRC);
+					FileSystem()->Write(pDestBuffer, int(nDstLen), hAsset);
 				}
+			}
+
+			FileSystem()->Close(hAsset);
+			if (m_nChunkCount == vEntryBlock.m_vFragments.size()) // Only validate after last entry in block had been written.
+			{
+				m_nChunkCount = NULL;
+				ValidateCRC32PostDecomp(svFilePath, vEntryBlock.m_nFileCRC);
 			}
 		}
 		FileSystem()->Close(hPackFile);

@@ -150,18 +150,19 @@ public:
 	vector<string> GetIgnoreList(const string& svWorkspace) const;
 
 	string FormatEntryPath(const string& svPath, const string& svName, const string& svExtension) const;
-
 	void BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const string& svWorkspace, const string& svManifestName) const;
+
+	void ValidateCRC32PostDecomp(const string& svAssetPath, const uint32_t nFileCRC);
+	bool Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex);
 
 	void PackWorkspace(const VPKPair_t& vPair, const string& svWorkspace, const string& svBuildPath, bool bManifestOnly);
 	void UnpackWorkspace(const VPKDir_t& vDirectory, const string& svWorkspace = "");
-	void ValidateCRC32PostDecomp(const string& svAssetPath, const uint32_t nFileCRC);
 
 private:
 	size_t                       m_nChunkCount;       // The number of fragments for this asset.
 	lzham_compress_params        m_lzCompParams;      // LZham compression parameters.
 	lzham_decompress_params      m_lzDecompParams;    // LZham decompression parameters.
-	std::unordered_map<string, VPKChunkDescriptor_t&> m_mChunkHashMap;
+	std::unordered_map<string, const VPKChunkDescriptor_t&> m_mChunkHashMap;
 };
 ///////////////////////////////////////////////////////////////////////////////
 extern CPackedStore* g_pPackedStore;
