@@ -589,7 +589,7 @@ void CSurface::LoadSettings()
 	}
 	catch (const std::exception& e)
 	{
-		printf("%s: Exception while parsing VDF file: %s\n", e.what());
+		printf("%s: Exception while parsing VDF file: %s\n", __FUNCTION__, e.what());
 	}
 }
 
@@ -661,7 +661,7 @@ void CSurface::OnLoad(Forms::Control* pSender)
 // Purpose: close callback
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::OnClose(const std::unique_ptr<FormClosingEventArgs>& pEventArgs, Forms::Control* pSender)
+void CSurface::OnClose(const std::unique_ptr<FormClosingEventArgs>& /*pEventArgs*/, Forms::Control* pSender)
 {
 	((CSurface*)pSender->FindForm())->SaveSettings();
 }
@@ -831,7 +831,7 @@ void CSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEv
 	if (static_cast<int>(pSurface->m_LogList.size()) <= 0)
 		return;
 
-	pEventArgs->Style.ForeColor = Drawing::Color::White;
+	pEventArgs->Style.ForeColor = (Gdiplus::ARGB)Drawing::Color::White;
 	pEventArgs->Style.BackColor = pSender->BackColor();
 	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
 
