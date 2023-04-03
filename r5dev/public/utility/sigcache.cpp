@@ -144,7 +144,10 @@ bool CSigCache::LoadCache(const string& svCacheFile)
 		return false;
 	}
 
+#pragma warning(push)           // Disabled type conversion warning, as it is possible
+#pragma warning(disable : 4244) // for Protobuf to migrate this code to feature size_t.
 	if (!m_Cache.ParseFromArray(pDstBuf.get(), header.m_nBlobSizeMem))
+#pragma warning(pop)
 	{
 		return false;
 	}

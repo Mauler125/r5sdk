@@ -629,8 +629,11 @@ V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pSt
 			}
 #else
 			{
+#pragma warning(push) // Disabled type conversion warning, as some implementations of '_getcwd' take a size_t.
+#pragma warning(disable : 4267)
 				if (!_getcwd(pOut, outLen))
 					Error(eDLL_T::COMMON, EXIT_FAILURE, "V_MakeAbsolutePath: _getcwd failed.");
+#pragma warning(pop)
 			}
 #endif
 

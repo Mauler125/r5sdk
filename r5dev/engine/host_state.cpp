@@ -75,11 +75,16 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 #endif // !DEDICATED
 
 	HostStates_t oldState{};
+
+	// Disable "warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable"
+#pragma warning(push)
+#pragma warning(disable : 4611)
 	if (setjmp(*host_abortserver))
 	{
 		g_pHostState->Init();
 		return;
 	}
+#pragma warning(pop)
 	else
 	{
 #ifndef CLIENT_DLL
