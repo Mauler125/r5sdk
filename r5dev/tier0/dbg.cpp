@@ -427,15 +427,15 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 // Input  : context - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
+#ifndef DEDICATED
 void NetMsg(LogType_t logType, eDLL_T context, const char* uptime, const char* fmt, ...)
 {
-#ifndef DEDICATED
 	va_list args;
 	va_start(args, fmt);
 	CoreMsgV(logType, LogLevel_t::LEVEL_NOTIFY, context, "netconsole", fmt, args, NO_ERROR, uptime);
 	va_end(args);
-#endif // !DEDICATED
 }
+#endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: Print engine and SDK warnings
