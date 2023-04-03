@@ -66,7 +66,6 @@ struct VPKChunkDescriptor_t
 	uint64_t m_nPackFileOffset;   // Offset in pack file.
 	uint64_t m_nCompressedSize;   // Compressed size of chunk.
 	uint64_t m_nUncompressedSize; // Uncompressed size of chunk.
-	bool     m_bIsCompressed  = false;
 
 	VPKChunkDescriptor_t(FileHandle_t hDirectoryFile);
 	VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, uint64_t nPackFileOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize);

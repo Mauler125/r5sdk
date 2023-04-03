@@ -455,7 +455,6 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 				vDescriptor.m_nCompressedSize = vDescriptor.m_nUncompressedSize;
 			}
 
-			vDescriptor.m_bIsCompressed = vDescriptor.m_nCompressedSize != vDescriptor.m_nUncompressedSize;
 			FileSystem()->Write(pEntryBuffer, int(vDescriptor.m_nCompressedSize), hPackFile);
 		}
 
@@ -539,7 +538,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 					FileSystem()->Seek(hPackFile, int(vChunk.m_nPackFileOffset), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
 					FileSystem()->Read(pSourceBuffer, int(vChunk.m_nCompressedSize), hPackFile);
 
-					if (vChunk.m_bIsCompressed)
+					if (vChunk.m_nCompressedSize != vChunk.m_nUncompressedSize) // Data is compressed.
 					{
 						size_t nDstLen = ENTRY_MAX_LEN;
 						assert(vChunk.m_nCompressedSize <= nDstLen);
@@ -669,7 +668,6 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(FileHandle_t hDirectoryFile)
 	FileSystem()->Read(&m_nPackFileOffset, sizeof(uint64_t), hDirectoryFile);   //
 	FileSystem()->Read(&m_nCompressedSize, sizeof(uint64_t), hDirectoryFile);   //
 	FileSystem()->Read(&m_nUncompressedSize, sizeof(uint64_t), hDirectoryFile); //
-	m_bIsCompressed = (m_nCompressedSize != m_nUncompressedSize);
 }
 
 //-----------------------------------------------------------------------------
@@ -689,8 +687,6 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextur
 
 	m_nCompressedSize = nCompressedSize;
 	m_nUncompressedSize = nUncompressedSize;
-
-	m_bIsCompressed = (m_nCompressedSize != m_nUncompressedSize);
 }
 
 //-----------------------------------------------------------------------------
