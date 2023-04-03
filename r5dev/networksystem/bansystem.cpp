@@ -242,8 +242,8 @@ bool CBanSystem::IsBanned(const string& svIpAddress, const uint64_t nNucleusID) 
 {
 	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{
-		string ipAddress = m_vBanList[i].first;
-		uint64_t nucleusID = m_vBanList[i].second;
+		const string& ipAddress = m_vBanList[i].first;
+		const uint64_t nucleusID = m_vBanList[i].second;
 
 		if (ipAddress.empty() ||
 			!nucleusID) // Cannot be null.
