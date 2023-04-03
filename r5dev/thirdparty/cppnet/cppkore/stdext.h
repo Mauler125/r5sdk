@@ -62,17 +62,17 @@ namespace std
 			{
 				const unsigned char *cp = (const unsigned char*)longword_ptr;
 
-				if (8 < sizeof longword)
+				if _CONSTEXPR17(8 < sizeof longword)
 					for (i = sizeof longword - 1; 8 <= i; i--)
 						if (cp[i] == c)
 							return (void *)&cp[i];
-				if (7 < sizeof longword && cp[7] == c)
+				if _CONSTEXPR17(7 < sizeof longword && cp[7] == c)
 					return (void *)&cp[7];
-				if (6 < sizeof longword && cp[6] == c)
+				if _CONSTEXPR17(6 < sizeof longword && cp[6] == c)
 					return (void *)&cp[6];
-				if (5 < sizeof longword && cp[5] == c)
+				if _CONSTEXPR17(5 < sizeof longword && cp[5] == c)
 					return (void *)&cp[5];
-				if (4 < sizeof longword && cp[4] == c)
+				if _CONSTEXPR17(4 < sizeof longword && cp[4] == c)
 					return (void *)&cp[4];
 				if (cp[3] == c)
 					return (void *)&cp[3];
