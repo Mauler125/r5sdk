@@ -288,7 +288,7 @@ void CNetCon::Disconnect(void)
 void CNetCon::Send(const std::string& svMessage) const
 {
 	std::ostringstream ssSendBuf;
-	const u_long nLen = htonl(svMessage.size());
+	const u_long nLen = htonl(u_long(svMessage.size()));
 
 	ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
 	ssSendBuf.write(svMessage.data(), svMessage.size());
