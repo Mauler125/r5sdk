@@ -63,7 +63,7 @@ float FastLog2(float i)
 	float LogBodge = 0.346607f;
 	float x;
 	float y;
-	x = *(int*)&i;
+	x = float(*(int*)&i);
 	x *= OOshift23; //1/pow(2,23);
 	x = x - 127;
 
