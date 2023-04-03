@@ -222,7 +222,7 @@ string CPackedStore::GetLevelName(const string& svDirectoryName) const
 //-----------------------------------------------------------------------------
 KeyValues* CPackedStore::GetManifest(const string& svWorkspace, const string& svManifestName) const
 {
-	string svPathOut = fmt::format("{:s}{:s}{:s}.{:s}", svWorkspace, "manifest/", svManifestName, "txt");
+	string svPathOut = Format("%s%s%s.txt", svWorkspace.c_str(), "manifest/", svManifestName.c_str());
 	KeyValues* pManifestKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_COMMON, svPathOut.c_str(), "GAME");
 
 	if (!pManifestKV)
@@ -287,7 +287,7 @@ vector<string> CPackedStore::GetIgnoreList(const string& svWorkspace) const
 //-----------------------------------------------------------------------------
 string CPackedStore::FormatEntryPath(const string& svPath, const string& svName, const string& svExtension) const
 {
-	return fmt::format("{:s}{:s}{:s}.{:s}", svPath, svPath.empty() ? "" : "/", svName, svExtension);
+	return Format("%s%s%s.%s", svPath.c_str(), svPath.empty() ? "" : "/", svName.c_str(), svExtension.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -313,12 +313,12 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 		pEntryKV->SetBool("useDataSharing", true);
 	}
 
-	string svPathOut = fmt::format("{:s}{:s}{:s}.{:s}", svWorkspace, "manifest/", svManifestName, "txt");
+	string svPathOut = Format("%s%s%s.txt", svWorkspace.c_str(), "manifest/", svManifestName.c_str());
 	CUtlBuffer uBuf(0i64, 0, CUtlBuffer::TEXT_BUFFER);
 
 	kv.RecursiveSaveToFile(uBuf, 0);
 
-	FileSystem()->CreateDirHierarchy(fmt::format("{:s}{:s}", svWorkspace, "manifest/").c_str(), "GAME");
+	FileSystem()->CreateDirHierarchy(Format("%s%s", svWorkspace.c_str(), "manifest/").c_str(), "GAME");
 	FileSystem()->WriteFile(svPathOut.c_str(), "GAME", uBuf);
 }
 
@@ -702,8 +702,8 @@ VPKPair_t::VPKPair_t(string svLanguage, string svTarget, const string& svLevel, 
 		svTarget = DIR_TARGET[0];
 	}
 
-	m_svPackName = fmt::format("{:s}_{:s}.bsp.pak000_{:03d}{:s}", svTarget, svLevel, nPatch, ".vpk");
-	m_svDirectoryName = fmt::format("{:s}{:s}_{:s}.bsp.pak000_{:s}", svLanguage, svTarget, svLevel, "dir.vpk");
+	m_svPackName = Format("%s_%s.bsp.pak000_%03d.vpk", svTarget.c_str(), svLevel.c_str(), nPatch);
+	m_svDirectoryName = Format("%s%s_%s.bsp.pak000_dir.vpk", svLanguage.c_str(), svTarget.c_str(), svLevel.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -819,7 +819,7 @@ void VPKDir_t::Init(const string& svDirectoryPath)
 string VPKDir_t::GetPackFile(const string& svDirectoryPath, uint16_t iPackFileIndex) const
 {
 	string svPackChunkName = StripLocalePrefix(svDirectoryPath);
-	string svPackChunkIndex = fmt::format("{:s}{:03d}", "pak000_", iPackFileIndex);
+	string svPackChunkIndex = Format("pak000_%03d", iPackFileIndex);
 
 	StringReplace(svPackChunkName, "pak000_dir", svPackChunkIndex);
 	return svPackChunkName;
