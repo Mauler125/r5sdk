@@ -100,11 +100,9 @@ public: // Hook statics:
 private:
 	uint32_t m_nUserID;              //0x0010
 	edict_t m_nHandle;               //0x0014
-	char m_szServerName[64];         //0x0016
-	int64_t m_nReputation;           //0x0058
-	char pad_0014[182];              //0x0060
-	char m_szClientName[64];         //0x0116
-	char pad_0156[450];              //0x0156
+	char m_szServerName[256];        //0x0160
+	char m_szClientName[256];        //0x0116
+	char pad_0015[258];              //0x0216
 	int m_nCommandTick;              //0x0318
 	char pad_031C[68];               //0x031C
 	KeyValues* m_ConVars;            //0x0360
