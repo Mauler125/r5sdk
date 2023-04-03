@@ -444,8 +444,8 @@ namespace vdf
 
                     curIter = skip_whitespaces(curIter, last);
 
-                    auto conditional = conditional_fullfilled(curIter, last);
-                    if (!conditional)
+                    auto conditional_key = conditional_fullfilled(curIter, last);
+                    if (!conditional_key)
                         continue;
 
                     while (*curIter == TYTI_L(charT, '/'))
@@ -469,8 +469,8 @@ namespace vdf
                         strip_escape_symbols(value);
                         curIter = valueEnd + ((*valueEnd == TYTI_L(charT, '\"')) ? 1 : 0);
 
-                        auto conditional = conditional_fullfilled(curIter, last);
-                        if (!conditional)
+                        auto conditional_value = conditional_fullfilled(curIter, last);
+                        if (!conditional_value)
                             continue;
 
                         // process value
