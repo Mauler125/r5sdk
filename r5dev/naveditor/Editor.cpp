@@ -392,9 +392,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 			return 0;
 		}
 
-		dtTileRef result;
-		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, &result);
-		auto tile = const_cast<dtMeshTile*>(mesh->getTileByRef(result));
+		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, NULL);
 	}
 
 	fclose(fp);

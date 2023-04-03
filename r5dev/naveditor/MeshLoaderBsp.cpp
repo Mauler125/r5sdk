@@ -19,7 +19,7 @@
 #include "Pch.h"
 #include "NavEditor/Include/MeshLoaderBsp.h"
 
-bool rcMeshLoaderBsp::load(const std::string& filename)
+bool rcMeshLoaderBsp::load(const std::string& /*filename*/)
 {
 #if 0
 	//we expect lumps to be in same dir

@@ -731,8 +731,6 @@ void Editor_TileMesh::buildAllTiles()
 	const int ts = (int)m_tileSize;
 	const int tw = (gw + ts-1) / ts;
 	const int th = (gh + ts-1) / ts;
-	const float tcs = m_tileSize*m_cellSize;
-
 	
 	// Start the build process.
 	m_ctx->startTimer(RC_TIMER_TEMP);
