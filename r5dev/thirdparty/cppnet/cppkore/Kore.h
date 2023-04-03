@@ -1,5 +1,13 @@
 #pragma once
 
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+//C++17 specific
+#define SDK_HAS_CPP17 1
+#define KORE_CONSTEXPR constexpr
+#else
+#define KORE_CONSTEXPR
+#endif
+
 // These are the base implementations of the Kore library and are required for everything
 #include "ListBase.h"
 #include "StringBase.h"
@@ -7,7 +15,7 @@
 #include "ImmutableStringBase.h"
 
 // Data\* is used in several support classes so it will always be defined
-#include "Pattern.h"
+//#include "Pattern.h"
 #include "SecureString.h"
 
 // System\* is always included and used for organization

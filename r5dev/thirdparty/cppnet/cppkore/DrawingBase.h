@@ -193,7 +193,7 @@ namespace Drawing
 		G->DrawPath(Pen, &Path);
 	}
 
-	inline Drawing::Image* ImageFromTgaData(const uint8_t* TgaData, const uint32_t TgaDataSize)
+	inline Drawing::Image* ImageFromTgaData(const uint8_t* TgaData, const uint32_t /*TgaDataSize*/)
 	{
 #pragma pack(push, 1)
 		struct TgaHeader

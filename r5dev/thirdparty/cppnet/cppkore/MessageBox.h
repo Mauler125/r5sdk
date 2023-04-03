@@ -36,7 +36,7 @@ namespace Forms
 		static DialogResult Show(Control* Owner, const String& Text, const String& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon, MessageBoxDefaultButton DefaultButton, MessageBoxOptions Options);
 
 		// Sets user defined message box colors for Foreground, Background, and Dialog Bottom Strip.
-		static void SetMessageBoxColors(Drawing::Color Foreground = Drawing::Color::Black, Drawing::Color Background = Drawing::Color::White, Drawing::Color Bottom = Drawing::Color(240, 240, 240));
+		static void SetMessageBoxColors(Drawing::Color Foreground = (Gdiplus::ARGB)Drawing::Color::Black, Drawing::Color Background = (Gdiplus::ARGB)Drawing::Color::White, Drawing::Color Bottom = Drawing::Color(240, 240, 240));
 
 	private:
 		// Converts a native windows result to a dialog result
