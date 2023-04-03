@@ -830,6 +830,8 @@ void VPKDir_t::Init(const string& svDirectoryPath)
 		string svPackPath = GetPackFile(svDirectoryPath, i);
 		m_vPackFile.push_back(svPackPath);
 	}
+
+	FileSystem()->Close(hDirectory);
 }
 
 //-----------------------------------------------------------------------------
