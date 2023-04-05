@@ -330,7 +330,7 @@ unsigned int CLZSS::SafeUncompress( unsigned char *pInput, unsigned char *pOutpu
 				break;
 			}
 
-			if ( position > totalBytes || // out of bounds
+			if ( position + 1 > totalBytes || // out of bounds
 				totalBytes + count > unBufSize )
 			{
 				return 0;
