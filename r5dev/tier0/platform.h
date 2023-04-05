@@ -190,6 +190,12 @@
 #define IsGameConsole() 0
 #endif
 
+#if defined( _SGI_SOURCE ) || defined( PLATFORM_X360 ) || defined( _PS3 )
+#define	PLAT_BIG_ENDIAN 1
+#else
+#define PLAT_LITTLE_ENDIAN 1
+#endif
+
 //-----------------------------------------------------------------------------
 // Set up build configuration defines.
 //-----------------------------------------------------------------------------
