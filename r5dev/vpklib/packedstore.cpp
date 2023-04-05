@@ -755,17 +755,17 @@ VPKDir_t::VPKDir_t(const string& svDirectoryPath, bool bSanitizeName)
 		return;
 	}
 
-	std::smatch smRegexMatches;
-	std::regex_search(svDirectoryPath, smRegexMatches, BLOCK_REGEX);
+	std::smatch regexMatches;
+	std::regex_search(svDirectoryPath, regexMatches, BLOCK_REGEX);
 
-	if (smRegexMatches.empty())
+	if (regexMatches.empty())
 	{
 		Init(svDirectoryPath);
 		return;
 	}
 
 	string svSanitizedName = svDirectoryPath;
-	StringReplace(svSanitizedName, smRegexMatches[0], "pak000_dir");
+	StringReplace(svSanitizedName, regexMatches[0], "pak000_dir");
 
 	bool bHasLocale = false;
 	for (const string& svLocale : DIR_LOCALE)
