@@ -63,6 +63,19 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: safely decompresses the input buffer into the output buffer
+// Input  : *lzss - 
+//			*pInput - 
+//			*pOutput - 
+//			unBufSize - 
+// Output : total decompressed bytes
+//-----------------------------------------------------------------------------
+unsigned int NET_Decompress(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize)
+{
+	return lzss->SafeUncompress(pInput, pOutput, unBufSize);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets the user specified encryption key
 // Input  : svNetKey - 
 //-----------------------------------------------------------------------------
@@ -289,6 +302,7 @@ void VNet::Attach() const
 {
 	DetourAttach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
 	DetourAttach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
+	DetourAttach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
 	DetourAttach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
 #ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_NET_Shutdown, &NET_Shutdown);
@@ -299,6 +313,7 @@ void VNet::Detach() const
 {
 	DetourDetach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
 	DetourDetach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
+	DetourDetach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
 	DetourDetach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
 #ifndef DEDICATED
 	DetourDetach((LPVOID*)&v_NET_Shutdown, &NET_Shutdown);
