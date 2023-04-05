@@ -223,6 +223,12 @@
     <Filter Include="thirdparty\imgui\misc">
       <UniqueIdentifier>{f43b13e8-00f9-4fd8-8624-8e6376ea354a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\tier0">
+      <UniqueIdentifier>{c94410d7-b776-44d7-ad60-2afb250f60c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\tier1">
+      <UniqueIdentifier>{f0fa0bdd-12a4-429d-910c-a0a45f71f454}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -1690,6 +1696,12 @@
     </ClInclude>
     <ClInclude Include="..\public\interface.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\memdbgon.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier1\lzss.h">
+      <Filter>sdk\public\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -172,6 +172,12 @@
     <Filter Include="sdk\public\appframework">
       <UniqueIdentifier>{55c87120-310f-4eb5-81b9-3d8912b1dfb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\tier0">
+      <UniqueIdentifier>{503c54bf-8011-46a0-9439-a7ae035c23e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\tier1">
+      <UniqueIdentifier>{36aae780-3dfa-4fb4-93d8-1e453c4be236}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -1097,6 +1103,12 @@
     </ClInclude>
     <ClInclude Include="..\public\interface.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier1\lzss.h">
+      <Filter>sdk\public\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\memdbgon.h">
+      <Filter>sdk\public\tier0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

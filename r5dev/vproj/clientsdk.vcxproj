@@ -355,6 +355,8 @@
     <ClInclude Include="..\public\rendersystem\schema\texture.g.h" />
     <ClInclude Include="..\public\studio.h" />
     <ClInclude Include="..\core\resource.h" />
+    <ClInclude Include="..\public\tier0\memdbgon.h" />
+    <ClInclude Include="..\public\tier1\lzss.h" />
     <ClInclude Include="..\public\trace.h" />
     <ClInclude Include="..\public\utility\binstream.h" />
     <ClInclude Include="..\public\utility\memaddr.h" />
@@ -621,7 +623,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <AdditionalOptions>/D "GAMESDK" /D "CLIENT_DLL" /D "_CRT_SECURE_NO_WARNINGS" /D "CURL_STATICLIB" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\public\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
       <FloatingPointModel>Precise</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -664,7 +666,7 @@
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalOptions>/D "GAMESDK" /D "CLIENT_DLL" /D "_CRT_SECURE_NO_WARNINGS" /D "CURL_STATICLIB" /D "SPDLOG_COMPILED_LIB" /D "SPDLOG_NO_EXCEPTIONS" %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\public\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
       <FloatingPointModel>Precise</FloatingPointModel>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -712,7 +714,7 @@
       </CreateHotpatchableImage>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalOptions>/D "GAMESDK" /D "CLIENT_DLL" /D "_CRT_SECURE_NO_WARNINGS" /D "CURL_STATICLIB" /D "SPDLOG_COMPILED_LIB" %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\public\;$(ProjectDir)..\thirdparty\;$(ProjectDir)..\thirdparty\imgui\</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FloatingPointModel>Precise</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

@@ -232,6 +232,12 @@
     <Filter Include="thirdparty\imgui\misc">
       <UniqueIdentifier>{0ceb19d4-45ba-4dd0-8ce1-ae87598c7a72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\tier0">
+      <UniqueIdentifier>{9c046c8b-a67f-4bac-938e-5bc52bb1baf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\tier1">
+      <UniqueIdentifier>{676c3f77-36b9-44e8-a0d2-ff5ed6a8040e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -731,6 +737,9 @@
     </ClCompile>
     <ClCompile Include="..\thirdparty\imgui\misc\imgui_utility.cpp">
       <Filter>thirdparty\imgui\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\lzss.cpp">
+      <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1861,6 +1870,12 @@
     </ClInclude>
     <ClInclude Include="..\public\interface.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\memdbgon.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier1\lzss.h">
+      <Filter>sdk\public\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
