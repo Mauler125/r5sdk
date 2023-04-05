@@ -329,12 +329,14 @@ unsigned int CLZSS::SafeUncompress( unsigned char *pInput, unsigned char *pOutpu
 			{
 				break;
 			}
-			unsigned char *pSource = pOutput - position - 1;
 
-			if ( totalBytes + count > unBufSize )
+			if ( position > totalBytes || // out of bounds
+				totalBytes + count > unBufSize )
 			{
 				return 0;
 			}
+
+			unsigned char* pSource = pOutput - position - 1;
 
 			for ( int i=0; i<count; i++ )
 			{
