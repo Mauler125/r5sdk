@@ -56,7 +56,7 @@ bool IsValidPersonaName(const char* pszName)
 	}
 
 	// Check if the name contains any special characters.
-	size_t pos = strspn(pszName, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_");
+	size_t pos = strspn(pszName, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
 	return pszName[pos] == '\0';
 }
 #endif // !CLIENT_DLL
