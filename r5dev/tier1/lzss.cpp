@@ -1,7 +1,7 @@
 //========= Copyright © 1996-2007, Valve Corporation, All rights reserved. ============//
 //
-//	LZSS Codec. Designed for fast cheap gametime encoding/decoding. Compression results
-//	are	not aggresive as other alogrithms, but gets 2:1 on most arbitrary uncompressed data.
+//	LZSS Codec. Designed for fast cheap game-time encoding/decoding. Compression results are
+//	not as aggressive as other algorithms, but gets 2:1 on most arbitrary uncompressed data.
 //
 //=====================================================================================//
 
@@ -158,8 +158,8 @@ unsigned char *CLZSS::CompressNoAlloc( unsigned char *pInput, int inputLength, u
 		if ( encodedLength >= 3 )
 		{
 			*pCmdByte = ( *pCmdByte >> 1 ) | 0x80;
-			*pOutput++ = ( ( pLookAhead-pEncodedPosition-1 ) >> LZSS_LOOKSHIFT );
-			*pOutput++ = ( ( pLookAhead-pEncodedPosition-1 ) << LZSS_LOOKSHIFT ) | ( encodedLength-1 );
+			*pOutput++ = char( ( ( pLookAhead-pEncodedPosition-1 ) >> LZSS_LOOKSHIFT ) );
+			*pOutput++ = char( ( ( pLookAhead-pEncodedPosition-1 ) << LZSS_LOOKSHIFT ) | ( encodedLength-1 ) );
 		} 
 		else 
 		{ 
@@ -204,7 +204,7 @@ unsigned char *CLZSS::CompressNoAlloc( unsigned char *pInput, int inputLength, u
 
 	if ( pOutputSize )
 	{
-		*pOutputSize = pOutput - pStart;
+		*pOutputSize = (unsigned int)( pOutput - pStart );
 	}
 
 	return pStart;
@@ -330,7 +330,7 @@ unsigned int CLZSS::SafeUncompress( unsigned char *pInput, unsigned char *pOutpu
 				break;
 			}
 
-			if ( position + 1 > totalBytes || // out of bounds
+			if ( (unsigned int)( position + 1 ) > totalBytes || // out of bounds
 				totalBytes + count > unBufSize )
 			{
 				return 0;
