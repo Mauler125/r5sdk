@@ -5,8 +5,8 @@
 //==================================================================================================
 
 #include "core/stdafx.h"
-#include "strtools.h"
-#include "utlvector.h"
+#include "tier1/strtools.h"
+#include "tier1/utlvector.h"
 
 CSplitString::CSplitString()
 {

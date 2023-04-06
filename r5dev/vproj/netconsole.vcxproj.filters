@@ -32,6 +32,15 @@
     <Filter Include="windows">
       <UniqueIdentifier>{2f5f6e2d-440a-472b-807d-aebfdf13dfe2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\tier0">
+      <UniqueIdentifier>{60d72a7f-a540-4918-b4af-64f23fdf7306}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\tier1">
+      <UniqueIdentifier>{83c26208-328a-4a67-b2f7-53bafe94bf3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\tier2">
+      <UniqueIdentifier>{3bbe24ed-5dce-4eb6-bb00-ed575b8bffc3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\core\stdafx.cpp">
@@ -78,9 +87,6 @@
     <ClInclude Include="..\core\stdafx.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="..\tier2\socketcreator.h">
-      <Filter>sdk\tier2</Filter>
-    </ClInclude>
     <ClInclude Include="..\engine\net.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
@@ -99,17 +105,20 @@
     <ClInclude Include="..\public\utility\utility.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\tier0\dbg.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier1\NetAdr.h">
-      <Filter>sdk\tier1</Filter>
-    </ClInclude>
     <ClInclude Include="..\windows\console.h">
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="..\core\logdef.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\dbg.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier1\NetAdr.h">
+      <Filter>sdk\public\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier2\socketcreator.h">
+      <Filter>sdk\public\tier2</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

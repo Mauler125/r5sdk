@@ -7,7 +7,7 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
-#include "threadtools.h"
+#include "tier0/threadtools.h"
 
 int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand)
 {

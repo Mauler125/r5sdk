@@ -5,7 +5,7 @@
 //===========================================================================//
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
-#include "curlutils.h"
+#include "tier2/curlutils.h"
 
 size_t CURLWriteStringCallback(char* contents, size_t size, size_t nmemb, void* userp)
 {

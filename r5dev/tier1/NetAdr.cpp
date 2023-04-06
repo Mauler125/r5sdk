@@ -6,8 +6,8 @@
 
 #include "core/stdafx.h"
 #include "tier1/netadr.h"
+#include "tier1/strtools.h"
 #include "mathlib/swap.h"
-#include "strtools.h"
 
 //////////////////////////////////////////////////////////////////////
 // Constructors.
@@ -31,7 +31,7 @@ CNetAdr::CNetAdr(const char* pch)
 const char* CNetAdr::ToString(bool bOnlyBase) const
 {
 	// Select a static buffer.
-	static char s[4][128]{};
+	static char s[4][128];
 	static int slot = 0;
 	int useSlot = (slot++) % 4;
 
