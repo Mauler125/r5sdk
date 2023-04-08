@@ -16,7 +16,7 @@ bool SVC_Print::ProcessImpl()
 {
 	if (this->m_szText)
 	{
-		DevMsg(eDLL_T::SERVER, this->m_szText);
+		DevMsg(eDLL_T::SERVER, "%s", this->m_szText);
 	}
 
 	return true; // Original just return true also.
@@ -34,7 +34,7 @@ bool SVC_UserMessage::ProcessImpl()
 		buf.ReadString(text, sizeof(text));
 		if (strnlen_s(text, sizeof(text)) >= NET_MIN_MESSAGE)
 		{
-			DevMsg(eDLL_T::SERVER, text);
+			DevMsg(eDLL_T::SERVER, "%s", text);
 		}
 	}
 
