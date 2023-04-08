@@ -714,22 +714,39 @@ string StringUnescape(const string& svInput)
 {
     string result;
     result.reserve(svInput.size());
+    bool escaped = false;
 
     for (const char c : svInput)
     {
-        switch (c)
+        if (escaped)
         {
-        //case '\\':   result += "\'";  break;
-        case '\\a':  result += "\a";  break;
-        case '\\b':  result += "\b";  break;
-        case '\\f':  result += "\f";  break;
-        case '\\n':  result += "\n";  break;
-        case '\\r':  result += "\r";  break;
-        case '\\t':  result += "\t";  break;
-        case '\\v':  result += "\v";  break;
-        default:     result += c;     break;
+            switch (c)
+            {
+            case 'a':  result += '\a';  break;
+            case 'b':  result += '\b';  break;
+            case 'f':  result += '\f';  break;
+            case 'n':  result += '\n';  break;
+            case 'r':  result += '\r';  break;
+            case 't':  result += '\t';  break;
+            case 'v':  result += '\v';  break;
+            case '\\': result += '\\';  break;
+            default:   result += '\\'; result += c; break;
+            }
+            escaped = false;
+        }
+        else
+        {
+            if (c == '\\')
+            {
+                escaped = true;
+            }
+            else
+            {
+                result += c;
+            }
         }
     }
+
     return result;
 }
 
