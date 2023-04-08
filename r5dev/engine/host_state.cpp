@@ -460,7 +460,7 @@ void CHostState::State_ChangeLevelMP(void)
 void CHostState::ResetLevelName(void)
 {
 	static const char* szNoMap = "no_map";
-	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
+	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), "%s", szNoMap);
 }
 
 void VHostState::Attach(void) const
