@@ -6,7 +6,7 @@ constexpr int SPDLOG_NUM_FILE = 512; // Sets number of files to rotate to.
 inline bool g_bSpdLog_UseAnsiClr = false;
 inline bool g_bSpdLog_PostInit = false;
 
-inline string g_svLogSessionDirectory;
+inline string g_LogSessionDirectory;
 
 extern std::shared_ptr<spdlog::logger> g_TermLogger;
 extern std::shared_ptr<spdlog::logger> g_ImGuiLogger;

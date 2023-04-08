@@ -18,7 +18,7 @@ void SpdLog_Init(void)
 	}
 
 #ifndef NETCONSOLE
-	g_svLogSessionDirectory = fmt::format("platform\\logs\\{:s}\\", CreateTimedFileName());
+	g_LogSessionDirectory = fmt::format("platform\\logs\\{:s}", g_ProcessTimestamp);
 	/************************
 	 * IMGUI LOGGER SETUP   *
 	 ************************/
@@ -67,23 +67,23 @@ void SpdLog_Create()
 	 * ROTATE LOGGER SETUP  *
 	 ************************/
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("squirrel_re(warning)"
-		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "script_warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "script_warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("squirrel_re"
-		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "script.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "script.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk"
-		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "message.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "message.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(warning)"
-		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "warning.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk(error)"
-		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "error.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "error.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("net_trace"
-		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "net_trace.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "net_trace.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 #ifndef DEDICATED
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("netconsole"
-		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "netconsole.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "netconsole.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 #endif // !DEDICATED
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("filesystem"
-		, fmt::format("{:s}{:s}", g_svLogSessionDirectory, "filesystem.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "filesystem.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 }
 
 //#############################################################################

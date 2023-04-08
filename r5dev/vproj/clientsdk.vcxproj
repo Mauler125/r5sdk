@@ -637,7 +637,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\ClientSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;dbghelp.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <StackReserveSize>8000000</StackReserveSize>
     </Link>
@@ -681,7 +681,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\ClientSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;dbghelp.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
@@ -733,7 +733,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\ClientSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;dbghelp.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>
       </SetChecksum>

@@ -11,6 +11,7 @@
 #include <comdef.h>
 #include <direct.h>
 #include <gdiplus.h>
+#include <dbghelp.h>
 #include <timeapi.h>
 #include <shellapi.h>
 #include <Psapi.h>
@@ -116,6 +117,8 @@
 #if !defined(SDKLAUNCHER) && !defined(PLUGINSDK)
 #include "tier0/dbg.h"
 #endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
+
+inline string g_ProcessTimestamp = CreateTimedFileName();
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #if !defined (DEDICATED)

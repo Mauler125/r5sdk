@@ -99,7 +99,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;dbghelp.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <StackReserveSize>8000000</StackReserveSize>
@@ -135,7 +135,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;dbghelp.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <SetChecksum>true</SetChecksum>
@@ -180,7 +180,7 @@
       <OptimizeReferences>
       </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;dbghelp.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;libspdlog_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <SetChecksum>

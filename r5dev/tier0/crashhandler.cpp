@@ -475,14 +475,36 @@ bool CCrashHandler::HasWhitelist()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: writes the formatted exception buffer to a file on the disk
+// Purpose: writes the stack trace and minidump to the disk
 //-----------------------------------------------------------------------------
 void CCrashHandler::WriteFile()
 {
-	string logDirectory = Format("%s%s", g_svLogSessionDirectory.c_str(), "apex_crash.txt");
-	CIOStream logFile(logDirectory, CIOStream::Mode_t::WRITE);
+	const string logDirectory = Format("%s\\%s.txt", g_LogSessionDirectory.c_str(), "apex_crash");
+	CIOStream logFile;
 
-	logFile.WriteString(m_svBuffer);
+	if (logFile.Open(logDirectory, CIOStream::Mode_t::WRITE))
+	{
+		logFile.WriteString(m_svBuffer);
+	}
+
+	const string dmpDirectory = Format("%s\\%s.dmp", g_LogSessionDirectory.c_str(), "minidump");
+	HANDLE hDmpFile = CreateFileA(dmpDirectory.c_str(), GENERIC_WRITE, 0, 0, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
+
+	if (hDmpFile != INVALID_HANDLE_VALUE)
+	{
+		MINIDUMP_EXCEPTION_INFORMATION dumpExceptionInfo;
+		dumpExceptionInfo.ThreadId = GetCurrentThreadId();
+		dumpExceptionInfo.ExceptionPointers = m_pExceptionPointers;
+		dumpExceptionInfo.ClientPointers = false;
+
+		MiniDumpWriteDump(
+			GetCurrentProcess(),
+			GetCurrentProcessId(),
+			hDmpFile, MiniDumpNormal,
+			&dumpExceptionInfo, NULL, NULL);
+
+		CloseHandle(hDmpFile);
+	}
 }
 
 //-----------------------------------------------------------------------------
