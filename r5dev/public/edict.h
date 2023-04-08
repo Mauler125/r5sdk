@@ -8,7 +8,7 @@
 #endif // !CLIENT_DLL
 
 typedef uint16_t edict_t;
-#define FL_EDICT_INVALID -1
+#define FL_EDICT_INVALID 0xFFFF/*-1*/
 
 //-----------------------------------------------------------------------------
 // Purpose: Defines the ways that a map can be loaded.
