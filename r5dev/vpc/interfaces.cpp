@@ -15,8 +15,8 @@
 void CFactory::AddFactory(const string& svFactoryName, void* pFactory)
 {
 	size_t nVersionIndex = GetVersionIndex(svFactoryName);
-	FactoryInfo_t factoryInfo = FactoryInfo_t(svFactoryName, svFactoryName.substr(0, nVersionIndex),
-		svFactoryName.substr(nVersionIndex), reinterpret_cast<uintptr_t>(pFactory));
+	FactoryInfo_t factoryInfo(reinterpret_cast<uintptr_t>(pFactory), svFactoryName,
+		svFactoryName.substr(0, nVersionIndex), svFactoryName.substr(nVersionIndex));
 
 	m_vFactories.push_back(factoryInfo); // Push factory info back into the vector.
 }
@@ -61,8 +61,8 @@ void CFactory::GetFactoriesFromRegister(void)
 		size_t nVersionIndex = GetVersionIndex(svInterfaceName);
 
 		// Push back the interface.
-		AddFactory(FactoryInfo_t(svInterfaceName, svInterfaceName.substr(0, nVersionIndex), 
-			svInterfaceName.substr(nVersionIndex), reinterpret_cast<uintptr_t>(it->m_pInterfacePtr())));
+		AddFactory(FactoryInfo_t(reinterpret_cast<uintptr_t>(it->m_pInterfacePtr()), svInterfaceName,
+			svInterfaceName.substr(0, nVersionIndex), svInterfaceName.substr(nVersionIndex)));
 	}
 }
 

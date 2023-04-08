@@ -29,11 +29,11 @@ struct FactoryInfo_t
 	string m_szFactoryName;
 	string m_szFactoryVersion;
 
-	FactoryInfo_t() : m_szFactoryFullName(string()), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(nullptr) {}
-	FactoryInfo_t(string factoryFullName, string factoryName, string factoryVersion, uintptr_t factoryPtr) :
-		m_szFactoryFullName(factoryFullName), m_szFactoryName(factoryName), m_szFactoryVersion(factoryVersion), m_pFactoryPtr(factoryPtr) {}
-	FactoryInfo_t(string factoryFullName, uintptr_t factoryPtr) :
-		m_szFactoryFullName(factoryFullName), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(factoryPtr) {}
+	FactoryInfo_t() : m_pFactoryPtr(nullptr) {}
+	FactoryInfo_t(const uintptr_t factoryPtr, const string& factoryFullName, const string& factoryName, const string& factoryVersion) :
+		m_pFactoryPtr(factoryPtr), m_szFactoryFullName(factoryFullName), m_szFactoryName(factoryName), m_szFactoryVersion(factoryVersion) {}
+	FactoryInfo_t(const uintptr_t factoryPtr, const string& factoryFullName) :
+		m_pFactoryPtr(factoryPtr), m_szFactoryFullName(factoryFullName) {}
 };
 
 #endif // INTERFACE_H
