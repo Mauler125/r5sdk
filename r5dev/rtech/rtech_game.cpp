@@ -38,7 +38,7 @@ RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, void* pMalloc, int n
 	}
 	else
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s: Failed. File '%s' doesn't exist\n", __FUNCTION__, szPakFileName);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: Failed; file '%s' doesn't exist\n", __FUNCTION__, szPakFileName);
 	}
 
 	return pakHandle;
