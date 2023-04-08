@@ -1,6 +1,6 @@
 #pragma once
 #include "tier1/NetAdr.h"
-#include "tier2/SocketCreator.h"
+#include "tier2/socketcreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
 
