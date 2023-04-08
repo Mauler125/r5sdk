@@ -31,21 +31,27 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 	const int longest = COMMAND_COMPLETION_ITEM_LENGTH;
 	const int count = MIN(mapcount, COMMAND_COMPLETION_MAXITEMS);
 
+	int filtered_count = 0;
 	if (count > 0)
 	{
 		for (int i = 0; i < count; i++)
 		{
-			strncpy(commands[i], g_InstalledMaps[i].c_str(), longest);
+			if (strstr(g_InstalledMaps[i].c_str(), substring))
+			{
+				strncpy(commands[filtered_count], g_InstalledMaps[i].c_str(), longest);
 
-			char old[COMMAND_COMPLETION_ITEM_LENGTH];
-			strncpy(old, commands[i], sizeof(old));
+				char old[COMMAND_COMPLETION_ITEM_LENGTH];
+				strncpy(old, commands[filtered_count], sizeof(old));
 
-			snprintf(commands[i], sizeof(commands[i]), "%s%s", cmdname, old);
-			commands[i][strlen(commands[i])] = '\0';
+				snprintf(commands[filtered_count], sizeof(commands[filtered_count]), "%s%s", cmdname, old);
+				commands[filtered_count][strlen(commands[filtered_count])] = '\0';
+
+				filtered_count++;
+			}
 		}
 	}
 
-	return count;
+	return filtered_count;
 }
 
 //-----------------------------------------------------------------------------
