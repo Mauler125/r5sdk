@@ -590,7 +590,7 @@ bool IsValidUTF8(char* pszString)
         pszString = it + 2;
         if (c >= 0xE0u)
         {
-            int n = *pszString & 0x3F | ((s & 0x3F | ((c & 0xF) << 6)) << 6);
+            int n = (*pszString & 0x3F) | (((s & 0x3F) | ((c & 0xF) << 6)) << 6);
             if ((*pszString & 0xC0) != 0x80)
             {
                 return false;
@@ -599,7 +599,7 @@ bool IsValidUTF8(char* pszString)
             pszString = it + 3;
             if (c >= 0xF0u)
             {
-                if ((*pszString & 0xC0) != 0x80 || ((n << 6) | *pszString & 0x3Fu) > 0x10FFFF)
+                if ((*pszString & 0xC0) != 0x80 || ((n << 6) | (*pszString & 0x3Fu)) > 0x10FFFF)
                 {
                     return false;
                 }
@@ -776,8 +776,8 @@ vector<string> StringSplit(string svInput, char cDelim, size_t nMax)
 
     for (size_t i = 0; i < svInput.size(); i++)
     {
-        if (i != (svInput.size() - 1) && 
-            vSubStrings.size() >= nMax || svInput[i] != cDelim)
+        if ((i != (svInput.size() - 1) && vSubStrings.size() >= nMax)
+            || svInput[i] != cDelim)
         {
             svSubString += svInput[i];
         }

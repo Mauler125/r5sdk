@@ -107,7 +107,7 @@ uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, uint8
 	decompressed_size_bits = byte_init & 0x3F;
 	byte_init >>= 6;
 	state->m_nInputBytePos = input_byte_pos_init;
-	state->m_nDecompSize = byte_init & ((1i64 << decompressed_size_bits) - 1) | (1i64 << decompressed_size_bits);
+	state->m_nDecompSize = (byte_init & ((1i64 << decompressed_size_bits) - 1)) | (1i64 << decompressed_size_bits);
 	byte_1_low = *(uint64_t*)((mask & input_byte_pos_init) + file_buf) << (64
 		- ((uint8_t)decompressed_size_bits
 			+ 6));

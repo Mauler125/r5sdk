@@ -147,8 +147,8 @@ unsigned FASTCALL HashInt(const int n)
 	/*register*/ unsigned		even, odd;
 	odd = g_nRandomValues[(((unsigned)n >> 8) & 0xff)];
 	even = g_nRandomValues[odd ^ ((unsigned)n >> 24)];
-	odd = g_nRandomValues[even ^ ((unsigned)n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ ((unsigned)n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ (((unsigned)n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ (((unsigned)n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ ((unsigned)n & 0xff)];
 
 	return (even << 8) | odd;
@@ -166,8 +166,8 @@ unsigned FASTCALL Hash4(const void* pKey)
 	n = *p;
 	odd = g_nRandomValues[((n >> 8) & 0xff)];
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	return (even << 8) | odd;
@@ -186,14 +186,14 @@ unsigned FASTCALL Hash8(const void* pKey)
 	n = *p;
 	odd = g_nRandomValues[((n >> 8) & 0xff)];
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	n = *(p + 1);
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	return (even << 8) | odd;
@@ -213,20 +213,20 @@ unsigned FASTCALL Hash12(const void* pKey)
 	odd = g_nRandomValues[((n >> 8) & 0xff)];
 
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	n = *(p + 1);
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	n = *(p + 2);
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	return (even << 8) | odd;
@@ -246,26 +246,26 @@ unsigned FASTCALL Hash16(const void* pKey)
 	odd = g_nRandomValues[((n >> 8) & 0xff)];
 
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	n = *(p + 1);
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	n = *(p + 2);
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	n = *(p + 3);
 	even = g_nRandomValues[odd ^ (n >> 24)];
-	odd = g_nRandomValues[even ^ (n >> 16) & 0xff];
-	even = g_nRandomValues[odd ^ (n >> 8) & 0xff];
+	odd = g_nRandomValues[even ^ ((n >> 16) & 0xff)];
+	even = g_nRandomValues[odd ^ ((n >> 8) & 0xff)];
 	odd = g_nRandomValues[even ^ (n & 0xff)];
 
 	return (even << 8) | odd;

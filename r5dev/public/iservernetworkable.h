@@ -21,13 +21,13 @@ class IServerNetworkable
 {
 	// These functions are handled automatically by the server_class macros and CBaseNetworkable.
 public:
-	virtual CBaseEntity* GetBaseEntity()  {}; // Only used by game code.
-	virtual const char* GetClassName() const {};
+	virtual CBaseEntity* GetBaseEntity() { return nullptr; }; // Only used by game code.
+	virtual const char* GetClassName() const { return nullptr; };
 
 protected:
 	// Should never call delete on this! 
 	virtual					~IServerNetworkable() {}
-	virtual					ServerClass* GetServerClass() {};
+	virtual					ServerClass* GetServerClass() { return nullptr; };
 };
 
 

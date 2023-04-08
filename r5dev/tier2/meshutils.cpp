@@ -111,8 +111,8 @@ void GenerateLineStripIndexBuffer(unsigned short* pIndices, int nIndexCount, int
 	baseVertex = nFirstVertex;
 	for (i = 0; i < numLines; ++i)
 	{
-		pIndices[0] = (unsigned short)(nFirstVertex + i);
-		pIndices[1] = (unsigned short)(nFirstVertex + i + 1);
+		pIndices[0] = (unsigned short)(baseVertex + i);
+		pIndices[1] = (unsigned short)(baseVertex + i + 1);
 		pIndices += 2;
 	}
 }

@@ -19,7 +19,7 @@ abstract_class ICollideable
 {
 public:
 	// Gets at the entity handle associated with the collideable
-	virtual IHandleEntity* GetEntityHandle() {};// = 0;
+	virtual IHandleEntity* GetEntityHandle() { return nullptr; };// = 0;
 
 	// TODO!!!
 };

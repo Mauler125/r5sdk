@@ -1018,7 +1018,7 @@ int64 CUtlBuffer::VaScanf(const char* pFmt, va_list list)
 
 	int64 numScanned = 0;
 	char c;
-	while (c = *pFmt++)
+	while ((c = *pFmt++))
 	{
 		// Stop if we hit the end of the buffer
 		if (m_Get >= TellMaxPut())

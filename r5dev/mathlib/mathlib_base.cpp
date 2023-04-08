@@ -2353,6 +2353,7 @@ void UnitTestRotateBetween()
 		}
 	}
 	Assert(flMaxError < 0.001f);
+	NOTE_UNUSED(nMaxError);
 }
 
 
@@ -5141,6 +5142,8 @@ bool Frustum_t::Intersects(Frustum_t& otherFrustum) const
 	Assert(bResult);
 	VPlane pPlanesB[FRUSTUM_NUMPLANES];
 	otherFrustum.GetPlanes(pPlanesB);
+
+	NOTE_UNUSED(bResult);
 
 	// See if all points in B are on one side of any plane in A
 	for (int p = 0; p < 6; ++p)

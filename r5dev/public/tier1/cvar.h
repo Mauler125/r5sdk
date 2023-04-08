@@ -309,8 +309,8 @@ protected:
 		virtual	bool            IsValid(void) = 0; //2
 		virtual ConCommandBase* Get(void) = 0; //3
 
-		CCvar* const m_pOuter;
-		CConCommandHash* const m_pHash;
+		CCvar* const m_pOuter = nullptr;
+		CConCommandHash* const m_pHash = nullptr;
 		CConCommandHash::CCommandHashIterator_t m_hashIter;
 	};
 
@@ -399,7 +399,7 @@ public:
 	bool SetColorFromString(const char* pszValue);
 
 	virtual void ChangeStringValue(const char* pszTempValue) = 0;
-	virtual void Create(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString,
+	virtual void CreateInternal(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString,
 		bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString) = 0;
 
 	void InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke);
