@@ -15,7 +15,7 @@
 #include "tier1/characterset.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: builds a simple lookup table of a group of important characters
@@ -24,7 +24,7 @@
 //-----------------------------------------------------------------------------
 void CharacterSetBuild(characterset_t* pSetBuffer, const char* pszSetString)
 {
-	int i = 0;
+	unsigned int i = 0;
 
 	// Test our pointers
 	if (!pSetBuffer || !pszSetString)
@@ -34,7 +34,8 @@ void CharacterSetBuild(characterset_t* pSetBuffer, const char* pszSetString)
 
 	while (pszSetString[i])
 	{
-		pSetBuffer->set[pszSetString[i]] = 1;
+		unsigned char ch = (unsigned char)pszSetString[i];
+		pSetBuffer->set[ch] = 1;
 		i++;
 	}
 }
