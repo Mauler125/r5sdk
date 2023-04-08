@@ -227,7 +227,7 @@ void CBanSystem::BanListCheck(void)
 			string svIpAddress = pNetChan->GetAddress();
 
 			Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), c, pClient->GetNucleusID());
-			pClient->Disconnect(Reputation_t::REP_MARK_BAD, m_vRefuseList[i].first.c_str());
+			pClient->Disconnect(Reputation_t::REP_MARK_BAD, "%s", m_vRefuseList[i].first.c_str());
 		}
 	}
 }

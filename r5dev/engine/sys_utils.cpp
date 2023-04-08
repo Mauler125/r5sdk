@@ -41,7 +41,7 @@ void _Error(char* fmt, ...)
 	}/////////////////////////////
 
 	Error(eDLL_T::ENGINE, NO_ERROR, "%s", buf);
-	v_Error(buf);
+	v_Error("%s", buf);
 }
 
 //-----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void _Warning(int level, char* fmt, ...)
 		Warning(eDLL_T::COMMON, "Warning(%d):%s", level, buf);
 	}
 
-	v_Warning(level, buf);
+	v_Warning(level, "%s", buf);
 }
 
 #ifndef DEDICATED
