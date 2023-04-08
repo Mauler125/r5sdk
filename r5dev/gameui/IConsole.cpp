@@ -46,8 +46,8 @@ CConsole::CConsole(void)
     , m_bSuggestActive(false)
     , m_bSuggestMoved(false)
     , m_bSuggestUpdate(false)
-    , m_bActivate(false)
     , m_Style(ImGuiStyle_t::NONE)
+    , m_bActivate(false)
 {
     m_nInputFlags = 
         ImGuiInputTextFlags_EnterReturnsTrue       |
