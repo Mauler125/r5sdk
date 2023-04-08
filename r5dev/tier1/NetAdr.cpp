@@ -5,7 +5,7 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
-#include "tier1/netadr.h"
+#include "tier1/NetAdr.h"
 #include "tier1/strtools.h"
 #include "mathlib/swap.h"
 
@@ -104,7 +104,7 @@ void CNetAdr::ToAdrinfo(addrinfo* pHint) const
 //////////////////////////////////////////////////////////////////////
 void CNetAdr::Clear(void)
 {
-	adr = { 0 };
+	adr = { };
 	port = 0;
 	reliable = 0;
 	type = netadrtype_t::NA_NULL;

@@ -6,7 +6,7 @@
 #include <tier1/utlvector.h>
 #include <tier1/utlstring.h>
 #include <public/ipackedstore.h>
-#include <public/appframework/iappsystem.h>
+#include <public/appframework/IAppSystem.h>
 
 typedef void* FileHandle_t;
 typedef void* FileNameHandle_t; // !TODO: Check if this is 4 or 8 bytes (model_t was 4 bytes in mem).

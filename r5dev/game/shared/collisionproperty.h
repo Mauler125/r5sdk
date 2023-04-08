@@ -8,9 +8,9 @@
 #ifndef COLLISIONPROPERTY_H
 #define COLLISIONPROPERTY_H
 
-#include "public/engine/ICollideable.h"
 #include "mathlib/vector.h"
-#include "baseentity.h"
+#include "engine/ICollideable.h"
+#include "game/server/baseentity.h"
 
 class CCollisionProperty : public ICollideable
 {

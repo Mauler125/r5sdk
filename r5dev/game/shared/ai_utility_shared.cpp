@@ -18,8 +18,8 @@
 #include "game/server/ai_networkmanager.h"
 #include "game/server/ai_network.h"
 #include "game/client/viewrender.h"
-#include "thirdparty/recast/detour/include/detourcommon.h"
-#include "thirdparty/recast/detour/include/detournavmesh.h"
+#include "thirdparty/recast/Detour/Include/DetourCommon.h"
+#include "thirdparty/recast/Detour/Include/DetourNavMesh.h"
 
 //------------------------------------------------------------------------------
 // Purpose:

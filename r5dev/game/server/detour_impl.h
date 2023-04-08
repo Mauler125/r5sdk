@@ -1,6 +1,6 @@
 #pragma once
-#include "thirdparty/recast/detour/include/detourstatus.h"
-#include "thirdparty/recast/detour/include/detournavmesh.h"
+#include "thirdparty/recast/Detour/Include/DetourStatus.h"
+#include "thirdparty/recast/Detour/Include/DetourNavMesh.h"
 #include "thirdparty/recast/Detour/Include/DetourNavMeshQuery.h"
 
 //-------------------------------------------------------------------------

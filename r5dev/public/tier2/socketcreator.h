@@ -1,5 +1,5 @@
 #pragma once
-#include "tier1/netadr.h"
+#include "tier1/NetAdr.h"
 #include "common/igameserverdata.h"
 
 //-----------------------------------------------------------------------------
