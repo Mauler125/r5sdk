@@ -5245,6 +5245,7 @@ FORCEINLINE FourVectors RotateLeft(const FourVectors& src)
 	ret.x = RotateLeft(src.x);
 	ret.y = RotateLeft(src.y);
 	ret.z = RotateLeft(src.z);
+	return ret;
 }
 
 FORCEINLINE FourVectors RotateRight(const FourVectors& src)
@@ -5253,6 +5254,7 @@ FORCEINLINE FourVectors RotateRight(const FourVectors& src)
 	ret.x = RotateRight(src.x);
 	ret.y = RotateRight(src.y);
 	ret.z = RotateRight(src.z);
+	return ret;
 }
 FORCEINLINE FourVectors MaskedAssign(const bi32x4& ReplacementMask, const FourVectors& NewValue, const FourVectors& OldValue)
 {
