@@ -243,7 +243,7 @@ void CConsole::DrawSurface(void)
     m_Logger.m_itFilter.Draw("Filter | ", flFooterWidthReserve - 500);
 
     ImGui::SameLine();
-    ImGui::Text(m_szSummary);
+    ImGui::Text("%s", m_szSummary);
 
     ImGui::Separator();
 
@@ -406,7 +406,7 @@ void CConsole::SuggestPanel(void)
 
                     ImGui::Image(hintRes.m_idIcon, ImVec2(float(hintRes.m_nWidth), float(hintRes.m_nHeight)));
                     ImGui::SameLine();
-                    ImGui::Text(cvarInfo.m_pszDesc);
+                    ImGui::Text("%s", cvarInfo.m_pszDesc);
                 };
 
                 ImGui::BeginTooltip();

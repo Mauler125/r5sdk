@@ -93,7 +93,7 @@ void _Con_NPrintf(int pos, const char* fmt, ...)
 
 	g_pOverlay->m_nCon_NPrintf_Idx = pos;
 	snprintf(g_pOverlay->m_szCon_NPrintf_Buf,
-		sizeof(g_pOverlay->m_szCon_NPrintf_Buf), buf);
+		sizeof(g_pOverlay->m_szCon_NPrintf_Buf), "%s", buf);
 }
 #endif // !DEDICATED
 

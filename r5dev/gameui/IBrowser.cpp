@@ -247,7 +247,7 @@ void CBrowser::BrowserPanel(void)
     }
 
     ImGui::EndGroup();
-    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), m_svServerListMessage.c_str());
+    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "%s", m_svServerListMessage.c_str());
     ImGui::Separator();
 
     int iVars = 0; // Eliminate borders around server list table.
@@ -289,19 +289,19 @@ void CBrowser::BrowserPanel(void)
                 || m_imServerBrowserFilter.PassFilter(pszHostPort))
             {
                 ImGui::TableNextColumn();
-                ImGui::Text(pszHostName);
+                ImGui::Text("%s", pszHostName);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(pszHostMap);
+                ImGui::Text("%s", pszHostMap);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(pszPlaylist);
+                ImGui::Text("%s", pszPlaylist);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(Format("%3d/%3d", strtol(server.m_svPlayerCount.c_str(), NULL, NULL), strtol(server.m_svMaxPlayers.c_str(), NULL, NULL)).c_str());
+                ImGui::Text("%s", Format("%3d/%3d", strtol(server.m_svPlayerCount.c_str(), NULL, NULL), strtol(server.m_svMaxPlayers.c_str(), NULL, NULL)).c_str());
 
                 ImGui::TableNextColumn();
-                ImGui::Text(pszHostPort);
+                ImGui::Text("%s", pszHostPort);
 
                 ImGui::TableNextColumn();
                 string svConnectBtn = "Connect##";
@@ -419,7 +419,7 @@ void CBrowser::HiddenServersModal(void)
 
         ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f)); // Place a dummy, basically making space inserting a blank element.
 
-        ImGui::TextColored(m_ivHiddenServerMessageColor, m_svHiddenServerRequestMessage.c_str());
+        ImGui::TextColored(m_ivHiddenServerMessageColor, "%s", m_svHiddenServerRequestMessage.c_str());
         ImGui::Separator();
 
         if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
@@ -545,7 +545,7 @@ void CBrowser::HostPanel(void)
         g_pServerListManager->m_ServerVisibility = EServerVisibility_t::PUBLIC;
     }
 
-    ImGui::TextColored(m_HostRequestMessageColor, m_svHostRequestMessage.c_str());
+    ImGui::TextColored(m_HostRequestMessageColor, "%s", m_svHostRequestMessage.c_str());
     if (!m_svHostToken.empty())
     {
         ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
