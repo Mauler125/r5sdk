@@ -298,7 +298,7 @@ void CBrowser::BrowserPanel(void)
                 ImGui::Text(pszPlaylist);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(fmt::format("{:3d}/{:3d}", strtol(server.m_svPlayerCount.c_str(), NULL, NULL), strtol(server.m_svMaxPlayers.c_str(), NULL, NULL)).c_str());
+                ImGui::Text(Format("%3d/%3d", strtol(server.m_svPlayerCount.c_str(), NULL, NULL), strtol(server.m_svMaxPlayers.c_str(), NULL, NULL)).c_str());
 
                 ImGui::TableNextColumn();
                 ImGui::Text(pszHostPort);
@@ -435,7 +435,7 @@ void CBrowser::HiddenServersModal(void)
                 if (result && !server.m_svHostName.empty())
                 {
                     g_pServerListManager->ConnectToServer(server.m_svIpAddress, server.m_svGamePort, server.m_svEncryptionKey); // Connect to the server
-                    m_svHiddenServerRequestMessage = fmt::format("Found server: {:s}", server.m_svHostName);
+                    m_svHiddenServerRequestMessage = Format("Found server: %s", server.m_svHostName.c_str());
                     m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
                     ImGui::CloseCurrentPopup();
                 }
@@ -447,7 +447,7 @@ void CBrowser::HiddenServersModal(void)
                     }
                     else // Display error message.
                     {
-                        m_svHiddenServerRequestMessage = fmt::format("Error: {:s}", m_svHiddenServerRequestMessage);
+                        m_svHiddenServerRequestMessage = Format("Error: %s", m_svHiddenServerRequestMessage.c_str());
                     }
                     m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
@@ -807,7 +807,7 @@ void CBrowser::SettingsPanel(void)
     ImGui::InputTextWithHint("Hostname", "Matchmaking host name", &m_szMatchmakingHostName);
     if (ImGui::Button("Update hostname"))
     {
-        ProcessCommand(fmt::format("{:s} \"{:s}\"", "pylon_matchmaking_hostname", m_szMatchmakingHostName).c_str());
+        ProcessCommand(Format("%s \"%s\"", pylon_matchmaking_hostname->GetName(), m_szMatchmakingHostName.c_str()).c_str());
     }
 
     // The 'const' qualifier has been casted away, however the readonly flag is set.

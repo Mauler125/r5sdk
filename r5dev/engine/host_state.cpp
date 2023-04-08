@@ -296,11 +296,10 @@ void CHostState::Think(void) const
 	}
 	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
 	{
-		string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
-		int32_t nPlayerCount = g_pServer->GetNumClients();
+		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s)",
+			hostname->GetString(), g_pServer->GetNumClients(),
+			g_ServerGlobalVariables->m_nMaxClients, KeyValues_GetCurrentPlaylist(), m_levelName).c_str());
 
-		SetConsoleTitleA(fmt::format("{:s} - {:d}/{:d} Players ({:s} on {:s})",
-			hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist, m_levelName).c_str());
 		statsTimer.Start();
 	}
 #endif // !CLIENT_DLL

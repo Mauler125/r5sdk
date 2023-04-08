@@ -58,7 +58,7 @@ void CCrashHandler::FormatCallstack()
 
 			if (t >= sizeof(mbi)
 				&& !(mbi.Protect & PAGE_NOACCESS)
-				&& (mbi.Protect & PAGE_READONLY | PAGE_READWRITE)
+				&& ((mbi.Protect & PAGE_READONLY) | PAGE_READWRITE)
 				&& (mbi.State & MEM_COMMIT))
 			{
 				m_svBuffer.append("\t// call stack ended; possible return address?\n");
@@ -126,12 +126,12 @@ void CCrashHandler::FormatModules()
 {
 	m_svBuffer.append("modules:\n{\n");
 
-	std::unique_ptr<HMODULE[]> hModule(new HMODULE[4096]);
+	std::unique_ptr<HMODULE[]> hModule(new HMODULE[CRASHHANDLER_MAX_MODULES]);
 	HANDLE hProcess = GetCurrentProcess();
 	DWORD cbNeeded;
 
-	BOOL result = K32EnumProcessModulesEx(hProcess, &*hModule.get(), 4096, &cbNeeded, LIST_MODULES_ALL);
-	if (result && cbNeeded <= 4096 && cbNeeded >> 3)
+	BOOL result = K32EnumProcessModulesEx(hProcess, &*hModule.get(), CRASHHANDLER_MAX_MODULES, &cbNeeded, LIST_MODULES_ALL);
+	if (result && cbNeeded <= CRASHHANDLER_MAX_MODULES && cbNeeded >> 3)
 	{
 		CHAR szModuleName[512];
 		LPSTR pszModuleName;
@@ -152,9 +152,8 @@ void CCrashHandler::FormatModules()
 
 			K32GetModuleInformation(hProcess, &*hModule.get()[i], &modInfo, sizeof(modInfo));
 
-			m_svBuffer.append(fmt::format("\t{:15s}: [0x{:016X}, 0x{:016X}]\n", 
-				pszModuleName, reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll), 
-				static_cast<uintptr_t>((reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll) + modInfo.SizeOfImage))));
+			m_svBuffer.append(Format("\t%-15s: [%p, %p]\n", 
+				pszModuleName, modInfo.lpBaseOfDll, (reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll) + modInfo.SizeOfImage)));
 		}
 	}
 
@@ -170,12 +169,12 @@ void CCrashHandler::FormatSystemInfo()
 
 	const CPUInformation& pi = GetCPUInformation();
 
-	m_svBuffer.append(fmt::format("\tcpu_model = \"{:s}\"\n", pi.m_szProcessorBrand));
-	m_svBuffer.append(fmt::format("\tcpu_speed = {:010d} // clock cycles\n", pi.m_Speed));
+	m_svBuffer.append(Format("\tcpu_model = \"%s\"\n", pi.m_szProcessorBrand));
+	m_svBuffer.append(Format("\tcpu_speed = %010lld // clock cycles\n", pi.m_Speed));
 
 	for (DWORD i = 0; ; i++)
 	{
-		DISPLAY_DEVICE dd = { sizeof(dd), 0 };
+		DISPLAY_DEVICE dd = { sizeof(dd), {0} };
 		BOOL f = EnumDisplayDevices(NULL, i, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
 		if (!f)
 		{
@@ -186,8 +185,8 @@ void CCrashHandler::FormatSystemInfo()
 		{
 			char szDeviceName[128];
 			wcstombs(szDeviceName, dd.DeviceString, sizeof(szDeviceName));
-			m_svBuffer.append(fmt::format("\tgpu_model = \"{:s}\"\n", szDeviceName));
-			m_svBuffer.append(fmt::format("\tgpu_flags = 0x{:08X} // primary device\n", dd.StateFlags));
+			m_svBuffer.append(Format("\tgpu_model = \"%s\"\n", szDeviceName));
+			m_svBuffer.append(Format("\tgpu_flags = 0x%08X // primary device\n", dd.StateFlags));
 		}
 	}
 
@@ -196,8 +195,8 @@ void CCrashHandler::FormatSystemInfo()
 
 	if (GlobalMemoryStatusEx(&statex))
 	{
-		m_svBuffer.append(fmt::format("\tram_total = [{:010d}, {:010d}] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024));
-		m_svBuffer.append(fmt::format("\tram_avail = [{:010d}, {:010d}] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024));
+		m_svBuffer.append(Format("\tram_total = [%010d, %010d] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024));
+		m_svBuffer.append(Format("\tram_avail = [%010d, %010d] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024));
 	}
 
 	m_svBuffer.append("}\n");
@@ -208,7 +207,7 @@ void CCrashHandler::FormatSystemInfo()
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatBuildInfo()
 {
-	m_svBuffer.append(fmt::format("build_id: {:d}\n", g_SDKDll.m_pNTHeaders->FileHeader.TimeDateStamp));
+	m_svBuffer.append(Format("build_id: %u\n", g_SDKDll.m_pNTHeaders->FileHeader.TimeDateStamp));
 }
 
 //-----------------------------------------------------------------------------
@@ -228,7 +227,7 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 	HMODULE hCrashedModule;
 	if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, pExceptionAddress, &hCrashedModule))
 	{
-		m_svBuffer.append(fmt::format("\t!!!unknown-module!!!: 0x{:016X}\n", reinterpret_cast<uintptr_t>(pExceptionAddress)));
+		m_svBuffer.append(Format("\t!!!unknown-module!!!: %p\n", pExceptionAddress));
 		m_nCrashMsgFlags = 0; // Display the "unknown DLL or EXE" message.
 		return;
 	}
@@ -238,14 +237,14 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 	CHAR szCrashedModuleFullName[512];
 	if (GetModuleFileNameExA(GetCurrentProcess(), hCrashedModule, szCrashedModuleFullName, sizeof(szCrashedModuleFullName)) - 1 > 0x1FE)
 	{
-		m_svBuffer.append(fmt::format("\tmodule@{:016X}: 0x{:016X}\n", (void*)hCrashedModule, reinterpret_cast<uintptr_t>(pModuleBase)));
+		m_svBuffer.append(Format("\tmodule@%p: %p\n", (void*)hCrashedModule, pModuleBase));
 		m_nCrashMsgFlags = 2; // Display the "Apex crashed" message without additional information regarding the module.
 		return;
 	}
 
 	// TODO: REMOVE EXT.
 	const CHAR* szCrashedModuleName = strrchr(szCrashedModuleFullName, '\\') + 1;
-	m_svBuffer.append(fmt::format("\t{:15s}: 0x{:016X}\n", szCrashedModuleName, reinterpret_cast<uintptr_t>(pModuleBase)));
+	m_svBuffer.append(Format("\t%-15s: %p\n", szCrashedModuleName, pModuleBase));
 	m_nCrashMsgFlags = 1; // Display the "Apex crashed in <module>" message.
 
 	if (m_svCrashMsgInfo.empty()) // Only set it once to the crashing module.
@@ -262,7 +261,7 @@ void CCrashHandler::FormatExceptionCode()
 	DWORD nExceptionCode = m_pExceptionPointers->ExceptionRecord->ExceptionCode;
 	if (nExceptionCode > EXCEPTION_IN_PAGE_ERROR)
 	{
-		m_svBuffer.append(fmt::format(ExceptionToString(), nExceptionCode));
+		m_svBuffer.append(Format(ExceptionToString(), nExceptionCode));
 	}
 	else if (nExceptionCode >= EXCEPTION_ACCESS_VIOLATION)
 	{
@@ -279,20 +278,20 @@ void CCrashHandler::FormatExceptionCode()
 		{
 			if (uExceptionInfo0 == 1)
 			{
-				m_svBuffer.append(fmt::format("\t{:s}(write): 0x{:016X}\n", pszException, uExceptionInfo1));
+				m_svBuffer.append(Format("\t%s(write): %p\n", pszException, uExceptionInfo1));
 			}
 			else if (uExceptionInfo0 == 8)
 			{
-				m_svBuffer.append(fmt::format("\t{:s}(execute): 0x{:016X}\n", pszException, uExceptionInfo1));
+				m_svBuffer.append(Format("\t%s(execute): %p\n", pszException, uExceptionInfo1));
 			}
 			else
 			{
-				m_svBuffer.append(fmt::format("\t{:s}(unknown): 0x{:016X}\n", pszException, uExceptionInfo1));
+				m_svBuffer.append(Format("\t%s(unknown): %p\n", pszException, uExceptionInfo1));
 			}
 		}
 		else
 		{
-			m_svBuffer.append(fmt::format("\t{:s}(read): 0x{:016X}\n", pszException, uExceptionInfo1));
+			m_svBuffer.append(Format("\t%s(read): %p\n", pszException, uExceptionInfo1));
 		}
 
 		if (uExceptionInfo0 != 8)
@@ -305,7 +304,7 @@ void CCrashHandler::FormatExceptionCode()
 	}
 	else
 	{
-		m_svBuffer.append(fmt::format(ExceptionToString(), nExceptionCode));
+		m_svBuffer.append(Format(ExceptionToString(), nExceptionCode));
 	}
 }
 
@@ -320,19 +319,19 @@ void CCrashHandler::FormatALU(const CHAR* pszRegister, DWORD64 nContent)
 	{
 		if (nContent > UINT_MAX)
 		{
-			m_svBuffer.append(fmt::format("\t{:s} = 0x{:016X}\n", pszRegister, nContent));
+			m_svBuffer.append(Format("\t%s = 0x%016llX\n", pszRegister, nContent));
 		}
 		else
 		{
-			m_svBuffer.append(fmt::format("\t{:s} = 0x{:08X}\n", pszRegister, nContent));
+			m_svBuffer.append(Format("\t%s = 0x%08X\n", pszRegister, nContent));
 		}
 	}
 	else // Display as decimal.
 	{
-		m_svBuffer.append(fmt::format("\t{:s} = {:<15d}\n", pszRegister, nContent));
+		m_svBuffer.append(Format("\t%s = %-15i\n", pszRegister, nContent));
 		if (nContent >= 10)
 		{
-			const string& svDesc = fmt::format(" // 0x{:08X}\n", nContent);
+			const string svDesc = Format(" // 0x%08X\n", nContent);
 			m_svBuffer.replace(m_svBuffer.length()-1, svDesc.size(), svDesc);
 		}
 	}
@@ -353,23 +352,23 @@ void CCrashHandler::FormatFPU(const CHAR* pszRegister, M128A* pxContent)
 		static_cast<DWORD>(pxContent->High >> 32),
 	};
 
-	m_svBuffer.append(fmt::format("\t{:s} = [ [{:.8g}, {:.8g}, {:.8g}, {:.8g}]", pszRegister,
+	m_svBuffer.append(Format("\t%s = [ [%.8g, %.8g, %.8g, %.8g]", pszRegister,
 		*reinterpret_cast<FLOAT*>(&nVec[0]),
 		*reinterpret_cast<FLOAT*>(&nVec[1]),
 		*reinterpret_cast<FLOAT*>(&nVec[2]),
 		*reinterpret_cast<FLOAT*>(&nVec[3])));
 
-	const CHAR* pszVectorFormat = ", [{:d}, {:d}, {:d}, {:d}] ]\n";
+	const CHAR* pszVectorFormat = ", [%i, %i, %i, %i] ]\n";
 	LONG nHighest = static_cast<LONG>(*std::max_element(nVec, nVec + SDK_ARRAYSIZE(nVec)));
 
 	if (nHighest <= -1000000 || nHighest >= 1000000)
 	{
-		pszVectorFormat = ", [0x{:08X}, 0x{:08X}, 0x{:08X}, 0x{:08X}] ]\n";
-		m_svBuffer.append(fmt::format(pszVectorFormat, nVec[0], nVec[1], nVec[2], nVec[3]));
+		pszVectorFormat = ", [0x%08X, 0x%08X, 0x%08X, 0x%08X] ]\n";
+		m_svBuffer.append(Format(pszVectorFormat, nVec[0], nVec[1], nVec[2], nVec[3]));
 	}
 	else
 	{
-		m_svBuffer.append(fmt::format(pszVectorFormat,
+		m_svBuffer.append(Format(pszVectorFormat,
 			static_cast<LONG>(nVec[0]), static_cast<LONG>(nVec[1]),
 			static_cast<LONG>(nVec[2]), static_cast<LONG>(nVec[3])));
 	}
@@ -383,27 +382,27 @@ const CHAR* CCrashHandler::ExceptionToString(DWORD nExceptionCode) const
 {
 	switch (nExceptionCode)
 	{
-	case EXCEPTION_BREAKPOINT:               { return "\tEXCEPTION_BREAKPOINT"               ": 0x{:08X}\n"; };
-	case EXCEPTION_SINGLE_STEP:              { return "\tEXCEPTION_SINGLE_STEP"              ": 0x{:08X}\n"; };
-	case EXCEPTION_ACCESS_VIOLATION:         { return "\tEXCEPTION_ACCESS_VIOLATION"         ": 0x{:08X}\n"; };
-	case EXCEPTION_IN_PAGE_ERROR:            { return "\tEXCEPTION_IN_PAGE_ERROR"            ": 0x{:08X}\n"; };
-	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    { return "\tEXCEPTION_ARRAY_BOUNDS_EXCEEDED"    ": 0x{:08X}\n"; };
-	case EXCEPTION_ILLEGAL_INSTRUCTION:      { return "\tEXCEPTION_ILLEGAL_INSTRUCTION"      ": 0x{:08X}\n"; };
-	case EXCEPTION_INVALID_DISPOSITION:      { return "\tEXCEPTION_INVALID_DISPOSITION"      ": 0x{:08X}\n"; };
-	case EXCEPTION_NONCONTINUABLE_EXCEPTION: { return "\tEXCEPTION_NONCONTINUABLE_EXCEPTION" ": 0x{:08X}\n"; };
-	case EXCEPTION_PRIV_INSTRUCTION:         { return "\tEXCEPTION_PRIV_INSTRUCTION"         ": 0x{:08X}\n"; };
-	case EXCEPTION_STACK_OVERFLOW:           { return "\tEXCEPTION_STACK_OVERFLOW"           ": 0x{:08X}\n"; };
-	case EXCEPTION_DATATYPE_MISALIGNMENT:    { return "\tEXCEPTION_DATATYPE_MISALIGNMENT"    ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_DENORMAL_OPERAND:     { return "\tEXCEPTION_FLT_DENORMAL_OPERAND"     ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_DIVIDE_BY_ZERO:       { return "\tEXCEPTION_FLT_DIVIDE_BY_ZERO"       ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_INEXACT_RESULT:       { return "\tEXCEPTION_FLT_INEXACT_RESULT"       ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_INVALID_OPERATION:    { return "\tEXCEPTION_FLT_INVALID_OPERATION"    ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_OVERFLOW:             { return "\tEXCEPTION_FLT_OVERFLOW"             ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_STACK_CHECK:          { return "\tEXCEPTION_FLT_STACK_CHECK"          ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_UNDERFLOW:            { return "\tEXCEPTION_FLT_UNDERFLOW"            ": 0x{:08X}\n"; };
-	case EXCEPTION_INT_DIVIDE_BY_ZERO:       { return "\tEXCEPTION_INT_DIVIDE_BY_ZERO"       ": 0x{:08X}\n"; };
-	case EXCEPTION_INT_OVERFLOW:             { return "\tEXCEPTION_INT_OVERFLOW"             ": 0x{:08X}\n"; };
-	default:                                 { return "\tUNKNOWN_EXCEPTION"                  ": 0x{:08X}\n"; };
+	case EXCEPTION_BREAKPOINT:               { return "\tEXCEPTION_BREAKPOINT"               ": %08X\n"; };
+	case EXCEPTION_SINGLE_STEP:              { return "\tEXCEPTION_SINGLE_STEP"              ": %08X\n"; };
+	case EXCEPTION_ACCESS_VIOLATION:         { return "\tEXCEPTION_ACCESS_VIOLATION"         ": %08X\n"; };
+	case EXCEPTION_IN_PAGE_ERROR:            { return "\tEXCEPTION_IN_PAGE_ERROR"            ": %08X\n"; };
+	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    { return "\tEXCEPTION_ARRAY_BOUNDS_EXCEEDED"    ": %08X\n"; };
+	case EXCEPTION_ILLEGAL_INSTRUCTION:      { return "\tEXCEPTION_ILLEGAL_INSTRUCTION"      ": %08X\n"; };
+	case EXCEPTION_INVALID_DISPOSITION:      { return "\tEXCEPTION_INVALID_DISPOSITION"      ": %08X\n"; };
+	case EXCEPTION_NONCONTINUABLE_EXCEPTION: { return "\tEXCEPTION_NONCONTINUABLE_EXCEPTION" ": %08X\n"; };
+	case EXCEPTION_PRIV_INSTRUCTION:         { return "\tEXCEPTION_PRIV_INSTRUCTION"         ": %08X\n"; };
+	case EXCEPTION_STACK_OVERFLOW:           { return "\tEXCEPTION_STACK_OVERFLOW"           ": %08X\n"; };
+	case EXCEPTION_DATATYPE_MISALIGNMENT:    { return "\tEXCEPTION_DATATYPE_MISALIGNMENT"    ": %08X\n"; };
+	case EXCEPTION_FLT_DENORMAL_OPERAND:     { return "\tEXCEPTION_FLT_DENORMAL_OPERAND"     ": %08X\n"; };
+	case EXCEPTION_FLT_DIVIDE_BY_ZERO:       { return "\tEXCEPTION_FLT_DIVIDE_BY_ZERO"       ": %08X\n"; };
+	case EXCEPTION_FLT_INEXACT_RESULT:       { return "\tEXCEPTION_FLT_INEXACT_RESULT"       ": %08X\n"; };
+	case EXCEPTION_FLT_INVALID_OPERATION:    { return "\tEXCEPTION_FLT_INVALID_OPERATION"    ": %08X\n"; };
+	case EXCEPTION_FLT_OVERFLOW:             { return "\tEXCEPTION_FLT_OVERFLOW"             ": %08X\n"; };
+	case EXCEPTION_FLT_STACK_CHECK:          { return "\tEXCEPTION_FLT_STACK_CHECK"          ": %08X\n"; };
+	case EXCEPTION_FLT_UNDERFLOW:            { return "\tEXCEPTION_FLT_UNDERFLOW"            ": %08X\n"; };
+	case EXCEPTION_INT_DIVIDE_BY_ZERO:       { return "\tEXCEPTION_INT_DIVIDE_BY_ZERO"       ": %08X\n"; };
+	case EXCEPTION_INT_OVERFLOW:             { return "\tEXCEPTION_INT_OVERFLOW"             ": %08X\n"; };
+	default:                                 { return "\tUNKNOWN_EXCEPTION"                  ": %08X\n"; };
 	}
 }
 
@@ -425,7 +424,7 @@ bool CCrashHandler::IsPageAccessible() const
 	MEMORY_BASIC_INFORMATION mbi = { 0 };
 
 	SIZE_T t = VirtualQuery((LPCVOID)pContextRecord->Rsp, &mbi, sizeof(LPCVOID));
-	if (t < sizeof(mbi) || (mbi.Protect & PAGE_NOACCESS) || !(mbi.Protect & PAGE_NOACCESS | PAGE_READWRITE))
+	if (t < sizeof(mbi) || (mbi.Protect & PAGE_NOACCESS) || !((mbi.Protect & PAGE_NOACCESS) | PAGE_READWRITE))
 	{
 		return false;
 	}
@@ -480,10 +479,10 @@ bool CCrashHandler::HasWhitelist()
 //-----------------------------------------------------------------------------
 void CCrashHandler::WriteFile()
 {
-	string svLogDirectory = fmt::format("{:s}{:s}", g_svLogSessionDirectory, "apex_crash.txt");
-	CIOStream ioLogFile(svLogDirectory, CIOStream::Mode_t::WRITE);
+	string logDirectory = Format("%s%s", g_svLogSessionDirectory.c_str(), "apex_crash.txt");
+	CIOStream logFile(logDirectory, CIOStream::Mode_t::WRITE);
 
-	ioLogFile.WriteString(m_svBuffer);
+	logFile.WriteString(m_svBuffer);
 }
 
 //-----------------------------------------------------------------------------
@@ -505,11 +504,11 @@ void CCrashHandler::CreateMessageProcess()
 		pExceptionRecord->ExceptionInformation[0] == 8 &&
 		pExceptionRecord->ExceptionInformation[1] != pContextRecord->Rip)
 	{
-		m_svCrashMsgInfo = "bin\\crashmsg.exe overclock";
+		m_svCrashMsgInfo = CRASHMESSAGE_MSG_EXECUTABLE" overclock";
 	}
 	else
 	{
-		m_svCrashMsgInfo = fmt::format("bin\\crashmsg.exe crash {:d} \"{:s}\"", m_nCrashMsgFlags, m_svCrashMsgInfo);
+		m_svCrashMsgInfo = Format(CRASHMESSAGE_MSG_EXECUTABLE" crash %u \"%s\"", m_nCrashMsgFlags, m_svCrashMsgInfo.c_str());
 	}
 
 	PROCESS_INFORMATION processInfo;
@@ -613,8 +612,8 @@ CCrashHandler::CCrashHandler()
 	, m_nCapturedFrames(0)
 	, m_nCrashMsgFlags(0)
 	, m_bCallState(false)
-	, m_bExceptionHandled(false)
 	, m_bCrashMsgCreated(false)
+	, m_bExceptionHandled(false)
 {
 	Init();
 }

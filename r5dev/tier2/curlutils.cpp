@@ -91,5 +91,5 @@ bool CURLHandleError(CURL* curl, CURLcode res, string& outMessage)
 
 void CURLFormatUrl(string& url, const string& host, const string& api)
 {
-    url = fmt::format("{:s}{:s}{:s}", "https://", host, api);
+    url = Format("%s%s%s", "https://", host.c_str(), api.c_str());
 }

@@ -70,23 +70,18 @@ void CServerListManager::LaunchServer(void) const
         return;
     }
 
-    DevMsg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" playlist: \"%s\"\n", m_Server.m_svHostName.c_str(), m_Server.m_svHostMap.c_str(), m_Server.m_svPlaylist.c_str());
+    DevMsg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" playlist: \"%s\"\n",
+        m_Server.m_svHostName.c_str(), m_Server.m_svHostMap.c_str(), m_Server.m_svPlaylist.c_str());
 
     /*
-    * Playlist gets parsed in two instances, first in KeyValues::ParsePlaylists with all the necessary values.
-    * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
+    * Playlist gets parsed in two instances, first in KeyValues::ParsePlaylists with all the necessary
+    * values. Then when you would normally call launchplaylist which calls StartPlaylist it would cmd
+    * call mp_gamemode which parses the gamemode specific part of the playlist..
     */
     KeyValues::ParsePlaylists(m_Server.m_svPlaylist.c_str());
     mp_gamemode->SetValue(m_Server.m_svPlaylist.c_str());
 
-    if (g_pServer->IsActive())
-    {
-        ProcessCommand(fmt::format("{:s} \"{:s}\"", "changelevel", m_Server.m_svHostMap).c_str());
-    }
-    else // Initial launch.
-    {
-        ProcessCommand(fmt::format("{:s} \"{:s}\"", "map", m_Server.m_svHostMap).c_str());
-    }
+    ProcessCommand(Format("%s \"%s\"", g_pServer->IsActive() ? "changelevel" : "map", m_Server.m_svHostMap.c_str()).c_str());
 
 #endif // !CLIENT_DLL
 }
@@ -112,7 +107,7 @@ void CServerListManager::ConnectToServer(const string& svIp, const string& svPor
     {
         NET_SetKey(svNetKey);
     }
-    ProcessCommand(fmt::format("{:s} \"[{:s}]:{:s}\"", "connect", svIp, svPort).c_str());
+    ProcessCommand(Format("%s \"[%s]:%s\"", "connect", svIp.c_str(), svPort.c_str()).c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -135,7 +130,7 @@ void CServerListManager::ConnectToServer(const string& svServer, const string& s
     {
         NET_SetKey(svNetKey);
     }
-    ProcessCommand(fmt::format("{:s} \"{:s}\"", "connect", svServer).c_str());
+    ProcessCommand(Format("%s \"%s\"", "connect", svServer.c_str()).c_str());
 }
 
 //-----------------------------------------------------------------------------

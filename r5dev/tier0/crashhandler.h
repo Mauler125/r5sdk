@@ -1,6 +1,9 @@
 #ifndef CRASHHANDLER_H
 #define CRASHHANDLER_H
 
+#define CRASHHANDLER_MAX_MODULES 4096
+#define CRASHMESSAGE_MSG_EXECUTABLE "bin\\crashmsg.exe"
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
