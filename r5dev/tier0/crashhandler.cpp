@@ -359,9 +359,9 @@ void CCrashHandler::FormatFPU(const CHAR* pszRegister, M128A* pxContent)
 		*reinterpret_cast<FLOAT*>(&nVec[3])));
 
 	const CHAR* pszVectorFormat = ", [%i, %i, %i, %i] ]\n";
-	LONG nHighest = static_cast<LONG>(*std::max_element(nVec, nVec + SDK_ARRAYSIZE(nVec)));
+	const LONG nHighest = abs(LONG(*MaxElementABS(std::begin(nVec), std::end(nVec))));
 
-	if (nHighest <= -1000000 || nHighest >= 1000000)
+	if (nHighest >= 1000000)
 	{
 		pszVectorFormat = ", [0x%08X, 0x%08X, 0x%08X, 0x%08X] ]\n";
 		m_svBuffer.append(Format(pszVectorFormat, nVec[0], nVec[1], nVec[2], nVec[3]));
