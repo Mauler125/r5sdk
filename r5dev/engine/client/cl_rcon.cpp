@@ -308,6 +308,8 @@ string CRConClient::Serialize(const string& svReqBuf, const string& svReqVal, co
 		cl_request.set_requestmsg(svReqBuf);
 		break;
 	}
+	default:
+		break;
 	}
 	return cl_request.SerializeAsString();
 }

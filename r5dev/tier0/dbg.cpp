@@ -283,6 +283,8 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		bWarning = true;
 		break;
 #endif // !NETCONSOLE
+	default:
+		break;
 	}
 
 	//-------------------------------------------------------------------------
