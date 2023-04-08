@@ -118,8 +118,6 @@
 #include "tier0/dbg.h"
 #endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
-inline string g_ProcessTimestamp = CreateTimedFileName();
-
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #if !defined (DEDICATED)
 inline CModule g_GameDll = CModule("r5apex.exe");
@@ -135,6 +133,7 @@ inline CModule g_SDKDll = CModule("client.dll");
 inline CModule g_GameDll = CModule("r5apex_ds.exe");
 inline CModule g_SDKDll = CModule("dedicated.dll");
 #endif // !DEDICATED
+inline const string g_ProcessTimestamp = CreateTimedFileName();
 
 #define VAR_NAME(varName)  #varName
 
