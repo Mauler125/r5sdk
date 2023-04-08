@@ -85,6 +85,31 @@ string FormatV(const char* szFormat, va_list args);
 string Format(const char* szFormat, ...);
 
 /////////////////////////////////////////////////////////////////////////////
+// Array
+template <typename Iter, typename Compare>
+Iter ExtremeElementABS(Iter first, Iter last, Compare compare)
+{
+    auto abs_compare = [compare](LONG a, LONG b)
+    {
+        return compare(abs(a), abs(b));
+    };
+
+    return std::min_element(first, last, abs_compare);
+}
+
+template <typename Iter> // Return lowest element in array.
+Iter MinElementABS(Iter first, Iter last)
+{
+    return ExtremeElementABS(first, last, std::less<>());
+}
+
+template <typename Iter> // Return highest element in array.
+Iter MaxElementABS(Iter first, Iter last)
+{
+    return ExtremeElementABS(first, last, std::greater<>());
+}
+
+/////////////////////////////////////////////////////////////////////////////
 // Time
 std::chrono::nanoseconds IntervalToDuration(const float flInterval);
 
