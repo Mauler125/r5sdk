@@ -342,7 +342,7 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath)
 
 	std::string extension = filepath.substr(extensionPos);
 	std::transform(extension.begin(), extension.end(), extension.begin(),
-		[](unsigned char c) { return char(std::tolower(c)); });
+		[](unsigned char c) { return char(::tolower(c)); });
 
 	if (extension == ".gset")
 		return loadGeomSet(ctx, filepath);
