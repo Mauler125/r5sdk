@@ -560,10 +560,10 @@ size_t UTF8CharLength(const uint8_t cInput)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if input string is a valid UTF-8 encoded string.
-bool IsValidUTF8(char* pszString)
+bool IsValidUTF8(const char* pszString)
 {
     char c;
-    char* it;
+    const char* it;
 
     while (true)
     {
