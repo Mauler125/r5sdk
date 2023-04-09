@@ -19,11 +19,6 @@
 
 void SDK_Init()
 {
-    CheckCPU(); // Check CPU as early as possible, SpdLog also uses SSE intrinsics.
-
-    MathLib_Init(); // Initialize Mathlib.
-    curl_global_init(CURL_GLOBAL_ALL);
-
     if (strstr(GetCommandLineA(), "-launcher"))
     {
         g_svCmdLine = GetCommandLineA();
@@ -40,6 +35,8 @@ void SDK_Init()
 #else
     Console_Init();
 #endif // !DEDICATED
+
+    curl_global_init(CURL_GLOBAL_ALL);
     SpdLog_Init();
     Winsock_Init(); // Initialize Winsock.
 
@@ -95,6 +92,9 @@ void SDK_Shutdown()
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
+    CheckCPU(); // Check CPU as early as possible; error out if CPU isn't supported.
+    MathLib_Init(); // Initialize Mathlib.
+
     NOTE_UNUSED(hModule);
     NOTE_UNUSED(lpReserved);
 
