@@ -16,7 +16,15 @@ bool SVC_Print::ProcessImpl()
 {
 	if (this->m_szText)
 	{
-		DevMsg(eDLL_T::SERVER, "%s", this->m_szText);
+		Assert(m_szText == m_szTextBuffer); // Should always point to 'm_szTextBuffer'.
+
+		size_t len = strnlen_s(m_szText, sizeof(m_szTextBuffer));
+		Assert(len < sizeof(m_szTextBuffer));
+
+		if (len < sizeof(m_szTextBuffer))
+		{
+			DevMsg(eDLL_T::SERVER, m_szText[len-1] == '\n' ? "%s" : "%s\n", m_szText);
+		}
 	}
 
 	return true; // Original just return true also.
@@ -31,10 +39,14 @@ bool SVC_UserMessage::ProcessImpl()
 		type == HUD_PRINTCENTER)
 	{
 		char text[MAX_USER_MSG_DATA];
-		buf.ReadString(text, sizeof(text));
-		if (strnlen_s(text, sizeof(text)) >= NET_MIN_MESSAGE)
+		int len;
+
+		buf.ReadString(text, sizeof(text), false, &len);
+		Assert(len < sizeof(text));
+
+		if (len >= NET_MIN_MESSAGE && len < sizeof(text))
 		{
-			DevMsg(eDLL_T::SERVER, "%s", text);
+			DevMsg(eDLL_T::SERVER, text[len-1] == '\n' ? "%s" : "%s\n", text);
 		}
 	}
 
