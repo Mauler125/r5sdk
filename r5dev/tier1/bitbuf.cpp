@@ -181,7 +181,7 @@ bool CBitRead::ReadString(char* pStr, int maxLen, bool bLine, int* pOutNumChars)
 	}
 
 	// Make sure it's null-terminated.
-	pStr[iChar] = 0;
+	pStr[iChar] = '\0';
 
 	if (pOutNumChars)
 		*pOutNumChars = iChar;
