@@ -1213,7 +1213,13 @@ void CTextLogger::MoveLeft(int aAmount, bool aSelect, bool aWordMode)
 			{
 				if (static_cast<int>(m_Lines.size()) > line)
 				{
-					while (cindex > 0 && IsUTFSequence(m_Lines[line][cindex].m_Char))
+					const Line &lineData = m_Lines[line];
+
+					while (cindex > 0 && IsUTFSequence(lineData[cindex].m_Char))
+						--cindex;
+
+					// Skip the newline character.
+					if (cindex > 0 && lineData[cindex].m_Char == '\n')
 						--cindex;
 				}
 			}
@@ -1262,7 +1268,15 @@ void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 		int lindex = m_State.m_CursorPosition.m_nLine;
 		const Line& line = m_Lines[lindex];
 
-		if (cindex >= static_cast<int>(line.size()))
+		bool isNewLine = false;
+		const bool isLastChar = (cindex >= static_cast<int>(line.size())-1);
+
+		// If the cursor is at the last character before the newline character,
+		// we want to skip the newline character and move to the next line.
+		if (isLastChar && !line.empty())
+			isNewLine = line.back().m_Char == '\n';
+
+		if (cindex >= static_cast<int>(line.size()) || isNewLine)
 		{
 			if (m_State.m_CursorPosition.m_nLine < static_cast<int>(m_Lines.size()) - 1)
 			{
