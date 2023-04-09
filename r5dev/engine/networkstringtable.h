@@ -7,6 +7,7 @@
 
 #ifndef NETWORKSTRINGTABLE_H
 #define NETWORKSTRINGTABLE_H
+#include "tier0/fasttimer.h"
 #include "tier1/utlvector.h"
 #include "tier1/bitbuf.h"
 #include "client/client.h"
@@ -44,6 +45,10 @@ class CNetworkStringTableContainer : public INetworkStringTable
 {
 public:
 	static void WriteUpdateMessage(CNetworkStringTableContainer* thisp, CClient* client, unsigned int tick_ack, bf_write* msg);
+#ifndef CLIENT_DLL
+	static CFastTimer sm_StatsTimer;
+	static bool sm_bStatsInitialized;
+#endif // !CLIENT_DLL
 
 private:
 	bool        m_bAllowCreation;  // create guard

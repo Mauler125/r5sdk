@@ -92,6 +92,7 @@ ConVar* sv_autoReloadRate                  = nullptr;
 ConVar* sv_simulateBots                    = nullptr;
 ConVar* sv_showhitboxes                    = nullptr;
 ConVar* sv_stats                           = nullptr;
+ConVar* sv_statsUpdateRate                 = nullptr;
 
 ConVar* sv_quota_stringCmdsPerSecond       = nullptr;
 
@@ -335,8 +336,9 @@ void ConVar::StaticInit(void)
 	sv_pylonVisibility = ConVar::StaticCreate("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", false, 0.f, false, 0.f, nullptr, "0 = Offline, 1 = Hidden, 2 = Public.");
 	sv_pylonRefreshRate   = ConVar::StaticCreate("sv_pylonRefreshRate"  , "5.0", FCVAR_RELEASE, "Pylon host refresh rate (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshRate = ConVar::StaticCreate("sv_banlistRefreshRate", "1.0", FCVAR_RELEASE, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
-	sv_statusRefreshRate  = ConVar::StaticCreate("sv_statusRefreshRate" , "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_autoReloadRate     = ConVar::StaticCreate("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_statusRefreshRate  = ConVar::StaticCreate("sv_statusRefreshRate" , "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_statsUpdateRate    = ConVar::StaticCreate("sv_statsUpdateRate"   , "1.0", FCVAR_RELEASE, "Server statistics update rate (seconds).", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_autoReloadRate     = ConVar::StaticCreate("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null).", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_simulateBots = ConVar::StaticCreate("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.", true, 0.f, false, 0.f, nullptr, nullptr);
 
 	sv_rcon_debug       = ConVar::StaticCreate("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -452,12 +454,12 @@ void ConVar::StaticInit(void)
 	//-------------------------------------------------------------------------
 	// RUI                                                                    |
 #ifndef DEDICATED
-	rui_drawEnable = ConVar::StaticCreate("rui_drawEnable", "1", FCVAR_RELEASE, "Draws the RUI if set.", false, 0.f, false, 0.f, nullptr, " 1 = Draw, 0 = No Draw.");
+	rui_drawEnable = ConVar::StaticCreate("rui_drawEnable", "1", FCVAR_RELEASE, "Draws the RUI if set.", false, 0.f, false, 0.f, nullptr, "1 = Draw, 0 = No Draw.");
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// MILES                                                                  |
 #ifndef DEDICATED
-	miles_debug = ConVar::StaticCreate("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System.", false, 0.f, false, 0.f, nullptr, " 1 = Print, 0 = No Print");
+	miles_debug = ConVar::StaticCreate("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System.", false, 0.f, false, 0.f, nullptr, "1 = Print, 0 = No Print");
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 }

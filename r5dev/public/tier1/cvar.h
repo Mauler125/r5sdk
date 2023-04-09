@@ -98,6 +98,7 @@ extern ConVar* sv_autoReloadRate;
 extern ConVar* sv_simulateBots;
 extern ConVar* sv_showhitboxes;
 extern ConVar* sv_stats;
+extern ConVar* sv_statsUpdateRate;
 
 extern ConVar* sv_quota_stringCmdsPerSecond;
 

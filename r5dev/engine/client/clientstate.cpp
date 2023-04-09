@@ -113,7 +113,7 @@ bool CClientState::VProcessServerTick(CClientState* pClientState, SVC_ServerTick
     }
     else // Statistics only.
     {
-        char* pShifted = reinterpret_cast<char*>(pClientState) - 0x10; // Shifted due to compiled optimizations.
+        char* pShifted = reinterpret_cast<char*>(pClientState) - 0x10; // Shifted due to compiler optimizations.
         CClientState* pClient_Adj = reinterpret_cast<CClientState*>(pShifted);
 
         CNetChan* pChan = pClient_Adj->m_NetChannel;
