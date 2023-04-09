@@ -138,6 +138,33 @@ static int UTF8CharLength(CTextLogger::Char c)
 	return 1;
 }
 
+bool UTF8StringValid(const char* pszString)
+{
+	unsigned int byteCount = 0;
+	unsigned char currentByte;
+
+	while (*pszString)
+	{
+		currentByte = static_cast<unsigned char>(*pszString);
+		if (byteCount)
+		{
+			if ((currentByte & 0xC0) != 0x80)
+				return false;
+
+			byteCount--;
+		}
+		else
+		{
+			byteCount = UTF8CharLength(currentByte) - 1;
+			if (byteCount > 0 && (currentByte & (1 << (7 - byteCount))) == 0)
+				return false;
+		}
+		pszString++;
+	}
+
+	return byteCount == 0;
+}
+
 void CTextLogger::Advance(Coordinates & aCoordinates) const
 {
 	if (aCoordinates.m_nLine < static_cast<int>(m_Lines.size()))
@@ -208,12 +235,21 @@ void CTextLogger::MarkNewline(Coordinates& /* inout */ aWhere, const ImVec4& aCo
 	}
 	else
 		line.push_back(Glyph('\n', aColor));
+
+	++aWhere.m_nLine;
+	aWhere.m_nColumn = 0;
 }
 
 int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char* aValue, const ImVec4& aColor)
 {
 	int cindex = GetCharacterIndex(aWhere);
 	int totalLines = 0;
+
+	if (!UTF8StringValid(aValue))
+	{
+		assert(0);
+		aValue = "Invalid UTF-8 string\n";
+	}
 
 	while (*aValue != '\0')
 	{
@@ -227,8 +263,6 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char* aValu
 		else if (*aValue == '\n')
 		{
 			MarkNewline(aWhere, aColor, cindex);
-			++aWhere.m_nLine;
-			aWhere.m_nColumn = 0;
 			cindex = 0;
 			++totalLines;
 			++aValue;
@@ -239,8 +273,6 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char* aValu
 			if (!line.empty() && ImGui::ColorConvertFloat4ToU32(aColor) != ImGui::ColorConvertFloat4ToU32(line[0].m_Color))
 			{
 				MarkNewline(aWhere, line[0].m_Color, cindex);
-				++aWhere.m_nLine;
-				aWhere.m_nColumn = 0;
 				cindex = 0;
 				++totalLines;
 				continue;
@@ -909,7 +941,7 @@ void CTextLogger::Render()
 	ImGui::Dummy(ImVec2((longest + 2), m_Lines.size() * m_CharAdvance.y));
 	m_bScrolledToMax = ImGui::GetScrollY() >= ImGui::GetScrollMaxY();
 
-	if (m_bScrollToBottom || (!m_bScrollToCursor && m_bAutoScroll && m_bScrolledToMax))
+	if (m_bScrollToBottom || (m_bAutoScroll && m_bScrolledToMax && !m_bScrollToCursor))
 	{
 		ImGui::SetScrollHereY(1.0f);
 		m_bScrollToBottom = false;
