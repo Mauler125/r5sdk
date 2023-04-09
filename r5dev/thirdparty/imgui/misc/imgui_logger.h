@@ -218,8 +218,6 @@ private:
 	int m_nLinesOffsetAmount;
 	int m_nTabSize;
 	int m_nLeftMargin;
-	int m_nColorRangeMin;
-	int m_nColorRangeMax;
 	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
 	float m_flLineSpacing;
 	double m_flLastClick;
