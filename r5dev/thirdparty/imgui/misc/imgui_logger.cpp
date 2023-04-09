@@ -198,22 +198,19 @@ void CTextLogger::DeleteRange(const Coordinates & aStart, const Coordinates & aE
 
 void CTextLogger::MarkNewline(Coordinates& /* inout */ aWhere, const ImVec4& aColor, int aIndex)
 {
+	Line& newLine = InsertLine(aWhere.m_nLine + 1);
+	Line& line = m_Lines[aWhere.m_nLine];
+
 	if (aIndex < static_cast<int>(m_Lines[aWhere.m_nLine].size()))
 	{
-		Line& newLine = InsertLine(aWhere.m_nLine + 1);
-		Line& line = m_Lines[aWhere.m_nLine];
 		newLine.insert(newLine.begin(), line.begin() + aIndex, line.end());
 		line.erase(line.begin() + aIndex, line.end());
 	}
 	else
-	{
-		Line& newLine = InsertLine(aWhere.m_nLine + 1);
-		Line& line = m_Lines[aWhere.m_nLine];
-		line.insert(line.begin() + aIndex, Glyph('\n', aColor));
-	}
+		line.push_back(Glyph('\n', aColor));
 }
 
-int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aValue, const ImVec4& aColor)
+int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char* aValue, const ImVec4& aColor)
 {
 	int cindex = GetCharacterIndex(aWhere);
 	int totalLines = 0;
@@ -251,14 +248,19 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aVal
 
 			int d = UTF8CharLength(*aValue);
 			while (d-- > 0 && *aValue != '\0')
-				line.insert(line.begin() + cindex++, Glyph(*aValue++, aColor));
+			{
+				if (cindex >= 0 && cindex <= static_cast<int>(line.size()))
+					line.insert(line.begin() + cindex++, Glyph(*aValue++, aColor));
+				else
+					++aValue; // Possibly an invalid character
+			}
 			++aWhere.m_nColumn;
 		}
 	}
 	if (!*aValue)
 	{
 		Line& line = m_Lines[aWhere.m_nLine];
-		if (!line.empty())
+		if (!line.empty() && cindex >= 0 && cindex <= static_cast<int>(line.size()))
 			line.insert(line.begin() + cindex, Glyph(' ', aColor));
 	}
 
@@ -301,7 +303,7 @@ CTextLogger::Coordinates CTextLogger::ScreenPosToCoordinates(const ImVec2& aPosi
 				char buf[7];
 				int d = UTF8CharLength(line[columnIndex].m_Char);
 				int i = 0;
-				while (i < 6 && d-- > 0)
+				while (i < 6 && d-- > 0 && columnIndex < line.size())
 					buf[i++] = line[columnIndex++].m_Char;
 				buf[i] = '\0';
 				columnWidth = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf).x;
@@ -886,7 +888,7 @@ void CTextLogger::Render()
 				else
 				{
 					int l = UTF8CharLength(glyph.m_Char);
-					while (l-- > 0)
+					while (l-- > 0 && i < line.size())
 						m_svLineBuffer.push_back(line[i++].m_Char);
 				}
 				++columnNo;
