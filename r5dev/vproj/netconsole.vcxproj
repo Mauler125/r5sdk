@@ -252,6 +252,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\win32\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
       <TerminalServerAware>true</TerminalServerAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
     <PreBuildEvent>
       <Command>
