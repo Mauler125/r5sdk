@@ -27,8 +27,7 @@ CTextLogger::CTextLogger()
 	, m_bScrollToBottom(true)
 	, m_bScrollToCursor(false)
 	, m_bScrolledToMax(false)
-	, m_bHandleKeyboardInputs(true)
-	, m_bHandleMouseInputs(true)
+	, m_bHandleUserInputs(true)
 	, m_bWithinLoggingRect(false)
 	, m_bShowWhiteSpaces(false)
 	, m_bLinesOffsetForward(false)
@@ -769,14 +768,13 @@ void CTextLogger::Render()
 	bool bHoveredScrollbar = hoveredID && (hoveredID == ImGui::GetWindowScrollbarID(pWindow, ImGuiAxis_X) || hoveredID == ImGui::GetWindowScrollbarID(pWindow, ImGuiAxis_Y));
 	bool bActiveScrollbar = activeID && (activeID == ImGui::GetWindowScrollbarID(pWindow, ImGuiAxis_X) || activeID == ImGui::GetWindowScrollbarID(pWindow, ImGuiAxis_Y));
 
-	if (m_bHandleKeyboardInputs)
+	if (m_bHandleUserInputs)
 	{
 		HandleKeyboardInputs(bHoveredScrollbar, bActiveScrollbar);
 		ImGui::PushAllowKeyboardFocus(true);
-	}
 
-	if (m_bHandleMouseInputs)
 		HandleMouseInputs(bHoveredScrollbar, bActiveScrollbar);
+	}
 
 	/* Compute mCharAdvance regarding to scaled font size (Ctrl + mouse wheel)*/
 	const float fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr).x;
@@ -937,7 +935,7 @@ void CTextLogger::Render()
 
 
 	ImGui::Dummy(ImVec2((longest + 2), m_Lines.size() * m_CharAdvance.y));
-	m_bScrolledToMax = ImGui::GetScrollY() >= ImGui::GetScrollMaxY();
+	SetScrolledToMax(ImGui::GetScrollY() >= ImGui::GetScrollMaxY());
 
 	if (m_bScrollToBottom || (m_bAutoScroll && m_bScrolledToMax && !m_bScrollToCursor))
 	{
@@ -946,7 +944,7 @@ void CTextLogger::Render()
 	}
 	m_bScrollToCursor = false;
 
-	if (m_bHandleKeyboardInputs)
+	if (m_bHandleUserInputs)
 		ImGui::PopAllowKeyboardFocus();
 
 	ImGui::PopStyleVar();

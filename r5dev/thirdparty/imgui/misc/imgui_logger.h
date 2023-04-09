@@ -134,14 +134,14 @@ public:
 	void MoveCursor(int aLines, bool aForward = true);
 	void SetCursorPosition(const Coordinates& aPosition);
 
-	inline void SetHandleMouseInputs    (bool aValue){ m_bHandleMouseInputs    = aValue;}
-	inline bool IsHandleMouseInputsEnabled() const { return m_bHandleKeyboardInputs; }
-
-	inline void SetHandleKeyboardInputs (bool aValue){ m_bHandleKeyboardInputs = aValue;}
-	inline bool IsHandleKeyboardInputsEnabled() const { return m_bHandleKeyboardInputs; }
+	inline void SetHandleUserInputs (bool aValue){ m_bHandleUserInputs = aValue;}
+	inline bool IsHandleUserInputs() const { return m_bHandleUserInputs; }
 
 	inline void SetShowWhitespaces(bool aValue) { m_bShowWhiteSpaces = aValue; }
 	inline bool IsShowingWhitespaces() const { return m_bShowWhiteSpaces; }
+
+	inline void SetScrolledToMax(bool aValue) { m_bScrolledToMax = aValue; }
+	inline bool IsScrolledToMax() const { return m_bScrolledToMax; }
 
 	void SetTabSize(int aValue);
 	inline int GetTabSize() const { return m_nTabSize; }
@@ -210,8 +210,7 @@ public:
 	bool m_bScrollToCursor;
 	bool m_bScrolledToMax;
 private:
-	bool m_bHandleKeyboardInputs;
-	bool m_bHandleMouseInputs;
+	bool m_bHandleUserInputs;
 	bool m_bWithinLoggingRect;
 	bool m_bShowWhiteSpaces;
 	bool m_bLinesOffsetForward;
