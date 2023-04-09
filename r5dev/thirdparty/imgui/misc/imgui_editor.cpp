@@ -5,8 +5,6 @@
 #include <cmath>
 
 #include "imgui_editor.h"
-
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h" // for imGui::GetCurrentWindow()
 
 // TODO
@@ -1442,7 +1440,7 @@ void CTextEditor::SetSelection(const Coordinates & aStart, const Coordinates & a
 	case CTextEditor::SelectionMode::Line:
 	{
 		const auto lineNo = m_State.m_SelectionEnd.m_nLine;
-		const auto lineSize = (size_t)lineNo < m_Lines.size() ? m_Lines[lineNo].size() : 0;
+		//const auto lineSize = (size_t)lineNo < m_Lines.size() ? m_Lines[lineNo].size() : 0;
 		m_State.m_SelectionStart = Coordinates(m_State.m_SelectionStart.m_nLine, 0);
 		m_State.m_SelectionEnd = Coordinates(lineNo, GetLineMaxColumn(lineNo));
 		break;
@@ -2217,9 +2215,12 @@ void CTextEditor::ColorizeRange(int aFromLine, int aToLine)
 				{
 					id.assign(token_begin, token_end);
 
-					// todo : allmost all language definitions use lower case to specify keywords, so shouldn't this use ::tolower ?
+					// todo : almost all language definitions use lower case to specify keywords, so shouldn't this use ::tolower ?
 					if (!m_LanguageDefinition.mCaseSensitive)
-						std::transform(id.begin(), id.end(), id.begin(), ::toupper);
+					{
+						std::transform(id.begin(), id.end(), id.begin(),
+							[](unsigned char c) { return static_cast<unsigned char>(::toupper(c)); });
+					}
 
 					if (!line[first - bufferBegin].m_bPreprocessor)
 					{
