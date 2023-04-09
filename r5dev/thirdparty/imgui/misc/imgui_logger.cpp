@@ -5,8 +5,6 @@
 #include <cmath>
 
 #include "imgui_logger.h"
-
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
 #include "imgui_internal.h"
 
@@ -24,9 +22,9 @@ bool equals(InputIt1 first1, InputIt1 last1,
 
 CTextLogger::CTextLogger()
 	: m_bAutoScroll(true)
-	, m_bScrollToBottom(true)
 	, m_bScrollToCursor(false)
-	, m_bScrolledToMax(false)
+	, m_bScrollToBottom(true)
+	, m_bScrolledToBottom(false)
 	, m_bHandleUserInputs(true)
 	, m_bWithinLoggingRect(false)
 	, m_bShowWhiteSpaces(false)
@@ -36,9 +34,9 @@ CTextLogger::CTextLogger()
 	, m_nLeftMargin(0)
 	, m_flTextStart(0.0f)
 	, m_flLineSpacing(1.0f)
+	, m_SelectionMode(SelectionMode::Normal)
 	, m_flLastClick(-1.0)
 	, m_nStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
-	, m_SelectionMode(SelectionMode::Normal)
 {
 	m_Lines.push_back(Line());
 }
@@ -137,12 +135,12 @@ static int UTF8CharLength(CTextLogger::Char c)
 
 bool UTF8StringValid(const char* pszString)
 {
-	unsigned int byteCount = 0;
-	unsigned char currentByte;
+	size_t byteCount = 0;
+	CTextLogger::Char currentByte;
 
 	while (*pszString)
 	{
-		currentByte = static_cast<unsigned char>(*pszString);
+		currentByte = static_cast<CTextLogger::Char>(*pszString);
 		if (byteCount)
 		{
 			if ((currentByte & 0xC0) != 0x80)
@@ -275,7 +273,7 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char* aValu
 				continue;
 			}
 
-			int d = UTF8CharLength(*aValue);
+			size_t d = UTF8CharLength(*aValue);
 			while (d-- > 0 && *aValue != '\0')
 			{
 				if (cindex >= 0 && cindex <= static_cast<int>(line.size()))
@@ -330,8 +328,8 @@ CTextLogger::Coordinates CTextLogger::ScreenPosToCoordinates(const ImVec2& aPosi
 			else
 			{
 				char buf[7];
-				int d = UTF8CharLength(line[columnIndex].m_Char);
-				int i = 0;
+				size_t d = UTF8CharLength(line[columnIndex].m_Char);
+				size_t i = 0;
 				while (i < 6 && d-- > 0 && columnIndex < line.size())
 					buf[i++] = line[columnIndex++].m_Char;
 				buf[i] = '\0';
@@ -843,7 +841,6 @@ void CTextLogger::Render()
 					if (elapsed > 400)
 					{
 						float width = 1.0f;
-						int cindex = GetCharacterIndex(m_State.m_CursorPosition);
 						float cx = TextDistanceToLineStart(m_State.m_CursorPosition);
 
 						const ImVec2 cstart(textScreenPos.x + cx, lineStartScreenPos.y);
@@ -915,7 +912,7 @@ void CTextLogger::Render()
 				}
 				else
 				{
-					int l = UTF8CharLength(glyph.m_Char);
+					size_t l = UTF8CharLength(glyph.m_Char);
 					while (l-- > 0 && i < line.size())
 						m_svLineBuffer.push_back(line[i++].m_Char);
 				}
@@ -935,9 +932,9 @@ void CTextLogger::Render()
 
 
 	ImGui::Dummy(ImVec2((longest + 2), m_Lines.size() * m_CharAdvance.y));
-	SetScrolledToMax(ImGui::GetScrollY() >= ImGui::GetScrollMaxY());
+	m_bScrolledToBottom = ImGui::GetScrollY() >= ImGui::GetScrollMaxY();
 
-	if (m_bScrollToBottom || (m_bAutoScroll && m_bScrolledToMax && !m_bScrollToCursor))
+	if (m_bScrollToBottom || (m_bAutoScroll && m_bScrolledToBottom && !m_bScrollToCursor))
 	{
 		ImGui::SetScrollHereY(1.0f);
 		m_bScrollToBottom = false;
@@ -1097,7 +1094,7 @@ void CTextLogger::SetSelection(const Coordinates & aStart, const Coordinates & a
 	case CTextLogger::SelectionMode::Line:
 	{
 		const int lineNo = m_State.m_SelectionEnd.m_nLine;
-		const size_t lineSize = (size_t)lineNo < m_Lines.size() ? m_Lines[lineNo].size() : 0;
+		//const size_t lineSize = (size_t)lineNo < m_Lines.size() ? m_Lines[lineNo].size() : 0;
 		m_State.m_SelectionStart = Coordinates(m_State.m_SelectionStart.m_nLine, 0);
 		m_State.m_SelectionEnd = Coordinates(lineNo, GetLineMaxColumn(lineNo));
 		break;
@@ -1541,10 +1538,11 @@ float CTextLogger::TextDistanceToLineStart(const Coordinates& aFrom) const
 		}
 		else
 		{
-			int d = UTF8CharLength(line[it].m_Char);
+			size_t d = UTF8CharLength(line[it].m_Char);
+			size_t i = 0;
 			char tempCString[7];
-			int i = 0;
-			for (; i < 6 && d-- > 0 && it < static_cast<int>(line.size()); i++, it++)
+
+			for (; i < 6 && d-- > 0 && it < line.size(); i++, it++)
 				tempCString[i] = line[it].m_Char;
 
 			tempCString[i] = '\0';

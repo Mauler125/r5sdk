@@ -240,7 +240,7 @@ void CConsole::DrawSurface(void)
     }
 
     ImGui::SameLine();
-    m_Logger.m_itFilter.Draw("Filter | ", flFooterWidthReserve - 500);
+    m_Logger.GetFilter().Draw("Filter | ", flFooterWidthReserve - 500);
 
     ImGui::SameLine();
     ImGui::Text("%s", m_szSummary);
@@ -248,7 +248,7 @@ void CConsole::DrawSurface(void)
     ImGui::Separator();
 
     ///////////////////////////////////////////////////////////////////////
-    if (!m_Logger.m_bScrolledToMax && m_nScrollBack > 0)
+    if (!m_Logger.IsScrolledToBottom() && m_nScrollBack > 0)
     {
         ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
         ImGuiID nID = pWindow->GetID(m_pszLoggingLabel);
@@ -663,7 +663,7 @@ void CConsole::ProcessCommand(string svCommand)
     }
 
     m_vHistory.push_back(svCommand);
-    m_Logger.m_bScrollToBottom = true;
+    m_Logger.ShouldScrollToBottom(true);
 }
 
 //-----------------------------------------------------------------------------

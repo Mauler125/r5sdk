@@ -121,7 +121,7 @@ public:
 	void SetTextLines(const std::vector<ConLog_t>& aLines);
 	std::vector<std::string> GetTextLines() const;
 
-	ImGuiTextFilter GetFilter() const { return m_itFilter; };
+	ImGuiTextFilter& GetFilter() { return m_itFilter; };
 	std::string GetSelectedText() const;
 	std::string GetCurrentLineText() const;
 	std::string GetTextFromLine(const Line& aLine) const;
@@ -140,8 +140,11 @@ public:
 	inline void SetShowWhitespaces(bool aValue) { m_bShowWhiteSpaces = aValue; }
 	inline bool IsShowingWhitespaces() const { return m_bShowWhiteSpaces; }
 
-	inline void SetScrolledToMax(bool aValue) { m_bScrolledToMax = aValue; }
-	inline bool IsScrolledToMax() const { return m_bScrolledToMax; }
+	inline void ShouldScrollToBottom(bool aValue) { m_bScrollToBottom = aValue; }
+	inline bool IsScrollingToBottom() const { return m_bScrollToBottom; }
+
+	inline void SetScrolledToBottom(bool aValue) { m_bScrolledToBottom = aValue; }
+	inline bool IsScrolledToBottom() const { return m_bScrolledToBottom; }
 
 	void SetTabSize(int aValue);
 	inline int GetTabSize() const { return m_nTabSize; }
@@ -206,10 +209,11 @@ private:
 
 public:
 	bool m_bAutoScroll;
-	bool m_bScrollToBottom;
-	bool m_bScrollToCursor;
-	bool m_bScrolledToMax;
+
 private:
+	bool m_bScrollToCursor;
+	bool m_bScrollToBottom;
+	bool m_bScrolledToBottom;
 	bool m_bHandleUserInputs;
 	bool m_bWithinLoggingRect;
 	bool m_bShowWhiteSpaces;
@@ -219,17 +223,17 @@ private:
 	int m_nLeftMargin;
 	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
 	float m_flLineSpacing;
+	SelectionMode m_SelectionMode;
 	double m_flLastClick;
 	uint64_t m_nStartTime;
 
-	SelectionMode m_SelectionMode;
 	Coordinates m_InteractiveStart;
 	Coordinates m_InteractiveEnd;
-	ImVec2 m_CharAdvance;
-
-	Lines m_Lines;
 	LoggerState_t m_State;
+
+	ImVec2 m_CharAdvance;
+	Lines m_Lines;
+
 	std::string m_svLineBuffer;
-public:
 	ImGuiTextFilter m_itFilter;
 };
