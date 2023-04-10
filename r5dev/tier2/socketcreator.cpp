@@ -270,7 +270,7 @@ int CSocketCreator::OnSocketAccepted(SocketHandle_t hSocket, const netadr_t& net
 //-----------------------------------------------------------------------------
 void CSocketCreator::CloseAcceptedSocket(int nIndex)
 {
-	if (nIndex >= m_hAcceptedSockets.size())
+	if (nIndex >= int(m_hAcceptedSockets.size()))
 	{
 		return;
 	}
