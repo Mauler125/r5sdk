@@ -278,6 +278,7 @@
     <ClInclude Include="..\launcher\prx.h" />
     <ClInclude Include="..\materialsystem\cmaterialsystem.h" />
     <ClInclude Include="..\mathlib\adler32.h" />
+    <ClInclude Include="..\mathlib\bitvec.h" />
     <ClInclude Include="..\mathlib\compressed_vector.h" />
     <ClInclude Include="..\mathlib\fbits.h" />
     <ClInclude Include="..\mathlib\color.h" />
@@ -359,6 +360,7 @@
     <ClInclude Include="..\public\tier0\frametask.h" />
     <ClInclude Include="..\public\tier0\jobthread.h" />
     <ClInclude Include="..\public\tier0\memalloc.h" />
+    <ClInclude Include="..\public\tier0\memdbgoff.h" />
     <ClInclude Include="..\public\tier0\memdbgon.h" />
     <ClInclude Include="..\public\tier0\platform.h" />
     <ClInclude Include="..\public\tier0\platform_internal.h" />

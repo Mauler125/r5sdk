@@ -1892,6 +1892,12 @@
     <ClInclude Include="..\public\tier2\curlutils.h">
       <Filter>sdk\public\tier2</Filter>
     </ClInclude>
+    <ClInclude Include="..\mathlib\bitvec.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\memdbgoff.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

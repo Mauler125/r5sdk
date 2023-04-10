@@ -404,6 +404,14 @@ uint64_t Plat_MSTime();
 const char* Plat_GetProcessUpTime();
 void Plat_GetProcessUpTime(char* szBuf, size_t nSize);
 
+#if defined( _X360 )
+#define Plat_FastMemset XMemSet
+#define Plat_FastMemcpy XMemCpy
+#else
+#define Plat_FastMemset memset
+#define Plat_FastMemcpy memcpy
+#endif
+
 //-----------------------------------------------------------------------------
 // Silences a number of warnings on 360 compiles
 //-----------------------------------------------------------------------------
