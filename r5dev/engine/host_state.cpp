@@ -377,7 +377,7 @@ void CHostState::State_NewGame(void)
 
 #ifndef CLIENT_DLL
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
-		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, bSplitScreenConnect, time) || !g_pServerGameClients)
+		|| !v_Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, bSplitScreenConnect, time) || !g_pServerGameClients)
 	{
 		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Error: Level not valid\n", __FUNCTION__);
 #ifndef DEDICATED
@@ -406,7 +406,7 @@ void CHostState::State_ChangeLevelSP(void)
 
 	if (CModelLoader__Map_IsValid(g_pModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
 	{
-		Host_ChangeLevel(true, m_levelName, m_mapGroupName); // Call change level as singleplayer level.
+		v_Host_ChangeLevel(true, m_levelName, m_mapGroupName); // Call change level as singleplayer level.
 	}
 	else
 	{
@@ -438,7 +438,7 @@ void CHostState::State_ChangeLevelMP(void)
 #ifndef DEDICATED
 		g_pEngineVGui->EnabledProgressBarForNextLoad();
 #endif // !DEDICATED
-		Host_ChangeLevel(false, m_levelName, m_mapGroupName); // Call change level as multiplayer level.
+		v_Host_ChangeLevel(false, m_levelName, m_mapGroupName); // Call change level as multiplayer level.
 	}
 	else
 	{

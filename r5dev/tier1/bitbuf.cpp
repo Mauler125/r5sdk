@@ -14,10 +14,10 @@
 //-----------------------------------------------------------------------------
 // Write masks
 //-----------------------------------------------------------------------------
-class CBitWriteMasksInit
+class CBitWriteMasks
 {
 public:
-	CBitWriteMasksInit()
+	CBitWriteMasks()
 	{
 		for (unsigned int startbit = 0; startbit < 32; startbit++)
 		{
@@ -41,11 +41,10 @@ public:
 	// Precalculated bit masks for WriteUBitLong. Using these tables instead of 
 	// doing the calculations gives a 33% speedup in WriteUBitLong.
 	unsigned long m_BitWriteMasks[32][33];
-
-	unsigned long m_ExtraMasks[33]; // (1 << i) - 1
 	unsigned long m_LittleBits[32];
+	unsigned long m_ExtraMasks[33]; // (1 << i) - 1
 };
-static CBitWriteMasksInit s_BitWriteMasks;
+static CBitWriteMasks s_BitWriteMasks;
 
 
 //-----------------------------------------------------------------------------
