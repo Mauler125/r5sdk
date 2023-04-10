@@ -237,29 +237,43 @@ void CHostState::Setup(void)
 //-----------------------------------------------------------------------------
 void CHostState::Think(void) const
 {
+#ifndef CLIENT_DLL
 	static bool bInitialized = false;
-	static CFastTimer banListTimer;
-	static CFastTimer pylonTimer;
 	static CFastTimer statsTimer;
+	static CFastTimer banListTimer;
+#ifdef DEDICATED
+	static CFastTimer pylonTimer;
+#endif // DEDICATED
 
 	if (!bInitialized) // Initialize clocks.
 	{
-#ifndef CLIENT_DLL
+		statsTimer.Start();
 		banListTimer.Start();
 #ifdef DEDICATED
 		pylonTimer.Start();
 #endif // DEDICATED
-		statsTimer.Start();
-#endif // !CLIENT_DLL
 		bInitialized = true;
 	}
-#ifndef CLIENT_DLL
+	if (sv_autoReloadRate->GetBool())
+	{
+		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate->GetDouble())
+		{
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
+		}
+	}
+	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
+	{
+		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s)",
+			hostname->GetString(), g_pServer->GetNumClients(),
+			g_ServerGlobalVariables->m_nMaxClients, KeyValues_GetCurrentPlaylist(), m_levelName).c_str());
+
+		statsTimer.Start();
+	}
 	if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetDouble())
 	{
 		g_pBanSystem->BanListCheck();
 		banListTimer.Start();
 	}
-#endif // !CLIENT_DLL
 #ifdef DEDICATED
 	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate->GetDouble())
 	{
@@ -286,22 +300,6 @@ void CHostState::Think(void) const
 		pylonTimer.Start();
 	}
 #endif // DEDICATED
-#ifndef CLIENT_DLL
-	if (sv_autoReloadRate->GetBool())
-	{
-		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate->GetDouble())
-		{
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
-		}
-	}
-	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
-	{
-		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s)",
-			hostname->GetString(), g_pServer->GetNumClients(),
-			g_ServerGlobalVariables->m_nMaxClients, KeyValues_GetCurrentPlaylist(), m_levelName).c_str());
-
-		statsTimer.Start();
-	}
 #endif // !CLIENT_DLL
 }
 
