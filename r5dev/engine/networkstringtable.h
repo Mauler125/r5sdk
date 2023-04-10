@@ -45,10 +45,6 @@ class CNetworkStringTableContainer : public INetworkStringTable
 {
 public:
 	static void WriteUpdateMessage(CNetworkStringTableContainer* thisp, CClient* client, unsigned int tick_ack, bf_write* msg);
-#ifndef CLIENT_DLL
-	static CFastTimer sm_StatsTimer;
-	static bool sm_bStatsInitialized;
-#endif // !CLIENT_DLL
 
 private:
 	bool        m_bAllowCreation;  // create guard
