@@ -31,7 +31,7 @@ Steps:
 
 ## Launch Parameters
 - The `-wconsole` parameter toggles the external console window to which output of the game is getting logged to.
-- The `-ansiclr` parameter enables colored console output to enhance readability (NOTE: unsupported for some OS versions!).
+- The `-ansicolor` parameter enables colored console output to enhance readability (NOTE: unsupported for some OS versions!).
 - The `-nosmap` parameter instructs the SDK to always compute the RVA's of each function signature on launch (!! slow !!).
 - The `-noworkerdll` parameter prevents the GameSDK DLL from initializing (workaround as the DLL is imported by the game executable).
 
