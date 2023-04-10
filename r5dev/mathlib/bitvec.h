@@ -457,10 +457,10 @@ template <typename BITCOUNTTYPE>
 inline CVarBitVecBase<BITCOUNTTYPE>::CVarBitVecBase(int numBits)
 {
 	Assert( numBits );
-	m_numBits	= numBits;
+	m_numBits	= BITCOUNTTYPE( numBits );
 
 	// Figure out how many ints are needed
-	m_numInts = CalcNumIntsForBits( numBits );
+	m_numInts = BITCOUNTTYPE( CalcNumIntsForBits( numBits ) );
 	m_pInt = NULL;
 	AllocInts( m_numInts );
 }

@@ -454,6 +454,8 @@ inline void	bf_write::WriteOneBitAt(int iBit, int nValue)
 		}
 	}
 	Assert(numbits >= 0 && numbits <= 32);
+#else
+	NOTE_UNUSED(bCheckRange);
 #endif
 
 	// Bounds checking..
