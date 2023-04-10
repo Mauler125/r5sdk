@@ -10,3 +10,6 @@
 //---- PATCH3
 0x340D07: "mov     cs:g_pszMultiplayerUiPakName, rcx" --> "nop" // Prevent 'g_pszMultiplayerUiPakName' from being assigned to string "ui_mp.rpak" (prevents it from loading this pak file).
 0x340FEA: "mov     cs:g_pszMultiplayerUiPakName, rcx" --> "nop"
+
+//---- PATCH4
+0x296587: "jnz     short loc_1402971B7" --> "jmp     short loc_1402971B7" // Prevent 'fps_max' from being reset in 'CEngine::Frame' if 'sv_cheats' isn't set; this is bound to the server's tickrate in sdk code to save CPU time.
