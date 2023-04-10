@@ -1,4 +1,4 @@
-R5Sdk Third Party code legal notices:
+R5sdk Third Party code legal notices:
 
 ************************************************************************************
 Microsoft Detours
