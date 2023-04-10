@@ -522,11 +522,11 @@ void bf_write::WriteSBitLong(int data, int numbits)
 
 			if (data < 0)
 			{
-				Assert(data >= -(BitForBitnum(numbits - 1)));
+				Assert(data >= -(GetBitForBitnum(numbits - 1)));
 			}
 			else
 			{
-				Assert(data < (BitForBitnum(numbits - 1)));
+				Assert(data < (GetBitForBitnum(numbits - 1)));
 			}
 		}
 #endif
