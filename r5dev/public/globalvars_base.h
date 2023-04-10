@@ -36,7 +36,7 @@ public:
 	int m_nMaxClients;   // Max players as specified in the playlists file.
 	GameMode_t m_nGameMode; // 1 (MP) 2 (PVE) 3 (SP)
 	int m_nTickCount;    // Simulation ticks - resets on restart.
-	int m_flTickInterval;
+	float m_flTickInterval;
 
 	int m_nUnk1;
 	int m_nUnk2;
