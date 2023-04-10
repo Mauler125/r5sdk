@@ -4,6 +4,9 @@
 
 class CEngine : public IEngine
 {
+public:
+	static bool _Frame(CEngine* thisp);
+
 private:
 	EngineState_t m_nDLLState;
 	EngineState_t m_nNextDLLState;
@@ -19,6 +22,9 @@ private:
 };
 
 /* ==== CENGINE ======================================================================================================================================================= */
+inline CMemory p_CEngine_Frame;
+inline auto v_CEngine_Frame = p_CEngine_Frame.RCast<bool(*)(CEngine* thisp)>();
+
 extern CEngine* g_pEngine;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,9 +36,20 @@ class VEngine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("g_pEngine", reinterpret_cast<uintptr_t>(g_pEngine));
+		LogFunAdr("CEngine::Frame", p_CEngine_Frame.GetPtr());
+		LogVarAdr("g_Engine", reinterpret_cast<uintptr_t>(g_pEngine));
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+		p_CEngine_Frame = g_GameDll.FindPatternSIMD("40 55 53 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 8B F1");
+#elif defined (GAMEDLL_S2)
+		p_CEngine_Frame = g_GameDll.FindPatternSIMD("48 8B C4 56 48 81 EC ?? ?? ?? ?? 0F 29 70 B8");
+#else
+		p_CEngine_Frame = g_GameDll.FindPatternSIMD("48 8B C4 55 56 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 0F 29 70 B8");
+#endif
+		v_CEngine_Frame = p_CEngine_Frame.RCast<bool(*)(CEngine* thisp)>();
+	}
 	virtual void GetVar(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
@@ -42,7 +59,7 @@ class VEngine : public IDetour
 #endif
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
