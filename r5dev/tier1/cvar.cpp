@@ -993,6 +993,49 @@ void ConVar::RemoveChangeCallback(FnChangeCallback_t callback)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Parse input flag string into bitfield
+// Input  : pszFlags -
+//			nFlags -
+//			pszConVarName -
+//-----------------------------------------------------------------------------
+bool ConVar::ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName)
+{
+	int len = strlen(pszFlags);
+	int flags = 0;
+
+	std::string sFlag = "";
+	for (int i = 0; i < len; ++i)
+	{
+		char c = pszFlags[i];
+
+		if (std::isspace(c))
+			continue;
+
+		if (c != '|')
+			sFlag += c;
+
+		if (c == '|' || i == len - 1)
+		{
+			if (sFlag == "")
+				continue;
+
+			if (s_ConVarFlags.count(sFlag) == 0)
+			{
+				Warning(eDLL_T::ENGINE, "%s: Attempted to parse invalid flag '%s' for convar '%s'\n", __FUNCTION__, sFlag.c_str(), pszConVarName);
+				return false;
+			}
+
+			flags |= s_ConVarFlags.at(sFlag);
+
+			sFlag = "";
+		}
+	}
+	nFlags = flags;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void ConVar_AppendFlags(ConCommandBase* var, char* buf, size_t bufsize)
