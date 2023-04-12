@@ -215,13 +215,10 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 		}
 	}
 
-
 	std::string scriptsRsonPath = (m_BasePath / "scripts/vscripts/scripts.rson").string();
 
-	//RSON::Node_t* rson = RSON::LoadFromFile(scriptsRsonPath.c_str());
-
-	//if (rson)
-	//	DevMsg(eDLL_T::ENGINE, "mod rson loaded: %p\n", uintptr_t(rson));
+	if (FileSystem()->FileExists(scriptsRsonPath.c_str(), "GAME"))
+		m_bHasScriptCompileList = true;
 };
 
 CModSystem* g_pModSystem = new CModSystem();

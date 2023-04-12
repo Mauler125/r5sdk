@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vpc/keyvalues.h"
+#include "vpc/rson.h"
 #include <filesystem/filesystem.h>
 
 class CModAppSystemGroup;
@@ -25,11 +26,23 @@ public:
 
 		inline bool IsEnabled() { return m_iState == eModState::ENABLED; };
 
+		inline const fs::path& GetBasePath() { return m_BasePath; };
+
+		inline fs::path GetScriptCompileListPath() { return (m_BasePath / "scripts/vscripts/scripts.rson"); };
+
+		RSON::Node_t* LoadScriptCompileList()
+		{
+			return RSON::LoadFromFile(GetScriptCompileListPath().string().c_str());
+		};
+
+		bool m_bHasScriptCompileList; // if this mod has a scripts.rson file that exists
+
 		string m_szName; // mod display name
 		string m_szModID; // internal mod identifier
 		fs::path m_BasePath; // path to folder containg all mod files
 		string m_szDescription; // mod description
 		string m_szVersion; // version string
+
 		KeyValues* m_SettingsKV;
 
 		eModState m_iState = eModState::UNLOADED;
