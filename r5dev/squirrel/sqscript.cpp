@@ -345,14 +345,14 @@ void Script_SetCompilingVM(CSquirrelVM* vm, RSON::Node_t* rson)
 {
 	switch (vm->GetContext())
 	{
-#ifndef DEDICATED
+#ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
 	{
 		v_Script_SetCompilingVM_SV(vm->GetContext(), rson);
 		break;
 	}
 #endif
-#ifndef CLIENT_DLL
+#ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
 	case SQCONTEXT::UI:
 	{
