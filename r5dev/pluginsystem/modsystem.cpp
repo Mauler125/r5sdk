@@ -193,11 +193,20 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 			if (pValues)
 			{
 				pszDefaultValue = pValues->GetString("default", "0");
-				bMin = pValues->GetBool("bMin", false);
-				bMax = pValues->GetBool("bMax", false);
 
-				fMin = pValues->GetFloat("fMin", 0.f);
-				fMax = pValues->GetFloat("fMax", 0.f);
+				// minimum cvar value
+				if (pValues->FindKey("min"))
+				{
+					bMin = true; // has min value
+					fMin = pValues->GetFloat("min", 0.f);
+				}
+
+				// maximum cvar value
+				if (pValues->FindKey("max"))
+				{
+					bMax = true; // has max value
+					fMax = pValues->GetFloat("max", 1.f);
+				}
 			}
 
 			int flags = FCVAR_NONE;
