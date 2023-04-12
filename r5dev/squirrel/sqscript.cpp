@@ -375,6 +375,9 @@ void CSquirrelVM_CompileModScripts(CSquirrelVM* vm)
 
 		RSON::Node_t* rson = mod.LoadScriptCompileList(); // allocs parsed rson buffer
 
+		if (!rson)
+			Error(vm->GetVM()->GetNativePrintContext(), EXIT_FAILURE, "%s: Failed to load RSON file %s\n", __FUNCTION__, mod.GetScriptCompileListPath().string().c_str());
+
 		const char* scriptPathArray[1024];
 		int scriptCount = 0;
 
@@ -428,6 +431,8 @@ void CSquirrelVM_CompileModScripts(CSquirrelVM* vm)
 				delete path;
 			}
 		}
+
+		// TODO[rexx]: clean up allocated RSON memory. example @ 1408B18E2
 	}
 }
 
