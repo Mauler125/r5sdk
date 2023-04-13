@@ -13,3 +13,18 @@
 // Concat happened due to bug in engine; Valve forgot a comma separator in the array.
 0x1477876:  'FIELD_INTERVALFIELD_MODELINDEX\x00\x00' --> 'FIELD_INTERVAL\x00FIELD_MODELINDEX\x00';
 0x1318C00: 0x0000000000 --> 0x7792474101; // Add new entry in 'g_FieldTypes', this entry points to the 'FIELD_MODELINDEX' string we separated from 'FIELD_INTERVAL'.
+
+/////////////////////////////
+/////////////////////////////
+//// Exploitable defects ////
+/////////////////////////////
+/////////////////////////////
+// This fixes a stack smash in 'CNetChan::ProcessSubChannelData' caused by the last fragment
+// of a split packet, which could exceed the stack allocated buffer size of 560 bytes.
+0x117F484: "jmp 0x1412950AE" // Jump to code cave (alignment padding at end of executable segment).
+0x12944AE: "cmp rbp, 0x230"  // Check if fragment size of 'last' split packet doesn't exceed stack buffer size.
+0x12944B5: "jg 0x140261CE6"  // Jump to gadget (xor al, al; pop..; ret;).
+// Below the reconstruction of overwritten bytes caused by the long jump to code cave...
+0x12944BB: "lea r8d, ds:[rbp*8]" // fragSize << 3
+0x12944C3: "mov rcx, rbx"
+0x12944C6: "jmp 0x0000000140261A6B" // Jump back to original code; final split packet fragment is sane.
