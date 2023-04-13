@@ -1,15 +1,24 @@
-//---- PATCH0
-0x2553C0: "mov qword ptr ss:[rsp+0x10], rsi" --> "xor rax, rax; ret"; // Unnecessary loop called from 'CModelLoader::UnloadModel'. This calls a 'nullsub' CMaterialGlue vtable method.
+//////////////////////////////////////////////////////////
+// Dedicated server executable patch file; this executable
+// also contains all patches listed in 'r5apex.exe.patch'.
 
-//---- PATCH1
-0x6DA10: "sub     rsp, 28h" --> "xor rax, rax; ret"; // CClientState constructor; Removed due to high mem allocation during init (100MiB+). 'CClientState' is useless on dedicated, and all its feature are thereof disabled.
+/////////////////////////////
+/////////////////////////////
+////    Optimizations    ////
+/////////////////////////////
+/////////////////////////////
+// Unnecessary loop called from 'CModelLoader::UnloadModel'. This calls a 'nullsub' CMaterialGlue vtable method.
+0x2553C0: "mov qword ptr ss:[rsp+0x10], rsi" --> "xor rax, rax; ret";
 
-//---- PATCH2
-0x236354: "mov    edi, 0x2" --> "mov edi, 0x1"; // RPak array contains 2 elements: 1='common_early', 2='ui'. Changing size to 1 only loads 'common_early'. 'ui' is not needed for dedi.
+// CClientState constructor; Removed due to high mem allocation during init (100MiB+). 'CClientState' is useless on dedicated, and all its feature are thereof disabled.
+0x6DA10: "sub     rsp, 28h" --> "xor rax, rax; ret";
 
-//---- PATCH3
-0x340D07: "mov     cs:g_pszMultiplayerUiPakName, rcx" --> "nop" // Prevent 'g_pszMultiplayerUiPakName' from being assigned to string "ui_mp.rpak" (prevents it from loading this pak file).
+// RPak array contains 2 elements: 1='common_early', 2='ui'. Changing size to 1 only loads 'common_early'. 'ui' is not needed for dedi.
+0x236354: "mov    edi, 0x2" --> "mov edi, 0x1";
+
+// Prevent 'g_pszMultiplayerUiPakName' from being assigned to string "ui_mp.rpak" (prevents it from loading this pak file).
+0x340D07: "mov     cs:g_pszMultiplayerUiPakName, rcx" --> "nop"
 0x340FEA: "mov     cs:g_pszMultiplayerUiPakName, rcx" --> "nop"
 
-//---- PATCH4
-0x296587: "jnz     short loc_1402971B7" --> "jmp     short loc_1402971B7" // Prevent 'fps_max' from being reset in 'CEngine::Frame' if 'sv_cheats' isn't set; this is bound to the server's tickrate in sdk code to save CPU time.
+// Prevent 'fps_max' from being reset in 'CEngine::Frame' if 'sv_cheats' isn't set; this is bound to the server's tickrate in sdk code to save CPU time.
+0x296587: "jnz     short loc_1402971B7" --> "jmp     short loc_1402971B7"
