@@ -296,7 +296,7 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	va_end(argsCopy);
 
 #ifndef NETCONSOLE
-	if (bUseColor && bSquirrel)
+	if (bSquirrel)
 	{
 		if (bWarning && g_bSQAuxError)
 		{
@@ -323,9 +323,13 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 			overlayContext = eDLL_T::SYSTEM_ERROR;
 			overlayColor = ImVec4(1.00f, 0.00f, 0.00f, 0.80f);
 #endif // !DEDICATED
-			message.append(g_svRedF);
+
+			if (bUseColor)
+			{
+				message.append(g_svRedF);
+			}
 		}
-		else if (bWarning)
+		else if (bUseColor && bWarning)
 		{
 			message.append(g_svYellowF);
 		}
