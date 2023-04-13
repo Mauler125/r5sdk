@@ -296,7 +296,10 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	va_end(argsCopy);
 
 #ifndef NETCONSOLE
-	if (bSquirrel)
+	//-------------------------------------------------------------------------
+	// Colorize script warnings and errors
+	//-------------------------------------------------------------------------
+	if (bToConsole && bSquirrel)
 	{
 		if (bWarning && g_bSQAuxError)
 		{
