@@ -115,6 +115,7 @@ extern ConVar* sv_rcon_maxsockets;
 extern ConVar* sv_rcon_whitelist_address;
 //#endif // DEDICATED
 #endif // CLIENT_DLL
+extern ConVar* sv_cheats;
 extern ConVar* sv_visualizetraces;
 extern ConVar* sv_visualizetraces_duration;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)

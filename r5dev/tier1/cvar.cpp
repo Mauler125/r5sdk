@@ -109,6 +109,7 @@ ConVar* sv_rcon_maxsockets                 = nullptr;
 ConVar* sv_rcon_whitelist_address          = nullptr;
 //#endif // DEDICATED
 #endif // !CLIENT_DLL
+ConVar* sv_cheats                          = nullptr;
 ConVar* sv_visualizetraces                 = nullptr;
 ConVar* sv_visualizetraces_duration        = nullptr;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
@@ -494,6 +495,7 @@ void ConVar::InitShipped(void)
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
 	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
+	sv_cheats                        = g_pCVar->FindVar("sv_cheats");
 	sv_visualizetraces               = g_pCVar->FindVar("sv_visualizetraces");
 	sv_visualizetraces_duration      = g_pCVar->FindVar("sv_visualizetraces_duration");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
