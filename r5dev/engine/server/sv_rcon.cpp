@@ -46,10 +46,8 @@ void CRConServer::Init(void)
 		}
 	}
 
-	m_Address.SetFromString(hostip->GetString(), true);
-	m_Address.SetPort(htons(uint16_t(hostport->GetInt())));
-
-	m_Socket.CreateListenSocket(m_Address, false);
+	m_Address.SetFromString(Format("[%s]:%i", NET_IPV6_UNSPEC, hostport->GetInt()).c_str(), true);
+	m_Socket.CreateListenSocket(m_Address);
 
 	DevMsg(eDLL_T::SERVER, "Remote server access initialized ('%s')\n", m_Address.ToString());
 	m_bInitialized = true;
@@ -96,7 +94,7 @@ void CRConServer::Think(void)
 	{
 		if (!m_Socket.IsListening())
 		{
-			m_Socket.CreateListenSocket(m_Address, false);
+			m_Socket.CreateListenSocket(m_Address);
 		}
 	}
 }
