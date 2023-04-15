@@ -244,14 +244,14 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 		const string svFull = Format("[%s]:%s", svLocalHost.empty() ? svInAdr.c_str() : svLocalHost.c_str(), svInPort.c_str());
 		if (!m_Address.SetFromString(svFull.c_str(), true))
 		{
-			Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", svFull.c_str());
+			Warning(eDLL_T::NONE, "Failed to set RCON address: %s\n", svFull.c_str());
 		}
 	}
 	else if (!svInAdr.empty()) // construct from [ip]:port
 	{
 		if (!m_Address.SetFromString(svInAdr.c_str(), true))
 		{
-			Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", svInAdr.c_str());
+			Warning(eDLL_T::NONE, "Failed to set RCON address: %s\n", svInAdr.c_str());
 		}
 	}
 	else

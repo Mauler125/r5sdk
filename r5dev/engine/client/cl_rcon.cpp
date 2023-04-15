@@ -88,7 +88,7 @@ bool CRConClient::Connect(const char* szInAdr)
 		char szHostName[512];
 		if (!gethostname(szHostName, sizeof(szHostName)))
 		{
-			svLocalHost = Format("[%s]:%s", szHostName, hostport->GetString());
+			svLocalHost = Format("[%s]:%i", szHostName, hostport->GetInt());
 			szInAdr = svLocalHost.c_str();
 		}
 	}
@@ -101,7 +101,7 @@ bool CRConClient::Connect(const char* szInAdr)
 
 	if (m_Socket.ConnectSocket(m_Address, true) == SOCKET_ERROR)
 	{
-		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (%s)\n", "SOCKET_ERROR");
+		Warning(eDLL_T::CLIENT, "Failed to connect to RCON server: (%s)\n", "SOCKET_ERROR");
 		return false;
 	}
 	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_Address.ToString());
