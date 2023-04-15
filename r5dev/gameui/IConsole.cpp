@@ -777,7 +777,10 @@ bool CConsole::LoadFlagIcons(void)
             static_cast<int>(rFlagIcon.m_nSize), &rFlagIcon.m_idIcon, &rFlagIcon.m_nWidth, &rFlagIcon.m_nHeight);
 
         IM_ASSERT(ret);
-        NOTE_UNUSED(ret);
+        if (!ret)
+        {
+            break;
+        }
     }
     return ret;
 }
