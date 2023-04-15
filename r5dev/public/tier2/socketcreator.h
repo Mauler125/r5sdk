@@ -14,10 +14,8 @@ public:
 	void RunFrame(void);
 	void ProcessAccept(void);
 
-	bool ConfigureListenSocket(int iSocket);
-	bool ConfigureConnectSocket(SocketHandle_t hSocket);
-
-	bool CreateListenSocket(const netadr_t& netAdr, bool bListenOnAllInterfaces = false);
+	bool ConfigureSocket(SocketHandle_t hSocket, bool bDualStack = true);
+	bool CreateListenSocket(const netadr_t& netAdr, bool bDualStack = true);
 	void CloseListenSocket(void);
 
 	int ConnectSocket(const netadr_t& netAdr, bool bSingleSocket);
@@ -54,7 +52,6 @@ public:
 
 	std::vector<AcceptedSocket_t> m_hAcceptedSockets;
 	SocketHandle_t                m_hListenSocket; // Used to accept connections.
-	netadr_t                      m_ListenAddress; // Address used to listen on.
 
 private:
 	enum
