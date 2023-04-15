@@ -390,7 +390,7 @@ void CBrowser::HiddenServersModal(void)
 
         if (!m_idLockedIcon) // !TODO: Fall-back texture.
         {
-            const bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
+            bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
                 &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
             IM_ASSERT(ret);
             NOTE_UNUSED(ret);
