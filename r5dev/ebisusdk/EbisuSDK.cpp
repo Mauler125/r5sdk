@@ -31,7 +31,9 @@ bool IsOriginInitialized()
 	{
 		return true;
 	}
+#ifndef DEDICATED
 	return false;
+#endif // DEDICATED
 }
 
 #ifndef CLIENT_DLL
