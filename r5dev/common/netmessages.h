@@ -22,6 +22,7 @@
 class CNetChan;
 class SVC_Print;
 class SVC_UserMessage;
+class Base_CmdKeyValues;
 
 //-------------------------------------------------------------------------
 // MM_HEARTBEAT
@@ -44,6 +45,13 @@ inline void* g_pSVC_UserMessage_VFTable = nullptr;
 // SVC_ServerTick
 //-------------------------------------------------------------------------
 inline void* g_pSVC_ServerTick_VFTable = nullptr;
+
+//-------------------------------------------------------------------------
+// Base_CmdKeyValues
+//-------------------------------------------------------------------------
+inline auto Base_CmdKeyValues_ReadFromBuffer = CMemory().RCast<bool(*)(Base_CmdKeyValues* thisptr, bf_read* buffer)>();
+inline auto Base_CmdKeyValues_WriteToBuffer = CMemory().RCast<bool(*)(Base_CmdKeyValues* thisptr, bf_write* buffer)>();
+inline void* g_pBase_CmdKeyValues_VFTable = nullptr;
 
 //-------------------------------------------------------------------------
 // Enumeration of the INetMessage class
@@ -189,11 +197,49 @@ public:
 	nettick_t m_NetTick;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////
+// Client messages:
+///////////////////////////////////////////////////////////////////////////////////////
+
 struct NET_StringCmd : CNetMessage
 {
 	const char* cmd;
 	char buffer[1024];
 };
+
+///////////////////////////////////////////////////////////////////////////////////////
+// This message is subclassed by 'SVC_CmdKeyValues' and 'CLC_CmdKeyValues'
+class Base_CmdKeyValues : public CNetMessage
+{
+public:
+	virtual	~Base_CmdKeyValues() {};
+
+	virtual void	SetNetChannel(CNetChan* netchan) = 0;
+	virtual void	SetReliable(bool state) = 0;
+
+	virtual bool	Process(void) = 0;
+
+	virtual	bool	ReadFromBuffer(bf_read* buffer) = 0;
+	static	bool	ReadFromBufferImpl(Base_CmdKeyValues* thisptr, bf_read* buffer);
+
+	virtual	bool	WriteToBuffer(bf_write* buffer) = 0;
+	static	bool	WriteToBufferImpl(Base_CmdKeyValues* thisptr, bf_write* buffer);
+
+	virtual bool	IsReliable(void) const = 0;
+
+	virtual int          GetGroup(void) const = 0;
+	virtual int          GetType(void) const = 0;
+	virtual const char* GetName(void) const = 0;
+	virtual CNetChan* GetNetChannel(void) const = 0;
+	virtual const char* ToString(void) const = 0;
+	virtual size_t       GetSize(void) const = 0;
+
+	int			m_nMsgType;
+	int			m_nLength;	// data length in bits
+	bf_read		m_DataIn;
+	bf_write	m_DataOut;
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 class V_NetMessages : public IDetour
@@ -203,6 +249,7 @@ class V_NetMessages : public IDetour
 		LogConAdr("SVC_Print::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_Print_VFTable));
 		LogConAdr("SVC_UserMessage::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
 		LogConAdr("SVC_ServerTick::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_ServerTick_VFTable));
+		LogConAdr("Base_CmdKeyValues::`vftable'", reinterpret_cast<uintptr_t>(g_pBase_CmdKeyValues_VFTable));
 		LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
 	}
 	virtual void GetFun(void) const
@@ -217,6 +264,7 @@ class V_NetMessages : public IDetour
 		g_pSVC_Print_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_Print@@");
 		g_pSVC_UserMessage_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
 		g_pSVC_ServerTick_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_ServerTick@@");
+		g_pBase_CmdKeyValues_VFTable = g_GameDll.GetVirtualMethodTable(".?AVBase_CmdKeyValues@@");
 	}
 	virtual void Attach(void) const;
 	virtual void Detach(void) const;
