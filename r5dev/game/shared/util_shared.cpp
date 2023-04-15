@@ -28,7 +28,7 @@ CTraceFilterSimple::CTraceFilterSimple(const IHandleEntity* pPassEntity, int col
 	void** pVTable = reinterpret_cast<void**>(&*this); // Assign vftable pointer to the implementation supplied by the engine.
 	*pVTable = reinterpret_cast<void*>(g_pTraceFilterSimpleVFTable);
 
-	m_collisionGroup = 0;
+	m_collisionGroup = collisionGroup;
 	m_pPassEntity = pPassEntity;
 	m_traceType = 0;
 	m_pExtraShouldHitCheckFunction = pExtraShouldHitCheckFn;
