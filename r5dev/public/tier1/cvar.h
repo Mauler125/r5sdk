@@ -33,7 +33,7 @@ extern ConVar* staticProp_gather_size_weight;
 extern ConVar* model_defaultFadeDistScale;
 extern ConVar* model_defaultFadeDistMin;
 
-extern ConVar* ip;
+extern ConVar* ip_cvar;
 extern ConVar* hostname;
 extern ConVar* hostdesc;
 extern ConVar* hostip;

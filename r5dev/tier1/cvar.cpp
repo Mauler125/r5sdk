@@ -28,7 +28,7 @@ ConVar* staticProp_gather_size_weight      = nullptr;
 ConVar* model_defaultFadeDistScale         = nullptr;
 ConVar* model_defaultFadeDistMin           = nullptr;
 
-ConVar* ip                                 = nullptr;
+ConVar* ip_cvar                            = nullptr;
 ConVar* hostname                           = nullptr;
 ConVar* hostdesc                           = nullptr;
 ConVar* hostip                             = nullptr;
@@ -505,7 +505,7 @@ void ConVar::InitShipped(void)
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
 #endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
-	ip                               = g_pCVar->FindVar("ip");
+	ip_cvar                          = g_pCVar->FindVar("ip");
 	hostname                         = g_pCVar->FindVar("hostname");
 	hostip                           = g_pCVar->FindVar("hostip");
 	hostport                         = g_pCVar->FindVar("hostport");
