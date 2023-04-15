@@ -37,7 +37,7 @@ bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 	{
 		// Log received packet data.
 		HexDump("[+] NET_ReceiveDatagram ", "net_trace", 
-			&pInpacket->pData[NULL], size_t(pInpacket->wiresize));
+			pInpacket->pData, size_t(pInpacket->wiresize));
 	}
 	return result;
 }
