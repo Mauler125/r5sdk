@@ -1,4 +1,8 @@
-#pragma once
+#ifndef TIER1_NETADR_H
+#define TIER1_NETADR_H
+
+#define NET_IPV4_UNSPEC "0.0.0.0"
+#define NET_IPV6_UNSPEC "::"
 
 enum class netadrtype_t
 {
@@ -34,9 +38,11 @@ public:
 private:
 	netadrtype_t type;
 	IN6_ADDR adr;
-	unsigned short port;
+	uint16_t port;
 	bool field_16;
 	bool reliable;
 };
 
 typedef class CNetAdr netadr_t;
+
+#endif // TIER1_NETADR_H
