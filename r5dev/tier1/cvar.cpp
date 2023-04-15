@@ -1,5 +1,6 @@
 #include "core/stdafx.h"
 #include "tier1/utlrbtree.h"
+#include "tier1/NetAdr.h"
 #include "tier1/cvar.h"
 #include "public/const.h"
 #include "engine/sys_dll2.h"
@@ -27,6 +28,7 @@ ConVar* staticProp_gather_size_weight      = nullptr;
 ConVar* model_defaultFadeDistScale         = nullptr;
 ConVar* model_defaultFadeDistMin           = nullptr;
 
+ConVar* ip                                 = nullptr;
 ConVar* hostname                           = nullptr;
 ConVar* hostdesc                           = nullptr;
 ConVar* hostip                             = nullptr;
@@ -503,6 +505,7 @@ void ConVar::InitShipped(void)
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
 #endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
+	ip                               = g_pCVar->FindVar("ip");
 	hostname                         = g_pCVar->FindVar("hostname");
 	hostip                           = g_pCVar->FindVar("hostip");
 	hostport                         = g_pCVar->FindVar("hostport");
@@ -594,7 +597,7 @@ void ConVar::PurgeHostNames(void)
 	{
 		if (ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]))
 		{
-			pCVar->SetValue("0.0.0.0");
+			pCVar->SetValue(NET_IPV4_UNSPEC);
 		}
 	}
 }
