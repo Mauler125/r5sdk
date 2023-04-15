@@ -241,8 +241,8 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	eDLL_T overlayContext = context;
 #endif // !DEDICATED && !NETCONSOLE
 
-	bool bSquirrel = false;
 #if !defined (NETCONSOLE)
+	bool bSquirrel = false;
 	bool bWarning  = false;
 	bool bError    = false;
 #endif // !NETCONSOLE
