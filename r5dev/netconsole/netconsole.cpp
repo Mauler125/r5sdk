@@ -200,9 +200,7 @@ void CNetCon::RunFrame(void)
 {
 	if (m_bConnEstablished)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		std::lock_guard<std::mutex> l(m_Mutex);
-
 		this->Recv();
 	}
 	else if (m_bPromptConnect)
@@ -210,6 +208,7 @@ void CNetCon::RunFrame(void)
 		DevMsg(eDLL_T::NONE, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
 		m_bPromptConnect = false;
 	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 //-----------------------------------------------------------------------------
