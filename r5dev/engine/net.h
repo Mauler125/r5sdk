@@ -28,6 +28,9 @@ inline auto v_NET_Shutdown = p_NET_Shutdown.RCast<void (*)(void* thisptr, const 
 inline CMemory p_NET_SetKey;
 inline auto v_NET_SetKey = p_NET_SetKey.RCast<void (*)(netkey_t* pKey, const char* szHash)>();
 
+inline CMemory p_NET_Config;
+inline auto v_NET_Config = p_NET_Config.RCast<void (*)(void)>();
+
 inline CMemory p_NET_ReceiveDatagram;
 inline auto v_NET_ReceiveDatagram = p_NET_ReceiveDatagram.RCast<bool (*)(int iSocket, netpacket_s* pInpacket, bool bRaw)>();
 
