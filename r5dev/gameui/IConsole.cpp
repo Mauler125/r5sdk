@@ -201,12 +201,18 @@ void CConsole::Think(void)
     {
         if (m_flFadeAlpha < 1.f)
         {
-            m_flFadeAlpha += .1f;
+            m_flFadeAlpha += .05f;
+            m_flFadeAlpha = (std::min)(m_flFadeAlpha, 1.f);
         }
     }
     else // Reset to full transparent.
     {
-        m_flFadeAlpha = 0.f;
+        if (m_flFadeAlpha > 0.f)
+        {
+            m_flFadeAlpha -= .05f;
+            m_flFadeAlpha = (std::max)(m_flFadeAlpha, 0.f);
+        }
+
         m_bReclaimFocus = true;
     }
 }
