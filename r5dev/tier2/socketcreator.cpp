@@ -273,6 +273,7 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 {
 	if (nIndex >= int(m_hAcceptedSockets.size()))
 	{
+		Assert(0);
 		return;
 	}
 
@@ -351,6 +352,7 @@ int CSocketCreator::GetAcceptedSocketCount(void) const
 //-----------------------------------------------------------------------------
 SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 {
+	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
 	return m_hAcceptedSockets[nIndex].m_hSocket;
 }
 
@@ -361,6 +363,7 @@ SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 //-----------------------------------------------------------------------------
 const netadr_t& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 {
+	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
 	return m_hAcceptedSockets[nIndex].m_Address;
 }
 
@@ -371,5 +374,6 @@ const netadr_t& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 //-----------------------------------------------------------------------------
 CConnectedNetConsoleData* CSocketCreator::GetAcceptedSocketData(int nIndex) const
 {
+	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
 	return m_hAcceptedSockets[nIndex].m_pData;
 }
