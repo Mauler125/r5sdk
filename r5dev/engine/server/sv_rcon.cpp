@@ -160,7 +160,8 @@ void CRConServer::Send(const std::string& svMessage) const
 
 		if (pData->m_bAuthorized)
 		{
-			::send(pData->m_hSocket, ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
+			::send(pData->m_hSocket, ssSendBuf.str().data(),
+				static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
 		}
 	}
 }
@@ -488,7 +489,7 @@ void CRConServer::ProcessMessage(const cl_rcon::request& cl_request)
 		{
 			if (pData->m_bAuthorized)
 			{
-				sv_rcon_sendlogs->SetValue(true);
+				sv_rcon_sendlogs->SetValue(cl_request.requestval().c_str());
 			}
 			break;
 		}

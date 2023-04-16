@@ -416,19 +416,20 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 			const long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
 			if (!i) // sv_rcon_sendlogs is not set.
 			{
-				string svLogQuery = this->Serialize("", "", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+				string svLogQuery = this->Serialize("", "1",
+					cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
 				this->Send(svLogQuery);
 			}
 		}
 
-		DevMsg(eDLL_T::NETCON, "%s", PrintPercentageEscape(sv_response.responsemsg()).c_str());
+		DevMsg(eDLL_T::NETCON, "%s", sv_response.responsemsg().c_str());
 		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
 		NetMsg(static_cast<LogType_t>(sv_response.messagetype()),
-			static_cast<eDLL_T>(sv_response.messageid()), sv_response.responseval().c_str(),
-			PrintPercentageEscape(sv_response.responsemsg()).c_str());
+			static_cast<eDLL_T>(sv_response.messageid()),
+			sv_response.responseval().c_str(), "%s", sv_response.responsemsg().c_str());
 		break;
 	}
 	default:

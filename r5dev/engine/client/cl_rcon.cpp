@@ -252,25 +252,33 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 	{
 		if (!sv_response.responseval().empty())
 		{
+			bool bLocalHost = (g_pNetAdr->ComparePort(m_Address) && g_pNetAdr->CompareAdr(m_Address));
 			const long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
+
 			if (!i) // sv_rcon_sendlogs is not set.
 			{
-				if (cl_rcon_request_sendlogs->GetBool())
+				if (!bLocalHost && cl_rcon_request_sendlogs->GetBool())
 				{
-					string svLogQuery = this->Serialize("", "", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+					string svLogQuery = this->Serialize("", "1", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
 					this->Send(svLogQuery);
 				}
 			}
+			else if (bLocalHost)
+			{
+				// Don't send logs to local host, it already gets logged to the same console.
+				string svLogQuery = this->Serialize("", "0", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+				this->Send(svLogQuery);
+			}
 		}
 
-		DevMsg(eDLL_T::NETCON, "%s", PrintPercentageEscape(sv_response.responsemsg()).c_str());
+		DevMsg(eDLL_T::NETCON, "%s", sv_response.responsemsg().c_str());
 		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
 		NetMsg(static_cast<LogType_t>(sv_response.messagetype()), 
-			static_cast<eDLL_T>(sv_response.messageid()), sv_response.responseval().c_str(),
-			PrintPercentageEscape(sv_response.responsemsg()).c_str());
+			static_cast<eDLL_T>(sv_response.messageid()),
+			sv_response.responseval().c_str(), "%s", sv_response.responsemsg().c_str());
 		break;
 	}
 	default:
@@ -293,24 +301,9 @@ string CRConClient::Serialize(const string& svReqBuf, const string& svReqVal, co
 
 	cl_request.set_messageid(-1);
 	cl_request.set_requesttype(request_t);
+	cl_request.set_requestmsg(svReqBuf);
+	cl_request.set_requestval(svReqVal);
 
-	switch (request_t)
-	{
-	case cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE:
-	case cl_rcon::request_t::SERVERDATA_REQUEST_AUTH:
-	{
-		cl_request.set_requestmsg(svReqBuf);
-		cl_request.set_requestval(svReqVal);
-		break;
-	}
-	case cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND:
-	{
-		cl_request.set_requestmsg(svReqBuf);
-		break;
-	}
-	default:
-		break;
-	}
 	return cl_request.SerializeAsString();
 }
 
