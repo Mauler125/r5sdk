@@ -219,6 +219,7 @@ bool LoggedFromClient(eDLL_T context)
 		 || context == eDLL_T::UI     || context == eDLL_T::SCRIPT_UI
 		 || context == eDLL_T::NETCON);
 #else
+	NOTE_UNUSED(context);
 	return false;
 	#endif // !DEDICATED
 }
