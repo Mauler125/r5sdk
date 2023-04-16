@@ -127,18 +127,6 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 					bResetIdleName = true;
 				}
 
-#if !defined (DEDICATED) && !defined (CLIENT_DLL)
-				// Parallel processing of 'C_BaseAnimating::SetupBones()' is not supported
-				// on listen servers running the local client.
-				if (g_pServer->IsActive())
-				{
-					if (cl_threaded_bone_setup->GetBool())
-					{
-						cl_threaded_bone_setup->SetValue(false);
-					}
-				}
-#endif // !DEDICATED && !CLIENT_DLL
-
 				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
 			}
@@ -229,6 +217,17 @@ void CHostState::Setup(void)
 	{
 		NET_GenerateKey();
 	}
+#if !defined (DEDICATED) && !defined (CLIENT_DLL)
+	// Parallel processing of 'C_BaseAnimating::SetupBones()' is currently
+	// not supported on listen servers running the local client due to an
+	// engine bug specific to S3 that still needs to be addressed. Remove
+	// this once the issue has been solved:
+	if (cl_threaded_bone_setup->GetBool())
+	{
+		cl_threaded_bone_setup->SetValue(false);
+	}
+#endif // !DEDICATED && !CLIENT_DLL
+
 	ResetLevelName();
 }
 
