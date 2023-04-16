@@ -76,6 +76,15 @@ unsigned int NET_Decompress(CLZSS* lzss, unsigned char* pInput, unsigned char* p
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: configures the network system
+//-----------------------------------------------------------------------------
+void NET_Config()
+{
+	v_NET_Config();
+	g_pNetAdr->SetPort(htons(u_short(hostport->GetInt())));
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets the user specified encryption key
 // Input  : svNetKey - 
 //-----------------------------------------------------------------------------
@@ -300,6 +309,7 @@ const char* NET_ErrorString(int iCode)
 ///////////////////////////////////////////////////////////////////////////////
 void VNet::Attach() const
 {
+	DetourAttach((LPVOID*)&v_NET_Config, &NET_Config);
 	DetourAttach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
 	DetourAttach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 	DetourAttach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
@@ -311,6 +321,7 @@ void VNet::Attach() const
 
 void VNet::Detach() const
 {
+	DetourDetach((LPVOID*)&v_NET_Config, &NET_Config);
 	DetourDetach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
 	DetourDetach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 	DetourDetach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
