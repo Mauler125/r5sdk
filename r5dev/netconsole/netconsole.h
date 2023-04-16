@@ -42,6 +42,7 @@ private:
 	bool m_bQuitApplication;
 	bool m_bPromptConnect;
 	bool m_bConnEstablished;
+	float m_flTickInterval;
 
 	CNetAdr m_Address;
 	CSocketCreator m_Socket;

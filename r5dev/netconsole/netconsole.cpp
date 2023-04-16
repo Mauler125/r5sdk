@@ -24,6 +24,7 @@ CNetCon::CNetCon(void)
 	, m_bQuitApplication(false)
 	, m_bPromptConnect(true)
 	, m_bConnEstablished(false)
+	, m_flTickInterval(0.05f)
 {
 }
 
@@ -208,7 +209,8 @@ void CNetCon::RunFrame(void)
 		DevMsg(eDLL_T::NONE, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
 		m_bPromptConnect = false;
 	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+	std::this_thread::sleep_for(IntervalToDuration(m_flTickInterval));
 }
 
 //-----------------------------------------------------------------------------
