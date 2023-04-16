@@ -922,8 +922,8 @@ void RCON_Disconnect_f(const CCommand& args)
 =====================
 RCON_PasswordChanged_f
 
-  Change password on RCON server
-  and RCON client
+  Change RCON password
+  on server and client
 =====================
 */
 void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
@@ -945,6 +945,30 @@ void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOl
 #endif // !CLIENT_DLL
 	}
 }
+
+#ifndef CLIENT_DLL
+/*
+=====================
+RCON_WhiteListAddresChanged_f
+
+  Change whitelist address
+  on RCON server
+=====================
+*/
+void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same address.
+
+		if (!RCONServer()->SetWhiteListAddress(pConVarRef->GetString()))
+		{
+			Warning(eDLL_T::COMMON, "Failed to set RCON whitelist address: %s\n", pConVarRef->GetString());
+		}
+	}
+}
+#endif // !CLIENT_DLL
 
 /*
 =====================

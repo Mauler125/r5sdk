@@ -58,10 +58,12 @@ void CRConServer::Init(void)
 //-----------------------------------------------------------------------------
 void CRConServer::Shutdown(void)
 {
+	m_Socket.CloseAllAcceptedSockets();
 	if (m_Socket.IsListening())
 	{
 		m_Socket.CloseListenSocket();
 	}
+
 	m_bInitialized = false;
 }
 
@@ -78,7 +80,7 @@ void CRConServer::Think(void)
 		for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
 		{
 			const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
-			if (strcmp(netAdr.ToString(true), sv_rcon_whitelist_address->GetString()) != 0)
+			if (!m_WhiteListAddress.CompareAdr(netAdr))
 			{
 				const CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
 				if (!pData->m_bAuthorized)
@@ -110,11 +112,12 @@ bool CRConServer::SetPassword(const char* pszPassword)
 	m_Socket.CloseAllAcceptedSockets();
 
 	const size_t nLen = std::strlen(pszPassword);
-	if (nLen < 8)
+	if (nLen < RCON_MIN_PASSWORD_LEN)
 	{
-		if (nLen > 0)
+		if (nLen > NULL)
 		{
-			Warning(eDLL_T::SERVER, "Remote server access requires a password of at least 8 characters\n");
+			Warning(eDLL_T::SERVER, "Remote server access requires a password of at least %i characters\n",
+				RCON_MIN_PASSWORD_LEN);
 		}
 
 		this->Shutdown();
@@ -126,6 +129,16 @@ bool CRConServer::SetPassword(const char* pszPassword)
 
 	m_bInitialized = true;
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: sets the white list address
+// Input  : *pszAddress - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CRConServer::SetWhiteListAddress(const char* pszAddress)
+{
+	return m_WhiteListAddress.SetFromString(pszAddress);
 }
 
 //-----------------------------------------------------------------------------
@@ -338,7 +351,8 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 			m_Socket.CloseListenSocket();
 
 			this->CloseNonAuthConnection();
-			this->Send(pData->m_hSocket, this->Serialize(s_pszAuthMessage, sv_rcon_sendlogs->GetString(), sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON)));
+			this->Send(pData->m_hSocket, this->Serialize(s_pszAuthMessage, sv_rcon_sendlogs->GetString(),
+				sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON)));
 		}
 		else // Bad password.
 		{
@@ -348,7 +362,8 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 				DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
 			}
 
-			this->Send(pData->m_hSocket, this->Serialize(s_pszWrongPwMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON)));
+			this->Send(pData->m_hSocket, this->Serialize(s_pszWrongPwMessage, "",
+				sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON)));
 
 			pData->m_bAuthorized = false;
 			pData->m_bValidated = false;
@@ -407,7 +422,7 @@ void CRConServer::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 				pData->m_nPayloadRead = 0;
 			}
 		}
-		else if (pData->m_nPayloadRead < sizeof(u_long)) // Read size field.
+		else if (pData->m_nPayloadRead+1 <= sizeof(int)) // Read size field.
 		{
 			pData->m_RecvBuffer[pData->m_nPayloadRead++] = *pRecvBuf;
 
@@ -416,7 +431,7 @@ void CRConServer::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 		}
 		else // Build prefix.
 		{
-			pData->m_nPayloadLen = ntohl(*reinterpret_cast<u_long*>(&pData->m_RecvBuffer[0]));
+			pData->m_nPayloadLen = int(ntohl(*reinterpret_cast<u_long*>(&pData->m_RecvBuffer[0])));
 			pData->m_nPayloadRead = 0;
 
 			if (!pData->m_bAuthorized)
@@ -532,12 +547,36 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 		return false;
 	}
 
+	const netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+	const char* szNetAdr = netAdr.ToString(true);
+
+	if (m_BannedList.size() >= RCON_MAX_BANNEDLIST_SIZE)
+	{
+		const char* pszWhiteListAddress = sv_rcon_whitelist_address->GetString();
+		if (!pszWhiteListAddress[0])
+		{
+			DevMsg(eDLL_T::SERVER, "Banned list overflowed; please use a whitelist address. RCON shutting down...\n");
+			this->Shutdown();
+
+			return true;
+		}
+
+		// Only allow whitelisted at this point.
+		if (!m_WhiteListAddress.CompareAdr(netAdr))
+		{
+			if (sv_rcon_debug->GetBool())
+			{
+				DevMsg(eDLL_T::SERVER, "Banned list is full; dropping '%s'\n", szNetAdr);
+			}
+
+			return true;
+		}
+	}
+
 	pData->m_bValidated = true;
-	netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
 
 	// Check if IP is in the banned list.
-	if (std::find(m_BannedList.begin(), m_BannedList.end(),
-		netAdr.ToString(true)) != m_BannedList.end())
+	if (m_BannedList.find(szNetAdr) != m_BannedList.end())
 	{
 		return true;
 	}
@@ -547,15 +586,15 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 		|| pData->m_nIgnoredMessage >= sv_rcon_maxignores->GetInt())
 	{
 		// Don't add white listed address to banned list.
-		if (strcmp(netAdr.ToString(true), sv_rcon_whitelist_address->GetString()) == 0)
+		if (szNetAdr == sv_rcon_whitelist_address->GetString())
 		{
 			pData->m_nFailedAttempts = 0;
 			pData->m_nIgnoredMessage = 0;
 			return false;
 		}
 
-		DevMsg(eDLL_T::SERVER, "Banned '%s' for RCON hacking attempts\n", netAdr.ToString());
-		m_BannedList.push_back(netAdr.ToString(true));
+		DevMsg(eDLL_T::SERVER, "Banned '%s' for RCON hacking attempts\n", szNetAdr);
+		m_BannedList.insert(szNetAdr);
 		return true;
 	}
 	return false;

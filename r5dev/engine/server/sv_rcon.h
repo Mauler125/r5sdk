@@ -9,6 +9,9 @@ constexpr char s_pszWrongPwMessage[] = "Admin password incorrect.\n";
 constexpr char s_pszBannedMessage[]  = "Go away.\n";
 constexpr char s_pszAuthMessage[]    = "Authentication successful.\n";
 
+#define RCON_MIN_PASSWORD_LEN 8
+#define RCON_MAX_BANNEDLIST_SIZE 512
+
 class CRConServer
 {
 public:
@@ -17,7 +20,9 @@ public:
 
 	void Init(void);
 	void Shutdown(void);
+
 	bool SetPassword(const char* pszPassword);
+	bool SetWhiteListAddress(const char* pszAddress);
 
 	void Think(void);
 	void RunFrame(void);
@@ -53,9 +58,10 @@ private:
 
 	bool                     m_bInitialized;
 	int                      m_nConnIndex;
-	std::vector<std::string> m_BannedList;
+	std::unordered_set<std::string> m_BannedList;
 	std::string              m_svPasswordHash;
 	netadr_t                 m_Address;
+	netadr_t                 m_WhiteListAddress;
 	CSocketCreator           m_Socket;
 };
 

@@ -31,8 +31,8 @@ class CConnectedNetConsoleData
 {
 public:
 	SocketHandle_t m_hSocket;
-	u_long m_nPayloadLen;   // Num bytes for this message.
-	u_long m_nPayloadRead;  // Num read bytes from input buffer.
+	int  m_nPayloadLen;     // Num bytes for this message.
+	int  m_nPayloadRead;    // Num read bytes from input buffer.
 	int  m_nFailedAttempts; // Num failed authentication attempts.
 	int  m_nIgnoredMessage; // Count how many times client ignored the no-auth message.
 	bool m_bValidated;      // Revalidates netconsole if false.
