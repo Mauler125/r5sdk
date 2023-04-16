@@ -212,6 +212,17 @@ const char* GetContextNameByIndex(eDLL_T context, const bool ansiColor = false)
 	return contextName;
 }
 
+bool LoggedFromClient(eDLL_T context)
+{
+#ifndef DEDICATED
+	return (context == eDLL_T::CLIENT || context == eDLL_T::SCRIPT_CLIENT
+		 || context == eDLL_T::UI     || context == eDLL_T::SCRIPT_UI
+		 || context == eDLL_T::NETCON);
+#else
+	return false;
+	#endif // !DEDICATED
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Show logs to all console interfaces (va_list version)
 // Input  : logType - 
@@ -364,8 +375,11 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	if (bToConsole)
 	{
 #ifndef CLIENT_DLL
-		RCONServer()->Send(formatted, pszUpTime, sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG,
-			static_cast<int>(context), static_cast<int>(logType));
+		if (!LoggedFromClient(context))
+		{
+			RCONServer()->Send(formatted, pszUpTime, sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG,
+				static_cast<int>(context), static_cast<int>(logType));
+		}
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 		g_ImGuiLogger->debug(message);
