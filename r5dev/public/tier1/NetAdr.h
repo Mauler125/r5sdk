@@ -28,6 +28,9 @@ public:
 	netadrtype_t	GetType(void) const;
 	uint16_t		GetPort(void) const;
 
+	bool	CompareAdr(const CNetAdr& other) const;
+	bool	ComparePort(const CNetAdr& other) const;
+
 	const char*		ToString(bool onlyBase = false) const;
 	void	ToString(char* pchBuffer, size_t unBufferSize, bool onlyBase = false) const;
 	void	ToAdrinfo(addrinfo* pHint) const;
