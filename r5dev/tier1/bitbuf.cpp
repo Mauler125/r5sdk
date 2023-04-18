@@ -652,6 +652,14 @@ bool bf_write::WriteBits(const void* pInData, int nBits)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: writes a list of bytes to the buffer
+//-----------------------------------------------------------------------------
+bool bf_write::WriteBytes(const void* pBuf, int nBytes)
+{
+	return WriteBits(pBuf, nBytes << 3);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: writes a bit into the buffer
 //-----------------------------------------------------------------------------
 bool bf_write::IsOverflowed() const
