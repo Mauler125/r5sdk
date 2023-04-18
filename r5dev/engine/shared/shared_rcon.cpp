@@ -48,7 +48,9 @@ bool CL_NetConSerialize(const CNetConBase* pBase, vector<char>& vecBuf, const ch
 bool CL_NetConConnect(CNetConBase* pBase, const char* pHostAdr, const int nHostPort)
 {
 	string svLocalHost;
-	if (nHostPort != -1 && strcmp(pHostAdr, "localhost") == 0)
+	const bool bValidSocket = nHostPort != SOCKET_ERROR;
+
+	if (bValidSocket && strcmp(pHostAdr, "localhost") == 0)
 	{
 		char szHostName[512];
 		if (!gethostname(szHostName, sizeof(szHostName)))
@@ -65,7 +67,11 @@ bool CL_NetConConnect(CNetConBase* pBase, const char* pHostAdr, const int nHostP
 		return false;
 	}
 
-	pNetAdr->SetPort(htons(u_short(nHostPort)));
+	// Pass 'SOCKET_ERROR' if you want to set port from address string instead.
+	if (bValidSocket)
+	{
+		pNetAdr->SetPort(htons(u_short(nHostPort)));
+	}
 
 	CSocketCreator* pCreator = pBase->GetSocketCreator();
 	if (pCreator->ConnectSocket(*pNetAdr, true) == SOCKET_ERROR)

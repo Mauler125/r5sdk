@@ -14,7 +14,7 @@ public:
 	virtual bool Encode(google::protobuf::MessageLite* pMsg, char* pMsgBuf, size_t nMsgLen) const;
 	virtual bool Decode(google::protobuf::MessageLite* pMsg, const char* pMsgBuf, size_t nMsgLen) const;
 
-	virtual bool Connect(const char* pHostAdr, const int nHostPort = -1);
+	virtual bool Connect(const char* pHostAdr, const int nHostPort = SOCKET_ERROR);
 	virtual void Disconnect(const char* szReason = nullptr) { NOTE_UNUSED(szReason); };
 
 	virtual bool Send(const SocketHandle_t hSocket, const char* pMsgBuf, int nMsgLen) const;
