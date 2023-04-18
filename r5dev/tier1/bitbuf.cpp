@@ -513,7 +513,7 @@ void bf_write::WriteSBitLong(int data, int numbits)
 	// Do we have a valid # of bits to encode with?
 	Assert(numbits >= 1);
 
-	// Note: it does this wierdness here so it's bit-compatible with regular integer data in the buffer.
+	// Note: it does this weirdness here so it's bit-compatible with regular integer data in the buffer.
 	// (Some old code writes direct integers right into the buffer).
 	if (data < 0)
 	{
