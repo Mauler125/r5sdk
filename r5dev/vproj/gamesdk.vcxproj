@@ -16,7 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\bonesetup\bone_utils.cpp" />
-    <ClCompile Include="..\bsplib\bsplib.cpp" />
     <ClCompile Include="..\client\cdll_engine_int.cpp" />
     <ClCompile Include="..\client\vengineclient_impl.cpp" />
     <ClCompile Include="..\codecs\bink\bink_impl.cpp" />
@@ -59,6 +58,7 @@
     <ClCompile Include="..\engine\server\server.cpp" />
     <ClCompile Include="..\engine\server\sv_main.cpp" />
     <ClCompile Include="..\engine\server\sv_rcon.cpp" />
+    <ClCompile Include="..\engine\staticpropmgr.cpp" />
     <ClCompile Include="..\engine\sys_dll.cpp" />
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
@@ -201,7 +201,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\appframework\engine_launcher_api.h" />
-    <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
     <ClInclude Include="..\client\vengineclient_impl.h" />
     <ClInclude Include="..\codecs\bink\bink_impl.h" />
@@ -257,6 +256,7 @@
     <ClInclude Include="..\engine\server\server.h" />
     <ClInclude Include="..\engine\server\sv_main.h" />
     <ClInclude Include="..\engine\server\sv_rcon.h" />
+    <ClInclude Include="..\engine\staticpropmgr.h" />
     <ClInclude Include="..\engine\sys_dll.h" />
     <ClInclude Include="..\engine\sys_dll2.h" />
     <ClInclude Include="..\engine\sys_engine.h" />

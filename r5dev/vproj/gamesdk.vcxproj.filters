@@ -82,9 +82,6 @@
     <Filter Include="sdk\vpklib">
       <UniqueIdentifier>{d914384a-56bc-4829-977b-5900f01b5612}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\bsplib">
-      <UniqueIdentifier>{336e3141-0276-4cd5-a836-585eef681b7b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\materialsystem">
       <UniqueIdentifier>{55bb4f60-5f5a-4780-a7a2-b3db51c53680}</UniqueIdentifier>
     </Filter>
@@ -338,9 +335,6 @@
     </ClCompile>
     <ClCompile Include="..\vpklib\packedstore.cpp">
       <Filter>sdk\vpklib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\bsplib\bsplib.cpp">
-      <Filter>sdk\bsplib</Filter>
     </ClCompile>
     <ClCompile Include="..\mathlib\adler32.cpp">
       <Filter>sdk\mathlib</Filter>
@@ -744,6 +738,9 @@
     <ClCompile Include="..\tier1\lzss.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\staticpropmgr.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -889,9 +886,6 @@
     </ClInclude>
     <ClInclude Include="..\mathlib\adler32.h">
       <Filter>sdk\mathlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\bsplib\bsplib.h">
-      <Filter>sdk\bsplib</Filter>
     </ClInclude>
     <ClInclude Include="..\common\pseudodefs.h">
       <Filter>sdk\common</Filter>
@@ -1897,6 +1891,9 @@
     </ClInclude>
     <ClInclude Include="..\public\tier0\memdbgoff.h">
       <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\staticpropmgr.h">
+      <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

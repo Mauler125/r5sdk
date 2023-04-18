@@ -38,7 +38,7 @@
 #include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
 #include "vphysics/QHull.h"
-#include "bsplib/bsplib.h"
+#include "engine/staticpropmgr.h"
 #include "materialsystem/cmaterialsystem.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
@@ -426,8 +426,8 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// VPhysics
 	REGISTER(VQHull);
 
-	// BspLib
-	REGISTER(VBspLib);
+	// StaticPropMgr
+	REGISTER(VStaticPropMgr);
 
 	// MaterialSystem
 	REGISTER(VMaterialSystem);

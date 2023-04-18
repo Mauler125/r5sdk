@@ -9,7 +9,6 @@
 #include "vpc/keyvalues.h"
 #include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"
-#include "bsplib/bsplib.h"
 #include "materialsystem/cmaterialglue.h"
 #include "materialsystem/cmaterialsystem.h"
 
