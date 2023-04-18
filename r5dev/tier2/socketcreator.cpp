@@ -17,7 +17,7 @@
 //-----------------------------------------------------------------------------
 CSocketCreator::CSocketCreator(void)
 {
-	m_hListenSocket = -1;
+	m_hListenSocket = SOCKET_ERROR;
 }
 
 //-----------------------------------------------------------------------------
@@ -66,56 +66,6 @@ void CSocketCreator::ProcessAccept(void)
 	netAdr.SetFromSockadr(&inClient);
 
 	OnSocketAccepted(newSocket, netAdr);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Configures a socket for use
-// Input  : iSocket - 
-//			bDualStack - 
-// Output : true on success, false otherwise
-//-----------------------------------------------------------------------------
-bool CSocketCreator::ConfigureSocket(SocketHandle_t hSocket, bool bDualStack /*= true*/)
-{
-	// Disable NAGLE as RCON cmds are small in size.
-	int opt = 1;
-	int ret = ::setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&opt), sizeof(opt));
-	if (ret == SOCKET_ERROR)
-	{
-		Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "TCP_NODELAY", NET_ErrorString(WSAGetLastError()));
-		return false;
-	}
-
-	// Mark socket as reusable.
-	opt = 1;
-	ret = ::setsockopt(hSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&opt), sizeof(opt));
-	if (ret == SOCKET_ERROR)
-	{
-		Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "SO_REUSEADDR", NET_ErrorString(WSAGetLastError()));
-		return false;
-	}
-
-	if (bDualStack)
-	{
-		// Disable IPv6 only mode to enable dual stack.
-		opt = 0;
-		ret = ::setsockopt(hSocket, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<char*>(&opt), sizeof(opt));
-		if (ret == SOCKET_ERROR)
-		{
-			Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "IPV6_V6ONLY", NET_ErrorString(WSAGetLastError()));
-			return false;
-		}
-	}
-
-	// Mark socket as non-blocking.
-	opt = 1;
-	ret = ::ioctlsocket(hSocket, FIONBIO, reinterpret_cast<u_long*>(&opt));
-	if (ret == SOCKET_ERROR)
-	{
-		Warning(eDLL_T::ENGINE, "Socket 'ioctl(%s)' failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
-		return false;
-	}
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -246,6 +196,56 @@ void CSocketCreator::DisconnectSocket(void)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Configures a socket for use
+// Input  : iSocket - 
+//			bDualStack - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CSocketCreator::ConfigureSocket(SocketHandle_t hSocket, bool bDualStack /*= true*/)
+{
+	// Disable NAGLE as RCON cmds are small in size.
+	int opt = 1;
+	int ret = ::setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&opt), sizeof(opt));
+	if (ret == SOCKET_ERROR)
+	{
+		Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "TCP_NODELAY", NET_ErrorString(WSAGetLastError()));
+		return false;
+	}
+
+	// Mark socket as reusable.
+	opt = 1;
+	ret = ::setsockopt(hSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&opt), sizeof(opt));
+	if (ret == SOCKET_ERROR)
+	{
+		Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "SO_REUSEADDR", NET_ErrorString(WSAGetLastError()));
+		return false;
+	}
+
+	if (bDualStack)
+	{
+		// Disable IPv6 only mode to enable dual stack.
+		opt = 0;
+		ret = ::setsockopt(hSocket, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<char*>(&opt), sizeof(opt));
+		if (ret == SOCKET_ERROR)
+		{
+			Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "IPV6_V6ONLY", NET_ErrorString(WSAGetLastError()));
+			return false;
+		}
+	}
+
+	// Mark socket as non-blocking.
+	opt = 1;
+	ret = ::ioctlsocket(hSocket, FIONBIO, reinterpret_cast<u_long*>(&opt));
+	if (ret == SOCKET_ERROR)
+	{
+		Warning(eDLL_T::ENGINE, "Socket 'ioctl(%s)' failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
+		return false;
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: handles new TCP requests and puts them in accepted queue
 // Input  : hSocket - 
 //			*netAdr - 
@@ -305,7 +305,7 @@ void CSocketCreator::CloseAllAcceptedSockets(void)
 //-----------------------------------------------------------------------------
 bool CSocketCreator::IsListening(void) const
 {
-	return m_hListenSocket != -1;
+	return m_hListenSocket != SOCKET_ERROR;
 }
 
 //-----------------------------------------------------------------------------

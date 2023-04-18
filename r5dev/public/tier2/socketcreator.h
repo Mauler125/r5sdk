@@ -14,13 +14,13 @@ public:
 	void RunFrame(void);
 	void ProcessAccept(void);
 
-	bool ConfigureSocket(SocketHandle_t hSocket, bool bDualStack = true);
 	bool CreateListenSocket(const netadr_t& netAdr, bool bDualStack = true);
 	void CloseListenSocket(void);
 
 	int ConnectSocket(const netadr_t& netAdr, bool bSingleSocket);
 	void DisconnectSocket(void);
 
+	bool ConfigureSocket(SocketHandle_t hSocket, bool bDualStack = true);
 	int OnSocketAccepted(SocketHandle_t hSocket, const netadr_t& netAdr);
 
 	void CloseAcceptedSocket(int nIndex);

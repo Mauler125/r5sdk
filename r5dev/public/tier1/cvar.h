@@ -113,6 +113,8 @@ extern ConVar* sv_rcon_banpenalty;
 extern ConVar* sv_rcon_maxfailures;
 extern ConVar* sv_rcon_maxignores;
 extern ConVar* sv_rcon_maxsockets;
+extern ConVar* sv_rcon_maxconnections;
+extern ConVar* sv_rcon_maxpacketsize;
 extern ConVar* sv_rcon_whitelist_address;
 //#endif // DEDICATED
 #endif // CLIENT_DLL

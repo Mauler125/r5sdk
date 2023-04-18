@@ -238,6 +238,9 @@
     <Filter Include="sdk\public\tier2">
       <UniqueIdentifier>{42a3745e-8686-4f83-97bd-cec9336b4937}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\engine\shared">
+      <UniqueIdentifier>{f3335ce8-0956-4d3c-9d12-ca2bd5646d8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -740,6 +743,12 @@
     </ClCompile>
     <ClCompile Include="..\engine\staticpropmgr.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\shared\base_rcon.cpp">
+      <Filter>sdk\engine\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\shared\shared_rcon.cpp">
+      <Filter>sdk\engine\shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1894,6 +1903,12 @@
     </ClInclude>
     <ClInclude Include="..\engine\staticpropmgr.h">
       <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\shared\base_rcon.h">
+      <Filter>sdk\engine\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\shared\shared_rcon.h">
+      <Filter>sdk\engine\shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

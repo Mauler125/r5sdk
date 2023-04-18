@@ -108,6 +108,8 @@ ConVar* sv_rcon_banpenalty                 = nullptr; // TODO
 ConVar* sv_rcon_maxfailures                = nullptr;
 ConVar* sv_rcon_maxignores                 = nullptr;
 ConVar* sv_rcon_maxsockets                 = nullptr;
+ConVar* sv_rcon_maxconnections             = nullptr;
+ConVar* sv_rcon_maxpacketsize              = nullptr;
 ConVar* sv_rcon_whitelist_address          = nullptr;
 //#endif // DEDICATED
 #endif // !CLIENT_DLL
@@ -348,7 +350,9 @@ void ConVar::StaticInit(void)
 	sv_rcon_maxfailures = ConVar::StaticCreate("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxignores  = ConVar::StaticCreate("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the instruction message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = ConVar::StaticCreate("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_whitelist_address = ConVar::StaticCreate("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, &RCON_WhiteListAddresChanged_f, "Format: '::ffff:127.0.0.1'");
+	sv_rcon_maxconnections    = ConVar::StaticCreate("sv_rcon_maxconnections"   , "1"   , FCVAR_RELEASE, "Max number of authenticated connections before the server closes the listen socket.", true, 1.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxpacketsize     = ConVar::StaticCreate("sv_rcon_maxpacketsize"    , "1024", FCVAR_RELEASE, "Max number of bytes allowed in a command packet from a non-authenticated net console.", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_whitelist_address = ConVar::StaticCreate("sv_rcon_whitelist_address", ""    , FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, &RCON_WhiteListAddresChanged_f, "Format: '::ffff:127.0.0.1'");
 
 	sv_quota_stringCmdsPerSecond = ConVar::StaticCreate("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_validatePersonaName  = ConVar::StaticCreate("sv_validatePersonaName" , "1" , FCVAR_RELEASE, "Validate the client's textual persona name on connect.", true, 0.f, false, 0.f, nullptr, nullptr);

@@ -257,6 +257,8 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	bool bSquirrel = false;
 	bool bWarning  = false;
 	bool bError    = false;
+#else
+	NOTE_UNUSED(pszLogger);
 #endif // !NETCONSOLE
 
 	//-------------------------------------------------------------------------
@@ -376,10 +378,10 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	if (bToConsole)
 	{
 #ifndef CLIENT_DLL
-		if (!LoggedFromClient(context))
+		if (!LoggedFromClient(context) && RCONServer()->ShouldSend(sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG))
 		{
-			RCONServer()->Send(formatted, pszUpTime, sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG,
-				static_cast<int>(context), static_cast<int>(logType));
+			RCONServer()->SendEncode(formatted.c_str(), pszUpTime, sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG,
+				int(context), int(logType));
 		}
 #endif // !CLIENT_DLL
 #ifndef DEDICATED

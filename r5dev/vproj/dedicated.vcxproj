@@ -237,6 +237,8 @@
     <ClInclude Include="..\engine\server\sv_main.h" />
     <ClInclude Include="..\engine\server\sv_rcon.h" />
     <ClInclude Include="..\engine\staticpropmgr.h" />
+    <ClInclude Include="..\engine\shared\base_rcon.h" />
+    <ClInclude Include="..\engine\shared\shared_rcon.h" />
     <ClInclude Include="..\engine\sys_dll.h" />
     <ClInclude Include="..\engine\sys_dll2.h" />
     <ClInclude Include="..\engine\sys_engine.h" />
@@ -548,6 +550,8 @@
     <ClCompile Include="..\engine\server\sv_main.cpp" />
     <ClCompile Include="..\engine\server\sv_rcon.cpp" />
     <ClCompile Include="..\engine\staticpropmgr.cpp" />
+    <ClCompile Include="..\engine\shared\base_rcon.cpp" />
+    <ClCompile Include="..\engine\shared\shared_rcon.cpp" />
     <ClCompile Include="..\engine\sys_dll.cpp" />
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />

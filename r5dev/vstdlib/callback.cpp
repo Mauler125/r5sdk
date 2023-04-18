@@ -853,11 +853,13 @@ void RCON_CmdQuery_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
+		const char* pszAddress = rcon_address->GetString();
+
 		if (RCONClient()->IsInitialized()
 			&& !RCONClient()->IsConnected()
-			&& strlen(rcon_address->GetString()) > 0)
+			&& pszAddress[0])
 		{
-			RCONClient()->Connect();
+			RCONClient()->Connect(pszAddress);
 		}
 	}
 	else
@@ -869,18 +871,26 @@ void RCON_CmdQuery_f(const CCommand& args)
 		}
 		else if (RCONClient()->IsConnected())
 		{
+			vector<char> vecMsg;
+			bool bSuccess = false;
+			const SocketHandle_t hSocket = RCONClient()->GetSocket();
+
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
-				string svCmdQuery;
 				if (args.ArgC() > 2)
 				{
-					svCmdQuery = RCONClient()->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
 				else // Use 'rcon_password' ConVar as password.
 				{
-					svCmdQuery = RCONClient()->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					bSuccess = RCONClient()->Serialize(vecMsg, rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
-				RCONClient()->Send(svCmdQuery);
+
+				if (bSuccess)
+				{
+					RCONClient()->Send(hSocket, vecMsg.data(), vecMsg.size());
+				}
+
 				return;
 			}
 			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
@@ -889,8 +899,11 @@ void RCON_CmdQuery_f(const CCommand& args)
 				return;
 			}
 
-			string svCmdQuery = RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			RCONClient()->Send(svCmdQuery);
+			bSuccess = RCONClient()->Serialize(vecMsg, args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			if (bSuccess)
+			{
+				RCONClient()->Send(hSocket, vecMsg.data(), vecMsg.size());
+			}
 			return;
 		}
 		else
@@ -910,9 +923,11 @@ RCON_Disconnect_f
 */
 void RCON_Disconnect_f(const CCommand& args)
 {
-	if (RCONClient()->IsConnected())
+	const bool bIsConnected = RCONClient()->IsConnected();
+	RCONClient()->Disconnect();
+
+	if (bIsConnected) // Log if client was indeed connected.
 	{
-		RCONClient()->Disconnect();
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }

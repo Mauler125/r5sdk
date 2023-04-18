@@ -6,10 +6,11 @@
 #pragma once
 #include "protoc/cl_rcon.pb.h"
 #include "protoc/sv_rcon.pb.h"
+#include "engine/shared/base_rcon.h"
 
 constexpr const char* NETCON_VERSION = "2.0.0.1";
 
-class CNetCon
+class CNetCon : public CNetConBase
 {
 public:
 	CNetCon(void);
@@ -25,29 +26,23 @@ public:
 	void RunFrame(void);
 	bool ShouldQuit(void) const;
 
-	bool Connect(const std::string& svInAdr, const std::string& svInPort);
-	void Disconnect(void);
+	virtual void Disconnect(const char* szReason = nullptr);
+	virtual bool ProcessMessage(const char* pMsgBuf, int nMsgLen) override;
 
-	void Send(const std::string& svMessage) const;
-	void Recv(void);
+	bool Serialize(vector<char>& vecBuf, const char* szReqBuf,
+		const char* szReqVal, const cl_rcon::request_t requestType) const;
 
-	void ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetConsoleData* pData);
-	void ProcessMessage(const sv_rcon::response& sv_response) const;
-
-	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, const cl_rcon::request_t request_t) const;
-	sv_rcon::response Deserialize(const std::string& svBuf) const;
+	SocketHandle_t GetSocket(void);
+	bool IsInitialized(void) const;
+	bool IsConnected(void);
 
 private:
 	bool m_bInitialized;
 	bool m_bQuitApplication;
 	bool m_bPromptConnect;
-	bool m_bConnEstablished;
 	float m_flTickInterval;
 
-	CNetAdr m_Address;
-	CSocketCreator m_Socket;
 	std::string m_Input;
-
 	mutable std::mutex m_Mutex;
 };
 

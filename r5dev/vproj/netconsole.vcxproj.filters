@@ -41,6 +41,9 @@
     <Filter Include="sdk\public\tier2">
       <UniqueIdentifier>{3bbe24ed-5dce-4eb6-bb00-ed575b8bffc3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\engine\shared">
+      <UniqueIdentifier>{b6e80c43-6b7e-4503-aa64-60981ac963dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\core\stdafx.cpp">
@@ -82,6 +85,12 @@
     <ClCompile Include="..\core\logdef.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\shared\shared_rcon.cpp">
+      <Filter>sdk\engine\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\shared\base_rcon.cpp">
+      <Filter>sdk\engine\shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\core\stdafx.h">
@@ -119,6 +128,12 @@
     </ClInclude>
     <ClInclude Include="..\public\tier2\socketcreator.h">
       <Filter>sdk\public\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\shared\base_rcon.h">
+      <Filter>sdk\engine\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\shared\shared_rcon.h">
+      <Filter>sdk\engine\shared</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
