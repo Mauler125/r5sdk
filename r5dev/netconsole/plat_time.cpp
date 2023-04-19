@@ -78,10 +78,16 @@ uint64 Plat_USTime()
 	return (uint64)((CurrentTime.QuadPart - g_ClockStart.QuadPart) * g_PerformanceCounterToUS);
 }
 
+#ifdef NETCONSOLE
+#define TIMER_FORMAT "(%.3f) "
+#else
+#define TIMER_FORMAT "[%.3f] "
+#endif // NETCONSOLE
+
 const char* Plat_GetProcessUpTime()
 {
 	static char szBuf[4096];
-	sprintf_s(szBuf, sizeof(szBuf), "[%.3f] ", Plat_FloatTime());
+	sprintf_s(szBuf, sizeof(szBuf), TIMER_FORMAT, Plat_FloatTime());
 
 	return szBuf;
 }
