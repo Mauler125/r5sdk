@@ -5,6 +5,7 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/threadtools.h"
 #include "tier1/NetAdr.h"
 #include "tier1/strtools.h"
 #include "mathlib/swap.h"
@@ -110,6 +111,9 @@ bool CNetAdr::ComparePort(const CNetAdr& other) const
 //////////////////////////////////////////////////////////////////////
 const char* CNetAdr::ToString(bool bOnlyBase) const
 {
+	// Main thread only due to use of static buffers.
+	Assert(ThreadInMainThread());
+
 	// Select a static buffer.
 	static char s[4][128];
 	static int slot = 0;
