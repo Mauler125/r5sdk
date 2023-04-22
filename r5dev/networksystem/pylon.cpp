@@ -78,7 +78,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                 }
                 else
                 {
-                    svOutMessage = fmt::format("Unknown error with status: {:d}", static_cast<int>(status));
+                    svOutMessage = Format("Unknown error with status: %d", static_cast<int>(status));
                 }
             }
         }
@@ -96,17 +96,17 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                     }
                     else
                     {
-                        svOutMessage = fmt::format("Server list error: {:d}", static_cast<int>(status));
+                        svOutMessage = Format("Server list error: %d", static_cast<int>(status));
                     }
 
                     return vslList;
                 }
 
-                svOutMessage = fmt::format("Failed comp-server query: {:d}", static_cast<int>(status));
+                svOutMessage = Format("Failed comp-server query: %d", static_cast<int>(status));
                 return vslList;
             }
 
-            svOutMessage = fmt::format("Failed to reach comp-server: {:s}", "connection timed-out");
+            svOutMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
             return vslList;
         }
     }
@@ -193,7 +193,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                 }
                 else
                 {
-                    svOutMessage = fmt::format("Unknown error with status: {:d}", static_cast<int>(status));
+                    svOutMessage = Format("Unknown error with status: %d", static_cast<int>(status));
                 }
 
                 return false;
@@ -213,17 +213,17 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                     }
                     else
                     {
-                        svOutMessage = fmt::format("Server not found: {:d}", static_cast<int>(status));
+                        svOutMessage = Format("Server not found: %d", static_cast<int>(status));
                     }
 
                     return false;
                 }
 
-                svOutMessage = fmt::format("Failed comp-server query: {:d}", static_cast<int>(status));
+                svOutMessage = Format("Failed comp-server query: %d", static_cast<int>(status));
                 return false;
             }
 
-            svOutMessage = fmt::format("Failed to reach comp-server: {:s}", "connection timed-out");
+            svOutMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
             return false;
         }
     }
@@ -301,7 +301,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutMessage = fmt::format("Invalid response with status: {:d}", static_cast<int>(status));
+                    svOutMessage = Format("Invalid response with status: %d", static_cast<int>(status));
                     svOutToken.clear();
                 }
 
@@ -315,7 +315,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutMessage = fmt::format("Unknown error with status: {:d}", static_cast<int>(status));
+                    svOutMessage = Format("Unknown error with status: %d", static_cast<int>(status));
                 }
                 return false;
             }
@@ -334,19 +334,19 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                     }
                     else
                     {
-                        svOutMessage = fmt::format("Server host error: {:d}", static_cast<int>(status));
+                        svOutMessage = Format("Server host error: %d", static_cast<int>(status));
                     }
 
                     svOutToken.clear();
                     return false;
                 }
 
-                svOutMessage = fmt::format("Failed comp-server query: {:d}", static_cast<int>(status));
+                svOutMessage = Format("Failed comp-server query: %d", static_cast<int>(status));
                 svOutToken.clear();
                 return false;
             }
 
-            svOutMessage = fmt::format("Failed to reach comp-server: {:s}", "connection timed-out");
+            svOutMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
             svOutToken.clear();
             return false;
         }
@@ -434,36 +434,36 @@ bool CPylon::CheckForBan(const string& svIpAddress, const uint64_t nNucleusID, s
         DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, status);
     }
 
+    if (status != 200)
+    {
+        Error(eDLL_T::ENGINE, NO_ERROR, "%s - Failed to query comp-server: status code = %d\n", __FUNCTION__, status);
+        return false;
+    }
+
     try
     {
-        if (status == 200)
+        nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
+
+        if (bDebugLog)
         {
-            nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
-
-            if (bDebugLog)
-            {
-                string svResultBody = jsResultBody.dump(4);
-                DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, svResultBody.c_str());
-            }
-
-            if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
-            {
-                if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())
-                {
-                    svOutReason = jsResultBody.value("reason", "#DISCONNECT_BANNED");
-                    return true;
-                }
-            }
+            string svResultBody = jsResultBody.dump(4);
+            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, svResultBody.c_str());
         }
-        else
+
+        if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
         {
-            Error(eDLL_T::ENGINE, NO_ERROR, "%s - Failed to query comp-server: status code = %d\n", __FUNCTION__, status);
+            if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())
+            {
+                svOutReason = jsResultBody.value("reason", "#DISCONNECT_BANNED");
+                return true;
+            }
         }
     }
     catch (const std::exception& ex)
     {
         Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
     }
+
     return false;
 }
 
