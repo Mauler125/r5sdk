@@ -13,11 +13,9 @@ public:
 
 	void Init(void);
 	void Shutdown(void);
-
 	void RunFrame(void);
 
 	virtual void Disconnect(const char* szReason = nullptr) override;
-
 	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
 	bool Serialize(vector<char>& vecBuf, const char* szReqBuf,
