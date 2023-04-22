@@ -89,7 +89,7 @@ bool CL_NetConConnect(CNetConBase* pBase, const char* pHostAdr, const int nHostP
 //			iSocket - 
 // Output : nullptr on failure
 //-----------------------------------------------------------------------------
-CConnectedNetConsoleData* SH_GetNetConData(CNetConBase* pBase, int iSocket)
+CConnectedNetConsoleData* SH_GetNetConData(CNetConBase* pBase, const int iSocket)
 {
 	const CSocketCreator* pCreator = pBase->GetSocketCreator();
 	Assert(iSocket >= 0 && iSocket < pCreator->GetAcceptedSocketCount());
@@ -108,7 +108,7 @@ CConnectedNetConsoleData* SH_GetNetConData(CNetConBase* pBase, int iSocket)
 //			iSocket - 
 // Output : SOCKET_ERROR (-1) on failure
 //-----------------------------------------------------------------------------
-SocketHandle_t SH_GetNetConSocketHandle(CNetConBase* pBase, int iSocket)
+SocketHandle_t SH_GetNetConSocketHandle(CNetConBase* pBase, const int iSocket)
 {
 	const CConnectedNetConsoleData* pData = SH_GetNetConData(pBase, iSocket);
 	if (!pData)

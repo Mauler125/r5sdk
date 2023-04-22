@@ -93,7 +93,7 @@ void CRConServer::Think(void)
 				const CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
 				if (!pData->m_bAuthorized)
 				{
-					Disconnect();
+					Disconnect("redundant");
 				}
 			}
 		}
@@ -119,7 +119,7 @@ bool CRConServer::SetPassword(const char* pszPassword)
 	m_bInitialized = false;
 	m_Socket.CloseAllAcceptedSockets();
 
-	const size_t nLen = std::strlen(pszPassword);
+	const size_t nLen = strlen(pszPassword);
 	if (nLen < RCON_MIN_PASSWORD_LEN)
 	{
 		if (nLen > NULL)
@@ -168,8 +168,8 @@ void CRConServer::RunFrame(void)
 			{
 				SendEncode(pData->m_hSocket, s_BannedMessage, "",
 					sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, int(eDLL_T::NETCON));
-				Disconnect();
 
+				Disconnect("banned");
 				continue;
 			}
 
@@ -184,9 +184,9 @@ void CRConServer::RunFrame(void)
 //			nMsgLen - 
 // Output: true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CRConServer::SendToAll(const char* pMsgBuf, int nMsgLen) const
+bool CRConServer::SendToAll(const char* pMsgBuf, const int nMsgLen) const
 {
-	std::ostringstream sendbuf;
+	ostringstream sendbuf;
 	const u_long nLen = htonl(u_long(nMsgLen));
 
 	bool bSuccess = true;
@@ -274,7 +274,8 @@ bool CRConServer::SendEncode(const SocketHandle_t hSocket, const char* pResponse
 
 //-----------------------------------------------------------------------------
 // Purpose: serializes input
-// Input  : *responseMsg - 
+// Input  : &vecBuf - 
+//			*responseMsg - 
 //			*responseVal - 
 //			responseType - 
 //			nMessageId - 
@@ -306,10 +307,10 @@ bool CRConServer::Serialize(vector<char>& vecBuf, const char* pResponseMsg, cons
 
 //-----------------------------------------------------------------------------
 // Purpose: authenticate new connections
-// Input  : *cl_request - 
+// Input  : &request - 
 //			*pData - 
 //-----------------------------------------------------------------------------
-void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNetConsoleData* pData)
+void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetConsoleData* pData)
 {
 	if (pData->m_bAuthorized)
 	{
@@ -317,7 +318,7 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 	}
 	else // Authorize.
 	{
-		if (Comparator(cl_request.requestmsg()))
+		if (Comparator(request.requestmsg()))
 		{
 			pData->m_bAuthorized = true;
 			if (++m_nAuthConnections >= sv_rcon_maxconnections->GetInt())
@@ -349,20 +350,20 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 
 //-----------------------------------------------------------------------------
 // Purpose: sha256 hashed password comparison
-// Input  : svCompare - 
+// Input  : &svPassword - 
 // Output : true if matches, false otherwise
 //-----------------------------------------------------------------------------
-bool CRConServer::Comparator(std::string svPassword) const
+bool CRConServer::Comparator(const string& svPassword) const
 {
-	svPassword = sha256(svPassword);
+	string passwordHash = sha256(svPassword);
 	if (sv_rcon_debug->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
 		DevMsg(eDLL_T::SERVER, "[ Server: '%s']\n", m_svPasswordHash.c_str());
-		DevMsg(eDLL_T::SERVER, "[ Client: '%s']\n", svPassword.c_str());
+		DevMsg(eDLL_T::SERVER, "[ Client: '%s']\n", passwordHash.c_str());
 		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
 	}
-	if (std::memcmp(svPassword.data(), m_svPasswordHash.data(), SHA256::DIGEST_SIZE) == 0)
+	if (memcmp(passwordHash.data(), m_svPasswordHash.data(), SHA256::DIGEST_SIZE) == 0)
 	{
 		return true;
 	}
@@ -375,7 +376,7 @@ bool CRConServer::Comparator(std::string svPassword) const
 //			nMsgLen - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CRConServer::ProcessMessage(const char* pMsgBuf, int nMsgLen)
+bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
 	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
 
@@ -439,22 +440,22 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, int nMsgLen)
 
 //-----------------------------------------------------------------------------
 // Purpose: execute commands issued from net console
-// Input  : *cl_request - 
+// Input  : *request - 
 //			bConVar - 
 //-----------------------------------------------------------------------------
-void CRConServer::Execute(const cl_rcon::request& cl_request, const bool bConVar) const
+void CRConServer::Execute(const cl_rcon::request& request, const bool bConVar) const
 {
 	if (bConVar)
 	{
-		ConVar* pConVar = g_pCVar->FindVar(cl_request.requestmsg().c_str());
+		ConVar* pConVar = g_pCVar->FindVar(request.requestmsg().c_str());
 		if (pConVar) // Only run if this is a ConVar.
 		{
-			pConVar->SetValue(cl_request.requestval().c_str());
+			pConVar->SetValue(request.requestval().c_str());
 		}
 	}
 	else // Execute command with "<val>".
 	{
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), cl_request.requestmsg().c_str(), cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), request.requestmsg().c_str(), cmd_source_t::kCommandSrcCode);
 	}
 }
 
@@ -527,15 +528,19 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 //-----------------------------------------------------------------------------
 // Purpose: close specific connection
 //-----------------------------------------------------------------------------
-void CRConServer::Disconnect(const char* /*szReason*/) // NETMGR
+void CRConServer::Disconnect(const char* szReason) // NETMGR
 {
 	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
-	if (pData->m_bAuthorized)
+	if (pData->m_bAuthorized || sv_rcon_debug->GetBool())
 	{
 		// Inform server owner when authenticated connection has been closed.
 		netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
-		DevMsg(eDLL_T::SERVER, "Net console '%s' closed RCON connection\n", netAdr.ToString());
+		if (!szReason)
+		{
+			szReason = "unknown reason";
+		}
 
+		DevMsg(eDLL_T::SERVER, "Connection to '%s' closed (%s)\n", netAdr.ToString(), szReason);
 		m_nAuthConnections--;
 	}
 

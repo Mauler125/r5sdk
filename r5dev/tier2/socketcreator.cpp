@@ -25,7 +25,7 @@ CSocketCreator::CSocketCreator(void)
 //-----------------------------------------------------------------------------
 CSocketCreator::~CSocketCreator(void)
 {
-	DisconnectSocket();
+	DisconnectSockets();
 }
 
 //-----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ void CSocketCreator::ProcessAccept(void)
 
 	if (!ConfigureSocket(newSocket, false))
 	{
-		::closesocket(newSocket);
+		DisconnectSocket(newSocket);
 		return;
 	}
 
@@ -118,7 +118,7 @@ void CSocketCreator::CloseListenSocket(void)
 {
 	if (m_hListenSocket != SOCKET_ERROR)
 	{
-		::closesocket(m_hListenSocket);
+		DisconnectSocket(m_hListenSocket);
 		m_hListenSocket = SOCKET_ERROR;
 	}
 }
@@ -145,7 +145,7 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 
 	if (!ConfigureSocket(hSocket))
 	{
-		::closesocket(hSocket);
+		DisconnectSocket(hSocket);
 		return SOCKET_ERROR;
 	}
 
@@ -159,7 +159,7 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 		{
 			Warning(eDLL_T::ENGINE, "Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 
-			::closesocket(hSocket);
+			DisconnectSocket(hSocket);
 			return SOCKET_ERROR;
 		}
 
@@ -175,7 +175,8 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 		if (::select(hSocket + 1, NULL, &writefds, NULL, &tv) < 1) // block for at most 1 second.
 		{
 			Warning(eDLL_T::ENGINE, "Socket connection timed out\n");
-			::closesocket(hSocket); // took too long to connect to, give up.
+			DisconnectSocket(hSocket); // took too long to connect to, give up.
+
 			return SOCKET_ERROR;
 		}
 	}
@@ -187,9 +188,22 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: closes specific open sockets (listen + accepted)
+//-----------------------------------------------------------------------------
+void CSocketCreator::DisconnectSocket(SocketHandle_t hSocket)
+{
+	Assert(hSocket != SOCKET_ERROR);
+	if (::closesocket(hSocket) == SOCKET_ERROR)
+	{
+		Error(eDLL_T::ENGINE, NO_ERROR, "Unable to close socket (%s)\n",
+			NET_ErrorString(WSAGetLastError()));
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: closes all open sockets (listen + accepted)
 //-----------------------------------------------------------------------------
-void CSocketCreator::DisconnectSocket(void)
+void CSocketCreator::DisconnectSockets(void)
 {
 	CloseListenSocket();
 	CloseAllAcceptedSockets();
@@ -278,7 +292,7 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 	}
 
 	AcceptedSocket_t& connected = m_hAcceptedSockets[nIndex];
-	::closesocket(connected.m_hSocket);
+	DisconnectSocket(connected.m_hSocket);
 	delete connected.m_pData;
 
 	m_hAcceptedSockets.erase(m_hAcceptedSockets.begin() + nIndex);
@@ -292,7 +306,7 @@ void CSocketCreator::CloseAllAcceptedSockets(void)
 	for (size_t i = 0; i < m_hAcceptedSockets.size(); ++i)
 	{
 		AcceptedSocket_t& connected = m_hAcceptedSockets[i];
-		::closesocket(connected.m_hSocket);
+		DisconnectSocket(connected.m_hSocket);
 
 		delete connected.m_pData;
 	}

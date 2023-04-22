@@ -27,7 +27,7 @@ public:
 	bool ShouldQuit(void) const;
 
 	virtual void Disconnect(const char* szReason = nullptr);
-	virtual bool ProcessMessage(const char* pMsgBuf, int nMsgLen) override;
+	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
 	bool Serialize(vector<char>& vecBuf, const char* szReqBuf,
 		const char* szReqVal, const cl_rcon::request_t requestType) const;

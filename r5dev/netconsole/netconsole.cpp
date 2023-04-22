@@ -84,7 +84,8 @@ bool CNetCon::Shutdown(void)
 	}
 	else // WSACleanup() failed.
 	{
-		Error(eDLL_T::CLIENT, NO_ERROR, "%s - Failed to stop Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+		Error(eDLL_T::CLIENT, NO_ERROR, "%s - Failed to stop Winsock: (%s)\n",
+			__FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 
 	SpdLog_Shutdown();
@@ -123,11 +124,11 @@ void CNetCon::UserInput(void)
 		{
 			if (m_Input.compare("disconnect") == 0)
 			{
-				Disconnect();
+				Disconnect("user closed connection");
 				return;
 			}
 
-			const std::vector<std::string> vSubStrings = StringSplit(m_Input, ' ', 2);
+			const vector<string> vSubStrings = StringSplit(m_Input, ' ', 2);
 			vector<char> vecMsg;
 
 			const SocketHandle_t hSocket = GetSocket();
@@ -169,7 +170,7 @@ void CNetCon::UserInput(void)
 		}
 		else // Setup connection from input.
 		{
-			const std::vector<std::string> vSubStrings = StringSplit(m_Input, ' ', 2);
+			const vector<string> vSubStrings = StringSplit(m_Input, ' ', 2);
 			if (vSubStrings.size() > 1)
 			{
 				const string::size_type nPos = m_Input.find(' ');
@@ -177,8 +178,8 @@ void CNetCon::UserInput(void)
 					&& nPos < m_Input.size()
 					&& nPos != m_Input.size())
 				{
-					std::string svInPort = m_Input.substr(nPos + 1);
-					std::string svInAdr = m_Input.erase(m_Input.find(' '));
+					string svInPort = m_Input.substr(nPos + 1);
+					string svInAdr = m_Input.erase(m_Input.find(' '));
 
 					if (svInPort.empty() || svInAdr.empty())
 					{
@@ -246,16 +247,18 @@ bool CNetCon::ShouldQuit(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: disconnect from current session
+// Input  : *szReason - 
 //-----------------------------------------------------------------------------
 void CNetCon::Disconnect(const char* szReason)
 {
 	if (IsConnected())
 	{
-		if (szReason)
+		if (!szReason)
 		{
-			DevMsg(eDLL_T::CLIENT, "%s", szReason);
+			szReason = "unknown reason";
 		}
 
+		DevMsg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
 		m_Socket.CloseAcceptedSocket(0);
 	}
 
@@ -264,9 +267,11 @@ void CNetCon::Disconnect(const char* szReason)
 
 //-----------------------------------------------------------------------------
 // Purpose: processes received message
-// Input  : *sv_response - 
+// Input  : *pMsgBuf - 
+//			nMsgLen - 
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CNetCon::ProcessMessage(const char* pMsgBuf, int nMsgLen)
+bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
 	sv_rcon::response response;
 	bool bSuccess = Decode(&response, pMsgBuf, nMsgLen);

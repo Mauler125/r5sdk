@@ -18,7 +18,8 @@ public:
 	void CloseListenSocket(void);
 
 	int ConnectSocket(const netadr_t& netAdr, bool bSingleSocket);
-	void DisconnectSocket(void);
+	void DisconnectSocket(SocketHandle_t hSocket);
+	void DisconnectSockets(void);
 
 	bool ConfigureSocket(SocketHandle_t hSocket, bool bDualStack = true);
 	int OnSocketAccepted(SocketHandle_t hSocket, const netadr_t& netAdr);

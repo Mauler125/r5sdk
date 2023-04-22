@@ -888,7 +888,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 
 				if (bSuccess)
 				{
-					RCONClient()->Send(hSocket, vecMsg.data(), vecMsg.size());
+					RCONClient()->Send(hSocket, vecMsg.data(), int(vecMsg.size()));
 				}
 
 				return;
@@ -902,7 +902,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 			bSuccess = RCONClient()->Serialize(vecMsg, args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 			if (bSuccess)
 			{
-				RCONClient()->Send(hSocket, vecMsg.data(), vecMsg.size());
+				RCONClient()->Send(hSocket, vecMsg.data(), int(vecMsg.size()));
 			}
 			return;
 		}

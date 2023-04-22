@@ -18,7 +18,7 @@ public:
 
 	virtual void Disconnect(const char* szReason = nullptr) override;
 
-	virtual bool ProcessMessage(const char* pMsgBuf, int nMsgLen) override;
+	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
 	bool Serialize(vector<char>& vecBuf, const char* szReqBuf,
 		const char* szReqVal, const cl_rcon::request_t requestType) const;
@@ -26,6 +26,7 @@ public:
 	bool IsInitialized(void) const;
 	bool IsConnected(void);
 
+	CConnectedNetConsoleData* GetData(void);
 	SocketHandle_t GetSocket(void);
 
 private:

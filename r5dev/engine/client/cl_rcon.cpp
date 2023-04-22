@@ -44,7 +44,7 @@ void CRConClient::Init(void)
 //-----------------------------------------------------------------------------
 void CRConClient::Shutdown(void)
 {
-	Disconnect();
+	Disconnect("shutdown");
 }
 
 //-----------------------------------------------------------------------------
@@ -54,8 +54,13 @@ void CRConClient::RunFrame(void)
 {
 	if (IsInitialized() && IsConnected())
 	{
-		CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(0);
-		Recv(pData);
+		CConnectedNetConsoleData* pData = GetData();
+		Assert(pData != nullptr);
+
+		if (pData)
+		{
+			Recv(pData);
+		}
 	}
 }
 
@@ -66,11 +71,12 @@ void CRConClient::Disconnect(const char* szReason)
 {
 	if (IsConnected())
 	{
-		if (szReason)
+		if (!szReason)
 		{
-			DevMsg(eDLL_T::CLIENT, "%s", szReason);
+			szReason = "unknown reason";
 		}
 
+		DevMsg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
 		m_Socket.CloseAcceptedSocket(0);
 	}
 }
@@ -80,7 +86,7 @@ void CRConClient::Disconnect(const char* szReason)
 // Input  : *pMsgBug - 
 //			nMsgLen - 
 //-----------------------------------------------------------------------------
-bool CRConClient::ProcessMessage(const char* pMsgBuf, int nMsgLen)
+bool CRConClient::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
 	sv_rcon::response response;
 	bool bSuccess = Decode(&response, pMsgBuf, nMsgLen);
@@ -99,26 +105,26 @@ bool CRConClient::ProcessMessage(const char* pMsgBuf, int nMsgLen)
 		{
 			const long i = strtol(response.responseval().c_str(), NULL, NULL);
 			const bool bLocalHost = (g_pNetAdr->ComparePort(m_Address) && g_pNetAdr->CompareAdr(m_Address));
+			const char* szEnable = nullptr;
 			const SocketHandle_t hSocket = GetSocket();
 
 			if (!i) // sv_rcon_sendlogs is not set.
 			{
 				if (!bLocalHost && cl_rcon_request_sendlogs->GetBool())
 				{
-					vector<char> vecMsg;
-					bool ret = Serialize(vecMsg, "", "1", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
-
-					if (ret && !Send(hSocket, vecMsg.data(), int(vecMsg.size())))
-					{
-						Error(eDLL_T::CLIENT, NO_ERROR, "Failed to send RCON message: (%s)\n", "SOCKET_ERROR");
-					}
+					szEnable = "1";
 				}
 			}
 			else if (bLocalHost)
 			{
 				// Don't send logs to local host, it already gets logged to the same console.
+				szEnable = "0";
+			}
+
+			if (szEnable)
+			{
 				vector<char> vecMsg;
-				bool ret = Serialize(vecMsg, "", "0", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+				bool ret = Serialize(vecMsg, "", szEnable, cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
 
 				if (ret && !Send(hSocket, vecMsg.data(), int(vecMsg.size())))
 				{
@@ -163,11 +169,19 @@ bool CRConClient::Serialize(vector<char>& vecBuf, const char* szReqBuf,
 // Purpose: retrieves the remote socket
 // Output : SOCKET_ERROR (-1) on failure
 //-----------------------------------------------------------------------------
+CConnectedNetConsoleData* CRConClient::GetData(void)
+{
+	return SH_GetNetConData(this, 0);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: retrieves the remote socket
+// Output : SOCKET_ERROR (-1) on failure
+//-----------------------------------------------------------------------------
 SocketHandle_t CRConClient::GetSocket(void)
 {
 	return SH_GetNetConSocketHandle(this, 0);
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if client rcon is initialized
