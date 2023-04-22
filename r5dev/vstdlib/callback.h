@@ -53,6 +53,7 @@ void RCON_Disconnect_f(const CCommand& args);
 void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 #ifndef CLIENT_DLL
 void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
+void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 void SQVM_ServerScript_f(const CCommand& args);
 #endif // !CLIENT_DLL
 #ifndef DEDICATED

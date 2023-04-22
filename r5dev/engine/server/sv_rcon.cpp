@@ -526,15 +526,23 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: close specific connection
+// Purpose: close connection on current index
 //-----------------------------------------------------------------------------
 void CRConServer::Disconnect(const char* szReason) // NETMGR
 {
-	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
+	Disconnect(m_nConnIndex, szReason);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: close specific connection by index
+//-----------------------------------------------------------------------------
+void CRConServer::Disconnect(const int nIndex, const char* szReason) // NETMGR
+{
+	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(nIndex);
 	if (pData->m_bAuthorized || sv_rcon_debug->GetBool())
 	{
 		// Inform server owner when authenticated connection has been closed.
-		netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+		netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(nIndex);
 		if (!szReason)
 		{
 			szReason = "unknown reason";
@@ -544,7 +552,7 @@ void CRConServer::Disconnect(const char* szReason) // NETMGR
 		m_nAuthConnections--;
 	}
 
-	m_Socket.CloseAcceptedSocket(m_nConnIndex);
+	m_Socket.CloseAcceptedSocket(nIndex);
 }
 
 //-----------------------------------------------------------------------------
@@ -595,6 +603,14 @@ bool CRConServer::ShouldSend(const sv_rcon::response_t responseType) const
 bool CRConServer::IsInitialized(void) const
 {
 	return m_bInitialized;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns the number of authenticated connections
+//-----------------------------------------------------------------------------
+int CRConServer::GetAuthenticatedCount(void) const
+{
+	return m_nAuthConnections;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -979,7 +979,51 @@ void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString, flo
 
 		if (!RCONServer()->SetWhiteListAddress(pConVarRef->GetString()))
 		{
-			Warning(eDLL_T::COMMON, "Failed to set RCON whitelist address: %s\n", pConVarRef->GetString());
+			Warning(eDLL_T::SERVER, "Failed to set RCON whitelist address: %s\n", pConVarRef->GetString());
+		}
+	}
+}
+
+/*
+=====================
+RCON_ConnectionCountChanged_f
+
+  Change max connection
+  count on RCON server
+=====================
+*/
+void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (!RCONServer()->IsInitialized())
+		return; // Not initialized; no sockets at this point.
+
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same count.
+
+		const int maxCount = pConVarRef->GetInt();
+
+		int count = RCONServer()->GetAuthenticatedCount();
+		CSocketCreator* pCreator = RCONServer()->GetSocketCreator();
+
+		if (count < maxCount)
+		{
+			if (!pCreator->IsListening())
+			{
+				pCreator->CreateListenSocket(*RCONServer()->GetNetAddress());
+			}
+		}
+		else
+		{
+			while (count > maxCount)
+			{
+				RCONServer()->Disconnect(count-1, "too many authenticated sockets");
+				count = RCONServer()->GetAuthenticatedCount();
+			}
+
+			pCreator->CloseListenSocket();
+			RCONServer()->CloseNonAuthConnection();
 		}
 	}
 }

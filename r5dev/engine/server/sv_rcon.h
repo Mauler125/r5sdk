@@ -34,7 +34,6 @@ public:
 		const int nMessageType = static_cast<int>(LogType_t::LOG_NET)) const;
 
 	bool SendToAll(const char* pMsgBuf, const int nMsgLen) const;
-
 	bool Serialize(vector<char>& vecBuf, const char* pResponseMsg, const char* pResponseVal, const sv_rcon::response_t responseType,
 		const int nMessageId = static_cast<int>(eDLL_T::NETCON), const int nMessageType = static_cast<int>(LogType_t::LOG_NET)) const;
 
@@ -47,10 +46,13 @@ public:
 	bool CheckForBan(CConnectedNetConsoleData* pData);
 
 	virtual void Disconnect(const char* szReason = nullptr) override;
+	void Disconnect(const int nIndex, const char* szReason = nullptr);
 	void CloseNonAuthConnection(void);
 
 	bool ShouldSend(const sv_rcon::response_t responseType) const;
 	bool IsInitialized(void) const;
+
+	int GetAuthenticatedCount(void) const;
 
 private:
 	int                      m_nConnIndex;
