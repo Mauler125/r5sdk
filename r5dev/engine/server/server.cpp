@@ -88,8 +88,8 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 	char* pszPersonaName = pChallenge->personaName;
 	uint64_t nNucleusID = pChallenge->personaId;
 
-	char pszAddresBuffer[INET6_ADDRSTRLEN]; // Render the client's address.
-	pChallenge->netAdr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer));
+	char pszAddresBuffer[128]; // Render the client's address.
+	pChallenge->netAdr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer), true);
 
 	const bool bEnableLogging = sv_showconnecting->GetBool();
 	if (bEnableLogging)
