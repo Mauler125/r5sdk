@@ -90,9 +90,9 @@ void CNetConBase::Recv(CConnectedNetConsoleData* pData, const int nMaxLen)
 		{
 			return;
 		}
-		if (nPendingLen <= 0) // EOF or error.
+		else if (nPendingLen == 0) // Socket was closed.
 		{
-			Disconnect("unexpected EOF or error");
+			Disconnect("remote closed socket");
 			return;
 		}
 	}//////////////////////////////////////////////
@@ -105,8 +105,6 @@ void CNetConBase::Recv(CConnectedNetConsoleData* pData, const int nMaxLen)
 		Error(eDLL_T::ENGINE, NO_ERROR, "RCON Cmd: ioctl(%s) error (%s)\n", "FIONREAD", NET_ErrorString(WSAGetLastError()));
 		return;
 	}
-
-	bool bSuccess = true;
 
 	while (nReadLen > 0)
 	{
@@ -123,10 +121,7 @@ void CNetConBase::Recv(CConnectedNetConsoleData* pData, const int nMaxLen)
 		}
 
 		nReadLen -= nRecvLen; // Process what we've got.
-		if (!ProcessBuffer(pData, szRecvBuf, nRecvLen, nMaxLen) && bSuccess)
-		{
-			bSuccess = false;
-		}
+		ProcessBuffer(pData, szRecvBuf, nRecvLen, nMaxLen);
 	}
 
 	return;
