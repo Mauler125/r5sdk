@@ -548,7 +548,7 @@ void CRConServer::Disconnect(const int nIndex, const char* szReason) // NETMGR
 			szReason = "unknown reason";
 		}
 
-		DevMsg(eDLL_T::SERVER, "Connection to '%s' closed (%s)\n", netAdr.ToString(), szReason);
+		DevMsg(eDLL_T::SERVER, "Connection to '%s' lost (%s)\n", netAdr.ToString(), szReason);
 		m_nAuthConnections--;
 	}
 

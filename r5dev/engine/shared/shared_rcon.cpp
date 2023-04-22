@@ -92,7 +92,8 @@ bool CL_NetConConnect(CNetConBase* pBase, const char* pHostAdr, const int nHostP
 CConnectedNetConsoleData* SH_GetNetConData(CNetConBase* pBase, const int iSocket)
 {
 	const CSocketCreator* pCreator = pBase->GetSocketCreator();
-	Assert(iSocket >= 0 && iSocket < pCreator->GetAcceptedSocketCount());
+	Assert(iSocket >= 0 && (pCreator->GetAcceptedSocketCount() == 0
+		|| iSocket < pCreator->GetAcceptedSocketCount()));
 
 	if (!pCreator->GetAcceptedSocketCount())
 	{
