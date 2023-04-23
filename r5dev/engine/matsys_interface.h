@@ -35,7 +35,7 @@ class VMatSys_Interface : public IDetour
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 		p_LoadPlayerConfig = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? 48 83 3D ?? ?? ?? ?? ?? 75 0C");
 #elif defined (GAMEDLL_S3)
-		p_LoadPlayerConfig = g_GameDll.FindPatternSIMD("89 4C 24 08 48 81 EC ?? ?? ?? ?? 48 83 3D ?? ?? ?? ?? ??");
+		p_LoadPlayerConfig = g_GameDll.FindPatternSIMD("E9 ?? ?? ?? ?? CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 30 4D 8B D1").FollowNearCallSelf();
 #endif
 
 		v_UpdateCurrentVideoConfig = p_UpdateCurrentVideoConfig.RCast<bool (*)(MaterialSystem_Config_t*)>();

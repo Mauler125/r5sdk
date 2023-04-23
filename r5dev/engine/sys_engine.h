@@ -41,7 +41,7 @@ class VEngine : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CEngine_Frame = g_GameDll.FindPatternSIMD("40 55 53 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 8B F1");
 #elif defined (GAMEDLL_S2)
 		p_CEngine_Frame = g_GameDll.FindPatternSIMD("48 8B C4 56 48 81 EC ?? ?? ?? ?? 0F 29 70 B8");

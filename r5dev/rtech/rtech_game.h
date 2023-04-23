@@ -58,27 +58,19 @@ class V_RTechGame : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CPakFile_LoadPak = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 56 41 55 48 81 EC ?? ?? ?? ?? 4C 8B 69 60");
-		CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void*, void*, uint64_t)>(); /*48 89 4C 24 ? 56 41 55 48 81 EC ? ? ? ? 4C 8B 69 60*/
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CPakFile_LoadPak = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 56 41 55"); /*48 89 4C 24 ? 56 41 55*/
+		p_CPakFile_LoadPak = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 56 41 55 48 81 EC ?? ?? ?? ?? 4C");
 		CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void*, void*, uint64_t)>();
-#endif
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-		p_CPakFile_LoadAsync = g_GameDll.FindPatternSIMD("40 53 48 83 EC 40 48 89 6C 24 ?? 41 8B E8");
-		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, void*, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 8B E8*/
-#elif defined (GAMEDLL_S3)
-		p_CPakFile_LoadAsync = g_GameDll.FindPatternSIMD("40 53 48 83 EC 40 48 89 6C 24 ?? 41 0F B6 E9");
-		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, void*, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 0F B6 E9*/
-#endif
-		p_CPakFile_UnloadPak = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 8B C1");
-		CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void (*)(RPakHandle_t)>(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 8B C1*/
+
+		p_CPakFile_LoadAsync = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 89 03 8B 0B").FollowNearCallSelf();
+		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, void*, int, bool)>();
+
+		p_CPakFile_UnloadPak = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 85 FF 74 0C").FollowNearCallSelf();
+		CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void (*)(RPakHandle_t)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		p_CPakFile_OpenFileOffset = g_GameDll.FindPatternSIMD("48 89 7C 24 30 C7 44 24 28 ?? ?? ?? 40"); /*48 89 7C 24 30 C7 44 24 28 00 00 00 40*/
+		p_CPakFile_OpenFileOffset = g_GameDll.FindPatternSIMD("48 89 7C 24 30 C7 44 24 28 ?? ?? ?? 40");
 	}
 	virtual void Attach(void) const;
 	virtual void Detach(void) const;

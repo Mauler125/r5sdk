@@ -70,7 +70,7 @@ class VHostCmd : public IDetour
 #endif
 		p_Host_Status_PrintClient = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 60 48 8B A9 ?? ?? ?? ??");
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-		p_DFS_InitializeFeatureFlagDefinitions = g_GameDll.FindPatternSIMD("48 8B C4 55 53 48 8D 68 E8");
+		p_DFS_InitializeFeatureFlagDefinitions = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 40 38 3D ?? ?? ?? ?? 48 8D 15 ?? ?? ?? ?? 48 8B CE").FollowNearCallSelf();
 		v_DFS_InitializeFeatureFlagDefinitions = p_DFS_InitializeFeatureFlagDefinitions.RCast<bool (*)(const char*)>(); /*48 8B C4 55 53 48 8D 68 E8*/
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 		v_Host_Init = p_Host_Init.RCast<void* (*)(bool*)>();                                        /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9*/
