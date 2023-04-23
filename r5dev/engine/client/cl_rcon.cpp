@@ -200,8 +200,8 @@ bool CRConClient::IsConnected(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CRConClient g_RCONClient;
+CRConClient* g_RCONClient(new CRConClient());
 CRConClient* RCONClient() // Singleton RCON Client.
 {
-	return &g_RCONClient;
+	return g_RCONClient;
 }

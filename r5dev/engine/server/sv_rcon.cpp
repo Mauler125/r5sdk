@@ -614,8 +614,8 @@ int CRConServer::GetAuthenticatedCount(void) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CRConServer g_RCONServer;
+CRConServer* g_RCONServer(new CRConServer());
 CRConServer* RCONServer() // Singleton RCON Server.
 {
-	return &g_RCONServer;
+	return g_RCONServer;
 }
