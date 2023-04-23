@@ -2,26 +2,9 @@
 #include "ipluginsystem.h"
 
 class CModAppSystemGroup;
-
-struct PluginHelpWithAnything_t
-{
-	enum class ePluginHelp : int16_t
-	{
-		PLUGIN_GET_FUNCTION = 0,
-		PLUGIN_REGISTER_CALLBACK,
-		PLUGIN_UNREGISTER_CALLBACK
-	};
-
-	enum class ePluginCallback : int16_t
-	{
-		CModAppSystemGroup_Create = 0
-	};
-
-	ePluginHelp m_nHelpID;
-	ePluginCallback m_nCallbackID;
-	const char* m_pszName;
-	void* m_pFunction;
-};
+class CServer;
+class CClient;
+struct user_creds_s;
 
 template<typename T>
 class CPluginCallbackList
@@ -123,6 +106,7 @@ public:
 #define CREATE_PLUGIN_CALLBACK(typeName, type, funcName, varName) public: using typeName = type; CPluginCallbackList<typeName>& funcName() { return varName; } private: CPluginCallbackList<typeName> varName;
 
 	CREATE_PLUGIN_CALLBACK(CreateFn, bool(*)(CModAppSystemGroup*), GetCreateCallbacks, createCallbacks);
+	CREATE_PLUGIN_CALLBACK(ConnectClientFn, bool(*)(CServer*, CClient*, user_creds_s*), GetConnectClientCallbacks, connectClientCallbacks);
 
 #undef CREATE_PLUGIN_CALLBACK
 

@@ -128,6 +128,11 @@ void CPluginSystem::AddPluginCallback(PluginHelpWithAnything_t* help)
 		ADD_PLUGIN_CALLBACK(CreateFn, GetCreateCallbacks(), help->m_pFunction);
 		break;
 	}
+	case PluginHelpWithAnything_t::ePluginCallback::CServer_ConnectClient:
+	{
+		ADD_PLUGIN_CALLBACK(ConnectClientFn, GetConnectClientCallbacks(), help->m_pFunction);
+		break;
+	}
 	default:
 		break;
 	}
@@ -149,6 +154,11 @@ void CPluginSystem::RemovePluginCallback(PluginHelpWithAnything_t* help)
 	case PluginHelpWithAnything_t::ePluginCallback::CModAppSystemGroup_Create:
 	{
 		REMOVE_PLUGIN_CALLBACK(CreateFn, GetCreateCallbacks(), help->m_pFunction);
+		break;
+	}
+	case PluginHelpWithAnything_t::ePluginCallback::CServer_ConnectClient:
+	{
+		REMOVE_PLUGIN_CALLBACK(ConnectClientFn, GetConnectClientCallbacks(), help->m_pFunction);
 		break;
 	}
 	default:

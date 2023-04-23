@@ -17,6 +17,7 @@
 #include "networksystem/bansystem.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "public/edict.h"
+#include <pluginsystem/pluginsystem.h>
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of human players on the server
@@ -139,6 +140,13 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		return nullptr;
 
 	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
+
+	for (auto& callback : !g_pPluginSystem->GetConnectClientCallbacks())
+	{
+		if (!callback(pServer, pClient, pChallenge))
+			return nullptr;
+	}
+
 	return pClient;
 }
 
