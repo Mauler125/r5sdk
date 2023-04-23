@@ -113,10 +113,11 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
         return;
     }
 
-    strncpy(&*g_szBaseDir, pStartupInfo->m_szBaseDirectory, 260);
+    const size_t nBufLen = sizeof(pStartupInfo->m_szBaseDirectory);
+    strncpy(g_szBaseDir, pStartupInfo->m_szBaseDirectory, nBufLen);
 
-    g_pEngineParms->baseDirectory = &*g_szBaseDir;
-    g_szBaseDir[259] = '\0';
+    g_pEngineParms->baseDirectory = g_szBaseDir;
+    g_szBaseDir[nBufLen-1] = '\0';
 
     void** pCurrentInstance = &pEngineAPI->m_StartupInfo.m_pInstance;
     size_t nInstances = 6;
