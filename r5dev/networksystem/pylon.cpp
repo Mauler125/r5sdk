@@ -25,15 +25,17 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["version"] = SDK_VERSION;
 
-    string svRequestBody = jsRequestBody.dump(4);
-    string svResponse;
+    const string svRequestBody = jsRequestBody.dump(4);
+    const bool bDebug = pylon_showdebuginfo->GetBool();
 
-    if (pylon_showdebuginfo->GetBool())
+    if (bDebug)
     {
         DevMsg(eDLL_T::ENGINE, "%s - Sending server list request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
+    string svResponse;
     CURLINFO status;
+
     if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), "/servers", svRequestBody, svResponse, svOutMessage, status))
     {
         return vslList;
@@ -72,41 +74,12 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
             }
             else
             {
-                if (jsResultBody["error"].is_string())
-                {
-                    svOutMessage = jsResultBody["error"].get<string>();
-                }
-                else
-                {
-                    svOutMessage = Format("Unknown error with status: %d", static_cast<int>(status));
-                }
+                ExtractError(jsResultBody, svOutMessage, status);
             }
         }
         else
         {
-            if (status)
-            {
-                if (!svResponse.empty())
-                {
-                    nlohmann::json jsResultBody = nlohmann::json::parse(svResponse);
-
-                    if (jsResultBody["error"].is_string())
-                    {
-                        svOutMessage = jsResultBody["error"].get<string>();
-                    }
-                    else
-                    {
-                        svOutMessage = Format("Server list error: %d", static_cast<int>(status));
-                    }
-
-                    return vslList;
-                }
-
-                svOutMessage = Format("Failed comp-server query: %d", static_cast<int>(status));
-                return vslList;
-            }
-
-            svOutMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
+            ExtractError(svResponse, svOutMessage, status, "Server list error");
             return vslList;
         }
     }
@@ -130,9 +103,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["token"] = svToken;
 
-    string svRequestBody = jsRequestBody.dump(4);
-    string svResponseBuf;
-
+    const string svRequestBody = jsRequestBody.dump(4);
     const bool bDebugLog = pylon_showdebuginfo->GetBool();
 
     if (bDebugLog)
@@ -140,7 +111,9 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
         DevMsg(eDLL_T::ENGINE, "%s - Sending token connect request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
+    string svResponseBuf;
     CURLINFO status;
+
     if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), "/server/byToken", svRequestBody, svResponseBuf, svOutMessage, status))
     {
         return false;
@@ -187,43 +160,13 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
             }
             else
             {
-                if (jsResultBody["error"].is_string())
-                {
-                    svOutMessage = jsResultBody["error"].get<string>();
-                }
-                else
-                {
-                    svOutMessage = Format("Unknown error with status: %d", static_cast<int>(status));
-                }
-
+                ExtractError(jsResultBody, svOutMessage, status);
                 return false;
             }
         }
         else
         {
-            if (status)
-            {
-                if (!svResponseBuf.empty())
-                {
-                    nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
-
-                    if (jsResultBody["error"].is_string())
-                    {
-                        svOutMessage = jsResultBody["error"].get<string>();
-                    }
-                    else
-                    {
-                        svOutMessage = Format("Server not found: %d", static_cast<int>(status));
-                    }
-
-                    return false;
-                }
-
-                svOutMessage = Format("Failed comp-server query: %d", static_cast<int>(status));
-                return false;
-            }
-
-            svOutMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
+            ExtractError(svResponseBuf, svOutMessage, status, "Server not found");
             return false;
         }
     }
@@ -309,45 +252,17 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
             }
             else
             {
-                if (jsResultBody["error"].is_string())
-                {
-                    svOutMessage = jsResultBody["error"].get<string>();
-                }
-                else
-                {
-                    svOutMessage = Format("Unknown error with status: %d", static_cast<int>(status));
-                }
+                ExtractError(jsResultBody, svOutMessage, status);
+                svOutToken.clear();
+
                 return false;
             }
         }
         else
         {
-            if (status)
-            {
-                if (!svResponseBuf.empty())
-                {
-                    nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
-
-                    if (jsResultBody["error"].is_string())
-                    {
-                        svOutMessage = jsResultBody["error"].get<string>();
-                    }
-                    else
-                    {
-                        svOutMessage = Format("Server host error: %d", static_cast<int>(status));
-                    }
-
-                    svOutToken.clear();
-                    return false;
-                }
-
-                svOutMessage = Format("Failed comp-server query: %d", static_cast<int>(status));
-                svOutToken.clear();
-                return false;
-            }
-
-            svOutMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
+            ExtractError(svResponseBuf, svOutMessage, status, "Server host error");
             svOutToken.clear();
+
             return false;
         }
     }
@@ -498,6 +413,54 @@ bool CPylon::QueryMasterServer(const string& svHostName, const string& svApi, co
 
     outStatus = CURLRetrieveInfo(curl);
     return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Extracts the error from the result body.
+// Input  : &resultBody - 
+//          &outMessage - 
+//          status - 
+//          *errorText - 
+//-----------------------------------------------------------------------------
+void CPylon::ExtractError(const nlohmann::json& resultBody, string& outMessage, CURLINFO status, const char* errorText) const
+{
+    if (resultBody["error"].is_string())
+    {
+        outMessage = resultBody["error"].get<string>();
+    }
+    else
+    {
+        if (!errorText)
+        {
+            errorText = "Unknown error with status";
+        }
+
+        outMessage = Format("%s: %d", errorText, static_cast<int>(status));
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Extracts the error from the response buffer.
+// Input  : &resultBody - 
+//          &outMessage - 
+//          status - 
+//          *errorText - 
+//-----------------------------------------------------------------------------
+void CPylon::ExtractError(const string& responseBuffer, string& outMessage, CURLINFO status, const char* errorText) const
+{
+    if (!responseBuffer.empty())
+    {
+        nlohmann::json resultBody = nlohmann::json::parse(responseBuffer);
+        ExtractError(resultBody, outMessage, status, errorText);
+    }
+    else if (status)
+    {
+        outMessage = Format("Failed comp-server query: %d", static_cast<int>(status));
+    }
+    else
+    {
+        outMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

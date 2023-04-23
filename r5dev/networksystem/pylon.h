@@ -11,6 +11,9 @@ public:
 	bool CheckForBan(const string& svIpAddress, const uint64_t nNucleusID, string& svOutReason) const;
 	bool QueryMasterServer(const string& svHostName, const string& svApi, const string& svRequest, string& svResponse, string& svOutMessage, CURLINFO& status) const;
 
+	void ExtractError(const nlohmann::json& resultBody, string& outMessage, CURLINFO status, const char* errorText = nullptr) const;
+	void ExtractError(const string& responseBuffer, string& outMessage, CURLINFO status, const char* messageText = nullptr) const;
+
 #ifdef DEDICATED
 	bool KeepAlive(const NetGameServer_t& netGameServer);
 
