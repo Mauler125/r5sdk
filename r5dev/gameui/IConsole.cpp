@@ -81,6 +81,13 @@ CConsole::CConsole(void)
 //-----------------------------------------------------------------------------
 CConsole::~CConsole(void)
 {
+    for (MODULERESOURCE& flagIcon : m_vFlagIcons)
+    {
+        if (flagIcon.m_idIcon)
+        {
+            flagIcon.m_idIcon->Release();
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
