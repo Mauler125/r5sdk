@@ -347,13 +347,13 @@ void CSurface::Init()
 	this->m_NetRandomKeyToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineNetworkGroup->AddControl(this->m_NetRandomKeyToggle);
 
-	this->m_NoQueuedPacketThread = new UIX::UIXCheckBox();
-	this->m_NoQueuedPacketThread->SetSize({ 125, 18 });
-	this->m_NoQueuedPacketThread->SetLocation({ 15, 30 });
-	this->m_NoQueuedPacketThread->SetTabIndex(2);
-	this->m_NoQueuedPacketThread->SetText("No queued packets");
-	this->m_NoQueuedPacketThread->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_EngineNetworkGroup->AddControl(this->m_NoQueuedPacketThread);
+	this->m_QueuedPacketThread = new UIX::UIXCheckBox();
+	this->m_QueuedPacketThread->SetSize({ 125, 18 });
+	this->m_QueuedPacketThread->SetLocation({ 15, 30 });
+	this->m_QueuedPacketThread->SetTabIndex(2);
+	this->m_QueuedPacketThread->SetText("Queued packets");
+	this->m_QueuedPacketThread->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_EngineNetworkGroup->AddControl(this->m_QueuedPacketThread);
 
 	this->m_NoTimeOutToggle = new UIX::UIXCheckBox();
 	this->m_NoTimeOutToggle->SetSize({ 125, 18 });
@@ -566,7 +566,7 @@ void CSurface::LoadSettings()
 		this->m_NetRandomKeyToggle->SetChecked(attributeView != "0");
 
 		attributeView = vRoot.attribs["noQueuedPackets"];
-		this->m_NoQueuedPacketThread->SetChecked(attributeView != "0");
+		this->m_QueuedPacketThread->SetChecked(attributeView != "0");
 
 		attributeView = vRoot.attribs["noTimeOut"];
 		this->m_NoTimeOutToggle->SetChecked(attributeView != "0");
@@ -635,7 +635,7 @@ void CSurface::SaveSettings()
 	// Network.
 	vRoot.add_attribute("encryptionEnable", GetControlValue(this->m_NetEncryptionToggle));
 	vRoot.add_attribute("randomNetKey", GetControlValue(this->m_NetRandomKeyToggle));
-	vRoot.add_attribute("noQueuedPackets", GetControlValue(this->m_NoQueuedPacketThread));
+	vRoot.add_attribute("noQueuedPackets", GetControlValue(this->m_QueuedPacketThread));
 	vRoot.add_attribute("noTimeOut", GetControlValue(this->m_NoTimeOutToggle));
 
 	// Video.
@@ -1031,14 +1031,9 @@ void CSurface::AppendHostParameters(string& svParameters)
 //-----------------------------------------------------------------------------
 void CSurface::AppendNetParameters(string& svParameters)
 {
-	if (this->m_NetEncryptionToggle->Checked())
-		AppendParameterInternal(svParameters, "+net_encryptionEnable", "1");
-
-	if (this->m_NetRandomKeyToggle->Checked())
-		AppendParameterInternal(svParameters, "+net_useRandomKey", "1");
-
-	if (this->m_NoQueuedPacketThread->Checked())
-		AppendParameterInternal(svParameters, "+net_queued_packet_thread", "0");
+	AppendParameterInternal(svParameters, "+net_encryptionEnable", this->m_NetEncryptionToggle->Checked() ? "1" : "0");
+	AppendParameterInternal(svParameters, "+net_useRandomKey", this->m_NetRandomKeyToggle->Checked() ? "1" : "0");
+	AppendParameterInternal(svParameters, "+net_queued_packet_thread", this->m_QueuedPacketThread->Checked() ? "1" : "0");
 
 	if (this->m_NoTimeOutToggle->Checked())
 		AppendParameterInternal(svParameters, "-notimeout");
