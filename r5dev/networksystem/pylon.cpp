@@ -25,59 +25,42 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
     nlohmann::json requestJson = nlohmann::json::object();
     requestJson["version"] = SDK_VERSION;
 
-    string responseBody;
+    nlohmann::json responseJson;
     CURLINFO status;
 
-    if (!QueryAPI("/servers", requestJson.dump(4), responseBody, outMessage, status))
+    if (!SendRequest("/servers", requestJson, responseJson, outMessage, status, "Server list error"))
     {
         return vecServers;
     }
 
-    try
+    if (!responseJson.contains("servers"))
     {
-        if (status == 200) // STATUS_OK
-        {
-            nlohmann::json resultJson = nlohmann::json::parse(responseBody);
-            if (resultJson["success"].is_boolean() && resultJson["success"].get<bool>())
-            {
-                for (auto& obj : resultJson["servers"])
-                {
-                    vecServers.push_back(
-                        NetGameServer_t
-                        {
-                            obj.value("name",""),
-                            obj.value("description",""),
-                            obj.value("hidden","false") == "true",
-                            obj.value("map",""),
-                            obj.value("playlist",""),
-                            obj.value("ip",""),
-                            obj.value("port", ""),
-                            obj.value("key",""),
-                            obj.value("checksum",""),
-                            obj.value("version", SDK_VERSION),
-                            obj.value("playerCount", ""),
-                            obj.value("maxPlayers", ""),
-                            obj.value("timeStamp", 0),
-                            obj.value("publicRef", ""),
-                            obj.value("cachedId", ""),
-                        }
-                    );
-                }
-            }
-            else
-            {
-                ExtractError(resultJson, outMessage, status);
-            }
-        }
-        else
-        {
-            ExtractError(responseBody, outMessage, status, "Server list error");
-            return vecServers;
-        }
+        outMessage = Format("Invalid response with status: %d", static_cast<int>(status));
+        return vecServers;
     }
-    catch (const std::exception& ex)
+
+    for (auto& obj : responseJson["servers"])
     {
-        Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
+        vecServers.push_back(
+            NetGameServer_t
+            {
+                obj.value("name",""),
+                obj.value("description",""),
+                obj.value("hidden","false") == "true",
+                obj.value("map",""),
+                obj.value("playlist",""),
+                obj.value("ip",""),
+                obj.value("port", ""),
+                obj.value("key",""),
+                obj.value("checksum",""),
+                obj.value("version", SDK_VERSION),
+                obj.value("playerCount", ""),
+                obj.value("maxPlayers", ""),
+                obj.value("timeStamp", 0),
+                obj.value("publicRef", ""),
+                obj.value("cachedId", ""),
+            }
+        );
     }
 
     return vecServers;
@@ -96,67 +79,42 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
     nlohmann::json requestJson = nlohmann::json::object();
     requestJson["token"] = token;
 
-    string responseBody;
+    nlohmann::json responseJson;
     CURLINFO status;
 
-    if (!QueryAPI("/server/byToken", requestJson.dump(4), responseBody, outMessage, status))
+    if (!SendRequest("/server/byToken", requestJson, responseJson, outMessage, status, "Server not found"))
     {
         return false;
     }
 
-    try
+    if (!responseJson.contains("server"))
     {
-        if (status == 200) // STATUS_OK
-        {
-            nlohmann::json responseJson = nlohmann::json::parse(responseBody);
-
-            if (pylon_showdebuginfo->GetBool())
-            {
-                responseBody = responseJson.dump(4);
-                DevMsg(eDLL_T::ENGINE, "%s: Response body:\n%s\n",
-                    __FUNCTION__, responseBody.c_str());
-            }
-
-            if (responseJson["success"].is_boolean() && responseJson["success"])
-            {
-                outGameServer = NetGameServer_t
-                {
-                        responseJson["server"].value("name",""),
-                        responseJson["server"].value("description",""),
-                        responseJson["server"].value("hidden","false") == "true",
-                        responseJson["server"].value("map",""),
-                        responseJson["server"].value("playlist",""),
-                        responseJson["server"].value("ip",""),
-                        responseJson["server"].value("port", ""),
-                        responseJson["server"].value("key",""),
-                        responseJson["server"].value("checksum",""),
-                        responseJson["server"].value("version", SDK_VERSION),
-                        responseJson["server"].value("playerCount", ""),
-                        responseJson["server"].value("maxPlayers", ""),
-                        responseJson["server"].value("timeStamp", 0),
-                        responseJson["server"].value("publicRef", ""),
-                        responseJson["server"].value("cachedId", ""),
-                };
-                return true;
-            }
-            else
-            {
-                ExtractError(responseJson, outMessage, status);
-                return false;
-            }
-        }
-        else
-        {
-            ExtractError(responseBody, outMessage, status, "Server not found");
-            return false;
-        }
-    }
-    catch (const std::exception& ex)
-    {
-        Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
+        outMessage = Format("Invalid response with status: %d", static_cast<int>(status));
+        return false;
     }
 
-    return false;
+    nlohmann::json& serverJson = responseJson["server"];
+
+    outGameServer = NetGameServer_t
+    {
+            serverJson.value("name",""),
+            serverJson.value("description",""),
+            serverJson.value("hidden","false") == "true",
+            serverJson.value("map",""),
+            serverJson.value("playlist",""),
+            serverJson.value("ip",""),
+            serverJson.value("port", ""),
+            serverJson.value("key",""),
+            serverJson.value("checksum",""),
+            serverJson.value("version", SDK_VERSION),
+            serverJson.value("playerCount", ""),
+            serverJson.value("maxPlayers", ""),
+            serverJson.value("timeStamp", 0),
+            serverJson.value("publicRef", ""),
+            serverJson.value("cachedId", ""),
+    };
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -185,63 +143,26 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, const NetGameS
     requestJson["publicRef"] = netGameServer.m_svPublicRef;
     requestJson["cachedId"] = netGameServer.m_svCachedId;
 
-    string responseBody;
+    nlohmann::json responseJson;
     CURLINFO status;
 
-    if (!QueryAPI("/servers/add", requestJson.dump(4), responseBody, outMessage, status))
+    if (!SendRequest("/servers/add", requestJson, responseJson, outMessage, status, "Server host error"))
     {
         return false;
     }
 
-    try
+    nlohmann::json& tokenJson = responseJson["token"];
+
+    if (!tokenJson.is_string())
     {
-        if (status == 200) // STATUS_OK
-        {
-            nlohmann::json responseJson = nlohmann::json::parse(responseBody);
+        outMessage = Format("Invalid response with status: %d", static_cast<int>(status));
+        outToken.clear();
 
-            if (pylon_showdebuginfo->GetBool())
-            {
-                responseBody = responseJson.dump(4);
-                DevMsg(eDLL_T::ENGINE, "%s: Response body:\n%s\n",
-                    __FUNCTION__, responseBody.c_str());
-            }
-
-            if (responseJson["success"].is_boolean() && responseJson["success"].get<bool>())
-            {
-                if (responseJson["token"].is_string())
-                {
-                    outToken = responseJson["token"].get<string>();
-                }
-                else
-                {
-                    outMessage = Format("Invalid response with status: %d", static_cast<int>(status));
-                    outToken.clear();
-                }
-
-                return true;
-            }
-            else
-            {
-                ExtractError(responseJson, outMessage, status);
-                outToken.clear();
-
-                return false;
-            }
-        }
-        else
-        {
-            ExtractError(responseBody, outMessage, status, "Server host error");
-            outToken.clear();
-
-            return false;
-        }
-    }
-    catch (const std::exception& ex)
-    {
-        Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
+        return false;
     }
 
-    return false;
+    outToken = tokenJson.get<string>();
+    return true;
 }
 
 #ifdef DEDICATED
@@ -297,59 +218,86 @@ bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId, stri
     requestJson["id"] = nucleusId;
     requestJson["ip"] = ipAddress;
 
-    string responseBody;
+    nlohmann::json responseJson;
     string outMessage;
     CURLINFO status;
 
-    if (!QueryAPI("/banlist/isBanned", requestJson.dump(4), responseBody, outMessage, status))
+    if (!SendRequest("/banlist/isBanned", requestJson,
+        responseJson, outMessage, status, "Banned check error"))
     {
         return false;
     }
 
-    if (status != 200)
+    if (responseJson["banned"].is_boolean() &&
+        responseJson["banned"].get<bool>())
     {
-        Error(eDLL_T::ENGINE, NO_ERROR, "%s - Failed to query comp-server: status code = %d\n", __FUNCTION__, status);
-        return false;
-    }
-
-    try
-    {
-        nlohmann::json responseJson = nlohmann::json::parse(responseBody);
-
-        if (pylon_showdebuginfo->GetBool())
-        {
-            responseBody = responseJson.dump(4);
-            DevMsg(eDLL_T::ENGINE, "%s: Response body:\n%s\n",
-                __FUNCTION__, responseBody.c_str());
-        }
-
-        if (responseJson["success"].is_boolean() && responseJson["success"].get<bool>())
-        {
-            if (responseJson["banned"].is_boolean() && responseJson["banned"].get<bool>())
-            {
-                outReason = responseJson.value("reason", "#DISCONNECT_BANNED");
-                return true;
-            }
-        }
-    }
-    catch (const std::exception& ex)
-    {
-        Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
+        outReason = responseJson.value("reason", "#DISCONNECT_BANNED");
+        return true;
     }
 
     return false;
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Sends request to Pylon Master Server.
+// Input  : *endpoint -
+//			&requestBody -
+//			&responseBody -
+//			&outMessage -
+//			&status -
+// Output : True on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CPylon::SendRequest(const char* endpoint, const nlohmann::json& requestJson,
+    nlohmann::json& responseJson, string& outMessage, CURLINFO& status, const char* errorText) const
+{
+    string responseBody;
+
+    if (!QueryServer(endpoint, requestJson.dump(4).c_str(), responseBody, outMessage, status))
+    {
+        return false;
+    }
+
+    try
+    {
+        if (status == 200) // STATUS_OK
+        {
+            responseJson = nlohmann::json::parse(responseBody);
+            LogBody(responseJson);
+
+            if (responseJson["success"].is_boolean() &&
+                responseJson["success"].get<bool>())
+            {
+                return true;
+            }
+            else
+            {
+                ExtractError(responseJson, outMessage, status);
+                return false;
+            }
+        }
+        else
+        {
+            ExtractError(responseBody, outMessage, status, errorText);
+            return false;
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - Exception while parsing response:\n%s\n", __FUNCTION__, ex.what());
+        return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Sends query to master server.
-// Input  : &apiName     - 
-//          &request     - 
+// Input  : *endpoint    - 
+//          *request     - 
 //          &outResponse - 
 //          &outMessage  - <- contains an error message if any.
 //          &outStatus   - 
-// Output : Returns true if successful, false otherwise.
+// Output : True on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CPylon::QueryAPI(const string& apiName, const string& request,
+bool CPylon::QueryServer(const char* endpoint, const char* request,
     string& outResponse, string& outMessage, CURLINFO& outStatus) const
 {
     const bool showDebug = pylon_showdebuginfo->GetBool();
@@ -357,41 +305,12 @@ bool CPylon::QueryAPI(const string& apiName, const string& request,
 
     if (showDebug)
     {
-        DevMsg(eDLL_T::ENGINE, "%s: Sending '%s' request to '%s':\n%s\n",
-            __FUNCTION__, apiName.c_str(), hostName, request.c_str());
+        DevMsg(eDLL_T::ENGINE, "Sending request to '%s' with endpoint '%s':\n%s\n",
+            hostName, endpoint, request);
     }
 
-    if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), apiName,
-        request, outResponse, outMessage, outStatus))
-    {
-        return false;
-    }
-
-    if (showDebug)
-    {
-        DevMsg(eDLL_T::ENGINE, "%s: Host '%s' replied with status: '%d'\n",
-            __FUNCTION__, hostName, outStatus);
-    }
-
-    return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Sends query to master server.
-// Input  : &hostName    - 
-//          &apiName     - 
-//          &request     - 
-//          &outResponse - 
-//          &outMessage  - <- contains an error message if any.
-//          &outStatus   - 
-// Output : Returns true if successful, false otherwise.
-//-----------------------------------------------------------------------------
-bool CPylon::QueryMasterServer(const string& hostName, const string& apiName,
-    const string& request,  string& outResponse, string& outMessage,
-    CURLINFO& outStatus) const
-{
     string finalUrl;
-    CURLFormatUrl(finalUrl, hostName, apiName);
+    CURLFormatUrl(finalUrl, hostName, endpoint);
 
     curl_slist* sList = nullptr;
     CURL* curl = CURLInitRequest(finalUrl, request, outResponse, sList);
@@ -407,6 +326,13 @@ bool CPylon::QueryMasterServer(const string& hostName, const string& apiName,
     }
 
     outStatus = CURLRetrieveInfo(curl);
+
+    if (showDebug)
+    {
+        DevMsg(eDLL_T::ENGINE, "Host '%s' replied with status: '%d'\n",
+            hostName, outStatus);
+    }
+
     return true;
 }
 
@@ -457,6 +383,19 @@ void CPylon::ExtractError(const string& response, string& outMessage,
     else
     {
         outMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Logs the response body if debug is enabled.
+// Input  : &responseJson -
+//-----------------------------------------------------------------------------
+void CPylon::LogBody(const nlohmann::json& responseJson) const
+{
+    if (pylon_showdebuginfo->GetBool())
+    {
+        const string responseBody = responseJson.dump(4);
+        DevMsg(eDLL_T::ENGINE, "\n%s\n", responseBody.c_str());
     }
 }
 
