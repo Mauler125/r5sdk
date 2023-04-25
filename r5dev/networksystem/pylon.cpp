@@ -29,7 +29,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
     CURLINFO status;
 
     if (!SendRequest("/servers", requestJson, responseJson,
-        outMessage, status, "Server list error"))
+        outMessage, status, "server list error"))
     {
         return vecServers;
     }
@@ -83,7 +83,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
     nlohmann::json responseJson;
     CURLINFO status;
 
-    if (!SendRequest("/server/byToken", requestJson, responseJson, outMessage, status, "Server not found"))
+    if (!SendRequest("/server/byToken", requestJson, responseJson, outMessage, status, "server not found"))
     {
         return false;
     }
@@ -147,7 +147,7 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, const NetGameS
     nlohmann::json responseJson;
     CURLINFO status;
 
-    if (!SendRequest("/servers/add", requestJson, responseJson, outMessage, status, "Server host error"))
+    if (!SendRequest("/servers/add", requestJson, responseJson, outMessage, status, "server host error"))
     {
         return false;
     }
@@ -224,7 +224,7 @@ bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId, stri
     CURLINFO status;
 
     if (!SendRequest("/banlist/isBanned", requestJson,
-        responseJson, outMessage, status, "Banned check error"))
+        responseJson, outMessage, status, "banned check error"))
     {
         return false;
     }
@@ -355,10 +355,10 @@ void CPylon::ExtractError(const nlohmann::json& resultJson, string& outMessage,
     {
         if (!errorText)
         {
-            errorText = "Unknown error with status";
+            errorText = "unknown error";
         }
 
-        outMessage = Format("%s: %d", errorText, int(status));
+        outMessage = Format("Failed with status: %d (%s)", int(status), errorText);
     }
 }
 
@@ -379,11 +379,11 @@ void CPylon::ExtractError(const string& response, string& outMessage,
     }
     else if (status)
     {
-        outMessage = Format("Failed comp-server query: %d", int(status));
+        outMessage = Format("Failed server query: %d", int(status));
     }
     else
     {
-        outMessage = Format("Failed to reach comp-server: %s",
+        outMessage = Format("Failed to reach server: %s",
             "connection timed out");
     }
 }
