@@ -28,14 +28,15 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
     nlohmann::json responseJson;
     CURLINFO status;
 
-    if (!SendRequest("/servers", requestJson, responseJson, outMessage, status, "Server list error"))
+    if (!SendRequest("/servers", requestJson, responseJson,
+        outMessage, status, "Server list error"))
     {
         return vecServers;
     }
 
     if (!responseJson.contains("servers"))
     {
-        outMessage = Format("Invalid response with status: %d", static_cast<int>(status));
+        outMessage = Format("Invalid response with status: %d", int(status));
         return vecServers;
     }
 
@@ -313,7 +314,7 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
     CURLFormatUrl(finalUrl, hostName, endpoint);
 
     curl_slist* sList = nullptr;
-    CURL* curl = CURLInitRequest(finalUrl, request, outResponse, sList);
+    CURL* curl = CURLInitRequest(finalUrl.c_str(), request, outResponse, sList);
     if (!curl)
     {
         return false;
@@ -357,7 +358,7 @@ void CPylon::ExtractError(const nlohmann::json& resultJson, string& outMessage,
             errorText = "Unknown error with status";
         }
 
-        outMessage = Format("%s: %d", errorText, static_cast<int>(status));
+        outMessage = Format("%s: %d", errorText, int(status));
     }
 }
 
@@ -378,11 +379,12 @@ void CPylon::ExtractError(const string& response, string& outMessage,
     }
     else if (status)
     {
-        outMessage = Format("Failed comp-server query: %d", static_cast<int>(status));
+        outMessage = Format("Failed comp-server query: %d", int(status));
     }
     else
     {
-        outMessage = Format("Failed to reach comp-server: %s", "connection timed-out");
+        outMessage = Format("Failed to reach comp-server: %s",
+            "connection timed out");
     }
 }
 
