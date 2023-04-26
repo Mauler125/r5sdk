@@ -83,14 +83,15 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
     nlohmann::json responseJson;
     CURLINFO status;
 
-    if (!SendRequest("/server/byToken", requestJson, responseJson, outMessage, status, "server not found"))
+    if (!SendRequest("/server/byToken", requestJson, responseJson,
+        outMessage, status, "server not found"))
     {
         return false;
     }
 
     if (!responseJson.contains("server"))
     {
-        outMessage = Format("Invalid response with status: %d", static_cast<int>(status));
+        outMessage = Format("Invalid response with status: %d", int(status));
         return false;
     }
 
@@ -125,7 +126,8 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
 //			&netGameServer - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CPylon::PostServerHost(string& outMessage, string& outToken, const NetGameServer_t& netGameServer) const
+bool CPylon::PostServerHost(string& outMessage, string& outToken,
+    const NetGameServer_t& netGameServer) const
 {
     nlohmann::json requestJson = nlohmann::json::object();
     requestJson["name"] = netGameServer.m_svHostName;
@@ -147,7 +149,8 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, const NetGameS
     nlohmann::json responseJson;
     CURLINFO status;
 
-    if (!SendRequest("/servers/add", requestJson, responseJson, outMessage, status, "server host error"))
+    if (!SendRequest("/servers/add", requestJson, responseJson,
+        outMessage, status, "server host error"))
     {
         return false;
     }
@@ -156,7 +159,7 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, const NetGameS
 
     if (!tokenJson.is_string())
     {
-        outMessage = Format("Invalid response with status: %d", static_cast<int>(status));
+        outMessage = Format("Invalid response with status: %d", int(status));
         outToken.clear();
 
         return false;
@@ -358,7 +361,8 @@ void CPylon::ExtractError(const nlohmann::json& resultJson, string& outMessage,
             errorText = "unknown error";
         }
 
-        outMessage = Format("Failed with status: %d (%s)", int(status), errorText);
+        outMessage = Format("Failed with status: %d (%s)",
+            int(status), errorText);
     }
 }
 
