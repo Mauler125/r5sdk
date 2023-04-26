@@ -46,7 +46,7 @@ class HSV_Main : public IDetour
 	{
 		p_SV_InitGameDLL     = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ??");
 		p_SV_ShutdownGameDLL = g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48");
-		p_SV_CreateBaseline  = g_GameDll.FindPatternSIMD("48 8B C4 56 48 81 EC ?? ?? ?? ?? 48 89 ?? ?? 48 8D");
+		p_SV_ActivateServer  = g_GameDll.FindPatternSIMD("48 8B C4 56 48 81 EC ?? ?? ?? ?? 48 89 ?? ?? 48 8D");
 		p_SV_CreateBaseline  = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 07");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CGameServer__SpawnServer = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 55 41 56 41 57 48 81 EC ?? ?? ?? ??");
@@ -56,7 +56,7 @@ class HSV_Main : public IDetour
 #endif
 		v_SV_InitGameDLL           = p_SV_InitGameDLL.RCast<void(*)(void)>();
 		v_SV_ShutdownGameDLL       = p_SV_ShutdownGameDLL.RCast<void(*)(void)>();
-		v_SV_ActivateServer        = p_SV_CreateBaseline.RCast<bool(*)(void)>();
+		v_SV_ActivateServer        = p_SV_ActivateServer.RCast<bool(*)(void)>();
 		v_SV_CreateBaseline        = p_SV_CreateBaseline.RCast<bool(*)(void)>();
 		CGameServer__SpawnServer = p_CGameServer__SpawnServer.RCast<bool(*)(void*, const char*, const char*)>();
 	}
