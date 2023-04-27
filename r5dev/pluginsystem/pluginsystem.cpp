@@ -15,24 +15,27 @@
 //-----------------------------------------------------------------------------
 void CPluginSystem::PluginSystem_Init()
 {
-	CreateDirectories("bin\\x64_retail\\plugins");
+	CreateDirectories("bin\\x64_retail\\plugins\\");
 
-	for (auto& it : fs::directory_iterator("bin\\x64_retail\\plugins"))
+	if (fs::is_directory("bin\\x64_retail\\plugins\\"))
 	{
-		if (!fs::is_regular_file(it))
-			continue;
-
-		if (auto path = it.path(); path.has_filename() && path.has_extension() && path.extension().compare(".dll") == 0)
+		for (auto& it : fs::directory_iterator("bin\\x64_retail\\plugins\\"))
 		{
-			bool addInstance = true;
-			for (auto& inst : pluginInstances)
-			{
-				if (inst.m_svPluginFullPath.compare(path.u8string()) == 0)
-					addInstance = false;
-			}
+			if (!fs::is_regular_file(it))
+				continue;
 
-			if (addInstance)
-				pluginInstances.push_back(PluginInstance_t(path.filename().u8string(), path.u8string()));
+			if (auto path = it.path(); path.has_filename() && path.has_extension() && path.extension().compare(".dll") == 0)
+			{
+				bool addInstance = true;
+				for (auto& inst : pluginInstances)
+				{
+					if (inst.m_svPluginFullPath.compare(path.u8string()) == 0)
+						addInstance = false;
+				}
+
+				if (addInstance)
+					pluginInstances.push_back(PluginInstance_t(path.filename().u8string(), path.u8string()));
+			}
 		}
 	}
 }
