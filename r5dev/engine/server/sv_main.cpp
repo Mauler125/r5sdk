@@ -15,11 +15,11 @@
 //-----------------------------------------------------------------------------
 // Purpose: checks if particular client is banned on the comp server
 //-----------------------------------------------------------------------------
-void SV_IsClientBanned(const string& svIPAddr, const uint64_t nNucleusID)
+void SV_IsClientBanned(const string& svIPAddr, const uint64_t nNucleusID, const string& svPersonaName)
 {
 	string svError;
+	bool bCompBanned = g_pMasterServer->CheckForBan(svIPAddr, nNucleusID, svPersonaName, svError);
 
-	bool bCompBanned = g_pMasterServer->CheckForBan(svIPAddr, nNucleusID, svError);
 	if (bCompBanned)
 	{
 		if (!ThreadInMainThread())
@@ -50,6 +50,7 @@ void SV_ProcessBulkCheck(const BannedVec_t& bannedVec)
 
 void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 {
+	Assert(ThreadInMainThread());
 	BannedVec_t bannedVec;
 
 	for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.

@@ -11,7 +11,7 @@ public:
 	bool PostServerHost(string& outMessage, string& svOutToken, const NetGameServer_t& netGameServer) const;
 
 	bool GetBannedList(const BannedVec_t& inBannedVec, BannedVec_t& outBannedVec) const;
-	bool CheckForBan(const string& ipAddress, const uint64_t nucleusId, string& outReason) const;
+	bool CheckForBan(const string& ipAddress, const uint64_t nucleusId, const string& personaName, string& outReason) const;
 
 	void ExtractError(const nlohmann::json& resultBody, string& outMessage, CURLINFO status, const char* errorText = nullptr) const;
 	void ExtractError(const string& response, string& outMessage, CURLINFO status, const char* messageText = nullptr) const;

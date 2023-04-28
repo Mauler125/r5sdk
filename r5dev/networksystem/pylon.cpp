@@ -265,9 +265,11 @@ bool CPylon::GetBannedList(const BannedVec_t& inBannedVec, BannedVec_t& outBanne
 //			&outReason - <- contains banned reason if any.
 // Output : True if banned, false if not banned.
 //-----------------------------------------------------------------------------
-bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId, string& outReason) const
+bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId,
+    const string& personaName, string& outReason) const
 {
     nlohmann::json requestJson = nlohmann::json::object();
+    requestJson["name"] = personaName;
     requestJson["id"] = nucleusId;
     requestJson["ip"] = ipAddress;
 

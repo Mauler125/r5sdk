@@ -119,7 +119,7 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 
 	if (sv_globalBanlist->GetBool())
 	{
-		std::thread th(SV_IsClientBanned, string(pszAddresBuffer), nNucleusID);
+		std::thread th(SV_IsClientBanned, string(pszAddresBuffer), nNucleusID, string(pszPersonaName));
 		th.detach();
 	}
 
