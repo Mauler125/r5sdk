@@ -210,11 +210,60 @@ bool CPylon::KeepAlive(const NetGameServer_t& netGameServer)
 #endif // DEDICATED
 
 //-----------------------------------------------------------------------------
+// Purpose: Checks a list of clients for their banned status.
+// Input  : &inBannedVec - 
+//			&outBannedVec  - 
+// Output : True on success, false otherwise.
+//-----------------------------------------------------------------------------
+bool CPylon::GetBannedList(const BannedVec_t& inBannedVec, BannedVec_t& outBannedVec) const
+{
+    nlohmann::json arrayJson = nlohmann::json::array();
+
+    for (const auto& bannedPair : inBannedVec)
+    {
+        nlohmann::json player;
+        player["id"] = bannedPair.second;
+        player["ip"] = bannedPair.first;
+        arrayJson.push_back(player);
+    }
+
+    nlohmann::json playerArray;
+    playerArray["players"] = arrayJson;
+
+    string outMessage;
+    CURLINFO status;
+
+    if (!SendRequest("/banlist/bulkCheck", playerArray,
+        arrayJson, outMessage, status, "banned bulk check error"))
+    {
+        return false;
+    }
+
+    if (!arrayJson.contains("bannedPlayers"))
+    {
+        outMessage = Format("Invalid response with status: %d", int(status));
+        return false;
+    }
+
+    for (auto& obj : arrayJson["bannedPlayers"])
+    {
+        outBannedVec.push_back(
+            std::make_pair(
+                obj.value("reason", "#DISCONNECT_BANNED"),
+                obj.value("id", uint64_t(0))
+            )
+        );
+    }
+
+    return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Checks if client is banned on the comp server.
 // Input  : &ipAddress - 
 //			nucleusId  - 
 //			&outReason - <- contains banned reason if any.
-// Output : Returns true if banned, false if not banned.
+// Output : True if banned, false if not banned.
 //-----------------------------------------------------------------------------
 bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId, string& outReason) const
 {

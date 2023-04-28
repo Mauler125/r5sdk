@@ -28,6 +28,7 @@ void SV_InitGameDLL();
 void SV_ShutdownGameDLL();
 bool SV_ActivateServer();
 void SV_IsClientBanned(const string& svIPAddr, const uint64_t nNucleusID);
+void SV_CheckForBan(const BannedVec_t* pBannedVec = nullptr);
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////

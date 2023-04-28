@@ -268,9 +268,10 @@ void CHostState::Think(void) const
 
 		statsTimer.Start();
 	}
-	if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetDouble())
+	if (sv_globalBanlist->GetBool() &&
+		banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetDouble())
 	{
-		g_pBanSystem->BanListCheck();
+		SV_CheckForBan();
 		banListTimer.Start();
 	}
 #ifdef DEDICATED
