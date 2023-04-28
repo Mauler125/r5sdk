@@ -339,7 +339,7 @@ void ConVar::StaticInit(void)
 	sv_globalBanlist   = ConVar::StaticCreate("sv_globalBanlist"  , "1", FCVAR_RELEASE, "Determines whether or not to use the global banned list.", false, 0.f, false, 0.f, nullptr, "0 = Disable, 1 = Enable.");
 	sv_pylonVisibility = ConVar::StaticCreate("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", false, 0.f, false, 0.f, nullptr, "0 = Offline, 1 = Hidden, 2 = Public.");
 	sv_pylonRefreshRate   = ConVar::StaticCreate("sv_pylonRefreshRate"  , "5.0", FCVAR_RELEASE, "Pylon host refresh rate (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
-	sv_banlistRefreshRate = ConVar::StaticCreate("sv_banlistRefreshRate", "1.0", FCVAR_RELEASE, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
+	sv_banlistRefreshRate = ConVar::StaticCreate("sv_banlistRefreshRate", "30.0", FCVAR_RELEASE, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshRate  = ConVar::StaticCreate("sv_statusRefreshRate" , "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_autoReloadRate     = ConVar::StaticCreate("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null).", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_simulateBots = ConVar::StaticCreate("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.", true, 0.f, false, 0.f, nullptr, nullptr);
@@ -1237,13 +1237,13 @@ static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 			Q_strncat(emptyflags, csvf, len);
 		}
 		// Names staring with +/- need to be wrapped in single quotes
-		char name[256];
-		Q_snprintf(name, sizeof(name), "%s", cmd->GetName());
-		if (name[0] == '+' || name[0] == '-')
+		char nameBuf[256];
+		Q_snprintf(nameBuf, sizeof(nameBuf), "%s", cmd->GetName());
+		if (nameBuf[0] == '+' || nameBuf[0] == '-')
 		{
-			Q_snprintf(name, sizeof(name), "'%s'", cmd->GetName());
+			Q_snprintf(nameBuf, sizeof(nameBuf), "'%s'", cmd->GetName());
 		}
-		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", name, "cmd", emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", nameBuf, "cmd", emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
 	}
 }
 
