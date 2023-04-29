@@ -106,6 +106,10 @@ extern ConVar* sv_validatePersonaName;
 extern ConVar* sv_minPersonaNameLength;
 extern ConVar* sv_maxPersonaNameLength;
 
+extern ConVar* sv_voiceEcho;
+extern ConVar* sv_voiceenable;
+extern ConVar* sv_alltalk;
+
 //#ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_sendlogs;

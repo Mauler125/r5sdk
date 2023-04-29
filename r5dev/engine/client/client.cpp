@@ -23,6 +23,14 @@ CClient* CClient::GetClient(int nIndex) const
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: gets the client's team number
+//---------------------------------------------------------------------------------
+__int64 CClient::GetTeamNum() const
+{
+	return m_iTeamNum;
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: gets the handle of this client
 //---------------------------------------------------------------------------------
 edict_t CClient::GetHandle(void) const

@@ -179,6 +179,14 @@ int CNetChan::GetSocket(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: gets a const reference to m_StreamVoice
+//-----------------------------------------------------------------------------
+const bf_write& CNetChan::GetStreamVoice(void) const
+{
+	return this->m_StreamVoice;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: checks if the reliable stream is overflowed
 // Output : true if overflowed, false otherwise
 //-----------------------------------------------------------------------------

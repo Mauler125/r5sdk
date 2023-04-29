@@ -4,6 +4,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class CClient;
+
 /* ==== SV_MAIN ======================================================================================================================================================= */
 inline CMemory p_SV_InitGameDLL;
 inline auto SV_InitGameDLL = p_SV_InitGameDLL.RCast<void(*)(void)>();
@@ -16,6 +18,9 @@ inline auto SV_CreateBaseline = p_SV_CreateBaseline.RCast<bool(*)(void)>();
 
 inline CMemory p_CGameServer__SpawnServer;
 inline auto CGameServer__SpawnServer = p_CGameServer__SpawnServer.RCast<bool(*)(void* thisptr, const char* pszMapName, const char* pszMapGroupName)>();
+
+inline CMemory p_SV_BroadcastVoiceData;
+inline auto v_SV_BroadcastVoiceData = p_SV_BroadcastVoiceData.RCast<void(__fastcall*)(CClient* cl, int nBytes, char* data)>();
 
 inline bool* s_bIsDedicated = nullptr;
 
@@ -46,10 +51,13 @@ class HSV_Main : public IDetour
 		p_CGameServer__SpawnServer = g_GameDll.FindPatternSIMD("48 8B C4 53 55 56 57 41 54 41 55 41 57");
 		// 0x140312D80 // 48 8B C4 53 55 56 57 41 54 41 55 41 57 //
 #endif
+		p_SV_BroadcastVoiceData = g_GameDll.FindPatternSIMD("4C 8B DC 56 48 81 EC ? ? ? ? 80 3D ? ? ? ? ? ");
+
 		SV_InitGameDLL           = p_SV_InitGameDLL.RCast<void(*)(void)>();
 		SV_ShutdownGameDLL       = p_SV_ShutdownGameDLL.RCast<void(*)(void)>();
 		SV_CreateBaseline        = p_SV_CreateBaseline.RCast<bool(*)(void)>();
 		CGameServer__SpawnServer = p_CGameServer__SpawnServer.RCast<bool(*)(void*, const char*, const char*)>();
+		v_SV_BroadcastVoiceData = p_SV_BroadcastVoiceData.RCast<void(__fastcall*)(CClient* cl, int nBytes, char* data)>();
 	}
 	virtual void GetVar(void) const
 	{
@@ -57,7 +65,7 @@ class HSV_Main : public IDetour
 			.FindPatternSelf("40 38 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

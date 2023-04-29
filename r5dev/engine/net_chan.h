@@ -100,6 +100,8 @@ public:
 	double      GetTimeConnected(void) const;
 	int         GetSocket(void) const;
 
+	const bf_write& GetStreamVoice(void) const;
+
 	bool        IsOverflowed(void) const;
 	void        Clear(bool bStopProcessing);
 

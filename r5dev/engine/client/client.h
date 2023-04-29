@@ -62,6 +62,7 @@ class CClient : IClientMessageHandler, INetChannelHandler
 {
 public:
 	CClient* GetClient(int nIndex) const;
+	__int64 GetTeamNum() const;
 	edict_t GetHandle(void) const;
 	uint32_t GetUserID(void) const;
 	uint64_t GetNucleusID(void) const;
@@ -104,7 +105,8 @@ private:
 	char m_szClientName[256];        //0x0116
 	char pad_0015[258];              //0x0216
 	int m_nCommandTick;              //0x0318
-	char pad_031C[68];               //0x031C
+	char pad_031C[60];               //0x031C
+	__int64 m_iTeamNum;              //0x0258
 	KeyValues* m_ConVars;            //0x0360
 	char pad_0368[8];                //0x0368
 	CServer* m_pServer;              //0x0370

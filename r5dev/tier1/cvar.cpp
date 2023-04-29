@@ -101,6 +101,10 @@ ConVar* sv_validatePersonaName             = nullptr;
 ConVar* sv_minPersonaNameLength            = nullptr;
 ConVar* sv_maxPersonaNameLength            = nullptr;
 
+ConVar* sv_voiceEcho                       = nullptr;
+ConVar* sv_voiceenable                     = nullptr;
+ConVar* sv_alltalk                         = nullptr;
+
 //#ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
 ConVar* sv_rcon_sendlogs                   = nullptr;
@@ -523,6 +527,10 @@ void ConVar::InitShipped(void)
 
 	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
 	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
+
+	sv_voiceenable = g_pCVar->FindVar("sv_voiceenable");
+	sv_voiceEcho = g_pCVar->FindVar("sv_voiceEcho");
+	sv_alltalk = g_pCVar->FindVar("sv_alltalk");
 
 	sv_showhitboxes->SetMin(-1); // Allow user to go over each entity manually without going out of bounds.
 	sv_showhitboxes->SetMax(NUM_ENT_ENTRIES - 1);
