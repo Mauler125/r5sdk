@@ -53,15 +53,15 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
                     obj.value("map",""),
                     obj.value("playlist",""),
                     obj.value("ip",""),
-                    obj.value("port", ""),
+                    obj.value("port", SOCKET_ERROR),
                     obj.value("key",""),
-                    obj.value("checksum",""),
+                    obj.value("checksum", uint32_t(0)),
                     obj.value("version", SDK_VERSION),
-                    obj.value("playerCount", ""),
-                    obj.value("maxPlayers", ""),
-                    obj.value("timeStamp", 0),
+                    obj.value("playerCount", 0),
+                    obj.value("maxPlayers", 0),
+                    obj.value("timeStamp", int64_t(-1)),
                     obj.value("publicRef", ""),
-                    obj.value("cachedId", ""),
+                    obj.value("cachedId", -1),
                 }
             );
         }
@@ -114,15 +114,15 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
                 serverJson.value("map",""),
                 serverJson.value("playlist",""),
                 serverJson.value("ip",""),
-                serverJson.value("port", ""),
+                serverJson.value("port", SOCKET_ERROR),
                 serverJson.value("key",""),
-                serverJson.value("checksum",""),
+                serverJson.value("checksum", uint32_t(0)),
                 serverJson.value("version", SDK_VERSION),
-                serverJson.value("playerCount", ""),
-                serverJson.value("maxPlayers", ""),
-                serverJson.value("timeStamp", 0),
+                serverJson.value("playerCount", 0),
+                serverJson.value("maxPlayers", 0),
+                serverJson.value("timeStamp", int64_t(-1)),
                 serverJson.value("publicRef", ""),
-                serverJson.value("cachedId", ""),
+                serverJson.value("cachedId", -1),
         };
 
         return true;
@@ -152,15 +152,15 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken,
     requestJson["map"] = netGameServer.m_svHostMap;
     requestJson["playlist"] = netGameServer.m_svPlaylist;
     requestJson["ip"] = netGameServer.m_svIpAddress;
-    requestJson["port"] = netGameServer.m_svGamePort;
+    requestJson["port"] = netGameServer.m_GamePort;
     requestJson["key"] = netGameServer.m_svEncryptionKey;
-    requestJson["checksum"] = netGameServer.m_svRemoteChecksum;
+    requestJson["checksum"] = netGameServer.m_RemoteChecksum;
     requestJson["version"] = netGameServer.m_svSDKVersion;
-    requestJson["playerCount"] = netGameServer.m_svPlayerCount;
-    requestJson["maxPlayers"] = netGameServer.m_svMaxPlayers;
+    requestJson["playerCount"] = netGameServer.m_PlayerCount;
+    requestJson["maxPlayers"] = netGameServer.m_MaxPlayers;
     requestJson["timeStamp"] = netGameServer.m_nTimeStamp;
     requestJson["publicRef"] = netGameServer.m_svPublicRef;
-    requestJson["cachedId"] = netGameServer.m_svCachedId;
+    requestJson["cachedId"] = netGameServer.m_CachedId;
 
     nlohmann::json responseJson;
     CURLINFO status;

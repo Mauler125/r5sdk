@@ -326,8 +326,8 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            const string& playerCount = g_pServerListManager->m_vServerList[iServer].m_svPlayerCount.c_str();
-            sq_pushinteger(v, strtol(playerCount.c_str(), NULL, NULL));
+            const SQInteger playerCount = g_pServerListManager->m_vServerList[iServer].m_PlayerCount;
+            sq_pushinteger(v, playerCount);
 
             return SQ_OK;
         }
@@ -348,8 +348,8 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            const string& maxPlayers = g_pServerListManager->m_vServerList[iServer].m_svMaxPlayers;
-            sq_pushinteger(v, strtol(maxPlayers.c_str(), NULL, NULL));
+            const SQInteger maxPlayers = g_pServerListManager->m_vServerList[iServer].m_MaxPlayers;
+            sq_pushinteger(v, maxPlayers);
 
             return SQ_OK;
         }
@@ -499,7 +499,7 @@ namespace VSquirrel
 
             const NetGameServer_t& gameServer = g_pServerListManager->m_vServerList[iServer];
 
-            g_pServerListManager->ConnectToServer(gameServer.m_svIpAddress, gameServer.m_svGamePort,
+            g_pServerListManager->ConnectToServer(gameServer.m_svIpAddress, gameServer.m_GamePort,
                 gameServer.m_svEncryptionKey);
 
             return SQ_OK;
@@ -521,7 +521,7 @@ namespace VSquirrel
             bool result = g_pMasterServer->GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (result)
             {
-                g_pServerListManager->ConnectToServer(netListing.m_svIpAddress, netListing.m_svGamePort, netListing.m_svEncryptionKey);
+                g_pServerListManager->ConnectToServer(netListing.m_svIpAddress, netListing.m_GamePort, netListing.m_svEncryptionKey);
             }
             else
             {

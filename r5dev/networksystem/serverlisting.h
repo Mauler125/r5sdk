@@ -1,6 +1,5 @@
 #pragma once
 
-
 struct NetGameMod_t
 {
 	string m_svPackage;
@@ -21,18 +20,18 @@ struct NetGameServer_t
 	string m_svPlaylist = "dev_default";
 
 	string m_svIpAddress;
-	string m_svGamePort;
+	int m_GamePort;
 	string m_svEncryptionKey;
 
-	string m_svRemoteChecksum;
+	uint32_t m_RemoteChecksum;
 	string m_svSDKVersion;
 
-	string m_svPlayerCount;
-	string m_svMaxPlayers;
+	int m_PlayerCount;
+	int m_MaxPlayers;
 	int64_t m_nTimeStamp = -1;
 
 	string m_svPublicRef;
-	string m_svCachedId;
+	int m_CachedId;
 
 	//vector<NetGameMod_t> m_vMods;
 };

@@ -24,7 +24,7 @@ public:
 	void ClearServerList(void);
 
 	void LaunchServer(void) const;
-	void ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey) const;
+	void ConnectToServer(const string& svIp, const int nPort, const string& svNetKey) const;
 	void ConnectToServer(const string& svServer, const string& svNetKey) const;
 
 	void ProcessCommand(const char* pszCommand) const;

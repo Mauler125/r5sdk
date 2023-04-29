@@ -291,11 +291,12 @@ void CBrowser::BrowserPanel(void)
             const char* pszHostName = server.m_svHostName.c_str();
             const char* pszHostMap = server.m_svHostMap.c_str();
             const char* pszPlaylist = server.m_svPlaylist.c_str();
-            const char* pszHostPort = server.m_svGamePort.c_str();
+
+            char buffer[sizeof(int)*8+1];
 
             if (m_imServerBrowserFilter.PassFilter(pszHostName)
                 || m_imServerBrowserFilter.PassFilter(pszHostMap)
-                || m_imServerBrowserFilter.PassFilter(pszHostPort))
+                || m_imServerBrowserFilter.PassFilter(itoa(server.m_GamePort, buffer, 10)))
             {
                 ImGui::TableNextColumn();
                 ImGui::Text("%s", pszHostName);
@@ -307,10 +308,10 @@ void CBrowser::BrowserPanel(void)
                 ImGui::Text("%s", pszPlaylist);
 
                 ImGui::TableNextColumn();
-                ImGui::Text("%s", Format("%3d/%3d", strtol(server.m_svPlayerCount.c_str(), NULL, NULL), strtol(server.m_svMaxPlayers.c_str(), NULL, NULL)).c_str());
+                ImGui::Text("%s", Format("%3d/%3d", server.m_PlayerCount, server.m_MaxPlayers));
 
                 ImGui::TableNextColumn();
-                ImGui::Text("%s", pszHostPort);
+                ImGui::Text("%i", server.m_GamePort);
 
                 ImGui::TableNextColumn();
                 string svConnectBtn = "Connect##";
@@ -318,7 +319,7 @@ void CBrowser::BrowserPanel(void)
 
                 if (ImGui::Button(svConnectBtn.c_str()))
                 {
-                    g_pServerListManager->ConnectToServer(server.m_svIpAddress, pszHostPort, server.m_svEncryptionKey);
+                    g_pServerListManager->ConnectToServer(server.m_svIpAddress, server.m_GamePort, server.m_svEncryptionKey);
                 }
             }
         }
@@ -443,7 +444,7 @@ void CBrowser::HiddenServersModal(void)
 
                 if (result && !server.m_svHostName.empty())
                 {
-                    g_pServerListManager->ConnectToServer(server.m_svIpAddress, server.m_svGamePort, server.m_svEncryptionKey); // Connect to the server
+                    g_pServerListManager->ConnectToServer(server.m_svIpAddress, server.m_GamePort, server.m_svEncryptionKey); // Connect to the server
                     m_svHiddenServerRequestMessage = Format("Found server: %s", server.m_svHostName.c_str());
                     m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
                     ImGui::CloseCurrentPopup();
@@ -740,12 +741,12 @@ void CBrowser::UpdateHostingStatus(void)
                 g_pHostState->m_levelName,
                 mp_gamemode->GetString(),
                 hostip->GetString(),
-                hostport->GetString(),
+                hostport->GetInt(),
                 g_pNetKey->GetBase64NetKey(),
-                std::to_string(*g_nServerRemoteChecksum),
+                *g_nServerRemoteChecksum,
                 SDK_VERSION,
-                std::to_string(g_pServer->GetNumClients()),
-                std::to_string(g_ServerGlobalVariables->m_nMaxClients),
+                g_pServer->GetNumClients(),
+                g_ServerGlobalVariables->m_nMaxClients,
                 std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::system_clock::now().time_since_epoch()
                     ).count()
