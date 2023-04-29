@@ -25,7 +25,7 @@ CClient* CClient::GetClient(int nIndex) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the client's team number
 //---------------------------------------------------------------------------------
-__int64 CClient::GetTeamNum() const
+int64_t CClient::GetTeamNum() const
 {
 	return m_iTeamNum;
 }
@@ -41,7 +41,7 @@ edict_t CClient::GetHandle(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-uint32_t CClient::GetUserID(void) const
+int CClient::GetUserID(void) const
 {
 	return m_nUserID;
 }
@@ -339,7 +339,9 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	char* pShifted = reinterpret_cast<char*>(pClient) - 8;
 	CClient* pClient_Adj = reinterpret_cast<CClient*>(pShifted);
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
-	ServerPlayer_t* pSlot = &g_ServerPlayer[pClient_Adj->GetUserID()];
+	int nUserID = pClient_Adj->GetUserID();
+	ServerPlayer_t* pSlot = &g_ServerPlayer[nUserID];
+
 	double flStartTime = Plat_FloatTime();
 	int nCmdQuotaLimit = sv_quota_stringCmdsPerSecond->GetInt();
 
@@ -355,10 +357,13 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 
 	if (pSlot->m_nStringCommandQuotaCount > nCmdQuotaLimit)
 	{
-		Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' exceeded string command quota!)\n", 
-			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
+		const char* pszAddress = pClient_Adj->GetNetChan()->GetAddress();
+		const uint64_t nNucleusID = pClient_Adj->GetNucleusID();
 
 		pClient_Adj->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_STRINGCMD_OVERFLOW");
+
+		Warning(eDLL_T::SERVER, "Removed client '%s' from slot #%i ('%llu' exceeded string command quota!)\n",
+			pszAddress, nUserID, nNucleusID);
 		return true;
 	}
 #endif // !CLIENT_DLL
