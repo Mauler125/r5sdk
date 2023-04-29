@@ -7,13 +7,13 @@
 #include "tier1/cvar.h"
 #include "tier2/curlutils.h"
 
-size_t CURLWriteStringCallback(char* contents, size_t size, size_t nmemb, void* userp)
+size_t CURLWriteStringCallback(char* contents, const size_t size, const size_t nmemb, void* userp)
 {
     reinterpret_cast<string*>(userp)->append(contents, size * nmemb);
     return size * nmemb;
 }
 
-CURL* CURLInitRequest(const string& remote, const string& request, string& response, curl_slist*& slist)
+CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse, curl_slist*& slist)
 {
     std::function<void(const char*)> fnError = [&](const char* errorMsg)
     {
@@ -36,14 +36,14 @@ CURL* CURLInitRequest(const string& remote, const string& request, string& respo
     }
 
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
-    curl_easy_setopt(curl, CURLOPT_URL, remote.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, remote);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request);
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, curl_timeout->GetInt());
     curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CURLWriteStringCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &outResponse);
 
     curl_easy_setopt(curl, CURLOPT_VERBOSE, curl_debug->GetBool());
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
@@ -89,7 +89,7 @@ bool CURLHandleError(CURL* curl, CURLcode res, string& outMessage)
     return false;
 }
 
-void CURLFormatUrl(string& url, const string& host, const string& api)
+void CURLFormatUrl(string& outUrl, const char* host, const char* api)
 {
-    url = Format("%s%s%s", "https://", host.c_str(), api.c_str());
+    outUrl = Format("%s%s%s", "https://", host, api);
 }

@@ -250,6 +250,7 @@ void Winsock_Shutdown()
 }
 void QuerySystemInfo()
 {
+#ifndef DEDICATED
 	for (int i = 0; ; i++)
 	{
 		DISPLAY_DEVICE dd = { sizeof(dd), {0} };
@@ -266,6 +267,7 @@ void QuerySystemInfo()
 			spdlog::info("{:25s}: '{:s}'\n", "GPU model identifier", szDeviceName);
 		}
 	}
+#endif // !DEDICATED
 
 	const CPUInformation& pi = GetCPUInformation();
 
