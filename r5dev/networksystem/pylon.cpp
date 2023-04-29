@@ -155,17 +155,21 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken,
         return false;
     }
 
-    nlohmann::json& tokenJson = responseJson["token"];
-
-    if (!tokenJson.is_string())
+    if (netGameServer.m_bHidden)
     {
-        outMessage = Format("Invalid response with status: %d", int(status));
-        outToken.clear();
+        nlohmann::json& tokenJson = responseJson["token"];
 
-        return false;
+        if (!tokenJson.is_string())
+        {
+            outMessage = Format("Invalid response with status: %d", int(status));
+            outToken.clear();
+
+            return false;
+        }
+
+        outToken = tokenJson.get<string>();
     }
 
-    outToken = tokenJson.get<string>();
     return true;
 }
 
