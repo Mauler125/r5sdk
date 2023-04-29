@@ -47,6 +47,7 @@ class HSV_Main : public IDetour
 		LogFunAdr("SV_ShutdownGameDLL", p_SV_ShutdownGameDLL.GetPtr());
 		LogFunAdr("SV_ActivateServer", p_SV_ActivateServer.GetPtr());
 		LogFunAdr("SV_CreateBaseline", p_SV_CreateBaseline.GetPtr());
+		LogFunAdr("SV_BroadcastVoiceData", p_SV_BroadcastVoiceData.GetPtr());
 		LogVarAdr("s_bIsDedicated", reinterpret_cast<uintptr_t>(s_bIsDedicated));
 	}
 	virtual void GetFun(void) const
@@ -59,9 +60,8 @@ class HSV_Main : public IDetour
 		p_CGameServer__SpawnServer = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 55 41 56 41 57 48 81 EC ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CGameServer__SpawnServer = g_GameDll.FindPatternSIMD("48 8B C4 53 55 56 57 41 54 41 55 41 57");
-		// 0x140312D80 // 48 8B C4 53 55 56 57 41 54 41 55 41 57 //
 #endif
-		p_SV_BroadcastVoiceData = g_GameDll.FindPatternSIMD("4C 8B DC 56 48 81 EC ? ? ? ? 80 3D ? ? ? ? ? ");
+		p_SV_BroadcastVoiceData = g_GameDll.FindPatternSIMD("4C 8B DC 56 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??");
 
 		v_SV_InitGameDLL           = p_SV_InitGameDLL.RCast<void(*)(void)>();
 		v_SV_ShutdownGameDLL       = p_SV_ShutdownGameDLL.RCast<void(*)(void)>();
