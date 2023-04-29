@@ -24,16 +24,19 @@ void SV_IsClientBanned(const string& svIPAddr, const uint64_t nNucleusID, const 
 	{
 		if (!ThreadInMainThread())
 		{
-			g_TaskScheduler->Dispatch([svError, svIPAddr]
+			g_TaskScheduler->Dispatch([svError, svIPAddr, nNucleusID]
 				{
 					g_pBanSystem->KickPlayerById(svIPAddr.c_str(), svError.c_str());
+					Warning(eDLL_T::SERVER, "Removed client '%s' ('%llu' is banned globally!)\n",
+						svIPAddr.c_str(), nNucleusID);
 				}, 0);
 		}
-
-		//Warning(eDLL_T::SERVER, "Added '%s' to refused list ('%llu' is banned from the master server!)\n", svIPAddr.c_str(), nNucleusID);
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: checks if particular client is banned on the master server
+//-----------------------------------------------------------------------------
 void SV_ProcessBulkCheck(const BannedVec_t& bannedVec)
 {
 	BannedVec_t outBannedVec;
@@ -48,6 +51,10 @@ void SV_ProcessBulkCheck(const BannedVec_t& bannedVec)
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: creates a snapshot of the currently connected clients
+// Input  : *pBannedVec - if passed, will check for bans and kick the clients
+//-----------------------------------------------------------------------------
 void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 {
 	Assert(ThreadInMainThread());
@@ -77,7 +84,7 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 			{
 				if (it.second == pClient->GetNucleusID())
 				{
-					Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' is banned from this server!)\n", szIPAddr, c, nNucleusID);
+					Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' is banned globally!)\n", szIPAddr, c, nNucleusID);
 					pClient->Disconnect(Reputation_t::REP_MARK_BAD, "%s", it.first.c_str());
 				}
 			}

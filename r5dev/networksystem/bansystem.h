@@ -8,10 +8,10 @@ public:
 	void Load(void);
 	void Save(void) const;
 
-	bool AddEntry(const string& svIpAddress, const uint64_t nNucleusID);
-	bool DeleteEntry(const string& svIpAddress, const uint64_t nNucleusID);
+	bool AddEntry(const char* ipAddress, const uint64_t nucleusId);
+	bool DeleteEntry(const char* ipAddress, const uint64_t nucleusId);
 
-	bool IsBanned(const string& svIpAddress, const uint64_t nNucleusID) const;
+	bool IsBanned(const char* ipAddress, const uint64_t nucleusId) const;
 	bool IsBanListValid(void) const;
 
 	void KickPlayerByName(const char* playerName, const char* reason = nullptr);
@@ -20,7 +20,7 @@ public:
 	void BanPlayerByName(const char* playerName, const char* reason = nullptr);
 	void BanPlayerById(const char* playerHandle, const char* reason = nullptr);
 
-	void UnbanPlayer(const string& svCriteria);
+	void UnbanPlayer(const char* criteria);
 
 private:
 	void AuthorPlayerByName(const char* playerName, const bool bBan, const char* reason = nullptr);

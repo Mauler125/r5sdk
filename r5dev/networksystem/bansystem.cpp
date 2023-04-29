@@ -98,25 +98,27 @@ void CBanSystem::Save(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: adds a banned player entry to the banned list
-// Input  : &svIpAddress - 
-//			nNucleusID - 
+// Input  : *ipAddress - 
+//			nucleusId - 
 //-----------------------------------------------------------------------------
-bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nNucleusID)
+bool CBanSystem::AddEntry(const char* ipAddress, const uint64_t nucleusId)
 {
-	Assert(!svIpAddress.empty());
+	Assert(VALID_CHARSTAR(ipAddress));
+	const auto idPair = std::make_pair(string(ipAddress), nucleusId);
 
 	if (IsBanListValid())
 	{
-		auto it = std::find(m_vBanList.begin(), m_vBanList.end(), std::make_pair(svIpAddress, nNucleusID));
+		auto it = std::find(m_vBanList.begin(), m_vBanList.end(), idPair);
+
 		if (it == m_vBanList.end())
 		{
-			m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
+			m_vBanList.push_back(idPair);
 			return true;
 		}
 	}
 	else
 	{
-		m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
+		m_vBanList.push_back(idPair);
 		return true;
 	}
 
@@ -125,18 +127,21 @@ bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nNucleusID)
 
 //-----------------------------------------------------------------------------
 // Purpose: deletes an entry in the banned list
-// Input  : &svIpAddress - 
-//			nNucleusID - 
+// Input  : *ipAddress - 
+//			nucleusId - 
 //-----------------------------------------------------------------------------
-bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nNucleusID)
+bool CBanSystem::DeleteEntry(const char* ipAddress, const uint64_t nucleusId)
 {
-	Assert(!svIpAddress.empty());
+	Assert(VALID_CHARSTAR(ipAddress));
 
 	if (IsBanListValid())
 	{
 		auto it = std::find_if(m_vBanList.begin(), m_vBanList.end(),
 			[&](const pair<const string, const uint64_t>& element)
-			{ return (svIpAddress.compare(element.first) == NULL || element.second == nNucleusID); });
+			{
+				return (strcmp(ipAddress, element.first.c_str()) == NULL
+				|| element.second == nucleusId);
+			});
 
 		if (it != m_vBanList.end())
 		{
@@ -150,25 +155,25 @@ bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nNucleusI
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if specified ip address or nucleus id is banned
-// Input  : &svIpAddress - 
-//			nNucleusID - 
+// Input  : *ipAddress - 
+//			nucleusId - 
 // Output : true if banned, false if not banned
 //-----------------------------------------------------------------------------
-bool CBanSystem::IsBanned(const string& svIpAddress, const uint64_t nNucleusID) const
+bool CBanSystem::IsBanned(const char* ipAddress, const uint64_t nucleusId) const
 {
 	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{
-		const string& ipAddress = m_vBanList[i].first;
-		const uint64_t nucleusID = m_vBanList[i].second;
+		const string& bannedIpAddress = m_vBanList[i].first;
+		const uint64_t bannedNucleusID = m_vBanList[i].second;
 
-		if (ipAddress.empty() ||
-			!nucleusID) // Cannot be null.
+		if (bannedIpAddress.empty()
+			|| !bannedNucleusID) // Cannot be null.
 		{
 			continue;
 		}
 
-		if (ipAddress.compare(svIpAddress) == NULL ||
-			nNucleusID == nucleusID)
+		if (bannedIpAddress.compare(ipAddress) == NULL
+			|| nucleusId == bannedNucleusID)
 		{
 			return true;
 		}
@@ -239,23 +244,23 @@ void CBanSystem::BanPlayerById(const char* playerHandle, const char* reason)
 
 //-----------------------------------------------------------------------------
 // Purpose: unbans a player by given nucleus id or ip address
-// Input  : &svCriteria - 
+// Input  : *criteria - 
 //-----------------------------------------------------------------------------
-void CBanSystem::UnbanPlayer(const string& svCriteria)
+void CBanSystem::UnbanPlayer(const char* criteria)
 {
 	try
 	{
 		bool bSave = false;
-		if (StringIsDigit(svCriteria)) // Check if we have an ip address or nucleus id.
+		if (StringIsDigit(criteria)) // Check if we have an ip address or nucleus id.
 		{
-			if (DeleteEntry("<<invalid>>", std::stoll(svCriteria))) // Delete ban entry.
+			if (DeleteEntry("<<invalid>>", std::stoll(criteria))) // Delete ban entry.
 			{
 				bSave = true;
 			}
 		}
 		else
 		{
-			if (DeleteEntry(svCriteria, 0)) // Delete ban entry.
+			if (DeleteEntry(criteria, 0)) // Delete ban entry.
 			{
 				bSave = true;
 			}
@@ -264,7 +269,7 @@ void CBanSystem::UnbanPlayer(const string& svCriteria)
 		if (bSave)
 		{
 			Save(); // Save modified vector to file.
-			DevMsg(eDLL_T::SERVER, "Removed '%s' from banned list\n", svCriteria.c_str());
+			DevMsg(eDLL_T::SERVER, "Removed '%s' from banned list\n", criteria);
 		}
 	}
 	catch (const std::exception& e)
@@ -370,8 +375,6 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 
 				if (shouldBan && AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
 					bSave = true;
-
-
 
 				pClient->Disconnect(REP_MARK_BAD, reason);
 				bDisconnect = true;
