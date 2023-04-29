@@ -76,7 +76,7 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 	Assert(ThreadInMainThread());
 	BannedVec_t bannedVec;
 
-	for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
+	for (int c = 0; c < g_ServerGlobalVariables->m_nMaxClients; c++) // Loop through all possible client instances.
 	{
 		CClient* pClient = g_pClient->GetClient(c);
 		if (!pClient)

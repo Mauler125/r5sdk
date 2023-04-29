@@ -83,7 +83,7 @@ int CServer::GetNumClients(void) const
 // Purpose: Initializes a CSVClient for a new net connection. This will only be called
 //			once for a player each game, not once for each level change.
 // Input  : *pServer - 
-//			*pInpacket - 
+//			*pChallenge - 
 // Output : pointer to client instance on success, nullptr on failure
 //---------------------------------------------------------------------------------
 CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
