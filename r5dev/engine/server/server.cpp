@@ -79,12 +79,17 @@ int CServer::GetNumClients(void) const
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: client to server authentication
-// Input  : *pChallenge - 
-// Output : true if user isn't banned, false otherwise
+// Purpose: Initializes a CSVClient for a new net connection. This will only be called
+//			once for a player each game, not once for each level change.
+// Input  : *pServer - 
+//			*pInpacket - 
+// Output : pointer to client instance on success, nullptr on failure
 //---------------------------------------------------------------------------------
-bool CServer::AuthClient(user_creds_s* pChallenge)
+CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 {
+	if (pServer->m_State < server_state_t::ss_active)
+		return nullptr;
+
 	char* pszPersonaName = pChallenge->personaName;
 	uint64_t nNucleusID = pChallenge->personaId;
 
@@ -98,47 +103,33 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 	// Only proceed connection if the client's name is valid and UTF-8 encoded.
 	if (!VALID_CHARSTAR(pszPersonaName) || !IsValidUTF8(pszPersonaName) || !IsValidPersonaName(pszPersonaName))
 	{
-		RejectConnection(m_Socket, &pChallenge->netAdr, "#Valve_Reject_Invalid_Name");
+		pServer->RejectConnection(pServer->m_Socket, &pChallenge->netAdr, "#Valve_Reject_Invalid_Name");
 		if (bEnableLogging)
 			Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' has an invalid name!)\n", pszAddresBuffer, nNucleusID);
 
-		return false;
+		return nullptr;
 	}
 
 	if (g_pBanSystem->IsBanListValid())
 	{
 		if (g_pBanSystem->IsBanned(pszAddresBuffer, nNucleusID))
 		{
-			RejectConnection(m_Socket, &pChallenge->netAdr, "#Valve_Reject_Banned");
+			pServer->RejectConnection(pServer->m_Socket, &pChallenge->netAdr, "#Valve_Reject_Banned");
 			if (bEnableLogging)
 				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", pszAddresBuffer, nNucleusID);
 
-			return false;
+			return nullptr;
 		}
 	}
 
-	if (sv_globalBanlist->GetBool())
+	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
+
+	if (pClient && sv_globalBanlist->GetBool())
 	{
-		std::thread th(SV_IsClientBanned, string(pszAddresBuffer), nNucleusID, string(pszPersonaName));
+		std::thread th(SV_IsClientBanned, pClient, string(pszAddresBuffer), nNucleusID, string(pszPersonaName));
 		th.detach();
 	}
 
-	return true;
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: Initializes a CSVClient for a new net connection. This will only be called
-//			once for a player each game, not once for each level change.
-// Input  : *pServer - 
-//			*pInpacket - 
-// Output : pointer to client instance on success, nullptr on failure
-//---------------------------------------------------------------------------------
-CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
-{
-	if (pServer->m_State < server_state_t::ss_active || !pServer->AuthClient(pChallenge))
-		return nullptr;
-
-	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
 	return pClient;
 }
 
