@@ -33,7 +33,7 @@ inline bool* s_bIsDedicated = nullptr;
 void SV_InitGameDLL();
 void SV_ShutdownGameDLL();
 bool SV_ActivateServer();
-void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const uint64_t nNucleusID, const string& svPersonaName);
+void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const uint64_t nNucleusID, const string& svPersonaName, const int nPort);
 void SV_CheckForBan(const BannedVec_t* pBannedVec = nullptr);
 ///////////////////////////////////////////////////////////////////////////////
 

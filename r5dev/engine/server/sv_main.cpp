@@ -18,7 +18,8 @@
 //-----------------------------------------------------------------------------
 // Purpose: checks if particular client is banned on the comp server
 //-----------------------------------------------------------------------------
-void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const uint64_t nNucleusID, const string& svPersonaName)
+void SV_IsClientBanned(CClient* pClient, const string& svIPAddr,
+	const uint64_t nNucleusID, const string& svPersonaName, const int nPort)
 {
 	Assert(pClient != nullptr);
 
@@ -29,7 +30,7 @@ void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const uint64_t 
 	{
 		if (!ThreadInMainThread())
 		{
-			g_TaskScheduler->Dispatch([pClient, svError, svIPAddr, nNucleusID]
+			g_TaskScheduler->Dispatch([pClient, svError, svIPAddr, nNucleusID, nPort]
 				{
 					// Make sure client isn't already disconnected,
 					// and that if there is a valid netchannel, that
@@ -38,9 +39,11 @@ void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const uint64_t 
 					CNetChan* pChan = pClient->GetNetChan();
 					if (pChan && pClient->GetNucleusID() == nNucleusID)
 					{
+						int nUserID = pClient->GetUserID();
+
 						pClient->Disconnect(Reputation_t::REP_MARK_BAD, svError.c_str());
-						Warning(eDLL_T::SERVER, "Removed client '%s' ('%llu' is banned globally!)\n",
-							svIPAddr.c_str(), nNucleusID);
+						Warning(eDLL_T::SERVER, "Removed client '[%s]:%i' from slot #%i ('%llu' is banned globally!)\n",
+							svIPAddr.c_str(), nPort, nUserID, nNucleusID);
 					}
 				}, 0);
 		}
@@ -86,7 +89,7 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 		if (!pClient->IsConnected())
 			continue;
 
-		const char* szIPAddr = pNetChan->GetAddress();
+		const char* szIPAddr = pNetChan->GetAddress(true);
 		const uint64_t nNucleusID = pClient->GetNucleusID();
 
 		if (!pBannedVec)
@@ -97,9 +100,12 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 			{
 				if (it.second == pClient->GetNucleusID())
 				{
+					const int nUserID = pClient->GetUserID();
+					const int nPort = pNetChan->GetPort();
+
 					pClient->Disconnect(Reputation_t::REP_MARK_BAD, "%s", it.first.c_str());
-					Warning(eDLL_T::SERVER, "Removed client '%s' from slot '%i' ('%llu' is banned globally!)\n",
-						szIPAddr, c, nNucleusID);
+					Warning(eDLL_T::SERVER, "Removed client '[%s]:%i' from slot #%i ('%llu' is banned globally!)\n",
+						szIPAddr, nPort, nUserID, nNucleusID);
 				}
 			}
 		}
