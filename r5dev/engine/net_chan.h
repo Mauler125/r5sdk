@@ -81,7 +81,8 @@ class CNetChan
 {
 public:
 	const char* GetName(void) const;
-	const char* GetAddress(void) const;
+	const char* GetAddress(bool onlyBase = false) const;
+	int         GetPort(void) const;
 	int         GetDataRate(void) const;
 	int         GetBufferSize(void) const;
 

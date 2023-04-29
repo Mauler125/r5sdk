@@ -28,9 +28,18 @@ const char* CNetChan::GetName(void) const
 // Purpose: gets the netchannel address
 // Output : const char*
 //-----------------------------------------------------------------------------
-const char* CNetChan::GetAddress(void) const
+const char* CNetChan::GetAddress(bool onlyBase) const
 {
-	return this->remote_address.ToString();
+	return this->remote_address.ToString(onlyBase);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel port in host byte order
+// Output : int
+//-----------------------------------------------------------------------------
+int CNetChan::GetPort(void) const
+{
+	return int(ntohs(this->remote_address.GetPort()));
 }
 
 //-----------------------------------------------------------------------------
