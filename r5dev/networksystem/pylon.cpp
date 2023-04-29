@@ -40,28 +40,36 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
         return vecServers;
     }
 
-    for (auto& obj : responseJson["servers"])
+    try
     {
-        vecServers.push_back(
-            NetGameServer_t
-            {
-                obj.value("name",""),
-                obj.value("description",""),
-                obj.value("hidden","false") == "true",
-                obj.value("map",""),
-                obj.value("playlist",""),
-                obj.value("ip",""),
-                obj.value("port", ""),
-                obj.value("key",""),
-                obj.value("checksum",""),
-                obj.value("version", SDK_VERSION),
-                obj.value("playerCount", ""),
-                obj.value("maxPlayers", ""),
-                obj.value("timeStamp", 0),
-                obj.value("publicRef", ""),
-                obj.value("cachedId", ""),
-            }
-        );
+        for (auto& obj : responseJson["servers"])
+        {
+            vecServers.push_back(
+                NetGameServer_t
+                {
+                    obj.value("name",""),
+                    obj.value("description",""),
+                    obj.value("hidden","false") == "true",
+                    obj.value("map",""),
+                    obj.value("playlist",""),
+                    obj.value("ip",""),
+                    obj.value("port", ""),
+                    obj.value("key",""),
+                    obj.value("checksum",""),
+                    obj.value("version", SDK_VERSION),
+                    obj.value("playerCount", ""),
+                    obj.value("maxPlayers", ""),
+                    obj.value("timeStamp", 0),
+                    obj.value("publicRef", ""),
+                    obj.value("cachedId", ""),
+                }
+            );
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - %s\n", __FUNCTION__, ex.what());
+        vecServers.clear(); // Clear as the vector may be partially filled.
     }
 
     return vecServers;
@@ -95,28 +103,36 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
         return false;
     }
 
-    nlohmann::json& serverJson = responseJson["server"];
-
-    outGameServer = NetGameServer_t
+    try
     {
-            serverJson.value("name",""),
-            serverJson.value("description",""),
-            serverJson.value("hidden","false") == "true",
-            serverJson.value("map",""),
-            serverJson.value("playlist",""),
-            serverJson.value("ip",""),
-            serverJson.value("port", ""),
-            serverJson.value("key",""),
-            serverJson.value("checksum",""),
-            serverJson.value("version", SDK_VERSION),
-            serverJson.value("playerCount", ""),
-            serverJson.value("maxPlayers", ""),
-            serverJson.value("timeStamp", 0),
-            serverJson.value("publicRef", ""),
-            serverJson.value("cachedId", ""),
-    };
+        nlohmann::json& serverJson = responseJson["server"];
+        outGameServer = NetGameServer_t
+        {
+                serverJson.value("name",""),
+                serverJson.value("description",""),
+                serverJson.value("hidden","false") == "true",
+                serverJson.value("map",""),
+                serverJson.value("playlist",""),
+                serverJson.value("ip",""),
+                serverJson.value("port", ""),
+                serverJson.value("key",""),
+                serverJson.value("checksum",""),
+                serverJson.value("version", SDK_VERSION),
+                serverJson.value("playerCount", ""),
+                serverJson.value("maxPlayers", ""),
+                serverJson.value("timeStamp", 0),
+                serverJson.value("publicRef", ""),
+                serverJson.value("cachedId", ""),
+        };
 
-    return true;
+        return true;
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - %s\n", __FUNCTION__, ex.what());
+    }
+
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -249,17 +265,26 @@ bool CPylon::GetBannedList(const BannedVec_t& inBannedVec, BannedVec_t& outBanne
         return false;
     }
 
-    for (auto& obj : arrayJson["bannedPlayers"])
+    try
     {
-        outBannedVec.push_back(
-            std::make_pair(
-                obj.value("reason", "#DISCONNECT_BANNED"),
-                obj.value("id", uint64_t(0))
-            )
-        );
+        for (auto& obj : arrayJson["bannedPlayers"])
+        {
+            outBannedVec.push_back(
+                std::make_pair(
+                    obj.value("reason", "#DISCONNECT_BANNED"),
+                    obj.value("id", uint64_t(0))
+                )
+            );
+        }
+
+        return true;
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - %s\n", __FUNCTION__, ex.what());
     }
 
-    return true;
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -287,11 +312,18 @@ bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId,
         return false;
     }
 
-    if (responseJson["banned"].is_boolean() &&
-        responseJson["banned"].get<bool>())
+    try
     {
-        outReason = responseJson.value("reason", "#DISCONNECT_BANNED");
-        return true;
+        if (responseJson["banned"].is_boolean() &&
+            responseJson["banned"].get<bool>())
+        {
+            outReason = responseJson.value("reason", "#DISCONNECT_BANNED");
+            return true;
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - %s\n", __FUNCTION__, ex.what());
     }
 
     return false;
@@ -300,8 +332,8 @@ bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId,
 //-----------------------------------------------------------------------------
 // Purpose: Sends request to Pylon Master Server.
 // Input  : *endpoint -
-//			&requestBody -
-//			&responseBody -
+//			&requestJson -
+//			&responseJson -
 //			&outMessage -
 //			&status -
 // Output : True on success, false on failure.
@@ -352,7 +384,7 @@ bool CPylon::SendRequest(const char* endpoint, const nlohmann::json& requestJson
 // Input  : *endpoint    - 
 //          *request     - 
 //          &outResponse - 
-//          &outMessage  - <- contains an error message if any.
+//          &outMessage  - <- contains an error message on failure.
 //          &outStatus   - 
 // Output : True on success, false on failure.
 //-----------------------------------------------------------------------------
