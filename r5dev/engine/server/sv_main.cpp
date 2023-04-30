@@ -89,6 +89,9 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 		if (!pClient->IsConnected())
 			continue;
 
+		if (pNetChan->GetRemoteAddress().IsLoopback())
+			continue;
+
 		const char* szIPAddr = pNetChan->GetAddress(true);
 		const uint64_t nNucleusID = pClient->GetNucleusID();
 

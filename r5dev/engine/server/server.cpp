@@ -141,8 +141,11 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 
 	if (pClient && sv_globalBanlist->GetBool())
 	{
-		std::thread th(SV_IsClientBanned, pClient, string(pszAddresBuffer), nNucleusID, string(pszPersonaName), nPort);
-		th.detach();
+		if (!pClient->GetNetChan()->GetRemoteAddress().IsLoopback())
+		{
+			std::thread th(SV_IsClientBanned, pClient, string(pszAddresBuffer), nNucleusID, string(pszPersonaName), nPort);
+			th.detach();
+		}
 	}
 
 	return pClient;
