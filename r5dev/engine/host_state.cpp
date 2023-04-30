@@ -212,7 +212,13 @@ void CHostState::Setup(void)
 #endif // !CLIENT_DLL
 	ConVar::PurgeHostNames();
 
-	net_usesocketsforloopback->SetValue(1);
+#ifndef CLIENT_DLL
+	RCONServer()->Init();
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
+	RCONClient()->Init();
+#endif // !DEDICATED
+
 	if (net_useRandomKey->GetBool())
 	{
 		NET_GenerateKey();
@@ -312,6 +318,7 @@ void CHostState::LoadConfig(void) const
 	{
 		if (!CommandLine()->CheckParm("-devsdk"))
 		{
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec.cfg\"", cmd_source_t::kCommandSrcCode);
 #ifndef CLIENT_DLL
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server.cfg\"", cmd_source_t::kCommandSrcCode);
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server.cfg\"", cmd_source_t::kCommandSrcCode);
@@ -320,10 +327,10 @@ void CHostState::LoadConfig(void) const
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client.cfg\"", cmd_source_t::kCommandSrcCode);
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client.cfg\"", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec.cfg\"", cmd_source_t::kCommandSrcCode);
 		}
 		else // Development configs.
 		{
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 #ifndef CLIENT_DLL
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
@@ -332,12 +339,10 @@ void CHostState::LoadConfig(void) const
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 		}
 #ifndef DEDICATED
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"bind.cfg\"", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
-		Cbuf_Execute();
 	}
 }
 
@@ -377,7 +382,7 @@ void CHostState::State_NewGame(void)
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
 		|| !v_Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, bSplitScreenConnect, time) || !g_pServerGameClients)
 	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Error: Level not valid\n", __FUNCTION__);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Level not valid\n", __FUNCTION__);
 #ifndef DEDICATED
 		SCR_EndLoadingPlaque();
 #endif // !DEDICATED
@@ -408,7 +413,7 @@ void CHostState::State_ChangeLevelSP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Error: unable to find level: '%s'\n", __FUNCTION__, m_levelName);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Unable to find level: '%s'\n", __FUNCTION__, m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
@@ -440,7 +445,7 @@ void CHostState::State_ChangeLevelMP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Error: unable to find level: '%s'\n", __FUNCTION__, m_levelName);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Unable to find level: '%s'\n", __FUNCTION__, m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
