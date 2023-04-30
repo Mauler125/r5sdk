@@ -95,6 +95,7 @@ void Script_RegisterClientFunctions(CSquirrelVM* s)
 	Script_RegisterFunction(s, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 
 	Script_RegisterFunction(s, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+	Script_RegisterFunction(s, "IsClientDLL", "Script_IsClientDLL", "Returns whether this build is client only", "bool", "", &VSquirrel::SHARED::IsClientDLL);
 }
 
 //---------------------------------------------------------------------------------
@@ -120,8 +121,11 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 	// Misc main menu functions
 	Script_RegisterFunction(s, "GetPromoData", "Script_GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
 
-	// Functions for connecting to servers
+	// Functions for creating servers
 	Script_RegisterFunction(s, "CreateServer", "Script_CreateServer", "Starts server with the specified settings", "void", "string, string, string, string, int", &VSquirrel::UI::CreateServer);
+	Script_RegisterFunction(s, "IsServerActive", "Script_IsServerActive", "Returns whether the server is active", "bool", "", &VSquirrel::SHARED::IsServerActive);
+
+	// Functions for connecting to servers
 	Script_RegisterFunction(s, "ConnectToServer", "Script_ConnectToServer", "Joins server by ip address and encryption key", "void", "string, string", &VSquirrel::UI::ConnectToServer);
 	Script_RegisterFunction(s, "ConnectToListedServer", "Script_ConnectToListedServer", "Joins listed server by index", "void", "int", &VSquirrel::UI::ConnectToListedServer);
 	Script_RegisterFunction(s, "ConnectToHiddenServer", "Script_ConnectToHiddenServer", "Joins hidden server by token", "void", "string", &VSquirrel::UI::ConnectToHiddenServer);

@@ -90,7 +90,21 @@ namespace VSquirrel
 
             return SQ_OK;
         }
+        //-----------------------------------------------------------------------------
+        // Purpose: checks whether the server is active
+        //-----------------------------------------------------------------------------
+        SQRESULT IsServerActive(HSQUIRRELVM v)
+        {
+            bool isActive = false;
 #ifndef CLIENT_DLL
+            isActive = g_pServer->IsActive();
+#endif // !CLIENT_DLL
+
+            sq_pushbool(v, isActive);
+            return SQ_OK;
+        }
+#ifndef CLIENT_DLL
+
         //-----------------------------------------------------------------------------
         // Purpose: kicks a player by given name
         //-----------------------------------------------------------------------------

@@ -26,6 +26,7 @@ namespace VSquirrel
 #ifndef DEDICATED
 		SQRESULT IsClientDLL(HSQUIRRELVM v);
 #endif // !DEDICATED
+		SQRESULT IsServerActive(HSQUIRRELVM v);
 #ifndef CLIENT_DLL
 		SQRESULT KickPlayerByName(HSQUIRRELVM v);
 		SQRESULT KickPlayerById(HSQUIRRELVM v);
