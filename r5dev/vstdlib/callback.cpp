@@ -738,6 +738,33 @@ void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float f
 
 /*
 =====================
+NET_UseSocketsForLoopbackChanged_f
+
+  Use random AES encryption
+  key for game packets
+=====================
+*/
+void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same value.
+
+#ifndef CLIENT_DLL
+		// Reboot the RCON server to switch address type.
+		if (RCONServer()->IsInitialized())
+		{
+			DevMsg(eDLL_T::SERVER, "Rebooting RCON server...\n");
+			RCONServer()->Shutdown();
+			RCONServer()->Init();
+		}
+#endif // !CLIENT_DLL
+	}
+}
+
+/*
+=====================
 SIG_GetAdr_f
 
   Logs the sigscan
