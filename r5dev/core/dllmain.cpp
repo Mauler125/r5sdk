@@ -36,6 +36,7 @@ void SDK_Init()
     Console_Init();
 #endif // !DEDICATED
 
+    lzham_enable_fail_exceptions(true);
     curl_global_init(CURL_GLOBAL_ALL);
     SpdLog_Init();
     Winsock_Init(); // Initialize Winsock.

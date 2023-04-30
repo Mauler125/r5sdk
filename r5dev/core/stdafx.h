@@ -83,6 +83,7 @@
 #endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
+#include "thirdparty/lzham/include/lzham_assert.h"
 #include "thirdparty/lzham/include/lzham_types.h"
 #include "thirdparty/lzham/include/lzham.h"
 #endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
