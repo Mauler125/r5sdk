@@ -922,7 +922,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 			}
 			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 			{
-				RCONClient()->Disconnect();
+				RCONClient()->Disconnect("issued by user");
 				return;
 			}
 
@@ -951,7 +951,7 @@ RCON_Disconnect_f
 void RCON_Disconnect_f(const CCommand& args)
 {
 	const bool bIsConnected = RCONClient()->IsConnected();
-	RCONClient()->Disconnect();
+	RCONClient()->Disconnect("issued by user");
 
 	if (bIsConnected) // Log if client was indeed connected.
 	{
