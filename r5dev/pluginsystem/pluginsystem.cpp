@@ -15,26 +15,31 @@
 //-----------------------------------------------------------------------------
 void CPluginSystem::PluginSystem_Init()
 {
-	CreateDirectories("bin\\x64_retail\\plugins\\");
+	const fs::path path("bin\\x64_retail\\plugins\\");
+	const string pathString(path.u8string());
 
-	if (fs::is_directory("bin\\x64_retail\\plugins\\"))
+	CreateDirectories(pathString);
+	if (fs::is_directory(path))
 	{
-		for (auto& it : fs::directory_iterator("bin\\x64_retail\\plugins\\"))
+		for (auto& it : fs::directory_iterator(path))
 		{
 			if (!fs::is_regular_file(it))
 				continue;
 
-			if (auto path = it.path(); path.has_filename() && path.has_extension() && path.extension().compare(".dll") == 0)
+			if (auto path = it.path();
+				path.has_filename() &&
+				path.has_extension() &&
+				path.extension().compare(".dll") == 0)
 			{
 				bool addInstance = true;
 				for (auto& inst : pluginInstances)
 				{
-					if (inst.m_svPluginFullPath.compare(path.u8string()) == 0)
+					if (inst.m_svPluginFullPath.compare(pathString) == 0)
 						addInstance = false;
 				}
 
 				if (addInstance)
-					pluginInstances.push_back(PluginInstance_t(path.filename().u8string(), path.u8string()));
+					pluginInstances.push_back(PluginInstance_t(path.filename().u8string(), pathString));
 			}
 		}
 	}
