@@ -102,6 +102,7 @@ public:
 	int         GetSocket(void) const;
 
 	const bf_write& GetStreamVoice(void) const;
+	const netadr_t& GetRemoteAddress(void) const;
 
 	bool        IsOverflowed(void) const;
 	void        Clear(bool bStopProcessing);

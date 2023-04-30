@@ -196,6 +196,14 @@ const bf_write& CNetChan::GetStreamVoice(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: gets a const reference to remote_address
+//-----------------------------------------------------------------------------
+const netadr_t& CNetChan::GetRemoteAddress(void) const
+{
+	return this->remote_address;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: checks if the reliable stream is overflowed
 // Output : true if overflowed, false otherwise
 //-----------------------------------------------------------------------------
