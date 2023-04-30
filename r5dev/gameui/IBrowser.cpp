@@ -334,15 +334,18 @@ void CBrowser::BrowserPanel(void)
     ImGui::Separator();
     ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth() / 4);
     {
-        ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Enter ip-address and port", m_szServerAddressBuffer, IM_ARRAYSIZE(m_szServerAddressBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Server address and port", m_szServerAddressBuffer, IM_ARRAYSIZE(m_szServerAddressBuffer));
 
         ImGui::SameLine();
-        ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Enter encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
 
         ImGui::SameLine();
         if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
         {
-            g_pServerListManager->ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
+            if (m_szServerAddressBuffer[0])
+            {
+                g_pServerListManager->ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
+            }
         }
 
         ImGui::SameLine();
