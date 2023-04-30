@@ -53,8 +53,15 @@ void CRConServer::Init(void)
 			return;
 		}
 	}
+	else
+	{
+		// Already initialized.
+		return;
+	}
 
-	m_Address.SetFromString(Format("[%s]:%i", NET_IPV6_UNSPEC, hostport->GetInt()).c_str(), true);
+	const char* pszAddress = net_usesocketsforloopback->GetBool() ? NET_IPV6_UNSPEC : NET_IPV6_LOOPBACK;
+
+	m_Address.SetFromString(Format("[%s]:%i", pszAddress, hostport->GetInt()).c_str(), true);
 	m_Socket.CreateListenSocket(m_Address);
 
 	DevMsg(eDLL_T::SERVER, "Remote server access initialized ('%s')\n", m_Address.ToString());

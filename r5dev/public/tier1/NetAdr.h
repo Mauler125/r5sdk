@@ -3,6 +3,7 @@
 
 #define NET_IPV4_UNSPEC "0.0.0.0"
 #define NET_IPV6_UNSPEC "::"
+#define NET_IPV6_LOOPBACK "::1"
 
 enum class netadrtype_t
 {
