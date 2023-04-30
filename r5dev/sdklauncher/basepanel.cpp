@@ -351,6 +351,7 @@ void CSurface::Init()
 	this->m_QueuedPacketThread->SetSize({ 125, 18 });
 	this->m_QueuedPacketThread->SetLocation({ 15, 30 });
 	this->m_QueuedPacketThread->SetTabIndex(2);
+	this->m_QueuedPacketThread->SetChecked(true);
 	this->m_QueuedPacketThread->SetText("Queued packets");
 	this->m_QueuedPacketThread->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineNetworkGroup->AddControl(this->m_QueuedPacketThread);
@@ -565,7 +566,7 @@ void CSurface::LoadSettings()
 		attributeView = vRoot.attribs["randomNetKey"];
 		this->m_NetRandomKeyToggle->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["noQueuedPackets"];
+		attributeView = vRoot.attribs["queuedPackets"];
 		this->m_QueuedPacketThread->SetChecked(attributeView != "0");
 
 		attributeView = vRoot.attribs["noTimeOut"];
@@ -635,7 +636,7 @@ void CSurface::SaveSettings()
 	// Network.
 	vRoot.add_attribute("encryptionEnable", GetControlValue(this->m_NetEncryptionToggle));
 	vRoot.add_attribute("randomNetKey", GetControlValue(this->m_NetRandomKeyToggle));
-	vRoot.add_attribute("noQueuedPackets", GetControlValue(this->m_QueuedPacketThread));
+	vRoot.add_attribute("queuedPackets", GetControlValue(this->m_QueuedPacketThread));
 	vRoot.add_attribute("noTimeOut", GetControlValue(this->m_NoTimeOutToggle));
 
 	// Video.
