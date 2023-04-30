@@ -5,7 +5,6 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/threadtools.h"
 #include "tier1/NetAdr.h"
 #include "tier1/strtools.h"
 #include "mathlib/swap.h"
