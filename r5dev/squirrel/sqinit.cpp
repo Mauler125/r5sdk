@@ -442,6 +442,9 @@ namespace VSquirrel
 
         //-----------------------------------------------------------------------------
         // Purpose: create server via native serverbrowser entries
+        // TODO: return a boolean on failure instead of raising an error, so we could
+        // determine from scripts whether or not to spin a local server, or connect
+        // to a dedicated server (for disconnecting and loading the lobby, for example)
         //-----------------------------------------------------------------------------
         SQRESULT CreateServer(HSQUIRRELVM v)
         {
