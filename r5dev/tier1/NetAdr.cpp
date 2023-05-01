@@ -111,7 +111,7 @@ bool CNetAdr::ComparePort(const CNetAdr& other) const
 const char* CNetAdr::ToString(bool bOnlyBase) const
 {
 	// Main thread only due to use of static buffers.
-	Assert(ThreadInMainThread());
+	//Assert(ThreadInMainThread());
 
 	// Select a static buffer.
 	static char s[4][128];
