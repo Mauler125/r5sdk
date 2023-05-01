@@ -648,7 +648,8 @@ inline CUtlVector<T, A>::CUtlVector(T* pMemory, int allocationCount, int numElem
 template< typename T, class A >
 inline CUtlVector<T, A>::~CUtlVector()
 {
-	Purge();
+	RemoveAll();
+	// Destructor of allocator calls purge.
 }
 
 template< typename T, class A >
