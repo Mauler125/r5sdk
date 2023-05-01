@@ -34,20 +34,10 @@ SQRESULT Script_RegisterConstant(CSquirrelVM* s, const SQChar* name, SQInteger v
 SQRESULT Script_RegisterFunction(CSquirrelVM* s, const SQChar* scriptname, const SQChar* nativename, 
 	const SQChar* helpstring, const SQChar* returntype, const SQChar* parameters, void* functor)
 {
-	ScriptFunctionBinding_t* binding = MemAllocSingleton()->Alloc<ScriptFunctionBinding_t>(sizeof(ScriptFunctionBinding_t));
-	memset(binding, '\0', sizeof(ScriptFunctionBinding_t));
+	ScriptFunctionBinding_t binding;
+	binding.Init(scriptname, nativename, helpstring, returntype, parameters, 5, functor);
 
-	binding->_scriptname = scriptname;
-	binding->_nativename = nativename;
-	binding->_helpstring = helpstring;
-	binding->_returntype = returntype;
-	binding->_parameters = parameters;
-	binding->_functor = functor;
-	binding->_nparamscheck = 5;
-
-	SQRESULT results = v_Script_RegisterFunction(s, binding, 1);
-	MemAllocSingleton()->Free<ScriptFunctionBinding_t>(binding);
-
+	SQRESULT results = v_Script_RegisterFunction(s, &binding, 1);
 	return results;
 }
 

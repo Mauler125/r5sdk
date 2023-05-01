@@ -9,40 +9,39 @@ struct ScriptFunctionBinding_t
 	const SQChar* _helpstring; // 10
 	const SQChar* _returntype; // 18
 	const SQChar* _parameters; // 20
-	std::int16_t unk28;        // 28
+	bool _checkparams;         // 28
+	bool unk29;                // 29
 	std::int16_t padding1;     // 2A
-	std::int32_t unk2c;        // 2C
+	SQInteger unk2c;           // 2C
 	const SQChar* _codehook;   // 30
-	std::int32_t unk38;        // 38
+	SQInteger unk38;           // 38
 	SQInteger _nparamscheck;   // 3C
-	std::int64_t unk40;        // 40
-	std::int64_t unk48;        // 48
-	std::int64_t unk50;        // 50
-	std::int32_t unk58;        // 58
-	std::int32_t padding3;     // 5C
-	void* _functor;            // 60
+	CUtlVector<SQChar> _vector;// Unknown, see 'r5apex.exe+105835B'
+	const void* _functor;      // 60
 
-	ScriptFunctionBinding_t()
+	void Init(
+		const SQChar* scriptname, const SQChar* nativename,
+		const SQChar* helpstring, const SQChar* returntype,
+		const SQChar* parameters, const SQInteger nparamscheck,
+		const void* functor)
 	{
-		_scriptname = nullptr;
-		_nativename = nullptr;
-		_helpstring = nullptr;
-		_returntype = nullptr;
-		_parameters = nullptr;
-		unk28 = 0;
+		_scriptname = scriptname;
+		_nativename = nativename;
+		_helpstring = helpstring;
+		_returntype = returntype;
+		_parameters = parameters;
+		_checkparams = false;
+		unk29 = false;
 		padding1 = 0;
 		unk2c = 0;
 		_codehook = nullptr;
 		unk38 = 0;
-		_nparamscheck = 6;
-		unk40 = 0;
-		unk48 = 0;
-		unk50 = 0;
-		unk58 = 0;
-		padding3 = 0;
-		_functor = nullptr;
+		_nparamscheck = nparamscheck;
+		_vector.Init();
+		_functor = functor;
 	}
 };
+static_assert(sizeof(ScriptFunctionBinding_t) == 0x68);
 
 #pragma pack(push, 4)
 class CSquirrelVM
