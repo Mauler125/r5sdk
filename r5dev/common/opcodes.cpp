@@ -191,7 +191,7 @@ void Dedicated_Init()
 //	// MM_HEARTBEAT
 //	//-------------------------------------------------------------------------
 //	{
-//		MM_Heartbeat__ToString.Offset(0xF).Patch({ 0xE9, 0x22, 0x01, 0x00, 0x00 });    // JS  --> JMP | Skip ListenServer HeartBeat.
+//		MM_Heartbeat__ToString.Patch({ 0xC3 }); // SUB  --> RET | Return early in ListenServer HeartBeat.
 //	}
 //
 //	//-------------------------------------------------------------------------

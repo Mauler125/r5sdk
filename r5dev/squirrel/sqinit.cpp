@@ -90,7 +90,21 @@ namespace VSquirrel
 
             return SQ_OK;
         }
+        //-----------------------------------------------------------------------------
+        // Purpose: checks whether the server is active
+        //-----------------------------------------------------------------------------
+        SQRESULT IsServerActive(HSQUIRRELVM v)
+        {
+            bool isActive = false;
 #ifndef CLIENT_DLL
+            isActive = g_pServer->IsActive();
+#endif // !CLIENT_DLL
+
+            sq_pushbool(v, isActive);
+            return SQ_OK;
+        }
+#ifndef CLIENT_DLL
+
         //-----------------------------------------------------------------------------
         // Purpose: kicks a player by given name
         //-----------------------------------------------------------------------------
@@ -428,6 +442,9 @@ namespace VSquirrel
 
         //-----------------------------------------------------------------------------
         // Purpose: create server via native serverbrowser entries
+        // TODO: return a boolean on failure instead of raising an error, so we could
+        // determine from scripts whether or not to spin a local server, or connect
+        // to a dedicated server (for disconnecting and loading the lobby, for example)
         //-----------------------------------------------------------------------------
         SQRESULT CreateServer(HSQUIRRELVM v)
         {
