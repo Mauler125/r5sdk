@@ -1177,6 +1177,8 @@ playlists
 				"Playtest_Only"                       "Playtest"
 				"BETA_BUILD_WATERMARK"                "R5Reloaded [v2.2]"
 
+				"MOTD"                                "R5Reloaded is a mod for Apex Legends that allows you to create custom gamemodes, loadouts, servers and more!"
+
 				"PROMO_LARGE_TITLE"                   "Welcome To R5Reloaded!"
 				"PROMO_LARGE_DESCRIPTION"             "Make sure to join the discord! discord.gg/r5reloaded"
 				"PROMO_LEFT_TITLE"                    "Yes"
