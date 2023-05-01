@@ -145,80 +145,40 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 	Script_RegisterFunction(s, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 	Script_RegisterFunction(s, "IsClientDLL", "Script_IsClientDLL", "Returns whether this build is client only", "bool", "", &VSquirrel::SHARED::IsClientDLL);
 }
-
-//---------------------------------------------------------------------------------
-// Purpose: Initialize all CLIENT/UI global structs and register SDK (CLIENT/UI) script functions
-// Input  : *v - 
-//			context - (1 = CLIENT 2 = UI)
-//---------------------------------------------------------------------------------
-SQRESULT Script_InitializeCLGlobalStructs(HSQUIRRELVM v, SQCONTEXT context)
-{
-	SQRESULT results = v_Script_InitializeCLGlobalStructs(v, context);
-
-	if (context == SQCONTEXT::CLIENT)
-		Script_RegisterClientFunctions(g_pClientScript.GetValue<CSquirrelVM*>());
-	if (context == SQCONTEXT::UI)
-		Script_RegisterUIFunctions(g_pUIScript.GetValue<CSquirrelVM*>());
-	return results;
-}
 #endif // !DEDICATED
 
+//---------------------------------------------------------------------------------
+// Purpose: Initialises a Squirrel VM instance
+// Output : True on success, false on failure
+//---------------------------------------------------------------------------------
+bool CSquirrelVM_Init(CSquirrelVM* s, SQCONTEXT context, float curTime)
+{
+	v_CSquirrelVM_Init(s, context, curTime);
+
+	DevMsg((eDLL_T)context, "Created %s VM: '0x%p'\n", s->GetVM()->_sharedstate->_contextname, s);
+
+	switch (context)
+	{
 #ifndef CLIENT_DLL
-//---------------------------------------------------------------------------------
-// Purpose: Initialize all SERVER global structs and register SDK (SERVER) script functions
-// Input  : *v - 
-//---------------------------------------------------------------------------------
-void Script_InitializeSVGlobalStructs(HSQUIRRELVM v)
-{
-	v_Script_InitializeSVGlobalStructs(v);
-	Script_RegisterServerFunctions(Script_GetScriptHandle(SQCONTEXT::SERVER));
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: Creates the SERVER Squirrel VM
-// Output : True on success, false on failure
-//---------------------------------------------------------------------------------
-SQBool Script_CreateServerVM()
-{
-	SQBool results = v_Script_CreateServerVM();
-	if (results)
-		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '0x%p'\n", Script_GetScriptHandle(SQCONTEXT::SERVER));
-	else
-		Error(eDLL_T::SERVER, EXIT_FAILURE, "Failed to create SERVER VM\n");
-	return results;
-}
-#endif // !CLIENT_DLL
-
+	case SQCONTEXT::SERVER:
+		g_pServerScript = s;
+		Script_RegisterServerFunctions(s);
+		break;
+#endif
 #ifndef DEDICATED
-//---------------------------------------------------------------------------------
-// Purpose: Creates the CLIENT Squirrel VM
-// Input  : *hlClient - 
-// Output : True on success, false on failure
-//---------------------------------------------------------------------------------
-SQBool Script_CreateClientVM(CHLClient* hlclient)
-{
-	SQBool results = v_Script_CreateClientVM(hlclient);
-	if (results)
-		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '0x%p'\n", Script_GetScriptHandle(SQCONTEXT::CLIENT));
-	else
-		Error(eDLL_T::CLIENT, EXIT_FAILURE, "Failed to create CLIENT VM\n");
-	return results;
-}
+	case SQCONTEXT::CLIENT:
+		g_pClientScript = s;
+		Script_RegisterClientFunctions(s);
+		break;
+	case SQCONTEXT::UI:
+		g_pUIScript = s;
+		Script_RegisterUIFunctions(s);
+		break;
+#endif
+	}
 
-//---------------------------------------------------------------------------------
-// Purpose: Creates the UI Squirrel VM
-// Output : True on success, false on failure
-//---------------------------------------------------------------------------------
-SQBool Script_CreateUIVM()
-{
-	SQBool results = v_Script_CreateUIVM();
-	if (results)
-		DevMsg(eDLL_T::UI, "Created UI VM: '0x%p'\n", Script_GetScriptHandle(SQCONTEXT::UI));
-	else
-		Error(eDLL_T::UI, EXIT_FAILURE, "Failed to create UI VM\n");
-	return results;
+	return true; // original func always returns true
 }
-#endif // !DEDICATED
 
 //---------------------------------------------------------------------------------
 // Purpose: Returns the script VM pointer by context
@@ -231,13 +191,13 @@ CSquirrelVM* Script_GetScriptHandle(const SQCONTEXT context)
 	{
 #ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
-		return g_pServerScript.GetValue<CSquirrelVM*>();
+		return g_pServerScript;
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
-		return g_pClientScript.GetValue<CSquirrelVM*>();
+		return g_pClientScript;
 	case SQCONTEXT::UI:
-		return g_pUIScript.GetValue<CSquirrelVM*>();
+		return g_pUIScript;
 #endif // !DEDICATED
 	default:
 		return nullptr;
@@ -277,7 +237,6 @@ SQInteger Script_LoadRson(const SQChar* rsonfile)
 //---------------------------------------------------------------------------------
 SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags)
 {
-	///////////////////////////////////////////////////////////////////////////////
 	return v_Script_LoadScript(v, path, name, flags);
 }
 
@@ -332,17 +291,7 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 void VSquirrelVM::Attach() const
 {
 	DetourAttach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
-#ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_Script_InitializeCLGlobalStructs, &Script_InitializeCLGlobalStructs);
-#endif // !DEDICATED
-#ifndef CLIENT_DLL
-	DetourAttach((LPVOID*)&v_Script_InitializeSVGlobalStructs, &Script_InitializeSVGlobalStructs);
-	DetourAttach((LPVOID*)&v_Script_CreateServerVM, &Script_CreateServerVM);
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_Script_CreateClientVM, &Script_CreateClientVM);
-	DetourAttach((LPVOID*)&v_Script_CreateUIVM, &Script_CreateUIVM);
-#endif // !DEDICATED
+	DetourAttach((LPVOID*)&v_CSquirrelVM_Init, &CSquirrelVM_Init);
 	DetourAttach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourAttach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
 	//DetourAttach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
@@ -351,17 +300,7 @@ void VSquirrelVM::Attach() const
 void VSquirrelVM::Detach() const
 {
 	DetourDetach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
-#ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_Script_InitializeCLGlobalStructs, &Script_InitializeCLGlobalStructs);
-#endif // !DEDICATED
-#ifndef CLIENT_DLL
-	DetourDetach((LPVOID*)&v_Script_InitializeSVGlobalStructs, &Script_InitializeSVGlobalStructs);
-	DetourDetach((LPVOID*)&v_Script_CreateServerVM, &Script_CreateServerVM);
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_Script_CreateClientVM, &Script_CreateClientVM);
-	DetourDetach((LPVOID*)&v_Script_CreateUIVM, &Script_CreateUIVM);
-#endif // !DEDICATED
+	DetourDetach((LPVOID*)&v_CSquirrelVM_Init, &CSquirrelVM_Init);
 	DetourDetach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourDetach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
 	//DetourDetach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
