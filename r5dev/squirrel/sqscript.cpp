@@ -417,12 +417,11 @@ __int64 CSquirrelVM_CompileUICLScripts(CSquirrelVM* vm)
 #ifndef CLIENT_DLL
 __int64 CSquirrelVM_CompileSVScripts(__int64 a1)
 {
-	CSquirrelVM* sqvm = g_pServerScript.GetValue<CSquirrelVM*>();
-	HSQUIRRELVM v = sqvm->GetVM();
+	HSQUIRRELVM v = g_pServerScript->GetVM();
 
 	DevMsg(v->GetNativePrintContext(), (char*)"Loading and compiling script lists\n");
 
-	CSquirrelVM_CompileModScripts(sqvm);
+	CSquirrelVM_CompileModScripts(g_pServerScript);
 
 	return v_CSquirrelVM_CompileSVScripts(a1);
 }
