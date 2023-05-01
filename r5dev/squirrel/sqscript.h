@@ -37,7 +37,6 @@ struct ScriptFunctionBinding_t
 		_codehook = nullptr;
 		unk38 = 0;
 		_nparamscheck = nparamscheck;
-		_vector.Init();
 		_functor = functor;
 	}
 };
