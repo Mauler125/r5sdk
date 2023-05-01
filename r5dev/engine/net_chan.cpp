@@ -28,9 +28,18 @@ const char* CNetChan::GetName(void) const
 // Purpose: gets the netchannel address
 // Output : const char*
 //-----------------------------------------------------------------------------
-const char* CNetChan::GetAddress(void) const
+const char* CNetChan::GetAddress(bool onlyBase) const
 {
-	return this->remote_address.ToString();
+	return this->remote_address.ToString(onlyBase);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel port in host byte order
+// Output : int
+//-----------------------------------------------------------------------------
+int CNetChan::GetPort(void) const
+{
+	return int(ntohs(this->remote_address.GetPort()));
 }
 
 //-----------------------------------------------------------------------------
@@ -176,6 +185,22 @@ float CNetChan::GetTimeoutSeconds(void) const
 int CNetChan::GetSocket(void) const
 {
 	return this->m_Socket;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets a const reference to m_StreamVoice
+//-----------------------------------------------------------------------------
+const bf_write& CNetChan::GetStreamVoice(void) const
+{
+	return this->m_StreamVoice;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets a const reference to remote_address
+//-----------------------------------------------------------------------------
+const netadr_t& CNetChan::GetRemoteAddress(void) const
+{
+	return this->remote_address;
 }
 
 //-----------------------------------------------------------------------------

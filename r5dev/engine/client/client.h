@@ -62,8 +62,9 @@ class CClient : IClientMessageHandler, INetChannelHandler
 {
 public:
 	CClient* GetClient(int nIndex) const;
+	int64_t GetTeamNum() const;
 	edict_t GetHandle(void) const;
-	uint32_t GetUserID(void) const;
+	int GetUserID(void) const;
 	uint64_t GetNucleusID(void) const;
 	SIGNONSTATE GetSignonState(void) const;
 	PERSISTENCE GetPersistenceState(void) const;
@@ -98,13 +99,14 @@ public: // Hook statics:
 	static void* VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
 
 private:
-	uint32_t m_nUserID;              //0x0010
+	int m_nUserID;                   //0x0010
 	edict_t m_nHandle;               //0x0014
 	char m_szServerName[256];        //0x0160
 	char m_szClientName[256];        //0x0116
 	char pad_0015[258];              //0x0216
 	int m_nCommandTick;              //0x0318
-	char pad_031C[68];               //0x031C
+	char pad_031C[60];               //0x031C
+	int64_t m_iTeamNum;              //0x0258
 	KeyValues* m_ConVars;            //0x0360
 	char pad_0368[8];                //0x0368
 	CServer* m_pServer;              //0x0370

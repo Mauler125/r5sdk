@@ -9,7 +9,6 @@
 #include "vpc/keyvalues.h"
 #include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"
-#include "bsplib/bsplib.h"
 #include "materialsystem/cmaterialglue.h"
 #include "materialsystem/cmaterialsystem.h"
 
@@ -63,36 +62,6 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 }
 #endif // !DEDICATED
 
-//-----------------------------------------------------------------------------
-// Purpose: checks if ptr is valid, and checks for equality against CMaterial vftable
-// Input  : **pCandidate - 
-// Output : true if valid and material, false otherwise
-//-----------------------------------------------------------------------------
-FORCENOINLINE bool CMaterialSystem::IsMaterialInternal(void** pCandidate)
-{
-	// NOTE: this is a dirty fix, but for running technically broken BSP's, this is the only fix 
-	// besides going bare metal inline assembly (which on its own isn't directly the problem, but 
-	// portability wise it will be a problem as the majority of the code in r5apex.exe is declared inline).
-	// In the future, do not fix anything like this unless there is absolutely no other choice!
-	// The context of the problem is that we fix the missing models defined in the game_lump of a 
-	// BSP by swapping missing models out for existing models, which will in many cases, end up with 
-	// 2 or more model name duplicates within a single BSP's game_lump, which is illegal and causes 
-	// unpredictable behavior, which in this case causes a register to be assigned to an invalid CMaterial
-	// address. The pointer can still be dereferenced in many cases, which is why we do an equality test.
-	// The first member of the CMaterial data structure should be its VFTable pointer, anything else is invalid.
-	__try
-	{
-		if (*pCandidate == g_pMaterialVFTable ||
-			*pCandidate == g_pMaterialGlueVFTable)
-			return true;
-	}
-	__except (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION)
-	{
-		return false;
-	}
-	return false;
-}
-
 #ifndef DEDICATED
 //-----------------------------------------------------------------------------
 // Purpose: finds a material
@@ -132,16 +101,6 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 ///////////////////////////////////////////////////////////////////////////////
 void VMaterialSystem::Attach() const
 {
-	// TODO: This has to be removed!!!
-#ifndef _DEBUG
-	vector<CMemory> find_IMI_ref = CMemory(CMaterialSystem::IsMaterialInternal).FindAllCallReferences(reinterpret_cast<uintptr_t>(BuildPropStaticFrustumCullMap), 1000);
-	if (!find_IMI_ref.empty())
-	{
-		void* imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();
-		g_CrashHandler->AddWhitelist(imiRetAddr);
-	}
-#endif // !_DEBUG
-
 #ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourAttach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);

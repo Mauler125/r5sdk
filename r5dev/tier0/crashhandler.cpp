@@ -464,7 +464,7 @@ void CCrashHandler::RemoveWhitelist(void* pWhitelist)
 //-----------------------------------------------------------------------------
 bool CCrashHandler::HasWhitelist()
 {
-	for (WORD i = 0; i < MAX_IMI_SEARCH; i++)
+	for (WORD i = 0; i < NUM_FRAMES_TO_SEARCH; i++)
 	{
 		if (m_WhiteList.count(m_ppStackTrace[i]))
 		{

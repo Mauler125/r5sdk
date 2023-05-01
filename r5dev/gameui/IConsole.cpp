@@ -81,6 +81,13 @@ CConsole::CConsole(void)
 //-----------------------------------------------------------------------------
 CConsole::~CConsole(void)
 {
+    for (MODULERESOURCE& flagIcon : m_vFlagIcons)
+    {
+        if (flagIcon.m_idIcon)
+        {
+            flagIcon.m_idIcon->Release();
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -201,12 +208,18 @@ void CConsole::Think(void)
     {
         if (m_flFadeAlpha < 1.f)
         {
-            m_flFadeAlpha += .1f;
+            m_flFadeAlpha += .05f;
+            m_flFadeAlpha = (std::min)(m_flFadeAlpha, 1.f);
         }
     }
     else // Reset to full transparent.
     {
-        m_flFadeAlpha = 0.f;
+        if (m_flFadeAlpha > 0.f)
+        {
+            m_flFadeAlpha -= .05f;
+            m_flFadeAlpha = (std::max)(m_flFadeAlpha, 0.f);
+        }
+
         m_bReclaimFocus = true;
     }
 }
@@ -777,7 +790,10 @@ bool CConsole::LoadFlagIcons(void)
             static_cast<int>(rFlagIcon.m_nSize), &rFlagIcon.m_idIcon, &rFlagIcon.m_nWidth, &rFlagIcon.m_nHeight);
 
         IM_ASSERT(ret);
-        NOTE_UNUSED(ret);
+        if (!ret)
+        {
+            break;
+        }
     }
     return ret;
 }

@@ -37,7 +37,7 @@ bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 	{
 		// Log received packet data.
 		HexDump("[+] NET_ReceiveDatagram ", "net_trace", 
-			&pInpacket->pData[NULL], size_t(pInpacket->wiresize));
+			pInpacket->pData, size_t(pInpacket->wiresize));
 	}
 	return result;
 }
@@ -73,6 +73,15 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool
 unsigned int NET_Decompress(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize)
 {
 	return lzss->SafeUncompress(pInput, pOutput, unBufSize);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: configures the network system
+//-----------------------------------------------------------------------------
+void NET_Config()
+{
+	v_NET_Config();
+	g_pNetAdr->SetPort(htons(u_short(hostport->GetInt())));
 }
 
 //-----------------------------------------------------------------------------
@@ -300,6 +309,7 @@ const char* NET_ErrorString(int iCode)
 ///////////////////////////////////////////////////////////////////////////////
 void VNet::Attach() const
 {
+	DetourAttach((LPVOID*)&v_NET_Config, &NET_Config);
 	DetourAttach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
 	DetourAttach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 	DetourAttach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
@@ -311,6 +321,7 @@ void VNet::Attach() const
 
 void VNet::Detach() const
 {
+	DetourDetach((LPVOID*)&v_NET_Config, &NET_Config);
 	DetourDetach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
 	DetourDetach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 	DetourDetach((LPVOID*)&v_NET_Decompress, &NET_Decompress);

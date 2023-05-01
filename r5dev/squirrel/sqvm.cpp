@@ -72,13 +72,21 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		break;
 	}
 
-	// Always show script errors.
+	// Determine whether this is an info or warning log.
 	bool bLogLevelOverride = (g_bSQAuxError || (g_bSQAuxBadLogic && v == g_pErrorVM));
+	LogLevel_t level = LogLevel_t(script_show_output->GetInt());
 	LogType_t type = bLogLevelOverride ? LogType_t::SQ_WARNING : LogType_t::SQ_INFO;
+
+	// Always log script related problems to the console.
+	if (type == LogType_t::SQ_WARNING &&
+		level == LogLevel_t::LEVEL_DISK_ONLY)
+	{
+		level = LogLevel_t::LEVEL_CONSOLE;
+	}
 
 	va_list args;
 	va_start(args, fmt);
-	CoreMsgV(type, static_cast<LogLevel_t>(script_show_output->GetInt()), remoteContext, "squirrel_re", fmt, args);
+	CoreMsgV(type, level, remoteContext, "squirrel_re", fmt, args);
 	va_end(args);
 
 	return SQ_OK;

@@ -58,7 +58,6 @@ bool OverlayBase_t::IsDead() const
     {
         return m_nCreationTick < *g_nRenderTickCount;
     }
-    return g_pClientState->GetClientTime() >= m_flEndTime;
 }
 
 //------------------------------------------------------------------------------

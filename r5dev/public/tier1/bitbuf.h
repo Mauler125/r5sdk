@@ -188,6 +188,8 @@ public:
 	// Write a list of bits in.
 	bool           WriteBits(const void* pIn, int nBits);
 
+	bool           WriteBytes(const void* pIn, int nBytes);
+
 	// How many bytes are filled in?
 	int            GetNumBytesWritten() const;
 	int            GetNumBitsWritten() const;

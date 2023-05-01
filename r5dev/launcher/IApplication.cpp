@@ -20,8 +20,8 @@
 #include "engine/sdk_dll.h"
 #include "engine/host_cmd.h"
 #include "engine/enginetrace.h"
-#include "engine/server/sv_main.h"
 #ifndef CLIENT_DLL
+#include "engine/server/sv_main.h"
 #include "server/vengineserver_impl.h"
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
@@ -82,7 +82,10 @@ int CModAppSystemGroup::StaticMain(CModAppSystemGroup* pModAppSystemGroup)
 			nRunResult = RUN_RESTART;
 		}
 		g_pEngine->Unload();
+
+#ifndef CLIENT_DLL
 		SV_ShutdownGameDLL();
+#endif // !CLIENT_DLL
 	}
 	return nRunResult;
 #endif

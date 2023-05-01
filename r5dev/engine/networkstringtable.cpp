@@ -114,14 +114,14 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 
 void VNetworkStringTableContainer::Attach() const
 {
-#ifndef CLIENT_DLL
+#if !defined (CLIENT_DLL) && !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) // TODO: doesn't work properly for S0/S1 yet.
 	DetourAttach(&v_CNetworkStringTableContainer__WriteUpdateMessage, &CNetworkStringTableContainer::WriteUpdateMessage);
-#endif // !CLIENT_DLL
+#endif // !CLIENT_DLL && !GAMEDLL_S0 && !GAMEDLL_S1
 }
 
 void VNetworkStringTableContainer::Detach() const
 {
-#ifndef CLIENT_DLL
+#if !defined (CLIENT_DLL) && !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) // TODO: doesn't work properly for S0/S1 yet.
 	DetourDetach(&v_CNetworkStringTableContainer__WriteUpdateMessage, &CNetworkStringTableContainer::WriteUpdateMessage);
-#endif // !CLIENT_DLL
+#endif // !CLIENT_DLL && !GAMEDLL_S0 && !GAMEDLL_S1
 }

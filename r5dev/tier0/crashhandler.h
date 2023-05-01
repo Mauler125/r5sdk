@@ -74,7 +74,7 @@ private:
 private:
 	enum
 	{
-		MAX_IMI_SEARCH = 7,
+		NUM_FRAMES_TO_SEARCH = 7,
 		NUM_FRAMES_TO_CAPTURE = 128
 	};
 

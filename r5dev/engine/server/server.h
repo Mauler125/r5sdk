@@ -42,7 +42,6 @@ public:
 	bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
 	bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
 	bool IsDedicated(void) const { return m_bIsDedicated; }
-	bool AuthClient(user_creds_s* pChallenge);
 	void RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage);
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
 	static void RunFrame(CServer* pServer);
@@ -130,10 +129,10 @@ class VServer : public IDetour
 		p_CServer_ConnectClient = g_GameDll.FindPatternSIMD("40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??");
 #endif
 
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CServer_RunFrame = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 48 81 EC ?? ?? ?? ?? 0F 29 B4 24 ?? ?? ?? ??");
 #else
-		p_CServer_RunFrame = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 81 EC ?? ?? ?? ?? 0F 29 B4 24 ?? ?? ?? ??");
+		p_CServer_RunFrame = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 88 05 ?? ?? ?? ??").FollowNearCallSelf();
 #endif
 		p_CServer_RejectConnection = g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9");
 

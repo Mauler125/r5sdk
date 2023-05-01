@@ -738,6 +738,33 @@ void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float f
 
 /*
 =====================
+NET_UseSocketsForLoopbackChanged_f
+
+  Use random AES encryption
+  key for game packets
+=====================
+*/
+void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same value.
+
+#ifndef CLIENT_DLL
+		// Reboot the RCON server to switch address type.
+		if (RCONServer()->IsInitialized())
+		{
+			DevMsg(eDLL_T::SERVER, "Rebooting RCON server...\n");
+			RCONServer()->Shutdown();
+			RCONServer()->Init();
+		}
+#endif // !CLIENT_DLL
+	}
+}
+
+/*
+=====================
 SIG_GetAdr_f
 
   Logs the sigscan
@@ -853,11 +880,13 @@ void RCON_CmdQuery_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
+		const char* pszAddress = rcon_address->GetString();
+
 		if (RCONClient()->IsInitialized()
 			&& !RCONClient()->IsConnected()
-			&& strlen(rcon_address->GetString()) > 0)
+			&& pszAddress[0])
 		{
-			RCONClient()->Connect();
+			RCONClient()->Connect(pszAddress);
 		}
 	}
 	else
@@ -869,28 +898,39 @@ void RCON_CmdQuery_f(const CCommand& args)
 		}
 		else if (RCONClient()->IsConnected())
 		{
+			vector<char> vecMsg;
+			bool bSuccess = false;
+			const SocketHandle_t hSocket = RCONClient()->GetSocket();
+
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
-				string svCmdQuery;
 				if (args.ArgC() > 2)
 				{
-					svCmdQuery = RCONClient()->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
 				else // Use 'rcon_password' ConVar as password.
 				{
-					svCmdQuery = RCONClient()->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					bSuccess = RCONClient()->Serialize(vecMsg, rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
-				RCONClient()->Send(svCmdQuery);
+
+				if (bSuccess)
+				{
+					RCONClient()->Send(hSocket, vecMsg.data(), int(vecMsg.size()));
+				}
+
 				return;
 			}
 			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 			{
-				RCONClient()->Disconnect();
+				RCONClient()->Disconnect("issued by user");
 				return;
 			}
 
-			string svCmdQuery = RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			RCONClient()->Send(svCmdQuery);
+			bSuccess = RCONClient()->Serialize(vecMsg, args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			if (bSuccess)
+			{
+				RCONClient()->Send(hSocket, vecMsg.data(), int(vecMsg.size()));
+			}
 			return;
 		}
 		else
@@ -910,9 +950,11 @@ RCON_Disconnect_f
 */
 void RCON_Disconnect_f(const CCommand& args)
 {
-	if (RCONClient()->IsConnected())
+	const bool bIsConnected = RCONClient()->IsConnected();
+	RCONClient()->Disconnect("issued by user");
+
+	if (bIsConnected) // Log if client was indeed connected.
 	{
-		RCONClient()->Disconnect();
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }
@@ -922,8 +964,8 @@ void RCON_Disconnect_f(const CCommand& args)
 =====================
 RCON_PasswordChanged_f
 
-  Change password on RCON server
-  and RCON client
+  Change RCON password
+  on server and client
 =====================
 */
 void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
@@ -945,6 +987,74 @@ void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOl
 #endif // !CLIENT_DLL
 	}
 }
+
+#ifndef CLIENT_DLL
+/*
+=====================
+RCON_WhiteListAddresChanged_f
+
+  Change whitelist address
+  on RCON server
+=====================
+*/
+void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same address.
+
+		if (!RCONServer()->SetWhiteListAddress(pConVarRef->GetString()))
+		{
+			Warning(eDLL_T::SERVER, "Failed to set RCON whitelist address: %s\n", pConVarRef->GetString());
+		}
+	}
+}
+
+/*
+=====================
+RCON_ConnectionCountChanged_f
+
+  Change max connection
+  count on RCON server
+=====================
+*/
+void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (!RCONServer()->IsInitialized())
+		return; // Not initialized; no sockets at this point.
+
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same count.
+
+		const int maxCount = pConVarRef->GetInt();
+
+		int count = RCONServer()->GetAuthenticatedCount();
+		CSocketCreator* pCreator = RCONServer()->GetSocketCreator();
+
+		if (count < maxCount)
+		{
+			if (!pCreator->IsListening())
+			{
+				pCreator->CreateListenSocket(*RCONServer()->GetNetAddress());
+			}
+		}
+		else
+		{
+			while (count > maxCount)
+			{
+				RCONServer()->Disconnect(count-1, "too many authenticated sockets");
+				count = RCONServer()->GetAuthenticatedCount();
+			}
+
+			pCreator->CloseListenSocket();
+			RCONServer()->CloseNonAuthConnection();
+		}
+	}
+}
+#endif // !CLIENT_DLL
 
 /*
 =====================

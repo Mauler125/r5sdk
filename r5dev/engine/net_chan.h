@@ -81,7 +81,8 @@ class CNetChan
 {
 public:
 	const char* GetName(void) const;
-	const char* GetAddress(void) const;
+	const char* GetAddress(bool onlyBase = false) const;
+	int         GetPort(void) const;
 	int         GetDataRate(void) const;
 	int         GetBufferSize(void) const;
 
@@ -99,6 +100,9 @@ public:
 	float       GetTimeoutSeconds(void) const;
 	double      GetTimeConnected(void) const;
 	int         GetSocket(void) const;
+
+	const bf_write& GetStreamVoice(void) const;
+	const netadr_t& GetRemoteAddress(void) const;
 
 	bool        IsOverflowed(void) const;
 	void        Clear(bool bStopProcessing);

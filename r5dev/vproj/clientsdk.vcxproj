@@ -16,7 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\bonesetup\bone_utils.cpp" />
-    <ClCompile Include="..\bsplib\bsplib.cpp" />
     <ClCompile Include="..\client\cdll_engine_int.cpp" />
     <ClCompile Include="..\client\vengineclient_impl.cpp" />
     <ClCompile Include="..\codecs\bink\bink_impl.cpp" />
@@ -55,6 +54,9 @@
     <ClCompile Include="..\engine\networkstringtable.cpp" />
     <ClCompile Include="..\engine\net_chan.cpp" />
     <ClCompile Include="..\engine\sdk_dll.cpp" />
+    <ClCompile Include="..\engine\shared\base_rcon.cpp" />
+    <ClCompile Include="..\engine\shared\shared_rcon.cpp" />
+    <ClCompile Include="..\engine\staticpropmgr.cpp" />
     <ClCompile Include="..\engine\sys_dll.cpp" />
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
@@ -185,7 +187,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\appframework\engine_launcher_api.h" />
-    <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
     <ClInclude Include="..\client\vengineclient_impl.h" />
     <ClInclude Include="..\codecs\bink\bink_impl.h" />
@@ -236,6 +237,9 @@
     <ClInclude Include="..\engine\net_chan.h" />
     <ClInclude Include="..\engine\packed_entity.h" />
     <ClInclude Include="..\engine\sdk_dll.h" />
+    <ClInclude Include="..\engine\shared\base_rcon.h" />
+    <ClInclude Include="..\engine\shared\shared_rcon.h" />
+    <ClInclude Include="..\engine\staticpropmgr.h" />
     <ClInclude Include="..\engine\sys_dll.h" />
     <ClInclude Include="..\engine\sys_dll2.h" />
     <ClInclude Include="..\engine\sys_engine.h" />
@@ -625,7 +629,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;R5DEV_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
@@ -659,7 +663,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;R5DEV_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -706,7 +710,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>

@@ -39,6 +39,7 @@ void VPK_Unmount_f(const CCommand& args);
 void NET_SetKey_f(const CCommand& args);
 void NET_GenerateKey_f(const CCommand& args);
 void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
+void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 void SIG_GetAdr_f(const CCommand& args);
 void CON_Help_f(const CCommand& args);
 #ifndef DEDICATED
@@ -52,6 +53,8 @@ void RCON_Disconnect_f(const CCommand& args);
 #endif // !DEDICATED
 void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 #ifndef CLIENT_DLL
+void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
+void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 void SQVM_ServerScript_f(const CCommand& args);
 #endif // !CLIENT_DLL
 #ifndef DEDICATED

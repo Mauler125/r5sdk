@@ -28,6 +28,9 @@ inline auto v_NET_Shutdown = p_NET_Shutdown.RCast<void (*)(void* thisptr, const 
 inline CMemory p_NET_SetKey;
 inline auto v_NET_SetKey = p_NET_SetKey.RCast<void (*)(netkey_t* pKey, const char* szHash)>();
 
+inline CMemory p_NET_Config;
+inline auto v_NET_Config = p_NET_Config.RCast<void (*)(void)>();
+
 inline CMemory p_NET_ReceiveDatagram;
 inline auto v_NET_ReceiveDatagram = p_NET_ReceiveDatagram.RCast<bool (*)(int iSocket, netpacket_s* pInpacket, bool bRaw)>();
 
@@ -62,6 +65,7 @@ class VNet : public IDetour
 	{
 		LogFunAdr("NET_Init", p_NET_Init.GetPtr());
 		LogFunAdr("NET_Shutdown", p_NET_Shutdown.GetPtr());
+		LogFunAdr("NET_Config", p_NET_Config.GetPtr());
 		LogFunAdr("NET_SetKey", p_NET_SetKey.GetPtr());
 		LogFunAdr("NET_ReceiveDatagram", p_NET_ReceiveDatagram.GetPtr());
 		LogFunAdr("NET_SendDatagram", p_NET_SendDatagram.GetPtr());
@@ -80,6 +84,7 @@ class VNet : public IDetour
 		p_NET_Init     = g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 81 EC F0 01 ??");
 		p_NET_Shutdown = g_GameDll.FindPatternSIMD("48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9 D0");
 #endif
+		p_NET_Config          = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 0F 57 C0");
 		p_NET_SetKey          = g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 41 B8");
 		p_NET_ReceiveDatagram = g_GameDll.FindPatternSIMD("48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D AC 24 50 EB");
 		p_NET_SendDatagram    = g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 ?? ??");
@@ -88,6 +93,7 @@ class VNet : public IDetour
 
 		v_NET_Init            = p_NET_Init.RCast<void* (*)(bool)>();                                        /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 81 EC F0 01 00*/
 		v_NET_Shutdown        = p_NET_Shutdown.RCast<void (*)(void*, const char*, uint8_t, bool)>();        /*48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9 D0*/
+		v_NET_Config          = p_NET_Config.RCast<void (*)(void)>();
 		v_NET_SetKey          = p_NET_SetKey.RCast<void (*)(netkey_t*, const char*)>();                     /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 41 B8*/
 		v_NET_ReceiveDatagram = p_NET_ReceiveDatagram.RCast<bool (*)(int, netpacket_s*, bool)>();           /*E8 ?? ?? ?? ?? 84 C0 75 35 48 8B D3*/
 		v_NET_SendDatagram    = p_NET_SendDatagram.RCast<int (*)(SOCKET, void*, int, netadr_t*, bool)>();   /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 00 00*/

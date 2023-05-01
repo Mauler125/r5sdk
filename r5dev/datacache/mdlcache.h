@@ -170,7 +170,7 @@ class VMDLCache : public IDetour
 
 		m_MDLDict = p_CMDLCache__FindMDL.FindPattern("48 8B 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlDict<studiodata_t*, MDLHandle_t>*>();
 
-		g_MDLCache = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 44 0F B7 82 ?? ?? ?? ?? 48 8B 01 48 FF A0 30 01 ?? ??")
+		g_MDLCache = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 44 0F B7 82 ?? ?? ?? ?? 48 8B 01 48 FF A0")
 			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMDLCache*>();
 	}
 	virtual void GetCon(void) const { }

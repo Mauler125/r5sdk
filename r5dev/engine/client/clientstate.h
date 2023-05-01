@@ -185,7 +185,11 @@ public:
 	char byte34A38;
 	char field_34A39[7];
 };
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+static_assert(sizeof(CClientState) == 0x34A38);
+#else
 static_assert(sizeof(CClientState) == 0x34A30);
+#endif
 
 #ifndef DEDICATED
 extern CClientState* g_pClientState;

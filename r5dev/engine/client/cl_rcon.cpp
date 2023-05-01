@@ -10,6 +10,7 @@
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
 #include "engine/client/cl_rcon.h"
+#include "engine/shared/shared_rcon.h"
 #include "engine/net.h"
 #include "squirrel/sqvm.h"
 #include "common/igameserverdata.h"
@@ -20,7 +21,6 @@
 //-----------------------------------------------------------------------------
 CRConClient::CRConClient()
 	: m_bInitialized(false)
-	, m_bConnEstablished(false)
 {
 }
 
@@ -44,10 +44,7 @@ void CRConClient::Init(void)
 //-----------------------------------------------------------------------------
 void CRConClient::Shutdown(void)
 {
-	if (m_bConnEstablished)
-	{
-		this->Disconnect();
-	}
+	Disconnect("shutdown");
 }
 
 //-----------------------------------------------------------------------------
@@ -55,222 +52,95 @@ void CRConClient::Shutdown(void)
 //-----------------------------------------------------------------------------
 void CRConClient::RunFrame(void)
 {
-	if (m_bInitialized && m_bConnEstablished)
+	if (IsInitialized() && IsConnected())
 	{
-		this->Recv();
-	}
-}
+		CConnectedNetConsoleData* pData = GetData();
+		Assert(pData != nullptr);
 
-//-----------------------------------------------------------------------------
-// Purpose: connect to address and port stored in 'rcon_address' cvar
-// Output : true if connection succeeds, false otherwise
-//-----------------------------------------------------------------------------
-bool CRConClient::Connect(void)
-{
-	if (strlen(rcon_address->GetString()) > 0)
-	{
-		return Connect(rcon_address->GetString());
-	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: connect to specified address and port
-// Input  : *szInAdr - 
-// Output : true if connection succeeds, false otherwise
-//-----------------------------------------------------------------------------
-bool CRConClient::Connect(const char* szInAdr)
-{
-	string svLocalHost;
-	if (strcmp(szInAdr, "localhost") == 0)
-	{
-		char szHostName[512];
-		if (!gethostname(szHostName, sizeof(szHostName)))
+		if (pData)
 		{
-			svLocalHost = Format("[%s]:%s", szHostName, hostport->GetString());
-			szInAdr = svLocalHost.c_str();
+			Recv(pData);
 		}
 	}
-
-	if (!m_Address.SetFromString(szInAdr, true))
-	{
-		Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", szInAdr);
-		return false;
-	}
-
-	if (m_Socket.ConnectSocket(m_Address, true) == SOCKET_ERROR)
-	{
-		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (%s)\n", "SOCKET_ERROR");
-		return false;
-	}
-	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_Address.ToString());
-
-	m_bConnEstablished = true;
-	return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: disconnect from current session
 //-----------------------------------------------------------------------------
-void CRConClient::Disconnect(void)
+void CRConClient::Disconnect(const char* szReason)
 {
-	m_Socket.CloseAcceptedSocket(0);
-	m_bConnEstablished = false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: send message
-// Input  : *svMessage - 
-//-----------------------------------------------------------------------------
-void CRConClient::Send(const string& svMessage) const
-{
-	ostringstream ssSendBuf;
-	const u_long nLen = htonl(static_cast<u_long>(svMessage.size()));
-
-	ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
-	ssSendBuf.write(svMessage.data(), svMessage.size());
-
-	int nSendResult = ::send(m_Socket.GetAcceptedSocketData(0)->m_hSocket,
-		ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
-	if (nSendResult == SOCKET_ERROR)
+	if (IsConnected())
 	{
-		Warning(eDLL_T::CLIENT, "Failed to send RCON message: (%s)\n", "SOCKET_ERROR");
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: receive message
-//-----------------------------------------------------------------------------
-void CRConClient::Recv(void)
-{
-	static char szRecvBuf[1024];
-	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(0);
-
-	{//////////////////////////////////////////////
-		const int nPendingLen = ::recv(pData->m_hSocket, szRecvBuf, sizeof(char), MSG_PEEK);
-		if (nPendingLen == SOCKET_ERROR && m_Socket.IsSocketBlocking())
+		if (!szReason)
 		{
-			return;
-		}
-		if (nPendingLen <= 0 && m_bConnEstablished) // EOF or error.
-		{
-			this->Disconnect();
-			DevMsg(eDLL_T::CLIENT, "Server closed RCON connection\n");
-			return;
-		}
-	}//////////////////////////////////////////////
-
-	u_long nReadLen; // Find out how much we have to read.
-	::ioctlsocket(pData->m_hSocket, FIONREAD, &nReadLen);
-
-	while (nReadLen > 0)
-	{
-		const int nRecvLen = ::recv(pData->m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
-		if (nRecvLen == 0 && m_bConnEstablished) // Socket was closed.
-		{
-			this->Disconnect();
-			DevMsg(eDLL_T::CLIENT, "Server closed RCON connection\n");
-			break;
-		}
-		if (nRecvLen < 0 && !m_Socket.IsSocketBlocking())
-		{
-			Error(eDLL_T::CLIENT, NO_ERROR, "RCON Cmd: recv error (%s)\n", NET_ErrorString(WSAGetLastError()));
-			break;
+			szReason = "unknown reason";
 		}
 
-		nReadLen -= nRecvLen; // Process what we've got.
-		this->ProcessBuffer(szRecvBuf, nRecvLen, pData);
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: parses input response buffer using length-prefix framing
-// Input  : *pszIn - 
-//			nRecvLen - 
-//			*pData - 
-//-----------------------------------------------------------------------------
-void CRConClient::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetConsoleData* pData)
-{
-	while (nRecvLen > 0)
-	{
-		if (pData->m_nPayloadLen)
-		{
-			if (pData->m_nPayloadRead < pData->m_nPayloadLen)
-			{
-				pData->m_RecvBuffer[pData->m_nPayloadRead++] = *pRecvBuf;
-
-				pRecvBuf++;
-				nRecvLen--;
-			}
-			if (pData->m_nPayloadRead == pData->m_nPayloadLen)
-			{
-				this->ProcessMessage(this->Deserialize(string(
-					reinterpret_cast<char*>(pData->m_RecvBuffer.data()), pData->m_nPayloadLen)));
-
-				pData->m_nPayloadLen = 0;
-				pData->m_nPayloadRead = 0;
-			}
-		}
-		else if (pData->m_nPayloadRead < sizeof(u_long)) // Read size field.
-		{
-			pData->m_RecvBuffer[pData->m_nPayloadRead++] = *pRecvBuf;
-
-			pRecvBuf++;
-			nRecvLen--;
-		}
-		else // Build prefix.
-		{
-			pData->m_nPayloadLen = ntohl(*reinterpret_cast<u_long*>(&pData->m_RecvBuffer[0]));
-			pData->m_nPayloadRead = 0;
-
-			if (pData->m_nPayloadLen < 0 ||
-				pData->m_nPayloadLen > pData->m_RecvBuffer.max_size())
-			{
-				Error(eDLL_T::CLIENT, NO_ERROR, "RCON Cmd: sync error (%d)\n", pData->m_nPayloadLen);
-				this->Disconnect(); // Out of sync (irrecoverable).
-
-				break;
-			}
-			else
-			{
-				pData->m_RecvBuffer.resize(pData->m_nPayloadLen);
-			}
-		}
+		DevMsg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
+		m_Socket.CloseAcceptedSocket(0);
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: processes received message
-// Input  : *sv_response - 
+// Input  : *pMsgBug - 
+//			nMsgLen - 
 //-----------------------------------------------------------------------------
-void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
+bool CRConClient::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
-	switch (sv_response.responsetype())
+	sv_rcon::response response;
+	bool bSuccess = Decode(&response, pMsgBuf, nMsgLen);
+
+	if (!bSuccess)
+	{
+		Error(eDLL_T::CLIENT, NO_ERROR, "Failed to decode RCON buffer\n");
+		return false;
+	}
+
+	switch (response.responsetype())
 	{
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
 	{
-		if (!sv_response.responseval().empty())
+		if (!response.responseval().empty())
 		{
-			const long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
+			const long i = strtol(response.responseval().c_str(), NULL, NULL);
+			const bool bLocalHost = (g_pNetAdr->ComparePort(m_Address) && g_pNetAdr->CompareAdr(m_Address));
+			const char* szEnable = nullptr;
+			const SocketHandle_t hSocket = GetSocket();
+
 			if (!i) // sv_rcon_sendlogs is not set.
 			{
-				if (cl_rcon_request_sendlogs->GetBool())
+				if (!bLocalHost && cl_rcon_request_sendlogs->GetBool())
 				{
-					string svLogQuery = this->Serialize("", "", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
-					this->Send(svLogQuery);
+					szEnable = "1";
+				}
+			}
+			else if (bLocalHost)
+			{
+				// Don't send logs to local host, it already gets logged to the same console.
+				szEnable = "0";
+			}
+
+			if (szEnable)
+			{
+				vector<char> vecMsg;
+				bool ret = Serialize(vecMsg, "", szEnable, cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+
+				if (ret && !Send(hSocket, vecMsg.data(), int(vecMsg.size())))
+				{
+					Error(eDLL_T::CLIENT, NO_ERROR, "Failed to send RCON message: (%s)\n", "SOCKET_ERROR");
 				}
 			}
 		}
 
-		DevMsg(eDLL_T::NETCON, "%s", PrintPercentageEscape(sv_response.responsemsg()).c_str());
+		DevMsg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
 		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
-		NetMsg(static_cast<LogType_t>(sv_response.messagetype()), 
-			static_cast<eDLL_T>(sv_response.messageid()), sv_response.responseval().c_str(),
-			PrintPercentageEscape(sv_response.responsemsg()).c_str());
+		NetMsg(static_cast<LogType_t>(response.messagetype()), 
+			static_cast<eDLL_T>(response.messageid()),
+			response.responseval().c_str(), "%s", response.responsemsg().c_str());
 		break;
 	}
 	default:
@@ -278,6 +148,8 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 		break;
 	}
 	}
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -287,49 +159,32 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 //			request_t - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
-string CRConClient::Serialize(const string& svReqBuf, const string& svReqVal, const cl_rcon::request_t request_t) const
+bool CRConClient::Serialize(vector<char>& vecBuf, const char* szReqBuf,
+	const char* szReqVal, const cl_rcon::request_t requestType) const
 {
-	cl_rcon::request cl_request;
-
-	cl_request.set_messageid(-1);
-	cl_request.set_requesttype(request_t);
-
-	switch (request_t)
-	{
-	case cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE:
-	case cl_rcon::request_t::SERVERDATA_REQUEST_AUTH:
-	{
-		cl_request.set_requestmsg(svReqBuf);
-		cl_request.set_requestval(svReqVal);
-		break;
-	}
-	case cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND:
-	{
-		cl_request.set_requestmsg(svReqBuf);
-		break;
-	}
-	default:
-		break;
-	}
-	return cl_request.SerializeAsString();
+	return CL_NetConSerialize(this, vecBuf, szReqBuf, szReqVal, requestType);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: de-serializes input
-// Input  : *svBuf - 
-// Output : de-serialized object
+// Purpose: retrieves the remote socket
+// Output : SOCKET_ERROR (-1) on failure
 //-----------------------------------------------------------------------------
-sv_rcon::response CRConClient::Deserialize(const string& svBuf) const
+CConnectedNetConsoleData* CRConClient::GetData(void)
 {
-	sv_rcon::response sv_response;
-	sv_response.ParseFromArray(svBuf.data(), static_cast<int>(svBuf.size()));
+	return SH_GetNetConData(this, 0);
+}
 
-	return sv_response;
+//-----------------------------------------------------------------------------
+// Purpose: retrieves the remote socket
+// Output : SOCKET_ERROR (-1) on failure
+//-----------------------------------------------------------------------------
+SocketHandle_t CRConClient::GetSocket(void)
+{
+	return SH_GetNetConSocketHandle(this, 0);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if client rcon is initialized
-// Output : true if initialized, false otherwise
 //-----------------------------------------------------------------------------
 bool CRConClient::IsInitialized(void) const
 {
@@ -337,16 +192,16 @@ bool CRConClient::IsInitialized(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if client rcon is connected
-// Output : true if connected, false otherwise
+// Purpose: returns whether the rcon client is connected
 //-----------------------------------------------------------------------------
-bool CRConClient::IsConnected(void) const
+bool CRConClient::IsConnected(void)
 {
-	return m_bConnEstablished;
+	return (GetSocket() != SOCKET_ERROR);
 }
+
 ///////////////////////////////////////////////////////////////////////////////
-CRConClient g_RCONClient;
+CRConClient* g_RCONClient(new CRConClient());
 CRConClient* RCONClient() // Singleton RCON Client.
 {
-	return &g_RCONClient;
+	return g_RCONClient;
 }

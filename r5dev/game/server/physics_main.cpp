@@ -19,7 +19,7 @@ void Physics_RunBotSimulation(bool bSimulating)
 	if (!sv_simulateBots->GetBool())
 		return;
 
-	for (int i = 0; i < MAX_PLAYERS; i++)
+	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
 		CClient* pClient = g_pClient->GetClient(i);
 		if (!pClient)

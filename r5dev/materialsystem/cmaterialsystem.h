@@ -7,7 +7,6 @@
 class CMaterialSystem
 {
 public:
-	FORCENOINLINE static bool IsMaterialInternal(void** pCandidate);
 #ifndef DEDICATED
 	static CMaterialGlue* FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 	static Vector2D GetScreenSize(CMaterialSystem* pMatSys = nullptr);

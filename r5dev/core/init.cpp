@@ -39,7 +39,7 @@
 #include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
 #include "vphysics/QHull.h"
-#include "bsplib/bsplib.h"
+#include "engine/staticpropmgr.h"
 #include "materialsystem/cmaterialsystem.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
@@ -252,6 +252,7 @@ void Winsock_Shutdown()
 }
 void QuerySystemInfo()
 {
+#ifndef DEDICATED
 	for (int i = 0; ; i++)
 	{
 		DISPLAY_DEVICE dd = { sizeof(dd), {0} };
@@ -268,6 +269,7 @@ void QuerySystemInfo()
 			spdlog::info("{:25s}: '{:s}'\n", "GPU model identifier", szDeviceName);
 		}
 	}
+#endif // !DEDICATED
 
 	const CPUInformation& pi = GetCPUInformation();
 
@@ -429,8 +431,8 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// VPhysics
 	REGISTER(VQHull);
 
-	// BspLib
-	REGISTER(VBspLib);
+	// StaticPropMgr
+	REGISTER(VStaticPropMgr);
 
 	// MaterialSystem
 	REGISTER(VMaterialSystem);

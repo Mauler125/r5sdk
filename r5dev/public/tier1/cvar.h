@@ -33,6 +33,7 @@ extern ConVar* staticProp_gather_size_weight;
 extern ConVar* model_defaultFadeDistScale;
 extern ConVar* model_defaultFadeDistMin;
 
+extern ConVar* ip_cvar;
 extern ConVar* hostname;
 extern ConVar* hostdesc;
 extern ConVar* hostip;
@@ -105,6 +106,10 @@ extern ConVar* sv_validatePersonaName;
 extern ConVar* sv_minPersonaNameLength;
 extern ConVar* sv_maxPersonaNameLength;
 
+extern ConVar* sv_voiceEcho;
+extern ConVar* sv_voiceenable;
+extern ConVar* sv_alltalk;
+
 //#ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_sendlogs;
@@ -112,9 +117,12 @@ extern ConVar* sv_rcon_banpenalty;
 extern ConVar* sv_rcon_maxfailures;
 extern ConVar* sv_rcon_maxignores;
 extern ConVar* sv_rcon_maxsockets;
+extern ConVar* sv_rcon_maxconnections;
+extern ConVar* sv_rcon_maxpacketsize;
 extern ConVar* sv_rcon_whitelist_address;
 //#endif // DEDICATED
 #endif // CLIENT_DLL
+extern ConVar* sv_cheats;
 extern ConVar* sv_visualizetraces;
 extern ConVar* sv_visualizetraces_duration;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)

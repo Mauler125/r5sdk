@@ -79,9 +79,6 @@
     <Filter Include="sdk\vpklib">
       <UniqueIdentifier>{d914384a-56bc-4829-977b-5900f01b5612}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\bsplib">
-      <UniqueIdentifier>{336e3141-0276-4cd5-a836-585eef681b7b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\materialsystem">
       <UniqueIdentifier>{55bb4f60-5f5a-4780-a7a2-b3db51c53680}</UniqueIdentifier>
     </Filter>
@@ -235,6 +232,9 @@
     <Filter Include="sdk\localize">
       <UniqueIdentifier>{ad59e38d-1dd1-4838-8040-6c5d9f4f660c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\engine\shared">
+      <UniqueIdentifier>{bef90121-4004-47a7-b338-a41ca8078c12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -326,9 +326,6 @@
     </ClCompile>
     <ClCompile Include="..\vpklib\packedstore.cpp">
       <Filter>sdk\vpklib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\bsplib\bsplib.cpp">
-      <Filter>sdk\bsplib</Filter>
     </ClCompile>
     <ClCompile Include="..\mathlib\adler32.cpp">
       <Filter>sdk\mathlib</Filter>
@@ -690,6 +687,15 @@
     <ClCompile Include="..\localize\localize.cpp">
       <Filter>sdk\localize</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\staticpropmgr.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\shared\base_rcon.cpp">
+      <Filter>sdk\engine\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\shared\shared_rcon.cpp">
+      <Filter>sdk\engine\shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -832,9 +838,6 @@
     </ClInclude>
     <ClInclude Include="..\mathlib\adler32.h">
       <Filter>sdk\mathlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\bsplib\bsplib.h">
-      <Filter>sdk\bsplib</Filter>
     </ClInclude>
     <ClInclude Include="..\common\pseudodefs.h">
       <Filter>sdk\common</Filter>
@@ -1747,6 +1750,15 @@
     </ClInclude>
     <ClInclude Include="..\localize\localize.h">
       <Filter>sdk\localize</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\staticpropmgr.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\shared\shared_rcon.h">
+      <Filter>sdk\engine\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\shared\base_rcon.h">
+      <Filter>sdk\engine\shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -10,7 +10,7 @@ void HEbisuSDK_Init()
 #ifdef DEDICATED
 	*g_EbisuSDKInit     = true; // <- 1st EbisuSDK
 	*g_EbisuProfileInit = true; // <- 2nd EbisuSDK
-	*g_NucleusID        = true; // <- 3rd EbisuSDK
+	*g_NucleusID        = 9990000; // <- 3rd EbisuSDK
 #endif // DEDICATED
 }
 
@@ -31,7 +31,9 @@ bool IsOriginInitialized()
 	{
 		return true;
 	}
+#ifndef DEDICATED
 	return false;
+#endif // DEDICATED
 }
 
 #ifndef CLIENT_DLL

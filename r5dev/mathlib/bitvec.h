@@ -210,6 +210,7 @@ inline int CalcNumIntsForBits( int numBits )	{ return (numBits + (BITS_PER_INT-1
 #endif
 #define BitVec_Int( bitNum ) ( (bitNum) >> LOG2_BITS_PER_INT )
 
+#define Bits2Bytes(b) ((b+7)>>3)
 
 //-----------------------------------------------------------------------------
 // template CBitVecT

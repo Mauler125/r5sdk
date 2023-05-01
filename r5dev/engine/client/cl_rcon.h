@@ -3,8 +3,9 @@
 #include "tier2/socketcreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
+#include "engine/shared/base_rcon.h"
 
-class CRConClient
+class CRConClient : public CNetConBase
 {
 public:
 	CRConClient(void);
@@ -12,31 +13,22 @@ public:
 
 	void Init(void);
 	void Shutdown(void);
-
 	void RunFrame(void);
 
-	bool Connect(void);
-	bool Connect(const char* szInAdr);
-	void Disconnect(void);
+	virtual void Disconnect(const char* szReason = nullptr) override;
+	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
-	void Send(const string& svMessage) const;
-	void Recv(void);
-
-	void ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetConsoleData* pData);
-	void ProcessMessage(const sv_rcon::response& sv_response) const;
-
-	string Serialize(const string& svReqBuf, const string& svReqVal, const cl_rcon::request_t request_t) const;
-	sv_rcon::response Deserialize(const string& svBuf) const;
+	bool Serialize(vector<char>& vecBuf, const char* szReqBuf,
+		const char* szReqVal, const cl_rcon::request_t requestType) const;
 
 	bool IsInitialized(void) const;
-	bool IsConnected(void) const;
+	bool IsConnected(void);
+
+	CConnectedNetConsoleData* GetData(void);
+	SocketHandle_t GetSocket(void);
 
 private:
-	bool m_bInitialized = false;
-	bool m_bConnEstablished = false;
-
-	netadr_t m_Address;
-	CSocketCreator m_Socket;
+	bool m_bInitialized;
 };
 
 CRConClient* RCONClient();

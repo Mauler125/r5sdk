@@ -1,5 +1,6 @@
 #include "core/stdafx.h"
 #include "tier1/utlrbtree.h"
+#include "tier1/NetAdr.h"
 #include "tier1/cvar.h"
 #include "public/const.h"
 #include "engine/sys_dll2.h"
@@ -27,6 +28,7 @@ ConVar* staticProp_gather_size_weight      = nullptr;
 ConVar* model_defaultFadeDistScale         = nullptr;
 ConVar* model_defaultFadeDistMin           = nullptr;
 
+ConVar* ip_cvar                            = nullptr;
 ConVar* hostname                           = nullptr;
 ConVar* hostdesc                           = nullptr;
 ConVar* hostip                             = nullptr;
@@ -99,6 +101,10 @@ ConVar* sv_validatePersonaName             = nullptr;
 ConVar* sv_minPersonaNameLength            = nullptr;
 ConVar* sv_maxPersonaNameLength            = nullptr;
 
+ConVar* sv_voiceEcho                       = nullptr;
+ConVar* sv_voiceenable                     = nullptr;
+ConVar* sv_alltalk                         = nullptr;
+
 //#ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
 ConVar* sv_rcon_sendlogs                   = nullptr;
@@ -106,9 +112,12 @@ ConVar* sv_rcon_banpenalty                 = nullptr; // TODO
 ConVar* sv_rcon_maxfailures                = nullptr;
 ConVar* sv_rcon_maxignores                 = nullptr;
 ConVar* sv_rcon_maxsockets                 = nullptr;
+ConVar* sv_rcon_maxconnections             = nullptr;
+ConVar* sv_rcon_maxpacketsize              = nullptr;
 ConVar* sv_rcon_whitelist_address          = nullptr;
 //#endif // DEDICATED
 #endif // !CLIENT_DLL
+ConVar* sv_cheats                          = nullptr;
 ConVar* sv_visualizetraces                 = nullptr;
 ConVar* sv_visualizetraces_duration        = nullptr;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
@@ -294,15 +303,15 @@ void ConVar::StaticInit(void)
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
 	hostdesc                       = ConVar::StaticCreate("hostdesc", "", FCVAR_RELEASE, "Host game server description.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sdk_fixedframe_tickinterval    = ConVar::StaticCreate("sdk_fixedframe_tickinterval", "0.02", FCVAR_RELEASE, "The tick interval used by the SDK fixed frame.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sdk_fixedframe_tickinterval    = ConVar::StaticCreate("sdk_fixedframe_tickinterval", "0.01", FCVAR_RELEASE, "The tick interval used by the SDK fixed frame.", false, 0.f, false, 0.f, nullptr, nullptr);
 	staticProp_defaultBuildFrustum = ConVar::StaticCreate("staticProp_defaultBuildFrustum", "0", FCVAR_DEVELOPMENTONLY, "Use the old solution for building static prop frustum culling.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	curl_debug      = ConVar::StaticCreate("curl_debug"     , "0" , FCVAR_DEVELOPMENTONLY, "Determines whether or not to enable curl debug logging.", false, 0.f, false, 0.f, nullptr, "1 = curl logs; 0 (zero) = no logs.");
 	curl_timeout    = ConVar::StaticCreate("curl_timeout"   , "15", FCVAR_DEVELOPMENTONLY, "Maximum time in seconds a curl transfer operation could take.", false, 0.f, false, 0.f, nullptr, nullptr);
 	ssl_verify_peer = ConVar::StaticCreate("ssl_verify_peer", "1" , FCVAR_DEVELOPMENTONLY, "Verify the authenticity of the peer's SSL certificate.", false, 0.f, false, 0.f, nullptr, "1 = curl verifies; 0 (zero) = no verification.");
 
-	rcon_address  = ConVar::StaticCreate("rcon_address",  "localhost", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address.", false, 0.f, false, 0.f, nullptr, nullptr);
-	rcon_password = ConVar::StaticCreate("rcon_password", ""         , FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty).", false, 0.f, false, 0.f, &RCON_PasswordChanged_f, nullptr);
+	rcon_address  = ConVar::StaticCreate("rcon_address",  "[loopback]:37015", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address.", false, 0.f, false, 0.f, nullptr, nullptr);
+	rcon_password = ConVar::StaticCreate("rcon_password", ""                , FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty).", false, 0.f, false, 0.f, &RCON_PasswordChanged_f, nullptr);
 
 	r_debug_overlay_nodecay        = ConVar::StaticCreate("r_debug_overlay_nodecay"       , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_debug_overlay_invisible      = ConVar::StaticCreate("r_debug_overlay_invisible"     , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Show invisible debug overlays (alpha < 1 = 255).", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -333,8 +342,8 @@ void ConVar::StaticInit(void)
 	sv_showconnecting  = ConVar::StaticCreate("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_globalBanlist   = ConVar::StaticCreate("sv_globalBanlist"  , "1", FCVAR_RELEASE, "Determines whether or not to use the global banned list.", false, 0.f, false, 0.f, nullptr, "0 = Disable, 1 = Enable.");
 	sv_pylonVisibility = ConVar::StaticCreate("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", false, 0.f, false, 0.f, nullptr, "0 = Offline, 1 = Hidden, 2 = Public.");
-	sv_pylonRefreshRate   = ConVar::StaticCreate("sv_pylonRefreshRate"  , "5.0", FCVAR_RELEASE, "Pylon host refresh rate (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
-	sv_banlistRefreshRate = ConVar::StaticCreate("sv_banlistRefreshRate", "1.0", FCVAR_RELEASE, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
+	sv_pylonRefreshRate   = ConVar::StaticCreate("sv_pylonRefreshRate"  , "5.0" , FCVAR_DEVELOPMENTONLY, "Pylon host refresh rate (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
+	sv_banlistRefreshRate = ConVar::StaticCreate("sv_banlistRefreshRate", "30.0", FCVAR_DEVELOPMENTONLY, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshRate  = ConVar::StaticCreate("sv_statusRefreshRate" , "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_autoReloadRate     = ConVar::StaticCreate("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null).", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_simulateBots = ConVar::StaticCreate("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.", true, 0.f, false, 0.f, nullptr, nullptr);
@@ -344,8 +353,10 @@ void ConVar::StaticInit(void)
 	sv_rcon_banpenalty  = ConVar::StaticCreate("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = ConVar::StaticCreate("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxignores  = ConVar::StaticCreate("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the instruction message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_maxsockets  = ConVar::StaticCreate("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_whitelist_address = ConVar::StaticCreate("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'");
+	sv_rcon_maxsockets  = ConVar::StaticCreate("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, true, MAX_PLAYERS, nullptr, nullptr);
+	sv_rcon_maxconnections    = ConVar::StaticCreate("sv_rcon_maxconnections"   , "1"   , FCVAR_RELEASE, "Max number of authenticated connections before the server closes the listen socket.", true, 1.f, true, MAX_PLAYERS, &RCON_ConnectionCountChanged_f, nullptr);
+	sv_rcon_maxpacketsize     = ConVar::StaticCreate("sv_rcon_maxpacketsize"    , "1024", FCVAR_RELEASE, "Max number of bytes allowed in a command packet from a non-authenticated net console.", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_whitelist_address = ConVar::StaticCreate("sv_rcon_whitelist_address", ""    , FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, &RCON_WhiteListAddresChanged_f, "Format: '::ffff:127.0.0.1'");
 
 	sv_quota_stringCmdsPerSecond = ConVar::StaticCreate("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_validatePersonaName  = ConVar::StaticCreate("sv_validatePersonaName" , "1" , FCVAR_RELEASE, "Validate the client's textual persona name on connect.", true, 0.f, false, 0.f, nullptr, nullptr);
@@ -494,6 +505,7 @@ void ConVar::InitShipped(void)
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
 	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
+	sv_cheats                        = g_pCVar->FindVar("sv_cheats");
 	sv_visualizetraces               = g_pCVar->FindVar("sv_visualizetraces");
 	sv_visualizetraces_duration      = g_pCVar->FindVar("sv_visualizetraces_duration");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
@@ -501,6 +513,7 @@ void ConVar::InitShipped(void)
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
 #endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
+	ip_cvar                          = g_pCVar->FindVar("ip");
 	hostname                         = g_pCVar->FindVar("hostname");
 	hostip                           = g_pCVar->FindVar("hostip");
 	hostport                         = g_pCVar->FindVar("hostport");
@@ -514,6 +527,10 @@ void ConVar::InitShipped(void)
 
 	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
 	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
+
+	sv_voiceenable = g_pCVar->FindVar("sv_voiceenable");
+	sv_voiceEcho = g_pCVar->FindVar("sv_voiceEcho");
+	sv_alltalk = g_pCVar->FindVar("sv_alltalk");
 
 	sv_showhitboxes->SetMin(-1); // Allow user to go over each entity manually without going out of bounds.
 	sv_showhitboxes->SetMax(NUM_ENT_ENTRIES - 1);
@@ -534,6 +551,7 @@ void ConVar::InitShipped(void)
 	mp_gamemode->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);
+	net_usesocketsforloopback->InstallChangeCallback(NET_UseSocketsForLoopbackChanged_f, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -592,7 +610,7 @@ void ConVar::PurgeHostNames(void)
 	{
 		if (ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]))
 		{
-			pCVar->SetValue("0.0.0.0");
+			pCVar->SetValue(NET_IPV4_UNSPEC);
 		}
 	}
 }
@@ -1271,13 +1289,13 @@ static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 			Q_strncat(emptyflags, csvf, len);
 		}
 		// Names staring with +/- need to be wrapped in single quotes
-		char name[256];
-		Q_snprintf(name, sizeof(name), "%s", cmd->GetName());
-		if (name[0] == '+' || name[0] == '-')
+		char nameBuf[256];
+		Q_snprintf(nameBuf, sizeof(nameBuf), "%s", cmd->GetName());
+		if (nameBuf[0] == '+' || nameBuf[0] == '-')
 		{
-			Q_snprintf(name, sizeof(name), "'%s'", cmd->GetName());
+			Q_snprintf(nameBuf, sizeof(nameBuf), "'%s'", cmd->GetName());
 		}
-		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", name, "cmd", emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", nameBuf, "cmd", emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
 	}
 }
 

@@ -212,6 +212,18 @@ const char* GetContextNameByIndex(eDLL_T context, const bool ansiColor = false)
 	return contextName;
 }
 
+bool LoggedFromClient(eDLL_T context)
+{
+#ifndef DEDICATED
+	return (context == eDLL_T::CLIENT || context == eDLL_T::SCRIPT_CLIENT
+		 || context == eDLL_T::UI     || context == eDLL_T::SCRIPT_UI
+		 || context == eDLL_T::NETCON);
+#else
+	NOTE_UNUSED(context);
+	return false;
+	#endif // !DEDICATED
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Show logs to all console interfaces (va_list version)
 // Input  : logType - 
@@ -241,10 +253,12 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	eDLL_T overlayContext = context;
 #endif // !DEDICATED && !NETCONSOLE
 
-	bool bSquirrel = false;
 #if !defined (NETCONSOLE)
+	bool bSquirrel = false;
 	bool bWarning  = false;
 	bool bError    = false;
+#else
+	NOTE_UNUSED(pszLogger);
 #endif // !NETCONSOLE
 
 	//-------------------------------------------------------------------------
@@ -296,7 +310,10 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	va_end(argsCopy);
 
 #ifndef NETCONSOLE
-	if (bUseColor && bSquirrel)
+	//-------------------------------------------------------------------------
+	// Colorize script warnings and errors
+	//-------------------------------------------------------------------------
+	if (bToConsole && bSquirrel)
 	{
 		if (bWarning && g_bSQAuxError)
 		{
@@ -323,9 +340,13 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 			overlayContext = eDLL_T::SYSTEM_ERROR;
 			overlayColor = ImVec4(1.00f, 0.00f, 0.00f, 0.80f);
 #endif // !DEDICATED
-			message.append(g_svRedF);
+
+			if (bUseColor)
+			{
+				message.append(g_svRedF);
+			}
 		}
-		else if (bWarning)
+		else if (bUseColor && bWarning)
 		{
 			message.append(g_svYellowF);
 		}
@@ -357,8 +378,11 @@ void CoreMsgV(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	if (bToConsole)
 	{
 #ifndef CLIENT_DLL
-		RCONServer()->Send(formatted, pszUpTime, sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG,
-			static_cast<int>(context), static_cast<int>(logType));
+		if (!LoggedFromClient(context) && RCONServer()->ShouldSend(sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG))
+		{
+			RCONServer()->SendEncode(formatted.c_str(), pszUpTime, sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG,
+				int(context), int(logType));
+		}
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 		g_ImGuiLogger->debug(message);

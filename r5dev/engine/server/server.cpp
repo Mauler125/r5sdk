@@ -17,6 +17,7 @@
 #include "networksystem/bansystem.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "public/edict.h"
+#include <pluginsystem/pluginsystem.h>
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of human players on the server
@@ -79,66 +80,74 @@ int CServer::GetNumClients(void) const
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: client to server authentication
-// Input  : *pChallenge - 
-// Output : true if user isn't banned, false otherwise
+// Purpose: Initializes a CSVClient for a new net connection. This will only be called
+//			once for a player each game, not once for each level change.
+// Input  : *pServer - 
+//			*pChallenge - 
+// Output : pointer to client instance on success, nullptr on failure
 //---------------------------------------------------------------------------------
-bool CServer::AuthClient(user_creds_s* pChallenge)
+CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 {
+	if (pServer->m_State < server_state_t::ss_active)
+		return nullptr;
+
 	char* pszPersonaName = pChallenge->personaName;
 	uint64_t nNucleusID = pChallenge->personaId;
 
-	char pszAddresBuffer[INET6_ADDRSTRLEN]; // Render the client's address.
-	pChallenge->netAdr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer));
+	char pszAddresBuffer[128]; // Render the client's address.
+	pChallenge->netAdr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer), true);
 
 	const bool bEnableLogging = sv_showconnecting->GetBool();
+	const int nPort = int(ntohs(pChallenge->netAdr.GetPort()));
+
 	if (bEnableLogging)
-		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '%s' ('%llu')\n", pszAddresBuffer, nNucleusID);
+		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '[%s]:%i' ('%llu')\n",
+			pszAddresBuffer, nPort, nNucleusID);
 
 	// Only proceed connection if the client's name is valid and UTF-8 encoded.
 	if (!VALID_CHARSTAR(pszPersonaName) || !IsValidUTF8(pszPersonaName) || !IsValidPersonaName(pszPersonaName))
 	{
-		RejectConnection(m_Socket, &pChallenge->netAdr, "#Valve_Reject_Invalid_Name");
+		pServer->RejectConnection(pServer->m_Socket, &pChallenge->netAdr, "#Valve_Reject_Invalid_Name");
 		if (bEnableLogging)
-			Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' has an invalid name!)\n", pszAddresBuffer, nNucleusID);
+			Warning(eDLL_T::SERVER, "Connection rejected for '[%s]:%i' ('%llu' has an invalid name!)\n",
+				pszAddresBuffer, nPort, nNucleusID);
 
-		return false;
+		return nullptr;
 	}
 
 	if (g_pBanSystem->IsBanListValid())
 	{
 		if (g_pBanSystem->IsBanned(pszAddresBuffer, nNucleusID))
 		{
-			RejectConnection(m_Socket, &pChallenge->netAdr, "#Valve_Reject_Banned");
+			pServer->RejectConnection(pServer->m_Socket, &pChallenge->netAdr, "#Valve_Reject_Banned");
 			if (bEnableLogging)
-				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", pszAddresBuffer, nNucleusID);
+				Warning(eDLL_T::SERVER, "Connection rejected for '[%s]:%i' ('%llu' is banned from this server!)\n",
+					pszAddresBuffer, nPort, nNucleusID);
 
-			return false;
+			return nullptr;
 		}
 	}
 
-	if (sv_globalBanlist->GetBool())
+	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
+
+	//for (auto& callback : !g_pPluginSystem->GetConnectClientCallbacks())
+	//{
+	//	if (!callback(pServer, pClient, pChallenge))
+	//	{
+	//		pClient->Disconnect(REP_MARK_BAD, "#Valve_Reject_Banned");
+	//		return nullptr;
+	//	}
+	//}
+
+	if (pClient && sv_globalBanlist->GetBool())
 	{
-		std::thread th(SV_IsClientBanned, string(pszAddresBuffer), nNucleusID);
-		th.detach();
+		if (!pClient->GetNetChan()->GetRemoteAddress().IsLoopback())
+		{
+			std::thread th(SV_IsClientBanned, pClient, string(pszAddresBuffer), nNucleusID, string(pszPersonaName), nPort);
+			th.detach();
+		}
 	}
 
-	return true;
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: Initializes a CSVClient for a new net connection. This will only be called
-//			once for a player each game, not once for each level change.
-// Input  : *pServer - 
-//			*pInpacket - 
-// Output : pointer to client instance on success, nullptr on failure
-//---------------------------------------------------------------------------------
-CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
-{
-	if (pServer->m_State < server_state_t::ss_active || !pServer->AuthClient(pChallenge))
-		return nullptr;
-
-	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
 	return pClient;
 }
 

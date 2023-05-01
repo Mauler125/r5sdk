@@ -17,7 +17,7 @@
 //-----------------------------------------------------------------------------
 CSocketCreator::CSocketCreator(void)
 {
-	m_hListenSocket = -1;
+	m_hListenSocket = SOCKET_ERROR;
 }
 
 //-----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ CSocketCreator::CSocketCreator(void)
 //-----------------------------------------------------------------------------
 CSocketCreator::~CSocketCreator(void)
 {
-	DisconnectSocket();
+	DisconnectSockets();
 }
 
 //-----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ void CSocketCreator::RunFrame(void)
 {
 	if (IsListening())
 	{
-		ProcessAccept(); // handle any new connection requests
+		ProcessAccept(); // handle any new connection requests.
 	}
 }
 
@@ -47,7 +47,7 @@ void CSocketCreator::ProcessAccept(void)
 	sockaddr_storage inClient{};
 	int nLengthAddr = sizeof(inClient);
 	SocketHandle_t newSocket = SocketHandle_t(::accept(SOCKET(m_hListenSocket), reinterpret_cast<sockaddr*>(&inClient), &nLengthAddr));
-	if (newSocket == -1)
+	if (newSocket == SOCKET_ERROR)
 	{
 		if (!IsSocketBlocking())
 		{
@@ -56,9 +56,9 @@ void CSocketCreator::ProcessAccept(void)
 		return;
 	}
 
-	if (!ConfigureListenSocket(newSocket))
+	if (!ConfigureSocket(newSocket, false))
 	{
-		::closesocket(newSocket);
+		DisconnectSocket(newSocket);
 		return;
 	}
 
@@ -69,80 +69,29 @@ void CSocketCreator::ProcessAccept(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Configures a listen socket for use
-// Input  : iSocket - 
-// Output : true on success, false otherwise
-//-----------------------------------------------------------------------------
-bool CSocketCreator::ConfigureListenSocket(int iSocket)
-{
-	// Disable NAGLE as RCON cmds are small in size.
-	int nodelay = 1;
-	int v6only  = 0;
-	u_long opt  = 1;
-
-	::setsockopt(iSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&nodelay, sizeof(nodelay));
-	::setsockopt(iSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&nodelay, sizeof(nodelay));
-	::setsockopt(iSocket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&v6only, sizeof(v6only));
-
-	int results = ::ioctlsocket(iSocket, FIONBIO, (u_long*)&opt); // Non-blocking.
-	if (results == -1)
-	{
-		Warning(eDLL_T::ENGINE, "Socket accept 'ioctl(%s)' failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
-		return false;
-	}
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Configures a accepted socket for use
-// Input  : hSocket - 
-// Output : true on success, false otherwise
-//-----------------------------------------------------------------------------
-bool CSocketCreator::ConfigureConnectSocket(SocketHandle_t hSocket)
-{
-	int opt = 1;
-	int ret = 0;
-
-	ret = ::ioctlsocket(hSocket, FIONBIO, reinterpret_cast<u_long*>(&opt)); // Non-blocking
-	if (ret == -1)
-	{
-		Warning(eDLL_T::ENGINE, "Socket ioctl(%s) failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
-		::closesocket(hSocket);
-		return false;
-	}
-
-	// Disable NAGLE as RCON cmds are small in size.
-	int nodelay = 1;
-	::setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&nodelay, sizeof(nodelay));
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: bind to a TCP port and accept incoming connections
 // Input  : *netAdr - 
-//			bListenOnAllInterfaces - 
+//			bDualStack - 
 // Output : true on success, failed otherwise
 //-----------------------------------------------------------------------------
-bool CSocketCreator::CreateListenSocket(const netadr_t& netAdr, bool bListenOnAllInterfaces)
+bool CSocketCreator::CreateListenSocket(const netadr_t& netAdr, bool bDualStack)
 {
 	CloseListenSocket();
-	m_ListenAddress = netAdr;
 	m_hListenSocket = SocketHandle_t(::socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP));
 
 	if (m_hListenSocket != INVALID_SOCKET)
 	{
-		if (!ConfigureListenSocket(m_hListenSocket))
+		if (!ConfigureSocket(m_hListenSocket, bDualStack))
 		{
 			CloseListenSocket();
 			return false;
 		}
 
 		sockaddr_storage sadr{};
-		m_ListenAddress.ToSockadr(&sadr);
+		netAdr.ToSockadr(&sadr);
 
 		int results = ::bind(m_hListenSocket, reinterpret_cast<sockaddr*>(&sadr), sizeof(sockaddr_in6));
-		if (results == -1)
+		if (results == SOCKET_ERROR)
 		{
 			Warning(eDLL_T::ENGINE, "Socket bind failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 			CloseListenSocket();
@@ -151,7 +100,7 @@ bool CSocketCreator::CreateListenSocket(const netadr_t& netAdr, bool bListenOnAl
 		}
 
 		results = ::listen(m_hListenSocket, SOCKET_TCP_MAX_ACCEPTS);
-		if (results == -1)
+		if (results == SOCKET_ERROR)
 		{
 			Warning(eDLL_T::ENGINE, "Socket listen failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 			CloseListenSocket();
@@ -167,23 +116,23 @@ bool CSocketCreator::CreateListenSocket(const netadr_t& netAdr, bool bListenOnAl
 //-----------------------------------------------------------------------------
 void CSocketCreator::CloseListenSocket(void)
 {
-	if (m_hListenSocket != -1)
+	if (m_hListenSocket != SOCKET_ERROR)
 	{
-		::closesocket(m_hListenSocket);
-		m_hListenSocket = -1;
+		DisconnectSocket(m_hListenSocket);
+		m_hListenSocket = SOCKET_ERROR;
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: connect to the remote server
 // Input  : *netAdr - 
-//			bSingleSocker - 
+//			bSingleSocket - 
 // Output : accepted socket index, SOCKET_ERROR (-1) if failed
 //-----------------------------------------------------------------------------
 int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 {
 	if (bSingleSocket)
-	{ // NOTE: Closing an accepted socket will re-index all the sockets with higher indices
+	{ // NOTE: Closing an accepted socket will re-index all the sockets with higher indices.
 		CloseAllAcceptedSockets();
 	}
 
@@ -194,8 +143,9 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 		return SOCKET_ERROR;
 	}
 
-	if (!ConfigureConnectSocket(hSocket))
+	if (!ConfigureSocket(hSocket))
 	{
+		DisconnectSocket(hSocket);
 		return SOCKET_ERROR;
 	}
 
@@ -209,7 +159,7 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 		{
 			Warning(eDLL_T::ENGINE, "Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 
-			::closesocket(hSocket);
+			DisconnectSocket(hSocket);
 			return SOCKET_ERROR;
 		}
 
@@ -224,7 +174,9 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 
 		if (::select(hSocket + 1, NULL, &writefds, NULL, &tv) < 1) // block for at most 1 second.
 		{
-			::closesocket(hSocket); // took too long to connect to, give up.
+			Warning(eDLL_T::ENGINE, "Socket connection timed out\n");
+			DisconnectSocket(hSocket); // took too long to connect to, give up.
+
 			return SOCKET_ERROR;
 		}
 	}
@@ -236,12 +188,75 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: closes specific open sockets (listen + accepted)
+//-----------------------------------------------------------------------------
+void CSocketCreator::DisconnectSocket(SocketHandle_t hSocket)
+{
+	Assert(hSocket != SOCKET_ERROR);
+	if (::closesocket(hSocket) == SOCKET_ERROR)
+	{
+		Error(eDLL_T::ENGINE, NO_ERROR, "Unable to close socket (%s)\n",
+			NET_ErrorString(WSAGetLastError()));
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: closes all open sockets (listen + accepted)
 //-----------------------------------------------------------------------------
-void CSocketCreator::DisconnectSocket(void)
+void CSocketCreator::DisconnectSockets(void)
 {
 	CloseListenSocket();
 	CloseAllAcceptedSockets();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Configures a socket for use
+// Input  : iSocket - 
+//			bDualStack - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CSocketCreator::ConfigureSocket(SocketHandle_t hSocket, bool bDualStack /*= true*/)
+{
+	// Disable NAGLE as RCON cmds are small in size.
+	int opt = 1;
+	int ret = ::setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&opt), sizeof(opt));
+	if (ret == SOCKET_ERROR)
+	{
+		Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "TCP_NODELAY", NET_ErrorString(WSAGetLastError()));
+		return false;
+	}
+
+	// Mark socket as reusable.
+	opt = 1;
+	ret = ::setsockopt(hSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&opt), sizeof(opt));
+	if (ret == SOCKET_ERROR)
+	{
+		Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "SO_REUSEADDR", NET_ErrorString(WSAGetLastError()));
+		return false;
+	}
+
+	if (bDualStack)
+	{
+		// Disable IPv6 only mode to enable dual stack.
+		opt = 0;
+		ret = ::setsockopt(hSocket, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<char*>(&opt), sizeof(opt));
+		if (ret == SOCKET_ERROR)
+		{
+			Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "IPV6_V6ONLY", NET_ErrorString(WSAGetLastError()));
+			return false;
+		}
+	}
+
+	// Mark socket as non-blocking.
+	opt = 1;
+	ret = ::ioctlsocket(hSocket, FIONBIO, reinterpret_cast<u_long*>(&opt));
+	if (ret == SOCKET_ERROR)
+	{
+		Warning(eDLL_T::ENGINE, "Socket 'ioctl(%s)' failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
+		return false;
+	}
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -272,11 +287,12 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 {
 	if (nIndex >= int(m_hAcceptedSockets.size()))
 	{
+		Assert(0);
 		return;
 	}
 
 	AcceptedSocket_t& connected = m_hAcceptedSockets[nIndex];
-	::closesocket(connected.m_hSocket);
+	DisconnectSocket(connected.m_hSocket);
 	delete connected.m_pData;
 
 	m_hAcceptedSockets.erase(m_hAcceptedSockets.begin() + nIndex);
@@ -290,7 +306,7 @@ void CSocketCreator::CloseAllAcceptedSockets(void)
 	for (size_t i = 0; i < m_hAcceptedSockets.size(); ++i)
 	{
 		AcceptedSocket_t& connected = m_hAcceptedSockets[i];
-		::closesocket(connected.m_hSocket);
+		DisconnectSocket(connected.m_hSocket);
 
 		delete connected.m_pData;
 	}
@@ -303,7 +319,7 @@ void CSocketCreator::CloseAllAcceptedSockets(void)
 //-----------------------------------------------------------------------------
 bool CSocketCreator::IsListening(void) const
 {
-	return m_hListenSocket != -1;
+	return m_hListenSocket != SOCKET_ERROR;
 }
 
 //-----------------------------------------------------------------------------
@@ -350,6 +366,7 @@ int CSocketCreator::GetAcceptedSocketCount(void) const
 //-----------------------------------------------------------------------------
 SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 {
+	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
 	return m_hAcceptedSockets[nIndex].m_hSocket;
 }
 
@@ -360,6 +377,7 @@ SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 //-----------------------------------------------------------------------------
 const netadr_t& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 {
+	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
 	return m_hAcceptedSockets[nIndex].m_Address;
 }
 
@@ -370,5 +388,6 @@ const netadr_t& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 //-----------------------------------------------------------------------------
 CConnectedNetConsoleData* CSocketCreator::GetAcceptedSocketData(int nIndex) const
 {
+	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
 	return m_hAcceptedSockets[nIndex].m_pData;
 }

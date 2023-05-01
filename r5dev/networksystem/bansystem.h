@@ -1,37 +1,32 @@
 #pragma once
 
+typedef vector<std::pair<string, uint64_t>> BannedVec_t;
+
 class CBanSystem
 {
 public:
 	void Load(void);
 	void Save(void) const;
 
-	bool AddEntry(const string& svIpAddress, const uint64_t nNucleusID);
-	bool DeleteEntry(const string& svIpAddress, const uint64_t nNucleusID);
+	bool AddEntry(const char* ipAddress, const uint64_t nucleusId);
+	bool DeleteEntry(const char* ipAddress, const uint64_t nucleusId);
 
-	bool AddConnectionRefuse(const string& svError, const uint64_t nNucleusID);
-	bool DeleteConnectionRefuse(const uint64_t nNucleusID);
-
-	void BanListCheck(void);
-
-	bool IsBanned(const string& svIpAddress, const uint64_t nNucleusID) const;
-	bool IsRefuseListValid(void) const;
+	bool IsBanned(const char* ipAddress, const uint64_t nucleusId) const;
 	bool IsBanListValid(void) const;
 
-	void KickPlayerByName(const string& svPlayerName);
-	void KickPlayerById(const string& svHandle);
+	void KickPlayerByName(const char* playerName, const char* reason = nullptr);
+	void KickPlayerById(const char* playerHandle, const char* reason = nullptr);
 
-	void BanPlayerByName(const string& svPlayerName);
-	void BanPlayerById(const string& svHandle);
+	void BanPlayerByName(const char* playerName, const char* reason = nullptr);
+	void BanPlayerById(const char* playerHandle, const char* reason = nullptr);
 
-	void UnbanPlayer(const string& svCriteria);
+	void UnbanPlayer(const char* criteria);
 
 private:
-	void AuthorPlayerByName(const string& svPlayerName, const bool bBan);
-	void AuthorPlayerById(const string& svHandle, const bool bBan);
+	void AuthorPlayerByName(const char* playerName, const bool bBan, const char* reason = nullptr);
+	void AuthorPlayerById(const char* playerHandle, const bool bBan, const char* reason = nullptr);
 
-	vector<std::pair<string, uint64_t>> m_vRefuseList;
-	vector<std::pair<string, uint64_t>> m_vBanList;
+	BannedVec_t m_vBanList;
 };
 
 extern CBanSystem* g_pBanSystem;

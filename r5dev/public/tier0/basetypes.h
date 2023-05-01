@@ -286,7 +286,6 @@ struct vrect_t
 	vrect_t* pnext;
 };
 
-constexpr int MAX_NETCONSOLE_INPUT_LEN = 4096;
 constexpr int MSG_NOSIGNAL             = 0;
 
 //-----------------------------------------------------------------------------

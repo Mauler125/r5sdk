@@ -1079,6 +1079,25 @@ string Format(const char* szFormat, ...)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For comparing two IPv6 addresses.
+int CompareIPv6(const IN6_ADDR& ipA, const IN6_ADDR& ipB)
+{
+    // Return 0 if ipA == ipB, -1 if ipA < ipB and 1 if ipA > ipB.
+    for (int i = 0; i < 16; ++i)
+    {
+        if (ipA.s6_addr[i] < ipB.s6_addr[i])
+        {
+            return -1;
+        }
+        else if (ipA.s6_addr[i] > ipB.s6_addr[i])
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For obtaining a duration from a certain interval.
 std::chrono::nanoseconds IntervalToDuration(const float flInterval)
 {

@@ -1,4 +1,9 @@
-#pragma once
+#ifndef TIER1_NETADR_H
+#define TIER1_NETADR_H
+
+#define NET_IPV4_UNSPEC "0.0.0.0"
+#define NET_IPV6_UNSPEC "::"
+#define NET_IPV6_LOOPBACK "::1"
 
 enum class netadrtype_t
 {
@@ -24,6 +29,9 @@ public:
 	netadrtype_t	GetType(void) const;
 	uint16_t		GetPort(void) const;
 
+	bool	CompareAdr(const CNetAdr& other) const;
+	bool	ComparePort(const CNetAdr& other) const;
+
 	const char*		ToString(bool onlyBase = false) const;
 	void	ToString(char* pchBuffer, size_t unBufferSize, bool onlyBase = false) const;
 	void	ToAdrinfo(addrinfo* pHint) const;
@@ -34,9 +42,11 @@ public:
 private:
 	netadrtype_t type;
 	IN6_ADDR adr;
-	unsigned short port;
+	uint16_t port;
 	bool field_16;
 	bool reliable;
 };
 
 typedef class CNetAdr netadr_t;
+
+#endif // TIER1_NETADR_H

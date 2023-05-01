@@ -64,6 +64,10 @@ CBrowser::CBrowser(void)
 //-----------------------------------------------------------------------------
 CBrowser::~CBrowser(void)
 {
+    if (m_idLockedIcon)
+    {
+        m_idLockedIcon->Release();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -190,14 +194,19 @@ void CBrowser::Think(void)
 {
     if (m_bActivate)
     {
-        if (m_flFadeAlpha <= 1.f)
+        if (m_flFadeAlpha < 1.f)
         {
-            m_flFadeAlpha += .1f;
+            m_flFadeAlpha += .05f;
+            m_flFadeAlpha = (std::min)(m_flFadeAlpha, 1.f);
         }
     }
     else // Reset to full transparent.
     {
-        m_flFadeAlpha = 0.f;
+        if (m_flFadeAlpha > 0.f)
+        {
+            m_flFadeAlpha -= .05f;
+            m_flFadeAlpha = (std::max)(m_flFadeAlpha, 0.f);
+        }
     }
 }
 
@@ -325,15 +334,18 @@ void CBrowser::BrowserPanel(void)
     ImGui::Separator();
     ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth() / 4);
     {
-        ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Enter ip-address and port", m_szServerAddressBuffer, IM_ARRAYSIZE(m_szServerAddressBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Server address and port", m_szServerAddressBuffer, IM_ARRAYSIZE(m_szServerAddressBuffer));
 
         ImGui::SameLine();
-        ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Enter encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
 
         ImGui::SameLine();
         if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
         {
-            g_pServerListManager->ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
+            if (m_szServerAddressBuffer[0])
+            {
+                g_pServerListManager->ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
+            }
         }
 
         ImGui::SameLine();
@@ -390,7 +402,7 @@ void CBrowser::HiddenServersModal(void)
 
         if (!m_idLockedIcon) // !TODO: Fall-back texture.
         {
-            const bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
+            bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
                 &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
             IM_ASSERT(ret);
             NOTE_UNUSED(ret);

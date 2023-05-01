@@ -15,24 +15,32 @@
 //-----------------------------------------------------------------------------
 void CPluginSystem::PluginSystem_Init()
 {
-	CreateDirectories("bin\\x64_retail\\plugins");
+	const fs::path path("bin\\x64_retail\\plugins\\");
+	const string pathString(path.u8string());
 
-	for (auto& it : fs::directory_iterator("bin\\x64_retail\\plugins"))
+	CreateDirectories(pathString);
+	if (fs::is_directory(path))
 	{
-		if (!fs::is_regular_file(it))
-			continue;
-
-		if (auto path = it.path(); path.has_filename() && path.has_extension() && path.extension().compare(".dll") == 0)
+		for (auto& it : fs::directory_iterator(path))
 		{
-			bool addInstance = true;
-			for (auto& inst : pluginInstances)
-			{
-				if (inst.m_svPluginFullPath.compare(path.u8string()) == 0)
-					addInstance = false;
-			}
+			if (!fs::is_regular_file(it))
+				continue;
 
-			if (addInstance)
-				pluginInstances.push_back(PluginInstance_t(path.filename().u8string(), path.u8string()));
+			if (auto path = it.path();
+				path.has_filename() &&
+				path.has_extension() &&
+				path.extension().compare(".dll") == 0)
+			{
+				bool addInstance = true;
+				for (auto& inst : pluginInstances)
+				{
+					if (inst.m_svPluginFullPath.compare(pathString) == 0)
+						addInstance = false;
+				}
+
+				if (addInstance)
+					pluginInstances.push_back(PluginInstance_t(path.filename().u8string(), pathString));
+			}
 		}
 	}
 }
@@ -128,6 +136,11 @@ void CPluginSystem::AddPluginCallback(PluginHelpWithAnything_t* help)
 		ADD_PLUGIN_CALLBACK(CreateFn, GetCreateCallbacks(), help->m_pFunction);
 		break;
 	}
+	case PluginHelpWithAnything_t::ePluginCallback::CServer_ConnectClient:
+	{
+		ADD_PLUGIN_CALLBACK(ConnectClientFn, GetConnectClientCallbacks(), help->m_pFunction);
+		break;
+	}
 	default:
 		break;
 	}
@@ -149,6 +162,11 @@ void CPluginSystem::RemovePluginCallback(PluginHelpWithAnything_t* help)
 	case PluginHelpWithAnything_t::ePluginCallback::CModAppSystemGroup_Create:
 	{
 		REMOVE_PLUGIN_CALLBACK(CreateFn, GetCreateCallbacks(), help->m_pFunction);
+		break;
+	}
+	case PluginHelpWithAnything_t::ePluginCallback::CServer_ConnectClient:
+	{
+		REMOVE_PLUGIN_CALLBACK(ConnectClientFn, GetConnectClientCallbacks(), help->m_pFunction);
 		break;
 	}
 	default:

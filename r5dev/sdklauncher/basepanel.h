@@ -106,7 +106,7 @@ private:
 	UIX::UIXCheckBox* m_NoAsyncJobsToggle;
 	UIX::UIXCheckBox* m_NetEncryptionToggle;
 	UIX::UIXCheckBox* m_NetRandomKeyToggle;
-	UIX::UIXCheckBox* m_NoQueuedPacketThread;
+	UIX::UIXCheckBox* m_QueuedPacketThread;
 	UIX::UIXCheckBox* m_NoTimeOutToggle;
 	UIX::UIXCheckBox* m_WindowedToggle;
 	UIX::UIXCheckBox* m_NoBorderToggle;
