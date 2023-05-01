@@ -23,6 +23,8 @@ typedef void* SQFunctor;
 typedef SQUnsignedInteger SQBool;
 typedef SQInteger SQRESULT;
 
+typedef int ScriptDataType_t;
+
 enum class SQCONTEXT : SQInteger
 {
 	SERVER = 0,

@@ -16,7 +16,7 @@ struct ScriptFunctionBinding_t
 	const SQChar* _codehook;   // 30
 	SQInteger unk38;           // 38
 	SQInteger _nparamscheck;   // 3C
-	CUtlVector<SQChar> _vector;// Unknown, see 'r5apex.exe+105835B'
+	CUtlVector<ScriptDataType_t> _vector;// 'm_pFunction' in original code; pending refactor.
 	const void* _functor;      // 60
 
 	void Init(
