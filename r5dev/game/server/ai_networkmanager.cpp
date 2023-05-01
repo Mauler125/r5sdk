@@ -36,7 +36,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	char szMeshPath[MAX_PATH];
 	char szGraphPath[MAX_PATH];
 
-	V_snprintf(szMeshPath, sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, S_HULL_TYPE[E_HULL_TYPE::LARGE], NAVMESH_EXT);
+	V_snprintf(szMeshPath,  sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, S_HULL_TYPE[E_HULL_TYPE::LARGE], NAVMESH_EXT);
 	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, g_ServerGlobalVariables->m_pszMapName, AINETWORK_EXT);
 
 	CFastTimer masterTimer;
@@ -365,7 +365,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 		}
 		else if (bNavMeshAvailable && nAiGraphHash != nNavMeshHash)
 		{
-			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '0x%X' expected: '0x%X')\n", 
+			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '%x' expected: '%x')\n", 
 				szGraphPath, nAiGraphHash, nNavMeshHash);
 		}
 	}
