@@ -425,6 +425,13 @@ void VSquirrelVM::Attach() const
 	DetourAttach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourAttach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
 	DetourAttach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
+
+#ifndef DEDICATED
+	DetourAttach((LPVOID*)&v_CSquirrelVM_CompileUICLScripts, &CSquirrelVM_CompileUICLScripts);
+#endif
+#ifndef CLIENT_DLL
+	DetourAttach((LPVOID*)&v_CSquirrelVM_CompileSVScripts, &CSquirrelVM_CompileSVScripts);
+#endif
 }
 //---------------------------------------------------------------------------------
 void VSquirrelVM::Detach() const
@@ -435,4 +442,11 @@ void VSquirrelVM::Detach() const
 	DetourDetach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourDetach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
 	DetourDetach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
+
+#ifndef DEDICATED
+	DetourDetach((LPVOID*)&v_CSquirrelVM_CompileUICLScripts, &CSquirrelVM_CompileUICLScripts);
+#endif
+#ifndef CLIENT_DLL
+	DetourDetach((LPVOID*)&v_CSquirrelVM_CompileSVScripts, &CSquirrelVM_CompileSVScripts);
+#endif
 }
