@@ -12,6 +12,7 @@
 #include "appframework/engine_launcher_api.h"
 #include "launcher/IApplication.h"
 #include "pluginsystem/pluginsystem.h"
+#include "pluginsystem/modsystem.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"
@@ -105,6 +106,8 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 
 	//InitPluginSystem(pModAppSystemGroup);
 	//CALL_PLUGIN_CALLBACKS(g_pPluginSystem->GetCreateCallbacks(), pModAppSystemGroup);
+
+	g_pModSystem->Init();
 
 	g_pDebugOverlay = g_pFactory->GetFactoryPtr(VDEBUG_OVERLAY_INTERFACE_VERSION, false).RCast<CIVDebugOverlay*>();
 #ifndef CLIENT_DLL

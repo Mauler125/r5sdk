@@ -19,6 +19,7 @@
 #include "tier1/cvar.h"
 #include "vpc/IAppSystem.h"
 #include "vpc/keyvalues.h"
+#include "vpc/rson.h"
 #include "vpc/interfaces.h"
 #include "vstdlib/callback.h"
 #include "vstdlib/completion.h"
@@ -72,6 +73,7 @@
 #ifndef DEDICATED
 #include "engine/client/clientstate.h"
 #endif // !DEDICATED
+#include "localize/localize.h"
 #include "engine/enginetrace.h"
 #include "engine/traceinit.h"
 #include "engine/common.h"
@@ -388,6 +390,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// VPC
 	REGISTER(VAppSystem);
 	REGISTER(VKeyValues);
+	REGISTER(VRSON);
 	REGISTER(VFactory);
 
 	// VstdLib
@@ -502,6 +505,8 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VEngine);
 	REGISTER(VEngineTrace);
 	REGISTER(VModelInfo);
+
+	REGISTER(VLocalize);
 
 #ifndef DEDICATED
 	REGISTER(HVideoMode_Common);

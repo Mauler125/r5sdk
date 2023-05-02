@@ -27,6 +27,11 @@ struct SQVM
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1 && !GAMEDLL_S2
 	}
 
+	eDLL_T GetNativePrintContext() const
+	{
+		return (eDLL_T)GetContext();
+	}
+
 	SQVM* _vftable;
 	_BYTE gap000[16];
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)

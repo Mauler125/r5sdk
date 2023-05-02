@@ -229,6 +229,9 @@
     <Filter Include="sdk\public\tier2">
       <UniqueIdentifier>{3a764173-162a-449c-952b-2db659cbad95}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\localize">
+      <UniqueIdentifier>{ad59e38d-1dd1-4838-8040-6c5d9f4f660c}</UniqueIdentifier>
+    </Filter>
     <Filter Include="sdk\engine\shared">
       <UniqueIdentifier>{bef90121-4004-47a7-b338-a41ca8078c12}</UniqueIdentifier>
     </Filter>
@@ -674,6 +677,15 @@
     </ClCompile>
     <ClCompile Include="..\tier1\lzss.cpp">
       <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pluginsystem\modsystem.cpp">
+      <Filter>sdk\pluginsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vpc\rson.cpp">
+      <Filter>sdk\vpc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\localize\localize.cpp">
+      <Filter>sdk\localize</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\staticpropmgr.cpp">
       <Filter>sdk\engine</Filter>
@@ -1729,6 +1741,15 @@
     </ClInclude>
     <ClInclude Include="..\public\tier0\memdbgoff.h">
       <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pluginsystem\modsystem.h">
+      <Filter>sdk\pluginsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vpc\rson.h">
+      <Filter>sdk\vpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\localize\localize.h">
+      <Filter>sdk\localize</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\staticpropmgr.h">
       <Filter>sdk\engine</Filter>

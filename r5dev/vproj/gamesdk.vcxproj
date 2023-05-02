@@ -95,6 +95,7 @@
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\launcher.cpp" />
     <ClCompile Include="..\launcher\prx.cpp" />
+    <ClCompile Include="..\localize\localize.cpp" />
     <ClCompile Include="..\materialsystem\cmaterialglue.cpp" />
     <ClCompile Include="..\materialsystem\cmaterialsystem.cpp" />
     <ClCompile Include="..\materialsystem\cshaderglue.cpp" />
@@ -116,6 +117,7 @@
     <ClCompile Include="..\networksystem\bansystem.cpp" />
     <ClCompile Include="..\networksystem\listmanager.cpp" />
     <ClCompile Include="..\networksystem\pylon.cpp" />
+    <ClCompile Include="..\pluginsystem\modsystem.cpp" />
     <ClCompile Include="..\pluginsystem\pluginsystem.cpp" />
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -187,6 +189,7 @@
     <ClCompile Include="..\vpc\IAppSystem.cpp" />
     <ClCompile Include="..\vpc\interfaces.cpp" />
     <ClCompile Include="..\vpc\keyvalues.cpp" />
+    <ClCompile Include="..\vpc\rson.cpp" />
     <ClCompile Include="..\vphysics\physics_collide.cpp" />
     <ClCompile Include="..\vphysics\QHull.cpp" />
     <ClCompile Include="..\vpklib\packedstore.cpp" />
@@ -314,6 +317,7 @@
     <ClInclude Include="..\launcher\IApplication.h" />
     <ClInclude Include="..\launcher\launcher.h" />
     <ClInclude Include="..\launcher\prx.h" />
+    <ClInclude Include="..\localize\localize.h" />
     <ClInclude Include="..\materialsystem\cmaterialglue.h" />
     <ClInclude Include="..\materialsystem\cmaterialsystem.h" />
     <ClInclude Include="..\materialsystem\cshaderglue.h" />
@@ -348,6 +352,7 @@
     <ClInclude Include="..\networksystem\serverlisting.h" />
     <ClInclude Include="..\networksystem\sm_protocol.h" />
     <ClInclude Include="..\pluginsystem\ipluginsystem.h" />
+    <ClInclude Include="..\pluginsystem\modsystem.h" />
     <ClInclude Include="..\pluginsystem\pluginsystem.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
     <ClInclude Include="..\protoc\sig_map.pb.h" />
@@ -575,6 +580,7 @@
     <ClInclude Include="..\vpc\interfaces.h" />
     <ClInclude Include="..\vpc\keyvalues.h" />
     <ClInclude Include="..\vpc\kvleaktrace.h" />
+    <ClInclude Include="..\vpc\rson.h" />
     <ClInclude Include="..\vphysics\QHull.h" />
     <ClInclude Include="..\vpklib\packedstore.h" />
     <ClInclude Include="..\vstdlib\autocompletefilelist.h" />

@@ -9,6 +9,7 @@
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
 #include "squirrel/sqscript.h"
+#include "pluginsystem/modsystem.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: registers global constant for target context
@@ -227,7 +228,24 @@ SQInteger Script_LoadRson(const SQChar* rsonfile)
 //---------------------------------------------------------------------------------
 SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags)
 {
+	// search for mod path identifier so the mod can decide where the file is
+	const char* modPath = strstr(path, MOD_SCRIPT_PATH_IDENTIFIER);
+
+	if (modPath)
+		path = &modPath[7]; // skip "::MOD::"
+
+	///////////////////////////////////////////////////////////////////////////////
+
 	return v_Script_LoadScript(v, path, name, flags);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: parses rson data to get an array of scripts to compile 
+// Input  : 
+//---------------------------------------------------------------------------------
+bool Script_ParseCompileListRSON(SQCONTEXT context, const char* compileListPath, RSON::Node_t* rson, char** scriptArray, int* pScriptCount, char** precompiledScriptArray, int precompiledScriptCount)
+{
+	return v_Script_ParseCompileListRSON(context, compileListPath, rson, scriptArray, pScriptCount, precompiledScriptArray, precompiledScriptCount);
 }
 
 //---------------------------------------------------------------------------------
@@ -277,6 +295,128 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 	}
 }
 
+
+void Script_SetCompilingVM(CSquirrelVM* vm, RSON::Node_t* rson)
+{
+	switch (vm->GetContext())
+	{
+#ifndef CLIENT_DLL
+	case SQCONTEXT::SERVER:
+	{
+		v_Script_SetCompilingVM_SV(vm->GetContext(), rson);
+		break;
+	}
+#endif
+#ifndef DEDICATED
+	case SQCONTEXT::CLIENT:
+	case SQCONTEXT::UI:
+	{
+		v_Script_SetCompilingVM_UICL(vm->GetContext(), rson);
+		break;
+	}
+#endif
+	}
+}
+
+void CSquirrelVM_CompileModScripts(CSquirrelVM* vm)
+{
+	for (auto& mod : g_pModSystem->GetModList())
+	{
+		if (!mod.IsEnabled())
+			continue;
+
+		if (!mod.m_bHasScriptCompileList)
+			continue;
+
+		RSON::Node_t* rson = mod.LoadScriptCompileList(); // allocs parsed rson buffer
+
+		if (!rson)
+			Error(vm->GetVM()->GetNativePrintContext(), EXIT_FAILURE, "%s: Failed to load RSON file %s\n", __FUNCTION__, mod.GetScriptCompileListPath().string().c_str());
+
+		const char* scriptPathArray[1024];
+		int scriptCount = 0;
+
+		Script_SetCompilingVM(vm, rson);
+
+		if (Script_ParseCompileListRSON(
+			vm->GetContext(),
+			mod.GetScriptCompileListPath().string().c_str(),
+			rson,
+			(char**)scriptPathArray, &scriptCount,
+			nullptr, 0))
+		{
+			std::vector<char*> newScriptPaths;
+			for (int i = 0; i < scriptCount; ++i)
+			{
+				// add "::MOD::" to the start of the script path so it can be identified from Script_LoadScript later
+				// this is so we can avoid script naming conflicts by removing the engine's forced directory of "scripts/vscripts/"
+				// and adding the mod path to the start
+				std::string scriptPath = MOD_SCRIPT_PATH_IDENTIFIER + (mod.GetBasePath() / "scripts/vscripts/" / scriptPathArray[i]).string();
+				char* pszScriptPath = _strdup(scriptPath.c_str());
+
+				// normalise slash direction
+				V_FixSlashes(pszScriptPath);
+				
+				newScriptPaths.emplace_back(pszScriptPath);
+				scriptPathArray[i] = pszScriptPath;
+			}
+
+			switch (vm->GetVM()->GetContext())
+			{
+#ifndef CLIENT_DLL
+			case SQCONTEXT::SERVER:
+			{
+				v_CSquirrelVM_CompileScriptsFromArray_SV(vm, vm->GetContext(), (char**)scriptPathArray, scriptCount);
+				break;
+			}
+#endif
+#ifndef DEDICATED
+			case SQCONTEXT::CLIENT:
+			case SQCONTEXT::UI:
+			{
+				v_CSquirrelVM_CompileScriptsFromArray_UICL(vm, vm->GetContext(), (char**)scriptPathArray, scriptCount);
+				break;
+			}
+#endif
+			}
+
+			// clean up our allocated script paths
+			for (char* path : newScriptPaths)
+			{
+				delete path;
+			}
+		}
+
+		// TODO[rexx]: clean up allocated RSON memory. example @ 1408B18E2
+	}
+}
+
+
+#ifndef DEDICATED
+__int64 CSquirrelVM_CompileUICLScripts(CSquirrelVM* vm)
+{
+	HSQUIRRELVM v = vm->GetVM();
+	DevMsg(v->GetNativePrintContext(), (char*)"Loading and compiling script lists\n");
+
+	CSquirrelVM_CompileModScripts(vm);
+
+	return v_CSquirrelVM_CompileUICLScripts(vm);
+}
+#endif
+
+#ifndef CLIENT_DLL
+__int64 CSquirrelVM_CompileSVScripts(__int64 a1)
+{
+	HSQUIRRELVM v = g_pServerScript->GetVM();
+
+	DevMsg(v->GetNativePrintContext(), (char*)"Loading and compiling script lists\n");
+
+	CSquirrelVM_CompileModScripts(g_pServerScript);
+
+	return v_CSquirrelVM_CompileSVScripts(a1);
+}
+#endif
+
 //---------------------------------------------------------------------------------
 void VSquirrelVM::Attach() const
 {
@@ -290,6 +430,7 @@ void VSquirrelVM::Attach() const
 void VSquirrelVM::Detach() const
 {
 	DetourDetach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
+
 	DetourDetach((LPVOID*)&v_CSquirrelVM_Init, &CSquirrelVM_Init);
 	DetourDetach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourDetach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
