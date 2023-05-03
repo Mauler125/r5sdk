@@ -588,7 +588,7 @@ void CConsole::FindFromPartial(void)
 
     for (const CSuggest& suggest : m_vsvCommandBases)
     {
-        if (m_vSuggest.size() >= con_suggestion_limit->GetSizeT())
+        if (m_vSuggest.size() >= size_t(con_suggestion_limit->GetInt()))
         {
             return;
         }
@@ -766,7 +766,7 @@ void CConsole::ClampLogSize(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClampHistorySize(void)
 {
-    while (m_vHistory.size() > con_max_history->GetSizeT())
+    while (m_vHistory.size() > size_t(con_max_history->GetInt()))
     {
         m_vHistory.erase(m_vHistory.begin());
     }
