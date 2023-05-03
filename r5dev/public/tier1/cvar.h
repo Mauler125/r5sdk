@@ -368,14 +368,12 @@ public:
 	static void PurgeShipped(void);
 	static void PurgeHostNames(void);
 
-	bool GetBool(void) const;
-	float GetFloat(void) const;
-	double GetDouble(void) const;
-	int GetInt(void) const;
-	int64_t GetInt64(void) const;
-	size_t GetSizeT(void) const;
-	Color GetColor(void) const;
-	const char* GetString(void) const;
+	FORCEINLINE bool GetBool(void) const;
+	FORCEINLINE float GetFloat(void) const;
+	FORCEINLINE double GetDouble(void) const;
+	FORCEINLINE int GetInt(void) const;
+	FORCEINLINE Color GetColor(void) const;
+	FORCEINLINE const char* GetString(void) const;
 
 	void SetMax(float flMaxValue);
 	void SetMin(float flMinValue);
@@ -434,6 +432,66 @@ public:
 }; //Size: 0x00A0
 static_assert(sizeof(ConVar) == 0xA0);
 
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a boolean.
+// Output : bool
+//-----------------------------------------------------------------------------
+FORCEINLINE bool ConVar::GetBool(void) const
+{
+	return !!GetInt();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a float.
+// Output : float
+//-----------------------------------------------------------------------------
+FORCEINLINE float ConVar::GetFloat(void) const
+{
+	return m_pParent->m_Value.m_fValue;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a double.
+// Output : double
+//-----------------------------------------------------------------------------
+FORCEINLINE double ConVar::GetDouble(void) const
+{
+	return static_cast<double>(m_pParent->m_Value.m_fValue);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as an integer.
+// Output : int
+//-----------------------------------------------------------------------------
+FORCEINLINE int ConVar::GetInt(void) const
+{
+	return m_pParent->m_Value.m_nValue;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a color.
+// Output : Color
+//-----------------------------------------------------------------------------
+FORCEINLINE Color ConVar::GetColor(void) const
+{
+	unsigned char* pColorElement = (reinterpret_cast<unsigned char*>(&m_pParent->m_Value.m_nValue));
+	return Color(pColorElement[0], pColorElement[1], pColorElement[2], pColorElement[3]);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a string.
+// Output : const char *
+//-----------------------------------------------------------------------------
+FORCEINLINE const char* ConVar::GetString(void) const
+{
+	if (m_nFlags & FCVAR_NEVER_AS_STRING)
+	{
+		return "FCVAR_NEVER_AS_STRING";
+	}
+
+	char const* str = m_pParent->m_Value.m_pszString;
+	return str ? str : "";
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // see iconvar.h
