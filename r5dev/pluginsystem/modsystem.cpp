@@ -24,7 +24,7 @@ void CModSystem::Init()
 
 	for (auto& it : fs::directory_iterator("platform\\mods"))
 	{
-		if (!it.is_directory())
+		if (!fs::is_directory(it))
 			continue;
 
 		fs::path basePath = it.path();
