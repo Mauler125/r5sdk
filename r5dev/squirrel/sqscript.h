@@ -49,15 +49,17 @@ static_assert(sizeof(ScriptFunctionBinding_t) == 0x68);
 class CSquirrelVM
 {
 public:
-	HSQUIRRELVM GetVM() const
-	{
-		return m_sqVM;
-	}
+	FORCEINLINE HSQUIRRELVM GetVM() const { return m_sqVM; }
+	FORCEINLINE SQCONTEXT GetContext() const { return m_iContext; }
 
-	SQCONTEXT GetContext() const
-	{
-		return m_iContext;
-	}
+	void CompileModScripts();
+
+#ifndef DEDICATED
+	static bool CompileClientScripts(CSquirrelVM* vm);
+#endif
+#ifndef CLIENT_DLL
+	static bool CompileServerScripts(int numPrecompiled);
+#endif
 
 private:
 	SQChar pad0[0x8];
@@ -97,8 +99,8 @@ inline CMemory p_Script_LoadScript;
 inline auto v_Script_LoadScript = p_Script_LoadScript.RCast<SQBool(*)(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags)>();
 
 #ifndef DEDICATED
-inline CMemory p_CSquirrelVM_CompileUICLScripts;
-inline auto v_CSquirrelVM_CompileUICLScripts = p_CSquirrelVM_CompileUICLScripts.RCast<__int64(__fastcall*)(CSquirrelVM* vm)>();
+inline CMemory p_CSquirrelVM_CompileClientScripts;
+inline auto v_CSquirrelVM_CompileClientScripts = p_CSquirrelVM_CompileClientScripts.RCast<bool(__fastcall*)(CSquirrelVM* vm)>();
 
 inline CMemory p_CSquirrelVM_CompileScriptsFromArray_UICL;
 inline auto v_CSquirrelVM_CompileScriptsFromArray_UICL = p_CSquirrelVM_CompileScriptsFromArray_UICL.RCast<bool(__fastcall*)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount)>();
@@ -108,8 +110,8 @@ inline auto v_Script_SetCompilingVM_UICL = p_Script_SetCompilingVM_UICL.RCast<vo
 #endif
 
 #ifndef CLIENT_DLL
-inline CMemory p_CSquirrelVM_CompileSVScripts;
-inline auto v_CSquirrelVM_CompileSVScripts = p_CSquirrelVM_CompileSVScripts.RCast<__int64(__fastcall*)(__int64 a1)>();
+inline CMemory p_CSquirrelVM_CompileServerScripts;
+inline auto v_CSquirrelVM_CompileServerScripts = p_CSquirrelVM_CompileServerScripts.RCast<bool(__fastcall*)(int numPrecompiled)>();
 
 inline CMemory p_CSquirrelVM_CompileScriptsFromArray_SV;
 inline auto v_CSquirrelVM_CompileScriptsFromArray_SV = p_CSquirrelVM_CompileScriptsFromArray_SV.RCast<bool(__fastcall*)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount)>();
@@ -182,8 +184,8 @@ class VSquirrelVM : public IDetour
 	
 #ifndef DEDICATED
 		// cl/ui scripts.rson compiling
-		p_CSquirrelVM_CompileUICLScripts = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 88 05 ? ? ? ? 33 C0").FollowNearCallSelf();
-		v_CSquirrelVM_CompileUICLScripts = p_CSquirrelVM_CompileUICLScripts.RCast<__int64(__fastcall*)(CSquirrelVM * vm)>();
+		p_CSquirrelVM_CompileClientScripts = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 88 05 ? ? ? ? 33 C0").FollowNearCallSelf();
+		v_CSquirrelVM_CompileClientScripts = p_CSquirrelVM_CompileClientScripts.RCast<bool(__fastcall*)(CSquirrelVM*)>();
 
 		p_CSquirrelVM_CompileScriptsFromArray_UICL = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 44 0F B6 F0 48 85 DB").FollowNearCallSelf();
 		v_CSquirrelVM_CompileScriptsFromArray_UICL = p_CSquirrelVM_CompileScriptsFromArray_UICL.RCast<bool(__fastcall*)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount)>();
@@ -194,8 +196,8 @@ class VSquirrelVM : public IDetour
 
 #ifndef CLIENT_DLL
 		// sv scripts.rson compiling
-		p_CSquirrelVM_CompileSVScripts = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 33 DB 88 05 ? ? ? ? ").FollowNearCallSelf();
-		v_CSquirrelVM_CompileSVScripts = p_CSquirrelVM_CompileSVScripts.RCast<__int64(__fastcall*)(__int64 a1)>();
+		p_CSquirrelVM_CompileServerScripts = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 33 DB 88 05 ? ? ? ? ").FollowNearCallSelf();
+		v_CSquirrelVM_CompileServerScripts = p_CSquirrelVM_CompileServerScripts.RCast<bool(__fastcall*)(int)>();
 
 		p_CSquirrelVM_CompileScriptsFromArray_SV = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 0F B6 F0 48 85 DB").FollowNearCallSelf();
 		v_CSquirrelVM_CompileScriptsFromArray_SV = p_CSquirrelVM_CompileScriptsFromArray_SV.RCast<bool(__fastcall*)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount)>();

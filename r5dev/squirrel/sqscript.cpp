@@ -318,7 +318,7 @@ void Script_SetCompilingVM(CSquirrelVM* vm, RSON::Node_t* rson)
 	}
 }
 
-void CSquirrelVM_CompileModScripts(CSquirrelVM* vm)
+void CSquirrelVM::CompileModScripts()
 {
 	for (auto& mod : g_pModSystem->GetModList())
 	{
@@ -331,15 +331,15 @@ void CSquirrelVM_CompileModScripts(CSquirrelVM* vm)
 		RSON::Node_t* rson = mod.LoadScriptCompileList(); // allocs parsed rson buffer
 
 		if (!rson)
-			Error(vm->GetVM()->GetNativePrintContext(), EXIT_FAILURE, "%s: Failed to load RSON file %s\n", __FUNCTION__, mod.GetScriptCompileListPath().string().c_str());
+			Error(GetVM()->GetNativePrintContext(), EXIT_FAILURE, "%s: Failed to load RSON file %s\n", __FUNCTION__, mod.GetScriptCompileListPath().string().c_str());
 
 		const char* scriptPathArray[1024];
 		int scriptCount = 0;
 
-		Script_SetCompilingVM(vm, rson);
+		Script_SetCompilingVM(this, rson);
 
 		if (Script_ParseCompileListRSON(
-			vm->GetContext(),
+			GetContext(),
 			mod.GetScriptCompileListPath().string().c_str(),
 			rson,
 			(char**)scriptPathArray, &scriptCount,
@@ -361,12 +361,12 @@ void CSquirrelVM_CompileModScripts(CSquirrelVM* vm)
 				scriptPathArray[i] = pszScriptPath;
 			}
 
-			switch (vm->GetVM()->GetContext())
+			switch (GetVM()->GetContext())
 			{
 #ifndef CLIENT_DLL
 			case SQCONTEXT::SERVER:
 			{
-				v_CSquirrelVM_CompileScriptsFromArray_SV(vm, vm->GetContext(), (char**)scriptPathArray, scriptCount);
+				v_CSquirrelVM_CompileScriptsFromArray_SV(this, GetContext(), (char**)scriptPathArray, scriptCount);
 				break;
 			}
 #endif
@@ -374,7 +374,7 @@ void CSquirrelVM_CompileModScripts(CSquirrelVM* vm)
 			case SQCONTEXT::CLIENT:
 			case SQCONTEXT::UI:
 			{
-				v_CSquirrelVM_CompileScriptsFromArray_UICL(vm, vm->GetContext(), (char**)scriptPathArray, scriptCount);
+				v_CSquirrelVM_CompileScriptsFromArray_UICL(this, GetContext(), (char**)scriptPathArray, scriptCount);
 				break;
 			}
 #endif
@@ -393,27 +393,27 @@ void CSquirrelVM_CompileModScripts(CSquirrelVM* vm)
 
 
 #ifndef DEDICATED
-__int64 CSquirrelVM_CompileUICLScripts(CSquirrelVM* vm)
+bool CSquirrelVM::CompileClientScripts(CSquirrelVM* vm)
 {
 	HSQUIRRELVM v = vm->GetVM();
 	DevMsg(v->GetNativePrintContext(), (char*)"Loading and compiling script lists\n");
 
-	CSquirrelVM_CompileModScripts(vm);
+	vm->CompileModScripts();
 
-	return v_CSquirrelVM_CompileUICLScripts(vm);
+	return v_CSquirrelVM_CompileClientScripts(vm);
 }
 #endif
 
 #ifndef CLIENT_DLL
-__int64 CSquirrelVM_CompileSVScripts(__int64 a1)
+bool CSquirrelVM::CompileServerScripts(int numPrecompiled)
 {
 	HSQUIRRELVM v = g_pServerScript->GetVM();
 
 	DevMsg(v->GetNativePrintContext(), (char*)"Loading and compiling script lists\n");
 
-	CSquirrelVM_CompileModScripts(g_pServerScript);
+	g_pServerScript->CompileModScripts();
 
-	return v_CSquirrelVM_CompileSVScripts(a1);
+	return v_CSquirrelVM_CompileServerScripts(numPrecompiled);
 }
 #endif
 
@@ -427,10 +427,10 @@ void VSquirrelVM::Attach() const
 	DetourAttach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
 
 #ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_CSquirrelVM_CompileUICLScripts, &CSquirrelVM_CompileUICLScripts);
+	DetourAttach((LPVOID*)&v_CSquirrelVM_CompileClientScripts, &CSquirrelVM::CompileClientScripts);
 #endif
 #ifndef CLIENT_DLL
-	DetourAttach((LPVOID*)&v_CSquirrelVM_CompileSVScripts, &CSquirrelVM_CompileSVScripts);
+	DetourAttach((LPVOID*)&v_CSquirrelVM_CompileServerScripts, &CSquirrelVM::CompileServerScripts);
 #endif
 }
 //---------------------------------------------------------------------------------
@@ -444,9 +444,9 @@ void VSquirrelVM::Detach() const
 	DetourDetach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
 
 #ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_CSquirrelVM_CompileUICLScripts, &CSquirrelVM_CompileUICLScripts);
+	DetourDetach((LPVOID*)&v_CSquirrelVM_CompileClientScripts, &CSquirrelVM::CompileClientScripts);
 #endif
 #ifndef CLIENT_DLL
-	DetourDetach((LPVOID*)&v_CSquirrelVM_CompileSVScripts, &CSquirrelVM_CompileSVScripts);
+	DetourDetach((LPVOID*)&v_CSquirrelVM_CompileServerScripts, &CSquirrelVM::CompileServerScripts);
 #endif
 }
