@@ -183,9 +183,7 @@ SQBool Script_ParseScriptList(SQCONTEXT context, const char* scriptListPath,
 //---------------------------------------------------------------------------------
 SQBool Script_PrecompileScripts(CSquirrelVM* vm)
 {
-	HSQUIRRELVM v = vm->GetVM();
 	SQCONTEXT context = vm->GetContext();
-
 	DevMsg(eDLL_T(context), "Starting script compiler...\n");
 
 	CFastTimer timer;
