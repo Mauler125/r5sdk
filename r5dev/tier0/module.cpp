@@ -4,9 +4,9 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
-#include "public/utility/utility.h"
-#include "public/utility/memaddr.h"
-#include "public/utility/sigcache.h"
+#include "tier0/memaddr.h"
+#include "tier0/sigcache.h"
+#include "tier1/utility.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor

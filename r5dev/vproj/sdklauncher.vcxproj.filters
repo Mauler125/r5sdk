@@ -26,6 +26,12 @@
     <Filter Include="thirdparty\detours\include">
       <UniqueIdentifier>{dc968871-7ca2-452b-a5b1-350a12dd54aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="public\tier1">
+      <UniqueIdentifier>{520316cd-14bb-47f8-9390-cc050b7115e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tier1">
+      <UniqueIdentifier>{8aee4c57-9624-423b-a411-1ea3992077ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\core\stdafx.cpp">
@@ -37,11 +43,11 @@
     <ClCompile Include="..\sdklauncher\sdklauncher.cpp">
       <Filter>launcher</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\utility.cpp">
-      <Filter>public</Filter>
+    <ClCompile Include="..\tier1\binstream.cpp">
+      <Filter>tier1</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\binstream.cpp">
-      <Filter>public</Filter>
+    <ClCompile Include="..\tier1\utility.cpp">
+      <Filter>tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,11 +83,11 @@
     <ClInclude Include="..\launcher\launcherdefs.h">
       <Filter>launcher</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\utility.h">
-      <Filter>public</Filter>
+    <ClInclude Include="..\public\tier1\binstream.h">
+      <Filter>public\tier1</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\binstream.h">
-      <Filter>public</Filter>
+    <ClInclude Include="..\public\tier1\utility.h">
+      <Filter>public\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

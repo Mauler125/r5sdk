@@ -6,7 +6,7 @@
 
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
-#include "public/utility/utility.h"
+#include "tier1/utility.h"
 #include "engine/sdk_dll.h"
 #ifndef DEDICATED
 #include "gameui/IBrowser.h"

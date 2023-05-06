@@ -58,9 +58,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\public\utility\utility.cpp" />
     <ClCompile Include="..\tier0\dbg.cpp" />
     <ClCompile Include="..\tier1\NetAdr.cpp" />
+    <ClCompile Include="..\tier1\utility.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
     <ClCompile Include="..\windows\console.cpp" />
   </ItemGroup>
@@ -76,8 +76,8 @@
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\tier0\dbg.h" />
     <ClInclude Include="..\public\tier1\NetAdr.h" />
+    <ClInclude Include="..\public\tier1\utility.h" />
     <ClInclude Include="..\public\tier2\socketcreator.h" />
-    <ClInclude Include="..\public\utility\utility.h" />
     <ClInclude Include="..\windows\console.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

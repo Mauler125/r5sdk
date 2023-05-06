@@ -67,9 +67,6 @@
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <Filter>thirdparty\protobuf</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\utility.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\tier1\NetAdr.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
@@ -91,6 +88,9 @@
     <ClCompile Include="..\engine\shared\base_rcon.cpp">
       <Filter>sdk\engine\shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier1\utility.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\core\stdafx.h">
@@ -110,9 +110,6 @@
     </ClInclude>
     <ClInclude Include="..\protoc\cl_rcon.pb.h">
       <Filter>thirdparty\protobuf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\utility\utility.h">
-      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\windows\console.h">
       <Filter>windows</Filter>
@@ -134,6 +131,9 @@
     </ClInclude>
     <ClInclude Include="..\engine\shared\shared_rcon.h">
       <Filter>sdk\engine\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier1\utility.h">
+      <Filter>sdk\public\tier1</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

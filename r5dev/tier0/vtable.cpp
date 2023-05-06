@@ -6,7 +6,7 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
-#include "public/utility/vtable.h"
+#include "tier0/vtable.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: create class instance from passed module and virtual table name

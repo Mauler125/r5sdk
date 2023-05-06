@@ -6,6 +6,7 @@
 #include "core/stdafx.h"
 #include "sdklauncher.h"
 #include "basepanel.h"
+#include "utility/vdf_parser.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout

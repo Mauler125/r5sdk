@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
-#include "public/utility/binstream.h"
-#include "public/utility/sigcache.h"
+#include "tier0/sigcache.h"
+#include "tier1/binstream.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: whether or not to disable the caching of signatures

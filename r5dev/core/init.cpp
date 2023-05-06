@@ -15,8 +15,10 @@
 #include "tier0/cpu.h"
 #include "tier0/commandline.h"
 #include "tier0/platform_internal.h"
+#include "tier0/sigcache.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
+#include "tier1/binstream.h"
 #include "vpc/IAppSystem.h"
 #include "vpc/keyvalues.h"
 #include "vpc/rson.h"
@@ -124,8 +126,6 @@
 #include "game/client/movehelper_client.h"
 #endif // !DEDICATED
 #include "public/edict.h"
-#include "public/utility/binstream.h"
-#include "public/utility/sigcache.h"
 #ifndef DEDICATED
 #include "public/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"

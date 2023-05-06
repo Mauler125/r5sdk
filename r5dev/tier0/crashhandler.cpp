@@ -7,7 +7,7 @@
 #include "core/logdef.h"
 #include "tier0/cpu.h"
 #include "tier0/crashhandler.h"
-#include "public/utility/binstream.h"
+#include "tier1/binstream.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

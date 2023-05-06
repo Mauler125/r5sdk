@@ -104,17 +104,15 @@
 #include "common/x86defs.h"
 #include "common/sdkdefs.h"
 
-#include "public/utility/utility.h"
-#include "public/utility/memaddr.h"
-#include "public/utility/module.h"
-#include "public/utility/vdf_parser.h"
-
 #include "core/assert.h"
 #include "core/termutil.h"
+#include "tier0/memaddr.h"
+#include "tier0/module.h"
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
 #include "tier0/annotations.h"
 #include "tier0/commonmacros.h"
+#include "tier1/utility.h"
 #if !defined(SDKLAUNCHER) && !defined(PLUGINSDK)
 #include "tier0/dbg.h"
 #endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK

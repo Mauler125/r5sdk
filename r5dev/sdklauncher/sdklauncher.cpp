@@ -4,10 +4,10 @@
 //
 //=============================================================================//
 #include "core/stdafx.h"
+#include "tier1/binstream.h"
 #include "basepanel.h"
 #include "sdklauncher_const.h"
 #include "sdklauncher.h"
-#include "public/utility/binstream.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: initializes and runs the user interface

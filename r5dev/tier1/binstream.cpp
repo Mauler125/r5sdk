@@ -1,5 +1,5 @@
 #include "core/stdafx.h"
-#include "public/utility/binstream.h"
+#include "tier1/binstream.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: CIOStream constructors

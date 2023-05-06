@@ -193,9 +193,6 @@
     <Filter Include="sdk\public\bitmap">
       <UniqueIdentifier>{a7d7c0e6-d908-4e3e-ae8d-f45dea8de772}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\public\utility">
-      <UniqueIdentifier>{2828835b-d972-4793-83f7-8eb1741b78ba}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\pluginsystem">
       <UniqueIdentifier>{cd7b0538-e28c-4181-9e19-588f77d41d36}</UniqueIdentifier>
     </Filter>
@@ -603,18 +600,6 @@
     <ClCompile Include="..\tier1\splitstring.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\module.cpp">
-      <Filter>sdk\public\utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\utility\utility.cpp">
-      <Filter>sdk\public\utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\utility\binstream.cpp">
-      <Filter>sdk\public\utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\utility\memaddr.cpp">
-      <Filter>sdk\public\utility</Filter>
-    </ClCompile>
     <ClCompile Include="..\networksystem\bansystem.cpp">
       <Filter>sdk\networksystem</Filter>
     </ClCompile>
@@ -669,14 +654,8 @@
     <ClCompile Include="..\protoc\sig_map.pb.cc">
       <Filter>thirdparty\protobuf</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\sigcache.cpp">
-      <Filter>sdk\public\utility</Filter>
-    </ClCompile>
     <ClCompile Include="..\engine\matsys_interface.cpp">
       <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\utility\vtable.cpp">
-      <Filter>sdk\public\utility</Filter>
     </ClCompile>
     <ClCompile Include="..\game\server\networkproperty.cpp">
       <Filter>sdk\game\server</Filter>
@@ -785,6 +764,24 @@
     </ClCompile>
     <ClCompile Include="..\tier2\fileutils.cpp">
       <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\memaddr.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\vtable.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\sigcache.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\module.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\binstream.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\utility.cpp">
+      <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1493,18 +1490,6 @@
     <ClInclude Include="..\public\bitmap\stb_image.h">
       <Filter>sdk\public\bitmap</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\memaddr.h">
-      <Filter>sdk\public\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\utility\module.h">
-      <Filter>sdk\public\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\utility\utility.h">
-      <Filter>sdk\public\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\utility\binstream.h">
-      <Filter>sdk\public\utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\networksystem\bansystem.h">
       <Filter>sdk\networksystem</Filter>
     </ClInclude>
@@ -1610,17 +1595,11 @@
     <ClInclude Include="..\protoc\sig_map.pb.h">
       <Filter>thirdparty\protobuf</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\sigcache.h">
-      <Filter>sdk\public\utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\imaterialsystem.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\matsys_interface.h">
       <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\utility\vtable.h">
-      <Filter>sdk\public\utility</Filter>
     </ClInclude>
     <ClInclude Include="..\public\eiface.h">
       <Filter>sdk\public</Filter>
@@ -1747,9 +1726,6 @@
     </ClInclude>
     <ClInclude Include="..\public\appframework\IAppSystem.h">
       <Filter>sdk\public\appframework</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier0\crashhandler.h">
-      <Filter>sdk\tier0</Filter>
     </ClInclude>
     <ClInclude Include="..\vstdlib\autocompletefilelist.h">
       <Filter>sdk\vstdlib</Filter>
@@ -1957,6 +1933,27 @@
     </ClInclude>
     <ClInclude Include="..\public\tier2\fileutils.h">
       <Filter>sdk\public\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\sigcache.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\vtable.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\memaddr.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\module.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier0\crashhandler.h">
+      <Filter>sdk\public\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier1\binstream.h">
+      <Filter>sdk\public\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier1\utility.h">
+      <Filter>sdk\public\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -10,8 +10,6 @@
 #ifdef _WIN32
 #pragma once
 #endif
-
-#include "public/utility/memaddr.h"
 #include "mathlib/vector.h"
 
 //-------------------------------------------------------------------------------------

@@ -4,8 +4,8 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
-#include "public/utility/utility.h"
-#include "public/utility/memaddr.h"
+#include "tier0/memaddr.h"
+#include "tier1/utility.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: check array of opcodes starting from current address

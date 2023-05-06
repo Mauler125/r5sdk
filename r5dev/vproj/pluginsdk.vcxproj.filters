@@ -10,8 +10,17 @@
     <Filter Include="public">
       <UniqueIdentifier>{49a28380-a137-410c-ad75-a0b80176443e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="public\utility">
-      <UniqueIdentifier>{f0d21a39-484c-4464-a3fe-a629adc1930e}</UniqueIdentifier>
+    <Filter Include="public\tier1">
+      <UniqueIdentifier>{797026e6-4caf-4488-970f-1a956f930a34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\tier0">
+      <UniqueIdentifier>{7f44ca93-e652-442b-a16a-cf6f1bd2eb08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tier0">
+      <UniqueIdentifier>{5df719b2-f053-4493-bf77-1e818d98aa99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tier1">
+      <UniqueIdentifier>{ca1aea81-de23-4883-b828-6319d12831fc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -24,14 +33,14 @@
     <ClCompile Include="..\pluginsdk\pluginsdk.cpp">
       <Filter>sdk</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\memaddr.cpp">
-      <Filter>public\utility</Filter>
+    <ClCompile Include="..\tier0\module.cpp">
+      <Filter>tier0</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\module.cpp">
-      <Filter>public\utility</Filter>
+    <ClCompile Include="..\tier0\memaddr.cpp">
+      <Filter>tier0</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility\utility.cpp">
-      <Filter>core</Filter>
+    <ClCompile Include="..\tier1\utility.cpp">
+      <Filter>tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -44,14 +53,14 @@
     <ClInclude Include="..\pluginsdk\ifactory.h">
       <Filter>sdk</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\memaddr.h">
-      <Filter>public\utility</Filter>
+    <ClInclude Include="..\public\tier1\utility.h">
+      <Filter>public\tier1</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\module.h">
-      <Filter>public\utility</Filter>
+    <ClInclude Include="..\public\tier0\memaddr.h">
+      <Filter>public\tier0</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\utility.h">
-      <Filter>core</Filter>
+    <ClInclude Include="..\public\tier0\module.h">
+      <Filter>public\tier0</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

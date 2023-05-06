@@ -4,7 +4,7 @@
 
 #include "core/stdafx.h"
 #include "core/logdef.h"
-#include "public/utility/utility.h"
+#include "tier1/utility.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if a specific file exists.
