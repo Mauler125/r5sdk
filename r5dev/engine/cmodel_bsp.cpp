@@ -338,13 +338,13 @@ void Mod_ProcessPakQueue()
             Mod_PreloadLevelPaks(s_svLevelName.c_str());
             s_bLevelResourceInitialized = true;
         }
-        *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, g_pMallocPool, 4, 0);
+        *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, g_pAlignedMemAlloc, 4, 0);
 
         if (strcmp(v17, "common_mp.rpak") == 0 || strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_pve.rpak") == 0)
-            g_pakLoadApi->LoadAsync("common_sdk.rpak", g_pMallocPool, 4, 0);
+            g_pakLoadApi->LoadAsync("common_sdk.rpak", g_pAlignedMemAlloc, 4, 0);
 #ifndef DEDICATED
         if (strcmp(v17, "ui_mp.rpak") == 0)
-            g_pakLoadApi->LoadAsync("ui_sdk.rpak", g_pMallocPool, 4, 0);
+            g_pakLoadApi->LoadAsync("ui_sdk.rpak", g_pAlignedMemAlloc, 4, 0);
 #endif // !DEDICATED
 
     LABEL_37:
@@ -429,7 +429,7 @@ void Mod_PreloadLevelPaks(const char* pszLevelName)
             continue;
 
         snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pSubKey->GetName());
-        RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(szPathBuffer, g_pMallocPool, 4, 0);
+        RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(szPathBuffer, g_pAlignedMemAlloc, 4, 0);
 
         if (nPakId == INVALID_PAK_HANDLE)
             Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, szPathBuffer, nPakId);
