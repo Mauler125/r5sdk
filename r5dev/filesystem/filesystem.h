@@ -33,7 +33,14 @@ protected:
 extern CFileSystem_Stdio** g_pFullFileSystem; // Ptr to g_pFileSystem_Stdio.
 extern CFileSystem_Stdio*  g_pFileSystem_Stdio;
 
-CFileSystem_Stdio* FileSystem();
+//-----------------------------------------------------------------------------
+// Singleton FileSystem
+//-----------------------------------------------------------------------------
+inline CFileSystem_Stdio* FileSystem()
+{
+	return (*g_pFullFileSystem);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 class VFileSystem_Stdio : public IDetour
 {
