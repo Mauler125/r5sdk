@@ -175,6 +175,7 @@
     <ClCompile Include="..\tier1\utlbuffer.cpp" />
     <ClCompile Include="..\tier1\utlstring.cpp" />
     <ClCompile Include="..\tier2\curlutils.cpp" />
+    <ClCompile Include="..\tier2\fileutils.cpp" />
     <ClCompile Include="..\tier2\meshutils.cpp" />
     <ClCompile Include="..\tier2\renderutils.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
@@ -464,6 +465,7 @@
     <ClInclude Include="..\public\tier1\utlsymbol.h" />
     <ClInclude Include="..\public\tier1\utlvector.h" />
     <ClInclude Include="..\public\tier2\curlutils.h" />
+    <ClInclude Include="..\public\tier2\fileutils.h" />
     <ClInclude Include="..\public\tier2\meshutils.h" />
     <ClInclude Include="..\public\tier2\renderutils.h" />
     <ClInclude Include="..\public\tier2\socketcreator.h" />

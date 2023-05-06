@@ -783,6 +783,9 @@
     <ClCompile Include="..\vscript\languages\squirrel_re\vsquirrel.cpp">
       <Filter>sdk\vscript\languages\squirrel_re</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier2\fileutils.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1951,6 +1954,9 @@
     </ClInclude>
     <ClInclude Include="..\vscript\languages\squirrel_re\vsquirrel.h">
       <Filter>sdk\vscript\languages\squirrel_re</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\tier2\fileutils.h">
+      <Filter>sdk\public\tier2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
