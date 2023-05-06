@@ -190,7 +190,11 @@ void CSquirrelVM::CompileModScripts()
 			}
 		}
 
-		// TODO[rexx]: clean up allocated RSON memory. example @ 1408B18E2
+		if (rson)
+		{
+			RSON_Free(rson, g_pAlignedMemAlloc);
+			g_pAlignedMemAlloc->Free(rson);
+		}
 	}
 }
 

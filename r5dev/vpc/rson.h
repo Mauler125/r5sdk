@@ -1,5 +1,6 @@
 #pragma once
 #include "mathlib/color.h"
+#include "tier0/tslist.h"
 #include "tier1/utlbuffer.h"
 #include "public/ifilesystem.h"
 #include "filesystem/filesystem.h"
@@ -80,25 +81,30 @@ public:
 
 public:
 	static Node_t* LoadFromBuffer(const char* pszBufferName, char* pBuffer, eFieldType rootType);
-
 	static Node_t* LoadFromFile(const char* pszFilePath);
 };
 ///////////////////////////////////////////////////////////////////////////////
 inline CMemory p_RSON_LoadFromBuffer;
-inline auto RSON_LoadFromBuffer = p_RSON_LoadFromBuffer.RCast<RSON::Node_t * (__fastcall*)(const char* bufName, char* buf, RSON::eFieldType rootType, __int64 a4, void* a5)>();
+inline auto RSON_LoadFromBuffer = p_RSON_LoadFromBuffer.RCast<RSON::Node_t* (__fastcall*)(const char* bufName, char* buf, RSON::eFieldType rootType, __int64 a4, void* a5)>();
+
+inline CMemory p_RSON_Free;
+inline auto RSON_Free = p_RSON_Free.RCast<void (__fastcall*)(RSON::Node_t* rson, CAlignedMemAlloc* allocator)>();
 
 ///////////////////////////////////////////////////////////////////////////////
 class VRSON : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-
+		LogFunAdr("RSON_LoadFromBuffer", p_RSON_LoadFromBuffer.GetPtr());
+		LogFunAdr("RSON_Free", p_RSON_Free.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
-		p_RSON_LoadFromBuffer = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 48 89 45 60 48 8B D8").FollowNearCallSelf();
-
+		p_RSON_LoadFromBuffer = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 89 45 60 48 8B D8").FollowNearCallSelf();
 		RSON_LoadFromBuffer = p_RSON_LoadFromBuffer.RCast< RSON::Node_t * (__fastcall*)(const char* bufName, char* buf, RSON::eFieldType rootType, __int64 a4, void* a5)>();
+
+		p_RSON_Free = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 83 EF 01 75 E7").FollowNearCallSelf();
+		RSON_Free = p_RSON_Free.RCast<void(__fastcall*)(RSON::Node_t* rson, CAlignedMemAlloc* allocator)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
