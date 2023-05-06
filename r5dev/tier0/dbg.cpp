@@ -24,7 +24,7 @@
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
 #endif
-#include "squirrel/sqstdaux.h"
+#include "vscript/languages/squirrel_re/include/sqstdaux.h"
 #endif // !NETCONSOLE
 std::mutex g_LogMutex;
 

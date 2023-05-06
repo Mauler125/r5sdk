@@ -51,7 +51,7 @@
 #ifndef CLIENT_DLL
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
-#include "squirrel/sqinit.h"
+#include "game/shared/vscript_shared.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop

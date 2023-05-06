@@ -18,9 +18,6 @@
 #endif // CLIENT_DLL
 #include "engine/cmodel_bsp.h"
 #include "engine/host_state.h"
-#include "squirrel/sqtype.h"
-#include "squirrel/sqapi.h"
-#include "squirrel/sqinit.h"
 #include "networksystem/pylon.h"
 #ifndef CLIENT_DLL
 #include "networksystem/bansystem.h"
@@ -28,8 +25,10 @@
 #ifndef DEDICATED
 #include "networksystem/listmanager.h"
 #endif // !DEDICATED
+#include "vscript_shared.h"
+#include "vscript/languages/squirrel_re/include/sqvm.h"
 
-namespace VSquirrel
+namespace VScriptCode
 {
     namespace SHARED
     {

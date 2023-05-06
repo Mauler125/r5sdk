@@ -1,6 +1,6 @@
 #ifndef SQSTATE_H
 #define SQSTATE_H
-#include "squirrel/sqtype.h"
+#include "squirrel.h"
 
 #pragma pack(push, 1)
 struct SQSharedState

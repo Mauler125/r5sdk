@@ -1,9 +1,17 @@
 #pragma once
-#include "squirrel/sqtype.h"
-#include "squirrel/sqstate.h"
-#ifndef DEDICATED
-#include "client/cdll_engine_int.h"
-#endif // !DEDICATED
+#include "squirrel.h"
+#include "sqstate.h"
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+enum class SQCONTEXT : SQInteger
+{
+	SERVER = 0,
+	CLIENT,
+	UI,
+	NONE
+};
 
 struct SQVM
 {
@@ -55,7 +63,6 @@ struct SQVM
 #endif
 	SQInteger _nnativecalls;
 };
-typedef SQVM* HSQUIRRELVM;
 
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline CMemory p_SQVM_PrintFunc;
@@ -90,7 +97,7 @@ const SQChar* SQVM_GetContextName(SQCONTEXT context);
 const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v);
 
 ///////////////////////////////////////////////////////////////////////////////
-class HSQVM : public IDetour
+class VSquirrelVM : public IDetour
 {
 	virtual void GetAdr(void) const
 	{

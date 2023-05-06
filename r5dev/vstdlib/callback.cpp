@@ -31,7 +31,7 @@
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 #include "vpklib/packedstore.h"
-#include "squirrel/sqscript.h"
+#include "vscript/vscript.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
 #include "gameui/IBrowser.h"

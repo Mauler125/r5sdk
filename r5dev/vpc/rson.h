@@ -100,10 +100,7 @@ class VRSON : public IDetour
 
 		RSON_LoadFromBuffer = p_RSON_LoadFromBuffer.RCast< RSON::Node_t * (__fastcall*)(const char* bufName, char* buf, RSON::eFieldType rootType, __int64 a4, void* a5)>();
 	}
-	virtual void GetVar(void) const
-	{
-
-	}
+	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

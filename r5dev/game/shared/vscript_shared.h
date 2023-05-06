@@ -1,5 +1,6 @@
-#pragma once
-#include "squirrel/sqapi.h"
+#ifndef VSCRIPT_SHARED_H
+#define VSCRIPT_SHARED_H
+#include "vscript/languages/squirrel_re/include/squirrel.h"
 
 inline CMemory p_Script_Remote_BeginRegisteringFunctions;
 inline auto Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegisteringFunctions.RCast<void* (*)(void)>();
@@ -14,7 +15,7 @@ inline uint32_t* g_nServerRemoteChecksum = nullptr;
 inline uint32_t* g_nClientRemoteChecksum = nullptr;
 #endif // !DEDICATED
 
-namespace VSquirrel
+namespace VScriptCode
 {
 	namespace SHARED
 	{
@@ -68,7 +69,7 @@ namespace VSquirrel
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-class VSqInit : public IDetour
+class VScriptShared : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
@@ -103,3 +104,5 @@ class VSqInit : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
+
+#endif // !VSCRIPT_SHARED_H

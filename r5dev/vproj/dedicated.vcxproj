@@ -285,6 +285,7 @@
     <ClInclude Include="..\game\shared\takedamageinfo.h" />
     <ClInclude Include="..\game\shared\usercmd.h" />
     <ClInclude Include="..\game\shared\util_shared.h" />
+    <ClInclude Include="..\game\shared\vscript_shared.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
     <ClInclude Include="..\launcher\launcher.h" />
     <ClInclude Include="..\launcher\prx.h" />
@@ -358,7 +359,6 @@
     <ClInclude Include="..\public\iservernetworkable.h" />
     <ClInclude Include="..\public\iserverunknown.h" />
     <ClInclude Include="..\public\isnapshotmgr.h" />
-    <ClInclude Include="..\public\ivscript.h" />
     <ClInclude Include="..\public\model_types.h" />
     <ClInclude Include="..\public\networkvar.h" />
     <ClInclude Include="..\public\playerstate.h" />
@@ -425,13 +425,6 @@
     <ClInclude Include="..\rtech\stryder\stryder.h" />
     <ClInclude Include="..\server\persistence.h" />
     <ClInclude Include="..\server\vengineserver_impl.h" />
-    <ClInclude Include="..\squirrel\sqapi.h" />
-    <ClInclude Include="..\squirrel\sqinit.h" />
-    <ClInclude Include="..\squirrel\sqscript.h" />
-    <ClInclude Include="..\squirrel\sqstate.h" />
-    <ClInclude Include="..\squirrel\sqstdaux.h" />
-    <ClInclude Include="..\squirrel\sqtype.h" />
-    <ClInclude Include="..\squirrel\sqvm.h" />
     <ClInclude Include="..\thirdparty\detours\include\detours.h" />
     <ClInclude Include="..\thirdparty\detours\include\detver.h" />
     <ClInclude Include="..\thirdparty\detours\include\idetour.h" />
@@ -522,6 +515,12 @@
     <ClInclude Include="..\vpc\rson.h" />
     <ClInclude Include="..\vphysics\QHull.h" />
     <ClInclude Include="..\vpklib\packedstore.h" />
+    <ClInclude Include="..\vscript\languages\squirrel_re\include\sqstate.h" />
+    <ClInclude Include="..\vscript\languages\squirrel_re\include\sqstdaux.h" />
+    <ClInclude Include="..\vscript\languages\squirrel_re\include\squirrel.h" />
+    <ClInclude Include="..\vscript\languages\squirrel_re\include\sqvm.h" />
+    <ClInclude Include="..\vscript\languages\squirrel_re\vsquirrel.h" />
+    <ClInclude Include="..\vscript\vscript.h" />
     <ClInclude Include="..\vstdlib\autocompletefilelist.h" />
     <ClInclude Include="..\vstdlib\callback.h" />
     <ClInclude Include="..\vstdlib\completion.h" />
@@ -586,6 +585,7 @@
     <ClCompile Include="..\game\shared\collisionproperty.cpp" />
     <ClCompile Include="..\game\shared\entitylist_base.cpp" />
     <ClCompile Include="..\game\shared\util_shared.cpp" />
+    <ClCompile Include="..\game\shared\vscript_shared.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\launcher.cpp" />
     <ClCompile Include="..\launcher\prx.cpp" />
@@ -640,11 +640,6 @@
     <ClCompile Include="..\rtech\stryder\stryder.cpp" />
     <ClCompile Include="..\server\persistence.cpp" />
     <ClCompile Include="..\server\vengineserver_impl.cpp" />
-    <ClCompile Include="..\squirrel\sqapi.cpp" />
-    <ClCompile Include="..\squirrel\sqinit.cpp" />
-    <ClCompile Include="..\squirrel\sqscript.cpp" />
-    <ClCompile Include="..\squirrel\sqstdaux.cpp" />
-    <ClCompile Include="..\squirrel\sqvm.cpp" />
     <ClCompile Include="..\tier0\commandline.cpp" />
     <ClCompile Include="..\tier0\cpu.cpp" />
     <ClCompile Include="..\tier0\cputopology.cpp" />
@@ -676,6 +671,11 @@
     <ClCompile Include="..\vphysics\physics_collide.cpp" />
     <ClCompile Include="..\vphysics\QHull.cpp" />
     <ClCompile Include="..\vpklib\packedstore.cpp" />
+    <ClCompile Include="..\vscript\languages\squirrel_re\sqstdlib\sqstdaux.cpp" />
+    <ClCompile Include="..\vscript\languages\squirrel_re\squirrel\sqapi.cpp" />
+    <ClCompile Include="..\vscript\languages\squirrel_re\squirrel\sqvm.cpp" />
+    <ClCompile Include="..\vscript\languages\squirrel_re\vsquirrel.cpp" />
+    <ClCompile Include="..\vscript\vscript.cpp" />
     <ClCompile Include="..\vstdlib\autocompletefilelist.cpp" />
     <ClCompile Include="..\vstdlib\callback.cpp" />
     <ClCompile Include="..\vstdlib\completion.cpp" />

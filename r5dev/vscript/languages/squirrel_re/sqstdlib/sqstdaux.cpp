@@ -6,8 +6,8 @@
 
 #include "core/stdafx.h"
 #include "tier0/tslist.h"
-#include "squirrel/sqvm.h"
-#include "squirrel/sqstdaux.h"
+#include "vscript/languages/squirrel_re/include/sqvm.h"
+#include "vscript/languages/squirrel_re/include/sqstdaux.h"
 
 bool g_bSQAuxError = false;
 bool g_bSQAuxBadLogic = false;
@@ -29,13 +29,13 @@ SQInteger sqstd_aux_badlogic(HSQUIRRELVM v, __m128i* a2, __m128i* a3)
     return results;
 }
 
-void VSqStdAux::Attach() const
+void VSquirrelAUX::Attach() const
 {
     DetourAttach(&v_sqstd_aux_printerror, &sqstd_aux_printerror);
     DetourAttach(&v_sqstd_aux_badlogic, &sqstd_aux_badlogic);
 }
 
-void VSqStdAux::Detach() const
+void VSquirrelAUX::Detach() const
 {
     DetourDetach(&v_sqstd_aux_printerror, &sqstd_aux_printerror);
     DetourDetach(&v_sqstd_aux_badlogic, &sqstd_aux_badlogic);

@@ -37,9 +37,6 @@
     <Filter Include="sdk\networksystem">
       <UniqueIdentifier>{1dd9c7b9-1abc-412a-8e85-928c0d017beb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\squirrel">
-      <UniqueIdentifier>{10a04e38-fd13-476b-92ea-ebbe60803ef6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="thirdparty">
       <UniqueIdentifier>{7977cef5-28c7-40ca-be44-394d9f1b75de}</UniqueIdentifier>
     </Filter>
@@ -235,6 +232,24 @@
     <Filter Include="sdk\engine\shared">
       <UniqueIdentifier>{bef90121-4004-47a7-b338-a41ca8078c12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\vscript">
+      <UniqueIdentifier>{d5557b58-8087-492b-9533-5a1dfc6343fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\vscript\languages">
+      <UniqueIdentifier>{5bf8626a-6284-41ad-87e1-8b71f172a8d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\vscript\languages\squirrel_re">
+      <UniqueIdentifier>{df576a65-b36a-4ec9-85e2-323013dcc28c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\vscript\languages\squirrel_re\include">
+      <UniqueIdentifier>{98d73628-844c-410a-8e4e-7110df82ec6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\vscript\languages\squirrel_re\sqstdlib">
+      <UniqueIdentifier>{88ac540f-8a32-4197-b135-b81d474114a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\vscript\languages\squirrel_re\squirrel">
+      <UniqueIdentifier>{6d8704d4-c50e-4eca-81bf-d3f01afcf84c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -272,12 +287,6 @@
     </ClCompile>
     <ClCompile Include="..\launcher\IApplication.cpp">
       <Filter>sdk\launcher</Filter>
-    </ClCompile>
-    <ClCompile Include="..\squirrel\sqvm.cpp">
-      <Filter>sdk\squirrel</Filter>
-    </ClCompile>
-    <ClCompile Include="..\squirrel\sqapi.cpp">
-      <Filter>sdk\squirrel</Filter>
     </ClCompile>
     <ClCompile Include="..\vgui\vgui_fpspanel.cpp">
       <Filter>sdk\vgui</Filter>
@@ -320,9 +329,6 @@
     </ClCompile>
     <ClCompile Include="..\mathlib\IceKey.cpp">
       <Filter>sdk\mathlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\squirrel\sqinit.cpp">
-      <Filter>sdk\squirrel</Filter>
     </ClCompile>
     <ClCompile Include="..\vpklib\packedstore.cpp">
       <Filter>sdk\vpklib</Filter>
@@ -468,9 +474,6 @@
     <ClCompile Include="..\game\shared\animation.cpp">
       <Filter>sdk\game\shared</Filter>
     </ClCompile>
-    <ClCompile Include="..\squirrel\sqstdaux.cpp">
-      <Filter>sdk\squirrel</Filter>
-    </ClCompile>
     <ClCompile Include="..\engine\clockdriftmgr.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
@@ -491,9 +494,6 @@
     </ClCompile>
     <ClCompile Include="..\tier1\strtools.cpp">
       <Filter>sdk\tier1</Filter>
-    </ClCompile>
-    <ClCompile Include="..\squirrel\sqscript.cpp">
-      <Filter>sdk\squirrel</Filter>
     </ClCompile>
     <ClCompile Include="..\mathlib\sha1.cpp">
       <Filter>sdk\mathlib</Filter>
@@ -696,6 +696,24 @@
     <ClCompile Include="..\engine\shared\shared_rcon.cpp">
       <Filter>sdk\engine\shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\shared\vscript_shared.cpp">
+      <Filter>sdk\game\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vscript\vscript.cpp">
+      <Filter>sdk\vscript</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vscript\languages\squirrel_re\vsquirrel.cpp">
+      <Filter>sdk\vscript\languages\squirrel_re</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vscript\languages\squirrel_re\squirrel\sqapi.cpp">
+      <Filter>sdk\vscript\languages\squirrel_re\squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vscript\languages\squirrel_re\squirrel\sqvm.cpp">
+      <Filter>sdk\vscript\languages\squirrel_re\squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vscript\languages\squirrel_re\sqstdlib\sqstdaux.cpp">
+      <Filter>sdk\vscript\languages\squirrel_re\sqstdlib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -745,12 +763,6 @@
     </ClInclude>
     <ClInclude Include="..\networksystem\sm_protocol.h">
       <Filter>sdk\networksystem</Filter>
-    </ClInclude>
-    <ClInclude Include="..\squirrel\sqapi.h">
-      <Filter>sdk\squirrel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\squirrel\sqvm.h">
-      <Filter>sdk\squirrel</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\detours\include\detver.h">
       <Filter>thirdparty\detours\include</Filter>
@@ -820,9 +832,6 @@
     </ClInclude>
     <ClInclude Include="..\mathlib\parallel_for.h">
       <Filter>sdk\mathlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\squirrel\sqinit.h">
-      <Filter>sdk\squirrel</Filter>
     </ClInclude>
     <ClInclude Include="..\core\resource.h">
       <Filter>core</Filter>
@@ -1034,9 +1043,6 @@
     <ClInclude Include="..\rtech\stryder\stryder.h">
       <Filter>sdk\rtech\rui</Filter>
     </ClInclude>
-    <ClInclude Include="..\squirrel\sqtype.h">
-      <Filter>sdk\squirrel</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\inetchannel.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
@@ -1244,9 +1250,6 @@
     <ClInclude Include="..\thirdparty\nlohmann\detail\output\binary_writer.hpp">
       <Filter>thirdparty\nlohmann\detail\output</Filter>
     </ClInclude>
-    <ClInclude Include="..\squirrel\sqstdaux.h">
-      <Filter>sdk\squirrel</Filter>
-    </ClInclude>
     <ClInclude Include="..\engine\framesnapshot.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
@@ -1261,9 +1264,6 @@
     </ClInclude>
     <ClInclude Include="..\public\inetmsghandler.h">
       <Filter>sdk\public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\squirrel\sqstate.h">
-      <Filter>sdk\squirrel</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\client\client.h">
       <Filter>sdk\engine\client</Filter>
@@ -1282,9 +1282,6 @@
     </ClInclude>
     <ClInclude Include="..\vpc\kvleaktrace.h">
       <Filter>sdk\vpc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\squirrel\sqscript.h">
-      <Filter>sdk\squirrel</Filter>
     </ClInclude>
     <ClInclude Include="..\mathlib\sha1.h">
       <Filter>sdk\mathlib</Filter>
@@ -1356,9 +1353,6 @@
       <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\public\icliententity.h">
-      <Filter>sdk\public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\ivscript.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\public\iconcommand.h">
@@ -1759,6 +1753,27 @@
     </ClInclude>
     <ClInclude Include="..\engine\shared\base_rcon.h">
       <Filter>sdk\engine\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\vscript_shared.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vscript\vscript.h">
+      <Filter>sdk\vscript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vscript\languages\squirrel_re\vsquirrel.h">
+      <Filter>sdk\vscript\languages\squirrel_re</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vscript\languages\squirrel_re\include\squirrel.h">
+      <Filter>sdk\vscript\languages\squirrel_re\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vscript\languages\squirrel_re\include\sqvm.h">
+      <Filter>sdk\vscript\languages\squirrel_re\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vscript\languages\squirrel_re\include\sqstate.h">
+      <Filter>sdk\vscript\languages\squirrel_re\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vscript\languages\squirrel_re\include\sqstdaux.h">
+      <Filter>sdk\vscript\languages\squirrel_re\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 #pragma once
-#include "sqtype.h"
+#include "squirrel.h"
 #include "sqvm.h"
 
 extern bool g_bSQAuxError;
@@ -13,7 +13,7 @@ inline CMemory p_sqstd_aux_badlogic;
 inline auto v_sqstd_aux_badlogic = p_sqstd_aux_badlogic.RCast<SQInteger(*)(HSQUIRRELVM v, __m128i* a2, __m128i* a3)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-class VSqStdAux : public IDetour
+class VSquirrelAUX : public IDetour
 {
 	virtual void GetAdr(void) const
 	{

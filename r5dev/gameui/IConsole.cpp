@@ -21,7 +21,6 @@ History:
 #include "windows/id3dx.h"
 #include "windows/console.h"
 #include "windows/resource.h"
-#include "squirrel/sqtype.h"
 #include "gameui/IConsole.h"
 
 //-----------------------------------------------------------------------------

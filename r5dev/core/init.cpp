@@ -55,11 +55,6 @@
 #include "server/persistence.h"
 #include "server/vengineserver_impl.h"
 #endif // !CLIENT_DLL
-#include "squirrel/sqinit.h"
-#include "squirrel/sqapi.h"
-#include "squirrel/sqvm.h"
-#include "squirrel/sqscript.h"
-#include "squirrel/sqstdaux.h"
 #include "studiorender/studiorendercontext.h"
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
@@ -104,9 +99,15 @@
 #include "engine/gl_rsurf.h"
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
+#include "vscript/languages/squirrel_re/include/squirrel.h"
+#include "vscript/languages/squirrel_re/include/sqvm.h"
+#include "vscript/languages/squirrel_re/include/sqstdaux.h"
+#include "vscript/languages/squirrel_re/vsquirrel.h"
+#include "vscript/vscript.h"
 #include "game/shared/util_shared.h"
 #include "game/shared/usercmd.h"
 #include "game/shared/animation.h"
+#include "game/shared/vscript_shared.h"
 #ifndef CLIENT_DLL
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
@@ -470,13 +471,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VCL_Main);
 #endif // !DEDICATED
 
-	// Squirrel
-	REGISTER(VSqInit);
-	REGISTER(VSqapi);
-	REGISTER(HSQVM);
-	REGISTER(VSquirrelVM);
-	REGISTER(VSqStdAux);
-
 	// RTech
 	REGISTER(V_RTechGame);
 	REGISTER(V_RTechUtils);
@@ -528,6 +522,16 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 
 	REGISTER(VDebugOverlay); // !TODO: This also needs to be exposed to server dll!!!
 #endif // !DEDICATED
+
+	// VScript
+	REGISTER(VSquirrel);
+	REGISTER(VScript);
+	REGISTER(VScriptShared);
+
+	// Squirrel
+	REGISTER(VSquirrelAPI);
+	REGISTER(VSquirrelAUX);
+	REGISTER(VSquirrelVM);
 
 	// Game/shared
 	REGISTER(VUserCmd);

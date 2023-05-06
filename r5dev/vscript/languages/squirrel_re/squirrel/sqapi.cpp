@@ -5,8 +5,8 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "squirrel/sqapi.h"
-#include "squirrel/sqtype.h"
+#include "vscript/languages/squirrel_re/include/squirrel.h"
+#include "vscript/languages/squirrel_re/include/sqvm.h"
 
 //---------------------------------------------------------------------------------
 SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i)
@@ -86,7 +86,7 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 	return v_sq_call(v, params, retval, raiseerror);
 }
 
-void VSqapi::Attach() const
+void VSquirrelAPI::Attach() const
 {
 	DetourAttach(&v_sq_pushroottable, &sq_pushroottable);
 	DetourAttach(&v_sq_pushbool, &sq_pushbool);
@@ -101,7 +101,7 @@ void VSqapi::Attach() const
 	DetourAttach(&v_sq_call, &sq_call);
 }
 
-void VSqapi::Detach() const
+void VSquirrelAPI::Detach() const
 {
 	DetourDetach(&v_sq_pushroottable, &sq_pushroottable);
 	DetourDetach(&v_sq_pushbool, &sq_pushbool);

@@ -8,7 +8,7 @@
 #include "public/iclientthinkable.h"
 #include "public/iclientunknown.h"
 #include "public/ihandleentity.h"
-#include "public/ivscript.h"
+#include "public/vscript/ivscript.h"
 
 
 class C_BaseCombatCharacter

@@ -17,11 +17,10 @@
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
-#include "squirrel/sqtype.h"
-#include "squirrel/sqvm.h"
-#include "squirrel/sqinit.h"
-#include "squirrel/sqstdaux.h"
-#include "squirrel/sqstate.h"
+#include "vscript/languages/squirrel_re/include/squirrel.h"
+#include "vscript/languages/squirrel_re/include/sqvm.h"
+#include "vscript/languages/squirrel_re/include/sqstate.h"
+#include "vscript/languages/squirrel_re/include/sqstdaux.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
@@ -213,7 +212,7 @@ const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v)
 }
 
 //---------------------------------------------------------------------------------
-void HSQVM::Attach() const
+void VSquirrelVM::Attach() const
 {
 	DetourAttach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
 	DetourAttach((LPVOID*)&v_SQVM_WarningFunc, &SQVM_WarningFunc);
@@ -221,7 +220,7 @@ void HSQVM::Attach() const
 	DetourAttach((LPVOID*)&v_SQVM_LogicError, &SQVM_LogicError);
 }
 //---------------------------------------------------------------------------------
-void HSQVM::Detach() const
+void VSquirrelVM::Detach() const
 {
 	DetourDetach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
 	DetourDetach((LPVOID*)&v_SQVM_WarningFunc, &SQVM_WarningFunc);

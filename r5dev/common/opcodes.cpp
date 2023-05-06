@@ -28,7 +28,7 @@
 //#include "client/cdll_engine_int.h"
 //#include "materialsystem/cmaterialsystem.h"
 //#include "studiorender/studiorendercontext.h"
-#include "squirrel/sqvm.h"
+#include "vscript/languages/squirrel_re/include/sqvm.h"
 //#include "bsplib/bsplib.h"
 //#include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED

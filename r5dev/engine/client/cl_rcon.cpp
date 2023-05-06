@@ -12,7 +12,7 @@
 #include "engine/client/cl_rcon.h"
 #include "engine/shared/shared_rcon.h"
 #include "engine/net.h"
-#include "squirrel/sqvm.h"
+#include "vscript/languages/squirrel_re/include/sqvm.h"
 #include "common/igameserverdata.h"
 
 

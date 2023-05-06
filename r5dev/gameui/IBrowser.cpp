@@ -31,11 +31,11 @@ History:
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
 #include "networksystem/listmanager.h"
-#include "squirrel/sqinit.h"
 #include "vpc/keyvalues.h"
 #include "vstdlib/callback.h"
 #include "gameui/IBrowser.h"
 #include "public/edict.h"
+#include "game/shared/vscript_shared.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
