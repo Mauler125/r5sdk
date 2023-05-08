@@ -81,7 +81,7 @@ public:
 		PluginInstance_t(string svPluginName, string svPluginFullPath) : m_svPluginName(svPluginName), m_svPluginFullPath(svPluginFullPath), m_svDescription(std::string()), m_bIsLoaded(false) {};
 
 		// Might wanna make a status code system.
-		typedef bool(*OnLoad)(const char*);
+		typedef bool(*OnLoad)(const char*, const char*);
 		typedef void(*OnUnload)();
 
 		CModule m_hModule;

@@ -11,6 +11,8 @@ public:
 	~CPluginSDK();
 
 	bool InitSDK();
+
+	inline void SetSDKModule(const CModule& sdkModule) { m_SDKModule = sdkModule; };
 private:
 
 	IFactory* m_FactoryInstance;

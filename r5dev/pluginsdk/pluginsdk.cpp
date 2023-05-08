@@ -21,7 +21,6 @@ CPluginSDK::CPluginSDK(const char* pszSelfModule) : m_FactoryInstance(nullptr), 
 {
 	m_SelfModule = CModule(pszSelfModule);
 	m_GameModule = CModule("r5apex.exe");
-	m_SDKModule  = CModule("gamesdk.dll"); // THIS NEEDS TO BE CHANGED FOR DEDI/CLIENT SDK SUPPORT. AT BEST DO THIS VIA PluginInstance_OnLoad.
 }
 
 //---------------------------------------------------------------------------------

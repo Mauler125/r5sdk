@@ -60,7 +60,7 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 	auto onLoadFn = pluginModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance_t::OnLoad>();
 	Assert(onLoadFn);
 
-	if (!onLoadFn(pluginInst.m_svPluginName.c_str()))
+	if (!onLoadFn(pluginInst.m_svPluginName.c_str(), g_SDKDll.GetModuleName().c_str()))
 	{
 		FreeLibrary(loadedPlugin);
 		return false;
