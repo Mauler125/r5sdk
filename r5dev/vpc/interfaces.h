@@ -41,6 +41,7 @@
 #define FACTORY_INTERFACE_VERSION                 "VFactorySystem001"
 #define FILESYSTEM_INTERFACE_VERSION              "VFileSystem017"
 #define BASEFILESYSTEM_INTERFACE_VERSION          "VBaseFileSystem011"
+#define KEYVALUESSYSTEM_INTERFACE_VERSION         "VKeyValuesSystem001"
 
 //-----------------------------------------------------------------------------
 // Class to hold all factories (interfaces)

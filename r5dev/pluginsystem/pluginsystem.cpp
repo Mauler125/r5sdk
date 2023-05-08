@@ -8,6 +8,8 @@
 
 #include "core/stdafx.h"
 #include "pluginsystem.h"
+#include <filesystem/filesystem.h>
+#include <tier2/fileutils.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: initialize the plugin system
@@ -15,33 +17,26 @@
 //-----------------------------------------------------------------------------
 void CPluginSystem::PluginSystem_Init()
 {
-	const fs::path path("bin\\x64_retail\\plugins\\");
-	const string pathString(path.u8string());
+	FileSystem()->CreateDirHierarchy("bin\\x64_retail\\plugins");
 
-	CreateDirectories(pathString);
-	if (fs::is_directory(path))
+	CUtlVector< CUtlString > pluginPaths;
+	AddFilesToList(pluginPaths, "bin\\x64_retail\\plugins", NULL, "dll");
+
+	for (int i = 0; i < pluginPaths.Count(); ++i)
 	{
-		for (auto& it : fs::directory_iterator(path))
+		CUtlString& path = pluginPaths[i];
+
+		bool addInstance = true;
+		for (auto& inst : pluginInstances)
 		{
-			if (!fs::is_regular_file(it))
-				continue;
-
-			if (auto path = it.path();
-				path.has_filename() &&
-				path.has_extension() &&
-				path.extension().compare(".dll") == 0)
-			{
-				bool addInstance = true;
-				for (auto& inst : pluginInstances)
-				{
-					if (inst.m_svPluginFullPath.compare(pathString) == 0)
-						addInstance = false;
-				}
-
-				if (addInstance)
-					pluginInstances.push_back(PluginInstance_t(path.filename().u8string(), pathString));
-			}
+			if (inst.m_svPluginFullPath.compare(path.Get()) == 0)
+				addInstance = false;
 		}
+
+		const char* baseFileName = V_UnqualifiedFileName(path.Get());
+
+		if (addInstance)
+			pluginInstances.push_back(PluginInstance_t(baseFileName, path.Get()));
 	}
 }
 

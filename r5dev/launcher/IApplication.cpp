@@ -33,6 +33,7 @@
 #include "windows/input.h"
 #endif // !DEDICATED
 #include "public/idebugoverlay.h"
+#include <vstdlib/keyvaluessystem.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -103,6 +104,7 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 	g_pFactory->GetFactoriesFromRegister();
 	g_pFactory->AddFactory(FACTORY_INTERFACE_VERSION, g_pFactory);
 	g_pFactory->AddFactory(INTERFACEVERSION_PLUGINSYSTEM, g_pPluginSystem);
+	g_pFactory->AddFactory(KEYVALUESSYSTEM_INTERFACE_VERSION, g_pKeyValuesSystem);
 
 	//InitPluginSystem(pModAppSystemGroup);
 	//CALL_PLUGIN_CALLBACKS(g_pPluginSystem->GetCreateCallbacks(), pModAppSystemGroup);
