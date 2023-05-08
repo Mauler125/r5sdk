@@ -178,7 +178,7 @@ void AddFilesToList( CUtlVector< CUtlString > &list, const char *pDirectory, con
 		}
 
 		// Check the extension matches.
-		if ( Q_stricmp( V_GetFileExtension( pFoundFile ), pExtension ) )
+		if ( pExtension && Q_stricmp( V_GetFileExtension( pFoundFile ), pExtension ) )
 			continue;
 
 		char pFullPathBuf[MAX_PATH];
