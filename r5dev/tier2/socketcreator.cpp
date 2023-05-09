@@ -4,7 +4,6 @@
 //
 //===========================================================================//
 
-#include <core/stdafx.h>
 #include <tier1/NetAdr.h>
 #include <tier2/socketcreator.h>
 #ifndef NETCONSOLE

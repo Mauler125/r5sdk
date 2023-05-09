@@ -1,4 +1,3 @@
-#include "core/stdafx.h"
 #include "mathlib/crc32.h"
 
 // Karl Malbrain's compact CRC-32, with pre and post conditioning. 

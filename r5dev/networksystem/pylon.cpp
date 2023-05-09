@@ -9,9 +9,7 @@
 #include <tier1/cvar.h>
 #include <tier2/curlutils.h>
 #include <networksystem/pylon.h>
-#ifndef CLIENT_DLL
 #include <engine/server/server.h>
-#endif // !CLIENT_DLL
 
 //-----------------------------------------------------------------------------
 // Purpose: gets a vector of hosted servers.
@@ -189,7 +187,6 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken,
     return true;
 }
 
-#ifdef DEDICATED
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
 // Input  : &netGameServer - 
@@ -220,14 +217,13 @@ bool CPylon::KeepAlive(const NetGameServer_t& netGameServer)
         {
             m_Token = hostToken;
             DevMsg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
-                g_svReset.c_str(), g_svGreyB.c_str(),
-                hostToken.c_str(), g_svReset.c_str());
+                g_svReset, g_svGreyB,
+                hostToken, g_svReset);
         }
     }
 
     return result;
 }
-#endif // DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: Checks a list of clients for their banned status.

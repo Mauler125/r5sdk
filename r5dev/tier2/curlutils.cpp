@@ -3,9 +3,12 @@
 // Purpose: A set of utilities to perform requests
 //
 //===========================================================================//
-#include "core/stdafx.h"
 #include "tier1/cvar.h"
 #include "tier2/curlutils.h"
+
+ConVar* ssl_verify_peer = nullptr;
+ConVar* curl_timeout = nullptr;
+ConVar* curl_debug = nullptr;
 
 size_t CURLWriteStringCallback(char* contents, const size_t size, const size_t nmemb, void* userp)
 {
@@ -81,9 +84,7 @@ bool CURLHandleError(CURL* curl, CURLcode res, string& outMessage)
     const char* curlError = curl_easy_strerror(res);
     Error(eDLL_T::ENGINE, NO_ERROR, "CURL: %s\n", curlError);
 
-#ifndef DEDICATED // Error already gets logged to the console.
     outMessage = curlError;
-#endif // !DEDICATED
     curl_easy_cleanup(curl);
 
     return false;

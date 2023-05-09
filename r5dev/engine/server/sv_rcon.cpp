@@ -5,10 +5,10 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
-#include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
+#include "engine/cmd.h"
 #include "engine/net.h"
 #include "engine/server/sv_rcon.h"
 #include "protoc/sv_rcon.pb.h"

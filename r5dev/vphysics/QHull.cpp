@@ -1,5 +1,4 @@
 #include "core/stdafx.h"
-#include "core/logdef.h"
 #include "vphysics/QHull.h"
 #ifndef DEDICATED
 #include "gameui/IConsole.h"

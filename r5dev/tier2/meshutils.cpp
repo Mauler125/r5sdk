@@ -3,12 +3,10 @@
 // Purpose: A set of utilities to render standard shapes
 //
 //===========================================================================//
-
-#include "core/stdafx.h"
 #include "tier2/meshutils.h"
 
 // NOTE: This has to be the last file included!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 
 //-----------------------------------------------------------------------------

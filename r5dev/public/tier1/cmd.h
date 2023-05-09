@@ -9,8 +9,8 @@
 // $NoKeywords: $
 //===========================================================================//
 
-#ifndef CMD_H
-#define CMD_H
+#ifndef TIER1_CMD_H
+#define TIER1_CMD_H
 
 #include "tier1/utlvector.h"
 #include "tier1/utlstring.h"
@@ -154,10 +154,6 @@ public:
 	static ConCommand* StaticCreate(const char* szName, const char* szHelpString, const char* pszUsageString,
 		int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCommandCompletionCallback);
 
-	static void StaticInit(void);
-	static void InitShipped(void);
-	static void PurgeShipped(void);
-
 	virtual int AutoCompleteSuggest(const char* partial, CUtlVector< CUtlString >& commands) = 0;
 	virtual bool CanAutoComplete(void) const = 0;
 
@@ -181,16 +177,6 @@ public:
 	bool m_bUsingNewCommandCallback : 1;
 	bool m_bUsingCommandCallbackInterface : 1;
 };
-
-/* ==== COMMAND_BUFFER ================================================================================================================================================== */
-inline CMemory p_Cbuf_AddText;
-inline auto Cbuf_AddText = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource)>();
-
-inline CMemory p_Cbuf_Execute;
-inline auto Cbuf_Execute = p_Cbuf_Execute.RCast<void (*)(void)>();
-
-inline CMemory p_Cmd_ForwardToServer;
-inline auto v_Cmd_ForwardToServer = p_Cmd_ForwardToServer.RCast<bool (*)(const CCommand* args)>();
 
 /* ==== CONCOMMAND ====================================================================================================================================================== */
 inline CMemory p_ConCommand_AutoCompleteSuggest;
@@ -217,9 +203,6 @@ class VConCommand : public IDetour
 	{
 		LogFunAdr("ConCommandBase::IsFlagSet", p_ConCommandBase_IsFlagSet.GetPtr());
 		LogConAdr("ConCommand::AutoCompleteSuggest", p_ConCommand_AutoCompleteSuggest.GetPtr());
-		LogFunAdr("Cbuf_AddText", p_Cbuf_AddText.GetPtr());
-		LogFunAdr("Cbuf_Execute", p_Cbuf_Execute.GetPtr());
-		LogFunAdr("Cmd_ForwardToServer", p_Cmd_ForwardToServer.GetPtr());
 		LogFunAdr("CallbackStub", p_CallbackStub.GetPtr());
 		LogFunAdr("NullSub", p_NullSub.GetPtr());
 	}
@@ -228,18 +211,12 @@ class VConCommand : public IDetour
 		p_ConCommand_AutoCompleteSuggest    = g_GameDll.FindPatternSIMD("40 ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 F6 41 60 04");
 		p_ConCommandBase_IsFlagSet          = g_GameDll.FindPatternSIMD("85 51 38 0F 95 C0 C3");
 
-		p_Cbuf_AddText                      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??");
-		p_Cbuf_Execute                      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??");
-		p_Cmd_ForwardToServer               = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 59 04");
 		p_NullSub                           = g_GameDll.FindPatternSIMD("C2 ?? ?? CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??");
 		p_CallbackStub                      = g_GameDll.FindPatternSIMD("33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08");
 
 		ConCommandBase_IsFlagSet            = p_ConCommandBase_IsFlagSet.RCast<bool (*)(ConCommandBase*, int)>(); /*85 51 38 0F 95 C0 C3*/
 		ConCommand_AutoCompleteSuggest      = p_ConCommand_AutoCompleteSuggest.RCast<bool (*)(ConCommand*, const char*, CUtlVector< CUtlString >&)>();
 
-		Cbuf_AddText                        = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t, const char*, cmd_source_t)>(); /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??*/
-		Cbuf_Execute                        = p_Cbuf_Execute.RCast<void (*)(void)>();                                        /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??*/
-		v_Cmd_ForwardToServer               = p_Cmd_ForwardToServer.RCast<bool (*)(const CCommand*)>();           /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 59 04*/
 		NullSub                             = p_NullSub.RCast<void(*)(void)>();                                   /*C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??*/
 		CallbackStub                        = p_CallbackStub.RCast<FnCommandCompletionCallback>();                /*33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08*/ /*UserMathErrorFunction*/
 	}
@@ -248,9 +225,9 @@ class VConCommand : public IDetour
 	{
 		g_pConCommandVFTable = g_GameDll.GetVirtualMethodTable(".?AVConCommand@@").RCast<ConCommandBase*>();
 	}
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Attach(void) const { };
+	virtual void Detach(void) const { };
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif // CMD_H
+#endif // TIER1_CMD_H

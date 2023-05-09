@@ -226,6 +226,11 @@ inline T AlignValue(T val, uintptr_t alignment)
 	return (T)(((uintp)val + alignment - 1) & ~(alignment - 1));
 }
 
+// Pad a number so it lies on an N byte boundary.
+// So PAD_NUMBER(0,4) is 0 and PAD_NUMBER(1,4) is 4
+#define PAD_NUMBER(number, boundary) \
+	( ((number) + ((boundary)-1)) / (boundary) ) * (boundary)
+
 #else
 
 #define clamp(val, min, max) (((val) > (max)) ? (max) : (((val) < (min)) ? (min) : (val)))

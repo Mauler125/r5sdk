@@ -18,19 +18,17 @@
 #include "tier0/sigcache.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
-#include "tier1/binstream.h"
 #include "vpc/IAppSystem.h"
 #include "vpc/keyvalues.h"
 #include "vpc/rson.h"
 #include "vpc/interfaces.h"
-#include "vstdlib/callback.h"
-#include "vstdlib/completion.h"
+#include "common/callback.h"
+#include "common/completion.h"
 #include "vstdlib/keyvaluessystem.h"
 #include "common/opcodes.h"
 #include "common/netmessages.h"
 #include "launcher/prx.h"
 #include "launcher/launcher.h"
-#include "launcher/IApplication.h"
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 #include "datacache/mdlcache.h"
@@ -49,13 +47,13 @@
 #include "vgui/vgui_debugpanel.h"
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
-#include "client/vengineclient_impl.h"
-#include "client/cdll_engine_int.h"
+#include "engine/client/vengineclient_impl.h"
+#include "engine/client/cdll_engine_int.h"
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
-#include "server/persistence.h"
-#include "server/vengineserver_impl.h"
+#include "engine/server/persistence.h"
+#include "engine/server/vengineserver_impl.h"
 #endif // !CLIENT_DLL
 #include "studiorender/studiorendercontext.h"
 #include "rtech/rtech_game.h"
@@ -186,7 +184,7 @@ void Systems_Init()
 	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Attach()", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 
-	ConVar::StaticInit();
+	ConVar_StaticInit();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -408,7 +406,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VLauncher);
 
 	REGISTER(VAppSystemGroup);
-	REGISTER(VApplication);
 
 	// FileSystem
 	REGISTER(VBaseFileSystem);
@@ -482,8 +479,16 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #endif // !DEDICATED
 
 	// Engine
-	REGISTER(VTraceInit);
 	REGISTER(VCommon);
+
+	REGISTER(VSys_Dll);
+	REGISTER(VSys_Dll2);
+	REGISTER(VSys_Utils);
+	REGISTER(VEngine);
+	REGISTER(VEngineTrace);
+	REGISTER(VModelInfo);
+
+	REGISTER(VTraceInit);
 	REGISTER(VModel_BSP);
 	REGISTER(VHost);
 	REGISTER(VHostCmd);
@@ -492,13 +497,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VNet);
 	REGISTER(VNetChan);
 	REGISTER(VNetworkStringTableContainer);
-
-	REGISTER(VSys_Dll);
-	REGISTER(VSys_Dll2);
-	REGISTER(VSys_Utils);
-	REGISTER(VEngine);
-	REGISTER(VEngineTrace);
-	REGISTER(VModelInfo);
 
 	REGISTER(VLocalize);
 

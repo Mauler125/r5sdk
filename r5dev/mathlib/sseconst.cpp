@@ -13,13 +13,12 @@
 //#include "ps3/spu_job_shared.h"
 #endif
 
-#include "core/stdafx.h"
 #include "mathlib/ssemath.h"
 #include "mathlib/ssequaternion.h"
 //#include "mathlib/compressed_vector.h"
 
 // NOTE: This has to be the last file included!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 const fltx4 g_SIMD_Identity[4] =
 {

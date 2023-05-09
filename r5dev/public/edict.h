@@ -1,7 +1,4 @@
 #pragma once
-#ifndef DEDICATED
-#include "launcher/IApplication.h"
-#endif // !DEDICATED
 #include "public/globalvars_base.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_main.h"

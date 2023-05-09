@@ -5,7 +5,7 @@
 // $NoKeywords: $
 //===========================================================================//
 
-#include "core/stdafx.h"
+#include "tier0_pch.h"
 #include "tier1/bitbuf.h"
 #include "mathlib/swap.h"
 #include "mathlib/bitvec.h"

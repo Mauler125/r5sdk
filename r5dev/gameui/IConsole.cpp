@@ -17,10 +17,10 @@ History:
 #include "core/resource.h"
 #include "tier0/frametask.h"
 #include "tier0/commandline.h"
-#include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/console.h"
 #include "windows/resource.h"
+#include "engine/cmd.h"
 #include "gameui/IConsole.h"
 
 //-----------------------------------------------------------------------------

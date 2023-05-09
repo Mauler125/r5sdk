@@ -3,11 +3,10 @@
 // Purpose: Helper methods + classes for file access.
 //
 //===========================================================================//
-#include "core/stdafx.h"
-#include "tier2/fileutils.h"
 #include "tier1/strtools.h"
-#include "filesystem/filesystem.h"
 #include "tier1/utlbuffer.h"
+#include "tier2/fileutils.h"
+#include "filesystem/filesystem.h"
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"

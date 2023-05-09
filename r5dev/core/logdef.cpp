@@ -18,7 +18,8 @@ void SpdLog_Init(void)
 	}
 
 #ifndef NETCONSOLE
-	g_LogSessionDirectory = fmt::format("platform\\logs\\{:s}", g_ProcessTimestamp);
+	g_LogSessionUUID = CreateUUID();
+	g_LogSessionDirectory = fmt::format("platform\\logs\\{:s}", g_LogSessionUUID);
 	/************************
 	 * IMGUI LOGGER SETUP   *
 	 ************************/

@@ -5,15 +5,13 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "core/logdef.h"
 #include "tier0/platform_internal.h"
 #include "tier0/commandline.h"
-#include "tier1/cvar.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
 #endif // CLIENT_DLL
 #ifndef DEDICATED
-#include "client/cdll_engine_int.h"
+#include "engine/client/cdll_engine_int.h"
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED

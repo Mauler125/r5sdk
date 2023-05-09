@@ -10,7 +10,7 @@
 #endif // !CLIENT_DLL
 
 #ifndef DEDICATED
-#include "client/cdll_engine_int.h"
+#include "engine/client/cdll_engine_int.h"
 #include "public/dt_recv.h"
 #endif // !DEDICATED
 

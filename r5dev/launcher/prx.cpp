@@ -15,14 +15,10 @@ void h_exit_or_terminate_process(UINT uExitCode)
 
 void VPRX::Attach() const
 {
-#ifdef DEDICATED
 	//DetourAttach(&v_exit_or_terminate_process, &h_exit_or_terminate_process);
-#endif // DEDICATED
 }
 
 void VPRX::Detach() const
 {
-#ifdef DEDICATED
 	//DetourDetach(&v_exit_or_terminate_process, &h_exit_or_terminate_process);
-#endif // DEDICATED
 }

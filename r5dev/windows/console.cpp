@@ -9,7 +9,7 @@
 #include "core/init.h"
 #include "core/logdef.h"
 #include "tier0/frametask.h"
-#include "tier1/cmd.h"
+#include "engine/cmd.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED

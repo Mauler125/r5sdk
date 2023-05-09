@@ -1,4 +1,3 @@
-#include "core/stdafx.h"
 #include "mathlib/sha256.h"
  
 const uint32 SHA256::sha256_k[64] = //UL = uint32

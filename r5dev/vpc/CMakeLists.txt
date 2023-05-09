@@ -1,0 +1,25 @@
+cmake_minimum_required( VERSION 3.16 )
+
+project( vpc )
+add_library( ${PROJECT_NAME} )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Private"
+    "IAppSystem.cpp"
+    "IAppSystem.h"
+    "interfaces.cpp"
+    "interfaces.h"
+    "keyvalues.cpp"
+    "keyvalues.h"
+    "kvleaktrace.h"
+    "rson.cpp"
+    "rson.h"
+)
+
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/ikeyvaluessystem.h"
+)
+
+end_sources()
+target_precompile_headers( ${PROJECT_NAME} PRIVATE ${ENGINE_SOURCE_DIR}/core/stdafx.h )

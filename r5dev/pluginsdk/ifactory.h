@@ -1,6 +1,7 @@
 #pragma once
 
 struct FactoryInfo_t;
+class CMemory;
 
 // TODO: Make this abstract and make it base class of CFactory.
 class IFactory
@@ -13,5 +14,3 @@ public:
 	virtual CMemory GetFactoryPtr(const string& svFactoryName, bool versionLess = true) const = 0;
 	virtual const char* GetFactoryFullName(const string& svFactoryName) const = 0;
 };
-
-constexpr const char* FACTORY_INTERFACE_VERSION = "VFactorySystem001";

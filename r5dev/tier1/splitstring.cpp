@@ -4,7 +4,7 @@
 //
 //==================================================================================================
 
-#include "core/stdafx.h"
+#include "tier0_pch.h"
 #include "tier1/strtools.h"
 #include "tier1/utlvector.h"
 

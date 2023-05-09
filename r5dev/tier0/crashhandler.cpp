@@ -3,11 +3,10 @@
 // Purpose: Crash handler (overrides the game's implementation!)
 //
 //=============================================================================//
-#include "core/stdafx.h"
-#include "core/logdef.h"
+#include "tier0_pch.h"
+#include "tier0/binstream.h"
 #include "tier0/cpu.h"
 #include "tier0/crashhandler.h"
-#include "tier1/binstream.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -546,6 +545,17 @@ void CCrashHandler::CreateMessageProcess()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: calls the crash callback
+//-----------------------------------------------------------------------------
+void CCrashHandler::CrashCallback()
+{
+	if (m_pCrashCallback)
+	{
+		((void(*)(void))m_pCrashCallback)();
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : 
 // Output : 
@@ -582,8 +592,7 @@ long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 	// Kill on recursive call.
 	if (g_CrashHandler->GetState())
 	{
-		// Shutdown SpdLog to flush all buffers.
-		SpdLog_Shutdown();
+		g_CrashHandler->CrashCallback();
 		ExitProcess(1u);
 	}
 
@@ -630,6 +639,8 @@ void CCrashHandler::Shutdown()
 //-----------------------------------------------------------------------------
 CCrashHandler::CCrashHandler()
 	: m_ppStackTrace()
+	, m_pCrashCallback(nullptr)
+	, m_hExceptionHandler(nullptr)
 	, m_pExceptionPointers(nullptr)
 	, m_nCapturedFrames(0)
 	, m_nCrashMsgFlags(0)

@@ -9,9 +9,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
-#include "client/cdll_engine_int.h"
 #include "engine/host.h"
-#include "engine/client/clientstate.h"
+#include "clientstate.h"
+#include "cdll_engine_int.h"
 
 
 //------------------------------------------------------------------------------

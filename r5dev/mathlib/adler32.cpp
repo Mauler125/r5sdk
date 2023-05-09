@@ -1,5 +1,4 @@
-#include "core/stdafx.h"
-#include "mathlib/adler32.h"
+#include "adler32.h"
 
 // Mark Adler's compact Adler32 hashing algorithm
 // Originally from the public domain stb.h header.

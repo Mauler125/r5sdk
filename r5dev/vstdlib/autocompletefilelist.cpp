@@ -5,7 +5,7 @@
 // $NoKeywords: $
 //===========================================================================//
 #include "core/stdafx.h"
-#include "completion.h"
+#include "common/completion.h"
 #include "autocompletefilelist.h"
 
 //-----------------------------------------------------------------------------

@@ -10,7 +10,6 @@
 #include "tier0/jobthread.h"
 #include "tier0/commandline.h"
 #include "tier0/fasttimer.h"
-#include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
@@ -24,6 +23,7 @@
 #include "engine/client/cl_main.h"
 #include "engine/client/clientstate.h"
 #endif // DEDICATED
+#include "engine/cmd.h"
 #include "engine/net.h"
 #include "engine/gl_screen.h"
 #include "engine/host.h"
@@ -210,7 +210,7 @@ void CHostState::Setup(void)
 #ifndef CLIENT_DLL
 	g_pBanSystem->Load();
 #endif // !CLIENT_DLL
-	ConVar::PurgeHostNames();
+	ConVar_PurgeHostNames();
 
 #ifndef CLIENT_DLL
 	RCONServer()->Init();

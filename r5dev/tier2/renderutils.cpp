@@ -6,14 +6,14 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "core/stdafx.h"
+#include "tier0_pch.h"
 #include "mathlib/color.h"
 #include "mathlib/vector.h"
 #include "mathlib/vector2d.h"
 #include "mathlib/vector4d.h"
 #include "mathlib/mathlib.h"
 #include "tier2/renderutils.h"
-#include "engine/debugoverlay.h"
+#include "engine/debugoverlay.h" // TODO[ AMOS ]: must be a public interface!
 
 //-----------------------------------------------------------------------------
 // Purpose: render angled box:

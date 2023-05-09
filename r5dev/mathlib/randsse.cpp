@@ -4,15 +4,13 @@
 //
 //=====================================================================================//
 
-#include "core/stdafx.h"
-#include "tier0/dbg.h"
 #include "tier0/threadtools.h"
 #include "mathlib/mathlib.h"
 #include "mathlib/vector.h"
 #include "mathlib/ssemath.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 // see knuth volume 3 for insight.
 

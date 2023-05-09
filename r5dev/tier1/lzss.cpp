@@ -5,7 +5,7 @@
 //
 //=====================================================================================//
 
-#include "core/stdafx.h"
+#include "tier0_pch.h"
 #include "tier0/platform.h"
 #include "tier0/dbg.h"
 #include "tier1/lzss.h"

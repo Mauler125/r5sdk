@@ -16,9 +16,9 @@
 // searching for each signature in the memory region of the target executable.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "core/stdafx.h"
+#include "tier0_pch.h"
 #include "tier0/sigcache.h"
-#include "tier1/binstream.h"
+#include "tier0/binstream.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: whether or not to disable the caching of signatures

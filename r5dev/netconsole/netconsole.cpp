@@ -5,9 +5,8 @@
 //=====================================================================================//
 
 #include "core/stdafx.h"
-#include "core/termutil.h"
 #include "core/logdef.h"
-#include "tier1/utility.h"
+#include "tier0/utility.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
 #include "windows/console.h"

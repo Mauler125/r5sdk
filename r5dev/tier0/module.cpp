@@ -3,10 +3,9 @@
 // Purpose: Implementation of the CModule class.
 //
 //===========================================================================//
-#include "core/stdafx.h"
+#include "tier0_pch.h"
 #include "tier0/memaddr.h"
 #include "tier0/sigcache.h"
-#include "tier1/utility.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor

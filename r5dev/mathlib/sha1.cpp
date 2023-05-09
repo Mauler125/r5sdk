@@ -15,7 +15,6 @@
         -- Volker Grabsch <vog@notjusthosting.com>
 */
  
-#include "core/stdafx.h"
 #include "mathlib/sha1.h"
  
 /* Help macros */

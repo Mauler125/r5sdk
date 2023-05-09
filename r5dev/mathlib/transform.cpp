@@ -6,7 +6,6 @@
 //
 //===========================================================================//
 
-#include "core/stdafx.h"
 #if !defined(_STATIC_LINKED) || defined(_SHARED_LIB)
 
 #include "mathlib/transform.h"

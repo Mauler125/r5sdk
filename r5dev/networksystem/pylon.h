@@ -20,12 +20,10 @@ public:
 	bool SendRequest(const char* endpoint, const nlohmann::json& requestJson, nlohmann::json& responseJson, string& outMessage, CURLINFO& status, const char* errorText = nullptr) const;
 	bool QueryServer(const char* endpoint, const char* request, string& outResponse, string& outMessage, CURLINFO& outStatus) const;
 
-#ifdef DEDICATED
 	bool KeepAlive(const NetGameServer_t& netGameServer);
 
 private:
 	string m_Token;
 	string m_ErrorMsg;
-#endif // DEDICATED
 };
 extern CPylon* g_pMasterServer;

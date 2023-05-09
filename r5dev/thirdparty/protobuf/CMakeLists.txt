@@ -1,0 +1,107 @@
+cmake_minimum_required( VERSION 3.16 )
+
+project( libprotobuf )
+add_library( ${PROJECT_NAME} )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Source"
+    "any_lite.cc"
+    "arena.cc"
+    "arenastring.cc"
+    "extension_set.cc"
+    "generated_enum_util.cc"
+    "generated_message_tctable_lite.cc"
+    "generated_message_util.cc"
+    "implicit_weak_message.cc"
+    "inlined_string_field.cc"
+    "map.cc"
+    "message_lite.cc"
+    "parse_context.cc"
+    "repeated_field.cc"
+    "repeated_ptr_field.cc"
+    "wire_format_lite.cc"
+)
+
+add_sources( SOURCE_GROUP "Include"
+    "any.h"
+    "arena.h"
+    "arena_impl.h"
+    "arenastring.h"
+    "explicitly_constructed.h"
+    "extension_set.h"
+    "extension_set_inl.h"
+    "generated_enum_util.h"
+    "generated_message_tctable_decl.h"
+    "generated_message_tctable_impl.h"
+    "generated_message_util.h"
+    "has_bits.h"
+    "implicit_weak_message.h"
+    "inlined_string_field.h"
+    "map.h"
+    "map_entry_lite.h"
+    "map_field_lite.h"
+    "message_lite.h"
+    "parse_context.h"
+    "port.h"
+    "repeated_field.h"
+    "repeated_ptr_field.h"
+    "wire_format_lite.h"
+)
+
+add_sources( SOURCE_GROUP "IO"
+    "io/coded_stream.cc"
+    "io/io_win32.cc"
+    "io/strtod.cc"
+    "io/zero_copy_stream.cc"
+    "io/zero_copy_stream_impl.cc"
+    "io/zero_copy_stream_impl_lite.cc"
+)
+
+add_sources( SOURCE_GROUP "IO/Include"
+    "io/coded_stream.h"
+    "io/io_win32.h"
+    "io/strtod.h"
+    "io/zero_copy_stream.h"
+    "io/zero_copy_stream_impl.h"
+    "io/zero_copy_stream_impl_lite.h"
+)
+
+add_sources( SOURCE_GROUP "Stubs"
+    "stubs/bytestream.cc"
+    "stubs/common.cc"
+    "stubs/int128.cc"
+    "stubs/status.cc"
+    "stubs/statusor.cc"
+    "stubs/stringpiece.cc"
+    "stubs/stringprintf.cc"
+    "stubs/structurally_valid.cc"
+    "stubs/strutil.cc"
+    "stubs/time.cc"
+)
+
+add_sources( SOURCE_GROUP "Stubs/Include"
+    "stubs/bytestream.h"
+    "stubs/callback.h"
+    "stubs/casts.h"
+    "stubs/common.h"
+    "stubs/hash.h"
+    "stubs/int128.h"
+    "stubs/logging.h"
+    "stubs/macros.h"
+    "stubs/map_util.h"
+    "stubs/mutex.h"
+    "stubs/once.h"
+    "stubs/platform_macros.h"
+    "stubs/port.h"
+    "stubs/status.h"
+    "stubs/statusor.h"
+    "stubs/stl_util.h"
+    "stubs/stringpiece.h"
+    "stubs/stringprintf.h"
+    "stubs/strutil.h"
+    "stubs/template_util.h"
+    "stubs/time.h"
+)
+
+end_sources()

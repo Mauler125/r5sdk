@@ -4,10 +4,9 @@
 //
 //===============================================================================//
 #include "core/stdafx.h"
-#include "tier1/cvar.h"
 #include "vscript/vscript.h"
-#include "vsquirrel.h"
 #include "pluginsystem/modsystem.h"
+#include "vsquirrel.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: Initialises a Squirrel VM instance

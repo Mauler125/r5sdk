@@ -1,4 +1,4 @@
-#include "core/stdafx.h"
+#include "tier0_pch.h"
 #include "tier0/platform_internal.h"
 
 //-----------------------------------------------------------------------------
