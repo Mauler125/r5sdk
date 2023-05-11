@@ -68,10 +68,6 @@ endmacro()
 # Setup build output directories for target
 # -----------------------------------------------------------------------------
 macro( set_target_output_dirs TARGET )
-    # Set abs PDB path
-    get_filename_component( OUTPUT_DIR_ABSOLUTE "${CMAKE_SOURCE_DIR}/game/" ABSOLUTE )
-    set( PDB_FULL_PATH "${OUTPUT_DIR_ABSOLUTE}/${PROJECT_NAME}.pdb" )
-
     # Set output directories
     set_target_properties( ${TARGET} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/game/"
@@ -91,4 +87,9 @@ macro( set_target_output_dirs TARGET )
             "LINK_FLAGS_${CONFIG_TYPE}" "/PDB:${PDB_FULL_PATH}"
         )
     endforeach()
+
+    # Set PDB properties for release builds ( should be created )
+    set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi" )
+    set( CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF" )
+    set( PDB_OUTPUT_DIRECTORY "RUNTIME_OUTPUT_DIRECTORY_${CONFIG_TYPE}" )
 endmacro()
