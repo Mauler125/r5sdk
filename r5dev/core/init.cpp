@@ -78,6 +78,7 @@
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/modelloader.h"
+#include "engine/cmd.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #include "engine/networkstringtable.h"
@@ -494,6 +495,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VHostCmd);
 	REGISTER(VHostState);
 	REGISTER(VModelLoader);
+	REGISTER(VCmd);
 	REGISTER(VNet);
 	REGISTER(VNetChan);
 	REGISTER(VNetworkStringTableContainer);
