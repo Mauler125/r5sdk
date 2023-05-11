@@ -18,7 +18,7 @@
 #include "tier0/platform.h"
 
 #include "tier0/memalloc.h"
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 #include "mathlib/mathlib.h"
 

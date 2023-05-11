@@ -11,7 +11,7 @@
 #include <ctype.h>
 
 // NOTE: This has to be the last file included!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 static const int64 k_nMillion = 1000000;
 

@@ -10,7 +10,7 @@
 #include "mathlib/noisedata.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 
 #define MAGIC_NUMBER (1<<15)								// gives 8 bits of fraction
