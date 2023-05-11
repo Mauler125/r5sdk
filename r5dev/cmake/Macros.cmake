@@ -39,6 +39,26 @@ macro( end_sources )
 endmacro()
 
 # -----------------------------------------------------------------------------
+# Add modules to the project
+# -----------------------------------------------------------------------------
+macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME )
+    project( ${MODULE_NAME} )
+
+    if( ${MODULE_TYPE} STREQUAL "lib" )
+        add_library( ${PROJECT_NAME} )
+    elseif( ${MODULE_TYPE} STREQUAL "shared_lib" )
+        add_library( ${PROJECT_NAME} SHARED )
+    elseif(${MODULE_TYPE} STREQUAL "exe")
+        add_executable( ${PROJECT_NAME} )
+    else()
+        message( FATAL_ERROR "Invalid module type: ${MODULE_TYPE}; expected 'lib', 'shared_lib', or 'exe'." )
+    endif()
+
+    target_precompile_headers( ${PROJECT_NAME} REUSE_FROM ${REUSE_PCH} )
+    set_target_properties( ${MODULE_NAME} PROPERTIES FOLDER ${FOLDER_NAME} )
+endmacro( add_module )
+
+# -----------------------------------------------------------------------------
 # Initialize global compiler defines
 # -----------------------------------------------------------------------------
 macro( define_compiler_variables )
