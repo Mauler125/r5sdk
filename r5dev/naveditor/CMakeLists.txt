@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( naveditor )
-add_executable( ${PROJECT_NAME} )
+add_module( "exe" "naveditor" "" ${FOLDER_CONTEXT} )
 
 start_sources()
 

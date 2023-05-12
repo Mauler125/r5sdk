@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( codecs )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "codecs" "tier0" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -20,4 +18,3 @@ add_sources( SOURCE_GROUP "Miles"
 end_sources()
 
 target_include_directories( ${PROJECT_NAME} PRIVATE "${ENGINE_SOURCE_DIR}/tier0/" "${ENGINE_SOURCE_DIR}/tier1/" )
-target_precompile_headers( ${PROJECT_NAME} REUSE_FROM tier0 )

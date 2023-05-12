@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( sdklauncher )
-add_executable( ${PROJECT_NAME} )
+add_module( "exe" "sdklauncher" "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -23,10 +21,9 @@ add_sources( SOURCE_GROUP "Resource"
 
 end_sources()
 
-target_compile_definitions( ${PROJECT_NAME} PRIVATE SDKLAUNCHER )
-target_precompile_headers( ${PROJECT_NAME} REUSE_FROM vpc )
-
 set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "launcher" )
+
+target_compile_definitions( ${PROJECT_NAME} PRIVATE SDKLAUNCHER )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"
     "libdetours"

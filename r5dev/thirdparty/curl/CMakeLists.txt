@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( libcurl )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "libcurl" "" ${FOLDER_CONTEXT} )
 
 start_sources()
 

@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( netconsole )
-add_executable( ${PROJECT_NAME} )
+add_module( "exe" "netconsole" "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -12,7 +10,6 @@ add_sources( SOURCE_GROUP "Core"
 )
 
 end_sources()
-target_precompile_headers( ${PROJECT_NAME} REUSE_FROM vpc )
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "netcon32" )
 target_link_libraries( ${PROJECT_NAME} PRIVATE

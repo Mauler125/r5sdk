@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( tier1 )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "tier1" "tier0" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -14,7 +12,6 @@ add_sources( SOURCE_GROUP "Utility"
     "bitbuf.cpp"
     "generichash.cpp"
     "lzss.cpp"
-    "memstack.cpp"
     "splitstring.cpp"
     "stringpool.cpp"
     "strtools.cpp"
@@ -57,5 +54,5 @@ add_sources( SOURCE_GROUP "Public"
 
 end_sources()
 
+target_compile_definitions( ${PROJECT_NAME} PRIVATE "MEM_DEBUG_CLASSNAME" )
 target_include_directories( ${PROJECT_NAME} PRIVATE "${ENGINE_SOURCE_DIR}/tier0/" )
-target_precompile_headers( ${PROJECT_NAME} REUSE_FROM tier0 )

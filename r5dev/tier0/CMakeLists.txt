@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( tier0 )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "tier0" "" ${FOLDER_CONTEXT} )
 
 start_sources()
 

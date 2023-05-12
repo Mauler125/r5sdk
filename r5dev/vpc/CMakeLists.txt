@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( vpc )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "vpc" "" ${FOLDER_CONTEXT} )
 
 start_sources()
 

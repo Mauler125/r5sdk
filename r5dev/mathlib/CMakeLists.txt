@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( mathlib )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "mathlib" "" ${FOLDER_CONTEXT} )
 
 start_sources()
 

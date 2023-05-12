@@ -1,7 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-
-project( gamesdk )
-add_library( ${PROJECT_NAME} SHARED )
+add_module( "shared_lib" "gamesdk" "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -60,7 +58,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
     "localize"
 
-    "gamedll"
+    "game"
 
     "engine"
 
@@ -81,4 +79,3 @@ end_sources()
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "GAMESDK"
 )
-target_precompile_headers( ${PROJECT_NAME} REUSE_FROM vpc )

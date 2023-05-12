@@ -54,9 +54,12 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME )
         message( FATAL_ERROR "Invalid module type: ${MODULE_TYPE}; expected 'lib', 'shared_lib', or 'exe'." )
     endif()
 
-    target_precompile_headers( ${PROJECT_NAME} REUSE_FROM ${REUSE_PCH} )
+    if ( NOT "${REUSE_PCH}" STREQUAL "" )
+        target_precompile_headers( ${PROJECT_NAME} REUSE_FROM ${REUSE_PCH} )
+    endif()
+
     set_target_properties( ${MODULE_NAME} PROPERTIES FOLDER ${FOLDER_NAME} )
-endmacro( add_module )
+endmacro()
 
 # -----------------------------------------------------------------------------
 # Initialize global compiler defines

@@ -3,8 +3,7 @@ cmake_minimum_required( VERSION 3.16 )
 # -----------------------------------------------------------------------------
 # Recast & Detour debug utilities
 # -----------------------------------------------------------------------------
-project( navdebugutils )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "navdebugutils" "" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -28,8 +27,7 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE Pch.h )
 # -----------------------------------------------------------------------------
 # Detour runtime
 # -----------------------------------------------------------------------------
-project( libdetour )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "libdetour" "navdebugutils" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -56,13 +54,11 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
-target_precompile_headers( ${PROJECT_NAME} PRIVATE Pch.h )
 
 # -----------------------------------------------------------------------------
 # Detour crowd
 # -----------------------------------------------------------------------------
-project( libdetourcrowd )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "libdetourcrowd" "navdebugutils" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -87,13 +83,11 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
-target_precompile_headers( ${PROJECT_NAME} PRIVATE Pch.h )
 
 # -----------------------------------------------------------------------------
 # Detour tile cache
 # -----------------------------------------------------------------------------
-project( libdetourtilecache )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "libdetourtilecache" "navdebugutils" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -108,13 +102,11 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
-target_precompile_headers( ${PROJECT_NAME} PRIVATE Pch.h )
 
 # -----------------------------------------------------------------------------
 # Recast runtime
 # -----------------------------------------------------------------------------
-project( librecast )
-add_library( ${PROJECT_NAME} )
+add_module( "lib" "librecast" "navdebugutils" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -139,4 +131,3 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
-target_precompile_headers( ${PROJECT_NAME} PRIVATE Pch.h )
