@@ -4,6 +4,7 @@ add_module( "shared_lib" "gamesdk" "vpc" ${FOLDER_CONTEXT} )
 start_sources()
 
 add_sources( SOURCE_GROUP "Core"
+    "${ENGINE_SOURCE_DIR}/resource/r5dev.rc"
     "assert.h"
     "dllmain.cpp"
     "init.cpp"
