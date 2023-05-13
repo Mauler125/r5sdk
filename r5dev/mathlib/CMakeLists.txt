@@ -57,7 +57,11 @@ add_sources( SOURCE_GROUP "Math"
 )
 
 end_sources()
+whole_program_optimization()
 
-# Setup precompiled header
-target_precompile_headers( ${PROJECT_NAME} PRIVATE mathlib_pch.h )
-target_compile_definitions( ${PROJECT_NAME} PRIVATE -DBUILDING_MATHLIB )
+target_precompile_headers( ${PROJECT_NAME} PRIVATE
+    "mathlib_pch.h"
+)
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "BUILDING_MATHLIB"
+)

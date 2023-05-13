@@ -9,3 +9,4 @@ add_sources( SOURCE_GROUP "Core"
 )
 
 end_sources()
+whole_program_optimization()

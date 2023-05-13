@@ -22,7 +22,11 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
-target_precompile_headers( ${PROJECT_NAME} PRIVATE Pch.h )
+whole_program_optimization()
+
+target_precompile_headers( ${PROJECT_NAME} PRIVATE
+    "Pch.h"
+)
 
 # -----------------------------------------------------------------------------
 # Detour runtime
@@ -54,6 +58,7 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
+whole_program_optimization()
 
 # -----------------------------------------------------------------------------
 # Detour crowd
@@ -83,6 +88,7 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
+whole_program_optimization()
 
 # -----------------------------------------------------------------------------
 # Detour tile cache
@@ -102,6 +108,7 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
+whole_program_optimization()
 
 # -----------------------------------------------------------------------------
 # Recast runtime
@@ -131,3 +138,4 @@ add_sources( SOURCE_GROUP "Include"
 )
 
 end_sources()
+whole_program_optimization()

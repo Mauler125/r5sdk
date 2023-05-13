@@ -132,6 +132,8 @@ add_sources( SOURCE_GROUP "Sinks"
 )
 
 end_sources()
+whole_program_optimization()
+
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "SPDLOG_COMPILED_LIB"
     "SPDLOG_NO_EXCEPTIONS"

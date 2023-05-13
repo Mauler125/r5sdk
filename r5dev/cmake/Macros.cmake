@@ -75,3 +75,15 @@ macro( define_compiler_variables )
         message( FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}" )
     endif()
 endmacro()
+
+# -----------------------------------------------------------------------------
+# Apply whole program optimization for this target in release ( !slow! )
+# -----------------------------------------------------------------------------
+macro( whole_program_optimization )
+    target_compile_options( ${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Release>:/GL>
+    )
+    target_link_options( ${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Release>:/LTCG>
+    )
+endmacro()
