@@ -75,7 +75,7 @@ void RemoveSpuriousGameParameters()
 // as all there are required to run the game with the game sdk.
 void AppendSDKParametersPreInit()
 {
-	if (s_bIsDedicated)
+	if (*s_bIsDedicated)
 	{
 		CommandLine()->AppendParm("-collate", "");
 		CommandLine()->AppendParm("-multiple", "");
