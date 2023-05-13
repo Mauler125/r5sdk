@@ -10,6 +10,7 @@
 #include "tier0/commandline.h"
 #include "tier1/strtools.h"
 #include "launcher/launcher.h"
+#include <eiface.h>
 
 int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -74,20 +75,22 @@ void RemoveSpuriousGameParameters()
 // as all there are required to run the game with the game sdk.
 void AppendSDKParametersPreInit()
 {
-#ifdef DEDICATED
-	CommandLine()->AppendParm("-collate", "");
-	CommandLine()->AppendParm("-multiple", "");
-	CommandLine()->AppendParm("-noorigin", "");
-	CommandLine()->AppendParm("-nodiscord", "");
-	CommandLine()->AppendParm("-noshaderapi", "");
-	CommandLine()->AppendParm("-nobakedparticles", "");
-	CommandLine()->AppendParm("-novid", "");
-	CommandLine()->AppendParm("-nomenuvid", "");
-	CommandLine()->AppendParm("-nosound", "");
-	CommandLine()->AppendParm("-nomouse", "");
-	CommandLine()->AppendParm("-nojoy", "");
-	CommandLine()->AppendParm("-nosendtable", "");
-#endif
+	if (s_bIsDedicated)
+	{
+		CommandLine()->AppendParm("-collate", "");
+		CommandLine()->AppendParm("-multiple", "");
+		CommandLine()->AppendParm("-noorigin", "");
+		CommandLine()->AppendParm("-nodiscord", "");
+		CommandLine()->AppendParm("-noshaderapi", "");
+		CommandLine()->AppendParm("-nobakedparticles", "");
+		CommandLine()->AppendParm("-novid", "");
+		CommandLine()->AppendParm("-nomenuvid", "");
+		CommandLine()->AppendParm("-nosound", "");
+		CommandLine()->AppendParm("-nomouse", "");
+		CommandLine()->AppendParm("-nojoy", "");
+		CommandLine()->AppendParm("-nosendtable", "");
+	}
+
 	// Assume default configs if the game isn't launched with the SDKLauncher.
 	if (!CommandLine()->FindParm("-launcher"))
 	{
