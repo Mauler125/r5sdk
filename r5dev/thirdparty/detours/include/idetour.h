@@ -42,5 +42,4 @@ inline std::size_t AddDetour(IDetour* pDetour)
 	return g_DetourVector.size();
 }
 
-REGISTER(VDetour);
 #endif // IDETOUR_H
