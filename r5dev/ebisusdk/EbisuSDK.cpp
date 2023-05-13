@@ -1,17 +1,19 @@
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
 #include "ebisusdk/EbisuSDK.h"
+#include "engine/server/sv_main.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the EbisuSDK globals for dedicated to satisfy command callbacks
 //-----------------------------------------------------------------------------
 void HEbisuSDK_Init()
 {
-#ifdef DEDICATED
-	*g_EbisuSDKInit     = true; // <- 1st EbisuSDK
-	*g_EbisuProfileInit = true; // <- 2nd EbisuSDK
-	*g_NucleusID        = 9990000; // <- 3rd EbisuSDK
-#endif // DEDICATED
+	if (*s_bIsDedicated)
+	{
+		*g_EbisuSDKInit = true; // <- 1st EbisuSDK
+		*g_EbisuProfileInit = true; // <- 2nd EbisuSDK
+		*g_NucleusID = 9990000; // <- 3rd EbisuSDK
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -20,23 +22,23 @@ void HEbisuSDK_Init()
 //-----------------------------------------------------------------------------
 bool IsOriginInitialized()
 {
-#ifndef DEDICATED
-	if ((!(*g_OriginErrorLevel)
+	if (*s_bIsDedicated)
+	{
+		return true;
+	}
+	else if ((!(*g_OriginErrorLevel)
 		&& (*g_EbisuSDKInit)
 		&& (*g_NucleusID)
 		&& (*g_EbisuProfileInit)))
 	//	&& (*g_OriginAuthCode)
 	//		&& (g_NucleusToken[0])))
-#endif // DEDICATED
 	{
 		return true;
 	}
-#ifndef DEDICATED
+
 	return false;
-#endif // DEDICATED
 }
 
-#ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: validates if client's persona name meets EA's criteria
 // Input  : *pszName -
@@ -61,4 +63,3 @@ bool IsValidPersonaName(const char* pszName)
 	size_t pos = strspn(pszName, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
 	return pszName[pos] == '\0';
 }
-#endif // !CLIENT_DLL

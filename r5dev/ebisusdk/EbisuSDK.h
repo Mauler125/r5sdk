@@ -1,6 +1,5 @@
 #pragma once
 
-//#ifdef DEDICATED
 inline CMemory p_EbisuSDK_Tier0_Init;
 inline auto EbisuSDK_Tier0_Init = p_EbisuSDK_Tier0_Init.RCast<void(*)(void)>();
 
@@ -16,14 +15,11 @@ inline char* g_OriginAuthCode = nullptr; /*SIZE = 256*/
 inline int* g_OriginErrorLevel = nullptr;
 inline bool* g_EbisuSDKInit = nullptr;
 inline bool* g_EbisuProfileInit = nullptr;
-//#endif // DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
 void HEbisuSDK_Init();
 bool IsOriginInitialized();
-#ifndef CLIENT_DLL
 bool IsValidPersonaName(const char* pszName);
-#endif // !CLIENT_DLL
 
 ///////////////////////////////////////////////////////////////////////////////
 class VEbisuSDK : public IDetour
