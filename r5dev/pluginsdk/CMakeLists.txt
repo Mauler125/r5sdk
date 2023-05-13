@@ -17,6 +17,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "libdetours"
     "libprotobuf"
     "liblzham"
+    "libspdlog"
     "protocol_pb"
     "Rpcrt4.lib"
 )
