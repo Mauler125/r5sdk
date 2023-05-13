@@ -1,5 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "engine" "vpc" ${FOLDER_CONTEXT} )
+
+macro( add_engine_project PROJECT_NAME )
+add_module( "lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -18,11 +20,14 @@ add_sources( SOURCE_GROUP "Collision"
     "traceinit.h"
 )
 
+if( ${PROJECT_NAME} STREQUAL "engine" )
 add_sources( SOURCE_GROUP "Debug"
     "debugoverlay.cpp"
     "debugoverlay.h"
 )
+endif()
 
+if( ${PROJECT_NAME} STREQUAL "engine" )
 add_sources( SOURCE_GROUP "Render"
     "gl_matsysiface.h"
     "gl_model_private.h"
@@ -35,6 +40,7 @@ add_sources( SOURCE_GROUP "Render"
     "matsys_interface.cpp"
     "matsys_interface.h"
 )
+endif()
 
 add_sources( SOURCE_GROUP "Network"
     "datablock.h"
@@ -75,15 +81,20 @@ add_sources( SOURCE_GROUP "System"
     "sys_dll2.h"
     "sys_engine.cpp"
     "sys_engine.h"
-    "sys_getmodes.cpp"
-    "sys_getmodes.h"
-    "sys_mainwind.cpp"
-    "sys_mainwind.h"
     "sys_utils.cpp"
     "sys_utils.h"
     "sdk_dll.cpp"
     "sdk_dll.h"
 )
+
+if( ${PROJECT_NAME} STREQUAL "engine" )
+add_sources( SOURCE_GROUP "System"
+    "sys_getmodes.cpp"
+    "sys_getmodes.h"
+    "sys_mainwind.cpp"
+    "sys_mainwind.h"
+)
+endif()
 
 add_sources( SOURCE_GROUP "Server"
     "server/persistence.cpp"
@@ -108,22 +119,29 @@ add_sources( SOURCE_GROUP "Client"
     "client/cl_ents_parse.cpp"
     "client/cl_ents_parse.h"
     "client/cl_main.h"
-    "client/cl_rcon.cpp"
-    "client/cl_rcon.h"
     "client/client.cpp"
     "client/client.h"
+)
+
+if( ${PROJECT_NAME} STREQUAL "engine" )
+add_sources( SOURCE_GROUP "Client" # Client only.
     "client/clientstate.cpp"
     "client/clientstate.h"
+    "client/cl_rcon.cpp"
+    "client/cl_rcon.h"
     "client/vengineclient_impl.cpp"
     "client/vengineclient_impl.h"
 )
+endif()
 
+if( ${PROJECT_NAME} STREQUAL "engine" )
 add_sources( SOURCE_GROUP "GameUI"
     "${ENGINE_SOURCE_DIR}/gameui/IBrowser.cpp"
     "${ENGINE_SOURCE_DIR}/gameui/IBrowser.h"
     "${ENGINE_SOURCE_DIR}/gameui/IConsole.cpp"
     "${ENGINE_SOURCE_DIR}/gameui/IConsole.h"
 )
+endif()
 
 add_sources( SOURCE_GROUP "Launcher"
     "${ENGINE_SOURCE_DIR}/launcher/launcher.cpp"
@@ -168,3 +186,13 @@ add_sources( SOURCE_GROUP "Common"
 )
 
 end_sources()
+
+if( ${PROJECT_NAME} STREQUAL "engine_ds" )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "DEDICATED"
+)
+endif()
+endmacro()
+
+add_engine_project( "engine" )
+add_engine_project( "engine_ds" )
