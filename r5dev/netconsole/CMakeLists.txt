@@ -26,10 +26,10 @@ add_sources( SOURCE_GROUP "Engine"
 
 add_sources( SOURCE_GROUP "Windows"
     "${ENGINE_SOURCE_DIR}/windows/console.cpp"
-    "${ENGINE_SOURCE_DIR}/Windows/console.h"
+    "${ENGINE_SOURCE_DIR}/windows/console.h"
 )
 
-end_sources()
+end_sources( "game/bin/" )
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME
     "netcon32"

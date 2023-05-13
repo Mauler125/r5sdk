@@ -10,7 +10,7 @@ add_sources( SOURCE_GROUP "Core"
     "pluginsdk.h"
 )
 
-end_sources()
+end_sources( "game/bin/x64_retail/plugins/" )
 
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"

@@ -85,7 +85,7 @@ add_sources( SOURCE_GROUP "Utils/Include"
     "include/ValueHistory.h"
 )
 
-end_sources()
+end_sources( "game/bin/" )
 whole_program_optimization()
 
 target_compile_definitions( ${PROJECT_NAME} PRIVATE

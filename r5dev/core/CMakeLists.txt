@@ -63,6 +63,8 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "libcurl"
     "libprotobuf"
     "libspdlog"
+    "libdetour"
+    "navdebugutils"
 
     "networksystem"
     "pluginsystem"
@@ -75,12 +77,6 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "vscript"
     "game"
 )
-if( NOT ${PROJECT_NAME} STREQUAL "client" )
-target_link_libraries( ${PROJECT_NAME} PRIVATE
-    "navdebugutils"
-    "libdetour"
-)
-endif()
 
 if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
@@ -103,17 +99,18 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 )
 endif()
 
-end_sources()
-
 if( ${PROJECT_NAME} STREQUAL "gamesdk" )
+end_sources()
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "GAMESDK"
 )
 elseif( ${PROJECT_NAME} STREQUAL "dedicated" )
+end_sources()
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "DEDICATED"
 )
 elseif( ${PROJECT_NAME} STREQUAL "client" )
+end_sources( "game/bin/x64_retail/" )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "CLIENT_DLL"
 )
