@@ -30,6 +30,7 @@
 #include <intrin.h>
 #include <emmintrin.h>
 #include <cmath>
+#include <cctype>
 #include <regex>
 #include <mutex>
 #include <thread>
