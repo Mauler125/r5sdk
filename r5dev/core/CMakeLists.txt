@@ -34,7 +34,10 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "vpc"
     "vgui"
 
-    "rtech"
+    "rtech_tools"
+    "rtech_game"
+    "rui"
+    "stryder"
 
     "mathlib"
 

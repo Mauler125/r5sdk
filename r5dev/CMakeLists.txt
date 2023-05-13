@@ -6,7 +6,6 @@ add_subdirectory( vpc ) # VPC and Tier0 must be the first as this creates the sh
 add_subdirectory( tier0 )
 add_subdirectory( tier1 )
 add_subdirectory( tier2 )
-add_subdirectory( rtech )
 add_subdirectory( protoc )
 add_subdirectory( appframework  )
 
@@ -21,6 +20,9 @@ add_subdirectory( codecs )
 set( FOLDER_CONTEXT "UI" )
 add_subdirectory( vguimatsurface )
 add_subdirectory( vgui )
+
+set( FOLDER_CONTEXT "Respawn" )
+add_subdirectory( rtech )
 
 set( FOLDER_CONTEXT "Thirdparty" )
 add_subdirectory( thirdparty/cppnet )
