@@ -83,3 +83,6 @@ end_sources()
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "GAMESDK"
 )
+target_link_options( ${PROJECT_NAME} PRIVATE
+    "/STACK:8000000" # Match game executable stack reserve size
+)
