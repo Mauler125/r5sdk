@@ -10,7 +10,6 @@ void DirectX_Shutdown();
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
-extern void CreateTextureResource(TextureHeader_t* textureHeader, int64_t imageData);
 extern bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
 
 extern void ResetInput();
@@ -20,9 +19,6 @@ extern bool PanelsVisible();
 // Typedefs
 typedef HRESULT(__stdcall* IDXGISwapChainPresent)(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
 typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags);
-
-inline CMemory p_CreateTextureResource;
-inline auto v_CreateTextureResource = p_CreateTextureResource.RCast<void(*)(TextureHeader_t*, int64_t)>();
 
 /////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -117,7 +113,7 @@ inline IDXGISwapChain** g_ppSwapChain = nullptr;
 class VDXGI : public IDetour
 {
 	virtual void GetAdr(void) const;
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const;
 	virtual void GetVar(void) const;
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;
