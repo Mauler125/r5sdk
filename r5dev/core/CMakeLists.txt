@@ -65,7 +65,6 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
     "networksystem"
     "pluginsystem"
-#    "materialsystem"
     "filesystem"
     "datacache"
     "EbisuSDK"
@@ -88,6 +87,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "codecs"
 
     "inputsystem"
+    "materialsystem"
 
     "vguimatsurface"
     "vgui"
