@@ -1,10 +1,20 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "shared_lib" "gamesdk" "vpc" ${FOLDER_CONTEXT} )
+macro( add_sdk_project PROJECT_NAME )
+add_module( "shared_lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
-add_sources( SOURCE_GROUP "Core"
+if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
+file( GLOB PNG_SOURCES
+    "${ENGINE_SOURCE_DIR}/resource/png/*.png"
+)
+add_sources( SOURCE_GROUP "Resource"
     "${ENGINE_SOURCE_DIR}/resource/r5dev.rc"
+    "${PNG_SOURCES}"
+)
+endif()
+
+add_sources( SOURCE_GROUP "Core"
     "assert.h"
     "dllmain.cpp"
     "init.cpp"
@@ -23,66 +33,97 @@ add_sources( SOURCE_GROUP "Core"
 )
 
 target_link_libraries( ${PROJECT_NAME} PRIVATE
-    "tier0"
-    "tier1"
-    "tier2"
-    "vpklib"
-    "vscript"
-    "vstdlib"
-    "vphysics"
-    "vguimatsurface"
-    "vpc"
-    "vgui"
-
-    "rtech_tools"
-    "rtech_game"
-    "rui"
-    "stryder"
-
-    "mathlib"
-
-    "libdetours"
-    "liblzham"
-    "libimgui"
-    "libcurl"
-    "libprotobuf"
-    "libspdlog"
-    "navdebugutils"
-    "libdetour"
-    "protocol_pb"
-
-    "networksystem"
-    "pluginsystem"
-    "materialsystem"
-    "inputsystem"
-    "filesystem"
-    "datacache"
-    "EbisuSDK"
-    "codecs"
-
-    "localize"
-
-    "game"
-
-    "engine"
-
-    "appframework"
-
     "advapi32.lib"
     "bcrypt.lib"
     "crypt32.lib"
     "dbghelp.lib"
-    "d3d11.lib"
     "wldap32.lib"
     "ws2_32.lib"
     "Rpcrt4.lib"
+
+    "vpc"
+    "tier0"
+    "tier1"
+    "tier2"
+    "appframework"
+
+    "vstdlib"
+    "vpklib"
+    "mathlib"
+    "protocol_pb"
+    "vphysics"
+
+    "rtech_tools"
+    "rtech_game"
+    "stryder"
+
+    "libdetours"
+    "liblzham"
+    "libcurl"
+    "libprotobuf"
+    "libspdlog"
+
+    "networksystem"
+    "pluginsystem"
+#    "materialsystem"
+    "filesystem"
+    "datacache"
+    "EbisuSDK"
+
+    "localize"
+
+    "vscript"
+    "game"
 )
+if( NOT ${PROJECT_NAME} STREQUAL "client" )
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "navdebugutils"
+    "libdetour"
+)
+endif()
+
+if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "libimgui"
+    "codecs"
+
+    "inputsystem"
+
+    "vguimatsurface"
+    "vgui"
+    "rui"
+
+    "engine"
+    "d3d11.lib"
+)
+else()
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "engine_ds"
+)
+endif()
 
 end_sources()
 
+if( ${PROJECT_NAME} STREQUAL "gamesdk" )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "GAMESDK"
 )
+elseif( ${PROJECT_NAME} STREQUAL "dedicated" )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "DEDICATED"
+)
+elseif( ${PROJECT_NAME} STREQUAL "client" )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "CLIENT_DLL"
+)
+endif()
+
 target_link_options( ${PROJECT_NAME} PRIVATE
     "/STACK:8000000" # Match game executable stack reserve size
 )
+
+endmacro()
+
+add_sdk_project( "gamesdk" )
+add_sdk_project( "dedicated" )
+add_sdk_project( "client" )
