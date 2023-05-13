@@ -247,7 +247,7 @@ void CTextOverlay::DrawStreamOverlay(void) const
 	static char szLogbuf[4096];
 	static const Color c = { 255, 255, 255, 255 };
 	
-	GetStreamOverlay(stream_overlay_mode->GetString(), szLogbuf, sizeof(szLogbuf));
+	v_GetStreamOverlay(stream_overlay_mode->GetString(), szLogbuf, sizeof(szLogbuf));
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), "%s", szLogbuf);
 }
 

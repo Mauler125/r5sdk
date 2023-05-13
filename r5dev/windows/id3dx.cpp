@@ -11,6 +11,7 @@
 #include "engine/sys_mainwind.h"
 #include "inputsystem/inputsystem.h"
 #include "public/bitmap/stb_image.h"
+#include "public/rendersystem/schema/texture.g.h"
 
 /**********************************************************************************
 -----------------------------------------------------------------------------------
@@ -150,6 +151,102 @@ HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, U
 //#################################################################################
 // INTERNALS
 //#################################################################################
+
+#pragma warning( push )
+// Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
+// Also disable 6378, complains that there is no control path where it would use 'nullptr', if that happens 'Error' will be called though.
+#pragma warning( disable : 6262 6387)
+constexpr uint32_t ALIGNMENT_SIZE = 15; // Creates 2D texture and shader resource from textureHeader and imageData.
+void CreateTextureResource(TextureHeader_t* textureHeader, int64_t imageData)
+{
+	if (textureHeader->m_nDepth && !textureHeader->m_nHeight) // Return never gets hit. Maybe its some debug check?
+		return;
+
+	__int64 initialData[4096]{};
+	textureHeader->m_nTextureMipLevels = textureHeader->m_nPermanentMipCount;
+
+	const int totalStreamedMips = textureHeader->m_nOptStreamedMipCount + textureHeader->m_nStreamedMipCount;
+	int mipLevel = textureHeader->m_nPermanentMipCount + totalStreamedMips;
+	if (mipLevel != totalStreamedMips)
+	{
+		do
+		{
+			--mipLevel;
+			if (textureHeader->m_nArraySize)
+			{
+				int mipWidth = 0;
+				if (textureHeader->m_nWidth >> mipLevel > 1)
+					mipWidth = (textureHeader->m_nWidth >> mipLevel) - 1;
+
+				int mipHeight = 0;
+				if (textureHeader->m_nHeight >> mipLevel > 1)
+					mipHeight = (textureHeader->m_nHeight >> mipLevel) - 1;
+
+				uint8_t x = s_pBytesPerPixel[textureHeader->m_nImageFormat].first;
+				uint8_t y = s_pBytesPerPixel[textureHeader->m_nImageFormat].second;
+
+				uint32_t bppWidth = (y + mipWidth) >> (y >> 1);
+				uint32_t bppHeight = (y + mipHeight) >> (y >> 1);
+				uint32_t sliceWidth = x * (y >> (y >> 1));
+
+				uint32_t rowPitch = sliceWidth * bppWidth;
+				uint32_t slicePitch = x * bppWidth * bppHeight;
+
+				uint32_t subResourceEntry = mipLevel;
+				for (int i = 0; i < textureHeader->m_nArraySize; i++)
+				{
+					uint32_t offsetCurrentResourceData = subResourceEntry << 4u;
+
+					*(int64_t*)((uint8_t*)initialData + offsetCurrentResourceData) = imageData;
+					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData) = rowPitch;
+					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData + 4) = slicePitch;
+
+					imageData += (slicePitch + ALIGNMENT_SIZE) & ~ALIGNMENT_SIZE;
+					subResourceEntry += textureHeader->m_nPermanentMipCount;
+				}
+			}
+		} while (mipLevel != totalStreamedMips);
+	}
+
+	const DXGI_FORMAT dxgiFormat = g_TxtrAssetToDxgiFormat[textureHeader->m_nImageFormat]; // Get dxgi format
+
+	D3D11_TEXTURE2D_DESC textureDesc{};
+	textureDesc.Width = textureHeader->m_nWidth >> mipLevel;
+	textureDesc.Height = textureHeader->m_nHeight >> mipLevel;
+	textureDesc.MipLevels = textureHeader->m_nPermanentMipCount;
+	textureDesc.ArraySize = textureHeader->m_nArraySize;
+	textureDesc.Format = dxgiFormat;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = textureHeader->m_nCPUAccessFlag != 2 ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.MiscFlags = 0;
+
+	const uint32_t offsetStartResourceData = mipLevel << 4u;
+	const D3D11_SUBRESOURCE_DATA* subResData = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)initialData + offsetStartResourceData);
+	const HRESULT createTextureRes = (*g_ppGameDevice)->CreateTexture2D(&textureDesc, subResData, &textureHeader->m_ppTexture);
+	if (createTextureRes < S_OK)
+		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create texture \"%s\": error code = %08x\n", textureHeader->m_pDebugName, createTextureRes);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResource{};
+	shaderResource.Format = dxgiFormat;
+	shaderResource.Texture2D.MipLevels = textureHeader->m_nTextureMipLevels;
+	if (textureHeader->m_nArraySize > 1) // Do we have a texture array?
+	{
+		shaderResource.Texture2DArray.FirstArraySlice = 0;
+		shaderResource.Texture2DArray.ArraySize = textureHeader->m_nArraySize;
+		shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2DARRAY;
+	}
+	else
+	{
+		shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
+	}
+
+	const HRESULT createShaderResourceRes = (*g_ppGameDevice)->CreateShaderResourceView(textureHeader->m_ppTexture, &shaderResource, &textureHeader->m_ppShaderResourceView);
+	if (createShaderResourceRes < S_OK)
+		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create shader resource view for texture \"%s\": error code = %08x\n", textureHeader->m_pDebugName, createShaderResourceRes);
+}
+#pragma warning( pop )
 
 bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height)
 {
@@ -295,9 +392,21 @@ void VDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
 	LogFunAdr("IDXGISwapChain::Present", reinterpret_cast<uintptr_t>(s_fnSwapChainPresent));
+	LogFunAdr("CreateTextureResource", p_CreateTextureResource.GetPtr());
 	LogVarAdr("g_pSwapChain", reinterpret_cast<uintptr_t>(g_ppSwapChain));
 	LogVarAdr("g_pGameDevice", reinterpret_cast<uintptr_t>(g_ppGameDevice));
 	LogVarAdr("g_pImmediateContext", reinterpret_cast<uintptr_t>(g_ppImmediateContext));
+}
+
+void VDXGI::GetFun(void) const
+{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	p_CreateTextureResource = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 55 41 55");
+	v_CreateTextureResource = p_CreateTextureResource.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*48 8B C4 48 89 48 08 53 55 41 55*/
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	p_CreateTextureResource = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60").FollowNearCallSelf();
+	v_CreateTextureResource = p_CreateTextureResource.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
+#endif
 }
 
 void VDXGI::GetVar(void) const
@@ -314,6 +423,20 @@ void VDXGI::GetVar(void) const
 	// Grab swap chain..
 	pBase = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 45 33 C0 33 D2");
 	g_ppSwapChain = pBase.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<IDXGISwapChain**>();
+}
+
+void VDXGI::Attach(void) const
+{
+#ifdef GAMEDLL_S3
+	DetourAttach(&v_CreateTextureResource, &CreateTextureResource);
+#endif // GAMEDLL_S3
+}
+
+void VDXGI::Detach(void) const
+{
+#ifdef GAMEDLL_S3
+	DetourDetach(&v_CreateTextureResource, &CreateTextureResource);
+#endif // GAMEDLL_S3
 }
 
 #endif // !DEDICATED
