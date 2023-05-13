@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "exe" "sdklauncher" "vpc" ${FOLDER_CONTEXT} )
+add_module( "exe" "sdklauncher" "" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -23,10 +23,16 @@ end_sources()
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "launcher" )
 
-target_compile_definitions( ${PROJECT_NAME} PRIVATE SDKLAUNCHER )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "SDKLAUNCHER"
+)
+target_precompile_headers( ${PROJECT_NAME} PRIVATE
+    "launcher_pch.h"
+)
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"
     "libdetours"
     "libcppkore"
+    "libspdlog"
     "Rpcrt4.lib"
 )

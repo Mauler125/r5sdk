@@ -3,9 +3,9 @@
 // Purpose: Launcher user interface implementation.
 //
 //=============================================================================//
-#include "core/stdafx.h"
-#include "sdklauncher.h"
+#include "launcher_pch.h"
 #include "basepanel.h"
+#include "sdklauncher.h"
 #include "utility/vdf_parser.h"
 
 //-----------------------------------------------------------------------------

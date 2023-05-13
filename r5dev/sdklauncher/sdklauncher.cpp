@@ -3,10 +3,9 @@
 // Purpose: SDK launcher implementation.
 //
 //=============================================================================//
-#include "core/stdafx.h"
+#include "launcher_pch.h"
 #include "tier0/binstream.h"
 #include "basepanel.h"
-#include "sdklauncher_const.h"
 #include "sdklauncher.h"
 
 ///////////////////////////////////////////////////////////////////////////////
