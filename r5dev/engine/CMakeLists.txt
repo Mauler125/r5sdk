@@ -107,10 +107,6 @@ add_sources( SOURCE_GROUP "Server"
     "server/sv_rcon.h"
     "server/vengineserver_impl.cpp"
     "server/vengineserver_impl.h"
-    "shared/base_rcon.cpp"
-    "shared/base_rcon.h"
-    "shared/shared_rcon.cpp"
-    "shared/shared_rcon.h"
 )
 
 add_sources( SOURCE_GROUP "Client"
@@ -121,6 +117,13 @@ add_sources( SOURCE_GROUP "Client"
     "client/cl_main.h"
     "client/client.cpp"
     "client/client.h"
+)
+
+add_sources( SOURCE_GROUP "Shared"
+    "shared/base_rcon.cpp"
+    "shared/base_rcon.h"
+    "shared/shared_rcon.cpp"
+    "shared/shared_rcon.h"
 )
 
 if( ${PROJECT_NAME} STREQUAL "engine" )
