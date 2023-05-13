@@ -12,7 +12,6 @@
 #include "game/shared/vscript_shared.h"
 #include "pluginsystem/modsystem.h"
 
-#ifndef CLIENT_DLL
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in SERVER context
 // Input  : *s - 
@@ -40,9 +39,7 @@ void Script_RegisterServerFunctions(CSquirrelVM* s)
 
 	s->RegisterFunction("IsDedicated", "Script_IsDedicated", "Returns whether this is a dedicated server", "bool", "", &VScriptCode::SERVER::IsDedicated);
 }
-#endif // !CLIENT_DLL
 
-#ifndef DEDICATED
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in CLIENT context
 // Input  : *s - 
@@ -94,7 +91,7 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 	s->RegisterFunction("GetHiddenServerName", "Script_GetHiddenServerName", "Gets hidden server name by token", "string", "string", &VScriptCode::UI::GetHiddenServerName);
 	s->RegisterFunction("GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VScriptCode::SHARED::GetAvailableMaps);
 	s->RegisterFunction("GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VScriptCode::SHARED::GetAvailablePlaylists);
-#ifndef CLIENT_DLL
+
 	s->RegisterFunction("KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VScriptCode::SHARED::KickPlayerByName);
 	s->RegisterFunction("KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VScriptCode::SHARED::KickPlayerById);
 
@@ -102,11 +99,10 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 	s->RegisterFunction("BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VScriptCode::SHARED::BanPlayerById);
 
 	s->RegisterFunction("UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VScriptCode::SHARED::UnbanPlayer);
-#endif // !CLIENT_DLL
+
 	s->RegisterFunction("ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VScriptCode::SHARED::ShutdownHostGame);
 	s->RegisterFunction("IsClientDLL", "Script_IsClientDLL", "Returns whether this build is client only", "bool", "", &VScriptCode::SHARED::IsClientDLL);
 }
-#endif // !DEDICATED
 
 //---------------------------------------------------------------------------------
 // Purpose: Returns the script VM pointer by context
@@ -116,16 +112,12 @@ CSquirrelVM* Script_GetScriptHandle(const SQCONTEXT context)
 {
 	switch (context)
 	{
-#ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
 		return g_pServerScript;
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
 		return g_pClientScript;
 	case SQCONTEXT::UI:
 		return g_pUIScript;
-#endif // !DEDICATED
 	default:
 		return nullptr;
 	}
@@ -194,21 +186,17 @@ SQBool Script_PrecompileScripts(CSquirrelVM* vm)
 
 	switch (context)
 	{
-#ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
 	{
 		result = v_Script_PrecompileServerScripts(vm);
 		break;
 	}
-#endif
-#ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
 	case SQCONTEXT::UI:
 	{
 		result = v_Script_PrecompileClientScripts(vm);
 		break;
 	}
-#endif
 	}
 
 	timer.End();
@@ -217,19 +205,15 @@ SQBool Script_PrecompileScripts(CSquirrelVM* vm)
 	return result;
 }
 
-#ifndef CLIENT_DLL
 SQBool Script_PrecompileServerScripts(CSquirrelVM* vm)
 {
 	return Script_PrecompileScripts(g_pServerScript);
 }
-#endif // !CLIENT_DLL
 
-#ifndef DEDICATED
 SQBool Script_PrecompileClientScripts(CSquirrelVM* vm)
 {
 	return Script_PrecompileScripts(vm);
 }
-#endif // !DEDICATED
 
 //---------------------------------------------------------------------------------
 // Purpose: Compiles and executes input code on target VM by context
@@ -283,22 +267,14 @@ void VScript::Attach() const
 {
 	DetourAttach((LPVOID*)&v_Script_LoadScriptList, &Script_LoadScriptList);
 	DetourAttach((LPVOID*)&v_Script_LoadScriptFile, &Script_LoadScriptFile);
-#ifndef CLIENT_DLL
 	DetourAttach((LPVOID*)&v_Script_PrecompileServerScripts, &Script_PrecompileServerScripts);
-#endif
-#ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_Script_PrecompileClientScripts, &Script_PrecompileClientScripts);
-#endif
 }
 //---------------------------------------------------------------------------------
 void VScript::Detach() const
 {
 	DetourDetach((LPVOID*)&v_Script_LoadScriptList, &Script_LoadScriptList);
 	DetourDetach((LPVOID*)&v_Script_LoadScriptFile, &Script_LoadScriptFile);
-#ifndef CLIENT_DLL
 	DetourDetach((LPVOID*)&v_Script_PrecompileServerScripts, &Script_PrecompileServerScripts);
-#endif
-#ifndef DEDICATED
 	DetourDetach((LPVOID*)&v_Script_PrecompileClientScripts, &Script_PrecompileClientScripts);
-#endif
 }

@@ -22,21 +22,17 @@ inline auto v_Script_LoadScriptFile = p_Script_LoadScriptFile.RCast<SQBool(*)(HS
 inline CMemory p_Script_ParseScriptList;
 inline auto v_Script_ParseScriptList = p_Script_ParseScriptList.RCast<SQBool(__fastcall*)(SQCONTEXT ctx, const char* scriptListPath, RSON::Node_t* rson, char** scriptArray, int* pScriptCount, char** precompiledScriptArray, int precompiledScriptCount)>();
 
-#ifndef CLIENT_DLL
 inline CMemory p_Script_PrecompileServerScripts;
 inline auto v_Script_PrecompileServerScripts = p_Script_PrecompileServerScripts.RCast<SQBool(__fastcall*)(CSquirrelVM* vm /*This parameter is not used internally (the client variant does use it)!*/)>();
 
 inline CMemory p_Script_SetServerCompiler;
 inline auto v_Script_SetServerPrecompiler = p_Script_SetServerCompiler.RCast<void(__fastcall*)(SQCONTEXT ctx, RSON::Node_t* rson)>();
-#endif
 
-#ifndef DEDICATED
 inline CMemory p_Script_PrecompileClientScripts;
 inline auto v_Script_PrecompileClientScripts = p_Script_PrecompileClientScripts.RCast<SQBool(__fastcall*)(CSquirrelVM* vm)>();
 
 inline CMemory p_Script_SetClientCompiler;
 inline auto v_Script_SetClientPrecompiler = p_Script_SetClientCompiler.RCast<void(__fastcall*)(SQCONTEXT ctx, RSON::Node_t* rson)>();
-#endif
 
 void Script_RegisterServerFunctions(CSquirrelVM* s);
 void Script_RegisterClientFunctions(CSquirrelVM* s);
@@ -57,14 +53,10 @@ class VScript : public IDetour
 		LogFunAdr("Script_LoadScriptList", p_Script_LoadScriptList.GetPtr());
 		LogFunAdr("Script_LoadScriptFile", p_Script_LoadScriptFile.GetPtr());
 		LogFunAdr("Script_ParseScriptList", p_Script_ParseScriptList.GetPtr());
-#ifndef CLIENT_DLL
 		LogFunAdr("Script_PrecompileServerInit", p_Script_PrecompileServerScripts.GetPtr());
 		LogFunAdr("Script_SetServerCompiler", p_Script_SetServerCompiler.GetPtr());
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
 		LogFunAdr("Script_PrecompileClientInit", p_Script_PrecompileClientScripts.GetPtr());
 		LogFunAdr("Script_SetClientCompiler", p_Script_SetClientCompiler.GetPtr());
-#endif // !DEDICATED
 	}
 	virtual void GetFun(void) const
 	{
@@ -77,20 +69,17 @@ class VScript : public IDetour
 #endif
 		v_Script_LoadScriptFile = p_Script_LoadScriptFile.RCast<SQBool(*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger)>();
 
-#ifndef CLIENT_DLL
 		p_Script_PrecompileServerScripts = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 33 DB 88 05 ?? ?? ?? ??").FollowNearCallSelf();
 		v_Script_PrecompileServerScripts = p_Script_PrecompileServerScripts.RCast<SQBool(__fastcall*)(CSquirrelVM*)>();
 
 		p_Script_SetServerCompiler = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8D 84 24 ?? ?? ?? ?? 44 89 64 24 ?? 4C 89 64 24 ?? 4C 8D 8C 24 ?? ?? ?? ?? 4C 8B C5").FollowNearCallSelf();
 		v_Script_SetServerPrecompiler = p_Script_SetServerCompiler.RCast<void(__fastcall*)(SQCONTEXT ctx, RSON::Node_t* rson)>();
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
+
 		p_Script_PrecompileClientScripts = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 88 05 ?? ?? ?? ?? 33 C0").FollowNearCallSelf();
 		v_Script_PrecompileClientScripts = p_Script_PrecompileClientScripts.RCast<SQBool(__fastcall*)(CSquirrelVM*)>();
 
 		p_Script_SetClientCompiler = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8D 84 24 ?? ?? ?? ?? 44 89 64 24 ?? 4C 89 64 24 ?? 4C 8D 8C 24 ?? ?? ?? ?? 4C 8B C6").FollowNearCallSelf();
 		v_Script_SetClientPrecompiler = p_Script_SetClientCompiler.RCast<void(__fastcall*)(SQCONTEXT ctx, RSON::Node_t* rson)>();
-#endif // !DEDICATED
 
 		p_Script_ParseScriptList = g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 55 41 56");
 		v_Script_ParseScriptList = p_Script_ParseScriptList.RCast<SQBool(__fastcall*)(SQCONTEXT, const SQChar*, RSON::Node_t*, char**, int*, char**, int)>();
