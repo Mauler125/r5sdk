@@ -44,7 +44,7 @@ void Tier0_Init()
 #endif // !DEDICATED
 
     // Setup logger callback sink.
-    g_CoreMsgVCallback = EngineLoggerSink;
+    g_CoreMsgVCallback = &EngineLoggerSink;
 
     // Setup crash callback.
     g_CrashHandler->SetCrashCallback(&Crash_Callback);
