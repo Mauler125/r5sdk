@@ -1,5 +1,4 @@
 cmake_minimum_required( VERSION 3.16 )
-project( sdk )
 
 set( FOLDER_CONTEXT "Foundation" )
 add_subdirectory( vpc ) # VPC and Tier0 must be the first as this creates the shared PCH!
