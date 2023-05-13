@@ -31,11 +31,14 @@ macro( add_sources )
 endmacro()
 
 # -----------------------------------------------------------------------------
-# End the source file list
+# End the source file list ( optional parameter sets the runtime output dir )
 # -----------------------------------------------------------------------------
 macro( end_sources )
-    get_property( SRCS_LIST GLOBAL PROPERTY SRCS_LIST )
-    set_target_output_dirs( ${PROJECT_NAME} )
+    if( NOT "${ARGN}" STREQUAL "" ) # Check if an output directory is passed
+        set_target_output_dirs( ${PROJECT_NAME} ${ARGN} )
+    else()
+        set_target_output_dirs( ${PROJECT_NAME} "game/" )
+    endif()
 endmacro()
 
 # -----------------------------------------------------------------------------

@@ -67,13 +67,13 @@ endmacro()
 # -----------------------------------------------------------------------------
 # Setup build output directories for target
 # -----------------------------------------------------------------------------
-macro( set_target_output_dirs TARGET )
+macro( set_target_output_dirs TARGET RUNTIME_DIR )
     # Set output directories
     set_target_properties( ${TARGET} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/game/"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/game/"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/game/"
-        RUNTIME_OUTPUT_DIRECTORY_PROFILE "${CMAKE_SOURCE_DIR}/game/"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${RUNTIME_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/${RUNTIME_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/${RUNTIME_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY_PROFILE "${CMAKE_SOURCE_DIR}/${RUNTIME_DIR}"
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${TARGET}"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${TARGET}"
     )
@@ -81,7 +81,7 @@ macro( set_target_output_dirs TARGET )
     # Set output directories for each configuration
     foreach( CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES} )
         set_target_properties( ${TARGET} PROPERTIES
-            "RUNTIME_OUTPUT_DIRECTORY_${CONFIG_TYPE}" "${CMAKE_SOURCE_DIR}/game/"
+            "RUNTIME_OUTPUT_DIRECTORY_${CONFIG_TYPE}" "${CMAKE_SOURCE_DIR}/${RUNTIME_DIR}"
             "ARCHIVE_OUTPUT_DIRECTORY_${CONFIG_TYPE}" "${CMAKE_SOURCE_DIR}/lib/${TARGET}/${CONFIG_TYPE}"
             "LIBRARY_OUTPUT_DIRECTORY_${CONFIG_TYPE}" "${CMAKE_SOURCE_DIR}/lib/${TARGET}/${CONFIG_TYPE}"
             "LINK_FLAGS_${CONFIG_TYPE}" "/PDB:${PDB_FULL_PATH}"
