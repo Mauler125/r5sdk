@@ -143,14 +143,6 @@ add_sources( SOURCE_GROUP "GameUI"
 )
 endif()
 
-add_sources( SOURCE_GROUP "Launcher"
-    "${ENGINE_SOURCE_DIR}/launcher/launcher.cpp"
-    "${ENGINE_SOURCE_DIR}/launcher/launcher.h"
-    "${ENGINE_SOURCE_DIR}/launcher/launcherdefs.h"
-    "${ENGINE_SOURCE_DIR}/launcher/prx.cpp"
-    "${ENGINE_SOURCE_DIR}/launcher/prx.h"
-)
-
 add_sources( SOURCE_GROUP "Windows"
     "${ENGINE_SOURCE_DIR}/windows/console.cpp"
     "${ENGINE_SOURCE_DIR}/windows/console.h"

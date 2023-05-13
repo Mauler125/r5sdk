@@ -45,6 +45,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"
     "tier1"
     "tier2"
+    "launcher"
     "appframework"
 
     "vstdlib"

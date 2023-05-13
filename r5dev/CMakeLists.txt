@@ -5,6 +5,7 @@ add_subdirectory( vpc ) # VPC and Tier0 must be the first as this creates the sh
 add_subdirectory( tier0 )
 add_subdirectory( tier1 )
 add_subdirectory( tier2 )
+add_subdirectory( launcher )
 add_subdirectory( protoc )
 add_subdirectory( appframework  )
 
