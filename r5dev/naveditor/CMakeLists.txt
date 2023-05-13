@@ -86,9 +86,14 @@ add_sources( SOURCE_GROUP "Utils/Include"
 )
 
 end_sources()
+whole_program_optimization()
 
-target_compile_definitions( ${PROJECT_NAME} PRIVATE WIN32 )
-target_precompile_headers( ${PROJECT_NAME} PRIVATE ${ENGINE_SOURCE_DIR}/thirdparty/recast/Pch.h )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "WIN32"
+)
+target_precompile_headers( ${PROJECT_NAME} PRIVATE
+    "${ENGINE_SOURCE_DIR}/thirdparty/recast/Pch.h"
+)
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "navdebugutils"
     "libsdl2"
