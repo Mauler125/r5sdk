@@ -20,3 +20,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "protocol_pb"
     "Rpcrt4.lib"
 )
+
+target_link_options( ${PROJECT_NAME} PRIVATE
+    "/STACK:8000000" # Match game executable stack reserve size
+)
