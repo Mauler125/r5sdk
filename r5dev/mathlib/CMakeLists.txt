@@ -64,4 +64,5 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "BUILDING_MATHLIB"
+    $<$<OR:$<CONFIG:Debug>,$<CONFIG:Profile>>:DEBUG_MATHLIB>
 )
