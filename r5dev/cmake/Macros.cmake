@@ -48,8 +48,14 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME )
         add_library( ${PROJECT_NAME} )
     elseif( ${MODULE_TYPE} STREQUAL "shared_lib" )
         add_library( ${PROJECT_NAME} SHARED )
+        target_link_options( ${PROJECT_NAME} PRIVATE
+        "$<$<CONFIG:Release>:/LTCG>"
+    )
     elseif(${MODULE_TYPE} STREQUAL "exe")
         add_executable( ${PROJECT_NAME} )
+        target_link_options( ${PROJECT_NAME} PRIVATE
+        "$<$<CONFIG:Release>:/LTCG>"
+    )
     else()
         message( FATAL_ERROR "Invalid module type: ${MODULE_TYPE}; expected 'lib', 'shared_lib', or 'exe'." )
     endif()
@@ -82,8 +88,5 @@ endmacro()
 macro( whole_program_optimization )
     target_compile_options( ${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Release>:/GL>
-    )
-    target_link_options( ${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:/LTCG>
     )
 endmacro()
