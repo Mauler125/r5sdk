@@ -163,12 +163,12 @@ static CpuIdResult_t cpuidex(unsigned long function, unsigned long subfunction)
 }
 
 /*******************************************************************************/
-static bool CheckSSETechnology(void)
+bool CheckSSETechnology(void)
 {
 	return (cpuid(1).edx & 0x2000000L) != 0;
 }
 
-static bool CheckSSE2Technology(void)
+bool CheckSSE2Technology(void)
 {
 	return (cpuid(1).edx & 0x04000000) != 0;
 }
@@ -221,7 +221,7 @@ bool CheckSSE4aTechnology(void)
 }
 
 
-static bool Check3DNowTechnology(void)
+bool Check3DNowTechnology(void)
 {
 	if (cpuid(0x80000000).eax > 0x80000000L)
 	{
@@ -230,17 +230,17 @@ static bool Check3DNowTechnology(void)
 	return false;
 }
 
-static bool CheckCMOVTechnology(void)
+bool CheckCMOVTechnology(void)
 {
 	return (cpuid(1).edx & (1 << 15)) != 0;
 }
 
-static bool CheckFCMOVTechnology(void)
+bool CheckFCMOVTechnology(void)
 {
 	return (cpuid(1).edx & (1 << 16)) != 0;
 }
 
-static bool CheckRDTSCTechnology(void)
+bool CheckRDTSCTechnology(void)
 {
 	return (cpuid(1).edx & 0x10) != 0;
 }
