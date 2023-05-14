@@ -20,4 +20,4 @@ add_sources( SOURCE_GROUP "Public"
 )
 
 end_sources()
-target_precompile_headers( ${PROJECT_NAME} PRIVATE ${ENGINE_SOURCE_DIR}/core/stdafx.h )
+target_precompile_headers( ${PROJECT_NAME} PRIVATE ${GLOBAL_PCH} )
