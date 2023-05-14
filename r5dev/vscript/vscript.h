@@ -63,7 +63,7 @@ class VScript : public IDetour
 		p_Script_LoadScriptList = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B 08 57 48 81 EC A0 ?? ?? ?? 33");
 		v_Script_LoadScriptList = p_Script_LoadScriptList.RCast<RSON::Node_t* (*)(const SQChar*)>();
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_Script_LoadScript = g_GameDll.FindPatternSIMD("48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 48 89 4C 24 08 55 41 54 41 55 41 56 41 57 48 8D 6C");
+		p_Script_LoadScriptFile = g_GameDll.FindPatternSIMD("48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 48 89 4C 24 08 55 41 54 41 55 41 56 41 57 48 8D 6C");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_Script_LoadScriptFile = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 55 41 56 48 8D 68");
 #endif
