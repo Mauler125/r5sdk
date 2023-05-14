@@ -218,7 +218,7 @@ bool CPylon::KeepAlive(const NetGameServer_t& netGameServer)
             m_Token = hostToken;
             DevMsg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
                 g_svReset, g_svGreyB,
-                hostToken, g_svReset);
+                hostToken.c_str(), g_svReset);
         }
     }
 
