@@ -4,10 +4,11 @@
  * _basetypes
  *-----------------------------------------------------------------------------*/
 
+// These are set from CMake now.
 //#define GAMEDLL_S0 /*[r]*/
 //#define GAMEDLL_S1 /*[r]*/
 //#define GAMEDLL_S2 /*[i]*/
-#define GAMEDLL_S3 /*[r]*/
+//#define GAMEDLL_S3 /*[r]*/
 //#define GAMEDLL_S4 /*[i]*/
 //#define GAMEDLL_S5 /*[i]*/
 //#define GAMEDLL_S7 /*[i]*/

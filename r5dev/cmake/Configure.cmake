@@ -5,8 +5,11 @@ macro( initial_setup )
     set( CMAKE_CXX_STANDARD 17 )
     set( CMAKE_CXX_STANDARD_REQUIRED True )
 
-    set( ENGINE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/r5dev )
-    set( GLOBAL_PCH ${ENGINE_SOURCE_DIR}/core/stdafx.h ) # Global precompiled header shared among all libraries
+    set(ENGINE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/r5dev" CACHE PATH "Engine source directory")
+
+    set( GLOBAL_PCH
+        "${ENGINE_SOURCE_DIR}/core/stdafx.h"
+    ) # Global precompiled header shared among all libraries
 
     set_property( GLOBAL PROPERTY USE_FOLDERS ON ) # Use filters
 endmacro()

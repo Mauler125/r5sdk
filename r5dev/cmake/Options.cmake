@@ -12,12 +12,21 @@ macro( apply_project_settings )
         $<$<CXX_COMPILER_ID:MSVC>:/DUNICODE>
     )
 
+    set( GAMEDLL_OPTION "GAMEDLL_S3" CACHE STRING "Game DLL version" )
+    set_property( CACHE GAMEDLL_OPTION PROPERTY STRINGS
+        "GAMEDLL_S0"
+        "GAMEDLL_S1"
+        "GAMEDLL_S2"
+        "GAMEDLL_S3"
+    )
+
     # Set common defines
     add_compile_definitions(
         "_CRT_SECURE_NO_WARNINGS"
         "SPDLOG_COMPILED_LIB"
         "SPDLOG_NO_EXCEPTIONS"
         "CURL_STATICLIB"
+        "${GAMEDLL_OPTION}"
     )
 
     # Set settings for Debug configuration
