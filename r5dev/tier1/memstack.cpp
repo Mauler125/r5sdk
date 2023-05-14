@@ -4,12 +4,11 @@
 //
 //=============================================================================//
 
-#include "core/stdafx.h"
 #include "tier0/dbg.h"
 #include "tier0/memstd.h"
-#include "memstack.h"
-#include "utlmap.h"
-//#include "tier0/memdbgon.h"
+#include "tier1/memstack.h"
+#include "tier1/utlmap.h"
+#include "tier0/memdbgon.h"
 
 #ifdef _WIN32
 #pragma warning(disable:4073)

@@ -2,6 +2,7 @@
 * This repository houses the source code for the development package targeting the game **Apex Legends**.
 
 ## Building
+R5sdk uses the CMake project generation and build tools. For more information, visit [CMake](https://cmake.org/).<br />
 In order to compile the SDK, you will need to install Visual Studio 2017, 2019 or 2022 with:
 * Desktop Development with C++ Package.
 * Windows SDK 10.0.10240.0 or higher.
@@ -9,13 +10,12 @@ In order to compile the SDK, you will need to install Visual Studio 2017, 2019 o
 * [Optional] C++ Clang/LLVM compiler.
 
 Steps:
-1. Download or clone the solution to anywhere on your disk.
-    1. In the folder `r5sdk.sln` resides, create a new folder called `game`.
+1. Download or clone the project to anywhere on your disk.
+    1. Run `CreateSolution.bat` in the root folder, this will generate the files in `build_intermediate`.
     2. Move all the game files in the `game` folder so that the path `game/r5apex(_ds).exe` is valid.
 2. Open `r5sdk.sln` in Visual Studio and compile the solution.
-    1. Depending on your version of Visual Studio and the selected compiler, you might need to re-target the solution.
-    2. All binaries and symbols are compiled in the `game` folder.
-    3. Run `launcher.exe`, toggle and set the desired options and hit the `Launch Game` button.
+    1. All binaries and symbols are compiled in the `game` folder.
+    2. Run `launcher.exe`, toggle and set the desired options and hit the `Launch Game` button.
 
 ## Debugging
 The tools and libraries offered by the SDK could be debugged right after they are compiled.
@@ -35,11 +35,11 @@ Steps:
 - The `-nosmap` parameter instructs the SDK to always compute the RVA's of each function signature on launch (!! slow !!).
 - The `-noworkerdll` parameter prevents the GameSDK DLL from initializing (workaround as the DLL is imported by the game executable).
 
-Launch parameters can be added to the `startup_*.cfg` files,
+Launch parameters can be added to the `startup_*.cfg` files,<br />
 which are located in `<gamedir>\platform\cfg\startup_*.cfg`.
 
 ## Note [IMPORTANT]
-This is not a cheat or hack; attempting to use the SDK on the live version of the game could result in a permanent account ban.
+This is not a cheat or hack; attempting to use the SDK on the live version of the game could result in a permanent account ban.<br />
 The supported game versions are:
 
  * S0 `R5pc_r5launch_J1557_CL387233_2019_01_28_07_43_PM`.

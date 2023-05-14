@@ -202,6 +202,7 @@ private:
 typedef CInterlockedIntT<int> CInterlockedInt;
 typedef CInterlockedIntT<unsigned> CInterlockedUInt;
 
+#ifndef BUILDING_MATHLIB
 //=============================================================================
 class CThreadFastMutex;
 
@@ -272,5 +273,7 @@ class VThreadTools : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
+
+#endif // !BUILDING_MATHLIB
 
 #endif // THREADTOOLS_H

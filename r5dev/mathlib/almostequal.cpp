@@ -6,8 +6,7 @@
 // Source:  http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
 //=====================================================================================//
 
-#include "core/stdafx.h"
-#include "mathlib/mathlib.h"
+#include "mathlib.h"
 
 static inline bool AE_IsInfinite(float a)
 {

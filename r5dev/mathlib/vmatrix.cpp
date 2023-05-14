@@ -5,9 +5,6 @@
 // $NoKeywords: $
 //
 //=============================================================================//
-#include "core/stdafx.h"
-#include "tier0/dbg.h"
-
 #if !defined(_STATIC_LINKED) || defined(_SHARED_LIB)
 
 #include "mathlib/vmatrix.h"
@@ -16,7 +13,7 @@
 #include "mathlib/ssemath.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 #pragma warning (disable : 4700) // local variable 'x' used without having been initialized
 

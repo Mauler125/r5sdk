@@ -1,6 +1,6 @@
 #pragma once
 #include "vpc/interfaces.h"
-#include "appframework/engine_launcher_api.h"
+#include "common/engine_launcher_api.h"
 
 class CEngineAPI : public IEngineAPI
 {

@@ -4,10 +4,11 @@
  * _basetypes
  *-----------------------------------------------------------------------------*/
 
+// These are set from CMake now.
 //#define GAMEDLL_S0 /*[r]*/
 //#define GAMEDLL_S1 /*[r]*/
 //#define GAMEDLL_S2 /*[i]*/
-#define GAMEDLL_S3 /*[r]*/
+//#define GAMEDLL_S3 /*[r]*/
 //#define GAMEDLL_S4 /*[i]*/
 //#define GAMEDLL_S5 /*[i]*/
 //#define GAMEDLL_S7 /*[i]*/
@@ -225,6 +226,11 @@ inline T AlignValue(T val, uintptr_t alignment)
 {
 	return (T)(((uintp)val + alignment - 1) & ~(alignment - 1));
 }
+
+// Pad a number so it lies on an N byte boundary.
+// So PAD_NUMBER(0,4) is 0 and PAD_NUMBER(1,4) is 4
+#define PAD_NUMBER(number, boundary) \
+	( ((number) + ((boundary)-1)) / (boundary) ) * (boundary)
 
 #else
 

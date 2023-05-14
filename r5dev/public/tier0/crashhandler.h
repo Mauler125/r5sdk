@@ -46,7 +46,9 @@ public:
 	//-------------------------------------------------------------------------
 	const CHAR* ExceptionToString() const;
 	const CHAR* ExceptionToString(DWORD nExceptionCode) const;
-	void SetExceptionPointers(EXCEPTION_POINTERS* pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; };
+
+	void SetExceptionPointers(EXCEPTION_POINTERS* pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; }
+	void SetCrashCallback(PVOID pCrashCallback) { m_pCrashCallback = pCrashCallback; }
 
 	void AddWhitelist(void* pWhitelist);
 	void RemoveWhitelist(void* pWhitelist);
@@ -56,6 +58,7 @@ public:
 	void WriteFile();
 
 	void CreateMessageProcess();
+	void CrashCallback();
 
 private:
 
@@ -78,8 +81,9 @@ private:
 		NUM_FRAMES_TO_CAPTURE = 128
 	};
 
-	PVOID m_hExceptionHandler;
 	PVOID m_ppStackTrace[NUM_FRAMES_TO_CAPTURE];
+	PVOID m_pCrashCallback;
+	PVOID m_hExceptionHandler;
 	EXCEPTION_POINTERS* m_pExceptionPointers;
 	WORD m_nCapturedFrames;
 

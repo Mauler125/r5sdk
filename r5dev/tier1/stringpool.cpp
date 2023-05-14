@@ -5,14 +5,13 @@
 // $NoKeywords: $
 //===========================================================================//
 
-#include "core/stdafx.h"
 #include "tier0/dbg.h"
 #include "tier1/strtools.h"
 #include "tier1/stringpool.h"
 #include "tier1/generichash.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Comparison function for string sorted associative data structures

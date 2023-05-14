@@ -27,7 +27,7 @@ class Base_CmdKeyValues;
 //-------------------------------------------------------------------------
 // MM_HEARTBEAT
 //-------------------------------------------------------------------------
-inline CMemory MM_Heartbeat__ToString; // server HeartBeat? (baseserver.cpp).
+//inline CMemory MM_Heartbeat__ToString; // server HeartBeat? (baseserver.cpp).
 
 //-------------------------------------------------------------------------
 // SVC_Print
@@ -315,11 +315,11 @@ class V_NetMessages : public IDetour
 		LogConAdr("SVC_ServerTick::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_ServerTick_VFTable));
 		LogConAdr("SVC_VoiceData::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_VoiceData_VFTable));
 		LogConAdr("Base_CmdKeyValues::`vftable'", reinterpret_cast<uintptr_t>(g_pBase_CmdKeyValues_VFTable));
-		LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
+		//LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
-		MM_Heartbeat__ToString = g_GameDll.FindPatternSIMD("48 83 EC 38 E8 ?? ?? ?? ?? 3B 05 ?? ?? ?? ??");
+		//MM_Heartbeat__ToString = g_GameDll.FindPatternSIMD("48 83 EC 38 E8 ?? ?? ?? ?? 3B 05 ?? ?? ?? ??");
 		// 48 83 EC 38 E8 ? ? ? ? 3B 05 ? ? ? ?
 	}
 	virtual void GetVar(void) const { }

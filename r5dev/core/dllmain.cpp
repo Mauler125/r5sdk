@@ -2,6 +2,7 @@
 #include "core/r5dev.h"
 #include "core/init.h"
 #include "core/logdef.h"
+#include "core/logger.h"
 #include "tier0/crashhandler.h"
 /*****************************************************************************/
 #ifndef DEDICATED
@@ -16,6 +17,38 @@
 //#############################################################################
 // INITIALIZATION
 //#############################################################################
+
+void Crash_Callback()
+{
+    // Shutdown SpdLog to flush all buffers.
+    SpdLog_Shutdown();
+
+    // TODO[ AMOS ]: This is where we want to call backtrace from.
+}
+
+void Tier0_Init()
+{
+#if !defined (DEDICATED)
+    g_GameDll = CModule("r5apex.exe");
+    g_RadVideoToolsDll = CModule("bink2w64.dll");
+    g_RadAudioDecoderDll = CModule("binkawin64.dll");
+    g_RadAudioSystemDll = CModule("mileswin64.dll");
+#if !defined (CLIENT_DLL)
+    g_SDKDll = CModule("gamesdk.dll");
+#else // This dll is loaded from 'bin/x64_retail//'
+    g_SDKDll = CModule("client.dll");
+#endif // !CLIENT_DLL
+#else // No DirectX and Miles imports.
+    g_GameDll = CModule("r5apex_ds.exe");
+    g_SDKDll = CModule("dedicated.dll");
+#endif // !DEDICATED
+
+    // Setup logger callback sink.
+    g_CoreMsgVCallback = &EngineLoggerSink;
+
+    // Setup crash callback.
+    g_CrashHandler->SetCrashCallback(&Crash_Callback);
+}
 
 void SDK_Init()
 {
@@ -113,6 +146,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
         {
             if (!s_bNoWorkerDll)
             {
+                Tier0_Init();
                 SDK_Init();
             }
             else // Destroy crash handler.

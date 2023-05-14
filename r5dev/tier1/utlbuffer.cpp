@@ -8,13 +8,12 @@
 
 #pragma warning (disable : 4514)
 
-#include "core/stdafx.h"
 #include "tier1/utlbuffer.h"
 #include "tier1/strtools.h"
 #include "tier1/characterset.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 
 //-----------------------------------------------------------------------------

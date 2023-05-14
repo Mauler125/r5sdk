@@ -5,7 +5,6 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include "core/stdafx.h"
 #include "tier0/fasttimer.h"
 
 // Constructor init the clock speed.

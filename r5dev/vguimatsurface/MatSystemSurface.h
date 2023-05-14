@@ -1,5 +1,4 @@
 #pragma once
-#include "client/cdll_engine_int.h"
 
 /* ==== CMATSYSTEMSURFACE =============================================================================================================================================== */
 inline CMemory p_CMatSystemSurface_DrawColoredText;

@@ -42,4 +42,6 @@ template <typename T> const char* MemAllocClassName(T* p)
 #define MEM_ALLOC_CREDIT_FUNCTION() 
 #endif
 
+#define MEM_ALLOC_CREDIT() // Stubbed
+
 #endif /* TIER0_MEMALLOC_H */

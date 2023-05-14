@@ -7,18 +7,16 @@
 #include "core/stdafx.h"
 #include "engine/net.h"
 #ifndef NETCONSOLE
-#include "core/logdef.h"
 #include "tier0/frametask.h"
 #include "tier1/cvar.h"
 #include "vpc/keyvalues.h"
-#include "vstdlib/callback.h"
 #include "mathlib/color.h"
-#include "engine/net.h"
-#include "engine/net_chan.h"
-#include "vpc/keyvalues.h"
+#include "common/callback.h"
+#include "net.h"
+#include "net_chan.h"
 #ifndef CLIENT_DLL
-#include "engine/server/server.h"
-#include "engine/client/client.h"
+#include "server/server.h"
+#include "client/client.h"
 #endif // !CLIENT_DLL
 #endif // !NETCONSOLE
 
@@ -98,7 +96,7 @@ void NET_SetKey(const string& svNetKey)
 		v_NET_SetKey(g_pNetKey, svTokenizedKey.c_str());
 
 		DevMsg(eDLL_T::ENGINE, "Installed NetKey: %s'%s%s%s'\n",
-			g_svReset.c_str(), g_svGreyB.c_str(), g_pNetKey->GetBase64NetKey(), g_svReset.c_str());
+			g_svReset, g_svGreyB, g_pNetKey->GetBase64NetKey(), g_svReset);
 	}
 	else
 	{

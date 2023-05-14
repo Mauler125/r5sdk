@@ -5,7 +5,7 @@
 #include "engine/networkstringtable.h"
 #include "public/iserver.h"
 #ifndef CLIENT_DLL
-#include "server/vengineserver_impl.h"
+#include "vengineserver_impl.h"
 #endif // !CLIENT_DLL
 
 enum class server_state_t

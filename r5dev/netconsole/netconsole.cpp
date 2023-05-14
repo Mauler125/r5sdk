@@ -5,9 +5,9 @@
 //=====================================================================================//
 
 #include "core/stdafx.h"
-#include "core/termutil.h"
 #include "core/logdef.h"
-#include "tier1/utility.h"
+#include "core/logger.h"
+#include "tier0/utility.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
 #include "windows/console.h"
@@ -41,6 +41,8 @@ CNetCon::~CNetCon(void)
 //-----------------------------------------------------------------------------
 bool CNetCon::Init(void)
 {
+	g_CoreMsgVCallback = &EngineLoggerSink;
+
 	WSAData wsaData;
 	const int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 

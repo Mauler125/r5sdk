@@ -5,7 +5,6 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "core/logdef.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "engine/sys_utils.h"

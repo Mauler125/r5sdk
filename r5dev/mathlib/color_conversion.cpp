@@ -4,14 +4,11 @@
 //
 //=====================================================================================//
 
-#include "core/stdafx.h"
-#include "tier0/basetypes.h"
-#include "tier0/dbg.h"
 #include "mathlib/mathlib.h"
 #include "mathlib/vector.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
-//#include "tier0/memdbgon.h"
+#include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
 // Gamma conversion support

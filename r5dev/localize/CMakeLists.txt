@@ -1,0 +1,11 @@
+cmake_minimum_required( VERSION 3.16 )
+add_module( "lib" "localize" "vpc" ${FOLDER_CONTEXT} )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Core"
+    "localize.cpp"
+    "localize.h"
+)
+
+end_sources()

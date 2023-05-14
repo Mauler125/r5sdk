@@ -3,9 +3,7 @@
 // Purpose: Implementation of the CMemory class.
 //
 //===========================================================================//
-#include "core/stdafx.h"
 #include "tier0/memaddr.h"
-#include "tier1/utility.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: check array of opcodes starting from current address

@@ -1,11 +1,7 @@
 #include "core/stdafx.h"
-#include "core/logdef.h"
 #include "tier1/cvar.h"
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
-#ifndef DEDICATED
-#include "gameui/IConsole.h"
-#endif // !DEDICATED
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of the filesystem based on the warning level

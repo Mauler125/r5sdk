@@ -1,7 +1,6 @@
 // Purpose: C++ implementation of the ICE encryption algorithm.
 //			Taken from public domain code, as written by Matthew Kwan - July 1996
 //			http://www.darkside.com.au/ice/
-#include "core/stdafx.h"
 #include "mathlib/IceKey.H"
 #if !defined(_STATIC_LINKED) || defined(_SHARED_LIB)
 

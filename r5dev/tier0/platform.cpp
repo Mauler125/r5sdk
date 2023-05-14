@@ -1,4 +1,3 @@
-#include "core/stdafx.h"
 #include "tier0/platform_internal.h"
 
 //-----------------------------------------------------------------------------

@@ -3,7 +3,6 @@
  *-----------------------------------------------------------------------------*/
 
 #include "core/stdafx.h"
-#include "launcher/IApplication.h"
 #include "common/opcodes.h"
 //#include "common/netmessages.h"
 //#include "engine/cmodel_bsp.h"
@@ -17,7 +16,9 @@
 //#include "engine/client/cl_main.h"
 //#include "engine/client/client.h"
 //#include "engine/client/clientstate.h"
+//#include "engine/client/cdll_engine_int.h"
 //#include "engine/sys_getmodes.h"
+//#include "engine/sys_dll.h"
 #ifndef CLIENT_DLL
 #include "game/server/ai_networkmanager.h"
 #include "game/server/fairfight_impl.h"
@@ -25,11 +26,9 @@
 #endif // !CLIENT_DLL
 #include "rtech/rtech_game.h"
 //#include "rtech/rui/rui.h"
-//#include "client/cdll_engine_int.h"
 //#include "materialsystem/cmaterialsystem.h"
 //#include "studiorender/studiorendercontext.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
-//#include "bsplib/bsplib.h"
 //#include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
 #include "codecs/miles/radshal_wasapi.h"

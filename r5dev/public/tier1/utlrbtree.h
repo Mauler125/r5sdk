@@ -104,6 +104,17 @@ void SetDefLessFunc(RBTREE_T& RBTree)
 	RBTree.SetLessFunc(DefLessFunc(typename RBTREE_T::KeyType_t));
 }
 
+// For use with FindClosest
+// Move these to a common area if anyone else ever uses them
+enum CompareOperands_t
+{
+	k_EEqual = 0x1,
+	k_EGreaterThan = 0x2,
+	k_ELessThan = 0x4,
+	k_EGreaterThanOrEqualTo = k_EGreaterThan | k_EEqual,
+	k_ELessThanOrEqualTo = k_ELessThan | k_EEqual,
+};
+
 //-----------------------------------------------------------------------------
 // A red-black binary search tree
 //-----------------------------------------------------------------------------

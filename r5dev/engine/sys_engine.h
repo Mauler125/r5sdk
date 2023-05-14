@@ -1,5 +1,4 @@
 #pragma once
-#include <launcher/IApplication.h>
 #include <public/iengine.h>
 
 class CEngine : public IEngine

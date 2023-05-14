@@ -9,13 +9,11 @@
 #include "core/stdafx.h"
 #include "tier0/threadtools.h"
 #include "tier0/frametask.h"
-#include "tier1/cmd.h"
 #include "tier1/cvar.h"
+#include "engine/cmd.h"
 #include "engine/net.h"
 #include "engine/host_state.h"
-#ifndef CLIENT_DLL
 #include "engine/server/server.h"
-#endif // !CLIENT_DLL
 #include "vpc/keyvalues.h"
 #include "pylon.h"
 #include "listmanager.h"
@@ -59,8 +57,6 @@ void CServerListManager::ClearServerList(void)
 //-----------------------------------------------------------------------------
 void CServerListManager::LaunchServer(void) const
 {
-#ifndef CLIENT_DLL
-
     if (!ThreadInMainThread())
     {
         g_TaskScheduler->Dispatch([this]()
@@ -82,8 +78,6 @@ void CServerListManager::LaunchServer(void) const
     mp_gamemode->SetValue(m_Server.m_svPlaylist.c_str());
 
     ProcessCommand(Format("%s \"%s\"", g_pServer->IsActive() ? "changelevel" : "map", m_Server.m_svHostMap.c_str()).c_str());
-
-#endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------

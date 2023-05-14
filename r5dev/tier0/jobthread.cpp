@@ -1,5 +1,4 @@
 
-#include "core/stdafx.h"
 #include "engine/host_cmd.h"
 #include "tier0/jobthread.h"
 

@@ -8,7 +8,6 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 #include "tier1/cmd.h"
-#include "tier1/utility.h"
 #include "mathlib/crc32.h"
 #include "public/edict.h"
 #include "filesystem/filesystem.h"

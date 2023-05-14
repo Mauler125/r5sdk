@@ -1,0 +1,28 @@
+cmake_minimum_required( VERSION 3.16 )
+add_module( "lib" "vscript" "vpc" ${FOLDER_CONTEXT} )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Private"
+    "vscript.cpp"
+    "vscript.h"
+)
+
+add_sources( SOURCE_GROUP "Squirrel_RE"
+    "languages/squirrel_re/vsquirrel.cpp"
+    "languages/squirrel_re/vsquirrel.h"
+    "languages/squirrel_re/include/sqstate.h"
+    "languages/squirrel_re/include/sqstdaux.h"
+    "languages/squirrel_re/include/squirrel.h"
+    "languages/squirrel_re/include/sqvm.h"
+
+    "languages/squirrel_re/sqstdlib/sqstdaux.cpp"
+    "languages/squirrel_re/squirrel/sqapi.cpp"
+    "languages/squirrel_re/squirrel/sqvm.cpp"
+)
+
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/vscript/ivscript.h"
+)
+
+end_sources()

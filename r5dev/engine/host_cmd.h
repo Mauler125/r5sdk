@@ -1,6 +1,6 @@
 #pragma once
 #include "tier1/cmd.h"
-#include "launcher/IApplication.h"
+#include "sys_dll.h"
 
 //-------------------------------------------------------------------------------------
 // Forward declarations

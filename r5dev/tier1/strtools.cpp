@@ -1,4 +1,3 @@
-#include "core/stdafx.h"
 #include "tier1/strtools.h"
 
 FORCEINLINE unsigned char tolower_fast(unsigned char c)

@@ -10,6 +10,10 @@
 #define AssertDbg assert
 #define Verify( _exp ) ( _exp )
 #include "tier0/dbgflag.h"
+#include "tier0/platform.h"
+
+// Used for the 'Error' function, this tells the function to only log, not quit.
+//#define NO_ERROR 0
 
 bool HushAsserts();
 //-----------------------------------------------------------------------------
@@ -115,9 +119,7 @@ void CoreMsg(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 
 // These functions do not return.
 PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
-#ifndef DEDICATED
 PLATFORM_INTERFACE void NetMsg(LogType_t logType, eDLL_T context, const char* uptime, const char* fmt, ...) FMTFUNCTION(4, 5);
-#endif // !DEDICATED
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Error(eDLL_T context, const UINT code, const char* fmt, ...) FMTFUNCTION(3, 4);
 
@@ -158,5 +160,10 @@ template<class T> inline void AssertValidWritePtr(T* /*ptr*/, int count = 1) { N
 template<class T> inline void AssertValidReadWritePtr(T* /*ptr*/, int count = 1) { NOTE_UNUSED(count); }
 #define AssertValidThis() 
 #endif
+
+typedef void (*CoreMsgVCallbackSink_t)(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
+	const char* pszLogger, const char* pszFormat, va_list args, const UINT exitCode, const char* pszUptimeOverride);
+
+extern CoreMsgVCallbackSink_t g_CoreMsgVCallback;
 
 #endif /* DBG_H */

@@ -10,7 +10,6 @@ void DirectX_Shutdown();
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
-//extern bool LoadTextureBuffer(unsigned char* image_data, const int& image_width, const int& image_height, ID3D11ShaderResourceView** out_srv);
 extern bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
 
 extern void ResetInput();
@@ -114,11 +113,11 @@ inline IDXGISwapChain** g_ppSwapChain = nullptr;
 class VDXGI : public IDetour
 {
 	virtual void GetAdr(void) const;
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const;
 	virtual void GetVar(void) const;
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 	///////////////////////////////////////////////////////////////////////////////
 };
 #endif // !BUILDING_LIBIMGUI

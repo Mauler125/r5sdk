@@ -4,7 +4,6 @@
 //
 //==================================================================================================
 
-#include "core/stdafx.h"
 #include "tier1/strtools.h"
 #include "tier1/utlvector.h"
 

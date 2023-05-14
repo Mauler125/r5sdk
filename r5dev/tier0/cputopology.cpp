@@ -5,8 +5,6 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //-------------------------------------------------------------------------------------
-#include "core/stdafx.h"
-
 #if defined(_WIN32) && !defined(_X360) && !defined(_PS3)
 #include "tier0/cputopology.h"
 
