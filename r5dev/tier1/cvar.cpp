@@ -392,11 +392,11 @@ void ConVar::RemoveChangeCallback(FnChangeCallback_t callback)
 //-----------------------------------------------------------------------------
 bool ConVar::ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName)
 {
-	int len = strlen(pszFlags);
-	int flags = 0;
+	size_t len = strlen(pszFlags);
+	int flags = FCVAR_NONE;
 
-	std::string sFlag = "";
-	for (int i = 0; i < len; ++i)
+	string sFlag = "";
+	for (size_t i = 0; i < len; ++i)
 	{
 		char c = pszFlags[i];
 
