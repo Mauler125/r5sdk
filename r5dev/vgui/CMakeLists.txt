@@ -7,6 +7,9 @@ add_sources( SOURCE_GROUP "Runtime"
     "vgui.h"
     "vgui_baseui_interface.cpp"
     "vgui_baseui_interface.h"
+)
+
+add_sources( SOURCE_GROUP "Debug"
     "vgui_debugpanel.cpp"
     "vgui_debugpanel.h"
     "vgui_fpspanel.cpp"

@@ -25,31 +25,11 @@ add_sources( SOURCE_GROUP "Private"
     "cvar.cpp"
 )
 
+file( GLOB TIER1_PUBLIC_HEADERS
+    "${ENGINE_SOURCE_DIR}/public/tier1/*"
+)
 add_sources( SOURCE_GROUP "Public"
-    "${ENGINE_SOURCE_DIR}/public/tier1/bitbuf.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/byteswap.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/characterset.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/cmd.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/cvar.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/generichash.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/lzss.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/mempool.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/memstack.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/NetAdr.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/NetKey.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/stringpool.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/strtools.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlblockmemory.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlbuffer.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utldict.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlfixedmemory.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utllinkedlist.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlmap.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlmemory.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlrbtree.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlstring.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlsymbol.h"
-    "${ENGINE_SOURCE_DIR}/public/tier1/utlvector.h"
+    "${TIER1_PUBLIC_HEADERS}"
 )
 
 end_sources()

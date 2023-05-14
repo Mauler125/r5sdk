@@ -51,8 +51,11 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "vstdlib"
     "vpklib"
     "mathlib"
-    "protocol_pb"
     "vphysics"
+
+    "SigCache_PB"
+    "SV_RCon_PB"
+    "CL_RCon_PB"
 
     "rtech_tools"
     "rtech_game"

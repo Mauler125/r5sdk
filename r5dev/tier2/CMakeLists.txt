@@ -11,12 +11,11 @@ add_sources( SOURCE_GROUP "Utility"
     "socketcreator.cpp"
 )
 
+file( GLOB TIER2_PUBLIC_HEADERS
+    "${ENGINE_SOURCE_DIR}/public/tier2/*"
+)
 add_sources( SOURCE_GROUP "Public"
-    "${ENGINE_SOURCE_DIR}/public/tier2/curlutils.h"
-    "${ENGINE_SOURCE_DIR}/public/tier2/fileutils.h"
-    "${ENGINE_SOURCE_DIR}/public/tier2/meshutils.h"
-    "${ENGINE_SOURCE_DIR}/public/tier2/renderutils.h"
-    "${ENGINE_SOURCE_DIR}/public/tier2/socketcreator.h"
+    "${TIER2_PUBLIC_HEADERS}"
 )
 
 end_sources()

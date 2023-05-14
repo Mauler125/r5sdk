@@ -6,7 +6,6 @@ add_subdirectory( tier0 )
 add_subdirectory( tier1 )
 add_subdirectory( tier2 )
 add_subdirectory( launcher )
-add_subdirectory( protoc )
 add_subdirectory( appframework  )
 
 set( FOLDER_CONTEXT "Libraries" )
@@ -16,6 +15,9 @@ add_subdirectory( vstdlib )
 add_subdirectory( vphysics )
 add_subdirectory( ebisusdk )
 add_subdirectory( codecs )
+
+set( FOLDER_CONTEXT "Protocols" )
+add_subdirectory( protoc )
 
 set( FOLDER_CONTEXT "UI" )
 add_subdirectory( vguimatsurface )

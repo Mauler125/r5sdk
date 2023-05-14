@@ -43,7 +43,8 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier2"
     "libprotobuf"
     "libspdlog"
-    "protocol_pb"
+    "SV_RCon_PB"
+    "CL_RCon_PB"
     "Rpcrt4.lib"
     "ws2_32.lib"
 )

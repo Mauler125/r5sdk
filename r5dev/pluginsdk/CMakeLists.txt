@@ -18,7 +18,9 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "libprotobuf"
     "liblzham"
     "libspdlog"
-    "protocol_pb"
+    "SigCache_PB"
+    "SV_RCon_PB"
+    "CL_RCon_PB"
     "Rpcrt4.lib"
 )
 

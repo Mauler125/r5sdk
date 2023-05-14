@@ -15,7 +15,7 @@ add_sources( SOURCE_GROUP "Private"
 
 end_sources()
 
-target_include_directories( ${PROJECT_NAME} PRIVATE 
+target_include_directories( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/tier0/"
     "${ENGINE_SOURCE_DIR}/tier1/"
 )

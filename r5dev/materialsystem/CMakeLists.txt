@@ -3,7 +3,7 @@ add_module( "lib" "materialsystem" "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
-add_sources( SOURCE_GROUP "Core"
+add_sources( SOURCE_GROUP "Runtime"
     "cmaterialglue.cpp"
     "cmaterialglue.h"
     "cmaterialsystem.cpp"

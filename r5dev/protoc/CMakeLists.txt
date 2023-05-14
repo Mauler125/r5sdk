@@ -1,18 +1,33 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "protocol_pb" "vpc" ${FOLDER_CONTEXT} )
+add_module( "lib" "SigCache_PB" "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
-add_sources( SOURCE_GROUP "NetCon"
-    "cl_rcon.pb.cc"
-    "cl_rcon.pb.h"
+add_sources( SOURCE_GROUP "Runtime"
+    "sig_map.pb.cc"
+    "sig_map.pb.h"
+)
+
+end_sources()
+
+add_module( "lib" "SV_RCon_PB" "vpc" ${FOLDER_CONTEXT} )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Runtime"
     "sv_rcon.pb.cc"
     "sv_rcon.pb.h"
 )
 
-add_sources( SOURCE_GROUP "SigCache"
-    "sig_map.pb.cc"
-    "sig_map.pb.h"
+end_sources()
+
+add_module( "lib" "CL_RCon_PB" "vpc" ${FOLDER_CONTEXT} )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Runtime"
+    "cl_rcon.pb.cc"
+    "cl_rcon.pb.h"
 )
 
 end_sources()

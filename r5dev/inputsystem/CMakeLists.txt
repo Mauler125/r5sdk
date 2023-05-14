@@ -3,7 +3,7 @@ add_module( "lib" "inputsystem" "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
-add_sources( SOURCE_GROUP "Core"
+add_sources( SOURCE_GROUP "Private"
     "inputsystem.cpp"
     "inputsystem.h"
 )

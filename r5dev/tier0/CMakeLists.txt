@@ -34,33 +34,11 @@ add_sources( SOURCE_GROUP "Runtime"
     "binstream.cpp"
 )
 
+file( GLOB TIER0_PUBLIC_HEADERS
+    "${ENGINE_SOURCE_DIR}/public/tier0/*"
+)
 add_sources( SOURCE_GROUP "Public"
-    "${ENGINE_SOURCE_DIR}/public/tier0/annotations.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/basetypes.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/commonmacros.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/crashhandler.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/dbg.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/dbgflag.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/fasttimer.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/frametask.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/jobthread.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/memaddr.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/memalloc.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/memdbgoff.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/memdbgon.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/module.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/platform.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/platform_internal.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/sigcache.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/threadtools.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/tslist.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/valve_off.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/valve_on.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/vtable.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/wchartypes.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/tier0_iface.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/utility.h"
-    "${ENGINE_SOURCE_DIR}/public/tier0/binstream.h"
+    "${TIER0_PUBLIC_HEADERS}"
 )
 
 end_sources()
