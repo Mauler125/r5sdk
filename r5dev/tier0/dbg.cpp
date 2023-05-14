@@ -6,7 +6,6 @@
 //
 //===========================================================================//
 
-#include "tier0_pch.h"
 #include "tier0/dbg.h"
 #include "tier0/platform.h"
 #ifndef NETCONSOLE

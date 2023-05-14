@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "tier0" "" ${FOLDER_CONTEXT} )
+add_module( "lib" "tier0" "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 
@@ -29,7 +29,6 @@ add_sources( SOURCE_GROUP "Runtime"
     "threadtools.cpp"
     "tslist.cpp"
     "vtable.cpp"
-    "tier0_pch.h"
     "tier0_iface.cpp"
     "utility.cpp"
     "binstream.cpp"
@@ -65,4 +64,3 @@ add_sources( SOURCE_GROUP "Public"
 )
 
 end_sources()
-target_precompile_headers( ${PROJECT_NAME} PRIVATE tier0_pch.h )

@@ -4,7 +4,6 @@
 //
 //=============================================================================//
 
-#include "tier0_pch.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 

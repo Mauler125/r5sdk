@@ -3,7 +3,6 @@
 // Purpose: Crash handler (overrides the game's implementation!)
 //
 //=============================================================================//
-#include "tier0_pch.h"
 #include "tier0/binstream.h"
 #include "tier0/cpu.h"
 #include "tier0/crashhandler.h"

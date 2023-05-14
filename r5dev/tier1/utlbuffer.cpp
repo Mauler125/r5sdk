@@ -8,7 +8,6 @@
 
 #pragma warning (disable : 4514)
 
-#include "tier0_pch.h"
 #include "tier1/utlbuffer.h"
 #include "tier1/strtools.h"
 #include "tier1/characterset.h"

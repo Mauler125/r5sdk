@@ -16,7 +16,6 @@
 // searching for each signature in the memory region of the target executable.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "tier0_pch.h"
 #include "tier0/sigcache.h"
 #include "tier0/binstream.h"
 

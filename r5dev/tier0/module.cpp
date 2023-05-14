@@ -3,7 +3,6 @@
 // Purpose: Implementation of the CModule class.
 //
 //===========================================================================//
-#include "tier0_pch.h"
 #include "tier0/memaddr.h"
 #include "tier0/sigcache.h"
 

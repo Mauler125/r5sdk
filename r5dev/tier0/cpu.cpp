@@ -4,7 +4,6 @@
 //
 // $NoKeywords: $
 //=============================================================================//
-#include "tier0_pch.h"
 #include "tier0/cpu.h"
 #include "tier0/cputopology.h"
 #include "tier0/fasttimer.h"

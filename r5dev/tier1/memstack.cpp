@@ -4,7 +4,6 @@
 //
 //=============================================================================//
 
-#include "tier0_pch.h"
 #include "tier0/dbg.h"
 #include "tier0/memstd.h"
 #include "tier1/memstack.h"

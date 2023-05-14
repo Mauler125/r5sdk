@@ -4,7 +4,6 @@
 //
 //=============================================================================
 
-#include "tier0_pch.h"
 #include "tier1/utlstring.h"
 #include "tier1/utlvector.h"
 #include "tier1/strtools.h"

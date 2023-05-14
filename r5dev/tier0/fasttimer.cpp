@@ -5,7 +5,6 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include "tier0_pch.h"
 #include "tier0/fasttimer.h"
 
 // Constructor init the clock speed.

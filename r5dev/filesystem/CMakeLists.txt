@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "filesystem" "tier0" ${FOLDER_CONTEXT} )
+add_module( "lib" "filesystem" "vpc" ${FOLDER_CONTEXT} )
 
 start_sources()
 

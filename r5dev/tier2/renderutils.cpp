@@ -6,7 +6,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "tier0_pch.h"
 #include "mathlib/color.h"
 #include "mathlib/vector.h"
 #include "mathlib/vector2d.h"

@@ -4,7 +4,6 @@
 //
 //=============================================================================//
 
-#include "tier0_pch.h"
 #include "tier0/tslist.h"
 #include "tier0/memstd.h"
 #include "tier0/commandline.h"

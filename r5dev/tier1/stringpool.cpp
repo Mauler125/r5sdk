@@ -5,7 +5,6 @@
 // $NoKeywords: $
 //===========================================================================//
 
-#include "tier0_pch.h"
 #include "tier0/dbg.h"
 #include "tier1/strtools.h"
 #include "tier1/stringpool.h"
