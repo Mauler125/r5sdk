@@ -23,7 +23,7 @@ function( WriteBuildString OUTPUT_DIR )
 
     # Convert the hash to uppercase
     string( TOUPPER
-        "${GIT_COMMIT_HASH} GIT_COMMIT_HASH"
+        "${GIT_COMMIT_HASH}" GIT_COMMIT_HASH
     )
 
     # Get the current git branch name
@@ -41,7 +41,7 @@ function( WriteBuildString OUTPUT_DIR )
 
     # Write the build string to a file
     file( WRITE
-        "${CMAKE_SOURCE_DIR}/${OUTPUT_DIR}/build.txt ${BUILD_STRING}"
+        "${CMAKE_SOURCE_DIR}/${OUTPUT_DIR}/build.txt" "${BUILD_STRING}"
     )
 endfunction()
 
