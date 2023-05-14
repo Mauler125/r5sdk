@@ -2,6 +2,7 @@
 setlocal
 
 set BUILDDIR=build_intermediate
+set BINDIR=game
 
 REM Check for Visual Studio versions in order
 for %%V in (15 16 17) do (
@@ -25,6 +26,9 @@ exit /b 1
 :build
 if not exist "%BUILDDIR%" (
   mkdir "%BUILDDIR%"
+)
+if not exist "%BINDIR%" (
+  mkdir "%BINDIR%"
 )
 
 cd "%BUILDDIR%"
