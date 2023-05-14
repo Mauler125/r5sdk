@@ -120,6 +120,10 @@ target_link_options( ${PROJECT_NAME} PRIVATE
     "/STACK:8000000" # Match game executable stack reserve size
 )
 
+add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -P ${ENGINE_SOURCE_DIR}/cmake/PostBuild.cmake
+)
+
 endmacro()
 
 add_sdk_project( "gamesdk" )
