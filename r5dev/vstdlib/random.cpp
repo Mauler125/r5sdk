@@ -81,15 +81,15 @@ CUniformRandomStream::CUniformRandomStream()
 
 void CUniformRandomStream::SetSeed(int iSeed)
 {
-	m_mutex.lock();
+	std::lock_guard<std::mutex> l(m_mutex);
+
 	m_idum = ((iSeed < 0) ? iSeed : -iSeed);
 	m_iy = 0;
-	m_mutex.unlock();
 }
 
 int CUniformRandomStream::GenerateRandomNumber()
 {
-	m_mutex.lock();
+	std::lock_guard<std::mutex> l(m_mutex);
 	int j;
 	int k;
 
@@ -130,7 +130,6 @@ int CUniformRandomStream::GenerateRandomNumber()
 	m_iy = m_iv[j];
 	m_iv[j] = m_idum;
 
-	m_mutex.unlock();
 	return m_iy;
 }
 
@@ -207,10 +206,10 @@ CGaussianRandomStream::CGaussianRandomStream(IUniformRandomStream* pUniformStrea
 //-----------------------------------------------------------------------------
 void CGaussianRandomStream::AttachToStream(IUniformRandomStream* pUniformStream)
 {
-	m_mutex.lock();
+	std::lock_guard<std::mutex> l(m_mutex);
+
 	m_pUniformStream = pUniformStream;
 	m_bHaveValue = false;
-	m_mutex.unlock();
 }
 
 
@@ -219,7 +218,8 @@ void CGaussianRandomStream::AttachToStream(IUniformRandomStream* pUniformStream)
 //-----------------------------------------------------------------------------
 float CGaussianRandomStream::RandomFloat(float flMean, float flStdDev)
 {
-	m_mutex.lock();
+	std::lock_guard<std::mutex> l(m_mutex);
+
 	IUniformRandomStream* pUniformStream = m_pUniformStream ? m_pUniformStream : s_pUniformStream;
 	float fac, rsq, v1, v2;
 
@@ -241,17 +241,13 @@ float CGaussianRandomStream::RandomFloat(float flMean, float flStdDev)
 		m_flRandomValue = v1 * fac;
 		m_bHaveValue = true;
 
-		m_mutex.unlock();
 		return flStdDev * (v2 * fac) + flMean;
 	}
 	else
 	{
 		m_bHaveValue = false;
-
-		m_mutex.unlock();
 		return flStdDev * m_flRandomValue + flMean;
 	}
-	m_mutex.unlock();
 }
 
 
