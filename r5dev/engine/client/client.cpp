@@ -310,11 +310,46 @@ void CClient::Disconnect(const Reputation_t nRepLvl, const char* szReason, ...)
 	}
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: activate player
+// Input  : *pClient - 
+//---------------------------------------------------------------------------------
+void CClient::VActivatePlayer(CClient* pClient)
+{
+	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY); // Set the client instance to 'ready'.
+	int nUserID = pClient->GetUserID();
+
+	if (!g_ServerPlayer[nUserID].m_bPersistenceEnabled && sv_showconnecting->GetBool())
+	{
+		g_ServerPlayer[nUserID].m_bPersistenceEnabled = true;
+		CNetChan* pNetChan = pClient->GetNetChan();
+
+		DevMsg(eDLL_T::SERVER, "Enabled persistence for client #%d; channel %s(%s) ('%llu')\n",
+			nUserID, pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
+	}	///////////////////////////////////////////////////////////////////////
+
+	v_CClient_ActivatePlayer(pClient);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: send a net message
+// Input  : *pMsg - 
+//			bLocal - 
+//			bForceReliable - 
+//			bVoice - 
+//---------------------------------------------------------------------------------
 bool CClient::SendNetMsg(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
 {
 	return v_CClient_SendNetMsg(this, pMsg, bLocal, bForceReliable, bVoice);
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: send a snapshot
+// Input  : *pClient - 
+//			*pFrame - 
+//			nTick - 
+//			nTickAck - 
+//---------------------------------------------------------------------------------
 void* CClient::VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck)
 {
 	return v_CClient_SendSnapshot(pClient, pFrame, nTick, nTickAck);

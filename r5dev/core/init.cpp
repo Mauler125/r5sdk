@@ -115,7 +115,6 @@
 #include "game/server/ai_networkmanager.h"
 #include "game/server/ai_utility.h"
 #include "game/server/detour_impl.h"
-#include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
 #include "game/server/movehelper_server.h"
 #include "game/server/physics_main.h"
@@ -543,7 +542,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VAI_Network);
 	REGISTER(VAI_NetworkManager);
 	REGISTER(VRecast);
-	REGISTER(VFairFight);
 	REGISTER(VServerGameDLL);
 	REGISTER(VMoveHelperServer);
 	REGISTER(VPhysics_Main); // REGISTER SERVER ONLY
