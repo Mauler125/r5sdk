@@ -78,7 +78,11 @@ bool CBrowser::Init(void)
     SetStyleVar();
     m_szMatchmakingHostName = pylon_matchmaking_hostname->GetString();
 
-    return true;
+    bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
+        &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
+
+    IM_ASSERT(ret && m_idLockedIcon);
+    return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -399,15 +403,6 @@ void CBrowser::HiddenServersModal(void)
     if (ImGui::BeginPopupModal("Private Server", &bModalOpen, ImGuiWindowFlags_NoResize))
     {
         ImGui::SetWindowSize(ImVec2(408.f, flHeight), ImGuiCond_Always);
-
-        if (!m_idLockedIcon) // !TODO: Fall-back texture.
-        {
-            bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
-                &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
-            IM_ASSERT(ret);
-            NOTE_UNUSED(ret);
-        }
-
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f)); // Override the style color for child bg.
 
         ImGui::BeginChild("##HiddenServersConnectModal_IconParent", ImVec2(float(m_rLockedIconBlob.m_nWidth), float(m_rLockedIconBlob.m_nHeight)));
