@@ -37,7 +37,7 @@ public:
 	int  m_nIgnoredMessage; // Count how many times client ignored the no-auth message.
 	bool m_bValidated;      // Revalidates netconsole if false.
 	bool m_bAuthorized;     // Set to true after successful netconsole auth.
-	bool m_bInputOnly;      // If set, don't send spew to this net console.
+	bool m_bInputOnly;      // If set, don't send spew to this netconsole.
 	vector<uint8_t> m_RecvBuffer;
 
 	CConnectedNetConsoleData(SocketHandle_t hSocket = -1)

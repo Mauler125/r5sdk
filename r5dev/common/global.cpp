@@ -294,7 +294,7 @@ void ConVar_StaticInit(void)
 	sv_rcon_maxignores  = ConVar::StaticCreate("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the instruction message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = ConVar::StaticCreate("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, true, MAX_PLAYERS, nullptr, nullptr);
 	sv_rcon_maxconnections    = ConVar::StaticCreate("sv_rcon_maxconnections"   , "1"   , FCVAR_RELEASE, "Max number of authenticated connections before the server closes the listen socket.", true, 1.f, true, MAX_PLAYERS, &RCON_ConnectionCountChanged_f, nullptr);
-	sv_rcon_maxpacketsize     = ConVar::StaticCreate("sv_rcon_maxpacketsize"    , "1024", FCVAR_RELEASE, "Max number of bytes allowed in a command packet from a non-authenticated net console.", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxpacketsize     = ConVar::StaticCreate("sv_rcon_maxpacketsize"    , "1024", FCVAR_RELEASE, "Max number of bytes allowed in a command packet from a non-authenticated netconsole.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = ConVar::StaticCreate("sv_rcon_whitelist_address", ""    , FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, &RCON_WhiteListAddresChanged_f, "Format: '::ffff:127.0.0.1'");
 
 	sv_quota_stringCmdsPerSecond = ConVar::StaticCreate("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
@@ -356,7 +356,7 @@ void ConVar_StaticInit(void)
 	con_notify_native_audio_clr  = ConVar::StaticCreate("con_notify_native_audio_clr" , "238 43 10 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native AudioSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_native_video_clr  = ConVar::StaticCreate("con_notify_native_video_clr" , "115 0 235 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native VideoSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	con_notify_netcon_clr  = ConVar::StaticCreate("con_notify_netcon_clr" , "255 255 255 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_netcon_clr  = ConVar::StaticCreate("con_notify_netcon_clr" , "255 255 255 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Netconsole RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_common_clr  = ConVar::StaticCreate("con_notify_common_clr" , "255 140 80 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Common RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	con_notify_warning_clr = ConVar::StaticCreate("con_notify_warning_clr", "180 180 20 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);

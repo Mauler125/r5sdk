@@ -397,7 +397,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 	if (!pData->m_bAuthorized &&
 		request.requesttype() != cl_rcon::request_t::SERVERDATA_REQUEST_AUTH)
 	{
-		// Notify net console that authentication is required.
+		// Notify netconsole that authentication is required.
 		SendEncode(pData->m_hSocket, s_NoAuthMessage, "",
 			sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
 
@@ -446,7 +446,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: execute commands issued from net console
+// Purpose: execute commands issued from netconsole
 // Input  : *request - 
 //			bConVar - 
 //-----------------------------------------------------------------------------
@@ -467,7 +467,7 @@ void CRConServer::Execute(const cl_rcon::request& request, const bool bConVar) c
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks for amount of failed attempts and bans net console accordingly
+// Purpose: checks for amount of failed attempts and bans netconsole accordingly
 // Input  : *pData - 
 //-----------------------------------------------------------------------------
 bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
@@ -511,7 +511,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 		return true;
 	}
 
-	// Check if net console has reached maximum number of attempts > add to banned list.
+	// Check if netconsole has reached maximum number of attempts > add to banned list.
 	if (pData->m_nFailedAttempts >= sv_rcon_maxfailures->GetInt()
 		|| pData->m_nIgnoredMessage >= sv_rcon_maxignores->GetInt())
 	{
