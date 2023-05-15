@@ -19,10 +19,6 @@ add_subdirectory( codecs )
 set( FOLDER_CONTEXT "Protocols" )
 add_subdirectory( protoc )
 
-set( FOLDER_CONTEXT "UI" )
-add_subdirectory( vguimatsurface )
-add_subdirectory( vgui )
-
 set( FOLDER_CONTEXT "Respawn" )
 add_subdirectory( rtech )
 
@@ -58,6 +54,8 @@ add_subdirectory( filesystem )
 add_subdirectory( datacache )
 add_subdirectory( localize )
 add_subdirectory( engine )
+add_subdirectory( vguimatsurface )
+add_subdirectory( vgui )
 
 set( FOLDER_CONTEXT "Plugins" )
 add_subdirectory( pluginsdk )
