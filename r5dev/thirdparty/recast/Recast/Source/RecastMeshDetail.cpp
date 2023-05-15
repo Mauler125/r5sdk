@@ -28,6 +28,7 @@
 #include <algorithm>
 
 static const unsigned RC_UNSET_HEIGHT = 0xffff;
+#define REVERSE_DIRECTION 1
 
 struct rcHeightPatch
 {
@@ -346,6 +347,8 @@ static int addEdgeFlipped(rcContext* ctx, int* edges, int& nedges, const int max
 		return EV_UNDEF;
 	}
 }
+
+#if REVERSE_DIRECTION
 static void updateRightFace(int* e, int s, int t, int f)
 {
 	if (e[1] == s && e[0] == t && e[2] == EV_UNDEF)
@@ -353,6 +356,7 @@ static void updateRightFace(int* e, int s, int t, int f)
 	else if (e[0] == s && e[1] == t && e[3] == EV_UNDEF)
 		e[3] = f;
 }
+#else
 static void updateLeftFace(int* e, int s, int t, int f)
 {
 	if (e[0] == s && e[1] == t && e[2] == EV_UNDEF)
@@ -360,6 +364,7 @@ static void updateLeftFace(int* e, int s, int t, int f)
 	else if (e[1] == s && e[0] == t && e[3] == EV_UNDEF)
 		e[3] = f;
 }
+#endif
 
 static int overlapSegSeg2d(const float* a, const float* b, const float* c, const float* d)
 {
@@ -389,7 +394,7 @@ static bool overlapEdges(const float* pts, const int* edges, int nedges, int s1,
 	}
 	return false;
 }
-#define REVERSE_DIRECTION 1
+
 static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges, int& nedges, const int maxEdges, int& nfaces, int e)
 {
 	static const float EPS = 1e-5f;
