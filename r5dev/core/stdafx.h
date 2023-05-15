@@ -26,6 +26,9 @@
 #include "thirdparty/imgui/backends/imgui_impl_win32.h"
 #endif // !DEDICATED && !NETCONSOLE && !PLUGINSDK
 
+
+#pragma warning(push)
+#pragma warning( disable : 4505 )
 #include "thirdparty/spdlog/spdlog.h"
 #include "thirdparty/spdlog/async.h"
 #include "thirdparty/spdlog/sinks/ostream_sink.h"
@@ -34,6 +37,7 @@
 #include "thirdparty/spdlog/sinks/stdout_color_sinks.h"
 #include "thirdparty/spdlog/sinks/ansicolor_sink.h"
 #include "thirdparty/spdlog/sinks/rotating_file_sink.h"
+#pragma warning(pop)
 
 // Tier0 includes.
 #include "tier0/utility.h"

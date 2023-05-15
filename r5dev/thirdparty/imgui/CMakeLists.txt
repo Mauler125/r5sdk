@@ -36,4 +36,5 @@ add_sources( SOURCE_GROUP "Misc"
 )
 
 end_sources()
+thirdparty_suppress_warnings()
 target_compile_definitions( ${PROJECT_NAME} PRIVATE BUILDING_LIBIMGUI )
