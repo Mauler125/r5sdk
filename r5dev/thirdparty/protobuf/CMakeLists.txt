@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "libprotobuf" "" ${FOLDER_CONTEXT} )
+add_module( "lib" "libprotobuf" "" ${FOLDER_CONTEXT} FALSE )
 
 start_sources()
 
@@ -103,3 +103,4 @@ add_sources( SOURCE_GROUP "Stubs/Include"
 )
 
 end_sources()
+thirdparty_suppress_warnings()

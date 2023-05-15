@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "SigCache_PB" "vpc" ${FOLDER_CONTEXT} )
+add_module( "lib" "SigCache_PB" "vpc" ${FOLDER_CONTEXT} FALSE )
 
 start_sources()
 
@@ -9,8 +9,9 @@ add_sources( SOURCE_GROUP "Runtime"
 )
 
 end_sources()
+thirdparty_suppress_warnings()
 
-add_module( "lib" "SV_RCon_PB" "vpc" ${FOLDER_CONTEXT} )
+add_module( "lib" "SV_RCon_PB" "vpc" ${FOLDER_CONTEXT} FALSE )
 
 start_sources()
 
@@ -20,8 +21,9 @@ add_sources( SOURCE_GROUP "Runtime"
 )
 
 end_sources()
+thirdparty_suppress_warnings()
 
-add_module( "lib" "CL_RCon_PB" "vpc" ${FOLDER_CONTEXT} )
+add_module( "lib" "CL_RCon_PB" "vpc" ${FOLDER_CONTEXT} FALSE )
 
 start_sources()
 
@@ -31,3 +33,4 @@ add_sources( SOURCE_GROUP "Runtime"
 )
 
 end_sources()
+thirdparty_suppress_warnings()

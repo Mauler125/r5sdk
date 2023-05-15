@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "liblzham" "" ${FOLDER_CONTEXT} )
+add_module( "lib" "liblzham" "" ${FOLDER_CONTEXT} TRUE )
 
 start_sources()
 

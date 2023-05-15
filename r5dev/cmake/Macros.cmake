@@ -44,7 +44,7 @@ endmacro()
 # -----------------------------------------------------------------------------
 # Add modules to the project
 # -----------------------------------------------------------------------------
-macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME )
+macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRORS )
     project( ${MODULE_NAME} )
 
     if( ${MODULE_TYPE} STREQUAL "lib" )
@@ -54,7 +54,7 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME )
         target_link_options( ${PROJECT_NAME} PRIVATE
         "$<$<CONFIG:Release>:/LTCG>"
     )
-    elseif(${MODULE_TYPE} STREQUAL "exe")
+    elseif( ${MODULE_TYPE} STREQUAL "exe" )
         add_executable( ${PROJECT_NAME} )
         target_link_options( ${PROJECT_NAME} PRIVATE
         "$<$<CONFIG:Release>:/LTCG>"
@@ -68,6 +68,10 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME )
     endif()
 
     set_target_properties( ${MODULE_NAME} PROPERTIES FOLDER ${FOLDER_NAME} )
+
+    if( ${GLOBAL_WARNINGS_AS_ERRORS} )
+        warnings_as_errors( ${PROJECT_NAME} ${WARNINGS_AS_ERRORS} )
+    endif()
 endmacro()
 
 # -----------------------------------------------------------------------------
@@ -92,4 +96,43 @@ macro( whole_program_optimization )
     target_compile_options( ${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Release>:/GL>
     )
+endmacro()
+
+# -----------------------------------------------------------------------------
+# Toggles wether or not to treat warnings as errors
+# -----------------------------------------------------------------------------
+macro( warnings_as_errors TARGET FLAG )
+    if( ${FLAG} )
+        if( MSVC )
+            target_compile_options( ${TARGET} PRIVATE /WX )
+        else()
+            target_compile_options( ${TARGET} PRIVATE -Werror )
+        endif()
+    else()
+        if( MSVC )
+            target_compile_options( ${TARGET} PRIVATE "/wd4996" )
+        else()
+            target_compile_options( ${TARGET} PRIVATE "-Wno-error" )
+        endif()
+    endif()
+endmacro()
+
+# -----------------------------------------------------------------------------
+# Disables verbose warnings caused within thirdparty code ( !only use on thirdparty projects! )
+# -----------------------------------------------------------------------------
+macro( thirdparty_suppress_warnings )
+    if( MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
+        target_compile_options( ${PROJECT_NAME} PRIVATE
+            /wd4100 # Unreferenced formal parameter.
+            /wd4152 # Function/data pointer conversion in expression.
+            /wd4200 # Zero-sized array in union; SDL2 uses this for compiler compatibility.
+            /wd4201 # Nameless struct/union.
+            /wd4244 # Type conversion truncation; protobuf has many, but this appears intentional.
+            /wd4267 # Type conversion truncation; protobuf has many, but this appears intentional.
+            /wd4307 # Integral constant overflow.
+            /wd4389 # Signed/unsigned mismatch.
+            /wd4505 # Unreferenced local function has been removed.
+        )
+    endif()
+    warnings_as_errors( ${PROJECT_NAME} FALSE )
 endmacro()

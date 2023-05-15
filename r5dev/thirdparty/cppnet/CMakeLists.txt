@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "libcppkore" "" ${FOLDER_CONTEXT} )
+add_module( "lib" "libcppkore" "" ${FOLDER_CONTEXT} FALSE )
 
 start_sources()
 
@@ -327,3 +327,4 @@ add_sources( SOURCE_GROUP "Win32"
 )
 
 end_sources()
+thirdparty_suppress_warnings()

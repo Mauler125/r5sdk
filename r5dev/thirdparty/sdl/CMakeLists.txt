@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "libsdl2" "" ${FOLDER_CONTEXT} )
+add_module( "lib" "libsdl2" "" ${FOLDER_CONTEXT} FALSE )
 
 start_sources()
 
@@ -557,3 +557,5 @@ end_sources()
 target_include_directories( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/thirdparty/sdl/include/"
 )
+
+thirdparty_suppress_warnings()

@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "libspdlog" "" ${FOLDER_CONTEXT} )
+add_module( "lib" "libspdlog" "" ${FOLDER_CONTEXT} TRUE )
 
 start_sources()
 
@@ -133,6 +133,7 @@ add_sources( SOURCE_GROUP "Sinks"
 
 end_sources()
 whole_program_optimization()
+thirdparty_suppress_warnings()
 
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "SPDLOG_COMPILED_LIB"

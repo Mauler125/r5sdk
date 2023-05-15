@@ -12,6 +12,16 @@ macro( apply_project_settings )
         $<$<CXX_COMPILER_ID:MSVC>:/DUNICODE>
     )
 
+    # Suppress certain compiler warnings
+    # ( !don't suppress warnings here that are specific to a project! )
+    add_compile_options(
+        $<$<CXX_COMPILER_ID:MSVC>:/wd4996> # 'The POSIX name for this item is deprecated'
+        $<$<CXX_COMPILER_ID:MSVC>:/wd4127> # 'Consider using 'if constexpr' statement instead'
+    )
+
+    # Some thirdparty code have Warnings as Errors disabled; this option won't override those.
+    option( GLOBAL_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON )
+
     set( GAMEDLL_OPTION "GAMEDLL_S3" CACHE STRING "Game DLL version" )
     set_property( CACHE GAMEDLL_OPTION PROPERTY STRINGS
         "GAMEDLL_S0"
@@ -63,7 +73,7 @@ macro( apply_project_settings )
         /DEBUG"
     )
 
-    # Commonly used directories accross libraries.
+    # Commonly used directories accross libraries
     include_directories(
         "${ENGINE_SOURCE_DIR}/"
         "${ENGINE_SOURCE_DIR}/public/"

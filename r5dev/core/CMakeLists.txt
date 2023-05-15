@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.16 )
 macro( add_sdk_project PROJECT_NAME )
-add_module( "shared_lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} )
+add_module( "shared_lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} TRUE )
 
 start_sources()
 
