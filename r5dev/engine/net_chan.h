@@ -105,9 +105,13 @@ public:
 	const netadr_t& GetRemoteAddress(void) const;
 
 	bool        IsOverflowed(void) const;
-	void        Clear(bool bStopProcessing);
 
-	static bool ProcessMessages(CNetChan* pChan, bf_read* pMsg);
+	void Clear(bool bStopProcessing);
+	inline void Shutdown(const char* szReason, uint8_t bBadRep, bool bRemoveNow)
+	{ _Shutdown(this, szReason, bBadRep, bRemoveNow); }
+
+	static void _Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
+	static bool _ProcessMessages(CNetChan* pChan, bf_read* pMsg);
 
 	void SetRemoteFramerate(float flFrameTime, float flFrameTimeStdDeviation);
 	void SetRemoteCPUStatistics(uint8_t nStats);
@@ -185,6 +189,9 @@ static_assert(sizeof(CNetChan) == 0x1AC8);
 inline CMemory p_NetChan_Clear;
 inline auto v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan* pChannel, bool bStopProcessing)>();
 
+inline CMemory p_NetChan_Shutdown;
+inline auto v_NetChan_Shutdown = p_NetChan_Shutdown.RCast<void (*)(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow)>();
+
 inline CMemory p_NetChan_ProcessMessages;
 inline auto v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();
 ///////////////////////////////////////////////////////////////////////////////
@@ -193,15 +200,19 @@ class VNetChan : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogFunAdr("CNetChan::Clear", p_NetChan_Clear.GetPtr());
+		LogFunAdr("CNetChan::Shutdown", p_NetChan_Shutdown.GetPtr());
 		LogFunAdr("CNetChan::ProcessMessages", p_NetChan_ProcessMessages.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
 		p_NetChan_Clear = g_GameDll.FindPatternSIMD("88 54 24 10 53 55 57");
-		v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan*, bool)>(); /*88 54 24 10 53 55 57*/
+		v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan*, bool)>();
+
+		p_NetChan_Shutdown = g_GameDll.FindPatternSIMD("48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9");
+		v_NetChan_Shutdown = p_NetChan_Shutdown.RCast<void (*)(void*, const char*, uint8_t, bool)>();
 
 		p_NetChan_ProcessMessages = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA");
-		v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();/*48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA*/
+		v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan*, bf_read*)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

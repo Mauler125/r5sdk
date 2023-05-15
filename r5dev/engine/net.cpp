@@ -7,11 +7,8 @@
 #include "core/stdafx.h"
 #include "engine/net.h"
 #ifndef NETCONSOLE
-#include "tier0/frametask.h"
 #include "tier1/cvar.h"
-#include "vpc/keyvalues.h"
 #include "mathlib/color.h"
-#include "common/callback.h"
 #include "net.h"
 #include "net_chan.h"
 #ifndef CLIENT_DLL
@@ -161,24 +158,6 @@ void NET_PrintFunc(const char* fmt, ...)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: shutdown netchannel
-// Input  : *this - 
-//			*szReason - 
-//			bBadRep - 
-//			bRemoveNow - 
-//-----------------------------------------------------------------------------
-void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
-{
-#ifndef DEDICATED
-	// Re-load playlist from the disk to replace the one we received from the server.
-	_DownloadPlaylists_f();
-	KeyValues::InitPlaylists();
-#endif // !DEDICATED
-
-	v_NET_Shutdown(thisptr, szReason, bBadRep, bRemoveNow);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: disconnect the client and shutdown netchannel
 // Input  : *pClient - 
 //			nIndex - 
@@ -194,9 +173,9 @@ void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8
 		return;
 	}
 
-	v_NET_Shutdown(pClient->GetNetChan(), szReason, bBadRep, bRemoveNow); // Shutdown NetChannel.
-	pClient->Clear();                                                     // Reset CClient instance for client.
-	g_ServerPlayer[nIndex].Reset();                                       // Reset ServerPlayer slot.
+	pClient->GetNetChan()->Shutdown(szReason, bBadRep, bRemoveNow); // Shutdown NetChannel.
+	pClient->Clear();                                               // Reset CClient slot.
+	g_ServerPlayer[nIndex].Reset();                                 // Reset ServerPlayer slot.
 #endif // !CLIENT_DLL
 }
 #endif // !NETCONSOLE
@@ -312,9 +291,6 @@ void VNet::Attach() const
 	DetourAttach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 	DetourAttach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
 	DetourAttach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
-#ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_NET_Shutdown, &NET_Shutdown);
-#endif
 }
 
 void VNet::Detach() const
@@ -324,9 +300,6 @@ void VNet::Detach() const
 	DetourDetach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 	DetourDetach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
 	DetourDetach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
-#ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_NET_Shutdown, &NET_Shutdown);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

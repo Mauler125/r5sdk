@@ -5,7 +5,10 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/frametask.h"
 #include "tier1/cvar.h"
+#include "vpc/keyvalues.h"
+#include "common/callback.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #ifndef CLIENT_DLL
@@ -221,12 +224,35 @@ void CNetChan::Clear(bool bStopProcessing)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: shutdown netchannel
+// Input  : *this - 
+//			*szReason - 
+//			bBadRep - 
+//			bRemoveNow - 
+//-----------------------------------------------------------------------------
+void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
+{
+	v_NetChan_Shutdown(pChan, szReason, bBadRep, bRemoveNow);
+
+#ifndef DEDICATED
+	// Delay execution to the next frame; this is required to avoid a rare crash.
+	// Cannot reload playlists while still disconnecting.
+	g_TaskScheduler->Dispatch([]()
+		{
+			// Re-load and re-init playlists from the disk to replace the cached one we received from the server.
+			_DownloadPlaylists_f();
+			KeyValues::InitPlaylists();
+		}, 0);
+#endif // !DEDICATED
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: process message
 // Input  : *pChan - 
 //			*pMsg - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
+bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 {
 #ifndef CLIENT_DLL
 	if (!ThreadInServerFrameThread() || !net_processTimeBudget->GetInt())
@@ -289,9 +315,11 @@ void CNetChan::SetRemoteCPUStatistics(uint8_t nStats)
 ///////////////////////////////////////////////////////////////////////////////
 void VNetChan::Attach() const
 {
-	DetourAttach(&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
+	DetourAttach((PVOID*)&v_NetChan_Shutdown, &CNetChan::_Shutdown);
+	DetourAttach((PVOID*)&v_NetChan_ProcessMessages, &CNetChan::_ProcessMessages);
 }
 void VNetChan::Detach() const
 {
-	DetourDetach(&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
+	DetourDetach((PVOID*)&v_NetChan_Shutdown, &CNetChan::_Shutdown);
+	DetourDetach((PVOID*)&v_NetChan_ProcessMessages, &CNetChan::_ProcessMessages);
 }
