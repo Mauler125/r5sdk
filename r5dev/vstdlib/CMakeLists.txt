@@ -13,6 +13,10 @@ add_sources( SOURCE_GROUP "Private"
     "random.h"
 )
 
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/ikeyvaluessystem.h"
+)
+
 end_sources()
 
 target_include_directories( ${PROJECT_NAME} PRIVATE

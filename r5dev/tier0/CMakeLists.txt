@@ -39,6 +39,8 @@ file( GLOB TIER0_PUBLIC_HEADERS
 )
 add_sources( SOURCE_GROUP "Public"
     "${TIER0_PUBLIC_HEADERS}"
+    "${ENGINE_SOURCE_DIR}/public/icommandline.h"
+    "${ENGINE_SOURCE_DIR}/public/iframetask.h"
 )
 
 end_sources()

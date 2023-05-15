@@ -71,6 +71,25 @@ add_sources( SOURCE_GROUP "Client"
     "client/viewrender.h"
 )
 
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/basehandle.h"
+    "${ENGINE_SOURCE_DIR}/public/edict.h"
+    "${ENGINE_SOURCE_DIR}/public/eiface.h"
+    "${ENGINE_SOURCE_DIR}/public/globalvars_base.h"
+    "${ENGINE_SOURCE_DIR}/public/ihandleentity.h"
+
+    "${ENGINE_SOURCE_DIR}/public/iserverentity.h"
+    "${ENGINE_SOURCE_DIR}/public/iservernetworkable.h"
+    "${ENGINE_SOURCE_DIR}/public/iserverunknown.h"
+
+    "${ENGINE_SOURCE_DIR}/public/icliententity.h"
+    "${ENGINE_SOURCE_DIR}/public/icliententitylist.h"
+    "${ENGINE_SOURCE_DIR}/public/iclientnetworkable.h"
+    "${ENGINE_SOURCE_DIR}/public/iclientrenderable.h"
+    "${ENGINE_SOURCE_DIR}/public/iclientthinkable.h"
+    "${ENGINE_SOURCE_DIR}/public/iclientunknown.h"
+)
+
 end_sources()
 
 target_include_directories( ${PROJECT_NAME} PRIVATE

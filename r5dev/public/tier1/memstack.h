@@ -11,8 +11,8 @@
 #pragma once
 #endif
 
+#include "tier0/imemalloc.h"
 #include "tier1/utlvector.h"
-#include "public/imemalloc.h"
 
 #if defined( _WIN32 ) || defined( _PS3 )
 #define MEMSTACK_VIRTUAL_MEMORY_AVAILABLE

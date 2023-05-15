@@ -1,5 +1,5 @@
 #pragma once
-#include "public/interface.h"
+#include "tier1/interface.h"
 
 /*-----------------------------------------------------------------------------
  * _interfaces.h

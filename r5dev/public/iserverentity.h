@@ -12,9 +12,8 @@
 #endif
 
 
+#include "tier1/string_t.h"
 #include "iserverunknown.h"
-#include "string_t.h"
-
 
 
 struct Ray_t;

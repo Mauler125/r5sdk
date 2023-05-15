@@ -1,7 +1,7 @@
 #ifndef APPSYSTEMGROUP_H
 #define APPSYSTEMGROUP_H
 
-#include "public/interface.h"
+#include "tier1/interface.h"
 #include "tier1/utlvector.h"
 #include "filesystem/filesystem.h"
 

@@ -12,9 +12,9 @@
 #endif
 
 #include "mathlib/vector.h"
+#include "tier1/string_t.h"
 #include "public/iservernetworkable.h"
 #include "public/iserverentity.h"
-#include "public/string_t.h"
 #include "engine/gl_model_private.h"
 #include "game/shared/collisionproperty.h"
 #include "networkproperty.h"

@@ -89,6 +89,8 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "inputsystem"
     "materialsystem"
 
+    "studiorender"
+
     "vguimatsurface"
     "vgui"
     "rui"

@@ -43,6 +43,8 @@ add_sources( SOURCE_GROUP "Render"
 endif()
 
 add_sources( SOURCE_GROUP "Network"
+    "dt_recv.cpp"
+    "datamap.cpp"
     "datablock.h"
     "framesnapshot.h"
     "net.cpp"
@@ -54,6 +56,7 @@ add_sources( SOURCE_GROUP "Network"
     "packed_entity.h"
     "staticpropmgr.cpp"
     "staticpropmgr.h"
+    # "networkvar.cpp" # TODO: Enable?
 )
 
 add_sources( SOURCE_GROUP "Model"
@@ -179,6 +182,37 @@ add_sources( SOURCE_GROUP "Common"
     "${ENGINE_SOURCE_DIR}/common/sdkdefs.h"
     "${ENGINE_SOURCE_DIR}/common/x86defs.h"
 )
+
+file( GLOB ENGINE_PUBLIC_HEADERS
+    "${ENGINE_SOURCE_DIR}/public/engine/*"
+)
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_PUBLIC_HEADERS}"
+    "${ENGINE_SOURCE_DIR}/public/const.h"
+    "${ENGINE_SOURCE_DIR}/public/dt_common.h"
+    "${ENGINE_SOURCE_DIR}/public/dt_send.h"
+    "${ENGINE_SOURCE_DIR}/public/dt_recv.h"
+    "${ENGINE_SOURCE_DIR}/public/datamap.h"
+    "${ENGINE_SOURCE_DIR}/public/idebugoverlay.h"
+    "${ENGINE_SOURCE_DIR}/public/iengine.h"
+    "${ENGINE_SOURCE_DIR}/public/igame.h"
+    "${ENGINE_SOURCE_DIR}/public/iserver.h"
+    "${ENGINE_SOURCE_DIR}/public/isnapshotmgr.h"
+    "${ENGINE_SOURCE_DIR}/public/inetchannel.h"
+    "${ENGINE_SOURCE_DIR}/public/inetmessage.h"
+    "${ENGINE_SOURCE_DIR}/public/inetmsghandler.h"
+    "${ENGINE_SOURCE_DIR}/public/server_class.h"
+    "${ENGINE_SOURCE_DIR}/public/networkvar.h"
+    "${ENGINE_SOURCE_DIR}/public/playerstate.h"
+)
+
+if( ${PROJECT_NAME} STREQUAL "engine" )
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/client_class.h"
+    "${ENGINE_SOURCE_DIR}/public/ivrenderview.h"
+    "${ENGINE_SOURCE_DIR}/public/isurfacesystem.h" # ImGui surface
+)
+endif()
 
 end_sources()
 
