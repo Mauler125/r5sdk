@@ -101,21 +101,20 @@ ALIGN128 float	power2_n[256] = 			// 2**(index - 128) / 255
 // You can use this to double check the exponent table and assert that 
 // the precomputation is correct.
 #ifdef DBGFLAG_ASSERT
-#pragma warning(push)
-#pragma warning( disable : 4189 ) // disable unused local variable warning
-static void CheckExponentTable()
+void CheckExponentTable()
 {
 	for (int i = 0; i < 256; i++)
 	{
 		float testAgainst = float(pow(2.0f, i - 128)) / 255.0f;
 		float diff = testAgainst - power2_n[i];
 		float relativeDiff = diff / testAgainst;
+
+		NOTE_UNUSED(relativeDiff); // This is to suppress the 'unused local variable' warning.
 		Assert(testAgainst == 0 ?
 			power2_n[i] < 1.16E-041 :
 			power2_n[i] == testAgainst);
 	}
 }
-#pragma warning(pop)
 #endif
 
 void BuildGammaTable(float gamma, float texGamma, float brightness, int overbright)

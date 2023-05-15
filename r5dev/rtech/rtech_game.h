@@ -39,7 +39,7 @@ inline CMemory p_CPakFile_OpenFileOffset; // Offset to inlined 'CPakFile::LoadPa
 class CPakFile
 {
 public:
-	static RPakHandle_t LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pMalloc = g_pAlignedMemAlloc, int nIdx = NULL, bool bUnk = false);
+	static RPakHandle_t LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pMalloc = AlignedMemAlloc(), int nIdx = NULL, bool bUnk = false);
 	static void UnloadPak(RPakHandle_t handle);
 };
 

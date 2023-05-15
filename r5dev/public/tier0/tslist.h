@@ -1,14 +1,29 @@
 #ifndef TSLIST_H
 #define TSLIST_H
 
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
 class CAlignedMemAlloc
 {
 public:
-	virtual void* Alloc(size_t nSize) = 0;
-	virtual void Free(void* pMem) = 0;
+	void* Alloc(size_t nSize, size_t nAlignment = 0);
+	void Free(void* pMem);
+
+private:
+	void* m_pAllocCallback;
+	void* m_pFreeCallback;
 };
 
-inline CAlignedMemAlloc* g_pAlignedMemAlloc;
+extern CAlignedMemAlloc* g_pAlignedMemAlloc;
+
+//-----------------------------------------------------------------------------
+// Singleton aligned memalloc
+//-----------------------------------------------------------------------------
+inline CAlignedMemAlloc* AlignedMemAlloc()
+{
+	return g_pAlignedMemAlloc;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 class VTSListBase : public IDetour

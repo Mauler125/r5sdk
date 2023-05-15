@@ -191,8 +191,8 @@ void CSquirrelVM::CompileModScripts()
 
 		if (rson)
 		{
-			RSON_Free(rson, g_pAlignedMemAlloc);
-			//g_pAlignedMemAlloc->Free(rson); // TODO: fix g_pAlignedMemAlloc and free this properly
+			RSON_Free(rson, AlignedMemAlloc());
+			AlignedMemAlloc()->Free(rson);
 		}
 	}
 }
