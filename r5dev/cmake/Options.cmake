@@ -6,6 +6,7 @@ macro( apply_project_settings )
     add_compile_options(
         $<$<CXX_COMPILER_ID:MSVC>:/permissive->
         $<$<CXX_COMPILER_ID:MSVC>:/MP>
+        $<$<CXX_COMPILER_ID:MSVC>:/Zf>
         $<$<CXX_COMPILER_ID:MSVC>:/W4>
         $<$<CXX_COMPILER_ID:MSVC>:/GR>
         $<$<CXX_COMPILER_ID:MSVC>:/D_UNICODE>
@@ -61,6 +62,7 @@ macro( apply_project_settings )
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/MT>
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GS->
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Gy>
+        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/EHsc>
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/fp:fast>
     )
 
