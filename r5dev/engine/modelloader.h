@@ -50,6 +50,27 @@ public:
 	static uint64_t Map_LoadModelGuts(CModelLoader* loader, model_t* model);
 };
 
+class CMapLoadHelper
+{
+public:
+	static void Constructor(CMapLoadHelper* helper, int lumpToLoad);
+
+
+public:
+	int m_nLumpSize;
+	int m_nLumpOffset;
+	int m_nLumpVersion;
+	unsigned __int8* m_pRawData;
+	char* m_pData;
+	unsigned __int8* m_pUncompressedData;
+	char gap_28[5];
+	bool m_bExternal;
+	bool m_bUnk;
+	char gap_2F;
+	int m_nLumpID;
+	char m_szLumpFilename[260];
+};
+
 inline CMemory p_CModelLoader__FindModel;
 inline auto CModelLoader__FindModel = p_CModelLoader__FindModel.RCast<void* (*)(CModelLoader* loader, const char* pszModelName)>();
 
@@ -67,6 +88,9 @@ inline auto CModelLoader__Map_LoadModelGuts = p_CModelLoader__Map_LoadModelGuts.
 
 inline CMemory p_CModelLoader__Map_IsValid;
 inline auto CModelLoader__Map_IsValid = p_CModelLoader__Map_IsValid.RCast<bool(*)(CModelLoader* loader, const char* pszMapName)>();
+
+inline CMemory p_CMapLoadHelper__CMapLoadHelper;
+inline auto CMapLoadHelper__CMapLoadHelper = p_CMapLoadHelper__CMapLoadHelper.RCast<void(__fastcall*)(CMapLoadHelper * helper, int lumpToLoad)>();
 
 //inline CMemory p_GetSpriteInfo; // DEDICATED PATCH!
 //inline auto GetSpriteInfo = p_GetSpriteInfo.RCast<void* (*)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7)>();
@@ -111,6 +135,10 @@ class VModelLoader : public IDetour
 		//p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B BC 24 ?? ?? ?? ??");
 #endif
 		//p_BuildSpriteLoadName             = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 4D 8B F1 48 8B F2");
+		
+		p_CMapLoadHelper__CMapLoadHelper = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC 60");
+
+		CMapLoadHelper__CMapLoadHelper = p_CMapLoadHelper__CMapLoadHelper.RCast<void(__fastcall*)(CMapLoadHelper*, int)>();
 
 		CModelLoader__FindModel         = p_CModelLoader__FindModel.RCast<void* (*)(CModelLoader*, const char*)>();
 		CModelLoader__LoadModel         = p_CModelLoader__LoadModel.RCast<void(*)(CModelLoader*, model_t*)>();
