@@ -204,6 +204,11 @@ add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/server_class.h"
     "${ENGINE_SOURCE_DIR}/public/networkvar.h"
     "${ENGINE_SOURCE_DIR}/public/playerstate.h"
+
+    # These probably need to go to 'bsplib' if we ever create that project.
+    "${ENGINE_SOURCE_DIR}/public/bspflags.h"
+    "${ENGINE_SOURCE_DIR}/public/bspfile.h"
+    "${ENGINE_SOURCE_DIR}/public/gamebspfile.h"
 )
 
 if( ${PROJECT_NAME} STREQUAL "engine" )

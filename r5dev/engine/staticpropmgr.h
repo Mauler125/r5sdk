@@ -1,21 +1,5 @@
 #pragma once
-
-struct StaticPropLump_t
-{
-	Vector3D m_Origin;
-	Vector3D m_Angles;
-	float m_Scale;
-	short m_PropType;
-	char m_Solid;
-	char m_Flags;
-	short m_Skin;
-	short m_EnvCubemap;
-	float m_FadeDist;
-	Vector3D m_LightingOrigin;
-	int m_DiffuseModulation;
-	char gap_38[4];
-	int m_collisionFlagsRemove;
-};
+#include "public/gamebspfile.h"
 
 inline CMemory p_CStaticProp_Init;
 inline auto v_CStaticProp_Init = p_CStaticProp_Init.RCast<void*(*)(int64_t thisptr, int64_t a2, unsigned int idx, unsigned int a4, StaticPropLump_t* lump, int64_t a6, int64_t a7)>();
