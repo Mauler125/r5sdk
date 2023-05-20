@@ -184,11 +184,14 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 				{
 					FileHandle_t hLumpFile = FileSystem()->Open(pathBuf, "rb");
 
+					loader->m_pData = loader->m_pRawData;
+
 					if (hLumpFile != FILESYSTEM_INVALID_HANDLE)
 					{
 						FileSystem()->ReadEx(loader->m_pRawData, bytesToRead, bytesToRead, hLumpFile);
 						FileSystem()->Close(hLumpFile);
 
+						loader->m_pRawData = nullptr;
 						loader->m_bExternal = true;
 					}
 					else // Seek to offset in packed BSP file to load the lump.
@@ -196,8 +199,6 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 						FileSystem()->Seek(mapFileHandle, loader->m_nLumpOffset, FILESYSTEM_SEEK_HEAD);
 						FileSystem()->ReadEx(loader->m_pRawData, bytesToRead, bytesToRead, mapFileHandle);
 					}
-
-					loader->m_pData = loader->m_pRawData;
 				}
 			}
 		}
