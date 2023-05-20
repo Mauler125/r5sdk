@@ -16,14 +16,36 @@
 
 model_t* pErrorMDL = nullptr;
 
+enum
+{
+	INTERNAL_LUMP = 0,
+	EXTERNAL_LUMP,
+	EXTERNAL_LUMP_AS_INTERNAL
+};
+
 //-----------------------------------------------------------------------------
-// Purpose: checks if the lump type is valid and used
+// Purpose: checks if the lump could be loaded externally
 // Input  : lumpType - 
 //-----------------------------------------------------------------------------
-bool IsLumpIdxValid(int lumpType)
+int GetLumpHandlingType(int lumpType)
 {
 	switch (lumpType)
 	{
+	// These lumps can be loaded externally,
+	// but cannot be handled as such in code.
+	case LUMP_UNKNOWN_43:
+	case LUMP_UNKNOWN_44:
+	case LUMP_UNKNOWN_45:
+	case LUMP_UNKNOWN_46:
+	case LUMP_UNKNOWN_47:
+	case LUMP_UNKNOWN_48:
+	case LUMP_VERTEX_UNLIT:
+	case LUMP_VERTEX_LIT_FLAT:
+	case LUMP_VERTEX_LIT_BUMP:
+	case LUMP_VERTEX_UNLIT_TS:
+		return EXTERNAL_LUMP_AS_INTERNAL;
+	// These lumps can be loaded externally,
+	// and should be handled as such in code.
 	case LUMP_PLANES:
 	case LUMP_VERTICES:
 	case LUMP_SHADOW_ENVIRONMENTS:
@@ -37,10 +59,6 @@ bool IsLumpIdxValid(int lumpType)
 	case LUMP_UNKNOWN_37:
 	case LUMP_UNKNOWN_38:
 	case LUMP_UNKNOWN_39:
-	//case LUMP_VERTEX_UNLIT:
-	//case LUMP_VERTEX_LIT_FLAT:
-	//case LUMP_VERTEX_LIT_BUMP:
-	//case LUMP_VERTEX_UNLIT_TS:
 	case LUMP_MESH_INDICES:
 	case LUMP_LIGHTMAP_DATA_SKY:
 	case LUMP_CSM_AABB_NODES:
@@ -68,9 +86,28 @@ bool IsLumpIdxValid(int lumpType)
 	case LUMP_SHADOW_MESH_OPAQUE_VERTICES:
 	case LUMP_SHADOW_MESH_INDICES:
 	case LUMP_SHADOW_MESHES:
-		return true;
+		return EXTERNAL_LUMP;
 	default:
+		return INTERNAL_LUMP;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if the lump type can be treated as external in code
+// Input  : lumpType - 
+//-----------------------------------------------------------------------------
+bool IsLumpTypeExternal(int lumpType)
+{
+	switch (lumpType)
+	{
+	case LUMP_VERTEX_UNLIT:
+	case LUMP_VERTEX_LIT_FLAT:
+	case LUMP_VERTEX_LIT_BUMP:
+	case LUMP_VERTEX_UNLIT_TS:
+	case LUMP_LIGHTPROBES:
 		return false;
+	default:
+		return true;
 	}
 }
 
@@ -139,17 +176,19 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 
 	if (lumpToLoad <= s_MapHeader->lastLump)
 	{
-		lump_t* lump = &s_MapHeader->lumps[lumpToLoad];
+		const lump_t* lump = &s_MapHeader->lumps[lumpToLoad];
 
-		int lumpOffset = lump->fileofs;
-		if (!lumpOffset)
-			return; // Idk if this is correct.
+		const int lumpOffset = lump->fileofs;
+		//if (!lumpOffset)
+		//{
+		//	return; // Idk if this is correct.
+		//}
 
-		int lumpSize = lump->filelen;
+		const int lumpSize = lump->filelen;
 		if (lumpSize)
 		{
 			loader->m_nLumpSize = lumpSize;
-			loader->m_nLumpOffset = lump->fileofs;
+			loader->m_nLumpOffset = lumpOffset;
 			loader->m_nLumpVersion = lump->version;
 
 			FileHandle_t mapFileHandle = *s_MapFileHandle;
@@ -157,27 +196,27 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 			if (mapFileHandle == FILESYSTEM_INVALID_HANDLE)
 			{
 				Error(eDLL_T::ENGINE, EXIT_FAILURE, "Can't load map from invalid handle!!!");
-				lumpSize = loader->m_nLumpSize;
 			}
 
 			loader->m_nUncompressedLumpSize = lumpSize;
 
-			char pathBuf[MAX_PATH];
-			FileSystemCache fileCache;
+			char lumpPathBuf[MAX_PATH];
+			//const int lumpHandlingType = GetLumpHandlingType(lumpToLoad);
 
+			FileSystemCache fileCache;
 			fileCache.pBuffer = nullptr;
 
-			if (IsLumpIdxValid(lumpToLoad)
-				&& (V_snprintf(pathBuf, sizeof(pathBuf), "%s.%.4X.bsp_lump", s_szMapPathName, lumpToLoad), FileSystem()->ReadFromCache(pathBuf, &fileCache)))
+			if (/*lumpHandlingType &&*/ (V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", s_szMapPathName, lumpToLoad),
+				FileSystem()->ReadFromCache(lumpPathBuf, &fileCache)))
 			{
 				loader->m_pRawData = nullptr;
 				loader->m_pData = fileCache.pBuffer->pData;
-				loader->m_bExternal = true;
+				loader->m_bExternal = IsLumpTypeExternal(lumpToLoad);// lumpHandlingType == EXTERNAL_LUMP;
 				loader->m_bUnk = fileCache.pBuffer->nUnk0 == 0;
 			}
 			else
 			{
-				int bytesToRead = lumpSize ? lumpSize : 1;
+				const int bytesToRead = lumpSize ? lumpSize : 1;
 				loader->m_pRawData = MemAllocSingleton()->Alloc<byte>(bytesToRead);
 
 				if (loader->m_nLumpSize)
@@ -185,14 +224,17 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 					loader->m_pData = loader->m_pRawData;
 
 					FileHandle_t hLumpFile;
-					if (IsLumpIdxValid(lumpToLoad) && (hLumpFile = FileSystem()->Open(pathBuf, "rb"), hLumpFile != FILESYSTEM_INVALID_HANDLE))
+					if (/*lumpHandlingType &&*/ (hLumpFile = FileSystem()->Open(lumpPathBuf, "rb"), hLumpFile != FILESYSTEM_INVALID_HANDLE))
 					{
+
+						int nSize = FileSystem()->Size(hLumpFile);
+
 						//DevMsg(eDLL_T::ENGINE, "Loading lump %.4x from file. Buffer: %p\n", lumpToLoad, loader->m_pRawData);
 						FileSystem()->ReadEx(loader->m_pRawData, bytesToRead, bytesToRead, hLumpFile);
 						FileSystem()->Close(hLumpFile);
 
 						loader->m_pRawData = nullptr;
-						loader->m_bExternal = true;
+						loader->m_bExternal = IsLumpTypeExternal(lumpToLoad); //lumpHandlingType == EXTERNAL_LUMP;
 					}
 					else // Seek to offset in packed BSP file to load the lump.
 					{
