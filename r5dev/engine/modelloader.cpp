@@ -37,10 +37,10 @@ bool IsLumpIdxValid(int lumpType)
 	case LUMP_UNKNOWN_37:
 	case LUMP_UNKNOWN_38:
 	case LUMP_UNKNOWN_39:
-	case LUMP_VERTEX_UNLIT:
-	case LUMP_VERTEX_LIT_FLAT:
-	case LUMP_VERTEX_LIT_BUMP:
-	case LUMP_VERTEX_UNLIT_TS:
+	//case LUMP_VERTEX_UNLIT:
+	//case LUMP_VERTEX_LIT_FLAT:
+	//case LUMP_VERTEX_LIT_BUMP:
+	//case LUMP_VERTEX_UNLIT_TS:
 	case LUMP_MESH_INDICES:
 	case LUMP_LIGHTMAP_DATA_SKY:
 	case LUMP_CSM_AABB_NODES:
@@ -182,12 +182,12 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 
 				if (loader->m_nLumpSize)
 				{
-					FileHandle_t hLumpFile = FileSystem()->Open(pathBuf, "rb");
-
 					loader->m_pData = loader->m_pRawData;
 
-					if (hLumpFile != FILESYSTEM_INVALID_HANDLE)
+					FileHandle_t hLumpFile;
+					if (IsLumpIdxValid(lumpToLoad) && (hLumpFile = FileSystem()->Open(pathBuf, "rb"), hLumpFile != FILESYSTEM_INVALID_HANDLE))
 					{
+						//DevMsg(eDLL_T::ENGINE, "Loading lump %.4x from file. Buffer: %p\n", lumpToLoad, loader->m_pRawData);
 						FileSystem()->ReadEx(loader->m_pRawData, bytesToRead, bytesToRead, hLumpFile);
 						FileSystem()->Close(hLumpFile);
 
