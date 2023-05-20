@@ -37,10 +37,50 @@ struct FileSystemStatistics
 		nSeeks;
 };
 
+struct FileSystemCacheDescriptor
+{
+	const char* pszFilePath;
+	const char* pszFileName;
+	const char* pszFileExt;
+
+	void* pUnk0; // Ptr to ptr of some dynamically allocated buffer.
+
+	int nFileSize;
+	int nFileFlags; // Might be wrong.
+
+	void* pUnk1; // Ptr to some data; compressed perhaps?
+
+	int nUnk0;
+	int nUnk1;
+
+	int nUnk2;
+	int nUnk3;
+	int nUnk4;
+
+	int nPadding;
+};
+
+struct FileSystemCacheBuffer
+{
+	byte* pData; // Actual file buffer.
+	void* pUnk;
+	int nUnk0;
+	volatile LONG nLock;
+	int nUnk1;
+	int nUnk2; // Used to index into arrays.
+};
+
+struct FileSystemCache
+{
+	int nUnk0; // Most of the time, this is set to '1'.
+	FileSystemCacheDescriptor* pDescriptor;
+	FileSystemCacheBuffer* pBuffer;
+};
+
 //-----------------------------------------------------------------------------
 // File system allocation functions. Client must free on failure
 //-----------------------------------------------------------------------------
-typedef void* (*FSAllocFunc_t)(const char* pszFilename, unsigned nBytes);
+typedef void* (*FSAllocFunc_t)(const char* pszFileName, unsigned nBytes);
 
 
 //-----------------------------------------------------------------------------
@@ -386,7 +426,7 @@ public:
 	//--------------------------------------------------------
 	// Cache/VPK operations
 	//--------------------------------------------------------
-	virtual bool ReadFromCache(const char* pPath, void* pResult) = 0;
+	virtual bool ReadFromCache(const char* pPath, FileSystemCache* pCache) = 0;
 
 	virtual bool __fastcall sub_14037FFA0(__int64 a1, unsigned int a2, __int64 a3) = 0;
 

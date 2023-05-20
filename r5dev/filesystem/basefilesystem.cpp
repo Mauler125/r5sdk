@@ -87,17 +87,18 @@ FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHan
 // Purpose: loads files from cache
 // Input  : *this - 
 //			*pszFilePath - 
-//			*pResults - 
+//			*pCache - 
 // Output : true if file exists, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults)
+bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, FileSystemCache* pCache)
 {
 	if (VCheckDisk(pszFilePath))
 	{
 		return false;
 	}
 
-	return v_CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pResults);
+	bool result = v_CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pCache);
+	return result;
 }
 
 //---------------------------------------------------------------------------------
