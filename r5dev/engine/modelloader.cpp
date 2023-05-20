@@ -226,9 +226,6 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 					FileHandle_t hLumpFile;
 					if (/*lumpHandlingType &&*/ (hLumpFile = FileSystem()->Open(lumpPathBuf, "rb"), hLumpFile != FILESYSTEM_INVALID_HANDLE))
 					{
-
-						int nSize = FileSystem()->Size(hLumpFile);
-
 						//DevMsg(eDLL_T::ENGINE, "Loading lump %.4x from file. Buffer: %p\n", lumpToLoad, loader->m_pRawData);
 						FileSystem()->ReadEx(loader->m_pRawData, bytesToRead, bytesToRead, hLumpFile);
 						FileSystem()->Close(hLumpFile);
