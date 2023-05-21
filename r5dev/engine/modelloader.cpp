@@ -180,9 +180,7 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 
 		const int lumpOffset = lump->fileofs;
 		//if (!lumpOffset)
-		//{
 		//	return; // Idk if this is correct.
-		//}
 
 		const int lumpSize = lump->filelen;
 		if (lumpSize)
@@ -250,6 +248,54 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Hook 'AddGameLump' and load the external lump from the disk instead
+// Input  : *loader - 
+//			*model - 
+//-----------------------------------------------------------------------------
+void AddGameLump()
+{
+	char lumpPathBuf[MAX_PATH];
+	V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", s_szMapPathName, LUMP_GAME_LUMP);
+
+	FileHandle_t hLumpFile = FileSystem()->Open(lumpPathBuf, "rb");
+
+	if (hLumpFile != FILESYSTEM_INVALID_HANDLE)
+	{
+		// This function uses the 's_szMapPathName' internally to copy the map
+		// path to another static buffer which is used as the game lump path.
+		// We temporarily set the path to that of the game lump so that other
+		// routines are loading the game lump instead of the packed BSP.
+		char oldMapPathName[MAX_PATH];
+		strcpy(oldMapPathName, s_szMapPathName);
+		strcpy(s_szMapPathName, lumpPathBuf);
+
+		// This function uses the 's_MapFileHandle' internally.
+		// basically, the idea is to set this static filehandle
+		// to that of the GAME_LUMP lump, so it reads that instead.
+		FileHandle_t hOrigMapFileHandle = *s_MapFileHandle;
+		*s_MapFileHandle = hLumpFile;
+
+		// Set the file offset to 0, as we are loading it from
+		// the external lump instead of the one packed in the BSP.
+		lump_t* pLump = &s_MapHeader->lumps[LUMP_GAME_LUMP];
+		pLump->fileofs = 0;
+
+		v_AddGameLump();
+
+		// Restore...
+		strcpy(s_szMapPathName, oldMapPathName);
+		*s_MapFileHandle = hOrigMapFileHandle;
+
+		FileSystem()->Close(hLumpFile);
+	}
+	else
+	{
+		// Load the lump from the monolithic BSP file...
+		v_AddGameLump();
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void VModelLoader::Attach() const
 {
@@ -257,6 +303,7 @@ void VModelLoader::Attach() const
 	DetourAttach((LPVOID*)&CModelLoader__Map_LoadModelGuts, &CModelLoader::Map_LoadModelGuts);
 
 	DetourAttach((LPVOID*)&CMapLoadHelper__CMapLoadHelper, &CMapLoadHelper::Constructor);
+	DetourAttach((LPVOID*)&v_AddGameLump, &AddGameLump);
 }
 
 void VModelLoader::Detach() const
@@ -265,4 +312,5 @@ void VModelLoader::Detach() const
 	DetourDetach((LPVOID*)&CModelLoader__Map_LoadModelGuts, &CModelLoader::Map_LoadModelGuts);
 
 	DetourDetach((LPVOID*)&CMapLoadHelper__CMapLoadHelper, &CMapLoadHelper::Constructor);
+	DetourDetach((LPVOID*)&v_AddGameLump, &AddGameLump);
 }

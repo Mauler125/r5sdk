@@ -92,6 +92,9 @@ inline auto CModelLoader__Map_IsValid = p_CModelLoader__Map_IsValid.RCast<bool(*
 inline CMemory p_CMapLoadHelper__CMapLoadHelper;
 inline auto CMapLoadHelper__CMapLoadHelper = p_CMapLoadHelper__CMapLoadHelper.RCast<void(__fastcall*)(CMapLoadHelper * helper, int lumpToLoad)>();
 
+inline CMemory p_AddGameLump;
+inline auto v_AddGameLump = p_AddGameLump.RCast<void(__fastcall*)(void)>();
+
 inline CMemory p_Map_LoadModel;
 inline auto v_Map_LoadModel = p_Map_LoadModel.RCast<void(__fastcall*)(void)>();
 
@@ -104,7 +107,7 @@ inline auto v_Map_LoadModel = p_Map_LoadModel.RCast<void(__fastcall*)(void)>();
 inline CModelLoader* g_pModelLoader;
 inline FileHandle_t* s_MapFileHandle;
 inline BSPHeader_t* s_MapHeader;
-inline const char* s_szMapPathName; /*size = 260*/
+inline char* s_szMapPathName; /*size = 260*/
 
 ///////////////////////////////////////////////////////////////////////////////
 class VModelLoader : public IDetour
@@ -118,6 +121,7 @@ class VModelLoader : public IDetour
 		LogFunAdr("CModelLoader::Map_IsValid", p_CModelLoader__Map_IsValid.GetPtr());
 		LogFunAdr("CModelLoader::Studio_LoadModel", p_CModelLoader__Studio_LoadModel.GetPtr());
 		LogFunAdr("CMapLoadHelper::CMapLoadHelper", p_CMapLoadHelper__CMapLoadHelper.GetPtr());
+		LogFunAdr("AddGameLump", p_AddGameLump.GetPtr());
 		LogFunAdr("Map_LoadModel", p_Map_LoadModel.GetPtr());
 		//LogFunAdr("GetSpriteInfo", p_GetSpriteInfo.GetPtr());
 		//LogFunAdr("BuildSpriteLoadName", p_BuildSpriteLoadName.GetPtr());
@@ -148,6 +152,7 @@ class VModelLoader : public IDetour
 		//p_BuildSpriteLoadName             = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 4D 8B F1 48 8B F2");
 		
 		p_CMapLoadHelper__CMapLoadHelper = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC 60");
+		p_AddGameLump                    = g_GameDll.FindPatternSIMD("40 ?? 57 48 83 EC 48 33 ?? 48 8D");
 		p_Map_LoadModel                  = g_GameDll.FindPatternSIMD("48 83 EC 28 8B 05 ?? ?? ?? ?? FF C8");
 
 		CModelLoader__FindModel         = p_CModelLoader__FindModel.RCast<void* (*)(CModelLoader*, const char*)>();
@@ -157,8 +162,9 @@ class VModelLoader : public IDetour
 		CModelLoader__Map_LoadModelGuts = p_CModelLoader__Map_LoadModelGuts.RCast<uint64_t(*)(CModelLoader*, model_t* mod)>();
 		CModelLoader__Map_IsValid       = p_CModelLoader__Map_IsValid.RCast<bool(*)(CModelLoader*, const char*)>();
 
-		CMapLoadHelper__CMapLoadHelper = p_CMapLoadHelper__CMapLoadHelper.RCast<void(__fastcall*)(CMapLoadHelper*, int)>();
-		v_Map_LoadModel = p_Map_LoadModel.RCast<void(__fastcall*)(void)>();
+		CMapLoadHelper__CMapLoadHelper  = p_CMapLoadHelper__CMapLoadHelper.RCast<void(__fastcall*)(CMapLoadHelper*, int)>();
+		v_AddGameLump                   = p_AddGameLump.RCast<void(__fastcall*)(void)>();
+		v_Map_LoadModel                 = p_Map_LoadModel.RCast<void(__fastcall*)(void)>();
 
 		//GetSpriteInfo                   = p_GetSpriteInfo.RCast<void* (*)(const char*, bool, bool, int&, int&, int&, void*)>();
 		//BuildSpriteLoadName             = p_BuildSpriteLoadName.RCast<void* (*)(const char*, char*, int, bool&, bool&)>();
@@ -170,7 +176,7 @@ class VModelLoader : public IDetour
 
 		s_MapFileHandle = p_Map_LoadModel.FindPattern("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<FileHandle_t*>();
 		s_MapHeader = p_Map_LoadModel.FindPattern("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<BSPHeader_t*>();
-		s_szMapPathName = p_CMapLoadHelper__CMapLoadHelper.FindPattern("4C 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<const char*>();
+		s_szMapPathName = p_CMapLoadHelper__CMapLoadHelper.FindPattern("4C 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<char*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;
