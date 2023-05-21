@@ -163,6 +163,28 @@ struct BSPHeader_t
 	lump_t lumps[HEADER_LUMPS];
 };
 
+enum GameLumpId_t
+{
+	GAMELUMP_DETAIL_PROPS = 'dprp',
+	GAMELUMP_DETAIL_PROP_LIGHTING = 'dplt',
+	GAMELUMP_STATIC_PROPS = 'sprp',
+	GAMELUMP_DETAIL_PROP_LIGHTING_HDR = 'dplh',
+};
+
+struct dgamelumpheader_t
+{
+	int lumpCount;
+};
+
+struct dgamelump_t
+{
+	GameLumpId_t id;
+	unsigned short flags;
+	unsigned short version;
+	int fileofs;
+	int filelen;
+};
+
 struct dlightprobe_t
 {
 	short ambientSH[12]; // Ambient spherical harmonics coefficients
