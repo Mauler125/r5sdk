@@ -4,6 +4,43 @@
 
 /////////////////////////////
 /////////////////////////////
+////   Code adjustments  ////
+/////////////////////////////
+/////////////////////////////
+// This patch adds support for loading the 'LUMP_PAKFILE' lump as a discrete file.
+// The function originally loaded the BSP, and stored the header in a local variable.
+// This means that we need to store the BSP header in the lump too, if we want to load
+// the packfile lump separately. To avoid this, we hook this function in SDK code,
+// and load the BSP header into the static 's_MapHeader' memory. The patch below makes
+// the function read the static fields instead, and uses the descritprs in the header to
+// read out the lump path passed in. A separate tool sets the 'fileofs' field to 0, so the
+// packfile lump can be loaded without any additional patching.
+0x382152: "cmp dword ptr ds:[0x00000001666EC6C0], 0x50534272" // s_MapHeader.ident
+0x382162: "mov eax, dword ptr ds:[0x00000001666EC6C4]"        // s_MapHeader.version
+
+0x382174: "cmp dword ptr ds:[0x00000001666EC954], 0x10"       // s_MapHeader.lumps[LUMP_PAKFILE].filelen
+0x382181: "movsxd rcx, dword ptr ds:[0x00000001666EC950]"     // s_MapHeader.lumps[LUMP_PAKFILE].fileofs
+
+0x382188: "mov rdx, rcx" // Move the operation done at 0x382181 (stored into RCX) into RDX; no need to index into it again.
+
+// Due to the simplification of the operation above, 2 bytes had to be nopped.
+0x38218B: "nop"
+0x38218C: "nop"
+
+0x38226E: "movsxd r8, dword ptr ds:[0x00000001666EC950]"      // s_MapHeader.lumps[LUMP_PAKFILE].fileofs
+0x382275: "movsxd rdx, dword ptr ds:[0x00000001666EC954]"     // s_MapHeader.lumps[LUMP_PAKFILE].filelen
+
+0x38247B: "cmp dword ptr ds:[0x00000001666EC6C0], 0x50534272" // s_MapHeader.ident
+0x38248B: "mov eax, dword ptr ds:[0x00000001666EC6C4]"        // s_MapHeader.version
+
+0x38249D: "cmp dword ptr ds:[0x00000001666EC954], 0x10"       // s_MapHeader.lumps[LUMP_PAKFILE].filelen
+0x3824B6: "movsxd r8, dword ptr ds:[0x00000001666EC950]"      // s_MapHeader.lumps[LUMP_PAKFILE].fileofs
+
+0x38257E: movsxd r8, dword ptr ds:[0x00000001666EC950]        // s_MapHeader.lumps[LUMP_PAKFILE].fileofs
+0x382585: movsxd rdx, dword ptr ds:[0x00000001666EC954]       // s_MapHeader.lumps[LUMP_PAKFILE].filelen
+
+/////////////////////////////
+/////////////////////////////
 ////    Code defects     ////
 /////////////////////////////
 /////////////////////////////

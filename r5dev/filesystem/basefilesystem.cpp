@@ -3,6 +3,9 @@
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 
+#include "bspfile.h"
+#include "engine/modelloader.h"
+
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of the filesystem based on the warning level
 // Input  : *this - 
@@ -13,7 +16,7 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 {
 	if (level >= FileWarningLevel_t::FILESYSTEM_WARNING_REPORTALLACCESSES)
 	{
-		// Logging reads is very verbose! Explicitly toggle..
+		// Logging reads are very verbose! Explicitly toggle..
 		if (!fs_showAllReads->GetBool())
 		{
 			return;
@@ -102,6 +105,43 @@ bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFile
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: mounts a BSP packfile lump as search path
+// Input  : *this - 
+//			*pPath - 
+//			*pPathID - 
+//			*addType - 
+//---------------------------------------------------------------------------------
+void CBaseFileSystem::VAddMapPackFile(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType)
+{
+	// Since the mounting of the packfile lump is performed before the BSP header
+	// is loaded and parsed, we have to do it here. The internal 'AddMapPackFile'
+	// function has been patched to load the fields in the global 's_MapHeader'
+	// field, instead of the one that is getting initialized (see r5apex.patch).
+	if (s_MapHeader->ident != IDBSPHEADER || s_MapHeader->version != BSPVERSION)
+	{
+		FileHandle_t hBspFile = FileSystem()->Open(pPath, "rb", pPathID);
+		if (hBspFile != FILESYSTEM_INVALID_HANDLE)
+		{
+			memset(s_MapHeader, '\0', sizeof(BSPHeader_t));
+			FileSystem()->Read(s_MapHeader, sizeof(BSPHeader_t), hBspFile);
+		}
+	}
+
+	// If a lump exists, replace the path pointer with that of the lump so that
+	// the internal function loads this instead.
+	char lumpPathBuf[MAX_PATH];
+	V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", pPath, LUMP_PAKFILE);
+
+	// TODO[ AMOS ]: Attempt to read from cache first???
+	if (FileSystem()->FileExists(lumpPathBuf, pPathID))
+	{
+		pPath = lumpPathBuf;
+	}
+
+	v_CBaseFileSystem_AddMapPackFile(pFileSystem, pPath, pPathID, addType);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: attempts to mount VPK file for filesystem usage
 // Input  : *this - 
 //			*pszVpkPath - 
@@ -173,6 +213,7 @@ void VBaseFileSystem::Attach() const
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK);
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_LoadFromCache, &CBaseFileSystem::VReadFromCache);
+	DetourAttach((LPVOID*)&v_CBaseFileSystem_AddMapPackFile, &CBaseFileSystem::VAddMapPackFile);
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_MountVPKFile, &CBaseFileSystem::VMountVPKFile);
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile);
 }
@@ -182,6 +223,7 @@ void VBaseFileSystem::Detach() const
 	DetourDetach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
 	DetourDetach((LPVOID*)&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK);
 	DetourDetach((LPVOID*)&v_CBaseFileSystem_LoadFromCache, &CBaseFileSystem::VReadFromCache);
+	DetourDetach((LPVOID*)&v_CBaseFileSystem_AddMapPackFile, &CBaseFileSystem::VAddMapPackFile);
 	DetourDetach((LPVOID*)&v_CBaseFileSystem_MountVPKFile, &CBaseFileSystem::VMountVPKFile);
 	DetourDetach((LPVOID*)&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile);
 }
