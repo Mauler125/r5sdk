@@ -1,6 +1,13 @@
 #ifndef BSPFILE_H
 #define BSPFILE_H
 
+// little-endian "rBSP"
+#define IDBSPHEADER (('P'<<24)+('S'<<16)+('B'<<8)+'r')
+
+// MINBSPVERSION is the minimum acceptable version.  The engine will load MINBSPVERSION through BSPVERSION
+#define MINBSPVERSION 44
+#define BSPVERSION 47
+
 //=============================================================================
 
 enum
