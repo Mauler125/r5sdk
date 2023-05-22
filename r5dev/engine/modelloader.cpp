@@ -24,28 +24,13 @@ enum
 };
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if the lump could be loaded externally
+// Purpose: checks if the lump type could be loaded from cache
 // Input  : lumpType - 
 //-----------------------------------------------------------------------------
-int GetLumpHandlingType(int lumpType)
+bool IsLumpIdxCachable(int lumpType)
 {
 	switch (lumpType)
 	{
-	// These lumps can be loaded externally,
-	// but cannot be handled as such in code.
-	case LUMP_UNKNOWN_43:
-	case LUMP_UNKNOWN_44:
-	case LUMP_UNKNOWN_45:
-	case LUMP_UNKNOWN_46:
-	case LUMP_UNKNOWN_47:
-	case LUMP_UNKNOWN_48:
-	case LUMP_VERTEX_UNLIT:
-	case LUMP_VERTEX_LIT_FLAT:
-	case LUMP_VERTEX_LIT_BUMP:
-	case LUMP_VERTEX_UNLIT_TS:
-		return EXTERNAL_LUMP_AS_INTERNAL;
-	// These lumps can be loaded externally,
-	// and should be handled as such in code.
 	case LUMP_PLANES:
 	case LUMP_VERTICES:
 	case LUMP_SHADOW_ENVIRONMENTS:
@@ -59,6 +44,10 @@ int GetLumpHandlingType(int lumpType)
 	case LUMP_UNKNOWN_37:
 	case LUMP_UNKNOWN_38:
 	case LUMP_UNKNOWN_39:
+	case LUMP_VERTEX_UNLIT:
+	case LUMP_VERTEX_LIT_FLAT:
+	case LUMP_VERTEX_LIT_BUMP:
+	case LUMP_VERTEX_UNLIT_TS:
 	case LUMP_MESH_INDICES:
 	case LUMP_LIGHTMAP_DATA_SKY:
 	case LUMP_CSM_AABB_NODES:
@@ -86,9 +75,9 @@ int GetLumpHandlingType(int lumpType)
 	case LUMP_SHADOW_MESH_OPAQUE_VERTICES:
 	case LUMP_SHADOW_MESH_INDICES:
 	case LUMP_SHADOW_MESHES:
-		return EXTERNAL_LUMP;
+		return true;
 	default:
-		return INTERNAL_LUMP;
+		return false;
 	}
 }
 
@@ -204,26 +193,22 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 
 		loader->m_nUncompressedLumpSize = lumpSize;
 
-		char lumpPathBuf[MAX_PATH];
-
 		FileSystemCache fileCache;
 		fileCache.pBuffer = nullptr;
 
+		char lumpPathBuf[MAX_PATH];
 		V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", s_szMapPathName, lumpToLoad);
 
 		// Determine whether to load the lump from filesystem cache or disk.
-		//if ((V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", s_szMapPathName, lumpToLoad),
-		//	FileSystem()->ReadFromCache(lumpPathBuf, &fileCache)))
-		//{
-
-		//	printf("Reading %s from cache\n", lumpPathBuf);
-
-		//	loader->m_pRawData = nullptr;
-		//	loader->m_pData = fileCache.pBuffer->pData;
-		//	loader->m_bExternal = IsLumpTypeExternal(lumpToLoad);
-		//	loader->m_bUnk = fileCache.pBuffer->nUnk0 == 0;
-		//}
-		//else
+		if (IsLumpIdxCachable(lumpToLoad) &&
+			FileSystem()->ReadFromCache(lumpPathBuf, &fileCache))
+		{
+			loader->m_pRawData = nullptr;
+			loader->m_pData = fileCache.pBuffer->pData;
+			loader->m_bExternal = IsLumpTypeExternal(lumpToLoad);
+			loader->m_bUnk = fileCache.pBuffer->nUnk0 == 0;
+		}
+		else
 		{
 			loader->m_pRawData = MemAllocSingleton()->Alloc<byte>(lumpSize);
 

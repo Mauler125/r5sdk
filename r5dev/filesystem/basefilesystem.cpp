@@ -132,7 +132,6 @@ void CBaseFileSystem::VAddMapPackFile(CBaseFileSystem* pFileSystem, const char* 
 	char lumpPathBuf[MAX_PATH];
 	V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", pPath, LUMP_PAKFILE);
 
-	// TODO[ AMOS ]: Attempt to read from cache first???
 	if (FileSystem()->FileExists(lumpPathBuf, pPathID))
 	{
 		pPath = lumpPathBuf;
