@@ -16,13 +16,6 @@
 
 model_t* pErrorMDL = nullptr;
 
-enum
-{
-	INTERNAL_LUMP = 0,
-	EXTERNAL_LUMP,
-	EXTERNAL_LUMP_AS_INTERNAL
-};
-
 //-----------------------------------------------------------------------------
 // Purpose: checks if the lump type could be loaded from cache
 // Input  : lumpType - 
