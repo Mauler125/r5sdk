@@ -179,72 +179,75 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 		const lump_t* lump = &s_MapHeader->lumps[lumpToLoad];
 
 		const int lumpOffset = lump->fileofs;
-		//if (!lumpOffset)
-		//	return; // Idk if this is correct.
-
 		const int lumpSize = lump->filelen;
-		if (lumpSize)
+
+		if (lumpSize <= 0)
 		{
-			loader->m_nLumpSize = lumpSize;
-			loader->m_nLumpOffset = lumpOffset;
-			loader->m_nLumpVersion = lump->version;
+			loader->m_nLumpSize = 0;
+			loader->m_nLumpOffset = 0;
+			loader->m_nLumpVersion = 0;
 
-			FileHandle_t mapFileHandle = *s_MapFileHandle;
+			// this lump has no data
+			return;
+		}
 
-			if (mapFileHandle == FILESYSTEM_INVALID_HANDLE)
+		loader->m_nLumpSize = lumpSize;
+		loader->m_nLumpOffset = lumpOffset;
+		loader->m_nLumpVersion = lump->version;
+
+		FileHandle_t mapFileHandle = *s_MapFileHandle;
+
+		if (mapFileHandle == FILESYSTEM_INVALID_HANDLE)
+		{
+			Error(eDLL_T::ENGINE, EXIT_FAILURE, "Can't load map from invalid handle!!!");
+		}
+
+		loader->m_nUncompressedLumpSize = lumpSize;
+
+		char lumpPathBuf[MAX_PATH];
+
+		FileSystemCache fileCache;
+		fileCache.pBuffer = nullptr;
+
+		V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", s_szMapPathName, lumpToLoad);
+
+		// Determine whether to load the lump from filesystem cache or disk.
+		//if ((V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", s_szMapPathName, lumpToLoad),
+		//	FileSystem()->ReadFromCache(lumpPathBuf, &fileCache)))
+		//{
+
+		//	printf("Reading %s from cache\n", lumpPathBuf);
+
+		//	loader->m_pRawData = nullptr;
+		//	loader->m_pData = fileCache.pBuffer->pData;
+		//	loader->m_bExternal = IsLumpTypeExternal(lumpToLoad);
+		//	loader->m_bUnk = fileCache.pBuffer->nUnk0 == 0;
+		//}
+		//else
+		{
+			loader->m_pRawData = MemAllocSingleton()->Alloc<byte>(lumpSize);
+
+			if (loader->m_nLumpSize)
 			{
-				Error(eDLL_T::ENGINE, EXIT_FAILURE, "Can't load map from invalid handle!!!");
-			}
+				loader->m_pData = loader->m_pRawData;
 
-			loader->m_nUncompressedLumpSize = lumpSize;
-
-			char lumpPathBuf[MAX_PATH];
-			//const int lumpHandlingType = GetLumpHandlingType(lumpToLoad);
-
-			FileSystemCache fileCache;
-			fileCache.pBuffer = nullptr;
-
-			if (/*lumpHandlingType &&*/ (V_snprintf(lumpPathBuf, sizeof(lumpPathBuf), "%s.%.4X.bsp_lump", s_szMapPathName, lumpToLoad),
-				FileSystem()->ReadFromCache(lumpPathBuf, &fileCache)))
-			{
-				loader->m_pRawData = nullptr;
-				loader->m_pData = fileCache.pBuffer->pData;
-				loader->m_bExternal = IsLumpTypeExternal(lumpToLoad);// lumpHandlingType == EXTERNAL_LUMP;
-				loader->m_bUnk = fileCache.pBuffer->nUnk0 == 0;
-			}
-			else
-			{
-				const int bytesToRead = lumpSize ? lumpSize : 1;
-				loader->m_pRawData = MemAllocSingleton()->Alloc<byte>(bytesToRead);
-
-				if (loader->m_nLumpSize)
+				FileHandle_t hLumpFile = FileSystem()->Open(lumpPathBuf, "rb");
+				if (hLumpFile != FILESYSTEM_INVALID_HANDLE)
 				{
-					loader->m_pData = loader->m_pRawData;
+					//DevMsg(eDLL_T::ENGINE, "Loading lump %.4x from file. Buffer: %p\n", lumpToLoad, loader->m_pRawData);
+					FileSystem()->ReadEx(loader->m_pRawData, lumpSize, lumpSize, hLumpFile);
+					FileSystem()->Close(hLumpFile);
 
-					FileHandle_t hLumpFile;
-					if (/*lumpHandlingType &&*/ (hLumpFile = FileSystem()->Open(lumpPathBuf, "rb"), hLumpFile != FILESYSTEM_INVALID_HANDLE))
-					{
-						//DevMsg(eDLL_T::ENGINE, "Loading lump %.4x from file. Buffer: %p\n", lumpToLoad, loader->m_pRawData);
-						FileSystem()->ReadEx(loader->m_pRawData, bytesToRead, bytesToRead, hLumpFile);
-						FileSystem()->Close(hLumpFile);
-
-						loader->m_pRawData = nullptr;
-						loader->m_bExternal = IsLumpTypeExternal(lumpToLoad); //lumpHandlingType == EXTERNAL_LUMP;
-					}
-					else // Seek to offset in packed BSP file to load the lump.
-					{
-						FileSystem()->Seek(mapFileHandle, loader->m_nLumpOffset, FILESYSTEM_SEEK_HEAD);
-						FileSystem()->ReadEx(loader->m_pRawData, bytesToRead, bytesToRead, mapFileHandle);
-					}
+					loader->m_pRawData = nullptr;
+					loader->m_bExternal = IsLumpTypeExternal(lumpToLoad);
+				}
+				else // Seek to offset in packed BSP file to load the lump.
+				{
+					FileSystem()->Seek(mapFileHandle, loader->m_nLumpOffset, FILESYSTEM_SEEK_HEAD);
+					FileSystem()->ReadEx(loader->m_pRawData, lumpSize, lumpSize, mapFileHandle);
 				}
 			}
 		}
-	}
-	else
-	{
-		loader->m_nLumpSize = 0;
-		loader->m_nLumpOffset = 0;
-		loader->m_nLumpVersion = 0;
 	}
 }
 
