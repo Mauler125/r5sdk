@@ -29,17 +29,21 @@
 void _Error(char* fmt, ...)
 {
 	char buf[4096];
+	bool shouldNewline = true;
 	{/////////////////////////////
 		va_list args;
 		va_start(args, fmt);
 
-		vsnprintf(buf, sizeof(buf), fmt, args);
+		int len = vsnprintf(buf, sizeof(buf), fmt, args);
 
 		buf[sizeof(buf) - 1] = '\0';
 		va_end(args);
+
+		if (len > 0)
+			shouldNewline = buf[len-1] != '\n';
 	}/////////////////////////////
 
-	Error(eDLL_T::ENGINE, NO_ERROR, "%s", buf);
+	Error(eDLL_T::ENGINE, NO_ERROR, shouldNewline ? "%s\n" : "%s", buf);
 	v_Error("%s", buf);
 }
 
@@ -52,19 +56,23 @@ void _Error(char* fmt, ...)
 void _Warning(int level, char* fmt, ...)
 {
 	char buf[10000];
+	bool shouldNewline = true;
 	{/////////////////////////////
 		va_list args;
 		va_start(args, fmt);
 
-		vsnprintf(buf, sizeof(buf), fmt, args);
+		int len = vsnprintf(buf, sizeof(buf), fmt, args);
 
 		buf[sizeof(buf) - 1] = '\0';
 		va_end(args);
+
+		if (len > 0)
+			shouldNewline = buf[len - 1] != '\n';
 	}/////////////////////////////
 
 	if (level < 5)
 	{
-		Warning(eDLL_T::COMMON, "Warning(%d):%s", level, buf);
+		Warning(eDLL_T::COMMON, shouldNewline ? "Warning(%d):%s\n" : "Warning(%d):%s", level, buf);
 	}
 
 	v_Warning(level, "%s", buf);
