@@ -7,6 +7,7 @@ macro( apply_project_settings )
         $<$<CXX_COMPILER_ID:MSVC>:/permissive->
         $<$<CXX_COMPILER_ID:MSVC>:/MP>
         $<$<CXX_COMPILER_ID:MSVC>:/Zf>
+        $<$<CXX_COMPILER_ID:MSVC>:/Zi>
         $<$<CXX_COMPILER_ID:MSVC>:/W4>
         $<$<CXX_COMPILER_ID:MSVC>:/GR>
         $<$<CXX_COMPILER_ID:MSVC>:/D_UNICODE>
