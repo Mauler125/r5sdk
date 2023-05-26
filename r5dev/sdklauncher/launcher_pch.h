@@ -1,5 +1,6 @@
 #pragma once
 #include "core/stdafx.h"
+#include <gdiplus.h>
 
 #include "thirdparty/cppnet/cppkore/Form.h"
 #include "thirdparty/cppnet/cppkore/Kore.h"

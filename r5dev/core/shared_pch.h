@@ -18,7 +18,6 @@
 #include <bcrypt.h>
 #include <comdef.h>
 #include <direct.h>
-#include <gdiplus.h>
 #include <dbghelp.h>
 #include <timeapi.h>
 #include <shellapi.h>
