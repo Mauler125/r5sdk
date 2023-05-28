@@ -50,7 +50,7 @@ enum
 
 	// The game lump is a method of adding game-specific lumps.
 	LUMP_GAME_LUMP                       = 0x0023,
-	LUMP_UNUSED_36                       = 0x0024,
+	LUMP_LEAF_WATER_DATA                 = 0x0024, // see 'Mod_LoadLeafs'
 	LUMP_UNKNOWN_37                      = 0x0025, // connected to VIS lumps
 	LUMP_UNKNOWN_38                      = 0x0026, // connected to CSM lumps
 	LUMP_UNKNOWN_39                      = 0x0027, // connected to VIS lumps
@@ -150,6 +150,145 @@ enum
 	LUMP_SHADOW_MESH_INDICES             = 0x007E,
 	LUMP_SHADOW_MESHES                   = 0x007F,
 };
+
+/*
+inline const char* LumpTypeToString(int lumpType)
+{
+	switch (lumpType)
+	{
+		case LUMP_ENTITIES                        : return "LUMP_ENTITIES";
+		case LUMP_PLANES                          : return "LUMP_PLANES";
+		case LUMP_TEXTURE_DATA                    : return "LUMP_TEXTURE_DATA";
+		case LUMP_VERTICES                        : return "LUMP_VERTICES";
+		case LUMP_LIGHTPROBE_PARENT_INFOS         : return "LUMP_LIGHTPROBE_PARENT_INFOS";
+		case LUMP_SHADOW_ENVIRONMENTS             : return "LUMP_SHADOW_ENVIRONMENTS";
+		case LUMP_UNUSED_6                        : return "LUMP_UNUSED_6";
+		case LUMP_UNUSED_7                        : return "LUMP_UNUSED_7";
+		case LUMP_UNUSED_8                        : return "LUMP_UNUSED_8";
+		case LUMP_UNUSED_9                        : return "LUMP_UNUSED_9";
+		case LUMP_UNUSED_10                       : return "LUMP_UNUSED_10";
+		case LUMP_UNUSED_11                       : return "LUMP_UNUSED_11";
+		case LUMP_UNUSED_12                       : return "LUMP_UNUSED_12";
+		case LUMP_UNUSED_13                       : return "LUMP_UNUSED_13";
+		case LUMP_MODELS                          : return "LUMP_MODELS";
+		case LUMP_SURFACE_NAMES                   : return "LUMP_SURFACE_NAMES";
+		case LUMP_CONTENTS_MASKS                  : return "LUMP_CONTENTS_MASKS";
+		case LUMP_SURFACE_PROPERTIES              : return "LUMP_SURFACE_PROPERTIES";
+		case LUMP_BVH_NODES                       : return "LUMP_BVH_NODES";
+		case LUMP_BVH_LEAF_DATA                   : return "LUMP_BVH_LEAF_DATA";
+		case LUMP_PACKED_VERTICES                 : return "LUMP_PACKED_VERTICES";
+		case LUMP_UNUSED_21                       : return "LUMP_UNUSED_21";
+		case LUMP_UNUSED_22                       : return "LUMP_UNUSED_22";
+		case LUMP_UNUSED_23                       : return "LUMP_UNUSED_23";
+		case LUMP_ENTITY_PARTITIONS               : return "LUMP_ENTITY_PARTITIONS";
+		case LUMP_UNUSED_25                       : return "LUMP_UNUSED_25";
+		case LUMP_UNUSED_26                       : return "LUMP_UNUSED_26";
+		case LUMP_UNUSED_27                       : return "LUMP_UNUSED_27";
+		case LUMP_UNUSED_28                       : return "LUMP_UNUSED_28";
+		case LUMP_UNUSED_29                       : return "LUMP_UNUSED_29";
+		case LUMP_VERTEX_NORMALS                  : return "LUMP_VERTEX_NORMALS";
+		case LUMP_UNUSED_31                       : return "LUMP_UNUSED_31";
+		case LUMP_UNUSED_32                       : return "LUMP_UNUSED_32";
+		case LUMP_UNUSED_33                       : return "LUMP_UNUSED_33";
+		case LUMP_UNUSED_34                       : return "LUMP_UNUSED_34";
+		case LUMP_GAME_LUMP                       : return "LUMP_GAME_LUMP";
+		case LUMP_LEAF_WATER_DATA                 : return "LUMP_LEAF_WATER_DATA";
+		case LUMP_UNKNOWN_37                      : return "LUMP_UNKNOWN_37"; // connected to VIS lumps
+		case LUMP_UNKNOWN_38                      : return "LUMP_UNKNOWN_38"; // connected to CSM lumps
+		case LUMP_UNKNOWN_39                      : return "LUMP_UNKNOWN_39"; // connected to VIS lumps
+		case LUMP_PAKFILE                         : return "LUMP_PAKFILE";
+		case LUMP_UNUSED_41                       : return "LUMP_UNUSED_41";
+		case LUMP_CUBEMAPS                        : return "LUMP_CUBEMAPS";
+		case LUMP_UNKNOWN_43                      : return "LUMP_UNKNOWN_43";
+		case LUMP_UNKNOWN_44                      : return "LUMP_UNKNOWN_44"; // Storm Point & Habitat
+		case LUMP_UNKNOWN_45                      : return "LUMP_UNKNOWN_45"; // Storm Point & Habitat
+		case LUMP_UNKNOWN_46                      : return "LUMP_UNKNOWN_46"; // Storm Point & Habitat
+		case LUMP_UNKNOWN_47                      : return "LUMP_UNKNOWN_47"; // Storm Point & Habitat
+		case LUMP_UNKNOWN_48                      : return "LUMP_UNKNOWN_48"; // Storm Point & Habitat; sometimes unused
+		case LUMP_UNUSED_49                       : return "LUMP_UNUSED_49";
+		case LUMP_UNUSED_50                       : return "LUMP_UNUSED_50";
+		case LUMP_UNUSED_51                       : return "LUMP_UNUSED_51";
+		case LUMP_UNUSED_52                       : return "LUMP_UNUSED_52";
+		case LUMP_UNUSED_53                       : return "LUMP_UNUSED_53";
+		case LUMP_WORLD_LIGHTS                    : return "LUMP_WORLD_LIGHTS";
+		case LUMP_WORLD_LIGHT_PARENT_INFOS        : return "LUMP_WORLD_LIGHT_PARENT_INFOS";
+		case LUMP_UNUSED_56                       : return "LUMP_UNUSED_56";
+		case LUMP_UNUSED_57                       : return "LUMP_UNUSED_57";
+		case LUMP_UNUSED_58                       : return "LUMP_UNUSED_58";
+		case LUMP_UNUSED_59                       : return "LUMP_UNUSED_59";
+		case LUMP_UNUSED_60                       : return "LUMP_UNUSED_60";
+		case LUMP_UNUSED_61                       : return "LUMP_UNUSED_61";
+		case LUMP_UNUSED_62                       : return "LUMP_UNUSED_62";
+		case LUMP_UNUSED_63                       : return "LUMP_UNUSED_63";
+		case LUMP_UNUSED_64                       : return "LUMP_UNUSED_64";
+		case LUMP_UNUSED_65                       : return "LUMP_UNUSED_65";
+		case LUMP_UNUSED_66                       : return "LUMP_UNUSED_66";
+		case LUMP_UNUSED_67                       : return "LUMP_UNUSED_67";
+		case LUMP_UNUSED_68                       : return "LUMP_UNUSED_68";
+		case LUMP_UNUSED_69                       : return "LUMP_UNUSED_69";
+		case LUMP_UNUSED_70                       : return "LUMP_UNUSED_70";
+		case LUMP_VERTEX_UNLIT                    : return "LUMP_VERTEX_UNLIT"; // VERTEX_RESERVED_0
+		case LUMP_VERTEX_LIT_FLAT                 : return "LUMP_VERTEX_LIT_FLAT"; // VERTEX_RESERVED_1
+		case LUMP_VERTEX_LIT_BUMP                 : return "LUMP_VERTEX_LIT_BUMP"; // VERTEX_RESERVED_2
+		case LUMP_VERTEX_UNLIT_TS                 : return "LUMP_VERTEX_UNLIT_TS"; // VERTEX_RESERVED_3
+		case LUMP_VERTEX_BLINN_PHONG              : return "LUMP_VERTEX_BLINN_PHONG"; // VERTEX_RESERVED_4
+		case LUMP_VERTEX_RESERVED_5               : return "LUMP_VERTEX_RESERVED_5";
+		case LUMP_VERTEX_RESERVED_6               : return "LUMP_VERTEX_RESERVED_6";
+		case LUMP_VERTEX_RESERVED_7               : return "LUMP_VERTEX_RESERVED_7";
+		case LUMP_MESH_INDICES                    : return "LUMP_MESH_INDICES";
+		case LUMP_MESHES                          : return "LUMP_MESHES";
+		case LUMP_MESH_BOUNDS                     : return "LUMP_MESH_BOUNDS";
+		case LUMP_MATERIAL_SORT                   : return "LUMP_MATERIAL_SORT";
+		case LUMP_LIGHTMAP_HEADERS                : return "LUMP_LIGHTMAP_HEADERS";
+		case LUMP_UNUSED_84                       : return "LUMP_UNUSED_84";
+		case LUMP_TWEAK_LIGHTS                    : return "LUMP_TWEAK_LIGHTS";
+		case LUMP_UNUSED_86                       : return "LUMP_UNUSED_86";
+		case LUMP_UNUSED_87                       : return "LUMP_UNUSED_87";
+		case LUMP_UNUSED_88                       : return "LUMP_UNUSED_88";
+		case LUMP_UNUSED_89                       : return "LUMP_UNUSED_89";
+		case LUMP_UNUSED_90                       : return "LUMP_UNUSED_90";
+		case LUMP_UNUSED_91                       : return "LUMP_UNUSED_91";
+		case LUMP_UNUSED_92                       : return "LUMP_UNUSED_92";
+		case LUMP_UNUSED_93                       : return "LUMP_UNUSED_93";
+		case LUMP_UNUSED_94                       : return "LUMP_UNUSED_94";
+		case LUMP_UNUSED_95                       : return "LUMP_UNUSED_95";
+		case LUMP_UNUSED_96                       : return "LUMP_UNUSED_96";
+		case LUMP_UNKNOWN_97                      : return "LUMP_UNKNOWN_97";
+		case LUMP_LIGHTMAP_DATA_SKY               : return "LUMP_LIGHTMAP_DATA_SKY";
+		case LUMP_CSM_AABB_NODES                  : return "LUMP_CSM_AABB_NODES";
+		case LUMP_CSM_OBJ_REFERENCES              : return "LUMP_CSM_OBJ_REFERENCES";
+		case LUMP_LIGHTPROBES                     : return "LUMP_LIGHTPROBES"; // Changed in S14; 4 trailing padding bytes have been removed from the 'dlightprobe_t' struct.
+		case LUMP_STATIC_PROP_LIGHTPROBE_INDICES  : return "LUMP_STATIC_PROP_LIGHTPROBE_INDICES";
+		case LUMP_LIGHTPROBE_TREE                 : return "LUMP_LIGHTPROBE_TREE";
+		case LUMP_LIGHTPROBE_REFERENCES           : return "LUMP_LIGHTPROBE_REFERENCES";
+		case LUMP_LIGHTMAP_DATA_REAL_TIME_LIGHTS  : return "LUMP_LIGHTMAP_DATA_REAL_TIME_LIGHTS";
+		case LUMP_CELL_BSP_NODES                  : return "LUMP_CELL_BSP_NODES";
+		case LUMP_CELLS                           : return "LUMP_CELLS";
+		case LUMP_PORTALS                         : return "LUMP_PORTALS";
+		case LUMP_PORTAL_VERTICES                 : return "LUMP_PORTAL_VERTICES";
+		case LUMP_PORTAL_EDGES                    : return "LUMP_PORTAL_EDGES";
+		case LUMP_PORTAL_VERTEX_EDGES             : return "LUMP_PORTAL_VERTEX_EDGES";
+		case LUMP_PORTAL_VERTEX_REFERENCES        : return "LUMP_PORTAL_VERTEX_REFERENCES";
+		case LUMP_PORTAL_EDGE_REFERENCES          : return "LUMP_PORTAL_EDGE_REFERENCES";
+		case LUMP_PORTAL_EDGE_INTERSECT_AT_EDGE   : return "LUMP_PORTAL_EDGE_INTERSECT_AT_EDGE";
+		case LUMP_PORTAL_EDGE_INTERSECT_AT_VERTEX : return "LUMP_PORTAL_EDGE_INTERSECT_AT_VERTEX";
+		case LUMP_PORTAL_EDGE_INTERSECT_HEADER    : return "LUMP_PORTAL_EDGE_INTERSECT_HEADER";
+		case LUMP_OCCLUSION_MESH_VERTICES         : return "LUMP_OCCLUSION_MESH_VERTICES";
+		case LUMP_OCCLUSION_MESH_INDICES          : return "LUMP_OCCLUSION_MESH_INDICES";
+		case LUMP_CELL_AABB_NODES                 : return "LUMP_CELL_AABB_NODES";
+		case LUMP_OBJ_REFERENCES                  : return "LUMP_OBJ_REFERENCES";
+		case LUMP_OBJ_REFERENCE_BOUNDS            : return "LUMP_OBJ_REFERENCE_BOUNDS";
+		case LUMP_LIGHTMAP_DATA_RTL_PAGE          : return "LUMP_LIGHTMAP_DATA_RTL_PAGE";
+		case LUMP_LEVEL_INFO                      : return "LUMP_LEVEL_INFO";
+		case LUMP_SHADOW_MESH_OPAQUE_VERTICES     : return "LUMP_SHADOW_MESH_OPAQUE_VERTICES";
+		case LUMP_SHADOW_MESH_ALPHA_VERTICES      : return "LUMP_SHADOW_MESH_ALPHA_VERTICES";
+		case LUMP_SHADOW_MESH_INDICES             : return "LUMP_SHADOW_MESH_INDICES";
+		case LUMP_SHADOW_MESHES                   : return "LUMP_SHADOW_MESHES";
+
+		default: return "LUMP_TYPE_UNKNOWN";
+	}
+}
+*/
 
 #define	HEADER_LUMPS	128
 

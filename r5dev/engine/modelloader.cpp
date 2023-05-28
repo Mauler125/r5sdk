@@ -17,7 +17,7 @@
 //model_t* pErrorMDL = nullptr;
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if the lump type could be loaded from cache
+// Purpose: returns whether or not the lump type could be loaded from cache
 // Input  : lumpType - 
 //-----------------------------------------------------------------------------
 bool IsLumpTypeCachable(int lumpType)
@@ -75,7 +75,7 @@ bool IsLumpTypeCachable(int lumpType)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if the lump type can be treated as external in code
+// Purpose: returns whether or not the lump type can be treated as external in code
 // Input  : lumpType - 
 //-----------------------------------------------------------------------------
 bool IsLumpTypeExternal(int lumpType)
@@ -90,6 +90,68 @@ bool IsLumpTypeExternal(int lumpType)
 		return false;
 	default:
 		return true;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns whether or not the lump type is only used on the client
+// Input  : lumpType - 
+//-----------------------------------------------------------------------------
+bool IsLumpTypeClientOnly(int lumpType)
+{
+	switch (lumpType)
+	{
+	case LUMP_TEXTURE_DATA:
+	case LUMP_LIGHTPROBE_PARENT_INFOS:
+	case LUMP_SHADOW_ENVIRONMENTS:
+	case LUMP_VERTEX_NORMALS:
+	case LUMP_LEAF_WATER_DATA:
+	case LUMP_UNKNOWN_38:
+	case LUMP_CUBEMAPS:
+	case LUMP_WORLD_LIGHTS:
+	case LUMP_WORLD_LIGHT_PARENT_INFOS:
+	case LUMP_VERTEX_UNLIT:
+	case LUMP_VERTEX_LIT_FLAT:
+	case LUMP_VERTEX_LIT_BUMP:
+	case LUMP_VERTEX_UNLIT_TS:
+	case LUMP_VERTEX_BLINN_PHONG:
+	case LUMP_VERTEX_RESERVED_5:
+	case LUMP_VERTEX_RESERVED_6:
+	case LUMP_VERTEX_RESERVED_7:
+	case LUMP_MESH_INDICES:
+	case LUMP_MESHES:
+	case LUMP_MESH_BOUNDS:
+	case LUMP_MATERIAL_SORT:
+	case LUMP_LIGHTMAP_HEADERS:
+	case LUMP_TWEAK_LIGHTS:
+	case LUMP_UNKNOWN_97:
+	case LUMP_LIGHTMAP_DATA_SKY:
+	case LUMP_CSM_AABB_NODES:
+	case LUMP_CSM_OBJ_REFERENCES:
+	case LUMP_LIGHTPROBES:
+	case LUMP_STATIC_PROP_LIGHTPROBE_INDICES:
+	case LUMP_LIGHTPROBE_TREE:
+	case LUMP_LIGHTPROBE_REFERENCES:
+	case LUMP_LIGHTMAP_DATA_REAL_TIME_LIGHTS:
+	case LUMP_PORTALS:
+	case LUMP_PORTAL_VERTICES:
+	case LUMP_PORTAL_EDGES:
+	case LUMP_PORTAL_VERTEX_EDGES:
+	case LUMP_PORTAL_VERTEX_REFERENCES:
+	case LUMP_PORTAL_EDGE_REFERENCES:
+	case LUMP_PORTAL_EDGE_INTERSECT_AT_EDGE:
+	case LUMP_PORTAL_EDGE_INTERSECT_AT_VERTEX:
+	case LUMP_PORTAL_EDGE_INTERSECT_HEADER:
+	case LUMP_OCCLUSION_MESH_VERTICES:
+	case LUMP_OCCLUSION_MESH_INDICES:
+	case LUMP_LIGHTMAP_DATA_RTL_PAGE:
+	case LUMP_SHADOW_MESH_OPAQUE_VERTICES:
+	case LUMP_SHADOW_MESH_ALPHA_VERTICES:
+	case LUMP_SHADOW_MESH_INDICES:
+	case LUMP_SHADOW_MESHES:
+		return true;
+	default:
+		return false;
 	}
 }
 
@@ -143,7 +205,7 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 #endif // !DEDICATED
 
 	if (lumpToLoad > HEADER_LUMPS-1)
-		Error(eDLL_T::ENGINE, EXIT_FAILURE, "Can't load lump %i, range is 0 to %i!!!", lumpToLoad, HEADER_LUMPS-1);
+		Error(eDLL_T::ENGINE, EXIT_FAILURE, "Can't load lump %i, range is 0 to %i!!!\n", lumpToLoad, HEADER_LUMPS-1);
 
 	loader->m_nLumpID = lumpToLoad;
 	loader->m_nLumpSize = 0;
@@ -155,6 +217,15 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 	loader->m_bExternal = false;
 	loader->m_bUnk = false;
 	loader->m_nLumpOffset = -1;
+
+#ifdef DEDICATED
+	// Some of the lump loading code that is specific to
+	// the client is heavily inline in code, which makes
+	// it hard to patch it out from there.. to fix this,
+	// we just check from here and return if its cl only
+	if (IsLumpTypeClientOnly(lumpToLoad))
+		return;
+#endif // DEDICATED
 
 	if (lumpToLoad <= s_MapHeader->lastLump)
 	{
@@ -181,7 +252,7 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 
 		if (mapFileHandle == FILESYSTEM_INVALID_HANDLE)
 		{
-			Error(eDLL_T::ENGINE, EXIT_FAILURE, "Can't load map from invalid handle!!!");
+			Error(eDLL_T::ENGINE, EXIT_FAILURE, "Can't load map from invalid handle!!!\n");
 		}
 
 		loader->m_nUncompressedLumpSize = lumpSize;
