@@ -1,0 +1,8 @@
+bspconv mp_lobby.bsp
+bspconv mp_rr_canyonlands_64k_x_64k.bsp
+bspconv mp_rr_canyonlands_mu1.bsp
+bspconv mp_rr_canyonlands_mu1_night.bsp
+bspconv mp_rr_canyonlands_staging.bsp
+bspconv mp_rr_canyonlands_staging_mu1.bsp
+bspconv mp_rr_desertlands_64k_x_64k.bsp
+bspconv mp_rr_desertlands_64k_x_64k_nx.bsp
