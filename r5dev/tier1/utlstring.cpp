@@ -102,7 +102,7 @@ void CUtlBinaryBlock::Get( void *pValue, int64 nLen ) const
 	}
 }
 
-void CUtlBinaryBlock::SetLength(int64 nLength )
+void CUtlBinaryBlock::SetLength( int64 nLength )
 {
 	//MEM_ALLOC_CREDIT();
 	Assert( !m_Memory.IsReadOnly() );
@@ -437,6 +437,12 @@ void CUtlString::StripTrailingSlash()
 	}
 }
 
+// Find a substring
+ptrdiff_t CUtlString::Find(const char* szTarget) const
+{
+	return IndexOf( szTarget, Get() );
+}
+
 CUtlString CUtlString::Slice( int64 nStart, int64 nEnd )
 {
 	if ( nStart < 0 )
@@ -476,6 +482,7 @@ CUtlString CUtlString::Right( int64 nChars )
 {
 	return Slice( -nChars );
 }
+
 
 // Get a string with the specified substring removed
 
@@ -597,11 +604,18 @@ CUtlString CUtlString::UnqualifiedFilename() const
 	return CUtlString( pFilename );
 }
 
-CUtlString CUtlString::DirName()
+CUtlString CUtlString::DirName( bool bStripTrailingSlash ) const
 {
 	CUtlString ret( this->String() );
-	V_StripLastDir( (char*)ret.m_Storage.Get(), ret.m_Storage.Length() );
-	V_StripTrailingSlash( (char*)ret.m_Storage.Get() );
+	size_t len = 0;
+
+	V_StripLastDir( (char*)ret.m_Storage.Get(), ret.m_Storage.Length(), &len );
+
+	if (bStripTrailingSlash)
+		ret.StripTrailingSlash();
+	else
+		ret.SetLength(len); // StripTrailingSlash sets this, but if we skip it then nothing sets it.
+
 	return ret;
 }
 
@@ -612,13 +626,16 @@ CUtlString CUtlString::StripExtension() const
 	return CUtlString( szTemp );
 }
 
-CUtlString CUtlString::StripFilename() const
+CUtlString CUtlString::StripFilename( bool bStripTrailingSlash ) const
 {
 	const char *pFilename = V_UnqualifiedFileName( Get() ); // NOTE: returns 'Get()' on failure, never NULL
 	int64 nCharsToCopy = pFilename - Get();
 	CUtlString result;
 	result.SetDirect( Get(), nCharsToCopy );
-	result.StripTrailingSlash();
+
+	if ( bStripTrailingSlash )
+		result.StripTrailingSlash();
+
 	return result;
 }
 

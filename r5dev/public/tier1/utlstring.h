@@ -255,6 +255,8 @@ public:
 	// also implement Find/Insert/Remove functions that take const char* params.
 	typedef const char *AltArgumentType_t;
 
+	ptrdiff_t Find( const char* szTarget ) const;
+
 	// Take a piece out of the string.
 	// If you only specify nStart, it'll go from nStart to the end.
 	// You can use negative numbers and it'll wrap around to the start.
@@ -264,7 +266,7 @@ public:
 	CUtlString Left( int64 nChars );
 	CUtlString Right( int64 nChars );
 
-	CUtlString Remove(char const *pTextToRemove, bool bCaseSensitive) const;
+	CUtlString Remove( char const *pTextToRemove, bool bCaseSensitive ) const;
 
 	// Replace all instances of one character with another.
 	CUtlString Replace( char cFrom, char cTo );
@@ -298,14 +300,14 @@ public:
 	// Gets the filename (everything except the path.. c:\a\b\c\somefile.txt -> somefile.txt).
 	CUtlString UnqualifiedFilename() const;
 	
-	// Strips off one directory. Uses V_StripLastDir but strips the last slash also!
-	CUtlString DirName();
+	// Strips off one directory. Uses V_StripLastDir but (optionally) strips the last slash also!
+	CUtlString DirName( bool bStripTrailingSlash = true ) const;
 
 	// Get a string with the extension removed (with V_StripExtension).
 	CUtlString StripExtension() const;
 
-	// Get a string with the filename removed (uses V_UnqualifiedFileName and also strips the last slash)
-	CUtlString StripFilename() const;
+	// Get a string with the filename removed (uses V_UnqualifiedFileName and (optionally) also strips the last slash)
+	CUtlString StripFilename( bool bStripTrailingSlash = true ) const;
 
 	// Get a string with the base filename (with V_FileBase).
 	CUtlString GetBaseFilename() const;
@@ -322,6 +324,15 @@ public:
 
 	// From Src2
 
+	void AppendSlash( char separator = CORRECT_PATH_SEPARATOR )
+	{
+		int64 nLength = Length() - 1;
+		if ( nLength > 0 && !PATHSEPARATOR( static_cast< char >( m_Storage[ nLength ] ) ) )
+		{
+			Append( separator );
+		}
+	}
+
 	void FixSlashes( char cSeparator = CORRECT_PATH_SEPARATOR )
 	{
 		for ( int64 nLength = Length() - 1; nLength >= 0; nLength-- )
@@ -334,6 +345,10 @@ public:
 		}
 	}
 
+	inline bool IsEqual_CaseSensitive(const CUtlString& src) const
+	{
+		return IsEqual_CaseSensitive( src.Get() );
+	}
 	bool IsEqual_CaseSensitive( const char *src ) const
 	{
 		if ( !src )
@@ -343,15 +358,18 @@ public:
 		return ( V_strcmp( Get(), src ) == 0 );
 	}
 
-	bool IsEqual_CaseInsensitive(const char *src) const
+	inline bool IsEqual_CaseInsensitive(const CUtlString& src) const
 	{
-		if (!src)
-		{
-			return (Length() == 0);
-		}
-		return (V_stricmp(Get(), src) == 0);
+		return IsEqual_CaseInsensitive( src.Get() );
 	}
-
+	bool IsEqual_CaseInsensitive( const char *src ) const
+	{
+		if ( !src )
+		{
+			return ( Length() == 0 );
+		}
+		return ( V_stricmp( Get(), src ) == 0 );
+	}
 
 private:
 	CUtlBinaryBlock m_Storage;
