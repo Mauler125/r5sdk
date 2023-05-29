@@ -599,6 +599,27 @@ bool V_IsAbsolutePath(const char* pStr)
 	return bIsAbsolute;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Sanity-check to verify that a path is a relative path inside the game dir
+// Taken From: engine/cmd.cpp
+//-----------------------------------------------------------------------------
+bool V_IsValidPath(const char* pStr)
+{
+	if (!pStr)
+	{
+		return false;
+	}
+
+	if (Q_strlen(pStr) <= 0    ||
+		V_IsAbsolutePath(pStr) || // to protect absolute paths
+		Q_strstr(pStr, ".."))     // to protect relative paths
+	{
+		return false;
+	}
+
+	return true;
+}
+
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 bool
 #else
@@ -669,10 +690,11 @@ V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pSt
 //-----------------------------------------------------------------------------
 // Purpose: Strip off the last directory from dirName
 // Input  : *dirName - 
-//			maxlen - 
+//			maxLen - 
+//			*newLen - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool V_StripLastDir(char* dirName, size_t maxlen)
+bool V_StripLastDir(char* dirName, size_t maxLen, size_t* newLen)
 {
 	if (dirName[0] == 0 ||
 		!V_stricmp(dirName, "./") ||
@@ -681,7 +703,7 @@ bool V_StripLastDir(char* dirName, size_t maxlen)
 
 	size_t len = V_strlen(dirName);
 
-	Assert(len < maxlen);
+	Assert(len < maxLen);
 
 	// skip trailing slash
 	if (PATHSEPARATOR(dirName[len - 1]))
@@ -718,8 +740,13 @@ bool V_StripLastDir(char* dirName, size_t maxlen)
 	// The correct behavior is to strip off the last directory ("tf2") and return true.
 	if (len == 0 && !bHitColon)
 	{
-		V_snprintf(dirName, maxlen, ".%c", CORRECT_PATH_SEPARATOR);
+		V_snprintf(dirName, maxLen, ".%c", CORRECT_PATH_SEPARATOR);
 		return true;
+	}
+
+	if (newLen)
+	{
+		*newLen = len;
 	}
 
 	return true;

@@ -99,6 +99,9 @@ bool V_NormalizePath(char* pfilePath, char separator);
 // Returns true if the path is an absolute path.
 bool V_IsAbsolutePath(IN_Z const char* pPath);
 
+// Returns true if the path is valid.
+bool V_IsValidPath(const char* pStr);
+
 // If pPath is a relative path, this function makes it into an absolute path
 // using the current working directory as the base, or pStartingDir if it's non-NULL.
 // Returns false if it runs out of room in the string, or if pPath tries to ".." past the root directory.
@@ -118,7 +121,7 @@ inline void V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, con
 }
 
 // Remove the final directory from the path
-bool V_StripLastDir(char* dirName, size_t maxlen);
+bool V_StripLastDir(char* dirName, size_t maxLen, size_t* newLen);
 // Returns a pointer to the unqualified file name (no path) of a file name
 const char* V_UnqualifiedFileName(const char* in);
 // Given a path and a filename, composes "path\filename", inserting the (OS correct) separator if necessary
