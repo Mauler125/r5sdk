@@ -53,9 +53,9 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "mathlib"
     "vphysics"
 
-    "SigCache_PB"
-    "SV_RCon_PB"
-    "CL_RCon_PB"
+    "SigCache_Pb"
+    "SV_RCon_Pb"
+    "CL_RCon_Pb"
 
     "rtech_tools"
     "rtech_game"
