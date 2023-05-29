@@ -133,4 +133,4 @@ endmacro()
 
 add_sdk_project( "gamesdk" )
 add_sdk_project( "dedicated" )
-add_sdk_project( "client" )
+#add_sdk_project( "client" )
