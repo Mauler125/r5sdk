@@ -15,7 +15,7 @@ public:
 	static VPKData_t* VMountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 	static const char* VUnmountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 
-	string ReadString(FileHandle_t pFile);
+	CUtlString ReadString(FileHandle_t pFile);
 
 protected:
 	//----------------------------------------------------------------------------

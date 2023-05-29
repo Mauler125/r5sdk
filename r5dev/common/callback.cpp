@@ -606,11 +606,11 @@ void VPK_Pack_f(const CCommand& args)
 	VPKPair_t pair(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
 	CFastTimer timer;
 
-	DevMsg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_svDirectoryName.c_str());
+	DevMsg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.Get());
 	timer.Start();
 
 	g_pPackedStore->InitLzCompParams();
-	g_pPackedStore->PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/", (args.ArgC() > 4));
+	g_pPackedStore->PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/");
 
 	timer.End();
 	DevMsg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -632,11 +632,11 @@ void VPK_Unpack_f(const CCommand& args)
 		return;
 	}
 
-	const char* pArg = args.Arg(1);
-	VPKDir_t vpk(pArg, (args.ArgC() > 2));
+	CUtlString arg = args.Arg(1);
+	VPKDir_t vpk(arg, (args.ArgC() > 2));
 	CFastTimer timer;
 
-	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", pArg);
+	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", arg.Get());
 	timer.Start();
 
 	g_pPackedStore->InitLzDecompParams();

@@ -190,9 +190,9 @@ const char* CBaseFileSystem::VUnmountVPKFile(CBaseFileSystem* pFileSystem, const
 // Input  : *pFile - 
 // Output : string
 //---------------------------------------------------------------------------------
-string CBaseFileSystem::ReadString(FileHandle_t pFile)
+CUtlString CBaseFileSystem::ReadString(FileHandle_t pFile)
 {
-	string svString;
+	CUtlString result;
 	char c = '\0';
 
 	do
@@ -200,11 +200,11 @@ string CBaseFileSystem::ReadString(FileHandle_t pFile)
 		Read(&c, sizeof(char), pFile);
 
 		if (c)
-			svString += c;
+			result += c;
 
 	} while (c);
 
-	return svString;
+	return result;
 }
 
 void VBaseFileSystem::Attach() const
