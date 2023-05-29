@@ -558,7 +558,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 				if (vChunk.m_nCompressedSize == vChunk.m_nUncompressedSize) // Data is not compressed.
 				{
 					FileSystem()->Write(pSourceBuffer, int(vChunk.m_nUncompressedSize), hAsset);
-					break;
+					continue;
 				}
 
 				size_t nDstLen = ENTRY_MAX_LEN;
