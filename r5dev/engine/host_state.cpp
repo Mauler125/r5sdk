@@ -289,7 +289,7 @@ void CHostState::Think(void) const
 			hostdesc->GetString(),
 			sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
 			g_pHostState->m_levelName,
-			mp_gamemode->GetString(),
+			KeyValues_GetCurrentPlaylist(),
 			hostip->GetString(),
 			hostport->GetString(),
 			g_pNetKey->GetBase64NetKey(),

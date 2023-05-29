@@ -736,7 +736,7 @@ void CBrowser::UpdateHostingStatus(void)
                 g_pServerListManager->m_Server.m_svDescription,
                 g_pServerListManager->m_Server.m_bHidden,
                 g_pHostState->m_levelName,
-                mp_gamemode->GetString(),
+                KeyValues_GetCurrentPlaylist(),
                 hostip->GetString(),
                 hostport->GetString(),
                 g_pNetKey->GetBase64NetKey(),
