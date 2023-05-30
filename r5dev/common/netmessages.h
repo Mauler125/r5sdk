@@ -78,6 +78,72 @@ enum NetMessageVtbl
 	GetSize
 };
 
+//-------------------------------------------------------------------------
+// Enumeration of netmessage types
+//-------------------------------------------------------------------------
+enum NetMessageType
+{
+	net_StringCmd                   = 3,
+	net_SetConVar                   = 4,
+	net_SignonState                 = 5,
+	net_MTXUserMsg                  = 6,
+
+	svc_ServerInfo                  = 7,
+	svc_SendTable                   = 8,
+	svc_ClassInfo                   = 9,
+	svc_SetPause                    = 10,
+	svc_Playlists                   = 11,
+	svc_CreateStringTable           = 12,
+	svc_UpdateStringTable           = 13,
+	svc_VoiceData                   = 14,
+	svc_DurangoVoiceData            = 15,
+	svc_Print                       = 16,
+	svc_Sounds                      = 17,
+	svc_FixAngle                    = 18,
+	svc_CrosshairAngle              = 19,
+	svc_GrantClientSidePickup       = 20,
+	svc_ServerTick                  = 22,
+	svc_PersistenceDefFile          = 23,
+	svc_UseCachedPersistenceDefFile = 24,
+	svc_PersistenceBaseline         = 25,
+	svc_PersistenceUpdateVar        = 26,
+	svc_PersistenceNotifySaved      = 27,
+	svc_DLCNotifyOwnership          = 28,
+	svc_MatchmakingETAs             = 29,
+	svc_MatchmakingStatus           = 30,
+	svc_MTXUserInfo                 = 31,
+	svc_PlaylistChange              = 32,
+	svc_SetTeam                     = 33,
+	svc_PlaylistOverrides           = 34,
+	svc_AntiCheat                   = 35,
+	svc_AntiCheatChallenge          = 36,
+	svc_UserMessage                 = 37,
+	svc_Snapshot                    = 40,
+	svc_TempEntities                = 41,
+	svc_Menu                        = 42,
+	svc_CmdKeyValues                = 43,
+	svc_DatatableChecksum           = 44,
+
+	clc_ClientInfo                  = 45,
+	clc_Move                        = 46,
+	clc_VoiceData                   = 47,
+	clc_DurangoVoiceData            = 48,
+	clc_FileCRCCheck                = 50,
+	clc_LoadingProgress             = 52,
+	clc_PersistenceRequestSave      = 53,
+	clc_PersistenceClientToken      = 54,
+	clc_SetClientEntitlements       = 55,
+	clc_SetPlaylistVarOverride      = 56,
+	clc_ClaimClientSidePickup       = 57,
+	clc_CmdKeyValues                = 59,
+	clc_ClientTick                  = 60,
+	clc_ClientSayText               = 61,
+	clc_PINTelemetryData            = 62,
+	clc_AntiCheat                   = 63,
+	clc_AntiCheatChallenge          = 64,
+	clc_GamepadMsg                  = 65,
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////
 class CNetMessage : public INetMessage
 {
