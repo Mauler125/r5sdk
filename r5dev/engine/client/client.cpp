@@ -332,15 +332,22 @@ void CClient::VActivatePlayer(CClient* pClient)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: send a net message
+// Purpose: send a net message with replay.
+//			set 'CNetMessage::m_nGroup' to 'NoReplay' to disable replay.
 // Input  : *pMsg - 
 //			bLocal - 
 //			bForceReliable - 
 //			bVoice - 
 //---------------------------------------------------------------------------------
-bool CClient::SendNetMsg(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
+bool CClient::SendNetMsgEx(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
 {
-	return v_CClient_SendNetMsg(this, pMsg, bLocal, bForceReliable, bVoice);
+	if (!ShouldReplayMessage(pMsg))
+	{
+		// Don't copy the message into the replay buffer.
+		pMsg->m_nGroup = NetMessageGroup::NoReplay;
+	}
+
+	return v_CClient_SendNetMsgEx(this, pMsg, bLocal, bForceReliable, bVoice);
 }
 
 //---------------------------------------------------------------------------------
@@ -404,6 +411,19 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 #endif // !CLIENT_DLL
 
 	return v_CClient_ProcessStringCmd(pClient, pMsg);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: internal hook to 'CClient::SendNetMsgEx'
+// Input  : *pClient - 
+//			*pMsg - 
+//			bLocal - 
+//			bForceReliable - 
+//			bVoice - 
+//---------------------------------------------------------------------------------
+bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
+{
+	return pClient->SendNetMsgEx(pMsg, bLocal, bForceReliable, bVoice);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

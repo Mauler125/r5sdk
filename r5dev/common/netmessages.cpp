@@ -86,6 +86,34 @@ bool Base_CmdKeyValues::WriteToBufferImpl(Base_CmdKeyValues* thisptr, bf_write* 
 	return Base_CmdKeyValues_WriteToBuffer(thisptr, buffer);
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+// determine whether or not the message should be copied into the replay buffer,
+// regardless of the 'CNetMessage::m_Group' type.
+///////////////////////////////////////////////////////////////////////////////////
+bool ShouldReplayMessage(CNetMessage* msg)
+{
+	switch (msg->GetType())
+	{
+	// String commands can be abused in a way they get executed
+	// on the client that is watching a replay. This happens as
+	// the server copies the message into the replay buffer from
+	// the client that initially submitted it. Its group type is
+	// 'None', so call this to determine whether or not to set
+	// the group type to 'NoReplay'. This exploit has been used
+	// to connect clients to an arbitrary server during replay.
+	case NetMessageType::net_StringCmd:
+	// Print and user messages sometimes make their way to the
+	// client that is watching a replay, while it should only
+	// be broadcasted to the target client. This happens for the 
+	// same reason as the 'net_StringCmd' above.
+	case NetMessageType::svc_Print:
+	case NetMessageType::svc_UserMessage:
+		return false;
+	default:
+		return true;
+	}
+}
+
 void V_NetMessages::Attach() const
 {
 #if !defined(DEDICATED)

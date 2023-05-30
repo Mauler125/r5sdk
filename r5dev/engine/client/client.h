@@ -87,7 +87,7 @@ public:
 	bool IsFakeClient(void) const;
 	bool IsHumanPlayer(void) const;
 
-	bool SendNetMsg(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
+	bool SendNetMsgEx(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
 	bool Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
 	void Disconnect(const Reputation_t nRepLvl, const char* szReason, ...);
 	static bool VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
@@ -98,6 +98,7 @@ public: // Hook statics:
 	static void VActivatePlayer(CClient* pClient);
 	static bool VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg);
 	static void* VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
+	static bool VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
 
 private:
 	int m_nUserID;                   //0x0010
@@ -165,8 +166,8 @@ inline auto v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (
 inline CMemory p_CClient_SetSignonState;
 inline auto v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient* pClient, SIGNONSTATE signon)>();
 
-inline CMemory p_CClient_SendNetMsg;
-inline auto v_CClient_SendNetMsg = p_CClient_SendNetMsg.RCast<bool (*)(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)>();
+inline CMemory p_CClient_SendNetMsgEx;
+inline auto v_CClient_SendNetMsgEx = p_CClient_SendNetMsgEx.RCast<bool (*)(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice)>();
 
 inline CMemory p_CClient_SendSnapshot;
 inline auto v_CClient_SendSnapshot = p_CClient_SendSnapshot.RCast<void* (*)(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck)>();
@@ -182,7 +183,7 @@ class VClient : public IDetour
 		LogFunAdr("CClient::ActivatePlayer", p_CClient_ActivatePlayer.GetPtr());
 		LogFunAdr("CClient::ProcessStringCmd", p_CClient_ProcessStringCmd.GetPtr());
 		LogFunAdr("CClient::SetSignonState", p_CClient_SetSignonState.GetPtr());
-		LogFunAdr("CClient::SendNetMsg", p_CClient_SendNetMsg.GetPtr());
+		LogFunAdr("CClient::SendNetMsgEx", p_CClient_SendNetMsgEx.GetPtr());
 		LogFunAdr("CClient::SendSnapshot", p_CClient_SendSnapshot.GetPtr());
 		LogVarAdr("g_Client[128]", reinterpret_cast<uintptr_t>(g_pClient));
 	}
@@ -203,7 +204,7 @@ class VClient : public IDetour
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CClient_ActivatePlayer = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 81 B0 03 ?? ?? 48 8B D9 C6");
 		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20");
-		p_CClient_SendNetMsg = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??");
+		p_CClient_SendNetMsgEx = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??");
 		p_CClient_SendSnapshot = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 41 55 41 56 41 57 48 8D 6C 24 ??");
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 		p_CClient_SetSignonState = g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2");
@@ -214,7 +215,7 @@ class VClient : public IDetour
 		v_CClient_ActivatePlayer = p_CClient_ActivatePlayer.RCast<void (*)(CClient* pClient)>();
 		v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (*)(CClient*, NET_StringCmd*)>();
 		v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient*, SIGNONSTATE)>();
-		v_CClient_SendNetMsg = p_CClient_SendNetMsg.RCast<bool (*)(CClient*, CNetMessage*, char, bool, bool)>();
+		v_CClient_SendNetMsgEx = p_CClient_SendNetMsgEx.RCast<bool (*)(CClient*, CNetMessage*, bool, bool, bool)>();
 		v_CClient_SendSnapshot = p_CClient_SendSnapshot.RCast<void* (*)(CClient*, CClientFrame*, int, int)>();
 	}
 	virtual void GetVar(void) const
@@ -229,6 +230,7 @@ class VClient : public IDetour
 		DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
 		DetourAttach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
 		DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+		DetourAttach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
 		//DetourAttach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
 	}
 	virtual void Detach(void) const
@@ -237,6 +239,7 @@ class VClient : public IDetour
 		DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
 		DetourDetach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
 		DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+		DetourDetach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
 		//DetourDetach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
 	}
 };

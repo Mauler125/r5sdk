@@ -144,6 +144,14 @@ enum NetMessageType
 	clc_GamepadMsg                  = 65,
 };
 
+//-------------------------------------------------------------------------
+// Enumeration of netmessage groups
+//-------------------------------------------------------------------------
+enum NetMessageGroup
+{
+	NoReplay = 2,
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////
 class CNetMessage : public INetMessage
 {
@@ -370,6 +378,7 @@ public:
 	bf_write	m_DataOut;
 };
 
+bool ShouldReplayMessage(CNetMessage* msg);
 
 ///////////////////////////////////////////////////////////////////////////////
 class V_NetMessages : public IDetour

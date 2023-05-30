@@ -184,7 +184,7 @@ void SV_BroadcastVoiceData(CClient* cl, int nBytes, char* data)
 
 		// if voice stream has enough space for new data
 		if (pNetChan->GetStreamVoice().GetNumBitsLeft() >= 8 * nBytes + 96)
-			pClient->SendNetMsg(&voiceData, false, false, true);
+			pClient->SendNetMsgEx(&voiceData, false, false, true);
 	}
 }
 
