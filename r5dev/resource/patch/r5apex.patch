@@ -72,6 +72,6 @@
 0x12944E3: "test eax, eax"   // Existing NULL check, moved here due to overwrite caused by long jmp.
 0x12944E5: "je 0x1412950F0"  // Conditional jump to rebuild of overwritten instruction.
 0x12944E7: "cmp eax, 0x28"   // Check if array index does NOT exceed size; max = 0x27 (this check was missing).
-0x12944EA: "jl 0x14030E951"  // Conditional jump to original code that indexes into userinfo cvar string array.
+0x12944EA: "jb 0x14030E951"  // Conditional jump to original code that indexes into userinfo cvar string array.
 0x12944F0: "mov r8d, 0x104"  // Rebuid of overwritten instruction caused by long jump to code cave.
 0x12944F6: "jmp 0x14030E933" // Jump to original code past the user info cvar array indexing.
