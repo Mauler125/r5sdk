@@ -843,7 +843,7 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 
 	bool bHasLocale = false;
 
-	for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_LOCALE) - 1; i++)
+	for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_LOCALE); i++)
 	{
 		if (sanitizedName.Find(DIR_LOCALE[i]) != -1)
 		{
@@ -857,7 +857,7 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 		CUtlString packDirPrefix;
 		packDirPrefix.Append(DIR_LOCALE[0]);
 
-		for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_TARGET) - 1; i++)
+		for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_TARGET); i++)
 		{
 			const char* targetName = DIR_TARGET[i];
 
@@ -941,7 +941,7 @@ CUtlString VPKDir_t::StripLocalePrefix(const CUtlString& directoryPath) const
 {
 	CUtlString fileName = directoryPath.UnqualifiedFilename();
 
-	for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_LOCALE) - 1; i++)
+	for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_LOCALE); i++)
 	{
 		fileName = fileName.Replace(DIR_LOCALE[i], "");
 	}
