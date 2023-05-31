@@ -105,6 +105,7 @@
 #include "vscript/languages/squirrel_re/include/sqstdaux.h"
 #include "vscript/languages/squirrel_re/vsquirrel.h"
 #include "vscript/vscript.h"
+#include "game/shared/r1/weapon_bolt.h"
 #include "game/shared/util_shared.h"
 #include "game/shared/usercmd.h"
 #include "game/shared/animation.h"
@@ -535,6 +536,8 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VUserCmd);
 	REGISTER(VAnimation);
 	REGISTER(VUtil_Shared);
+
+	REGISTER(V_Weapon_Bolt);
 
 #ifndef CLIENT_DLL
 

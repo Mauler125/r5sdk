@@ -26,6 +26,11 @@ add_sources( SOURCE_GROUP "Shared"
     "shared/vscript_shared.h"
 )
 
+add_sources( SOURCE_GROUP "Shared/Weapon"
+    "shared/r1/weapon_bolt.cpp"
+    "shared/r1/weapon_bolt.h"
+)
+
 add_sources( SOURCE_GROUP "Server"
     "server/ai_network.cpp"
     "server/ai_network.h"
