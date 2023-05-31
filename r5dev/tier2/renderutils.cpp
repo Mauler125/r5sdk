@@ -306,13 +306,13 @@ void DebugDrawMark(const Vector3D& vOrigin, float flRadius, const vector<int>& v
 //   /  \
 //       --> +x
 //-----------------------------------------------------------------------------
-void DrawStar(const Vector3D& vRrigin, float flRadius, bool bZBuffer)
+void DrawStar(const Vector3D& vOrigin, float flRadius, bool bZBuffer)
 {
     Vector3D vForward;
     for (int i = 0; i < 50; i++)
     {
         AngleVectors({ RandomFloat(0.f, 360.f), RandomFloat(0.f, 360.f), RandomFloat(0.f, 360.f) }, &vForward);
-        v_RenderLine(vRrigin, vRrigin + vForward * flRadius, Color(RandomInt(0, 255), RandomInt(0, 255), RandomInt(0, 255), 255), bZBuffer);
+        v_RenderLine(vOrigin, vOrigin + vForward * flRadius, Color(RandomInt(0, 255), RandomInt(0, 255), RandomInt(0, 255), 255), bZBuffer);
     }
 }
 
