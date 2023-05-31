@@ -68,10 +68,17 @@
 
 // This fixes a vulnerability in which the index field in the NET_SetConVar message
 // could be used to read outside the static userinfo cvar string array.
-0x030DD29: "jmp 0x1412950E3" // Jump to code cave (alignment padding at end of executable segment).
-0x12944E3: "test eax, eax"   // Existing NULL check, moved here due to overwrite caused by long jmp.
-0x12944E5: "je 0x1412950F0"  // Conditional jump to rebuild of overwritten instruction.
-0x12944E7: "cmp eax, 0x28"   // Check if array index does NOT exceed size; max = 0x27 (this check was missing).
-0x12944EA: "jb 0x14030E951"  // Conditional jump to original code that indexes into userinfo cvar string array.
-0x12944F0: "mov r8d, 0x104"  // Rebuid of overwritten instruction caused by long jump to code cave.
-0x12944F6: "jmp 0x14030E933" // Jump to original code past the user info cvar array indexing.
+0x030DD2B: "jmp 0x1412950E3" // Jump to code cave (alignment padding at end of executable segment).
+// The instruction prior to the jump above performs a 'test' on the eax register.
+// If the zero flag is set, it jumps to the rebuild of overwritten instructions
+// caused by the long jmp to code cave.
+0x12944E3: "je 0x1412950EE"
+// This check was missing causing OOB reads! String array size is 0x27,
+// so only index into it if its within bounds..
+0x12944E5: "cmp eax, 0x28" 
+0x12944E8: "jb 0x14030E951"
+// The following is rebuild as the long jump overwrote it,
+// basically perform what was overwritten and jump back to
+// original code...
+0x12944EE: "mov r8d, 0x104"
+0x12944F4: "jmp 0x14030E933"
