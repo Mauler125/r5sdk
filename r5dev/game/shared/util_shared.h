@@ -15,6 +15,10 @@ class CTraceFilterSimple;
 #ifndef CLIENT_DLL
 CPlayer* UTIL_PlayerByIndex(int nIndex);
 #endif // CLIENT_DLL
+const char* UTIL_GetEntityScriptInfo(CBaseEntity* pEnt);
+
+inline CMemory p_UTIL_GetEntityScriptInfo;
+inline auto v_UTIL_GetEntityScriptInfo = p_UTIL_GetEntityScriptInfo.RCast<const char*(*)(CBaseEntity* pEnt)>();
 
 inline CTraceFilterSimple* g_pTraceFilterSimpleVFTable = nullptr;
 typedef bool (*ShouldHitFunc_t)(IHandleEntity* pHandleEntity, int contentsMask);
@@ -49,9 +53,14 @@ class VUtil_Shared : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogConAdr("CTraceFilterSimple::`vftable'", reinterpret_cast<uintptr_t>(g_pTraceFilterSimpleVFTable));
+		LogFunAdr("UTIL_GetEntityScriptInfo", p_UTIL_GetEntityScriptInfo.GetPtr());
 	}
 	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		p_UTIL_GetEntityScriptInfo = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 5E ??").FollowNearCallSelf();
+		v_UTIL_GetEntityScriptInfo = p_UTIL_GetEntityScriptInfo.RCast<const char* (*)(CBaseEntity* pEnt)>();
+	}
 	virtual void GetCon(void) const
 	{
 		g_pTraceFilterSimpleVFTable = g_GameDll.GetVirtualMethodTable(".?AVCTraceFilterSimple@@").RCast<CTraceFilterSimple*>();
