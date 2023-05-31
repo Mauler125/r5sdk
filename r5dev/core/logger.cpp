@@ -309,7 +309,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 
 	if (exitCode) // Terminate the process if an exit code was passed.
 	{
-		if (MessageBoxA(NULL, Format("%s- %s", pszUpTime, message.c_str()).c_str(),
+		if (MessageBoxA(NULL, Format("%s- %s", pszUpTime, formatted.c_str()).c_str(),
 			"SDK Error", MB_ICONERROR | MB_OK))
 		{
 			TerminateProcess(GetCurrentProcess(), exitCode);
