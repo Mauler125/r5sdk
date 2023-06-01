@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 void HEbisuSDK_Init()
 {
-	if (*s_bIsDedicated)
+	if (IsDedicated())
 	{
 		*g_EbisuSDKInit = true; // <- 1st EbisuSDK
 		*g_EbisuProfileInit = true; // <- 2nd EbisuSDK
@@ -22,7 +22,7 @@ void HEbisuSDK_Init()
 //-----------------------------------------------------------------------------
 bool IsOriginInitialized()
 {
-	if (*s_bIsDedicated)
+	if (IsDedicated())
 	{
 		return true;
 	}

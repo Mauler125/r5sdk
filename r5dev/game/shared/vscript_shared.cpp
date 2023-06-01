@@ -211,7 +211,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT IsDedicated(HSQUIRRELVM v)
         {
-            sq_pushbool(v, *s_bIsDedicated);
+            sq_pushbool(v, ::IsDedicated());
             return SQ_OK;
         }
     }
