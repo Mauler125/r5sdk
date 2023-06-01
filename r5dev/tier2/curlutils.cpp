@@ -76,13 +76,15 @@ CURLINFO CURLRetrieveInfo(CURL* curl)
     return status;
 }
 
-bool CURLHandleError(CURL* curl, CURLcode res, string& outMessage)
+bool CURLHandleError(CURL* curl, const CURLcode res, string& outMessage, const bool logError)
 {
     if (res == CURLE_OK)
         return true;
 
     const char* curlError = curl_easy_strerror(res);
-    Error(eDLL_T::ENGINE, NO_ERROR, "CURL: %s\n", curlError);
+
+    if (logError)
+        Error(eDLL_T::ENGINE, NO_ERROR, "CURL: %s\n", curlError);
 
     outMessage = curlError;
     curl_easy_cleanup(curl);

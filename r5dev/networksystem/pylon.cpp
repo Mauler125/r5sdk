@@ -407,7 +407,8 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
     }
 
     CURLcode res = CURLSubmitRequest(curl, sList);
-    if (!CURLHandleError(curl, res, outMessage))
+    if (!CURLHandleError(curl, res, outMessage,
+        !IsDedicated(/* Errors are already shown for dedicated! */)))
     {
         return false;
     }

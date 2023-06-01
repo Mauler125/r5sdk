@@ -11,7 +11,7 @@ CURL* CURLInitRequest(const char* remote, const char* request, string& outRespon
 CURLcode CURLSubmitRequest(CURL* curl, curl_slist*& slist);
 CURLINFO CURLRetrieveInfo(CURL* curl);
 
-bool CURLHandleError(CURL* curl, CURLcode res, string& outMessage);
+bool CURLHandleError(CURL* curl, const CURLcode res, string& outMessage, const bool logError);
 void CURLFormatUrl(string& outUrl, const char* host, const char* api);
 
 #endif // !TIER2_CURLUTILS_H
