@@ -149,11 +149,6 @@
 #define SDK_VERSION "VGameSDK008" // Increment this with every /breaking/ SDK change (i.e. security/backend changes breaking compatibility).
 #define SDK_ARRAYSIZE(arr) ((sizeof(arr) / sizeof(*arr))) // Name due to IMGUI implementation and NT implementation that we shouldn't share across everywhere.
 
-#ifndef DEDICATED
-#define SDK_DEFAULT_CFG "platform/cfg/startup_default.cfg"
-#else
-#define SDK_DEFAULT_CFG "platform/cfg/startup_dedi_default.cfg"
-#endif
 #define SDK_SYSTEM_CFG_PATH "cfg/system/"
 
 #define VALID_CHARSTAR(star) (star && star[0]) // Check if char* is valid and not empty.

@@ -3,6 +3,7 @@
 #include "core/init.h"
 #include "core/logdef.h"
 #include "core/logger.h"
+#include "tier0/basetypes.h"
 #include "tier0/crashhandler.h"
 /*****************************************************************************/
 #ifndef DEDICATED
@@ -13,6 +14,12 @@
 #include "windows/system.h"
 #include "mathlib/mathlib.h"
 #include "launcher/launcher.h"
+
+#ifndef DEDICATED
+#define SDK_DEFAULT_CFG "cfg/startup_default.cfg"
+#else
+#define SDK_DEFAULT_CFG "cfg/startup_dedi_default.cfg"
+#endif
 
 //#############################################################################
 // INITIALIZATION

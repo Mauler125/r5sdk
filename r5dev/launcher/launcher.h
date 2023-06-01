@@ -16,7 +16,7 @@ inline auto v_RemoveSpuriousGameParameters = p_RemoveSpuriousGameParameters.RCas
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 
 void AppendSDKParametersPreInit();
-string LoadConfigFile(const string& svConfig);
+string LoadConfigFile(const char* svConfig);
 void ParseAndApplyConfigFile(const string& svConfig);
 const char* ExitCodeToString(int nCode);
 

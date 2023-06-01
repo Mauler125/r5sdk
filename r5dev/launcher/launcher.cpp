@@ -19,12 +19,7 @@ int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 	// programatically (has to be after 'CommandLine()->CreateCmdLine()', but before 'SetPriorityClass()')
 	// For S0 and S1 we should modify the command line buffer passed to the entry point instead (here).
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	string svCmdLine = lpCmdLine;
-	if (!strstr(GetCommandLineA(), "-launcher"))
-	{
-		svCmdLine = LoadConfigFile(SDK_DEFAULT_CFG);
-	}
-	return v_WinMain(hInstance, hPrevInstance, const_cast<LPSTR>(svCmdLine.c_str()), nShowCmd);
+	return v_WinMain(hInstance, hPrevInstance, const_cast<LPSTR>(g_svCmdLine.c_str()), nShowCmd);
 #else
 	return v_WinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
 #endif
@@ -75,7 +70,8 @@ void RemoveSpuriousGameParameters()
 // as all there are required to run the game with the game sdk.
 void AppendSDKParametersPreInit()
 {
-	if (*s_bIsDedicated)
+	const bool bDedicated = IsDedicated();
+	if (bDedicated)
 	{
 		CommandLine()->AppendParm("-collate", "");
 		CommandLine()->AppendParm("-multiple", "");
@@ -94,30 +90,32 @@ void AppendSDKParametersPreInit()
 	// Assume default configs if the game isn't launched with the SDKLauncher.
 	if (!CommandLine()->FindParm("-launcher"))
 	{
-		string svArguments = LoadConfigFile(SDK_DEFAULT_CFG);
-		ParseAndApplyConfigFile(svArguments);
+		ParseAndApplyConfigFile(g_svCmdLine);
 	}
 }
 
-string LoadConfigFile(const string& svConfig)
+string LoadConfigFile(const char* svConfig)
 {
 	fs::path cfgPath = fs::current_path() /= svConfig; // Get cfg path for default startup.
-	ifstream cfgFile(cfgPath);
-	string svArguments;
 
-	if (cfgFile.good() && cfgFile)
+	if (!FileExists(cfgPath))
 	{
-		stringstream ss;
-		ss << cfgFile.rdbuf();
-		svArguments = ss.str();
+		// Load it from PLATFORM.
+		cfgPath = fs::current_path() /= string("platform/") + svConfig;
 	}
-	else
+
+	ifstream cfgFile(cfgPath);
+
+	if (!cfgFile)
 	{
 		spdlog::error("{:s}: '{:s}' does not exist!\n", __FUNCTION__, svConfig);
-		cfgFile.close();
 		return "";
 	}
-	cfgFile.close();
+
+	string svArguments;
+	stringstream ss;
+	ss << cfgFile.rdbuf();
+	svArguments = ss.str();
 
 	return svArguments;
 }
