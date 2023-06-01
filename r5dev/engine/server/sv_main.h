@@ -28,6 +28,12 @@ inline auto v_SV_BroadcastVoiceData = p_SV_BroadcastVoiceData.RCast<void(__fastc
 
 inline bool* s_bIsDedicated = nullptr;
 
+// Returns true if this is a dedicated server.
+inline bool IsDedicated()
+{
+	return *s_bIsDedicated;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SV_InitGameDLL();
