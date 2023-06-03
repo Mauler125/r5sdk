@@ -293,6 +293,41 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: send message
+// Input  : &msg - 
+//			bForceReliable - 
+//			bVoice - 
+// Output : true on success, false on failure
+//-----------------------------------------------------------------------------
+bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
+{
+	if (remote_address.GetType() == netadrtype_t::NA_NULL)
+		return false;
+
+	bf_write* pStream = &m_StreamUnreliable;
+
+	if (msg.IsReliable() || bForceReliable)
+		pStream = &m_StreamReliable;
+
+	if (bVoice)
+		pStream = &m_StreamVoice;
+
+	if (pStream != &m_StreamUnreliable ||
+		pStream->GetNumBytesLeft() >= NET_UNRELIABLE_STREAM_MINSIZE)
+	{
+		AcquireSRWLockExclusive(&LOCK);
+
+		pStream->WriteUBitLong(msg.GetType(), NETMSG_TYPE_BITS);
+		if (!pStream->IsOverflowed())
+			msg.WriteToBuffer(pStream);
+
+		ReleaseSRWLockExclusive(&LOCK);
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets the remote frame times
 // Input  : flFrameTime - 
 //			flFrameTimeStdDeviation - 

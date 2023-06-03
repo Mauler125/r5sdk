@@ -17,6 +17,7 @@
 #include "public/inetchannel.h"
 
 #define NET_FRAMES_BACKUP 128
+#define NET_UNRELIABLE_STREAM_MINSIZE 256
 #define NET_CHANNELNAME_MAXLEN 32
 #define NET_FRAMES_MASK   (NET_FRAMES_BACKUP-1)
 
@@ -24,6 +25,7 @@
 // Purpose: forward declarations
 //-----------------------------------------------------------------------------
 class CClient;
+class CNetChan;
 
 //-----------------------------------------------------------------------------
 struct netframe_t
@@ -76,6 +78,21 @@ enum EBufType
 	BUF_VOICE
 };
 
+inline CMemory p_NetChan_Clear;
+inline auto v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan* pChan, bool bStopProcessing)>();
+
+inline CMemory p_NetChan_Shutdown;
+inline auto v_NetChan_Shutdown = p_NetChan_Shutdown.RCast<void (*)(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow)>();
+
+inline CMemory p_NetChan_CanPacket;
+inline auto v_NetChan_CanPacket = p_NetChan_CanPacket.RCast<bool (*)(const CNetChan* pChan)>();
+
+inline CMemory p_NetChan_SendDatagram;
+inline auto v_NetChan_SendDatagram = p_NetChan_SendDatagram.RCast<int (*)(CNetChan* pChan, bf_write* pMsg)>();
+
+inline CMemory p_NetChan_ProcessMessages;
+inline auto v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();
+
 //-----------------------------------------------------------------------------
 class CNetChan
 {
@@ -105,6 +122,9 @@ public:
 	const netadr_t& GetRemoteAddress(void) const;
 
 	bool        IsOverflowed(void) const;
+	inline bool CanPacket(void) const { return v_NetChan_CanPacket(this); }
+	inline int SendDatagram(bf_write* pDatagram) { return v_NetChan_SendDatagram(this, pDatagram); }
+	bool SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice);
 
 	void Clear(bool bStopProcessing);
 	inline void Shutdown(const char* szReason, uint8_t bBadRep, bool bRemoveNow)
@@ -116,7 +136,7 @@ public:
 	void SetRemoteFramerate(float flFrameTime, float flFrameTimeStdDeviation);
 	void SetRemoteCPUStatistics(uint8_t nStats);
 	//-----------------------------------------------------------------------------
-private:
+public:
 	bool                m_bProcessingMessages;
 	bool                m_bShouldDelete;
 	bool                m_bStopProcessing;
@@ -126,6 +146,8 @@ private:
 	int                 m_nOutSequenceNrAck;
 	int                 m_nChokedPackets;
 	int                 unknown_challenge_var;
+
+private:
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 	char                pad[8];
 #endif
@@ -186,14 +208,7 @@ static_assert(sizeof(CNetChan) == 0x1AD0);
 static_assert(sizeof(CNetChan) == 0x1AC8);
 #endif
 
-inline CMemory p_NetChan_Clear;
-inline auto v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan* pChannel, bool bStopProcessing)>();
 
-inline CMemory p_NetChan_Shutdown;
-inline auto v_NetChan_Shutdown = p_NetChan_Shutdown.RCast<void (*)(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow)>();
-
-inline CMemory p_NetChan_ProcessMessages;
-inline auto v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();
 ///////////////////////////////////////////////////////////////////////////////
 class VNetChan : public IDetour
 {
@@ -201,6 +216,8 @@ class VNetChan : public IDetour
 	{
 		LogFunAdr("CNetChan::Clear", p_NetChan_Clear.GetPtr());
 		LogFunAdr("CNetChan::Shutdown", p_NetChan_Shutdown.GetPtr());
+		LogFunAdr("CNetChan::CanPacket", p_NetChan_CanPacket.GetPtr());
+		LogFunAdr("CNetChan::SendDatagram", p_NetChan_SendDatagram.GetPtr());
 		LogFunAdr("CNetChan::ProcessMessages", p_NetChan_ProcessMessages.GetPtr());
 	}
 	virtual void GetFun(void) const
@@ -209,7 +226,13 @@ class VNetChan : public IDetour
 		v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan*, bool)>();
 
 		p_NetChan_Shutdown = g_GameDll.FindPatternSIMD("48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9");
-		v_NetChan_Shutdown = p_NetChan_Shutdown.RCast<void (*)(void*, const char*, uint8_t, bool)>();
+		v_NetChan_Shutdown = p_NetChan_Shutdown.RCast<void (*)(CNetChan*, const char*, uint8_t, bool)>();
+
+		p_NetChan_CanPacket = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B D9 75 15 48 8B 05 ?? ?? ?? ??");
+		v_NetChan_CanPacket = p_NetChan_CanPacket.RCast<bool (*)(const CNetChan*)>();
+
+		p_NetChan_SendDatagram = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 56 41 57 48 83 EC 70");
+		v_NetChan_SendDatagram = p_NetChan_SendDatagram.RCast<int (*)(CNetChan*, bf_write*)>();
 
 		p_NetChan_ProcessMessages = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA");
 		v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan*, bf_read*)>();
