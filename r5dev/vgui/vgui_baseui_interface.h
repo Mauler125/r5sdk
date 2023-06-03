@@ -68,6 +68,11 @@ public:
 		int index = 36;
 		CallVFunc<void>(index, this);
 	}
+	bool ShouldPause(void)
+	{
+		int index = 37;
+		return CallVFunc<bool>(index, this);
+	}
 };
 
 /* ==== CENGINEVGUI ===================================================================================================================================================== */
