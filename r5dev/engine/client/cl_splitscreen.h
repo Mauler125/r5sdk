@@ -119,6 +119,11 @@ private:
 #define IS_VALID_SPLIT_SCREEN_SLOT( i ) ( g_pSplitScreenMgr->IsValidSplitScreenSlot( i ) )
 #endif
 
+inline CClientState* GetBaseLocalClient()
+{
+	return g_pClientState;
+}
+
 class VSplitScreen : public IDetour
 {
 	virtual void GetAdr(void) const

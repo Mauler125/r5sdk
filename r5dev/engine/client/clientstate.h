@@ -126,7 +126,7 @@ public:
 	int dword18CD0;
 	int field_18CD4;
 	float m_flFrameTime;
-	int outgoing_command;
+	int m_nOutgoingCommandNr;
 	int current_movement_sequence_number;
 	char gap18CE4[4];
 	__int64 qword18CE8;

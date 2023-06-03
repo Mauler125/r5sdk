@@ -12,6 +12,7 @@ extern ConVar* debug_draw_box_depth_test;
 
 extern ConVar* developer;
 extern ConVar* fps_max;
+extern ConVar* fps_input_max;
 
 extern ConVar* staticProp_defaultBuildFrustum;
 extern ConVar* staticProp_no_fade_scalar;
@@ -25,7 +26,9 @@ extern ConVar* hostname;
 extern ConVar* hostdesc;
 extern ConVar* hostip;
 extern ConVar* hostport;
+
 extern ConVar* host_hasIrreversibleShutdown;
+extern ConVar* host_timescale;
 
 extern ConVar* mp_gamemode;
 
@@ -118,6 +121,9 @@ extern ConVar* bhit_abs_origin;
 #ifndef DEDICATED
 extern ConVar* cl_rcon_request_sendlogs;
 extern ConVar* cl_quota_stringCmdsPerSecond;
+
+extern ConVar* cl_cmdrate;
+extern ConVar* cl_move_use_dt;
 
 extern ConVar* cl_notify_invert_x;
 extern ConVar* cl_notify_invert_y;

@@ -328,6 +328,15 @@ bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: increments choked packet count
+//-----------------------------------------------------------------------------
+void CNetChan::SetChoked(void)
+{
+	m_nOutSequenceNr++; // Sends to be done since move command use sequence number.
+	m_nChokedPackets++;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets the remote frame times
 // Input  : flFrameTime - 
 //			flFrameTimeStdDeviation - 

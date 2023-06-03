@@ -21,6 +21,7 @@ ConVar* debug_draw_box_depth_test          = nullptr;
 
 ConVar* developer                          = nullptr;
 ConVar* fps_max                            = nullptr;
+ConVar* fps_input_max                      = nullptr;
 
 ConVar* staticProp_defaultBuildFrustum     = nullptr;
 ConVar* staticProp_no_fade_scalar          = nullptr;
@@ -34,7 +35,10 @@ ConVar* hostname                           = nullptr;
 ConVar* hostdesc                           = nullptr;
 ConVar* hostip                             = nullptr;
 ConVar* hostport                           = nullptr;
+
 ConVar* host_hasIrreversibleShutdown       = nullptr;
+ConVar* host_timescale                     = nullptr;
+
 ConVar* mp_gamemode                        = nullptr;
 
 ConVar* rcon_address                       = nullptr;
@@ -127,6 +131,9 @@ ConVar* bhit_abs_origin                    = nullptr;
 #ifndef DEDICATED
 ConVar* cl_rcon_request_sendlogs           = nullptr;
 ConVar* cl_quota_stringCmdsPerSecond       = nullptr;
+
+ConVar* cl_cmdrate                         = nullptr;
+ConVar* cl_move_use_dt                     = nullptr;
 
 ConVar* cl_notify_invert_x                 = nullptr;
 ConVar* cl_notify_invert_y                 = nullptr;
@@ -372,6 +379,8 @@ void ConVar_StaticInit(void)
 	serverbrowser_hideEmptyServers = ConVar::StaticCreate("serverbrowser_hideEmptyServers", "0", FCVAR_RELEASE, "Hide empty servers in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
 	serverbrowser_mapFilter        = ConVar::StaticCreate("serverbrowser_mapFilter", "0", FCVAR_RELEASE, "Filter servers by map in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
 	serverbrowser_gamemodeFilter   = ConVar::StaticCreate("serverbrowser_gamemodeFilter", "0", FCVAR_RELEASE, "Filter servers by gamemode in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	fps_input_max                  = ConVar::StaticCreate("fps_input_max", "200.0", FCVAR_RELEASE, "Max movement updates ran per second.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
@@ -431,6 +440,8 @@ void ConVar_InitShipped(void)
 	fps_max                          = g_pCVar->FindVar("fps_max");
 	fs_showAllReads                  = g_pCVar->FindVar("fs_showAllReads");
 #ifndef DEDICATED
+	cl_cmdrate                       = g_pCVar->FindVar("cl_cmdrate");
+	cl_move_use_dt                   = g_pCVar->FindVar("cl_move_use_dt");
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
 #endif // !DEDICATED
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
@@ -461,6 +472,7 @@ void ConVar_InitShipped(void)
 	hostip                           = g_pCVar->FindVar("hostip");
 	hostport                         = g_pCVar->FindVar("hostport");
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
+	host_timescale                   = g_pCVar->FindVar("host_timescale");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 #ifndef CLIENT_DLL
 	sv_stats = g_pCVar->FindVar("sv_stats");

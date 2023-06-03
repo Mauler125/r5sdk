@@ -51,6 +51,13 @@
 0x1477876:  'FIELD_INTERVALFIELD_MODELINDEX\x00\x00' --> 'FIELD_INTERVAL\x00FIELD_MODELINDEX\x00';
 0x1318C00: 0x0000000000 --> 0x7792474101; // Add new entry in 'g_FieldTypes', this entry points to the 'FIELD_MODELINDEX' string we separated from 'FIELD_INTERVAL'.
 
+// In 'CInput::JoyStickApplyMovement' an extraneous 'fmin' clamp is performed on the frame time. BinDiff revealed that this was no longer performed on
+// the 'Season 9.1 Genesis' executable. Further testing revealed that patching out just this clamp fixes the controller view stick problems when usercmd's
+// get dropped in CL_Move.
+0x6FD0E1: "movaps  xmm0, xmm6" // Move frame time directly into the register that originally contained the clamped frame time.
+0x6FD0EE: "nop (x4)" // Nop 'minss   xmm0, xmm6' (extraneous clamp).
+0x6FD114: "nop (x3)" // Nop 'movaps  xmm6, xmm0' (extraneous move operation).
+
 /////////////////////////////
 /////////////////////////////
 //// Exploitable defects ////

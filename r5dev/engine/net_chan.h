@@ -133,6 +133,7 @@ public:
 	static void _Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 	static bool _ProcessMessages(CNetChan* pChan, bf_read* pMsg);
 
+	void SetChoked();
 	void SetRemoteFramerate(float flFrameTime, float flFrameTimeStdDeviation);
 	void SetRemoteCPUStatistics(uint8_t nStats);
 	//-----------------------------------------------------------------------------
