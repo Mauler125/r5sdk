@@ -6,6 +6,9 @@ inline auto v_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void* unused, float 
 //inline CMemory p_Host_RunFrame_Render; // DEDICATED PATCH!
 //inline auto v_Host_RunFrame_Render = p_Host_RunFrame_Render.RCast<void(*)(void)>();
 
+inline CMemory p_Host_ShouldRun;
+inline auto v_Host_ShouldRun = p_Host_ShouldRun.RCast<bool(*)()>();
+
 inline CMemory p_Host_Error;
 inline auto v_Host_Error = p_Host_Error.RCast<void(*)(const char* error, ...)>();
 
@@ -16,8 +19,9 @@ inline bool* g_bAbortServerSet = nullptr;
 inline float* interval_per_tick = nullptr;
 
 inline jmp_buf* host_abortserver = nullptr;
-inline float* host_frametime_unbounded;
-inline float* host_frametime_stddeviation;
+inline bool* host_initialized = nullptr;
+inline float* host_frametime_unbounded = nullptr;
+inline float* host_frametime_stddeviation = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VHost : public IDetour
@@ -26,11 +30,13 @@ class VHost : public IDetour
 	{
 		LogFunAdr("_Host_RunFrame", p_Host_RunFrame.GetPtr());
 		//LogFunAdr("_Host_RunFrame_Render", p_Host_RunFrame_Render.GetPtr());
+		LogFunAdr("Host_ShouldRun", p_Host_ShouldRun.GetPtr());
 		LogFunAdr("Host_Error", p_Host_Error.GetPtr());
 		//LogFunAdr("VCR_EnterPausedState", p_VCR_EnterPausedState.GetPtr());
 		LogVarAdr("g_bAbortServerSet", reinterpret_cast<uintptr_t>(g_bAbortServerSet));
 		LogVarAdr("interval_per_tick", reinterpret_cast<uintptr_t>(interval_per_tick));
 		LogVarAdr("host_abortserver", reinterpret_cast<uintptr_t>(host_abortserver));
+		LogVarAdr("host_initialized", reinterpret_cast<uintptr_t>(host_initialized));
 		LogVarAdr("host_frametime_unbounded", reinterpret_cast<uintptr_t>(host_frametime_unbounded));
 		LogVarAdr("host_frametime_stddeviation", reinterpret_cast<uintptr_t>(host_frametime_stddeviation));
 	}
@@ -42,11 +48,13 @@ class VHost : public IDetour
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		//p_Host_RunFrame_Render = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 34");
 #endif
+		p_Host_ShouldRun = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 83 78 6C 00 75 07 B0 01");
 		p_Host_Error = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 48 89 54 24 ?? 4C 89 44 24 ?? 4C 89 4C 24 ?? 53 57 48 81 EC ?? ?? ?? ??");
 		//p_VCR_EnterPausedState = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 65 48 8B 04 25 ?? ?? ?? ?? BB ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ??");
 
 		v_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void*, float)>();
 		//v_Host_RunFrame_Render = p_Host_Error.RCast<void(*)(void)>();
+		v_Host_ShouldRun = p_Host_ShouldRun.RCast<bool(*)()>();
 		v_Host_Error = p_Host_Error.RCast<void(*)(const char*, ...)>();
 		//v_VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();
 	}
@@ -63,9 +71,11 @@ class VHost : public IDetour
 		g_bAbortServerSet = p_Host_Error.FindPattern("40 38 3D", CMemory::Direction::DOWN, 512, 4).ResolveRelativeAddress(3, 7).RCast<bool*>();
 		host_abortserver = p_Host_Error.FindPattern("48 8D 0D", CMemory::Direction::DOWN, 512, 5).ResolveRelativeAddress(3, 7).RCast<jmp_buf*>();
 
+		static const int n_host_initialized_search_offset = 0x500; // TODO: S1!!!
 		static const int n_host_frametime_unbounded_search_offset = 0x330;
 		static const int n_host_frametime_stddeviation_search_offset = 0xFAA;
 #endif
+		host_initialized = p_Host_RunFrame.Offset(n_host_initialized_search_offset).FindPatternSelf("44 38").ResolveRelativeAddressSelf(0x3, 0x7).RCast<bool*>();
 		host_frametime_unbounded = p_Host_RunFrame.Offset(n_host_frametime_unbounded_search_offset).FindPatternSelf("F3 0F 11").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
 		host_frametime_stddeviation = p_Host_RunFrame.Offset(n_host_frametime_stddeviation_search_offset).FindPatternSelf("F3 0F 11").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
 	}
