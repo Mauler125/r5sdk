@@ -52,6 +52,11 @@ inline void* g_pSVC_ServerTick_VFTable = nullptr;
 inline void* g_pSVC_VoiceData_VFTable = nullptr;
 
 //-------------------------------------------------------------------------
+// CLC_ClientTick
+//-------------------------------------------------------------------------
+inline void* g_pCLC_ClientTick_VFTable = nullptr;
+
+//-------------------------------------------------------------------------
 // Base_CmdKeyValues
 //-------------------------------------------------------------------------
 inline auto Base_CmdKeyValues_ReadFromBuffer = CMemory().RCast<bool(*)(Base_CmdKeyValues* thisptr, bf_read* buffer)>();
@@ -261,7 +266,7 @@ public:
 	virtual bool	IsReliable(void) const { return m_bReliable; };
 
 	virtual int          GetGroup(void) const { return m_nGroup; };
-	virtual int          GetType(void) const { return 22; };
+	virtual int          GetType(void) const { return NetMessageType::svc_ServerTick; };
 	virtual const char* GetName(void) const { return "svc_ServerTick"; };
 	virtual CNetChan* GetNetChannel(void) const { return m_NetChannel; };
 	virtual const char* ToString(void) const
@@ -316,7 +321,7 @@ public:
 	virtual bool	IsReliable(void) const { return m_bReliable; };
 
 	virtual int          GetGroup(void) const { return m_nGroup; };
-	virtual int          GetType(void) const { return 14; };
+	virtual int          GetType(void) const { return NetMessageType::svc_VoiceData; };
 	virtual const char* GetName(void) const { return "svc_VoiceData"; };
 	virtual CNetChan* GetNetChannel(void) const { return m_NetChannel; };
 	virtual const char* ToString(void) const
@@ -332,6 +337,60 @@ public:
 	int m_nLength;
 	bf_read m_DataIn;
 	void* m_DataOut;
+};
+
+
+class CLC_ClientTick : public CNetMessage
+{
+public:
+	CLC_ClientTick() = default;
+	CLC_ClientTick(int deltaTick, int stringTableTick)
+	{
+		void** pVFTable = reinterpret_cast<void**>(this);
+		*pVFTable = g_pCLC_ClientTick_VFTable;
+
+		m_bReliable = false;
+		m_NetChannel = nullptr;
+
+		m_nDeltaTick = deltaTick;
+		m_nStringTableTick = stringTableTick;
+	};
+
+	virtual	~CLC_ClientTick() {};
+
+	virtual void	SetNetChannel(CNetChan* netchan) { m_NetChannel = netchan; }
+	virtual void	SetReliable(bool state) { m_bReliable = state; };
+
+	virtual bool	Process(void)
+	{
+		return CallVFunc<bool>(NetMessageVtbl::Process, this);
+	};
+	virtual	bool	ReadFromBuffer(bf_read* buffer)
+	{
+		return CallVFunc<bool>(NetMessageVtbl::ReadFromBuffer, this, buffer);
+	}
+	virtual	bool	WriteToBuffer(bf_write* buffer)
+	{
+		return CallVFunc<bool>(NetMessageVtbl::WriteToBuffer, this, buffer);
+	}
+
+	virtual bool	IsReliable(void) const { return m_bReliable; };
+
+	virtual int          GetGroup(void) const { return m_nGroup; };
+	virtual int          GetType(void) const { return NetMessageType::clc_ClientTick; };
+	virtual const char* GetName(void) const { return "clc_ClientTick"; };
+	virtual CNetChan* GetNetChannel(void) const { return m_NetChannel; };
+	virtual const char* ToString(void) const
+	{
+		static char szBuf[4096];
+		V_snprintf(szBuf, sizeof(szBuf), "%s: client tick %i", this->GetName(), m_nDeltaTick);
+
+		return szBuf;
+	};
+	virtual size_t       GetSize(void) const { return sizeof(CLC_ClientTick); };
+
+	int m_nDeltaTick;
+	int m_nStringTableTick;
 };
 
 
@@ -389,6 +448,7 @@ class V_NetMessages : public IDetour
 		LogConAdr("SVC_UserMessage::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
 		LogConAdr("SVC_ServerTick::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_ServerTick_VFTable));
 		LogConAdr("SVC_VoiceData::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_VoiceData_VFTable));
+		LogConAdr("CLC_ClientTick::`vftable'", reinterpret_cast<uintptr_t>(g_pCLC_ClientTick_VFTable));
 		LogConAdr("Base_CmdKeyValues::`vftable'", reinterpret_cast<uintptr_t>(g_pBase_CmdKeyValues_VFTable));
 		//LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
 	}
@@ -405,6 +465,7 @@ class V_NetMessages : public IDetour
 		g_pSVC_UserMessage_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
 		g_pSVC_ServerTick_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_ServerTick@@");
 		g_pSVC_VoiceData_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_VoiceData@@");
+		g_pCLC_ClientTick_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCLC_ClientTick@@");
 		g_pBase_CmdKeyValues_VFTable = g_GameDll.GetVirtualMethodTable(".?AVBase_CmdKeyValues@@");
 	}
 	virtual void Attach(void) const;
