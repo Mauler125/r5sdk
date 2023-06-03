@@ -19,8 +19,7 @@ struct CFrameSnapshot
 	_BYTE snap_byte25;
 	_BYTE snap_byte26;
 	__unaligned __declspec(align(1)) _WORD word27;
-	_BYTE gap29[3];
-	nettick_t snap_tick_update;
+	nettick_t m_TickUpdate;
 	_BYTE gap44[4];
 	_QWORD qword48;
 	_QWORD qword50;
@@ -28,5 +27,7 @@ struct CFrameSnapshot
 	char buffer_0x800[2048];
 	char transmit_entity[4096];
 };
+
+static_assert(sizeof(CFrameSnapshot) == 0x21858);
 
 #endif // FRAMESNAPSHOT_H
