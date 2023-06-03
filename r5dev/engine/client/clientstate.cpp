@@ -12,6 +12,7 @@
 #include "engine/host.h"
 #include "clientstate.h"
 #include "cdll_engine_int.h"
+#include "vgui/vgui_baseui_interface.h"
 
 
 //------------------------------------------------------------------------------
@@ -19,7 +20,7 @@
 //------------------------------------------------------------------------------
 bool CClientState::IsPaused() const
 {
-	return m_bPaused;
+	return m_bPaused || !*host_initialized || g_pEngineVGui->ShouldPause();
 }
 
 //------------------------------------------------------------------------------
@@ -100,6 +101,19 @@ int CClientState::GetClientTickCount() const
 void CClientState::SetClientTickCount(int tick)
 {
     m_ClockDriftMgr.m_nClientTick = tick;
+}
+
+//------------------------------------------------------------------------------
+// Purpose: gets the client frame time
+//------------------------------------------------------------------------------
+float CClientState::GetFrameTime() const
+{
+    if (IsPaused())
+    {
+        return 0.0f;
+    }
+
+    return m_flFrameTime;
 }
 
 //------------------------------------------------------------------------------

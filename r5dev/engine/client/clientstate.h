@@ -42,6 +42,8 @@ public:
 	int GetClientTickCount() const;	// Get the client tick count.
 	void SetClientTickCount(int tick);
 
+	float GetFrameTime(void) const;
+
 	int m_Socket;
 	int _padding_maybe;
 	CNetChan* m_NetChannel;
@@ -113,9 +115,9 @@ public:
 	char error_message[512];
 	_BYTE gap18CA1[3];
 	_DWORD last_usercmd_time_from_server_maybe;
-	CFrameSnapshot* prev_frame_maybe;
+	CFrameSnapshot* m_PrevFrameSnapshot;
 	_QWORD qword18CB0;
-	CFrameSnapshot* current_frame_maybe;
+	CFrameSnapshot* m_CurrFrameSnapshot;
 	_BYTE gap18CC0[8];
 	char m_bClockCorrectionEnabled;
 	char m_b_unknown;
