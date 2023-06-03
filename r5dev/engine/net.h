@@ -46,7 +46,6 @@ int  NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, boo
 void NET_SetKey(const string& svNetKey);
 void NET_GenerateKey();
 void NET_PrintFunc(const char* fmt, ...);
-void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 
 ///////////////////////////////////////////////////////////////////////////////
