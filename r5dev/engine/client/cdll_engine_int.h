@@ -36,6 +36,12 @@ public:
 	ClientClass* GetAllClasses();
 #endif
 
+	void CreateMove(int sequenceNumber, float inputSampleFrameTime, bool active)
+	{
+		const static int index = 27;
+		CallVFunc<void>(index, this, sequenceNumber, inputSampleFrameTime, active);
+	}
+
 	CUserCmd* GetUserCmd(int sequenceNumber) // @0x1405BB020 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
 		const static int index = 28;
@@ -61,8 +67,8 @@ inline CMemory p_CHLClient_GetAllClasses;
 inline auto CHLClient_GetAllClasses = p_CHLClient_GetAllClasses.RCast<ClientClass*(*)()>();
 #endif // !DEDICATED
 
-inline CHLClient** gHLClient = nullptr;
-inline CHLClient** g_pHLClient = nullptr;
+inline CHLClient* g_pHLClient = nullptr;
+inline CHLClient** g_ppHLClient = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VDll_Engine_Int : public IDetour
@@ -76,8 +82,8 @@ class VDll_Engine_Int : public IDetour
 		LogFunAdr("CHLClient::FrameStageNotify", p_CHLClient_FrameStageNotify.GetPtr());
 		LogFunAdr("CHLClient::GetAllClasses", p_CHLClient_GetAllClasses.GetPtr());
 #endif // !DEDICATED
-		LogVarAdr("g_HLClient", reinterpret_cast<uintptr_t>(gHLClient));
-		LogVarAdr("g_pHLClient", reinterpret_cast<uintptr_t>(g_pHLClient));
+		LogVarAdr("g_HLClient", reinterpret_cast<uintptr_t>(g_pHLClient));
+		LogVarAdr("g_pHLClient", reinterpret_cast<uintptr_t>(g_ppHLClient));
 	}
 	virtual void GetFun(void) const
 	{
@@ -107,10 +113,10 @@ class VDll_Engine_Int : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		gHLClient = g_GameDll.FindPatternSIMD("48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 89 5C 24 ?? 57 48 83 EC 30 48 8B F9")
-			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient**>();
+		g_pHLClient = g_GameDll.FindPatternSIMD("48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 89 5C 24 ?? 57 48 83 EC 30 48 8B F9")
+			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
 
-		g_pHLClient = g_GameDll.FindPatternSIMD("41 55 48 83 EC ?? 4C 63 91 ?? ?? ?? ??")
+		g_ppHLClient = g_GameDll.FindPatternSIMD("41 55 48 83 EC ?? 4C 63 91 ?? ?? ?? ??")
 			.FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient**>();
 	}
 	virtual void GetCon(void) const { }
