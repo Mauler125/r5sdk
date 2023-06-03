@@ -72,26 +72,6 @@ CBitBuffer::CBitBuffer(void)
 	m_nDataBytes = 0;
 }
 
-void CBitBuffer::SetDebugName(const char* pName)
-{
-	m_pDebugName = pName;
-}
-
-const char* CBitBuffer::GetDebugName() const
-{
-	return m_pDebugName;
-}
-
-bool CBitBuffer::IsOverflowed() const
-{
-	return m_bOverflow;
-}
-
-void CBitBuffer::SetOverflowFlag()
-{
-	m_bOverflow = true;
-}
-
 // ---------------------------------------------------------------------------------------- //
 // bf_read
 // ---------------------------------------------------------------------------------------- //
@@ -271,22 +251,6 @@ int CBitRead::ReadSBitLong(int numbits)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: reads byte from the buffer
-//-----------------------------------------------------------------------------
-int CBitRead::ReadByte()
-{
-	return ReadSBitLong(sizeof(unsigned char) << 3);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: reads character from the buffer
-//-----------------------------------------------------------------------------
-int CBitRead::ReadChar()
-{
-	return ReadSBitLong(sizeof(char) << 3);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: reads a string from the buffer
 //-----------------------------------------------------------------------------
 bool CBitRead::ReadString(char* pStr, int maxLen, bool bLine, int* pOutNumChars)
@@ -349,23 +313,6 @@ bf_write::bf_write(void* pData, int nBytes, int nBits)
 	m_bAssertOnOverflow = true;
 	m_pDebugName = NULL;
 	StartWriting(pData, nBytes, 0, nBits);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: resets buffer writing
-//-----------------------------------------------------------------------------
-void bf_write::Reset()
-{
-	m_iCurBit = 0;
-	m_bOverflow = false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: seeks to a specific bit
-//-----------------------------------------------------------------------------
-void bf_write::SeekToBit(int bitPos)
-{
-	m_iCurBit = bitPos;
 }
 
 //-----------------------------------------------------------------------------
@@ -651,86 +598,6 @@ bool bf_write::WriteBits(const void* pInData, int nBits)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: writes a list of bytes to the buffer
-//-----------------------------------------------------------------------------
-bool bf_write::WriteBytes(const void* pBuf, int nBytes)
-{
-	return WriteBits(pBuf, nBytes << 3);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: writes a bit into the buffer
-//-----------------------------------------------------------------------------
-bool bf_write::IsOverflowed() const
-{
-	return this->m_bOverflow;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the number of bytes written to the buffer
-//-----------------------------------------------------------------------------
-int bf_write::GetNumBytesWritten() const
-{
-	return BitByte(this->m_iCurBit);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the number of bits written to the buffer
-//-----------------------------------------------------------------------------
-int bf_write::GetNumBitsWritten() const
-{
-	return this->m_iCurBit;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the number of bits in the buffer
-//-----------------------------------------------------------------------------
-int bf_write::GetMaxNumBits() const
-{
-	return this->m_nDataBits;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the number of bits left in the buffer
-//-----------------------------------------------------------------------------
-int bf_write::GetNumBitsLeft() const
-{
-	return this->m_nDataBits - m_iCurBit;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the number of bytes left in the buffer
-//-----------------------------------------------------------------------------
-int bf_write::GetNumBytesLeft() const
-{
-	return this->GetNumBitsLeft() >> 3;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the data pointer
-//-----------------------------------------------------------------------------
-unsigned char* bf_write::GetData() const
-{
-	return this->m_pData;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the debug name
-//-----------------------------------------------------------------------------
-const char* bf_write::GetDebugName() const
-{
-	return this->m_pDebugName;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: sets the debug name
-//-----------------------------------------------------------------------------
-void bf_write::SetDebugName(const char* pDebugName)
-{
-	m_pDebugName = pDebugName;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: checks if we have enough space for the requested number of bits
 //-----------------------------------------------------------------------------
 bool bf_write::CheckForOverflow(int nBits)
@@ -740,7 +607,7 @@ bool bf_write::CheckForOverflow(int nBits)
 		this->SetOverflowFlag();
 	}
 
-	return this->m_bOverflow;
+	return IsOverflowed();
 }
 
 //-----------------------------------------------------------------------------
