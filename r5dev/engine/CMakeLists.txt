@@ -118,6 +118,8 @@ add_sources( SOURCE_GROUP "Client"
     "client/cl_ents_parse.cpp"
     "client/cl_ents_parse.h"
     "client/cl_main.h"
+    "client/cl_splitscreen.cpp"
+    "client/cl_splitscreen.h"
     "client/client.cpp"
     "client/client.h"
 )

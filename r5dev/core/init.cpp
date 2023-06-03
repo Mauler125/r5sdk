@@ -63,6 +63,7 @@
 #include "rtech/rui/rui.h"
 #include "engine/client/cl_ents_parse.h"
 #include "engine/client/cl_main.h"
+#include "engine/client/cl_splitscreen.h"
 #endif // !DEDICATED
 #include "engine/client/client.h"
 #ifndef DEDICATED
@@ -466,6 +467,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #ifndef DEDICATED
 	REGISTER(VClientState);
 	REGISTER(VCL_Main);
+	REGISTER(VSplitScreen);
 #endif // !DEDICATED
 
 	// RTech

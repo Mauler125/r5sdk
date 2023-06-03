@@ -134,8 +134,8 @@
 #define IsX360()	IsPlatformX360()
 #define IsPS3()		IsPlatformPS3()
 
-#define MAX_SPLITSCREEN_CLIENT_BITS 2 // Max 2 player splitscreen in portal (don't merge this back), saves a bunch of memory [8/31/2010 tom]
-#define MAX_SPLITSCREEN_CLIENTS	( 1 << MAX_SPLITSCREEN_CLIENT_BITS ) // 4 // this should == MAX_JOYSTICKS in InputEnums.h
+#define MAX_SPLITSCREEN_CLIENT_BITS 0 // R5 doesn't support splitscreen; engine is hardcoded to only have 1 player.
+#define MAX_SPLITSCREEN_CLIENTS	( 1 << MAX_SPLITSCREEN_CLIENT_BITS ) // 1 // this should == MAX_JOYSTICKS in InputEnums.h
 
 #define MAX_PLAYERS 128 // Max R5 players.
 
