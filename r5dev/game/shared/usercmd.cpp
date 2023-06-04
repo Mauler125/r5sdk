@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from)
 {
-	int seed = v_ReadUserCmd(buf, move, from);
+	const int seed = v_ReadUserCmd(buf, move, from);
 
 	// On the client, the frame time must be within 'usercmd_frametime_min'
 	// and 'usercmd_frametime_max'. Testing revealed that speed hacking could
