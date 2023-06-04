@@ -12,7 +12,10 @@ extern ConVar* debug_draw_box_depth_test;
 
 extern ConVar* developer;
 extern ConVar* fps_max;
-extern ConVar* fps_input_max;
+
+// taken from S15:
+extern ConVar* usercmd_frametime_max;
+extern ConVar* usercmd_frametime_min;
 
 extern ConVar* staticProp_defaultBuildFrustum;
 extern ConVar* staticProp_no_fade_scalar;

@@ -21,7 +21,10 @@ ConVar* debug_draw_box_depth_test          = nullptr;
 
 ConVar* developer                          = nullptr;
 ConVar* fps_max                            = nullptr;
-ConVar* fps_input_max                      = nullptr;
+
+// Taken from S15:
+ConVar* usercmd_frametime_max              = nullptr;
+ConVar* usercmd_frametime_min              = nullptr;
 
 ConVar* staticProp_defaultBuildFrustum     = nullptr;
 ConVar* staticProp_no_fade_scalar          = nullptr;
@@ -380,8 +383,10 @@ void ConVar_StaticInit(void)
 	serverbrowser_mapFilter        = ConVar::StaticCreate("serverbrowser_mapFilter", "0", FCVAR_RELEASE, "Filter servers by map in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
 	serverbrowser_gamemodeFilter   = ConVar::StaticCreate("serverbrowser_gamemodeFilter", "0", FCVAR_RELEASE, "Filter servers by gamemode in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	fps_input_max                  = ConVar::StaticCreate("fps_input_max", "200.0", FCVAR_RELEASE, "Max movement updates ran per second.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
+	// Taken from S15:
+	usercmd_frametime_max = ConVar::StaticCreate("usercmd_frametime_max", "0.100",    FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY,  "The largest amount of simulation seconds a UserCmd can have.", false, 0.f, false, 0.f, nullptr, nullptr);
+	usercmd_frametime_min = ConVar::StaticCreate("usercmd_frametime_min", "0.002857", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "The smallest amount of simulation seconds a UserCmd can have.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
 	fs_showWarnings                   = ConVar::StaticCreate("fs_showWarnings"                       , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level' ( !slower! ).", true, 0.f, true, 2.f, nullptr, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify.");

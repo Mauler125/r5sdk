@@ -33,22 +33,33 @@ void H_CL_Move()
 		commandTick = cl->m_CurrFrameSnapshot->m_TickUpdate.m_nCommandTick;
 
 	bool sendPacket = true;
-	float netTime = float(*g_pNetTime);
 	CNetChan* chan = cl->m_NetChannel;
 
-	if (cl->m_flNextCmdTime <= (0.5 / cl_cmdrate->GetFloat()) + netTime)
+	// Only perform clamping and packeting if the timescale value is default,
+	// else the timescale change won't be handled in the player's movement.
+	const float hostTimeScale = host_timescale->GetFloat();
+	const bool isTimeScaleDefault = hostTimeScale == 1.0;
+
+	const float minFrameTime = usercmd_frametime_min->GetFloat();
+	const float maxFrameTime = usercmd_frametime_max->GetFloat();
+
+	const float netTime = float(*g_pNetTime);
+
+	if (cl->m_flNextCmdTime <= (maxFrameTime * 0.5f) + netTime)
 		sendPacket = chan->CanPacket();
 
-	else if (g_pClientState->m_nOutgoingCommandNr - (commandTick+1) < 15 || host_timescale->GetFloat() == 1.0)
+	else if (cl->m_nOutgoingCommandNr - (commandTick+1) < MAX_BACKUP_COMMANDS || isTimeScaleDefault)
 		sendPacket = false;
 
-	if (cl->IsActive())
-	{
-		float timeNow = float(Plat_FloatTime());
-		int outCommandNr = g_pClientState->m_nOutgoingCommandNr;
+	const bool isActive = cl->IsActive();
 
-		bool isPaused = g_pClientState->IsPaused();
-		int nextCommandNr = isPaused ? outCommandNr : outCommandNr+1;
+	if (isActive)
+	{
+		const float movementCallTime = float(Plat_FloatTime());
+		const int outCommandNr = cl->m_nOutgoingCommandNr;
+
+		const bool isPaused = cl->IsPaused();
+		const int nextCommandNr = isPaused ? outCommandNr : outCommandNr+1;
 
 		FOR_EACH_SPLITSCREEN_PLAYER(i)
 		{
@@ -65,22 +76,26 @@ void H_CL_Move()
 				if (isPaused)
 				{
 					timeScale = 1.0f;
-					frameTime = timeNow - s_lastMovementCall;
+					frameTime = movementCallTime - s_lastMovementCall;
 					deltaTime = frameTime;
 				}
 				else
 				{
-					timeScale = host_timescale->GetFloat();
+					timeScale = hostTimeScale;
 					frameTime = cl->m_flFrameTime + s_LastFrameTime;
 					deltaTime = frameTime / timeScale;
 				}
 
-				if (deltaTime > 0.1f)
-					frameTime = timeScale * 0.1f;
+				// Clamp the frame time to the maximum.
+				if (deltaTime > maxFrameTime)
+					frameTime = timeScale * maxFrameTime;
+
+				// Drop this frame if delta time is below the minimum.
+				const bool dropFrame = (isTimeScaleDefault && deltaTime < minFrameTime);
 
 				// This check originally was 'time < 0.0049999999', but
 				// that caused problems when the framerate was above 190.
-				if ((1.0 / fps_input_max->GetFloat()) > deltaTime)
+				if (dropFrame)
 				{
 					s_LastFrameTime = frameTime;
 					return;
@@ -89,41 +104,41 @@ void H_CL_Move()
 				s_LastFrameTime = 0.0;
 			}
 			//else if (isPaused)
-			//{
 			//	// This hlClient virtual call just returns false.
-			//}
 
 			// Create and store usercmd structure.
 			g_pHLClient->CreateMove(nextCommandNr, frameTime, !isPaused);
-			g_pClientState->m_nOutgoingCommandNr = nextCommandNr;
+			cl->m_nOutgoingCommandNr = nextCommandNr;
 		}
 
 		CL_RunPrediction();
 
 		if (sendPacket)
-		{
 			CL_SendMove();
+		else
+			chan->SetChoked(); // Choke the packet...
 
-			CLC_ClientTick tickMsg(cl->m_nDeltaTick, cl->m_nStringTableAckTick);
-
-			chan->SendNetMsg(tickMsg, false, false);
-			chan->SendDatagram(nullptr);
-
-			// Use full update rate when active.
-			float delta = netTime - float(g_pClientState->m_flNextCmdTime);
-			float commandInterval = (1.0f / cl_cmdrate->GetFloat()) - 0.001f;
-			float maxDelta = 0.0f;
-
-			if (delta >= 0.0f)
-				maxDelta = fminf(commandInterval, delta);
-
-			g_pClientState->m_flNextCmdTime = double(commandInterval + netTime - maxDelta);
-		}
-		else // Choke the packet...
-			chan->SetChoked();
-
-		s_lastMovementCall = timeNow;
+		s_lastMovementCall = movementCallTime;
 	}
+
+	if (sendPacket)
+	{
+		if (isActive)
+		{
+			CLC_ClientTick tickMsg(cl->m_nDeltaTick, cl->m_nStringTableAckTick);
+			chan->SendNetMsg(tickMsg, false, false);
+		}
+
+		chan->SendDatagram(nullptr);
+
+		// Use full update rate when active.
+		float delta = netTime - float(cl->m_flNextCmdTime);
+		float maxDelta = fminf(fmaxf(delta, 0.0f), minFrameTime);
+
+		cl->m_flNextCmdTime = double(minFrameTime + netTime - maxDelta);
+	}
+	else // Choke the packet...
+		chan->SetChoked();
 }
 
 void VCL_Main::Attach() const
