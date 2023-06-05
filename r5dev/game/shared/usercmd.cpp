@@ -16,6 +16,12 @@
 //-----------------------------------------------------------------------------
 int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from)
 {
+	// Normalize angles, bogus values will crash the game..
+	from->viewangles.Normalize();
+
+	// More clamps coming soon...
+
+
 	const int seed = v_ReadUserCmd(buf, move, from);
 
 	// On the client, the frame time must be within 'usercmd_frametime_min'
