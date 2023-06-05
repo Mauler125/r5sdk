@@ -51,6 +51,19 @@
 0x1477876:  'FIELD_INTERVALFIELD_MODELINDEX\x00\x00' --> 'FIELD_INTERVAL\x00FIELD_MODELINDEX\x00';
 0x1318C00: 0x0000000000 --> 0x7792474101; // Add new entry in 'g_FieldTypes', this entry points to the 'FIELD_MODELINDEX' string we separated from 'FIELD_INTERVAL'.
 
+// This fixes a bug where the help string of a ConVar is set as the conVar name, which prevents you from
+// setting it in the console due to the precense of space characters.
+0x115EAE: "lea rax, ds:[0x141516578]" // Change ConVar name assignment from helpstring to "player_vehicle"
+0x115EBC: "lea rax, ds:[0x141459F20]" // Change ConVar help string assignment from null string to the helpstring.
+// This operation has been inserted within the function, all instructions past this one
+// have been shifted.
+0x115ECA: "lea rax, ds:[0x141324120]" // Load NULL_STRING back into rax to assign to usage string.
+// Path below is exactly the same as above, but at a different address as this particular convar has
+// 2 dynamic initializers.
+0x15B8AE: "lea rax, ds:[0x141516578]"
+0x15B8BC: "lea rax, ds:[0x141459F20]"
+0x15B8CA: "lea rax, ds:[0x141324120]"
+
 // In 'CInput::JoyStickApplyMovement' an extraneous 'fmin' clamp is performed on the frame time. BinDiff revealed that this was no longer performed on
 // the 'Season 9.1 Genesis' executable. Further testing revealed that patching out just this clamp fixes the controller view stick problems when usercmd's
 // get dropped in CL_Move.
