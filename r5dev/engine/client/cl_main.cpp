@@ -137,8 +137,6 @@ void H_CL_Move()
 
 		cl->m_flNextCmdTime = double(minFrameTime + netTime - maxDelta);
 	}
-	else // Choke the packet...
-		chan->SetChoked();
 }
 
 void VCL_Main::Attach() const
