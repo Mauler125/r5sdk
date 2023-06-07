@@ -1429,10 +1429,7 @@ int64 CUtlBuffer::ParseToken(characterset_t* pBreaks, char* pTokenBuf, int64 nMa
 			break;
 
 		if (IN_CHARACTERSET(*pBreaks, c) || c == '\"' || c <= ' ')
-		{
-			SeekGet(SEEK_CURRENT, -1);
 			break;
-		}
 	}
 
 	pTokenBuf[nLen] = 0;
