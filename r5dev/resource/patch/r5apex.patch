@@ -71,6 +71,16 @@
 0x6FD0EE: "nop (x4)" // Nop 'minss   xmm0, xmm6' (extraneous clamp).
 0x6FD114: "nop (x3)" // Nop 'movaps  xmm6, xmm0' (extraneous move operation).
 
+// This fixes a bug where the control member 'CUtlBuffer::m_Get' is out of sync with the text buffer in 'CUtlBuffer::ParseToken'.
+// When we iterate over each character in the token buffer, we perform an equality test between the read len and buf len to prevent
+// a buffer overflow. Before this test happens, the read len always gets incremented by 1.
+// When the test fails, the code continues to where it checks if the control character is a break character (delimiter), if so,
+// the code breaks out of the loop, decrements the 'm_Get' member variable by 1, null-terminates the token buffer and returns the
+// read len. The issue is that read len has been incremented by 1 during the equality test, but the m_Get member variable by -1,
+// causing a desync. The next time 'ParseToken' is getting called, the control character will be off by one as 'm_Get' is off by one.
+// The fix is to just nop the decrement operation in assembled code (see commit '4969a84' for the source code fix).
+0x47E03A: "nop (x4)"
+
 /////////////////////////////
 /////////////////////////////
 //// Exploitable defects ////
