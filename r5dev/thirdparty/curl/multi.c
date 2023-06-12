@@ -402,6 +402,7 @@ CURLMcode curl_multi_add_handle(struct Curl_multi *multi,
 
   /* Point to the multi's connection cache */
   data->state.conn_cache = &multi->conn_cache;
+  data->state.lastconnect_id = -1;
 
   /* This adds the new entry at the 'end' of the doubly-linked circular
      list of Curl_easy structs to try and maintain a FIFO queue so
@@ -624,7 +625,7 @@ static CURLcode multi_done(struct connectdata **connp,
     /* the connection is no longer in use */
     if(ConnectionDone(data, conn)) {
       /* remember the most recently used connection */
-      data->state.lastconnect = conn;
+      data->state.lastconnect_id = conn->connection_id;
 
       infof(data, "Connection #%ld to host %s left intact\n",
             conn->connection_id,
@@ -634,7 +635,7 @@ static CURLcode multi_done(struct connectdata **connp,
             conn->host.dispname);
     }
     else
-      data->state.lastconnect = NULL;
+      data->state.lastconnect_id = -1;
   }
 
   *connp = NULL; /* to make the caller of this function better detect that

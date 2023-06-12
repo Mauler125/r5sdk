@@ -1320,7 +1320,10 @@ struct UrlState {
   /* buffers to store authentication data in, as parsed from input options */
   struct timeval keeps_speed; /* for the progress meter really */
 
-  struct connectdata *lastconnect; /* The last connection, NULL if undefined */
+  long lastconnect_id; /* The last connection, -1 if undefined */
+  long padding; /* padding to keep structure compatible with apex legends,
+                the game uses this version of libcurl, and we hook in code
+                to solve any potential security bugs or server crashers */
 
   char *headerbuff; /* allocated buffer to store headers in */
   size_t headersize;   /* size of the allocation */
