@@ -66,10 +66,10 @@ string FourCCToString(int n);
 
 /////////////////////////////////////////////////////////////////////////////
 // Bytes
-vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
-pair<vector<uint8_t>, string> StringToMaskedBytes(const string& svInput, bool bNullTerminator);
-vector<int> PatternToBytes(const string& svInput);
-pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput);
+vector<int> StringToBytes(const char* szInput, bool bNullTerminator);
+pair<vector<uint8_t>, string> StringToMaskedBytes(const char* szInput, bool bNullTerminator);
+vector<int> PatternToBytes(const char* szInput);
+pair<vector<uint8_t>, string> PatternToMaskedBytes(const char* szInput);
 vector<int> IntToDigits(int iValue);
 
 /////////////////////////////////////////////////////////////////////////////

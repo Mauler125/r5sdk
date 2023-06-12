@@ -5,9 +5,9 @@ class CVTableHelper
 public:
 
 	CVTableHelper(void) = default;
-	CVTableHelper(CModule* module, const string& tableName = "", uint32_t refIndex = 0);
-	CVTableHelper(uintptr_t virtualTable, const string& tableName = "");
-	CVTableHelper(void* virtualTable, const string& tableName = "");
+	CVTableHelper(CModule* module, const char* tableName = "", uint32_t refIndex = 0);
+	CVTableHelper(uintptr_t virtualTable, const char* tableName = "");
+	CVTableHelper(void* virtualTable, const char* tableName = "");
 
 	inline operator uintptr_t(void) const
 	{

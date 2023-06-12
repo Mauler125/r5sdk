@@ -34,6 +34,10 @@ add_sources( SOURCE_GROUP "Runtime"
     "binstream.cpp"
 )
 
+add_sources( SOURCE_GROUP "Windows"
+    "${ENGINE_SOURCE_DIR}/windows/tebpeb64.h"
+)
+
 file( GLOB TIER0_PUBLIC_HEADERS
     "${ENGINE_SOURCE_DIR}/public/tier0/*"
 )

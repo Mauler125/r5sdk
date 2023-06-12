@@ -38,38 +38,38 @@ void CSigCache::InvalidateMap()
 		return;
 	}
 
-	(*m_Cache.mutable_smap()).clear();
+	m_Cache.mutable_smap()->clear();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: creates a map of a pattern and relative virtual address
-// Input  : &svPattern - (key)
-//			nRVA - (value)
+// Input  : *szPattern - (key)
+//			nRVA       - (value)
 //-----------------------------------------------------------------------------
-void CSigCache::AddEntry(const string& svPattern, const uint64_t nRVA)
+void CSigCache::AddEntry(const char* szPattern, const uint64_t nRVA)
 {
 	if (m_bDisabled)
 	{
 		return;
 	}
 
-	(*m_Cache.mutable_smap())[svPattern] = nRVA;
+	(*m_Cache.mutable_smap())[szPattern] = nRVA;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: finds a pattern key in the cache map and sets its value to nRVA
-// Input  : &svPattern - 
-//			&nRVA - 
+// Input  : &szPattern - 
+//			&nRVA      - 
 // Output : true if key is found, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::FindEntry(const string& svPattern, uint64_t& nRVA) const
+bool CSigCache::FindEntry(const char* szPattern, uint64_t& nRVA)
 {
 	if (!m_bDisabled && m_bInitialized)
 	{
-		google::protobuf::Map<string, uint64_t> sMap = m_Cache.smap();
-		auto p = sMap.find(svPattern);
+		google::protobuf::Map<string, uint64_t>* sMap = m_Cache.mutable_smap();
+		auto p = sMap->find(szPattern);
 
-		if (p != sMap.end())
+		if (p != sMap->end())
 		{
 			nRVA = p->second;
 			return true;

@@ -85,7 +85,7 @@ typedef int32 DWORD;
 typedef int32 LONG;
 typedef int BOOL;       // uppercase BOOL is usually 4 bytes
 #endif
-typedef int64 QWORD;
+//typedef int64 QWORD;
 #ifndef __cplusplus
 typedef int bool;       // we want to use bool in our C programs
 #endif

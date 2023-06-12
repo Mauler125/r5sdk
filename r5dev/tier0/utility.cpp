@@ -864,13 +864,13 @@ string& StringTrim(string& svInput, const char* pszToTrim, bool bTrimAll)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a string to an array of bytes.
-vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
+vector<int> StringToBytes(const char* szInput, bool bNullTerminator)
 {
-    char* pszStringStart = const_cast<char*>(svInput.c_str());
-    char* pszStringEnd = pszStringStart + strlen(svInput.c_str());
-    vector<int> vBytes = vector<int>{ };
+    const char* pszStringStart = const_cast<char*>(szInput);
+    const char* pszStringEnd = pszStringStart + strlen(szInput);
+    vector<int> vBytes;
 
-    for (char* pszCurrentByte = pszStringStart; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
+    for (const char* pszCurrentByte = pszStringStart; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
     {
         // Dereference character and push back the byte.
         vBytes.push_back(*pszCurrentByte);
@@ -885,14 +885,14 @@ vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a string to an array of bytes.
-pair<vector<uint8_t>, string> StringToMaskedBytes(const string& svInput, bool bNullTerminator)
+pair<vector<uint8_t>, string> StringToMaskedBytes(const char* szInput, bool bNullTerminator)
 {
-    char* pszStringStart = const_cast<char*>(svInput.c_str());
-    char* pszStringEnd = pszStringStart + strlen(svInput.c_str());
-    vector<uint8_t> vBytes = vector<uint8_t>{ };
-    string svMask = string();
+    const char* pszStringStart = const_cast<char*>(szInput);
+    const char* pszStringEnd = pszStringStart + strlen(szInput);
+    vector<uint8_t> vBytes;
+    string svMask;
 
-    for (char* pszCurrentByte = pszStringStart; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
+    for (const char* pszCurrentByte = pszStringStart; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
     {
         // Dereference character and push back the byte.
         vBytes.push_back(*pszCurrentByte);
@@ -921,13 +921,13 @@ string FourCCToString(int n)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a string pattern with wildcards to an array of bytes.
-vector<int> PatternToBytes(const string& svInput)
+vector<int> PatternToBytes(const char* szInput)
 {
-    char* pszPatternStart = const_cast<char*>(svInput.c_str());
-    char* pszPatternEnd = pszPatternStart + strlen(svInput.c_str());
-    vector<int> vBytes = vector<int>{ };
+    const char* pszPatternStart = const_cast<char*>(szInput);
+    const char* pszPatternEnd = pszPatternStart + strlen(szInput);
+    vector<int> vBytes;
 
-    for (char* pszCurrentByte = pszPatternStart; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
+    for (const char* pszCurrentByte = pszPatternStart; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
     {
         if (*pszCurrentByte == '?')
         {
@@ -940,7 +940,7 @@ vector<int> PatternToBytes(const string& svInput)
         }
         else
         {
-            vBytes.push_back(strtoul(pszCurrentByte, &pszCurrentByte, 16));
+            vBytes.push_back(strtoul(pszCurrentByte, const_cast<char**>(&pszCurrentByte), 16));
         }
     }
     return vBytes;
@@ -948,14 +948,15 @@ vector<int> PatternToBytes(const string& svInput)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a string pattern with wildcards to an array of bytes and mask.
-pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput)
+pair<vector<uint8_t>, string> PatternToMaskedBytes(const char* szInput)
 {
-    char* pszPatternStart = const_cast<char*>(svInput.c_str());
-    char* pszPatternEnd = pszPatternStart + strlen(svInput.c_str());
-    vector<uint8_t> vBytes = vector<uint8_t>{ };
-    string svMask = string();
+    const char* pszPatternStart = const_cast<char*>(szInput);
+    const char* pszPatternEnd = pszPatternStart + strlen(szInput);
 
-    for (char* pszCurrentByte = pszPatternStart; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
+    vector<uint8_t> vBytes;
+    string svMask;
+
+    for (const char* pszCurrentByte = pszPatternStart; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
     {
         if (*pszCurrentByte == '?')
         {
@@ -969,7 +970,7 @@ pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput)
         }
         else
         {
-            vBytes.push_back(uint8_t(strtoul(pszCurrentByte, &pszCurrentByte, 16)));
+            vBytes.push_back(uint8_t(strtoul(pszCurrentByte, const_cast<char**>(&pszCurrentByte), 16)));
             svMask += 'x';
         }
     }

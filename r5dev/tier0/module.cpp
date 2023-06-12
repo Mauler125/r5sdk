@@ -5,15 +5,16 @@
 //===========================================================================//
 #include "tier0/memaddr.h"
 #include "tier0/sigcache.h"
+#include "windows/tebpeb64.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor
-// Input  : *svModuleName
+// Input  : *szModuleName - 
 //-----------------------------------------------------------------------------
-CModule::CModule(const string& svModuleName)
-	: m_svModuleName(svModuleName)
+CModule::CModule(const char* szModuleName)
+	: m_ModuleName(szModuleName)
 {
-	m_pModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandleA(svModuleName.c_str()));
+	m_pModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandleA(szModuleName));
 
 	Init();
 	LoadSections();
@@ -21,10 +22,11 @@ CModule::CModule(const string& svModuleName)
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor
-// Input  : nModuleBase
+// Input  : *szModuleName - 
+//			nModuleBase   - 
 //-----------------------------------------------------------------------------
-CModule::CModule(const uintptr_t nModuleBase, const string& svModuleName)
-	: m_svModuleName(svModuleName)
+CModule::CModule(const char* szModuleName, const uintptr_t nModuleBase)
+	: m_ModuleName(szModuleName)
 	, m_pModuleBase(nModuleBase)
 {
 	Init();
@@ -45,7 +47,7 @@ void CModule::Init()
 	for (WORD i = 0; i < m_pNTHeaders->FileHeader.NumberOfSections; i++) // Loop through the sections.
 	{
 		const IMAGE_SECTION_HEADER& hCurrentSection = hSection[i]; // Get current section.
-		m_vModuleSections.push_back(ModuleSections_t(reinterpret_cast<const char*>(hCurrentSection.Name),
+		m_ModuleSections.push_back(ModuleSections_t(reinterpret_cast<const char*>(hCurrentSection.Name),
 			static_cast<uintptr_t>(m_pModuleBase + hCurrentSection.VirtualAddress), hCurrentSection.SizeOfRawData)); // Push back a struct with the section data.
 	}
 }
@@ -64,11 +66,14 @@ void CModule::LoadSections()
 #ifndef PLUGINSDK
 //-----------------------------------------------------------------------------
 // Purpose: find array of bytes in process memory using SIMD instructions
-// Input  : *szPattern - 
-//          *szMask - 
+// Input  : *pPattern      - 
+//          *szMask        - 
+//          *moduleSection - 
+//          nOccurrence    - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection, const size_t nOccurrence) const
+CMemory CModule::FindPatternSIMD(const uint8_t* pPattern, const char* szMask,
+	const ModuleSections_t* moduleSection, const size_t nOccurrence) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
@@ -97,11 +102,11 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 			}
 		}
 	}
-	const __m128i xmm1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(szPattern));
+	const __m128i xmm1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pPattern));
 	__m128i xmm2, xmm3, msks;
 	for (; pData != pEnd; _mm_prefetch(reinterpret_cast<const char*>(++pData + 64), _MM_HINT_NTA))
 	{
-		if (szPattern[0] == pData[0])
+		if (pPattern[0] == pData[0])
 		{
 			xmm2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pData));
 			msks = _mm_cmpeq_epi8(xmm1, xmm2);
@@ -110,7 +115,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 				for (uintptr_t i = 1; i < static_cast<uintptr_t>(iNumMasks); ++i)
 				{
 					xmm2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>((pData + i * 16)));
-					xmm3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>((szPattern + i * 16)));
+					xmm3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>((pPattern + i * 16)));
 					msks = _mm_cmpeq_epi8(xmm2, xmm3);
 					if ((_mm_movemask_epi8(msks) & nMasks[i]) == nMasks[i])
 					{
@@ -139,97 +144,47 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 	return CMemory();
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: find a string pattern in process memory using SIMD instructions
-// Input  : &svPattern
-//			&moduleSection
+// Input  : *szPattern     - 
+//          *moduleSection - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t* moduleSection) const
+CMemory CModule::FindPatternSIMD(const char* szPattern, const ModuleSections_t* moduleSection) const
 {
 	uint64_t nRVA;
-	if (g_SigCache.FindEntry(svPattern, nRVA))
+	if (g_SigCache.FindEntry(szPattern, nRVA))
 	{
 		return CMemory(nRVA + GetModuleBase());
 	}
 
-	const pair<vector<uint8_t>, string> patternInfo = PatternToMaskedBytes(svPattern);
+	const pair<vector<uint8_t>, string> patternInfo = PatternToMaskedBytes(szPattern);
 	const CMemory memory = FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
 
-	g_SigCache.AddEntry(svPattern, GetRVA(memory.GetPtr()));
+	g_SigCache.AddEntry(szPattern, GetRVA(memory.GetPtr()));
 	return memory;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: find address of input string constant in read only memory
-// Input  : *svString - 
-//          bNullTerminator - 
-// Output : CMemory
-//-----------------------------------------------------------------------------
-CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator) const
-{
-	if (!m_ReadOnlyData.IsSectionValid())
-		return CMemory();
-
-	uint64_t nRVA;
-	if (g_SigCache.FindEntry(svString, nRVA))
-	{
-		return CMemory(nRVA + GetModuleBase());
-	}
-
-	const vector<int> vBytes = StringToBytes(svString, bNullTerminator); // Convert our string to a byte array.
-	const pair<size_t, const int*> bytesInfo = std::make_pair<size_t, const int*>(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
-
-	const uint8_t* pBase = reinterpret_cast<uint8_t*>(m_ReadOnlyData.m_pSectionBase); // Get start of .rdata section.
-
-	for (size_t i = 0ull; i < m_ReadOnlyData.m_nSectionSize - bytesInfo.first; i++)
-	{
-		bool bFound = true;
-
-		// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
-		// our if clause will be false.
-		for (size_t j = 0ull; j < bytesInfo.first; j++)
-		{
-			if (pBase[i + j] != bytesInfo.second[j] && bytesInfo.second[j] != -1)
-			{
-				bFound = false;
-				break;
-			}
-		}
-
-		if (bFound)
-		{
-			CMemory result = CMemory(&pBase[i]);
-			g_SigCache.AddEntry(svString, GetRVA(result.GetPtr()));
-
-			return result;
-		}
-	}
-
-	return CMemory();
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: find address of reference to string constant in executable memory
-// Input  : *svString - 
+// Input  : *szString       - 
 //          bNullTerminator - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence, bool bNullTerminator) const
+CMemory CModule::FindString(const char* szString, const ptrdiff_t nOccurrence, bool bNullTerminator) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
 	uint64_t nRVA;
-	string svPackedString = svString + std::to_string(nOccurrence);
+	string svPackedString = szString + std::to_string(nOccurrence);
 
-	if (g_SigCache.FindEntry(svPackedString, nRVA))
+	if (g_SigCache.FindEntry(svPackedString.c_str(), nRVA))
 	{
 		return CMemory(nRVA + GetModuleBase());
 	}
 
-	const CMemory stringAddress = FindStringReadOnly(svString, bNullTerminator); // Get Address for the string in the .rdata section.
+	const CMemory stringAddress = FindStringReadOnly(szString, bNullTerminator); // Get Address for the string in the .rdata section.
 
 	if (!stringAddress)
 		return CMemory();
@@ -255,7 +210,7 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence,
 				if (nOccurrence == dOccurrencesFound)
 				{
 					resultAddress = CMemory(&pTextStart[i]);
-					g_SigCache.AddEntry(svPackedString, GetRVA(resultAddress.GetPtr()));
+					g_SigCache.AddEntry(svPackedString.c_str(), GetRVA(resultAddress.GetPtr()));
 
 					return resultAddress;
 				}
@@ -266,30 +221,127 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence,
 	}
 
 	resultAddress = CMemory(pLatestOccurrence);
-	g_SigCache.AddEntry(svPackedString, GetRVA(resultAddress.GetPtr()));
+	g_SigCache.AddEntry(svPackedString.c_str(), GetRVA(resultAddress.GetPtr()));
 
 	return resultAddress;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: get address of a virtual method table by rtti type descriptor name.
-// Input  : *svTableName - 
-//			nRefIndex - 
-// Output : address of virtual method table, null if not found.
+// Purpose: find address of input string constant in read only memory
+// Input  : *szString       - 
+//          bNullTerminator - 
+// Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::GetVirtualMethodTable(const string& svTableName, const size_t nRefIndex)
+CMemory CModule::FindStringReadOnly(const char* szString, bool bNullTerminator) const
 {
-	uint64_t nRVA; // Packed together as we can have multiple VFTable searches, but with different ref indexes.
-	string svPackedTableName = svTableName + std::to_string(nRefIndex);
+	if (!m_ReadOnlyData.IsSectionValid())
+		return CMemory();
 
-	if (g_SigCache.FindEntry(svPackedTableName, nRVA))
+	uint64_t nRVA;
+	if (g_SigCache.FindEntry(szString, nRVA))
 	{
 		return CMemory(nRVA + GetModuleBase());
 	}
 
-	ModuleSections_t moduleSection = { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize };
+	const vector<int> vBytes = StringToBytes(szString, bNullTerminator); // Convert our string to a byte array.
+	const pair<size_t, const int*> bytesInfo = std::make_pair<size_t, const int*>(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
 
-	const auto tableNameInfo = StringToMaskedBytes(svTableName, false);
+	const uint8_t* pBase = reinterpret_cast<uint8_t*>(m_ReadOnlyData.m_pSectionBase); // Get start of .rdata section.
+
+	for (size_t i = 0ull; i < m_ReadOnlyData.m_nSectionSize - bytesInfo.first; i++)
+	{
+		bool bFound = true;
+
+		// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
+		// our if clause will be false.
+		for (size_t j = 0ull; j < bytesInfo.first; j++)
+		{
+			if (pBase[i + j] != bytesInfo.second[j] && bytesInfo.second[j] != -1)
+			{
+				bFound = false;
+				break;
+			}
+		}
+
+		if (bFound)
+		{
+			CMemory result = CMemory(&pBase[i]);
+			g_SigCache.AddEntry(szString, GetRVA(result.GetPtr()));
+
+			return result;
+		}
+	}
+
+	return CMemory();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: find 'free' page in r/w/x sections
+// Input  : nSize - 
+// Output : CMemory
+//-----------------------------------------------------------------------------
+CMemory CModule::FindFreeDataPage(const size_t nSize) const
+{
+	auto checkDataSection = [](const void* address, const std::size_t size)
+	{
+		MEMORY_BASIC_INFORMATION membInfo = { 0 };
+
+		VirtualQuery(address, &membInfo, sizeof(membInfo));
+
+		if (membInfo.AllocationBase && membInfo.BaseAddress && membInfo.State == MEM_COMMIT && !(membInfo.Protect & PAGE_GUARD) && membInfo.Protect != PAGE_NOACCESS)
+		{
+			if ((membInfo.Protect & (PAGE_EXECUTE_READWRITE | PAGE_READWRITE)) && membInfo.RegionSize >= size)
+			{
+				return ((membInfo.Protect & (PAGE_EXECUTE_READWRITE | PAGE_READWRITE)) && membInfo.RegionSize >= size) ? true : false;
+			}
+		}
+		return false;
+	};
+
+	// This is very unstable, this doesn't check for the actual 'page' sizes.
+	// Also can be optimized to search per 'section'.
+	const uintptr_t endOfModule = m_pModuleBase + m_pNTHeaders->OptionalHeader.SizeOfImage - sizeof(uintptr_t);
+	for (uintptr_t currAddr = endOfModule; m_pModuleBase < currAddr; currAddr -= sizeof(uintptr_t))
+	{
+		if (*reinterpret_cast<uintptr_t*>(currAddr) == 0 && checkDataSection(reinterpret_cast<void*>(currAddr), nSize))
+		{
+			bool bIsGoodPage = true;
+			uint32_t nPageCount = 0;
+
+			for (; nPageCount < nSize && bIsGoodPage; nPageCount += sizeof(uintptr_t))
+			{
+				const uintptr_t pageData = *reinterpret_cast<std::uintptr_t*>(currAddr + nPageCount);
+				if (pageData != 0)
+					bIsGoodPage = false;
+			}
+
+			if (bIsGoodPage && nPageCount >= nSize)
+				return currAddr;
+		}
+	}
+
+	return CMemory();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: get address of a virtual method table by rtti type descriptor name.
+// Input  : *szTableName - 
+//          nRefIndex    - 
+// Output : address of virtual method table, null if not found.
+//-----------------------------------------------------------------------------
+CMemory CModule::GetVirtualMethodTable(const char* szTableName, const size_t nRefIndex)
+{
+	uint64_t nRVA; // Packed together as we can have multiple VFTable searches, but with different ref indexes.
+	string svPackedTableName = szTableName + std::to_string(nRefIndex);
+
+	if (g_SigCache.FindEntry(svPackedTableName.c_str(), nRVA))
+	{
+		return CMemory(nRVA + GetModuleBase());
+	}
+
+	ModuleSections_t moduleSection(".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize);
+
+	const auto tableNameInfo = StringToMaskedBytes(szTableName, false);
 	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), &moduleSection).OffsetSelf(-0x10);
 	if (!rttiTypeDescriptor)
 		return CMemory();
@@ -314,7 +366,7 @@ CMemory CModule::GetVirtualMethodTable(const string& svTableName, const size_t n
 
 		moduleSection = { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize };
 		CMemory vfTable = FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", &moduleSection).OffsetSelf(0x8);
-		g_SigCache.AddEntry(svPackedTableName, GetRVA(vfTable.GetPtr()));
+		g_SigCache.AddEntry(svPackedTableName.c_str(), GetRVA(vfTable.GetPtr()));
 
 		return vfTable;
 	}
@@ -323,7 +375,14 @@ CMemory CModule::GetVirtualMethodTable(const string& svTableName, const size_t n
 }
 #endif // !PLUGINSDK
 
-CMemory CModule::GetImportedFunction(const string& svModuleName, const string& svFunctionName, const bool bGetFunctionReference) const
+//-----------------------------------------------------------------------------
+// Purpose: get address of imported function in target module
+// Input  : *szModuleName         - 
+//          *szFunctionName       - 
+//          bGetFunctionReference - 
+// Output : CMemory
+//-----------------------------------------------------------------------------
+CMemory CModule::GetImportedFunction(const char* szModuleName, const char* szFunctionName, const bool bGetFunctionReference) const
 {
 	if (!m_pDOSHeader || m_pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE) // Is dosHeader valid?
 		return CMemory();
@@ -339,9 +398,9 @@ CMemory CModule::GetImportedFunction(const string& svModuleName, const string& s
 	for (IMAGE_IMPORT_DESCRIPTOR* pIID = pImageImportDescriptors; pIID->Name != 0; pIID++)
 	{
 		// Get virtual relative Address of the imported module name. Then add module base Address to get the actual location.
-		string svImportedModuleName = reinterpret_cast<char*>(reinterpret_cast<DWORD*>(m_pModuleBase + pIID->Name));
+		const char* szImportedModuleName = reinterpret_cast<char*>(reinterpret_cast<DWORD*>(m_pModuleBase + pIID->Name));
 
-		if (IsEqualNoCase(svImportedModuleName, svModuleName)) // Is this our wanted imported module?.
+		if (stricmp(szImportedModuleName, szModuleName) == 0) // Is this our wanted imported module?.
 		{
 			// Original First Thunk to get function name.
 			IMAGE_THUNK_DATA* pOgFirstThunk = reinterpret_cast<IMAGE_THUNK_DATA*>(m_pModuleBase + pIID->OriginalFirstThunk);
@@ -353,9 +412,7 @@ CMemory CModule::GetImportedFunction(const string& svModuleName, const string& s
 				// Get image import by name.
 				const IMAGE_IMPORT_BY_NAME* pImageImportByName = reinterpret_cast<IMAGE_IMPORT_BY_NAME*>(m_pModuleBase + pOgFirstThunk->u1.AddressOfData);
 
-				// Get import function name.
-				const string svImportedFunctionName = pImageImportByName->Name;
-				if (svImportedFunctionName.compare(svFunctionName) == 0) // Is this our wanted imported function?
+				if (strcmp(pImageImportByName->Name, szFunctionName) == 0) // Is this our wanted imported function?
 				{
 					// Grab function address from firstThunk.
 					uintptr_t* pFunctionAddress = &pFirstThunk->u1.Function;
@@ -371,11 +428,11 @@ CMemory CModule::GetImportedFunction(const string& svModuleName, const string& s
 
 //-----------------------------------------------------------------------------
 // Purpose: get address of exported function in this module
-// Input  : *svFunctionName - 
+// Input  : *szFunctionName - 
 //          bNullTerminator - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::GetExportedFunction(const string& svFunctionName) const
+CMemory CModule::GetExportedFunction(const char* szFunctionName) const
 {
 	if (!m_pDOSHeader || m_pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE) // Is dosHeader valid?
 		return CMemory();
@@ -410,9 +467,9 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 	for (DWORD i = 0; i < pImageExportDirectory->NumberOfFunctions; i++) // Iterate through all the functions.
 	{
 		// Get virtual relative Address of the function name. Then add module base Address to get the actual location.
-		string ExportFunctionName = reinterpret_cast<char*>(reinterpret_cast<DWORD*>(m_pModuleBase + pAddressOfName[i]));
+		const char* ExportFunctionName = reinterpret_cast<char*>(reinterpret_cast<DWORD*>(m_pModuleBase + pAddressOfName[i]));
 
-		if (ExportFunctionName.compare(svFunctionName) == 0) // Is this our wanted exported function?
+		if (strcmp(ExportFunctionName, szFunctionName) == 0) // Is this our wanted exported function?
 		{
 			// Get the function ordinal. Then grab the relative virtual address of our wanted function. Then add module base address so we get the actual location.
 			return CMemory(m_pModuleBase + pAddressOfFunctions[reinterpret_cast<WORD*>(pAddressOfOrdinals)[i]]); // Return as CMemory class.
@@ -423,14 +480,14 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 
 //-----------------------------------------------------------------------------
 // Purpose: get the module section by name (example: '.rdata', '.text')
-// Input  : *svModuleName - 
+// Input  : *szSectionName - 
 // Output : ModuleSections_t
 //-----------------------------------------------------------------------------
-CModule::ModuleSections_t CModule::GetSectionByName(const string& svSectionName) const
+CModule::ModuleSections_t CModule::GetSectionByName(const char* szSectionName) const
 {
-	for (const ModuleSections_t& section : m_vModuleSections)
+	for (const ModuleSections_t& section : m_ModuleSections)
 	{
-		if (section.m_svSectionName == svSectionName)
+		if (section.m_SectionName.compare(szSectionName) == 0)
 			return section;
 	}
 
@@ -438,33 +495,29 @@ CModule::ModuleSections_t CModule::GetSectionByName(const string& svSectionName)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns the module base
+// Purpose: unlink module from peb
 //-----------------------------------------------------------------------------
-uintptr_t CModule::GetModuleBase(void) const
+void CModule::UnlinkFromPEB() const // Disclaimer: This does not bypass GetMappedFileName. That function calls NtQueryVirtualMemory which does a syscall to ntoskrnl for getting info on a section.
 {
-	return m_pModuleBase;
-}
+#define UNLINK_FROM_PEB(entry)    \
+	(entry).Flink->Blink = (entry).Blink; \
+	(entry).Blink->Flink = (entry).Flink;
 
-//-----------------------------------------------------------------------------
-// Purpose: returns the module size
-//-----------------------------------------------------------------------------
-DWORD CModule::GetModuleSize(void) const
-{
-	return m_nModuleSize;
-}
+	const PEB64* processEnvBlock = reinterpret_cast<PEB64*>(__readgsqword(0x60)); // https://en.wikipedia.org/wiki/Win32_Thread_Information_Block
+	const LIST_ENTRY* inLoadOrderList = &processEnvBlock->Ldr->InLoadOrderModuleList;
 
-//-----------------------------------------------------------------------------
-// Purpose: returns the module name
-//-----------------------------------------------------------------------------
-string CModule::GetModuleName(void) const
-{
-	return m_svModuleName;
-}
+	for (LIST_ENTRY* entry = inLoadOrderList->Flink; entry != inLoadOrderList; entry = entry->Flink)
+	{
+		const PLDR_DATA_TABLE_ENTRY pldrEntry = reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(entry->Flink);
+		const std::uintptr_t baseAddr = reinterpret_cast<std::uintptr_t>(pldrEntry->DllBase);
 
-//-----------------------------------------------------------------------------
-// Purpose: returns the RVA of given address
-//-----------------------------------------------------------------------------
-uintptr_t CModule::GetRVA(const uintptr_t nAddress) const
-{
-	return (nAddress - GetModuleBase());
+		if (baseAddr != m_pModuleBase)
+			continue;
+
+		UNLINK_FROM_PEB(pldrEntry->InInitializationOrderLinks);
+		UNLINK_FROM_PEB(pldrEntry->InMemoryOrderLinks);
+		UNLINK_FROM_PEB(pldrEntry->InLoadOrderLinks);
+		break;
+	}
+#undef UNLINK_FROM_PEB
 }

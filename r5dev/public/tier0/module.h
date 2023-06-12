@@ -7,42 +7,44 @@ public:
 	struct ModuleSections_t
 	{
 		ModuleSections_t(void) = default;
-		ModuleSections_t(const string& svSectionName, uintptr_t pSectionBase, size_t nSectionSize) :
-			m_svSectionName(svSectionName), m_pSectionBase(pSectionBase), m_nSectionSize(nSectionSize) {}
+		ModuleSections_t(const char* sectionName, uintptr_t pSectionBase, size_t nSectionSize) :
+			m_SectionName(sectionName), m_pSectionBase(pSectionBase), m_nSectionSize(nSectionSize) {}
 
-		bool IsSectionValid(void) const
-		{
-			return m_nSectionSize != 0;
-		}
+		inline bool IsSectionValid(void) const { return m_nSectionSize != 0; }
 
-		string    m_svSectionName;           // Name of section.
-		uintptr_t m_pSectionBase{};          // Start address of section.
-		size_t    m_nSectionSize{};          // Size of section.
+		string    m_SectionName;           // Name of section.
+		uintptr_t m_pSectionBase;          // Start address of section.
+		size_t    m_nSectionSize;          // Size of section.
 	};
 
 	CModule(void) = default;
-	CModule(const string& moduleName);
-	CModule(const uintptr_t nModuleBase, const string& svModuleName);
+	CModule(const char* szModuleName);
+	CModule(const char* szModuleName, const uintptr_t nModuleBase);
 
 	void Init();
 	void LoadSections();
 #ifndef PLUGINSDK
-	CMemory FindPatternSIMD(const string& svPattern, const ModuleSections_t* moduleSection = nullptr) const;
-	CMemory FindString(const string& string, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
-	CMemory FindStringReadOnly(const string& svString, bool nullTerminator) const;
+	CMemory FindPatternSIMD(const char* szPattern, const ModuleSections_t* moduleSection = nullptr) const;
+	CMemory FindString(const char* szString, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
+	CMemory FindStringReadOnly(const char* szString, bool nullTerminator) const;
+	CMemory FindFreeDataPage(const size_t nSize) const;
 
-	CMemory          GetVirtualMethodTable(const string& svTableName, const size_t nRefIndex = 0);
+	CMemory          GetVirtualMethodTable(const char* szTableName, const size_t nRefIndex = 0);
 #endif // !PLUGINSDK
-	CMemory          GetImportedFunction(const string& svModuleName, const string& svFunctionName, const bool bGetFunctionReference) const;
-	CMemory          GetExportedFunction(const string& svFunctionName) const;
-	ModuleSections_t GetSectionByName(const string& svSectionName) const;
-	uintptr_t        GetModuleBase(void) const;
-	DWORD            GetModuleSize(void) const;
-	string           GetModuleName(void) const;
-	uintptr_t        GetRVA(const uintptr_t nAddress) const;
+	CMemory          GetImportedFunction(const char* szModuleName, const char* szFunctionName, const bool bGetFunctionReference) const;
+	CMemory          GetExportedFunction(const char* szFunctionName) const;
+	ModuleSections_t GetSectionByName(const char* szSectionName) const;
 
-	IMAGE_NT_HEADERS64* m_pNTHeaders = nullptr;
-	IMAGE_DOS_HEADER* m_pDOSHeader = nullptr;
+	inline const vector<CModule::ModuleSections_t>& GetSections() const { return m_ModuleSections; }
+	inline uintptr_t     GetModuleBase(void) const { return m_pModuleBase; }
+	inline DWORD         GetModuleSize(void) const { return m_nModuleSize; }
+	inline const string& GetModuleName(void) const { return m_ModuleName; }
+	inline uintptr_t     GetRVA(const uintptr_t nAddress) const { return (nAddress - GetModuleBase()); }
+
+	void                 UnlinkFromPEB(void) const;
+
+	IMAGE_NT_HEADERS64*      m_pNTHeaders;
+	IMAGE_DOS_HEADER*        m_pDOSHeader;
 
 	ModuleSections_t         m_ExecutableCode;
 	ModuleSections_t         m_ExceptionTable;
@@ -50,12 +52,13 @@ public:
 	ModuleSections_t         m_ReadOnlyData;
 
 private:
-	CMemory FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection = nullptr, const size_t nOccurrence = 0) const;
+	CMemory FindPatternSIMD(const uint8_t* pPattern, const char* szMask,
+		const ModuleSections_t* moduleSection = nullptr, const size_t nOccurrence = 0) const;
 
-	string                   m_svModuleName;
-	uintptr_t                m_pModuleBase{};
-	DWORD                    m_nModuleSize{};
-	vector<ModuleSections_t> m_vModuleSections;
+	string                   m_ModuleName;
+	uintptr_t                m_pModuleBase;
+	DWORD                    m_nModuleSize;
+	vector<ModuleSections_t> m_ModuleSections;
 };
 
 #endif // MODULE_H
