@@ -521,6 +521,7 @@ CURLcode Curl_init_userdefined(struct UserDefined *set)
   set->ftp_use_eprt = TRUE;   /* FTP defaults to EPRT operations */
   set->ftp_use_pret = FALSE;  /* mainly useful for drftpd servers */
   set->ftp_filemethod = FTPFILE_MULTICWD;
+  set->ftp_skip_ip = TRUE;    /* skip PASV IP by default */
 
   set->dns_cache_timeout = 60; /* Timeout every 60 seconds by default */
 
