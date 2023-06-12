@@ -2825,6 +2825,7 @@ static CURLcode ftp_statemach_act(struct connectdata *conn)
         const size_t buf_size = CURL_BUFSIZE(data->set.buffer_size);
         char *dir;
         char *store;
+        bool entry_extracted = FALSE;
 
         dir = malloc(nread + 1);
         if(!dir)
@@ -2856,7 +2857,7 @@ static CURLcode ftp_statemach_act(struct connectdata *conn)
               }
               else {
                 /* end of path */
-                *store = '\0'; /* zero terminate */
+                entry_extracted = TRUE;
                 break; /* get out of this loop */
               }
             }
@@ -2865,6 +2866,10 @@ static CURLcode ftp_statemach_act(struct connectdata *conn)
             store++;
             ptr++;
           }
+
+          *store = '\0'; /* zero terminate */
+        }
+        if (entry_extracted) {
 
           /* If the path name does not look like an absolute path (i.e.: it
              does not start with a '/'), we probably need some server-dependent
