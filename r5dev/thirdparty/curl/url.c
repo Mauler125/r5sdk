@@ -986,7 +986,7 @@ CURLcode Curl_setopt(struct Curl_easy *data, CURLoption option,
      * Send authentication (user+password) when following locations, even when
      * hostname changed.
      */
-    data->set.http_disable_hostname_check_before_authentication =
+    data->set.allow_auth_to_other_hosts =
       (0 != va_arg(param, long)) ? TRUE : FALSE;
     break;
 
