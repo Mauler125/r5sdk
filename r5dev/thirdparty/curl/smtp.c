@@ -256,8 +256,12 @@ static bool smtp_endofresp(struct connectdata *conn, char *line, size_t len,
      Section 4. Examples of RFC-4954 but some e-mail servers ignore this and
      only send the response code instead as per Section 4.2. */
   if(line[3] == ' ' || len == 5) {
+    char tmpline[6];
+
     result = TRUE;
-    *resp = curlx_sltosi(strtol(line, NULL, 10));
+    memset(tmpline, '\0', sizeof(tmpline));
+    memcpy(tmpline, line, (len == 5 ? 5 : 3));
+    *resp = curlx_sltosi(strtol(tmpline, NULL, 10));
 
     /* Make sure real server never sends internal value */
     if(*resp == 1)
