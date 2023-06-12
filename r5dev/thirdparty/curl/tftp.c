@@ -490,6 +490,11 @@ static CURLcode tftp_send_first(tftp_state_data_t *state, tftp_event_t event)
     if(result)
       return result;
 
+    if (strlen(filename) > (state->blksize - strlen(mode) - 4)) {
+        failf(data, "TFTP file name too long\n");
+        return CURLE_TFTP_ILLEGAL; /* too long file name field */
+    }
+
     snprintf((char *)state->spacket.data+2,
              state->blksize,
              "%s%c%s%c", filename, '\0',  mode, '\0');
