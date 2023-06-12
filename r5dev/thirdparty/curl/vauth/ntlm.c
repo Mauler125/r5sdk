@@ -180,10 +180,11 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
     target_info_len = Curl_read16_le(&buffer[40]);
     target_info_offset = Curl_read32_le(&buffer[44]);
     if(target_info_len > 0) {
-      if(((target_info_offset + target_info_len) > size) ||
+      if((target_info_offset >= size) ||
+         ((target_info_offset + target_info_len) > size) ||
          (target_info_offset < 48)) {
         infof(data, "NTLM handshake failure (bad type-2 message). "
-                    "Target Info Offset Len is set incorrect by the peer\n");
+              "Target Info Offset Len is set incorrect by the peer\n");
         return CURLE_BAD_CONTENT_ENCODING;
       }
 
