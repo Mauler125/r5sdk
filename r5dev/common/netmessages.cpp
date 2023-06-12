@@ -12,6 +12,7 @@
 #include "tier1/cvar.h"
 #include "engine/net.h"
 #include "common/netmessages.h"
+#include "game/shared/usermessages.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // re-implementation of 'SVC_Print::Process'
@@ -39,21 +40,24 @@ bool SVC_Print::ProcessImpl()
 ///////////////////////////////////////////////////////////////////////////////////
 bool SVC_UserMessage::ProcessImpl()
 {
-	bf_read buf = m_DataIn;
-	int type = buf.ReadByte();
-
-	if (type == HUD_PRINTCONSOLE ||
-		type == HUD_PRINTCENTER)
+	if (m_nMsgType == UserMessages_t::TextMsg)
 	{
-		char text[MAX_USER_MSG_DATA];
-		int len;
+		bf_read buf = m_DataIn;
+		byte type = byte(buf.ReadByte());
 
-		buf.ReadString(text, sizeof(text), false, &len);
-		Assert(len < sizeof(text));
-
-		if (len >= NET_MIN_MESSAGE && len < sizeof(text))
+		if (type == HUD_PRINTCONSOLE ||
+			type == HUD_PRINTCENTER)
 		{
-			DevMsg(eDLL_T::SERVER, text[len-1] == '\n' ? "%s" : "%s\n", text);
+			char text[MAX_USER_MSG_DATA];
+			int len;
+
+			buf.ReadString(text, sizeof(text), false, &len);
+			Assert(len < sizeof(text));
+
+			if (len && len < sizeof(text))
+			{
+				DevMsg(eDLL_T::SERVER, text[len - 1] == '\n' ? "%s" : "%s\n", text);
+			}
 		}
 	}
 
@@ -107,10 +111,25 @@ bool ShouldReplayMessage(const CNetMessage* msg)
 	// be broadcasted to the target client. This happens for the 
 	// same reason as the 'net_StringCmd' above.
 	case NetMessageType::svc_Print:
-	case NetMessageType::svc_UserMessage:
+	{
 		return false;
-	default:
+	}
+	case NetMessageType::svc_UserMessage:
+	{
+		SVC_UserMessage* userMsg = (SVC_UserMessage*)msg;
+
+		// Just don't replay console prints.
+		if (userMsg->m_nMsgType == UserMessages_t::TextMsg)
+		{
+			return false;
+		}
+
 		return true;
+	}
+	default:
+	{
+		return true;
+	}
 	}
 }
 
