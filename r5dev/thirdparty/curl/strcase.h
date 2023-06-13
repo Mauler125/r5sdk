@@ -48,4 +48,6 @@ char Curl_raw_toupper(char in);
 void Curl_strntoupper(char *dest, const char *src, size_t n);
 char Curl_raw_toupper(char in);
 
+bool Curl_safecmp(char *a, char *b);
+
 #endif /* HEADER_CURL_STRCASE_H */

@@ -3640,7 +3640,8 @@ ConnectionExists(struct Curl_easy *data,
         /* This protocol requires credentials per connection,
            so verify that we're using the same name and password as well */
         if(strcmp(needle->user, check->user) ||
-           strcmp(needle->passwd, check->passwd)) {
+           strcmp(needle->passwd, check->passwd) ||
+           !Curl_safecmp(needle->oauth_bearer, check->oauth_bearer)) {
           /* one of them was different */
           continue;
         }
