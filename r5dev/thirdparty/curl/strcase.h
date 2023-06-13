@@ -46,7 +46,9 @@ char Curl_raw_toupper(char in);
 #define checkprefix(a,b)    curl_strnequal(a,b,strlen(a))
 
 void Curl_strntoupper(char *dest, const char *src, size_t n);
+void Curl_strntolower(char *dest, const char *src, size_t n);
 char Curl_raw_toupper(char in);
+char Curl_raw_tolower(char in);
 
 bool Curl_safecmp(char *a, char *b);
 
