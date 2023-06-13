@@ -1674,6 +1674,26 @@ CURLcode Curl_follow(struct Curl_easy *data,
       data->change.referer = strdup(data->change.url);
       if(!data->change.referer)
         return CURLE_OUT_OF_MEMORY;
+
+      char* url = data->change.referer;
+      char* p;
+
+      /* remove the fragment part of the path */
+      p = strchr(url, '#');
+      if(p)
+        *p = '\0';
+
+      /* remove user and password of the path */
+      p = strstr(url, "://");
+      if(p) {
+        char* end_of_protocol = p + sizeof("://") - 1;
+        char* at = strchr(end_of_protocol, '@');
+        char* slash = strchr(end_of_protocol, '/');
+        if(at && (!slash || at < slash)) {
+          memmove(end_of_protocol, at + 1, strlen(at + 1) + 1);
+        }
+      }
+
       data->change.referer_alloc = TRUE; /* yes, free this later */
     }
   }
