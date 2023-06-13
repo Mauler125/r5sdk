@@ -2731,6 +2731,9 @@ static CURLcode ftp_statemach_act(struct connectdata *conn)
     case FTP_AUTH:
       /* we have gotten the response to a previous AUTH command */
 
+      if(pp->cache_size)
+        return CURLE_WEIRD_SERVER_REPLY; /* Forbid pipelining in response. */
+
       /* RFC2228 (page 5) says:
        *
        * If the server is willing to accept the named security mechanism,

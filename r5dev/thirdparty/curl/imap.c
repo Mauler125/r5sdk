@@ -946,6 +946,10 @@ static CURLcode imap_state_starttls_resp(struct connectdata *conn,
 
   (void)instate; /* no use for this yet */
 
+  /* Pipelining in response is forbidden. */
+  if(conn->proto.imapc.pp.cache_size)
+    return CURLE_WEIRD_SERVER_REPLY;
+
   if(imapcode != 'O') {
     if(data->set.use_ssl != CURLUSESSL_TRY) {
       failf(data, "STARTTLS denied");
