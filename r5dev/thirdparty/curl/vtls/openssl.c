@@ -2123,7 +2123,8 @@ static CURLcode ossl_connect_step1(struct connectdata *conn, int sockindex)
   infof(data, "Cipher selection: %s\n", ciphers);
 
 #ifdef USE_TLS_SRP
-  if(ssl_authtype == CURL_TLSAUTH_SRP) {
+  if((ssl_authtype == CURL_TLSAUTH_SRP) &&
+     Curl_allow_auth_to_host(data, conn)) {
     char * const ssl_username = SSL_SET_OPTION(username);
 
     infof(data, "Using TLS-SRP username: %s\n", ssl_username);
