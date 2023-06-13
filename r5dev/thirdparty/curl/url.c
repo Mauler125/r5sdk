@@ -1025,6 +1025,7 @@ CURLcode Curl_setopt(struct Curl_easy *data, CURLoption option,
     }
     else
       data->set.httpreq = HTTPREQ_GET;
+    data->set.upload = FALSE;
     break;
 
   case CURLOPT_COPYPOSTFIELDS:
