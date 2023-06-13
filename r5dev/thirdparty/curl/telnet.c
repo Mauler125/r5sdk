@@ -968,12 +968,17 @@ static void suboption(struct connectdata *conn)
         tmplen = (strlen(v->data) + 1);
         /* Add the variable only if it fits */
         if(len + tmplen < (int)sizeof(temp)-6) {
-          if(sscanf(v->data, "%127[^,],%127s", varname, varval) == 2) {
-            snprintf((char *)&temp[len], sizeof(temp) - len,
-                     "%c%s%c%s", CURL_NEW_ENV_VAR, varname,
-                     CURL_NEW_ENV_VALUE, varval);
-            len += tmplen;
-          }
+          int rv;
+          char sep[2] = "";
+          varval[0] = 0;
+          rv = sscanf(v->data, "%127[^,]%1[,]%127s", varname, sep, varval);
+          if(rv == 1)
+            len += snprintf((char *)&temp[len], sizeof(temp) - len,
+                             "%c%s", CURL_NEW_ENV_VAR, varname);
+          else if(rv >= 2)
+            len += snprintf((char *)&temp[len], sizeof(temp) - len,
+                             "%c%s%c%s", CURL_NEW_ENV_VAR, varname,
+                             CURL_NEW_ENV_VALUE, varval);
         }
       }
       snprintf((char *)&temp[len], sizeof(temp) - len,
