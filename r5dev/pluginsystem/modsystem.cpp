@@ -70,7 +70,7 @@ void CModSystem::WriteModStatusList()
 		pModListKV->SetBool(it.m_szModID.c_str(), enabled);
 	}
 
-	CUtlBuffer uBuf = CUtlBuffer(0i64, 0, CUtlBuffer::TEXT_BUFFER);
+	CUtlBuffer uBuf = CUtlBuffer(int64_t(0), 0, CUtlBuffer::TEXT_BUFFER);
 
 	kv.RecursiveSaveToFile(uBuf, 0);
 
