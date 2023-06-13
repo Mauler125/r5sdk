@@ -74,7 +74,7 @@ const struct Curl_handler Curl_handler_smb = {
   "SMB",                                /* scheme */
   smb_setup_connection,                 /* setup_connection */
   ZERO_NULL,                            /* do_it */
-  smb_done,                             /* done */
+  ZERO_NULL,                            /* done */
   ZERO_NULL,                            /* do_more */
   smb_connect,                          /* connect_it */
   smb_connection_state,                 /* connecting */
@@ -98,7 +98,7 @@ const struct Curl_handler Curl_handler_smbs = {
   "SMBS",                               /* scheme */
   smb_setup_connection,                 /* setup_connection */
   ZERO_NULL,                            /* do_it */
-  smb_done,                             /* done */
+  ZERO_NULL,                            /* done */
   ZERO_NULL,                            /* do_more */
   smb_connect,                          /* connect_it */
   smb_connection_state,                 /* connecting */
@@ -882,19 +882,6 @@ static CURLcode smb_request_state(struct connectdata *conn, bool *done)
   request_state(conn, next_state);
 
   return CURLE_OK;
-}
-
-static CURLcode smb_done(struct connectdata *conn, CURLcode status,
-                         bool premature)
-{
-  struct smb_request *req = conn->data->req.protop;
-
-  (void) premature;
-
-  Curl_safefree(req->share);
-  Curl_safefree(conn->data->req.protop);
-
-  return status;
 }
 
 static CURLcode smb_disconnect(struct connectdata *conn, bool dead)
