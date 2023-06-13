@@ -70,6 +70,8 @@ add_sources( SOURCE_GROUP "Client"
     "client/cliententitylist.h"
     "client/enginesprite.h"
     "client/hud.h"
+    "client/input.cpp"
+    "client/input.h"
     "client/movehelper_client.cpp"
     "client/movehelper_client.h"
     "client/spritemodel.cpp"
@@ -94,6 +96,10 @@ add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/iclientrenderable.h"
     "${ENGINE_SOURCE_DIR}/public/iclientthinkable.h"
     "${ENGINE_SOURCE_DIR}/public/iclientunknown.h"
+
+    "${ENGINE_SOURCE_DIR}/public/game/shared/weapon_types.h"
+    "${ENGINE_SOURCE_DIR}/public/game/shared/in_buttons.h"
+    "${ENGINE_SOURCE_DIR}/public/game/client/iinput.h"
 )
 
 end_sources()

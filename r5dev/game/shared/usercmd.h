@@ -28,7 +28,7 @@ inline CMemory p_ReadUserCmd;
 inline auto v_ReadUserCmd = p_ReadUserCmd.RCast<int (*)(bf_read* buf, CUserCmd* move, CUserCmd* from)>();
 
 //-------------------------------------------------------------------------------------
-// 
+#pragma pack(push, 1)
 //-------------------------------------------------------------------------------------
 class CUserCmd
 {
@@ -43,22 +43,49 @@ public:
 
 	int32_t command_number;
 	int32_t tick_count;
-	float curtime;
+	float_t command_time;
 	QAngle viewangles;
-	float maybe;
-	char pad_0x0018[8];
-	float forwardmove;
-	float sidemove;
-	float upmove;
+	char pad_0x0018[12];
+	float_t forwardmove;
+	float_t sidemove;
+	float_t upmove;
 	int32_t buttons;
-	char pad_0x0034[336];
+	byte impulse;
+	byte cycleslot;
+	byte weaponindex;
+	__int16 weaponselect;
+	bool bUnk39;
+	__int16 weaponactivity;
+	int nUnk3C;
+	bool controllermode;
+	bool fixangles;
+	bool setlastcycleslot;
+	char pad_0x0034[157];
+	QAngle renderangles;                  // IDK what this is used for.
+	QAngle renderangles_copy;             // IDK what this is used for.
+	float fUnkF8;
+	QAngle another_renderangles_copy;     // IDK what this is used for.
+	QAngle yet_another_renderangles_copy; // IDK what this is used for.
+	char pad_0x00114[112];
 	int32_t randomseed;
-	char pad_0x0188[8];
+	byte bUnk188;
+	bool bUnk189;
+	bool normalizepitch;
+	__int16 nUnk18B;
+	char pad_0x0188[3];
 	Vector3D headposition;
-	float maxpitch;
-	char pad_0x01A0[56];
+	float_t maxpitch;
+	char pad_0x01A0[24];
+	bool trace_camera;
+	char pad_1B9[3];
+	Vector3D camerapos;
+	int world_angle_tick;
+	int nUnk1D4;
+	int predicted_server_event_ack;
+	int nUnk1D8;
 	float frametime;
 };
+#pragma pack(pop)
 
 static_assert(sizeof(CUserCmd) == 0x1DC);
 

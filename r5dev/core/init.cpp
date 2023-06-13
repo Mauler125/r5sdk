@@ -123,6 +123,7 @@
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
+#include "game/client/input.h"
 #include "game/client/movehelper_client.h"
 #endif // !DEDICATED
 #include "public/edict.h"
@@ -558,6 +559,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 
 #ifndef DEDICATED
 	REGISTER(V_ViewRender);
+	REGISTER(VInput);
 	REGISTER(VMoveHelperClient);
 #endif // !DEDICATED
 
