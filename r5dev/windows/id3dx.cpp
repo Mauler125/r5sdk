@@ -97,28 +97,32 @@ void SetupImGui()
 
 void DrawImGui()
 {
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
+	// Only render if the ImGui panels are visible.
+	if (g_pBrowser->IsVisible() || g_pConsole->IsVisible())
+	{
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
 
-	ImGui::NewFrame();
+		ImGui::NewFrame();
 
-	// This is required to disable the ctrl+tab menu as some users use this shortcut for other things in-game.
-	// See https://github.com/ocornut/imgui/issues/5641 for more details.
-	if (GImGui->ConfigNavWindowingKeyNext)
-		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyNext, ImGuiKeyOwner_None);
-	if (GImGui->ConfigNavWindowingKeyPrev)
-		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyPrev, ImGuiKeyOwner_None);
+		// This is required to disable the ctrl+tab menu as some users use this shortcut for other things in-game.
+		// See https://github.com/ocornut/imgui/issues/5641 for more details.
+		if (GImGui->ConfigNavWindowingKeyNext)
+			ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyNext, ImGuiKeyOwner_None);
+		if (GImGui->ConfigNavWindowingKeyPrev)
+			ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyPrev, ImGuiKeyOwner_None);
+
+		g_pBrowser->RunFrame();
+		g_pConsole->RunFrame();
+
+		ImGui::EndFrame();
+		ImGui::Render();
+
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	}
 
 	g_pBrowser->RunTask();
 	g_pConsole->RunTask();
-
-	g_pBrowser->RunFrame();
-	g_pConsole->RunFrame();
-
-	ImGui::EndFrame();
-	ImGui::Render();
-
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 //#################################################################################

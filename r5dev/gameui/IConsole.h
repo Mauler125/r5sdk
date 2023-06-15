@@ -54,6 +54,8 @@ public:
     vector<string> GetHistory(void) const;
     void ClearHistory(void);
 
+    inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
+
 private: // Internal only.
     void AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)*/;
 

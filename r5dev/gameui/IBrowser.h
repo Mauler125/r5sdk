@@ -36,6 +36,8 @@ public:
     void SetHostName(const char* pszHostName);
     virtual void SetStyleVar(void);
 
+    inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
+
     const char* m_pszBrowserLabel;
     bool m_bActivate;
 
