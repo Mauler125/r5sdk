@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "libdetours" "" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "libdetours" "" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 

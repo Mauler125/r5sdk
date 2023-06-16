@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "rtech_game" "vpc" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "rtech_game" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -10,7 +10,7 @@ add_sources( SOURCE_GROUP "Source"
 
 end_sources()
 
-add_module( "lib" "rtech_tools" "vpc" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "rtech_tools" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -19,7 +19,7 @@ add_sources( SOURCE_GROUP "Source"
    "rtech_utils.h"
 )
 
-add_module( "lib" "rui" "vpc" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "rui" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -28,7 +28,7 @@ add_sources( SOURCE_GROUP "Source"
    "rui/rui.h"
 )
 
-add_module( "lib" "stryder" "vpc" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "stryder" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 

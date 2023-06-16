@@ -44,7 +44,7 @@ endmacro()
 # -----------------------------------------------------------------------------
 # Add modules to the project
 # -----------------------------------------------------------------------------
-macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRORS )
+macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRORS APPLY_COMPILE_OPTIONS )
     project( ${MODULE_NAME} )
 
     if( ${MODULE_TYPE} STREQUAL "lib" )
@@ -71,6 +71,20 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRO
 
     if( ${GLOBAL_WARNINGS_AS_ERRORS} )
         warnings_as_errors( ${PROJECT_NAME} ${WARNINGS_AS_ERRORS} )
+    endif()
+
+    if ( NOT "${APPLY_COMPILE_OPTIONS}" STREQUAL "FALSE" )
+        target_compile_options( ${PROJECT_NAME} PRIVATE
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Ob2>
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Oi>
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Ot>
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GS->
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Gy>
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/fp:fast>
+
+            $<$<CXX_COMPILER_ID:MSVC>:/D_UNICODE>
+            $<$<CXX_COMPILER_ID:MSVC>:/DUNICODE>
+    )
     endif()
 endmacro()
 

@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
 
 macro( add_engine_project PROJECT_NAME )
-add_module( "lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 

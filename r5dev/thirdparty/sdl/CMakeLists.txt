@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "libsdl2" "" ${FOLDER_CONTEXT} FALSE )
+add_module( "lib" "libsdl2" "" ${FOLDER_CONTEXT} FALSE TRUE )
 
 start_sources()
 

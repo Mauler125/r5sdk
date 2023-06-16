@@ -10,8 +10,6 @@ macro( apply_project_settings )
         $<$<CXX_COMPILER_ID:MSVC>:/Zi>
         $<$<CXX_COMPILER_ID:MSVC>:/W4>
         $<$<CXX_COMPILER_ID:MSVC>:/GR>
-        $<$<CXX_COMPILER_ID:MSVC>:/D_UNICODE>
-        $<$<CXX_COMPILER_ID:MSVC>:/DUNICODE>
     )
 
     # Suppress certain compiler warnings
@@ -56,15 +54,9 @@ macro( apply_project_settings )
 
     # Set settings for Release configuration
     add_compile_options(
-        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Ob2>
-        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Oi>
-        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Ot>
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GF>
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/MT>
-        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GS->
-        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Gy>
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/EHsc>
-        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/fp:fast>
     )
 
     set( CMAKE_EXE_LINKER_FLAGS_RELEASE
@@ -76,7 +68,7 @@ macro( apply_project_settings )
         /DEBUG"
     )
 
-    # Commonly used directories accross libraries
+    # Commonly used directories across libraries
     include_directories(
         "${ENGINE_SOURCE_DIR}/"
         "${ENGINE_SOURCE_DIR}/public/"

@@ -3,7 +3,7 @@ cmake_minimum_required( VERSION 3.16 )
 # -----------------------------------------------------------------------------
 # Recast & Detour debug utilities
 # -----------------------------------------------------------------------------
-add_module( "lib" "navdebugutils" "" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "navdebugutils" "" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -31,7 +31,7 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE
 # -----------------------------------------------------------------------------
 # Detour runtime
 # -----------------------------------------------------------------------------
-add_module( "lib" "libdetour" "navdebugutils" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "libdetour" "navdebugutils" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -63,7 +63,7 @@ whole_program_optimization()
 # -----------------------------------------------------------------------------
 # Detour crowd
 # -----------------------------------------------------------------------------
-add_module( "lib" "libdetourcrowd" "navdebugutils" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "libdetourcrowd" "navdebugutils" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -93,7 +93,7 @@ whole_program_optimization()
 # -----------------------------------------------------------------------------
 # Detour tile cache
 # -----------------------------------------------------------------------------
-add_module( "lib" "libdetourtilecache" "navdebugutils" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "libdetourtilecache" "navdebugutils" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -113,7 +113,7 @@ whole_program_optimization()
 # -----------------------------------------------------------------------------
 # Recast runtime
 # -----------------------------------------------------------------------------
-add_module( "lib" "librecast" "navdebugutils" ${FOLDER_CONTEXT} TRUE )
+add_module( "lib" "librecast" "navdebugutils" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
