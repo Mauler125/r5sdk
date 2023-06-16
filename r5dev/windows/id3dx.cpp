@@ -31,8 +31,7 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-static BOOL                     s_bInitialized = false;
-static BOOL                     s_bImGuiInitialized = false;
+static BOOL                     s_bInitialized = FALSE;
 
 ///////////////////////////////////////////////////////////////////////////////////
 static IPostMessageA            s_oPostMessageA = NULL;
@@ -91,38 +90,32 @@ void SetupImGui()
 	ImGuiIO& io = ImGui::GetIO();
 	io.ImeWindowHandle = *g_pGameWindow;
 	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
-
-	s_bImGuiInitialized = true;
 }
 
 void DrawImGui()
 {
-	// Only render if the ImGui panels are visible.
-	if (g_pBrowser->IsVisible() || g_pConsole->IsVisible())
-	{
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
 
-		ImGui::NewFrame();
+	ImGui::NewFrame();
 
-		// This is required to disable the ctrl+tab menu as some users use this shortcut for other things in-game.
-		// See https://github.com/ocornut/imgui/issues/5641 for more details.
-		if (GImGui->ConfigNavWindowingKeyNext)
-			ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyNext, ImGuiKeyOwner_None);
-		if (GImGui->ConfigNavWindowingKeyPrev)
-			ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyPrev, ImGuiKeyOwner_None);
-
-		g_pBrowser->RunFrame();
-		g_pConsole->RunFrame();
-
-		ImGui::EndFrame();
-		ImGui::Render();
-
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	}
+	// This is required to disable the ctrl+tab menu as some users use this shortcut for other things in-game.
+	// See https://github.com/ocornut/imgui/issues/5641 for more details.
+	if (GImGui->ConfigNavWindowingKeyNext)
+		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyNext, ImGuiKeyOwner_None);
+	if (GImGui->ConfigNavWindowingKeyPrev)
+		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyPrev, ImGuiKeyOwner_None);
 
 	g_pBrowser->RunTask();
+	g_pBrowser->RunFrame();
+
 	g_pConsole->RunTask();
+	g_pConsole->RunFrame();
+
+	ImGui::EndFrame();
+	ImGui::Render();
+
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 //#################################################################################
@@ -385,13 +378,13 @@ void DirectX_Shutdown()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Shutdown ImGui
-	if (s_bImGuiInitialized)
+	if (s_bInitialized)
 	{
-		ImGui_ImplWin32_Shutdown();
 		ImGui_ImplDX11_Shutdown();
-		s_bImGuiInitialized = false;
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+		s_bInitialized = false;
 	}
-	s_bInitialized = false;
 }
 
 void VDXGI::GetAdr(void) const
