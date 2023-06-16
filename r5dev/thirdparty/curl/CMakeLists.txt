@@ -276,6 +276,7 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
   CURL_STATICLIB
   USE_WINDOWS_SSPI
   USE_SCHANNEL
+  ENABLE_IPV6
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
