@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "libcurl" "" ${FOLDER_CONTEXT} TRUE TRUE )
+add_module( "lib" "libcurl" "" ${FOLDER_CONTEXT} TRUE FALSE )
 
 start_sources()
 
@@ -277,6 +277,11 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
   USE_WINDOWS_SSPI
   USE_SCHANNEL
   ENABLE_IPV6
+)
+
+target_compile_options( ${PROJECT_NAME} PRIVATE
+    $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Ob0>
+    $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GS>
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
