@@ -1,13 +1,19 @@
 #ifndef MEMSTD_H
 #define MEMSTD_H
 
+void* R_malloc(size_t nSize);
+void R_free(void* pBlock);
+void* R_realloc(void* pBlock, size_t nSize);
+char* R_strdup(const char* pString);
+void* R_calloc(size_t nCount, size_t nSize);
+
 class IMemAlloc
 {
 public:
 	template<typename T>
 	T* Alloc(size_t nSize)
 	{
-		const static int index = 0;
+		const static int index = 1;
 		return CallVFunc<T*>(index, this, nSize);
 	}
 	template<typename T>
@@ -15,6 +21,12 @@ public:
 	{
 		const static int index = 3;
 		return CallVFunc<T*>(index, this, pMem, nSize);
+	}
+	template<typename T>
+	void FreeDbg(T* pMem, const char* pFileName, int nLine)
+	{
+		const static int index = 4; // Same as free, but takes debug parameters.
+		CallVFunc<void>(index, this, pMem, pFileName, nLine);
 	}
 	template<typename T>
 	void Free(T* pMem)
@@ -41,7 +53,7 @@ inline auto v_CreateGlobalMemAlloc = p_CreateGlobalMemAlloc.RCast<CStdMemAlloc* 
 inline CStdMemAlloc** g_pMemAllocSingleton = nullptr;
 
 
-inline CStdMemAlloc* MemAllocSingleton()
+inline IMemAlloc* MemAllocSingleton()
 {
 	if (!(*g_pMemAllocSingleton))
 	{
@@ -65,7 +77,8 @@ class VMemStd : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pMemAllocSingleton = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 41 8B D8").OffsetSelf(0x5A).FindPatternSelf("48 8B", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CStdMemAlloc**>();
+		g_pMemAllocSingleton = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 41 8B D8")
+			.OffsetSelf(0x5A).FindPatternSelf("48 8B", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CStdMemAlloc**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
