@@ -65,7 +65,7 @@ int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from)
 		// Clamp the value to make sure it never reads out of bounds. Also,
 		// if dual wield is disabled on the server, reset the weapon index
 		// value as it would otherwise allow the client to enable several
-		// equiped weapons at the same time.
+		// equipped weapons at the same time.
 		if (move->weaponindex >= WEAPON_INVENTORY_SLOT_PRIMARY_1)
 			dualWieldEnabled
 			? move->weaponindex = WEAPON_INVENTORY_SLOT_PRIMARY_1
