@@ -162,7 +162,7 @@ void CConsole::RunFrame(void)
         {
             if (m_Style == ImGuiStyle_t::MODERN)
             {
-                static const ImGuiStyle& style = ImGui::GetStyle();
+                const ImGuiStyle& style = ImGui::GetStyle();
                 m_ivSuggestWindowPos.y = m_ivSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
             }
 
@@ -235,9 +235,11 @@ void CConsole::DrawSurface(void)
         return;
     }
 
+    const ImGuiStyle& style = ImGui::GetStyle();
+
     // Reserve enough left-over height and width for 1 separator + 1 input text
-    const float flFooterHeightReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    const float flFooterWidthReserve  = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
+    const float flFooterHeightReserve = style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    const float flFooterWidthReserve  = style.ItemSpacing.y + ImGui::GetWindowWidth();
 
     ImVec2 fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr);
     ///////////////////////////////////////////////////////////////////////
