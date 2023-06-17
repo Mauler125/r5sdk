@@ -1,41 +1,41 @@
 #ifndef MEMSTD_H
 #define MEMSTD_H
 
-void* R_malloc(size_t nSize);
-void R_free(void* pBlock);
-void* R_realloc(void* pBlock, size_t nSize);
-char* R_strdup(const char* pString);
-void* R_calloc(size_t nCount, size_t nSize);
+extern "C" void* R_malloc(size_t nSize);
+extern "C" void R_free(void* pBlock);
+extern "C" void* R_realloc(void* pBlock, size_t nSize);
+extern "C" char* R_strdup(const char* pString);
+extern "C" void* R_calloc(size_t nCount, size_t nSize);
 
 class IMemAlloc
 {
 public:
 	template<typename T>
-	T* Alloc(size_t nSize)
+	inline T* Alloc(size_t nSize)
 	{
 		const static int index = 1;
 		return CallVFunc<T*>(index, this, nSize);
 	}
 	template<typename T>
-	T* Realloc(T* pMem, size_t nSize)
+	inline T* Realloc(T* pMem, size_t nSize)
 	{
 		const static int index = 3;
 		return CallVFunc<T*>(index, this, pMem, nSize);
 	}
 	template<typename T>
-	void FreeDbg(T* pMem, const char* pFileName, int nLine)
+	inline void FreeDbg(T* pMem, const char* pFileName, int nLine)
 	{
 		const static int index = 4; // Same as free, but takes debug parameters.
 		CallVFunc<void>(index, this, pMem, pFileName, nLine);
 	}
 	template<typename T>
-	void Free(T* pMem)
+	inline void Free(T* pMem)
 	{
 		const static int index = 5;
 		CallVFunc<void>(index, this, pMem);
 	}
 	template<typename T>
-	size_t GetSize(T* pMem)
+	inline size_t GetSize(T* pMem)
 	{
 		const static int index = 6;
 		return CallVFunc<size_t>(index, this, pMem);
