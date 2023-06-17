@@ -76,8 +76,6 @@ void SDK_Init()
     Console_Init();
 #endif // !DEDICATED
 
-    lzham_enable_fail_exceptions(true);
-    curl_global_init(CURL_GLOBAL_ALL);
     SpdLog_Init();
     Winsock_Init(); // Initialize Winsock.
 
@@ -94,6 +92,20 @@ void SDK_Init()
 #ifndef DEDICATED
     Input_Init();
 #endif // !DEDICATED
+
+    // Initialize cURL with rebuilt memory callbacks
+    // featuring the game's memalloc implementation.
+    // this is required in order to hook cURL code
+    // in-game, as we otherwise would manage memory
+    // memory created by the game's implementation,
+    // using the standard one.
+    curl_global_init_mem(CURL_GLOBAL_ALL,
+        &R_malloc,
+        &R_free,
+        &R_realloc,
+        &R_strdup,
+        &R_calloc);
+    lzham_enable_fail_exceptions(true);
 }
 
 //#############################################################################
