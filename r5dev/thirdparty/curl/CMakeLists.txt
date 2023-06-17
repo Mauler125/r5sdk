@@ -273,7 +273,6 @@ add_sources( SOURCE_GROUP "Vtls/Include"
 end_sources()
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
   BUILDING_LIBCURL
-  CURL_STATICLIB
   USE_WINDOWS_SSPI
   USE_SCHANNEL
   ENABLE_IPV6
