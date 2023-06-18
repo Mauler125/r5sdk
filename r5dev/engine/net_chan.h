@@ -199,7 +199,7 @@ private:
 	int                 m_nSequencesSkipped_MAYBE;
 	int                 m_nSessionRecvs;
 	uint32_t            m_nLiftimeRecvs;
-	bool                m_bPad;
+	bool                m_bRetrySendLong;
 	char                m_Name[NET_CHANNELNAME_MAXLEN];
 	netadr_t            remote_address;
 };
