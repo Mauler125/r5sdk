@@ -83,13 +83,13 @@ void ImGui_Init()
 	///////////////////////////////////////////////////////////////////////////////
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGui_ImplWin32_Init(*g_pGameWindow);
-	ImGui_ImplDX11_Init(*g_ppGameDevice, *g_ppImmediateContext);
 
-	///////////////////////////////////////////////////////////////////////////////
 	ImGuiIO& io = ImGui::GetIO();
 	io.ImeWindowHandle = *g_pGameWindow;
 	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
+
+	ImGui_ImplWin32_Init(*g_pGameWindow);
+	ImGui_ImplDX11_Init(*g_ppGameDevice, *g_ppImmediateContext);
 }
 
 void ImGui_Shutdown()

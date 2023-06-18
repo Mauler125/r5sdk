@@ -3,31 +3,32 @@
 #include "host_cmd.h"
 #include "common.h"
 #include "client/client.h"
+#ifndef DEDICATED
+#include "windows/id3dx.h"
+#endif // !DEDICATED
 
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 /*
 ==================
-DFS_InitializeFeatureFlagDefinitions
+Host_Shutdown
 
-Initialize feature 
-flag definitions
+ shutdown host
+ systems
 ==================
 */
-bool DFS_InitializeFeatureFlagDefinitions(const char* pszFeatureFlags)
+void Host_Shutdown()
 {
-	if (CommandLine()->CheckParm("-nodfs"))
-		return false;
-
-	return v_DFS_InitializeFeatureFlagDefinitions(pszFeatureFlags);
+#ifndef DEDICATED
+	DirectX_Shutdown();
+#endif // DEDICATED
+	v_Host_Shutdown();
 }
-#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 
 /*
 ==================
 Host_Status_PrintClient
 
-Print client info 
-to console
+ Print client info 
+ to console
 ==================
 */
 void Host_Status_PrintClient(CClient* client, bool bShowAddress, void (*print) (const char* fmt, ...))
@@ -61,21 +62,41 @@ void Host_Status_PrintClient(CClient* client, bool bShowAddress, void (*print) (
 	//print("\n");
 }
 
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+/*
+==================
+DFS_InitializeFeatureFlagDefinitions
+
+ Initialize feature
+ flag definitions
+==================
+*/
+bool DFS_InitializeFeatureFlagDefinitions(const char* pszFeatureFlags)
+{
+	if (CommandLine()->CheckParm("-nodfs"))
+		return false;
+
+	return v_DFS_InitializeFeatureFlagDefinitions(pszFeatureFlags);
+}
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
+
 ///////////////////////////////////////////////////////////////////////////////
 void VHostCmd::Attach() const
 {
+	DetourAttach(&v_Host_Shutdown, &Host_Shutdown);
+	DetourAttach(&v_Host_Status_PrintClient, &Host_Status_PrintClient);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	DetourAttach(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions);
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
-	DetourAttach(&v_Host_Status_PrintClient, &Host_Status_PrintClient);
 }
 
 void VHostCmd::Detach() const
 {
+	DetourDetach(&v_Host_Shutdown, &Host_Shutdown);
+	DetourDetach(&v_Host_Status_PrintClient, &Host_Status_PrintClient);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	DetourDetach(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions);
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
-	DetourDetach(&v_Host_Status_PrintClient, &Host_Status_PrintClient);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

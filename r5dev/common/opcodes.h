@@ -88,7 +88,6 @@ class VOpcodes : public IDetour
 //		LogFunAdr("Sys_InitGame", Sys_InitGame.GetPtr());
 //		LogFunAdr("Host_Init_1", gHost_Init_1.GetPtr());
 //		LogFunAdr("Host_Init_2", gHost_Init_2.GetPtr());
-//		LogFunAdr("Host_Disconnect", Host_Disconnect.GetPtr());
 #ifndef CLIENT_DLL
 		LogFunAdr("Server_S2C_CONNECT", Server_S2C_CONNECT_1.GetPtr());
 #endif // !CLIENT_DLL
@@ -147,17 +146,6 @@ class VOpcodes : public IDetour
 //
 //		gHost_Init_2 = g_GameDll.FindPatternSIMD("88 4C 24 08 53 55 56 57 48 83 EC 68"); // client Host_Init()?
 //		// 0x140236640 // 88 4C 24 08 53 55 56 57 48 83 EC 68 //
-//
-//		//-------------------------------------------------------------------------
-//		Host_Shutdown = g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 8B 15 ?? ?? ?? ??");
-//		// 0x140239620 // 48 8B C4 48 83 EC ?? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 8B 15 ? ? ? ? //
-//
-//		//-------------------------------------------------------------------------
-//#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-//		Host_Disconnect = g_GameDll.FindPatternSIMD("48 83 EC 38 48 89 7C 24 ?? 0F B6 F9");
-//#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-//		Host_Disconnect = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 0F B6 D9");
-//#endif // 0x14023CCA0 // 40 53 48 83 EC 30 0F B6 D9 //
 //
 //		//-------------------------------------------------------------------------
 #ifndef CLIENT_DLL

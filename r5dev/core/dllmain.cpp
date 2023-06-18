@@ -132,7 +132,6 @@ void SDK_Shutdown()
 
 #ifndef DEDICATED
     Input_Shutdown();
-    DirectX_Shutdown();
 #endif // !DEDICATED
 
     Console_Shutdown();
