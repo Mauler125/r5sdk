@@ -290,11 +290,12 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 
 		if (g_bSpdLog_PostInit)
 		{
-			g_pConsole->AddLog(ConLog_t(g_LogStream.str(), overlayColor));
+			const string logStreamBuf = g_LogStream.str();
+			g_pConsole->AddLog(ConLog_t(logStreamBuf, overlayColor));
 
 			if (logLevel >= LogLevel_t::LEVEL_NOTIFY) // Draw to mini console.
 			{
-				g_pOverlay->AddLog(overlayContext, g_LogStream.str());
+				g_pOverlay->AddLog(overlayContext, logStreamBuf);
 			}
 		}
 #endif // !DEDICATED
