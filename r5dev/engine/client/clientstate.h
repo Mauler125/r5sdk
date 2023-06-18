@@ -221,8 +221,8 @@ class VClientState : public IDetour
 		LogFunAdr("CClientState::Disconnect", p_CClientState__Disconnect.GetPtr());
 		LogFunAdr("CClientState::ConnectionClosing", p_CClientState__ConnectionClosing.GetPtr());
 		LogFunAdr("CClientState::ProcessServerTick", p_CClientState__ProcessServerTick.GetPtr());
-		LogVarAdr("g_pClientState", reinterpret_cast<uintptr_t>(g_pClientState));
-		LogVarAdr("g_pClientState_Shifted", reinterpret_cast<uintptr_t>(g_pClientState_Shifted));
+		LogVarAdr("g_ClientState", reinterpret_cast<uintptr_t>(g_pClientState));
+		LogVarAdr("g_ClientState_Shifted", reinterpret_cast<uintptr_t>(g_pClientState_Shifted));
 	}
 	virtual void GetFun(void) const
 	{
