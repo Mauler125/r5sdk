@@ -9,8 +9,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
+#include "vpc/keyvalues.h"
+#include "tier0/frametask.h"
 #include "engine/host.h"
 #include "clientstate.h"
+#include "common/callback.h"
 #include "cdll_engine_int.h"
 #include "vgui/vgui_baseui_interface.h"
 
@@ -117,7 +120,29 @@ float CClientState::GetFrameTime() const
 }
 
 //------------------------------------------------------------------------------
-// Purpose: 
+// Purpose: called when connection to the server has been closed
+//------------------------------------------------------------------------------
+void CClientState::VConnectionClosing(CClientState* thisptr, const char* szReason)
+{
+    CClientState__ConnectionClosing(thisptr, szReason);
+
+    // Delay execution to the next frame; this is required to avoid a rare crash.
+    // Cannot reload playlists while still disconnecting.
+    g_TaskScheduler->Dispatch([]()
+        {
+            // Reload the local playlist to override the cached
+            // one from the server we got disconnected from.
+            _DownloadPlaylists_f();
+            KeyValues::InitPlaylists();
+        }, 0);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: called when a SVC_ServerTick messages comes in.
+// This function has an additional check for the command tick against '-1',
+// if it is '-1', we process statistics only. This is required as the game
+// no longer can process server ticks every frame unlike previous games.
+// Without this, the server CPU and frame time don't get updated to the client.
 //------------------------------------------------------------------------------
 bool CClientState::VProcessServerTick(CClientState* pClientState, SVC_ServerTick* pServerTick)
 {
@@ -140,11 +165,13 @@ bool CClientState::VProcessServerTick(CClientState* pClientState, SVC_ServerTick
 
 void VClientState::Attach() const
 {
+    DetourAttach(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing);
     DetourAttach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
 }
 
 void VClientState::Detach() const
 {
+    DetourDetach(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing);
     DetourDetach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
 }
 

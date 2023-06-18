@@ -233,17 +233,6 @@ void CNetChan::Clear(bool bStopProcessing)
 void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
 	v_NetChan_Shutdown(pChan, szReason, bBadRep, bRemoveNow);
-
-#ifndef DEDICATED
-	// Delay execution to the next frame; this is required to avoid a rare crash.
-	// Cannot reload playlists while still disconnecting.
-	g_TaskScheduler->Dispatch([]()
-		{
-			// Re-load and re-init playlists from the disk to replace the cached one we received from the server.
-			_DownloadPlaylists_f();
-			KeyValues::InitPlaylists();
-		}, 0);
-#endif // !DEDICATED
 }
 
 //-----------------------------------------------------------------------------
