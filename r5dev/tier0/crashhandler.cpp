@@ -245,7 +245,10 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 	m_svBuffer.append(Format("\t%-15s: %p\n", szCrashedModuleName, pModuleBase));
 	m_nCrashMsgFlags = 1; // Display the "Apex crashed in <module>" message.
 
-	if (m_svCrashMsgInfo.empty()) // Only set it once to the crashing module.
+	// Only set it once to the crashing module,
+	// empty strings get treated as "unknown
+	// DLL or EXE" in the crashmsg executable.
+	if (m_svCrashMsgInfo.empty())
 	{
 		m_svCrashMsgInfo = szCrashedModuleName;
 	}
@@ -317,6 +320,7 @@ void CCrashHandler::FormatALU(const CHAR* pszRegister, DWORD64 nContent)
 	{
 		if (nContent > UINT_MAX)
 		{
+			// Print the full 64bits of the register.
 			m_svBuffer.append(Format("\t%s = 0x%016llX\n", pszRegister, nContent));
 		}
 		else
@@ -324,14 +328,15 @@ void CCrashHandler::FormatALU(const CHAR* pszRegister, DWORD64 nContent)
 			m_svBuffer.append(Format("\t%s = 0x%08X\n", pszRegister, nContent));
 		}
 	}
-	else // Display as decimal.
+	else if (nContent >= 10)
 	{
-		m_svBuffer.append(Format("\t%s = %-15i\n", pszRegister, nContent));
-		if (nContent >= 10)
-		{
-			const string svDesc = Format(" // 0x%08X\n", nContent);
-			m_svBuffer.replace(m_svBuffer.length()-1, svDesc.size(), svDesc);
-		}
+		// Print as decimal with a hexadecimal comment.
+		m_svBuffer.append(Format("\t%s = %-6i // 0x%08X\n", pszRegister, nContent, nContent));
+	}
+	else
+	{
+		// Print as decimal only.
+		m_svBuffer.append(Format("\t%s = %-10i\n", pszRegister, nContent));
 	}
 }
 
