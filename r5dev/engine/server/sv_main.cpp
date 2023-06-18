@@ -95,10 +95,15 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 		const char* szIPAddr = pNetChan->GetAddress(true);
 		const uint64_t nNucleusID = pClient->GetNucleusID();
 
+		// If no banned list was provided, build one with all clients
+		// on the server. This will be used for bulk checking so live
+		// bans could be performed, as this function is called periodically.
 		if (!pBannedVec)
 			bannedVec.push_back(std::make_pair(string(szIPAddr), nNucleusID));
 		else
 		{
+			// Check if current client is within provided banned list, and
+			// prune if so...
 			for (auto& it : *pBannedVec)
 			{
 				if (it.second == pClient->GetNucleusID())
