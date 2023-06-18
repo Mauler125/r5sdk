@@ -162,7 +162,8 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			}
 			}
 
-		} while ((oldState != HostStates_t::HS_RUN || (g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && single_frame_shutdown_for_reload->GetBool()))
+		} while (
+			  (oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && single_frame_shutdown_for_reload->GetBool())
 			&& oldState != HostStates_t::HS_SHUTDOWN
 			&& oldState != HostStates_t::HS_RESTART);
 	}
