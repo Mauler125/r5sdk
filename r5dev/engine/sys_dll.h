@@ -26,11 +26,11 @@ public:
 	static bool StaticCreate(CModAppSystemGroup* pModAppSystemGroup);
 	static void InitPluginSystem(CModAppSystemGroup* pModAppSystemGroup);
 
-	bool IsServerOnly(void) const
+	inline bool IsServerOnly(void) const
 	{
 		return m_bServerOnly;
 	}
-	void SetServerOnly(void)
+	inline void SetServerOnly(void)
 	{
 		m_bServerOnly = true;
 	}
