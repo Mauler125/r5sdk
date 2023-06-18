@@ -29,7 +29,7 @@ public:
 	inline bool GetState() const { return m_bCallState; };
 
 	inline bool IsValid() const { return m_hExceptionHandler != nullptr; };
-	inline bool Handled() const { return m_bExceptionHandled; };
+	inline bool Handling() const { return m_bExceptionHandling; };
 
 	//-------------------------------------------------------------------------
 	// Formatters: 
@@ -93,7 +93,7 @@ private:
 
 	bool m_bCallState;        // Set when called to prevent recursive calls.
 	bool m_bCrashMsgCreated;  // Set when crashmsg.exe is created to prevent recursive messages.
-	bool m_bExceptionHandled; // Set on filter entry, unset within the same lock if exception was not handled, never unset if handled.
+	bool m_bExceptionHandling; // Set on filter entry, unset within the same lock if exception was not handled, never unset if handled.
 
 	std::set<void*> m_WhiteList;
 	mutable std::mutex m_Mutex;

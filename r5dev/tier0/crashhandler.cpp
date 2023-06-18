@@ -13,7 +13,7 @@
 void CCrashHandler::Start()
 {
 	Lock();
-	m_bExceptionHandled = true;
+	m_bExceptionHandling = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -21,7 +21,7 @@ void CCrashHandler::Start()
 //-----------------------------------------------------------------------------
 void CCrashHandler::End()
 {
-	m_bExceptionHandled = false;
+	m_bExceptionHandling = false;
 	Unlock();
 }
 
@@ -650,7 +650,7 @@ CCrashHandler::CCrashHandler()
 	, m_nCrashMsgFlags(0)
 	, m_bCallState(false)
 	, m_bCrashMsgCreated(false)
-	, m_bExceptionHandled(false)
+	, m_bExceptionHandling(false)
 {
 	Init();
 }
