@@ -22,14 +22,14 @@ public:
 	void Start();
 	void End();
 
-	void Lock() const { m_Mutex.lock(); };
-	void Unlock() const { m_Mutex.unlock(); };
+	inline void Lock() const { m_Mutex.lock(); };
+	inline void Unlock() const { m_Mutex.unlock(); };
 
-	void SetState(bool bState) { m_bCallState = bState; };
-	bool GetState() const { return m_bCallState; };
+	inline void SetState(bool bState) { m_bCallState = bState; };
+	inline bool GetState() const { return m_bCallState; };
 
-	bool IsValid() const { return m_hExceptionHandler != nullptr; };
-	bool Handled() const { return m_bExceptionHandled; };
+	inline bool IsValid() const { return m_hExceptionHandler != nullptr; };
+	inline bool Handled() const { return m_bExceptionHandled; };
 
 	//-------------------------------------------------------------------------
 	// Formatters: 
