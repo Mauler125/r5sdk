@@ -202,7 +202,7 @@ class VConCommand : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogFunAdr("ConCommandBase::IsFlagSet", p_ConCommandBase_IsFlagSet.GetPtr());
-		LogConAdr("ConCommand::AutoCompleteSuggest", p_ConCommand_AutoCompleteSuggest.GetPtr());
+		LogFunAdr("ConCommand::AutoCompleteSuggest", p_ConCommand_AutoCompleteSuggest.GetPtr());
 		LogFunAdr("CallbackStub", p_CallbackStub.GetPtr());
 		LogFunAdr("NullSub", p_NullSub.GetPtr());
 	}
