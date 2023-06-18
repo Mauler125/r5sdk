@@ -25,7 +25,7 @@ extern "C" void* R_malloc(size_t nSize)
 
 extern "C" void R_free(void* pBlock)
 {
-    Assert(pBlock);
+    //Assert(pBlock);
     MemAllocSingleton()->Free(pBlock);
 }
 
