@@ -78,7 +78,7 @@ BOOL WINAPI HPostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 // IMGUI
 //#################################################################################
 
-void SetupImGui()
+void ImGui_Init()
 {
 	///////////////////////////////////////////////////////////////////////////////
 	IMGUI_CHECKVERSION();
@@ -90,6 +90,13 @@ void SetupImGui()
 	ImGuiIO& io = ImGui::GetIO();
 	io.ImeWindowHandle = *g_pGameWindow;
 	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
+}
+
+void ImGui_Shutdown()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void DrawImGui()
@@ -126,7 +133,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 {
 	if (!s_bInitialized)
 	{
-		SetupImGui();
+		ImGui_Init();
 		g_ThreadRenderThreadID = GetCurrentThreadId();
 		s_bInitialized = true;
 	}
@@ -380,9 +387,7 @@ void DirectX_Shutdown()
 	// Shutdown ImGui
 	if (s_bInitialized)
 	{
-		ImGui_ImplDX11_Shutdown();
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
+		ImGui_Shutdown();
 		s_bInitialized = false;
 	}
 }
