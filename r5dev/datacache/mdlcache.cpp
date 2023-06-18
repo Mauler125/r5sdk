@@ -15,6 +15,9 @@
 #include "rtech/rtech_utils.h"
 #include "public/studio.h"
 
+RMDLFallBack_t* g_pMDLFallback = new RMDLFallBack_t();
+std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
+
 
 //-----------------------------------------------------------------------------
 // Purpose: finds an MDL

@@ -60,8 +60,8 @@ struct studiodata_t
 	int m_nGuidLock; // always -1, set to 1 and 0 in CMDLCache::FindUncachedMDL.
 };
 
-inline RMDLFallBack_t* g_pMDLFallback = new RMDLFallBack_t();
-inline std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
+extern RMDLFallBack_t* g_pMDLFallback;
+extern std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
 
 class CMDLCache
 {

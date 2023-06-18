@@ -21,8 +21,8 @@ extern std::shared_ptr<spdlog::logger> g_ImGuiLogger;
 
 //-------------------------------------------------------------------------
 // IMGUI CONSOLE SINK                                                     |
-inline std::ostringstream g_LogStream;
-inline auto g_LogSink = std::make_shared<spdlog::sinks::ostream_sink_st>(g_LogStream);
+extern std::ostringstream g_LogStream;
+extern std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
 
 void SpdLog_Init(void);
 void SpdLog_Create(void);

@@ -4,6 +4,9 @@
 std::shared_ptr<spdlog::logger> g_TermLogger;
 std::shared_ptr<spdlog::logger> g_ImGuiLogger;
 
+std::ostringstream g_LogStream;
+std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
+
 //#############################################################################
 // SPDLOG INIT
 //#############################################################################
@@ -24,6 +27,7 @@ void SpdLog_Init(void)
 	 * IMGUI LOGGER SETUP   *
 	 ************************/
 	{
+		g_LogSink = std::make_shared<spdlog::sinks::ostream_sink_st>(g_LogStream);
 		g_ImGuiLogger = std::make_shared<spdlog::logger>("game_console", g_LogSink);
 		spdlog::register_logger(g_ImGuiLogger); // in-game console logger.
 		g_ImGuiLogger->set_pattern("[0.000] %v");
