@@ -83,7 +83,7 @@ bool CSigCache::FindEntry(const char* szPattern, uint64_t& nRVA)
 // Purpose: loads the cache map from the disk
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::LoadCache(const string& svCacheFile)
+bool CSigCache::LoadCache(const char* szCacheFile)
 {
 	Assert(!m_bInitialized); // Recursive load.
 
@@ -93,7 +93,7 @@ bool CSigCache::LoadCache(const string& svCacheFile)
 	}
 
 	CIOStream reader;
-	if (!reader.Open(svCacheFile, CIOStream::READ | CIOStream::BINARY))
+	if (!reader.Open(szCacheFile, CIOStream::READ | CIOStream::BINARY))
 	{
 		return false;
 	}
@@ -159,7 +159,7 @@ bool CSigCache::LoadCache(const string& svCacheFile)
 // Purpose: writes the cache map to the disk
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::WriteCache(const string& svCacheFile) const
+bool CSigCache::WriteCache(const char* szCacheFile) const
 {
 	if (m_bDisabled || m_bInitialized)
 	{
@@ -168,10 +168,10 @@ bool CSigCache::WriteCache(const string& svCacheFile) const
 	}
 
 	CIOStream writer;
-	if (!writer.Open(svCacheFile, CIOStream::WRITE | CIOStream::BINARY))
+	if (!writer.Open(szCacheFile, CIOStream::WRITE | CIOStream::BINARY))
 	{
 		Error(eDLL_T::COMMON, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", 
-			__FUNCTION__, svCacheFile.c_str());
+			__FUNCTION__, szCacheFile);
 		return false;
 	}
 

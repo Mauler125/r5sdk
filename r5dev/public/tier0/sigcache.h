@@ -29,8 +29,8 @@ public:
 	void AddEntry(const char* szPattern, const uint64_t nRVA);
 	bool FindEntry(const char* szPattern, uint64_t& nRVA);
 
-	bool LoadCache(const string& svCacheFile);
-	bool WriteCache(const string& svCacheFile) const;
+	bool LoadCache(const char* szCacheFile);
+	bool WriteCache(const char* szCacheFile) const;
 
 private:
 	bool CompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
