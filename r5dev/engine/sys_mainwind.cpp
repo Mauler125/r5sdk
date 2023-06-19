@@ -27,6 +27,9 @@ void CGame::PlayStartupVideos(void)
 //-----------------------------------------------------------------------------
 int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (!g_bImGuiInitialized)
+		return v_CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+
 	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)

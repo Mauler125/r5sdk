@@ -31,7 +31,8 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-static BOOL                     s_bInitialized = FALSE;
+extern BOOL                     g_bImGuiInitialized = FALSE;
+extern UINT                     g_nWindowRect[2] = { NULL, NULL };
 
 ///////////////////////////////////////////////////////////////////////////////////
 static IPostMessageA            s_oPostMessageA = NULL;
@@ -131,11 +132,11 @@ void DrawImGui()
 
 HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
 {
-	if (!s_bInitialized)
+	if (!g_bImGuiInitialized)
 	{
 		ImGui_Init();
 		g_ThreadRenderThreadID = GetCurrentThreadId();
-		s_bInitialized = true;
+		g_bImGuiInitialized = true;
 	}
 
 	DrawImGui();
@@ -385,10 +386,10 @@ void DirectX_Shutdown()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Shutdown ImGui
-	if (s_bInitialized)
+	if (g_bImGuiInitialized)
 	{
 		ImGui_Shutdown();
-		s_bInitialized = false;
+		g_bImGuiInitialized = false;
 	}
 }
 
