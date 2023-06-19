@@ -85,7 +85,7 @@ void SDK_Init()
     }
 
     // Log the SDK's 'build_id' under the emblem.
-    spdlog::info("{:s}+------------------------------------------------[{:d}]-+{:s}\n",
+    spdlog::info("{:s}+------------------------------------------------[{:010d}]-+{:s}\n",
         g_svRedF, g_SDKDll.m_pNTHeaders->FileHeader.TimeDateStamp, g_svReset);
     spdlog::info("\n");
 
