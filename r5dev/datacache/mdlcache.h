@@ -63,7 +63,7 @@ struct studiodata_t
 extern RMDLFallBack_t* g_pMDLFallback;
 extern std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
 
-class CMDLCache
+class CMDLCache : public IMDLCache
 {
 public:
 	static studiohdr_t* FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3);
@@ -71,15 +71,41 @@ public:
 	static studiohdr_t* FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, studiodata_t* pStudioData, void* a4);
 	static studiohdr_t* GetStudioHDR(CMDLCache* cache, MDLHandle_t handle);
 	static studiohwdata_t* GetHardwareData(CMDLCache* cache, MDLHandle_t handle);
-	static void* GetMaterialTable(CMDLCache* cache, MDLHandle_t handle);
 	static studiohdr_t* GetErrorModel(void);
 	static bool IsKnownBadModel(MDLHandle_t handle);
 
-	CMDLCache* m_pVTable;
-	void* m_pStrCmp;             // string compare func;
-	void* m_pModelCacheSection;  // IDataCacheSection*
-	int m_nModelCacheFrameLocks; //
-	// TODO..
+
+	studiodata_t* GetStudioData(MDLHandle_t handle)
+	{
+		EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		studiodata_t* pStudioData = m_MDLDict.Element(handle);
+		LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+
+		return pStudioData;
+	}
+
+	const char* GetModelName(MDLHandle_t handle)
+	{
+		EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		const char* szModelName = m_MDLDict.GetElementName(handle);
+		LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+
+		return szModelName;
+	}
+
+	void* GetMaterialTable(MDLHandle_t handle)
+	{
+		EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		studiodata_t* pStudioData = m_MDLDict.Element(handle);
+		LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+
+		return &pStudioData->m_pMaterialTable;
+	}
+
+private:
+	CUtlDict<studiodata_t*, MDLHandle_t> m_MDLDict;
+	LPCRITICAL_SECTION m_MDLMutex;
+	// !TODO: reverse the rest
 };
 
 inline CMemory p_CMDLCache__FindMDL;
@@ -100,10 +126,8 @@ inline auto v_CMDLCache__GetHardwareData = p_CMDLCache__GetHardwareData.RCast<st
 inline CMemory p_CStudioHWDataRef__SetFlags; // Probably incorrect.
 inline auto v_CStudioHWDataRef__SetFlags = p_CStudioHWDataRef__SetFlags.RCast<bool (*)(CStudioHWDataRef* ref, int64_t flags)>();
 #endif
-inline CUtlDict<studiodata_t*, MDLHandle_t>* m_MDLDict;
-inline LPCRITICAL_SECTION* m_MDLMutex = nullptr;
-inline PSRWLOCK* m_MDLLock = nullptr;
-inline CMDLCache* g_MDLCache = nullptr;
+inline CMDLCache* g_pMDLCache = nullptr;
+inline PSRWLOCK* g_pMDLLock = nullptr; // Possibly a member? research required.
 
 ///////////////////////////////////////////////////////////////////////////////
 class VMDLCache : public IDetour
@@ -120,10 +144,8 @@ class VMDLCache : public IDetour
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 		LogFunAdr("CStudioHWDataRef::SetFlags", p_CStudioHWDataRef__SetFlags.GetPtr());
 #endif
-		LogVarAdr("m_MDLMutex", reinterpret_cast<uintptr_t>(m_MDLMutex));
-		LogVarAdr("m_MDLLock", reinterpret_cast<uintptr_t>(m_MDLLock));
-		LogVarAdr("m_MDLDict", reinterpret_cast<uintptr_t>(m_MDLDict));
-		LogVarAdr("g_MDLCache", reinterpret_cast<uintptr_t>(g_MDLCache));
+		LogVarAdr("g_MDLCache", reinterpret_cast<uintptr_t>(g_pMDLCache));
+		LogVarAdr("g_MDLLock", reinterpret_cast<uintptr_t>(g_pMDLLock));
 	}
 	virtual void GetFun(void) const
 	{
@@ -163,15 +185,11 @@ class VMDLCache : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		m_MDLMutex = g_GameDll.FindPatternSIMD("48 83 EC 28 BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 0F B6 05 ?? ?? ?? ??")
-			.FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<LPCRITICAL_SECTION*>();
+		// Get MDLCache singleton from CStudioRenderContext::Connect
+		g_pMDLCache = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 0F 45 C8 FF 05 ?? ?? ?? ?? 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??")
+			.FindPatternSelf("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMDLCache*>();
 
-		m_MDLLock = p_CMDLCache__GetHardwareData.Offset(0x35).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PSRWLOCK*>();
-
-		m_MDLDict = p_CMDLCache__FindMDL.FindPattern("48 8B 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlDict<studiodata_t*, MDLHandle_t>*>();
-
-		g_MDLCache = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 44 0F B7 82 ?? ?? ?? ?? 48 8B 01 48 FF A0")
-			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMDLCache*>();
+		g_pMDLLock = p_CMDLCache__GetHardwareData.Offset(0x35).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PSRWLOCK*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;

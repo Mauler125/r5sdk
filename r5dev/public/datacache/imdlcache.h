@@ -43,4 +43,11 @@ enum MDLCacheDataType_t
 	MDLCACHE_VERTEXES,
 	MDLCACHE_DECODEDANIMBLOCK
 };
+
+abstract_class IMDLCache : public IAppSystem
+{
+	// !TODO: map this out.
+};
+
+
 #endif // !IMDLCACHE_H

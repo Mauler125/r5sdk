@@ -6,6 +6,6 @@
 //---------------------------------------------------------
 FORWARD_DECLARE_HANDLE(memhandle_t);
 typedef memhandle_t DataCacheHandle_t;
-#define DC_INVALID_HANDLE ((DataCacheHandle_t)0)
+#define DC_INVALID_HANDLE ((DataCacheHandle_t)0xDEADFEEDDEADFEED)
 
 #endif // IDATACACHE_H
