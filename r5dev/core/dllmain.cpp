@@ -81,9 +81,12 @@ void SDK_Init()
 
     for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
-        std::string svEscaped = StringEscape(R5R_EMBLEM[i]);
-        spdlog::info("{:s}{:s}{:s}\n", g_svRedF, svEscaped, g_svReset);
+        spdlog::info("{:s}{:s}{:s}\n", g_svRedF, R5R_EMBLEM[i], g_svReset);
     }
+
+    // Log the SDK's 'build_id' under the emblem.
+    spdlog::info("{:s}+------------------------------------------------[{:d}]-+{:s}\n",
+        g_svRedF, g_SDKDll.m_pNTHeaders->FileHeader.TimeDateStamp, g_svReset);
     spdlog::info("\n");
 
     Systems_Init();
