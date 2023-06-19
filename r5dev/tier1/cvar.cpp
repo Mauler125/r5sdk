@@ -9,9 +9,11 @@
 //-----------------------------------------------------------------------------
 // Purpose: create
 //-----------------------------------------------------------------------------
-ConVar* ConVar::StaticCreate(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString)
+ConVar* ConVar::StaticCreate(const char* pszName, const char* pszDefaultValue,
+	int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax,
+	float fMax, FnChangeCallback_t pCallback, const char* pszUsageString)
 {
-	ConVar* pNewConVar = MemAllocSingleton()->Alloc<ConVar>(sizeof(ConVar)); // Allocate new memory with StdMemAlloc else we crash.
+	ConVar* pNewConVar = MemAllocSingleton()->Alloc<ConVar>(sizeof(ConVar));
 
 	pNewConVar->m_bRegistered = false;
 	*(ConVar**)pNewConVar = g_pConVarVBTable;
@@ -27,7 +29,8 @@ ConVar* ConVar::StaticCreate(const char* pszName, const char* pszDefaultValue, i
 
 	pNewConVar->m_fnChangeCallbacks.Init();
 
-	v_ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags, pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
+	v_ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags,
+		pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
 	return pNewConVar;
 }
 
@@ -270,7 +273,8 @@ bool ConVar::SetColorFromString(const char* pszValue)
 
 	// Try pulling RGBA color values out of the string.
 	int nRGBA[4];
-	int nParamsRead = sscanf_s(pszValue, "%i %i %i %i", &(nRGBA[0]), &(nRGBA[1]), &(nRGBA[2]), &(nRGBA[3]));
+	int nParamsRead = sscanf_s(pszValue, "%i %i %i %i",
+		&(nRGBA[0]), &(nRGBA[1]), &(nRGBA[2]), &(nRGBA[3]));
 
 	if (nParamsRead >= 3)
 	{
@@ -292,7 +296,9 @@ bool ConVar::SetColorFromString(const char* pszValue)
 			bColor = true;
 
 			// Stuff all the values into each byte of our int.
-			unsigned char* pColorElement = (reinterpret_cast<unsigned char*>(&m_Value.m_nValue));
+			unsigned char* pColorElement =
+				(reinterpret_cast<unsigned char*>(&m_Value.m_nValue));
+
 			pColorElement[0] = (unsigned char)nRGBA[0];
 			pColorElement[1] = (unsigned char)nRGBA[1];
 			pColorElement[2] = (unsigned char)nRGBA[2];
@@ -355,14 +361,17 @@ void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=
 {
 	if (!callback)
 	{
-		Warning(eDLL_T::ENGINE, "%s: Called with NULL callback; ignoring!!!\n", __FUNCTION__);
+		Warning(eDLL_T::ENGINE, "%s: Called with NULL callback; ignoring!!!\n",
+			__FUNCTION__);
 		return;
 	}
 
-	if (m_pParent->m_fnChangeCallbacks.Find(callback) != m_pParent->m_fnChangeCallbacks.InvalidIndex())
+	if (m_pParent->m_fnChangeCallbacks.Find(callback)
+		!= m_pParent->m_fnChangeCallbacks.InvalidIndex())
 	{
 		// Same ptr added twice, sigh...
-		Warning(eDLL_T::ENGINE, "%s: Ignoring duplicate change callback!!!\n", __FUNCTION__);
+		Warning(eDLL_T::ENGINE, "%s: Ignoring duplicate change callback!!!\n",
+			__FUNCTION__);
 		return;
 	}
 
@@ -413,7 +422,10 @@ bool ConVar::ParseFlagString(const char* pszFlags, int& nFlags, const char* pszC
 
 			if (s_ConVarFlags.count(sFlag) == 0)
 			{
-				Warning(eDLL_T::ENGINE, "%s: Attempted to parse invalid flag '%s' for convar '%s'\n", __FUNCTION__, sFlag.c_str(), pszConVarName);
+				Warning(eDLL_T::ENGINE,
+					"%s: Attempted to parse invalid flag '%s' for convar '%s'\n",
+					__FUNCTION__, sFlag.c_str(), pszConVarName);
+
 				return false;
 			}
 
@@ -630,10 +642,12 @@ static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 	}
 
 	// Print to console
-	DevMsg(eDLL_T::ENGINE, "%-40s : %-8s : %-16s : %s\n", var->GetName(), valstr, flagstr, StripTabsAndReturns(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
+	DevMsg(eDLL_T::ENGINE, "%-40s : %-8s : %-16s : %s\n", var->GetName(),
+		valstr, flagstr, StripTabsAndReturns(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
 	if (logging)
 	{
-		FileSystem()->FPrintf(fh, "\"%s\",\"%s\",%s,\"%s\"\n", var->GetName(), valstr, csvflagstr, StripQuotes(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
+		FileSystem()->FPrintf(fh, "\"%s\",\"%s\",%s,\"%s\"\n", var->GetName(),
+			valstr, csvflagstr, StripQuotes(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
 	}
 }
 
@@ -646,7 +660,9 @@ static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 {
 	// Print to console
 	char tempbuff[512] = { 0 };
-	DevMsg(eDLL_T::ENGINE, "%-40s : %-8s : %-16s : %s\n", cmd->GetName(), "cmd", "", StripTabsAndReturns(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+	DevMsg(eDLL_T::ENGINE, "%-40s : %-8s : %-16s : %s\n", cmd->GetName(),
+		"cmd", "", StripTabsAndReturns(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+
 	if (logging)
 	{
 		char emptyflags[256];
@@ -669,7 +685,8 @@ static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 		{
 			Q_snprintf(nameBuf, sizeof(nameBuf), "'%s'", cmd->GetName());
 		}
-		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", nameBuf, "cmd", emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", nameBuf, "cmd",
+			emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
 	}
 }
 
@@ -833,7 +850,8 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	{
 		PrintListHeader(f);
 	}
-	for (unsigned short i = sorted.FirstInorder(); i != sorted.InvalidIndex(); i = sorted.NextInorder(i))
+	for (unsigned short i = sorted.FirstInorder();
+		i != sorted.InvalidIndex(); i = sorted.NextInorder(i))
 	{
 		var = sorted[i];
 		if (var->IsCommand())
@@ -850,11 +868,13 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	// Show total and syntax help...
 	if (partial && partial[0])
 	{
-		DevMsg(eDLL_T::ENGINE, "--------------\n%3i convars/concommands for [%s]\n", sorted.Count(), partial);
+		DevMsg(eDLL_T::ENGINE, "--------------\n%3i convars/concommands for [%s]\n",
+			sorted.Count(), partial);
 	}
 	else
 	{
-		DevMsg(eDLL_T::ENGINE, "--------------\n%3i total convars/concommands\n", sorted.Count());
+		DevMsg(eDLL_T::ENGINE, "--------------\n%3i total convars/concommands\n",
+			sorted.Count());
 	}
 
 	if (bLogging)
@@ -973,7 +993,8 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
+int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial,
+	char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
 {
 	int flagC = ARRAYSIZE(g_ConVarFlags);
 	char const* pcmd = "findflags ";
@@ -984,7 +1005,8 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial, char co
 		int i = 0;
 		for (; i < MIN(flagC, COMMAND_COMPLETION_MAXITEMS); i++)
 		{
-			Q_snprintf(commands[i], sizeof(commands[i]), "%s %s", pcmd, g_ConVarFlags[i].desc);
+			Q_snprintf(commands[i], sizeof(commands[i]), "%s %s",
+				pcmd, g_ConVarFlags[i].desc);
 			Q_strlower(commands[i]);
 		}
 		return i;
@@ -999,7 +1021,8 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial, char co
 		if (Q_strnicmp(g_ConVarFlags[i].desc, pSub, nSubLen))
 			continue;
 
-		Q_snprintf(commands[values], sizeof(commands[values]), "%s %s", pcmd, g_ConVarFlags[i].desc);
+		Q_snprintf(commands[values], sizeof(commands[values]),
+			"%s %s", pcmd, g_ConVarFlags[i].desc);
 		Q_strlower(commands[values]);
 		++values;
 
@@ -1149,12 +1172,14 @@ void CConCommandHash::RemoveAll(void)
 //-----------------------------------------------------------------------------
 // Find hash entry corresponding to a string name
 //-----------------------------------------------------------------------------
-CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const char* name, HashKey_t hashkey) const /*RESTRICT*/
+CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(
+	const char* name, HashKey_t hashkey) const /*RESTRICT*/
 {
 	// hash the "key" - get the correct hash table "bucket"
 	int iBucket = hashkey & kBUCKETMASK;
 
-	for (datapool_t::IndexLocalType_t iElement = m_aBuckets[iBucket]; iElement != m_aDataPool.InvalidIndex(); iElement = m_aDataPool.Next(iElement))
+	for (datapool_t::IndexLocalType_t iElement = m_aBuckets[iBucket];
+		iElement != m_aDataPool.InvalidIndex(); iElement = m_aDataPool.Next(iElement))
 	{
 		const HashEntry_t& element = m_aDataPool[iElement];
 		if (element.m_uiKey == hashkey && // if hashes of strings match,
@@ -1185,7 +1210,8 @@ CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const ConCommandBase
 	int iBucket = hashkey & kBUCKETMASK;
 
 	// hunt through all entries in that bucket
-	for (datapool_t::IndexLocalType_t iElement = m_aBuckets[iBucket]; iElement != m_aDataPool.InvalidIndex(); iElement = m_aDataPool.Next(iElement))
+	for (datapool_t::IndexLocalType_t iElement = m_aBuckets[iBucket];
+		iElement != m_aDataPool.InvalidIndex(); iElement = m_aDataPool.Next(iElement))
 	{
 		const HashEntry_t& element = m_aDataPool[iElement];
 		if (element.m_uiKey == hashkey && // if the hashes match... 
