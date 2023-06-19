@@ -158,7 +158,8 @@ void Systems_Init()
 	initTimer.End();
 
 	spdlog::info("+-------------------------------------------------------------+\n");
-	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->InitDB()", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
+	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->InitDB()",
+		initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
 
@@ -184,7 +185,8 @@ void Systems_Init()
 	}
 
 	initTimer.End();
-	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Attach()", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
+	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Attach()",
+		initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 
 	ConVar_StaticInit();
@@ -220,7 +222,8 @@ void Systems_Shutdown()
 	DetourTransactionCommit();
 
 	shutdownTimer.End();
-	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Detach()", shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
+	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Detach()",
+		shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 }
 
@@ -241,7 +244,8 @@ void Winsock_Init()
 	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (nError != 0)
 	{
-		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to start Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to start Winsock: (%s)\n",
+			__FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
 void Winsock_Shutdown()
@@ -249,7 +253,8 @@ void Winsock_Shutdown()
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to stop Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to stop Winsock: (%s)\n",
+			__FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
 void QuerySystemInfo()
