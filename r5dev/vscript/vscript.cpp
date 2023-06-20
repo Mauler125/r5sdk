@@ -27,13 +27,13 @@ void Script_RegisterServerFunctions(CSquirrelVM* s)
 	s->RegisterFunction("GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VScriptCode::SHARED::GetAvailableMaps);
 	s->RegisterFunction("GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VScriptCode::SHARED::GetAvailablePlaylists);
 
-	s->RegisterFunction("KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VScriptCode::SHARED::KickPlayerByName);
-	s->RegisterFunction("KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VScriptCode::SHARED::KickPlayerById);
+	s->RegisterFunction("KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string, string", &VScriptCode::SHARED::KickPlayerByName);
+	s->RegisterFunction("KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string, string", &VScriptCode::SHARED::KickPlayerById);
 
 	s->RegisterFunction("BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VScriptCode::SHARED::BanPlayerByName);
-	s->RegisterFunction("BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VScriptCode::SHARED::BanPlayerById);
+	s->RegisterFunction("BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string, string", &VScriptCode::SHARED::BanPlayerById);
 
-	s->RegisterFunction("UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VScriptCode::SHARED::UnbanPlayer);
+	s->RegisterFunction("UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string, string", &VScriptCode::SHARED::UnbanPlayer);
 
 	s->RegisterFunction("ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VScriptCode::SHARED::ShutdownHostGame);
 

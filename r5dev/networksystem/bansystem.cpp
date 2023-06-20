@@ -200,7 +200,7 @@ void CBanSystem::KickPlayerByName(const char* playerName, const char* reason)
 	if (!VALID_CHARSTAR(playerName))
 		return;
 
-	AuthorPlayerByName(playerName, false);
+	AuthorPlayerByName(playerName, false, reason);
 }
 
 //-----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ void CBanSystem::KickPlayerById(const char* playerHandle, const char* reason)
 	if (!VALID_CHARSTAR(playerHandle))
 		return;
 
-	AuthorPlayerById(playerHandle, false);
+	AuthorPlayerById(playerHandle, false, reason);
 }
 
 //-----------------------------------------------------------------------------
@@ -226,7 +226,7 @@ void CBanSystem::BanPlayerByName(const char* playerName, const char* reason)
 	if (!VALID_CHARSTAR(playerName))
 		return;
 
-	AuthorPlayerByName(playerName, true);
+	AuthorPlayerByName(playerName, true, reason);
 }
 
 //-----------------------------------------------------------------------------
@@ -239,7 +239,7 @@ void CBanSystem::BanPlayerById(const char* playerHandle, const char* reason)
 	if (!VALID_CHARSTAR(playerHandle))
 		return;
 
-	AuthorPlayerById(playerHandle, true);
+	AuthorPlayerById(playerHandle, true, reason);
 }
 
 //-----------------------------------------------------------------------------

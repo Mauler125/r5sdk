@@ -110,7 +110,13 @@ namespace VScriptCode
         SQRESULT KickPlayerByName(HSQUIRRELVM v)
         {
             SQChar* playerName = sq_getstring(v, 1);
-            g_pBanSystem->KickPlayerByName(playerName);
+            SQChar* reason = sq_getstring(v, 2);
+
+            // Discard empty strings, this will use the default message instead.
+            if (!VALID_CHARSTAR(reason))
+                reason = nullptr;
+
+            g_pBanSystem->KickPlayerByName(playerName, reason);
 
             return SQ_OK;
         }
@@ -121,7 +127,13 @@ namespace VScriptCode
         SQRESULT KickPlayerById(HSQUIRRELVM v)
         {
             SQChar* playerHandle = sq_getstring(v, 1);
-            g_pBanSystem->KickPlayerById(playerHandle);
+            SQChar* reason = sq_getstring(v, 2);
+
+            // Discard empty strings, this will use the default message instead.
+            if (!VALID_CHARSTAR(reason))
+                reason = nullptr;
+
+            g_pBanSystem->KickPlayerById(playerHandle, reason);
 
             return SQ_OK;
         }
@@ -132,7 +144,13 @@ namespace VScriptCode
         SQRESULT BanPlayerByName(HSQUIRRELVM v)
         {
             SQChar* playerName = sq_getstring(v, 1);
-            g_pBanSystem->BanPlayerByName(playerName);
+            SQChar* reason = sq_getstring(v, 2);
+
+            // Discard empty strings, this will use the default message instead.
+            if (!VALID_CHARSTAR(reason))
+                reason = nullptr;
+
+            g_pBanSystem->BanPlayerByName(playerName, reason);
 
             return SQ_OK;
         }
@@ -143,7 +161,13 @@ namespace VScriptCode
         SQRESULT BanPlayerById(HSQUIRRELVM v)
         {
             SQChar* playerHandle = sq_getstring(v, 1);
-            g_pBanSystem->BanPlayerById(playerHandle);
+            SQChar* reason = sq_getstring(v, 2);
+
+            // Discard empty strings, this will use the default message instead.
+            if (!VALID_CHARSTAR(reason))
+                reason = nullptr;
+
+            g_pBanSystem->BanPlayerById(playerHandle, reason);
 
             return SQ_OK;
         }

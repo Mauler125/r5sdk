@@ -118,7 +118,8 @@ void Host_Kick_f(const CCommand& args)
 		return;
 	}
 
-	g_pBanSystem->KickPlayerByName(args.Arg(1));
+	g_pBanSystem->KickPlayerByName(args.Arg(1),
+		args.ArgC() > 2 ? args.Arg(2) : nullptr);
 }
 
 /*
@@ -133,7 +134,8 @@ void Host_KickID_f(const CCommand& args)
 		return;
 	}
 
-	g_pBanSystem->KickPlayerById(args.Arg(1));
+	g_pBanSystem->KickPlayerById(args.Arg(1),
+		args.ArgC() > 2 ? args.Arg(2) : nullptr);
 }
 
 /*
@@ -148,7 +150,8 @@ void Host_Ban_f(const CCommand& args)
 		return;
 	}
 
-	g_pBanSystem->BanPlayerByName(args.Arg(1));
+	g_pBanSystem->BanPlayerByName(args.Arg(1),
+		args.ArgC() > 2 ? args.Arg(2) : nullptr);
 }
 
 /*
@@ -161,7 +164,8 @@ void Host_BanID_f(const CCommand& args)
 	if (args.ArgC() < 2)
 		return;
 
-	g_pBanSystem->BanPlayerById(args.Arg(1));
+	g_pBanSystem->BanPlayerById(args.Arg(1),
+		args.ArgC() > 2 ? args.Arg(2) : nullptr);
 }
 
 /*
