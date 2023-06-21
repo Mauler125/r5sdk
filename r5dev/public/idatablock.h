@@ -17,8 +17,8 @@ abstract_class NetDataBlockReceiver
 {
 public:
 	virtual ~NetDataBlockReceiver() {};
-	virtual void NotImplemented() {}// = 0;
-	virtual void AcknowledgeTransmission() {}// = 0;
+	virtual void NotImplemented() {};
+	virtual void AcknowledgeTransmission() = 0;
 };
 
 #endif // IDATABLOCK_H
