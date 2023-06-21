@@ -64,6 +64,23 @@ int CNetChan::GetBufferSize(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: gets the netchannel network loss
+// Output : float
+//-----------------------------------------------------------------------------
+float CNetChan::GetNetworkLoss() const
+{
+	float v1 = *&m_DataFlow[1].frames[0].one;
+	if (!v1 && !m_nSequencesSkipped_MAYBE)
+		return 0.0f;
+
+	float v4 = (v1 + m_nSequencesSkipped_MAYBE);
+	if (v1 + m_nSequencesSkipped_MAYBE < 0)
+		v4 = v4 + float(2 ^ 64);
+
+	return m_nSequencesSkipped_MAYBE / v4;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: gets the netchannel latency
 // Input  : flow - 
 // Output : float

@@ -213,6 +213,8 @@ extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
 extern ConVar* net_processTimeBudget;
 
+extern ConVar* net_datablock_networkLossForSlowSpeed;
+
 extern ConVar* pylon_matchmaking_hostname;
 extern ConVar* pylon_host_update_interval;
 extern ConVar* pylon_showdebuginfo;

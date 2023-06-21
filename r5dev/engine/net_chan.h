@@ -103,6 +103,8 @@ public:
 	int         GetDataRate(void) const;
 	int         GetBufferSize(void) const;
 
+	float       GetNetworkLoss() const;
+
 	float       GetLatency(int flow) const;
 	float       GetAvgChoke(int flow) const;
 	float       GetAvgLatency(int flow) const;

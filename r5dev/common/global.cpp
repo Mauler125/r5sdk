@@ -227,6 +227,8 @@ ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
 ConVar* net_processTimeBudget              = nullptr;
 
+ConVar* net_datablock_networkLossForSlowSpeed = nullptr;
+
 ConVar* pylon_matchmaking_hostname         = nullptr;
 ConVar* pylon_host_update_interval         = nullptr;
 ConVar* pylon_showdebuginfo                = nullptr;
@@ -482,6 +484,7 @@ void ConVar_InitShipped(void)
 	hostport                         = g_pCVar->FindVar("hostport");
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	host_timescale                   = g_pCVar->FindVar("host_timescale");
+	net_datablock_networkLossForSlowSpeed = g_pCVar->FindVar("net_datablock_networkLossForSlowSpeed");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 #ifndef CLIENT_DLL
 	sv_stats = g_pCVar->FindVar("sv_stats");

@@ -49,11 +49,13 @@
 #include "vguimatsurface/MatSystemSurface.h"
 #include "engine/client/vengineclient_impl.h"
 #include "engine/client/cdll_engine_int.h"
+#include "engine/client/datablock_receiver.h"
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #include "engine/server/persistence.h"
 #include "engine/server/vengineserver_impl.h"
+#include "engine/server/datablock_sender.h"
 #endif // !CLIENT_DLL
 #include "studiorender/studiorendercontext.h"
 #include "rtech/rtech_game.h"
@@ -457,6 +459,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// Client
 	REGISTER(HVEngineClient);
 	REGISTER(VDll_Engine_Int);
+	REGISTER(VClientDataBlockReceiver);
 #endif // !DEDICATED
 
 #ifndef CLIENT_DLL
@@ -465,6 +468,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VServer); // REGISTER SERVER ONLY!
 	REGISTER(VPersistence); // REGISTER SERVER ONLY!
 	REGISTER(HVEngineServer); // REGISTER SERVER ONLY!
+	REGISTER(VServerDataBlockSender); // REGISTER SERVER ONLY!
 
 #endif // !CLIENT_DLL
 

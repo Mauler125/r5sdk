@@ -3,6 +3,7 @@
 #include "common/protocol.h"
 #include "engine/net_chan.h"
 #include "public/edict.h"
+#include "engine/server/datablock_sender.h"
 
 //-----------------------------------------------------------------------------
 // Enumerations
@@ -60,6 +61,7 @@ extern CClient* g_pClient;
 
 class CClient : IClientMessageHandler, INetChannelHandler
 {
+	friend class ServerDataBlockSender;
 public:
 	CClient* GetClient(int nIndex) const;
 	int64_t GetTeamNum() const;
@@ -101,51 +103,61 @@ public: // Hook statics:
 	static bool VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
 
 private:
-	int m_nUserID;                   //0x0010
-	edict_t m_nHandle;               //0x0014
-	char m_szServerName[256];        //0x0160
-	char m_szClientName[256];        //0x0116
-	char pad_0015[258];              //0x0216
-	int m_nCommandTick;              //0x0318
-	char pad_031C[60];               //0x031C
-	int64_t m_iTeamNum;              //0x0258
-	KeyValues* m_ConVars;            //0x0360
-	char pad_0368[8];                //0x0368
-	CServer* m_pServer;              //0x0370
-	char pad_0378[40];               //0x0378
-	CNetChan* m_NetChannel;          //0x03A0
-	char pad_03A8[8];                //0x03A8
-	SIGNONSTATE m_nSignonState;      //0x03B0
-	int32_t m_nDeltaTick;            //0x03B4
-	uint64_t m_nNucleusID;           //0x03B8
-	int32_t m_nStringTableAckTick;   //0x03BC
-	int32_t m_nSignonTick;           //0x03C0
-	char pad_03C0[464];              //0x03C4
+	uint32_t m_nUserID;
+	edict_t m_nHandle;
+	char m_szServerName[256];
+	char m_szClientName[256];
+	char m_szMachineName[256];
+	int m_nCommandTick;
+	char m_bUsePersistence_MAYBE;
+	char pad_0016[59];
+	int64_t m_iTeamNum;
+	KeyValues* m_ConVars;
+	char m_bInitialConVarsSet;
+	char m_bSendServerInfo;
+	char m_bSendSignonData;
+	char m_bFullStateAchieved;
+	char pad_0368[4];
+	CServer* m_pServer;
+	char pad_0378[24];
+	bool m_bKickedByFairFight_MAYBE;
+	char pad_0398[14];
+	CNetChan* m_NetChannel;
+	char pad_03A8[8];
+	SIGNONSTATE m_nSignonState;
+	int unk0;
+	uint64_t m_nNucleusID;
+	int unk1;
+	int unk2;
+	int m_nDeltaTick;
+	int m_nStringTableAckTick;
+	int m_nSignonTick;
+	int m_nBaselineUpdateTick_MAYBE;
+	char pad_03C0[448];
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	char pad_0598[8];                //0x0598
+	int unk3;
+	int m_nForceWaitForTick;
 #endif
-	bool m_bFakePlayer;              //0x05A0
-	bool m_bReceivedPacket;          //0x05A1
-	bool m_bLowViolence;             //0x05A2
-	bool m_bFullyAuthenticated;      //0x05A3
-	char pad_05A4[24];               //0x05A4
-	PERSISTENCE m_nPersistenceState; //0x05BC
-	char pad_05C0[295312];           //0x05C0
-	int m_iTracing;                  //0x48750
-	CNetworkStatTrace m_Trace;       //0x48754
-	char pad_4878C[7304];            //0x4878C
-	int32_t m_LastMovementTick;      //0x4A414
+	bool m_bFakePlayer;
+	bool m_bReceivedPacket;
+	bool m_bLowViolence;
+	bool m_bFullyAuthenticated;
+	char pad_05A4[24];
+	PERSISTENCE m_nPersistenceState;
+	char pad_05C0[48];
+	ServerDataBlock m_DataBlock;
+	char pad_4A3D8[16];
+	int m_LastMovementTick;
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	char pad_4A418[120];             //0x4A418
+	char pad_4A418[130];
 #endif
-	char pad_4A440[48];              //0x4A440
+	char pad_4A49A[80];
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 static_assert(sizeof(CClient) == 0x4A440);
 #else
 static_assert(sizeof(CClient) == 0x4A4C0);
 #endif
-
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
 inline CMemory p_CClient_Connect;

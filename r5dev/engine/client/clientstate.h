@@ -4,12 +4,12 @@
 #include "common/protocol.h"
 #include "public/inetmsghandler.h"
 #include "public/isnapshotmgr.h"
-#include "engine/datablock.h"
 #include "engine/net_chan.h"
 #include "engine/debugoverlay.h"
 #include "engine/clockdriftmgr.h"
 #include "engine/framesnapshot.h"
 #include "engine/packed_entity.h"
+#include "datablock_receiver.h"
 
 class CClientSnapshotManager : public IClientSnapshotManager
 {
@@ -23,6 +23,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
 {
+	friend class ClientDataBlockReceiver;
 public: // Hook statics.
 	static void VConnectionClosing(CClientState* thisptr, const char* szReason);
 	static bool VProcessServerTick(CClientState* thisptr, SVC_ServerTick* msg);
@@ -111,7 +112,7 @@ public:
 	bool m_bRestrictServerCommands;
 	bool m_bRestrictClientCommands;
 	char buffer_0x400[1024];
-	NetDataBlockReceiver blockReceiver;
+	ClientDataBlockReceiver blockReceiver;
 	char client_requested_disconnect;
 	char error_message[512];
 	_BYTE gap18CA1[3];
