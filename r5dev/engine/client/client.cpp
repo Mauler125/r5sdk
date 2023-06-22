@@ -390,6 +390,19 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	if (!nCmdQuotaLimit)
 		return true;
 
+	const char* pCmd = pMsg->cmd;
+	// Just skip if the cmd pointer is null, we still check if the
+	// client sent too many commands and take appropriate actions.
+	// The internal function discards the command if it's null.
+	if (pCmd && !IsValidUTF8(pCmd))
+	{
+		Warning(eDLL_T::SERVER, "Removing client '%s' from slot #%i ('%llu' sent invalid UTF-8 string command!)\n",
+			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
+
+		pClient_Adj->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_INVALID_STRINGCMD");
+		return true;
+	}
+
 	if (flStartTime - pSlot->m_flStringCommandQuotaTimeStart >= 1.0)
 	{
 		pSlot->m_flStringCommandQuotaTimeStart = flStartTime;
@@ -399,13 +412,10 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 
 	if (pSlot->m_nStringCommandQuotaCount > nCmdQuotaLimit)
 	{
-		const char* pszAddress = pClient_Adj->GetNetChan()->GetAddress();
-		const uint64_t nNucleusID = pClient_Adj->GetNucleusID();
+		Warning(eDLL_T::SERVER, "Removing client '%s' from slot #%i ('%llu' exceeded string command quota!)\n",
+			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
 
 		pClient_Adj->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_STRINGCMD_OVERFLOW");
-
-		Warning(eDLL_T::SERVER, "Removed client '%s' from slot #%i ('%llu' exceeded string command quota!)\n",
-			pszAddress, nUserID, nNucleusID);
 		return true;
 	}
 #endif // !CLIENT_DLL
