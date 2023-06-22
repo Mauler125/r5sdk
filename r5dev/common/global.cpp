@@ -606,11 +606,11 @@ void ConCommand_StaticInit(void)
 	// SERVER DLL                                                             |
 #ifndef CLIENT_DLL
 	ConCommand::StaticCreate("script", "Run input code as SERVER script on the VM.", nullptr, FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
-	ConCommand::StaticCreate("sv_kick", "Kick a client from the server by user name.", "sv_kick \"<userId>\"", FCVAR_RELEASE, Host_Kick_f, nullptr);
-	ConCommand::StaticCreate("sv_kickid", "Kick a client from the server by handle, nucleus id or ip address.", "sv_kickid \"<handle>\"/\"<nucleusId>/<ipAddress>\"", FCVAR_RELEASE, Host_KickID_f, nullptr);
-	ConCommand::StaticCreate("sv_ban", "Bans a client from the server by user name.", "sv_ban <userId>", FCVAR_RELEASE, Host_Ban_f, nullptr);
-	ConCommand::StaticCreate("sv_banid", "Bans a client from the server by handle, nucleus id or ip address.", "sv_banid \"<handle>\"/\"<nucleusId>/<ipAddress>\"", FCVAR_RELEASE, Host_BanID_f, nullptr);
-	ConCommand::StaticCreate("sv_unban", "Unbans a client from the server by nucleus id or ip address.", "sv_unban \"<nucleusId>\"/\"<ipAddress>\"", FCVAR_RELEASE, Host_Unban_f, nullptr);
+	ConCommand::StaticCreate("kick", "Kick a client from the server by user name.", "kick \"<userId>\"", FCVAR_RELEASE, Host_Kick_f, nullptr);
+	ConCommand::StaticCreate("kickid", "Kick a client from the server by handle, nucleus id or ip address.", "kickid \"<handle>\"/\"<nucleusId>/<ipAddress>\"", FCVAR_RELEASE, Host_KickID_f, nullptr);
+	ConCommand::StaticCreate("ban", "Bans a client from the server by user name.", "ban <userId>", FCVAR_RELEASE, Host_Ban_f, nullptr);
+	ConCommand::StaticCreate("banid", "Bans a client from the server by handle, nucleus id or ip address.", "banid \"<handle>\"/\"<nucleusId>/<ipAddress>\"", FCVAR_RELEASE, Host_BanID_f, nullptr);
+	ConCommand::StaticCreate("unban", "Unbans a client from the server by nucleus id or ip address.", "unban \"<nucleusId>\"/\"<ipAddress>\"", FCVAR_RELEASE, Host_Unban_f, nullptr);
 	ConCommand::StaticCreate("sv_reloadbanlist", "Reloads the banned list.", nullptr, FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
 	ConCommand::StaticCreate("sv_addbot", "Creates a bot on the server.", nullptr, FCVAR_RELEASE, CC_CreateFakePlayer_f, nullptr);
 	ConCommand::StaticCreate("navmesh_hotswap", "Hot swap the NavMesh for all hulls.", nullptr, FCVAR_DEVELOPMENTONLY, Detour_HotSwap_f, nullptr);

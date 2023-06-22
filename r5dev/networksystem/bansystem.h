@@ -2,6 +2,14 @@
 
 typedef vector<std::pair<string, uint64_t>> BannedVec_t;
 
+enum EKickType
+{
+	KICK_NAME = 0,
+	KICK_ID,
+	BAN_NAME,
+	BAN_ID
+};
+
 class CBanSystem
 {
 public:

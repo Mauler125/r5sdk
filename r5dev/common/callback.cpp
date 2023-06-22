@@ -109,17 +109,59 @@ void ToggleBrowser_f(const CCommand& args)
 /*
 =====================
 Host_Kick_f
+
+  helper function for
+  bansystem
 =====================
 */
-void Host_Kick_f(const CCommand& args)
+void _Author_Client_f(const CCommand& args, EKickType type)
 {
 	if (args.ArgC() < 2)
 	{
 		return;
 	}
 
-	g_pBanSystem->KickPlayerByName(args.Arg(1),
-		args.ArgC() > 2 ? args.Arg(2) : nullptr);
+	const char* szReason = args.ArgC() > 2 ? args.Arg(2) : nullptr;
+
+	switch(type)
+	{
+		case KICK_NAME:
+		{
+			g_pBanSystem->KickPlayerByName(args.Arg(1), szReason);
+			break;
+		}
+		case KICK_ID:
+		{
+			g_pBanSystem->KickPlayerById(args.Arg(1), szReason);
+			break;
+		}
+		case BAN_NAME:
+		{
+			g_pBanSystem->BanPlayerByName(args.Arg(1), szReason);
+			break;
+		}
+		case BAN_ID:
+		{
+			g_pBanSystem->BanPlayerById(args.Arg(1), szReason);
+			break;
+		}
+		default:
+		{
+			// Code bug.
+			Assert(0);
+		}
+	}
+}
+
+
+/*
+=====================
+Host_Kick_f
+=====================
+*/
+void Host_Kick_f(const CCommand& args)
+{
+	_Author_Client_f(args, EKickType::KICK_NAME);
 }
 
 /*
@@ -129,13 +171,7 @@ Host_KickID_f
 */
 void Host_KickID_f(const CCommand& args)
 {
-	if (args.ArgC() < 2) // Do we at least have 2 arguments?
-	{
-		return;
-	}
-
-	g_pBanSystem->KickPlayerById(args.Arg(1),
-		args.ArgC() > 2 ? args.Arg(2) : nullptr);
+	_Author_Client_f(args, EKickType::KICK_ID);
 }
 
 /*
@@ -145,13 +181,7 @@ Host_Ban_f
 */
 void Host_Ban_f(const CCommand& args)
 {
-	if (args.ArgC() < 2)
-	{
-		return;
-	}
-
-	g_pBanSystem->BanPlayerByName(args.Arg(1),
-		args.ArgC() > 2 ? args.Arg(2) : nullptr);
+	_Author_Client_f(args, EKickType::BAN_NAME);
 }
 
 /*
@@ -161,11 +191,7 @@ Host_BanID_f
 */
 void Host_BanID_f(const CCommand& args)
 {
-	if (args.ArgC() < 2)
-		return;
-
-	g_pBanSystem->BanPlayerById(args.Arg(1),
-		args.ArgC() > 2 ? args.Arg(2) : nullptr);
+	_Author_Client_f(args, EKickType::BAN_ID);
 }
 
 /*
