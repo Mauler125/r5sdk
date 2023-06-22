@@ -120,8 +120,6 @@ add_sources( SOURCE_GROUP "Client"
     "client/cl_ents_parse.h"
     "client/client.cpp"
     "client/client.h"
-    "client/datablock_receiver.cpp"
-    "client/datablock_receiver.h"
 )
 
 add_sources( SOURCE_GROUP "Shared"
@@ -143,6 +141,8 @@ add_sources( SOURCE_GROUP "Client" # Client only.
     "client/cl_rcon.h"
     "client/vengineclient_impl.cpp"
     "client/vengineclient_impl.h"
+    "client/datablock_receiver.cpp"
+    "client/datablock_receiver.h"
 )
 endif()
 
