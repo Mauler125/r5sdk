@@ -15,8 +15,8 @@
 
 
 // This is a useful macro to iterate from start to end in order in a map
-#define FOR_EACH_UTLRBTREE( treeName, iteratorName ) \
-	for ( int iteratorName = treeName.FirstInorder(); iteratorName != treeName.InvalidIndex(); iteratorName = treeName.NextInorder( iteratorName ) )
+#define FOR_EACH_RBTREE( treeName, iteratorName ) \
+	for ( unsigned short iteratorName = treeName.FirstInorder(); iteratorName != treeName.InvalidIndex(); iteratorName = treeName.NextInorder( iteratorName ) )
 
 
 //-----------------------------------------------------------------------------
@@ -219,6 +219,7 @@ public:
 	I  InsertIfNotFound(T const& insert);
 
 	// Find method
+	bool HasElement(T const& search) const;
 	I  Find(T const& search) const;
 
 	// Remove methods
@@ -1546,6 +1547,14 @@ I CUtlRBTree<T, I, L, M>::InsertIfNotFound(T const& insert)
 	I newNode = InsertAt(parent, leftchild);
 	CopyConstruct(&Element(newNode), insert);
 	return newNode;
+}
+
+
+template < class T, class I, typename L, class M >
+bool CUtlRBTree<T, I, L, M>::HasElement(T const& search) const
+{
+	I i = Find(search);
+	return i != InvalidIndex();
 }
 
 
