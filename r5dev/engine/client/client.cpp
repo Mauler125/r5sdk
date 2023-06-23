@@ -396,7 +396,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	// The internal function discards the command if it's null.
 	if (pCmd && !IsValidUTF8(pCmd))
 	{
-		Warning(eDLL_T::SERVER, "Removing client '%s' from slot #%i ('%llu' sent invalid UTF-8 string command!)\n",
+		Warning(eDLL_T::SERVER, "Removing client '%s' from slot #%i ('%llu' sent invalid string command!)\n",
 			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
 
 		pClient_Adj->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_INVALID_STRINGCMD");
