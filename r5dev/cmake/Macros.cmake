@@ -37,7 +37,7 @@ macro( end_sources )
     if( NOT "${ARGN}" STREQUAL "" ) # Check if an output directory is passed
         set_target_output_dirs( ${PROJECT_NAME} ${ARGN} )
     else()
-        set_target_output_dirs( ${PROJECT_NAME} "game/" )
+        set_target_output_dirs( ${PROJECT_NAME} "${BUILD_OUTPUT_DIR}/" )
     endif()
 endmacro()
 

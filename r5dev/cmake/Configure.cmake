@@ -8,6 +8,8 @@ macro( initial_setup )
     set( ENGINE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/r5dev" CACHE PATH "Engine source directory" )
     set( THIRDPARTY_SOURCE_DIR "${ENGINE_SOURCE_DIR}/thirdparty" CACHE PATH "Thirdparty source directory" )
 
+    set( BUILD_OUTPUT_DIR "game" CACHE PATH "Build output directory" )
+
     set( GLOBAL_PCH
         "${ENGINE_SOURCE_DIR}/core/stdafx.h"
     ) # Global precompiled header shared among all libraries

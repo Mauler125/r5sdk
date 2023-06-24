@@ -21,8 +21,13 @@ add_sources( SOURCE_GROUP "Resource"
 
 end_sources()
 
-set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME "launcher" )
-
+set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME
+    "launcher"
+)
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND "launcher.exe"
+    VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/bin/"
+)
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "SDKLAUNCHER"
 )

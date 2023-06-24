@@ -115,7 +115,7 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "DEDICATED"
 )
 elseif( ${PROJECT_NAME} STREQUAL "client" )
-end_sources( "game/bin/x64_retail/" )
+end_sources( "${BUILD_OUTPUT_DIR}/bin/x64_retail/" )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "CLIENT_DLL"
 )
@@ -127,6 +127,21 @@ target_link_options( ${PROJECT_NAME} PRIVATE
 
 add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -P ${ENGINE_SOURCE_DIR}/cmake/PostBuild.cmake
+)
+
+if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND "r5apex.exe"
+)
+else()
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND "r5apex_ds.exe"
+)
+endif()
+
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND_ARGUMENTS "-wconsole -ansicolor -dev -devsdk"
+    VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/"
 )
 
 endmacro()

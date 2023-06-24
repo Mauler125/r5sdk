@@ -29,10 +29,15 @@ add_sources( SOURCE_GROUP "Windows"
     "${ENGINE_SOURCE_DIR}/windows/console.h"
 )
 
-end_sources( "game/bin/" )
+end_sources( "${BUILD_OUTPUT_DIR}/bin/" )
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME
     "netcon32"
+)
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND "netcon32.exe"
+    VS_DEBUGGER_COMMAND_ARGUMENTS "-ansicolor"
+    VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/bin/"
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "NETCONSOLE"
@@ -43,8 +48,8 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier2"
     "libprotobuf"
     "libspdlog"
-    "SV_RCon_PB"
-    "CL_RCon_PB"
+    "SV_RCon_Pb"
+    "CL_RCon_Pb"
     "Rpcrt4.lib"
     "ws2_32.lib"
 )
