@@ -143,18 +143,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
     pStudioData->m_Mutex.WaitForLock();
     const char* szModelName = cache->GetModelName(handle);
 
-    pStudioHdr = GetErrorModel();
-    if (!IsKnownBadModel(handle))
-    {
-        if (!pStudioHdr)
-            Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
-        else
-            Error(eDLL_T::ENGINE, NO_ERROR, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
-    }
-
-    pStudioData->m_Mutex.ReleaseWaiter();
-    return pStudioHdr;
-
     size_t nFileNameLen = strlen(szModelName);
 
     if (nFileNameLen < 5 ||
@@ -232,6 +220,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
             }
         }
     }
+
     pStudioData->m_Mutex.ReleaseWaiter();
     return pStudioHdr;
 }
