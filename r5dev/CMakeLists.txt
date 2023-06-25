@@ -57,6 +57,7 @@ add_subdirectory( localize )
 add_subdirectory( engine )
 add_subdirectory( vguimatsurface )
 add_subdirectory( vgui )
+add_subdirectory( loader )
 
 set( FOLDER_CONTEXT "Plugins" )
 add_subdirectory( pluginsdk )

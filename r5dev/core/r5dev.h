@@ -19,5 +19,3 @@ static const char* const R5R_EMBLEM[] =
     R"(|                                                             |)"/*,
     R"(+-------------------------------------------------------------+)"*/
 };
-
-static bool s_bNoWorkerDll = false;

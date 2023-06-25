@@ -12,19 +12,6 @@
 #include "launcher/launcher.h"
 #include <eiface.h>
 
-int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-{
-	// !TODO [AMOS]: 'RemoveSpuriousGameParameters()' is inline with 'LauncherMain()' in S0 and S1,
-	// and its the only function where we could append our own command line parameters early enough
-	// programatically (has to be after 'CommandLine()->CreateCmdLine()', but before 'SetPriorityClass()')
-	// For S0 and S1 we should modify the command line buffer passed to the entry point instead (here).
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	return v_WinMain(hInstance, hPrevInstance, const_cast<LPSTR>(g_svCmdLine.c_str()), nShowCmd);
-#else
-	return v_WinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
-#endif
-}
-
 int LauncherMain(HINSTANCE hInstance)
 {
 	SpdLog_PostInit();
@@ -175,7 +162,6 @@ LONG WINAPI TopLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers)
 
 void VLauncher::Attach(void) const
 {
-	DetourAttach((LPVOID*)&v_WinMain, &HWinMain);
 	DetourAttach((LPVOID*)&v_LauncherMain, &LauncherMain);
 	DetourAttach((LPVOID*)&v_TopLevelExceptionFilter, &TopLevelExceptionFilter);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
@@ -184,7 +170,6 @@ void VLauncher::Attach(void) const
 }
 void VLauncher::Detach(void) const
 {
-	DetourDetach((LPVOID*)&v_WinMain, &HWinMain);
 	DetourDetach((LPVOID*)&v_LauncherMain, &LauncherMain);
 	DetourDetach((LPVOID*)&v_TopLevelExceptionFilter, &TopLevelExceptionFilter);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)

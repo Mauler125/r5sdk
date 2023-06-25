@@ -59,6 +59,8 @@ void Tier0_Init()
 
 void SDK_Init()
 {
+    Tier0_Init();
+
     if (strstr(GetCommandLineA(), "-launcher"))
     {
         g_svCmdLine = GetCommandLineA();
@@ -86,7 +88,7 @@ void SDK_Init()
 
     // Log the SDK's 'build_id' under the emblem.
     spdlog::info("{:s}+------------------------------------------------[{:010d}]-+{:s}\n",
-        g_svRedF, g_SDKDll.m_pNTHeaders->FileHeader.TimeDateStamp, g_svReset);
+        g_svRedF, g_SDKDll.GetNTHeaders()->FileHeader.TimeDateStamp, g_svReset);
     spdlog::info("\n");
 
     Systems_Init();
@@ -153,37 +155,17 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
     NOTE_UNUSED(hModule);
     NOTE_UNUSED(lpReserved);
 
-#if !defined (DEDICATED) && !defined (CLIENT_DLL)
-    // This dll is imported by the game executable, we cannot circumvent it.
-    // To solve the recursive init problem, we check if -noworkerdll is passed.
-    // If this is passed, the worker dll will not be initialized, which allows 
-    // us to load the client dll (or any other dll) instead, or load the game
-    // without the SDK.
-    s_bNoWorkerDll = !!strstr(GetCommandLineA(), "-noworkerdll");
-#endif // !DEDICATED && CLIENT_DLL
     switch (dwReason)
     {
         case DLL_PROCESS_ATTACH:
         {
-            if (!s_bNoWorkerDll)
-            {
-                Tier0_Init();
-                SDK_Init();
-            }
-            else // Destroy crash handler.
-            {
-                g_CrashHandler->~CCrashHandler();
-                g_CrashHandler = nullptr;
-            }
+            SDK_Init();
             break;
         }
 
         case DLL_PROCESS_DETACH:
         {
-            if (!s_bNoWorkerDll)
-            {
-                SDK_Shutdown();
-            }
+            SDK_Shutdown();
             break;
         }
     }

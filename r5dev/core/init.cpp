@@ -389,7 +389,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VJobThread);
 	REGISTER(VThreadTools);
 	REGISTER(VTSListBase);
-	REGISTER(VMemStd);
 
 	// Tier1
 	REGISTER(VCommandLine);
