@@ -33,7 +33,8 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 
     if (pStudioData)
     {
-        if (pStudioData->m_MDLCache)
+        if (pStudioData->m_MDLCache &&
+            pStudioData->m_MDLCache != DC_INVALID_HANDLE)
         {
             studiohdr_t* pStudioHDR = **reinterpret_cast<studiohdr_t***>(pStudioData);
 
@@ -138,7 +139,7 @@ void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void*
 studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, studiodata_t* pStudioData, void* a4)
 {
     studiohdr_t*   pStudioHdr; // rdi
-    studiohdr_t** ppStudioHdr; // rax
+    studiohdr_t** pAnimData; // rax
 
     pStudioData->m_Mutex.WaitForLock();
     const char* szModelName = cache->GetModelName(handle);
@@ -169,10 +170,10 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
 
     if (!pStudioData->m_MDLCache)
     {
-        ppStudioHdr = (studiohdr_t**)pStudioData->m_pAnimData;
-        if (ppStudioHdr)
+        pAnimData = (studiohdr_t**)pStudioData->m_pAnimData;
+        if (pAnimData)
         {
-            pStudioHdr = *ppStudioHdr;
+            pStudioHdr = *pAnimData;
         }
         else
         {
@@ -192,9 +193,11 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
     else
     {
         FindCachedMDL(cache, pStudioData, a4);
-        if ((__int64)*(studiohdr_t**)pStudioData)
+        DataCacheHandle_t dataHandle = pStudioData->m_MDLCache;
+
+        if (dataHandle)
         {
-            if ((DataCacheHandle_t)*(studiohdr_t**)pStudioData == DC_INVALID_HANDLE)
+            if (dataHandle == DC_INVALID_HANDLE)
             {
                 pStudioHdr = GetErrorModel();
                 if (!IsKnownBadModel(handle))
@@ -206,7 +209,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 }
             }
             else
-                pStudioHdr = **(studiohdr_t***)pStudioData;
+                pStudioHdr = *(studiohdr_t**)dataHandle;
         }
         else
         {
@@ -245,15 +248,14 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* cache, MDLHandle_t handle)
     }
 
     studiodata_t* pStudioData = cache->GetStudioData(handle);
+    DataCacheHandle_t dataCache = pStudioData->m_MDLCache;
 
-    if (*(_QWORD*)(pStudioData))
+    if (dataCache &&
+        dataCache != DC_INVALID_HANDLE)
     {
-        if (pStudioData->m_MDLCache != DC_INVALID_HANDLE)
-        {
-            void* v4 = *(void**)(*((_QWORD*)pStudioData->m_MDLCache + 1) + 24i64);
-            if (v4)
-                pStudioHdr = (studiohdr_t*)((char*)v4 + 0x10);
-        }
+        void* v4 = *(void**)(*((_QWORD*)dataCache + 1) + 24i64);
+        if (v4)
+            pStudioHdr = (studiohdr_t*)((char*)v4 + 0x10);
     }
     return pStudioHdr;
 }
@@ -278,12 +280,14 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
         pStudioData = cache->GetStudioData(g_pMDLFallback->m_hErrorMDL);
     }
 
-    if (pStudioData->m_MDLCache)
+    DataCacheHandle_t dataCache = pStudioData->m_MDLCache;
+
+    if (dataCache)
     {
-        if (pStudioData->m_MDLCache == DC_INVALID_HANDLE)
+        if (dataCache == DC_INVALID_HANDLE)
             return nullptr;
 
-        void* pAnimData = (void*)*((_QWORD*)pStudioData->m_MDLCache + 1);
+        void* pAnimData = (void*)*((_QWORD*)dataCache + 1);
 
         AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pMDLLock));
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
@@ -303,8 +307,9 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::GetErrorModel(void)
 {
+    // !TODO [AMOS]: mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
     if (!old_gather_props->GetBool())
-        old_gather_props->SetValue(true); // !TODO [AMOS]: mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
+        old_gather_props->SetValue(true);
 
     return g_pMDLFallback->m_pErrorHDR;
 }
