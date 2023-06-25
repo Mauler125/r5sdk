@@ -20,7 +20,8 @@
 //
 //    2017-08-25:   initial public release
 //
-
+#ifndef TEBPEB_64_H
+#define TEBPEB_64_H
 
 //
 // base types
@@ -265,3 +266,5 @@ struct TEB64
     PTR64                           ActivationContextStackPointer;      //0x02C8
 
 }; //struct TEB64
+
+#endif // TEBPEB_64_H
