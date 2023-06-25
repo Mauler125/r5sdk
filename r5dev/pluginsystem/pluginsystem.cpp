@@ -56,8 +56,12 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 
 	CModule pluginModule = CModule(pluginInst.m_svPluginName.c_str());
 
-	// Pass selfModule here on load function, we have to do this because local listen/dedi/client dll's are called different, refer to a comment on the pluginsdk.
-	auto onLoadFn = pluginModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance_t::OnLoad>();
+	// Pass selfModule here on load function, we have to do
+	// this because local listen/dedi/client dll's are called
+	// different, refer to a comment on the pluginsdk.
+	PluginInstance_t::OnLoad onLoadFn = pluginModule.GetExportedSymbol(
+		"PluginInstance_OnLoad").RCast<PluginInstance_t::OnLoad>();
+
 	Assert(onLoadFn);
 
 	if (!onLoadFn(pluginInst.m_svPluginName.c_str(), g_SDKDll.GetModuleName().c_str()))
@@ -67,7 +71,6 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 	}
 
 	pluginInst.m_hModule = pluginModule;
-
 	return pluginInst.m_bIsLoaded = true;
 }
 
@@ -81,7 +84,10 @@ bool CPluginSystem::UnloadPluginInstance(PluginInstance_t& pluginInst)
 	if (!pluginInst.m_bIsLoaded)
 		return false;
 
-	auto onUnloadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnUnload").RCast<PluginInstance_t::OnUnload>();
+	PluginInstance_t::OnUnload onUnloadFn = 
+		pluginInst.m_hModule.GetExportedSymbol(
+		"PluginInstance_OnUnload").RCast<PluginInstance_t::OnUnload>();
+
 	Assert(onUnloadFn);
 
 	if (onUnloadFn)

@@ -34,10 +34,10 @@ class MilesCore : public IDetour
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 		v_Miles_Initialize = p_Miles_Initialize.RCast<bool(*)()>();
 
-		p_MilesQueueEventRun = g_RadAudioSystemDll.GetExportedFunction("MilesQueueEventRun");
+		p_MilesQueueEventRun = g_RadAudioSystemDll.GetExportedSymbol("MilesQueueEventRun");
 		v_MilesQueueEventRun = p_MilesQueueEventRun.RCast<void(*)(Miles::Queue*, const char*)>();
 
-		p_MilesBankPatch = g_RadAudioSystemDll.GetExportedFunction("MilesBankPatch");
+		p_MilesBankPatch = g_RadAudioSystemDll.GetExportedSymbol("MilesBankPatch");
 		v_MilesBankPatch = p_MilesBankPatch.RCast<void(*)(Miles::Bank*, char*, char*)>();
 
 	}

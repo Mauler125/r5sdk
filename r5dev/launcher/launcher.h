@@ -37,7 +37,7 @@ class VLauncher : public IDetour
 		p_WinMain = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 41 8B D9 49 8B F8");
 		v_WinMain = p_WinMain.RCast<int (*)(HINSTANCE, HINSTANCE, LPSTR, int)>();
 
-		p_LauncherMain = g_GameDll.GetExportedFunction("LauncherMain");
+		p_LauncherMain = g_GameDll.GetExportedSymbol("LauncherMain");
 		v_LauncherMain = p_LauncherMain.RCast<int(*)(HINSTANCE)>();
 
 		p_TopLevelExceptionFilter = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 05 ?? ?? ?? ?? 48 8B D9 48 85 C0 74 06");

@@ -36,7 +36,7 @@ CPluginSDK::~CPluginSDK()
 //---------------------------------------------------------------------------------
 bool CPluginSDK::InitSDK()
 {
-	auto getFactorySystemFn = m_SDKModule.GetExportedFunction("GetFactorySystem").RCast<void*(*)()>();
+	auto getFactorySystemFn = m_SDKModule.GetExportedSymbol("GetFactorySystem").RCast<void*(*)()>();
 
 	Assert(getFactorySystemFn, "Could not find GetFactorySystem export from gamesdk.dll");
 	if (!getFactorySystemFn)
