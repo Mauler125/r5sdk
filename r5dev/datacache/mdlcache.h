@@ -77,34 +77,34 @@ public:
 
 	studiodata_t* GetStudioData(MDLHandle_t handle)
 	{
-		EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		EnterCriticalSection(&m_MDLMutex);
 		studiodata_t* pStudioData = m_MDLDict.Element(handle);
-		LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		LeaveCriticalSection(&m_MDLMutex);
 
 		return pStudioData;
 	}
 
 	const char* GetModelName(MDLHandle_t handle)
 	{
-		EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		EnterCriticalSection(&m_MDLMutex);
 		const char* szModelName = m_MDLDict.GetElementName(handle);
-		LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		LeaveCriticalSection(&m_MDLMutex);
 
 		return szModelName;
 	}
 
 	void* GetMaterialTable(MDLHandle_t handle)
 	{
-		EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		EnterCriticalSection(&m_MDLMutex);
 		studiodata_t* pStudioData = m_MDLDict.Element(handle);
-		LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&m_MDLMutex));
+		LeaveCriticalSection(&m_MDLMutex);
 
 		return &pStudioData->m_pMaterialTable;
 	}
 
 private:
 	CUtlDict<studiodata_t*, MDLHandle_t> m_MDLDict;
-	LPCRITICAL_SECTION m_MDLMutex;
+	CRITICAL_SECTION m_MDLMutex;
 	// !TODO: reverse the rest
 };
 
