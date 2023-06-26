@@ -252,6 +252,18 @@ void Mod_ProcessPakQueue()
 #endif // !DEDICATED
                         }
 
+                        // The old gather props is set if a model couldn't be
+                        // loaded properly. If we unload level assets, we just
+                        // enable the new implementation again and re-evaluate
+                        // on the next level load. If we load a missing/bad
+                        // model again, we toggle the old implementation as
+                        // the helper functions for this implementation have
+                        // been restored in the SDK, and modified to support
+                        // stubbing missing model assets. See the function
+                        // 'CMDLCache::GetErrorModel' for more information.
+                        if (old_gather_props->GetBool())
+                            old_gather_props->SetValue(false);
+
                         g_pakLoadApi->UnloadPak(*(RPakHandle_t*)v10);
                         Mod_UnloadPakFile(); // Unload mod pak files.
 
@@ -305,10 +317,10 @@ void Mod_ProcessPakQueue()
                         {
                             if (*qword_167ED7BC0 || WORD2(*g_pPakLoadJobID) != HIWORD(*g_pPakLoadJobID))
                             {
-                                if (!JT_AcquireFifoLock(&*g_pPakFifoLock)
-                                    && !(unsigned __int8)sub_14045BAC0((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))g_pPakFifoLockWrapper, &*g_pPakFifoLock, -1i64, 0i64))
+                                if (!JT_AcquireFifoLock(g_pPakFifoLock)
+                                    && !(unsigned __int8)sub_14045BAC0((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))g_pPakFifoLockWrapper, g_pPakFifoLock, -1i64, 0i64))
                                 {
-                                    sub_14045A1D0((unsigned __int8(__fastcall*)(_QWORD))g_pPakFifoLockWrapper, &*g_pPakFifoLock, -1i64, 0i64, 0i64, 1);
+                                    sub_14045A1D0((unsigned __int8(__fastcall*)(_QWORD))g_pPakFifoLockWrapper, g_pPakFifoLock, -1i64, 0i64, 0i64, 1);
                                 }
 
                                 sub_140441220(v25, v24);
@@ -317,10 +329,10 @@ void Mod_ProcessPakQueue()
                                     if (*g_bPakFifoLockAcquired)
                                     {
                                         *g_bPakFifoLockAcquired = 0;
-                                        JT_ReleaseFifoLock(&*g_pPakFifoLock);
+                                        JT_ReleaseFifoLock(g_pPakFifoLock);
                                     }
                                 }
-                                JT_ReleaseFifoLock(&*g_pPakFifoLock);
+                                JT_ReleaseFifoLock(g_pPakFifoLock);
                             }
                             FileSystem()->ResetItemCacheSize(256);
                             FileSystem()->PrecacheTaskItem(*g_pMTVFTaskItem);
