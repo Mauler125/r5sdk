@@ -341,22 +341,22 @@ class CUtlVectorUltraConservativeAllocator
 public:
 	static void* Alloc(size_t nSize)
 	{
-		return MemAllocSingleton()->Alloc<void*>(nSize);
+		return malloc(nSize);
 	}
 
 	static void* Realloc(void* pMem, size_t nSize)
 	{
-		return MemAllocSingleton()->Realloc(pMem, nSize);
+		return realloc(pMem, nSize);
 	}
 
 	static void Free(void* pMem)
 	{
-		MemAllocSingleton()->Free(pMem);
+		free(pMem);
 	}
 
 	static size_t GetSize(void* pMem)
 	{
-		return MemAllocSingleton()->GetSize(pMem);
+		return mallocsize(pMem);
 	}
 };
 

@@ -825,7 +825,7 @@ private:
 		void FreeHeap()
 		{
 			if (IsHeap() && Heap.m_pchString)
-				MemAllocSingleton()->Free(Heap.m_pchString);
+				free(Heap.m_pchString);
 		}
 
 		// Back to a clean state, but retain the error state.
@@ -1205,7 +1205,7 @@ inline void CUtlStringBuilder::SetPtr(char *pchString, size_t nLength)
 	if (!pchString || !nLength)
 	{
 		if (pchString)
-			MemAllocSingleton()->Free(pchString); // we don't hang onto empty strings.
+			free(pchString); // we don't hang onto empty strings.
 		return;
 	}
 

@@ -447,7 +447,7 @@ void CUtlLinkedList<T, S, ML, I, M>::PurgeAndDeleteElements()
 	for (I i = Head(); i != InvalidIndex(); i = iNext)
 	{
 		iNext = Next(i);
-		MemAllocSingleton()->Free(Element(i));
+		delete Element(i);
 	}
 
 	Purge();
@@ -1035,15 +1035,6 @@ private:
 		Node_t() {}
 		Node_t(const T& _elem) : elem(_elem) {}
 
-		// Have to do it like this instead of 'new' because we have to use the internal memalloc singleton!
-		static Node_t* Alloc(const T* _elem)
-		{
-			Node_t* pNode = MemAllocSingleton()->Alloc<Node_t>(sizeof(Node_t));
-			pNode->elem(_elem);
-
-			return pNode;
-		}
-
 		T elem;
 		Node_t* pPrev, * pNext;
 	};
@@ -1055,11 +1046,11 @@ private:
 
 		if (!pCopyFrom)
 		{
-			p = MemAllocSingleton()->Alloc<Node_t>(sizeof(Node_t));
+			p = new Node_t;
 		}
 		else
 		{
-			p = Node_t::Alloc(*pCopyFrom);
+			p = new Node_t(*pCopyFrom);
 		}
 
 		return p;

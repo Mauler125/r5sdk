@@ -345,7 +345,7 @@ void CUtlFixedMemory<T>::Purge()
 	{
 		BlockHeader_t* pFree = pbh;
 		pbh = pbh->m_pNext;
-		MemAllocSingleton()->Free(pFree);
+		free(pFree);
 	}
 	m_pBlocks = NULL;
 	m_nAllocationCount = 0;

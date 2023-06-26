@@ -816,7 +816,7 @@ char *CUtlStringBuilder::InternalPrepareBuffer(size_t nChars, bool bCopyOld, siz
 		if (bWasHeap && bCopyOld)
 		{
 			// maybe we'll get lucky and get the same buffer back.
-			pszString = MemAllocSingleton()->Realloc(pszOld, nNewSize + 1);
+			pszString = (char*)realloc(pszOld, nNewSize + 1);
 			if (!pszString)
 			{
 				SetError();
@@ -830,9 +830,9 @@ char *CUtlStringBuilder::InternalPrepareBuffer(size_t nChars, bool bCopyOld, siz
 			// if we aren't doing a copy, don't use realloc since it will
 			// copy the data if it needs to make a new allocation.
 			if (bWasHeap)
-				MemAllocSingleton()->Free(pszOld);
+				free(pszOld);
 
-			pszString = MemAllocSingleton()->Alloc<char>(nNewSize + 1);
+			pszString = (char*)malloc(nNewSize + 1);
 			if (!pszString)
 			{
 				SetError();
