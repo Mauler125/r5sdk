@@ -429,20 +429,9 @@ inline int64 CastPtrToInt64(const void* p)
 // Stack-based allocation related helpers
 //-----------------------------------------------------------------------------
 #if defined( COMPILER_GCC ) || defined( COMPILER_SNC )
-
 #define stackalloc( _size )		alloca( ALIGN_VALUE( _size, 16 ) )
-
-#ifdef PLATFORM_OSX
-#define mallocsize( _p )	( malloc_size( _p ) )
-#else
-#define mallocsize( _p )	( malloc_usable_size( _p ) )
-#endif
-
 #elif defined ( COMPILER_MSVC )
-
 #define stackalloc( _size )		_alloca( ALIGN_VALUE( _size, 16 ) )
-#define mallocsize( _p )		( _msize( _p ) )
-
 #endif
 
 #define stackalloc_aligned( _size, _align )		(void*)( ( ((uintp)alloca( ALIGN_VALUE( ( _size ) + (_align ),  ( _align ) ) )) + ( _align ) ) & ~_align )

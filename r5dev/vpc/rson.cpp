@@ -20,16 +20,14 @@ RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath)
 
 		uint32_t nFileSize = FileSystem()->Size(file);
 
-		char* fileBuf = MemAllocSingleton()->Alloc<char>(nFileSize + 1);
+		std::unique_ptr<char[]> fileBuf(new char[nFileSize + 1]);
 
-		int nRead = FileSystem()->Read(fileBuf, nFileSize, file);
+		int nRead = FileSystem()->Read(fileBuf.get(), nFileSize, file);
 		FileSystem()->Close(file);
 
 		fileBuf[nRead] = '\0';
 
-		RSON::Node_t* node = RSON::LoadFromBuffer(pszFilePath, fileBuf, eFieldType::RSON_OBJECT);
-
-		MemAllocSingleton()->Free(fileBuf);
+		RSON::Node_t* node = RSON::LoadFromBuffer(pszFilePath, fileBuf.get(), eFieldType::RSON_OBJECT);
 
 		if (node)
 			return node;

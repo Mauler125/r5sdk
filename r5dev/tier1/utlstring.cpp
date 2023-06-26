@@ -868,7 +868,7 @@ char *CUtlStringBuilder::InternalPrepareBuffer(size_t nChars, bool bCopyOld, siz
 			if (bCopyOld)
 				memcpy(pszString, pszOldString, nChars); // null will be added at end of func.
 
-			MemAllocSingleton()->Free(pszOldString);
+			free(pszOldString);
 		}
 	}
 
@@ -950,7 +950,7 @@ size_t CUtlStringBuilder::ReplaceInternal(const char *pstrTarget, const char *ps
 				char *pstrNew;
 				if (nNewLength > Capacity())
 				{
-					pstrNew = MemAllocSingleton()->Alloc<char>(nNewLength + 1);
+					pstrNew = (char*)malloc(nNewLength + 1);
 					if (!pstrNew)
 					{
 						SetError();
@@ -1203,7 +1203,7 @@ bool CUtlStringBuilder::Data::MoveToHeap()
 	{
 		// try to recover the string at the point of failure, to help with debugging
 		size_t nLen = Length();
-		char *pszHeapString = MemAllocSingleton()->Alloc<char>(nLen + 1);
+		char* pszHeapString = (char*)malloc(nLen + 1);
 		if (pszHeapString)
 		{
 			// get the string copy before corrupting the stack union

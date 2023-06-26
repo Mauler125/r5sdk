@@ -1,9 +1,12 @@
 #pragma once
 #include "tier0/tslist.h"
 
-typedef int RPakHandle_t;
-constexpr int INVALID_PAK_HANDLE = -1;
+#define PLATFORM_PAK_PATH "paks\\Win64\\"
+#define PLATFORM_PAK_OVERRIDE_PATH "paks\\Win32\\"
 
+#define INVALID_PAK_HANDLE -1
+
+typedef int RPakHandle_t;
 enum class ePakStatus : int
 {
 	PAK_STATUS_FREED = 0,

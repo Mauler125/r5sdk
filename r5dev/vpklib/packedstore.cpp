@@ -24,7 +24,7 @@
 // data is still getting read from the old pack file.
 // 
 /////////////////////////////////////////////////////////////////////////////////
-//#include "core/stdafx.h"
+
 #include "tier1/cvar.h"
 #include "tier2/fileutils.h"
 #include "mathlib/adler32.h"
@@ -324,14 +324,12 @@ void CPackedStore::ValidateCRC32PostDecomp(const CUtlString& assetPath, const ui
 	}
 
 	uint32_t nLen = FileSystem()->Size(hAsset);
-	uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
+	std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
 
-	FileSystem()->Read(pBuf, nLen, hAsset);
+	FileSystem()->Read(pBuf.get(), nLen, hAsset);
 	FileSystem()->Close(hAsset);
 
-	uint32_t nCrc32 = crc32::update(NULL, pBuf, nLen);
-	MemAllocSingleton()->Free(pBuf);
-
+	uint32_t nCrc32 = crc32::update(NULL, pBuf.get(), nLen);
 	if (nCrc32 != nFileCRC)
 	{
 		Warning(eDLL_T::FS, "Computed checksum '0x%lX' doesn't match expected checksum '0x%lX'. File may be corrupt!\n", nCrc32, nFileCRC);
@@ -376,7 +374,7 @@ bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString
 		return true;
 	}
 
-	for (int j = 0; j < ignoreList.Count(); j++)
+	FOR_EACH_VEC(ignoreList, j)
 	{
 		CUtlString& ignoreEntry = ignoreList[j];
 
@@ -436,7 +434,8 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		return;
 	}
 
-	uint8_t* pEntryBuffer = MemAllocSingleton()->Alloc<uint8_t>(ENTRY_MAX_LEN);
+	std::unique_ptr<uint8_t[]> pEntryBuffer(new uint8_t[ENTRY_MAX_LEN]);
+
 	if (!pEntryBuffer)
 	{
 		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
@@ -456,7 +455,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 	uint64_t nSharedTotal = NULL;
 	uint32_t nSharedCount = NULL;
 
-	for (int i = 0, ps = entryValues.Count(); i < ps; i++)
+	FOR_EACH_VEC(entryValues, i)
 	{
 		const VPKKeyValues_t& entryValue = entryValues[i];
 		FileHandle_t hAsset = FileSystem()->Open(entryValue.m_EntryPath.Get(), "rb", "PLATFORM");
@@ -473,14 +472,14 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		}
 
 		uint32_t nLen = FileSystem()->Size(hAsset);
-		uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
+		std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
 
-		FileSystem()->Read(pBuf, nLen, hAsset);
+		FileSystem()->Read(pBuf.get(), nLen, hAsset);
 		FileSystem()->Seek(hAsset, 0, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
 
 		DevMsg(eDLL_T::FS, "Packing entry '%i' ('%s')\n", i, szDestPath);
 		entryBlocks.AddToTail(VPKEntryBlock_t(
-			pBuf,
+			pBuf.get(),
 			nLen,
 			FileSystem()->Tell(hPackFile),
 			entryValue.m_iPreloadSize,
@@ -490,14 +489,15 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 			CUtlString(szDestPath)));
 
 		VPKEntryBlock_t& entryBlock = entryBlocks[i];
-		for (int j = 0, es = entryBlock.m_Fragments.Count(); j < es; j++)
+
+		FOR_EACH_VEC(entryBlock.m_Fragments, j)
 		{
 			VPKChunkDescriptor_t& descriptor = entryBlock.m_Fragments[j];
 
-			FileSystem()->Read(pEntryBuffer, int(descriptor.m_nCompressedSize), hAsset);
+			FileSystem()->Read(pEntryBuffer.get(), int(descriptor.m_nCompressedSize), hAsset);
 			descriptor.m_nPackFileOffset = FileSystem()->Tell(hPackFile);
 
-			if (entryValue.m_bDeduplicate && Deduplicate(pEntryBuffer, descriptor, j))
+			if (entryValue.m_bDeduplicate && Deduplicate(pEntryBuffer.get(), descriptor, j))
 			{
 				nSharedTotal += descriptor.m_nCompressedSize;
 				nSharedCount++;
@@ -508,7 +508,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 
 			if (entryValue.m_bUseCompression)
 			{
-				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_lzCompParams, pEntryBuffer, &descriptor.m_nCompressedSize, pEntryBuffer,
+				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_lzCompParams, pEntryBuffer.get(), &descriptor.m_nCompressedSize, pEntryBuffer.get(),
 					descriptor.m_nUncompressedSize, nullptr);
 
 				if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
@@ -524,10 +524,9 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 				descriptor.m_nCompressedSize = descriptor.m_nUncompressedSize;
 			}
 
-			FileSystem()->Write(pEntryBuffer, int(descriptor.m_nCompressedSize), hPackFile);
+			FileSystem()->Write(pEntryBuffer.get(), int(descriptor.m_nCompressedSize), hPackFile);
 		}
 
-		MemAllocSingleton()->Free(pBuf);
 		FileSystem()->Close(hAsset);
 	}
 
@@ -535,7 +534,6 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 	FileSystem()->Close(hPackFile);
 
 	m_ChunkHashMap.clear();
-	MemAllocSingleton()->Free(pEntryBuffer);
 
 	VPKDir_t vDirectory;
 	vDirectory.BuildDirectoryFile(dirFilePath, entryBlocks);
@@ -560,8 +558,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 		return;
 	}
 
-	uint8_t* pDestBuffer = MemAllocSingleton()->Alloc<uint8_t>(ENTRY_MAX_LEN);
-	uint8_t* pSourceBuffer = MemAllocSingleton()->Alloc<uint8_t>(ENTRY_MAX_LEN);
+	std::unique_ptr<uint8_t[]> pDestBuffer(new uint8_t[ENTRY_MAX_LEN]);
+	std::unique_ptr<uint8_t[]> pSourceBuffer(new uint8_t[ENTRY_MAX_LEN]);
 
 	if (!pDestBuffer || !pSourceBuffer)
 	{
@@ -572,7 +570,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, GetLevelName(vpkDir.m_DirFilePath));
 	const CUtlString basePath = vpkDir.m_DirFilePath.StripFilename(false);
 
-	for (int i = 0, fs = vpkDir.m_PackFiles.Count(); i < fs; i++)
+	FOR_EACH_VEC(vpkDir.m_PackFiles, i)
 	{
 		const CUtlString packFile = basePath + vpkDir.m_PackFiles[i];
 
@@ -584,7 +582,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 			continue;
 		}
 
-		for (int j = 0, es = vpkDir.m_EntryBlocks.Count(); j < es; j++)
+		FOR_EACH_VEC(vpkDir.m_EntryBlocks, j)
 		{
 			const VPKEntryBlock_t& entryBlock = vpkDir.m_EntryBlocks[j];
 			if (entryBlock.m_iPackFileIndex != uint16_t(i))
@@ -606,16 +604,17 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 			}
 
 			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%i' ('%s')\n", j, i, entryBlock.m_EntryPath.Get());
-			for (int k = 0, cs = entryBlock.m_Fragments.Count(); k < cs; k++)
+
+			FOR_EACH_VEC(entryBlock.m_Fragments, k)
 			{
 				const VPKChunkDescriptor_t& fragment = entryBlock.m_Fragments[k];
 
 				FileSystem()->Seek(hPackFile, int(fragment.m_nPackFileOffset), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-				FileSystem()->Read(pSourceBuffer, int(fragment.m_nCompressedSize), hPackFile);
+				FileSystem()->Read(pSourceBuffer.get(), int(fragment.m_nCompressedSize), hPackFile);
 
 				if (fragment.m_nCompressedSize == fragment.m_nUncompressedSize) // Data is not compressed.
 				{
-					FileSystem()->Write(pSourceBuffer, int(fragment.m_nUncompressedSize), hAsset);
+					FileSystem()->Write(pSourceBuffer.get(), int(fragment.m_nUncompressedSize), hAsset);
 					continue;
 				}
 
@@ -625,8 +624,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				if (fragment.m_nCompressedSize > nDstLen)
 					break; // Corrupt or invalid chunk descriptor.
 
-				lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pDestBuffer,
-					&nDstLen, pSourceBuffer, fragment.m_nCompressedSize, nullptr);
+				lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pDestBuffer.get(),
+					&nDstLen, pSourceBuffer.get(), fragment.m_nCompressedSize, nullptr);
 
 				if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 				{
@@ -635,7 +634,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				}
 				else // If successfully decompressed, write to file.
 				{
-					FileSystem()->Write(pDestBuffer, int(nDstLen), hAsset);
+					FileSystem()->Write(pDestBuffer.get(), int(nDstLen), hAsset);
 				}
 			}
 
@@ -644,9 +643,6 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 		}
 		FileSystem()->Close(hPackFile);
 	}
-
-	MemAllocSingleton()->Free(pDestBuffer);
-	MemAllocSingleton()->Free(pSourceBuffer);
 }
 
 //-----------------------------------------------------------------------------
@@ -1000,7 +996,7 @@ uint64_t VPKDir_t::WriteDescriptor(FileHandle_t hDirectoryFile,
 				FileSystem()->Write(&vEntry.m_iPreloadSize, sizeof(uint16_t), hDirectoryFile);
 				FileSystem()->Write(&vEntry.m_iPackFileIndex, sizeof(uint16_t), hDirectoryFile);
 
-				for (int i = 0, nc = vEntry.m_Fragments.Count(); i < nc; i++)
+				FOR_EACH_VEC(vEntry.m_Fragments, i)
 				{
 					/*Write chunk descriptor*/
 					const VPKChunkDescriptor_t* pDescriptor = &vEntry.m_Fragments[i];
@@ -1011,7 +1007,7 @@ uint64_t VPKDir_t::WriteDescriptor(FileHandle_t hDirectoryFile,
 					FileSystem()->Write(&pDescriptor->m_nCompressedSize, sizeof(uint64_t), hDirectoryFile);
 					FileSystem()->Write(&pDescriptor->m_nUncompressedSize, sizeof(uint64_t), hDirectoryFile);
 
-					if (i != (nc - 1))
+					if (i != (vEntry.m_Fragments.Count() - 1))
 					{
 						FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint16_t), hDirectoryFile);
 					}

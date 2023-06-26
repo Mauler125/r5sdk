@@ -66,45 +66,30 @@ bool OverlayBase_t::IsDead() const
 //------------------------------------------------------------------------------
 void DestroyOverlay(OverlayBase_t* pOverlay)
 {
-    size_t pOverlaySize;
-
-    EnterCriticalSection(&*s_OverlayMutex);
+    EnterCriticalSection(s_OverlayMutex);
     switch (pOverlay->m_Type)
     {
     case OverlayType_t::OVERLAY_BOX:
-        pOverlaySize = sizeof(OverlayBox_t);
-        goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_SPHERE:
-        pOverlaySize = sizeof(OverlaySphere_t);
-        goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_LINE:
-        pOverlaySize = sizeof(OverlayLine_t);
-        goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_TRIANGLE:
-        pOverlaySize = 6200i64;
-        goto LABEL_MALLOC;
-    case OverlayType_t::OVERLAY_LASER_LINE:
-        pOverlay->m_Type = OverlayType_t::OVERLAY_UNK1;
-        LeaveCriticalSection(&*s_OverlayMutex);
-        return;
     case OverlayType_t::OVERLAY_BOX2:
-        pOverlaySize = 88i64;
-        goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_CAPSULE:
-        pOverlaySize = sizeof(OverlayCapsule_t);
-        break;
     case OverlayType_t::OVERLAY_UNK0:
-        pOverlaySize = 88i64;
-        goto LABEL_MALLOC;
-    LABEL_MALLOC:
-        pOverlay->m_Type = OverlayType_t::OVERLAY_UNK1;
-        MemAllocSingleton()->Free(pOverlay);
+        delete pOverlay;
+        break;
+        // The laser line overlay, used for the smart pistol's guidance
+        // line, appears to be not deleted in this particular function.
+        // Its unclear whether or not something else takes care of this,
+        // research needed!!!
+    case OverlayType_t::OVERLAY_LASER_LINE:
         break;
     default:
+        Assert(0); // Code bug; invalid overlay type.
         break;
     }
 
-    LeaveCriticalSection(&*s_OverlayMutex);
+    LeaveCriticalSection(s_OverlayMutex);
 }
 
 //------------------------------------------------------------------------------
@@ -113,7 +98,7 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
 //------------------------------------------------------------------------------
 void DrawOverlay(OverlayBase_t* pOverlay)
 {
-    EnterCriticalSection(&*s_OverlayMutex);
+    EnterCriticalSection(s_OverlayMutex);
 
     switch (pOverlay->m_Type)
     {
@@ -128,7 +113,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
             else
             {
-                LeaveCriticalSection(&*s_OverlayMutex);
+                LeaveCriticalSection(s_OverlayMutex);
                 return;
             }
         }
@@ -147,7 +132,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
             else
             {
-                LeaveCriticalSection(&*s_OverlayMutex);
+                LeaveCriticalSection(s_OverlayMutex);
                 return;
             }
         }
@@ -174,7 +159,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
             else
             {
-                LeaveCriticalSection(&*s_OverlayMutex);
+                LeaveCriticalSection(s_OverlayMutex);
                 return;
             }
         }
@@ -209,7 +194,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
             else
             {
-                LeaveCriticalSection(&*s_OverlayMutex);
+                LeaveCriticalSection(s_OverlayMutex);
                 return;
             }
         }
@@ -235,7 +220,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     }
     }
 
-    LeaveCriticalSection(&*s_OverlayMutex);
+    LeaveCriticalSection(s_OverlayMutex);
 }
 
 //------------------------------------------------------------------------------
@@ -244,7 +229,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
 //------------------------------------------------------------------------------
 void DrawAllOverlays(bool bRender)
 {
-    EnterCriticalSection(&*s_OverlayMutex);
+    EnterCriticalSection(s_OverlayMutex);
 
     const bool bOverlayEnabled = (bRender && enable_debug_overlays->GetBool());
     OverlayBase_t* pCurrOverlay = *s_pOverlays; // rdi
@@ -272,7 +257,8 @@ void DrawAllOverlays(bool bRender)
         }
         else
         {
-            bool bShouldDraw{ };
+            bool bShouldDraw = false;
+
             if (pCurrOverlay->m_nCreationTick == -1)
             {
                 if (pCurrOverlay->m_nOverlayTick == *g_nOverlayTickCount)
@@ -297,6 +283,7 @@ void DrawAllOverlays(bool bRender)
                     DrawOverlay(pCurrOverlay);
                 }
             }
+
             pPrevOverlay = pCurrOverlay;
             pCurrOverlay = pCurrOverlay->m_pNextOverlay;
         }
@@ -318,7 +305,7 @@ void DrawAllOverlays(bool bRender)
     }
 #endif // !CLIENT_DLL
 
-    LeaveCriticalSection(&*s_OverlayMutex);
+    LeaveCriticalSection(s_OverlayMutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

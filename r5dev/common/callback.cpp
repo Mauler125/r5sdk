@@ -474,32 +474,36 @@ void RTech_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	static const string svModDir = "paks\\Win32\\";
-	static const string svBaseDir = "paks\\Win64\\";
+	CUtlString inPakFile;
+	CUtlString outPakFile;
 
-	const string svPakNameOut = svModDir + args.Arg(1);
-	const string svPakNameIn = svBaseDir + args.Arg(1);
+	inPakFile.Format(PLATFORM_PAK_PATH "%s", args.Arg(1));
+	outPakFile.Format(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "-+ RTech decompress ------------------------------------------\n");
 
-	if (!FileSystem()->FileExists(svPakNameIn.c_str(), "GAME"))
+	if (!FileSystem()->FileExists(inPakFile.String(), "GAME"))
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' does not exist!\n", __FUNCTION__, svPakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' does not exist!\n",
+			__FUNCTION__, inPakFile.String());
 		return;
 	}
 
-	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", svPakNameIn.c_str());
-	FileHandle_t hPakFile = FileSystem()->Open(svPakNameIn.c_str(), "rb", "GAME");
+	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", inPakFile.String());
+	FileHandle_t hPakFile = FileSystem()->Open(inPakFile.String(), "rb", "GAME");
 
 	if (!hPakFile)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, svPakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n",
+			__FUNCTION__, inPakFile.String());
 		return;
 	}
 
 	uint32_t nPakLen = FileSystem()->Size(hPakFile);
-	uint8_t* pPakBuf = MemAllocSingleton()->Alloc<uint8_t>(nPakLen);
+
+	std::unique_ptr<uint8_t[]> pPakBufContainer(new uint8_t[nPakLen]);
+	uint8_t* pPakBuf = pPakBufContainer.get();
 
 	FileSystem()->Read(pPakBuf, nPakLen, hPakFile);
 	FileSystem()->Close(hPakFile);
@@ -514,7 +518,9 @@ void RTech_Decompress_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->m_nMagic);
 	DevMsg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->m_nVersion);
 	DevMsg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", flags);
-	DevMsg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",systemTime.wYear,systemTime.wMonth,systemTime.wDay, systemTime.wDayOfWeek, systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
+	DevMsg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",
+		systemTime.wYear,systemTime.wMonth,systemTime.wDay, systemTime.wDayOfWeek,
+		systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
 	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->m_nHash);
 	DevMsg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->m_nAssetEntryCount);
 	DevMsg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
@@ -523,22 +529,22 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (pHeader->m_nMagic != RPAK_MAGIC)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, svPakNameIn.c_str());
-		MemAllocSingleton()->Free(pPakBuf);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' has invalid magic!\n",
+			__FUNCTION__, inPakFile.String());
 
 		return;
 	}
 	if ((pHeader->m_nFlags[1] & 1) != 1)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, svPakNameIn.c_str());
-		MemAllocSingleton()->Free(pPakBuf);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' already decompressed!\n",
+			__FUNCTION__, inPakFile.String());
 
 		return;
 	}
 	if (pHeader->m_nSizeDisk != nPakLen)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%llu' doesn't match expected size '%llu'!\n", __FUNCTION__, svPakNameIn.c_str(), nPakLen, pHeader->m_nSizeMemory);
-		MemAllocSingleton()->Free(pPakBuf);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%llu' doesn't match expected size '%llu'!\n",
+			__FUNCTION__, inPakFile.String(), nPakLen, pHeader->m_nSizeMemory);
 
 		return;
 	}
@@ -548,8 +554,8 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (nDecompSize == pHeader->m_nSizeDisk)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, nDecompSize, pHeader->m_nSizeMemory);
-		MemAllocSingleton()->Free(pPakBuf);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - calculated size: '%llu' expected: '%llu'!\n",
+			__FUNCTION__, nDecompSize, pHeader->m_nSizeMemory);
 
 		return;
 	}
@@ -559,7 +565,10 @@ void RTech_Decompress_f(const CCommand& args)
 	}
 
 	DevMsg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (pHeader->m_nSizeDisk * 100.f) / pHeader->m_nSizeMemory);
-	uint8_t* pDecompBuf = MemAllocSingleton()->Alloc<uint8_t>(pHeader->m_nSizeMemory);
+
+
+	std::unique_ptr<uint8_t[]> pDecompBufContainer(new uint8_t[nPakLen]);
+	uint8_t* pDecompBuf = pDecompBufContainer.get();
 
 	decompState.m_nOutMask = UINT64_MAX;
 	decompState.m_nOut = uint64_t(pDecompBuf);
@@ -567,25 +576,20 @@ void RTech_Decompress_f(const CCommand& args)
 	uint8_t nDecompResult = g_pRTech->DecompressPakFile(&decompState, nPakLen, pHeader->m_nSizeMemory);
 	if (nDecompResult != 1)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, svPakNameIn.c_str(), nDecompResult);
-		MemAllocSingleton()->Free(pPakBuf);
-		MemAllocSingleton()->Free(pDecompBuf);
-
-		return;
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n",
+			__FUNCTION__, inPakFile.String(), nDecompResult);
 	}
 
 	pHeader->m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
 	pHeader->m_nSizeDisk = pHeader->m_nSizeMemory; // Equal compressed size with decompressed.
 
-	FileSystem()->CreateDirHierarchy(svModDir.c_str(), "GAME");
-	FileHandle_t hDecompFile = FileSystem()->Open(svPakNameOut.c_str(), "wb", "GAME");
+	FileSystem()->CreateDirHierarchy(PLATFORM_PAK_OVERRIDE_PATH, "GAME");
+	FileHandle_t hDecompFile = FileSystem()->Open(outPakFile.String(), "wb", "GAME");
 
 	if (!hDecompFile)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svPakNameOut.c_str());
-
-		MemAllocSingleton()->Free(pPakBuf);
-		MemAllocSingleton()->Free(pDecompBuf);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n",
+			__FUNCTION__, outPakFile.String());
 
 		return;
 	}
@@ -609,11 +613,8 @@ void RTech_Decompress_f(const CCommand& args)
 	FileSystem()->Write(pDecompBuf, int(decompState.m_nDecompSize), hDecompFile);
 
 	DevMsg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
-	DevMsg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", svPakNameOut.c_str());
+	DevMsg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", outPakFile.String());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
-
-	MemAllocSingleton()->Free(pPakBuf);
-	MemAllocSingleton()->Free(pDecompBuf);
 
 	FileSystem()->Close(hDecompFile);
 }

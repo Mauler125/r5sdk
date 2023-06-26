@@ -39,8 +39,10 @@ void ClearNavMeshForHull(int hullSize)
 
     if (nav) // Only free if NavMesh for hull is loaded.
     {
-        v_Detour_FreeNavMesh(nav);      // Frees tiles, polys, tris, etc.
-        MemAllocSingleton()->Free(nav); // Frees the main navmesh memory.
+        // Frees tiles, polys, tris, anything dynamically
+        // allocated for this navmesh, and the navmesh itself.
+        v_Detour_FreeNavMesh(nav);
+        delete nav;
 
         g_pNavMesh[hullSize] = nullptr;
     }

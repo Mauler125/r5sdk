@@ -298,7 +298,7 @@ void CClient::Disconnect(const Reputation_t nRepLvl, const char* szReason, ...)
 	{
 		char szBuf[1024];
 		{/////////////////////////////
-			va_list vArgs{};
+			va_list vArgs;
 			va_start(vArgs, szReason);
 
 			vsnprintf(szBuf, sizeof(szBuf), szReason, vArgs);

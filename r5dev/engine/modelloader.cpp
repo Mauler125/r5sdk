@@ -274,7 +274,7 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 		}
 		else
 		{
-			loader->m_pRawData = MemAllocSingleton()->Alloc<byte>(lumpSize);
+			loader->m_pRawData = new byte[lumpSize];
 			loader->m_pData = loader->m_pRawData;
 
 			FileHandle_t hLumpFile = FileSystem()->Open(lumpPathBuf, "rb");

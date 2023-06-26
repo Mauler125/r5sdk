@@ -274,7 +274,7 @@ void CCommand::Reset()
 ConCommand* ConCommand::StaticCreate(const char* pszName, const char* pszHelpString, const char* pszUsageString,
 	int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCompletionFunc)
 {
-	ConCommand* pCommand = MemAllocSingleton()->Alloc<ConCommand>(sizeof(ConCommand));
+	ConCommand* pCommand = (ConCommand*)malloc(sizeof(ConCommand));
 	*(ConCommandBase**)pCommand = g_pConCommandVFTable;
 
 	pCommand->m_pNext = nullptr;

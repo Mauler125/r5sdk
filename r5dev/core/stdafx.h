@@ -1,8 +1,14 @@
 #pragma once
 #include "shared_pch.h"
-#if !defined(DEDICATED) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
+#if !defined(DEDICATED) && !defined(PLUGINSDK)
 #include <d3d11.h>
-#endif // !DEDICATED && !NETCONSOLE && !PLUGINSDK
+#endif // !DEDICATED && !PLUGINSDK
+
+// Must be included before any third party lib!
+// this header replaces the standard new/delete
+// operators with our own, along with the standard
+// malloc/free functions.
+#include "tier0/memstd.h"
 
 // Thirdparty includes.
 #include "thirdparty/detours/include/detours.h"
@@ -15,7 +21,7 @@
 #include "thirdparty/curl/include/curl/curl.h"
 #include "thirdparty/nlohmann/json.hpp"
 
-#if !defined(DEDICATED) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
+#if !defined(DEDICATED) && !defined(PLUGINSDK)
 #include "thirdparty/imgui/imgui.h"
 #include "thirdparty/imgui/imgui_internal.h"
 #include "thirdparty/imgui/misc/imgui_logger.h"
@@ -24,7 +30,7 @@
 #include "thirdparty/imgui/misc/cpp/imgui_stdlib.h"
 #include "thirdparty/imgui/backends/imgui_impl_dx11.h"
 #include "thirdparty/imgui/backends/imgui_impl_win32.h"
-#endif // !DEDICATED && !NETCONSOLE && !PLUGINSDK
+#endif // !DEDICATED && !PLUGINSDK
 
 
 #pragma warning(push)
@@ -40,8 +46,8 @@
 #pragma warning(pop)
 
 // Tier0 includes.
-#include "tier0/utility.h"
 #include "tier0/memaddr.h"
+#include "tier0/utility.h"
 #include "tier0/module.h"
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"

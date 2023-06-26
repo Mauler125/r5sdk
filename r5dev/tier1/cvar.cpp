@@ -13,7 +13,7 @@ ConVar* ConVar::StaticCreate(const char* pszName, const char* pszDefaultValue,
 	int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax,
 	float fMax, FnChangeCallback_t pCallback, const char* pszUsageString)
 {
-	ConVar* pNewConVar = MemAllocSingleton()->Alloc<ConVar>(sizeof(ConVar));
+	ConVar* pNewConVar = (ConVar*)malloc(sizeof(ConVar));
 
 	pNewConVar->m_bRegistered = false;
 	*(ConVar**)pNewConVar = g_pConVarVBTable;
@@ -66,7 +66,7 @@ ConVar::ConVar(void)
 //{
 //	if (m_Value.m_pszString)
 //	{
-//		MemAllocSingleton()->Free(m_Value.m_pszString);
+//		delete[] m_Value.m_pszString);
 //		m_Value.m_pszString = NULL;
 //	}
 //}
@@ -329,10 +329,10 @@ void ConVar::ChangeStringValue(const char* pszTempVal)
 	{
 		if (m_Value.m_pszString)
 		{
-			MemAllocSingleton()->Free(m_Value.m_pszString);
+			delete[] m_Value.m_pszString;
 		}
 
-		m_Value.m_pszString = MemAllocSingleton()->Alloc<char>(len);
+		m_Value.m_pszString = new char[len];
 		m_Value.m_iStringLength = len;
 	}
 
@@ -737,7 +737,7 @@ int CCvarUtilities::CountVariablesWithFlags(int flags)
 		}
 	}
 
-	MemAllocSingleton()->Free(itint);
+	delete itint;
 	return i;
 }
 
@@ -756,7 +756,7 @@ void CCvarUtilities::EnableDevCvars()
 		pCommandBase->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	}
 
-	MemAllocSingleton()->Free(itint);
+	delete itint;
 }
 
 //-----------------------------------------------------------------------------
@@ -844,7 +844,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 		}
 	}
 
-	MemAllocSingleton()->Free(itint);
+	delete itint;
 
 	if (bLogging)
 	{
@@ -940,7 +940,7 @@ void CCvarUtilities::CvarDifferences(const CCommand& args)
 		}
 	}
 
-	MemAllocSingleton()->Free(itint);
+	delete itint;
 	DevMsg(eDLL_T::ENGINE, "--------------\n%3i changed convars\n", i);
 }
 
@@ -987,7 +987,7 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 		}
 	}
 
-	MemAllocSingleton()->Free(itint);
+	delete itint;
 }
 
 //-----------------------------------------------------------------------------
@@ -1049,7 +1049,7 @@ unordered_map<string, ConCommandBase*> CCvar::DumpToMap(void)
 		allConVars[pszCommandName] = pCommand;
 	}
 
-	MemAllocSingleton()->Free(itint);
+	delete itint;
 
 	return allConVars;
 }

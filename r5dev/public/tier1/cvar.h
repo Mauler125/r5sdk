@@ -88,10 +88,12 @@ protected:
 	class CCVarIteratorInternal : public ICVarIteratorInternal
 	{
 	public:
-		virtual void            SetFirst(void) = 0; //0
-		virtual void            Next(void) = 0; //1
-		virtual	bool            IsValid(void) = 0; //2
-		virtual ConCommandBase* Get(void) = 0; //3
+		virtual ~CCVarIteratorInternal() { }
+
+		virtual void            SetFirst(void) = 0;
+		virtual void            Next(void) = 0;
+		virtual	bool            IsValid(void) = 0;
+		virtual ConCommandBase* Get(void) = 0;
 
 		CCvar* const m_pOuter = nullptr;
 		CConCommandHash* const m_pHash = nullptr;

@@ -33,7 +33,7 @@ extern "C" void* R_malloc(size_t nSize)
 {
     Assert(nSize);
     InitAllocator();
-    return MemAllocSingleton()->Alloc<void>(nSize);
+    return MemAllocSingleton()->Alloc(nSize);
 }
 
 extern "C" void R_free(void* pBlock)
@@ -50,10 +50,10 @@ extern "C" void* R_realloc(void* pBlock, size_t nSize)
     InitAllocator();
 
     if (nSize)
-        return MemAllocSingleton()->Realloc<void>(pBlock, nSize);
+        return MemAllocSingleton()->Realloc(pBlock, nSize);
     else
     {
-        MemAllocSingleton()->FreeDbg(pBlock, "tier0_static128", 0);
+        MemAllocSingleton()->InternalFree(pBlock, "tier0_static128", 0);
         return nullptr;
     }
 }
@@ -65,7 +65,7 @@ extern "C" char* R_strdup(const char* pString)
     InitAllocator();
 
     const size_t nLen = strlen(pString) + 1;
-    void* pNew = MemAllocSingleton()->Alloc<char>(nLen);
+    void* pNew = MemAllocSingleton()->Alloc(nLen);
 
     if (!pNew)
         return nullptr;
@@ -80,11 +80,20 @@ extern "C" void* R_calloc(size_t nCount, size_t nSize)
     InitAllocator();
 
     const size_t nTotal = nCount * nSize;
-    void* pNew = MemAllocSingleton()->Alloc<void>(nTotal);
+    void* pNew = MemAllocSingleton()->Alloc(nTotal);
 
     memset(pNew, NULL, nTotal);
     return pNew;
 }
+
+
+extern "C" size_t R_mallocsize(void* pBlock)
+{
+    InitAllocator();
+    size_t nSize = MemAllocSingleton()->GetSize(pBlock);
+    return nSize;
+}
+
 
 // !TODO: other 'new' operators introduced in C++17.
 void* operator new(std::size_t n) noexcept(false)
