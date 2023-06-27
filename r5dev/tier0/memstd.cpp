@@ -86,6 +86,17 @@ extern "C" void* R_calloc(size_t nCount, size_t nSize)
     return pNew;
 }
 
+extern "C" void* R_recalloc(void* pBlock, size_t nSize)
+{
+    InitAllocator();
+
+    void* pMemOut = MemAllocSingleton()->Realloc(pBlock, nSize);
+
+    if (!pBlock)
+        memset(pMemOut, NULL, nSize);
+
+    return pMemOut;
+}
 
 extern "C" size_t R_mallocsize(void* pBlock)
 {

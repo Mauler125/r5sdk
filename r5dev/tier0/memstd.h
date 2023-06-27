@@ -14,6 +14,7 @@ extern "C" size_t R_mallocsize(void* pBlock);
 #define realloc(pBlock, nSize) R_realloc(pBlock, nSize)
 #define strdup(pString) R_strdup(pString)
 #define calloc(nCount, nSize) R_calloc(nCount, nSize)
+#define recalloc(pBlock, nSize) R_recalloc(pBlock, nSize)
 #define mallocsize(pBlock) R_mallocsize(pBlock)
 
 class IMemAlloc
