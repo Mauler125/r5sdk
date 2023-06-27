@@ -36,6 +36,7 @@ macro( apply_project_settings )
         "SPDLOG_COMPILED_LIB"
         "SPDLOG_NO_EXCEPTIONS"
         "CURL_STATICLIB"
+        "PLATFORM_64BITS" # Target is 64bits only.
         "${GAMEDLL_OPTION}"
     )
 
