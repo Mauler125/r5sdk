@@ -11,6 +11,7 @@
 #include "tier1/cvar.h"
 #include "tier1/characterset.h"
 #include "tier1/utlstring.h"
+#include "tier1/utlbuffer.h"
 
 //-----------------------------------------------------------------------------
 // Global methods
@@ -95,7 +96,6 @@ CCommand::CCommand(int nArgC, const char** ppArgV, cmd_source_t source)
 //-----------------------------------------------------------------------------
 bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_t* pBreakSet)
 {
-	/* !TODO (CUtlBuffer).
 	Reset();
 	m_nQueuedVal = source;
 
@@ -111,10 +111,10 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 	// Copy the current command into a temp buffer
 	// NOTE: This is here to avoid the pointers returned by DequeueNextCommand
 	// to become invalid by calling AddText. Is there a way we can avoid the memcpy?
-	int nLen = Q_strlen(pCommand);
+	size_t nLen = Q_strlen(pCommand);
 	if (nLen >= COMMAND_MAX_LENGTH - 1)
 	{
-		Warning(eDLL_T::ENGINE, "%s: Encountered command which overflows the tokenizer buffer.. Skipping!\n", __FUNCTION__);
+		Warning(eDLL_T::ENGINE, "%s: Encountered command which overflows the tokenizer buffer... Skipping!\n", __FUNCTION__);
 		return false;
 	}
 
@@ -122,13 +122,15 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 
 	// Parse the current command into the current command buffer
 	CUtlBuffer bufParse(m_pArgSBuffer, nLen, CUtlBuffer::TEXT_BUFFER | CUtlBuffer::READ_ONLY);
-	int nArgvBufferSize = 0;
+	int64 nArgvBufferSize = 0;
+
 	while (bufParse.IsValid() && (m_nArgc < COMMAND_MAX_ARGC))
 	{
 		char* pArgvBuf = &m_pArgvBuffer[nArgvBufferSize];
-		int nMaxLen = COMMAND_MAX_LENGTH - nArgvBufferSize;
-		int nStartGet = bufParse.TellGet();
-		int	nSize = bufParse.ParseToken(pBreakSet, pArgvBuf, nMaxLen);
+		int64 nMaxLen = COMMAND_MAX_LENGTH - nArgvBufferSize;
+		int64 nStartGet = bufParse.TellGet();
+		int64 nSize = bufParse.ParseToken(pBreakSet, pArgvBuf, nMaxLen);
+
 		if (nSize < 0)
 			break;
 
@@ -144,10 +146,12 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 			// Deal with the case where the arguments were quoted
 			m_nArgv0Size = bufParse.TellGet();
 			bool bFoundEndQuote = m_pArgSBuffer[m_nArgv0Size - 1] == '\"';
+
 			if (bFoundEndQuote)
 			{
 				--m_nArgv0Size;
 			}
+
 			m_nArgv0Size -= nSize;
 			Assert(m_nArgv0Size != 0);
 
@@ -155,6 +159,7 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 			// which will parse into 2 different args. ArgS should point to bar.
 			bool bFoundStartQuote = (m_nArgv0Size > nStartGet) && (m_pArgSBuffer[m_nArgv0Size - 1] == '\"');
 			Assert(bFoundEndQuote == bFoundStartQuote);
+
 			if (bFoundStartQuote)
 			{
 				--m_nArgv0Size;
@@ -162,6 +167,7 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 		}
 
 		m_ppArgv[m_nArgc++] = pArgvBuf;
+
 		if (m_nArgc >= COMMAND_MAX_ARGC)
 		{
 			Warning(eDLL_T::ENGINE, "%s: Encountered command which overflows the argument buffer.. Clamped!\n", __FUNCTION__);
@@ -169,7 +175,7 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 
 		nArgvBufferSize += nSize + 1;
 		Assert(nArgvBufferSize <= COMMAND_MAX_LENGTH);
-	}*/
+	}
 
 	return true;
 }
@@ -239,21 +245,22 @@ int CCommand::MaxCommandLength(void) const
 	return COMMAND_MAX_LENGTH - 1;
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: return boolean depending on if the string only has digits in it
 // Input  : svString - 
 //-----------------------------------------------------------------------------
 bool CCommand::HasOnlyDigits(int nIndex) const
 {
-	const string svString = Arg(nIndex);
-	for (const char& character : svString)
+	const char* source = Arg(nIndex);
+
+	for (size_t i = 0; source[i] != '\0'; i++)
 	{
-		if (std::isdigit(character) == 0)
+		if (!isdigit(source[i]))
 		{
 			return false;
 		}
 	}
+
 	return true;
 }
 
