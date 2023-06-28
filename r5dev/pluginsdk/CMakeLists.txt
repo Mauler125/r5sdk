@@ -14,13 +14,16 @@ end_sources( "${BUILD_OUTPUT_DIR}/bin/x64_retail/plugins/" )
 
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"
+    "memoverride"
+
     "libdetours"
     "libprotobuf"
     "liblzham"
     "libspdlog"
-    "SigCache_PB"
-    "SV_RCon_PB"
-    "CL_RCon_PB"
+
+    "SigCache_Pb"
+    "SV_RCon_Pb"
+    "CL_RCon_Pb"
     "Rpcrt4.lib"
 )
 

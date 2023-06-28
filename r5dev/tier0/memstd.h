@@ -8,7 +8,7 @@ extern "C"
     __declspec(restrict) void* __cdecl _realloc_base(void* const pBlock, size_t const nSize);
     __declspec(restrict) void* __cdecl _recalloc_base(void* const pBlock, size_t const nCount, size_t const nSize);
     __declspec(noinline) void __cdecl _free_base(void* const pBlock);
-    __declspec(noinline) size_t __cdecl _msize_base(void* const pBlock);
+    __declspec(noinline) size_t __cdecl _msize_base(void* const pBlock) noexcept;
     char* __cdecl _strdup(const char* pString);
 	void* __cdecl _expand(void* pBlock, size_t nSize);
 }

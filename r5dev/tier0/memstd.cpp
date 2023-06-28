@@ -84,7 +84,7 @@ extern "C"
         InitAllocator();
         MemAllocSingleton()->Free(pBlock);
     }
-    __declspec(noinline) size_t __cdecl _msize_base(void* const pBlock)
+    __declspec(noinline) size_t __cdecl _msize_base(void* const pBlock) noexcept
     {
         InitAllocator();
 

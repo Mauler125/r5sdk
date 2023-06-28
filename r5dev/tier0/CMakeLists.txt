@@ -1,4 +1,18 @@
 cmake_minimum_required( VERSION 3.16 )
+
+# Separate lib as we aren't implementing the memalloc system!
+# This library mainly interfaces the program to the game's
+# internal memalloc system. Only link if its getting used or
+# is using the game module!!!
+add_module( "lib" "memoverride" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
+
+add_sources( SOURCE_GROUP "Runtime"
+    "memstd.cpp"
+    "memstd.h"
+)
+
+end_sources()
+
 add_module( "lib" "tier0" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
@@ -22,8 +36,6 @@ add_sources( SOURCE_GROUP "Runtime"
     "frametask.cpp"
     "jobthread.cpp"
     "memaddr.cpp"
-    "memstd.cpp"
-    "memstd.h"
     "module.cpp"
     "platform.cpp"
     "sigcache.cpp"
