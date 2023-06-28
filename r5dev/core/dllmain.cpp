@@ -98,18 +98,7 @@ void SDK_Init()
     Input_Init();
 #endif // !DEDICATED
 
-    // Initialize cURL with rebuilt memory callbacks
-    // featuring the game's memalloc implementation.
-    // this is required in order to hook cURL code
-    // in-game, as we otherwise would manage memory
-    // memory created by the game's implementation,
-    // using the standard one.
-    curl_global_init_mem(CURL_GLOBAL_ALL,
-        &R_malloc,
-        &R_free,
-        &R_realloc,
-        &R_strdup,
-        &R_calloc);
+    curl_global_init(CURL_GLOBAL_ALL);
     lzham_enable_fail_exceptions(true);
 }
 

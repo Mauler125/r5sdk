@@ -1,21 +1,17 @@
 #ifndef MEMSTD_H
 #define MEMSTD_H
 
-extern "C" void* R_malloc(size_t nSize);
-extern "C" void  R_free(void* pBlock);
-extern "C" void* R_realloc(void* pBlock, size_t nSize);
-extern "C" char* R_strdup(const char* pString);
-extern "C" void* R_calloc(size_t nCount, size_t nSize);
-extern "C" size_t R_mallocsize(void* pBlock);
-
-// Shadow standard implementation with ours.
-#define malloc(nSize) R_malloc(nSize)
-#define free(pBlock) R_free(pBlock)
-#define realloc(pBlock, nSize) R_realloc(pBlock, nSize)
-#define strdup(pString) R_strdup(pString)
-#define calloc(nCount, nSize) R_calloc(nCount, nSize)
-#define recalloc(pBlock, nSize) R_recalloc(pBlock, nSize)
-#define mallocsize(pBlock) R_mallocsize(pBlock)
+extern "C"
+{
+	__declspec(restrict) void* __cdecl _malloc_base(size_t const nSize);
+	__declspec(restrict) void* __cdecl _calloc_base(size_t const nCount, size_t const nSize);
+    __declspec(restrict) void* __cdecl _realloc_base(void* const pBlock, size_t const nSize);
+    __declspec(restrict) void* __cdecl _recalloc_base(void* const pBlock, size_t const nCount, size_t const nSize);
+    __declspec(noinline) void __cdecl _free_base(void* const pBlock);
+    __declspec(noinline) size_t __cdecl _msize_base(void* const pBlock);
+    char* __cdecl _strdup(const char* pString);
+	void* __cdecl _expand(void* pBlock, size_t nSize);
+}
 
 class IMemAlloc
 {
