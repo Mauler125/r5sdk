@@ -101,11 +101,11 @@ bool CNetCon::Shutdown(void)
 //-----------------------------------------------------------------------------
 void CNetCon::TermSetup(void)
 {
-	g_svCmdLine = GetCommandLineA();
+	const char* pszCommandLine = GetCommandLineA();
+	const bool bEnableColor = strstr("-ansicolor", pszCommandLine) != nullptr;
 
-	SpdLog_Init();
-	SpdLog_PostInit();
-	Console_Init();
+	SpdLog_Init(bEnableColor);
+	Console_Init(bEnableColor);
 }
 
 //-----------------------------------------------------------------------------

@@ -14,7 +14,6 @@ constexpr int SPDLOG_MAX_SIZE = 10 * 1024 * 1024; // Sets number of bytes before
 constexpr int SPDLOG_NUM_FILE = 512; // Sets number of files to rotate to.
 
 inline bool g_bSpdLog_UseAnsiClr = false;
-inline bool g_bSpdLog_PostInit = false;
 
 extern std::shared_ptr<spdlog::logger> g_TermLogger;
 extern std::shared_ptr<spdlog::logger> g_ImGuiLogger;
@@ -24,7 +23,6 @@ extern std::shared_ptr<spdlog::logger> g_ImGuiLogger;
 extern std::ostringstream g_LogStream;
 extern std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
 
-void SpdLog_Init(void);
+void SpdLog_Init(const bool bAnsiColor);
 void SpdLog_Create(void);
-void SpdLog_PostInit(void);
 void SpdLog_Shutdown(void);

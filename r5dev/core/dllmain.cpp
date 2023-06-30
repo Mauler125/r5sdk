@@ -5,6 +5,7 @@
 #include "core/logger.h"
 #include "tier0/basetypes.h"
 #include "tier0/crashhandler.h"
+#include "tier0/commandline.h"
 /*****************************************************************************/
 #ifndef DEDICATED
 #include "windows/id3dx.h"
@@ -21,8 +22,10 @@
 #define SDK_DEFAULT_CFG "cfg/startup_dedi_default.cfg"
 #endif
 
+bool g_bSdkInitialized = false;
+
 //#############################################################################
-// INITIALIZATION
+// UTILITY
 //#############################################################################
 
 void Crash_Callback()
@@ -32,6 +35,24 @@ void Crash_Callback()
 
     // TODO[ AMOS ]: This is where we want to call backtrace from.
 }
+
+void Show_Emblem()
+{
+    // Logged as 'SYSTEM_ERROR' for its red color.
+    for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
+    {
+        DevMsg(eDLL_T::SYSTEM_ERROR, "%s\n", R5R_EMBLEM[i]);
+    }
+
+    // Log the SDK's 'build_id' under the emblem.
+    DevMsg(eDLL_T::SYSTEM_ERROR, "+------------------------------------------------[%010d]-+\n",
+        g_SDKDll.GetNTHeaders()->FileHeader.TimeDateStamp);
+    DevMsg(eDLL_T::SYSTEM_ERROR, "\n");
+}
+
+//#############################################################################
+// INITIALIZATION
+//#############################################################################
 
 void Tier0_Init()
 {
@@ -50,10 +71,10 @@ void Tier0_Init()
     g_SDKDll = CModule("dedicated.dll");
 #endif // !DEDICATED
 
-    // Setup logger callback sink.
-    g_CoreMsgVCallback = &EngineLoggerSink;
+    g_pCmdLine = g_GameDll.GetExportedSymbol("g_pCmdLine").RCast<CCommandLine*>();
+    g_CoreMsgVCallback = &EngineLoggerSink; // Setup logger callback sink.
 
-    // Setup crash callback.
+    g_pCmdLine->CreateCmdLine(GetCommandLineA());
     g_CrashHandler->SetCrashCallback(&Crash_Callback);
 }
 
@@ -61,45 +82,35 @@ void SDK_Init()
 {
     Tier0_Init();
 
-    if (strstr(GetCommandLineA(), "-launcher"))
+    if (!CommandLine()->CheckParm("-launcher"))
     {
-        g_svCmdLine = GetCommandLineA();
+        CommandLine()->AppendParametersFromFile(SDK_DEFAULT_CFG);
     }
-    else
-    {
-        g_svCmdLine = LoadConfigFile(SDK_DEFAULT_CFG);
-    }
+
+    const bool bAnsiColor = CommandLine()->CheckParm("-ansicolor") ? true : false;
+
 #ifndef DEDICATED
-    if (g_svCmdLine.find("-wconsole") != std::string::npos)
-    {
-        Console_Init();
-    }
-#else
-    Console_Init();
+    if (CommandLine()->CheckParm("-wconsole"))
 #endif // !DEDICATED
-
-    SpdLog_Init();
-    Winsock_Init(); // Initialize Winsock.
-
-    for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
-        spdlog::info("{:s}{:s}{:s}\n", g_svRedF, R5R_EMBLEM[i], g_svReset);
+        Console_Init(bAnsiColor);
     }
 
-    // Log the SDK's 'build_id' under the emblem.
-    spdlog::info("{:s}+------------------------------------------------[{:010d}]-+{:s}\n",
-        g_svRedF, g_SDKDll.GetNTHeaders()->FileHeader.TimeDateStamp, g_svReset);
-    spdlog::info("\n");
+    SpdLog_Init(bAnsiColor);
+    Show_Emblem();
 
+    Winsock_Init(); // Initialize Winsock.
     Systems_Init();
-    WinSys_Init();
 
+    WinSys_Init();
 #ifndef DEDICATED
     Input_Init();
 #endif // !DEDICATED
 
     curl_global_init(CURL_GLOBAL_ALL);
     lzham_enable_fail_exceptions(true);
+
+    g_bSdkInitialized = true;
 }
 
 //#############################################################################
@@ -110,26 +121,28 @@ void SDK_Shutdown()
 {
     static bool bShutDown = false;
     assert(!bShutDown);
+
     if (bShutDown)
     {
         spdlog::error("Recursive shutdown!\n");
         return;
     }
+
     bShutDown = true;
     spdlog::info("Shutdown GameSDK\n");
 
     curl_global_cleanup();
 
-    Winsock_Shutdown();
-    Systems_Shutdown();
-    WinSys_Shutdown();
-
 #ifndef DEDICATED
     Input_Shutdown();
 #endif // !DEDICATED
 
-    Console_Shutdown();
+    WinSys_Shutdown();
+    Systems_Shutdown();
+    Winsock_Shutdown();
+
     SpdLog_Shutdown();
+    Console_Shutdown();
 }
 
 //#############################################################################

@@ -13,6 +13,4 @@ extern const char* g_svYellowB;
 
 extern const char* g_svReset;
 
-extern std::string g_svCmdLine;
-
 void AnsiColors_Init();
