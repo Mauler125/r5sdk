@@ -11,7 +11,7 @@ int QHull_PrintFunc(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	CoreMsgV(LogType_t::LOG_INFO, LogLevel_t::LEVEL_NOTIFY, eDLL_T::NONE, "message", fmt, args);
+	CoreMsgV(LogType_t::LOG_INFO, LogLevel_t::LEVEL_NOTIFY, eDLL_T::COMMON, "message", fmt, args);
 	va_end(args);
 
 	return NULL;
