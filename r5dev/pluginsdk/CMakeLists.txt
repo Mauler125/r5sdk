@@ -37,6 +37,6 @@ target_link_options( ${PROJECT_NAME} PRIVATE
     # a standard way to override these, unlike the
     # _xxxx_base malloc functions. Since this is only
     # relevant for debug builds, this linker flag should
-    # only be toggled for DEBUG builds!!!
-    "/FORCE:MULTIPLE"
+    # only be toggled for DEBUG!!!
+    $<$<CONFIG:Debug>:/FORCE:MULTIPLE>
 )

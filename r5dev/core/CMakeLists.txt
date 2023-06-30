@@ -124,6 +124,16 @@ endif()
 
 target_link_options( ${PROJECT_NAME} PRIVATE
     "/STACK:8000000" # Match game executable stack reserve size
+
+    # The only reason this has to be done, is because
+    # the _xxxx_dbg malloc functions could otherwise
+    # throw a linker error, as they are already defined
+    # in the CRT library, but there doesn't seem to be
+    # a standard way to override these, unlike the
+    # _xxxx_base malloc functions. Since this is only
+    # relevant for debug builds, this linker flag should
+    # only be toggled for DEBUG!!!
+    $<$<CONFIG:Debug>:/FORCE:MULTIPLE>
 )
 
 add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
