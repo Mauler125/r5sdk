@@ -10,15 +10,22 @@
 //-----------------------------------------------------------------------------
 void CCommandLine::AppendParametersFromFile(const char* const pszConfig)
 {
-	FILE* const pFile = fopen(pszConfig, "r");
+	char szTextBuf[2048];
+	FILE* pFile = fopen(pszConfig, "r");
+
 	if (!pFile)
 	{
-		printf("%s: '%s' does not exist!\n",
-			__FUNCTION__, pszConfig);
-		return;
-	}
+		// Try the 'PLATFORM' folder.
+		snprintf(szTextBuf, sizeof(szTextBuf), "platform/%s", pszConfig);
+		pFile = fopen(szTextBuf, "r");
 
-	char szTextBuf[2048];
+		if (!pFile)
+		{
+			printf("%s: '%s' does not exist!\n",
+				__FUNCTION__, pszConfig);
+			return;
+		}
+	}
 
 	while (fgets(szTextBuf, sizeof(szTextBuf), pFile))
 	{
