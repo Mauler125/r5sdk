@@ -66,23 +66,9 @@ enum class LogLevel_t
 	LEVEL_NOTIFY   // Emit to in-game mini console
 };
 //-----------------------------------------------------------------------------
-static const char* sDLL_T[11] = 
-{
-	"Native(S):",
-	"Native(C):",
-	"Native(U):",
-	"Native(E):",
-	"Native(F):",
-	"Native(R):",
-	"Native(M):",
-	"Native(A):",
-	"Native(V):",
-	"Netcon(X):",
-	""
-};
-//-----------------------------------------------------------------------------
-constexpr const char s_DefaultAnsiColor[] = "\033[38;2;255;204;153m";
-constexpr const char* s_DllAnsiColor[11] =
+constexpr const char s_CommonAnsiColor[] = "\033[38;2;255;204;153m";
+constexpr const char s_DefaultAnsiColor[]= "\033[38;2;204;204;204m";
+constexpr const char* s_DllAnsiColor[12] =
 {
 	"\033[38;2;059;120;218mNative(S):",
 	"\033[38;2;118;118;118mNative(C):",
@@ -94,6 +80,7 @@ constexpr const char* s_DllAnsiColor[11] =
 	"\033[38;2;238;108;030mNative(A):",
 	"\033[38;2;185;000;235mNative(V):",
 	"\033[38;2;204;204;204mNetcon(X):",
+	s_CommonAnsiColor,
 	s_DefaultAnsiColor
 };
 //-----------------------------------------------------------------------------
