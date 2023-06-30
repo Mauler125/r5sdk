@@ -3,6 +3,9 @@
 
 class CCommandLine : public ICommandLine // VTABLE @0x141369C78 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {
+public:
+	void AppendParametersFromFile(const char* const pszConfig);
+
 private:
 	enum
 	{
@@ -17,7 +20,13 @@ private:
 };
 
 extern CCommandLine* g_pCmdLine;
-CCommandLine* CommandLine(void);
+//-----------------------------------------------------------------------------
+// Instance singleton and expose interface to rest of code
+//-----------------------------------------------------------------------------
+inline CCommandLine* CommandLine(void)
+{
+	return g_pCmdLine;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCommandLine : public IDetour
