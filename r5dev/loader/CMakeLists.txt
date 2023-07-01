@@ -20,14 +20,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "vpc"
     "tier0"
 
-    # TODO: these have to be removed, currently
-    # linked as it would otherwise throw linker
-    # errors due to undefined external symbols.
     "libdetours"
-    "liblzham"
-    "libprotobuf"
-    "libspdlog"
-    "SigCache_Pb"
 )
 
 end_sources()
