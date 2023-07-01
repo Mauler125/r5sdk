@@ -45,7 +45,7 @@ public:
     int HandleInput();
 
     bool CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine = nullptr, const char* szConfig = nullptr);
-    void SetupLaunchContext(const char* szConfig, const char* szWorkerDll, const char* szGameDll, const char* szCommandLine);
+    void SetupLaunchContext(const char* szConfig, const char* szGameDll, const char* szCommandLine);
     bool LaunchProcess() const;
 
     CSurface* GetMainSurface() const { return m_pSurface; }
@@ -54,8 +54,7 @@ private:
     CSurface* m_pSurface;
 	std::shared_ptr<spdlog::logger> m_pLogger;
 
-    string m_svWorkerDll;
-    string m_svGameExe;
+    string m_svGameDll;
     string m_svCmdLine;
     string m_svCurrentDir;
 };

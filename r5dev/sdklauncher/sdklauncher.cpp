@@ -144,54 +144,63 @@ int CLauncher::HandleInput()
 bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine /*= nullptr*/, const char* szConfig /*= nullptr*/)
 {
     ///////////////////////////////////////////////////////////////////////////
+    const char* szGameDLL = nullptr;
+    const char* szContext = nullptr;
+    const char* szLevel = nullptr;
+
+    std::function<void(const char*, const char*,
+        const char*, const char*)> fnSetup = [&](
+        const char* gameDLL, const char* context,
+            const char* level, const char* config)
+    {
+        szGameDLL = gameDLL;
+        szContext = context;
+        szLevel = level;
+
+        // Only set fall-back config
+        // if not already set.
+        if (!szConfig)
+        {
+            szConfig = config;
+        }
+    };
+
     switch (lMode)
     {
     case eLaunchMode::LM_GAME_DEV:
     {
-        if (!szConfig) { szConfig = "startup_dev.cfg"; }
-
-        SetupLaunchContext(szConfig, MAIN_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [%s] ***\n", "DEV");
+        fnSetup(MAIN_GAME_DLL, "GAME",
+            "DEV", "startup_dev.cfg");
         break;
     }
     case eLaunchMode::LM_GAME:
     {
-        if (!szConfig) { szConfig = "startup_retail.cfg"; }
-
-        SetupLaunchContext(szConfig, MAIN_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING GAME [%s] ***\n", "PROD");
+        fnSetup(MAIN_GAME_DLL, "GAME",
+            "PROD", "startup_retail.cfg");
         break;
     }
     case eLaunchMode::LM_SERVER_DEV:
     {
-        if (!szConfig) { szConfig = "startup_dedi_dev.cfg"; }
-
-        SetupLaunchContext(szConfig, SERVER_WORKER_DLL, SERVER_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING SERVER [%s] ***\n", "DEV");
+        fnSetup(SERVER_GAME_DLL, "SERVER",
+            "DEV", "startup_dedi_dev.cfg");
         break;
     }
     case eLaunchMode::LM_SERVER:
     {
-        if (!szConfig) { szConfig = "startup_dedi_retail.cfg"; }
-
-        SetupLaunchContext(szConfig, SERVER_WORKER_DLL, SERVER_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING SERVER [%s] ***\n", "PROD");
+        fnSetup(SERVER_GAME_DLL, "SERVER",
+            "PROD", "startup_dedi_retail.cfg");
         break;
     }
     case eLaunchMode::LM_CLIENT_DEV:
     {
-        if (!szConfig) { szConfig = "startup_client_dev.cfg"; }
-
-        SetupLaunchContext(szConfig, CLIENT_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [%s] ***\n", "DEV");
+        fnSetup(MAIN_GAME_DLL, "CLIENT",
+            "DEV", "startup_client_dev.cfg");
         break;
     }
     case eLaunchMode::LM_CLIENT:
     {
-        if (!szConfig) { szConfig = "startup_client_retail.cfg"; }
-
-        SetupLaunchContext(szConfig, CLIENT_WORKER_DLL, MAIN_GAME_DLL, szCommandLine);
-        AddLog(spdlog::level::level_enum::info, "*** LAUNCHING CLIENT [%s] ***\n", "PROD");
+        fnSetup(MAIN_GAME_DLL, "CLIENT",
+            "PROD", "startup_client_retail.cfg");
         break;
     }
     default:
@@ -200,6 +209,10 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
         return false;
     }
     }
+
+    SetupLaunchContext(szConfig, szGameDLL, szCommandLine);
+    AddLog(spdlog::level::level_enum::info, "*** LAUNCHING %s [%s] ***\n",
+        szContext, szLevel);
 
     return true;
 }
@@ -211,7 +224,7 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
 //          *szGameDll     - 
 //          *szCommandLine - 
 ///////////////////////////////////////////////////////////////////////////////
-void CLauncher::SetupLaunchContext(const char* szConfig, const char* szWorkerDll, const char* szGameDll, const char* szCommandLine)
+void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, const char* szCommandLine)
 {
     CIOStream cfgFile;
     string commandLine;
@@ -236,16 +249,14 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szWorkerDll
         commandLine.append(szCommandLine);
     }
 
-    m_svWorkerDll = Format("%s\\%s", m_svCurrentDir.c_str(), szWorkerDll);
-    m_svGameExe = Format("%s\\%s", m_svCurrentDir.c_str(), szGameDll);
+    m_svGameDll = Format("%s\\%s", m_svCurrentDir.c_str(), szGameDll);
     m_svCmdLine = Format("%s\\%s %s", m_svCurrentDir.c_str(), szGameDll, commandLine.c_str());
 
     ///////////////////////////////////////////////////////////////////////////
     // Print the file paths and arguments.
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
     AddLog(spdlog::level::level_enum::debug, "- CWD: %s\n", m_svCurrentDir.c_str());
-    AddLog(spdlog::level::level_enum::debug, "- EXE: %s\n", m_svGameExe.c_str());
-    AddLog(spdlog::level::level_enum::debug, "- DLL: %s\n", m_svWorkerDll.c_str());
+    AddLog(spdlog::level::level_enum::debug, "- EXE: %s\n", m_svGameDll.c_str());
     AddLog(spdlog::level::level_enum::debug, "- CLI: %s\n", commandLine.c_str());
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
 }
@@ -257,23 +268,17 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szWorkerDll
 bool CLauncher::LaunchProcess() const
 {
     ///////////////////////////////////////////////////////////////////////////
-    // Build our list of dlls to inject.
-    LPCSTR DllsToInject[1] =
-    {
-        m_svWorkerDll.c_str()
-    };
-
     STARTUPINFOA StartupInfo = { 0 };
     PROCESS_INFORMATION ProcInfo = { 0 };
 
     // Initialize startup info struct.
     StartupInfo.cb = sizeof(STARTUPINFOA);
 
+
     ///////////////////////////////////////////////////////////////////////////
     // Create the game process in a suspended state with our dll.
-    BOOL result = DetourCreateProcessWithDllsA
-    (
-        m_svGameExe.c_str(),                           // lpApplicationName
+    BOOL result = CreateProcessA(
+        m_svGameDll.c_str(),                           // lpApplicationName
         (LPSTR)m_svCmdLine.c_str(),                    // lpCommandLine
         NULL,                                          // lpProcessAttributes
         NULL,                                          // lpThreadAttributes
@@ -282,10 +287,7 @@ bool CLauncher::LaunchProcess() const
         NULL,                                          // lpEnvironment
         m_svCurrentDir.c_str(),                        // lpCurrentDirectory
         &StartupInfo,                                  // lpStartupInfo
-        &ProcInfo,                                     // lpProcessInformation
-        sizeof(DllsToInject) / sizeof(LPCSTR),         // nDlls
-        DllsToInject,                                  // rlpDlls
-        NULL                                           // pfCreateProcessA
+        &ProcInfo                                      // lpProcessInformation
     );
 
     ///////////////////////////////////////////////////////////////////////////
