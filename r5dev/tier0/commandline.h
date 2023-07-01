@@ -4,6 +4,7 @@
 class CCommandLine : public ICommandLine // VTABLE @0x141369C78 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {
 public:
+	static void StaticCreateCmdLine(CCommandLine* thisptr, const char* pszCommandLine);
 	void AppendParametersFromFile(const char* const pszConfig);
 
 private:
@@ -19,6 +20,7 @@ private:
 	char* m_ppParms[MAX_PARAMETERS];
 };
 
+extern bool g_bCommandLineCreated;
 extern CCommandLine* g_pCmdLine;
 //-----------------------------------------------------------------------------
 // Instance singleton and expose interface to rest of code
@@ -28,21 +30,24 @@ inline CCommandLine* CommandLine(void)
 	return g_pCmdLine;
 }
 
+inline CMemory p_CCommandLine__CreateCmdLine;
+inline auto v_CCommandLine__CreateCmdLine = p_CCommandLine__CreateCmdLine.RCast<void(*)(CCommandLine* thisptr, const char* pszCommandLine)>();
+
 ///////////////////////////////////////////////////////////////////////////////
 class VCommandLine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("g_pCmdLine", reinterpret_cast<uintptr_t>(g_pCmdLine));
+		LogFunAdr("CCommandLine::CreateCmdLine", p_CCommandLine__CreateCmdLine.GetPtr());
 	}
-	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const
+	virtual void GetFun(void) const
 	{
-		g_pCmdLine = g_GameDll.FindPatternSIMD("40 55 48 83 EC 20 48 8D 6C 24 ?? 48 89 5D 10 49 C7 C0 ?? ?? ?? ??")
-			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 250).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CCommandLine*>();
+		p_CCommandLine__CreateCmdLine = g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 53 41 55 B8 ?? ?? ?? ??");
+		v_CCommandLine__CreateCmdLine = p_CCommandLine__CreateCmdLine.RCast<void(*)(CCommandLine*, const char*)>();
 	}
+	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

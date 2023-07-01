@@ -76,6 +76,11 @@ void Tier0_Init()
 
     g_pCmdLine->CreateCmdLine(GetCommandLineA());
     g_CrashHandler->SetCrashCallback(&Crash_Callback);
+
+    // This prevents the game from recreating it,
+    // see 'CCommandLine::StaticCreateCmdLine' for
+    // more information.
+    g_bCommandLineCreated = true;
 }
 
 void SDK_Init()
