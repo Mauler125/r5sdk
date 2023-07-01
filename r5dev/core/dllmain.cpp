@@ -124,16 +124,15 @@ void SDK_Init()
 
 void SDK_Shutdown()
 {
-    static bool bShutDown = false;
-    assert(!bShutDown);
+    assert(g_bSdkInitialized);
 
-    if (bShutDown)
+    if (!g_bSdkInitialized)
     {
         spdlog::error("Recursive shutdown!\n");
         return;
     }
 
-    bShutDown = true;
+    g_bSdkInitialized = false;
     spdlog::info("Shutdown GameSDK\n");
 
     curl_global_cleanup();
