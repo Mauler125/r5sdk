@@ -10,7 +10,7 @@ std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
 //#############################################################################
 // SPDLOG INIT
 //#############################################################################
-void SpdLog_Init(void)
+void SpdLog_Init(const bool bAnsiColor)
 {
 	static bool bInitialized = false;
 
@@ -30,7 +30,7 @@ void SpdLog_Init(void)
 		g_LogSink = std::make_shared<spdlog::sinks::ostream_sink_st>(g_LogStream);
 		g_ImGuiLogger = std::make_shared<spdlog::logger>("game_console", g_LogSink);
 		spdlog::register_logger(g_ImGuiLogger); // in-game console logger.
-		g_ImGuiLogger->set_pattern("[0.000] %v");
+		g_ImGuiLogger->set_pattern("%v");
 		g_ImGuiLogger->set_level(spdlog::level::trace);
 	}
 #endif // !NETCONSOLE
@@ -45,14 +45,14 @@ void SpdLog_Init(void)
 #endif // NETCONSOLE
 
 		// Determine if user wants ansi-color logging in the terminal.
-		if (g_svCmdLine.find("-ansicolor") != string::npos)
+		if (bAnsiColor)
 		{
-			g_TermLogger->set_pattern("[0.000] %v\u001b[0m");
+			g_TermLogger->set_pattern("%v\u001b[0m");
 			g_bSpdLog_UseAnsiClr = true;
 		}
 		else
 		{
-			g_TermLogger->set_pattern("[0.000] %v");
+			g_TermLogger->set_pattern("%v");
 		}
 		//g_TermLogger->set_level(spdlog::level::trace);
 	}
@@ -89,25 +89,6 @@ void SpdLog_Create()
 #endif // !DEDICATED
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("filesystem"
 		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "filesystem.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-}
-
-//#############################################################################
-// SPDLOG POST INIT
-//#############################################################################
-void SpdLog_PostInit()
-{
-#ifndef NETCONSOLE
-	spdlog::flush_every(std::chrono::seconds(5)); // Flush buffers every 5 seconds for every logger.
-	g_ImGuiLogger->set_pattern("%v");
-#endif // !NETCONSOLE
-
-	if (g_svCmdLine.find("-ansicolor") != string::npos)
-	{
-		g_TermLogger->set_pattern("%v\u001b[0m");
-		g_bSpdLog_UseAnsiClr = true;
-	}
-	else { g_TermLogger->set_pattern("%v"); }
-	g_bSpdLog_PostInit = true;
 }
 
 //#############################################################################

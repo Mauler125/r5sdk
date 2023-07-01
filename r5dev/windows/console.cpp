@@ -67,8 +67,9 @@ void FlashConsoleBackground(int nFlashCount, int nFlashInterval, COLORREF color)
 
 //-----------------------------------------------------------------------------
 // Purpose: terminal window setup
+// Input  : bAnsiColor - 
 //-----------------------------------------------------------------------------
-void Console_Init()
+void Console_Init(const bool bAnsiColor)
 {
 #ifndef NETCONSOLE
 	///////////////////////////////////////////////////////////////////////////
@@ -102,7 +103,7 @@ void Console_Init()
 	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD dwMode = NULL;
 
-	if (g_svCmdLine.find("-ansicolor") != string::npos)
+	if (bAnsiColor)
 	{
 		GetConsoleMode(hOutput, &dwMode);
 		dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;

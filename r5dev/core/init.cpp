@@ -149,7 +149,7 @@
 
 void Systems_Init()
 {
-	spdlog::info("+-------------------------------------------------------------+\n");
+	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
 	QuerySystemInfo();
 
 	DetourRegister();
@@ -159,8 +159,8 @@ void Systems_Init()
 	DetourInit();
 	initTimer.End();
 
-	spdlog::info("+-------------------------------------------------------------+\n");
-	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->InitDB()",
+	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
+	DevMsg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->InitDB()",
 		initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
@@ -187,9 +187,9 @@ void Systems_Init()
 	}
 
 	initTimer.End();
-	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Attach()",
+	DevMsg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->Attach()",
 		initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
-	spdlog::info("+-------------------------------------------------------------+\n");
+	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
 
 	ConVar_StaticInit();
 }
@@ -224,9 +224,9 @@ void Systems_Shutdown()
 	DetourTransactionCommit();
 
 	shutdownTimer.End();
-	spdlog::info("{:16s} '{:10.6f}' seconds ('{:12d}' clocks)\n", "Detour->Detach()",
+	DevMsg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->Detach()",
 		shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
-	spdlog::info("+-------------------------------------------------------------+\n");
+	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
 }
 
 /////////////////////////////////////////////////////
@@ -275,20 +275,20 @@ void QuerySystemInfo()
 		{
 			char szDeviceName[128];
 			wcstombs(szDeviceName, dd.DeviceString, sizeof(szDeviceName));
-			spdlog::info("{:25s}: '{:s}'\n", "GPU model identifier", szDeviceName);
+			DevMsg(eDLL_T::NONE, "%-25s: '%s'\n", "GPU model identifier", szDeviceName);
 		}
 	}
 #endif // !DEDICATED
 
 	const CPUInformation& pi = GetCPUInformation();
 
-	spdlog::info("{:25s}: '{:s}'\n","CPU model identifier", pi.m_szProcessorBrand);
-	spdlog::info("{:25s}: '{:s}'\n","CPU vendor tag", pi.m_szProcessorID);
-	spdlog::info("{:25s}: '{:12d}' ('{:2d}' {:s})\n", "CPU core count", pi.m_nPhysicalProcessors, pi.m_nLogicalProcessors, "logical");
-	spdlog::info("{:25s}: '{:12d}' ({:12s})\n", "CPU core speed", pi.m_Speed, "Cycles");
-	spdlog::info("{:20s}{:s}: '{:12d}' (0x{:<10X})\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
-	spdlog::info("{:20s}{:s}: '{:12d}' (0x{:<10X})\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
-	spdlog::info("{:20s}{:s}: '{:12d}' (0x{:<10X})\n", "L3 cache", "(KiB)", pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
+	DevMsg(eDLL_T::NONE, "%-25s: '%s'\n","CPU model identifier", pi.m_szProcessorBrand);
+	DevMsg(eDLL_T::NONE, "%-25s: '%s'\n","CPU vendor tag", pi.m_szProcessorID);
+	DevMsg(eDLL_T::NONE, "%-25s: '%12hhu' ('%2hhu' %s)\n", "CPU core count", pi.m_nPhysicalProcessors, pi.m_nLogicalProcessors, "logical");
+	DevMsg(eDLL_T::NONE, "%-25s: '%12lld' (%-12s)\n", "CPU core speed", pi.m_Speed, "Cycles");
+	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
+	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
+	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L3 cache", "(KiB)", pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
 
 	MEMORYSTATUSEX statex{};
 	statex.dwLength = sizeof(statex);
@@ -301,13 +301,13 @@ void QuerySystemInfo()
 		DWORDLONG availPhysical = (statex.ullAvailPhys / 1024) / 1024;
 		DWORDLONG availVirtual = (statex.ullAvailVirtual / 1024) / 1024;
 
-		spdlog::info("{:20s}{:s}: '{:12d}' ('{:9d}' {:s})\n", "Total system memory", "(MiB)", totalPhysical, totalVirtual, "virtual");
-		spdlog::info("{:20s}{:s}: '{:12d}' ('{:9d}' {:s})\n", "Avail system memory", "(MiB)", availPhysical, availVirtual, "virtual");
+		DevMsg(eDLL_T::NONE, "%-20s%s: '%12llu' ('%9llu' %s)\n", "Total system memory", "(MiB)", totalPhysical, totalVirtual, "virtual");
+		DevMsg(eDLL_T::NONE, "%-20s%s: '%12llu' ('%9llu' %s)\n", "Avail system memory", "(MiB)", availPhysical, availVirtual, "virtual");
 	}
 	else
 	{
-		spdlog::error("Unable to retrieve system memory information: {:s}\n", 
-			std::system_category().message(static_cast<int>(::GetLastError())));
+		Error(eDLL_T::COMMON, NO_ERROR, "Unable to retrieve system memory information: %s\n",
+			std::system_category().message(static_cast<int>(::GetLastError())).c_str());
 	}
 }
 
@@ -337,12 +337,11 @@ void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (
 
 void DetourInit() // Run the sigscan
 {
-	LPSTR pCommandLine = GetCommandLineA();
-
-	bool bLogAdr = (strstr(pCommandLine, "-sig_toconsole") != nullptr);
+	const bool bLogAdr = CommandLine()->CheckParm("-sig_toconsole") ? true : false;
+	const bool bNoSmap = CommandLine()->CheckParm("-nosmap") ? true : false;
 	bool bInitDivider = false;
 
-	g_SigCache.SetDisabled((strstr(pCommandLine, "-nosmap") != nullptr));
+	g_SigCache.SetDisabled(bNoSmap);
 	g_SigCache.LoadCache(SIGDB_FILE);
 
 	for (const IDetour* pDetour : g_DetourVector)

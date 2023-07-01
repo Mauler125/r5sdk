@@ -5,20 +5,46 @@
 //=============================================================================//
 #include "tier0/commandline.h"
 
+bool g_bCommandLineCreated = false;
+
+//-----------------------------------------------------------------------------
+// Purpose: Create a command line from the passed in string
+//  Note that if you pass in a @filename, then the routine will read settings
+//  from a file instead of the command line
+//-----------------------------------------------------------------------------
+void CCommandLine::StaticCreateCmdLine(CCommandLine* thisptr, const char* pszCommandLine)
+{
+	// The SDK creates the cmdline instead, when loaded. We hook this
+	// function, and skip the actual creation of subsequent calls.
+	// This is required as otherwise our own appended parameters will
+	// get lost when the game recreates it in 'LauncherMain'.
+	if (!g_bCommandLineCreated)
+	{
+		v_CCommandLine__CreateCmdLine(thisptr, pszCommandLine);
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: parses a text file and appends its parameters/values
 //-----------------------------------------------------------------------------
 void CCommandLine::AppendParametersFromFile(const char* const pszConfig)
 {
-	FILE* const pFile = fopen(pszConfig, "r");
+	char szTextBuf[2048];
+	FILE* pFile = fopen(pszConfig, "r");
+
 	if (!pFile)
 	{
-		printf("%s: '%s' does not exist!\n",
-			__FUNCTION__, pszConfig);
-		return;
-	}
+		// Try the 'PLATFORM' folder.
+		snprintf(szTextBuf, sizeof(szTextBuf), "platform/%s", pszConfig);
+		pFile = fopen(szTextBuf, "r");
 
-	char szTextBuf[2048];
+		if (!pFile)
+		{
+			printf("%s: '%s' does not exist!\n",
+				__FUNCTION__, pszConfig);
+			return;
+		}
+	}
 
 	while (fgets(szTextBuf, sizeof(szTextBuf), pFile))
 	{
@@ -53,7 +79,7 @@ void CCommandLine::AppendParametersFromFile(const char* const pszConfig)
 			pArgValue = pArg;
 		}
 
-		CommandLine()->AppendParm(szTextBuf, pArgValue);
+		AppendParm(szTextBuf, pArgValue);
 	}
 
 	fclose(pFile);
@@ -61,3 +87,14 @@ void CCommandLine::AppendParametersFromFile(const char* const pszConfig)
 
 ///////////////////////////////////////////////////////////////////////////////
 CCommandLine* g_pCmdLine = nullptr;
+
+
+void VCommandLine::Attach() const
+{
+	DetourAttach(&v_CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine);
+}
+
+void VCommandLine::Detach() const
+{
+	DetourDetach(&v_CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine);
+}

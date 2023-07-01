@@ -15,8 +15,6 @@ const char* g_svYellowB = "";
 
 const char* g_svReset   = "";
 
-std::string g_svCmdLine;
-
 //-----------------------------------------------------------------------------
 // Purpose: sets the global ansi escape sequences.
 // If '-ansicolor' has not been passed to the sdk the char will be empty.

@@ -1,5 +1,5 @@
-#include "core/stdafx.h"
 #include "tier0/utility.h"
+#include "init.h"
 #include "logdef.h"
 #include "logger.h"
 #ifndef DEDICATED
@@ -95,10 +95,10 @@ const char* GetContextNameByIndex(eDLL_T context, const bool ansiColor = false)
 	case eDLL_T::VIDEO:
 	case eDLL_T::NETCON:
 	case eDLL_T::COMMON:
-		contextName = s_DllAnsiColor[index];
-		break;
 	case eDLL_T::SYSTEM_WARNING:
 	case eDLL_T::SYSTEM_ERROR:
+		contextName = s_DllAnsiColor[index];
+		break;
 	case eDLL_T::NONE:
 	default:
 		break;
@@ -141,7 +141,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	const UINT exitCode /*= NO_ERROR*/, const char* pszUptimeOverride /*= nullptr*/)
 {
 	const char* pszUpTime = pszUptimeOverride ? pszUptimeOverride : Plat_GetProcessUpTime();
-	string message = g_bSpdLog_PostInit ? pszUpTime : "";
+	string message(pszUpTime);
 
 	const bool bToConsole = (logLevel >= LogLevel_t::LEVEL_CONSOLE);
 	const bool bUseColor = (bToConsole && g_bSpdLog_UseAnsiClr);
@@ -288,15 +288,15 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 #ifndef DEDICATED
 		g_ImGuiLogger->debug(message);
 
-		if (g_bSpdLog_PostInit)
-		{
-			const string logStreamBuf = g_LogStream.str();
-			g_pConsole->AddLog(ConLog_t(logStreamBuf, overlayColor));
+		const string logStreamBuf = g_LogStream.str();
+		g_pConsole->AddLog(ConLog_t(logStreamBuf, overlayColor));
 
-			if (logLevel >= LogLevel_t::LEVEL_NOTIFY) // Draw to mini console.
-			{
-				g_pOverlay->AddLog(overlayContext, logStreamBuf);
-			}
+		// We can only log to the in-game overlay console when the SDK has
+		// been fully initialized, due to the use of ConVar's.
+		if (g_bSdkInitialized && logLevel >= LogLevel_t::LEVEL_NOTIFY)
+		{
+			// Draw to mini console.
+			g_pOverlay->AddLog(overlayContext, logStreamBuf);
 		}
 #endif // !DEDICATED
 	}

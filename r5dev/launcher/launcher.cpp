@@ -14,10 +14,14 @@
 
 int LauncherMain(HINSTANCE hInstance)
 {
-	SpdLog_PostInit();
+	// Flush buffers every 5 seconds for every logger.
+	// Has to be done here, don't move this to SpdLog
+	// init, as this could cause deadlocks on certain
+	// compilers (VS2017)!!!
+	spdlog::flush_every(std::chrono::seconds(5));
 
 	int results = v_LauncherMain(hInstance);
-	spdlog::info("{:s} returned: {:s}\n", __FUNCTION__, ExitCodeToString(results));
+	DevMsg(eDLL_T::NONE, "%s returned: %s\n", __FUNCTION__, ExitCodeToString(results));
 	return results;
 }
 
@@ -72,66 +76,6 @@ void AppendSDKParametersPreInit()
 		CommandLine()->AppendParm("-nomouse", "");
 		CommandLine()->AppendParm("-nojoy", "");
 		CommandLine()->AppendParm("-nosendtable", "");
-	}
-
-	// Assume default configs if the game isn't launched with the SDKLauncher.
-	if (!CommandLine()->FindParm("-launcher"))
-	{
-		ParseAndApplyConfigFile(g_svCmdLine);
-	}
-}
-
-string LoadConfigFile(const char* svConfig)
-{
-	fs::path cfgPath = fs::current_path() /= svConfig; // Get cfg path for default startup.
-
-	if (!FileExists(cfgPath))
-	{
-		// Load it from PLATFORM.
-		cfgPath = fs::current_path() /= string("platform/") + svConfig;
-	}
-
-	ifstream cfgFile(cfgPath);
-
-	if (!cfgFile)
-	{
-		spdlog::error("{:s}: '{:s}' does not exist!\n", __FUNCTION__, svConfig);
-		return "";
-	}
-
-	string svArguments;
-	stringstream ss;
-	ss << cfgFile.rdbuf();
-	svArguments = ss.str();
-
-	return svArguments;
-}
-
-void ParseAndApplyConfigFile(const string& svConfig)
-{
-	stringstream ss(svConfig);
-	string svInput;
-
-	if (!svConfig.empty())
-	{
-		while (std::getline(ss, svInput, '\n'))
-		{
-			string::size_type nPos = svInput.find(' ');
-			if (!svInput.empty()
-				&& nPos > 0
-				&& nPos < svInput.size()
-				&& nPos != svInput.size())
-			{
-				string svValue = svInput.substr(nPos + 1);
-				string svArgument = svInput.erase(svInput.find(' '));
-
-				CommandLine()->AppendParm(svArgument.c_str(), svValue.c_str());
-			}
-			else
-			{
-				CommandLine()->AppendParm(svInput.c_str(), "");
-			}
-		}
 	}
 }
 

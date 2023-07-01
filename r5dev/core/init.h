@@ -14,3 +14,5 @@ void CheckCPU();
 void DetourInit();
 void DetourAddress();
 void DetourRegister();
+
+extern bool g_bSdkInitialized;
