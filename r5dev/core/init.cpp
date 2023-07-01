@@ -285,7 +285,7 @@ void QuerySystemInfo()
 	DevMsg(eDLL_T::NONE, "%-25s: '%s'\n","CPU model identifier", pi.m_szProcessorBrand);
 	DevMsg(eDLL_T::NONE, "%-25s: '%s'\n","CPU vendor tag", pi.m_szProcessorID);
 	DevMsg(eDLL_T::NONE, "%-25s: '%12hhu' ('%2hhu' %s)\n", "CPU core count", pi.m_nPhysicalProcessors, pi.m_nLogicalProcessors, "logical");
-	DevMsg(eDLL_T::NONE, "%-25s: '%12lld' (%-12s)\n", "CPU core speed", pi.m_Speed, "Cycles");
+	DevMsg(eDLL_T::NONE, "%-25s: '%12lld' ('%6.1f' %s)\n", "CPU core speed", pi.m_Speed, float(pi.m_Speed / 1000000), "MHz");
 	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
 	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
 	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L3 cache", "(KiB)", pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
