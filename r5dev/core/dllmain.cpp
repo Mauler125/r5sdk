@@ -45,8 +45,9 @@ void Show_Emblem()
     }
 
     // Log the SDK's 'build_id' under the emblem.
-    DevMsg(eDLL_T::SYSTEM_ERROR, "+------------------------------------------------[%010d]-+\n",
-        g_SDKDll.GetNTHeaders()->FileHeader.TimeDateStamp);
+    DevMsg(eDLL_T::SYSTEM_ERROR,
+        "+------------------------------------------------[%s%010d%s]-+\n",
+        g_svYellowF, g_SDKDll.GetNTHeaders()->FileHeader.TimeDateStamp, g_svRedF);
     DevMsg(eDLL_T::SYSTEM_ERROR, "\n");
 }
 
