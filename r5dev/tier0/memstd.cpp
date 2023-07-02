@@ -48,24 +48,6 @@ void operator delete(void* const pBlock) throw()
     return free(pBlock);
 }
 
-//-------------------------------------------------------------------------
-void* __cdecl _expand(void* const pBlock, size_t const nNewSize, int const nBlockUse)
-{
-    // Expanding isn't supported!!!
-    Assert(0);
-    return NULL;
-}
-#if (defined(_DEBUG) || defined(USE_MEM_DEBUG))
-void* __cdecl _expand_dbg(void* pBlock, size_t nNewSize, int nBlockUse,
-    const char* const pFileName, int nLine)
-{
-    NOTE_UNUSED(pFileName);
-    NOTE_UNUSED(nLine);
-
-    return _expand(pBlock, nNewSize, nBlockUse);
-}
-#endif // _DEBUG || USE_MEM_DEBUG
-
 //-----------------------------------------------------------------------------
 extern "C"
 {
@@ -126,6 +108,13 @@ extern "C"
 #else
         MemAllocSingleton()->InternalFree(pBlock, "tier0_static128", 0);
 #endif // !_DEBUG && !USE_MEM_DEBUG
+    }
+    //-------------------------------------------------------------------------
+    void* __cdecl _expand_base(void* const pBlock, size_t const nNewSize, int const nBlockUse)
+    {
+        // Expanding isn't supported!!!
+        Assert(0);
+        return NULL;
     }
     //-------------------------------------------------------------------------
     __declspec(noinline) size_t __cdecl _msize(void* const pBlock)
@@ -238,6 +227,15 @@ extern "C"
         InitAllocator();
 
         MemAllocSingleton()->InternalFree(pBlock, "tier0_static128", 0);
+    }
+    //-------------------------------------------------------------------------
+    void* __cdecl _expand_dbg(void* pBlock, size_t nNewSize, int nBlockUse,
+        const char* const pFileName, int nLine)
+    {
+        NOTE_UNUSED(pFileName);
+        NOTE_UNUSED(nLine);
+
+        return _expand_base(pBlock, nNewSize, nBlockUse);
     }
     //-------------------------------------------------------------------------
     __declspec(noinline) size_t __cdecl _msize_dbg(void* const pBlock, int const)

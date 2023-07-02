@@ -91,19 +91,9 @@ namespace lzham
       else
       {
          void* p_final_block = p;
-#ifdef WIN32
-         p_new = _expand(p, size);
-#else
-
          p_new = NULL;
-#endif
 
-         if (p_new)
-         {
-            LZHAM_ASSERT( (reinterpret_cast<ptr_bits_t>(p_new) & (LZHAM_MIN_ALLOC_ALIGNMENT - 1)) == 0 );
-            p_final_block = p_new;
-         }
-         else if (movable)
+         if (movable)
          {
             p_new = realloc(p, size);
 
