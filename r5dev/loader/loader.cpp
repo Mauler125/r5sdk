@@ -112,7 +112,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		s_ProcessEnvironmentBlock = (PEB64*)__readgsqword(0x60);
+		s_ProcessEnvironmentBlock = CModule::GetProcessEnvironmentBlock();
 		s_DosHeader = (IMAGE_DOS_HEADER*)s_ProcessEnvironmentBlock->ImageBaseAddress;
 		s_NtHeaders = (IMAGE_NT_HEADERS64*)((uintptr_t)s_DosHeader
 			+ (uintptr_t)s_DosHeader->e_lfanew);

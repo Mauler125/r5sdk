@@ -58,6 +58,10 @@ public:
 	inline static IMAGE_NT_HEADERS64* GetNTHeaders(QWORD pModuleBase)
 	{ return reinterpret_cast<IMAGE_NT_HEADERS64*>(pModuleBase + GetDOSHeader(pModuleBase)->e_lfanew); }
 
+	// https://en.wikipedia.org/wiki/Win32_Thread_Information_Block
+	inline static PEB64* GetProcessEnvironmentBlock()
+	{ return reinterpret_cast<PEB64*>(__readgsqword(0x60)); }
+
 	void                 UnlinkFromPEB(void) const;
 
 private:

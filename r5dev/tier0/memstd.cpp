@@ -18,10 +18,7 @@ static void InitAllocator()
     if (!s_bAllocatorInitialized)
     {
         s_bAllocatorInitialized = true;
-
-        // https://en.wikipedia.org/wiki/Win32_Thread_Information_Block
-        const PEB64* processEnvBlock = reinterpret_cast<PEB64*>(__readgsqword(0x60));
-        const QWORD imageBase = processEnvBlock->ImageBaseAddress;
+        const QWORD imageBase = CModule::GetProcessEnvironmentBlock()->ImageBaseAddress;
 
         CreateGlobalMemAlloc = CModule::GetExportedSymbol(imageBase,
             "CreateGlobalMemAlloc").RCast<CStdMemAlloc* (*)(void)>();
