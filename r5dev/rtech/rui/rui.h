@@ -2,13 +2,13 @@
 
 /* ==== RUI ====================================================================================================================================================== */
 inline CMemory p_Rui_Draw;
-inline auto v_Rui_Draw = p_Rui_Draw.RCast<bool(*)(__int64* a1, __m128* a2, const __m128i* a3, __int64 a4, __m128* a5)>();
+inline bool(*v_Rui_Draw)(__int64* a1, __m128* a2, const __m128i* a3, __int64 a4, __m128* a5);
 
 inline CMemory p_Rui_LoadAsset;
-inline auto v_Rui_LoadAsset = p_Rui_LoadAsset.RCast<void* (*)(const char* szRuiAssetName)>();
+inline void*(*v_Rui_LoadAsset)(const char* szRuiAssetName);
 
 inline CMemory p_Rui_GetFontFace;
-inline auto v_Rui_GetFontFace = p_Rui_GetFontFace.RCast<int16_t (*)(void)>();
+inline int16_t(*v_Rui_GetFontFace)(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 class V_Rui : public IDetour

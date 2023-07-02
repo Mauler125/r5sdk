@@ -2,7 +2,7 @@
 
 /* ==== PRX ============================================================================================================================================================= */
 inline CMemory p_exit_or_terminate_process;
-inline auto v_exit_or_terminate_process = p_exit_or_terminate_process.RCast<void(*)(UINT uExitCode)>();
+inline void(*v_exit_or_terminate_process)(UINT uExitCode);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VPRX : public IDetour

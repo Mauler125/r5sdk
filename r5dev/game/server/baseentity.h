@@ -254,7 +254,7 @@ protected:
 };
 
 inline CMemory p_CBaseEntity__GetBaseEntity;
-inline auto v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
+inline CBaseEntity*(*v_CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VBaseEntity : public IDetour

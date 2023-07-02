@@ -69,7 +69,7 @@ inline void* g_pMaterialGlueVFTable = nullptr;
 /* ==== CMATERIALGLUE ================================================================================================================================================== */
 #ifndef DEDICATED
 inline CMemory p_GetMaterialAtCrossHair;
-inline auto GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>();
+inline CMaterialGlue*(*GetMaterialAtCrossHair)(void);
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////

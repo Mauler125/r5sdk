@@ -55,7 +55,7 @@ inline auto v_CServerGameClients__ProcessUserCmds = p_CServerGameClients__Proces
 	int numCmds, int totalCmds, int droppedPackets, bool ignore, bool paused)>();
 
 inline CMemory p_RunFrameServer;
-inline auto v_RunFrameServer = p_RunFrameServer.RCast<void(*)(double flFrameTime, bool bRunOverlays, bool bUniformUpdate)>();
+inline void(*v_RunFrameServer)(double flFrameTime, bool bRunOverlays, bool bUniformUpdate);
 
 extern CServerGameDLL* g_pServerGameDLL;
 extern CServerGameClients* g_pServerGameClients;

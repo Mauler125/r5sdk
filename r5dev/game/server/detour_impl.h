@@ -7,19 +7,19 @@
 // RUNTIME: DETOUR
 //-------------------------------------------------------------------------
 inline CMemory p_Detour_LevelInit;
-inline auto v_Detour_LevelInit = p_Detour_LevelInit.RCast<void(*)(void)>();
+inline void(*v_Detour_LevelInit)(void);
 
 inline CMemory p_Detour_FreeNavMesh;
-inline auto v_Detour_FreeNavMesh = p_Detour_FreeNavMesh.RCast<void(*)(dtNavMesh* mesh)>();
+inline void(*v_Detour_FreeNavMesh)(dtNavMesh* mesh);
 
 inline CMemory p_dtNavMesh__Init;
-inline auto v_dtNavMesh__Init = p_dtNavMesh__Init.RCast<dtStatus(*)(dtNavMesh* thisptr, unsigned char* data, int flags)>();
+inline dtStatus(*v_dtNavMesh__Init)(dtNavMesh* thisptr, unsigned char* data, int flags);
 
 inline CMemory p_dtNavMesh__addTile;
-inline auto v_dtNavMesh__addTile = p_dtNavMesh__addTile.RCast<dtStatus(*)(dtNavMesh* thisptr, unsigned char* data, dtMeshHeader* header, int dataSize, int flags, dtTileRef lastRef)>();
+inline dtStatus(*v_dtNavMesh__addTile)(dtNavMesh* thisptr, unsigned char* data, dtMeshHeader* header, int dataSize, int flags, dtTileRef lastRef);
 
 inline CMemory p_dtNavMesh__isPolyReachable;
-inline auto v_dtNavMesh__isPolyReachable = p_dtNavMesh__isPolyReachable.RCast<bool(*)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, int hull_type)>();
+inline bool(*v_dtNavMesh__isPolyReachable)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, int hull_type);
 
 
 constexpr const char* NAVMESH_PATH = "maps/navmesh/";

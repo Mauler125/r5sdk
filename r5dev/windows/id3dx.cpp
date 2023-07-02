@@ -161,8 +161,8 @@ HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, U
 // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
 // Also disable 6378, complains that there is no control path where it would use 'nullptr', if that happens 'Error' will be called though.
 #pragma warning( disable : 6262 6387)
-inline CMemory p_CreateTextureResource;
-inline auto v_CreateTextureResource = p_CreateTextureResource.RCast<void(*)(TextureHeader_t*, INT_PTR)>();
+CMemory p_CreateTextureResource;
+void(*v_CreateTextureResource)(TextureHeader_t*, INT_PTR);
 constexpr uint32_t ALIGNMENT_SIZE = 15; // Creates 2D texture and shader resource from textureHeader and imageData.
 void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
 {

@@ -31,7 +31,7 @@ inline CCommandLine* CommandLine(void)
 }
 
 inline CMemory p_CCommandLine__CreateCmdLine;
-inline auto v_CCommandLine__CreateCmdLine = p_CCommandLine__CreateCmdLine.RCast<void(*)(CCommandLine* thisptr, const char* pszCommandLine)>();
+inline void(*v_CCommandLine__CreateCmdLine)(CCommandLine* thisptr, const char* pszCommandLine);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCommandLine : public IDetour

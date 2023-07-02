@@ -12,7 +12,7 @@ inline CMemory p_HandleConfigFile;
 inline CMemory p_ResetPreviousGameState;
 inline CMemory p_LoadPlayerConfig;
 
-inline auto v_UpdateCurrentVideoConfig = p_UpdateCurrentVideoConfig.RCast<bool (*)(MaterialSystem_Config_t* pConfig)>();
+inline bool(*v_UpdateCurrentVideoConfig)(MaterialSystem_Config_t* pConfig);
 
 
 ///////////////////////////////////////////////////////////////////////////////

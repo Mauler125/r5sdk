@@ -41,22 +41,22 @@ private:
 
 /* ==== CAPPSYSTEMGROUP ================================================================================================================================================= */
 inline CMemory p_CModAppSystemGroup_Main;
-inline auto CModAppSystemGroup_Main = p_CModAppSystemGroup_Main.RCast<int(*)(CModAppSystemGroup* pModAppSystemGroup)>();
+inline int(*CModAppSystemGroup_Main)(CModAppSystemGroup* pModAppSystemGroup);
 
 inline CMemory p_CModAppSystemGroup_Create;
-inline auto CModAppSystemGroup_Create = p_CModAppSystemGroup_Create.RCast<bool(*)(CModAppSystemGroup* pModAppSystemGroup)>();
+inline bool(*CModAppSystemGroup_Create)(CModAppSystemGroup* pModAppSystemGroup);
 
 inline CMemory p_CSourceAppSystemGroup__PreInit;
-inline auto CSourceAppSystemGroup__PreInit = p_CSourceAppSystemGroup__PreInit.RCast<bool(*)(CSourceAppSystemGroup* pModAppSystemGroup)>();
+inline bool(*CSourceAppSystemGroup__PreInit)(CSourceAppSystemGroup* pModAppSystemGroup);
 
 inline CMemory p_CSourceAppSystemGroup__Create;
-inline auto CSourceAppSystemGroup__Create = p_CSourceAppSystemGroup__Create.RCast<bool(*)(CSourceAppSystemGroup* pModAppSystemGroup)>();
+inline bool(*CSourceAppSystemGroup__Create)(CSourceAppSystemGroup* pModAppSystemGroup);
 
 inline bool g_bAppSystemInit = false;
 
 /* ==== UTILITY ========================================================================================================================================================= */
 inline CMemory p_Sys_Error_Internal;
-inline auto Sys_Error_Internal = p_Sys_Error_Internal.RCast<int (*)(char* fmt, va_list args)>();
+inline int(*Sys_Error_Internal)(char* fmt, va_list args);
 
 inline bool* gfExtendedError = nullptr;
 

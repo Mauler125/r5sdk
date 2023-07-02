@@ -51,16 +51,16 @@ public:
 
 /* ==== CHOSTSTATE ====================================================================================================================================================== */
 inline CMemory p_CHostState_FrameUpdate;
-inline auto CHostState_FrameUpdate = p_CHostState_FrameUpdate.RCast<void(*)(CHostState* pHostState, double flCurrentTime, float flFrameTime)>();
+inline void(*CHostState_FrameUpdate)(CHostState* pHostState, double flCurrentTime, float flFrameTime);
 
 inline CMemory p_CHostState_State_Run;
-inline auto CHostState_State_Run = p_CHostState_State_Run.RCast<void(*)(HostStates_t* pState, double flCurrentTime, float flFrameTime)>();
+inline void(*CHostState_State_Run)(HostStates_t* pState, double flCurrentTime, float flFrameTime);
 
 inline CMemory p_CHostState_State_GameShutDown;
-inline auto CHostState_State_GameShutDown = p_CHostState_State_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
+inline void(*CHostState_State_GameShutDown)(CHostState* thisptr);
 
 inline CMemory p_HostState_ChangeLevelMP;
-inline auto v_HostState_ChangeLevelMP = p_HostState_ChangeLevelMP.RCast<void(*)(char const* pNewLevel, char const* pLandmarkName)>();
+inline void(*v_HostState_ChangeLevelMP)(char const* pNewLevel, char const* pLandmarkName);
 
 ///////////////////////////////////////////////////////////////////////////////
 extern CHostState* g_pHostState;

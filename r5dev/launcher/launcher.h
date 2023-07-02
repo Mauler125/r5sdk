@@ -2,14 +2,14 @@
 #define LAUNCHER_H
 
 inline CMemory p_LauncherMain;
-inline auto v_LauncherMain = p_LauncherMain.RCast<int(*)(HINSTANCE hInstance)>();
+inline int(*v_LauncherMain)(HINSTANCE hInstance);
 
 inline CMemory p_TopLevelExceptionFilter;
-inline auto v_TopLevelExceptionFilter = p_TopLevelExceptionFilter.RCast<LONG(*)(EXCEPTION_POINTERS* pExceptionPointer)>();
+inline LONG(*v_TopLevelExceptionFilter)(EXCEPTION_POINTERS* pExceptionPointer);
 
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 inline CMemory p_RemoveSpuriousGameParameters;
-inline auto v_RemoveSpuriousGameParameters = p_RemoveSpuriousGameParameters.RCast<void* (*)(void)>();
+inline void*(*v_RemoveSpuriousGameParameters)(void);
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 
 void AppendSDKParametersPreInit();

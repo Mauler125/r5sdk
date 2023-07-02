@@ -376,13 +376,13 @@ static_assert(sizeof(RPakPatchCompressedHeader_t) == 16);
 /* ==== RTECH =========================================================================================================================================================== */
 // [ PIXIE ]: I'm very unsure about this, but it really seems like it
 inline CMemory p_RTech_FindFreeSlotInFiles;
-inline auto RTech_FindFreeSlotInFiles = p_RTech_FindFreeSlotInFiles.RCast<int32_t(*)(int32_t*)>();
+inline int32_t(*RTech_FindFreeSlotInFiles)(int32_t*);
 
 inline CMemory p_RTech_OpenFile;
-inline auto RTech_OpenFile = p_RTech_OpenFile.RCast<int32_t(*)(const char*, void*, int64_t*)>();
+inline int32_t(*RTech_OpenFile)(const char*, void*, int64_t*);
 
 inline CMemory p_RTech_RegisterAsset;
-inline auto RTech_RegisterAsset = p_RTech_RegisterAsset.RCast<void(*)(int, int, const char*, void*, void*, void*, void*, int, int, uint32_t, int, int)>();
+inline void(*RTech_RegisterAsset)(int, int, const char*, void*, void*, void*, void*, int, int, uint32_t, int, int);
 
 #ifdef GAMEDLL_S3
 inline CMemory p_Pak_ProcessGuidRelationsForAsset;
@@ -390,7 +390,7 @@ inline auto RTech_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsF
 #endif
 
 inline CMemory p_StreamDB_Init;
-inline auto v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszLevelName)>();
+inline void(*v_StreamDB_Init)(const char* pszLevelName);
 
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;
 inline int16_t* g_pRequestedPakCount;

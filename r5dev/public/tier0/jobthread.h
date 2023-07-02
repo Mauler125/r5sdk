@@ -8,16 +8,16 @@ struct JobFifoLock_s
 typedef uint32_t JobID_t;
 
 inline CMemory p_JT_ParallelCall;
-inline auto JT_ParallelCall = p_JT_ParallelCall.RCast<void (*)(void)>();
+inline void(*JT_ParallelCall)(void);
 
 inline CMemory p_JT_HelpWithAnything;
-inline auto JT_HelpWithAnything = p_JT_HelpWithAnything.RCast<void* (*)(bool bShouldLoadPak)>();
+inline void*(*JT_HelpWithAnything)(bool bShouldLoadPak);
 
 inline CMemory p_JT_AcquireFifoLock;
-inline auto JT_AcquireFifoLock = p_JT_AcquireFifoLock.RCast<bool (*)(struct JobFifoLock_s* pFifo)>();
+inline bool(*JT_AcquireFifoLock)(struct JobFifoLock_s* pFifo);
 
 inline CMemory p_JT_ReleaseFifoLock;
-inline auto JT_ReleaseFifoLock = p_JT_ReleaseFifoLock.RCast<void (*)(struct JobFifoLock_s* pFifo)>();
+inline void(*JT_ReleaseFifoLock)(struct JobFifoLock_s* pFifo);
 
 void JT_Attach();
 void JT_Detach();

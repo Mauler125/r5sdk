@@ -1,19 +1,19 @@
 #pragma once
 
 inline CMemory p_CL_Move;
-inline auto CL_Move = p_CL_Move.RCast<void(*)(void)>();
+inline void(*CL_Move)(void);
 
 inline CMemory p_CL_SendMove;
-inline auto CL_SendMove = p_CL_SendMove.RCast<void(*)(void)>();
+inline void(*CL_SendMove)(void);
 
 inline CMemory p_CL_EndMovie;
-inline auto CL_EndMovie = p_CL_EndMovie.RCast<int(*)(void)>();
+inline int(*CL_EndMovie)(void);
 
 inline CMemory p_CL_ClearState;
-inline auto CL_ClearState = p_CL_ClearState.RCast<int(*)(void)>();
+inline int(*CL_ClearState)(void);
 
 inline CMemory p_CL_RunPrediction;
-inline auto CL_RunPrediction = p_CL_RunPrediction.RCast<void(*)(void)>();
+inline void(*CL_RunPrediction)(void);
 
 
 ///////////////////////////////////////////////////////////////////////////////

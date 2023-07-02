@@ -2,7 +2,7 @@
 
 /* ==== CMATSYSTEMSURFACE =============================================================================================================================================== */
 inline CMemory p_CMatSystemSurface_DrawColoredText;
-inline auto CMatSystemSurface_DrawColoredText = p_CMatSystemSurface_DrawColoredText.RCast<void* (*)(void* thisptr, short font, int fontHeight, int offsetX, int offsetY, int red, int green, int blue, int alpha, const char* text, ...)>();
+inline void*(*CMatSystemSurface_DrawColoredText)(void* thisptr, short font, int fontHeight, int offsetX, int offsetY, int red, int green, int blue, int alpha, const char* text, ...);
 
 class CMatSystemSurface
 {

@@ -2,13 +2,13 @@
 #include "public/ivrenderview.h"
 
 inline CMemory P_DrawWorldMeshes;
-inline auto V_DrawWorldMeshes = P_DrawWorldMeshes.RCast<void* (*)(void* baseEntity, void* renderContext, DrawWorldLists_t worldLists)>();
+inline void*(*V_DrawWorldMeshes)(void* baseEntity, void* renderContext, DrawWorldLists_t worldLists);
 
 inline CMemory P_DrawWorldMeshesDepthOnly;
-inline auto V_DrawWorldMeshesDepthOnly = P_DrawWorldMeshesDepthOnly.RCast<void*(*)(void* renderContext, DrawWorldLists_t worldLists)>();
+inline void*(*V_DrawWorldMeshesDepthOnly)(void* renderContext, DrawWorldLists_t worldLists);
 
 inline CMemory P_DrawWorldMeshesDepthAtTheEnd;
-inline auto V_DrawWorldMeshesDepthAtTheEnd = P_DrawWorldMeshesDepthAtTheEnd.RCast<void* (*)(void* ptr1, void* ptr2, void* ptr3, DrawWorldLists_t worldLists)>();
+inline void*(*V_DrawWorldMeshesDepthAtTheEnd)(void* ptr1, void* ptr2, void* ptr3, DrawWorldLists_t worldLists);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VGL_RSurf : public IDetour

@@ -72,22 +72,22 @@ public:
 };
 
 inline CMemory p_CModelLoader__FindModel;
-inline auto CModelLoader__FindModel = p_CModelLoader__FindModel.RCast<void* (*)(CModelLoader* loader, const char* pszModelName)>();
+inline void*(*CModelLoader__FindModel)(CModelLoader* loader, const char* pszModelName);
 
 inline CMemory p_CModelLoader__LoadModel;
-inline auto CModelLoader__LoadModel = p_CModelLoader__LoadModel.RCast<void(*)(CModelLoader* loader, model_t* model)>();
+inline void(*CModelLoader__LoadModel)(CModelLoader* loader, model_t* model);
 
 inline CMemory p_CModelLoader__UnloadModel;
-inline auto CModelLoader__UnloadModel = p_CModelLoader__UnloadModel.RCast<uint64_t(*)(CModelLoader* loader, model_t* model)>();
+inline uint64_t(*CModelLoader__UnloadModel)(CModelLoader* loader, model_t* model);
 
 inline CMemory p_CModelLoader__Studio_LoadModel;
-inline auto CModelLoader__Studio_LoadModel = p_CModelLoader__Studio_LoadModel.RCast<void* (*)(CModelLoader* loader)>();
+inline void*(*CModelLoader__Studio_LoadModel)(CModelLoader* loader);
 
 inline CMemory p_CModelLoader__Map_LoadModelGuts;
-inline auto CModelLoader__Map_LoadModelGuts = p_CModelLoader__Map_LoadModelGuts.RCast<uint64_t(*)(CModelLoader* loader, model_t* model)>();
+inline uint64_t(*CModelLoader__Map_LoadModelGuts)(CModelLoader* loader, model_t* model);
 
 inline CMemory p_CModelLoader__Map_IsValid;
-inline auto CModelLoader__Map_IsValid = p_CModelLoader__Map_IsValid.RCast<bool(*)(CModelLoader* loader, const char* pszMapName)>();
+inline bool(*CModelLoader__Map_IsValid)(CModelLoader* loader, const char* pszMapName);
 
 inline CMemory p_CMapLoadHelper__CMapLoadHelper;
 inline auto CMapLoadHelper__CMapLoadHelper = p_CMapLoadHelper__CMapLoadHelper.RCast<void(__fastcall*)(CMapLoadHelper * helper, int lumpToLoad)>();
@@ -99,10 +99,10 @@ inline CMemory p_Map_LoadModel;
 inline auto v_Map_LoadModel = p_Map_LoadModel.RCast<void(__fastcall*)(void)>();
 
 //inline CMemory p_GetSpriteInfo; // DEDICATED PATCH!
-//inline auto GetSpriteInfo = p_GetSpriteInfo.RCast<void* (*)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7)>();
+//inline void*(*GetSpriteInfo)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7);
 
 //inline CMemory p_BuildSpriteLoadName; // DEDICATED PATCH!
-//inline auto BuildSpriteLoadName = p_BuildSpriteLoadName.RCast<void* (*)(const char* pName, char* pOut, int outLen, bool& bIsAVI, bool& bIsBIK)>();
+//inline void*(*BuildSpriteLoadName)(const char* pName, char* pOut, int outLen, bool& bIsAVI, bool& bIsBIK);
 
 inline CModelLoader* g_pModelLoader;
 inline FileHandle_t* s_MapFileHandle;

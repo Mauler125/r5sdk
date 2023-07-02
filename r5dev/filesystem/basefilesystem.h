@@ -44,25 +44,25 @@ protected:
 
 /* ==== CBASEFILESYSTEM ================================================================================================================================================= */
 inline CMemory p_CBaseFileSystem_Warning;
-inline auto v_CBaseFileSystem_Warning = p_CBaseFileSystem_Warning.RCast<void(*)(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* fmt, ...)>();
+inline void(*v_CBaseFileSystem_Warning)(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* fmt, ...);
 
 inline CMemory p_CBaseFileSystem_LoadFromVPK;
-inline auto v_CBaseFileSystem_LoadFromVPK = p_CBaseFileSystem_LoadFromVPK.RCast<FileHandle_t(*)(CBaseFileSystem* pFileSystem, FileHandle_t pResults, const char* pszAssetName)>();
+inline FileHandle_t(*v_CBaseFileSystem_LoadFromVPK)(CBaseFileSystem* pFileSystem, FileHandle_t pResults, const char* pszAssetName);
 
 inline CMemory p_CBaseFileSystem_LoadFromCache;
-inline auto v_CBaseFileSystem_LoadFromCache = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem* pFileSystem, const char* pszAssetName, FileSystemCache* pCache)>();
+inline bool(*v_CBaseFileSystem_LoadFromCache)(CBaseFileSystem* pFileSystem, const char* pszAssetName, FileSystemCache* pCache);
 
 inline CMemory p_CBaseFileSystem_AddMapPackFile;
-inline auto v_CBaseFileSystem_AddMapPackFile = p_CBaseFileSystem_AddMapPackFile.RCast<void (*)(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType)>();
+inline void(*v_CBaseFileSystem_AddMapPackFile)(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType);
 
 inline CMemory p_CBaseFileSystem_MountVPKFile;
-inline auto v_CBaseFileSystem_MountVPKFile = p_CBaseFileSystem_MountVPKFile.RCast<VPKData_t* (*)(CBaseFileSystem* pFileSystem, const char* pszVpkPath)>();
+inline VPKData_t*(*v_CBaseFileSystem_MountVPKFile)(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 
 inline CMemory p_CBaseFileSystem_UnmountVPKFile;
 inline auto v_CBaseFileSystem_UnmountVPKFile = p_CBaseFileSystem_UnmountVPKFile.RCast<const char* (*)(CBaseFileSystem* pFileSystem, const char* pszVpkPath)>();
 
 inline CMemory p_CBaseFileSystem_GetMountedVPKHandle;
-inline auto v_CBaseFileSystem_GetMountedVPKHandle = p_CBaseFileSystem_GetMountedVPKHandle.RCast<int (*)(CBaseFileSystem* pFileSystem, const char* pszVpkPath)>();
+inline int(*v_CBaseFileSystem_GetMountedVPKHandle)(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 
 extern CBaseFileSystem* g_pFileSystem;
 

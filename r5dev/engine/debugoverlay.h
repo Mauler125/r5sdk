@@ -160,19 +160,19 @@ void DestroyOverlay(OverlayBase_t* pOverlay);
 void DrawOverlay(OverlayBase_t* pOverlay);
 
 inline CMemory p_DrawAllOverlays;
-inline auto v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(bool bDraw)>();
+inline void(*v_DrawAllOverlays)(bool bDraw);
 
 inline CMemory p_DestroyOverlay;
-inline auto v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t* pOverlay)>();
+inline void(*v_DestroyOverlay)(OverlayBase_t* pOverlay);
 
 inline CMemory p_RenderLine;
-inline auto v_RenderLine = p_RenderLine.RCast<void* (*)(const Vector3D& vOrigin, const Vector3D& vDest, Color color, bool bZBuffer)>();
+inline void*(*v_RenderLine)(const Vector3D& vOrigin, const Vector3D& vDest, Color color, bool bZBuffer);
 
 inline CMemory p_RenderBox;
-inline auto v_RenderBox = p_RenderBox.RCast<void* (*)(const matrix3x4_t& vTransforms, const Vector3D& vMins, const Vector3D& vMaxs, Color color, bool bZBuffer)>();
+inline void*(*v_RenderBox)(const matrix3x4_t& vTransforms, const Vector3D& vMins, const Vector3D& vMaxs, Color color, bool bZBuffer);
 
 inline CMemory p_RenderWireframeSphere;
-inline auto v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(const Vector3D& vCenter, float flRadius, int nTheta, int nPhi, Color color, bool bZBuffer)>();
+inline void*(*v_RenderWireframeSphere)(const Vector3D& vCenter, float flRadius, int nTheta, int nPhi, Color color, bool bZBuffer);
 
 inline OverlayBase_t** s_pOverlays = nullptr;
 inline LPCRITICAL_SECTION s_OverlayMutex = nullptr;

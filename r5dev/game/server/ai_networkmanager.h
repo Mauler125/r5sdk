@@ -15,17 +15,17 @@ const int AINETWORK_OFFSET = 2840;
 
 /* ==== CAI_NETWORKMANAGER ============================================================================================================================================== */
 inline CMemory p_CAI_NetworkManager__ShouldRebuild = nullptr;
-inline auto CAI_NetworkManager__ShouldRebuild = p_CAI_NetworkManager__ShouldRebuild.RCast<void* (*)(void* thisptr, CAI_Network* pNetwork, void* a3, int a4)>();
+inline void*(*CAI_NetworkManager__ShouldRebuild)(void* thisptr, CAI_Network* pNetwork, void* a3, int a4);
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
-inline auto CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void* (*)(void* thisptr, void* pBuffer, const char* pszFileName, int a4)>();
+inline void*(*CAI_NetworkManager__LoadNetworkGraph)(void* thisptr, void* pBuffer, const char* pszFileName, int a4);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
-inline auto CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void* (*)(void* thisptr, void* pBuffer, const char* pszFileName)>();
+inline void*(*CAI_NetworkManager__LoadNetworkGraph)(void* thisptr, void* pBuffer, const char* pszFileName);
 #endif
 /* ==== CAI_NETWORKBUILDER ============================================================================================================================================== */
 inline CMemory p_CAI_NetworkBuilder__Build;
-inline auto CAI_NetworkBuilder__Build = p_CAI_NetworkBuilder__Build.RCast<void* (*)(void* thisptr, CAI_Network* pNetwork, void* a3, int a4)>();
+inline void*(*CAI_NetworkBuilder__Build)(void* thisptr, CAI_Network* pNetwork, void* a3, int a4);
 
 inline int                 * g_nAiNodeClusters       = nullptr;
 inline AINodeClusters    *** g_pppAiNodeClusters     = nullptr;

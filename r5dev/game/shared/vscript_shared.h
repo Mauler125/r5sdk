@@ -3,10 +3,10 @@
 #include "vscript/languages/squirrel_re/include/squirrel.h"
 
 inline CMemory p_Script_Remote_BeginRegisteringFunctions;
-inline auto Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegisteringFunctions.RCast<void* (*)(void)>();
+inline void*(*Script_Remote_BeginRegisteringFunctions)(void);
 
 inline CMemory p_RestoreRemoteChecksumsFromSaveGame;
-inline auto RestoreRemoteChecksumsFromSaveGame = p_RestoreRemoteChecksumsFromSaveGame.RCast<void* (*)(void* a1, void* a2)>();
+inline void*(*RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2);
 
 #ifndef CLIENT_DLL
 inline uint32_t* g_nServerRemoteChecksum = nullptr;

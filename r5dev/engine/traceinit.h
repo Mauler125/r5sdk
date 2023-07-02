@@ -2,7 +2,7 @@
 #define TRACEINIT_H
 
 inline CMemory p_TRACEINIT;
-inline auto v_TRACEINIT = p_TRACEINIT.RCast<void(*)(void* undef, const char* initfunc, const char* shutdownfunc)>();
+inline void(*v_TRACEINIT)(void* undef, const char* initfunc, const char* shutdownfunc);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VTraceInit : public IDetour

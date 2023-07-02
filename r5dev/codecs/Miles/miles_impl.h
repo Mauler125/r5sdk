@@ -3,16 +3,16 @@
 
 /* ==== WASAPI THREAD SERVICE =========================================================================================================================================== */
 inline CMemory p_AIL_LogFunc;
-inline auto v_AIL_LogFunc = p_AIL_LogFunc.RCast<void(*)(int64_t nLogLevel, const char* pszMessage)>();
+inline void(*v_AIL_LogFunc)(int64_t nLogLevel, const char* pszMessage);
 
 inline CMemory p_Miles_Initialize;
-inline auto v_Miles_Initialize = p_Miles_Initialize.RCast<bool(*)()>();
+inline bool(*v_Miles_Initialize)();
 
 inline CMemory p_MilesQueueEventRun;
-inline auto v_MilesQueueEventRun = p_MilesQueueEventRun.RCast<void(*)(Miles::Queue*, const char*)>();
+inline void(*v_MilesQueueEventRun)(Miles::Queue*, const char*);
 
 inline CMemory p_MilesBankPatch;
-inline auto v_MilesBankPatch = p_MilesBankPatch.RCast<void(*)(Miles::Bank*, char*, char*)>();
+inline void(*v_MilesBankPatch)(Miles::Bank*, char*, char*);
 
 ///////////////////////////////////////////////////////////////////////////////
 class MilesCore : public IDetour

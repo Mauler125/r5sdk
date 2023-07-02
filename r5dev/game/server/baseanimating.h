@@ -136,7 +136,7 @@ protected:
 };
 
 inline CMemory p_CBaseAnimating__LockStudioHdr;
-inline auto v_CBaseAnimating__LockStudioHdr = p_CBaseAnimating__LockStudioHdr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
+inline CBaseAnimating*(*v_CBaseAnimating__LockStudioHdr)(CBaseAnimating* thisp);
 
 void BaseAnimating_Attach();
 void BaseAnimating_Detach();

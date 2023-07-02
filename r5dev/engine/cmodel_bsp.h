@@ -7,10 +7,10 @@
 class KeyValues;
 
 inline CMemory p_Mod_LoadPakForMap;
-inline auto v_Mod_LoadPakForMap = p_Mod_LoadPakForMap.RCast<void(*)(const char* szLevelName)>();
+inline void(*v_Mod_LoadPakForMap)(const char* szLevelName);
 
 inline CMemory p_Mod_ProcessPakQueue;
-inline auto v_Mod_ProcessPakQueue = p_Mod_ProcessPakQueue.RCast<void(*)(void)>();
+inline void(*v_Mod_ProcessPakQueue)(void);
 
 inline float* dword_14B383420;
 inline int32_t * dword_1634F445C;
@@ -24,7 +24,7 @@ inline int64_t* qword_167ED7BC0;
 
 inline auto sub_14045BAC0 = p_Mod_ProcessPakQueue.RCast<__int64(*)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4)>();
 inline auto sub_14045A1D0 = p_Mod_ProcessPakQueue.RCast<__int64(*)(unsigned __int8(__fastcall* a1)(_QWORD), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6)>();
-inline auto sub_140441220 = p_Mod_ProcessPakQueue.RCast<void(*)(__int64 a1, __int64 a2)>();
+inline void(*sub_140441220)(__int64 a1, __int64 a2);
 
 extern bool s_bBasePaksInitialized;
 extern vector<string> g_InstalledMaps;

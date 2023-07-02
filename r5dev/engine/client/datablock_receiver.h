@@ -28,10 +28,10 @@ protected:
 };
 
 inline CMemory p_ClientDataBlockReceiver__Destructor;
-inline auto v_ClientDataBlockReceiver__Destructor = p_ClientDataBlockReceiver__Destructor.RCast<void* (*)(ClientDataBlockReceiver* thisptr)>();
+inline void*(*v_ClientDataBlockReceiver__Destructor)(ClientDataBlockReceiver* thisptr);
 
 inline CMemory p_ClientDataBlockReceiver__AcknowledgeTransmission;
-inline auto v_ClientDataBlockReceiver__AcknowledgeTransmission = p_ClientDataBlockReceiver__AcknowledgeTransmission.RCast<void* (*)(ClientDataBlockReceiver* thisptr)>();
+inline void*(*v_ClientDataBlockReceiver__AcknowledgeTransmission)(ClientDataBlockReceiver* thisptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VClientDataBlockReceiver : public IDetour

@@ -21,25 +21,25 @@ class IBaseFileSystem;
 
 /* ==== KEYVALUES ======================================================================================================================================================= */
 inline CMemory p_KeyValues_FindKey;
-inline auto KeyValues_FindKey = p_KeyValues_FindKey.RCast<void* (*)(KeyValues* thisptr, const char* pkeyName, bool bCreate)>();
+inline void*(*KeyValues_FindKey)(KeyValues* thisptr, const char* pkeyName, bool bCreate);
 
 inline CMemory p_KeyValues_LoadPlaylists;
-inline auto KeyValues_LoadPlaylists = p_KeyValues_LoadPlaylists.RCast<bool (*)(const char* pszPlaylist)>();
+inline bool(*KeyValues_LoadPlaylists)(const char* pszPlaylist);
 
 inline CMemory p_KeyValues_ParsePlaylists;
-inline auto KeyValues_ParsePlaylists = p_KeyValues_ParsePlaylists.RCast<bool (*)(const char* pszPlaylist)>();
+inline bool(*KeyValues_ParsePlaylists)(const char* pszPlaylist);
 
 inline CMemory p_KeyValues_GetCurrentPlaylist;
 inline auto KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<const char* (*)(void)>();
 
 inline CMemory p_KeyValues_ReadKeyValuesFile;
-inline auto KeyValues_ReadKeyValuesFile = p_KeyValues_ReadKeyValuesFile.RCast<KeyValues* (*)(CFileSystem_Stdio* pFileSystem, const char* pFileName)>();
+inline KeyValues*(*KeyValues_ReadKeyValuesFile)(CFileSystem_Stdio* pFileSystem, const char* pFileName);
 
 inline CMemory p_KeyValues_RecursiveSaveToFile;
-inline auto KeyValues_RecursiveSaveToFile = p_KeyValues_RecursiveSaveToFile.RCast<void (*)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel)>();
+inline void(*KeyValues_RecursiveSaveToFile)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel);
 
 inline CMemory p_KeyValues_LoadFromFile;
-inline auto KeyValues_LoadFromFile = p_KeyValues_LoadFromFile.RCast<KeyValues* (*)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc)>();
+inline KeyValues*(*KeyValues_LoadFromFile)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc);
 
 enum KeyValuesTypes_t : char
 {

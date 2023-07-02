@@ -1,10 +1,10 @@
 #pragma once
 
 inline CMemory p_BinkOpen;
-inline auto v_BinkOpen = p_BinkOpen.RCast<void*(*)(HANDLE hBinkFile, UINT32 nFlags)>();
+inline void*(*v_BinkOpen)(HANDLE hBinkFile, UINT32 nFlags);
 
 inline CMemory p_BinkClose;
-inline auto v_BinkClose = p_BinkClose.RCast<void(*)(HANDLE hBinkFile)>();
+inline void(*v_BinkClose)(HANDLE hBinkFile);
 
 inline CMemory p_BinkGetError;
 inline auto v_BinkGetError = p_BinkGetError.RCast<const char*(*)(void)>();

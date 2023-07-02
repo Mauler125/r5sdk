@@ -46,7 +46,7 @@ public:
 inline CAI_Network** g_pAINetwork = nullptr;
 
 inline CMemory p_CAI_Network__DebugConnectMsg;
-inline auto v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int node1, int node2, const char* pszformat, ...)>();
+inline void(*v_CAI_Network__DebugConnectMsg)(int node1, int node2, const char* pszformat, ...);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VAI_Network : public IDetour

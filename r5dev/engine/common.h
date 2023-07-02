@@ -2,10 +2,10 @@
 
 /* ==== COMMON ========================================================================================================================================================== */
 inline CMemory p_COM_InitFilesystem;
-inline auto COM_InitFilesystem = p_COM_InitFilesystem.RCast<void* (*)(const char* pFullModPath)>();
+inline void*(*COM_InitFilesystem)(const char* pFullModPath);
 
 inline CMemory p_COM_ExplainDisconnection;
-inline auto COM_ExplainDisconnection = p_COM_ExplainDisconnection.RCast<void* (*)(uint64_t level, const char* fmt, ...)>();
+inline void*(*COM_ExplainDisconnection)(uint64_t level, const char* fmt, ...);
 
 const char* COM_FormatSeconds(int seconds);
 ///////////////////////////////////////////////////////////////////////////////

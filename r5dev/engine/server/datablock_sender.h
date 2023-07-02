@@ -53,7 +53,7 @@ struct ServerDataBlock
 };
 
 inline CMemory p_ServerDataBlockSender__Destructor;
-inline auto v_ServerDataBlockSender__Destructor = p_ServerDataBlockSender__Destructor.RCast<void*(*)(ServerDataBlockSender* thisptr)>();
+inline void*(*v_ServerDataBlockSender__Destructor)(ServerDataBlockSender* thisptr);
 
 inline CMemory p_ServerDataBlockSender__SendDataBlock;
 inline auto v_ServerDataBlockSender__SendDataBlock = p_ServerDataBlockSender__SendDataBlock.RCast<void* (*)(ServerDataBlockSender* thisptr,

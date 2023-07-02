@@ -79,19 +79,19 @@ enum EBufType
 };
 
 inline CMemory p_NetChan_Clear;
-inline auto v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan* pChan, bool bStopProcessing)>();
+inline void(*v_NetChan_Clear)(CNetChan* pChan, bool bStopProcessing);
 
 inline CMemory p_NetChan_Shutdown;
-inline auto v_NetChan_Shutdown = p_NetChan_Shutdown.RCast<void (*)(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow)>();
+inline void(*v_NetChan_Shutdown)(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 
 inline CMemory p_NetChan_CanPacket;
-inline auto v_NetChan_CanPacket = p_NetChan_CanPacket.RCast<bool (*)(const CNetChan* pChan)>();
+inline bool(*v_NetChan_CanPacket)(const CNetChan* pChan);
 
 inline CMemory p_NetChan_SendDatagram;
-inline auto v_NetChan_SendDatagram = p_NetChan_SendDatagram.RCast<int (*)(CNetChan* pChan, bf_write* pMsg)>();
+inline int(*v_NetChan_SendDatagram)(CNetChan* pChan, bf_write* pMsg);
 
 inline CMemory p_NetChan_ProcessMessages;
-inline auto v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();
+inline bool(*v_NetChan_ProcessMessages)(CNetChan* pChan, bf_read* pMsg);
 
 //-----------------------------------------------------------------------------
 class CNetChan

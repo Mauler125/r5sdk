@@ -8,7 +8,7 @@
 #define PHYSICS_MAIN_H
 
 inline CMemory p_Physics_RunThinkFunctions;
-inline auto v_Physics_RunThinkFunctions = p_Physics_RunThinkFunctions.RCast<void (*)(bool bSimulating)>();
+inline void(*v_Physics_RunThinkFunctions)(bool bSimulating);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VPhysics_Main : public IDetour

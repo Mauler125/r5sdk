@@ -29,13 +29,13 @@ enum class ePakStatus : int
 
 /* ==== RTECH_GAME ====================================================================================================================================================== */
 inline CMemory p_CPakFile_LoadAsync;
-inline auto CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk)>();
+inline RPakHandle_t(*CPakFile_LoadAsync)(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk);
 
 inline CMemory p_CPakFile_LoadPak;
 inline auto CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void* thisptr, void* a2, uint64_t a3)>();
 
 inline CMemory p_CPakFile_UnloadPak;
-inline auto CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void (*)(RPakHandle_t handle)>();
+inline void(*CPakFile_UnloadPak)(RPakHandle_t handle);
 
 inline CMemory p_CPakFile_OpenFileOffset; // Offset to inlined 'CPakFile::LoadPak_OpenFile'.
 

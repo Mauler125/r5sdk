@@ -77,13 +77,13 @@ public:
 
 /* ==== CENGINEVGUI ===================================================================================================================================================== */
 inline CMemory p_CEngineVGui_Paint;
-inline auto CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(CEngineVGui* thisptr, PaintMode_t mode)>();
+inline int(*CEngineVGui_Paint)(CEngineVGui* thisptr, PaintMode_t mode);
 
 inline CMemory p_CEngineVGui_RenderStart;
-inline auto CEngineVGui_RenderStart = p_CEngineVGui_RenderStart.RCast<void* (*)(CMatSystemSurface* pMatSystemSurface)>();
+inline void*(*CEngineVGui_RenderStart)(CMatSystemSurface* pMatSystemSurface);
 
 inline CMemory p_CEngineVGui_RenderEnd;
-inline auto CEngineVGui_RenderEnd = p_CEngineVGui_RenderEnd.RCast<void* (*)(void)>();
+inline void*(*CEngineVGui_RenderEnd)(void);
 
 inline CEngineVGui* g_pEngineVGui = nullptr;
 

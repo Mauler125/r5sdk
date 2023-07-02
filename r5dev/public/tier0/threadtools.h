@@ -261,7 +261,7 @@ typedef CInterlockedIntT<unsigned> CInterlockedUInt;
 #ifndef BUILDING_MATHLIB
 //=============================================================================
 inline CMemory p_DeclareCurrentThreadIsMainThread;
-inline auto v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThread.RCast<ThreadId_t (*)(void)>();
+inline ThreadId_t(*v_DeclareCurrentThreadIsMainThread)(void);
 
 #endif // !BUILDING_MATHLIB
 

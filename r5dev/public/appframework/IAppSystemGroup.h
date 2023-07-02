@@ -94,7 +94,7 @@ protected:
 static_assert(sizeof(CAppSystemGroup) == 0xA8);
 
 inline CMemory p_CAppSystemGroup_Destroy;
-inline auto CAppSystemGroup_Destroy = p_CAppSystemGroup_Destroy.RCast<void(*)(CAppSystemGroup* pAppSystemGroup)>();
+inline void(*CAppSystemGroup_Destroy)(CAppSystemGroup* pAppSystemGroup);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VAppSystemGroup : public IDetour

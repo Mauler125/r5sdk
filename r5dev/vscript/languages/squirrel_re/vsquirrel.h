@@ -47,13 +47,13 @@ inline CMemory p_CSquirrelVM_Init;
 inline auto v_CSquirrelVM_Init = p_CSquirrelVM_Init.RCast<bool(__fastcall*)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime)>();
 
 inline CMemory p_CSquirrelVM_DestroySignalEntryListHead;
-inline auto v_CSquirrelVM_DestroySignalEntryListHead = p_CSquirrelVM_DestroySignalEntryListHead.RCast<SQBool(*)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f)>();
+inline SQBool(*v_CSquirrelVM_DestroySignalEntryListHead)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
 
 inline CMemory p_CSquirrelVM_RegisterFunction;
-inline auto v_CSquirrelVM_RegisterFunction = p_CSquirrelVM_RegisterFunction.RCast<SQRESULT(*)(CSquirrelVM* s, ScriptFunctionBinding_t* binding, SQInteger a1)>();
+inline SQRESULT(*v_CSquirrelVM_RegisterFunction)(CSquirrelVM* s, ScriptFunctionBinding_t* binding, SQInteger a1);
 
 inline CMemory p_CSquirrelVM_RegisterConstant;
-inline auto v_CSquirrelVM_RegisterConstant = p_CSquirrelVM_RegisterConstant.RCast<SQRESULT(*)(CSquirrelVM* s, const SQChar* name, SQInteger value)>();
+inline SQRESULT(*v_CSquirrelVM_RegisterConstant)(CSquirrelVM* s, const SQChar* name, SQInteger value);
 
 #ifndef DEDICATED
 inline CMemory p_CSquirrelVM_PrecompileClientScripts;

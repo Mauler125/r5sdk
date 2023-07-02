@@ -202,16 +202,16 @@ extern CClientState** g_pClientState_Shifted; // Shifted by 0x10 forward!
 
 /* ==== CCLIENTSTATE ==================================================================================================================================================== */
 inline CMemory p_CClientState__RunFrame;
-inline auto CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CClientState* thisptr)>();
+inline void(*CClientState__RunFrame)(CClientState* thisptr);
 
 inline CMemory p_CClientState__Disconnect;
-inline auto CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>();
+inline void(*CClientState__Disconnect)(CClientState* thisptr, bool bSendTrackingContext);
 
 inline CMemory p_CClientState__ConnectionClosing;
-inline auto CClientState__ConnectionClosing = p_CClientState__ConnectionClosing.RCast<void(*)(CClientState* thisptr, const char* szReason)>();
+inline void(*CClientState__ConnectionClosing)(CClientState* thisptr, const char* szReason);
 
 inline CMemory p_CClientState__ProcessServerTick;
-inline auto CClientState__ProcessServerTick = p_CClientState__ProcessServerTick.RCast<bool(*)(CClientState* thisptr, SVC_ServerTick* msg)>();
+inline bool(*CClientState__ProcessServerTick)(CClientState* thisptr, SVC_ServerTick* msg);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VClientState : public IDetour
