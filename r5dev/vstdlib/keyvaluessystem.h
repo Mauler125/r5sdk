@@ -1,6 +1,10 @@
 #pragma once
 
 #include "public/ikeyvaluessystem.h"
+#include "tier1/memstack.h"
+#include "tier1/mempool.h"
+#include "tier1/utlvector.h"
+#include "tier1/utlmap.h"
 
 class CKeyValuesSystem : public IKeyValuesSystem// VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {
@@ -16,27 +20,45 @@ public:
 	bool GetKeyValuesExpressionSymbol(const char* szName);
 	HKeySymbol GetSymbolForStringCaseSensitive(HKeySymbol& hCaseInsensitiveSymbol, const char* szName, bool bCreate = true);
 
-	// Datatypes aren't accurate. But full fill the actual byte distance.
-public:
-	int64_t m_iMaxKeyValuesSize;             // 0x0008
 private:
-	char         gap10[240];                 // 0x0010
-public:
-	int          m_KvConditionalSymbolTable; // 0x0100
-private:
-	char         gap104[4];                  // 0x0104
-public:
-	int64_t field_108;                       // 0x0108
-private:
-	char         gap110[32];                 // 0x0110
-public:
-	int          m_mutex;                    // 0x0130
+	int64 m_iMaxKeyValuesSize;
+	CMemoryStack m_Strings;
+
+	struct hash_item_t
+	{
+		int stringIndex;
+		hash_item_t* next;
+	};
+
+	CUtlMemoryPool m_HashItemMemPool;
+	CUtlVector<hash_item_t> m_HashTable;
+
+	struct MemoryLeakTracker_t
+	{
+		int nameIndex;
+		void* pMem;
+	};
+
+	// Unknown less func.
+	void* m_pCompareFunc;
+
+	CUtlRBTree<MemoryLeakTracker_t, int> m_KeyValuesTrackingList;
+	CUtlMap<HKeySymbol, bool> m_KvConditionalSymbolTable;
+
+	CThreadFastMutex m_Mutex;
 };
 
-CKeyValuesSystem* KeyValuesSystem();
 /* ==== KEYVALUESSYSTEM ================================================================================================================================================= */
 inline void* g_pKeyValuesMemPool = nullptr;
 inline CKeyValuesSystem* g_pKeyValuesSystem = nullptr;
+
+//-----------------------------------------------------------------------------
+// Instance singleton and expose interface to rest of code
+//-----------------------------------------------------------------------------
+FORCEINLINE CKeyValuesSystem* KeyValuesSystem()
+{
+	return g_pKeyValuesSystem;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 class HKeyValuesSystem : public IDetour
