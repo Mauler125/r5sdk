@@ -570,11 +570,11 @@ private:
 	int m_lastUCmdSimulationTicks;
 	float m_lastUCmdSimulationRemainderTime;
 	float m_totalExtraClientCmdTimeAttempted;
+	int m_hPlayerViewEntity;
 	bool m_atLeastOneCommandRunThisServerFrame;
 	bool m_bGamePaused;
 	bool m_bPlayerUnderwater;
 	bool m_wasPhaseShiftedForTriggers;
-	int m_hPlayerViewEntity;
 	bool m_bShouldDrawPlayerWhileUsingViewEntity;
 	char gap_6bf9[3];
 	int m_hConstraintEntity;
