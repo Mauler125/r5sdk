@@ -1,5 +1,7 @@
 #pragma once
 
+#define INTERFACEVERSION_PLUGINSYSTEM "VPluginSystem001"
+
 struct PluginHelpWithAnything_t
 {
 	enum class ePluginHelp : int16_t
@@ -26,5 +28,3 @@ abstract_class IPluginSystem
 public:
 	virtual void* HelpWithAnything(PluginHelpWithAnything_t * help) = 0;
 };
-
-constexpr auto INTERFACEVERSION_PLUGINSYSTEM = "VPluginSystem001";

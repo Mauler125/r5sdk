@@ -21,5 +21,5 @@ private:
 	CModule m_GameModule;
 	CModule m_SDKModule;
 };
-constexpr const char* PLUGINSDK_CLASS_VERSION = "VPluginSystem001";
+
 extern CPluginSDK* g_pPluginSDK;
