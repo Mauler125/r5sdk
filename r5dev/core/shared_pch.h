@@ -68,4 +68,11 @@
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
 #endif
 
+#define MAIN_WORKER_DLL "GameSDK.dll"
+#define SERVER_WORKER_DLL "Dedicated.dll"
+#define CLIENT_WORKER_DLL "bin\\x64_retail\\client.dll"
+
+#define MAIN_GAME_DLL "r5apex.exe"
+#define SERVER_GAME_DLL "r5apex_ds.exe"
+
 #endif // SHARED_PCH_H

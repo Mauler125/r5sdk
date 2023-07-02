@@ -82,10 +82,10 @@ void InitGameSDK(const LPSTR lpCmdLine)
 	// The dedicated server has its own SDK module,
 	// so we need to check whether we are running
 	// the base game or the dedicated server.
-	if (V_stricmp(pModuleName, "r5apex.exe") == NULL)
-		s_SdkModule = LoadLibraryA("GameSDK.dll");
-	else if (V_stricmp(pModuleName, "r5apex_ds.exe") == NULL)
-		s_SdkModule = LoadLibraryA("Dedicated.dll");
+	if (V_stricmp(pModuleName, MAIN_GAME_DLL) == NULL)
+		s_SdkModule = LoadLibraryA(MAIN_WORKER_DLL);
+	else if (V_stricmp(pModuleName, SERVER_GAME_DLL) == NULL)
+		s_SdkModule = LoadLibraryA(SERVER_WORKER_DLL);
 
 	if (!s_SdkModule)
 	{
