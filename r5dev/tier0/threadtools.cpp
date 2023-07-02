@@ -8,55 +8,98 @@
 
 #include "tier0/threadtools.h"
 
-int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand)
+#define INIT_SEM_COUNT 0
+#define MAX_SEM_COUNT 1
+
+int CThreadFastMutex::Lock(void)
 {
-	return _InterlockedCompareExchange(pDest, comperand, value);
+	DWORD threadId = GetCurrentThreadId();
+	LONG result = ThreadInterlockedCompareExchange((volatile LONG*)&m_lAddend, 0, 1);
+
+	if (result)
+	{
+		if (m_nOwnerID == threadId)
+		{
+			result = m_nDepth + 1;
+			m_nDepth = result;
+
+			return result;
+		}
+
+		LONG cycle = 1;
+		LONG64 delay;
+
+		while (true)
+		{
+			delay = (10 * cycle);
+			if (delay)
+			{
+				do
+				{
+					ThreadPause();
+					--delay;
+				} while (delay);
+			}
+
+			result = ThreadInterlockedCompareExchange((volatile LONG*)&m_lAddend, 0, 1);
+
+			if (result)
+				break;
+
+			if (++cycle > 5)
+			{
+				if (_InterlockedIncrement((volatile LONG*)&m_lAddend) != 1)
+				{
+					if (!m_hSemaphore)
+					{
+						HANDLE hSemaphore = CreateSemaphoreA(
+							NULL, INIT_SEM_COUNT, MAX_SEM_COUNT, NULL);
+
+						if (ThreadInterlockedCompareExchange64(
+							(volatile LONG64*)&m_hSemaphore, NULL, (LONG64)hSemaphore))
+							CloseHandle(hSemaphore);
+					}
+					WaitForSingleObject(m_hSemaphore, INFINITE);
+				}
+				m_nOwnerID = threadId;
+				m_nDepth = 1;
+
+				return m_nDepth;
+			}
+		}
+	}
+
+	m_nDepth = 1;
+	m_nOwnerID = threadId;
+
+	return result;
 }
 
-bool ThreadInterlockedAssignIf(LONG volatile* p, int32 value, int32 comperand)
+int CThreadFastMutex::Unlock()
 {
-	Assert((size_t)p % 4 == 0);
-	return _InterlockedCompareExchange(p, comperand, value);
-}
+	LONG result; // eax
+	HANDLE SemaphoreA; // rcx
 
-int64 ThreadInterlockedCompareExchange64(int64 volatile* pDest, int64 value, int64 comperand)
-{
-	return _InterlockedCompareExchange64(pDest, comperand, value);
-}
+	result = m_nDepth - 1;
+	m_nDepth = result;
 
-bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value, int64 comperand)
-{
-	return _InterlockedCompareExchange64(pDest, comperand, value);
-}
+	if (!result)
+	{
+		m_nOwnerID = 0;
+		result = _InterlockedExchangeAdd((volatile LONG*)&m_lAddend, 0xFFFFFFFF);
 
-bool ThreadInMainThread()
-{
-	return (ThreadGetCurrentId() == (*g_ThreadMainThreadID));
-}
+		if (result != 1)
+		{
+			if (!m_hSemaphore)
+			{
+				SemaphoreA = CreateSemaphoreA(NULL, INIT_SEM_COUNT, MAX_SEM_COUNT, NULL);
 
-bool ThreadInRenderThread()
-{
-	return (ThreadGetCurrentId() == g_ThreadRenderThreadID);
-}
-
-bool ThreadInServerFrameThread()
-{
-	return (ThreadGetCurrentId() == (*g_ThreadServerFrameThreadID));
-}
-
-ThreadId_t ThreadGetCurrentId()
-{
-#ifdef _WIN32
-	return GetCurrentThreadId();
-#elif defined( _PS3 )
-	sys_ppu_thread_t th = 0;
-	sys_ppu_thread_get_id(&th);
-	return th;
-#elif defined(POSIX)
-	return (ThreadId_t)pthread_self();
-#else
-	Assert(0);
-	DebuggerBreak();
-	return 0;
-#endif
+				if (ThreadInterlockedAssignIf64(
+					(volatile LONG64*)&m_hSemaphore, NULL, (LONG64)SemaphoreA))
+					CloseHandle(SemaphoreA);
+			}
+			return ReleaseSemaphore(m_hSemaphore, 1, NULL);
+		}
+	}
+	return result;
 }

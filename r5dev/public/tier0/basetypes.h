@@ -376,3 +376,16 @@ protected:
 
 
 #define ExecuteOnce( x )			ExecuteNTimes( 1, x )
+
+#define UID_PREFIX generated_id_
+#define UID_CAT1(a,c) a ## c
+#define UID_CAT2(a,c) UID_CAT1(a,c)
+#define EXPAND_CONCAT(a,c) UID_CAT1(a,c)
+#ifdef _MSC_VER
+#define UNIQUE_ID UID_CAT2(UID_PREFIX,__COUNTER__)
+#else
+#define UNIQUE_ID UID_CAT2(UID_PREFIX,__LINE__)
+#endif
+
+#define _MKSTRING(arg) #arg
+#define MKSTRING(arg) _MKSTRING(arg)

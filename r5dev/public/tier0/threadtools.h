@@ -53,11 +53,6 @@ inline void ThreadPause()
 #endif
 }
 
-bool ThreadInMainThread();
-bool ThreadInRenderThread();
-bool ThreadInServerFrameThread();
-ThreadId_t ThreadGetCurrentId();
-
 //-----------------------------------------------------------------------------
 //
 // Interlock methods. These perform very fast atomic thread
@@ -65,10 +60,71 @@ ThreadId_t ThreadGetCurrentId();
 //
 //-----------------------------------------------------------------------------
 
-int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand);
-bool ThreadInterlockedAssignIf(LONG volatile* p, int32 value, int32 comperand);
-int64 ThreadInterlockedCompareExchange64(int64 volatile* pDest, int64 value, int64 comperand);
-bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value, int64 comperand);
+FORCEINLINE int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand)
+{
+	return _InterlockedCompareExchange(pDest, comperand, value);
+}
+
+FORCEINLINE bool ThreadInterlockedAssignIf(LONG volatile* p, int32 value, int32 comperand)
+{
+	Assert((size_t)p % 4 == 0);
+	return _InterlockedCompareExchange(p, comperand, value);
+}
+
+FORCEINLINE int64 ThreadInterlockedCompareExchange64(int64 volatile* pDest, int64 value, int64 comperand)
+{
+	return _InterlockedCompareExchange64(pDest, comperand, value);
+}
+
+FORCEINLINE bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value, int64 comperand)
+{
+	return _InterlockedCompareExchange64(pDest, comperand, value);
+}
+
+//-----------------------------------------------------------------------------
+//
+// Thread checking methods.
+//
+//-----------------------------------------------------------------------------
+#ifndef BUILDING_MATHLIB
+
+inline ThreadId_t* g_ThreadMainThreadID = nullptr;
+inline ThreadId_t g_ThreadRenderThreadID = NULL;
+inline ThreadId_t* g_ThreadServerFrameThreadID = nullptr;
+
+FORCEINLINE ThreadId_t ThreadGetCurrentId()
+{
+#ifdef _WIN32
+	return GetCurrentThreadId();
+#elif defined( _PS3 )
+	sys_ppu_thread_t th = 0;
+	sys_ppu_thread_get_id(&th);
+	return th;
+#elif defined(POSIX)
+	return (ThreadId_t)pthread_self();
+#else
+	Assert(0);
+	DebuggerBreak();
+	return 0;
+#endif
+}
+
+FORCEINLINE bool ThreadInMainThread()
+{
+	return (ThreadGetCurrentId() == (*g_ThreadMainThreadID));
+}
+
+FORCEINLINE bool ThreadInRenderThread()
+{
+	return (ThreadGetCurrentId() == g_ThreadRenderThreadID);
+}
+
+FORCEINLINE bool ThreadInServerFrameThread()
+{
+	return (ThreadGetCurrentId() == (*g_ThreadServerFrameThreadID));
+}
+
+#endif // !BUILDING_MATHLIB
 
 #ifdef _WIN32
 #define NOINLINE
@@ -204,31 +260,17 @@ typedef CInterlockedIntT<unsigned> CInterlockedUInt;
 
 #ifndef BUILDING_MATHLIB
 //=============================================================================
-class CThreadFastMutex;
-
-inline CMemory p_MutexInternal_WaitForLock;
-inline auto v_MutexInternal_WaitForLock = p_MutexInternal_WaitForLock.RCast<int (*)(CThreadFastMutex* mutex)>();
-
-inline CMemory p_MutexInternal_ReleaseWaiter;
-inline auto v_MutexInternal_ReleaseWaiter = p_MutexInternal_ReleaseWaiter.RCast<int (*)(CThreadFastMutex* mutex)>();
-
 inline CMemory p_DeclareCurrentThreadIsMainThread;
 inline auto v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThread.RCast<ThreadId_t (*)(void)>();
 
-inline ThreadId_t* g_ThreadMainThreadID = nullptr;
-inline ThreadId_t g_ThreadRenderThreadID = NULL;
-inline ThreadId_t* g_ThreadServerFrameThreadID = nullptr;
+#endif // !BUILDING_MATHLIB
 
 ///////////////////////////////////////////////////////////////////////////////
 class CThreadFastMutex
 {
 public:
-	int WaitForLock(void) {
-		return v_MutexInternal_WaitForLock(this);
-	}
-	int ReleaseWaiter(void) {
-		return v_MutexInternal_ReleaseWaiter(this);
-	}
+	int Lock(void);
+	int Unlock(void);
 
 	inline uint32  GetOwnerId(void)   const { return m_nOwnerID; }
 	inline int     GetDepth(void)     const { return m_nDepth; }
@@ -243,24 +285,64 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+template <class MUTEX_TYPE = CThreadFastMutex>
+class CAutoLockT
+{
+public:
+	FORCEINLINE CAutoLockT(MUTEX_TYPE& lock)
+		: m_lock(lock)
+	{
+		m_lock.Lock();
+	}
+
+	FORCEINLINE CAutoLockT(const MUTEX_TYPE& lock)
+		: m_lock(const_cast<MUTEX_TYPE&>(lock))
+	{
+		m_lock.Lock();
+	}
+
+	FORCEINLINE ~CAutoLockT()
+	{
+		m_lock.Unlock();
+	}
+
+
+private:
+	MUTEX_TYPE& m_lock;
+
+	// Disallow copying
+	CAutoLockT<MUTEX_TYPE>(const CAutoLockT<MUTEX_TYPE>&);
+	CAutoLockT<MUTEX_TYPE>& operator=(const CAutoLockT<MUTEX_TYPE>&);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+template <int size>	struct CAutoLockTypeDeducer {};
+template <> struct CAutoLockTypeDeducer<sizeof(CThreadFastMutex)> { typedef CThreadFastMutex Type_t; };
+
+#define AUTO_LOCK_( type, mutex ) \
+	CAutoLockT< type > UNIQUE_ID( static_cast<const type &>( mutex ) )
+
+#if defined(__clang__)
+#define AUTO_LOCK(mutex) \
+	AUTO_LOCK_(typename CAutoLockTypeDeducer<sizeof(mutex)>::Type_t, mutex)
+#else
+#define AUTO_LOCK(mutex) \
+	AUTO_LOCK_(CAutoLockTypeDeducer<sizeof(mutex)>::Type_t, mutex)
+#endif
+
+#ifndef BUILDING_MATHLIB
+///////////////////////////////////////////////////////////////////////////////
 class VThreadTools : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CThreadFastMutex::WaitForLock", p_MutexInternal_WaitForLock.GetPtr());
-		LogFunAdr("CThreadFastMutex::ReleaseWaiter", p_MutexInternal_ReleaseWaiter.GetPtr());
 		LogFunAdr("DeclareCurrentThreadIsMainThread", p_DeclareCurrentThreadIsMainThread.GetPtr());
 		LogVarAdr("g_ThreadMainThreadID", reinterpret_cast<uintptr_t>(g_ThreadMainThreadID));
 		LogVarAdr("g_ThreadServerFrameThreadID", reinterpret_cast<uintptr_t>(g_ThreadServerFrameThreadID));
 	}
 	virtual void GetFun(void) const
 	{
-		p_MutexInternal_WaitForLock   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B D9 FF 15 ?? ?? ?? ??");
-		p_MutexInternal_ReleaseWaiter = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 41 04 48 8B D9 83 E8 01");
 		p_DeclareCurrentThreadIsMainThread = g_GameDll.FindPatternSIMD("48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28");
-
-		v_MutexInternal_WaitForLock   = p_MutexInternal_WaitForLock.RCast<int (*)(CThreadFastMutex*)>();      /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B D9 FF 15 ?? ?? ?? ??*/
-		v_MutexInternal_ReleaseWaiter = p_MutexInternal_ReleaseWaiter.RCast<int (*)(CThreadFastMutex*)>();    /*40 53 48 83 EC 20 8B 41 04 48 8B D9 83 E8 01*/
 		v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThread.RCast<ThreadId_t(*)(void)>(); /*48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28 */
 	}
 	virtual void GetVar(void) const
@@ -275,5 +357,4 @@ class VThreadTools : public IDetour
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif // !BUILDING_MATHLIB
-
 #endif // THREADTOOLS_H

@@ -28,8 +28,8 @@ std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 {
-    studiohdr_t*  pStudioHdr;  // rax
     studiodata_t* pStudioData = cache->GetStudioData(handle);
+    studiohdr_t* pStudioHdr;
 
     if (pStudioData)
     {
@@ -116,7 +116,8 @@ void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void*
 {
     if (a3)
     {
-        pStudioData->m_Mutex.WaitForLock();
+        AUTO_LOCK(pStudioData->m_Mutex);
+
         *(_QWORD*)((int64_t)a3 + 0x880) = *(_QWORD*)&pStudioData->pad[0x24];
         int64_t v6 = *(_QWORD*)&pStudioData->pad[0x24];
         if (v6)
@@ -124,7 +125,6 @@ void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void*
         *(_QWORD*)&pStudioData->pad[0x24] = (int64_t)a3;
         *(_QWORD*)((int64_t)a3 + 0x870) = (int64_t)cache;
         *(_WORD*)((int64_t)a3 + 0x888) = pStudioData->m_Handle;
-        pStudioData->m_Mutex.ReleaseWaiter();
     }
 }
 
@@ -138,13 +138,12 @@ void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void*
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, studiodata_t* pStudioData, void* a4)
 {
-    studiohdr_t*   pStudioHdr; // rdi
-    studiohdr_t** pAnimData; // rax
+    AUTO_LOCK(pStudioData->m_Mutex);
 
-    pStudioData->m_Mutex.WaitForLock();
     const char* szModelName = cache->GetModelName(handle);
-
     size_t nFileNameLen = strlen(szModelName);
+
+    studiohdr_t* pStudioHdr;
 
     if (nFileNameLen < 5 ||
         (Q_stricmp(&szModelName[nFileNameLen - 5], ".rmdl") != 0) &&
@@ -160,7 +159,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
         }
 
-        pStudioData->m_Mutex.ReleaseWaiter();
         return pStudioHdr;
     }
 
@@ -170,7 +168,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
 
     if (!pStudioData->m_MDLCache)
     {
-        pAnimData = (studiohdr_t**)pStudioData->m_pAnimData;
+        studiohdr_t**  pAnimData = (studiohdr_t**)pStudioData->m_pAnimData;
         if (pAnimData)
         {
             pStudioHdr = *pAnimData;
@@ -186,7 +184,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                     Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" not found; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
             }
 
-            pStudioData->m_Mutex.ReleaseWaiter();
             return pStudioHdr;
         }
     }
@@ -224,7 +221,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
         }
     }
 
-    pStudioData->m_Mutex.ReleaseWaiter();
     return pStudioHdr;
 }
 
