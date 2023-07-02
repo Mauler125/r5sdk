@@ -44,7 +44,7 @@ private:
 #pragma pack(pop)
 
 inline CMemory p_CSquirrelVM_Init;
-inline auto v_CSquirrelVM_Init = p_CSquirrelVM_Init.RCast<bool(__fastcall*)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime)>();
+inline bool(*v_CSquirrelVM_Init)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime);
 
 inline CMemory p_CSquirrelVM_DestroySignalEntryListHead;
 inline SQBool(*v_CSquirrelVM_DestroySignalEntryListHead)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
@@ -57,12 +57,12 @@ inline SQRESULT(*v_CSquirrelVM_RegisterConstant)(CSquirrelVM* s, const SQChar* n
 
 #ifndef DEDICATED
 inline CMemory p_CSquirrelVM_PrecompileClientScripts;
-inline auto v_CSquirrelVM_PrecompileClientScripts = p_CSquirrelVM_PrecompileClientScripts.RCast<bool(__fastcall*)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount)>();
+inline bool(*v_CSquirrelVM_PrecompileClientScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
 #endif
 
 #ifndef CLIENT_DLL
 inline CMemory p_CSquirrelVM_PrecompileServerScripts;
-inline auto v_CSquirrelVM_PrecompileServerScripts = p_CSquirrelVM_PrecompileServerScripts.RCast<bool(__fastcall*)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount)>();
+inline bool(*v_CSquirrelVM_PrecompileServerScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
 #endif
 
 #ifndef CLIENT_DLL
@@ -95,7 +95,7 @@ class VSquirrel : public IDetour
 	virtual void GetFun(void) const
 	{
 		p_CSquirrelVM_Init = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F 28 74 24 ?? 48 89 1D ?? ?? ?? ??").FollowNearCallSelf();
-		v_CSquirrelVM_Init = p_CSquirrelVM_Init.RCast<bool(__fastcall*)(CSquirrelVM*, SQCONTEXT, SQFloat)>();
+		v_CSquirrelVM_Init = p_CSquirrelVM_Init.RCast<bool(*)(CSquirrelVM*, SQCONTEXT, SQFloat)>();
 
 		p_CSquirrelVM_DestroySignalEntryListHead = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42");
 		v_CSquirrelVM_DestroySignalEntryListHead = p_CSquirrelVM_DestroySignalEntryListHead.RCast<SQBool(*)(CSquirrelVM*, HSQUIRRELVM, SQFloat)>();
@@ -109,13 +109,13 @@ class VSquirrel : public IDetour
 #ifndef CLIENT_DLL
 		// sv scripts.rson compiling
 		p_CSquirrelVM_PrecompileServerScripts = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F B6 F0 48 85 DB").FollowNearCallSelf();
-		v_CSquirrelVM_PrecompileServerScripts = p_CSquirrelVM_PrecompileServerScripts.RCast<bool(__fastcall*)(CSquirrelVM*, SQCONTEXT, char**, int)>();
+		v_CSquirrelVM_PrecompileServerScripts = p_CSquirrelVM_PrecompileServerScripts.RCast<bool(*)(CSquirrelVM*, SQCONTEXT, char**, int)>();
 #endif
 
 #ifndef DEDICATED
 		// cl/ui scripts.rson compiling
 		p_CSquirrelVM_PrecompileClientScripts = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 44 0F B6 F0 48 85 DB").FollowNearCallSelf();
-		v_CSquirrelVM_PrecompileClientScripts = p_CSquirrelVM_PrecompileClientScripts.RCast<bool(__fastcall*)(CSquirrelVM*, SQCONTEXT, char**, int)>();
+		v_CSquirrelVM_PrecompileClientScripts = p_CSquirrelVM_PrecompileClientScripts.RCast<bool(*)(CSquirrelVM*, SQCONTEXT, char**, int)>();
 #endif
 	}
 	virtual void GetVar(void) const { }

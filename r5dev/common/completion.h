@@ -14,8 +14,8 @@ int RTech_PakUnload_f_CompletionFunc(char const* partial, char commands[COMMAND_
 int RTech_PakDecompress_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 
 inline CMemory p_CBaseAutoCompleteFileList_AutoCompletionFunc;
-inline auto v_CBaseAutoCompleteFileList_AutoCompletionFunc = p_CBaseAutoCompleteFileList_AutoCompletionFunc.RCast<int(*)(
-	CBaseAutoCompleteFileList* thisp, const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])>();
+inline int(*v_CBaseAutoCompleteFileList_AutoCompletionFunc)
+(CBaseAutoCompleteFileList* thisp, const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCompletion : public IDetour

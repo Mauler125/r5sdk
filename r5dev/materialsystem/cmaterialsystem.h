@@ -37,7 +37,7 @@ inline CMemory p_GetStreamOverlay;
 inline void(*v_GetStreamOverlay)(const char* mode, char* buf, size_t bufSize);
 
 inline CMemory p_DrawStreamOverlay;
-inline auto v_DrawStreamOverlay = p_DrawStreamOverlay.RCast<const char*(*)(void* thisptr, uint8_t* a2, void* unused, void* a4)>();
+inline const char*(*v_DrawStreamOverlay)(void* thisptr, uint8_t* a2, void* unused, void* a4);
 
 inline CMemory s_pRenderContext;
 

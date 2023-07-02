@@ -85,10 +85,10 @@ public:
 };
 ///////////////////////////////////////////////////////////////////////////////
 inline CMemory p_RSON_LoadFromBuffer;
-inline auto RSON_LoadFromBuffer = p_RSON_LoadFromBuffer.RCast<RSON::Node_t* (__fastcall*)(const char* bufName, char* buf, RSON::eFieldType rootType, __int64 a4, void* a5)>();
+inline RSON::Node_t* (*RSON_LoadFromBuffer)(const char* bufName, char* buf, RSON::eFieldType rootType, __int64 a4, void* a5);
 
 inline CMemory p_RSON_Free;
-inline auto RSON_Free = p_RSON_Free.RCast<void (__fastcall*)(RSON::Node_t* rson, CAlignedMemAlloc* allocator)>();
+inline void (*RSON_Free)(RSON::Node_t* rson, CAlignedMemAlloc* allocator);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VRSON : public IDetour
@@ -101,10 +101,10 @@ class VRSON : public IDetour
 	virtual void GetFun(void) const
 	{
 		p_RSON_LoadFromBuffer = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 89 45 60 48 8B D8").FollowNearCallSelf();
-		RSON_LoadFromBuffer = p_RSON_LoadFromBuffer.RCast< RSON::Node_t * (__fastcall*)(const char* bufName, char* buf, RSON::eFieldType rootType, __int64 a4, void* a5)>();
+		RSON_LoadFromBuffer = p_RSON_LoadFromBuffer.RCast< RSON::Node_t* (*)(const char*, char*, RSON::eFieldType, __int64, void*)>();
 
 		p_RSON_Free = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 83 EF 01 75 E7").FollowNearCallSelf();
-		RSON_Free = p_RSON_Free.RCast<void(__fastcall*)(RSON::Node_t* rson, CAlignedMemAlloc* allocator)>();
+		RSON_Free = p_RSON_Free.RCast<void(*)(RSON::Node_t*, CAlignedMemAlloc*)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -55,8 +55,7 @@ private:
 };
 
 inline CMemory p_CNetworkStringTableContainer__WriteUpdateMessage;
-inline auto v_CNetworkStringTableContainer__WriteUpdateMessage = 
-			p_CNetworkStringTableContainer__WriteUpdateMessage.RCast<void (*)(CNetworkStringTableContainer* thisp, CClient* client, unsigned int tick_ack, bf_write* msg)>();
+inline void (*v_CNetworkStringTableContainer__WriteUpdateMessage)(CNetworkStringTableContainer* thisp, CClient* client, unsigned int tick_ack, bf_write* msg);
 
 class VNetworkStringTableContainer : public IDetour
 {

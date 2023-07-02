@@ -56,8 +56,8 @@ inline CMemory p_ServerDataBlockSender__Destructor;
 inline void*(*v_ServerDataBlockSender__Destructor)(ServerDataBlockSender* thisptr);
 
 inline CMemory p_ServerDataBlockSender__SendDataBlock;
-inline auto v_ServerDataBlockSender__SendDataBlock = p_ServerDataBlockSender__SendDataBlock.RCast<void* (*)(ServerDataBlockSender* thisptr,
-	short unk0, int unk1, short unk2, short unk3, const void* buffer, int length)>();
+inline void* (*v_ServerDataBlockSender__SendDataBlock)(ServerDataBlockSender* thisptr,
+	short unk0, int unk1, short unk2, short unk3, const void* buffer, int length);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VServerDataBlockSender : public IDetour

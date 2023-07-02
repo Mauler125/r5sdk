@@ -34,7 +34,7 @@ inline CMemory p_Host_ChangeLevel;
 inline bool(*v_Host_ChangeLevel)(bool bLoadFromSavedGame, const char* pszMapName, const char* pszMapGroup);
 
 inline CMemory p_Host_Status_PrintClient;
-inline auto v_Host_Status_PrintClient = p_Host_Status_PrintClient.RCast<void (*)(CClient* client, bool bShowAddress, void (*print) (const char* fmt, ...))>();
+inline void (*v_Host_Status_PrintClient)(CClient* client, bool bShowAddress, void (*print) (const char* fmt, ...));
 
 inline CMemory p_SetLaunchOptions;
 inline int(*v_SetLaunchOptions)(const CCommand& args);

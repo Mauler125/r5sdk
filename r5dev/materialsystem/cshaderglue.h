@@ -31,7 +31,7 @@ static_assert(sizeof(CShaderGlue) == 0x40); // [ PIXIE ]: All vars have proper d
 */
 
 /* ==== CSHADERGLUE ================================================================================================================================================== */
-inline auto CShaderGlue_SetupShader = CMemory().RCast<int(*)(CShaderGlue* thisptr, uint64_t nCount, uint64_t a3, void* pRawMaterialGlueWithoutVTable)>();
+inline int(*CShaderGlue_SetupShader)(CShaderGlue* thisptr, uint64_t nCount, uint64_t a3, void* pRawMaterialGlueWithoutVTable);
 
 inline CMemory CShaderGlue_VTable;
 inline void* g_pShaderGlueVFTable = nullptr;

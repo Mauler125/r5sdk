@@ -7,7 +7,7 @@ inline CMemory p_BinkClose;
 inline void(*v_BinkClose)(HANDLE hBinkFile);
 
 inline CMemory p_BinkGetError;
-inline auto v_BinkGetError = p_BinkGetError.RCast<const char*(*)(void)>();
+inline const char*(*v_BinkGetError)(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 class BinkCore : public IDetour

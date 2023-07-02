@@ -30,7 +30,7 @@ inline CMemory p_KeyValues_ParsePlaylists;
 inline bool(*KeyValues_ParsePlaylists)(const char* pszPlaylist);
 
 inline CMemory p_KeyValues_GetCurrentPlaylist;
-inline auto KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<const char* (*)(void)>();
+inline const char* (*KeyValues_GetCurrentPlaylist)(void);
 
 inline CMemory p_KeyValues_ReadKeyValuesFile;
 inline KeyValues*(*KeyValues_ReadKeyValuesFile)(CFileSystem_Stdio* pFileSystem, const char* pFileName);

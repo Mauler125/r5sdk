@@ -32,7 +32,7 @@ inline CMemory p_CPakFile_LoadAsync;
 inline RPakHandle_t(*CPakFile_LoadAsync)(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk);
 
 inline CMemory p_CPakFile_LoadPak;
-inline auto CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void* thisptr, void* a2, uint64_t a3)>();
+inline unsigned int (*CPakFile_LoadPak)(void* thisptr, void* a2, uint64_t a3);
 
 inline CMemory p_CPakFile_UnloadPak;
 inline void(*CPakFile_UnloadPak)(RPakHandle_t handle);

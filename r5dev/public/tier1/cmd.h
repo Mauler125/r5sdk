@@ -189,7 +189,7 @@ inline CMemory p_NullSub;
 inline void(*NullSub)(void);
 
 inline CMemory p_CallbackStub;
-inline FnCommandCompletionCallback CallbackStub = p_CallbackStub.RCast<FnCommandCompletionCallback>();
+inline FnCommandCompletionCallback CallbackStub;
 
 inline ConCommandBase* g_pConCommandVFTable;
 

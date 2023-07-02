@@ -90,13 +90,13 @@ inline CMemory p_CModelLoader__Map_IsValid;
 inline bool(*CModelLoader__Map_IsValid)(CModelLoader* loader, const char* pszMapName);
 
 inline CMemory p_CMapLoadHelper__CMapLoadHelper;
-inline auto CMapLoadHelper__CMapLoadHelper = p_CMapLoadHelper__CMapLoadHelper.RCast<void(__fastcall*)(CMapLoadHelper * helper, int lumpToLoad)>();
+inline void(*CMapLoadHelper__CMapLoadHelper)(CMapLoadHelper * helper, int lumpToLoad);
 
 inline CMemory p_AddGameLump;
-inline auto v_AddGameLump = p_AddGameLump.RCast<void(__fastcall*)(void)>();
+inline void(*v_AddGameLump)(void);
 
 inline CMemory p_Map_LoadModel;
-inline auto v_Map_LoadModel = p_Map_LoadModel.RCast<void(__fastcall*)(void)>();
+inline void(*v_Map_LoadModel)(void);
 
 //inline CMemory p_GetSpriteInfo; // DEDICATED PATCH!
 //inline void*(*GetSpriteInfo)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7);
@@ -162,9 +162,9 @@ class VModelLoader : public IDetour
 		CModelLoader__Map_LoadModelGuts = p_CModelLoader__Map_LoadModelGuts.RCast<uint64_t(*)(CModelLoader*, model_t* mod)>();
 		CModelLoader__Map_IsValid       = p_CModelLoader__Map_IsValid.RCast<bool(*)(CModelLoader*, const char*)>();
 
-		CMapLoadHelper__CMapLoadHelper  = p_CMapLoadHelper__CMapLoadHelper.RCast<void(__fastcall*)(CMapLoadHelper*, int)>();
-		v_AddGameLump                   = p_AddGameLump.RCast<void(__fastcall*)(void)>();
-		v_Map_LoadModel                 = p_Map_LoadModel.RCast<void(__fastcall*)(void)>();
+		CMapLoadHelper__CMapLoadHelper  = p_CMapLoadHelper__CMapLoadHelper.RCast<void(*)(CMapLoadHelper*, int)>();
+		v_AddGameLump                   = p_AddGameLump.RCast<void(*)(void)>();
+		v_Map_LoadModel                 = p_Map_LoadModel.RCast<void(*)(void)>();
 
 		//GetSpriteInfo                   = p_GetSpriteInfo.RCast<void* (*)(const char*, bool, bool, int&, int&, int&, void*)>();
 		//BuildSpriteLoadName             = p_BuildSpriteLoadName.RCast<void* (*)(const char*, char*, int, bool&, bool&)>();

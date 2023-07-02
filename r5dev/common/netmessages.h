@@ -32,13 +32,13 @@ class Base_CmdKeyValues;
 //-------------------------------------------------------------------------
 // SVC_Print
 //-------------------------------------------------------------------------
-inline auto SVC_Print_Process = CMemory().RCast<bool(*)(SVC_Print* thisptr)>();
+inline bool(*SVC_Print_Process)(SVC_Print* thisptr);
 inline void* g_pSVC_Print_VFTable = nullptr;
 
 //-------------------------------------------------------------------------
 // SVC_UserMessage
 //-------------------------------------------------------------------------
-inline auto SVC_UserMessage_Process = CMemory().RCast<bool(*)(SVC_UserMessage* thisptr)>();
+inline bool(*SVC_UserMessage_Process)(SVC_UserMessage* thisptr);
 inline void* g_pSVC_UserMessage_VFTable = nullptr;
 
 //-------------------------------------------------------------------------
@@ -59,8 +59,8 @@ inline void* g_pCLC_ClientTick_VFTable = nullptr;
 //-------------------------------------------------------------------------
 // Base_CmdKeyValues
 //-------------------------------------------------------------------------
-inline auto Base_CmdKeyValues_ReadFromBuffer = CMemory().RCast<bool(*)(Base_CmdKeyValues* thisptr, bf_read* buffer)>();
-inline auto Base_CmdKeyValues_WriteToBuffer = CMemory().RCast<bool(*)(Base_CmdKeyValues* thisptr, bf_write* buffer)>();
+inline bool(*Base_CmdKeyValues_ReadFromBuffer)(Base_CmdKeyValues* thisptr, bf_read* buffer);
+inline bool(*Base_CmdKeyValues_WriteToBuffer)(Base_CmdKeyValues* thisptr, bf_write* buffer);
 inline void* g_pBase_CmdKeyValues_VFTable = nullptr;
 
 //-------------------------------------------------------------------------

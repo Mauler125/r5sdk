@@ -8,7 +8,7 @@
 #include "public/igame.h"
 
 inline CMemory p_CGame__AttachToWindow;
-inline auto v_CGame__AttachToWindow= p_CGame__AttachToWindow.RCast<void (*)(void)>();
+inline void (*v_CGame__AttachToWindow)(void);
 
 inline CMemory p_CGame__PlayStartupVideos;
 inline void(*v_CGame__PlayStartupVideos)(void);

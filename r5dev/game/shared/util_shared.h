@@ -18,7 +18,7 @@ CPlayer* UTIL_PlayerByIndex(int nIndex);
 const char* UTIL_GetEntityScriptInfo(CBaseEntity* pEnt);
 
 inline CMemory p_UTIL_GetEntityScriptInfo;
-inline auto v_UTIL_GetEntityScriptInfo = p_UTIL_GetEntityScriptInfo.RCast<const char*(*)(CBaseEntity* pEnt)>();
+inline const char*(*v_UTIL_GetEntityScriptInfo)(CBaseEntity* pEnt);
 
 inline CTraceFilterSimple* g_pTraceFilterSimpleVFTable = nullptr;
 typedef bool (*ShouldHitFunc_t)(IHandleEntity* pHandleEntity, int contentsMask);

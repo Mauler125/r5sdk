@@ -59,7 +59,7 @@ inline CMemory p_CBaseFileSystem_MountVPKFile;
 inline VPKData_t*(*v_CBaseFileSystem_MountVPKFile)(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 
 inline CMemory p_CBaseFileSystem_UnmountVPKFile;
-inline auto v_CBaseFileSystem_UnmountVPKFile = p_CBaseFileSystem_UnmountVPKFile.RCast<const char* (*)(CBaseFileSystem* pFileSystem, const char* pszVpkPath)>();
+inline const char* (*v_CBaseFileSystem_UnmountVPKFile)(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 
 inline CMemory p_CBaseFileSystem_GetMountedVPKHandle;
 inline int(*v_CBaseFileSystem_GetMountedVPKHandle)(CBaseFileSystem* pFileSystem, const char* pszVpkPath);

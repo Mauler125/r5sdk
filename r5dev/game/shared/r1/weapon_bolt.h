@@ -12,9 +12,9 @@ CBaseEntity* CreateWeaponBolt(Vector3D* origin, Vector3D* end, __int64 unused, f
 	int a6, int modelindex, int a8, unsigned __int8 a9, unsigned int a10, CBaseEntity* weaponEnt);
 
 inline CMemory p_CreateWeaponBolt;
-inline auto v_CreateWeaponBolt = p_CreateWeaponBolt.RCast<CBaseEntity*(*)(
+inline CBaseEntity*(*v_CreateWeaponBolt)(
 	Vector3D* origin, Vector3D* end, __int64 unused, float scale, CPlayer* player,
-	int a6, int modelindex, int a8, unsigned __int8 a9, unsigned int a10, CBaseEntity* weapon)>();
+	int a6, int modelindex, int a8, unsigned __int8 a9, unsigned int a10, CBaseEntity* weapon);
 
 
 ///////////////////////////////////////////////////////////////////////////////

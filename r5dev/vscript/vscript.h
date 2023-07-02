@@ -20,19 +20,19 @@ inline CMemory p_Script_LoadScriptFile;
 inline SQBool(*v_Script_LoadScriptFile)(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags);
 
 inline CMemory p_Script_ParseScriptList;
-inline auto v_Script_ParseScriptList = p_Script_ParseScriptList.RCast<SQBool(__fastcall*)(SQCONTEXT ctx, const char* scriptListPath, RSON::Node_t* rson, char** scriptArray, int* pScriptCount, char** precompiledScriptArray, int precompiledScriptCount)>();
+inline SQBool(*v_Script_ParseScriptList)(SQCONTEXT ctx, const char* scriptListPath, RSON::Node_t* rson, char** scriptArray, int* pScriptCount, char** precompiledScriptArray, int precompiledScriptCount);
 
 inline CMemory p_Script_PrecompileServerScripts;
-inline auto v_Script_PrecompileServerScripts = p_Script_PrecompileServerScripts.RCast<SQBool(__fastcall*)(CSquirrelVM* vm /*This parameter is not used internally (the client variant does use it)!*/)>();
+inline SQBool(*v_Script_PrecompileServerScripts)(CSquirrelVM* vm /*This parameter is not used internally (the client variant does use it)!*/);
 
 inline CMemory p_Script_SetServerCompiler;
-inline auto v_Script_SetServerPrecompiler = p_Script_SetServerCompiler.RCast<void(__fastcall*)(SQCONTEXT ctx, RSON::Node_t* rson)>();
+inline void(*v_Script_SetServerPrecompiler)(SQCONTEXT ctx, RSON::Node_t* rson);
 
 inline CMemory p_Script_PrecompileClientScripts;
-inline auto v_Script_PrecompileClientScripts = p_Script_PrecompileClientScripts.RCast<SQBool(__fastcall*)(CSquirrelVM* vm)>();
+inline SQBool(*v_Script_PrecompileClientScripts)(CSquirrelVM* vm);
 
 inline CMemory p_Script_SetClientCompiler;
-inline auto v_Script_SetClientPrecompiler = p_Script_SetClientCompiler.RCast<void(__fastcall*)(SQCONTEXT ctx, RSON::Node_t* rson)>();
+inline void(*v_Script_SetClientPrecompiler)(SQCONTEXT ctx, RSON::Node_t* rson);
 
 void Script_RegisterServerFunctions(CSquirrelVM* s);
 void Script_RegisterClientFunctions(CSquirrelVM* s);
