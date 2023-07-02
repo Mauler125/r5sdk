@@ -249,6 +249,8 @@ public:
 	void SetLastUCmdSimulationRemainderTime(float flRemainderTime);
 	void SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime);
 
+	void ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
+		int droppedPackets, bool paused);
 	void PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover);
 	void SetLastUserCommand(CUserCmd* pUserCmd);
 
@@ -376,7 +378,7 @@ private:
 	float m_fNextSuicideTime;
 	int m_iSuicideCustomKillFlags;
 	int m_preNoClipPhysicsFlags;
-	char m_Commands[8];
+	CUserCmd* m_Commands;
 	void* m_pPhysicsController;
 	void* m_pShadowStand;
 	void* m_pShadowCrouch;

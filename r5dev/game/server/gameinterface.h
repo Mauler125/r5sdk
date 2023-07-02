@@ -34,6 +34,10 @@ public:
 //-----------------------------------------------------------------------------
 class CServerGameClients : public IServerGameClients
 {
+public:
+	static void ProcessUserCmds(CServerGameClients* thisp, edict_t edict, bf_read* buf,
+		int numCmds, int totalCmds, int droppedPackets, bool ignore, bool paused);
+private:
 };
 
 //-----------------------------------------------------------------------------
@@ -45,6 +49,10 @@ class CServerGameEnts : public IServerGameEnts
 
 inline CMemory p_CServerGameDLL__OnReceivedSayTextMessage;
 inline auto CServerGameDLL__OnReceivedSayTextMessage = p_CServerGameDLL__OnReceivedSayTextMessage.RCast<void(__fastcall*)(void* thisptr, int senderId, const char* text, bool isTeamChat)>();
+
+inline CMemory p_CServerGameClients__ProcessUserCmds;
+inline auto v_CServerGameClients__ProcessUserCmds = p_CServerGameClients__ProcessUserCmds.RCast<void(*)(CServerGameClients* thisp, edict_t edict, bf_read* buf,
+	int numCmds, int totalCmds, int droppedPackets, bool ignore, bool paused)>();
 
 inline CMemory p_RunFrameServer;
 inline auto v_RunFrameServer = p_RunFrameServer.RCast<void(*)(double flFrameTime, bool bRunOverlays, bool bUniformUpdate)>();
@@ -61,6 +69,7 @@ class VServerGameDLL : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogFunAdr("CServerGameDLL::OnReceivedSayTextMessage", p_CServerGameDLL__OnReceivedSayTextMessage.GetPtr());
+		LogFunAdr("CServerGameClients::ProcessUserCmds", p_CServerGameClients__ProcessUserCmds.GetPtr());
 		LogFunAdr("RunFrameServer", p_RunFrameServer.GetPtr());
 		LogVarAdr("g_pServerGameDLL", reinterpret_cast<uintptr_t>(g_pServerGameDLL));
 		LogVarAdr("g_pServerGameClients", reinterpret_cast<uintptr_t>(g_pServerGameClients));
@@ -74,9 +83,11 @@ class VServerGameDLL : public IDetour
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CServerGameDLL__OnReceivedSayTextMessage = g_GameDll.FindPatternSIMD("85 D2 0F 8E ?? ?? ?? ?? 4C 8B DC");
 #endif
-		CServerGameDLL__OnReceivedSayTextMessage = p_CServerGameDLL__OnReceivedSayTextMessage.RCast<void(__fastcall*)(void* thisptr, int senderId, const char* text, bool isTeamChat)>();
-
+		p_CServerGameClients__ProcessUserCmds = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 55 41 57");
 		p_RunFrameServer = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 30 0F 29 74 24 ?? 48 8D 0D ?? ?? ?? ??");
+
+		CServerGameDLL__OnReceivedSayTextMessage = p_CServerGameDLL__OnReceivedSayTextMessage.RCast<void(__fastcall*)(void*, int, const char*, bool)>();
+		v_CServerGameClients__ProcessUserCmds = p_CServerGameClients__ProcessUserCmds.RCast<void(*)(CServerGameClients*, edict_t, bf_read*, int, int, int, bool, bool)>();
 		v_RunFrameServer = p_RunFrameServer.RCast<void(*)(double, bool, bool)>();
 	}
 	virtual void GetVar(void) const

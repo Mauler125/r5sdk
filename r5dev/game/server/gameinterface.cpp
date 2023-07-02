@@ -10,10 +10,13 @@
 #include "public/server_class.h"
 #include "public/eiface.h"
 #include "public/const.h"
+#include "common/protocol.h"
 #include "engine/server/sv_main.h"
 #include "gameinterface.h"
 #include "entitylist.h"
 #include "baseanimating.h"
+#include "game/shared/usercmd.h"
+#include "game/shared/util_shared.h"
 
 //-----------------------------------------------------------------------------
 // This is called when a new game is started. (restart, map)
@@ -114,6 +117,56 @@ void DrawServerHitboxes(bool bRunOverlays)
 	}
 }
 
+void CServerGameClients::ProcessUserCmds(CServerGameClients* thisp, edict_t edict,
+	bf_read* buf, int numCmds, int totalCmds, int droppedPackets, bool ignore, bool paused)
+{
+	int i;
+	CUserCmd* from, * to;
+
+	// We track last three command in case we drop some
+	// packets but get them back.
+	CUserCmd cmds[MAX_BACKUP_COMMANDS_PROCESS];
+	CUserCmd cmdNull;  // For delta compression
+
+	Assert(numCmds >= 0);
+	Assert((totalCmds - numCmds) >= 0);
+
+	CPlayer* pPlayer = UTIL_PlayerByIndex(edict);
+
+	// Too many commands?
+	if (totalCmds < 0 || totalCmds >= (MAX_BACKUP_COMMANDS_PROCESS - 1) ||
+		numCmds < 0 || numCmds > totalCmds)
+	{
+		//const char* name = "unknown";
+		//if (pPlayer)
+		//{
+		//	name = pPlayer->GetPlayerName();
+		//}
+
+		//Warning(eDLL_T::SERVER, "%s: too many cmds %i sent for player %s\n", __FUNCTION__, totalCmds, name);
+		// !TODO: Drop the client from here.
+
+		buf->SetOverflowFlag();
+		return;
+	}
+
+	from = &cmdNull;
+	for (i = totalCmds - 1; i >= 0; i--)
+	{
+		to = &cmds[i];
+		ReadUserCmd(buf, to, from);
+		from = to;
+	}
+
+	// Client not fully connected or server has gone inactive  or is paused, just ignore
+	if (ignore || !pPlayer)
+	{
+		return;
+	}
+
+	pPlayer->ProcessUserCmds(cmds, numCmds, totalCmds, droppedPackets, paused);
+}
+
 void RunFrameServer(double flFrameTime, bool bRunOverlays, bool bUniformUpdate)
 {
 	DrawServerHitboxes(bRunOverlays);
@@ -124,6 +177,7 @@ void VServerGameDLL::Attach() const
 {
 #if defined(GAMEDLL_S3)
 	DetourAttach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
+	DetourAttach(&v_CServerGameClients__ProcessUserCmds, CServerGameClients::ProcessUserCmds);
 #endif
 	DetourAttach(&v_RunFrameServer, &RunFrameServer);
 }
@@ -132,6 +186,7 @@ void VServerGameDLL::Detach() const
 {
 #if defined(GAMEDLL_S3)
 	DetourDetach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
+	DetourDetach(&v_CServerGameClients__ProcessUserCmds, CServerGameClients::ProcessUserCmds);
 #endif
 	DetourDetach(&v_RunFrameServer, &RunFrameServer);
 }

@@ -4,11 +4,12 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
-#include "player.h"
-#include "gameinterface.h"
+#include "common/protocol.h"
 #include "game/shared/shareddefs.h"
 #include "game/shared/usercmd.h"
 #include "game/server/movehelper_server.h"
+#include "gameinterface.h"
+#include "player.h"
 
 //------------------------------------------------------------------------------
 // Purpose: executes a null command for this player
@@ -101,6 +102,52 @@ void CPlayer::SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime)
 
 		m_totalExtraClientCmdTimeAttempted = flAttemptedTime;
 	}
+}
+
+//------------------------------------------------------------------------------
+// Purpose: processes user cmd's for this player
+// Input  : *cmds - 
+//			numCmds - 
+//			totalCmds - 
+//			droppedPackets - 
+//			paused - 
+//------------------------------------------------------------------------------
+void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
+	int droppedPackets, bool paused)
+{
+	if (totalCmds <= 0)
+		return;
+
+	CUserCmd* lastCmd = &m_Commands[MAX_QUEUED_COMMANDS_PROCESS];
+
+	for (int i = totalCmds - 1; i >= 0; i--)
+	{
+		CUserCmd* cmd = &cmds[i];
+		const int commandNumber = cmd->command_number;
+
+		if (commandNumber > m_latestCommandQueued)
+		{
+			m_latestCommandQueued = commandNumber;
+			const int lastCommandNumber = lastCmd->command_number;
+
+			if (lastCommandNumber == MAX_QUEUED_COMMANDS_PROCESS)
+				return;
+
+			CUserCmd* queuedCmd = &m_Commands[lastCommandNumber];
+			queuedCmd->Copy(cmd);
+
+			if (++lastCmd->command_number > player_userCmdsQueueWarning->GetInt())
+			{
+				const float curTime = float(Plat_FloatTime());
+
+				if ((curTime - m_lastCommandCountWarnTime) > 0.5f)
+					m_lastCommandCountWarnTime = curTime;
+			}
+		}
+	}
+
+	lastCmd->tick_count += droppedPackets;
+	m_bGamePaused = paused;
 }
 
 //------------------------------------------------------------------------------
