@@ -1,19 +1,19 @@
 #pragma once
 
 inline CMemory p_Host_RunFrame;
-inline auto v_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void* unused, float time)>();
+inline void(*v_Host_RunFrame)(void* unused, float time);
 
 //inline CMemory p_Host_RunFrame_Render; // DEDICATED PATCH!
-//inline auto v_Host_RunFrame_Render = p_Host_RunFrame_Render.RCast<void(*)(void)>();
+//inline void(*v_Host_RunFrame_Render)(void);
 
 inline CMemory p_Host_ShouldRun;
-inline auto v_Host_ShouldRun = p_Host_ShouldRun.RCast<bool(*)()>();
+inline bool(*v_Host_ShouldRun)();
 
 inline CMemory p_Host_Error;
-inline auto v_Host_Error = p_Host_Error.RCast<void(*)(const char* error, ...)>();
+inline void(*v_Host_Error)(const char* error, ...);
 
 //inline CMemory p_VCR_EnterPausedState; // DEDICATED PATCH!
-//inline auto v_VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();
+//inline void(*v_VCR_EnterPausedState)(void);
 
 inline bool* g_bAbortServerSet = nullptr;
 inline float* interval_per_tick = nullptr;

@@ -20,25 +20,25 @@ constexpr const char* DEFAULT_NET_ENCRYPTION_KEY = "WDNWLmJYQ2ZlM0VoTid3Yg==";
 
 /* ==== CNETCHAN ======================================================================================================================================================== */
 inline CMemory p_NET_Init;
-inline auto v_NET_Init = p_NET_Init.RCast<void* (*)(bool bDeveloper)>();
+inline void*(*v_NET_Init)(bool bDeveloper);
 
 inline CMemory p_NET_SetKey;
-inline auto v_NET_SetKey = p_NET_SetKey.RCast<void (*)(netkey_t* pKey, const char* szHash)>();
+inline void(*v_NET_SetKey)(netkey_t* pKey, const char* szHash);
 
 inline CMemory p_NET_Config;
-inline auto v_NET_Config = p_NET_Config.RCast<void (*)(void)>();
+inline void(*v_NET_Config)(void);
 
 inline CMemory p_NET_ReceiveDatagram;
-inline auto v_NET_ReceiveDatagram = p_NET_ReceiveDatagram.RCast<bool (*)(int iSocket, netpacket_s* pInpacket, bool bRaw)>();
+inline bool(*v_NET_ReceiveDatagram)(int iSocket, netpacket_s* pInpacket, bool bRaw);
 
 inline CMemory p_NET_SendDatagram;
-inline auto v_NET_SendDatagram = p_NET_SendDatagram.RCast<int (*)(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypted)>();
+inline int(*v_NET_SendDatagram)(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypted);
 
 inline CMemory p_NET_Decompress;
-inline auto v_NET_Decompress = p_NET_Decompress.RCast<int (*)(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize)>();
+inline int(*v_NET_Decompress)(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize);
 
 inline CMemory p_NET_PrintFunc;
-inline auto v_NET_PrintFunc = p_NET_PrintFunc.RCast<void(*)(const char* fmt)>();
+inline void(*v_NET_PrintFunc)(const char* fmt);
 
 ///////////////////////////////////////////////////////////////////////////////
 bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bRaw);

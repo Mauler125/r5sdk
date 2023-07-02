@@ -19,29 +19,29 @@ extern EngineParms_t* g_pEngineParms;
 
 /* ==== HOST ============================================================================================================================================================ */
 inline CMemory p_Host_Init;
-inline auto v_Host_Init = p_Host_Init.RCast<void* (*)(bool* bDedicated)>();
+inline void*(*v_Host_Init)(bool* bDedicated);
 
 inline CMemory p_Host_Shutdown;
-inline auto v_Host_Shutdown = p_Host_Shutdown.RCast<void (*)()>();
+inline void(*v_Host_Shutdown)();
 
 inline CMemory p_Host_NewGame;
-inline auto v_Host_NewGame = p_Host_NewGame.RCast<bool (*)(char* pszMapName, char* pszMapGroup, bool bLoadGame, char bBackground, LARGE_INTEGER PerformanceCount)>();
+inline bool(*v_Host_NewGame)(char* pszMapName, char* pszMapGroup, bool bLoadGame, char bBackground, LARGE_INTEGER PerformanceCount);
 
 inline CMemory p_Host_Disconnect;
-inline auto v_Host_Disconnect = p_Host_Disconnect.RCast<void (*)(bool bShowMainMenu)>();
+inline void(*v_Host_Disconnect)(bool bShowMainMenu);
 
 inline CMemory p_Host_ChangeLevel;
-inline auto v_Host_ChangeLevel = p_Host_ChangeLevel.RCast<bool (*)(bool bLoadFromSavedGame, const char* pszMapName, const char* pszMapGroup)>();
+inline bool(*v_Host_ChangeLevel)(bool bLoadFromSavedGame, const char* pszMapName, const char* pszMapGroup);
 
 inline CMemory p_Host_Status_PrintClient;
 inline auto v_Host_Status_PrintClient = p_Host_Status_PrintClient.RCast<void (*)(CClient* client, bool bShowAddress, void (*print) (const char* fmt, ...))>();
 
 inline CMemory p_SetLaunchOptions;
-inline auto v_SetLaunchOptions = p_SetLaunchOptions.RCast<int (*)(const CCommand& args)>();
+inline int(*v_SetLaunchOptions)(const CCommand& args);
 
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 inline CMemory p_DFS_InitializeFeatureFlagDefinitions;
-inline auto v_DFS_InitializeFeatureFlagDefinitions = p_DFS_InitializeFeatureFlagDefinitions.RCast<bool (*)(const char* pszFeatureFlags)>();
+inline bool(*v_DFS_InitializeFeatureFlagDefinitions)(const char* pszFeatureFlags);
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 
 extern EngineParms_t* g_pEngineParms;

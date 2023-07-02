@@ -180,13 +180,13 @@ public:
 
 /* ==== CONCOMMAND ====================================================================================================================================================== */
 inline CMemory p_ConCommand_AutoCompleteSuggest;
-inline auto ConCommand_AutoCompleteSuggest = p_ConCommand_AutoCompleteSuggest.RCast<bool (*)(ConCommand* pCommand, const char* partial, CUtlVector< CUtlString >& commands)>();
+inline bool(*ConCommand_AutoCompleteSuggest)(ConCommand* pCommand, const char* partial, CUtlVector< CUtlString >& commands);
 
 inline CMemory p_ConCommandBase_IsFlagSet;
-inline auto ConCommandBase_IsFlagSet = p_ConCommandBase_IsFlagSet.RCast<bool (*)(ConCommandBase* pCommand, int nFlag)>();
+inline bool(*ConCommandBase_IsFlagSet)(ConCommandBase* pCommand, int nFlag);
 
 inline CMemory p_NullSub;
-inline auto NullSub = p_NullSub.RCast<void(*)(void)>();
+inline void(*NullSub)(void);
 
 inline CMemory p_CallbackStub;
 inline FnCommandCompletionCallback CallbackStub = p_CallbackStub.RCast<FnCommandCompletionCallback>();

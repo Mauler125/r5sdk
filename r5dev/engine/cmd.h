@@ -5,13 +5,13 @@ ECommandTarget_t Cbuf_GetCurrentPlayer(void);
 
 /* ==== COMMAND_BUFFER ================================================================================================================================================== */
 inline CMemory p_Cbuf_AddText;
-inline auto Cbuf_AddText = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource)>();
+inline void(*Cbuf_AddText)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource);
 
 inline CMemory p_Cbuf_Execute;
-inline auto Cbuf_Execute = p_Cbuf_Execute.RCast<void (*)(void)>();
+inline void(*Cbuf_Execute)(void);
 
 inline CMemory p_Cmd_ForwardToServer;
-inline auto v_Cmd_ForwardToServer = p_Cmd_ForwardToServer.RCast<bool (*)(const CCommand* args)>();
+inline bool(*v_Cmd_ForwardToServer)(const CCommand* args);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCmd : public IDetour

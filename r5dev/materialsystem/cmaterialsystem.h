@@ -15,26 +15,26 @@ public:
 
 /* ==== MATERIALSYSTEM ================================================================================================================================================== */
 inline CMemory p_CMaterialSystem__Init;
-inline auto CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void*(*)(CMaterialSystem* thisptr)>();
+inline void*(*CMaterialSystem__Init)(CMaterialSystem* thisptr);
 
 inline void* g_pMaterialSystem = nullptr;
 inline void* g_pMaterialVFTable = nullptr;
 #ifndef DEDICATED
 inline CMemory p_CMaterialSystem__FindMaterialEx;
-inline auto CMaterialSystem__FindMaterialEx = p_CMaterialSystem__FindMaterialEx.RCast<CMaterialGlue*(*)(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain)>();
+inline CMaterialGlue*(*CMaterialSystem__FindMaterialEx)(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 
 inline CMemory p_CMaterialSystem_GetScreenSize;
-inline auto CMaterialSystem_GetScreenSize = p_CMaterialSystem_GetScreenSize.RCast<void(*)(CMaterialSystem* pMatSys, float* outX, float* outY)>();
+inline void(*CMaterialSystem_GetScreenSize)(CMaterialSystem* pMatSys, float* outX, float* outY);
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory p_DispatchDrawCall;
-inline auto v_DispatchDrawCall = p_DispatchDrawCall.RCast<void*(*)(int64_t a1, uint64_t a2, int a3, int a4, char a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, __m128* a11, int a12)>();
+inline void*(*v_DispatchDrawCall)(int64_t a1, uint64_t a2, int a3, int a4, char a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, __m128* a11, int a12);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 inline CMemory p_DispatchDrawCall;
-inline auto v_DispatchDrawCall = p_DispatchDrawCall.RCast<void*(*)(int64_t a1, uint64_t a2, int a3, int a4, int64_t a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, int a11, __m128* a12, int a13, int64_t a14)>();
+inline void*(*v_DispatchDrawCall)(int64_t a1, uint64_t a2, int a3, int a4, int64_t a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, int a11, __m128* a12, int a13, int64_t a14);
 #endif
 inline CMemory p_GetStreamOverlay;
-inline auto v_GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char* mode, char* buf, size_t bufSize)>();
+inline void(*v_GetStreamOverlay)(const char* mode, char* buf, size_t bufSize);
 
 inline CMemory p_DrawStreamOverlay;
 inline auto v_DrawStreamOverlay = p_DrawStreamOverlay.RCast<const char*(*)(void* thisptr, uint8_t* a2, void* unused, void* a4)>();

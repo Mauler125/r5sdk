@@ -40,28 +40,28 @@ public:
 };
 
 inline CMemory p_CEngineAPI_Init;
-inline auto CEngineAPI_Init = p_CEngineAPI_Init.RCast<InitReturnVal_t(*)(CEngineAPI* thisp)>();
+inline InitReturnVal_t(*CEngineAPI_Init)(CEngineAPI* thisp);
 
 inline CMemory p_CEngineAPI_Shutdown;
-inline auto CEngineAPI_Shutdown = p_CEngineAPI_Shutdown.RCast<void (*)(void)>();
+inline void(*CEngineAPI_Shutdown)(void);
 
 inline CMemory p_CEngineAPI_Connect;
-inline auto CEngineAPI_Connect = p_CEngineAPI_Connect.RCast<bool (*)(CEngineAPI* thisptr, CreateInterfaceFn factory)>();
+inline bool(*CEngineAPI_Connect)(CEngineAPI* thisptr, CreateInterfaceFn factory);
 
 inline CMemory p_CEngineAPI_ModInit;
-inline auto CEngineAPI_ModInit = p_CEngineAPI_ModInit.RCast<bool (*)(CEngineAPI* pEngineAPI, const char* pModName, const char* pGameDir)>();
+inline bool(*CEngineAPI_ModInit)(CEngineAPI* pEngineAPI, const char* pModName, const char* pGameDir);
 
 inline CMemory p_CEngineAPI_MainLoop;
-inline auto CEngineAPI_MainLoop = p_CEngineAPI_MainLoop.RCast<bool(*)(void)>();
+inline bool(*CEngineAPI_MainLoop)(void);
 
 inline CMemory p_CEngineAPI_SetStartupInfo;
-inline auto v_CEngineAPI_SetStartupInfo = p_CEngineAPI_SetStartupInfo.RCast<void (*)(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo)>();
+inline void(*v_CEngineAPI_SetStartupInfo)(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo);
 
 inline CMemory p_ResetMTVFTaskItem;
-inline auto v_ResetMTVFTaskItem = p_ResetMTVFTaskItem.RCast<void*(*)(void)>();
+inline void*(*v_ResetMTVFTaskItem)(void);
 
 inline CMemory p_PakFile_Init;
-inline auto PakFile_Init = p_PakFile_Init.RCast<void (*)(char* buffer, char* source, char vpk_file)>();
+inline void(*PakFile_Init)(char* buffer, char* source, char vpk_file);
 
 inline bool* g_bTextMode = nullptr;
 inline char* g_szBaseDir = nullptr; // static size = 260

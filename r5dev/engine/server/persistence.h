@@ -3,7 +3,7 @@
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory p_Persistence_SetXP;
-inline auto v_Persistence_SetXP = p_Persistence_SetXP.RCast<bool (*)(int a1, int* a2)>();
+inline bool(*v_Persistence_SetXP)(int a1, int* a2);
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

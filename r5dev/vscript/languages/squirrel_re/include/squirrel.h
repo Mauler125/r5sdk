@@ -46,37 +46,37 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline CMemory p_sq_pushroottable;
-inline auto v_sq_pushroottable = p_sq_pushroottable.RCast<SQRESULT(*)(HSQUIRRELVM v)>();
+inline SQRESULT(*v_sq_pushroottable)(HSQUIRRELVM v);
 
 inline CMemory p_sq_pushbool;
-inline auto v_sq_pushbool = p_sq_pushbool.RCast<void (*)(HSQUIRRELVM v, SQBool b)>();
+inline void(*v_sq_pushbool)(HSQUIRRELVM v, SQBool b);
 
 inline CMemory p_sq_pushstring;
-inline auto v_sq_pushstring = p_sq_pushstring.RCast<void (*)(HSQUIRRELVM v, const SQChar* string, SQInteger len)>();
+inline void(*v_sq_pushstring)(HSQUIRRELVM v, const SQChar* string, SQInteger len);
 
 inline CMemory p_sq_pushinteger;
-inline auto v_sq_pushinteger = p_sq_pushinteger.RCast<void (*)(HSQUIRRELVM v, SQInteger val)>();
+inline void(*v_sq_pushinteger)(HSQUIRRELVM v, SQInteger val);
 
 inline CMemory p_sq_newarray;
-inline auto v_sq_newarray = p_sq_newarray.RCast<void (*)(HSQUIRRELVM v, SQInteger size)>();
+inline void(*v_sq_newarray)(HSQUIRRELVM v, SQInteger size);
 
 inline CMemory p_sq_newtable;
-inline auto v_sq_newtable = p_sq_newtable.RCast<void (*)(HSQUIRRELVM v)>();
+inline void(*v_sq_newtable)(HSQUIRRELVM v);
 
 inline CMemory p_sq_newslot;
-inline auto v_sq_newslot = p_sq_newslot.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteger idx)>();
+inline SQRESULT(*v_sq_newslot)(HSQUIRRELVM v, SQInteger idx);
 
 inline CMemory p_sq_arrayappend;
-inline auto v_sq_arrayappend = p_sq_arrayappend.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteger idx)>();
+inline SQRESULT(*v_sq_arrayappend)(HSQUIRRELVM v, SQInteger idx);
 
 inline CMemory p_sq_pushstructure;
-inline auto v_sq_pushstructure = p_sq_pushstructure.RCast<SQRESULT(*)(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2)>();
+inline SQRESULT(*v_sq_pushstructure)(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2);
 
 inline CMemory p_sq_compilebuffer;
-inline auto v_sq_compilebuffer = p_sq_compilebuffer.RCast<SQRESULT(*)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level)>();
+inline SQRESULT(*v_sq_compilebuffer)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level);
 
 inline CMemory p_sq_call;
-inline auto v_sq_call = p_sq_call.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror)>();
+inline SQRESULT(*v_sq_call)(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrelAPI : public IDetour

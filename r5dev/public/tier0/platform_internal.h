@@ -2,10 +2,10 @@
 #define PLATFORM_INTERNAL_H
 
 inline CMemory p_Plat_FloatTime;
-inline auto v_Plat_FloatTime = p_Plat_FloatTime.RCast<double(*)(void)>();
+inline double(*v_Plat_FloatTime)(void);
 
 inline CMemory p_Plat_MSTime;
-inline auto v_Plat_MSTime = p_Plat_MSTime.RCast<uint64_t(*)(void)>();
+inline uint64_t(*v_Plat_MSTime)(void);
 
 inline double* g_flErrorTimeStamp = nullptr;
 ///////////////////////////////////////////////////////////////////////////////

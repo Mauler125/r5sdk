@@ -93,16 +93,16 @@ extern CServer* g_pServer;
 
 /* ==== CSERVER ========================================================================================================================================================= */
 inline CMemory p_CServer_FrameJob;
-inline auto v_CServer_FrameJob = p_CServer_FrameJob.RCast<void (*)(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval)>();
+inline void(*v_CServer_FrameJob)(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval);
 
 inline CMemory p_CServer_RunFrame;
-inline auto v_CServer_RunFrame = p_CServer_RunFrame.RCast<void (*)(CServer* pServer)>();
+inline void(*v_CServer_RunFrame)(CServer* pServer);
 
 inline CMemory p_CServer_ConnectClient;
-inline auto v_CServer_ConnectClient = p_CServer_ConnectClient.RCast<CClient* (*)(CServer* pServer, user_creds_s* pCreds)>();
+inline CClient*(*v_CServer_ConnectClient)(CServer* pServer, user_creds_s* pCreds);
 
 inline CMemory p_CServer_RejectConnection;
-inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, int iSocket, netadr_t* pNetAdr, const char* szMessage)>();
+inline void*(*v_CServer_RejectConnection)(CServer* pServer, int iSocket, netadr_t* pNetAdr, const char* szMessage);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VServer : public IDetour

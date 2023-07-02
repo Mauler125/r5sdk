@@ -7,10 +7,10 @@ extern bool g_bSQAuxBadLogic;
 extern HSQUIRRELVM g_pErrorVM;
 
 inline CMemory p_sqstd_aux_printerror;
-inline auto v_sqstd_aux_printerror = p_sqstd_aux_printerror.RCast<SQInteger(*)(HSQUIRRELVM v)>();
+inline SQInteger(*v_sqstd_aux_printerror)(HSQUIRRELVM v);
 
 inline CMemory p_sqstd_aux_badlogic;
-inline auto v_sqstd_aux_badlogic = p_sqstd_aux_badlogic.RCast<SQInteger(*)(HSQUIRRELVM v, __m128i* a2, __m128i* a3)>();
+inline SQInteger(*v_sqstd_aux_badlogic)(HSQUIRRELVM v, __m128i* a2, __m128i* a3);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrelAUX : public IDetour

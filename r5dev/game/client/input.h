@@ -10,7 +10,7 @@ private:
 };
 
 inline CMemory p_CInput__SetCustomWeaponActivity;
-inline auto v_CInput__SetCustomWeaponActivity = p_CInput__SetCustomWeaponActivity.RCast<void (*)(CInput* pInput, int weaponActivity)>();
+inline void(*v_CInput__SetCustomWeaponActivity)(CInput* pInput, int weaponActivity);
 
 inline IInput* g_pInput_VFTable = nullptr;
 inline CInput* g_pInput = nullptr;

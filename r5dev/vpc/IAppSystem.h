@@ -2,7 +2,7 @@
 
 /* ==== IAPPSYSTEM ============================================================================================================================================== */
 //inline CMemory p_IAppSystem_LoadLibrary; // C initializers/terminators
-//inline auto IAppSystem_LoadLibrary = p_IAppSystem_LoadLibrary.RCast<void* (*)(void)>();
+//inline void*(*IAppSystem_LoadLibrary)(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VAppSystem : public IDetour

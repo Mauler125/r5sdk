@@ -19,16 +19,16 @@
 class CUserCmd;
 
 inline CMemory p_CUserCmd__CUserCmd;
-inline auto v_CUserCmd__CUserCmd = p_CUserCmd__CUserCmd.RCast<CUserCmd*(*)(CUserCmd* pUserCmd)>();
+inline CUserCmd*(*v_CUserCmd__CUserCmd)(CUserCmd* pUserCmd);
 
 inline CMemory p_CUserCmd__Reset;
-inline auto v_CUserCmd__Reset = p_CUserCmd__Reset.RCast<void(*)(CUserCmd* pUserCmd)>();
+inline void(*v_CUserCmd__Reset)(CUserCmd* pUserCmd);
 
 inline CMemory p_CUserCmd__Copy;
-inline auto v_CUserCmd__Copy = p_CUserCmd__Copy.RCast<CUserCmd*(*)(CUserCmd* pDest, CUserCmd* pSource)>();
+inline CUserCmd*(*v_CUserCmd__Copy)(CUserCmd* pDest, CUserCmd* pSource);
 
 inline CMemory p_ReadUserCmd;
-inline auto v_ReadUserCmd = p_ReadUserCmd.RCast<int (*)(bf_read* buf, CUserCmd* move, CUserCmd* from)>();
+inline int(*v_ReadUserCmd)(bf_read* buf, CUserCmd* move, CUserCmd* from);
 
 //-------------------------------------------------------------------------------------
 #pragma pack(push, 1)

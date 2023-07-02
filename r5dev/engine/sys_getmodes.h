@@ -4,10 +4,10 @@
 // CGAME
 //-------------------------------------------------------------------------
 inline CMemory p_CVideoMode_Common__CreateGameWindow;
-inline auto CVideoMode_Common__CreateGameWindow = p_CVideoMode_Common__CreateGameWindow.RCast<bool (*)(int* pnRect)>();
+inline bool(*CVideoMode_Common__CreateGameWindow)(int* pnRect);
 
 inline CMemory p_CVideoMode_Common__CreateWindowClass;
-inline auto CVideoMode_Common__CreateWindowClass = p_CVideoMode_Common__CreateWindowClass.RCast<HWND(*)(vrect_t* pnRect)>();
+inline HWND(*CVideoMode_Common__CreateWindowClass)(vrect_t* pnRect);
 
 ///////////////////////////////////////////////////////////////////////////////
 class HVideoMode_Common : public IDetour

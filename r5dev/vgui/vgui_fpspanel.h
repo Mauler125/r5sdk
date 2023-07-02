@@ -2,7 +2,7 @@
 
 /* ==== CFPSPANEL ======================================================================================================================================================= */
 inline CMemory p_CFPSPanel_Paint;
-inline auto CFPSPanel_Paint = p_CFPSPanel_Paint.RCast<ConVar* (*)(void* thisptr)>();
+inline ConVar*(*CFPSPanel_Paint)(void* thisptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VFPSPanel : public IDetour

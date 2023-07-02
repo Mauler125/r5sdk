@@ -792,10 +792,10 @@ private:
 static_assert(sizeof(CPlayer) == 0x7EF0); // !TODO: backwards compatibility.
 
 inline CMemory p_CPlayer__EyeAngles;
-inline auto v_CPlayer__EyeAngles = p_CPlayer__EyeAngles.RCast<QAngle* (*)(CPlayer* pPlayer, QAngle* pAngles)>();
+inline QAngle*(*v_CPlayer__EyeAngles)(CPlayer* pPlayer, QAngle* pAngles);
 
 inline CMemory p_CPlayer__PlayerRunCommand;
-inline auto v_CPlayer__PlayerRunCommand = p_CPlayer__PlayerRunCommand.RCast<void (*)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover)>();
+inline void(*v_CPlayer__PlayerRunCommand)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VPlayer : public IDetour

@@ -16,7 +16,7 @@ const Vector3D& MainViewOrigin();
 const QAngle& MainViewAngles();
 
 inline CMemory p_CViewRender_GetWorldMatrixForView;
-inline auto CViewRender_GetWorldMatrixForView = p_CViewRender_GetWorldMatrixForView.RCast<VMatrix*(*)(CViewRender*, int8_t)>();
+inline VMatrix*(*CViewRender_GetWorldMatrixForView)(CViewRender*, int8_t);
 
 inline Vector3D* g_vecRenderOrigin = nullptr;
 inline QAngle* g_vecRenderAngles = nullptr;

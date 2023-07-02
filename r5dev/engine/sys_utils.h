@@ -2,16 +2,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 inline CMemory p_Error;
-inline auto v_Error = p_Error.RCast<void (*)(const char* fmt, ...)>();
+inline void(*v_Error)(const char* fmt, ...);
 
 inline CMemory p_Warning;
-inline auto v_Warning = p_Warning.RCast<void (*)(int, const char* fmt, ...)>(); 
+inline void(*v_Warning)(int, const char* fmt, ...); 
 
 inline CMemory p_Sys_GetProcessUpTime;
-inline auto v_Sys_GetProcessUpTime = p_Sys_GetProcessUpTime.RCast<int (*)(char* szBuffer)>();
+inline int(*v_Sys_GetProcessUpTime)(char* szBuffer);
 #ifndef DEDICATED
 inline CMemory p_Con_NPrintf;
-inline auto v_Con_NPrintf = p_Con_NPrintf.RCast<void (*)(int pos, const char* fmt, ...)>();
+inline void(*v_Con_NPrintf)(int pos, const char* fmt, ...);
 #endif // !DEDICATED
 /* ==== ------- ========================================================================================================================================================= */
 

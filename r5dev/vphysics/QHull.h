@@ -1,10 +1,10 @@
 #pragma once
 
 inline CMemory p_QHull_PrintFunc;
-inline auto v_QHull_PrintFunc = p_QHull_PrintFunc.RCast<int (*)(const char* fmt, ...)>();
+inline int(*v_QHull_PrintFunc)(const char* fmt, ...);
 
 //inline CMemory p_speex_warning_int;
-//inline auto speex_warning_int = p_speex_warning_int.RCast<int (*)(FILE* stream, const char* format, ...)>();
+//inline int(*speex_warning_int)(FILE* stream, const char* format, ...);
 
 ///////////////////////////////////////////////////////////////////////////////
 int QHull_PrintFunc(const char* fmt, ...);

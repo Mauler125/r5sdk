@@ -161,28 +161,28 @@ static_assert(sizeof(CClient) == 0x4A4C0);
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
 inline CMemory p_CClient_Connect;
-inline auto v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)>();
+inline bool(*v_CClient_Connect)(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
 
 inline CMemory p_CClient_Disconnect;
-inline auto v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient* pClient, const Reputation_t nRepLvl, const char* szReason, ...)>();
+inline bool(*v_CClient_Disconnect)(CClient* pClient, const Reputation_t nRepLvl, const char* szReason, ...);
 
 inline CMemory p_CClient_Clear;
-inline auto v_CClient_Clear = p_CClient_Clear.RCast<void (*)(CClient* pClient)>();
+inline void(*v_CClient_Clear)(CClient* pClient);
 
 inline CMemory p_CClient_ActivatePlayer;
-inline auto v_CClient_ActivatePlayer = p_CClient_ActivatePlayer.RCast<void (*)(CClient* pClient)>();
+inline void(*v_CClient_ActivatePlayer)(CClient* pClient);
 
 inline CMemory p_CClient_ProcessStringCmd;
-inline auto v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (*)(CClient* pClient, NET_StringCmd* pMsg)>();
+inline bool(*v_CClient_ProcessStringCmd)(CClient* pClient, NET_StringCmd* pMsg);
 
 inline CMemory p_CClient_SetSignonState;
-inline auto v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient* pClient, SIGNONSTATE signon)>();
+inline bool(*v_CClient_SetSignonState)(CClient* pClient, SIGNONSTATE signon);
 
 inline CMemory p_CClient_SendNetMsgEx;
-inline auto v_CClient_SendNetMsgEx = p_CClient_SendNetMsgEx.RCast<bool (*)(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice)>();
+inline bool(*v_CClient_SendNetMsgEx)(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
 
 inline CMemory p_CClient_SendSnapshot;
-inline auto v_CClient_SendSnapshot = p_CClient_SendSnapshot.RCast<void* (*)(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck)>();
+inline void*(*v_CClient_SendSnapshot)(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VClient : public IDetour

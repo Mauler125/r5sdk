@@ -302,16 +302,16 @@ void ConVar_PrintDescription(ConCommandBase* pVar);
 
 /* ==== CONVAR ========================================================================================================================================================== */
 inline CMemory p_ConVar_Register;
-inline auto v_ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar* thisptr, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString)>();
+inline void*(*v_ConVar_Register)(ConVar* thisptr, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString);
 
 inline CMemory p_ConVar_Unregister;
-inline auto v_ConVar_Unregister = p_ConVar_Unregister.RCast<void (*)(ConVar* thisptr)>();
+inline void(*v_ConVar_Unregister)(ConVar* thisptr);
 
 inline CMemory p_ConVar_IsFlagSet;
-inline auto v_ConVar_IsFlagSet = p_ConVar_IsFlagSet.RCast<bool (*)(ConVar* pConVar, int nFlag)>();
+inline bool(*v_ConVar_IsFlagSet)(ConVar* pConVar, int nFlag);
 
 inline CMemory p_ConVar_PrintDescription;
-inline auto v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void* (*)(ConCommandBase* pVar)>();
+inline void*(*v_ConVar_PrintDescription)(ConCommandBase* pVar);
 
 inline ConVar* g_pConVarVBTable;
 inline IConVar* g_pConVarVFTable;

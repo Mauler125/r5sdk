@@ -14,10 +14,10 @@
 class CSquirrelVM;
 
 inline CMemory p_Script_LoadScriptList;
-inline auto v_Script_LoadScriptList = p_Script_LoadScriptList.RCast<RSON::Node_t* (*)(const SQChar* rsonfile)>();
+inline RSON::Node_t*(*v_Script_LoadScriptList)(const SQChar* rsonfile);
 
 inline CMemory p_Script_LoadScriptFile;
-inline auto v_Script_LoadScriptFile = p_Script_LoadScriptFile.RCast<SQBool(*)(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags)>();
+inline SQBool(*v_Script_LoadScriptFile)(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags);
 
 inline CMemory p_Script_ParseScriptList;
 inline auto v_Script_ParseScriptList = p_Script_ParseScriptList.RCast<SQBool(__fastcall*)(SQCONTEXT ctx, const char* scriptListPath, RSON::Node_t* rson, char** scriptArray, int* pScriptCount, char** precompiledScriptArray, int precompiledScriptCount)>();

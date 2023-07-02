@@ -2,10 +2,10 @@
 
 /* ==== STRYDER ================================================================================================================================================ */
 inline CMemory p_Stryder_StitchRequest;
-inline auto Stryder_StitchRequest = p_Stryder_StitchRequest.RCast<void*(*)(void* a1)>();
+inline void*(*Stryder_StitchRequest)(void* a1);
 
 inline CMemory p_Stryder_SendOfflineRequest;
-inline auto Stryder_SendOfflineRequest = p_Stryder_SendOfflineRequest.RCast<bool(*)(void)>();
+inline bool(*Stryder_SendOfflineRequest)(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VStryder : public IDetour

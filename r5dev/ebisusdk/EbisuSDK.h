@@ -1,13 +1,13 @@
 #pragma once
 
 inline CMemory p_EbisuSDK_Tier0_Init;
-inline auto EbisuSDK_Tier0_Init = p_EbisuSDK_Tier0_Init.RCast<void(*)(void)>();
+inline void(*EbisuSDK_Tier0_Init)(void);
 
 inline CMemory p_EbisuSDK_CVar_Init;
-inline auto EbisuSDK_CVar_Init = p_EbisuSDK_CVar_Init.RCast<void(*)(void)>();
+inline void(*EbisuSDK_CVar_Init)(void);
 
 inline CMemory p_EbisuSDK_SetState;
-inline auto EbisuSDK_SetState = p_EbisuSDK_SetState.RCast<void(*)(void)>();
+inline void(*EbisuSDK_SetState)(void);
 
 inline uint64_t* g_NucleusID = nullptr;
 inline char* g_NucleusToken = nullptr; /*SIZE = 1024*/

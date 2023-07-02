@@ -2,7 +2,7 @@
 #include "public/gamebspfile.h"
 
 inline CMemory p_CStaticProp_Init;
-inline auto v_CStaticProp_Init = p_CStaticProp_Init.RCast<void*(*)(int64_t thisptr, int64_t a2, unsigned int idx, unsigned int a4, StaticPropLump_t* lump, int64_t a6, int64_t a7)>();
+inline void*(*v_CStaticProp_Init)(int64_t thisptr, int64_t a2, unsigned int idx, unsigned int a4, StaticPropLump_t* lump, int64_t a6, int64_t a7);
 
 void* __fastcall CStaticProp_Init(int64_t thisptr, int64_t a2, unsigned int idx, unsigned int a4, StaticPropLump_t* lump, int64_t a6, int64_t a7);
 

@@ -83,7 +83,7 @@ struct Player_AnimViewEntityData
 
 
 inline CMemory p_CStudioHdr__LookupSequence;
-inline auto v_CStudioHdr__LookupSequence = p_CStudioHdr__LookupSequence.RCast<int(*)(CStudioHdr* pStudio, const char* pszName)>();
+inline int(*v_CStudioHdr__LookupSequence)(CStudioHdr* pStudio, const char* pszName);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VAnimation : public IDetour

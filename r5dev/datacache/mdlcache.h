@@ -109,22 +109,22 @@ private:
 };
 
 inline CMemory p_CMDLCache__FindMDL;
-inline auto v_CMDLCache__FindMDL = p_CMDLCache__FindMDL.RCast<studiohdr_t* (*)(CMDLCache* pCache, void* a2, void* a3)>();
+inline studiohdr_t*(*v_CMDLCache__FindMDL)(CMDLCache* pCache, void* a2, void* a3);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 inline CMemory p_CMDLCache__FindCachedMDL;
-inline auto v_CMDLCache__FindCachedMDL = p_CMDLCache__FindCachedMDL.RCast<void(*)(CMDLCache* pCache, void* a2, void* a3)>();
+inline void(*v_CMDLCache__FindCachedMDL)(CMDLCache* pCache, void* a2, void* a3);
 
 inline CMemory p_CMDLCache__FindUncachedMDL;
-inline auto v_CMDLCache__FindUncachedMDL = p_CMDLCache__FindUncachedMDL.RCast<studiohdr_t* (*)(CMDLCache* pCache, MDLHandle_t handle, void* a3, void* a4)>();
+inline studiohdr_t*(*v_CMDLCache__FindUncachedMDL)(CMDLCache* pCache, MDLHandle_t handle, void* a3, void* a4);
 #endif
 inline CMemory p_CMDLCache__GetStudioHDR;
-inline auto v_CMDLCache__GetStudioHDR = p_CMDLCache__GetStudioHDR.RCast<studiohdr_t* (*)(CMDLCache* pCache, MDLHandle_t handle)>();
+inline studiohdr_t*(*v_CMDLCache__GetStudioHDR)(CMDLCache* pCache, MDLHandle_t handle);
 
 inline CMemory p_CMDLCache__GetHardwareData;
-inline auto v_CMDLCache__GetHardwareData = p_CMDLCache__GetHardwareData.RCast<studiohwdata_t* (*)(CMDLCache* pCache, MDLHandle_t handle)>();
+inline studiohwdata_t*(*v_CMDLCache__GetHardwareData)(CMDLCache* pCache, MDLHandle_t handle);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 inline CMemory p_CStudioHWDataRef__SetFlags; // Probably incorrect.
-inline auto v_CStudioHWDataRef__SetFlags = p_CStudioHWDataRef__SetFlags.RCast<bool (*)(CStudioHWDataRef* ref, int64_t flags)>();
+inline bool(*v_CStudioHWDataRef__SetFlags)(CStudioHWDataRef* ref, int64_t flags);
 #endif
 inline CMDLCache* g_pMDLCache = nullptr;
 inline PSRWLOCK* g_pMDLLock = nullptr; // Possibly a member? research required.

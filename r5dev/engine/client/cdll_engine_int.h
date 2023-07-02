@@ -52,19 +52,19 @@ public:
 /* ==== CHLCLIENT ======================================================================================================================================================= */
 #ifndef DEDICATED
 inline CMemory p_CHLClient_PostInit;
-inline auto CHLClient_PostInit = p_CHLClient_PostInit.RCast<void*(*)(void)>();
+inline void*(*CHLClient_PostInit)(void);
 
 inline CMemory p_CHLClient_LevelShutdown;
-inline auto CHLClient_LevelShutdown = p_CHLClient_LevelShutdown.RCast<void* (*)(CHLClient* thisptr)>();
+inline void*(*CHLClient_LevelShutdown)(CHLClient* thisptr);
 
 inline CMemory p_CHLClient_HudProcessInput;
-inline auto CHLClient_HudProcessInput = p_CHLClient_HudProcessInput.RCast<void(*)(CHLClient* thisptr, bool bActive)>();
+inline void(*CHLClient_HudProcessInput)(CHLClient* thisptr, bool bActive);
 
 inline CMemory p_CHLClient_FrameStageNotify;
-inline auto CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void(*)(CHLClient* thisptr, ClientFrameStage_t frameStage)>();
+inline void(*CHLClient_FrameStageNotify)(CHLClient* thisptr, ClientFrameStage_t frameStage);
 
 inline CMemory p_CHLClient_GetAllClasses;
-inline auto CHLClient_GetAllClasses = p_CHLClient_GetAllClasses.RCast<ClientClass*(*)()>();
+inline ClientClass*(*CHLClient_GetAllClasses)();
 #endif // !DEDICATED
 
 inline CHLClient* g_pHLClient = nullptr;

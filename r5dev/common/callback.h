@@ -1,11 +1,11 @@
 #pragma once
 
 inline CMemory p_SetupGamemode;
-inline auto SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char* pszPlayList)>();
+inline bool(*SetupGamemode)(const char* pszPlayList);
 
 /* ==== CONCOMMANDCALLBACK ============================================================================================================================================== */
 inline CMemory p_DownloadPlaylists_f;
-inline auto _DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>();
+inline void(*_DownloadPlaylists_f)(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);

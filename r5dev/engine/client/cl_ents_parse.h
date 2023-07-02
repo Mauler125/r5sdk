@@ -2,7 +2,7 @@
 #define CL_ENTS_PARSE_H
 
 inline CMemory p_CL_CopyExistingEntity;
-inline auto v_CL_CopyExistingEntity = p_CL_CopyExistingEntity.RCast<bool (*)(__int64 a1, unsigned int* a2, char* a3)>();
+inline bool(*v_CL_CopyExistingEntity)(__int64 a1, unsigned int* a2, char* a3);
 
 bool CL_CopyExistingEntity(__int64 a1, unsigned int* a2, char* a3);
 ///////////////////////////////////////////////////////////////////////////////

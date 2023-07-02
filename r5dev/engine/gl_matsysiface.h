@@ -2,7 +2,7 @@
 
 /* ==== MATSYSIFACE ===================================================================================================================================================== */
 inline CMemory p_InitMaterialSystem;
-inline auto v_InitMaterialSystem = p_InitMaterialSystem.RCast<void* (*)(void)>();
+inline void*(*v_InitMaterialSystem)(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VGL_MatSysIFace : public IDetour

@@ -66,28 +66,28 @@ struct SQVM
 
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline CMemory p_SQVM_PrintFunc;
-inline auto v_SQVM_PrintFunc = p_SQVM_PrintFunc.RCast<SQRESULT(*)(HSQUIRRELVM v, SQChar* fmt, ...)>();
+inline SQRESULT(*v_SQVM_PrintFunc)(HSQUIRRELVM v, SQChar* fmt, ...);
 
 inline CMemory p_SQVM_WarningFunc;
-inline auto v_SQVM_WarningFunc = p_SQVM_WarningFunc.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)>();
+inline SQRESULT(*v_SQVM_WarningFunc)(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString);
 
 inline CMemory p_SQVM_GetErrorLine;
-inline auto v_SQVM_GetErrorLine = p_SQVM_GetErrorLine.RCast<size_t(*)(const SQChar* pszFile, SQInteger nLine, SQChar* pszContextBuf, SQInteger nBufLen)>();
+inline size_t(*v_SQVM_GetErrorLine)(const SQChar* pszFile, SQInteger nLine, SQChar* pszContextBuf, SQInteger nBufLen);
 
 inline CMemory p_SQVM_WarningCmd;
-inline auto v_SQVM_WarningCmd = p_SQVM_WarningCmd.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteger a2)>();
+inline SQRESULT(*v_SQVM_WarningCmd)(HSQUIRRELVM v, SQInteger a2);
 
 inline CMemory p_SQVM_CompileError;
-inline auto v_SQVM_CompileError = p_SQVM_CompileError.RCast<void (*)(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn)>();
+inline void(*v_SQVM_CompileError)(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn);
 
 inline CMemory p_SQVM_LogicError;
-inline auto v_SQVM_LogicError = p_SQVM_LogicError.RCast<void (*)(SQBool bPrompt)>();
+inline void(*v_SQVM_LogicError)(SQBool bPrompt);
 
 inline CMemory p_SQVM_ScriptError;
-inline auto v_SQVM_ScriptError = p_SQVM_ScriptError.RCast<SQInteger (*)(const SQChar* pszFormat, ...)>();
+inline SQInteger(*v_SQVM_ScriptError)(const SQChar* pszFormat, ...);
 
 inline CMemory p_SQVM_RaiseError;
-inline auto v_SQVM_RaiseError = p_SQVM_RaiseError.RCast<SQInteger(*)(HSQUIRRELVM v, const SQChar* pszFormat, ...)>();
+inline SQInteger(*v_SQVM_RaiseError)(HSQUIRRELVM v, const SQChar* pszFormat, ...);
 
 SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...);
 SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString);

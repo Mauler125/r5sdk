@@ -4,7 +4,7 @@
 
 /* ==== CVENGINESERVER ================================================================================================================================================== */
 inline CMemory p_IVEngineServer__PersistenceAvailable;
-inline auto IVEngineServer__PersistenceAvailable = p_IVEngineServer__PersistenceAvailable.RCast<bool (*)(void* entidx, int clientidx)>();
+inline bool(*IVEngineServer__PersistenceAvailable)(void* entidx, int clientidx);
 
 inline bool* m_bIsDedicated = nullptr;
 
