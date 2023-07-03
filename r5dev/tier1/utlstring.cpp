@@ -19,7 +19,7 @@ static const int64 k_nMillion = 1000000;
 //-----------------------------------------------------------------------------
 static ptrdiff_t IndexOf(const char *pstrToSearch, const char *pstrTarget)
 {
-	const char *pstrHit = V_strstr(pstrToSearch, pstrTarget);
+	const char *pstrHit = V_strstr(pstrTarget, pstrToSearch);
 	if (pstrHit == NULL)
 	{
 		return -1;	// Not found.
