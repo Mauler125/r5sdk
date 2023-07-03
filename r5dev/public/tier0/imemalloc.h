@@ -87,19 +87,11 @@ struct MemAllocFileLine_t
 #endif
 
 //-----------------------------------------------------------------------------
-
-#if (defined(_DEBUG) || defined(USE_MEM_DEBUG))
-#define MEM_ALLOC_CREDIT_(tag)	CMemAllocAttributeAlloction memAllocAttributeAlloction( tag, __LINE__ )
-#define MemAlloc_PushAllocDbgInfo( pszFile, line ) g_pMemAlloc->PushAllocDbgInfo( pszFile, line )
-#define MemAlloc_PopAllocDbgInfo() g_pMemAlloc->PopAllocDbgInfo()
-#define MemAlloc_RegisterAllocation( pFileName, nLine, nLogicalSize, nActualSize, nTime ) g_pMemAlloc->RegisterAllocation( pFileName, nLine, nLogicalSize, nActualSize, nTime )
-#define MemAlloc_RegisterDeallocation( pFileName, nLine, nLogicalSize, nActualSize, nTime ) g_pMemAlloc->RegisterDeallocation( pFileName, nLine, nLogicalSize, nActualSize, nTime )
-#else
+// Stubbed, not used for anything!!!
 #define MEM_ALLOC_CREDIT_(tag)	((void)0)
 #define MemAlloc_PushAllocDbgInfo( pszFile, line ) ((void)0)
 #define MemAlloc_PopAllocDbgInfo() ((void)0)
 #define MemAlloc_RegisterAllocation( pFileName, nLine, nLogicalSize, nActualSize, nTime ) ((void)0)
 #define MemAlloc_RegisterDeallocation( pFileName, nLine, nLogicalSize, nActualSize, nTime ) ((void)0)
-#endif
 
 #endif /* TIER0_MEMALLOC_H */

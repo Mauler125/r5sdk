@@ -80,7 +80,7 @@ bool HushAsserts()
 #ifdef TCHAR_IS_CHAR
 	Assert(!IsBadStringPtr(ptr, maxchar));
 #else
-	Assert(!IsBadStringPtrW(ptr, maxchar));
+	Assert(!IsBadStringPtr(ptr, maxchar));
 #endif
 #else
 	Assert(ptr);
