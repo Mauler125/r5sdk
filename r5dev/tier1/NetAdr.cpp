@@ -108,11 +108,8 @@ void CNetAdr::ToAdrinfo(addrinfo* pHint) const
 
 	if (results != 0)
 	{
-		WCHAR* wszError = gai_strerror(results);
-		_bstr_t bStr(wszError);
-		const char* pszError = bStr;
-
-		Warning(eDLL_T::ENGINE, "Address info translation failed: (%s)\n", pszError);
+		CHAR* wszError = gai_strerror(results);
+		Warning(eDLL_T::ENGINE, "Address info translation failed: (%s)\n", wszError);
 	}
 }
 

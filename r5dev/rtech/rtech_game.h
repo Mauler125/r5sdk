@@ -47,7 +47,7 @@ public:
 };
 
 extern CPakFile* g_pakLoadApi;
-extern vector<RPakHandle_t> g_vLoadedPakHandle;
+extern CUtlVector<RPakHandle_t> g_vLoadedPakHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 class V_RTechGame : public IDetour

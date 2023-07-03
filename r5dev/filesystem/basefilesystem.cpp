@@ -38,29 +38,23 @@ bool CBaseFileSystem::VCheckDisk(const char* pszFilePath)
 {
 	// Only load material files from the disk if the mode isn't zero,
 	// use -novpk to load valve materials from the disk.
-	if (FileSystem()->CheckVPKMode(0) && strstr(pszFilePath, ".vmt"))
+	if (FileSystem()->CheckVPKMode(0) && V_strstr(pszFilePath, ".vmt"))
 	{
 		return false;
 	}
 
-	std::string svFilePath = ConvertToWinPath(pszFilePath);
-	if (svFilePath.find("\\*\\") != string::npos)
-	{
-		// Erase '//*/'.
-		svFilePath.erase(0, 4);
-	}
-
-	fs::path filePath(svFilePath);
-	if (filePath.is_absolute())
+	if (V_IsAbsolutePath(pszFilePath))
 	{
 		// Skip absolute file paths.
 		return false;
 	}
 
-	// TODO: obtain 'mod' SearchPath's instead.
-	svFilePath.insert(0, "platform\\");
+	CUtlString filePath;
+	filePath.Format("platform/%s", pszFilePath);
+	filePath.FixSlashes();
+	filePath = filePath.Replace("\\*\\", "");
 
-	if (::FileExists(svFilePath) /*|| ::FileExists(pszFilePath)*/)
+	if (::FileExists(filePath.Get()))
 	{
 		return true;
 	}

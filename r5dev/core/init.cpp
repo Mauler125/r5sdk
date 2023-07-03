@@ -273,9 +273,7 @@ void QuerySystemInfo()
 
 		if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) // Only log the primary device.
 		{
-			char szDeviceName[128];
-			wcstombs(szDeviceName, dd.DeviceString, sizeof(szDeviceName));
-			DevMsg(eDLL_T::NONE, "%-25s: '%s'\n", "GPU model identifier", szDeviceName);
+			DevMsg(eDLL_T::NONE, "%-25s: '%s'\n", "GPU model identifier", dd.DeviceString);
 		}
 	}
 #endif // !DEDICATED

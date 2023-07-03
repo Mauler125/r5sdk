@@ -181,9 +181,7 @@ void CCrashHandler::FormatSystemInfo()
 
 		if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) // The primary device is the only relevant device.
 		{
-			char szDeviceName[128];
-			wcstombs(szDeviceName, dd.DeviceString, sizeof(szDeviceName));
-			m_svBuffer.append(Format("\tgpu_model = \"%s\"\n", szDeviceName));
+			m_svBuffer.append(Format("\tgpu_model = \"%s\"\n", dd.DeviceString));
 			m_svBuffer.append(Format("\tgpu_flags = 0x%08X // primary device\n", dd.StateFlags));
 		}
 	}

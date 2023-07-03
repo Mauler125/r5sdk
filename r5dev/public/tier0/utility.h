@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Internals
 BOOL IsBadReadPtrV2(void* ptr);
-BOOL FileExists(const fs::path& svFilePath);
+BOOL FileExists(LPCTSTR szPath);
 BOOL FileEmpty(ifstream& pFile);
 MODULEINFO GetModuleInfo(const char* szModule);
 

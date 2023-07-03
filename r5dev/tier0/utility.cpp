@@ -7,9 +7,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if a specific file exists.
-BOOL FileExists(const fs::path& svFilePath)
+BOOL FileExists(LPCTSTR szPath)
 {
-    return fs::exists(svFilePath);
+    DWORD dwAttrib = GetFileAttributes(szPath);
+
+    return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+        !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

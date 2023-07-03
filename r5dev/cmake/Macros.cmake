@@ -81,9 +81,6 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRO
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GS->
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Gy>
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/fp:fast>
-
-            $<$<CXX_COMPILER_ID:MSVC>:/D_UNICODE>
-            $<$<CXX_COMPILER_ID:MSVC>:/DUNICODE>
     )
     endif()
 endmacro()

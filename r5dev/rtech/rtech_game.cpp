@@ -10,7 +10,11 @@
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 
-vector<RPakHandle_t> g_vLoadedPakHandle;
+// Pak handles that have been loaded with the level
+// from within the level settings KV (located in
+// scripts/levels/settings/*.kv). On level unload,
+// each pak listed in this vector gets unloaded.
+CUtlVector<RPakHandle_t> g_vLoadedPakHandle;
 
 //-----------------------------------------------------------------------------
 // Purpose: load user-requested pak files on-demand
@@ -23,10 +27,14 @@ vector<RPakHandle_t> g_vLoadedPakHandle;
 RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk)
 {
 	RPakHandle_t pakHandle = INVALID_PAK_HANDLE;
-	string svPakFileModPath = "paks\\Win32\\" + string(szPakFileName);
-	string svPakFilePathBase = "paks\\Win64\\" + string(szPakFileName);
 
-	if (FileExists(svPakFileModPath) || FileExists(svPakFilePathBase))
+	CUtlString pakBasePath;
+	CUtlString pakOverridePath;
+
+	pakBasePath.Format(PLATFORM_PAK_PATH "%s", szPakFileName);
+	pakOverridePath.Format(PLATFORM_PAK_OVERRIDE_PATH "%s", szPakFileName);
+
+	if (FileExists(pakOverridePath.Get()) || FileExists(pakBasePath.Get()))
 	{
 		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s'\n", szPakFileName);
 		pakHandle = CPakFile_LoadAsync(szPakFileName, pMalloc, nIdx, bUnk);

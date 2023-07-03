@@ -498,28 +498,27 @@ void** RTech::LoadShaderSet(void** VTablePtr)
 //----------------------------------------------------------------------------------
 int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut)
 {
-	string svModFile = szFilePath;
-	string svBaseFile = szFilePath;
-	const string svModDir = "paks\\Win32\\";
-	const string svBaseDir = "paks\\Win64\\";
+	const CHAR* szFileToLoad = szFilePath;
+	CUtlString pakBasePath(szFilePath);
 
-	if (strstr(ConvertToWinPath(szFilePath).c_str(), svBaseDir.c_str()))
+	if (pakBasePath.Find(PLATFORM_PAK_PATH) != -1)
 	{
-		svBaseFile.erase(0, 11); // Erase 'base_dir'.
-		svModFile = svModDir + svBaseFile; // Prepend 'mod_dir'.
+		pakBasePath = pakBasePath.Replace(PLATFORM_PAK_PATH, PLATFORM_PAK_OVERRIDE_PATH);
 
-		if (!FileExists(svModFile))
+		if (FileExists(pakBasePath.Get()))
 		{
-			svModFile = szFilePath;
+			szFileToLoad = pakBasePath.Get();
 		}
 	}
 
-	const HANDLE hFile = CreateFileA(svModFile.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, 0, OPEN_EXISTING, FILE_SUPPORTS_GHOSTING, 0);
+	const HANDLE hFile = CreateFileA(szFileToLoad, GENERIC_READ,
+		FILE_SHARE_READ | FILE_SHARE_DELETE, 0, OPEN_EXISTING, FILE_SUPPORTS_GHOSTING, 0);
+
 	if (hFile == INVALID_HANDLE_VALUE)
 		return -1;
 
 	if (rtech_debug->GetBool())
-		DevMsg(eDLL_T::RTECH, "Opened file: '%s'\n", svModFile.c_str());
+		DevMsg(eDLL_T::RTECH, "Opened file: '%s'\n", szFileToLoad);
 
 	if (fileSizeOut)
 	{

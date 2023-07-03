@@ -446,7 +446,7 @@ void Mod_PreloadLevelPaks(const char* pszLevelName)
         if (nPakId == INVALID_PAK_HANDLE)
             Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, szPathBuffer, nPakId);
         else
-            g_vLoadedPakHandle.push_back(nPakId);
+            g_vLoadedPakHandle.AddToTail(nPakId);
     }
 }
 
@@ -462,7 +462,7 @@ void Mod_UnloadPakFile(void)
 			g_pakLoadApi->UnloadPak(it);
 		}
 	}
-	g_vLoadedPakHandle.clear();
+	g_vLoadedPakHandle.Purge();
 	g_vBadMDLHandles.clear();
 }
 
