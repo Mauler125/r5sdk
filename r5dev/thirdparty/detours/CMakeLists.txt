@@ -7,6 +7,7 @@ add_sources( SOURCE_GROUP "Source"
     "src/creatwth.cpp"
     "src/detours.cpp"
     "src/disasm.cpp"
+    "src/idetour.cpp"
     "src/modules.cpp"
 )
 

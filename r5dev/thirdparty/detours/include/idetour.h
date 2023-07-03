@@ -1,10 +1,9 @@
 #ifndef IDETOUR_H
 #define IDETOUR_H
 
-#define ADDDETOUR(x,y) static std::size_t dummy_reg_##y = AddDetour( new x() );
-#define XREGISTER(x,y)  ADDDETOUR(x, y)
-#define REGISTER(x)     XREGISTER(x, __COUNTER__)
-
+//-----------------------------------------------------------------------------
+// Interface class for context hooks
+//-----------------------------------------------------------------------------
 class IDetour
 {
 public:
@@ -18,28 +17,11 @@ public:
 	virtual void Detach(void) const = 0;
 };
 
-class VDetour : public IDetour
-{
-	virtual void GetAdr(void) const { }
-	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
-	virtual void GetCon(void) const { }
+extern std::map<const void*, const IDetour*> g_DetourMap;
+std::size_t AddDetour(IDetour* pDetour);
 
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
-};
-
-inline static std::vector<IDetour*> g_DetourVector;
-inline static std::unordered_set<IDetour*> g_DetourSet;
-inline std::size_t AddDetour(IDetour* pDetour)
-{
-	IDetour* pVFTable = reinterpret_cast<IDetour**>(pDetour)[0];
-	auto p = g_DetourSet.insert(pVFTable); // Only register if VFTable isn't already registered.
-
-	assert(p.second); // Code bug: duplicate registration!!! (called 'REGISTER(...)' from a header file?).
-	p.second ? g_DetourVector.push_back(pDetour) : delete pDetour;
-
-	return g_DetourVector.size();
-}
+#define ADDDETOUR(x,y) static std::size_t dummy_reg_##y = AddDetour( new x() );
+#define XREGISTER(x,y)  ADDDETOUR(x, y)
+#define REGISTER(x)     XREGISTER(x, __COUNTER__)
 
 #endif // IDETOUR_H
