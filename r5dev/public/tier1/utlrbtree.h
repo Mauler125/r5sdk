@@ -397,7 +397,7 @@ inline CUtlRBTree<T, I, L, M>::CUtlRBTree(int64 growSize, int64 initSize, const 
 
 template < class T, class I, typename L, class M >
 inline CUtlRBTree<T, I, L, M>::CUtlRBTree(const LessFunc_t& lessfunc) :
-	m_Elements(0, 0),
+	m_Elements((int64)0, (int64)0),
 	m_LessFunc(lessfunc),
 	m_Root(InvalidIndex()),
 	m_NumElements(0),
