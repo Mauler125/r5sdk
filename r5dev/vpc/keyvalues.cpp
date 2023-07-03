@@ -1367,5 +1367,9 @@ void VKeyValues::Detach() const
 
 ///////////////////////////////////////////////////////////////////////////////
 inline KeyValues** g_pPlaylistKeyValues = nullptr; // Get the KeyValue for the playlist file.
+
 vector<string> g_vAllPlaylists          = { "<<null>>" };
 vector<string> g_vGameInfoPaths         = { "/" };
+
+std::mutex g_InstalledMapsMutex;
+std::mutex g_PlaylistsVecMutex;
