@@ -170,10 +170,9 @@ void Systems_Init()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Hook functions
-	for (const auto& elem : g_DetourMap)
+	for (const IDetour* Detour : g_DetourVec)
 	{
-		const IDetour* detour = elem.second;
-		detour->Attach();
+		Detour->Attach();
 	}
 
 	// Patch instructions
@@ -216,10 +215,9 @@ void Systems_Shutdown()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Unhook functions
-	for (const auto& elem : g_DetourMap)
+	for (const IDetour* Detour : g_DetourVec)
 	{
-		const IDetour* detour = elem.second;
-		detour->Detach();
+		Detour->Detach();
 	}
 
 	// Commit the transaction
@@ -344,13 +342,11 @@ void DetourInit() // Run the sigscan
 	g_SigCache.SetDisabled(bNoSmap);
 	g_SigCache.LoadCache(SIGDB_FILE);
 
-	for (const auto& elem : g_DetourMap)
+	for (const IDetour* Detour : g_DetourVec)
 	{
-		const IDetour* detour = elem.second;
-
-		detour->GetCon(); // Constants.
-		detour->GetFun(); // Functions.
-		detour->GetVar(); // Variables.
+		Detour->GetCon(); // Constants.
+		Detour->GetFun(); // Functions.
+		Detour->GetVar(); // Variables.
 
 		if (bLogAdr)
 		{
@@ -359,7 +355,7 @@ void DetourInit() // Run the sigscan
 				bInitDivider = true;
 				spdlog::debug("+---------------------------------------------------------------------+\n");
 			}
-			detour->GetAdr();
+			Detour->GetAdr();
 			spdlog::debug("+---------------------------------------------------------------------+\n");
 		}
 	}
@@ -376,11 +372,9 @@ void DetourInit() // Run the sigscan
 void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+---------------------------------------------------------------------+\n");
-	for (const auto& elem : g_DetourMap)
+	for (const IDetour* Detour : g_DetourVec)
 	{
-		const IDetour* detour = elem.second;
-
-		detour->GetAdr();
+		Detour->GetAdr();
 		spdlog::debug("+---------------------------------------------------------------------+\n");
 	}
 }

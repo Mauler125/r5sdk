@@ -17,7 +17,7 @@ public:
 	virtual void Detach(void) const = 0;
 };
 
-extern std::map<const void*, const IDetour*> g_DetourMap;
+extern std::vector<IDetour*> g_DetourVec;
 std::size_t AddDetour(IDetour* pDetour);
 
 #define ADDDETOUR(x,y) static std::size_t dummy_reg_##y = AddDetour( new x() );
