@@ -34,6 +34,9 @@
 #include "vpc/keyvalues.h"
 #include "vpklib/packedstore.h"
 
+static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
+static const std::regex s_BlockFileRegex{ R"(pak000_([0-9]{3}))" };
+
 //-----------------------------------------------------------------------------
 // Purpose: initialize parameters for compression algorithm
 //-----------------------------------------------------------------------------
@@ -168,7 +171,7 @@ bool CPackedStore::GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues,
 CUtlString CPackedStore::GetNameParts(const CUtlString& dirFileName, int nCaptureGroup) const
 {
 	std::cmatch regexMatches;
-	std::regex_search(dirFileName.Get(), regexMatches, DIR_REGEX);
+	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
 
 	return regexMatches[nCaptureGroup].str().c_str();
 }
@@ -181,7 +184,7 @@ CUtlString CPackedStore::GetNameParts(const CUtlString& dirFileName, int nCaptur
 CUtlString CPackedStore::GetLevelName(const CUtlString& dirFileName) const
 {
 	std::cmatch regexMatches;
-	std::regex_search(dirFileName.Get(), regexMatches, DIR_REGEX);
+	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
 
 	CUtlString result;
 	result.Format("%s%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
@@ -826,7 +829,7 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 	}
 
 	std::cmatch regexMatches;
-	std::regex_search(dirFilePath.String(), regexMatches, BLOCK_REGEX);
+	std::regex_search(dirFilePath.String(), regexMatches, s_BlockFileRegex);
 
 	if (regexMatches.empty())
 	{

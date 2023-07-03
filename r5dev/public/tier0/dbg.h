@@ -96,7 +96,6 @@ constexpr const char* s_ScriptAnsiColor[4] =
 	"\033[38;2;151;149;163mScript(X):"
 };
 
-static const std::regex s_AnsiRowRegex("\\\033\\[.*?m");
 extern std::mutex g_LogMutex;
 
 //////////////////////////////////////////////////////////////////////////

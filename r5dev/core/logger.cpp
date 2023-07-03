@@ -12,6 +12,7 @@
 #ifndef NETCONSOLE
 #include "vscript/languages/squirrel_re/include/sqstdaux.h"
 #endif // !NETCONSOLE
+static const std::regex s_AnsiRowRegex("\\\033\\[.*?m");
 std::mutex g_LogMutex;
 
 #if !defined (DEDICATED) && !defined (NETCONSOLE)

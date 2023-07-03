@@ -24,9 +24,6 @@ constexpr int PACKFILEINDEX_SEP = 0x0;
 constexpr int PACKFILEINDEX_END = 0xffff;
 constexpr const char VPK_IGNORE_FILE[] = ".vpkignore";
 
-static const std::regex BLOCK_REGEX{ R"(pak000_([0-9]{3}))" };
-static const std::regex DIR_REGEX{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
-
 static const char* const DIR_TARGET[]
 {
 	"server",
