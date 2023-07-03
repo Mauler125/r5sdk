@@ -21,6 +21,7 @@ macro( apply_project_settings )
 
     # Some thirdparty code have Warnings as Errors disabled; this option won't override those.
     option( GLOBAL_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON )
+    option( ENABLE_LTCG "Enable link-time code generation (significantly increases compile times)" OFF )
 
     set( GAMEDLL_OPTION "GAMEDLL_S3" CACHE STRING "Game DLL version" )
     set_property( CACHE GAMEDLL_OPTION PROPERTY STRINGS
@@ -59,6 +60,13 @@ macro( apply_project_settings )
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/MT>
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/EHsc>
     )
+
+    if( ${ENABLE_LTCG} )
+        add_compile_options(
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Profile>>:/GL>
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GL>
+        )
+    endif()
 
     set( CMAKE_EXE_LINKER_FLAGS_RELEASE
         "${CMAKE_EXE_LINKER_FLAGS_RELEASE}
