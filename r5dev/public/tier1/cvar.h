@@ -13,6 +13,7 @@
 #define CVAR_H
 
 #include "vstdlib/concommandhash.h"
+#include "tier1/utlmap.h"
 
 /* ==== CCVAR =========================================================================================================================================================== */
 //-----------------------------------------------------------------------------
@@ -184,8 +185,6 @@ public:
 	void InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke);
 	void RemoveChangeCallback(FnChangeCallback_t callback);
 
-	static bool ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName = nullptr);
-
 	struct CVValue_t
 	{
 		char* m_pszString;
@@ -266,38 +265,31 @@ FORCEINLINE const char* ConVar::GetString(void) const
 	return str ? str : "";
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// see iconvar.h
-static std::map<string, int> s_ConVarFlags = {
-	{"NONE", FCVAR_NONE},
-	{"DEVELOPMENTONLY", FCVAR_DEVELOPMENTONLY},
-	{"GAMEDLL", FCVAR_GAMEDLL},
-	{"CLIENTDLL", FCVAR_CLIENTDLL},
-	{"HIDDEN", FCVAR_HIDDEN},
-	{"PROTECTED", FCVAR_PROTECTED},
-	{"SPONLY", FCVAR_SPONLY},
-	{"ARCHIVE", FCVAR_ARCHIVE},
-	{"NOTIFY", FCVAR_NOTIFY},
-	{"USERINFO", FCVAR_USERINFO},
-	{"PRINTABLEONLY", FCVAR_PRINTABLEONLY},
-	{"GAMEDLL_FOR_REMOTE_CLIENTS", FCVAR_GAMEDLL_FOR_REMOTE_CLIENTS},
-	{"UNLOGGED", FCVAR_UNLOGGED},
-	{"NEVER_AS_STRING", FCVAR_NEVER_AS_STRING},
-	{"REPLICATED", FCVAR_REPLICATED},
-	{"CHEAT", FCVAR_CHEAT},
-	{"SS", FCVAR_SS},
-	{"DEMO", FCVAR_DEMO},
-	{"DONTRECORD", FCVAR_DONTRECORD},
-	{"SS_ADDED", FCVAR_SS_ADDED},
-	{"RELEASE", FCVAR_RELEASE},
-	{"RELOAD_MATERIALS", FCVAR_RELOAD_MATERIALS},
-	{"RELOAD_TEXTURES", FCVAR_RELOAD_TEXTURES},
-	{"NOT_CONNECTED", FCVAR_NOT_CONNECTED},
-	{"MATERIAL_SYSTEM_THREAD", FCVAR_MATERIAL_SYSTEM_THREAD},
-	{"ARCHIVE_PLAYERPROFILE", FCVAR_ARCHIVE_PLAYERPROFILE},
+//-----------------------------------------------------------------------------
+// Purpose: Console variable flags container for tools
+//-----------------------------------------------------------------------------
+class ConVarFlags
+{
+public:
+	ConVarFlags();
+	void SetFlag(const int nFlag, const char* szDesc, const char* szShortDesc);
+
+	struct FlagDesc_t
+	{
+		int			bit;
+		const char* desc;
+		const char* shortdesc;
+	};
+
+	CUtlMap<const char*, int> m_StringToFlags;
+	FlagDesc_t m_FlagsToDesc[31];
+	int m_Count;
 };
 
+extern ConVarFlags g_ConVarFlags;
+
 ///////////////////////////////////////////////////////////////////////////////
+bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName = "<<unspecified>>");
 void ConVar_PrintDescription(ConCommandBase* pVar);
 
 /* ==== CONVAR ========================================================================================================================================================== */

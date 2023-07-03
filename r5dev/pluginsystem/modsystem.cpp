@@ -210,7 +210,7 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 			}
 
 			int flags = FCVAR_NONE;
-			if (ConVar::ParseFlagString(pszFlagsString, flags, pszName))
+			if (ConVar_ParseFlagString(pszFlagsString, flags, pszName))
 				ConVar::StaticCreate(pszName, pszDefaultValue, flags, pszHelpString, bMin, fMin, bMax, fMax, nullptr, nullptr);
 		}
 	}

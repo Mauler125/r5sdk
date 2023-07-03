@@ -413,24 +413,24 @@ void CConsole::SuggestPanel(void)
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly) &&
                 suggest.m_nFlags != COMMAND_COMPLETION_MARKER)
             {
-                std::function<void(const ConVarFlagsToString_t&)> fnAddHint = [&](const ConVarFlagsToString_t& cvarInfo)
+                std::function<void(const ConVarFlags::FlagDesc_t&)> fnAddHint = [&](const ConVarFlags::FlagDesc_t& cvarInfo)
                 {
-                    const int hintTexIdx = GetFlagTextureIndex(cvarInfo.m_nFlag);
+                    const int hintTexIdx = GetFlagTextureIndex(cvarInfo.bit);
                     const MODULERESOURCE& hintRes = m_vFlagIcons[hintTexIdx];
 
                     ImGui::Image(hintRes.m_idIcon, ImVec2(float(hintRes.m_nWidth), float(hintRes.m_nHeight)));
                     ImGui::SameLine();
-                    ImGui::Text("%s", cvarInfo.m_pszDesc);
+                    ImGui::Text("%s", cvarInfo.shortdesc);
                 };
 
                 ImGui::BeginTooltip();
                 bool bFlagSet = false;
 
                 // Reverse loop to display the most significant flag first.
-                for (int j = IM_ARRAYSIZE(g_PrintConVarFlags); (j--) > 0;)
+                for (int j = IM_ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc); (j--) > 0;)
                 {
-                    const ConVarFlagsToString_t& info = g_PrintConVarFlags[j];
-                    if (suggest.m_nFlags & info.m_nFlag)
+                    const ConVarFlags::FlagDesc_t& info = g_ConVarFlags.m_FlagsToDesc[j];
+                    if (suggest.m_nFlags & info.bit)
                     {
                         bFlagSet = true;
                         fnAddHint(info);
@@ -438,7 +438,7 @@ void CConsole::SuggestPanel(void)
                 }
                 if (!bFlagSet) // Display the FCVAR_NONE flag if no flags are set.
                 {
-                    fnAddHint(g_PrintConVarFlags[FCVAR_NONE]);
+                    fnAddHint(g_ConVarFlags.m_FlagsToDesc[0]);
                 }
 
                 ImGui::EndTooltip();

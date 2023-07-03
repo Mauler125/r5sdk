@@ -1,4 +1,5 @@
 #include "tier1/utlrbtree.h"
+#include "tier1/utlmap.h"
 #include "tier1/NetAdr.h"
 #include "tier1/cvar.h"
 #include "public/const.h"
@@ -393,23 +394,80 @@ void ConVar::RemoveChangeCallback(FnChangeCallback_t callback)
 	m_pParent->m_fnChangeCallbacks.FindAndRemove(callback);
 }
 
+#define SET_CONVARFLAG(x, y) SetFlag(FCVAR_##x, #x, y)
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+ConVarFlags::ConVarFlags() : m_StringToFlags(DefLessFunc(const char*))
+{
+	m_Count = 0;
+
+	SET_CONVARFLAG(NONE, "none");
+	SET_CONVARFLAG(UNREGISTERED, "unregistered");
+	SET_CONVARFLAG(DEVELOPMENTONLY, "development_only");
+	SET_CONVARFLAG(GAMEDLL, "server");
+	SET_CONVARFLAG(CLIENTDLL, "client");
+	SET_CONVARFLAG(HIDDEN, "hidden");
+	SET_CONVARFLAG(PROTECTED, "protected");
+	SET_CONVARFLAG(SPONLY, "singleplayer");
+	SET_CONVARFLAG(ARCHIVE, "archive");
+	SET_CONVARFLAG(NOTIFY, "notify");
+	SET_CONVARFLAG(USERINFO, "userinfo");
+	SET_CONVARFLAG(PRINTABLEONLY, "printable_only");
+	SET_CONVARFLAG(GAMEDLL_FOR_REMOTE_CLIENTS, "server_for_remote");
+	SET_CONVARFLAG(UNLOGGED, "unlogged");
+	SET_CONVARFLAG(NEVER_AS_STRING, "never_as_string");
+	SET_CONVARFLAG(REPLICATED, "replicated");
+	SET_CONVARFLAG(CHEAT, "cheat");
+	SET_CONVARFLAG(SS, "splitscreen");
+	SET_CONVARFLAG(DEMO, "demo");
+	SET_CONVARFLAG(DONTRECORD, "dont_record");
+	SET_CONVARFLAG(SS_ADDED, "splitscreen_added");
+	SET_CONVARFLAG(RELEASE, "release");
+	SET_CONVARFLAG(RELOAD_MATERIALS, "reload_materials");
+	SET_CONVARFLAG(RELOAD_TEXTURES, "reload_textures");
+	SET_CONVARFLAG(NOT_CONNECTED, "not_connected");
+	SET_CONVARFLAG(MATERIAL_SYSTEM_THREAD, "materialsystem_thread");
+	SET_CONVARFLAG(ARCHIVE_PLAYERPROFILE, "playerprofile");
+	SET_CONVARFLAG(SERVER_CAN_EXECUTE, "server_can_execute");
+	SET_CONVARFLAG(SERVER_CANNOT_QUERY, "server_cannot_query");
+	SET_CONVARFLAG(CLIENTCMD_CAN_EXECUTE, "clientcmd_can_execute");
+	SET_CONVARFLAG(MATERIAL_THREAD_MASK, "material_thread_mask");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void ConVarFlags::SetFlag(const int nFlag, const char* szDesc, const char* szShortDesc)
+{
+	Assert(m_Count < SDK_ARRAYSIZE(m_FlagsToDesc));
+
+	m_StringToFlags.Insert(szDesc, nFlag);
+	m_FlagsToDesc[m_Count] = { nFlag, szDesc, szShortDesc };
+
+	m_Count++;
+}
+
+ConVarFlags g_ConVarFlags;
+
 //-----------------------------------------------------------------------------
 // Purpose: Parse input flag string into bitfield
-// Input  : pszFlags -
-//			nFlags -
-//			pszConVarName -
+// Input  : *pszFlags -
+//			&nFlags -
+//			*pszConVarName -
 //-----------------------------------------------------------------------------
-bool ConVar::ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName)
+bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName)
 {
-	size_t len = strlen(pszFlags);
+	size_t len = V_strlen(pszFlags);
 	int flags = FCVAR_NONE;
 
-	string sFlag = "";
+	CUtlString sFlag;
+
 	for (size_t i = 0; i < len; ++i)
 	{
 		char c = pszFlags[i];
 
-		if (std::isspace(c))
+		if (V_isspace(c))
 			continue;
 
 		if (c != '|')
@@ -420,17 +478,17 @@ bool ConVar::ParseFlagString(const char* pszFlags, int& nFlags, const char* pszC
 			if (sFlag == "")
 				continue;
 
-			if (s_ConVarFlags.count(sFlag) == 0)
+			int find = g_ConVarFlags.m_StringToFlags.FindElement(sFlag.Get(), -1);
+			if (find == -1)
 			{
 				Warning(eDLL_T::ENGINE,
 					"%s: Attempted to parse invalid flag '%s' for convar '%s'\n",
-					__FUNCTION__, sFlag.c_str(), pszConVarName);
+					__FUNCTION__, sFlag.Get(), pszConVarName);
 
 				return false;
 			}
 
-			flags |= s_ConVarFlags.at(sFlag);
-
+			flags |= find;
 			sFlag = "";
 		}
 	}
@@ -444,13 +502,13 @@ bool ConVar::ParseFlagString(const char* pszFlags, int& nFlags, const char* pszC
 //-----------------------------------------------------------------------------
 void ConVar_AppendFlags(ConCommandBase* var, char* buf, size_t bufsize)
 {
-	for (int i = 0; i < ARRAYSIZE(g_PrintConVarFlags); ++i)
+	for (int i = 0; i < ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc); ++i)
 	{
-		const ConVarFlagsToString_t& info = g_PrintConVarFlags[i];
-		if (var->IsFlagSet(info.m_nFlag))
+		const ConVarFlags::FlagDesc_t& info = g_ConVarFlags.m_FlagsToDesc[i];
+		if (var->IsFlagSet(info.bit))
 		{
 			char append[128];
-			V_snprintf(append, sizeof(append), " %s", info.m_pszDesc);
+			V_snprintf(append, sizeof(append), " %s", info.shortdesc);
 			V_strncat(buf, append, bufsize);
 		}
 	}
@@ -542,49 +600,18 @@ void ConVar_PrintDescription(ConCommandBase* pVar)
 	}
 }
 
-struct ConVarFlags_t
-{
-	int			bit;
-	const char* desc;
-	const char* shortdesc;
-};
-
-#define CONVARFLAG( x, y )	{ FCVAR_##x, #x, #y }
-
-static ConVarFlags_t g_ConVarFlags[] =
-{
-	CONVARFLAG(UNREGISTERED, "u" ),
-	CONVARFLAG(ARCHIVE, "a"),
-	CONVARFLAG(ARCHIVE_PLAYERPROFILE, "ap"),
-	CONVARFLAG(SPONLY, "sp"),
-	CONVARFLAG(GAMEDLL, "sv"),
-	CONVARFLAG(CHEAT, "cheat"),
-	CONVARFLAG(USERINFO, "user"),
-	CONVARFLAG(NOTIFY, "nf"),
-	CONVARFLAG(PROTECTED, "prot"),
-	CONVARFLAG(PRINTABLEONLY, "print"),
-	CONVARFLAG(UNLOGGED, "ulog"),
-	CONVARFLAG(NEVER_AS_STRING, "numeric"),
-	CONVARFLAG(REPLICATED, "rep"),
-	CONVARFLAG(DEMO, "demo"),
-	CONVARFLAG(DONTRECORD, "norecord"),
-	CONVARFLAG(SERVER_CAN_EXECUTE, "server_can_execute"),
-	CONVARFLAG(CLIENTCMD_CAN_EXECUTE, "clientcmd_can_execute"),
-	CONVARFLAG(CLIENTDLL, "cl"),
-};
-
 static void PrintListHeader(FileHandle_t& f)
 {
 	char csvflagstr[1024];
 
 	csvflagstr[0] = 0;
 
-	int c = ARRAYSIZE(g_ConVarFlags);
+	int c = ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc);
 	for (int i = 0; i < c; ++i)
 	{
 		char csvf[64];
 
-		ConVarFlags_t& entry = g_ConVarFlags[i];
+		ConVarFlags::FlagDesc_t& entry = g_ConVarFlags.m_FlagsToDesc[i];
 		Q_snprintf(csvf, sizeof(csvf), "\"%s\",", entry.desc);
 		Q_strncat(csvflagstr, csvf, sizeof(csvflagstr) - strlen(csvflagstr) - 1);
 	}
@@ -605,14 +632,14 @@ static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 	flagstr[0] = 0;
 	csvflagstr[0] = 0;
 
-	int c = ARRAYSIZE(g_ConVarFlags);
+	int c = ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc);
 	for (int i = 0; i < c; ++i)
 	{
 		char f[32];
 		char csvf[64];
 		size_t flen = sizeof(csvflagstr) - strlen(csvflagstr) - 1;
 
-		ConVarFlags_t& entry = g_ConVarFlags[i];
+		ConVarFlags::FlagDesc_t& entry = g_ConVarFlags.m_FlagsToDesc[i];
 		if (var->IsFlagSet(entry.bit))
 		{
 			Q_snprintf(f, sizeof(f), ", %s", entry.shortdesc);
@@ -669,7 +696,7 @@ static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 
 		emptyflags[0] = 0;
 
-		int c = ARRAYSIZE(g_ConVarFlags);
+		int c = ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc);
 		for (int i = 0; i < c; ++i)
 		{
 			char csvf[64];
@@ -954,9 +981,9 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 		DevMsg(eDLL_T::ENGINE, "Usage:  convar_findByFlags <string>\n");
 		DevMsg(eDLL_T::ENGINE, "Available flags to search for: \n");
 
-		for (int i = 0; i < ARRAYSIZE(g_ConVarFlags); i++)
+		for (int i = 0; i < ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc); i++)
 		{
-			DevMsg(eDLL_T::ENGINE, "   - %s\n", g_ConVarFlags[i].desc);
+			DevMsg(eDLL_T::ENGINE, "   - %s\n", g_ConVarFlags.m_FlagsToDesc[i].desc);
 		}
 		return;
 	}
@@ -974,11 +1001,11 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 
 		if (!var->IsFlagSet(FCVAR_DEVELOPMENTONLY) || !var->IsFlagSet(FCVAR_HIDDEN))
 		{
-			for (int i = 0; i < ARRAYSIZE(g_ConVarFlags); i++)
+			for (int i = 0; i < ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc); i++)
 			{
-				if (var->IsFlagSet(g_ConVarFlags[i].bit))
+				if (var->IsFlagSet(g_ConVarFlags.m_FlagsToDesc[i].bit))
 				{
-					if (V_stristr(g_ConVarFlags[i].desc, search))
+					if (V_stristr(g_ConVarFlags.m_FlagsToDesc[i].desc, search))
 					{
 						ConVar_PrintDescription(var);
 					}
@@ -996,7 +1023,7 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial,
 	char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
 {
-	int flagC = ARRAYSIZE(g_ConVarFlags);
+	int flagC = ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc);
 	char const* pcmd = "findflags ";
 	size_t len = Q_strlen(partial);
 
@@ -1006,7 +1033,7 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial,
 		for (; i < MIN(flagC, COMMAND_COMPLETION_MAXITEMS); i++)
 		{
 			Q_snprintf(commands[i], sizeof(commands[i]), "%s %s",
-				pcmd, g_ConVarFlags[i].desc);
+				pcmd, g_ConVarFlags.m_FlagsToDesc[i].desc);
 			Q_strlower(commands[i]);
 		}
 		return i;
@@ -1018,11 +1045,11 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial,
 	int values = 0;
 	for (int i = 0; i < flagC; ++i)
 	{
-		if (Q_strnicmp(g_ConVarFlags[i].desc, pSub, nSubLen))
+		if (Q_strnicmp(g_ConVarFlags.m_FlagsToDesc[i].desc, pSub, nSubLen))
 			continue;
 
 		Q_snprintf(commands[values], sizeof(commands[values]),
-			"%s %s", pcmd, g_ConVarFlags[i].desc);
+			"%s %s", pcmd, g_ConVarFlags.m_FlagsToDesc[i].desc);
 		Q_strlower(commands[values]);
 		++values;
 
