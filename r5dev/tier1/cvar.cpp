@@ -414,7 +414,6 @@ ConVarFlags::ConVarFlags() : m_StringToFlags(DefLessFunc(const char*))
 	SET_CONVARFLAG(NOTIFY, "notify");
 	SET_CONVARFLAG(USERINFO, "userinfo");
 	SET_CONVARFLAG(PRINTABLEONLY, "printable_only");
-	SET_CONVARFLAG(GAMEDLL_FOR_REMOTE_CLIENTS, "server_for_remote");
 	SET_CONVARFLAG(UNLOGGED, "unlogged");
 	SET_CONVARFLAG(NEVER_AS_STRING, "never_as_string");
 	SET_CONVARFLAG(REPLICATED, "replicated");
@@ -428,11 +427,11 @@ ConVarFlags::ConVarFlags() : m_StringToFlags(DefLessFunc(const char*))
 	SET_CONVARFLAG(RELOAD_TEXTURES, "reload_textures");
 	SET_CONVARFLAG(NOT_CONNECTED, "not_connected");
 	SET_CONVARFLAG(MATERIAL_SYSTEM_THREAD, "materialsystem_thread");
+	SET_CONVARFLAG(MATERIAL_THREAD_MASK, "material_thread_mask");
 	SET_CONVARFLAG(ARCHIVE_PLAYERPROFILE, "playerprofile");
 	SET_CONVARFLAG(SERVER_CAN_EXECUTE, "server_can_execute");
 	SET_CONVARFLAG(SERVER_CANNOT_QUERY, "server_cannot_query");
 	SET_CONVARFLAG(CLIENTCMD_CAN_EXECUTE, "clientcmd_can_execute");
-	SET_CONVARFLAG(MATERIAL_THREAD_MASK, "material_thread_mask");
 }
 
 //-----------------------------------------------------------------------------

@@ -27,10 +27,6 @@ class CCommand;
 
 #define FCVAR_PRINTABLEONLY     (1<<10)	// This cvar's string cannot contain unprintable characters ( e.g., used for player name etc ).
 
-#define FCVAR_GAMEDLL_FOR_REMOTE_CLIENTS        (1<<10)  // When on concommands this allows remote clients to execute this cmd on the server. 
-														 // We are changing the default behavior of concommands to disallow execution by remote clients without
-														 // this flag due to the number existing concommands that can lag or crash the server when clients abuse them.
-
 #define FCVAR_UNLOGGED          (1<<11)  // If this is a FCVAR_SERVER, don't log changes to the log file / console if we are creating a log
 #define FCVAR_NEVER_AS_STRING   (1<<12)  // never try to print that cvar
 
