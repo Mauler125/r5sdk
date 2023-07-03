@@ -282,7 +282,7 @@ public:
 	};
 
 	CUtlMap<const char*, int> m_StringToFlags;
-	FlagDesc_t m_FlagsToDesc[31];
+	FlagDesc_t m_FlagsToDesc[30];
 	int m_Count;
 };
 
