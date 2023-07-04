@@ -98,7 +98,9 @@ void CPackedStore::GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, File
 		{
 			while (!(fileName = FileSystem()->ReadString(hDirectoryFile)).IsEmpty())
 			{
+				filePath.AppendSlash();
 				const CUtlString svFilePath = FormatEntryPath(filePath, fileName, fileExtension);
+
 				entryBlocks.AddToTail(VPKEntryBlock_t(hDirectoryFile, svFilePath.Get()));
 			}
 		}
