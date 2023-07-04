@@ -271,7 +271,7 @@ CUtlString CPackedStore::FormatEntryPath(const CUtlString& filePath,
 	CUtlString result;
 
 	const char* pszFilePath = filePath.Get();
-	bool isRoot = pszFilePath[0] == ' ';
+	const bool isRoot = pszFilePath[0] == ' ';
 
 	result.Format("%s%s.%s", isRoot ? "" : pszFilePath,
 		fileName.Get(), fileExt.Get());
@@ -291,15 +291,17 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 	KeyValues kv("BuildManifest");
 	KeyValues* pManifestKV = kv.FindKey("BuildManifest", true);
 
-	for (const VPKEntryBlock_t& entry : entryBlocks)
+	FOR_EACH_VEC(entryBlocks, i)
 	{
-		const VPKChunkDescriptor_t& vDescriptor = entry.m_Fragments[0];
+		const VPKEntryBlock_t& entry = entryBlocks[i];
+		const VPKChunkDescriptor_t& descriptor = entry.m_Fragments[0];
+
 		KeyValues* pEntryKV = pManifestKV->FindKey(entry.m_EntryPath.Get(), true);
 
 		pEntryKV->SetInt("preloadSize", entry.m_iPreloadSize);
-		pEntryKV->SetInt("loadFlags", vDescriptor.m_nLoadFlags);
-		pEntryKV->SetInt("textureFlags", vDescriptor.m_nTextureFlags);
-		pEntryKV->SetBool("useCompression", vDescriptor.m_nCompressedSize != vDescriptor.m_nUncompressedSize);
+		pEntryKV->SetInt("loadFlags", descriptor.m_nLoadFlags);
+		pEntryKV->SetInt("textureFlags", descriptor.m_nTextureFlags);
+		pEntryKV->SetBool("useCompression", descriptor.m_nCompressedSize != descriptor.m_nUncompressedSize);
 		pEntryKV->SetBool("deDuplicate", true);
 	}
 
@@ -381,7 +383,7 @@ bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString
 
 	FOR_EACH_VEC(ignoreList, j)
 	{
-		CUtlString& ignoreEntry = ignoreList[j];
+		const CUtlString& ignoreEntry = ignoreList[j];
 
 		if (ignoreEntry.IsEqual_CaseInsensitive(filePath.Get()))
 		{
@@ -393,7 +395,7 @@ bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString
 
 	if (fileHandle)
 	{
-		int nSize = FileSystem()->Size(fileHandle);
+		const int nSize = FileSystem()->Size(fileHandle);
 
 		if (!nSize)
 		{
@@ -464,6 +466,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 	{
 		const VPKKeyValues_t& entryValue = entryValues[i];
 		FileHandle_t hAsset = FileSystem()->Open(entryValue.m_EntryPath.Get(), "rb", "PLATFORM");
+
 		if (!hAsset)
 		{
 			Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, entryValue.m_EntryPath.Get());
@@ -590,6 +593,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 		FOR_EACH_VEC(vpkDir.m_EntryBlocks, j)
 		{
 			const VPKEntryBlock_t& entryBlock = vpkDir.m_EntryBlocks[j];
+
 			if (entryBlock.m_iPackFileIndex != uint16_t(i))
 			{
 				// Chunk doesn't belongs to this block.
@@ -900,8 +904,10 @@ void VPKDir_t::Init(const CUtlString& dirFilePath)
 	m_DirFilePath = dirFilePath; // Set path to vpk directory file.
 	m_PackFileCount = 0;
 
-	for (VPKEntryBlock_t& entryBlock : m_EntryBlocks)
+	FOR_EACH_VEC(m_EntryBlocks, i)
 	{
+		const VPKEntryBlock_t& entryBlock = m_EntryBlocks[i];
+
 		if (entryBlock.m_iPackFileIndex > m_PackFileCount)
 		{
 			m_PackFileCount = entryBlock.m_iPackFileIndex;
@@ -1004,13 +1010,13 @@ uint64_t VPKDir_t::WriteDescriptor(FileHandle_t hDirectoryFile,
 				FOR_EACH_VEC(vEntry.m_Fragments, i)
 				{
 					/*Write chunk descriptor*/
-					const VPKChunkDescriptor_t* pDescriptor = &vEntry.m_Fragments[i];
+					const VPKChunkDescriptor_t& descriptor = vEntry.m_Fragments[i];
 
-					FileSystem()->Write(&pDescriptor->m_nLoadFlags, sizeof(uint32_t), hDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nTextureFlags, sizeof(uint16_t), hDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nPackFileOffset, sizeof(uint64_t), hDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nCompressedSize, sizeof(uint64_t), hDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nUncompressedSize, sizeof(uint64_t), hDirectoryFile);
+					FileSystem()->Write(&descriptor.m_nLoadFlags, sizeof(uint32_t), hDirectoryFile);
+					FileSystem()->Write(&descriptor.m_nTextureFlags, sizeof(uint16_t), hDirectoryFile);
+					FileSystem()->Write(&descriptor.m_nPackFileOffset, sizeof(uint64_t), hDirectoryFile);
+					FileSystem()->Write(&descriptor.m_nCompressedSize, sizeof(uint64_t), hDirectoryFile);
+					FileSystem()->Write(&descriptor.m_nUncompressedSize, sizeof(uint64_t), hDirectoryFile);
 
 					if (i != (vEntry.m_Fragments.Count() - 1))
 					{
@@ -1037,13 +1043,15 @@ uint64_t VPKDir_t::WriteDescriptor(FileHandle_t hDirectoryFile,
 // Input  : &vEntryBlocks - 
 //          &vMap         - 
 //-----------------------------------------------------------------------------
-void VPKDir_t::BuildDirectoryTree(const CUtlVector<VPKEntryBlock_t>& vEntryBlocks,
+void VPKDir_t::BuildDirectoryTree(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 	std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>& vMap) const
 {
-	for (const VPKEntryBlock_t& vBlock : vEntryBlocks)
+	FOR_EACH_VEC(entryBlocks, i)
 	{
-		CUtlString fileExt = vBlock.m_EntryPath.GetExtension();
-		CUtlString filePath = vBlock.m_EntryPath.DirName();
+		const VPKEntryBlock_t& entryBlock = entryBlocks[i];
+
+		CUtlString fileExt = entryBlock.m_EntryPath.GetExtension();
+		CUtlString filePath = entryBlock.m_EntryPath.DirName();
 
 		if (!filePath.IsEmpty() && filePath[0] == '.')
 		{
@@ -1057,7 +1065,7 @@ void VPKDir_t::BuildDirectoryTree(const CUtlVector<VPKEntryBlock_t>& vEntryBlock
 		{
 			vMap[fileExt].insert({ filePath, std::list<VPKEntryBlock_t>() });
 		}
-		vMap[fileExt][filePath].push_back(vBlock);
+		vMap[fileExt][filePath].push_back(entryBlock);
 	}
 }
 
@@ -1066,7 +1074,7 @@ void VPKDir_t::BuildDirectoryTree(const CUtlVector<VPKEntryBlock_t>& vEntryBlock
 // Input  : &svDirectoryPath - 
 //          &vEntryBlocks    - 
 //-----------------------------------------------------------------------------
-void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVector<VPKEntryBlock_t>& vEntryBlocks)
+void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVector<VPKEntryBlock_t>& entryBlocks)
 {
 	FileHandle_t hDirectoryFile = FileSystem()->Open(directoryPath.Get(), "wb", "GAME");
 	if (!hDirectoryFile)
@@ -1076,7 +1084,7 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 	}
 
 	auto vMap = std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>();
-	BuildDirectoryTree(vEntryBlocks, vMap);
+	BuildDirectoryTree(entryBlocks, vMap);
 
 	WriteHeader(hDirectoryFile);
 	uint64_t nDescriptors = WriteDescriptor(hDirectoryFile, vMap);
@@ -1086,7 +1094,7 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 
 	FileSystem()->Close(hDirectoryFile);
 	DevMsg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%zu' entries and '%zu' descriptors\n",
-		size_t(sizeof(VPKDirHeader_t) + m_Header.m_nDirectorySize), vEntryBlocks.Count(), nDescriptors);
+		size_t(sizeof(VPKDirHeader_t) + m_Header.m_nDirectorySize), entryBlocks.Count(), nDescriptors);
 }
 //-----------------------------------------------------------------------------
 // Singleton

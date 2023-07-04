@@ -146,8 +146,8 @@ struct VPKDir_t
 	void WriteTreeSize(FileHandle_t hDirectoryFile) const;
 	uint64_t WriteDescriptor(FileHandle_t hDirectoryFile, std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>& vMap) const;
 
-	void BuildDirectoryTree(const CUtlVector<VPKEntryBlock_t>& vEntryBlocks, std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>& vMap) const;
-	void BuildDirectoryFile(const CUtlString& svDirectoryFile, const CUtlVector<VPKEntryBlock_t>& vEntryBlocks);
+	void BuildDirectoryTree(const CUtlVector<VPKEntryBlock_t>& entryBlocks, std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>& vMap) const;
+	void BuildDirectoryFile(const CUtlString& svDirectoryFile, const CUtlVector<VPKEntryBlock_t>& entryBlocks);
 };
 
 class CPackedStore
