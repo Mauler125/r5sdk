@@ -190,6 +190,7 @@ void Systems_Init()
 	DevMsg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->Attach()",
 		initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
+	DevMsg(eDLL_T::NONE, "\n");
 
 	ConVar_StaticInit();
 }
@@ -227,6 +228,7 @@ void Systems_Shutdown()
 	DevMsg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->Detach()",
 		shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
 	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
+	DevMsg(eDLL_T::NONE, "\n");
 }
 
 /////////////////////////////////////////////////////
@@ -284,9 +286,9 @@ void QuerySystemInfo()
 	DevMsg(eDLL_T::NONE, "%-25s: '%s'\n","CPU vendor tag", pi.m_szProcessorID);
 	DevMsg(eDLL_T::NONE, "%-25s: '%12hhu' ('%2hhu' %s)\n", "CPU core count", pi.m_nPhysicalProcessors, pi.m_nLogicalProcessors, "logical");
 	DevMsg(eDLL_T::NONE, "%-25s: '%12lld' ('%6.1f' %s)\n", "CPU core speed", pi.m_Speed, float(pi.m_Speed / 1000000), "MHz");
-	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
-	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
-	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' (0x%-10X)\n", "L3 cache", "(KiB)", pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
+	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
+	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
+	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L3 cache", "(KiB)", pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
 
 	MEMORYSTATUSEX statex{};
 	statex.dwLength = sizeof(statex);

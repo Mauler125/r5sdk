@@ -134,7 +134,7 @@ void SDK_Shutdown()
     }
 
     g_bSdkInitialized = false;
-    spdlog::info("Shutdown GameSDK\n");
+    DevMsg(eDLL_T::NONE, "GameSDK shutdown initiated\n");
 
     curl_global_cleanup();
 
