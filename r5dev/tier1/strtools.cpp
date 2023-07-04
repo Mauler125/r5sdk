@@ -202,7 +202,7 @@ int64_t V_StrTrim(char* pStr)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Converts a UTF8 string into a unicode string
+// Purpose: Converts a UTF-8 string into a unicode string
 //-----------------------------------------------------------------------------
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes)
 {
@@ -220,7 +220,7 @@ int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Converts a unicode string into a UTF8 (standard) string
+// Purpose: Converts a unicode string into a UTF-8 (standard) string
 //-----------------------------------------------------------------------------
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes)
 {
@@ -239,6 +239,86 @@ int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes
 		pUTF8[cubDestSizeInBytes - 1] = 0;
 
 	return cchResult;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the UTF-8 character length
+//-----------------------------------------------------------------------------
+int V_UTF8CharLength(const unsigned char input)
+{
+	if ((input & 0xFE) == 0xFC)
+		return 6;
+	if ((input & 0xFC) == 0xF8)
+		return 5;
+	if ((input & 0xF8) == 0xF0)
+		return 4;
+	else if ((input & 0xF0) == 0xE0)
+		return 3;
+	else if ((input & 0xE0) == 0xC0)
+		return 2;
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Checks if a given string only contains UTF-8 characters
+//-----------------------------------------------------------------------------
+bool V_IsValidUTF8(const char* pszString)
+{
+	char c;
+	const char* it;
+
+	while (true)
+	{
+		while (true)
+		{
+			c = *pszString;
+			it = pszString++;
+			if (c < 0)
+			{
+				break;
+			}
+			if (!c)
+			{
+				return true;
+			}
+		}
+
+		char s = *pszString;
+		if ((*pszString & 0xC0) != 0x80)
+		{
+			break;
+		}
+
+		pszString = it + 2;
+		if (c >= 0xE0u)
+		{
+			int n = (*pszString & 0x3F) | (((s & 0x3F) | ((c & 0xF) << 6)) << 6);
+			if ((*pszString & 0xC0) != 0x80)
+			{
+				return false;
+			}
+
+			pszString = it + 3;
+			if (c >= 0xF0u)
+			{
+				if ((*pszString & 0xC0) != 0x80 || ((n << 6) | (*pszString & 0x3Fu)) > 0x10FFFF)
+				{
+					return false;
+				}
+
+				pszString = it + 4;
+			}
+			else if ((n - 0xD800) <= 0x7FF)
+			{
+				return false;
+			}
+		}
+		else if (c < 0xC2u)
+		{
+			return false;
+		}
+	}
+	return false;
 }
 
 bool V_StringMatchesPattern(const char* pszSource, const char* pszPattern, int nFlags /*= 0 */)

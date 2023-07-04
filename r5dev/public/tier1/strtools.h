@@ -70,6 +70,9 @@ int64_t V_StrTrim(char* pStr);
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes);
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes);
 
+int V_UTF8CharLength(const unsigned char input);
+bool V_IsValidUTF8(const char* pszString);
+
 typedef enum
 {
 	PATTERN_NONE = 0x00000000,

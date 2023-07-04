@@ -44,8 +44,6 @@ string Base64Decode(const string& svInput);
 
 string UTF8Encode(const wstring& wsvInput);
 //string UTF8Decode(const string& svInput);
-size_t UTF8CharLength(const uint8_t cInput);
-bool IsValidUTF8(const char* pszString);
 
 bool StringIsDigit(const string& svInput);
 bool CompareStringAlphabetically(const string& svA, const string& svB);

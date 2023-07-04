@@ -10,6 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
+#include "tier1/strtools.h"
 #include "engine/server/server.h"
 #include "engine/client/client.h"
 
@@ -394,7 +395,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	// Just skip if the cmd pointer is null, we still check if the
 	// client sent too many commands and take appropriate actions.
 	// The internal function discards the command if it's null.
-	if (pCmd && !IsValidUTF8(pCmd))
+	if (pCmd && !V_IsValidUTF8(pCmd))
 	{
 		Warning(eDLL_T::SERVER, "Removing client '%s' from slot #%i ('%llu' sent invalid string command!)\n",
 			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
