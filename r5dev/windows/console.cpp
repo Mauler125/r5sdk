@@ -31,10 +31,15 @@ void SetConsoleBackgroundColor(COLORREF color)
 	HANDLE consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	GetConsoleScreenBufferInfoEx(consoleOut, &sbInfoEx);
 
-	// The '+= 1' is required, else the window will shrink
-	// by '1' each time this function is getting called on
-	// the same console window.
+	// The +='' 1 is required, else the window will shrink
+	// by '1' column and row each time this function is
+	// getting called on the same console window. The
+	// lower right bounds are detected inclusively on the
+	// 'GetConsoleScreenBufferEx' call and exclusively
+	// on the 'SetConsoleScreenBufferEx' call.
+	sbInfoEx.srWindow.Right += 1;
 	sbInfoEx.srWindow.Bottom += 1;
+
 	sbInfoEx.ColorTable[0] = color;
 	SetConsoleScreenBufferInfoEx(consoleOut, &sbInfoEx);
 }
