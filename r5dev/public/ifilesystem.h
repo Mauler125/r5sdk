@@ -260,7 +260,7 @@ public:
 	//--------------------------------------------------------
 	virtual void			RemoveFile(char const* pRelativePath, const char* pathID = 0) = 0;                  // Deletes a file (on the WritePath)
 	virtual bool			RenameFile(char const* pOldPath, char const* pNewPath, const char* pathID = 0) = 0; // Renames a file (on the WritePath)
-	virtual void			CreateDirHierarchy(const char* path, const char* pathID = 0) = 0;                   // create a local directory structure
+	virtual int				CreateDirHierarchy(const char* path, const char* pathID = 0) = 0;                   // create a local directory structure
 	virtual bool			IsDirectory(const char* pFileName, const char* pathID = 0) = 0;                     // File I/O and info
 	virtual void			FileTimeToString(char* pStrip, int maxCharsIncludingTerminator, long fileTime) = 0;
 
