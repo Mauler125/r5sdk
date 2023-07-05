@@ -128,9 +128,22 @@ struct VPKDir_t
 	CUtlVector<CUtlString>       m_PackFiles;     // Vector of pack file names.
 	CUtlString                   m_DirFilePath;   // Path to vpk_dir file.
 
+	class CTreeBuilder
+	{
+	public:
+		typedef std::map<std::string, std::list<VPKEntryBlock_t>> PathContainer_t;
+		typedef std::map<std::string, PathContainer_t> TypeContainer_t;
+
+		void BuildTree(const CUtlVector<VPKEntryBlock_t>& entryBlocks);
+		uint64_t WriteTree(FileHandle_t hDirectoryFile) const;
+
+	private:
+		TypeContainer_t m_FileTree;
+	};
+
 	VPKDir_t()
 	{
-		m_Header.m_nHeaderMarker = VPK_HEADER_MARKER; m_Header.m_nMajorVersion = VPK_MAJOR_VERSION; 
+		m_Header.m_nHeaderMarker = VPK_HEADER_MARKER; m_Header.m_nMajorVersion = VPK_MAJOR_VERSION;
 		m_Header.m_nMinorVersion = VPK_MINOR_VERSION; m_Header.m_nDirectorySize = NULL, m_Header.m_nSignatureSize = NULL;
 		m_PackFileCount = NULL;
 	};
@@ -144,9 +157,7 @@ struct VPKDir_t
 
 	void WriteHeader(FileHandle_t hDirectoryFile) const;
 	void WriteTreeSize(FileHandle_t hDirectoryFile) const;
-	uint64_t WriteDescriptor(FileHandle_t hDirectoryFile, std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>& vMap) const;
 
-	void BuildDirectoryTree(const CUtlVector<VPKEntryBlock_t>& entryBlocks, std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>& vMap) const;
 	void BuildDirectoryFile(const CUtlString& svDirectoryFile, const CUtlVector<VPKEntryBlock_t>& entryBlocks);
 };
 
