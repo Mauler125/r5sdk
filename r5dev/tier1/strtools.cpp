@@ -800,8 +800,6 @@ size_t V_StripLastDir(char* dirName, size_t maxLen)
 		if (PATHSEPARATOR(dirName[len - 1]))
 		{
 			dirName[len] = '\0';
-			V_FixSlashes(dirName, CORRECT_PATH_SEPARATOR);
-
 			return len;
 		}
 		else if (dirName[len - 1] == ':')
