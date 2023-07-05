@@ -772,18 +772,21 @@ V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pSt
 // Input  : *dirName - 
 //			maxLen - 
 //			*newLen - 
-// Output : Returns true on success, false on failure.
+// Output : Returns the new length of the string
 //-----------------------------------------------------------------------------
-bool V_StripLastDir(char* dirName, size_t maxLen, size_t* newLen)
+size_t V_StripLastDir(char* dirName, size_t maxLen)
 {
-	if (dirName[0] == 0 ||
-		!V_stricmp(dirName, "./") ||
-		!V_stricmp(dirName, ".\\"))
-		return false;
+	Assert(dirName);
+
+	if (dirName[0] == '\0')
+		return 0;
 
 	size_t len = V_strlen(dirName);
-
 	Assert(len < maxLen);
+
+	if (!V_stricmp(dirName, "./") ||
+		!V_stricmp(dirName, ".\\"))
+		return len;
 
 	// skip trailing slash
 	if (PATHSEPARATOR(dirName[len - 1]))
@@ -796,9 +799,10 @@ bool V_StripLastDir(char* dirName, size_t maxLen, size_t* newLen)
 	{
 		if (PATHSEPARATOR(dirName[len - 1]))
 		{
-			dirName[len] = 0;
+			dirName[len] = '\0';
 			V_FixSlashes(dirName, CORRECT_PATH_SEPARATOR);
-			return true;
+
+			return len;
 		}
 		else if (dirName[len - 1] == ':')
 		{
@@ -809,27 +813,33 @@ bool V_StripLastDir(char* dirName, size_t maxLen, size_t* newLen)
 	}
 
 	// If we hit a drive letter, then we're done.
-	// Ex: If they passed in c:\, then V_StripLastDir should return "" and false.
+	// Ex: If they passed in c:\, then V_StripLastDir should
+	// turn the string into "" and return 0.
 	if (bHitColon)
 	{
-		dirName[0] = 0;
-		return false;
+		dirName[0] = '\0';
+		return 0;
 	}
 
-	// Allow it to return an empty string and true. This can happen if something like "tf2/" is passed in.
-	// The correct behavior is to strip off the last directory ("tf2") and return true.
-	if (len == 0 && !bHitColon)
+	// Allow it to return an empty string and 0. This can happen if something like "tf2/" is passed in.
+	// The correct behavior is to strip off the last directory ("tf2") and return the new length.
+	if (len == 0)
 	{
-		V_snprintf(dirName, maxLen, ".%c", CORRECT_PATH_SEPARATOR);
-		return true;
+		int ret = V_snprintf(dirName, maxLen, ".%c", CORRECT_PATH_SEPARATOR);
+
+		// snprintf failed, turn the string into "" and return 0.
+		if (ret < 0)
+		{
+			Assert(0);
+
+			dirName[0] = '\0';
+			return 0;
+		}
+
+		return ret;
 	}
 
-	if (newLen)
-	{
-		*newLen = len;
-	}
-
-	return true;
+	return len;
 }
 
 //-----------------------------------------------------------------------------

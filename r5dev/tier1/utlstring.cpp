@@ -430,7 +430,8 @@ void CUtlString::StripTrailingSlash()
 
 	int64 nLastChar = Length() - 1;
 	char c = m_Storage[ nLastChar ];
-	if ( c == '\\' || c == '/' )
+
+	if ( PATHSEPARATOR( c ) )
 	{
 		m_Storage[ nLastChar ] = 0;
 		m_Storage.SetLength( m_Storage.Length() - 1 );
@@ -607,14 +608,12 @@ CUtlString CUtlString::UnqualifiedFilename() const
 CUtlString CUtlString::DirName( bool bStripTrailingSlash ) const
 {
 	CUtlString ret( this->String() );
-	size_t len = 0;
+	size_t len = V_StripLastDir( (char*)ret.m_Storage.Get(), ret.m_Storage.Length() );
 
-	V_StripLastDir( (char*)ret.m_Storage.Get(), ret.m_Storage.Length(), &len );
+	ret.SetLength( len );
 
 	if (bStripTrailingSlash)
 		ret.StripTrailingSlash();
-	else
-		ret.SetLength(len); // StripTrailingSlash sets this, but if we skip it then nothing sets it.
 
 	return ret;
 }
