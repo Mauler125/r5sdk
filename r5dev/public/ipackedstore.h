@@ -1,7 +1,7 @@
 #ifndef IPACKEDSTORE_H
 #define IPACKEDSTORE_H
 
-enum class EPackedLoadFlags : int
+enum EPackedLoadFlags
 {
 	LOAD_NONE,
 	LOAD_VISIBLE = 1 << 0,  // Visible to FileSystem.
@@ -11,7 +11,7 @@ enum class EPackedLoadFlags : int
 	LOAD_TEXTURE_UNK2 = 1 << 20,
 };
 
-enum class EPackedTextureFlags : short
+enum EPackedTextureFlags
 {
 	TEXTURE_NONE,
 	TEXTURE_DEFAULT = 1 << 3,

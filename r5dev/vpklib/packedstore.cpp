@@ -582,9 +582,9 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, GetLevelName(vpkDir.m_DirFilePath));
 	const CUtlString basePath = vpkDir.m_DirFilePath.StripFilename(false);
 
-	FOR_EACH_VEC(vpkDir.m_PackFiles, i)
+	for (uint16_t packFileIndex : vpkDir.m_PakFileIndices)
 	{
-		const CUtlString packFile = basePath + vpkDir.m_PackFiles[i];
+		const CUtlString packFile = basePath + vpkDir.GetPackFileNameForIndex(packFileIndex);
 
 		// Read from each pack file.
 		FileHandle_t hPackFile = FileSystem()->Open(packFile.Get(), "rb", "GAME");
@@ -598,7 +598,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 		{
 			const VPKEntryBlock_t& entryBlock = vpkDir.m_EntryBlocks[j];
 
-			if (entryBlock.m_iPackFileIndex != uint16_t(i))
+			if (entryBlock.m_iPackFileIndex != packFileIndex)
 			{
 				// Chunk doesn't belongs to this block.
 				continue;
@@ -616,7 +616,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				continue;
 			}
 
-			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%i' ('%s')\n", j, i, entryBlock.m_EntryPath.Get());
+			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%i' ('%s')\n",
+				j, entryBlock.m_iPackFileIndex, entryBlock.m_EntryPath.Get());
 
 			FOR_EACH_VEC(entryBlock.m_Fragments, k)
 			{
@@ -642,8 +643,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 
 				if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 				{
-					Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
-						lzDecompStatus, k, j, i);
+					Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%i' within entry '%i' in block '%hu' (chunk not decompressed)\n",
+						lzDecompStatus, k, j, packFileIndex);
 				}
 				else // If successfully decompressed, write to file.
 				{
@@ -906,37 +907,26 @@ void VPKDir_t::Init(const CUtlString& dirFilePath)
 	FileSystem()->Read(&m_Header.m_nSignatureSize, sizeof(uint32_t), hDirFile); //
 
 	g_pPackedStore->GetEntryBlocks(m_EntryBlocks, hDirFile);
-
 	m_DirFilePath = dirFilePath; // Set path to vpk directory file.
-	m_PackFileCount = 0;
 
+	// Obtain every referenced pack file from the directory tree.
 	FOR_EACH_VEC(m_EntryBlocks, i)
 	{
 		const VPKEntryBlock_t& entryBlock = m_EntryBlocks[i];
-
-		if (entryBlock.m_iPackFileIndex > m_PackFileCount)
-		{
-			m_PackFileCount = entryBlock.m_iPackFileIndex;
-		}
-	}
-
-	for (uint16_t i = 0; i < m_PackFileCount + 1; i++)
-	{
-		m_PackFiles.AddToTail(GetPackFile(dirFilePath, i));
+		m_PakFileIndices.insert(entryBlock.m_iPackFileIndex);
 	}
 
 	FileSystem()->Close(hDirFile);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: formats pack file path for specific directory file
-// Input  : &directoryPath - 
-//          iPackFileIndex - 
+// Purpose: formats pack file path for specified patch
+// Input  : iPackFileIndex - (patch)
 // output : string
 //-----------------------------------------------------------------------------
-CUtlString VPKDir_t::GetPackFile(const CUtlString& directoryPath, uint16_t iPackFileIndex) const
+CUtlString VPKDir_t::GetPackFileNameForIndex(uint16_t iPackFileIndex) const
 {
-	CUtlString packChunkName = StripLocalePrefix(directoryPath);
+	CUtlString packChunkName = StripLocalePrefix(m_DirFilePath);
 	CUtlString packChunkIndex;
 
 	packChunkIndex.Format("pak000_%03d", iPackFileIndex);
