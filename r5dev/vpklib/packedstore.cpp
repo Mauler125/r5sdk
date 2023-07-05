@@ -142,7 +142,9 @@ bool CPackedStore::GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues,
 		}
 
 		CUtlString fileName;
+
 		fileName.Format("%s%s", workspacePath.Get(), pszFileName);
+		fileName.FixSlashes('/');
 
 		if (ShouldPrune(fileName, ignoreList))
 		{
@@ -203,9 +205,7 @@ CUtlString CPackedStore::GetLevelName(const CUtlString& dirFileName) const
 KeyValues* CPackedStore::GetManifest(const CUtlString& workspacePath, const CUtlString& manifestFile) const
 {
 	CUtlString outPath;
-
 	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestFile.Get());
-	outPath.FixSlashes();
 
 	KeyValues* pManifestKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_COMMON, outPath.Get(), "PLATFORM");
 	return pManifestKV;
@@ -220,9 +220,7 @@ KeyValues* CPackedStore::GetManifest(const CUtlString& workspacePath, const CUtl
 bool CPackedStore::GetIgnoreList(CUtlVector<CUtlString>& ignoreList, const CUtlString& workspacePath) const
 {
 	CUtlString toIgnore;
-
 	toIgnore.Format("%s%s", workspacePath.Get(), VPK_IGNORE_FILE);
-	toIgnore.FixSlashes();
 
 	FileHandle_t hIgnoreFile = FileSystem()->Open(toIgnore.Get(), "rt", "PLATFORM");
 	if (!hIgnoreFile)
@@ -276,7 +274,7 @@ CUtlString CPackedStore::FormatEntryPath(const CUtlString& filePath,
 	result.Format("%s%s.%s", isRoot ? "" : pszFilePath,
 		fileName.Get(), fileExt.Get());
 
-	result.FixSlashes();
+	result.FixSlashes('/');
 	return result;
 }
 
@@ -296,7 +294,13 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 		const VPKEntryBlock_t& entry = entryBlocks[i];
 		const VPKChunkDescriptor_t& descriptor = entry.m_Fragments[0];
 
-		KeyValues* pEntryKV = pManifestKV->FindKey(entry.m_EntryPath.Get(), true);
+		// Copy, because we need to change the '/' slashes into
+		// '\\'. KeyValues has the '/' character reserved for
+		// delimiting subfields.
+		CUtlString entryPath = entry.m_EntryPath;
+		entryPath.FixSlashes('\\');
+
+		KeyValues* pEntryKV = pManifestKV->FindKey(entryPath.Get(), true);
 
 		pEntryKV->SetInt("preloadSize", entry.m_iPreloadSize);
 		pEntryKV->SetInt("loadFlags", descriptor.m_nLoadFlags);
@@ -307,7 +311,6 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 
 	CUtlString outPath;
 	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestName.Get());
-	outPath.FixSlashes();
 
 	CUtlBuffer outBuf(int64_t(0), 0, CUtlBuffer::TEXT_BUFFER);
 	kv.RecursiveSaveToFile(outBuf, 0);
@@ -426,7 +429,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 {
 	CUtlString workspacePath(workspaceName);
 	workspacePath.AppendSlash();
-	workspacePath.FixSlashes();
+	workspacePath.FixSlashes('/');
 
 	CUtlString packFilePath;
 	CUtlString dirFilePath;
@@ -486,7 +489,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		FileSystem()->Seek(hAsset, 0, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
 
 		DevMsg(eDLL_T::FS, "Packing entry '%i' ('%s')\n", i, szDestPath);
-		entryBlocks.AddToTail(VPKEntryBlock_t(
+		int index = entryBlocks.AddToTail(VPKEntryBlock_t(
 			pBuf.get(),
 			nLen,
 			FileSystem()->Tell(hPackFile),
@@ -496,7 +499,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 			entryValue.m_nTextureFlags,
 			CUtlString(szDestPath)));
 
-		VPKEntryBlock_t& entryBlock = entryBlocks[i];
+		VPKEntryBlock_t& entryBlock = entryBlocks[index];
 
 		FOR_EACH_VEC(entryBlock.m_Fragments, j)
 		{
@@ -522,7 +525,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 				if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 				{
 					Warning(eDLL_T::FS, "Status '%d' for chunk '%i' within entry '%i' in block '%hu' (chunk packed without compression)\n",
-						lzCompStatus, j, i, entryBlocks[i].m_iPackFileIndex);
+						lzCompStatus, j, i, entryBlock.m_iPackFileIndex);
 
 					descriptor.m_nCompressedSize = descriptor.m_nUncompressedSize;
 				}
@@ -555,8 +558,9 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName)
 {
 	CUtlString workspacePath(workspaceName);
+
 	workspacePath.AppendSlash();
-	workspacePath.FixSlashes();
+	workspacePath.FixSlashes('/');
 
 	if (vpkDir.m_Header.m_nHeaderMarker != VPK_HEADER_MARKER ||
 		vpkDir.m_Header.m_nMajorVersion != VPK_MAJOR_VERSION ||
@@ -578,9 +582,9 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, GetLevelName(vpkDir.m_DirFilePath));
 	const CUtlString basePath = vpkDir.m_DirFilePath.StripFilename(false);
 
-	FOR_EACH_VEC(vpkDir.m_PackFiles, i)
+	for (uint16_t packFileIndex : vpkDir.m_PakFileIndices)
 	{
-		const CUtlString packFile = basePath + vpkDir.m_PackFiles[i];
+		const CUtlString packFile = basePath + vpkDir.GetPackFileNameForIndex(packFileIndex);
 
 		// Read from each pack file.
 		FileHandle_t hPackFile = FileSystem()->Open(packFile.Get(), "rb", "GAME");
@@ -594,7 +598,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 		{
 			const VPKEntryBlock_t& entryBlock = vpkDir.m_EntryBlocks[j];
 
-			if (entryBlock.m_iPackFileIndex != uint16_t(i))
+			if (entryBlock.m_iPackFileIndex != packFileIndex)
 			{
 				// Chunk doesn't belongs to this block.
 				continue;
@@ -612,7 +616,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				continue;
 			}
 
-			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%i' ('%s')\n", j, i, entryBlock.m_EntryPath.Get());
+			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%i' ('%s')\n",
+				j, entryBlock.m_iPackFileIndex, entryBlock.m_EntryPath.Get());
 
 			FOR_EACH_VEC(entryBlock.m_Fragments, k)
 			{
@@ -638,8 +643,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 
 				if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 				{
-					Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
-						lzDecompStatus, k, j, i);
+					Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%i' within entry '%i' in block '%hu' (chunk not decompressed)\n",
+						lzDecompStatus, k, j, packFileIndex);
 				}
 				else // If successfully decompressed, write to file.
 				{
@@ -683,8 +688,8 @@ VPKEntryBlock_t::VPKEntryBlock_t(FileHandle_t hDirFile, const char* pEntryPath)
 {
 	m_EntryPath = pEntryPath; // Set the entry path.
 
-	m_EntryPath.FixSlashes(); // Fix slashes and remove space character representing VPK root.
-	m_EntryPath = m_EntryPath.Replace(" " CORRECT_PATH_SEPARATOR_S, "");
+	m_EntryPath.FixSlashes('/'); // Fix slashes and remove space character representing VPK root.
+	m_EntryPath = m_EntryPath.Replace(" /", "");
 
 	FileSystem()->Read(&m_nFileCRC, sizeof(uint32_t), hDirFile);       //
 	FileSystem()->Read(&m_iPreloadSize, sizeof(uint16_t), hDirFile);   //
@@ -719,6 +724,8 @@ VPKEntryBlock_t::VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOff
 	m_iPreloadSize = iPreloadSize;
 	m_iPackFileIndex = iPackFileIndex;
 	m_EntryPath = pEntryPath;
+
+	m_EntryPath.FixSlashes('/');
 
 	size_t nFragmentCount = (nLen + ENTRY_MAX_LEN - 1) / ENTRY_MAX_LEN;
 	size_t nFileSize = nLen;
@@ -900,37 +907,26 @@ void VPKDir_t::Init(const CUtlString& dirFilePath)
 	FileSystem()->Read(&m_Header.m_nSignatureSize, sizeof(uint32_t), hDirFile); //
 
 	g_pPackedStore->GetEntryBlocks(m_EntryBlocks, hDirFile);
-
 	m_DirFilePath = dirFilePath; // Set path to vpk directory file.
-	m_PackFileCount = 0;
 
+	// Obtain every referenced pack file from the directory tree.
 	FOR_EACH_VEC(m_EntryBlocks, i)
 	{
 		const VPKEntryBlock_t& entryBlock = m_EntryBlocks[i];
-
-		if (entryBlock.m_iPackFileIndex > m_PackFileCount)
-		{
-			m_PackFileCount = entryBlock.m_iPackFileIndex;
-		}
-	}
-
-	for (uint16_t i = 0; i < m_PackFileCount + 1; i++)
-	{
-		m_PackFiles.AddToTail(GetPackFile(dirFilePath, i));
+		m_PakFileIndices.insert(entryBlock.m_iPackFileIndex);
 	}
 
 	FileSystem()->Close(hDirFile);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: formats pack file path for specific directory file
-// Input  : &directoryPath - 
-//          iPackFileIndex - 
+// Purpose: formats pack file path for specified patch
+// Input  : iPackFileIndex - (patch)
 // output : string
 //-----------------------------------------------------------------------------
-CUtlString VPKDir_t::GetPackFile(const CUtlString& directoryPath, uint16_t iPackFileIndex) const
+CUtlString VPKDir_t::GetPackFileNameForIndex(uint16_t iPackFileIndex) const
 {
-	CUtlString packChunkName = StripLocalePrefix(directoryPath);
+	CUtlString packChunkName = StripLocalePrefix(m_DirFilePath);
 	CUtlString packChunkIndex;
 
 	packChunkIndex.Format("pak000_%03d", iPackFileIndex);
@@ -981,26 +977,89 @@ void VPKDir_t::WriteTreeSize(FileHandle_t hDirectoryFile) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: writes the vpk chunk descriptors
+// Purpose: builds the vpk directory tree
+// Input  : &entryBlocks - 
+//-----------------------------------------------------------------------------
+void VPKDir_t::CTreeBuilder::BuildTree(const CUtlVector<VPKEntryBlock_t>& entryBlocks)
+{
+	FOR_EACH_VEC(entryBlocks, i)
+	{
+		const VPKEntryBlock_t& entryBlock = entryBlocks[i];
+
+		CUtlString fileExt = entryBlock.m_EntryPath.GetExtension();
+		CUtlString filePath = entryBlock.m_EntryPath.DirName();
+
+		if (!filePath.IsEmpty() && filePath[0] == '.')
+		{
+			// Has to be padded with a space character if empty [root].
+			filePath = " ";
+		}
+
+		/**********************************************************************
+		* The code below creates a directory tree structure as follows:
+		* 
+		*  Extension0
+		* |
+		* |--- Path0
+		* |   |
+		* |   File0
+		* |   File1
+		* |   File2
+		* |
+		* |--- Path1
+		*     |
+		*     File0
+		*     File1
+		*     File2
+		* ...
+		* 
+		* A tree scope cannot contain duplicate elements,
+		* which ultimately means that:
+		* 
+		* - An extension is only written once to the tree.
+		* - A file path is only written once per extension tree.
+		* - A file name is only written once per file path tree.
+		**********************************************************************/
+		const char* pFileExt = fileExt.Get();
+		auto extIt = m_FileTree.find(pFileExt);
+
+		if (extIt == m_FileTree.end())
+		{
+			extIt = m_FileTree.insert({ pFileExt, PathContainer_t() }).first;
+		}
+
+		PathContainer_t& pathTree = extIt->second;
+
+		const char* pFilePath = filePath.Get();
+		auto pathIt = pathTree.find(pFilePath);
+
+		if (pathIt == pathTree.end())
+		{
+			pathIt = pathTree.insert({ pFilePath, std::list<VPKEntryBlock_t>() }).first;
+		}
+
+		pathIt->second.push_back(entryBlock);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: writes the vpk directory tree
 // Input  : hDirectoryFile - 
-//          &vMap          - 
 // Output : number of descriptors written
 //-----------------------------------------------------------------------------
-uint64_t VPKDir_t::WriteDescriptor(FileHandle_t hDirectoryFile,
-	std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>& vMap) const
+uint64_t VPKDir_t::CTreeBuilder::WriteTree(FileHandle_t hDirectoryFile) const
 {
 	uint64_t nDescriptors = NULL;
 
-	for (auto& iKeyValue : vMap)
+	for (auto& iKeyValue : m_FileTree)
 	{
-		FileSystem()->Write(iKeyValue.first.Get(), int(iKeyValue.first.Length() + 1), hDirectoryFile);
+		FileSystem()->Write(iKeyValue.first.c_str(), int(iKeyValue.first.length() + 1), hDirectoryFile);
 		for (auto& jKeyValue : iKeyValue.second)
 		{
-			FileSystem()->Write(jKeyValue.first.Get(), int(jKeyValue.first.Length() + 1), hDirectoryFile);
+			FileSystem()->Write(jKeyValue.first.c_str(), int(jKeyValue.first.length() + 1), hDirectoryFile);
 			for (auto& vEntry : jKeyValue.second)
 			{
 				CUtlString entryPath = vEntry.m_EntryPath.UnqualifiedFilename().StripExtension();
-
 				FileSystem()->Write(entryPath.Get(), int(entryPath.Length() + 1), hDirectoryFile);
 
 				FileSystem()->Write(&vEntry.m_nFileCRC, sizeof(uint32_t), hDirectoryFile);
@@ -1039,37 +1098,6 @@ uint64_t VPKDir_t::WriteDescriptor(FileHandle_t hDirectoryFile,
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: builds the vpk directory tree
-// Input  : &vEntryBlocks - 
-//          &vMap         - 
-//-----------------------------------------------------------------------------
-void VPKDir_t::BuildDirectoryTree(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
-	std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>& vMap) const
-{
-	FOR_EACH_VEC(entryBlocks, i)
-	{
-		const VPKEntryBlock_t& entryBlock = entryBlocks[i];
-
-		CUtlString fileExt = entryBlock.m_EntryPath.GetExtension();
-		CUtlString filePath = entryBlock.m_EntryPath.DirName();
-
-		if (!filePath.IsEmpty() && filePath[0] == '.')
-		{
-			filePath = " "; // Has to be padded with a space character if empty [root].
-		}
-		if (!vMap.count(fileExt))
-		{
-			vMap.insert({ fileExt, std::map<CUtlString, std::list<VPKEntryBlock_t>>() });
-		}
-		if (!vMap[fileExt].count(filePath))
-		{
-			vMap[fileExt].insert({ filePath, std::list<VPKEntryBlock_t>() });
-		}
-		vMap[fileExt][filePath].push_back(entryBlock);
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: builds the vpk directory file
 // Input  : &svDirectoryPath - 
 //          &vEntryBlocks    - 
@@ -1083,11 +1111,11 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 		return;
 	}
 
-	auto vMap = std::map<CUtlString, std::map<CUtlString, std::list<VPKEntryBlock_t>>>();
-	BuildDirectoryTree(entryBlocks, vMap);
+	CTreeBuilder treeBuilder;
+	treeBuilder.BuildTree(entryBlocks);
 
 	WriteHeader(hDirectoryFile);
-	uint64_t nDescriptors = WriteDescriptor(hDirectoryFile, vMap);
+	uint64_t nDescriptors = treeBuilder.WriteTree(hDirectoryFile);
 
 	m_Header.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(hDirectoryFile) - sizeof(VPKDirHeader_t));
 	WriteTreeSize(hDirectoryFile);
