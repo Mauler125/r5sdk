@@ -21,6 +21,7 @@
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
 #include "Detour/Include/DetourCommon.h"
+#include "DetourCrowd/Include/DetourPathCorridor.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "NavEditor/Include/NavMeshTesterTool.h"
@@ -42,52 +43,6 @@ inline bool inRange(const float* v1, const float* v2, const float r, const float
 	const float dy = v2[1] - v1[1];
 	const float dz = v2[2] - v1[2];
 	return (dx*dx + dz*dz) < r*r && fabsf(dy) < h;
-}
-
-
-static int fixupCorridor(dtPolyRef* path, const int npath, const int maxPath,
-						 const dtPolyRef* visited, const int nvisited)
-{
-	int furthestPath = -1;
-	int furthestVisited = -1;
-	
-	// Find furthest common polygon.
-	for (int i = npath-1; i >= 0; --i)
-	{
-		bool found = false;
-		for (int j = nvisited-1; j >= 0; --j)
-		{
-			if (path[i] == visited[j])
-			{
-				furthestPath = i;
-				furthestVisited = j;
-				found = true;
-			}
-		}
-		if (found)
-			break;
-	}
-
-	// If no intersection found just return current path. 
-	if (furthestPath == -1 || furthestVisited == -1)
-		return npath;
-	
-	// Concatenate paths.	
-
-	// Adjust beginning of the buffer to include the visited.
-	const int req = nvisited - furthestVisited;
-	const int orig = rcMin(furthestPath+1, npath);
-	int size = rcMax(0, npath-orig);
-	if (req+size > maxPath)
-		size = maxPath-req;
-	if (size)
-		memmove(path+req, path+orig, size*sizeof(dtPolyRef));
-	
-	// Store visited
-	for (int i = 0; i < req; ++i)
-		path[i] = visited[(nvisited-1)-i];				
-	
-	return req+size;
 }
 
 // This function checks if the path has a small U-turn, that is,
@@ -548,7 +503,7 @@ void NavMeshTesterTool::handleToggle()
 	int nvisited = 0;
 	m_navQuery->moveAlongSurface(m_pathIterPolys[0], m_iterPos, moveTgt, &m_filter,
 								 result, visited, &nvisited, 16);
-	m_pathIterPolyCount = fixupCorridor(m_pathIterPolys, m_pathIterPolyCount, MAX_POLYS, visited, nvisited);
+	m_pathIterPolyCount = dtMergeCorridorStartMoved(m_pathIterPolys, m_pathIterPolyCount, MAX_POLYS, visited, nvisited);
 	m_pathIterPolyCount = fixupShortcuts(m_pathIterPolys, m_pathIterPolyCount, m_navQuery);
 
 	float h = 0;
@@ -747,7 +702,7 @@ void NavMeshTesterTool::recalc()
 					m_navQuery->moveAlongSurface(polys[0], iterPos, moveTgt, &m_filter,
 												 result, visited, &nvisited, 16);
 
-					npolys = fixupCorridor(polys, npolys, MAX_POLYS, visited, nvisited);
+					npolys = dtMergeCorridorStartMoved(polys, npolys, MAX_POLYS, visited, nvisited);
 					npolys = fixupShortcuts(polys, npolys, m_navQuery);
 
 					float h = 0;
