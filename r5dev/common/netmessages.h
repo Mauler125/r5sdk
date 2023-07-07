@@ -22,6 +22,8 @@
 class CNetChan;
 class SVC_Print;
 class SVC_UserMessage;
+class SVC_PlaylistOverrides;
+class CLC_SetPlaylistVarOverride;
 class Base_CmdKeyValues;
 
 //-------------------------------------------------------------------------
@@ -52,9 +54,23 @@ inline void* g_pSVC_ServerTick_VFTable = nullptr;
 inline void* g_pSVC_VoiceData_VFTable = nullptr;
 
 //-------------------------------------------------------------------------
+// SVC_PlaylistOverrides
+//-------------------------------------------------------------------------
+inline bool(*SVC_PlaylistOverrides_ReadFromBuffer)(SVC_PlaylistOverrides* thisptr, bf_read* buffer);
+inline bool(*SVC_PlaylistOverrides_WriteToBuffer)(SVC_PlaylistOverrides* thisptr, bf_write* buffer);
+inline void* g_pSVC_PlaylistOverrides_VFTable = nullptr;
+
+//-------------------------------------------------------------------------
 // CLC_ClientTick
 //-------------------------------------------------------------------------
 inline void* g_pCLC_ClientTick_VFTable = nullptr;
+
+//-------------------------------------------------------------------------
+// CLC_SetPlaylistVarOverride
+//-------------------------------------------------------------------------
+inline bool(*CLC_SetPlaylistVarOverride_ReadFromBuffer)(CLC_SetPlaylistVarOverride* thisptr, bf_read* buffer);
+inline bool(*CLC_SetPlaylistVarOverride_WriteToBuffer)(CLC_SetPlaylistVarOverride* thisptr, bf_write* buffer);
+inline void* g_pCLC_SetPlaylistVarOverride_VFTable = nullptr;
 
 //-------------------------------------------------------------------------
 // Base_CmdKeyValues
@@ -339,6 +355,18 @@ public:
 	void* m_DataOut;
 };
 
+class SVC_PlaylistOverrides : public CNetMessage
+{
+public:
+	static	bool	ReadFromBufferImpl(SVC_PlaylistOverrides* thisptr, bf_read* buffer);
+	static	bool	WriteToBufferImpl(SVC_PlaylistOverrides* thisptr, bf_write* buffer);
+
+private:
+	int			m_nMsgType;
+	int			m_nLength;	// data length in bits
+	bf_read		m_DataIn;
+	bf_write	m_DataOut;
+};
 
 class CLC_ClientTick : public CNetMessage
 {
@@ -391,6 +419,16 @@ public:
 
 	int m_nDeltaTick;
 	int m_nStringTableTick;
+};
+
+class CLC_SetPlaylistVarOverride : public CNetMessage
+{
+public:
+	static	bool	ReadFromBufferImpl(CLC_SetPlaylistVarOverride* thisptr, bf_read* buffer);
+	static	bool	WriteToBufferImpl(CLC_SetPlaylistVarOverride* thisptr, bf_write* buffer);
+
+private:
+	// !TODO:
 };
 
 
@@ -448,7 +486,9 @@ class V_NetMessages : public IDetour
 		LogConAdr("SVC_UserMessage::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
 		LogConAdr("SVC_ServerTick::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_ServerTick_VFTable));
 		LogConAdr("SVC_VoiceData::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_VoiceData_VFTable));
+		LogConAdr("SVC_PlaylistOverrides::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_PlaylistOverrides_VFTable));
 		LogConAdr("CLC_ClientTick::`vftable'", reinterpret_cast<uintptr_t>(g_pCLC_ClientTick_VFTable));
+		LogConAdr("CLC_SetPlaylistVarOverride::`vftable'", reinterpret_cast<uintptr_t>(g_pCLC_SetPlaylistVarOverride_VFTable));
 		LogConAdr("Base_CmdKeyValues::`vftable'", reinterpret_cast<uintptr_t>(g_pBase_CmdKeyValues_VFTable));
 		//LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
 	}
@@ -465,7 +505,9 @@ class V_NetMessages : public IDetour
 		g_pSVC_UserMessage_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
 		g_pSVC_ServerTick_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_ServerTick@@");
 		g_pSVC_VoiceData_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_VoiceData@@");
+		g_pSVC_PlaylistOverrides_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_PlaylistOverrides@@");
 		g_pCLC_ClientTick_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCLC_ClientTick@@");
+		g_pCLC_SetPlaylistVarOverride_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCLC_SetPlaylistVarOverride@@");
 		g_pBase_CmdKeyValues_VFTable = g_GameDll.GetVirtualMethodTable(".?AVBase_CmdKeyValues@@");
 	}
 	virtual void Attach(void) const;

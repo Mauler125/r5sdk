@@ -65,6 +65,53 @@ bool SVC_UserMessage::ProcessImpl()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
+// Below functions are hooked as 'SVC_PlaylistOverrides' can be abused from the
+// client. The client could basically manage the server's playlists. Only allow
+// reading/writing when cheats are enabled.
+///////////////////////////////////////////////////////////////////////////////////
+bool SVC_PlaylistOverrides::ReadFromBufferImpl(SVC_PlaylistOverrides* thisptr, bf_read* buffer)
+{
+	// Abusable netmsg; only allow if cheats are enabled.
+	if (!sv_cheats->GetBool())
+	{
+		return false;
+	}
+
+	return SVC_PlaylistOverrides_ReadFromBuffer(thisptr, buffer);
+}
+bool SVC_PlaylistOverrides::WriteToBufferImpl(SVC_PlaylistOverrides* thisptr, bf_write* buffer)
+{
+	// Abusable netmsg; only allow if cheats are enabled.
+	if (!sv_cheats->GetBool())
+	{
+		return false;
+	}
+
+	return SVC_PlaylistOverrides_WriteToBuffer(thisptr, buffer);
+}
+bool CLC_SetPlaylistVarOverride::ReadFromBufferImpl(CLC_SetPlaylistVarOverride* thisptr, bf_read* buffer)
+{
+	// Abusable netmsg; only allow if cheats are enabled.
+	if (!sv_cheats->GetBool())
+	{
+		return false;
+	}
+
+	return CLC_SetPlaylistVarOverride_ReadFromBuffer(thisptr, buffer);
+}
+bool CLC_SetPlaylistVarOverride::WriteToBufferImpl(CLC_SetPlaylistVarOverride* thisptr, bf_write* buffer)
+{
+	// Abusable netmsg; only allow if cheats are enabled.
+	if (!sv_cheats->GetBool())
+	{
+		return false;
+	}
+
+	return CLC_SetPlaylistVarOverride_WriteToBuffer(thisptr, buffer);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////
 // below functions are hooked as 'CmdKeyValues' isn't really used in this game, but
 // still exploitable on the server. the 'OnPlayerAward' command calls the function
 // 'UTIL_SendClientCommandKVToPlayer' which forwards the keyvalues to all connected clients.
@@ -135,25 +182,28 @@ bool ShouldReplayMessage(const CNetMessage* msg)
 
 void V_NetMessages::Attach() const
 {
-#if !defined(DEDICATED)
 	auto hk_SVCPrint_Process = &SVC_Print::ProcessImpl;
 	auto hk_SVCUserMessage_Process = &SVC_UserMessage::ProcessImpl;
-	auto hk_Base_CmdKeyValues_ReadFromBuffer = &Base_CmdKeyValues::ReadFromBufferImpl;
-	auto hk_Base_CmdKeyValues_WriteToBuffer = &Base_CmdKeyValues::WriteToBufferImpl;
+
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VFTable,         (LPVOID&)hk_SVCPrint_Process,       NetMessageVtbl::Process, (LPVOID*)&SVC_Print_Process);
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VFTable,   (LPVOID&)hk_SVCUserMessage_Process, NetMessageVtbl::Process, (LPVOID*)&SVC_UserMessage_Process);
-	CMemory::HookVirtualMethod((uintptr_t)g_pBase_CmdKeyValues_VFTable, (LPVOID&)hk_Base_CmdKeyValues_ReadFromBuffer, NetMessageVtbl::ReadFromBuffer, (LPVOID*)&Base_CmdKeyValues_ReadFromBuffer);
-	CMemory::HookVirtualMethod((uintptr_t)g_pBase_CmdKeyValues_VFTable, (LPVOID&)hk_Base_CmdKeyValues_WriteToBuffer, NetMessageVtbl::WriteToBuffer, (LPVOID*)&Base_CmdKeyValues_WriteToBuffer);
-#endif // DEDICATED
+	CMemory::HookVirtualMethod((uintptr_t)g_pBase_CmdKeyValues_VFTable, (LPVOID*)&Base_CmdKeyValues::ReadFromBufferImpl, NetMessageVtbl::ReadFromBuffer, (LPVOID*)&Base_CmdKeyValues_ReadFromBuffer);
+	CMemory::HookVirtualMethod((uintptr_t)g_pBase_CmdKeyValues_VFTable, (LPVOID*)&Base_CmdKeyValues::WriteToBufferImpl, NetMessageVtbl::WriteToBuffer, (LPVOID*)&Base_CmdKeyValues_WriteToBuffer);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_PlaylistOverrides_VFTable, (LPVOID*)&SVC_PlaylistOverrides::ReadFromBufferImpl, NetMessageVtbl::ReadFromBuffer, (LPVOID*)&SVC_PlaylistOverrides_ReadFromBuffer);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_PlaylistOverrides_VFTable, (LPVOID*)&SVC_PlaylistOverrides::WriteToBufferImpl, NetMessageVtbl::WriteToBuffer, (LPVOID*)&SVC_PlaylistOverrides_WriteToBuffer);
+	CMemory::HookVirtualMethod((uintptr_t)g_pCLC_SetPlaylistVarOverride_VFTable, (LPVOID*)&CLC_SetPlaylistVarOverride::ReadFromBufferImpl, NetMessageVtbl::ReadFromBuffer, (LPVOID*)&CLC_SetPlaylistVarOverride_ReadFromBuffer);
+	CMemory::HookVirtualMethod((uintptr_t)g_pCLC_SetPlaylistVarOverride_VFTable, (LPVOID*)&CLC_SetPlaylistVarOverride::WriteToBufferImpl, NetMessageVtbl::WriteToBuffer, (LPVOID*)&CLC_SetPlaylistVarOverride_WriteToBuffer);
 }
 
 void V_NetMessages::Detach() const
 {
-#if !defined(DEDICATED)
 	void* hkRestore = nullptr;
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VFTable,       (LPVOID)SVC_Print_Process,       NetMessageVtbl::Process, (LPVOID*)&hkRestore);
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VFTable, (LPVOID)SVC_UserMessage_Process, NetMessageVtbl::Process, (LPVOID*)&hkRestore);
 	CMemory::HookVirtualMethod((uintptr_t)g_pBase_CmdKeyValues_VFTable, (LPVOID)Base_CmdKeyValues_ReadFromBuffer, NetMessageVtbl::ReadFromBuffer, (LPVOID*)&hkRestore);
 	CMemory::HookVirtualMethod((uintptr_t)g_pBase_CmdKeyValues_VFTable, (LPVOID)Base_CmdKeyValues_WriteToBuffer, NetMessageVtbl::WriteToBuffer, (LPVOID*)&hkRestore);
-#endif // DEDICATED
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_PlaylistOverrides_VFTable, (LPVOID)SVC_PlaylistOverrides_ReadFromBuffer, NetMessageVtbl::ReadFromBuffer, (LPVOID*)&hkRestore);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_PlaylistOverrides_VFTable, (LPVOID)SVC_PlaylistOverrides_WriteToBuffer, NetMessageVtbl::WriteToBuffer, (LPVOID*)&hkRestore);
+	CMemory::HookVirtualMethod((uintptr_t)g_pCLC_SetPlaylistVarOverride_VFTable, (LPVOID)CLC_SetPlaylistVarOverride_ReadFromBuffer, NetMessageVtbl::ReadFromBuffer, (LPVOID*)&hkRestore);
+	CMemory::HookVirtualMethod((uintptr_t)g_pCLC_SetPlaylistVarOverride_VFTable, (LPVOID)CLC_SetPlaylistVarOverride_WriteToBuffer, NetMessageVtbl::WriteToBuffer, (LPVOID*)&hkRestore);
 }
