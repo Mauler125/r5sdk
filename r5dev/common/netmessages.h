@@ -56,8 +56,6 @@ inline void* g_pSVC_VoiceData_VFTable = nullptr;
 //-------------------------------------------------------------------------
 // SVC_PlaylistOverrides
 //-------------------------------------------------------------------------
-inline bool(*SVC_PlaylistOverrides_ReadFromBuffer)(SVC_PlaylistOverrides* thisptr, bf_read* buffer);
-inline bool(*SVC_PlaylistOverrides_WriteToBuffer)(SVC_PlaylistOverrides* thisptr, bf_write* buffer);
 inline void* g_pSVC_PlaylistOverrides_VFTable = nullptr;
 
 //-------------------------------------------------------------------------
@@ -357,10 +355,6 @@ public:
 
 class SVC_PlaylistOverrides : public CNetMessage
 {
-public:
-	static	bool	ReadFromBufferImpl(SVC_PlaylistOverrides* thisptr, bf_read* buffer);
-	static	bool	WriteToBufferImpl(SVC_PlaylistOverrides* thisptr, bf_write* buffer);
-
 private:
 	int			m_nMsgType;
 	int			m_nLength;	// data length in bits
