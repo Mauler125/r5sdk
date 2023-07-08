@@ -131,16 +131,16 @@ void CCrashHandler::FormatModules()
 	BOOL result = K32EnumProcessModulesEx(hProcess, &*hModule.get(), CRASHHANDLER_MAX_MODULES, &cbNeeded, LIST_MODULES_ALL);
 	if (result && cbNeeded <= CRASHHANDLER_MAX_MODULES && cbNeeded >> 3)
 	{
-		CHAR szModuleName[512];
+		CHAR szModuleName[MAX_FILEPATH];
 		LPSTR pszModuleName;
 		MODULEINFO modInfo;
 
 		for (DWORD i = 0, j = cbNeeded >> 3; j; i++, j--)
 		{
-			DWORD m = GetModuleFileNameA(&*hModule.get()[i], szModuleName, sizeof(szModuleName));
+			DWORD m = GetModuleFileNameA(hModule.get()[i], szModuleName, sizeof(szModuleName));
 			if ((m - 1) > (sizeof(szModuleName) - 2)) // Too small for buffer.
 			{
-				snprintf(szModuleName, sizeof(szModuleName), "module@%p", &*hModule.get()[i]);
+				snprintf(szModuleName, sizeof(szModuleName), "module@%p", hModule.get()[i]);
 				pszModuleName = szModuleName;
 			}
 			else
