@@ -188,8 +188,9 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 		for (KeyValues* pSubKey = pConVars->GetFirstSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
 		{
 			const char* pszName = pSubKey->GetName();
-			const char* pszHelpString = pSubKey->GetString("helpString");
 			const char* pszFlagsString = pSubKey->GetString("flags", "NONE");
+			const char* pszHelpString = pSubKey->GetString("helpText");
+			const char* pszUsageString = pSubKey->GetString("usageText");
 
 			KeyValues* pValues = pSubKey->FindKey("Values");
 
@@ -219,8 +220,9 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 			}
 
 			int flags = FCVAR_NONE;
+
 			if (ConVar_ParseFlagString(pszFlagsString, flags, pszName))
-				ConVar::StaticCreate(pszName, pszDefaultValue, flags, pszHelpString, bMin, fMin, bMax, fMax, nullptr, nullptr);
+				ConVar::StaticCreate(pszName, pszDefaultValue, flags, pszHelpString, bMin, fMin, bMax, fMax, nullptr, pszUsageString);
 		}
 	}
 
