@@ -58,18 +58,9 @@ void Show_Emblem()
 void Tier0_Init()
 {
 #if !defined (DEDICATED)
-    g_GameDll = CModule("r5apex.exe");
     g_RadVideoToolsDll = CModule("bink2w64.dll");
     g_RadAudioDecoderDll = CModule("binkawin64.dll");
     g_RadAudioSystemDll = CModule("mileswin64.dll");
-#if !defined (CLIENT_DLL)
-    g_SDKDll = CModule("gamesdk.dll");
-#else // This dll is loaded from 'bin/x64_retail//'
-    g_SDKDll = CModule("client.dll");
-#endif // !CLIENT_DLL
-#else // No DirectX and Miles imports.
-    g_GameDll = CModule("r5apex_ds.exe");
-    g_SDKDll = CModule("dedicated.dll");
 #endif // !DEDICATED
 
     g_pCmdLine = g_GameDll.GetExportedSymbol("g_pCmdLine").RCast<CCommandLine*>();
@@ -159,13 +150,17 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
     CheckCPU(); // Check CPU as early as possible; error out if CPU isn't supported.
     MathLib_Init(); // Initialize Mathlib.
 
-    NOTE_UNUSED(hModule);
     NOTE_UNUSED(lpReserved);
 
     switch (dwReason)
     {
         case DLL_PROCESS_ATTACH:
         {
+            PEB64* pEnv = CModule::GetProcessEnvironmentBlock();
+
+            g_GameDll = CModule(pEnv->ImageBaseAddress);
+            g_SDKDll = CModule((QWORD)hModule);
+
             SDK_Init();
             break;
         }
