@@ -181,17 +181,17 @@ One of the difficulties in maintaining a path is that floating point errors, loc
 steering can result in the agent crossing the boundary of the path corridor, temporarily invalidating the path. 
 This class uses local mesh queries to detect and update the corridor as needed to handle these types of issues. 
 
-The fact that local mesh queries are used to move the position and target locations results in two beahviors that 
+The fact that local mesh queries are used to move the position and target locations results in two behaviors that 
 need to be considered:
 
-Every time a move function is used there is a chance that the path will become non-optimial. Basically, the further 
+Every time a move function is used there is a chance that the path will become non-optimal. Basically, the further 
 the target is moved from its original location, and the further the position is moved outside the original corridor, 
 the more likely the path will become non-optimal. This issue can be addressed by periodically running the 
 #optimizePathTopology() and #optimizePathVisibility() methods.
 
 All local mesh queries have distance limitations. (Review the #dtNavMeshQuery methods for details.) So the most accurate 
 use case is to move the position and target in small increments. If a large increment is used, then the corridor 
-may not be able to accurately find the new location.  Because of this limiation, if a position is moved in a large
+may not be able to accurately find the new location.  Because of this limitation, if a position is moved in a large
 increment, then compare the desired and resulting polygon references. If the two do not match, then path replanning 
 may be needed.  E.g. If you move the target, check #getLastPoly() to see if it is the expected polygon.
 
