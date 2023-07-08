@@ -285,11 +285,11 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
 
         void* pAnimData = (void*)*((_QWORD*)dataCache + 1);
 
-        AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pMDLLock));
+        AcquireSRWLockExclusive(g_pMDLLock);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
         v_CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(pAnimData), 1i64); // !!! DECLARED INLINE IN < S3 !!!
 #endif
-        ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pMDLLock));
+        ReleaseSRWLockExclusive(g_pMDLLock);
     }
     if ((pStudioData->m_nFlags & STUDIODATA_FLAGS_STUDIOMESH_LOADED))
         return &pStudioData->m_pHardwareRef->m_HardwareData;

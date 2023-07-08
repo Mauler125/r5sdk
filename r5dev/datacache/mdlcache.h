@@ -127,7 +127,7 @@ inline CMemory p_CStudioHWDataRef__SetFlags; // Probably incorrect.
 inline bool(*v_CStudioHWDataRef__SetFlags)(CStudioHWDataRef* ref, int64_t flags);
 #endif
 inline CMDLCache* g_pMDLCache = nullptr;
-inline PSRWLOCK* g_pMDLLock = nullptr; // Possibly a member? research required.
+inline PSRWLOCK g_pMDLLock = nullptr; // Possibly a member? research required.
 
 ///////////////////////////////////////////////////////////////////////////////
 class VMDLCache : public IDetour
@@ -189,7 +189,7 @@ class VMDLCache : public IDetour
 		g_pMDLCache = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 0F 45 C8 FF 05 ?? ?? ?? ?? 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??")
 			.FindPatternSelf("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMDLCache*>();
 
-		g_pMDLLock = p_CMDLCache__GetHardwareData.Offset(0x35).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PSRWLOCK*>();
+		g_pMDLLock = p_CMDLCache__GetHardwareData.Offset(0x35).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PSRWLOCK>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;
