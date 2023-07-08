@@ -17,7 +17,6 @@ extern ConVar* fps_max;
 extern ConVar* usercmd_frametime_max;
 extern ConVar* usercmd_frametime_min;
 
-extern ConVar* staticProp_defaultBuildFrustum;
 extern ConVar* staticProp_no_fade_scalar;
 extern ConVar* staticProp_gather_size_weight;
 
