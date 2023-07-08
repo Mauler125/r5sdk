@@ -81,7 +81,7 @@ public:
 
 public:
 	static Node_t* LoadFromBuffer(const char* pszBufferName, char* pBuffer, eFieldType rootType);
-	static Node_t* LoadFromFile(const char* pszFilePath);
+	static Node_t* LoadFromFile(const char* pszFilePath, const char* pPathID = nullptr);
 };
 ///////////////////////////////////////////////////////////////////////////////
 inline CMemory p_RSON_LoadFromBuffer;

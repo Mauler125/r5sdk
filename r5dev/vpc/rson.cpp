@@ -9,9 +9,9 @@ RSON::Node_t* RSON::LoadFromBuffer(const char* pszBufferName, char* pBuffer, RSO
 	return RSON_LoadFromBuffer(pszBufferName, pBuffer, rootType, 0, NULL);
 }
 
-RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath)
+RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath, const char* pPathID)
 {
-	if (FileSystem()->FileExists(pszFilePath, "GAME"))
+	if (FileSystem()->FileExists(pszFilePath, pPathID))
 	{
 		FileHandle_t file = FileSystem()->Open(pszFilePath, "rt");
 
