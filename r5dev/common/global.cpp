@@ -63,6 +63,11 @@ ConVar* r_visualizetraces_duration         = nullptr;
 ConVar* stream_overlay                     = nullptr;
 ConVar* stream_overlay_mode                = nullptr;
 //-----------------------------------------------------------------------------
+// SHARED                                                                     |
+ConVar* modsystem_enable                   = nullptr;
+ConVar* modsystem_debug                    = nullptr;
+
+//-----------------------------------------------------------------------------
 // SERVER                                                                     |
 #ifndef CLIENT_DLL
 ConVar* ai_ainDumpOnLoad                   = nullptr;
@@ -274,6 +279,12 @@ void ConVar_StaticInit(void)
 	r_drawWorldMeshes              = ConVar::StaticCreate("r_drawWorldMeshes"             , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_drawWorldMeshesDepthOnly     = ConVar::StaticCreate("r_drawWorldMeshesDepthOnly"    , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes (depth only).", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_drawWorldMeshesDepthAtTheEnd = ConVar::StaticCreate("r_drawWorldMeshesDepthAtTheEnd", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes (depth at the end).", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	//-------------------------------------------------------------------------
+	// SHARED                                                                 |
+	modsystem_enable = ConVar::StaticCreate("modsystem_enable", "0", FCVAR_RELEASE, "Enable the modsystem.", false, 0.f, false, 0.f, nullptr, nullptr);
+	modsystem_debug  = ConVar::StaticCreate("modsystem_debug" , "0", FCVAR_RELEASE, "Debug the modsystem." , false, 0.f, false, 0.f, nullptr, nullptr);
+
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
 #ifndef CLIENT_DLL

@@ -54,6 +54,11 @@ extern ConVar* r_visualizetraces_duration;
 extern ConVar* stream_overlay;
 extern ConVar* stream_overlay_mode;
 //-------------------------------------------------------------------------
+// SHARED                                                                 |
+extern ConVar* modsystem_enable;
+extern ConVar* modsystem_debug;
+
+//-------------------------------------------------------------------------
 // SERVER                                                                 |
 #ifndef CLIENT_DLL
 extern ConVar* ai_ainDumpOnLoad;

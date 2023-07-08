@@ -18,6 +18,9 @@
 //-----------------------------------------------------------------------------
 void CModSystem::Init()
 {
+	if (!modsystem_enable->GetBool())
+		return;
+
 	LoadModStatusList();
 
 	CreateDirectories("platform\\mods");
@@ -28,7 +31,10 @@ void CModSystem::Init()
 			continue;
 
 		fs::path basePath = it.path();
-		DevMsg(eDLL_T::ENGINE, "Found mod at '%s'.\n", basePath.string().c_str());
+
+		if (modsystem_debug->GetBool())
+			DevMsg(eDLL_T::ENGINE, "Found mod at '%s'.\n", basePath.string().c_str());
+
 		fs::path settingsPath = basePath / "mod.vdf";
 
 		if (fs::exists(settingsPath))
@@ -141,7 +147,9 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 	auto& enabledList = g_pModSystem->GetEnabledList();
 	if (enabledList.count(idHash) == 0)
 	{
-		DevMsg(eDLL_T::ENGINE, "Mod does not exist in 'mods.vdf'. Enabling...\n");
+		if (modsystem_debug->GetBool())
+			DevMsg(eDLL_T::ENGINE, "Mod does not exist in 'mods.vdf'. Enabling...\n");
+
 		SetState(eModState::ENABLED);
 	}
 	else
@@ -149,7 +157,8 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 		bool bEnable = enabledList[idHash];
 		SetState(bEnable ? eModState::ENABLED : eModState::DISABLED);
 
-		DevMsg(eDLL_T::ENGINE, "Mod exists in 'mods.vdf' and is %s.\n", bEnable ? "enabled" : "disabled");
+		if (modsystem_debug->GetBool())
+			DevMsg(eDLL_T::ENGINE, "Mod exists in 'mods.vdf' and is %s.\n", bEnable ? "enabled" : "disabled");
 	}
 
 	if (m_iState != eModState::ENABLED)
