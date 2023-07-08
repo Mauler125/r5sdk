@@ -51,10 +51,10 @@ static const char* const DIR_LOCALE[]
 //-----------------------------------------------------------------------------
 struct VPKKeyValues_t
 {
-	static constexpr uint16_t TEXTURE_FLAGS_DEFAULT = 
+	static constexpr uint16_t TEXTURE_FLAGS_DEFAULT =
 		EPackedTextureFlags::TEXTURE_DEFAULT;
 
-	static constexpr uint32_t LOAD_FLAGS_DEFAULT = 
+	static constexpr uint32_t LOAD_FLAGS_DEFAULT =
 		EPackedLoadFlags::LOAD_VISIBLE | EPackedLoadFlags::LOAD_CACHE;
 
 	CUtlString m_EntryPath;
@@ -152,8 +152,8 @@ struct VPKDirHeader_t
 struct VPKDir_t
 {
 	VPKDirHeader_t               m_Header;
-	CUtlVector<VPKEntryBlock_t>  m_EntryBlocks;
 	CUtlString                   m_DirFilePath;
+	CUtlVector<VPKEntryBlock_t>  m_EntryBlocks;
 
 	// This set only contains packfile indices used
 	// by the directory tree, notated as pak000_xxx.

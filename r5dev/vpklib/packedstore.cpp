@@ -153,7 +153,7 @@ bool CPackedStore::GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues,
 		}
 
 		entryValues.AddToTail(VPKKeyValues_t(
-			std::move(fileName),
+			Move(fileName),
 			int16_t(pSubKey->GetInt("preloadSize", NULL)),
 			pSubKey->GetInt("loadFlags", static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE)),
 			int16_t(pSubKey->GetInt("textureFlags", static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT))),
@@ -326,10 +326,12 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 //-----------------------------------------------------------------------------
 void CPackedStore::ValidateCRC32PostDecomp(const CUtlString& assetPath, const uint32_t nFileCRC)
 {
-	FileHandle_t hAsset = FileSystem()->Open(assetPath.Get(), "rb", "PLATFORM");
+	const char* pAssetPath = assetPath.Get();
+
+	FileHandle_t hAsset = FileSystem()->Open(pAssetPath, "rb", "PLATFORM");
 	if (!hAsset)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, assetPath.Get());
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, pAssetPath);
 		return;
 	}
 
@@ -379,7 +381,9 @@ bool CPackedStore::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t
 //-----------------------------------------------------------------------------
 bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& ignoreList) const
 {
-	if (!V_IsValidPath(filePath.Get()))
+	const char* pFilePath = filePath.Get();
+
+	if (!V_IsValidPath(pFilePath))
 	{
 		return true;
 	}
@@ -388,13 +392,13 @@ bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString
 	{
 		const CUtlString& ignoreEntry = ignoreList[j];
 
-		if (ignoreEntry.IsEqual_CaseInsensitive(filePath.Get()))
+		if (ignoreEntry.IsEqual_CaseInsensitive(pFilePath))
 		{
 			return true;
 		}
 	}
 
-	FileHandle_t fileHandle = FileSystem()->Open(filePath.Get(), "rb", "PLATFORM");
+	FileHandle_t fileHandle = FileSystem()->Open(pFilePath, "rb", "PLATFORM");
 
 	if (fileHandle)
 	{
@@ -402,7 +406,7 @@ bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString
 
 		if (!nSize)
 		{
-			Warning(eDLL_T::FS, "File '%s' listed in build manifest appears empty or truncated\n", filePath.Get());
+			Warning(eDLL_T::FS, "File '%s' listed in build manifest appears empty or truncated\n", pFilePath);
 			FileSystem()->Close(fileHandle);
 
 			return true;
@@ -412,7 +416,7 @@ bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString
 	}
 	else
 	{
-		Warning(eDLL_T::FS, "File '%s' listed in build manifest couldn't be opened\n", filePath.Get());
+		Warning(eDLL_T::FS, "File '%s' listed in build manifest couldn't be opened\n", pFilePath);
 		return true;
 	}
 
@@ -433,10 +437,11 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 
 	CUtlString packFilePath;
 	CUtlString dirFilePath;
-	
+
 	packFilePath.Format("%s%s", buildPath, vpkPair.m_PackName.Get());
 	dirFilePath.Format("%s%s", buildPath, vpkPair.m_DirName.Get());
 
+	FileSystem()->CreateDirHierarchy(packFilePath.DirName().Get(), "GAME");
 	FileHandle_t hPackFile = FileSystem()->Open(packFilePath.Get(), "wb", "GAME");
 	if (!hPackFile)
 	{
@@ -468,15 +473,17 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 	FOR_EACH_VEC(entryValues, i)
 	{
 		const VPKKeyValues_t& entryValue = entryValues[i];
-		FileHandle_t hAsset = FileSystem()->Open(entryValue.m_EntryPath.Get(), "rb", "PLATFORM");
+		const char* pEntryPath = entryValue.m_EntryPath.Get();
+
+		FileHandle_t hAsset = FileSystem()->Open(pEntryPath, "rb", "PLATFORM");
 
 		if (!hAsset)
 		{
-			Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, entryValue.m_EntryPath.Get());
+			Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, pEntryPath);
 			continue;
 		}
 
-		const char* szDestPath = (entryValue.m_EntryPath.Get() + workspacePath.Length());
+		const char* szDestPath = (pEntryPath + workspacePath.Length());
 		if (PATHSEPARATOR(szDestPath[0]))
 		{
 			szDestPath++;
@@ -585,12 +592,13 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 	for (uint16_t packFileIndex : vpkDir.m_PakFileIndices)
 	{
 		const CUtlString packFile = basePath + vpkDir.GetPackFileNameForIndex(packFileIndex);
+		const char* pPackFile = packFile.Get();
 
 		// Read from each pack file.
-		FileHandle_t hPackFile = FileSystem()->Open(packFile.Get(), "rb", "GAME");
+		FileHandle_t hPackFile = FileSystem()->Open(pPackFile, "rb", "GAME");
 		if (!hPackFile)
 		{
-			Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, packFile.Get());
+			Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, pPackFile);
 			continue;
 		}
 
@@ -604,8 +612,10 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				continue;
 			}
 
+			const char* pEntryPath = entryBlock.m_EntryPath.Get();
+
 			CUtlString filePath;
-			filePath.Format("%s%s", workspacePath.Get(), entryBlock.m_EntryPath.Get());
+			filePath.Format("%s%s", workspacePath.Get(), pEntryPath);
 
 			FileSystem()->CreateDirHierarchy(filePath.DirName().Get(), "PLATFORM");
 			FileHandle_t hAsset = FileSystem()->Open(filePath.Get(), "wb", "PLATFORM");
@@ -617,7 +627,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 			}
 
 			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%i' ('%s')\n",
-				j, entryBlock.m_iPackFileIndex, entryBlock.m_EntryPath.Get());
+				j, entryBlock.m_iPackFileIndex, pEntryPath);
 
 			FOR_EACH_VEC(entryBlock.m_Fragments, k)
 			{
@@ -717,7 +727,7 @@ VPKEntryBlock_t::VPKEntryBlock_t(FileHandle_t hDirFile, const char* pEntryPath)
 //          nTextureFlags  - 
 //          &pEntryPath    - 
 //-----------------------------------------------------------------------------
-VPKEntryBlock_t::VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOffset, uint16_t iPreloadSize, 
+VPKEntryBlock_t::VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOffset, uint16_t iPreloadSize,
 	uint16_t iPackFileIndex, uint32_t nLoadFlags, uint16_t nTextureFlags, const char* pEntryPath)
 {
 	m_nFileCRC = crc32::update(NULL, pData, nLen);
@@ -761,7 +771,7 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(FileHandle_t hDirFile)
 //          nCompressedSize   - 
 //          nUncompressedSize - 
 //-----------------------------------------------------------------------------
-VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, 
+VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags,
 	uint64_t nPackFileOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize)
 {
 	m_nLoadFlags = nLoadFlags;
@@ -1104,10 +1114,12 @@ uint64_t VPKDir_t::CTreeBuilder::WriteTree(FileHandle_t hDirectoryFile) const
 //-----------------------------------------------------------------------------
 void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVector<VPKEntryBlock_t>& entryBlocks)
 {
-	FileHandle_t hDirectoryFile = FileSystem()->Open(directoryPath.Get(), "wb", "GAME");
+	const char* pDirectoryFile = directoryPath.Get();
+
+	FileHandle_t hDirectoryFile = FileSystem()->Open(pDirectoryFile, "wb", "GAME");
 	if (!hDirectoryFile)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, directoryPath.Get());
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, pDirectoryFile);
 		return;
 	}
 
