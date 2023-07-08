@@ -9,39 +9,60 @@
 //-----------------------------------------------------------------------------
 // Purpose: constructor
 // Input  : *szModuleName - 
-//			bDynamicInit  - set this to false if there is no memory allocator
 //-----------------------------------------------------------------------------
-CModule::CModule(const char* szModuleName, const bool bDynamicInit)
-	: m_ModuleName(szModuleName)
+CModule::CModule(const char* szModuleName)
 {
 	m_pModuleBase = reinterpret_cast<QWORD>(GetModuleHandleA(szModuleName));
-	Init(bDynamicInit);
+
+	if (!m_pModuleBase)
+	{
+		Assert(0);
+		return;
+	}
+
+	m_ModuleName = szModuleName;
+	Init();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor
-// Input  : *szModuleName - 
-//			nModuleBase   - 
+// Input  : *nModuleBase - 
 //-----------------------------------------------------------------------------
-CModule::CModule(const char* szModuleName, const QWORD nModuleBase,
-	const bool bDynamicInit)
-	: m_ModuleName(szModuleName)
-	, m_pModuleBase(nModuleBase)
+CModule::CModule(const QWORD nModuleBase)
 {
-	Init(bDynamicInit);
+	m_pModuleBase = nModuleBase;
+
+	if(!m_pModuleBase)
+	{
+		Assert(0);
+		return;
+	}
+
+	Init();
+
+	CHAR szModuleName[MAX_FILEPATH];
+	DWORD m = GetModuleFileNameA(reinterpret_cast<HMODULE>(nModuleBase),
+		szModuleName, sizeof(szModuleName));
+
+	if ((m - 1) > (sizeof(szModuleName) - 2)) // Too small for buffer.
+	{
+		snprintf(szModuleName, sizeof(szModuleName),
+			"module@%p", (void*)nModuleBase);
+		m_ModuleName = szModuleName;
+	}
+	else
+	{
+		m_ModuleName = strrchr(szModuleName, '\\') + 1;
+	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: initializes module descriptors
 //-----------------------------------------------------------------------------
-void CModule::Init(const bool bInitSections)
+void CModule::Init()
 {
-	m_nModuleSize = static_cast<size_t>(GetNTHeaders()->OptionalHeader.SizeOfImage);
-
-	if (bInitSections)
-	{
-		LoadSections();
-	}
+	m_nModuleSize = GetNTHeaders()->OptionalHeader.SizeOfImage;
+	LoadSections();
 }
 
 //-----------------------------------------------------------------------------

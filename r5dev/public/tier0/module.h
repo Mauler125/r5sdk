@@ -19,10 +19,10 @@ public:
 	typedef unordered_map<string, ModuleSections_t> ModuleSectionsMap_t;
 
 	CModule(void) = default;
-	CModule(const char* szModuleName, const bool bDynamicInit = true);
-	CModule(const char* szModuleName, const QWORD nModuleBase, const bool bDynamicInit = true);
+	CModule(const char* szModuleName);
+	CModule(const QWORD nModuleBase);
 
-	void Init(const bool bInitSections);
+	void Init();
 	void LoadSections();
 
 	CMemory FindPatternSIMD(const char* szPattern, const ModuleSections_t* moduleSection = nullptr) const;
