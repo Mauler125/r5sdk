@@ -7,12 +7,15 @@
 class CAlignedMemAlloc
 {
 public:
-	void* Alloc(size_t nSize, size_t nAlignment = 0);
-	void Free(void* pMem);
+	static void* Alloc(size_t nSize, size_t nAlignment = 0);
+	static void Free(void* pMem);
 
 private:
-	void* m_pAllocCallback;
-	void* m_pFreeCallback;
+	typedef void* (*FnAlloc_t)(size_t nSize, size_t nAlignment);
+	typedef void (*FnFree_t)(void* pMem);
+
+	FnAlloc_t m_pAllocCallback;
+	FnFree_t m_pFreeCallback;
 };
 
 extern CAlignedMemAlloc* g_pAlignedMemAlloc;

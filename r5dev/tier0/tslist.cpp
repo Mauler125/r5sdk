@@ -13,7 +13,7 @@
 //-----------------------------------------------------------------------------
 void* CAlignedMemAlloc::Alloc(size_t nSize, size_t nAlignment)
 {
-	return ((void* (*)(size_t, size_t))m_pAllocCallback)(nSize, nAlignment);
+	return g_pAlignedMemAlloc->m_pAllocCallback(nSize, nAlignment);
 }
 
 //-----------------------------------------------------------------------------
@@ -22,7 +22,7 @@ void* CAlignedMemAlloc::Alloc(size_t nSize, size_t nAlignment)
 //-----------------------------------------------------------------------------
 void CAlignedMemAlloc::Free(void* pMem)
 {
-	((void (*)(void*))m_pFreeCallback)(pMem);
+	g_pAlignedMemAlloc->m_pFreeCallback(pMem);
 }
 
 CAlignedMemAlloc* g_pAlignedMemAlloc;
