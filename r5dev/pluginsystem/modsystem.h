@@ -2,10 +2,14 @@
 
 #include "vpc/keyvalues.h"
 #include "vpc/rson.h"
-#include <filesystem/filesystem.h>
+#include "filesystem/filesystem.h"
+#include "public/vscript/ivscript.h"
+
+#define MOD_STATUS_LIST_FILE "mods.vdf"
+#define MOD_SETTINGS_FILE "mod.vdf"
+#define MOD_BASE_DIRECTORY "mods"
 
 class CModAppSystemGroup;
-
 
 class CModSystem
 {
@@ -13,54 +17,63 @@ public:
 	enum eModState : int8_t
 	{
 		UNLOADED = -1, // loading was unsuccessful (error occurred)
-		LOADING = 0,  // if mod is being loaded
-		DISABLED = 1, // if disabled by user
-		ENABLED = 2, // if enabled by user and loaded properly
+		LOADING,       // if mod is being loaded
+		LOADED,        // if a mod has been loaded
+		DISABLED,      // if disabled by user
+		ENABLED,       // if enabled by user and loaded properly
 	};
 
 	struct ModInstance_t
 	{
-		ModInstance_t(const fs::path& basePath);
+		ModInstance_t(const CUtlString& basePath);
+		~ModInstance_t();
+
+		bool ParseSettings();
+		void ParseConVars();
+		void ParseLocalizationFiles();
 
 		inline void SetState(eModState state) { m_iState = state; };
 
-		inline bool IsEnabled() { return m_iState == eModState::ENABLED; };
+		inline bool IsLoaded() const { return m_iState == eModState::LOADED; };
+		inline bool IsEnabled() const { return m_iState == eModState::ENABLED; };
 
-		inline const fs::path& GetBasePath() { return m_BasePath; };
+		inline const CUtlString& GetBasePath() const { return m_BasePath; };
+		inline CUtlString GetScriptCompileListPath() const { return m_BasePath + GAME_SCRIPT_COMPILELIST; };
 
-		inline fs::path GetScriptCompileListPath() { return (m_BasePath / "scripts/vscripts/scripts.rson"); };
+		KeyValues* GetRequiredSettingsKey(const char* settingsPath, const char* key) const;
 
-		RSON::Node_t* LoadScriptCompileList()
+		inline RSON::Node_t* LoadScriptCompileList() const
 		{
-			return RSON::LoadFromFile(GetScriptCompileListPath().string().c_str());
+			return RSON::LoadFromFile(GetScriptCompileListPath().Get(), "PLATFORM");
 		};
 
+		KeyValues* m_SettingsKV;
+		eModState m_iState = eModState::UNLOADED;
 		bool m_bHasScriptCompileList; // if this mod has a scripts.rson file that exists
 
-		string m_szName; // mod display name
-		string m_szModID; // internal mod identifier
-		fs::path m_BasePath; // path to folder containg all mod files
-		string m_szDescription; // mod description
-		string m_szVersion; // version string
+		CUtlVector<CUtlString> m_LocalizationFiles;
 
-		KeyValues* m_SettingsKV;
+		CUtlString m_Name;
+		CUtlString m_ModID;
+		CUtlString m_Description;
+		CUtlString m_Version;
 
-		eModState m_iState = eModState::UNLOADED;
-
-		std::vector<string> m_vszLocalizationFiles;
+		CUtlString m_BasePath;
 	};
+
+	~CModSystem();
 
 	void Init();
 
 	// load mod enabled/disabled status from file on disk
-	void LoadModStatusList();
+	void UpdateModStatusList();
+	void LoadModStatusList(CUtlMap<CUtlString, bool>& enabledList);
 	void WriteModStatusList();
 
-	inline vector<ModInstance_t>& GetModList() { return m_vModList; };
-	inline std::map<size_t, bool>& GetEnabledList() { return m_vEnabledList; };
+	const inline CUtlVector<ModInstance_t*>& GetModList() { return m_ModList; };
 
 private:
-	vector<ModInstance_t> m_vModList;
-	std::map<size_t, bool> m_vEnabledList;
+	CUtlVector<ModInstance_t*> m_ModList;
 };
+
 extern CModSystem* g_pModSystem;

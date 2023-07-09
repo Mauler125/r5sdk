@@ -122,18 +122,23 @@ void CSquirrelVM::SetAsCompiler(RSON::Node_t* rson)
 //---------------------------------------------------------------------------------
 void CSquirrelVM::CompileModScripts()
 {
-	for (auto& mod : g_pModSystem->GetModList())
+	FOR_EACH_VEC(g_pModSystem->GetModList(), i)
 	{
-		if (!mod.IsEnabled())
+		const CModSystem::ModInstance_t* mod = g_pModSystem->GetModList()[i];
+
+		if (!mod->IsEnabled())
 			continue;
 
-		if (!mod.m_bHasScriptCompileList)
+		if (!mod->m_bHasScriptCompileList)
 			continue;
 
-		RSON::Node_t* rson = mod.LoadScriptCompileList(); // allocs parsed rson buffer
+		// allocs parsed rson buffer
+		RSON::Node_t* rson = mod->LoadScriptCompileList();
 
 		if (!rson)
-			Error(GetVM()->GetNativePrintContext(), EXIT_FAILURE, "%s: Failed to load RSON file %s\n", __FUNCTION__, mod.GetScriptCompileListPath().string().c_str());
+			Error(GetVM()->GetNativeContext(), NO_ERROR, 
+				"%s: Failed to load RSON file '%s'\n", 
+				__FUNCTION__, mod->GetScriptCompileListPath().Get());
 
 		const char* scriptPathArray[MAX_PRECOMPILED_SCRIPTS];
 		int scriptCount = 0;
@@ -142,25 +147,31 @@ void CSquirrelVM::CompileModScripts()
 
 		if (Script_ParseScriptList(
 			GetContext(),
-			mod.GetScriptCompileListPath().string().c_str(),
+			mod->GetScriptCompileListPath().Get(),
 			rson,
 			(char**)scriptPathArray, &scriptCount,
 			nullptr, 0))
 		{
 			std::vector<char*> newScriptPaths;
-			for (int i = 0; i < scriptCount; ++i)
+			for (int j = 0; j < scriptCount; ++j)
 			{
-				// add "::MOD::" to the start of the script path so it can be identified from Script_LoadScript later
-				// this is so we can avoid script naming conflicts by removing the engine's forced directory of "scripts/vscripts/"
-				// and adding the mod path to the start
-				std::string scriptPath = MOD_SCRIPT_PATH_IDENTIFIER + (mod.GetBasePath() / "scripts/vscripts/" / scriptPathArray[i]).string();
-				char* pszScriptPath = _strdup(scriptPath.c_str());
+				// add "::MOD::" to the start of the script path so it can be
+				// identified from Script_LoadScript later, this is so we can
+				// avoid script naming conflicts by removing the engine's
+				// forced directory of "scripts/vscripts/" and adding the mod
+				// path to the start
+				CUtlString scriptPath;
+				scriptPath.Format("%s%s%s%s",
+					MOD_SCRIPT_PATH_IDENTIFIER, mod->GetBasePath().Get(),
+					GAME_SCRIPT_PATH, scriptPathArray[j]);
+
+				char* pszScriptPath = _strdup(scriptPath.Get());
 
 				// normalise slash direction
 				V_FixSlashes(pszScriptPath);
 
 				newScriptPaths.emplace_back(pszScriptPath);
-				scriptPathArray[i] = pszScriptPath;
+				scriptPathArray[j] = pszScriptPath;
 			}
 
 			switch (GetVM()->GetContext())
@@ -185,7 +196,7 @@ void CSquirrelVM::CompileModScripts()
 			// clean up our allocated script paths
 			for (char* path : newScriptPaths)
 			{
-				delete path;
+				free(path);
 			}
 		}
 

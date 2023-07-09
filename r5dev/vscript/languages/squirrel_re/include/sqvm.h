@@ -35,7 +35,7 @@ struct SQVM
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1 && !GAMEDLL_S2
 	}
 
-	eDLL_T GetNativePrintContext() const
+	eDLL_T GetNativeContext() const
 	{
 		return (eDLL_T)GetContext();
 	}
