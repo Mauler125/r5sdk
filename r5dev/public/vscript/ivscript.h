@@ -5,6 +5,9 @@
 #include "datamap.h"
 
 //---------------------------------------------------------
+// Location of the scripts, and its compile list
+#define GAME_SCRIPT_PATH "scripts/vscripts/"
+#define GAME_SCRIPT_COMPILELIST GAME_SCRIPT_PATH"scripts.rson"
 
 DECLARE_POINTER_HANDLE(HSCRIPT);
 #define INVALID_HSCRIPT ((HSCRIPT)-1)
