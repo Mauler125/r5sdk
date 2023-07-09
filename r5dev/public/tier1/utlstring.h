@@ -1502,4 +1502,12 @@ inline void CUtlStringBuilder::Validate(CValidator &validator, const char *pchNa
 #endif // DBGFLAG_VALIDATE
 
 
+//-----------------------------------------------------------------------------
+// Less function for use with CUtlMap and CUtlString keys
+//-----------------------------------------------------------------------------
+inline bool UtlStringLessFunc(const CUtlString& lhs, const CUtlString& rhs)
+{
+	return (Q_stricmp(lhs, rhs) < 0);
+}
+
 #endif // UTLSTRING_H
