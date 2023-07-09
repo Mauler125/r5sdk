@@ -280,7 +280,7 @@ void ConVar_StaticInit(void)
 
 	//-------------------------------------------------------------------------
 	// SHARED                                                                 |
-	modsystem_enable = ConVar::StaticCreate("modsystem_enable", "0", FCVAR_RELEASE, "Enable the modsystem.", false, 0.f, false, 0.f, nullptr, nullptr);
+	modsystem_enable = ConVar::StaticCreate("modsystem_enable", "1", FCVAR_RELEASE, "Enable the modsystem.", false, 0.f, false, 0.f, nullptr, nullptr);
 	modsystem_debug  = ConVar::StaticCreate("modsystem_debug" , "0", FCVAR_RELEASE, "Debug the modsystem." , false, 0.f, false, 0.f, nullptr, nullptr);
 
 	//-------------------------------------------------------------------------
