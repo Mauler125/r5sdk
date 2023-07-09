@@ -25,16 +25,5 @@ RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath, const char* pPathID)
 	fileBuf[nRead] = '\0';
 
 	RSON::Node_t* node = RSON::LoadFromBuffer(pszFilePath, fileBuf.get(), eFieldType::RSON_OBJECT);
-
-	if (node)
-		return node;
-	else
-	{
-		// [rexx]: not sure if this should be fatal or not. ideally this should be handled appropriately
-		// in the calling function
-		Error(eDLL_T::ENGINE, NO_ERROR, "Error loading file '%s'\n", pszFilePath);
-		return NULL;
-	}
-
-	return NULL;
+	return node;
 }
