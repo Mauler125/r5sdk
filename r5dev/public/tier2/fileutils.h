@@ -24,7 +24,7 @@ void ComputeModFilename( const char *pContentFileName, char *pBuf, size_t nBufLe
 void ComputeModContentFilename( const char *pGameFileName, char *pBuf, size_t nBufLen );
 
 // Finds all files matching the a name within a directory and its sub directories. Output entries are paths to found files (relative to and including szStartDirectory).
-void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, const char* szStartDirectory, const char* szTargetFileName, const char *pPathID );
+void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, const char* szStartDirectory, const char* szTargetFileName, const char *pPathID, char separator = CORRECT_PATH_SEPARATOR);
 
 // Builds a list of all files under a directory with a particular extension.
 void AddFilesToList( CUtlVector< CUtlString > &list, const char *pDirectory, const char *pPath = nullptr, const char *pExtension = nullptr );

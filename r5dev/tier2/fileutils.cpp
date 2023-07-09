@@ -113,7 +113,7 @@ void ComputeModContentFilename( const char *pGameFileName, char *pBuf, size_t nB
 //			*szTargetFileName - 
 //			*pathID - 
 //-----------------------------------------------------------------------------
-void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, const char* szStartDirectory, const char* szTargetFileName, const char *pPathID )
+void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, const char* szStartDirectory, const char* szTargetFileName, const char *pPathID, char separator )
 {
 	char searchString[MAX_PATH];
 	Q_snprintf( searchString, sizeof( searchString ), "%s/*.*", szStartDirectory );
@@ -127,13 +127,13 @@ void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, con
 		{	
 			char newSearchPath[MAX_PATH];
 			Q_snprintf( newSearchPath, sizeof( newSearchPath ), "%s/%s", szStartDirectory, curFile );
-			RecursiveFindFilesMatchingName( pOutFileList, newSearchPath, szTargetFileName, pPathID );
+			RecursiveFindFilesMatchingName( pOutFileList, newSearchPath, szTargetFileName, pPathID, separator);
 		}
 		else if ( V_StringMatchesPattern( curFile, szTargetFileName ) )
 		{
 			CUtlString outFile;
 			outFile.Format( "%s/%s", szStartDirectory, curFile );
-			V_FixSlashes( outFile.Get() );
+			V_FixSlashes( outFile.Get(), separator );
 			pOutFileList->AddToTail( outFile );
 		}
 
