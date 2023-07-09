@@ -4,11 +4,24 @@
 #include <filesystem/filesystem.h>
 #include "vpc/rson.h"
 
+//-----------------------------------------------------------------------------
+// Purpose: loads an RSON from a buffer
+// Input  : *pszBufferName - 
+//          *pBuffer       - 
+//          rootType       - 
+// Output : pointer to RSON object on success, nullptr otherwise
+//-----------------------------------------------------------------------------
 RSON::Node_t* RSON::LoadFromBuffer(const char* pszBufferName, char* pBuffer, RSON::eFieldType rootType)
 {
 	return RSON_LoadFromBuffer(pszBufferName, pBuffer, rootType, 0, NULL);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: loads an RSON from a file
+// Input  : *pszFilePath - 
+//          *pPathID     - 
+// Output : pointer to RSON object on success, nullptr otherwise
+//-----------------------------------------------------------------------------
 RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath, const char* pPathID)
 {
 	FileHandle_t file = FileSystem()->Open(pszFilePath, "rt", pPathID);
