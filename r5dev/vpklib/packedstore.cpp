@@ -1010,17 +1010,17 @@ void VPKDir_t::CTreeBuilder::BuildTree(const CUtlVector<VPKEntryBlock_t>& entryB
 		* 
 		*  Extension0
 		* |
-		* |--- Path0
+		* |___ Path0
 		* |   |
-		* |   File0
-		* |   File1
-		* |   File2
+		* |   |___ File0
+		* |   |___ File1
+		* |   |___ File2
 		* |
-		* |--- Path1
+		* |___ Path1
 		*     |
-		*     File0
-		*     File1
-		*     File2
+		*     |___ File0
+		*     |___ File1
+		*     |___ File2
 		* ...
 		* 
 		* A tree scope cannot contain duplicate elements,
