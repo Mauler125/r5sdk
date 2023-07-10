@@ -6,23 +6,14 @@
 #include "tier0/tslist.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: alloc aligned memory
-// Input  : nSize - 
-//			nPad -
-// Output : pointer to allocated aligned memory
+// Purpose: constructor
+// Input  : *pAllocCallback - 
+//          *pFreeCallback - 
 //-----------------------------------------------------------------------------
-void* CAlignedMemAlloc::Alloc(size_t nSize, size_t nAlignment)
+CAlignedMemAlloc::CAlignedMemAlloc(FnAlloc_t pAllocCallback, FnFree_t pFreeCallback)
 {
-	return g_pAlignedMemAlloc->m_pAllocCallback(nSize, nAlignment);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: free aligned memory
-// Input  : pMem - 
-//-----------------------------------------------------------------------------
-void CAlignedMemAlloc::Free(void* pMem)
-{
-	g_pAlignedMemAlloc->m_pFreeCallback(pMem);
+	m_pAllocCallback = pAllocCallback;
+	m_pFreeCallback = pFreeCallback;
 }
 
 CAlignedMemAlloc* g_pAlignedMemAlloc;
