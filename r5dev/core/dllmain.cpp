@@ -58,9 +58,9 @@ void Show_Emblem()
 void Tier0_Init()
 {
 #if !defined (DEDICATED)
-    g_RadVideoToolsDll = CModule("bink2w64.dll");
-    g_RadAudioDecoderDll = CModule("binkawin64.dll");
-    g_RadAudioSystemDll = CModule("mileswin64.dll");
+    g_RadVideoToolsDll.InitFromName("bink2w64.dll");
+    g_RadAudioDecoderDll.InitFromName("binkawin64.dll");
+    g_RadAudioSystemDll.InitFromName("mileswin64.dll");
 #endif // !DEDICATED
 
     g_pCmdLine = g_GameDll.GetExportedSymbol("g_pCmdLine").RCast<CCommandLine*>();
@@ -158,8 +158,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
         {
             PEB64* pEnv = CModule::GetProcessEnvironmentBlock();
 
-            g_GameDll = CModule(pEnv->ImageBaseAddress);
-            g_SDKDll = CModule((QWORD)hModule);
+            g_GameDll.InitFromBase(pEnv->ImageBaseAddress);
+            g_SDKDll.InitFromBase((QWORD)hModule);
 
             SDK_Init();
             break;

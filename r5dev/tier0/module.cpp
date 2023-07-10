@@ -12,16 +12,7 @@
 //-----------------------------------------------------------------------------
 CModule::CModule(const char* szModuleName)
 {
-	m_pModuleBase = reinterpret_cast<QWORD>(GetModuleHandleA(szModuleName));
-
-	if (!m_pModuleBase)
-	{
-		Assert(0);
-		return;
-	}
-
-	m_ModuleName = szModuleName;
-	Init();
+	InitFromName(szModuleName);
 }
 
 //-----------------------------------------------------------------------------
@@ -30,15 +21,45 @@ CModule::CModule(const char* szModuleName)
 //-----------------------------------------------------------------------------
 CModule::CModule(const QWORD nModuleBase)
 {
-	m_pModuleBase = nModuleBase;
+	InitFromBase(nModuleBase);
+}
 
-	if(!m_pModuleBase)
+//-----------------------------------------------------------------------------
+// Purpose: initializes class from module name
+// Input  : *szModuleName - 
+//-----------------------------------------------------------------------------
+void CModule::InitFromName(const char* szModuleName)
+{
+	m_pModuleBase = reinterpret_cast<QWORD>(GetModuleHandleA(szModuleName));
+
+	if (!m_pModuleBase)
 	{
 		Assert(0);
 		return;
 	}
 
-	Init();
+	m_nModuleSize = GetNTHeaders()->OptionalHeader.SizeOfImage;
+	m_ModuleName = szModuleName;
+
+	LoadSections();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: initializes class from module base
+// Input  : *nModuleBase - 
+//-----------------------------------------------------------------------------
+void CModule::InitFromBase(const QWORD nModuleBase)
+{
+	m_pModuleBase = nModuleBase;
+
+	if (!m_pModuleBase)
+	{
+		Assert(0);
+		return;
+	}
+
+	m_nModuleSize = GetNTHeaders()->OptionalHeader.SizeOfImage;
+	LoadSections();
 
 	CHAR szModuleName[MAX_FILEPATH];
 	DWORD m = GetModuleFileNameA(reinterpret_cast<HMODULE>(nModuleBase),
@@ -54,15 +75,6 @@ CModule::CModule(const QWORD nModuleBase)
 	{
 		m_ModuleName = strrchr(szModuleName, '\\') + 1;
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: initializes module descriptors
-//-----------------------------------------------------------------------------
-void CModule::Init()
-{
-	m_nModuleSize = GetNTHeaders()->OptionalHeader.SizeOfImage;
-	LoadSections();
 }
 
 //-----------------------------------------------------------------------------
@@ -353,7 +365,7 @@ CMemory CModule::FindFreeDataPage(const size_t nSize) const
 	// for the actual 'page' sizes. Also can be
 	// optimized to search per 'section'.
 	const QWORD endOfModule = m_pModuleBase
-		+ GetNTHeaders()->OptionalHeader.SizeOfImage - sizeof(QWORD);
+		+ GetModuleSize() - sizeof(QWORD);
 
 	for (QWORD currAddr = endOfModule;
 		m_pModuleBase < currAddr; currAddr -= sizeof(QWORD))

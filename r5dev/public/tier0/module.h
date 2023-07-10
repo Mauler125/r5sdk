@@ -22,7 +22,9 @@ public:
 	CModule(const char* szModuleName);
 	CModule(const QWORD nModuleBase);
 
-	void Init();
+	void InitFromName(const char* szModuleName);
+	void InitFromBase(const QWORD nModuleBase);
+
 	void LoadSections();
 
 	CMemory FindPatternSIMD(const char* szPattern, const ModuleSections_t* moduleSection = nullptr) const;

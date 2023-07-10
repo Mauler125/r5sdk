@@ -54,7 +54,7 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 	if (loadedPlugin == INVALID_HANDLE_VALUE || loadedPlugin == 0)
 		return false;
 
-	CModule pluginModule = CModule(pluginInst.m_svPluginName.c_str());
+	CModule pluginModule(pluginInst.m_svPluginName.c_str());
 
 	// Pass selfModule here on load function, we have to do
 	// this because local listen/dedi/client dll's are called

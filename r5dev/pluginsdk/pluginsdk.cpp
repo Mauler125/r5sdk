@@ -19,8 +19,10 @@
 //---------------------------------------------------------------------------------
 CPluginSDK::CPluginSDK(const char* pszSelfModule) : m_FactoryInstance(nullptr), m_PluginSystem(nullptr)
 {
-	m_SelfModule = CModule(pszSelfModule);
-	m_GameModule = CModule("r5apex.exe");
+	m_SelfModule.InitFromName(pszSelfModule);
+
+	// !TODO: Use PEB!
+	m_GameModule.InitFromName("r5apex.exe");
 }
 
 //---------------------------------------------------------------------------------
