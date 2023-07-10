@@ -38,27 +38,15 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
         {
             studiohdr_t* pStudioHDR = **reinterpret_cast<studiohdr_t***>(pStudioData);
 
-            if (!g_pMDLFallback->m_hErrorMDL)
+            if (!g_pMDLFallback->m_hErrorMDL && V_ComparePath(pStudioHDR->name, ERROR_MODEL))
             {
-                CUtlString studioPathFixed(pStudioHDR->name);
-                studioPathFixed.FixSlashes(INCORRECT_PATH_SEPARATOR);
-
-                if (studioPathFixed.IsEqual_CaseInsensitive(ERROR_MODEL))
-                {
-                    g_pMDLFallback->m_pErrorHDR = pStudioHDR;
-                    g_pMDLFallback->m_hErrorMDL = handle;
-                }
+                g_pMDLFallback->m_pErrorHDR = pStudioHDR;
+                g_pMDLFallback->m_hErrorMDL = handle;
             }
-            else if (!g_pMDLFallback->m_hEmptyMDL)
+            else if (!g_pMDLFallback->m_hEmptyMDL && V_ComparePath(pStudioHDR->name, EMPTY_MODEL))
             {
-                CUtlString studioPathFixed(pStudioHDR->name);
-                studioPathFixed.FixSlashes(INCORRECT_PATH_SEPARATOR);
-
-                if (studioPathFixed.IsEqual_CaseInsensitive(EMPTY_MODEL))
-                {
-                    g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
-                    g_pMDLFallback->m_hEmptyMDL = handle;
-                }
+                g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
+                g_pMDLFallback->m_hEmptyMDL = handle;
             }
         }
     }
