@@ -82,6 +82,8 @@ typedef enum
 // String matching using wildcards (*) for partial matches.
 bool V_StringMatchesPattern(const char* szString, const char* szPattern, int flags = 0);
 
+bool V_ComparePath(const char* a, const char* b);
+
 void V_FixSlashes(char* pname, char separator = CORRECT_PATH_SEPARATOR);
 
 // Adds a path separator to the end of the string if there isn't one already and the string is not empty.

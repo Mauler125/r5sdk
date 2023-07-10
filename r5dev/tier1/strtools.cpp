@@ -396,6 +396,40 @@ bool V_StringMatchesPattern(const char* pszSource, const char* pszPattern, int n
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Compares file paths, ignores case and path separators
+// Input  : *a - 
+//          *b - 
+// Output : true if equal, false otherwise
+//-----------------------------------------------------------------------------
+bool V_ComparePath(const char* a, const char* b)
+{
+	if (strlen(a) != strlen(b))
+	{
+		return false;
+	}
+
+	// Case and separator invariant
+	for (; *a; a++, b++)
+	{
+		if (*a == *b)
+		{
+			continue;
+		}
+		if (tolower_fast(*a) == tolower_fast(*b))
+		{
+			continue;
+		}
+		if ((*a == '/' || *a == '\\') &&
+			(*b == '/' || *b == '\\'))
+		{
+			continue;
+		}
+		return false;
+	}
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Changes all '/' or '\' characters into separator
 // Input  : *pName - 
 //			cSeparator - 
