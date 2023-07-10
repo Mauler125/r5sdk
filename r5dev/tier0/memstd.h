@@ -1,6 +1,22 @@
 #ifndef MEMSTD_H
 #define MEMSTD_H
 
+// this magic only works under win32
+// under linux this malloc() overrides the libc malloc() and so we
+// end up in a recursion (as MemAlloc_Alloc() calls malloc)
+#if _MSC_VER >= 1400
+
+#if _MSC_VER >= 1900
+#define _CRTNOALIAS
+#endif
+
+#define ALLOC_CALL _CRTNOALIAS _CRTRESTRICT
+#define FREE_CALL _CRTNOALIAS 
+#else
+#define ALLOC_CALL
+#define FREE_CALL
+#endif
+
 //-----------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
