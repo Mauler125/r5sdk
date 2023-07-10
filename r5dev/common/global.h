@@ -85,6 +85,8 @@ extern ConVar* sv_banlistRefreshRate;
 extern ConVar* sv_statusRefreshRate;
 extern ConVar* sv_forceChatToTeamOnly;
 
+extern ConVar* sv_single_core_dedi;
+
 extern ConVar* sv_updaterate_mp;
 extern ConVar* sv_updaterate_sp;
 extern ConVar* sv_autoReloadRate;

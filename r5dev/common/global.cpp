@@ -95,6 +95,8 @@ ConVar* sv_banlistRefreshRate              = nullptr;
 ConVar* sv_statusRefreshRate               = nullptr;
 ConVar* sv_forceChatToTeamOnly             = nullptr;
 
+ConVar* sv_single_core_dedi                = nullptr;
+
 ConVar* sv_updaterate_mp                   = nullptr;
 ConVar* sv_updaterate_sp                   = nullptr;
 ConVar* sv_autoReloadRate                  = nullptr;
@@ -505,6 +507,8 @@ void ConVar_InitShipped(void)
 	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
 	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
 
+	sv_single_core_dedi = g_pCVar->FindVar("sv_single_core_dedi");
+
 	sv_voiceenable = g_pCVar->FindVar("sv_voiceenable");
 	sv_voiceEcho = g_pCVar->FindVar("sv_voiceEcho");
 	sv_alltalk = g_pCVar->FindVar("sv_alltalk");
@@ -515,6 +519,8 @@ void ConVar_InitShipped(void)
 
 	sv_forceChatToTeamOnly->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	sv_forceChatToTeamOnly->AddFlags(FCVAR_REPLICATED);
+
+	sv_single_core_dedi->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
 	ai_script_nodes_draw->SetValue(-1);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
