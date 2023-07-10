@@ -200,11 +200,8 @@ void CSquirrelVM::CompileModScripts()
 			}
 		}
 
-		if (rson)
-		{
-			RSON_Free(rson, AlignedMemAlloc());
-			AlignedMemAlloc()->Free(rson);
-		}
+		RSON_Free(rson, AlignedMemAlloc());
+		AlignedMemAlloc()->Free(rson);
 	}
 }
 
