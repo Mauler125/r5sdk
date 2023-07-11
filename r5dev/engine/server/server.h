@@ -34,14 +34,16 @@ public:
 	int GetNumHumanPlayers(void) const;
 	int GetNumFakeClients(void) const;
 	int GetNumClients(void) const;
-	const char* GetMapName(void) const { return m_szMapname; }
-	const char* GetMapGroupName(void) const { return m_szMapGroupName; }
-	int GetNumClasses(void) const { return m_nServerClasses; }
-	int GetClassBits(void) const { return m_nServerClassBits; }
-	float GetCPUUsage(void) const { return m_fCPUPercent; }
-	bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
-	bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
-	bool IsDedicated(void) const { return m_bIsDedicated; }
+
+	inline const char* GetMapName(void) const { return m_szMapname; }
+	inline const char* GetMapGroupName(void) const { return m_szMapGroupName; }
+	inline int GetNumClasses(void) const { return m_nServerClasses; }
+	inline int GetClassBits(void) const { return m_nServerClassBits; }
+	inline float GetCPUUsage(void) const { return m_fCPUPercent; }
+	inline bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
+	inline bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
+	inline bool IsDedicated(void) const { return m_bIsDedicated; }
+
 	void RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage);
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
 	static void RunFrame(CServer* pServer);
