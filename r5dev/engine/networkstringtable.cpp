@@ -95,7 +95,7 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 #ifndef CLIENT_DLL
 	if (sv_stats->GetBool())
 	{
-		uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer[MAX_PLAYERS].GetCPUUsage() * 100.0f);
+		uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer->GetCPUUsage() * 100.0f);
 		SVC_ServerTick serverTick(g_pServer->GetTick(), *host_frametime_unbounded, *host_frametime_stddeviation, nCPUPercentage);
 
 		serverTick.m_nGroup = 0;

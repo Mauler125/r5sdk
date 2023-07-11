@@ -76,19 +76,20 @@ private:
 	char                          m_szHostInfo[128];             // see '[r5apex_ds.exe + 0x237740]' for more details. fmt: '[IPv6]:PORT:TIMEi64u'
 	char                          m_nGap0[520];
 	int                           m_nSpawnCount;
-	char                          m_nGap1[116];
+	int                           m_nMaxclients;
+	char                          gap_3C0[64];
+	CClient                       m_Clients[MAX_PLAYERS];
+	char                          gap_25263c0[48];
 	float                         m_fCPUPercent;
 	float                         m_fStartTime;
 	float                         m_fLastCPUCheckTime;
-	char                          m_nGap2[303108];               // TODO: Reverse the rest in this gap.
-#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	char                          m_nGap3[0x80];
-#endif
+	bool                          m_bUnk252643C[128];            // Bools of MAX_PLAYERS?
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-static_assert(sizeof(CServer) == 0x4A440);
+// !TODO: check if struct size is correct for S1!
+static_assert(sizeof(CServer) == 0x25220C0);
 #else
-static_assert(sizeof(CServer) == 0x4A4C0);
+static_assert(sizeof(CServer) == 0x25264C0);
 #endif
 
 extern CServer* g_pServer;

@@ -10,7 +10,7 @@
 class IClientMessageHandler
 {
 public:
-	virtual void* Destructor(void) = 0;
+	virtual ~IClientMessageHandler(void) {};
 	virtual void* ProcessStringCmd(void) = 0;
 	virtual void* ProcessScriptMessage(void) = 0;
 	virtual void* ProcessSetConVar(void) = 0;
@@ -38,7 +38,7 @@ public:
 class INetChannelHandler
 {
 public:
-	virtual ~INetChannelHandler(void) = 0;
+	virtual ~INetChannelHandler(void) {};
 	virtual void*ConnectionStart(INetChannelHandler* chan) = 0;
 	virtual void ConnectionClosing(const char* reason, int unk) = 0;
 	virtual void ConnectionCrashed(const char* reason) = 0;

@@ -103,6 +103,40 @@ public: // Hook statics:
 	static bool VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
 
 private:
+	// Stub reimplementation to avoid the 'no overrider' compiler errors in the
+	// CServer class (contains a static array of MAX_PLAYERS of this class).
+	virtual void* ConnectionStart(INetChannelHandler* chan) { return nullptr; }
+	virtual void ConnectionClosing(const char* reason, int unk) {}
+	virtual void ConnectionCrashed(const char* reason) {}
+	virtual void PacketStart(int incoming_sequence, int outgoing_acknowledged) {}
+	virtual void PacketEnd(void) {};
+	virtual void FileRequested(const char* fileName, unsigned int transferID) {}
+	virtual void ChannelDisconnect(const char* fileName) {}
+
+	virtual void* ProcessStringCmd(void) { return nullptr; }
+	virtual void* ProcessScriptMessage(void) { return nullptr; }
+	virtual void* ProcessSetConVar(void) { return nullptr; }
+	virtual bool nullsub_0(void) { return false; }
+	virtual char ProcessSignonState(void* msg) { return false; } // NET_SignonState
+	virtual void* ProcessMove(void) { return nullptr; }
+	virtual void* ProcessVoiceData(void) { return nullptr; }
+	virtual void* ProcessDurangoVoiceData(void) { return nullptr; }
+	virtual bool nullsub_1(void) { return false; }
+	virtual void* ProcessLoadingProgress(void) { return nullptr; }
+	virtual void* ProcessPersistenceRequestSave(void) { return nullptr; }
+	virtual bool nullsub_2(void) { return false; }
+	virtual bool nullsub_3(void) { return false; }
+	virtual void* ProcessSetPlaylistVarOverride(void) { return nullptr; }
+	virtual void* ProcessClaimClientSidePickup(void) { return nullptr; }
+	virtual void* ProcessCmdKeyValues(void) { return nullptr; }
+	virtual void* ProcessClientTick(void) { return nullptr; }
+	virtual void* ProcessClientSayText(void) { return nullptr; }
+	virtual bool nullsub_4(void) { return false; }
+	virtual bool nullsub_5(void) { return false; }
+	virtual bool nullsub_6(void) { return false; }
+	virtual void* ProcessScriptMessageChecksum(void) { return nullptr; }
+
+private:
 	uint32_t m_nUserID;
 	edict_t m_nHandle;
 	char m_szServerName[256];
