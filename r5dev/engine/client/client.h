@@ -63,29 +63,34 @@ class CClient : IClientMessageHandler, INetChannelHandler
 {
 	friend class ServerDataBlockSender;
 public:
-	int64_t GetTeamNum() const;
-	edict_t GetHandle(void) const;
-	int GetUserID(void) const;
-	uint64_t GetNucleusID(void) const;
-	SIGNONSTATE GetSignonState(void) const;
-	PERSISTENCE GetPersistenceState(void) const;
-	CNetChan* GetNetChan(void) const;
-	CServer* GetServer(void) const;
-	int GetCommandTick(void) const;
-	const char* GetServerName(void) const;
-	const char* GetClientName(void) const;
-	void SetHandle(edict_t nHandle);
-	void SetUserID(uint32_t nUserID);
-	void SetNucleusID(uint64_t nNucleusID);
-	void SetSignonState(SIGNONSTATE nSignonState);
-	void SetPersistenceState(PERSISTENCE nPersistenceState);
-	void SetNetChan(CNetChan* pNetChan);
-	bool IsConnected(void) const;
-	bool IsSpawned(void) const;
-	bool IsActive(void) const;
-	bool IsPersistenceAvailable(void) const;
-	bool IsPersistenceReady(void) const;
-	bool IsFakeClient(void) const;
+	inline int64_t GetTeamNum() const { return m_iTeamNum; }
+	inline edict_t GetHandle(void) const { return m_nHandle; }
+	inline int GetUserID(void) const { return m_nUserID; }
+	inline uint64_t GetNucleusID(void) const { return m_nNucleusID; }
+
+	inline SIGNONSTATE GetSignonState(void) const { return m_nSignonState; }
+	inline PERSISTENCE GetPersistenceState(void) const { return m_nPersistenceState; }
+	inline CNetChan* GetNetChan(void) const { return m_NetChannel; }
+	inline CServer* GetServer(void) const { return m_pServer; }
+
+	inline int GetCommandTick(void) const { return m_nCommandTick; }
+	inline const char* GetServerName(void) const { return m_szServerName; }
+	inline const char* GetClientName(void) const { return m_szClientName; }
+
+	inline void SetHandle(edict_t nHandle) { m_nHandle = nHandle; }
+	inline void SetUserID(uint32_t nUserID) { m_nUserID = nUserID; }
+	inline void SetNucleusID(uint64_t nNucleusID) { m_nNucleusID = nNucleusID; }
+
+	inline void SetSignonState(SIGNONSTATE nSignonState) { m_nSignonState = nSignonState; }
+	inline void SetPersistenceState(PERSISTENCE nPersistenceState) { m_nPersistenceState = nPersistenceState; }
+	inline void SetNetChan(CNetChan* pNetChan) { m_NetChannel = pNetChan; }
+
+	inline bool IsConnected(void) const { return m_nSignonState >= SIGNONSTATE::SIGNONSTATE_CONNECTED; }
+	inline bool IsSpawned(void) const { return m_nSignonState >= SIGNONSTATE::SIGNONSTATE_NEW; }
+	inline bool IsActive(void) const { return m_nSignonState == SIGNONSTATE::SIGNONSTATE_FULL; }
+	inline bool IsPersistenceAvailable(void) const { return m_nPersistenceState >= PERSISTENCE::PERSISTENCE_AVAILABLE; }
+	inline bool IsPersistenceReady(void) const { return m_nPersistenceState == PERSISTENCE::PERSISTENCE_READY; }
+	inline bool IsFakeClient(void) const { return m_bFakePlayer; }
 	bool IsHumanPlayer(void) const;
 
 	bool SendNetMsgEx(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
