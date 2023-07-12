@@ -15,15 +15,6 @@
 #include "engine/client/client.h"
 
 //---------------------------------------------------------------------------------
-// Purpose: gets the client from buffer by index
-//---------------------------------------------------------------------------------
-CClient* CClient::GetClient(int nIndex) const
-{
-	return reinterpret_cast<CClient*>(
-		(reinterpret_cast<uintptr_t>(g_pClient) + (nIndex * sizeof(CClient))));
-}
-
-//---------------------------------------------------------------------------------
 // Purpose: gets the client's team number
 //---------------------------------------------------------------------------------
 int64_t CClient::GetTeamNum() const

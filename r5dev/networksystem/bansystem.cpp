@@ -7,6 +7,7 @@
 
 #include "core/stdafx.h"
 #include "engine/net.h"
+#include "engine/server/server.h"
 #include "engine/client/client.h"
 #include "filesystem/filesystem.h"
 #include "networksystem/bansystem.h"
@@ -294,7 +295,7 @@ void CBanSystem::AuthorPlayerByName(const char* playerName, const bool shouldBan
 
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
-		CClient* pClient = g_pClient->GetClient(i);
+		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)
 			continue;
 
@@ -347,7 +348,7 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 
 		for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 		{
-			CClient* pClient = g_pClient->GetClient(i);
+			CClient* pClient = g_pServer->GetClient(i);
 			if (!pClient)
 				continue;
 

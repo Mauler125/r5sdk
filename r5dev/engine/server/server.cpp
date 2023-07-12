@@ -29,7 +29,7 @@ int CServer::GetNumHumanPlayers(void) const
 	int nHumans = 0;
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
-		CClient* pClient = g_pClient->GetClient(i);
+		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)
 			continue;
 
@@ -49,7 +49,7 @@ int CServer::GetNumFakeClients(void) const
 	int nBots = 0;
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
-		CClient* pClient = g_pClient->GetClient(i);
+		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)
 			continue;
 
@@ -69,7 +69,7 @@ int CServer::GetNumClients(void) const
 	int nClients = 0;
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
-		CClient* pClient = g_pClient->GetClient(i);
+		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)
 			continue;
 

@@ -63,7 +63,6 @@ class CClient : IClientMessageHandler, INetChannelHandler
 {
 	friend class ServerDataBlockSender;
 public:
-	CClient* GetClient(int nIndex) const;
 	int64_t GetTeamNum() const;
 	edict_t GetHandle(void) const;
 	int GetUserID(void) const;

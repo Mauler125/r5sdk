@@ -8,6 +8,7 @@
 #include "tier1/cvar.h"
 #include "player.h"
 #include "physics_main.h"
+#include  "engine/server/server.h"
 #include "engine/client/client.h"
 #include "game/shared/util_shared.h"
 
@@ -21,7 +22,7 @@ void Physics_RunBotSimulation(bool bSimulating)
 
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
-		CClient* pClient = g_pClient->GetClient(i);
+		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)
 			continue;
 

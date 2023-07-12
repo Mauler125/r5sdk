@@ -37,9 +37,14 @@ public:
 
 	inline const char* GetMapName(void) const { return m_szMapname; }
 	inline const char* GetMapGroupName(void) const { return m_szMapGroupName; }
+
 	inline int GetNumClasses(void) const { return m_nServerClasses; }
 	inline int GetClassBits(void) const { return m_nServerClassBits; }
+
+	inline CClient* GetClient(int nIndex) { Assert(nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
+
 	inline float GetCPUUsage(void) const { return m_fCPUPercent; }
+
 	inline bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
 	inline bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
 	inline bool IsDedicated(void) const { return m_bIsDedicated; }

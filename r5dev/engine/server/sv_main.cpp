@@ -78,7 +78,7 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 
 	for (int c = 0; c < g_ServerGlobalVariables->m_nMaxClients; c++) // Loop through all possible client instances.
 	{
-		CClient* pClient = g_pClient->GetClient(c);
+		CClient* pClient = g_pServer->GetClient(c);
 		if (!pClient)
 			continue;
 
@@ -162,7 +162,7 @@ void SV_BroadcastVoiceData(CClient* cl, int nBytes, char* data)
 
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
-		CClient* pClient = g_pClient->GetClient(i);
+		CClient* pClient = g_pServer->GetClient(i);
 
 		if (!pClient)
 			continue;
