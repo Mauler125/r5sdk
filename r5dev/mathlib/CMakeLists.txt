@@ -43,7 +43,7 @@ add_sources( SOURCE_GROUP "Vector"
 
 add_sources( SOURCE_GROUP "Math"
     "almostequal.cpp"
-    "fbits.cpp"
+    "bits.h"
     "fbits.h"
     "math_pfns.h"
     "mathlib.h"
