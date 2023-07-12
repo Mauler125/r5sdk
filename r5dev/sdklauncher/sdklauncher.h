@@ -8,6 +8,7 @@ public:
     {
 		m_pSurface = nullptr;
 		m_pLogger = spdlog::stdout_color_mt(pszLoggerName);
+        m_ProcessorAffinity = NULL;
 		m_svCurrentDir = fs::current_path().u8string();
     }
     ~CLauncher()
@@ -44,7 +45,7 @@ public:
     int HandleCommandLine(int argc, char* argv[]);
     int HandleInput();
 
-    bool CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine = nullptr, const char* szConfig = nullptr);
+    bool CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffinity = NULL, const char* szCommandLine = nullptr, const char* szConfig = nullptr);
     void SetupLaunchContext(const char* szConfig, const char* szGameDll, const char* szCommandLine);
     bool LaunchProcess() const;
 
@@ -53,6 +54,8 @@ public:
 private:
     CSurface* m_pSurface;
 	std::shared_ptr<spdlog::logger> m_pLogger;
+
+    uint64_t m_ProcessorAffinity;
 
     string m_svGameDll;
     string m_svCmdLine;

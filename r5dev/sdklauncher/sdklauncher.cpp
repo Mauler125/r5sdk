@@ -141,7 +141,7 @@ int CLauncher::HandleInput()
 //          *szCommandLine - 
 // Output : true on success, false otherwise.
 ///////////////////////////////////////////////////////////////////////////////
-bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine /*= nullptr*/, const char* szConfig /*= nullptr*/)
+bool CLauncher::CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffinity /*= NULL*/, const char* szCommandLine /*= nullptr*/, const char* szConfig /*= nullptr*/)
 {
     ///////////////////////////////////////////////////////////////////////////
     const char* szGameDLL = nullptr;
@@ -164,6 +164,8 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, const char* szCommandLine
             szConfig = config;
         }
     };
+
+    m_ProcessorAffinity = nProcessorAffinity;
 
     switch (lMode)
     {
@@ -277,7 +279,7 @@ bool CLauncher::LaunchProcess() const
 
     ///////////////////////////////////////////////////////////////////////////
     // Create the game process in a suspended state with our dll.
-    BOOL result = CreateProcessA(
+    BOOL createResult = CreateProcessA(
         m_svGameDll.c_str(),                           // lpApplicationName
         (LPSTR)m_svCmdLine.c_str(),                    // lpCommandLine
         NULL,                                          // lpProcessAttributes
@@ -292,7 +294,20 @@ bool CLauncher::LaunchProcess() const
 
     ///////////////////////////////////////////////////////////////////////////
     // Failed to create the process.
-    if (!result)
+    if (createResult)
+    {
+        if (m_ProcessorAffinity)
+        {
+            BOOL affinityResult = SetProcessAffinityMask(ProcInfo.hProcess, m_ProcessorAffinity);
+            if (!affinityResult)
+            {
+                // Just print the result, don't return, as
+                // the process was created successfully.
+                PrintLastError();
+            }
+        }
+    }
+    else
     {
         PrintLastError();
         return false;

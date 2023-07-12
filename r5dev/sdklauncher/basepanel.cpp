@@ -6,6 +6,7 @@
 #include "launcher_pch.h"
 #include "basepanel.h"
 #include "sdklauncher.h"
+#include "mathlib/bits.h"
 #include "utility/vdf_parser.h"
 
 //-----------------------------------------------------------------------------
@@ -288,7 +289,7 @@ void CSurface::Init()
 	this->m_EngineBaseGroup->AddControl(this->m_ReservedCoresTextBox);
 
 	this->m_ReservedCoresLabel = new UIX::UIXLabel();
-	this->m_ReservedCoresLabel->SetSize({ 125, 18 });
+	this->m_ReservedCoresLabel->SetSize({ 105, 18 });
 	this->m_ReservedCoresLabel->SetLocation({ 36, 27 });
 	this->m_ReservedCoresLabel->SetTabIndex(0);
 	this->m_ReservedCoresLabel->SetText("Reserved cores");
@@ -301,12 +302,12 @@ void CSurface::Init()
 	this->m_WorkerThreadsTextBox->SetLocation({ 155, 25 });
 	this->m_WorkerThreadsTextBox->SetTabIndex(0);
 	this->m_WorkerThreadsTextBox->SetReadOnly(false);
-	this->m_WorkerThreadsTextBox->SetText("28");
+	this->m_WorkerThreadsTextBox->SetText("-1");
 	this->m_WorkerThreadsTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineBaseGroup->AddControl(this->m_WorkerThreadsTextBox);
 
 	this->m_WorkerThreadsLabel = new UIX::UIXLabel();
-	this->m_WorkerThreadsLabel->SetSize({ 125, 18 });
+	this->m_WorkerThreadsLabel->SetSize({ 105, 18 });
 	this->m_WorkerThreadsLabel->SetLocation({ 176, 27 });
 	this->m_WorkerThreadsLabel->SetTabIndex(0);
 	this->m_WorkerThreadsLabel->SetText("Worker threads");
@@ -314,42 +315,52 @@ void CSurface::Init()
 	this->m_WorkerThreadsLabel->SetTextAlign(Drawing::ContentAlignment::TopLeft);
 	this->m_EngineBaseGroup->AddControl(this->m_WorkerThreadsLabel);
 
-	this->m_SingleCoreDediToggle = new UIX::UIXCheckBox();
-	this->m_SingleCoreDediToggle->SetSize({ 125, 18 });
-	this->m_SingleCoreDediToggle->SetLocation({ 15, 48 });
-	this->m_SingleCoreDediToggle->SetTabIndex(0);
-	this->m_SingleCoreDediToggle->SetText("Single-core server");
-	this->m_SingleCoreDediToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_EngineBaseGroup->AddControl(this->m_SingleCoreDediToggle);
+	this->m_ProcessorAffinityTextBox = new UIX::UIXTextBox();
+	this->m_ProcessorAffinityTextBox->SetSize({ 18, 18 });
+	this->m_ProcessorAffinityTextBox->SetLocation({ 15, 48 });
+	this->m_ProcessorAffinityTextBox->SetTabIndex(0);
+	this->m_ProcessorAffinityTextBox->SetReadOnly(false);
+	this->m_ProcessorAffinityTextBox->SetText("0");
+	this->m_ProcessorAffinityTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_EngineBaseGroup->AddControl(this->m_ProcessorAffinityTextBox);
+
+	this->m_ProcessorAffinityLabel = new UIX::UIXLabel();
+	this->m_ProcessorAffinityLabel->SetSize({ 105, 18 });
+	this->m_ProcessorAffinityLabel->SetLocation({ 36, 50 });
+	this->m_ProcessorAffinityLabel->SetTabIndex(0);
+	this->m_ProcessorAffinityLabel->SetText("Processor affinity");
+	this->m_ProcessorAffinityLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_ProcessorAffinityLabel->SetTextAlign(Drawing::ContentAlignment::TopLeft);
+	this->m_EngineBaseGroup->AddControl(this->m_ProcessorAffinityLabel);
 
 	this->m_NoAsyncJobsToggle = new UIX::UIXCheckBox();
-	this->m_NoAsyncJobsToggle->SetSize({ 125, 18 });
+	this->m_NoAsyncJobsToggle->SetSize({ 105, 18 });
 	this->m_NoAsyncJobsToggle->SetLocation({ 155, 48 });
 	this->m_NoAsyncJobsToggle->SetTabIndex(2);
-	this->m_NoAsyncJobsToggle->SetText("Synchronize jobs");
+	this->m_NoAsyncJobsToggle->SetText("No async");
 	this->m_NoAsyncJobsToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineBaseGroup->AddControl(this->m_NoAsyncJobsToggle);
 
 	this->m_NetEncryptionToggle = new UIX::UIXCheckBox();
-	this->m_NetEncryptionToggle->SetSize({ 125, 18 });
+	this->m_NetEncryptionToggle->SetSize({ 105, 18 });
 	this->m_NetEncryptionToggle->SetLocation({ 15, 7 });
 	this->m_NetEncryptionToggle->SetTabIndex(0);
 	this->m_NetEncryptionToggle->SetChecked(true);
-	this->m_NetEncryptionToggle->SetText("Net encryption");
+	this->m_NetEncryptionToggle->SetText("Encrypt packets");
 	this->m_NetEncryptionToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineNetworkGroup->AddControl(this->m_NetEncryptionToggle);
 
 	this->m_NetRandomKeyToggle = new UIX::UIXCheckBox();
-	this->m_NetRandomKeyToggle->SetSize({ 125, 18 });
+	this->m_NetRandomKeyToggle->SetSize({ 105, 18 });
 	this->m_NetRandomKeyToggle->SetLocation({ 155, 7 });
 	this->m_NetRandomKeyToggle->SetTabIndex(0);
 	this->m_NetRandomKeyToggle->SetChecked(true);
-	this->m_NetRandomKeyToggle->SetText("Net random key");
+	this->m_NetRandomKeyToggle->SetText("Random netkey");
 	this->m_NetRandomKeyToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineNetworkGroup->AddControl(this->m_NetRandomKeyToggle);
 
 	this->m_QueuedPacketThread = new UIX::UIXCheckBox();
-	this->m_QueuedPacketThread->SetSize({ 125, 18 });
+	this->m_QueuedPacketThread->SetSize({ 105, 18 });
 	this->m_QueuedPacketThread->SetLocation({ 15, 30 });
 	this->m_QueuedPacketThread->SetTabIndex(2);
 	this->m_QueuedPacketThread->SetChecked(true);
@@ -358,15 +369,15 @@ void CSurface::Init()
 	this->m_EngineNetworkGroup->AddControl(this->m_QueuedPacketThread);
 
 	this->m_NoTimeOutToggle = new UIX::UIXCheckBox();
-	this->m_NoTimeOutToggle->SetSize({ 125, 18 });
+	this->m_NoTimeOutToggle->SetSize({ 105, 18 });
 	this->m_NoTimeOutToggle->SetLocation({ 155, 30 });
 	this->m_NoTimeOutToggle->SetTabIndex(0);
-	this->m_NoTimeOutToggle->SetText("No time out");
+	this->m_NoTimeOutToggle->SetText("No timeout");
 	this->m_NoTimeOutToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineNetworkGroup->AddControl(this->m_NoTimeOutToggle);
 
 	this->m_WindowedToggle = new UIX::UIXCheckBox();
-	this->m_WindowedToggle->SetSize({ 125, 18 });
+	this->m_WindowedToggle->SetSize({ 105, 18 });
 	this->m_WindowedToggle->SetLocation({ 15, 7 });
 	this->m_WindowedToggle->SetTabIndex(0);
 	this->m_WindowedToggle->SetChecked(true);
@@ -375,7 +386,7 @@ void CSurface::Init()
 	this->m_EngineVideoGroup->AddControl(this->m_WindowedToggle);
 
 	this->m_NoBorderToggle = new UIX::UIXCheckBox();
-	this->m_NoBorderToggle->SetSize({ 125, 18 });
+	this->m_NoBorderToggle->SetSize({ 105, 18 });
 	this->m_NoBorderToggle->SetLocation({ 155, 7 });
 	this->m_NoBorderToggle->SetTabIndex(0);
 	this->m_NoBorderToggle->SetText("Borderless");
@@ -392,7 +403,7 @@ void CSurface::Init()
 	this->m_EngineVideoGroup->AddControl(this->m_FpsTextBox);
 
 	this->m_FpsLabel = new UIX::UIXLabel();
-	this->m_FpsLabel->SetSize({ 125, 18 });
+	this->m_FpsLabel->SetSize({ 105, 18 });
 	this->m_FpsLabel->SetLocation({ 43, 32 });
 	this->m_FpsLabel->SetTabIndex(0);
 	this->m_FpsLabel->SetText("Max FPS");
@@ -554,8 +565,8 @@ void CSurface::LoadSettings()
 		attributeView = vRoot.attribs["workerThreadCount"];
 		this->m_WorkerThreadsTextBox->SetText(attributeView.data());
 
-		attributeView = vRoot.attribs["singleCoreServer"];
-		this->m_SingleCoreDediToggle->SetChecked(attributeView != "0");
+		attributeView = vRoot.attribs["processorAffinity"];
+		this->m_ProcessorAffinityTextBox->SetText(attributeView.data());
 
 		attributeView = vRoot.attribs["synchronizeJobs"]; // No-async
 		this->m_NoAsyncJobsToggle->SetChecked(attributeView != "0");
@@ -631,7 +642,7 @@ void CSurface::SaveSettings()
 	// Engine.
 	vRoot.add_attribute("reservedCoreCount", GetControlValue(this->m_ReservedCoresTextBox));
 	vRoot.add_attribute("workerThreadCount", GetControlValue(this->m_WorkerThreadsTextBox));
-	vRoot.add_attribute("singleCoreServer", GetControlValue(this->m_SingleCoreDediToggle));
+	vRoot.add_attribute("processorAffinity", GetControlValue(this->m_ProcessorAffinityTextBox));
 	vRoot.add_attribute("synchronizeJobs", GetControlValue(this->m_NoAsyncJobsToggle));
 
 	// Network.
@@ -710,8 +721,9 @@ void CSurface::LaunchGame(Forms::Control* pSender)
 	pSurface->AppendParameterInternal(svParameter, "-launcher");
 
 	eLaunchMode launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
+	uint64_t nProcessorAffinity = pSurface->GetProcessorAffinity(svParameter);
 
-	if (g_pLauncher->CreateLaunchContext(launchMode, svParameter.c_str(), "startup_launcher.cfg"))
+	if (g_pLauncher->CreateLaunchContext(launchMode, nProcessorAffinity, svParameter.c_str(), "startup_launcher.cfg"))
 		g_pLauncher->LaunchProcess();
 }
 
@@ -942,13 +954,20 @@ void CSurface::AppendParameterInternal(string& svParameterList, const char* szPa
 // Purpose: appends the reversed core count value to the command line buffer
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CSurface::AppendReservedCoreCount(string& svParameters)
+void CSurface::AppendProcessorParameters(string& svParameters)
 {
-	int nReservedCores = atoi(this->m_ReservedCoresTextBox->Text().ToCString());
+	const int nReservedCores = atoi(this->m_ReservedCoresTextBox->Text().ToCString());
 	if (nReservedCores > -1) // A reserved core count of 0 seems to crash the game on some systems.
 	{
 		AppendParameterInternal(svParameters, "-numreservedcores", 
 			this->m_ReservedCoresTextBox->Text().ToCString());
+	}
+
+	const int nWorkerThreads = atoi(this->m_WorkerThreadsTextBox->Text().ToCString());
+	if (nWorkerThreads > -1)
+	{
+		AppendParameterInternal(svParameters, "-numworkerthreads",
+			this->m_WorkerThreadsTextBox->Text().ToCString());
 	}
 }
 
@@ -1050,6 +1069,10 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 {
 	eLaunchMode results = eLaunchMode::LM_NONE;
 
+	this->AppendProcessorParameters(svParameters);
+	this->AppendConsoleParameters(svParameters);
+	this->AppendNetParameters(svParameters);
+
 	switch (static_cast<eMode>(this->m_ModeCombo->SelectedIndex()))
 	{
 	case eMode::HOST:
@@ -1078,14 +1101,7 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 			AppendParameterInternal(svParameters, "-showdevmenu");
 		}
 
-		this->AppendConsoleParameters(svParameters);
-
 		// ENGINE ###############################################################
-		this->AppendReservedCoreCount(svParameters);
-
-		if (this->m_SingleCoreDediToggle->Checked())
-			AppendParameterInternal(svParameters, "+sv_single_core_dedi", "1");
-
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
 			AppendParameterInternal(svParameters, "-noasync");
@@ -1106,7 +1122,6 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 		}
 
 		this->AppendHostParameters(svParameters);
-		this->AppendNetParameters(svParameters);
 		this->AppendVideoParameters(svParameters);
 
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
@@ -1137,14 +1152,7 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 		if (this->m_CheatsToggle->Checked())
 			AppendParameterInternal(svParameters, "+sv_cheats", "1");
 
-		this->AppendConsoleParameters(svParameters);
-
 		// ENGINE ###############################################################
-		this->AppendReservedCoreCount(svParameters);
-
-		if (this->m_SingleCoreDediToggle->Checked())
-			AppendParameterInternal(svParameters, "+sv_single_core_dedi", "1");
-
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
 			AppendParameterInternal(svParameters, "-noasync");
@@ -1156,7 +1164,6 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 		}
 
 		this->AppendHostParameters(svParameters);
-		this->AppendNetParameters(svParameters);
 
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
 			AppendParameterInternal(svParameters, this->m_LaunchArgsTextBox->Text().ToCString());
@@ -1184,14 +1191,7 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 			AppendParameterInternal(svParameters, "-showdevmenu");
 		}
 
-		this->AppendConsoleParameters(svParameters);
-
 		// ENGINE ###############################################################
-		this->AppendReservedCoreCount(svParameters);
-
-		if (this->m_SingleCoreDediToggle->Checked())
-			AppendParameterInternal(svParameters, "+sv_single_core_dedi", "1");
-
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
 			AppendParameterInternal(svParameters, "-noasync");
@@ -1207,7 +1207,6 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 			AppendParameterInternal(svParameters, "+physics_async_cl", "0");
 		}
 
-		this->AppendNetParameters(svParameters);
 		this->AppendVideoParameters(svParameters);
 
 		// MAIN ###############################################################
@@ -1217,8 +1216,30 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 		return results;
 	}
 	default:
+		Assert(0);
 		return results;
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets processor affinity, and automatically appends the single-core
+//          dedi cvar if core count = 1
+// Input  : &svParameters - 
+//-----------------------------------------------------------------------------
+uint64_t CSurface::GetProcessorAffinity(string& svParameters)
+{
+	char* pEnd;
+	const uint64_t nProcessorAffinity = strtoull(this->m_ProcessorAffinityTextBox->Text().ToCString(), &pEnd, 16);
+
+	if (nProcessorAffinity)
+	{
+		const uint32_t nProcessorCount = PopCount(nProcessorAffinity);
+
+		if (nProcessorCount == 1)
+			AppendParameterInternal(svParameters, "+sv_single_core_dedi", "1");
+	}
+
+	return nProcessorAffinity;
 }
 
 //-----------------------------------------------------------------------------
