@@ -97,47 +97,47 @@ inline bool(*v_NetChan_ProcessMessages)(CNetChan* pChan, bf_read* pMsg);
 class CNetChan
 {
 public:
-	const char* GetName(void) const;
-	const char* GetAddress(bool onlyBase = false) const;
-	int         GetPort(void) const;
-	int         GetDataRate(void) const;
-	int         GetBufferSize(void) const;
+	inline const char* GetName(void)                     const { return m_Name; }
+	inline const char* GetAddress(bool onlyBase = false) const { return remote_address.ToString(onlyBase); }
+	inline int         GetPort(void)                     const { return int(ntohs(remote_address.GetPort())); }
+	inline int         GetDataRate(void)                 const { return m_Rate; }
+	inline int         GetBufferSize(void)               const { return NET_FRAMES_BACKUP; }
 
-	float       GetNetworkLoss() const;
+	float        GetNetworkLoss() const;
 
-	float       GetLatency(int flow) const;
-	float       GetAvgChoke(int flow) const;
-	float       GetAvgLatency(int flow) const;
-	float       GetAvgLoss(int flow) const;
-	float       GetAvgPackets(int flow) const;
-	float       GetAvgData(int flow) const;
+	inline float GetLatency(int flow)        const { Assert(flow < sizeof(m_DataFlow)); return m_DataFlow[flow].latency; }
+	inline float GetAvgChoke(int flow)       const { Assert(flow < sizeof(m_DataFlow)); return m_DataFlow[flow].avgchoke; }
+	inline float GetAvgLatency(int flow)     const { Assert(flow < sizeof(m_DataFlow)); return m_DataFlow[flow].avglatency; }
+	inline float GetAvgLoss(int flow)        const { Assert(flow < sizeof(m_DataFlow)); return m_DataFlow[flow].avgloss; }
+	inline float GetAvgPackets(int flow)     const { Assert(flow < sizeof(m_DataFlow)); return m_DataFlow[flow].avgpacketspersec; }
+	inline float GetAvgData(int flow)        const { Assert(flow < sizeof(m_DataFlow)); return m_DataFlow[flow].avgbytespersec; }
+	inline int64_t GetTotalData(int flow)    const { Assert(flow < sizeof(m_DataFlow)); return m_DataFlow[flow].totalbytes; }
+	inline int64_t GetTotalPackets(int flow) const { Assert(flow < sizeof(m_DataFlow)); return m_DataFlow[flow].totalpackets; }
 
-	int64_t     GetTotalData(int flow) const;
-	int64_t     GetTotalPackets(int flow) const;
 	int         GetSequenceNr(int flow) const;
-
-	float       GetTimeoutSeconds(void) const;
 	double      GetTimeConnected(void) const;
-	int         GetSocket(void) const;
 
-	const bf_write& GetStreamVoice(void) const;
-	const netadr_t& GetRemoteAddress(void) const;
+	inline float GetTimeoutSeconds(void)          const { return m_Timeout; }
+	inline int   GetSocket(void)                  const { return m_Socket; }
+	inline const bf_write& GetStreamVoice(void)   const { return m_StreamVoice; }
+	inline const netadr_t& GetRemoteAddress(void) const { return remote_address; }
+	inline bool IsOverflowed(void)                const { return m_StreamReliable.IsOverflowed(); }
 
-	bool        IsOverflowed(void) const;
 	inline bool CanPacket(void) const { return v_NetChan_CanPacket(this); }
 	inline int SendDatagram(bf_write* pDatagram) { return v_NetChan_SendDatagram(this, pDatagram); }
 	bool SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice);
 
-	void Clear(bool bStopProcessing);
+	inline void Clear(bool bStopProcessing) { v_NetChan_Clear(this, bStopProcessing); }
 	inline void Shutdown(const char* szReason, uint8_t bBadRep, bool bRemoveNow)
-	{ _Shutdown(this, szReason, bBadRep, bRemoveNow); }
+	{ v_NetChan_Shutdown(this, szReason, bBadRep, bRemoveNow); }
 
 	static void _Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 	static bool _ProcessMessages(CNetChan* pChan, bf_read* pMsg);
 
 	void SetChoked();
 	void SetRemoteFramerate(float flFrameTime, float flFrameTimeStdDeviation);
-	void SetRemoteCPUStatistics(uint8_t nStats);
+	inline void SetRemoteCPUStatistics(uint8_t nStats) { m_nServerCPU = nStats; }
+
 	//-----------------------------------------------------------------------------
 public:
 	bool                m_bProcessingMessages;
@@ -210,6 +210,26 @@ static_assert(sizeof(CNetChan) == 0x1AD0);
 #else
 static_assert(sizeof(CNetChan) == 0x1AC8);
 #endif
+
+//-----------------------------------------------------------------------------
+// Purpose: sets the remote frame times
+// Input  : flFrameTime - 
+//			flFrameTimeStdDeviation - 
+//-----------------------------------------------------------------------------
+inline void CNetChan::SetRemoteFramerate(float flFrameTime, float flFrameTimeStdDeviation)
+{
+	m_flRemoteFrameTime = flFrameTime;
+	m_flRemoteFrameTimeStdDeviation = flFrameTimeStdDeviation;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: increments choked packet count
+//-----------------------------------------------------------------------------
+inline void CNetChan::SetChoked(void)
+{
+	m_nOutSequenceNr++; // Sends to be done since move command use sequence number.
+	m_nChokedPackets++;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
