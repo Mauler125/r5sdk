@@ -57,7 +57,6 @@ class CClientFrame
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-extern CClient* g_pClient;
 
 class CClient : IClientMessageHandler, INetChannelHandler
 {
@@ -235,7 +234,6 @@ class VClient : public IDetour
 		LogFunAdr("CClient::SetSignonState", p_CClient_SetSignonState.GetPtr());
 		LogFunAdr("CClient::SendNetMsgEx", p_CClient_SendNetMsgEx.GetPtr());
 		LogFunAdr("CClient::SendSnapshot", p_CClient_SendSnapshot.GetPtr());
-		LogVarAdr("g_Client[128]", reinterpret_cast<uintptr_t>(g_pClient));
 	}
 	virtual void GetFun(void) const
 	{
@@ -268,11 +266,7 @@ class VClient : public IDetour
 		v_CClient_SendNetMsgEx = p_CClient_SendNetMsgEx.RCast<bool (*)(CClient*, CNetMessage*, bool, bool, bool)>();
 		v_CClient_SendSnapshot = p_CClient_SendSnapshot.RCast<void* (*)(CClient*, CClientFrame*, int, int)>();
 	}
-	virtual void GetVar(void) const
-	{
-		g_pClient = g_GameDll.FindPatternSIMD("3B 15 ?? ?? ?? ?? 7D 33")
-			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClient*>();
-	}
+	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const
 	{

@@ -236,6 +236,3 @@ bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bo
 {
 	return pClient->SendNetMsgEx(pMsg, bLocal, bForceReliable, bVoice);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-CClient* g_pClient = nullptr;
