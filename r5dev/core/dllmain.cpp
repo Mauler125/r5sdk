@@ -17,9 +17,9 @@
 #include "launcher/launcher.h"
 
 #ifndef DEDICATED
-#define SDK_DEFAULT_CFG "cfg/startup_default.cfg"
+#define SDK_DEFAULT_CFG "cfg/system/startup_default.cfg"
 #else
-#define SDK_DEFAULT_CFG "cfg/startup_dedi_default.cfg"
+#define SDK_DEFAULT_CFG "cfg/system/startup_dedi_default.cfg"
 #endif
 
 bool g_bSdkInitialized = false;

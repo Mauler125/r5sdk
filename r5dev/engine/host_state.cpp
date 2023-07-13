@@ -319,30 +319,30 @@ void CHostState::LoadConfig(void) const
 	{
 		if (!CommandLine()->CheckParm("-devsdk"))
 		{
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec.cfg\"", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/autoexec.cfg\n", cmd_source_t::kCommandSrcCode);
 #ifndef CLIENT_DLL
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server.cfg\"", cmd_source_t::kCommandSrcCode);
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server.cfg\"", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/autoexec_server.cfg\n", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec tools/rcon_server.cfg\n", cmd_source_t::kCommandSrcCode);
 #endif //!CLIENT_DLL
 #ifndef DEDICATED
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client.cfg\"", cmd_source_t::kCommandSrcCode);
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client.cfg\"", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/autoexec_client.cfg\n", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec tools/rcon_client.cfg\n", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
 		}
 		else // Development configs.
 		{
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/autoexec_dev.cfg\n", cmd_source_t::kCommandSrcCode);
 #ifndef CLIENT_DLL
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/autoexec_server_dev.cfg\n", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec tools/rcon_server_dev.cfg\n", cmd_source_t::kCommandSrcCode);
 #endif //!CLIENT_DLL
 #ifndef DEDICATED
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/autoexec_client_dev.cfg\n", cmd_source_t::kCommandSrcCode);
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec tools/rcon_client_dev.cfg\n", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
 		}
 #ifndef DEDICATED
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"bind.cfg\"", cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec bind.cfg\n", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
 	}
 }
