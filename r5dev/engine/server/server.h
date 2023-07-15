@@ -122,7 +122,7 @@ class VServer : public IDetour
 		LogFunAdr("CServer::RunFrame", p_CServer_RunFrame.GetPtr());
 		LogFunAdr("CServer::ConnectClient", p_CServer_ConnectClient.GetPtr());
 		LogFunAdr("CServer::RejectConnection", p_CServer_RejectConnection.GetPtr());
-		LogVarAdr("g_Server[128]", reinterpret_cast<uintptr_t>(g_pServer));
+		LogVarAdr("g_Server", reinterpret_cast<uintptr_t>(g_pServer));
 #endif // !CLIENT_DLL
 	}
 	virtual void GetFun(void) const
