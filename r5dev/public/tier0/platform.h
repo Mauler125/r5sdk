@@ -52,6 +52,8 @@
 #define IsPlatformWindowsPC64() 0
 #define IsPlatformWindowsPC32() 1
 #define PLATFORM_WINDOWS_PC32 1
+
+#define COMPILER_MSVC32 1
 #endif
 
 #else // _X360
