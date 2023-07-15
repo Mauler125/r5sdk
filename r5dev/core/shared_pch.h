@@ -31,6 +31,7 @@
 #include <emmintrin.h>
 #include <cmath>
 #include <cctype>
+#include <cinttypes>
 #include <regex>
 #include <mutex>
 #include <thread>
