@@ -3,7 +3,6 @@
 // Purpose: SDK launcher implementation.
 //
 //=============================================================================//
-#include "launcher_pch.h"
 #include "tier0/binstream.h"
 #include "basepanel.h"
 #include "sdklauncher.h"

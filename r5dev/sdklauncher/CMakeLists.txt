@@ -32,7 +32,7 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "SDKLAUNCHER"
 )
 target_precompile_headers( ${PROJECT_NAME} PRIVATE
-    "launcher_pch.h"
+    "sdklauncher_pch.h"
 )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"

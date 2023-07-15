@@ -15,4 +15,4 @@
 #include "thirdparty/cppnet/cppkore/UIXRadioButton.h"
 #include "thirdparty/cppnet/cppkore/KoreTheme.h"
 
-#include "launcher/launcherdefs.h"
+#include "sdklauncher/sdklauncher_const.h"

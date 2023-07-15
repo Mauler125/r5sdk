@@ -3,7 +3,6 @@
 // Purpose: Launcher user interface implementation.
 //
 //=============================================================================//
-#include "launcher_pch.h"
 #include "basepanel.h"
 #include "sdklauncher.h"
 #include "mathlib/bits.h"

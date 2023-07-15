@@ -1,5 +1,4 @@
 #pragma once
-#include "sdklauncher_const.h"
 
 struct LogList_t
 {

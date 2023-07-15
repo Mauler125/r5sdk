@@ -6,7 +6,6 @@ start_sources()
 add_sources( SOURCE_GROUP "Runtime"
     "launcher.cpp"
     "launcher.h"
-    "launcherdefs.h"
     "prx.cpp"
     "prx.h"
 )
