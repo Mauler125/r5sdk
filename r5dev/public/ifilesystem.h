@@ -246,7 +246,7 @@ public:
 	// remember it in case you add search paths with this path ID.
 	virtual void			MarkPathIDByRequestOnly(const char* pPathID, bool bRequestOnly) = 0;
 	// converts a partial path into a full path
-	virtual const char* RelativePathToFullPath(const char* pFileName, const char* pPathID, char* pLocalPath, int localPathBufferSize, PathTypeFilter_t pathFilter = FILTER_NONE, PathTypeQuery_t* pPathType = NULL) = 0;
+	virtual const char* RelativePathToFullPath(const char* pFileName, const char* pPathID, char* pLocalPath, size_t localPathBufferSize, PathTypeFilter_t pathFilter = FILTER_NONE, PathTypeQuery_t* pPathType = NULL) = 0;
 #if IsGameConsole()
 	// Given a relative path, gets the PACK file that contained this file and its offset and size. Can be used to prefetch a file to a HDD for caching reason.
 	virtual bool            GetPackFileInfoFromRelativePath(const char* pFileName, const char* pPathID, char* pPackPath, int nPackPathBufferSize, int64& nPosition, int64& nLength) = 0;
