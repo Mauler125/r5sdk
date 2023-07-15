@@ -49,14 +49,23 @@ void Mod_GetAllInstalledMaps()
     CUtlVector<CUtlString> fileList;
     AddFilesToList(fileList, "vpk", "vpk", nullptr, '/');
 
+    std::cmatch regexMatches;
     std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
+
     g_InstalledMaps.clear(); // Clear current list.
 
-    std::cmatch regexMatches;
     FOR_EACH_VEC(fileList, i)
     {
-        const CUtlString& fileName = fileList[i];
-        std::regex_search(fileName.Get(), regexMatches, s_ArchiveRegex);
+        const CUtlString& filePath = fileList[i];
+
+        const char* pFilePath = filePath.Get();
+        const char* pFileName = strrchr(pFilePath, '/')+1;
+
+        // Should always point right in front of the last
+        // slash, as the files are loaded from 'vpk/'.
+        Assert(pFileName);
+
+        std::regex_search(pFileName, regexMatches, s_ArchiveRegex);
 
         if (!regexMatches.empty())
         {
