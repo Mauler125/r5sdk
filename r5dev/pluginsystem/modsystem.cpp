@@ -46,7 +46,7 @@ void CModSystem::Init()
 		modsystem_debug->SetValue(true);
 
 	CUtlVector<CUtlString> modFileList;
-	RecursiveFindFilesMatchingName(&modFileList,
+	RecursiveFindFilesMatchingName(modFileList,
 		MOD_BASE_DIRECTORY, MOD_SETTINGS_FILE, "PLATFORM", '/');
 
 	FOR_EACH_VEC(modFileList, i)

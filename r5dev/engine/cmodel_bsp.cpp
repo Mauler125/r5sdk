@@ -8,6 +8,7 @@
 #include "core/stdafx.h"
 #include "tier0/memstd.h"
 #include "tier0/jobthread.h"
+#include "tier2/fileutils.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/cmodel_bsp.h"
@@ -21,10 +22,14 @@
 #endif // !DEDICATED
 
 vector<string> g_InstalledMaps;
-string s_svLevelName;
+string s_LevelName;
+
+std::regex s_ArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
+
 bool s_bLevelResourceInitialized = false;
 bool s_bBasePaksInitialized = false;
 KeyValues* s_pLevelSetKV = nullptr;
+
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if level has changed
@@ -33,7 +38,7 @@ KeyValues* s_pLevelSetKV = nullptr;
 //-----------------------------------------------------------------------------
 bool Mod_LevelHasChanged(const char* pszLevelName)
 {
-	return (s_svLevelName.compare(pszLevelName) != 0);
+	return (s_LevelName.compare(pszLevelName) != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -41,17 +46,17 @@ bool Mod_LevelHasChanged(const char* pszLevelName)
 //-----------------------------------------------------------------------------
 void Mod_GetAllInstalledMaps()
 {
+    CUtlVector<CUtlString> fileList;
+    AddFilesToList(fileList, "vpk", "vpk", nullptr, '/');
+
     std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
     g_InstalledMaps.clear(); // Clear current list.
 
-    fs::directory_iterator directoryIterator("vpk");
-    std::regex archiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
-    std::smatch regexMatches;
-
-    for (const fs::directory_entry& directoryEntry : directoryIterator)
+    std::cmatch regexMatches;
+    FOR_EACH_VEC(fileList, i)
     {
-        std::string fileName = directoryEntry.path().u8string();
-        std::regex_search(fileName, regexMatches, archiveRegex);
+        const CUtlString& fileName = fileList[i];
+        std::regex_search(fileName.Get(), regexMatches, s_ArchiveRegex);
 
         if (!regexMatches.empty())
         {
@@ -347,7 +352,7 @@ void Mod_ProcessPakQueue()
 
         if (s_bBasePaksInitialized && !s_bLevelResourceInitialized)
         {
-            Mod_PreloadLevelPaks(s_svLevelName.c_str());
+            Mod_PreloadLevelPaks(s_LevelName.c_str());
             s_bLevelResourceInitialized = true;
         }
         *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, AlignedMemAlloc(), 4, 0);
@@ -387,7 +392,7 @@ void Mod_LoadPakForMap(const char* pszLevelName)
 	if (Mod_LevelHasChanged(pszLevelName))
 		s_bLevelResourceInitialized = false;
 
-	s_svLevelName = pszLevelName;
+	s_LevelName = pszLevelName;
 
 	// Dedicated should not load loadscreens.
 #ifndef DEDICATED

@@ -20,7 +20,7 @@ void CPluginSystem::PluginSystem_Init()
 	FileSystem()->CreateDirHierarchy("bin\\x64_retail\\plugins");
 
 	CUtlVector< CUtlString > pluginPaths;
-	AddFilesToList(pluginPaths, "bin\\x64_retail\\plugins", NULL, "dll");
+	AddFilesToList(pluginPaths, "bin\\x64_retail\\plugins", "dll");
 
 	for (int i = 0; i < pluginPaths.Count(); ++i)
 	{

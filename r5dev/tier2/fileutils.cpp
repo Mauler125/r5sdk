@@ -108,12 +108,13 @@ void ComputeModContentFilename( const char *pGameFileName, char *pBuf, size_t nB
 
 //-----------------------------------------------------------------------------
 // Purpose: Search start directory, recurse into sub directories collecting all files matching the target name.
-// Input  : *outFileList - 
+// Input  : &fileList - 
 //			*szStartDirectory - 
 //			*szTargetFileName - 
 //			*pathID - 
+//			separator - 
 //-----------------------------------------------------------------------------
-void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, const char* szStartDirectory, const char* szTargetFileName, const char *pPathID, char separator )
+void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > &fileList, const char* szStartDirectory, const char* szTargetFileName, const char *pPathID, char separator )
 {
 	char searchString[MAX_PATH];
 	Q_snprintf( searchString, sizeof( searchString ), "%s/*.*", szStartDirectory );
@@ -127,14 +128,14 @@ void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, con
 		{	
 			char newSearchPath[MAX_PATH];
 			Q_snprintf( newSearchPath, sizeof( newSearchPath ), "%s/%s", szStartDirectory, curFile );
-			RecursiveFindFilesMatchingName( pOutFileList, newSearchPath, szTargetFileName, pPathID, separator);
+			RecursiveFindFilesMatchingName( fileList, newSearchPath, szTargetFileName, pPathID, separator);
 		}
 		else if ( V_StringMatchesPattern( curFile, szTargetFileName ) )
 		{
 			CUtlString outFile;
 			outFile.Format( "%s/%s", szStartDirectory, curFile );
 			V_FixSlashes( outFile.Get(), separator );
-			pOutFileList->AddToTail( outFile );
+			fileList.AddToTail( outFile );
 		}
 
 		curFile = FileSystem()->FindNext( handle );
@@ -144,15 +145,16 @@ void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, con
 
 //-----------------------------------------------------------------------------
 // Builds a list of all files under a directory with a particular extension.
-// Input  : &list - 
+// Input  : &fileList - 
 //			*pDirectory - 
-//			*pPathID - 
 //			*pExtension - 
+//			*pPathID - 
+//			separator - 
 //-----------------------------------------------------------------------------
-void AddFilesToList( CUtlVector< CUtlString > &list, const char *pDirectory, const char *pPathID, const char *pExtension )
+void AddFilesToList( CUtlVector< CUtlString > &fileList, const char *pDirectory, const char *pExtension, const char* pPathID, char separator )
 {
 	char pSearchString[MAX_PATH];
-	Q_snprintf( pSearchString, MAX_PATH, "%s\\*", pDirectory );
+	Q_snprintf( pSearchString, MAX_PATH, "%s/*", pDirectory );
 
 	bool bIsAbsolute = V_IsAbsolutePath( pDirectory );
 
@@ -165,7 +167,7 @@ void AddFilesToList( CUtlVector< CUtlString > &list, const char *pDirectory, con
 	for ( ; pFoundFile; pFoundFile = FileSystem()->FindNext( hFind ) )
 	{
 		char pChildPath[MAX_PATH];
-		Q_snprintf( pChildPath, MAX_PATH, "%s\\%s", pDirectory, pFoundFile );
+		Q_snprintf( pChildPath, MAX_PATH, "%s/%s", pDirectory, pFoundFile );
 
 		if ( FileSystem()->FindIsDirectory( hFind ) )
 		{
@@ -192,8 +194,8 @@ void AddFilesToList( CUtlVector< CUtlString > &list, const char *pDirectory, con
 		}
 
 		V_strlower( pFullPath );
-		V_FixSlashes( pFullPath );
-		list.AddToTail( pFullPath );
+		V_FixSlashes( pFullPath, separator );
+		fileList.AddToTail( pFullPath );
 	}
 
 	FileSystem()->FindClose(hFind);
@@ -201,16 +203,16 @@ void AddFilesToList( CUtlVector< CUtlString > &list, const char *pDirectory, con
 	int nCount = subDirs.Count();
 	for ( int i = 0; i < nCount; ++i )
 	{
-		AddFilesToList( list, subDirs[i], pPathID, pExtension );
+		AddFilesToList( fileList, subDirs[i], pExtension, pPathID, separator );
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns the search path as a list of paths.
-// Input  : &path -
+// Input  : &pathList -
 //			*pPathID - 
 //-----------------------------------------------------------------------------
-void GetSearchPath(CUtlVector< CUtlString >& path, const char* pPathID)
+void GetSearchPath(CUtlVector< CUtlString >& pathList, const char* pPathID)
 {
 	int nMaxLen = FileSystem()->GetSearchPath(pPathID, false, NULL, 0);
 	char* pBuf = (char*)stackalloc(nMaxLen);
@@ -220,10 +222,10 @@ void GetSearchPath(CUtlVector< CUtlString >& path, const char* pPathID)
 	while (NULL != (pSemi = strchr(pBuf, ';')))
 	{
 		*pSemi = 0;
-		path.AddToTail(pBuf);
+		pathList.AddToTail(pBuf);
 		pBuf = pSemi + 1;
 	}
-	path.AddToTail(pBuf);
+	pathList.AddToTail(pBuf);
 }
 
 //-----------------------------------------------------------------------------

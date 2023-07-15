@@ -24,13 +24,13 @@ void ComputeModFilename( const char *pContentFileName, char *pBuf, size_t nBufLe
 void ComputeModContentFilename( const char *pGameFileName, char *pBuf, size_t nBufLen );
 
 // Finds all files matching the a name within a directory and its sub directories. Output entries are paths to found files (relative to and including szStartDirectory).
-void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > *pOutFileList, const char* szStartDirectory, const char* szTargetFileName, const char *pPathID, char separator = CORRECT_PATH_SEPARATOR);
+void RecursiveFindFilesMatchingName( CUtlVector< CUtlString > &fileList, const char* szStartDirectory, const char* szTargetFileName, const char *pPathID, char separator = CORRECT_PATH_SEPARATOR);
 
 // Builds a list of all files under a directory with a particular extension.
-void AddFilesToList( CUtlVector< CUtlString > &list, const char *pDirectory, const char *pPath = nullptr, const char *pExtension = nullptr );
+void AddFilesToList( CUtlVector< CUtlString > &fileList, const char *pDirectory, const char *pExtension = nullptr, const char* pPathID = nullptr, char separator = CORRECT_PATH_SEPARATOR );
 
 // Returns the search path as a list of paths.
-void GetSearchPath( CUtlVector< CUtlString > &path, const char *pPathID );
+void GetSearchPath( CUtlVector< CUtlString > &pathList, const char *pPathID );
 
 // Given file name generate a full path using the following rules.
 // 1. if its full path already return.
