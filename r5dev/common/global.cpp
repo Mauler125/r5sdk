@@ -654,7 +654,7 @@ void ConCommand_StaticInit(void)
 	// FILESYSTEM API                                                         |
 	ConCommand::StaticCreate("fs_vpk_mount", "Mount a VPK file for FileSystem usage.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Mount_f, nullptr);
 	ConCommand::StaticCreate("fs_vpk_unmount", "Unmount a VPK file and clear its cache.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Unmount_f, nullptr);
-	ConCommand::StaticCreate("fs_vpk_build", "Build a VPK file from current workspace.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Pack_f, nullptr);
+	ConCommand::StaticCreate("fs_vpk_pack", "Pack a VPK file from current workspace.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Pack_f, nullptr);
 	ConCommand::StaticCreate("fs_vpk_unpack", "Unpack all files from a VPK file.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
