@@ -57,9 +57,7 @@ void Mod_GetAllInstalledMaps()
     FOR_EACH_VEC(fileList, i)
     {
         const CUtlString& filePath = fileList[i];
-
-        const char* pFilePath = filePath.Get();
-        const char* pFileName = strrchr(pFilePath, '/')+1;
+        const char* pFileName = strrchr(filePath.Get(), '/')+1;
 
         // Should always point right in front of the last
         // slash, as the files are loaded from 'vpk/'.
