@@ -542,62 +542,72 @@ void CSurface::LoadSettings()
 
 	try
 	{
+		string& attributeView = vRoot.attribs["version"];
+
+		int settingsVersion = atoi(attributeView.c_str());
+		if (settingsVersion != SDK_LAUNCHER_VERSION)
+			return;
+
+		vdf::object* pSubKey = vRoot.childs["vars"].get();
+		if (!pSubKey)
+			return;
+
 		// Game.
-		string& attributeView = vRoot.attribs["playlistsFile"];
+		attributeView = pSubKey->attribs["playlistsFile"];
 		this->m_PlaylistFileTextBox->SetText(attributeView.data());
 
-		attributeView = vRoot.attribs["enableCheats"];
+		attributeView = pSubKey->attribs["enableCheats"];
 		this->m_CheatsToggle->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["enableDeveloper"];
+		attributeView = pSubKey->attribs["enableDeveloper"];
 		this->m_DeveloperToggle->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["enableConsole"];
+		attributeView = pSubKey->attribs["enableConsole"];
 		this->m_ConsoleToggle->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["colorConsole"];
+		attributeView = pSubKey->attribs["colorConsole"];
 		this->m_ColorConsoleToggle->SetChecked(attributeView != "0");
 
 		// Engine.
-		attributeView = vRoot.attribs["reservedCoreCount"];
+		attributeView = pSubKey->attribs["reservedCoreCount"];
 		this->m_ReservedCoresTextBox->SetText(attributeView.data());
 
-		attributeView = vRoot.attribs["workerThreadCount"];
+		attributeView = pSubKey->attribs["workerThreadCount"];
 		this->m_WorkerThreadsTextBox->SetText(attributeView.data());
 
-		attributeView = vRoot.attribs["processorAffinity"];
+		attributeView = pSubKey->attribs["processorAffinity"];
 		this->m_ProcessorAffinityTextBox->SetText(attributeView.data());
 
-		attributeView = vRoot.attribs["synchronizeJobs"]; // No-async
+		attributeView = pSubKey->attribs["noAsync"]; // No-async
 		this->m_NoAsyncJobsToggle->SetChecked(attributeView != "0");
 
 		// Network.
-		attributeView = vRoot.attribs["encryptionEnable"];
+		attributeView = pSubKey->attribs["encryptPackets"];
 		this->m_NetEncryptionToggle->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["randomNetKey"];
+		attributeView = pSubKey->attribs["randomNetKey"];
 		this->m_NetRandomKeyToggle->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["queuedPackets"];
+		attributeView = pSubKey->attribs["queuedPackets"];
 		this->m_QueuedPacketThread->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["noTimeOut"];
+		attributeView = pSubKey->attribs["noTimeOut"];
 		this->m_NoTimeOutToggle->SetChecked(attributeView != "0");
 
 		// Video.
-		attributeView = vRoot.attribs["windowed"];
+		attributeView = pSubKey->attribs["windowed"];
 		this->m_WindowedToggle->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["borderless"];
+		attributeView = pSubKey->attribs["borderless"];
 		this->m_NoBorderToggle->SetChecked(attributeView != "0");
 
-		attributeView = vRoot.attribs["maxFPS"];
+		attributeView = pSubKey->attribs["maxFPS"];
 		this->m_FpsTextBox->SetText(attributeView.data());
 
-		attributeView = vRoot.attribs["width"];
+		attributeView = pSubKey->attribs["width"];
 		this->m_WidthTextBox->SetText(attributeView.data());
 
-		attributeView = vRoot.attribs["height"];
+		attributeView = pSubKey->attribs["height"];
 		this->m_HeightTextBox->SetText(attributeView.data());
 	}
 	catch (const std::exception& e)
@@ -631,32 +641,38 @@ void CSurface::SaveSettings()
 
 	vdf::object vRoot;
 	vRoot.set_name("LauncherSettings");
+	vRoot.add_attribute("version", std::to_string(SDK_LAUNCHER_VERSION));
+
+	vdf::object* vVars = new vdf::object();
+	vVars->set_name("vars");
 
 	// Game.
-	vRoot.add_attribute("playlistsFile", GetControlValue(this->m_PlaylistFileTextBox));
-	vRoot.add_attribute("enableCheats", GetControlValue(this->m_CheatsToggle));
-	vRoot.add_attribute("enableDeveloper", GetControlValue(this->m_DeveloperToggle));
-	vRoot.add_attribute("enableConsole", GetControlValue(this->m_ConsoleToggle));
-	vRoot.add_attribute("colorConsole", GetControlValue(this->m_ColorConsoleToggle));
+	vVars->add_attribute("playlistsFile", GetControlValue(this->m_PlaylistFileTextBox));
+	vVars->add_attribute("enableCheats", GetControlValue(this->m_CheatsToggle));
+	vVars->add_attribute("enableDeveloper", GetControlValue(this->m_DeveloperToggle));
+	vVars->add_attribute("enableConsole", GetControlValue(this->m_ConsoleToggle));
+	vVars->add_attribute("colorConsole", GetControlValue(this->m_ColorConsoleToggle));
 
 	// Engine.
-	vRoot.add_attribute("reservedCoreCount", GetControlValue(this->m_ReservedCoresTextBox));
-	vRoot.add_attribute("workerThreadCount", GetControlValue(this->m_WorkerThreadsTextBox));
-	vRoot.add_attribute("processorAffinity", GetControlValue(this->m_ProcessorAffinityTextBox));
-	vRoot.add_attribute("synchronizeJobs", GetControlValue(this->m_NoAsyncJobsToggle));
+	vVars->add_attribute("reservedCoreCount", GetControlValue(this->m_ReservedCoresTextBox));
+	vVars->add_attribute("workerThreadCount", GetControlValue(this->m_WorkerThreadsTextBox));
+	vVars->add_attribute("processorAffinity", GetControlValue(this->m_ProcessorAffinityTextBox));
+	vVars->add_attribute("noAsync", GetControlValue(this->m_NoAsyncJobsToggle));
 
 	// Network.
-	vRoot.add_attribute("encryptionEnable", GetControlValue(this->m_NetEncryptionToggle));
-	vRoot.add_attribute("randomNetKey", GetControlValue(this->m_NetRandomKeyToggle));
-	vRoot.add_attribute("queuedPackets", GetControlValue(this->m_QueuedPacketThread));
-	vRoot.add_attribute("noTimeOut", GetControlValue(this->m_NoTimeOutToggle));
+	vVars->add_attribute("encryptPackets", GetControlValue(this->m_NetEncryptionToggle));
+	vVars->add_attribute("randomNetKey", GetControlValue(this->m_NetRandomKeyToggle));
+	vVars->add_attribute("queuedPackets", GetControlValue(this->m_QueuedPacketThread));
+	vVars->add_attribute("noTimeOut", GetControlValue(this->m_NoTimeOutToggle));
 
 	// Video.
-	vRoot.add_attribute("windowed", GetControlValue(this->m_WindowedToggle));
-	vRoot.add_attribute("borderless", GetControlValue(this->m_NoBorderToggle));
-	vRoot.add_attribute("maxFPS", GetControlValue(this->m_FpsTextBox));
-	vRoot.add_attribute("width", GetControlValue(this->m_WidthTextBox));
-	vRoot.add_attribute("height", GetControlValue(this->m_HeightTextBox));
+	vVars->add_attribute("windowed", GetControlValue(this->m_WindowedToggle));
+	vVars->add_attribute("borderless", GetControlValue(this->m_NoBorderToggle));
+	vVars->add_attribute("maxFPS", GetControlValue(this->m_FpsTextBox));
+	vVars->add_attribute("width", GetControlValue(this->m_WidthTextBox));
+	vVars->add_attribute("height", GetControlValue(this->m_HeightTextBox));
+
+	vRoot.add_child(std::unique_ptr<vdf::object>(vVars));
 
 	vdf::write(fileStream, vRoot);
 }
