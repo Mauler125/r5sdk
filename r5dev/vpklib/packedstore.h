@@ -166,7 +166,7 @@ struct VPKDir_t
 		typedef std::map<std::string, PathContainer_t> TypeContainer_t;
 
 		void BuildTree(const CUtlVector<VPKEntryBlock_t>& entryBlocks);
-		uint64_t WriteTree(FileHandle_t hDirectoryFile) const;
+		int  WriteTree(FileHandle_t hDirectoryFile) const;
 
 	private:
 		TypeContainer_t m_FileTree;

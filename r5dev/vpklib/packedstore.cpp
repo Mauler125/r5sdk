@@ -468,7 +468,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 	}
 
 	uint64_t nSharedTotal = NULL;
-	uint32_t nSharedCount = NULL;
+	uint64_t nSharedCount = NULL;
 
 	FOR_EACH_VEC(entryValues, i)
 	{
@@ -548,7 +548,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		FileSystem()->Close(hAsset);
 	}
 
-	DevMsg(eDLL_T::FS, "*** Build block totaling '%zu' bytes with '%zu' shared bytes among '%zu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
+	DevMsg(eDLL_T::FS, "*** Build block totaling '%u' bytes with '%llu' shared bytes among '%llu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
 	FileSystem()->Close(hPackFile);
 
 	m_ChunkHashMap.clear();
@@ -626,8 +626,8 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				continue;
 			}
 
-			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%i' ('%s')\n",
-				j, entryBlock.m_iPackFileIndex, pEntryPath);
+			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%hu' ('%s')\n",
+				j, packFileIndex, pEntryPath);
 
 			FOR_EACH_VEC(entryBlock.m_Fragments, k)
 			{
@@ -1057,9 +1057,9 @@ void VPKDir_t::CTreeBuilder::BuildTree(const CUtlVector<VPKEntryBlock_t>& entryB
 // Input  : hDirectoryFile - 
 // Output : number of descriptors written
 //-----------------------------------------------------------------------------
-uint64_t VPKDir_t::CTreeBuilder::WriteTree(FileHandle_t hDirectoryFile) const
+int VPKDir_t::CTreeBuilder::WriteTree(FileHandle_t hDirectoryFile) const
 {
-	uint64_t nDescriptors = NULL;
+	int nDescriptors = NULL;
 
 	for (auto& iKeyValue : m_FileTree)
 	{
@@ -1127,13 +1127,13 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 	treeBuilder.BuildTree(entryBlocks);
 
 	WriteHeader(hDirectoryFile);
-	uint64_t nDescriptors = treeBuilder.WriteTree(hDirectoryFile);
+	int nDescriptors = treeBuilder.WriteTree(hDirectoryFile);
 
 	m_Header.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(hDirectoryFile) - sizeof(VPKDirHeader_t));
 	WriteTreeSize(hDirectoryFile);
 
 	FileSystem()->Close(hDirectoryFile);
-	DevMsg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%zu' entries and '%zu' descriptors\n",
+	DevMsg(eDLL_T::FS, "*** Build directory totaling '%llu' bytes with '%i' entries and '%i' descriptors\n",
 		size_t(sizeof(VPKDirHeader_t) + m_Header.m_nDirectorySize), entryBlocks.Count(), nDescriptors);
 }
 //-----------------------------------------------------------------------------
