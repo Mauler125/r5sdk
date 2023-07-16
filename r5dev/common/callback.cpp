@@ -1406,9 +1406,26 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 		return;
 	}
 
+	int numPlayers = g_pServer->GetNumClients();
+
+	// Already at max, don't create.
+	if (numPlayers >= g_ServerGlobalVariables->m_nMaxClients)
+		return;
+
+	const char* playerName = args.Arg(1);
+
+	int teamNum = atoi(args.Arg(2));
+	int maxTeams = int(g_pServer->GetMaxTeams()) + 1;
+
+	// Clamp team count, going above the limit will
+	// cause a crash. Going below 0 means that the
+	// engine will assign the bot to the last team.
+	if (teamNum > maxTeams)
+		teamNum = maxTeams;
+
 	g_pEngineServer->LockNetworkStringTables(true);
 
-	edict_t nHandle = g_pEngineServer->CreateFakeClient(args.Arg(1), atoi(args.Arg(2)));
+	edict_t nHandle = g_pEngineServer->CreateFakeClient(playerName, teamNum);
 	g_pServerGameClients->ClientFullyConnect(nHandle, false);
 
 	g_pEngineServer->LockNetworkStringTables(false);
