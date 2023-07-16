@@ -17,7 +17,6 @@ struct ServerPlayer_t
 		, m_flLastNetProcessTime(0.0)
 		, m_flStringCommandQuotaTimeStart(0.0)
 		, m_nStringCommandQuotaCount(0)
-		, m_bPersistenceEnabled(false)
 	{}
 	inline void Reset(void)
 	{
@@ -25,14 +24,12 @@ struct ServerPlayer_t
 		m_flLastNetProcessTime = 0.0;
 		m_flStringCommandQuotaTimeStart = 0.0;
 		m_nStringCommandQuotaCount = 0;
-		m_bPersistenceEnabled = false;
 	}
 
 	double m_flCurrentNetProcessTime;
 	double m_flLastNetProcessTime;
 	double m_flStringCommandQuotaTimeStart;
 	int m_nStringCommandQuotaCount;
-	bool m_bPersistenceEnabled;
 };
 
 extern ServerPlayer_t g_ServerPlayer[MAX_PLAYERS];

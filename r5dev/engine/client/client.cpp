@@ -117,19 +117,17 @@ void CClient::Disconnect(const Reputation_t nRepLvl, const char* szReason, ...)
 //---------------------------------------------------------------------------------
 void CClient::VActivatePlayer(CClient* pClient)
 {
-	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY); // Set the client instance to 'ready'.
-	int nUserID = pClient->GetUserID();
-
-	if (!g_ServerPlayer[nUserID].m_bPersistenceEnabled && sv_showconnecting->GetBool())
-	{
-		g_ServerPlayer[nUserID].m_bPersistenceEnabled = true;
-		CNetChan* pNetChan = pClient->GetNetChan();
-
-		DevMsg(eDLL_T::SERVER, "Enabled persistence for client #%d; channel %s(%s) ('%llu')\n",
-			nUserID, pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
-	}	///////////////////////////////////////////////////////////////////////
-
+	// Set the client instance to 'ready' before calling ActivatePlayer.
+	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY);
 	v_CClient_ActivatePlayer(pClient);
+
+	if (sv_showconnecting->GetBool())
+	{
+		const CNetChan* pNetChan = pClient->GetNetChan();
+
+		DevMsg(eDLL_T::SERVER, "Activated player #%d; channel %s(%s) ('%llu')\n",
+			pClient->GetUserID(), pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
+	}
 }
 
 //---------------------------------------------------------------------------------
