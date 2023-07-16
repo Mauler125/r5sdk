@@ -137,7 +137,8 @@
 #define MAX_SPLITSCREEN_CLIENT_BITS 0 // R5 doesn't support splitscreen; engine is hardcoded to only have 1 player.
 #define MAX_SPLITSCREEN_CLIENTS	( 1 << MAX_SPLITSCREEN_CLIENT_BITS ) // 1 // this should == MAX_JOYSTICKS in InputEnums.h
 
-#define MAX_PLAYERS 128 // Max R5 players.
+#define MAX_PLAYERS 128 // Absolute max R5 players.
+#define MAX_TEAMS   126 // Absolute max R5 teams.
 
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 #define MAX_MAP_NAME_HOST 64
