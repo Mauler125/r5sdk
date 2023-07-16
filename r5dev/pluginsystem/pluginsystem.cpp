@@ -17,10 +17,10 @@
 //-----------------------------------------------------------------------------
 void CPluginSystem::PluginSystem_Init()
 {
-	FileSystem()->CreateDirHierarchy("bin\\x64_retail\\plugins");
+	FileSystem()->CreateDirHierarchy(PLUGIN_INSTALL_DIR);
 
 	CUtlVector< CUtlString > pluginPaths;
-	AddFilesToList(pluginPaths, "bin\\x64_retail\\plugins", "dll");
+	AddFilesToList(pluginPaths, PLUGIN_INSTALL_DIR, "dll");
 
 	for (int i = 0; i < pluginPaths.Count(); ++i)
 	{

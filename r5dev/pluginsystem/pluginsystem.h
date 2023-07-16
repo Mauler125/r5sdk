@@ -1,6 +1,8 @@
 #pragma once
 #include "ipluginsystem.h"
 
+#define PLUGIN_INSTALL_DIR "bin\\x64_retail\\plugins"
+
 class CModAppSystemGroup;
 class CServer;
 class CClient;
