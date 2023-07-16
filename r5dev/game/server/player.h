@@ -254,8 +254,8 @@ public:
 	void PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover);
 	void SetLastUserCommand(CUserCmd* pUserCmd);
 
-	bool	IsConnected() const { return m_iConnected != PlayerDisconnected; }
-	bool	IsDisconnecting() const { return m_iConnected == PlayerDisconnecting; }
+	inline bool	IsConnected() const { return m_iConnected != PlayerDisconnected; }
+	inline bool	IsDisconnecting() const { return m_iConnected == PlayerDisconnecting; }
 
 private:
 	int m_StuckLast;
