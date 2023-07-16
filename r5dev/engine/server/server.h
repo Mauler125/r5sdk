@@ -41,6 +41,11 @@ public:
 	inline int GetNumClasses(void) const { return m_nServerClasses; }
 	inline int GetClassBits(void) const { return m_nServerClassBits; }
 
+	inline int GetSpawnCount(void) const { return m_nSpawnCount; }
+	inline int GetMaxClients(void) const { return m_nMaxClients; }
+
+	inline int64_t GetMaxTeams(void) const { return m_iMaxTeams; }
+
 	inline CClient* GetClient(int nIndex) { Assert(nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
 
 	inline float GetCPUUsage(void) const { return m_fCPUPercent; }
@@ -81,7 +86,7 @@ private:
 	char                          m_szHostInfo[128];             // see '[r5apex_ds.exe + 0x237740]' for more details. fmt: '[IPv6]:PORT:TIMEi64u'
 	char                          m_nGap0[520];
 	int                           m_nSpawnCount;
-	int                           m_nMaxclients;
+	int                           m_nMaxClients;
 	char                          gap_3C0[8];                    // Unknown count (something for teams), see '[r5apex_ds.exe + 0x2777E9]'
 	int64_t                       m_iMaxTeams;
 	float                         m_flTickInterval;              // Time for 1 tick in seconds.
