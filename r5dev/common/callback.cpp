@@ -347,7 +347,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 	{
 		if (args.HasOnlyDigits(1))
 		{
-			const RPakHandle_t pakHandle = std::stoi(args.Arg(1));
+			const RPakHandle_t pakHandle = atoi(args.Arg(1));
 			const RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
 			if (!pakInfo)
 			{
@@ -403,7 +403,7 @@ void Pak_Swap_f(const CCommand& args)
 
 		if (args.HasOnlyDigits(1))
 		{
-			pakHandle = std::stoi(args.Arg(1));
+			pakHandle = atoi(args.Arg(1));
 			pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
 			if (!pakInfo)
 			{
@@ -1408,7 +1408,7 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 
 	g_pEngineServer->LockNetworkStringTables(true);
 
-	edict_t nHandle = g_pEngineServer->CreateFakeClient(args.Arg(1), std::stoi(args.Arg(2)));
+	edict_t nHandle = g_pEngineServer->CreateFakeClient(args.Arg(1), atoi(args.Arg(2)));
 	g_pServerGameClients->ClientFullyConnect(nHandle, false);
 
 	g_pEngineServer->LockNetworkStringTables(false);
