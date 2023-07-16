@@ -88,7 +88,7 @@ private:
 	float                         m_fCPUPercent;
 	float                         m_fStartTime;
 	float                         m_fLastCPUCheckTime;
-	bool                          m_bUnk252643C[128];            // Bools of MAX_PLAYERS?
+	bool                          m_bPersistenceSet[MAX_PLAYERS]; // Maps to 'm_Clients'.
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 // !TODO: check if struct size is correct for S1!
