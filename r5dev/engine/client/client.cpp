@@ -121,10 +121,10 @@ void CClient::VActivatePlayer(CClient* pClient)
 	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY);
 	v_CClient_ActivatePlayer(pClient);
 
-	if (sv_showconnecting->GetBool())
-	{
-		const CNetChan* pNetChan = pClient->GetNetChan();
+	const CNetChan* pNetChan = pClient->GetNetChan();
 
+	if (pNetChan && sv_showconnecting->GetBool())
+	{
 		DevMsg(eDLL_T::SERVER, "Activated player #%d; channel %s(%s) ('%llu')\n",
 			pClient->GetUserID(), pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
 	}
