@@ -527,7 +527,7 @@ void RTech_Decompress_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, " |     |-- Size comp: '%llu'\n", pHeader->m_nSizeDisk);
 	DevMsg(eDLL_T::RTECH, " |     |-- Size decp: '%llu'\n", pHeader->m_nSizeMemory);
 
-	if (pHeader->m_nMagic != RPAK_MAGIC)
+	if (pHeader->m_nMagic != PAK_HEADER_MAGIC)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' has invalid magic!\n",
 			__FUNCTION__, inPakFile.String());
