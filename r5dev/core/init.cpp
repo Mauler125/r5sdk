@@ -193,6 +193,16 @@ void Systems_Init()
 	DevMsg(eDLL_T::NONE, "\n");
 
 	ConVar_StaticInit();
+
+	// Script context registration callbacks.
+#ifndef CLIENT_DLL
+	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
+#endif // !CLIENT_DLL
+
+#ifndef SERVER_DLL
+	ClientScriptRegister_Callback = Script_RegisterClientFunctions;
+	UiScriptRegister_Callback =  Script_RegisterUIFunctions;
+#endif // !SERVER_DLL
 }
 
 //////////////////////////////////////////////////////////////////////////
