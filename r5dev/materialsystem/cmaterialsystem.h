@@ -7,19 +7,20 @@
 class CMaterialSystem
 {
 public:
-#ifndef DEDICATED
+	static InitReturnVal_t Init(CMaterialSystem* thisptr);
+#ifndef MATERIALSYSTEM_NODX
 	static CMaterialGlue* FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 	static Vector2D GetScreenSize(CMaterialSystem* pMatSys = nullptr);
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 };
 
 /* ==== MATERIALSYSTEM ================================================================================================================================================== */
 inline CMemory p_CMaterialSystem__Init;
-inline void*(*CMaterialSystem__Init)(CMaterialSystem* thisptr);
+inline InitReturnVal_t(*CMaterialSystem__Init)(CMaterialSystem* thisptr);
 
 inline void* g_pMaterialSystem = nullptr;
 inline void* g_pMaterialVFTable = nullptr;
-#ifndef DEDICATED
+#ifndef MATERIALSYSTEM_NODX
 inline CMemory p_CMaterialSystem__FindMaterialEx;
 inline CMaterialGlue*(*CMaterialSystem__FindMaterialEx)(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 
@@ -44,7 +45,7 @@ inline CMemory s_pRenderContext;
 inline int* g_nTotalStreamingTextureMemory    = nullptr;
 inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline int* g_nUnusableStreamingTextureMemory = nullptr;
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 
 ///////////////////////////////////////////////////////////////////////////////
 class VMaterialSystem : public IDetour
@@ -53,7 +54,7 @@ class VMaterialSystem : public IDetour
 	{
 		LogConAdr("CMaterial::`vftable'", reinterpret_cast<uintptr_t>(g_pMaterialVFTable));
 		LogFunAdr("CMaterialSystem::Init", p_CMaterialSystem__Init.GetPtr());
-#ifndef DEDICATED
+#ifndef MATERIALSYSTEM_NODX
 		LogFunAdr("CMaterialSystem::FindMaterialEx", p_CMaterialSystem__FindMaterialEx.GetPtr());
 		LogFunAdr("CMaterialSystem::GetScreenSize", p_CMaterialSystem_GetScreenSize.GetPtr());
 		LogFunAdr("CMaterialSystem::DispatchDrawCall", p_DispatchDrawCall.GetPtr());
@@ -63,14 +64,14 @@ class VMaterialSystem : public IDetour
 		LogVarAdr("g_nUnfreeStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nUnfreeStreamingTextureMemory));
 		LogVarAdr("g_nUnusableStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nUnusableStreamingTextureMemory));
 		LogVarAdr("s_pRenderContext", s_pRenderContext.GetPtr());
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 		LogVarAdr("g_pMaterialSystem", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
 	}
 	virtual void GetFun(void) const
 	{
 		p_CMaterialSystem__Init = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??");
-		CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void*(*)(CMaterialSystem*)>(); /*48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??*/
-#ifndef DEDICATED
+		CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<InitReturnVal_t(*)(CMaterialSystem*)>(); /*48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??*/
+#ifndef MATERIALSYSTEM_NODX
 		p_CMaterialSystem__FindMaterialEx = g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??");
 		CMaterialSystem__FindMaterialEx = p_CMaterialSystem__FindMaterialEx.RCast<CMaterialGlue*(*)(CMaterialSystem*, const char*, uint8_t, int, bool)>(); /*44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??*/
 
@@ -88,17 +89,17 @@ class VMaterialSystem : public IDetour
 
 		p_DrawStreamOverlay = g_GameDll.FindPatternSIMD("41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 ??");
 		v_DrawStreamOverlay = p_DrawStreamOverlay.RCast<const char*(*)(void*, uint8_t*, void*, void*)>(); // 41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 00 //
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 	}
 	virtual void GetVar(void) const
 	{
-#ifndef DEDICATED
+#ifndef MATERIALSYSTEM_NODX
 		g_nTotalStreamingTextureMemory = p_DrawStreamOverlay.Offset(0x1C).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
 		g_nUnfreeStreamingTextureMemory = p_DrawStreamOverlay.Offset(0x2D).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
 		g_nUnusableStreamingTextureMemory = p_DrawStreamOverlay.Offset(0x50).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
 
 		s_pRenderContext = p_DispatchDrawCall.FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7);
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 		g_pMaterialSystem = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 48 85 C9 74 11 48 8B 01 48 8D 15 ?? ?? ?? ??").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
 	}
 	virtual void GetCon(void) const

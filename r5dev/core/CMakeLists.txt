@@ -102,6 +102,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 else()
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "engine_ds"
+    "materialsystem_nodx" # Needs the No-DirectX version for patching.
 )
 endif()
 
@@ -114,6 +115,7 @@ elseif( ${PROJECT_NAME} STREQUAL "dedicated" )
 end_sources()
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "DEDICATED"
+    "MATERIALSYSTEM_NODX" # Needs the No-DirectX version for patching.
 )
 elseif( ${PROJECT_NAME} STREQUAL "client" )
 end_sources( "${BUILD_OUTPUT_DIR}/bin/x64_retail/" )

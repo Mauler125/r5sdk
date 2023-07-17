@@ -440,9 +440,9 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// StaticPropMgr
 	REGISTER(VStaticPropMgr);
 
-#ifndef DEDICATED
 	// MaterialSystem
 	REGISTER(VMaterialSystem);
+#ifndef DEDICATED
 	REGISTER(VMaterialGlue);
 	REGISTER(VShaderGlue);
 

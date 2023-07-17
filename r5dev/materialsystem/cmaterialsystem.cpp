@@ -9,10 +9,32 @@
 #include "vpc/keyvalues.h"
 #include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"
+#ifndef MATERIALSYSTEM_NODX
 #include "materialsystem/cmaterialglue.h"
+#endif // !MATERIALSYSTEM_NODX
 #include "materialsystem/cmaterialsystem.h"
 
-#ifndef DEDICATED
+//-----------------------------------------------------------------------------
+// Purpose: initialization of the material system
+//-----------------------------------------------------------------------------
+InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
+{
+#ifdef MATERIALSYSTEM_NODX
+	// Only load the 'startup.rpak' file, as 'common_early.rpak' has assets
+	// that references assets in 'startup.rpak'.
+	RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("startup.rpak", AlignedMemAlloc(), 5);
+	g_pakLoadApi->WaitAsync(pakHandle);
+
+	// Trick: return INIT_FAILED to disable the loading of hardware
+	// configuration data, since we don't need it on the dedi.
+	return INIT_FAILED;
+#else
+	// Initialize as usual.
+	return CMaterialSystem__Init(thisptr);
+#endif
+}
+
+#ifndef MATERIALSYSTEM_NODX
 //---------------------------------------------------------------------------------
 // Purpose: loads and processes STBSP files
 // (overrides level name if stbsp field has value in prerequisites file)
@@ -60,9 +82,9 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 	return v_DispatchDrawCall(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
 #endif
 }
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 
-#ifndef DEDICATED
+#ifndef MATERIALSYSTEM_NODX
 //-----------------------------------------------------------------------------
 // Purpose: finds a material
 // Input  : *pMatSys - 
@@ -96,23 +118,25 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 
 	return vecScreenSize;
 }
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 
 ///////////////////////////////////////////////////////////////////////////////
 void VMaterialSystem::Attach() const
 {
-#ifndef DEDICATED
+	DetourAttach((LPVOID*)&CMaterialSystem__Init, &CMaterialSystem::Init);
+#ifndef MATERIALSYSTEM_NODX
 	DetourAttach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourAttach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
 	DetourAttach((LPVOID*)&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx);
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 }
 
 void VMaterialSystem::Detach() const
 {
-#ifndef DEDICATED
+	DetourDetach((LPVOID*)&CMaterialSystem__Init, &CMaterialSystem::Init);
+#ifndef MATERIALSYSTEM_NODX
 	DetourDetach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourDetach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
 	DetourDetach((LPVOID*)&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx);
-#endif // !DEDICATED
+#endif // !MATERIALSYSTEM_NODX
 }
