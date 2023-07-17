@@ -1,5 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "game" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
+
+macro( add_game_project PROJECT_NAME )
+add_module( "lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -33,6 +35,7 @@ add_sources( SOURCE_GROUP "Shared/Weapon"
     "shared/r1/weapon_bolt.h"
 )
 
+if( NOT ${PROJECT_NAME} STREQUAL "client_static" )
 add_sources( SOURCE_GROUP "Server"
     "server/ai_network.cpp"
     "server/ai_network.h"
@@ -63,6 +66,15 @@ add_sources( SOURCE_GROUP "Server"
     "server/playerlocaldata.h"
 )
 
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/iserverentity.h"
+    "${ENGINE_SOURCE_DIR}/public/iservernetworkable.h"
+    "${ENGINE_SOURCE_DIR}/public/iserverunknown.h"
+)
+
+endif()
+
+if( NOT ${PROJECT_NAME} STREQUAL "server_static" )
 add_sources( SOURCE_GROUP "Client"
     "client/c_baseentity.cpp"
     "client/c_baseentity.h"
@@ -80,16 +92,6 @@ add_sources( SOURCE_GROUP "Client"
 )
 
 add_sources( SOURCE_GROUP "Public"
-    "${ENGINE_SOURCE_DIR}/public/basehandle.h"
-    "${ENGINE_SOURCE_DIR}/public/edict.h"
-    "${ENGINE_SOURCE_DIR}/public/eiface.h"
-    "${ENGINE_SOURCE_DIR}/public/globalvars_base.h"
-    "${ENGINE_SOURCE_DIR}/public/ihandleentity.h"
-
-    "${ENGINE_SOURCE_DIR}/public/iserverentity.h"
-    "${ENGINE_SOURCE_DIR}/public/iservernetworkable.h"
-    "${ENGINE_SOURCE_DIR}/public/iserverunknown.h"
-
     "${ENGINE_SOURCE_DIR}/public/icliententity.h"
     "${ENGINE_SOURCE_DIR}/public/icliententitylist.h"
     "${ENGINE_SOURCE_DIR}/public/iclientnetworkable.h"
@@ -97,14 +99,40 @@ add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/iclientthinkable.h"
     "${ENGINE_SOURCE_DIR}/public/iclientunknown.h"
 
-    "${ENGINE_SOURCE_DIR}/public/game/shared/weapon_types.h"
-    "${ENGINE_SOURCE_DIR}/public/game/shared/in_buttons.h"
     "${ENGINE_SOURCE_DIR}/public/game/client/iinput.h"
 )
 
+endif()
+
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/basehandle.h"
+    "${ENGINE_SOURCE_DIR}/public/edict.h"
+    "${ENGINE_SOURCE_DIR}/public/eiface.h"
+    "${ENGINE_SOURCE_DIR}/public/globalvars_base.h"
+    "${ENGINE_SOURCE_DIR}/public/ihandleentity.h"
+
+    "${ENGINE_SOURCE_DIR}/public/game/shared/weapon_types.h"
+    "${ENGINE_SOURCE_DIR}/public/game/shared/in_buttons.h"
+)
+
 end_sources()
+
+if( ${PROJECT_NAME} STREQUAL "server_static" )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "SERVER_DLL"
+)
+elseif( ${PROJECT_NAME} STREQUAL "client_static" )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "CLIENT_DLL"
+)
+endif()
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/tier0/"
     "${ENGINE_SOURCE_DIR}/tier1/"
 )
+
+endmacro()
+
+add_game_project( "server_static" )
+add_game_project( "client_static" )

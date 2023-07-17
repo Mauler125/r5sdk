@@ -6,7 +6,7 @@
 // 
 // Create functions here under the target VM namespace. If the function has to
 // be registered for 2 or more VM's, put them under the 'SHARED' namespace. 
-// Ifdef them out for 'DEDICATED' / 'CLIENT_DLL' if the target VM's do not 
+// Ifdef them out for 'SERVER_DLL' / 'CLIENT_DLL' if the target VM's do not 
 // include 'SERVER' / 'CLIENT'.
 //
 //=============================================================================//
@@ -22,9 +22,9 @@
 #ifndef CLIENT_DLL
 #include "networksystem/bansystem.h"
 #endif // !CLIENT_DLL
-#ifndef DEDICATED
+#ifndef SERVER_DLL
 #include "networksystem/listmanager.h"
-#endif // !DEDICATED
+#endif // !SERVER_DLL
 #include "vscript_shared.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
@@ -193,7 +193,7 @@ namespace VScriptCode
 
             return SQ_OK;
         }
-#ifndef DEDICATED
+
         //-----------------------------------------------------------------------------
         // Purpose: checks whether this SDK build is a client dll
         //-----------------------------------------------------------------------------
@@ -207,7 +207,6 @@ namespace VScriptCode
             sq_pushbool(v, bClientOnly);
             return SQ_OK;
         }
-#endif // !DEDICATED
     }
 #ifndef CLIENT_DLL
     namespace SERVER
@@ -240,7 +239,7 @@ namespace VScriptCode
         }
     }
 #endif // !CLIENT_DLL
-#ifndef DEDICATED
+#ifndef SERVER_DLL
     namespace CLIENT
     {
     }
@@ -622,5 +621,104 @@ namespace VScriptCode
             return SQ_OK;
         }
     }
-#endif // !DEDICATED
+#endif // !SERVER_DLL
 }
+
+#ifndef CLIENT_DLL
+//---------------------------------------------------------------------------------
+// Purpose: registers script functions in SERVER context
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+void Script_RegisterServerFunctions(CSquirrelVM* s)
+{
+    s->RegisterFunction("SDKNativeTest", "Script_SDKNativeTest", "Native SERVER test function", "void", "", &VScriptCode::SHARED::SDKNativeTest);
+    s->RegisterFunction("GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VScriptCode::SHARED::GetSDKVersion);
+
+    s->RegisterFunction("GetNumHumanPlayers", "Script_GetNumHumanPlayers", "Gets the number of human players on the server", "int", "", &VScriptCode::SERVER::GetNumHumanPlayers);
+    s->RegisterFunction("GetNumFakeClients", "Script_GetNumFakeClients", "Gets the number of bot players on the server", "int", "", &VScriptCode::SERVER::GetNumFakeClients);
+
+    s->RegisterFunction("GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VScriptCode::SHARED::GetAvailableMaps);
+    s->RegisterFunction("GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VScriptCode::SHARED::GetAvailablePlaylists);
+
+    s->RegisterFunction("KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string, string", &VScriptCode::SHARED::KickPlayerByName);
+    s->RegisterFunction("KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string, string", &VScriptCode::SHARED::KickPlayerById);
+
+    s->RegisterFunction("BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VScriptCode::SHARED::BanPlayerByName);
+    s->RegisterFunction("BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string, string", &VScriptCode::SHARED::BanPlayerById);
+
+    s->RegisterFunction("UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string, string", &VScriptCode::SHARED::UnbanPlayer);
+
+    s->RegisterFunction("ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VScriptCode::SHARED::ShutdownHostGame);
+
+    s->RegisterFunction("IsDedicated", "Script_IsDedicated", "Returns whether this is a dedicated server", "bool", "", &VScriptCode::SERVER::IsDedicated);
+}
+#endif // !CLIENT_DLL
+
+#ifndef SERVER_DLL
+//---------------------------------------------------------------------------------
+// Purpose: registers script functions in CLIENT context
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+void Script_RegisterClientFunctions(CSquirrelVM* s)
+{
+    s->RegisterFunction("SDKNativeTest", "Script_SDKNativeTest", "Native CLIENT test function", "void", "", &VScriptCode::SHARED::SDKNativeTest);
+    s->RegisterFunction("GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VScriptCode::SHARED::GetSDKVersion);
+
+    s->RegisterFunction("GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VScriptCode::SHARED::GetAvailableMaps);
+    s->RegisterFunction("GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VScriptCode::SHARED::GetAvailablePlaylists);
+
+    s->RegisterFunction("ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VScriptCode::SHARED::ShutdownHostGame);
+    s->RegisterFunction("IsClientDLL", "Script_IsClientDLL", "Returns whether this build is client only", "bool", "", &VScriptCode::SHARED::IsClientDLL);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: registers script functions in UI context
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+void Script_RegisterUIFunctions(CSquirrelVM* s)
+{
+    s->RegisterFunction("SDKNativeTest", "Script_SDKNativeTest", "Native UI test function", "void", "", &VScriptCode::SHARED::SDKNativeTest);
+    s->RegisterFunction("GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VScriptCode::SHARED::GetSDKVersion);
+
+    s->RegisterFunction("RefreshServerList", "Script_RefreshServerList", "Refreshes the public server list and returns the count", "int", "", &VScriptCode::UI::RefreshServerCount);
+
+    // Functions for retrieving server browser data
+    s->RegisterFunction("GetServerName", "Script_GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VScriptCode::UI::GetServerName);
+    s->RegisterFunction("GetServerDescription", "Script_GetServerDescription", "Gets the description of the server at the specified index of the server list", "string", "int", &VScriptCode::UI::GetServerDescription);
+    s->RegisterFunction("GetServerMap", "Script_GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VScriptCode::UI::GetServerMap);
+    s->RegisterFunction("GetServerPlaylist", "Script_GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VScriptCode::UI::GetServerPlaylist);
+    s->RegisterFunction("GetServerCurrentPlayers", "Script_GetServerCurrentPlayers", "Gets the current player count of the server at the specified index of the server list", "int", "int", &VScriptCode::UI::GetServerCurrentPlayers);
+    s->RegisterFunction("GetServerMaxPlayers", "Script_GetServerMaxPlayers", "Gets the max player count of the server at the specified index of the server list", "int", "int", &VScriptCode::UI::GetServerMaxPlayers);
+    s->RegisterFunction("GetServerCount", "Script_GetServerCount", "Gets the number of public servers", "int", "", &VScriptCode::UI::GetServerCount);
+
+    // Misc main menu functions
+    s->RegisterFunction("GetPromoData", "Script_GetPromoData", "Gets promo data for specified slot type", "string", "int", &VScriptCode::UI::GetPromoData);
+
+    // Functions for creating servers
+    s->RegisterFunction("CreateServer", "Script_CreateServer", "Starts server with the specified settings", "void", "string, string, string, string, int", &VScriptCode::UI::CreateServer);
+    s->RegisterFunction("IsServerActive", "Script_IsServerActive", "Returns whether the server is active", "bool", "", &VScriptCode::SHARED::IsServerActive);
+
+    // Functions for connecting to servers
+    s->RegisterFunction("ConnectToServer", "Script_ConnectToServer", "Joins server by ip address and encryption key", "void", "string, string", &VScriptCode::UI::ConnectToServer);
+    s->RegisterFunction("ConnectToListedServer", "Script_ConnectToListedServer", "Joins listed server by index", "void", "int", &VScriptCode::UI::ConnectToListedServer);
+    s->RegisterFunction("ConnectToHiddenServer", "Script_ConnectToHiddenServer", "Joins hidden server by token", "void", "string", &VScriptCode::UI::ConnectToHiddenServer);
+
+    s->RegisterFunction("GetHiddenServerName", "Script_GetHiddenServerName", "Gets hidden server name by token", "string", "string", &VScriptCode::UI::GetHiddenServerName);
+    s->RegisterFunction("GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VScriptCode::SHARED::GetAvailableMaps);
+    s->RegisterFunction("GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VScriptCode::SHARED::GetAvailablePlaylists);
+
+#ifndef CLIENT_DLL // UI 'admin' functions controlling server code
+    s->RegisterFunction("KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VScriptCode::SHARED::KickPlayerByName);
+    s->RegisterFunction("KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VScriptCode::SHARED::KickPlayerById);
+
+    s->RegisterFunction("BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VScriptCode::SHARED::BanPlayerByName);
+    s->RegisterFunction("BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VScriptCode::SHARED::BanPlayerById);
+
+    s->RegisterFunction("UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VScriptCode::SHARED::UnbanPlayer);
+
+    s->RegisterFunction("ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VScriptCode::SHARED::ShutdownHostGame);
+#endif // !CLIENT_DLL
+
+    s->RegisterFunction("IsClientDLL", "Script_IsClientDLL", "Returns whether this build is client only", "bool", "", &VScriptCode::SHARED::IsClientDLL);
+}
+#endif

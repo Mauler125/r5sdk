@@ -13,12 +13,12 @@
 
 // Hacky macros to allow shared code to work without even worse macro-izing
 #if defined( CLIENT_DLL )
-/* // TODO: Uncomment if required for client.
+ // Uncomment if required for client.
 #define CBaseEntity				C_BaseEntity
 #define CBaseCombatCharacter	C_BaseCombatCharacter
 #define CBaseAnimating			C_BaseAnimating
-#define CBasePlayer				C_BasePlayer
-*/
+#define CPlayer					C_Player
+
 #endif
 
 

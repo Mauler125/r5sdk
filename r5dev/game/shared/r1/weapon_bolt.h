@@ -1,5 +1,7 @@
 #ifndef GAME_WEAPON_BOLT_H
 #define GAME_WEAPON_BOLT_H
+
+#include <game/shared/shared_classnames.h>
 #ifndef CLIENT_DLL
 #include <game/server/baseentity.h>
 #include <game/server/player.h>

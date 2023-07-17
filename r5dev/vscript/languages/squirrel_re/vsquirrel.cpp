@@ -8,6 +8,11 @@
 #include "pluginsystem/modsystem.h"
 #include "vsquirrel.h"
 
+// Callbacks for registering abstracted script functions.
+void(*ServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+void(*ClientScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+void(*UiScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+
 //---------------------------------------------------------------------------------
 // Purpose: Initialises a Squirrel VM instance
 // Output : True on success, false on failure
@@ -27,17 +32,23 @@ SQBool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
 #ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
 		g_pServerScript = s;
-		Script_RegisterServerFunctions(s);
+		if (ServerScriptRegister_Callback)
+			ServerScriptRegister_Callback(s);
+
 		break;
 #endif
 #ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
 		g_pClientScript = s;
-		Script_RegisterClientFunctions(s);
+		if (ClientScriptRegister_Callback)
+			ClientScriptRegister_Callback(s);
+
 		break;
 	case SQCONTEXT::UI:
 		g_pUIScript = s;
-		Script_RegisterUIFunctions(s);
+		if (UiScriptRegister_Callback)
+			UiScriptRegister_Callback(s);
+
 		break;
 #endif
 	}

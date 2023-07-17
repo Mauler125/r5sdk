@@ -1,4 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
+
 macro( add_sdk_project PROJECT_NAME )
 add_module( "shared_lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
@@ -79,7 +80,6 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "localize"
 
     "vscript"
-    "game"
 )
 
 if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
@@ -99,29 +99,48 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "engine"
     "d3d11.lib"
 )
+
 else()
 target_link_libraries( ${PROJECT_NAME} PRIVATE
-    "engine_ds"
     "materialsystem_nodx" # Needs the No-DirectX version for patching.
+    "engine_ds"
 )
 endif()
 
+# Determine the compiler definitions and link libraries per project.
 if( ${PROJECT_NAME} STREQUAL "gamesdk" )
 end_sources()
+
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "server_static"
+    "client_static"
+)
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "GAMESDK"
 )
+
 elseif( ${PROJECT_NAME} STREQUAL "dedicated" )
 end_sources()
-target_compile_definitions( ${PROJECT_NAME} PRIVATE
-    "DEDICATED"
-    "MATERIALSYSTEM_NODX" # Needs the No-DirectX version for patching.
+
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "server_static"
 )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "MATERIALSYSTEM_NODX"
+    "SERVER_DLL"
+    "DEDICATED"
+)
+
 elseif( ${PROJECT_NAME} STREQUAL "client" )
 end_sources( "${BUILD_OUTPUT_DIR}/bin/x64_retail/" )
+
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "client_static"
+)
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "CLIENT_DLL"
 )
+
 endif()
 
 target_link_options( ${PROJECT_NAME} PRIVATE
@@ -161,4 +180,4 @@ endmacro()
 
 add_sdk_project( "gamesdk" )
 add_sdk_project( "dedicated" )
-#add_sdk_project( "client" )
+add_sdk_project( "client" )

@@ -1,6 +1,7 @@
 #ifndef VSCRIPT_SHARED_H
 #define VSCRIPT_SHARED_H
 #include "vscript/languages/squirrel_re/include/squirrel.h"
+#include "vscript/languages/squirrel_re/vsquirrel.h"
 
 inline CMemory p_Script_Remote_BeginRegisteringFunctions;
 inline void*(*Script_Remote_BeginRegisteringFunctions)(void);
@@ -11,9 +12,9 @@ inline void*(*RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2);
 #ifndef CLIENT_DLL
 inline uint32_t* g_nServerRemoteChecksum = nullptr;
 #endif // !CLIENT_DLL
-#ifndef DEDICATED
+#ifndef SERVER_DLL
 inline uint32_t* g_nClientRemoteChecksum = nullptr;
-#endif // !DEDICATED
+#endif // !SERVER_DLL
 
 namespace VScriptCode
 {
@@ -24,9 +25,9 @@ namespace VScriptCode
 		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
 		SQRESULT ShutdownHostGame(HSQUIRRELVM v);
-#ifndef DEDICATED
+#ifndef SERVER_DLL
 		SQRESULT IsClientDLL(HSQUIRRELVM v);
-#endif // !DEDICATED
+#endif // !SERVER_DLL
 		SQRESULT IsServerActive(HSQUIRRELVM v);
 #ifndef CLIENT_DLL
 		SQRESULT KickPlayerByName(HSQUIRRELVM v);
@@ -44,7 +45,7 @@ namespace VScriptCode
 		SQRESULT IsDedicated(HSQUIRRELVM v);
 	}
 #endif // !CLIENT_DLL
-#ifndef DEDICATED
+#ifndef SERVER_DLL
 	namespace CLIENT
 	{
 	}
@@ -65,8 +66,17 @@ namespace VScriptCode
 		SQRESULT GetHiddenServerName(HSQUIRRELVM v);
 		SQRESULT ConnectToServer(HSQUIRRELVM v);
 	}
-#endif // !DEDICATED
+#endif // !SERVER_DLL
 }
+
+#ifndef CLIENT_DLL
+void Script_RegisterServerFunctions(CSquirrelVM* s);
+#endif // !CLIENT_DLL
+
+#ifndef SERVER_DLL
+void Script_RegisterClientFunctions(CSquirrelVM* s);
+void Script_RegisterUIFunctions(CSquirrelVM* s);
+#endif // !SERVER_DLL
 
 ///////////////////////////////////////////////////////////////////////////////
 class VScriptShared : public IDetour
@@ -78,9 +88,9 @@ class VScriptShared : public IDetour
 #ifndef CLIENT_DLL
 		LogVarAdr("g_nServerRemoteChecksum", reinterpret_cast<uintptr_t>(g_nServerRemoteChecksum));
 #endif // !CLIENT_DLL
-#ifndef DEDICATED
+#ifndef SERVER_DLL
 		LogVarAdr("g_nClientRemoteChecksum", reinterpret_cast<uintptr_t>(g_nClientRemoteChecksum));
-#endif // !DEDICATED
+#endif // !SERVER_DLL
 	}
 	virtual void GetFun(void) const
 	{
@@ -95,9 +105,9 @@ class VScriptShared : public IDetour
 #ifndef CLIENT_DLL
 		g_nServerRemoteChecksum = p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<uint32_t*>();
 #endif // !CLIENT_DLL
-#ifndef DEDICATED
+#ifndef SERVER_DLL
 		g_nClientRemoteChecksum = p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<uint32_t*>();
-#endif // !DEDICATED
+#endif // !SERVER_DLL
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
