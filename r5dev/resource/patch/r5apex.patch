@@ -39,6 +39,11 @@
 0x38257E: "movsxd r8, dword ptr ds:[0x00000001666EC950]"      // s_MapHeader.lumps[LUMP_PAKFILE].fileofs
 0x382585: "movsxd rdx, dword ptr ds:[0x00000001666EC954]"     // s_MapHeader.lumps[LUMP_PAKFILE].filelen
 
+// This patch increases the 'CModelRenderSystem::m_BoneToWorldOriented' memory buffer size to 2MiB. Previously,
+// this was 1MiB, but would occasionally overflow when there are about 80 players rendering on the client's
+// screen. This satisfies the required memory size to render all 120 player models (active players on server).
+0xE6530: "mov     r8d, 200000h"
+
 /////////////////////////////
 /////////////////////////////
 ////    Code defects     ////
