@@ -36,8 +36,8 @@
 0x38249D: "cmp dword ptr ds:[0x00000001666EC954], 0x10"       // s_MapHeader.lumps[LUMP_PAKFILE].filelen
 0x3824B6: "movsxd r8, dword ptr ds:[0x00000001666EC950]"      // s_MapHeader.lumps[LUMP_PAKFILE].fileofs
 
-0x38257E: movsxd r8, dword ptr ds:[0x00000001666EC950]        // s_MapHeader.lumps[LUMP_PAKFILE].fileofs
-0x382585: movsxd rdx, dword ptr ds:[0x00000001666EC954]       // s_MapHeader.lumps[LUMP_PAKFILE].filelen
+0x38257E: "movsxd r8, dword ptr ds:[0x00000001666EC950]"      // s_MapHeader.lumps[LUMP_PAKFILE].fileofs
+0x382585: "movsxd rdx, dword ptr ds:[0x00000001666EC954]"     // s_MapHeader.lumps[LUMP_PAKFILE].filelen
 
 /////////////////////////////
 /////////////////////////////
