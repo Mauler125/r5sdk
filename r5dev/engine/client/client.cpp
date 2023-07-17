@@ -15,21 +15,6 @@
 #include "engine/client/client.h"
 
 //---------------------------------------------------------------------------------
-// Purpose: checks if this client is an actual human player
-// Output : true if human, false otherwise
-//---------------------------------------------------------------------------------
-bool CClient::IsHumanPlayer(void) const
-{
-	if (!IsConnected())
-		return false;
-
-	if (IsFakeClient())
-		return false;
-
-	return true;
-}
-
-//---------------------------------------------------------------------------------
 // Purpose: throw away any residual garbage in the channel
 //---------------------------------------------------------------------------------
 void CClient::Clear(void)
@@ -46,10 +31,7 @@ void CClient::Clear(void)
 //---------------------------------------------------------------------------------
 void CClient::VClear(CClient* pClient)
 {
-#ifndef CLIENT_DLL
-	g_ServerPlayer[pClient->GetUserID()].Reset(); // Reset ServerPlayer slot.
-#endif // !CLIENT_DLL
-	v_CClient_Clear(pClient);
+	pClient->Clear();
 }
 
 //---------------------------------------------------------------------------------

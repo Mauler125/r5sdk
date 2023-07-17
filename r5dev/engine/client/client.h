@@ -90,7 +90,7 @@ public:
 	inline bool IsPersistenceAvailable(void) const { return m_nPersistenceState >= PERSISTENCE::PERSISTENCE_AVAILABLE; }
 	inline bool IsPersistenceReady(void) const { return m_nPersistenceState == PERSISTENCE::PERSISTENCE_READY; }
 	inline bool IsFakeClient(void) const { return m_bFakePlayer; }
-	bool IsHumanPlayer(void) const;
+	inline bool IsHumanPlayer(void) const { if (!IsConnected() || IsFakeClient()) { return false; } return true; }
 
 	bool SendNetMsgEx(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
 	bool Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
