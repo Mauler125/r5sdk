@@ -5,6 +5,8 @@ add_module( "lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
+if( ${PROJECT_NAME} STREQUAL "game_shared_static" )
+
 add_sources( SOURCE_GROUP "Shared"
     "shared/ai_utility_shared.cpp"
     "shared/ai_utility_shared.h"
@@ -35,7 +37,10 @@ add_sources( SOURCE_GROUP "Shared/Weapon"
     "shared/r1/weapon_bolt.h"
 )
 
-if( NOT ${PROJECT_NAME} STREQUAL "client_static" )
+endif()
+
+if( ${PROJECT_NAME} STREQUAL "server_static" )
+
 add_sources( SOURCE_GROUP "Server"
     "server/ai_network.cpp"
     "server/ai_network.h"
@@ -64,6 +69,8 @@ add_sources( SOURCE_GROUP "Server"
     "server/player.cpp"
     "server/player.h"
     "server/playerlocaldata.h"
+    "server/vscript_server.cpp"
+    "server/vscript_server.h"
 )
 
 add_sources( SOURCE_GROUP "Public"
@@ -74,7 +81,8 @@ add_sources( SOURCE_GROUP "Public"
 
 endif()
 
-if( NOT ${PROJECT_NAME} STREQUAL "server_static" )
+if( ${PROJECT_NAME} STREQUAL "client_static" )
+
 add_sources( SOURCE_GROUP "Client"
     "client/c_baseentity.cpp"
     "client/c_baseentity.h"
@@ -89,6 +97,8 @@ add_sources( SOURCE_GROUP "Client"
     "client/spritemodel.cpp"
     "client/viewrender.cpp"
     "client/viewrender.h"
+    "client/vscript_client.cpp"
+    "client/vscript_client.h"
 )
 
 add_sources( SOURCE_GROUP "Public"
@@ -118,6 +128,7 @@ add_sources( SOURCE_GROUP "Public"
 end_sources()
 
 if( ${PROJECT_NAME} STREQUAL "server_static" )
+
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "SERVER_DLL"
 )
@@ -125,6 +136,7 @@ elseif( ${PROJECT_NAME} STREQUAL "client_static" )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "CLIENT_DLL"
 )
+
 endif()
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
@@ -136,3 +148,4 @@ endmacro()
 
 add_game_project( "server_static" )
 add_game_project( "client_static" )
+add_game_project( "game_shared_static" )

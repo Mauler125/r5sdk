@@ -18,7 +18,7 @@ inline uint32_t* g_nClientRemoteChecksum = nullptr;
 
 namespace VScriptCode
 {
-	namespace SHARED
+	namespace Shared
 	{
 		SQRESULT SDKNativeTest(HSQUIRRELVM v);
 		SQRESULT GetSDKVersion(HSQUIRRELVM v);
@@ -38,7 +38,7 @@ namespace VScriptCode
 #endif // !CLIENT_DLL
 	}
 #ifndef CLIENT_DLL
-	namespace SERVER
+	namespace Server
 	{
 		SQRESULT GetNumHumanPlayers(HSQUIRRELVM v);
 		SQRESULT GetNumFakeClients(HSQUIRRELVM v);
@@ -46,10 +46,10 @@ namespace VScriptCode
 	}
 #endif // !CLIENT_DLL
 #ifndef SERVER_DLL
-	namespace CLIENT
+	namespace Client
 	{
 	}
-	namespace UI
+	namespace Ui
 	{
 		SQRESULT RefreshServerCount(HSQUIRRELVM v);
 		SQRESULT GetServerName(HSQUIRRELVM v);

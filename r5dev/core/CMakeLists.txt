@@ -80,6 +80,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "localize"
 
     "vscript"
+    "game_shared_static"
 )
 
 if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
