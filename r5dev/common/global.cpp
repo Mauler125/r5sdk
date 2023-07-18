@@ -170,6 +170,8 @@ ConVar* cl_materialinfo_offset_y           = nullptr;
 
 ConVar* cl_threaded_bone_setup             = nullptr;
 
+ConVar* cl_language                        = nullptr;
+
 ConVar* con_drawnotify                     = nullptr;
 ConVar* con_notifylines                    = nullptr;
 ConVar* con_notifytime                     = nullptr;
@@ -466,6 +468,7 @@ void ConVar_InitShipped(void)
 	cl_cmdrate                       = g_pCVar->FindVar("cl_cmdrate");
 	cl_move_use_dt                   = g_pCVar->FindVar("cl_move_use_dt");
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
+	cl_language                      = g_pCVar->FindVar("cl_language");
 #endif // !DEDICATED
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");
