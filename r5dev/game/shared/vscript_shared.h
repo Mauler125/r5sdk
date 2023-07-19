@@ -9,74 +9,20 @@ inline void*(*Script_Remote_BeginRegisteringFunctions)(void);
 inline CMemory p_RestoreRemoteChecksumsFromSaveGame;
 inline void*(*RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2);
 
-#ifndef CLIENT_DLL
 inline uint32_t* g_nServerRemoteChecksum = nullptr;
-#endif // !CLIENT_DLL
-#ifndef SERVER_DLL
 inline uint32_t* g_nClientRemoteChecksum = nullptr;
-#endif // !SERVER_DLL
 
 namespace VScriptCode
 {
 	namespace Shared
 	{
-		SQRESULT SDKNativeTest(HSQUIRRELVM v);
 		SQRESULT GetSDKVersion(HSQUIRRELVM v);
 		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
-		SQRESULT ShutdownHostGame(HSQUIRRELVM v);
-#ifndef SERVER_DLL
-		SQRESULT IsClientDLL(HSQUIRRELVM v);
-#endif // !SERVER_DLL
-		SQRESULT IsServerActive(HSQUIRRELVM v);
-#ifndef CLIENT_DLL
-		SQRESULT KickPlayerByName(HSQUIRRELVM v);
-		SQRESULT KickPlayerById(HSQUIRRELVM v);
-		SQRESULT BanPlayerByName(HSQUIRRELVM v);
-		SQRESULT BanPlayerById(HSQUIRRELVM v);
-		SQRESULT UnbanPlayer(HSQUIRRELVM v);
-#endif // !CLIENT_DLL
 	}
-#ifndef CLIENT_DLL
-	namespace Server
-	{
-		SQRESULT GetNumHumanPlayers(HSQUIRRELVM v);
-		SQRESULT GetNumFakeClients(HSQUIRRELVM v);
-		SQRESULT IsDedicated(HSQUIRRELVM v);
-	}
-#endif // !CLIENT_DLL
-#ifndef SERVER_DLL
-	namespace Client
-	{
-	}
-	namespace Ui
-	{
-		SQRESULT RefreshServerCount(HSQUIRRELVM v);
-		SQRESULT GetServerName(HSQUIRRELVM v);
-		SQRESULT GetServerDescription(HSQUIRRELVM v);
-		SQRESULT GetServerMap(HSQUIRRELVM v);
-		SQRESULT GetServerPlaylist(HSQUIRRELVM v);
-		SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v);
-		SQRESULT GetServerMaxPlayers(HSQUIRRELVM v);
-		SQRESULT GetServerCount(HSQUIRRELVM v);
-		SQRESULT GetPromoData(HSQUIRRELVM v);
-		SQRESULT ConnectToListedServer(HSQUIRRELVM v);
-		SQRESULT CreateServer(HSQUIRRELVM v);
-		SQRESULT ConnectToHiddenServer(HSQUIRRELVM v);
-		SQRESULT GetHiddenServerName(HSQUIRRELVM v);
-		SQRESULT ConnectToServer(HSQUIRRELVM v);
-	}
-#endif // !SERVER_DLL
 }
 
-#ifndef CLIENT_DLL
-void Script_RegisterServerFunctions(CSquirrelVM* s);
-#endif // !CLIENT_DLL
-
-#ifndef SERVER_DLL
-void Script_RegisterClientFunctions(CSquirrelVM* s);
-void Script_RegisterUIFunctions(CSquirrelVM* s);
-#endif // !SERVER_DLL
+void Script_RegisterCommonAbstractions(CSquirrelVM* s);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VScriptShared : public IDetour
@@ -85,12 +31,8 @@ class VScriptShared : public IDetour
 	{
 		LogFunAdr("Remote_BeginRegisteringFunctions", p_Script_Remote_BeginRegisteringFunctions.GetPtr());
 		LogFunAdr("RestoreRemoteChecksumsFromSaveGame", p_RestoreRemoteChecksumsFromSaveGame.GetPtr());
-#ifndef CLIENT_DLL
 		LogVarAdr("g_nServerRemoteChecksum", reinterpret_cast<uintptr_t>(g_nServerRemoteChecksum));
-#endif // !CLIENT_DLL
-#ifndef SERVER_DLL
 		LogVarAdr("g_nClientRemoteChecksum", reinterpret_cast<uintptr_t>(g_nClientRemoteChecksum));
-#endif // !SERVER_DLL
 	}
 	virtual void GetFun(void) const
 	{
@@ -102,12 +44,8 @@ class VScriptShared : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-#ifndef CLIENT_DLL
 		g_nServerRemoteChecksum = p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<uint32_t*>();
-#endif // !CLIENT_DLL
-#ifndef SERVER_DLL
 		g_nClientRemoteChecksum = p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<uint32_t*>();
-#endif // !SERVER_DLL
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

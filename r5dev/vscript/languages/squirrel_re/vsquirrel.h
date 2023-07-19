@@ -47,6 +47,9 @@ extern void(*ServerScriptRegister_Callback)(CSquirrelVM* s);
 extern void(*ClientScriptRegister_Callback)(CSquirrelVM* s);
 extern void(*UiScriptRegister_Callback)(CSquirrelVM* s);
 
+extern void(*CoreServerScriptRegister_Callback)(CSquirrelVM* s);
+extern void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* s);
+
 inline CMemory p_CSquirrelVM_Init;
 inline bool(*v_CSquirrelVM_Init)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime);
 

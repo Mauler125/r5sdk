@@ -122,11 +122,13 @@
 #include "game/server/gameinterface.h"
 #include "game/server/movehelper_server.h"
 #include "game/server/physics_main.h"
+#include "game/server/vscript_server.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
 #include "game/client/input.h"
 #include "game/client/movehelper_client.h"
+#include "game/client/vscript_client.h"
 #endif // !DEDICATED
 #include "public/edict.h"
 #ifndef DEDICATED
@@ -197,12 +199,18 @@ void Systems_Init()
 	// Script context registration callbacks.
 #ifndef CLIENT_DLL
 	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
+	CoreServerScriptRegister_Callback = Script_RegisterCoreServerFunctions;
+	AdminPanelScriptRegister_Callback = Script_RegisterAdminPanelFunctions;
 #endif // !CLIENT_DLL
 
 #ifndef SERVER_DLL
 	ClientScriptRegister_Callback = Script_RegisterClientFunctions;
 	UiScriptRegister_Callback =  Script_RegisterUIFunctions;
 #endif // !SERVER_DLL
+
+#ifdef CLIENT_DLL
+	g_bClientDLL = true;
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////
