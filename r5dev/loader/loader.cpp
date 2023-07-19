@@ -139,9 +139,10 @@ static void DetachEP()
 	DetourUpdateThread(GetCurrentThread());
 
 	DetourDetach(&v_WinMain, &hWinMain);
-
 	HRESULT hr = DetourTransactionCommit();
+
 	Assert(hr != NO_ERROR);
+	NOTE_UNUSED(hr);
 }
 
 //-----------------------------------------------------------------------------
