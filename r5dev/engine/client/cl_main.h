@@ -17,7 +17,7 @@ inline void(*CL_RunPrediction)(void);
 
 inline bool g_bClientDLL = false;
 
-// Returns true if this is a dedicated server.
+// Returns true if this is a client only build.
 inline bool IsClientDLL()
 {
 	return g_bClientDLL;
