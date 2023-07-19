@@ -20,6 +20,22 @@
 
 #include "vscript_client.h"
 
+//-----------------------------------------------------------------------------
+// Purpose: checks if the server index is valid, raises an error if not
+//-----------------------------------------------------------------------------
+static SQBool Script_CheckServerIndex(HSQUIRRELVM v, SQInteger iServer)
+{
+    SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
+
+    if (iServer >= iCount)
+    {
+        v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
+        return false;
+    }
+
+    return true;
+}
+
 namespace VScriptCode
 {
     namespace Client
@@ -105,13 +121,10 @@ namespace VScriptCode
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
             std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-
             SQInteger iServer = sq_getinteger(v, 1);
-            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
-            if (iServer >= iCount)
+            if (!Script_CheckServerIndex(v, iServer))
             {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
                 return SQ_ERROR;
             }
 
@@ -127,13 +140,10 @@ namespace VScriptCode
         SQRESULT GetServerDescription(HSQUIRRELVM v)
         {
             std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-
             SQInteger iServer = sq_getinteger(v, 1);
-            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
-            if (iServer >= iCount)
+            if (!Script_CheckServerIndex(v, iServer))
             {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
                 return SQ_ERROR;
             }
 
@@ -149,13 +159,10 @@ namespace VScriptCode
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
             std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-
             SQInteger iServer = sq_getinteger(v, 1);
-            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
-            if (iServer >= iCount)
+            if (!Script_CheckServerIndex(v, iServer))
             {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
                 return SQ_ERROR;
             }
 
@@ -171,13 +178,10 @@ namespace VScriptCode
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
             std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-
             SQInteger iServer = sq_getinteger(v, 1);
-            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
-            if (iServer >= iCount)
+            if (!Script_CheckServerIndex(v, iServer))
             {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
                 return SQ_ERROR;
             }
 
@@ -193,13 +197,10 @@ namespace VScriptCode
         SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v)
         {
             std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-
             SQInteger iServer = sq_getinteger(v, 1);
-            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
-            if (iServer >= iCount)
+            if (!Script_CheckServerIndex(v, iServer))
             {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
                 return SQ_ERROR;
             }
 
@@ -215,13 +216,10 @@ namespace VScriptCode
         SQRESULT GetServerMaxPlayers(HSQUIRRELVM v)
         {
             std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-
             SQInteger iServer = sq_getinteger(v, 1);
-            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
-            if (iServer >= iCount)
+            if (!Script_CheckServerIndex(v, iServer))
             {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
                 return SQ_ERROR;
             }
 
@@ -315,13 +313,10 @@ namespace VScriptCode
         SQRESULT ConnectToListedServer(HSQUIRRELVM v)
         {
             std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-
             SQInteger iServer = sq_getinteger(v, 1);
-            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
-            if (iServer >= iCount)
+            if (!Script_CheckServerIndex(v, iServer))
             {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
                 return SQ_ERROR;
             }
 
