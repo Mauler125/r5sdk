@@ -60,7 +60,7 @@
 // Input  : &netGameServer - 
 // Output : Returns true on success, false otherwise.
 //-----------------------------------------------------------------------------
-static bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
+bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
 {
 	if (!g_pServer->IsActive() || !sv_pylonVisibility->GetBool()) // Check for active game.
 	{
