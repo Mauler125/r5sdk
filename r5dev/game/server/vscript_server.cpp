@@ -210,12 +210,16 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, IsDedicated, "Returns whether this is a dedicated server", "bool", "");
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, CreateServer, "Starts server with the specified settings", "void", "string, string, string, string, int");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, DestroyServer, "Shuts the local host game down", "void", "");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, DestroyServer, "Shuts the local server down", "void", "");
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: admin panel script functions
 // Input  : *s - 
+// 
+// Ideally, these get dropped entirely in favor of remote functions. Currently,
+// the s3 build only supports remote function calls from server to client/ui.
+// Client/ui to server is all done through clientcommands.
 //---------------------------------------------------------------------------------
 void Script_RegisterAdminPanelFunctions(CSquirrelVM* s)
 {
