@@ -31,7 +31,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT StubUnsupported(HSQUIRRELVM v)
         {
-            v_SQVM_RaiseError(v, "This function is not supported on this builds.\n");
+            v_SQVM_RaiseError(v, "This function is not supported on this build\n");
             return SQ_ERROR;
         }
 
