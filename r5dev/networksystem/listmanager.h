@@ -23,7 +23,7 @@ public:
 	size_t RefreshServerList(string& svMessage);
 	void ClearServerList(void);
 
-	void LaunchServer(void) const;
+	void LaunchServer(const bool bChangeLevel) const;
 	void ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey) const;
 	void ConnectToServer(const string& svServer, const string& svNetKey) const;
 

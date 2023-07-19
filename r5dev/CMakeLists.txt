@@ -65,4 +65,6 @@ add_subdirectory( pluginsdk )
 set( FOLDER_CONTEXT "Game" )
 add_subdirectory( vscript )
 add_subdirectory( game )
+
+set( FOLDER_CONTEXT "/" )
 add_subdirectory( core )

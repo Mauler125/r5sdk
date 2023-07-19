@@ -122,11 +122,13 @@
 #include "game/server/gameinterface.h"
 #include "game/server/movehelper_server.h"
 #include "game/server/physics_main.h"
+#include "game/server/vscript_server.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
 #include "game/client/input.h"
 #include "game/client/movehelper_client.h"
+#include "game/client/vscript_client.h"
 #endif // !DEDICATED
 #include "public/edict.h"
 #ifndef DEDICATED
@@ -146,6 +148,31 @@
 // ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef DEDICATED
+// These command line parameters disable a bunch of things in the engine that
+// the dedicated server does not need, therefore, reducing a lot of overhead.
+void InitCommandLineParameters()
+{
+	CommandLine()->AppendParm("-collate", "");
+	CommandLine()->AppendParm("-multiple", "");
+	CommandLine()->AppendParm("-noorigin", "");
+	CommandLine()->AppendParm("-nodiscord", "");
+	CommandLine()->AppendParm("-noshaderapi", "");
+	CommandLine()->AppendParm("-nobakedparticles", "");
+	CommandLine()->AppendParm("-novid", "");
+	CommandLine()->AppendParm("-nomenuvid", "");
+	CommandLine()->AppendParm("-nosound", "");
+	CommandLine()->AppendParm("-nomouse", "");
+	CommandLine()->AppendParm("-nojoy", "");
+	CommandLine()->AppendParm("-nosendtable", "");
+}
+#endif // DEDICATED
+
+void ScriptConstantRegistrationCallback(CSquirrelVM* s)
+{
+	Script_RegisterListenServerConstants(s);
+}
 
 void Systems_Init()
 {
@@ -193,6 +220,28 @@ void Systems_Init()
 	DevMsg(eDLL_T::NONE, "\n");
 
 	ConVar_StaticInit();
+
+#ifdef DEDICATED
+	InitCommandLineParameters();
+#endif // DEDICATED
+
+	// Script context registration callbacks.
+	ScriptConstantRegister_Callback = ScriptConstantRegistrationCallback;
+
+#ifndef CLIENT_DLL
+	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
+	CoreServerScriptRegister_Callback = Script_RegisterCoreServerFunctions;
+	AdminPanelScriptRegister_Callback = Script_RegisterAdminPanelFunctions;
+#endif// !CLIENT_DLL
+
+#ifndef SERVER_DLL
+	ClientScriptRegister_Callback = Script_RegisterClientFunctions;
+	UiScriptRegister_Callback =  Script_RegisterUIFunctions;
+#endif // !SERVER_DLL
+
+#ifdef CLIENT_DLL
+	g_bClientDLL = true;
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -519,11 +568,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VGL_Screen);
 #endif // !DEDICATED
 
-#ifndef CLIENT_DLL
-	// !!! SERVER DLL ONLY !!!
 	REGISTER(HSV_Main);
-	// !!! END SERVER DLL ONLY !!!
-#endif // !CLIENT_DLL
 
 #ifndef DEDICATED
 	REGISTER(VGame); // REGISTER CLIENT ONLY!
@@ -547,9 +592,10 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VAnimation);
 	REGISTER(VUtil_Shared);
 
-	REGISTER(V_Weapon_Bolt);
-
 #ifndef CLIENT_DLL
+
+	// In shared code, but weapon bolt is SERVER only.
+	REGISTER(V_Weapon_Bolt);
 
 	// Game/server
 	REGISTER(VAI_Network);

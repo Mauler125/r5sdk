@@ -8,6 +8,18 @@
 #include "pluginsystem/modsystem.h"
 #include "vsquirrel.h"
 
+// Callbacks for registering abstracted script functions.
+void(*ServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+void(*ClientScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+void(*UiScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+
+// Admin panel functions, NULL on client only builds.
+void(*CoreServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+
+// Registering constants in scripts.
+void(*ScriptConstantRegister_Callback)(CSquirrelVM* s) = nullptr;
+
 //---------------------------------------------------------------------------------
 // Purpose: Initialises a Squirrel VM instance
 // Output : True on success, false on failure
@@ -24,22 +36,32 @@ SQBool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
 
 	switch (context)
 	{
-#ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
 		g_pServerScript = s;
-		Script_RegisterServerFunctions(s);
+
+		if (ServerScriptRegister_Callback)
+			ServerScriptRegister_Callback(s);
+
 		break;
-#endif
-#ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
 		g_pClientScript = s;
-		Script_RegisterClientFunctions(s);
+
+		if (ClientScriptRegister_Callback)
+			ClientScriptRegister_Callback(s);
+
 		break;
 	case SQCONTEXT::UI:
 		g_pUIScript = s;
-		Script_RegisterUIFunctions(s);
+
+		if (UiScriptRegister_Callback)
+			UiScriptRegister_Callback(s);
+
+		if (CoreServerScriptRegister_Callback)
+			CoreServerScriptRegister_Callback(s);
+		if (AdminPanelScriptRegister_Callback)
+			AdminPanelScriptRegister_Callback(s);
+
 		break;
-#endif
 	}
 
 	return true;
@@ -56,6 +78,11 @@ SQBool CSquirrelVM::DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQ
 {
 	SQBool result = v_CSquirrelVM_DestroySignalEntryListHead(s, v, f);
 	s->RegisterConstant("DEVELOPER", developer->GetInt());
+
+	// Must have one.
+	Assert(ScriptConstantRegister_Callback);
+	ScriptConstantRegister_Callback(s);
+
 	return result;
 }
 
@@ -99,21 +126,17 @@ void CSquirrelVM::SetAsCompiler(RSON::Node_t* rson)
 	const SQCONTEXT context = GetContext();
 	switch (context)
 	{
-#ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
 	{
 		v_Script_SetServerPrecompiler(context, rson);
 		break;
 	}
-#endif
-#ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
 	case SQCONTEXT::UI:
 	{
 		v_Script_SetClientPrecompiler(context, rson);
 		break;
 	}
-#endif
 	}
 }
 
@@ -176,21 +199,17 @@ void CSquirrelVM::CompileModScripts()
 
 			switch (GetVM()->GetContext())
 			{
-#ifndef CLIENT_DLL
 			case SQCONTEXT::SERVER:
 			{
 				v_CSquirrelVM_PrecompileServerScripts(this, GetContext(), (char**)scriptPathArray, scriptCount);
 				break;
 			}
-#endif
-#ifndef DEDICATED
 			case SQCONTEXT::CLIENT:
 			case SQCONTEXT::UI:
 			{
 				v_CSquirrelVM_PrecompileClientScripts(this, GetContext(), (char**)scriptPathArray, scriptCount);
 				break;
 			}
-#endif
 			}
 
 			// clean up our allocated script paths

@@ -34,10 +34,6 @@ inline SQBool(*v_Script_PrecompileClientScripts)(CSquirrelVM* vm);
 inline CMemory p_Script_SetClientCompiler;
 inline void(*v_Script_SetClientPrecompiler)(SQCONTEXT ctx, RSON::Node_t* rson);
 
-void Script_RegisterServerFunctions(CSquirrelVM* s);
-void Script_RegisterClientFunctions(CSquirrelVM* s);
-void Script_RegisterUIFunctions(CSquirrelVM* s);
-
 CSquirrelVM* Script_GetScriptHandle(const SQCONTEXT context);
 RSON::Node_t* Script_LoadScriptList(const SQChar* rsonfile);
 SQBool Script_LoadScriptFile(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags);

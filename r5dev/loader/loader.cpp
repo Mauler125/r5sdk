@@ -47,7 +47,7 @@ static int (*v_WinMain)(HINSTANCE, HINSTANCE, LPSTR, int) = nullptr;
 //-----------------------------------------------------------------------------
 // Purpose: Terminates the process with an error when called
 //-----------------------------------------------------------------------------
-void FatalError(const char* fmt, ...)
+static void FatalError(const char* fmt, ...)
 {
 	va_list vArgs;
 	va_start(vArgs, fmt);
@@ -65,7 +65,7 @@ void FatalError(const char* fmt, ...)
 //-----------------------------------------------------------------------------
 // Purpose: Loads the SDK module
 //-----------------------------------------------------------------------------
-void InitGameSDK(const LPSTR lpCmdLine)
+static void InitGameSDK(const LPSTR lpCmdLine)
 {
 	if (V_strstr(lpCmdLine, "-noworkerdll"))
 		return;
@@ -78,13 +78,22 @@ void InitGameSDK(const LPSTR lpCmdLine)
 
 	// Prune the path.
 	const char* pModuleName = strrchr(moduleName, '\\') + 1;
+	const bool bDedicated = V_stricmp(pModuleName, SERVER_GAME_DLL) == NULL;
 
 	// The dedicated server has its own SDK module,
 	// so we need to check whether we are running
 	// the base game or the dedicated server.
-	if (V_stricmp(pModuleName, MAIN_GAME_DLL) == NULL)
-		s_SdkModule = LoadLibraryA(MAIN_WORKER_DLL);
-	else if (V_stricmp(pModuleName, SERVER_GAME_DLL) == NULL)
+	if (!bDedicated)
+	{
+		// Load the client dll if '-noserverdll' is passed,
+		// as this command lime parameter prevents the
+		// server dll from initializing in the engine.
+		if (V_strstr(lpCmdLine, "-noserverdll"))
+			s_SdkModule = LoadLibraryA(CLIENT_WORKER_DLL);
+		else
+			s_SdkModule = LoadLibraryA(MAIN_WORKER_DLL);
+	}
+	else
 		s_SdkModule = LoadLibraryA(SERVER_WORKER_DLL);
 
 	if (!s_SdkModule)
@@ -104,6 +113,39 @@ int WINAPI hWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: hooks the entry point
+//-----------------------------------------------------------------------------
+static void AttachEP()
+{
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	DetourAttach(&v_WinMain, &hWinMain);
+
+	HRESULT hr = DetourTransactionCommit();
+	if (hr != NO_ERROR) // Failed to hook into the process, terminate...
+	{
+		Assert(0);
+		FatalError("Failed to detour process: error code = %08x\n", hr);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unhooks the entry point
+//-----------------------------------------------------------------------------
+static void DetachEP()
+{
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	DetourDetach(&v_WinMain, &hWinMain);
+	HRESULT hr = DetourTransactionCommit();
+
+	Assert(hr != NO_ERROR);
+	NOTE_UNUSED(hr);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: APIENTRY
 //-----------------------------------------------------------------------------
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
@@ -120,36 +162,16 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 		v_WinMain = CModule::GetExportedSymbol((QWORD)s_DosHeader, "WinMain")
 			.RCast<int (*)(HINSTANCE, HINSTANCE, LPSTR, int)>();
 
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-
-		DetourAttach(&v_WinMain, &hWinMain);
-
-		HRESULT hr = DetourTransactionCommit();
-		if (hr != NO_ERROR) // Failed to hook into the process, terminate...
-		{
-			Assert(0);
-			FatalError("Failed to detour process: error code = %08x\n", hr);
-		}
-
+		AttachEP();
 		break;
 	}
 
 	case DLL_PROCESS_DETACH:
 	{
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-
-		DetourDetach(&v_WinMain, &hWinMain);
-
-		HRESULT hr = DetourTransactionCommit();
-
-		Assert(hr != NO_ERROR);
-		NOTE_UNUSED(hr);
-
 		if (s_SdkModule)
 			FreeLibrary(s_SdkModule);
 
+		DetachEP();
 		break;
 	}
 	}

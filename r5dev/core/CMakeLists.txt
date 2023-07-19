@@ -1,4 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
+
 macro( add_sdk_project PROJECT_NAME )
 add_module( "shared_lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
@@ -79,7 +80,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "localize"
 
     "vscript"
-    "game"
+    "game_shared_static"
 )
 
 if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
@@ -96,32 +97,48 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "vgui"
     "rui"
 
-    "engine"
     "d3d11.lib"
-)
-else()
-target_link_libraries( ${PROJECT_NAME} PRIVATE
-    "engine_ds"
-    "materialsystem_nodx" # Needs the No-DirectX version for patching.
 )
 endif()
 
+# Determine the compiler definitions and link libraries per project.
 if( ${PROJECT_NAME} STREQUAL "gamesdk" )
 end_sources()
+
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "engine"
+    "server_static"
+    "client_static"
+)
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "GAMESDK"
 )
+
 elseif( ${PROJECT_NAME} STREQUAL "dedicated" )
 end_sources()
-target_compile_definitions( ${PROJECT_NAME} PRIVATE
-    "DEDICATED"
-    "MATERIALSYSTEM_NODX" # Needs the No-DirectX version for patching.
+
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "materialsystem_nodx" # Needs the No-DirectX version for patching.
+    "engine_ds"
+    "server_static"
 )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "MATERIALSYSTEM_NODX"
+    "SERVER_DLL"
+    "DEDICATED"
+)
+
 elseif( ${PROJECT_NAME} STREQUAL "client" )
 end_sources( "${BUILD_OUTPUT_DIR}/bin/x64_retail/" )
+
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "engine_cl"
+    "client_static"
+)
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "CLIENT_DLL"
 )
+
 endif()
 
 target_link_options( ${PROJECT_NAME} PRIVATE
@@ -142,18 +159,28 @@ add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -P ${ENGINE_SOURCE_DIR}/cmake/PostBuild.cmake
 )
 
-if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
+if( ${PROJECT_NAME} STREQUAL "dedicated" )
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND "r5apex.exe"
+    VS_DEBUGGER_COMMAND "r5apex_ds.exe"
 )
 else()
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND "r5apex_ds.exe"
+    VS_DEBUGGER_COMMAND "r5apex.exe"
+)
+endif()
+
+if( ${PROJECT_NAME} STREQUAL "client" )
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND_ARGUMENTS "-wconsole -ansicolor -dev -devsdk -noserverdll"
+)
+else()
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND_ARGUMENTS "-wconsole -ansicolor -dev -devsdk"
+    VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/"
 )
 endif()
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND_ARGUMENTS "-wconsole -ansicolor -dev -devsdk"
     VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/"
 )
 
@@ -161,4 +188,4 @@ endmacro()
 
 add_sdk_project( "gamesdk" )
 add_sdk_project( "dedicated" )
-#add_sdk_project( "client" )
+add_sdk_project( "client" )

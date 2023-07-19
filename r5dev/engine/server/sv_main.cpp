@@ -192,20 +192,3 @@ void SV_BroadcastVoiceData(CClient* cl, int nBytes, char* data)
 			pClient->SendNetMsgEx(&voiceData, false, false, true);
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////
-void HSV_Main::Attach(void) const
-{
-	//DetourAttach(&v_SV_InitGameDLL, SV_InitGameDLL);
-	//DetourAttach(&v_SV_ShutdownGameDLL, SV_ShutdownGameDLL);
-	//DetourAttach(&v_SV_ActivateServer, SV_ActivateServer);
-	DetourAttach(&v_SV_BroadcastVoiceData, SV_BroadcastVoiceData);
-}
-
-void HSV_Main::Detach(void) const
-{
-	//DetourDetach(&v_SV_InitGameDLL, SV_InitGameDLL);
-	//DetourDetach(&v_SV_ShutdownGameDLL, SV_ShutdownGameDLL);
-	//DetourDetach(&v_SV_ActivateServer, SV_ActivateServer);
-	DetourDetach(&v_SV_BroadcastVoiceData, SV_BroadcastVoiceData);
-}

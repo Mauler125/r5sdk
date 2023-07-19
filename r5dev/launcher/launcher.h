@@ -12,7 +12,6 @@ inline CMemory p_RemoveSpuriousGameParameters;
 inline void*(*v_RemoveSpuriousGameParameters)(void);
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 
-void AppendSDKParametersPreInit();
 const char* ExitCodeToString(int nCode);
 
 ///////////////////////////////////////////////////////////////////////////////

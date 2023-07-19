@@ -32,8 +32,6 @@ int LauncherMain(HINSTANCE hInstance)
 // its own -game parameter, which would supersede the one we really want if we didn't intercede here.
 void RemoveSpuriousGameParameters()
 {
-	AppendSDKParametersPreInit();
-
 	// Find the last -game parameter.
 	int nGameArgs = 0;
 	char lastGameArg[MAX_PATH];
@@ -55,29 +53,6 @@ void RemoveSpuriousGameParameters()
 	}
 }
 #endif
-
-// Append required command line parameters.
-// This avoids having all these in the startup configuration files
-// as all there are required to run the game with the game sdk.
-void AppendSDKParametersPreInit()
-{
-	const bool bDedicated = IsDedicated();
-	if (bDedicated)
-	{
-		CommandLine()->AppendParm("-collate", "");
-		CommandLine()->AppendParm("-multiple", "");
-		CommandLine()->AppendParm("-noorigin", "");
-		CommandLine()->AppendParm("-nodiscord", "");
-		CommandLine()->AppendParm("-noshaderapi", "");
-		CommandLine()->AppendParm("-nobakedparticles", "");
-		CommandLine()->AppendParm("-novid", "");
-		CommandLine()->AppendParm("-nomenuvid", "");
-		CommandLine()->AppendParm("-nosound", "");
-		CommandLine()->AppendParm("-nomouse", "");
-		CommandLine()->AppendParm("-nojoy", "");
-		CommandLine()->AppendParm("-nosendtable", "");
-	}
-}
 
 const char* ExitCodeToString(int nCode)
 {

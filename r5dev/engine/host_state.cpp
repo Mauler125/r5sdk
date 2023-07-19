@@ -17,6 +17,7 @@
 #include "datacache/mdlcache.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
+#include "engine/server/server.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "engine/client/cl_rcon.h"
@@ -52,6 +53,46 @@
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #include "game/shared/vscript_shared.h"
+
+#ifndef CLIENT_DLL
+//-----------------------------------------------------------------------------
+// Purpose: Send keep alive request to Pylon Master Server.
+// Input  : &netGameServer - 
+// Output : Returns true on success, false otherwise.
+//-----------------------------------------------------------------------------
+bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
+{
+	if (!g_pServer->IsActive() || !sv_pylonVisibility->GetBool()) // Check for active game.
+	{
+		return false;
+	}
+
+	string errorMsg;
+	string hostToken;
+
+	const bool result = g_pMasterServer->PostServerHost(errorMsg, hostToken, netGameServer);
+	if (!result)
+	{
+		if (!errorMsg.empty() && g_pMasterServer->GetCurrentError().compare(errorMsg) != NULL)
+		{
+			g_pMasterServer->SetCurrentError(errorMsg);
+			Error(eDLL_T::SERVER, NO_ERROR, "%s\n", errorMsg.c_str());
+		}
+	}
+	else // Attempt to log the token, if there is one.
+	{
+		if (!hostToken.empty() && g_pMasterServer->GetCurrentToken().compare(hostToken) != NULL)
+		{
+			g_pMasterServer->SetCurrentToken(hostToken);
+			DevMsg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
+				g_svReset, g_svGreyB,
+				hostToken.c_str(), g_svReset);
+		}
+	}
+
+	return result;
+}
+#endif // !CLIENT_DLL
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
@@ -303,7 +344,7 @@ void CHostState::Think(void) const
 				).count()
 		};
 
-		std::thread(&CPylon::KeepAlive, g_pMasterServer, netGameServer).detach();
+		std::thread(&HostState_KeepAlive, netGameServer).detach();
 		pylonTimer.Start();
 	}
 #endif // DEDICATED
@@ -370,9 +411,11 @@ void CHostState::State_NewGame(void)
 	DevMsg(eDLL_T::ENGINE, "%s: Loading level: '%s'\n", __FUNCTION__, g_pHostState->m_levelName);
 
 	LARGE_INTEGER time{};
+
+#ifndef CLIENT_DLL
 	bool bSplitScreenConnect = m_bSplitScreenConnect;
 	m_bSplitScreenConnect = 0;
-#ifndef CLIENT_DLL
+
 	if (!g_pServerGameClients) // Init Game if it ain't valid.
 	{
 		SV_InitGameDLL();

@@ -15,6 +15,13 @@ inline int(*CL_ClearState)(void);
 inline CMemory p_CL_RunPrediction;
 inline void(*CL_RunPrediction)(void);
 
+inline bool g_bClientDLL = false;
+
+// Returns true if this is a client only build.
+inline bool IsClientDLL()
+{
+	return g_bClientDLL;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCL_Main : public IDetour

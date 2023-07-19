@@ -19,7 +19,7 @@ inline bool* g_EbisuProfileInit = nullptr;
 ///////////////////////////////////////////////////////////////////////////////
 void HEbisuSDK_Init();
 bool IsOriginInitialized();
-bool IsValidPersonaName(const char* pszName);
+bool IsValidPersonaName(const char* pszName, int nMinLen, int nMaxLen);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VEbisuSDK : public IDetour

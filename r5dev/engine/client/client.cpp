@@ -103,6 +103,7 @@ void CClient::VActivatePlayer(CClient* pClient)
 	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY);
 	v_CClient_ActivatePlayer(pClient);
 
+#ifndef CLIENT_DLL
 	const CNetChan* pNetChan = pClient->GetNetChan();
 
 	if (pNetChan && sv_showconnecting->GetBool())
@@ -110,6 +111,7 @@ void CClient::VActivatePlayer(CClient* pClient)
 		DevMsg(eDLL_T::SERVER, "Activated player #%d; channel %s(%s) ('%llu')\n",
 			pClient->GetUserID(), pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
 	}
+#endif // !CLIENT_DLL
 }
 
 //---------------------------------------------------------------------------------
@@ -215,4 +217,27 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
 {
 	return pClient->SendNetMsgEx(pMsg, bLocal, bForceReliable, bVoice);
+}
+
+void VClient::Attach(void) const
+{
+#ifndef CLIENT_DLL
+	DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
+	DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
+	DetourAttach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
+	DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+	DetourAttach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
+	//DetourAttach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
+#endif // !CLIENT_DLL
+}
+void VClient::Detach(void) const
+{
+#ifndef CLIENT_DLL
+	DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
+	DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
+	DetourDetach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
+	DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+	DetourDetach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
+	//DetourDetach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
+#endif // !CLIENT_DLL
 }

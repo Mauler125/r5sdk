@@ -1,7 +1,11 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "lib" "game" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
+
+macro( add_game_project PROJECT_NAME )
+add_module( "lib" ${PROJECT_NAME} "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
+
+if( ${PROJECT_NAME} STREQUAL "game_shared_static" )
 
 add_sources( SOURCE_GROUP "Shared"
     "shared/ai_utility_shared.cpp"
@@ -33,6 +37,10 @@ add_sources( SOURCE_GROUP "Shared/Weapon"
     "shared/r1/weapon_bolt.h"
 )
 
+endif()
+
+if( ${PROJECT_NAME} STREQUAL "server_static" )
+
 add_sources( SOURCE_GROUP "Server"
     "server/ai_network.cpp"
     "server/ai_network.h"
@@ -61,7 +69,21 @@ add_sources( SOURCE_GROUP "Server"
     "server/player.cpp"
     "server/player.h"
     "server/playerlocaldata.h"
+    "server/util_server.cpp"
+    "server/util_server.h"
+    "server/vscript_server.cpp"
+    "server/vscript_server.h"
 )
+
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/iserverentity.h"
+    "${ENGINE_SOURCE_DIR}/public/iservernetworkable.h"
+    "${ENGINE_SOURCE_DIR}/public/iserverunknown.h"
+)
+
+endif()
+
+if( ${PROJECT_NAME} STREQUAL "client_static" )
 
 add_sources( SOURCE_GROUP "Client"
     "client/c_baseentity.cpp"
@@ -75,9 +97,26 @@ add_sources( SOURCE_GROUP "Client"
     "client/movehelper_client.cpp"
     "client/movehelper_client.h"
     "client/spritemodel.cpp"
+    "client/util_client.cpp"
+    "client/util_client.h"
     "client/viewrender.cpp"
     "client/viewrender.h"
+    "client/vscript_client.cpp"
+    "client/vscript_client.h"
 )
+
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/icliententity.h"
+    "${ENGINE_SOURCE_DIR}/public/icliententitylist.h"
+    "${ENGINE_SOURCE_DIR}/public/iclientnetworkable.h"
+    "${ENGINE_SOURCE_DIR}/public/iclientrenderable.h"
+    "${ENGINE_SOURCE_DIR}/public/iclientthinkable.h"
+    "${ENGINE_SOURCE_DIR}/public/iclientunknown.h"
+
+    "${ENGINE_SOURCE_DIR}/public/game/client/iinput.h"
+)
+
+endif()
 
 add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/basehandle.h"
@@ -86,25 +125,31 @@ add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/globalvars_base.h"
     "${ENGINE_SOURCE_DIR}/public/ihandleentity.h"
 
-    "${ENGINE_SOURCE_DIR}/public/iserverentity.h"
-    "${ENGINE_SOURCE_DIR}/public/iservernetworkable.h"
-    "${ENGINE_SOURCE_DIR}/public/iserverunknown.h"
-
-    "${ENGINE_SOURCE_DIR}/public/icliententity.h"
-    "${ENGINE_SOURCE_DIR}/public/icliententitylist.h"
-    "${ENGINE_SOURCE_DIR}/public/iclientnetworkable.h"
-    "${ENGINE_SOURCE_DIR}/public/iclientrenderable.h"
-    "${ENGINE_SOURCE_DIR}/public/iclientthinkable.h"
-    "${ENGINE_SOURCE_DIR}/public/iclientunknown.h"
-
     "${ENGINE_SOURCE_DIR}/public/game/shared/weapon_types.h"
     "${ENGINE_SOURCE_DIR}/public/game/shared/in_buttons.h"
-    "${ENGINE_SOURCE_DIR}/public/game/client/iinput.h"
 )
 
 end_sources()
+
+if( ${PROJECT_NAME} STREQUAL "server_static" )
+
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "SERVER_DLL"
+)
+elseif( ${PROJECT_NAME} STREQUAL "client_static" )
+target_compile_definitions( ${PROJECT_NAME} PRIVATE
+    "CLIENT_DLL"
+)
+
+endif()
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/tier0/"
     "${ENGINE_SOURCE_DIR}/tier1/"
 )
+
+endmacro()
+
+add_game_project( "server_static" )
+add_game_project( "client_static" )
+add_game_project( "game_shared_static" )

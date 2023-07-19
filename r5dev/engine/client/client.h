@@ -268,24 +268,7 @@ class VClient : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const
-	{
-		DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
-		DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
-		DetourAttach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
-		DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
-		DetourAttach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
-		//DetourAttach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
-	}
-	virtual void Detach(void) const
-	{
-		DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
-		DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
-		DetourDetach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
-		DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
-		DetourDetach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
-		//DetourDetach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
-	}
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-

@@ -20,7 +20,11 @@ public:
 	bool SendRequest(const char* endpoint, const nlohmann::json& requestJson, nlohmann::json& responseJson, string& outMessage, CURLINFO& status, const char* errorText = nullptr) const;
 	bool QueryServer(const char* endpoint, const char* request, string& outResponse, string& outMessage, CURLINFO& outStatus) const;
 
-	bool KeepAlive(const NetGameServer_t& netGameServer);
+	inline const string& GetCurrentToken() const { return m_Token; }
+	inline const string& GetCurrentError() const { return m_ErrorMsg; }
+
+	inline void SetCurrentToken(const string& token) { m_Token = token; }
+	inline void SetCurrentError(const string& error) { m_ErrorMsg = error; }
 
 private:
 	string m_Token;

@@ -39,6 +39,7 @@ inline bool IsDedicated()
 void SV_InitGameDLL();
 void SV_ShutdownGameDLL();
 bool SV_ActivateServer();
+void SV_BroadcastVoiceData(CClient* cl, int nBytes, char* data);
 void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const uint64_t nNucleusID, const string& svPersonaName, const int nPort);
 void SV_CheckForBan(const BannedVec_t* pBannedVec = nullptr);
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +84,25 @@ class HSV_Main : public IDetour
 			.FindPatternSelf("40 38 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	///////////////////////////////////////////////////////////////////////////////
+	virtual void Attach(void) const
+	{
+		//DetourAttach(&v_SV_InitGameDLL, SV_InitGameDLL);
+		//DetourAttach(&v_SV_ShutdownGameDLL, SV_ShutdownGameDLL);
+		//DetourAttach(&v_SV_ActivateServer, SV_ActivateServer);
+#ifndef CLIENT_DLL
+		DetourAttach(&v_SV_BroadcastVoiceData, SV_BroadcastVoiceData);
+#endif // !CLIENT_DLL
+	}
+
+	virtual void Detach(void) const
+	{
+		//DetourDetach(&v_SV_InitGameDLL, SV_InitGameDLL);
+		//DetourDetach(&v_SV_ShutdownGameDLL, SV_ShutdownGameDLL);
+		//DetourDetach(&v_SV_ActivateServer, SV_ActivateServer);
+#ifndef CLIENT_DLL
+		DetourDetach(&v_SV_BroadcastVoiceData, SV_BroadcastVoiceData);
+#endif // !CLIENT_DLL
+	}
 };
 ///////////////////////////////////////////////////////////////////////////////
