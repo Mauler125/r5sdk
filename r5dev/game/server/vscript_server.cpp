@@ -206,11 +206,11 @@ void Script_RegisterServerFunctions(CSquirrelVM* s)
 //---------------------------------------------------------------------------------
 void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
 {
-    s->RegisterFunction("IsServerActive", "Script_IsServerActive", "Returns whether the server is active", "bool", "", &VScriptCode::Server::IsServerActive);
-    s->RegisterFunction("IsDedicated", "Script_IsDedicated", "Returns whether this is a dedicated server", "bool", "", &VScriptCode::Server::IsDedicated);
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, IsServerActive, "Returns whether the server is active", "bool", "");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, IsDedicated, "Returns whether this is a dedicated server", "bool", "");
 
-    s->RegisterFunction("CreateServer", "Script_CreateServer", "Starts server with the specified settings", "void", "string, string, string, string, int", &VScriptCode::Server::CreateServer);
-    s->RegisterFunction("DestroyServer", "Script_DestroyServer", "Shuts the local host game down", "void", "", &VScriptCode::Server::DestroyServer);
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, CreateServer, "Starts server with the specified settings", "void", "string, string, string, string, int");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, DestroyServer, "Shuts the local host game down", "void", "");
 }
 
 //---------------------------------------------------------------------------------
@@ -219,14 +219,14 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
 //---------------------------------------------------------------------------------
 void Script_RegisterAdminPanelFunctions(CSquirrelVM* s)
 {
-    s->RegisterFunction("GetNumHumanPlayers", "Script_GetNumHumanPlayers", "Gets the number of human players on the server", "int", "", &VScriptCode::Server::GetNumHumanPlayers);
-    s->RegisterFunction("GetNumFakeClients", "Script_GetNumFakeClients", "Gets the number of bot players on the server", "int", "", &VScriptCode::Server::GetNumFakeClients);
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetNumHumanPlayers, "Gets the number of human players on the server", "int", "");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetNumFakeClients, "Gets the number of bot players on the server", "int", "");
 
-    s->RegisterFunction("KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VScriptCode::Server::KickPlayerByName);
-    s->RegisterFunction("KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VScriptCode::Server::KickPlayerById);
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, KickPlayerByName, "Kicks a player from the server by name", "void", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, KickPlayerById, "Kicks a player from the server by handle or nucleus id", "void", "string");
 
-    s->RegisterFunction("BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VScriptCode::Server::BanPlayerByName);
-    s->RegisterFunction("BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VScriptCode::Server::BanPlayerById);
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, BanPlayerByName, "Bans a player from the server by name", "void", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, BanPlayerById, "Bans a player from the server by handle or nucleus id", "void", "string");
 
-    s->RegisterFunction("UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VScriptCode::Server::UnbanPlayer);
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, UnbanPlayer, "Unbans a player from the server by nucleus id or ip address", "void", "string");
 }

@@ -5,7 +5,7 @@ namespace VScriptCode
 {
 	namespace Client
 	{
-		SQRESULT RefreshServerCount(HSQUIRRELVM v);
+		SQRESULT RefreshServerList(HSQUIRRELVM v);
 		SQRESULT GetServerCount(HSQUIRRELVM v);
 
 		SQRESULT GetHiddenServerName(HSQUIRRELVM v);
@@ -31,5 +31,10 @@ namespace VScriptCode
 void Script_RegisterClientFunctions(CSquirrelVM* s);
 void Script_RegisterUIFunctions(CSquirrelVM* s);
 void Script_RegisterCoreClientFunctions(CSquirrelVM* s);
+
+#define DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
+	returnType, parameters)                                             \
+	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
+	helpString, returnType, parameters, VScriptCode::Client::##functionName);   \
 
 #endif // VSCRIPT_CLIENT_H

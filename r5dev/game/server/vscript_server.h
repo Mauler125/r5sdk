@@ -26,4 +26,9 @@ void Script_RegisterServerFunctions(CSquirrelVM* s);
 void Script_RegisterCoreServerFunctions(CSquirrelVM* s);
 void Script_RegisterAdminPanelFunctions(CSquirrelVM* s);
 
+#define DEFINE_SERVER_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
+	returnType, parameters)                                             \
+	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
+	helpString, returnType, parameters, VScriptCode::Server::##functionName);   \
+
 #endif // VSCRIPT_SERVER_H

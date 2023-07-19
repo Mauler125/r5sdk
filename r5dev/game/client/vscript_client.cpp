@@ -27,7 +27,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         // Purpose: refreshes the server list
         //-----------------------------------------------------------------------------
-        SQRESULT RefreshServerCount(HSQUIRRELVM v)
+        SQRESULT RefreshServerList(HSQUIRRELVM v)
         {
             string serverMessage; // Refresh list.
             size_t iCount = g_pServerListManager->RefreshServerList(serverMessage);
@@ -389,27 +389,27 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreClientFunctions(s);
 
-    s->RegisterFunction("RefreshServerList", "Script_RefreshServerList", "Refreshes the public server list and returns the count", "int", "", &VScriptCode::Client::RefreshServerCount);
-    s->RegisterFunction("GetServerCount", "Script_GetServerCount", "Gets the number of public servers", "int", "", &VScriptCode::Client::GetServerCount);
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, RefreshServerList, "Refreshes the public server list and returns the count", "int", "");
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetServerCount, "Gets the number of public servers", "int", "");
 
     // Functions for retrieving server browser data
-    s->RegisterFunction("GetHiddenServerName", "Script_GetHiddenServerName", "Gets hidden server name by token", "string", "string", &VScriptCode::Client::GetHiddenServerName);
-    s->RegisterFunction("GetServerName", "Script_GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VScriptCode::Client::GetServerName);
-    s->RegisterFunction("GetServerDescription", "Script_GetServerDescription", "Gets the description of the server at the specified index of the server list", "string", "int", &VScriptCode::Client::GetServerDescription);
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetHiddenServerName, "Gets hidden server name by token", "string", "string");
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetServerName, "Gets the name of the server at the specified index of the server list", "string", "int");
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetServerDescription, "Gets the description of the server at the specified index of the server list", "string", "int");
 
-    s->RegisterFunction("GetServerMap", "Script_GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VScriptCode::Client::GetServerMap);
-    s->RegisterFunction("GetServerPlaylist", "Script_GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VScriptCode::Client::GetServerPlaylist);
-    s->RegisterFunction("GetServerCurrentPlayers", "Script_GetServerCurrentPlayers", "Gets the current player count of the server at the specified index of the server list", "int", "int", &VScriptCode::Client::GetServerCurrentPlayers);
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetServerMap, "Gets the map of the server at the specified index of the server list", "string", "int");
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetServerPlaylist, "Gets the playlist of the server at the specified index of the server list", "string", "int");
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetServerCurrentPlayers, "Gets the current player count of the server at the specified index of the server list", "int", "int");
 
-    s->RegisterFunction("GetServerMaxPlayers", "Script_GetServerMaxPlayers", "Gets the max player count of the server at the specified index of the server list", "int", "int", &VScriptCode::Client::GetServerMaxPlayers);
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetServerMaxPlayers, "Gets the max player count of the server at the specified index of the server list", "int", "int");
 
     // Misc main menu functions
-    s->RegisterFunction("GetPromoData", "Script_GetPromoData", "Gets promo data for specified slot type", "string", "int", &VScriptCode::Client::GetPromoData);
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetPromoData, "Gets promo data for specified slot type", "string", "int");
 
     // Functions for connecting to servers
-    s->RegisterFunction("ConnectToServer", "Script_ConnectToServer", "Joins server by ip address and encryption key", "void", "string, string", &VScriptCode::Client::ConnectToServer);
-    s->RegisterFunction("ConnectToListedServer", "Script_ConnectToListedServer", "Joins listed server by index", "void", "int", &VScriptCode::Client::ConnectToListedServer);
-    s->RegisterFunction("ConnectToHiddenServer", "Script_ConnectToHiddenServer", "Joins hidden server by token", "void", "string", &VScriptCode::Client::ConnectToHiddenServer);
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, ConnectToServer, "Joins server by ip address and encryption key", "void", "string, string");
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, ConnectToListedServer, "Joins listed server by index", "void", "int");
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, ConnectToHiddenServer, "Joins hidden server by token", "void", "string");
 }
 
 //---------------------------------------------------------------------------------
@@ -418,5 +418,5 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 //---------------------------------------------------------------------------------
 void Script_RegisterCoreClientFunctions(CSquirrelVM* s)
 {
-    s->RegisterFunction("IsClientDLL", "Script_IsClientDLL", "Returns whether this build is client only", "bool", "", &VScriptCode::Client::IsClientDLL);
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, IsClientDLL, "Returns whether this build is client only", "bool", "");
 }

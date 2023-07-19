@@ -27,6 +27,15 @@ namespace VScriptCode
     namespace Shared
     {
         //-----------------------------------------------------------------------------
+        // Purpose: generic stub for unsupported functions
+        //-----------------------------------------------------------------------------
+        SQRESULT StubUnsupported(HSQUIRRELVM v)
+        {
+            v_SQVM_RaiseError(v, "This function is not supported on this builds.\n");
+            return SQ_ERROR;
+        }
+
+        //-----------------------------------------------------------------------------
         // Purpose: expose SDK version to the VScript API
         //-----------------------------------------------------------------------------
         SQRESULT GetSDKVersion(HSQUIRRELVM v)
@@ -83,8 +92,8 @@ namespace VScriptCode
 //---------------------------------------------------------------------------------
 void Script_RegisterCommonAbstractions(CSquirrelVM* s)
 {
-    s->RegisterFunction("GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VScriptCode::Shared::GetSDKVersion);
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetSDKVersion, "Gets the SDK version as a string", "string", "");
 
-    s->RegisterFunction("GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VScriptCode::Shared::GetAvailableMaps);
-    s->RegisterFunction("GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VScriptCode::Shared::GetAvailablePlaylists);
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailableMaps, "Gets an array of all available maps", "array< string >", "");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailablePlaylists, "Gets an array of all available playlists", "array< string >", "");
 }
