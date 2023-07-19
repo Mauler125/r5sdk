@@ -5,16 +5,9 @@
 //===========================================================================//
 #ifndef UTIL_SHARED_H
 #define UTIL_SHARED_H
-#ifndef CLIENT_DLL
-#include "game/server/player.h"
-#endif
 #include "public/engine/IEngineTrace.h"
 
 class CTraceFilterSimple;
-
-#ifndef CLIENT_DLL
-CPlayer* UTIL_PlayerByIndex(int nIndex);
-#endif // CLIENT_DLL
 const char* UTIL_GetEntityScriptInfo(CBaseEntity* pEnt);
 
 inline CMemory p_UTIL_GetEntityScriptInfo;
@@ -45,7 +38,6 @@ private:
 	ShouldHitFunc_t m_pExtraShouldHitCheckFunction;
 	int m_traceType;
 };
-
 
 ///////////////////////////////////////////////////////////////////////////////
 class VUtil_Shared : public IDetour

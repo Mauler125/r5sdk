@@ -16,7 +16,7 @@
 #include "entitylist.h"
 #include "baseanimating.h"
 #include "game/shared/usercmd.h"
-#include "game/shared/util_shared.h"
+#include "game/server/util_server.h"
 
 //-----------------------------------------------------------------------------
 // This is called when a new game is started. (restart, map)

@@ -8,9 +8,9 @@
 #include "tier1/cvar.h"
 #include "player.h"
 #include "physics_main.h"
-#include  "engine/server/server.h"
+#include "engine/server/server.h"
 #include "engine/client/client.h"
-#include "game/shared/util_shared.h"
+#include "game/server/util_server.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Runs the command simulation for fake players
