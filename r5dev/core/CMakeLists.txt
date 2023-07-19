@@ -159,18 +159,28 @@ add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -P ${ENGINE_SOURCE_DIR}/cmake/PostBuild.cmake
 )
 
-if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
+if( ${PROJECT_NAME} STREQUAL "dedicated" )
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND "r5apex.exe"
+    VS_DEBUGGER_COMMAND "r5apex_ds.exe"
 )
 else()
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND "r5apex_ds.exe"
+    VS_DEBUGGER_COMMAND "r5apex.exe"
+)
+endif()
+
+if( ${PROJECT_NAME} STREQUAL "client" )
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND_ARGUMENTS "-wconsole -ansicolor -dev -devsdk -noserverdll"
+)
+else()
+set_target_properties( ${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_COMMAND_ARGUMENTS "-wconsole -ansicolor -dev -devsdk"
+    VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/"
 )
 endif()
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND_ARGUMENTS "-wconsole -ansicolor -dev -devsdk"
     VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/"
 )
 

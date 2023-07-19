@@ -196,6 +196,23 @@ void Systems_Init()
 
 	ConVar_StaticInit();
 
+#ifdef DEDICATED
+	// These command line parameters disable a bunch of things in the engine that
+	// the dedicated server does not need, therefore, reducing a lot of overhead.
+	CommandLine()->AppendParm("-collate", "");
+	CommandLine()->AppendParm("-multiple", "");
+	CommandLine()->AppendParm("-noorigin", "");
+	CommandLine()->AppendParm("-nodiscord", "");
+	CommandLine()->AppendParm("-noshaderapi", "");
+	CommandLine()->AppendParm("-nobakedparticles", "");
+	CommandLine()->AppendParm("-novid", "");
+	CommandLine()->AppendParm("-nomenuvid", "");
+	CommandLine()->AppendParm("-nosound", "");
+	CommandLine()->AppendParm("-nomouse", "");
+	CommandLine()->AppendParm("-nojoy", "");
+	CommandLine()->AppendParm("-nosendtable", "");
+#endif // DEDICATED
+
 	// Script context registration callbacks.
 #ifndef CLIENT_DLL
 	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
@@ -537,11 +554,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VGL_Screen);
 #endif // !DEDICATED
 
-#ifndef CLIENT_DLL
-	// !!! SERVER DLL ONLY !!!
 	REGISTER(HSV_Main);
-	// !!! END SERVER DLL ONLY !!!
-#endif // !CLIENT_DLL
 
 #ifndef DEDICATED
 	REGISTER(VGame); // REGISTER CLIENT ONLY!
@@ -565,9 +578,10 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VAnimation);
 	REGISTER(VUtil_Shared);
 
-	REGISTER(V_Weapon_Bolt);
-
 #ifndef CLIENT_DLL
+
+	// In shared code, but weapon bolt is SERVER only.
+	REGISTER(V_Weapon_Bolt);
 
 	// Game/server
 	REGISTER(VAI_Network);
