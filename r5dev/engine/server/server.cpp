@@ -105,8 +105,24 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '[%s]:%i' ('%llu')\n",
 			pszAddresBuffer, nPort, nNucleusID);
 
+	bool bValidName = false;
+
+	if (VALID_CHARSTAR(pszPersonaName) &&
+		V_IsValidUTF8(pszPersonaName))
+	{
+		if (sv_validatePersonaName->GetBool() && 
+			!IsValidPersonaName(pszPersonaName, sv_minPersonaNameLength->GetInt(), sv_maxPersonaNameLength->GetInt()))
+		{
+			bValidName = false;
+		}
+		else
+		{
+			bValidName = true;
+		}
+	}
+
 	// Only proceed connection if the client's name is valid and UTF-8 encoded.
-	if (!VALID_CHARSTAR(pszPersonaName) || !V_IsValidUTF8(pszPersonaName) || !IsValidPersonaName(pszPersonaName))
+	if (!bValidName)
 	{
 		pServer->RejectConnection(pServer->m_Socket, &pChallenge->netAdr, "#Valve_Reject_Invalid_Name");
 		if (bEnableLogging)

@@ -1,5 +1,4 @@
 #include "core/stdafx.h"
-#include "tier1/cvar.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "engine/server/sv_main.h"
 
@@ -44,17 +43,12 @@ bool IsOriginInitialized()
 // Input  : *pszName -
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool IsValidPersonaName(const char* pszName)
+bool IsValidPersonaName(const char* pszName, int nMinLen, int nMaxLen)
 {
-	if (!sv_validatePersonaName->GetBool())
-	{
-		return true;
-	}
-
 	size_t len = strlen(pszName);
 
-	if (len < sv_minPersonaNameLength->GetInt() || 
-		len > sv_maxPersonaNameLength->GetInt())
+	if (len < nMinLen ||
+		len > nMaxLen)
 	{
 		return false;
 	}
