@@ -559,6 +559,9 @@ void CBrowser::HostPanel(void)
     }
 
     ImGui::Spacing();
+
+    const bool bServerActive = g_pServer->IsActive();
+
     if (!g_pHostState->m_bActiveGame)
     {
         if (ImGui::Button("Start server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
@@ -568,7 +571,7 @@ void CBrowser::HostPanel(void)
             bool bEnforceField = g_pServerListManager->m_ServerVisibility == EServerVisibility_t::OFFLINE ? true : !g_pServerListManager->m_Server.m_svHostName.empty();
             if (bEnforceField && !g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
             {
-                g_pServerListManager->LaunchServer(); // Launch server.
+                g_pServerListManager->LaunchServer(bServerActive); // Launch server.
             }
             else
             {
@@ -622,7 +625,7 @@ void CBrowser::HostPanel(void)
         {
             if (!g_pServerListManager->m_Server.m_svHostMap.empty())
             {
-                g_pServerListManager->LaunchServer();
+                g_pServerListManager->LaunchServer(bServerActive);
             }
             else
             {
@@ -631,7 +634,7 @@ void CBrowser::HostPanel(void)
             }
         }
 
-        if (g_pServer->IsActive())
+        if (bServerActive)
         {
             ImGui::Spacing();
             ImGui::Separator();
