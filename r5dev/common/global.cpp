@@ -26,6 +26,8 @@ ConVar* fps_max                            = nullptr;
 ConVar* usercmd_frametime_max              = nullptr;
 ConVar* usercmd_frametime_min              = nullptr;
 
+ConVar* usercmd_dualwield_enable           = nullptr;
+
 ConVar* staticProp_no_fade_scalar          = nullptr;
 ConVar* staticProp_gather_size_weight      = nullptr;
 
@@ -115,7 +117,6 @@ ConVar* sv_voiceEcho                       = nullptr;
 ConVar* sv_voiceenable                     = nullptr;
 ConVar* sv_alltalk                         = nullptr;
 
-ConVar* sv_usercmd_dualwield_enable        = nullptr;
 ConVar* player_userCmdsQueueWarning        = nullptr;
 
 //#ifdef DEDICATED
@@ -327,8 +328,6 @@ void ConVar_StaticInit(void)
 	sv_validatePersonaName  = ConVar::StaticCreate("sv_validatePersonaName" , "1" , FCVAR_RELEASE, "Validate the client's textual persona name on connect.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_minPersonaNameLength = ConVar::StaticCreate("sv_minPersonaNameLength", "4" , FCVAR_RELEASE, "The minimum length of the client's textual persona name.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_maxPersonaNameLength = ConVar::StaticCreate("sv_maxPersonaNameLength", "16", FCVAR_RELEASE, "The maximum length of the client's textual persona name.", true, 0.f, false, 0.f, nullptr, nullptr);
-
-	sv_usercmd_dualwield_enable = ConVar::StaticCreate("sv_usercmd_dualwield_enable", "0", FCVAR_RELEASE, "Allows setting dual wield cycle slots, and activating multiple inventory weapons from UserCmd.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !CLIENT_DLL
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_depth_test = ConVar::StaticCreate("bhit_depth_test", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use depth test for bullet ray trace overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -405,6 +404,8 @@ void ConVar_StaticInit(void)
 	// Taken from S15:
 	usercmd_frametime_max = ConVar::StaticCreate("usercmd_frametime_max", "0.100",    FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY,  "The largest amount of simulation seconds a UserCmd can have.", false, 0.f, false, 0.f, nullptr, nullptr);
 	usercmd_frametime_min = ConVar::StaticCreate("usercmd_frametime_min", "0.002857", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "The smallest amount of simulation seconds a UserCmd can have.", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	usercmd_dualwield_enable = ConVar::StaticCreate("usercmd_dualwield_enable", "0", FCVAR_RELEASE, "Allows setting dual wield cycle slots, and activating multiple inventory weapons from UserCmd.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
 	fs_showWarnings                   = ConVar::StaticCreate("fs_showWarnings"                       , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level' ( !slower! ).", true, 0.f, true, 2.f, nullptr, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify.");

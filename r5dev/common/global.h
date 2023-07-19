@@ -17,6 +17,8 @@ extern ConVar* fps_max;
 extern ConVar* usercmd_frametime_max;
 extern ConVar* usercmd_frametime_min;
 
+extern ConVar* usercmd_dualwield_enable;
+
 extern ConVar* staticProp_no_fade_scalar;
 extern ConVar* staticProp_gather_size_weight;
 
@@ -105,7 +107,6 @@ extern ConVar* sv_voiceEcho;
 extern ConVar* sv_voiceenable;
 extern ConVar* sv_alltalk;
 
-extern ConVar* sv_usercmd_dualwield_enable;
 extern ConVar* player_userCmdsQueueWarning;
 
 //#ifdef DEDICATED
