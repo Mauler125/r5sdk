@@ -882,9 +882,12 @@ template<
 LONG DetourAttach(_Inout_ T *ppPointer,
                   _In_ T pDetour) noexcept
 {
-    return DetourAttach(
+    LONG result = DetourAttach(
         reinterpret_cast<void**>(ppPointer),
         reinterpret_cast<void*>(pDetour));
+
+    assert(result == NO_ERROR);
+    return result;
 }
 
 template<
@@ -896,12 +899,15 @@ LONG DetourAttachEx(_Inout_ T *ppPointer,
                     _Out_opt_ T *ppRealTarget,
                     _Out_opt_ T *ppRealDetour) noexcept
 {
-    return DetourAttachEx(
+    LONG result = DetourAttachEx(
         reinterpret_cast<void**>(ppPointer),
         reinterpret_cast<void*>(pDetour),
         ppRealTrampoline,
         reinterpret_cast<void**>(ppRealTarget),
         reinterpret_cast<void**>(ppRealDetour));
+
+    assert(result == NO_ERROR);
+    return result;
 }
 
 template<
@@ -910,9 +916,12 @@ template<
 LONG DetourDetach(_Inout_ T *ppPointer,
                   _In_ T pDetour) noexcept
 {
-    return DetourDetach(
+    LONG result =  DetourDetach(
         reinterpret_cast<void**>(ppPointer),
         reinterpret_cast<void*>(pDetour));
+
+    assert(result == NO_ERROR);
+    return result;
 }
 
 #endif // __cplusplus >= 201103L || _MSVC_LANG >= 201103L
