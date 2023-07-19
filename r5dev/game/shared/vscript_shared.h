@@ -25,14 +25,14 @@ namespace VScriptCode
 
 void Script_RegisterCommonAbstractions(CSquirrelVM* s);
 
-#define DEFINE_SCRIPTFUNC_STUBBED(s, functionName, returnType)          \
-	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
-	"Stub function; not supported on this build.", #returnType, "",     \
-	&VScriptCode::Shared::StubUnsupported);                             \
+#define DEFINE_SCRIPTFUNC_STUBBED(s, functionName, returnType, parameters)   \
+	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName),      \
+	"Stub function; not supported on this build.", #returnType, parameters,  \
+	&VScriptCode::Shared::StubUnsupported);                                  \
 
-#define DEFINE_SHARED_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
-	returnType, parameters)                                             \
-	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
+#define DEFINE_SHARED_SCRIPTFUNC_NAMED(s, functionName, helpString,          \
+	returnType, parameters)                                                  \
+	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName),      \
 	helpString, returnType, parameters, VScriptCode::Shared::##functionName);\
 
 ///////////////////////////////////////////////////////////////////////////////
