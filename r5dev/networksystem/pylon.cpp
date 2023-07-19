@@ -188,44 +188,6 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken,
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Send keep alive request to Pylon Master Server.
-// Input  : &netGameServer - 
-// Output : Returns true on success, false otherwise.
-//-----------------------------------------------------------------------------
-bool CPylon::KeepAlive(const NetGameServer_t& netGameServer)
-{
-    if (!g_pServer->IsActive() || !sv_pylonVisibility->GetBool()) // Check for active game.
-    {
-        return false;
-    }
-
-    string errorMsg;
-    string hostToken;
-
-    const bool result = PostServerHost(errorMsg, hostToken, netGameServer);
-    if (!result)
-    {
-        if (!errorMsg.empty() && m_ErrorMsg.compare(errorMsg) != NULL)
-        {
-            m_ErrorMsg = errorMsg;
-            Error(eDLL_T::SERVER, NO_ERROR, "%s\n", errorMsg.c_str());
-        }
-    }
-    else // Attempt to log the token, if there is one.
-    {
-        if (!hostToken.empty() && m_Token.compare(hostToken) != NULL)
-        {
-            m_Token = hostToken;
-            DevMsg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
-                g_svReset, g_svGreyB,
-                hostToken.c_str(), g_svReset);
-        }
-    }
-
-    return result;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Checks a list of clients for their banned status.
 // Input  : &inBannedVec - 
 //			&outBannedVec  - 
