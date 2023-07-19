@@ -23,6 +23,7 @@ namespace VScriptCode
 }
 
 void Script_RegisterCommonAbstractions(CSquirrelVM* s);
+void Script_RegisterListenServerConstants(CSquirrelVM* s);
 
 #define DEFINE_SHARED_SCRIPTFUNC_NAMED(s, functionName, helpString,          \
 	returnType, parameters)                                                  \

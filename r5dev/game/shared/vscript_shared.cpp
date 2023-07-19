@@ -13,14 +13,10 @@
 
 #include "core/stdafx.h"
 #include "vpc/keyvalues.h"
-#include "engine/server/server.h"
+#include "engine/client/cl_main.h"
 #include "engine/cmodel_bsp.h"
-#include "engine/host_state.h"
-#include "networksystem/pylon.h"
-#include "networksystem/bansystem.h"
-#include "networksystem/listmanager.h"
-#include "vscript_shared.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
+#include "vscript_shared.h"
 
 namespace VScriptCode
 {
@@ -87,4 +83,14 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
 
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailableMaps, "Gets an array of all available maps", "array< string >", "");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailablePlaylists, "Gets an array of all available playlists", "array< string >", "");
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: listen server constants (!!! only call on builds containing a listen server !!!)
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+void Script_RegisterListenServerConstants(CSquirrelVM* s)
+{
+    const SQBool hasListenServer = !IsClientDLL();
+    s->RegisterConstant("LISTEN_SERVER", hasListenServer);
 }

@@ -149,6 +149,31 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef DEDICATED
+// These command line parameters disable a bunch of things in the engine that
+// the dedicated server does not need, therefore, reducing a lot of overhead.
+void InitCommandLineParameters()
+{
+	CommandLine()->AppendParm("-collate", "");
+	CommandLine()->AppendParm("-multiple", "");
+	CommandLine()->AppendParm("-noorigin", "");
+	CommandLine()->AppendParm("-nodiscord", "");
+	CommandLine()->AppendParm("-noshaderapi", "");
+	CommandLine()->AppendParm("-nobakedparticles", "");
+	CommandLine()->AppendParm("-novid", "");
+	CommandLine()->AppendParm("-nomenuvid", "");
+	CommandLine()->AppendParm("-nosound", "");
+	CommandLine()->AppendParm("-nomouse", "");
+	CommandLine()->AppendParm("-nojoy", "");
+	CommandLine()->AppendParm("-nosendtable", "");
+}
+#endif // DEDICATED
+
+void ScriptConstantRegistrationCallback(CSquirrelVM* s)
+{
+	Script_RegisterListenServerConstants(s);
+}
+
 void Systems_Init()
 {
 	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
@@ -197,23 +222,12 @@ void Systems_Init()
 	ConVar_StaticInit();
 
 #ifdef DEDICATED
-	// These command line parameters disable a bunch of things in the engine that
-	// the dedicated server does not need, therefore, reducing a lot of overhead.
-	CommandLine()->AppendParm("-collate", "");
-	CommandLine()->AppendParm("-multiple", "");
-	CommandLine()->AppendParm("-noorigin", "");
-	CommandLine()->AppendParm("-nodiscord", "");
-	CommandLine()->AppendParm("-noshaderapi", "");
-	CommandLine()->AppendParm("-nobakedparticles", "");
-	CommandLine()->AppendParm("-novid", "");
-	CommandLine()->AppendParm("-nomenuvid", "");
-	CommandLine()->AppendParm("-nosound", "");
-	CommandLine()->AppendParm("-nomouse", "");
-	CommandLine()->AppendParm("-nojoy", "");
-	CommandLine()->AppendParm("-nosendtable", "");
+	InitCommandLineParameters();
 #endif // DEDICATED
 
 	// Script context registration callbacks.
+	ScriptConstantRegister_Callback = ScriptConstantRegistrationCallback;
+
 #ifndef CLIENT_DLL
 	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
 	CoreServerScriptRegister_Callback = Script_RegisterCoreServerFunctions;

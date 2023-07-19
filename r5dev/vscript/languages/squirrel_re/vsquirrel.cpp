@@ -17,6 +17,9 @@ void(*UiScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
 void(*CoreServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
 void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
 
+// Registering constants in scripts.
+void(*ScriptConstantRegister_Callback)(CSquirrelVM* s) = nullptr;
+
 //---------------------------------------------------------------------------------
 // Purpose: Initialises a Squirrel VM instance
 // Output : True on success, false on failure
@@ -75,6 +78,11 @@ SQBool CSquirrelVM::DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQ
 {
 	SQBool result = v_CSquirrelVM_DestroySignalEntryListHead(s, v, f);
 	s->RegisterConstant("DEVELOPER", developer->GetInt());
+
+	// Must have one.
+	Assert(ScriptConstantRegister_Callback);
+	ScriptConstantRegister_Callback(s);
+
 	return result;
 }
 
