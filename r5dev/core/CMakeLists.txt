@@ -97,14 +97,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "vgui"
     "rui"
 
-    "engine"
     "d3d11.lib"
-)
-
-else()
-target_link_libraries( ${PROJECT_NAME} PRIVATE
-    "materialsystem_nodx" # Needs the No-DirectX version for patching.
-    "engine_ds"
 )
 endif()
 
@@ -113,6 +106,7 @@ if( ${PROJECT_NAME} STREQUAL "gamesdk" )
 end_sources()
 
 target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "engine"
     "server_static"
     "client_static"
 )
@@ -124,6 +118,8 @@ elseif( ${PROJECT_NAME} STREQUAL "dedicated" )
 end_sources()
 
 target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "materialsystem_nodx" # Needs the No-DirectX version for patching.
+    "engine_ds"
     "server_static"
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
@@ -136,6 +132,7 @@ elseif( ${PROJECT_NAME} STREQUAL "client" )
 end_sources( "${BUILD_OUTPUT_DIR}/bin/x64_retail/" )
 
 target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "engine_cl"
     "client_static"
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
