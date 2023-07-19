@@ -218,9 +218,6 @@ void Systems_Init()
 	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
 	CoreServerScriptRegister_Callback = Script_RegisterCoreServerFunctions;
 	AdminPanelScriptRegister_Callback = Script_RegisterAdminPanelFunctions;
-#else
-	CoreServerScriptRegister_Callback = Script_RegisterCoreServerStubs;
-	AdminPanelScriptRegister_Callback = Script_RegisterAdminPanelStubs;
 #endif// !CLIENT_DLL
 
 #ifndef SERVER_DLL

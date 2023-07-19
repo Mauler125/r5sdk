@@ -27,15 +27,6 @@ namespace VScriptCode
     namespace Shared
     {
         //-----------------------------------------------------------------------------
-        // Purpose: generic stub for unsupported functions
-        //-----------------------------------------------------------------------------
-        SQRESULT StubUnsupported(HSQUIRRELVM v)
-        {
-            v_SQVM_RaiseError(v, "This function is not supported on this build\n");
-            return SQ_ERROR;
-        }
-
-        //-----------------------------------------------------------------------------
         // Purpose: expose SDK version to the VScript API
         //-----------------------------------------------------------------------------
         SQRESULT GetSDKVersion(HSQUIRRELVM v)

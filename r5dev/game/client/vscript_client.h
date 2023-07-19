@@ -32,9 +32,6 @@ void Script_RegisterClientFunctions(CSquirrelVM* s);
 void Script_RegisterUIFunctions(CSquirrelVM* s);
 void Script_RegisterCoreClientFunctions(CSquirrelVM* s);
 
-void Script_RegisterCoreServerStubs(CSquirrelVM* s);
-void Script_RegisterAdminPanelStubs(CSquirrelVM* s);
-
 #define DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
 	returnType, parameters)                                             \
 	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \

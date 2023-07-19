@@ -415,34 +415,3 @@ void Script_RegisterCoreClientFunctions(CSquirrelVM* s)
 {
     DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, IsClientDLL, "Returns whether this build is client only", "bool", "");
 }
-
-//---------------------------------------------------------------------------------
-// Purpose: core server script stubs (stubbed to prevent script compile errors!!!)
-// Input  : *s - 
-//---------------------------------------------------------------------------------
-void Script_RegisterCoreServerStubs(CSquirrelVM* s)
-{
-    DEFINE_SCRIPTFUNC_STUBBED(s, IsServerActive, "bool", "");
-    DEFINE_SCRIPTFUNC_STUBBED(s, IsDedicated, "bool", "");
-
-    DEFINE_SCRIPTFUNC_STUBBED(s, CreateServer, "void", "string, string, string, string, int");
-    DEFINE_SCRIPTFUNC_STUBBED(s, DestroyServer, "void", "");
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: admin panel script stubs (stubbed to prevent script compile errors!!!)
-// Input  : *s - 
-//---------------------------------------------------------------------------------
-void Script_RegisterAdminPanelStubs(CSquirrelVM* s)
-{
-    DEFINE_SCRIPTFUNC_STUBBED(s, GetNumHumanPlayers, "int", "");
-    DEFINE_SCRIPTFUNC_STUBBED(s, GetNumFakeClients, "int", "");
-
-    DEFINE_SCRIPTFUNC_STUBBED(s, KickPlayerByName, "void", "string");
-    DEFINE_SCRIPTFUNC_STUBBED(s, KickPlayerById, "void", "string");
-
-    DEFINE_SCRIPTFUNC_STUBBED(s, BanPlayerByName, "void", "string");
-    DEFINE_SCRIPTFUNC_STUBBED(s, BanPlayerById, "void", "string");
-
-    DEFINE_SCRIPTFUNC_STUBBED(s, UnbanPlayer, "void", "string");
-}
