@@ -426,12 +426,15 @@ ConVarFlags::ConVarFlags() : m_StringToFlags(DefLessFunc(const char*))
 	SET_CONVARFLAG(RELOAD_MATERIALS, "reload_materials");
 	SET_CONVARFLAG(RELOAD_TEXTURES, "reload_textures");
 	SET_CONVARFLAG(NOT_CONNECTED, "not_connected");
-	SET_CONVARFLAG(MATERIAL_SYSTEM_THREAD, "materialsystem_thread");
-	SET_CONVARFLAG(MATERIAL_THREAD_MASK, "material_thread_mask");
+	SET_CONVARFLAG(MATERIAL_SYSTEM_THREAD, "material_system_thread");
 	SET_CONVARFLAG(ARCHIVE_PLAYERPROFILE, "playerprofile");
+	SET_CONVARFLAG(ACCESSIBLE_FROM_THREADS, "accessible_from_threads");
+	SET_CONVARFLAG(STUDIO_SYSTEM, "studio_system");
+	SET_CONVARFLAG(SERVER_FRAME_THREAD, "server_frame_thread");
 	SET_CONVARFLAG(SERVER_CAN_EXECUTE, "server_can_execute");
 	SET_CONVARFLAG(SERVER_CANNOT_QUERY, "server_cannot_query");
 	SET_CONVARFLAG(CLIENTCMD_CAN_EXECUTE, "clientcmd_can_execute");
+	SET_CONVARFLAG(PLATFORM_SYSTEM, "platform_system");
 }
 
 //-----------------------------------------------------------------------------

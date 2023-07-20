@@ -48,9 +48,15 @@ class CCommand;
 #define FCVAR_MATERIAL_SYSTEM_THREAD (1<<23)	// Indicates this cvar is read from the material system thread
 #define FCVAR_ARCHIVE_PLAYERPROFILE  (1<<24)	// cvar written to config.cfg on the Xbox
 
-#define FCVAR_SERVER_CAN_EXECUTE    (1<<28)	// the server is allowed to execute this command on clients via ClientCommand/NET_StringCmd/CBaseClientState::ProcessStringCmd.
+#define FCVAR_ACCESSIBLE_FROM_THREADS (1<<25)	// used as a debugging tool necessary to check material system thread convars
+#define FCVAR_STUDIO_SYSTEM         (1<<26)	// Seems to be used on studio/datachache cvars (only 'r_rootlod' has this flag)
+#define FCVAR_SERVER_FRAME_THREAD   (1<<27)	// Indicates this cvar is read from the server frame thread
+
+#define FCVAR_SERVER_CAN_EXECUTE    (1<<28)	// the server is allowed to execute this command on clients via ClientCommand/NET_StringCmd/CClientState::ProcessStringCmd.
 #define FCVAR_SERVER_CANNOT_QUERY   (1<<29)	// If this is set, then the server is not allowed to query this cvar's value (via IServerPluginHelpers::StartQueryCvarValue).
 #define FCVAR_CLIENTCMD_CAN_EXECUTE (1<<30)	// IVEngineClient::ClientCmd is allowed to execute this command.
+
+#define FCVAR_PLATFORM_SYSTEM       (1<<31)	// Platform cvars, such as persona details and tokens/unique identifiers
 
 #define FCVAR_MATERIAL_THREAD_MASK ( FCVAR_RELOAD_MATERIALS | FCVAR_RELOAD_TEXTURES | FCVAR_MATERIAL_SYSTEM_THREAD )
 
