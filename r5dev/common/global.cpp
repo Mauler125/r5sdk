@@ -405,7 +405,7 @@ void ConVar_StaticInit(void)
 	usercmd_frametime_max = ConVar::StaticCreate("usercmd_frametime_max", "0.100",    FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY,  "The largest amount of simulation seconds a UserCmd can have.", false, 0.f, false, 0.f, nullptr, nullptr);
 	usercmd_frametime_min = ConVar::StaticCreate("usercmd_frametime_min", "0.002857", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "The smallest amount of simulation seconds a UserCmd can have.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	usercmd_dualwield_enable = ConVar::StaticCreate("usercmd_dualwield_enable", "0", FCVAR_RELEASE, "Allows setting dual wield cycle slots, and activating multiple inventory weapons from UserCmd.", false, 0.f, false, 0.f, nullptr, nullptr);
+	usercmd_dualwield_enable = ConVar::StaticCreate("usercmd_dualwield_enable", "0", FCVAR_REPLICATED | FCVAR_RELEASE, "Allows setting dual wield cycle slots, and activating multiple inventory weapons from UserCmd.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
 	fs_showWarnings                   = ConVar::StaticCreate("fs_showWarnings"                       , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level' ( !slower! ).", true, 0.f, true, 2.f, nullptr, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify.");
