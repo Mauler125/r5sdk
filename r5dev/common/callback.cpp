@@ -828,6 +828,8 @@ void CON_Help_f(const CCommand& args)
 	DevMsg(eDLL_T::FS, " = FileSystem (Code)\n");
 	DevMsg(eDLL_T::RTECH, " = PakLoad API (Code)\n");
 	DevMsg(eDLL_T::MS, " = MaterialSystem (Code)\n");
+	DevMsg(eDLL_T::AUDIO, " = Audio DLL (Code)\n");
+	DevMsg(eDLL_T::VIDEO, " = Video DLL (Code)\n");
 	DevMsg(eDLL_T::NETCON, " = NetConsole (Code)\n");
 }
 
