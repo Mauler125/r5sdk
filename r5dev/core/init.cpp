@@ -384,6 +384,14 @@ void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (
 	}
 }
 
+#if defined (DEDICATED)
+#define SIGDB_FILE "cfg/server/startup.bin"
+#elif defined (CLIENT_DLL)
+#define SIGDB_FILE "cfg/client/startup.bin"
+#else
+#define SIGDB_FILE "cfg/startup.bin"
+#endif
+
 void DetourInit() // Run the sigscan
 {
 	const bool bLogAdr = CommandLine()->CheckParm("-sig_toconsole") ? true : false;
