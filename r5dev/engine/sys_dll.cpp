@@ -107,8 +107,8 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 	g_pFactory->AddFactory(INTERFACEVERSION_PLUGINSYSTEM, g_pPluginSystem);
 	g_pFactory->AddFactory(KEYVALUESSYSTEM_INTERFACE_VERSION, g_pKeyValuesSystem);
 
-	//InitPluginSystem(pModAppSystemGroup);
-	//CALL_PLUGIN_CALLBACKS(g_pPluginSystem->GetCreateCallbacks(), pModAppSystemGroup);
+	InitPluginSystem(pModAppSystemGroup);
+	CALL_PLUGIN_CALLBACKS(g_pPluginSystem->GetCreateCallbacks(), pModAppSystemGroup);
 
 	g_pModSystem->Init();
 

@@ -147,14 +147,14 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 
 	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
 
-	//for (auto& callback : !g_pPluginSystem->GetConnectClientCallbacks())
-	//{
-	//	if (!callback(pServer, pClient, pChallenge))
-	//	{
-	//		pClient->Disconnect(REP_MARK_BAD, "#Valve_Reject_Banned");
-	//		return nullptr;
-	//	}
-	//}
+	for (auto& callback : !g_pPluginSystem->GetConnectClientCallbacks())
+	{
+		if (!callback(pServer, pClient, pChallenge))
+		{
+			pClient->Disconnect(REP_MARK_BAD, "#Valve_Reject_Banned");
+			return nullptr;
+		}
+	}
 
 	if (pClient && sv_globalBanlist->GetBool())
 	{
