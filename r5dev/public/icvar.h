@@ -108,7 +108,40 @@ public:
 	virtual bool			HasQueuedMaterialThreadConVarSets() const = 0;
 	virtual int				ProcessQueuedMaterialThreadConVarSets() = 0;
 
+protected:	class ICVarIteratorInternal;
+public:
+	/// Iteration over all cvars. 
+	/// (THIS IS A SLOW OPERATION AND YOU SHOULD AVOID IT.)
+	/// usage: 
+	/// { ICVar::Iterator iter(g_pCVar); 
+	///   for ( iter.SetFirst() ; iter.IsValid() ; iter.Next() )
+	///   {  
+	///       ConCommandBase *cmd = iter.Get();
+	///   } 
+	/// }
+	/// The Iterator class actually wraps the internal factory methods
+	/// so you don't need to worry about new/delete -- scope takes care
+	//  of it.
+	/// We need an iterator like this because we can't simply return a 
+	/// pointer to the internal data type that contains the cvars -- 
+	/// it's a custom, protected class with unusual semantics and is
+	/// prone to change.
+	class Iterator
+	{
+	public:
+		inline void            SetFirst(void) RESTRICT;
+		inline void            Next(void) RESTRICT;
+		inline bool            IsValid(void) RESTRICT;
+		inline ConCommandBase* Get(void) RESTRICT;
+
+		inline                 Iterator(ICvar* icvar);
+		inline                 ~Iterator(void);
+	private:
+		ICVarIteratorInternal* m_pIter;
+	};
+
 protected:
+	// internals for ICVarIterator
 	class ICVarIteratorInternal
 	{
 	public:
@@ -122,5 +155,35 @@ protected:
 
 	virtual ICVarIteratorInternal* FactoryInternalIterator(void) = 0;
 };
+
+inline void ICvar::Iterator::SetFirst(void) RESTRICT
+{
+	m_pIter->SetFirst();
+}
+
+inline void ICvar::Iterator::Next(void) RESTRICT
+{
+	m_pIter->Next();
+}
+
+inline bool ICvar::Iterator::IsValid(void) RESTRICT
+{
+	return m_pIter->IsValid();
+}
+
+inline ConCommandBase* ICvar::Iterator::Get(void) RESTRICT
+{
+	return m_pIter->Get();
+}
+
+inline ICvar::Iterator::Iterator(ICvar* icvar)
+{
+	m_pIter = icvar->FactoryInternalIterator();
+}
+
+inline ICvar::Iterator::~Iterator(void)
+{
+	delete m_pIter;
+}
 
 #endif // ICVAR_H

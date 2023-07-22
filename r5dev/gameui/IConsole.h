@@ -106,7 +106,6 @@ private:
 
 public:
     bool             m_bActivate = false;
-    vector<CSuggest> m_vsvCommandBases;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

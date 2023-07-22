@@ -202,7 +202,6 @@ ConVar* con_max_history                    = nullptr;
 ConVar* con_suggestion_limit               = nullptr;
 ConVar* con_suggestion_showhelptext        = nullptr;
 ConVar* con_suggestion_showflags           = nullptr;
-ConVar* con_suggestion_flags_realtime      = nullptr;
 
 ConVar* origin_disconnectWhenOffline       = nullptr;
 
@@ -394,7 +393,6 @@ void ConVar_StaticInit(void)
 	con_suggestion_limit          = ConVar::StaticCreate("con_suggestion_limit"         , "128" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", true, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_showhelptext   = ConVar::StaticCreate("con_suggestion_showhelptext"  , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_showflags      = ConVar::StaticCreate("con_suggestion_showflags"     , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_flags_realtime = ConVar::StaticCreate("con_suggestion_flags_realtime", "1"   , FCVAR_DEVELOPMENTONLY, "Whether to show compile-time or run-time CommandBase flags.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	serverbrowser_hideEmptyServers = ConVar::StaticCreate("serverbrowser_hideEmptyServers", "0", FCVAR_RELEASE, "Hide empty servers in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
 	serverbrowser_mapFilter        = ConVar::StaticCreate("serverbrowser_mapFilter", "0", FCVAR_RELEASE, "Filter servers by map in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);

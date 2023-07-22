@@ -66,9 +66,6 @@ extern CCvarUtilities* cv;
 
 class CCvar : public CBaseAppSystem< ICvar >
 { 	// Implementation in engine.
-public:
-	unordered_map<string, ConCommandBase*> DumpToMap(void);
-
 protected:
 	enum ConVarSetType_t
 	{

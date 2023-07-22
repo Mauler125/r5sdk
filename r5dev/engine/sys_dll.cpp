@@ -126,12 +126,6 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 	g_pEngineTraceClient = g_pFactory->GetFactoryPtr(INTERFACEVERSION_ENGINETRACE_CLIENT, false).RCast<CEngineTraceClient*>();
 
 	g_pImGuiConfig->Load(); // Load ImGui configs.
-	for (auto& map : g_pCVar->DumpToMap())
-	{
-		g_pConsole->m_vsvCommandBases.push_back(
-			CSuggest(map.first, map.second->GetFlags()));
-	}
-
 	DirectX_Init();
 
 #endif // !DEDICATED

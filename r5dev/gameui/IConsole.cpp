@@ -587,27 +587,30 @@ void CConsole::FindFromPartial(void)
     ClearAutoComplete();
     m_bCanAutoComplete = false;
 
-    for (const CSuggest& suggest : m_vsvCommandBases)
+    ICvar::Iterator iter(g_pCVar);
+    for (iter.SetFirst(); iter.IsValid(); iter.Next())
     {
         if (m_vSuggest.size() >= size_t(con_suggestion_limit->GetInt()))
         {
-            return;
+            break;
         }
-        if (!HasPartial(suggest.m_svName, m_szInputBuf))
+
+        const ConCommandBase* pCommandBase = iter.Get();
+        if (pCommandBase->IsFlagSet(FCVAR_HIDDEN))
+        {
+            continue;
+        }
+
+        const char* pCommandName = pCommandBase->GetName();
+        if (!V_stristr(pCommandName, m_szInputBuf))
         {
             continue;
         }
 
         if (std::find(m_vSuggest.begin(), m_vSuggest.end(),
-            suggest.m_svName) == m_vSuggest.end())
+            pCommandName) == m_vSuggest.end())
         {
-            string svValue; int nFlags = FCVAR_NONE;
-            const ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(suggest.m_svName.c_str());
-
-            if (!pCommandBase || pCommandBase->IsFlagSet(FCVAR_HIDDEN))
-            {
-                continue;
-            }
+            string svValue;
 
             if (!pCommandBase->IsCommand())
             {
@@ -636,18 +639,7 @@ void CConsole::FindFromPartial(void)
                     }
                 }
             }
-            if (con_suggestion_showflags->GetBool())
-            {
-                if (con_suggestion_flags_realtime->GetBool())
-                {
-                    nFlags = pCommandBase->GetFlags();
-                }
-                else // Display compile-time flags instead.
-                {
-                    nFlags = suggest.m_nFlags;
-                }
-            }
-            m_vSuggest.push_back(CSuggest(suggest.m_svName + svValue, nFlags));
+            m_vSuggest.push_back(CSuggest(pCommandName + svValue, pCommandBase->GetFlags()));
         }
         else { break; }
     }

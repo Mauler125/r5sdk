@@ -1061,28 +1061,6 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial,
 	return values;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: returns all ConVars
-//-----------------------------------------------------------------------------
-unordered_map<string, ConCommandBase*> CCvar::DumpToMap(void)
-{
-	stringstream ss;
-	CCVarIteratorInternal* itint = FactoryInternalIterator(); // Allocate new InternalIterator.
-
-	unordered_map<string, ConCommandBase*> allConVars;
-
-	for (itint->SetFirst(); itint->IsValid(); itint->Next()) // Loop through all instances.
-	{
-		ConCommandBase* pCommand = itint->Get();
-		const char* pszCommandName = pCommand->m_pszName;
-		allConVars[pszCommandName] = pCommand;
-	}
-
-	delete itint;
-
-	return allConVars;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 CCvar* g_pCVar = nullptr;
 

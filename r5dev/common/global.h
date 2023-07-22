@@ -192,7 +192,6 @@ extern ConVar* con_max_history;
 extern ConVar* con_suggestion_limit;
 extern ConVar* con_suggestion_showhelptext;
 extern ConVar* con_suggestion_showflags;
-extern ConVar* con_suggestion_flags_realtime;
 
 extern ConVar* origin_disconnectWhenOffline;
 #endif // !DEDICATED
