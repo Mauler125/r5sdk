@@ -402,7 +402,7 @@ void CConsole::SuggestPanel(void)
 
         ImGui::PushID(static_cast<int>(i));
 
-        if (con_suggestion_showflags->GetBool())
+        if (con_suggest_showflags->GetBool())
         {
             // Show the flag texture before the cvar name.
             const int mainTexIdx = GetFlagTextureIndex(suggest.m_nFlags);
@@ -590,7 +590,7 @@ void CConsole::FindFromPartial(void)
     ICvar::Iterator iter(g_pCVar);
     for (iter.SetFirst(); iter.IsValid(); iter.Next())
     {
-        if (m_vSuggest.size() >= size_t(con_suggestion_limit->GetInt()))
+        if (m_vSuggest.size() >= size_t(con_suggest_limit->GetInt()))
         {
             break;
         }
@@ -620,7 +620,7 @@ void CConsole::FindFromPartial(void)
                 svValue.append(pConVar->GetString());
                 svValue.append("]");
             }
-            if (con_suggestion_showhelptext->GetBool())
+            if (con_suggest_showhelptext->GetBool())
             {
                 if (pCommandBase->GetHelpText())
                 {

@@ -199,9 +199,9 @@ ConVar* con_notify_error_clr               = nullptr;
 
 ConVar* con_max_lines                      = nullptr;
 ConVar* con_max_history                    = nullptr;
-ConVar* con_suggestion_limit               = nullptr;
-ConVar* con_suggestion_showhelptext        = nullptr;
-ConVar* con_suggestion_showflags           = nullptr;
+ConVar* con_suggest_limit               = nullptr;
+ConVar* con_suggest_showhelptext        = nullptr;
+ConVar* con_suggest_showflags           = nullptr;
 
 ConVar* origin_disconnectWhenOffline       = nullptr;
 
@@ -388,15 +388,15 @@ void ConVar_StaticInit(void)
 	con_notify_warning_clr = ConVar::StaticCreate("con_notify_warning_clr", "180 180 20 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_error_clr   = ConVar::StaticCreate("con_notify_error_clr"  , "225 20 20 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	con_max_lines                 = ConVar::StaticCreate("con_max_lines"                , "1024", FCVAR_DEVELOPMENTONLY, "Maximum number of lines in the console before cleanup starts.", true, 1.f, false, 0.f, nullptr, nullptr);
-	con_max_history               = ConVar::StaticCreate("con_max_history"              , "512" , FCVAR_DEVELOPMENTONLY, "Maximum number of command submission items before history cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_limit          = ConVar::StaticCreate("con_suggestion_limit"         , "128" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", true, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_showhelptext   = ConVar::StaticCreate("con_suggestion_showhelptext"  , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_showflags      = ConVar::StaticCreate("con_suggestion_showflags"     , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_max_lines            = ConVar::StaticCreate("con_max_lines"             , "1024", FCVAR_DEVELOPMENTONLY, "Maximum number of lines in the console before cleanup starts.", true, 1.f, false, 0.f, nullptr, nullptr);
+	con_max_history          = ConVar::StaticCreate("con_max_history"           , "512" , FCVAR_DEVELOPMENTONLY, "Maximum number of command submission items before history cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggest_limit        = ConVar::StaticCreate("con_suggest_limit"         , "128" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", true, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggest_showhelptext = ConVar::StaticCreate("con_suggest_showhelptext"  , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggest_showflags    = ConVar::StaticCreate("con_suggest_showflags"     , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	serverbrowser_hideEmptyServers = ConVar::StaticCreate("serverbrowser_hideEmptyServers", "0", FCVAR_RELEASE, "Hide empty servers in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
-	serverbrowser_mapFilter        = ConVar::StaticCreate("serverbrowser_mapFilter", "0", FCVAR_RELEASE, "Filter servers by map in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
-	serverbrowser_gamemodeFilter   = ConVar::StaticCreate("serverbrowser_gamemodeFilter", "0", FCVAR_RELEASE, "Filter servers by gamemode in the server browser", false, 0.f, false, 0.f, nullptr, nullptr);
+	serverbrowser_hideEmptyServers = ConVar::StaticCreate("serverbrowser_hideEmptyServers", "0", FCVAR_RELEASE, "Hide empty servers in the server browser.", false, 0.f, false, 0.f, nullptr, nullptr);
+	serverbrowser_mapFilter        = ConVar::StaticCreate("serverbrowser_mapFilter", "0", FCVAR_RELEASE, "Filter servers by map in the server browser.", false, 0.f, false, 0.f, nullptr, nullptr);
+	serverbrowser_gamemodeFilter   = ConVar::StaticCreate("serverbrowser_gamemodeFilter", "0", FCVAR_RELEASE, "Filter servers by gamemode in the server browser.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 #endif // !DEDICATED
 	// Taken from S15:

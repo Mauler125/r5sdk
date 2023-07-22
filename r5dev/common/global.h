@@ -189,9 +189,9 @@ extern ConVar* con_notify_error_clr;
 
 extern ConVar* con_max_lines;
 extern ConVar* con_max_history;
-extern ConVar* con_suggestion_limit;
-extern ConVar* con_suggestion_showhelptext;
-extern ConVar* con_suggestion_showflags;
+extern ConVar* con_suggest_limit;
+extern ConVar* con_suggest_showhelptext;
+extern ConVar* con_suggest_showflags;
 
 extern ConVar* origin_disconnectWhenOffline;
 #endif // !DEDICATED
