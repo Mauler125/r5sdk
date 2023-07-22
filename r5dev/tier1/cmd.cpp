@@ -114,7 +114,7 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 	size_t nLen = Q_strlen(pCommand);
 	if (nLen >= COMMAND_MAX_LENGTH - 1)
 	{
-		Warning(eDLL_T::ENGINE, "%s: Encountered command which overflows the tokenizer buffer... Skipping!\n", __FUNCTION__);
+		Warning(eDLL_T::COMMON, "%s: Encountered command which overflows the tokenizer buffer... Skipping!\n", __FUNCTION__);
 		return false;
 	}
 
@@ -170,7 +170,7 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 
 		if (m_nArgc >= COMMAND_MAX_ARGC)
 		{
-			Warning(eDLL_T::ENGINE, "%s: Encountered command which overflows the argument buffer.. Clamped!\n", __FUNCTION__);
+			Warning(eDLL_T::COMMON, "%s: Encountered command which overflows the argument buffer.. Clamped!\n", __FUNCTION__);
 		}
 
 		nArgvBufferSize += nSize + 1;

@@ -20,7 +20,7 @@ CURL* CURLInitRequest(const char* remote, const char* request, string& outRespon
 {
     std::function<void(const char*)> fnError = [&](const char* errorMsg)
     {
-        Error(eDLL_T::ENGINE, NO_ERROR, "CURL: %s\n", errorMsg);
+        Error(eDLL_T::COMMON, NO_ERROR, "CURL: %s\n", errorMsg);
         curl_slist_free_all(slist);
     };
 
@@ -84,7 +84,7 @@ bool CURLHandleError(CURL* curl, const CURLcode res, string& outMessage, const b
     const char* curlError = curl_easy_strerror(res);
 
     if (logError)
-        Error(eDLL_T::ENGINE, NO_ERROR, "CURL: %s\n", curlError);
+        Error(eDLL_T::COMMON, NO_ERROR, "CURL: %s\n", curlError);
 
     outMessage = curlError;
     curl_easy_cleanup(curl);

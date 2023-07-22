@@ -123,7 +123,7 @@ int CUniformRandomStream::GenerateRandomNumber()
 	if (j >= NTAB || j < 0)
 	{
 		//DebuggerBreakIfDebugging();
-		//Warning("CUniformRandomStream had an array overrun: tried to write to element %d of 0..31. Contact Tom or Elan.\n", j);
+		//Warning(eDLL_T::COMMON, "CUniformRandomStream had an array overrun: tried to write to element %d of 0..31. Contact Tom or Elan.\n", j);
 		j = (j % NTAB) & 0x7fffffff;
 	}
 

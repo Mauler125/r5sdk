@@ -368,7 +368,7 @@ void CBrowser::BrowserPanel(void)
 void CBrowser::RefreshServerList(void)
 {
     DevMsg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname->GetString());
-    
+
     std::string svServerListMessage;
     g_pServerListManager->RefreshServerList(svServerListMessage);
 

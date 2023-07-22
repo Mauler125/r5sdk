@@ -163,8 +163,8 @@ void CModAppSystemGroup::InitPluginSystem(CModAppSystemGroup* pModAppSystemGroup
 int HSys_Error_Internal(char* fmt, va_list args)
 {
 	char buffer[2048];
-	Error(eDLL_T::COMMON, NO_ERROR, "_______________________________________________________________\n");
-	Error(eDLL_T::COMMON, NO_ERROR, "] ENGINE ERROR ################################################\n");
+	Error(eDLL_T::ENGINE, NO_ERROR, "_______________________________________________________________\n");
+	Error(eDLL_T::ENGINE, NO_ERROR, "] ENGINE ERROR ################################################\n");
 
 	int nLen = vsprintf(buffer, fmt, args);
 	bool shouldNewline = true;
@@ -172,7 +172,7 @@ int HSys_Error_Internal(char* fmt, va_list args)
 	if (nLen > 0)
 		shouldNewline = buffer[nLen - 1] != '\n';
 
-	Error(eDLL_T::COMMON, NO_ERROR, shouldNewline ? "%s\n" : "%s", buffer);
+	Error(eDLL_T::ENGINE, NO_ERROR, shouldNewline ? "%s\n" : "%s", buffer);
 
 	///////////////////////////////////////////////////////////////////////////
 	return Sys_Error_Internal(fmt, args);

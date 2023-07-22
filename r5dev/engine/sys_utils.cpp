@@ -72,7 +72,7 @@ void _Warning(int level, char* fmt, ...)
 
 	if (level < 5)
 	{
-		Warning(eDLL_T::COMMON, shouldNewline ? "Warning(%d):%s\n" : "Warning(%d):%s", level, buf);
+		Warning(eDLL_T::ENGINE, shouldNewline ? "Warning(%d):%s\n" : "Warning(%d):%s", level, buf);
 	}
 
 	v_Warning(level, "%s", buf);

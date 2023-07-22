@@ -362,7 +362,7 @@ void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=
 {
 	if (!callback)
 	{
-		Warning(eDLL_T::ENGINE, "%s: Called with NULL callback; ignoring!!!\n",
+		Warning(eDLL_T::COMMON, "%s: Called with NULL callback; ignoring!!!\n",
 			__FUNCTION__);
 		return;
 	}
@@ -371,7 +371,7 @@ void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=
 		!= m_pParent->m_fnChangeCallbacks.InvalidIndex())
 	{
 		// Same ptr added twice, sigh...
-		Warning(eDLL_T::ENGINE, "%s: Ignoring duplicate change callback!!!\n",
+		Warning(eDLL_T::COMMON, "%s: Ignoring duplicate change callback!!!\n",
 			__FUNCTION__);
 		return;
 	}
@@ -483,7 +483,7 @@ bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszCo
 			int find = g_ConVarFlags.m_StringToFlags.FindElement(sFlag.Get(), -1);
 			if (find == -1)
 			{
-				Warning(eDLL_T::ENGINE,
+				Warning(eDLL_T::COMMON,
 					"%s: Attempted to parse invalid flag '%s' for convar '%s'\n",
 					__FUNCTION__, sFlag.Get(), pszConVarName);
 
@@ -594,11 +594,11 @@ void ConVar_PrintDescription(ConCommandBase* pVar)
 	pStr = pVar->GetHelpText();
 	if (pStr && *pStr)
 	{
-		DevMsg(eDLL_T::ENGINE, "%-80s - %.80s\n", outstr, pStr);
+		DevMsg(eDLL_T::COMMON, "%-80s - %.80s\n", outstr, pStr);
 	}
 	else
 	{
-		DevMsg(eDLL_T::ENGINE, "%-80s\n", outstr);
+		DevMsg(eDLL_T::COMMON, "%-80s\n", outstr);
 	}
 }
 
@@ -671,7 +671,7 @@ static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 	}
 
 	// Print to console
-	DevMsg(eDLL_T::ENGINE, "%-40s : %-8s : %-16s : %s\n", var->GetName(),
+	DevMsg(eDLL_T::COMMON, "%-40s : %-8s : %-16s : %s\n", var->GetName(),
 		valstr, flagstr, StripTabsAndReturns(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
 	if (logging)
 	{
@@ -689,7 +689,7 @@ static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 {
 	// Print to console
 	char tempbuff[512] = { 0 };
-	DevMsg(eDLL_T::ENGINE, "%-40s : %-8s : %-16s : %s\n", cmd->GetName(),
+	DevMsg(eDLL_T::COMMON, "%-40s : %-8s : %-16s : %s\n", cmd->GetName(),
 		"cmd", "", StripTabsAndReturns(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
 
 	if (logging)
@@ -808,7 +808,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	// Print usage?
 	if (iArgs == 2 && !Q_strcasecmp(args[1], "?"))
 	{
-		DevMsg(eDLL_T::ENGINE, "convar_list:  [ log logfile ] [ partial ]\n");
+		DevMsg(eDLL_T::COMMON, "convar_list:  [ log logfile ] [ partial ]\n");
 		return;
 	}
 
@@ -823,7 +823,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 		}
 		else
 		{
-			DevMsg(eDLL_T::ENGINE, "Couldn't open '%s' for writing!\n", fn);
+			DevMsg(eDLL_T::COMMON, "Couldn't open '%s' for writing!\n", fn);
 			return;
 		}
 
@@ -840,7 +840,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	}
 
 	// Banner
-	DevMsg(eDLL_T::ENGINE, "convar list\n--------------\n");
+	DevMsg(eDLL_T::COMMON, "convar list\n--------------\n");
 
 	CUtlRBTree< ConCommandBase* > sorted(0, 0, ConCommandBaseLessFunc);
 	CCvar::CCVarIteratorInternal* itint = g_pCVar->FactoryInternalIterator();
@@ -897,12 +897,12 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	// Show total and syntax help...
 	if (partial && partial[0])
 	{
-		DevMsg(eDLL_T::ENGINE, "--------------\n%3i convars/concommands for [%s]\n",
+		DevMsg(eDLL_T::COMMON, "--------------\n%3i convars/concommands for [%s]\n",
 			sorted.Count(), partial);
 	}
 	else
 	{
-		DevMsg(eDLL_T::ENGINE, "--------------\n%3i total convars/concommands\n",
+		DevMsg(eDLL_T::COMMON, "--------------\n%3i total convars/concommands\n",
 			sorted.Count());
 	}
 
@@ -922,7 +922,7 @@ void CCvarUtilities::CvarHelp(const CCommand& args)
 
 	if (args.ArgC() != 2)
 	{
-		DevMsg(eDLL_T::ENGINE, "Usage:  help <cvarname>\n");
+		DevMsg(eDLL_T::COMMON, "Usage:  help <cvarname>\n");
 		return;
 	}
 
@@ -933,7 +933,7 @@ void CCvarUtilities::CvarHelp(const CCommand& args)
 	var = g_pCVar->FindCommandBase(search);
 	if (!var)
 	{
-		DevMsg(eDLL_T::ENGINE, "help:  no cvar or command named %s\n", search);
+		DevMsg(eDLL_T::COMMON, "help:  no cvar or command named %s\n", search);
 		return;
 	}
 
@@ -970,7 +970,7 @@ void CCvarUtilities::CvarDifferences(const CCommand& args)
 	}
 
 	delete itint;
-	DevMsg(eDLL_T::ENGINE, "--------------\n%3i changed convars\n", i);
+	DevMsg(eDLL_T::COMMON, "--------------\n%3i changed convars\n", i);
 }
 
 //-----------------------------------------------------------------------------
@@ -980,12 +980,12 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
-		DevMsg(eDLL_T::ENGINE, "Usage:  convar_findByFlags <string>\n");
-		DevMsg(eDLL_T::ENGINE, "Available flags to search for: \n");
+		DevMsg(eDLL_T::COMMON, "Usage:  convar_findByFlags <string>\n");
+		DevMsg(eDLL_T::COMMON, "Available flags to search for: \n");
 
 		for (int i = 0; i < ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc); i++)
 		{
-			DevMsg(eDLL_T::ENGINE, "   - %s\n", g_ConVarFlags.m_FlagsToDesc[i].desc);
+			DevMsg(eDLL_T::COMMON, "   - %s\n", g_ConVarFlags.m_FlagsToDesc[i].desc);
 		}
 		return;
 	}
@@ -1250,7 +1250,7 @@ CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const ConCommandBase
 // Dump a report to MSG
 void CConCommandHash::Report(void)
 {
-	DevMsg(eDLL_T::ENGINE, "Console command hash bucket load:\n");
+	DevMsg(eDLL_T::COMMON, "Console command hash bucket load:\n");
 	int total = 0;
 	for (int iBucket = 0; iBucket < kNUM_BUCKETS; ++iBucket)
 	{
@@ -1262,11 +1262,11 @@ void CConCommandHash::Report(void)
 			iElement = m_aDataPool.Next(iElement);
 		}
 
-		DevMsg(eDLL_T::ENGINE, "%d: %d\n", iBucket, count);
+		DevMsg(eDLL_T::COMMON, "%d: %d\n", iBucket, count);
 		total += count;
 	}
 
-	DevMsg(eDLL_T::ENGINE, "\tAverage: %.1f\n", total / ((float)(kNUM_BUCKETS)));
+	DevMsg(eDLL_T::COMMON, "\tAverage: %.1f\n", total / ((float)(kNUM_BUCKETS)));
 }
 //#endif
 

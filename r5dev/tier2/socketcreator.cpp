@@ -50,7 +50,7 @@ void CSocketCreator::ProcessAccept(void)
 	{
 		if (!IsSocketBlocking())
 		{
-			Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: %s\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+			Error(eDLL_T::COMMON, NO_ERROR, "%s - Error: %s\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 		}
 		return;
 	}
@@ -92,7 +92,7 @@ bool CSocketCreator::CreateListenSocket(const netadr_t& netAdr, bool bDualStack)
 		int results = ::bind(m_hListenSocket, reinterpret_cast<sockaddr*>(&sadr), sizeof(sockaddr_in6));
 		if (results == SOCKET_ERROR)
 		{
-			Warning(eDLL_T::ENGINE, "Socket bind failed (%s)\n", NET_ErrorString(WSAGetLastError()));
+			Warning(eDLL_T::COMMON, "Socket bind failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 			CloseListenSocket();
 
 			return false;
@@ -101,7 +101,7 @@ bool CSocketCreator::CreateListenSocket(const netadr_t& netAdr, bool bDualStack)
 		results = ::listen(m_hListenSocket, SOCKET_TCP_MAX_ACCEPTS);
 		if (results == SOCKET_ERROR)
 		{
-			Warning(eDLL_T::ENGINE, "Socket listen failed (%s)\n", NET_ErrorString(WSAGetLastError()));
+			Warning(eDLL_T::COMMON, "Socket listen failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 			CloseListenSocket();
 
 			return false;
@@ -138,7 +138,7 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 	SocketHandle_t hSocket = SocketHandle_t(::socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP));
 	if (hSocket == SOCKET_ERROR)
 	{
-		Warning(eDLL_T::ENGINE, "Unable to create socket (%s)\n", NET_ErrorString(WSAGetLastError()));
+		Warning(eDLL_T::COMMON, "Unable to create socket (%s)\n", NET_ErrorString(WSAGetLastError()));
 		return SOCKET_ERROR;
 	}
 
@@ -156,7 +156,7 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 	{
 		if (!IsSocketBlocking())
 		{
-			Warning(eDLL_T::ENGINE, "Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
+			Warning(eDLL_T::COMMON, "Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 
 			DisconnectSocket(hSocket);
 			return SOCKET_ERROR;
@@ -173,7 +173,7 @@ int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 
 		if (::select(hSocket + 1, NULL, &writefds, NULL, &tv) < 1) // block for at most 1 second.
 		{
-			Warning(eDLL_T::ENGINE, "Socket connection timed out\n");
+			Warning(eDLL_T::COMMON, "Socket connection timed out\n");
 			DisconnectSocket(hSocket); // took too long to connect to, give up.
 
 			return SOCKET_ERROR;
@@ -194,7 +194,7 @@ void CSocketCreator::DisconnectSocket(SocketHandle_t hSocket)
 	Assert(hSocket != SOCKET_ERROR);
 	if (::closesocket(hSocket) == SOCKET_ERROR)
 	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "Unable to close socket (%s)\n",
+		Error(eDLL_T::COMMON, NO_ERROR, "Unable to close socket (%s)\n",
 			NET_ErrorString(WSAGetLastError()));
 	}
 }
@@ -221,7 +221,7 @@ bool CSocketCreator::ConfigureSocket(SocketHandle_t hSocket, bool bDualStack /*=
 	int ret = ::setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&opt), sizeof(opt));
 	if (ret == SOCKET_ERROR)
 	{
-		Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "TCP_NODELAY", NET_ErrorString(WSAGetLastError()));
+		Warning(eDLL_T::COMMON, "Socket 'sockopt(%s)' failed (%s)\n", "TCP_NODELAY", NET_ErrorString(WSAGetLastError()));
 		return false;
 	}
 
@@ -230,7 +230,7 @@ bool CSocketCreator::ConfigureSocket(SocketHandle_t hSocket, bool bDualStack /*=
 	ret = ::setsockopt(hSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&opt), sizeof(opt));
 	if (ret == SOCKET_ERROR)
 	{
-		Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "SO_REUSEADDR", NET_ErrorString(WSAGetLastError()));
+		Warning(eDLL_T::COMMON, "Socket 'sockopt(%s)' failed (%s)\n", "SO_REUSEADDR", NET_ErrorString(WSAGetLastError()));
 		return false;
 	}
 
@@ -241,7 +241,7 @@ bool CSocketCreator::ConfigureSocket(SocketHandle_t hSocket, bool bDualStack /*=
 		ret = ::setsockopt(hSocket, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<char*>(&opt), sizeof(opt));
 		if (ret == SOCKET_ERROR)
 		{
-			Warning(eDLL_T::ENGINE, "Socket 'sockopt(%s)' failed (%s)\n", "IPV6_V6ONLY", NET_ErrorString(WSAGetLastError()));
+			Warning(eDLL_T::COMMON, "Socket 'sockopt(%s)' failed (%s)\n", "IPV6_V6ONLY", NET_ErrorString(WSAGetLastError()));
 			return false;
 		}
 	}
@@ -251,7 +251,7 @@ bool CSocketCreator::ConfigureSocket(SocketHandle_t hSocket, bool bDualStack /*=
 	ret = ::ioctlsocket(hSocket, FIONBIO, reinterpret_cast<u_long*>(&opt));
 	if (ret == SOCKET_ERROR)
 	{
-		Warning(eDLL_T::ENGINE, "Socket 'ioctl(%s)' failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
+		Warning(eDLL_T::COMMON, "Socket 'ioctl(%s)' failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
 		return false;
 	}
 
