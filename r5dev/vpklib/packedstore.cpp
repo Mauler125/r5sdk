@@ -548,7 +548,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		FileSystem()->Close(hAsset);
 	}
 
-	DevMsg(eDLL_T::FS, "*** Build block totaling '%u' bytes with '%llu' shared bytes among '%llu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
+	DevMsg(eDLL_T::FS, "*** Build block totaling '%lu' bytes with '%llu' shared bytes among '%llu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
 	FileSystem()->Close(hPackFile);
 
 	m_ChunkHashMap.clear();
