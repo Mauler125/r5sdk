@@ -1,7 +1,15 @@
 #ifndef CMD_H
 #define CMD_H
 
-ECommandTarget_t Cbuf_GetCurrentPlayer(void);
+//-----------------------------------------------------------------------------
+// Purpose: Returns current player calling this function
+// Output : ECommandTarget_t - 
+//-----------------------------------------------------------------------------
+FORCEINLINE ECommandTarget_t Cbuf_GetCurrentPlayer(void)
+{
+	// Always returns 'CBUF_FIRST_PLAYER' in Respawn's code.
+	return ECommandTarget_t::CBUF_FIRST_PLAYER;
+}
 
 /* ==== COMMAND_BUFFER ================================================================================================================================================== */
 inline CMemory p_Cbuf_AddText;

@@ -4,16 +4,6 @@
 #include "engine/cmd.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: Returns current player calling this function
-// Output : ECommandTarget_t - 
-//-----------------------------------------------------------------------------
-ECommandTarget_t Cbuf_GetCurrentPlayer(void)
-{
-	// Always returns 'CBUF_FIRST_PLAYER' in Respawn's code.
-	return ECommandTarget_t::CBUF_FIRST_PLAYER;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Sends the entire command line over to the server
 // Input  : *args - 
 // Output : true on success, false otherwise
