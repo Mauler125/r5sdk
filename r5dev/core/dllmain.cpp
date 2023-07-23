@@ -79,6 +79,15 @@ void SDK_Init()
 {
     Tier0_Init();
 
+    // Allow skipping this check, as the popcnt instruction can be emulated.
+    // this allows CPU's like the 'Intel Pentium E5400' to run the dedicated
+    // server still.
+    if (!CommandLine()->CheckParm("-nocputest"))
+    {
+        // Check CPU as early as possible; error out if CPU isn't supported.
+        CheckCPU();
+    }
+
     if (!CommandLine()->CheckParm("-launcher"))
     {
         CommandLine()->AppendParametersFromFile(SDK_DEFAULT_CFG);
@@ -147,7 +156,6 @@ void SDK_Shutdown()
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
-    CheckCPU(); // Check CPU as early as possible; error out if CPU isn't supported.
     MathLib_Init(); // Initialize Mathlib.
 
     NOTE_UNUSED(lpReserved);

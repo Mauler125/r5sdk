@@ -12,6 +12,19 @@
 #include "launcher/launcher.h"
 #include <eiface.h>
 
+static void CheckCPU()
+{
+	// Allow skipping this check, as the popcnt instruction can be emulated.
+	// this allows CPU's like the 'Intel Pentium E5400' to run the dedicated
+	// server still.
+	if (!CommandLine()->CheckParm("-nocputest"))
+	{
+		// Run the game's implementation of CheckCPU
+		// for SSE 3, SSSE 3 and POPCNT.
+		v_CheckCPU();
+	}
+}
+
 int LauncherMain(HINSTANCE hInstance)
 {
 	// Flush buffers every 5 seconds for every logger.
@@ -81,6 +94,8 @@ LONG WINAPI TopLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers)
 
 void VLauncher::Attach(void) const
 {
+	DetourAttach((LPVOID*)&v_CheckCPU, &CheckCPU);
+
 	DetourAttach((LPVOID*)&v_LauncherMain, &LauncherMain);
 	DetourAttach((LPVOID*)&v_TopLevelExceptionFilter, &TopLevelExceptionFilter);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
@@ -89,6 +104,8 @@ void VLauncher::Attach(void) const
 }
 void VLauncher::Detach(void) const
 {
+	DetourDetach((LPVOID*)&v_CheckCPU, &CheckCPU);
+
 	DetourDetach((LPVOID*)&v_LauncherMain, &LauncherMain);
 	DetourDetach((LPVOID*)&v_TopLevelExceptionFilter, &TopLevelExceptionFilter);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)

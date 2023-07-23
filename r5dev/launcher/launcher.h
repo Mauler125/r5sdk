@@ -1,6 +1,9 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
+inline CMemory p_CheckCPU;
+inline void(*v_CheckCPU)(void);
+
 inline CMemory p_LauncherMain;
 inline int(*v_LauncherMain)(HINSTANCE hInstance);
 
@@ -19,6 +22,7 @@ class VLauncher : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("CheckCPU", p_CheckCPU.GetPtr());
 		LogFunAdr("LauncherMain", p_LauncherMain.GetPtr());
 		LogFunAdr("TopLevelExceptionFilter", p_TopLevelExceptionFilter.GetPtr());
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
@@ -27,6 +31,9 @@ class VLauncher : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
+		p_CheckCPU = g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 33 C9");
+		v_CheckCPU = p_CheckCPU.RCast<void(*)(void)>();
+
 		p_LauncherMain = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B C8 E8 ?? ?? ?? ?? CC").FollowNearCallSelf();
 		v_LauncherMain = p_LauncherMain.RCast<int(*)(HINSTANCE)>();
 
