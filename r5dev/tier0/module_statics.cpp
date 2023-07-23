@@ -120,7 +120,7 @@ CMemory CModule::GetExportedSymbol(QWORD pModuleBase, const char* szSymbolName)
 	if (!pAddressOfOrdinals)
 		return nullptr;
 
-	for (DWORD i = 0; i < pImageExportDirectory->NumberOfFunctions; i++)
+	for (DWORD i = 0; i < pImageExportDirectory->NumberOfNames; i++)
 	{
 		// Get virtual relative Address of the function name,
 		// then add module base Address to get the actual location.
