@@ -76,7 +76,7 @@ struct ScriptFunctionBinding_t
 
 	SQInteger m_nDevLevel; // TODO: confirm, this is a guess.
 	const SQChar* m_pszCodeHook;
-	short unk38; // 4th (new) parameter to 'sq_setparamscheck', see [r5apex_ds+10584F2]
+	int unk38; // 4th (new) parameter to 'sq_setparamscheck', see [r5apex_ds+10584F2]
 
 	ScriptDataType_t m_ReturnType;
 	CUtlVector<ScriptDataType_t> m_Parameters;
