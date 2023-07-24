@@ -72,11 +72,11 @@ struct ScriptFunctionBinding_t
 {
 	ScriptFuncDescriptor_t m_Descriptor;
 	bool m_bCheckParams;
-	bool unk29; // Last (new) parameter to 'sq_setparamscheck'
+	bool unk29; // 5th (new) parameter to 'sq_setparamscheck', see [r5apex_ds+10584F2]
 
 	SQInteger m_nDevLevel; // TODO: confirm, this is a guess.
 	const SQChar* m_pszCodeHook;
-	short unk38; // Second last (new) parameter to 'sq_setparamscheck'
+	short unk38; // 4th (new) parameter to 'sq_setparamscheck', see [r5apex_ds+10584F2]
 
 	ScriptDataType_t m_ReturnType;
 	CUtlVector<ScriptDataType_t> m_Parameters;
