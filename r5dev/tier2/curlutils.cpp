@@ -42,7 +42,7 @@ CURL* CURLInitRequest(const char* remote, const char* request, string& outRespon
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeOut);
     curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
 
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CURLWriteStringCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &outResponse);
 
     curl_easy_setopt(curl, CURLOPT_VERBOSE, debug);
