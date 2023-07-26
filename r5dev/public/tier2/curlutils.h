@@ -1,6 +1,12 @@
 #ifndef TIER2_CURLUTILS_H
 #define TIER2_CURLUTILS_H
 
+struct CURLProgress
+{
+	CURL* priv;
+	size_t size;
+};
+
 size_t CURLWriteStringCallback(char* contents, const size_t size, const size_t nmemb, void* userp);
 
 CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse, curl_slist*& slist,
