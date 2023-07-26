@@ -225,6 +225,10 @@ extern ConVar* net_datablock_networkLossForSlowSpeed;
 extern ConVar* pylon_matchmaking_hostname;
 extern ConVar* pylon_host_update_interval;
 extern ConVar* pylon_showdebuginfo;
+
+extern ConVar* ssl_verify_peer;
+extern ConVar* curl_timeout;
+extern ConVar* curl_debug;
 //-------------------------------------------------------------------------
 // RTECH API                                                              |
 extern ConVar* rtech_debug;

@@ -239,6 +239,10 @@ ConVar* net_datablock_networkLossForSlowSpeed = nullptr;
 ConVar* pylon_matchmaking_hostname         = nullptr;
 ConVar* pylon_host_update_interval         = nullptr;
 ConVar* pylon_showdebuginfo                = nullptr;
+
+ConVar* ssl_verify_peer                    = nullptr;
+ConVar* curl_timeout                       = nullptr;
+ConVar* curl_debug                         = nullptr;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
 ConVar* rtech_debug                        = nullptr;
