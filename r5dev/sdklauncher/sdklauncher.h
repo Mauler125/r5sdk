@@ -1,6 +1,8 @@
 #pragma once
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+#include "base_surface.h"
+
 class CLauncher
 {
 public:
@@ -30,12 +32,12 @@ public:
         m_pLogger->log(nLevel, svBuffer);
         m_pLogger->flush();
 
-        if (m_pSurface)
-        {
-            m_pSurface->m_LogList.push_back(LogList_t(nLevel, svBuffer));
-            m_pSurface->ConsoleListView()->SetVirtualListSize(static_cast<int32_t>(m_pSurface->m_LogList.size()));
-            m_pSurface->ConsoleListView()->Refresh();
-        }
+        //if (m_pSurface)
+        //{
+        //    m_pSurface->m_LogList.push_back(LogList_t(nLevel, svBuffer));
+        //    m_pSurface->ConsoleListView()->SetVirtualListSize(static_cast<int32_t>(m_pSurface->m_LogList.size()));
+        //    m_pSurface->ConsoleListView()->Refresh();
+        //}
     }
 
     void RunSurface();
@@ -49,10 +51,10 @@ public:
     void SetupLaunchContext(const char* szConfig, const char* szGameDll, const char* szCommandLine);
     bool LaunchProcess() const;
 
-    CSurface* GetMainSurface() const { return m_pSurface; }
+    CBaseSurface* GetMainSurface() const { return m_pSurface; }
 
 private:
-    CSurface* m_pSurface;
+    CBaseSurface* m_pSurface;
 	std::shared_ptr<spdlog::logger> m_pLogger;
 
     uint64_t m_ProcessorAffinity;

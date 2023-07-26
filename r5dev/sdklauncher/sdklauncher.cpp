@@ -4,7 +4,8 @@
 //
 //=============================================================================//
 #include "tier0/binstream.h"
-#include "basepanel.h"
+#include "base_surface.h"
+#include "advanced_surface.h"
 #include "sdklauncher.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,7 +16,7 @@ void CLauncher::RunSurface()
     Forms::Application::EnableVisualStyles();
     UIX::UIXTheme::InitializeRenderer(new Themes::KoreTheme());
 
-    m_pSurface = new CSurface();
+    m_pSurface = new CBaseSurface();
     Forms::Application::Run(g_pLauncher->m_pSurface);
     UIX::UIXTheme::ShutdownRenderer();
 }

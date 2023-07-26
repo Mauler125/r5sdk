@@ -12,13 +12,10 @@ struct LogList_t
 	string m_svText;
 };
 
-class CSurface : public Forms::Form
+class CAdvancedSurface : public Forms::Form
 {
 public:
-	CSurface();
-	virtual ~CSurface()
-	{
-	};
+	CAdvancedSurface();
 	UIX::UIXListView* ConsoleListView() const { return m_ConsoleListView; };
 	std::vector<LogList_t> m_LogList;
 
