@@ -6,17 +6,14 @@
 #include "tier1/cvar.h"
 #include "tier2/curlutils.h"
 
-ConVar* ssl_verify_peer = nullptr;
-ConVar* curl_timeout = nullptr;
-ConVar* curl_debug = nullptr;
-
 size_t CURLWriteStringCallback(char* contents, const size_t size, const size_t nmemb, void* userp)
 {
     reinterpret_cast<string*>(userp)->append(contents, size * nmemb);
     return size * nmemb;
 }
 
-CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse, curl_slist*& slist)
+CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse, curl_slist*& slist,
+    const int timeOut, const bool verifyPeer, const bool debug, const void* writeFunction)
 {
     std::function<void(const char*)> fnError = [&](const char* errorMsg)
     {
@@ -42,16 +39,16 @@ CURL* CURLInitRequest(const char* remote, const char* request, string& outRespon
     curl_easy_setopt(curl, CURLOPT_URL, remote);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request);
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, curl_timeout->GetInt());
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeOut);
     curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CURLWriteStringCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &outResponse);
 
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, curl_debug->GetBool());
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, debug);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
 
-    if (!ssl_verify_peer->GetBool())
+    if (!verifyPeer)
     {
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     }

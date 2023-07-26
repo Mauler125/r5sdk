@@ -362,7 +362,8 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
     CURLFormatUrl(finalUrl, hostName, endpoint);
 
     curl_slist* sList = nullptr;
-    CURL* curl = CURLInitRequest(finalUrl.c_str(), request, outResponse, sList);
+    CURL* curl = CURLInitRequest(finalUrl.c_str(), request, outResponse, sList,
+        curl_timeout->GetInt(), ssl_verify_peer->GetBool(), curl_debug->GetBool());
     if (!curl)
     {
         return false;
