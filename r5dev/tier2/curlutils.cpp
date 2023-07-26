@@ -40,6 +40,7 @@ CURL* CURLInitRequest(const char* remote, const char* request, string& outRespon
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request);
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeOut);
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "R5R HTTPS/1.0");
     curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
