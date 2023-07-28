@@ -46,6 +46,12 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "libcppkore"
     "libspdlog"
     "libcurl"
+
+    "liblzma"
+    "libzlib"
+    "libbzip2"
+    "libzip"
+
     "crypt32.lib"
     "ws2_32.lib"
     "wldap32.lib"
