@@ -410,6 +410,17 @@ void CreateDirectories(string svInput, string* pszOutput, bool bWindows)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For appending a slash at the end of the string if not already present.
+void AppendSlash(string& svInput, const char separator)
+{
+    char lchar = svInput[svInput.size() - 1];
+    if (lchar != '\\' && lchar != '/')
+    {
+        svInput.push_back(separator);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For converting file paths to windows file paths.
 string ConvertToWinPath(const string& svInput)
 {
