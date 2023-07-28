@@ -241,7 +241,7 @@ bool DownloadLatestGitHubReleaseManifest(const char* url, string& responseMessag
 	return !outManifest.empty();
 }
 
-void BeginInstall(CDownloadProgress* pProgress, const bool bPrerelease, const bool bOptionalAssets)
+void BeginInstall(CDownloadProgress* pProgress, const bool bPreRelease, const bool bOptionalAssets)
 {
 	string responseMesage;
 	nlohmann::json manifest;
@@ -251,7 +251,7 @@ void BeginInstall(CDownloadProgress* pProgress, const bool bPrerelease, const bo
 	blackList.insert("symbols.zip");
 
 	// Download core game files.
-	if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/SlaveBuild/N1094_CL456479/releases"), responseMesage, manifest, bPrerelease))
+	if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/SlaveBuild/N1094_CL456479/releases"), responseMesage, manifest, bPreRelease))
 	{
 		// TODO: Error dialog.
 		return;
@@ -262,7 +262,7 @@ void BeginInstall(CDownloadProgress* pProgress, const bool bPrerelease, const bo
 		return;
 
 	// Download SDK files.
-	if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/Mauler125/r5sdk/releases"), responseMesage, manifest, bPrerelease))
+	if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/Mauler125/r5sdk/releases"), responseMesage, manifest, bPreRelease))
 	{
 		// TODO: Error dialog.
 		return;
@@ -271,7 +271,6 @@ void BeginInstall(CDownloadProgress* pProgress, const bool bPrerelease, const bo
 
 	if (pProgress->IsCanceled())
 		return;
-
 
 	// Install process cannot be canceled.
 	pProgress->SetCanCancel(false);
