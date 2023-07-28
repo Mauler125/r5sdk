@@ -258,6 +258,9 @@ void BeginInstall(CDownloadProgress* pProgress, const bool bPrerelease, const bo
 	}
 	DownloadAssetList(pProgress, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR);
 
+	if (pProgress->IsCanceled())
+		return;
+
 	// Download SDK files.
 	if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/Mauler125/r5sdk/releases"), responseMesage, manifest, bPrerelease))
 	{
@@ -265,6 +268,9 @@ void BeginInstall(CDownloadProgress* pProgress, const bool bPrerelease, const bo
 		return;
 	}
 	DownloadAssetList(pProgress, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR);
+
+	if (pProgress->IsCanceled())
+		return;
 
 
 	// Install process cannot be canceled.
@@ -303,7 +309,7 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 
 	Threading::Thread([pProgress] {
 
-		BeginInstall(pProgress);
+		BeginInstall(pProgress, false, false);
 
 		}).Start();
 
