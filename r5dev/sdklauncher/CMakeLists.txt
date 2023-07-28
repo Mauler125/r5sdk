@@ -10,8 +10,6 @@ add_sources( SOURCE_GROUP "Core"
 )
 
 add_sources( SOURCE_GROUP "GUI"
-    "basepanel.cpp"
-    "basepanel.h"
     "advanced_surface.cpp"
     "advanced_surface.h"
     "base_surface.cpp"
