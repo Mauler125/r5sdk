@@ -33,6 +33,8 @@ string CreateTimedFileName();
 string CreateUUID();
 void CreateDirectories(string svInput, string* pszOutput = nullptr, bool bWindows = false);
 
+void AppendSlash(string& svInput, const char separator = '\\');
+
 string ConvertToWinPath(const string& svInput);
 string ConvertToUnixPath(const string& svInput);
 
