@@ -158,8 +158,8 @@ namespace Themes
 			Gdiplus::RectF FillBounds(0, 0, (Rect.Width - 1.f) * (Progress / 100.0f), Rect.Height - 1.f);
 			Drawing::FillRoundRectangle(EventArgs->Graphics.get(), &FillBrush, FillBounds, 2);
 		}
-		EventArgs->Graphics->SetSmoothingMode(SmMode);
 
+		EventArgs->Graphics->SetSmoothingMode(SmMode);
 		//EventArgs->Graphics->FillRectangle(&FillBrush, Gdiplus::RectF(2, 2, (Rect.Width - 4.f) * (Progress / 100.0f), Rect.Height - 4.f));
 	}
 

@@ -10,10 +10,14 @@ add_sources( SOURCE_GROUP "Core"
 )
 
 add_sources( SOURCE_GROUP "GUI"
+    "basepanel.cpp"
+    "basepanel.h"
     "advanced_surface.cpp"
     "advanced_surface.h"
     "base_surface.cpp"
     "base_surface.h"
+    "download_surface.cpp"
+    "download_surface.h"
 )
 
 add_sources( SOURCE_GROUP "Resource"
@@ -38,8 +42,14 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE
 )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"
+    "tier1"
+    "tier2"
     "libdetours"
     "libcppkore"
     "libspdlog"
+    "libcurl"
+    "crypt32.lib"
+    "ws2_32.lib"
+    "wldap32.lib"
     "Rpcrt4.lib"
 )

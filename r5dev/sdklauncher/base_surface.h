@@ -10,6 +10,8 @@ public:
 	};
 
 protected:
+	static void OnInstallClick(Forms::Control* Sender);
+
 	static void OnAdvancedClick(Forms::Control* Sender);
 
 
@@ -40,4 +42,8 @@ private:
 	UIX::UIXButton* m_DonateButton;
 	UIX::UIXButton* m_JoinButton;
 	UIX::UIXButton* m_AdvancedButton;
+
+	// When this is false, the installer will
+	// download the HD textures as well (STARPAK's).
+	bool m_bPartialInstall;
 };

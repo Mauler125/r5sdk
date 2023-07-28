@@ -352,6 +352,39 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
     return TRUE;
 }
 
+void LauncherLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
+    const char* pszLogger, const char* pszFormat, va_list args,
+    const UINT exitCode /*= NO_ERROR*/, const char* pszUptimeOverride /*= nullptr*/)
+{
+    const char* pszUpTime = pszUptimeOverride ? pszUptimeOverride : Plat_GetProcessUpTime();
+    string message(pszUpTime);
+
+    const char* pszContext = ""; //"GetContextNameByIndex(context, bUseColor);
+    message.append(pszContext);
+
+    NOTE_UNUSED(pszLogger);
+
+    //-------------------------------------------------------------------------
+    // Format actual input
+    //-------------------------------------------------------------------------
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+    const string formatted = FormatV(pszFormat, argsCopy);
+    va_end(argsCopy);
+
+    message.append(formatted);
+    printf("%s", message.c_str());
+
+    if (exitCode) // Terminate the process if an exit code was passed.
+    {
+        if (MessageBoxA(NULL, Format("%s- %s", pszUpTime, formatted.c_str()).c_str(),
+            "SDK Error", MB_ICONERROR | MB_OK))
+        {
+            TerminateProcess(GetCurrentProcess(), exitCode);
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // EntryPoint.
 ///////////////////////////////////////////////////////////////////////////////
@@ -363,7 +396,10 @@ int main(int argc, char* argv[]/*, char* envp[]*/)
 #ifdef NDEBUG
         FreeConsole();
 #endif // NDEBUG
+        curl_global_init(CURL_GLOBAL_ALL);
+        g_CoreMsgVCallback = LauncherLoggerSink;
         g_pLauncher->RunSurface();
+        curl_global_cleanup();
     }
     else
     {
@@ -373,6 +409,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/)
 
         return g_pLauncher->HandleInput();
     }
+
     return EXIT_SUCCESS;
 }
 
