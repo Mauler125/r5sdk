@@ -66,7 +66,7 @@ class sub_streambuf :
         ELEM_TYPE* base = _internalBuffer;
 
         _inputStream->seekg(_currentPosition, std::ios::beg);
-        _inputStream->read(_internalBuffer, std::min(static_cast<size_t>(INTERNAL_BUFFER_SIZE), static_cast<size_t>(_endPosition - _currentPosition)));
+        _inputStream->read(_internalBuffer, (std::min)(static_cast<size_t>(INTERNAL_BUFFER_SIZE), static_cast<size_t>(_endPosition - _currentPosition)));
         size_t n = static_cast<size_t>(_inputStream->gcount());
 
         _currentPosition += n;

@@ -13,7 +13,7 @@ struct compression_encoder_properties_interface
   template <typename T>
   inline T clamp(T minimum, T maximum, T value)
   {
-    return std::min(std::max(minimum, value), maximum);
+    return (std::min)((std::max)(minimum, value), maximum);
   }
 };
 
