@@ -7,8 +7,9 @@
 #include "advanced_surface.h"
 #include "download_surface.h"
 #include "tier1/xorstr.h"
-
+#include "tier1/utlmap.h"
 #include "tier2/curlutils.h"
+#include "zip/src/ZipFile.h"
 
 // Gigabytes.
 // TODO: obtain these from the repo...
@@ -16,26 +17,38 @@
 #define MIN_REQUIRED_DISK_SPACE_OPT 55 // Optional textures
 #define DEFAULT_DEPOT_DOWNLOAD_DIR "platform\\depot\\"
 
+// Files that need to be installed during launcher restart,
+// have to go here!!
+#define RESTART_DEPOT_DOWNLOAD_DIR DEFAULT_DEPOT_DOWNLOAD_DIR "temp\\"
+
+
+#define WINDOW_SIZE_X 400
+#define WINDOW_SIZE_Y 194
+
 CBaseSurface::CBaseSurface()
 {
-	const INT WindowX = 400;
-	const INT WindowY = 194;
-
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
 	this->SetAutoScaleMode(Forms::AutoScaleMode::Font);
 	this->SetText(XorStr("R5Reloaded"));
-	this->SetClientSize({ WindowX, WindowY });
+	this->SetClientSize({ WINDOW_SIZE_X, WINDOW_SIZE_Y });
 	this->SetFormBorderStyle(Forms::FormBorderStyle::FixedSingle);
 	this->SetStartPosition(Forms::FormStartPosition::CenterScreen);
 	this->SetMinimizeBox(true);
 	this->SetMaximizeBox(false);
 	this->SetBackColor(Drawing::Color(47, 54, 61));
 
+	this->m_BaseGroup = new UIX::UIXGroupBox();
+	this->m_ManageButton = new UIX::UIXButton();
+	this->m_RepairButton = new UIX::UIXButton();
+	this->m_DonateButton = new UIX::UIXButton();
+	this->m_JoinButton = new UIX::UIXButton();
+	this->m_AdvancedButton = new UIX::UIXButton();
+
 	const INT BASE_GROUP_OFFSET = 12;
 
 	this->m_BaseGroup = new UIX::UIXGroupBox();
-	this->m_BaseGroup->SetSize({ WindowX-(BASE_GROUP_OFFSET*2), WindowY-(BASE_GROUP_OFFSET*2) });
+	this->m_BaseGroup->SetSize({ WINDOW_SIZE_X - (BASE_GROUP_OFFSET * 2), WINDOW_SIZE_Y - (BASE_GROUP_OFFSET * 2) });
 	this->m_BaseGroup->SetLocation({ BASE_GROUP_OFFSET, BASE_GROUP_OFFSET });
 	this->m_BaseGroup->SetTabIndex(0);
 	this->m_BaseGroup->SetText("");
@@ -123,6 +136,14 @@ bool QueryServer(const char* url, string& outResponse, string& outMessage, CURLI
 	return true;
 }
 
+void CreateDownloadDirectories()
+{
+	// Make sure the download path exists.
+	CreateDirectories(DEFAULT_DEPOT_DOWNLOAD_DIR);
+	CreateDirectories(RESTART_DEPOT_DOWNLOAD_DIR);
+}
+
+
 int DownloadStatusCallback(CURLProgress* progessData, double dltotal, double dlnow, double ultotal, double ulnow)
 {
 	CDownloadProgress* pDownloadSurface = (CDownloadProgress*)progessData->cust;
@@ -142,8 +163,6 @@ int DownloadStatusCallback(CURLProgress* progessData, double dltotal, double dln
 void DownloadAsset(CDownloadProgress* pProgress, const char* url, const char* path,
 	const char* fileName, const size_t fileSize, const char* options)
 {
-	CreateDirectoryA(path, NULL);
-
 	CURLParams params;
 
 	params.writeFunction = CURLWriteFileCallback;
@@ -152,7 +171,7 @@ void DownloadAsset(CDownloadProgress* pProgress, const char* url, const char* pa
 	CURLDownloadFile(url, path, fileName, options, fileSize, pProgress, params);
 }
 
-void DownloadAssetList(CDownloadProgress* pProgress, nlohmann::json& assetList, std::set<string>& blackList, const char* pPath)
+void DownloadAssetList(CDownloadProgress* pProgress, CUtlVector<CUtlString>& fileList, nlohmann::json& assetList, std::set<string>& blackList, const char* pPath)
 {
 	int i = 1;
 	for (auto& asset : assetList)
@@ -179,9 +198,13 @@ void DownloadAssetList(CDownloadProgress* pProgress, nlohmann::json& assetList, 
 		const string downloadLink = asset["browser_download_url"];
 		const size_t fileSize = asset["size"];
 
-		pProgress->SetExportLabel(Format("File %s (%i of %i)", fileName.c_str(), i, assetList.size()).c_str());
+		pProgress->SetExportLabel(Format("%s (%i of %i)", fileName.c_str(), i, assetList.size()).c_str());
 		DownloadAsset(pProgress, downloadLink.c_str(), pPath, fileName.c_str(), fileSize, "wb+");
 
+		CUtlString filePath = pPath;
+		filePath.Append(fileName.c_str());
+
+		fileList.AddToTail(filePath);
 		i++;
 	}
 }
@@ -241,8 +264,74 @@ bool DownloadLatestGitHubReleaseManifest(const char* url, string& responseMessag
 	return !outManifest.empty();
 }
 
+bool ExtractZipFile(CDownloadProgress* pProgress, const char* pZipFile, const char* pDestPath)
+{
+	ZipArchive::Ptr archive = ZipFile::Open(pZipFile);
+	size_t entries = archive->GetEntriesCount();
+
+	CUtlMap<CUtlString, bool> fileList(UtlStringLessFunc);
+
+	for (size_t i = 0; i < entries; ++i)
+	{
+		auto entry = archive->GetEntry(int(i));
+
+		if (entry->IsDirectory())
+			continue;
+
+		string fullName = entry->GetFullName();
+
+		// TODO: ideally there will be a list in a json
+		// that the launcher downloads to determine what
+		// has to be installed during the restart.
+		bool installDuringRestart = false;
+		if (fullName.compare("launcher.exe") == NULL)
+		{
+			installDuringRestart = true;
+		}
+
+		fileList.Insert(fullName.c_str(), installDuringRestart);
+		printf("Added: %s\n", fullName.c_str());
+	}
+
+	printf("Num files: %d\n", fileList.Count());
+
+	FOR_EACH_MAP(fileList, i)
+	{
+		CUtlString& fileName = fileList.Key(i);
+		CUtlString absDirName = fileName.AbsPath();
+		CUtlString dirName = absDirName.DirName();
+
+		CreateDirectories(absDirName.Get());
+		pProgress->SetExportLabel(Format("%s (%i of %i)", fileName.Get(), i+1, fileList.Count()).c_str());
+
+		int percentage = (i * 100) / fileList.Count();
+		pProgress->UpdateProgress(percentage, false);
+
+		printf("Extracting: %s to %s\n", fileName.Get(), dirName.Get());
+
+		if (fileList[i])
+		{
+			printf("File %s has to be installed after a restart!\n", fileName.Get());
+
+			CUtlString tempDir = RESTART_DEPOT_DOWNLOAD_DIR;
+			tempDir.Append(fileName);
+
+			ZipFile::ExtractFile(pZipFile, fileName.Get(), tempDir.Get());
+		}
+		else
+		{
+			ZipFile::ExtractFile(pZipFile, fileName.Get(), fileName.Get());
+		}
+	}
+
+	return true;
+}
+
+
 void BeginInstall(CDownloadProgress* pProgress, const bool bPreRelease, const bool bOptionalAssets)
 {
+	CreateDownloadDirectories();
+
 	string responseMesage;
 	nlohmann::json manifest;
 
@@ -250,30 +339,105 @@ void BeginInstall(CDownloadProgress* pProgress, const bool bPreRelease, const bo
 	std::set<string> blackList;
 	blackList.insert("symbols.zip");
 
+	// All the downloaded files.
+	CUtlVector<CUtlString> fileList;
+
+	CUtlString test = DEFAULT_DEPOT_DOWNLOAD_DIR;
+	test.Append("depot.zip");
+
+	fileList.AddToTail(test);
+
 	// Download core game files.
-	if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/SlaveBuild/N1094_CL456479/releases"), responseMesage, manifest, bPreRelease))
-	{
-		// TODO: Error dialog.
-		return;
-	}
-	DownloadAssetList(pProgress, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR);
+	//if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/SlaveBuild/N1094_CL456479/releases"), responseMesage, manifest, bPreRelease))
+	//{
+	//	// TODO: Error dialog.
+	//	return;
+	//}
+	//DownloadAssetList(pProgress, fileList, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR);
 
-	if (pProgress->IsCanceled())
-		return;
+	//if (pProgress->IsCanceled())
+	//	return;
 
-	// Download SDK files.
-	if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/Mauler125/r5sdk/releases"), responseMesage, manifest, bPreRelease))
-	{
-		// TODO: Error dialog.
-		return;
-	}
-	DownloadAssetList(pProgress, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR);
+	//// Download SDK files.
+	//if (!DownloadLatestGitHubReleaseManifest(XorStr("https://api.github.com/repos/Mauler125/r5sdk/releases"), responseMesage, manifest, bPreRelease))
+	//{
+	//	// TODO: Error dialog.
+	//	return;
+	//}
+	//DownloadAssetList(pProgress, fileList, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR);
 
-	if (pProgress->IsCanceled())
-		return;
+	//if (pProgress->IsCanceled())
+	//	return;
 
 	// Install process cannot be canceled.
 	pProgress->SetCanCancel(false);
+
+	FOR_EACH_VEC(fileList, i)
+	{
+		pProgress->SetText(Format("Installing package %i of %i...", i+1, fileList.Count()).c_str());
+
+		CUtlString& fileName = fileList[i];
+		ExtractZipFile(pProgress, fileName.Get(), "");
+	}
+
+	pProgress->Close();
+}
+
+
+void RestartLauncher()
+{
+	char currentPath[MAX_PATH];
+	BOOL getResult = GetCurrentDirectoryA(sizeof(currentPath), currentPath);
+
+	if (!getResult)
+	{
+		// TODO: dialog box and instruct user to manually open the launcher again.
+		printf("%s: Failed to update SDK: error code = %08x\n", "GetCurrentDirectory", GetLastError());
+		ExitProcess(0xBADC0DE);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	STARTUPINFOA StartupInfo = { 0 };
+	PROCESS_INFORMATION ProcInfo = { 0 };
+
+	// Initialize startup info struct.
+	StartupInfo.cb = sizeof(STARTUPINFOA);
+
+	DWORD processId = GetProcessId(GetCurrentProcess());
+
+	char commandLine[MAX_PATH];
+	sprintf(commandLine, "%lu %s %s", processId, RESTART_DEPOT_DOWNLOAD_DIR, currentPath);
+
+	BOOL createResult = CreateProcessA(
+		"bin\\updater.exe",                            // lpApplicationName
+		commandLine,                                     // lpCommandLine
+		NULL,                                          // lpProcessAttributes
+		NULL,                                          // lpThreadAttributes
+		FALSE,                                         // bInheritHandles
+		CREATE_SUSPENDED,                              // dwCreationFlags
+		NULL,                                          // lpEnvironment
+		currentPath,                                   // lpCurrentDirectory
+		&StartupInfo,                                  // lpStartupInfo
+		&ProcInfo                                      // lpProcessInformation
+	);
+
+	if (!createResult)
+	{
+		// TODO: dialog box and instruct user to update again.
+		printf("%s: Failed to update SDK: error code = %08x\n", "CreateProcess", GetLastError());
+		ExitProcess(0xBADC0DE);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// Resume the process.
+	ResumeThread(ProcInfo.hThread);
+
+	///////////////////////////////////////////////////////////////////////////
+	// Close the process and thread handles.
+	CloseHandle(ProcInfo.hProcess);
+	CloseHandle(ProcInfo.hThread);
+
+	ExitProcess(EXIT_SUCCESS);
 }
 
 void CBaseSurface::OnInstallClick(Forms::Control* Sender)
@@ -313,6 +477,9 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 		}).Start();
 
 	pProgress->ShowDialog();
+
+	// Restart the launcher process from here through updater.exe!
+	RestartLauncher();
 }
 
 void CBaseSurface::OnAdvancedClick(Forms::Control* Sender)

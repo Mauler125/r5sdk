@@ -6,8 +6,7 @@ class CBaseSurface : public Forms::Form
 public:
 	CBaseSurface();
 	virtual ~CBaseSurface()
-	{
-	};
+	{};
 
 protected:
 	static void OnInstallClick(Forms::Control* Sender);
