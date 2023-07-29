@@ -57,3 +57,27 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "wldap32.lib"
     "Rpcrt4.lib"
 )
+
+add_module( "exe" "sdkupdater" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Core"
+    "sdkupdater.cpp"
+    "sdkupdater.h"
+)
+
+end_sources( "${BUILD_OUTPUT_DIR}/bin/" )
+
+set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME
+    "updater"
+)
+
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "tier0"
+    "tier1"
+    "crypt32.lib"
+    "ws2_32.lib"
+    "wldap32.lib"
+    "Rpcrt4.lib"
+)
