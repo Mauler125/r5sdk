@@ -54,6 +54,7 @@ void CDownloadProgress::InitializeComponent()
 	this->SetStartPosition(Forms::FormStartPosition::CenterParent);
 	this->SetMinimizeBox(false);
 	this->SetMaximizeBox(false);
+	this->SetControlBox(false);
 	this->SetShowInTaskbar(false);
 	this->SetBackColor(Drawing::Color(47, 54, 61));
 
