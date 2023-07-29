@@ -39,6 +39,7 @@
 #define V_strstr strstr
 #define V_strncpy strncpy
 #define V_strdup _strdup
+#define V_strcat strcat
 
 #define Q_vsnprintf V_vsnprintf
 #define Q_snprintf V_snprintf
@@ -55,6 +56,7 @@
 #define Q_strstr V_strstr
 #define Q_strncpy V_strncpy
 #define Q_strdup V_strdup
+#define Q_strcat V_strcat
 
 template <size_t maxLenInCharacters> int V_vsprintf_safe(OUT_Z_ARRAY char(&pDest)[maxLenInCharacters], PRINTF_FORMAT_STRING const char* pFormat, va_list params) { return V_vsnprintf(pDest, maxLenInCharacters, pFormat, params); }
 
