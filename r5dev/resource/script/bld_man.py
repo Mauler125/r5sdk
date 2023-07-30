@@ -1,5 +1,6 @@
 #------------------------------------------------------------------------------
 import os
+import sys
 import json
 import hashlib
 
@@ -38,14 +39,28 @@ def RecursiveComputeChecksum(directoryPath):
 #------------------------------------------------------------------------------
 # Save the checksums to a manifest file
 #------------------------------------------------------------------------------
-def CreateManifest(checksums, outManifestFile):
+def CreateManifest(version, checksums, outManifestFile):
+    manifest = {
+        "version": version,
+        "assets": checksums
+    }
     with open(outManifestFile, "w") as jsonFile:
-        json.dump(checksums, jsonFile, indent=4)
+        json.dump(manifest, jsonFile, indent=4)
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: bld_man.py <versionNum>")
+        sys.exit(1)
+
+    try:
+        version = int(sys.argv[1])
+    except ValueError:
+        print("Version must be an integer")
+        sys.exit(1)
+
     workingDirectory = os.getcwd()
-    outManifestFile = "manifest.json"
+    outManifestFile = "patch_manifest.json"
 
     checksums = RecursiveComputeChecksum(workingDirectory)
-    CreateManifest(checksums, outManifestFile)
+    CreateManifest(version, checksums, outManifestFile)
