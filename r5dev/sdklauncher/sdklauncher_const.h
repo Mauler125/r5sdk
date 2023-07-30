@@ -10,6 +10,19 @@
 #define DEFAULT_WINDOW_CLASS_NAME "Respawn001"
 #define LAUNCHER_SETTING_FILE "launcher.vdf"
 
+// Gigabytes.
+// TODO: obtain these from the repo...
+#define MIN_REQUIRED_DISK_SPACE 20
+#define MIN_REQUIRED_DISK_SPACE_OPT 55 // Optional textures
+
+#define QUERY_TIMEOUT 15
+#define BASE_PLATFORM_DIR "platform\\"
+#define DEFAULT_DEPOT_DOWNLOAD_DIR BASE_PLATFORM_DIR "depot\\"
+
+// Files that need to be installed during launcher restart,
+// have to go here!!
+#define RESTART_DEPOT_DOWNLOAD_DIR DEFAULT_DEPOT_DOWNLOAD_DIR "temp\\"
+
 //-----------------------------------------------------------------------------
 // Launch and inject specified dll based on launch mode
 //-----------------------------------------------------------------------------

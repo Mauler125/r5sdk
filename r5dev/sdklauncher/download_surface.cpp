@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "download_surface.h"
 
-CDownloadProgress::CDownloadProgress()
+CProgressPanel::CProgressPanel()
 	: Forms::Form(), m_bCanClose(false), m_bCanceled(false), m_bAutoClose(false)
 {
 	this->InitializeComponent();
 }
 
-void CDownloadProgress::UpdateProgress(uint32_t Progress, bool Finished)
+void CProgressPanel::UpdateProgress(uint32_t Progress, bool Finished)
 {
 	this->m_ProgressBar->SetValue(Progress);
 
@@ -23,27 +23,27 @@ void CDownloadProgress::UpdateProgress(uint32_t Progress, bool Finished)
 	}
 }
 
-bool CDownloadProgress::IsCanceled()
+bool CProgressPanel::IsCanceled()
 {
 	return this->m_bCanceled;
 }
 
-void CDownloadProgress::SetCanCancel(bool bEnable)
+void CProgressPanel::SetCanCancel(bool bEnable)
 {
 	m_CancelButton->SetEnabled(bEnable);
 }
 
-void CDownloadProgress::SetAutoClose(bool Value)
+void CProgressPanel::SetAutoClose(bool Value)
 {
 	this->m_bAutoClose = Value;
 }
 
-void CDownloadProgress::SetExportLabel(const char* pNewLabel)
+void CProgressPanel::SetExportLabel(const char* pNewLabel)
 {
 	m_DownloadLabel->SetText(pNewLabel);
 }
 
-void CDownloadProgress::InitializeComponent()
+void CProgressPanel::InitializeComponent()
 {
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
@@ -98,17 +98,17 @@ void CDownloadProgress::InitializeComponent()
 	// END DESIGNER CODE
 }
 
-void CDownloadProgress::OnFinishClick(Forms::Control* Sender)
+void CProgressPanel::OnFinishClick(Forms::Control* Sender)
 {
 	((Forms::Form*)Sender->FindForm())->Close();
 }
 
-void CDownloadProgress::OnCancelClick(Forms::Control* Sender)
+void CProgressPanel::OnCancelClick(Forms::Control* Sender)
 {
-	((CDownloadProgress*)Sender->FindForm())->CancelProgress();
+	((CProgressPanel*)Sender->FindForm())->CancelProgress();
 }
 
-void CDownloadProgress::CancelProgress()
+void CProgressPanel::CancelProgress()
 {
 	this->m_CancelButton->SetEnabled(false);
 	this->m_CancelButton->SetText("Canceling...");

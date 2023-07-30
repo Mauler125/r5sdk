@@ -1,10 +1,10 @@
 #pragma once
 
-class CDownloadProgress : public Forms::Form
+class CProgressPanel : public Forms::Form
 {
 public:
-	CDownloadProgress();
-	virtual ~CDownloadProgress() = default;
+	CProgressPanel();
+	virtual ~CProgressPanel() = default;
 
 	// Updates the progress
 	void UpdateProgress(uint32_t Progress, bool Finished);

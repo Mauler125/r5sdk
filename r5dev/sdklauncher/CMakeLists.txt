@@ -7,6 +7,8 @@ add_sources( SOURCE_GROUP "Core"
     "sdklauncher.cpp"
     "sdklauncher.h"
     "sdklauncher_const.h"
+    "sdklauncher_utils.cpp"
+    "sdklauncher_utils.h"
 )
 
 add_sources( SOURCE_GROUP "GUI"
