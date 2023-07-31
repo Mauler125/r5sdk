@@ -22,6 +22,24 @@ DWORD ErrorAndExit(const char* pSymbol)
 	return EXIT_FAILURE;
 }
 
+void UpdatePrivilege(void)
+{
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tp;
+	LUID luid;
+
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+	{
+		LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid);
+
+		tp.PrivilegeCount = 1;
+		tp.Privileges[0].Luid = luid;
+		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+		AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL);
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: moves files from source to destination
 // Input  : *pSourceDir - 
@@ -104,6 +122,8 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	UpdatePrivilege();
+
 	char* end; // Convert the process id back to an integral type.
 	DWORD processId = strtoul(argv[0], &end, 10);
 	HANDLE launcher = OpenProcess(PROCESS_ALL_ACCESS, TRUE, processId);
@@ -115,8 +135,10 @@ int main(int argc, char** argv)
 
 		if (!terminateResult)
 		{
-			CloseHandle(launcher);
-			return ErrorAndExit("TerminateProcess");
+			// Don't return, we still attempt to wait
+			// as the launcher will terminate it self
+			// still from its own code.
+			ErrorAndExit("TerminateProcess");
 		}
 
 		DWORD waitResult = WaitForSingleObject(launcher, UPDATER_SLEEP_TIME_BEFORE_EXIT);
