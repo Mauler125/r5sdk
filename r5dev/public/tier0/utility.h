@@ -82,6 +82,7 @@ void PrintM128i64(__m128i in);
 void AppendPrintf(char* pBuffer, size_t nBufSize, char const* pFormat, ...);
 string PrintPercentageEscape(const string& svInput);
 
+string FormatBytes(size_t nBytes);
 string FormatV(const char* szFormat, va_list args);
 string Format(const char* szFormat, ...);
 
