@@ -67,7 +67,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     workingDirectory = os.getcwd()
-    outManifestFile = "patch_manifest.json"
+    outManifestFile = "manifest_patch.json"
 
     checksums = RecursiveComputeChecksum(workingDirectory)
     CreateManifest(version, depot, checksums, outManifestFile)
