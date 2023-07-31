@@ -33,6 +33,7 @@ public:
 	model_t*		GetModel(void);
 	int				GetModelIndex(void) const; // Virtual in-engine!
 	string_t		GetModelName(void) const;  // Virtual in-engine!
+	const			Vector3D GetAbsOrigin(void) const;
 
 protected:
 	char m_RefEHandle[4];
@@ -256,6 +257,10 @@ protected:
 inline CMemory p_CBaseEntity__GetBaseEntity;
 inline CBaseEntity*(*v_CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
 
+inline const Vector3D CBaseEntity::GetAbsOrigin(void) const
+{
+	return m_vecAbsOrigin;
+}
 ///////////////////////////////////////////////////////////////////////////////
 class VBaseEntity : public IDetour
 {

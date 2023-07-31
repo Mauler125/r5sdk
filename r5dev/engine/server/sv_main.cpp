@@ -14,6 +14,8 @@
 #include "engine/client/client.h"
 #include "tier1/cvar.h"
 #include "server.h"
+#include "game/server/player.h"
+#include "game/shared/util_shared.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if particular client is banned on the comp server
@@ -159,6 +161,8 @@ void SV_BroadcastVoiceData(CClient* cl, int nBytes, char* data)
 		return;
 
 	SVC_VoiceData voiceData(cl->GetUserID(), nBytes, data);
+	CBaseEntity* cEnt = UTIL_PlayerByIndex(cl->GetHandle());
+	Vector3D sourcePlayerOrigin = cEnt->GetAbsOrigin();
 
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
@@ -185,6 +189,14 @@ void SV_BroadcastVoiceData(CClient* cl, int nBytes, char* data)
 		CNetChan* pNetChan = pClient->GetNetChan();
 
 		if (!pNetChan)
+			continue;
+
+		// is this client too far
+		CBaseEntity* pEnt = UTIL_PlayerByIndex(pClient->GetHandle());
+		Vector3D destPlayerOrigin = pEnt->GetAbsOrigin();
+		Vector3D vecDist = destPlayerOrigin - sourcePlayerOrigin;
+
+		if (vecDist.Length() > 2625 && sv_alltalk->GetBool()) // 50 m
 			continue;
 
 		// if voice stream has enough space for new data
