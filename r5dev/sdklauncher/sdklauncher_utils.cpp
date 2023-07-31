@@ -268,7 +268,8 @@ int SDKLauncher_ProgressCallback(CURLProgress* progessData, double dltotal,
 	double downloaded;
 	curl_easy_getinfo(progessData->curl, CURLINFO_SIZE_DOWNLOAD, &downloaded);
 
-	pDownloadSurface->SetExportLabel(Format("%s (%llu of %llu)", progessData->name, (size_t)downloaded, progessData->size).c_str());
+	pDownloadSurface->SetExportLabel(Format("%s (%s of %s)", progessData->name,
+		FormatBytes((size_t)downloaded).c_str(), FormatBytes(progessData->size).c_str()).c_str());
 
 	size_t percentage = ((size_t)downloaded * 100) / progessData->size;
 	pDownloadSurface->UpdateProgress((uint32_t)percentage, false);
