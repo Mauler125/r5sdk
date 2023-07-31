@@ -144,6 +144,10 @@ namespace Themes
 
 	void KoreTheme::RenderControlProgressFill(const std::unique_ptr<Forms::PaintEventArgs>& EventArgs, Forms::Control* Ctrl, UIX::UIXRenderState State, uint32_t Progress) const
 	{
+		// Nothing to render
+		if (!Progress)
+			return;
+
 		// Bring client rect to stack
 		Drawing::Rectangle Rect(Ctrl->ClientRectangle());
 
