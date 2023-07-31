@@ -8,8 +8,12 @@ public:
 	virtual ~CBaseSurface()
 	{};
 
+	void ToggleUpdateView(bool bValue);
+
 protected:
 	static void OnInstallClick(Forms::Control* Sender);
+	static void OnUpdateClick(Forms::Control* Sender);
+	static void OnLaunchClick(Forms::Control* Sender);
 
 	static void OnAdvancedClick(Forms::Control* Sender);
 
@@ -18,6 +22,7 @@ protected:
 	static void OnJoinClick(Forms::Control* Sender);
 
 private:
+	void Frame();
 
 	enum class eMode
 	{
@@ -42,7 +47,12 @@ private:
 	UIX::UIXButton* m_JoinButton;
 	UIX::UIXButton* m_AdvancedButton;
 
+	UIX::UIXCheckBox* m_ExperimentalBuildsCheckbox;
+
 	// When this is false, the installer will
 	// download the HD textures as well (STARPAK's).
 	bool m_bPartialInstall;
+
+	bool m_bUpdateViewToggled;
+	bool m_bIsInstalled;
 };

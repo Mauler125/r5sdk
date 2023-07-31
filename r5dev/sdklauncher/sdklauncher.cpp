@@ -390,6 +390,24 @@ void LauncherLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[]/*, char* envp[]*/)
 {
+    HANDLE singleInstanceMutex = CreateMutexW(NULL, TRUE, L"SDKLauncher_Mutex");
+
+    if (singleInstanceMutex == NULL || GetLastError() == ERROR_ALREADY_EXISTS)
+    {
+        HWND existingApp = FindWindowW(0, L"SDKLauncher001");
+        if (existingApp) SetForegroundWindow(existingApp);
+        return EXIT_SUCCESS;
+    }
+
+    WNDCLASSEXW wcex = { sizeof(wcex) };
+    wcex.lpszClassName = L"SDKLauncher001";
+
+    if (!RegisterClassExW(&wcex))
+    {
+        DWORD dwError = GetLastError();
+        return dwError;
+    }
+
     g_pLauncher->InitLogger();
     if (argc < 2)
     {

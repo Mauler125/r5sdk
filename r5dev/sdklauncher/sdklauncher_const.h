@@ -23,6 +23,12 @@
 // have to go here!!
 #define RESTART_DEPOT_DOWNLOAD_DIR DEFAULT_DEPOT_DOWNLOAD_DIR "temp\\"
 
+#define DEPOT_MANIFEST_FILE "manifest_patch.json"
+
+// TODO: these should be obtained dynamically!!!
+#define GAME_DEPOT_VENDOR "https://api.github.com/repos/SlaveBuild/N1094_CL456479/releases"
+#define SDK_DEPOT_VENDOR "https://api.github.com/repos/Mauler125/r5sdk/releases"
+
 //-----------------------------------------------------------------------------
 // Launch and inject specified dll based on launch mode
 //-----------------------------------------------------------------------------

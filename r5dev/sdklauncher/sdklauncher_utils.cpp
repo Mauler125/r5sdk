@@ -4,6 +4,10 @@
 #include "tier2/curlutils.h"
 #include "zip/src/ZipFile.h"
 
+bool g_bPartialInstall = false;
+//bool g_bExperimentalBuilds = false;
+float g_flUpdateCheckRate = 64;
+
 // !TODO: perhaps this should be a core utility shared across
 // the entire SDK to allow processes to restart them selfs.
 void SDKLauncher_Restart()
@@ -173,7 +177,7 @@ bool SDKLauncher_QueryServer(const char* url, string& outResponse, string& outMe
 	params.writeFunction = CURLWriteStringCallback;
 	params.timeout = QUERY_TIMEOUT;
 	params.verifyPeer = true;
-	params.verbose = IsDebug();
+	params.verbose = 0;// IsDebug();
 
 	CURL* curl = CURLInitRequest(url, nullptr, outResponse, sList, params);
 
@@ -204,11 +208,13 @@ bool SDKLauncher_GetLatestReleaseManifest(const char* url, string& responseMessa
 
 	if (!SDKLauncher_QueryServer(url, responseBody, responseMessage, status))
 	{
+		responseMessage = responseBody;
 		return false;
 	}
 
 	if (status != 200)
 	{
+		responseMessage = responseBody;
 		return false;
 	}
 
@@ -222,17 +228,17 @@ bool SDKLauncher_GetLatestReleaseManifest(const char* url, string& responseMessa
 
 			if (preRelease && release["prerelease"])
 			{
-				outManifest = release["assets"];
+				outManifest = release;
 				break;
 			}
 			else if (!release["prerelease"])
 			{
-				outManifest = release["assets"];
+				outManifest = release;
 				break;
 			}
 
 			if (i == responseJson.size() - 1 && outManifest.empty())
-				release[0]["assets"]; // Just take the first one then.
+				release[0]; // Just take the first one then.
 		}
 	}
 	catch (const std::exception& ex)
@@ -254,7 +260,10 @@ int SDKLauncher_ProgressCallback(CURLProgress* progessData, double dltotal,
 	CProgressPanel* pDownloadSurface = (CProgressPanel*)progessData->cust;
 
 	if (pDownloadSurface->IsCanceled())
+	{
+		pDownloadSurface->Close();
 		return -1;
+	}
 
 	double downloaded;
 	curl_easy_getinfo(progessData->curl, CURLINFO_SIZE_DOWNLOAD, &downloaded);
@@ -270,7 +279,7 @@ int SDKLauncher_ProgressCallback(CURLProgress* progessData, double dltotal,
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-void SDKLauncher_DownloadAsset(const char* url, const char* path, const char* fileName,
+bool SDKLauncher_DownloadAsset(const char* url, const char* path, const char* fileName,
 	const size_t fileSize, const char* options, CProgressPanel* pProgress)
 {
 	CURLParams params;
@@ -278,22 +287,24 @@ void SDKLauncher_DownloadAsset(const char* url, const char* path, const char* fi
 	params.writeFunction = CURLWriteFileCallback;
 	params.statusFunction = SDKLauncher_ProgressCallback;
 
-	CURLDownloadFile(url, path, fileName, options, fileSize, pProgress, params);
+	return CURLDownloadFile(url, path, fileName, options, fileSize, pProgress, params);
 }
 
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
 void SDKLauncher_BeginDownload(const bool bPreRelease, const bool bOptionalAssets,
-	CUtlVector<CUtlString>& fileList, CProgressPanel* pProgress)
+	const bool bSdkOnly/*!!! REFACTOR ME MAYBE !!!*/, CUtlVector<CUtlString>& fileList, CProgressPanel* pProgress)
 {
-	string responseMesage;
+	string responseMessage;
 	nlohmann::json manifest;
 
 	// These files will NOT be downloaded from the release depots.
 	std::set<string> blackList;
 	blackList.insert("symbols.zip");
 
+
+	// DEBUG CODE!!!
 	//fileList.AddToTail("audio_0.zip");
 	//fileList.AddToTail("audio_1.zip");
 	//fileList.AddToTail("binaries.zip");
@@ -303,21 +314,30 @@ void SDKLauncher_BeginDownload(const bool bPreRelease, const bool bOptionalAsset
 	//fileList.AddToTail("starpak_0.zip");
 	//fileList.AddToTail("starpak_1.zip");
 	//fileList.AddToTail("stbsp.zip");
-	//fileList.AddToTail("depot.zip");
+	//fileList.AddToTail("/depot.zip");
 
-	//// Download core game files.
-	//if (!SDKLauncher_GetLatestReleaseManifest(XorStr("https://api.github.com/repos/SlaveBuild/N1094_CL456479/releases"), responseMesage, manifest, bPreRelease))
+	//FOR_EACH_VEC(fileList, i)
 	//{
-	//	// TODO: Error dialog.
-	//	return;
+	//	CUtlString& filePath = fileList[i];
+	//	filePath = filePath.Replace("/", DEFAULT_DEPOT_DOWNLOAD_DIR);
 	//}
-	//SDKLauncher_DownloadAssetList(fileList, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR, pProgress);
 
-	//if (pProgress->IsCanceled())
-	//	return;
+	if (!bSdkOnly)
+	{
+		// Download core game files.
+		if (!SDKLauncher_GetLatestReleaseManifest(XorStr(GAME_DEPOT_VENDOR), responseMessage, manifest, bPreRelease))
+		{
+			// TODO: Error dialog.
+			return;
+		}
+		SDKLauncher_DownloadAssetList(fileList, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR, pProgress);
+
+		if (pProgress->IsCanceled())
+			return;
+	}
 
 	// Download SDK files.
-	if (!SDKLauncher_GetLatestReleaseManifest(XorStr("https://api.github.com/repos/Mauler125/r5sdk/releases"), responseMesage, manifest, bPreRelease))
+	if (!SDKLauncher_GetLatestReleaseManifest(XorStr(SDK_DEPOT_VENDOR), responseMessage, manifest, bPreRelease))
 	{
 		// TODO: Error dialog.
 		return;
@@ -325,17 +345,27 @@ void SDKLauncher_BeginDownload(const bool bPreRelease, const bool bOptionalAsset
 	SDKLauncher_DownloadAssetList(fileList, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR, pProgress);
 
 	if (pProgress->IsCanceled())
+	{
 		return;
+	}
 }
 
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-void SDKLauncher_DownloadAssetList(CUtlVector<CUtlString>& fileList, nlohmann::json& assetList,
+bool SDKLauncher_DownloadAssetList(CUtlVector<CUtlString>& fileList, nlohmann::json& assetList,
 	std::set<string>& blackList, const char* pPath, CProgressPanel* pProgress)
 {
+	if (!assetList.contains("assets"))
+	{
+		Assert(0);
+		return false;
+	}
+
 	int i = 1;
-	for (auto& asset : assetList)
+	const auto assetListArray = assetList["assets"];
+
+	for (auto& asset : assetListArray)
 	{
 		if (pProgress->IsCanceled())
 		{
@@ -347,7 +377,7 @@ void SDKLauncher_DownloadAssetList(CUtlVector<CUtlString>& fileList, nlohmann::j
 			!asset.contains("size"))
 		{
 			Assert(0);
-			return;
+			return false;
 		}
 
 		const string fileName = asset["name"];
@@ -355,12 +385,14 @@ void SDKLauncher_DownloadAssetList(CUtlVector<CUtlString>& fileList, nlohmann::j
 
 		// Asset is filtered, don't download.
 		if (blackList.find(fileName) != blackList.end())
+		{
 			continue;
+		}
 
 		const string downloadLink = asset["browser_download_url"];
 		const size_t fileSize = asset["size"];
 
-		pProgress->SetText(Format("Downloading package %i of %i...", i, assetList.size()).c_str());
+		pProgress->SetText(Format("Downloading package %i of %i...", i, assetListArray.size()).c_str());
 		SDKLauncher_DownloadAsset(downloadLink.c_str(), pPath, pFileName, fileSize, "wb+", pProgress);
 
 		// Check if its a zip file, as these are
@@ -377,12 +409,14 @@ void SDKLauncher_DownloadAssetList(CUtlVector<CUtlString>& fileList, nlohmann::j
 
 		i++;
 	}
+
+	return true;
 }
 
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-void SDKLauncher_InstallAssetList(const bool bOptionalAssets,
+bool SDKLauncher_InstallAssetList(const bool bOptionalAssets,
 	CUtlVector<CUtlString>& fileList, CProgressPanel* pProgress)
 {
 	// Install process cannot be canceled.
@@ -393,8 +427,11 @@ void SDKLauncher_InstallAssetList(const bool bOptionalAssets,
 		pProgress->SetText(Format("Installing package %i of %i...", i + 1, fileList.Count()).c_str());
 
 		CUtlString& fileName = fileList[i];
-		SDKLauncher_ExtractZipFile(fileName.Get(), "", pProgress);
+		if (!SDKLauncher_ExtractZipFile(fileName.Get(), "", pProgress))
+			return false;
 	}
+
+	return true;
 }
 
 //----------------------------------------------------------------------------
@@ -427,10 +464,66 @@ bool SDKLauncher_CheckDiskSpace(const int minRequiredSpace, int* const available
 	return true;
 }
 
+bool SDKLauncher_GetLocalManifest(nlohmann::json& localManifest)
+{
+	const char* pManifestFileName = BASE_PLATFORM_DIR DEPOT_MANIFEST_FILE;
+
+	if (!fs::exists(pManifestFileName))
+		return false;
+
+	ifstream localFile(pManifestFileName);
+
+	if (!localFile.good())
+		return false;
+
+	try
+	{
+		localManifest = nlohmann::json::parse(localFile);
+	}
+	catch (const std::exception& ex)
+	{
+		printf("%s - Exception while parsing manifest:\n%s\n", __FUNCTION__, ex.what());
+		return false;
+	}
+
+	return !localManifest.empty();
+}
+
+//bool SDKLauncher_WriteLocalManifest()
+//{
+//
+//}
+
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-bool SDKLauncher_CheckForUpdate()
+bool SDKLauncher_CheckForUpdate(const bool bPreRelease)
 {
-	return true;
+	nlohmann::json remoteManifest;
+	string responseMessage;
+
+	if (!SDKLauncher_GetLatestReleaseManifest(XorStr(SDK_DEPOT_VENDOR), responseMessage, remoteManifest, bPreRelease))
+	{
+		printf("%s: Failed to obtain remote manifest: %s\n", __FUNCTION__, responseMessage.c_str());
+		return true; // Can't determine if there is an update or not; skip...
+	}
+
+	nlohmann::json localManifest;
+
+	if (!SDKLauncher_GetLocalManifest(localManifest))
+	{
+		// Failed to load a local one; assume an update is required.
+		printf("%s: Failed to obtain local manifest\n", __FUNCTION__);
+		return true;
+	}
+
+	if (!localManifest.contains("version"))
+	{
+		// No version information; assume an update is required.
+		printf("%s: local manifest does not contain field '%s'!\n", __FUNCTION__, "version");
+		return true;
+	}
+
+	// This evaluates to '0' if the version tags are equal.
+	return !(localManifest["version"] == remoteManifest["tag_name"]);
 }
