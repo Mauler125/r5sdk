@@ -15,6 +15,9 @@
 #include "FormClosingEventArgs.h"
 #include "PaintFrameEventArgs.h"
 
+// Default class name used for creating windows
+#define FORM_DEFAULT_CLASS_NAME "SDKLauncher001"
+
 namespace Forms
 {
 	class Form : public ContainerControl

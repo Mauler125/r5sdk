@@ -556,7 +556,7 @@ namespace Forms
 	{
 		auto Cp = ContainerControl::GetCreateParams();
 
-		Cp.ClassName = "APPWINDOW";
+		Cp.ClassName = FORM_DEFAULT_CLASS_NAME;
 
 		if (this->_Opacity < 255)
 			Cp.ExStyle |= WS_EX_LAYERED;
