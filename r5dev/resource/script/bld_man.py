@@ -39,28 +39,35 @@ def RecursiveComputeChecksum(directoryPath):
 #------------------------------------------------------------------------------
 # Save the checksums to a manifest file
 #------------------------------------------------------------------------------
-def CreateManifest(version, checksums, outManifestFile):
+def CreateManifest(version, depot, checksums, outManifestFile):
     manifest = {
         "version": version,
-        "assets": checksums
+        "depots": {
+            depot: {
+                "checksum": 0,
+                "optional": False,
+                "assets": checksums
+            }
+        }
     }
     with open(outManifestFile, "w") as jsonFile:
         json.dump(manifest, jsonFile, indent=4)
 
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: bld_man.py <versionNum>")
+    if len(sys.argv) != 3:
+        print("Usage: bld_man.py <versionNum> <depotName>")
         sys.exit(1)
 
     try:
         version = int(sys.argv[1])
+        depot = sys.argv[2]
     except ValueError:
         print("Version must be an integer")
         sys.exit(1)
 
     workingDirectory = os.getcwd()
-    outManifestFile = "patch_manifest.json"
+    outManifestFile = "manifest_patch.json"
 
     checksums = RecursiveComputeChecksum(workingDirectory)
-    CreateManifest(version, checksums, outManifestFile)
+    CreateManifest(version, depot, checksums, outManifestFile)

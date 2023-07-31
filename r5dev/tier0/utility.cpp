@@ -988,6 +988,18 @@ string PrintPercentageEscape(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For formatting a STL string to a prettified representation of input bytes.
+string FormatBytes(size_t nBytes)
+{
+    char szBuf[128] = "";
+    const char* szPrefix[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+    const int iBase = 1024;
+    size_t c = (std::min)((size_t)(log((double)nBytes) / log((double)iBase)), (size_t)sizeof(szPrefix) - 1);
+    sprintf(szBuf, "%1.2lf %s", nBytes / pow((double)iBase, c), szPrefix[c]);
+    return string(szBuf);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For formatting a STL string using C-style format specifiers (va_list version).
 string FormatV(const char* szFormat, va_list args)
 {
