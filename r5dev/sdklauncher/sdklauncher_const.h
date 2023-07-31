@@ -25,6 +25,7 @@
 #define RESTART_DEPOT_DOWNLOAD_DIR DEFAULT_DEPOT_DOWNLOAD_DIR "temp\\"
 
 #define DEPOT_MANIFEST_FILE "manifest_patch.json"
+#define DEPOT_MANIFEST_FILE_PATH BASE_PLATFORM_DIR DEPOT_MANIFEST_FILE
 
 // TODO: these should be obtained dynamically!!!
 #define GAME_DEPOT_VENDOR "https://api.github.com/repos/SlaveBuild/N1094_CL456479/releases"

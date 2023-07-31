@@ -468,12 +468,10 @@ bool SDKLauncher_CheckDiskSpace(const int minRequiredSpace, int* const available
 
 bool SDKLauncher_GetLocalManifest(nlohmann::json& localManifest)
 {
-	const char* pManifestFileName = BASE_PLATFORM_DIR DEPOT_MANIFEST_FILE;
-
-	if (!fs::exists(pManifestFileName))
+	if (!fs::exists(DEPOT_MANIFEST_FILE_PATH))
 		return false;
 
-	ifstream localFile(pManifestFileName);
+	ifstream localFile(DEPOT_MANIFEST_FILE_PATH);
 
 	if (!localFile.good())
 		return false;
