@@ -1,4 +1,5 @@
 #include "sdklauncher_utils.h"
+#include "windows/window.h"
 #include "tier1/xorstr.h"
 #include "tier1/utlmap.h"
 #include "tier2/curlutils.h"
@@ -527,4 +528,20 @@ bool SDKLauncher_CheckForUpdate(const bool bPreRelease)
 
 	// This evaluates to '0' if the version tags are equal.
 	return !(localManifest["version"] == remoteManifest["tag_name"]);
+}
+
+//----------------------------------------------------------------------------
+// Purpose: 
+//----------------------------------------------------------------------------
+bool SDKLauncher_ForceExistingInstanceOnTop()
+{
+	HWND existingApp = FindWindowA(FORM_DEFAULT_CLASS_NAME, NULL);
+
+	if (existingApp)
+	{
+		ForceForegroundWindow(existingApp);
+		return true;
+	}
+
+	return false;
 }

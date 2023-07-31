@@ -25,6 +25,11 @@ add_sources( SOURCE_GROUP "Resource"
     "${ENGINE_SOURCE_DIR}/resource/sdklauncher.rc"
 )
 
+add_sources( SOURCE_GROUP "Windows"
+    "${ENGINE_SOURCE_DIR}/windows/window.cpp"
+    "${ENGINE_SOURCE_DIR}/windows/window.h"
+)
+
 end_sources()
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME

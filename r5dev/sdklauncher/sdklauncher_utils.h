@@ -19,3 +19,5 @@ bool SDKLauncher_InstallAssetList(const bool bOptionalAssets,
 
 bool SDKLauncher_CheckDiskSpace(const int minRequiredSpace, int* const availableSize = nullptr);
 bool SDKLauncher_CheckForUpdate(const bool bPreRelease);
+
+bool SDKLauncher_ForceExistingInstanceOnTop();

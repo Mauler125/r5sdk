@@ -7,7 +7,8 @@
 //#define DEDI_LAUNCHER
 
 #define GAME_CFG_PATH "platform\\cfg\\system\\"
-#define DEFAULT_WINDOW_CLASS_NAME "Respawn001"
+#define GAME_WINDOW_CLASS_NAME "Respawn001"
+
 #define LAUNCHER_SETTING_FILE "launcher.vdf"
 
 // Gigabytes.

@@ -7,6 +7,7 @@
 #include "base_surface.h"
 #include "advanced_surface.h"
 #include "sdklauncher.h"
+#include "sdklauncher_utils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: initializes and runs the user interface
@@ -345,7 +346,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
         return FALSE;
     }
 
-    if (strcmp(szClassName, DEFAULT_WINDOW_CLASS_NAME) == 0)
+    if (strcmp(szClassName, GAME_WINDOW_CLASS_NAME) == 0)
     {
         pHandles->push_back(hwnd);
     }
@@ -390,22 +391,10 @@ void LauncherLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[]/*, char* envp[]*/)
 {
-    HANDLE singleInstanceMutex = CreateMutexW(NULL, TRUE, L"SDKLauncher_Mutex");
-
-    if (singleInstanceMutex == NULL || GetLastError() == ERROR_ALREADY_EXISTS)
+    // Only 1 instance at a time.
+    if (SDKLauncher_ForceExistingInstanceOnTop())
     {
-        HWND existingApp = FindWindowW(0, L"SDKLauncher001");
-        if (existingApp) SetForegroundWindow(existingApp);
         return EXIT_SUCCESS;
-    }
-
-    WNDCLASSEXW wcex = { sizeof(wcex) };
-    wcex.lpszClassName = L"SDKLauncher001";
-
-    if (!RegisterClassExW(&wcex))
-    {
-        DWORD dwError = GetLastError();
-        return dwError;
     }
 
     g_pLauncher->InitLogger();
