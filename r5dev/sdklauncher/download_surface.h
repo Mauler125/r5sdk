@@ -28,7 +28,6 @@ private:
 	// Internal controls reference
 	UIX::UIXLabel* m_DownloadLabel;
 	UIX::UIXButton* m_CancelButton;
-	UIX::UIXButton* m_FinishButton;
 	UIX::UIXProgressBar* m_ProgressBar;
 
 	bool m_bCanClose;  // Whether or not we can close.

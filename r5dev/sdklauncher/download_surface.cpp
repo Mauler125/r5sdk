@@ -13,10 +13,9 @@ void CProgressPanel::UpdateProgress(uint32_t Progress, bool Finished)
 
 	if (Finished)
 	{
-		this->m_FinishButton->SetEnabled(true);
 		this->m_CancelButton->SetEnabled(false);
 		this->m_bCanClose = true;
-		this->SetText("Download Complete");
+		this->SetText("Operation finished");
 
 		if (this->m_bCanceled || this->m_bAutoClose)
 			this->Close();
@@ -48,7 +47,7 @@ void CProgressPanel::InitializeComponent()
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
 	this->SetAutoScaleMode(Forms::AutoScaleMode::Font);
-	this->SetText("Downloading Files...");
+	this->SetText("Initiating operation...");
 	this->SetClientSize({ 409, 119 });
 	this->SetFormBorderStyle(Forms::FormBorderStyle::FixedSingle);
 	this->SetStartPosition(Forms::FormStartPosition::CenterParent);
@@ -75,16 +74,6 @@ void CProgressPanel::InitializeComponent()
 	this->m_CancelButton->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Right);
 	this->m_CancelButton->Click += &OnCancelClick;
 	this->AddControl(this->m_CancelButton);
-
-	this->m_FinishButton = new UIX::UIXButton();
-	this->m_FinishButton->SetSize({ 87, 31 });
-	this->m_FinishButton->SetLocation({ 217, 76 });
-	this->m_FinishButton->SetTabIndex(1);
-	this->m_FinishButton->SetText("Ok");
-	this->m_FinishButton->SetEnabled(false);
-	this->m_FinishButton->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Right);
-	this->m_FinishButton->Click += &OnFinishClick;
-	this->AddControl(this->m_FinishButton);
 
 	this->m_ProgressBar = new UIX::UIXProgressBar();
 	this->m_ProgressBar->SetSize({ 385, 29 });
