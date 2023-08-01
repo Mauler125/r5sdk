@@ -992,10 +992,10 @@ string PrintPercentageEscape(const string& svInput)
 string FormatBytes(size_t nBytes)
 {
     char szBuf[128];
-    const char* szPrefix[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
+    const char* szSuffix[] = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     const int iBase = 1024;
-    size_t c = nBytes ? (std::min)((size_t)(log((double)nBytes) / log((double)iBase)), (size_t)sizeof(szPrefix) - 1) : 0;
-    snprintf(szBuf, sizeof(szBuf), "%1.2lf %s", nBytes / pow((double)iBase, c), szPrefix[c]);
+    size_t c = nBytes ? (std::min)((size_t)(log((double)nBytes) / log((double)iBase)), (size_t)sizeof(szSuffix) - 1) : 0;
+    snprintf(szBuf, sizeof(szBuf), "%1.2lf %s", nBytes / pow((double)iBase, c), szSuffix[c]);
     return string(szBuf);
 }
 
