@@ -23,6 +23,7 @@ struct CURLParams
 		, statusFunction(nullptr)
 		, timeout(0)
 		, verifyPeer(false)
+		, followRedirect(false)
 		, verbose(false)
 	{}
 
@@ -31,6 +32,7 @@ struct CURLParams
 
 	int timeout;
 	bool verifyPeer;
+	bool followRedirect;
 	bool verbose;
 };
 
@@ -38,9 +40,10 @@ size_t CURLWriteStringCallback(char* contents, const size_t size, const size_t n
 size_t CURLWriteFileCallback(void* data, const size_t size, const size_t nmemb, FILE* userp);
 
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
-	const char* options, curl_off_t dataSize, void* customPointer, CURLParams& params);
+	const char* options, curl_off_t dataSize, void* customPointer, const CURLParams& params);
 
-CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse, curl_slist*& slist, CURLParams& params);
+CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse,
+	curl_slist*& slist, const CURLParams& params);
 
 CURLcode CURLSubmitRequest(CURL* curl, curl_slist*& slist);
 CURLINFO CURLRetrieveInfo(CURL* curl);
