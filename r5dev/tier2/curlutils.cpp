@@ -18,22 +18,23 @@ size_t CURLWriteFileCallback(void* data, const size_t size, const size_t nmemb, 
     return numBytesWritten;
 }
 
-void CURLInitCommonOptions(CURL* curl, const char* remote, const void* writeData,
-    const void* writeFunction, const int timeout, const bool verifyPeer, const bool debug)
+void CURLInitCommonOptions(CURL* curl, const char* remote,
+    const void* writeData, const CURLParams& params)
 {
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, debug);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, verifyPeer);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, params.timeout);
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, params.verbose);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, params.followRedirect);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, params.verifyPeer);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
     curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
     curl_easy_setopt(curl, CURLOPT_URL, remote);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, writeData);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "R5R HTTPS/1.0");
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, params.writeFunction);
 }
 
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
-    const char* options, curl_off_t dataSize, void* customPointer, CURLParams& params)
+    const char* options, curl_off_t dataSize, void* customPointer, const CURLParams& params)
 {
     CURL* curl = curl_easy_init();
     if (!curl)
@@ -63,13 +64,7 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
     progressData.cust = customPointer;
     progressData.size = dataSize;
 
-    CURLInitCommonOptions(curl, remote, file,
-        params.writeFunction,
-        params.timeout,
-        params.verifyPeer,
-        params.verbose);
-
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1l);
+    CURLInitCommonOptions(curl, remote, file, params);
 
     if (params.statusFunction)
     {
@@ -98,7 +93,7 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
 }
 
 CURL* CURLInitRequest(const char* remote, const char* request,
-    string& outResponse, curl_slist*& slist, CURLParams& params)
+    string& outResponse, curl_slist*& slist, const CURLParams& params)
 {
     std::function<void(const char*)> fnError = [&](const char* errorMsg)
     {
@@ -120,11 +115,7 @@ CURL* CURLInitRequest(const char* remote, const char* request,
         return nullptr;
     }
 
-    CURLInitCommonOptions(curl, remote, &outResponse,
-        params.writeFunction,
-        params.timeout,
-        params.verifyPeer,
-        params.verbose);
+    CURLInitCommonOptions(curl, remote, &outResponse, params);
 
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
     if (request)
