@@ -991,6 +991,56 @@ void RCON_Disconnect_f(const CCommand& args)
 }
 #endif // !DEDICATED
 
+#ifndef CLIENT_DLL
+
+static const char* s_LanguageNames[] = {
+	"english",
+	"french",
+	"german",
+	"italian",
+	"japanese",
+	"polish",
+	"russian",
+	"spanish",
+	"schinese",
+	"tchinese",
+	"korean"
+};
+
+static bool IsValidTextLanguage(const char* pLocaleName)
+{
+	for (int i = 0; i < SDK_ARRAYSIZE(s_LanguageNames); ++i)
+	{
+		if (strcmp(pLocaleName, s_LanguageNames[i]) == NULL)
+			return true;
+	}
+
+	return false;
+}
+
+void SV_LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	{
+		const char* pNewString = pConVarRef->GetString();
+
+		if (IsValidTextLanguage(pNewString))
+			return;
+
+		// if new text isn't valid but the old value is, reset the value
+		if (IsValidTextLanguage(pOldString))
+		{
+			pConVarRef->SetValue(pOldString);
+			return;
+		}
+		else // this shouldn't really happen, but if neither the old nor new values are valid, set to english
+			pConVarRef->SetValue("english");
+
+	}
+}
+
+#endif
+
 /*
 =====================
 RCON_PasswordChanged_f
