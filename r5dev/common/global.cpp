@@ -124,7 +124,7 @@ ConVar* player_userCmdsQueueWarning        = nullptr;
 //#ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
 ConVar* sv_rcon_sendlogs                   = nullptr;
-ConVar* sv_rcon_banpenalty                 = nullptr; // TODO
+//ConVar* sv_rcon_banpenalty                 = nullptr; // TODO
 ConVar* sv_rcon_maxfailures                = nullptr;
 ConVar* sv_rcon_maxignores                 = nullptr;
 ConVar* sv_rcon_maxsockets                 = nullptr;
@@ -323,7 +323,7 @@ void ConVar_StaticInit(void)
 
 	sv_rcon_debug       = ConVar::StaticCreate("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::StaticCreate("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_banpenalty  = ConVar::StaticCreate("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
+	//sv_rcon_banpenalty  = ConVar::StaticCreate("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = ConVar::StaticCreate("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times an user can fail rcon authentication before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxignores  = ConVar::StaticCreate("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times an user can ignore the instruction message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = ConVar::StaticCreate("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, true, MAX_PLAYERS, nullptr, nullptr);
