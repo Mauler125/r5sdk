@@ -426,8 +426,16 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		{
 			if (data.m_bAuthorized)
 			{
-				// "0" means the netconsole is input only.
-				data.m_bInputOnly = !atoi(request.requestval().c_str());
+				// request value "0" means the netconsole is input only.
+				const bool bWantLog = atoi(request.requestval().c_str()) != NULL;
+
+				data.m_bInputOnly = !bWantLog;
+				if (bWantLog && !sv_rcon_sendlogs->GetBool())
+				{
+					// Toggle it on since there's at least 1 netconsole that
+					// wants to receive logs.
+					sv_rcon_sendlogs->SetValue(bWantLog);
+				}
 			}
 			break;
 		}
