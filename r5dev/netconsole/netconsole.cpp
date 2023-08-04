@@ -283,7 +283,7 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		if (!response.responseval().empty())
 		{
 			const long i = strtol(response.responseval().c_str(), NULL, NULL);
-			if (!i) // sv_rcon_sendlogs is not set.
+			if (!i) // Means we are marked 'input only' on the rcon server.
 			{
 				vector<char> vecMsg;
 				bool ret = Serialize(vecMsg, "", "1", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);

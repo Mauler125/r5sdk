@@ -206,7 +206,7 @@ bool CRConServer::SendToAll(const char* pMsgBuf, const int nMsgLen) const
 	{
 		const CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(i);
 
-		if (pData.m_bAuthorized)
+		if (pData.m_bAuthorized && !pData.m_bInputOnly)
 		{
 			int ret = ::send(pData.m_hSocket, sendbuf.str().data(),
 				int(sendbuf.str().size()), MSG_NOSIGNAL);
@@ -334,7 +334,9 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 				CloseNonAuthConnection();
 			}
 
-			SendEncode(pData.m_hSocket, s_AuthMessage, sv_rcon_sendlogs->GetString(),
+			const char* pSendLogs = (!sv_rcon_sendlogs->GetBool() || pData.m_bInputOnly) ? "0" : "1";
+
+			SendEncode(pData.m_hSocket, s_AuthMessage, pSendLogs,
 				sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
 		}
 		else // Bad password.
@@ -424,8 +426,8 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		{
 			if (pData.m_bAuthorized)
 			{
-				// !TODO[ AMOS ]: Each netcon its own var???
-				sv_rcon_sendlogs->SetValue(request.requestval().c_str());
+				// "0" means the netconsole is input only.
+				pData.m_bInputOnly = !atoi(request.requestval().c_str());
 			}
 			break;
 		}

@@ -144,7 +144,7 @@ ConVar* bhit_abs_origin                    = nullptr;
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |
 #ifndef DEDICATED
-ConVar* cl_rcon_request_sendlogs           = nullptr;
+ConVar* cl_rcon_inputonly           = nullptr;
 ConVar* cl_quota_stringCmdsPerSecond       = nullptr;
 
 ConVar* cl_cmdrate                         = nullptr;
@@ -322,7 +322,7 @@ void ConVar_StaticInit(void)
 	sv_simulateBots = ConVar::StaticCreate("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.", true, 0.f, false, 0.f, nullptr, nullptr);
 
 	sv_rcon_debug       = ConVar::StaticCreate("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_sendlogs    = ConVar::StaticCreate("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_sendlogs    = ConVar::StaticCreate("sv_rcon_sendlogs"   , "1" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = ConVar::StaticCreate("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = ConVar::StaticCreate("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxignores  = ConVar::StaticCreate("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the instruction message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
@@ -343,7 +343,7 @@ void ConVar_StaticInit(void)
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 #ifndef DEDICATED
-	cl_rcon_request_sendlogs = ConVar::StaticCreate("cl_rcon_request_sendlogs", "1" , FCVAR_RELEASE, "Request the rcon server to send console logs on connect.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_rcon_inputonly = ConVar::StaticCreate("cl_rcon_inputonly", "0" , FCVAR_RELEASE, "Tells the rcon server whether or not we are input only.", false, 0.f, false, 0.f, RCON_InputOnlyChanged_f, nullptr);
 	cl_quota_stringCmdsPerSecond = ConVar::StaticCreate("cl_quota_stringCmdsPerSecond", "16" , FCVAR_RELEASE, "How many string commands per second user is allowed to submit, 0 to allow all submissions.", true, 0.f, false, 0.f, nullptr, nullptr);
 
 	cl_notify_invert_x = ConVar::StaticCreate("cl_notify_invert_x", "0", FCVAR_DEVELOPMENTONLY, "Inverts the X offset for console notify debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);

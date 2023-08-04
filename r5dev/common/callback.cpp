@@ -991,6 +991,18 @@ void RCON_Disconnect_f(const CCommand& args)
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }
+
+/*
+=====================
+RCON_SendLogs_f
+
+  request logs from RCON server
+=====================
+*/
+void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	RCONClient()->RequestConsoleLog(RCONClient()->ShouldReceive());
+}
 #endif // !DEDICATED
 
 #ifndef CLIENT_DLL
