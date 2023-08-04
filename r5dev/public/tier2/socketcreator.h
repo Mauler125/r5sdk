@@ -35,23 +35,23 @@ public:
 
 	SocketHandle_t GetAcceptedSocketHandle(int nIndex) const;
 	const netadr_t& GetAcceptedSocketAddress(int nIndex) const;
-	CConnectedNetConsoleData* GetAcceptedSocketData(int nIndex) const;
+	CConnectedNetConsoleData& GetAcceptedSocketData(int nIndex);
+	const CConnectedNetConsoleData& GetAcceptedSocketData(int nIndex) const;
 
 public:
 	struct AcceptedSocket_t
 	{
-		AcceptedSocket_t(void)
-		{
-			m_hSocket = NULL;
-			m_pData = nullptr;
-		}
+		AcceptedSocket_t(SocketHandle_t hSocket)
+			: m_hSocket(hSocket)
+			, m_Data(hSocket)
+		{}
 
 		SocketHandle_t            m_hSocket;
 		netadr_t                  m_Address;
-		CConnectedNetConsoleData* m_pData;
+		CConnectedNetConsoleData  m_Data;
 	};
 
-	std::vector<AcceptedSocket_t> m_hAcceptedSockets;
+	CUtlVector<AcceptedSocket_t>  m_AcceptedSockets;
 	SocketHandle_t                m_hListenSocket; // Used to accept connections.
 
 private:

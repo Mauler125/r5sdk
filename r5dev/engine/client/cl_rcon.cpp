@@ -59,7 +59,7 @@ void CRConClient::RunFrame(void)
 
 		if (pData)
 		{
-			Recv(pData);
+			Recv(*pData);
 		}
 	}
 }

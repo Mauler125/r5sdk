@@ -226,7 +226,7 @@ void CNetCon::RunFrame(void)
 	{
 		std::lock_guard<std::mutex> l(m_Mutex);
 
-		CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(0);
+		CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(0);
 		Recv(pData);
 	}
 	else if (m_bPromptConnect)

@@ -97,8 +97,8 @@ void CRConServer::Think(void)
 			const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
 			if (!m_WhiteListAddress.CompareAdr(netAdr))
 			{
-				const CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
-				if (!pData->m_bAuthorized)
+				const CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
+				if (!pData.m_bAuthorized)
 				{
 					Disconnect("redundant");
 				}
@@ -169,11 +169,11 @@ void CRConServer::RunFrame(void)
 		const int nCount = m_Socket.GetAcceptedSocketCount();
 		for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
 		{
-			CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
+			CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
 
 			if (CheckForBan(pData))
 			{
-				SendEncode(pData->m_hSocket, s_BannedMessage, "",
+				SendEncode(pData.m_hSocket, s_BannedMessage, "",
 					sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, int(eDLL_T::NETCON));
 
 				Disconnect("banned");
@@ -204,11 +204,11 @@ bool CRConServer::SendToAll(const char* pMsgBuf, const int nMsgLen) const
 	const int nCount = m_Socket.GetAcceptedSocketCount();
 	for (int i = nCount - 1; i >= 0; i--)
 	{
-		CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(i);
+		const CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(i);
 
-		if (pData->m_bAuthorized)
+		if (pData.m_bAuthorized)
 		{
-			int ret = ::send(pData->m_hSocket, sendbuf.str().data(),
+			int ret = ::send(pData.m_hSocket, sendbuf.str().data(),
 				int(sendbuf.str().size()), MSG_NOSIGNAL);
 
 			if (ret == SOCKET_ERROR)
@@ -317,9 +317,9 @@ bool CRConServer::Serialize(vector<char>& vecBuf, const char* pResponseMsg, cons
 // Input  : &request - 
 //			*pData - 
 //-----------------------------------------------------------------------------
-void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetConsoleData* pData)
+void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetConsoleData& pData)
 {
-	if (pData->m_bAuthorized)
+	if (pData.m_bAuthorized)
 	{
 		return;
 	}
@@ -327,14 +327,14 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 	{
 		if (Comparator(request.requestmsg()))
 		{
-			pData->m_bAuthorized = true;
+			pData.m_bAuthorized = true;
 			if (++m_nAuthConnections >= sv_rcon_maxconnections->GetInt())
 			{
 				m_Socket.CloseListenSocket();
 				CloseNonAuthConnection();
 			}
 
-			SendEncode(pData->m_hSocket, s_AuthMessage, sv_rcon_sendlogs->GetString(),
+			SendEncode(pData.m_hSocket, s_AuthMessage, sv_rcon_sendlogs->GetString(),
 				sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
 		}
 		else // Bad password.
@@ -345,12 +345,12 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 				DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
 			}
 
-			SendEncode(pData->m_hSocket, s_WrongPwMessage, "",
+			SendEncode(pData.m_hSocket, s_WrongPwMessage, "",
 				sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
 
-			pData->m_bAuthorized = false;
-			pData->m_bValidated = false;
-			pData->m_nFailedAttempts++;
+			pData.m_bAuthorized = false;
+			pData.m_bValidated = false;
+			pData.m_nFailedAttempts++;
 		}
 	}
 }
@@ -385,7 +385,7 @@ bool CRConServer::Comparator(const string& svPassword) const
 //-----------------------------------------------------------------------------
 bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
-	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
+	CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
 
 	cl_rcon::request request;
 	if (!Decode(&request, pMsgBuf, nMsgLen))
@@ -394,15 +394,15 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		return false;
 	}
 
-	if (!pData->m_bAuthorized &&
+	if (!pData.m_bAuthorized &&
 		request.requesttype() != cl_rcon::request_t::SERVERDATA_REQUEST_AUTH)
 	{
 		// Notify netconsole that authentication is required.
-		SendEncode(pData->m_hSocket, s_NoAuthMessage, "",
+		SendEncode(pData.m_hSocket, s_NoAuthMessage, "",
 			sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
 
-		pData->m_bValidated = false;
-		pData->m_nIgnoredMessage++;
+		pData.m_bValidated = false;
+		pData.m_nIgnoredMessage++;
 		return true;
 	}
 	switch (request.requesttype())
@@ -414,7 +414,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		}
 		case cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND:
 		{
-			if (pData->m_bAuthorized) // Only execute if auth was successful.
+			if (pData.m_bAuthorized) // Only execute if auth was successful.
 			{
 				Execute(request, false);
 			}
@@ -422,7 +422,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		}
 		case cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE:
 		{
-			if (pData->m_bAuthorized)
+			if (pData.m_bAuthorized)
 			{
 				Execute(request, true);
 			}
@@ -430,7 +430,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		}
 		case cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG:
 		{
-			if (pData->m_bAuthorized)
+			if (pData.m_bAuthorized)
 			{
 				sv_rcon_sendlogs->SetValue(request.requestval().c_str());
 			}
@@ -470,9 +470,9 @@ void CRConServer::Execute(const cl_rcon::request& request, const bool bConVar) c
 // Purpose: checks for amount of failed attempts and bans netconsole accordingly
 // Input  : *pData - 
 //-----------------------------------------------------------------------------
-bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
+bool CRConServer::CheckForBan(CConnectedNetConsoleData& pData)
 {
-	if (pData->m_bValidated)
+	if (pData.m_bValidated)
 	{
 		return false;
 	}
@@ -503,7 +503,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 		}
 	}
 
-	pData->m_bValidated = true;
+	pData.m_bValidated = true;
 
 	// Check if IP is in the banned list.
 	if (m_BannedList.find(szNetAdr) != m_BannedList.end())
@@ -512,14 +512,14 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 	}
 
 	// Check if netconsole has reached maximum number of attempts > add to banned list.
-	if (pData->m_nFailedAttempts >= sv_rcon_maxfailures->GetInt()
-		|| pData->m_nIgnoredMessage >= sv_rcon_maxignores->GetInt())
+	if (pData.m_nFailedAttempts >= sv_rcon_maxfailures->GetInt()
+		|| pData.m_nIgnoredMessage >= sv_rcon_maxignores->GetInt())
 	{
 		// Don't add white listed address to banned list.
 		if (m_WhiteListAddress.CompareAdr(netAdr))
 		{
-			pData->m_nFailedAttempts = 0;
-			pData->m_nIgnoredMessage = 0;
+			pData.m_nFailedAttempts = 0;
+			pData.m_nIgnoredMessage = 0;
 			return false;
 		}
 
@@ -545,8 +545,8 @@ void CRConServer::Disconnect(const char* szReason) // NETMGR
 //-----------------------------------------------------------------------------
 void CRConServer::Disconnect(const int nIndex, const char* szReason) // NETMGR
 {
-	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(nIndex);
-	if (pData->m_bAuthorized || sv_rcon_debug->GetBool())
+	CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(nIndex);
+	if (pData.m_bAuthorized || sv_rcon_debug->GetBool())
 	{
 		// Inform server owner when authenticated connection has been closed.
 		netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(nIndex);
@@ -570,9 +570,9 @@ void CRConServer::CloseNonAuthConnection(void)
 	int nCount = m_Socket.GetAcceptedSocketCount();
 	for (int i = nCount - 1; i >= 0; i--)
 	{
-		CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(i);
+		CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(i);
 
-		if (!pData->m_bAuthorized)
+		if (!pData.m_bAuthorized)
 		{
 			m_Socket.CloseAcceptedSocket(i);
 		}

@@ -37,13 +37,13 @@ public:
 	bool Serialize(vector<char>& vecBuf, const char* pResponseMsg, const char* pResponseVal, const sv_rcon::response_t responseType,
 		const int nMessageId = static_cast<int>(eDLL_T::NETCON), const int nMessageType = static_cast<int>(LogType_t::LOG_NET)) const;
 
-	void Authenticate(const cl_rcon::request& request, CConnectedNetConsoleData* pData);
+	void Authenticate(const cl_rcon::request& request, CConnectedNetConsoleData& pData);
 	bool Comparator(const string& svPassword) const;
 
 	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
 	void Execute(const cl_rcon::request& request, const bool bConVar) const;
-	bool CheckForBan(CConnectedNetConsoleData* pData);
+	bool CheckForBan(CConnectedNetConsoleData& pData);
 
 	virtual void Disconnect(const char* szReason = nullptr) override;
 	void Disconnect(const int nIndex, const char* szReason = nullptr);
