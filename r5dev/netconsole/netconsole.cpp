@@ -26,6 +26,9 @@ CNetCon::CNetCon(void)
 	, m_bPromptConnect(true)
 	, m_flTickInterval(0.05f)
 {
+	// Empty character set used for ip addresses if we still need to initiate a
+	// connection, as we don't want to break on ':' characters found in an IPv6
+	// address.
 	CharacterSetBuild(&m_CharacterSet, "");
 }
 
