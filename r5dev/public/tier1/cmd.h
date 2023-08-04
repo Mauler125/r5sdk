@@ -77,7 +77,7 @@ private:
 public:
 	CCommand();
 	CCommand(int nArgC, const char** ppArgV, cmd_source_t source);
-	bool Tokenize(const char* pCommand, cmd_source_t source, characterset_t* pBreakSet);
+	bool Tokenize(const char* pCommand, cmd_source_t source, characterset_t* pBreakSet = nullptr);
 
 	int64_t ArgC(void) const;
 	const char** ArgV(void) const;
