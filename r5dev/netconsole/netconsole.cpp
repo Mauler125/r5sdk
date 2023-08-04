@@ -26,6 +26,7 @@ CNetCon::CNetCon(void)
 	, m_bPromptConnect(true)
 	, m_flTickInterval(0.05f)
 {
+	CharacterSetBuild(&m_CharacterSet, "");
 }
 
 //-----------------------------------------------------------------------------
@@ -122,31 +123,33 @@ void CNetCon::UserInput(void)
 		}
 
 		std::lock_guard<std::mutex> l(m_Mutex);
+
 		if (IsConnected())
 		{
-			if (m_Input.compare("disconnect") == 0)
+			CCommand cmd;
+			cmd.Tokenize(m_Input.c_str());
+
+			if (V_strcmp(cmd.Arg(0), "disconnect") == 0)
 			{
 				Disconnect("user closed connection");
 				return;
 			}
 
-			// !TODO[ AMOS ]: Swap out with CCommand!
-			const vector<string> vSubStrings = StringSplit(m_Input, ' ', 2);
 			vector<char> vecMsg;
 
 			const SocketHandle_t hSocket = GetSocket();
 			bool bSend = false;
 
-			if (vSubStrings.size() > 1)
+			if (cmd.ArgC() > 1)
 			{
-				if (vSubStrings[0].compare("PASS") == 0) // Auth with RCON server.
+				if (V_strcmp(cmd.Arg(0), "PASS") == 0) // Auth with RCON server.
 				{
-					bSend = Serialize(vecMsg, vSubStrings[1].c_str(), "",
+					bSend = Serialize(vecMsg, cmd.Arg(1), "",
 						cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
 				else // Execute command query.
 				{
-					bSend = Serialize(vecMsg, m_Input.c_str(), "",
+					bSend = Serialize(vecMsg, cmd.Arg(0), cmd.GetCommandString(),
 						cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 				}
 			}
@@ -165,34 +168,30 @@ void CNetCon::UserInput(void)
 		}
 		else // Setup connection from input.
 		{
-			const vector<string> vSubStrings = StringSplit(m_Input, ' ', 2);
-			if (vSubStrings.size() > 1)
+			CCommand cmd;
+			cmd.Tokenize(m_Input.c_str(), cmd_source_t::kCommandSrcCode, &m_CharacterSet);
+
+			if (cmd.ArgC() > 1)
 			{
-				const string::size_type nPos = m_Input.find(' ');
-				if (nPos > 0
-					&& nPos < m_Input.size()
-					&& nPos != m_Input.size())
+				const char* inAddr = cmd.Arg(0);
+				const char* inPort = cmd.Arg(1);
+
+				if (!*inAddr || !*inPort)
 				{
-					string svInPort = m_Input.substr(nPos + 1);
-					string svInAdr = m_Input.erase(m_Input.find(' '));
+					Warning(eDLL_T::CLIENT, "No IP address or port provided\n");
+					m_bPromptConnect = true;
+					return;
+				}
 
-					if (svInPort.empty() || svInAdr.empty())
-					{
-						Warning(eDLL_T::CLIENT, "No IP address or port provided\n");
-						m_bPromptConnect = true;
-						return;
-					}
-
-					if (!Connect(svInAdr.c_str(), atoi(svInPort.c_str())))
-					{
-						m_bPromptConnect = true;
-						return;
-					}
+				if (!Connect(inAddr, atoi(inPort)))
+				{
+					m_bPromptConnect = true;
+					return;
 				}
 			}
-			else // Initialize as [ip]:port.
+			else
 			{
-				if (m_Input.empty() || !Connect(m_Input.c_str()))
+				if (!Connect(cmd.GetCommandString()))
 				{
 					m_bPromptConnect = true;
 					return;
