@@ -90,7 +90,7 @@ void CRConServer::Think(void)
 	const int nCount = m_Socket.GetAcceptedSocketCount();
 
 	// Close redundant sockets if there are too many except for whitelisted and authenticated.
-	if (nCount >= sv_rcon_maxsockets->GetInt())
+	if (nCount > sv_rcon_maxsockets->GetInt())
 	{
 		for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
 		{
