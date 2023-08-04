@@ -6,6 +6,7 @@ start_sources()
 add_sources( SOURCE_GROUP "Private"
     "autocompletefilelist.cpp"
     "autocompletefilelist.h"
+    "concommandhash.cpp"
     "concommandhash.h"
     "keyvaluessystem.cpp"
     "keyvaluessystem.h"
