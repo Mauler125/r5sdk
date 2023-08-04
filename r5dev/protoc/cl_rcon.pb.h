@@ -53,18 +53,15 @@ PROTOBUF_NAMESPACE_CLOSE
 namespace cl_rcon {
 
 enum request_t : int {
-  SERVERDATA_REQUEST_VALUE = 0,
-  SERVERDATA_REQUEST_SETVALUE = 1,
-  SERVERDATA_REQUEST_EXECCOMMAND = 2,
-  SERVERDATA_REQUEST_AUTH = 3,
-  SERVERDATA_REQUEST_SEND_CONSOLE_LOG = 4,
-  SERVERDATA_REQUEST_SEND_REMOTEBUG = 5,
+  SERVERDATA_REQUEST_EXECCOMMAND = 0,
+  SERVERDATA_REQUEST_AUTH = 1,
+  SERVERDATA_REQUEST_SEND_CONSOLE_LOG = 2,
   request_t_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   request_t_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool request_t_IsValid(int value);
-constexpr request_t request_t_MIN = SERVERDATA_REQUEST_VALUE;
-constexpr request_t request_t_MAX = SERVERDATA_REQUEST_SEND_REMOTEBUG;
+constexpr request_t request_t_MIN = SERVERDATA_REQUEST_EXECCOMMAND;
+constexpr request_t request_t_MAX = SERVERDATA_REQUEST_SEND_CONSOLE_LOG;
 constexpr int request_t_ARRAYSIZE = request_t_MAX + 1;
 
 const std::string& request_t_Name(request_t value);

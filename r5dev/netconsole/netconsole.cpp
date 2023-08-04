@@ -130,6 +130,7 @@ void CNetCon::UserInput(void)
 				return;
 			}
 
+			// !TODO[ AMOS ]: Swap out with CCommand!
 			const vector<string> vSubStrings = StringSplit(m_Input, ' ', 2);
 			vector<char> vecMsg;
 
@@ -142,14 +143,6 @@ void CNetCon::UserInput(void)
 				{
 					bSend = Serialize(vecMsg, vSubStrings[1].c_str(), "",
 						cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
-				}
-				else if (vSubStrings[0].compare("SET") == 0) // Set value query.
-				{
-					if (vSubStrings.size() > 2)
-					{
-						bSend = Serialize(vecMsg, vSubStrings[1].c_str(), vSubStrings[2].c_str(),
-							cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
-					}
 				}
 				else // Execute command query.
 				{

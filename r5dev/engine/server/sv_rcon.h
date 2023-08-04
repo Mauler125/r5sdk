@@ -42,7 +42,7 @@ public:
 
 	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
-	void Execute(const cl_rcon::request& request, const bool bConVar) const;
+	void Execute(const cl_rcon::request& request) const;
 	bool CheckForBan(CConnectedNetConsoleData& pData);
 
 	virtual void Disconnect(const char* szReason = nullptr) override;

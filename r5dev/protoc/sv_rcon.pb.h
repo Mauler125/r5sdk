@@ -53,18 +53,14 @@ PROTOBUF_NAMESPACE_CLOSE
 namespace sv_rcon {
 
 enum response_t : int {
-  SERVERDATA_RESPONSE_VALUE = 0,
-  SERVERDATA_RESPONSE_UPDATE = 1,
-  SERVERDATA_RESPONSE_AUTH = 2,
-  SERVERDATA_RESPONSE_CONSOLE_LOG = 3,
-  SERVERDATA_RESPONSE_STRING = 4,
-  SERVERDATA_RESPONSE_REMOTEBUG = 5,
+  SERVERDATA_RESPONSE_AUTH = 0,
+  SERVERDATA_RESPONSE_CONSOLE_LOG = 1,
   response_t_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   response_t_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool response_t_IsValid(int value);
-constexpr response_t response_t_MIN = SERVERDATA_RESPONSE_VALUE;
-constexpr response_t response_t_MAX = SERVERDATA_RESPONSE_REMOTEBUG;
+constexpr response_t response_t_MIN = SERVERDATA_RESPONSE_AUTH;
+constexpr response_t response_t_MAX = SERVERDATA_RESPONSE_CONSOLE_LOG;
 constexpr int response_t_ARRAYSIZE = response_t_MAX + 1;
 
 const std::string& response_t_Name(response_t value);

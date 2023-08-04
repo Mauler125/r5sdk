@@ -416,15 +416,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		{
 			if (pData.m_bAuthorized) // Only execute if auth was successful.
 			{
-				Execute(request, false);
-			}
-			break;
-		}
-		case cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE:
-		{
-			if (pData.m_bAuthorized)
-			{
-				Execute(request, true);
+				Execute(request);
 			}
 			break;
 		}
@@ -432,6 +424,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		{
 			if (pData.m_bAuthorized)
 			{
+				// !TODO[ AMOS ]: Each netcon its own var???
 				sv_rcon_sendlogs->SetValue(request.requestval().c_str());
 			}
 			break;
@@ -448,17 +441,13 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 //-----------------------------------------------------------------------------
 // Purpose: execute commands issued from netconsole
 // Input  : *request - 
-//			bConVar - 
 //-----------------------------------------------------------------------------
-void CRConServer::Execute(const cl_rcon::request& request, const bool bConVar) const
+void CRConServer::Execute(const cl_rcon::request& request) const
 {
-	if (bConVar)
+	ConVar* pConVar = g_pCVar->FindVar(request.requestmsg().c_str());
+	if (pConVar) // Only run if this is a ConVar.
 	{
-		ConVar* pConVar = g_pCVar->FindVar(request.requestmsg().c_str());
-		if (pConVar) // Only run if this is a ConVar.
-		{
-			pConVar->SetValue(request.requestval().c_str());
-		}
+		pConVar->SetValue(request.requestval().c_str());
 	}
 	else // Execute command with "<val>".
 	{
