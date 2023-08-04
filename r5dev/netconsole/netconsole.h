@@ -17,10 +17,10 @@ public:
 	CNetCon(void);
 	~CNetCon(void);
 
-	bool Init(void);
+	bool Init(const bool bAnsiColor);
 	bool Shutdown(void);
 
-	void TermSetup(void);
+	void TermSetup(const bool bAnsiColor);
 	void UserInput(void);
 	void ClearInput(void);
 

@@ -40,7 +40,7 @@ CNetCon::~CNetCon(void)
 // Purpose: WSA and NETCON systems init
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CNetCon::Init(void)
+bool CNetCon::Init(const bool bAnsiColor)
 {
 	g_CoreMsgVCallback = &EngineLoggerSink;
 
@@ -55,7 +55,7 @@ bool CNetCon::Init(void)
 
 	m_bInitialized = true;
 
-	TermSetup();
+	TermSetup(bAnsiColor);
 	DevMsg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
 
 	static std::thread frame([this]()
@@ -100,13 +100,10 @@ bool CNetCon::Shutdown(void)
 //-----------------------------------------------------------------------------
 // Purpose: terminal setup
 //-----------------------------------------------------------------------------
-void CNetCon::TermSetup(void)
+void CNetCon::TermSetup(const bool bAnsiColor)
 {
-	const char* pszCommandLine = GetCommandLineA();
-	const bool bEnableColor = strstr("-ansicolor", pszCommandLine) != nullptr;
-
-	SpdLog_Init(bEnableColor);
-	Console_Init(bEnableColor);
+	SpdLog_Init(bAnsiColor);
+	Console_Init(bAnsiColor);
 }
 
 //-----------------------------------------------------------------------------
@@ -360,7 +357,18 @@ bool CNetCon::IsConnected(void)
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-	if (!NetConsole()->Init())
+	bool bEnableColor = false;
+
+	for (int i = 0; i < argc; i++)
+	{
+		if (V_strcmp(argv[i], "-ansicolor") == NULL)
+		{
+			bEnableColor = true;
+			break;
+		}
+	}
+
+	if (!NetConsole()->Init(bEnableColor))
 	{
 		return EXIT_FAILURE;
 	}
