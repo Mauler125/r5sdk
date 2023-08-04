@@ -1,6 +1,7 @@
 #ifndef ICVAR_H
 #define ICVAR_H
 #include "tier0/annotations.h"
+#include "iconvar.h"
 #include "appframework/IAppSystem.h"
 
 //-----------------------------------------------------------------------------
