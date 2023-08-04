@@ -51,10 +51,10 @@ public:
 		CConnectedNetConsoleData  m_Data;
 	};
 
+private:
 	CUtlVector<AcceptedSocket_t>  m_AcceptedSockets;
 	SocketHandle_t                m_hListenSocket; // Used to accept connections.
 
-private:
 	enum
 	{
 		SOCKET_TCP_MAX_ACCEPTS = 2
