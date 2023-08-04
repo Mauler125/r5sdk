@@ -3,6 +3,24 @@
 #include "icvar.h"
 
 //-----------------------------------------------------------------------------
+// Forward declarations
+//-----------------------------------------------------------------------------
+class ConCommandBase;
+class CCommand;
+
+//-----------------------------------------------------------------------------
+// Any executable that wants to use ConVars need to implement one of
+// these to hook up access to console variables.
+//-----------------------------------------------------------------------------
+abstract_class IConCommandBaseAccessor
+{
+public:
+	// Flags is a combination of FCVAR flags in cvar.h.
+	// hOut is filled in with a handle to the variable.
+	virtual bool RegisterConCommandBase(ConCommandBase* pVar) = 0;
+};
+
+//-----------------------------------------------------------------------------
 // Abstract interface for ConVars
 //-----------------------------------------------------------------------------
 abstract_class IConCommandBase

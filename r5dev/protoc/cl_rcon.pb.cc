@@ -43,41 +43,29 @@ bool request_t_IsValid(int value) {
     case 0:
     case 1:
     case 2:
-    case 3:
-    case 4:
-    case 5:
       return true;
     default:
       return false;
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> request_t_strings[6] = {};
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> request_t_strings[3] = {};
 
 static const char request_t_names[] =
   "SERVERDATA_REQUEST_AUTH"
   "SERVERDATA_REQUEST_EXECCOMMAND"
-  "SERVERDATA_REQUEST_SEND_CONSOLE_LOG"
-  "SERVERDATA_REQUEST_SEND_REMOTEBUG"
-  "SERVERDATA_REQUEST_SETVALUE"
-  "SERVERDATA_REQUEST_VALUE";
+  "SERVERDATA_REQUEST_SEND_CONSOLE_LOG";
 
 static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry request_t_entries[] = {
-  { {request_t_names + 0, 23}, 3 },
-  { {request_t_names + 23, 30}, 2 },
-  { {request_t_names + 53, 35}, 4 },
-  { {request_t_names + 88, 33}, 5 },
-  { {request_t_names + 121, 27}, 1 },
-  { {request_t_names + 148, 24}, 0 },
+  { {request_t_names + 0, 23}, 1 },
+  { {request_t_names + 23, 30}, 0 },
+  { {request_t_names + 53, 35}, 2 },
 };
 
 static const int request_t_entries_by_number[] = {
-  5, // 0 -> SERVERDATA_REQUEST_VALUE
-  4, // 1 -> SERVERDATA_REQUEST_SETVALUE
-  1, // 2 -> SERVERDATA_REQUEST_EXECCOMMAND
-  0, // 3 -> SERVERDATA_REQUEST_AUTH
-  2, // 4 -> SERVERDATA_REQUEST_SEND_CONSOLE_LOG
-  3, // 5 -> SERVERDATA_REQUEST_SEND_REMOTEBUG
+  1, // 0 -> SERVERDATA_REQUEST_EXECCOMMAND
+  0, // 1 -> SERVERDATA_REQUEST_AUTH
+  2, // 2 -> SERVERDATA_REQUEST_SEND_CONSOLE_LOG
 };
 
 const std::string& request_t_Name(
@@ -86,12 +74,12 @@ const std::string& request_t_Name(
       ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
           request_t_entries,
           request_t_entries_by_number,
-          6, request_t_strings);
+          3, request_t_strings);
   (void) dummy;
   int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
       request_t_entries,
       request_t_entries_by_number,
-      6, value);
+      3, value);
   return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
                      request_t_strings[idx].get();
 }
@@ -99,7 +87,7 @@ bool request_t_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, request_t* value) {
   int int_value;
   bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      request_t_entries, 6, name, &int_value);
+      request_t_entries, 3, name, &int_value);
   if (success) {
     *value = static_cast<request_t>(int_value);
   }

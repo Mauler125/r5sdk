@@ -21,6 +21,10 @@ public:
 	bool Serialize(vector<char>& vecBuf, const char* szReqBuf,
 		const char* szReqVal, const cl_rcon::request_t requestType) const;
 
+	void RequestConsoleLog(const bool bWantLog);
+	bool ShouldReceive(void);
+
+	bool IsRemoteLocal(void);
 	bool IsInitialized(void) const;
 	bool IsConnected(void);
 

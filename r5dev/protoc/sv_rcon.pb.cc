@@ -42,42 +42,26 @@ bool response_t_IsValid(int value) {
   switch (value) {
     case 0:
     case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
       return true;
     default:
       return false;
   }
 }
 
-static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> response_t_strings[6] = {};
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> response_t_strings[2] = {};
 
 static const char response_t_names[] =
   "SERVERDATA_RESPONSE_AUTH"
-  "SERVERDATA_RESPONSE_CONSOLE_LOG"
-  "SERVERDATA_RESPONSE_REMOTEBUG"
-  "SERVERDATA_RESPONSE_STRING"
-  "SERVERDATA_RESPONSE_UPDATE"
-  "SERVERDATA_RESPONSE_VALUE";
+  "SERVERDATA_RESPONSE_CONSOLE_LOG";
 
 static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry response_t_entries[] = {
-  { {response_t_names + 0, 24}, 2 },
-  { {response_t_names + 24, 31}, 3 },
-  { {response_t_names + 55, 29}, 5 },
-  { {response_t_names + 84, 26}, 4 },
-  { {response_t_names + 110, 26}, 1 },
-  { {response_t_names + 136, 25}, 0 },
+  { {response_t_names + 0, 24}, 0 },
+  { {response_t_names + 24, 31}, 1 },
 };
 
 static const int response_t_entries_by_number[] = {
-  5, // 0 -> SERVERDATA_RESPONSE_VALUE
-  4, // 1 -> SERVERDATA_RESPONSE_UPDATE
-  0, // 2 -> SERVERDATA_RESPONSE_AUTH
-  1, // 3 -> SERVERDATA_RESPONSE_CONSOLE_LOG
-  3, // 4 -> SERVERDATA_RESPONSE_STRING
-  2, // 5 -> SERVERDATA_RESPONSE_REMOTEBUG
+  0, // 0 -> SERVERDATA_RESPONSE_AUTH
+  1, // 1 -> SERVERDATA_RESPONSE_CONSOLE_LOG
 };
 
 const std::string& response_t_Name(
@@ -86,12 +70,12 @@ const std::string& response_t_Name(
       ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
           response_t_entries,
           response_t_entries_by_number,
-          6, response_t_strings);
+          2, response_t_strings);
   (void) dummy;
   int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
       response_t_entries,
       response_t_entries_by_number,
-      6, value);
+      2, value);
   return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
                      response_t_strings[idx].get();
 }
@@ -99,7 +83,7 @@ bool response_t_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, response_t* value) {
   int int_value;
   bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      response_t_entries, 6, name, &int_value);
+      response_t_entries, 2, name, &int_value);
   if (success) {
     *value = static_cast<response_t>(int_value);
   }

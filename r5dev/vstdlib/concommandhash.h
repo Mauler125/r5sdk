@@ -12,10 +12,10 @@
 #pragma once
 #endif
 
-#include "tier1/cmd.h"
 #include "tier1/utlvector.h"
 #include "tier1/utllinkedlist.h"
 #include "tier1/generichash.h"
+#include "tier1/convar.h"
 
 // This is a hash table class very similar to the CUtlHashFast, but
 // modified specifically so that we can look up ConCommandBases

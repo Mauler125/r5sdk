@@ -266,15 +266,12 @@ bool CSocketCreator::ConfigureSocket(SocketHandle_t hSocket, bool bDualStack /*=
 //-----------------------------------------------------------------------------
 int CSocketCreator::OnSocketAccepted(SocketHandle_t hSocket, const netadr_t& netAdr)
 {
-	AcceptedSocket_t newEntry;
-
-	newEntry.m_hSocket = hSocket;
+	AcceptedSocket_t newEntry(hSocket);
 	newEntry.m_Address = netAdr;
-	newEntry.m_pData   = new CConnectedNetConsoleData(hSocket);
 
-	m_hAcceptedSockets.push_back(newEntry);
+	m_AcceptedSockets.AddToTail(newEntry);
 
-	int nIndex = static_cast<int>(m_hAcceptedSockets.size()) - 1;
+	int nIndex = m_AcceptedSockets.Count() - 1;
 	return nIndex;
 }
 
@@ -284,17 +281,16 @@ int CSocketCreator::OnSocketAccepted(SocketHandle_t hSocket, const netadr_t& net
 //-----------------------------------------------------------------------------
 void CSocketCreator::CloseAcceptedSocket(int nIndex)
 {
-	if (nIndex >= int(m_hAcceptedSockets.size()))
+	if (nIndex >= m_AcceptedSockets.Count())
 	{
 		Assert(0);
 		return;
 	}
 
-	AcceptedSocket_t& connected = m_hAcceptedSockets[nIndex];
+	AcceptedSocket_t& connected = m_AcceptedSockets[nIndex];
 	DisconnectSocket(connected.m_hSocket);
-	delete connected.m_pData;
 
-	m_hAcceptedSockets.erase(m_hAcceptedSockets.begin() + nIndex);
+	m_AcceptedSockets.Remove(nIndex);
 }
 
 //-----------------------------------------------------------------------------
@@ -302,14 +298,12 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 //-----------------------------------------------------------------------------
 void CSocketCreator::CloseAllAcceptedSockets(void)
 {
-	for (size_t i = 0; i < m_hAcceptedSockets.size(); ++i)
+	for (int i = 0; i < m_AcceptedSockets.Count(); ++i)
 	{
-		AcceptedSocket_t& connected = m_hAcceptedSockets[i];
+		AcceptedSocket_t& connected = m_AcceptedSockets[i];
 		DisconnectSocket(connected.m_hSocket);
-
-		delete connected.m_pData;
 	}
-	m_hAcceptedSockets.clear();
+	m_AcceptedSockets.Purge();
 }
 
 //-----------------------------------------------------------------------------
@@ -338,9 +332,9 @@ int CSocketCreator::GetAuthorizedSocketCount(void) const
 {
 	int ret = 0;
 
-	for (size_t i = 0; i < m_hAcceptedSockets.size(); ++i)
+	for (int i = 0; i < m_AcceptedSockets.Count(); ++i)
 	{
-		if (m_hAcceptedSockets[i].m_pData->m_bAuthorized)
+		if (m_AcceptedSockets[i].m_Data.m_bAuthorized)
 		{
 			ret++;
 		}
@@ -355,7 +349,7 @@ int CSocketCreator::GetAuthorizedSocketCount(void) const
 //-----------------------------------------------------------------------------
 int CSocketCreator::GetAcceptedSocketCount(void) const
 {
-	return static_cast<int>(m_hAcceptedSockets.size());
+	return m_AcceptedSockets.Count();
 }
 
 //-----------------------------------------------------------------------------
@@ -365,8 +359,8 @@ int CSocketCreator::GetAcceptedSocketCount(void) const
 //-----------------------------------------------------------------------------
 SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 {
-	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
-	return m_hAcceptedSockets[nIndex].m_hSocket;
+	Assert(nIndex >= 0 && nIndex < m_AcceptedSockets.Count());
+	return m_AcceptedSockets[nIndex].m_hSocket;
 }
 
 //-----------------------------------------------------------------------------
@@ -376,8 +370,8 @@ SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 //-----------------------------------------------------------------------------
 const netadr_t& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 {
-	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
-	return m_hAcceptedSockets[nIndex].m_Address;
+	Assert(nIndex >= 0 && nIndex < m_AcceptedSockets.Count());
+	return m_AcceptedSockets[nIndex].m_Address;
 }
 
 //-----------------------------------------------------------------------------
@@ -385,8 +379,19 @@ const netadr_t& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 // Input  : nIndex - 
 // Output : CConnectedNetConsoleData*
 //-----------------------------------------------------------------------------
-CConnectedNetConsoleData* CSocketCreator::GetAcceptedSocketData(int nIndex) const
+CConnectedNetConsoleData& CSocketCreator::GetAcceptedSocketData(int nIndex)
 {
-	Assert(nIndex >= 0 && nIndex < int(m_hAcceptedSockets.size()));
-	return m_hAcceptedSockets[nIndex].m_pData;
+	Assert(nIndex >= 0 && nIndex < m_AcceptedSockets.Count());
+	return m_AcceptedSockets[nIndex].m_Data;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns accepted socket data
+// Input  : nIndex - 
+// Output : CConnectedNetConsoleData*
+//-----------------------------------------------------------------------------
+const CConnectedNetConsoleData& CSocketCreator::GetAcceptedSocketData(int nIndex) const
+{
+	Assert(nIndex >= 0 && nIndex < m_AcceptedSockets.Count());
+	return m_AcceptedSockets[nIndex].m_Data;
 }
