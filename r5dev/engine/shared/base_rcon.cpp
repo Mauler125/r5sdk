@@ -88,6 +88,11 @@ void CNetConBase::Recv(CConnectedNetConsoleData& pData, const int nMaxLen)
 			Disconnect("remote closed socket");
 			return;
 		}
+		else if (nPendingLen < 0)
+		{
+			Disconnect("socket closed unexpectedly");
+			return;
+		}
 	}//////////////////////////////////////////////
 
 	int nReadLen = 0; // Find out how much we have to read.
@@ -104,7 +109,7 @@ void CNetConBase::Recv(CConnectedNetConsoleData& pData, const int nMaxLen)
 		const int nRecvLen = ::recv(pData.m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
 		if (nRecvLen == 0) // Socket was closed.
 		{
-			Disconnect("socket closed unexpectedly");
+			Disconnect("socket closed");
 			break;
 		}
 		if (nRecvLen < 0 && !m_Socket.IsSocketBlocking())
