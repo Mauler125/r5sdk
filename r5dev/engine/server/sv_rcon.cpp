@@ -439,19 +439,34 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: execute commands issued from netconsole
-// Input  : *request - 
+// Purpose: execute commands issued from netconsole (ignores all protection flags)
+// Input  : &request - 
 //-----------------------------------------------------------------------------
 void CRConServer::Execute(const cl_rcon::request& request) const
 {
-	ConVar* pConVar = g_pCVar->FindVar(request.requestmsg().c_str());
-	if (pConVar) // Only run if this is a ConVar.
+	const char* pCommandString = request.requestmsg().c_str();
+	ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(pCommandString);
+
+	if (!pCommandBase)
 	{
-		pConVar->SetValue(request.requestval().c_str());
+		// Found nothing.
+		return;
 	}
-	else // Execute command with "<val>".
+
+	const bool isCommand = pCommandBase->IsCommand();
+	const char* pValueString = request.requestval().c_str();
+
+	if (!isCommand)
 	{
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), request.requestmsg().c_str(), cmd_source_t::kCommandSrcCode);
+		ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
+		pConVar->SetValue(pValueString);
+	}
+	else // Invoke command callback directly.
+	{
+		CCommand cmd;
+		cmd.Tokenize(pValueString, cmd_source_t::kCommandSrcCode);
+
+		v_Cmd_Dispatch(ECommandTarget_t::CBUF_SERVER, pCommandBase, &cmd, false);
 	}
 }
 
