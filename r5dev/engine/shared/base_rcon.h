@@ -18,9 +18,9 @@ public:
 	virtual void Disconnect(const char* szReason = nullptr) { NOTE_UNUSED(szReason); };
 
 	virtual bool Send(const SocketHandle_t hSocket, const char* pMsgBuf, const int nMsgLen) const;
-	virtual void Recv(CConnectedNetConsoleData& pData, const int nMaxLen = SOCKET_ERROR);
+	virtual void Recv(CConnectedNetConsoleData& data, const int nMaxLen = SOCKET_ERROR);
 
-	virtual bool ProcessBuffer(CConnectedNetConsoleData& pData, const char* pRecvBuf, int nRecvLen, const int nMaxLen = SOCKET_ERROR);
+	virtual bool ProcessBuffer(CConnectedNetConsoleData& data, const char* pRecvBuf, int nRecvLen, const int nMaxLen = SOCKET_ERROR);
 	virtual bool ProcessMessage(const char* /*pMsgBuf*/, int /*nMsgLen*/) { return true; };
 
 	CSocketCreator* GetSocketCreator(void) { return &m_Socket; }

@@ -69,16 +69,16 @@ bool CNetConBase::Send(const SocketHandle_t hSocket, const char* pMsgBuf,
 
 //-----------------------------------------------------------------------------
 // Purpose: receive message
-// Input  : &pData - 
+// Input  : &data - 
 //			nMaxLen - 
 // Output: true on success, false otherwise
 //-----------------------------------------------------------------------------
-void CNetConBase::Recv(CConnectedNetConsoleData& pData, const int nMaxLen)
+void CNetConBase::Recv(CConnectedNetConsoleData& data, const int nMaxLen)
 {
 	static char szRecvBuf[1024];
 
 	{//////////////////////////////////////////////
-		const int nPendingLen = ::recv(pData.m_hSocket, szRecvBuf, sizeof(char), MSG_PEEK);
+		const int nPendingLen = ::recv(data.m_hSocket, szRecvBuf, sizeof(char), MSG_PEEK);
 		if (nPendingLen == SOCKET_ERROR && m_Socket.IsSocketBlocking())
 		{
 			return;
@@ -96,7 +96,7 @@ void CNetConBase::Recv(CConnectedNetConsoleData& pData, const int nMaxLen)
 	}//////////////////////////////////////////////
 
 	int nReadLen = 0; // Find out how much we have to read.
-	int iResult = ::ioctlsocket(pData.m_hSocket, FIONREAD, reinterpret_cast<u_long*>(&nReadLen));
+	int iResult = ::ioctlsocket(data.m_hSocket, FIONREAD, reinterpret_cast<u_long*>(&nReadLen));
 
 	if (iResult == SOCKET_ERROR)
 	{
@@ -106,7 +106,7 @@ void CNetConBase::Recv(CConnectedNetConsoleData& pData, const int nMaxLen)
 
 	while (nReadLen > 0)
 	{
-		const int nRecvLen = ::recv(pData.m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
+		const int nRecvLen = ::recv(data.m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
 		if (nRecvLen == 0) // Socket was closed.
 		{
 			Disconnect("socket closed");
@@ -119,7 +119,7 @@ void CNetConBase::Recv(CConnectedNetConsoleData& pData, const int nMaxLen)
 		}
 
 		nReadLen -= nRecvLen; // Process what we've got.
-		ProcessBuffer(pData, szRecvBuf, nRecvLen, nMaxLen);
+		ProcessBuffer(data, szRecvBuf, nRecvLen, nMaxLen);
 	}
 
 	return;
@@ -127,72 +127,73 @@ void CNetConBase::Recv(CConnectedNetConsoleData& pData, const int nMaxLen)
 
 //-----------------------------------------------------------------------------
 // Purpose: parses input response buffer using length-prefix framing
-// Input  : *pRecvBuf - 
+// Input  : &data - 
+//			*pRecvBuf - 
 //			nRecvLen - 
-//			*pData - 
+//			nMaxLen - 
 // Output: true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CNetConBase::ProcessBuffer(CConnectedNetConsoleData& pData, 
+bool CNetConBase::ProcessBuffer(CConnectedNetConsoleData& data, 
 	const char* pRecvBuf, int nRecvLen, const int nMaxLen)
 {
 	bool bSuccess = true;
 
 	while (nRecvLen > 0)
 	{
-		if (pData.m_nPayloadLen)
+		if (data.m_nPayloadLen)
 		{
-			if (pData.m_nPayloadRead < pData.m_nPayloadLen)
+			if (data.m_nPayloadRead < data.m_nPayloadLen)
 			{
-				pData.m_RecvBuffer[pData.m_nPayloadRead++] = *pRecvBuf;
+				data.m_RecvBuffer[data.m_nPayloadRead++] = *pRecvBuf;
 
 				pRecvBuf++;
 				nRecvLen--;
 			}
-			if (pData.m_nPayloadRead == pData.m_nPayloadLen)
+			if (data.m_nPayloadRead == data.m_nPayloadLen)
 			{
 				if (!ProcessMessage(
-					reinterpret_cast<const char*>(pData.m_RecvBuffer.data()), pData.m_nPayloadLen)
+					reinterpret_cast<const char*>(data.m_RecvBuffer.data()), data.m_nPayloadLen)
 					&& bSuccess)
 				{
 					bSuccess = false;
 				}
 
-				pData.m_nPayloadLen = 0;
-				pData.m_nPayloadRead = 0;
+				data.m_nPayloadLen = 0;
+				data.m_nPayloadRead = 0;
 			}
 		}
-		else if (pData.m_nPayloadRead+1 <= sizeof(int)) // Read size field.
+		else if (data.m_nPayloadRead+1 <= sizeof(int)) // Read size field.
 		{
-			pData.m_RecvBuffer[pData.m_nPayloadRead++] = *pRecvBuf;
+			data.m_RecvBuffer[data.m_nPayloadRead++] = *pRecvBuf;
 
 			pRecvBuf++;
 			nRecvLen--;
 		}
 		else // Build prefix.
 		{
-			pData.m_nPayloadLen = int(ntohl(*reinterpret_cast<u_long*>(&pData.m_RecvBuffer[0])));
-			pData.m_nPayloadRead = 0;
+			data.m_nPayloadLen = int(ntohl(*reinterpret_cast<u_long*>(&data.m_RecvBuffer[0])));
+			data.m_nPayloadRead = 0;
 
-			if (!pData.m_bAuthorized && nMaxLen > -1)
+			if (!data.m_bAuthorized && nMaxLen > -1)
 			{
-				if (pData.m_nPayloadLen > nMaxLen)
+				if (data.m_nPayloadLen > nMaxLen)
 				{
 					Disconnect("overflow"); // Sending large messages while not authenticated.
 					return false;
 				}
 			}
 
-			if (pData.m_nPayloadLen < 0 ||
-				pData.m_nPayloadLen > pData.m_RecvBuffer.max_size())
+			if (data.m_nPayloadLen < 0 ||
+				data.m_nPayloadLen > data.m_RecvBuffer.max_size())
 			{
-				Error(eDLL_T::ENGINE, NO_ERROR, "RCON Cmd: sync error (%d)\n", pData.m_nPayloadLen);
+				Error(eDLL_T::ENGINE, NO_ERROR, "RCON Cmd: sync error (%d)\n", data.m_nPayloadLen);
 				Disconnect("desync"); // Out of sync (irrecoverable).
 
 				return false;
 			}
 			else
 			{
-				pData.m_RecvBuffer.resize(pData.m_nPayloadLen);
+				data.m_RecvBuffer.resize(data.m_nPayloadLen);
 			}
 		}
 	}
