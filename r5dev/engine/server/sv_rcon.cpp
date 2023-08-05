@@ -454,7 +454,9 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 //-----------------------------------------------------------------------------
 void CRConServer::Execute(const cl_rcon::request& request) const
 {
-	const char* pCommandString = request.requestmsg().c_str();
+	const string& commandString = request.requestmsg().c_str();
+	const char* const pCommandString = commandString.c_str();
+
 	ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(pCommandString);
 
 	if (!pCommandBase)
@@ -463,13 +465,29 @@ void CRConServer::Execute(const cl_rcon::request& request) const
 		return;
 	}
 
-	const bool isCommand = pCommandBase->IsCommand();
-	const char* pValueString = request.requestval().c_str();
+	const char* const pValueString = request.requestval().c_str();
 
-	if (!isCommand)
+	if (!pCommandBase->IsCommand())
 	{
+		// Here we want to skip over the command string in the value buffer.
+		// So if we got 'sv_cheats 1' in our value buffer, we want to skip
+		// over 'sv_cheats ', so that we are pointing directly to the value.
+		const char* pFound = V_strstr(pValueString,  pCommandString);
+		const char* pValue = nullptr;
+
+		if (pFound)
+		{
+			pValue = pFound + commandString.length();
+
+			// Skip any leading space characters.
+			while (*pValue == ' ')
+			{
+				++pValue;
+			}
+		}
+
 		ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
-		pConVar->SetValue(pValueString);
+		pConVar->SetValue(pValue ? pValue : pValueString);
 	}
 	else // Invoke command callback directly.
 	{
