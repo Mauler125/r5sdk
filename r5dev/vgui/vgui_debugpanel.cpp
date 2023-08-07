@@ -86,14 +86,14 @@ void CTextOverlay::DrawNotify(void)
 	std::lock_guard<std::mutex> l(m_Mutex);
 	for (size_t i = 0, j = m_vNotifyText.size(); i < j; i++)
 	{
-		CTextNotify* pNotify = &m_vNotifyText[i];
-		Color c = GetLogColorForType(m_vNotifyText[i].m_type);
+		const CTextNotify& notify = m_vNotifyText[i];
+		Color c = GetLogColorForType(notify.m_type);
 
-		float flTimeleft = pNotify->m_flLifeRemaining;
+		const float flTimeleft = notify.m_flLifeRemaining;
 
 		if (flTimeleft < 1.0f)
 		{
-			float f = clamp(flTimeleft, 0.0f, 1.0f) / 1.0f;
+			const float f = clamp(flTimeleft, 0.0f, 1.0f) / 1.0f;
 			c[3] = uint8_t(f * 255.0f);
 
 			if (i == 0 && f < 0.2f)
@@ -106,7 +106,7 @@ void CTextOverlay::DrawNotify(void)
 			c[3] = 255;
 		}
 		CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(),
-			m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), "%s", m_vNotifyText[i].m_svMessage.c_str());
+			m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), "%s", notify.m_svMessage.c_str());
 
 		if (IsX360())
 		{
