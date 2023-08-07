@@ -4,6 +4,7 @@
 //
 //===========================================================================//
 #pragma once
+#include "tier1/cmd.h"
 #include "protoc/cl_rcon.pb.h"
 #include "protoc/sv_rcon.pb.h"
 #include "engine/shared/base_rcon.h"
@@ -16,10 +17,10 @@ public:
 	CNetCon(void);
 	~CNetCon(void);
 
-	bool Init(void);
+	bool Init(const bool bAnsiColor);
 	bool Shutdown(void);
 
-	void TermSetup(void);
+	void TermSetup(const bool bAnsiColor);
 	void UserInput(void);
 	void ClearInput(void);
 
@@ -41,6 +42,8 @@ private:
 	bool m_bQuitApplication;
 	bool m_bPromptConnect;
 	float m_flTickInterval;
+
+	characterset_t m_CharacterSet;
 
 	std::string m_Input;
 	mutable std::mutex m_Mutex;

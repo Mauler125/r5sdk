@@ -113,7 +113,7 @@ extern ConVar* player_userCmdsQueueWarning;
 //#ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_sendlogs;
-extern ConVar* sv_rcon_banpenalty;
+//extern ConVar* sv_rcon_banpenalty;
 extern ConVar* sv_rcon_maxfailures;
 extern ConVar* sv_rcon_maxignores;
 extern ConVar* sv_rcon_maxsockets;
@@ -133,7 +133,7 @@ extern ConVar* bhit_abs_origin;
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 #ifndef DEDICATED
-extern ConVar* cl_rcon_request_sendlogs;
+extern ConVar* cl_rcon_inputonly;
 extern ConVar* cl_quota_stringCmdsPerSecond;
 
 extern ConVar* cl_cmdrate;
@@ -195,6 +195,7 @@ extern ConVar* con_suggest_showhelptext;
 extern ConVar* con_suggest_showflags;
 
 extern ConVar* origin_disconnectWhenOffline;
+extern ConVar* discord_updatePresence;
 #endif // !DEDICATED
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |

@@ -26,6 +26,10 @@ CNetCon::CNetCon(void)
 	, m_bPromptConnect(true)
 	, m_flTickInterval(0.05f)
 {
+	// Empty character set used for ip addresses if we still need to initiate a
+	// connection, as we don't want to break on ':' characters found in an IPv6
+	// address.
+	CharacterSetBuild(&m_CharacterSet, "");
 }
 
 //-----------------------------------------------------------------------------
@@ -39,7 +43,7 @@ CNetCon::~CNetCon(void)
 // Purpose: WSA and NETCON systems init
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CNetCon::Init(void)
+bool CNetCon::Init(const bool bAnsiColor)
 {
 	g_CoreMsgVCallback = &EngineLoggerSink;
 
@@ -54,7 +58,7 @@ bool CNetCon::Init(void)
 
 	m_bInitialized = true;
 
-	TermSetup();
+	TermSetup(bAnsiColor);
 	DevMsg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
 
 	static std::thread frame([this]()
@@ -99,13 +103,10 @@ bool CNetCon::Shutdown(void)
 //-----------------------------------------------------------------------------
 // Purpose: terminal setup
 //-----------------------------------------------------------------------------
-void CNetCon::TermSetup(void)
+void CNetCon::TermSetup(const bool bAnsiColor)
 {
-	const char* pszCommandLine = GetCommandLineA();
-	const bool bEnableColor = strstr("-ansicolor", pszCommandLine) != nullptr;
-
-	SpdLog_Init(bEnableColor);
-	Console_Init(bEnableColor);
+	SpdLog_Init(bAnsiColor);
+	Console_Init(bAnsiColor);
 }
 
 //-----------------------------------------------------------------------------
@@ -122,38 +123,33 @@ void CNetCon::UserInput(void)
 		}
 
 		std::lock_guard<std::mutex> l(m_Mutex);
+
 		if (IsConnected())
 		{
-			if (m_Input.compare("disconnect") == 0)
+			CCommand cmd;
+			cmd.Tokenize(m_Input.c_str());
+
+			if (V_strcmp(cmd.Arg(0), "disconnect") == 0)
 			{
 				Disconnect("user closed connection");
 				return;
 			}
 
-			const vector<string> vSubStrings = StringSplit(m_Input, ' ', 2);
 			vector<char> vecMsg;
 
 			const SocketHandle_t hSocket = GetSocket();
 			bool bSend = false;
 
-			if (vSubStrings.size() > 1)
+			if (cmd.ArgC() > 1)
 			{
-				if (vSubStrings[0].compare("PASS") == 0) // Auth with RCON server.
+				if (V_strcmp(cmd.Arg(0), "PASS") == 0) // Auth with RCON server.
 				{
-					bSend = Serialize(vecMsg, vSubStrings[1].c_str(), "",
+					bSend = Serialize(vecMsg, cmd.Arg(1), "",
 						cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
-				}
-				else if (vSubStrings[0].compare("SET") == 0) // Set value query.
-				{
-					if (vSubStrings.size() > 2)
-					{
-						bSend = Serialize(vecMsg, vSubStrings[1].c_str(), vSubStrings[2].c_str(),
-							cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
-					}
 				}
 				else // Execute command query.
 				{
-					bSend = Serialize(vecMsg, m_Input.c_str(), "",
+					bSend = Serialize(vecMsg, cmd.Arg(0), cmd.GetCommandString(),
 						cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 				}
 			}
@@ -172,34 +168,30 @@ void CNetCon::UserInput(void)
 		}
 		else // Setup connection from input.
 		{
-			const vector<string> vSubStrings = StringSplit(m_Input, ' ', 2);
-			if (vSubStrings.size() > 1)
+			CCommand cmd;
+			cmd.Tokenize(m_Input.c_str(), cmd_source_t::kCommandSrcCode, &m_CharacterSet);
+
+			if (cmd.ArgC() > 1)
 			{
-				const string::size_type nPos = m_Input.find(' ');
-				if (nPos > 0
-					&& nPos < m_Input.size()
-					&& nPos != m_Input.size())
+				const char* inAddr = cmd.Arg(0);
+				const char* inPort = cmd.Arg(1);
+
+				if (!*inAddr || !*inPort)
 				{
-					string svInPort = m_Input.substr(nPos + 1);
-					string svInAdr = m_Input.erase(m_Input.find(' '));
+					Warning(eDLL_T::CLIENT, "No IP address or port provided\n");
+					m_bPromptConnect = true;
+					return;
+				}
 
-					if (svInPort.empty() || svInAdr.empty())
-					{
-						Warning(eDLL_T::CLIENT, "No IP address or port provided\n");
-						m_bPromptConnect = true;
-						return;
-					}
-
-					if (!Connect(svInAdr.c_str(), atoi(svInPort.c_str())))
-					{
-						m_bPromptConnect = true;
-						return;
-					}
+				if (!Connect(inAddr, atoi(inPort)))
+				{
+					m_bPromptConnect = true;
+					return;
 				}
 			}
-			else // Initialize as [ip]:port.
+			else
 			{
-				if (m_Input.empty() || !Connect(m_Input.c_str()))
+				if (!Connect(cmd.GetCommandString()))
 				{
 					m_bPromptConnect = true;
 					return;
@@ -226,7 +218,7 @@ void CNetCon::RunFrame(void)
 	{
 		std::lock_guard<std::mutex> l(m_Mutex);
 
-		CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(0);
+		CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(0);
 		Recv(pData);
 	}
 	else if (m_bPromptConnect)
@@ -291,7 +283,7 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		if (!response.responseval().empty())
 		{
 			const long i = strtol(response.responseval().c_str(), NULL, NULL);
-			if (!i) // sv_rcon_sendlogs is not set.
+			if (!i) // Means we are marked 'input only' on the rcon server.
 			{
 				vector<char> vecMsg;
 				bool ret = Serialize(vecMsg, "", "1", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
@@ -368,7 +360,18 @@ bool CNetCon::IsConnected(void)
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-	if (!NetConsole()->Init())
+	bool bEnableColor = false;
+
+	for (int i = 0; i < argc; i++)
+	{
+		if (V_strcmp(argv[i], "-ansicolor") == NULL)
+		{
+			bEnableColor = true;
+			break;
+		}
+	}
+
+	if (!NetConsole()->Init(bEnableColor))
 	{
 		return EXIT_FAILURE;
 	}

@@ -49,7 +49,7 @@ public:
 		m_nIgnoredMessage = 0;
 		m_bValidated = false;
 		m_bAuthorized = false;
-		m_bInputOnly = false;
+		m_bInputOnly = true;
 		m_RecvBuffer.resize(sizeof(u_long)); // Reserve enough for length-prefix.
 	}
 };

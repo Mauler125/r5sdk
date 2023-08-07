@@ -909,7 +909,9 @@ RCON_CmdQuery_f
 */
 void RCON_CmdQuery_f(const CCommand& args)
 {
-	if (args.ArgC() < 2)
+	const int64_t argCount = args.ArgC();
+
+	if (argCount < 2)
 	{
 		const char* pszAddress = rcon_address->GetString();
 
@@ -935,7 +937,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
-				if (args.ArgC() > 2)
+				if (argCount > 2)
 				{
 					bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
@@ -957,7 +959,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 				return;
 			}
 
-			bSuccess = RCONClient()->Serialize(vecMsg, args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(1), args.ArgS(), cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 			if (bSuccess)
 			{
 				RCONClient()->Send(hSocket, vecMsg.data(), int(vecMsg.size()));
@@ -988,6 +990,18 @@ void RCON_Disconnect_f(const CCommand& args)
 	{
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
+}
+
+/*
+=====================
+RCON_SendLogs_f
+
+  request logs from RCON server
+=====================
+*/
+void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	RCONClient()->RequestConsoleLog(RCONClient()->ShouldReceive());
 }
 #endif // !DEDICATED
 

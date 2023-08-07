@@ -5,24 +5,24 @@ import json
 import hashlib
 
 #------------------------------------------------------------------------------
-# Compute the SHA-256 checksum of a file
+# Compute the SHA-256 digest of a file
 #------------------------------------------------------------------------------
-def ComputeChecksum(filePath, blockSize=65536):
+def ComputeDigest(filePath, blockSize=65536):
     sha256 = hashlib.sha256()
     with open(filePath, "rb") as file:
         for block in iter(lambda: file.read(blockSize), b""):
             sha256.update(block)
 
-    checksum = sha256.hexdigest()
-    print(f"*** computed checksum for '{filePath}': {checksum}")
+    digest = sha256.hexdigest()
+    print(f"*** computed digest for '{filePath}': {digest}")
 
-    return checksum
+    return digest
 
 #------------------------------------------------------------------------------
-# Compute checksums for all files in a directory
+# Compute digests for all files in a directory
 #------------------------------------------------------------------------------
-def RecursiveComputeChecksum(directoryPath, settings):
-    checksums = {}
+def RecursiveComputeDigest(directoryPath, settings):
+    digests = {}
     scriptPath = os.path.abspath(__file__)
 
     for root, _, files in os.walk(directoryPath):
@@ -35,9 +35,9 @@ def RecursiveComputeChecksum(directoryPath, settings):
             if os.path.abspath(filePath) == scriptPath:
                 continue
 
-            checksum = ComputeChecksum(filePath)
-            checksums[normalizedPath] = {
-                "checksum": checksum,
+            digest = ComputeDigest(filePath)
+            digests[normalizedPath] = {
+                "digest": digest,
                 "restart": False
             }
 
@@ -45,11 +45,10 @@ def RecursiveComputeChecksum(directoryPath, settings):
     if settings and "restart" in settings:
         restart_files = settings["restart"]
         for file in restart_files:
-            if file in checksums:
-                checksums[file]["restart"] = True
+            if file in digests:
+                digests[file]["restart"] = True
 
-    return checksums
-
+    return digests
 
 #------------------------------------------------------------------------------
 # Gets the settings for this depot
@@ -69,9 +68,8 @@ def GetDepotSettings(depotName):
 
     return json.load(f)
 
-
 #------------------------------------------------------------------------------
-# Save the checksums to a manifest file
+# build the manifest file
 #------------------------------------------------------------------------------
 def CreateManifest(version, currentDirectory, outManifestFile):
     depotList = [name for name in os.listdir(currentDirectory) if os.path.isdir(os.path.join(currentDirectory, name))]
@@ -99,16 +97,16 @@ def CreateManifest(version, currentDirectory, outManifestFile):
 
         print(f"*** processing depot '{depot}'...")
 
-        checksum = ComputeChecksum(zipFilePath)
+        digest = ComputeDigest(zipFilePath)
         size = os.path.getsize(zipFilePath)
 
         depotData = {
+            "assets": RecursiveComputeDigest(os.path.join(currentDirectory, depot), settings),
+            "digest": digest,
             "name": fileName,
-            "size": size,
-            "checksum": checksum,
             "optional": False,
+            "size": size,
             "vendor": settings["vendor"],
-            "assets": RecursiveComputeChecksum(os.path.join(currentDirectory, depot), settings)
         }
 
         manifest["depot"][i] = depotData
