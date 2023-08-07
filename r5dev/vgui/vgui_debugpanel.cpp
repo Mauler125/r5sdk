@@ -58,20 +58,20 @@ void CTextOverlay::Update(void)
 //-----------------------------------------------------------------------------
 // Purpose: add a log to the vector.
 //-----------------------------------------------------------------------------
-void CTextOverlay::AddLog(const eDLL_T context, const string& svText)
+void CTextOverlay::AddLog(const eDLL_T context, const char* pszText)
 {
-	if (!con_drawnotify->GetBool() || svText.empty())
+	if (!con_drawnotify->GetBool() || !VALID_CHARSTAR(pszText))
 	{
 		return;
 	}
 
-	std::lock_guard<std::mutex> l(m_Mutex);
-	m_vNotifyText.push_back(CTextNotify{ context, con_notifytime->GetFloat() , svText });
+	AUTO_LOCK(m_Mutex);
+	m_NotifyLines.AddToTail(CTextNotify{ context, con_notifytime->GetFloat() , pszText });
 
-	while (m_vNotifyText.size() > 0 &&
-		(m_vNotifyText.size() > con_notifylines->GetInt()))
+	while (m_NotifyLines.Count() > 0 &&
+		(m_NotifyLines.Count() > con_notifylines->GetInt()))
 	{
-		m_vNotifyText.erase(m_vNotifyText.begin());
+		m_NotifyLines.Remove(0);
 	}
 }
 
@@ -83,11 +83,12 @@ void CTextOverlay::DrawNotify(void)
 	int x = con_notify_invert_x->GetBool() ? g_nWindowRect[0] - con_notify_offset_x->GetInt() : con_notify_offset_x->GetInt();
 	int y = con_notify_invert_y->GetBool() ? g_nWindowRect[1] - con_notify_offset_y->GetInt() : con_notify_offset_y->GetInt();
 
-	std::lock_guard<std::mutex> l(m_Mutex);
-	for (size_t i = 0, j = m_vNotifyText.size(); i < j; i++)
+	AUTO_LOCK(m_Mutex);
+
+	for (int i = 0, j = m_NotifyLines.Count(); i < j; i++)
 	{
-		const CTextNotify& notify = m_vNotifyText[i];
-		Color c = GetLogColorForType(notify.m_type);
+		const CTextNotify& notify = m_NotifyLines[i];
+		Color c = GetLogColorForType(notify.m_Type);
 
 		const float flTimeleft = notify.m_flLifeRemaining;
 
@@ -106,7 +107,7 @@ void CTextOverlay::DrawNotify(void)
 			c[3] = 255;
 		}
 		CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(),
-			m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), "%s", notify.m_svMessage.c_str());
+			m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), "%s", notify.m_Text.String());
 
 		if (IsX360())
 		{
@@ -151,26 +152,24 @@ void CTextOverlay::ShouldDraw(const float flFrameTime)
 {
 	if (con_drawnotify->GetBool())
 	{
-		std::lock_guard<std::mutex> l(m_Mutex);
+		AUTO_LOCK(m_Mutex);
 
-		ssize_t i;
-		ssize_t c = m_vNotifyText.size();
-		for (i = c - 1; i >= 0; i--)
+		for (int i = m_NotifyLines.Count() - 1; i >= 0; i--)
 		{
-			CTextNotify* pNotify = &m_vNotifyText[i];
+			CTextNotify* pNotify = &m_NotifyLines[i];
 			pNotify->m_flLifeRemaining -= flFrameTime;
 
 			if (pNotify->m_flLifeRemaining <= 0.0f)
 			{
-				m_vNotifyText.erase(m_vNotifyText.begin() + i);
+				m_NotifyLines.Remove(i);
 				continue;
 			}
 		}
 	}
-	else if (!m_vNotifyText.empty())
+	else if (!m_NotifyLines.IsEmpty())
 	{
-		std::lock_guard<std::mutex> l(m_Mutex);
-		m_vNotifyText.clear();
+		AUTO_LOCK(m_Mutex);
+		m_NotifyLines.Purge();
 	}
 }
 
