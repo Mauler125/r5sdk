@@ -206,6 +206,7 @@ ConVar* con_suggest_showhelptext        = nullptr;
 ConVar* con_suggest_showflags           = nullptr;
 
 ConVar* origin_disconnectWhenOffline       = nullptr;
+ConVar* discord_updatePresence = nullptr;
 
 ConVar* serverbrowser_hideEmptyServers = nullptr;
 ConVar* serverbrowser_mapFilter = nullptr;
@@ -495,6 +496,7 @@ void ConVar_InitShipped(void)
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 #ifndef DEDICATED
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
+	discord_updatePresence = g_pCVar->FindVar("discord_updatePresence");
 #endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	ip_cvar                          = g_pCVar->FindVar("ip");
@@ -538,6 +540,7 @@ void ConVar_InitShipped(void)
 	cl_threaded_bone_setup->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	rui_defaultDebugFontFace->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	origin_disconnectWhenOffline->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+	discord_updatePresence->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #endif // !DEDICATED
 	mp_gamemode->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);

@@ -195,6 +195,7 @@ extern ConVar* con_suggest_showhelptext;
 extern ConVar* con_suggest_showflags;
 
 extern ConVar* origin_disconnectWhenOffline;
+extern ConVar* discord_updatePresence;
 #endif // !DEDICATED
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
