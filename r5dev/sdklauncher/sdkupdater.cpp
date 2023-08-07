@@ -131,15 +131,9 @@ int main(int argc, char** argv)
 	// If the launcher is still running, terminate it.
 	if (launcher)
 	{
-		BOOL terminateResult = TerminateProcess(launcher, 1);
-
-		if (!terminateResult)
-		{
-			// Don't return, we still attempt to wait
-			// as the launcher will terminate it self
-			// still from its own code.
-			ErrorAndExit("TerminateProcess");
-		}
+		// Make sure the launcher is getting terminated if
+		// 'ExitProcess()' somehow failed.
+		TerminateProcess(launcher, 1);
 
 		DWORD waitResult = WaitForSingleObject(launcher, UPDATER_SLEEP_TIME_BEFORE_EXIT);
 
