@@ -14,6 +14,9 @@
 #include "engine/server/server.h"
 #include "engine/client/client.h"
 
+// 128+1 so that the client still receives the 'console command too long' message.
+#define STRINGCMD_MAX_LEN 129
+
 //---------------------------------------------------------------------------------
 // Purpose: throw away any residual garbage in the channel
 //---------------------------------------------------------------------------------
@@ -177,13 +180,29 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	// Just skip if the cmd pointer is null, we still check if the
 	// client sent too many commands and take appropriate actions.
 	// The internal function discards the command if it's null.
-	if (pCmd && !V_IsValidUTF8(pCmd))
+	if (pCmd)
 	{
-		Warning(eDLL_T::SERVER, "Removing client '%s' from slot #%i ('%llu' sent invalid string command!)\n",
-			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
+		// If the string length exceeds 128, the will engine return a 'command
+		// string too long' message back to the client that issued it and
+		// subsequently jettison the string cmd. Before this routine gets hit,
+		// the entire string gets parsed (up to 512 bytes). There is an issue
+		// in CUtlBuffer::ParseToken() that causes it to read past its buffer;
+		// mostly seems to happen on 32bit, but a carefully crafted string
+		// should work on 64bit too). The fix is to just null everything past
+		// the maximum allowed length. The second 'theoretical' fix would be to
+		// properly fix CUtlBuffer::ParseToken() by computing the UTF8 character
+		// size each iteration and check if it still doesn't exceed bounds.
+		memset(&pMsg->buffer[STRINGCMD_MAX_LEN],
+			'\0', sizeof(pMsg->buffer) - (STRINGCMD_MAX_LEN));
 
-		pClient_Adj->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_INVALID_STRINGCMD");
-		return true;
+		if (!V_IsValidUTF8(pCmd))
+		{
+			Warning(eDLL_T::SERVER, "Removing client '%s' from slot #%i ('%llu' sent invalid string command!)\n",
+				pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
+
+			pClient_Adj->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_INVALID_STRINGCMD");
+			return true;
+		}
 	}
 
 	if (flStartTime - pSlot->m_flStringCommandQuotaTimeStart >= 1.0)
