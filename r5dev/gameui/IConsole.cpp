@@ -952,7 +952,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 string svHistory = (m_nHistoryPos >= 0) ? m_vHistory[m_nHistoryPos] : "";
                 if (!svHistory.empty())
                 {
-                    if (m_vHistory[m_nHistoryPos].find(' ') == string::npos)
+                    if (svHistory.find(' ') == string::npos)
                     {
                         // Append whitespace to previous entered command if absent or no parameters where passed.
                         svHistory.append(" ");
