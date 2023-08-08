@@ -22,6 +22,9 @@ ConVar* debug_draw_box_depth_test          = nullptr;
 ConVar* developer                          = nullptr;
 ConVar* fps_max                            = nullptr;
 
+ConVar* base_tickinterval_sp               = nullptr;
+ConVar* base_tickinterval_mp               = nullptr;
+
 // Taken from S15:
 ConVar* usercmd_frametime_max              = nullptr;
 ConVar* usercmd_frametime_min              = nullptr;
@@ -101,8 +104,9 @@ ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_single_core_dedi                = nullptr;
 
-ConVar* sv_updaterate_mp                   = nullptr;
 ConVar* sv_updaterate_sp                   = nullptr;
+ConVar* sv_updaterate_mp                   = nullptr;
+
 ConVar* sv_autoReloadRate                  = nullptr;
 
 ConVar* sv_simulateBots                    = nullptr;
@@ -147,8 +151,8 @@ ConVar* bhit_abs_origin                    = nullptr;
 ConVar* cl_rcon_inputonly           = nullptr;
 ConVar* cl_quota_stringCmdsPerSecond       = nullptr;
 
-ConVar* cl_cmdrate                         = nullptr;
 ConVar* cl_move_use_dt                     = nullptr;
+ConVar* cl_updaterate_mp                   = nullptr;
 
 ConVar* cl_notify_invert_x                 = nullptr;
 ConVar* cl_notify_invert_y                 = nullptr;
@@ -469,10 +473,12 @@ void ConVar_InitShipped(void)
 #endif // !CLIENT_DLL
 	developer                        = g_pCVar->FindVar("developer");
 	fps_max                          = g_pCVar->FindVar("fps_max");
+	base_tickinterval_sp             = g_pCVar->FindVar("base_tickinterval_sp");
+	base_tickinterval_mp             = g_pCVar->FindVar("base_tickinterval_mp");
 	fs_showAllReads                  = g_pCVar->FindVar("fs_showAllReads");
 #ifndef DEDICATED
-	cl_cmdrate                       = g_pCVar->FindVar("cl_cmdrate");
 	cl_move_use_dt                   = g_pCVar->FindVar("cl_move_use_dt");
+	cl_updaterate_mp                 = g_pCVar->FindVar("cl_updaterate_mp");
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
 #endif // !DEDICATED
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
@@ -510,8 +516,8 @@ void ConVar_InitShipped(void)
 #ifndef CLIENT_DLL
 	sv_stats = g_pCVar->FindVar("sv_stats");
 
-	sv_updaterate_mp = g_pCVar->FindVar("sv_updaterate_mp");
 	sv_updaterate_sp = g_pCVar->FindVar("sv_updaterate_sp");
+	sv_updaterate_mp = g_pCVar->FindVar("sv_updaterate_mp");
 
 	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
 	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
@@ -522,6 +528,9 @@ void ConVar_InitShipped(void)
 	sv_voiceEcho = g_pCVar->FindVar("sv_voiceEcho");
 	sv_alltalk = g_pCVar->FindVar("sv_alltalk");
 	player_userCmdsQueueWarning = g_pCVar->FindVar("player_userCmdsQueueWarning");
+
+	sv_updaterate_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+	sv_updaterate_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
 	sv_showhitboxes->SetMin(-1); // Allow user to go over each entity manually without going out of bounds.
 	sv_showhitboxes->SetMax(NUM_ENT_ENTRIES - 1);
@@ -537,11 +546,17 @@ void ConVar_InitShipped(void)
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
+	cl_updaterate_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+
 	cl_threaded_bone_setup->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	rui_defaultDebugFontFace->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	origin_disconnectWhenOffline->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	discord_updatePresence->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #endif // !DEDICATED
+
+	base_tickinterval_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+	base_tickinterval_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+
 	mp_gamemode->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);

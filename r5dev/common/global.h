@@ -13,6 +13,9 @@ extern ConVar* debug_draw_box_depth_test;
 extern ConVar* developer;
 extern ConVar* fps_max;
 
+extern ConVar* base_tickinterval_sp;
+extern ConVar* base_tickinterval_mp;
+
 // taken from S15:
 extern ConVar* usercmd_frametime_max;
 extern ConVar* usercmd_frametime_min;
@@ -90,8 +93,9 @@ extern ConVar* sv_forceChatToTeamOnly;
 
 extern ConVar* sv_single_core_dedi;
 
-extern ConVar* sv_updaterate_mp;
 extern ConVar* sv_updaterate_sp;
+extern ConVar* sv_updaterate_mp;
+
 extern ConVar* sv_autoReloadRate;
 
 extern ConVar* sv_simulateBots;
@@ -136,7 +140,6 @@ extern ConVar* bhit_abs_origin;
 extern ConVar* cl_rcon_inputonly;
 extern ConVar* cl_quota_stringCmdsPerSecond;
 
-extern ConVar* cl_cmdrate;
 extern ConVar* cl_move_use_dt;
 
 extern ConVar* cl_notify_invert_x;
