@@ -182,7 +182,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	// The internal function discards the command if it's null.
 	if (pCmd)
 	{
-		// If the string length exceeds 128, the will engine return a 'command
+		// If the string length exceeds 128, the engine will return a 'command
 		// string too long' message back to the client that issued it and
 		// subsequently jettison the string cmd. Before this routine gets hit,
 		// the entire string gets parsed (up to 512 bytes). There is an issue
