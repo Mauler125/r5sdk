@@ -167,6 +167,11 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	char* pShifted = reinterpret_cast<char*>(pClient) - 8;
 	CClient* pClient_Adj = reinterpret_cast<CClient*>(pShifted);
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
+
+	// Jettison the cmd if the client isn't active.
+	if (!pClient_Adj->IsActive())
+		return true;
+
 	int nUserID = pClient_Adj->GetUserID();
 	ServerPlayer_t* pSlot = &g_ServerPlayer[nUserID];
 
