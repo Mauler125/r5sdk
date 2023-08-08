@@ -310,9 +310,11 @@ void CHostState::Think(void) const
 	}
 	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
 	{
-		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s)",
+		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s) - %d%% Server CPU (%.3f msec on frame %d)",
 			hostname->GetString(), g_pServer->GetNumClients(),
-			g_ServerGlobalVariables->m_nMaxClients, KeyValues_GetCurrentPlaylist(), m_levelName).c_str());
+			g_ServerGlobalVariables->m_nMaxClients, KeyValues_GetCurrentPlaylist(), m_levelName,
+			static_cast<int>(g_pServer->GetCPUUsage() * 100.0f), (g_pEngine->GetFrameTime() * 1000.0f),
+			g_pServer->GetTick()).c_str());
 
 		statsTimer.Start();
 	}
