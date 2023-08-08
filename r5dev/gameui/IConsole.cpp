@@ -622,22 +622,18 @@ void CConsole::FindFromPartial(void)
             }
             if (con_suggest_showhelptext->GetBool())
             {
-                if (pCommandBase->GetHelpText())
+                std::function<void(string& , const char*)> fnAppendDocString = [&](string& svTarget, const char* pszDocString)
                 {
-                    string svHelpText = pCommandBase->GetHelpText();
-                    if (!svHelpText.empty())
+                    if (VALID_CHARSTAR(pszDocString))
                     {
-                        svValue.append(" - \"" + svHelpText + "\"");
+                        svTarget.append(" - \"");
+                        svTarget.append(pszDocString);
+                        svTarget.append("\"");
                     }
-                }
-                if (pCommandBase->GetUsageText())
-                {
-                    string svUsageText = pCommandBase->GetUsageText();
-                    if (!svUsageText.empty())
-                    {
-                        svValue.append(" - \"" + svUsageText + "\"");
-                    }
-                }
+                };
+
+                fnAppendDocString(svValue, pCommandBase->GetHelpText());
+                fnAppendDocString(svValue, pCommandBase->GetUsageText());
             }
             m_vSuggest.push_back(CSuggest(pCommandName + svValue, pCommandBase->GetFlags()));
         }
