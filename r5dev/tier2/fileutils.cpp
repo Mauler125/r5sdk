@@ -17,11 +17,11 @@
 //			*pBuf -
 //			nBufLen - 
 //-----------------------------------------------------------------------------
-void GetModSubdirectory(const char* pSubDir, char* pBuf, size_t nBufLen)
+void GetModSubdirectory(const char* pSubDir, char* pBuf, ssize_t nBufLen)
 {
 	// Compute starting directory.
 	Assert(FileSystem()->GetSearchPath( "MOD", false, NULL, 0) < nBufLen );
-	FileSystem()->GetSearchPath( "MOD", false, pBuf, int( nBufLen ) );
+	FileSystem()->GetSearchPath( "MOD", false, pBuf, nBufLen );
 	char* pSemi = strchr( pBuf, ';' );
 	if ( pSemi )
 	{
@@ -47,7 +47,7 @@ void GetModSubdirectory(const char* pSubDir, char* pBuf, size_t nBufLen)
 //			*pBuf - 
 //			nBufLen - 
 //-----------------------------------------------------------------------------
-void GetModContentSubdirectory( const char *pSubDir, char *pBuf, size_t nBufLen )
+void GetModContentSubdirectory( const char *pSubDir, char *pBuf, ssize_t nBufLen )
 {
 	char pTemp[ MAX_PATH ];
 	GetModSubdirectory( pSubDir, pTemp, sizeof(pTemp) );
@@ -60,7 +60,7 @@ void GetModContentSubdirectory( const char *pSubDir, char *pBuf, size_t nBufLen 
 //			*pBuf - 
 //			nBufLen - 
 //-----------------------------------------------------------------------------
-void ComputeModFilename( const char *pContentFileName, char *pBuf, size_t nBufLen )
+void ComputeModFilename( const char *pContentFileName, char *pBuf, ssize_t nBufLen )
 {
 	char pRelativePath[ MAX_PATH ];
 	if ( !FileSystem()->FullPathToRelativePath(pContentFileName, pRelativePath, sizeof(pRelativePath)))
@@ -86,7 +86,7 @@ void ComputeModFilename( const char *pContentFileName, char *pBuf, size_t nBufLe
 //			*pBuf - 
 //			nBufLen - 
 //-----------------------------------------------------------------------------
-void ComputeModContentFilename( const char *pGameFileName, char *pBuf, size_t nBufLen )
+void ComputeModContentFilename( const char *pGameFileName, char *pBuf, ssize_t nBufLen )
 {
 	char pRelativePath[ MAX_PATH ];
 	if ( !FileSystem()->FullPathToRelativePath( pGameFileName, pRelativePath, sizeof(pRelativePath) ) )
@@ -214,7 +214,7 @@ void AddFilesToList( CUtlVector< CUtlString > &fileList, const char *pDirectory,
 //-----------------------------------------------------------------------------
 void GetSearchPath(CUtlVector< CUtlString >& pathList, const char* pPathID)
 {
-	int nMaxLen = FileSystem()->GetSearchPath(pPathID, false, NULL, 0);
+	const ssize_t nMaxLen = FileSystem()->GetSearchPath(pPathID, false, NULL, 0);
 	char* pBuf = (char*)stackalloc(nMaxLen);
 	FileSystem()->GetSearchPath(pPathID, false, pBuf, nMaxLen);
 
@@ -236,7 +236,7 @@ void GetSearchPath(CUtlVector< CUtlString >& pathList, const char* pPathID)
 //			nBufLen - 
 // Output: True on success, false otherwise.
 //-----------------------------------------------------------------------------
-bool GenerateFullPath(const char* pFileName, char const* pPathID, char* pBuf, size_t nBufLen)
+bool GenerateFullPath(const char* pFileName, char const* pPathID, char* pBuf, ssize_t nBufLen)
 {
 	if (V_IsAbsolutePath(pFileName))
 	{
@@ -244,7 +244,7 @@ bool GenerateFullPath(const char* pFileName, char const* pPathID, char* pBuf, si
 		return true;
 	}
 
-	const char* pFullPath = FileSystem()->RelativePathToFullPath(pFileName, pPathID, pBuf, int(nBufLen));
+	const char* pFullPath = FileSystem()->RelativePathToFullPath(pFileName, pPathID, pBuf, nBufLen);
 	if (pFullPath && V_IsAbsolutePath(pFullPath))
 		return true;
 

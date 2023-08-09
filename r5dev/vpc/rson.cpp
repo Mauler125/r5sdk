@@ -29,10 +29,10 @@ RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath, const char* pPathID)
 	if (!file)
 		return NULL;
 
-	unsigned int nFileSize = FileSystem()->Size(file);
+	const ssize_t nFileSize = FileSystem()->Size(file);
 	std::unique_ptr<char[]> fileBuf(new char[nFileSize + 1]);
 
-	int nRead = FileSystem()->Read(fileBuf.get(), nFileSize, file);
+	const ssize_t nRead = FileSystem()->Read(fileBuf.get(), nFileSize, file);
 	FileSystem()->Close(file);
 
 	fileBuf[nRead] = '\0';

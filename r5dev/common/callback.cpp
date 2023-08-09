@@ -500,10 +500,10 @@ void RTech_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	uint32_t nPakLen = FileSystem()->Size(hPakFile);
+	const ssize_t nPakLen = FileSystem()->Size(hPakFile);
 
 	std::unique_ptr<uint8_t[]> pPakBufContainer(new uint8_t[nPakLen]);
-	uint8_t* pPakBuf = pPakBufContainer.get();
+	uint8_t* const pPakBuf = pPakBufContainer.get();
 
 	FileSystem()->Read(pPakBuf, nPakLen, hPakFile);
 	FileSystem()->Close(hPakFile);
@@ -524,8 +524,8 @@ void RTech_Decompress_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->m_nHash);
 	DevMsg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->m_nAssetEntryCount);
 	DevMsg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " |     |-- Size comp: '%llu'\n", pHeader->m_nSizeDisk);
-	DevMsg(eDLL_T::RTECH, " |     |-- Size decp: '%llu'\n", pHeader->m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " |     |-- Size comp: '%zu'\n", pHeader->m_nSizeDisk);
+	DevMsg(eDLL_T::RTECH, " |     |-- Size decp: '%zu'\n", pHeader->m_nSizeMemory);
 
 	if (pHeader->m_nMagic != PAK_HEADER_MAGIC)
 	{
@@ -541,16 +541,19 @@ void RTech_Decompress_f(const CCommand& args)
 
 		return;
 	}
-	if (pHeader->m_nSizeDisk != nPakLen)
+
+	const size_t unsignedPakLen = static_cast<size_t>(nPakLen);
+
+	if (pHeader->m_nSizeDisk != unsignedPakLen)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%llu' doesn't match expected size '%llu'!\n",
-			__FUNCTION__, inPakFile.String(), nPakLen, pHeader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%zu' doesn't match expected size '%zu'!\n",
+			__FUNCTION__, inPakFile.String(), unsignedPakLen, pHeader->m_nSizeMemory);
 
 		return;
 	}
 
 	RPakDecompState_t decompState;
-	uint64_t nDecompSize = g_pRTech->DecompressPakFileInit(&decompState, pPakBuf, nPakLen, NULL, sizeof(RPakHeader_t));
+	const uint64_t nDecompSize = g_pRTech->DecompressPakFileInit(&decompState, pPakBuf, unsignedPakLen, NULL, sizeof(RPakHeader_t));
 
 	if (nDecompSize == pHeader->m_nSizeDisk)
 	{
@@ -568,12 +571,12 @@ void RTech_Decompress_f(const CCommand& args)
 
 
 	std::unique_ptr<uint8_t[]> pDecompBufContainer(new uint8_t[nPakLen]);
-	uint8_t* pDecompBuf = pDecompBufContainer.get();
+	uint8_t* const pDecompBuf = pDecompBufContainer.get();
 
 	decompState.m_nOutMask = UINT64_MAX;
 	decompState.m_nOut = uint64_t(pDecompBuf);
 
-	uint8_t nDecompResult = g_pRTech->DecompressPakFile(&decompState, nPakLen, pHeader->m_nSizeMemory);
+	uint8_t nDecompResult = g_pRTech->DecompressPakFile(&decompState, unsignedPakLen, pHeader->m_nSizeMemory);
 	if (nDecompResult != 1)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n",
@@ -610,7 +613,7 @@ void RTech_Decompress_f(const CCommand& args)
 	}
 
 	memcpy_s(pDecompBuf, sizeof(RPakHeader_t), pPakBuf, sizeof(RPakHeader_t));// Overwrite first 0x80 bytes which are NULL with the header data.
-	FileSystem()->Write(pDecompBuf, int(decompState.m_nDecompSize), hDecompFile);
+	FileSystem()->Write(pDecompBuf, decompState.m_nDecompSize, hDecompFile);
 
 	DevMsg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
 	DevMsg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", outPakFile.String());

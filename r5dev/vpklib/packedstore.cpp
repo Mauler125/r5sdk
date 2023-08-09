@@ -335,7 +335,7 @@ void CPackedStore::ValidateCRC32PostDecomp(const CUtlString& assetPath, const ui
 		return;
 	}
 
-	uint32_t nLen = FileSystem()->Size(hAsset);
+	const ssize_t nLen = FileSystem()->Size(hAsset);
 	std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
 
 	FileSystem()->Read(pBuf.get(), nLen, hAsset);
@@ -402,7 +402,7 @@ bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString
 
 	if (fileHandle)
 	{
-		const int nSize = FileSystem()->Size(fileHandle);
+		const ssize_t nSize = FileSystem()->Size(fileHandle);
 
 		if (!nSize)
 		{
@@ -467,8 +467,8 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		return;
 	}
 
-	uint64_t nSharedTotal = NULL;
-	uint64_t nSharedCount = NULL;
+	size_t nSharedTotal = NULL;
+	size_t nSharedCount = NULL;
 
 	FOR_EACH_VEC(entryValues, i)
 	{
@@ -489,7 +489,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 			szDestPath++;
 		}
 
-		uint32_t nLen = FileSystem()->Size(hAsset);
+		const ssize_t nLen = FileSystem()->Size(hAsset);
 		std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
 
 		FileSystem()->Read(pBuf.get(), nLen, hAsset);
@@ -512,7 +512,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		{
 			VPKChunkDescriptor_t& descriptor = entryBlock.m_Fragments[j];
 
-			FileSystem()->Read(pEntryBuffer.get(), int(descriptor.m_nCompressedSize), hAsset);
+			FileSystem()->Read(pEntryBuffer.get(), descriptor.m_nCompressedSize, hAsset);
 			descriptor.m_nPackFileOffset = FileSystem()->Tell(hPackFile);
 
 			if (entryValue.m_bDeduplicate && Deduplicate(pEntryBuffer.get(), descriptor, j))
@@ -542,13 +542,13 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 				descriptor.m_nCompressedSize = descriptor.m_nUncompressedSize;
 			}
 
-			FileSystem()->Write(pEntryBuffer.get(), int(descriptor.m_nCompressedSize), hPackFile);
+			FileSystem()->Write(pEntryBuffer.get(), descriptor.m_nCompressedSize, hPackFile);
 		}
 
 		FileSystem()->Close(hAsset);
 	}
 
-	DevMsg(eDLL_T::FS, "*** Build block totaling '%lu' bytes with '%llu' shared bytes among '%llu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
+	DevMsg(eDLL_T::FS, "*** Build block totaling '%zd' bytes with '%zu' shared bytes among '%zu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
 	FileSystem()->Close(hPackFile);
 
 	m_ChunkHashMap.clear();
@@ -633,12 +633,12 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 			{
 				const VPKChunkDescriptor_t& fragment = entryBlock.m_Fragments[k];
 
-				FileSystem()->Seek(hPackFile, int(fragment.m_nPackFileOffset), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-				FileSystem()->Read(pSourceBuffer.get(), int(fragment.m_nCompressedSize), hPackFile);
+				FileSystem()->Seek(hPackFile, fragment.m_nPackFileOffset, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+				FileSystem()->Read(pSourceBuffer.get(), fragment.m_nCompressedSize, hPackFile);
 
 				if (fragment.m_nCompressedSize == fragment.m_nUncompressedSize) // Data is not compressed.
 				{
-					FileSystem()->Write(pSourceBuffer.get(), int(fragment.m_nUncompressedSize), hAsset);
+					FileSystem()->Write(pSourceBuffer.get(), fragment.m_nUncompressedSize, hAsset);
 					continue;
 				}
 
@@ -658,7 +658,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				}
 				else // If successfully decompressed, write to file.
 				{
-					FileSystem()->Write(pDestBuffer.get(), int(nDstLen), hAsset);
+					FileSystem()->Write(pDestBuffer.get(), nDstLen, hAsset);
 				}
 			}
 
@@ -1063,14 +1063,14 @@ int VPKDir_t::CTreeBuilder::WriteTree(FileHandle_t hDirectoryFile) const
 
 	for (auto& iKeyValue : m_FileTree)
 	{
-		FileSystem()->Write(iKeyValue.first.c_str(), int(iKeyValue.first.length() + 1), hDirectoryFile);
+		FileSystem()->Write(iKeyValue.first.c_str(), iKeyValue.first.length() + 1, hDirectoryFile);
 		for (auto& jKeyValue : iKeyValue.second)
 		{
-			FileSystem()->Write(jKeyValue.first.c_str(), int(jKeyValue.first.length() + 1), hDirectoryFile);
+			FileSystem()->Write(jKeyValue.first.c_str(), jKeyValue.first.length() + 1, hDirectoryFile);
 			for (auto& vEntry : jKeyValue.second)
 			{
-				CUtlString entryPath = vEntry.m_EntryPath.UnqualifiedFilename().StripExtension();
-				FileSystem()->Write(entryPath.Get(), int(entryPath.Length() + 1), hDirectoryFile);
+				const CUtlString entryPath = vEntry.m_EntryPath.UnqualifiedFilename().StripExtension();
+				FileSystem()->Write(entryPath.Get(), entryPath.Length() + 1, hDirectoryFile);
 
 				FileSystem()->Write(&vEntry.m_nFileCRC, sizeof(uint32_t), hDirectoryFile);
 				FileSystem()->Write(&vEntry.m_iPreloadSize, sizeof(uint16_t), hDirectoryFile);
@@ -1133,7 +1133,7 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 	WriteTreeSize(hDirectoryFile);
 
 	FileSystem()->Close(hDirectoryFile);
-	DevMsg(eDLL_T::FS, "*** Build directory totaling '%llu' bytes with '%i' entries and '%i' descriptors\n",
+	DevMsg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%i' entries and '%i' descriptors\n",
 		size_t(sizeof(VPKDirHeader_t) + m_Header.m_nDirectorySize), entryBlocks.Count(), nDescriptors);
 }
 //-----------------------------------------------------------------------------

@@ -72,7 +72,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 	else
 	{
-		uint32_t nLen = FileSystem()->Size(pNavMesh);
+		const ssize_t nLen = FileSystem()->Size(pNavMesh);
 		std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
 
 		FileSystem()->Read(pBuf.get(), nLen, pNavMesh);
@@ -325,7 +325,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	}
 	else
 	{
-		uint32_t nLen = FileSystem()->Size(pNavMesh);
+		const ssize_t nLen = FileSystem()->Size(pNavMesh);
 		std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
 
 		FileSystem()->Read(pBuf.get(), nLen, pNavMesh);

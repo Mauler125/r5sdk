@@ -24,10 +24,10 @@ void CBanSystem::Load(void)
 	if (!pFile)
 		return;
 
-	uint32_t nLen = FileSystem()->Size(pFile);
+	const ssize_t nLen = FileSystem()->Size(pFile);
 	std::unique_ptr<char[]> pBuf(new char[nLen + 1]);
 
-	int nRead = FileSystem()->Read(pBuf.get(), nLen, pFile);
+	const ssize_t nRead = FileSystem()->Read(pBuf.get(), nLen, pFile);
 	FileSystem()->Close(pFile);
 
 	pBuf.get()[nRead] = '\0'; // Null terminate the string buffer containing our banned list.
@@ -48,8 +48,8 @@ void CBanSystem::Load(void)
 			nlohmann::json jsEntry = jsIn[std::to_string(i)];
 			if (!jsEntry.is_null())
 			{
-				string  svIpAddress = jsEntry["ipAddress"].get<string>();
-				uint64_t nNucleusID = jsEntry["nucleusId"].get<uint64_t>();
+				const string  svIpAddress = jsEntry["ipAddress"].get<string>();
+				const uint64_t nNucleusID = jsEntry["nucleusId"].get<uint64_t>();
 
 				m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
 			}
@@ -85,7 +85,7 @@ void CBanSystem::Save(void) const
 		jsOut["totalBans"] = m_vBanList.size();
 		string svJsOut = jsOut.dump(4);
 
-		FileSystem()->Write(svJsOut.data(), int(svJsOut.size()), pFile);
+		FileSystem()->Write(svJsOut.data(), svJsOut.size(), pFile);
 	}
 	catch (const std::exception& ex)
 	{
