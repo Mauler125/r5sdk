@@ -818,8 +818,8 @@ inline void CUtlMemory<T, I>::EnsureCapacity(int64 num)
 
 	if (IsExternallyAllocated())
 	{
-		// Can't grow a buffer whose memory was externally allocated 
-		Assert(0);
+		// Can't grow a buffer whose memory was externally allocated
+		Error(eDLL_T::COMMON, EXIT_FAILURE, "EnsureCapacity( %zd ) called for external buffer of size %zd.\n", num, m_nAllocationCount);
 		return;
 	}
 
