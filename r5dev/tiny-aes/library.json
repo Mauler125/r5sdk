@@ -1,0 +1,13 @@
+{
+  "name": "tiny-aes",
+  "keywords": "cryptography, aes",
+  "description": "Small portable AES128/192/256 in C",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/kokke/tiny-aes.git"
+  },
+  "frameworks": "*",
+  "platforms": "*",
+  "examples": "test.c"
+}

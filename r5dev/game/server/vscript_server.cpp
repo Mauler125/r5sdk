@@ -186,6 +186,114 @@ namespace VScriptCode
             sq_pushbool(v, ::IsDedicated());
             return SQ_OK;
         }
+
+        //-----------------------------------------------------------------------------
+        // Generate / get usable matchID 
+        //-----------------------------------------------------------------------------
+        std::mutex g_MatchIDMutex;
+        int64_t g_MatchID = 0;
+
+        void setMatchID(int64_t newID) {
+            std::lock_guard<std::mutex> lock(g_MatchIDMutex);
+            g_MatchID = newID;
+        }
+
+        int64_t getMatchID() {
+            std::lock_guard<std::mutex> lock(g_MatchIDMutex);
+            return g_MatchID;
+        }
+
+        SQRESULT Server::SQMatchID(HSQUIRRELVM v) {
+            std::lock_guard<std::mutex> lock(g_MatchIDMutex);
+            std::stringstream ss;
+            ss << g_MatchID;
+            std::string matchIDStr = ss.str();
+            sq_pushstring(v, matchIDStr.c_str(), -1);
+            return SQ_OK;
+        }
+
+        SQRESULT Server::SetMatchID(HSQUIRRELVM v) {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<int64_t> distr(0, INT64_MAX);
+
+            int64_t randomNumber = distr(gen);
+            auto now = std::chrono::system_clock::now();
+            auto nowAsTimeT = std::chrono::system_clock::to_time_t(now);
+            auto nowAsInt64 = static_cast<int64_t>(nowAsTimeT);
+
+            int64_t newID = randomNumber + nowAsInt64;
+            setMatchID(newID);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+       // Purpose: mkos funni io logger
+       //-----------------------------------------------------------------------------
+
+        SQRESULT LogEvent(HSQUIRRELVM v)
+        {
+            std::lock_guard<std::mutex> lock(g_MatchIDMutex);
+            std::stringstream ss;
+            ss << Server::g_MatchID;
+            std::string matchIDStr = ss.str();
+           
+            std::string filename = matchIDStr;
+            const SQChar* logString = sq_getstring(v, 1);
+            SQBool checkDir = sq_getbool(v, 2);
+            SQBool encrypt = sq_getbool(v, 3);
+
+            if (!VALID_CHARSTAR(filename.c_str()) || !VALID_CHARSTAR(logString)) {
+                return SQ_ERROR;
+            }
+
+            LOGGER::LogEvent(filename.c_str(), logString, checkDir, encrypt);
+
+            return SQ_OK;
+        }
+
+        SQRESULT stopLogging(HSQUIRRELVM v) {
+            bool doSendToAPI = false;
+
+            SQBool sendToAPI = sq_getbool(v, 1);
+            if (sendToAPI) {
+                doSendToAPI = sendToAPI != 0;
+            }
+
+            DevMsg(eDLL_T::SERVER, "Send to API bool set to: %s \n", doSendToAPI ? "true" : "false");
+            LOGGER::stopLogging(doSendToAPI);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: mkos debug
+        //-----------------------------------------------------------------------------
+
+        SQRESULT sqprint(HSQUIRRELVM v) {
+
+            SQChar* sqprintmsg = sq_getstring(v, 1);
+            std::ostringstream oss;
+            oss << sqprintmsg;
+
+            std::string str = oss.str();
+            DevMsg(eDLL_T::SERVER, ":: %s\n", str.c_str());
+
+
+            return SQ_OK;
+        }
+
+        SQRESULT testbool(HSQUIRRELVM v) {
+            SQBool sqbool = sq_getbool(v, 1);
+            std::string returnvalue = sqbool ? "true" : "false";
+
+            DevMsg(eDLL_T::SERVER, "Bool value: %s \n", returnvalue.c_str());
+
+            sq_pushbool(v, sqbool);
+
+            return SQ_OK;
+        }
     }
 }
 
@@ -211,6 +319,14 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, CreateServer, "Starts server with the specified settings", "void", "string, string, string, string, int");
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, DestroyServer, "Shuts the local server down", "void", "");
+    //for logging
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LogEvent, "Logs event with GameEvent,DirectoryCheck,Encryption", "void", "string, bool, bool");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SetMatchID, "Sets the match ID", "void", "");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQMatchID, "Gets the match ID", "string", "");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, stopLogging, "Stops the logging thread, writes remaining queued messages", "void", "bool");
+    // for debugging the sqvm
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, sqprint, "Prints string to console window from sqvm", "string", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, testbool, "Prints string to console window from sqvm", "bool", "bool");
 }
 
 //---------------------------------------------------------------------------------

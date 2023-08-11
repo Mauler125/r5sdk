@@ -85,6 +85,12 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 {
 	return v_sq_call(v, params, retval, raiseerror);
 }
+//---------------------------------------------------------------------------------
+SQBool sq_getbool(HSQUIRRELVM v, SQInteger i)
+{
+	return *reinterpret_cast<SQBool*>(*reinterpret_cast<int64_t*>(&v->_stackbase) + 0x10i64 * i + 0x8);
+}
+
 
 void VSquirrelAPI::Attach() const
 {

@@ -16,5 +16,7 @@ include_directories( "${ENGINE_SOURCE_DIR}" )
 include_directories( "${ENGINE_SOURCE_DIR}/public" )
 include_directories( "${ENGINE_SOURCE_DIR}/thirdparty" )
 
+
 # Include the subdirectories that contain the individual projects
 add_subdirectory( "${ENGINE_SOURCE_DIR}" )
+add_subdirectory( "${ENGINE_SOURCE_DIR}/tiny-aes" )

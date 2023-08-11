@@ -73,6 +73,8 @@ add_sources( SOURCE_GROUP "Server"
     "server/util_server.h"
     "server/vscript_server.cpp"
     "server/vscript_server.h"
+    "server/logger.cpp"
+    "server/logger.h"
 )
 
 add_sources( SOURCE_GROUP "Public"
@@ -103,6 +105,8 @@ add_sources( SOURCE_GROUP "Client"
     "client/viewrender.h"
     "client/vscript_client.cpp"
     "client/vscript_client.h"
+    "server/logger.cpp"
+    "server/logger.h"
 )
 
 add_sources( SOURCE_GROUP "Public"
@@ -146,6 +150,7 @@ endif()
 target_include_directories( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/tier0/"
     "${ENGINE_SOURCE_DIR}/tier1/"
+    "${ENGINE_SOURCE_DIR}/thirdparty/tiny-aes"
 )
 
 endmacro()

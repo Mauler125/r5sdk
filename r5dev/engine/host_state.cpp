@@ -53,6 +53,9 @@
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #include "game/shared/vscript_shared.h"
+#ifndef logger_h
+#include "game/server/logger.h"
+#endif // logger_h
 
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
@@ -174,6 +177,7 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "%s: Shutdown host game\n", __FUNCTION__);
+				LOGGER::stopLogging(false);
 				CHostState_State_GameShutDown(g_pHostState);
 				break;
 			}
@@ -190,6 +194,7 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			case HostStates_t::HS_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "%s: Shutdown state machine\n", __FUNCTION__);
+				LOGGER::stopLogging(false);
 #ifndef DEDICATED
 				CL_EndMovie();
 #endif // !DEDICATED

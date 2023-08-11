@@ -19,6 +19,13 @@ namespace VScriptCode
 
 		SQRESULT IsServerActive(HSQUIRRELVM v);
 		SQRESULT IsDedicated(HSQUIRRELVM v);
+		
+		SQRESULT LogEvent(HSQUIRRELVM v);
+		SQRESULT SetMatchID(HSQUIRRELVM v);
+		SQRESULT GetMatchID(HSQUIRRELVM v);
+		SQRESULT sqprint(HSQUIRRELVM v);
+		SQRESULT testbool(HSQUIRRELVM v);
+		SQRESULT stopLogging(HSQUIRRELVM v);
 	}
 }
 
