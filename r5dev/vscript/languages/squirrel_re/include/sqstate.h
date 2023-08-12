@@ -11,7 +11,8 @@ struct SQSharedState
 #endif
 	void* _printfunc;
 	uint8_t gap4390[33];
-	SQChar _contextname[7];
+	SQChar _contextname[8];
+	char gap43b9[135];
 };
 #pragma pack(pop)
 

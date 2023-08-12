@@ -70,6 +70,25 @@ namespace VScriptCode
 
             return SQ_OK;
         }
+
+        SQRESULT ScriptError(HSQUIRRELVM v)
+        {
+            SQChar* pString = NULL;
+            SQInteger a4 = 0;
+
+            if (SQVM_sprintf(v, 0, 1, &a4, &pString) < 0)
+                return SQ_ERROR;
+
+            v_SQVM_ScriptError("%s", pString);
+
+            // this should be moved to a wrapper for all script funcs
+            if (*reinterpret_cast<DWORD*>(&v->_sharedstate->gap43b9[127]))
+            {
+                v_SQVM_ThrowError(*reinterpret_cast<QWORD*>(&v->_sharedstate->gap43b9[111]), v);
+            }
+
+            return SQ_ERROR;
+        }
     }
 }
 
@@ -83,6 +102,8 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
 
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailableMaps, "Gets an array of all available maps", "array< string >", "");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailablePlaylists, "Gets an array of all available playlists", "array< string >", "");
+
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, ScriptError, "", "void", "string format, ...")
 }
 
 //---------------------------------------------------------------------------------

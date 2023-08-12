@@ -90,45 +90,43 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: prints the warning output of each VM to the console
+// Purpose: sprintf from SQVM stack
 // Input  : *sqvm - 
 //			a2 - 
 //			a3 - 
 //			*nStringSize - 
 //			**ppString - 
 //---------------------------------------------------------------------------------
-SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
+SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
 	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
-	SQRESULT result = v_SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
+	SQRESULT result = v_SQVM_sprintf(v, a2, a3, nStringSize, ppString);
 
-	if (retaddr != _ReturnAddress()) // Check if its SQVM_Warning calling.
+	if (retaddr == _ReturnAddress()) // Check if its SQVM_Warning calling.
 	{
-		return result;
+		SQCONTEXT scriptContext = v->GetContext();
+		eDLL_T remoteContext;
+
+		switch (scriptContext)
+		{
+		case SQCONTEXT::SERVER:
+			remoteContext = eDLL_T::SCRIPT_SERVER;
+			break;
+		case SQCONTEXT::CLIENT:
+			remoteContext = eDLL_T::SCRIPT_CLIENT;
+			break;
+		case SQCONTEXT::UI:
+			remoteContext = eDLL_T::SCRIPT_UI;
+			break;
+		default:
+			remoteContext = eDLL_T::NONE;
+			break;
+		}
+
+		std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
+		CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(script_show_warning->GetInt()),
+			remoteContext, NO_ERROR, "squirrel_re(warning)", "%s", svConstructor.c_str());
 	}
-
-	SQCONTEXT scriptContext = v->GetContext();
-	eDLL_T remoteContext;
-
-	switch (scriptContext)
-	{
-	case SQCONTEXT::SERVER:
-		remoteContext = eDLL_T::SCRIPT_SERVER;
-		break;
-	case SQCONTEXT::CLIENT:
-		remoteContext = eDLL_T::SCRIPT_CLIENT;
-		break;
-	case SQCONTEXT::UI:
-		remoteContext = eDLL_T::SCRIPT_UI;
-		break;
-	default:
-		remoteContext = eDLL_T::NONE;
-		break;
-	}
-
-	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
-	CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(script_show_warning->GetInt()),
-		remoteContext, NO_ERROR, "squirrel_re(warning)", "%s", svConstructor.c_str());
 
 	return result;
 }
@@ -213,7 +211,7 @@ const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v)
 void VSquirrelVM::Attach() const
 {
 	DetourAttach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
-	DetourAttach((LPVOID*)&v_SQVM_WarningFunc, &SQVM_WarningFunc);
+	DetourAttach((LPVOID*)&v_SQVM_sprintf, &SQVM_sprintf);
 	DetourAttach((LPVOID*)&v_SQVM_CompileError, &SQVM_CompileError);
 	DetourAttach((LPVOID*)&v_SQVM_LogicError, &SQVM_LogicError);
 }
@@ -221,7 +219,7 @@ void VSquirrelVM::Attach() const
 void VSquirrelVM::Detach() const
 {
 	DetourDetach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
-	DetourDetach((LPVOID*)&v_SQVM_WarningFunc, &SQVM_WarningFunc);
+	DetourDetach((LPVOID*)&v_SQVM_sprintf, &SQVM_sprintf);
 	DetourDetach((LPVOID*)&v_SQVM_CompileError, &SQVM_CompileError);
 	DetourDetach((LPVOID*)&v_SQVM_LogicError, &SQVM_LogicError);
 }
