@@ -34,6 +34,9 @@ public:
 	int				GetModelIndex(void) const; // Virtual in-engine!
 	string_t		GetModelName(void) const;  // Virtual in-engine!
 
+	inline edict_t GetEdict(void) { return NetworkProp()->GetEdict(); }
+	inline string_t GetName(void) const { return m_iName; }
+
 protected:
 	char m_RefEHandle[4];
 	char gap_c[4];
@@ -101,7 +104,7 @@ protected:
 	int m_fDataObjectTypes;
 	int m_iEFlags;
 	int m_fFlags;
-	__int64 m_iName;
+	string_t m_iName;
 	int m_scriptNameIndex;
 	int m_instanceNameIndex;
 	char m_scriptName[64];
