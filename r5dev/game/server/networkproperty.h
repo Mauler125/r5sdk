@@ -19,7 +19,7 @@
 class CServerNetworkProperty : IServerNetworkable
 {
 public:
-	edict_t GetEdict() const;
+	inline edict_t GetEdict(void) const { return m_edict; }
 
 private:
 	CBaseEntity* m_pOuter;
