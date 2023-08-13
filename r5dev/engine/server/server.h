@@ -46,7 +46,7 @@ public:
 
 	inline int64_t GetMaxTeams(void) const { return m_iMaxTeams; }
 
-	inline CClient* GetClient(int nIndex) { Assert(nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
+	inline CClient* GetClient(int nIndex) { Assert(nIndex >= NULL && nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
 
 	inline float GetCPUUsage(void) const { return m_fCPUPercent; }
 
