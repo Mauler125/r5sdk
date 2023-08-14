@@ -125,49 +125,64 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 
 	CUserCmd* lastCmd = &m_Commands[MAX_QUEUED_COMMANDS_PROCESS];
 
-	const float latencyAmount = chan->GetLatency(FLOW_OUTGOING);
-	const float maxCommandDelta = sv_maxunlag_delta->GetFloat();
+	const float maxUnlag = sv_maxunlag->GetFloat();
+	const float latencyAmount = Clamp(chan->GetLatency(FLOW_OUTGOING), 0.0f, maxUnlag);
 	const float localCurTime = (*g_pGlobals)->m_flCurTime;
-	const float lastCommandTime = m_LastCmd.command_time;
 
 	for (int i = totalCmds - 1; i >= 0; i--)
 	{
 		CUserCmd* cmd = &cmds[i];
+		const int commandNumber = cmd->command_number;
 
+		if (commandNumber <= m_latestCommandQueued)
+			continue;
+
+		m_latestCommandQueued = commandNumber;
+		const int lastCommandNumber = lastCmd->command_number;
+
+		if (lastCommandNumber == MAX_QUEUED_COMMANDS_PROCESS)
+			return;
+
+		// Command issue time from client, note that this value can be altered
+		// from the client, and therefore be used to exploit lag compensation.
 		const float commandTime = cmd->command_time;
-		const float commandDelta = fabs(commandTime - localCurTime) - latencyAmount;
+		const float lastCommandTime = m_LastCmd.command_time;
 
-		if (/*commandTime < lastCommandTime ||*/ commandDelta > maxCommandDelta)
+		if (commandTime < lastCommandTime) // Can never be lower than last !!!
 		{
 			cmd->command_time = localCurTime - latencyAmount;
 
 			if (IsDebug())
 			{
-				Warning(eDLL_T::SERVER, "%s: Command delta of %f exceeded maximum of %f; commandTime=%f, lastCommandTime=%f, localCurTime=%f, latencyAmount=%f\n",
-					__FUNCTION__, commandDelta, maxCommandDelta, commandTime, lastCommandTime, localCurTime, latencyAmount);
+				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < m_LastCmd.command_time( %f ); clamped to %f !!!\n",
+					__FUNCTION__, commandTime, lastCommandTime, cmd->command_time);
+			}
+		}
+		else
+		{
+			const float commandDelta = fabs(commandTime - localCurTime);
+
+			if (commandDelta > maxUnlag) // Too much to unlag, clamp to max !!!
+			{
+				cmd->command_time = localCurTime - latencyAmount;
+
+				if (IsDebug())
+				{
+					Warning(eDLL_T::SERVER, "%s: commandDelta( %f ) > maxUnlag( %f ); clamped to %f !!!\n",
+						__FUNCTION__, commandDelta, maxUnlag, cmd->command_time);
+				}
 			}
 		}
 
-		const int commandNumber = cmd->command_number;
+		CUserCmd* queuedCmd = &m_Commands[lastCommandNumber];
+		queuedCmd->Copy(cmd);
 
-		if (commandNumber > m_latestCommandQueued)
+		if (++lastCmd->command_number > player_userCmdsQueueWarning->GetInt())
 		{
-			m_latestCommandQueued = commandNumber;
-			const int lastCommandNumber = lastCmd->command_number;
+			const float curTime = float(Plat_FloatTime());
 
-			if (lastCommandNumber == MAX_QUEUED_COMMANDS_PROCESS)
-				return;
-
-			CUserCmd* queuedCmd = &m_Commands[lastCommandNumber];
-			queuedCmd->Copy(cmd);
-
-			if (++lastCmd->command_number > player_userCmdsQueueWarning->GetInt())
-			{
-				const float curTime = float(Plat_FloatTime());
-
-				if ((curTime - m_lastCommandCountWarnTime) > 0.5f)
-					m_lastCommandCountWarnTime = curTime;
-			}
+			if ((curTime - m_lastCommandCountWarnTime) > 0.5f)
+				m_lastCommandCountWarnTime = curTime;
 		}
 	}
 

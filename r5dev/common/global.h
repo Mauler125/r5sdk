@@ -93,7 +93,7 @@ extern ConVar* sv_forceChatToTeamOnly;
 
 extern ConVar* sv_single_core_dedi;
 
-extern ConVar* sv_maxunlag_delta;
+extern ConVar* sv_maxunlag;
 
 extern ConVar* sv_updaterate_sp;
 extern ConVar* sv_updaterate_mp;

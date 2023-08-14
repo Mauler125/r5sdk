@@ -104,7 +104,7 @@ ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_single_core_dedi                = nullptr;
 
-ConVar* sv_maxunlag_delta = nullptr;
+ConVar* sv_maxunlag = nullptr;
 
 ConVar* sv_updaterate_sp                   = nullptr;
 ConVar* sv_updaterate_mp                   = nullptr;
@@ -328,8 +328,6 @@ void ConVar_StaticInit(void)
 	sv_autoReloadRate     = ConVar::StaticCreate("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null).", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_simulateBots = ConVar::StaticCreate("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.", true, 0.f, false, 0.f, nullptr, nullptr);
 
-	sv_maxunlag_delta = ConVar::StaticCreate("sv_maxunlag_delta", "0.3", FCVAR_RELEASE, "Maximum amount of deviation in seconds between server and UserCmd's issue time for unlag (excludes latency).", true, 0.f, true, 1.f, nullptr, nullptr);
-
 	sv_rcon_debug       = ConVar::StaticCreate("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::StaticCreate("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//sv_rcon_banpenalty  = ConVar::StaticCreate("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -519,6 +517,8 @@ void ConVar_InitShipped(void)
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 #ifndef CLIENT_DLL
 	sv_stats = g_pCVar->FindVar("sv_stats");
+
+	sv_maxunlag = g_pCVar->FindVar("sv_maxunlag");
 
 	sv_updaterate_sp = g_pCVar->FindVar("sv_updaterate_sp");
 	sv_updaterate_mp = g_pCVar->FindVar("sv_updaterate_mp");
