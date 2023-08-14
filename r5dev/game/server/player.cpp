@@ -11,6 +11,8 @@
 #include "gameinterface.h"
 #include "player.h"
 
+#include "engine/server/server.h"
+
 //------------------------------------------------------------------------------
 // Purpose: executes a null command for this player
 //------------------------------------------------------------------------------
@@ -118,11 +120,34 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 	if (totalCmds <= 0)
 		return;
 
+	const CClient* client = g_pServer->GetClient(GetEdict() - 1);
+	const CNetChan* chan = client->GetNetChan();
+
 	CUserCmd* lastCmd = &m_Commands[MAX_QUEUED_COMMANDS_PROCESS];
+
+	const float latencyAmount = chan->GetLatency(FLOW_OUTGOING);
+	const float maxCommandDelta = sv_maxunlag_delta->GetFloat();
+	const float localCurTime = (*g_pGlobals)->m_flCurTime;
+	const float lastCommandTime = m_LastCmd.command_time;
 
 	for (int i = totalCmds - 1; i >= 0; i--)
 	{
 		CUserCmd* cmd = &cmds[i];
+
+		const float commandTime = cmd->command_time;
+		const float commandDelta = fabs(commandTime - localCurTime) - latencyAmount;
+
+		if (/*commandTime < lastCommandTime ||*/ commandDelta > maxCommandDelta)
+		{
+			cmd->command_time = localCurTime - latencyAmount;
+
+			if (IsDebug())
+			{
+				Warning(eDLL_T::SERVER, "%s: Command delta of %f exceeded maximum of %f; commandTime=%f, lastCommandTime=%f, localCurTime=%f, latencyAmount=%f\n",
+					__FUNCTION__, commandDelta, maxCommandDelta, commandTime, lastCommandTime, localCurTime, latencyAmount);
+			}
+		}
+
 		const int commandNumber = cmd->command_number;
 
 		if (commandNumber > m_latestCommandQueued)
