@@ -30,6 +30,7 @@ int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from)
 	// Viewangles must be normalized; applying invalid angles on the client
 	// will result in undefined behavior, or a crash.
 	move->viewangles.Normalize();
+	move->pitchangles.Normalize();
 
 	// Some players abused a feature of the engine which allows you to perform
 	// custom weapon activities. After some research, it appears that only the

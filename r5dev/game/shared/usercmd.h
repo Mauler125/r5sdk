@@ -48,7 +48,7 @@ public:
 	int32_t tick_count;
 	float_t command_time;
 	QAngle viewangles;
-	char pad_0x0018[12];
+	QAngle pitchangles; // Pitch angles? See [r5apex_ds+705D80].
 	float_t forwardmove;
 	float_t sidemove;
 	float_t upmove;
@@ -56,9 +56,9 @@ public:
 	byte impulse;
 	byte cycleslot;
 	byte weaponindex;
-	__int16 weaponselect;
+	short weaponselect;
 	bool bUnk39;
-	__int16 weaponactivity;
+	short weaponactivity;
 	int nUnk3C;
 	bool controllermode;
 	bool fixangles;
