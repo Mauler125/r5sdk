@@ -123,6 +123,8 @@ public:
 	inline const netadr_t& GetRemoteAddress(void) const { return remote_address; }
 	inline bool IsOverflowed(void)                const { return m_StreamReliable.IsOverflowed(); }
 
+	bool HasPendingReliableData(void);
+
 	inline bool CanPacket(void) const { return v_NetChan_CanPacket(this); }
 	inline int SendDatagram(bf_write* pDatagram) { return v_NetChan_SendDatagram(this, pDatagram); }
 	bool SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice);

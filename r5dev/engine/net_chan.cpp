@@ -157,6 +157,15 @@ bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: check if there is still data in the reliable waiting buffers
+//-----------------------------------------------------------------------------
+bool CNetChan::HasPendingReliableData(void)
+{
+	return (m_StreamReliable.GetNumBitsWritten() > 0)
+		|| (m_WaitingList.Count() > 0);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void VNetChan::Attach() const
 {
