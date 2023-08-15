@@ -45,9 +45,9 @@ public:
 	inline int GetMaxClients(void) const { return m_nMaxClients; }
 
 	inline int64_t GetMaxTeams(void) const { return m_iMaxTeams; }
-
 	inline CClient* GetClient(int nIndex) { Assert(nIndex >= NULL && nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
 
+	inline float GetTime(void) const { return m_nTickCount * m_flTickInterval; }
 	inline float GetCPUUsage(void) const { return m_fCPUPercent; }
 
 	inline bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
