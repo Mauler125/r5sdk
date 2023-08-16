@@ -125,6 +125,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 
 	CUserCmd* lastCmd = &m_Commands[MAX_QUEUED_COMMANDS_PROCESS];
 
+	const float clockDriftMsecs = sv_clockcorrection_msecs->GetFloat();
 	const float maxUnlag = sv_maxunlag->GetFloat();
 	const float latencyAmount = Clamp(chan->GetLatency(FLOW_OUTGOING), 0.0f, maxUnlag);
 	const float serverTime = (*g_pGlobals)->m_flCurTime;
@@ -165,26 +166,26 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 					__FUNCTION__, commandDelta, maxUnlag);
 			}
 		}
-		else if (commandTime < lastCommandTime)
+		else if (commandTime < (lastCommandTime - clockDriftMsecs))
 		{
 			// Can never be lower than last !!!
 			recomputeUnlag = true;
 
 			if (IsDebug())
 			{
-				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < m_LastCmd.command_time( %f ) !!!\n",
-					__FUNCTION__, commandTime, lastCommandTime);
+				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < (m_LastCmd.command_time( %f ) - sv_clockcorrection_msecs->GetFloat( %f )) !!!\n",
+					__FUNCTION__, commandTime, lastCommandTime, clockDriftMsecs);
 			}
 		}
-		else if (commandTime > serverTime)
+		else if (commandTime > (serverTime + clockDriftMsecs))
 		{
 			// Too far in the future, clamp to max !!!
 			recomputeUnlag = true;
 
 			if (IsDebug())
 			{
-				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) > g_pGlobals->m_flCurTime( %f ) !!!\n",
-					__FUNCTION__, commandTime, serverTime);
+				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) > (g_pGlobals->m_flCurTime( %f ) + sv_clockcorrection_msecs->GetFloat( %f )) !!!\n",
+					__FUNCTION__, commandTime, serverTime, clockDriftMsecs);
 			}
 		}
 
