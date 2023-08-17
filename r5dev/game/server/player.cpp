@@ -23,6 +23,9 @@ void CPlayer::RunNullCommand(void)
 	float flOldFrameTime = (*g_pGlobals)->m_flFrameTime;
 	float flOldCurTime = (*g_pGlobals)->m_flCurTime;
 
+	cmd.frametime = flOldFrameTime;
+	cmd.command_time = flOldCurTime;
+
 	pl.fixangle = FIXANGLE_NONE;
 	EyeAngles(&cmd.viewangles);
 
