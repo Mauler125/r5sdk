@@ -361,11 +361,7 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
     string finalUrl;
     CURLFormatUrl(finalUrl, hostName, endpoint);
 
-#ifndef DEDICATED
-    finalUrl += Format("?language=%s", cl_language->GetString());
-#else
-    finalUrl += Format("?language=%s", sv_language->GetString());
-#endif
+    finalUrl += Format("?language=%s", this->m_Language);
 
     CURLParams params;
 

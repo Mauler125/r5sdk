@@ -1008,7 +1008,6 @@ void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString, float flO
 }
 #endif // !DEDICATED
 
-#ifndef CLIENT_DLL
 
 static const char* s_LanguageNames[] = {
 	"english",
@@ -1035,7 +1034,7 @@ static bool IsValidTextLanguage(const char* pLocaleName)
 	return false;
 }
 
-void SV_LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
 	{
@@ -1053,10 +1052,10 @@ void SV_LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldV
 		else // this shouldn't really happen, but if neither the old nor new values are valid, set to english
 			pConVarRef->SetValue("english");
 
+
+		g_pMasterServer->SetLanguage(pConVarRef->GetString());
 	}
 }
-
-#endif
 
 /*
 =====================

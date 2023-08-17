@@ -26,8 +26,11 @@ public:
 	inline void SetCurrentToken(const string& token) { m_Token = token; }
 	inline void SetCurrentError(const string& error) { m_ErrorMsg = error; }
 
+	inline void SetLanguage(const char* lang) { m_Language = lang; };
+
 private:
 	string m_Token;
 	string m_ErrorMsg;
+	const char* m_Language;
 };
 extern CPylon* g_pMasterServer;
