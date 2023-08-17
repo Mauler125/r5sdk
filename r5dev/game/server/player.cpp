@@ -64,10 +64,10 @@ inline void CPlayer::SetTimeBase(float flTimeBase)
 
 	SetLastUCmdSimulationRemainderTime(flTime);
 
-	float flSomeTime = flTimeBase - m_lastUCmdSimulationRemainderTime * (*g_pGlobals)->m_flTickInterval;
-	if (flSomeTime >= 0.0)
+	float flSimulationTime = flTimeBase - m_lastUCmdSimulationRemainderTime * (*g_pGlobals)->m_flTickInterval;
+	if (flSimulationTime >= 0.0f)
 	{
-		flTime = flSomeTime;
+		flTime = flSimulationTime;
 	}
 
 	SetTotalExtraClientCmdTimeAttempted(flTime);
@@ -128,7 +128,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 
 	CUserCmd* lastCmd = &m_Commands[MAX_QUEUED_COMMANDS_PROCESS];
 
-	const float clockDriftMsecs = sv_clockcorrection_msecs->GetFloat();
+	const float clockDriftMsecs = sv_clockcorrection_msecs->GetFloat() / 1000.0f;
 	const float maxUnlag = sv_maxunlag->GetFloat();
 	const float latencyAmount = Clamp(chan->GetLatency(FLOW_OUTGOING), 0.0f, maxUnlag);
 	const float serverTime = (*g_pGlobals)->m_flCurTime;
@@ -176,7 +176,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 
 			if (IsDebug())
 			{
-				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < (m_LastCmd.command_time( %f ) - sv_clockcorrection_msecs->GetFloat( %f )) !!!\n",
+				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < (m_LastCmd.command_time( %f ) - clockDriftMsecs( %f )) !!!\n",
 					__FUNCTION__, commandTime, lastCommandTime, clockDriftMsecs);
 			}
 		}
@@ -187,7 +187,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 
 			if (IsDebug())
 			{
-				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) > (g_pGlobals->m_flCurTime( %f ) + sv_clockcorrection_msecs->GetFloat( %f )) !!!\n",
+				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) > (g_pGlobals->m_flCurTime( %f ) + clockDriftMsecs( %f )) !!!\n",
 					__FUNCTION__, commandTime, serverTime, clockDriftMsecs);
 			}
 		}
