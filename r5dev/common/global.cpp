@@ -321,7 +321,6 @@ void ConVar_StaticInit(void)
 	navmesh_draw_poly_bounds_inner = ConVar::StaticCreate("navmesh_draw_poly_bounds_inner" , "0" , FCVAR_DEVELOPMENTONLY, "Draws the inner bounds of the NavMesh polys (requires navmesh_draw_poly_bounds).", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
 #endif // !DEDICATED
 
-	sv_language = ConVar::StaticCreate("sv_language", "english", FCVAR_RELEASE, "Language of the server. Sent to MasterServer for localising error messages.", false, 0.f, false, 0.f, SV_LanguageChanged_f, nullptr);
 	sv_language = ConVar::StaticCreate("sv_language", "english", FCVAR_RELEASE, "Language of the server. Sent to MasterServer for localising error messages.", false, 0.f, false, 0.f, LanguageChanged_f, nullptr);
 	sv_showconnecting  = ConVar::StaticCreate("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_globalBanlist   = ConVar::StaticCreate("sv_globalBanlist"  , "1", FCVAR_RELEASE, "Determines whether or not to use the global banned list.", false, 0.f, false, 0.f, nullptr, "0 = Disable, 1 = Enable.");
