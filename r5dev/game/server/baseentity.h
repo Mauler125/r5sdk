@@ -148,7 +148,7 @@ protected:
 	Vector3D m_vecAbsVelocity;
 	Vector3D m_vecAngVelocity;
 	char gap_3f4[12];
-	float m_rgflCoordinateFrame[12];
+	matrix3x4_t m_rgflCoordinateFrame;
 	float m_flFriction;
 	float m_flLocalTime;
 	float m_flVPhysicsUpdateLocalTime;
@@ -255,6 +255,7 @@ protected:
 	char m_realmsTransmitMaskCached[16];
 	int m_realmsTransmitMaskCachedSerialNumber;
 };
+static_assert(sizeof(CBaseEntity) == 2824);
 
 inline CMemory p_CBaseEntity__GetBaseEntity;
 inline CBaseEntity*(*v_CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
