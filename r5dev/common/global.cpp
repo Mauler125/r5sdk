@@ -180,6 +180,8 @@ ConVar* cl_materialinfo_offset_y           = nullptr;
 
 ConVar* cl_threaded_bone_setup             = nullptr;
 
+ConVar* cl_language                        = nullptr;
+
 ConVar* con_drawnotify                     = nullptr;
 ConVar* con_notifylines                    = nullptr;
 ConVar* con_notifytime                     = nullptr;
@@ -483,6 +485,7 @@ void ConVar_InitShipped(void)
 	cl_move_use_dt                   = g_pCVar->FindVar("cl_move_use_dt");
 	cl_updaterate_mp                 = g_pCVar->FindVar("cl_updaterate_mp");
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
+	cl_language                      = g_pCVar->FindVar("cl_language");
 #endif // !DEDICATED
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");
@@ -505,7 +508,7 @@ void ConVar_InitShipped(void)
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 #ifndef DEDICATED
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
-	discord_updatePresence = g_pCVar->FindVar("discord_updatePresence");
+	discord_updatePresence           = g_pCVar->FindVar("discord_updatePresence");
 #endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	ip_cvar                          = g_pCVar->FindVar("ip");

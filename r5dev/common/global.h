@@ -168,6 +168,8 @@ extern ConVar* cl_materialinfo_offset_y;
 
 extern ConVar* cl_threaded_bone_setup;
 
+extern ConVar* cl_language;
+
 extern ConVar* con_drawnotify;
 extern ConVar* con_notifylines;
 extern ConVar* con_notifytime;
