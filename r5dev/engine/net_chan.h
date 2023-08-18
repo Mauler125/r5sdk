@@ -96,6 +96,9 @@ inline void(*v_NetChan_Shutdown)(CNetChan* pChan, const char* szReason, uint8_t 
 inline CMemory p_NetChan_CanPacket;
 inline bool(*v_NetChan_CanPacket)(const CNetChan* pChan);
 
+inline CMemory p_NetChan_FlowNewPacket;
+inline void(*v_NetChan_FlowNewPacket)(CNetChan* pChan, int flow, int outSeqNr, int inSeqNr, int nChoked, int nDropped, int nSize);
+
 inline CMemory p_NetChan_SendDatagram;
 inline int(*v_NetChan_SendDatagram)(CNetChan* pChan, bf_write* pMsg);
 
@@ -144,6 +147,8 @@ public:
 
 	static void _Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 	static bool _ProcessMessages(CNetChan* pChan, bf_read* pMsg);
+
+	static void _FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeqNr, int nChoked, int nDropped, int nSize);
 
 	void SetChoked();
 	void SetRemoteFramerate(float flFrameTime, float flFrameTimeStdDeviation);
@@ -251,6 +256,7 @@ class VNetChan : public IDetour
 		LogFunAdr("CNetChan::Clear", p_NetChan_Clear.GetPtr());
 		LogFunAdr("CNetChan::Shutdown", p_NetChan_Shutdown.GetPtr());
 		LogFunAdr("CNetChan::CanPacket", p_NetChan_CanPacket.GetPtr());
+		LogFunAdr("CNetChan::FlowNewPacket", p_NetChan_FlowNewPacket.GetPtr());
 		LogFunAdr("CNetChan::SendDatagram", p_NetChan_SendDatagram.GetPtr());
 		LogFunAdr("CNetChan::ProcessMessages", p_NetChan_ProcessMessages.GetPtr());
 	}
@@ -264,6 +270,9 @@ class VNetChan : public IDetour
 
 		p_NetChan_CanPacket = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B D9 75 15 48 8B 05 ?? ?? ?? ??");
 		v_NetChan_CanPacket = p_NetChan_CanPacket.RCast<bool (*)(const CNetChan*)>();
+
+		p_NetChan_FlowNewPacket = g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 89 54 24 10 56");
+		v_NetChan_FlowNewPacket = p_NetChan_FlowNewPacket.RCast<void (*)(CNetChan*, int, int, int, int, int, int)>();
 
 		p_NetChan_SendDatagram = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 56 41 57 48 83 EC 70");
 		v_NetChan_SendDatagram = p_NetChan_SendDatagram.RCast<int (*)(CNetChan*, bf_write*)>();
