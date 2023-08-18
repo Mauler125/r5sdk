@@ -24,15 +24,15 @@
 //-----------------------------------------------------------------------------
 float CNetChan::GetNetworkLoss() const
 {
-	float v1 = *&m_DataFlow[1].frames[0].one;
-	if (!v1 && !m_nSequencesSkipped_MAYBE)
+	int64_t totalupdates = this->m_DataFlow[FLOW_INCOMING].totalupdates;
+	if (!totalupdates && !this->m_nSequencesSkipped_MAYBE)
 		return 0.0f;
 
-	float v4 = (v1 + m_nSequencesSkipped_MAYBE);
-	if (v1 + m_nSequencesSkipped_MAYBE < 0)
-		v4 = v4 + float(2 ^ 64);
+	float loss = (float)(totalupdates + m_nSequencesSkipped_MAYBE);
+	if (totalupdates + m_nSequencesSkipped_MAYBE < 0.0f)
+		loss += float(2 ^ 64);
 
-	return m_nSequencesSkipped_MAYBE / v4;
+	return m_nSequencesSkipped_MAYBE / loss;
 }
 
 //-----------------------------------------------------------------------------

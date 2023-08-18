@@ -28,18 +28,23 @@ class CClient;
 class CNetChan;
 
 //-----------------------------------------------------------------------------
-struct netframe_t
+typedef struct netframe_header_s
 {
-	float one;
-	float two;
-	float three;
-	float four;
-	float five;
-	float six;
-};
+	float time;
+	int size;
+	short choked;
+	bool valid;
+	float latency;
+} netframe_header_t;
+
+typedef struct netframe_s
+{
+	int dropped;
+	float avg_latency;
+} netframe_t;
 
 //-----------------------------------------------------------------------------
-struct netflow_t
+typedef struct netflow_s
 {
 	float nextcompute;
 	float avgbytespersec;
@@ -48,11 +53,15 @@ struct netflow_t
 	float avgchoke;
 	float avglatency;
 	float latency;
+	float maxlatency;
 	int64_t totalpackets;
 	int64_t totalbytes;
+	int64_t totalupdates;
+	int currentindex;
+	netframe_header_t frame_headers[NET_FRAMES_BACKUP];
 	netframe_t frames[NET_FRAMES_BACKUP];
-	netframe_t current_frame;
-};
+	netframe_t* current_frame;
+} netflow_t;
 
 //-----------------------------------------------------------------------------
 struct dataFragments_t
@@ -197,7 +206,7 @@ private:
 	int64_t             m_StreamSendBuffer;
 	bf_write            m_StreamSend;
 	uint8_t             m_bInMatch_maybe;
-	netflow_t           m_DataFlow[2];
+	netflow_t           m_DataFlow[MAX_FLOWS];
 	int                 m_nLifetimePacketsDropped;
 	int                 m_nSessionPacketsDropped;
 	int                 m_nSequencesSkipped_MAYBE;
