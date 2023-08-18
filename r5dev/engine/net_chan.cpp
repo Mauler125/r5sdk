@@ -137,8 +137,13 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
                 v22 = v19;
                 time = (float)*g_pNetTime;
                 v16 += 4 * v19;
+
+                int numPacketFrames = 0;
+
                 do
                 {
+                    ++numPacketFrames;
+
                     v24 = (v20 - 2) & NET_FRAMES_MASK;
                     v25 = v24;
                     pFlow->frame_headers[v25].time = time;
@@ -206,7 +211,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
                     v21 -= 4;
                     v20 += 4;
                     --v22;
-                } while (v22);
+                } while (v22 && numPacketFrames < NET_FRAMES_BACKUP);
                 v12 = outSeqNr;
                 v8 = flow;
                 v9 = inSeqNr;
