@@ -81,7 +81,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
     int v9; // r14d
     int v12; // r12d
     int currentindex; // eax
-    int v16; // r15d
+    int nextIndex; // r15d
     int v17; // r8d
     int v18; // ebp
     unsigned int v19; // eax
@@ -124,26 +124,32 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
     currentindex = pFlow->currentindex;
     if (outSeqNr > currentindex)
     {
-        v16 = currentindex + 1;
+        nextIndex = currentindex + 1;
         if (currentindex + 1 <= outSeqNr)
         {
-            v17 = outSeqNr - v16;
+            // This variable makes sure the loops below do not execute more
+            // than NET_FRAMES_BACKUP times. This has to be done as the
+            // headers and frame arrays in the netflow_t structure is as
+            // large as NET_FRAMES_BACKUP. Any execution past it is futile
+            // and only wastes CPU time. Sending an outSeqNr that is higher
+            // than the current index by something like a million or more will
+            // hang the engine for several milliseconds to several seconds.
+            int numPacketFrames = 0;
+
+            v17 = outSeqNr - nextIndex;
+
             if (v17 + 1 >= 4)
             {
                 v18 = nChoked + nDropped;
-                v19 = ((unsigned int)(v12 - v16 - 3) >> 2) + 1;
-                v20 = v16 + 2;
+                v19 = ((unsigned int)(v12 - nextIndex - 3) >> 2) + 1;
+                v20 = nextIndex + 2;
                 v21 = v17 - 2;
                 v22 = v19;
                 time = (float)*g_pNetTime;
-                v16 += 4 * v19;
-
-                int numPacketFrames = 0;
+                nextIndex += 4 * v19;
 
                 do
                 {
-                    numPacketFrames += 4;
-
                     v24 = (v20 - 2) & NET_FRAMES_MASK;
                     v25 = v24;
                     pFlow->frame_headers[v25].time = time;
@@ -208,6 +214,10 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
                         else
                             pFrameHeader->choked = 1;
                     }
+
+                    // Incremented by four since this loop does four frames
+                    // per iteration.
+                    numPacketFrames += 4;
                     v21 -= 4;
                     v20 += 4;
                     --v22;
@@ -216,11 +226,15 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
                 v8 = flow;
                 v9 = inSeqNr;
             }
-            if (v16 <= v12)
+
+            // Check if we did not reach NET_FRAMES_BACKUP, else we will
+            // execute the 129'th iteration as well. Also check if the next
+            // index doesn't exceed the outSeqNr.
+            if (numPacketFrames < NET_FRAMES_BACKUP && nextIndex <= v12)
             {
-                v30 = v12 - v16;
-                v31 = v16;
-                v33 = v12 - v16 + 1;
+                v30 = v12 - nextIndex;
+                v31 = nextIndex;
+                v33 = v12 - nextIndex + 1;
                 do
                 {
                     pFrame = &pFlow->frames[v31 & NET_FRAMES_MASK];
@@ -243,7 +257,8 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
                     --v30;
                     ++v31;
                     --v33;
-                } while (v33);
+                    ++numPacketFrames;
+                } while (v33 && numPacketFrames < NET_FRAMES_BACKUP);
                 v9 = inSeqNr;
             }
         }
