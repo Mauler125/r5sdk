@@ -142,7 +142,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
 
                 do
                 {
-                    ++numPacketFrames;
+                    numPacketFrames += 4;
 
                     v24 = (v20 - 2) & NET_FRAMES_MASK;
                     v25 = v24;
