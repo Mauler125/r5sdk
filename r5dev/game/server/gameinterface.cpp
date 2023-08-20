@@ -86,6 +86,17 @@ void __fastcall CServerGameDLL::OnReceivedSayTextMessage(void* thisptr, int send
 #endif
 }
 
+void DrawServerHitbox(int iEntity)
+{
+	IHandleEntity* pEntity = LookupEntityByIndex(iEntity);
+	CBaseAnimating* pAnimating = dynamic_cast<CBaseAnimating*>(pEntity);
+
+	if (pAnimating)
+	{
+		pAnimating->DrawServerHitboxes();
+	}
+}
+
 void DrawServerHitboxes(bool bRunOverlays)
 {
 	int nVal = sv_showhitboxes->GetInt();
@@ -94,27 +105,16 @@ void DrawServerHitboxes(bool bRunOverlays)
 	if (nVal == -1)
 		return;
 
-	std::function<void(int)> fnLookupAndDraw = [&](int iEntity)
-	{
-		IHandleEntity* pEntity = LookupEntityByIndex(iEntity);
-		CBaseAnimating* pAnimating = dynamic_cast<CBaseAnimating*>(pEntity);
-
-		if (pAnimating)
-		{
-			pAnimating->DrawServerHitboxes();
-		}
-	};
-
 	if (nVal == 0)
 	{
 		for (int i = 0; i < NUM_ENT_ENTRIES; i++)
 		{
-			fnLookupAndDraw(i);
+			DrawServerHitbox(i);
 		}
 	}
 	else // Lookup entity manually by index from 'sv_showhitboxes'.
 	{
-		fnLookupAndDraw(nVal);
+		DrawServerHitbox(nVal);
 	}
 }
 
