@@ -28,11 +28,11 @@ float CNetChan::GetNetworkLoss() const
 	if (!totalupdates && !this->m_nSequencesSkipped_MAYBE)
 		return 0.0f;
 
-	float loss = (float)(totalupdates + m_nSequencesSkipped_MAYBE);
+	float lossRate = (float)(totalupdates + m_nSequencesSkipped_MAYBE);
 	if (totalupdates + m_nSequencesSkipped_MAYBE < 0.0f)
-		loss += float(2 ^ 64);
+		lossRate += float(2 ^ 64);
 
-	return m_nSequencesSkipped_MAYBE / loss;
+	return m_nSequencesSkipped_MAYBE / lossRate;
 }
 
 //-----------------------------------------------------------------------------
