@@ -102,28 +102,27 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 	pModAppSystemGroup->SetServerOnly();
 	*m_bIsDedicated = true;
 #endif // DEDICATED
-	g_pFactory->GetFactoriesFromRegister();
-	g_pFactory->AddFactory(FACTORY_INTERFACE_VERSION, g_pFactory);
-	g_pFactory->AddFactory(INTERFACEVERSION_PLUGINSYSTEM, g_pPluginSystem);
-	g_pFactory->AddFactory(KEYVALUESSYSTEM_INTERFACE_VERSION, g_pKeyValuesSystem);
+
+	EXPOSE_INTERFACE_FN((InstantiateInterfaceFn)PluginSystem, CPluginSystem, INTERFACEVERSION_PLUGINSYSTEM);
+	EXPOSE_INTERFACE_FN((InstantiateInterfaceFn)KeyValuesSystem, CKeyValuesSystem, KEYVALUESSYSTEM_INTERFACE_VERSION);
 
 	InitPluginSystem(pModAppSystemGroup);
 	CALL_PLUGIN_CALLBACKS(g_pPluginSystem->GetCreateCallbacks(), pModAppSystemGroup);
 
 	g_pModSystem->Init();
 
-	g_pDebugOverlay = g_pFactory->GetFactoryPtr(VDEBUG_OVERLAY_INTERFACE_VERSION, false).RCast<CIVDebugOverlay*>();
+	g_pDebugOverlay = (CIVDebugOverlay*)g_pFactorySystem->GetFactory(VDEBUG_OVERLAY_INTERFACE_VERSION);
 #ifndef CLIENT_DLL
-	g_pServerGameDLL = g_pFactory->GetFactoryPtr(INTERFACEVERSION_SERVERGAMEDLL, false).RCast<CServerGameDLL*>();
-	g_pServerGameClients = g_pFactory->GetFactoryPtr(INTERFACEVERSION_SERVERGAMECLIENTS_NEW, false).RCast<CServerGameClients*>();
+	g_pServerGameDLL = (CServerGameDLL*)g_pFactorySystem->GetFactory(INTERFACEVERSION_SERVERGAMEDLL);
+	g_pServerGameClients = (CServerGameClients*)g_pFactorySystem->GetFactory(INTERFACEVERSION_SERVERGAMECLIENTS_NEW);
 	if (!g_pServerGameClients)
-		g_pServerGameClients = g_pFactory->GetFactoryPtr(INTERFACEVERSION_SERVERGAMECLIENTS, false).RCast<CServerGameClients*>();
-	g_pServerGameEntities = g_pFactory->GetFactoryPtr(INTERFACEVERSION_SERVERGAMEENTS, false).RCast<CServerGameEnts*>();
+		g_pServerGameClients = (CServerGameClients*)g_pFactorySystem->GetFactory(INTERFACEVERSION_SERVERGAMECLIENTS);
+	g_pServerGameEntities = (CServerGameEnts*)g_pFactorySystem->GetFactory(INTERFACEVERSION_SERVERGAMEENTS);
 
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-	g_pClientEntityList = g_pFactory->GetFactoryPtr(VCLIENTENTITYLIST_INTERFACE_VERSION, false).RCast<CClientEntityList*>();
-	g_pEngineTraceClient = g_pFactory->GetFactoryPtr(INTERFACEVERSION_ENGINETRACE_CLIENT, false).RCast<CEngineTraceClient*>();
+	g_pClientEntityList = (CClientEntityList*)g_pFactorySystem->GetFactory(VCLIENTENTITYLIST_INTERFACE_VERSION);
+	g_pEngineTraceClient = (CEngineTraceClient*)g_pFactorySystem->GetFactory(INTERFACEVERSION_ENGINETRACE_CLIENT);
 
 	g_pImGuiConfig->Load(); // Load ImGui configs.
 	DirectX_Init();

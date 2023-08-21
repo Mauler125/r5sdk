@@ -117,6 +117,11 @@ private:
 };
 extern CPluginSystem* g_pPluginSystem;
 
+FORCEINLINE CPluginSystem* PluginSystem()
+{
+	return g_pPluginSystem;
+}
+
 // Monitor this and performance profile this if fps drops are detected.
 #define CALL_PLUGIN_CALLBACKS(callback, ...)      \
 	for (auto& cb : !callback)                    \

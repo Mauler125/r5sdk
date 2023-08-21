@@ -1,6 +1,6 @@
 #pragma once
 
-class IFactory;
+class IFactorySystem;
 class IPluginSystem;
 //-----------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@ public:
 	inline void SetSDKModule(const CModule& sdkModule) { m_SDKModule = sdkModule; };
 private:
 
-	IFactory* m_FactoryInstance;
+	IFactorySystem* m_FactoryInstance;
 	IPluginSystem* m_PluginSystem;
 	CModule m_SelfModule;
 	CModule m_GameModule;

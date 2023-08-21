@@ -1,5 +1,6 @@
 #pragma once
 #include "tier1/interface.h"
+#include "pluginsdk/ifactory.h"
 
 /*-----------------------------------------------------------------------------
  * _interfaces.h
@@ -38,7 +39,7 @@
 #define SOUNDCARD_INTERFACE_VERSION               "ISoundC002"
 
 #define SHADERSYSTEM_INTERFACE_VERSION            "ShaderSystem002"
-#define FACTORY_INTERFACE_VERSION                 "VFactorySystem001"
+#define FACTORY_INTERFACE_VERSION                 "VFactorySystem002"
 #define FILESYSTEM_INTERFACE_VERSION              "VFileSystem017"
 #define BASEFILESYSTEM_INTERFACE_VERSION          "VBaseFileSystem011"
 #define KEYVALUESSYSTEM_INTERFACE_VERSION         "VKeyValuesSystem001"
@@ -46,37 +47,38 @@
 //-----------------------------------------------------------------------------
 // Class to hold all factories (interfaces)
 //-----------------------------------------------------------------------------
-class CFactory
+class CFactorySystem : public IFactorySystem
 {
 public:
-	virtual void AddFactory(const string& svFactoryName, void* pFactory);
-	virtual void AddFactory(FactoryInfo_t factoryInfo);
-	virtual size_t GetVersionIndex(const string& svInterfaceName) const;
-	virtual void GetFactoriesFromRegister(void);
-	virtual CMemory GetFactoryPtr(const string& svFactoryName, bool versionLess = true) const;
-	virtual const char* GetFactoryFullName(const string& svFactoryName) const;
-
-private:
-	vector<FactoryInfo_t> m_vFactories;
+	virtual void AddFactory(InstantiateInterfaceFn createFn, const char* pName) const override;
+	virtual void* GetFactory(const char* pName)                                 const override;
+	virtual const char* GetVersion(void)                                        const override;
 };
-extern CFactory* g_pFactory;
 
-PLATFORM_INTERFACE CFactory* GetFactorySystem();
-
-/* ==== s_pInterfaceRegs ==================================================================================================================================================== */
-inline CMemory s_pInterfacesRegs;
+extern CFactorySystem* g_pFactorySystem;
+PLATFORM_INTERFACE IFactorySystem* GetFactorySystem();
 
 ///////////////////////////////////////////////////////////////////////////////
+
+inline CMemory p_CreateInterfaceInternal;
+inline void*(*CreateInterfaceInternal)(const char* pName, int* pReturnCode);
+
 class VFactory : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("s_pInterfacesRegs", s_pInterfacesRegs.GetPtr());
+		LogFunAdr("CreateInterfaceInternal", reinterpret_cast<uintptr_t>(s_ppInterfaceRegs));
+		LogVarAdr("s_pInterfaceRegs", reinterpret_cast<uintptr_t>(s_ppInterfaceRegs));
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_CreateInterfaceInternal = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B FA");
+		CreateInterfaceInternal = p_CreateInterfaceInternal.RCast<void*(*)(const char*, int*)>();
+	}
 	virtual void GetVar(void) const
 	{
-		s_pInterfacesRegs = g_GameDll.FindPatternSIMD("E9 ?? ?? ?? ?? CC CC 89 91 ?? ?? ?? ??").FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7);
+		s_ppInterfaceRegs = g_GameDll.FindPatternSIMD("E9 ?? ?? ?? ?? CC CC 89 91 ?? ?? ?? ??")
+			.FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<InterfaceReg**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

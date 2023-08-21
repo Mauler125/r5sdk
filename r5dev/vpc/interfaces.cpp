@@ -6,114 +6,58 @@
 
 #include "core/stdafx.h"
 #include "vpc/interfaces.h"
+#include "tier1/interface.h"
 
 //---------------------------------------------------------------------------------
-// Purpose: add a factory to the factories vector
-// Input  : svFactoryName - 
-//          pFactory - 
+// Purpose: register a new factory
+// Input  : createFn - 
+//          *pName    - 
 //---------------------------------------------------------------------------------
-void CFactory::AddFactory(const string& svFactoryName, void* pFactory)
+void CFactorySystem::AddFactory(InstantiateInterfaceFn createFn, const char* pName) const
 {
-	size_t nVersionIndex = GetVersionIndex(svFactoryName);
-	FactoryInfo_t factoryInfo(reinterpret_cast<uintptr_t>(pFactory), svFactoryName,
-		svFactoryName.substr(0, nVersionIndex), svFactoryName.substr(nVersionIndex));
-
-	m_vFactories.push_back(factoryInfo); // Push factory info back into the vector.
+	InterfaceReg(createFn, pName);
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: add a factory to the factories vector
-// Input  : factoryInfo - 
+// Purpose: get a factory by name
+// Input  : *pName - 
 //---------------------------------------------------------------------------------
-void CFactory::AddFactory(FactoryInfo_t factoryInfo)
+void* CFactorySystem::GetFactory(const char* pName) const
 {
-	m_vFactories.push_back(factoryInfo); // Push factory info back into the vector.
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: get the version index from interface name
-// Input  : svInterfaceName - 
-// Output : index of version in input interface string
-//---------------------------------------------------------------------------------
-size_t CFactory::GetVersionIndex(const string& svInterfaceName) const
-{
-	size_t nVersionIndex = 0;
-	for (size_t i = 0; i < svInterfaceName.length(); i++) // Loop through each character to find the start of interface version.
+	for (InterfaceReg* it = *s_ppInterfaceRegs;
+		it; it = it->m_pNext) // Loop till we go out of scope.
 	{
-		if (std::isdigit(svInterfaceName[i]))
-		{
-			nVersionIndex = i;
-			break;
-		}
-	}
-	return nVersionIndex;
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: get all factory registered in the global s_pInterfacesRegs
-//---------------------------------------------------------------------------------
-void CFactory::GetFactoriesFromRegister(void)
-{
-	for (InterfaceGlobals_t* it = s_pInterfacesRegs.GetValue<InterfaceGlobals_t*>();
-		it; it = it->m_pNextInterfacePtr) // Loop till we go out of scope.
-	{
-		string svInterfaceName = it->m_pInterfaceName; // Get copy of the name.
-		size_t nVersionIndex = GetVersionIndex(svInterfaceName);
-
-		// Push back the interface.
-		AddFactory(FactoryInfo_t(reinterpret_cast<uintptr_t>(it->m_pInterfacePtr()), svInterfaceName,
-			svInterfaceName.substr(0, nVersionIndex), svInterfaceName.substr(nVersionIndex)));
-	}
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: get factory pointer with factoryname input from factories vector
-// Input  : svFactoryName - 
-//			bVersionLess - 
-// Output : CMemory
-//---------------------------------------------------------------------------------
-CMemory CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) const
-{
-	for (const FactoryInfo_t& it : m_vFactories) // Loop through the whole vector.
-	{
-		if (bVersionLess)
-		{
-			if (it.m_szFactoryName == svFactoryName)
-				return it.m_pFactoryPtr;
-		}
-		else
-		{
-			if (it.m_szFactoryFullName == svFactoryName)
-				return it.m_pFactoryPtr;
-		}
+		if (V_strcmp(it->m_pName, pName) == NULL)
+			return it->m_CreateFn();
 	}
 
-	return CMemory();
+	// No dice.
+	return nullptr;
 }
 
-
 //---------------------------------------------------------------------------------
-// Purpose: get full factory string from versionless string
-// Input  : svFactoryName - 
-// Output : const char*
+// Purpose: get the factory system's interface version
+// Input  : *pName - 
 //---------------------------------------------------------------------------------
-const char* CFactory::GetFactoryFullName(const string& svFactoryName) const
+const char* CFactorySystem::GetVersion(void) const
 {
-	for (const FactoryInfo_t& it : m_vFactories)
-	{
-		if (it.m_szFactoryName == svFactoryName)
-			return it.m_szFactoryFullName.c_str();
-	}
-
-	return "";
+	return FACTORY_INTERFACE_VERSION;
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: expose factory system to other dlls
+// Purpose: 
 //---------------------------------------------------------------------------------
-CFactory* GetFactorySystem()
+void* CreateInterface(const char* pName, int* pReturnCode)
 {
-	return g_pFactory;
+	return CreateInterfaceInternal(pName, pReturnCode);
 }
 
-CFactory* g_pFactory = new CFactory();
+//---------------------------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------------------------
+IFactorySystem* GetFactorySystem()
+{
+	return g_pFactorySystem;
+}
+
+CFactorySystem* g_pFactorySystem = new CFactorySystem();

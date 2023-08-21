@@ -24,6 +24,7 @@ add_sources( SOURCE_GROUP "Private"
     "cmd.cpp"
     "convar.cpp"
     "cvar.cpp"
+    "interface.cpp"
 )
 
 file( GLOB TIER1_PUBLIC_HEADERS

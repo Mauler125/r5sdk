@@ -14,26 +14,53 @@ typedef void* (*CreateInterfaceFn)(const char* pName, int* pReturnCode);
 typedef void* (*InstantiateInterfaceFn)();
 typedef HINSTANCE CSysModule;
 
-struct InterfaceGlobals_t
+class InterfaceReg
 {
-	InstantiateInterfaceFn m_pInterfacePtr;
-	const char* m_pInterfaceName;
-	InterfaceGlobals_t* m_pNextInterfacePtr;
+public:
+	InterfaceReg(InstantiateInterfaceFn fn, const char* pName);
+
+public:
+	InstantiateInterfaceFn m_CreateFn;
+	const char* m_pName;
+	InterfaceReg* m_pNext;
 };
+extern InterfaceReg** s_ppInterfaceRegs;
+
 //-----------------------------------------------------------------------------
+// Use this to expose an interface that can have multiple instances.
+// e.g.:
+// EXPOSE_INTERFACE( CInterfaceImp, IInterface, "MyInterface001" )
+// This will expose a class called CInterfaceImp that implements IInterface (a pure class)
+// clients can receive a pointer to this class by calling CreateInterface( "MyInterface001" )
+//
+// In practice, the shared header file defines the interface (IInterface) and version name ("MyInterface001")
+// so that each component can use these names/vtables to communicate
+//
+// A single class can support multiple interfaces through multiple inheritance
+//
+// Use this if you want to write the factory function.
+#define EXPOSE_INTERFACE_FN(functionName, interfaceName, versionName) \
+	{	\
+		static InterfaceReg __g_Create##interfaceName##_reg(functionName, versionName); \
+	}
+#define EXPOSE_INTERFACE(className, interfaceName, versionName) \
+	{	\
+		static void* __Create##className##_interface() {return static_cast<interfaceName *>( new className );} \
+		static InterfaceReg __g_Create##className##_reg(__Create##className##_interface, versionName ); \
+	}
 
-struct FactoryInfo_t
-{
-	CMemory m_pFactoryPtr;
-	string m_szFactoryFullName;
-	string m_szFactoryName;
-	string m_szFactoryVersion;
+// Use this to expose a singleton interface with a global variable you've created.
+#define EXPOSE_SINGLE_INTERFACE_GLOBALVAR(className, interfaceName, versionName, globalVarName) \
+	{ \
+		static void* __Create##className##interfaceName##_interface() {return static_cast<interfaceName *>( &globalVarName );} \
+		static InterfaceReg __g_Create##className##interfaceName##_reg(__Create##className##interfaceName##_interface, versionName); \
+	}
 
-	FactoryInfo_t() : m_pFactoryPtr(nullptr) {}
-	FactoryInfo_t(const uintptr_t factoryPtr, const string& factoryFullName, const string& factoryName, const string& factoryVersion) :
-		m_pFactoryPtr(factoryPtr), m_szFactoryFullName(factoryFullName), m_szFactoryName(factoryName), m_szFactoryVersion(factoryVersion) {}
-	FactoryInfo_t(const uintptr_t factoryPtr, const string& factoryFullName) :
-		m_pFactoryPtr(factoryPtr), m_szFactoryFullName(factoryFullName) {}
-};
+// Use this to expose a singleton interface. This creates the global variable for you automatically.
+#define EXPOSE_SINGLE_INTERFACE(className, interfaceName, versionName) \
+	{	\
+		static className __g_##className##_singleton; \
+	}	\
+	EXPOSE_SINGLE_INTERFACE_GLOBALVAR(className, interfaceName, versionName, __g_##className##_singleton)
 
 #endif // INTERFACE_H
