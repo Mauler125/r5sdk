@@ -178,6 +178,19 @@ void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8
 	g_ServerPlayer[nIndex].Reset();                                 // Reset ServerPlayer slot.
 #endif // !CLIENT_DLL
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: reads the net message type from buffer
+// Input  : &outType - 
+//			&buffer - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool NET_ReadMessageType(int* outType, bf_read* buffer)
+{
+	*outType = buffer->ReadUBitLong(NETMSG_TYPE_BITS);
+	return !buffer->IsOverflowed();
+}
+
 #endif // !NETCONSOLE
 
 //-----------------------------------------------------------------------------

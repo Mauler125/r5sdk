@@ -48,6 +48,8 @@ void NET_GenerateKey();
 void NET_PrintFunc(const char* fmt, ...);
 void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 
+bool NET_ReadMessageType(int* outType, bf_read* buffer);
+
 ///////////////////////////////////////////////////////////////////////////////
 extern netadr_t* g_pNetAdr;
 extern netkey_t* g_pNetKey;
