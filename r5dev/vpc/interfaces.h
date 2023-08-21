@@ -61,6 +61,8 @@ private:
 };
 extern CFactory* g_pFactory;
 
+PLATFORM_INTERFACE CFactory* GetFactorySystem();
+
 /* ==== s_pInterfaceRegs ==================================================================================================================================================== */
 inline CMemory s_pInterfacesRegs;
 
