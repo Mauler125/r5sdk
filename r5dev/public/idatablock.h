@@ -17,7 +17,9 @@ abstract_class NetDataBlockReceiver
 {
 public:
 	virtual ~NetDataBlockReceiver() {};
-	virtual void NotImplemented() {};
+	// Called when cvar 'net_debugDataBlockReceiver' is set;
+	// currently a nullsub in the engine.
+	virtual void DebugDataBlockReceiver() {};
 	virtual void AcknowledgeTransmission() = 0;
 };
 
