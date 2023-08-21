@@ -6,6 +6,7 @@
 //-----------------------------------------------------------------------------
 class IConVar;
 class CCommand;
+class CUtlString;
 
 //-----------------------------------------------------------------------------
 // Command to ConVars and ConCommands
@@ -88,7 +89,7 @@ public:
 class ICommandCompletionCallback
 {
 public:
-	//virtual int  CommandCompletionCallback(const char* pPartial, CUtlVector< CUtlString > &commands) = 0;
+	virtual int CommandCompletionCallback(const char* pPartial, CUtlVector< CUtlString > &commands) = 0;
 };
 
 //-----------------------------------------------------------------------------
