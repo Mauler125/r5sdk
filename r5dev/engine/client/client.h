@@ -156,9 +156,13 @@ private:
 	bool m_bFullStateAchieved;
 	char pad_0368[4];
 	CServer* m_pServer;
-	char pad_0378[24];
+	char pad_0378[20];
+	int m_nDisconnectTick;
 	bool m_bKickedByFairFight_MAYBE;
-	char pad_0398[14];
+	char pad_0398[3];
+	int m_nSendtableCRC;
+	int m_nMmDev;
+	char pad_039C[4];
 	CNetChan* m_NetChannel;
 	char pad_03A8[8];
 	SIGNONSTATE m_nSignonState;
@@ -183,12 +187,12 @@ private:
 	PERSISTENCE m_nPersistenceState;
 	char pad_05C0[48];
 	ServerDataBlock m_DataBlock;
-	char pad_4A3D8[16];
+	char pad_4A3D8[60];
 	int m_LastMovementTick;
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	char pad_4A418[130];
+	char pad_4A418[86];
 #endif
-	char pad_4A49A[80];
+	char pad_4A46E[80];
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 static_assert(sizeof(CClient) == 0x4A440);
