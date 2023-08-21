@@ -405,24 +405,16 @@ bool CNetChan::ProcessMessages(bf_read* buf)
 
             if (!netMsg)
             {
-                if (IsDebug())
-                {
-                    Warning(eDLL_T::ENGINE, "%s(%s): Received unknown net message (%i)!\n",
-                        __FUNCTION__, GetAddress(), cmd);
-                }
-
+                DevWarning(eDLL_T::ENGINE, "%s(%s): Received unknown net message (%i)!\n",
+                    __FUNCTION__, GetAddress(), cmd);
                 Assert(0);
                 return false;
             }
 
             if (!netMsg->ReadFromBuffer(buf))
             {
-                if (IsDebug())
-                {
-                    Warning(eDLL_T::ENGINE, "%s(%s): Failed reading message '%s'!\n",
-                        __FUNCTION__, GetAddress(), netMsg->GetName());
-                }
-
+                DevWarning(eDLL_T::ENGINE, "%s(%s): Failed reading message '%s'!\n",
+                    __FUNCTION__, GetAddress(), netMsg->GetName());
                 Assert(0);
                 return false;
             }
@@ -447,12 +439,8 @@ bool CNetChan::ProcessMessages(bf_read* buf)
 
             if (!bRet)
             {
-                if (IsDebug())
-                {
-                    Warning(eDLL_T::ENGINE, "%s(%s): Failed processing message '%s'!\n",
-                        __FUNCTION__, GetAddress(), netMsg->GetName());
-                }
-
+                Warning(eDLL_T::ENGINE, "%s(%s): Failed processing message '%s'!\n",
+                    __FUNCTION__, GetAddress(), netMsg->GetName());
                 Assert(0);
                 return false;
             }

@@ -162,34 +162,22 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 		{
 			// Too much to unlag, clamp to max !!!
 			recomputeUnlag = true;
-
-			if (IsDebug())
-			{
-				Warning(eDLL_T::SERVER, "%s: commandDelta( %f ) > maxUnlag( %f ) !!!\n",
-					__FUNCTION__, commandDelta, maxUnlag);
-			}
+			DevWarning(eDLL_T::SERVER, "%s: commandDelta( %f ) > maxUnlag( %f ) !!!\n",
+				__FUNCTION__, commandDelta, maxUnlag);
 		}
 		else if (commandTime < (lastCommandTime - clockDriftMsecs))
 		{
 			// Can never be lower than last !!!
 			recomputeUnlag = true;
-
-			if (IsDebug())
-			{
-				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < (m_LastCmd.command_time( %f ) - clockDriftMsecs( %f )) !!!\n",
-					__FUNCTION__, commandTime, lastCommandTime, clockDriftMsecs);
-			}
+			DevWarning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < (m_LastCmd.command_time( %f ) - clockDriftMsecs( %f )) !!!\n",
+				__FUNCTION__, commandTime, lastCommandTime, clockDriftMsecs);
 		}
 		else if (commandTime > (serverTime + clockDriftMsecs))
 		{
 			// Too far in the future, clamp to max !!!
 			recomputeUnlag = true;
-
-			if (IsDebug())
-			{
-				Warning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) > (g_pGlobals->m_flCurTime( %f ) + clockDriftMsecs( %f )) !!!\n",
-					__FUNCTION__, commandTime, serverTime, clockDriftMsecs);
-			}
+			DevWarning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) > (g_pGlobals->m_flCurTime( %f ) + clockDriftMsecs( %f )) !!!\n",
+				__FUNCTION__, commandTime, serverTime, clockDriftMsecs);
 		}
 
 		if (recomputeUnlag)
@@ -199,11 +187,8 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 			float newCommandTime = Clamp(serverTime - latencyAmount, lastCommandTime, serverTime);
 			cmd->command_time = newCommandTime;
 
-			if (IsDebug())
-			{
-				Warning(eDLL_T::SERVER, "%s: Clamped cmd->command_time( %f ) to %f !!!\n",
-					__FUNCTION__, commandTime, newCommandTime);
-			}
+			DevWarning(eDLL_T::SERVER, "%s: Clamped cmd->command_time( %f ) to %f !!!\n",
+				__FUNCTION__, commandTime, newCommandTime);
 		}
 
 		CUserCmd* queuedCmd = &m_Commands[lastCommandNumber];
