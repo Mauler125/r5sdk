@@ -369,7 +369,7 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 
 	return bResult;
 #else // !CLIENT_DLL
-	return pChan->ProcessMessages(buf);
+	return pChan->ProcessMessages(pBuf);
 #endif
 }
 
