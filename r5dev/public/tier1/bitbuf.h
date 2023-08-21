@@ -108,10 +108,10 @@ class CBitBuffer
 {
 public:
 	CBitBuffer(void);
-	inline void SetDebugName(const char* pName) { m_pDebugName = pName; }
-	inline const char* GetDebugName() const { return m_pDebugName; }
-	inline bool IsOverflowed() const { return m_bOverflow; }
-	inline void SetOverflowFlag() { m_bOverflow = true; }
+	FORCEINLINE void SetDebugName(const char* pName) { m_pDebugName = pName; }
+	FORCEINLINE const char* GetDebugName() const { return m_pDebugName; }
+	FORCEINLINE bool IsOverflowed() const { return m_bOverflow; }
+	FORCEINLINE void SetOverflowFlag() { m_bOverflow = true; }
 
 	////////////////////////////////////
 	const char* m_pDebugName;
@@ -135,12 +135,23 @@ public:
 	void GrabNextDWord(bool bOverFlowImmediately = false);
 	void FetchNext();
 
+	int64 GetNumBitsRead(void) const;
+	FORCEINLINE int64 GetNumBytesRead(void) const { return ((GetNumBitsRead() + 7) >> 3); }
+
 	int ReadSBitLong(int numbits);
 	uint32 ReadUBitLong(int numbits);
 
-	inline int ReadByte() { return ReadSBitLong(sizeof(unsigned char) << 3); }
-	inline int ReadChar() { return ReadSBitLong(sizeof(char) << 3); }
-	bool ReadString(char* pStr, int bufLen, bool bLine = false, int* pOutNumChars = nullptr);
+	FORCEINLINE int ReadChar() { return ReadSBitLong(sizeof(char) << 3); }
+	FORCEINLINE int ReadByte() { return ReadSBitLong(sizeof(unsigned char) << 3); }
+	FORCEINLINE int ReadShort() { return ReadUBitLong(sizeof(short) << 3); }
+	FORCEINLINE int ReadWord() { return ReadUBitLong(sizeof(unsigned short) << 3); }
+	FORCEINLINE int ReadLong() { return ReadUBitLong(sizeof(int32) << 3); }
+
+	int64			ReadLongLong();
+	float			ReadFloat();
+	void			ReadBits(void* pOutData, int nBits);
+	bool			ReadBytes(void* pOut, int nBytes);
+	bool			ReadString(char* pStr, int bufLen, bool bLine = false, int* pOutNumChars = nullptr);
 
 	////////////////////////////////////
 	uint32 m_nInBufWord;
@@ -190,12 +201,12 @@ public:
 	inline bool    WriteBytes(const void* pIn, int nBytes) { return WriteBits(pIn, nBytes << 3); }
 
 	// How many bytes are filled in?
-	inline int     GetNumBytesWritten() const { return BitByte(this->m_iCurBit); }
-	inline int     GetNumBitsWritten() const { return this->m_iCurBit; }
-	inline int     GetMaxNumBits() const { return this->m_nDataBits; }
-	inline int     GetNumBitsLeft() const { return this->m_nDataBits - m_iCurBit; }
-	inline int     GetNumBytesLeft() const { return this->GetNumBitsLeft() >> 3; }
-	inline unsigned char* GetData() const { return this->m_pData; }
+	FORCEINLINE int     GetNumBytesWritten() const { return BitByte(this->m_iCurBit); }
+	FORCEINLINE int     GetNumBitsWritten() const { return this->m_iCurBit; }
+	FORCEINLINE int     GetMaxNumBits() const { return this->m_nDataBits; }
+	FORCEINLINE int     GetNumBitsLeft() const { return this->m_nDataBits - m_iCurBit; }
+	FORCEINLINE int     GetNumBytesLeft() const { return this->GetNumBitsLeft() >> 3; }
+	FORCEINLINE unsigned char* GetData() const { return this->m_pData; }
 
 	inline const char* GetDebugName() const { return this->m_pDebugName; }
 	inline void        SetDebugName(const char* pDebugName) { m_pDebugName = pDebugName; }
@@ -204,7 +215,7 @@ public:
 	bool CheckForOverflow(int nBits);
 	void SetOverflowFlag();
 
-	inline bool IsOverflowed() const { return this->m_bOverflow; }
+	FORCEINLINE bool IsOverflowed() const { return this->m_bOverflow; }
 private:
 	// The current buffer.
 	unsigned char*          m_pData;

@@ -206,6 +206,21 @@ void CBitRead::FetchNext()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int64 CBitRead::GetNumBitsRead(void) const
+{
+	if (!m_pData) // pesky null ptr bitbufs. these happen.
+		return 0;
+
+	int64 nCurOfs = int64(((intp(m_pDataIn) - intp(m_pData)) / 4) - 1);
+	nCurOfs *= 32;
+	nCurOfs += (32 - m_nBitsAvail);
+	int64 nAdjust = 8 * (m_nDataBytes & 3);
+	return MIN(nCurOfs + nAdjust, m_nDataBits);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: reads an unsigned integer from the buffer
 //-----------------------------------------------------------------------------
 uint32 CBitRead::ReadUBitLong(int numbits)
@@ -248,6 +263,90 @@ int CBitRead::ReadSBitLong(int numbits)
 {
 	int nRet = ReadUBitLong(numbits);
 	return (nRet << (32 - numbits)) >> (32 - numbits);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: reads a signed 64-bit integer from the buffer
+//-----------------------------------------------------------------------------
+int64 CBitRead::ReadLongLong()
+{
+	int64 retval;
+	uint* pLongs = (uint*)&retval;
+
+	// Read the two DWORDs according to network endian
+	const short endianIndex = 0x0100;
+	byte* idx = (byte*)&endianIndex;
+	pLongs[*idx++] = ReadUBitLong(sizeof(long) << 3);
+	pLongs[*idx] = ReadUBitLong(sizeof(long) << 3);
+
+	return retval;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: reads a float from the buffer
+//-----------------------------------------------------------------------------
+float CBitRead::ReadFloat()
+{
+	float ret;
+	Assert(sizeof(ret) == 4);
+	ReadBits(&ret, 32);
+
+	// Swap the float, since ReadBits reads raw data
+	LittleFloat(&ret, &ret);
+	return ret;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: reads bits from the buffer
+//-----------------------------------------------------------------------------
+void CBitRead::ReadBits(void* pOutData, int nBits)
+{
+	unsigned char* pOut = (unsigned char*)pOutData;
+	int nBitsLeft = nBits;
+
+
+	// align output to dword boundary
+	while (((uintp)pOut & 3) != 0 && nBitsLeft >= 8)
+	{
+		*pOut = (unsigned char)ReadUBitLong(8);
+		++pOut;
+		nBitsLeft -= 8;
+	}
+
+	// X360TBD: Can't read dwords in ReadBits because they'll get swapped
+	if (IsPC())
+	{
+		// read dwords
+		while (nBitsLeft >= 32)
+		{
+			*((uint32*)pOut) = ReadUBitLong(32);
+			pOut += sizeof(uint32);
+			nBitsLeft -= 32;
+		}
+	}
+
+	// read remaining bytes
+	while (nBitsLeft >= 8)
+	{
+		*pOut = (unsigned char)ReadUBitLong(8);
+		++pOut;
+		nBitsLeft -= 8;
+	}
+
+	// read remaining bits
+	if (nBitsLeft)
+	{
+		*pOut = (unsigned char)ReadUBitLong(nBitsLeft);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: reads bytes from the buffer
+//-----------------------------------------------------------------------------
+bool CBitRead::ReadBytes(void* pOut, int nBytes)
+{
+	ReadBits(pOut, nBytes << 3);
+	return !IsOverflowed();
 }
 
 //-----------------------------------------------------------------------------
