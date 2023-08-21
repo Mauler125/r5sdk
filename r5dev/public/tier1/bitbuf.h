@@ -127,13 +127,18 @@ public:
 	}
 
 	void StartReading(const void* pData, size_t nBytes, int64 iStartBit = 0, int64 nBits = -1);
+
 	bool Seek(int64 nPosition);
+	FORCEINLINE int64 Tell(void) const;
 
 	void GrabNextDWord(bool bOverFlowImmediately = false);
 	void FetchNext();
 
-	int64 GetNumBitsRead(void) const;
+	FORCEINLINE int64 GetNumBitsRead(void) const { return Tell(); };
 	FORCEINLINE int64 GetNumBytesRead(void) const { return ((GetNumBitsRead() + 7) >> 3); }
+
+	FORCEINLINE int64 GetNumBitsLeft() const { return m_nDataBits - GetNumBitsRead(); }
+	FORCEINLINE int64 GetNumBytesLeft() const { return GetNumBitsLeft() >> 3; }
 
 	int ReadSBitLong(int numbits);
 	uint32 ReadUBitLong(int numbits);
@@ -239,5 +244,20 @@ class bf_write : public CBitWrite
 public:
 
 };
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+FORCEINLINE int64 CBitRead::Tell(void) const
+{
+	if (!m_pData) // pesky null ptr bitbufs. these happen.
+		return 0;
+
+	int64 nCurOfs = int64(((intp(m_pDataIn) - intp(m_pData)) / 4) - 1);
+	nCurOfs *= 32;
+	nCurOfs += (32 - m_nBitsAvail);
+	int64 nAdjust = 8 * (m_nDataBytes & 3);
+	return MIN(nCurOfs + nAdjust, m_nDataBits);
+}
 
 #endif // BITBUF_H

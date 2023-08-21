@@ -206,21 +206,6 @@ void CBitRead::FetchNext()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int64 CBitRead::GetNumBitsRead(void) const
-{
-	if (!m_pData) // pesky null ptr bitbufs. these happen.
-		return 0;
-
-	int64 nCurOfs = int64(((intp(m_pDataIn) - intp(m_pData)) / 4) - 1);
-	nCurOfs *= 32;
-	nCurOfs += (32 - m_nBitsAvail);
-	int64 nAdjust = 8 * (m_nDataBytes & 3);
-	return MIN(nCurOfs + nAdjust, m_nDataBits);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: reads an unsigned integer from the buffer
 //-----------------------------------------------------------------------------
 uint32 CBitRead::ReadUBitLong(int numbits)
