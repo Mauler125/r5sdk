@@ -20,11 +20,14 @@ macro( apply_project_settings )
     )
 
     # Some thirdparty code have Warnings as Errors disabled; this option won't override those.
-    option( GLOBAL_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON )
-    option( ENABLE_LTCG "Enable link-time code generation (significantly increases compile times)" OFF )
+    option( OPTION_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON )
+    option( OPTION_LTCG "Enable link-time code generation (significantly increases compile times)" OFF )
 
-    set( GAMEDLL_OPTION "GAMEDLL_S3" CACHE STRING "Game DLL version" )
-    set_property( CACHE GAMEDLL_OPTION PROPERTY STRINGS
+    option( OPTION_CERTAIN "This build is certain; debug statements (such as DevMsg(...)) will NOT be compiled" OFF )
+    option( OPTION_RETAIL "This build is retail; enable this among with 'OPTION_CERTAIN' to form a release build" OFF )
+
+    set( OPTION_GAMEDLL "GAMEDLL_S3" CACHE STRING "Game DLL version" )
+    set_property( CACHE OPTION_GAMEDLL PROPERTY STRINGS
         "GAMEDLL_S0"
         "GAMEDLL_S1"
         "GAMEDLL_S2"
@@ -38,8 +41,20 @@ macro( apply_project_settings )
         "SPDLOG_NO_EXCEPTIONS"
         "CURL_STATICLIB"
         "PLATFORM_64BITS" # Target is 64bits only.
-        "${GAMEDLL_OPTION}"
+        "${OPTION_GAMEDLL}"
     )
+
+    if( ${OPTION_CERTAIN} )
+    add_compile_definitions(
+        "_CERT"
+    )
+    endif()
+
+    if( ${OPTION_RETAIL} )
+    add_compile_definitions(
+        "_RETAIL"
+    )
+    endif()
 
     # Set settings for Debug configuration
     add_compile_options(
@@ -61,7 +76,7 @@ macro( apply_project_settings )
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/EHsc>
     )
 
-    if( ${ENABLE_LTCG} )
+    if( ${OPTION_LTCG} )
         add_compile_options(
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Profile>>:/GL>
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GL>

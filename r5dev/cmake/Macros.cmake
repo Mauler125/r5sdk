@@ -69,7 +69,7 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRO
 
     set_target_properties( ${MODULE_NAME} PROPERTIES FOLDER ${FOLDER_NAME} )
 
-    if( ${GLOBAL_WARNINGS_AS_ERRORS} )
+    if( ${OPTION_WARNINGS_AS_ERRORS} )
         warnings_as_errors( ${PROJECT_NAME} ${WARNINGS_AS_ERRORS} )
     endif()
 
