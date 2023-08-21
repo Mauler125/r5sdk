@@ -101,9 +101,6 @@ namespace bitbuf
 	const int kMaxVarint32Bytes = 5;
 }
 
-//-----------------------------------------------------------------------------
-// Used for serialization
-//-----------------------------------------------------------------------------
 class CBitBuffer
 {
 public:
@@ -161,21 +158,15 @@ public:
 	const uint32* m_pData;
 };
 
-class bf_read : public CBitRead
+class CBitWrite
 {
 public:
-
-};
-
-struct bf_write
-{
-public:
-	bf_write();
+	CBitWrite();
 
 	// nMaxBits can be used as the number of bits in the buffer. 
 	// It must be <= nBytes*8. If you leave it at -1, then it's set to nBytes * 8.
-	bf_write(void* pData, int nBytes, int nMaxBits = -1);
-	bf_write(const char* pDebugName, void* pData, int nBytes, int nMaxBits = -1);
+	CBitWrite(void* pData, int nBytes, int nMaxBits = -1);
+	CBitWrite(const char* pDebugName, void* pData, int nBytes, int nMaxBits = -1);
 
 	// Restart buffer writing.
 	inline void    Reset() { m_iCurBit = 0; m_bOverflow = false; }
@@ -230,4 +221,23 @@ private:
 	bool                    m_bAssertOnOverflow;
 	const char*             m_pDebugName;
 };
+
+//-----------------------------------------------------------------------------
+// Used for unserialization
+//-----------------------------------------------------------------------------
+class bf_read : public CBitRead
+{
+public:
+
+};
+
+//-----------------------------------------------------------------------------
+// Used for serialization
+//-----------------------------------------------------------------------------
+class bf_write : public CBitWrite
+{
+public:
+
+};
+
 #endif // BITBUF_H
