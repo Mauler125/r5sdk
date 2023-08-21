@@ -97,7 +97,7 @@ public:
 	_BYTE m_bSignonChallengeReceived;
 	_DWORD challenge;
 	netadr_t challengeAddr;
-	_BYTE byte33C;
+	bool m_bUseLocalSendTableFile;
 	_QWORD m_pServerClasses;
 	int m_nServerClasses;
 	int m_nServerClassBits;
