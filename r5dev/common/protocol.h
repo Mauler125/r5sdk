@@ -37,3 +37,6 @@ enum class PERSISTENCE : int
 	PERSISTENCE_READY     = 5  // persistence is ready for this client.
 #endif
 };
+
+#define net_NOP        0 // nop command used for padding.
+#define net_Disconnect 1 // disconnect, last message in connection.
