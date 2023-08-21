@@ -28,7 +28,7 @@ bool SVC_Print::ProcessImpl()
 
 		if (len < sizeof(m_szTextBuffer))
 		{
-			DevMsg(eDLL_T::SERVER, m_szText[len-1] == '\n' ? "%s" : "%s\n", m_szText);
+			Msg(eDLL_T::SERVER, m_szText[len-1] == '\n' ? "%s" : "%s\n", m_szText);
 		}
 	}
 
@@ -56,7 +56,7 @@ bool SVC_UserMessage::ProcessImpl()
 
 			if (len && len < sizeof(text))
 			{
-				DevMsg(eDLL_T::SERVER, text[len - 1] == '\n' ? "%s" : "%s\n", text);
+				Msg(eDLL_T::SERVER, text[len - 1] == '\n' ? "%s" : "%s\n", text);
 			}
 		}
 	}

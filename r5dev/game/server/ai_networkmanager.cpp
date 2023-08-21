@@ -42,9 +42,9 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	CFastTimer timer;
 
 	// Build from memory.
-	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
-	DevMsg(eDLL_T::SERVER, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AI NETWORK GRAPH FILE CONSTRUCTION STARTED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
+	Msg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
+	Msg(eDLL_T::SERVER, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AI NETWORK GRAPH FILE CONSTRUCTION STARTED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+	Msg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
 
 	masterTimer.Start();
 	timer.Start();
@@ -56,11 +56,11 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 		return;
 	}
 
-	DevMsg(eDLL_T::SERVER, "+- Writing header...\n");
-	DevMsg(eDLL_T::SERVER, " |-- AINet version: '%d'\n", AINET_VERSION_NUMBER);
+	Msg(eDLL_T::SERVER, "+- Writing header...\n");
+	Msg(eDLL_T::SERVER, " |-- AINet version: '%d'\n", AINET_VERSION_NUMBER);
 	FileSystem()->Write(&AINET_VERSION_NUMBER, sizeof(int), pAIGraph);
 
-	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", g_ServerGlobalVariables->m_nMapVersion);
+	Msg(eDLL_T::SERVER, " |-- Map version: '%d'\n", g_ServerGlobalVariables->m_nMapVersion);
 	FileSystem()->Write(&g_ServerGlobalVariables->m_nMapVersion, sizeof(int), pAIGraph);
 
 	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
@@ -82,18 +82,18 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	// Large NavMesh CRC.
-	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '0x%lX'\n", nNavMeshHash);
+	Msg(eDLL_T::SERVER, " |-- NavMesh CRC: '0x%lX'\n", nNavMeshHash);
 	FileSystem()->Write(&nNavMeshHash, sizeof(uint32_t), pAIGraph);
 
 	// Path nodes.
-	DevMsg(eDLL_T::SERVER, " |-- Node count: '%d'\n", pNetwork->m_iNumNodes);
+	Msg(eDLL_T::SERVER, " |-- Node count: '%d'\n", pNetwork->m_iNumNodes);
 	FileSystem()->Write(&pNetwork->m_iNumNodes, sizeof(int), pAIGraph);
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing header. %lf seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T::SERVER, "...done writing header. %lf seconds\n", timer.GetDuration().GetSeconds());
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing node positions...\n");
+	Msg(eDLL_T::SERVER, "+- Writing node positions...\n");
 
 	int nCalculatedLinkcount = 0;
 
@@ -122,20 +122,20 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 			memcpy(diskNode.unk6, pNetwork->m_pAInode[i]->unk10, sizeof(diskNode.unk6));
 
 
-			DevMsg(eDLL_T::SERVER, " |-- Copying node '#%d' from '0x%p' to '0x%zX'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), FileSystem()->Tell(pAIGraph));
+			Msg(eDLL_T::SERVER, " |-- Copying node '#%d' from '0x%p' to '0x%zX'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), FileSystem()->Tell(pAIGraph));
 			FileSystem()->Write(&diskNode, sizeof(CAI_NodeDisk), pAIGraph);
 
 			nCalculatedLinkcount += pNetwork->m_pAInode[i]->m_nNumLinks;
 		}
 	}
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing node positions. %lf seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T::SERVER, "...done writing node positions. %lf seconds\n", timer.GetDuration().GetSeconds());
 	
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing links...\n");
+	Msg(eDLL_T::SERVER, "+- Writing links...\n");
 
-	DevMsg(eDLL_T::SERVER, " |-- Cached link count: '%d'\n", pNetwork->m_iNumLinks);
-	DevMsg(eDLL_T::SERVER, " |-- Calculated link count: '%d'\n", nCalculatedLinkcount);
+	Msg(eDLL_T::SERVER, " |-- Cached link count: '%d'\n", pNetwork->m_iNumLinks);
+	Msg(eDLL_T::SERVER, " |-- Calculated link count: '%d'\n", nCalculatedLinkcount);
 
 	nCalculatedLinkcount /= 2;
 	if (ai_ainDumpOnLoad->GetBool())
@@ -166,19 +166,19 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 				diskLink.unk0 = pNetwork->m_pAInode[i]->links[j]->unk1;
 				memcpy(diskLink.m_bHulls, pNetwork->m_pAInode[i]->links[j]->m_bHulls, sizeof(diskLink.m_bHulls));
 
-				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%h' => '%h' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, FileSystem()->Tell(pAIGraph));
+				Msg(eDLL_T::SERVER, "  |-- Writing link '%h' => '%h' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, FileSystem()->Tell(pAIGraph));
 				FileSystem()->Write(&diskLink, sizeof(CAI_NodeLinkDisk), pAIGraph);
 			}
 		}
 	}
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), nCalculatedLinkcount);
+	Msg(eDLL_T::SERVER, "...done writing links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), nCalculatedLinkcount);
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing hull data...\n");
+	Msg(eDLL_T::SERVER, "+- Writing hull data...\n");
 	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for node block at '0x%zX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), FileSystem()->Tell(pAIGraph));
+	Msg(eDLL_T::SERVER, " |-- Writing '%d' bytes for node block at '0x%zX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), FileSystem()->Tell(pAIGraph));
 
 	if (pNetwork->m_iNumNodes > 0)
 	{
@@ -190,27 +190,27 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	// TODO: This is traverse nodes i think? these aren't used in r2 ains so we can get away with just writing count=0 and skipping
 	// but ideally should actually dump these.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%zX'\n", 0, FileSystem()->Tell(pAIGraph));
+	Msg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%zX'\n", 0, FileSystem()->Tell(pAIGraph));
 	short traverseNodeCount = 0; // Only write count since count=0 means we don't have to actually do anything here.
 	FileSystem()->Write(&traverseNodeCount, sizeof(short), pAIGraph);
 
 	// TODO: Ideally these should be actually dumped, but they're always 0 in r2 from what i can tell.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", (MAX_HULLS * 8), FileSystem()->Tell(pAIGraph));
+	Msg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", (MAX_HULLS * 8), FileSystem()->Tell(pAIGraph));
 	for (int i = 0; i < (MAX_HULLS * 8); i++)
 	{
 		FileSystem()->Write("\0", sizeof(char), pAIGraph);
 	}
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing hull data. %lf seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T::SERVER, "...done writing hull data. %lf seconds\n", timer.GetDuration().GetSeconds());
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing clusters...\n");
+	Msg(eDLL_T::SERVER, "+- Writing clusters...\n");
 
 	FileSystem()->Write(&*g_nAiNodeClusters, sizeof(*g_nAiNodeClusters), pAIGraph);
 	for (int i = 0; i < *g_nAiNodeClusters; i++)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
+		Msg(eDLL_T::SERVER, " |-- Writing cluster '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
 		AINodeClusters* nodeClusters = (*g_pppAiNodeClusters)[i];
 
 		FileSystem()->Write(&nodeClusters->m_nIndex, sizeof(nodeClusters->m_nIndex), pAIGraph);
@@ -238,59 +238,59 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing clusters. %lf seconds (%d clusters)\n", timer.GetDuration().GetSeconds(), *g_nAiNodeClusters);
+	Msg(eDLL_T::SERVER, "...done writing clusters. %lf seconds (%d clusters)\n", timer.GetDuration().GetSeconds(), *g_nAiNodeClusters);
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing cluster links...\n");
+	Msg(eDLL_T::SERVER, "+- Writing cluster links...\n");
 
 	FileSystem()->Write(&*g_nAiNodeClusterLinks, sizeof(*g_nAiNodeClusterLinks), pAIGraph);
 	for (int i = 0; i < *g_nAiNodeClusterLinks; i++)
 	{
 		// Disk and memory structs are literally identical here so just directly write.
-		DevMsg(eDLL_T::SERVER, " |-- Writing cluster link '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
+		Msg(eDLL_T::SERVER, " |-- Writing cluster link '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
 		FileSystem()->Write(&*g_pppAiNodeClusterLinks[i], sizeof(*(*g_pppAiNodeClusterLinks)[i]), pAIGraph);
 	}
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing cluster links. %lf seconds (%d cluster links)\n", timer.GetDuration().GetSeconds(), *g_nAiNodeClusterLinks);
+	Msg(eDLL_T::SERVER, "...done writing cluster links. %lf seconds (%d cluster links)\n", timer.GetDuration().GetSeconds(), *g_nAiNodeClusterLinks);
 
 	// This is always set to '-1'. Likely a field for maintaining compatibility.
 	FileSystem()->Write(&pNetwork->unk5, sizeof(pNetwork->unk5), pAIGraph);
 
 	// AIN v57 and above only (not present in r1, static array in r2, pointer to dynamic array in r5).
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing script nodes...\n");
+	Msg(eDLL_T::SERVER, "+- Writing script nodes...\n");
 
 	FileSystem()->Write(&pNetwork->m_iNumScriptNodes, sizeof(pNetwork->m_iNumScriptNodes), pAIGraph);
 	for (int i = 0; i < pNetwork->m_iNumScriptNodes; i++)
 	{
 		// Disk and memory structs for script nodes are identical.
-		DevMsg(eDLL_T::SERVER, " |-- Writing script node '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
+		Msg(eDLL_T::SERVER, " |-- Writing script node '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
 		FileSystem()->Write(&pNetwork->m_ScriptNode[i], sizeof(CAI_ScriptNode), pAIGraph);
 	}
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing script nodes. %lf seconds (%d nodes)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumScriptNodes);
+	Msg(eDLL_T::SERVER, "...done writing script nodes. %lf seconds (%d nodes)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumScriptNodes);
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing hint data...\n");
+	Msg(eDLL_T::SERVER, "+- Writing hint data...\n");
 
 	FileSystem()->Write(&pNetwork->m_iNumHints, sizeof(pNetwork->m_iNumHints), pAIGraph);
 	for (int i = 0; i < pNetwork->m_iNumHints; i++)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing hint data '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
+		Msg(eDLL_T::SERVER, " |-- Writing hint data '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
 		FileSystem()->Write(&pNetwork->m_Hints[i], sizeof(pNetwork->m_Hints[i]), pAIGraph);
 	}
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing hint data. %lf seconds (%d hints)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumHints);
+	Msg(eDLL_T::SERVER, "...done writing hint data. %lf seconds (%d hints)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumHints);
 
 	FileSystem()->Close(pAIGraph);
 
 	masterTimer.End();
-	DevMsg(eDLL_T::SERVER, "...done writing AI node graph. %lf seconds\n", masterTimer.GetDuration().GetSeconds());
-	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
-	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
+	Msg(eDLL_T::SERVER, "...done writing AI node graph. %lf seconds\n", masterTimer.GetDuration().GetSeconds());
+	Msg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
+	Msg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
 }
 
 /*
@@ -392,7 +392,7 @@ void CAI_NetworkManager::LoadNetworkGraphEx(CAI_NetworkManager* pAINetworkManage
 
 	if (ai_ainDumpOnLoad->GetBool())
 	{
-		DevMsg(eDLL_T::SERVER, "Reparsing AI Network '%s'\n", szAIGraphFile);
+		Msg(eDLL_T::SERVER, "Reparsing AI Network '%s'\n", szAIGraphFile);
 		CAI_NetworkBuilder::SaveNetworkGraph(*(CAI_Network**)(reinterpret_cast<char*>(pAINetworkManager) + AINETWORK_OFFSET));
 	}
 }

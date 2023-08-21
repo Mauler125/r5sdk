@@ -36,7 +36,7 @@ RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pM
 
 	if (FileExists(pakOverridePath.Get()) || FileExists(pakBasePath.Get()))
 	{
-		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s'\n", szPakFileName);
+		Msg(eDLL_T::RTECH, "Loading pak file: '%s'\n", szPakFileName);
 		pakHandle = CPakFile_LoadAsync(szPakFileName, pMalloc, nIdx, bUnk);
 
 		if (pakHandle == INVALID_PAK_HANDLE)
@@ -62,7 +62,7 @@ void CPakFile::UnloadPak(RPakHandle_t handle)
 
 	if (pakInfo && pakInfo->m_pszFileName)
 	{
-		DevMsg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo->m_pszFileName);
+		Msg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo->m_pszFileName);
 
 		if (strcmp(pakInfo->m_pszFileName, "mp_lobby.rpak") == 0)
 			s_bBasePaksInitialized = false;

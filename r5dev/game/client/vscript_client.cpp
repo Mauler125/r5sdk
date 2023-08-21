@@ -301,7 +301,7 @@ namespace VScriptCode
             if (!VALID_CHARSTAR(ipAddress) || VALID_CHARSTAR(cryptoKey))
                 return SQ_OK;
 
-            DevMsg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", ipAddress, cryptoKey);
+            Msg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", ipAddress, cryptoKey);
             g_pServerListManager->ConnectToServer(ipAddress, cryptoKey);
 
             return SQ_OK;

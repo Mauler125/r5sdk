@@ -176,7 +176,7 @@ void ScriptConstantRegistrationCallback(CSquirrelVM* s)
 
 void Systems_Init()
 {
-	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
+	Msg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
 	QuerySystemInfo();
 
 	DetourRegister();
@@ -186,8 +186,8 @@ void Systems_Init()
 	DetourInit();
 	initTimer.End();
 
-	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
-	DevMsg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->InitDB()",
+	Msg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
+	Msg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->InitDB()",
 		initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
@@ -214,10 +214,10 @@ void Systems_Init()
 	}
 
 	initTimer.End();
-	DevMsg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->Attach()",
+	Msg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->Attach()",
 		initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
-	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
-	DevMsg(eDLL_T::NONE, "\n");
+	Msg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
+	Msg(eDLL_T::NONE, "\n");
 
 	ConVar_StaticInit();
 
@@ -274,10 +274,10 @@ void Systems_Shutdown()
 	DetourTransactionCommit();
 
 	shutdownTimer.End();
-	DevMsg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->Detach()",
+	Msg(eDLL_T::NONE, "%-16s '%10.6f' seconds ('%12lu' clocks)\n", "Detour->Detach()",
 		shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
-	DevMsg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
-	DevMsg(eDLL_T::NONE, "\n");
+	Msg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
+	Msg(eDLL_T::NONE, "\n");
 }
 
 /////////////////////////////////////////////////////
@@ -324,20 +324,20 @@ void QuerySystemInfo()
 
 		if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) // Only log the primary device.
 		{
-			DevMsg(eDLL_T::NONE, "%-25s: '%s'\n", "GPU model identifier", dd.DeviceString);
+			Msg(eDLL_T::NONE, "%-25s: '%s'\n", "GPU model identifier", dd.DeviceString);
 		}
 	}
 #endif // !DEDICATED
 
 	const CPUInformation& pi = GetCPUInformation();
 
-	DevMsg(eDLL_T::NONE, "%-25s: '%s'\n","CPU model identifier", pi.m_szProcessorBrand);
-	DevMsg(eDLL_T::NONE, "%-25s: '%s'\n","CPU vendor tag", pi.m_szProcessorID);
-	DevMsg(eDLL_T::NONE, "%-25s: '%12hhu' ('%2hhu' %s)\n", "CPU core count", pi.m_nPhysicalProcessors, pi.m_nLogicalProcessors, "logical");
-	DevMsg(eDLL_T::NONE, "%-25s: '%12lld' ('%6.1f' %s)\n", "CPU core speed", pi.m_Speed, float(pi.m_Speed / 1000000), "MHz");
-	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
-	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
-	DevMsg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L3 cache", "(KiB)", pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
+	Msg(eDLL_T::NONE, "%-25s: '%s'\n","CPU model identifier", pi.m_szProcessorBrand);
+	Msg(eDLL_T::NONE, "%-25s: '%s'\n","CPU vendor tag", pi.m_szProcessorID);
+	Msg(eDLL_T::NONE, "%-25s: '%12hhu' ('%2hhu' %s)\n", "CPU core count", pi.m_nPhysicalProcessors, pi.m_nLogicalProcessors, "logical");
+	Msg(eDLL_T::NONE, "%-25s: '%12lld' ('%6.1f' %s)\n", "CPU core speed", pi.m_Speed, float(pi.m_Speed / 1000000), "MHz");
+	Msg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L1 cache", "(KiB)", pi.m_nL1CacheSizeKb, pi.m_nL1CacheDesc);
+	Msg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L2 cache", "(KiB)", pi.m_nL2CacheSizeKb, pi.m_nL2CacheDesc);
+	Msg(eDLL_T::NONE, "%-20s%s: '%12lu' ('0x%-8X')\n", "L3 cache", "(KiB)", pi.m_nL3CacheSizeKb, pi.m_nL3CacheDesc);
 
 	MEMORYSTATUSEX statex{};
 	statex.dwLength = sizeof(statex);
@@ -350,8 +350,8 @@ void QuerySystemInfo()
 		DWORDLONG availPhysical = (statex.ullAvailPhys / 1024) / 1024;
 		DWORDLONG availVirtual = (statex.ullAvailVirtual / 1024) / 1024;
 
-		DevMsg(eDLL_T::NONE, "%-20s%s: '%12llu' ('%9llu' %s)\n", "Total system memory", "(MiB)", totalPhysical, totalVirtual, "virtual");
-		DevMsg(eDLL_T::NONE, "%-20s%s: '%12llu' ('%9llu' %s)\n", "Avail system memory", "(MiB)", availPhysical, availVirtual, "virtual");
+		Msg(eDLL_T::NONE, "%-20s%s: '%12llu' ('%9llu' %s)\n", "Total system memory", "(MiB)", totalPhysical, totalVirtual, "virtual");
+		Msg(eDLL_T::NONE, "%-20s%s: '%12llu' ('%9llu' %s)\n", "Avail system memory", "(MiB)", availPhysical, availVirtual, "virtual");
 	}
 	else
 	{

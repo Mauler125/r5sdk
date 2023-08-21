@@ -41,14 +41,14 @@ void Show_Emblem()
     // Logged as 'SYSTEM_ERROR' for its red color.
     for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
-        DevMsg(eDLL_T::SYSTEM_ERROR, "%s\n", R5R_EMBLEM[i]);
+        Msg(eDLL_T::SYSTEM_ERROR, "%s\n", R5R_EMBLEM[i]);
     }
 
     // Log the SDK's 'build_id' under the emblem.
-    DevMsg(eDLL_T::SYSTEM_ERROR,
+    Msg(eDLL_T::SYSTEM_ERROR,
         "+------------------------------------------------[%s%010d%s]-+\n",
         g_svYellowF, g_SDKDll.GetNTHeaders()->FileHeader.TimeDateStamp, g_svRedF);
-    DevMsg(eDLL_T::SYSTEM_ERROR, "\n");
+    Msg(eDLL_T::SYSTEM_ERROR, "\n");
 }
 
 //#############################################################################
@@ -125,7 +125,7 @@ void SDK_Shutdown()
     }
 
     g_bSdkInitialized = false;
-    DevMsg(eDLL_T::NONE, "GameSDK shutdown initiated\n");
+    Msg(eDLL_T::NONE, "GameSDK shutdown initiated\n");
 
     curl_global_cleanup();
 

@@ -636,7 +636,7 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 		return -1;
 
 	if (rtech_debug->GetBool())
-		DevMsg(eDLL_T::RTECH, "Opened file: '%s'\n", szFileToLoad);
+		Msg(eDLL_T::RTECH, "Opened file: '%s'\n", szFileToLoad);
 
 	if (fileSizeOut)
 	{
@@ -746,7 +746,7 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 	const bool bDebug = rtech_debug->GetBool();
 
 	if (bDebug)
-		DevMsg(eDLL_T::RTECH, "Processing GUID relations for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount);
+		Msg(eDLL_T::RTECH, "Processing GUID relations for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount);
 
 	for (uint32_t i = 0; i < pAsset->m_nUsesCount; i++)
 	{

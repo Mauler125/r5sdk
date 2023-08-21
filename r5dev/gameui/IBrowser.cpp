@@ -367,7 +367,7 @@ void CBrowser::BrowserPanel(void)
 //-----------------------------------------------------------------------------
 void CBrowser::RefreshServerList(void)
 {
-    DevMsg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname->GetString());
+    Msg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname->GetString());
 
     std::string svServerListMessage;
     g_pServerListManager->RefreshServerList(svServerListMessage);
@@ -656,7 +656,7 @@ void CBrowser::HostPanel(void)
 
             if (ImGui::Button("AI settings reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
             {
-                DevMsg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
+                Msg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
                 ProcessCommand("aisettings_reparse");
 
                 if (g_pClientState->IsActive())
@@ -667,7 +667,7 @@ void CBrowser::HostPanel(void)
 
             if (ImGui::Button("Weapon settings reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
             {
-                DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
+                Msg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
                 ProcessCommand("weapon_reparse");
             }
         }

@@ -190,7 +190,7 @@ CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const ConCommandBase
 // Dump a report to MSG
 void CConCommandHash::Report(void)
 {
-	DevMsg(eDLL_T::COMMON, "Console command hash bucket load:\n");
+	Msg(eDLL_T::COMMON, "Console command hash bucket load:\n");
 	int total = 0;
 	for (int iBucket = 0; iBucket < kNUM_BUCKETS; ++iBucket)
 	{
@@ -202,10 +202,10 @@ void CConCommandHash::Report(void)
 			iElement = m_aDataPool.Next(iElement);
 		}
 
-		DevMsg(eDLL_T::COMMON, "%d: %d\n", iBucket, count);
+		Msg(eDLL_T::COMMON, "%d: %d\n", iBucket, count);
 		total += count;
 	}
 
-	DevMsg(eDLL_T::COMMON, "\tAverage: %.1f\n", total / ((float)(kNUM_BUCKETS)));
+	Msg(eDLL_T::COMMON, "\tAverage: %.1f\n", total / ((float)(kNUM_BUCKETS)));
 }
 //#endif

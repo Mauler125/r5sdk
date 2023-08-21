@@ -76,7 +76,7 @@ void CRConClient::Disconnect(const char* szReason)
 			szReason = "unknown reason";
 		}
 
-		DevMsg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
+		Msg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
 		m_Socket.CloseAcceptedSocket(0);
 	}
 }
@@ -112,7 +112,7 @@ bool CRConClient::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 			}
 		}
 
-		DevMsg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
+		Msg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
 		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:

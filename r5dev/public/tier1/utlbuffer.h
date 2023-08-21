@@ -1404,15 +1404,15 @@ inline void* CUtlBuffer::Detach()
 
 inline void CUtlBuffer::Spew()
 {
-	//SeekGet(CUtlBuffer::SEEK_HEAD, 0);
+	SeekGet(CUtlBuffer::SEEK_HEAD, 0);
 
-	//char pTmpLine[1024];
-	//while (IsValid() && GetBytesRemaining())
-	//{
-	//	memset(pTmpLine, 0, sizeof(pTmpLine));
-	//	Get(pTmpLine, MIN((size_t)GetBytesRemaining(), sizeof(pTmpLine) - 1));
-	//	DevMsg(eDLL_T::COMMON, _T("%s"), pTmpLine);
-	//}
+	char pTmpLine[1024];
+	while (IsValid() && GetBytesRemaining())
+	{
+		memset(pTmpLine, 0, sizeof(pTmpLine));
+		Get(pTmpLine, MIN((size_t)GetBytesRemaining(), sizeof(pTmpLine) - 1));
+		DevMsg(eDLL_T::COMMON, "%s", pTmpLine);
+	}
 }
 
 #if !defined(_GAMECONSOLE)

@@ -344,10 +344,10 @@ inline void CCountedStringPoolBase<T>::SpewStrings()
 	{
 		char* string = m_Elements[i].pString;
 
-		Msg("String %d: ref:%d %s\n", i, m_Elements[i].nReferenceCount, string == NULL? "EMPTY - ok for slot zero only!" : string);
+		DevMsg("String %d: ref:%d %s\n", i, m_Elements[i].nReferenceCount, string == NULL? "EMPTY - ok for slot zero only!" : string);
 	}
 
-	Msg("\n%d total counted strings.", m_Elements.Count());
+	DevMsg("\n%d total counted strings.", m_Elements.Count());
 }
 
 #define STRING_POOL_VERSION		MAKEID( 'C', 'S', 'P', '1' )

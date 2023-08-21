@@ -89,7 +89,7 @@ void CModSystem::UpdateModStatusList()
 		if (!enabledList.HasElement(mod->m_ModID))
 		{
 			if (modsystem_debug->GetBool())
-				DevMsg(eDLL_T::ENGINE, "Mod '%s' does not exist in '%s'; enabling...\n",
+				Msg(eDLL_T::ENGINE, "Mod '%s' does not exist in '%s'; enabling...\n",
 					mod->m_ModID.Get(), MOD_STATUS_LIST_FILE);
 
 			mod->SetState(eModState::ENABLED);
@@ -100,7 +100,7 @@ void CModSystem::UpdateModStatusList()
 			mod->SetState(bEnable ? eModState::ENABLED : eModState::DISABLED);
 
 			if (modsystem_debug->GetBool())
-				DevMsg(eDLL_T::ENGINE, "Mod '%s' exists in '%s' and is %s.\n",
+				Msg(eDLL_T::ENGINE, "Mod '%s' exists in '%s' and is %s.\n",
 					mod->m_ModID.Get(), MOD_STATUS_LIST_FILE, bEnable ? "enabled" : "disabled");
 		}
 	}

@@ -1958,7 +1958,7 @@ void Quaternion::Print() const
 {
 #ifndef _CERT
 #if !defined(__SPU__)
-	DevMsg(eDLL_T::COMMON, "q{ %.3fi + %.3fj + %.3fk + %.3f }", x, y, z, w);
+	Msg(eDLL_T::COMMON, "q{ %.3fi + %.3fj + %.3fk + %.3f }", x, y, z, w);
 #endif
 #endif
 }

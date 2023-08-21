@@ -150,7 +150,7 @@ void CModAppSystemGroup::InitPluginSystem(CModAppSystemGroup* pModAppSystemGroup
 	for (auto& it : g_pPluginSystem->GetPluginInstances())
 	{
 		if (g_pPluginSystem->LoadPluginInstance(it))
-			DevMsg(eDLL_T::ENGINE, "Loaded plugin: '%s'\n", it.m_svPluginName.c_str());
+			Msg(eDLL_T::ENGINE, "Loaded plugin: '%s'\n", it.m_svPluginName.c_str());
 		else
 			Warning(eDLL_T::ENGINE, "Failed loading plugin: '%s'\n", it.m_svPluginName.c_str());
 	}

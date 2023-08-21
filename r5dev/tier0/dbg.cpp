@@ -148,7 +148,7 @@ void CoreMsg(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 // Input  : context - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
-void DevMsg(eDLL_T context, const char* fmt, ...)
+void Msg(eDLL_T context, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -195,3 +195,30 @@ void Error(eDLL_T context, const UINT code, const char* fmt, ...)
 	CoreMsgV(LogType_t::LOG_ERROR, LogLevel_t::LEVEL_NOTIFY, context, "sdk(error)", fmt, args, code);
 	va_end(args);
 }
+#ifndef DBGFLAG_STRINGS_STRIP
+//-----------------------------------------------------------------------------
+// Purpose: Prints general debugging messages (uncertain builds only!)
+// Input  : context - 
+//			*fmt - ... - 
+//-----------------------------------------------------------------------------
+void DevMsg(eDLL_T context, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	CoreMsgV(LogType_t::LOG_INFO, LogLevel_t::LEVEL_NOTIFY, context, "sdk", fmt, args);
+	va_end(args);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Print engine and SDK warnings (uncertain builds only!)
+// Input  : context - 
+//			*fmt - ... - 
+//-----------------------------------------------------------------------------
+void DevWarning(eDLL_T context, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	CoreMsgV(LogType_t::LOG_WARNING, LogLevel_t::LEVEL_NOTIFY, context, "sdk(warning)", fmt, args);
+	va_end(args);
+}
+#endif // !DBGFLAG_STRINGS_STRIP

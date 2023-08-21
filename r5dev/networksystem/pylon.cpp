@@ -354,7 +354,7 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
 
     if (showDebug)
     {
-        DevMsg(eDLL_T::ENGINE, "Sending request to '%s' with endpoint '%s':\n%s\n",
+        Msg(eDLL_T::ENGINE, "Sending request to '%s' with endpoint '%s':\n%s\n",
             hostName, endpoint, request);
     }
 
@@ -388,7 +388,7 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
 
     if (showDebug)
     {
-        DevMsg(eDLL_T::ENGINE, "Host '%s' replied with status: '%d'\n",
+        Msg(eDLL_T::ENGINE, "Host '%s' replied with status: '%d'\n",
             hostName, outStatus);
     }
 
@@ -456,7 +456,7 @@ void CPylon::LogBody(const nlohmann::json& responseJson) const
     if (pylon_showdebuginfo->GetBool())
     {
         const string responseBody = responseJson.dump(4);
-        DevMsg(eDLL_T::ENGINE, "\n%s\n", responseBody.c_str());
+        Msg(eDLL_T::ENGINE, "\n%s\n", responseBody.c_str());
     }
 }
 

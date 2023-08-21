@@ -262,7 +262,7 @@ void Detour_HotSwap_f(const CCommand& args)
 	if (!g_pServer->IsActive())
 		return; // Only execute if server is initialized and active.
 
-	DevMsg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n",
+	Msg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n",
 		g_ServerGlobalVariables->m_pszMapName);
 
 	CFastTimer timer;
@@ -271,7 +271,7 @@ void Detour_HotSwap_f(const CCommand& args)
 	Detour_HotSwap();
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T::SERVER, "Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
 }
 #endif // !CLIENT_DLL
 /*
@@ -281,8 +281,8 @@ Pak_ListPaks_f
 */
 void Pak_ListPaks_f(const CCommand& args)
 {
-	DevMsg(eDLL_T::RTECH, "| id   | name                                               | status                               | asset count |\n");
-	DevMsg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "| id   | name                                               | status                               | asset count |\n");
+	Msg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
 
 	uint32_t nTotalLoaded = 0;
 
@@ -296,12 +296,12 @@ void Pak_ListPaks_f(const CCommand& args)
 		const char* szRpakStatus = g_pRTech->PakStatusToString(info.m_nStatus);
 
 		// todo: make status into a string from an array/vector
-		DevMsg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11i |\n", info.m_nHandle, info.m_pszFileName, szRpakStatus, info.m_nAssetCount);
+		Msg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11i |\n", info.m_nHandle, info.m_pszFileName, szRpakStatus, info.m_nAssetCount);
 		nTotalLoaded++;
 	}
-	DevMsg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
-	DevMsg(eDLL_T::RTECH, "| %18i loaded paks.                                                                                |\n", nTotalLoaded);
-	DevMsg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "| %18i loaded paks.                                                                                |\n", nTotalLoaded);
+	Msg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
 }
 
 /*
@@ -311,8 +311,8 @@ Pak_ListTypes_f
 */
 void Pak_ListTypes_f(const CCommand& args)
 {
-	DevMsg(eDLL_T::RTECH, "| ext  | description               | version | header size | native size |\n");
-	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "| ext  | description               | version | header size | native size |\n");
+	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
 
 	uint32_t nRegistered = 0;
 
@@ -323,12 +323,12 @@ void Pak_ListTypes_f(const CCommand& args)
 		if (!type->m_szDescription)
 			continue;
 
-		DevMsg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", FourCCToString(type->m_nExtension).c_str(), type->m_szDescription, type->m_iVersion, type->m_iSubHeaderSize, type->m_iNativeClassSize);
+		Msg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", FourCCToString(type->m_nExtension).c_str(), type->m_szDescription, type->m_iVersion, type->m_iSubHeaderSize, type->m_iNativeClassSize);
 		nRegistered++;
 	}
-	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
-	DevMsg(eDLL_T::RTECH, "| %18i registered types.                                   |\n", nRegistered);
-	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "| %18i registered types.                                   |\n", nRegistered);
+	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
 }
 
 /*
@@ -355,7 +355,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 			}
 
 			const string pakName = pakInfo->m_pszFileName;
-			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
+			!pakName.empty() ? Msg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : Msg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
 			g_pakLoadApi->UnloadPak(pakHandle);
 		}
 		else
@@ -366,7 +366,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 				throw std::exception("Found no pak entry for specified name.");
 			}
 
-			DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", args.Arg(1));
+			Msg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", args.Arg(1));
 			g_pakLoadApi->UnloadPak(pakInfo->m_nHandle);
 		}
 	}
@@ -424,7 +424,7 @@ void Pak_Swap_f(const CCommand& args)
 			pakHandle = pakInfo->m_nHandle;
 		}
 
-		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
+		!pakName.empty() ? Msg(eDLL_T::RTECH, "Requested pak swap for file '%s'\n", pakName.c_str()) : Msg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
 
 		g_pakLoadApi->UnloadPak(pakHandle);
 
@@ -454,9 +454,9 @@ void RTech_StringToGUID_f(const CCommand& args)
 
 	unsigned long long guid = g_pRTech->StringToGuid(args.Arg(1));
 
-	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
-	DevMsg(eDLL_T::RTECH, "] RTECH_HASH ]------------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, "] GUID: '0x%llX'\n", guid);
+	Msg(eDLL_T::RTECH, "______________________________________________________________\n");
+	Msg(eDLL_T::RTECH, "] RTECH_HASH ]------------------------------------------------\n");
+	Msg(eDLL_T::RTECH, "] GUID: '0x%llX'\n", guid);
 }
 
 /*
@@ -480,8 +480,8 @@ void RTech_Decompress_f(const CCommand& args)
 	inPakFile.Format(PLATFORM_PAK_PATH "%s", args.Arg(1));
 	outPakFile.Format(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
 
-	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
-	DevMsg(eDLL_T::RTECH, "-+ RTech decompress ------------------------------------------\n");
+	Msg(eDLL_T::RTECH, "______________________________________________________________\n");
+	Msg(eDLL_T::RTECH, "-+ RTech decompress ------------------------------------------\n");
 
 	if (!FileSystem()->FileExists(inPakFile.String(), "GAME"))
 	{
@@ -490,7 +490,7 @@ void RTech_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", inPakFile.String());
+	Msg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", inPakFile.String());
 	FileHandle_t hPakFile = FileSystem()->Open(inPakFile.String(), "rb", "GAME");
 
 	if (!hPakFile)
@@ -514,18 +514,18 @@ void RTech_Decompress_f(const CCommand& args)
 	SYSTEMTIME systemTime;
 	FileTimeToSystemTime(&pHeader->m_nFileTime, &systemTime);
 
-	DevMsg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->m_nMagic);
-	DevMsg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->m_nVersion);
-	DevMsg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", flags);
-	DevMsg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",
+	Msg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
+	Msg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->m_nMagic);
+	Msg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->m_nVersion);
+	Msg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", flags);
+	Msg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",
 		systemTime.wYear,systemTime.wMonth,systemTime.wDay, systemTime.wDayOfWeek,
 		systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
-	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->m_nHash);
-	DevMsg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->m_nAssetEntryCount);
-	DevMsg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " |     |-- Size comp: '%zu'\n", pHeader->m_nSizeDisk);
-	DevMsg(eDLL_T::RTECH, " |     |-- Size decp: '%zu'\n", pHeader->m_nSizeMemory);
+	Msg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->m_nHash);
+	Msg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->m_nAssetEntryCount);
+	Msg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
+	Msg(eDLL_T::RTECH, " |     |-- Size comp: '%zu'\n", pHeader->m_nSizeDisk);
+	Msg(eDLL_T::RTECH, " |     |-- Size decp: '%zu'\n", pHeader->m_nSizeMemory);
 
 	if (pHeader->m_nMagic != PAK_HEADER_MAGIC)
 	{
@@ -564,10 +564,10 @@ void RTech_Decompress_f(const CCommand& args)
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, " |     |-- Size calc: '%llu'\n", nDecompSize);
+		Msg(eDLL_T::RTECH, " |     |-- Size calc: '%llu'\n", nDecompSize);
 	}
 
-	DevMsg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (pHeader->m_nSizeDisk * 100.f) / pHeader->m_nSizeMemory);
+	Msg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (pHeader->m_nSizeDisk * 100.f) / pHeader->m_nSizeMemory);
 
 
 	std::unique_ptr<uint8_t[]> pDecompBufContainer(new uint8_t[nPakLen]);
@@ -604,9 +604,9 @@ void RTech_Decompress_f(const CCommand& args)
 			i <= pHeader->m_nPatchIndex; i++, nPatchOffset += sizeof(RPakPatchCompressedHeader_t))
 		{
 			RPakPatchCompressedHeader_t* pPatchHeader = reinterpret_cast<RPakPatchCompressedHeader_t*>(pDecompBuf + nPatchOffset);
-			DevMsg(eDLL_T::RTECH, " |     |-+ Patch #%02u -----------------------------------------\n", i);
-			DevMsg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->m_nPatchIndex ? "|" : " ", pPatchHeader->m_nSizeDisk);
-			DevMsg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->m_nPatchIndex ? "|" : " ", pPatchHeader->m_nSizeMemory);
+			Msg(eDLL_T::RTECH, " |     |-+ Patch #%02u -----------------------------------------\n", i);
+			Msg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->m_nPatchIndex ? "|" : " ", pPatchHeader->m_nSizeDisk);
+			Msg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->m_nPatchIndex ? "|" : " ", pPatchHeader->m_nSizeMemory);
 
 			pPatchHeader->m_nSizeDisk = pPatchHeader->m_nSizeMemory; // Fix size for decompress.
 		}
@@ -615,9 +615,9 @@ void RTech_Decompress_f(const CCommand& args)
 	memcpy_s(pDecompBuf, sizeof(RPakHeader_t), pPakBuf, sizeof(RPakHeader_t));// Overwrite first 0x80 bytes which are NULL with the header data.
 	FileSystem()->Write(pDecompBuf, decompState.m_nDecompSize, hDecompFile);
 
-	DevMsg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
-	DevMsg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", outPakFile.String());
-	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
+	Msg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
+	Msg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", outPakFile.String());
+	Msg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 
 	FileSystem()->Close(hDecompFile);
 }
@@ -640,15 +640,15 @@ void VPK_Pack_f(const CCommand& args)
 	VPKPair_t pair(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
 	CFastTimer timer;
 
-	DevMsg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.Get());
+	Msg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.Get());
 	timer.Start();
 
 	g_pPackedStore->InitLzCompParams();
 	g_pPackedStore->PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/");
 
 	timer.End();
-	DevMsg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
-	DevMsg(eDLL_T::FS, "\n");
+	Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T::FS, "\n");
 }
 
 /*
@@ -670,15 +670,15 @@ void VPK_Unpack_f(const CCommand& args)
 	VPKDir_t vpk(arg, (args.ArgC() > 2));
 	CFastTimer timer;
 
-	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", arg.Get());
+	Msg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", arg.Get());
 	timer.Start();
 
 	g_pPackedStore->InitLzDecompParams();
 	g_pPackedStore->UnpackWorkspace(vpk, fs_packedstore_workspace->GetString());
 
 	timer.End();
-	DevMsg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
-	DevMsg(eDLL_T::FS, "\n");
+	Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T::FS, "\n");
 }
 
 /*
@@ -787,7 +787,7 @@ void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString
 		// Reboot the RCON server to switch address type.
 		if (RCONServer()->IsInitialized())
 		{
-			DevMsg(eDLL_T::SERVER, "Rebooting RCON server...\n");
+			Msg(eDLL_T::SERVER, "Rebooting RCON server...\n");
 			RCONServer()->Shutdown();
 			RCONServer()->Init();
 		}
@@ -819,21 +819,21 @@ CON_Help_f
 */
 void CON_Help_f(const CCommand& args)
 {
-	DevMsg(eDLL_T::COMMON, "Contexts:\n");
+	Msg(eDLL_T::COMMON, "Contexts:\n");
 	SQVM_PrintFunc(reinterpret_cast<HSQUIRRELVM>(SQCONTEXT::SERVER), (SQChar*)(" = Server DLL (Script)\n"));
 	SQVM_PrintFunc(reinterpret_cast<HSQUIRRELVM>(SQCONTEXT::CLIENT), (SQChar*)(" = Client DLL (Script)\n"));
 	SQVM_PrintFunc(reinterpret_cast<HSQUIRRELVM>(SQCONTEXT::UI), (SQChar*)(" = UI DLL (Script)\n"));
 
-	DevMsg(eDLL_T::SERVER, " = Server DLL (Code)\n");
-	DevMsg(eDLL_T::CLIENT, " = Client DLL (Code)\n");
-	DevMsg(eDLL_T::UI, " = UI DLL (Code)\n");
-	DevMsg(eDLL_T::ENGINE, " = Engine DLL (Code)\n");
-	DevMsg(eDLL_T::FS, " = FileSystem (Code)\n");
-	DevMsg(eDLL_T::RTECH, " = PakLoad API (Code)\n");
-	DevMsg(eDLL_T::MS, " = MaterialSystem (Code)\n");
-	DevMsg(eDLL_T::AUDIO, " = Audio DLL (Code)\n");
-	DevMsg(eDLL_T::VIDEO, " = Video DLL (Code)\n");
-	DevMsg(eDLL_T::NETCON, " = NetConsole (Code)\n");
+	Msg(eDLL_T::SERVER, " = Server DLL (Code)\n");
+	Msg(eDLL_T::CLIENT, " = Client DLL (Code)\n");
+	Msg(eDLL_T::UI, " = UI DLL (Code)\n");
+	Msg(eDLL_T::ENGINE, " = Engine DLL (Code)\n");
+	Msg(eDLL_T::FS, " = FileSystem (Code)\n");
+	Msg(eDLL_T::RTECH, " = PakLoad API (Code)\n");
+	Msg(eDLL_T::MS, " = MaterialSystem (Code)\n");
+	Msg(eDLL_T::AUDIO, " = Audio DLL (Code)\n");
+	Msg(eDLL_T::VIDEO, " = Video DLL (Code)\n");
+	Msg(eDLL_T::NETCON, " = NetConsole (Code)\n");
 }
 
 #ifndef DEDICATED
@@ -850,7 +850,7 @@ void CON_LogHistory_f(const CCommand& args)
 	const vector<string> vHistory = g_pConsole->GetHistory();
 	for (size_t i = 0, nh = vHistory.size(); i < nh; i++)
 	{
-		DevMsg(eDLL_T::COMMON, "%3d: %s\n", i, vHistory[i].c_str());
+		Msg(eDLL_T::COMMON, "%3d: %s\n", i, vHistory[i].c_str());
 	}
 }
 
@@ -866,7 +866,7 @@ void CON_RemoveLine_f(const CCommand& args)
 {
 	if (args.ArgC() < 3)
 	{
-		DevMsg(eDLL_T::CLIENT, "Usage 'con_removeline': start(int) end(int)\n");
+		Msg(eDLL_T::CLIENT, "Usage 'con_removeline': start(int) end(int)\n");
 		return;
 	}
 
@@ -991,7 +991,7 @@ void RCON_Disconnect_f(const CCommand& args)
 
 	if (bIsConnected) // Log if client was indeed connected.
 	{
-		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
+		Msg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }
 
@@ -1214,55 +1214,55 @@ void Mat_CrossHair_f(const CCommand& args)
 	CMaterialGlue* material = GetMaterialAtCrossHair();
 	if (material)
 	{
-		DevMsg(eDLL_T::MS, "______________________________________________________________\n");
-		DevMsg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
-		DevMsg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
-		DevMsg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, " |-- Streaming texture count: '%d'\n", material->m_nStreamableTextureCount);
-		DevMsg(eDLL_T::MS, " |-- Material width: '%d'\n", material->m_iWidth);
-		DevMsg(eDLL_T::MS, " |-- Material height: '%d'\n", material->m_iHeight);
-		DevMsg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
+		Msg(eDLL_T::MS, "______________________________________________________________\n");
+		Msg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
+		Msg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
+		Msg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
+		Msg(eDLL_T::MS, " |-- Streaming texture count: '%d'\n", material->m_nStreamableTextureCount);
+		Msg(eDLL_T::MS, " |-- Material width: '%d'\n", material->m_iWidth);
+		Msg(eDLL_T::MS, " |-- Material height: '%d'\n", material->m_iHeight);
+		Msg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
 
 		std::function<void(CMaterialGlue*, const char*)> fnPrintChild = [](CMaterialGlue* material, const char* print)
 		{
-			DevMsg(eDLL_T::MS, " |-+\n");
-			DevMsg(eDLL_T::MS, " | |-+ Child material ----------------------------------------\n");
-			DevMsg(eDLL_T::MS, print, material);
-			DevMsg(eDLL_T::MS, " |     |-- GUID: '%llX'\n", material->m_GUID);
-			DevMsg(eDLL_T::MS, " |     |-- Material name: '%s'\n", material->m_pszName);
+			Msg(eDLL_T::MS, " |-+\n");
+			Msg(eDLL_T::MS, " | |-+ Child material ----------------------------------------\n");
+			Msg(eDLL_T::MS, print, material);
+			Msg(eDLL_T::MS, " |     |-- GUID: '%llX'\n", material->m_GUID);
+			Msg(eDLL_T::MS, " |     |-- Material name: '%s'\n", material->m_pszName);
 		};
 
-		DevMsg(eDLL_T::MS, " |-- Material name: '%s'\n", material->m_pszName);
-		DevMsg(eDLL_T::MS, " |-- Material surface name 1: '%s'\n", material->m_pszSurfaceProp);
-		DevMsg(eDLL_T::MS, " |-- Material surface name 2: '%s'\n", material->m_pszSurfaceProp2);
-		DevMsg(eDLL_T::MS, " |-- DX buffer: '%llX'\n", material->m_pDXBuffer);
-		DevMsg(eDLL_T::MS, " |-- DX buffer VFTable: '%llX'\n", material->m_pID3D11BufferVTable);
+		Msg(eDLL_T::MS, " |-- Material name: '%s'\n", material->m_pszName);
+		Msg(eDLL_T::MS, " |-- Material surface name 1: '%s'\n", material->m_pszSurfaceProp);
+		Msg(eDLL_T::MS, " |-- Material surface name 2: '%s'\n", material->m_pszSurfaceProp2);
+		Msg(eDLL_T::MS, " |-- DX buffer: '%llX'\n", material->m_pDXBuffer);
+		Msg(eDLL_T::MS, " |-- DX buffer VFTable: '%llX'\n", material->m_pID3D11BufferVTable);
 
 		material->m_pDepthShadow 
 			? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadow: '%llX'\n") 
-			: DevMsg(eDLL_T::MS, " |   |-+ DepthShadow: 'NULL'\n");
+			: Msg(eDLL_T::MS, " |   |-+ DepthShadow: 'NULL'\n");
 		material->m_pDepthPrepass 
 			? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass: '%llX'\n") 
-			: DevMsg(eDLL_T::MS, " |   |-+ DepthPrepass: 'NULL'\n");
+			: Msg(eDLL_T::MS, " |   |-+ DepthPrepass: 'NULL'\n");
 		material->m_pDepthVSM 
 			? fnPrintChild(material->m_pDepthVSM, " |   |-+ DepthVSM: '%llX'\n") 
-			: DevMsg(eDLL_T::MS, " |   |-+ DepthVSM: 'NULL'\n");
+			: Msg(eDLL_T::MS, " |   |-+ DepthVSM: 'NULL'\n");
 		material->m_pDepthShadow 
 			? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadowTight: '%llX'\n") 
-			: DevMsg(eDLL_T::MS, " |   |-+ DepthShadowTight: 'NULL'\n");
+			: Msg(eDLL_T::MS, " |   |-+ DepthShadowTight: 'NULL'\n");
 		material->m_pColPass 
 			? fnPrintChild(material->m_pColPass, " |   |-+ ColPass: '%llX'\n") 
-			: DevMsg(eDLL_T::MS, " |   |-+ ColPass: 'NULL'\n");
+			: Msg(eDLL_T::MS, " |   |-+ ColPass: 'NULL'\n");
 
-		DevMsg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
-		DevMsg(eDLL_T::MS, " |-- Texture handles: '%llX'\n", material->m_pTextureHandles);
-		DevMsg(eDLL_T::MS, " |-- Streaming texture handles: '%llX'\n", material->m_pStreamableTextureHandles);
+		Msg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
+		Msg(eDLL_T::MS, " |-- Texture handles: '%llX'\n", material->m_pTextureHandles);
+		Msg(eDLL_T::MS, " |-- Streaming texture handles: '%llX'\n", material->m_pStreamableTextureHandles);
 
-		DevMsg(eDLL_T::MS, "--------------------------------------------------------------\n");
+		Msg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}
 	else
 	{
-		DevMsg(eDLL_T::MS, "%s: No material found >:(\n", __FUNCTION__);
+		Msg(eDLL_T::MS, "%s: No material found >:(\n", __FUNCTION__);
 	}
 }
 
@@ -1278,7 +1278,7 @@ void Line_f(const CCommand& args)
 {
 	if (args.ArgC() != 7)
 	{
-		DevMsg(eDLL_T::CLIENT, "Usage 'line': start(vector) end(vector)\n");
+		Msg(eDLL_T::CLIENT, "Usage 'line': start(vector) end(vector)\n");
 		return;
 	}
 
@@ -1304,7 +1304,7 @@ void Sphere_f(const CCommand& args)
 {
 	if (args.ArgC() != 7)
 	{
-		DevMsg(eDLL_T::CLIENT, "Usage 'sphere': origin(vector) radius(float) theta(int) phi(int)\n");
+		Msg(eDLL_T::CLIENT, "Usage 'sphere': origin(vector) radius(float) theta(int) phi(int)\n");
 		return;
 	}
 
@@ -1333,7 +1333,7 @@ void Capsule_f(const CCommand& args)
 {
 	if (args.ArgC() != 10)
 	{
-		DevMsg(eDLL_T::CLIENT, "Usage 'capsule': start(vector) end(vector) radius(vector)\n");
+		Msg(eDLL_T::CLIENT, "Usage 'capsule': start(vector) end(vector) radius(vector)\n");
 		return;
 	}
 
@@ -1470,7 +1470,7 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 {
 	if (args.ArgC() < 3)
 	{
-		DevMsg(eDLL_T::SERVER, "usage 'sv_addbot': name(string) teamid(int)\n");
+		Msg(eDLL_T::SERVER, "usage 'sv_addbot': name(string) teamid(int)\n");
 		return;
 	}
 

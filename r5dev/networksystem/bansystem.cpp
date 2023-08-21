@@ -268,7 +268,7 @@ void CBanSystem::UnbanPlayer(const char* criteria)
 		if (bSave)
 		{
 			Save(); // Save modified vector to file.
-			DevMsg(eDLL_T::SERVER, "Removed '%s' from banned list\n", criteria);
+			Msg(eDLL_T::SERVER, "Removed '%s' from banned list\n", criteria);
 		}
 	}
 	catch (const std::exception& e)
@@ -319,11 +319,11 @@ void CBanSystem::AuthorPlayerByName(const char* playerName, const bool shouldBan
 	if (bSave)
 	{
 		Save();
-		DevMsg(eDLL_T::SERVER, "Added '%s' to banned list\n", playerName);
+		Msg(eDLL_T::SERVER, "Added '%s' to banned list\n", playerName);
 	}
 	else if (bDisconnect)
 	{
-		DevMsg(eDLL_T::SERVER, "Kicked '%s' from server\n", playerName);
+		Msg(eDLL_T::SERVER, "Kicked '%s' from server\n", playerName);
 	}
 }
 
@@ -394,11 +394,11 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 		if (bSave)
 		{
 			Save();
-			DevMsg(eDLL_T::SERVER, "Added '%s' to banned list\n", playerHandle);
+			Msg(eDLL_T::SERVER, "Added '%s' to banned list\n", playerHandle);
 		}
 		else if (bDisconnect)
 		{
-			DevMsg(eDLL_T::SERVER, "Kicked '%s' from server\n", playerHandle);
+			Msg(eDLL_T::SERVER, "Kicked '%s' from server\n", playerHandle);
 		}
 	}
 	catch (const std::exception& e)

@@ -84,7 +84,7 @@ bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
 		if (!hostToken.empty() && g_pMasterServer->GetCurrentToken().compare(hostToken) != NULL)
 		{
 			g_pMasterServer->SetCurrentToken(hostToken);
-			DevMsg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
+			Msg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
 				g_svReset, g_svGreyB,
 				hostToken.c_str(), g_svReset);
 		}
@@ -173,13 +173,13 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s: Shutdown host game\n", __FUNCTION__);
+				Msg(eDLL_T::ENGINE, "%s: Shutdown host game\n", __FUNCTION__);
 				CHostState_State_GameShutDown(g_pHostState);
 				break;
 			}
 			case HostStates_t::HS_RESTART:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s: Restarting state machine\n", __FUNCTION__);
+				Msg(eDLL_T::ENGINE, "%s: Restarting state machine\n", __FUNCTION__);
 #ifndef DEDICATED
 				CL_EndMovie();
 #endif // !DEDICATED
@@ -189,7 +189,7 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			}
 			case HostStates_t::HS_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s: Shutdown state machine\n", __FUNCTION__);
+				Msg(eDLL_T::ENGINE, "%s: Shutdown state machine\n", __FUNCTION__);
 #ifndef DEDICATED
 				CL_EndMovie();
 #endif // !DEDICATED
@@ -410,7 +410,7 @@ void CHostState::GameShutDown(void)
 //-----------------------------------------------------------------------------
 void CHostState::State_NewGame(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s: Loading level: '%s'\n", __FUNCTION__, g_pHostState->m_levelName);
+	Msg(eDLL_T::ENGINE, "%s: Loading level: '%s'\n", __FUNCTION__, g_pHostState->m_levelName);
 
 	LARGE_INTEGER time{};
 
@@ -450,7 +450,7 @@ void CHostState::State_NewGame(void)
 //-----------------------------------------------------------------------------
 void CHostState::State_ChangeLevelSP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s: Changing singleplayer level to: '%s'\n", __FUNCTION__, m_levelName);
+	Msg(eDLL_T::ENGINE, "%s: Changing singleplayer level to: '%s'\n", __FUNCTION__, m_levelName);
 	m_flShortFrameTime = 1.5; // Set frame time.
 
 	if (CModelLoader__Map_IsValid(g_pModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
@@ -476,7 +476,7 @@ void CHostState::State_ChangeLevelSP(void)
 //-----------------------------------------------------------------------------
 void CHostState::State_ChangeLevelMP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s: Changing multiplayer level to: '%s'\n", __FUNCTION__, m_levelName);
+	Msg(eDLL_T::ENGINE, "%s: Changing multiplayer level to: '%s'\n", __FUNCTION__, m_levelName);
 	m_flShortFrameTime = 0.5; // Set frame time.
 
 #ifndef CLIENT_DLL

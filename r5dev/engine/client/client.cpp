@@ -111,7 +111,7 @@ void CClient::VActivatePlayer(CClient* pClient)
 
 	if (pNetChan && sv_showconnecting->GetBool())
 	{
-		DevMsg(eDLL_T::SERVER, "Activated player #%d; channel %s(%s) ('%llu')\n",
+		Msg(eDLL_T::SERVER, "Activated player #%d; channel %s(%s) ('%llu')\n",
 			pClient->GetUserID(), pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
 	}
 #endif // !CLIENT_DLL

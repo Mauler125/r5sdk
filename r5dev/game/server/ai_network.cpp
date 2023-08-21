@@ -36,7 +36,7 @@ void CAI_Network::DebugConnectMsg(int node1, int node2, const char* pszFormat, .
 			}/////////////////////////////
 
 
-			DevMsg(eDLL_T::SERVER, "%s", buf);
+			Msg(eDLL_T::SERVER, "%s", buf);
 		}
 	}
 }

@@ -37,7 +37,7 @@ CSquirrelVM* Script_GetScriptHandle(const SQCONTEXT context)
 //---------------------------------------------------------------------------------
 RSON::Node_t* Script_LoadScriptList(const SQChar* rsonfile)
 {
-	DevMsg(eDLL_T::ENGINE, "Loading script list: '%s'\n", rsonfile);
+	Msg(eDLL_T::ENGINE, "Loading script list: '%s'\n", rsonfile);
 	return v_Script_LoadScriptList(rsonfile);
 }
 
@@ -84,7 +84,7 @@ SQBool Script_ParseScriptList(SQCONTEXT context, const char* scriptListPath,
 SQBool Script_PrecompileScripts(CSquirrelVM* vm)
 {
 	SQCONTEXT context = vm->GetContext();
-	DevMsg(eDLL_T(context), "Starting script compiler...\n");
+	Msg(eDLL_T(context), "Starting script compiler...\n");
 
 	CFastTimer timer;
 	timer.Start();
@@ -108,7 +108,7 @@ SQBool Script_PrecompileScripts(CSquirrelVM* vm)
 	}
 
 	timer.End();
-	DevMsg(eDLL_T(context), "Script compiler finished in %lf seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T(context), "Script compiler finished in %lf seconds\n", timer.GetDuration().GetSeconds());
 
 	return result;
 }

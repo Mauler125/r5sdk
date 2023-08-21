@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 void AIL_LogFunc(int64_t nLogLevel, const char* pszMessage)
 {
-	DevMsg(eDLL_T::AUDIO, "%s\n", pszMessage);
+	Msg(eDLL_T::AUDIO, "%s\n", pszMessage);
 	v_AIL_LogFunc(nLogLevel, pszMessage);
 }
 
@@ -26,21 +26,21 @@ bool Miles_Initialize()
 		pszLanguage = MILES_DEFAULT_LANGUAGE;
 	}
 
-	DevMsg(eDLL_T::AUDIO, "%s: initializing MSS with language: '%s'\n", __FUNCTION__, pszLanguage);
+	Msg(eDLL_T::AUDIO, "%s: initializing MSS with language: '%s'\n", __FUNCTION__, pszLanguage);
 	CFastTimer initTimer;
 
 	initTimer.Start();
 	bool bResult = v_Miles_Initialize();
 	initTimer.End();
 
-	DevMsg(eDLL_T::AUDIO, "%s: %s ('%f' seconds)\n", __FUNCTION__, bResult ? "success" : "failure", initTimer.GetDuration().GetSeconds());
+	Msg(eDLL_T::AUDIO, "%s: %s ('%f' seconds)\n", __FUNCTION__, bResult ? "success" : "failure", initTimer.GetDuration().GetSeconds());
 	return bResult;
 }
 
 void MilesQueueEventRun(Miles::Queue* queue, const char* eventName)
 {
 	if(miles_debug->GetBool())
-		DevMsg(eDLL_T::AUDIO, "%s: running event: '%s'\n", __FUNCTION__, eventName);
+		Msg(eDLL_T::AUDIO, "%s: running event: '%s'\n", __FUNCTION__, eventName);
 
 	v_MilesQueueEventRun(queue, eventName);
 }

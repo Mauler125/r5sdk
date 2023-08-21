@@ -102,7 +102,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 	const int nPort = int(ntohs(pChallenge->netAdr.GetPort()));
 
 	if (bEnableLogging)
-		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '[%s]:%i' ('%llu')\n",
+		Msg(eDLL_T::SERVER, "Processing connectionless challenge for '[%s]:%i' ('%llu')\n",
 			pszAddresBuffer, nPort, nNucleusID);
 
 	bool bValidName = false;

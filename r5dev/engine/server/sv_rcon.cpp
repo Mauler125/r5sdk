@@ -64,7 +64,7 @@ void CRConServer::Init(void)
 	m_Address.SetFromString(Format("[%s]:%i", pszAddress, hostport->GetInt()).c_str(), true);
 	m_Socket.CreateListenSocket(m_Address);
 
-	DevMsg(eDLL_T::SERVER, "Remote server access initialized ('%s')\n", m_Address.ToString());
+	Msg(eDLL_T::SERVER, "Remote server access initialized ('%s')\n", m_Address.ToString());
 	m_bInitialized = true;
 }
 
@@ -140,7 +140,7 @@ bool CRConServer::SetPassword(const char* pszPassword)
 	}
 
 	m_svPasswordHash = sha256(pszPassword);
-	DevMsg(eDLL_T::SERVER, "Password hash ('%s')\n", m_svPasswordHash.c_str());
+	Msg(eDLL_T::SERVER, "Password hash ('%s')\n", m_svPasswordHash.c_str());
 
 	m_bInitialized = true;
 	return true;
@@ -344,7 +344,7 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 			const netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
 			if (sv_rcon_debug->GetBool())
 			{
-				DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
+				Msg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
 			}
 
 			SendEncode(data.m_hSocket, s_WrongPwMessage, "",
@@ -367,10 +367,10 @@ bool CRConServer::Comparator(const string& svPassword) const
 	string passwordHash = sha256(svPassword);
 	if (sv_rcon_debug->GetBool())
 	{
-		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
-		DevMsg(eDLL_T::SERVER, "[ Server: '%s']\n", m_svPasswordHash.c_str());
-		DevMsg(eDLL_T::SERVER, "[ Client: '%s']\n", passwordHash.c_str());
-		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
+		Msg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
+		Msg(eDLL_T::SERVER, "[ Server: '%s']\n", m_svPasswordHash.c_str());
+		Msg(eDLL_T::SERVER, "[ Client: '%s']\n", passwordHash.c_str());
+		Msg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
 	}
 	if (memcmp(passwordHash.data(), m_svPasswordHash.data(), SHA256::DIGEST_SIZE) == 0)
 	{
@@ -528,7 +528,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData& data)
 		{
 			if (sv_rcon_debug->GetBool())
 			{
-				DevMsg(eDLL_T::SERVER, "Banned list is full; dropping '%s'\n", szNetAdr);
+				Msg(eDLL_T::SERVER, "Banned list is full; dropping '%s'\n", szNetAdr);
 			}
 
 			return true;
@@ -587,7 +587,7 @@ void CRConServer::Disconnect(const int nIndex, const char* szReason) // NETMGR
 			szReason = "unknown reason";
 		}
 
-		DevMsg(eDLL_T::SERVER, "Connection to '%s' lost (%s)\n", netAdr.ToString(), szReason);
+		Msg(eDLL_T::SERVER, "Connection to '%s' lost (%s)\n", netAdr.ToString(), szReason);
 		m_nAuthConnections--;
 	}
 

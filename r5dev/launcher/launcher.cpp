@@ -21,7 +21,7 @@ int LauncherMain(HINSTANCE hInstance)
 	spdlog::flush_every(std::chrono::seconds(5));
 
 	int results = v_LauncherMain(hInstance);
-	DevMsg(eDLL_T::NONE, "%s returned: %s\n", __FUNCTION__, ExitCodeToString(results));
+	Msg(eDLL_T::NONE, "%s returned: %s\n", __FUNCTION__, ExitCodeToString(results));
 	return results;
 }
 

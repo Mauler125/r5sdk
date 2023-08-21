@@ -363,7 +363,7 @@ bool CPackedStore::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t
 	auto p = m_ChunkHashMap.insert({ entryHash.c_str(), descriptor });
 	if (!p.second) // Map to existing chunk to avoid having copies of the same data.
 	{
-		DevMsg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n",
+		Msg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n",
 			chunkIndex, entryHash.c_str(), p.first->second.m_nPackFileOffset);
 		descriptor = p.first->second;
 
@@ -495,7 +495,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		FileSystem()->Read(pBuf.get(), nLen, hAsset);
 		FileSystem()->Seek(hAsset, 0, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
 
-		DevMsg(eDLL_T::FS, "Packing entry '%i' ('%s')\n", i, szDestPath);
+		Msg(eDLL_T::FS, "Packing entry '%i' ('%s')\n", i, szDestPath);
 		int index = entryBlocks.AddToTail(VPKEntryBlock_t(
 			pBuf.get(),
 			nLen,
@@ -548,7 +548,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		FileSystem()->Close(hAsset);
 	}
 
-	DevMsg(eDLL_T::FS, "*** Build block totaling '%zd' bytes with '%zu' shared bytes among '%zu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
+	Msg(eDLL_T::FS, "*** Build block totaling '%zd' bytes with '%zu' shared bytes among '%zu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
 	FileSystem()->Close(hPackFile);
 
 	m_ChunkHashMap.clear();
@@ -626,7 +626,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				continue;
 			}
 
-			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%hu' ('%s')\n",
+			Msg(eDLL_T::FS, "Unpacking entry '%i' from block '%hu' ('%s')\n",
 				j, packFileIndex, pEntryPath);
 
 			FOR_EACH_VEC(entryBlock.m_Fragments, k)
@@ -1133,7 +1133,7 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 	WriteTreeSize(hDirectoryFile);
 
 	FileSystem()->Close(hDirectoryFile);
-	DevMsg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%i' entries and '%i' descriptors\n",
+	Msg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%i' entries and '%i' descriptors\n",
 		size_t(sizeof(VPKDirHeader_t) + m_Header.m_nDirectorySize), entryBlocks.Count(), nDescriptors);
 }
 //-----------------------------------------------------------------------------

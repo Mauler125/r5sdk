@@ -59,7 +59,7 @@ bool CNetCon::Init(const bool bAnsiColor)
 	m_bInitialized = true;
 
 	TermSetup(bAnsiColor);
-	DevMsg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
+	Msg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
 
 	static std::thread frame([this]()
 		{
@@ -223,7 +223,7 @@ void CNetCon::RunFrame(void)
 	}
 	else if (m_bPromptConnect)
 	{
-		DevMsg(eDLL_T::NONE, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
+		Msg(eDLL_T::NONE, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
 		m_bPromptConnect = false;
 	}
 
@@ -252,7 +252,7 @@ void CNetCon::Disconnect(const char* szReason)
 			szReason = "unknown reason";
 		}
 
-		DevMsg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
+		Msg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
 		m_Socket.CloseAcceptedSocket(0);
 	}
 
@@ -295,7 +295,7 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 			}
 		}
 
-		DevMsg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
+		Msg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
 		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:

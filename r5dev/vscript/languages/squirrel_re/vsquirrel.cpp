@@ -32,7 +32,7 @@ SQBool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
 		return false;
 	}
 
-	DevMsg((eDLL_T)context, "Created %s VM: '0x%p'\n", s->GetVM()->_sharedstate->_contextname, s);
+	Msg((eDLL_T)context, "Created %s VM: '0x%p'\n", s->GetVM()->_sharedstate->_contextname, s);
 
 	switch (context)
 	{

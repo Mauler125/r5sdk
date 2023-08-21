@@ -92,7 +92,7 @@ void NET_SetKey(const string& svNetKey)
 	{
 		v_NET_SetKey(g_pNetKey, svTokenizedKey.c_str());
 
-		DevMsg(eDLL_T::ENGINE, "Installed NetKey: %s'%s%s%s'\n",
+		Msg(eDLL_T::ENGINE, "Installed NetKey: %s'%s%s%s'\n",
 			g_svReset, g_svGreyB, g_pNetKey->GetBase64NetKey(), g_svReset);
 	}
 	else
@@ -154,7 +154,7 @@ void NET_PrintFunc(const char* fmt, ...)
 		result.push_back('\n');
 	}
 
-	DevMsg(context, "%s", result.c_str());
+	Msg(context, "%s", result.c_str());
 }
 
 //-----------------------------------------------------------------------------
