@@ -3,6 +3,7 @@
 
 #include "tier1/interface.h"
 #include "tier1/utlvector.h"
+#include "tier1/utldict.h"
 #include "filesystem/filesystem.h"
 
 //-----------------------------------------------------------------------------
@@ -76,10 +77,13 @@ public:
 	// Returns the stage at which the app system group ran into an error
 	AppSystemGroupStage_t GetCurrentStage() const;
 
+	// Method to look up a particular named system...
+	void* FindSystem(const char* pInterfaceName);
+
 private:
 	struct Module_t
 	{
-		void /*CSysModule*/* m_pModule;
+		CSysModule* m_pModule;
 		CreateInterfaceFn m_Factory;
 		char* m_pModuleName;
 	};
@@ -88,7 +92,8 @@ protected:
 	CUtlVector<Module_t> m_Modules;
 	CUtlVector<IAppSystem*> m_Systems;
 	CUtlVector<CreateInterfaceFn> m_NonAppSystemFactories;
-	char m_Pad[56]; // <-- unknown
+	CUtlDict<int, unsigned short> m_SystemDict;
+	CAppSystemGroup* m_pParentAppSystem;
 	AppSystemGroupStage_t m_nCurrentStage;
 };
 static_assert(sizeof(CAppSystemGroup) == 0xA8);
