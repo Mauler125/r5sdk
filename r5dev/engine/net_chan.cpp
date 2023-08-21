@@ -333,14 +333,14 @@ void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep,
 //			*pMsg - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pMsg)
+bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 {
 #ifndef CLIENT_DLL
 	if (!ThreadInServerFrameThread() || !net_processTimeBudget->GetInt())
-		return v_NetChan_ProcessMessages(pChan, pMsg);
+		return pChan->ProcessMessages(pBuf);
 
 	const double flStartTime = Plat_FloatTime();
-	const bool bResult = v_NetChan_ProcessMessages(pChan, pMsg);
+	const bool bResult = pChan->ProcessMessages(pBuf);
 
 	if (!pChan->m_MessageHandler) // NetChannel removed?
 		return bResult;
@@ -369,8 +369,121 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 
 	return bResult;
 #else // !CLIENT_DLL
-	return v_NetChan_ProcessMessages(pChan, pMsg);
+	return pChan->ProcessMessages(buf);
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: process message
+// Input  : *buf - 
+// Output : true on success, false on failure
+//-----------------------------------------------------------------------------
+bool CNetChan::ProcessMessages(bf_read* buf)
+{
+    m_bStopProcessing = false;
+
+    while (true)
+    {
+        int cmd = net_NOP;
+
+        while (true)
+        {
+            if (buf->GetNumBitsLeft() < NETMSG_TYPE_BITS)
+                return true; // Reached the end.
+
+            if (!NET_ReadMessageType(&cmd, buf) && buf->m_bOverflow)
+            {
+                Warning(eDLL_T::ENGINE, "%s(%s): Incoming buffer overflow!\n", __FUNCTION__, GetAddress());
+                m_MessageHandler->ConnectionCrashed("Buffer overflow in net message");
+                return false;
+            }
+
+            if (cmd <= net_Disconnect)
+                break; // Either a Disconnect or NOP packet; process it below.
+
+            INetMessage* netMsg = FindMessage(cmd);
+
+            if (!netMsg)
+            {
+                if (IsDebug())
+                {
+                    Warning(eDLL_T::ENGINE, "%s(%s): Received unknown net message (%i)!\n",
+                        __FUNCTION__, GetAddress(), cmd);
+                }
+
+                Assert(0);
+                return false;
+            }
+
+            if (!netMsg->ReadFromBuffer(buf))
+            {
+                if (IsDebug())
+                {
+                    Warning(eDLL_T::ENGINE, "%s(%s): Failed reading message '%s'!\n",
+                        __FUNCTION__, GetAddress(), netMsg->GetName());
+                }
+
+                Assert(0);
+                return false;
+            }
+
+            // Netmessage calls the Process function that was registered by
+            // it's MessageHandler.
+            m_bProcessingMessages = true;
+            const bool bRet = netMsg->Process();
+            m_bProcessingMessages = false;
+
+            // This means we were deleted during the processing of that message.
+            if (m_bShouldDelete)
+            {
+                delete this;
+                return false;
+            }
+
+            // This means our message buffer was freed or invalidated during
+            // the processing of that message.
+            if (m_bStopProcessing)
+                return false;
+
+            if (!bRet)
+            {
+                if (IsDebug())
+                {
+                    Warning(eDLL_T::ENGINE, "%s(%s): Failed processing message '%s'!\n",
+                        __FUNCTION__, GetAddress(), netMsg->GetName());
+                }
+
+                Assert(0);
+                return false;
+            }
+
+            if (IsOverflowed())
+                return false;
+        }
+
+        m_bProcessingMessages = true;
+
+        if (cmd == net_NOP) // NOP; continue to next packet.
+        {
+            m_bProcessingMessages = false;
+            continue;
+        }
+        else if (cmd == net_Disconnect) // Disconnect request.
+        {
+            char reason[1024];
+            buf->ReadString(reason, sizeof(reason), false);
+
+            m_MessageHandler->ConnectionClosing(reason, 1);
+            m_bProcessingMessages = false;
+        }
+
+        m_bProcessingMessages = false;
+
+        if (m_bShouldDelete)
+            delete this;
+
+        return false;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -406,6 +519,59 @@ bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
 	}
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: finds a registered net message by type
+// Input  : type - 
+// Output : net message pointer on success, NULL otherwise
+//-----------------------------------------------------------------------------
+INetMessage* CNetChan::FindMessage(int type)
+{
+    int numtypes = m_NetMessages.Count();
+
+    for (int i = 0; i < numtypes; i++)
+    {
+        if (m_NetMessages[i]->GetType() == type)
+            return m_NetMessages[i];
+    }
+
+    return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: registers a net message
+// Input  : *msg
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CNetChan::RegisterMessage(INetMessage* msg)
+{
+    Assert(msg);
+
+    if (FindMessage(msg->GetType()))
+    {
+        Assert(0); // Duplicate registration!
+        return false;
+    }
+
+    m_NetMessages.AddToTail(msg);
+    msg->SetNetChannel(this);
+
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: free's the receive data fragment list
+//-----------------------------------------------------------------------------
+void CNetChan::FreeReceiveList()
+{
+    m_ReceiveList.blockSize = NULL;
+    m_ReceiveList.transferSize = NULL;
+    if (m_ReceiveList.buffer)
+    {
+        delete m_ReceiveList.buffer;
+        m_ReceiveList.buffer = nullptr;
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -66,17 +66,17 @@ typedef struct netflow_s
 //-----------------------------------------------------------------------------
 struct dataFragments_t
 {
-	char* data;
-	int64_t block_size;
-	bool m_bIsCompressed;
+	char* buffer;
+	int64_t blockSize;
+	bool isCompressed;
 	uint8_t gap11[7];
-	int64_t m_nRawSize;
-	bool m_bFirstFragment;
-	bool m_bLastFragment;
-	bool m_bIsOutbound;
+	int64_t uncompressedSize;
+	bool firstFragment;
+	bool lastFragment;
+	bool isOutbound;
 	int transferID;
-	int m_nTransferSize;
-	int m_nCurrentOffset;
+	int transferSize;
+	int currentOffset;
 };
 
 //-----------------------------------------------------------------------------
@@ -109,6 +109,12 @@ inline bool(*v_NetChan_ProcessMessages)(CNetChan* pChan, bf_read* pMsg);
 class CNetChan
 {
 public:
+	~CNetChan()
+	{
+		Shutdown("NetChannel removed.", 1, false);
+		FreeReceiveList();
+	}
+
 	inline const char* GetName(void)                     const { return m_Name; }
 	inline const char* GetAddress(bool onlyBase = false) const { return remote_address.ToString(onlyBase); }
 	inline int         GetPort(void)                     const { return int(ntohs(remote_address.GetPort())); }
@@ -141,9 +147,13 @@ public:
 	inline int SendDatagram(bf_write* pDatagram) { return v_NetChan_SendDatagram(this, pDatagram); }
 	bool SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice);
 
+	INetMessage* FindMessage(int type);
+	bool RegisterMessage(INetMessage* msg);
+
 	inline void Clear(bool bStopProcessing) { v_NetChan_Clear(this, bStopProcessing); }
-	inline void Shutdown(const char* szReason, uint8_t bBadRep, bool bRemoveNow)
-	{ v_NetChan_Shutdown(this, szReason, bBadRep, bRemoveNow); }
+	inline void Shutdown(const char* szReason, uint8_t bBadRep, bool bRemoveNow) { v_NetChan_Shutdown(this, szReason, bBadRep, bRemoveNow); }
+	void FreeReceiveList();
+	bool ProcessMessages(bf_read* pMsg);
 
 	static void _Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 	static bool _ProcessMessages(CNetChan* pChan, bf_read* pMsg);
