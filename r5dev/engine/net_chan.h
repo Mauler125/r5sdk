@@ -169,7 +169,7 @@ public:
 	bool                m_bProcessingMessages;
 	bool                m_bShouldDelete;
 	bool                m_bStopProcessing;
-	bool                shutting_down;
+	bool                m_bShuttingDown;
 	int                 m_nOutSequenceNr;
 	int                 m_nInSequenceNr;
 	int                 m_nOutSequenceNrAck;
@@ -207,11 +207,11 @@ private:
 	uint32_t            m_nSubOutSequenceNr;
 	int                 m_nLastRecvNonce;
 	bool                m_bUseCompression;
-	uint32_t            dword168;
+	uint32_t            m_ChallengeNr;
 	float               m_Timeout;
 	INetChannelHandler* m_MessageHandler;
 	CUtlVector<INetMessage*> m_NetMessages;
-	uint64_t            qword198;
+	void*               m_UnusedInterfacePointer; // Previously: IDemoRecorder* m_DemoRecorder.
 	int                 m_nQueuedPackets;
 	float               m_flRemoteFrameTime;
 	float               m_flRemoteFrameTimeStdDeviation;
