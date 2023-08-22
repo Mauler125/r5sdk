@@ -80,16 +80,22 @@ class CPluginSystem : IPluginSystem
 public:	
 	struct PluginInstance_t
 	{
-		PluginInstance_t(string svPluginName, string svPluginFullPath) : m_svPluginName(svPluginName), m_svPluginFullPath(svPluginFullPath), m_svDescription(std::string()), m_bIsLoaded(false) {};
+		PluginInstance_t(const char* pName, const char* pPath, const char* pDescription = "")
+			: m_Name(pName)
+			, m_Path(pPath)
+			, m_Description(pDescription)
+			, m_bIsLoaded(false)
+		{
+		};
 
 		// Might wanna make a status code system.
 		typedef bool(*OnLoad)(const char*, const char*);
 		typedef void(*OnUnload)();
 
 		CModule m_hModule;
-		string m_svPluginName;
-		string m_svPluginFullPath;
-		string m_svDescription;
+		CUtlString m_Name;
+		CUtlString m_Path;
+		CUtlString m_Description;
 		bool m_bIsLoaded; // [ PIXIE ]: I don't like this and it's bad.
 		// I will make a module manager later which will grab all modules from the process and adds each module / removes module that passes through DLLMain.
 	};

@@ -29,14 +29,15 @@ void CPluginSystem::PluginSystem_Init()
 		bool addInstance = true;
 		for (auto& inst : pluginInstances)
 		{
-			if (inst.m_svPluginFullPath.compare(path.Get()) == 0)
+			if (inst.m_Path.IsEqual_CaseInsensitive(path.String()) == 0)
 				addInstance = false;
 		}
 
-		const char* baseFileName = V_UnqualifiedFileName(path.Get());
-
 		if (addInstance)
-			pluginInstances.push_back(PluginInstance_t(baseFileName, path.Get()));
+		{
+			const char* baseFileName = V_UnqualifiedFileName(path.String());
+			pluginInstances.push_back(PluginInstance_t(baseFileName, path.String()));
+		}
 	}
 }
 
@@ -50,11 +51,11 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 	if (pluginInst.m_bIsLoaded)
 		return false;
 
-	HMODULE loadedPlugin = LoadLibraryA(pluginInst.m_svPluginFullPath.c_str());
+	HMODULE loadedPlugin = LoadLibraryA(pluginInst.m_Path.String());
 	if (loadedPlugin == INVALID_HANDLE_VALUE || loadedPlugin == 0)
 		return false;
 
-	CModule pluginModule(pluginInst.m_svPluginName.c_str());
+	CModule pluginModule(pluginInst.m_Name.String());
 
 	// Pass selfModule here on load function, we have to do
 	// this because local listen/dedi/client dll's are called
@@ -64,7 +65,7 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 
 	Assert(onLoadFn);
 
-	if (!onLoadFn(pluginInst.m_svPluginName.c_str(), g_SDKDll.GetModuleName().c_str()))
+	if (!onLoadFn(pluginInst.m_Name.String(), g_SDKDll.GetModuleName().c_str()))
 	{
 		FreeLibrary(loadedPlugin);
 		return false;
