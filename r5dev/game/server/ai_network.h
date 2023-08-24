@@ -19,7 +19,11 @@ public:
 
 	short GetHint(int nIndex) const;
 	CAI_ScriptNode* GetScriptNodes(void) const;
+
+	CAI_Node* AddPathNode(const Vector3D* origin, const float jaw);
 	CAI_Node** GetPathNodes(void) const;
+
+	CAI_NodeLink* CreateNodeLink(int srcID, int destID);
 
 public:
 	void* m_pVTable;  // <-- 'this'.
@@ -45,6 +49,12 @@ public:
 };
 inline CAI_Network** g_pAINetwork = nullptr;
 
+inline CMemory p_CAI_Network__AddPathNode;
+inline CAI_Node*(*v_CAI_Network__AddPathNode)(CAI_Network* pNetwork, const Vector3D* origin, float yaw);
+
+inline CMemory p_CAI_Network__CreateNodeLink;
+inline CAI_NodeLink* (*v_CAI_Network__CreateNodeLink)(CAI_Network* pNetwork, int srcID, int destID);
+
 inline CMemory p_CAI_Network__DebugConnectMsg;
 inline void(*v_CAI_Network__DebugConnectMsg)(int node1, int node2, const char* pszformat, ...);
 
@@ -53,13 +63,21 @@ class VAI_Network : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("CAI_Network::AddPathNode", p_CAI_Network__AddPathNode.GetPtr());
+		LogFunAdr("CAI_Network::CreateNodeLink", p_CAI_Network__CreateNodeLink.GetPtr());
 		LogFunAdr("CAI_Network::DebugConnectMsg", p_CAI_Network__DebugConnectMsg.GetPtr());
 		LogVarAdr("g_pAINetwork", reinterpret_cast<uintptr_t>(g_pAINetwork));
 	}
 	virtual void GetFun(void) const
 	{
+		p_CAI_Network__AddPathNode = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 48 8B B9 ?? ?? ?? ?? 48 8B F2 0F 29 74 24 ??");
+		v_CAI_Network__AddPathNode = p_CAI_Network__AddPathNode.RCast<CAI_Node*(*)(CAI_Network*, const Vector3D*, float)>();
+
+		p_CAI_Network__CreateNodeLink = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 57 41 56 48 83 EC 20 49 63 E8");
+		v_CAI_Network__CreateNodeLink = p_CAI_Network__CreateNodeLink.RCast<CAI_NodeLink* (*)(CAI_Network*, int, int)>();
+
 		p_CAI_Network__DebugConnectMsg = g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 48 83 EC 18");
-		v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int, int, const char*, ...)>(); /*4C 89 4C 24 ?? 48 83 EC 18*/
+		v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int, int, const char*, ...)>();
 	}
 	virtual void GetVar(void) const
 	{

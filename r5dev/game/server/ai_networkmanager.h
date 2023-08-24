@@ -27,10 +27,8 @@ inline void*(*CAI_NetworkManager__LoadNetworkGraph)(void* thisptr, void* pBuffer
 inline CMemory p_CAI_NetworkBuilder__Build;
 inline void*(*CAI_NetworkBuilder__Build)(void* thisptr, CAI_Network* pNetwork, void* a3, int a4);
 
-inline int                 * g_nAiNodeClusters       = nullptr;
-inline AINodeClusters    *** g_pppAiNodeClusters     = nullptr;
-inline int                 * g_nAiNodeClusterLinks   = nullptr;
-inline AINodeClusterLinks*** g_pppAiNodeClusterLinks = nullptr;
+inline CUtlVector<CAI_Cluster*>* g_pAIPathClusters = nullptr;
+inline CUtlVector<CAI_ClusterLink*>* g_pAIClusterLinks = nullptr;
 
 //-----------------------------------------------------------------------------
 // CAI_NetworkBuilder
@@ -68,10 +66,8 @@ class VAI_NetworkManager : public IDetour
 		LogFunAdr("CAI_NetworkManager::LoadNetworkGraph", p_CAI_NetworkManager__LoadNetworkGraph.GetPtr());
 		LogFunAdr("CAI_NetworkManager::ShouldRebuild", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
 		LogFunAdr("CAI_NetworkBuilder::Build", p_CAI_NetworkBuilder__Build.GetPtr());
-		LogVarAdr("g_nAiNodeClusters", reinterpret_cast<uintptr_t>(g_nAiNodeClusters));
-		LogVarAdr("g_pAiNodeClusters", reinterpret_cast<uintptr_t>(g_pppAiNodeClusters));
-		LogVarAdr("g_nAiNodeClusterLinks", reinterpret_cast<uintptr_t>(g_nAiNodeClusterLinks));
-		LogVarAdr("g_pAiNodeClusterLinks", reinterpret_cast<uintptr_t>(g_pppAiNodeClusterLinks));
+		LogVarAdr("g_AIPathClusters< CAI_Cluster* >", reinterpret_cast<uintptr_t>(g_pAIPathClusters));
+		LogVarAdr("g_AIClusterLinks< CAI_ClusterLink* >", reinterpret_cast<uintptr_t>(g_pAIClusterLinks));
 	}
 	virtual void GetFun(void) const
 	{
@@ -93,14 +89,10 @@ class VAI_NetworkManager : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_nAiNodeClusters = g_GameDll.FindPatternSIMD("4C 0F BF 12")
-			.FindPatternSelf("83 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x2, 0x7).RCast<int*>();
-		g_pppAiNodeClusters = g_GameDll.FindPatternSIMD("F3 0F 10 52 ?? 4C 8B CA")
-			.FindPatternSelf("48 8B 35", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<AINodeClusters***>();
-		g_nAiNodeClusterLinks = g_GameDll.FindPatternSIMD("49 FF C0 48 83 C2 04 4D 3B C2 7C D4")
-			.FindPatternSelf("8B 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
-		g_pppAiNodeClusterLinks = g_GameDll.FindPatternSIMD("F3 0F 10 52 ?? 4C 8B CA")
-			.FindPatternSelf("4C 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<AINodeClusterLinks***>();
+		g_pAIPathClusters = g_GameDll.FindPatternSIMD("F3 0F 10 52 ?? 4C 8B CA")
+			.FindPatternSelf("48 8B 35", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_Cluster*>*>();
+		g_pAIClusterLinks = g_GameDll.FindPatternSIMD("F3 0F 10 52 ?? 4C 8B CA")
+			.FindPatternSelf("4C 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_ClusterLink*>*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;

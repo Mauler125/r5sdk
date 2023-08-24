@@ -124,6 +124,28 @@ CAI_Node** CAI_Network::GetPathNodes(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: adds a path node
+// Input  : *origin - 
+//          jaw - 
+// Output : CAI_Node*
+//-----------------------------------------------------------------------------
+CAI_Node* CAI_Network::AddPathNode(const Vector3D* origin, const float jaw)
+{
+	return v_CAI_Network__AddPathNode(this, origin, jaw);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: creates a node link
+// Input  : srcID - 
+//          destID - 
+// Output : CAI_NodeLink*
+//-----------------------------------------------------------------------------
+CAI_NodeLink* CAI_Network::CreateNodeLink(int srcID, int destID)
+{
+	return v_CAI_Network__CreateNodeLink(this, srcID, destID);
+}
+
+//-----------------------------------------------------------------------------
 void VAI_Network::Attach() const
 {
 	DetourAttach(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);

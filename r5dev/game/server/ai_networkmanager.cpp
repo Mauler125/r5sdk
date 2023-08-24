@@ -14,6 +14,7 @@
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
+#include <public/worldsize.h>
 
 constexpr int AINET_SCRIPT_VERSION_NUMBER = 21;
 constexpr int AINET_VERSION_NUMBER        = 57;
@@ -32,6 +33,47 @@ CAI_NetworkBuilder::BuildFile
 */
 void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 {
+	//int test = 0;
+
+	//while (pNetwork->m_iNumNodes < 8000)
+	//{
+	//	Vector3D origin;
+
+	//	origin.Init(
+	//		RandomFloat(0.0f, MAX_COORD_FLOAT),
+	//		RandomFloat(0.0f, MAX_COORD_FLOAT),
+	//		RandomFloat(0.0f, MAX_COORD_FLOAT));
+
+	//	/*CAI_Node* pNode = */pNetwork->AddPathNode(&origin, RandomFloat(-180, 180));
+
+	//	if (test > 0)
+	//		pNetwork->CreateNodeLink(test-1, test);
+
+	//	CAI_NodeCluster* cluster = new CAI_NodeCluster();
+	//	memset(cluster, '\0', sizeof(CAI_NodeCluster));
+
+	//	origin.Init(
+	//		RandomFloat(0.0f, MAX_COORD_FLOAT),
+	//		RandomFloat(0.0f, MAX_COORD_FLOAT),
+	//		RandomFloat(0.0f, MAX_COORD_FLOAT));
+
+	//	cluster->m_nIndex = test;
+	//	cluster->m_vOrigin = origin;
+
+	//	g_pAINodeClusters->AddToTail(cluster);
+
+	//	CAI_NodeClusterLink* clusterLink = new CAI_NodeClusterLink();
+	//	memset(clusterLink, '\0', sizeof(CAI_NodeClusterLink));
+
+	//	clusterLink->prevIndex_MAYBE = (short)test;
+	//	clusterLink->nextIndex_MAYBE = (short)test + 1;
+
+	//	clusterLink->flags = 4;
+
+	//	g_pAINodeClusterLinks->AddToTail(clusterLink);
+	//	++test;
+	//}
+
 	char szMeshPath[MAX_PATH];
 	char szGraphPath[MAX_PATH];
 
@@ -65,7 +107,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	FileSystem()->Write(&g_ServerGlobalVariables->m_nMapVersion, sizeof(int), pAIGraph);
 
 	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
-	uint32_t nNavMeshHash = NULL;
+	uint32_t nNavMeshCRC = NULL;
 
 	if (!pNavMesh)
 	{
@@ -80,12 +122,12 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 		FileSystem()->Read(pBuf.get(), nLen, pNavMesh);
 		FileSystem()->Close(pNavMesh);
 
-		nNavMeshHash = crc32::update(NULL, pBuf.get(), nLen);
+		nNavMeshCRC = crc32::update(NULL, pBuf.get(), nLen);
 	}
 
 	// Large NavMesh CRC.
-	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '0x%lX'\n", nNavMeshHash);
-	FileSystem()->Write(&nNavMeshHash, sizeof(uint32_t), pAIGraph);
+	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '0x%lX'\n", nNavMeshCRC);
+	FileSystem()->Write(&nNavMeshCRC, sizeof(uint32_t), pAIGraph);
 
 	// Path nodes.
 	DevMsg(eDLL_T::SERVER, " |-- Node count: '%d'\n", pNetwork->m_iNumNodes);
@@ -177,7 +219,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 					diskLink.m_bHulls[k] = nodeLink->m_bHulls[k];
 				}
 
-				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%h' => '%h' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, FileSystem()->Tell(pAIGraph));
+				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%hd' => '%hd' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, FileSystem()->Tell(pAIGraph));
 				FileSystem()->Write(&diskLink, sizeof(CAI_NodeLinkDisk), pAIGraph);
 			}
 		}
@@ -194,7 +236,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	if (pNetwork->m_iNumNodes > 0)
 	{
 		std::unique_ptr<uint32[]> unkNodeBlock(new uint32_t[pNetwork->m_iNumNodes * sizeof(uint32_t)]);
-		memset(&unkNodeBlock, '\0', pNetwork->m_iNumNodes * sizeof(uint32_t));
+		memset(unkNodeBlock.get(), '\0', pNetwork->m_iNumNodes * sizeof(uint32_t));
 
 		FileSystem()->Write(unkNodeBlock.get(), pNetwork->m_iNumNodes * sizeof(uint32_t), pAIGraph);
 	}
@@ -202,6 +244,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	// TODO: This is traverse nodes i think? these aren't used in r2 ains so we can get away with just writing count=0 and skipping
 	// but ideally should actually dump these.
 	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%zX'\n", 0, FileSystem()->Tell(pAIGraph));
+
 	short traverseNodeCount = 0; // Only write count since count=0 means we don't have to actually do anything here.
 	FileSystem()->Write(&traverseNodeCount, sizeof(short), pAIGraph);
 
@@ -218,52 +261,63 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing clusters...\n");
 
-	FileSystem()->Write(&*g_nAiNodeClusters, sizeof(*g_nAiNodeClusters), pAIGraph);
-	for (int i = 0; i < *g_nAiNodeClusters; i++)
+	const int numClusters = g_pAIPathClusters->Count();
+	FileSystem()->Write(&numClusters, sizeof(int), pAIGraph);
+
+	FOR_EACH_VEC(*g_pAIPathClusters, i)
 	{
 		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
-		AINodeClusters* nodeClusters = (*g_pppAiNodeClusters)[i];
 
-		FileSystem()->Write(&nodeClusters->m_nIndex, sizeof(nodeClusters->m_nIndex), pAIGraph);
-		FileSystem()->Write(&nodeClusters->unk1, sizeof(nodeClusters->unk1), pAIGraph);
+		const CAI_Cluster* pathClusters = (*g_pAIPathClusters)[i];
 
-		FileSystem()->Write(&nodeClusters->m_vOrigin.x, sizeof(nodeClusters->m_vOrigin.x), pAIGraph);
-		FileSystem()->Write(&nodeClusters->m_vOrigin.y, sizeof(nodeClusters->m_vOrigin.y), pAIGraph);
-		FileSystem()->Write(&nodeClusters->m_vOrigin.z, sizeof(nodeClusters->m_vOrigin.z), pAIGraph);
+		FileSystem()->Write(&pathClusters->m_nIndex, sizeof(int), pAIGraph);
+		FileSystem()->Write(&pathClusters->unk1, sizeof(char), pAIGraph);
 
-		FileSystem()->Write(&nodeClusters->unkcount0, sizeof(nodeClusters->unkcount0), pAIGraph);
-		for (int j = 0; j < nodeClusters->unkcount0; j++)
+		FileSystem()->Write(&pathClusters->m_vOrigin.x, sizeof(vec_t), pAIGraph);
+		FileSystem()->Write(&pathClusters->m_vOrigin.y, sizeof(vec_t), pAIGraph);
+		FileSystem()->Write(&pathClusters->m_vOrigin.z, sizeof(vec_t), pAIGraph);
+
+		const int unkVec0Size = pathClusters->unkVec0.Count();
+		FileSystem()->Write(&unkVec0Size, sizeof(int), pAIGraph);
+
+		FOR_EACH_VEC(pathClusters->unkVec0, j)
 		{
-			short unk2Short = static_cast<short>(nodeClusters->unk2[j]);
-			FileSystem()->Write(&unk2Short, sizeof(unk2Short), pAIGraph);
+			short unkShort = static_cast<short>(pathClusters->unkVec0[j]);
+			FileSystem()->Write(&unkShort, sizeof(short), pAIGraph);
 		}
 
-		FileSystem()->Write(&nodeClusters->unkcount1, sizeof(nodeClusters->unkcount1), pAIGraph);
-		for (int j = 0; j < nodeClusters->unkcount1; j++)
+		const int unkVec1Size = pathClusters->unkVec1.Count();
+		FileSystem()->Write(&unkVec1Size, sizeof(int), pAIGraph);
+
+		FOR_EACH_VEC(pathClusters->unkVec1, j)
 		{
-			short unk3Short = static_cast<short>(nodeClusters->unk3[j]);
-			FileSystem()->Write(&unk3Short, sizeof(unk3Short), pAIGraph);
+			short unkShort = static_cast<short>(pathClusters->unkVec0[j]);
+			FileSystem()->Write(&unkShort, sizeof(short), pAIGraph);
 		}
 
-		FileSystem()->Write(&nodeClusters->unk5, sizeof(nodeClusters->unk5), pAIGraph);
+		FileSystem()->Write(&pathClusters->unk5, sizeof(char), pAIGraph);
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing clusters. %lf seconds (%d clusters)\n", timer.GetDuration().GetSeconds(), *g_nAiNodeClusters);
+	Msg(eDLL_T::SERVER, "...done writing clusters. %lf seconds (%d clusters)\n", timer.GetDuration().GetSeconds(), numClusters);
 
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing cluster links...\n");
 
-	FileSystem()->Write(&*g_nAiNodeClusterLinks, sizeof(*g_nAiNodeClusterLinks), pAIGraph);
-	for (int i = 0; i < *g_nAiNodeClusterLinks; i++)
+	const int numClusterLinks = g_pAIClusterLinks->Count();
+	FileSystem()->Write(&numClusterLinks, sizeof(int), pAIGraph);
+
+	FOR_EACH_VEC(*g_pAIClusterLinks, i)
 	{
-		// Disk and memory structs are literally identical here so just directly write.
 		DevMsg(eDLL_T::SERVER, " |-- Writing cluster link '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
-		FileSystem()->Write(&*g_pppAiNodeClusterLinks[i], sizeof(*(*g_pppAiNodeClusterLinks)[i]), pAIGraph);
+
+		// Disk and memory structs are literally identical here so just directly write.
+		const CAI_ClusterLink* clusterLink = (*g_pAIClusterLinks)[i];
+		FileSystem()->Write(clusterLink, sizeof(CAI_ClusterLink), pAIGraph);
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing cluster links. %lf seconds (%d cluster links)\n", timer.GetDuration().GetSeconds(), *g_nAiNodeClusterLinks);
+	Msg(eDLL_T::SERVER, "...done writing cluster links. %lf seconds (%d cluster links)\n", timer.GetDuration().GetSeconds(), numClusterLinks);
 
 	// This is always set to '-1'. Likely a field for maintaining compatibility.
 	FileSystem()->Write(&pNetwork->unk5, sizeof(pNetwork->unk5), pAIGraph);

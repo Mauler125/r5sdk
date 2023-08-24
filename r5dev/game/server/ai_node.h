@@ -94,37 +94,48 @@ struct CAI_ScriptNode
 	Vector3D m_vOrigin;
 	uint64_t scriptdata;
 };
+#pragma pack(pop)
 
-struct AINodeClusters
+//=============================================================================
+//	>> CAI_Cluster
+//=============================================================================
+struct CAI_Cluster
 {
 	int m_nIndex;
 	char unk0;
-	char unk1;	  // Maps to unk1 on disk
-	char pad0[2]; // Padding to +8
+	char unk1;   // Maps to unk1 on disk
 
 	Vector3D m_vOrigin;
+	char unkC; // idk, might be a 4 bytes type or just padding.
 
-	char pad5[4];
-	int* unk2;     // Maps to unk5 on disk;
-	char pad1[16]; // Pad to +48
-	int unkcount0; // Maps to unkcount0 on disk
+	// These are utlvectors in engine, but its
+	// unknown what they do yet.
+	CUtlVector<int> unkVec0;
+	CUtlVector<int> unkVec1;
 
-	char pad2[4];  // Pad to +56
-	int* unk3;
-	char pad3[16]; // Pad to +80
-	int unkcount1;
+	// This is an array of floats that is indexed
+	// into by teamNum at [r5apex_ds.exe + EC84DC];
+	// Seems to be used along with the cvar:
+	// 'ai_path_dangerous_cluster_min_time'.
+	float clusterTime[MAX_TEAMS];
 
-	char pad4[132];
+	float field_0250;
+	float field_0254;
+	float field_0258;
 	char unk5;
 };
+static_assert(sizeof(CAI_Cluster) == 608);
 
-struct AINodeClusterLinks
+//=============================================================================
+//	>> CAI_ClusterLink
+//=============================================================================
+struct CAI_ClusterLink
 {
-	short unk0;
-	short unk1;
+	short prevIndex_MAYBE;
+	short nextIndex_MAYBE;
 	int unk2;
-	char unk3;
+	char flags;
 	char unk4;
 	char unk5;
 };
-#pragma pack(pop)
+static_assert(sizeof(CAI_ClusterLink) == 12);
