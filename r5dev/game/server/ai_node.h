@@ -83,7 +83,8 @@ struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
 	short unk4;
 	short unk5;
 	char unk6[8];
-}; // Total size of 68 bytes
+};
+static_assert(sizeof(CAI_NodeDisk) == 68);
 
 //=============================================================================
 //	>> CAI_ScriptNode
