@@ -112,7 +112,7 @@ public:
 	bool m_bRestrictServerCommands;
 	bool m_bRestrictClientCommands;
 	char buffer_0x400[1024];
-	ClientDataBlockReceiver blockReceiver;
+	ClientDataBlockReceiver m_DataBlockReceiver;
 	char client_requested_disconnect;
 	char error_message[512];
 	_BYTE gap18CA1[3];
@@ -148,9 +148,7 @@ public:
 	__int64 qword18D20;
 	int dword18D28;
 	int dword18D2C;
-	float field_18D30;
-	float m_flUnk1;
-	float m_flUnk2;
+	Vector3D field_18D30;
 	int dword18D3C;
 	int dword18D40;
 	char gap18D44[4];
@@ -160,7 +158,6 @@ public:
 	int dword18D60;
 	char gap18D64[4];
 	__int64 qword18D68;
-	char gap18D70[8];
 	char buffer_47128[47128];
 	char entitlements_bitfield[16];
 	__int64 maybe_some_ll_stuff;
@@ -176,9 +173,7 @@ public:
 	__int64 qword245F0;
 	int dword245F8;
 	char gap245FC[1024];
-	int dword249EC;//249EC
-	int dword249F0;
-	char gap24A04[4];
+	int dword249EC;
 	__int64 m_pModelPrecacheTable;
 	__int64 qword24A10;
 	__int64 m_pInstanceBaselineTable;
@@ -190,9 +185,9 @@ public:
 	char field_34A39[7];
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-static_assert(sizeof(CClientState) == 0x34A38);
+static_assert(sizeof(CClientState) == 0x34A28);
 #else
-static_assert(sizeof(CClientState) == 0x34A30);
+static_assert(sizeof(CClientState) == 0x34A20);
 #endif
 
 #ifndef DEDICATED
