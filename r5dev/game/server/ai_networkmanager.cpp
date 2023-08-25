@@ -313,7 +313,15 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 		// Disk and memory structs are literally identical here so just directly write.
 		const CAI_ClusterLink* clusterLink = (*g_pAIClusterLinks)[i];
-		FileSystem()->Write(clusterLink, sizeof(CAI_ClusterLink), pAIGraph);
+
+		FileSystem()->Write(&clusterLink->prevIndex_MAYBE, sizeof(short), pAIGraph);
+		FileSystem()->Write(&clusterLink->nextIndex_MAYBE, sizeof(short), pAIGraph);
+
+		FileSystem()->Write(&clusterLink->unk2, sizeof(int), pAIGraph);
+		FileSystem()->Write(&clusterLink->flags, sizeof(char), pAIGraph);
+
+		FileSystem()->Write(&clusterLink->unk4, sizeof(char), pAIGraph);
+		FileSystem()->Write(&clusterLink->unk5, sizeof(char), pAIGraph);
 	}
 
 	timer.End();
