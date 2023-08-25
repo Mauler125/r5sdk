@@ -753,7 +753,7 @@ void CUtlMemory<T, I>::Grow(int64 num)
 
 	if (IsExternallyAllocated())
 	{
-		// Can't grow a buffer whose memory was externally allocated 
+		Assert(0); // Can't grow a buffer whose memory was externally allocated 
 		Error(eDLL_T::COMMON, EXIT_FAILURE, "EnsureCapacity( %zd ) called for external buffer of size %zd.\n", num, m_nAllocationCount);
 		return;
 	}
@@ -818,7 +818,7 @@ inline void CUtlMemory<T, I>::EnsureCapacity(int64 num)
 
 	if (IsExternallyAllocated())
 	{
-		// Can't grow a buffer whose memory was externally allocated
+		Assert(0); // Can't grow a buffer whose memory was externally allocated
 		Error(eDLL_T::COMMON, EXIT_FAILURE, "EnsureCapacity( %zd ) called for external buffer of size %zd.\n", num, m_nAllocationCount);
 		return;
 	}
@@ -1045,7 +1045,7 @@ void CUtlMemoryAligned<T, nAlignment>::Grow(int64 num)
 
 	if (this->IsExternallyAllocated())
 	{
-		// Can't grow a buffer whose memory was externally allocated 
+		Assert(0); // Can't grow a buffer whose memory was externally allocated 
 		Error(eDLL_T::COMMON, EXIT_FAILURE, "EnsureCapacity( %zd ) called for external buffer of size %zd.\n", num, CUtlMemory<T>::m_nAllocationCount);
 		return;
 	}
@@ -1086,7 +1086,7 @@ inline void CUtlMemoryAligned<T, nAlignment>::EnsureCapacity(int64 num)
 
 	if (this->IsExternallyAllocated())
 	{
-		// Can't grow a buffer whose memory was externally allocated 
+		Assert(0); // Can't grow a buffer whose memory was externally allocated 
 		Error(eDLL_T::COMMON, EXIT_FAILURE, "EnsureCapacity( %zd ) called for external buffer of size %zd.\n", num, CUtlMemory<T>::m_nAllocationCount);
 		return;
 	}
