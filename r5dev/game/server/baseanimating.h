@@ -26,7 +26,7 @@ public:
 	float				GetModelScale() const { return m_flModelScale; }
 
 protected:
-	char gap_b04[8]; // Aligns properly in IDA and generated code after setting from 12 to 8.
+	void* __vftable;
 	bool m_markedForServerInterpolation;
 	bool m_animRemoveFromServerInterpolationNextFrame;
 	char gap_b12[2];
