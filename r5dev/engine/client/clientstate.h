@@ -84,9 +84,9 @@ public:
 	int m_nPlayerSlot;
 	char m_szLevelFileName[64];
 	char m_szLevelBaseName[64];
-	char field_1F0[64];
-	char field_230[64];
-	_BYTE m_szServerAddresString[128];
+	char m_szLastLevelBaseName[64];
+	char m_szSkyBoxBaseName[64];
+	char m_szServerAddresString[128];
 	int m_bInMpLobbyMenu;
 	int m_nTeam;
 	_DWORD m_nMaxClients;
