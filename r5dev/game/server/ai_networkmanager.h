@@ -64,7 +64,7 @@ class VAI_NetworkManager : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogFunAdr("CAI_NetworkManager::LoadNetworkGraph", p_CAI_NetworkManager__LoadNetworkGraph.GetPtr());
-		LogFunAdr("CAI_NetworkManager::ShouldRebuild", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
+		LogFunAdr("CAI_NetworkManager::DelayedInit", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
 		LogFunAdr("CAI_NetworkBuilder::Build", p_CAI_NetworkBuilder__Build.GetPtr());
 		LogVarAdr("g_AIPathClusters< CAI_Cluster* >", reinterpret_cast<uintptr_t>(g_pAIPathClusters));
 		LogVarAdr("g_AIClusterLinks< CAI_ClusterLink* >", reinterpret_cast<uintptr_t>(g_pAIClusterLinks));

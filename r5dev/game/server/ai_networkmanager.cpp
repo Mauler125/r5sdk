@@ -147,28 +147,28 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 		{
 			const CAI_Node* aiNode = pNetwork->m_pAInode[i];
 
-			// Construct on-disk node struct.
-			CAI_NodeDisk diskNode;
+			DevMsg(eDLL_T::SERVER, " |-- Copying node '#%d' from '0x%p' to '0x%zX'\n", aiNode->m_nIndex, aiNode, FileSystem()->Tell(pAIGraph));
 
-			diskNode.m_vOrigin = aiNode->m_vOrigin;
-			diskNode.m_flYaw = aiNode->m_flYaw;
+			FileSystem()->Write(&aiNode->m_vOrigin, sizeof(Vector3D), pAIGraph);
+			FileSystem()->Write(&aiNode->m_flYaw, sizeof(float), pAIGraph);
+			FileSystem()->Write(&aiNode->m_fHulls, sizeof(aiNode->m_fHulls), pAIGraph);
 
-			diskNode.unk0 = static_cast<char>(aiNode->unk0);
-			diskNode.unk1 = aiNode->unk1;
+			FileSystem()->Write(&aiNode->unk0, sizeof(char), pAIGraph);
+			FileSystem()->Write(&aiNode->unk1, sizeof(int), pAIGraph);
 
 			for (int j = 0; j < MAX_HULLS; j++)
 			{
-				diskNode.unk2[j] = static_cast<short>(aiNode->unk2[j]);
-				diskNode.unk3[j] = aiNode->unk3[j];
-				diskNode.hulls[j] = aiNode->m_fHulls[j];
+				FileSystem()->Write(&aiNode->unk2[j], sizeof(short), pAIGraph);
 			}
 
-			diskNode.unk4 = aiNode->unk6;
-			diskNode.unk5 = -1; // aiNetwork->nodes[i]->unk8; // This field is wrong, however it's always -1 in original navmeshes anyway.
-			memcpy(diskNode.unk6, aiNode->unk10, sizeof(diskNode.unk6));
+			FileSystem()->Write(&aiNode->unk3, sizeof(aiNode->unk3), pAIGraph);
+			FileSystem()->Write(&aiNode->unk6, sizeof(short), pAIGraph);
 
-			DevMsg(eDLL_T::SERVER, " |-- Copying node '#%d' from '0x%p' to '0x%zX'\n", aiNode->m_nIndex, aiNode, FileSystem()->Tell(pAIGraph));
-			FileSystem()->Write(&diskNode, sizeof(CAI_NodeDisk), pAIGraph);
+			// aiNetwork->nodes[i]->unk8; // This field is wrong, however it's always -1 in original navmeshes anyway.
+			short unk8 = -1;
+
+			FileSystem()->Write(&unk8/*aiNode->unk8*/, sizeof(short), pAIGraph);
+			FileSystem()->Write(&aiNode->unk10, sizeof(aiNode->unk10), pAIGraph);
 
 			totalLinkCount += aiNode->m_nNumLinks;
 		}
@@ -208,19 +208,12 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 					continue;
 				}
 
-				CAI_NodeLinkDisk diskLink;
+				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%hd' => '%hd' to '0x%zX'\n", nodeLink->m_iSrcID, nodeLink->m_iDestID, FileSystem()->Tell(pAIGraph));
 
-				diskLink.m_iSrcID = nodeLink->m_iSrcID;
-				diskLink.m_iDestID = nodeLink->m_iDestID;
-				diskLink.unk0 = nodeLink->unk1;
-
-				for (int k = 0; k < MAX_HULLS; k++)
-				{
-					diskLink.m_bHulls[k] = nodeLink->m_bHulls[k];
-				}
-
-				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%hd' => '%hd' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, FileSystem()->Tell(pAIGraph));
-				FileSystem()->Write(&diskLink, sizeof(CAI_NodeLinkDisk), pAIGraph);
+				FileSystem()->Write(&nodeLink->m_iSrcID, sizeof(short), pAIGraph);
+				FileSystem()->Write(&nodeLink->m_iDestID, sizeof(short), pAIGraph);
+				FileSystem()->Write(&nodeLink->unk1, sizeof(char), pAIGraph);
+				FileSystem()->Write(&nodeLink->m_bHulls, sizeof(nodeLink->m_bHulls), pAIGraph);
 			}
 		}
 	}

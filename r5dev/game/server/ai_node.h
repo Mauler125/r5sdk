@@ -10,7 +10,6 @@ constexpr int MAX_HULLS = 5;
 constexpr int NOT_CACHED = -2;			// Returned if data not in cache
 constexpr int NO_NODE    = -1;			// Returned when no node meets the qualification
 
-#pragma pack(push, 1)
 //=============================================================================
 //	>> CAI_NodeLink
 //=============================================================================
@@ -23,17 +22,6 @@ struct CAI_NodeLink
 	char unk1; // maps => unk0 on disk
 	char unk2[5];
 	int64_t m_nFlags;
-};
-
-//=============================================================================
-//	>> CAI_NodeLinkDisk
-//=============================================================================
-struct CAI_NodeLinkDisk
-{
-	short m_iSrcID;
-	short m_iDestID;
-	char unk0;
-	bool m_bHulls[MAX_HULLS];
 };
 
 //=============================================================================
@@ -67,34 +55,17 @@ struct CAI_Node
 };
 
 //=============================================================================
-//	>> CAI_NodeDisk
-//=============================================================================
-struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
-{
-	Vector3D m_vOrigin;
-
-	float m_flYaw;
-	float hulls[MAX_HULLS];
-
-	char unk0;
-	int unk1;
-	short unk2[MAX_HULLS];
-	char unk3[MAX_HULLS];
-	short unk4;
-	short unk5;
-	char unk6[8];
-};
-static_assert(sizeof(CAI_NodeDisk) == 68);
-
-//=============================================================================
 //	>> CAI_ScriptNode
 //=============================================================================
 struct CAI_ScriptNode
 {
 	Vector3D m_vOrigin;
-	uint64_t scriptdata;
+
+	// Might be wrong; seems to be used for clamping.
+	// See [r5apex_ds + 0xF28A6E]
+	int m_nMin;
+	int m_nMax;
 };
-#pragma pack(pop)
 
 //=============================================================================
 //	>> CAI_Cluster
@@ -114,7 +85,7 @@ struct CAI_Cluster
 	CUtlVector<int> unkVec1;
 
 	// This is an array of floats that is indexed
-	// into by teamNum at [r5apex_ds.exe + EC84DC];
+	// into by teamNum at [r5apex_ds + EC84DC];
 	// Seems to be used along with the cvar:
 	// 'ai_path_dangerous_cluster_min_time'.
 	float clusterTime[MAX_TEAMS];
