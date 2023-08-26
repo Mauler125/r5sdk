@@ -39,5 +39,12 @@
 #define HITGROUP_GEAR		8			// alerts NPC, but doesn't do damage or bleed (1/100th damage)
 #define HITGROUP_COUNT		9
 
+typedef enum // !TODO[ AMOS ]: Confirm this!
+{
+	USE_OFF = 0,
+	USE_ON = 1,
+	USE_SET = 2,
+	USE_TOGGLE = 3
+} USE_TYPE;
 
 #endif // SHAREDDEFS_H

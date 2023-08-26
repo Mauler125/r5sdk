@@ -17,9 +17,28 @@
 #include "public/iserverentity.h"
 #include "engine/gl_model_private.h"
 #include "game/shared/collisionproperty.h"
+#include "game/shared/shareddefs.h"
 #include "networkproperty.h"
 #include "entitylist.h"
+#include "entityoutput.h"
 
+//-----------------------------------------------------------------------------
+
+typedef void (CBaseEntity::* BASEPTR)(void);
+typedef void (CBaseEntity::* ENTITYFUNCPTR)(CBaseEntity* pOther);
+typedef void (CBaseEntity::* USEPTR)(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
+
+//-----------------------------------------------------------------------------
+// Purpose: think contexts
+//-----------------------------------------------------------------------------
+struct thinkfunc_t
+{
+	BASEPTR		m_pfnThink;
+	bool		m_fireBeforeBaseThink;
+	string_t	m_iszContext;
+	int			m_nNextThinkTick;
+	int			m_nLastThinkTick;
+};
 
 class CBaseEntity : public IServerEntity
 {
@@ -35,10 +54,10 @@ public:
 	string_t		GetModelName(void) const;  // Virtual in-engine!
 
 	inline edict_t GetEdict(void) { return NetworkProp()->GetEdict(); }
-	inline string_t GetName(void) const { return m_iName; }
+	inline string_t GetEntityName(void) const { return m_iName; }
 
 protected:
-	char m_RefEHandle[4];
+	CBaseHandle m_RefEHandle;
 	char gap_c[4];
 	void* m_collideable;
 	void* m_networkable;
@@ -51,14 +70,14 @@ protected:
 	string_t m_ModelName;
 	int m_entIndex;
 	char gap_74[8]; // Aligns properly in IDA and generated code after setting from 4 to 8.
-	const char* m_iClassname;
+	string_t* m_iClassname;
 	float m_flAnimTime;
 	float m_flSimulationTime;
 	int m_creationTick;
 	int m_nLastThinkTick;
 	int m_PredictableID;
 	int touchStamp;
-	char m_aThinkFunctions[32];
+	CUtlVector<thinkfunc_t> m_aThinkFunctions;
 	float m_entitySpawnTime;
 	int m_spawner;
 	bool m_wantsDamageCallbacks;
@@ -68,7 +87,7 @@ protected:
 	int m_fEffects;
 	bool m_thinkNextFrame;
 	char gap_cd[3];
-	__int64 m_target;
+	string_t m_target;
 	int m_networkedFlags;
 	char m_nRenderFX;
 	char m_nRenderMode;
@@ -159,7 +178,7 @@ protected:
 	Vector3D m_angAbsRotation;
 	Vector3D m_vecVelocity;
 	char gap_474[4];
-	__int64 m_iParent;
+	string_t m_iParent;
 	int m_iHammerID;
 	float m_flSpeed;
 	int m_iMaxHealth;
@@ -179,9 +198,9 @@ protected:
 	float m_lastTitanFootstepDamageTime;
 	float m_flMaxspeed;
 	int m_visibilityFlags;
-	char m_OnUser1[40];
-	char m_OnDeath[40];
-	char m_OnDestroy[40];
+	COutputEvent m_OnUser1;
+	COutputEvent m_OnDeath;
+	COutputEvent m_OnDestroy;
 	int m_cellWidth;
 	int m_cellBits;
 	int m_cellX;
@@ -208,7 +227,7 @@ protected:
 	float m_entityFadeDist;
 	int m_dissolveEffectEntityHandle;
 	float m_fadeDist;
-	__int64 m_iSignifierName;
+	string_t m_iSignifierName;
 	int m_collectedInvalidateFlags;
 	bool m_collectingInvalidateFlags;
 	char gap_5d5[3];
@@ -222,7 +241,7 @@ protected:
 	void* m_pTimedOverlay;
 	char m_ScriptScope[32];
 	char m_hScriptInstance[8];
-	__int64 m_iszScriptId;
+	string_t m_iszScriptId;
 	int m_bossPlayer;
 	int m_usableType;
 	int m_usablePriority;
