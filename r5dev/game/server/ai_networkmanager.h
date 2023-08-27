@@ -8,27 +8,28 @@
 #include "game/server/detour_impl.h"
 #include "baseentity.h"
 
-/* ==== CAI_NETWORKMANAGER ============================================================================================================================================== */
-inline CMemory p_CAI_NetworkManager__DelayedInit = nullptr;
-inline void*(*CAI_NetworkManager__DelayedInit)(void* thisptr, CAI_Network* pNetwork);
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
-inline void*(*CAI_NetworkManager__LoadNetworkGraph)(void* thisptr, void* pBuffer, const char* pszFileName);
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
-inline void*(*CAI_NetworkManager__LoadNetworkGraph)(void* thisptr, void* pBuffer, const char* pszFileName);
-#endif
-/* ==== CAI_NETWORKBUILDER ============================================================================================================================================== */
-inline CMemory p_CAI_NetworkBuilder__Build;
-inline void*(*CAI_NetworkBuilder__Build)(void* thisptr, CAI_Network* pNetwork);
-
-inline CUtlVector<CAI_Cluster*>* g_pAIPathClusters = nullptr;
-inline CUtlVector<CAI_ClusterLink*>* g_pAIClusterLinks = nullptr;
-
 //-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------
+class CAI_NetworkBuilder;
 class CAI_NetworkManager;
+
+/* ==== CAI_NETWORKMANAGER ============================================================================================================================================== */
+inline CMemory p_CAI_NetworkManager__DelayedInit = nullptr;
+inline void (*CAI_NetworkManager__DelayedInit)(CAI_NetworkManager* thisptr, CAI_Network* pNetwork);
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
+inline void (*CAI_NetworkManager__LoadNetworkGraph)(CAI_NetworkManager* thisptr, void* pBuffer, const char* pszFileName);
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
+inline void (*CAI_NetworkManager__LoadNetworkGraph)(CAI_NetworkManager* thisptr, void* pBuffer, const char* pszFileName);
+#endif
+/* ==== CAI_NETWORKBUILDER ============================================================================================================================================== */
+inline CMemory p_CAI_NetworkBuilder__Build;
+inline void (*CAI_NetworkBuilder__Build)(CAI_NetworkBuilder* thisptr, CAI_Network* pNetwork);
+
+inline CUtlVector<CAI_Cluster*>* g_pAIPathClusters = nullptr;
+inline CUtlVector<CAI_ClusterLink*>* g_pAIClusterLinks = nullptr;
 
 //-----------------------------------------------------------------------------
 // CAI_NetworkEditTools
@@ -128,18 +129,18 @@ class VAI_NetworkManager : public IDetour
 		p_CAI_NetworkManager__DelayedInit = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 48 8B 0D ?? ?? ?? ?? 8B 41 6C");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CAI_NetworkManager__LoadNetworkGraph = g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 48 89 4C 24 ?? 55 53 57 41 54 41 55 41 56");
-		CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void* (*)(void*, void*, const char*)>();
+		CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void (*)(CAI_NetworkManager*, void*, const char*)>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CAI_NetworkManager__LoadNetworkGraph = g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B FA");
-		CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void* (*)(void*, void*, const char*)>();
+		CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void (*)(CAI_NetworkManager*, void*, const char*)>();
 #endif
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CAI_NetworkBuilder__Build = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 4C 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 48 63 BA ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CAI_NetworkBuilder__Build = g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 38 8B B2 ?? ?? ?? ??");
 #endif
-		CAI_NetworkManager__DelayedInit = p_CAI_NetworkManager__DelayedInit.RCast<void* (*)(void*, CAI_Network*)>();
-		CAI_NetworkBuilder__Build       = p_CAI_NetworkBuilder__Build.RCast<void* (*)(void*, CAI_Network*)>();
+		CAI_NetworkManager__DelayedInit = p_CAI_NetworkManager__DelayedInit.RCast<void (*)(CAI_NetworkManager*, CAI_Network*)>();
+		CAI_NetworkBuilder__Build       = p_CAI_NetworkBuilder__Build.RCast<void (*)(CAI_NetworkBuilder*, CAI_Network*)>();
 	}
 	virtual void GetVar(void) const
 	{
