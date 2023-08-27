@@ -18,7 +18,7 @@ struct CAI_NodeLink
 	short m_iSrcID;
 	short m_iDestID;
 	bool m_bHulls[MAX_HULLS];
-	char unk0;
+	byte m_LinkInfo;
 	char unk1; // maps => unk0 on disk
 	char unk2[5];
 	int64_t m_nFlags;
@@ -44,7 +44,8 @@ struct CAI_Node
 	float unk4[MAX_HULLS]; // I have no clue, calculated using some kind float function magic
 
 	CAI_NodeLink** links;
-	char unk5[16];
+	void* unkBuf0;
+	void* unkBuf1;
 	int m_nNumLinks;
 	int unk11;     // Bad name lmao
 	short unk6;    // Should match up to unk4 on disk

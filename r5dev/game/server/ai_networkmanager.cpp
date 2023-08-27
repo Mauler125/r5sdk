@@ -367,7 +367,7 @@ CAI_NetworkManager::LoadNetworkGraph
   and validate status
 ==============================
 */
-void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile)
+void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, void* pBuffer, const char* szAIGraphFile)
 {
 	bool bNavMeshAvailable = true;
 
@@ -404,7 +404,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	if (!pAIGraph)
 	{
 		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, szGraphPath);
-		LoadNetworkGraphEx(pAINetworkManager, pBuffer, szAIGraphFile);
+		LoadNetworkGraphEx(pManager, pBuffer, szAIGraphFile);
 
 		return;
 	}
@@ -437,7 +437,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	}
 
 	FileSystem()->Close(pAIGraph);
-	LoadNetworkGraphEx(pAINetworkManager, pBuffer, szAIGraphFile);
+	LoadNetworkGraphEx(pManager, pBuffer, szAIGraphFile);
 }
 
 /*
@@ -448,18 +448,18 @@ CAI_NetworkManager::LoadNetworkGraphEx
   (internal)
 ==============================
 */
-void CAI_NetworkManager::LoadNetworkGraphEx(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile)
+void CAI_NetworkManager::LoadNetworkGraphEx(CAI_NetworkManager* pManager, void* pBuffer, const char* szAIGraphFile)
 {
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	CAI_NetworkManager__LoadNetworkGraph(pAINetworkManager, pBuffer, szAIGraphFile, NULL);
+	CAI_NetworkManager__LoadNetworkGraph(pManager, pBuffer, szAIGraphFile);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	CAI_NetworkManager__LoadNetworkGraph(pAINetworkManager, pBuffer, szAIGraphFile);
+	CAI_NetworkManager__LoadNetworkGraph(pManager, pBuffer, szAIGraphFile);
 #endif
 
 	if (ai_ainDumpOnLoad->GetBool())
 	{
-		Msg(eDLL_T::SERVER, "Reparsing AI Network '%s'\n", szAIGraphFile);
-		CAI_NetworkBuilder::SaveNetworkGraph(*(CAI_Network**)(reinterpret_cast<char*>(pAINetworkManager) + AINETWORK_OFFSET));
+		Msg(eDLL_T::SERVER, "Dumping AI Network '%s'\n", szAIGraphFile);
+		CAI_NetworkBuilder::SaveNetworkGraph(pManager->m_pNetwork);
 	}
 }
 
@@ -471,9 +471,9 @@ CAI_NetworkBuilder::Build
   during level load
 ==============================
 */
-void CAI_NetworkBuilder::Build(CAI_NetworkBuilder* pBuilder, CAI_Network* pAINetwork, void* a3, int a4)
+void CAI_NetworkBuilder::Build(CAI_NetworkBuilder* pBuilder, CAI_Network* pAINetwork)
 {
-	CAI_NetworkBuilder__Build(pBuilder, pAINetwork, a3, a4);
+	CAI_NetworkBuilder__Build(pBuilder, pAINetwork);
 	CAI_NetworkBuilder::SaveNetworkGraph(pAINetwork);
 }
 
