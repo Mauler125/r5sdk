@@ -33,47 +33,6 @@ CAI_NetworkBuilder::BuildFile
 */
 void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 {
-	//int test = 0;
-
-	//while (pNetwork->m_iNumNodes < 8000)
-	//{
-	//	Vector3D origin;
-
-	//	origin.Init(
-	//		RandomFloat(0.0f, MAX_COORD_FLOAT),
-	//		RandomFloat(0.0f, MAX_COORD_FLOAT),
-	//		RandomFloat(0.0f, MAX_COORD_FLOAT));
-
-	//	/*CAI_Node* pNode = */pNetwork->AddPathNode(&origin, RandomFloat(-180, 180));
-
-	//	if (test > 0)
-	//		pNetwork->CreateNodeLink(test-1, test);
-
-	//	CAI_NodeCluster* cluster = new CAI_NodeCluster();
-	//	memset(cluster, '\0', sizeof(CAI_NodeCluster));
-
-	//	origin.Init(
-	//		RandomFloat(0.0f, MAX_COORD_FLOAT),
-	//		RandomFloat(0.0f, MAX_COORD_FLOAT),
-	//		RandomFloat(0.0f, MAX_COORD_FLOAT));
-
-	//	cluster->m_nIndex = test;
-	//	cluster->m_vOrigin = origin;
-
-	//	g_pAINodeClusters->AddToTail(cluster);
-
-	//	CAI_NodeClusterLink* clusterLink = new CAI_NodeClusterLink();
-	//	memset(clusterLink, '\0', sizeof(CAI_NodeClusterLink));
-
-	//	clusterLink->prevIndex_MAYBE = (short)test;
-	//	clusterLink->nextIndex_MAYBE = (short)test + 1;
-
-	//	clusterLink->flags = 4;
-
-	//	g_pAINodeClusterLinks->AddToTail(clusterLink);
-	//	++test;
-	//}
-
 	char szMeshPath[MAX_PATH];
 	char szGraphPath[MAX_PATH];
 
