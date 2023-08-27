@@ -284,7 +284,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 		FOR_EACH_VEC(pathClusters->unkVec1, j)
 		{
-			short unkShort = static_cast<short>(pathClusters->unkVec0[j]);
+			short unkShort = static_cast<short>(pathClusters->unkVec1[j]);
 			FileSystem()->Write(&unkShort, sizeof(short), pAIGraph);
 		}
 
