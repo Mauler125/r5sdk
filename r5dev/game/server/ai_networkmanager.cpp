@@ -18,7 +18,7 @@
 
 constexpr int AINET_SCRIPT_VERSION_NUMBER = 21;
 constexpr int AINET_VERSION_NUMBER        = 57;
-constexpr int AINET_MIN_FILE_SIZE         = 82;
+constexpr int AINET_HEADER_SIZE           = 16;
 constexpr const char* AINETWORK_EXT       = ".ain";
 constexpr const char* AINETWORK_PATH      = "maps/graphs/";
 
@@ -96,7 +96,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	Msg(eDLL_T::SERVER, "...done writing header. %lf seconds\n", timer.GetDuration().GetSeconds());
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing node positions...\n");
+	DevMsg(eDLL_T::SERVER, "+- Writing path nodes...\n");
 
 	if (pNetwork->m_pAInode)
 	{
@@ -142,11 +142,11 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing node positions. %lf seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T::SERVER, "...done writing path nodes. %lf seconds (%d nodes)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumNodes);
 	
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing links...\n");
-	DevMsg(eDLL_T::SERVER, " |-- Cached link count: '%d'\n", pNetwork->m_iNumLinks);
+	DevMsg(eDLL_T::SERVER, "+- Writing node links...\n");
+	DevMsg(eDLL_T::SERVER, " |-- Cached node link count: '%d'\n", pNetwork->m_iNumLinks);
 
 	int packedLinks = pNetwork->m_iNumLinks / 2;
 	FileSystem()->Write(&packedLinks, sizeof(int), pAIGraph);
@@ -178,7 +178,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumLinks);
+	Msg(eDLL_T::SERVER, "...done writing node links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumLinks);
 
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing hull data...\n");
@@ -195,10 +195,10 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	// TODO: This is traverse nodes i think? these aren't used in r2 ains so we can get away with just writing count=0 and skipping
 	// but ideally should actually dump these.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%zX'\n", 0, FileSystem()->Tell(pAIGraph));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traverse ex nodes at '0x%zX'\n", 0, FileSystem()->Tell(pAIGraph));
 
-	short traverseNodeCount = 0; // Only write count since count=0 means we don't have to actually do anything here.
-	FileSystem()->Write(&traverseNodeCount, sizeof(short), pAIGraph);
+	short traverseExNodeCount = 0; // Only write count since count=0 means we don't have to actually do anything here.
+	FileSystem()->Write(&traverseExNodeCount, sizeof(short), pAIGraph);
 
 	// TODO: Ideally these should be actually dumped, but they're always 0 in r2 from what i can tell.
 	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", (MAX_HULLS * 8), FileSystem()->Tell(pAIGraph));
@@ -208,10 +208,10 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing hull data. %lf seconds\n", timer.GetDuration().GetSeconds());
+	Msg(eDLL_T::SERVER, "...done writing hull data. %lf seconds (%d blocks)\n", timer.GetDuration().GetSeconds(), MAX_HULLS);
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing clusters...\n");
+	DevMsg(eDLL_T::SERVER, "+- Writing path clusters...\n");
 
 	const int numClusters = g_pAIPathClusters->Count();
 	FileSystem()->Write(&numClusters, sizeof(int), pAIGraph);
@@ -251,7 +251,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing clusters. %lf seconds (%d clusters)\n", timer.GetDuration().GetSeconds(), numClusters);
+	Msg(eDLL_T::SERVER, "...done writing path clusters. %lf seconds (%d clusters)\n", timer.GetDuration().GetSeconds(), numClusters);
 
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing cluster links...\n");
@@ -261,7 +261,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	FOR_EACH_VEC(*g_pAIClusterLinks, i)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing cluster link '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
+		DevMsg(eDLL_T::SERVER, " |-- Writing link '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
 
 		// Disk and memory structs are literally identical here so just directly write.
 		const CAI_ClusterLink* clusterLink = (*g_pAIClusterLinks)[i];
@@ -277,7 +277,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing cluster links. %lf seconds (%d cluster links)\n", timer.GetDuration().GetSeconds(), numClusterLinks);
+	Msg(eDLL_T::SERVER, "...done writing cluster links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), numClusterLinks);
 
 	// This is always set to '-1'. Likely a field for maintaining compatibility.
 	FileSystem()->Write(&pNetwork->unk5, sizeof(pNetwork->unk5), pAIGraph);
@@ -368,7 +368,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, void* pB
 		return;
 	}
 
-	if (FileSystem()->Size(pAIGraph) >= AINET_MIN_FILE_SIZE)
+	if (FileSystem()->Size(pAIGraph) >= AINET_HEADER_SIZE)
 	{
 		FileSystem()->Read(&nAiNetVersion, sizeof(int), pAIGraph);
 		FileSystem()->Read(&nAiMapVersion, sizeof(int), pAIGraph);

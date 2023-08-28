@@ -63,7 +63,7 @@ class VRecast : public IDetour
 		LogFunAdr("dtNavMesh::Init", p_dtNavMesh__Init.GetPtr());
 		LogFunAdr("dtNavMesh::addTile", p_dtNavMesh__addTile.GetPtr());
 		LogFunAdr("dtNavMesh::isPolyReachable", p_dtNavMesh__isPolyReachable.GetPtr());
-		LogVarAdr("g_pNavMesh[5]", reinterpret_cast<uintptr_t>(g_pNavMesh));
+		LogVarAdr("g_pNavMesh[ MAX_HULLS ]", reinterpret_cast<uintptr_t>(g_pNavMesh));
 		LogVarAdr("g_pNavMeshQuery", reinterpret_cast<uintptr_t>(g_pNavMeshQuery));
 	}
 	virtual void GetFun(void) const
