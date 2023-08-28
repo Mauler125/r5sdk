@@ -423,20 +423,17 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 		nNavMeshHash = crc32::update(NULL, pBuf.get(), nLen);
 	}
 
-	FileHandle_t pAIGraph = FileSystem()->Open(szGraphPath, "rb", "GAME");
-	if (!pAIGraph)
-	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, szGraphPath);
-		LoadNetworkGraphEx(pManager, pBuffer, szAIGraphFile);
+	const ssize_t nFileSize = pBuffer->TellPut();
+	const ssize_t nOldOffset = pBuffer->TellGet();
 
-		return;
-	}
+	// Seek to the start of the buffer so we can validate the header.
+	pBuffer->SeekGet(CUtlBuffer::SEEK_HEAD, 0);
 
-	if (FileSystem()->Size(pAIGraph) >= AINET_HEADER_SIZE)
+	if (nFileSize >= AINET_HEADER_SIZE)
 	{
-		FileSystem()->Read(&nAiNetVersion, sizeof(int), pAIGraph);
-		FileSystem()->Read(&nAiMapVersion, sizeof(int), pAIGraph);
-		FileSystem()->Read(&nAiGraphHash, sizeof(int), pAIGraph);
+		nAiNetVersion = pBuffer->GetInt();
+		nAiMapVersion = pBuffer->GetInt();
+		nAiGraphHash = pBuffer->GetInt();
 
 		if (nAiNetVersion > AINET_VERSION_NUMBER)
 		{
@@ -459,7 +456,8 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 		Error(eDLL_T::SERVER, NO_ERROR, "%s - AI node graph '%s' is corrupt\n", __FUNCTION__, szGraphPath);
 	}
 
-	FileSystem()->Close(pAIGraph);
+	// Recover old buffer position before we call LoadNetworkGraph.
+	pBuffer->SeekGet(CUtlBuffer::SEEK_HEAD, nOldOffset);
 	LoadNetworkGraphEx(pManager, pBuffer, szAIGraphFile);
 }
 
