@@ -181,7 +181,7 @@ private:
 	char                pad[8];
 #endif
 	int                 m_nLastRecvFlags;
-	RTL_SRWLOCK         LOCK;
+	RTL_SRWLOCK         m_Lock;
 	bf_write            m_StreamReliable;
 	CUtlMemory<byte>    m_ReliableDataBuffer;
 	bf_write            m_StreamUnreliable;

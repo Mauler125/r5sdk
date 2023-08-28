@@ -335,42 +335,7 @@ void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep,
 //-----------------------------------------------------------------------------
 bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 {
-#ifndef CLIENT_DLL
-	if (!ThreadInServerFrameThread() || !net_processTimeBudget->GetInt())
-		return pChan->ProcessMessages(pBuf);
-
-	const double flStartTime = Plat_FloatTime();
-	const bool bResult = pChan->ProcessMessages(pBuf);
-
-	if (!pChan->m_MessageHandler) // NetChannel removed?
-		return bResult;
-
-	CClient* pClient = reinterpret_cast<CClient*>(pChan->m_MessageHandler);
-	ServerPlayer_t* pSlot = &g_ServerPlayer[pClient->GetUserID()];
-
-	if (flStartTime - pSlot->m_flLastNetProcessTime >= 1.0 ||
-		pSlot->m_flLastNetProcessTime == -1.0)
-	{
-		pSlot->m_flLastNetProcessTime = flStartTime;
-		pSlot->m_flCurrentNetProcessTime = 0.0;
-	}
-	pSlot->m_flCurrentNetProcessTime +=
-		(Plat_FloatTime() * 1000) - (flStartTime * 1000);
-
-	if (pSlot->m_flCurrentNetProcessTime >
-		net_processTimeBudget->GetDouble())
-	{
-		Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n", 
-			pChan->GetName(), pChan->GetAddress(), (pSlot->m_flCurrentNetProcessTime - net_processTimeBudget->GetDouble()));
-		pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
-
-		return false;
-	}
-
-	return bResult;
-#else // !CLIENT_DLL
-	return pChan->ProcessMessages(pBuf);
-#endif
+    return pChan->ProcessMessages(pBuf);
 }
 
 //-----------------------------------------------------------------------------
@@ -381,6 +346,15 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 bool CNetChan::ProcessMessages(bf_read* buf)
 {
     m_bStopProcessing = false;
+    const double flStartTime = Plat_FloatTime();
+
+#ifndef CLIENT_DLL
+    const float flProcessingTimeBudget = net_processTimeBudget->GetFloat();
+    const bool bInServerFrame = ThreadInServerFrameThread();
+
+    CClient* pClient = reinterpret_cast<CClient*>(m_MessageHandler);
+    ServerPlayer_t* pSlot = &g_ServerPlayer[pClient->GetUserID()];
+#endif // !CLIENT_DLL
 
     while (true)
     {
@@ -425,6 +399,36 @@ bool CNetChan::ProcessMessages(bf_read* buf)
             const bool bRet = netMsg->Process();
             m_bProcessingMessages = false;
 
+#ifndef CLIENT_DLL
+            // Only handle server thread, and if user has set a process
+            // time budget.
+            if (bInServerFrame && flProcessingTimeBudget)
+            {
+                // Reset after a second.
+                if (flStartTime - pSlot->m_flLastNetProcessTime >= 1.0 ||
+                    pSlot->m_flLastNetProcessTime == -1.0)
+                {
+                    pSlot->m_flLastNetProcessTime = flStartTime;
+                    pSlot->m_flCurrentNetProcessTime = 0.0;
+                }
+
+                // Add time taken to process this packet.
+                pSlot->m_flCurrentNetProcessTime +=
+                    (Plat_FloatTime() * 1000) - (flStartTime * 1000);
+
+                // Netchannel sent packets that exceeded maximum allowed processing
+                // time; jettison the channel.
+                if (pSlot->m_flCurrentNetProcessTime > flProcessingTimeBudget)
+                {
+                    Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n",
+                        GetName(), GetAddress(), (pSlot->m_flCurrentNetProcessTime - flProcessingTimeBudget));
+
+                    pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
+                    return false;
+                }
+            }
+#endif // !CLIENT_DLL
+
             // This means we were deleted during the processing of that message.
             if (m_bShouldDelete)
             {
@@ -439,7 +443,7 @@ bool CNetChan::ProcessMessages(bf_read* buf)
 
             if (!bRet)
             {
-                Warning(eDLL_T::ENGINE, "%s(%s): Failed processing message '%s'!\n",
+                DevWarning(eDLL_T::ENGINE, "%s(%s): Failed processing message '%s'!\n",
                     __FUNCTION__, GetAddress(), netMsg->GetName());
                 Assert(0);
                 return false;
@@ -497,13 +501,13 @@ bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
 	if (pStream != &m_StreamUnreliable ||
 		pStream->GetNumBytesLeft() >= NET_UNRELIABLE_STREAM_MINSIZE)
 	{
-		AcquireSRWLockExclusive(&LOCK);
+		AcquireSRWLockExclusive(&m_Lock);
 
 		pStream->WriteUBitLong(msg.GetType(), NETMSG_TYPE_BITS);
 		if (!pStream->IsOverflowed())
 			msg.WriteToBuffer(pStream);
 
-		ReleaseSRWLockExclusive(&LOCK);
+		ReleaseSRWLockExclusive(&m_Lock);
 	}
 
 	return true;
