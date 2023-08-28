@@ -151,3 +151,15 @@ struct CAI_ScriptNode
 	int m_nMin;
 	int m_nMax;
 };
+
+//=============================================================================
+//	>> CAI_ScriptNode
+//=============================================================================
+struct CAI_HullData
+{
+	short m_Count; // Multiplied by 4; probably total buffer size.
+	short unk1;
+	int unk2;
+	void* pBuffer; // Hull data buffer.
+	char unk3[8];
+};

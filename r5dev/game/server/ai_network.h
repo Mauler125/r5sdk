@@ -29,9 +29,15 @@ public:
 	void* m_pVTable;  // <-- 'this'.
 
 	int m_iNumLinks;              // +0x0008
-	char unk1[0x7C];              // +0x000C
+	int m_nUnk0;
+
+	CAI_HullData m_HullData[MAX_HULLS];
+
 	int m_iNumZones;              // +0x0088
-	char unk2[0x10];              // +0x008C
+	int m_iUnkCount0;
+	int m_iUnkCount1;
+	int m_iUnkCount2;
+	int m_iUnkCount4;
 
 	// unk8 on disk
 	int unk5;                     // +0x009C
