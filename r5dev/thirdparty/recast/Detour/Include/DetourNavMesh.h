@@ -253,7 +253,7 @@ struct dtOffMeshConnection
 	unsigned int userId;
 
 	float unk[3];
-	float another_unk;
+	float traverseYaw;
 };
 
 /// Provides high level information related to a dtMeshTile object.
