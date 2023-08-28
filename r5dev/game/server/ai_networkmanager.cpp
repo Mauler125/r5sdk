@@ -59,11 +59,6 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	DevMsg(eDLL_T::SERVER, "+- Writing header...\n");
-	DevMsg(eDLL_T::SERVER, " |-- AINet version: '%d'\n", AINET_VERSION_NUMBER);
-	FileSystem()->Write(&AINET_VERSION_NUMBER, sizeof(int), pAIGraph);
-
-	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", g_ServerGlobalVariables->m_nMapVersion);
-	FileSystem()->Write(&g_ServerGlobalVariables->m_nMapVersion, sizeof(int), pAIGraph);
 
 	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
 	uint32_t nNavMeshCRC = NULL;
@@ -85,12 +80,18 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	// Large NavMesh CRC.
+	DevMsg(eDLL_T::SERVER, " |-- AINet version: '%d'\n", AINET_VERSION_NUMBER);
+	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", g_ServerGlobalVariables->m_nMapVersion);
 	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '0x%lX'\n", nNavMeshCRC);
-	FileSystem()->Write(&nNavMeshCRC, sizeof(uint32_t), pAIGraph);
 
-	// Path nodes.
-	DevMsg(eDLL_T::SERVER, " |-- Node count: '%d'\n", pNetwork->m_iNumNodes);
-	FileSystem()->Write(&pNetwork->m_iNumNodes, sizeof(int), pAIGraph);
+	CUtlBuffer buf;
+
+	// ---------------------------
+	// Save the version numbers
+	// ---------------------------
+	buf.PutInt(AINET_VERSION_NUMBER);
+	buf.PutInt(g_ServerGlobalVariables->m_nMapVersion);
+	buf.PutInt(nNavMeshCRC);
 
 	timer.End();
 	Msg(eDLL_T::SERVER, "...done writing header. %lf seconds\n", timer.GetDuration().GetSeconds());
@@ -98,48 +99,41 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing path nodes...\n");
 
-	if (pNetwork->m_pAInode)
+	// -------------------------------
+	// Dump all the nodes to the file
+	// -------------------------------
+	buf.PutInt(pNetwork->NumPathNodes());
+	int totalNumLinks = 0;
+
+	for (int node = 0; node < pNetwork->NumPathNodes(); node++)
 	{
-		int totalLinkCount = 0;
+		const CAI_Node* aiNode = pNetwork->GetPathNode(node);
 
-		for (int i = 0; i < pNetwork->m_iNumNodes; i++)
+		DevMsg(eDLL_T::SERVER, " |-- Copying node '#%d' from '0x%p' to '0x%zX'\n", aiNode->m_iID, aiNode, buf.TellPut());
+
+		buf.PutFloat(aiNode->GetOrigin().x);
+		buf.PutFloat(aiNode->GetOrigin().y);
+		buf.PutFloat(aiNode->GetOrigin().z);
+
+		buf.PutFloat(aiNode->GetYaw());
+		buf.Put(aiNode->m_flVOffset, sizeof(aiNode->m_flVOffset));
+		buf.PutChar((char)aiNode->GetType());
+		buf.PutInt(aiNode->GetInfo());
+
+		for (int j = 0; j < MAX_HULLS; j++)
 		{
-			const CAI_Node* aiNode = pNetwork->m_pAInode[i];
-
-			DevMsg(eDLL_T::SERVER, " |-- Copying node '#%d' from '0x%p' to '0x%zX'\n", aiNode->m_nIndex, aiNode, FileSystem()->Tell(pAIGraph));
-
-			FileSystem()->Write(&aiNode->m_vOrigin, sizeof(Vector3D), pAIGraph);
-			FileSystem()->Write(&aiNode->m_flYaw, sizeof(float), pAIGraph);
-			FileSystem()->Write(&aiNode->m_fHulls, sizeof(aiNode->m_fHulls), pAIGraph);
-
-			FileSystem()->Write(&aiNode->unk0, sizeof(char), pAIGraph);
-			FileSystem()->Write(&aiNode->unk1, sizeof(int), pAIGraph);
-
-			for (int j = 0; j < MAX_HULLS; j++)
-			{
-				FileSystem()->Write(&aiNode->unk2[j], sizeof(short), pAIGraph);
-			}
-
-			FileSystem()->Write(&aiNode->unk3, sizeof(aiNode->unk3), pAIGraph);
-			FileSystem()->Write(&aiNode->unk6, sizeof(short), pAIGraph);
-
-			// aiNetwork->nodes[i]->unk8; // This field is wrong, however it's always -1 in original navmeshes anyway.
-			short unk8 = -1;
-
-			FileSystem()->Write(&unk8/*aiNode->unk8*/, sizeof(short), pAIGraph);
-			FileSystem()->Write(&aiNode->unk10, sizeof(aiNode->unk10), pAIGraph);
-
-			totalLinkCount += aiNode->m_nNumLinks;
+			buf.PutShort((short)aiNode->unk2[j]);
 		}
 
-		pNetwork->m_iNumLinks = totalLinkCount;
+		buf.Put(aiNode->unk3, sizeof(aiNode->unk3));
+		buf.PutShort(aiNode->unk6);
+		buf.PutShort(aiNode->unk9); // Always -1;
+		buf.Put(aiNode->unk11, sizeof(aiNode->unk11));
+
+		totalNumLinks += aiNode->NumLinks();
 	}
-	else
-	{
-		// No links, this has to be initialized as the engine doesn't do it
-		// during build.
-		pNetwork->m_iNumLinks = 0;
-	}
+
+	pNetwork->m_iNumLinks = totalNumLinks;
 
 	timer.End();
 	Msg(eDLL_T::SERVER, "...done writing path nodes. %lf seconds (%d nodes)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumNodes);
@@ -148,31 +142,30 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, "+- Writing node links...\n");
 	DevMsg(eDLL_T::SERVER, " |-- Cached node link count: '%d'\n", pNetwork->m_iNumLinks);
 
+	// -------------------------------
+	// Dump all the links to the file
+	// -------------------------------
 	int packedLinks = pNetwork->m_iNumLinks / 2;
-	FileSystem()->Write(&packedLinks, sizeof(int), pAIGraph);
+	buf.PutInt(packedLinks);
 
-	if (pNetwork->m_pAInode)
+	for (int node = 0; node < pNetwork->NumPathNodes(); node++)
 	{
-		for (int i = 0; i < pNetwork->m_iNumNodes; i++)
+		const CAI_Node* aiNode = pNetwork->GetPathNode(node);
+
+		for (int link = 0; link < aiNode->NumLinks(); link++)
 		{
-			const CAI_Node* aiNode = pNetwork->m_pAInode[i];
+			const CAI_NodeLink* nodeLink = aiNode->GetLinkByIndex(link);
 
-			for (int j = 0; j < aiNode->m_nNumLinks; j++)
+			// Skip links that don't originate from current node.
+			if (nodeLink->m_iSrcID == aiNode->m_iID)
 			{
-				const CAI_NodeLink* nodeLink = aiNode->links[j];
+				DevMsg(eDLL_T::SERVER, "  |-- Writing link (%hd <--> %hd) to '0x%zX'\n", nodeLink->m_iSrcID, nodeLink->m_iDestID, buf.TellPut());
 
-				// Skip links that don't originate from current node.
-				if (nodeLink->m_iSrcID != aiNode->m_nIndex)
-				{
-					continue;
-				}
+				buf.PutShort(nodeLink->m_iSrcID);
+				buf.PutShort(nodeLink->m_iDestID);
 
-				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%hd' => '%hd' to '0x%zX'\n", nodeLink->m_iSrcID, nodeLink->m_iDestID, FileSystem()->Tell(pAIGraph));
-
-				FileSystem()->Write(&nodeLink->m_iSrcID, sizeof(short), pAIGraph);
-				FileSystem()->Write(&nodeLink->m_iDestID, sizeof(short), pAIGraph);
-				FileSystem()->Write(&nodeLink->unk1, sizeof(char), pAIGraph);
-				FileSystem()->Write(&nodeLink->m_bHulls, sizeof(nodeLink->m_bHulls), pAIGraph);
+				buf.PutChar(nodeLink->unk1);
+				buf.Put(nodeLink->m_iAcceptedMoveTypes, sizeof(nodeLink->m_iAcceptedMoveTypes));
 			}
 		}
 	}
@@ -181,30 +174,68 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	Msg(eDLL_T::SERVER, "...done writing node links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumLinks);
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing hull data...\n");
-	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for node block at '0x%zX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), FileSystem()->Tell(pAIGraph));
+	DevMsg(eDLL_T::SERVER, "+- Writing WC lookup table...\n");
 
-	if (pNetwork->m_iNumNodes > 0)
+	// -------------------------------
+	// Dump WC lookup table
+	// -------------------------------
+	CUtlMap<int, int> wcIDs;
+	SetDefLessFunc(wcIDs);
+	bool bCheckForProblems = false;
+
+	const CAI_NetworkEditTools* const pEditOps = (*g_ppAINetworkManager)->GetEditOps();
+
+	for (int node = 0; node < pNetwork->m_iNumNodes; node++)
 	{
-		std::unique_ptr<uint32[]> unkNodeBlock(new uint32_t[pNetwork->m_iNumNodes * sizeof(uint32_t)]);
-		memset(unkNodeBlock.get(), '\0', pNetwork->m_iNumNodes * sizeof(uint32_t));
+		const int nIndex = pEditOps->m_pNodeIndexTable[node];
+		const int iPreviousNodeBinding = wcIDs.Find(nIndex);
 
-		FileSystem()->Write(unkNodeBlock.get(), pNetwork->m_iNumNodes * sizeof(uint32_t), pAIGraph);
+		if (iPreviousNodeBinding != wcIDs.InvalidIndex())
+		{
+			if (!bCheckForProblems)
+			{
+				DevWarning(eDLL_T::SERVER, "******* MAP CONTAINS DUPLICATE HAMMER NODE IDS! CHECK FOR PROBLEMS IN HAMMER TO CORRECT *******\n");
+				bCheckForProblems = true;
+			}
+			DevWarning(eDLL_T::SERVER, "   AI node %d is associated with Hammer node %d, but %d is already bound to node %d\n",
+				node, nIndex, nIndex, wcIDs[(unsigned short)nIndex]);
+		}
+		else
+		{
+			wcIDs.Insert(nIndex, node);
+		}
+
+		DevMsg(eDLL_T::SERVER, " |-- Writing Hammer node (%d <--> %d) at '0x%zX'\n", nIndex, wcIDs.Element((unsigned short)nIndex), buf.TellPut());
+		buf.PutInt(nIndex);
 	}
 
-	// TODO: This is traverse nodes i think? these aren't used in r2 ains so we can get away with just writing count=0 and skipping
-	// but ideally should actually dump these.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traverse ex nodes at '0x%zX'\n", 0, FileSystem()->Tell(pAIGraph));
+	timer.End();
+	Msg(eDLL_T::SERVER, "...done writing hammer nodes. %lf seconds (%d indices)\n", timer.GetDuration().GetSeconds(), wcIDs.Count());
 
-	short traverseExNodeCount = 0; // Only write count since count=0 means we don't have to actually do anything here.
-	FileSystem()->Write(&traverseExNodeCount, sizeof(short), pAIGraph);
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Writing traverse ex nodes...\n");
+
+	const int traverseExNodeCount = g_pAITraverseNodes->Count();
+	buf.PutShort((short)traverseExNodeCount);
+
+	FOR_EACH_VEC(*g_pAITraverseNodes, i)
+	{
+		DevMsg(eDLL_T::SERVER, " |-- Writing traverse ex node '%d' at '0x%zX'\n", i, buf.TellPut());
+
+		const CAI_TraverseNode& traverseExNode = (*g_pAITraverseNodes)[i];
+		buf.Put(&traverseExNode.m_Quat, sizeof(Quaternion));
+		buf.PutInt(traverseExNode.m_Index_MAYBE);
+	}
+
+	timer.End();
+	Msg(eDLL_T::SERVER, "...done writing traverse ex nodes. %lf seconds (%d nodes)\n", timer.GetDuration().GetSeconds(), traverseExNodeCount);
 
 	// TODO: Ideally these should be actually dumped, but they're always 0 in r2 from what i can tell.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", (MAX_HULLS * 8), FileSystem()->Tell(pAIGraph));
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", (MAX_HULLS * 8), buf.TellPut());
 	for (int i = 0; i < (MAX_HULLS * 8); i++)
 	{
-		FileSystem()->Write("\0", sizeof(char), pAIGraph);
+		buf.PutChar('\0');
 	}
 
 	timer.End();
@@ -214,40 +245,40 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, "+- Writing path clusters...\n");
 
 	const int numClusters = g_pAIPathClusters->Count();
-	FileSystem()->Write(&numClusters, sizeof(int), pAIGraph);
+	buf.PutInt(numClusters);
 
 	FOR_EACH_VEC(*g_pAIPathClusters, i)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
+		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '#%d' at '0x%zX'\n", i, buf.TellPut());
 
 		const CAI_Cluster* pathClusters = (*g_pAIPathClusters)[i];
 
-		FileSystem()->Write(&pathClusters->m_nIndex, sizeof(int), pAIGraph);
-		FileSystem()->Write(&pathClusters->unk1, sizeof(char), pAIGraph);
+		buf.PutInt(pathClusters->m_nIndex);
+		buf.PutChar(pathClusters->unk1);
 
-		FileSystem()->Write(&pathClusters->m_vOrigin.x, sizeof(vec_t), pAIGraph);
-		FileSystem()->Write(&pathClusters->m_vOrigin.y, sizeof(vec_t), pAIGraph);
-		FileSystem()->Write(&pathClusters->m_vOrigin.z, sizeof(vec_t), pAIGraph);
+		buf.PutFloat(pathClusters->GetOrigin().x);
+		buf.PutFloat(pathClusters->GetOrigin().y);
+		buf.PutFloat(pathClusters->GetOrigin().z);
 
 		const int unkVec0Size = pathClusters->unkVec0.Count();
-		FileSystem()->Write(&unkVec0Size, sizeof(int), pAIGraph);
+		buf.PutInt(unkVec0Size);
 
 		FOR_EACH_VEC(pathClusters->unkVec0, j)
 		{
 			short unkShort = static_cast<short>(pathClusters->unkVec0[j]);
-			FileSystem()->Write(&unkShort, sizeof(short), pAIGraph);
+			buf.PutShort(unkShort);
 		}
 
 		const int unkVec1Size = pathClusters->unkVec1.Count();
-		FileSystem()->Write(&unkVec1Size, sizeof(int), pAIGraph);
+		buf.PutInt(unkVec1Size);
 
 		FOR_EACH_VEC(pathClusters->unkVec1, j)
 		{
 			short unkShort = static_cast<short>(pathClusters->unkVec1[j]);
-			FileSystem()->Write(&unkShort, sizeof(short), pAIGraph);
+			buf.PutShort(unkShort);
 		}
 
-		FileSystem()->Write(&pathClusters->unk5, sizeof(char), pAIGraph);
+		buf.PutChar(pathClusters->unk5);
 	}
 
 	timer.End();
@@ -257,41 +288,41 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, "+- Writing cluster links...\n");
 
 	const int numClusterLinks = g_pAIClusterLinks->Count();
-	FileSystem()->Write(&numClusterLinks, sizeof(int), pAIGraph);
+	buf.PutInt(numClusterLinks);
 
 	FOR_EACH_VEC(*g_pAIClusterLinks, i)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing link '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
-
 		// Disk and memory structs are literally identical here so just directly write.
 		const CAI_ClusterLink* clusterLink = (*g_pAIClusterLinks)[i];
 
-		FileSystem()->Write(&clusterLink->prevIndex_MAYBE, sizeof(short), pAIGraph);
-		FileSystem()->Write(&clusterLink->nextIndex_MAYBE, sizeof(short), pAIGraph);
+		DevMsg(eDLL_T::SERVER, "  |-- Writing link (%hd <--> %hd) to '0x%zX'\n", clusterLink->m_iSrcID, clusterLink->m_iDestID, buf.TellPut());
 
-		FileSystem()->Write(&clusterLink->unk2, sizeof(int), pAIGraph);
-		FileSystem()->Write(&clusterLink->flags, sizeof(char), pAIGraph);
+		buf.PutShort(clusterLink->m_iSrcID);
+		buf.PutShort(clusterLink->m_iDestID);
 
-		FileSystem()->Write(&clusterLink->unk4, sizeof(char), pAIGraph);
-		FileSystem()->Write(&clusterLink->unk5, sizeof(char), pAIGraph);
+		buf.PutInt(clusterLink->unk2);
+		buf.PutChar(clusterLink->flags);
+
+		buf.PutChar(clusterLink->unkFlags4);
+		buf.PutChar(clusterLink->unkFlags5);
 	}
 
 	timer.End();
 	Msg(eDLL_T::SERVER, "...done writing cluster links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), numClusterLinks);
 
 	// This is always set to '-1'. Likely a field for maintaining compatibility.
-	FileSystem()->Write(&pNetwork->unk5, sizeof(pNetwork->unk5), pAIGraph);
+	buf.PutInt(pNetwork->unk5);
 
 	// AIN v57 and above only (not present in r1, static array in r2, pointer to dynamic array in r5).
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing script nodes...\n");
 
-	FileSystem()->Write(&pNetwork->m_iNumScriptNodes, sizeof(pNetwork->m_iNumScriptNodes), pAIGraph);
+	buf.PutInt(pNetwork->m_iNumScriptNodes);
 	for (int i = 0; i < pNetwork->m_iNumScriptNodes; i++)
 	{
 		// Disk and memory structs for script nodes are identical.
-		DevMsg(eDLL_T::SERVER, " |-- Writing script node '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
-		FileSystem()->Write(&pNetwork->m_ScriptNode[i], sizeof(CAI_ScriptNode), pAIGraph);
+		DevMsg(eDLL_T::SERVER, " |-- Writing script node '#%d' at '0x%zX'\n", i, buf.TellPut());
+		buf.Put(&pNetwork->m_ScriptNode[i], sizeof(CAI_ScriptNode));
 	}
 
 	timer.End();
@@ -300,16 +331,17 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing hint data...\n");
 
-	FileSystem()->Write(&pNetwork->m_iNumHints, sizeof(pNetwork->m_iNumHints), pAIGraph);
+	buf.PutInt(pNetwork->m_iNumHints);
 	for (int i = 0; i < pNetwork->m_iNumHints; i++)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing hint data '#%d' at '0x%zX'\n", i, FileSystem()->Tell(pAIGraph));
-		FileSystem()->Write(&pNetwork->m_Hints[i], sizeof(pNetwork->m_Hints[i]), pAIGraph);
+		DevMsg(eDLL_T::SERVER, " |-- Writing hint data '#%d' at '0x%zX'\n", i, buf.TellPut());
+		buf.PutShort(pNetwork->m_Hints[i]);
 	}
 
 	timer.End();
 	Msg(eDLL_T::SERVER, "...done writing hint data. %lf seconds (%d hints)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumHints);
 
+	FileSystem()->Write(buf.Base(), buf.TellPut(), pAIGraph);
 	FileSystem()->Close(pAIGraph);
 
 	masterTimer.End();
@@ -326,7 +358,7 @@ CAI_NetworkManager::LoadNetworkGraph
   and validate status
 ==============================
 */
-void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, void* pBuffer, const char* szAIGraphFile)
+void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuffer* pBuffer, const char* szAIGraphFile)
 {
 	bool bNavMeshAvailable = true;
 
@@ -407,7 +439,7 @@ CAI_NetworkManager::LoadNetworkGraphEx
   (internal)
 ==============================
 */
-void CAI_NetworkManager::LoadNetworkGraphEx(CAI_NetworkManager* pManager, void* pBuffer, const char* szAIGraphFile)
+void CAI_NetworkManager::LoadNetworkGraphEx(CAI_NetworkManager* pManager, CUtlBuffer* pBuffer, const char* szAIGraphFile)
 {
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	CAI_NetworkManager__LoadNetworkGraph(pManager, pBuffer, szAIGraphFile);

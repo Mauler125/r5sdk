@@ -11,17 +11,17 @@ class CAI_Network
 public:
 	static void DebugConnectMsg(int node1, int node2, const char* pszFormat, ...);
 	void* GetVTable(void) const;
-	int GetNumLinks(void) const;
-	int GetNumZones(void) const;
-	int GetNumHints(void) const;
-	int GetNumScriptNodes(void) const;
-	int64_t GetNumPathNodes(void) const;
+	int NumLinks(void) const;
+	int NumZones(void) const;
+	int NumHints(void) const;
+	int NumScriptNodes(void) const;
+	int NumPathNodes(void) const;
 
 	short GetHint(int nIndex) const;
 	CAI_ScriptNode* GetScriptNodes(void) const;
 
 	CAI_Node* AddPathNode(const Vector3D* origin, const float jaw);
-	CAI_Node** GetPathNodes(void) const;
+	CAI_Node* GetPathNode(int id) const;
 
 	CAI_NodeLink* CreateNodeLink(int srcID, int destID);
 

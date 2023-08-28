@@ -15,21 +15,27 @@ class CAI_NetworkBuilder;
 class CAI_NetworkManager;
 
 /* ==== CAI_NETWORKMANAGER ============================================================================================================================================== */
+inline CMemory p_CAI_NetworkManager__InitializeAINetworks = nullptr;
+inline void (*CAI_NetworkManager__InitializeAINetworks)(void); // Static
+
 inline CMemory p_CAI_NetworkManager__DelayedInit = nullptr;
 inline void (*CAI_NetworkManager__DelayedInit)(CAI_NetworkManager* thisptr, CAI_Network* pNetwork);
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
-inline void (*CAI_NetworkManager__LoadNetworkGraph)(CAI_NetworkManager* thisptr, void* pBuffer, const char* pszFileName);
+inline void (*CAI_NetworkManager__LoadNetworkGraph)(CAI_NetworkManager* thisptr, CUtlBuffer* pBuffer, const char* pszFileName);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
-inline void (*CAI_NetworkManager__LoadNetworkGraph)(CAI_NetworkManager* thisptr, void* pBuffer, const char* pszFileName);
+inline void (*CAI_NetworkManager__LoadNetworkGraph)(CAI_NetworkManager* thisptr, CUtlBuffer* pBuffer, const char* pszFileName);
 #endif
 /* ==== CAI_NETWORKBUILDER ============================================================================================================================================== */
 inline CMemory p_CAI_NetworkBuilder__Build;
 inline void (*CAI_NetworkBuilder__Build)(CAI_NetworkBuilder* thisptr, CAI_Network* pNetwork);
 
+inline CAI_NetworkManager** g_ppAINetworkManager = nullptr;
+
 inline CUtlVector<CAI_Cluster*>* g_pAIPathClusters = nullptr;
 inline CUtlVector<CAI_ClusterLink*>* g_pAIClusterLinks = nullptr;
+inline CUtlVector<CAI_TraverseNode>* g_pAITraverseNodes = nullptr;
 
 //-----------------------------------------------------------------------------
 // CAI_NetworkEditTools
@@ -53,7 +59,7 @@ public:
 	// Debugging Tools
 	//-----------------
 	int m_debugNetOverlays;
-	CAI_Node** m_pNodes; // either nodes or node links.
+	int* m_pNodeIndexTable;
 
 	//-----------------
 	// Network pointers
@@ -92,8 +98,11 @@ public:
 class CAI_NetworkManager : public CBaseEntity
 {
 public:
-	static void LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile);
-	static void LoadNetworkGraphEx(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile);
+	static void LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager, CUtlBuffer* pBuffer, const char* szAIGraphFile);
+	static void LoadNetworkGraphEx(CAI_NetworkManager* pAINetworkManager, CUtlBuffer* pBuffer, const char* szAIGraphFile);
+
+	CAI_NetworkEditTools* GetEditOps() { return m_pEditOps; }
+	CAI_Network* GetNetwork() { /*Assert(!m_ThreadedBuild.pBuildingNetwork);*/ return m_pNetwork; }
 
 private:
 	// !TODO[ AMOS ]: If found, change to ptr and hook up to engine!
@@ -118,21 +127,27 @@ class VAI_NetworkManager : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("CAI_NetworkManager::InitializeAINetworks", p_CAI_NetworkManager__InitializeAINetworks.GetPtr());
 		LogFunAdr("CAI_NetworkManager::LoadNetworkGraph", p_CAI_NetworkManager__LoadNetworkGraph.GetPtr());
 		LogFunAdr("CAI_NetworkManager::DelayedInit", p_CAI_NetworkManager__DelayedInit.GetPtr());
 		LogFunAdr("CAI_NetworkBuilder::Build", p_CAI_NetworkBuilder__Build.GetPtr());
+		LogVarAdr("g_pAINetworkManager", reinterpret_cast<uintptr_t>(g_ppAINetworkManager));
 		LogVarAdr("g_AIPathClusters< CAI_Cluster* >", reinterpret_cast<uintptr_t>(g_pAIPathClusters));
 		LogVarAdr("g_AIClusterLinks< CAI_ClusterLink* >", reinterpret_cast<uintptr_t>(g_pAIClusterLinks));
+		LogVarAdr("g_AITraverseNodes< CAI_TraverseNode >", reinterpret_cast<uintptr_t>(g_pAITraverseNodes));
 	}
 	virtual void GetFun(void) const
 	{
+		p_CAI_NetworkManager__InitializeAINetworks = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 4C 89 74 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ??");
+		CAI_NetworkManager__InitializeAINetworks = p_CAI_NetworkManager__InitializeAINetworks.RCast<void (*)(void)>();
+
 		p_CAI_NetworkManager__DelayedInit = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 48 8B 0D ?? ?? ?? ?? 8B 41 6C");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CAI_NetworkManager__LoadNetworkGraph = g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 48 89 4C 24 ?? 55 53 57 41 54 41 55 41 56");
-		CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void (*)(CAI_NetworkManager*, void*, const char*)>();
+		CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void (*)(CAI_NetworkManager*, CUtlBuffer*, const char*)>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CAI_NetworkManager__LoadNetworkGraph = g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B FA");
-		CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void (*)(CAI_NetworkManager*, void*, const char*)>();
+		CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void (*)(CAI_NetworkManager*, CUtlBuffer*, const char*)>();
 #endif
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CAI_NetworkBuilder__Build = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 4C 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 48 63 BA ?? ?? ?? ??");
@@ -144,10 +159,14 @@ class VAI_NetworkManager : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
+		g_ppAINetworkManager = p_CAI_NetworkManager__InitializeAINetworks.FindPattern("48 89 05", CMemory::Direction::DOWN)
+			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_NetworkManager**>();
 		g_pAIPathClusters = g_GameDll.FindPatternSIMD("F3 0F 10 52 ?? 4C 8B CA")
 			.FindPatternSelf("48 8B 35", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_Cluster*>*>();
 		g_pAIClusterLinks = g_GameDll.FindPatternSIMD("F3 0F 10 52 ?? 4C 8B CA")
 			.FindPatternSelf("4C 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_ClusterLink*>*>();
+		g_pAITraverseNodes = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 56 48 8B EC 48 81 EC ?? ?? ?? ??").OffsetSelf(0x2EF)
+			.FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_TraverseNode>*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;

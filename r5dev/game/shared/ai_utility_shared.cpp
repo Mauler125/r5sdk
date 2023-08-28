@@ -55,7 +55,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
     OverlayBox_t::Transforms vTransforms;
     std::unordered_set<int64_t> uLinkSet;
 
-    for (int i = ai_script_nodes_draw->GetInt(), ns = pNetwork->GetNumScriptNodes(); i < ns; i++)
+    for (int i = ai_script_nodes_draw->GetInt(), ns = pNetwork->NumScriptNodes(); i < ns; i++)
     {
         if (nNodeRange && i > nNodeRange)
             break;
