@@ -24,7 +24,7 @@
 class CUtlBinaryBlock
 {
 public:
-	CUtlBinaryBlock( int64 growSize = 0, int64 initSize = 0 );
+	CUtlBinaryBlock( ssize_t growSize = 0, ssize_t initSize = 0 );
 	~CUtlBinaryBlock()
 	{
 #ifdef _DEBUG
@@ -35,8 +35,8 @@ public:
 	}
 
 	// NOTE: nInitialLength indicates how much of the buffer starts full
-	CUtlBinaryBlock( void* pMemory, int64 nSizeInBytes, int64 nInitialLength );
-	CUtlBinaryBlock( const void* pMemory, int64 nSizeInBytes );
+	CUtlBinaryBlock( void* pMemory, ssize_t nSizeInBytes, ssize_t nInitialLength );
+	CUtlBinaryBlock( const void* pMemory, ssize_t nSizeInBytes );
 	
 	CUtlBinaryBlock( const CUtlBinaryBlock& src );
 	CUtlBinaryBlock &operator=( const CUtlBinaryBlock &src );
@@ -46,16 +46,16 @@ public:
 	CUtlBinaryBlock &operator=( CUtlBinaryBlock&& src );
 #endif
 
-	void		Get( void *pValue, int64 nMaxLen ) const;
-	void		Set( const void *pValue, int64 nLen );
+	void		Get( void *pValue, ssize_t nMaxLen ) const;
+	void		Set( const void *pValue, ssize_t nLen );
 	const void	*Get( ) const;
 	void		*Get( );
 
-	unsigned char& operator[]( int64 i );
-	const unsigned char& operator[]( int64 i ) const;
+	unsigned char& operator[]( ssize_t i );
+	const unsigned char& operator[]( ssize_t i ) const;
 
-	int64		Length() const;
-	void		SetLength( int64 nLength );	// Undefined memory will result
+	ssize_t		Length() const;
+	void		SetLength( ssize_t nLength );	// Undefined memory will result
 	bool		IsEmpty() const;
 	void		Clear();
 	void		Purge();
@@ -68,7 +68,7 @@ public:
 
 private:
 	CUtlMemory<unsigned char> m_Memory;
-	int64 m_nActualLength;
+	ssize_t m_nActualLength;
 };
 
 
@@ -86,7 +86,7 @@ inline CUtlBinaryBlock::CUtlBinaryBlock( CUtlBinaryBlock&& src )
 
 inline CUtlBinaryBlock& CUtlBinaryBlock::operator= ( CUtlBinaryBlock&& src )
 {
-	int64 length = src.m_nActualLength;
+	ssize_t length = src.m_nActualLength;
 	src.m_nActualLength = 0;
 
 	m_Memory = Move( src.m_Memory );
@@ -106,17 +106,17 @@ inline void *CUtlBinaryBlock::Get( )
 	return m_Memory.Base();
 }
 
-inline int64 CUtlBinaryBlock::Length() const
+inline ssize_t CUtlBinaryBlock::Length() const
 {
 	return m_nActualLength;
 }
 
-inline unsigned char& CUtlBinaryBlock::operator[]( int64 i )
+inline unsigned char& CUtlBinaryBlock::operator[]( ssize_t i )
 {
 	return m_Memory[i];
 }
 
-inline const unsigned char& CUtlBinaryBlock::operator[]( int64 i ) const
+inline const unsigned char& CUtlBinaryBlock::operator[]( ssize_t i ) const
 {
 	return m_Memory[i];
 }
@@ -154,8 +154,8 @@ public:
 	CUtlString( const char *pString ); // initialize from c-style string
 
 	// Attaches the string to external memory. Useful for avoiding a copy
-	CUtlString( void* pMemory, int64 nSizeInBytes, int64 nInitialLength );
-	CUtlString( const void* pMemory, int64 nSizeInBytes );
+	CUtlString( void* pMemory, ssize_t nSizeInBytes, ssize_t nInitialLength );
+	CUtlString( const void* pMemory, ssize_t nSizeInBytes );
 
 	// Copy/move constructor/assignment
 	// Moves are extremely efficient as the underlying memory is not copied, just the pointers.
@@ -185,7 +185,7 @@ public:
 	const char  *String() const { return Get(); }
 
 	// Returns strlen
-	int64		Length() const;
+	ssize_t		Length() const;
 	bool		IsEmpty() const;
 
 	// GS - Added for chromehtml
@@ -197,7 +197,7 @@ public:
 	// Sets the length (used to serialize into the buffer )
 	// Note: If nLen != 0, then this adds an extra byte for a null-terminator.	
 	void		Set( const char *pValue );
-	void		SetLength( int64 nLen );
+	void		SetLength( ssize_t nLen );
 	void		Purge();
 
 	void		Swap(CUtlString &src);
@@ -206,7 +206,7 @@ public:
 	void		ToUpper();
 	void		ToLower( );
 	void		Append( const char *pchAddition );
-	void		Append(const char *pchAddition, int64 nMaxChars);
+	void		Append(const char *pchAddition, ssize_t nMaxChars);
 	void		Append(char chAddition) {
 		char temp[2] = { chAddition, 0 };
 		Append(temp);
@@ -215,8 +215,8 @@ public:
 	// Strips the trailing slash
 	void		StripTrailingSlash();
 
-	char operator[] ( int64 idx ) const;
-	char& operator[] ( int64 idx );
+	char operator[] ( ssize_t idx ) const;
+	char& operator[] ( ssize_t idx );
 
 	// Test for equality
 	bool operator==( const CUtlString &src ) const;
@@ -232,11 +232,11 @@ public:
 	CUtlString &operator+=( const CUtlString &rhs );
 	CUtlString &operator+=( const char *rhs );
 	CUtlString &operator+=( char c );
-	CUtlString &operator+=( int64 rhs );
+	CUtlString &operator+=( ssize_t rhs );
 	CUtlString &operator+=( double rhs );
 	
 	CUtlString operator+( const char *pOther )const;
-	//CUtlString operator+( int64 rhs )const;
+	//CUtlString operator+( ssize_t rhs )const;
 
 	bool MatchesPattern( const CUtlString &Pattern, int nFlags = 0 );		// case SENSITIVE, use * for wildcard in pattern string
 
@@ -249,7 +249,7 @@ public:
 	int FormatV( const char *pFormat, va_list marker );
 #endif
 	
-	void SetDirect( const char *pValue, int64 nChars );
+	void SetDirect( const char *pValue, ssize_t nChars );
 
 	// Defining AltArgumentType_t hints that associative container classes should
 	// also implement Find/Insert/Remove functions that take const char* params.
@@ -260,11 +260,11 @@ public:
 	// Take a piece out of the string.
 	// If you only specify nStart, it'll go from nStart to the end.
 	// You can use negative numbers and it'll wrap around to the start.
-	CUtlString Slice( int64 nStart=0, int64 nEnd=INT_MAX );
+	CUtlString Slice( ssize_t nStart=0, ssize_t nEnd=INT_MAX );
 
 	// Grab a substring starting from the left or the right side.
-	CUtlString Left( int64 nChars );
-	CUtlString Right( int64 nChars );
+	CUtlString Left( ssize_t nChars );
+	CUtlString Right( ssize_t nChars );
 
 	CUtlString Remove( char const *pTextToRemove, bool bCaseSensitive ) const;
 
@@ -319,14 +319,14 @@ public:
 	static CUtlString PathJoin( const char *pStr1, const char *pStr2 );
 
 	// These can be used for utlvector sorts.
-	static int64 __cdecl SortCaseInsensitive( const CUtlString *pString1, const CUtlString *pString2 );
-	static int64 __cdecl SortCaseSensitive( const CUtlString *pString1, const CUtlString *pString2 );
+	static ssize_t __cdecl SortCaseInsensitive( const CUtlString *pString1, const CUtlString *pString2 );
+	static ssize_t __cdecl SortCaseSensitive( const CUtlString *pString1, const CUtlString *pString2 );
 
 	// From Src2
 
 	void AppendSlash( char separator = CORRECT_PATH_SEPARATOR )
 	{
-		int64 nLength = Length() - 1;
+		ssize_t nLength = Length() - 1;
 		if ( nLength > 0 && !PATHSEPARATOR( static_cast< char >( m_Storage[ nLength ] ) ) )
 		{
 			Append( separator );
@@ -335,7 +335,7 @@ public:
 
 	void FixSlashes( char cSeparator = CORRECT_PATH_SEPARATOR )
 	{
-		for ( int64 nLength = Length() - 1; nLength >= 0; nLength-- )
+		for ( ssize_t nLength = Length() - 1; nLength >= 0; nLength-- )
 		{
 			char *pname = (char*)&m_Storage[ nLength ];
 			if ( *pname == INCORRECT_PATH_SEPARATOR || *pname == CORRECT_PATH_SEPARATOR )
@@ -397,22 +397,22 @@ inline bool CUtlString::IsEmpty() const
 	return Length() == 0;
 }
 
-inline int64 __cdecl CUtlString::SortCaseInsensitive( const CUtlString *pString1, const CUtlString *pString2 )
+inline ssize_t __cdecl CUtlString::SortCaseInsensitive( const CUtlString *pString1, const CUtlString *pString2 )
 {
 	return V_stricmp( pString1->String(), pString2->String() );
 }
 
-inline int64 __cdecl CUtlString::SortCaseSensitive( const CUtlString *pString1, const CUtlString *pString2 )
+inline ssize_t __cdecl CUtlString::SortCaseSensitive( const CUtlString *pString1, const CUtlString *pString2 )
 {
 	return V_strcmp( pString1->String(), pString2->String() );
 }
 
-inline char CUtlString::operator [] ( int64 index ) const
+inline char CUtlString::operator [] ( ssize_t index ) const
 {
 	return Get()[index];
 }
 
-inline char& CUtlString::operator[] ( int64 index )
+inline char& CUtlString::operator[] ( ssize_t index )
 {
 	return Access()[index];
 }
@@ -625,7 +625,7 @@ public:
 	void Append(const CUtlStringBuilder &str) { Append(str.String(), str.Length()); }
 	//void Append( IFillStringFunctor& func );
 	void AppendChar(char ch) { Append(&ch, 1); }
-	void AppendRepeat(char ch, int64 cCount);
+	void AppendRepeat(char ch, ssize_t cCount);
 
 	// sets the string
 	void SetValue(const char *pchString);
@@ -1375,7 +1375,7 @@ inline void CUtlStringBuilder::Append(const char *pchAddition, size_t cbLen)
 //-----------------------------------------------------------------------------
 // Purpose: append a repeated series of a single character
 //-----------------------------------------------------------------------------
-inline void CUtlStringBuilder::AppendRepeat(char ch, int64 cCount)
+inline void CUtlStringBuilder::AppendRepeat(char ch, ssize_t cCount)
 {
 	size_t cbOld = Length();
 	char *pstrNew = PrepareBuffer(cbOld + cCount, true);

@@ -57,7 +57,7 @@ char* V_stristr(char* pStr, char const* pSearch)
 //-----------------------------------------------------------------------------
 // Finds a string in another string with a case insensitive test w/ length validation
 //-----------------------------------------------------------------------------
-const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n)
+const char* V_strnistr(const char* pStr, const char* pSearch, ssize_t n)
 {
 	Assert(pStr);
 	Assert(pSearch);
@@ -75,7 +75,7 @@ const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n)
 		// Skip over non-matches
 		if (FastASCIIToLower(*pLetter) == FastASCIIToLower(*pSearch))
 		{
-			int64_t n1 = n - 1;
+			ssize_t n1 = n - 1;
 
 			// Check for match
 			const char* pMatch = pLetter + 1;
@@ -109,7 +109,7 @@ const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n)
 	return 0;
 }
 
-const char* V_strnchr(const char* pStr, char c, int64_t n)
+const char* V_strnchr(const char* pStr, char c, ssize_t n)
 {
 	const char* pLetter = pStr;
 	const char* pLast = pStr + n;
@@ -153,7 +153,7 @@ bool V_isspace(int c)
 #endif
 }
 
-int64_t V_StrTrim(char* pStr)
+ssize_t V_StrTrim(char* pStr)
 {
 	char* pSource = pStr;
 	char* pDest = pStr;

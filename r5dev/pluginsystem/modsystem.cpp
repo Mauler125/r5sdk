@@ -146,7 +146,7 @@ void CModSystem::WriteModStatusList()
 		pModListKV->SetBool(mod->m_ModID.Get(), enabled);
 	}
 
-	CUtlBuffer buf = CUtlBuffer(int64_t(0), 0, CUtlBuffer::TEXT_BUFFER);
+	CUtlBuffer buf = CUtlBuffer(ssize_t(0), 0, CUtlBuffer::TEXT_BUFFER);
 	kv.RecursiveSaveToFile(buf, 0);
 
 	if (!FileSystem()->WriteFile(MOD_STATUS_LIST_FILE, "PLATFORM", buf))

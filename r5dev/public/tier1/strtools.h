@@ -62,12 +62,12 @@ template <size_t maxLenInCharacters> int V_vsprintf_safe(OUT_Z_ARRAY char(&pDest
 
 
 char const* V_stristr(char const* pStr, char const* pSearch);
-const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n);
-const char* V_strnchr(const char* pStr, char c, int64_t n);
+const char* V_strnistr(const char* pStr, const char* pSearch, ssize_t n);
+const char* V_strnchr(const char* pStr, char c, ssize_t n);
 bool V_isspace(int c);
 
 // Strip white space at the beginning and end of a string
-int64_t V_StrTrim(char* pStr);
+ssize_t V_StrTrim(char* pStr);
 
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes);
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes);

@@ -312,7 +312,7 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 	CUtlString outPath;
 	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestName.Get());
 
-	CUtlBuffer outBuf(int64_t(0), 0, CUtlBuffer::TEXT_BUFFER);
+	CUtlBuffer outBuf(ssize_t(0), 0, CUtlBuffer::TEXT_BUFFER);
 	kv.RecursiveSaveToFile(outBuf, 0);
 
 	FileSystem()->CreateDirHierarchy(outPath.DirName().Get(), "PLATFORM");
