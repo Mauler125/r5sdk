@@ -104,6 +104,10 @@ public:
 	CAI_NetworkEditTools* GetEditOps() { return m_pEditOps; }
 	CAI_Network* GetNetwork() { /*Assert(!m_ThreadedBuild.pBuildingNetwork);*/ return m_pNetwork; }
 
+	inline uint32 GetFileCRC() const { m_ainMapFilesCRC; }
+	inline uint32 GetRuntimeCRC() const { return m_runtimeCreatedAINMapFilesCRC; }
+	inline bool IsRuntimeCRCCalculated() const { return m_calculatedRuntimeAINMapFilesCRC; }
+
 private:
 	// !TODO[ AMOS ]: If found, change to ptr and hook up to engine!
 	//static bool				gm_fNetworksLoaded;							// Have AINetworks been loaded
@@ -115,8 +119,8 @@ private:
 	bool m_bDontSaveGraph;
 	char gap_b22[2];
 	int m_ainVersion;
-	int m_ainMapFilesCRC;
-	int m_runtimeCreatedAINMapFilesCRC;
+	uint32 m_ainMapFilesCRC;
+	uint32 m_runtimeCreatedAINMapFilesCRC;
 	bool m_calculatedRuntimeAINMapFilesCRC;
 	char gap_b31[7];
 	/*ThreadedGraphBuildData*/ char m_ThreadedBuild[72];

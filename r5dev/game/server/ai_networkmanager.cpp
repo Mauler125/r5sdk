@@ -18,7 +18,7 @@
 
 constexpr int AINET_SCRIPT_VERSION_NUMBER = 21;
 constexpr int AINET_VERSION_NUMBER        = 57;
-constexpr int AINET_HEADER_SIZE           = 16;
+constexpr int AINET_MINIMUM_SIZE          = 82; // The file is at least this large when all required fields are written
 constexpr const char* AINETWORK_EXT       = ".ain";
 constexpr const char* AINETWORK_PATH      = "maps/graphs/";
 
@@ -60,29 +60,13 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	DevMsg(eDLL_T::SERVER, "+- Writing header...\n");
 
-	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
-	uint32_t nNavMeshCRC = NULL;
-
-	if (!pNavMesh)
-	{
-		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n",
-			__FUNCTION__, S_HULL_TYPE[E_HULL_TYPE::LARGE]);
-	}
-	else
-	{
-		const ssize_t nLen = FileSystem()->Size(pNavMesh);
-		std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
-
-		FileSystem()->Read(pBuf.get(), nLen, pNavMesh);
-		FileSystem()->Close(pNavMesh);
-
-		nNavMeshCRC = crc32::update(NULL, pBuf.get(), nLen);
-	}
+	// Must be computed at this point.
+	Assert((*g_ppAINetworkManager)->IsRuntimeCRCCalculated());
 
 	// Large NavMesh CRC.
 	DevMsg(eDLL_T::SERVER, " |-- AINet version: '%d'\n", AINET_VERSION_NUMBER);
 	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", g_ServerGlobalVariables->m_nMapVersion);
-	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '0x%lX'\n", nNavMeshCRC);
+	DevMsg(eDLL_T::SERVER, " |-- Runtime CRC: '0x%lX'\n", (*g_ppAINetworkManager)->GetRuntimeCRC());
 
 	CUtlBuffer buf;
 
@@ -91,7 +75,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	// ---------------------------
 	buf.PutInt(AINET_VERSION_NUMBER);
 	buf.PutInt(g_ServerGlobalVariables->m_nMapVersion);
-	buf.PutInt(nNavMeshCRC);
+	buf.PutInt((*g_ppAINetworkManager)->GetRuntimeCRC());
 
 	timer.End();
 	Msg(eDLL_T::SERVER, "...done writing header. %lf seconds\n", timer.GetDuration().GetSeconds());
@@ -171,10 +155,10 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	Msg(eDLL_T::SERVER, "...done writing node links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumLinks);
 
 	timer.Start();
-	DevMsg(eDLL_T::SERVER, "+- Writing WC lookup table...\n");
+	DevMsg(eDLL_T::SERVER, "+- Writing wc lookup table...\n");
 
 	// -------------------------------
-	// Dump WC lookup table
+	// Dump the WC lookup table
 	// -------------------------------
 	CUtlMap<int, int> wcIDs;
 	SetDefLessFunc(wcIDs);
@@ -207,13 +191,13 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing hammer nodes. %lf seconds (%d indices)\n", timer.GetDuration().GetSeconds(), wcIDs.Count());
+	Msg(eDLL_T::SERVER, "...done writing wc lookup table. %lf seconds (%d indices)\n", timer.GetDuration().GetSeconds(), wcIDs.Count());
 
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing traverse ex nodes...\n");
 
 	// -------------------------------
-	// Dump traverse ex nodes
+	// Dump the traverse ex nodes
 	// -------------------------------
 	const int traverseExNodeCount = g_pAITraverseNodes->Count();
 	buf.PutShort((short)traverseExNodeCount);
@@ -235,7 +219,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, "+- Writing hull data blocks...\n");
 
 	// -------------------------------
-	// Dump hull data blocks
+	// Dump the hull data blocks
 	// -------------------------------
 
 	// Pointer to numZones counter, incremented up and until
@@ -261,7 +245,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, "+- Writing path clusters...\n");
 
 	// -------------------------------
-	// Dump path clusters
+	// Dump the path clusters
 	// -------------------------------
 	const int numClusters = g_pAIPathClusters->Count();
 	buf.PutInt(numClusters);
@@ -307,7 +291,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, "+- Writing cluster links...\n");
 
 	// -------------------------------
-	// Dump cluster links
+	// Dump the cluster links
 	// -------------------------------
 	const int numClusterLinks = g_pAIClusterLinks->Count();
 	buf.PutInt(numClusterLinks);
@@ -340,7 +324,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, "+- Writing script nodes...\n");
 
 	// -------------------------------
-	// Dump script nodes
+	// Dump all the script nodes
 	// -------------------------------
 	const int numScriptNodes = pNetwork->m_iNumScriptNodes;
 	buf.PutInt(numScriptNodes);
@@ -359,7 +343,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, "+- Writing hint data...\n");
 
 	// -------------------------------
-	// Dump hint data
+	// Dump the hint data
 	// -------------------------------
 	const int numHinst = pNetwork->m_iNumHints;
 	buf.PutInt(numHinst);
@@ -373,10 +357,45 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.End();
 	Msg(eDLL_T::SERVER, "...done writing hint data. %lf seconds (%d hints)\n", timer.GetDuration().GetSeconds(), numHinst);
 
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Calculating navmesh crc...\n");
+
+	// -------------------------------
+	// Dump NavMesh CRC
+	// -------------------------------
+	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
+	uint32_t nNavMeshCRC = NULL;
+
+	if (!pNavMesh)
+	{
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n",
+			__FUNCTION__, S_HULL_TYPE[E_HULL_TYPE::LARGE]);
+	}
+	else
+	{
+		const ssize_t nLen = FileSystem()->Size(pNavMesh);
+		std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
+
+		FileSystem()->Read(pBuf.get(), nLen, pNavMesh);
+		FileSystem()->Close(pNavMesh);
+
+		nNavMeshCRC = crc32::update(NULL, pBuf.get(), nLen);
+	}
+
+	// Note: the NavMesh checksum is written at the END of the file
+	// to maintain compatibility with r1 and r2 AIN's.
+	DevMsg(eDLL_T::SERVER, " |-- Writing navmesh crc '%x' at '0x%zX'\n", nNavMeshCRC, buf.TellPut());
+	buf.PutInt(nNavMeshCRC);
+
+	timer.End();
+	Msg(eDLL_T::SERVER, "...done calculating navmesh crc. %lf seconds (%x)\n", timer.GetDuration().GetSeconds(), nNavMeshCRC);
+
+	// Write the entire buffer to the disk.
 	FileSystem()->Write(buf.Base(), buf.TellPut(), pAIGraph);
 	FileSystem()->Close(pAIGraph);
 
 	masterTimer.End();
+
 	Msg(eDLL_T::SERVER, "...done writing AI node graph. %lf seconds\n", masterTimer.GetDuration().GetSeconds());
 	Msg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
 	Msg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
@@ -403,8 +422,10 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 	int nAiNetVersion = NULL;
 	int nAiMapVersion = NULL;
 
-	uint32_t nAiGraphHash = NULL;
-	uint32_t nNavMeshHash = NULL;
+	uint32_t nAiGraphCRC = NULL;   // AIN CRC from AIN file.
+	uint32_t nAiNavMeshCRC = NULL; // NavMesh CRC from AIN file.
+	uint32_t nNavMeshCRC = NULL;   // NavMesh CRC from local NM file.
+	uint32_t nAiRuntimeCRC = pManager->GetRuntimeCRC();
 
 	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
 	if (!pNavMesh)
@@ -420,7 +441,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 		FileSystem()->Read(pBuf.get(), nLen, pNavMesh);
 		FileSystem()->Close(pNavMesh);
 
-		nNavMeshHash = crc32::update(NULL, pBuf.get(), nLen);
+		nNavMeshCRC = crc32::update(NULL, pBuf.get(), nLen);
 	}
 
 	const ssize_t nFileSize = pBuffer->TellPut();
@@ -429,31 +450,58 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 	// Seek to the start of the buffer so we can validate the header.
 	pBuffer->SeekGet(CUtlBuffer::SEEK_HEAD, 0);
 
-	if (nFileSize >= AINET_HEADER_SIZE)
+	// If we have a NavMesh, then the minimum size is
+	// 'AINET_MINIMUM_SIZE' + CRC32 as the AIN needs
+	// a NavMesh checksum field for validation.
+	const int nMinimumFileSize = bNavMeshAvailable
+		? AINET_MINIMUM_SIZE + sizeof(nNavMeshCRC)
+		: AINET_MINIMUM_SIZE;
+
+	if (nFileSize >= nMinimumFileSize)
 	{
 		nAiNetVersion = pBuffer->GetInt();
 		nAiMapVersion = pBuffer->GetInt();
-		nAiGraphHash = pBuffer->GetInt();
+		nAiGraphCRC = pBuffer->GetInt();
 
+		// Too old; build with a different game???
 		if (nAiNetVersion > AINET_VERSION_NUMBER)
 		{
 			Warning(eDLL_T::SERVER, "AI node graph '%s' is unsupported (net version: '%d' expected: '%d')\n", 
 				szGraphPath, nAiNetVersion, AINET_VERSION_NUMBER);
 		}
+		// AIN file was build with a different version of the map, therefore,
+		// the path node positions might be invalid.
 		else if (nAiMapVersion != g_ServerGlobalVariables->m_nMapVersion)
 		{
 			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (map version: '%d' expected: '%d')\n", 
 				szGraphPath, nAiMapVersion, g_ServerGlobalVariables->m_nMapVersion);
 		}
-		else if (bNavMeshAvailable && nAiGraphHash != nNavMeshHash)
+		// Data checksum is now what the runtime expects.
+		else if (nAiGraphCRC != nAiRuntimeCRC)
 		{
-			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '%x' expected: '%x')\n", 
-				szGraphPath, nAiGraphHash, nNavMeshHash);
+			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (ain checksum: '%x' expected: '%x')\n", 
+				szGraphPath, nAiGraphCRC, nAiRuntimeCRC);
+		}
+		else if (bNavMeshAvailable)
+		{
+			// Seek to the end of the file, minus the size of the CRC field.
+			// The NavMesh CRC is written at the end of the file to maintain
+			// compatibility with r1 and r2 AIN files.
+			pBuffer->SeekGet(CUtlBuffer::SEEK_HEAD, nFileSize - sizeof(nAiNavMeshCRC));
+			nAiNavMeshCRC = pBuffer->GetInt();
+
+			// The AIN file was build with a different NavMesh, therefore,
+			// the script node positions might be incorrect.
+			if (nAiNavMeshCRC != nNavMeshCRC)
+			{
+				Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (nav checksum: '%x' expected: '%x')\n",
+					szGraphPath, nAiGraphCRC, nNavMeshCRC);
+			}
 		}
 	}
 	else
 	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - AI node graph '%s' is corrupt\n", __FUNCTION__, szGraphPath);
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - AI node graph '%s' appears truncated\n", __FUNCTION__, szGraphPath);
 	}
 
 	// Recover old buffer position before we call LoadNetworkGraph.
