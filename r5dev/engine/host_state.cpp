@@ -250,7 +250,7 @@ void CHostState::Setup(void)
 {
 	g_pHostState->LoadConfig();
 #ifndef CLIENT_DLL
-	g_pBanSystem->Load();
+	g_pBanSystem->LoadList();
 #endif // !CLIENT_DLL
 	ConVar_PurgeHostNames();
 
@@ -303,12 +303,12 @@ void CHostState::Think(void) const
 	}
 	if (sv_autoReloadRate->GetBool())
 	{
-		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate->GetDouble())
+		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate->GetFloat())
 		{
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
 		}
 	}
-	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
+	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetFloat())
 	{
 		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s) - %d%% Server CPU (%.3f msec on frame %d)",
 			hostname->GetString(), g_pServer->GetNumClients(),
@@ -319,13 +319,13 @@ void CHostState::Think(void) const
 		statsTimer.Start();
 	}
 	if (sv_globalBanlist->GetBool() &&
-		banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetDouble())
+		banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetFloat())
 	{
 		SV_CheckForBan();
 		banListTimer.Start();
 	}
 #ifdef DEDICATED
-	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate->GetDouble())
+	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate->GetFloat())
 	{
 		const NetGameServer_t netGameServer
 		{

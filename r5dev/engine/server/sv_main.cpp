@@ -19,7 +19,7 @@
 // Purpose: checks if particular client is banned on the comp server
 //-----------------------------------------------------------------------------
 void SV_IsClientBanned(CClient* pClient, const string& svIPAddr,
-	const uint64_t nNucleusID, const string& svPersonaName, const int nPort)
+	const NucleusID_t nNucleusID, const string& svPersonaName, const int nPort)
 {
 	Assert(pClient != nullptr);
 
@@ -53,16 +53,22 @@ void SV_IsClientBanned(CClient* pClient, const string& svIPAddr,
 //-----------------------------------------------------------------------------
 // Purpose: checks if particular client is banned on the master server
 //-----------------------------------------------------------------------------
-void SV_ProcessBulkCheck(const BannedVec_t& bannedVec)
+void SV_ProcessBulkCheck(const CBanSystem::BannedList_t* pBannedVec, const bool bDelete)
 {
-	BannedVec_t outBannedVec;
-	g_pMasterServer->GetBannedList(bannedVec, outBannedVec);
+	CBanSystem::BannedList_t* outBannedVec = new CBanSystem::BannedList_t();
+	g_pMasterServer->GetBannedList(*pBannedVec, *outBannedVec);
+
+	// Caller wants to destroy the vector.
+	if (bDelete)
+	{
+		delete pBannedVec;
+	}
 
 	if (!ThreadInMainThread())
 	{
 		g_TaskScheduler->Dispatch([outBannedVec]
 			{
-				SV_CheckForBan(&outBannedVec);
+				SV_CheckForBan(outBannedVec, true);
 			}, 0);
 	}
 }
@@ -70,11 +76,12 @@ void SV_ProcessBulkCheck(const BannedVec_t& bannedVec)
 //-----------------------------------------------------------------------------
 // Purpose: creates a snapshot of the currently connected clients
 // Input  : *pBannedVec - if passed, will check for bans and kick the clients
+//          bDelete     - if set, will delete the passed in vector
 //-----------------------------------------------------------------------------
-void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
+void SV_CheckForBan(const CBanSystem::BannedList_t* pBannedVec /*= nullptr*/, const bool bDelete /*= false*/)
 {
 	Assert(ThreadInMainThread());
-	BannedVec_t bannedVec;
+	CBanSystem::BannedList_t* bannedVec = new CBanSystem::BannedList_t;
 
 	for (int c = 0; c < g_ServerGlobalVariables->m_nMaxClients; c++) // Loop through all possible client instances.
 	{
@@ -93,25 +100,27 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 			continue;
 
 		const char* szIPAddr = pNetChan->GetAddress(true);
-		const uint64_t nNucleusID = pClient->GetNucleusID();
+		const NucleusID_t nNucleusID = pClient->GetNucleusID();
 
 		// If no banned list was provided, build one with all clients
 		// on the server. This will be used for bulk checking so live
 		// bans could be performed, as this function is called periodically.
 		if (!pBannedVec)
-			bannedVec.push_back(std::make_pair(string(szIPAddr), nNucleusID));
+			bannedVec->AddToTail(CBanSystem::Banned_t(szIPAddr, nNucleusID));
 		else
 		{
 			// Check if current client is within provided banned list, and
 			// prune if so...
-			for (auto& it : *pBannedVec)
+			FOR_EACH_VEC(*pBannedVec, i)
 			{
-				if (it.second == pClient->GetNucleusID())
+				const CBanSystem::Banned_t& banned = (*pBannedVec)[i];
+
+				if (banned.m_NucleusID == pClient->GetNucleusID())
 				{
 					const int nUserID = pClient->GetUserID();
 					const int nPort = pNetChan->GetPort();
 
-					pClient->Disconnect(Reputation_t::REP_MARK_BAD, "%s", it.first.c_str());
+					pClient->Disconnect(Reputation_t::REP_MARK_BAD, "%s", banned.m_Address.String());
 					Warning(eDLL_T::SERVER, "Removed client '[%s]:%i' from slot #%i ('%llu' is banned globally!)\n",
 						szIPAddr, nPort, nUserID, nNucleusID);
 				}
@@ -119,9 +128,19 @@ void SV_CheckForBan(const BannedVec_t* pBannedVec /*= nullptr*/)
 		}
 	}
 
-	if (!pBannedVec && !bannedVec.empty())
+	// Caller wants to destroy the vector.
+	if (bDelete && pBannedVec)
 	{
-		std::thread(&SV_ProcessBulkCheck, bannedVec).detach();
+		delete pBannedVec;
+	}
+
+	if (!pBannedVec && !bannedVec->IsEmpty())
+	{
+		std::thread(&SV_ProcessBulkCheck, bannedVec, true).detach();
+	}
+	else
+	{
+		delete bannedVec;
 	}
 }
 

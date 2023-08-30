@@ -605,7 +605,7 @@ void CBrowser::HostPanel(void)
         {
             g_TaskScheduler->Dispatch([]()
                 {
-                    g_pBanSystem->Load();
+                    g_pBanSystem->LoadList();
                 }, 0);
         }
     }

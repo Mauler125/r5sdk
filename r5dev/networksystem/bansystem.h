@@ -1,6 +1,5 @@
 #pragma once
-
-typedef vector<std::pair<string, uint64_t>> BannedVec_t;
+#include "ebisusdk/EbisuTypes.h"
 
 enum EKickType
 {
@@ -13,13 +12,33 @@ enum EKickType
 class CBanSystem
 {
 public:
-	void Load(void);
-	void Save(void) const;
+	struct Banned_t
+	{
+		Banned_t(const char* ipAddress = "", NucleusID_t nucleusId = NULL)
+			: m_Address(ipAddress)
+			, m_NucleusID(nucleusId)
+		{}
 
-	bool AddEntry(const char* ipAddress, const uint64_t nucleusId);
-	bool DeleteEntry(const char* ipAddress, const uint64_t nucleusId);
+		inline bool operator==(const Banned_t& other) const
+		{
+			return m_NucleusID == other.m_NucleusID
+				&& m_Address.IsEqual_CaseInsensitive(other.m_Address);
+		}
 
-	bool IsBanned(const char* ipAddress, const uint64_t nucleusId) const;
+		NucleusID_t m_NucleusID;
+		CUtlString m_Address;
+	};
+
+	typedef CUtlVector<Banned_t> BannedList_t;
+
+public:
+	void LoadList(void);
+	void SaveList(void) const;
+
+	bool AddEntry(const char* ipAddress, const NucleusID_t nucleusId);
+	bool DeleteEntry(const char* ipAddress, const NucleusID_t nucleusId);
+
+	bool IsBanned(const char* ipAddress, const NucleusID_t nucleusId) const;
 	bool IsBanListValid(void) const;
 
 	void KickPlayerByName(const char* playerName, const char* reason = nullptr);
@@ -34,7 +53,7 @@ private:
 	void AuthorPlayerByName(const char* playerName, const bool bBan, const char* reason = nullptr);
 	void AuthorPlayerById(const char* playerHandle, const bool bBan, const char* reason = nullptr);
 
-	BannedVec_t m_vBanList;
+	BannedList_t m_BannedList;
 };
 
 extern CBanSystem* g_pBanSystem;

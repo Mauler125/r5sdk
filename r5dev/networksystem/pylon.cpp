@@ -193,15 +193,19 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken,
 //			&outBannedVec  - 
 // Output : True on success, false otherwise.
 //-----------------------------------------------------------------------------
-bool CPylon::GetBannedList(const BannedVec_t& inBannedVec, BannedVec_t& outBannedVec) const
+bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec,
+    CBanSystem::BannedList_t& outBannedVec) const
 {
     nlohmann::json arrayJson = nlohmann::json::array();
 
-    for (const auto& bannedPair : inBannedVec)
+    FOR_EACH_VEC(inBannedVec, i)
     {
+        const CBanSystem::Banned_t& banned = inBannedVec[i];
+
         nlohmann::json player;
-        player["id"] = bannedPair.second;
-        player["ip"] = bannedPair.first;
+        player["id"] = banned.m_NucleusID;
+        player["ip"] = banned.m_Address;
+
         arrayJson.push_back(player);
     }
 
@@ -227,12 +231,11 @@ bool CPylon::GetBannedList(const BannedVec_t& inBannedVec, BannedVec_t& outBanne
     {
         for (auto& obj : arrayJson["bannedPlayers"])
         {
-            outBannedVec.push_back(
-                std::make_pair(
-                    obj.value("reason", "#DISCONNECT_BANNED"),
-                    obj.value("id", uint64_t(0))
-                )
+            CBanSystem::Banned_t banned(
+                obj.value("reason", "#DISCONNECT_BANNED").c_str(),
+                obj.value("id", NucleusID_t(NULL))
             );
+            outBannedVec.AddToTail(banned);
         }
 
         return true;

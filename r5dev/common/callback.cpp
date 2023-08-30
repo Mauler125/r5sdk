@@ -216,7 +216,7 @@ Host_ReloadBanList_f
 */
 void Host_ReloadBanList_f(const CCommand& args)
 {
-	g_pBanSystem->Load(); // Reload banned list.
+	g_pBanSystem->LoadList(); // Reload banned list.
 }
 
 /*

@@ -10,7 +10,7 @@ public:
 	bool GetServerByToken(NetGameServer_t& slOutServer, string& outMessage, const string& svToken) const;
 	bool PostServerHost(string& outMessage, string& svOutToken, const NetGameServer_t& netGameServer) const;
 
-	bool GetBannedList(const BannedVec_t& inBannedVec, BannedVec_t& outBannedVec) const;
+	bool GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSystem::BannedList_t& outBannedVec) const;
 	bool CheckForBan(const string& ipAddress, const uint64_t nucleusId, const string& personaName, string& outReason) const;
 
 	void ExtractError(const nlohmann::json& resultBody, string& outMessage, CURLINFO status, const char* errorText = nullptr) const;
