@@ -40,8 +40,8 @@ void SV_InitGameDLL();
 void SV_ShutdownGameDLL();
 bool SV_ActivateServer();
 void SV_BroadcastVoiceData(CClient* cl, int nBytes, char* data);
-void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const uint64_t nNucleusID, const string& svPersonaName, const int nPort);
-void SV_CheckForBan(const BannedVec_t* pBannedVec = nullptr);
+void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const NucleusID_t nNucleusID, const string& svPersonaName, const int nPort);
+void SV_CheckForBan(const CBanSystem::BannedList_t* pBannedVec = nullptr, const bool bDelete = false);
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
