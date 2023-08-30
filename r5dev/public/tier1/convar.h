@@ -120,7 +120,6 @@ public:
 
 	FORCEINLINE bool GetBool(void) const;
 	FORCEINLINE float GetFloat(void) const;
-	FORCEINLINE double GetDouble(void) const;
 	FORCEINLINE int GetInt(void) const;
 	FORCEINLINE Color GetColor(void) const;
 	FORCEINLINE const char* GetString(void) const;
@@ -198,15 +197,6 @@ FORCEINLINE bool ConVar::GetBool(void) const
 FORCEINLINE float ConVar::GetFloat(void) const
 {
 	return m_pParent->m_Value.m_fValue;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Return ConVar value as a double.
-// Output : double
-//-----------------------------------------------------------------------------
-FORCEINLINE double ConVar::GetDouble(void) const
-{
-	return static_cast<double>(m_pParent->m_Value.m_fValue);
 }
 
 //-----------------------------------------------------------------------------
