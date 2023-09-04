@@ -51,6 +51,8 @@ ConVar* mp_gamemode                        = nullptr;
 ConVar* rcon_address                       = nullptr;
 ConVar* rcon_password                      = nullptr;
 
+ConVar* enable_CmdKeyValues                = nullptr;
+
 ConVar* r_debug_overlay_nodecay            = nullptr;
 ConVar* r_debug_overlay_invisible          = nullptr;
 ConVar* r_debug_overlay_wireframe          = nullptr;
@@ -287,6 +289,8 @@ void ConVar_StaticInit(void)
 
 	rcon_address  = ConVar::StaticCreate("rcon_address",  "[loopback]:37015", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address.", false, 0.f, false, 0.f, nullptr, nullptr);
 	rcon_password = ConVar::StaticCreate("rcon_password", ""                , FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty).", false, 0.f, false, 0.f, &RCON_PasswordChanged_f, nullptr);
+
+	enable_CmdKeyValues = ConVar::StaticCreate("enable_CmdKeyValues", "0", FCVAR_DEVELOPMENTONLY, "Toggle CmdKeyValues transmit and receive.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	r_debug_overlay_nodecay        = ConVar::StaticCreate("r_debug_overlay_nodecay"       , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_debug_overlay_invisible      = ConVar::StaticCreate("r_debug_overlay_invisible"     , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Show invisible debug overlays (alpha < 1 = 255).", false, 0.f, false, 0.f, nullptr, nullptr);
