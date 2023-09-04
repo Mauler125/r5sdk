@@ -167,7 +167,7 @@ void CBrowser::RunTask()
         bInitialized = true;
     }
 
-    if (timer.GetDurationInProgress().GetSeconds() > pylon_host_update_interval->GetDouble())
+    if (timer.GetDurationInProgress().GetSeconds() > pylon_host_update_interval->GetFloat())
     {
         UpdateHostingStatus();
         timer.Start();
