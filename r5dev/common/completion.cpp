@@ -27,7 +27,7 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 		substring = (char*)partial + strlen(cmdname);
 	}
 
-	const int mapcount = (int)g_InstalledMaps.size();
+	const int mapcount = g_InstalledMaps.Count();
 	const int longest = COMMAND_COMPLETION_ITEM_LENGTH;
 	const int count = MIN(mapcount, COMMAND_COMPLETION_MAXITEMS);
 
@@ -36,9 +36,9 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 	{
 		for (int i = 0; i < count; i++)
 		{
-			if (strstr(g_InstalledMaps[i].c_str(), substring))
+			if (strstr(g_InstalledMaps[i].String(), substring))
 			{
-				strncpy(commands[filtered_count], g_InstalledMaps[i].c_str(), longest);
+				strncpy(commands[filtered_count], g_InstalledMaps[i].String(), longest);
 
 				char old[COMMAND_COMPLETION_ITEM_LENGTH];
 				strncpy(old, commands[filtered_count], sizeof(old));

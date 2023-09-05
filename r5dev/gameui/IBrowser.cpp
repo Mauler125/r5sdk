@@ -519,11 +519,15 @@ void CBrowser::HostPanel(void)
     if (ImGui::BeginCombo("Map", g_pServerListManager->m_Server.m_svHostMap.c_str()))
     {
         g_InstalledMapsMutex.lock();
-        for (const string& svMap : g_InstalledMaps)
+
+        FOR_EACH_VEC(g_InstalledMaps, i)
         {
-            if (ImGui::Selectable(svMap.c_str(), svMap == g_pServerListManager->m_Server.m_svHostMap))
+            const CUtlString& mapName = g_InstalledMaps[i];
+
+            if (ImGui::Selectable(mapName.String(),
+                mapName.IsEqual_CaseInsensitive(g_pServerListManager->m_Server.m_svHostMap.c_str())))
             {
-                g_pServerListManager->m_Server.m_svHostMap = svMap;
+                g_pServerListManager->m_Server.m_svHostMap = mapName.String();
             }
         }
 

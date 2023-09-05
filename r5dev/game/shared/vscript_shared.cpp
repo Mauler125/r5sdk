@@ -38,13 +38,16 @@ namespace VScriptCode
         {
             std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
 
-            if (g_InstalledMaps.empty())
+            if (g_InstalledMaps.IsEmpty())
                 return SQ_OK;
 
             sq_newarray(v, 0);
-            for (const string& it : g_InstalledMaps)
+
+            FOR_EACH_VEC(g_InstalledMaps, i)
             {
-                sq_pushstring(v, it.c_str(), -1);
+                const CUtlString& mapName = g_InstalledMaps[i];
+
+                sq_pushstring(v, mapName.String(), -1);
                 sq_arrayappend(v, -2);
             }
 

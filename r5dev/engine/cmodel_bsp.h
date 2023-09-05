@@ -27,7 +27,7 @@ inline __int64(*sub_14045A1D0)(unsigned __int8(__fastcall* a1)(_QWORD), JobFifoL
 inline void(*sub_140441220)(__int64 a1, __int64 a2);
 
 extern bool s_bBasePaksInitialized;
-extern vector<string> g_InstalledMaps;
+extern CUtlVector<CUtlString> g_InstalledMaps;
 
 bool Mod_LevelHasChanged(const char* pszLevelName);
 void Mod_GetAllInstalledMaps();
