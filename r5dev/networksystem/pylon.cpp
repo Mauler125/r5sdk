@@ -337,6 +337,12 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
             return false;
         }
 
+        if (!responseJson.IsObject())
+        {
+            Warning(eDLL_T::SERVER, "%s: JSON root was not an object\n", __FUNCTION__);
+            return false;
+        }
+
         if (pylon_showdebuginfo->GetBool())
         {
             LogBody(responseJson);
@@ -429,7 +435,8 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
 void CPylon::ExtractError(const rapidjson::Document& resultJson, string& outMessage,
     CURLINFO status, const char* errorText) const
 {
-    if (resultJson.HasMember("error") &&
+
+    if (resultJson.IsObject() && resultJson.HasMember("error") &&
         resultJson["error"].IsString())
     {
         outMessage = resultJson["error"].GetString();

@@ -40,6 +40,12 @@ void CBanSystem::LoadList(void)
 		return;
 	}
 
+	if (!document.IsObject())
+	{
+		Warning(eDLL_T::SERVER, "%s: JSON root was not an object\n", __FUNCTION__);
+		return;
+	}
+
 	uint64_t nTotalBans = 0;
 	if (document.HasMember("totalBans") && document["totalBans"].IsUint64())
 	{
