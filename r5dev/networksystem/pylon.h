@@ -13,11 +13,11 @@ public:
 	bool GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSystem::BannedList_t& outBannedVec) const;
 	bool CheckForBan(const string& ipAddress, const uint64_t nucleusId, const string& personaName, string& outReason) const;
 
-	void ExtractError(const nlohmann::json& resultBody, string& outMessage, CURLINFO status, const char* errorText = nullptr) const;
+	void ExtractError(const rapidjson::Document& resultBody, string& outMessage, CURLINFO status, const char* errorText = nullptr) const;
 	void ExtractError(const string& response, string& outMessage, CURLINFO status, const char* messageText = nullptr) const;
 
-	void LogBody(const nlohmann::json& responseJson) const;
-	bool SendRequest(const char* endpoint, const nlohmann::json& requestJson, nlohmann::json& responseJson, string& outMessage, CURLINFO& status, const char* errorText = nullptr) const;
+	void LogBody(const rapidjson::Document& responseJson) const;
+	bool SendRequest(const char* endpoint, const rapidjson::Document& requestJson, rapidjson::Document& responseJson, string& outMessage, CURLINFO& status, const char* errorText = nullptr) const;
 	bool QueryServer(const char* endpoint, const char* request, string& outResponse, string& outMessage, CURLINFO& outStatus) const;
 
 	inline const string& GetCurrentToken() const { return m_Token; }

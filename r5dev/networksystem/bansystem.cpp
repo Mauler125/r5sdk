@@ -30,35 +30,39 @@ void CBanSystem::LoadList(void)
 	const ssize_t nRead = FileSystem()->Read(pBuf.get(), nLen, pFile);
 	FileSystem()->Close(pFile);
 
-	pBuf.get()[nRead] = '\0'; // Null terminate the string buffer containing our banned list.
+	pBuf[nRead] = '\0'; // Null terminate the string buffer containing our banned list.
 
-	try
+	rapidjson::Document document;
+	if (document.Parse(pBuf.get()).HasParseError())
 	{
-		nlohmann::json jsIn = nlohmann::json::parse(pBuf.get());
+		Warning(eDLL_T::SERVER, "%s: JSON parse error at position %zu: %s\n",
+			__FUNCTION__, document.GetErrorOffset(), rapidjson::GetParseError_En(document.GetParseError()));
+		return;
+	}
 
-		size_t nTotalBans = 0;
-		if (!jsIn.is_null())
-		{
-			if (!jsIn["totalBans"].is_null())
-				nTotalBans = jsIn["totalBans"].get<size_t>();
-		}
+	uint64_t nTotalBans = 0;
+	if (document.HasMember("totalBans") && document["totalBans"].IsUint64())
+	{
+		nTotalBans = document["totalBans"].GetUint64();
+	}
 
-		for (size_t i = 0; i < nTotalBans; i++)
+	for (uint64_t i = 0; i < nTotalBans; i++)
+	{
+		char idx[64]; _ui64toa(i, idx, 10);
+
+		if (document.HasMember(idx) && document[idx].IsObject())
 		{
-			nlohmann::json jsEntry = jsIn[std::to_string(i)];
-			if (!jsEntry.is_null())
+			const rapidjson::Value& entry = document[idx];
+			if (entry.HasMember("ipAddress") && entry["ipAddress"].IsString() &&
+				entry.HasMember("nucleusId") && entry["nucleusId"].IsUint64())
 			{
 				Banned_t banned;
-				banned.m_Address = jsEntry["ipAddress"].get<string>().c_str();
-				banned.m_NucleusID = jsEntry["nucleusId"].get<NucleusID_t>();
+				banned.m_Address = entry["ipAddress"].GetString();
+				banned.m_NucleusID = entry["nucleusId"].GetUint64();
 
 				m_BannedList.AddToTail(banned);
 			}
 		}
-	}
-	catch (const std::exception& ex)
-	{
-		Warning(eDLL_T::SERVER, "%s: Exception while parsing banned list:\n%s\n", __FUNCTION__, ex.what());
 	}
 }
 
@@ -74,29 +78,29 @@ void CBanSystem::SaveList(void) const
 		return;
 	}
 
-	try
+	rapidjson::Document document;
+	document.SetObject();
+
+	rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+	FOR_EACH_VEC(m_BannedList, i)
 	{
-		nlohmann::json jsOut;
+		const Banned_t& banned = m_BannedList[i];
+		char idx[64]; _ui64toa(i, idx, 10);
 
-		FOR_EACH_VEC(m_BannedList, i)
-		{
-			const Banned_t& banned = m_BannedList[i];
-			char idx[64]; itoa(i, idx, 10);
+		rapidjson::Value obj(rapidjson::kObjectType);
+		obj.AddMember("ipAddress", rapidjson::Value(banned.m_Address.String(), allocator), allocator);
+		obj.AddMember("nucleusId", banned.m_NucleusID, allocator);
 
-			jsOut[idx]["ipAddress"] = banned.m_Address.String();
-			jsOut[idx]["nucleusId"] = banned.m_NucleusID;
-		}
-
-		jsOut["totalBans"] = m_BannedList.Count();
-		string svJsOut = jsOut.dump(4);
-
-		FileSystem()->Write(svJsOut.data(), svJsOut.size(), pFile);
-	}
-	catch (const std::exception& ex)
-	{
-		Warning(eDLL_T::SERVER, "%s: Exception while parsing banned list:\n%s\n", __FUNCTION__, ex.what());
+		document.AddMember(rapidjson::Value(idx, allocator), obj, allocator);
 	}
 
+	document.AddMember("totalBans", m_BannedList.Count(), allocator);
+
+	rapidjson::StringBuffer buffer;
+	JSON_DocumentToBufferDeserialize(document, buffer);
+
+	FileSystem()->Write(buffer.GetString(), buffer.GetSize(), pFile);
 	FileSystem()->Close(pFile);
 }
 
@@ -162,7 +166,6 @@ bool CBanSystem::DeleteEntry(const char* ipAddress, const NucleusID_t nucleusId)
 //-----------------------------------------------------------------------------
 bool CBanSystem::IsBanned(const char* ipAddress, const NucleusID_t nucleusId) const
 {
-
 	FOR_EACH_VEC(m_BannedList, i)
 	{
 		const Banned_t& banned = m_BannedList[i];

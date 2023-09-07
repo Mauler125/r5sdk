@@ -19,7 +19,12 @@
 #include "thirdparty/lzham/include/lzham.h"
 
 #include "thirdparty/curl/include/curl/curl.h"
-#include "thirdparty/nlohmann/json.hpp"
+
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/error/en.h"
 
 #if !defined(DEDICATED) && !defined(PLUGINSDK)
 #include "thirdparty/imgui/imgui.h"
