@@ -40,7 +40,14 @@ macro( apply_project_settings )
         "SPDLOG_COMPILED_LIB"
         "SPDLOG_NO_EXCEPTIONS"
         "CURL_STATICLIB"
-        "PLATFORM_64BITS" # Target is 64bits only.
+
+        # Must be explicitly defined to toggle SIMD optimizations for RapidJSON.
+        # Don't set this to anything higher than SSE2, as the game supports from
+        # SSE3 and higher, and the next level of optimizations in RapidJSON is SSE4.2.
+        "RAPIDJSON_SSE2"
+
+        # Target is 64bits only.
+        "PLATFORM_64BITS"
         "${OPTION_GAMEDLL}"
     )
 
