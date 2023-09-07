@@ -331,7 +331,7 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
 
         if (responseJson.HasParseError())
         {
-            Warning(eDLL_T::SERVER, "%s: JSON parse error at position %zu: %s\n", __FUNCTION__,
+            Warning(eDLL_T::ENGINE, "%s: JSON parse error at position %zu: %s\n", __FUNCTION__,
                 responseJson.GetErrorOffset(), rapidjson::GetParseError_En(responseJson.GetParseError()));
 
             return false;
@@ -339,7 +339,7 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
 
         if (!responseJson.IsObject())
         {
-            Warning(eDLL_T::SERVER, "%s: JSON root was not an object\n", __FUNCTION__);
+            Warning(eDLL_T::ENGINE, "%s: JSON root was not an object\n", __FUNCTION__);
             return false;
         }
 
