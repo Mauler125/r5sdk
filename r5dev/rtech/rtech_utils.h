@@ -108,8 +108,8 @@ class V_RTechUtils : public IDetour
 		s_pFileHandles    = p_StreamDB_Init.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<pFileHandleTracker_t*>();
 		s_pFileArrayMutex = p_StreamDB_Init.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<PSRWLOCK*>();
 
-		g_pLoadedPakInfo     = p_CPakFile_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
-		g_pRequestedPakCount = p_CPakFile_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
+		g_pLoadedPakInfo     = p_Pak_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
+		g_pRequestedPakCount = p_Pak_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
 		g_pLoadedPakCount    = &*g_pRequestedPakCount - 1; // '-1' shifts it back with sizeof(int16_t).
 
 		g_pPakGlobals   = g_GameDll.FindPatternSIMD("48 8D 1D ?? ?? ?? ?? 45 8D 5A 0E").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakGlobals_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/

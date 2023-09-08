@@ -384,7 +384,7 @@ Pak_RequestLoad_f
 */
 void Pak_RequestLoad_f(const CCommand& args)
 {
-	g_pakLoadApi->LoadAsync(args.Arg(1));
+	g_pakLoadApi->LoadAsync(args.Arg(1), AlignedMemAlloc(), NULL, 0);
 }
 
 
@@ -431,7 +431,7 @@ void Pak_Swap_f(const CCommand& args)
 		while (pakInfo->m_nStatus != RPakStatus_t::PAK_STATUS_FREED) // Wait till this slot gets free'd.
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 
-		g_pakLoadApi->LoadAsync(pakName.c_str());
+		g_pakLoadApi->LoadAsync(pakName.c_str(), AlignedMemAlloc(), NULL, 0);
 	}
 	catch (const std::exception& e)
 	{

@@ -24,7 +24,7 @@ CUtlVector<RPakHandle_t> g_vLoadedPakHandle;
 //			bUnk - 
 // Output : pak file handle on success, INVALID_PAK_HANDLE on failure
 //-----------------------------------------------------------------------------
-RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk)
+RPakHandle_t Pak_LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk)
 {
 	RPakHandle_t pakHandle = INVALID_PAK_HANDLE;
 
@@ -37,7 +37,7 @@ RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pM
 	if (FileExists(pakOverridePath.Get()) || FileExists(pakBasePath.Get()))
 	{
 		Msg(eDLL_T::RTECH, "Loading pak file: '%s'\n", szPakFileName);
-		pakHandle = CPakFile_LoadAsync(szPakFileName, pMalloc, nIdx, bUnk);
+		pakHandle = v_Pak_LoadAsync(szPakFileName, pMalloc, nIdx, bUnk);
 
 		if (pakHandle == INVALID_PAK_HANDLE)
 		{
@@ -56,7 +56,7 @@ RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pM
 // Purpose: unloads loaded pak files
 // Input  : handle - 
 //-----------------------------------------------------------------------------
-void CPakFile::UnloadPak(RPakHandle_t handle)
+void Pak_UnloadPak(RPakHandle_t handle)
 {
 	RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(handle);
 
@@ -68,20 +68,20 @@ void CPakFile::UnloadPak(RPakHandle_t handle)
 			s_bBasePaksInitialized = false;
 	}
 
-	CPakFile_UnloadPak(handle);
+	v_Pak_UnloadPak(handle);
 }
 
 void V_RTechGame::Attach() const
 {
-	DetourAttach(&CPakFile_LoadAsync, &CPakFile::LoadAsync);
-	DetourAttach(&CPakFile_UnloadPak, &CPakFile::UnloadPak);
+	DetourAttach(&v_Pak_LoadAsync, &Pak_LoadAsync);
+	DetourAttach(&v_Pak_UnloadPak, &Pak_UnloadPak);
 }
 
 void V_RTechGame::Detach() const
 {
-	DetourDetach(&CPakFile_LoadAsync, &CPakFile::LoadAsync);
-	DetourDetach(&CPakFile_UnloadPak, &CPakFile::UnloadPak);
+	DetourDetach(&v_Pak_LoadAsync, &Pak_LoadAsync);
+	DetourDetach(&v_Pak_UnloadPak, &Pak_UnloadPak);
 }
 
 // Symbols taken from R2 dll's.
-CPakFile* g_pakLoadApi = new CPakFile();
+PakLoadFuncs_t* g_pakLoadApi = nullptr;
