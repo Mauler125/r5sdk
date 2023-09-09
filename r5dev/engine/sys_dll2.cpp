@@ -173,14 +173,14 @@ bool CEngineAPI::MainLoop()
 #ifndef DEDICATED
         const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
         const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
-        //const float fpsMax = fps_max->GetFloat();
+        const float fpsMax = fps_max_gfx->GetFloat();
 
         NV_SET_SLEEP_MODE_PARAMS_V1 params = {};
         params.version = NV_SET_SLEEP_MODE_PARAMS_VER1;
 
         params.bLowLatencyMode = bUseLowLatencyMode;
         params.bLowLatencyBoost = bUseLowLatencyMode && bUseLowLatencyBoost;
-        params.minimumIntervalUs = 0;// /*!!!leaving this 0 results in better performance!!!*/ fpsMax > 0 ? (NvU32)((1000.0f / fpsMax) * 1000.0f) : 0;
+        params.minimumIntervalUs = fpsMax > 0 ? (NvU32)((1000.0f / fpsMax) * 1000.0f) : 0;
         params.bUseMarkersToOptimize = false;
 
         NvAPI_Status status = NvAPI_D3D_SetSleepMode(*g_ppGameDevice, &params);

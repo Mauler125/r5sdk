@@ -22,6 +22,10 @@ ConVar* debug_draw_box_depth_test          = nullptr;
 ConVar* developer                          = nullptr;
 ConVar* fps_max                            = nullptr;
 
+#ifndef DEDICATED
+ConVar* fps_max_gfx                        = nullptr;
+#endif // !DEDICATED
+
 ConVar* base_tickinterval_sp               = nullptr;
 ConVar* base_tickinterval_mp               = nullptr;
 
@@ -304,6 +308,7 @@ void ConVar_StaticInit(void)
 	r_drawWorldMeshesDepthAtTheEnd = ConVar::StaticCreate("r_drawWorldMeshesDepthAtTheEnd", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes (depth at the end).", false, 0.f, false, 0.f, nullptr, nullptr);
 
 #ifndef DEDICATED
+	fps_max_gfx = ConVar::StaticCreate("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK.", true, 0.f, false, 0.f, nullptr, nullptr);
 	gfx_nvnUseLowLatency      = ConVar::StaticCreate("gfx_nvnUseLowLatency"     , "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK."  , false, 0.f, false, 0.f, nullptr, nullptr);
 	gfx_nvnUseLowLatencyBoost = ConVar::StaticCreate("gfx_nvnUseLowLatencyBoost", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED

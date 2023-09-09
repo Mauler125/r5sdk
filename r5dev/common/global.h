@@ -13,6 +13,10 @@ extern ConVar* debug_draw_box_depth_test;
 extern ConVar* developer;
 extern ConVar* fps_max;
 
+#ifndef DEDICATED
+extern ConVar* fps_max_gfx;
+#endif // !DEDICATED
+
 extern ConVar* base_tickinterval_sp;
 extern ConVar* base_tickinterval_mp;
 
