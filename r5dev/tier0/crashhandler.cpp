@@ -128,7 +128,7 @@ void CCrashHandler::FormatModules()
 	HANDLE hProcess = GetCurrentProcess();
 	DWORD cbNeeded;
 
-	BOOL result = K32EnumProcessModulesEx(hProcess, &*hModule.get(), CRASHHANDLER_MAX_MODULES, &cbNeeded, LIST_MODULES_ALL);
+	BOOL result = K32EnumProcessModulesEx(hProcess, hModule.get(), CRASHHANDLER_MAX_MODULES, &cbNeeded, LIST_MODULES_ALL);
 	if (result && cbNeeded <= CRASHHANDLER_MAX_MODULES && cbNeeded >> 3)
 	{
 		CHAR szModuleName[MAX_FILEPATH];
@@ -137,7 +137,7 @@ void CCrashHandler::FormatModules()
 
 		for (DWORD i = 0, j = cbNeeded >> 3; j; i++, j--)
 		{
-			DWORD m = GetModuleFileNameA(hModule.get()[i], szModuleName, sizeof(szModuleName));
+			DWORD m = GetModuleFileNameA(hModule[i], szModuleName, sizeof(szModuleName));
 			if ((m - 1) > (sizeof(szModuleName) - 2)) // Too small for buffer.
 			{
 				snprintf(szModuleName, sizeof(szModuleName), "module@%p", hModule.get()[i]);
