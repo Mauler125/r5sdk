@@ -7,6 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 CEngine* g_pEngine = nullptr;
+IEngine::QuitState_t* gsm_Quitting = nullptr;
 
 bool CEngine::_Frame(CEngine* thisp)
 {

@@ -20,7 +20,7 @@
 abstract_class IEngine
 {
 public:
-	enum
+	enum QuitState_t
 	{
 		QUIT_NOTQUITTING = 0,
 		QUIT_TODESKTOP,
