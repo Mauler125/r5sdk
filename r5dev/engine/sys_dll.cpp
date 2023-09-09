@@ -79,7 +79,7 @@ int CModAppSystemGroup::StaticMain(CModAppSystemGroup* pModAppSystemGroup)
 	g_pEngine->SetQuitting(IEngine::QUIT_NOTQUITTING);
 	if (g_pEngine->Load(pModAppSystemGroup->IsServerOnly(), g_pEngineParms->baseDirectory))
 	{
-		if (CEngineAPI_MainLoop())
+		if (CEngineAPI::MainLoop())
 		{
 			nRunResult = RUN_RESTART;
 		}

@@ -10,12 +10,14 @@
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "tier1/strtools.h"
+#include "engine/sys_engine.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/traceinit.h"
 #include "rtech/rtech_utils.h"
 #ifndef DEDICATED
+#include "windows/id3dx.h"
 #include "client/vengineclient_impl.h"
 #endif // !DEDICATED
 #include "filesystem/filesystem.h"
@@ -151,11 +153,54 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1)
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CEngineAPI::MainLoop()
+{
+    // Main message pump
+    while (true)
+    {
+        // Pump messages unless someone wants to quit
+        if (g_pEngine->GetQuitting() != IEngine::QUIT_NOTQUITTING)
+        {
+            if (g_pEngine->GetQuitting() != IEngine::QUIT_TODESKTOP)
+                return true;
+
+            return false;
+        }
+
+#ifndef DEDICATED
+        const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
+        const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
+        //const float fpsMax = fps_max->GetFloat();
+
+        NV_SET_SLEEP_MODE_PARAMS_V1 params = {};
+        params.version = NV_SET_SLEEP_MODE_PARAMS_VER1;
+
+        params.bLowLatencyMode = bUseLowLatencyMode;
+        params.bLowLatencyBoost = bUseLowLatencyMode && bUseLowLatencyBoost;
+        params.minimumIntervalUs = 0;// /*!!!leaving this 0 results in better performance!!!*/ fpsMax > 0 ? (NvU32)((1000.0f / fpsMax) * 1000.0f) : 0;
+        params.bUseMarkersToOptimize = false;
+
+        NvAPI_Status status = NvAPI_D3D_SetSleepMode(*g_ppGameDevice, &params);
+
+        if (status == NVAPI_OK)
+            NvAPI_D3D_Sleep(*g_ppGameDevice);
+
+        CEngineAPI_PumpMessages();
+#endif // !DEDICATED
+
+        g_pEngine->Frame();
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void VSys_Dll2::Attach() const
 {
 	DetourAttach(&CEngineAPI_Init, &CEngineAPI::VInit);
 	DetourAttach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
+	DetourAttach(&CEngineAPI_MainLoop, &CEngineAPI::MainLoop);
 	DetourAttach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }
 
@@ -163,5 +208,6 @@ void VSys_Dll2::Detach() const
 {
 	DetourDetach(&CEngineAPI_Init, &CEngineAPI::VInit);
 	DetourDetach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
+	DetourDetach(&CEngineAPI_MainLoop, &CEngineAPI::MainLoop);
 	DetourDetach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }

@@ -1,10 +1,20 @@
 #pragma once
 #include <public/iengine.h>
 
+class CEngine;
+
+/* ==== CENGINE ======================================================================================================================================================= */
+inline CMemory p_CEngine_Frame;
+inline bool(*v_CEngine_Frame)(CEngine* thisp);
+
+extern CEngine* g_pEngine;
+extern IEngine::QuitState_t* gsm_Quitting;
+
 class CEngine : public IEngine
 {
 public:
 	static bool _Frame(CEngine* thisp);
+	inline IEngine::QuitState_t GetQuitting() const { return *gsm_Quitting; }
 
 private:
 	EngineState_t m_nDLLState;
@@ -20,12 +30,6 @@ private:
 	char          field_39;
 };
 
-/* ==== CENGINE ======================================================================================================================================================= */
-inline CMemory p_CEngine_Frame;
-inline bool(*v_CEngine_Frame)(CEngine* thisp);
-
-extern CEngine* g_pEngine;
-
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,6 +41,7 @@ class VEngine : public IDetour
 	{
 		LogFunAdr("CEngine::Frame", p_CEngine_Frame.GetPtr());
 		LogVarAdr("g_Engine", reinterpret_cast<uintptr_t>(g_pEngine));
+		LogVarAdr("sm_Quitting", reinterpret_cast<uintptr_t>(gsm_Quitting));
 	}
 	virtual void GetFun(void) const
 	{
@@ -56,6 +61,7 @@ class VEngine : public IDetour
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		g_pEngine = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 80 B9 ?? ?? ?? ?? ?? BB ?? ?? ?? ??").FindPatternSelf("48 8B ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngine*>();
 #endif
+		gsm_Quitting = g_GameDll.FindPatternSIMD("89 15 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC 83 C1 F4").ResolveRelativeAddressSelf(0x2, 0x6).RCast<IEngine::QuitState_t*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;

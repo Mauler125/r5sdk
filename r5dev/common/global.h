@@ -55,6 +55,9 @@ extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
 #ifndef DEDICATED
 extern ConVar* r_visualizetraces;
 extern ConVar* r_visualizetraces_duration;
+
+extern ConVar* gfx_nvnUseLowLatency;
+extern ConVar* gfx_nvnUseLowLatencyBoost;
 #endif // !DEDICATED
 
 extern ConVar* stream_overlay;
