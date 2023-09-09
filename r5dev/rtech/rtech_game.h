@@ -32,7 +32,7 @@ typedef struct PakLoadFuncs_s
 	char unknown2[16];
 	void* Func7;
 	void* Func8;
-	RPakStatus_t(*WaitAsync)(RPakHandle_t handle);
+	RPakStatus_t(*WaitAsync)(RPakHandle_t handle, void* pFinishCallback);
 	void* Func10;
 	void* Func11;
 	void* FindByGUID;
@@ -92,7 +92,7 @@ class V_RTechGame : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pakLoadApi = p_LauncherMain.Offset(0x800).FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PakLoadFuncs_t*>();
+		g_pakLoadApi = p_LauncherMain.Offset(0x820).FindPatternSelf("48 89").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PakLoadFuncs_t*>();
 	}
 	virtual void GetCon(void) const
 	{
