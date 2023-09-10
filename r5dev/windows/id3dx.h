@@ -107,9 +107,13 @@ enum class DXGISwapChainVTbl : short
 };
 
 #ifndef BUILDING_LIBIMGUI
-inline ID3D11Device** g_ppGameDevice = nullptr;
+inline ID3D11Device**        g_ppGameDevice       = nullptr;
 inline ID3D11DeviceContext** g_ppImmediateContext = nullptr;
-inline IDXGISwapChain** g_ppSwapChain = nullptr;
+inline IDXGISwapChain**      g_ppSwapChain        = nullptr;
+
+FORCEINLINE ID3D11Device*        D3D11Device()        { Assert(g_ppGameDevice);       return (*g_ppGameDevice);       }
+FORCEINLINE ID3D11DeviceContext* D3D11DeviceContext() { Assert(g_ppImmediateContext); return (*g_ppImmediateContext); }
+FORCEINLINE IDXGISwapChain*      D3D11SwapChain()     { Assert(g_ppSwapChain);        return (*g_ppSwapChain);        }
 
 class VDXGI : public IDetour
 {

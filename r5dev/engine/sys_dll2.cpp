@@ -183,10 +183,13 @@ bool CEngineAPI::MainLoop()
         params.minimumIntervalUs = fpsMax > 0 ? (NvU32)((1000.0f / fpsMax) * 1000.0f) : 0;
         params.bUseMarkersToOptimize = false;
 
-        NvAPI_Status status = NvAPI_D3D_SetSleepMode(*g_ppGameDevice, &params);
+        ID3D11Device* pGameDevice = D3D11Device();
+        Assert(pGameDevice);
+
+        NvAPI_Status status = NvAPI_D3D_SetSleepMode(pGameDevice, &params);
 
         if (status == NVAPI_OK)
-            NvAPI_D3D_Sleep(*g_ppGameDevice);
+            NvAPI_D3D_Sleep(pGameDevice);
 
         CEngineAPI_PumpMessages();
 #endif // !DEDICATED
