@@ -246,25 +246,65 @@ struct PEB64
 //
 struct TEB64
 {
-    BYTE                            NtTib[56];                          //0x0000 / NT_TIB64 structure
-    PTR64                           EnvironmentPointer;                 //0x0038
+    NT_TIB64                        NtTib;                              //0x0000
+    PVOID                           EnvironmentPointer;                 //0x0038
     CLIENT_ID64                     ClientId;                           //0x0040
-    PTR64                           ActiveRpcHandle;                    //0x0050
-    PTR64                           ThreadLocalStoragePointer;          //0x0058
-    PTR64                           ProcessEnvironmentBlock;            //0x0060 / ptr to PEB64
-    DWORD                           LastErrorValue;                     //0x0068
-    DWORD                           CountOfOwnedCriticalSections;       //0x006C
-    PTR64                           CsrClientThread;                    //0x0070
-    PTR64                           Win32ThreadInfo;                    //0x0078
-    DWORD                           User32Reserved[26];                 //0x0080
-    DWORD                           UserReserved[6];                    //0x00E8
-    PTR64                           WOW32Reserved;                      //0x0100
-    DWORD                           CurrentLocale;                      //0x0108
-    DWORD                           FpSoftwareStatusRegister;           //0x010C
-    PTR64                           SystemReserved1[54];                //0x0110
-    DWORD                           ExceptionCode;                      //0x02C0
-    PTR64                           ActivationContextStackPointer;      //0x02C8
-
-}; //struct TEB64
+    PVOID                           ActiveRpcInfo;                      //0x0050
+    PVOID                           ThreadLocalStoragePointer;          //0x0058
+    PEB64*                          ProcessEnvironmentBlock;            //0x0060
+    ULONG                           LastErrorValue;                     //0x0068
+    ULONG                           CountOfOwnedCriticalSections;       //0x006C
+    PVOID                           CsrClientThread;                    //0x0070
+    PVOID                           Win32ThreadInfo;                    //0x0078
+    ULONG                           Win32ClientInfo[0x1F];              //0x0080
+    PVOID                           WOW32Reserved;                      //0x0100
+    ULONG                           CurrentLocale;                      //0x0108
+    ULONG                           FpSoftwareStatusRegister;           //0x010C
+    PVOID                           SystemReserved1[0x36];              //0x0110
+    PVOID                           Spare1;                             //0x02C0
+    ULONG                           ExceptionCode;                      //0x02C8
+    PVOID                           ActivationContextStackPointer;      //0x02D0
+    ULONG                           SpareBytes1[0x26];                  //0x02D8
+    PVOID                           SystemReserved2[0xA];               //0x0370
+    ULONG                           GdiRgn;                             //0x03C0
+    ULONG                           GdiPen;                             //0x03C4
+    ULONG                           GdiBrush;                           //0x03C8
+    CLIENT_ID64                     RealClientId;                       //0x03D0
+    PVOID                           GdiCachedProcessHandle;             //0x03E0
+    ULONG                           GdiClientPID;                       //0x03E8
+    ULONG                           GdiClientTID;                       //0x03EC
+    PVOID                           GdiThreadLocaleInfo;                //0x03F0
+    PVOID                           UserReserved[5];                    //0x03F8
+    PVOID                           GlDispatchTable[0x118];             //0x0420
+    ULONG                           GlReserved1[0x1A];                  //0x0CE0
+    PVOID                           GlReserved2;                        //0x0D48
+    PVOID                           GlSectionInfo;                      //0x0D50
+    PVOID                           GlSection;                          //0x0D58
+    PVOID                           GlTable;                            //0x0D60
+    PVOID                           GlCurrentRC;                        //0x0D68
+    PVOID                           GlContext;                          //0x0D70
+    NTSTATUS                        LastStatusValue;                    //0x0D78
+    UNICODE_STRING64                StaticUnicodeString;                //0x0D80
+    WCHAR                           StaticUnicodeBuffer[0x105];         //0x0D90
+    PVOID                           DeallocationStack;                  //0x0FA0
+    PVOID                           TlsSlots[0x40];                     //0x0FA9
+    LIST_ENTRY                      TlsLinks;                           //0x11A8
+    PVOID                           Vdm;                                //0x11B8
+    PVOID                           ReservedForNtRpc;                   //0x11C0
+    PVOID                           DbgSsReserved[0x2];                 //0x11C8
+    ULONG                           HardErrorDisabled;                  //0x11D8
+    PVOID                           Instrumentation[0x10];              //0x11E0
+    PVOID                           WinSockData;                        //0x1260
+    ULONG                           GdiBatchCount;                      //0x1268
+    ULONG                           Spare2;                             //0x126C
+    ULONG                           Spare3;                             //0x1270
+    ULONG                           Spare4;                             //0x1274
+    PVOID                           ReservedForOle;                     //0x1278
+    ULONG                           WaitingOnLoaderLock;                //0x1280
+    PVOID                           StackCommit;                        //0x1288
+    PVOID                           StackCommitMax;                     //0x1290
+    PVOID                           StackReserved;                      //0x1298
+    PVOID                           TlsExpansionSlots;                  //0x12A0
+};
 
 #endif // TEBPEB_64_H

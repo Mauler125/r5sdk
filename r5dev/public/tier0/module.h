@@ -64,6 +64,9 @@ public:
 	inline static PEB64* GetProcessEnvironmentBlock()
 	{ return reinterpret_cast<PEB64*>(__readgsqword(0x60)); }
 
+	inline static TEB64* GetThreadEnvironmentBlock()
+	{ return reinterpret_cast<TEB64*>(NtCurrentTeb()); }
+
 	void                 UnlinkFromPEB(void) const;
 
 private:
