@@ -12,8 +12,11 @@ extern ConVar* debug_draw_box_depth_test;
 
 extern ConVar* developer;
 extern ConVar* fps_max;
+extern ConVar* fps_max_vsync;
 
 #ifndef DEDICATED
+extern ConVar* fps_max_rt;
+extern ConVar* fps_max_rt_tolerance;
 extern ConVar* fps_max_gfx;
 #endif // !DEDICATED
 

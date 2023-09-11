@@ -8,6 +8,7 @@
 #include "windows/input.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
+#include "engine/framelimit.h"
 #include "engine/sys_mainwind.h"
 #include "inputsystem/inputsystem.h"
 #include "public/bitmap/stb_image.h"
@@ -139,6 +140,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 		g_bImGuiInitialized = true;
 	}
 
+	g_FrameLimiter.Run();
 	DrawImGui();
 	///////////////////////////////////////////////////////////////////////////////
 	HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);

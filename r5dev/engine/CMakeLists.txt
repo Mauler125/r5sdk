@@ -27,6 +27,8 @@ add_sources( SOURCE_GROUP "Debug"
 )
 
 add_sources( SOURCE_GROUP "Render"
+    "framelimit.cpp"
+    "framelimit.h"
     "gl_matsysiface.h"
     "gl_model_private.h"
     "gl_rmain.cpp"

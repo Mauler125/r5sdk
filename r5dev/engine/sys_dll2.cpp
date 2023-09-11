@@ -15,11 +15,12 @@
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/traceinit.h"
-#include "rtech/rtech_utils.h"
 #ifndef DEDICATED
+#include "engine/sys_mainwind.h"
 #include "windows/id3dx.h"
 #include "client/vengineclient_impl.h"
 #endif // !DEDICATED
+#include "rtech/rtech_utils.h"
 #include "filesystem/filesystem.h"
 constexpr char DFS_ENABLE_PATH[] = "/vpk/enable.txt";
 
@@ -173,7 +174,26 @@ bool CEngineAPI::MainLoop()
 #ifndef DEDICATED
         const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
         const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
-        const float fpsMax = fps_max_gfx->GetFloat();
+
+        float fpsMax = fps_max_gfx->GetFloat();
+
+        if (fpsMax == -1.0f)
+        {
+            const float globalFps = fps_max->GetFloat();
+
+            // Make sure the global fps limiter is 'unlimited'
+            // before we let the gfx frame limiter cap it to
+            // the desktop's refresh rate; not adhering to
+            // this will result in a major performance drop.
+            if (globalFps == 0.0f)
+            {
+                fpsMax = (float)g_pGame->GetDesktopRefreshRate();
+            }
+            else // Don't let NVIDIA limit the frame rate.
+            {
+                fpsMax = 0.0f;
+            }
+        }
 
         NV_SET_SLEEP_MODE_PARAMS_V1 params = {};
         params.version = NV_SET_SLEEP_MODE_PARAMS_VER1;

@@ -21,8 +21,11 @@ ConVar* debug_draw_box_depth_test          = nullptr;
 
 ConVar* developer                          = nullptr;
 ConVar* fps_max                            = nullptr;
+ConVar* fps_max_vsync                      = nullptr;
 
 #ifndef DEDICATED
+ConVar* fps_max_rt                         = nullptr;
+ConVar* fps_max_rt_tolerance               = nullptr;
 ConVar* fps_max_gfx                        = nullptr;
 #endif // !DEDICATED
 
@@ -308,7 +311,9 @@ void ConVar_StaticInit(void)
 	r_drawWorldMeshesDepthAtTheEnd = ConVar::StaticCreate("r_drawWorldMeshesDepthAtTheEnd", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes (depth at the end).", false, 0.f, false, 0.f, nullptr, nullptr);
 
 #ifndef DEDICATED
-	fps_max_gfx = ConVar::StaticCreate("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK.", true, 0.f, false, 0.f, nullptr, nullptr);
+	fps_max_rt  = ConVar::StaticCreate("fps_max_rt", "0", FCVAR_RELEASE, "Frame rate limiter within the render thread. -1 indicates use the desktop refresh. 0 is unlocked.", true, -1.f, false, 0.f, nullptr, nullptr);
+	fps_max_rt_tolerance = ConVar::StaticCreate("fps_max_rt_tolerance", "0.25", FCVAR_RELEASE, "Maximum amount of frame time before frame limiter restarts.", true, 0.f, false, 0.f, nullptr, nullptr);
+	fps_max_gfx = ConVar::StaticCreate("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates use the desktop refresh. 0 is unlocked.", true, -1.f, false, 0.f, nullptr, nullptr);
 	gfx_nvnUseLowLatency      = ConVar::StaticCreate("gfx_nvnUseLowLatency"     , "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK."  , false, 0.f, false, 0.f, nullptr, nullptr);
 	gfx_nvnUseLowLatencyBoost = ConVar::StaticCreate("gfx_nvnUseLowLatencyBoost", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
@@ -495,6 +500,7 @@ void ConVar_InitShipped(void)
 #endif // !CLIENT_DLL
 	developer                        = g_pCVar->FindVar("developer");
 	fps_max                          = g_pCVar->FindVar("fps_max");
+	fps_max_vsync                    = g_pCVar->FindVar("fps_max_vsync");
 	base_tickinterval_sp             = g_pCVar->FindVar("base_tickinterval_sp");
 	base_tickinterval_mp             = g_pCVar->FindVar("base_tickinterval_mp");
 	fs_showAllReads                  = g_pCVar->FindVar("fs_showAllReads");
@@ -579,6 +585,7 @@ void ConVar_InitShipped(void)
 	origin_disconnectWhenOffline->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	discord_updatePresence->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #endif // !DEDICATED
+	fps_max_vsync->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
 	base_tickinterval_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	base_tickinterval_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
