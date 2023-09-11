@@ -76,6 +76,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "filesystem"
     "datacache"
     "EbisuSDK"
+    "GFSDK"
 
     "localize"
 

@@ -15,6 +15,7 @@ add_subdirectory( vstdlib )
 add_subdirectory( vphysics )
 add_subdirectory( ebisusdk )
 add_subdirectory( codecs )
+add_subdirectory( geforce )
 
 set( FOLDER_CONTEXT "Protocols" )
 add_subdirectory( protoc )

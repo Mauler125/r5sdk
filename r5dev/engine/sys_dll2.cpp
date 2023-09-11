@@ -19,6 +19,7 @@
 #include "engine/sys_mainwind.h"
 #include "windows/id3dx.h"
 #include "client/vengineclient_impl.h"
+#include "geforce/reflex.h"
 #endif // !DEDICATED
 #include "rtech/rtech_utils.h"
 #include "filesystem/filesystem.h"
@@ -191,22 +192,7 @@ bool CEngineAPI::MainLoop()
                 fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
         }
 
-        NV_SET_SLEEP_MODE_PARAMS_V1 params = {};
-        params.version = NV_SET_SLEEP_MODE_PARAMS_VER1;
-
-        params.bLowLatencyMode = bUseLowLatencyMode;
-        params.bLowLatencyBoost = bUseLowLatencyMode && bUseLowLatencyBoost;
-        params.minimumIntervalUs = fpsMax > 0 ? (NvU32)((1000.0f / fpsMax) * 1000.0f) : 0;
-        params.bUseMarkersToOptimize = false;
-
-        ID3D11Device* pGameDevice = D3D11Device();
-        Assert(pGameDevice);
-
-        NvAPI_Status status = NvAPI_D3D_SetSleepMode(pGameDevice, &params);
-
-        if (status == NVAPI_OK)
-            NvAPI_D3D_Sleep(pGameDevice);
-
+        GFX_RunLowLatencySDK(D3D11Device(), bUseLowLatencyMode, bUseLowLatencyBoost, fpsMax);
         CEngineAPI_PumpMessages();
 #endif // !DEDICATED
 
