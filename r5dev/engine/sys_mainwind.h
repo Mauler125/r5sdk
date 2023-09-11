@@ -30,6 +30,8 @@ public:
 	inline int GetDesktopWidth() const { return m_iDesktopWidth; }
 	inline int GetDesktopHeight() const { return m_iDesktopHeight; }
 	inline int GetDesktopRefreshRate() const { return m_iDesktopRefreshRate; }
+	inline float GetTVRefreshRate() const // Avoid stutter on TV's running on broadcast frame rates.
+	{ return ((float)m_iDesktopRefreshRate == 59.0f || (float)m_iDesktopRefreshRate == 60.0f) ? 59.939999f : (float)m_iDesktopRefreshRate; }
 
 private:
 	HWND m_hWindow;

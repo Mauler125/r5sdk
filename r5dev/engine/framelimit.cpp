@@ -83,16 +83,7 @@ void CFrameLimit::Run(void)
 	// the desktop's refresh rate; not adhering to
 	// this will result in a major performance drop.
 	if (globalFps == 0.0f && targetFps == -1)
-	{
-		float desktopRefreshRate = (float)g_pGame->GetDesktopRefreshRate();
-
-		//if (dekstopRefreshRate == 59.0f || dekstopRefreshRate == 60.0f)
-		//{
-		//	desktopRefreshRate = 59.939999f;
-		//}
-
-		targetFps = desktopRefreshRate;
-	}
+		targetFps = g_pGame->GetTVRefreshRate();
 
 	if (m_FramesPerSecond != targetFps)
 		Reset(targetFps);

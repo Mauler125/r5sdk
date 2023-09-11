@@ -186,13 +186,9 @@ bool CEngineAPI::MainLoop()
             // the desktop's refresh rate; not adhering to
             // this will result in a major performance drop.
             if (globalFps == 0.0f)
-            {
-                fpsMax = (float)g_pGame->GetDesktopRefreshRate();
-            }
-            else // Don't let NVIDIA limit the frame rate.
-            {
-                fpsMax = 0.0f;
-            }
+                fpsMax = g_pGame->GetTVRefreshRate();
+            else
+                fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
         }
 
         NV_SET_SLEEP_MODE_PARAMS_V1 params = {};
