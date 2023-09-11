@@ -9,13 +9,15 @@
 
 //-----------------------------------------------------------------------------
 // Purpose: runs the low latency sdk
-// Input  : device             - 
-//          useLowLatencyMode  - 
-//          useLowLatencyBoost - 
-//          maxFramesPerSecond -
+// Input  : *device              - 
+//          useLowLatencyMode    - 
+//          useLowLatencyBoost   - 
+//          useMarkersToOptimize - 
+//          maxFramesPerSecond   - 
 //-----------------------------------------------------------------------------
 void GFX_RunLowLatencySDK(IUnknown* device, const bool useLowLatencyMode,
-	const bool useLowLatencyBoost, const float maxFramesPerSecond)
+	const bool useLowLatencyBoost, const bool useMarkersToOptimize,
+	const float maxFramesPerSecond)
 {
 	Assert(device);
 	Assert(IsFinite(maxFramesPerSecond));
@@ -28,7 +30,7 @@ void GFX_RunLowLatencySDK(IUnknown* device, const bool useLowLatencyMode,
 	params.minimumIntervalUs = maxFramesPerSecond > 0
 		? (NvU32)((1000.0f / maxFramesPerSecond) * 1000.0f)
 		: 0;
-	params.bUseMarkersToOptimize = false;
+	params.bUseMarkersToOptimize = useMarkersToOptimize;
 
 	NvAPI_Status status = NvAPI_D3D_SetSleepMode(device, &params);
 

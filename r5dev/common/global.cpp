@@ -74,6 +74,7 @@ ConVar* r_visualizetraces_duration         = nullptr;
 
 ConVar* gfx_nvnUseLowLatency               = nullptr;
 ConVar* gfx_nvnUseLowLatencyBoost          = nullptr;
+ConVar* gfx_nvnUseMarkersToOptimize        = nullptr;
 #endif // !DEDICATED
 
 ConVar* stream_overlay                     = nullptr;
@@ -316,6 +317,7 @@ void ConVar_StaticInit(void)
 	fps_max_gfx = ConVar::StaticCreate("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates use the desktop refresh. 0 is disabled.", true, -1.f, false, 0.f, nullptr, nullptr);
 	gfx_nvnUseLowLatency      = ConVar::StaticCreate("gfx_nvnUseLowLatency"     , "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK."  , false, 0.f, false, 0.f, nullptr, nullptr);
 	gfx_nvnUseLowLatencyBoost = ConVar::StaticCreate("gfx_nvnUseLowLatencyBoost", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", false, 0.f, false, 0.f, nullptr, nullptr);
+	gfx_nvnUseMarkersToOptimize = ConVar::StaticCreate("gfx_nvnUseMarkersToOptimize", "0", FCVAR_DEVELOPMENTONLY /*!!! MAKE RELEASE ONCE IMPLEMENTED !!!*/ | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Timing.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 
 	//-------------------------------------------------------------------------

@@ -175,6 +175,7 @@ bool CEngineAPI::MainLoop()
 #ifndef DEDICATED
         const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
         const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
+        const bool bUseLowLatencyTiming = gfx_nvnUseMarkersToOptimize->GetBool();
 
         float fpsMax = fps_max_gfx->GetFloat();
 
@@ -192,7 +193,8 @@ bool CEngineAPI::MainLoop()
                 fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
         }
 
-        GFX_RunLowLatencySDK(D3D11Device(), bUseLowLatencyMode, bUseLowLatencyBoost, fpsMax);
+        GFX_RunLowLatencySDK(D3D11Device(), bUseLowLatencyMode,
+            bUseLowLatencyBoost, bUseLowLatencyTiming, fpsMax);
         CEngineAPI_PumpMessages();
 #endif // !DEDICATED
 

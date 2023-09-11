@@ -65,6 +65,7 @@ extern ConVar* r_visualizetraces_duration;
 
 extern ConVar* gfx_nvnUseLowLatency;
 extern ConVar* gfx_nvnUseLowLatencyBoost;
+extern ConVar* gfx_nvnUseMarkersToOptimize;
 #endif // !DEDICATED
 
 extern ConVar* stream_overlay;
