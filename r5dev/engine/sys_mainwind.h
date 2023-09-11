@@ -5,7 +5,6 @@
 //===========================================================================//
 #ifndef SYS_MAINWIND_H
 #define SYS_MAINWIND_H
-#include "public/igame.h"
 
 inline CMemory p_CGame__AttachToWindow;
 inline void (*v_CGame__AttachToWindow)(void);
@@ -18,14 +17,38 @@ inline int(*v_CGame__WindowProc)(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 //-----------------------------------------------------------------------------
 // Purpose: Main game interface, including message pump and window creation
 //-----------------------------------------------------------------------------
-class CGame : public IGame
+class CGame
 {
 public:
 	static void PlayStartupVideos(void);
 	static int WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-};
 
-inline HWND* g_pGameWindow = nullptr;
+
+	inline HWND GetWindow() const { return m_hWindow; }
+	void GetWindowRect(int* x, int* y, int* w, int* h);
+
+	inline int GetDesktopWidth() const { return m_iDesktopWidth; }
+	inline int GetDesktopHeight() const { return m_iDesktopHeight; }
+	inline int GetDesktopRefreshRate() const { return m_iDesktopRefreshRate; }
+
+private:
+	HWND m_hWindow;
+	HINSTANCE m_hInstance;
+	WNDPROC m_ChainedWindowProc;
+	int m_x;
+	int m_y;
+	int m_width;
+	int m_height;
+	bool m_bUnk0;
+	bool m_bUnk1;
+	bool m_bExternallySuppliedWindow;
+	int m_iDesktopWidth;
+	int m_iDesktopHeight;
+	int m_iDesktopRefreshRate;
+	void* m_pInputContext_Maybe;
+}; static_assert(sizeof(CGame) == 64);
+
+inline CGame* g_pGame = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VGame : public IDetour
@@ -34,7 +57,7 @@ class VGame : public IDetour
 	{
 		LogFunAdr("CGame::AttachToWindow", p_CGame__AttachToWindow.GetPtr());
 		LogFunAdr("CGame::PlayStartupVideos", p_CGame__PlayStartupVideos.GetPtr());
-		LogVarAdr("g_GameWindow", reinterpret_cast<uintptr_t>(g_pGameWindow));
+		LogVarAdr("g_Game", reinterpret_cast<uintptr_t>(g_pGame));
 	}
 	virtual void GetFun(void) const
 	{
@@ -54,7 +77,7 @@ class VGame : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pGameWindow = p_CGame__AttachToWindow.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<HWND*>();
+		g_pGame = p_CGame__AttachToWindow.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGame*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;

@@ -94,6 +94,29 @@ int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return v_CGame__WindowProc(hWnd, uMsg, wParam, lParam);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: gets the window rect
+//-----------------------------------------------------------------------------
+void CGame::GetWindowRect(int* x, int* y, int* w, int* h)
+{
+	if (x)
+	{
+		*x = m_x;
+	}
+	if (y)
+	{
+		*y = m_y;
+	}
+	if (w)
+	{
+		*w = m_width;
+	}
+	if (h)
+	{
+		*h = m_height;
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void VGame::Attach() const
 {

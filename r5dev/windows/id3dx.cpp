@@ -86,10 +86,10 @@ void ImGui_Init()
 	ImGui::CreateContext();
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.ImeWindowHandle = *g_pGameWindow;
+	io.ImeWindowHandle = g_pGame->GetWindow();
 	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
 
-	ImGui_ImplWin32_Init(*g_pGameWindow);
+	ImGui_ImplWin32_Init(g_pGame->GetWindow());
 	ImGui_ImplDX11_Init(D3D11Device(), D3D11DeviceContext());
 }
 
@@ -141,7 +141,8 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 	DrawImGui();
 	///////////////////////////////////////////////////////////////////////////////
-	return s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+	HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+	return result;
 }
 
 HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
