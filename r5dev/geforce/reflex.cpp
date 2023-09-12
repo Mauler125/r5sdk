@@ -16,7 +16,8 @@ bool s_ReflexModeInfoUpToDate = false;
 NvAPI_Status s_ReflexModeUpdateStatus = NvAPI_Status::NVAPI_OK;
 
 // Static frame number counter for latency markers.
-int s_ReflexFrameNumber = -1;
+int s_ReflexFrameNumber = 0;
+int s_ReflexLastFrameNumber = 0;
 
 //-----------------------------------------------------------------------------
 // Purpose: mark the parameters as out-of-date; force update next frame
@@ -105,10 +106,15 @@ void GFX_UpdateLowLatencyParameters(IUnknown* device, const bool useLowLatencyMo
 //-----------------------------------------------------------------------------
 void GFX_RunLowLatencyFrame(IUnknown* device)
 {
-	GFX_IncrementFrameNumber();
+	int currentFrameNumber = GFX_GetFrameNumber();
+
+	if (s_ReflexLastFrameNumber == currentFrameNumber)
+		return;
 
 	if (GFX_ParameterUpdateWasSuccessful())
 		NvAPI_D3D_Sleep(device);
+
+	s_ReflexLastFrameNumber = currentFrameNumber;
 }
 
 //-----------------------------------------------------------------------------

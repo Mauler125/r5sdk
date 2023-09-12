@@ -232,7 +232,13 @@ bool CEngineAPI::MainLoop()
         CEngineAPI::PumpMessages();
 #endif // !DEDICATED
 
-        g_pEngine->Frame();
+        if (g_pEngine->Frame())
+        {
+#ifndef DEDICATED
+            // Only increment frame number if we ran an actual engine frame.
+            GFX_IncrementFrameNumber();
+#endif // !DEDICATED
+        }
     }
 }
 
