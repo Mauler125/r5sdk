@@ -202,28 +202,33 @@ bool CEngineAPI::MainLoop()
         }
 
 #ifndef DEDICATED
-        const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
-        const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
-        const bool bUseLowLatencyTiming = gfx_nvnUseMarkersToOptimize->GetBool();
-
-        float fpsMax = fps_max_gfx->GetFloat();
-
-        if (fpsMax == -1.0f)
+        if (GFX_HasPendingLowLatencyParameterUpdates())
         {
-            const float globalFps = fps_max->GetFloat();
+            const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
+            const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
+            const bool bUseLowLatencyTiming = gfx_nvnUseMarkersToOptimize->GetBool();
 
-            // Make sure the global fps limiter is 'unlimited'
-            // before we let the gfx frame limiter cap it to
-            // the desktop's refresh rate; not adhering to
-            // this will result in a major performance drop.
-            if (globalFps == 0.0f)
-                fpsMax = g_pGame->GetTVRefreshRate();
-            else
-                fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
+            float fpsMax = fps_max_gfx->GetFloat();
+
+            if (fpsMax == -1.0f)
+            {
+                const float globalFps = fps_max->GetFloat();
+
+                // Make sure the global fps limiter is 'unlimited'
+                // before we let the gfx frame limiter cap it to
+                // the desktop's refresh rate; not adhering to
+                // this will result in a major performance drop.
+                if (globalFps == 0.0f)
+                    fpsMax = g_pGame->GetTVRefreshRate();
+                else
+                    fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
+            }
+
+            GFX_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
+                bUseLowLatencyBoost, bUseLowLatencyTiming, fpsMax);
         }
 
-        GFX_RunLowLatencyFrame(D3D11Device(), bUseLowLatencyMode,
-            bUseLowLatencyBoost, bUseLowLatencyTiming, fpsMax);
+        GFX_RunLowLatencyFrame(D3D11Device());
         CEngineAPI::PumpMessages();
 #endif // !DEDICATED
 

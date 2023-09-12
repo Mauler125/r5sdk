@@ -51,6 +51,8 @@ void CON_ClearHistory_f(const CCommand& args);
 void RCON_CmdQuery_f(const CCommand& args);
 void RCON_Disconnect_f(const CCommand& args);
 void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
+
+void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 #endif // !DEDICATED
 void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);

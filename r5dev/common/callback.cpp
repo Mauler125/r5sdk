@@ -32,6 +32,7 @@
 #include "vscript/vscript.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
+#include "geforce/reflex.h"
 #include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
@@ -1005,6 +1006,19 @@ RCON_SendLogs_f
 void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
 	RCONClient()->RequestConsoleLog(RCONClient()->ShouldReceive());
+}
+
+/*
+=====================
+GFX_NVN_Changed_f
+
+  force update NVIDIA Reflex
+  Low Latency parameters
+=====================
+*/
+void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	GFX_MarkLowLatencyParametersOutOfDate();
 }
 #endif // !DEDICATED
 
