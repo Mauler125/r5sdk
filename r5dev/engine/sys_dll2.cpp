@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -158,6 +158,17 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CEngineAPI::PumpMessages()
+{
+#ifndef DEDICATED
+    GFX_SetLatencyMarker(D3D11Device(), PC_LATENCY_PING);
+    CEngineAPI_PumpMessages();
+#endif // !DEDICATED
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 bool CEngineAPI::MainLoop()
 {
     // Main message pump
@@ -193,9 +204,9 @@ bool CEngineAPI::MainLoop()
                 fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
         }
 
-        GFX_RunLowLatencySDK(D3D11Device(), bUseLowLatencyMode,
+        GFX_RunLowLatencyFrame(D3D11Device(), bUseLowLatencyMode,
             bUseLowLatencyBoost, bUseLowLatencyTiming, fpsMax);
-        CEngineAPI_PumpMessages();
+        CEngineAPI::PumpMessages();
 #endif // !DEDICATED
 
         g_pEngine->Frame();

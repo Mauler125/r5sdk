@@ -34,6 +34,7 @@ public:
 	static bool VModInit(CEngineAPI* pEngineAPI, const char* pModName, const char* pGameDir);
 	static void VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo);
 
+	static void PumpMessages();
 	static bool MainLoop();
 //private:
 	void* m_hEditorHWnd;

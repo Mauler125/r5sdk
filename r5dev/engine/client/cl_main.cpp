@@ -10,14 +10,21 @@
 #include "cl_main.h"
 #include "engine/net.h"
 #include "cdll_engine_int.h"
+#include "windows/id3dx.h"
+#include "geforce/reflex.h"
 
 static float s_lastMovementCall = 0.0;
 static float s_LastFrameTime = 0.0;
 
+// The game supports sending multiple movement frames in a single simulation
+// frame, therefore, we need to track when the last call was, and make sure
+// we only call the latency marker once per frame.
+static int s_LastMovementReflexFrame = -1;
+
 //-----------------------------------------------------------------------------
 // Purpose: run client's movement frame
 //-----------------------------------------------------------------------------
-void H_CL_Move()
+void CL_MoveEx()
 {
 	CClientState* cl = GetBaseLocalClient();
 
@@ -137,6 +144,24 @@ void H_CL_Move()
 
 		cl->m_flNextCmdTime = double(minFrameTime + netTime - maxDelta);
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: hook and run latency markers before simulation
+//-----------------------------------------------------------------------------
+void H_CL_Move()
+{
+	int currentReflexFrame = GFX_GetFrameNumber();
+
+	if (currentReflexFrame != s_LastMovementReflexFrame)
+		GFX_SetLatencyMarker(D3D11Device(), SIMULATION_START);
+
+	CL_MoveEx();
+
+	if (currentReflexFrame != s_LastMovementReflexFrame)
+		GFX_SetLatencyMarker(D3D11Device(), SIMULATION_END);
+
+	s_LastMovementReflexFrame = currentReflexFrame;
 }
 
 void VCL_Main::Attach() const
