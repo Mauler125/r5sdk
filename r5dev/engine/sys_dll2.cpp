@@ -161,7 +161,25 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
 void CEngineAPI::PumpMessages()
 {
 #ifndef DEDICATED
-    GFX_SetLatencyMarker(D3D11Device(), PC_LATENCY_PING);
+    // Message pump partially rebuild from the engine, this has to be done here
+    // as we need to call the LATENCY_PING marker once we wee a message.
+    MSG msg;
+    bool ping = false;
+
+    while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+        TranslateMessage(&msg);
+        DispatchMessageW(&msg);
+
+        if (!ping)
+            ping = true;
+    }
+
+    if (ping)
+        GFX_SetLatencyMarker(D3D11Device(), PC_LATENCY_PING);
+
+    // Run original, note that the message peek logic has been moved to this
+    // function!!!
     CEngineAPI_PumpMessages();
 #endif // !DEDICATED
 }
@@ -218,6 +236,7 @@ void VSys_Dll2::Attach() const
 {
 	DetourAttach(&CEngineAPI_Init, &CEngineAPI::VInit);
 	DetourAttach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
+	DetourAttach(&CEngineAPI_PumpMessages, &CEngineAPI::PumpMessages);
 	DetourAttach(&CEngineAPI_MainLoop, &CEngineAPI::MainLoop);
 	DetourAttach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }
@@ -226,6 +245,7 @@ void VSys_Dll2::Detach() const
 {
 	DetourDetach(&CEngineAPI_Init, &CEngineAPI::VInit);
 	DetourDetach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
+	DetourDetach(&CEngineAPI_PumpMessages, &CEngineAPI::PumpMessages);
 	DetourDetach(&CEngineAPI_MainLoop, &CEngineAPI::MainLoop);
 	DetourDetach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }
