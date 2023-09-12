@@ -16,9 +16,9 @@
 static float s_lastMovementCall = 0.0;
 static float s_LastFrameTime = 0.0;
 
-// The game supports sending multiple movement frames in a single simulation
-// tick, therefore, we need to track when the last call was, and make sure
-// we only call the latency marker once per frame.
+// The game supports sending multiple movement frames per simulation tick,
+// therefore we need to track when the last call was, and make sure we only
+// call these latency markers once per engine frame.
 static int s_LastMovementReflexFrame = -1;
 
 //-----------------------------------------------------------------------------
