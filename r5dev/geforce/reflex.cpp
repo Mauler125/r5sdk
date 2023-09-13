@@ -16,8 +16,8 @@ bool s_ReflexModeInfoUpToDate = false;
 NvAPI_Status s_ReflexModeUpdateStatus = NvAPI_Status::NVAPI_OK;
 
 // Static frame number counter for latency markers.
-int s_ReflexFrameNumber = 0;
-int s_ReflexLastFrameNumber = 0;
+NvU64 s_ReflexFrameNumber = 0;
+NvU64 s_ReflexLastFrameNumber = 0;
 
 //-----------------------------------------------------------------------------
 // Purpose: mark the parameters as out-of-date; force update next frame
@@ -55,7 +55,7 @@ bool GFX_ParameterUpdateWasSuccessful(void)
 // Purpose: gets the reflex frame number
 // Output : int
 //-----------------------------------------------------------------------------
-int GFX_GetFrameNumber(void)
+NvU64 GFX_GetFrameNumber(void)
 {
 	return s_ReflexFrameNumber;
 }
@@ -65,10 +65,7 @@ int GFX_GetFrameNumber(void)
 //-----------------------------------------------------------------------------
 void GFX_IncrementFrameNumber(void)
 {
-	// Start over again to make sure this never overflows. Each frame number
-	// within the last 1000 must be unique, so its safe to reset after 4000.
-	if (++s_ReflexFrameNumber >= GFX_NVN_MAX_FRAME_COUNT)
-		s_ReflexFrameNumber = 0;
+	++s_ReflexFrameNumber;
 }
 
 //-----------------------------------------------------------------------------
@@ -106,7 +103,7 @@ void GFX_UpdateLowLatencyParameters(IUnknown* device, const bool useLowLatencyMo
 //-----------------------------------------------------------------------------
 void GFX_RunLowLatencyFrame(IUnknown* device)
 {
-	int currentFrameNumber = GFX_GetFrameNumber();
+	NvU64 currentFrameNumber = GFX_GetFrameNumber();
 
 	if (s_ReflexLastFrameNumber == currentFrameNumber)
 		return;

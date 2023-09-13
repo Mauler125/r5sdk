@@ -4,7 +4,7 @@
 void GFX_MarkLowLatencyParametersOutOfDate(void);
 bool GFX_HasPendingLowLatencyParameterUpdates(void);
 
-int GFX_GetFrameNumber(void);
+NvU64 GFX_GetFrameNumber(void);
 void GFX_IncrementFrameNumber(void);
 
 void GFX_UpdateLowLatencyParameters(IUnknown* device, const bool useLowLatencyMode,
