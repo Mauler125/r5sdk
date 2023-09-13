@@ -229,6 +229,7 @@ ConVar* con_suggest_showflags           = nullptr;
 ConVar* origin_disconnectWhenOffline       = nullptr;
 ConVar* discord_updatePresence = nullptr;
 
+ConVar* settings_reflex = nullptr;
 ConVar* serverbrowser_hideEmptyServers = nullptr;
 ConVar* serverbrowser_mapFilter = nullptr;
 ConVar* serverbrowser_gamemodeFilter = nullptr;
@@ -435,6 +436,7 @@ void ConVar_StaticInit(void)
 	con_suggest_showhelptext = ConVar::StaticCreate("con_suggest_showhelptext"  , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggest_showflags    = ConVar::StaticCreate("con_suggest_showflags"     , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
 
+	settings_reflex                = ConVar::StaticCreate("settings_reflex", "1", FCVAR_RELEASE, "Selected NVIDIA Reflex mode.", false, 0.f, false, 0.f, nullptr, "0 = Off. 1 = On. 2 = On + Boost.");
 	serverbrowser_hideEmptyServers = ConVar::StaticCreate("serverbrowser_hideEmptyServers", "0", FCVAR_RELEASE, "Hide empty servers in the server browser.", false, 0.f, false, 0.f, nullptr, nullptr);
 	serverbrowser_mapFilter        = ConVar::StaticCreate("serverbrowser_mapFilter", "0", FCVAR_RELEASE, "Filter servers by map in the server browser.", false, 0.f, false, 0.f, nullptr, nullptr);
 	serverbrowser_gamemodeFilter   = ConVar::StaticCreate("serverbrowser_gamemodeFilter", "0", FCVAR_RELEASE, "Filter servers by gamemode in the server browser.", false, 0.f, false, 0.f, nullptr, nullptr);
