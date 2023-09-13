@@ -23,15 +23,7 @@
 //-----------------------------------------------------------------------------
 void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameStage)
 {
-	// Must be performed before the call, before scene starts rendering.
-	if (frameStage == ClientFrameStage_t::FRAME_RENDER_START)
-		GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_START);
-
 	CHLClient_FrameStageNotify(pHLClient, frameStage);
-
-	// Must be performed after the call, after the scene has been rendered.
-	if (frameStage == ClientFrameStage_t::FRAME_RENDER_END)
-		GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_END);
 }
 
 //-----------------------------------------------------------------------------

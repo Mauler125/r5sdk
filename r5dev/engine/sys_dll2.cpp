@@ -161,25 +161,6 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
 void CEngineAPI::PumpMessages()
 {
 #ifndef DEDICATED
-    // Message pump partially rebuild from the engine, this has to be done here
-    // as we need to call the LATENCY_PING marker once we wee a message.
-    MSG msg;
-    bool ping = false;
-
-    while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
-    {
-        TranslateMessage(&msg);
-        DispatchMessageW(&msg);
-
-        if (!ping)
-            ping = true;
-    }
-
-    if (ping)
-        GFX_SetLatencyMarker(D3D11Device(), PC_LATENCY_PING);
-
-    // Run original, note that the message peek logic has been moved to this
-    // function!!!
     CEngineAPI_PumpMessages();
 #endif // !DEDICATED
 }
@@ -206,7 +187,6 @@ bool CEngineAPI::MainLoop()
         {
             const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
             const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
-            const bool bUseLowLatencyTiming = gfx_nvnUseMarkersToOptimize->GetBool();
 
             float fpsMax = fps_max_gfx->GetFloat();
 
@@ -225,7 +205,7 @@ bool CEngineAPI::MainLoop()
             }
 
             GFX_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
-                bUseLowLatencyBoost, bUseLowLatencyTiming, fpsMax);
+                bUseLowLatencyBoost, false, fpsMax);
         }
 
         GFX_RunLowLatencyFrame(D3D11Device());

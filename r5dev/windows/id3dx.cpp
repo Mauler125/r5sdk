@@ -145,12 +145,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	DrawImGui();
 	///////////////////////////////////////////////////////////////////////////////
 
-	// TODO[ AMOS ]: Profile performance by placing the marker before and after the
-	// frame limit call!!!
-	GFX_SetLatencyMarker(D3D11Device(), PRESENT_START);
 	HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
-
-	GFX_SetLatencyMarker(D3D11Device(), PRESENT_END);
 	return result;
 }
 

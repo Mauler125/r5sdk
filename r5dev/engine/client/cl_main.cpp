@@ -16,11 +16,6 @@
 static float s_lastMovementCall = 0.0;
 static float s_LastFrameTime = 0.0;
 
-// The game supports sending multiple movement frames per simulation tick,
-// therefore we need to track when the last call was, and make sure we only
-// call these latency markers once per engine frame.
-static int s_LastMovementReflexFrame = -1;
-
 //-----------------------------------------------------------------------------
 // Purpose: run client's movement frame
 //-----------------------------------------------------------------------------
@@ -146,30 +141,12 @@ void CL_MoveEx()
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: hook and run latency markers before simulation
-//-----------------------------------------------------------------------------
-void H_CL_Move()
-{
-	int currentReflexFrame = GFX_GetFrameNumber();
-
-	if (currentReflexFrame != s_LastMovementReflexFrame)
-		GFX_SetLatencyMarker(D3D11Device(), SIMULATION_START);
-
-	CL_MoveEx();
-
-	if (currentReflexFrame != s_LastMovementReflexFrame)
-		GFX_SetLatencyMarker(D3D11Device(), SIMULATION_END);
-
-	s_LastMovementReflexFrame = currentReflexFrame;
-}
-
 void VCL_Main::Attach() const
 {
-	DetourAttach(&CL_Move, &H_CL_Move);
+	DetourAttach(&CL_Move, &CL_MoveEx);
 }
 
 void VCL_Main::Detach() const
 {
-	DetourDetach(&CL_Move, &H_CL_Move);
+	DetourDetach(&CL_Move, &CL_MoveEx);
 }
