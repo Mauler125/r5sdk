@@ -45,7 +45,7 @@ public:
 	virtual void	SetNextState(EngineState_t iNextState) = 0;
 	virtual EngineState_t GetState(void) = 0;
 
-	virtual void	Frame(void) = 0;
+	virtual bool	Frame(void) = 0; // Returns true if an engine frame is being ran.
 	virtual float	GetFrameTime(void) = 0;
 	virtual float GetPreviousTime(void) = 0;
 

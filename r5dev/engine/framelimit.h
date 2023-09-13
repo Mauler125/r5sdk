@@ -11,7 +11,6 @@ public:
 
 	void Reset(double target);
 	void Run(void);
-	bool WaitForVBlank(void);
 
 private:
 	double m_MilliSeconds;

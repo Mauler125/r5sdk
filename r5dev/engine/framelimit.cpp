@@ -46,27 +46,6 @@ void CFrameLimit::Reset(double targetFps)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: halts the thread until the next vertical blank occurs
-// Output : true on success, false otherwise
-//-----------------------------------------------------------------------------
-bool CFrameLimit::WaitForVBlank(void)
-{
-	IDXGIOutput* dxgiOutput;
-	IDXGISwapChain* swapChain = D3D11SwapChain();
-
-	if (swapChain != nullptr &&
-		SUCCEEDED(swapChain->GetContainingOutput(&dxgiOutput)))
-	{
-		DwmFlush();
-		dxgiOutput->WaitForVBlank();
-
-		return true;
-	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: runs the frame limiter logic
 //-----------------------------------------------------------------------------
 void CFrameLimit::Run(void)
@@ -113,23 +92,19 @@ void CFrameLimit::Run(void)
 		//return;
 	}
 
-	ID3D11Device* pDevice = D3D11Device();
 	m_Next.QuadPart = (LONGLONG)((m_Start.QuadPart + (double)m_Frames * (m_MilliSeconds / 1000.0) * (double)g_pPerformanceFrequency->QuadPart));
 
 	if (m_Next.QuadPart > 0ULL)
 	{
 		while (m_Time.QuadPart < m_Next.QuadPart)
 		{
-			if ((double)(m_Next.QuadPart - m_Time.QuadPart) > (0.016666666667 * (double)g_pPerformanceFrequency->QuadPart))
+			if ((double)(m_Next.QuadPart - m_Time.QuadPart) > (0.0166667 * (double)g_pPerformanceFrequency->QuadPart))
 			{
-				WaitForVBlank();
+				Sleep(10);
 			}
 
 			QueryPerformanceCounter(&m_Time);
 		}
-
-		if (pDevice != nullptr)
-			D3D11Device()->Release();
 	}
 
 	//m_Last.QuadPart = m_Time.QuadPart;

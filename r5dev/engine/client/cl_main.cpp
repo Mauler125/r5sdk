@@ -10,6 +10,8 @@
 #include "cl_main.h"
 #include "engine/net.h"
 #include "cdll_engine_int.h"
+#include "windows/id3dx.h"
+#include "geforce/reflex.h"
 
 static float s_lastMovementCall = 0.0;
 static float s_LastFrameTime = 0.0;
@@ -17,7 +19,7 @@ static float s_LastFrameTime = 0.0;
 //-----------------------------------------------------------------------------
 // Purpose: run client's movement frame
 //-----------------------------------------------------------------------------
-void H_CL_Move()
+void CL_MoveEx()
 {
 	CClientState* cl = GetBaseLocalClient();
 
@@ -141,10 +143,10 @@ void H_CL_Move()
 
 void VCL_Main::Attach() const
 {
-	DetourAttach(&CL_Move, &H_CL_Move);
+	DetourAttach(&CL_Move, &CL_MoveEx);
 }
 
 void VCL_Main::Detach() const
 {
-	DetourDetach(&CL_Move, &H_CL_Move);
+	DetourDetach(&CL_Move, &CL_MoveEx);
 }

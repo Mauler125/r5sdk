@@ -6,6 +6,7 @@
 #include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/input.h"
+#include "geforce/reflex.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
 #include "engine/framelimit.h"
@@ -143,6 +144,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	g_FrameLimiter.Run();
 	DrawImGui();
 	///////////////////////////////////////////////////////////////////////////////
+
 	HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 	return result;
 }

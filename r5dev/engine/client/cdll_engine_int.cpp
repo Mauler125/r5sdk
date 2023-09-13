@@ -11,6 +11,8 @@
 #include "engine/client/cl_rcon.h"
 #include "networksystem/bansystem.h"
 #include "vpc/keyvalues.h"
+#include "windows/id3dx.h"
+#include "geforce/reflex.h"
 #include "vengineclient_impl.h"
 #include "cdll_engine_int.h"
 /*****************************************************************************/
