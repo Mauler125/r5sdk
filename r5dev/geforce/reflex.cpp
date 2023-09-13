@@ -6,8 +6,6 @@
 #include "reflex.h"
 #include "mathlib/mathlib.h"
 
-#define GFX_NVN_MAX_FRAME_COUNT 4000
-
 // If false, the system will call 'NvAPI_D3D_SetSleepMode' to update the parameters.
 bool s_ReflexModeInfoUpToDate = false;
 
