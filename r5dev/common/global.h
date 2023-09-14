@@ -17,6 +17,7 @@ extern ConVar* fps_max_vsync;
 #ifndef DEDICATED
 extern ConVar* fps_max_rt;
 extern ConVar* fps_max_rt_tolerance;
+extern ConVar* fps_max_rt_sleep_threshold;
 extern ConVar* fps_max_gfx;
 #endif // !DEDICATED
 

@@ -98,7 +98,7 @@ void CFrameLimit::Run(void)
 	{
 		while (m_Time.QuadPart < m_Next.QuadPart)
 		{
-			if ((double)(m_Next.QuadPart - m_Time.QuadPart) > (0.0166667 * (double)g_pPerformanceFrequency->QuadPart))
+			if ((double)(m_Next.QuadPart - m_Time.QuadPart) > (fps_max_rt_sleep_threshold->GetFloat() * (double)g_pPerformanceFrequency->QuadPart))
 			{
 				Sleep(10);
 			}
