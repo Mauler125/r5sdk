@@ -51,6 +51,7 @@
 #include "public/bspflags.h"
 #include "public/cmodel.h"
 #include "public/idebugoverlay.h"
+#include "public/localize/ilocalize.h"
 #ifndef CLIENT_DLL
 #include "game/server/detour_impl.h"
 #include "game/server/gameinterface.h"
@@ -1022,26 +1023,11 @@ void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValu
 }
 #endif // !DEDICATED
 
-
-static const char* s_LanguageNames[] = {
-	"english",
-	"french",
-	"german",
-	"italian",
-	"japanese",
-	"polish",
-	"russian",
-	"spanish",
-	"schinese",
-	"tchinese",
-	"korean"
-};
-
 static bool IsValidTextLanguage(const char* pLocaleName)
 {
-	for (int i = 0; i < SDK_ARRAYSIZE(s_LanguageNames); ++i)
+	for (int i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); ++i)
 	{
-		if (strcmp(pLocaleName, s_LanguageNames[i]) == NULL)
+		if (strcmp(pLocaleName, g_LanguageNames[i]) == NULL)
 			return true;
 	}
 

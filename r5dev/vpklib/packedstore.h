@@ -29,20 +29,6 @@ static const char* const DIR_TARGET[]
 	"server",
 	"client"
 };
-static const char* const DIR_LOCALE[]
-{
-	"english",
-	"french",
-	"german",
-	"italian",
-	"japanese",
-	"korean",
-	"polish",
-	"portuguese",
-	"russian",
-	"spanish",
-	"tchinese"
-};
 
 //-----------------------------------------------------------------------------
 // KeyValues structure for the VPK manifest file. This struct gets populated by

@@ -8,4 +8,8 @@ add_sources( SOURCE_GROUP "Runtime"
     "localize.h"
 )
 
+add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/localize/ilocalize.h"
+)
+
 end_sources()
