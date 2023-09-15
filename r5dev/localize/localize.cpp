@@ -30,6 +30,17 @@ bool Localize_LoadLocalizationFileLists(CLocalize* thisptr)
 	return true;
 }
 
+bool Localize_IsLanguageSupported(const char* pLocaleName)
+{
+	for (int i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); ++i)
+	{
+		if (strcmp(pLocaleName, g_LanguageNames[i]) == NULL)
+			return true;
+	}
+
+	return false;
+}
+
 void VLocalize::Attach() const
 {
 	DetourAttach((LPVOID*)&v_CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists);

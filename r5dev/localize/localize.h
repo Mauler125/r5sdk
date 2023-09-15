@@ -1,4 +1,7 @@
 #pragma once
+#include "localize/ilocalize.h"
+
+bool Localize_IsLanguageSupported(const char* pLocaleName);
 
 class CLocalize
 {

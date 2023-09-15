@@ -30,6 +30,7 @@
 #include "filesystem/filesystem.h"
 #include "vpklib/packedstore.h"
 #include "vscript/vscript.h"
+#include "localize/localize.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
 #include "geforce/reflex.h"
@@ -1023,37 +1024,23 @@ void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValu
 }
 #endif // !DEDICATED
 
-static bool IsValidTextLanguage(const char* pLocaleName)
-{
-	for (int i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); ++i)
-	{
-		if (strcmp(pLocaleName, g_LanguageNames[i]) == NULL)
-			return true;
-	}
-
-	return false;
-}
-
 void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
 	{
 		const char* pNewString = pConVarRef->GetString();
 
-		if (IsValidTextLanguage(pNewString))
-			return;
-
-		// if new text isn't valid but the old value is, reset the value
-		if (IsValidTextLanguage(pOldString))
+		if (!Localize_IsLanguageSupported(pNewString))
 		{
-			pConVarRef->SetValue(pOldString);
-			return;
+			// if new text isn't valid but the old value is, reset the value
+			if (Localize_IsLanguageSupported(pOldString))
+				pNewString = pOldString;
+			else // this shouldn't really happen, but if neither the old nor new values are valid, set to english
+				pNewString = g_LanguageNames[0];
 		}
-		else // this shouldn't really happen, but if neither the old nor new values are valid, set to english
-			pConVarRef->SetValue("english");
 
-
-		g_pMasterServer->SetLanguage(pConVarRef->GetString());
+		pConVarRef->SetValue(pNewString);
+		g_pMasterServer->SetLanguage(pNewString);
 	}
 }
 

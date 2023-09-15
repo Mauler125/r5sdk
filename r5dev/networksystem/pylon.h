@@ -2,10 +2,13 @@
 #include "thirdparty/curl/include/curl/curl.h"
 #include "bansystem.h"
 #include "serverlisting.h"
+#include "localize/ilocalize.h"
 
 class CPylon
 {
 public:
+	CPylon() { m_Language = g_LanguageNames[0]; }
+
 	vector<NetGameServer_t> GetServerList(string& outMessage) const;
 	bool GetServerByToken(NetGameServer_t& slOutServer, string& outMessage, const string& svToken) const;
 	bool PostServerHost(string& outMessage, string& svOutToken, const NetGameServer_t& netGameServer) const;
