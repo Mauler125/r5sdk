@@ -460,24 +460,45 @@ void CConsole::SuggestPanel(void)
 
             BuildSummary(svConVar);
         }
+
         ImGui::PopID();
 
-        // Make sure we bring the currently 'active' item into view.
-        if (m_bSuggestMoved && bIsIndexActive)
+        // Update the suggest position
+        if (m_bSuggestMoved)
         {
-            ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
+            ImGuiWindow* const pWindow = ImGui::GetCurrentWindow();
             ImRect imRect = ImGui::GetCurrentContext()->LastItemData.Rect;
 
-            // Reset to keep flag in display.
-            imRect.Min.x = pWindow->InnerRect.Min.x;
-            imRect.Max.x = pWindow->InnerRect.Min.x; // Set to Min.x on purpose!
+            bool bChanged = false;
 
-            // Eliminate jiggle when going up/down in the menu.
-            imRect.Min.y += 1;
-            imRect.Max.y -= 1;
+            if (bIsIndexActive) // Bring the 'active' element into view
+            {
+                // Reset to keep flag in display.
+                imRect.Min.x = pWindow->InnerRect.Min.x;
+                imRect.Max.x = pWindow->InnerRect.Min.x; // Set to Min.x on purpose!
 
-            ImGui::ScrollToRect(pWindow, imRect);
-            m_bSuggestMoved = false;
+                // Eliminate jiggle when going up/down in the menu.
+                imRect.Min.y += 1;
+                imRect.Max.y -= 1;
+
+                bChanged = true;
+            }
+            else if (m_nSuggestPos == -1) // Reset position; -1 = no active element.
+            {
+                imRect.Min.x = 0;
+                imRect.Max.x = 0;
+                imRect.Min.y = 0;
+                imRect.Max.y = 0;
+
+                bChanged = true;
+            }
+
+            if (bChanged)
+            {
+                ImGui::ScrollToRect(pWindow, imRect);
+            }
+
+            m_bSuggestMoved = true;
         }
     }
 
