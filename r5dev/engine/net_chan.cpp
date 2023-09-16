@@ -76,7 +76,7 @@ double CNetChan::GetTimeConnected(void) const
 //-----------------------------------------------------------------------------
 void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeqNr, int nChoked, int nDropped, int nSize)
 {
-    float v7; // xmm4_8 (was double)
+    float netTime; // xmm4_8 (was double)
     int v8; // r13d
     int v9; // r14d
     int v12; // r12d
@@ -112,7 +112,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
     float v44; // xmm2_4
     float v45; // xmm0_4
 
-    v7 = (float)*g_pNetTime;
+    netTime = (float)*g_pNetTime;
     v8 = flow;
     v9 = inSeqNr;
     netflow_t* pFlow = &pChan->m_DataFlow[flow];
@@ -239,7 +239,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
                 {
                     pFrame = &pFlow->frames[v31 & NET_FRAMES_MASK];
                     pFrameHeader = &pFlow->frame_headers[v31 & NET_FRAMES_MASK];
-                    v32 = v7;
+                    v32 = netTime;
                     pFrameHeader->time = v32;
                     pFrameHeader->valid = 0;
                     pFrameHeader->size = 0;
@@ -287,7 +287,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
         if (v42->valid && v42->latency == -1.0)
         {
             v43 = 0.0;
-            v44 = fmax(0.0f, v7 - v42->time);
+            v44 = fmax(0.0f, netTime - v42->time);
             v42->latency = v44;
             if (v44 >= 0.0)
                 v43 = v44;
@@ -308,7 +308,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
         result = v35 + 16i64 * (((_BYTE)v36 + 1) & NET_FRAMES_MASK);
         v39 = v37 - *(float*)(&pChan->m_bProcessingMessages + result);
         ++pFlow->totalupdates;
-        v40 = (float)((float)(v39 / 127.0) * (float)(v36 - v9)) + v7 - v37;
+        v40 = (float)((float)(v39 / 127.0) * (float)(v36 - v9)) + netTime - v37;
         v41 = fmaxf(pFlow->maxlatency, v40);
         pFlow->latency = v40 + pFlow->latency;
         pFlow->maxlatency = v41;
@@ -335,7 +335,42 @@ void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep,
 //-----------------------------------------------------------------------------
 bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 {
+#ifndef CLIENT_DLL
+    if (!ThreadInServerFrameThread() || !net_processTimeBudget->GetInt())
+        return pChan->ProcessMessages(pBuf);
+
+    const double flStartTime = Plat_FloatTime();
+    const bool bResult = pChan->ProcessMessages(pBuf);
+
+    if (!pChan->m_MessageHandler) // NetChannel removed?
+        return bResult;
+
+    CClient* pClient = reinterpret_cast<CClient*>(pChan->m_MessageHandler);
+    ServerPlayer_t* pSlot = &g_ServerPlayer[pClient->GetUserID()];
+
+    if (flStartTime - pSlot->m_flLastNetProcessTime >= 1.0 ||
+        pSlot->m_flLastNetProcessTime == -1.0)
+    {
+        pSlot->m_flLastNetProcessTime = flStartTime;
+        pSlot->m_flCurrentNetProcessTime = 0.0;
+    }
+    pSlot->m_flCurrentNetProcessTime +=
+        (Plat_FloatTime() * 1000) - (flStartTime * 1000);
+
+    if (pSlot->m_flCurrentNetProcessTime >
+        net_processTimeBudget->GetFloat())
+    {
+        Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n",
+            pChan->GetName(), pChan->GetAddress(), (pSlot->m_flCurrentNetProcessTime - net_processTimeBudget->GetFloat()));
+        pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
+
+        return false;
+    }
+
+    return bResult;
+#else // !CLIENT_DLL
     return pChan->ProcessMessages(pBuf);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -347,14 +382,6 @@ bool CNetChan::ProcessMessages(bf_read* buf)
 {
     m_bStopProcessing = false;
     const double flStartTime = Plat_FloatTime();
-
-#ifndef CLIENT_DLL
-    const float flProcessingTimeBudget = net_processTimeBudget->GetFloat();
-    const bool bInServerFrame = ThreadInServerFrameThread();
-
-    CClient* pClient = reinterpret_cast<CClient*>(m_MessageHandler);
-    ServerPlayer_t* pSlot = &g_ServerPlayer[pClient->GetUserID()];
-#endif // !CLIENT_DLL
 
     while (true)
     {
@@ -398,36 +425,6 @@ bool CNetChan::ProcessMessages(bf_read* buf)
             m_bProcessingMessages = true;
             const bool bRet = netMsg->Process();
             m_bProcessingMessages = false;
-
-#ifndef CLIENT_DLL
-            // Only handle server thread, and if user has set a process
-            // time budget.
-            if (bInServerFrame && flProcessingTimeBudget)
-            {
-                // Reset after a second.
-                if (flStartTime - pSlot->m_flLastNetProcessTime >= 1.0 ||
-                    pSlot->m_flLastNetProcessTime == -1.0)
-                {
-                    pSlot->m_flLastNetProcessTime = flStartTime;
-                    pSlot->m_flCurrentNetProcessTime = 0.0;
-                }
-
-                // Add time taken to process this packet.
-                pSlot->m_flCurrentNetProcessTime +=
-                    (Plat_FloatTime() * 1000) - (flStartTime * 1000);
-
-                // Netchannel sent packets that exceeded maximum allowed processing
-                // time; jettison the channel.
-                if (pSlot->m_flCurrentNetProcessTime > flProcessingTimeBudget)
-                {
-                    Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n",
-                        GetName(), GetAddress(), (pSlot->m_flCurrentNetProcessTime - flProcessingTimeBudget));
-
-                    pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
-                    return false;
-                }
-            }
-#endif // !CLIENT_DLL
 
             // This means we were deleted during the processing of that message.
             if (m_bShouldDelete)
