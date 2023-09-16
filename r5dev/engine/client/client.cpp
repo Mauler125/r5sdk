@@ -260,6 +260,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 //---------------------------------------------------------------------------------
 bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 {
+#ifndef CLIENT_DLL
 	CClient* pAdj = AdjustShiftedThisPointer(pClient);
 	ServerPlayer_t* pSlot = &g_ServerPlayer[pAdj->GetUserID()];
 
@@ -305,6 +306,7 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 
 	pSlot->m_bInitialConVarsSet = true;
 	pAdj->m_bConVarsChanged = true;
+#endif // !CLIENT_DLL
 
 	return true;
 }
