@@ -79,7 +79,7 @@ void CFrameLimit::Run(void)
 	if ((double)(m_Time.QuadPart - m_Next.QuadPart) / (double)g_pPerformanceFrequency->QuadPart / (m_MilliSeconds / 1000.0) > (fps_max_rt_tolerance->GetFloat() * m_FramesPerSecond))
 	{
 		DevMsg(eDLL_T::ENGINE, "%s: Frame time too long (expected: %3.01fx); restarting...\n",
-			__FUNCTION__, (double)(m_Time.QuadPart - m_Next.QuadPart) / (double)freq.QuadPart / (m_MilliSeconds / 1000.0) / m_FramesPerSecond );
+			__FUNCTION__, (double)(m_Time.QuadPart - m_Next.QuadPart) / (double)g_pPerformanceFrequency->QuadPart / (m_MilliSeconds / 1000.0) / m_FramesPerSecond );
 		m_bRestart = true;
 	}
 
