@@ -395,6 +395,8 @@ void CConsole::SuggestPanel(void)
     ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
+    bool bViewChanged = false;
+
     for (size_t i = 0, ns = m_vSuggest.size(); i < ns; i++)
     {
         const CSuggest& suggest = m_vSuggest[i];
@@ -464,12 +466,10 @@ void CConsole::SuggestPanel(void)
         ImGui::PopID();
 
         // Update the suggest position
-        if (m_bSuggestMoved)
+        if (m_bSuggestMoved && !bViewChanged)
         {
             ImGuiWindow* const pWindow = ImGui::GetCurrentWindow();
             ImRect imRect = ImGui::GetCurrentContext()->LastItemData.Rect;
-
-            bool bChanged = false;
 
             if (bIsIndexActive) // Bring the 'active' element into view
             {
@@ -481,7 +481,7 @@ void CConsole::SuggestPanel(void)
                 imRect.Min.y += 1;
                 imRect.Max.y -= 1;
 
-                bChanged = true;
+                bViewChanged = true;
             }
             else if (m_nSuggestPos == -1) // Reset position; -1 = no active element.
             {
@@ -490,16 +490,19 @@ void CConsole::SuggestPanel(void)
                 imRect.Min.y = 0;
                 imRect.Max.y = 0;
 
-                bChanged = true;
+                bViewChanged = true;
             }
 
-            if (bChanged)
+            if (bViewChanged)
             {
                 ImGui::ScrollToRect(pWindow, imRect);
             }
-
-            m_bSuggestMoved = true;
         }
+    }
+
+    if (bViewChanged)
+    {
+        m_bSuggestMoved = false;
     }
 
     ImGui::PopAllowKeyboardFocus();
@@ -587,6 +590,7 @@ bool CConsole::AutoComplete(void)
 void CConsole::ResetAutoComplete(void)
 {
     m_bSuggestActive = false;
+    m_bSuggestMoved = true;
     m_nSuggestPos = -1;
 }
 
