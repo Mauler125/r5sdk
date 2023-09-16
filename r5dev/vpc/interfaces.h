@@ -67,7 +67,7 @@ class VFactory : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CreateInterfaceInternal", reinterpret_cast<uintptr_t>(s_ppInterfaceRegs));
+		LogFunAdr("CreateInterfaceInternal", p_CreateInterfaceInternal.GetPtr());
 		LogVarAdr("s_pInterfaceRegs", reinterpret_cast<uintptr_t>(s_ppInterfaceRegs));
 	}
 	virtual void GetFun(void) const
