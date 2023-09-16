@@ -149,6 +149,25 @@ void* CClient::VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, 
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: some versions of the binary have an optimization that shifts the 'this'
+// pointer of the CClient structure by 8 bytes to avoid having to cache the vftable
+// pointer if it never get used. Here we shift it back so it aligns again.
+//---------------------------------------------------------------------------------
+CClient* AdjustShiftedThisPointer(CClient* shiftedPointer)
+{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	return shiftedPointer;
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	/* Original function called method "CClient::ExecuteStringCommand" with an optimization
+	 * that shifted the 'this' pointer with 8 bytes.
+	 * Since this has been inlined with "CClient::ProcessStringCmd" as of S2, the shifting
+	 * happens directly to anything calling this function. */
+	char* pShifted = reinterpret_cast<char*>(shiftedPointer) - 8;
+	return reinterpret_cast<CClient*>(pShifted);
+#endif // !GAMEDLL_S0 || !GAMEDLL_S1
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: process string commands (kicking anyone attempting to DOS)
 // Input  : *pClient - (ADJ)
 //			*pMsg - 
@@ -157,16 +176,7 @@ void* CClient::VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, 
 bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 {
 #ifndef CLIENT_DLL
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	CClient* pClient_Adj = pClient;
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	/* Original function called method "CClient::ExecuteStringCommand" with an optimization
-	 * that shifted the 'this' pointer with 8 bytes.
-	 * Since this has been inlined with "CClient::ProcessStringCmd" as of S2, the shifting
-	 * happens directly to anything calling this function. */
-	char* pShifted = reinterpret_cast<char*>(pClient) - 8;
-	CClient* pClient_Adj = reinterpret_cast<CClient*>(pShifted);
-#endif // !GAMEDLL_S0 || !GAMEDLL_S1
+	CClient* pClient_Adj = AdjustShiftedThisPointer(pClient);
 
 	// Jettison the cmd if the client isn't active.
 	if (!pClient_Adj->IsActive())
