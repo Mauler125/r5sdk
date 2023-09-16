@@ -197,8 +197,102 @@ void KeyValues::RemoveEverything(void)
 //-----------------------------------------------------------------------------
 KeyValues* KeyValues::FindKey(const char* pszKeyName, bool bCreate)
 {
-	static auto func = reinterpret_cast<KeyValues * (__thiscall*)(KeyValues*, const char*, bool)>(KeyValues_FindKey);
-	return func(this, pszKeyName, bCreate);
+	// Validate NULL == this early out
+	if (!this)
+	{
+		// Undefined behavior. Could blow up on a new platform. Don't do it.
+		DevWarning(eDLL_T::COMMON, "KeyValues::FindKey called on NULL pointer!"); 
+		Assert(!bCreate);
+		return nullptr;
+	}
+
+	// return the current key if a NULL subkey is asked for
+	if (!pszKeyName || !pszKeyName[0])
+		return this;
+
+	// look for '/' characters delimiting sub fields
+	char szBuf[256];
+	const char* subStr = strchr(pszKeyName, '/');
+	const char* searchStr = pszKeyName;
+
+	// pull out the substring if it exists
+	if (subStr)
+	{
+		ptrdiff_t size = subStr - pszKeyName;
+		memcpy(szBuf, pszKeyName, size);
+		szBuf[size] = '\0';
+		searchStr = szBuf;
+	}
+
+	// lookup the symbol for the search string,
+	// we do not need the case-sensitive symbol at this time
+	// because if the key is found, then it will be found by case-insensitive lookup
+	// if the key is not found and needs to be created we will pass the actual searchStr
+	// and have the new KeyValues constructor get/create the case-sensitive symbol
+	HKeySymbol iSearchStr = KeyValuesSystem()->GetSymbolForString(searchStr, bCreate);
+	if (iSearchStr == INVALID_KEY_SYMBOL)
+	{
+		// not found, couldn't possibly be in key value list
+		return nullptr;
+	}
+
+	KeyValues* lastItem = nullptr;
+	KeyValues* dat;
+	// find the searchStr in the current peer list
+	for (dat = m_pSub; dat != NULL; dat = dat->m_pPeer)
+	{
+		lastItem = dat;	// record the last item looked at (for if we need to append to the end of the list)
+
+		// symbol compare
+		if (dat->m_iKeyName == (uint32)iSearchStr)
+		{
+			break;
+		}
+	}
+
+	if (!dat && m_pChain)
+	{
+		dat = m_pChain->FindKey(pszKeyName, false);
+	}
+
+	// make sure a key was found
+	if (!dat)
+	{
+		if (bCreate)
+		{
+			// we need to create a new key
+			dat = new KeyValues(searchStr);
+			Assert(dat != nullptr);
+
+			// insert new key at end of list
+			if (lastItem)
+			{
+				lastItem->m_pPeer = dat;
+			}
+			else
+			{
+				m_pSub = dat;
+			}
+			dat->m_pPeer = nullptr;
+
+			// a key graduates to be a submsg as soon as it's m_pSub is set
+			// this should be the only place m_pSub is set
+			m_iDataType = TYPE_NONE;
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
+	// if we've still got a subStr we need to keep looking deeper in the tree
+	if (subStr)
+	{
+		// recursively chain down through the paths in the string
+		return dat->FindKey(subStr + 1, bCreate);
+	}
+
+	return dat;
 }
 
 //-----------------------------------------------------------------------------
