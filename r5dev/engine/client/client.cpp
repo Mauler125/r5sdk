@@ -49,6 +49,9 @@ void CClient::VClear(CClient* pClient)
 //---------------------------------------------------------------------------------
 bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
+#ifndef CLIENT_DLL
+	g_ServerPlayer[GetUserID()].Reset(); // Reset ServerPlayer slot.
+#endif // !CLIENT_DLL
 	return v_CClient_Connect(this, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
 }
 
@@ -65,11 +68,7 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, v
 //---------------------------------------------------------------------------------
 bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
-	bool bResult = v_CClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
-#ifndef CLIENT_DLL
-	g_ServerPlayer[pClient->GetUserID()].Reset(); // Reset ServerPlayer slot.
-#endif // !CLIENT_DLL
-	return bResult;
+	return pClient->Connect(szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);;
 }
 
 //---------------------------------------------------------------------------------
@@ -146,6 +145,19 @@ bool CClient::SendNetMsgEx(CNetMessage* pMsg, char bLocal, bool bForceReliable, 
 void* CClient::VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck)
 {
 	return v_CClient_SendSnapshot(pClient, pFrame, nTick, nTickAck);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: internal hook to 'CClient::SendNetMsgEx'
+// Input  : *pClient - 
+//			*pMsg - 
+//			bLocal - 
+//			bForceReliable - 
+//			bVoice - 
+//---------------------------------------------------------------------------------
+bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
+{
+	return pClient->SendNetMsgEx(pMsg, bLocal, bForceReliable, bVoice);
 }
 
 //---------------------------------------------------------------------------------
@@ -241,16 +253,60 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: internal hook to 'CClient::SendNetMsgEx'
-// Input  : *pClient - 
+// Purpose: process set convar
+// Input  : *pClient - (ADJ)
 //			*pMsg - 
-//			bLocal - 
-//			bForceReliable - 
-//			bVoice - 
+// Output : 
 //---------------------------------------------------------------------------------
-bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
+bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 {
-	return pClient->SendNetMsgEx(pMsg, bLocal, bForceReliable, bVoice);
+	CClient* pAdj = AdjustShiftedThisPointer(pClient);
+	ServerPlayer_t* pSlot = &g_ServerPlayer[pAdj->GetUserID()];
+
+	// This loop never exceeds 255 iterations, NET_SetConVar::ReadFromBuffer(...)
+	// reads and inserts up to 255 entries in the vector (reads a byte for size).
+	FOR_EACH_VEC(pMsg->m_ConVars, i)
+	{
+		const NET_SetConVar::cvar_t& entry = pMsg->m_ConVars[i];
+		const char* const name = entry.name;
+		const char* const value = entry.value;
+
+		// Discard any ConVar change request if it contains funky characters.
+		bool bFunky = false;
+		for (const char* s = name; *s != '\0'; ++s)
+		{
+			if (!isalnum(*s) && *s != '_')
+			{
+				bFunky = true;
+				break;
+			}
+		}
+		if (bFunky)
+		{
+			DevWarning(eDLL_T::SERVER, "Ignoring ConVar change request for variable '%s' from client '%s'; invalid characters in the variable name\n",
+				name, pAdj->GetClientName());
+			continue;
+		}
+
+		// The initial set of ConVars must contain all client ConVars that are
+		// flagged UserInfo. This is a simple fix to exploits that send bogus
+		// data later, and catches bugs, such as new UserInfo ConVars appearing
+		// later, which shouldn't happen.
+		if (pSlot->m_bInitialConVarsSet && !pAdj->m_ConVars->FindKey(name))
+		{
+			DevWarning(eDLL_T::SERVER, "UserInfo update from \"%s\" ignored: %s = %s\n",
+				pAdj->GetClientName(), name, value);
+			continue;
+		}
+
+		pAdj->m_ConVars->SetString(name, value);
+		DevMsg(eDLL_T::SERVER, "UserInfo update from \"%s\": %s = %s\n", pAdj->GetClientName(), name, value);
+	}
+
+	pSlot->m_bInitialConVarsSet = true;
+	pAdj->m_bConVarsChanged = true;
+
+	return true;
 }
 
 void VClient::Attach(void) const
@@ -259,9 +315,11 @@ void VClient::Attach(void) const
 	DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
 	DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
 	DetourAttach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
-	DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
 	DetourAttach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
 	//DetourAttach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
+
+	DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+	DetourAttach((LPVOID*)&v_CClient_ProcessSetConVar, &CClient::VProcessSetConVar);
 #endif // !CLIENT_DLL
 }
 void VClient::Detach(void) const
@@ -270,8 +328,10 @@ void VClient::Detach(void) const
 	DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
 	DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
 	DetourDetach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
-	DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
 	DetourDetach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
 	//DetourDetach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
+
+	DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+	DetourDetach((LPVOID*)&v_CClient_ProcessSetConVar, &CClient::VProcessSetConVar);
 #endif // !CLIENT_DLL
 }

@@ -7,6 +7,7 @@
 
 #pragma once
 #include "tier1/bitbuf.h"
+#include "common/qlimits.h"
 #include "public/inetchannel.h"
 #include "public/inetmessage.h"
 #include "public/inetmsghandler.h"
@@ -438,6 +439,19 @@ struct NET_StringCmd : CNetMessage
 {
 	const char* cmd;
 	char buffer[1024];
+};
+
+class NET_SetConVar : public CNetMessage
+{
+public:
+
+	typedef struct cvar_s
+	{
+		char	name[MAX_OSPATH];
+		char	value[MAX_OSPATH];
+	} cvar_t;
+
+	CUtlVector<cvar_t> m_ConVars;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
