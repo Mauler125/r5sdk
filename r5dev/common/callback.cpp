@@ -1030,6 +1030,9 @@ void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValu
 	{
 		const char* pNewString = pConVarRef->GetString();
 
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same language.
+
 		if (!Localize_IsLanguageSupported(pNewString))
 		{
 			// if new text isn't valid but the old value is, reset the value
