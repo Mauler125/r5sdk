@@ -1,7 +1,7 @@
 ﻿/******************************************************************************
 -------------------------------------------------------------------------------
 File   : IConsole.cpp
-Date   : 18:07:2021
+Date   : 15:06:2021
 Author : Kawe Mazidjatari
 Purpose: Implements the in-game console front-end
 -------------------------------------------------------------------------------
@@ -29,8 +29,8 @@ History:
 CConsole::CConsole(void) 
     : m_pszConsoleLabel("Console")
     , m_pszLoggingLabel("LoggingRegion")
-    , m_nHistoryPos(-1)
-    , m_nSuggestPos(-1)
+    , m_nHistoryPos(PositionMode_t::kPark)
+    , m_nSuggestPos(PositionMode_t::kPark)
     , m_nScrollBack(0)
     , m_nSelectBack(0)
     , m_nInputTextLen(0)
@@ -314,7 +314,7 @@ void CConsole::DrawSurface(void)
     ImGui::PushItemWidth(flFooterWidthReserve - 80);
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
-        if (m_nSuggestPos > -1)
+        if (m_nSuggestPos > PositionMode_t::kPark)
         {
             BuildInputFromSelected(m_vSuggest[m_nSuggestPos], m_svInputConVar);
             BuildSummary(m_svInputConVar);
@@ -483,7 +483,7 @@ void CConsole::SuggestPanel(void)
 
                 bViewChanged = true;
             }
-            else if (m_nSuggestPos == -1) // Reset position; -1 = no active element.
+            else if (m_nSuggestPos == PositionMode_t::kPark) // Reset position; kPark = no active element.
             {
                 imRect.Min.x = 0;
                 imRect.Max.x = 0;
@@ -591,7 +591,7 @@ void CConsole::ResetAutoComplete(void)
 {
     m_bSuggestActive = false;
     m_bSuggestMoved = true;
-    m_nSuggestPos = -1;
+    m_nSuggestPos = PositionMode_t::kPark;
 }
 
 //-----------------------------------------------------------------------------
@@ -678,7 +678,7 @@ void CConsole::ProcessCommand(string svCommand)
     AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "%s] %s\n", Plat_GetProcessUpTime(), svCommand.c_str());
 
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), svCommand.c_str(), cmd_source_t::kCommandSrcCode);
-    m_nHistoryPos = -1;
+    m_nHistoryPos = PositionMode_t::kPark;
 
     for (size_t i = m_vHistory.size(); i-- > 0;)
     {
@@ -949,7 +949,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             const ssize_t nPrevHistoryPos = m_nHistoryPos;
             if (iData->EventKey == ImGuiKey_UpArrow)
             {
-                if (m_nHistoryPos == -1)
+                if (m_nHistoryPos == PositionMode_t::kPark)
                 {
                     m_nHistoryPos = static_cast<ssize_t>(m_vHistory.size()) - 1;
                 }
@@ -960,11 +960,11 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
             else if (iData->EventKey == ImGuiKey_DownArrow)
             {
-                if (m_nHistoryPos != -1)
+                if (m_nHistoryPos != PositionMode_t::kPark)
                 {
                     if (++m_nHistoryPos >= static_cast<ssize_t>(m_vHistory.size()))
                     {
-                        m_nHistoryPos = -1;
+                        m_nHistoryPos = PositionMode_t::kPark;
                     }
                 }
             }

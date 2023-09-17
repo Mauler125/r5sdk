@@ -9,6 +9,13 @@
 class CConsole : public ISurface
 {
 public:
+    enum PositionMode_t
+    {
+        // Park means the position is out of screen.
+        kPark = -1,
+        kFirst,
+    };
+
     ///////////////////////////////////////////////////////////////////////////
     CConsole(void);
     virtual ~CConsole(void);
