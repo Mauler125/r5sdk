@@ -12,6 +12,24 @@
 #include "vgui/vgui_debugpanel.h"
 #endif // !DEDICATED
 
+CCommonHostState* g_pCommonHostState = nullptr;
+
+void CCommonHostState::SetWorldModel(model_t* pModel)
+{
+	if (worldmodel == pModel)
+		return;
+
+	worldmodel = pModel;
+	if (pModel)
+	{
+		worldbrush = pModel->brush.pShared;
+	}
+	else
+	{
+		worldbrush = NULL;
+	}
+}
+
 /*
 ==================
 _Host_RunFrame

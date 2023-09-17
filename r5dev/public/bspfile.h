@@ -331,6 +331,13 @@ struct dgamelump_t
 	int filelen;
 };
 
+struct dlightmapheader_t
+{
+	char type;
+	short width;
+	short height;
+};
+
 struct dlightprobe_t
 {
 	short ambientSH[12]; // Ambient spherical harmonics coefficients
@@ -338,6 +345,14 @@ struct dlightprobe_t
 	char staticLightWeights[4];
 	short staticLightIndexes[4];
 	char pad[4]; // Padding has been removed as of S14
+};
+
+struct dtexdata_t
+{
+	int nameStringTableID;
+	int width;
+	int height;
+	int flags;
 };
 
 #endif // BSPFILE_H
