@@ -578,7 +578,7 @@ void CRConServer::Disconnect(const char* szReason) // NETMGR
 void CRConServer::Disconnect(const int nIndex, const char* szReason) // NETMGR
 {
 	CConnectedNetConsoleData& data = m_Socket.GetAcceptedSocketData(nIndex);
-	if (data.m_bAuthorized || sv_rcon_debug->GetBool())
+	if (data.m_bAuthorized)
 	{
 		// Inform server owner when authenticated connection has been closed.
 		netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(nIndex);
