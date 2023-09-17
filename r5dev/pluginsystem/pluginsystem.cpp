@@ -7,36 +7,39 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier2/fileutils.h"
+#include "filesystem/filesystem.h"
 #include "pluginsystem.h"
-#include <filesystem/filesystem.h>
-#include <tier2/fileutils.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: initialize the plugin system
 // Input  :
 //-----------------------------------------------------------------------------
-void CPluginSystem::PluginSystem_Init()
+void CPluginSystem::Init()
 {
-	FileSystem()->CreateDirHierarchy(PLUGIN_INSTALL_DIR);
+	if (!FileSystem()->IsDirectory(PLUGIN_INSTALL_DIR, "GAME"))
+		return; // No plugins to load.
 
 	CUtlVector< CUtlString > pluginPaths;
-	AddFilesToList(pluginPaths, PLUGIN_INSTALL_DIR, "dll");
+	AddFilesToList(pluginPaths, PLUGIN_INSTALL_DIR, "dll", "GAME");
 
 	for (int i = 0; i < pluginPaths.Count(); ++i)
 	{
 		CUtlString& path = pluginPaths[i];
 
 		bool addInstance = true;
-		for (auto& inst : pluginInstances)
+		FOR_EACH_VEC(m_Instances, j)
 		{
-			if (inst.m_Path.IsEqual_CaseInsensitive(path.String()) == 0)
+			const PluginInstance_t& instance = m_Instances[j];
+
+			if (instance.m_Path.IsEqual_CaseInsensitive(path.String()) == 0)
 				addInstance = false;
 		}
 
 		if (addInstance)
 		{
 			const char* baseFileName = V_UnqualifiedFileName(path.String());
-			pluginInstances.push_back(PluginInstance_t(baseFileName, path.String()));
+			m_Instances.AddToTail(PluginInstance_t(baseFileName, path.String()));
 		}
 	}
 }
@@ -46,7 +49,7 @@ void CPluginSystem::PluginSystem_Init()
 // Input  : pluginInst* -
 // Output : bool
 //-----------------------------------------------------------------------------
-bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
+bool CPluginSystem::LoadInstance(PluginInstance_t& pluginInst)
 {
 	if (pluginInst.m_bIsLoaded)
 		return false;
@@ -80,7 +83,7 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 // Input  : pluginInst* -
 // Output : bool
 //-----------------------------------------------------------------------------
-bool CPluginSystem::UnloadPluginInstance(PluginInstance_t& pluginInst)
+bool CPluginSystem::UnloadInstance(PluginInstance_t& pluginInst)
 {
 	if (!pluginInst.m_bIsLoaded)
 		return false;
@@ -107,27 +110,26 @@ bool CPluginSystem::UnloadPluginInstance(PluginInstance_t& pluginInst)
 // Input  : pluginInst* -
 // Output : bool
 //-----------------------------------------------------------------------------
-bool CPluginSystem::ReloadPluginInstance(PluginInstance_t& pluginInst)
+bool CPluginSystem::ReloadInstance(PluginInstance_t& pluginInst)
 {
-	return UnloadPluginInstance(pluginInst) ? LoadPluginInstance(pluginInst) : false;
+	return UnloadInstance(pluginInst) ? LoadInstance(pluginInst) : false;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: get all plugin instances
 // Input  : 
-// Output : vector<CPluginSystem::PluginInstance>&
+// Output : CUtlVector<CPluginSystem::PluginInstance>&
 //-----------------------------------------------------------------------------
-vector<CPluginSystem::PluginInstance_t>& CPluginSystem::GetPluginInstances()
+CUtlVector<CPluginSystem::PluginInstance_t>& CPluginSystem::GetInstances()
 {
-	return pluginInstances;
+	return m_Instances;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: add plugin callback for function
 // Input  : *help
-// Output : void
 //-----------------------------------------------------------------------------
-void CPluginSystem::AddPluginCallback(PluginHelpWithAnything_t* help)
+void CPluginSystem::AddCallback(PluginHelpWithAnything_t* help)
 {
 #define ADD_PLUGIN_CALLBACK(fn, callback, function) callback += reinterpret_cast<fn>(function)
 
@@ -153,9 +155,8 @@ void CPluginSystem::AddPluginCallback(PluginHelpWithAnything_t* help)
 //-----------------------------------------------------------------------------
 // Purpose: remove plugin callback for function
 // Input  : *help
-// Output : void
 //-----------------------------------------------------------------------------
-void CPluginSystem::RemovePluginCallback(PluginHelpWithAnything_t* help)
+void CPluginSystem::RemoveCallback(PluginHelpWithAnything_t* help)
 {
 #define REMOVE_PLUGIN_CALLBACK(fn, callback, function) callback -= reinterpret_cast<fn>(function)
 
@@ -193,12 +194,12 @@ void* CPluginSystem::HelpWithAnything(PluginHelpWithAnything_t* help)
 	}
 	case PluginHelpWithAnything_t::ePluginHelp::PLUGIN_REGISTER_CALLBACK:
 	{
-		AddPluginCallback(help);
+		AddCallback(help);
 		break;
 	}
 	case PluginHelpWithAnything_t::ePluginHelp::PLUGIN_UNREGISTER_CALLBACK:
 	{
-		RemovePluginCallback(help);
+		RemoveCallback(help);
 		break;
 	}
 	default:

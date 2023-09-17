@@ -144,11 +144,11 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 //-----------------------------------------------------------------------------
 void CModAppSystemGroup::InitPluginSystem(CModAppSystemGroup* pModAppSystemGroup)
 {
-	// DEBUG CODE FOR PLUGINS
-	g_pPluginSystem->PluginSystem_Init();
-	for (auto& it : g_pPluginSystem->GetPluginInstances())
+	g_pPluginSystem->Init();
+
+	for (auto& it : g_pPluginSystem->GetInstances())
 	{
-		if (g_pPluginSystem->LoadPluginInstance(it))
+		if (g_pPluginSystem->LoadInstance(it))
 			Msg(eDLL_T::ENGINE, "Loaded plugin: '%s'\n", it.m_Name.String());
 		else
 			Warning(eDLL_T::ENGINE, "Failed loading plugin: '%s'\n", it.m_Name.String());
