@@ -3004,14 +3004,7 @@ void check_format_string(S format_str) {
   FMT_CONSTEXPR auto s = basic_string_view<typename S::char_type>(format_str);
   using checker = format_string_checker<typename S::char_type, error_handler,
                                         remove_cvref_t<Args>...>;
-
-#if (FMT_MSC_VERSION == 0 || FMT_MSC_VERSION > 1913)
-  FMT_CONSTEXPR
-#else
-  // Don't qualify as constexpr as older visual studio compilers will
-  // throw the error C2131 'expression did not evaluate to a constant'.
-#endif
-  bool invalid_format =
+  FMT_CONSTEXPR bool invalid_format =
       (parse_format_string<true>(s, checker(s, {})), true);
   ignore_unused(invalid_format);
 }
