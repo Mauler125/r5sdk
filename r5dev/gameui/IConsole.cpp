@@ -395,8 +395,6 @@ void CConsole::SuggestPanel(void)
     ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
-    bool bViewChanged = false;
-
     for (size_t i = 0, ns = m_vSuggest.size(); i < ns; i++)
     {
         const CSuggest& suggest = m_vSuggest[i];
@@ -466,43 +464,33 @@ void CConsole::SuggestPanel(void)
         ImGui::PopID();
 
         // Update the suggest position
-        if (m_bSuggestMoved && !bViewChanged)
+        if (m_bSuggestMoved)
         {
-            ImGuiWindow* const pWindow = ImGui::GetCurrentWindow();
-            ImRect imRect = ImGui::GetCurrentContext()->LastItemData.Rect;
-
             if (bIsIndexActive) // Bring the 'active' element into view
             {
+                ImGuiWindow* const pWindow = ImGui::GetCurrentWindow();
+                ImRect imRect = ImGui::GetCurrentContext()->LastItemData.Rect;
+
                 // Reset to keep flag in display.
                 imRect.Min.x = pWindow->InnerRect.Min.x;
-                imRect.Max.x = pWindow->InnerRect.Min.x; // Set to Min.x on purpose!
+                imRect.Max.x = pWindow->InnerRect.Max.x;
 
                 // Eliminate jiggle when going up/down in the menu.
                 imRect.Min.y += 1;
                 imRect.Max.y -= 1;
 
-                bViewChanged = true;
-            }
-            else if (m_nSuggestPos == PositionMode_t::kPark) // Reset position; kPark = no active element.
-            {
-                imRect.Min.x = 0;
-                imRect.Max.x = 0;
-                imRect.Min.y = 0;
-                imRect.Max.y = 0;
-
-                bViewChanged = true;
-            }
-
-            if (bViewChanged)
-            {
                 ImGui::ScrollToRect(pWindow, imRect);
+                m_bSuggestMoved = false;
+            }
+            else if (m_nSuggestPos == PositionMode_t::kPark)
+            {
+                // Reset position; kPark = no active element.
+                ImGui::SetScrollX(0.0f);
+                ImGui::SetScrollY(0.0f);
+
+                m_bSuggestMoved = false;
             }
         }
-    }
-
-    if (bViewChanged)
-    {
-        m_bSuggestMoved = false;
     }
 
     ImGui::PopAllowKeyboardFocus();
