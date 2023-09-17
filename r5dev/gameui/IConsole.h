@@ -34,7 +34,6 @@ private:
 
     bool AutoComplete(void);
     void ResetAutoComplete(void);
-    void ClearAutoComplete(void);
 
     void FindFromPartial(void);
     void ProcessCommand(string svCommand);

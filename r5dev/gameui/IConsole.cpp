@@ -301,7 +301,7 @@ void CConsole::DrawSurface(void)
         if (m_szInputBuf[0])
         {
             ProcessCommand(m_szInputBuf);
-            ClearAutoComplete();
+            ResetAutoComplete();
 
             m_bModifyInput = true;
         }
@@ -508,7 +508,7 @@ bool CConsole::AutoComplete(void)
     {
         if (m_bSuggestActive)
         {
-            ClearAutoComplete();
+            ResetAutoComplete();
         }
         return false;
     }
@@ -522,7 +522,7 @@ bool CConsole::AutoComplete(void)
     }
     else if (m_bCanAutoComplete) // Command completion callback.
     {
-        ClearAutoComplete();
+        ResetAutoComplete();
         string svCommand;
 
         for (size_t i = 0; i < sizeof(m_szInputBuf); i++)
@@ -571,18 +571,10 @@ bool CConsole::AutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::ResetAutoComplete(void)
 {
+    m_nSuggestPos = PositionMode_t::kPark;
     m_bCanAutoComplete = false;
     m_bSuggestActive = false;
     m_bSuggestMoved = true;
-    m_nSuggestPos = PositionMode_t::kPark;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: clears the auto complete window
-//-----------------------------------------------------------------------------
-void CConsole::ClearAutoComplete(void)
-{
-    ResetAutoComplete();
     m_vSuggest.clear();
 }
 
@@ -592,12 +584,12 @@ void CConsole::ClearAutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::FindFromPartial(void)
 {
-    ClearAutoComplete();
+    ResetAutoComplete();
 
     ICvar::Iterator iter(g_pCVar);
     for (iter.SetFirst(); iter.IsValid(); iter.Next())
     {
-        if (m_vSuggest.size() >= size_t(con_suggest_limit->GetInt()))
+        if (m_vSuggest.size() >= con_suggest_limit->GetInt())
         {
             break;
         }
@@ -762,7 +754,7 @@ void CConsole::ClampLogSize(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClampHistorySize(void)
 {
-    while (m_vHistory.size() > size_t(con_max_history->GetInt()))
+    while (m_vHistory.size() > con_max_history->GetInt())
     {
         m_vHistory.erase(m_vHistory.begin());
     }
@@ -1024,7 +1016,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         }
         else // Reset state and enable history scrolling when buffer is empty.
         {
-            ClearAutoComplete();
+            ResetAutoComplete();
         }
 
         break;
