@@ -509,7 +509,6 @@ bool CConsole::AutoComplete(void)
         if (m_bSuggestActive)
         {
             ClearAutoComplete();
-            m_bCanAutoComplete = false;
         }
         return false;
     }
@@ -524,8 +523,6 @@ bool CConsole::AutoComplete(void)
     else if (m_bCanAutoComplete) // Command completion callback.
     {
         ClearAutoComplete();
-        m_bCanAutoComplete = false;
-
         string svCommand;
 
         for (size_t i = 0; i < sizeof(m_szInputBuf); i++)
@@ -562,9 +559,6 @@ bool CConsole::AutoComplete(void)
 
     if (m_vSuggest.empty())
     {
-        ResetAutoComplete();
-        m_bCanAutoComplete = false;
-
         return false;
     }
 
@@ -577,6 +571,7 @@ bool CConsole::AutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::ResetAutoComplete(void)
 {
+    m_bCanAutoComplete = false;
     m_bSuggestActive = false;
     m_bSuggestMoved = true;
     m_nSuggestPos = PositionMode_t::kPark;
@@ -598,7 +593,6 @@ void CConsole::ClearAutoComplete(void)
 void CConsole::FindFromPartial(void)
 {
     ClearAutoComplete();
-    m_bCanAutoComplete = false;
 
     ICvar::Iterator iter(g_pCVar);
     for (iter.SetFirst(); iter.IsValid(); iter.Next())
@@ -981,7 +975,6 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         if (m_bModifyInput) // User entered a value in the input field.
         {
             iData->DeleteChars(0, m_nInputTextLen);
-            m_bSuggestActive = false;
 
             if (!m_svInputConVar.empty()) // User selected a ConVar from the suggestion window, copy it to the buffer.
             {
@@ -1031,7 +1024,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         }
         else // Reset state and enable history scrolling when buffer is empty.
         {
-            m_bCanAutoComplete = false;
+            ClearAutoComplete();
         }
 
         break;
