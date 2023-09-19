@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
 project( r5sdk )
 
-set( ENGINE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/r5dev" CACHE PATH "Engine source directory" )
+set( ENGINE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src" CACHE PATH "Engine source directory" )
 
 include( "${ENGINE_SOURCE_DIR}/cmake/Configure.cmake" )
 include( "${ENGINE_SOURCE_DIR}/cmake/Macros.cmake" )
