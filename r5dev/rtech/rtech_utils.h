@@ -18,17 +18,17 @@ inline void(*RTech_RegisterAsset)(int, int, const char*, void*, void*, void*, vo
 
 #ifdef GAMEDLL_S3
 inline CMemory p_Pak_ProcessGuidRelationsForAsset;
-inline void(*RTech_Pak_ProcessGuidRelationsForAsset)(PakFile_t*, RPakAssetEntry_t*);
+inline void(*RTech_Pak_ProcessGuidRelationsForAsset)(PakFile_t*, PakAsset_t*);
 #endif
 
 inline CMemory p_StreamDB_Init;
 inline void(*v_StreamDB_Init)(const char* pszLevelName);
 
-inline RPakLoadedInfo_t* g_pLoadedPakInfo;
+inline PakLoadedInfo_t* g_pLoadedPakInfo;
 inline int16_t* g_pRequestedPakCount;
 inline int16_t* g_pLoadedPakCount;
 inline JobID_t* g_pPakLoadJobID;
-inline RPakGlobals_t* g_pPakGlobals;
+inline PakGlobals_t* g_pPakGlobals;
 
 inline int32_t* s_pFileArray;
 inline PSRWLOCK* s_pFileArrayMutex;
@@ -42,15 +42,15 @@ class RTech
 {
 public:
 	uint64_t __fastcall StringToGuid(const char* pData);
-	uint8_t __fastcall DecompressPakFile(RPakDecompState_t* state, uint64_t inLen, uint64_t outLen);
-	uint64_t __fastcall DecompressPakFileInit(RPakDecompState_t* state, uint8_t* fileBuffer, uint64_t fileSize, uint64_t offNoHeader, uint64_t headerSize);
-	RPakLoadedInfo_t* GetPakLoadedInfo(RPakHandle_t nPakId);
-	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
-	const char* PakStatusToString(RPakStatus_t status);
+	uint8_t __fastcall DecompressPakFile(PakDecompState_t* state, uint64_t inLen, uint64_t outLen);
+	uint64_t __fastcall DecompressPakFileInit(PakDecompState_t* state, uint8_t* fileBuffer, uint64_t fileSize, uint64_t offNoHeader, uint64_t headerSize);
+	PakLoadedInfo_t* GetPakLoadedInfo(PakHandle_t nPakId);
+	PakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
+	const char* PakStatusToString(EPakStatus status);
 
 	static int32_t OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut);
 #ifdef GAMEDLL_S3
-	static void PakProcessGuidRelationsForAsset(PakFile_t* pak, RPakAssetEntry_t* asset);
+	static void PakProcessGuidRelationsForAsset(PakFile_t* pak, PakAsset_t* asset);
 #endif // GAMEDLL_S3
 
 	void** LoadShaderSet(void** VTablePtr);
@@ -99,7 +99,7 @@ class V_RTechUtils : public IDetour
 
 #ifdef GAMEDLL_S3
 		p_Pak_ProcessGuidRelationsForAsset = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 86 ?? ?? ?? ?? 42 8B 0C B0").FollowNearCallSelf();
-		RTech_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsForAsset.RCast<void(*)(PakFile_t*, RPakAssetEntry_t*)>(); /*E8 ? ? ? ? 48 8B 86 ? ? ? ? 42 8B 0C B0*/
+		RTech_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsForAsset.RCast<void(*)(PakFile_t*, PakAsset_t*)>(); /*E8 ? ? ? ? 48 8B 86 ? ? ? ? 42 8B 0C B0*/
 #endif
 	}
 	virtual void GetVar(void) const
@@ -108,11 +108,11 @@ class V_RTechUtils : public IDetour
 		s_pFileHandles    = p_StreamDB_Init.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<pFileHandleTracker_t*>();
 		s_pFileArrayMutex = p_StreamDB_Init.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<PSRWLOCK*>();
 
-		g_pLoadedPakInfo     = p_Pak_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
+		g_pLoadedPakInfo     = p_Pak_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<PakLoadedInfo_t*>();
 		g_pRequestedPakCount = p_Pak_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
 		g_pLoadedPakCount    = &*g_pRequestedPakCount - 1; // '-1' shifts it back with sizeof(int16_t).
 
-		g_pPakGlobals   = g_GameDll.FindPatternSIMD("48 8D 1D ?? ?? ?? ?? 45 8D 5A 0E").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakGlobals_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
+		g_pPakGlobals   = g_GameDll.FindPatternSIMD("48 8D 1D ?? ?? ?? ?? 45 8D 5A 0E").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PakGlobals_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
 		g_pPakLoadJobID = reinterpret_cast<JobID_t*>(&*g_pLoadedPakCount - 2);
 
 		g_pPakFifoLock         = p_JT_HelpWithAnything.Offset(0x155).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<JobFifoLock_s*>();

@@ -14,7 +14,7 @@
 // from within the level settings KV (located in
 // scripts/levels/settings/*.kv). On level unload,
 // each pak listed in this vector gets unloaded.
-CUtlVector<RPakHandle_t> g_vLoadedPakHandle;
+CUtlVector<PakHandle_t> g_vLoadedPakHandle;
 
 //-----------------------------------------------------------------------------
 // Purpose: load user-requested pak files on-demand
@@ -24,9 +24,9 @@ CUtlVector<RPakHandle_t> g_vLoadedPakHandle;
 //			bUnk - 
 // Output : pak file handle on success, INVALID_PAK_HANDLE on failure
 //-----------------------------------------------------------------------------
-RPakHandle_t Pak_LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk)
+PakHandle_t Pak_LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk)
 {
-	RPakHandle_t pakHandle = INVALID_PAK_HANDLE;
+	PakHandle_t pakHandle = INVALID_PAK_HANDLE;
 
 	CUtlString pakBasePath;
 	CUtlString pakOverridePath;
@@ -56,15 +56,15 @@ RPakHandle_t Pak_LoadAsync(const char* szPakFileName, CAlignedMemAlloc* pMalloc,
 // Purpose: unloads loaded pak files
 // Input  : handle - 
 //-----------------------------------------------------------------------------
-void Pak_UnloadPak(RPakHandle_t handle)
+void Pak_UnloadPak(PakHandle_t handle)
 {
-	RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(handle);
+	PakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(handle);
 
-	if (pakInfo && pakInfo->m_pszFileName)
+	if (pakInfo && pakInfo->m_fileName)
 	{
-		Msg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo->m_pszFileName);
+		Msg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo->m_fileName);
 
-		if (strcmp(pakInfo->m_pszFileName, "mp_lobby.rpak") == 0)
+		if (strcmp(pakInfo->m_fileName, "mp_lobby.rpak") == 0)
 			s_bBasePaksInitialized = false;
 	}
 

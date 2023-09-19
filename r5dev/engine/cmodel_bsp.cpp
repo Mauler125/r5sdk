@@ -240,28 +240,28 @@ void Mod_ProcessPakQueue()
                     {
                         // SDK pak files must be unloaded before the engine pak files,
                         // as we reference assets within engine pak files.
-                        const RPakLoadedInfo_t* pLoadedPakInfo = g_pRTech->GetPakLoadedInfo(*(RPakHandle_t*)v10);
+                        const PakLoadedInfo_t* pLoadedPakInfo = g_pRTech->GetPakLoadedInfo(*(PakHandle_t*)v10);
                         if (pLoadedPakInfo)
                         {
-                            const char* pszLoadedPakName = pLoadedPakInfo->m_pszFileName;
+                            const char* pszLoadedPakName = pLoadedPakInfo->m_fileName;
 
                             if (strcmp(pszLoadedPakName, "common_mp.rpak") == 0 ||
                                 strcmp(pszLoadedPakName, "common_sp.rpak") == 0 ||
                                 strcmp(pszLoadedPakName, "common_pve.rpak") == 0)
                             {
-                                const RPakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("common_sdk.rpak");
+                                const PakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("common_sdk.rpak");
 
                                 if (pLoadedSdkPak) // Only unload if sdk pak file is loaded.
-                                    g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_nHandle);
+                                    g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_handle);
 
                             }
 #ifndef DEDICATED
                             else if (strcmp(pszLoadedPakName, "ui_mp.rpak") == 0)
                             {
-                                const RPakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("ui_sdk.rpak");
+                                const PakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("ui_sdk.rpak");
 
                                 if (pLoadedSdkPak) // Only unload if sdk pak file is loaded.
-                                    g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_nHandle);
+                                    g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_handle);
                             }
 #endif // !DEDICATED
                         }
@@ -278,7 +278,7 @@ void Mod_ProcessPakQueue()
                         if (old_gather_props->GetBool())
                             old_gather_props->SetValue(false);
 
-                        g_pakLoadApi->UnloadPak(*(RPakHandle_t*)v10);
+                        g_pakLoadApi->UnloadPak(*(PakHandle_t*)v10);
                         Mod_UnloadPakFile(); // Unload mod pak files.
 
                         if (s_pLevelSetKV)
@@ -455,7 +455,7 @@ void Mod_PreloadLevelPaks(const char* pszLevelName)
             continue;
 
         snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pSubKey->GetName());
-        RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(szPathBuffer, AlignedMemAlloc(), 4, 0);
+        PakHandle_t nPakId = g_pakLoadApi->LoadAsync(szPathBuffer, AlignedMemAlloc(), 4, 0);
 
         if (nPakId == INVALID_PAK_HANDLE)
             Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, szPathBuffer, nPakId);
@@ -469,7 +469,7 @@ void Mod_PreloadLevelPaks(const char* pszLevelName)
 //-----------------------------------------------------------------------------
 void Mod_UnloadPakFile(void)
 {
-	for (const RPakHandle_t& it : g_vLoadedPakHandle)
+	for (const PakHandle_t& it : g_vLoadedPakHandle)
 	{
 		if (it >= 0)
 		{
