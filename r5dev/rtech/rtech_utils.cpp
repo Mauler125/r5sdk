@@ -68,7 +68,7 @@ uint64_t __fastcall RTech::StringToGuid(const char* pData)
 //-----------------------------------------------------------------------------
 // Purpose: calculate 'decompressed' size and commit parameters
 //-----------------------------------------------------------------------------
-uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, uint8_t* fileBuffer, uint64_t fileSize, uint64_t offNoHeader, uint64_t headerSize)
+uint64_t __fastcall RTech::DecompressPakFileInit(PakDecompState_t* state, uint8_t* fileBuffer, uint64_t fileSize, uint64_t offNoHeader, uint64_t headerSize)
 {
 	int64_t input_byte_pos_init;         // r9
 	uint64_t byte_init;                  // r11
@@ -95,65 +95,65 @@ uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, uint8
 	const uintptr_t mask = UINT64_MAX;
 	const uintptr_t file_buf = uintptr_t(fileBuffer);
 
-	state->m_nInputBuf = file_buf;
-	state->m_nOut = 0i64;
-	state->m_nOutMask = 0i64;
+	state->m_inputBuf = file_buf;
+	state->m_outputBuf = 0i64;
+	state->m_outputMask = 0i64;
 	state->dword44 = 0;
-	state->m_nTotalFileLen = fileSize + offNoHeader;
-	state->m_nMask = mask;
+	state->m_fileSize = fileSize + offNoHeader;
+	state->m_inputMask = mask;
 	input_byte_pos_init = offNoHeader + headerSize + 8;
 	byte_init = *(uint64_t*)((mask & (offNoHeader + headerSize)) + file_buf);
-	state->m_nDecompPosition = headerSize;
+	state->m_decompBytePosition = headerSize;
 	decompressed_size_bits = byte_init & 0x3F;
 	byte_init >>= 6;
-	state->m_nInputBytePos = input_byte_pos_init;
-	state->m_nDecompSize = (byte_init & ((1i64 << decompressed_size_bits) - 1)) | (1i64 << decompressed_size_bits);
+	state->m_fileBytePosition = input_byte_pos_init;
+	state->m_decompSize = (byte_init & ((1i64 << decompressed_size_bits) - 1)) | (1i64 << decompressed_size_bits);
 	byte_1_low = *(uint64_t*)((mask & input_byte_pos_init) + file_buf) << (64
 		- ((uint8_t)decompressed_size_bits
 			+ 6));
 	input_byte_pos_1 = input_byte_pos_init + ((uint64_t)(uint32_t)(decompressed_size_bits + 6) >> 3);
-	state->m_nInputBytePos = input_byte_pos_1;
+	state->m_fileBytePosition = input_byte_pos_1;
 	bit_pos_final = ((decompressed_size_bits + 6) & 7) + 13;
 	byte_1 = (0xFFFFFFFFFFFFFFFFui64 >> ((decompressed_size_bits + 6) & 7)) & ((byte_init >> decompressed_size_bits) | byte_1_low);
 	brih_bits = (((uint8_t)byte_1 - 1) & 0x3F) + 1;
 	inv_mask_in = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (uint8_t)brih_bits);
-	state->m_nInvMaskIn = inv_mask_in;
-	state->m_nInvMaskOut = 0xFFFFFFFFFFFFFFFFui64 >> (63 - (((byte_1 >> 6) - 1) & 0x3F));
+	state->m_inputInvMask = inv_mask_in;
+	state->m_outputInvMask = 0xFFFFFFFFFFFFFFFFui64 >> (63 - (((byte_1 >> 6) - 1) & 0x3F));
 	byte_final_full = (byte_1 >> 13) | (*(uint64_t*)((mask & input_byte_pos_1) + file_buf) << (64
 		- (uint8_t)bit_pos_final));
 	bit_pos_final_1 = bit_pos_final;
 	byte_bit_offset_final = bit_pos_final & 7;
 	input_byte_pos_final = (bit_pos_final_1 >> 3) + input_byte_pos_1;
 	byte_final = (0xFFFFFFFFFFFFFFFFui64 >> byte_bit_offset_final) & byte_final_full;
-	state->m_nInputBytePos = input_byte_pos_final;
+	state->m_fileBytePosition = input_byte_pos_final;
 	if (inv_mask_in == -1i64)
 	{
-		state->m_nHeaderOffset = 0;
+		state->m_headerOffset = 0;
 		stream_len_needed = fileSize;
 	}
 	else
 	{
 		brih_bytes = brih_bits >> 3;
-		state->m_nHeaderOffset = brih_bytes + 1;
+		state->m_headerOffset = brih_bytes + 1;
 		byte_tmp = *(uint64_t*)((mask & input_byte_pos_final) + file_buf);
-		state->m_nInputBytePos = input_byte_pos_final + brih_bytes + 1;
+		state->m_fileBytePosition = input_byte_pos_final + brih_bytes + 1;
 		stream_len_needed = byte_tmp & ((1i64 << (8 * ((uint8_t)brih_bytes + 1))) - 1);
 	}
-	result = state->m_nDecompSize;
-	inv_mask_out = state->m_nInvMaskOut;
-	qw70 = offNoHeader + state->m_nInvMaskIn - 6i64;
-	state->m_nLengthNeeded = stream_len_needed + offNoHeader;
+	result = state->m_decompSize;
+	inv_mask_out = state->m_outputInvMask;
+	qw70 = offNoHeader + state->m_inputInvMask - 6i64;
+	state->m_bufferSizeNeeded = stream_len_needed + offNoHeader;
 	state->qword70 = qw70;
-	state->byte = byte_final;
-	state->m_nByteBitOffset = byte_bit_offset_final;
+	state->m_currentByte = byte_final;
+	state->m_currentByteBit = byte_bit_offset_final;
 	state->dword6C = 0;
-	state->m_nCompressedStreamSize = stream_len_needed + offNoHeader;
-	state->m_nDecompStreamSize = result;
+	state->m_compressedStreamSize = stream_len_needed + offNoHeader;
+	state->m_decompStreamSize = result;
 	if (result - 1 > inv_mask_out)
 	{
-		stream_compressed_size_new = stream_len_needed + offNoHeader - state->m_nHeaderOffset;
-		state->m_nDecompStreamSize = inv_mask_out + 1;
-		state->m_nCompressedStreamSize = stream_compressed_size_new;
+		stream_compressed_size_new = stream_len_needed + offNoHeader - state->m_headerOffset;
+		state->m_decompStreamSize = inv_mask_out + 1;
+		state->m_compressedStreamSize = stream_compressed_size_new;
 	}
 
 	return result;
@@ -280,7 +280,7 @@ static const unsigned char /*unk_141313180*/ s_PakFileCompressionLUT[0x720] =
 //-----------------------------------------------------------------------------
 // Purpose: decompress input data
 //-----------------------------------------------------------------------------
-uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t inLen, uint64_t outLen)
+uint8_t __fastcall RTech::DecompressPakFile(PakDecompState_t* state, uint64_t inLen, uint64_t outLen)
 {
 	char result;                          // al
 	uint64_t v5;                          // r15
@@ -352,26 +352,26 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 	uint32_t v71;                         // [rsp+60h] [rbp+8h]
 	uint64_t v74;                         // [rsp+78h] [rbp+20h]
 
-	if (inLen < state->m_nLengthNeeded)
+	if (inLen < state->m_bufferSizeNeeded)
 		return 0;
-	v5 = state->m_nDecompPosition;
-	if (outLen < state->m_nInvMaskOut + (v5 & ~state->m_nInvMaskOut) + 1 && outLen < state->m_nDecompSize)
+	v5 = state->m_decompBytePosition;
+	if (outLen < state->m_outputInvMask + (v5 & ~state->m_outputInvMask) + 1 && outLen < state->m_decompSize)
 		return 0;
-	v6 = state->m_nOut;
-	v7 = state->m_nByteBitOffset;
-	v8 = state->byte;
-	v9 = state->m_nInputBytePos;
+	v6 = state->m_outputBuf;
+	v7 = state->m_currentByteBit;
+	v8 = state->m_currentByte;
+	v9 = state->m_fileBytePosition;
 	v10 = state->qword70;
-	v11 = state->m_nInputBuf;
-	if (state->m_nCompressedStreamSize < v10)
-		v10 = state->m_nCompressedStreamSize;
+	v11 = state->m_inputBuf;
+	if (state->m_compressedStreamSize < v10)
+		v10 = state->m_compressedStreamSize;
 	v12 = state->dword6C;
 	v74 = v11;
 	v70 = v6;
 	v71 = v12;
 	if (!v7)
 		goto LABEL_11;
-	v13 = (*(_QWORD*)((v9 & state->m_nMask) + v11) << (64 - (unsigned __int8)v7)) | v8;
+	v13 = (*(_QWORD*)((v9 & state->m_inputMask) + v11) << (64 - (unsigned __int8)v7)) | v8;
 	for (i = v7; ; i = v7)
 	{
 		v7 &= 7u;
@@ -389,12 +389,12 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 		if (*((char*)&s_PakFileCompressionLUT + v18) < 0)
 		{
 			v56 = -(int)v20;
-			v57 = (__int64*)(v11 + (v9 & state->m_nMask));
+			v57 = (__int64*)(v11 + (v9 & state->m_inputMask));
 			v71 = 1;
-			v58 = (__int64*)(v6 + (v5 & state->m_nOutMask));
+			v58 = (__int64*)(v6 + (v5 & state->m_outputMask));
 			if (v56 == *((unsigned __int8*)&s_PakFileCompressionLUT + v16 + 1248))
 			{
-				if ((~v9 & state->m_nInvMaskIn) < 0xF || (state->m_nInvMaskOut & ~v5) < 15 || state->m_nDecompSize - v5 < 0x10)
+				if ((~v9 & state->m_inputInvMask) < 0xF || (state->m_outputInvMask & ~v5) < 15 || state->m_decompSize - v5 < 0x10)
 					v56 = 1;
 				v59 = char(v19);
 				v60 = v19 >> 3;
@@ -453,7 +453,7 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 			v22 = ((unsigned __int64)(unsigned int)v19 >> (((unsigned int)(v21 - 31) >> 3) & 6)) & 0x3F;
 			v23 = 1 << (v21 + ((v19 >> 4) & ((24 * (((unsigned int)(v21 - 31) >> 3) & 2)) >> 4)));
 			v7 += (((unsigned int)(v21 - 31) >> 3) & 6) + *((unsigned __int8*)&s_PakFileCompressionLUT + v22 + 1088) + v21 + ((v19 >> 4) & ((24 * (((unsigned int)(v21 - 31) >> 3) & 2)) >> 4));
-			v24 = state->m_nOutMask;
+			v24 = state->m_outputMask;
 			v25 = 16 * (v23 + ((v23 - 1) & (v19 >> ((((unsigned int)(v21 - 31) >> 3) & 6) + *((_BYTE*)&s_PakFileCompressionLUT + v22 + 1088)))));
 			v19 >>= (((unsigned int)(v21 - 31) >> 3) & 6) + *((_BYTE*)&s_PakFileCompressionLUT + v22 + 1088) + v21 + ((v19 >> 4) & ((24 * (((unsigned int)(v21 - 31) >> 3) & 2)) >> 4));
 			v26 = v25 + *((unsigned __int8*)&s_PakFileCompressionLUT + v22 + 1024) - 16;
@@ -480,7 +480,7 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 					v45 = *((_BYTE*)&s_PakFileCompressionLUT + v46 + 1216);
 					if (v74 && v7 + v45 >= 61)
 					{
-						v47 = v9++ & state->m_nMask;
+						v47 = v9++ & state->m_inputMask;
 						v43 |= (unsigned __int64)*(unsigned __int8*)(v47 + v74) << (61 - (unsigned __int8)v7);
 						v7 -= 8;
 					}
@@ -536,18 +536,18 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 			break;
 	LABEL_29:
 		v6 = v70;
-		v13 = (*(_QWORD*)((v9 & state->m_nMask) + v11) << (64 - (unsigned __int8)v7)) | v19;
+		v13 = (*(_QWORD*)((v9 & state->m_inputMask) + v11) << (64 - (unsigned __int8)v7)) | v19;
 	}
-	if (v5 != state->m_nDecompStreamSize)
+	if (v5 != state->m_decompStreamSize)
 		goto LABEL_25;
-	v30 = state->m_nDecompSize;
+	v30 = state->m_decompSize;
 	if (v5 == v30)
 	{
 		result = 1;
 		goto LABEL_69;
 	}
-	v31 = state->m_nInvMaskIn;
-	v32 = state->m_nHeaderOffset;
+	v31 = state->m_inputInvMask;
+	v32 = state->m_headerOffset;
 	v33 = v31 & -(__int64)v9;
 	v19 >>= 1;
 	++v7;
@@ -558,32 +558,32 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 		if (v9 > v34)
 			state->qword70 = v31 + v34 + 1;
 	}
-	v35 = v9 & state->m_nMask;
+	v35 = v9 & state->m_inputMask;
 	v9 += v32;
-	v36 = v5 + state->m_nInvMaskOut + 1;
+	v36 = v5 + state->m_outputInvMask + 1;
 	v37 = *(_QWORD*)(v35 + v11) & ((1i64 << (8 * (unsigned __int8)v32)) - 1);
-	v38 = v37 + state->m_nLengthNeeded;
-	v39 = v37 + state->m_nCompressedStreamSize;
-	state->m_nLengthNeeded = v38;
-	state->m_nCompressedStreamSize = v39;
+	v38 = v37 + state->m_bufferSizeNeeded;
+	v39 = v37 + state->m_compressedStreamSize;
+	state->m_bufferSizeNeeded = v38;
+	state->m_compressedStreamSize = v39;
 	if (v36 >= v30)
 	{
 		v36 = v30;
-		state->m_nCompressedStreamSize = v32 + v39;
+		state->m_compressedStreamSize = v32 + v39;
 	}
-	state->m_nDecompStreamSize = v36;
+	state->m_decompStreamSize = v36;
 	if (inLen >= v38 && outLen >= v36)
 	{
 	LABEL_25:
 		v10 = state->qword70;
 		if (v9 >= v10)
 		{
-			v9 = ~state->m_nInvMaskIn & (v9 + 7);
-			v10 += state->m_nInvMaskIn + 1;
+			v9 = ~state->m_inputInvMask & (v9 + 7);
+			v10 += state->m_inputInvMask + 1;
 			state->qword70 = v10;
 		}
-		if (state->m_nCompressedStreamSize < v10)
-			v10 = state->m_nCompressedStreamSize;
+		if (state->m_compressedStreamSize < v10)
+			v10 = state->m_compressedStreamSize;
 		goto LABEL_29;
 	}
 	v69 = state->qword70;
@@ -594,11 +594,11 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 	}
 	state->dword6C = v71;
 	result = 0;
-	state->byte = v19;
-	state->m_nByteBitOffset = v7;
+	state->m_currentByte = v19;
+	state->m_currentByteBit = v7;
 LABEL_69:
-	state->m_nDecompPosition = v5;
-	state->m_nInputBytePos = v9;
+	state->m_decompBytePosition = v5;
+	state->m_fileBytePosition = v9;
 	return result;
 }
 
@@ -661,15 +661,15 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 //-----------------------------------------------------------------------------
 // Purpose: gets information about loaded pak file via pak ID
 //-----------------------------------------------------------------------------
-RPakLoadedInfo_t* RTech::GetPakLoadedInfo(RPakHandle_t nHandle)
+PakLoadedInfo_t* RTech::GetPakLoadedInfo(PakHandle_t nHandle)
 {
 	for (int16_t i = 0; i < *g_pLoadedPakCount; ++i)
 	{
-		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
+		PakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
 		if (!info)
 			continue;
 
-		if (info->m_nHandle != nHandle)
+		if (info->m_handle != nHandle)
 			continue;
 
 		return info;
@@ -682,18 +682,18 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(RPakHandle_t nHandle)
 //-----------------------------------------------------------------------------
 // Purpose: gets information about loaded pak file via pak name
 //-----------------------------------------------------------------------------
-RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
+PakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 {
 	for (int16_t i = 0; i < *g_pLoadedPakCount; ++i)
 	{
-		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
+		PakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
 		if (!info)
 			continue;
 
-		if (!info->m_pszFileName || !*info->m_pszFileName)
+		if (!info->m_fileName || !*info->m_fileName)
 			continue;
 
-		if (strcmp(szPakName, info->m_pszFileName) != 0)
+		if (strcmp(szPakName, info->m_fileName) != 0)
 			continue;
 
 		return info;
@@ -706,26 +706,26 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 //-----------------------------------------------------------------------------
 // Purpose: returns pak status as string
 //-----------------------------------------------------------------------------
-const char* RTech::PakStatusToString(RPakStatus_t status)
+const char* RTech::PakStatusToString(EPakStatus status)
 {
 	switch (status)
 	{
-		case RPakStatus_t::PAK_STATUS_FREED:                  return "PAK_STATUS_FREED";
-		case RPakStatus_t::PAK_STATUS_LOAD_PENDING:           return "PAK_STATUS_LOAD_PENDING";
-		case RPakStatus_t::PAK_STATUS_REPAK_RUNNING:          return "PAK_STATUS_REPAK_RUNNING";
-		case RPakStatus_t::PAK_STATUS_REPAK_DONE:             return "PAK_STATUS_REPAK_DONE";
-		case RPakStatus_t::PAK_STATUS_LOAD_STARTING:          return "PAK_STATUS_LOAD_STARTING";
-		case RPakStatus_t::PAK_STATUS_LOAD_PAKHDR:            return "PAK_STATUS_LOAD_PAKHDR";
-		case RPakStatus_t::PAK_STATUS_LOAD_PATCH_INIT:        return "PAK_STATUS_LOAD_PATCH_INIT";
-		case RPakStatus_t::PAK_STATUS_LOAD_PATCH_EDIT_STREAM: return "PAK_STATUS_LOAD_PATCH_EDIT_STREAM";
-		case RPakStatus_t::PAK_STATUS_LOAD_ASSETS:            return "PAK_STATUS_LOAD_ASSETS";
-		case RPakStatus_t::PAK_STATUS_LOADED:                 return "PAK_STATUS_LOADED";
-		case RPakStatus_t::PAK_STATUS_UNLOAD_PENDING:         return "PAK_STATUS_UNLOAD_PENDING";
-		case RPakStatus_t::PAK_STATUS_FREE_PENDING:           return "PAK_STATUS_FREE_PENDING";
-		case RPakStatus_t::PAK_STATUS_CANCELING:              return "PAK_STATUS_CANCELING";
-		case RPakStatus_t::PAK_STATUS_ERROR:                  return "PAK_STATUS_ERROR";
-		case RPakStatus_t::PAK_STATUS_INVALID_PAKHANDLE:      return "PAK_STATUS_INVALID_PAKHANDLE";
-		case RPakStatus_t::PAK_STATUS_BUSY:                   return "PAK_STATUS_BUSY";
+		case EPakStatus::PAK_STATUS_FREED:                  return "PAK_STATUS_FREED";
+		case EPakStatus::PAK_STATUS_LOAD_PENDING:           return "PAK_STATUS_LOAD_PENDING";
+		case EPakStatus::PAK_STATUS_REPAK_RUNNING:          return "PAK_STATUS_REPAK_RUNNING";
+		case EPakStatus::PAK_STATUS_REPAK_DONE:             return "PAK_STATUS_REPAK_DONE";
+		case EPakStatus::PAK_STATUS_LOAD_STARTING:          return "PAK_STATUS_LOAD_STARTING";
+		case EPakStatus::PAK_STATUS_LOAD_PAKHDR:            return "PAK_STATUS_LOAD_PAKHDR";
+		case EPakStatus::PAK_STATUS_LOAD_PATCH_INIT:        return "PAK_STATUS_LOAD_PATCH_INIT";
+		case EPakStatus::PAK_STATUS_LOAD_PATCH_EDIT_STREAM: return "PAK_STATUS_LOAD_PATCH_EDIT_STREAM";
+		case EPakStatus::PAK_STATUS_LOAD_ASSETS:            return "PAK_STATUS_LOAD_ASSETS";
+		case EPakStatus::PAK_STATUS_LOADED:                 return "PAK_STATUS_LOADED";
+		case EPakStatus::PAK_STATUS_UNLOAD_PENDING:         return "PAK_STATUS_UNLOAD_PENDING";
+		case EPakStatus::PAK_STATUS_FREE_PENDING:           return "PAK_STATUS_FREE_PENDING";
+		case EPakStatus::PAK_STATUS_CANCELING:              return "PAK_STATUS_CANCELING";
+		case EPakStatus::PAK_STATUS_ERROR:                  return "PAK_STATUS_ERROR";
+		case EPakStatus::PAK_STATUS_INVALID_PAKHANDLE:      return "PAK_STATUS_INVALID_PAKHANDLE";
+		case EPakStatus::PAK_STATUS_BUSY:                   return "PAK_STATUS_BUSY";
 		default:                                              return "PAK_STATUS_UNKNOWN";
 	}
 }
@@ -733,7 +733,7 @@ const char* RTech::PakStatusToString(RPakStatus_t status)
 //-----------------------------------------------------------------------------
 // Purpose: process guid relations for asset
 //-----------------------------------------------------------------------------
-void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* pAsset)
+void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, PakAsset_t* pAsset)
 {
 #if defined (GAMEDLL_S0) && defined (GAMEDLL_S1) && defined (GAMEDLL_S2)
 	static const int GLOBAL_MUL = 0x1D;
@@ -741,27 +741,27 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 	static const int GLOBAL_MUL = 0x17;
 #endif
 
-	RPakDescriptor_t* pGuidDescriptors = &pPak->m_pGuidDescriptors[pAsset->m_nUsesStartIdx];
-	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pPakGlobals) + GLOBAL_MUL * (pPak->qword578 & 0x1FF) + 0x160212));
+	PakPage_t* pGuidDescriptors = &pPak->m_memoryData.m_guidDescriptors[pAsset->m_usesStartIdx];
+	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pPakGlobals) + GLOBAL_MUL * (pPak->m_memoryData.qword2D8 & 0x1FF) + 0x160212));
 	const bool bDebug = rtech_debug->GetBool();
 
 	if (bDebug)
-		Msg(eDLL_T::RTECH, "Processing GUID relations for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount);
+		Msg(eDLL_T::RTECH, "Processing GUID relations for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i\n", pAsset->m_guid, pPak->m_memoryData.m_fileName, pAsset->m_usesCount);
 
-	for (uint32_t i = 0; i < pAsset->m_nUsesCount; i++)
+	for (uint32_t i = 0; i < pAsset->m_usesCount; i++)
 	{
-		void** pCurrentGuid = reinterpret_cast<void**>(pPak->m_ppPagePointers[pGuidDescriptors[i].m_Index] + pGuidDescriptors[i].m_Offset);
+		void** pCurrentGuid = reinterpret_cast<void**>(pPak->m_memoryData.m_pagePointers[pGuidDescriptors[i].m_index] + pGuidDescriptors[i].offset);
 
 		// Get current guid.
 		const uint64_t currentGuid = reinterpret_cast<uint64_t>(*pCurrentGuid);
 
 		// Get asset index.
 		int assetIdx = currentGuid & 0x3FFFF;
-		uint64_t assetIdxEntryGuid = g_pPakGlobals->m_Assets[assetIdx].m_Guid;
+		uint64_t assetIdxEntryGuid = g_pPakGlobals->m_assets[assetIdx].m_guid;
 
 		const int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
 		*reinterpret_cast<uint64_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 2])) = currentGuid;
-		*reinterpret_cast<uint64_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 4])) = pAsset->m_Guid;
+		*reinterpret_cast<uint64_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 4])) = pAsset->m_guid;
 
 		std::function<bool(bool)> fnCheckAsset = [&](bool shouldCheckTwo)
 		{
@@ -769,7 +769,7 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 			{
 				if (shouldCheckTwo && assetIdxEntryGuid == 2)
 				{
-					if (pPak->m_PakHdr.m_nAssetEntryCount)
+					if (pPak->m_memoryData.m_pakHeader.m_assetEntryCount)
 						return false;
 				}
 
@@ -778,13 +778,13 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 				// Check if we have a deadlock and report it if we have rtech_debug enabled.
 				if (bDebug && assetIdx >= 0x40000)
 				{
-					Warning(eDLL_T::RTECH, "Possible deadlock detected while processing asset '0x%-16llX' in pak '%-32s'. Uses: %-4i | assetIdxEntryGuid: '0x%-16llX' | currentGuid: '0x%-16llX'\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount, assetIdxEntryGuid, currentGuid);
+					Warning(eDLL_T::RTECH, "Possible deadlock detected while processing asset '0x%-16llX' in pak '%-32s'. Uses: %-4i | assetIdxEntryGuid: '0x%-16llX' | currentGuid: '0x%-16llX'\n", pAsset->m_guid, pPak->m_memoryData.m_fileName, pAsset->m_usesCount, assetIdxEntryGuid, currentGuid);
 					if (IsDebuggerPresent())
 						DebugBreak();
 				}
 
 				assetIdx &= 0x3FFFF;
-				assetIdxEntryGuid = g_pPakGlobals->m_Assets[assetIdx].m_Guid;
+				assetIdxEntryGuid = g_pPakGlobals->m_assets[assetIdx].m_guid;
 
 				if (assetIdxEntryGuid == currentGuid)
 					return true;
@@ -796,24 +796,24 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 			// Are we some special asset with the guid 2?
 			if (!fnCheckAsset(true))
 			{
-				RPakAssetEntry_t* assetEntries = pPak->m_pAssetEntries;
+				PakAsset_t* assetEntries = pPak->m_memoryData.m_assetEntries;
 				uint64_t a = 0;
 
-				for (; assetEntries->m_Guid != currentGuid; a++, assetEntries++)
+				for (; assetEntries->m_guid != currentGuid; a++, assetEntries++)
 				{
-					if (a >= pPak->m_PakHdr.m_nAssetEntryCount)
+					if (a >= pPak->m_memoryData.m_pakHeader.m_assetEntryCount)
 					{
 						fnCheckAsset(false);
 						break;
 					}
 				}
 
-				assetIdx = pPak->qword580[a];
+				assetIdx = pPak->m_memoryData.qword2E0[a];
 			}
 		}
 
 		// Finally write the pointer to the guid entry.
-		*pCurrentGuid = g_pPakGlobals->m_Assets[assetIdx].m_pHead;
+		*pCurrentGuid = g_pPakGlobals->m_assets[assetIdx].m_head;
 	}
 }
 #endif // GAMEDLL_S3
