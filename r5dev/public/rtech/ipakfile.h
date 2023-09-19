@@ -259,7 +259,7 @@ struct PakMemoryData_t
 	uint8_t** m_pagePointers;
 
 	PakPatchFileHeader_t* m_patchHeaders;
-	uint64_t UnkPatchIndexes;
+	short* UnkPatchIndexes;
 
 	char* m_streamingFilePaths;
 	char* m_optStreamingFilePaths;
