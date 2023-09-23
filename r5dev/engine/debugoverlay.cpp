@@ -292,16 +292,7 @@ void DrawAllOverlays(bool bRender)
 #ifndef CLIENT_DLL
     if (bOverlayEnabled)
     {
-        if (ai_script_nodes_draw->GetInt() > -1)
-            g_pAIUtility->DrawAIScriptNetwork(*g_pAINetwork);
-        if (navmesh_draw_bvtree->GetInt() > -1)
-            g_pAIUtility->DrawNavMeshBVTree();
-        if (navmesh_draw_portal->GetInt() > -1)
-            g_pAIUtility->DrawNavMeshPortals();
-        if (navmesh_draw_polys->GetInt() > -1)
-            g_pAIUtility->DrawNavMeshPolys();
-        if (navmesh_draw_poly_bounds->GetInt() > -1)
-            g_pAIUtility->DrawNavMeshPolyBoundaries();
+        g_pAIUtility->RunRenderFrame();
     }
 #endif // !CLIENT_DLL
 
