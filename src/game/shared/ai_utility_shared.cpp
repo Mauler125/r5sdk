@@ -138,7 +138,10 @@ void CAI_Utility::DrawAIScriptNetwork(
             int nNearest = GetNearestNodeToPos(pNetwork, &pScriptNode->m_vOrigin);
             if (nNearest != NO_NODE) // NO_NODE = -1
             {
-                auto p = uLinkSet.insert(_mm_extract_epi64(PackNodeLink(i, nNearest), 1));
+                shortx8 packedLinks = PackNodeLink(i, nNearest);
+                packedLinks = _mm_srli_si128(packedLinks, 8); // Only the upper 64bits are used.
+
+                auto p = uLinkSet.insert(reinterpret_cast<int64_t&>(packedLinks));
                 if (p.second) // Only render if link hasn't already been rendered.
                 {
                     const CAI_ScriptNode* pNearestNode = &pNetwork->m_ScriptNode[nNearest];
@@ -536,9 +539,9 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
 //          d - 
 // Output : packed node set as i64x2
 //------------------------------------------------------------------------------
-__m128i CAI_Utility::PackNodeLink(int32_t a, int32_t b, int32_t c, int32_t d) const
+shortx8 CAI_Utility::PackNodeLink(int32_t a, int32_t b, int32_t c, int32_t d) const
 {
-    __m128i xResult = _mm_set_epi32(a, b, c, d);
+    shortx8 xResult = _mm_set_epi32(a, b, c, d);
 
     // We shuffle a b and c d if following condition is met, this is to 
     // ensure we always end up with one possible combination of indices.

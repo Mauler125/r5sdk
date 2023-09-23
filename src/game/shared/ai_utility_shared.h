@@ -57,7 +57,7 @@ public:
 		const int nTileRange,
 		const bool bDepthBuffer) const;
 
-	__m128i PackNodeLink(int32_t a, int32_t b, int32_t c = 0, int32_t d = 0) const;
+	shortx8 PackNodeLink(int32_t a, int32_t b, int32_t c = 0, int32_t d = 0) const;
 	int GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector3D* vec) const;
 	bool IsTileWithinRange(const dtMeshTile* pTile, const VPlane& vPlane, const Vector3D& vCamera, const float flCameraRadius) const;
 
