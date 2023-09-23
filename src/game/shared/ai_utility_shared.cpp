@@ -569,7 +569,7 @@ bool CAI_Utility::IsTileWithinRange(const dtMeshTile* pTile, const VPlane& vPlan
     {
         // Too far from camera, do not render.
         if (vCamera.DistTo(*vecMinBound) > flCameraRadius ||
-            vCamera.DistTo(*vecMinBound) > flCameraRadius)
+            vCamera.DistTo(*vecMaxBound) > flCameraRadius)
             return false;
     }
 
