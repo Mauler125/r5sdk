@@ -14,8 +14,8 @@
 #include "engine/server/server.h"
 #include "engine/client/client.h"
 
-// 128+1 so that the client still receives the 'console command too long' message.
-#define STRINGCMD_MAX_LEN 129
+// Absolute max string cmd length, any character past this will be NULLED.
+#define STRINGCMD_MAX_LEN 512
 
 //---------------------------------------------------------------------------------
 // Purpose: throw away any residual garbage in the channel
@@ -188,17 +188,17 @@ CClient* AdjustShiftedThisPointer(CClient* shiftedPointer)
 bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 {
 #ifndef CLIENT_DLL
-	CClient* pClient_Adj = AdjustShiftedThisPointer(pClient);
+	CClient* const pClient_Adj = AdjustShiftedThisPointer(pClient);
 
 	// Jettison the cmd if the client isn't active.
 	if (!pClient_Adj->IsActive())
 		return true;
 
-	int nUserID = pClient_Adj->GetUserID();
-	ServerPlayer_t* pSlot = &g_ServerPlayer[nUserID];
+	const int nUserID = pClient_Adj->GetUserID();
+	ServerPlayer_t* const pSlot = &g_ServerPlayer[nUserID];
 
-	double flStartTime = Plat_FloatTime();
-	int nCmdQuotaLimit = sv_quota_stringCmdsPerSecond->GetInt();
+	const double flStartTime = Plat_FloatTime();
+	const int nCmdQuotaLimit = sv_quota_stringCmdsPerSecond->GetInt();
 
 	if (!nCmdQuotaLimit)
 		return true;
@@ -209,16 +209,13 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	// The internal function discards the command if it's null.
 	if (pCmd)
 	{
-		// If the string length exceeds 128, the engine will return a 'command
-		// string too long' message back to the client that issued it and
-		// subsequently jettison the string cmd. Before this routine gets hit,
-		// the entire string gets parsed (up to 512 bytes). There is an issue
-		// in CUtlBuffer::ParseToken() that causes it to read past its buffer;
-		// mostly seems to happen on 32bit, but a carefully crafted string
-		// should work on 64bit too). The fix is to just null everything past
-		// the maximum allowed length. The second 'theoretical' fix would be to
-		// properly fix CUtlBuffer::ParseToken() by computing the UTF8 character
-		// size each iteration and check if it still doesn't exceed bounds.
+		// There is an issue in CUtlBuffer::ParseToken() that causes it to read
+		// past its buffer; mostly seems to happen on 32bit, but a carefully
+		// crafted string should work on 64bit too). The fix is to just null 
+		// everything past the maximum allowed length. The second 'theoretical'
+		// fix would be to properly fix CUtlBuffer::ParseToken() by computing
+		// the UTF8 character size each iteration and check if it still doesn't
+		// exceed bounds.
 		memset(&pMsg->buffer[STRINGCMD_MAX_LEN],
 			'\0', sizeof(pMsg->buffer) - (STRINGCMD_MAX_LEN));
 
