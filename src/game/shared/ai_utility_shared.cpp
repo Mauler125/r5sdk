@@ -38,39 +38,88 @@ static const fltx4 s_xMaxs = LoadAlignedSIMD(s_vMaxs);
 static const fltx4 s_xSubMask = LoadAlignedSIMD(s_vSubMask);
 
 //------------------------------------------------------------------------------
-// Purpose: draw AI script network
-// Input  : *pAINetwork - 
+// Purpose: run the NavMesh renderer
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
+void CAI_Utility::RunRenderFrame(void)
+{
+    const int iScriptNodeIndex = ai_script_nodes_draw->GetInt();
+    const int iNavMeshBVTreeIndex = navmesh_draw_bvtree->GetInt();
+    const int iNavMeshPortalIndex = navmesh_draw_portal->GetInt();
+    const int iNavMeshPolyIndex = navmesh_draw_polys->GetInt();
+    const int iNavMeshPolyBoundIndex = navmesh_draw_poly_bounds->GetInt();
+
+    if (iScriptNodeIndex <= -1 &&
+        iNavMeshBVTreeIndex <= -1 &&
+        iNavMeshPortalIndex <= -1 &&
+        iNavMeshPolyIndex <= -1 &&
+        iNavMeshPolyBoundIndex <= -1)
+    {
+        // Nothing to render.
+        return;
+    }
+
+    const Vector3D& vCamera = MainViewOrigin();
+    const QAngle& aCamera = MainViewAngles();
+
+    const Vector3D vNormal = vCamera - aCamera.GetNormal() * 256.0f;
+    const VPlane vCullPlane(vNormal, aCamera);
+
+    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
+    const int nTileRange = navmesh_debug_tile_range->GetInt();
+    const bool bUseDepthBuffer = r_debug_draw_depth_test->GetBool();
+
+    if (iScriptNodeIndex > -1)
+        g_pAIUtility->DrawAIScriptNetwork(*g_pAINetwork, vCamera, iScriptNodeIndex, flCameraRange, bUseDepthBuffer);
+    if (iNavMeshBVTreeIndex > -1)
+        g_pAIUtility->DrawNavMeshBVTree(nullptr, vCamera, vCullPlane, iNavMeshBVTreeIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+    if (iNavMeshPortalIndex > -1)
+        g_pAIUtility->DrawNavMeshPortals(nullptr, vCamera, vCullPlane, iNavMeshPortalIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+    if (iNavMeshPolyIndex > -1)
+        g_pAIUtility->DrawNavMeshPolys(nullptr, vCamera, vCullPlane, iNavMeshPolyIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+    if (iNavMeshPolyBoundIndex > -1)
+        g_pAIUtility->DrawNavMeshPolyBoundaries(nullptr, vCamera, vCullPlane, iNavMeshPolyBoundIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: draw AI script network
+// Input  : *pNetwork       - 
+//          &vCameraPos     - 
+//          iNodeIndex      - 
+//          flCameraRange   - 
+//          bUseDepthBuffer - 
+//------------------------------------------------------------------------------
+void CAI_Utility::DrawAIScriptNetwork(
+    const CAI_Network* pNetwork,
+    const Vector3D& vCameraPos,
+    const int iNodeIndex,
+    const float flCameraRange,
+    const bool bUseDepthBuffer) const
 {
     if (!pNetwork)
         return; // AI Network not build or loaded.
 
-    const bool bUseDepthBuffer = r_debug_draw_depth_test->GetBool();
     const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
     const int  nNodeRange = ai_script_nodes_draw_range->GetInt();
-    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
-    const Vector3D vCamera = MainViewOrigin();
 
     OverlayBox_t::Transforms vTransforms;
     std::unordered_set<int64_t> uLinkSet;
 
-    for (int i = ai_script_nodes_draw->GetInt(), ns = pNetwork->NumScriptNodes(); i < ns; i++)
+    for (int i = iNodeIndex, ns = pNetwork->NumScriptNodes(); i < ns; i++)
     {
         if (nNodeRange && i > nNodeRange)
             break;
 
         const CAI_ScriptNode* pScriptNode = &pNetwork->m_ScriptNode[i];
-        fltx4 xOrigin = LoadUnaligned3SIMD(&pScriptNode->m_vOrigin);
-        xOrigin = SubSIMD(xOrigin, s_xSubMask); // Subtract 25.f from our scalars to align box with node.
+        const fltx4 xOrigin = SubSIMD(// Subtract 25.f from our scalars to align box with node.
+            LoadUnaligned3SIMD(&pScriptNode->m_vOrigin), s_xSubMask);
 
         if (flCameraRange > 0.0f)
         {
             // Flip the script node Z axis with that of the camera, so that it won't be used for
             // the final distance computation. This allows for viewing the AI Network from above.
-            const fltx4 xOriginCamZ = SetComponentSIMD(xOrigin, 2, vCamera.z);
+            const fltx4 xOriginCamZ = SetComponentSIMD(xOrigin, 2, vCameraPos.z);
 
-            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xOriginCamZ)) > flCameraRange)
+            if (vCameraPos.DistTo(*reinterpret_cast<const Vector3D*>(&xOriginCamZ)) > flCameraRange)
                 continue; // Do not render if node is not within range set by cvar 'navmesh_debug_camera_range'.
         }
 
@@ -79,7 +128,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
             { 1.0f, 0.0f, 0.0f },
             { 0.0f, 1.0f, 0.0f },
             { 0.0f, 0.0f, 1.0f },
-            *reinterpret_cast<Vector3D*>(&xOrigin));
+            *reinterpret_cast<const Vector3D*>(&xOrigin));
 
         v_RenderBox(vTransforms.mat, *reinterpret_cast<const Vector3D*>(&s_xMins),
             *reinterpret_cast<const Vector3D*>(&s_xMaxs), m_BoxColor, bUseDepthBuffer);
@@ -104,22 +153,30 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 
 //------------------------------------------------------------------------------
 // Purpose: draw NavMesh BVTree
-// Input  : *pMesh - 
+// Input  : *pMesh        - 
+//          &vCameraPos   - 
+//          &vCullPlane   - 
+//          iBVTreeIndex  - 
+//          flCameraRange - 
+//          nTileRange    - 
+//          bDepthBuffer  - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
+void CAI_Utility::DrawNavMeshBVTree(
+    const dtNavMesh* pMesh,
+    const Vector3D& vCameraPos,
+    const VPlane& vCullPlane,
+    const int iBVTreeIndex,
+    const float flCameraRange,
+    const int nTileRange,
+    const bool bDepthBuffer) const
 {
     if (!pMesh)
         pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const Vector3D vCamera = MainViewOrigin();
-    const bool bDepthBuffer = r_debug_draw_depth_test->GetBool();
-    const int nTileRange = navmesh_debug_tile_range->GetInt();
-    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
-
     OverlayBox_t::Transforms vTransforms;
-    for (int i = navmesh_draw_bvtree->GetInt(), nt = pMesh->getTileCount(); i < nt; ++i)
+    for (int i = iBVTreeIndex, nt = pMesh->getTileCount(); i < nt; ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;
@@ -128,7 +185,7 @@ void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
         if (!pTile->header)
             continue;
 
-        if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
+        if (!IsTileWithinRange(pTile, vCullPlane, vCameraPos, flCameraRange))
             continue;
 
         const float flCellSize = 1.0f / pTile->header->bvQuantFactor;
@@ -158,21 +215,28 @@ void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
 
 //------------------------------------------------------------------------------
 // Purpose: draw NavMesh portals
-// Input  : *pMesh - 
+// Input  : *pMesh        - 
+//          &vCameraPos   - 
+//          &vCullPlane   - 
+//          iPortalIndex  - 
+//          flCameraRange - 
+//          nTileRange    - 
+//          bDepthBuffer  - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
+void CAI_Utility::DrawNavMeshPortals(const dtNavMesh* pMesh,
+    const Vector3D& vCameraPos,
+    const VPlane& vCullPlane,
+    const int iPortalIndex,
+    const float flCameraRange,
+    const int nTileRange,
+    const bool bDepthBuffer) const
 {
     if (!pMesh)
         pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const Vector3D vCamera = MainViewOrigin();
-    const bool bDepthBuffer = r_debug_draw_depth_test->GetBool();
-    const int nTileRange = navmesh_debug_tile_range->GetInt();
-    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
-
-    for (int i = navmesh_draw_portal->GetInt(), nt = pMesh->getTileCount(); i < nt; ++i)
+    for (int i = iPortalIndex, nt = pMesh->getTileCount(); i < nt; ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;
@@ -181,7 +245,7 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
         if (!pTile->header)
             continue;
 
-        if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
+        if (!IsTileWithinRange(pTile, vCullPlane, vCameraPos, flCameraRange))
             continue;
 
         // Draw portals
@@ -271,21 +335,28 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
 
 //------------------------------------------------------------------------------
 // Purpose: draw NavMesh polys
-// Input  : *pMesh - 
+// Input  : *pMesh        - 
+//          &vCameraPos   - 
+//          &vCullPlane   - 
+//          iPolyIndex    - 
+//          flCameraRange - 
+//          nTileRange    - 
+//          bDepthBuffer  - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
+void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
+    const Vector3D& vCameraPos,
+    const VPlane& vCullPlane,
+    const int iPolyIndex,
+    const float flCameraRange,
+    const int nTileRange,
+    const bool bDepthBuffer) const
 {
     if (!pMesh)
         pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const Vector3D vCamera = MainViewOrigin();
-    const bool bDepthBuffer = r_debug_draw_depth_test->GetBool();
-    const int nTileRange = navmesh_debug_tile_range->GetInt();
-    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
-
-    for (int i = navmesh_draw_polys->GetInt(); i < pMesh->getTileCount(); ++i)
+    for (int i = iPolyIndex; i < pMesh->getTileCount(); ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;
@@ -294,7 +365,7 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
         if (!pTile->header)
             continue;
 
-        if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
+        if (!IsTileWithinRange(pTile, vCullPlane, vCameraPos, flCameraRange))
             continue;
 
         for (int j = 0; j < pTile->header->polyCount; j++)
@@ -345,9 +416,21 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
 
 //------------------------------------------------------------------------------
 // Purpose : draw NavMesh poly boundaries
-// Input  : *pMesh - 
+// Input  : *pMesh         - 
+//          &vCameraPos    - 
+//          &vCullPlane    - 
+//          iBoundaryIndex - 
+//          flCameraRange  - 
+//          nTileRange     - 
+//          bDepthBuffer   - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
+void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
+    const Vector3D& vCameraPos,
+    const VPlane& vCullPlane,
+    const int iBoundaryIndex,
+    const float flCameraRange,
+    const int nTileRange,
+    const bool bDepthBuffer) const
 {
     static const float thr = 0.01f * 0.01f;
     Color col{ 20, 140, 255, 255 };
@@ -357,13 +440,9 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const Vector3D vCamera = MainViewOrigin();
-    const bool bDepthBuffer = r_debug_draw_depth_test->GetBool();
     const bool bDrawInner = navmesh_draw_poly_bounds_inner->GetBool();
-    const int nTileRange = navmesh_debug_tile_range->GetInt();
-    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
 
-    for (int i = navmesh_draw_poly_bounds->GetInt(), nt = pMesh->getTileCount(); i < nt; ++i)
+    for (int i = iBoundaryIndex, nt = pMesh->getTileCount(); i < nt; ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;
@@ -372,7 +451,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
         if (!pTile->header)
             continue;
 
-        if (!IsTileWithinRange(pTile, vCamera, flCameraRange))
+        if (!IsTileWithinRange(pTile, vCullPlane, vCameraPos, flCameraRange))
             continue;
 
         for (int j = 0; j < pTile->header->polyCount; ++j)
@@ -478,16 +557,25 @@ __m128i CAI_Utility::PackNodeLink(int32_t a, int32_t b, int32_t c, int32_t d) co
 //          flCameraRadius - 
 // Output : true if within radius, false otherwise
 //------------------------------------------------------------------------------
-bool CAI_Utility::IsTileWithinRange(const dtMeshTile* pTile, const Vector3D& vCamera, const float flCameraRadius) const
+bool CAI_Utility::IsTileWithinRange(const dtMeshTile* pTile, const VPlane& vPlane, const Vector3D& vCamera, const float flCameraRadius) const
 {
-    if (flCameraRadius <= 0.0f)
-        return false;
-
     const fltx4 xMinBound = LoadGatherSIMD(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
     const fltx4 xMaxBound = LoadGatherSIMD(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
 
-    if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRadius ||
-        vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRadius)
+    const Vector3D* vecMinBound = reinterpret_cast<const Vector3D*>(&xMinBound);
+    const Vector3D* vecMaxBound = reinterpret_cast<const Vector3D*>(&xMaxBound);
+
+    if (flCameraRadius > 0.0f)
+    {
+        // Too far from camera, do not render.
+        if (vCamera.DistTo(*vecMinBound) > flCameraRadius ||
+            vCamera.DistTo(*vecMinBound) > flCameraRadius)
+            return false;
+    }
+
+    // Behind the camera, do not render.
+    if (vPlane.GetPointSide(*vecMinBound) != SIDE_FRONT ||
+        vPlane.GetPointSide(*vecMaxBound) != SIDE_FRONT)
         return false;
 
     return true;
