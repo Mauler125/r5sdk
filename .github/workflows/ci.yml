@@ -1,0 +1,27 @@
+name: CI
+on: [push, pull_request]
+
+env:
+  BUILD_PROFILE: Release
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      # Download repo source code
+      - name: Checkout
+        uses: actions/checkout@v3
+      # Setup msbuild toolchain
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+      # Compile code base
+      - name: Build
+        run: msbuild /p:Configuration=${{ env.BUILD_PROFILE }}
+      # Upload resulting binaries
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          # Upload all files from `game/` directory
+          path: |
+            game/*.*
