@@ -117,7 +117,7 @@ struct PakFileHeader_t
 	uint8_t  unk2[0x10];                  //
 	uint32_t m_memPageOffset;             // Size not verified. Offsets every page by x amount, if not 0 start of first page has data corresponding for 'patching some page'
 	uint8_t  unk3[0x8];                   //
-};
+}; static_assert(sizeof(PakFileHeader_t) == 0x80);
 
 struct PakPatchFileHeader_t
 {
@@ -294,13 +294,7 @@ struct PakFile_t
 	uint32_t m_patchCount;
 	uint32_t dword14;
 
-	PakFileStream_t* m_fileStream;
-	size_t m_compressSize;
-	int m_fileHandle;
-
-	_BYTE gap2c[164];
-	uint32_t unsigned_intD0;
-	char gapD4[284];
+	PakFileStream_t m_fileStream;
 	uint64_t m_inputBytePos;
 	uint8_t byte1F8;
 	char gap1F9[4];
