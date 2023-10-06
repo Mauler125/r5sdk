@@ -611,53 +611,6 @@ void** RTech::LoadShaderSet(void** VTablePtr)
 	return &g_pShaderGlueVFTable;
 }
 
-//----------------------------------------------------------------------------------
-// Purpose: open a file and add it to m_FileHandles.
-//----------------------------------------------------------------------------------
-int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut)
-{
-	const CHAR* szFileToLoad = szFilePath;
-	CUtlString pakBasePath(szFilePath);
-
-	if (pakBasePath.Find(PLATFORM_PAK_PATH) != -1)
-	{
-		pakBasePath = pakBasePath.Replace(PLATFORM_PAK_PATH, PLATFORM_PAK_OVERRIDE_PATH);
-
-		if (FileExists(pakBasePath.Get()))
-		{
-			szFileToLoad = pakBasePath.Get();
-		}
-	}
-
-	const HANDLE hFile = CreateFileA(szFileToLoad, GENERIC_READ,
-		FILE_SHARE_READ | FILE_SHARE_DELETE, 0, OPEN_EXISTING, FILE_SUPPORTS_GHOSTING, 0);
-
-	if (hFile == INVALID_HANDLE_VALUE)
-		return -1;
-
-	if (rtech_debug->GetBool())
-		Msg(eDLL_T::RTECH, "Opened file: '%s'\n", szFileToLoad);
-
-	if (fileSizeOut)
-	{
-		LARGE_INTEGER fileSize{};
-		if (GetFileSizeEx(hFile, &fileSize))
-			*fileSizeOut = fileSize.QuadPart;
-	}
-
-	AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*s_pFileArrayMutex));
-	const int32_t fileIdx = RTech_FindFreeSlotInFiles(s_pFileArray);
-	ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*s_pFileArrayMutex));
-
-	const int32_t fileHandleIdx =  (fileIdx & 0x3FF); // Something with ArraySize.
-
-	s_pFileHandles->self[fileHandleIdx].m_nFileNumber = fileIdx;
-	s_pFileHandles->self[fileHandleIdx].m_hFileHandle = hFile;
-	s_pFileHandles->self[fileHandleIdx].m_nCurOfs = 1;
-
-	return fileIdx;
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: gets information about loaded pak file via pak ID
 //-----------------------------------------------------------------------------
@@ -729,110 +682,12 @@ const char* RTech::PakStatusToString(EPakStatus status)
 		default:                                              return "PAK_STATUS_UNKNOWN";
 	}
 }
-#ifdef GAMEDLL_S3
-//-----------------------------------------------------------------------------
-// Purpose: process guid relations for asset
-//-----------------------------------------------------------------------------
-void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, PakAsset_t* pAsset)
-{
-#if defined (GAMEDLL_S0) && defined (GAMEDLL_S1) && defined (GAMEDLL_S2)
-	static const int GLOBAL_MUL = 0x1D;
-#else
-	static const int GLOBAL_MUL = 0x17;
-#endif
-
-	PakPage_t* pGuidDescriptors = &pPak->m_memoryData.m_guidDescriptors[pAsset->m_usesStartIdx];
-	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pPakGlobals) + GLOBAL_MUL * (pPak->m_memoryData.qword2D8 & 0x1FF) + 0x160212));
-	const bool bDebug = rtech_debug->GetBool();
-
-	if (bDebug)
-		Msg(eDLL_T::RTECH, "Processing GUID relations for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i\n", pAsset->m_guid, pPak->m_memoryData.m_fileName, pAsset->m_usesCount);
-
-	for (uint32_t i = 0; i < pAsset->m_usesCount; i++)
-	{
-		void** pCurrentGuid = reinterpret_cast<void**>(pPak->m_memoryData.m_pagePointers[pGuidDescriptors[i].m_index] + pGuidDescriptors[i].offset);
-
-		// Get current guid.
-		const uint64_t currentGuid = reinterpret_cast<uint64_t>(*pCurrentGuid);
-
-		// Get asset index.
-		int assetIdx = currentGuid & 0x3FFFF;
-		uint64_t assetIdxEntryGuid = g_pPakGlobals->m_assets[assetIdx].m_guid;
-
-		const int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
-		*reinterpret_cast<uint64_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 2])) = currentGuid;
-		*reinterpret_cast<uint64_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 4])) = pAsset->m_guid;
-
-		std::function<bool(bool)> fnCheckAsset = [&](bool shouldCheckTwo)
-		{
-			while (true)
-			{
-				if (shouldCheckTwo && assetIdxEntryGuid == 2)
-				{
-					if (pPak->m_memoryData.m_pakHeader.m_assetEntryCount)
-						return false;
-				}
-
-				assetIdx++;
-
-				// Check if we have a deadlock and report it if we have rtech_debug enabled.
-				if (bDebug && assetIdx >= 0x40000)
-				{
-					Warning(eDLL_T::RTECH, "Possible deadlock detected while processing asset '0x%-16llX' in pak '%-32s'. Uses: %-4i | assetIdxEntryGuid: '0x%-16llX' | currentGuid: '0x%-16llX'\n", pAsset->m_guid, pPak->m_memoryData.m_fileName, pAsset->m_usesCount, assetIdxEntryGuid, currentGuid);
-					if (IsDebuggerPresent())
-						DebugBreak();
-				}
-
-				assetIdx &= 0x3FFFF;
-				assetIdxEntryGuid = g_pPakGlobals->m_assets[assetIdx].m_guid;
-
-				if (assetIdxEntryGuid == currentGuid)
-					return true;
-			}
-		};
-
-		if (assetIdxEntryGuid != currentGuid)
-		{
-			// Are we some special asset with the guid 2?
-			if (!fnCheckAsset(true))
-			{
-				PakAsset_t* assetEntries = pPak->m_memoryData.m_assetEntries;
-				uint64_t a = 0;
-
-				for (; assetEntries->m_guid != currentGuid; a++, assetEntries++)
-				{
-					if (a >= pPak->m_memoryData.m_pakHeader.m_assetEntryCount)
-					{
-						fnCheckAsset(false);
-						break;
-					}
-				}
-
-				assetIdx = pPak->m_memoryData.qword2E0[a];
-			}
-		}
-
-		// Finally write the pointer to the guid entry.
-		*pCurrentGuid = g_pPakGlobals->m_assets[assetIdx].m_head;
-	}
-}
-#endif // GAMEDLL_S3
 void V_RTechUtils::Attach() const
 {
-	DetourAttach(&RTech_OpenFile, &RTech::OpenFile);
-
-#ifdef GAMEDLL_S3
-	DetourAttach(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
-#endif
 }
 
 void V_RTechUtils::Detach() const
 {
-	DetourDetach(&RTech_OpenFile, &RTech::OpenFile);
-
-#ifdef GAMEDLL_S3
-	DetourDetach(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

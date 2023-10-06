@@ -10,16 +10,8 @@
 inline CMemory p_RTech_FindFreeSlotInFiles;
 inline int32_t(*RTech_FindFreeSlotInFiles)(int32_t*);
 
-inline CMemory p_RTech_OpenFile;
-inline int32_t(*RTech_OpenFile)(const char*, void*, int64_t*);
-
 inline CMemory p_RTech_RegisterAsset;
 inline void(*RTech_RegisterAsset)(int, int, const char*, void*, void*, void*, void*, int, int, uint32_t, int, int);
-
-#ifdef GAMEDLL_S3
-inline CMemory p_Pak_ProcessGuidRelationsForAsset;
-inline void(*RTech_Pak_ProcessGuidRelationsForAsset)(PakFile_t*, PakAsset_t*);
-#endif
 
 inline CMemory p_StreamDB_Init;
 inline void(*v_StreamDB_Init)(const char* pszLevelName);
@@ -48,11 +40,6 @@ public:
 	PakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 	const char* PakStatusToString(EPakStatus status);
 
-	static int32_t OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut);
-#ifdef GAMEDLL_S3
-	static void PakProcessGuidRelationsForAsset(PakFile_t* pak, PakAsset_t* asset);
-#endif // GAMEDLL_S3
-
 	void** LoadShaderSet(void** VTablePtr);
 };
 
@@ -65,7 +52,6 @@ class V_RTechUtils : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogFunAdr("RTech::FindFreeSlotInFiles", p_RTech_FindFreeSlotInFiles.GetPtr());
-		LogFunAdr("RTech::OpenFile", p_RTech_OpenFile.GetPtr());
 
 		LogFunAdr("StreamDB_Init", p_StreamDB_Init.GetPtr());
 		LogVarAdr("s_FileArray", reinterpret_cast<uintptr_t>(s_pFileArray));
@@ -91,16 +77,8 @@ class V_RTechUtils : public IDetour
 		p_RTech_FindFreeSlotInFiles = g_GameDll.FindPatternSIMD("44 8B 51 0C 4C 8B C1");
 		RTech_FindFreeSlotInFiles   = p_RTech_FindFreeSlotInFiles.RCast<int32_t(*)(int32_t*)>(); /*44 8B 51 0C 4C 8B C1*/
 
-		p_RTech_OpenFile = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 89 85 08 01 ?? ??").FollowNearCallSelf();
-		RTech_OpenFile   = p_RTech_OpenFile.RCast<int32_t(*)(const char*, void*, int64_t*)>(); /*E8 ? ? ? ? 89 85 08 01 00 00*/
-
 		p_RTech_RegisterAsset = g_GameDll.FindPatternSIMD("4D 89 42 08").FindPatternSelf("48 89 6C", CMemory::Direction::UP);
 		RTech_RegisterAsset   = p_RTech_RegisterAsset.RCast<void(*)(int, int, const char*, void*, void*, void*, void*, int, int, uint32_t, int, int)>(); /*4D 89 42 08*/
-
-#ifdef GAMEDLL_S3
-		p_Pak_ProcessGuidRelationsForAsset = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 86 ?? ?? ?? ?? 42 8B 0C B0").FollowNearCallSelf();
-		RTech_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsForAsset.RCast<void(*)(PakFile_t*, PakAsset_t*)>(); /*E8 ? ? ? ? 48 8B 86 ? ? ? ? 42 8B 0C B0*/
-#endif
 	}
 	virtual void GetVar(void) const
 	{

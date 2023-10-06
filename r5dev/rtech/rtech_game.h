@@ -5,10 +5,10 @@
 
 /* ==== RTECH_GAME ====================================================================================================================================================== */
 inline CMemory p_Pak_LoadAsync;
-inline PakHandle_t(*v_Pak_LoadAsync)(const char* szPakFileName, CAlignedMemAlloc* pMalloc, int nIdx, bool bUnk);
+inline PakHandle_t(*v_Pak_LoadAsync)(const char* fileName, CAlignedMemAlloc* allocator, int nIdx, bool bUnk);
 
 inline CMemory p_Pak_WaitAsync;
-inline EPakStatus(*v_Pak_WaitAsync)(PakHandle_t handle, void* pFinishCallback);
+inline EPakStatus(*v_Pak_WaitAsync)(PakHandle_t handle, void* finishCallback);
 
 inline CMemory p_Pak_LoadPak;
 inline unsigned int (*v_Pak_LoadPak)(void* thisptr, void* a2, uint64_t a3);
@@ -16,9 +16,16 @@ inline unsigned int (*v_Pak_LoadPak)(void* thisptr, void* a2, uint64_t a3);
 inline CMemory p_Pak_UnloadPak;
 inline void(*v_Pak_UnloadPak)(PakHandle_t handle);
 
+inline CMemory p_Pak_OpenFile;
+inline int(*v_Pak_OpenFile)(const CHAR* fileName, int64_t unused, LONGLONG* outFileSize);
+
+inline CMemory p_Pak_CloseFile;
+inline void(*v_Pak_CloseFile)(short fileHandle);
+
 inline CMemory p_Pak_OpenFileOffset; // Offset to inlined 'Pak_OpenFile'.
 
-inline EPakStatus WaitAsync(PakHandle_t handle, void* pFinishCallback = nullptr) { return v_Pak_WaitAsync(handle, pFinishCallback); }
+inline CMemory p_Pak_ProcessGuidRelationsForAsset;
+inline void(*v_Pak_ProcessGuidRelationsForAsset)(PakFile_t* pak, PakAsset_t* asset);
 
 typedef struct PakLoadFuncs_s
 {
@@ -32,7 +39,7 @@ typedef struct PakLoadFuncs_s
 	char unknown2[16];
 	void* Func7;
 	void* Func8;
-	EPakStatus(*WaitAsync)(PakHandle_t handle, void* pFinishCallback);
+	EPakStatus(*WaitAsync)(PakHandle_t handle, void* finishCallback);
 	void* Func10;
 	void* Func11;
 	void* FindByGUID;
@@ -73,7 +80,9 @@ class V_RTechGame : public IDetour
 		LogFunAdr("Pak_WaitAsync", p_Pak_WaitAsync.GetPtr());
 		LogFunAdr("Pak_LoadPak", p_Pak_LoadPak.GetPtr());
 		LogFunAdr("Pak_UnloadPak", p_Pak_UnloadPak.GetPtr());
-		LogFunAdr("Pak_OpenFile", p_Pak_OpenFileOffset.GetPtr());
+		LogFunAdr("Pak_OpenFile", p_Pak_OpenFile.GetPtr());
+		LogFunAdr("Pak_CloseFile", p_Pak_CloseFile.GetPtr());
+		LogFunAdr("Pak_ProcessGuidRelationsForAsset", p_Pak_ProcessGuidRelationsForAsset.GetPtr());
 		LogVarAdr("g_pakLoadApi", reinterpret_cast<uintptr_t>(g_pakLoadApi));
 	}
 	virtual void GetFun(void) const
@@ -89,6 +98,17 @@ class V_RTechGame : public IDetour
 
 		p_Pak_UnloadPak = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 85 FF 74 0C").FollowNearCallSelf();
 		v_Pak_UnloadPak = p_Pak_UnloadPak.RCast<void (*)(PakHandle_t)>();
+
+		p_Pak_OpenFile = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 89 85 08 01 ?? ??").FollowNearCallSelf();
+		v_Pak_OpenFile = p_Pak_OpenFile.RCast<int (*)(const char*, int64_t, ssize_t*)>();
+
+		p_Pak_CloseFile = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B D9 48 8D 35 ?? ?? ?? ??");
+		v_Pak_CloseFile = p_Pak_CloseFile.RCast<void (*)(short)>();
+
+#ifdef GAMEDLL_S3
+		p_Pak_ProcessGuidRelationsForAsset = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 86 ?? ?? ?? ?? 42 8B 0C B0").FollowNearCallSelf();
+		v_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsForAsset.RCast<void(*)(PakFile_t*, PakAsset_t*)>();
+#endif
 	}
 	virtual void GetVar(void) const
 	{

@@ -608,10 +608,10 @@ void RTech_Decompress_f(const CCommand& args)
 		{
 			PakPatchFileHeader_t* pPatchHeader = reinterpret_cast<PakPatchFileHeader_t*>(pDecompBuf + nPatchOffset);
 			Msg(eDLL_T::RTECH, " |     |-+ Patch #%02u -----------------------------------------\n", i);
-			Msg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->m_patchIndex ? "|" : " ", pPatchHeader->sizeDisk);
-			Msg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->m_patchIndex ? "|" : " ", pPatchHeader->sizeMemory);
+			Msg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->m_patchIndex ? "|" : " ", pPatchHeader->m_sizeDisk);
+			Msg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->m_patchIndex ? "|" : " ", pPatchHeader->m_sizeMemory);
 
-			pPatchHeader->sizeDisk = pPatchHeader->sizeMemory; // Fix size for decompress.
+			pPatchHeader->m_sizeDisk = pPatchHeader->m_sizeMemory; // Fix size for decompress.
 		}
 	}
 
