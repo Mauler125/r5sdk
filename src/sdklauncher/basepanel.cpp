@@ -1240,6 +1240,24 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 // Purpose: gets processor affinity, and automatically appends the single-core
 //          dedi cvar if core count = 1
 // Input  : &svParameters - 
+// 
+// CPU3 CPU2 CPU1 CPU0  Bin  Hex
+// ---- ---- ---- ----  ---  ---
+// OFF  OFF  OFF  ON  = 0001 = 1
+// OFF  OFF  ON   OFF = 0010 = 2
+// OFF  OFF  ON   ON  = 0011 = 3
+// OFF  ON   OFF  OFF = 0100 = 4
+// OFF  ON   OFF  ON  = 0101 = 5
+// OFF  ON   ON   OFF = 0110 = 6
+// OFF  ON   ON   ON  = 0111 = 7
+// ON   OFF  OFF  OFF = 1000 = 8
+// ON   OFF  OFF  ON  = 1001 = 9
+// ON   OFF  ON   OFF = 1010 = A
+// ON   OFF  ON   ON  = 1011 = B
+// ON   ON   OFF  OFF = 1100 = C
+// ON   ON   OFF  ON  = 1101 = D
+// ON   ON   ON   OFF = 1110 = E
+// ON   ON   ON   ON  = 1111 = F
 //-----------------------------------------------------------------------------
 uint64_t CSurface::GetProcessorAffinity(string& svParameters)
 {
