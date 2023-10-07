@@ -4,12 +4,12 @@ add_module( "lib" "libjwt" "" ${FOLDER_CONTEXT} TRUE TRUE )
 start_sources()
 
 add_sources( SOURCE_GROUP "Source"
-	"base64.c"
-	"claim.c"
-	"decode.c"
-	"encode.c"
-	"util.c"
-	"version.c"
+	"base64.cpp"
+	"claim.cpp"
+	"decode.cpp"
+	"encode.cpp"
+	"util.cpp"
+	"version.cpp"
 )
 
 add_sources( SOURCE_GROUP "Include"
