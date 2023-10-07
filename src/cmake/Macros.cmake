@@ -134,18 +134,22 @@ endmacro()
 macro( thirdparty_suppress_warnings )
     if( MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
         target_compile_options( ${PROJECT_NAME} PRIVATE
+            /wd4057 # 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int [4]'
             /wd4100 # Unreferenced formal parameter.
             /wd4131 # Using old-style declarations
             /wd4152 # Function/data pointer conversion in expression.
             /wd4200 # Zero-sized array in union; SDL2 uses this for compiler compatibility.
             /wd4201 # Nameless struct/union.
             /wd4244 # Type conversion truncation; protobuf has many, but this appears intentional.
+            /wd4245 # 'return': conversion signed/unsigned mismatch
             /wd4267 # Type conversion truncation; protobuf has many, but this appears intentional.
             /wd4307 # Integral constant overflow.
             /wd4389 # Signed/unsigned mismatch.
             /wd4456 # Declaration hides previous local declaration.
             /wd4457 # Declaration hides function parameter.
             /wd4505 # Unreferenced local function has been removed.
+            /wd4701 # potentially uninitialized local variable.
+            /wd4702 # Unreachable code.
         )
     endif()
     warnings_as_errors( ${PROJECT_NAME} FALSE )

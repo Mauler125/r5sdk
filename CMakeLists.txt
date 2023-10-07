@@ -14,7 +14,7 @@ apply_project_settings()
 
 include_directories( "${ENGINE_SOURCE_DIR}" )
 include_directories( "${ENGINE_SOURCE_DIR}/public" )
-include_directories( "${ENGINE_SOURCE_DIR}/thirdparty" )
+include_directories( "${THIRDPARTY_SOURCE_DIR}" )
 
 # Include the subdirectories that contain the individual projects
 add_subdirectory( "${ENGINE_SOURCE_DIR}" )

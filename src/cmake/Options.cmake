@@ -103,9 +103,9 @@ macro( apply_project_settings )
     include_directories(
         "${ENGINE_SOURCE_DIR}/"
         "${ENGINE_SOURCE_DIR}/public/"
-        "${ENGINE_SOURCE_DIR}/thirdparty/"
-        "${ENGINE_SOURCE_DIR}/thirdparty/imgui/"
-        "${ENGINE_SOURCE_DIR}/thirdparty/recast/"
+        "${THIRDPARTY_SOURCE_DIR}/"
+        "${THIRDPARTY_SOURCE_DIR}/imgui/"
+        "${THIRDPARTY_SOURCE_DIR}/recast/"
     )
 endmacro()
 
