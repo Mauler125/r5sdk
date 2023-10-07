@@ -17,9 +17,9 @@
 #include "include/util.h"
 #include <ctype.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 int l8w8jwt_hexstr2bin(const char* hexstr, const size_t hexstr_length, unsigned char* output, const size_t output_size, size_t* output_length)
 {
@@ -82,6 +82,6 @@ int l8w8jwt_strncmpic(const char* str1, const char* str2, size_t n)
     return ret;
 }
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+//#ifdef __cplusplus
+//} // extern "C"
+//#endif

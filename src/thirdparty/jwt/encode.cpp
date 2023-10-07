@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 #include "include/util.h"
 #include "include/encode.h"
@@ -24,6 +24,7 @@ extern "C" {
 #include "include/chillbuff.h"
 
 #include <inttypes.h>
+
 #include <mbedtls/pk.h>
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
@@ -143,7 +144,7 @@ static int write_header_and_payload(chillbuff* stringbuilder, struct l8w8jwt_enc
     char* segment;
     size_t segment_length;
 
-    r = l8w8jwt_base64_encode(1, buff.array, buff.length, &segment, &segment_length);
+    r = l8w8jwt_base64_encode(1, (const uint8_t*)buff.array, buff.length, &segment, &segment_length);
     if (r != L8W8JWT_SUCCESS)
     {
         chillbuff_free(&buff);
@@ -176,13 +177,13 @@ static int write_header_and_payload(chillbuff* stringbuilder, struct l8w8jwt_enc
 
     struct l8w8jwt_claim claims[] = {
         // Setting l8w8jwt_claim::value_length to 0 makes the encoder use strlen, which in this case is fine.
-        { .key = *(iatnbfexp + 00) ? "iat" : NULL, .key_length = 3, .value = iatnbfexp + 00, .value_length = 0, .type = L8W8JWT_CLAIM_TYPE_INTEGER },
-        { .key = *(iatnbfexp + 21) ? "nbf" : NULL, .key_length = 3, .value = iatnbfexp + 21, .value_length = 0, .type = L8W8JWT_CLAIM_TYPE_INTEGER },
-        { .key = *(iatnbfexp + 42) ? "exp" : NULL, .key_length = 3, .value = iatnbfexp + 42, .value_length = 0, .type = L8W8JWT_CLAIM_TYPE_INTEGER },
-        { .key = params->sub ? "sub" : NULL, .key_length = 3, .value = params->sub, .value_length = params->sub_length, .type = L8W8JWT_CLAIM_TYPE_STRING },
-        { .key = params->iss ? "iss" : NULL, .key_length = 3, .value = params->iss, .value_length = params->iss_length, .type = L8W8JWT_CLAIM_TYPE_STRING },
-        { .key = params->aud ? "aud" : NULL, .key_length = 3, .value = params->aud, .value_length = params->aud_length, .type = L8W8JWT_CLAIM_TYPE_STRING },
-        { .key = params->jti ? "jti" : NULL, .key_length = 3, .value = params->jti, .value_length = params->jti_length, .type = L8W8JWT_CLAIM_TYPE_STRING },
+        { *(iatnbfexp + 00) ? (char*)"iat" : NULL, 3, iatnbfexp + 00, 0, L8W8JWT_CLAIM_TYPE_INTEGER },
+        { *(iatnbfexp + 21) ? (char*)"nbf" : NULL, 3, iatnbfexp + 21, 0, L8W8JWT_CLAIM_TYPE_INTEGER },
+        { *(iatnbfexp + 42) ? (char*)"exp" : NULL, 3, iatnbfexp + 42, 0, L8W8JWT_CLAIM_TYPE_INTEGER },
+        { params->sub ? (char*)"sub" : NULL, 3, params->sub, params->sub_length, L8W8JWT_CLAIM_TYPE_STRING },
+        { params->iss ? (char*)"iss" : NULL, 3, params->iss, params->iss_length, L8W8JWT_CLAIM_TYPE_STRING },
+        { params->aud ? (char*)"aud" : NULL, 3, params->aud, params->aud_length, L8W8JWT_CLAIM_TYPE_STRING },
+        { params->jti ? (char*)"jti" : NULL, 3, params->jti, params->jti_length, L8W8JWT_CLAIM_TYPE_STRING },
     };
 
     chillbuff_push_back(&buff, "{", 1);
@@ -199,7 +200,7 @@ static int write_header_and_payload(chillbuff* stringbuilder, struct l8w8jwt_enc
 
     chillbuff_push_back(&buff, "}", 1);
 
-    r = l8w8jwt_base64_encode(1, buff.array, buff.length, &segment, &segment_length);
+    r = l8w8jwt_base64_encode(1, (const uint8_t*)buff.array, buff.length, &segment, &segment_length);
     if (r != L8W8JWT_SUCCESS)
     {
         chillbuff_free(&buff);
@@ -221,12 +222,20 @@ static int write_signature(chillbuff* stringbuilder, struct l8w8jwt_encoding_par
     int r;
     const int alg = params->alg;
 
+    unsigned char hash[64] = { 0x00 };
+
     char* signature = NULL;
     size_t signature_length = 0, signature_bytes_length = 0, key_length = 0;
 
     mbedtls_pk_context pk;
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
+
+    size_t md_length;
+    mbedtls_md_type_t md_type;
+    mbedtls_md_info_t* md_info;
+
+    size_t half_signature_bytes_length;
 
     mbedtls_pk_init(&pk);
     mbedtls_entropy_init(&entropy);
@@ -263,13 +272,7 @@ static int write_signature(chillbuff* stringbuilder, struct l8w8jwt_encoding_par
         goto exit;
     }
 
-    size_t md_length;
-    mbedtls_md_type_t md_type;
-    mbedtls_md_info_t* md_info;
-
     md_info_from_alg(alg, &md_info, &md_type, &md_length);
-
-    unsigned char hash[64] = { 0x00 };
 
     switch (alg)
     {
@@ -492,7 +495,7 @@ static int write_signature(chillbuff* stringbuilder, struct l8w8jwt_encoding_par
                 goto ecdsa_exit;
             }
 
-            const size_t half_signature_bytes_length = signature_bytes_length / 2;
+            half_signature_bytes_length = signature_bytes_length / 2;
 
             r = mbedtls_mpi_write_binary(&sig_r, signature_bytes, half_signature_bytes_length);
             if (r != 0)
@@ -589,7 +592,7 @@ exit:
 /* Step 3: finalize the token by writing it into the "out" string defined in the l8w8jwt_encoding_params argument. */
 static int write_token(chillbuff* stringbuilder, struct l8w8jwt_encoding_params* params)
 {
-    *(params->out) = malloc(stringbuilder->length + 1);
+    *(params->out) = (char*)malloc(stringbuilder->length + 1);
     if (*(params->out) == NULL)
     {
         return L8W8JWT_OUT_OF_MEM;
@@ -680,6 +683,6 @@ exit:
     return r;
 }
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+//#ifdef __cplusplus
+//} // extern "C"
+//#endif

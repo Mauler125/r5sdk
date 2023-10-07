@@ -18,9 +18,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __cplusplus
-extern "C" {
+#if defined(_WIN32)
+#include <windows.h>
 #endif
+
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 void l8w8jwt_free(void* mem)
 {
@@ -29,8 +33,6 @@ void l8w8jwt_free(void* mem)
 
 void l8w8jwt_zero(void* buf, size_t len)
 {
-    MBEDTLS_INTERNAL_VALIDATE(len == 0 || buf != NULL);
-
     if (len > 0)
     {
 #if defined(MBEDTLS_PLATFORM_HAS_EXPLICIT_BZERO)
@@ -68,6 +70,6 @@ void l8w8jwt_get_version_string(char out[32])
     out[version_string_length] = '\0';
 }
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+//#ifdef __cplusplus
+//} // extern "C"
+//#endif

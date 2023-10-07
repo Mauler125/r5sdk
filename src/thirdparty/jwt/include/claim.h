@@ -23,9 +23,9 @@
 #ifndef L8W8JWT_CLAIM_H
 #define L8W8JWT_CLAIM_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 #include "version.h"
 #include <stdlib.h>
@@ -139,8 +139,8 @@ L8W8JWT_API int l8w8jwt_write_claims(struct chillbuff* stringbuilder, struct l8w
  */
 L8W8JWT_API struct l8w8jwt_claim* l8w8jwt_get_claim(struct l8w8jwt_claim* claims, size_t claims_count, const char* key, size_t key_length);
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+//#ifdef __cplusplus
+//} // extern "C"
+//#endif
 
 #endif // L8W8JWT_CLAIM_H

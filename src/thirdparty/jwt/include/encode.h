@@ -23,9 +23,9 @@
 #ifndef L8W8JWT_ENCODE_H
 #define L8W8JWT_ENCODE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 #include "algs.h"
 #include "claim.h"
@@ -199,8 +199,8 @@ L8W8JWT_API int l8w8jwt_validate_encoding_params(struct l8w8jwt_encoding_params*
  */
 L8W8JWT_API int l8w8jwt_encode(struct l8w8jwt_encoding_params* params);
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+//#ifdef __cplusplus
+//} // extern "C"
+//#endif
 
 #endif // L8W8JWT_ENCODE_H

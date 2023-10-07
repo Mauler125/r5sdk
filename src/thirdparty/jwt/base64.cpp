@@ -133,7 +133,7 @@ int l8w8jwt_base64_encode(const int url, const uint8_t* data, const size_t data_
         return L8W8JWT_OVERFLOW;
     }
 
-    *out = malloc(olen);
+    *out = (char*)malloc(olen);
     if (*out == NULL)
     {
         return L8W8JWT_OUT_OF_MEM;
@@ -249,7 +249,7 @@ int l8w8jwt_base64_decode(const int url, const char* data, const size_t data_len
     if (r == 3)
         r = 1;
 
-    *out = calloc(count / 4 * 3 + 16, sizeof(uint8_t));
+    *out = (uint8_t*)calloc(count / 4 * 3 + 16, sizeof(uint8_t));
     if (*out == NULL)
     {
         return L8W8JWT_OUT_OF_MEM;

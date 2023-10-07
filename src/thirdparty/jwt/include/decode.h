@@ -23,9 +23,9 @@
 #ifndef L8W8JWT_DECODE_H
 #define L8W8JWT_DECODE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 #include "algs.h"
 #include "claim.h"
@@ -267,8 +267,8 @@ L8W8JWT_API int l8w8jwt_validate_decoding_params(struct l8w8jwt_decoding_params*
  */
 L8W8JWT_API int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validation_result* out_validation_result, struct l8w8jwt_claim** out_claims, size_t* out_claims_length);
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+//#ifdef __cplusplus
+//} // extern "C"
+//#endif
 
 #endif // L8W8JWT_DECODE_H

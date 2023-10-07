@@ -23,9 +23,9 @@
 #ifndef L8W8JWT_RETCODES_H
 #define L8W8JWT_RETCODES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 /**
  * Returned from a l8w8jwt function when everything went smooth 'n' chill. Time to get Schwifty, Morteyy!
@@ -100,8 +100,8 @@ extern "C" {
  */
 #define L8W8JWT_UNSUPPORTED_ALG 800
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+//#ifdef __cplusplus
+//} // extern "C"
+//#endif
 
 #endif // L8W8JWT_RETCODES_H
