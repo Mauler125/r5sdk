@@ -381,7 +381,7 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 bool CNetChan::ProcessMessages(bf_read* buf)
 {
     m_bStopProcessing = false;
-    const double flStartTime = Plat_FloatTime();
+    //const double flStartTime = Plat_FloatTime();
 
     while (true)
     {
