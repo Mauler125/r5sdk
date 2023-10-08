@@ -13,34 +13,14 @@ static CPUInformation s_cpuInformation;
 static char s_CpuVendorID[13]  = "unknown";
 bool s_bCpuBrandInitialized    = false;
 bool s_bCpuVendorIdInitialized = false;
+static CpuBrand_t s_CpuBrand;
 
 /*******************************************************************************/
-struct CpuIdResult_t
-{
-	unsigned long eax;
-	unsigned long ebx;
-	unsigned long ecx;
-	unsigned long edx;
-
-	void Reset(void)
-	{
-		eax = ebx = ecx = edx = 0;
-	}
-};
-
 struct IntelCacheDesc_t
 {
 	uint8_t nDesc;
 	uint16_t nCacheSize;
 };
-
-/*******************************************************************************/
-union CpuBrand_t
-{
-	CpuIdResult_t cpuid[3];
-	char name[49];
-};
-CpuBrand_t s_CpuBrand;
 
 /*******************************************************************************/
 inline static IntelCacheDesc_t s_IntelL1DataCacheDesc[] = {
@@ -347,23 +327,25 @@ static bool HTSupported(void)
 		((cpuid1.ebx >> 16) & 0xFF) > 1; // Hyper-Threading OR Core Multi-Processing has been enabled.
 }
 
+// | Commented out as its currently unused, this is to avoid a compiler warning |
+// | regarding unused function of static linkage.                               |
 // Returns the number of logical processors per physical processors.
-static uint8_t LogicalProcessorsPerPackage(void)
-{
-	// EBX[23:16] indicate number of logical processors per package.
-	const unsigned NUM_LOGICAL_BITS = 0x00FF0000;
-
-	if (!HTSupported())
-	{
-		return 1;
-	}
-
-	return static_cast<uint8_t>(((cpuid(1).ebx & NUM_LOGICAL_BITS) >> 16));
-}
+//static uint8_t LogicalProcessorsPerPackage(void)
+//{
+//	// EBX[23:16] indicate number of logical processors per package.
+//	const unsigned NUM_LOGICAL_BITS = 0x00FF0000;
+//
+//	if (!HTSupported())
+//	{
+//		return 1;
+//	}
+//
+//	return static_cast<uint8_t>(((cpuid(1).ebx & NUM_LOGICAL_BITS) >> 16));
+//}
 
 // Measure the processor clock speed by sampling the cycle count, waiting
 // for some fraction of a second, then measuring the elapsed number of cycles.
-static int64_t CalculateClockSpeed(void)
+static int64 CalculateClockSpeed(void)
 {
 	LARGE_INTEGER waitTime, startCount, curCount;
 	CCycleCount start, end;
@@ -444,7 +426,7 @@ const CPUInformation& GetCPUInformation(void)
 	pi.m_Speed = CalculateClockSpeed();
 
 	// Get the logical and physical processor counts:
-	pi.m_nLogicalProcessors = LogicalProcessorsPerPackage();
+	//pi.m_nLogicalProcessors = LogicalProcessorsPerPackage();
 
 	bool bAuthenticAMD = (0 == _stricmp(GetProcessorVendorId(), "AuthenticAMD"));
 	bool bGenuineIntel = !bAuthenticAMD && (0 == _stricmp(GetProcessorVendorId(), "GenuineIntel"));
@@ -479,7 +461,6 @@ const CPUInformation& GetCPUInformation(void)
 		pi.m_bRDTSC = (cpuid1.edx >> 4) & 1;
 		pi.m_bCMOV  = (cpuid1.edx >> 15) & 1;
 		pi.m_bFCMOV = (pi.m_bCMOV && bFPU) ? 1 : 0;
-		pi.m_bPOPCNT= (cpuid1.edx >> 17) & 1;
 		pi.m_bMMX   = (cpuid1.edx >> 23) & 1;
 		pi.m_bSSE   = (cpuid1.edx >> 25) & 1;
 		pi.m_bSSE2  = (cpuid1.edx >> 26) & 1;
