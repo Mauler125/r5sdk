@@ -34,6 +34,6 @@ public:
 private:
 	string m_Token;
 	string m_ErrorMsg;
-	const char* m_Language;
+	string m_Language;
 };
 extern CPylon* g_pMasterServer;
