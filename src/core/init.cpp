@@ -362,21 +362,24 @@ void QuerySystemInfo()
 
 void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions).
 {
-	const CPUInformation& pi = GetCPUInformation();
-	static char szBuf[1024];
-	if (!pi.m_bSSE3)
+	CpuIdResult_t cpuResult;
+	__cpuid(reinterpret_cast<int*>(&cpuResult), 1);
+
+	char szBuf[1024];
+
+	if ((cpuResult.ecx & (1 << 0)) == 0)
 	{
 		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSE 3");
 		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
 		ExitProcess(0xFFFFFFFF);
 	}
-	if (!pi.m_bSSSE3)
+	if ((cpuResult.ecx & (1 << 9)) == 0)
 	{
 		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSSE 3 (Supplemental SSE 3 Instructions)");
 		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
 		ExitProcess(0xFFFFFFFF);
 	}
-	if (!pi.m_bPOPCNT)
+	if ((cpuResult.ecx & (1 << 23)) == 0)
 	{
 		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "POPCNT");
 		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
