@@ -895,7 +895,7 @@ struct Curl_easy *curl_easy_duphandle(struct Curl_easy *data)
     /* If cookies are enabled in the parent handle, we enable them
        in the clone as well! */
     outcurl->cookies = Curl_cookie_init(data,
-                                        data->cookies->filename,
+                                        NULL,
                                         outcurl->cookies,
                                         data->set.cookiesession);
     if(!outcurl->cookies)
