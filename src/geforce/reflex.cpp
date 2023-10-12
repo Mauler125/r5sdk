@@ -101,7 +101,7 @@ void GFX_UpdateLowLatencyParameters(IUnknown* device, const bool useLowLatencyMo
 //-----------------------------------------------------------------------------
 void GFX_RunLowLatencyFrame(IUnknown* device)
 {
-	NvU64 currentFrameNumber = GFX_GetFrameNumber();
+	const NvU64 currentFrameNumber = GFX_GetFrameNumber();
 
 	if (s_ReflexLastFrameNumber == currentFrameNumber)
 		return;
