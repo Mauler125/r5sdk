@@ -22,9 +22,9 @@
 #include <windows.h>
 #endif
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void l8w8jwt_free(void* mem)
 {
@@ -70,6 +70,6 @@ void l8w8jwt_get_version_string(char out[32])
     out[version_string_length] = '\0';
 }
 
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
+#ifdef __cplusplus
+} // extern "C"
+#endif

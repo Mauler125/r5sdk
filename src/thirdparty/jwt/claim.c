@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "include/claim.h"
 #include "include/version.h"
@@ -24,13 +24,7 @@
 #include "include/chillbuff.h"
 
 #include <string.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <mbedtls/md.h>
-#ifdef __cplusplus
-}
-#endif
 
 void l8w8jwt_free_claims(struct l8w8jwt_claim* claims, const size_t claims_count)
 {
@@ -147,6 +141,6 @@ struct l8w8jwt_claim* l8w8jwt_get_claim(struct l8w8jwt_claim* claims, const size
     return NULL;
 }
 
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
+#ifdef __cplusplus
+} // extern "C"
+#endif

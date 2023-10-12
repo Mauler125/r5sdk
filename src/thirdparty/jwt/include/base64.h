@@ -26,9 +26,9 @@
 #ifndef L8W8JWT_BASE64_H
 #define L8W8JWT_BASE64_H
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "version.h"
 #include <stdint.h>
@@ -70,8 +70,8 @@ L8W8JWT_API int l8w8jwt_base64_encode(int url, const uint8_t* data, size_t data_
  */
 L8W8JWT_API int l8w8jwt_base64_decode(int url, const char* data, size_t data_length, uint8_t** out, size_t* out_length);
 
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // L8W8JWT_BASE64_H

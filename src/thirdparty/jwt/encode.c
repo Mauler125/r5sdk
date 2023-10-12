@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "include/util.h"
 #include "include/encode.h"
@@ -683,6 +683,6 @@ exit:
     return r;
 }
 
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
+#ifdef __cplusplus
+} // extern "C"
+#endif

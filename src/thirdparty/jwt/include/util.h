@@ -23,9 +23,9 @@
 #ifndef L8W8JWT_UTIL_H
 #define L8W8JWT_UTIL_H
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stddef.h>
 #include "version.h"
@@ -51,8 +51,8 @@ L8W8JWT_API int l8w8jwt_hexstr2bin(const char* hexstr, size_t hexstr_length, uns
  */
 L8W8JWT_API int l8w8jwt_strncmpic(const char* str1, const char* str2, size_t n);
 
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // L8W8JWT_UTIL_H

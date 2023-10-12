@@ -23,9 +23,9 @@
 #ifndef L8W8JWT_VERSION_H
 #define L8W8JWT_VERSION_H
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Current l8w8jwt version number.
@@ -80,8 +80,8 @@ L8W8JWT_API int l8w8jwt_get_version_number(void);
  */
 L8W8JWT_API void l8w8jwt_get_version_string(char out[32]);
 
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // L8W8JWT_VERSION_H

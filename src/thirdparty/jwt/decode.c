@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define JSMN_STATIC
 
@@ -30,9 +30,6 @@
 #include <string.h>
 #include <inttypes.h>
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 #include <mbedtls/pk.h>
 #include <mbedtls/md.h>
 #include <mbedtls/platform_util.h>
@@ -40,9 +37,6 @@
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/pk.h>
 #include <mbedtls/x509_crt.h>
-//#ifdef __cplusplus
-//}
-//#endif
 
 #if L8W8JWT_ENABLE_EDDSA
 #include <ed25519.h>
@@ -335,7 +329,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
         return L8W8JWT_NULL_ARG;
     }
 
-    *out_validation_result = (l8w8jwt_validation_result)~L8W8JWT_VALID;
+    *out_validation_result = (enum l8w8jwt_validation_result)~L8W8JWT_VALID;
 
     char* header = NULL;
     size_t header_length = 0;
@@ -661,7 +655,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
 
     if (params->validate_sub != NULL)
     {
-        struct l8w8jwt_claim* c = l8w8jwt_get_claim((l8w8jwt_claim*)claims.array, claims.length, "sub", 3);
+        struct l8w8jwt_claim* c = l8w8jwt_get_claim((struct l8w8jwt_claim*)claims.array, claims.length, "sub", 3);
         if (c == NULL || strncmp(c->value, params->validate_sub, params->validate_sub_length ? params->validate_sub_length : strlen(params->validate_sub)) != 0)
         {
             validation_res |= (unsigned)L8W8JWT_SUB_FAILURE;
@@ -670,7 +664,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
 
     if (params->validate_aud != NULL)
     {
-        struct l8w8jwt_claim* c = l8w8jwt_get_claim((l8w8jwt_claim*)claims.array, claims.length, "aud", 3);
+        struct l8w8jwt_claim* c = l8w8jwt_get_claim((struct l8w8jwt_claim*)claims.array, claims.length, "aud", 3);
         if (c == NULL || strncmp(c->value, params->validate_aud, params->validate_aud_length ? params->validate_aud_length : strlen(params->validate_aud)) != 0)
         {
             validation_res |= (unsigned)L8W8JWT_AUD_FAILURE;
@@ -679,7 +673,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
 
     if (params->validate_iss != NULL)
     {
-        struct l8w8jwt_claim* c = l8w8jwt_get_claim((l8w8jwt_claim*)claims.array, claims.length, "iss", 3);
+        struct l8w8jwt_claim* c = l8w8jwt_get_claim((struct l8w8jwt_claim*)claims.array, claims.length, "iss", 3);
         if (c == NULL || strncmp(c->value, params->validate_iss, params->validate_iss_length ? params->validate_iss_length : strlen(params->validate_iss)) != 0)
         {
             validation_res |= (unsigned)L8W8JWT_ISS_FAILURE;
@@ -688,7 +682,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
 
     if (params->validate_jti != NULL)
     {
-        struct l8w8jwt_claim* c = l8w8jwt_get_claim((l8w8jwt_claim*)claims.array, claims.length, "jti", 3);
+        struct l8w8jwt_claim* c = l8w8jwt_get_claim((struct l8w8jwt_claim*)claims.array, claims.length, "jti", 3);
         if (c == NULL || strncmp(c->value, params->validate_jti, params->validate_jti_length ? params->validate_jti_length : strlen(params->validate_jti)) != 0)
         {
             validation_res |= (unsigned)L8W8JWT_JTI_FAILURE;
@@ -699,7 +693,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
 
     if (params->validate_exp)
     {
-        struct l8w8jwt_claim* c = l8w8jwt_get_claim((l8w8jwt_claim*)claims.array, claims.length, "exp", 3);
+        struct l8w8jwt_claim* c = l8w8jwt_get_claim((struct l8w8jwt_claim*)claims.array, claims.length, "exp", 3);
         if (c == NULL || ct - params->exp_tolerance_seconds > strtoll(c->value, NULL, 10))
         {
             validation_res |= (unsigned)L8W8JWT_EXP_FAILURE;
@@ -708,7 +702,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
 
     if (params->validate_nbf)
     {
-        struct l8w8jwt_claim* c = l8w8jwt_get_claim((l8w8jwt_claim*)claims.array, claims.length, "nbf", 3);
+        struct l8w8jwt_claim* c = l8w8jwt_get_claim((struct l8w8jwt_claim*)claims.array, claims.length, "nbf", 3);
         if (c == NULL || ct + params->nbf_tolerance_seconds < strtoll(c->value, NULL, 10))
         {
             validation_res |= (unsigned)L8W8JWT_NBF_FAILURE;
@@ -717,7 +711,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
 
     if (params->validate_iat)
     {
-        struct l8w8jwt_claim* c = l8w8jwt_get_claim((l8w8jwt_claim*)claims.array, claims.length, "iat", 3);
+        struct l8w8jwt_claim* c = l8w8jwt_get_claim((struct l8w8jwt_claim*)claims.array, claims.length, "iat", 3);
         if (c == NULL || ct + params->iat_tolerance_seconds < strtoll(c->value, NULL, 10))
         {
             validation_res |= (unsigned)L8W8JWT_IAT_FAILURE;
@@ -726,7 +720,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
 
     if (params->validate_typ)
     {
-        struct l8w8jwt_claim* c = l8w8jwt_get_claim((l8w8jwt_claim*)claims.array, claims.length, "typ", 3);
+        struct l8w8jwt_claim* c = l8w8jwt_get_claim((struct l8w8jwt_claim*)claims.array, claims.length, "typ", 3);
         if (c == NULL || l8w8jwt_strncmpic(c->value, params->validate_typ, params->validate_typ_length) != 0)
         {
             validation_res |= (unsigned)L8W8JWT_TYP_FAILURE;
@@ -734,7 +728,7 @@ int l8w8jwt_decode(struct l8w8jwt_decoding_params* params, enum l8w8jwt_validati
     }
 
     r = L8W8JWT_SUCCESS;
-    *out_validation_result = (l8w8jwt_validation_result)validation_res;
+    *out_validation_result = (enum l8w8jwt_validation_result)validation_res;
 
     if (out_claims != NULL && out_claims_length != NULL)
     {
@@ -774,6 +768,6 @@ exit:
 
 #undef JSMN_STATIC
 
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
+#ifdef __cplusplus
+} // extern "C"
+#endif
