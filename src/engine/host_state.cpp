@@ -391,6 +391,24 @@ void CHostState::LoadConfig(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: set state machine
+// Input  : newState  - 
+//          clearNext - 
+//-----------------------------------------------------------------------------
+void CHostState::SetState(const HostStates_t newState)
+{
+	m_iCurrentState = newState;
+
+	// If our next state isn't a shutdown, or its a forced shutdown then set
+	// next state to run.
+	if (m_iNextState != HostStates_t::HS_SHUTDOWN ||
+		!host_hasIrreversibleShutdown->GetBool())
+	{
+		m_iNextState = newState;
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: shutdown active game
 //-----------------------------------------------------------------------------
 void CHostState::GameShutDown(void)
@@ -415,7 +433,7 @@ void CHostState::State_NewGame(void)
 	LARGE_INTEGER time{};
 
 #ifndef CLIENT_DLL
-	bool bSplitScreenConnect = m_bSplitScreenConnect;
+	const bool bSplitScreenConnect = m_bSplitScreenConnect;
 	m_bSplitScreenConnect = 0;
 
 	if (!g_pServerGameClients) // Init Game if it ain't valid.
@@ -436,13 +454,7 @@ void CHostState::State_NewGame(void)
 	}
 #endif // !CLIENT_DLL
 
-	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
-
-	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
-	{
-		m_iNextState = HostStates_t::HS_RUN;
-	}
+	SetState(HostStates_t::HS_RUN);
 }
 
 //-----------------------------------------------------------------------------
@@ -462,13 +474,8 @@ void CHostState::State_ChangeLevelSP(void)
 		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Unable to find level: '%s'\n", __FUNCTION__, m_levelName);
 	}
 
-	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
-
-	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
-	{
-		m_iNextState = HostStates_t::HS_RUN;
-	}
+	// Set current state to run.
+	SetState(HostStates_t::HS_RUN);
 }
 
 //-----------------------------------------------------------------------------
@@ -494,13 +501,8 @@ void CHostState::State_ChangeLevelMP(void)
 		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Unable to find level: '%s'\n", __FUNCTION__, m_levelName);
 	}
 
-	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
-
-	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
-	{
-		m_iNextState = HostStates_t::HS_RUN;
-	}
+	// Set current state to run.
+	SetState(HostStates_t::HS_RUN);
 }
 
 //-----------------------------------------------------------------------------
