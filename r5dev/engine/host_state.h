@@ -23,9 +23,10 @@ public:
 	void Setup(void);
 	void Think(void) const;
 
+	void SetState(const HostStates_t newState);
 	void GameShutDown(void);
-	void State_NewGame(void);
 
+	void State_NewGame(void);
 	void State_ChangeLevelSP(void);
 	void State_ChangeLevelMP(void);
 
