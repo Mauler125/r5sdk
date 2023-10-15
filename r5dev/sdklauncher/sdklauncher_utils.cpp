@@ -4,6 +4,7 @@
 #include "tier1/utlmap.h"
 #include "tier2/curlutils.h"
 #include "zip/src/ZipFile.h"
+#include <public/tier0/binstream.h>
 
 bool g_bPartialInstall = false;
 //bool g_bExperimentalBuilds = false;
@@ -100,12 +101,91 @@ bool SDKLauncher_ClearDepotDirectories()
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-bool SDKLauncher_ExtractZipFile(const char* pZipFile, const char* pDestPath, CProgressPanel* pProgress)
+bool GetDepotList(const nlohmann::json& manifest, nlohmann::json& outDepotList)
 {
-	ZipArchive::Ptr archive = ZipFile::Open(pZipFile);
+	if (manifest.contains("depot"))
+	{
+		const nlohmann::json& depotListArray = manifest["depot"];
+
+		if (!depotListArray.empty())
+		{
+			outDepotList = depotListArray;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//----------------------------------------------------------------------------
+// Purpose: 
+//----------------------------------------------------------------------------
+bool GetDepotEntry(const nlohmann::json& manifest, const char* targetDepotName, nlohmann::json& outDepotEntry)
+{
+	nlohmann::json depotList;
+
+	if (GetDepotList(manifest, depotList))
+	{
+		printf("*** -<[DEPOT_LIST]>- ***\n%s\n", depotList.dump(4).c_str());
+
+		for (const auto& depot : depotList)
+		{
+			if (!depot.contains("name"))
+				continue;
+
+			const string depotName = depot["name"].get<string>();
+
+			if (depotName.compare(targetDepotName) == NULL)
+			{
+				outDepotEntry = depot;
+				return true;
+			}
+		}
+	}
+
+	printf("%s: Failed on target(%s):\n%s\n", __FUNCTION__, targetDepotName, manifest.dump(4).c_str());
+	return false;
+}
+
+//----------------------------------------------------------------------------
+// Purpose: 
+//----------------------------------------------------------------------------
+bool GetDepotAssetList(const nlohmann::json& manifest, const char* targetDepotName, nlohmann::json& outAssetList)
+{
+	nlohmann::json depotEntry;
+
+	if (GetDepotEntry(manifest, targetDepotName, depotEntry))
+	{
+		printf("*** -<[DEPOT_ENTRY]>- ***\n%s\n", depotEntry.dump(4).c_str());
+
+		if (depotEntry.contains("assets"))
+		{
+			const nlohmann::json& assetList = depotEntry["assets"];
+
+			if (!assetList.empty())
+			{
+				outAssetList = depotEntry["assets"];
+				return true;
+			}
+		}
+	}
+
+	printf("%s: Failed on target(%s):\n%s\n", __FUNCTION__, targetDepotName, manifest.dump(4).c_str());
+	return false;
+}
+
+//----------------------------------------------------------------------------
+// Purpose: 
+//----------------------------------------------------------------------------
+bool SDKLauncher_ExtractZipFile(nlohmann::json& manifest, const CUtlString& filePath, CProgressPanel* pProgress)
+{
+	ZipArchive::Ptr archive = ZipFile::Open(filePath.Get());
 	size_t entries = archive->GetEntriesCount();
 
-	CUtlMap<CUtlString, bool> fileList(UtlStringLessFunc);
+	nlohmann::json assetList;
+	CUtlString fileName = filePath.UnqualifiedFilename();
+
+	const bool assetListRet = GetDepotAssetList(manifest, fileName.String(), assetList);
 
 	for (size_t i = 0; i < entries; ++i)
 	{
@@ -114,53 +194,48 @@ bool SDKLauncher_ExtractZipFile(const char* pZipFile, const char* pDestPath, CPr
 		if (entry->IsDirectory())
 			continue;
 
-		string fullName = entry->GetFullName();
-
-		// TODO: ideally there will be a list in a json
-		// that the launcher downloads to determine what
-		// has to be installed during the restart.
+		const CUtlString fullName = entry->GetFullName().c_str();
 		bool installDuringRestart = false;
-		if (fullName.compare("launcher.exe") == NULL)
+
+		const char* const pFullName = fullName.Get();
+
+		// Determine whether or not the asset needs
+		// to be installed during a restart.
+		if (assetListRet && assetList.contains(pFullName))
 		{
-			installDuringRestart = true;
+			const nlohmann::json& assetEntry = assetList[pFullName];
+
+			if (assetEntry.contains("restart"))
+			{
+				installDuringRestart = assetEntry["restart"].get<bool>();
+			}
 		}
 
-		fileList.Insert(fullName.c_str(), installDuringRestart);
-		printf("Added: %s\n", fullName.c_str());
-	}
-
-	printf("Num files: %d\n", fileList.Count());
-
-	FOR_EACH_MAP(fileList, i)
-	{
-		CUtlString& fileName = fileList.Key(i);
-		CUtlString absDirName = fileName.AbsPath();
+		CUtlString absDirName = fullName.AbsPath();
 		CUtlString dirName = absDirName.DirName();
 
 		CreateDirectories(absDirName.Get());
 
 		if (pProgress)
 		{
-			pProgress->SetExportLabel(Format("%s (%i of %i)", fileName.Get(), i + 1, fileList.Count()).c_str());
+			pProgress->SetExportLabel(Format("%s (%llu of %llu)", pFullName, i+1, entries).c_str());
 
-			int percentage = (i * 100) / fileList.Count();
-			pProgress->UpdateProgress(percentage, false);
+			size_t percentage = (i * 100) / entries;
+			pProgress->UpdateProgress((uint32_t)percentage, false);
 		}
 
-		printf("Extracting: %s to %s\n", fileName.Get(), dirName.Get());
+		printf("Extracting: %s to %s\n", pFullName, dirName.Get());
 
-		if (fileList[i])
+		if (installDuringRestart)
 		{
-			printf("File %s has to be installed after a restart!\n", fileName.Get());
-
 			CUtlString tempDir = RESTART_DEPOT_DOWNLOAD_DIR;
-			tempDir.Append(fileName);
+			tempDir.Append(pFullName);
 
-			ZipFile::ExtractFile(pZipFile, fileName.Get(), tempDir.Get());
+			ZipFile::ExtractFile(filePath.Get(), pFullName, tempDir.Get());
 		}
 		else
 		{
-			ZipFile::ExtractFile(pZipFile, fileName.Get(), fileName.Get());
+			ZipFile::ExtractFile(filePath.Get(), pFullName, pFullName);
 		}
 	}
 
@@ -178,6 +253,7 @@ bool SDKLauncher_QueryServer(const char* url, string& outResponse, string& outMe
 	params.writeFunction = CURLWriteStringCallback;
 	params.timeout = QUERY_TIMEOUT;
 	params.verifyPeer = true;
+	params.followRedirect = true;
 	params.verbose = 0;// IsDebug();
 
 	CURL* curl = CURLInitRequest(url, nullptr, outResponse, sList, params);
@@ -201,7 +277,7 @@ bool SDKLauncher_QueryServer(const char* url, string& outResponse, string& outMe
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-bool SDKLauncher_GetLatestReleaseManifest(const char* url, string& responseMessage,
+bool SDKLauncher_AcquireReleaseManifest(const char* url, string& responseMessage,
 	nlohmann::json& outManifest, const bool preRelease)
 {
 	string responseBody;
@@ -288,125 +364,199 @@ bool SDKLauncher_DownloadAsset(const char* url, const char* path, const char* fi
 
 	params.writeFunction = CURLWriteFileCallback;
 	params.statusFunction = SDKLauncher_ProgressCallback;
+	params.followRedirect = true;
 
 	return CURLDownloadFile(url, path, fileName, options, fileSize, pProgress, params);
 }
 
-//----------------------------------------------------------------------------
-// Purpose: 
-//----------------------------------------------------------------------------
-void SDKLauncher_BeginDownload(const bool bPreRelease, const bool bOptionalAssets,
-	const bool bSdkOnly/*!!! REFACTOR ME MAYBE !!!*/, CUtlVector<CUtlString>& fileList, CProgressPanel* pProgress)
+bool SDKLauncher_BuildUpdateList(const nlohmann::json& localManifest,
+	const nlohmann::json& remoteManifest, CUtlVector<CUtlString>& outDepotList)
 {
-	string responseMessage;
-	nlohmann::json manifest;
-
-	// These files will NOT be downloaded from the release depots.
-	std::set<string> blackList;
-	blackList.insert("symbols.zip");
-
-
-	// DEBUG CODE!!!
-	//fileList.AddToTail("audio_0.zip");
-	//fileList.AddToTail("audio_1.zip");
-	//fileList.AddToTail("binaries.zip");
-	//fileList.AddToTail("materials.zip");
-	//fileList.AddToTail("media.zip");
-	//fileList.AddToTail("paks.zip");
-	//fileList.AddToTail("starpak_0.zip");
-	//fileList.AddToTail("starpak_1.zip");
-	//fileList.AddToTail("stbsp.zip");
-	//fileList.AddToTail("/depot.zip");
-
-	//FOR_EACH_VEC(fileList, i)
-	//{
-	//	CUtlString& filePath = fileList[i];
-	//	filePath = filePath.Replace("/", DEFAULT_DEPOT_DOWNLOAD_DIR);
-	//}
-
-	if (!bSdkOnly)
+	try
 	{
-		// Download core game files.
-		if (!SDKLauncher_GetLatestReleaseManifest(XorStr(GAME_DEPOT_VENDOR), responseMessage, manifest, bPreRelease))
+		const nlohmann::json& remoteDepotArray = remoteManifest["depot"];
+		const nlohmann::json& localDepotArray = localManifest["depot"];
+
+		for (const auto& remoteDepot : remoteDepotArray)
 		{
-			// TODO: Error dialog.
-			return;
+			const string& remoteDepotName = remoteDepot["name"];
+
+			bool containsDepot = false;
+			bool digestMatch = false;
+
+			for (const auto& localDepot : localDepotArray)
+			{
+				if (localDepot["name"] == remoteDepotName)
+				{
+					containsDepot = true;
+
+					if (remoteDepot["digest"].get<string>() == localDepot["digest"].get<string>())
+					{
+						digestMatch = true;
+					}
+
+					break;
+				}
+			}
+
+			if (containsDepot)
+			{
+				if (!digestMatch)
+				{
+					// Checksum mismatch, the file has been changed,
+					// add it to the list so we are installing it.
+					outDepotList.AddToTail(remoteDepotName.c_str());
+				}
+			}
+			else
+			{
+				// Local manifest does not contain the asset,
+				// add it to the list so we are installing it.
+				outDepotList.AddToTail(remoteDepotName.c_str());
+			}
 		}
-		SDKLauncher_DownloadAssetList(fileList, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR, pProgress);
-
-		if (pProgress->IsCanceled())
-			return;
 	}
-
-	// Download SDK files.
-	if (!SDKLauncher_GetLatestReleaseManifest(XorStr(SDK_DEPOT_VENDOR), responseMessage, manifest, bPreRelease))
+	catch (const std::exception& ex)
 	{
-		// TODO: Error dialog.
-		return;
+		printf("%s - Exception while building update list:\n%s\n", __FUNCTION__, ex.what());
+		return false;
 	}
-	SDKLauncher_DownloadAssetList(fileList, manifest, blackList, DEFAULT_DEPOT_DOWNLOAD_DIR, pProgress);
 
-	if (pProgress->IsCanceled())
-	{
-		return;
-	}
+	return true;
 }
 
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-bool SDKLauncher_DownloadAssetList(CUtlVector<CUtlString>& fileList, nlohmann::json& assetList,
-	std::set<string>& blackList, const char* pPath, CProgressPanel* pProgress)
+bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots,
+	CUtlVector<CUtlString>& zipList, CProgressPanel* pProgress)
 {
-	if (!assetList.contains("assets"))
+	string responseMessage;
+	nlohmann::json remoteManifest;
+
+	if (!SDKLauncher_GetRemoteManifest(XorStr(SDK_DEPOT_VENDOR), responseMessage, remoteManifest, bPreRelease))
+	{
+		printf("%s: Failed! %s\n", "SDKLauncher_GetRemoteManifest", responseMessage.c_str());
+		return false;
+	}
+
+	CUtlVector<CUtlString> depotList;
+	nlohmann::json localManifest;
+
+	if (SDKLauncher_GetLocalManifest(localManifest))
+	{
+		SDKLauncher_BuildUpdateList(localManifest, remoteManifest, depotList);
+	}
+	else
+	{
+		// Leave the vector empty, this will download everything.
+		Assert(depotList.IsEmpty());
+	}
+
+	FOR_EACH_VEC(depotList, i)
+	{
+		const CUtlString& depotName = depotList[i];
+		printf("CUtlVector< CUtlString >::depotList[ %d ] = %s\n", i, depotName.Get());
+	}
+
+	if (!SDKLauncher_DownloadDepotList(remoteManifest, depotList,
+		zipList, pProgress, DEFAULT_DEPOT_DOWNLOAD_DIR, bOptionalDepots))
+	{
+		return false;
+	}
+
+	// Canceling returns true, as the function didn't fail.
+	// We should however still delete all the downloaded files.
+	if (pProgress->IsCanceled())
+		return true;
+
+
+	if (!SDKLauncher_InstallDepotList(remoteManifest, zipList, pProgress))
+	{
+		return false;
+	}
+
+	if (!SDKLauncher_WriteLocalManifest(remoteManifest))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------
+// Purpose: 
+//----------------------------------------------------------------------------
+bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& depotList,
+	CUtlVector<CUtlString>& outZipList, CProgressPanel* pProgress, const char* pPath,
+	const bool bOptionalDepots)
+{
+	if (!manifest.contains("depot"))
 	{
 		Assert(0);
 		return false;
 	}
 
-	int i = 1;
-	const auto assetListArray = assetList["assets"];
+	const auto depotListArray = manifest["depot"];
 
-	for (auto& asset : assetListArray)
+	if (depotListArray.empty())
+	{
+		return false;
+	}
+
+	int i = 1;
+
+	for (auto& depot : depotListArray)
 	{
 		if (pProgress->IsCanceled())
 		{
 			break;
 		}
 
-		if (!asset.contains("browser_download_url") ||
-			!asset.contains("name") ||
-			!asset.contains("size"))
+		if (!SDKLauncher_IsDepositoryValid(depot))
 		{
+			// Invalid manifest format.
 			Assert(0);
-			return false;
-		}
-
-		const string fileName = asset["name"];
-		const char* const pFileName = fileName.c_str();
-
-		// Asset is filtered, don't download.
-		if (blackList.find(fileName) != blackList.end())
-		{
 			continue;
 		}
 
-		const string downloadLink = asset["browser_download_url"];
-		const size_t fileSize = asset["size"];
+		if ((!bOptionalDepots &&
+			depot["optional"].get<bool>()))
+		{
+			// Optional depots disabled.
+			continue;
+		}
 
-		pProgress->SetText(Format("Downloading package %i of %i...", i, assetListArray.size()).c_str());
-		SDKLauncher_DownloadAsset(downloadLink.c_str(), pPath, pFileName, fileSize, "wb+", pProgress);
+		const string fileName = depot["name"].get<string>();
+
+		if (!depotList.IsEmpty())
+		{
+			if (!depotList.HasElement(fileName.c_str()))
+			{
+				continue;
+			}
+		}
+
+		const size_t fileSize = depot["size"].get<size_t>();
+		string downloadLink = depot["vendor"].get<string>();
+
+		AppendSlash(downloadLink, '/');
+		downloadLink.append(fileName);
+
+		pProgress->SetText(Format("Downloading package %i of %i...", i, depotListArray.size()).c_str());
+		SDKLauncher_DownloadAsset(downloadLink.c_str(), pPath, fileName.c_str(), fileSize, "wb+", pProgress);
 
 		// Check if its a zip file, as these are
 		// the only files that will be installed.
-		if (V_strcmp(V_GetFileExtension(pFileName), "zip") == NULL)
+		if (V_strcmp(V_GetFileExtension(fileName.c_str()), "zip") == NULL)
 		{
-			CUtlString filePath = pPath;
+			CUtlString filePath;
 
-			filePath.AppendSlash();
+			filePath = pPath;
+			filePath.AppendSlash('/');
 			filePath.Append(fileName.c_str());
 
-			fileList.AddToTail(filePath);
+			outZipList.AddToTail(filePath);
 		}
 
 		i++;
@@ -418,8 +568,7 @@ bool SDKLauncher_DownloadAssetList(CUtlVector<CUtlString>& fileList, nlohmann::j
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-bool SDKLauncher_InstallAssetList(const bool bOptionalAssets,
-	CUtlVector<CUtlString>& fileList, CProgressPanel* pProgress)
+bool SDKLauncher_InstallDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& fileList, CProgressPanel* pProgress)
 {
 	// Install process cannot be canceled.
 	pProgress->SetCanCancel(false);
@@ -428,8 +577,8 @@ bool SDKLauncher_InstallAssetList(const bool bOptionalAssets,
 	{
 		pProgress->SetText(Format("Installing package %i of %i...", i + 1, fileList.Count()).c_str());
 
-		CUtlString& fileName = fileList[i];
-		if (!SDKLauncher_ExtractZipFile(fileName.Get(), "", pProgress))
+		CUtlString& filePath = fileList[i];
+		if (!SDKLauncher_ExtractZipFile(manifest, filePath, pProgress))
 			return false;
 	}
 
@@ -466,6 +615,87 @@ bool SDKLauncher_CheckDiskSpace(const int minRequiredSpace, int* const available
 	return true;
 }
 
+bool SDKLauncher_IsManifestValid(const nlohmann::json& depotManifest)
+{
+	return (!depotManifest.empty() &&
+		depotManifest.contains("version") &&
+		depotManifest.contains("depot"));
+}
+
+bool SDKLauncher_IsDepositoryValid(const nlohmann::json& depot)
+{
+	return (!depot.empty() &&
+		depot.contains("optional") &&
+		depot.contains("vendor") &&
+		depot.contains("size") &&
+		depot.contains("name"));
+}
+
+bool SDKLauncher_GetRemoteManifest(const char* url, string& responseMessage, nlohmann::json& remoteManifest, const bool bPreRelease)
+{
+	nlohmann::json responseJson;
+
+	if (!SDKLauncher_AcquireReleaseManifest(url, responseMessage, responseJson, bPreRelease))
+	{
+		// TODO: Error dialog.
+
+		printf("%s: failed!\n", "SDKLauncher_AcquireReleaseManifest");
+		return false;
+	}
+
+	if (!responseJson.contains("assets"))
+	{
+		printf("%s: failed!\n", "responseJson.contains(\"assets\")");
+		return false;
+	}
+
+	try
+	{
+		string depotManifestUrl;
+
+		{
+			nlohmann::json& assetList = responseJson["assets"];
+
+			for (const auto& asset : assetList)
+			{
+				if (asset["name"] == DEPOT_MANIFEST_FILE)
+				{
+					depotManifestUrl = asset["browser_download_url"];
+					break;
+				}
+			}
+		}
+
+		if (depotManifestUrl.empty())
+		{
+			printf("depotManifestUrl.empty()==true\n");
+			return false;
+		}
+
+		string responseBody;
+		CURLINFO status;
+
+		if (!SDKLauncher_QueryServer(depotManifestUrl.c_str(), responseBody, responseMessage, status) || 
+			status != 200)
+		{
+			printf("%s: failed! %s, status=%d\n", "SDKLauncher_QueryServer", responseMessage.c_str(), status);
+
+			responseMessage = responseBody;
+			return false;
+		}
+
+		remoteManifest = nlohmann::json::parse(responseBody);
+	}
+	catch (const std::exception& ex)
+	{
+		printf("%s - Exception while parsing response:\n%s\n", __FUNCTION__, ex.what());
+		return false;
+	}
+
+	Assert(!remoteManifest.empty());
+	return true;
+}
+
 bool SDKLauncher_GetLocalManifest(nlohmann::json& localManifest)
 {
 	if (!fs::exists(DEPOT_MANIFEST_FILE_PATH))
@@ -479,6 +709,11 @@ bool SDKLauncher_GetLocalManifest(nlohmann::json& localManifest)
 	try
 	{
 		localManifest = nlohmann::json::parse(localFile);
+
+		if (!SDKLauncher_IsManifestValid(localManifest))
+		{
+			return false;
+		}
 	}
 	catch (const std::exception& ex)
 	{
@@ -486,13 +721,22 @@ bool SDKLauncher_GetLocalManifest(nlohmann::json& localManifest)
 		return false;
 	}
 
-	return !localManifest.empty();
+	return true;
 }
 
-//bool SDKLauncher_WriteLocalManifest()
-//{
-//
-//}
+bool SDKLauncher_WriteLocalManifest(const nlohmann::json& localManifest)
+{
+	CIOStream writer;
+	if (!writer.Open(DEPOT_MANIFEST_FILE_PATH, CIOStream::Mode_t::WRITE))
+	{
+		return false;
+	}
+
+	const string manifestBuf = localManifest.dump(4);
+	writer.Write(manifestBuf.c_str(), manifestBuf.size());
+
+	return true;
+}
 
 //----------------------------------------------------------------------------
 // Purpose: 
@@ -502,10 +746,10 @@ bool SDKLauncher_CheckForUpdate(const bool bPreRelease)
 	nlohmann::json remoteManifest;
 	string responseMessage;
 
-	if (!SDKLauncher_GetLatestReleaseManifest(XorStr(SDK_DEPOT_VENDOR), responseMessage, remoteManifest, bPreRelease))
+	if (!SDKLauncher_AcquireReleaseManifest(XorStr(SDK_DEPOT_VENDOR), responseMessage, remoteManifest, bPreRelease))
 	{
 		printf("%s: Failed to obtain remote manifest: %s\n", __FUNCTION__, responseMessage.c_str());
-		return true; // Can't determine if there is an update or not; skip...
+		return false; // Can't determine if there is an update or not; skip...
 	}
 
 	nlohmann::json localManifest;
@@ -520,7 +764,7 @@ bool SDKLauncher_CheckForUpdate(const bool bPreRelease)
 	if (!localManifest.contains("version"))
 	{
 		// No version information; assume an update is required.
-		printf("%s: local manifest does not contain field '%s'!\n", __FUNCTION__, "version");
+		printf("%s: Local manifest does not contain field '%s'!\n", __FUNCTION__, "version");
 		return true;
 	}
 

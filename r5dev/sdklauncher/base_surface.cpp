@@ -101,7 +101,7 @@ CBaseSurface::CBaseSurface()
 	this->m_ExperimentalBuildsCheckbox->SetSize({ 250, 18 });
 	this->m_ExperimentalBuildsCheckbox->SetLocation({ 10, 170 });
 	this->m_ExperimentalBuildsCheckbox->SetTabIndex(0);
-	this->m_ExperimentalBuildsCheckbox->SetText(XorStr("Also check for playtest versions updates"));
+	this->m_ExperimentalBuildsCheckbox->SetText(XorStr("Check for playtest/event updates"));
 	this->m_ExperimentalBuildsCheckbox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 
 	// TODO: remove this when its made public!!!
@@ -188,11 +188,9 @@ void CBaseSurface::OnUpdateClick(Forms::Control* Sender)
 		}
 
 		CUtlVector<CUtlString> fileList;
-		SDKLauncher_BeginDownload(true, false, true, fileList, pProgress);
-
-		pProgress->SetCanCancel(false);
-
-		SDKLauncher_InstallAssetList(false, fileList, pProgress);
+		if (SDKLauncher_BeginInstall(true, false, fileList, pProgress))
+		{
+		}
 
 		// Close on finish.
 		pProgress->Close();
@@ -218,20 +216,20 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 	}
 
 
-	CBaseSurface* pSurf = (CBaseSurface*)Sender;
-	const bool bPartial = pSurf->m_bPartialInstall;
+	//CBaseSurface* pSurf = (CBaseSurface*)Sender;
+	//const bool bPartial = pSurf->m_bPartialInstall;
 
-	const int minRequiredSpace = bPartial ? MIN_REQUIRED_DISK_SPACE : MIN_REQUIRED_DISK_SPACE_OPT;
-	int currentDiskSpace;
+	//const int minRequiredSpace = bPartial ? MIN_REQUIRED_DISK_SPACE : MIN_REQUIRED_DISK_SPACE_OPT;
+	//int currentDiskSpace;
 
-	if (!SDKLauncher_CheckDiskSpace(minRequiredSpace, &currentDiskSpace))
-	{
-		Forms::MessageBox::Show(Format("There is not enough space available on the disk to install R5Reloaded;"
-			" you need at least %iGB, you currently have %iGB\n", minRequiredSpace, currentDiskSpace).c_str(),
-			"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
+	//if (!SDKLauncher_CheckDiskSpace(minRequiredSpace, &currentDiskSpace))
+	//{
+	//	Forms::MessageBox::Show(Format("There is not enough space available on the disk to install R5Reloaded;"
+	//		" you need at least %iGB, you currently have %iGB\n", minRequiredSpace, currentDiskSpace).c_str(),
+	//		"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
 
-		return;
-	}
+	//	return;
+	//}
 
 	auto downloadSurface = std::make_unique<CProgressPanel>();
 	CProgressPanel* pProgress = downloadSurface.get();
@@ -249,8 +247,9 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 		}
 
 		CUtlVector<CUtlString> fileList;
-		SDKLauncher_BeginDownload(true, false, false, fileList, pProgress);
-		SDKLauncher_InstallAssetList(false, fileList, pProgress);
+		if (SDKLauncher_BeginInstall(true, false, fileList, pProgress))
+		{
+		}
 
 		// Close on finish.
 		pProgress->Close();

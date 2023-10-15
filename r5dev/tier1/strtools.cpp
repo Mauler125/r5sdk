@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 char const* V_stristr(char const* pStr, char const* pSearch)
 {
-	AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pStr));
-	AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pSearch));
+	//AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pStr));
+	//AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pSearch));
 
 	if (!pStr || !pSearch)
 		return 0;
@@ -48,8 +48,8 @@ char const* V_stristr(char const* pStr, char const* pSearch)
 
 char* V_stristr(char* pStr, char const* pSearch)
 {
-	AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pStr));
-	AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pSearch));
+	//AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pStr));
+	//AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pSearch));
 
 	return (char*)V_stristr((char const*)pStr, pSearch);
 }
