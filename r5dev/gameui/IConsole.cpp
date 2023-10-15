@@ -677,8 +677,9 @@ void CConsole::BuildSummary(string svConVar)
     {
         // Remove trailing space and/or semicolon before we call 'g_pCVar->FindVar(..)'.
         StringRTrim(svConVar, " ;", true);
+        const ConVar* const pConVar = g_pCVar->FindVar(svConVar.c_str());
 
-        if (const ConVar* pConVar = g_pCVar->FindVar(svConVar.c_str()))
+        if (pConVar && !pConVar->IsFlagSet(FCVAR_HIDDEN))
         {
             // Display the current and default value of ConVar if found.
             snprintf(m_szSummary, sizeof(m_szSummary), "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
