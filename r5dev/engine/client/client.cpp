@@ -62,9 +62,9 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 
 #define FORMAT_ERROR_REASON(fmt, ...) V_snprintf(reasonBuf, reasonBufLen, fmt, ##__VA_ARGS__);
 
-	KeyValues* cl_onlineAuthTokenKv = this->m_ConVars->FindKey("cl_onlineAuthToken");
-	KeyValues* cl_onlineAuthTokenSignature1Kv = this->m_ConVars->FindKey("cl_onlineAuthTokenSignature1");
-	KeyValues* cl_onlineAuthTokenSignature2Kv = this->m_ConVars->FindKey("cl_onlineAuthTokenSignature2");
+	KeyValues* const cl_onlineAuthTokenKv = this->m_ConVars->FindKey("cl_onlineAuthToken");
+	KeyValues* const cl_onlineAuthTokenSignature1Kv = this->m_ConVars->FindKey("cl_onlineAuthTokenSignature1");
+	KeyValues* const cl_onlineAuthTokenSignature2Kv = this->m_ConVars->FindKey("cl_onlineAuthTokenSignature2");
 
 	if (!cl_onlineAuthTokenKv || !cl_onlineAuthTokenSignature1Kv)
 	{
@@ -72,9 +72,9 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 		return false;
 	}
 
-	const char* onlineAuthToken = cl_onlineAuthTokenKv->GetString();
-	const char* onlineAuthTokenSignature1 = cl_onlineAuthTokenSignature1Kv->GetString();
-	const char* onlineAuthTokenSignature2 = cl_onlineAuthTokenSignature2Kv->GetString();
+	const char* const onlineAuthToken = cl_onlineAuthTokenKv->GetString();
+	const char* const onlineAuthTokenSignature1 = cl_onlineAuthTokenSignature1Kv->GetString();
+	const char* const onlineAuthTokenSignature2 = cl_onlineAuthTokenSignature2Kv->GetString();
 
 	const std::string fullToken = Format("%s.%s%s", onlineAuthToken, onlineAuthTokenSignature1, onlineAuthTokenSignature2);
 
@@ -89,11 +89,11 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 	params.verification_key = (unsigned char*)JWT_PUBLIC_KEY;
 	params.verification_key_length = strlen(JWT_PUBLIC_KEY);
 
-	params.validate_exp = 1;
-	params.exp_tolerance_seconds = 1;
+	params.validate_exp = sv_onlineAuthValidateExpiry->GetBool();
+	params.exp_tolerance_seconds = (uint8_t)sv_onlineAuthExpiryTolerance->GetInt();
 
-	params.validate_iat = 1;
-	params.iat_tolerance_seconds = 30;
+	params.validate_iat = sv_onlineAuthValidateIssuedAt->GetBool();
+	params.iat_tolerance_seconds = (uint8_t)sv_onlineAuthIssuedAtTolerance->GetInt();
 
 	l8w8jwt_claim* claims = nullptr;
 	size_t numClaims = 0;
@@ -180,11 +180,14 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer,
 
 #define REJECT_CONNECTION(fmt, ...) V_snprintf(szMessage, nMessageSize, fmt, ##__VA_ARGS__);
 
-	char authFailReason[512];
-	if (!Authenticate(szName, authFailReason, sizeof(authFailReason)))
+	if (sv_onlineAuthEnable->GetBool())
 	{
-		REJECT_CONNECTION("Failed to verify authentication token [%s]", authFailReason);
-		return false;
+		char authFailReason[512];
+		if (!Authenticate(szName, authFailReason, sizeof(authFailReason)))
+		{
+			REJECT_CONNECTION("Failed to verify authentication token [%s]", authFailReason);
+			return false;
+		}
 	}
 
 #undef REJECT_CONNECTION

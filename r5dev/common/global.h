@@ -124,6 +124,14 @@ extern ConVar* sv_validatePersonaName;
 extern ConVar* sv_minPersonaNameLength;
 extern ConVar* sv_maxPersonaNameLength;
 
+extern ConVar* sv_onlineAuthEnable;
+
+extern ConVar* sv_onlineAuthValidateExpiry;
+extern ConVar* sv_onlineAuthExpiryTolerance;
+
+extern ConVar* sv_onlineAuthValidateIssuedAt;
+extern ConVar* sv_onlineAuthIssuedAtTolerance;
+
 extern ConVar* sv_voiceEcho;
 extern ConVar* sv_voiceenable;
 extern ConVar* sv_alltalk;
@@ -142,6 +150,7 @@ extern ConVar* sv_rcon_maxpacketsize;
 extern ConVar* sv_rcon_whitelist_address;
 //#endif // DEDICATED
 #endif // CLIENT_DLL
+extern ConVar* sv_allowClientSideCfgExec;
 extern ConVar* sv_cheats;
 extern ConVar* sv_visualizetraces;
 extern ConVar* sv_visualizetraces_duration;
