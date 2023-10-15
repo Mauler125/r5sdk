@@ -7,7 +7,7 @@
 #define SIGDB_DICT_SIZE 20
 
 #define SIGDB_MAJOR_VERSION 0x2 // Increment when library changes are made.
-#define SIGDB_MINOR_VERSION 0x7 // Increment when SDK updates are released.
+#define SIGDB_MINOR_VERSION 0x8 // Increment when SDK updates are released.
 
 class CSigCache
 {
@@ -23,7 +23,7 @@ public:
 	void AddEntry(const char* szPattern, const uint64_t nRVA);
 	bool FindEntry(const char* szPattern, uint64_t& nRVA);
 
-	bool LoadCache(const char* szCacheFile);
+	bool ReadCache(const char* szCacheFile);
 	bool WriteCache(const char* szCacheFile) const;
 
 private:
