@@ -397,12 +397,15 @@ void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (
 
 void DetourInit() // Run the sigscan
 {
-	const bool bLogAdr = CommandLine()->CheckParm("-sig_toconsole") ? true : false;
 	const bool bNoSmap = CommandLine()->CheckParm("-nosmap") ? true : false;
+	const bool bLogAdr = CommandLine()->CheckParm("-sig_toconsole") ? true : false;
 	bool bInitDivider = false;
 
 	g_SigCache.SetDisabled(bNoSmap);
 	g_SigCache.LoadCache(SIGDB_FILE);
+
+	// No debug logging in non dev builds.
+	const bool bDevMode = !IsCert() && !IsRetail();
 
 	for (const IDetour* Detour : g_DetourVec)
 	{
@@ -410,7 +413,7 @@ void DetourInit() // Run the sigscan
 		Detour->GetFun(); // Functions.
 		Detour->GetVar(); // Variables.
 
-		if (bLogAdr)
+		if (bDevMode && bLogAdr)
 		{
 			if (!bInitDivider)
 			{
@@ -429,7 +432,7 @@ void DetourInit() // Run the sigscan
 
 	g_SigCache.WriteCache(SIGDB_FILE);
 	g_SigCache.InvalidateMap();
-}
+		}
 
 void DetourAddress() // Test the sigscan results
 {
