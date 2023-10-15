@@ -20,15 +20,15 @@ static bool IsServerListingValid(const rapidjson::Value& value)
 {
     if (value.HasMember("name")        && value["name"].IsString()        &&
         value.HasMember("description") && value["description"].IsString() &&
-        value.HasMember("hidden")      && value["hidden"].IsString()      && // TODO: Bool???
+        value.HasMember("hidden")      && value["hidden"].IsBool()        &&
         value.HasMember("map")         && value["map"].IsString()         &&
         value.HasMember("playlist")    && value["playlist"].IsString()    &&
         value.HasMember("ip")          && value["ip"].IsString()          &&
-        value.HasMember("port")        && value["port"].IsString()        && // TODO: Int32???
+        value.HasMember("port")        && value["port"].IsInt()           &&
         value.HasMember("key")         && value["key"].IsString()         &&
-        value.HasMember("checksum")    && value["checksum"].IsString()    && // TODO: Uint32???
-        value.HasMember("playerCount") && value["playerCount"].IsString() && // TODO: Int32???
-        value.HasMember("maxPlayers")  && value["maxPlayers"].IsString())//  && // TODO: Int32???
+        value.HasMember("checksum")    && value["checksum"].IsUint()      &&
+        value.HasMember("playerCount") && value["playerCount"].IsInt()    &&
+        value.HasMember("maxPlayers")  && value["maxPlayers"].IsInt())
     {
         return true;
     }
@@ -85,16 +85,16 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
             {
                 obj["name"].GetString(),
                 obj["description"].GetString(),
-                V_strcmp(obj["hidden"].GetString(), "true") == NULL, // TODO: Bool???
+                obj["hidden"].GetBool(),
                 obj["map"].GetString(),
                 obj["playlist"].GetString(),
                 obj["ip"].GetString(),
-                obj["port"].GetString(), // TODO: Int32???
+                obj["port"].GetInt(),
                 obj["key"].GetString(),
-                obj["checksum"].GetString(), // TODO: Uint32???
+                obj["checksum"].GetUint(),
                 SDK_VERSION,
-                obj["playerCount"].GetString(), // TODO: Int32???
-                obj["maxPlayers"].GetString(), // TODO: Int32???
+                obj["playerCount"].GetInt(),
+                obj["maxPlayers"].GetInt(),
                 -1,
             }
         );
@@ -146,16 +146,16 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
     {
         serverJson["name"].GetString(),
         serverJson["description"].GetString(),
-        V_strcmp(serverJson["hidden"].GetString(), "true") == NULL, // TODO: Bool???
+        serverJson["hidden"].GetBool(),
         serverJson["map"].GetString(),
         serverJson["playlist"].GetString(),
         serverJson["ip"].GetString(),
-        serverJson["port"].GetString(), // TODO: Int32???
+        serverJson["port"].GetInt(),
         serverJson["key"].GetString(),
-        serverJson["checksum"].GetString(), // TODO: Uint32???
+        serverJson["checksum"].GetUint(),
         SDK_VERSION,
-        serverJson["playerCount"].GetString(), // TODO: Int32???
-        serverJson["maxPlayers"].GetString(), // TODO: Int32???
+        serverJson["playerCount"].GetInt(),
+        serverJson["maxPlayers"].GetInt(),
         -1,
     };
 
@@ -182,12 +182,12 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
     requestJson.AddMember("map",         rapidjson::Value(netGameServer.m_svHostMap.c_str(),        allocator), allocator);
     requestJson.AddMember("playlist",    rapidjson::Value(netGameServer.m_svPlaylist.c_str(),       allocator), allocator);
     requestJson.AddMember("ip",          rapidjson::Value(netGameServer.m_svIpAddress.c_str(),      allocator), allocator);
-    requestJson.AddMember("port",        rapidjson::Value(netGameServer.m_svGamePort.c_str(),       allocator), allocator); // TODO: Int32???
+    requestJson.AddMember("port",        netGameServer.m_nGamePort,                                 allocator);
     requestJson.AddMember("key",         rapidjson::Value(netGameServer.m_svEncryptionKey.c_str(),  allocator), allocator);
-    requestJson.AddMember("checksum",    rapidjson::Value(netGameServer.m_svRemoteChecksum.c_str(), allocator), allocator); // TODO: Uint32???
+    requestJson.AddMember("checksum",    netGameServer.m_nRemoteChecksum,                           allocator);
     requestJson.AddMember("version",     rapidjson::Value(netGameServer.m_svSDKVersion.c_str(),     allocator), allocator);
-    requestJson.AddMember("playerCount", rapidjson::Value(netGameServer.m_svPlayerCount.c_str(),    allocator), allocator); // TODO: Int32???
-    requestJson.AddMember("maxPlayers",  rapidjson::Value(netGameServer.m_svMaxPlayers.c_str(),     allocator), allocator); // TODO: Int32???
+    requestJson.AddMember("playerCount", netGameServer.m_nPlayerCount,                              allocator);
+    requestJson.AddMember("maxPlayers",  netGameServer.m_nMaxPlayers,                               allocator);
     requestJson.AddMember("timeStamp",   netGameServer.m_nTimeStamp,                                allocator);
 
     rapidjson::Document responseJson;

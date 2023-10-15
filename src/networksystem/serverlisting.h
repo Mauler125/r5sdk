@@ -21,14 +21,14 @@ struct NetGameServer_t
 	string m_svPlaylist = "dev_default";
 
 	string m_svIpAddress;
-	string m_svGamePort; // TODO: should be 'int'.
+	int m_nGamePort;
 	string m_svEncryptionKey;
 
-	string m_svRemoteChecksum; // TODO: should be 'unsigned int'.
+	unsigned int m_nRemoteChecksum;
 	string m_svSDKVersion;
 
-	string m_svPlayerCount; // TODO: should be 'int'.
-	string m_svMaxPlayers; // TODO: should be 'int'.
+	int m_nPlayerCount;
+	int m_nMaxPlayers;
 	int64_t m_nTimeStamp = -1;
 
 	//vector<NetGameMod_t> m_vMods;
