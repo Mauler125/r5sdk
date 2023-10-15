@@ -1508,10 +1508,10 @@ void Cmd_Exec_f(const CCommand& args)
 	// Prevent users from running neo strafe commands and other quick hacks.
 	// TODO: when reBar becomes a thing, we should verify this function and
 	// flag users that patch them out.
-	if (!ThreadInServerFrameThread() && (!sv_cheats->GetBool() && g_pClientState->IsActive()))
+	if (!ThreadInServerFrameThread() && (!sv_allowClientSideCfgExec->GetBool() && g_pClientState->IsActive()))
 	{
 		DevWarning(eDLL_T::ENGINE, "Client is simulating and %s = false; dropped exec command: %s\n",
-			sv_cheats->GetName(), args.ArgS());
+			sv_allowClientSideCfgExec->GetName(), args.ArgS());
 
 		return;
 	}
