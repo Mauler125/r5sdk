@@ -15,6 +15,7 @@
 #ifndef DEDICATED
 #include "engine/client/cl_rcon.h"
 #include "engine/client/cdll_engine_int.h"
+#include "engine/client/clientstate.h"
 #endif // !DEDICATED
 #include "engine/client/client.h"
 #include "engine/net.h"
@@ -808,7 +809,8 @@ SIG_GetAdr_f
 */
 void SIG_GetAdr_f(const CCommand& args)
 {
-	DetourAddress();
+	if (!IsCert() && !IsRetail())
+		DetourAddress();
 }
 
 /*
@@ -1458,13 +1460,16 @@ CC_CreateFakePlayer_f
 #ifndef CLIENT_DLL
 void CC_CreateFakePlayer_f(const CCommand& args)
 {
+	if (!g_pServer->IsActive())
+		return;
+
 	if (args.ArgC() < 3)
 	{
 		Msg(eDLL_T::SERVER, "usage 'sv_addbot': name(string) teamid(int)\n");
 		return;
 	}
 
-	int numPlayers = g_pServer->GetNumClients();
+	const int numPlayers = g_pServer->GetNumClients();
 
 	// Already at max, don't create.
 	if (numPlayers >= g_ServerGlobalVariables->m_nMaxClients)
@@ -1473,7 +1478,7 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 	const char* playerName = args.Arg(1);
 
 	int teamNum = atoi(args.Arg(2));
-	int maxTeams = int(g_pServer->GetMaxTeams()) + 1;
+	const int maxTeams = int(g_pServer->GetMaxTeams()) + 1;
 
 	// Clamp team count, going above the limit will
 	// cause a crash. Going below 0 means that the
@@ -1483,9 +1488,44 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 
 	g_pEngineServer->LockNetworkStringTables(true);
 
-	edict_t nHandle = g_pEngineServer->CreateFakeClient(playerName, teamNum);
+	const edict_t nHandle = g_pEngineServer->CreateFakeClient(playerName, teamNum);
 	g_pServerGameClients->ClientFullyConnect(nHandle, false);
 
 	g_pEngineServer->LockNetworkStringTables(false);
 }
 #endif // !CLIENT_DLL
+
+/*
+=====================
+Cmd_Exec_f
+
+  executes a cfg file
+=====================
+*/
+void Cmd_Exec_f(const CCommand& args)
+{
+#ifndef DEDICATED
+	// Prevent users from running neo strafe commands and other quick hacks.
+	// TODO: when reBar becomes a thing, we should verify this function and
+	// flag users that patch them out.
+	if (!ThreadInServerFrameThread() && (!sv_cheats->GetBool() && g_pClientState->IsActive()))
+	{
+		DevWarning(eDLL_T::ENGINE, "Client is simulating and %s = false; dropped exec command: %s\n",
+			sv_cheats->GetName(), args.ArgS());
+
+		return;
+	}
+#endif // !DEDICATED
+	_Cmd_Exec_f(args);
+}
+
+
+void VCallback::Attach() const
+{
+	DetourAttach(&_Cmd_Exec_f, &Cmd_Exec_f);
+}
+
+void VCallback::Detach() const
+{
+	DetourDetach(&_Cmd_Exec_f, &Cmd_Exec_f);
+}

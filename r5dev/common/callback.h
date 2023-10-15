@@ -7,6 +7,9 @@ inline bool(*SetupGamemode)(const char* pszPlayList);
 inline CMemory p_DownloadPlaylists_f;
 inline void(*_DownloadPlaylists_f)(void);
 
+inline CMemory p_Cmd_Exec_f;
+inline void(*_Cmd_Exec_f)(const CCommand& args);
+
 ///////////////////////////////////////////////////////////////////////////////
 void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 void MP_HostName_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);
@@ -87,18 +90,21 @@ class VCallback : public IDetour
 	{
 		LogFunAdr("SetupGamemode", p_SetupGamemode.GetPtr());
 		LogFunAdr("DownloadPlaylist_f", p_DownloadPlaylists_f.GetPtr());
+		LogFunAdr("Cmd_Exec_f", p_Cmd_Exec_f.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
 		p_SetupGamemode = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 48 C7 C0 ?? ?? ?? ??");
 		p_DownloadPlaylists_f = g_GameDll.FindPatternSIMD("33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??");
+		p_Cmd_Exec_f = g_GameDll.FindPatternSIMD("40 55 53 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9");
 
-		SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char*)>();       /*40 53 48 83 EC 20 48 8B D9 48 C7 C0 ?? ?? ?? ??*/
-		_DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>(); /*33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??*/
+		SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char*)>();
+		_DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>();
+		_Cmd_Exec_f = p_Cmd_Exec_f.RCast<void(*)(const CCommand& args)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

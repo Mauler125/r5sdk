@@ -1,6 +1,7 @@
 #pragma once
 #include "vpc/keyvalues.h"
 #include "common/protocol.h"
+#include "engine/net.h"
 #include "engine/net_chan.h"
 #include "public/edict.h"
 #include "engine/server/datablock_sender.h"
@@ -93,13 +94,18 @@ public:
 	inline bool IsHumanPlayer(void) const { if (!IsConnected() || IsFakeClient()) { return false; } return true; }
 
 	bool SendNetMsgEx(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
-	bool Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
+
+	bool Authenticate(const char* const playerName, char* const reasonBuf, const size_t reasonBufLen);
+	bool Connect(const char* szName, void* pNetChannel, bool bFakePlayer,
+		CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize);
 	void Disconnect(const Reputation_t nRepLvl, const char* szReason, ...);
-	static bool VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
 	void Clear(void);
 
 public: // Hook statics:
 	static void VClear(CClient* pClient);
+	static bool VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer,
+		CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize);
+
 	static void VActivatePlayer(CClient* pClient);
 	static void* VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
 	static bool VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
@@ -204,7 +210,7 @@ static_assert(sizeof(CClient) == 0x4A4C0);
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
 inline CMemory p_CClient_Connect;
-inline bool(*v_CClient_Connect)(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
+inline bool(*v_CClient_Connect)(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize);
 
 inline CMemory p_CClient_Disconnect;
 inline bool(*v_CClient_Disconnect)(CClient* pClient, const Reputation_t nRepLvl, const char* szReason, ...);
@@ -269,7 +275,7 @@ class VClient : public IDetour
 		p_CClient_ProcessSetConVar = g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 C2 20");
 		p_CClient_SetSignonState = g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2");
 
-		v_CClient_Connect    = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>();
+		v_CClient_Connect    = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, CUtlVector<NET_SetConVar::cvar_t>*, char*, int)>();
 		v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient*, const Reputation_t, const char*, ...)>();
 		v_CClient_Clear      = p_CClient_Clear.RCast<void (*)(CClient*)>();
 		v_CClient_ActivatePlayer = p_CClient_ActivatePlayer.RCast<void (*)(CClient* pClient)>();

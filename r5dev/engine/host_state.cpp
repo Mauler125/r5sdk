@@ -69,8 +69,9 @@ bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
 
 	string errorMsg;
 	string hostToken;
+	string hostIp;
 
-	const bool result = g_pMasterServer->PostServerHost(errorMsg, hostToken, netGameServer);
+	const bool result = g_pMasterServer->PostServerHost(errorMsg, hostToken, hostIp, netGameServer);
 	if (!result)
 	{
 		if (!errorMsg.empty() && g_pMasterServer->GetCurrentError().compare(errorMsg) != NULL)
@@ -89,6 +90,9 @@ bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
 				hostToken.c_str(), g_svReset);
 		}
 	}
+
+	if (hostIp.length() != 0)
+		g_pMasterServer->SetHostIP(hostIp);
 
 	return result;
 }

@@ -195,6 +195,10 @@ ConVar* cl_threaded_bone_setup             = nullptr;
 
 ConVar* cl_language                        = nullptr;
 
+ConVar* cl_onlineAuthToken                 = nullptr;
+ConVar* cl_onlineAuthTokenSignature1       = nullptr;
+ConVar* cl_onlineAuthTokenSignature2       = nullptr;
+
 ConVar* con_drawnotify                     = nullptr;
 ConVar* con_notifylines                    = nullptr;
 ConVar* con_notifytime                     = nullptr;
@@ -403,6 +407,10 @@ void ConVar_StaticInit(void)
 	cl_materialinfo_offset_x = ConVar::StaticCreate("cl_materialinfo_offset_x", "0"  , FCVAR_DEVELOPMENTONLY, "X offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_materialinfo_offset_y = ConVar::StaticCreate("cl_materialinfo_offset_y", "420", FCVAR_DEVELOPMENTONLY, "Y offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
+	cl_onlineAuthToken           = ConVar::StaticCreate("cl_onlineAuthToken",           "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_onlineAuthTokenSignature1 = ConVar::StaticCreate("cl_onlineAuthTokenSignature1", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_onlineAuthTokenSignature2 = ConVar::StaticCreate("cl_onlineAuthTokenSignature2", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
+
 	con_drawnotify = ConVar::StaticCreate("con_drawnotify", "0", FCVAR_RELEASE, "Draws the RUI console to the hud.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_notifylines     = ConVar::StaticCreate("con_notifylines"    , "3" , FCVAR_MATERIAL_SYSTEM_THREAD, "Number of console lines to overlay for debugging.", true, 1.f, false, 0.f, nullptr, nullptr);
 	con_notifytime      = ConVar::StaticCreate("con_notifytime"     , "6" , FCVAR_MATERIAL_SYSTEM_THREAD, "How long to display recent console text to the upper part of the game window.", false, 1.f, false, 50.f, nullptr, nullptr);
@@ -473,7 +481,7 @@ void ConVar_StaticInit(void)
 	net_processTimeBudget      = ConVar::StaticCreate("net_processTimeBudget"     ,"200"                       , FCVAR_RELEASE    , "Net message process time budget in milliseconds (removing netchannel if exceeded).", true, 0.f, false, 0.f, nullptr, "0 = disabled");
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
-	pylon_matchmaking_hostname = ConVar::StaticCreate("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE, "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
+	pylon_matchmaking_hostname = ConVar::StaticCreate("pylon_matchmaking_hostname", "ms-dev.r5reloaded.com", FCVAR_RELEASE, "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
 	pylon_host_update_interval = ConVar::StaticCreate("pylon_host_update_interval", "5"                , FCVAR_RELEASE, "Length of time in seconds between each status update interval to master server.", true, 5.f, false, 0.f, nullptr, nullptr);
 	pylon_showdebuginfo        = ConVar::StaticCreate("pylon_showdebuginfo"       , "0"                , FCVAR_RELEASE, "Shows debug output for pylon.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
@@ -737,7 +745,8 @@ void ConCommand_StaticInit(void)
 	ConCommand::StaticCreate("net_generatekey", "Generates and sets a random base64 net key.", nullptr, FCVAR_RELEASE, NET_GenerateKey_f, nullptr);
 	//-------------------------------------------------------------------------
 	// TIER0                                                                  |
-	ConCommand::StaticCreate("sig_getadr", "Logs the sigscan results to the console.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN, SIG_GetAdr_f, nullptr);
+	if (!IsCert() && !IsRetail())
+		ConCommand::StaticCreate("sig_getadr", "Logs the sigscan results to the console.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN, SIG_GetAdr_f, nullptr);
 }
 
 //-----------------------------------------------------------------------------

@@ -778,12 +778,17 @@ void CBrowser::SendHostingPostRequest(const NetGameServer_t& gameServer)
 #ifndef CLIENT_DLL
     string svHostRequestMessage;
     string svHostToken;
-    bool result = g_pMasterServer->PostServerHost(svHostRequestMessage, svHostToken, gameServer);
+    string svHostIp;
+
+    bool result = g_pMasterServer->PostServerHost(svHostRequestMessage, svHostToken, svHostIp, gameServer);
 
     std::lock_guard<std::mutex> l(m_Mutex);
 
     m_svHostRequestMessage = svHostRequestMessage;
     m_svHostToken = svHostToken;
+
+    if(svHostIp.length() != 0)
+        g_pMasterServer->SetHostIP(svHostIp);
 
     if (result)
     {

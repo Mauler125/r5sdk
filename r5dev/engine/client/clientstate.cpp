@@ -16,6 +16,7 @@
 #include "common/callback.h"
 #include "cdll_engine_int.h"
 #include "vgui/vgui_baseui_interface.h"
+#include <ebisusdk/EbisuSDK.h>
 
 
 //------------------------------------------------------------------------------
@@ -163,16 +164,76 @@ bool CClientState::VProcessServerTick(CClientState* pClientState, SVC_ServerTick
     }
 }
 
+bool CClientState::Authenticate(connectparams_t* connectParams) const
+{
+    string msToken; // token returned by the masterserver authorising the client to play online
+    string message; // message returned by the masterserver about the result of the auth
+
+    // verify that the client is not lying about their account identity
+    // code is immediately discarded upon verification
+
+    const bool ret = g_pMasterServer->AuthForConnection(*g_NucleusID, connectParams->netAdr, g_OriginAuthCode, msToken, message);
+    if (!ret)
+    {
+        Error(eDLL_T::ENGINE, NO_ERROR, "Failed to authenticate for online play: %s\n", message.c_str());
+        return false;
+    }
+
+    // get full token
+    const char* token = msToken.c_str();
+
+    // get a pointer to the delimiter that begins the token's signature
+    const char* tokenSignatureDelim = strrchr(token, '.');
+
+    if (!tokenSignatureDelim)
+    {
+        Error(eDLL_T::ENGINE, NO_ERROR, "Failed to authenticate for online play: %s\n", "Invalid token returned by MS");
+        return false;
+    }
+
+    // replace the delimiter with a null char so the first cvar only takes the header and payload data
+    *(char*)tokenSignatureDelim = '\0';
+    const size_t sigLength = strlen(tokenSignatureDelim) - 1;
+
+    cl_onlineAuthToken->SetValue(token);
+
+    if (sigLength > 0)
+    {
+        // get a pointer to the first part of the token signature to store in cl_onlineAuthTokenSignature1
+        const char* tokenSignaturePart1 = tokenSignatureDelim + 1;
+
+        cl_onlineAuthTokenSignature1->SetValue(tokenSignaturePart1);
+
+        if (sigLength > 255)
+        {
+            // get a pointer to the rest of the token signature to store in cl_onlineAuthTokenSignature2
+            const char* tokenSignaturePart2 = tokenSignaturePart1 + 255;
+
+            cl_onlineAuthTokenSignature2->SetValue(tokenSignaturePart2);
+        }
+    }
+
+    return true;
+}
+
+void CClientState::VConnect(CClientState* thisptr, connectparams_t* connectParams)
+{
+    thisptr->Authenticate(connectParams);
+    CClientState__Connect(thisptr, connectParams);
+}
+
 void VClientState::Attach() const
 {
     DetourAttach(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing);
     DetourAttach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
+    DetourAttach(&CClientState__Connect, &CClientState::VConnect);
 }
 
 void VClientState::Detach() const
 {
     DetourDetach(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing);
     DetourDetach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
+    DetourDetach(&CClientState__Connect, &CClientState::VConnect);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
