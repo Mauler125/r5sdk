@@ -147,7 +147,7 @@
 #endif // Max BSP file name len.
 #define MAX_MAP_NAME 64
 
-#define SDK_VERSION "VGameSDK008" // Increment this with every /breaking/ SDK change (i.e. security/backend changes breaking compatibility).
+#define SDK_VERSION "VGameSDK009" // Increment this with every /breaking/ SDK change (i.e. security/backend changes breaking compatibility).
 #define SDK_ARRAYSIZE(arr) ((sizeof(arr) / sizeof(*arr))) // Name due to IMGUI implementation and NT implementation that we shouldn't share across everywhere.
 
 #define SDK_SYSTEM_CFG_PATH "cfg/system/"
