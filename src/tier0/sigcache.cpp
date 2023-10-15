@@ -83,7 +83,7 @@ bool CSigCache::FindEntry(const char* szPattern, uint64_t& nRVA)
 // Purpose: loads the cache map from the disk
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::LoadCache(const char* szCacheFile)
+bool CSigCache::ReadCache(const char* szCacheFile)
 {
 	Assert(!m_bInitialized); // Recursive load.
 

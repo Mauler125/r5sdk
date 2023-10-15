@@ -402,7 +402,7 @@ void DetourInit() // Run the sigscan
 	bool bInitDivider = false;
 
 	g_SigCache.SetDisabled(bNoSmap);
-	g_SigCache.LoadCache(SIGDB_FILE);
+	g_SigCache.ReadCache(SIGDB_FILE);
 
 	// No debug logging in non dev builds.
 	const bool bDevMode = !IsCert() && !IsRetail();
