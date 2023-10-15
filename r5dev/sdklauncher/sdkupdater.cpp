@@ -9,6 +9,7 @@
 // requires the launcher or anything else to be killed first.
 //=============================================================================//
 #include "sdkupdater.h"
+#include "sdklauncher/sdklauncher_const.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: prints error and returns 'EXIT_FAILURE'
@@ -22,6 +23,24 @@ DWORD ErrorAndExit(const char* pSymbol)
 	return EXIT_FAILURE;
 }
 
+//----------------------------------------------------------------------------
+// TODO: this code is from the SDK launcher, make it shared!
+//----------------------------------------------------------------------------
+bool ClearDepotDirectories()
+{
+	// Clear all depot files.
+	if (!RemoveDirectoryA(RESTART_DEPOT_DOWNLOAD_DIR) ||
+		!RemoveDirectoryA(DEFAULT_DEPOT_DOWNLOAD_DIR))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: update process's privileges to aid with terminating other processes
+//-----------------------------------------------------------------------------
 void UpdatePrivilege(void)
 {
 	HANDLE hToken;
@@ -47,7 +66,7 @@ void UpdatePrivilege(void)
 //-----------------------------------------------------------------------------
 void MoveFiles(const char* pSourceDir, const char* pDestDir)
 {
-	printf("Moving files from %s to %s\n", pSourceDir, pDestDir);
+	printf("*** Moving files from \"%s\" to \"%s\"\n", pSourceDir, pDestDir);
 
 	char sourceDir[MAX_PATH];
 	char destDir[MAX_PATH];
@@ -93,11 +112,11 @@ void MoveFiles(const char* pSourceDir, const char* pDestDir)
 			CreateDirectoryA(destFilePath, nullptr);
 			MoveFiles(sourceFilePath, destFilePath);
 
-			printf("Moving directory \"%s\" to \"%s\"\n", sourceFilePath, destFilePath);
+			printf("*** Moving directory \"%s\" to \"%s\"\n", sourceFilePath, destFilePath);
 		}
 		else
 		{
-			printf("Moving file \"%s\" to \"%s\"\n", sourceFilePath, destFilePath);
+			printf("*** Moving file \"%s\" to \"%s\"\n", sourceFilePath, destFilePath);
 
 			// It's a file, so move it to the destination folder.
 			if (!MoveFileEx(sourceFilePath, destFilePath, MOVEFILE_REPLACE_EXISTING))
@@ -109,6 +128,9 @@ void MoveFiles(const char* pSourceDir, const char* pDestDir)
 	FindClose(hFind);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: entry point
+//-----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
 	printf("R5 updater [Version %s]\n", UPDATER_VERSION);
@@ -116,7 +138,7 @@ int main(int argc, char** argv)
 	// Make sure the caller passed in a process id.
 	if (argc < 1)
 	{
-		printf("Updater must be invoked with a ProcessID of the parent process!\n");
+		printf("%s: Updater must be invoked with a ProcessID of the parent process!\n", "Error");
 		Sleep(UPDATER_SLEEP_TIME_BEFORE_EXIT);
 
 		return EXIT_FAILURE;
@@ -131,6 +153,8 @@ int main(int argc, char** argv)
 	// If the launcher is still running, terminate it.
 	if (launcher)
 	{
+		printf("*** Terminating launcher process...\n");
+
 		// Make sure the launcher is getting terminated if
 		// 'ExitProcess()' somehow failed.
 		TerminateProcess(launcher, 1);
@@ -163,9 +187,16 @@ int main(int argc, char** argv)
 	{
 		const char* destPath = (argc > 2) ? argv[2] : currentPath;
 		MoveFiles(argv[1], destPath);
+
+		if (!ClearDepotDirectories())
+		{
+			printf("Failed to remove intermediate files!\n");
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	printf("*** Starting launcher process...\n");
+
 	STARTUPINFOA startupInfo = { 0 };
 	PROCESS_INFORMATION processInfo = { 0 };
 
@@ -199,5 +230,6 @@ int main(int argc, char** argv)
 	CloseHandle(processInfo.hProcess);
 	CloseHandle(processInfo.hThread);
 
+	printf("*** Updater finished successfully.\n");
 	return EXIT_SUCCESS;
 }
