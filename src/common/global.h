@@ -185,6 +185,11 @@ extern ConVar* cl_threaded_bone_setup;
 
 extern ConVar* cl_language;
 
+extern ConVar* cl_onlineAuthToken;
+extern ConVar* cl_onlineAuthTokenSignature1;
+extern ConVar* cl_onlineAuthTokenSignature2;
+
+
 extern ConVar* con_drawnotify;
 extern ConVar* con_notifylines;
 extern ConVar* con_notifytime;

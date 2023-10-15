@@ -103,6 +103,15 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 )
 endif()
 
+if( NOT ${PROJECT_NAME} STREQUAL "client" )
+target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "libmbedcrypto"
+    "libmbedtls"
+    "libmbedx509"
+    "libjwt"
+)
+endif()
+
 # Determine the compiler definitions and link libraries per project.
 if( ${PROJECT_NAME} STREQUAL "gamesdk" )
 end_sources()

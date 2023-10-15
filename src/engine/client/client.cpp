@@ -11,8 +11,12 @@
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
 #include "tier1/strtools.h"
+#include "mathlib/sha256.h"
 #include "engine/server/server.h"
 #include "engine/client/client.h"
+#ifndef CLIENT_DLL
+#include "jwt/include/decode.h"
+#endif
 
 // Absolute max string cmd length, any character past this will be NULLED.
 #define STRINGCMD_MAX_LEN 512
@@ -37,22 +41,156 @@ void CClient::VClear(CClient* pClient)
 	pClient->Clear();
 }
 
+static const char JWT_PUBLIC_KEY[] = 
+"-----BEGIN PUBLIC KEY-----\n"
+"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2/335exIZ6LE8pYi6e50\n"
+"7tH19tXaeeEJVF5XXpTCXpndXIIWVimvg6xQ381eajySDw93wvG1DzW3U/6LHzyt\n"
+"Q++N8w7N+FwnXyoDUD5Y8hheTZv6jjLoYT8ZtsMl20k9UosrbFBTMUhgmIT2dVth\n"
+"LH+rT9ohpUNwQXHJvTOs9eY74GyfFw93+32LANBPZ8b+S8S3oZnKFVeCxRkYKsV0\n"
+"b34POHVBbXNw6Kt163gR5zaiCfJJtRto9AA7MV2t9pfy8CChs3uJ+Xn7QVHD5cqt\n"
+"Msg9MBac2Pvs2j+8wJ/igAVL5L81z3FXVt04id59TfPMUbYhRfY8pk7FB0MCigOH\n"
+"dwIDAQAB\n"
+"-----END PUBLIC KEY-----\n";
+
+
+bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, const size_t reasonBufLen)
+{
+#ifndef CLIENT_DLL
+	// don't bother checking origin auth on bots or local clients
+	if (IsFakeClient() || GetNetChan()->GetRemoteAddress().IsLoopback())
+		return true;
+
+#define FORMAT_ERROR_REASON(fmt, ...) V_snprintf(reasonBuf, reasonBufLen, fmt, ##__VA_ARGS__);
+
+	KeyValues* cl_onlineAuthTokenKv = this->m_ConVars->FindKey("cl_onlineAuthToken");
+	KeyValues* cl_onlineAuthTokenSignature1Kv = this->m_ConVars->FindKey("cl_onlineAuthTokenSignature1");
+	KeyValues* cl_onlineAuthTokenSignature2Kv = this->m_ConVars->FindKey("cl_onlineAuthTokenSignature2");
+
+	if (!cl_onlineAuthTokenKv || !cl_onlineAuthTokenSignature1Kv)
+	{
+		FORMAT_ERROR_REASON("Missing token");
+		return false;
+	}
+
+	const char* onlineAuthToken = cl_onlineAuthTokenKv->GetString();
+	const char* onlineAuthTokenSignature1 = cl_onlineAuthTokenSignature1Kv->GetString();
+	const char* onlineAuthTokenSignature2 = cl_onlineAuthTokenSignature2Kv->GetString();
+
+	const std::string fullToken = Format("%s.%s%s", onlineAuthToken, onlineAuthTokenSignature1, onlineAuthTokenSignature2);
+
+	struct l8w8jwt_decoding_params params;
+	l8w8jwt_decoding_params_init(&params);
+
+	params.alg = L8W8JWT_ALG_RS256;
+
+	params.jwt = (char*)fullToken.c_str();
+	params.jwt_length = fullToken.length();
+
+	params.verification_key = (unsigned char*)JWT_PUBLIC_KEY;
+	params.verification_key_length = strlen(JWT_PUBLIC_KEY);
+
+	params.validate_exp = 1;
+	params.exp_tolerance_seconds = 1;
+
+	params.validate_iat = 1;
+	params.iat_tolerance_seconds = 30;
+
+	l8w8jwt_claim* claims = nullptr;
+	size_t numClaims = 0;
+
+	enum l8w8jwt_validation_result validation_result;
+	const int r = l8w8jwt_decode(&params, &validation_result, &claims, &numClaims);
+
+	if (r != L8W8JWT_SUCCESS)
+	{
+		FORMAT_ERROR_REASON("Code %i", r);
+		return false;
+	}
+
+	if (validation_result != L8W8JWT_VALID)
+	{
+		char reasonBuffer[256];
+		l8w8jwt_get_validation_result_desc(validation_result, reasonBuffer, sizeof(reasonBuffer));
+
+		FORMAT_ERROR_REASON("%s", reasonBuffer);
+		return false;
+	}
+
+	bool foundSessionId = false;
+	for (size_t i = 0; i < numClaims; ++i)
+	{
+		// session id
+		if (!strcmp(claims[i].key, "sessionId"))
+		{
+			const char* const sessionId = claims[i].value;
+
+			const std::string newId = Format(
+				"%lld-%s-%s",
+				this->m_DataBlock.userData,
+				playerName,
+				g_pMasterServer->GetHostIP().c_str()
+			);
+
+			DevMsg(eDLL_T::SERVER, "%s: newId=%s\n", __FUNCTION__, newId.c_str());
+			const std::string hashedNewId = sha256(newId);
+
+			if (hashedNewId.compare(sessionId) != 0)
+			{
+				FORMAT_ERROR_REASON("Token is not authorized for the connecting client");
+				return false;
+			}
+
+			foundSessionId = true;
+		}
+	}
+
+	if (!foundSessionId)
+	{
+		FORMAT_ERROR_REASON("No session ID");
+		return false;
+	}
+
+#undef REJECT_CONNECTION
+#endif // !CLIENT_DLL
+
+	return true;
+}
+
 //---------------------------------------------------------------------------------
 // Purpose: connect new client
 // Input  : *szName - 
 //			*pNetChannel - 
 //			bFakePlayer - 
-//			*a5 - 
+//			*conVars - 
 //			*szMessage -
 //			nMessageSize - 
 // Output : true if connection was successful, false otherwise
 //---------------------------------------------------------------------------------
-bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
+bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer,
+	CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize)
 {
 #ifndef CLIENT_DLL
 	g_ServerPlayer[GetUserID()].Reset(); // Reset ServerPlayer slot.
+#endif
+
+	if (!v_CClient_Connect(this, szName, pNetChannel, bFakePlayer, conVars, szMessage, nMessageSize))
+		return false;
+
+#ifndef CLIENT_DLL
+
+#define REJECT_CONNECTION(fmt, ...) V_snprintf(szMessage, nMessageSize, fmt, ##__VA_ARGS__);
+
+	char authFailReason[512];
+	if (!Authenticate(szName, authFailReason, sizeof(authFailReason)))
+	{
+		REJECT_CONNECTION("Failed to verify authentication token [%s]", authFailReason);
+		return false;
+	}
+
+#undef REJECT_CONNECTION
 #endif // !CLIENT_DLL
-	return v_CClient_Connect(this, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
+
+	return true;
 }
 
 //---------------------------------------------------------------------------------
@@ -66,9 +204,10 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, v
 //			nMessageSize - 
 // Output : true if connection was successful, false otherwise
 //---------------------------------------------------------------------------------
-bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
+bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer,
+	CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize)
 {
-	return pClient->Connect(szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);;
+	return pClient->Connect(szName, pNetChannel, bFakePlayer, conVars, szMessage, nMessageSize);;
 }
 
 //---------------------------------------------------------------------------------
@@ -258,8 +397,8 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 {
 #ifndef CLIENT_DLL
-	CClient* pAdj = AdjustShiftedThisPointer(pClient);
-	ServerPlayer_t* pSlot = &g_ServerPlayer[pAdj->GetUserID()];
+	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
+	ServerPlayer_t* const pSlot = &g_ServerPlayer[pAdj->GetUserID()];
 
 	// This loop never exceeds 255 iterations, NET_SetConVar::ReadFromBuffer(...)
 	// reads and inserts up to 255 entries in the vector (reads a byte for size).
@@ -297,6 +436,7 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 			continue;
 		}
 
+		// Add ConVar to list and set string.
 		pAdj->m_ConVars->SetString(name, value);
 		DevMsg(eDLL_T::SERVER, "UserInfo update from \"%s\": %s = %s\n", pAdj->GetClientName(), name, value);
 	}

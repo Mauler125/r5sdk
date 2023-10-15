@@ -46,8 +46,8 @@ protected:
 
 struct ServerDataBlock
 {
-	char SnapshotBuffer[295312]; // this might be wrong !!!
-	void* pUnkBlockStruct;
+	char blockBuffer[295312]; // this might be wrong !!!
+	void* userData;
 	char gapC0008[56];
 	ServerDataBlockSender sender;
 };

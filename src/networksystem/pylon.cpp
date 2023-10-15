@@ -169,7 +169,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
 //			&netGameServer - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CPylon::PostServerHost(string& outMessage, string& outToken, const NetGameServer_t& netGameServer) const
+bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHostIp, const NetGameServer_t& netGameServer) const
 {
     rapidjson::Document requestJson;
     requestJson.SetObject();
@@ -208,6 +208,13 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, const NetGameS
         }
 
         outToken = responseJson["token"].GetString();
+    }
+
+    if (responseJson.HasMember("ip") && responseJson["ip"].IsString() &&
+        responseJson.HasMember("port") && responseJson["port"].IsInt())
+    {
+        outHostIp = Format("[%s]:%i",
+            responseJson["ip"].GetString(), responseJson["port"].GetInt());
     }
 
     return true;
@@ -299,6 +306,35 @@ bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId, cons
             outReason = responseJson.HasMember("reason") ? responseJson["reason"].GetString() : "#DISCONNECT_BANNED";
             return true;
         }
+    }
+
+    return false;
+}
+
+bool CPylon::AuthForConnection(const uint64_t nucleusId, const char* ipAddress, const char* authCode, string& outToken, string& outMessage) const
+{
+    rapidjson::Document requestJson;
+    requestJson.SetObject();
+
+    rapidjson::Document::AllocatorType& allocator = requestJson.GetAllocator();
+
+    requestJson.AddMember("id", nucleusId, allocator);
+    requestJson.AddMember("ip", rapidjson::Value(ipAddress, allocator), allocator);
+    requestJson.AddMember("code", rapidjson::Value(authCode, allocator), allocator);
+
+    rapidjson::Document responseJson;
+
+    CURLINFO status;
+
+    if (!SendRequest("/client/authenticate", requestJson, responseJson, outMessage, status, "origin auth error"))
+    {
+        return false;
+    }
+
+    if (responseJson.HasMember("token") && responseJson["token"].IsString())
+    {
+        outToken = responseJson["token"].GetString();
+        return true;
     }
 
     return false;
