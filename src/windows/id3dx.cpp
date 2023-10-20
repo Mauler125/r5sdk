@@ -10,6 +10,7 @@
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
 #include "engine/framelimit.h"
+#include "engine/sys_engine.h"
 #include "engine/sys_mainwind.h"
 #include "inputsystem/inputsystem.h"
 #include "public/bitmap/stb_image.h"
@@ -142,7 +143,9 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	}
 
 	g_FrameLimiter.Run();
-	DrawImGui();
+
+	if (g_pEngine->GetQuitting() == IEngine::QUIT_NOTQUITTING)
+		DrawImGui();
 	///////////////////////////////////////////////////////////////////////////////
 
 	HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
