@@ -52,7 +52,13 @@ static const char JWT_PUBLIC_KEY[] =
 "dwIDAQAB\n"
 "-----END PUBLIC KEY-----\n";
 
-
+//---------------------------------------------------------------------------------
+// Purpose: check whether this client is authorized to join this server
+// Input  : *playerName  - 
+//			*reasonBuf   - 
+//			reasonBufLen - 
+// Output : true if authorized, false otherwise
+//---------------------------------------------------------------------------------
 bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, const size_t reasonBufLen)
 {
 #ifndef CLIENT_DLL
