@@ -84,6 +84,9 @@ ConVar* stream_overlay_mode                = nullptr;
 ConVar* modsystem_enable                   = nullptr;
 ConVar* modsystem_debug                    = nullptr;
 
+ConVar* eula_version                       = nullptr;
+ConVar* eula_version_accepted              = nullptr;
+
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 #ifndef CLIENT_DLL
@@ -241,8 +244,6 @@ ConVar* con_suggest_showflags           = nullptr;
 
 ConVar* origin_disconnectWhenOffline       = nullptr;
 ConVar* discord_updatePresence = nullptr;
-ConVar* eula_version = nullptr;
-ConVar* eula_version_accepted = nullptr;
 
 ConVar* settings_reflex = nullptr;
 ConVar* serverbrowser_hideEmptyServers = nullptr;
@@ -534,6 +535,9 @@ void ConVar_InitShipped(void)
 	base_tickinterval_sp             = g_pCVar->FindVar("base_tickinterval_sp");
 	base_tickinterval_mp             = g_pCVar->FindVar("base_tickinterval_mp");
 	fs_showAllReads                  = g_pCVar->FindVar("fs_showAllReads");
+
+	eula_version                     = g_pCVar->FindVar("eula_version");
+	eula_version_accepted            = g_pCVar->FindVar("eula_version_accepted");
 #ifndef DEDICATED
 	cl_move_use_dt                   = g_pCVar->FindVar("cl_move_use_dt");
 	cl_updaterate_mp                 = g_pCVar->FindVar("cl_updaterate_mp");
@@ -562,8 +566,6 @@ void ConVar_InitShipped(void)
 #ifndef DEDICATED
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
 	discord_updatePresence           = g_pCVar->FindVar("discord_updatePresence");
-	eula_version                     = g_pCVar->FindVar("eula_version");
-	eula_version_accepted            = g_pCVar->FindVar("eula_version_accepted");
 #endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	ip_cvar                          = g_pCVar->FindVar("ip");
