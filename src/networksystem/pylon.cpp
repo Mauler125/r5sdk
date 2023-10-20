@@ -312,7 +312,17 @@ bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId, cons
     return false;
 }
 
-bool CPylon::AuthForConnection(const uint64_t nucleusId, const char* ipAddress, const char* authCode, string& outToken, string& outMessage) const
+//-----------------------------------------------------------------------------
+// Purpose: authenticate for 'this' particular connection.
+// Input  : nucleusId   - 
+//          *ipAddress  - 
+//          *authCode   - 
+//          &outToken   - 
+//          &outMessage - 
+// Output : true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CPylon::AuthForConnection(const uint64_t nucleusId, const char* ipAddress,
+    const char* authCode, string& outToken, string& outMessage) const
 {
     rapidjson::Document requestJson;
     requestJson.SetObject();
@@ -341,6 +351,11 @@ bool CPylon::AuthForConnection(const uint64_t nucleusId, const char* ipAddress, 
     return false;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: checks if the EULA response fields are valid.
+// Input  : &doc - 
+// Output : true on success, false on failure.
+//-----------------------------------------------------------------------------
 static bool ValidateEULAData(const rapidjson::Document& doc)
 {
     if (!doc.HasMember("data") || !doc["data"].IsObject())
@@ -360,11 +375,20 @@ static bool ValidateEULAData(const rapidjson::Document& doc)
     return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: checks if the accepted EULA is up to date.
+// Output : true on success, false on failure.
+//-----------------------------------------------------------------------------
 static bool IsEULAUpToDate()
 {
     return (eula_version_accepted->GetInt() == eula_version->GetInt());
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Gets the EULA from master server.
+// Input  : &outData -
+// Output : True on success, false on failure.
+//-----------------------------------------------------------------------------
 bool CPylon::GetEULA(MSEulaData_t& outData) const
 {
     rapidjson::Document requestJson;
@@ -533,7 +557,6 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
 void CPylon::ExtractError(const rapidjson::Document& resultJson, string& outMessage,
     CURLINFO status, const char* errorText) const
 {
-
     if (resultJson.IsObject() && resultJson.HasMember("error") &&
         resultJson["error"].IsString())
     {

@@ -164,6 +164,11 @@ bool CClientState::VProcessServerTick(CClientState* pClientState, SVC_ServerTick
     }
 }
 
+//------------------------------------------------------------------------------
+// Purpose: get authentication token for current connection context
+// Input  : *connectParams - 
+// Output : true on success, false otherwise
+//------------------------------------------------------------------------------
 bool CClientState::Authenticate(connectparams_t* connectParams) const
 {
     string msToken; // token returned by the masterserver authorising the client to play online
