@@ -75,6 +75,9 @@ extern ConVar* stream_overlay_mode;
 extern ConVar* modsystem_enable;
 extern ConVar* modsystem_debug;
 
+extern ConVar* eula_version;
+extern ConVar* eula_version_accepted;
+
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 #ifndef CLIENT_DLL
@@ -233,8 +236,6 @@ extern ConVar* con_suggest_showflags;
 
 extern ConVar* origin_disconnectWhenOffline;
 extern ConVar* discord_updatePresence;
-extern ConVar* eula_version;
-extern ConVar* eula_version_accepted;
 #endif // !DEDICATED
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
