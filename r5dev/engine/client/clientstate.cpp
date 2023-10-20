@@ -218,7 +218,9 @@ bool CClientState::Authenticate(connectparams_t* connectParams) const
 
 void CClientState::VConnect(CClientState* thisptr, connectparams_t* connectParams)
 {
-    thisptr->Authenticate(connectParams);
+    if (strncmp(connectParams->netAdr, "localhost", 9) != NULL)
+        thisptr->Authenticate(connectParams);
+
     CClientState__Connect(thisptr, connectParams);
 }
 
