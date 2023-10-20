@@ -241,6 +241,8 @@ ConVar* con_suggest_showflags           = nullptr;
 
 ConVar* origin_disconnectWhenOffline       = nullptr;
 ConVar* discord_updatePresence = nullptr;
+ConVar* eula_version = nullptr;
+ConVar* eula_version_accepted = nullptr;
 
 ConVar* settings_reflex = nullptr;
 ConVar* serverbrowser_hideEmptyServers = nullptr;
@@ -560,6 +562,8 @@ void ConVar_InitShipped(void)
 #ifndef DEDICATED
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
 	discord_updatePresence           = g_pCVar->FindVar("discord_updatePresence");
+	eula_version                     = g_pCVar->FindVar("eula_version");
+	eula_version_accepted            = g_pCVar->FindVar("eula_version_accepted");
 #endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	ip_cvar                          = g_pCVar->FindVar("ip");

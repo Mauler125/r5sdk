@@ -4,6 +4,13 @@
 #include "serverlisting.h"
 #include "localize/ilocalize.h"
 
+struct MSEulaData_t
+{
+	int version;
+	string language;
+	string contents;
+};
+
 class CPylon
 {
 public:
@@ -18,11 +25,13 @@ public:
 
 	bool AuthForConnection(const uint64_t nucleusId, const char* ipAddress, const char* authCode, string& outToken, string& outMessage) const;
 
+	bool GetEULA(MSEulaData_t& outData) const;
+
 	void ExtractError(const rapidjson::Document& resultBody, string& outMessage, CURLINFO status, const char* errorText = nullptr) const;
 	void ExtractError(const string& response, string& outMessage, CURLINFO status, const char* messageText = nullptr) const;
 
 	void LogBody(const rapidjson::Document& responseJson) const;
-	bool SendRequest(const char* endpoint, const rapidjson::Document& requestJson, rapidjson::Document& responseJson, string& outMessage, CURLINFO& status, const char* errorText = nullptr) const;
+	bool SendRequest(const char* endpoint, const rapidjson::Document& requestJson, rapidjson::Document& responseJson, string& outMessage, CURLINFO& status, const char* errorText = nullptr, const bool checkEula = true) const;
 	bool QueryServer(const char* endpoint, const char* request, string& outResponse, string& outMessage, CURLINFO& outStatus) const;
 
 	inline const string& GetCurrentToken() const { return m_Token; }

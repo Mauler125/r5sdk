@@ -233,6 +233,8 @@ extern ConVar* con_suggest_showflags;
 
 extern ConVar* origin_disconnectWhenOffline;
 extern ConVar* discord_updatePresence;
+extern ConVar* eula_version;
+extern ConVar* eula_version_accepted;
 #endif // !DEDICATED
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |

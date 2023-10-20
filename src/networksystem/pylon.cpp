@@ -117,6 +117,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
     requestJson.SetObject();
 
     rapidjson::Document::AllocatorType& allocator = requestJson.GetAllocator();
+    requestJson.AddMember("version", rapidjson::Value(SDK_VERSION, requestJson.GetAllocator()), allocator);
     requestJson.AddMember("token", rapidjson::Value(token.c_str(), requestJson.GetAllocator()), allocator);
 
     rapidjson::Document responseJson;
@@ -340,6 +341,60 @@ bool CPylon::AuthForConnection(const uint64_t nucleusId, const char* ipAddress, 
     return false;
 }
 
+static bool ValidateEULAData(const rapidjson::Document& doc)
+{
+    if (!doc.HasMember("data") || !doc["data"].IsObject())
+        return false;
+
+    const rapidjson::Value& data = doc["data"];
+
+    if (!data.HasMember("version") || !data["version"].IsInt())
+        return false;
+
+    if (!data.HasMember("lang") || !data["lang"].IsString())
+        return false;
+
+    if (!data.HasMember("contents") || !data["contents"].IsString())
+        return false;
+
+    return true;
+}
+
+static bool IsEULAUpToDate()
+{
+    return (eula_version_accepted->GetInt() == eula_version->GetInt());
+}
+
+bool CPylon::GetEULA(MSEulaData_t& outData) const
+{
+    rapidjson::Document requestJson;
+    requestJson.SetObject();
+
+    rapidjson::Document responseJson;
+
+    CURLINFO status;
+
+    string outMessage;
+    
+    if (!SendRequest("/eula", requestJson, responseJson, outMessage, status, "eula fetch error", false))
+    {
+        return false;
+    }
+
+    if (!ValidateEULAData(responseJson))
+    {
+        return false;
+    }
+
+    const rapidjson::Value& data = responseJson["data"];
+
+    outData.version = data["version"].GetInt();
+    outData.language = data["lang"].GetString();
+    outData.contents = data["contents"].GetString();
+
+    return true;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Sends request to Pylon Master Server.
 // Input  : *endpoint -
@@ -347,11 +402,19 @@ bool CPylon::AuthForConnection(const uint64_t nucleusId, const char* ipAddress, 
 //			&responseJson -
 //			&outMessage -
 //			&status -
+//			checkEula - 
 // Output : True on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& requestJson,
-    rapidjson::Document& responseJson, string& outMessage, CURLINFO& status, const char* errorText) const
+    rapidjson::Document& responseJson, string& outMessage, CURLINFO& status,
+    const char* errorText, const bool checkEula) const
 {
+    if (checkEula && !IsEULAUpToDate())
+    {
+        outMessage = "EULA not accepted";
+        return false;
+    }
+
     rapidjson::StringBuffer stringBuffer;
     JSON_DocumentToBufferDeserialize(requestJson, stringBuffer);
 
