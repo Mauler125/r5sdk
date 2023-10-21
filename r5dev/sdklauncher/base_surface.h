@@ -20,6 +20,7 @@ protected:
 
 	static void OnSupportClick(Forms::Control* Sender);
 	static void OnJoinClick(Forms::Control* Sender);
+	static void OnYouTubeClick(Forms::Control* Sender);
 
 private:
 	void Frame();

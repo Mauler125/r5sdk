@@ -61,12 +61,12 @@ CBaseSurface::CBaseSurface()
 	this->m_RepairButton->SetSize({ 168, 70 });
 	this->m_RepairButton->SetLocation({ 10, 90 });
 	this->m_RepairButton->SetTabIndex(9);
-	this->m_RepairButton->SetEnabled(/*m_bIsInstalled*/ false);
-	this->m_RepairButton->SetText(XorStr("Repair Apex"));
+	this->m_RepairButton->SetEnabled(/*m_bIsInstalled*/ true);
+	this->m_RepairButton->SetText(XorStr("Advanced Options"));
 	this->m_RepairButton->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
 	// TODO: should hash every file against a downloaded manifest instead and
 	// start repairing what mismatches.
-	this->m_RepairButton->Click += &OnInstallClick;
+	this->m_RepairButton->Click += &OnAdvancedClick;
 	m_BaseGroup->AddControl(this->m_RepairButton);
 
 	this->m_DonateButton = new UIX::UIXButton();
@@ -92,9 +92,9 @@ CBaseSurface::CBaseSurface()
 	this->m_AdvancedButton->SetLocation({ 188, 116 });
 	this->m_AdvancedButton->SetTabIndex(9);
 	this->m_AdvancedButton->SetEnabled(m_bIsInstalled);
-	this->m_AdvancedButton->SetText(XorStr("Advanced Options"));
+	this->m_AdvancedButton->SetText(XorStr("Follow on YouTube"));
 	this->m_AdvancedButton->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
-	this->m_AdvancedButton->Click += &OnAdvancedClick;
+	this->m_AdvancedButton->Click += &OnYouTubeClick;
 	m_BaseGroup->AddControl(this->m_AdvancedButton);
 
 	m_ExperimentalBuildsCheckbox = new UIX::UIXCheckBox();
@@ -104,13 +104,10 @@ CBaseSurface::CBaseSurface()
 	this->m_ExperimentalBuildsCheckbox->SetText(XorStr("Check for playtest/event updates"));
 	this->m_ExperimentalBuildsCheckbox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 
-	// TODO: remove this when its made public!!!
-	m_ExperimentalBuildsCheckbox->SetChecked(true);
-
 	m_BaseGroup->AddControl(this->m_ExperimentalBuildsCheckbox);
 
 	// TODO: Use a toggle item instead; remove this field.
-	m_bPartialInstall = false;
+	m_bPartialInstall = true;
 	m_bUpdateViewToggled = false;
 
 	Threading::Thread([this] {
@@ -216,20 +213,20 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 	}
 
 
-	//CBaseSurface* pSurf = (CBaseSurface*)Sender;
-	//const bool bPartial = pSurf->m_bPartialInstall;
+	CBaseSurface* pSurf = (CBaseSurface*)Sender;
+	const bool bPartial = pSurf->m_bPartialInstall;
 
-	//const int minRequiredSpace = bPartial ? MIN_REQUIRED_DISK_SPACE : MIN_REQUIRED_DISK_SPACE_OPT;
-	//int currentDiskSpace;
+	const int minRequiredSpace = bPartial ? MIN_REQUIRED_DISK_SPACE : MIN_REQUIRED_DISK_SPACE_OPT;
+	int currentDiskSpace;
 
-	//if (!SDKLauncher_CheckDiskSpace(minRequiredSpace, &currentDiskSpace))
-	//{
-	//	Forms::MessageBox::Show(Format("There is not enough space available on the disk to install R5Reloaded;"
-	//		" you need at least %iGB, you currently have %iGB\n", minRequiredSpace, currentDiskSpace).c_str(),
-	//		"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
+	if (!SDKLauncher_CheckDiskSpace(minRequiredSpace, &currentDiskSpace))
+	{
+		Forms::MessageBox::Show(Format("There is not enough space available on the disk to install R5Reloaded;"
+			" you need at least %iGB, you currently have %iGB\n", minRequiredSpace, currentDiskSpace).c_str(),
+			"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
 
-	//	return;
-	//}
+		return;
+	}
 
 	auto downloadSurface = std::make_unique<CProgressPanel>();
 	CProgressPanel* pProgress = downloadSurface.get();
@@ -240,7 +237,7 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 		
 		if (!SDKLauncher_CreateDepotDirectories())
 		{
-			Forms::MessageBox::Show(Format("Failed to create depot directories: Error code = %08x\n", GetLastError()).c_str(),
+			Forms::MessageBox::Show(Format("Failed to create intermediate directory: Error code = %08x\n", GetLastError()).c_str(),
 				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
 
 			return;
@@ -277,10 +274,15 @@ void CBaseSurface::OnAdvancedClick(Forms::Control* Sender)
 
 void CBaseSurface::OnSupportClick(Forms::Control* /*Sender*/)
 {
-	ShellExecute(0, 0, XorStr("https://www.paypal.com/donate/?hosted_button_id=S28DHC2TF6UV4"), 0, 0, SW_SHOW);
+	ShellExecute(0, 0, XorStr("https://ko-fi.com/amos0"), 0, 0, SW_SHOW);
 }
 
 void CBaseSurface::OnJoinClick(Forms::Control* /*Sender*/)
 {
 	ShellExecute(0, 0, XorStr("https://discord.com/invite/jqMkUdXrBr"), 0, 0, SW_SHOW);
+}
+
+void CBaseSurface::OnYouTubeClick(Forms::Control* /*Sender*/)
+{
+	ShellExecute(0, 0, XorStr("https://www.youtube.com/@AmosMods"), 0, 0, SW_SHOW);
 }

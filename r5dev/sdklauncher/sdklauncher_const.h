@@ -13,7 +13,7 @@
 
 // Gigabytes.
 // TODO: obtain these from the repo...
-#define MIN_REQUIRED_DISK_SPACE 20
+#define MIN_REQUIRED_DISK_SPACE 35
 #define MIN_REQUIRED_DISK_SPACE_OPT 55 // Optional textures
 
 #define QUERY_TIMEOUT 15

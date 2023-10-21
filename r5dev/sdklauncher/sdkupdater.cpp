@@ -24,18 +24,12 @@ DWORD ErrorAndExit(const char* pSymbol)
 }
 
 //----------------------------------------------------------------------------
-// TODO: this code is from the SDK launcher, make it shared!
+// Purpose: clears all intermediate and deprecated files
 //----------------------------------------------------------------------------
-bool ClearDepotDirectories()
+bool ClearIntermediateFiles()
 {
-	// Clear all depot files.
-	if (!RemoveDirectoryA(RESTART_DEPOT_DOWNLOAD_DIR) ||
-		!RemoveDirectoryA(DEFAULT_DEPOT_DOWNLOAD_DIR))
-	{
-		return false;
-	}
-
-	return true;
+	const bool bret = std::system("bin\\clean_sdk.bat") != NULL;
+	return bret;
 }
 
 //-----------------------------------------------------------------------------
@@ -188,7 +182,7 @@ int main(int argc, char** argv)
 		const char* destPath = (argc > 2) ? argv[2] : currentPath;
 		MoveFiles(argv[1], destPath);
 
-		if (!ClearDepotDirectories())
+		if (!ClearIntermediateFiles())
 		{
 			printf("Failed to remove intermediate files!\n");
 		}
