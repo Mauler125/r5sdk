@@ -165,21 +165,21 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 //---------------------------------------------------------------------------------
 // Purpose: connect new client
 // Input  : *szName - 
-//			*pNetChannel - 
+//			*pNetChan - 
 //			bFakePlayer - 
 //			*conVars - 
 //			*szMessage -
 //			nMessageSize - 
 // Output : true if connection was successful, false otherwise
 //---------------------------------------------------------------------------------
-bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer,
+bool CClient::Connect(const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 	CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize)
 {
 #ifndef CLIENT_DLL
 	g_ServerPlayer[GetUserID()].Reset(); // Reset ServerPlayer slot.
 #endif
 
-	if (!v_CClient_Connect(this, szName, pNetChannel, bFakePlayer, conVars, szMessage, nMessageSize))
+	if (!v_CClient_Connect(this, szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize))
 		return false;
 
 #ifndef CLIENT_DLL
@@ -192,6 +192,16 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer,
 		if (!Authenticate(szName, authFailReason, sizeof(authFailReason)))
 		{
 			REJECT_CONNECTION("Failed to verify authentication token [%s]", authFailReason);
+
+			const bool bEnableLogging = sv_showconnecting->GetBool();
+			if (bEnableLogging)
+			{
+				const char* const netAdr = pNetChan ? pNetChan->GetAddress() : "<unknown>";
+
+				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' failed online authentication!)\n",
+					netAdr, m_nNucleusID);
+			}
+
 			return false;
 		}
 	}
@@ -206,17 +216,17 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer,
 // Purpose: connect new client
 // Input  : *pClient - 
 //			*szName - 
-//			*pNetChannel - 
+//			*pNetChan - 
 //			bFakePlayer - 
 //			*a5 - 
 //			*szMessage -
 //			nMessageSize - 
 // Output : true if connection was successful, false otherwise
 //---------------------------------------------------------------------------------
-bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer,
+bool CClient::VConnect(CClient* pClient, const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 	CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize)
 {
-	return pClient->Connect(szName, pNetChannel, bFakePlayer, conVars, szMessage, nMessageSize);;
+	return pClient->Connect(szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize);;
 }
 
 //---------------------------------------------------------------------------------
