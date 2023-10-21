@@ -61,7 +61,7 @@ CBaseSurface::CBaseSurface()
 	this->m_RepairButton->SetSize({ 168, 70 });
 	this->m_RepairButton->SetLocation({ 10, 90 });
 	this->m_RepairButton->SetTabIndex(9);
-	this->m_RepairButton->SetEnabled(/*m_bIsInstalled*/ true);
+	this->m_RepairButton->SetEnabled(m_bIsInstalled);
 	this->m_RepairButton->SetText(XorStr("Advanced Options"));
 	this->m_RepairButton->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
 	// TODO: should hash every file against a downloaded manifest instead and
@@ -91,7 +91,6 @@ CBaseSurface::CBaseSurface()
 	this->m_AdvancedButton->SetSize({ 178, 43 });
 	this->m_AdvancedButton->SetLocation({ 188, 116 });
 	this->m_AdvancedButton->SetTabIndex(9);
-	this->m_AdvancedButton->SetEnabled(m_bIsInstalled);
 	this->m_AdvancedButton->SetText(XorStr("Follow on YouTube"));
 	this->m_AdvancedButton->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
 	this->m_AdvancedButton->Click += &OnYouTubeClick;
