@@ -433,7 +433,7 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
     rapidjson::Document& responseJson, string& outMessage, CURLINFO& status,
     const char* errorText, const bool checkEula) const
 {
-    if (checkEula && !IsEULAUpToDate())
+    if (!IsDedicated() && !IsEULAUpToDate() && checkEula)
     {
         outMessage = "EULA not accepted";
         return false;
