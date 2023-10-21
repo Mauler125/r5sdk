@@ -1,3 +1,5 @@
+REM Remove depot files.
+rd /S /Q "%~dp0depot"
 REM Remove log files ('log' is no longer used. 'logs' contains current logs, these get automatically cleaned if they exceed 10mb).
 rd /S /Q "%~dp0log"
 rd /S /Q "%~dp0logs"
@@ -6,7 +8,6 @@ rd /S /Q "%~dp0..\maps"
 rd /S /Q "%~dp0maps\graphs"
 rd /S /Q "%~dp0maps\navmesh"
 REM Remove deprecated binary and configuration files (these are no longer used).
-del /Q "%~dp0..\gameinfo.txt"
 del /Q "%~dp0..\banlist.config"
 del /Q "%~dp0..\gui.config"
 del /Q "%~dp0..\Run R5 Reloaded.exe"
