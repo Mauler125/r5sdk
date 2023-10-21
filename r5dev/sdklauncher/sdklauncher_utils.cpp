@@ -10,6 +10,10 @@ bool g_bPartialInstall = false;
 //bool g_bExperimentalBuilds = false;
 float g_flUpdateCheckRate = 64;
 
+double s_flLastProgressUpdate = 0.0;
+
+#define PROGRESS_CALLBACK_UPDATE_DELTA 0.1
+
 // !TODO: perhaps this should be a core utility shared across
 // the entire SDK to allow processes to restart them selfs.
 void SDKLauncher_Restart()
@@ -342,6 +346,14 @@ int SDKLauncher_ProgressCallback(CURLProgress* progessData, double dltotal,
 		return -1;
 	}
 
+	// This gets called often, prevent this callback from eating all CPU.
+	//const double curTime = Plat_FloatTime();
+	//if ((curTime - s_flLastProgressUpdate) < PROGRESS_CALLBACK_UPDATE_DELTA)
+	//{
+	//	return 0;
+	//}
+	//s_flLastProgressUpdate = curTime;
+
 	double downloaded;
 	curl_easy_getinfo(progessData->curl, CURLINFO_SIZE_DOWNLOAD, &downloaded);
 
@@ -543,7 +555,7 @@ bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlStri
 		AppendSlash(downloadLink, '/');
 		downloadLink.append(fileName);
 
-		pProgress->SetText(Format("Downloading package %i of %i...", i, depotListArray.size()).c_str());
+		pProgress->SetText(Format("Downloading package %i of %i...", i, depotList.Count()).c_str());
 		SDKLauncher_DownloadAsset(downloadLink.c_str(), pPath, fileName.c_str(), fileSize, "wb+", pProgress);
 
 		// Check if its a zip file, as these are
