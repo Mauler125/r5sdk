@@ -357,10 +357,6 @@ void RuntimePtc_Init() /* .TEXT */
 	//p_Detour_LevelInit.Offset(0x100).FindPatternSelf("74", CMemory::Direction::DOWN, 600).Patch({ 0xEB });                                                              // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
 #endif // !CLIENT_DLL
 #endif
-#ifndef CLIENT_DLL
-	// !!!TODO!!! HACK: this needs to be removed asap! fix the entitlements file formatting on git itself.
-	Server_S2C_CONNECT_1.Offset(0x7).Patch({ 0xEB }); // JZ --> JMP | Prevent entitlement check to kick player from server on S2C_CONNECT Packet if it does not match the servers one.
-#endif // !CLIENT_DLL
 
 	vector<uint8_t> starPakOpenFile = {
 		0x4D, 0x31, 0xC0,                                 // xor, r8, r8
