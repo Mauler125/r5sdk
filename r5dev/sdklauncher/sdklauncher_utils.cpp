@@ -555,7 +555,9 @@ bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlStri
 		AppendSlash(downloadLink, '/');
 		downloadLink.append(fileName);
 
-		pProgress->SetText(Format("Downloading package %i of %i...", i, depotList.Count()).c_str());
+		pProgress->SetText(Format("Downloading package %i of %i...", i,
+			!depotList.IsEmpty() ? depotList.Count() : (int)depotListArray.size()).c_str());
+
 		SDKLauncher_DownloadAsset(downloadLink.c_str(), pPath, fileName.c_str(), fileSize, "wb+", pProgress);
 
 		// Check if its a zip file, as these are
