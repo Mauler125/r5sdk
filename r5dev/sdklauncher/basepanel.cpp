@@ -704,7 +704,7 @@ void CSurface::CleanSDK(Forms::Control* pSender)
 	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running cleaner for SDK installation\n"));
 	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
 
-	std::system("platform\\clean_sdk.bat");
+	std::system("bin\\clean_sdk.bat");
 }
 
 //-----------------------------------------------------------------------------
@@ -717,7 +717,7 @@ void CSurface::UpdateSDK(Forms::Control* pSender)
 	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running updater for SDK installation\n"));
 	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
 
-	std::system("platform\\update_sdk.bat");
+	std::system("bin\\update_sdk.bat");
 }
 
 //-----------------------------------------------------------------------------
