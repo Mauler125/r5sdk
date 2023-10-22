@@ -57,7 +57,7 @@ public:
 
 	float GetFrameTime(void) const;
 
-	bool Authenticate(connectparams_t* connectParams) const;
+	bool Authenticate(connectparams_t* connectParams, char* const reasonBuf, const size_t reasonBufLen) const;
 
 	int m_Socket;
 	int _padding_maybe;

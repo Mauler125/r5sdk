@@ -11,6 +11,7 @@
 #include "core/stdafx.h"
 #include "vpc/keyvalues.h"
 #include "tier0/frametask.h"
+#include "engine/common.h"
 #include "engine/host.h"
 #include "clientstate.h"
 #include "common/callback.h"
@@ -167,10 +168,14 @@ bool CClientState::VProcessServerTick(CClientState* pClientState, SVC_ServerTick
 //------------------------------------------------------------------------------
 // Purpose: get authentication token for current connection context
 // Input  : *connectParams - 
+//          *reasonBuf     - 
+//          reasonBufLen   - 
 // Output : true on success, false otherwise
 //------------------------------------------------------------------------------
-bool CClientState::Authenticate(connectparams_t* connectParams) const
+bool CClientState::Authenticate(connectparams_t* connectParams, char* const reasonBuf, const size_t reasonBufLen) const
 {
+#define FORMAT_ERROR_REASON(fmt, ...) V_snprintf(reasonBuf, reasonBufLen, fmt, ##__VA_ARGS__);
+
     string msToken; // token returned by the masterserver authorising the client to play online
     string message; // message returned by the masterserver about the result of the auth
 
@@ -180,7 +185,7 @@ bool CClientState::Authenticate(connectparams_t* connectParams) const
     const bool ret = g_pMasterServer->AuthForConnection(*g_NucleusID, connectParams->netAdr, g_OriginAuthCode, msToken, message);
     if (!ret)
     {
-        Error(eDLL_T::ENGINE, NO_ERROR, "Failed to authenticate for online play: %s\n", message.c_str());
+        FORMAT_ERROR_REASON("%s", message.c_str());
         return false;
     }
 
@@ -192,7 +197,7 @@ bool CClientState::Authenticate(connectparams_t* connectParams) const
 
     if (!tokenSignatureDelim)
     {
-        Error(eDLL_T::ENGINE, NO_ERROR, "Failed to authenticate for online play: %s\n", "Invalid token returned by MS");
+        FORMAT_ERROR_REASON("Invalid token returned by MS");
         return false;
     }
 
@@ -219,12 +224,26 @@ bool CClientState::Authenticate(connectparams_t* connectParams) const
     }
 
     return true;
+#undef REJECT_CONNECTION
+}
+
+bool IsLocalHost(connectparams_t* connectParams)
+{
+    return (strstr(connectParams->netAdr, "localhost") || strstr(connectParams->netAdr, "127.0.0.1"));
 }
 
 void CClientState::VConnect(CClientState* thisptr, connectparams_t* connectParams)
 {
-    if (strncmp(connectParams->netAdr, "localhost", 9) != NULL)
-        thisptr->Authenticate(connectParams);
+    if (cl_onlineAuthEnable->GetBool() && !IsLocalHost(connectParams))
+    {
+        char authFailReason[512];
+
+        if (!thisptr->Authenticate(connectParams, authFailReason, sizeof(authFailReason)))
+        {
+            COM_ExplainDisconnection(true, "Failed to authenticate for online play: %s", authFailReason);
+            return;
+        }
+    }
 
     CClientState__Connect(thisptr, connectParams);
 }

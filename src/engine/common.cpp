@@ -6,6 +6,7 @@
 
 #include <core/stdafx.h>
 #include <tier1/strtools.h>
+#include <localize/localize.h>
 #include <engine/common.h>
 
 /*
@@ -42,4 +43,59 @@ const char* COM_FormatSeconds(int seconds)
 	}
 
 	return string;
+}
+
+/*
+==============================
+COM_ExplainDisconnection
+
+==============================
+*/
+void COM_ExplainDisconnection(bool bPrint, const char* fmt, ...)
+{
+	char szBuf[1024];
+	{/////////////////////////////
+		va_list vArgs;
+		va_start(vArgs, fmt);
+
+		vsnprintf(szBuf, sizeof(szBuf), fmt, vArgs);
+
+		szBuf[sizeof(szBuf) - 1] = '\0';
+		va_end(vArgs);
+	}/////////////////////////////
+
+	if (bPrint)
+	{
+		if (szBuf[0] == '#')
+		{
+			wchar_t formatStr[1024];
+			const wchar_t* wpchReason = (*g_ppVGuiLocalize) ? (*g_ppVGuiLocalize)->Find(szBuf) : nullptr;
+			if (wpchReason)
+			{
+				wcsncpy(formatStr, wpchReason, sizeof(formatStr) / sizeof(wchar_t));
+
+				char conStr[256];
+				(*g_ppVGuiLocalize)->ConvertUnicodeToANSI(formatStr, conStr, sizeof(conStr));
+				Error(eDLL_T::ENGINE, NO_ERROR, "%s\n", conStr);
+			}
+			else
+				Error(eDLL_T::ENGINE, NO_ERROR, "%s\n", szBuf);
+		}
+		else
+		{
+			Error(eDLL_T::ENGINE, NO_ERROR, "%s\n", szBuf);
+		}
+	}
+
+	v_COM_ExplainDisconnection(bPrint, szBuf);
+}
+
+void VCommon::Attach() const
+{
+	DetourAttach(&v_COM_ExplainDisconnection, COM_ExplainDisconnection);
+}
+
+void VCommon::Detach() const
+{
+	DetourDetach(&v_COM_ExplainDisconnection, COM_ExplainDisconnection);
 }
