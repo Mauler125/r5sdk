@@ -382,7 +382,6 @@ void ConVar_StaticInit(void)
 	sv_rcon_maxpacketsize     = ConVar::StaticCreate("sv_rcon_maxpacketsize"    , "1024", FCVAR_RELEASE, "Max number of bytes allowed in a command packet from a non-authenticated netconsole.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = ConVar::StaticCreate("sv_rcon_whitelist_address", ""    , FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, &RCON_WhiteListAddresChanged_f, "Format: '::ffff:127.0.0.1'");
 
-	sv_allowClientSideCfgExec = ConVar::StaticCreate("sv_allowClientSideCfgExec", "0", FCVAR_REPLICATED | FCVAR_RELEASE, "Allow clients to execute script files while being connected to this server.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_quota_stringCmdsPerSecond = ConVar::StaticCreate("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_validatePersonaName  = ConVar::StaticCreate("sv_validatePersonaName" , "1" , FCVAR_RELEASE, "Validate the client's textual persona name on connect.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_minPersonaNameLength = ConVar::StaticCreate("sv_minPersonaNameLength", "4" , FCVAR_RELEASE, "The minimum length of the client's textual persona name.", true, 0.f, false, 0.f, nullptr, nullptr);
@@ -394,6 +393,7 @@ void ConVar_StaticInit(void)
 	sv_onlineAuthValidateIssuedAt  = ConVar::StaticCreate("sv_onlineAuthValidateIssuedAt" , "1" , FCVAR_RELEASE, "Validate the online authentication token 'issued at' claim.", true, 0.f, true, 1.f, nullptr, nullptr);
 	sv_onlineAuthIssuedAtTolerance = ConVar::StaticCreate("sv_onlineAuthIssuedAtTolerance", "30", FCVAR_RELEASE, "The online authentication token 'issued at' claim tolerance in seconds.", true, 0.f, true, float(UINT8_MAX), nullptr, "Must range between [0,255]");
 #endif // !CLIENT_DLL
+	sv_allowClientSideCfgExec = ConVar::StaticCreate("sv_allowClientSideCfgExec", "0", FCVAR_REPLICATED | FCVAR_RELEASE, "Allow clients to execute script files while being connected to this server.", false, 0.f, false, 0.f, nullptr, nullptr);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_depth_test = ConVar::StaticCreate("bhit_depth_test", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use depth test for bullet ray trace overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	bhit_abs_origin = ConVar::StaticCreate("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging (requires 'r_visualizetraces' to be set!).", false, 0.f, false, 0.f, nullptr, nullptr);
