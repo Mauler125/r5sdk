@@ -3,9 +3,14 @@
 
 bool Localize_IsLanguageSupported(const char* pLocaleName);
 
-class CLocalize
+class CLocalize : public CBaseAppSystem< ILocalize >
 {
-	// todo
+	char unk[400];
+	unsigned __int16 m_CurrentFile;
+	char unk_19A;
+	bool m_bUseOnlyLongestLanguageString;
+	bool m_bSuppressChangeCallbacks;
+	bool m_bQueuedChangeCallback;
 };
 
 inline CMemory p_CLocalize__AddFile;
@@ -15,8 +20,8 @@ inline CMemory p_CLocalize__LoadLocalizationFileLists;
 inline bool(*v_CLocalize__LoadLocalizationFileLists)(CLocalize * thisptr);
 
 
-inline CLocalize* g_pVGuiLocalize;
-inline CLocalize* g_pLocalize;
+inline CLocalize** g_ppVGuiLocalize;
+inline CLocalize** g_ppLocalize;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VLocalize : public IDetour
@@ -25,6 +30,7 @@ class VLocalize : public IDetour
 	{
 		LogFunAdr("CLocalize::AddFile", p_CLocalize__AddFile.GetPtr());
 		LogFunAdr("CLocalize::LoadLocalizationFileLists", p_CLocalize__LoadLocalizationFileLists.GetPtr());
+		LogFunAdr("g_Localize", reinterpret_cast<uintptr_t>(g_ppLocalize));
 	}
 	virtual void GetFun(void) const
 	{
@@ -36,8 +42,8 @@ class VLocalize : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pVGuiLocalize = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 48 8B 01 FF 50 40 40 38 2D ?? ?? ?? ??").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CLocalize*>();
-		g_pLocalize = g_pVGuiLocalize; // these are set to the same thing in CSourceAppSystemGroup::Create
+		g_ppVGuiLocalize = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 48 8B 01 FF 50 40 40 38 2D ?? ?? ?? ??").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CLocalize**>();
+		g_ppLocalize = g_ppVGuiLocalize; // these are set to the same thing in CSourceAppSystemGroup::Create
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;

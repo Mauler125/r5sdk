@@ -206,6 +206,7 @@ ConVar* cl_threaded_bone_setup             = nullptr;
 
 ConVar* cl_language                        = nullptr;
 
+ConVar* cl_onlineAuthEnable                = nullptr;
 ConVar* cl_onlineAuthToken                 = nullptr;
 ConVar* cl_onlineAuthTokenSignature1       = nullptr;
 ConVar* cl_onlineAuthTokenSignature2       = nullptr;
@@ -387,7 +388,7 @@ void ConVar_StaticInit(void)
 	sv_minPersonaNameLength = ConVar::StaticCreate("sv_minPersonaNameLength", "4" , FCVAR_RELEASE, "The minimum length of the client's textual persona name.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_maxPersonaNameLength = ConVar::StaticCreate("sv_maxPersonaNameLength", "16", FCVAR_RELEASE, "The maximum length of the client's textual persona name.", true, 0.f, false, 0.f, nullptr, nullptr);
 
-	sv_onlineAuthEnable            = ConVar::StaticCreate("sv_onlineAuthEnable"           , "1" , FCVAR_RELEASE, "Enables the online authentication system.", true, 0.f, true, 1.f, nullptr, nullptr);
+	sv_onlineAuthEnable            = ConVar::StaticCreate("sv_onlineAuthEnable"           , "1" , FCVAR_RELEASE, "Enables the server-side online authentication system.", true, 0.f, true, 1.f, nullptr, nullptr);
 	sv_onlineAuthValidateExpiry    = ConVar::StaticCreate("sv_onlineAuthValidateExpiry"   , "1" , FCVAR_RELEASE, "Validate the online authentication token 'expiry' claim.", true, 0.f, true, 1.f, nullptr, nullptr);
 	sv_onlineAuthExpiryTolerance   = ConVar::StaticCreate("sv_onlineAuthExpiryTolerance"  , "1" , FCVAR_RELEASE, "The online authentication token 'expiry' claim tolerance in seconds.", true, 0.f, true, float(UINT8_MAX), nullptr, "Must range between [0,255]");
 	sv_onlineAuthValidateIssuedAt  = ConVar::StaticCreate("sv_onlineAuthValidateIssuedAt" , "1" , FCVAR_RELEASE, "Validate the online authentication token 'issued at' claim.", true, 0.f, true, 1.f, nullptr, nullptr);
@@ -425,7 +426,8 @@ void ConVar_StaticInit(void)
 	cl_materialinfo_offset_x = ConVar::StaticCreate("cl_materialinfo_offset_x", "0"  , FCVAR_DEVELOPMENTONLY, "X offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_materialinfo_offset_y = ConVar::StaticCreate("cl_materialinfo_offset_y", "420", FCVAR_DEVELOPMENTONLY, "Y offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cl_onlineAuthToken           = ConVar::StaticCreate("cl_onlineAuthToken",           "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_onlineAuthEnable          = ConVar::StaticCreate("cl_onlineAuthEnable"         ,"1", FCVAR_RELEASE, "Enables the client-side online authentication system.", true, 0.f, true, 1.f, nullptr, nullptr);
+	cl_onlineAuthToken           = ConVar::StaticCreate("cl_onlineAuthToken"          , "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_onlineAuthTokenSignature1 = ConVar::StaticCreate("cl_onlineAuthTokenSignature1", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_onlineAuthTokenSignature2 = ConVar::StaticCreate("cl_onlineAuthTokenSignature2", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
 

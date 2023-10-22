@@ -147,7 +147,7 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
     InitVPKSystem();
 
     v_TRACEINIT(NULL, "COM_InitFilesystem( m_StartupInfo.m_szInitialMod )", "COM_ShutdownFileSystem()");
-    COM_InitFilesystem(pEngineAPI->m_StartupInfo.m_szInitialMod);
+    v_COM_InitFilesystem(pEngineAPI->m_StartupInfo.m_szInitialMod);
 
     *g_bTextMode = true;
 #else

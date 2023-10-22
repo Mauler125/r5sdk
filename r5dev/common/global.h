@@ -197,6 +197,7 @@ extern ConVar* cl_threaded_bone_setup;
 
 extern ConVar* cl_language;
 
+extern ConVar* cl_onlineAuthEnable;
 extern ConVar* cl_onlineAuthToken;
 extern ConVar* cl_onlineAuthTokenSignature1;
 extern ConVar* cl_onlineAuthTokenSignature2;
