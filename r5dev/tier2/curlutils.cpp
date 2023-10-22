@@ -34,12 +34,16 @@ void CURLInitCommonOptions(CURL* curl, const char* remote,
 }
 
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
-    const char* options, curl_off_t dataSize, void* customPointer, const CURLParams& params)
+    const char* options, curl_off_t dataSize, void* customPointer, CURLParams& params)
 {
     CURL* curl = curl_easy_init();
     if (!curl)
     {
-        Error(eDLL_T::COMMON, NO_ERROR, "CURL: %s\n", "Easy init failed");
+        V_snprintf(params.errorBuffer, sizeof(params.errorBuffer), "CURL: %s", "Easy init failed");
+
+        if (params.printError)
+            Error(eDLL_T::COMMON, NO_ERROR, "%s\n", params.errorBuffer);
+
         return false;
     }
 
@@ -51,9 +55,12 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
     FILE* file = fopen(filePath.c_str(), options);
     if (!file)
     {
-        Error(eDLL_T::COMMON, NO_ERROR, "CURL: %s\n", "Open file failed");
-        curl_easy_cleanup(curl);
+        V_snprintf(params.errorBuffer, sizeof(params.errorBuffer), "CURL: %s", "Open file failed");
 
+        if (params.printError)
+            Error(eDLL_T::COMMON, NO_ERROR, "%s\n", params.errorBuffer);
+
+        curl_easy_cleanup(curl);
         return false;
     }
 
@@ -61,7 +68,7 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
 
     progressData.curl = curl;
     progressData.name = fileName;
-    progressData.cust = customPointer;
+    progressData.user = customPointer;
     progressData.size = dataSize;
 
     CURLInitCommonOptions(curl, remote, file, params);
@@ -77,8 +84,11 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
 
     if (res != CURLE_OK)
     {
-        Error(eDLL_T::COMMON, NO_ERROR, "CURL: Download of file '%s' failed; %s\n",
-            fileName, curl_easy_strerror(res));
+        V_snprintf(params.errorBuffer, sizeof(params.errorBuffer),
+            "CURL: Download of file '%s' failed; %s", fileName, curl_easy_strerror(res));
+
+        if (params.printError)
+            Error(eDLL_T::COMMON, NO_ERROR, "%s\n", params.errorBuffer);
 
         curl_easy_cleanup(curl);
         fclose(file);
@@ -93,11 +103,15 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
 }
 
 CURL* CURLInitRequest(const char* remote, const char* request,
-    string& outResponse, curl_slist*& slist, const CURLParams& params)
+    string& outResponse, curl_slist*& slist, CURLParams& params)
 {
     std::function<void(const char*)> fnError = [&](const char* errorMsg)
     {
-        Error(eDLL_T::COMMON, NO_ERROR, "CURL: %s\n", errorMsg);
+        V_snprintf(params.errorBuffer, sizeof(params.errorBuffer), "CURL: %s", errorMsg);
+
+        if (params.printError)
+            Error(eDLL_T::COMMON, NO_ERROR, "%s\n", params.errorBuffer);
+
         curl_slist_free_all(slist);
     };
 

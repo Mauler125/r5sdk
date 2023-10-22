@@ -12,13 +12,13 @@ bool SDKLauncher_ClearDepotDirectories();
 
 bool SDKLauncher_ExtractZipFile(nlohmann::json& manifest, const CUtlString& filePath, DepotChangedList_t* changedList, CProgressPanel* pProgress);
 bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots,
-	CUtlVector<CUtlString>& zipList, CProgressPanel* pProgress);
+	CUtlVector<CUtlString>& zipList, CUtlString* errorMessage, CProgressPanel* pProgress);
 
 bool SDKLauncher_IsManifestValid(const nlohmann::json& depotManifest);
 bool SDKLauncher_IsDepositoryValid(const nlohmann::json& depotAssetList);
 
 bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& depotList,
-	CUtlVector<CUtlString>& outZipList, CProgressPanel* pProgress, const char* pPath,
+	CUtlVector<CUtlString>& outZipList, CUtlString* errorMessage, CProgressPanel* pProgress, const char* pPath,
 	const bool bOptionalDepots);
 
 bool SDKLauncher_InstallDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& depotList,

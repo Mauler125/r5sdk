@@ -362,7 +362,7 @@ bool SDKLauncher_AcquireReleaseManifest(const char* url, string& responseMessage
 int SDKLauncher_ProgressCallback(CURLProgress* progessData, double dltotal,
 	double dlnow, double ultotal, double ulnow)
 {
-	CProgressPanel* pDownloadSurface = (CProgressPanel*)progessData->cust;
+	CProgressPanel* pDownloadSurface = (CProgressPanel*)progessData->user;
 
 	if (pDownloadSurface->IsCanceled())
 	{
@@ -371,12 +371,12 @@ int SDKLauncher_ProgressCallback(CURLProgress* progessData, double dltotal,
 	}
 
 	// This gets called often, prevent this callback from eating all CPU.
-	//const double curTime = Plat_FloatTime();
-	//if ((curTime - s_flLastProgressUpdate) < PROGRESS_CALLBACK_UPDATE_DELTA)
-	//{
-	//	return 0;
-	//}
-	//s_flLastProgressUpdate = curTime;
+	const double curTime = Plat_FloatTime();
+	if ((curTime - s_flLastProgressUpdate) < PROGRESS_CALLBACK_UPDATE_DELTA)
+	{
+		return 0;
+	}
+	s_flLastProgressUpdate = curTime;
 
 	double downloaded;
 	curl_easy_getinfo(progessData->curl, CURLINFO_SIZE_DOWNLOAD, &downloaded);
@@ -394,7 +394,7 @@ int SDKLauncher_ProgressCallback(CURLProgress* progessData, double dltotal,
 // Purpose: 
 //----------------------------------------------------------------------------
 bool SDKLauncher_DownloadAsset(const char* url, const char* path, const char* fileName,
-	const size_t fileSize, const char* options, CProgressPanel* pProgress)
+	const size_t fileSize, const char* options, CUtlString* errorMessage, CProgressPanel* pProgress)
 {
 	CURLParams params;
 
@@ -402,7 +402,12 @@ bool SDKLauncher_DownloadAsset(const char* url, const char* path, const char* fi
 	params.statusFunction = SDKLauncher_ProgressCallback;
 	params.followRedirect = true;
 
-	return CURLDownloadFile(url, path, fileName, options, fileSize, pProgress, params);
+	bool ret = CURLDownloadFile(url, path, fileName, options, fileSize, pProgress, params);
+
+	if (!ret && errorMessage)
+		errorMessage->Set(params.errorBuffer);
+
+	return ret;
 }
 
 bool SDKLauncher_BuildUpdateList(const nlohmann::json& localManifest,
@@ -503,7 +508,7 @@ bool SDKLauncher_BuildUpdateList(const nlohmann::json& localManifest,
 // Purpose: 
 //----------------------------------------------------------------------------
 bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots,
-	CUtlVector<CUtlString>& zipList, CProgressPanel* pProgress)
+	CUtlVector<CUtlString>& zipList, CUtlString* errorMessage, CProgressPanel* pProgress)
 {
 	string responseMessage;
 	nlohmann::json remoteManifest;
@@ -511,6 +516,9 @@ bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots
 	if (!SDKLauncher_GetRemoteManifest(XorStr(SDK_DEPOT_VENDOR), responseMessage, remoteManifest, bPreRelease))
 	{
 		printf("%s: Failed! %s\n", "SDKLauncher_GetRemoteManifest", responseMessage.c_str());
+
+		// TODO: make more comprehensive...
+		errorMessage->Set("Failed to obtain remote manifest");
 		return false;
 	}
 
@@ -536,8 +544,9 @@ bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots
 	}
 
 	if (!SDKLauncher_DownloadDepotList(remoteManifest, depotList,
-		zipList, pProgress, DEFAULT_DEPOT_DOWNLOAD_DIR, bOptionalDepots))
+		zipList, errorMessage, pProgress, DEFAULT_DEPOT_DOWNLOAD_DIR, bOptionalDepots))
 	{
+		// Error message is set by previous function.
 		return false;
 	}
 
@@ -564,12 +573,13 @@ bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots
 // Purpose: 
 //----------------------------------------------------------------------------
 bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& depotList,
-	CUtlVector<CUtlString>& outZipList, CProgressPanel* pProgress, const char* pPath,
+	CUtlVector<CUtlString>& outZipList, CUtlString* errorMessage, CProgressPanel* pProgress, const char* pPath,
 	const bool bOptionalDepots)
 {
 	if (!manifest.contains("depot"))
 	{
 		Assert(0);
+		errorMessage->Set("Invalid manifest");
 		return false;
 	}
 
@@ -577,6 +587,7 @@ bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlStri
 
 	if (depotListArray.empty())
 	{
+		errorMessage->Set("No depots found in manifest");
 		return false;
 	}
 
@@ -622,7 +633,11 @@ bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlStri
 		pProgress->SetText(Format("Downloading package %i of %i...", i,
 			!depotList.IsEmpty() ? depotList.Count() : (int)depotListArray.size()).c_str());
 
-		SDKLauncher_DownloadAsset(downloadLink.c_str(), pPath, fileName.c_str(), fileSize, "wb+", pProgress);
+		if (!SDKLauncher_DownloadAsset(downloadLink.c_str(), pPath, fileName.c_str(), fileSize, "wb+", errorMessage, pProgress))
+		{
+			// Error message is set by previous function.
+			return false;
+		}
 
 		// Check if its a zip file, as these are
 		// the only files that will be installed.
@@ -657,6 +672,7 @@ bool SDKLauncher_InstallDepotList(nlohmann::json& manifest, CUtlVector<CUtlStrin
 		pProgress->SetText(Format("Installing package %i of %i...", i + 1, depotList.Count()).c_str());
 		CUtlString& depotFilePath = depotList[i];
 
+		// TODO[ AMOS ]: make the ZIP lib return error codes instead
 		if (!SDKLauncher_ExtractZipFile(manifest, depotFilePath, fileList, pProgress))
 			return false;
 	}

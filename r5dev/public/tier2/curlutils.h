@@ -6,13 +6,13 @@ struct CURLProgress
 	CURLProgress()
 		: curl(nullptr)
 		, name(nullptr)
-		, cust(nullptr)
+		, user(nullptr)
 		, size(0)
 	{}
 
 	CURL* curl;
 	const char* name;
-	void* cust; // custom pointer to anything.
+	void* user; // custom pointer to anything.
 	size_t size;
 };
 
@@ -25,7 +25,10 @@ struct CURLParams
 		, verifyPeer(false)
 		, followRedirect(false)
 		, verbose(false)
-	{}
+		, printError(false)
+	{
+		memset(errorBuffer, '\0', sizeof(errorBuffer));
+	}
 
 	void* writeFunction;
 	void* statusFunction;
@@ -34,16 +37,18 @@ struct CURLParams
 	bool verifyPeer;
 	bool followRedirect;
 	bool verbose;
+	bool printError;
+	char errorBuffer[256];
 };
 
 size_t CURLWriteStringCallback(char* contents, const size_t size, const size_t nmemb, string* userp);
 size_t CURLWriteFileCallback(void* data, const size_t size, const size_t nmemb, FILE* userp);
 
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
-	const char* options, curl_off_t dataSize, void* customPointer, const CURLParams& params);
+	const char* options, curl_off_t dataSize, void* customPointer, CURLParams& params);
 
 CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse,
-	curl_slist*& slist, const CURLParams& params);
+	curl_slist*& slist, CURLParams& params);
 
 CURLcode CURLSubmitRequest(CURL* curl, curl_slist*& slist);
 CURLINFO CURLRetrieveInfo(CURL* curl);

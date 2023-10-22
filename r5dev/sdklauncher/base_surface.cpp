@@ -184,8 +184,14 @@ void CBaseSurface::OnUpdateClick(Forms::Control* Sender)
 		}
 
 		CUtlVector<CUtlString> fileList;
-		if (SDKLauncher_BeginInstall(true, false, fileList, pProgress))
+		CUtlString errorMessage;
+
+		if (!SDKLauncher_BeginInstall(true, false, fileList, &errorMessage, pProgress))
 		{
+			Forms::MessageBox::Show(Format("Failed to install game: %s\n", errorMessage.String()).c_str(),
+				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
+
+			return;
 		}
 
 		// Close on finish.
@@ -243,8 +249,14 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 		}
 
 		CUtlVector<CUtlString> fileList;
-		if (SDKLauncher_BeginInstall(true, false, fileList, pProgress))
+		CUtlString errorMessage;
+
+		if (!SDKLauncher_BeginInstall(true, false, fileList, &errorMessage, pProgress))
 		{
+			Forms::MessageBox::Show(Format("Failed to install game: %s\n", errorMessage.String()).c_str(),
+				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
+
+			return;
 		}
 
 		// Close on finish.

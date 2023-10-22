@@ -9,6 +9,7 @@ add_sources( SOURCE_GROUP "Core"
     "sdklauncher_const.h"
     "sdklauncher_utils.cpp"
     "sdklauncher_utils.h"
+    "${ENGINE_SOURCE_DIR}/tier0/plat_time.cpp"
 )
 
 add_sources( SOURCE_GROUP "GUI"
