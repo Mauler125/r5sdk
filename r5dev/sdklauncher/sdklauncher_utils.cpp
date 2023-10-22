@@ -181,15 +181,32 @@ bool GetDepotAssetList(const nlohmann::json& manifest, const char* targetDepotNa
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-bool SDKLauncher_ExtractZipFile(nlohmann::json& manifest, const CUtlString& filePath, CProgressPanel* pProgress)
+bool SDKLauncher_ExtractZipFile(nlohmann::json& manifest, const CUtlString& depotFilePath, DepotChangedList_t* changedList, CProgressPanel* pProgress)
 {
-	ZipArchive::Ptr archive = ZipFile::Open(filePath.Get());
+	ZipArchive::Ptr archive = ZipFile::Open(depotFilePath.Get());
 	size_t entries = archive->GetEntriesCount();
 
 	nlohmann::json assetList;
-	CUtlString fileName = filePath.UnqualifiedFilename();
+	CUtlString depotFileName = depotFilePath.UnqualifiedFilename();
 
-	const bool assetListRet = GetDepotAssetList(manifest, fileName.String(), assetList);
+	const bool assetListRet = GetDepotAssetList(manifest, depotFileName.String(), assetList);
+	CUtlVector<CUtlString>* changedAssetList = nullptr;
+
+	// If a file list is provided, only install what it contains.
+	if (changedList)
+	{
+		unsigned short mapIdx = changedList->Find(depotFileName);
+
+		if (mapIdx != changedList->InvalidIndex())
+		{
+			CUtlVector<CUtlString>* candidate = changedList->Element(mapIdx);
+
+			if (!candidate->IsEmpty())
+			{
+				changedAssetList = candidate;
+			}
+		}
+	}
 
 	for (size_t i = 0; i < entries; ++i)
 	{
@@ -199,9 +216,16 @@ bool SDKLauncher_ExtractZipFile(nlohmann::json& manifest, const CUtlString& file
 			continue;
 
 		const CUtlString fullName = entry->GetFullName().c_str();
-		bool installDuringRestart = false;
-
 		const char* const pFullName = fullName.Get();
+
+		// Asset hasn't changed, don't replace it.
+		if (changedAssetList && !changedAssetList->HasElement(pFullName))
+		{
+			printf("Asset \"%s\" not in changed list; ignoring...\n", pFullName);
+			continue;
+		}
+
+		bool installDuringRestart = false;
 
 		// Determine whether or not the asset needs
 		// to be installed during a restart.
@@ -235,11 +259,11 @@ bool SDKLauncher_ExtractZipFile(nlohmann::json& manifest, const CUtlString& file
 			CUtlString tempDir = RESTART_DEPOT_DOWNLOAD_DIR;
 			tempDir.Append(pFullName);
 
-			ZipFile::ExtractFile(filePath.Get(), pFullName, tempDir.Get());
+			ZipFile::ExtractFile(depotFilePath.Get(), pFullName, tempDir.Get());
 		}
 		else
 		{
-			ZipFile::ExtractFile(filePath.Get(), pFullName, pFullName);
+			ZipFile::ExtractFile(depotFilePath.Get(), pFullName, pFullName);
 		}
 	}
 
@@ -382,7 +406,7 @@ bool SDKLauncher_DownloadAsset(const char* url, const char* path, const char* fi
 }
 
 bool SDKLauncher_BuildUpdateList(const nlohmann::json& localManifest,
-	const nlohmann::json& remoteManifest, CUtlVector<CUtlString>& outDepotList)
+	const nlohmann::json& remoteManifest, CUtlVector<CUtlString>& outDepotList, DepotChangedList_t& outFileList)
 {
 	try
 	{
@@ -406,6 +430,40 @@ bool SDKLauncher_BuildUpdateList(const nlohmann::json& localManifest,
 					{
 						digestMatch = true;
 					}
+					else
+					{
+						// Check which files have been changed, and only add these to the update list.
+						const auto& remoteAssets = remoteDepot["assets"];
+						const auto& localAssets = localDepot["assets"];
+
+						// Vector containing all changed files.
+						CUtlVector<CUtlString>* changeFileVec = new CUtlVector<CUtlString>();
+						outFileList.InsertOrReplace(remoteDepotName.c_str(), changeFileVec);
+
+						for (auto rit = remoteAssets.begin(); rit != remoteAssets.end(); ++rit)
+						{
+							const string& assetName = rit.key();
+							const auto& lit = localAssets.find(assetName.c_str());
+
+							if (lit != localAssets.end())
+							{
+								const auto& remoteAsset = rit.value();
+								const auto& localAsset = lit.value();
+
+								// Digest mismatch; this file needs to be replaced.
+								if (remoteAsset["digest"].get<string>() != localAsset["digest"].get<string>())
+								{
+									printf("Digest mismatch for asset \"%s\"; added to changed list\n", assetName.c_str());
+									changeFileVec->AddToTail(assetName.c_str());
+								}
+							}
+							else // Newly added file.
+							{
+								printf("Local manifest does not contain asset \"%s\"; added to changed list\n", assetName.c_str());
+								changeFileVec->AddToTail(assetName.c_str());
+							}
+						}
+					}
 
 					break;
 				}
@@ -415,7 +473,7 @@ bool SDKLauncher_BuildUpdateList(const nlohmann::json& localManifest,
 			{
 				if (!digestMatch)
 				{
-					// Checksum mismatch, the file has been changed,
+					// Digest mismatch, the file has been changed,
 					// add it to the list so we are installing it.
 					outDepotList.AddToTail(remoteDepotName.c_str());
 				}
@@ -431,6 +489,10 @@ bool SDKLauncher_BuildUpdateList(const nlohmann::json& localManifest,
 	catch (const std::exception& ex)
 	{
 		printf("%s - Exception while building update list:\n%s\n", __FUNCTION__, ex.what());
+
+		outDepotList.Purge();
+		outFileList.Purge();
+
 		return false;
 	}
 
@@ -453,11 +515,13 @@ bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots
 	}
 
 	CUtlVector<CUtlString> depotList;
+	DepotChangedList_t fileList(UtlStringLessFunc);
+
 	nlohmann::json localManifest;
 
 	if (SDKLauncher_GetLocalManifest(localManifest))
 	{
-		SDKLauncher_BuildUpdateList(localManifest, remoteManifest, depotList);
+		SDKLauncher_BuildUpdateList(localManifest, remoteManifest, depotList, fileList);
 	}
 	else
 	{
@@ -483,7 +547,7 @@ bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots
 		return true;
 
 
-	if (!SDKLauncher_InstallDepotList(remoteManifest, zipList, pProgress))
+	if (!SDKLauncher_InstallDepotList(remoteManifest, zipList, &fileList, pProgress))
 	{
 		return false;
 	}
@@ -582,17 +646,18 @@ bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlStri
 //----------------------------------------------------------------------------
 // Purpose: 
 //----------------------------------------------------------------------------
-bool SDKLauncher_InstallDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& fileList, CProgressPanel* pProgress)
+bool SDKLauncher_InstallDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& depotList,
+	DepotChangedList_t* fileList, CProgressPanel* pProgress)
 {
 	// Install process cannot be canceled.
 	pProgress->SetCanCancel(false);
 
-	FOR_EACH_VEC(fileList, i)
+	FOR_EACH_VEC(depotList, i)
 	{
-		pProgress->SetText(Format("Installing package %i of %i...", i + 1, fileList.Count()).c_str());
+		pProgress->SetText(Format("Installing package %i of %i...", i + 1, depotList.Count()).c_str());
+		CUtlString& depotFilePath = depotList[i];
 
-		CUtlString& filePath = fileList[i];
-		if (!SDKLauncher_ExtractZipFile(manifest, filePath, pProgress))
+		if (!SDKLauncher_ExtractZipFile(manifest, depotFilePath, fileList, pProgress))
 			return false;
 	}
 

@@ -1,6 +1,8 @@
 #pragma once
 #include "download_surface.h"
 
+typedef CUtlMap<CUtlString, CUtlVector<CUtlString>*> DepotChangedList_t;
+
 extern float g_flUpdateCheckRate;
 
 void SDKLauncher_Restart();
@@ -8,7 +10,7 @@ void SDKLauncher_Restart();
 bool SDKLauncher_CreateDepotDirectories();
 bool SDKLauncher_ClearDepotDirectories();
 
-bool SDKLauncher_ExtractZipFile(nlohmann::json& manifest, const CUtlString& filePath, CProgressPanel* pProgress);
+bool SDKLauncher_ExtractZipFile(nlohmann::json& manifest, const CUtlString& filePath, DepotChangedList_t* changedList, CProgressPanel* pProgress);
 bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots,
 	CUtlVector<CUtlString>& zipList, CProgressPanel* pProgress);
 
@@ -19,7 +21,8 @@ bool SDKLauncher_DownloadDepotList(nlohmann::json& manifest, CUtlVector<CUtlStri
 	CUtlVector<CUtlString>& outZipList, CProgressPanel* pProgress, const char* pPath,
 	const bool bOptionalDepots);
 
-bool SDKLauncher_InstallDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& fileList, CProgressPanel* pProgress);
+bool SDKLauncher_InstallDepotList(nlohmann::json& manifest, CUtlVector<CUtlString>& depotList,
+	DepotChangedList_t* fileList, CProgressPanel* pProgress);
 
 bool SDKLauncher_GetRemoteManifest(const char* url, string& responseMessage, nlohmann::json& remoteManifest, const bool bPreRelease);
 bool SDKLauncher_GetLocalManifest(nlohmann::json& localManifest);
