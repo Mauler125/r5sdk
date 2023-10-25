@@ -121,6 +121,7 @@ ConVar* sv_forceChatToTeamOnly             = nullptr;
 ConVar* sv_single_core_dedi                = nullptr;
 
 ConVar* sv_maxunlag = nullptr;
+ConVar* sv_unlag_clamp                     = nullptr;
 ConVar* sv_clockcorrection_msecs = nullptr;
 
 ConVar* sv_updaterate_sp                   = nullptr;
@@ -364,6 +365,9 @@ void ConVar_StaticInit(void)
 #endif // !DEDICATED
 
 	sv_language = ConVar::StaticCreate("sv_language", "english", FCVAR_RELEASE, "Language of the server. Sent to MasterServer for localising error messages.", false, 0.f, false, 0.f, LanguageChanged_f, nullptr);
+
+	sv_unlag_clamp = ConVar::StaticCreate("sv_unlag_clamp", "0", FCVAR_RELEASE, "Clamp the difference between the current time and received command time to sv_maxunlag + sv_clockcorrection_msecs.", false, 0.f, false, 0.f, nullptr, nullptr);
+
 	sv_showconnecting  = ConVar::StaticCreate("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_globalBanlist   = ConVar::StaticCreate("sv_globalBanlist"  , "1", FCVAR_RELEASE, "Determines whether or not to use the global banned list.", false, 0.f, false, 0.f, nullptr, "0 = Disable, 1 = Enable.");
 	sv_pylonVisibility = ConVar::StaticCreate("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", false, 0.f, false, 0.f, nullptr, "0 = Offline, 1 = Hidden, 2 = Public.");

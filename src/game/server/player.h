@@ -251,6 +251,9 @@ public:
 
 	void ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 		int droppedPackets, bool paused);
+
+	void ClampUnlag(CUserCmd* cmd);
+
 	void PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover);
 	void SetLastUserCommand(CUserCmd* pUserCmd);
 
