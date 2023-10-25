@@ -386,20 +386,18 @@ static bool IsEULAUpToDate()
 
 //-----------------------------------------------------------------------------
 // Purpose: Gets the EULA from master server.
-// Input  : &outData -
+// Input  : &outData    -
+//          &outMessage - 
 // Output : True on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CPylon::GetEULA(MSEulaData_t& outData) const
+bool CPylon::GetEULA(MSEulaData_t& outData, string& outMessage) const
 {
     rapidjson::Document requestJson;
     requestJson.SetObject();
 
     rapidjson::Document responseJson;
-
     CURLINFO status;
 
-    string outMessage;
-    
     if (!SendRequest("/eula", requestJson, responseJson, outMessage, status, "eula fetch error", false))
     {
         return false;
