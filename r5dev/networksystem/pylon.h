@@ -25,7 +25,7 @@ public:
 
 	bool AuthForConnection(const uint64_t nucleusId, const char* ipAddress, const char* authCode, string& outToken, string& outMessage) const;
 
-	bool GetEULA(MSEulaData_t& outData) const;
+	bool GetEULA(MSEulaData_t& outData, string& outMessage) const;
 
 	void ExtractError(const rapidjson::Document& resultBody, string& outMessage, CURLINFO status, const char* errorText = nullptr) const;
 	void ExtractError(const string& response, string& outMessage, CURLINFO status, const char* messageText = nullptr) const;

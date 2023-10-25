@@ -293,7 +293,9 @@ namespace VScriptCode
         SQRESULT GetEULAContents(HSQUIRRELVM v)
         {
             MSEulaData_t eulaData;
-            if (g_pMasterServer->GetEULA(eulaData))
+            string eulaRequestMessage;
+
+            if (g_pMasterServer->GetEULA(eulaData, eulaRequestMessage))
             {
                 // set EULA version cvar to the newly fetched EULA version
                 eula_version->SetValue(eulaData.version);
@@ -302,8 +304,10 @@ namespace VScriptCode
             }
             else
             {
-                Warning(eDLL_T::UI, "Failed to load EULA Data\n");
-                sq_pushstring(v, "Failed to load EULA Data", -1);
+                string error = Format("Failed to load EULA Data: %s", eulaRequestMessage.c_str());
+
+                Warning(eDLL_T::UI, "%s\n", error.c_str());
+                sq_pushstring(v, error.c_str(), -1);
             }
 
             return SQ_OK;
