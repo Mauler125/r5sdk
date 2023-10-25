@@ -110,6 +110,65 @@ void CPlayer::SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime)
 }
 
 //------------------------------------------------------------------------------
+// Purpose: clamps the unlag amount to sv_unlag + clockdrift
+// Input  : *cmd - 
+//------------------------------------------------------------------------------
+void CPlayer::ClampUnlag(CUserCmd* cmd)
+{
+	const CClient* client = g_pServer->GetClient(GetEdict() - 1);
+	const CNetChan* chan = client->GetNetChan();
+
+	const float clockDriftMsecs = sv_clockcorrection_msecs->GetFloat() / 1000.0f;
+	const float maxUnlag = sv_maxunlag->GetFloat();
+	const float latencyAmount = Clamp(chan->GetLatency(FLOW_OUTGOING), 0.0f, maxUnlag);
+	const float serverTime = (*g_pGlobals)->m_flCurTime;
+
+	// Command issue time from client, note that this value can be altered
+	// from the client, and therefore be used to exploit lag compensation.
+	const float commandTime = cmd->command_time;
+	const float lastCommandTime = m_LastCmd.command_time;
+	const float commandDelta = fabs(commandTime - serverTime);
+
+	bool recomputeUnlag = false;
+
+	// Check delta first, otherwise player could set commandTime to a fixed
+	// time and circumvent the system, as commandTime < lastCommandTime or
+	// commandTime > localCurTime will always fail.
+	if (commandDelta > maxUnlag)
+	{
+		// Too much to unlag, clamp to max !!!
+		recomputeUnlag = true;
+		DevWarning(eDLL_T::SERVER, "%s: commandDelta( %f ) > maxUnlag( %f ) !!!\n",
+			__FUNCTION__, commandDelta, maxUnlag);
+	}
+	else if (commandTime < (lastCommandTime - clockDriftMsecs))
+	{
+		// Can never be lower than last !!!
+		recomputeUnlag = true;
+		DevWarning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < (m_LastCmd.command_time( %f ) - clockDriftMsecs( %f )) !!!\n",
+			__FUNCTION__, commandTime, lastCommandTime, clockDriftMsecs);
+	}
+	else if (commandTime > (serverTime + clockDriftMsecs))
+	{
+		// Too far in the future, clamp to max !!!
+		recomputeUnlag = true;
+		DevWarning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) > (g_pGlobals->m_flCurTime( %f ) + clockDriftMsecs( %f )) !!!\n",
+			__FUNCTION__, commandTime, serverTime, clockDriftMsecs);
+	}
+
+	if (recomputeUnlag)
+	{
+		// Clamp it to server time minus latency. Note that it could still
+		// be lower than previous, hence the clamp on the recomputation.
+		float newCommandTime = Clamp(serverTime - latencyAmount, lastCommandTime, serverTime);
+		cmd->command_time = newCommandTime;
+
+		DevWarning(eDLL_T::SERVER, "%s: Clamped cmd->command_time( %f ) to %f !!!\n",
+			__FUNCTION__, commandTime, newCommandTime);
+	}
+}
+
+//------------------------------------------------------------------------------
 // Purpose: processes user cmd's for this player
 // Input  : *cmds - 
 //			numCmds - 
@@ -123,15 +182,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 	if (totalCmds <= 0)
 		return;
 
-	const CClient* client = g_pServer->GetClient(GetEdict() - 1);
-	const CNetChan* chan = client->GetNetChan();
-
 	CUserCmd* lastCmd = &m_Commands[MAX_QUEUED_COMMANDS_PROCESS];
-
-	const float clockDriftMsecs = sv_clockcorrection_msecs->GetFloat() / 1000.0f;
-	const float maxUnlag = sv_maxunlag->GetFloat();
-	const float latencyAmount = Clamp(chan->GetLatency(FLOW_OUTGOING), 0.0f, maxUnlag);
-	const float serverTime = (*g_pGlobals)->m_flCurTime;
 
 	for (int i = totalCmds - 1; i >= 0; i--)
 	{
@@ -147,49 +198,8 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 		if (lastCommandNumber == MAX_QUEUED_COMMANDS_PROCESS)
 			return;
 
-		// Command issue time from client, note that this value can be altered
-		// from the client, and therefore be used to exploit lag compensation.
-		const float commandTime = cmd->command_time;
-		const float lastCommandTime = m_LastCmd.command_time;
-		const float commandDelta = fabs(commandTime - serverTime);
-
-		bool recomputeUnlag = false;
-
-		// Check delta first, otherwise player could set commandTime to a fixed
-		// time and circumvent the system, as commandTime < lastCommandTime or
-		// commandTime > localCurTime will always fail.
-		if (commandDelta > maxUnlag)
-		{
-			// Too much to unlag, clamp to max !!!
-			recomputeUnlag = true;
-			DevWarning(eDLL_T::SERVER, "%s: commandDelta( %f ) > maxUnlag( %f ) !!!\n",
-				__FUNCTION__, commandDelta, maxUnlag);
-		}
-		else if (commandTime < (lastCommandTime - clockDriftMsecs))
-		{
-			// Can never be lower than last !!!
-			recomputeUnlag = true;
-			DevWarning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) < (m_LastCmd.command_time( %f ) - clockDriftMsecs( %f )) !!!\n",
-				__FUNCTION__, commandTime, lastCommandTime, clockDriftMsecs);
-		}
-		else if (commandTime > (serverTime + clockDriftMsecs))
-		{
-			// Too far in the future, clamp to max !!!
-			recomputeUnlag = true;
-			DevWarning(eDLL_T::SERVER, "%s: cmd->command_time( %f ) > (g_pGlobals->m_flCurTime( %f ) + clockDriftMsecs( %f )) !!!\n",
-				__FUNCTION__, commandTime, serverTime, clockDriftMsecs);
-		}
-
-		if (recomputeUnlag)
-		{
-			// Clamp it to server time minus latency. Note that it could still
-			// be lower than previous, hence the clamp on the recomputation.
-			float newCommandTime = Clamp(serverTime - latencyAmount, lastCommandTime, serverTime);
-			cmd->command_time = newCommandTime;
-
-			DevWarning(eDLL_T::SERVER, "%s: Clamped cmd->command_time( %f ) to %f !!!\n",
-				__FUNCTION__, commandTime, newCommandTime);
-		}
+		if (sv_unlag_clamp->GetBool())
+			ClampUnlag(cmd);
 
 		CUserCmd* queuedCmd = &m_Commands[lastCommandNumber];
 		queuedCmd->Copy(cmd);
