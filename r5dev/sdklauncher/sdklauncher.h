@@ -50,6 +50,7 @@ public:
     bool CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffinity = NULL, const char* szCommandLine = nullptr, const char* szConfig = nullptr);
     void SetupLaunchContext(const char* szConfig, const char* szGameDll, const char* szCommandLine);
     bool LaunchProcess() const;
+    bool LaunchGameDefault() const;
 
     CBaseSurface* GetMainSurface() const { return m_pSurface; }
 

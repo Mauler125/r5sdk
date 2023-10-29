@@ -1,7 +1,7 @@
 #ifndef SDKUPDATER_H
 #define SDKUPDATER_H
 
-#define UPDATER_VERSION "v0.2a"
+#define UPDATER_VERSION "v0.3a"
 #define UPDATER_SLEEP_TIME_BEFORE_EXIT 15000
 
 #endif // SDKUPDATER_H

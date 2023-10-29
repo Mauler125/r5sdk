@@ -123,16 +123,27 @@ void MoveFiles(const char* pSourceDir, const char* pDestDir)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: print version numbers, warnings, etc
+//-----------------------------------------------------------------------------
+void PrintHeader()
+{
+	printf("********************************************************************************\n");
+	printf("R5 updater [Version %s]\n", UPDATER_VERSION);
+	printf("!!! DO NOT INTERRUPT THE APPLICATION WHILE THE UPDATE IS IN PROGRESS !!!\n");
+	printf("********************************************************************************\n");
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: entry point
 //-----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-	printf("R5 updater [Version %s]\n", UPDATER_VERSION);
+	PrintHeader();
 
 	// Make sure the caller passed in a process id.
 	if (argc < 1)
 	{
-		printf("%s: Updater must be invoked with a ProcessID of the parent process!\n", "Error");
+		printf("%s: Updater must be invoked with a Process ID of the parent process!\n", "Error");
 		Sleep(UPDATER_SLEEP_TIME_BEFORE_EXIT);
 
 		return EXIT_FAILURE;
@@ -199,7 +210,7 @@ int main(int argc, char** argv)
 
 	BOOL createResult = CreateProcessA(
 		"launcher.exe",                                // lpApplicationName
-		NULL,                                          // lpCommandLine
+		(LPSTR)"-launch",                              // lpCommandLine
 		NULL,                                          // lpProcessAttributes
 		NULL,                                          // lpThreadAttributes
 		FALSE,                                         // bInheritHandles

@@ -9,14 +9,18 @@ public:
 	{};
 
 	void ToggleUpdateView(bool bValue);
+	bool CheckForUpdate();
 
 protected:
+	static void OnLoad(Forms::Control* pSender);
+	static void OnClose(const std::unique_ptr<FormClosingEventArgs>& pEventArgs, Forms::Control* pSender);
+
 	static void OnInstallClick(Forms::Control* Sender);
 	static void OnUpdateClick(Forms::Control* Sender);
 	static void OnLaunchClick(Forms::Control* Sender);
 
 	static void OnAdvancedClick(Forms::Control* Sender);
-
+	static void OnExperimentalBuildsClick(Forms::Control* Sender);
 
 	static void OnSupportClick(Forms::Control* Sender);
 	static void OnJoinClick(Forms::Control* Sender);
@@ -24,6 +28,9 @@ protected:
 
 private:
 	void Frame();
+
+	void LoadSettings();
+	void SaveSettings();
 
 	enum class eMode
 	{

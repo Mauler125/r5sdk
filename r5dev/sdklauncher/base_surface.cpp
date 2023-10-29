@@ -12,6 +12,7 @@
 #include "tier1/utlmap.h"
 #include "tier2/curlutils.h"
 #include "zip/src/ZipFile.h"
+#include "utility/vdf_parser.h"
 
 #define WINDOW_SIZE_X 400
 #define WINDOW_SIZE_Y 224
@@ -28,6 +29,9 @@ CBaseSurface::CBaseSurface()
 	this->SetMinimizeBox(true);
 	this->SetMaximizeBox(false);
 	this->SetBackColor(Drawing::Color(47, 54, 61));
+
+	this->Load += &OnLoad;
+	this->FormClosing += &OnClose;
 
 	this->m_BaseGroup = new UIX::UIXGroupBox();
 	this->m_ManageButton = new UIX::UIXButton();
@@ -102,16 +106,13 @@ CBaseSurface::CBaseSurface()
 	this->m_ExperimentalBuildsCheckbox->SetTabIndex(0);
 	this->m_ExperimentalBuildsCheckbox->SetText(XorStr("Check for playtest/event updates"));
 	this->m_ExperimentalBuildsCheckbox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_ExperimentalBuildsCheckbox->Click += OnExperimentalBuildsClick;
 
 	m_BaseGroup->AddControl(this->m_ExperimentalBuildsCheckbox);
 
 	// TODO: Use a toggle item instead; remove this field.
 	m_bPartialInstall = true;
 	m_bUpdateViewToggled = false;
-
-	Threading::Thread([this] {
-		this->Frame();
-	}).Start();
 }
 
 void CBaseSurface::ToggleUpdateView(bool bValue)
@@ -119,7 +120,13 @@ void CBaseSurface::ToggleUpdateView(bool bValue)
 	// Game must be installed before this can be called!!
 	Assert(m_bIsInstalled);
 
-	this->m_ManageButton->SetText(bValue ? XorStr("Update Apex") : XorStr("Install Apex"));
+	// Don't switch it to the same view, else we install the callbacks
+	// twice and thus call them twice.
+	if (bValue == m_bUpdateViewToggled)
+		return;
+
+	m_bUpdateViewToggled = bValue;
+	this->m_ManageButton->SetText(bValue ? XorStr("Update && Launch Apex") : XorStr("Launch Apex"));
 
 	if (bValue)
 	{
@@ -131,8 +138,23 @@ void CBaseSurface::ToggleUpdateView(bool bValue)
 		this->m_ManageButton->Click -= &OnUpdateClick;
 		this->m_ManageButton->Click += &OnLaunchClick;
 	}
+}
 
-	m_bUpdateViewToggled = bValue;
+bool CBaseSurface::CheckForUpdate()
+{
+	printf("%s: runframe; interval=%f\n", __FUNCTION__, g_flUpdateCheckRate);
+	const bool updateAvailable = SDKLauncher_CheckForUpdate(m_ExperimentalBuildsCheckbox->Checked());
+
+	if (m_bIsInstalled && updateAvailable)
+	{
+		printf("%s: found update; interval=%f\n", __FUNCTION__, g_flUpdateCheckRate);
+		ToggleUpdateView(true);
+
+		return true;
+	}
+
+	ToggleUpdateView(false);
+	return false;
 }
 
 
@@ -142,14 +164,131 @@ void CBaseSurface::Frame()
 	{
 		printf("%s: runframe; interval=%f\n", __FUNCTION__, g_flUpdateCheckRate);
 
-		if (!m_bUpdateViewToggled && m_bIsInstalled && SDKLauncher_CheckForUpdate(m_ExperimentalBuildsCheckbox->Checked()))
+		if (CheckForUpdate())
 		{
-			ToggleUpdateView(true);
 			printf("%s: found update; interval=%f\n", __FUNCTION__, g_flUpdateCheckRate);
 		}
 
 		std::this_thread::sleep_for(IntervalToDuration(g_flUpdateCheckRate));
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: load callback
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CBaseSurface::OnLoad(Forms::Control* pSender)
+{
+	CBaseSurface* pBaseSurface = (CBaseSurface*)pSender->FindForm();
+	pBaseSurface->LoadSettings();
+
+	Threading::Thread([pBaseSurface] {
+		pBaseSurface->Frame();
+	}).Start();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: close callback
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CBaseSurface::OnClose(const std::unique_ptr<FormClosingEventArgs>& /*pEventArgs*/, Forms::Control* pSender)
+{
+	((CBaseSurface*)pSender->FindForm())->SaveSettings();
+}
+
+void CBaseSurface::LoadSettings()
+{
+	const fs::path settingsPath(Format("platform/%s/%s", SDK_SYSTEM_CFG_PATH, LAUNCHER_SETTING_FILE));
+	if (!fs::exists(settingsPath))
+	{
+		return;
+	}
+
+	bool success;
+	std::ifstream fileStream(settingsPath, fstream::in);
+	vdf::object vRoot = vdf::read(fileStream, &success);
+
+	if (!success)
+	{
+		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__,
+			settingsPath.u8string().c_str());
+		return;
+	}
+
+	try
+	{
+		string& attributeView = vRoot.attribs["version"];
+
+		int settingsVersion = atoi(attributeView.c_str());
+		if (settingsVersion != SDK_LAUNCHER_VERSION)
+			return;
+
+		vdf::object* pSubKey = vRoot.childs["vars"].get();
+		if (!pSubKey)
+			return;
+
+		attributeView = pSubKey->attribs["experimentalBuilds"];
+		this->m_ExperimentalBuildsCheckbox->SetChecked(attributeView != "0");
+	}
+	catch (const std::exception& e)
+	{
+		printf("%s: Exception while parsing VDF file: %s\n", __FUNCTION__, e.what());
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the control item value
+// Input  : *pControl - 
+//-----------------------------------------------------------------------------
+const char* GetControlValue(Forms::Control* pControl)
+{
+	switch (pControl->GetType())
+	{
+	case Forms::ControlTypes::CheckBox:
+	case Forms::ControlTypes::RadioButton:
+	{
+		return reinterpret_cast<UIX::UIXCheckBox*>(pControl)->Checked() ? "1" : "0";
+	}
+	default:
+	{
+		return pControl->Text().ToCString();
+	}
+	}
+}
+
+
+void CBaseSurface::SaveSettings()
+{
+	const fs::path settingsPath(Format("platform/%s/%s", SDK_SYSTEM_CFG_PATH, LAUNCHER_SETTING_FILE));
+	const fs::path parentPath = settingsPath.parent_path();
+
+	if (!fs::exists(parentPath) && !fs::create_directories(parentPath))
+	{
+		printf("%s: Failed to create directory: '%s'\n", __FUNCTION__,
+			parentPath.relative_path().u8string().c_str());
+		return;
+	}
+
+	std::ofstream fileStream(settingsPath, fstream::out);
+	if (!fileStream)
+	{
+		printf("%s: Failed to create VDF file: '%s'\n", __FUNCTION__,
+			settingsPath.u8string().c_str());
+		return;
+	}
+
+	vdf::object vRoot;
+	vRoot.set_name("LauncherSettings");
+	vRoot.add_attribute("version", std::to_string(SDK_LAUNCHER_VERSION));
+
+	vdf::object* vVars = new vdf::object();
+	vVars->set_name("vars");
+
+	// Game.
+	vVars->add_attribute("experimentalBuilds", GetControlValue(this->m_ExperimentalBuildsCheckbox));
+	vRoot.add_child(std::unique_ptr<vdf::object>(vVars));
+
+	vdf::write(fileStream, vRoot);
 }
 
 void CBaseSurface::OnUpdateClick(Forms::Control* Sender)
@@ -281,6 +420,12 @@ void CBaseSurface::OnAdvancedClick(Forms::Control* Sender)
 {
 	auto pAdvancedSurface = std::make_unique<CAdvancedSurface>();
 	pAdvancedSurface->ShowDialog((Forms::Form*)Sender->FindForm());
+}
+
+void CBaseSurface::OnExperimentalBuildsClick(Forms::Control* Sender)
+{
+	CBaseSurface* pBaseSurface = reinterpret_cast<CBaseSurface*>(Sender->FindForm());
+	pBaseSurface->CheckForUpdate();
 }
 
 void CBaseSurface::OnSupportClick(Forms::Control* /*Sender*/)

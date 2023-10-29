@@ -56,7 +56,12 @@ int CLauncher::HandleCommandLine(int argc, char* argv[])
         string arg = argv[i];
         eLaunchMode mode = eLaunchMode::LM_NONE;
 
-        if ((arg == "-developer") || (arg == "-dev"))
+        if ((arg == "-launch"))
+        {
+            LaunchGameDefault();
+            return -2;
+        }
+        else if ((arg == "-developer") || (arg == "-dev"))
         {
             mode = eLaunchMode::LM_GAME_DEV;
         }
@@ -327,6 +332,26 @@ bool CLauncher::LaunchProcess() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Purpose: launches the game with default parameters
+// Output : true on success, false otherwise
+///////////////////////////////////////////////////////////////////////////////
+bool CLauncher::LaunchGameDefault() const
+{
+    // Hack: free the console before launching since we only want it to be shown
+    // for the command line interface.
+    FreeConsole();
+
+    // !TODO: parameter building and settings loading should be its own class!!
+    if (g_pLauncher->CreateLaunchContext(eLaunchMode::LM_CLIENT, 0, "", "startup_launcher.cfg"))
+    {
+        g_pLauncher->LaunchProcess();
+        return true;
+    }
+
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Purpose: Window enumerator callback.
 // Input  : hwnd   -
 //          lParam - 
@@ -386,6 +411,17 @@ void LauncherLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
     }
 }
 
+void RunGUI()
+{
+#ifdef NDEBUG
+    FreeConsole();
+#endif // NDEBUG
+    curl_global_init(CURL_GLOBAL_ALL);
+    g_CoreMsgVCallback = LauncherLoggerSink;
+    g_pLauncher->RunSurface();
+    curl_global_cleanup();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // EntryPoint.
 ///////////////////////////////////////////////////////////////////////////////
@@ -400,21 +436,23 @@ int main(int argc, char* argv[]/*, char* envp[]*/)
     g_pLauncher->InitLogger();
     if (argc < 2)
     {
-#ifdef NDEBUG
-        FreeConsole();
-#endif // NDEBUG
-        curl_global_init(CURL_GLOBAL_ALL);
-        g_CoreMsgVCallback = LauncherLoggerSink;
-        g_pLauncher->RunSurface();
-        curl_global_cleanup();
+        RunGUI();
     }
     else
     {
         int results = g_pLauncher->HandleCommandLine(argc, argv);
-        if (results != -1)
+        if (results == -1)
+        {
+            return g_pLauncher->HandleInput();
+        }
+        else if (results == -2)
+        {
+            RunGUI();
+        }
+        else
+        {
             return results;
-
-        return g_pLauncher->HandleInput();
+        }
     }
 
     return EXIT_SUCCESS;

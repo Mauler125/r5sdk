@@ -1,10 +1,10 @@
 #include "sdklauncher_utils.h"
 #include "windows/window.h"
+#include "tier0/binstream.h"
 #include "tier1/xorstr.h"
 #include "tier1/utlmap.h"
 #include "tier2/curlutils.h"
 #include "zip/src/ZipFile.h"
-#include <public/tier0/binstream.h>
 
 bool g_bPartialInstall = false;
 //bool g_bExperimentalBuilds = false;
@@ -331,12 +331,25 @@ bool SDKLauncher_AcquireReleaseManifest(const char* url, string& responseMessage
 		{
 			auto& release = responseJson[i];
 
-			if (preRelease && release["prerelease"])
+			if (preRelease)
 			{
-				outManifest = release;
-				break;
+				if (i == responseJson.size() - 1 && outManifest.empty())
+				{
+					// TODO: we probably do not want to take the first one, as it might not be ordered
+					// needs to be confirmed!
+					outManifest = responseJson[0]; // Just take the first one then.
+					break;
+				}
+
+				const bool isPreRelease = release["prerelease"].get<bool>();
+
+				if (isPreRelease)
+				{
+					outManifest = release;
+					break;
+				}
 			}
-			else if (!release["prerelease"])
+			else
 			{
 				outManifest = release;
 				break;
