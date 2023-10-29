@@ -208,9 +208,12 @@ int main(int argc, char** argv)
 	// Initialize startup info struct.
 	startupInfo.cb = sizeof(STARTUPINFOA);
 
+	char commandLine[256];
+	V_snprintf(commandLine, sizeof(commandLine), "launcher.exe %s", "-launch");
+
 	BOOL createResult = CreateProcessA(
 		"launcher.exe",                                // lpApplicationName
-		(LPSTR)"-launch",                              // lpCommandLine
+		commandLine,                                   // lpCommandLine
 		NULL,                                          // lpProcessAttributes
 		NULL,                                          // lpThreadAttributes
 		FALSE,                                         // bInheritHandles
