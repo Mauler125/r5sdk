@@ -228,7 +228,10 @@ void CBaseSurface::LoadSettings()
 			return;
 
 		attributeView = pSubKey->attribs["experimentalBuilds"];
-		this->m_ExperimentalBuildsCheckbox->SetChecked(attributeView != "0");
+
+		// Make sure it at least has a value.
+		if (!attributeView.empty())
+			this->m_ExperimentalBuildsCheckbox->SetChecked(attributeView != "0");
 	}
 	catch (const std::exception& e)
 	{
@@ -293,7 +296,7 @@ void CBaseSurface::SaveSettings()
 
 void CBaseSurface::OnUpdateClick(Forms::Control* Sender)
 {
-	//CBaseSurface* pSurf = (CBaseSurface*)Sender;
+	CBaseSurface* pSurf = (CBaseSurface*)Sender->FindForm();
 
 	vector<HWND> vecHandles;
 	EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&vecHandles));
@@ -339,7 +342,8 @@ void CBaseSurface::OnUpdateClick(Forms::Control* Sender)
 
 	pProgress->ShowDialog();
 
-	// Restart the launcher process from here through updater.exe!
+	// Save settings and restart the launcher process from here through updater.exe!
+	pSurf->SaveSettings();
 	SDKLauncher_Restart();
 }
 
