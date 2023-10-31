@@ -110,6 +110,8 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 	if (r != L8W8JWT_SUCCESS)
 	{
 		FORMAT_ERROR_REASON("Code %i", r);
+		l8w8jwt_free_claims(claims, numClaims);
+
 		return false;
 	}
 
@@ -119,6 +121,8 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 		l8w8jwt_get_validation_result_desc(validation_result, reasonBuffer, sizeof(reasonBuffer));
 
 		FORMAT_ERROR_REASON("%s", reasonBuffer);
+		l8w8jwt_free_claims(claims, numClaims);
+
 		return false;
 	}
 
@@ -143,6 +147,8 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 			if (hashedNewId.compare(sessionId) != 0)
 			{
 				FORMAT_ERROR_REASON("Token is not authorized for the connecting client");
+				l8w8jwt_free_claims(claims, numClaims);
+
 				return false;
 			}
 
@@ -153,8 +159,12 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 	if (!foundSessionId)
 	{
 		FORMAT_ERROR_REASON("No session ID");
+		l8w8jwt_free_claims(claims, numClaims);
+
 		return false;
 	}
+
+	l8w8jwt_free_claims(claims, numClaims);
 
 #undef REJECT_CONNECTION
 #endif // !CLIENT_DLL
