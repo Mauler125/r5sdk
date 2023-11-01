@@ -329,27 +329,18 @@ bool SDKLauncher_AcquireReleaseManifest(const char* url, string& responseMessage
 
 		for (size_t i = 0; i < responseJson.size(); i++)
 		{
-			auto& release = responseJson[i];
+			const auto& release = responseJson[i];
+			const bool isPreRelease = release["prerelease"].get<bool>();
 
 			if (preRelease)
 			{
-				if (i == responseJson.size() - 1 && outManifest.empty())
-				{
-					// TODO: we probably do not want to take the first one, as it might not be ordered
-					// needs to be confirmed!
-					outManifest = responseJson[0]; // Just take the first one then.
-					break;
-				}
-
-				const bool isPreRelease = release["prerelease"].get<bool>();
-
 				if (isPreRelease)
 				{
 					outManifest = release;
 					break;
 				}
 			}
-			else
+			else if (!isPreRelease)
 			{
 				outManifest = release;
 				break;
@@ -576,6 +567,7 @@ bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots
 
 	if (!SDKLauncher_WriteLocalManifest(remoteManifest))
 	{
+		errorMessage->Set("Failed to write local manifest file (insufficient rights?)");
 		return false;
 	}
 

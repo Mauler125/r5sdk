@@ -145,15 +145,19 @@ bool CBaseSurface::CheckForUpdate()
 	printf("%s: runframe; interval=%f\n", __FUNCTION__, g_flUpdateCheckRate);
 	const bool updateAvailable = SDKLauncher_CheckForUpdate(m_ExperimentalBuildsCheckbox->Checked());
 
-	if (m_bIsInstalled && updateAvailable)
+	if (m_bIsInstalled)
 	{
-		printf("%s: found update; interval=%f\n", __FUNCTION__, g_flUpdateCheckRate);
-		ToggleUpdateView(true);
+		if (m_bIsInstalled && updateAvailable)
+		{
+			printf("%s: found update; interval=%f\n", __FUNCTION__, g_flUpdateCheckRate);
+			ToggleUpdateView(true);
 
-		return true;
+			return true;
+		}
+
+		ToggleUpdateView(false);
 	}
 
-	ToggleUpdateView(false);
 	return false;
 }
 
@@ -328,7 +332,7 @@ void CBaseSurface::OnUpdateClick(Forms::Control* Sender)
 		CUtlVector<CUtlString> fileList;
 		CUtlString errorMessage;
 
-		if (!SDKLauncher_BeginInstall(true, false, fileList, &errorMessage, pProgress))
+		if (!SDKLauncher_BeginInstall(false, false, fileList, &errorMessage, pProgress))
 		{
 			Forms::MessageBox::Show(Format("Failed to install game: %s\n", errorMessage.String()).c_str(),
 				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
@@ -394,7 +398,7 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 		CUtlVector<CUtlString> fileList;
 		CUtlString errorMessage;
 
-		if (!SDKLauncher_BeginInstall(true, false, fileList, &errorMessage, pProgress))
+		if (!SDKLauncher_BeginInstall(false, false, fileList, &errorMessage, pProgress))
 		{
 			Forms::MessageBox::Show(Format("Failed to install game: %s\n", errorMessage.String()).c_str(),
 				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
