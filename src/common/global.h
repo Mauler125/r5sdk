@@ -78,6 +78,8 @@ extern ConVar* modsystem_debug;
 extern ConVar* eula_version;
 extern ConVar* eula_version_accepted;
 
+extern ConVar* promo_version_accepted;
+
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 #ifndef CLIENT_DLL

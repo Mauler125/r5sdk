@@ -87,6 +87,8 @@ ConVar* modsystem_debug                    = nullptr;
 ConVar* eula_version                       = nullptr;
 ConVar* eula_version_accepted              = nullptr;
 
+ConVar* promo_version_accepted             = nullptr;
+
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 #ifndef CLIENT_DLL
@@ -343,6 +345,9 @@ void ConVar_StaticInit(void)
 	// SHARED                                                                 |
 	modsystem_enable = ConVar::StaticCreate("modsystem_enable", "1", FCVAR_RELEASE, "Enable the modsystem.", false, 0.f, false, 0.f, nullptr, nullptr);
 	modsystem_debug  = ConVar::StaticCreate("modsystem_debug" , "0", FCVAR_RELEASE, "Debug the modsystem." , false, 0.f, false, 0.f, nullptr, nullptr);
+
+	// TODO: Make this release|playerprofile (show promo only once until version change) or leave as release (show promo everytime user restarted the game)?
+	promo_version_accepted = ConVar::StaticCreate("promo_version_accepted", "0", FCVAR_RELEASE /*| FCVAR_ARCHIVE_PLAYERPROFILE*/, "", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
