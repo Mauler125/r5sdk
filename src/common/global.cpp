@@ -347,7 +347,7 @@ void ConVar_StaticInit(void)
 	modsystem_debug  = ConVar::StaticCreate("modsystem_debug" , "0", FCVAR_RELEASE, "Debug the modsystem." , false, 0.f, false, 0.f, nullptr, nullptr);
 
 	// TODO: Make this release|playerprofile (show promo only once until version change) or leave as release (show promo everytime user restarted the game)?
-	promo_version_accepted = ConVar::StaticCreate("promo_version_accepted", "0", FCVAR_RELEASE /*| FCVAR_ARCHIVE_PLAYERPROFILE*/, "", false, 0.f, false, 0.f, nullptr, nullptr);
+	promo_version_accepted = ConVar::StaticCreate("promo_version_accepted", "0", FCVAR_RELEASE /*| FCVAR_ARCHIVE_PLAYERPROFILE*/, "The accepted promo version.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
@@ -436,9 +436,9 @@ void ConVar_StaticInit(void)
 	cl_materialinfo_offset_y = ConVar::StaticCreate("cl_materialinfo_offset_y", "420", FCVAR_DEVELOPMENTONLY, "Y offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	cl_onlineAuthEnable          = ConVar::StaticCreate("cl_onlineAuthEnable"         ,"1", FCVAR_RELEASE, "Enables the client-side online authentication system.", true, 0.f, true, 1.f, nullptr, nullptr);
-	cl_onlineAuthToken           = ConVar::StaticCreate("cl_onlineAuthToken"          , "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_onlineAuthTokenSignature1 = ConVar::StaticCreate("cl_onlineAuthTokenSignature1", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_onlineAuthTokenSignature2 = ConVar::StaticCreate("cl_onlineAuthTokenSignature2", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_onlineAuthToken           = ConVar::StaticCreate("cl_onlineAuthToken"          , "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_onlineAuthTokenSignature1 = ConVar::StaticCreate("cl_onlineAuthTokenSignature1", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token signature.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_onlineAuthTokenSignature2 = ConVar::StaticCreate("cl_onlineAuthTokenSignature2", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token signature.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	con_drawnotify = ConVar::StaticCreate("con_drawnotify", "0", FCVAR_RELEASE, "Draws the RUI console to the hud.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_notifylines     = ConVar::StaticCreate("con_notifylines"    , "3" , FCVAR_MATERIAL_SYSTEM_THREAD, "Number of console lines to overlay for debugging.", true, 1.f, false, 0.f, nullptr, nullptr);
