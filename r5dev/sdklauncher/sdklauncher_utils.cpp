@@ -509,9 +509,16 @@ bool SDKLauncher_BuildUpdateList(const nlohmann::json& localManifest,
 }
 
 //----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: start the automatic installation procedure
+// Input  : bPreRelease               - 
+//			bOptionalDepots           - 
+//			bFullInstallWhenListEmpty - if true, installs all depots in the remote manifest when depot list vector is empty
+//			&zipList                  - 
+//			*errorMessage             - 
+//			*pProgress                - 
+// Output : true on success, false otherwise
 //----------------------------------------------------------------------------
-bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots,
+bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots, const bool bFullInstallWhenListEmpty,
 	CUtlVector<CUtlString>& zipList, CUtlString* errorMessage, CProgressPanel* pProgress)
 {
 	string responseMessage;
@@ -541,6 +548,16 @@ bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots
 		Assert(depotList.IsEmpty());
 	}
 
+	if (depotList.IsEmpty() && !bFullInstallWhenListEmpty)
+	{
+		if (!SDKLauncher_WriteLocalManifest(remoteManifest, errorMessage))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	FOR_EACH_VEC(depotList, i)
 	{
 		const CUtlString& depotName = depotList[i];
@@ -565,9 +582,8 @@ bool SDKLauncher_BeginInstall(const bool bPreRelease, const bool bOptionalDepots
 		return false;
 	}
 
-	if (!SDKLauncher_WriteLocalManifest(remoteManifest))
+	if (!SDKLauncher_WriteLocalManifest(remoteManifest, errorMessage))
 	{
-		errorMessage->Set("Failed to write local manifest file (insufficient rights?)");
 		return false;
 	}
 
@@ -824,11 +840,12 @@ bool SDKLauncher_GetLocalManifest(nlohmann::json& localManifest)
 	return true;
 }
 
-bool SDKLauncher_WriteLocalManifest(const nlohmann::json& localManifest)
+bool SDKLauncher_WriteLocalManifest(const nlohmann::json& localManifest, CUtlString* errorMessage)
 {
 	CIOStream writer;
 	if (!writer.Open(DEPOT_MANIFEST_FILE_PATH, CIOStream::Mode_t::WRITE))
 	{
+		errorMessage->Set("Failed to write local manifest file (insufficient rights?)");
 		return false;
 	}
 
