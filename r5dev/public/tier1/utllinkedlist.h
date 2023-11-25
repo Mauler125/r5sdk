@@ -133,7 +133,7 @@ public:
 	inline static size_t ElementSize() { return sizeof(ListElem_t); }
 
 	// list statistics
-	int	Count() const;
+	I	Count() const;
 	I	MaxElementIndex() const;
 	I	NumAllocated(void) const { return m_NumAlloced; }
 
@@ -292,7 +292,7 @@ inline T const& CUtlLinkedList<T, S, ML, I, M>::operator[](I i) const
 //-----------------------------------------------------------------------------
 
 template <class T, class S, bool ML, class I, class M>
-inline int CUtlLinkedList<T, S, ML, I, M>::Count() const
+inline I CUtlLinkedList<T, S, ML, I, M>::Count() const
 {
 #ifdef MULTILIST_PEDANTIC_ASSERTS
 	AssertMsg(!ML, "CUtlLinkedList::Count() is meaningless for linked lists.");
