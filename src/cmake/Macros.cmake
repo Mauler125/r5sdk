@@ -140,6 +140,8 @@ macro( thirdparty_suppress_warnings )
             /wd4152 # Function/data pointer conversion in expression.
             /wd4200 # Zero-sized array in union; SDL2 uses this for compiler compatibility.
             /wd4201 # Nameless struct/union.
+            /wd4204 # nonstandard extension used: non-constant aggregate initializer.
+            /wd4221 # nonstandard extension used: 'value': cannot be initialized using address of automatic variable 'symbol'
             /wd4244 # Type conversion truncation; protobuf has many, but this appears intentional.
             /wd4245 # 'return': conversion signed/unsigned mismatch
             /wd4267 # Type conversion truncation; protobuf has many, but this appears intentional.
