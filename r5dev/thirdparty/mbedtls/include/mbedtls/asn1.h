@@ -410,7 +410,7 @@ int mbedtls_asn1_get_bitstring_null(unsigned char **p,
 int mbedtls_asn1_get_sequence_of(unsigned char **p,
                                  const unsigned char *end,
                                  mbedtls_asn1_sequence *cur,
-                                 int tag);
+                                 const int tag);
 /**
  * \brief          Free a heap-allocated linked list presentation of
  *                 an ASN.1 sequence, including the first element.
