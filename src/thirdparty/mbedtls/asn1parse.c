@@ -377,9 +377,10 @@ static int asn1_get_sequence_of_cb(void *ctx,
 int mbedtls_asn1_get_sequence_of(unsigned char **p,
                                  const unsigned char *end,
                                  mbedtls_asn1_sequence *cur,
-                                 int tag)
+                                 const int tag)
 {
     asn1_get_sequence_of_cb_ctx_t cb_ctx = { tag, cur };
+
     memset(cur, 0, sizeof(mbedtls_asn1_sequence));
     return mbedtls_asn1_traverse_sequence_of(
         p, end, 0xFF, tag, 0, 0,

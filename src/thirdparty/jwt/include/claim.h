@@ -117,7 +117,7 @@ struct l8w8jwt_claim
  * @param claims The claims to free.
  * @param claims_count The size of the passed claims array.
  */
-L8W8JWT_API void l8w8jwt_free_claims(struct l8w8jwt_claim* claims, size_t claims_count);
+L8W8JWT_API void l8w8jwt_free_claims(struct l8w8jwt_claim* claims, const size_t claims_count);
 
 /**
  * Writes a bunch of JWT claims into a chillbuff stringbuilder. <p>
@@ -127,7 +127,7 @@ L8W8JWT_API void l8w8jwt_free_claims(struct l8w8jwt_claim* claims, size_t claims
  * @param claims_count The claims array size.
  * @return Return code as specified inside retcodes.h
  */
-L8W8JWT_API int l8w8jwt_write_claims(struct chillbuff* stringbuilder, struct l8w8jwt_claim* claims, size_t claims_count);
+L8W8JWT_API int l8w8jwt_write_claims(struct chillbuff* stringbuilder, struct l8w8jwt_claim* claims, const size_t claims_count);
 
 /**
  * Gets a claim by key from a l8w8jwt_claim array.
@@ -137,7 +137,7 @@ L8W8JWT_API int l8w8jwt_write_claims(struct chillbuff* stringbuilder, struct l8w
  * @param key_length The claim key's string length.
  * @return The found claim; <code>NULL</code> if no such claim was found in the array.
  */
-L8W8JWT_API struct l8w8jwt_claim* l8w8jwt_get_claim(struct l8w8jwt_claim* claims, size_t claims_count, const char* key, size_t key_length);
+L8W8JWT_API struct l8w8jwt_claim* l8w8jwt_get_claim(struct l8w8jwt_claim* claims, const size_t claims_count, const char* key, const size_t key_length);
 
 #ifdef __cplusplus
 } // extern "C"

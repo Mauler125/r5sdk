@@ -40,7 +40,7 @@ extern "C" {
  * @param output_length [OPTIONAL] Where to write the output array length into. This is always gonna be <c>hexstr_length / 2</c>, but you can still choose to write it out just to be sure. If you want to omit this: no problem.. just pass <c>NULL</c>!
  * @return <c>0</c> if conversion succeeded. <c>1</c> if one or more required arguments were <c>NULL</c> or invalid. <c>2</c> if the hexadecimal string is in an invalid format (e.g. not divisible by 2). <c>3</c> if output buffer size was insufficient (needs to be at least <c>(hexstr_length / 2) + 1</c> bytes).
  */
-L8W8JWT_API int l8w8jwt_hexstr2bin(const char* hexstr, size_t hexstr_length, unsigned char* output, size_t output_size, size_t* output_length);
+L8W8JWT_API int l8w8jwt_hexstr2bin(const char* hexstr, const size_t hexstr_length, unsigned char* output, const size_t output_size, size_t* output_length);
 
 /**
  * Compares two strings ignoring UPPER vs. lowercase.
