@@ -87,6 +87,11 @@ CCommand::CCommand(int nArgC, const char** ppArgV, cmd_source_t source)
 	m_nQueuedVal = source;
 }
 
+characterset_t* CCommand::DefaultBreakSet()
+{
+	return &s_BreakSet;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: tokenizer
 // Input  : *pCommand - 
@@ -178,71 +183,6 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 	}
 
 	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns argument count
-//-----------------------------------------------------------------------------
-int64_t CCommand::ArgC(void) const
-{
-	return m_nArgc;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns argument vector
-//-----------------------------------------------------------------------------
-const char** CCommand::ArgV(void) const
-{
-	return m_nArgc ? (const char**)m_ppArgv : NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns all args that occur after the 0th arg, in string form
-//-----------------------------------------------------------------------------
-const char* CCommand::ArgS(void) const
-{
-	return m_nArgv0Size ? &m_pArgSBuffer[m_nArgv0Size] : "";
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns the entire command in string form, including the 0th arg
-//-----------------------------------------------------------------------------
-const char* CCommand::GetCommandString(void) const
-{
-	return m_nArgc ? m_pArgSBuffer : "";
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns argument from index as string
-// Input  : nIndex - 
-//-----------------------------------------------------------------------------
-const char* CCommand::Arg(int nIndex) const
-{
-	// FIXME: Many command handlers appear to not be particularly careful
-	// about checking for valid argc range. For now, we're going to
-	// do the extra check and return an empty string if it's out of range
-	if (nIndex < 0 || nIndex >= m_nArgc)
-	{
-		return "";
-	}
-	return m_ppArgv[nIndex];
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets at arguments
-// Input  : nInput - 
-//-----------------------------------------------------------------------------
-const char* CCommand::operator[](int nIndex) const
-{
-	return Arg(nIndex);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: returns max command length
-//-----------------------------------------------------------------------------
-int CCommand::MaxCommandLength(void) const
-{
-	return COMMAND_MAX_LENGTH - 1;
 }
 
 //-----------------------------------------------------------------------------
