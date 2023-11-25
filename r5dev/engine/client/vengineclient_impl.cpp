@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "engine/cmd.h"
 #include "clientstate.h"
 #include "vengineclient_impl.h"
 
@@ -61,4 +62,46 @@ int CEngineClient::GetLocalPlayer()
 	const static int index = 36;
 #endif
 	return CallVFunc<int>(index, this);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: execute client command
+// Input  : *thisptr     - 
+//          *szCmdString - 
+// Output :
+//---------------------------------------------------------------------------------
+void CEngineClient::_ClientCmd(CEngineClient* thisptr, const char* const szCmdString)
+{
+	const bool restrictClientCommands = g_pClientState->m_bRestrictClientCommands;
+	const int numMarkers = 2;
+
+	if (restrictClientCommands && !Cbuf_HasRoomForExecutionMarkers(numMarkers))
+	{
+		DevWarning(eDLL_T::CLIENT, "%s: No room for %i execution markers; command \"%s\" ignored\n",
+			__FUNCTION__, numMarkers, szCmdString);
+		return;
+	}
+
+	if (restrictClientCommands)
+	{
+		Cbuf_AddExecutionMarker(Cbuf_GetCurrentPlayer(), eCmdExecutionMarker_Enable_FCVAR_CLIENTCMD_CAN_EXECUTE);
+	}
+
+	Cbuf_AddText(Cbuf_GetCurrentPlayer(), szCmdString, cmd_source_t::kCommandSrcCode);
+	Cbuf_AddText(Cbuf_GetCurrentPlayer(), "\n", cmd_source_t::kCommandSrcCode);
+
+	if (restrictClientCommands)
+	{
+		Cbuf_AddExecutionMarker(Cbuf_GetCurrentPlayer(), eCmdExecutionMarker_Disable_FCVAR_CLIENTCMD_CAN_EXECUTE);
+	}
+}
+
+void HVEngineClient::Attach() const
+{
+	DetourAttach(&CEngineClient__ClientCmd, &CEngineClient::_ClientCmd);
+}
+
+void HVEngineClient::Detach() const
+{
+	DetourDetach(&CEngineClient__ClientCmd, &CEngineClient::_ClientCmd);
 }

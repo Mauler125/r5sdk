@@ -1,7 +1,59 @@
 #include "core/stdafx.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
+#include "tier1/commandbuffer.h"
 #include "engine/cmd.h"
+
+CCommandBuffer** s_pCommandBuffer = nullptr; // array size = ECommandTarget_t::CBUF_COUNT.
+LPCRITICAL_SECTION s_pCommandBufferMutex = nullptr;
+
+//=============================================================================
+// List of execution markers
+//=============================================================================
+CUtlVector<int>* g_pExecutionMarkers = nullptr;
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if there's room left for execution markers
+// Input  : cExecutionMarkers - 
+// Output : true if there's room for execution markers, false otherwise
+//-----------------------------------------------------------------------------
+bool Cbuf_HasRoomForExecutionMarkers(const int cExecutionMarkers)
+{
+	return (g_pExecutionMarkers->Count() + cExecutionMarkers) < MAX_EXECUTION_MARKERS;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds command text at the end of the command buffer with execution markers
+// Input  : *pText      - 
+//          markerLeft  - 
+//          markerRight - 
+// Output : true if there's room for execution markers, false otherwise
+//-----------------------------------------------------------------------------
+bool Cbuf_AddTextWithMarkers(const char* const pText, const ECmdExecutionMarker markerLeft, const ECmdExecutionMarker markerRight)
+{
+	if (Cbuf_HasRoomForExecutionMarkers(2))
+	{
+		Cbuf_AddExecutionMarker(Cbuf_GetCurrentPlayer(), markerLeft);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), pText, cmd_source_t::kCommandSrcCode);
+		Cbuf_AddExecutionMarker(Cbuf_GetCurrentPlayer(), markerRight);
+
+		return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds command text at the end of the buffer
+//-----------------------------------------------------------------------------
+//void Cbuf_AddText(ECommandTarget_t eTarget, const char* pText, int nTickDelay)
+//{
+//	LOCK_COMMAND_BUFFER();
+//	if (!s_pCommandBuffer[(int)eTarget]->AddText(pText, nTickDelay, cmd_source_t::kCommandSrcInvalid))
+//	{
+//		Error(eDLL_T::ENGINE, NO_ERROR, "%s: buffer overflow\n", __FUNCTION__);
+//	}
+//}
 
 //-----------------------------------------------------------------------------
 // Purpose: Sends the entire command line over to the server
@@ -19,8 +71,8 @@ bool Cmd_ForwardToServer(const CCommand* args)
 	if (args->ArgC() == 0)
 		return false;
 
-	double flStartTime = Plat_FloatTime();
-	int nCmdQuotaLimit = cl_quota_stringCmdsPerSecond->GetInt();
+	const double flStartTime = Plat_FloatTime();
+	const int nCmdQuotaLimit = cl_quota_stringCmdsPerSecond->GetInt();
 	const char* pszCmdString = nullptr;
 
 	// Special case: "cmd whatever args..." is forwarded as "whatever args...";

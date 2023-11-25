@@ -13,11 +13,15 @@
 #include "tier0/frametask.h"
 #include "engine/common.h"
 #include "engine/host.h"
+#ifndef CLIENT_DLL
+#include "engine/server/server.h"
+#endif // !CLIENT_DLL
 #include "clientstate.h"
 #include "common/callback.h"
 #include "cdll_engine_int.h"
 #include "vgui/vgui_baseui_interface.h"
 #include <ebisusdk/EbisuSDK.h>
+#include <engine/cmd.h>
 
 
 //------------------------------------------------------------------------------
@@ -146,23 +150,56 @@ void CClientState::VConnectionClosing(CClientState* thisptr, const char* szReaso
 // no longer can process server ticks every frame unlike previous games.
 // Without this, the server CPU and frame time don't get updated to the client.
 //------------------------------------------------------------------------------
-bool CClientState::VProcessServerTick(CClientState* pClientState, SVC_ServerTick* pServerTick)
+bool CClientState::VProcessServerTick(CClientState* thisptr, SVC_ServerTick* msg)
 {
-    if (pServerTick->m_NetTick.m_nCommandTick != -1)
+    if (msg->m_NetTick.m_nCommandTick != -1)
     {
-        return CClientState__ProcessServerTick(pClientState, pServerTick);
+        return CClientState__ProcessServerTick(thisptr, msg);
     }
     else // Statistics only.
     {
-        char* pShifted = reinterpret_cast<char*>(pClientState) - 0x10; // Shifted due to compiler optimizations.
-        CClientState* pClient_Adj = reinterpret_cast<CClientState*>(pShifted);
+        CClientState* const thisptr_ADJ = thisptr->GetShiftedBasePointer();
 
-        CNetChan* pChan = pClient_Adj->m_NetChannel;
-        pChan->SetRemoteFramerate(pServerTick->m_NetTick.m_flHostFrameTime, pServerTick->m_NetTick.m_flHostFrameTimeStdDeviation);
-        pChan->SetRemoteCPUStatistics(pServerTick->m_NetTick.m_nServerCPU);
+        CNetChan* const pChan = thisptr_ADJ->m_NetChannel;
+        pChan->SetRemoteFramerate(msg->m_NetTick.m_flHostFrameTime, msg->m_NetTick.m_flHostFrameTimeStdDeviation);
+        pChan->SetRemoteCPUStatistics(msg->m_NetTick.m_nServerCPU);
 
         return true;
     }
+}
+
+bool CClientState::_ProcessStringCmd(CClientState* thisptr, NET_StringCmd* msg)
+{
+    CClientState* const thisptr_ADJ = thisptr->GetShiftedBasePointer();
+
+    if (thisptr_ADJ->m_bRestrictServerCommands
+#ifndef CLIENT_DLLInternalProcessStringCmd
+        && !g_pServer->IsActive()
+#endif // !CLIENT_DLL
+        )
+    {
+        CCommand args;
+        args.Tokenize(msg->cmd, cmd_source_t::kCommandSrcInvalid);
+
+        if (args.ArgC() > 0)
+        {
+            if (!Cbuf_AddTextWithMarkers(msg->cmd,
+                eCmdExecutionMarker_Enable_FCVAR_SERVER_CAN_EXECUTE,
+                eCmdExecutionMarker_Disable_FCVAR_SERVER_CAN_EXECUTE))
+            {
+                DevWarning(eDLL_T::CLIENT, "%s: No room for %i execution markers; command \"%s\" ignored\n",
+                    __FUNCTION__, 2, msg->cmd);
+            }
+
+            return true;
+        }
+    }
+    else
+    {
+        Cbuf_AddText(Cbuf_GetCurrentPlayer(), msg->cmd, cmd_source_t::kCommandSrcCode);
+    }
+
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -251,6 +288,7 @@ void CClientState::VConnect(CClientState* thisptr, connectparams_t* connectParam
 void VClientState::Attach() const
 {
     DetourAttach(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing);
+    DetourAttach(&CClientState__ProcessStringCmd, &CClientState::_ProcessStringCmd);
     DetourAttach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
     DetourAttach(&CClientState__Connect, &CClientState::VConnect);
 }
@@ -258,6 +296,7 @@ void VClientState::Attach() const
 void VClientState::Detach() const
 {
     DetourDetach(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing);
+    DetourDetach(&CClientState__ProcessStringCmd, &CClientState::_ProcessStringCmd);
     DetourDetach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
     DetourDetach(&CClientState__Connect, &CClientState::VConnect);
 }
