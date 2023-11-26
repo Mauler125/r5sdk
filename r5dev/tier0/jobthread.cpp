@@ -24,12 +24,7 @@ void* HJT_HelpWithAnything(bool bShouldLoadPak)
 	return results;
 }
 
-void JT_Attach()
+void VJobThread::Detour(const bool bAttach) const
 {
-	//DetourAttach((LPVOID*)&JT_HelpWithAnything, &HJT_HelpWithAnything);
-}
-
-void JT_Detach()
-{
-	//DetourDetach((LPVOID*)&JT_HelpWithAnything, &HJT_HelpWithAnything);
+	//DetourSetup(&JT_HelpWithAnything, &HJT_HelpWithAnything, bAttach);
 }

@@ -77,12 +77,7 @@ int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from)
 }
 
 //-----------------------------------------------------------------------------
-void VUserCmd::Attach() const
+void VUserCmd::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_ReadUserCmd, &ReadUserCmd);
-}
-
-void VUserCmd::Detach() const
-{
-	DetourDetach(&v_ReadUserCmd, &ReadUserCmd);
+	DetourSetup(&v_ReadUserCmd, &ReadUserCmd, bAttach);
 }

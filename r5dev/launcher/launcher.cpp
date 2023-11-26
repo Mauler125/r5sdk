@@ -79,19 +79,11 @@ LONG WINAPI TopLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers)
 	return v_TopLevelExceptionFilter(pExceptionPointers);
 }
 
-void VLauncher::Attach(void) const
+void VLauncher::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_LauncherMain, &LauncherMain);
-	DetourAttach((LPVOID*)&v_TopLevelExceptionFilter, &TopLevelExceptionFilter);
+	DetourSetup(&v_LauncherMain, &LauncherMain, bAttach);
+	DetourSetup(&v_TopLevelExceptionFilter, &TopLevelExceptionFilter, bAttach);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-	DetourAttach((LPVOID*)&v_RemoveSpuriousGameParameters, &RemoveSpuriousGameParameters);
-#endif
-}
-void VLauncher::Detach(void) const
-{
-	DetourDetach((LPVOID*)&v_LauncherMain, &LauncherMain);
-	DetourDetach((LPVOID*)&v_TopLevelExceptionFilter, &TopLevelExceptionFilter);
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-	DetourDetach((LPVOID*)&v_RemoveSpuriousGameParameters, &RemoveSpuriousGameParameters);
+	DetourSetup(&v_RemoveSpuriousGameParameters, &RemoveSpuriousGameParameters, bAttach);
 #endif
 }

@@ -15,14 +15,9 @@ bool CVEngineServer::PersistenceAvailable(void* entidx, int clientidx)
 	return IVEngineServer__PersistenceAvailable(entidx, clientidx);
 }
 
-void HVEngineServer::Attach() const
+void HVEngineServer::Detour(const bool bAttach) const
 {
-	DetourAttach(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
-}
-
-void HVEngineServer::Detach() const
-{
-	DetourDetach(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
+	DetourSetup(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

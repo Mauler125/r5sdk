@@ -98,7 +98,6 @@ class V_RTechUtils : public IDetour
 		g_bPakFifoLockAcquired = p_JT_HelpWithAnything.Offset(0x50).FindPatternSelf("C6 05").ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

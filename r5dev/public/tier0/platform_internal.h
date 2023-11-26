@@ -50,8 +50,7 @@ class VPlatform : public IDetour
 		g_flErrorTimeStamp = g_GameDll.FindPatternSIMD("0F 57 C0 F2 0F 11 05 ?? ?? ?? ?? C3").FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

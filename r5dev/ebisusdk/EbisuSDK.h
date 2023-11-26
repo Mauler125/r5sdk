@@ -61,7 +61,6 @@ class VEbisuSDK : public IDetour
 		g_EbisuSDKInit = p_EbisuSDK_Tier0_Init.Offset(0x0).FindPatternSelf("80 3D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

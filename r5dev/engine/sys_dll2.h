@@ -132,7 +132,6 @@ class VSys_Dll2 : public IDetour
 		g_szMTVFItemName = p_ResetMTVFTaskItem.FindPattern("C6 05", CMemory::Direction::DOWN, 250).ResolveRelativeAddressSelf(0x2, 0x7).RCast<char*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -300,12 +300,7 @@ void DrawAllOverlays(bool bRender)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VDebugOverlay::Attach() const
+void VDebugOverlay::Detour(const bool bAttach) const
 {
-    DetourAttach(&v_DrawAllOverlays, &DrawAllOverlays);
-}
-
-void VDebugOverlay::Detach() const
-{
-    DetourDetach(&v_DrawAllOverlays, &DrawAllOverlays);
+    DetourSetup(&v_DrawAllOverlays, &DrawAllOverlays, bAttach);
 }

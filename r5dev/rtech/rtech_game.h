@@ -118,7 +118,6 @@ class V_RTechGame : public IDetour
 	{
 		p_Pak_OpenFileOffset = g_GameDll.FindPatternSIMD("48 89 7C 24 30 C7 44 24 28 ?? ?? ?? 40");
 	}
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

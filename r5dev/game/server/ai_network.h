@@ -90,7 +90,6 @@ class VAI_Network : public IDetour
 		g_pAINetwork = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 63 91 ?? ?? ?? ??").FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_Network**>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

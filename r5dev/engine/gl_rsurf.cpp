@@ -32,16 +32,9 @@ void* R_DrawWorldMeshesDepthAtTheEnd(void* ptr1, void* ptr2, void* ptr3, DrawWor
 		return nullptr;
 }
 
-void VGL_RSurf::Attach() const
+void VGL_RSurf::Detour(const bool bAttach) const
 {
-	DetourAttach(&V_DrawWorldMeshes, &R_DrawWorldMeshes);
-	DetourAttach(&V_DrawWorldMeshesDepthOnly, &R_DrawWorldMeshesDepthOnly);
-	DetourAttach(&V_DrawWorldMeshesDepthAtTheEnd, &R_DrawWorldMeshesDepthAtTheEnd);
-}
-
-void VGL_RSurf::Detach() const
-{
-	DetourDetach(&V_DrawWorldMeshes, &R_DrawWorldMeshes);
-	DetourDetach(&V_DrawWorldMeshesDepthOnly, &R_DrawWorldMeshesDepthOnly);
-	DetourDetach(&V_DrawWorldMeshesDepthAtTheEnd, &R_DrawWorldMeshesDepthAtTheEnd);
+	DetourSetup(&V_DrawWorldMeshes, &R_DrawWorldMeshes, bAttach);
+	DetourSetup(&V_DrawWorldMeshesDepthOnly, &R_DrawWorldMeshesDepthOnly, bAttach);
+	DetourSetup(&V_DrawWorldMeshesDepthAtTheEnd, &R_DrawWorldMeshesDepthAtTheEnd, bAttach);
 }

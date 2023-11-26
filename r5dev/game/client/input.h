@@ -39,8 +39,7 @@ class VInput : public IDetour
 	{
 		g_pInput_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCInput@@").RCast<IInput*>();
 	}
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

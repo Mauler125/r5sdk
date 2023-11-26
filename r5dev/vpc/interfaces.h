@@ -81,7 +81,6 @@ class VFactory : public IDetour
 			.FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<InterfaceReg**>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

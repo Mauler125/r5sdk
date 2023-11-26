@@ -10,15 +10,9 @@ bool Persistence_SetXP(int a1, int* a2)
 }
 #endif
 
-void VPersistence::Attach() const
+void VPersistence::Detour(const bool bAttach) const
 {
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	DetourAttach((LPVOID*)&v_Persistence_SetXP, &Persistence_SetXP);
-#endif
-}
-void VPersistence::Detach() const
-{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	DetourDetach((LPVOID*)&v_Persistence_SetXP, &Persistence_SetXP);
+	Setup(&v_Persistence_SetXP, &Persistence_SetXP, bAttach);
 #endif
 }

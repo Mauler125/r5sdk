@@ -173,7 +173,6 @@ class VAI_NetworkManager : public IDetour
 			.FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_TraverseNode>*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -284,8 +284,7 @@ class VConVar : public IDetour
 		g_pConVarVBTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 0).RCast<ConVar*>();
 		g_pConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 1).RCast<IConVar*>();
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

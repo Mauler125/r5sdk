@@ -94,7 +94,6 @@ class VMaterialGlue : public IDetour
 	{
 		g_pMaterialGlueVFTable = g_GameDll.GetVirtualMethodTable(".?AVCMaterialGlue@@");
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -13,14 +13,11 @@ public:
 	virtual void GetVar(void) const = 0;
 	virtual void GetCon(void) const = 0;
 
-	virtual void Attach(void) const = 0;
-	virtual void Detach(void) const = 0;
-
-	//virtual void Detour(const bool bAttach) const = 0;
+	virtual void Detour(const bool bAttach) const = 0;
 	template<
 		typename T,
 		typename std::enable_if<DetoursIsFunctionPointer<T>::value, int>::type = 0>
-	LONG Setup(_Inout_ T* ppPointer, _In_ T pDetour, const bool bAttach) const
+	LONG DetourSetup(_Inout_ T* ppPointer, _In_ T pDetour, const bool bAttach) const
 	{
 		if (bAttach)
 			return DetourAttach(ppPointer, pDetour);

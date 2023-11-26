@@ -9,8 +9,8 @@ public:
 	//--------------------------------------------------------
 	static void Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* fmt, ...);
 	static bool VCheckDisk(const char* pszFilePath);
-	static FileHandle_t VReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, char* pszFilePath);
-	static bool VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, FileSystemCache* pCache);
+	static FileHandle_t VReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, const char* pszFilePath);
+	static bool VReadFromCache(CBaseFileSystem* pFileSystem, const char* pszFilePath, FileSystemCache* pCache);
 	static void VAddMapPackFile(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType);
 	static VPKData_t* VMountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 	static const char* VUnmountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
@@ -104,7 +104,6 @@ class VBaseFileSystem : public IDetour
 			.FindPattern("48 89", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseFileSystem*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

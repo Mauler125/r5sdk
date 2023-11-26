@@ -12,8 +12,8 @@
 class CSquirrelVM
 {
 public:
-	static SQBool Init(CSquirrelVM* s, SQCONTEXT context, float curtime);
-	static SQBool DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
+	static bool Init(CSquirrelVM* s, SQCONTEXT context, float curtime);
+	static bool DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
 
 	void CompileModScripts();
 	void SetAsCompiler(RSON::Node_t* rson);
@@ -56,7 +56,7 @@ inline CMemory p_CSquirrelVM_Init;
 inline bool(*v_CSquirrelVM_Init)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime);
 
 inline CMemory p_CSquirrelVM_DestroySignalEntryListHead;
-inline SQBool(*v_CSquirrelVM_DestroySignalEntryListHead)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
+inline bool(*v_CSquirrelVM_DestroySignalEntryListHead)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
 
 inline CMemory p_CSquirrelVM_RegisterFunction;
 inline SQRESULT(*v_CSquirrelVM_RegisterFunction)(CSquirrelVM* s, ScriptFunctionBinding_t* binding, SQInteger a1);
@@ -107,7 +107,7 @@ class VSquirrel : public IDetour
 		v_CSquirrelVM_Init = p_CSquirrelVM_Init.RCast<bool(*)(CSquirrelVM*, SQCONTEXT, SQFloat)>();
 
 		p_CSquirrelVM_DestroySignalEntryListHead = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42");
-		v_CSquirrelVM_DestroySignalEntryListHead = p_CSquirrelVM_DestroySignalEntryListHead.RCast<SQBool(*)(CSquirrelVM*, HSQUIRRELVM, SQFloat)>();
+		v_CSquirrelVM_DestroySignalEntryListHead = p_CSquirrelVM_DestroySignalEntryListHead.RCast<bool(*)(CSquirrelVM*, HSQUIRRELVM, SQFloat)>();
 
 		p_CSquirrelVM_RegisterConstant = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 4C 8B");
 		v_CSquirrelVM_RegisterConstant = p_CSquirrelVM_RegisterConstant.RCast<SQRESULT(*)(CSquirrelVM*, const SQChar*, SQInteger)>();
@@ -129,8 +129,7 @@ class VSquirrel : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 
 #endif // VSQUIRREL_H

@@ -82,8 +82,7 @@ class VGame : public IDetour
 		g_pGame = p_CGame__AttachToWindow.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGame*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

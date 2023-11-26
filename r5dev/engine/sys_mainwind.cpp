@@ -118,14 +118,8 @@ void CGame::GetWindowRect(int* x, int* y, int* w, int* h)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VGame::Attach() const
+void VGame::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos);
-	DetourAttach(&v_CGame__WindowProc, &CGame::WindowProc);
-}
-
-void VGame::Detach() const
-{
-	DetourDetach(&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos);
-	DetourDetach(&v_CGame__WindowProc, &CGame::WindowProc);
+	DetourSetup(&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos, bAttach);
+	DetourSetup(&v_CGame__WindowProc, &CGame::WindowProc, bAttach);
 }

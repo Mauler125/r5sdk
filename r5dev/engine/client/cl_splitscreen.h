@@ -146,8 +146,7 @@ class VSplitScreen : public IDetour
 		g_pSplitScreenMgr = g_GameDll.FindPatternSIMD(pszPattern).FindPatternSelf(pszInstruction).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CSplitScreen*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { };
-	virtual void Detach(void) const { };
+	virtual void Detour(const bool bAttach) const { };
 };
 
 #endif // CL_SPLITSCREEN_H

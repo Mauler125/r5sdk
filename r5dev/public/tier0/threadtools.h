@@ -351,8 +351,7 @@ class VThreadTools : public IDetour
 		g_ThreadServerFrameThreadID = g_GameDll.FindPatternSIMD("83 79 ?? ?? 75 28 8B").FindPatternSelf("8B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool /*bAttach*/) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

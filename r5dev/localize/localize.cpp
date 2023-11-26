@@ -41,12 +41,7 @@ bool Localize_IsLanguageSupported(const char* pLocaleName)
 	return false;
 }
 
-void VLocalize::Attach() const
+void VLocalize::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists);
-}
-
-void VLocalize::Detach() const
-{
-	DetourDetach((LPVOID*)&v_CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists);
+	DetourSetup(&v_CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists, bAttach);
 }

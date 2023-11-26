@@ -19,8 +19,6 @@ inline bool(*JT_AcquireFifoLock)(struct JobFifoLock_s* pFifo);
 inline CMemory p_JT_ReleaseFifoLock;
 inline void(*JT_ReleaseFifoLock)(struct JobFifoLock_s* pFifo);
 
-void JT_Attach();
-void JT_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VJobThread : public IDetour
 {
@@ -50,8 +48,7 @@ class VJobThread : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -586,27 +586,15 @@ LABEL_45:
     return memoryData->m_patchSrcSize == 0;
 }*/
 
-void V_RTechGame::Attach() const
+void V_RTechGame::Detour(const bool bAttach) const
 {
-    DetourAttach(&v_Pak_OpenFile, &Pak_OpenFile);
+    DetourSetup(&v_Pak_OpenFile, &Pak_OpenFile, bAttach);
 
-	DetourAttach(&v_Pak_LoadAsync, &Pak_LoadAsync);
-	DetourAttach(&v_Pak_UnloadPak, &Pak_UnloadPak);
+	DetourSetup(&v_Pak_LoadAsync, &Pak_LoadAsync, bAttach);
+	DetourSetup(&v_Pak_UnloadPak, &Pak_UnloadPak, bAttach);
 
 #ifdef GAMEDLL_S3
-    //DetourAttach(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
-#endif
-}
-
-void V_RTechGame::Detach() const
-{
-    DetourDetach(&v_Pak_OpenFile, &Pak_OpenFile);
-
-	DetourDetach(&v_Pak_LoadAsync, &Pak_LoadAsync);
-	DetourDetach(&v_Pak_UnloadPak, &Pak_UnloadPak);
-
-#ifdef GAMEDLL_S3
-    //DetourDetach(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
+    //DetourSetup(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset, bAttach);
 #endif
 }
 

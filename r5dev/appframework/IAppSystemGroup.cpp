@@ -66,11 +66,7 @@ void* CAppSystemGroup::FindSystem(const char* pSystemName)
 	return NULL;
 }
 
-void VAppSystemGroup::Attach(void) const
+void VAppSystemGroup::Detour(const bool bAttach) const
 {
-	DetourAttach(&CAppSystemGroup_Destroy, &CAppSystemGroup::StaticDestroy);
-}
-void VAppSystemGroup::Detach(void) const
-{
-	DetourDetach(&CAppSystemGroup_Destroy, &CAppSystemGroup::StaticDestroy);
+	DetourSetup(&CAppSystemGroup_Destroy, &CAppSystemGroup::StaticDestroy, bAttach);
 }

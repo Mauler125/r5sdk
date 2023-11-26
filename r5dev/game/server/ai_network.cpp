@@ -154,12 +154,7 @@ CAI_NodeLink* CAI_Network::CreateNodeLink(int srcID, int destID)
 }
 
 //-----------------------------------------------------------------------------
-void VAI_Network::Attach() const
+void VAI_Network::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);
-}
-
-void VAI_Network::Detach() const
-{
-	DetourDetach(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);
+	DetourSetup(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg, bAttach);
 }

@@ -198,9 +198,9 @@ void Systems_Init()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Hook functions
-	for (const IDetour* Detour : g_DetourVec)
+	for (const IDetour* pd : g_DetourVec)
 	{
-		Detour->Attach();
+		pd->Detour(true);
 	}
 
 	// Patch instructions
@@ -266,9 +266,9 @@ void Systems_Shutdown()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Unhook functions
-	for (const IDetour* Detour : g_DetourVec)
+	for (const IDetour* pd : g_DetourVec)
 	{
-		Detour->Detach();
+		pd->Detour(false);
 	}
 
 	// Commit the transaction
@@ -408,11 +408,11 @@ void DetourInit() // Run the sigscan
 	// No debug logging in non dev builds.
 	const bool bDevMode = !IsCert() && !IsRetail();
 
-	for (const IDetour* Detour : g_DetourVec)
+	for (const IDetour* pd : g_DetourVec)
 	{
-		Detour->GetCon(); // Constants.
-		Detour->GetFun(); // Functions.
-		Detour->GetVar(); // Variables.
+		pd->GetCon(); // Constants.
+		pd->GetFun(); // Functions.
+		pd->GetVar(); // Variables.
 
 		if (bDevMode && bLogAdr)
 		{
@@ -421,7 +421,7 @@ void DetourInit() // Run the sigscan
 				bInitDivider = true;
 				spdlog::debug("+---------------------------------------------------------------------+\n");
 			}
-			Detour->GetAdr();
+			pd->GetAdr();
 			spdlog::debug("+---------------------------------------------------------------------+\n");
 		}
 	}
@@ -438,9 +438,9 @@ void DetourInit() // Run the sigscan
 void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+---------------------------------------------------------------------+\n");
-	for (const IDetour* Detour : g_DetourVec)
+	for (const IDetour* pd : g_DetourVec)
 	{
-		Detour->GetAdr();
+		pd->GetAdr();
 		spdlog::debug("+---------------------------------------------------------------------+\n");
 	}
 }

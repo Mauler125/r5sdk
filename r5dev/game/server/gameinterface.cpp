@@ -169,22 +169,13 @@ void RunFrameServer(double flFrameTime, bool bRunOverlays, bool bUniformUpdate)
 	v_RunFrameServer(flFrameTime, bRunOverlays, bUniformUpdate);
 }
 
-void VServerGameDLL::Attach() const
+void VServerGameDLL::Detour(const bool bAttach) const
 {
 #if defined(GAMEDLL_S3)
-	DetourAttach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
-	DetourAttach(&v_CServerGameClients__ProcessUserCmds, CServerGameClients::ProcessUserCmds);
+	DetourSetup(&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage, bAttach);
+	DetourSetup(&v_CServerGameClients__ProcessUserCmds, CServerGameClients::ProcessUserCmds, bAttach);
 #endif
-	DetourAttach(&v_RunFrameServer, &RunFrameServer);
-}
-
-void VServerGameDLL::Detach() const
-{
-#if defined(GAMEDLL_S3)
-	DetourDetach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
-	DetourDetach(&v_CServerGameClients__ProcessUserCmds, CServerGameClients::ProcessUserCmds);
-#endif
-	DetourDetach(&v_RunFrameServer, &RunFrameServer);
+	DetourSetup(&v_RunFrameServer, &RunFrameServer, bAttach);
 }
 
 CServerGameDLL* g_pServerGameDLL = nullptr;

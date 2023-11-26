@@ -85,23 +85,13 @@ class HSV_Main : public IDetour
 	}
 	virtual void GetCon(void) const { }
 	///////////////////////////////////////////////////////////////////////////////
-	virtual void Attach(void) const
+	virtual void Detour(const bool bAttach) const
 	{
-		//DetourAttach(&v_SV_InitGameDLL, SV_InitGameDLL);
-		//DetourAttach(&v_SV_ShutdownGameDLL, SV_ShutdownGameDLL);
-		//DetourAttach(&v_SV_ActivateServer, SV_ActivateServer);
+		//DetourSetup(&v_SV_InitGameDLL, SV_InitGameDLL, bAttach);
+		//DetourSetup(&v_SV_ShutdownGameDLL, SV_ShutdownGameDLL, bAttach);
+		//DetourSetup(&v_SV_ActivateServer, SV_ActivateServer, bAttach);
 #ifndef CLIENT_DLL
-		DetourAttach(&v_SV_BroadcastVoiceData, SV_BroadcastVoiceData);
-#endif // !CLIENT_DLL
-	}
-
-	virtual void Detach(void) const
-	{
-		//DetourDetach(&v_SV_InitGameDLL, SV_InitGameDLL);
-		//DetourDetach(&v_SV_ShutdownGameDLL, SV_ShutdownGameDLL);
-		//DetourDetach(&v_SV_ActivateServer, SV_ActivateServer);
-#ifndef CLIENT_DLL
-		DetourDetach(&v_SV_BroadcastVoiceData, SV_BroadcastVoiceData);
+		DetourSetup(&v_SV_BroadcastVoiceData, SV_BroadcastVoiceData, bAttach);
 #endif // !CLIENT_DLL
 	}
 };

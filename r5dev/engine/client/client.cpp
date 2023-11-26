@@ -292,7 +292,7 @@ void CClient::VActivatePlayer(CClient* pClient)
 //			bForceReliable - 
 //			bVoice - 
 //---------------------------------------------------------------------------------
-bool CClient::SendNetMsgEx(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
+bool CClient::SendNetMsgEx(CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice)
 {
 	if (!ShouldReplayMessage(pMsg))
 	{
@@ -323,7 +323,7 @@ void* CClient::VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, 
 //			bForceReliable - 
 //			bVoice - 
 //---------------------------------------------------------------------------------
-bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice)
+bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice)
 {
 	return pClient->SendNetMsgEx(pMsg, bLocal, bForceReliable, bVoice);
 }
@@ -477,29 +477,16 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 	return true;
 }
 
-void VClient::Attach(void) const
+void VClient::Detour(const bool bAttach) const
 {
 #ifndef CLIENT_DLL
-	DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
-	DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
-	DetourAttach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
-	DetourAttach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
-	//DetourAttach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
+	DetourSetup(&v_CClient_Clear, &CClient::VClear, bAttach);
+	DetourSetup(&v_CClient_Connect, &CClient::VConnect, bAttach);
+	DetourSetup(&v_CClient_ActivatePlayer, &CClient::VActivatePlayer, bAttach);
+	DetourSetup(&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx, bAttach);
+	//DetourSetup(&p_CClient_SendSnapshot, &CClient::VSendSnapshot, bAttach);
 
-	DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
-	DetourAttach((LPVOID*)&v_CClient_ProcessSetConVar, &CClient::VProcessSetConVar);
-#endif // !CLIENT_DLL
-}
-void VClient::Detach(void) const
-{
-#ifndef CLIENT_DLL
-	DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
-	DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
-	DetourDetach((LPVOID*)&v_CClient_ActivatePlayer, &CClient::VActivatePlayer);
-	DetourDetach((LPVOID*)&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx);
-	//DetourDetach((LPVOID*)&p_CClient_SendSnapshot, &CClient::VSendSnapshot);
-
-	DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
-	DetourDetach((LPVOID*)&v_CClient_ProcessSetConVar, &CClient::VProcessSetConVar);
+	DetourSetup(&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd, bAttach);
+	DetourSetup(&v_CClient_ProcessSetConVar, &CClient::VProcessSetConVar, bAttach);
 #endif // !CLIENT_DLL
 }

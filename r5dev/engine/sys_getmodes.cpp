@@ -17,12 +17,7 @@ bool HCVideoMode_Common__CreateGameWindow(int* pnRect)
 	return CVideoMode_Common__CreateGameWindow(pnRect);
 }
 
-void HVideoMode_Common::Attach() const
+void HVideoMode_Common::Detour(const bool bAttach) const
 {
-	DetourAttach(&CVideoMode_Common__CreateGameWindow, &HCVideoMode_Common__CreateGameWindow);
-}
-
-void HVideoMode_Common::Detach() const
-{
-	DetourDetach(&CVideoMode_Common__CreateGameWindow, &HCVideoMode_Common__CreateGameWindow);
+	DetourSetup(&CVideoMode_Common__CreateGameWindow, &HCVideoMode_Common__CreateGameWindow, bAttach);
 }

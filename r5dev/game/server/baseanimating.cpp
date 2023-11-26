@@ -81,10 +81,3 @@ CStudioHdr* CBaseAnimating::GetModelPtr(void)
 	}
 	return (m_pStudioHdr && m_pStudioHdr->IsValid()) ? m_pStudioHdr : nullptr;
 }
-
-void BaseAnimating_Attach()
-{
-}
-void BaseAnimating_Detach()
-{
-}

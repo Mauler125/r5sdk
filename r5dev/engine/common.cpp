@@ -90,12 +90,7 @@ void COM_ExplainDisconnection(bool bPrint, const char* fmt, ...)
 	v_COM_ExplainDisconnection(bPrint, szBuf);
 }
 
-void VCommon::Attach() const
+void VCommon::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_COM_ExplainDisconnection, COM_ExplainDisconnection);
-}
-
-void VCommon::Detach() const
-{
-	DetourDetach(&v_COM_ExplainDisconnection, COM_ExplainDisconnection);
+	DetourSetup(&v_COM_ExplainDisconnection, COM_ExplainDisconnection, bAttach);
 }

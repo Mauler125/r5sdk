@@ -46,7 +46,6 @@ class VLocalize : public IDetour
 		g_ppLocalize = g_ppVGuiLocalize; // these are set to the same thing in CSourceAppSystemGroup::Create
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

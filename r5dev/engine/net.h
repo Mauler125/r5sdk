@@ -35,10 +35,10 @@ inline CMemory p_NET_SendDatagram;
 inline int(*v_NET_SendDatagram)(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypted);
 
 inline CMemory p_NET_Decompress;
-inline int(*v_NET_Decompress)(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize);
+inline unsigned int(*v_NET_Decompress)(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize);
 
 inline CMemory p_NET_PrintFunc;
-inline void(*v_NET_PrintFunc)(const char* fmt);
+inline void(*v_NET_PrintFunc)(const char* fmt, ...);
 
 ///////////////////////////////////////////////////////////////////////////////
 bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bRaw);
@@ -91,8 +91,8 @@ class VNet : public IDetour
 		v_NET_SetKey          = p_NET_SetKey.RCast<void (*)(netkey_t*, const char*)>();                     /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 41 B8*/
 		v_NET_ReceiveDatagram = p_NET_ReceiveDatagram.RCast<bool (*)(int, netpacket_s*, bool)>();           /*E8 ?? ?? ?? ?? 84 C0 75 35 48 8B D3*/
 		v_NET_SendDatagram    = p_NET_SendDatagram.RCast<int (*)(SOCKET, void*, int, netadr_t*, bool)>();   /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 00 00*/
-		v_NET_Decompress      = p_NET_Decompress.RCast<int (*)(CLZSS*, unsigned char*, unsigned char*, unsigned int)>();
-		v_NET_PrintFunc       = p_NET_PrintFunc.RCast<void(*)(const char*)>();                              /*48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 C3 48*/
+		v_NET_Decompress      = p_NET_Decompress.RCast<unsigned int (*)(CLZSS*, unsigned char*, unsigned char*, unsigned int)>();
+		v_NET_PrintFunc       = p_NET_PrintFunc.RCast<void(*)(const char*, ...)>();                         /*48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 C3 48*/
 	}
 	virtual void GetVar(void) const
 	{
@@ -101,8 +101,7 @@ class VNet : public IDetour
 		g_pNetTime = p_NET_Init.Offset(0xA).FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 #endif // !NETCONSOLE

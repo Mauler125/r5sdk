@@ -58,8 +58,7 @@ class VFileSystem_Stdio : public IDetour
 			.FindPattern("48 89", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CFileSystem_Stdio*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

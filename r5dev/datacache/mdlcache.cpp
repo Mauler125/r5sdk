@@ -309,28 +309,15 @@ bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
     return !p.second;
 }
 
-void VMDLCache::Attach() const
+void VMDLCache::Detour(const bool bAttach) const
 {
-    DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
+    DetourSetup(&v_CMDLCache__FindMDL, &CMDLCache::FindMDL, bAttach);
 #ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!
-    DetourAttach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
-    DetourAttach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
+    DetourSetup(&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL, bAttach);
+    DetourSetup(&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL, bAttach);
 #endif // GAMEDLL_S3
 #ifdef GAMEDLL_S3 // !TODO:
-    DetourAttach((LPVOID*)&v_CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData);
-    DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
-#endif
-}
-
-void VMDLCache::Detach() const
-{
-    DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
-#ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!
-    DetourDetach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
-    DetourDetach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
-#endif // GAMEDLL_S3
-#ifdef GAMEDLL_S3 // !TODO:
-    DetourDetach((LPVOID*)&v_CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData);
-    DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
+    DetourSetup(&v_CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData, bAttach);
+    DetourSetup(&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR, bAttach);
 #endif
 }

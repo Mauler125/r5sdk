@@ -438,17 +438,10 @@ void VDXGI::GetVar(void) const
 	g_ppSwapChain = pBase.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<IDXGISwapChain**>();
 }
 
-void VDXGI::Attach(void) const
+void VDXGI::Detour(const bool bAttach) const
 {
 #ifdef GAMEDLL_S3
-	DetourAttach(&v_CreateTextureResource, &CreateTextureResource);
-#endif // GAMEDLL_S3
-}
-
-void VDXGI::Detach(void) const
-{
-#ifdef GAMEDLL_S3
-	DetourDetach(&v_CreateTextureResource, &CreateTextureResource);
+	DetourSetup(&v_CreateTextureResource, &CreateTextureResource, bAttach);
 #endif // GAMEDLL_S3
 }
 

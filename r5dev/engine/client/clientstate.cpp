@@ -173,7 +173,7 @@ bool CClientState::_ProcessStringCmd(CClientState* thisptr, NET_StringCmd* msg)
     CClientState* const thisptr_ADJ = thisptr->GetShiftedBasePointer();
 
     if (thisptr_ADJ->m_bRestrictServerCommands
-#ifndef CLIENT_DLLInternalProcessStringCmd
+#ifndef CLIENT_DLL
         && !g_pServer->IsActive()
 #endif // !CLIENT_DLL
         )
@@ -285,20 +285,12 @@ void CClientState::VConnect(CClientState* thisptr, connectparams_t* connectParam
     CClientState__Connect(thisptr, connectParams);
 }
 
-void VClientState::Attach() const
+void VClientState::Detour(const bool bAttach) const
 {
-    DetourAttach(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing);
-    DetourAttach(&CClientState__ProcessStringCmd, &CClientState::_ProcessStringCmd);
-    DetourAttach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
-    DetourAttach(&CClientState__Connect, &CClientState::VConnect);
-}
-
-void VClientState::Detach() const
-{
-    DetourDetach(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing);
-    DetourDetach(&CClientState__ProcessStringCmd, &CClientState::_ProcessStringCmd);
-    DetourDetach(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick);
-    DetourDetach(&CClientState__Connect, &CClientState::VConnect);
+    DetourSetup(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing, bAttach);
+    DetourSetup(&CClientState__ProcessStringCmd, &CClientState::_ProcessStringCmd, bAttach);
+    DetourSetup(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick, bAttach);
+    DetourSetup(&CClientState__Connect, &CClientState::VConnect, bAttach);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

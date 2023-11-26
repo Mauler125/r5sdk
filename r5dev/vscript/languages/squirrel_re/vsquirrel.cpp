@@ -24,7 +24,7 @@ void(*ScriptConstantRegister_Callback)(CSquirrelVM* s) = nullptr;
 // Purpose: Initialises a Squirrel VM instance
 // Output : True on success, false on failure
 //---------------------------------------------------------------------------------
-SQBool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
+bool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
 {
 	// original func always returns true, added check just in case.
 	if (!v_CSquirrelVM_Init(s, context, curTime))
@@ -74,7 +74,7 @@ SQBool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
 //			f - 
 // Output : true on success, false otherwise
 //---------------------------------------------------------------------------------
-SQBool CSquirrelVM::DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f)
+bool CSquirrelVM::DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f)
 {
 	SQBool result = v_CSquirrelVM_DestroySignalEntryListHead(s, v, f);
 	s->RegisterConstant("DEVELOPER", developer->GetInt());
@@ -225,14 +225,8 @@ void CSquirrelVM::CompileModScripts()
 }
 
 //---------------------------------------------------------------------------------
-void VSquirrel::Attach() const
+void VSquirrel::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_CSquirrelVM_Init, &CSquirrelVM::Init);
-	DetourAttach((LPVOID*)&v_CSquirrelVM_DestroySignalEntryListHead, &CSquirrelVM::DestroySignalEntryListHead);
-}
-//---------------------------------------------------------------------------------
-void VSquirrel::Detach() const
-{
-	DetourDetach((LPVOID*)&v_CSquirrelVM_Init, &CSquirrelVM::Init);
-	DetourDetach((LPVOID*)&v_CSquirrelVM_DestroySignalEntryListHead, &CSquirrelVM::DestroySignalEntryListHead);
+	DetourSetup(&v_CSquirrelVM_Init, &CSquirrelVM::Init, bAttach);
+	DetourSetup(&v_CSquirrelVM_DestroySignalEntryListHead, &CSquirrelVM::DestroySignalEntryListHead, bAttach);
 }

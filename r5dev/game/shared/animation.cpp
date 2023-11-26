@@ -19,12 +19,7 @@ int CStudioHdr::LookupSequence(CStudioHdr* pStudio, const char* pszName)
 	return v_CStudioHdr__LookupSequence(pStudio, pszName);
 }
 
-void VAnimation::Attach() const
+void VAnimation::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CStudioHdr__LookupSequence, &CStudioHdr::LookupSequence);
-}
-
-void VAnimation::Detach() const
-{
-	DetourDetach(&v_CStudioHdr__LookupSequence, &CStudioHdr::LookupSequence);
+	DetourSetup(&v_CStudioHdr__LookupSequence, &CStudioHdr::LookupSequence, bAttach);
 }

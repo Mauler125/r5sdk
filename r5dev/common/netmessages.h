@@ -522,8 +522,7 @@ class V_NetMessages : public IDetour
 		g_pCLC_SetPlaylistVarOverride_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCLC_SetPlaylistVarOverride@@");
 		g_pBase_CmdKeyValues_VFTable = g_GameDll.GetVirtualMethodTable(".?AVBase_CmdKeyValues@@");
 	}
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 
