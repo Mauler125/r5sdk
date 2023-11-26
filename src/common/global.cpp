@@ -437,8 +437,8 @@ void ConVar_StaticInit(void)
 
 	cl_onlineAuthEnable          = ConVar::StaticCreate("cl_onlineAuthEnable"         ,"1", FCVAR_RELEASE, "Enables the client-side online authentication system.", true, 0.f, true, 1.f, nullptr, nullptr);
 	cl_onlineAuthToken           = ConVar::StaticCreate("cl_onlineAuthToken"          , "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_onlineAuthTokenSignature1 = ConVar::StaticCreate("cl_onlineAuthTokenSignature1", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token signature.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_onlineAuthTokenSignature2 = ConVar::StaticCreate("cl_onlineAuthTokenSignature2", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token signature.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_onlineAuthTokenSignature1 = ConVar::StaticCreate("cl_onlineAuthTokenSignature1", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token signature.", false, 0.f, false, 0.f, nullptr, "Primary");
+	cl_onlineAuthTokenSignature2 = ConVar::StaticCreate("cl_onlineAuthTokenSignature2", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token signature.", false, 0.f, false, 0.f, nullptr, "Secondary");
 
 	con_drawnotify = ConVar::StaticCreate("con_drawnotify", "0", FCVAR_RELEASE, "Draws the RUI console to the hud.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_notifylines     = ConVar::StaticCreate("con_notifylines"    , "3" , FCVAR_MATERIAL_SYSTEM_THREAD, "Number of console lines to overlay for debugging.", true, 1.f, false, 0.f, nullptr, nullptr);
@@ -728,7 +728,7 @@ void ConCommand_StaticInit(void)
 	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
 #ifndef CLIENT_DLL
-	ConCommand::StaticCreate("script", "Run input code as SERVER script on the VM.", nullptr, FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
+	ConCommand::StaticCreate("script", "Run input code as SERVER script on the VM.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
 	ConCommand::StaticCreate("kick", "Kick a client from the server by user name.", "kick \"<userId>\"", FCVAR_RELEASE, Host_Kick_f, nullptr);
 	ConCommand::StaticCreate("kickid", "Kick a client from the server by handle, nucleus id or ip address.", "kickid \"<handle>\"/\"<nucleusId>/<ipAddress>\"", FCVAR_RELEASE, Host_KickID_f, nullptr);
 	ConCommand::StaticCreate("ban", "Bans a client from the server by user name.", "ban <userId>", FCVAR_RELEASE, Host_Ban_f, nullptr);
@@ -741,7 +741,7 @@ void ConCommand_StaticInit(void)
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
-	ConCommand::StaticCreate("script_client", "Run input code as CLIENT script on the VM.", nullptr, FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_ClientScript_f, nullptr);
+	ConCommand::StaticCreate("script_client", "Run input code as CLIENT script on the VM.", nullptr, FCVAR_DEVELOPMENTONLY| FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_ClientScript_f, nullptr);
 	ConCommand::StaticCreate("rcon", "Forward RCON query to remote server.", "rcon \"<query>\"", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_CmdQuery_f, nullptr);
 	ConCommand::StaticCreate("rcon_disconnect", "Disconnect from RCON server.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_Disconnect_f, nullptr);
 
@@ -754,7 +754,7 @@ void ConCommand_StaticInit(void)
 	ConCommand::StaticCreate("togglebrowser", "Show/hide the server browser.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, ToggleBrowser_f, nullptr);
 	//-------------------------------------------------------------------------
 	// UI DLL                                                                 |
-	ConCommand::StaticCreate("script_ui", "Run input code as UI script on the VM.", nullptr, FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_UIScript_f, nullptr);
+	ConCommand::StaticCreate("script_ui", "Run input code as UI script on the VM.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_UIScript_f, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |
