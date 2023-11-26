@@ -232,20 +232,11 @@ bool CEngineAPI::MainLoop()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VSys_Dll2::Attach() const
+void VSys_Dll2::Detour(const bool bAttach) const
 {
-	DetourAttach(&CEngineAPI_Init, &CEngineAPI::VInit);
-	DetourAttach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
-	DetourAttach(&CEngineAPI_PumpMessages, &CEngineAPI::PumpMessages);
-	DetourAttach(&CEngineAPI_MainLoop, &CEngineAPI::MainLoop);
-	DetourAttach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
-}
-
-void VSys_Dll2::Detach() const
-{
-	DetourDetach(&CEngineAPI_Init, &CEngineAPI::VInit);
-	DetourDetach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
-	DetourDetach(&CEngineAPI_PumpMessages, &CEngineAPI::PumpMessages);
-	DetourDetach(&CEngineAPI_MainLoop, &CEngineAPI::MainLoop);
-	DetourDetach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
+	DetourSetup(&CEngineAPI_Init, &CEngineAPI::VInit, bAttach);
+	DetourSetup(&CEngineAPI_ModInit, &CEngineAPI::VModInit, bAttach);
+	DetourSetup(&CEngineAPI_PumpMessages, &CEngineAPI::PumpMessages, bAttach);
+	DetourSetup(&CEngineAPI_MainLoop, &CEngineAPI::MainLoop, bAttach);
+	DetourSetup(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo, bAttach);
 }

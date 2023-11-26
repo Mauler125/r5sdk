@@ -166,7 +166,6 @@ class VServer : public IDetour
 #endif // !CLIENT_DLL
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

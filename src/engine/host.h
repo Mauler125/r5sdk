@@ -106,7 +106,6 @@ class VHost : public IDetour
 		host_frametime_stddeviation = p_Host_RunFrame.Offset(n_host_frametime_stddeviation_search_offset).FindPatternSelf("F3 0F 11").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

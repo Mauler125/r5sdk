@@ -682,11 +682,7 @@ const char* RTech::PakStatusToString(EPakStatus status)
 		default:                                              return "PAK_STATUS_UNKNOWN";
 	}
 }
-void V_RTechUtils::Attach() const
-{
-}
-
-void V_RTechUtils::Detach() const
+void V_RTechUtils::Detour(const bool bAttach) const
 {
 }
 

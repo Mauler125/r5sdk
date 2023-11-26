@@ -84,8 +84,7 @@ class VCmd : public IDetour
 		g_pExecutionMarkers   = p_Cbuf_AddExecutionMarker.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(3, 7).RCast<CUtlVector<int>*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 
 #endif // CMD_H

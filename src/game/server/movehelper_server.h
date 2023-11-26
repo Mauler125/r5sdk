@@ -43,8 +43,7 @@ class VMoveHelperServer : public IDetour
 		s_MoveHelperServer = pFunc.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMoveHelperServer*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

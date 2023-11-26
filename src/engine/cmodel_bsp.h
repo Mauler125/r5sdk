@@ -89,7 +89,6 @@ class VModel_BSP : public IDetour
 		qword_167ED7BC0 = p_Mod_ProcessPakQueue.Offset(0x200).FindPatternSelf("48 83 3D").ResolveRelativeAddressSelf(0x3, 0x8).RCast<int64_t*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

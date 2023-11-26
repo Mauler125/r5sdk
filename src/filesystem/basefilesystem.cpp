@@ -69,7 +69,7 @@ bool CBaseFileSystem::VCheckDisk(const char* pszFilePath)
 //			*pszFilePath - 
 // Output : handle to file on success, NULL on failure
 //---------------------------------------------------------------------------------
-FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, char* pszFilePath)
+FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, const char* pszFilePath)
 {
 	if (VCheckDisk(pszFilePath))
 	{
@@ -87,7 +87,7 @@ FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHan
 //			*pCache - 
 // Output : true if file exists, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, FileSystemCache* pCache)
+bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, const char* pszFilePath, FileSystemCache* pCache)
 {
 	if (VCheckDisk(pszFilePath))
 	{
@@ -201,23 +201,14 @@ CUtlString CBaseFileSystem::ReadString(FileHandle_t pFile)
 	return result;
 }
 
-void VBaseFileSystem::Attach() const
+void VBaseFileSystem::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
-	DetourAttach((LPVOID*)&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK);
-	DetourAttach((LPVOID*)&v_CBaseFileSystem_LoadFromCache, &CBaseFileSystem::VReadFromCache);
-	DetourAttach((LPVOID*)&v_CBaseFileSystem_AddMapPackFile, &CBaseFileSystem::VAddMapPackFile);
-	DetourAttach((LPVOID*)&v_CBaseFileSystem_MountVPKFile, &CBaseFileSystem::VMountVPKFile);
-	DetourAttach((LPVOID*)&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile);
+	DetourSetup(&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning, bAttach);
+	DetourSetup(&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK, bAttach);
+	DetourSetup(&v_CBaseFileSystem_LoadFromCache, &CBaseFileSystem::VReadFromCache, bAttach);
+	DetourSetup(&v_CBaseFileSystem_AddMapPackFile, &CBaseFileSystem::VAddMapPackFile, bAttach);
+	DetourSetup(&v_CBaseFileSystem_MountVPKFile, &CBaseFileSystem::VMountVPKFile, bAttach);
+	DetourSetup(&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile, bAttach);
 }
 
-void VBaseFileSystem::Detach() const
-{
-	DetourDetach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
-	DetourDetach((LPVOID*)&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK);
-	DetourDetach((LPVOID*)&v_CBaseFileSystem_LoadFromCache, &CBaseFileSystem::VReadFromCache);
-	DetourDetach((LPVOID*)&v_CBaseFileSystem_AddMapPackFile, &CBaseFileSystem::VAddMapPackFile);
-	DetourDetach((LPVOID*)&v_CBaseFileSystem_MountVPKFile, &CBaseFileSystem::VMountVPKFile);
-	DetourDetach((LPVOID*)&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile);
-}
 CBaseFileSystem* g_pFileSystem = nullptr;

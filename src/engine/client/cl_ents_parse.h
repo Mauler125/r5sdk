@@ -19,13 +19,9 @@ class V_CL_Ents_Parse : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const
+	virtual void Detour(const bool bAttach) const
 	{
-		DetourAttach((LPVOID*)&v_CL_CopyExistingEntity, &CL_CopyExistingEntity);
-	}
-	virtual void Detach(void) const
-	{
-		DetourDetach((LPVOID*)&v_CL_CopyExistingEntity, &CL_CopyExistingEntity);
+		DetourSetup(&v_CL_CopyExistingEntity, &CL_CopyExistingEntity, bAttach);
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////

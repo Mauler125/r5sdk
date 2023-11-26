@@ -38,7 +38,6 @@ class VMatSystemSurface : public IDetour
 			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMatSystemSurface*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

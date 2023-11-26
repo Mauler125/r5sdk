@@ -86,32 +86,17 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 	return v_sq_call(v, params, retval, raiseerror);
 }
 
-void VSquirrelAPI::Attach() const
+void VSquirrelAPI::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_sq_pushroottable, &sq_pushroottable);
-	DetourAttach(&v_sq_pushbool, &sq_pushbool);
-	DetourAttach(&v_sq_pushstring, &sq_pushstring);
-	DetourAttach(&v_sq_pushinteger, &sq_pushinteger);
-	DetourAttach(&v_sq_newarray, &sq_newarray);
-	DetourAttach(&v_sq_newtable, &sq_newtable);
-	DetourAttach(&v_sq_newslot, &sq_newslot);
-	DetourAttach(&v_sq_arrayappend, &sq_arrayappend);
-	DetourAttach(&v_sq_pushstructure, &sq_pushstructure);
-	DetourAttach(&v_sq_compilebuffer, &sq_compilebuffer);
-	DetourAttach(&v_sq_call, &sq_call);
-}
-
-void VSquirrelAPI::Detach() const
-{
-	DetourDetach(&v_sq_pushroottable, &sq_pushroottable);
-	DetourDetach(&v_sq_pushbool, &sq_pushbool);
-	DetourDetach(&v_sq_pushstring, &sq_pushstring);
-	DetourDetach(&v_sq_pushinteger, &sq_pushinteger);
-	DetourDetach(&v_sq_newarray, &sq_newarray);
-	DetourDetach(&v_sq_newtable, &sq_newtable);
-	DetourDetach(&v_sq_newslot, &sq_newslot);
-	DetourDetach(&v_sq_arrayappend, &sq_arrayappend);
-	DetourDetach(&v_sq_pushstructure, &sq_pushstructure);
-	DetourDetach(&v_sq_compilebuffer, &sq_compilebuffer);
-	DetourDetach(&v_sq_call, &sq_call);
+	DetourSetup(&v_sq_pushroottable, &sq_pushroottable, bAttach);
+	DetourSetup(&v_sq_pushbool, &sq_pushbool, bAttach);
+	DetourSetup(&v_sq_pushstring, &sq_pushstring, bAttach);
+	DetourSetup(&v_sq_pushinteger, &sq_pushinteger, bAttach);
+	DetourSetup(&v_sq_newarray, &sq_newarray, bAttach);
+	DetourSetup(&v_sq_newtable, &sq_newtable, bAttach);
+	DetourSetup(&v_sq_newslot, &sq_newslot, bAttach);
+	DetourSetup(&v_sq_arrayappend, &sq_arrayappend, bAttach);
+	DetourSetup(&v_sq_pushstructure, &sq_pushstructure, bAttach);
+	DetourSetup(&v_sq_compilebuffer, &sq_compilebuffer, bAttach);
+	DetourSetup(&v_sq_call, &sq_call, bAttach);
 }

@@ -281,7 +281,6 @@ class VClientState : public IDetour
 		g_pClientState_Shifted = reinterpret_cast<CClientState**>(reinterpret_cast<int64_t*>(g_pClientState)+1); // Shift by 8 bytes.
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

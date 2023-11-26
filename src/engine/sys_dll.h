@@ -103,7 +103,6 @@ class VSys_Dll : public IDetour
 		gfExtendedError = p_COM_ExplainDisconnection.Offset(0x0).FindPatternSelf("C6 05", CMemory::Direction::DOWN, 300).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

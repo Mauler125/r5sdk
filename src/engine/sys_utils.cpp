@@ -26,7 +26,7 @@
 //			... - 
 // Output : void _Error
 //-----------------------------------------------------------------------------
-void _Error(char* fmt, ...)
+void _Error(const char* fmt, ...)
 {
 	char buf[4096];
 	bool shouldNewline = true;
@@ -53,7 +53,7 @@ void _Error(char* fmt, ...)
 //			*error - ... - 
 // Output : void* _Warning
 //-----------------------------------------------------------------------------
-void _Warning(int level, char* fmt, ...)
+void _Warning(int level, const char* fmt, ...)
 {
 	char buf[10000];
 	bool shouldNewline = true;
@@ -114,20 +114,11 @@ int Sys_GetProcessUpTime(char* szBuffer)
 	return v_Sys_GetProcessUpTime(szBuffer);
 }
 
-void VSys_Utils::Attach() const
+void VSys_Utils::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_Error, &_Error);
-	DetourAttach((LPVOID*)&v_Warning, &_Warning);
+	DetourSetup(&v_Error, &_Error, bAttach);
+	DetourSetup(&v_Warning, &_Warning, bAttach);
 #ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_Con_NPrintf, &_Con_NPrintf);
-#endif // !DEDICATED
-}
-
-void VSys_Utils::Detach() const
-{
-	DetourDetach((LPVOID*)&v_Error, &_Error);
-	DetourDetach((LPVOID*)&v_Warning, &_Warning);
-#ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_Con_NPrintf, &_Con_NPrintf);
+	DetourSetup(&v_Con_NPrintf, &_Con_NPrintf, bAttach);
 #endif // !DEDICATED
 }

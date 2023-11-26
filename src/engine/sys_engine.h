@@ -64,7 +64,6 @@ class VEngine : public IDetour
 		gsm_Quitting = g_GameDll.FindPatternSIMD("89 15 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC 83 C1 F4").ResolveRelativeAddressSelf(0x2, 0x6).RCast<IEngine::QuitState_t*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

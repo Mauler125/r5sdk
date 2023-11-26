@@ -141,12 +141,7 @@ void CL_MoveEx()
 	}
 }
 
-void VCL_Main::Attach() const
+void VCL_Main::Detour(const bool bAttach) const
 {
-	DetourAttach(&CL_Move, &CL_MoveEx);
-}
-
-void VCL_Main::Detach() const
-{
-	DetourDetach(&CL_Move, &CL_MoveEx);
+	DetourSetup(&CL_Move, &CL_MoveEx, bAttach);
 }

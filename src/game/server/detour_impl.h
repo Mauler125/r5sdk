@@ -19,7 +19,7 @@ inline CMemory p_dtNavMesh__addTile;
 inline dtStatus(*v_dtNavMesh__addTile)(dtNavMesh* thisptr, unsigned char* data, dtMeshHeader* header, int dataSize, int flags, dtTileRef lastRef);
 
 inline CMemory p_dtNavMesh__isPolyReachable;
-inline bool(*v_dtNavMesh__isPolyReachable)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, int hull_type);
+inline uint8_t(*v_dtNavMesh__isPolyReachable)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, int hull_type);
 
 
 constexpr const char* NAVMESH_PATH = "maps/navmesh/";
@@ -84,7 +84,7 @@ class VRecast : public IDetour
 		v_Detour_FreeNavMesh         = p_Detour_FreeNavMesh.RCast<void(*)(dtNavMesh*)>();
 		v_dtNavMesh__Init            = p_dtNavMesh__Init.RCast<dtStatus(*)(dtNavMesh*, unsigned char*, int)>();                                   /*4C 89 44 24 ?? 53 41 56 48 81 EC ?? ?? ?? ?? 0F 10 11*/
 		v_dtNavMesh__addTile         = p_dtNavMesh__addTile.RCast<dtStatus(*)(dtNavMesh*, unsigned char*, dtMeshHeader*, int, int, dtTileRef)>(); /*44 89 4C 24 ?? 41 55*/
-		v_dtNavMesh__isPolyReachable = p_dtNavMesh__isPolyReachable.RCast<bool(*)(dtNavMesh*, dtPolyRef, dtPolyRef, int)>();                      /*48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 49 63 F1*/
+		v_dtNavMesh__isPolyReachable = p_dtNavMesh__isPolyReachable.RCast<uint8_t(*)(dtNavMesh*, dtPolyRef, dtPolyRef, int)>();                      /*48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 49 63 F1*/
 	}
 	virtual void GetVar(void) const
 	{
@@ -94,7 +94,6 @@ class VRecast : public IDetour
 			.FindPatternSelf("48 89 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<dtNavMeshQuery*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

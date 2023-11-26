@@ -679,11 +679,7 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial,
 CCvar* g_pCVar = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
-void VCVar::Attach() const
+void VCVar::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_ConVar_PrintDescription, &ConVar_PrintDescription);
-}
-void VCVar::Detach() const
-{
-	DetourDetach((LPVOID*)&v_ConVar_PrintDescription, &ConVar_PrintDescription);
+	DetourSetup(&v_ConVar_PrintDescription, &ConVar_PrintDescription, bAttach);
 }

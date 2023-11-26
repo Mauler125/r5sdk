@@ -23,10 +23,6 @@ inline CEngineTraceClient* g_pEngineTraceClient = nullptr;
 #endif // DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
-void CEngineTrace_Attach();
-void CEngineTrace_Detach();
-
-///////////////////////////////////////////////////////////////////////////////
 class VEngineTrace : public IDetour
 {
 	virtual void GetAdr(void) const
@@ -47,7 +43,6 @@ class VEngineTrace : public IDetour
 		g_pEngineTraceServer = reinterpret_cast<CEngineTraceServer*>(&g_pEngineTraceServerVFTable); // Must be done for virtual calls.
 #endif // CLIENT_DLL
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -81,21 +81,12 @@ bool DFS_InitializeFeatureFlagDefinitions(const char* pszFeatureFlags)
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 
 ///////////////////////////////////////////////////////////////////////////////
-void VHostCmd::Attach() const
+void VHostCmd::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_Host_Shutdown, &Host_Shutdown);
-	DetourAttach(&v_Host_Status_PrintClient, &Host_Status_PrintClient);
+	DetourSetup(&v_Host_Shutdown, &Host_Shutdown, bAttach);
+	DetourSetup(&v_Host_Status_PrintClient, &Host_Status_PrintClient, bAttach);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-	DetourAttach(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions);
-#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
-}
-
-void VHostCmd::Detach() const
-{
-	DetourDetach(&v_Host_Shutdown, &Host_Shutdown);
-	DetourDetach(&v_Host_Status_PrintClient, &Host_Status_PrintClient);
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-	DetourDetach(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions);
+	DetourSetup(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions, bAttach);
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 }
 

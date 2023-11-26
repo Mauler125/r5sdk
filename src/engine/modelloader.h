@@ -179,7 +179,6 @@ class VModelLoader : public IDetour
 		s_szMapPathName = p_CMapLoadHelper__CMapLoadHelper.FindPattern("4C 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<char*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

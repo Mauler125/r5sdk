@@ -177,24 +177,13 @@ int HSys_Error_Internal(char* fmt, va_list args)
 	return Sys_Error_Internal(fmt, args);
 }
 
-void VSys_Dll::Attach() const
+void VSys_Dll::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::StaticPreInit);
-	DetourAttach((LPVOID*)&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::StaticCreate);
+	DetourSetup(&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::StaticPreInit, bAttach);
+	DetourSetup(&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::StaticCreate, bAttach);
 
-	DetourAttach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::StaticMain);
-	DetourAttach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::StaticCreate);
+	DetourSetup(&CModAppSystemGroup_Main, &CModAppSystemGroup::StaticMain, bAttach);
+	DetourSetup(&CModAppSystemGroup_Create, &CModAppSystemGroup::StaticCreate, bAttach);
 
-	DetourAttach(&Sys_Error_Internal, &HSys_Error_Internal);
-}
-
-void VSys_Dll::Detach() const
-{
-	DetourDetach((LPVOID*)&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::StaticPreInit);
-	DetourDetach((LPVOID*)&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::StaticCreate);
-
-	DetourDetach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::StaticMain);
-	DetourDetach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::StaticCreate);
-
-	DetourDetach(&Sys_Error_Internal, &HSys_Error_Internal);
+	DetourSetup(&Sys_Error_Internal, &HSys_Error_Internal, bAttach);
 }

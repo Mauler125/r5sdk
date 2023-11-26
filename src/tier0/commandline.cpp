@@ -89,12 +89,7 @@ void CCommandLine::AppendParametersFromFile(const char* const pszConfig)
 CCommandLine* g_pCmdLine = nullptr;
 
 
-void VCommandLine::Attach() const
+void VCommandLine::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine);
-}
-
-void VCommandLine::Detach() const
-{
-	DetourDetach(&v_CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine);
+	DetourSetup(&v_CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine, bAttach);
 }

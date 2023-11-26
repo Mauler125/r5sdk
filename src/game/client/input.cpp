@@ -18,12 +18,7 @@ void CInput::SetCustomWeaponActivity(CInput* pInput, int weaponActivity)
 	v_CInput__SetCustomWeaponActivity(pInput, weaponActivity);
 }
 
-void VInput::Attach(void) const
+void VInput::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CInput__SetCustomWeaponActivity, CInput::SetCustomWeaponActivity);
-}
-
-void VInput::Detach(void) const
-{
-	DetourDetach(&v_CInput__SetCustomWeaponActivity, CInput::SetCustomWeaponActivity);
+	DetourSetup(&v_CInput__SetCustomWeaponActivity, CInput::SetCustomWeaponActivity, bAttach);
 }

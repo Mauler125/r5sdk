@@ -53,7 +53,6 @@ class V_ViewRender : public IDetour
 	{
 		g_pViewRender_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCViewRender@@");
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

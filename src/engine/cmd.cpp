@@ -106,11 +106,7 @@ bool Cmd_ForwardToServer(const CCommand* args)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VCmd::Attach() const
+void VCmd::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_Cmd_ForwardToServer, &Cmd_ForwardToServer);
-}
-void VCmd::Detach() const
-{
-	DetourDetach((LPVOID*)&v_Cmd_ForwardToServer, &Cmd_ForwardToServer);
+	DetourSetup(&v_Cmd_ForwardToServer, &Cmd_ForwardToServer, bAttach);
 }

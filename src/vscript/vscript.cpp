@@ -171,18 +171,10 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 }
 
 //---------------------------------------------------------------------------------
-void VScript::Attach() const
+void VScript::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_Script_LoadScriptList, &Script_LoadScriptList);
-	DetourAttach((LPVOID*)&v_Script_LoadScriptFile, &Script_LoadScriptFile);
-	DetourAttach((LPVOID*)&v_Script_PrecompileServerScripts, &Script_PrecompileServerScripts);
-	DetourAttach((LPVOID*)&v_Script_PrecompileClientScripts, &Script_PrecompileClientScripts);
-}
-//---------------------------------------------------------------------------------
-void VScript::Detach() const
-{
-	DetourDetach((LPVOID*)&v_Script_LoadScriptList, &Script_LoadScriptList);
-	DetourDetach((LPVOID*)&v_Script_LoadScriptFile, &Script_LoadScriptFile);
-	DetourDetach((LPVOID*)&v_Script_PrecompileServerScripts, &Script_PrecompileServerScripts);
-	DetourDetach((LPVOID*)&v_Script_PrecompileClientScripts, &Script_PrecompileClientScripts);
+	DetourSetup(&v_Script_LoadScriptList, &Script_LoadScriptList, bAttach);
+	DetourSetup(&v_Script_LoadScriptFile, &Script_LoadScriptFile, bAttach);
+	DetourSetup(&v_Script_PrecompileServerScripts, &Script_PrecompileServerScripts, bAttach);
+	DetourSetup(&v_Script_PrecompileClientScripts, &Script_PrecompileClientScripts, bAttach);
 }

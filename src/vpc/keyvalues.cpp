@@ -1445,18 +1445,11 @@ KeyValues* KeyValues::ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const ch
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VKeyValues::Attach() const
+void VKeyValues::Detour(const bool bAttach) const
 {
-	DetourAttach(&KeyValues_LoadPlaylists, &KeyValues::LoadPlaylists);
-	DetourAttach(&KeyValues_ParsePlaylists, &KeyValues::ParsePlaylists);
-	DetourAttach(&KeyValues_ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile);
-}
-
-void VKeyValues::Detach() const
-{
-	DetourDetach(&KeyValues_LoadPlaylists, &KeyValues::LoadPlaylists);
-	DetourDetach(&KeyValues_ParsePlaylists, &KeyValues::ParsePlaylists);
-	DetourDetach(&KeyValues_ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile);
+	DetourSetup(&KeyValues_LoadPlaylists, &KeyValues::LoadPlaylists, bAttach);
+	DetourSetup(&KeyValues_ParsePlaylists, &KeyValues::ParsePlaylists, bAttach);
+	DetourSetup(&KeyValues_ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

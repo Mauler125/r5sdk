@@ -45,12 +45,7 @@ void Physics_RunThinkFunctions(bool bSimulating)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VPhysics_Main::Attach() const
+void VPhysics_Main::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_Physics_RunThinkFunctions, &Physics_RunThinkFunctions);
-}
-
-void VPhysics_Main::Detach() const
-{
-	DetourDetach(&v_Physics_RunThinkFunctions, &Physics_RunThinkFunctions);
+	DetourSetup(&v_Physics_RunThinkFunctions, &Physics_RunThinkFunctions, bAttach);
 }

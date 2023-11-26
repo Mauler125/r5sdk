@@ -22,16 +22,9 @@ void* __fastcall CStaticProp_Init(int64_t thisptr, int64_t a2, unsigned int idx,
     return v_CStaticProp_Init(thisptr, a2, idx, a4, lump, a6, a7);
 }
 
-void VStaticPropMgr::Attach() const
+void VStaticPropMgr::Detour(const bool bAttach) const
 {
 #ifndef DEDICATED
-    DetourAttach((LPVOID*)&v_CStaticProp_Init, &CStaticProp_Init);
-#endif // !DEDICATED
-}
-
-void VStaticPropMgr::Detach() const
-{
-#ifndef DEDICATED
-    DetourDetach((LPVOID*)&v_CStaticProp_Init, &CStaticProp_Init);
+    DetourSetup(&v_CStaticProp_Init, &CStaticProp_Init, bAttach);
 #endif // !DEDICATED
 }

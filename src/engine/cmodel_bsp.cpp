@@ -480,14 +480,8 @@ void Mod_UnloadPakFile(void)
 	g_vBadMDLHandles.clear();
 }
 
-void VModel_BSP::Attach() const
+void VModel_BSP::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_Mod_LoadPakForMap, &Mod_LoadPakForMap);
-	DetourAttach((LPVOID*)&v_Mod_ProcessPakQueue, &Mod_ProcessPakQueue);
-}
-
-void VModel_BSP::Detach() const
-{
-	DetourDetach((LPVOID*)&v_Mod_LoadPakForMap, &Mod_LoadPakForMap);
-	DetourDetach((LPVOID*)&v_Mod_ProcessPakQueue, &Mod_ProcessPakQueue);
+	DetourSetup(&v_Mod_LoadPakForMap, &Mod_LoadPakForMap, bAttach);
+	DetourSetup(&v_Mod_ProcessPakQueue, &Mod_ProcessPakQueue, bAttach);
 }

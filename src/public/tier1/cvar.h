@@ -162,7 +162,7 @@ bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszCo
 void ConVar_PrintDescription(ConCommandBase* pVar);
 
 inline CMemory p_ConVar_PrintDescription;
-inline void* (*v_ConVar_PrintDescription)(ConCommandBase* pVar);
+inline void (*v_ConVar_PrintDescription)(ConCommandBase* pVar);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCVar : public IDetour
@@ -175,7 +175,7 @@ class VCVar : public IDetour
 	virtual void GetFun(void) const 
 	{
 		p_ConVar_PrintDescription = g_GameDll.FindPatternSIMD("B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 01 48 89 9C 24 ?? ?? ?? ??");
-		v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void* (*)(ConCommandBase*)>();
+		v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void (*)(ConCommandBase*)>();
 	}
 	virtual void GetVar(void) const
 	{
@@ -186,8 +186,7 @@ class VCVar : public IDetour
 			//.FindPatternSelf("48 83 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x8).RCast<CCvar*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

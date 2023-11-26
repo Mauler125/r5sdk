@@ -38,16 +38,9 @@ ClientClass* CHLClient::GetAllClasses()
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
-void VDll_Engine_Int::Attach() const
+void VDll_Engine_Int::Detour(const bool bAttach) const
 {
 #ifndef DEDICATED
-	DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
-#endif // !DEDICATED
-}
-
-void VDll_Engine_Int::Detach() const
-{
-#ifndef DEDICATED
-	DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
+	DetourSetup(&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify, bAttach);
 #endif // !DEDICATED
 }

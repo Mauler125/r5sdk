@@ -43,14 +43,9 @@ void vgui::RichText::SetText(const char* text)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VVGUIRichText::Attach() const
+void VVGUIRichText::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&vgui_RichText_SetText, &RichText_SetText);
-}
-
-void VVGUIRichText::Detach() const
-{
-	DetourDetach((LPVOID*)&vgui_RichText_SetText, &RichText_SetText);
+	DetourSetup(&vgui_RichText_SetText, &RichText_SetText, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

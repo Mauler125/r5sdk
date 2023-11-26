@@ -56,7 +56,7 @@ void _Host_RunFrame(void* unused, float time)
 	return v_Host_RunFrame(unused, time);
 }
 
-void _Host_Error(char* error, ...)
+void _Host_Error(const char* error, ...)
 {
 	char buf[1024];
 	{/////////////////////////////
@@ -74,20 +74,11 @@ void _Host_Error(char* error, ...)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VHost::Attach() const
+void VHost::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_Host_RunFrame, &_Host_RunFrame);
+	DetourSetup(&v_Host_RunFrame, &_Host_RunFrame, bAttach);
 
 #ifndef DEDICATED // Dedicated already logs this!
-	DetourAttach((LPVOID*)&v_Host_Error, &_Host_Error);
-#endif // !DEDICATED
-}
-
-void VHost::Detach() const
-{
-	DetourDetach((LPVOID*)&v_Host_RunFrame, &_Host_RunFrame);
-
-#ifndef DEDICATED // Dedicated already logs this!
-	DetourDetach((LPVOID*)&v_Host_Error, &_Host_Error);
+	DetourSetup(&v_Host_Error, &_Host_Error, bAttach);
 #endif // !DEDICATED
 }

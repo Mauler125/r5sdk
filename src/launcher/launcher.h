@@ -9,7 +9,7 @@ inline LONG(*v_TopLevelExceptionFilter)(EXCEPTION_POINTERS* pExceptionPointer);
 
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 inline CMemory p_RemoveSpuriousGameParameters;
-inline void*(*v_RemoveSpuriousGameParameters)(void);
+inline void(*v_RemoveSpuriousGameParameters)(void);
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 
 const char* ExitCodeToString(int nCode);
@@ -35,13 +35,12 @@ class VLauncher : public IDetour
 
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 		p_RemoveSpuriousGameParameters = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 33 ED 48 8D 3D ?? ?? ?? ??");
-		v_RemoveSpuriousGameParameters = p_RemoveSpuriousGameParameters.RCast<void* (*)(void)>();
+		v_RemoveSpuriousGameParameters = p_RemoveSpuriousGameParameters.RCast<void (*)(void)>();
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

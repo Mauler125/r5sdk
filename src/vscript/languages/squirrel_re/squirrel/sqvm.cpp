@@ -208,18 +208,10 @@ const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v)
 }
 
 //---------------------------------------------------------------------------------
-void VSquirrelVM::Attach() const
+void VSquirrelVM::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
-	DetourAttach((LPVOID*)&v_SQVM_sprintf, &SQVM_sprintf);
-	DetourAttach((LPVOID*)&v_SQVM_CompileError, &SQVM_CompileError);
-	DetourAttach((LPVOID*)&v_SQVM_LogicError, &SQVM_LogicError);
-}
-//---------------------------------------------------------------------------------
-void VSquirrelVM::Detach() const
-{
-	DetourDetach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
-	DetourDetach((LPVOID*)&v_SQVM_sprintf, &SQVM_sprintf);
-	DetourDetach((LPVOID*)&v_SQVM_CompileError, &SQVM_CompileError);
-	DetourDetach((LPVOID*)&v_SQVM_LogicError, &SQVM_LogicError);
+	DetourSetup(&v_SQVM_PrintFunc, &SQVM_PrintFunc, bAttach);
+	DetourSetup(&v_SQVM_sprintf, &SQVM_sprintf, bAttach);
+	DetourSetup(&v_SQVM_CompileError, &SQVM_CompileError, bAttach);
+	DetourSetup(&v_SQVM_LogicError, &SQVM_LogicError, bAttach);
 }

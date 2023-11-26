@@ -13,12 +13,7 @@ void h_exit_or_terminate_process(UINT uExitCode)
 	TerminateProcess(h, uExitCode);
 }
 
-void VPRX::Attach() const
+void VPRX::Detour(const bool bAttach) const
 {
-	//DetourAttach(&v_exit_or_terminate_process, &h_exit_or_terminate_process);
-}
-
-void VPRX::Detach() const
-{
-	//DetourDetach(&v_exit_or_terminate_process, &h_exit_or_terminate_process);
+	//DetourSetup(&v_exit_or_terminate_process, &h_exit_or_terminate_process, bAttach);
 }

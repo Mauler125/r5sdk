@@ -138,9 +138,6 @@ protected:
 inline CMemory p_CBaseAnimating__LockStudioHdr;
 inline CBaseAnimating*(*v_CBaseAnimating__LockStudioHdr)(CBaseAnimating* thisp);
 
-void BaseAnimating_Attach();
-void BaseAnimating_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VBaseAnimating : public IDetour
 {
@@ -155,8 +152,7 @@ class VBaseAnimating : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -200,23 +200,15 @@ void CServer::RunFrame(CServer* pServer)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VServer::Attach() const
+void VServer::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CServer_RunFrame, &CServer::RunFrame);
+	DetourSetup(&v_CServer_RunFrame, &CServer::RunFrame, bAttach);
 #if	defined(GAMEDLL_S3)
-	DetourAttach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
-	DetourAttach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
+	DetourSetup(&v_CServer_ConnectClient, &CServer::ConnectClient, bAttach);
+	DetourSetup(&v_CServer_FrameJob, &CServer::FrameJob, bAttach);
 #endif // !TODO: S1 and S2 CServer functions require work.
 }
 
-void VServer::Detach() const
-{
-	DetourDetach(&v_CServer_RunFrame, &CServer::RunFrame);
-#if	defined(GAMEDLL_S3)
-	DetourDetach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
-	DetourDetach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
-#endif // !TODO: S1 and S2 CServer functions require work.
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 CServer* g_pServer = nullptr;

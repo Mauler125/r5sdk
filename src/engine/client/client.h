@@ -93,7 +93,7 @@ public:
 	inline bool IsFakeClient(void) const { return m_bFakePlayer; }
 	inline bool IsHumanPlayer(void) const { if (!IsConnected() || IsFakeClient()) { return false; } return true; }
 
-	bool SendNetMsgEx(CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
+	bool SendNetMsgEx(CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
 
 	bool Authenticate(const char* const playerName, char* const reasonBuf, const size_t reasonBufLen);
 	bool Connect(const char* szName, CNetChan* pNetChan, bool bFakePlayer,
@@ -108,7 +108,7 @@ public: // Hook statics:
 
 	static void VActivatePlayer(CClient* pClient);
 	static void* VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
-	static bool VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, char bLocal, bool bForceReliable, bool bVoice);
+	static bool VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
 
 	static bool VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg);
 	static bool VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg);
@@ -288,7 +288,6 @@ class VClient : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

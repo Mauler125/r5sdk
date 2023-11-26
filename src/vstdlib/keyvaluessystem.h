@@ -77,7 +77,6 @@ class HKeyValuesSystem : public IDetour
 		g_pKeyValuesMemPool = g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 85 D2").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -27,12 +27,7 @@ CBaseEntity* CreateWeaponBolt(Vector3D* origin, Vector3D* end, __int64 unused, f
 }
 
 //-----------------------------------------------------------------------------
-void V_Weapon_Bolt::Attach() const
+void V_Weapon_Bolt::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CreateWeaponBolt, &CreateWeaponBolt);
-}
-
-void V_Weapon_Bolt::Detach() const
-{
-	DetourDetach(&v_CreateWeaponBolt, &CreateWeaponBolt);
+	DetourSetup(&v_CreateWeaponBolt, &CreateWeaponBolt, bAttach);
 }

@@ -28,14 +28,9 @@ int CEngineVGui::Paint(CEngineVGui* thisptr, PaintMode_t mode)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VEngineVGui::Attach() const
+void VEngineVGui::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&CEngineVGui_Paint, &CEngineVGui::Paint);
-}
-
-void VEngineVGui::Detach() const
-{
-	DetourDetach((LPVOID*)&CEngineVGui_Paint, &CEngineVGui::Paint);
+	DetourSetup(&CEngineVGui_Paint, &CEngineVGui::Paint, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

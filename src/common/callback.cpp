@@ -1520,12 +1520,7 @@ void Cmd_Exec_f(const CCommand& args)
 }
 
 
-void VCallback::Attach() const
+void VCallback::Detour(const bool bAttach) const
 {
-	DetourAttach(&_Cmd_Exec_f, &Cmd_Exec_f);
-}
-
-void VCallback::Detach() const
-{
-	DetourDetach(&_Cmd_Exec_f, &Cmd_Exec_f);
+	DetourSetup(&_Cmd_Exec_f, &Cmd_Exec_f, bAttach);
 }

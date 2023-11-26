@@ -121,22 +121,12 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 #endif // !MATERIALSYSTEM_NODX
 
 ///////////////////////////////////////////////////////////////////////////////
-void VMaterialSystem::Attach() const
+void VMaterialSystem::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&CMaterialSystem__Init, &CMaterialSystem::Init);
+	DetourSetup(&CMaterialSystem__Init, &CMaterialSystem::Init, bAttach);
 #ifndef MATERIALSYSTEM_NODX
-	DetourAttach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
-	DetourAttach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
-	DetourAttach((LPVOID*)&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx);
-#endif // !MATERIALSYSTEM_NODX
-}
-
-void VMaterialSystem::Detach() const
-{
-	DetourDetach((LPVOID*)&CMaterialSystem__Init, &CMaterialSystem::Init);
-#ifndef MATERIALSYSTEM_NODX
-	DetourDetach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
-	DetourDetach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
-	DetourDetach((LPVOID*)&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx);
+	DetourSetup(&v_StreamDB_Init, &StreamDB_Init, bAttach);
+	DetourSetup(&v_DispatchDrawCall, &DispatchDrawCall, bAttach);
+	DetourSetup(&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx, bAttach);
 #endif // !MATERIALSYSTEM_NODX
 }

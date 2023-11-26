@@ -44,8 +44,7 @@ class VMoveHelperClient : public IDetour
 		s_MoveHelperClient = pFunc.FindPattern("4C 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMoveHelperClient*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

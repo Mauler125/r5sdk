@@ -36,8 +36,6 @@ inline int(*CShaderGlue_SetupShader)(CShaderGlue* thisptr, uint64_t nCount, uint
 inline CMemory CShaderGlue_VTable;
 inline void* g_pShaderGlueVFTable = nullptr;
 
-void CShaderGlue_Attach();
-void CShaderGlue_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VShaderGlue : public IDetour
 {
@@ -56,7 +54,6 @@ class VShaderGlue : public IDetour
 		CShaderGlue_VTable = g_GameDll.GetVirtualMethodTable(".?AVCShaderGlue@@");
 		g_pShaderGlueVFTable = CShaderGlue_VTable.RCast<void*>();
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

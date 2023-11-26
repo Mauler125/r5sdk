@@ -40,7 +40,6 @@ class HVEngineClient : public IDetour
 		g_pEngineClientVFTable = g_GameDll.GetVirtualMethodTable(".?AVCEngineClient@@");
 		g_pEngineClient = g_pEngineClientVFTable.RCast<CEngineClient*>();
 	}
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

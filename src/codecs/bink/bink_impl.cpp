@@ -20,12 +20,7 @@ void* BinkOpen(HANDLE hBinkFile, UINT32 nFlags)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void BinkCore::Attach() const
+void BinkCore::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_BinkOpen, &BinkOpen);
-}
-
-void BinkCore::Detach() const
-{
-	DetourDetach(&v_BinkOpen, &BinkOpen);
+	DetourSetup(&v_BinkOpen, &BinkOpen, bAttach);
 }

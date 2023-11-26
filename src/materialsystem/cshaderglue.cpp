@@ -10,14 +10,3 @@ int CShaderGlue::SetupShader(uint64_t nCount, uint64_t a3, void* pRawMaterialGlu
 {
 	return CShaderGlue_SetupShader(this, nCount, a3, pRawMaterialGlueWithoutVTable);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-void CShaderGlue_Attach()
-{
-
-}
-
-void CShaderGlue_Detach()
-{
-
-}

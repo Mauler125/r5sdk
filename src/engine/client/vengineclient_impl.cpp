@@ -96,12 +96,7 @@ void CEngineClient::_ClientCmd(CEngineClient* thisptr, const char* const szCmdSt
 	}
 }
 
-void HVEngineClient::Attach() const
+void HVEngineClient::Detour(const bool bAttach) const
 {
-	DetourAttach(&CEngineClient__ClientCmd, &CEngineClient::_ClientCmd);
-}
-
-void HVEngineClient::Detach() const
-{
-	DetourDetach(&CEngineClient__ClientCmd, &CEngineClient::_ClientCmd);
+	DetourSetup(&CEngineClient__ClientCmd, &CEngineClient::_ClientCmd, bAttach);
 }

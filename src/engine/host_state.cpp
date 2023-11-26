@@ -518,13 +518,9 @@ void CHostState::ResetLevelName(void)
 	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), "%s", szNoMap);
 }
 
-void VHostState::Attach(void) const
+void VHostState::Detour(const bool bAttach) const
 {
-	DetourAttach(&CHostState_FrameUpdate, &CHostState::FrameUpdate);
-}
-void VHostState::Detach(void) const
-{
-	DetourDetach(&CHostState_FrameUpdate, &CHostState::FrameUpdate);
+	DetourSetup(&CHostState_FrameUpdate, &CHostState::FrameUpdate, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

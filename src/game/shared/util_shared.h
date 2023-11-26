@@ -57,8 +57,7 @@ class VUtil_Shared : public IDetour
 	{
 		g_pTraceFilterSimpleVFTable = g_GameDll.GetVirtualMethodTable(".?AVCTraceFilterSimple@@").RCast<CTraceFilterSimple*>();
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -297,22 +297,13 @@ const char* NET_ErrorString(int iCode)
 
 #ifndef NETCONSOLE
 ///////////////////////////////////////////////////////////////////////////////
-void VNet::Attach() const
+void VNet::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_NET_Config, &NET_Config);
-	DetourAttach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
-	DetourAttach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
-	DetourAttach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
-	DetourAttach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
-}
-
-void VNet::Detach() const
-{
-	DetourDetach((LPVOID*)&v_NET_Config, &NET_Config);
-	DetourDetach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
-	DetourDetach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
-	DetourDetach((LPVOID*)&v_NET_Decompress, &NET_Decompress);
-	DetourDetach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
+	DetourSetup(&v_NET_Config, &NET_Config, bAttach);
+	DetourSetup(&v_NET_ReceiveDatagram, &NET_ReceiveDatagram, bAttach);
+	DetourSetup(&v_NET_SendDatagram, &NET_SendDatagram, bAttach);
+	DetourSetup(&v_NET_Decompress, &NET_Decompress, bAttach);
+	DetourSetup(&v_NET_PrintFunc, &NET_PrintFunc, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

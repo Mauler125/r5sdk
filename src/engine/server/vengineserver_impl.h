@@ -65,7 +65,6 @@ class HVEngineServer : public IDetour
 		m_bIsDedicated = pEngineServerVFTable.WalkVTableSelf(3).DerefSelf().ResolveRelativeAddress(0x3, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

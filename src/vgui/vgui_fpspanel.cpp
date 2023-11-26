@@ -20,12 +20,7 @@ ConVar* HCFPSPanel_Paint(void* thisptr)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VFPSPanel::Attach() const
+void VFPSPanel::Detour(const bool bAttach) const
 {
-	DetourAttach(&CFPSPanel_Paint, &HCFPSPanel_Paint);
-}
-
-void VFPSPanel::Detach() const
-{
-	DetourDetach(&CFPSPanel_Paint, &HCFPSPanel_Paint);
+	DetourSetup(&CFPSPanel_Paint, &HCFPSPanel_Paint, bAttach);
 }

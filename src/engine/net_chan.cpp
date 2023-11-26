@@ -573,15 +573,9 @@ bool CNetChan::HasPendingReliableData(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VNetChan::Attach() const
+void VNetChan::Detour(const bool bAttach) const
 {
-	DetourAttach((PVOID*)&v_NetChan_Shutdown, &CNetChan::_Shutdown);
-	DetourAttach((PVOID*)&v_NetChan_FlowNewPacket, &CNetChan::_FlowNewPacket);
-	DetourAttach((PVOID*)&v_NetChan_ProcessMessages, &CNetChan::_ProcessMessages);
-}
-void VNetChan::Detach() const
-{
-	DetourDetach((PVOID*)&v_NetChan_Shutdown, &CNetChan::_Shutdown);
-    DetourDetach((PVOID*)&v_NetChan_FlowNewPacket, &CNetChan::_FlowNewPacket);
-	DetourDetach((PVOID*)&v_NetChan_ProcessMessages, &CNetChan::_ProcessMessages);
+	DetourSetup(&v_NetChan_Shutdown, &CNetChan::_Shutdown, bAttach);
+	DetourSetup(&v_NetChan_FlowNewPacket, &CNetChan::_FlowNewPacket, bAttach);
+	DetourSetup(&v_NetChan_ProcessMessages, &CNetChan::_ProcessMessages, bAttach);
 }
