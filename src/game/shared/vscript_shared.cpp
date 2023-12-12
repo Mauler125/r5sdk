@@ -160,7 +160,7 @@ namespace VScriptCode
        //-----------------------------------------------------------------------------
 
 
-        // Check of is currently running -- returns true if not logging, false if running
+        // Check is currently running -- returns true if logging, false if not running
         SQRESULT isLogging(HSQUIRRELVM v) {
 
             bool isRunning = LOGGER::Logger::getInstance().isLogging();
