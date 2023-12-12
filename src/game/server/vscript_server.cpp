@@ -16,6 +16,8 @@
 #include "vscript_server.h"
 #include <engine/host_state.h>
 #include <networksystem/listmanager.h>
+#include <random>
+#include "game/server/logger.h"
 
 namespace VScriptCode
 {
@@ -186,6 +188,8 @@ namespace VScriptCode
             sq_pushbool(v, ::IsDedicated());
             return SQ_OK;
         }
+
+        
     }
 }
 
@@ -211,6 +215,7 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, CreateServer, "Starts server with the specified settings", "void", "string, string, string, string, int");
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, DestroyServer, "Shuts the local server down", "void", "");
+
 }
 
 //---------------------------------------------------------------------------------

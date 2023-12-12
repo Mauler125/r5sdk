@@ -79,6 +79,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "GFSDK"
 
     "localize"
+    "tiny-aes"
 
     "vscript"
     "game_shared_static"
@@ -86,6 +87,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
 if( NOT ${PROJECT_NAME} STREQUAL "dedicated" )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
+	"tiny-aes"
     "libimgui"
     "codecs"
 

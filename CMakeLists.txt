@@ -18,3 +18,4 @@ include_directories( "${THIRDPARTY_SOURCE_DIR}" )
 
 # Include the subdirectories that contain the individual projects
 add_subdirectory( "${ENGINE_SOURCE_DIR}" )
+add_subdirectory( "${ENGINE_SOURCE_DIR}/tiny-aes" )
