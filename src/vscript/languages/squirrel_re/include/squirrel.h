@@ -32,6 +32,7 @@ struct SQBufState;
 SQRESULT sq_pushroottable(HSQUIRRELVM v);
 SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i);
 SQInteger sq_getinteger(HSQUIRRELVM v, SQInteger i);
+SQBool sq_getbool(HSQUIRRELVM v, SQInteger i); //mkos add
 SQRESULT sq_pushroottable(HSQUIRRELVM v);
 void sq_pushbool(HSQUIRRELVM v, SQBool b);
 void sq_pushstring(HSQUIRRELVM v, const SQChar* string, SQInteger len);
