@@ -25,8 +25,8 @@
 #include <utility>
 #include <atomic>
 #include "engine/server/vengineserver_impl.h"
-constexpr auto SERVER_V = "rc_2.4.5";
-
+const std::string SERVER_V = "rc_2.4.5";
+const std::string API_KEY = "Kfvtu2TSNKQ7S2pP";
 
 namespace LOGGER {
 
@@ -40,7 +40,115 @@ namespace LOGGER {
     }
 
 
-    const std::string VERIFY_EA_ACCOUNT(const std::string& token, const std::string& ea_name ) {
+     /*********************************
+     /       API END GAME UPDATES
+     /********************************/
+
+    void EndMatchUpdate(const std::string& recap, const std::string& DISCORD_HOOK) {
+        CURL* curl = curl_easy_init();
+        if (!curl) {
+            Error(eDLL_T::SERVER, NO_ERROR, "Failed to initialize curl\n");
+            return;
+        }
+
+        LOGGER::Logger& logger = LOGGER::Logger::getInstance();
+        std::string filename = logger.getLatestFile("platform/eventlogs");
+        std::string sanitizedFilename = logger.sanitizeFilename(filename);
+
+        if (filename.empty()) {
+            Error(eDLL_T::SERVER, NO_ERROR, "No log found. Aborting API connection...\n");
+            return;
+        }
+
+        // extract just the sanitized filename to use as the MatchID
+        std::string matchID;
+        std::size_t pos = sanitizedFilename.rfind(".");
+        if (pos != std::string::npos) {
+            matchID = sanitizedFilename.substr(0, pos);
+        }
+        else {
+            matchID = sanitizedFilename;
+        }
+
+        std::string serverName = ::IsDedicated() ? hostname->GetString() : g_pServerListManager->m_Server.m_svHostName;
+
+        std::string postData = "servername=" + serverName +
+            "&matchID=" + matchID +
+            "&recap=" + recap +
+            "&DISCORD_HOOK=" + DISCORD_HOOK +
+            "&KEY=" + API_KEY;
+
+        curl_easy_setopt(curl, CURLOPT_URL, "https://r5r.dev/api/endmatch.php");
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData.c_str());
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if (res != CURLE_OK) {
+            Error(eDLL_T::SERVER, NO_ERROR, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
+    }
+
+    const std::string NOTIFY_END_OF_MATCH(const std::string& recap, const std::string& DISCORD_HOOK) {
+        std::thread endMatchThread(EndMatchUpdate, recap, DISCORD_HOOK);
+        endMatchThread.detach();
+        return "1";
+    }
+
+    /*********************************
+    /     API PLAYER COUNT UPDATES
+    /********************************/
+
+    const std::string UPDATE_PLAYER_COUNT(const std::string& action, const std::string& player, const std::string& OID, const std::string& count, const std::string& DISCORD_HOOK) {
+        if (action.empty() || player.empty()) {
+            return "0";
+        }
+
+        // launch thread
+        std::thread updateThread(PlayerCountUpdate, action, player, OID, count, DISCORD_HOOK);
+        updateThread.detach();
+
+        return "1"; 
+    }
+
+    // separate thread
+    void PlayerCountUpdate(const std::string& action, const std::string& player, const std::string& OID, const std::string& count, const std::string& DISCORD_HOOK) {
+        CURL* curl = curl_easy_init();
+        if (!curl) {
+            Error(eDLL_T::SERVER, NO_ERROR, "Failed to initialize curl\n");
+            return;
+        }
+
+        std::string servername = ::IsDedicated() ? hostname->GetString() : g_pServerListManager->m_Server.m_svHostName;
+
+        std::string postData =
+            "servername=" + servername +
+            "&action=" + action +
+            "&player_name=" + player +
+            "&OID=" + OID +
+            "&current_count=" + count +
+            "&DISCORD_HOOK=" + DISCORD_HOOK +
+            "&KEY=" + API_KEY;
+
+        curl_easy_setopt(curl, CURLOPT_URL, "https://r5r.dev/api/playercount.php");
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData.c_str());
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if (res != CURLE_OK) {
+            Error(eDLL_T::SERVER, NO_ERROR, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
+    }
+
+    /*********************************
+    /     API VERIFY EA ACCOUNT
+    /********************************/
+
+
+    const std::string VERIFY_EA_ACCOUNT(const std::string& token, const std::string& OID, const std::string& ea_name) {
         if (token.empty() || ea_name.empty()) {
             return "0";
         }
@@ -54,7 +162,8 @@ namespace LOGGER {
         std::string postData =
             "token=" + token +
             "&ea_acc=" + ea_name +
-            "&KEY=" + "vypKpraa5wNk4YAes2QF";
+            "&OID=" + OID +
+            "&KEY=" + API_KEY;
 
         std::string readBuffer;
         curl_easy_setopt(curl, CURLOPT_URL, "https://r5r.dev/api/verify.php");
@@ -178,6 +287,9 @@ namespace LOGGER {
         }
 
   
+    /*********************************
+    /     Logger instance
+    /********************************/
 
     // blank constructor
     Logger::Logger() {
@@ -194,6 +306,11 @@ namespace LOGGER {
         static Logger instance;
         return instance;
     }
+
+
+    /*********************************
+    /     Utility Functions
+    /********************************/
 
     std::string LOGGER::Logger::getLatestFile(const std::string& directoryPath) {
         std::filesystem::path latestFilePath;
@@ -272,6 +389,10 @@ namespace LOGGER {
     }
 
 
+    /*********************************
+    /     Tracker & LogEvent Thread
+    /********************************/
+
     // ship to stats server
     void LOGGER::Logger::sendLogToAPI(const std::string& logdata) {
         CURL* curl;
@@ -320,7 +441,7 @@ namespace LOGGER {
                 "&MatchID=" + matchID +
                 "&Logdata=" + logdata_url_encoded +
                 "&Map=" + serverMap +
-                "&CODE=" + "vypKpraa5wNk4YAes2QF"; //API code is generated for each major api version change
+                "&CODE=" + API_KEY; //API code is generated for each major api version change
 
             std::string readBuffer;
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);

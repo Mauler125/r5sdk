@@ -160,7 +160,7 @@ namespace VScriptCode
        //-----------------------------------------------------------------------------
 
 
-        // Check is currently running -- returns true if logging, false if not running
+        // Check of is currently running -- returns true if not logging, false if running
         SQRESULT isLogging(HSQUIRRELVM v) {
 
             bool isRunning = LOGGER::Logger::getInstance().isLogging();
@@ -241,10 +241,11 @@ namespace VScriptCode
 
         SQRESULT EA_Verify(HSQUIRRELVM v) {
             const SQChar* token = sq_getstring(v, 1);
-            const SQChar* ea_name = sq_getstring(v, 2);
+            const SQChar* OID = sq_getstring(v, 2);
+            const SQChar* ea_name = sq_getstring(v, 3);
 
             int32_t status_num = 0;
-            string status = LOGGER::VERIFY_EA_ACCOUNT(token,ea_name);
+            string status = LOGGER::VERIFY_EA_ACCOUNT(token, OID, ea_name);
             try {
                 status_num = std::stoi(status);
                 //DevMsg(eDLL_T::SERVER, "Conversion successful, number is: %d\n", status_num);
@@ -261,6 +262,27 @@ namespace VScriptCode
             return SQ_OK;
         }
 
+        SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v) {
+            const SQChar* action = sq_getstring(v, 1);
+            const SQChar* player = sq_getstring(v, 2);
+            const SQChar* OID = sq_getstring(v, 3);
+            const SQChar* count = sq_getstring(v, 4);
+            const SQChar* DISCORD_HOOK = sq_getstring(v, 5);
+
+            LOGGER::UPDATE_PLAYER_COUNT(action, player, OID, count, DISCORD_HOOK);
+
+            return SQ_OK;
+        }
+
+        SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v) {
+            
+            const SQChar* recap = sq_getstring(v, 1);
+            const SQChar* DISCORD_HOOK = sq_getstring(v, 2);
+
+            LOGGER::NOTIFY_END_OF_MATCH( recap, DISCORD_HOOK );
+
+            return SQ_OK;
+        }
 
     }
 }
@@ -290,7 +312,11 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, testbool, "Prints string to console window from sqvm", "bool", "bool");
 
     //for verification
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, EA_Verify, "Verifys EA Account on R5R.DEV", "int", "string, string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, EA_Verify, "Verifys EA Account on R5R.DEV", "int", "string, string, string");
+
+    // for stat updates
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, _STATSHOOK_UpdatePlayerCount, "Updates LIVE player count on R5R.DEV", "void", "string, string, string, string, string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, _STATSHOOK_EndOfMatch, "Updates match recap on R5R.DEV", "void", "string,string");
 }
 
 //---------------------------------------------------------------------------------

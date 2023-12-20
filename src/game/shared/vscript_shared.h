@@ -27,6 +27,8 @@ namespace VScriptCode
 		SQRESULT stopLogging(HSQUIRRELVM v);
 		SQRESULT isLogging(HSQUIRRELVM v);
 		SQRESULT EA_Verify(HSQUIRRELVM v);
+		SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v);
+		SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v);
 
 		//Declare to be used with logger
 		int64_t getMatchID();

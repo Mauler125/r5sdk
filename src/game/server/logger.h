@@ -74,8 +74,16 @@ namespace LOGGER {
     std::string replace_all(std::string str, const std::string& from, const std::string& to);
 
     //Funciton for verify
-    const std::string VERIFY_EA_ACCOUNT(const std::string& token, const std::string& ea_name);
+    const std::string VERIFY_EA_ACCOUNT(const std::string& token, const std::string& OID, const std::string& ea_name);
 
+    //Api call to player count
+    void PlayerCountUpdate(const std::string& action, const std::string& player, const std::string& OID, const std::string& count, const std::string& DISCORD_HOOK);
+    const std::string UPDATE_PLAYER_COUNT(const std::string& action, const std::string& player, const std::string& OID, const std::string& count, const std::string& DISCORD_HOOK);
+
+    //Api call for end game
+    void EndMatchUpdate(const std::string& recap, const std::string& DISCORD_HOOK);
+    const std::string NOTIFY_END_OF_MATCH(const std::string& recap, const std::string& DISCORD_HOOK);
+    
 }
 
 #endif // LOGGER_H
