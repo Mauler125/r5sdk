@@ -471,7 +471,12 @@ void CMemoryStack::Access( void **ppRegion, uint64 *pBytes )
 
 void CMemoryStack::PrintContents() const
 {
-	size_t highest = m_pHighestAllocLimit - m_pBase;
+	if (IsCert())
+	{
+		return;
+	}
+
+	const size_t highest = m_pHighestAllocLimit - m_pBase;
 	MEMORY_BASIC_INFORMATION info;
 	char moduleName[260];
 	strcpy( moduleName, "unknown module" );
