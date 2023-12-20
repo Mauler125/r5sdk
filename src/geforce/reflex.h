@@ -1,6 +1,9 @@
 #ifndef GFSDK_REFLEX_H
 #define GFSDK_REFLEX_H
 
+void GFX_EnableLowLatencySDK(const bool enable);
+bool GFX_IsLowLatencySDKEnabled(void);
+
 void GFX_MarkLowLatencyParametersOutOfDate(void);
 bool GFX_HasPendingLowLatencyParameterUpdates(void);
 

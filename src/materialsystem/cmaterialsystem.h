@@ -9,6 +9,7 @@ class CMaterialSystem
 {
 public:
 	static InitReturnVal_t Init(CMaterialSystem* thisptr);
+	static int Shutdown(CMaterialSystem* thisptr);
 #ifndef MATERIALSYSTEM_NODX
 	static CMaterialGlue* FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 	static Vector2D GetScreenSize(CMaterialSystem* pMatSys = nullptr);
@@ -52,6 +53,9 @@ inline CMaterialDeviceMgr* g_pMaterialAdapterMgr = nullptr;
 inline CMemory p_CMaterialSystem__Init;
 inline InitReturnVal_t(*CMaterialSystem__Init)(CMaterialSystem* thisptr);
 
+inline CMemory p_CMaterialSystem__Shutdown;
+inline int(*CMaterialSystem__Shutdown)(CMaterialSystem* thisptr);
+
 inline CMemory p_CMaterialSystem__Disconnect;
 inline void(*CMaterialSystem__Disconnect)(void);
 
@@ -91,6 +95,7 @@ class VMaterialSystem : public IDetour
 	{
 		LogConAdr("CMaterial::`vftable'", reinterpret_cast<uintptr_t>(g_pMaterialVFTable));
 		LogFunAdr("CMaterialSystem::Init", p_CMaterialSystem__Init.GetPtr());
+		LogFunAdr("CMaterialSystem::Shutdown", p_CMaterialSystem__Shutdown.GetPtr());
 		LogFunAdr("CMaterialSystem::Disconnect", p_CMaterialSystem__Disconnect.GetPtr());
 #ifndef MATERIALSYSTEM_NODX
 		LogFunAdr("CMaterialSystem::FindMaterialEx", p_CMaterialSystem__FindMaterialEx.GetPtr());
@@ -110,6 +115,9 @@ class VMaterialSystem : public IDetour
 	{
 		p_CMaterialSystem__Init = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??");
 		CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<InitReturnVal_t(*)(CMaterialSystem*)>(); /*48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??*/
+
+		p_CMaterialSystem__Shutdown = g_GameDll.FindPatternSIMD("48 83 EC 58 48 89 6C 24 ??");
+		CMaterialSystem__Shutdown = p_CMaterialSystem__Shutdown.RCast<int(*)(CMaterialSystem*)>(); /*48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??*/
 
 		p_CMaterialSystem__Disconnect = g_GameDll.FindPatternSIMD("48 83 EC 28 8B 0D ?? ?? ?? ?? 48 89 6C 24 ??");
 		CMaterialSystem__Disconnect = p_CMaterialSystem__Disconnect.RCast<void(*)(void)>();
