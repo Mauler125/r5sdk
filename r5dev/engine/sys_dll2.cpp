@@ -184,11 +184,7 @@ bool CEngineAPI::MainLoop()
         }
 
 #ifndef DEDICATED
-        const MaterialAdapterInfo_t& adapterInfo = g_pMaterialAdapterMgr->GetAdapterInfo();
-
-        // Only run on NVIDIA display drivers; AMD and Intel are not
-        // supported by NVIDIA Reflex.
-        if (adapterInfo.m_VendorID == NVIDIA_VENDOR_ID)
+        if (GFX_IsLowLatencySDKEnabled())
         {
             if (GFX_HasPendingLowLatencyParameterUpdates())
             {

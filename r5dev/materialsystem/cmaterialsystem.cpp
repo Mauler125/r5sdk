@@ -5,14 +5,20 @@
 //===========================================================================//
 #include "core/stdafx.h"
 #include "tier0/crashhandler.h"
+#include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "vpc/keyvalues.h"
 #include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"
+#include "geforce/reflex.h"
 #ifndef MATERIALSYSTEM_NODX
 #include "materialsystem/cmaterialglue.h"
 #endif // !MATERIALSYSTEM_NODX
 #include "materialsystem/cmaterialsystem.h"
+
+#ifndef MATERIALSYSTEM_NODX
+//PCLSTATS_DEFINE()
+#endif // MATERIALSYSTEM_NODX
 
 //-----------------------------------------------------------------------------
 // Purpose: initialization of the material system
@@ -30,8 +36,28 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 	return INIT_FAILED;
 #else
 	// Initialize as usual.
+	GFX_EnableLowLatencySDK(!CommandLine()->CheckParm("-gfx_nvnDisableLowLatency"));
+
+	//if (GFX_IsLowLatencySDKEnabled())
+	//{
+	//	PCLSTATS_INIT(0);
+	//}
+
 	return CMaterialSystem__Init(thisptr);
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: shutdown of the material system
+//-----------------------------------------------------------------------------
+int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
+{
+	//if (GFX_IsLowLatencySDKEnabled())
+	//{
+	//	PCLSTATS_SHUTDOWN();
+	//}
+
+	return CMaterialSystem__Shutdown(thisptr);
 }
 
 #ifndef MATERIALSYSTEM_NODX
@@ -124,6 +150,7 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 void VMaterialSystem::Detour(const bool bAttach) const
 {
 	DetourSetup(&CMaterialSystem__Init, &CMaterialSystem::Init, bAttach);
+	DetourSetup(&CMaterialSystem__Shutdown, &CMaterialSystem::Shutdown, bAttach);
 #ifndef MATERIALSYSTEM_NODX
 	DetourSetup(&v_StreamDB_Init, &StreamDB_Init, bAttach);
 	DetourSetup(&v_DispatchDrawCall, &DispatchDrawCall, bAttach);

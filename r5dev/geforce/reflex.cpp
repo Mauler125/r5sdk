@@ -5,6 +5,9 @@
 //===========================================================================//
 #include "reflex.h"
 #include "mathlib/mathlib.h"
+#include "materialsystem/cmaterialsystem.h"
+
+static bool s_LowLatencySDKEnabled = false;
 
 // If false, the system will call 'NvAPI_D3D_SetSleepMode' to update the parameters.
 bool s_ReflexModeInfoUpToDate = false;
@@ -16,6 +19,29 @@ NvAPI_Status s_ReflexModeUpdateStatus = NvAPI_Status::NVAPI_OK;
 // Static frame number counter for latency markers.
 NvU64 s_ReflexFrameNumber = 0;
 NvU64 s_ReflexLastFrameNumber = 0;
+
+//-----------------------------------------------------------------------------
+// Purpose: enable/disable low latency SDK
+// Input  : enable - 
+//-----------------------------------------------------------------------------
+void GFX_EnableLowLatencySDK(const bool enable)
+{
+	s_LowLatencySDKEnabled = enable;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: whether we should run the low latency SDK
+//-----------------------------------------------------------------------------
+bool GFX_IsLowLatencySDKEnabled(void)
+{
+	if (!s_LowLatencySDKEnabled)
+		return false;
+
+	const MaterialAdapterInfo_t& adapterInfo = g_pMaterialAdapterMgr->GetAdapterInfo();
+	// Only run on NVIDIA display drivers; AMD and Intel are not
+	// supported by NVIDIA Reflex.
+	return adapterInfo.m_VendorID == NVIDIA_VENDOR_ID;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: mark the parameters as out-of-date; force update next frame
@@ -101,6 +127,7 @@ void GFX_UpdateLowLatencyParameters(IUnknown* device, const bool useLowLatencyMo
 //-----------------------------------------------------------------------------
 void GFX_RunLowLatencyFrame(IUnknown* device)
 {
+	Assert(device);
 	const NvU64 currentFrameNumber = GFX_GetFrameNumber();
 
 	if (s_ReflexLastFrameNumber == currentFrameNumber)
@@ -121,15 +148,15 @@ void GFX_RunLowLatencyFrame(IUnknown* device)
 void GFX_SetLatencyMarker(IUnknown* device,
 	const NV_LATENCY_MARKER_TYPE markerType)
 {
-	// TODO[ AMOS ]: should we keep calling this, even when the call to
-	// 'NvAPI_D3D_SetSleepMode(...)' has failed?
-	if (GFX_ParameterUpdateWasSuccessful())
-	{
-		NV_LATENCY_MARKER_PARAMS params = {};
-		params.version = NV_LATENCY_MARKER_PARAMS_VER1;
-		params.frameID = s_ReflexFrameNumber;
-		params.markerType = markerType;
+	Assert(device);
 
-		NvAPI_D3D_SetLatencyMarker(device, &params);
-	}
+	if (!GFX_IsLowLatencySDKEnabled())
+		return;
+
+	NV_LATENCY_MARKER_PARAMS params = {};
+	params.version = NV_LATENCY_MARKER_PARAMS_VER1;
+	params.frameID = s_ReflexFrameNumber;
+	params.markerType = markerType;
+
+	NvAPI_D3D_SetLatencyMarker(device, &params);
 }
