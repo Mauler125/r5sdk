@@ -174,7 +174,7 @@ public:
 	int                 m_nInSequenceNr;
 	int                 m_nOutSequenceNrAck;
 	int                 m_nChokedPackets;
-	int                 unknown_challenge_var;
+	int                 m_nRealTimePackets; // Number of packets without prescaled frame times.
 
 private:
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
