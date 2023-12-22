@@ -40,3 +40,11 @@ enum class PERSISTENCE : int
 
 #define net_NOP        0 // nop command used for padding.
 #define net_Disconnect 1 // disconnect, last message in connection.
+
+// each channel packet has 1 byte of FLAG bits
+#define PACKET_FLAG_RELIABLE			(1<<0)	// packet contains subchannel stream data
+#define PACKET_FLAG_COMPRESSED			(1<<1)	// packet is compressed
+#define PACKET_FLAG_ENCRYPTED			(1<<2)  // packet is encrypted
+#define PACKET_FLAG_SPLIT				(1<<3)  // packet is split
+#define PACKET_FLAG_CHOKED				(1<<4)  // packet was choked by sender
+
