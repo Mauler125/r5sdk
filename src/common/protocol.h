@@ -47,4 +47,5 @@ enum class PERSISTENCE : int
 #define PACKET_FLAG_ENCRYPTED			(1<<2)  // packet is encrypted
 #define PACKET_FLAG_SPLIT				(1<<3)  // packet is split
 #define PACKET_FLAG_CHOKED				(1<<4)  // packet was choked by sender
-
+#define PACKET_FLAG_PRESCALED			(1<<5)  // packet was sent by sender with prescaled frame time
+#define PACKET_FLAG_LOOPBACK			(1<<6)  // packet was sent from loopback connection
