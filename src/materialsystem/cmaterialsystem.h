@@ -75,6 +75,9 @@ inline void*(*v_DispatchDrawCall)(int64_t a1, uint64_t a2, int a3, int a4, char 
 inline CMemory p_DispatchDrawCall;
 inline void*(*v_DispatchDrawCall)(int64_t a1, uint64_t a2, int a3, int a4, int64_t a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, int a11, __m128* a12, int a13, int64_t a14);
 #endif
+inline CMemory p_SpinPresent;
+inline ssize_t(*v_SpinPresent)(void);
+
 inline CMemory p_GetStreamOverlay;
 inline void(*v_GetStreamOverlay)(const char* mode, char* buf, size_t bufSize);
 
@@ -100,9 +103,10 @@ class VMaterialSystem : public IDetour
 #ifndef MATERIALSYSTEM_NODX
 		LogFunAdr("CMaterialSystem::FindMaterialEx", p_CMaterialSystem__FindMaterialEx.GetPtr());
 		LogFunAdr("CMaterialSystem::GetScreenSize", p_CMaterialSystem_GetScreenSize.GetPtr());
-		LogFunAdr("CMaterialSystem::DispatchDrawCall", p_DispatchDrawCall.GetPtr());
 		LogFunAdr("CMaterialSystem::GetStreamOverlay", p_GetStreamOverlay.GetPtr());
 		LogFunAdr("CMaterialSystem::DrawStreamOverlay", p_DrawStreamOverlay.GetPtr());
+		LogFunAdr("DispatchDrawCall", p_DispatchDrawCall.GetPtr());
+		LogFunAdr("SpinPresent", p_SpinPresent.GetPtr());
 		LogVarAdr("g_nTotalStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nTotalStreamingTextureMemory));
 		LogVarAdr("g_nUnfreeStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nUnfreeStreamingTextureMemory));
 		LogVarAdr("g_nUnusableStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nUnusableStreamingTextureMemory));
@@ -134,6 +138,9 @@ class VMaterialSystem : public IDetour
 		p_DispatchDrawCall = g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56");
 		v_DispatchDrawCall = p_DispatchDrawCall.RCast<void*(*)(int64_t, uint64_t, int, int, int64_t, int, uint8_t, int64_t, uint32_t, uint32_t, int, __m128*, int, int64_t )>();
 #endif
+		p_SpinPresent = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 8B 15 ?? ?? ?? ??");
+		v_SpinPresent = p_SpinPresent.RCast<ssize_t(*)(void)>();
+
 		p_GetStreamOverlay = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 80 7C 24 ?? ?? 0F 84 ?? ?? ?? ?? 48 89 9C 24 ?? ?? ?? ??").FollowNearCallSelf();
 		v_GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char*, char*, size_t)>(); /*E8 ? ? ? ? 80 7C 24 ? ? 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ?*/
 
