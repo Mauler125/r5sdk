@@ -1,5 +1,6 @@
 #pragma once
 #include "InputEnums.h"
+#include "common/xbox/xboxstubs.h"
 
 #define JOYSTICK_BUTTON_INTERNAL( _joystick, _button ) ( JOYSTICK_FIRST_BUTTON + ((_joystick) * JOYSTICK_MAX_BUTTON_COUNT) + (_button) )
 #define JOYSTICK_POV_BUTTON_INTERNAL( _joystick, _button ) ( JOYSTICK_FIRST_POV_BUTTON + ((_joystick) * JOYSTICK_POV_BUTTON_COUNT) + (_button) )
@@ -11,7 +12,7 @@
 
 enum
 {
-	JOYSTICK_MAX_BUTTON_COUNT = 26,
+	JOYSTICK_MAX_BUTTON_COUNT = XK_MAX_KEYS,
 	JOYSTICK_POV_BUTTON_COUNT = 4,
 	JOYSTICK_AXIS_BUTTON_COUNT = MAX_JOYSTICK_AXES * 2,
 };
