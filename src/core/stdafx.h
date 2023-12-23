@@ -60,6 +60,7 @@
 #include "tier0/module.h"
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
+#include "tier0/platwindow.h"
 #include "tier0/annotations.h"
 #include "tier0/commonmacros.h"
 #include "tier0/memalloc.h"
@@ -67,6 +68,7 @@
 #include "tier0/dbg.h"
 
 // Tier1 includes.
+#include "tier1/tier1.h"
 #include "tier1/cvar.h"
 #include "tier1/cmd.h"
 #include "common/global.h"
