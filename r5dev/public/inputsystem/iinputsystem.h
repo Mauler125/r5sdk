@@ -16,6 +16,10 @@
 DECLARE_POINTER_HANDLE( InputCursorHandle_t );
 #define INPUT_CURSOR_HANDLE_INVALID ( (InputCursorHandle_t)0 )
 
+///-----------------------------------------------------------------------------
+/// Input event callback
+///-----------------------------------------------------------------------------
+typedef void ( *InputEventCallback_t ) ( const InputEvent_t& eventCallback );
 
 ///-----------------------------------------------------------------------------
 /// An enumeration describing well-known cursor icons
@@ -67,17 +71,17 @@ public:
 	/// Is a button down? "Buttons" are binary-state input devices (mouse buttons, keyboard keys).
 	virtual bool IsButtonDown( const ButtonCode_t code ) const = 0;
 
-	/// Returns the tick at which the button was pressed and released
+	/// Returns the tick at which the button was pressed and released.
 	virtual int GetButtonPressedTick( const ButtonCode_t code ) const = 0;
 
-	/// TODO[ AMOS ]: reverse this further ( returns an enum ? )...
-	virtual int GetJoystickDeadzoneIndex( ) const = 0;
+	/// Returns the joystick deadzone index for connected hardware.
+	virtual JoystickDeadzoneIndex_t GetJoystickDeadzoneIndex( ) const = 0;
 
 	/// DoNothing; VFTable padding.
 	virtual bool ReturnFalse( ) const = 0;
 
 	/// Polls the current input state.
-	virtual void PollInputState( const void* const eventCallback ) = 0;
+	virtual void PollInputState( const InputEventCallback_t eventCallback ) = 0;
 
 	/// Posts a user-defined event into the event queue; this is expected
 	/// to be called in overridden wndprocs connected to the root panel.
