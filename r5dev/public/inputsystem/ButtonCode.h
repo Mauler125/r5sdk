@@ -1,4 +1,5 @@
 #pragma once
+#include "InputEnums.h"
 
 #define JOYSTICK_BUTTON_INTERNAL( _joystick, _button ) ( JOYSTICK_FIRST_BUTTON + ((_joystick) * JOYSTICK_MAX_BUTTON_COUNT) + (_button) )
 #define JOYSTICK_POV_BUTTON_INTERNAL( _joystick, _button ) ( JOYSTICK_FIRST_POV_BUTTON + ((_joystick) * JOYSTICK_POV_BUTTON_COUNT) + (_button) )
@@ -8,27 +9,9 @@
 #define JOYSTICK_POV_BUTTON( _joystick, _button ) ( (ButtonCode_t)JOYSTICK_POV_BUTTON_INTERNAL( _joystick, _button ) )
 #define JOYSTICK_AXIS_BUTTON( _joystick, _button ) ( (ButtonCode_t)JOYSTICK_AXIS_BUTTON_INTERNAL( _joystick, _button ) )
 
-// Buttons are not confirmed to be the same. They have been always the same throughout the source engine. Lets hope they did not change them.
 enum
 {
-	MAX_JOYSTICKS = MAX_SPLITSCREEN_CLIENTS,
-	MOUSE_BUTTON_COUNT = 5,
-};
-
-enum JoystickAxis_t
-{
-	JOY_AXIS_X = 0,
-	JOY_AXIS_Y,
-	JOY_AXIS_Z,
-	JOY_AXIS_R,
-	JOY_AXIS_U,
-	JOY_AXIS_V,
-	MAX_JOYSTICK_AXES,
-};
-
-enum
-{
-	JOYSTICK_MAX_BUTTON_COUNT = 32,
+	JOYSTICK_MAX_BUTTON_COUNT = 26,
 	JOYSTICK_POV_BUTTON_COUNT = 4,
 	JOYSTICK_AXIS_BUTTON_COUNT = MAX_JOYSTICK_AXES * 2,
 };
@@ -183,11 +166,15 @@ enum ButtonCode_t
 	BUTTON_CODE_LAST,
 	BUTTON_CODE_COUNT = BUTTON_CODE_LAST - KEY_FIRST + 1,
 
-	// Helpers for XBox 360
+	// Helpers for XBox
 	KEY_XBUTTON_UP = JOYSTICK_FIRST_POV_BUTTON,     // POV buttons
-	KEY_XBUTTON_RIGHT,
 	KEY_XBUTTON_DOWN,
 	KEY_XBUTTON_LEFT,
+	KEY_XBUTTON_RIGHT,
+	KEY_XBUTTON_START,
+	KEY_XBUTTON_BACK,
+	KEY_XBUTTON_STICK1,
+	KEY_XBUTTON_STICK2,
 
 	KEY_XBUTTON_A = JOYSTICK_FIRST_BUTTON,          // Buttons
 	KEY_XBUTTON_B,
@@ -195,20 +182,19 @@ enum ButtonCode_t
 	KEY_XBUTTON_Y,
 	KEY_XBUTTON_LEFT_SHOULDER,
 	KEY_XBUTTON_RIGHT_SHOULDER,
-	KEY_XBUTTON_BACK,
-	KEY_XBUTTON_START,
-	KEY_XBUTTON_STICK1,
-	KEY_XBUTTON_STICK2,
-	KEY_XBUTTON_INACTIVE_START,
 
-	KEY_XSTICK1_RIGHT = JOYSTICK_FIRST_AXIS_BUTTON, // XAXIS POSITIVE
-	KEY_XSTICK1_LEFT,                               // XAXIS NEGATIVE
+	KEY_XBUTTON_LTRIGGER_PARTIAL,
+	KEY_XBUTTON_LTRIGGER_FULL,
+	KEY_XBUTTON_RTRIGGER_PARTIAL,
+	KEY_XBUTTON_RTRIGGER_FULL,
+
+	KEY_XSTICK1_UP = JOYSTICK_FIRST_AXIS_BUTTON,    // YAXIS NEGATIVE
 	KEY_XSTICK1_DOWN,                               // YAXIS POSITIVE
-	KEY_XSTICK1_UP,                                 // YAXIS NEGATIVE
-	KEY_XBUTTON_LTRIGGER,                           // ZAXIS POSITIVE
-	KEY_XBUTTON_RTRIGGER,                           // ZAXIS NEGATIVE
-	KEY_XSTICK2_RIGHT,                              // UAXIS POSITIVE
-	KEY_XSTICK2_LEFT,                               // UAXIS NEGATIVE
-	KEY_XSTICK2_DOWN,                               // VAXIS POSITIVE
+	KEY_XSTICK1_LEFT,                               // XAXIS NEGATIVE
+	KEY_XSTICK1_RIGHT,                              // XAXIS POSITIVE
+
 	KEY_XSTICK2_UP,                                 // VAXIS NEGATIVE
+	KEY_XSTICK2_DOWN,                               // VAXIS POSITIVE
+	KEY_XSTICK2_LEFT,                               // UAXIS NEGATIVE
+	KEY_XSTICK2_RIGHT,                              // UAXIS POSITIVE
 };
