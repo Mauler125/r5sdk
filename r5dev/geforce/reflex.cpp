@@ -159,4 +159,5 @@ void GFX_SetLatencyMarker(IUnknown* device,
 	params.markerType = markerType;
 
 	NvAPI_D3D_SetLatencyMarker(device, &params);
+	PCLSTATS_MARKER(markerType, s_ReflexFrameNumber);
 }
