@@ -174,7 +174,7 @@ void CEngineAPI::PumpMessages()
     if (in_syncRT->GetBool())
         (*g_fnSyncRTWithIn)();
 
-    g_pInputSystem->PollInputState(UIInputEventHandler);
+    g_pInputSystem->PollInputState(v_UIInputEventHandler);
     g_pGame->DispatchAllStoredGameMessages();
 #endif // !DEDICATED
 }
