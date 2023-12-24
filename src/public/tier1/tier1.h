@@ -13,6 +13,7 @@
 template< class IInterface, int ConVarFlag = 0 > 
 class CTier1AppSystem : public CTier0AppSystem< IInterface >
 {
+public:
 	virtual bool Connect( const CreateInterfaceFn factory ) = 0;
 	virtual void Disconnect( ) = 0;
 	virtual void* QueryInterface( const char* const pInterfaceName ) = 0;
