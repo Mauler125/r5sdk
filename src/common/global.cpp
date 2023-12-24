@@ -28,6 +28,8 @@ ConVar* fps_max_rt                         = nullptr;
 ConVar* fps_max_rt_tolerance               = nullptr;
 ConVar* fps_max_rt_sleep_threshold         = nullptr;
 ConVar* fps_max_gfx                        = nullptr;
+
+ConVar* in_syncRT                          = nullptr;
 #endif // !DEDICATED
 
 ConVar* base_tickinterval_sp               = nullptr;
@@ -565,6 +567,7 @@ void ConVar_InitShipped(void)
 #ifndef DEDICATED
 	miles_language                   = g_pCVar->FindVar("miles_language");
 	rui_defaultDebugFontFace         = g_pCVar->FindVar("rui_defaultDebugFontFace");
+	in_syncRT                        = g_pCVar->FindVar("in_syncRT");
 	r_visualizetraces                = g_pCVar->FindVar("r_visualizetraces");
 	r_visualizetraces_duration       = g_pCVar->FindVar("r_visualizetraces_duration");
 #endif // !DEDICATED

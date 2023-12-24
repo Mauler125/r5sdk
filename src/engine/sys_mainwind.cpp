@@ -9,6 +9,7 @@
 #include "windows/input.h"
 #include "engine/sys_mainwind.h"
 #include "engine/sys_engine.h"
+#include "engine/keys.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
 
@@ -97,7 +98,7 @@ int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //-----------------------------------------------------------------------------
 // Purpose: gets the window rect
 //-----------------------------------------------------------------------------
-void CGame::GetWindowRect(int* x, int* y, int* w, int* h)
+void CGame::GetWindowRect(int* const x, int* const y, int* const w, int* const h) const
 {
 	if (x)
 	{
@@ -114,6 +115,41 @@ void CGame::GetWindowRect(int* x, int* y, int* w, int* h)
 	if (h)
 	{
 		*h = m_height;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: dispatch key event
+//-----------------------------------------------------------------------------
+void CGame::DispatchKeyEvent(const uint64_t msTime, const ButtonCode_t buttonCode) const
+{
+	const float duration = buttonCode == KEY_XBUTTON_BACK ? 1.0f : 0.2f;
+	KeyInfo_t& keyInfo = g_pKeyInfo[buttonCode];
+
+	if (keyInfo.m_bKeyDown && ((msTime - keyInfo.m_nEventTick) * 0.001f) >= duration)
+	{
+		KeyEvent_t keyEvent;
+
+		keyEvent.m_pCommand = keyInfo.m_pKeyBinding[KeyInfo_t::KEY_HELD_BIND];
+		keyEvent.m_nTick = buttonCode;
+		keyEvent.m_bDown = true;
+
+		Key_Event(keyEvent);
+		keyInfo.m_bKeyDown = true;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: dispatch all the queued up messages
+//-----------------------------------------------------------------------------
+void CGame::DispatchAllStoredGameMessages() const
+{
+	const uint64_t ticks = Plat_MSTime();
+	const short eventCount = *g_nKeyEventCount;
+
+	for (short i = 0; i < eventCount; i++)
+	{
+		DispatchKeyEvent(ticks, g_pKeyEventTicks[i]);
 	}
 }
 

@@ -17,6 +17,8 @@
 #include "engine/traceinit.h"
 #ifndef DEDICATED
 #include "engine/sys_mainwind.h"
+#include "inputsystem/inputsystem.h"
+#include "vgui/vgui_baseui_interface.h"
 #include "materialsystem/cmaterialsystem.h"
 #include "windows/id3dx.h"
 #include "client/vengineclient_impl.h"
@@ -162,7 +164,18 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
 void CEngineAPI::PumpMessages()
 {
 #ifndef DEDICATED
-    CEngineAPI_PumpMessages();
+    MSG msg;
+    while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+        TranslateMessage(&msg);
+        DispatchMessageW(&msg);
+    }
+
+    if (in_syncRT->GetBool())
+        (*g_fnSyncRTWithIn)();
+
+    g_pInputSystem->PollInputState(UIInputEventHandler);
+    g_pGame->DispatchAllStoredGameMessages();
 #endif // !DEDICATED
 }
 
