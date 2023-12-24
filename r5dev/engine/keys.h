@@ -41,6 +41,8 @@ struct KeyInfo_t
 	short paddingMaybe;
 };
 
+inline bool(*Key_Event)(const KeyEvent_t& keyEvent);
+
 extern KeyInfo_t* g_pKeyInfo;          // ARRAYSIZE = ButtonCode_t::BUTTON_CODE_LAST
 extern ButtonCode_t* g_pKeyEventTicks; // ARRAYSIZE = ButtonCode_t::BUTTON_CODE_LAST
 extern short* g_nKeyEventCount;
@@ -49,11 +51,15 @@ class VKeys : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("Key_Event", reinterpret_cast<uintptr_t>(Key_Event));
 		LogVarAdr("g_pKeyInfo", reinterpret_cast<uintptr_t>(g_pKeyInfo));
 		LogVarAdr("g_pKeyEventTicks", reinterpret_cast<uintptr_t>(g_pKeyEventTicks));
 		LogVarAdr("g_nKeyEventCount", reinterpret_cast<uintptr_t>(g_nKeyEventCount));
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+		Key_Event = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 63 41 08").RCast<bool(*)(const KeyEvent_t&)>();
+	}
 	virtual void GetVar(void) const
 	{
 		g_pKeyInfo = g_GameDll.FindPatternSIMD("48 83 EC 28 33 D2 48 8D 0D ?? ?? ?? ?? 41 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 33 C0 C6 05 ?? ?? ?? ?? ??")

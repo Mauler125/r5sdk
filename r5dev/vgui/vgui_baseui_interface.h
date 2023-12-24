@@ -1,6 +1,7 @@
 #pragma once
 #include <engine/server/sv_main.h>
 #include <vguimatsurface/MatSystemSurface.h>
+#include "inputsystem/iinputsystem.h"
 
 enum class PaintMode_t
 {
@@ -85,6 +86,7 @@ inline void*(*CEngineVGui_RenderStart)(CMatSystemSurface* pMatSystemSurface);
 inline CMemory p_CEngineVGui_RenderEnd;
 inline void*(*CEngineVGui_RenderEnd)(void);
 
+inline InputEventCallback_t UIInputEventHandler = nullptr;
 inline CEngineVGui* g_pEngineVGui = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,6 +97,7 @@ class VEngineVGui : public IDetour
 		LogFunAdr("CEngineVGui::Paint", p_CEngineVGui_Paint.GetPtr());
 		LogFunAdr("CEngineVGui::RenderStart", p_CEngineVGui_RenderStart.GetPtr());
 		LogFunAdr("CEngineVGui::RenderEnd", p_CEngineVGui_RenderEnd.GetPtr());
+		LogFunAdr("UIInputEventHandler", reinterpret_cast<uintptr_t>(UIInputEventHandler));
 		LogVarAdr("g_pEngineVGui", reinterpret_cast<uintptr_t>(g_pEngineVGui));
 	}
 	virtual void GetFun(void) const
@@ -114,6 +117,8 @@ class VEngineVGui : public IDetour
 #endif
 		p_CEngineVGui_RenderEnd = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01");
 		CEngineVGui_RenderEnd = p_CEngineVGui_RenderEnd.RCast<void* (*)(void)>(); /*40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01*/
+
+		UIInputEventHandler = g_GameDll.FindPatternSIMD("40 53 48 83 EC 40 48 63 01").RCast<InputEventCallback_t>();
 	}
 	virtual void GetVar(void) const
 	{

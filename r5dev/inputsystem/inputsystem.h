@@ -163,6 +163,7 @@ static_assert(sizeof(CInputSystem) == 0x18E8);
 
 ///////////////////////////////////////////////////////////////////////////////
 extern CInputSystem* g_pInputSystem;
+extern bool(**g_fnSyncRTWithIn)(void); // Belongs to an array of callbacks, see CMaterialSystem::MatsysMode_Init().
 
 ///////////////////////////////////////////////////////////////////////////////
 class VInputSystem : public IDetour
@@ -170,12 +171,16 @@ class VInputSystem : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogVarAdr("g_pInputSystem", reinterpret_cast<uintptr_t>(g_pInputSystem));
+		LogVarAdr("g_fnSyncRTWithIn", reinterpret_cast<uintptr_t>(g_fnSyncRTWithIn));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
 		g_pInputSystem = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 85 C9 74 11")
 			.FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CInputSystem*>();
+
+		const CMemory l_EngineApi_PumpMessages = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 48 81 EC ?? ?? ?? ?? 45 33 C9");
+		g_fnSyncRTWithIn = l_EngineApi_PumpMessages.FindPattern("74 06").FindPatternSelf("FF 15").ResolveRelativeAddressSelf(2, 6).RCast<bool(**)(void)>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const { }

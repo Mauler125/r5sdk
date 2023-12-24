@@ -19,6 +19,8 @@ extern ConVar* fps_max_rt;
 extern ConVar* fps_max_rt_tolerance;
 extern ConVar* fps_max_rt_sleep_threshold;
 extern ConVar* fps_max_gfx;
+
+extern ConVar* in_syncRT;
 #endif // !DEDICATED
 
 extern ConVar* base_tickinterval_sp;
