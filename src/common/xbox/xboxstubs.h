@@ -43,6 +43,9 @@ typedef enum
 	XK_STICK2_LEFT,
 	XK_STICK2_RIGHT,
 
+	XK_UP_DOWN,
+	XK_LEFT_RIGHT,
+
 	XK_MAX_KEYS,
 } xKey_t;
 
