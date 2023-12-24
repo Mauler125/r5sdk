@@ -11,6 +11,9 @@ class CInputSystem : public CTier1AppSystem< IInputSystem >
 {
 public:
 	// !!!interface implemented in engine!!!
+public:
+	// Hook statics:
+	static LRESULT WindowProc(void* unused, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
 	enum
@@ -162,18 +165,24 @@ private:
 static_assert(sizeof(CInputSystem) == 0x18E8);
 
 ///////////////////////////////////////////////////////////////////////////////
+inline LRESULT (*v_CInputSystem__WindowProc)(void* thisptr, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 extern CInputSystem* g_pInputSystem;
-extern bool(**g_fnSyncRTWithIn)(void); // Belongs to an array of callbacks, see CMaterialSystem::MatsysMode_Init().
+extern bool(**g_fnSyncRTWithIn)(void); // Belongs to an array of functions, see CMaterialSystem::MatsysMode_Init().
 
 ///////////////////////////////////////////////////////////////////////////////
 class VInputSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("CInputSystem::WindowProc", reinterpret_cast<uintptr_t>(v_CInputSystem__WindowProc));
 		LogVarAdr("g_pInputSystem", reinterpret_cast<uintptr_t>(g_pInputSystem));
 		LogVarAdr("g_fnSyncRTWithIn", reinterpret_cast<uintptr_t>(g_fnSyncRTWithIn));
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 55 56 41 54 41 55 48 83 EC 48", v_CInputSystem__WindowProc);
+	}
 	virtual void GetVar(void) const
 	{
 		g_pInputSystem = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 85 C9 74 11")
@@ -183,6 +192,6 @@ class VInputSystem : public IDetour
 		g_fnSyncRTWithIn = l_EngineApi_PumpMessages.FindPattern("74 06").FindPatternSelf("FF 15").ResolveRelativeAddressSelf(2, 6).RCast<bool(**)(void)>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Detour(const bool bAttach) const { }
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
