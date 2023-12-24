@@ -134,7 +134,7 @@ void CGame::DispatchKeyEvent(const uint64_t msTime, const ButtonCode_t buttonCod
 		keyEvent.m_nTick = buttonCode;
 		keyEvent.m_bDown = true;
 
-		Key_Event(keyEvent);
+		v_Key_Event(keyEvent);
 		keyInfo.m_bKeyDown = true;
 	}
 }

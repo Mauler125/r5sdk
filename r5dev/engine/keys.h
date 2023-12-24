@@ -35,13 +35,14 @@ struct KeyInfo_t
 
 	bool m_bKeyDown;
 	bool m_bEventIsButtonKey; // Is the event a button key (< ButtonCode_t::KEY_LAST)
-	bool m_bBoundKeyDown;
+	bool m_bTrapKeyUp;
 	bool m_bBoundSecondKey; // Is the key bound to the second row?
 
 	short paddingMaybe;
 };
 
-inline bool(*Key_Event)(const KeyEvent_t& keyEvent);
+inline bool (*v_Input_Event)(const InputEvent_t& inputEvent, const int noKeyUpCheck);
+inline bool(*v_Key_Event)(const KeyEvent_t& keyEvent);
 
 extern KeyInfo_t* g_pKeyInfo;          // ARRAYSIZE = ButtonCode_t::BUTTON_CODE_LAST
 extern ButtonCode_t* g_pKeyEventTicks; // ARRAYSIZE = ButtonCode_t::BUTTON_CODE_LAST
@@ -51,14 +52,16 @@ class VKeys : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("Key_Event", reinterpret_cast<uintptr_t>(Key_Event));
+		LogFunAdr("Input_Event", reinterpret_cast<uintptr_t>(v_Input_Event));
+		LogFunAdr("Key_Event", reinterpret_cast<uintptr_t>(v_Key_Event));
 		LogVarAdr("g_pKeyInfo", reinterpret_cast<uintptr_t>(g_pKeyInfo));
 		LogVarAdr("g_pKeyEventTicks", reinterpret_cast<uintptr_t>(g_pKeyEventTicks));
 		LogVarAdr("g_nKeyEventCount", reinterpret_cast<uintptr_t>(g_nKeyEventCount));
 	}
 	virtual void GetFun(void) const
 	{
-		Key_Event = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 63 41 08").RCast<bool(*)(const KeyEvent_t&)>();
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 56", v_Input_Event);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 63 41 08", v_Key_Event);
 	}
 	virtual void GetVar(void) const
 	{
@@ -72,7 +75,7 @@ class VKeys : public IDetour
 		g_pKeyEventTicks = l_EngineApi_PumpMessages.FindPatternSelf("48 8D 35").ResolveRelativeAddressSelf(3, 7).RCast<ButtonCode_t*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Detour(const bool bAttach) const { }
+	virtual void Detour(const bool bAttach) const;
 };
 
 #endif // ENGINE_KEYS_H
