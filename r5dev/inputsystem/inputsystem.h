@@ -19,6 +19,8 @@ private:
 		INPUT_STATE_CURRENT,
 
 		INPUT_STATE_COUNT,
+
+		BUTTON_EVENT_COUNT = 128
 	};
 
 	struct xdevice_t
@@ -31,20 +33,38 @@ private:
 			float rightTriggerMotor;
 		};
 
+		struct unkownhiddevice_t
+		{
+			struct state_t
+			{
+				SRWLOCK lock;
+				char unk0[56];
+				xvibration_t vibration;
+				char unk1[48];
+			};
+
+			// Name might be incorrect!
+			state_t states[INPUT_STATE_COUNT];
+			HANDLE hThread0;
+			HANDLE hthread1;
+		};
+
 		int userId;
 		char active;
 		XINPUT_STATE states[INPUT_STATE_COUNT];
 		int newState;
-		_BYTE gap6[20];
+		xKey_t lastStickKeys[MAX_JOYSTICK_AXES-2]; // -2 as U and V aren't polled.
+		int unk0;
 		bool pendingRumbleUpdate;
 		_BYTE gap41[3];
 		xvibration_t vibration;
-		bool bUnk0;
-		char field_55;
+		bool isXbox360Gamepad;
+		bool nonXboxDevice; // uses unknownHidDevice when set
 		_BYTE gap56[42];
-		int field_80;
-		_BYTE gap84[316];
+		unkownhiddevice_t unknownHidDevice;
+		_BYTE gap190[42];
 	};
+	static_assert(sizeof(xdevice_t) == 0x1C0);
 
 	struct appKey_t
 	{
@@ -56,7 +76,7 @@ private:
 	{
 		// Analog states
 		CBitVec<BUTTON_CODE_LAST> m_ButtonState;
-		int m_pAnalogValue[JOYSTICK_MAX_BUTTON_COUNT];
+		int m_pAnalogValue[ANALOG_CODE_LAST];
 	};
 
 
@@ -90,7 +110,7 @@ private:
 	int m_AnalogEventTypes[JOYSTICK_AXIS_BUTTON_COUNT];
 
 	// Button events
-	InputEvent_t m_Events[128];
+	InputEvent_t m_Events[BUTTON_EVENT_COUNT];
 	InputEvent_t m_CurrentEvent;
 
 	DWORD m_StartupTimeTick;
@@ -104,7 +124,7 @@ private:
 
 	// Xbox controller info
 	int m_nJoystickCount;
-	appKey_t m_appXKeys[XUSER_MAX_COUNT][XK_MAX_KEYS+2];
+	appKey_t m_appXKeys[XUSER_MAX_COUNT][XK_MAX_KEYS];
 	char pad_unk[16];
 	xdevice_t m_XDevices[XUSER_MAX_COUNT];
 
@@ -137,6 +157,7 @@ private:
 	bool m_bIgnoreLocalJoystick;
 	InputCursorHandle_t m_hCursor;
 };
+static_assert(sizeof(CInputSystem) == 0x18E8);
 
 ///////////////////////////////////////////////////////////////////////////////
 extern CInputSystem* g_pInputSystem;
