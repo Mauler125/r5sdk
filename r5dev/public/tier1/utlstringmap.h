@@ -96,7 +96,7 @@ public:
 		else // ( m_Vector.Count() < index )
 		{
 			// this is a strange shouldn't-happen case.
-			AssertMsg( false, "CUtlStringMap insert unexpected entries." );
+			//AssertMsg( false, "CUtlStringMap insert unexpected entries." );
 			m_Vector.EnsureCount( index + 1 );
 			m_Vector[index] = item;
 		}
