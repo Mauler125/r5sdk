@@ -26,6 +26,11 @@ add_sources( SOURCE_GROUP "Debug"
     "debugoverlay.h"
 )
 
+add_sources( SOURCE_GROUP "Input"
+    "keys.cpp"
+    "keys.h"
+)
+
 add_sources( SOURCE_GROUP "Render"
     "framelimit.cpp"
     "framelimit.h"
@@ -189,6 +194,7 @@ add_sources( SOURCE_GROUP "Common"
     "${ENGINE_SOURCE_DIR}/common/qlimits.h"
     "${ENGINE_SOURCE_DIR}/common/sdkdefs.h"
     "${ENGINE_SOURCE_DIR}/common/x86defs.h"
+    "${ENGINE_SOURCE_DIR}/common/xbox/xboxstubs.h"
 )
 
 file( GLOB ENGINE_PUBLIC_HEADERS
