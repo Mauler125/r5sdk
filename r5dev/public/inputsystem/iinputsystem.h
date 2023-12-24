@@ -19,7 +19,7 @@ DECLARE_POINTER_HANDLE( InputCursorHandle_t );
 ///-----------------------------------------------------------------------------
 /// Input event callback
 ///-----------------------------------------------------------------------------
-typedef void ( *InputEventCallback_t ) ( const InputEvent_t& eventCallback );
+typedef bool ( *InputEventCallback_t ) ( const InputEvent_t& eventCallback );
 
 ///-----------------------------------------------------------------------------
 /// An enumeration describing well-known cursor icons
