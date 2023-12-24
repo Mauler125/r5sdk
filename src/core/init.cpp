@@ -96,14 +96,15 @@
 #include "engine/sys_utils.h"
 #ifndef DEDICATED
 #include "engine/sys_getmodes.h"
-#include "engine/gl_rmain.h"
 #include "engine/sys_mainwind.h"
 #include "engine/matsys_interface.h"
+#include "engine/gl_rmain.h"
 #include "engine/gl_matsysiface.h"
 #include "engine/gl_drawlights.h"
 #include "engine/gl_screen.h"
 #include "engine/gl_rsurf.h"
 #include "engine/debugoverlay.h"
+#include "engine/keys.h"
 #endif // !DEDICATED
 #include "vscript/languages/squirrel_re/include/squirrel.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
@@ -593,6 +594,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VGL_RSurf);
 
 	REGISTER(VDebugOverlay); // !TODO: This also needs to be exposed to server dll!!!
+	REGISTER(VKeys);
 #endif // !DEDICATED
 
 	// VScript
