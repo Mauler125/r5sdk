@@ -111,6 +111,8 @@ private:
 
 	// Button events
 	InputEvent_t m_Events[BUTTON_EVENT_COUNT];
+
+	// Current event
 	InputEvent_t m_CurrentEvent;
 
 	DWORD m_StartupTimeTick;
