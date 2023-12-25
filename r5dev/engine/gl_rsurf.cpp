@@ -11,11 +11,10 @@
 #include "engine/gl_rsurf.h"
 #include <materialsystem/cmaterialsystem.h>
 
-void* R_DrawDepthOfField(const float a1)
+void* R_DrawDepthOfField(const float scalar)
 {
 	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_START, MaterialSystem()->GetCurrentFrameCount());
-
-	return V_DrawDepthOfField(a1);
+	return V_DrawDepthOfField(scalar);
 }
 
 void* R_DrawWorldMeshes(void* baseEntity, void* renderContext, DrawWorldLists_t worldLists)
