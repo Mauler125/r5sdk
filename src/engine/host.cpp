@@ -12,6 +12,7 @@
 #include "windows/id3dx.h"
 #include "geforce/reflex.h"
 #include "vgui/vgui_debugpanel.h"
+#include <materialsystem/cmaterialsystem.h>
 #endif // !DEDICATED
 
 CCommonHostState* g_pCommonHostState = nullptr;
@@ -46,7 +47,7 @@ Services environments)
 void Host_CountRealTimePackets()
 {
 	v_Host_CountRealTimePackets();
-	GFX_SetLatencyMarker(D3D11Device(), SIMULATION_START);
+	GFX_SetLatencyMarker(D3D11Device(), SIMULATION_START, MaterialSystem()->GetCurrentFrameCount());
 }
 
 /*

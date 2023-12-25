@@ -1,6 +1,7 @@
 #include "keys.h"
 #include "windows/id3dx.h"
 #include "geforce/reflex.h"
+#include <materialsystem/cmaterialsystem.h>
 
 KeyInfo_t* g_pKeyInfo = nullptr;
 ButtonCode_t* g_pKeyEventTicks = nullptr;
@@ -22,7 +23,7 @@ bool Input_Event(const InputEvent_t& inputEvent, const int noKeyUpCheck)
 
 	if (runTriggerMarker && (inputEvent.m_nType != IE_ButtonReleased || keyInfo.m_bTrapKeyUp))
 	{
-		GFX_SetLatencyMarker(D3D11Device(), TRIGGER_FLASH);
+		GFX_SetLatencyMarker(D3D11Device(), TRIGGER_FLASH, MaterialSystem()->GetCurrentFrameCount());
 	}
 
 	return v_Input_Event(inputEvent, noKeyUpCheck);

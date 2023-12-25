@@ -9,6 +9,7 @@
 #include "windows/id3dx.h"
 #include "geforce/reflex.h"
 #include "inputsystem/inputsystem.h"
+#include <materialsystem/cmaterialsystem.h>
 
 ////-----------------------------------------------------------------------------
 //// Enables/disables input
@@ -59,7 +60,7 @@ LRESULT CInputSystem::WindowProc(void* unused, HWND hwnd, UINT uMsg, WPARAM wPar
 	{
 		if (PCLSTATS_IS_PING_MSG_ID(uMsg))
 		{
-			GFX_SetLatencyMarker(D3D11Device(), PC_LATENCY_PING);
+			GFX_SetLatencyMarker(D3D11Device(), PC_LATENCY_PING, MaterialSystem()->GetCurrentFrameCount());
 		}
 	}
 

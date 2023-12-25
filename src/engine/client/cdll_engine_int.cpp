@@ -15,6 +15,7 @@
 #include "geforce/reflex.h"
 #include "vengineclient_impl.h"
 #include "cdll_engine_int.h"
+#include "materialsystem/cmaterialsystem.h"
 /*****************************************************************************/
 
 #ifndef DEDICATED
@@ -64,7 +65,7 @@ void FrameStageNotify_Post(const ClientFrameStage_t frameStage)
 	case ClientFrameStage_t::FRAME_RENDER_START:
 		break;
 	case ClientFrameStage_t::FRAME_RENDER_END:
-		GFX_SetLatencyMarker(D3D11Device(), SIMULATION_END);
+		GFX_SetLatencyMarker(D3D11Device(), SIMULATION_END, MaterialSystem()->GetCurrentFrameCount());
 		break;
 	case ClientFrameStage_t::FRAME_NET_FULL_FRAME_UPDATE_ON_REMOVE:
 		break;
