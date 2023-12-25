@@ -247,6 +247,7 @@ bool CEngineAPI::MainLoop()
 #ifndef DEDICATED
         if (bRunLowLatency) {
             CEngineAPI::RunLowLatencyFrame();
+            bRunLowLatency = false;
         }
         CEngineAPI::PumpMessages();
 #endif // !DEDICATED
