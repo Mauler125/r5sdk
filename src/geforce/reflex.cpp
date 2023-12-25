@@ -123,14 +123,16 @@ void GFX_SetLatencyMarker(IUnknown* const device,
 {
 	Assert(device);
 
-	if (!GFX_IsLowLatencySDKEnabled())
-		return;
+	if (GFX_IsLowLatencySDKEnabled())
+	{
+		NV_LATENCY_MARKER_PARAMS params = {};
+		params.version = NV_LATENCY_MARKER_PARAMS_VER1;
+		params.frameID = frameID;
+		params.markerType = markerType;
 
-	NV_LATENCY_MARKER_PARAMS params = {};
-	params.version = NV_LATENCY_MARKER_PARAMS_VER1;
-	params.frameID = frameID;
-	params.markerType = markerType;
+		NvAPI_D3D_SetLatencyMarker(device, &params);
+	}
 
-	NvAPI_D3D_SetLatencyMarker(device, &params);
+	// PCLStats is supported on non-NVIDIA hardware.
 	PCLSTATS_MARKER(markerType, frameID);
 }
