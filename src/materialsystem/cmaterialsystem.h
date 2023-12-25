@@ -14,6 +14,13 @@ public:
 	static CMaterialGlue* FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 	static Vector2D GetScreenSize(CMaterialSystem* pMatSys = nullptr);
 #endif // !MATERIALSYSTEM_NODX
+
+	// TODO: reverse the vftable!
+	inline int GetCurrentFrameCount()
+	{
+		const static int index = 74;
+		return CallVFunc<int>(index, this);
+	}
 };
 
 #ifndef MATERIALSYSTEM_NODX
@@ -91,6 +98,13 @@ inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline int* g_nUnusableStreamingTextureMemory = nullptr;
 #endif // !MATERIALSYSTEM_NODX
 
+// TODO: move to materialsystem_global.h!
+// TODO: reverse the vftable!
+inline CMaterialSystem* MaterialSystem()
+{
+	return g_pMaterialSystem;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 class VMaterialSystem : public IDetour
 {
@@ -158,7 +172,7 @@ class VMaterialSystem : public IDetour
 		s_pRenderContext = p_DispatchDrawCall.FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7);
 		g_pMaterialAdapterMgr = p_CMaterialSystem__Disconnect.FindPattern("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMaterialDeviceMgr*>();
 #endif // !MATERIALSYSTEM_NODX
-		g_pMaterialSystem = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 48 85 C9 74 11 48 8B 01 48 8D 15 ?? ?? ?? ??").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMaterialSystem*>();
+		g_pMaterialSystem = g_GameDll.FindPatternSIMD("8B 41 28 85 C0 7F 18").FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<CMaterialSystem*>();
 	}
 	virtual void GetCon(void) const
 	{
