@@ -9,10 +9,12 @@
 #include "windows/id3dx.h"
 #include "geforce/reflex.h"
 #include "engine/gl_rsurf.h"
+#include <materialsystem/cmaterialsystem.h>
 
 void* R_DrawDepthOfField(const float a1)
 {
-	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_START);
+	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_START, MaterialSystem()->GetCurrentFrameCount());
+
 	return V_DrawDepthOfField(a1);
 }
 

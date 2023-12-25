@@ -227,28 +227,35 @@ void CEngineAPI::RunLowLatencyFrame()
 //-----------------------------------------------------------------------------
 bool CEngineAPI::MainLoop()
 {
+#ifndef DEDICATED
+    bool bRunLowLatency = false;
+#endif // !DEDICATED
+
     // Main message pump
     while (true)
     {
         // Pump messages unless someone wants to quit
         if (g_pEngine->GetQuitting() != IEngine::QUIT_NOTQUITTING)
         {
-            if (g_pEngine->GetQuitting() != IEngine::QUIT_TODESKTOP)
+            if (g_pEngine->GetQuitting() != IEngine::QUIT_TODESKTOP) {
                 return true;
+            }
 
             return false;
         }
 
 #ifndef DEDICATED
-        CEngineAPI::RunLowLatencyFrame();
+        if (bRunLowLatency) {
+            CEngineAPI::RunLowLatencyFrame();
+        }
         CEngineAPI::PumpMessages();
 #endif // !DEDICATED
 
         if (g_pEngine->Frame())
         {
 #ifndef DEDICATED
-            // Only increment frame number if we ran an actual engine frame.
-            GFX_IncrementFrameNumber();
+            // Only run reflex if we ran an actual engine frame.
+            bRunLowLatency = true;
 #endif // !DEDICATED
         }
     }

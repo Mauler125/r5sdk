@@ -16,10 +16,6 @@ bool s_ReflexModeInfoUpToDate = false;
 // If not, the Low Latency SDK will not run.
 NvAPI_Status s_ReflexModeUpdateStatus = NvAPI_Status::NVAPI_OK;
 
-// Static frame number counter for latency markers.
-NvU64 s_ReflexFrameNumber = 0;
-NvU64 s_ReflexLastFrameNumber = 0;
-
 //-----------------------------------------------------------------------------
 // Purpose: enable/disable low latency SDK
 // Input  : enable - 
@@ -76,23 +72,6 @@ bool GFX_ParameterUpdateWasSuccessful(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the reflex frame number
-// Output : int
-//-----------------------------------------------------------------------------
-NvU64 GFX_GetFrameNumber(void)
-{
-	return s_ReflexFrameNumber;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: increments the reflex frame number
-//-----------------------------------------------------------------------------
-void GFX_IncrementFrameNumber(void)
-{
-	++s_ReflexFrameNumber;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: updates the low latency parameters
 // Input  : *device              - 
 //          useLowLatencyMode    - 
@@ -100,7 +79,7 @@ void GFX_IncrementFrameNumber(void)
 //          useMarkersToOptimize - 
 //          maxFramesPerSecond   - 
 //-----------------------------------------------------------------------------
-void GFX_UpdateLowLatencyParameters(IUnknown* device, const bool useLowLatencyMode,
+void GFX_UpdateLowLatencyParameters(IUnknown* const device, const bool useLowLatencyMode,
 	const bool useLowLatencyBoost, const bool useMarkersToOptimize,
 	const float maxFramesPerSecond)
 {
@@ -125,18 +104,12 @@ void GFX_UpdateLowLatencyParameters(IUnknown* device, const bool useLowLatencyMo
 // Purpose: runs a frame of the low latency sdk
 // Input  : *device              - 
 //-----------------------------------------------------------------------------
-void GFX_RunLowLatencyFrame(IUnknown* device)
+void GFX_RunLowLatencyFrame(IUnknown* const device)
 {
 	Assert(device);
-	const NvU64 currentFrameNumber = GFX_GetFrameNumber();
-
-	if (s_ReflexLastFrameNumber == currentFrameNumber)
-		return;
 
 	if (GFX_ParameterUpdateWasSuccessful())
 		NvAPI_D3D_Sleep(device);
-
-	s_ReflexLastFrameNumber = currentFrameNumber;
 }
 
 //-----------------------------------------------------------------------------
@@ -145,8 +118,8 @@ void GFX_RunLowLatencyFrame(IUnknown* device)
 //          frameNumber    - 
 //          markerType     - 
 //-----------------------------------------------------------------------------
-void GFX_SetLatencyMarker(IUnknown* device,
-	const NV_LATENCY_MARKER_TYPE markerType)
+void GFX_SetLatencyMarker(IUnknown* const device,
+	const NV_LATENCY_MARKER_TYPE markerType, const NvU64 frameID)
 {
 	Assert(device);
 
@@ -155,9 +128,9 @@ void GFX_SetLatencyMarker(IUnknown* device,
 
 	NV_LATENCY_MARKER_PARAMS params = {};
 	params.version = NV_LATENCY_MARKER_PARAMS_VER1;
-	params.frameID = s_ReflexFrameNumber;
+	params.frameID = frameID;
 	params.markerType = markerType;
 
 	NvAPI_D3D_SetLatencyMarker(device, &params);
-	PCLSTATS_MARKER(markerType, s_ReflexFrameNumber);
+	PCLSTATS_MARKER(markerType, frameID);
 }
