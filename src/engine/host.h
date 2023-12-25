@@ -4,8 +4,11 @@
 inline CMemory p_Host_RunFrame;
 inline void(*v_Host_RunFrame)(void* unused, float time);
 
-//inline CMemory p_Host_RunFrame_Render; // DEDICATED PATCH!
-//inline void(*v_Host_RunFrame_Render)(void);
+inline CMemory p_Host_RunFrame_Render;
+inline void(*v_Host_RunFrame_Render)(void);
+
+inline CMemory p_Host_CountRealTimePackets;
+inline void(*v_Host_CountRealTimePackets)(void);
 
 inline CMemory p_Host_ShouldRun;
 inline bool(*v_Host_ShouldRun)();
@@ -54,7 +57,8 @@ class VHost : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogFunAdr("_Host_RunFrame", p_Host_RunFrame.GetPtr());
-		//LogFunAdr("_Host_RunFrame_Render", p_Host_RunFrame_Render.GetPtr());
+		LogFunAdr("_Host_RunFrame_Render", p_Host_RunFrame_Render.GetPtr());
+		LogFunAdr("Host_CountRealTimePackets", p_Host_CountRealTimePackets.GetPtr());
 		LogFunAdr("Host_ShouldRun", p_Host_ShouldRun.GetPtr());
 		LogFunAdr("Host_Error", p_Host_Error.GetPtr());
 		//LogFunAdr("VCR_EnterPausedState", p_VCR_EnterPausedState.GetPtr());
@@ -69,16 +73,18 @@ class VHost : public IDetour
 	{
 		p_Host_RunFrame = g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 18 48 89 70 20 F3 0F 11 48 ??");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		//p_Host_RunFrame_Render = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 33 FF");
+		p_Host_RunFrame_Render = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 33 FF");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		//p_Host_RunFrame_Render = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 34");
+		p_Host_RunFrame_Render = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 34");
 #endif
+		p_Host_CountRealTimePackets = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 65 48 8B 04 25 ?? ?? ?? ?? 33 DB");
 		p_Host_ShouldRun = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 83 78 6C 00 75 07 B0 01");
 		p_Host_Error = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 48 89 54 24 ?? 4C 89 44 24 ?? 4C 89 4C 24 ?? 53 57 48 81 EC ?? ?? ?? ??");
 		//p_VCR_EnterPausedState = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 65 48 8B 04 25 ?? ?? ?? ?? BB ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ??");
 
 		v_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void*, float)>();
-		//v_Host_RunFrame_Render = p_Host_Error.RCast<void(*)(void)>();
+		v_Host_RunFrame_Render = p_Host_RunFrame_Render.RCast<void(*)(void)>();
+		v_Host_CountRealTimePackets = p_Host_CountRealTimePackets.RCast<void(*)(void)>();
 		v_Host_ShouldRun = p_Host_ShouldRun.RCast<bool(*)()>();
 		v_Host_Error = p_Host_Error.RCast<void(*)(const char*, ...)>();
 		//v_VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();

@@ -15,15 +15,71 @@
 #include "geforce/reflex.h"
 #include "vengineclient_impl.h"
 #include "cdll_engine_int.h"
+#include "materialsystem/cmaterialsystem.h"
 /*****************************************************************************/
 
 #ifndef DEDICATED
+//-----------------------------------------------------------------------------
+// Purpose: pre frame stage notify hook
+//-----------------------------------------------------------------------------
+void FrameStageNotify_Pre(const ClientFrameStage_t frameStage)
+{
+	switch (frameStage)
+	{
+	case ClientFrameStage_t::FRAME_START:
+		break;
+	case ClientFrameStage_t::FRAME_NET_UPDATE_START:
+		break;
+	case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_START:
+		break;
+	case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_END:
+		break;
+	case ClientFrameStage_t::FRAME_NET_UPDATE_END:
+		break;
+	case ClientFrameStage_t::FRAME_RENDER_START:
+		break;
+	case ClientFrameStage_t::FRAME_RENDER_END:
+		break;
+	case ClientFrameStage_t::FRAME_NET_FULL_FRAME_UPDATE_ON_REMOVE:
+		break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: post frame stage notify hook
+//-----------------------------------------------------------------------------
+void FrameStageNotify_Post(const ClientFrameStage_t frameStage)
+{
+	switch (frameStage)
+	{
+	case ClientFrameStage_t::FRAME_START:
+		break;
+	case ClientFrameStage_t::FRAME_NET_UPDATE_START:
+		break;
+	case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_START:
+		break;
+	case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_END:
+		break;
+	case ClientFrameStage_t::FRAME_NET_UPDATE_END:
+		break;
+	case ClientFrameStage_t::FRAME_RENDER_START:
+		break;
+	case ClientFrameStage_t::FRAME_RENDER_END:
+		GFX_SetLatencyMarker(D3D11Device(), SIMULATION_END, MaterialSystem()->GetCurrentFrameCount());
+		break;
+	case ClientFrameStage_t::FRAME_NET_FULL_FRAME_UPDATE_ON_REMOVE:
+		break;
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameStage)
 {
+	FrameStageNotify_Pre(frameStage);
 	CHLClient_FrameStageNotify(pHLClient, frameStage);
+	FrameStageNotify_Post(frameStage);
 }
 
 //-----------------------------------------------------------------------------

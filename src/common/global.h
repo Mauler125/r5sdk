@@ -19,6 +19,8 @@ extern ConVar* fps_max_rt;
 extern ConVar* fps_max_rt_tolerance;
 extern ConVar* fps_max_rt_sleep_threshold;
 extern ConVar* fps_max_gfx;
+
+extern ConVar* in_syncRT;
 #endif // !DEDICATED
 
 extern ConVar* base_tickinterval_sp;
@@ -66,6 +68,7 @@ extern ConVar* r_visualizetraces_duration;
 
 extern ConVar* gfx_nvnUseLowLatency;
 extern ConVar* gfx_nvnUseLowLatencyBoost;
+extern ConVar* gfx_nvnUseMarkersToOptimize;
 #endif // !DEDICATED
 
 extern ConVar* stream_overlay;

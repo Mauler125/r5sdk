@@ -5,6 +5,7 @@
 //===========================================================================//
 #ifndef SYS_MAINWIND_H
 #define SYS_MAINWIND_H
+#include "inputsystem/iinputsystem.h"
 
 inline CMemory p_CGame__AttachToWindow;
 inline void (*v_CGame__AttachToWindow)(void);
@@ -25,13 +26,16 @@ public:
 
 
 	inline HWND GetWindow() const { return m_hWindow; }
-	void GetWindowRect(int* x, int* y, int* w, int* h);
+	void GetWindowRect(int* const x, int* const y, int* const w, int* const h) const;
 
 	inline int GetDesktopWidth() const { return m_iDesktopWidth; }
 	inline int GetDesktopHeight() const { return m_iDesktopHeight; }
 	inline int GetDesktopRefreshRate() const { return m_iDesktopRefreshRate; }
 	inline float GetTVRefreshRate() const // Avoid stutter on TV's running on broadcast frame rates.
 	{ return ((float)m_iDesktopRefreshRate == 59.0f || (float)m_iDesktopRefreshRate == 60.0f) ? 59.939999f : (float)m_iDesktopRefreshRate; }
+
+	void DispatchKeyEvent(const uint64_t msTime, const ButtonCode_t buttonCode) const;
+	void DispatchAllStoredGameMessages() const;
 
 private:
 	HWND m_hWindow;

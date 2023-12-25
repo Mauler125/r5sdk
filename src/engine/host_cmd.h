@@ -19,7 +19,13 @@ extern EngineParms_t* g_pEngineParms;
 
 /* ==== HOST ============================================================================================================================================================ */
 inline CMemory p_Host_Init;
-inline void*(*v_Host_Init)(bool* bDedicated);
+inline void(*v_Host_Init)();
+
+inline CMemory p_Host_Init_DuringVideo;
+inline void(*v_Host_Init_DuringVideo)(bool* bDedicated);
+
+inline CMemory p_Host_Init_PostVideo;
+inline void(*v_Host_Init_PostVideo)(bool* bDedicated);
 
 inline CMemory p_Host_Shutdown;
 inline void(*v_Host_Shutdown)();
@@ -52,6 +58,8 @@ class VHostCmd : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogFunAdr("Host_Init", p_Host_Init.GetPtr());
+		LogFunAdr("Host_Init_DuringVideo", p_Host_Init_DuringVideo.GetPtr());
+		LogFunAdr("Host_Init_PostVideo", p_Host_Init_PostVideo.GetPtr());
 		LogFunAdr("Host_Shutdown", p_Host_Shutdown.GetPtr());
 		LogFunAdr("Host_Disconnect", p_Host_Disconnect.GetPtr());
 		LogFunAdr("Host_NewGame", p_Host_NewGame.GetPtr());
@@ -65,26 +73,30 @@ class VHostCmd : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
+		p_Host_Init = g_GameDll.FindPatternSIMD("88 4C 24 08 53 55 56 57 48 83 EC 68");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_Host_Init = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 48 8B D9 FF 15 ?? ?? ?? ??");
+		p_Host_Init_DuringVideo = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 48 8B D9 FF 15 ?? ?? ?? ??");
 		p_Host_NewGame = g_GameDll.FindPatternSIMD("48 8B C4 56 41 54 41 57 48 81 EC ?? ?? ?? ?? F2 0F 10 05 ?? ?? ?? ??");
 		p_Host_Disconnect = g_GameDll.FindPatternSIMD("48 83 EC 38 48 89 7C 24 ?? 0F B6 F9");
 		p_Host_ChangeLevel = g_GameDll.FindPatternSIMD("40 53 56 41 56 48 81 EC ?? ?? ?? ?? 49 8B D8");
 		p_SetLaunchOptions = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 83 EC 20 48 8B E9 48 8B 0D ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_Host_Init = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9");
+		p_Host_Init_DuringVideo = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9");
 		p_Host_NewGame = g_GameDll.FindPatternSIMD("48 8B C4 ?? 41 54 41 55 48 81 EC 70 04 ?? ?? F2 0F 10 05 ?? ?? ?? 0B");
 		p_Host_Disconnect = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 0F B6 D9");
 		p_Host_ChangeLevel = g_GameDll.FindPatternSIMD("40 56 57 41 56 48 81 EC ?? ?? ?? ??");
 		p_SetLaunchOptions = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B E9 48 85 DB");
 #endif
+		p_Host_Init_PostVideo = g_GameDll.FindPatternSIMD("48 8B C4 41 56 48 81 EC ?? ?? ?? ?? 45 33 F6");
 		p_Host_Shutdown = g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 8B 15 ?? ?? ?? ??");
 		p_Host_Status_PrintClient = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 60 48 8B A9 ?? ?? ?? ??");
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 		p_DFS_InitializeFeatureFlagDefinitions = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 40 38 3D ?? ?? ?? ?? 48 8D 15 ?? ?? ?? ?? 48 8B CE").FollowNearCallSelf();
 		v_DFS_InitializeFeatureFlagDefinitions = p_DFS_InitializeFeatureFlagDefinitions.RCast<bool (*)(const char*)>(); /*48 8B C4 55 53 48 8D 68 E8*/
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
-		v_Host_Init = p_Host_Init.RCast<void* (*)(bool*)>();                                        /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9*/
+		v_Host_Init = p_Host_Init.RCast<void (*)()>();
+		v_Host_Init_DuringVideo = p_Host_Init_DuringVideo.RCast<void (*)(bool*)>();                                        /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9*/
+		v_Host_Init_PostVideo = p_Host_Init_PostVideo.RCast<void (*)(bool*)>();
 		v_Host_Shutdown = p_Host_Shutdown.RCast<void (*)()>();
 		v_Host_NewGame = p_Host_NewGame.RCast<bool (*)(char*, char*, bool, char, LARGE_INTEGER)>(); /*48 8B C4 ?? 41 54 41 55 48 81 EC 70 04 00 00 F2 0F 10 05 ?? ?? ?? 0B*/
 		v_Host_Disconnect = p_Host_Disconnect.RCast<void (*)(bool)>();
