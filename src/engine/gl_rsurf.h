@@ -2,7 +2,7 @@
 #include "public/ivrenderview.h"
 
 inline CMemory P_DrawDepthOfField;
-inline void*(*V_DrawDepthOfField)(const float a1);
+inline void*(*V_DrawDepthOfField)(const float scalar);
 
 inline CMemory P_DrawWorldMeshes;
 inline void*(*V_DrawWorldMeshes)(void* baseEntity, void* renderContext, DrawWorldLists_t worldLists);
