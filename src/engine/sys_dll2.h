@@ -35,6 +35,9 @@ public:
 	static void VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo);
 
 	static void PumpMessages();
+	static void RunLowLatencyFrame();
+	static void UpdateLowLatencyParameters();
+
 	static bool MainLoop();
 //private:
 	void* m_hEditorHWnd;

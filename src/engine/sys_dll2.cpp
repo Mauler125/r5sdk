@@ -179,6 +179,49 @@ void CEngineAPI::PumpMessages()
 #endif // !DEDICATED
 }
 
+void CEngineAPI::UpdateLowLatencyParameters()
+{
+#ifndef DEDICATED
+    const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
+    const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
+    const bool bUseMarkersToOptimize = gfx_nvnUseMarkersToOptimize->GetBool();
+
+    float fpsMax = fps_max_gfx->GetFloat();
+
+    if (fpsMax == -1.0f)
+    {
+        const float globalFps = fps_max->GetFloat();
+
+        // Make sure the global fps limiter is 'unlimited'
+        // before we let the gfx frame limiter cap it to
+        // the desktop's refresh rate; not adhering to
+        // this will result in a major performance drop.
+        if (globalFps == 0.0f)
+            fpsMax = g_pGame->GetTVRefreshRate();
+        else
+            fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
+    }
+
+    GFX_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
+        bUseLowLatencyBoost, bUseMarkersToOptimize, fpsMax);
+#endif // !DEDICATED
+}
+
+void CEngineAPI::RunLowLatencyFrame()
+{
+#ifndef DEDICATED
+    if (GFX_IsLowLatencySDKEnabled())
+    {
+        if (GFX_HasPendingLowLatencyParameterUpdates())
+        {
+            UpdateLowLatencyParameters();
+        }
+
+        GFX_RunLowLatencyFrame(D3D11Device());
+    }
+#endif // !DEDICATED
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -197,37 +240,7 @@ bool CEngineAPI::MainLoop()
         }
 
 #ifndef DEDICATED
-        if (GFX_IsLowLatencySDKEnabled())
-        {
-            if (GFX_HasPendingLowLatencyParameterUpdates())
-            {
-                const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
-                const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
-                const bool bUseMarkersToOptimize = gfx_nvnUseMarkersToOptimize->GetBool();
-
-                float fpsMax = fps_max_gfx->GetFloat();
-
-                if (fpsMax == -1.0f)
-                {
-                    const float globalFps = fps_max->GetFloat();
-
-                    // Make sure the global fps limiter is 'unlimited'
-                    // before we let the gfx frame limiter cap it to
-                    // the desktop's refresh rate; not adhering to
-                    // this will result in a major performance drop.
-                    if (globalFps == 0.0f)
-                        fpsMax = g_pGame->GetTVRefreshRate();
-                    else
-                        fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
-                }
-
-                GFX_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
-                    bUseLowLatencyBoost, bUseMarkersToOptimize, fpsMax);
-            }
-
-            GFX_RunLowLatencyFrame(D3D11Device());
-        }
-
+        CEngineAPI::RunLowLatencyFrame();
         CEngineAPI::PumpMessages();
 #endif // !DEDICATED
 
