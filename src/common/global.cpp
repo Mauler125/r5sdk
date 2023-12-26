@@ -342,7 +342,7 @@ void ConVar_StaticInit(void)
 	fps_max_gfx = ConVar::StaticCreate("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates use the desktop refresh. 0 is disabled.", true, -1.f, true, 295.f, &GFX_NVN_Changed_f, nullptr);
 	gfx_nvnUseLowLatency        = ConVar::StaticCreate("gfx_nvnUseLowLatency"       , "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK."  , false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
 	gfx_nvnUseLowLatencyBoost   = ConVar::StaticCreate("gfx_nvnUseLowLatencyBoost"  , "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
-	gfx_nvnUseMarkersToOptimize = ConVar::StaticCreate("gfx_nvnUseMarkersToOptimize", "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Use NVIDIA Reflex Low Latency markers to optimize (requires Low Latency Boost to be enabled).", false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
+	gfx_nvnUseMarkersToOptimize = ConVar::StaticCreate("gfx_nvnUseMarkersToOptimize", "1", FCVAR_RELEASE                , "Use NVIDIA Reflex Low Latency markers to optimize (requires Low Latency Boost to be enabled).", false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
 #endif // !DEDICATED
 
 	//-------------------------------------------------------------------------
@@ -350,8 +350,8 @@ void ConVar_StaticInit(void)
 	modsystem_enable = ConVar::StaticCreate("modsystem_enable", "1", FCVAR_RELEASE, "Enable the modsystem.", false, 0.f, false, 0.f, nullptr, nullptr);
 	modsystem_debug  = ConVar::StaticCreate("modsystem_debug" , "0", FCVAR_RELEASE, "Debug the modsystem." , false, 0.f, false, 0.f, nullptr, nullptr);
 
-	// TODO: Make this release|playerprofile (show promo only once until version change) or leave as release (show promo everytime user restarted the game)?
-	promo_version_accepted = ConVar::StaticCreate("promo_version_accepted", "0", FCVAR_RELEASE /*| FCVAR_ARCHIVE_PLAYERPROFILE*/, "The accepted promo version.", false, 0.f, false, 0.f, nullptr, nullptr);
+	// NOTE: if we want to make a certain promo only show once, add the playerprofile flag to the cvar below. Current behavior = always show after game restart.
+	promo_version_accepted = ConVar::StaticCreate("promo_version_accepted", "0", FCVAR_RELEASE, "The accepted promo version.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
