@@ -86,7 +86,7 @@ inline void*(*CEngineVGui_RenderStart)(CMatSystemSurface* pMatSystemSurface);
 inline CMemory p_CEngineVGui_RenderEnd;
 inline void*(*CEngineVGui_RenderEnd)(void);
 
-inline InputEventCallback_t v_UIInputEventHandler = nullptr;
+inline InputEventCallback_t UIEventDispatcher = nullptr; // Points to 'CGame::DispatchInputEvent()'
 inline CEngineVGui* g_pEngineVGui = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ class VEngineVGui : public IDetour
 		LogFunAdr("CEngineVGui::Paint", p_CEngineVGui_Paint.GetPtr());
 		LogFunAdr("CEngineVGui::RenderStart", p_CEngineVGui_RenderStart.GetPtr());
 		LogFunAdr("CEngineVGui::RenderEnd", p_CEngineVGui_RenderEnd.GetPtr());
-		LogFunAdr("UIInputEventHandler", reinterpret_cast<uintptr_t>(v_UIInputEventHandler));
+		LogFunAdr("UIEventDispatcher", reinterpret_cast<uintptr_t>(UIEventDispatcher));
 		LogVarAdr("g_pEngineVGui", reinterpret_cast<uintptr_t>(g_pEngineVGui));
 	}
 	virtual void GetFun(void) const
@@ -118,7 +118,7 @@ class VEngineVGui : public IDetour
 		p_CEngineVGui_RenderEnd = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01");
 		CEngineVGui_RenderEnd = p_CEngineVGui_RenderEnd.RCast<void* (*)(void)>(); /*40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01*/
 
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 40 48 63 01", v_UIInputEventHandler);
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC 40 48 63 01", UIEventDispatcher);
 	}
 	virtual void GetVar(void) const
 	{
