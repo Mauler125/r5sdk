@@ -10,7 +10,6 @@
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
 #include "engine/framelimit.h"
-#include "engine/sys_engine.h"
 #include "engine/sys_mainwind.h"
 #include "inputsystem/inputsystem.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -136,17 +135,7 @@ void DrawImGui()
 
 HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
 {
-	if (!g_bImGuiInitialized)
-	{
-		ImGui_Init();
-		g_ThreadRenderThreadID = GetCurrentThreadId();
-		g_bImGuiInitialized = true;
-	}
-
 	g_FrameLimiter.Run();
-
-	if (g_pEngine->GetQuitting() == IEngine::QUIT_NOTQUITTING)
-		DrawImGui();
 
 	///////////////////////////////////////////////////////////////////////////////
 	// NOTE: -1 since we need to sync this with its corresponding frame, g_FrameNum

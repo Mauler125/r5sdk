@@ -10,6 +10,7 @@
 #include "vpc/keyvalues.h"
 #include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"
+#include "engine/sys_engine.h"
 #include "geforce/reflex.h"
 #ifndef MATERIALSYSTEM_NODX
 #include "windows/id3dx.h"
@@ -115,6 +116,20 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 //---------------------------------------------------------------------------------
 ssize_t SpinPresent(void)
 {
+	// TODO[ AMOS ]: move imgui code to a separate file.
+	extern void DrawImGui();
+	extern void ImGui_Init();
+
+	if (!g_bImGuiInitialized)
+	{
+		ImGui_Init();
+		g_ThreadRenderThreadID = GetCurrentThreadId();
+		g_bImGuiInitialized = true;
+	}
+
+	if (g_pEngine->GetQuitting() == IEngine::QUIT_NOTQUITTING)
+		DrawImGui();
+
 	const ssize_t val = v_SpinPresent();
 	return val;
 }
