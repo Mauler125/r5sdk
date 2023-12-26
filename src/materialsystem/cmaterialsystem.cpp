@@ -115,20 +115,7 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 //---------------------------------------------------------------------------------
 ssize_t SpinPresent(void)
 {
-	// NOTE: -1 since we need to sync this with its corresponding frame, g_FrameNum
-	// gets incremented in CMaterialSystem::SwapBuffers, which is after the markers
-	// for simulation start/end and render submit start. The render thread (here)
-	// continues after to finish the frame.
-	const NvU64 frameID = (NvU64)MaterialSystem()->GetCurrentFrameCount() -1;
-
-	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_END, frameID);
-
-	// TODO[ AMOS ]: move to actual Present runtime call? SpinPresent calls some
-	// other DX buffer copy API's before the actual Present calls is being made.
-	GFX_SetLatencyMarker(D3D11Device(), PRESENT_START, frameID);
 	const ssize_t val = v_SpinPresent();
-	GFX_SetLatencyMarker(D3D11Device(), PRESENT_END, frameID);
-
 	return val;
 }
 
