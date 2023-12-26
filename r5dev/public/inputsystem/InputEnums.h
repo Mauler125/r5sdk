@@ -55,6 +55,8 @@ enum InputEventType_t
 	IE_ButtonDoubleClicked,	// m_nData contains a ButtonCode_t
 	IE_AnalogValueChanged,	// m_nData contains an AnalogCode_t, m_nData2 contains the value
 
+	IE_Unknown8 = 8, // Unknown what this is/does, its used in [r5apex.exe+0x297722] and [r5apex.exe+0x297ACD]
+
 	IE_FirstSystemEvent = 100,
 	IE_Quit = IE_FirstSystemEvent,
 	IE_ControllerInserted,	// m_nData contains the controller ID

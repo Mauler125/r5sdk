@@ -45,8 +45,8 @@ private:
 	int m_y;
 	int m_width;
 	int m_height;
-	bool m_bUnk0;
-	bool m_bUnk1;
+	bool m_bPostedFirstAppEvent;
+	bool m_bPostFirstAppEvent;
 	bool m_bExternallySuppliedWindow;
 	int m_iDesktopWidth;
 	int m_iDesktopHeight;
