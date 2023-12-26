@@ -13,6 +13,7 @@
 #include "engine/sys_engine.h"
 #include "engine/sys_mainwind.h"
 #include "inputsystem/inputsystem.h"
+#include "materialsystem/cmaterialsystem.h"
 #include "public/bitmap/stb_image.h"
 #include "public/rendersystem/schema/texture.g.h"
 
@@ -146,9 +147,19 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 	if (g_pEngine->GetQuitting() == IEngine::QUIT_NOTQUITTING)
 		DrawImGui();
-	///////////////////////////////////////////////////////////////////////////////
 
-	HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+	///////////////////////////////////////////////////////////////////////////////
+	// NOTE: -1 since we need to sync this with its corresponding frame, g_FrameNum
+	// gets incremented in CMaterialSystem::SwapBuffers, which is after the markers
+	// for simulation start/end and render submit start. The render thread (here)
+	// continues after to finish the frame.
+	const NvU64 frameID = (NvU64)MaterialSystem()->GetCurrentFrameCount() - 1;
+	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_END, frameID);
+
+	GFX_SetLatencyMarker(D3D11Device(), PRESENT_START, frameID);
+	const HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+	GFX_SetLatencyMarker(D3D11Device(), PRESENT_END, frameID);
+
 	return result;
 }
 
