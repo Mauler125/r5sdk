@@ -10,11 +10,11 @@
 static bool s_LowLatencySDKEnabled = false;
 
 // If false, the system will call 'NvAPI_D3D_SetSleepMode' to update the parameters.
-bool s_ReflexModeInfoUpToDate = false;
+static bool s_ReflexModeInfoUpToDate = false;
 
 // This is 'NVAPI_OK' If the call to 'NvAPI_D3D_SetSleepMode' was successful.
 // If not, the Low Latency SDK will not run.
-NvAPI_Status s_ReflexModeUpdateStatus = NvAPI_Status::NVAPI_OK;
+static NvAPI_Status s_ReflexModeUpdateStatus = NvAPI_Status::NVAPI_OK;
 
 //-----------------------------------------------------------------------------
 // Purpose: enable/disable low latency SDK
