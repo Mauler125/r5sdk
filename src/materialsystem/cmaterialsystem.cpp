@@ -54,10 +54,12 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 //-----------------------------------------------------------------------------
 int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 {
+#ifndef MATERIALSYSTEM_NODX
 	if (GFX_IsLowLatencySDKEnabled())
 	{
 		PCLSTATS_SHUTDOWN();
 	}
+#endif
 
 	return CMaterialSystem__Shutdown(thisptr);
 }
