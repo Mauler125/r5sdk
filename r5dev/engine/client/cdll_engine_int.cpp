@@ -15,7 +15,9 @@
 #include "geforce/reflex.h"
 #include "vengineclient_impl.h"
 #include "cdll_engine_int.h"
+#ifndef DEDICATED
 #include "materialsystem/cmaterialsystem.h"
+#endif // !DEDICATED
 /*****************************************************************************/
 
 #ifndef DEDICATED
