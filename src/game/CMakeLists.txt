@@ -79,6 +79,8 @@ add_sources( SOURCE_GROUP "Server"
     "server/variant_t.h"
     "server/vscript_server.cpp"
     "server/vscript_server.h"
+    "server/logger.cpp"
+    "server/logger.h"
 )
 
 add_sources( SOURCE_GROUP "Public"
@@ -152,6 +154,7 @@ endif()
 target_include_directories( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/tier0/"
     "${ENGINE_SOURCE_DIR}/tier1/"
+   "${ENGINE_SOURCE_DIR}/tiny-aes"
 )
 
 endmacro()

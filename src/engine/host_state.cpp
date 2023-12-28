@@ -53,6 +53,9 @@
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #include "game/shared/vscript_shared.h"
+#ifndef logger_h
+#include "game/server/logger.h"
+#endif // logger_h mkos
 
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
@@ -144,16 +147,28 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			{
 			case HostStates_t::HS_NEW_GAME:
 			{
+				if (LOGGER::Logger::getInstance().isLogging()) {
+					LOGGER::Logger::getInstance().stopLoggingThread();
+				}
+
 				g_pHostState->State_NewGame();
 				break;
 			}
 			case HostStates_t::HS_CHANGE_LEVEL_SP:
 			{
+				if (LOGGER::Logger::getInstance().isLogging()) {
+					LOGGER::Logger::getInstance().stopLoggingThread();
+				}
+
 				g_pHostState->State_ChangeLevelSP();
 				break;
 			}
 			case HostStates_t::HS_CHANGE_LEVEL_MP:
 			{
+				if (LOGGER::Logger::getInstance().isLogging()) {
+					LOGGER::Logger::getInstance().stopLoggingThread();
+				}
+
 				g_pHostState->State_ChangeLevelMP();
 				break;
 			}
@@ -177,6 +192,10 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
+				if (LOGGER::Logger::getInstance().isLogging()) {
+					LOGGER::Logger::getInstance().stopLoggingThread();
+				}
+
 				Msg(eDLL_T::ENGINE, "%s: Shutdown host game\n", __FUNCTION__);
 				CHostState_State_GameShutDown(g_pHostState);
 				break;

@@ -19,6 +19,20 @@ namespace VScriptCode
 		SQRESULT GetSDKVersion(HSQUIRRELVM v);
 		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
+		SQRESULT LogEvent(HSQUIRRELVM v);
+		SQRESULT SetMatchID(HSQUIRRELVM v);
+		SQRESULT SQMatchID(HSQUIRRELVM v);
+		SQRESULT sqprint(HSQUIRRELVM v);
+		SQRESULT testbool(HSQUIRRELVM v);
+		SQRESULT stopLogging(HSQUIRRELVM v);
+		SQRESULT isLogging(HSQUIRRELVM v);
+		SQRESULT EA_Verify(HSQUIRRELVM v);
+		SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v);
+		SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v);
+
+		//Declare to be used with logger
+		int64_t getMatchID();
+		void setMatchID(int64_t newID);
 	}
 }
 
