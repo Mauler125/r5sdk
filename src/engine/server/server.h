@@ -56,8 +56,11 @@ public:
 
 	void RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage);
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
+
+	void BroadcastMessage(CNetMessage* const msg, const bool onlyActive, const bool reliable);
+	void UpdateClientClocks(void);
 	static void RunFrame(CServer* pServer);
-	static void FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval);
+	static void FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame);
 #endif // !CLIENT_DLL
 
 private:
@@ -110,7 +113,7 @@ extern CServer* g_pServer;
 
 /* ==== CSERVER ========================================================================================================================================================= */
 inline CMemory p_CServer_FrameJob;
-inline void(*v_CServer_FrameJob)(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval);
+inline void(*v_CServer_FrameJob)(double flFrameTime, bool bRunOverlays, bool bUpdateFrame);
 
 inline CMemory p_CServer_RunFrame;
 inline void(*v_CServer_RunFrame)(CServer* pServer);
@@ -120,6 +123,9 @@ inline CClient*(*v_CServer_ConnectClient)(CServer* pServer, user_creds_s* pCreds
 
 inline CMemory p_CServer_RejectConnection;
 inline void*(*v_CServer_RejectConnection)(CServer* pServer, int iSocket, netadr_t* pNetAdr, const char* szMessage);
+
+inline CMemory p_CServer_BroadcastMessage;
+inline void (*v_CServer_BroadcastMessage)(CServer* pServer, CNetMessage* const msg, const bool onlyActive, const bool reliable);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VServer : public IDetour
@@ -131,6 +137,7 @@ class VServer : public IDetour
 		LogFunAdr("CServer::RunFrame", p_CServer_RunFrame.GetPtr());
 		LogFunAdr("CServer::ConnectClient", p_CServer_ConnectClient.GetPtr());
 		LogFunAdr("CServer::RejectConnection", p_CServer_RejectConnection.GetPtr());
+		LogFunAdr("CServer::BroadcastMessage", p_CServer_BroadcastMessage.GetPtr());
 		LogVarAdr("g_Server", reinterpret_cast<uintptr_t>(g_pServer));
 #endif // !CLIENT_DLL
 	}
@@ -152,11 +159,13 @@ class VServer : public IDetour
 		p_CServer_RunFrame = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 88 05 ?? ?? ?? ??").FollowNearCallSelf();
 #endif
 		p_CServer_RejectConnection = g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9");
+		p_CServer_BroadcastMessage = g_GameDll.FindPatternSIMD("4C 8B DC 45 88 43 18 56");
 
 		v_CServer_FrameJob = p_CServer_FrameJob.RCast<void (*)(double, bool, bool)>();                                       /*48 89 6C 24 ?? 56 41 54 41 56*/
 		v_CServer_RunFrame = p_CServer_RunFrame.RCast<void (*)(CServer*)>();
 		v_CServer_ConnectClient = p_CServer_ConnectClient.RCast<CClient* (*)(CServer*, user_creds_s*)>();                     /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
 		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer*, int, netadr_t*, const char*)>();   /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
+		v_CServer_BroadcastMessage = p_CServer_BroadcastMessage.RCast<void (*) (CServer*, CNetMessage* const, const bool, const bool)>();
 #endif // !CLIENT_DLL
 	}
 	virtual void GetVar(void) const

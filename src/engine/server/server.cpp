@@ -81,6 +81,17 @@ int CServer::GetNumClients(void) const
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: Rejects connection request and sends back a message
+// Input  : iSocket - 
+//			*pChallenge - 
+//			*szMessage - 
+//---------------------------------------------------------------------------------
+void CServer::RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage)
+{
+	v_CServer_RejectConnection(this, iSocket, pNetAdr, szMessage);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: Initializes a CSVClient for a new net connection. This will only be called
 //			once for a player each game, not once for each level change.
 // Input  : *pServer - 
@@ -169,25 +180,25 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: Rejects connection request and sends back a message
-// Input  : iSocket - 
-//			*pChallenge - 
-//			*szMessage - 
+// Purpose: Sends netmessage to all active clients
+// Input  : *msg       -
+//          onlyActive - 
+//          reliable   - 
 //---------------------------------------------------------------------------------
-void CServer::RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage)
+void CServer::BroadcastMessage(CNetMessage* const msg, const bool onlyActive, const bool reliable)
 {
-	v_CServer_RejectConnection(this, iSocket, pNetAdr, szMessage);
+	v_CServer_BroadcastMessage(this, msg, onlyActive, reliable);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: Runs the server frame job
 // Input  : flFrameTime - 
 //			bRunOverlays - 
-//			bUniformSnapshotInterval - 
+//			bUpdateFrame - 
 //---------------------------------------------------------------------------------
-void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval)
+void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame)
 {
-	v_CServer_FrameJob(flFrameTime, bRunOverlays, bUniformSnapshotInterval);
+	v_CServer_FrameJob(flFrameTime, bRunOverlays, bUpdateFrame);
 }
 
 //---------------------------------------------------------------------------------
