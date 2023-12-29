@@ -91,7 +91,7 @@ inline void(*v_GetStreamOverlay)(const char* mode, char* buf, size_t bufSize);
 inline CMemory p_DrawStreamOverlay;
 inline const char*(*v_DrawStreamOverlay)(void* thisptr, uint8_t* a2, void* unused, void* a4);
 
-inline CMemory s_pRenderContext;
+inline CMemory s_pRenderContext; // NOTE: This is some CMaterial instance or array.
 
 inline int* g_nTotalStreamingTextureMemory    = nullptr;
 inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
