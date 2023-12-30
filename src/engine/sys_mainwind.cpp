@@ -121,12 +121,12 @@ void CGame::GetWindowRect(int* const x, int* const y, int* const w, int* const h
 //-----------------------------------------------------------------------------
 // Purpose: dispatch key event
 //-----------------------------------------------------------------------------
-void CGame::DispatchKeyEvent(const uint64_t msTime, const ButtonCode_t buttonCode) const
+void CGame::DispatchKeyEvent(const uint64_t currentTick, const ButtonCode_t buttonCode) const
 {
-	const float duration = buttonCode == KEY_XBUTTON_BACK ? 1.0f : 0.2f;
+	const float delay = buttonCode == KEY_XBUTTON_BACK ? 1.0f : 0.2f;
 	KeyInfo_t& keyInfo = g_pKeyInfo[buttonCode];
 
-	if (keyInfo.m_bKeyDown && ((msTime - keyInfo.m_nEventTick) * 0.001f) >= duration)
+	if (!keyInfo.m_bKeyDown && ((currentTick - keyInfo.m_nEventTick) * 0.001f) >= delay)
 	{
 		KeyEvent_t keyEvent;
 

@@ -34,7 +34,7 @@ public:
 	inline float GetTVRefreshRate() const // Avoid stutter on TV's running on broadcast frame rates.
 	{ return ((float)m_iDesktopRefreshRate == 59.0f || (float)m_iDesktopRefreshRate == 60.0f) ? 59.939999f : (float)m_iDesktopRefreshRate; }
 
-	void DispatchKeyEvent(const uint64_t msTime, const ButtonCode_t buttonCode) const;
+	void DispatchKeyEvent(const uint64_t currentTick, const ButtonCode_t buttonCode) const;
 	void DispatchAllStoredGameMessages() const;
 
 private:
