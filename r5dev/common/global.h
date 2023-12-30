@@ -161,7 +161,7 @@ extern ConVar* sv_rcon_maxpacketsize;
 extern ConVar* sv_rcon_whitelist_address;
 //#endif // DEDICATED
 #endif // CLIENT_DLL
-extern ConVar* sv_allowClientSideCfgExec;
+extern ConVar* sv_quota_scriptExecsPerSecond;
 extern ConVar* sv_cheats;
 extern ConVar* sv_visualizetraces;
 extern ConVar* sv_visualizetraces_duration;
