@@ -74,7 +74,9 @@ public:
 	inline CNetChan* GetNetChan(void) const { return m_NetChannel; }
 	inline CServer* GetServer(void) const { return m_pServer; }
 
+#ifndef CLIENT_DLL
 	CClientExtended* GetClientExtended(void) const;
+#endif // !CLIENT_DLL
 
 	inline int GetCommandTick(void) const { return m_nCommandTick; }
 	inline const char* GetServerName(void) const { return m_szServerName; }
@@ -221,6 +223,7 @@ static_assert(sizeof(CClient) == 0x4A4C0);
 //-----------------------------------------------------------------------------
 class CClientExtended
 {
+	friend class CClient;
 public:
 	CClientExtended(void)
 	{
@@ -228,8 +231,8 @@ public:
 	}
 	inline void Reset(void)
 	{
-		m_flCurrentNetProcessTime = 0.0;
-		m_flLastNetProcessTime = 0.0;
+		m_flNetProcessingTimeMsecs = 0.0;
+		m_flNetProcessTimeBase = 0.0;
 		m_flLastClockSyncTime = 0.0;
 		m_flStringCommandQuotaTimeStart = 0.0;
 		m_nStringCommandQuotaCount = NULL;
@@ -237,13 +240,40 @@ public:
 		m_bInitialConVarsSet = false;
 	}
 
-	double m_flCurrentNetProcessTime;
-	double m_flLastNetProcessTime;
+public: // Inlines:
+	inline void SetNetProcessingTimeMsecs(const double flStartTime, const double flCurrentTime)
+	{ m_flNetProcessingTimeMsecs = (flCurrentTime * 1000) - (flStartTime * 1000); }
+	inline double GetNetProcessingTimeMsecs(void) const { return m_flNetProcessingTimeMsecs; }
+
+	inline void SetNetProcessingTimeBase(const double flTime) { m_flNetProcessTimeBase = flTime; }
+	inline double GetNetProcessingTimeBase(void) const { return m_flNetProcessTimeBase; }
+
+	inline void SetLastClockSyncTime(const double flTime) { m_flLastClockSyncTime = flTime; }
+	inline double GetLastClockSyncTime(void) const { return m_flLastClockSyncTime; }
+
+	inline void SetStringCommandQuotaTimeStart(const double flTime) { m_flStringCommandQuotaTimeStart = flTime; }
+	inline double GetStringCommandQuotaTimeStart(void) const { return m_flStringCommandQuotaTimeStart; }
+
+	inline void SetStringCommandQuotaCount(const int iCount) { m_nStringCommandQuotaCount = iCount; }
+	inline int GetStringCommandQuotaCount(void) const { return m_nStringCommandQuotaCount; }
+
+	inline void SetRetryClockSync(const bool bSet) { m_bRetryClockSync = bSet; }
+	inline bool ShouldRetryClockSync() const { return m_bRetryClockSync; }
+
+private:
+	// Measure how long this client's packets took to process.
+	double m_flNetProcessingTimeMsecs;
+	double m_flNetProcessTimeBase;
+
+	// When was the last clock sync?
 	double m_flLastClockSyncTime;
+
+	// The start time of the first stringcmd since reset.
 	double m_flStringCommandQuotaTimeStart;
 	int m_nStringCommandQuotaCount;
-	bool m_bRetryClockSync;
-	bool m_bInitialConVarsSet;
+
+	bool m_bRetryClockSync;    // Whether or not we should retry sending clock sync msg.
+	bool m_bInitialConVarsSet; // Whether or not the initial ConVar KV's are set
 };
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */

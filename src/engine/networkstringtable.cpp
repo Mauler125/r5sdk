@@ -101,13 +101,14 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 	// NOTE: if we send this message each tick, the client will start to
 	// falter. Unlike other source games, we have to have some delay in
 	// between each server tick message for this to work correctly.
-	if (clientExtended->m_bRetryClockSync ||
-		(currentTime - clientExtended->m_flLastClockSyncTime) > sv_clockSyncInterval->GetFloat())
+	if (clientExtended->ShouldRetryClockSync() ||
+		(currentTime - clientExtended->GetLastClockSyncTime()) > sv_clockSyncInterval->GetFloat())
 	{
 		// Sync the clocks on the client with that of the server's.
 		commandTick = pClient->GetCommandTick();
-		clientExtended->m_flLastClockSyncTime = currentTime;
-		clientExtended->m_bRetryClockSync = false;
+
+		clientExtended->SetLastClockSyncTime(currentTime);
+		clientExtended->SetRetryClockSync(false);
 	}
 
 	// If commandTick == statistics only while server opted out, do not
@@ -132,7 +133,7 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 		else
 		{
 			Assert(0, "Snapshot buffer overflowed before string table update!");
-			clientExtended->m_bRetryClockSync = true; // Retry on next snapshot for this client.
+			clientExtended->SetRetryClockSync(true); // Retry on next snapshot for this client.
 		}
 	}
 #endif // !CLIENT_DLL

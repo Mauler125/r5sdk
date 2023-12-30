@@ -41,6 +41,7 @@ void CClient::VClear(CClient* pClient)
 	pClient->Clear();
 }
 
+#ifndef CLIENT_DLL
 //---------------------------------------------------------------------------------
 // Purpose: gets the extended client data
 // Output  : CClientExtended* - 
@@ -49,6 +50,7 @@ CClientExtended* CClient::GetClientExtended(void) const
 {
 	return m_pServer->GetClientExtended(m_nUserID);
 }
+#endif // !CLIENT_DLL
 
 
 static const char JWT_PUBLIC_KEY[] = 
