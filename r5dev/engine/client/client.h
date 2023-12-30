@@ -21,6 +21,7 @@ enum Reputation_t
 //-----------------------------------------------------------------------------
 class CServer;
 class CClient;
+class CClientExtended;
 
 struct Spike_t
 {
@@ -72,6 +73,8 @@ public:
 	inline PERSISTENCE GetPersistenceState(void) const { return m_nPersistenceState; }
 	inline CNetChan* GetNetChan(void) const { return m_NetChannel; }
 	inline CServer* GetServer(void) const { return m_pServer; }
+
+	CClientExtended* GetClientExtended(void) const;
 
 	inline int GetCommandTick(void) const { return m_nCommandTick; }
 	inline const char* GetServerName(void) const { return m_szServerName; }
@@ -207,6 +210,41 @@ static_assert(sizeof(CClient) == 0x4A440);
 #else
 static_assert(sizeof(CClient) == 0x4A4C0);
 #endif
+
+//-----------------------------------------------------------------------------
+// Extended CClient class
+//-----------------------------------------------------------------------------
+// NOTE: since we interface directly with the engine, we cannot modify the
+// client structure. In order to add new data to each client instance, we
+// need to use this new class which we link directly to the corresponding
+// client instance through its UserID.
+//-----------------------------------------------------------------------------
+class CClientExtended
+{
+public:
+	CClientExtended(void)
+	{
+		Reset();
+	}
+	inline void Reset(void)
+	{
+		m_flCurrentNetProcessTime = 0.0;
+		m_flLastNetProcessTime = 0.0;
+		m_flLastClockSyncTime = 0.0;
+		m_flStringCommandQuotaTimeStart = 0.0;
+		m_nStringCommandQuotaCount = NULL;
+		m_bRetryClockSync = false;
+		m_bInitialConVarsSet = false;
+	}
+
+	double m_flCurrentNetProcessTime;
+	double m_flLastNetProcessTime;
+	double m_flLastClockSyncTime;
+	double m_flStringCommandQuotaTimeStart;
+	int m_nStringCommandQuotaCount;
+	bool m_bRetryClockSync;
+	bool m_bInitialConVarsSet;
+};
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
 inline CMemory p_CClient_Connect;

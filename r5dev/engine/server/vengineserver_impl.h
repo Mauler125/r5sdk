@@ -10,34 +10,6 @@ inline bool* m_bIsDedicated = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct ServerPlayer_t
-{
-	ServerPlayer_t(void)
-	{
-		Reset();
-	}
-	inline void Reset(void)
-	{
-		m_flCurrentNetProcessTime = 0.0;
-		m_flLastNetProcessTime = 0.0;
-		m_flLastClockSyncTime = 0.0;
-		m_flStringCommandQuotaTimeStart = 0.0;
-		m_nStringCommandQuotaCount = NULL;
-		m_bRetryClockSync = false;
-		m_bInitialConVarsSet = false;
-	}
-
-	double m_flCurrentNetProcessTime;
-	double m_flLastNetProcessTime;
-	double m_flLastClockSyncTime;
-	double m_flStringCommandQuotaTimeStart;
-	int m_nStringCommandQuotaCount;
-	bool m_bRetryClockSync;
-	bool m_bInitialConVarsSet;
-};
-
-extern ServerPlayer_t g_ServerPlayer[MAX_PLAYERS];
-
 class CVEngineServer : public IVEngineServer
 {
 public:

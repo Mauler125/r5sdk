@@ -45,7 +45,8 @@ public:
 	inline int GetMaxClients(void) const { return m_nMaxClients; }
 
 	inline int64_t GetMaxTeams(void) const { return m_iMaxTeams; }
-	inline CClient* GetClient(int nIndex) { Assert(nIndex >= NULL && nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
+	inline CClient* GetClient(const int nIndex) { Assert(nIndex >= NULL && nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
+	inline CClientExtended* GetClientExtended(const int nIndex) { Assert(nIndex >= NULL && nIndex < MAX_PLAYERS); return &sm_ClientsExtended[nIndex]; }
 
 	inline float GetTime(void) const { return m_nTickCount * m_flTickInterval; }
 	inline float GetCPUUsage(void) const { return m_fCPUPercent; }
@@ -58,7 +59,6 @@ public:
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
 
 	void BroadcastMessage(CNetMessage* const msg, const bool onlyActive, const bool reliable);
-	void UpdateClientClocks(void);
 	static void RunFrame(CServer* pServer);
 	static void FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame);
 #endif // !CLIENT_DLL
@@ -101,6 +101,11 @@ private:
 	float                         m_fStartTime;
 	float                         m_fLastCPUCheckTime;
 	bool                          m_bTeams[MAX_TEAMS];           // Something with teams, unclear what this does; see '[r5apex_ds.exe + 0x30CE40]'
+
+	// Maps directly to m_Clients, contains extended client data which we
+	// cannot add to the CClient class as it would otherwise mismatch the
+	// structure in the engine.
+	static CClientExtended sm_ClientsExtended[MAX_PLAYERS];
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 // !TODO: check if struct size is correct for S1!
