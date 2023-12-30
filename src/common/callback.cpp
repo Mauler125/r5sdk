@@ -1495,6 +1495,10 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 }
 #endif // !CLIENT_DLL
 
+#ifndef DEDICATED
+static double s_flScriptExecTimeBase = 0.0f;
+static int s_nScriptExecCount = 0;
+#endif // !DEDICATED
 /*
 =====================
 Cmd_Exec_f
@@ -1508,12 +1512,31 @@ void Cmd_Exec_f(const CCommand& args)
 	// Prevent users from running neo strafe commands and other quick hacks.
 	// TODO: when reBar becomes a thing, we should verify this function and
 	// flag users that patch them out.
-	if (!ThreadInServerFrameThread() && (!sv_allowClientSideCfgExec->GetBool() && g_pClientState->IsActive()))
+	if (!ThreadInServerFrameThread() && g_pClientState->IsActive())
 	{
-		DevWarning(eDLL_T::ENGINE, "Client is simulating and %s = false; dropped exec command: %s\n",
-			sv_allowClientSideCfgExec->GetName(), args.ArgS());
+		const int execQuota = sv_quota_scriptExecsPerSecond->GetInt();
 
-		return;
+		if (execQuota > 0)
+		{
+			const double flCurrentTime = Plat_FloatTime();
+
+			// Reset every second.
+			if ((flCurrentTime - s_flScriptExecTimeBase) > 1.0)
+			{
+				s_flScriptExecTimeBase = flCurrentTime;
+				s_nScriptExecCount = 0;
+			}
+
+			if (s_nScriptExecCount >= execQuota)
+			{
+				DevWarning(eDLL_T::ENGINE, "Client is simulating and exec count = %d of %d; dropped exec command: %s\n",
+					s_nScriptExecCount, execQuota, args.ArgS());
+
+				return;
+			}
+
+			s_nScriptExecCount++;
+		}
 	}
 #endif // !DEDICATED
 	_Cmd_Exec_f(args);

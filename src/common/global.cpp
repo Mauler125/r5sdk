@@ -171,7 +171,7 @@ ConVar* sv_rcon_maxpacketsize              = nullptr;
 ConVar* sv_rcon_whitelist_address          = nullptr;
 //#endif // DEDICATED
 #endif // !CLIENT_DLL
-ConVar* sv_allowClientSideCfgExec          = nullptr;
+ConVar* sv_quota_scriptExecsPerSecond       = nullptr;
 ConVar* sv_cheats                          = nullptr;
 ConVar* sv_visualizetraces                 = nullptr;
 ConVar* sv_visualizetraces_duration        = nullptr;
@@ -411,7 +411,7 @@ void ConVar_StaticInit(void)
 	sv_onlineAuthValidateIssuedAt  = ConVar::StaticCreate("sv_onlineAuthValidateIssuedAt" , "1" , FCVAR_RELEASE, "Validate the online authentication token 'issued at' claim.", true, 0.f, true, 1.f, nullptr, nullptr);
 	sv_onlineAuthIssuedAtTolerance = ConVar::StaticCreate("sv_onlineAuthIssuedAtTolerance", "30", FCVAR_RELEASE, "The online authentication token 'issued at' claim tolerance in seconds.", true, 0.f, true, float(UINT8_MAX), nullptr, "Must range between [0,255]");
 #endif // !CLIENT_DLL
-	sv_allowClientSideCfgExec = ConVar::StaticCreate("sv_allowClientSideCfgExec", "0", FCVAR_REPLICATED | FCVAR_RELEASE, "Allow clients to execute script files while being connected to this server.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_quota_scriptExecsPerSecond = ConVar::StaticCreate("sv_quota_scriptExecsPerSecond", "4", FCVAR_REPLICATED | FCVAR_RELEASE, "How many script executions per second clients are allowed to submit, 0 to disable the limitation thereof.", true, 0.f, false, 0.f, nullptr, nullptr);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_depth_test = ConVar::StaticCreate("bhit_depth_test", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use depth test for bullet ray trace overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	bhit_abs_origin = ConVar::StaticCreate("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging (requires 'r_visualizetraces' to be set!).", false, 0.f, false, 0.f, nullptr, nullptr);
