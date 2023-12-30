@@ -21,7 +21,7 @@ static float s_LastFrameTime = 0.0;
 //-----------------------------------------------------------------------------
 void CL_MoveEx()
 {
-	CClientState* cl = GetBaseLocalClient();
+	CClientState* const cl = GetBaseLocalClient();
 
 	if (!cl->IsConnected())
 		return;
@@ -134,8 +134,8 @@ void CL_MoveEx()
 		chan->SendDatagram(nullptr);
 
 		// Use full update rate when active.
-		float delta = netTime - float(cl->m_flNextCmdTime);
-		float maxDelta = fminf(fmaxf(delta, 0.0f), minFrameTime);
+		const float delta = netTime - float(cl->m_flNextCmdTime);
+		const float maxDelta = fminf(fmaxf(delta, 0.0f), minFrameTime);
 
 		cl->m_flNextCmdTime = double(minFrameTime + netTime - maxDelta);
 	}
