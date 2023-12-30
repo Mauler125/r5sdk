@@ -123,6 +123,8 @@ void CGame::GetWindowRect(int* const x, int* const y, int* const w, int* const h
 //-----------------------------------------------------------------------------
 void CGame::DispatchKeyEvent(const uint64_t currentTick, const ButtonCode_t buttonCode) const
 {
+	// Controller 'hold' keys are delayed longer.
+	// TODO[ AMOS ]: use ConVar's instead?
 	const float delay = buttonCode == KEY_XBUTTON_BACK ? 1.0f : 0.2f;
 	KeyInfo_t& keyInfo = g_pKeyInfo[buttonCode];
 
