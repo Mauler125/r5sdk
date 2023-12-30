@@ -223,3 +223,4 @@ void VServer::Detour(const bool bAttach) const
 
 ///////////////////////////////////////////////////////////////////////////////
 CServer* g_pServer = nullptr;
+CClientExtended CServer::sm_ClientsExtended[MAX_PLAYERS];

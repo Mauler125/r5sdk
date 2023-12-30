@@ -20,8 +20,5 @@ void HVEngineServer::Detour(const bool bAttach) const
 	DetourSetup(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable, bAttach);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-ServerPlayer_t g_ServerPlayer[MAX_PLAYERS];
-
 IVEngineServer* g_pEngineServerVFTable = nullptr;
 CVEngineServer* g_pEngineServer = reinterpret_cast<CVEngineServer*>(&g_pEngineServerVFTable);

@@ -27,7 +27,7 @@
 void CClient::Clear(void)
 {
 #ifndef CLIENT_DLL
-	g_ServerPlayer[GetUserID()].Reset(); // Reset ServerPlayer slot.
+	GetClientExtended()->Reset(); // Reset extended data.
 #endif // !CLIENT_DLL
 	v_CClient_Clear(this);
 }
@@ -40,6 +40,16 @@ void CClient::VClear(CClient* pClient)
 {
 	pClient->Clear();
 }
+
+//---------------------------------------------------------------------------------
+// Purpose: gets the extended client data
+// Output  : CClientExtended* - 
+//---------------------------------------------------------------------------------
+CClientExtended* CClient::GetClientExtended(void) const 
+{
+	return m_pServer->GetClientExtended(m_nUserID);
+}
+
 
 static const char JWT_PUBLIC_KEY[] = 
 "-----BEGIN PUBLIC KEY-----\n"
@@ -186,7 +196,7 @@ bool CClient::Connect(const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 	CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize)
 {
 #ifndef CLIENT_DLL
-	g_ServerPlayer[GetUserID()].Reset(); // Reset ServerPlayer slot.
+	GetClientExtended()->Reset(); // Reset extended data.
 #endif
 
 	if (!v_CClient_Connect(this, szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize))
@@ -362,8 +372,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	if (!pClient_Adj->IsActive())
 		return true;
 
-	const int nUserID = pClient_Adj->GetUserID();
-	ServerPlayer_t* const pSlot = &g_ServerPlayer[nUserID];
+	CClientExtended* const pSlot = pClient_Adj->GetClientExtended();
 
 	const double flStartTime = Plat_FloatTime();
 	const int nCmdQuotaLimit = sv_quota_stringCmdsPerSecond->GetInt();
@@ -427,7 +436,7 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 {
 #ifndef CLIENT_DLL
 	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
-	ServerPlayer_t* const pSlot = &g_ServerPlayer[pAdj->GetUserID()];
+	CClientExtended* const pSlot = pAdj->GetClientExtended();
 
 	// This loop never exceeds 255 iterations, NET_SetConVar::ReadFromBuffer(...)
 	// reads and inserts up to 255 entries in the vector (reads a byte for size).

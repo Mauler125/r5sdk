@@ -175,7 +175,6 @@ void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8
 
 	pClient->GetNetChan()->Shutdown(szReason, bBadRep, bRemoveNow); // Shutdown NetChannel.
 	pClient->Clear();                                               // Reset CClient slot.
-	g_ServerPlayer[nIndex].Reset();                                 // Reset ServerPlayer slot.
 #endif // !CLIENT_DLL
 }
 

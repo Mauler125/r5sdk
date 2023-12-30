@@ -95,19 +95,19 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 #ifndef CLIENT_DLL
 	const double currentTime = Plat_FloatTime();
 
-	ServerPlayer_t& clientExtended = g_ServerPlayer[pClient->GetUserID()];
+	CClientExtended* const clientExtended = pClient->GetClientExtended();
 	int commandTick = -1; // -1 means we update statistics only; see 'CClientState::VProcessServerTick()'.
 
 	// NOTE: if we send this message each tick, the client will start to
 	// falter. Unlike other source games, we have to have some delay in
 	// between each server tick message for this to work correctly.
-	if (clientExtended.m_bRetryClockSync ||
-		(currentTime - clientExtended.m_flLastClockSyncTime) > sv_clockSyncInterval->GetFloat())
+	if (clientExtended->m_bRetryClockSync ||
+		(currentTime - clientExtended->m_flLastClockSyncTime) > sv_clockSyncInterval->GetFloat())
 	{
 		// Sync the clocks on the client with that of the server's.
 		commandTick = pClient->GetCommandTick();
-		clientExtended.m_flLastClockSyncTime = currentTime;
-		clientExtended.m_bRetryClockSync = false;
+		clientExtended->m_flLastClockSyncTime = currentTime;
+		clientExtended->m_bRetryClockSync = false;
 	}
 
 	// If commandTick == statistics only while server opted out, do not
@@ -132,7 +132,7 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 		else
 		{
 			Assert(0, "Snapshot buffer overflowed before string table update!");
-			clientExtended.m_bRetryClockSync = true; // Retry on next snapshot for this client.
+			clientExtended->m_bRetryClockSync = true; // Retry on next snapshot for this client.
 		}
 	}
 #endif // !CLIENT_DLL
