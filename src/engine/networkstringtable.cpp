@@ -93,19 +93,46 @@ bool CNetworkStringTable::Lock(bool bLock)
 void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContainer* thisp, CClient* pClient, unsigned int nTickAck, bf_write* pMsg)
 {
 #ifndef CLIENT_DLL
-	if (sv_stats->GetBool())
+	const double currentTime = Plat_FloatTime();
+
+	ServerPlayer_t& clientExtended = g_ServerPlayer[pClient->GetUserID()];
+	int commandTick = -1; // -1 means we update statistics only; see 'CClientState::VProcessServerTick()'.
+
+	// NOTE: if we send this message each tick, the client will start to
+	// falter. Unlike other source games, we have to have some delay in
+	// between each server tick message for this to work correctly.
+	if (clientExtended.m_bRetryClockSync ||
+		(currentTime - clientExtended.m_flLastClockSyncTime) > sv_clockSyncInterval->GetFloat())
 	{
-		uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer->GetCPUUsage() * 100.0f);
+		// Sync the clocks on the client with that of the server's.
+		commandTick = pClient->GetCommandTick();
+		clientExtended.m_flLastClockSyncTime = currentTime;
+		clientExtended.m_bRetryClockSync = false;
+	}
+
+	// If commandTick == statistics only while server opted out, do not
+	// send the message.
+	const bool shouldSend = (commandTick == -1 && !sv_stats->GetBool()) ? false : true;
+
+	if (shouldSend)
+	{
+		const uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer->GetCPUUsage() * 100.0f);
 		SVC_ServerTick serverTick(g_pServer->GetTick(), *host_frametime_unbounded, *host_frametime_stddeviation, nCPUPercentage);
 
 		serverTick.m_nGroup = 0;
 		serverTick.m_bReliable = true;
-		serverTick.m_NetTick.m_nCommandTick = -1; // Statistics only, see 'CClientState::VProcessServerTick'.
+		serverTick.m_NetTick.m_nCommandTick = commandTick;
 
 		pMsg->WriteUBitLong(serverTick.GetType(), NETMSG_TYPE_BITS);
+
 		if (!pMsg->IsOverflowed())
 		{
 			serverTick.WriteToBuffer(pMsg);
+		}
+		else
+		{
+			Assert(0, "Snapshot buffer overflowed before string table update!");
+			clientExtended.m_bRetryClockSync = true; // Retry on next snapshot for this client.
 		}
 	}
 #endif // !CLIENT_DLL
