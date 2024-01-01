@@ -13,7 +13,7 @@ extern IEngine::QuitState_t* gsm_Quitting;
 class CEngine : public IEngine
 {
 public:
-	static bool _Frame(CEngine* thisp);
+	static bool _Frame(CEngine* const thisp);
 	inline IEngine::QuitState_t GetQuitting() const { return *gsm_Quitting; }
 
 private:
@@ -24,11 +24,12 @@ private:
 	float         m_flFrameTime;
 	float         m_flPreviousFrameTime;
 	float         m_flFilteredTime;
-	uint8_t       gap2C[4];
-	int64_t       field_30;
-	char          field_38;
-	char          field_39;
+	char          padding[4]; // <- free data
+	double        m_flBenchmarkTime;
+	bool          m_bShouldPause;
+	bool          m_bPaused;
 };
+static_assert(sizeof(CEngine) == 0x40);
 
 ///////////////////////////////////////////////////////////////////////////////
 
