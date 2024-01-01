@@ -104,7 +104,7 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 	Reset();
 	m_nQueuedVal = source;
 
-	if (!pCommand)
+	if (!VALID_CHARSTAR(pCommand))
 		return false;
 
 	// Use default break set
