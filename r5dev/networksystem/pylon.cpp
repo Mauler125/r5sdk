@@ -1,6 +1,6 @@
 //=============================================================================//
 //
-// Purpose: Implementation of the pylon server backend.
+// Purpose: Implementation of the pylon client.
 //
 // $NoKeywords: $
 //=============================================================================//
