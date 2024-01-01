@@ -341,7 +341,7 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 		}
 		else // Bad password.
 		{
-			const netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+			const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
 			if (sv_rcon_debug->GetBool())
 			{
 				Msg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
@@ -509,7 +509,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData& data)
 		return false;
 	}
 
-	const netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+	const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
 	const char* szNetAdr = netAdr.ToString(true);
 
 	if (m_BannedList.size() >= RCON_MAX_BANNEDLIST_SIZE)
@@ -581,7 +581,7 @@ void CRConServer::Disconnect(const int nIndex, const char* szReason) // NETMGR
 	if (data.m_bAuthorized)
 	{
 		// Inform server owner when authenticated connection has been closed.
-		netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(nIndex);
+		const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(nIndex);
 		if (!szReason)
 		{
 			szReason = "unknown reason";
