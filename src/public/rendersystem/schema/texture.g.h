@@ -29,9 +29,7 @@
 	uint8_t unknown_5[3];
 	uint8_t m_nTotalStreamedMipCount; // Does not get set until after RTech::CreateDXTexture.
 	uint8_t unk4[228];
-#ifdef GAMEDLL_S3
 	uint8_t unk5[57];
-#endif // GAMEDLL_S3
 	ID3D11Texture2D* m_ppTexture;
 	ID3D11ShaderResourceView* m_ppShaderResourceView;
 	uint8_t m_nTextureMipLevels;
