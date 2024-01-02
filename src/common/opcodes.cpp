@@ -351,7 +351,7 @@ void RuntimePtc_Init() /* .TEXT */
 	CMemory(v_SQVM_CompileError).Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | For dedicated we should not perform post-error events such as telemetry / showing 'COM_ExplainDisconnection' UI etc.
 #endif // !DEDICATED
 
-	vector<uint8_t> starPakOpenFile = {
+	const vector<uint8_t> starPakOpenFile = {
 		0x4D, 0x31, 0xC0,                                 // xor, r8, r8
 		0x48, 0x8D, 0x8C, 0x24, 0x90, 0x00, 0x00, 0x00,   // lea  rcx, [rsp+378h+90h] FileName
 
