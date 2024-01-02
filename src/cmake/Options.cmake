@@ -26,14 +26,6 @@ macro( apply_project_settings )
     option( OPTION_CERTAIN "This build is certain; debug statements (such as DevMsg(...)) will NOT be compiled" OFF )
     option( OPTION_RETAIL "This build is retail; enable this among with 'OPTION_CERTAIN' to form a release build" OFF )
 
-    set( OPTION_GAMEDLL "GAMEDLL_S3" CACHE STRING "Game DLL version" )
-    set_property( CACHE OPTION_GAMEDLL PROPERTY STRINGS
-        "GAMEDLL_S0"
-        "GAMEDLL_S1"
-        "GAMEDLL_S2"
-        "GAMEDLL_S3"
-    )
-
     # Set common defines
     add_compile_definitions(
         "_CRT_SECURE_NO_WARNINGS"
@@ -48,7 +40,6 @@ macro( apply_project_settings )
 
         # Target is 64bits only.
         "PLATFORM_64BITS"
-        "${OPTION_GAMEDLL}"
     )
 
     if( ${OPTION_CERTAIN} )
