@@ -324,7 +324,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
 //-----------------------------------------------------------------------------
 void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
-	v_NetChan_Shutdown(pChan, szReason, bBadRep, bRemoveNow);
+	CNetChan__Shutdown(pChan, szReason, bBadRep, bRemoveNow);
 }
 
 //-----------------------------------------------------------------------------
@@ -575,7 +575,7 @@ bool CNetChan::HasPendingReliableData(void)
 ///////////////////////////////////////////////////////////////////////////////
 void VNetChan::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_NetChan_Shutdown, &CNetChan::_Shutdown, bAttach);
-	DetourSetup(&v_NetChan_FlowNewPacket, &CNetChan::_FlowNewPacket, bAttach);
-	DetourSetup(&v_NetChan_ProcessMessages, &CNetChan::_ProcessMessages, bAttach);
+	DetourSetup(&CNetChan__Shutdown, &CNetChan::_Shutdown, bAttach);
+	DetourSetup(&CNetChan__FlowNewPacket, &CNetChan::_FlowNewPacket, bAttach);
+	DetourSetup(&CNetChan__ProcessMessages, &CNetChan::_ProcessMessages, bAttach);
 }

@@ -165,7 +165,7 @@ private:
 static_assert(sizeof(CInputSystem) == 0x18E8);
 
 ///////////////////////////////////////////////////////////////////////////////
-inline LRESULT (*v_CInputSystem__WindowProc)(void* thisptr, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+inline LRESULT (*CInputSystem__WindowProc)(void* thisptr, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 extern CInputSystem* g_pInputSystem;
 extern bool(**g_fnSyncRTWithIn)(void); // Belongs to an array of functions, see CMaterialSystem::MatsysMode_Init().
@@ -175,13 +175,13 @@ class VInputSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CInputSystem::WindowProc", reinterpret_cast<uintptr_t>(v_CInputSystem__WindowProc));
-		LogVarAdr("g_pInputSystem", reinterpret_cast<uintptr_t>(g_pInputSystem));
-		LogVarAdr("g_fnSyncRTWithIn", reinterpret_cast<uintptr_t>(g_fnSyncRTWithIn));
+		LogFunAdr("CInputSystem::WindowProc", CInputSystem__WindowProc);
+		LogVarAdr("g_pInputSystem", g_pInputSystem);
+		LogVarAdr("g_fnSyncRTWithIn", g_fnSyncRTWithIn);
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 55 56 41 54 41 55 48 83 EC 48", v_CInputSystem__WindowProc);
+		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 55 56 41 54 41 55 48 83 EC 48").GetPtr(CInputSystem__WindowProc);
 	}
 	virtual void GetVar(void) const
 	{

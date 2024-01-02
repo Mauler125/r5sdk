@@ -31,14 +31,9 @@ private:
 	SQInteger m_nFlags;
 	SQChar pad2[4];
 	SQChar pad3[16];
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	SQChar pad4[4];
-#endif
 	SQInteger m_nTick;
 	SQCONTEXT m_iContext; // 0x38
-#if !defined (GAMEDLL_S2) && !defined (GAMEDLL_S3)
-	SQChar pad6[4];
-#endif
 	void* m_pCompareFunc;
 };
 #pragma pack(pop)
@@ -52,26 +47,17 @@ extern void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* s);
 
 extern void(*ScriptConstantRegister_Callback)(CSquirrelVM* s);
 
-inline CMemory p_CSquirrelVM_Init;
-inline bool(*v_CSquirrelVM_Init)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime);
-
-inline CMemory p_CSquirrelVM_DestroySignalEntryListHead;
-inline bool(*v_CSquirrelVM_DestroySignalEntryListHead)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
-
-inline CMemory p_CSquirrelVM_RegisterFunction;
-inline SQRESULT(*v_CSquirrelVM_RegisterFunction)(CSquirrelVM* s, ScriptFunctionBinding_t* binding, SQInteger a1);
-
-inline CMemory p_CSquirrelVM_RegisterConstant;
-inline SQRESULT(*v_CSquirrelVM_RegisterConstant)(CSquirrelVM* s, const SQChar* name, SQInteger value);
+inline bool(*CSquirrelVM__Init)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime);
+inline bool(*CSquirrelVM__DestroySignalEntryListHead)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
+inline SQRESULT(*CSquirrelVM__RegisterFunction)(CSquirrelVM* s, ScriptFunctionBinding_t* binding, SQInteger a1);
+inline SQRESULT(*CSquirrelVM__RegisterConstant)(CSquirrelVM* s, const SQChar* name, SQInteger value);
 
 #ifndef DEDICATED
-inline CMemory p_CSquirrelVM_PrecompileClientScripts;
-inline bool(*v_CSquirrelVM_PrecompileClientScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
+inline bool(*CSquirrelVM__PrecompileClientScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
 #endif
 
 #ifndef CLIENT_DLL
-inline CMemory p_CSquirrelVM_PrecompileServerScripts;
-inline bool(*v_CSquirrelVM_PrecompileServerScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
+inline bool(*CSquirrelVM__PrecompileServerScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
 #endif
 
 #ifndef CLIENT_DLL
@@ -89,42 +75,33 @@ class VSquirrel : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CSquirrelVM::Init", p_CSquirrelVM_Init.GetPtr());
-		LogFunAdr("CSquirrelVM::DestroySignalEntryListHead", p_CSquirrelVM_DestroySignalEntryListHead.GetPtr());
+		LogFunAdr("CSquirrelVM::Init", CSquirrelVM__Init);
+		LogFunAdr("CSquirrelVM::DestroySignalEntryListHead", CSquirrelVM__DestroySignalEntryListHead);
 
-		LogFunAdr("CSquirrelVM::RegisterConstant", p_CSquirrelVM_RegisterConstant.GetPtr());
-		LogFunAdr("CSquirrelVM::RegisterFunction", p_CSquirrelVM_RegisterFunction.GetPtr());
+		LogFunAdr("CSquirrelVM::RegisterConstant", CSquirrelVM__RegisterConstant);
+		LogFunAdr("CSquirrelVM::RegisterFunction", CSquirrelVM__RegisterFunction);
 #ifndef CLIENT_DLL
-		LogFunAdr("CSquirrelVM::PrecompileServerScripts", p_CSquirrelVM_PrecompileServerScripts.GetPtr());
+		LogFunAdr("CSquirrelVM::PrecompileServerScripts", CSquirrelVM__PrecompileServerScripts);
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		LogFunAdr("CSquirrelVM::PrecompileClientScripts", p_CSquirrelVM_PrecompileClientScripts.GetPtr());
+		LogFunAdr("CSquirrelVM::PrecompileClientScripts", CSquirrelVM__PrecompileClientScripts);
 #endif // !DEDICATED
 	}
 	virtual void GetFun(void) const
 	{
-		p_CSquirrelVM_Init = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F 28 74 24 ?? 48 89 1D ?? ?? ?? ??").FollowNearCallSelf();
-		v_CSquirrelVM_Init = p_CSquirrelVM_Init.RCast<bool(*)(CSquirrelVM*, SQCONTEXT, SQFloat)>();
-
-		p_CSquirrelVM_DestroySignalEntryListHead = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42");
-		v_CSquirrelVM_DestroySignalEntryListHead = p_CSquirrelVM_DestroySignalEntryListHead.RCast<bool(*)(CSquirrelVM*, HSQUIRRELVM, SQFloat)>();
-
-		p_CSquirrelVM_RegisterConstant = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 4C 8B");
-		v_CSquirrelVM_RegisterConstant = p_CSquirrelVM_RegisterConstant.RCast<SQRESULT(*)(CSquirrelVM*, const SQChar*, SQInteger)>();
-
-		p_CSquirrelVM_RegisterFunction = g_GameDll.FindPatternSIMD("48 83 EC 38 45 0F B6 C8");
-		v_CSquirrelVM_RegisterFunction = p_CSquirrelVM_RegisterFunction.RCast<SQRESULT(*)(CSquirrelVM*, ScriptFunctionBinding_t*, SQInteger)>();
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F 28 74 24 ?? 48 89 1D ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CSquirrelVM__Init);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42").GetPtr(CSquirrelVM__DestroySignalEntryListHead);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 4C 8B").GetPtr(CSquirrelVM__RegisterConstant);
+		g_GameDll.FindPatternSIMD("48 83 EC 38 45 0F B6 C8").GetPtr(CSquirrelVM__RegisterFunction);
 
 #ifndef CLIENT_DLL
 		// sv scripts.rson compiling
-		p_CSquirrelVM_PrecompileServerScripts = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F B6 F0 48 85 DB").FollowNearCallSelf();
-		v_CSquirrelVM_PrecompileServerScripts = p_CSquirrelVM_PrecompileServerScripts.RCast<bool(*)(CSquirrelVM*, SQCONTEXT, char**, int)>();
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F B6 F0 48 85 DB").FollowNearCallSelf().GetPtr(CSquirrelVM__PrecompileServerScripts);
 #endif
 
 #ifndef DEDICATED
 		// cl/ui scripts.rson compiling
-		p_CSquirrelVM_PrecompileClientScripts = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 44 0F B6 F0 48 85 DB").FollowNearCallSelf();
-		v_CSquirrelVM_PrecompileClientScripts = p_CSquirrelVM_PrecompileClientScripts.RCast<bool(*)(CSquirrelVM*, SQCONTEXT, char**, int)>();
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 44 0F B6 F0 48 85 DB").FollowNearCallSelf().GetPtr(CSquirrelVM__PrecompileClientScripts);
 #endif
 	}
 	virtual void GetVar(void) const { }

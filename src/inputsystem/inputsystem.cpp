@@ -64,13 +64,13 @@ LRESULT CInputSystem::WindowProc(void* unused, HWND hwnd, UINT uMsg, WPARAM wPar
 		}
 	}
 
-	return v_CInputSystem__WindowProc(unused, hwnd, uMsg, wParam, lParam);
+	return CInputSystem__WindowProc(unused, hwnd, uMsg, wParam, lParam);
 }
 
 
 void VInputSystem::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CInputSystem__WindowProc, &CInputSystem::WindowProc, bAttach);
+	DetourSetup(&CInputSystem__WindowProc, &CInputSystem::WindowProc, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

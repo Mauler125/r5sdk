@@ -138,7 +138,7 @@ void CClientState::VConnectionClosing(CClientState* thisptr, const char* szReaso
         {
             // Reload the local playlist to override the cached
             // one from the server we got disconnected from.
-            _DownloadPlaylists_f();
+            v__DownloadPlaylists_f();
             KeyValues::InitPlaylists();
         }, 0);
 }

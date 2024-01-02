@@ -276,25 +276,23 @@ protected:
 };
 static_assert(sizeof(CBaseEntity) == 2824);
 
-inline CMemory p_CBaseEntity__GetBaseEntity;
-inline CBaseEntity*(*v_CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
+inline CBaseEntity*(*CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VBaseEntity : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CBaseEntity::GetBaseEntity", p_CBaseEntity__GetBaseEntity.GetPtr());
-		LogVarAdr("g_pEntityList", reinterpret_cast<uintptr_t>(g_pEntityList));
+		LogFunAdr("CBaseEntity::GetBaseEntity", CBaseEntity__GetBaseEntity);
+		LogVarAdr("g_pEntityList", g_pEntityList);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CBaseEntity__GetBaseEntity = g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30");
-		v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
+		g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30").GetPtr(CBaseEntity__GetBaseEntity);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pEntityList = p_CBaseEntity__GetBaseEntity.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEntInfo**>();
+		g_pEntityList = CMemory(CBaseEntity__GetBaseEntity).FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEntInfo**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const { }

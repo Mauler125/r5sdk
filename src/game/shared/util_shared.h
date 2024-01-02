@@ -10,7 +10,6 @@
 class CTraceFilterSimple;
 const char* UTIL_GetEntityScriptInfo(CBaseEntity* pEnt);
 
-inline CMemory p_UTIL_GetEntityScriptInfo;
 inline const char*(*v_UTIL_GetEntityScriptInfo)(CBaseEntity* pEnt);
 
 inline CTraceFilterSimple* g_pTraceFilterSimpleVFTable = nullptr;
@@ -44,14 +43,13 @@ class VUtil_Shared : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("CTraceFilterSimple::`vftable'", reinterpret_cast<uintptr_t>(g_pTraceFilterSimpleVFTable));
-		LogFunAdr("UTIL_GetEntityScriptInfo", p_UTIL_GetEntityScriptInfo.GetPtr());
+		LogConAdr("CTraceFilterSimple::`vftable'", g_pTraceFilterSimpleVFTable);
+		LogFunAdr("UTIL_GetEntityScriptInfo", v_UTIL_GetEntityScriptInfo);
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		p_UTIL_GetEntityScriptInfo = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 5E ??").FollowNearCallSelf();
-		v_UTIL_GetEntityScriptInfo = p_UTIL_GetEntityScriptInfo.RCast<const char* (*)(CBaseEntity* pEnt)>();
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 5E ??").FollowNearCallSelf().GetPtr(v_UTIL_GetEntityScriptInfo);
 	}
 	virtual void GetCon(void) const
 	{

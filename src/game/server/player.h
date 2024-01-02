@@ -794,27 +794,21 @@ private:
 };
 static_assert(sizeof(CPlayer) == 0x7EF0); // !TODO: backwards compatibility.
 
-inline CMemory p_CPlayer__EyeAngles;
-inline QAngle*(*v_CPlayer__EyeAngles)(CPlayer* pPlayer, QAngle* pAngles);
-
-inline CMemory p_CPlayer__PlayerRunCommand;
-inline void(*v_CPlayer__PlayerRunCommand)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover);
+inline QAngle*(*CPlayer__EyeAngles)(CPlayer* pPlayer, QAngle* pAngles);
+inline void(*CPlayer__PlayerRunCommand)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VPlayer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CPlayer::EyeAngles", p_CPlayer__EyeAngles.GetPtr());
-		LogFunAdr("CPlayer::PlayerRunCommand", p_CPlayer__PlayerRunCommand.GetPtr());
+		LogFunAdr("CPlayer::EyeAngles", CPlayer__EyeAngles);
+		LogFunAdr("CPlayer::PlayerRunCommand", CPlayer__PlayerRunCommand);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CPlayer__EyeAngles = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 F2 0F 10 05 ?? ?? ?? ??");
-		v_CPlayer__EyeAngles = p_CPlayer__EyeAngles.RCast<QAngle* (*)(CPlayer*, QAngle*)>();
-
-		p_CPlayer__PlayerRunCommand = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 03 49 81 C6 ?? ?? ?? ??").FollowNearCallSelf();
-		v_CPlayer__PlayerRunCommand = p_CPlayer__PlayerRunCommand.RCast<void (*)(CPlayer*, CUserCmd*, IMoveHelper*)>();
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 F2 0F 10 05 ?? ?? ?? ??").GetPtr(CPlayer__EyeAngles);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 03 49 81 C6 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CPlayer__PlayerRunCommand);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

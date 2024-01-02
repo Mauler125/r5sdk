@@ -31,11 +31,7 @@ enum class PERSISTENCE : int
 	PERSISTENCE_NONE      = 0, // no persistence data for this client yet.
 	PERSISTENCE_PENDING   = 1, // pending or processing persistence data.
 	PERSISTENCE_AVAILABLE = 2, // persistence is available for this client.
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-	PERSISTENCE_READY     = 3  // persistence is ready for this client.
-#else
 	PERSISTENCE_READY     = 5  // persistence is ready for this client.
-#endif
 };
 
 #define net_NOP        0 // nop command used for padding.

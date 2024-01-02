@@ -213,6 +213,7 @@ void Systems_Init()
 	if (hr != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
+		Assert(0);
 		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 

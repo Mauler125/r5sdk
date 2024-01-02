@@ -95,22 +95,15 @@ void StreamDB_Init(const char* pszLevelName)
 //---------------------------------------------------------------------------------
 // Purpose: draw frame
 //---------------------------------------------------------------------------------
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, char a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, __m128* a11, int a12)
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64_t a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, int a11, __m128* a12, int a13, int64_t a14)
-#endif
 {
 	// This only happens when the BSP is in a horrible condition (bad depth buffer draw calls!)
 	// but allows you to load BSP's with virtually all missing shaders/materials and models 
 	// being replaced with 'material_for_aspect/error.rpak' and 'mdl/error.rmdl'.
-	if (!s_pRenderContext.GetValue<void*>())
+	if (!*s_pRenderContext)
 		return nullptr;
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	return v_DispatchDrawCall(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+
 	return v_DispatchDrawCall(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
-#endif
 }
 
 //---------------------------------------------------------------------------------
@@ -165,7 +158,7 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 {
 	Vector2D vecScreenSize;
 
-	CMaterialSystem_GetScreenSize(pMatSys, &vecScreenSize.x, &vecScreenSize.y);
+	CMaterialSystem__GetScreenSize(pMatSys, &vecScreenSize.x, &vecScreenSize.y);
 
 	return vecScreenSize;
 }

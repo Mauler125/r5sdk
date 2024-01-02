@@ -77,7 +77,7 @@ FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHan
 		return pResults;
 	}
 
-	return v_CBaseFileSystem_LoadFromVPK(pFileSystem, pResults, pszFilePath);
+	return CBaseFileSystem__LoadFromVPK(pFileSystem, pResults, pszFilePath);
 }
 
 //---------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, const char* p
 		return false;
 	}
 
-	bool result = v_CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pCache);
+	bool result = CBaseFileSystem__LoadFromCache(pFileSystem, pszFilePath, pCache);
 	return result;
 }
 
@@ -131,7 +131,7 @@ void CBaseFileSystem::VAddMapPackFile(CBaseFileSystem* pFileSystem, const char* 
 		pPath = lumpPathBuf;
 	}
 
-	v_CBaseFileSystem_AddMapPackFile(pFileSystem, pPath, pPathID, addType);
+	CBaseFileSystem__AddMapPackFile(pFileSystem, pPath, pPathID, addType);
 }
 
 //---------------------------------------------------------------------------------
@@ -142,8 +142,8 @@ void CBaseFileSystem::VAddMapPackFile(CBaseFileSystem* pFileSystem, const char* 
 //---------------------------------------------------------------------------------
 VPKData_t* CBaseFileSystem::VMountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath)
 {
-	int nHandle = v_CBaseFileSystem_GetMountedVPKHandle(pFileSystem, pszVpkPath);
-	VPKData_t* pPakData = v_CBaseFileSystem_MountVPKFile(pFileSystem, pszVpkPath);
+	int nHandle = CBaseFileSystem__GetMountedVPKHandle(pFileSystem, pszVpkPath);
+	VPKData_t* pPakData = CBaseFileSystem__MountVPKFile(pFileSystem, pszVpkPath);
 
 	if (pPakData)
 	{
@@ -168,8 +168,8 @@ VPKData_t* CBaseFileSystem::VMountVPKFile(CBaseFileSystem* pFileSystem, const ch
 //---------------------------------------------------------------------------------
 const char* CBaseFileSystem::VUnmountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath)
 {
-	int nHandle = v_CBaseFileSystem_GetMountedVPKHandle(pFileSystem, pszVpkPath);
-	const char* pRet = v_CBaseFileSystem_UnmountVPKFile(pFileSystem, pszVpkPath);
+	int nHandle = CBaseFileSystem__GetMountedVPKHandle(pFileSystem, pszVpkPath);
+	const char* pRet = CBaseFileSystem__UnmountVPKFile(pFileSystem, pszVpkPath);
 
 	if (nHandle >= 0)
 	{
@@ -203,12 +203,12 @@ CUtlString CBaseFileSystem::ReadString(FileHandle_t pFile)
 
 void VBaseFileSystem::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning, bAttach);
-	DetourSetup(&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK, bAttach);
-	DetourSetup(&v_CBaseFileSystem_LoadFromCache, &CBaseFileSystem::VReadFromCache, bAttach);
-	DetourSetup(&v_CBaseFileSystem_AddMapPackFile, &CBaseFileSystem::VAddMapPackFile, bAttach);
-	DetourSetup(&v_CBaseFileSystem_MountVPKFile, &CBaseFileSystem::VMountVPKFile, bAttach);
-	DetourSetup(&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile, bAttach);
+	DetourSetup(&CBaseFileSystem__Warning, &CBaseFileSystem::Warning, bAttach);
+	DetourSetup(&CBaseFileSystem__LoadFromVPK, &CBaseFileSystem::VReadFromVPK, bAttach);
+	DetourSetup(&CBaseFileSystem__LoadFromCache, &CBaseFileSystem::VReadFromCache, bAttach);
+	DetourSetup(&CBaseFileSystem__AddMapPackFile, &CBaseFileSystem::VAddMapPackFile, bAttach);
+	DetourSetup(&CBaseFileSystem__MountVPKFile, &CBaseFileSystem::VMountVPKFile, bAttach);
+	DetourSetup(&CBaseFileSystem__UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile, bAttach);
 }
 
 CBaseFileSystem* g_pFileSystem = nullptr;

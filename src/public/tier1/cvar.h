@@ -161,7 +161,6 @@ extern ConVarFlags g_ConVarFlags;
 bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName = "<<unspecified>>");
 void ConVar_PrintDescription(ConCommandBase* pVar);
 
-inline CMemory p_ConVar_PrintDescription;
 inline void (*v_ConVar_PrintDescription)(ConCommandBase* pVar);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,13 +168,12 @@ class VCVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("ConVar_PrintDescription", p_ConVar_PrintDescription.GetPtr());
-		LogVarAdr("g_pCVar", reinterpret_cast<uintptr_t>(g_pCVar));
+		LogFunAdr("ConVar_PrintDescription", v_ConVar_PrintDescription);
+		LogVarAdr("g_pCVar", g_pCVar);
 	}
 	virtual void GetFun(void) const 
 	{
-		p_ConVar_PrintDescription = g_GameDll.FindPatternSIMD("B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 01 48 89 9C 24 ?? ?? ?? ??");
-		v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void (*)(ConCommandBase*)>();
+		g_GameDll.FindPatternSIMD("B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 01 48 89 9C 24 ?? ?? ?? ??").GetPtr(v_ConVar_PrintDescription);
 	}
 	virtual void GetVar(void) const
 	{

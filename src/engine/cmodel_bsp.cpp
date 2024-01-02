@@ -377,11 +377,7 @@ void Mod_ProcessPakQueue()
         v21 = *(_DWORD*)v15;
         if (*(_DWORD*)v15 != INVALID_PAK_HANDLE)
         {
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-            v22 = 232i64 * (v21 & 0x1FF);
-#else
             v22 = 184i64 * (v21 & 0x1FF);
-#endif
             if (*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22) != _DWORD(v21) || ((*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22 + 4) - 9) & 0xFFFFFFFB) != 0)
             {
                 *byte_16709DDDF = 0;                return;

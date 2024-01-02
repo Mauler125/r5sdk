@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 void CAppSystemGroup::StaticDestroy(CAppSystemGroup* pModAppSystemGroup)
 {
-	CAppSystemGroup_Destroy(pModAppSystemGroup);
+	CAppSystemGroup__Destroy(pModAppSystemGroup);
 }
 
 //-----------------------------------------------------------------------------
@@ -68,5 +68,5 @@ void* CAppSystemGroup::FindSystem(const char* pSystemName)
 
 void VAppSystemGroup::Detour(const bool bAttach) const
 {
-	DetourSetup(&CAppSystemGroup_Destroy, &CAppSystemGroup::StaticDestroy, bAttach);
+	DetourSetup(&CAppSystemGroup__Destroy, &CAppSystemGroup::StaticDestroy, bAttach);
 }

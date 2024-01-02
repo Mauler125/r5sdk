@@ -234,14 +234,9 @@ FORCEINLINE const char* ConVar::GetString(void) const
 }
 
 /* ==== CONVAR ========================================================================================================================================================== */
-inline CMemory p_ConVar_Register;
-inline void*(*v_ConVar_Register)(ConVar* thisptr, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString);
-
-inline CMemory p_ConVar_Unregister;
-inline void(*v_ConVar_Unregister)(ConVar* thisptr);
-
-inline CMemory p_ConVar_IsFlagSet;
-inline bool(*v_ConVar_IsFlagSet)(ConVar* pConVar, int nFlag);
+inline void*(*ConVar__Register)(ConVar* thisptr, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString);
+inline void(*ConVar__Unregister)(ConVar* thisptr);
+inline bool(*ConVar__IsFlagSet)(ConVar* pConVar, int nFlag);
 
 inline ConCommandBase* g_pConCommandBaseVFTable;
 inline ConCommand* g_pConCommandVFTable;
@@ -253,28 +248,19 @@ class VConVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("ConCommandBase::`vftable'", reinterpret_cast<uintptr_t>(g_pConCommandBaseVFTable));
-		LogConAdr("ConCommand::`vftable'", reinterpret_cast<uintptr_t>(g_pConCommandVFTable));
-		LogConAdr("ConVar::`vbtable'", reinterpret_cast<uintptr_t>(g_pConVarVBTable));
-		LogConAdr("ConVar::`vftable'", reinterpret_cast<uintptr_t>(g_pConVarVFTable));
-		LogFunAdr("ConVar::Register", p_ConVar_Register.GetPtr());
-		LogFunAdr("ConVar::Unregister", p_ConVar_Unregister.GetPtr());
-		LogFunAdr("ConVar::IsFlagSet", p_ConVar_IsFlagSet.GetPtr());
+		LogConAdr("ConCommandBase::`vftable'", g_pConCommandBaseVFTable);
+		LogConAdr("ConCommand::`vftable'", g_pConCommandVFTable);
+		LogConAdr("ConVar::`vbtable'", g_pConVarVBTable);
+		LogConAdr("ConVar::`vftable'", g_pConVarVFTable);
+		LogFunAdr("ConVar::Register", ConVar__Register);
+		LogFunAdr("ConVar::Unregister", ConVar__Unregister);
+		LogFunAdr("ConVar::IsFlagSet", ConVar__IsFlagSet);
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_ConVar_Register                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 F3 0F 10 44 24 ??");
-		p_ConVar_Unregister                 = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 8B 59 58 48 8D 05 ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_ConVar_Register                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40 F3 0F 10 84 24 ?? ?? ?? ??");
-		p_ConVar_Unregister                 = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 79 58");
-#endif
-		p_ConVar_IsFlagSet                  = g_GameDll.FindPatternSIMD("48 8B 41 48 85 50 38");
-
-		v_ConVar_IsFlagSet                  = p_ConVar_IsFlagSet.RCast<bool (*)(ConVar*, int)>();
-		v_ConVar_Register                   = p_ConVar_Register.RCast<void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, FnChangeCallback_t, const char*)>();
-		v_ConVar_Unregister                 = p_ConVar_Unregister.RCast<void (*)(ConVar*)>();
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40 F3 0F 10 84 24 ?? ?? ?? ??").GetPtr(ConVar__Register);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 79 58").GetPtr(ConVar__Unregister);
+		g_GameDll.FindPatternSIMD("48 8B 41 48 85 50 38").GetPtr(ConVar__IsFlagSet);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const

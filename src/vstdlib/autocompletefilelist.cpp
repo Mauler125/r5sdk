@@ -16,5 +16,5 @@
 //-----------------------------------------------------------------------------
 int CBaseAutoCompleteFileList::AutoCompletionFunc(const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
 {
-	return v_CBaseAutoCompleteFileList_AutoCompletionFunc(this, partial, commands);
+	return CBaseAutoCompleteFileList__AutoCompletionFunc(this, partial, commands);
 }
