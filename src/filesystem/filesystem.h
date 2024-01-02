@@ -46,8 +46,8 @@ class VFileSystem_Stdio : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("g_pFullFileSystem", reinterpret_cast<uintptr_t>(g_pFullFileSystem));
-		LogVarAdr("g_pFileSystem_Stdio", reinterpret_cast<uintptr_t>(g_pFileSystem_Stdio));
+		LogVarAdr("g_pFullFileSystem", g_pFullFileSystem);
+		LogVarAdr("g_pFileSystem_Stdio", g_pFileSystem_Stdio);
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const

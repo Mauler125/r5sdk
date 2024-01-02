@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 ClientDataBlockReceiver::~ClientDataBlockReceiver()
 {
-	v_ClientDataBlockReceiver__Destructor(this);
+	ClientDataBlockReceiver__Destructor(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -20,5 +20,5 @@ ClientDataBlockReceiver::~ClientDataBlockReceiver()
 //-----------------------------------------------------------------------------
 void ClientDataBlockReceiver::AcknowledgeTransmission()
 {
-	v_ClientDataBlockReceiver__AcknowledgeTransmission(this);
+	ClientDataBlockReceiver__AcknowledgeTransmission(this);
 }

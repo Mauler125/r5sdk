@@ -41,10 +41,10 @@ class VModelInfo : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
-		LogFunAdr("g_pModelInfoServer", reinterpret_cast<uintptr_t>(g_pModelInfoServer));
+		LogFunAdr("g_pModelInfoServer", g_pModelInfoServer);
 #endif // CLIENT_DLL
 #ifndef DEDICATED
-		LogFunAdr("g_pModelInfoClient", reinterpret_cast<uintptr_t>(g_pModelInfoClient));
+		LogFunAdr("g_pModelInfoClient", g_pModelInfoClient);
 #endif // DEDICATED
 	}
 	virtual void GetFun(void) const { }

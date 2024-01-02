@@ -169,7 +169,6 @@ HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, U
 // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
 // Also disable 6378, complains that there is no control path where it would use 'nullptr', if that happens 'Error' will be called though.
 #pragma warning( disable : 6262 6387)
-CMemory p_CreateTextureResource;
 void(*v_CreateTextureResource)(TextureHeader_t*, INT_PTR);
 constexpr uint32_t ALIGNMENT_SIZE = 15; // Creates 2D texture and shader resource from textureHeader and imageData.
 void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
@@ -371,6 +370,7 @@ void DirectX_Init()
 	if (hr != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
+		Assert(0);
 		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 }
@@ -404,45 +404,34 @@ void DirectX_Shutdown()
 void VDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
-	LogFunAdr("IDXGISwapChain::Present", reinterpret_cast<uintptr_t>(s_fnSwapChainPresent));
-	LogFunAdr("CreateTextureResource", p_CreateTextureResource.GetPtr());
-	LogVarAdr("g_pSwapChain", reinterpret_cast<uintptr_t>(g_ppSwapChain));
-	LogVarAdr("g_pGameDevice", reinterpret_cast<uintptr_t>(g_ppGameDevice));
-	LogVarAdr("g_pImmediateContext", reinterpret_cast<uintptr_t>(g_ppImmediateContext));
+	LogFunAdr("IDXGISwapChain::Present", s_fnSwapChainPresent);
+	LogFunAdr("CreateTextureResource", v_CreateTextureResource);
+	LogVarAdr("g_pSwapChain", g_ppSwapChain);
+	LogVarAdr("g_pGameDevice", g_ppGameDevice);
+	LogVarAdr("g_pImmediateContext", g_ppImmediateContext);
 }
 
 void VDXGI::GetFun(void) const
 {
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	p_CreateTextureResource = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 55 41 55");
-	v_CreateTextureResource = p_CreateTextureResource.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*48 8B C4 48 89 48 08 53 55 41 55*/
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	p_CreateTextureResource = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60").FollowNearCallSelf();
-	v_CreateTextureResource = p_CreateTextureResource.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
-#endif
+	g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60").FollowNearCallSelf().GetPtr(v_CreateTextureResource);
 }
 
 void VDXGI::GetVar(void) const
 {
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	CMemory pBase = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 53 48 83 EC 50 48 8B 05 ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	CMemory pBase = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B 08 48 83 EC 58");
-#endif
+	CMemory base = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B 08 48 83 EC 58");
+
 	// Grab device pointers..
-	g_ppGameDevice = pBase.FindPattern("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11Device**>();
-	g_ppImmediateContext = pBase.FindPattern("48 89 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11DeviceContext**>();
+	g_ppGameDevice = base.FindPattern("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11Device**>();
+	g_ppImmediateContext = base.FindPattern("48 89 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11DeviceContext**>();
 
 	// Grab swap chain..
-	pBase = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 45 33 C0 33 D2");
-	g_ppSwapChain = pBase.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<IDXGISwapChain**>();
+	base = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 45 33 C0 33 D2");
+	g_ppSwapChain = base.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<IDXGISwapChain**>();
 }
 
 void VDXGI::Detour(const bool bAttach) const
 {
-#ifdef GAMEDLL_S3
 	DetourSetup(&v_CreateTextureResource, &CreateTextureResource, bAttach);
-#endif // GAMEDLL_S3
 }
 
 #endif // !DEDICATED

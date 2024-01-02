@@ -20,33 +20,33 @@ string g_LogSessionDirectory;
 
 static const char* const s_AdrFmt = "| {:s}: {:42s}: {:#18x} |\n";
 
-void LogFunAdr(const char* const szFun, const uintptr_t nAdr) // Logging function addresses.
+void LogFunAdr(const char* const szFun, const void* const pAdr) // Logging function addresses.
 {
 	if (!IsCert() && !IsRetail())
-		spdlog::debug(s_AdrFmt, "FUN", szFun, nAdr);
+		spdlog::debug(s_AdrFmt, "FUN", szFun, uintptr_t(pAdr));
 	else
 	{
 		NOTE_UNUSED(szFun);
-		NOTE_UNUSED(nAdr);
+		NOTE_UNUSED(pAdr);
 	}
 }
-void LogVarAdr(const char* const szVar, const uintptr_t nAdr) // Logging variable addresses.
+void LogVarAdr(const char* const szVar, const void* const pAdr) // Logging variable addresses.
 {
 	if (!IsCert() && !IsRetail())
-		spdlog::debug(s_AdrFmt, "VAR", szVar, nAdr);
+		spdlog::debug(s_AdrFmt, "VAR", szVar, uintptr_t(pAdr));
 	else
 	{
 		NOTE_UNUSED(szVar);
-		NOTE_UNUSED(nAdr);
+		NOTE_UNUSED(pAdr);
 	}
 }
-void LogConAdr(const char* const szCon, const uintptr_t nAdr) // Logging constant addresses.
+void LogConAdr(const char* const szCon, const void* const pAdr) // Logging constant addresses.
 {
 	if (!IsCert() && !IsRetail())
-		spdlog::debug(s_AdrFmt, "CON", szCon, nAdr);
+		spdlog::debug(s_AdrFmt, "CON", szCon, uintptr_t(pAdr));
 	else
 	{
 		NOTE_UNUSED(szCon);
-		NOTE_UNUSED(nAdr);
+		NOTE_UNUSED(pAdr);
 	}
 }

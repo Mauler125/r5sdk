@@ -71,7 +71,7 @@ MP_GameMode_Changed_f
 */
 void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
-	SetupGamemode(mp_gamemode->GetString());
+	v_SetupGamemode(mp_gamemode->GetString());
 }
 
 /*
@@ -230,7 +230,7 @@ Host_ReloadPlaylists_f
 */
 void Host_ReloadPlaylists_f(const CCommand& args)
 {
-	_DownloadPlaylists_f();
+	v__DownloadPlaylists_f();
 	KeyValues::InitPlaylists(); // Re-Init playlist.
 }
 
@@ -1203,7 +1203,7 @@ Mat_CrossHair_f
 */
 void Mat_CrossHair_f(const CCommand& args)
 {
-	CMaterialGlue* material = GetMaterialAtCrossHair();
+	CMaterialGlue* material = v_GetMaterialAtCrossHair();
 	if (material)
 	{
 		Msg(eDLL_T::MS, "______________________________________________________________\n");
@@ -1339,7 +1339,7 @@ void Capsule_f(const CCommand& args)
 	g_pDebugOverlay->AddCapsuleOverlay(start, end, radius, { 0,0,0 }, { 0,0,0 }, 141, 233, 135, 0, 100);
 }
 #endif // !DEDICATED
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
+
 /*
 =====================
 BHit_f
@@ -1396,7 +1396,7 @@ void BHit_f(const CCommand& args)
 	}
 #endif // !DEDICATED
 }
-#endif // !GAMEDLL_S0 && !GAMEDLL_S1
+
 /*
 =====================
 CVHelp_f
@@ -1539,11 +1539,11 @@ void Cmd_Exec_f(const CCommand& args)
 		}
 	}
 #endif // !DEDICATED
-	_Cmd_Exec_f(args);
+	v__Cmd_Exec_f(args);
 }
 
 
 void VCallback::Detour(const bool bAttach) const
 {
-	DetourSetup(&_Cmd_Exec_f, &Cmd_Exec_f, bAttach);
+	DetourSetup(&v__Cmd_Exec_f, &Cmd_Exec_f, bAttach);
 }

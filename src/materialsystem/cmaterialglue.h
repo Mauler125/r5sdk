@@ -68,8 +68,7 @@ inline void* g_pMaterialGlueVFTable = nullptr;
 
 /* ==== CMATERIALGLUE ================================================================================================================================================== */
 #ifndef DEDICATED
-inline CMemory p_GetMaterialAtCrossHair;
-inline CMaterialGlue*(*GetMaterialAtCrossHair)(void);
+inline CMaterialGlue*(*v_GetMaterialAtCrossHair)(void);
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -77,16 +76,15 @@ class VMaterialGlue : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("CMaterialGlue::`vftable'", reinterpret_cast<uintptr_t>(g_pMaterialGlueVFTable));
+		LogConAdr("CMaterialGlue::`vftable'", g_pMaterialGlueVFTable);
 #ifndef DEDICATED
-		LogFunAdr("CMaterialGlue::GetMaterialAtCrossHair", p_GetMaterialAtCrossHair.GetPtr());
+		LogFunAdr("CMaterialGlue::GetMaterialAtCrossHair", v_GetMaterialAtCrossHair);
 #endif // !DEDICATED
 	}
 	virtual void GetFun(void) const
 	{
 #ifndef DEDICATED
-		p_GetMaterialAtCrossHair = g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC 58 48 83 3D ?? ?? ?? ?? ??");
-		GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
+		g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC 58 48 83 3D ?? ?? ?? ?? ??").GetPtr(v_GetMaterialAtCrossHair);
 #endif // !DEDICATED
 	}
 	virtual void GetVar(void) const { }

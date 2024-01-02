@@ -52,16 +52,16 @@ class VKeys : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("Input_Event", reinterpret_cast<uintptr_t>(v_Input_Event));
-		LogFunAdr("Key_Event", reinterpret_cast<uintptr_t>(v_Key_Event));
-		LogVarAdr("g_pKeyInfo", reinterpret_cast<uintptr_t>(g_pKeyInfo));
-		LogVarAdr("g_pKeyEventTicks", reinterpret_cast<uintptr_t>(g_pKeyEventTicks));
-		LogVarAdr("g_nKeyEventCount", reinterpret_cast<uintptr_t>(g_nKeyEventCount));
+		LogFunAdr("Input_Event", v_Input_Event);
+		LogFunAdr("Key_Event", v_Key_Event);
+		LogVarAdr("g_pKeyInfo", g_pKeyInfo);
+		LogVarAdr("g_pKeyEventTicks", g_pKeyEventTicks);
+		LogVarAdr("g_nKeyEventCount", g_nKeyEventCount);
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 56", v_Input_Event);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 63 41 08", v_Key_Event);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 56").GetPtr(v_Input_Event);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 63 41 08").GetPtr(v_Key_Event);
 	}
 	virtual void GetVar(void) const
 	{

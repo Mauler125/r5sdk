@@ -139,7 +139,7 @@ CAI_Node* CAI_Network::GetPathNode(int id) const
 //-----------------------------------------------------------------------------
 CAI_Node* CAI_Network::AddPathNode(const Vector3D* origin, const float jaw)
 {
-	return v_CAI_Network__AddPathNode(this, origin, jaw);
+	return CAI_Network__AddPathNode(this, origin, jaw);
 }
 
 //-----------------------------------------------------------------------------
@@ -150,11 +150,11 @@ CAI_Node* CAI_Network::AddPathNode(const Vector3D* origin, const float jaw)
 //-----------------------------------------------------------------------------
 CAI_NodeLink* CAI_Network::CreateNodeLink(int srcID, int destID)
 {
-	return v_CAI_Network__CreateNodeLink(this, srcID, destID);
+	return CAI_Network__CreateNodeLink(this, srcID, destID);
 }
 
 //-----------------------------------------------------------------------------
 void VAI_Network::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg, bAttach);
+	DetourSetup(&CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg, bAttach);
 }

@@ -30,20 +30,18 @@ inline CCommandLine* CommandLine(void)
 	return g_pCmdLine;
 }
 
-inline CMemory p_CCommandLine__CreateCmdLine;
-inline void(*v_CCommandLine__CreateCmdLine)(CCommandLine* thisptr, const char* pszCommandLine);
+inline void(*CCommandLine__CreateCmdLine)(CCommandLine* thisptr, const char* pszCommandLine);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCommandLine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CCommandLine::CreateCmdLine", p_CCommandLine__CreateCmdLine.GetPtr());
+		LogFunAdr("CCommandLine::CreateCmdLine", CCommandLine__CreateCmdLine);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CCommandLine__CreateCmdLine = g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 53 41 55 B8 ?? ?? ?? ??");
-		v_CCommandLine__CreateCmdLine = p_CCommandLine__CreateCmdLine.RCast<void(*)(CCommandLine*, const char*)>();
+		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 53 41 55 B8 ?? ?? ?? ??").GetPtr(CCommandLine__CreateCmdLine);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

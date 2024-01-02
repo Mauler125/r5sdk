@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 ServerDataBlockSender::~ServerDataBlockSender()
 {
-	v_ServerDataBlockSender__Destructor(this);
+	ServerDataBlockSender__Destructor(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ ServerDataBlockSender::~ServerDataBlockSender()
 void ServerDataBlockSender::SendDataBlock(short unk0, int unk1,
     short unk2, short unk3, const void* buffer, int length)
 {
-	v_ServerDataBlockSender__SendDataBlock(this, unk0, unk1,
+	ServerDataBlockSender__SendDataBlock(this, unk0, unk1,
         unk2, unk3, buffer, length);
 }
 

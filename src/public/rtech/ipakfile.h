@@ -172,7 +172,6 @@ public:
 	char* m_fileName; //0x0018
 	void* m_allocator; //0x0020
 	uint64_t* m_assetGuids; //0x0028 size of the array is m_nAssetCount
-#if defined (GAMEDLL_S3)
 	void* m_virtualSegmentBuffers[4]; //0x0030
 	char pad_0050[16]; //0x0050
 	void* m_pakInfo; //0x0060
@@ -182,11 +181,6 @@ public:
 	char pad_0075[51]; //0x0075
 	uint32_t m_nUnk4; //0x00A8
 	uint8_t m_nUnk5; //0x00AC
-#endif
-#if !defined (GAMEDLL_S3)
-	char pad_0030[128]; //0x0030
-	char pad_00B0[48];  //0x00B0
-#endif // !GAMEDLL_S3
 	uint64_t m_nUnkEnd; //0x00B0/0x00E8
 }; //Size: 0x00B8/0x00E8
 
@@ -308,15 +302,7 @@ struct PakFile_t
 	PakMemoryData_t m_memoryData;
 };
 
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-#if !defined (GAMEDLL_S2)
 static_assert(sizeof(PakFile_t) == 2208); // S3+
-#else
-static_assert(sizeof(PakFile_t) == 2200); // S2
-#endif // !GAMEDLL_S2
-#else
-static_assert(sizeof(PakFile_t) == 1944); // S0/S1
-#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 
 static_assert(sizeof(PakDecompState_t) == 136);
 static_assert(sizeof(PakPatchFileHeader_t) == 16);

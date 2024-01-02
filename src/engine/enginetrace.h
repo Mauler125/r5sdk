@@ -28,10 +28,10 @@ class VEngineTrace : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
-		LogVarAdr("g_pEngineTraceServer", reinterpret_cast<uintptr_t>(g_pEngineTraceServer));
+		LogVarAdr("g_pEngineTraceServer", g_pEngineTraceServer);
 #endif // CLIENT_DLL
 #ifndef DEDICATED
-		LogVarAdr("g_pEngineTraceClient", reinterpret_cast<uintptr_t>(g_pEngineTraceClient));
+		LogVarAdr("g_pEngineTraceClient", g_pEngineTraceClient);
 #endif // DEDICATED
 	}
 	virtual void GetFun(void) const { }

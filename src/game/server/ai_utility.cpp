@@ -72,7 +72,7 @@ uint8_t IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef
     if (navmesh_always_reachable->GetBool())
         return true;
 
-    return v_dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);
+    return dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);
 }
 
 //-----------------------------------------------------------------------------
@@ -135,6 +135,6 @@ void Detour_HotSwap()
 ///////////////////////////////////////////////////////////////////////////////
 void VRecast::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_dtNavMesh__isPolyReachable, &IsGoalPolyReachable, bAttach);
+	DetourSetup(&dtNavMesh__isPolyReachable, &IsGoalPolyReachable, bAttach);
 	DetourSetup(&v_Detour_LevelInit, &Detour_LevelInit, bAttach);
 }

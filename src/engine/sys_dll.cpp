@@ -72,10 +72,6 @@ int CModAppSystemGroup::StaticMain(CModAppSystemGroup* pModAppSystemGroup)
 	int nRunResult = RUN_OK;
 	HEbisuSDK_Init(); // Not here in retail. We init EbisuSDK here though.
 
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) // !TODO: rebuild does not work for S1 (CModAppSystemGroup and CEngine member offsets do align with all other builds).
-	return CModAppSystemGroup_Main(pModAppSystemGroup);
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-
 	g_pEngine->SetQuitting(IEngine::QUIT_NOTQUITTING);
 	if (g_pEngine->Load(pModAppSystemGroup->IsServerOnly(), g_pEngineParms->baseDirectory))
 	{
@@ -90,7 +86,6 @@ int CModAppSystemGroup::StaticMain(CModAppSystemGroup* pModAppSystemGroup)
 #endif // !CLIENT_DLL
 	}
 	return nRunResult;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -136,7 +131,7 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 	g_FrameTasks.push_back(std::move(g_TaskScheduler));
 	g_bAppSystemInit = true;
 
-	return CModAppSystemGroup_Create(pModAppSystemGroup);
+	return CModAppSystemGroup__Create(pModAppSystemGroup);
 }
 
 //-----------------------------------------------------------------------------
@@ -182,8 +177,8 @@ void VSys_Dll::Detour(const bool bAttach) const
 	DetourSetup(&CSourceAppSystemGroup__PreInit, &CSourceAppSystemGroup::StaticPreInit, bAttach);
 	DetourSetup(&CSourceAppSystemGroup__Create, &CSourceAppSystemGroup::StaticCreate, bAttach);
 
-	DetourSetup(&CModAppSystemGroup_Main, &CModAppSystemGroup::StaticMain, bAttach);
-	DetourSetup(&CModAppSystemGroup_Create, &CModAppSystemGroup::StaticCreate, bAttach);
+	DetourSetup(&CModAppSystemGroup__Main, &CModAppSystemGroup::StaticMain, bAttach);
+	DetourSetup(&CModAppSystemGroup__Create, &CModAppSystemGroup::StaticCreate, bAttach);
 
 	DetourSetup(&Sys_Error_Internal, &HSys_Error_Internal, bAttach);
 }

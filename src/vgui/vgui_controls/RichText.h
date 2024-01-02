@@ -27,20 +27,18 @@ namespace vgui
 };
 
 /* ==== RICHTEXT ===================================================================================================================================================== */
-inline CMemory p_vgui_RichText_SetText;
-inline void(*vgui_RichText_SetText)(vgui::RichText* thisptr, const char* text);
+inline void(*vgui__RichText__SetText)(vgui::RichText* thisptr, const char* text);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VVGUIRichText : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("vgui::RichText::SetText", p_vgui_RichText_SetText.GetPtr());
+		LogFunAdr("vgui::RichText::SetText", vgui__RichText__SetText);
 	}
 	virtual void GetFun(void) const
 	{
-		p_vgui_RichText_SetText = g_GameDll.FindPatternSIMD("40 53 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9");
-		vgui_RichText_SetText = p_vgui_RichText_SetText.RCast<void(*)(vgui::RichText*, const char*)>();
+		g_GameDll.FindPatternSIMD("40 53 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9").GetPtr(vgui__RichText__SetText);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

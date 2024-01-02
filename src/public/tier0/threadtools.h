@@ -260,7 +260,6 @@ typedef CInterlockedIntT<unsigned> CInterlockedUInt;
 
 #ifndef BUILDING_MATHLIB
 //=============================================================================
-inline CMemory p_DeclareCurrentThreadIsMainThread;
 inline ThreadId_t(*v_DeclareCurrentThreadIsMainThread)(void);
 
 #endif // !BUILDING_MATHLIB
@@ -336,18 +335,17 @@ class VThreadTools : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("DeclareCurrentThreadIsMainThread", p_DeclareCurrentThreadIsMainThread.GetPtr());
-		LogVarAdr("g_ThreadMainThreadID", reinterpret_cast<uintptr_t>(g_ThreadMainThreadID));
-		LogVarAdr("g_ThreadServerFrameThreadID", reinterpret_cast<uintptr_t>(g_ThreadServerFrameThreadID));
+		LogFunAdr("DeclareCurrentThreadIsMainThread", v_DeclareCurrentThreadIsMainThread);
+		LogVarAdr("g_ThreadMainThreadID", g_ThreadMainThreadID);
+		LogVarAdr("g_ThreadServerFrameThreadID", g_ThreadServerFrameThreadID);
 	}
 	virtual void GetFun(void) const
 	{
-		p_DeclareCurrentThreadIsMainThread = g_GameDll.FindPatternSIMD("48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28");
-		v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThread.RCast<ThreadId_t(*)(void)>(); /*48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28 */
+		g_GameDll.FindPatternSIMD("48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28").GetPtr(v_DeclareCurrentThreadIsMainThread);
 	}
 	virtual void GetVar(void) const
 	{
-		g_ThreadMainThreadID = p_DeclareCurrentThreadIsMainThread.FindPattern("89 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
+		g_ThreadMainThreadID = CMemory(v_DeclareCurrentThreadIsMainThread).FindPattern("89 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
 		g_ThreadServerFrameThreadID = g_GameDll.FindPatternSIMD("83 79 ?? ?? 75 28 8B").FindPatternSelf("8B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
 	}
 	virtual void GetCon(void) const { }

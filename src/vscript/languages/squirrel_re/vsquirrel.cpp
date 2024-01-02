@@ -27,7 +27,7 @@ void(*ScriptConstantRegister_Callback)(CSquirrelVM* s) = nullptr;
 bool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
 {
 	// original func always returns true, added check just in case.
-	if (!v_CSquirrelVM_Init(s, context, curTime))
+	if (!CSquirrelVM__Init(s, context, curTime))
 	{
 		return false;
 	}
@@ -76,7 +76,7 @@ bool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
 //---------------------------------------------------------------------------------
 bool CSquirrelVM::DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f)
 {
-	SQBool result = v_CSquirrelVM_DestroySignalEntryListHead(s, v, f);
+	SQBool result = CSquirrelVM__DestroySignalEntryListHead(s, v, f);
 	s->RegisterConstant("DEVELOPER", developer->GetInt());
 
 	// Must have one.
@@ -93,7 +93,7 @@ bool CSquirrelVM::DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQFl
 //---------------------------------------------------------------------------------
 SQRESULT CSquirrelVM::RegisterConstant(const SQChar* name, SQInteger value)
 {
-	return v_CSquirrelVM_RegisterConstant(this, name, value);
+	return CSquirrelVM__RegisterConstant(this, name, value);
 }
 
 //---------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ SQRESULT CSquirrelVM::RegisterFunction(const SQChar* scriptName, const SQChar* n
 	ScriptFunctionBinding_t binding;
 	binding.Init(scriptName, nativeName, helpString, returnString, parameters, 5, function);
 
-	SQRESULT results = v_CSquirrelVM_RegisterFunction(this, &binding, 1);
+	SQRESULT results = CSquirrelVM__RegisterFunction(this, &binding, 1);
 	return results;
 }
 
@@ -201,13 +201,13 @@ void CSquirrelVM::CompileModScripts()
 			{
 			case SQCONTEXT::SERVER:
 			{
-				v_CSquirrelVM_PrecompileServerScripts(this, GetContext(), (char**)scriptPathArray, scriptCount);
+				CSquirrelVM__PrecompileServerScripts(this, GetContext(), (char**)scriptPathArray, scriptCount);
 				break;
 			}
 			case SQCONTEXT::CLIENT:
 			case SQCONTEXT::UI:
 			{
-				v_CSquirrelVM_PrecompileClientScripts(this, GetContext(), (char**)scriptPathArray, scriptCount);
+				CSquirrelVM__PrecompileClientScripts(this, GetContext(), (char**)scriptPathArray, scriptCount);
 				break;
 			}
 			}
@@ -227,6 +227,6 @@ void CSquirrelVM::CompileModScripts()
 //---------------------------------------------------------------------------------
 void VSquirrel::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CSquirrelVM_Init, &CSquirrelVM::Init, bAttach);
-	DetourSetup(&v_CSquirrelVM_DestroySignalEntryListHead, &CSquirrelVM::DestroySignalEntryListHead, bAttach);
+	DetourSetup(&CSquirrelVM__Init, &CSquirrelVM::Init, bAttach);
+	DetourSetup(&CSquirrelVM__DestroySignalEntryListHead, &CSquirrelVM::DestroySignalEntryListHead, bAttach);
 }

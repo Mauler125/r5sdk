@@ -113,10 +113,10 @@ void CL_MoveEx()
 			cl->m_nOutgoingCommandNr = nextCommandNr;
 		}
 
-		CL_RunPrediction();
+		v_CL_RunPrediction();
 
 		if (sendPacket)
-			CL_SendMove();
+			v_CL_SendMove();
 		else
 			chan->SetChoked(); // Choke the packet...
 
@@ -143,5 +143,5 @@ void CL_MoveEx()
 
 void VCL_Main::Detour(const bool bAttach) const
 {
-	DetourSetup(&CL_Move, &CL_MoveEx, bAttach);
+	DetourSetup(&v_CL_Move, &CL_MoveEx, bAttach);
 }

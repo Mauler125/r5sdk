@@ -32,8 +32,8 @@ ReturnType CallVFunc(int index, void* thisPtr, Args... args)
 	return (*reinterpret_cast<ReturnType(__fastcall***)(void*, Args...)>(thisPtr))[index](thisPtr, args...);
 }
 
-void LogFunAdr(const char* szFun, uintptr_t nAdr); // Logging function addresses.
-void LogVarAdr(const char* szVar, uintptr_t nAdr); // Logging variable addresses.
-void LogConAdr(const char* szCon, uintptr_t nAdr); // Logging constant addresses.
+void LogFunAdr(const char* szFun, const void* const pAdr); // Logging function addresses.
+void LogVarAdr(const char* szVar, const void* const pAdr); // Logging variable addresses.
+void LogConAdr(const char* szCon, const void* const pAdr); // Logging constant addresses.
 
 #endif // TIER0_IFACE_H

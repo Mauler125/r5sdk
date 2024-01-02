@@ -175,11 +175,9 @@ ConVar* sv_quota_scriptExecsPerSecond       = nullptr;
 ConVar* sv_cheats                          = nullptr;
 ConVar* sv_visualizetraces                 = nullptr;
 ConVar* sv_visualizetraces_duration        = nullptr;
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 ConVar* bhit_enable                        = nullptr;
 ConVar* bhit_depth_test                    = nullptr;
 ConVar* bhit_abs_origin                    = nullptr;
-#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |
 #ifndef DEDICATED
@@ -412,10 +410,10 @@ void ConVar_StaticInit(void)
 	sv_onlineAuthIssuedAtTolerance = ConVar::StaticCreate("sv_onlineAuthIssuedAtTolerance", "30", FCVAR_RELEASE, "The online authentication token 'issued at' claim tolerance in seconds.", true, 0.f, true, float(UINT8_MAX), nullptr, "Must range between [0,255]");
 #endif // !CLIENT_DLL
 	sv_quota_scriptExecsPerSecond = ConVar::StaticCreate("sv_quota_scriptExecsPerSecond", "4", FCVAR_REPLICATED | FCVAR_RELEASE, "How many script executions per second clients are allowed to submit, 0 to disable the limitation thereof.", true, 0.f, false, 0.f, nullptr, nullptr);
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
+
 	bhit_depth_test = ConVar::StaticCreate("bhit_depth_test", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use depth test for bullet ray trace overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	bhit_abs_origin = ConVar::StaticCreate("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging (requires 'r_visualizetraces' to be set!).", false, 0.f, false, 0.f, nullptr, nullptr);
-#endif // !GAMEDLL_S0 && !GAMEDLL_S1
+
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 #ifndef DEDICATED
@@ -544,9 +542,7 @@ void ConVar_InitShipped(void)
 {
 #ifndef CLIENT_DLL
 	ai_script_nodes_draw             = g_pCVar->FindVar("ai_script_nodes_draw");
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_enable                      = g_pCVar->FindVar("bhit_enable");
-#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 #endif // !CLIENT_DLL
 	developer                        = g_pCVar->FindVar("developer");
 	fps_max                          = g_pCVar->FindVar("fps_max");
@@ -627,9 +623,7 @@ void ConVar_InitShipped(void)
 	sv_single_core_dedi->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
 	ai_script_nodes_draw->SetValue(-1);
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	bhit_enable->SetValue(0);
-#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	cl_updaterate_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
@@ -722,9 +716,7 @@ void ConCommand_StaticInit(void)
 {
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	ConCommand::StaticCreate("bhit", "Bullet-hit trajectory debug.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL, BHit_f, nullptr);
-#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 #ifndef DEDICATED
 	ConCommand::StaticCreate("line", "Draw a debug line.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Line_f, nullptr);
 	ConCommand::StaticCreate("sphere", "Draw a debug sphere.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Sphere_f, nullptr);

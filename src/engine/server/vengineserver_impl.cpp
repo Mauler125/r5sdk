@@ -12,12 +12,12 @@
 bool CVEngineServer::PersistenceAvailable(void* entidx, int clientidx)
 {
 	///////////////////////////////////////////////////////////////////////////
-	return IVEngineServer__PersistenceAvailable(entidx, clientidx);
+	return CVEngineServer__PersistenceAvailable(entidx, clientidx);
 }
 
 void HVEngineServer::Detour(const bool bAttach) const
 {
-	DetourSetup(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable, bAttach);
+	DetourSetup(&CVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable, bAttach);
 }
 
 IVEngineServer* g_pEngineServerVFTable = nullptr;

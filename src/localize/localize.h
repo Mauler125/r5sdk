@@ -13,12 +13,8 @@ class CLocalize : public CBaseAppSystem< ILocalize >
 	bool m_bQueuedChangeCallback;
 };
 
-inline CMemory p_CLocalize__AddFile;
-inline bool(*v_CLocalize__AddFile)(CLocalize * thisptr, const char* szFileName, const char* pPathID);
-
-inline CMemory p_CLocalize__LoadLocalizationFileLists;
-inline bool(*v_CLocalize__LoadLocalizationFileLists)(CLocalize * thisptr);
-
+inline bool(*CLocalize__AddFile)(CLocalize * thisptr, const char* szFileName, const char* pPathID);
+inline bool(*CLocalize__LoadLocalizationFileLists)(CLocalize * thisptr);
 
 inline CLocalize** g_ppVGuiLocalize;
 inline CLocalize** g_ppLocalize;
@@ -28,17 +24,14 @@ class VLocalize : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CLocalize::AddFile", p_CLocalize__AddFile.GetPtr());
-		LogFunAdr("CLocalize::LoadLocalizationFileLists", p_CLocalize__LoadLocalizationFileLists.GetPtr());
-		LogFunAdr("g_Localize", reinterpret_cast<uintptr_t>(g_ppLocalize));
+		LogFunAdr("CLocalize::AddFile", CLocalize__AddFile);
+		LogFunAdr("CLocalize::LoadLocalizationFileLists", CLocalize__LoadLocalizationFileLists);
+		LogFunAdr("g_Localize", g_ppLocalize);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CLocalize__AddFile = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 49 FF C4").FollowNearCallSelf();
-		v_CLocalize__AddFile = p_CLocalize__AddFile.RCast<bool(*)(CLocalize*, const char*, const char*)>();
-
-		p_CLocalize__LoadLocalizationFileLists = g_GameDll.FindPatternSIMD("4C 8B DC 53 48 81 EC ?? ?? ?? ?? 33 C0");
-		v_CLocalize__LoadLocalizationFileLists = p_CLocalize__LoadLocalizationFileLists.RCast<bool(*)(CLocalize*)>();
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 49 FF C4").FollowNearCallSelf().GetPtr(CLocalize__AddFile);
+		g_GameDll.FindPatternSIMD("4C 8B DC 53 48 81 EC ?? ?? ?? ?? 33 C0").GetPtr(CLocalize__LoadLocalizationFileLists);
 	}
 	virtual void GetVar(void) const
 	{

@@ -165,11 +165,9 @@ extern ConVar* sv_quota_scriptExecsPerSecond;
 extern ConVar* sv_cheats;
 extern ConVar* sv_visualizetraces;
 extern ConVar* sv_visualizetraces_duration;
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 extern ConVar* bhit_enable;
 extern ConVar* bhit_depth_test;
 extern ConVar* bhit_abs_origin;
-#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 #ifndef DEDICATED

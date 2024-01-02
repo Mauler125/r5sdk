@@ -1224,7 +1224,7 @@ void KeyValues::RecursiveSaveToFile(CUtlBuffer& buf, int nIndentLevel)
 //-----------------------------------------------------------------------------
 void KeyValues::RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel)
 {
-	KeyValues_RecursiveSaveToFile(this, pFileSystem, pHandle, pBuf, nIndentLevel);
+	KeyValues__RecursiveSaveToFile(this, pFileSystem, pHandle, pBuf, nIndentLevel);
 }
 
 //-----------------------------------------------------------------------------
@@ -1233,7 +1233,7 @@ void KeyValues::RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t p
 //-----------------------------------------------------------------------------
 KeyValues* KeyValues::LoadFromFile(IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc)
 {
-	return KeyValues_LoadFromFile(this, pFileSystem, pszResourceName, pszPathID, pfnEvaluateSymbolProc);
+	return KeyValues__LoadFromFile(this, pFileSystem, pszResourceName, pszPathID, pfnEvaluateSymbolProc);
 }
 
 //-----------------------------------------------------------------------------
@@ -1387,7 +1387,7 @@ void KeyValues::InitFileSystem(void)
 //-----------------------------------------------------------------------------
 bool KeyValues::LoadPlaylists(const char* pszPlaylist)
 {
-	bool bResults = KeyValues_LoadPlaylists(pszPlaylist);
+	bool bResults = KeyValues__LoadPlaylists(pszPlaylist);
 	KeyValues::InitPlaylists();
 
 	return bResults;
@@ -1424,7 +1424,7 @@ bool KeyValues::ParsePlaylists(const char* pszPlaylist)
 		reinterpret_cast<void(*)()>(verifyPlaylistIntegrityFn)();
 	}
 
-	return KeyValues_ParsePlaylists(pszPlaylist); // Parse playlist.
+	return KeyValues__ParsePlaylists(pszPlaylist); // Parse playlist.
 }
 
 //-----------------------------------------------------------------------------
@@ -1441,15 +1441,15 @@ KeyValues* KeyValues::ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const ch
 		bInitFileSystem = true;
 		KeyValues::InitFileSystem();
 	}
-	return KeyValues_ReadKeyValuesFile(pFileSystem, pFileName);
+	return KeyValues__ReadKeyValuesFile(pFileSystem, pFileName);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void VKeyValues::Detour(const bool bAttach) const
 {
-	DetourSetup(&KeyValues_LoadPlaylists, &KeyValues::LoadPlaylists, bAttach);
-	DetourSetup(&KeyValues_ParsePlaylists, &KeyValues::ParsePlaylists, bAttach);
-	DetourSetup(&KeyValues_ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile, bAttach);
+	DetourSetup(&KeyValues__LoadPlaylists, &KeyValues::LoadPlaylists, bAttach);
+	DetourSetup(&KeyValues__ParsePlaylists, &KeyValues::ParsePlaylists, bAttach);
+	DetourSetup(&KeyValues__ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

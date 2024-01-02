@@ -56,11 +56,7 @@ bool CEngineClient::GetRestrictClientCommands() const
 //---------------------------------------------------------------------------------
 int CEngineClient::GetLocalPlayer()
 {
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	const static int index = 35;
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	const static int index = 36;
-#endif
 	return CallVFunc<int>(index, this);
 }
 

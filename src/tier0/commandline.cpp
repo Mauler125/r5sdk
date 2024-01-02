@@ -20,7 +20,7 @@ void CCommandLine::StaticCreateCmdLine(CCommandLine* thisptr, const char* pszCom
 	// get lost when the game recreates it in 'LauncherMain'.
 	if (!g_bCommandLineCreated)
 	{
-		v_CCommandLine__CreateCmdLine(thisptr, pszCommandLine);
+		CCommandLine__CreateCmdLine(thisptr, pszCommandLine);
 	}
 }
 
@@ -91,5 +91,5 @@ CCommandLine* g_pCmdLine = nullptr;
 
 void VCommandLine::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine, bAttach);
+	DetourSetup(&CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine, bAttach);
 }

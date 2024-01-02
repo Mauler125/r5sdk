@@ -106,7 +106,7 @@ void CTextOverlay::DrawNotify(void)
 		{
 			c[3] = 255;
 		}
-		CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(),
+		CMatSystemSurface__DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(),
 			m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), "%s", notify.m_Text.String());
 
 		if (IsX360())
@@ -141,7 +141,7 @@ void CTextOverlay::DrawFormat(const int x, const int y, const Color c, const cha
 		va_end(args);
 	}/////////////////////////////
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), "%s", szLogbuf);
+	CMatSystemSurface__DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), "%s", szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ void CTextOverlay::Con_NPrintf(void)
 	const int nWidth = cl_notify_invert_x->GetBool() ? g_nWindowRect[0] - cl_notify_offset_x->GetInt() : cl_notify_offset_x->GetInt() + m_nCon_NPrintf_Idx * m_nFontHeight;
 	const int nHeight = cl_notify_invert_y->GetBool() ? g_nWindowRect[1] - cl_notify_offset_y->GetInt() : cl_notify_offset_y->GetInt();
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), "%s", m_szCon_NPrintf_Buf);
+	CMatSystemSurface__DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), "%s", m_szCon_NPrintf_Buf);
 
 	m_nCon_NPrintf_Idx = 0;
 	m_szCon_NPrintf_Buf[0] = '\0';
@@ -224,7 +224,7 @@ void CTextOverlay::DrawGPUStats(void) const
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawCrosshairMaterial(void) const
 {
-	CMaterialGlue* pMaterialGlue = GetMaterialAtCrossHair();
+	CMaterialGlue* pMaterialGlue = v_GetMaterialAtCrossHair();
 	if (!pMaterialGlue)
 		return;
 
@@ -246,8 +246,8 @@ void CTextOverlay::DrawStreamOverlay(void) const
 	static char szLogbuf[4096];
 	static const Color c = { 255, 255, 255, 255 };
 	
-	v_GetStreamOverlay(stream_overlay_mode->GetString(), szLogbuf, sizeof(szLogbuf));
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), "%s", szLogbuf);
+	CMaterialSystem__GetStreamOverlay(stream_overlay_mode->GetString(), szLogbuf, sizeof(szLogbuf));
+	CMatSystemSurface__DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), "%s", szLogbuf);
 }
 
 //-----------------------------------------------------------------------------

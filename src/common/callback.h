@@ -1,14 +1,10 @@
 #pragma once
 
-inline CMemory p_SetupGamemode;
-inline bool(*SetupGamemode)(const char* pszPlayList);
+inline bool(*v_SetupGamemode)(const char* pszPlayList);
 
 /* ==== CONCOMMANDCALLBACK ============================================================================================================================================== */
-inline CMemory p_DownloadPlaylists_f;
-inline void(*_DownloadPlaylists_f)(void);
-
-inline CMemory p_Cmd_Exec_f;
-inline void(*_Cmd_Exec_f)(const CCommand& args);
+inline void(*v__DownloadPlaylists_f)(void);
+inline void(*v__Cmd_Exec_f)(const CCommand& args);
 
 ///////////////////////////////////////////////////////////////////////////////
 void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);
@@ -72,9 +68,7 @@ void Line_f(const CCommand& args);
 void Sphere_f(const CCommand& args);
 void Capsule_f(const CCommand& args);
 #endif // !DEDICATED
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 void BHit_f(const CCommand& args);
-#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 
 void CVHelp_f(const CCommand& args);
 void CVList_f(const CCommand& args);
@@ -88,19 +82,15 @@ class VCallback : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("SetupGamemode", p_SetupGamemode.GetPtr());
-		LogFunAdr("DownloadPlaylist_f", p_DownloadPlaylists_f.GetPtr());
-		LogFunAdr("Cmd_Exec_f", p_Cmd_Exec_f.GetPtr());
+		LogFunAdr("SetupGamemode", v_SetupGamemode);
+		LogFunAdr("DownloadPlaylist_f", v__DownloadPlaylists_f);
+		LogFunAdr("Cmd_Exec_f", v__Cmd_Exec_f);
 	}
 	virtual void GetFun(void) const
 	{
-		p_SetupGamemode = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 48 C7 C0 ?? ?? ?? ??");
-		p_DownloadPlaylists_f = g_GameDll.FindPatternSIMD("33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??");
-		p_Cmd_Exec_f = g_GameDll.FindPatternSIMD("40 55 53 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9");
-
-		SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char*)>();
-		_DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>();
-		_Cmd_Exec_f = p_Cmd_Exec_f.RCast<void(*)(const CCommand& args)>();
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 48 C7 C0 ?? ?? ?? ??").GetPtr(v_SetupGamemode);
+		g_GameDll.FindPatternSIMD("33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??").GetPtr(v__DownloadPlaylists_f);
+		g_GameDll.FindPatternSIMD("40 55 53 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9").GetPtr(v__Cmd_Exec_f);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -48,7 +48,7 @@ void CPlayer::RunNullCommand(void)
 //------------------------------------------------------------------------------
 QAngle* CPlayer::EyeAngles(QAngle* pAngles)
 {
-	return v_CPlayer__EyeAngles(this, pAngles);
+	return CPlayer__EyeAngles(this, pAngles);
 }
 
 //------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 //------------------------------------------------------------------------------
 void CPlayer::PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover)
 {
-	v_CPlayer__PlayerRunCommand(this, pUserCmd, pMover);
+	CPlayer__PlayerRunCommand(this, pUserCmd, pMover);
 }
 
 //------------------------------------------------------------------------------

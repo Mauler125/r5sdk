@@ -65,8 +65,8 @@ class HKeyValuesSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("g_pKeyValuesMemPool", reinterpret_cast<uintptr_t>(g_pKeyValuesMemPool));
-		LogVarAdr("g_pKeyValuesSystem", reinterpret_cast<uintptr_t>(g_pKeyValuesSystem));
+		LogVarAdr("g_pKeyValuesMemPool", g_pKeyValuesMemPool);
+		LogVarAdr("g_pKeyValuesSystem", g_pKeyValuesSystem);
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const

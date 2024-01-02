@@ -20,7 +20,7 @@ void CGame::PlayStartupVideos(void)
 {
 	if (!CommandLine()->CheckParm("-novid"))
 	{
-		v_CGame__PlayStartupVideos();
+		CGame__PlayStartupVideos();
 	}
 }
 
@@ -30,13 +30,13 @@ void CGame::PlayStartupVideos(void)
 int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (!g_bImGuiInitialized)
-		return v_CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
 
 	const IEngine::EngineState_t state = g_pEngine->GetState();
 
 	if (state == IEngine::DLL_CLOSE ||
 		state == IEngine::DLL_RESTART)
-		return v_CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
 
 	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
@@ -92,7 +92,7 @@ int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		g_bBlockInput = false;
 	}
 
-	return v_CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+	return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 //-----------------------------------------------------------------------------
@@ -158,6 +158,6 @@ void CGame::DispatchAllStoredGameMessages() const
 ///////////////////////////////////////////////////////////////////////////////
 void VGame::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos, bAttach);
-	DetourSetup(&v_CGame__WindowProc, &CGame::WindowProc, bAttach);
+	DetourSetup(&CGame__PlayStartupVideos, &CGame::PlayStartupVideos, bAttach);
+	DetourSetup(&CGame__WindowProc, &CGame::WindowProc, bAttach);
 }

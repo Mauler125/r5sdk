@@ -494,15 +494,15 @@ class V_NetMessages : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("SVC_Print::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_Print_VFTable));
-		LogConAdr("SVC_UserMessage::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
-		LogConAdr("SVC_ServerTick::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_ServerTick_VFTable));
-		LogConAdr("SVC_VoiceData::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_VoiceData_VFTable));
-		LogConAdr("SVC_PlaylistOverrides::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_PlaylistOverrides_VFTable));
-		LogConAdr("CLC_ClientTick::`vftable'", reinterpret_cast<uintptr_t>(g_pCLC_ClientTick_VFTable));
-		LogConAdr("CLC_SetPlaylistVarOverride::`vftable'", reinterpret_cast<uintptr_t>(g_pCLC_SetPlaylistVarOverride_VFTable));
-		LogConAdr("Base_CmdKeyValues::`vftable'", reinterpret_cast<uintptr_t>(g_pBase_CmdKeyValues_VFTable));
-		//LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
+		LogConAdr("SVC_Print::`vftable'", g_pSVC_Print_VFTable);
+		LogConAdr("SVC_UserMessage::`vftable'", g_pSVC_UserMessage_VFTable);
+		LogConAdr("SVC_ServerTick::`vftable'", g_pSVC_ServerTick_VFTable);
+		LogConAdr("SVC_VoiceData::`vftable'", g_pSVC_VoiceData_VFTable);
+		LogConAdr("SVC_PlaylistOverrides::`vftable'", g_pSVC_PlaylistOverrides_VFTable);
+		LogConAdr("CLC_ClientTick::`vftable'", g_pCLC_ClientTick_VFTable);
+		LogConAdr("CLC_SetPlaylistVarOverride::`vftable'", g_pCLC_SetPlaylistVarOverride_VFTable);
+		LogConAdr("Base_CmdKeyValues::`vftable'", g_pBase_CmdKeyValues_VFTable);
+		//LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString);
 	}
 	virtual void GetFun(void) const
 	{
