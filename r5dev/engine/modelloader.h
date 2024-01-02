@@ -82,8 +82,10 @@ inline void(*CMapLoadHelper__CMapLoadHelper)(CMapLoadHelper * helper, int lumpTo
 inline void(*v_AddGameLump)(void);
 inline void(*v_Map_LoadModel)(void);
 
+#ifndef DEDICATED
 inline void*(*v_GetSpriteInfo)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7);
 inline void*(*v_BuildSpriteLoadName)(const char* pName, char* pOut, int outLen, bool& bIsAVI, bool& bIsBIK);
+#endif // !DEDICATED
 
 inline CModelLoader* g_pModelLoader;
 inline FileHandle_t* s_MapFileHandle;
@@ -106,8 +108,11 @@ class VModelLoader : public IDetour
 
 		LogFunAdr("AddGameLump", v_AddGameLump);
 		LogFunAdr("Map_LoadModel", v_Map_LoadModel);
+
+#ifndef DEDICATED
 		LogFunAdr("GetSpriteInfo", v_GetSpriteInfo);
 		LogFunAdr("BuildSpriteLoadName", v_BuildSpriteLoadName);
+#endif // !DEDICATED
 
 		LogVarAdr("g_pModelLoader", g_pModelLoader);
 		LogVarAdr("s_MapFileHandle", s_MapFileHandle);
@@ -122,8 +127,11 @@ class VModelLoader : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 57 48 81 EC ?? ?? ?? ??").GetPtr(CModelLoader__Studio_LoadModel);
 		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 57").GetPtr(CModelLoader__Map_LoadModelGuts); // BSP.
 		g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 48 8B DA 48 85 D2 0F 84 ?? ?? ?? ?? 80 3A ?? 0F 84 ?? ?? ?? ?? 4C 8B CA").GetPtr(CModelLoader__Map_IsValid);
+
+#ifndef DEDICATED
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B BC 24 ?? ?? ?? ??").GetPtr(v_GetSpriteInfo);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 4D 8B F1 48 8B F2").GetPtr(v_BuildSpriteLoadName);
+#endif // !DEDICATED
 		
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC 60").GetPtr(CMapLoadHelper__CMapLoadHelper);
 		g_GameDll.FindPatternSIMD("40 ?? 57 48 83 EC 48 33 ?? 48 8D").GetPtr(v_AddGameLump);
