@@ -274,9 +274,7 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
         void* pAnimData = (void*)*((_QWORD*)dataCache + 1);
 
         AcquireSRWLockExclusive(g_pMDLLock);
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-        v_CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(pAnimData), 1i64); // !!! DECLARED INLINE IN < S3 !!!
-#endif
+        CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(pAnimData), 1i64); // !!! DECLARED INLINE IN < S3 !!!
         ReleaseSRWLockExclusive(g_pMDLLock);
     }
     if ((pStudioData->m_nFlags & STUDIODATA_FLAGS_STUDIOMESH_LOADED))
@@ -311,13 +309,9 @@ bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
 
 void VMDLCache::Detour(const bool bAttach) const
 {
-    DetourSetup(&v_CMDLCache__FindMDL, &CMDLCache::FindMDL, bAttach);
-#ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!
-    DetourSetup(&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL, bAttach);
-    DetourSetup(&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL, bAttach);
-#endif // GAMEDLL_S3
-#ifdef GAMEDLL_S3 // !TODO:
-    DetourSetup(&v_CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData, bAttach);
-    DetourSetup(&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR, bAttach);
-#endif
+    DetourSetup(&CMDLCache__FindMDL, &CMDLCache::FindMDL, bAttach);
+    DetourSetup(&CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL, bAttach);
+    DetourSetup(&CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL, bAttach);
+    DetourSetup(&CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData, bAttach);
+    DetourSetup(&CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR, bAttach);
 }

@@ -98,24 +98,18 @@ protected:
 };
 static_assert(sizeof(CAppSystemGroup) == 0xA8);
 
-inline CMemory p_CAppSystemGroup_Destroy;
-inline void(*CAppSystemGroup_Destroy)(CAppSystemGroup* pAppSystemGroup);
+inline void(*CAppSystemGroup__Destroy)(CAppSystemGroup* pAppSystemGroup);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VAppSystemGroup : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CAppSystemGroup::Destroy", p_CAppSystemGroup_Destroy.GetPtr());
+		LogFunAdr("CAppSystemGroup::Destroy", CAppSystemGroup__Destroy);
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CAppSystemGroup_Destroy = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 20 8B 81 ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CAppSystemGroup_Destroy = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B 81 ?? ?? ?? ?? 48 8B F9");
-#endif
-		CAppSystemGroup_Destroy = p_CAppSystemGroup_Destroy.RCast<void(*)(CAppSystemGroup*)>();
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B 81 ?? ?? ?? ?? 48 8B F9").GetPtr(CAppSystemGroup__Destroy);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

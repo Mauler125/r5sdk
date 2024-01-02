@@ -45,7 +45,7 @@ void vgui::RichText::SetText(const char* text)
 ///////////////////////////////////////////////////////////////////////////////
 void VVGUIRichText::Detour(const bool bAttach) const
 {
-	DetourSetup(&vgui_RichText_SetText, &RichText_SetText, bAttach);
+	DetourSetup(&vgui__RichText__SetText, &RichText_SetText, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

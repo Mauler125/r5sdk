@@ -29,7 +29,7 @@ void CClient::Clear(void)
 #ifndef CLIENT_DLL
 	GetClientExtended()->Reset(); // Reset extended data.
 #endif // !CLIENT_DLL
-	v_CClient_Clear(this);
+	CClient__Clear(this);
 }
 
 //---------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ bool CClient::Connect(const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 	GetClientExtended()->Reset(); // Reset extended data.
 #endif
 
-	if (!v_CClient_Connect(this, szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize))
+	if (!CClient__Connect(this, szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize))
 		return false;
 
 #ifndef CLIENT_DLL
@@ -271,7 +271,7 @@ void CClient::Disconnect(const Reputation_t nRepLvl, const char* szReason, ...)
 			szBuf[sizeof(szBuf) - 1] = '\0';
 			va_end(vArgs);
 		}/////////////////////////////
-		v_CClient_Disconnect(this, nRepLvl, szBuf);
+		CClient__Disconnect(this, nRepLvl, szBuf);
 	}
 }
 
@@ -283,7 +283,7 @@ void CClient::VActivatePlayer(CClient* pClient)
 {
 	// Set the client instance to 'ready' before calling ActivatePlayer.
 	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY);
-	v_CClient_ActivatePlayer(pClient);
+	CClient__ActivatePlayer(pClient);
 
 #ifndef CLIENT_DLL
 	const CNetChan* pNetChan = pClient->GetNetChan();
@@ -312,7 +312,7 @@ bool CClient::SendNetMsgEx(CNetMessage* pMsg, bool bLocal, bool bForceReliable, 
 		pMsg->m_nGroup = NetMessageGroup::NoReplay;
 	}
 
-	return v_CClient_SendNetMsgEx(this, pMsg, bLocal, bForceReliable, bVoice);
+	return CClient__SendNetMsgEx(this, pMsg, bLocal, bForceReliable, bVoice);
 }
 
 //---------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ bool CClient::SendNetMsgEx(CNetMessage* pMsg, bool bLocal, bool bForceReliable, 
 //---------------------------------------------------------------------------------
 void* CClient::VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck)
 {
-	return v_CClient_SendSnapshot(pClient, pFrame, nTick, nTickAck);
+	return CClient__SendSnapshot(pClient, pFrame, nTick, nTickAck);
 }
 
 //---------------------------------------------------------------------------------
@@ -347,16 +347,12 @@ bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, bool bLocal, bo
 //---------------------------------------------------------------------------------
 CClient* AdjustShiftedThisPointer(CClient* shiftedPointer)
 {
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	return shiftedPointer;
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	/* Original function called method "CClient::ExecuteStringCommand" with an optimization
 	 * that shifted the 'this' pointer with 8 bytes.
 	 * Since this has been inlined with "CClient::ProcessStringCmd" as of S2, the shifting
 	 * happens directly to anything calling this function. */
 	char* pShifted = reinterpret_cast<char*>(shiftedPointer) - 8;
 	return reinterpret_cast<CClient*>(pShifted);
-#endif // !GAMEDLL_S0 || !GAMEDLL_S1
 }
 
 //---------------------------------------------------------------------------------
@@ -425,7 +421,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	}
 #endif // !CLIENT_DLL
 
-	return v_CClient_ProcessStringCmd(pClient, pMsg);
+	return CClient__ProcessStringCmd(pClient, pMsg);
 }
 
 //---------------------------------------------------------------------------------
@@ -491,13 +487,13 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 void VClient::Detour(const bool bAttach) const
 {
 #ifndef CLIENT_DLL
-	DetourSetup(&v_CClient_Clear, &CClient::VClear, bAttach);
-	DetourSetup(&v_CClient_Connect, &CClient::VConnect, bAttach);
-	DetourSetup(&v_CClient_ActivatePlayer, &CClient::VActivatePlayer, bAttach);
-	DetourSetup(&v_CClient_SendNetMsgEx, &CClient::VSendNetMsgEx, bAttach);
-	//DetourSetup(&p_CClient_SendSnapshot, &CClient::VSendSnapshot, bAttach);
+	DetourSetup(&CClient__Clear, &CClient::VClear, bAttach);
+	DetourSetup(&CClient__Connect, &CClient::VConnect, bAttach);
+	DetourSetup(&CClient__ActivatePlayer, &CClient::VActivatePlayer, bAttach);
+	DetourSetup(&CClient__SendNetMsgEx, &CClient::VSendNetMsgEx, bAttach);
+	//DetourSetup(&CClient__SendSnapshot, &CClient::VSendSnapshot, bAttach);
 
-	DetourSetup(&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd, bAttach);
-	DetourSetup(&v_CClient_ProcessSetConVar, &CClient::VProcessSetConVar, bAttach);
+	DetourSetup(&CClient__ProcessStringCmd, &CClient::VProcessStringCmd, bAttach);
+	DetourSetup(&CClient__ProcessSetConVar, &CClient::VProcessSetConVar, bAttach);
 #endif // !CLIENT_DLL
 }

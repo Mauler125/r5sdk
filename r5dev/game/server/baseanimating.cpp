@@ -70,7 +70,7 @@ void CBaseAnimating::HitboxToWorldTransforms(uint32_t iBone, matrix3x4_t* transf
 void CBaseAnimating::LockStudioHdr()
 {
 	// Populates the 'm_pStudioHdr' field.
-	v_CBaseAnimating__LockStudioHdr(this);
+	CBaseAnimating__LockStudioHdr(this);
 }
 
 CStudioHdr* CBaseAnimating::GetModelPtr(void)

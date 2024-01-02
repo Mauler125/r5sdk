@@ -132,7 +132,7 @@ ConVar* ConVar::StaticCreate(const char* pszName, const char* pszDefaultValue,
 
 	pNewConVar->m_fnChangeCallbacks.Init();
 
-	v_ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags,
+	ConVar__Register(pNewConVar, pszName, pszDefaultValue, nFlags,
 		pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
 	return pNewConVar;
 }
@@ -142,7 +142,7 @@ ConVar* ConVar::StaticCreate(const char* pszName, const char* pszDefaultValue,
 //-----------------------------------------------------------------------------
 void ConVar::Destroy(void)
 {
-	v_ConVar_Unregister(this);
+	ConVar__Unregister(this);
 }
 
 //-----------------------------------------------------------------------------

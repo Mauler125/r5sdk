@@ -5,7 +5,7 @@
 
 bool Localize_LoadLocalizationFileLists(CLocalize* thisptr)
 {
-	v_CLocalize__LoadLocalizationFileLists(thisptr);
+	CLocalize__LoadLocalizationFileLists(thisptr);
 
 	const CUtlVector<CModSystem::ModInstance_t*>&
 		modList = g_pModSystem->GetModList();
@@ -22,7 +22,7 @@ bool Localize_LoadLocalizationFileLists(CLocalize* thisptr)
 		{
 			const char* localizationFile = mod->m_LocalizationFiles.Element(j).Get();
 
-			if (!v_CLocalize__AddFile(thisptr, localizationFile, "PLATFORM"))
+			if (!CLocalize__AddFile(thisptr, localizationFile, "PLATFORM"))
 				Warning(eDLL_T::ENGINE, "Failed to add localization file '%s'\n", localizationFile);
 		}
 	}
@@ -43,5 +43,5 @@ bool Localize_IsLanguageSupported(const char* pLocaleName)
 
 void VLocalize::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists, bAttach);
+	DetourSetup(&CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists, bAttach);
 }

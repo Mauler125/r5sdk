@@ -81,21 +81,18 @@ struct Player_AnimViewEntityData
 	Vector3D animViewEntityBlendStartEyeAngles;
 };
 
-
-inline CMemory p_CStudioHdr__LookupSequence;
-inline int(*v_CStudioHdr__LookupSequence)(CStudioHdr* pStudio, const char* pszName);
+inline int(*CStudioHdr__LookupSequence)(CStudioHdr* pStudio, const char* pszName);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VAnimation : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CStudioHdr::LookupSequence", p_CStudioHdr__LookupSequence.GetPtr());
+		LogFunAdr("CStudioHdr::LookupSequence", CStudioHdr__LookupSequence);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CStudioHdr__LookupSequence = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 4C 8B C2 48 8B 89 ?? ?? ?? ??");
-		v_CStudioHdr__LookupSequence = p_CStudioHdr__LookupSequence.RCast<int(*)(CStudioHdr*, const char*)>(); /*40 53 48 83 EC 20 48 8B D9 4C 8B C2 48 8B 89 ?? ?? ?? ??*/
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 4C 8B C2 48 8B 89 ?? ?? ?? ??").GetPtr(CStudioHdr__LookupSequence);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

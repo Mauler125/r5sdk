@@ -16,7 +16,6 @@
 // each pak listed in this vector gets unloaded.
 CUtlVector<PakHandle_t> g_vLoadedPakHandle;
 
-#ifdef GAMEDLL_S3
 //-----------------------------------------------------------------------------
 // Purpose: process guid relations for asset
 // Input  : *pak   - 
@@ -24,11 +23,7 @@ CUtlVector<PakHandle_t> g_vLoadedPakHandle;
 //-----------------------------------------------------------------------------
 void Pak_ProcessGuidRelationsForAsset(PakFile_t* pak, PakAsset_t* asset)
 {
-#if defined (GAMEDLL_S0) && defined (GAMEDLL_S1) && defined (GAMEDLL_S2)
-    static const int GLOBAL_MUL = 0x1D;
-#else
     static const int GLOBAL_MUL = 0x17;
-#endif
 
     PakPage_t* pGuidDescriptors = &pak->m_memoryData.m_guidDescriptors[asset->m_usesStartIdx];
     volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pPakGlobals) + GLOBAL_MUL * (pak->m_memoryData.qword2D8 & 0x1FF) + 0x160212));
@@ -107,8 +102,6 @@ void Pak_ProcessGuidRelationsForAsset(PakFile_t* pak, PakAsset_t* asset)
         *pCurrentGuid = g_pPakGlobals->m_assets[assetIdx].m_head;
     }
 }
-#endif // GAMEDLL_S3
-
 
 //-----------------------------------------------------------------------------
 // Purpose: load user-requested pak files on-demand
@@ -593,9 +586,7 @@ void V_RTechGame::Detour(const bool bAttach) const
 	DetourSetup(&v_Pak_LoadAsync, &Pak_LoadAsync, bAttach);
 	DetourSetup(&v_Pak_UnloadPak, &Pak_UnloadPak, bAttach);
 
-#ifdef GAMEDLL_S3
     //DetourSetup(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset, bAttach);
-#endif
 }
 
 // Symbols taken from R2 dll's.

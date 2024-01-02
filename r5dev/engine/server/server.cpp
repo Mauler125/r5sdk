@@ -88,7 +88,7 @@ int CServer::GetNumClients(void) const
 //---------------------------------------------------------------------------------
 void CServer::RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage)
 {
-	v_CServer_RejectConnection(this, iSocket, pNetAdr, szMessage);
+	CServer__RejectConnection(this, iSocket, pNetAdr, szMessage);
 }
 
 //---------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		}
 	}
 
-	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
+	CClient* pClient = CServer__ConnectClient(pServer, pChallenge);
 
 	for (auto& callback : !g_pPluginSystem->GetConnectClientCallbacks())
 	{
@@ -187,7 +187,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 //---------------------------------------------------------------------------------
 void CServer::BroadcastMessage(CNetMessage* const msg, const bool onlyActive, const bool reliable)
 {
-	v_CServer_BroadcastMessage(this, msg, onlyActive, reliable);
+	CServer__BroadcastMessage(this, msg, onlyActive, reliable);
 }
 
 //---------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ void CServer::BroadcastMessage(CNetMessage* const msg, const bool onlyActive, co
 //---------------------------------------------------------------------------------
 void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame)
 {
-	v_CServer_FrameJob(flFrameTime, bRunOverlays, bUpdateFrame);
+	CServer__FrameJob(flFrameTime, bRunOverlays, bUpdateFrame);
 }
 
 //---------------------------------------------------------------------------------
@@ -207,17 +207,15 @@ void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame)
 //---------------------------------------------------------------------------------
 void CServer::RunFrame(CServer* pServer)
 {
-	v_CServer_RunFrame(pServer);
+	CServer__RunFrame(pServer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void VServer::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CServer_RunFrame, &CServer::RunFrame, bAttach);
-#if	defined(GAMEDLL_S3)
-	DetourSetup(&v_CServer_ConnectClient, &CServer::ConnectClient, bAttach);
-	DetourSetup(&v_CServer_FrameJob, &CServer::FrameJob, bAttach);
-#endif // !TODO: S1 and S2 CServer functions require work.
+	DetourSetup(&CServer__RunFrame, &CServer::RunFrame, bAttach);
+	DetourSetup(&CServer__ConnectClient, &CServer::ConnectClient, bAttach);
+	DetourSetup(&CServer__FrameJob, &CServer::FrameJob, bAttach);
 }
 
 

@@ -99,12 +99,12 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 //---------------------------------------------------------------------------------
 SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
-	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
-	SQRESULT result = v_SQVM_sprintf(v, a2, a3, nStringSize, ppString);
+	static void* const retaddr = reinterpret_cast<void*>(CMemory(v_SQVM_WarningCmd).Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
+	const SQRESULT result = v_SQVM_sprintf(v, a2, a3, nStringSize, ppString);
 
 	if (retaddr == _ReturnAddress()) // Check if its SQVM_Warning calling.
 	{
-		SQCONTEXT scriptContext = v->GetContext();
+		const SQCONTEXT scriptContext = v->GetContext();
 		eDLL_T remoteContext;
 
 		switch (scriptContext)
@@ -123,7 +123,7 @@ SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStr
 			break;
 		}
 
-		std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
+		const std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
 		CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(script_show_warning->GetInt()),
 			remoteContext, NO_ERROR, "squirrel_re(warning)", "%s", svConstructor.c_str());
 	}

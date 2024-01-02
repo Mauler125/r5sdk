@@ -8,7 +8,7 @@ class VRadShal : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("WASAPI_GetAudioDevice", p_WASAPI_GetAudioDevice.GetPtr());
+		LogFunAdr("WASAPI_GetAudioDevice", (void*)p_WASAPI_GetAudioDevice.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{

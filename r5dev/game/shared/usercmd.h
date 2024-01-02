@@ -18,16 +18,9 @@
 //-------------------------------------------------------------------------------------
 class CUserCmd;
 
-inline CMemory p_CUserCmd__CUserCmd;
-inline CUserCmd*(*v_CUserCmd__CUserCmd)(CUserCmd* pUserCmd);
-
-inline CMemory p_CUserCmd__Reset;
-inline void(*v_CUserCmd__Reset)(CUserCmd* pUserCmd);
-
-inline CMemory p_CUserCmd__Copy;
-inline CUserCmd*(*v_CUserCmd__Copy)(CUserCmd* pDest, CUserCmd* pSource);
-
-inline CMemory p_ReadUserCmd;
+inline CUserCmd*(*CUserCmd__CUserCmd)(CUserCmd* pUserCmd);
+inline void(*CUserCmd__Reset)(CUserCmd* pUserCmd);
+inline CUserCmd*(*CUserCmd__Copy)(CUserCmd* pDest, CUserCmd* pSource);
 inline int(*v_ReadUserCmd)(bf_read* buf, CUserCmd* move, CUserCmd* from);
 
 //-------------------------------------------------------------------------------------
@@ -38,11 +31,11 @@ class CUserCmd
 public:
 	CUserCmd() // Cannot be constructed during DLL init.
 	{
-		v_CUserCmd__CUserCmd(this);
+		CUserCmd__CUserCmd(this);
 	}
 
-	inline CUserCmd* Copy(CUserCmd* pSource) { return v_CUserCmd__Copy(this, pSource); }
-	inline void Reset() { v_CUserCmd__Reset(this); }
+	inline CUserCmd* Copy(CUserCmd* pSource) { return CUserCmd__Copy(this, pSource); }
+	inline void Reset() { CUserCmd__Reset(this); }
 
 	int32_t command_number;
 	int32_t tick_count;
@@ -99,24 +92,17 @@ class VUserCmd : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CUserCmd::CUserCmd", p_CUserCmd__CUserCmd.GetPtr());
-		LogFunAdr("CUserCmd::Reset", p_CUserCmd__Reset.GetPtr());
-		LogFunAdr("CUserCmd::Copy", p_CUserCmd__Copy.GetPtr());
-		LogFunAdr("ReadUserCmd", p_ReadUserCmd.GetPtr());
+		LogFunAdr("CUserCmd::CUserCmd", CUserCmd__CUserCmd);
+		LogFunAdr("CUserCmd::Reset", CUserCmd__Reset);
+		LogFunAdr("CUserCmd::Copy", CUserCmd__Copy);
+		LogFunAdr("ReadUserCmd", v_ReadUserCmd);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CUserCmd__CUserCmd = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 81 C3 ?? ?? ?? ?? 48 83 EF 01 75 EB 33 C0").FollowNearCallSelf();
-		v_CUserCmd__CUserCmd = p_CUserCmd__CUserCmd.RCast<CUserCmd* (*)(CUserCmd*)>();
-
-		p_CUserCmd__Reset = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B DF 66 83 FE FF").FollowNearCallSelf();
-		v_CUserCmd__Reset = p_CUserCmd__Reset.RCast<void(*)(CUserCmd*)>();
-
-		p_CUserCmd__Copy = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 9B ?? ?? ?? ??").FollowNearCallSelf();
-		v_CUserCmd__Copy = p_CUserCmd__Copy.RCast<CUserCmd* (*)(CUserCmd*, CUserCmd*)>();
-
-		p_ReadUserCmd = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C6 48 81 C6 ?? ?? ?? ??").FollowNearCallSelf();
-		v_ReadUserCmd = p_ReadUserCmd.RCast<int (*)(bf_read*, CUserCmd*, CUserCmd*)>();
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 81 C3 ?? ?? ?? ?? 48 83 EF 01 75 EB 33 C0").FollowNearCallSelf().GetPtr(CUserCmd__CUserCmd);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B DF 66 83 FE FF").FollowNearCallSelf().GetPtr(CUserCmd__Reset);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 9B ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CUserCmd__Copy);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C6 48 81 C6 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(v_ReadUserCmd);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -28,15 +28,6 @@ public:
 	void LoadSections();
 
 	CMemory FindPatternSIMD(const char* szPattern, const ModuleSections_t* moduleSection = nullptr) const;
-
-	template<typename T>
-	inline void FindPatternSIMD(const char* szPattern,
-		T*& pMemPtrOut, const ModuleSections_t* moduleSection = nullptr) const
-	{
-		CMemory mem = FindPatternSIMD(szPattern, moduleSection);
-		pMemPtrOut = mem.RCast<T*>();
-	}
-
 	CMemory FindString(const char* szString, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
 	CMemory FindStringReadOnly(const char* szString, bool nullTerminator) const;
 	CMemory FindFreeDataPage(const size_t nSize) const;

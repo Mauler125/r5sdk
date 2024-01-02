@@ -86,7 +86,7 @@ static void InitVPKSystem()
 
 InitReturnVal_t CEngineAPI::VInit(CEngineAPI* pEngineAPI)
 {
-    return CEngineAPI_Init(pEngineAPI);
+    return CEngineAPI__Init(pEngineAPI);
 }
 
 //-----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
     // Register new Pak Assets here!
     //RTech_RegisterAsset(0, 1, "", nullptr, nullptr, nullptr, CMemory(0x1660AD0A8).RCast<void**>(), 8, 8, 8, 0, 0xFFFFFFC);
 
-	bool results = CEngineAPI_ModInit(pEngineAPI, pModName, pGameDir);
+	bool results = CEngineAPI__ModInit(pEngineAPI, pModName, pGameDir);
 	if (!IsValveMod(pModName) && !IsRespawnMod(pModName))
 	{
 #ifndef DEDICATED
@@ -114,7 +114,6 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
 //-----------------------------------------------------------------------------
 void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo)
 {
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
     if (*g_bTextMode)
     {
         return;
@@ -152,10 +151,6 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
     v_COM_InitFilesystem(pEngineAPI->m_StartupInfo.m_szInitialMod);
 
     *g_bTextMode = true;
-#else
-    // !TODO: 'TRACEINIT' needs to be reimplemented in S0/S1 (inline).
-    v_CEngineAPI_SetStartupInfo(pEngineAPI, pStartupInfo);
-#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1)
 }
 
 //-----------------------------------------------------------------------------
@@ -174,7 +169,7 @@ void CEngineAPI::PumpMessages()
     if (in_syncRT->GetBool())
         (*g_fnSyncRTWithIn)();
 
-    g_pInputSystem->PollInputState(UIEventDispatcher);
+    g_pInputSystem->PollInputState(v_UIEventDispatcher);
     g_pGame->DispatchAllStoredGameMessages();
 #endif // !DEDICATED
 }
@@ -265,9 +260,9 @@ bool CEngineAPI::MainLoop()
 ///////////////////////////////////////////////////////////////////////////////
 void VSys_Dll2::Detour(const bool bAttach) const
 {
-	DetourSetup(&CEngineAPI_Init, &CEngineAPI::VInit, bAttach);
-	DetourSetup(&CEngineAPI_ModInit, &CEngineAPI::VModInit, bAttach);
-	DetourSetup(&CEngineAPI_PumpMessages, &CEngineAPI::PumpMessages, bAttach);
-	DetourSetup(&CEngineAPI_MainLoop, &CEngineAPI::MainLoop, bAttach);
-	DetourSetup(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo, bAttach);
+	DetourSetup(&CEngineAPI__Init, &CEngineAPI::VInit, bAttach);
+	DetourSetup(&CEngineAPI__ModInit, &CEngineAPI::VModInit, bAttach);
+	DetourSetup(&CEngineAPI__PumpMessages, &CEngineAPI::PumpMessages, bAttach);
+	DetourSetup(&CEngineAPI__MainLoop, &CEngineAPI::MainLoop, bAttach);
+	DetourSetup(&CEngineAPI__SetStartupInfo, &CEngineAPI::VSetStartupInfo, bAttach);
 }

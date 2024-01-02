@@ -15,7 +15,6 @@ public:
 
 /* ==== CVENGINECLIENT ================================================================================================================================================== */
 ///////////////////////////////////////////////////////////////////////////////
-inline CMemory p_CEngineClient__ClientCmd;
 inline void(*CEngineClient__ClientCmd)(CEngineClient* thisptr, const char* const szCmdString);
 
 inline CMemory g_pEngineClientVFTable = nullptr;
@@ -26,13 +25,12 @@ class HVEngineClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("CEngineClient::`vftable'", g_pEngineClientVFTable.GetPtr());
-		LogFunAdr("CEngineClient::ClientCmd", p_CEngineClient__ClientCmd.GetPtr());
+		LogConAdr("CEngineClient::`vftable'", (void*)g_pEngineClientVFTable.GetPtr());
+		LogFunAdr("CEngineClient::ClientCmd", CEngineClient__ClientCmd);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CEngineClient__ClientCmd = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 80 3D ?? ?? ?? ?? ?? 48 8B DA 74 0C");
-		CEngineClient__ClientCmd = p_CEngineClient__ClientCmd.RCast<void(*)(CEngineClient*, const char* const)>();
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 80 3D ?? ?? ?? ?? ?? 48 8B DA 74 0C").GetPtr(CEngineClient__ClientCmd);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const 

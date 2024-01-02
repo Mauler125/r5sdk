@@ -172,22 +172,22 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 					bResetIdleName = true;
 				}
 
-				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
+				CHostState__State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
 				Msg(eDLL_T::ENGINE, "%s: Shutdown host game\n", __FUNCTION__);
-				CHostState_State_GameShutDown(g_pHostState);
+				CHostState__State_GameShutDown(g_pHostState);
 				break;
 			}
 			case HostStates_t::HS_RESTART:
 			{
 				Msg(eDLL_T::ENGINE, "%s: Restarting state machine\n", __FUNCTION__);
 #ifndef DEDICATED
-				CL_EndMovie();
+				v_CL_EndMovie();
 #endif // !DEDICATED
-				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
+				v_Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
 				g_pEngine->SetNextState(IEngine::DLL_RESTART);
 				break;
 			}
@@ -195,9 +195,9 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			{
 				Msg(eDLL_T::ENGINE, "%s: Shutdown state machine\n", __FUNCTION__);
 #ifndef DEDICATED
-				CL_EndMovie();
+				v_CL_EndMovie();
 #endif // !DEDICATED
-				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
+				v_Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
 				g_pEngine->SetNextState(IEngine::DLL_CLOSE);
 				break;
 			}
@@ -223,7 +223,7 @@ void CHostState::Init(void)
 	{
 		if (m_iNextState == HostStates_t::HS_GAME_SHUTDOWN)
 		{
-			CHostState_State_GameShutDown(this);
+			CHostState__State_GameShutDown(this);
 		}
 		else
 		{
@@ -316,7 +316,7 @@ void CHostState::Think(void) const
 	{
 		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s) - %d%% Server CPU (%.3f msec on frame %d)",
 			hostname->GetString(), g_pServer->GetNumClients(),
-			g_ServerGlobalVariables->m_nMaxClients, KeyValues_GetCurrentPlaylist(), m_levelName,
+			g_ServerGlobalVariables->m_nMaxClients, KeyValues__GetCurrentPlaylist(), m_levelName,
 			static_cast<int>(g_pServer->GetCPUUsage() * 100.0f), (g_pEngine->GetFrameTime() * 1000.0f),
 			g_pServer->GetTick()).c_str());
 
@@ -337,7 +337,7 @@ void CHostState::Think(void) const
 			hostdesc->GetString(),
 			sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
 			g_pHostState->m_levelName,
-			KeyValues_GetCurrentPlaylist(),
+			KeyValues__GetCurrentPlaylist(),
 			hostip->GetString(),
 			hostport->GetInt(),
 			g_pNetKey->GetBase64NetKey(),
@@ -520,7 +520,7 @@ void CHostState::ResetLevelName(void)
 
 void VHostState::Detour(const bool bAttach) const
 {
-	DetourSetup(&CHostState_FrameUpdate, &CHostState::FrameUpdate, bAttach);
+	DetourSetup(&CHostState__FrameUpdate, &CHostState::FrameUpdate, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

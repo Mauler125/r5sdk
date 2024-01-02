@@ -28,10 +28,10 @@ bool CEngine::_Frame(CEngine* thisp)
 	}
 
 #endif // DEDICATED
-	return v_CEngine_Frame(thisp);
+	return CEngine__Frame(thisp);
 }
 
 void VEngine::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CEngine_Frame, &CEngine::_Frame, bAttach);
+	DetourSetup(&CEngine__Frame, &CEngine::_Frame, bAttach);
 }

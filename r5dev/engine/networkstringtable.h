@@ -54,24 +54,18 @@ private:
 	CUtlVector < CNetworkStringTable* > m_Tables; // the string tables
 };
 
-inline CMemory p_CNetworkStringTableContainer__WriteUpdateMessage;
-inline void (*v_CNetworkStringTableContainer__WriteUpdateMessage)(CNetworkStringTableContainer* thisp, CClient* client, unsigned int tick_ack, bf_write* msg);
+inline void (*CNetworkStringTableContainer__WriteUpdateMessage)(CNetworkStringTableContainer* thisp, CClient* client, unsigned int tick_ack, bf_write* msg);
 
 class VNetworkStringTableContainer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CNetworkStringTableContainer::WriteUpdateMessage", p_CNetworkStringTableContainer__WriteUpdateMessage.GetPtr());
+		LogFunAdr("CNetworkStringTableContainer::WriteUpdateMessage", CNetworkStringTableContainer__WriteUpdateMessage);
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CNetworkStringTableContainer__WriteUpdateMessage = g_GameDll.FindPatternSIMD("48 89 74 24 ?? 55 57 41 54 41 55 41 56 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CNetworkStringTableContainer__WriteUpdateMessage = g_GameDll.FindPatternSIMD("48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 45 33 ED");
-#endif
-		v_CNetworkStringTableContainer__WriteUpdateMessage =
-			p_CNetworkStringTableContainer__WriteUpdateMessage.RCast<void (*)(CNetworkStringTableContainer*, CClient*, unsigned int, bf_write*)>();
+		g_GameDll.FindPatternSIMD("48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 45 33 ED")
+			.GetPtr(CNetworkStringTableContainer__WriteUpdateMessage);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

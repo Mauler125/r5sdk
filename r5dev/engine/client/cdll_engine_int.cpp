@@ -80,7 +80,7 @@ void FrameStageNotify_Post(const ClientFrameStage_t frameStage)
 void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameStage)
 {
 	FrameStageNotify_Pre(frameStage);
-	CHLClient_FrameStageNotify(pHLClient, frameStage);
+	CHLClient__FrameStageNotify(pHLClient, frameStage);
 	FrameStageNotify_Post(frameStage);
 }
 
@@ -91,7 +91,7 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 //-----------------------------------------------------------------------------
 ClientClass* CHLClient::GetAllClasses()
 {
-	return CHLClient_GetAllClasses();
+	return CHLClient__GetAllClasses();
 }
 #endif // !DEDICATED
 
@@ -99,6 +99,6 @@ ClientClass* CHLClient::GetAllClasses()
 void VDll_Engine_Int::Detour(const bool bAttach) const
 {
 #ifndef DEDICATED
-	DetourSetup(&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify, bAttach);
+	DetourSetup(&CHLClient__FrameStageNotify, &CHLClient::FrameStageNotify, bAttach);
 #endif // !DEDICATED
 }

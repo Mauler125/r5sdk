@@ -602,7 +602,7 @@ void CBrowser::HostPanel(void)
         {
             g_TaskScheduler->Dispatch([]()
                 {
-                    _DownloadPlaylists_f();
+                    v__DownloadPlaylists_f();
                     KeyValues::InitPlaylists(); // Re-Init playlist.
                 }, 0);
         }
@@ -745,7 +745,7 @@ void CBrowser::UpdateHostingStatus(void)
                 g_pServerListManager->m_Server.m_svDescription,
                 g_pServerListManager->m_Server.m_bHidden,
                 g_pHostState->m_levelName,
-                KeyValues_GetCurrentPlaylist(),
+                KeyValues__GetCurrentPlaylist(),
                 hostip->GetString(),
                 hostport->GetInt(),
                 g_pNetKey->GetBase64NetKey(),

@@ -519,11 +519,7 @@ CAI_NetworkManager::LoadNetworkGraphEx
 */
 void CAI_NetworkManager::LoadNetworkGraphEx(CAI_NetworkManager* pManager, CUtlBuffer* pBuffer, const char* szAIGraphFile)
 {
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	CAI_NetworkManager__LoadNetworkGraph(pManager, pBuffer, szAIGraphFile);
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	CAI_NetworkManager__LoadNetworkGraph(pManager, pBuffer, szAIGraphFile);
-#endif
 
 	if (ai_ainDumpOnLoad->GetBool())
 	{
