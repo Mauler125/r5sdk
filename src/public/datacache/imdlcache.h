@@ -10,16 +10,6 @@
 //-----------------------------------------------------------------------------
 typedef unsigned short MDLHandle_t;
 
-inline MDLHandle_t VoidPtrToMDLHandle(void* ptr)
-{
-	return (MDLHandle_t)(int)(intptr_t)ptr;
-}
-
-inline void* MDLHandleToVirtual(MDLHandle_t hndl)
-{
-	return (void*)(uintptr_t)hndl;
-}
-
 enum
 {
 	MDLHANDLE_INVALID = (MDLHandle_t)~0
