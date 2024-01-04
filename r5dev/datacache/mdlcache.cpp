@@ -29,30 +29,10 @@ std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
 studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 {
     studiodata_t* pStudioData = cache->GetStudioData(handle);
-    studiohdr_t* pStudioHdr;
 
-    if (pStudioData)
+    if (!pStudioData)
     {
-        if (pStudioData->m_MDLCache &&
-            pStudioData->m_MDLCache != DC_INVALID_HANDLE)
-        {
-            studiohdr_t* pStudioHDR = **reinterpret_cast<studiohdr_t***>(pStudioData);
-
-            if (!g_pMDLFallback->m_hErrorMDL && V_ComparePath(pStudioHDR->name, ERROR_MODEL))
-            {
-                g_pMDLFallback->m_pErrorHDR = pStudioHDR;
-                g_pMDLFallback->m_hErrorMDL = handle;
-            }
-            else if (!g_pMDLFallback->m_hEmptyMDL && V_ComparePath(pStudioHDR->name, EMPTY_MODEL))
-            {
-                g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
-                g_pMDLFallback->m_hEmptyMDL = handle;
-            }
-        }
-    }
-    else
-    {
-        pStudioHdr = GetErrorModel();
+        studiohdr_t* const pStudioHdr = GetErrorModel();
 
         if (!IsKnownBadModel(handle))
         {
@@ -65,28 +45,54 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
         return pStudioHdr;
     }
 
-    int nFlags = STUDIOHDR_FLAGS_NEEDS_DEFERRED_ADDITIVE | STUDIOHDR_FLAGS_OBSOLETE;
+    studiocache_t* studioCache = pStudioData->GetStudioCache();
+
+    // Store error and empty fallback models.
+    if (studioCache && studioCache != DC_INVALID_HANDLE)
+    {
+        studiohdr_t* const pStudioHDR = pStudioData->GetStudioCache()->GetStudioHdr();
+
+        if (pStudioHDR)
+        {
+            if (!g_pMDLFallback->m_hErrorMDL && V_ComparePath(pStudioHDR->name, ERROR_MODEL))
+            {
+                g_pMDLFallback->m_pErrorHDR = pStudioHDR;
+                g_pMDLFallback->m_hErrorMDL = handle;
+            }
+            else if (!g_pMDLFallback->m_hEmptyMDL && V_ComparePath(pStudioHDR->name, EMPTY_MODEL))
+            {
+                g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
+                g_pMDLFallback->m_hEmptyMDL = handle;
+            }
+        }
+    }
+
+    const int nFlags = STUDIOHDR_FLAGS_NEEDS_DEFERRED_ADDITIVE | STUDIOHDR_FLAGS_OBSOLETE;
+
     if ((pStudioData->m_nFlags & nFlags))
     {
-        void* pMDLCache = *reinterpret_cast<void**>(pStudioData);
-        if (pStudioData->m_MDLCache)
+        if (studioCache)
         {
             if (a3)
             {
                 FindCachedMDL(cache, pStudioData, a3);
-                pMDLCache = *reinterpret_cast<void**>(pStudioData);
+                studioCache = pStudioData->m_pStudioCache;
             }
 
-            pStudioHdr = *reinterpret_cast<studiohdr_t**>(pMDLCache);
+            studiohdr_t* const pStudioHdr = studioCache->GetStudioHdr();
+
             if (pStudioHdr)
                 return pStudioHdr;
 
             return FindUncachedMDL(cache, handle, pStudioData, a3);
         }
-        pMDLCache = pStudioData->m_pAnimData;
-        if (pMDLCache)
+
+        studioanimcache_t* const animCache = pStudioData->m_pAnimCache;
+
+        if (animCache)
         {
-            pStudioHdr = *reinterpret_cast<studiohdr_t**>(pMDLCache);
+            studiohdr_t* const pStudioHdr = animCache->GetStudioHdr();
+
             if (pStudioHdr)
                 return pStudioHdr;
         }
@@ -129,9 +135,9 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
     AUTO_LOCK(pStudioData->m_Mutex);
 
     const char* szModelName = cache->GetModelName(handle);
-    size_t nFileNameLen = strlen(szModelName);
+    const size_t nFileNameLen = strlen(szModelName);
 
-    studiohdr_t* pStudioHdr;
+    studiohdr_t* pStudioHdr = nullptr;
 
     if (nFileNameLen < 5 ||
         (Q_stricmp(&szModelName[nFileNameLen - 5], ".rmdl") != 0) &&
@@ -150,16 +156,16 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
         return pStudioHdr;
     }
 
-    LOBYTE(pStudioData->m_nGuidLock) = 1;
+    pStudioData->m_bSearchingModelName = true;
     g_pRTech->StringToGuid(szModelName);
-    LOBYTE(pStudioData->m_nGuidLock) = 0;
+    pStudioData->m_bSearchingModelName = false;
 
-    if (!pStudioData->m_MDLCache)
+    if (!pStudioData->m_pStudioCache)
     {
-        studiohdr_t**  pAnimData = (studiohdr_t**)pStudioData->m_pAnimData;
-        if (pAnimData)
+        studioanimcache_t* const animCache = pStudioData->GetAnimCache();
+        if (animCache)
         {
-            pStudioHdr = *pAnimData;
+            pStudioHdr = animCache->GetStudioHdr();
         }
         else
         {
@@ -178,11 +184,11 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
     else
     {
         FindCachedMDL(cache, pStudioData, a4);
-        DataCacheHandle_t dataHandle = pStudioData->m_MDLCache;
+        studiocache_t* const dataCache = pStudioData->GetStudioCache();
 
-        if (dataHandle)
+        if (dataCache)
         {
-            if (dataHandle == DC_INVALID_HANDLE)
+            if (dataCache == DC_INVALID_HANDLE)
             {
                 pStudioHdr = GetErrorModel();
                 if (!IsKnownBadModel(handle))
@@ -194,11 +200,12 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 }
             }
             else
-                pStudioHdr = *(studiohdr_t**)dataHandle;
+                pStudioHdr = dataCache->GetStudioHdr();
         }
         else
         {
             pStudioHdr = GetErrorModel();
+
             if (!IsKnownBadModel(handle))
             {
                 if (!pStudioHdr)
@@ -209,6 +216,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
         }
     }
 
+    assert(pStudioHdr);
     return pStudioHdr;
 }
 
@@ -218,30 +226,28 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
 //          handle - 
 // Output : a pointer to the studiohdr_t object
 //-----------------------------------------------------------------------------
-studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* cache, MDLHandle_t handle)
+vcollide_t* CMDLCache::GetVCollide(CMDLCache* cache, MDLHandle_t handle)
 {
-    studiohdr_t* pStudioHdr = nullptr; // rax
-
     if (!handle)
     {
-        pStudioHdr = GetErrorModel();
-        if (!pStudioHdr)
-            Error(eDLL_T::ENGINE, EXIT_FAILURE, "Attempted to load model with no handle and \"%s\" couldn't be loaded.\n", ERROR_MODEL);
-
-        return pStudioHdr;
+        Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to get vcollide with no handle.\n");
+        return nullptr;
     }
 
-    studiodata_t* pStudioData = cache->GetStudioData(handle);
-    DataCacheHandle_t dataCache = pStudioData->m_MDLCache;
+    const studiodata_t* const pStudioData = cache->GetStudioData(handle);
+    const studiocache_t* const dataCache = pStudioData->GetStudioCache();
 
-    if (dataCache &&
-        dataCache != DC_INVALID_HANDLE)
+    if (dataCache && dataCache != DC_INVALID_HANDLE)
     {
-        void* v4 = *(void**)(*((_QWORD*)dataCache + 1) + 24i64);
-        if (v4)
-            pStudioHdr = (studiohdr_t*)((char*)v4 + 0x10);
+        CStudioVCollide* const pVCollide = dataCache->GetPhysicsCache()->GetStudioVCollide();
+
+        if (pVCollide)
+        {
+            return pVCollide->GetVCollide();
+        }
     }
-    return pStudioHdr;
+
+    return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -252,7 +258,7 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* cache, MDLHandle_t handle)
 //-----------------------------------------------------------------------------
 studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
 {
-    studiodata_t* pStudioData = cache->GetStudioData(handle);
+    const studiodata_t* pStudioData = cache->GetStudioData(handle);
 
     if (!pStudioData)
     {
@@ -264,21 +270,22 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
         pStudioData = cache->GetStudioData(g_pMDLFallback->m_hErrorMDL);
     }
 
-    DataCacheHandle_t dataCache = pStudioData->m_MDLCache;
+    const studiocache_t* const dataCache = pStudioData->GetStudioCache();
 
     if (dataCache)
     {
         if (dataCache == DC_INVALID_HANDLE)
             return nullptr;
 
-        void* pAnimData = (void*)*((_QWORD*)dataCache + 1);
+        studiophysicscache_t* const physicsCache = dataCache->GetPhysicsCache();
 
         AcquireSRWLockExclusive(g_pMDLLock);
-        CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(pAnimData), 1i64); // !!! DECLARED INLINE IN < S3 !!!
+        CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(physicsCache), 1i64); // !!! DECLARED INLINE IN < S3 !!!
         ReleaseSRWLockExclusive(g_pMDLLock);
     }
+
     if ((pStudioData->m_nFlags & STUDIODATA_FLAGS_STUDIOMESH_LOADED))
-        return &pStudioData->m_pHardwareRef->m_HardwareData;
+        return pStudioData->GetHardwareDataRef()->GetHardwareData();
     else
         return nullptr;
 }
@@ -313,5 +320,5 @@ void VMDLCache::Detour(const bool bAttach) const
     DetourSetup(&CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL, bAttach);
     DetourSetup(&CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL, bAttach);
     DetourSetup(&CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData, bAttach);
-    DetourSetup(&CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR, bAttach);
+    DetourSetup(&CMDLCache__GetVCollide, &CMDLCache::GetVCollide, bAttach);
 }

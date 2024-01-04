@@ -1066,14 +1066,17 @@ private:
 	CMDLCache* m_pMDLCache;
 };
 
-class CStudioHWDataRef
+template<class T>
+class CStudioAssetEmbeddedRef : public CRefCounted<>
+{
+protected:
+	T m_Embedded;
+};
+
+class CStudioHWDataRef : public CStudioAssetEmbeddedRef<studiohwdata_t>
 {
 public:
-	bool IsDataRef(void) const { return true; }
-
-	CStudioHWDataRef* m_pVTable;
-	uint8_t pad0[0x8];
-	studiohwdata_t m_HardwareData;
+	studiohwdata_t* GetHardwareData() { return &m_Embedded; }
 };
 
 #endif // STUDIO_H
