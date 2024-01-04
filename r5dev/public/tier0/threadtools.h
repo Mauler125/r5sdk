@@ -1,5 +1,6 @@
 #ifndef THREADTOOLS_H
 #define THREADTOOLS_H
+#include "dbg.h"
 
 inline void ThreadSleep(unsigned nMilliseconds)
 {
@@ -59,6 +60,12 @@ inline void ThreadPause()
 // safe operations. These are especially relevant in a multi-core setting.
 //
 //-----------------------------------------------------------------------------
+
+FORCEINLINE int32 ThreadInterlockedIncrement(int32 volatile* p) { Assert((size_t)p % 4 == 0); return _InterlockedIncrement((volatile long*)p); }
+FORCEINLINE int32 ThreadInterlockedDecrement(int32 volatile* p) { Assert((size_t)p % 4 == 0); return _InterlockedDecrement((volatile long*)p); }
+
+FORCEINLINE int64 ThreadInterlockedIncrement64(int64 volatile* p) { AssertDbg((size_t)p % 8 == 0); return _InterlockedIncrement64((volatile int64*)p); }
+FORCEINLINE int64 ThreadInterlockedDecrement64(int64 volatile* p) { AssertDbg((size_t)p % 8 == 0); return _InterlockedDecrement64((volatile int64*)p); }
 
 FORCEINLINE int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand)
 {
