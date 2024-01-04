@@ -1,5 +1,6 @@
 #ifndef STUDIO_H
 #define STUDIO_H
+#include "tier1/refcount.h"
 #include "mathlib/mathlib.h"
 
 #define MAX_NUM_LODS 8
