@@ -26,9 +26,9 @@ std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
 //          *a3 - 
 // Output : a pointer to the studiohdr_t object
 //-----------------------------------------------------------------------------
-studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
+studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle, void* a3)
 {
-    studiodata_t* pStudioData = cache->GetStudioData(handle);
+    studiodata_t* const pStudioData = cache->GetStudioData(handle);
 
     if (!pStudioData)
     {
@@ -106,7 +106,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 //          *pStudioData - 
 //          *a3 - 
 //-----------------------------------------------------------------------------
-void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void* a3)
+void CMDLCache::FindCachedMDL(CMDLCache* const cache, studiodata_t* const pStudioData, void* a3)
 {
     if (a3)
     {
@@ -130,7 +130,7 @@ void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void*
 //          *a4 - 
 // Output : a pointer to the studiohdr_t object
 //-----------------------------------------------------------------------------
-studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, studiodata_t* pStudioData, void* a4)
+studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_t handle, studiodata_t* pStudioData, void* a4)
 {
     AUTO_LOCK(pStudioData->m_Mutex);
 
@@ -221,33 +221,75 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the studiohdr from cache pool by handle
+// Purpose: gets the studio physics cache from cache pool by handle
 // Input  : *this - 
 //          handle - 
-// Output : a pointer to the studiohdr_t object
+// Output : a pointer to the studiophysicsref_t object
 //-----------------------------------------------------------------------------
-vcollide_t* CMDLCache::GetVCollide(CMDLCache* cache, MDLHandle_t handle)
+studiophysicsref_t* CMDLCache::GetStudioPhysicsCache(const MDLHandle_t handle)
 {
-    if (!handle)
+    if (handle == MDLHANDLE_INVALID)
+        return nullptr;
+
+    const studiodata_t* const studioData = GetStudioData(handle);
+
+    if (!studioData)
     {
-        Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to get vcollide with no handle.\n");
+        Warning(eDLL_T::ENGINE, "Attempted to load studio physics ref on model \"%s\" with no studio data!\n", GetModelName(handle));
         return nullptr;
     }
 
-    const studiodata_t* const pStudioData = cache->GetStudioData(handle);
-    const studiocache_t* const dataCache = pStudioData->GetStudioCache();
+    const studiocache_t* const studioCache = studioData->GetStudioCache();
 
-    if (dataCache && dataCache != DC_INVALID_HANDLE)
+    if (!studioCache || studioCache == DC_INVALID_HANDLE)
     {
-        CStudioVCollide* const pVCollide = dataCache->GetPhysicsCache()->GetStudioVCollide();
-
-        if (pVCollide)
-        {
-            return pVCollide->GetVCollide();
-        }
+        Warning(eDLL_T::ENGINE, "Attempted to load studio physics ref on model \"%s\" with invalid studio cache!\n", GetModelName(handle));
+        return nullptr;
     }
 
-    return nullptr;
+    return studioCache->GetPhysicsCache();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the vcollide data from cache pool by handle
+// Input  : *this - 
+//          handle - 
+// Output : a pointer to the vcollide_t object
+//-----------------------------------------------------------------------------
+vcollide_t* CMDLCache::GetVCollide(CMDLCache* const cache, const MDLHandle_t handle)
+{
+    studiophysicsref_t* const physicsCache = cache->GetStudioPhysicsCache(handle);
+
+    if (!physicsCache)
+        return nullptr;
+
+    CStudioVCollide* const pVCollide = physicsCache->GetStudioVCollide();
+
+    if (!pVCollide)
+        return nullptr;
+
+    return pVCollide->GetVCollide();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the physics geometry data from cache pool by handle
+// Input  : *this - 
+//          handle - 
+// Output : a pointer to the physics geometry descriptor
+//-----------------------------------------------------------------------------
+void* CMDLCache::GetPhysicsGeometry(CMDLCache* const cache, const MDLHandle_t handle)
+{
+    studiophysicsref_t* const physicsCache = cache->GetStudioPhysicsCache(handle);
+
+    if (!physicsCache)
+        return nullptr;
+
+    CStudioPhysicsGeoms* const physicsGeoms = physicsCache->GetPhysicsGeoms();
+
+    if (!physicsGeoms)
+        return nullptr;
+
+    return physicsGeoms->GetGeometryData();
 }
 
 //-----------------------------------------------------------------------------
@@ -256,7 +298,7 @@ vcollide_t* CMDLCache::GetVCollide(CMDLCache* cache, MDLHandle_t handle)
 //          handle - 
 // Output : a pointer to the studiohwdata_t object
 //-----------------------------------------------------------------------------
-studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
+studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* const cache, const MDLHandle_t handle)
 {
     const studiodata_t* pStudioData = cache->GetStudioData(handle);
 
@@ -272,35 +314,31 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
 
     const studiocache_t* const dataCache = pStudioData->GetStudioCache();
 
-    if (dataCache)
-    {
-        if (dataCache == DC_INVALID_HANDLE)
-            return nullptr;
+    if (!dataCache || dataCache == DC_INVALID_HANDLE)
+        return nullptr;
 
-        studiophysicscache_t* const physicsCache = dataCache->GetPhysicsCache();
+    studiophysicsref_t* const physicsCache = dataCache->GetPhysicsCache();
 
-        AcquireSRWLockExclusive(g_pMDLLock);
-        CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(physicsCache), 1i64); // !!! DECLARED INLINE IN < S3 !!!
-        ReleaseSRWLockExclusive(g_pMDLLock);
-    }
+    AcquireSRWLockExclusive(g_pMDLLock);
+    CMDLCache__CheckData(physicsCache, 1i64); // !!! DECLARED INLINE IN < S3 !!!
+    ReleaseSRWLockExclusive(g_pMDLLock);
 
     if ((pStudioData->m_nFlags & STUDIODATA_FLAGS_STUDIOMESH_LOADED))
         return pStudioData->GetHardwareDataRef()->GetHardwareData();
-    else
-        return nullptr;
+
+    return nullptr;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the error model
-// Output : *studiohdr_t
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::GetErrorModel(void)
 {
-    // !TODO [AMOS]: mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
-    if (!old_gather_props->GetBool())
-        old_gather_props->SetValue(true);
-
     return g_pMDLFallback->m_pErrorHDR;
+}
+MDLHandle_t CMDLCache::GetErrorModelHandle(void)
+{
+    return g_pMDLFallback->m_hErrorMDL;
 }
 
 //-----------------------------------------------------------------------------
@@ -308,7 +346,7 @@ studiohdr_t* CMDLCache::GetErrorModel(void)
 // Input  : handle - 
 // Output : true if exist, false otherwise
 //-----------------------------------------------------------------------------
-bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
+bool CMDLCache::IsKnownBadModel(const MDLHandle_t handle)
 {
     auto p = g_vBadMDLHandles.insert(handle);
     return !p.second;
@@ -321,4 +359,5 @@ void VMDLCache::Detour(const bool bAttach) const
     DetourSetup(&CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL, bAttach);
     DetourSetup(&CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData, bAttach);
     DetourSetup(&CMDLCache__GetVCollide, &CMDLCache::GetVCollide, bAttach);
+    DetourSetup(&CMDLCache__GetPhysicsGeometry, &CMDLCache::GetPhysicsGeometry, bAttach);
 }

@@ -266,18 +266,6 @@ void Mod_ProcessPakQueue()
 #endif // !DEDICATED
                         }
 
-                        // The old gather props is set if a model couldn't be
-                        // loaded properly. If we unload level assets, we just
-                        // enable the new implementation again and re-evaluate
-                        // on the next level load. If we load a missing/bad
-                        // model again, we toggle the old implementation as
-                        // the helper functions for this implementation have
-                        // been restored in the SDK, and modified to support
-                        // stubbing missing model assets. See the function
-                        // 'CMDLCache::GetErrorModel' for more information.
-                        if (old_gather_props->GetBool())
-                            old_gather_props->SetValue(false);
-
                         g_pakLoadApi->UnloadPak(*(PakHandle_t*)v10);
                         Mod_UnloadPakFile(); // Unload mod pak files.
 
