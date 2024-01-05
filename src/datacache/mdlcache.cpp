@@ -15,9 +15,8 @@
 #include "rtech/rtech_utils.h"
 #include "public/studio.h"
 
-RMDLFallBack_t* g_pMDLFallback = new RMDLFallBack_t();
-std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
-
+CStudioFallbackHandler g_StudioMdlFallbackHandler;
+#define IS_VALID_DATACACHE_HANDLE(cacheHandle) (cacheHandle && cacheHandle != DC_INVALID_HANDLE)
 
 //-----------------------------------------------------------------------------
 // Purpose: finds an MDL
@@ -48,21 +47,18 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
     studiocache_t* studioCache = pStudioData->GetStudioCache();
 
     // Store error and empty fallback models.
-    if (studioCache && studioCache != DC_INVALID_HANDLE)
+    if (IS_VALID_DATACACHE_HANDLE(studioCache))
     {
         studiohdr_t* const pStudioHDR = pStudioData->GetStudioCache()->GetStudioHdr();
 
         if (pStudioHDR)
         {
-            if (!g_pMDLFallback->m_hErrorMDL && V_ComparePath(pStudioHDR->name, ERROR_MODEL))
+            // Typically, you would only check for '(m_nFlags & STUDIODATA_ERROR_MODEL)',
+            // but for some reason this game doesn't have this flag set on that model.
+            if (!HasErrorModel() && ((pStudioData->m_nFlags & STUDIODATA_ERROR_MODEL) 
+                || V_ComparePath(pStudioHDR->name, ERROR_MODEL)))
             {
-                g_pMDLFallback->m_pErrorHDR = pStudioHDR;
-                g_pMDLFallback->m_hErrorMDL = handle;
-            }
-            else if (!g_pMDLFallback->m_hEmptyMDL && V_ComparePath(pStudioHDR->name, EMPTY_MODEL))
-            {
-                g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
-                g_pMDLFallback->m_hEmptyMDL = handle;
+                g_StudioMdlFallbackHandler.SetFallbackModel(pStudioHDR, handle);
             }
         }
     }
@@ -220,13 +216,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
     return pStudioHdr;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: gets the studio physics cache from cache pool by handle
-// Input  : *this - 
-//          handle - 
-// Output : a pointer to the studiophysicsref_t object
-//-----------------------------------------------------------------------------
-studiophysicsref_t* CMDLCache::GetStudioPhysicsCache(const MDLHandle_t handle)
+studiocache_t* CMDLCache::GetStudioCache(const MDLHandle_t handle)
 {
     if (handle == MDLHANDLE_INVALID)
         return nullptr;
@@ -234,20 +224,10 @@ studiophysicsref_t* CMDLCache::GetStudioPhysicsCache(const MDLHandle_t handle)
     const studiodata_t* const studioData = GetStudioData(handle);
 
     if (!studioData)
-    {
-        Warning(eDLL_T::ENGINE, "Attempted to load studio physics ref on model \"%s\" with no studio data!\n", GetModelName(handle));
         return nullptr;
-    }
 
-    const studiocache_t* const studioCache = studioData->GetStudioCache();
-
-    if (!studioCache || studioCache == DC_INVALID_HANDLE)
-    {
-        Warning(eDLL_T::ENGINE, "Attempted to load studio physics ref on model \"%s\" with invalid studio cache!\n", GetModelName(handle));
-        return nullptr;
-    }
-
-    return studioCache->GetPhysicsCache();
+    studiocache_t* const studioCache = studioData->GetStudioCache();
+    return studioCache;
 }
 
 //-----------------------------------------------------------------------------
@@ -258,7 +238,15 @@ studiophysicsref_t* CMDLCache::GetStudioPhysicsCache(const MDLHandle_t handle)
 //-----------------------------------------------------------------------------
 vcollide_t* CMDLCache::GetVCollide(CMDLCache* const cache, const MDLHandle_t handle)
 {
-    studiophysicsref_t* const physicsCache = cache->GetStudioPhysicsCache(handle);
+    studiocache_t* const studioCache = cache->GetStudioCache(handle);
+
+    if (!IS_VALID_DATACACHE_HANDLE(studioCache))
+    {
+        Warning(eDLL_T::ENGINE, "Attempted to load vcollide on model \"%s\" with invalid studio data!\n", cache->GetModelName(handle));
+        return nullptr;
+    }
+
+    studiophysicsref_t* const physicsCache = studioCache->GetPhysicsCache();
 
     if (!physicsCache)
         return nullptr;
@@ -279,7 +267,15 @@ vcollide_t* CMDLCache::GetVCollide(CMDLCache* const cache, const MDLHandle_t han
 //-----------------------------------------------------------------------------
 void* CMDLCache::GetPhysicsGeometry(CMDLCache* const cache, const MDLHandle_t handle)
 {
-    studiophysicsref_t* const physicsCache = cache->GetStudioPhysicsCache(handle);
+    studiocache_t* const studioCache = cache->GetStudioCache(handle);
+
+    if (!IS_VALID_DATACACHE_HANDLE(studioCache))
+    {
+        Warning(eDLL_T::ENGINE, "Attempted to load physics geometry on model \"%s\" with invalid studio data!\n", cache->GetModelName(handle));
+        return nullptr;
+    }
+
+    studiophysicsref_t* const physicsCache = studioCache->GetPhysicsCache();
 
     if (!physicsCache)
         return nullptr;
@@ -300,24 +296,38 @@ void* CMDLCache::GetPhysicsGeometry(CMDLCache* const cache, const MDLHandle_t ha
 //-----------------------------------------------------------------------------
 studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* const cache, const MDLHandle_t handle)
 {
-    const studiodata_t* pStudioData = cache->GetStudioData(handle);
+    const studiodata_t* pStudioData = nullptr; cache->GetStudioData(handle);
+    const studiocache_t* studioCache = cache->GetStudioCache(handle);
 
-    if (!pStudioData)
+    if (!IS_VALID_DATACACHE_HANDLE(studioCache))
     {
-        if (!g_pMDLFallback->m_hErrorMDL)
+        if (!HasErrorModel())
         {
-            Error(eDLL_T::ENGINE, EXIT_FAILURE, "Studio hardware with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
+            Error(eDLL_T::ENGINE, NO_ERROR, "Studio hardware for model \"%s\" not found and \"%s\" couldn't be loaded!\n",
+                cache->GetModelName(handle), ERROR_MODEL);
+
+            assert(0); // Should never be hit!
             return nullptr;
         }
-        pStudioData = cache->GetStudioData(g_pMDLFallback->m_hErrorMDL);
+        else
+        {
+            // Only spew the message once.
+            if (g_StudioMdlFallbackHandler.AddToSuppressionList(handle))
+            {
+                Warning(eDLL_T::ENGINE, "Studio hardware for model \"%s\" not found; replacing with \"%s\".\n",
+                    cache->GetModelName(handle), ERROR_MODEL);
+            }
+        }
+
+        pStudioData = cache->GetStudioData(GetErrorModelHandle());
+        studioCache = pStudioData->GetStudioCache();
+    }
+    else
+    {
+        pStudioData = cache->GetStudioData(handle);
     }
 
-    const studiocache_t* const dataCache = pStudioData->GetStudioCache();
-
-    if (!dataCache || dataCache == DC_INVALID_HANDLE)
-        return nullptr;
-
-    studiophysicsref_t* const physicsCache = dataCache->GetPhysicsCache();
+    studiophysicsref_t* const physicsCache = studioCache->GetPhysicsCache();
 
     AcquireSRWLockExclusive(g_pMDLLock);
     CMDLCache__CheckData(physicsCache, 1i64); // !!! DECLARED INLINE IN < S3 !!!
@@ -334,11 +344,27 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* const cache, const MDLHand
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::GetErrorModel(void)
 {
-    return g_pMDLFallback->m_pErrorHDR;
+    // NOTE: must enable the old gather props logic for fallback models to draw !!!
+    // The new one won't call GetHardwareData on bad model handles.
+    // TODO[ AMOS ]: move this elsewhere; correct place is GatherStaticPropsSecondPass().
+    g_StudioMdlFallbackHandler.EnableLegacyGatherProps();
+
+    return g_StudioMdlFallbackHandler.GetFallbackModelHeader();
+}
+const char* CMDLCache::GetErrorModelName(void)
+{
+    const studiohdr_t* const errorStudioHdr = g_StudioMdlFallbackHandler.GetFallbackModelHeader();
+    assert(errorStudioHdr);
+
+    return errorStudioHdr ? errorStudioHdr->name : "(invalid)";
 }
 MDLHandle_t CMDLCache::GetErrorModelHandle(void)
 {
-    return g_pMDLFallback->m_hErrorMDL;
+    return g_StudioMdlFallbackHandler.GetFallbackModelHandle();
+}
+bool CMDLCache::HasErrorModel(void)
+{
+    return g_StudioMdlFallbackHandler.HasFallbackModel();
 }
 
 //-----------------------------------------------------------------------------
@@ -348,8 +374,8 @@ MDLHandle_t CMDLCache::GetErrorModelHandle(void)
 //-----------------------------------------------------------------------------
 bool CMDLCache::IsKnownBadModel(const MDLHandle_t handle)
 {
-    auto p = g_vBadMDLHandles.insert(handle);
-    return !p.second;
+    // Only adds if it didn't exist yet, else it returns false.
+    return g_StudioMdlFallbackHandler.AddBadModelHandle(handle);
 }
 
 void VMDLCache::Detour(const bool bAttach) const

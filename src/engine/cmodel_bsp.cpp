@@ -266,6 +266,17 @@ void Mod_ProcessPakQueue()
 #endif // !DEDICATED
                         }
 
+                        // The old gather props is set if a model couldn't be
+                        // loaded properly. If we unload level assets, we just
+                        // enable the new implementation again and re-evaluate
+                        // on the next level load. If we load a missing/bad
+                        // model again, we toggle the old implementation as
+                        // otherwise the fallback models won't render; the new
+                        // gather props solution does not attempt to obtain
+                        // studio hardware data on bad mdl handles. See
+                        // 'CMDLCache::GetErrorModel' for more information.
+                        g_StudioMdlFallbackHandler.DisableLegacyGatherProps();
+
                         g_pakLoadApi->UnloadPak(*(PakHandle_t*)v10);
                         Mod_UnloadPakFile(); // Unload mod pak files.
 
@@ -461,7 +472,9 @@ void Mod_UnloadPakFile(void)
 		}
 	}
 	g_vLoadedPakHandle.Purge();
-	g_vBadMDLHandles.clear();
+
+    g_StudioMdlFallbackHandler.ClearBadModelHandleCache();
+    g_StudioMdlFallbackHandler.ClearSuppresionList();
 }
 
 void VModel_BSP::Detour(const bool bAttach) const
