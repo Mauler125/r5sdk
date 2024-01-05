@@ -9,29 +9,95 @@
 #include "public/vphysics/vcollide.h"
 #include "public/rtech/ipakfile.h"
 
-struct RMDLFallBack_t
+class CStudioFallbackHandler
 {
-	studiohdr_t* m_pErrorHDR;
-	studiohdr_t* m_pEmptyHDR;
-	MDLHandle_t m_hErrorMDL;
-	MDLHandle_t m_hEmptyMDL;
-
-	RMDLFallBack_t(void)
-		: m_pErrorHDR(nullptr)
-		, m_pEmptyHDR(nullptr)
-		, m_hErrorMDL(NULL)
-		, m_hEmptyMDL(NULL)
-	{
-	}
+public:
+	CStudioFallbackHandler(void)
+		: m_pFallbackHDR(nullptr)
+		, m_hFallbackMDL(NULL)
+	{}
 
 	// This must be cleared if 'common.rpak' is getting unloaded!
-	void Clear(void)
+	inline void Clear(void)
 	{
-		m_pErrorHDR = nullptr;
-		m_pEmptyHDR = nullptr;
-		m_hErrorMDL = NULL;
-		m_hEmptyMDL = NULL;
+		m_pFallbackHDR = nullptr;
+		m_hFallbackMDL = NULL;
+
+		m_BadMdlHandles.clear();
 	}
+
+	inline bool HasFallbackModel() const
+	{
+		return !!m_hFallbackMDL;
+	}
+
+	inline void SetFallbackModel(studiohdr_t* const studioHdr, const MDLHandle_t handle)
+	{
+		m_pFallbackHDR = studioHdr;
+		m_hFallbackMDL = handle;
+	}
+
+	inline studiohdr_t* GetFallbackModelHeader() const
+	{
+		return m_pFallbackHDR;
+	}
+
+	inline MDLHandle_t GetFallbackModelHandle() const
+	{
+		return m_hFallbackMDL;
+	}
+
+	inline void EnableLegacyGatherProps()
+	{
+		if (!old_gather_props->GetBool())
+			old_gather_props->SetValue(true);
+	}
+
+	inline void DisableLegacyGatherProps()
+	{
+		if (old_gather_props->GetBool())
+			old_gather_props->SetValue(false);
+	}
+
+	inline bool AddBadModelHandle(const MDLHandle_t handle)
+	{
+		auto p = m_BadMdlHandles.insert(handle);
+		return !p.second;
+	}
+
+	inline void ClearBadModelHandleCache()
+	{
+		m_BadMdlHandles.clear();
+	}
+
+	inline bool HasInvalidModelHandles()
+	{
+		return !m_BadMdlHandles.empty();
+	}
+
+	inline bool AddToSuppressionList(const MDLHandle_t handle)
+	{
+		auto p = m_SuppressedHandles.insert(handle);
+		return p.second;
+	}
+
+	inline void ClearSuppresionList()
+	{
+		m_SuppressedHandles.clear();
+	}
+
+private:
+	studiohdr_t* m_pFallbackHDR;
+	MDLHandle_t m_hFallbackMDL;
+
+	// Keep track of bad model handles so we don't log the
+	// same one twice or more to the console and cause a 
+	// significant performance impact.
+	std::unordered_set<MDLHandle_t> m_BadMdlHandles;
+
+	// Don't spam on these handles when trying to get
+	// hardware data.
+	std::unordered_set<MDLHandle_t> m_SuppressedHandles;
 };
 
 
@@ -123,8 +189,7 @@ struct studiodata_t
 	PakHandle_t m_PakHandle;
 };
 
-extern RMDLFallBack_t* g_pMDLFallback;
-extern std::unordered_set<MDLHandle_t> g_vBadMDLHandles;
+extern CStudioFallbackHandler g_StudioMdlFallbackHandler;
 
 class CMDLCache : public CTier1AppSystem<IMDLCache>
 {
@@ -133,15 +198,16 @@ public:
 	static void FindCachedMDL(CMDLCache* const cache, studiodata_t* const pStudioData, void* a3);
 	static studiohdr_t* FindUncachedMDL(CMDLCache* const cache, const MDLHandle_t handle, studiodata_t* const pStudioData, void* a4);
 
-	studiophysicsref_t* GetStudioPhysicsCache(const MDLHandle_t handle);
-
+	studiocache_t* GetStudioCache(const MDLHandle_t handle);
 	static vcollide_t* GetVCollide(CMDLCache* const cache, const MDLHandle_t handle);
 	static void* GetPhysicsGeometry(CMDLCache* const cache, const MDLHandle_t handle);
 
 	static studiohwdata_t* GetHardwareData(CMDLCache* const cache, const MDLHandle_t handle);
 
 	static studiohdr_t* GetErrorModel(void);
+	static const char* GetErrorModelName(void);
 	static MDLHandle_t GetErrorModelHandle(void);
+	static bool HasErrorModel(void);
 	static bool IsKnownBadModel(const MDLHandle_t handle);
 
 
