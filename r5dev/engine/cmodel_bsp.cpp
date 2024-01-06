@@ -245,7 +245,11 @@ void Mod_ProcessPakQueue()
                         {
                             const char* pszLoadedPakName = pLoadedPakInfo->m_fileName;
 
-                            if (strcmp(pszLoadedPakName, "common_mp.rpak") == 0 ||
+                            if (strcmp(pszLoadedPakName, "common.rpak") == 0)
+                            {
+                                g_StudioMdlFallbackHandler.Clear();
+                            }
+                            else if (strcmp(pszLoadedPakName, "common_mp.rpak") == 0 ||
                                 strcmp(pszLoadedPakName, "common_sp.rpak") == 0 ||
                                 strcmp(pszLoadedPakName, "common_pve.rpak") == 0)
                             {
