@@ -44,6 +44,18 @@
 // screen. This satisfies the required memory size to render all 120 player models (active players on server).
 0xE6530: "mov     r8d, 200000h"
 
+// This patch prevents a crash in 'CMDLCache::GetStudioHardwareForLODRange()' when attempting to dereference
+// an invalid studiocache handle (0xDEADFEEDDEADFEED). An inline assembly patch was easier to implement than
+// rebuilding the function.
+0x1E6EFD:  "jmp      0x000000014129518A"      // Jump to codecave.
+// NOTE: stored in RCX as past this code block, this register was only written to before any reads!!!
+0x129458A: "mov rcx, 0xDEADFEEDDEADFEED"      // Store 'DC_INVALID_HANDLE' immediate in register.
+0x1294594: "cmp rax, rcx"                     // Compare RAX (studiocache pointer) to 'DC_INVALID_HANDLE'.
+0x1294597: "je       0x00000001401E7B0E"      // If pointer equals, jump and skip all studiocache dereference operations.
+0x129459D: "mov rax, qword ptr ds:[rax+0x8]"  // Recovered instructions overwritten by long jump to codecave.
+0x12945A1: "inc ebx"                          // Recovered instructions overwritten by long jump to codecave.
+0x12945A3: "jmp 0x00000001401E7B03"           // Jump back to original code; use studiocache pointer.
+
 /////////////////////////////
 /////////////////////////////
 ////    Code defects     ////
