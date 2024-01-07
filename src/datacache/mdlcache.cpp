@@ -44,12 +44,12 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
         return pStudioHdr;
     }
 
-    studiomodelcache_t* modelCache = studioData->GetStudioCache();
+    studiomodelcache_t* modelCache = studioData->GetModelCache();
 
     // Store error and empty fallback models.
     if (IS_VALID_DATACACHE_HANDLE(modelCache))
     {
-        studiohdr_t* const studioHdr = studioData->GetStudioCache()->GetStudioHdr();
+        studiohdr_t* const studioHdr = studioData->GetModelCache()->GetStudioHdr();
 
         if (studioHdr)
         {
@@ -72,7 +72,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
             if (a3)
             {
                 FindCachedMDL(cache, studioData, a3);
-                modelCache = studioData->modelCache;
+                modelCache = studioData->GetModelCache();
             }
 
             studiohdr_t* const pStudioHdr = modelCache->GetStudioHdr();
@@ -83,7 +83,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
             return FindUncachedMDL(cache, handle, studioData, a3);
         }
 
-        studioanimcache_t* const animCache = studioData->animCache;
+        studioanimcache_t* const animCache = studioData->GetAnimCache();
 
         if (IS_VALID_DATACACHE_HANDLE(animCache))
         {
@@ -180,7 +180,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
     else
     {
         FindCachedMDL(cache, pStudioData, a4);
-        studiomodelcache_t* const modelCache = pStudioData->GetStudioCache();
+        studiomodelcache_t* const modelCache = pStudioData->GetModelCache();
 
         if (modelCache)
         {
@@ -226,7 +226,7 @@ studiomodelcache_t* CMDLCache::GetModelCache(const MDLHandle_t handle)
     if (!studioData)
         return nullptr;
 
-    studiomodelcache_t* const modelCache = studioData->GetStudioCache();
+    studiomodelcache_t* const modelCache = studioData->GetModelCache();
     return modelCache;
 }
 
@@ -242,7 +242,7 @@ vcollide_t* CMDLCache::GetVCollide(CMDLCache* const cache, const MDLHandle_t han
 
     if (!IS_VALID_DATACACHE_HANDLE(modelCache))
     {
-        Warning(eDLL_T::ENGINE, "Attempted to load vcollide on model \"%s\" with invalid studio data!\n", cache->GetModelName(handle));
+        Warning(eDLL_T::ENGINE, "Attempted to load collision data on model \"%s\" with invalid studio data!\n", cache->GetModelName(handle));
         return nullptr;
     }
 
@@ -320,7 +320,7 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* const cache, const MDLHand
         }
 
         studioData = cache->GetStudioData(GetErrorModelHandle());
-        modelCache = studioData->GetStudioCache();
+        modelCache = studioData->GetModelCache();
     }
     else
     {

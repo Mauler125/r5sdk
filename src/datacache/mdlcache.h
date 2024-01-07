@@ -183,7 +183,7 @@ struct studioanimcache_t
 // only models with type "mod_studio" have this data
 struct studiodata_t
 {
-	inline studiomodelcache_t* GetStudioCache() const { return modelCache; }
+	inline studiomodelcache_t* GetModelCache() const { return modelCache; }
 	inline studioanimcache_t* GetAnimCache() const { return animCache; }
 	inline CStudioHWDataRef* GetHardwareDataRef() const { return hardwareRef; }
 
