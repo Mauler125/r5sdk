@@ -27,9 +27,9 @@ CStudioFallbackHandler g_StudioMdlFallbackHandler;
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle, void* a3)
 {
-    studiodata_t* const pStudioData = cache->GetStudioData(handle);
+    studiodata_t* const studioData = cache->GetStudioData(handle);
 
-    if (!pStudioData)
+    if (!studioData)
     {
         studiohdr_t* const pStudioHdr = GetErrorModel();
 
@@ -44,46 +44,46 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
         return pStudioHdr;
     }
 
-    studiocache_t* studioCache = pStudioData->GetStudioCache();
+    studiomodelcache_t* modelCache = studioData->GetStudioCache();
 
     // Store error and empty fallback models.
-    if (IS_VALID_DATACACHE_HANDLE(studioCache))
+    if (IS_VALID_DATACACHE_HANDLE(modelCache))
     {
-        studiohdr_t* const pStudioHDR = pStudioData->GetStudioCache()->GetStudioHdr();
+        studiohdr_t* const studioHdr = studioData->GetStudioCache()->GetStudioHdr();
 
-        if (pStudioHDR)
+        if (studioHdr)
         {
             // Typically, you would only check for '(m_nFlags & STUDIODATA_ERROR_MODEL)',
             // but for some reason this game doesn't have this flag set on that model.
-            if (!HasErrorModel() && ((pStudioData->m_nFlags & STUDIODATA_ERROR_MODEL) 
-                || V_ComparePath(pStudioHDR->name, ERROR_MODEL)))
+            if (!HasErrorModel() && ((studioData->flags & STUDIODATA_ERROR_MODEL) 
+                || V_ComparePath(studioHdr->name, ERROR_MODEL)))
             {
-                g_StudioMdlFallbackHandler.SetFallbackModel(pStudioHDR, handle);
+                g_StudioMdlFallbackHandler.SetFallbackModel(studioHdr, handle);
             }
         }
     }
 
     const int nFlags = STUDIOHDR_FLAGS_NEEDS_DEFERRED_ADDITIVE | STUDIOHDR_FLAGS_OBSOLETE;
 
-    if ((pStudioData->m_nFlags & nFlags))
+    if ((studioData->flags & nFlags))
     {
-        if (studioCache)
+        if (modelCache)
         {
             if (a3)
             {
-                FindCachedMDL(cache, pStudioData, a3);
-                studioCache = pStudioData->m_pStudioCache;
+                FindCachedMDL(cache, studioData, a3);
+                modelCache = studioData->modelCache;
             }
 
-            studiohdr_t* const pStudioHdr = studioCache->GetStudioHdr();
+            studiohdr_t* const pStudioHdr = modelCache->GetStudioHdr();
 
             if (pStudioHdr)
                 return pStudioHdr;
 
-            return FindUncachedMDL(cache, handle, pStudioData, a3);
+            return FindUncachedMDL(cache, handle, studioData, a3);
         }
 
-        studioanimcache_t* const animCache = pStudioData->m_pAnimCache;
+        studioanimcache_t* const animCache = studioData->animCache;
 
         if (animCache)
         {
@@ -93,7 +93,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
                 return pStudioHdr;
         }
     }
-    return FindUncachedMDL(cache, handle, pStudioData, a3);
+    return FindUncachedMDL(cache, handle, studioData, a3);
 }
 
 //-----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void CMDLCache::FindCachedMDL(CMDLCache* const cache, studiodata_t* const pStudi
 {
     if (a3)
     {
-        AUTO_LOCK(pStudioData->m_Mutex);
+        AUTO_LOCK(pStudioData->mutex);
 
         *(_QWORD*)((int64_t)a3 + 0x880) = *(_QWORD*)&pStudioData->pad[0x24];
         int64_t v6 = *(_QWORD*)&pStudioData->pad[0x24];
@@ -114,7 +114,7 @@ void CMDLCache::FindCachedMDL(CMDLCache* const cache, studiodata_t* const pStudi
             *(_QWORD*)(v6 + 0x878) = (int64_t)a3;
         *(_QWORD*)&pStudioData->pad[0x24] = (int64_t)a3;
         *(_QWORD*)((int64_t)a3 + 0x870) = (int64_t)cache;
-        *(_WORD*)((int64_t)a3 + 0x888) = pStudioData->m_Handle;
+        *(_WORD*)((int64_t)a3 + 0x888) = pStudioData->modelHandle;
     }
 }
 
@@ -128,95 +128,95 @@ void CMDLCache::FindCachedMDL(CMDLCache* const cache, studiodata_t* const pStudi
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_t handle, studiodata_t* pStudioData, void* a4)
 {
-    AUTO_LOCK(pStudioData->m_Mutex);
+    AUTO_LOCK(pStudioData->mutex);
 
-    const char* szModelName = cache->GetModelName(handle);
-    const size_t nFileNameLen = strlen(szModelName);
+    const char* modelName = cache->GetModelName(handle);
+    const size_t fileNameLen = strlen(modelName);
 
-    studiohdr_t* pStudioHdr = nullptr;
+    studiohdr_t* studioHdr = nullptr;
 
-    if (nFileNameLen < 5 ||
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rmdl") != 0) &&
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rrig") != 0) &&
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rpak") != 0))
+    if (fileNameLen < 5 ||
+        (Q_stricmp(&modelName[fileNameLen - 5], ".rmdl") != 0) &&
+        (Q_stricmp(&modelName[fileNameLen - 5], ".rrig") != 0) &&
+        (Q_stricmp(&modelName[fileNameLen - 5], ".rpak") != 0))
     {
-        pStudioHdr = GetErrorModel();
+        studioHdr = GetErrorModel();
         if (!IsKnownBadModel(handle))
         {
-            if (!pStudioHdr)
-                Error(eDLL_T::ENGINE, EXIT_FAILURE, "Attempted to load old model \"%s\" and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
+            if (!studioHdr)
+                Error(eDLL_T::ENGINE, EXIT_FAILURE, "Attempted to load old model \"%s\" and \"%s\" couldn't be loaded.\n", modelName, ERROR_MODEL);
             else
-                Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", modelName, ERROR_MODEL);
         }
 
-        return pStudioHdr;
+        return studioHdr;
     }
 
-    pStudioData->m_bSearchingModelName = true;
-    g_pRTech->StringToGuid(szModelName);
-    pStudioData->m_bSearchingModelName = false;
+    pStudioData->processing = true;
+    g_pRTech->StringToGuid(modelName);
+    pStudioData->processing = false;
 
-    if (!pStudioData->m_pStudioCache)
+    if (!pStudioData->modelCache)
     {
         studioanimcache_t* const animCache = pStudioData->GetAnimCache();
         if (animCache)
         {
-            pStudioHdr = animCache->GetStudioHdr();
+            studioHdr = animCache->GetStudioHdr();
         }
         else
         {
-            pStudioHdr = GetErrorModel();
+            studioHdr = GetErrorModel();
             if (!IsKnownBadModel(handle))
             {
-                if (!pStudioHdr)
-                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
+                if (!studioHdr)
+                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", modelName, ERROR_MODEL);
                 else
-                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" not found; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
+                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" not found; replacing with \"%s\".\n", modelName, ERROR_MODEL);
             }
 
-            return pStudioHdr;
+            return studioHdr;
         }
     }
     else
     {
         FindCachedMDL(cache, pStudioData, a4);
-        studiocache_t* const dataCache = pStudioData->GetStudioCache();
+        studiomodelcache_t* const modelCache = pStudioData->GetStudioCache();
 
-        if (dataCache)
+        if (modelCache)
         {
-            if (dataCache == DC_INVALID_HANDLE)
+            if (modelCache == DC_INVALID_HANDLE)
             {
-                pStudioHdr = GetErrorModel();
+                studioHdr = GetErrorModel();
                 if (!IsKnownBadModel(handle))
                 {
-                    if (!pStudioHdr)
-                        Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has bad studio data and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
+                    if (!studioHdr)
+                        Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has bad studio data and \"%s\" couldn't be loaded.\n", modelName, ERROR_MODEL);
                     else
-                        Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has bad studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
+                        Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has bad studio data; replacing with \"%s\".\n", modelName, ERROR_MODEL);
                 }
             }
             else
-                pStudioHdr = dataCache->GetStudioHdr();
+                studioHdr = modelCache->GetStudioHdr();
         }
         else
         {
-            pStudioHdr = GetErrorModel();
+            studioHdr = GetErrorModel();
 
             if (!IsKnownBadModel(handle))
             {
-                if (!pStudioHdr)
-                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has no studio data and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
+                if (!studioHdr)
+                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has no studio data and \"%s\" couldn't be loaded.\n", modelName, ERROR_MODEL);
                 else
-                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has no studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
+                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has no studio data; replacing with \"%s\".\n", modelName, ERROR_MODEL);
             }
         }
     }
 
-    assert(pStudioHdr);
-    return pStudioHdr;
+    assert(studioHdr);
+    return studioHdr;
 }
 
-studiocache_t* CMDLCache::GetStudioCache(const MDLHandle_t handle)
+studiomodelcache_t* CMDLCache::GetModelCache(const MDLHandle_t handle)
 {
     if (handle == MDLHANDLE_INVALID)
         return nullptr;
@@ -226,8 +226,8 @@ studiocache_t* CMDLCache::GetStudioCache(const MDLHandle_t handle)
     if (!studioData)
         return nullptr;
 
-    studiocache_t* const studioCache = studioData->GetStudioCache();
-    return studioCache;
+    studiomodelcache_t* const modelCache = studioData->GetStudioCache();
+    return modelCache;
 }
 
 //-----------------------------------------------------------------------------
@@ -238,15 +238,15 @@ studiocache_t* CMDLCache::GetStudioCache(const MDLHandle_t handle)
 //-----------------------------------------------------------------------------
 vcollide_t* CMDLCache::GetVCollide(CMDLCache* const cache, const MDLHandle_t handle)
 {
-    studiocache_t* const studioCache = cache->GetStudioCache(handle);
+    studiomodelcache_t* const modelCache = cache->GetModelCache(handle);
 
-    if (!IS_VALID_DATACACHE_HANDLE(studioCache))
+    if (!IS_VALID_DATACACHE_HANDLE(modelCache))
     {
         Warning(eDLL_T::ENGINE, "Attempted to load vcollide on model \"%s\" with invalid studio data!\n", cache->GetModelName(handle));
         return nullptr;
     }
 
-    studiophysicsref_t* const physicsCache = studioCache->GetPhysicsCache();
+    studiophysicsref_t* const physicsCache = modelCache->GetPhysicsCache();
 
     if (!physicsCache)
         return nullptr;
@@ -267,20 +267,20 @@ vcollide_t* CMDLCache::GetVCollide(CMDLCache* const cache, const MDLHandle_t han
 //-----------------------------------------------------------------------------
 void* CMDLCache::GetPhysicsGeometry(CMDLCache* const cache, const MDLHandle_t handle)
 {
-    studiocache_t* const studioCache = cache->GetStudioCache(handle);
+    studiomodelcache_t* const modelCache = cache->GetModelCache(handle);
 
-    if (!IS_VALID_DATACACHE_HANDLE(studioCache))
+    if (!IS_VALID_DATACACHE_HANDLE(modelCache))
     {
         Warning(eDLL_T::ENGINE, "Attempted to load physics geometry on model \"%s\" with invalid studio data!\n", cache->GetModelName(handle));
         return nullptr;
     }
 
-    studiophysicsref_t* const physicsCache = studioCache->GetPhysicsCache();
+    studiophysicsref_t* const physicsRef = modelCache->GetPhysicsCache();
 
-    if (!physicsCache)
+    if (!physicsRef)
         return nullptr;
 
-    CStudioPhysicsGeoms* const physicsGeoms = physicsCache->GetPhysicsGeoms();
+    CStudioPhysicsGeoms* const physicsGeoms = physicsRef->GetPhysicsGeoms();
 
     if (!physicsGeoms)
         return nullptr;
@@ -296,10 +296,10 @@ void* CMDLCache::GetPhysicsGeometry(CMDLCache* const cache, const MDLHandle_t ha
 //-----------------------------------------------------------------------------
 studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* const cache, const MDLHandle_t handle)
 {
-    const studiodata_t* pStudioData = nullptr; cache->GetStudioData(handle);
-    const studiocache_t* studioCache = cache->GetStudioCache(handle);
+    const studiodata_t* studioData = nullptr; cache->GetStudioData(handle);
+    const studiomodelcache_t* modelCache = cache->GetModelCache(handle);
 
-    if (!IS_VALID_DATACACHE_HANDLE(studioCache))
+    if (!IS_VALID_DATACACHE_HANDLE(modelCache))
     {
         if (!HasErrorModel())
         {
@@ -319,22 +319,22 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* const cache, const MDLHand
             }
         }
 
-        pStudioData = cache->GetStudioData(GetErrorModelHandle());
-        studioCache = pStudioData->GetStudioCache();
+        studioData = cache->GetStudioData(GetErrorModelHandle());
+        modelCache = studioData->GetStudioCache();
     }
     else
     {
-        pStudioData = cache->GetStudioData(handle);
+        studioData = cache->GetStudioData(handle);
     }
 
-    studiophysicsref_t* const physicsCache = studioCache->GetPhysicsCache();
+    studiophysicsref_t* const physicsRef = modelCache->GetPhysicsCache();
 
     AcquireSRWLockExclusive(g_pMDLLock);
-    CMDLCache__CheckData(physicsCache, 1i64); // !!! DECLARED INLINE IN < S3 !!!
+    CMDLCache__CheckData(physicsRef, 1i64); // !!! DECLARED INLINE IN < S3 !!!
     ReleaseSRWLockExclusive(g_pMDLLock);
 
-    if ((pStudioData->m_nFlags & STUDIODATA_FLAGS_STUDIOMESH_LOADED))
-        return pStudioData->GetHardwareDataRef()->GetHardwareData();
+    if ((studioData->flags & STUDIODATA_FLAGS_STUDIOMESH_LOADED))
+        return studioData->GetHardwareDataRef()->GetHardwareData();
 
     return nullptr;
 }
@@ -383,7 +383,9 @@ void VMDLCache::Detour(const bool bAttach) const
     DetourSetup(&CMDLCache__FindMDL, &CMDLCache::FindMDL, bAttach);
     DetourSetup(&CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL, bAttach);
     DetourSetup(&CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL, bAttach);
-    DetourSetup(&CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData, bAttach);
+
     DetourSetup(&CMDLCache__GetVCollide, &CMDLCache::GetVCollide, bAttach);
     DetourSetup(&CMDLCache__GetPhysicsGeometry, &CMDLCache::GetPhysicsGeometry, bAttach);
+
+    DetourSetup(&CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData, bAttach);
 }
