@@ -156,9 +156,18 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
     g_pRTech->StringToGuid(modelName);
     pStudioData->processing = false;
 
-    if (!pStudioData->modelCache)
+    studiomodelcache_t* const modelCache = pStudioData->GetModelCache();
+
+    if (IS_VALID_DATACACHE_HANDLE(modelCache))
     {
+        FindCachedMDL(cache, pStudioData, a4);
+        studioHdr = modelCache->GetStudioHdr();
+    }
+    else
+    {
+        // Attempt to get studio header from anim cache.
         studioanimcache_t* const animCache = pStudioData->GetAnimCache();
+
         if (IS_VALID_DATACACHE_HANDLE(animCache))
         {
             studioHdr = animCache->GetStudioHdr();
@@ -166,6 +175,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
         else
         {
             studioHdr = GetErrorModel();
+
             if (!IsKnownBadModel(handle))
             {
                 if (!studioHdr)
@@ -173,30 +183,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
                 else
                     Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" not found; replacing with \"%s\".\n", modelName, ERROR_MODEL);
             }
-
-            return studioHdr;
-        }
-    }
-    else
-    {
-        FindCachedMDL(cache, pStudioData, a4);
-        studiomodelcache_t* const modelCache = pStudioData->GetModelCache();
-
-        if (IS_VALID_DATACACHE_HANDLE(modelCache))
-        {
-            studioHdr = GetErrorModel();
-
-            if (!IsKnownBadModel(handle))
-            {
-                if (!studioHdr)
-                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has invalid studio data and \"%s\" couldn't be loaded.\n", modelName, ERROR_MODEL);
-                else
-                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has invalid studio data; replacing with \"%s\".\n", modelName, ERROR_MODEL);
-            }
-        }
-        else
-        {
-            studioHdr = modelCache->GetStudioHdr();
         }
     }
 
