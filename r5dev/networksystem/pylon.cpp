@@ -230,7 +230,9 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
 bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSystem::BannedList_t& outBannedVec) const
 {
     rapidjson::Document requestJson;
-    requestJson.SetArray();
+    requestJson.SetObject();
+
+    rapidjson::Value playersArray(rapidjson::kArrayType);
 
     rapidjson::Document::AllocatorType& allocator = requestJson.GetAllocator();
 
@@ -241,8 +243,10 @@ bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSyst
         rapidjson::Value player(rapidjson::kObjectType);
         player.AddMember("id", banned.m_NucleusID, allocator);
         player.AddMember("ip", rapidjson::Value(banned.m_Address.String(), allocator), allocator);
-        requestJson.PushBack(player, allocator);
+        playersArray.PushBack(player, allocator);
     }
+
+    requestJson.AddMember("players", playersArray, allocator);
 
     rapidjson::Document responseJson;
 
