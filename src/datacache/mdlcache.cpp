@@ -159,7 +159,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
     if (!pStudioData->modelCache)
     {
         studioanimcache_t* const animCache = pStudioData->GetAnimCache();
-        if (animCache)
+        if (IS_VALID_DATACACHE_HANDLE(animCache))
         {
             studioHdr = animCache->GetStudioHdr();
         }
