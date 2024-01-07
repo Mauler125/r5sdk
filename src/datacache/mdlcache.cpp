@@ -182,33 +182,21 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
         FindCachedMDL(cache, pStudioData, a4);
         studiomodelcache_t* const modelCache = pStudioData->GetModelCache();
 
-        if (modelCache)
-        {
-            if (modelCache == DC_INVALID_HANDLE)
-            {
-                studioHdr = GetErrorModel();
-                if (!IsKnownBadModel(handle))
-                {
-                    if (!studioHdr)
-                        Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has bad studio data and \"%s\" couldn't be loaded.\n", modelName, ERROR_MODEL);
-                    else
-                        Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has bad studio data; replacing with \"%s\".\n", modelName, ERROR_MODEL);
-                }
-            }
-            else
-                studioHdr = modelCache->GetStudioHdr();
-        }
-        else
+        if (IS_VALID_DATACACHE_HANDLE(modelCache))
         {
             studioHdr = GetErrorModel();
 
             if (!IsKnownBadModel(handle))
             {
                 if (!studioHdr)
-                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has no studio data and \"%s\" couldn't be loaded.\n", modelName, ERROR_MODEL);
+                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has invalid studio data and \"%s\" couldn't be loaded.\n", modelName, ERROR_MODEL);
                 else
-                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has no studio data; replacing with \"%s\".\n", modelName, ERROR_MODEL);
+                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has invalid studio data; replacing with \"%s\".\n", modelName, ERROR_MODEL);
             }
+        }
+        else
+        {
+            studioHdr = modelCache->GetStudioHdr();
         }
     }
 
