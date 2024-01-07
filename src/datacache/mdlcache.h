@@ -7,7 +7,7 @@
 #include "datacache/imdlcache.h"
 #include "public/studio.h"
 #include "public/vphysics/phyfile.h"
-#include "public/vphysics/vcollide.h"
+#include "vphysics/physics_collide.h"
 #include "public/rtech/ipakfile.h"
 
 class CStudioFallbackHandler
@@ -105,10 +105,10 @@ private:
 struct CStudioVCollide : public CRefCounted<>
 {
 public:
-	//~CStudioVCollide() // TODO: add g_PhysicsCollision to SDK
-	//{
-	//	g_pPhysicsCollision->VCollideUnload(&m_vcollide);
-	//}
+	~CStudioVCollide()
+	{
+		PhysicsCollision()->VCollideUnload(&m_vcollide);
+	}
 	vcollide_t* GetVCollide()
 	{
 		return &m_vcollide;
