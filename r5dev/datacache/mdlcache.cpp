@@ -67,7 +67,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
 
     if ((studioData->flags & nFlags))
     {
-        if (modelCache)
+        if (IS_VALID_DATACACHE_HANDLE(modelCache))
         {
             if (a3)
             {
@@ -85,7 +85,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
 
         studioanimcache_t* const animCache = studioData->animCache;
 
-        if (animCache)
+        if (IS_VALID_DATACACHE_HANDLE(animCache))
         {
             studiohdr_t* const pStudioHdr = animCache->GetStudioHdr();
 
