@@ -190,6 +190,11 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
     return studioHdr;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: gets the model cache by handle
+// Input  : handle - 
+// Output : a pointer to the studiomodelcache_t object
+//-----------------------------------------------------------------------------
 studiomodelcache_t* CMDLCache::GetModelCache(const MDLHandle_t handle)
 {
     if (handle == MDLHANDLE_INVALID)
@@ -318,11 +323,6 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* const cache, const MDLHand
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::GetErrorModel(void)
 {
-    // NOTE: must enable the old gather props logic for fallback models to draw !!!
-    // The new one won't call GetHardwareData on bad model handles.
-    // TODO[ AMOS ]: move this elsewhere; correct place is GatherStaticPropsSecondPass().
-    g_StudioMdlFallbackHandler.EnableLegacyGatherProps();
-
     return g_StudioMdlFallbackHandler.GetFallbackModelHeader();
 }
 const char* CMDLCache::GetErrorModelName(void)
