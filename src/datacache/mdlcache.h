@@ -6,6 +6,7 @@
 #include "datacache/idatacache.h"
 #include "datacache/imdlcache.h"
 #include "public/studio.h"
+#include "public/vphysics/phyfile.h"
 #include "public/vphysics/vcollide.h"
 #include "public/rtech/ipakfile.h"
 
@@ -96,7 +97,7 @@ private:
 	std::unordered_set<MDLHandle_t> m_BadMdlHandles;
 
 	// Don't spam on these handles when trying to get
-	// hardware data.
+	// cache data.
 	std::unordered_set<MDLHandle_t> m_SuppressedHandles;
 };
 
@@ -131,8 +132,8 @@ private:
 
 struct studiophysicsref_t
 {
-	inline CStudioVCollide* GetStudioVCollide() const { return m_pVCollide; }
-	inline CStudioPhysicsGeoms* GetPhysicsGeoms() const { return m_pPhysicsGeoms; }
+	inline CStudioVCollide* GetStudioVCollide() const { return vCollide; }
+	inline CStudioPhysicsGeoms* GetPhysicsGeoms() const { return physicsGeoms; }
 
 	int unk0;
 	int unk1;
@@ -140,53 +141,65 @@ struct studiophysicsref_t
 	int unk3;
 	int unk4;
 	int unk5;
-	CStudioVCollide* m_pVCollide;
-	CStudioPhysicsGeoms* m_pPhysicsGeoms;
+	CStudioVCollide* vCollide;
+	CStudioPhysicsGeoms* physicsGeoms;
 };
 
-struct studiocache_t
+struct studiomodelcache_t
 {
-	inline studiohdr_t* GetStudioHdr() const { return m_pStudioHdr; }
-	inline studiophysicsref_t* GetPhysicsCache() const { return m_pPhysicsCache; }
+	inline studiohdr_t* GetStudioHdr() const { return studioHeader; }
+	inline studiophysicsref_t* GetPhysicsCache() const { return physicsCache; }
 
-	studiohdr_t* m_pStudioHdr;
-	studiophysicsref_t* m_pPhysicsCache;
-	const char* m_szPropName;
-	uint8_t m_pUnknown[98];
+	studiohdr_t* studioHeader;
+	studiophysicsref_t* physicsCache;
+	const char* modelName;
+	char gap_18[8];
+	phyheader_t* physicsHeader;
+	void* unk_28;
+	void* staticPropData;
+	void* animRigs;
+	int numAnimRigs;
+	int unk_44;
+	int streamedDataSize;
+	char gap_4C[8];
+	int numAnimSeqs;
+	void* m_pAnimSeqs;
+	char gap_60[24];
 };
 
 struct studioanimcache_t
 {
-	inline studiohdr_t* GetStudioHdr() const { return m_pStudioHdr; }
+	inline studiohdr_t* GetStudioHdr() const { return studioHdr; }
 
-	studiohdr_t* m_pStudioHdr;
-	const char* m_pszRigName;
+	studiohdr_t* studioHdr;
+	const char* rigName;
 	int unk0;
-	int m_nSequenceCount;
-	void** m_pAnimSequences;
-	// TODO reverse the rest
+	int numSequences;
+	PakPage_t sequences;
+	int unk1;
+	int unk2;
 };
 
 // only models with type "mod_studio" have this data
 struct studiodata_t
 {
-	inline studiocache_t* GetStudioCache() const { return m_pStudioCache; }
-	inline studioanimcache_t* GetAnimCache() const { return m_pAnimCache; }
-	inline CStudioHWDataRef* GetHardwareDataRef() const { return m_pHardwareRef; }
+	inline studiomodelcache_t* GetStudioCache() const { return modelCache; }
+	inline studioanimcache_t* GetAnimCache() const { return animCache; }
+	inline CStudioHWDataRef* GetHardwareDataRef() const { return hardwareRef; }
 
-	studiocache_t* m_pStudioCache;
-	studioanimcache_t* m_pAnimCache; // !TODO: reverse struct.
-	unsigned short m_nRefCount;
-	unsigned short m_nFlags;
-	MDLHandle_t m_Handle;
+	studiomodelcache_t* modelCache;
+	studioanimcache_t* animCache;
+	unsigned short refCount;
+	unsigned short flags;
+	MDLHandle_t modelHandle;
 	void* Unk3; // ptr to flags and model string.
-	CStudioHWDataRef* m_pHardwareRef;
-	void* m_pMaterialTable; // contains a large table of CMaterialGlue objects.
+	CStudioHWDataRef* hardwareRef;
+	void* materialTable; // contains a large table of CMaterialGlue objects.
 	int Unk5;
 	char pad[72];
-	CThreadFastMutex m_Mutex;
-	bool m_bSearchingModelName;
-	PakHandle_t m_PakHandle;
+	CThreadFastMutex mutex;
+	bool processing;
+	PakHandle_t pakHandle;
 };
 
 extern CStudioFallbackHandler g_StudioMdlFallbackHandler;
@@ -198,7 +211,7 @@ public:
 	static void FindCachedMDL(CMDLCache* const cache, studiodata_t* const pStudioData, void* a3);
 	static studiohdr_t* FindUncachedMDL(CMDLCache* const cache, const MDLHandle_t handle, studiodata_t* const pStudioData, void* a4);
 
-	studiocache_t* GetStudioCache(const MDLHandle_t handle);
+	studiomodelcache_t* GetModelCache(const MDLHandle_t handle);
 	static vcollide_t* GetVCollide(CMDLCache* const cache, const MDLHandle_t handle);
 	static void* GetPhysicsGeometry(CMDLCache* const cache, const MDLHandle_t handle);
 
@@ -235,7 +248,7 @@ public:
 		studiodata_t* const studioData = m_MDLDict.Element(handle);
 		LeaveCriticalSection(&m_MDLMutex);
 
-		return &studioData->m_pMaterialTable;
+		return &studioData->materialTable;
 	}
 
 private:
@@ -248,10 +261,10 @@ inline studiohdr_t*(*CMDLCache__FindMDL)(CMDLCache* const pCache, const MDLHandl
 inline void(*CMDLCache__FindCachedMDL)(CMDLCache* const pCache, studiodata_t* const pStudioData, void* a3);
 inline studiohdr_t*(*CMDLCache__FindUncachedMDL)(CMDLCache* const pCache, MDLHandle_t handle, studiodata_t* const pStudioData, void* a4);
 
-inline studiohwdata_t* (*CMDLCache__GetHardwareData)(CMDLCache* const pCache, const MDLHandle_t handle);
 inline vcollide_t*(*CMDLCache__GetVCollide)(CMDLCache* const pCache, const MDLHandle_t handle);
 inline void* (*CMDLCache__GetPhysicsGeometry)(CMDLCache* const pCache, const MDLHandle_t handle);
 
+inline studiohwdata_t* (*CMDLCache__GetHardwareData)(CMDLCache* const pCache, const MDLHandle_t handle);
 inline bool(*CMDLCache__CheckData)(void* const ref, const int64_t type); // Probably incorrect name.
 
 inline CMDLCache* g_pMDLCache = nullptr;
@@ -265,9 +278,9 @@ class VMDLCache : public IDetour
 		LogFunAdr("CMDLCache::FindMDL", CMDLCache__FindMDL);
 		LogFunAdr("CMDLCache::FindCachedMDL", CMDLCache__FindCachedMDL);
 		LogFunAdr("CMDLCache::FindUncachedMDL", CMDLCache__FindUncachedMDL);
-		LogFunAdr("CMDLCache::GetHardwareData", CMDLCache__GetHardwareData);
 		LogFunAdr("CMDLCache::GetVCollide", CMDLCache__GetVCollide);
 		LogFunAdr("CMDLCache::GetPhysicsGeometry", CMDLCache__GetPhysicsGeometry);
+		LogFunAdr("CMDLCache::GetHardwareData", CMDLCache__GetHardwareData);
 		LogFunAdr("CMDLCache::CheckData", CMDLCache__CheckData);
 
 		LogVarAdr("g_MDLCache", g_pMDLCache);
