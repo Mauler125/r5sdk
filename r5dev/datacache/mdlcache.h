@@ -192,7 +192,7 @@ struct studiodata_t
 	unsigned short refCount;
 	unsigned short flags;
 	MDLHandle_t modelHandle;
-	void* Unk3; // ptr to flags and model string.
+	void* unkStruct; // TODO: reverse structure
 	CStudioHWDataRef* hardwareRef;
 	void* materialTable; // contains a large table of CMaterialGlue objects.
 	int Unk5;
