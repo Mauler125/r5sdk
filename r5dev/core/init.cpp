@@ -38,6 +38,7 @@
 #include "codecs/miles/miles_impl.h"
 #include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
+#include "vphysics/physics_collide.h"
 #include "vphysics/QHull.h"
 #include "engine/staticpropmgr.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -502,6 +503,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #endif // !DEDICATED
 
 	// VPhysics
+	REGISTER(VPhysicsCollide);
 	REGISTER(VQHull);
 
 	// StaticPropMgr
