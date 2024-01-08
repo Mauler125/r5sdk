@@ -18,6 +18,7 @@ add_sources( SOURCE_GROUP "Utility"
     "utlbuffer.cpp"
     "utlstring.cpp"
     "characterset.cpp"
+    "mempool.cpp"
     #"memstack.cpp"
 )
 
