@@ -19,7 +19,7 @@ add_sources( SOURCE_GROUP "Utility"
     "utlstring.cpp"
     "characterset.cpp"
     "mempool.cpp"
-    #"memstack.cpp"
+    "memstack.cpp"
 )
 
 add_sources( SOURCE_GROUP "Private"
