@@ -7,7 +7,7 @@
 #include "core/stdafx.h"
 #include "tier0/frametask.h"
 #include "tier1/cvar.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "common/callback.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"

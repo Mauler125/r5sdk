@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "vpc/rson.h"
 #include "filesystem/filesystem.h"
 #include "public/vscript/ivscript.h"

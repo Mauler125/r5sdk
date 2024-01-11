@@ -59,12 +59,29 @@
 #define Q_strcat V_strcat
 
 template <size_t maxLenInCharacters> int V_vsprintf_safe(OUT_Z_ARRAY char(&pDest)[maxLenInCharacters], PRINTF_FORMAT_STRING const char* pFormat, va_list params) { return V_vsnprintf(pDest, maxLenInCharacters, pFormat, params); }
-
+int	_V_stricmp_NegativeForUnequal(const char* s1, const char* s2);
 
 char const* V_stristr(char const* pStr, char const* pSearch);
 const char* V_strnistr(const char* pStr, const char* pSearch, ssize_t n);
 const char* V_strnchr(const char* pStr, char c, ssize_t n);
 bool V_isspace(int c);
+
+inline bool V_isalnum(char c) { return isalnum((unsigned char)c) != 0; }
+
+// this is locale-unaware and therefore faster version of standard isdigit()
+// It also avoids sign-extension errors.
+inline bool V_isdigit(char c)
+{
+	return c >= '0' && c <= '9';
+}
+
+inline bool V_iswdigit(int c)
+{
+	return (((uint)(c - '0')) < 10);
+}
+
+void V_binarytohex(const byte* in, size_t inputbytes, char* out, size_t outsize);
+int V_vsnprintfRet(char* pDest, int maxLen, const char* pFormat, va_list params, bool* pbTruncated);
 
 // Strip white space at the beginning and end of a string
 ssize_t V_StrTrim(char* pStr);

@@ -14,7 +14,7 @@
 #include "engine/net.h"
 #include "engine/host_state.h"
 #include "engine/server/server.h"
-#include "vpc/keyvalues.h"
+#include "rtech/playlists/playlists.h"
 #include "pylon.h"
 #include "listmanager.h"
 
@@ -74,7 +74,7 @@ void CServerListManager::LaunchServer(const bool bChangeLevel) const
     * values. Then when you would normally call launchplaylist which calls StartPlaylist it would cmd
     * call mp_gamemode which parses the gamemode specific part of the playlist..
     */
-    KeyValues::ParsePlaylists(m_Server.m_svPlaylist.c_str());
+    v_Playlists_Parse(m_Server.m_svPlaylist.c_str());
     mp_gamemode->SetValue(m_Server.m_svPlaylist.c_str());
 
     ProcessCommand(Format("%s \"%s\"", bChangeLevel ? "changelevel" : "map", m_Server.m_svHostMap.c_str()).c_str());

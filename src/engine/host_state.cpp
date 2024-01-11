@@ -13,7 +13,6 @@
 #include "tier1/cvar.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
-#include "vpc/keyvalues.h"
 #include "datacache/mdlcache.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
@@ -39,6 +38,7 @@
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "rtech/stryder/stryder.h"
+#include "rtech/playlists/playlists.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
 #include "client/vengineclient_impl.h"
@@ -316,7 +316,7 @@ void CHostState::Think(void) const
 	{
 		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s) - %d%% Server CPU (%.3f msec on frame %d)",
 			hostname->GetString(), g_pServer->GetNumClients(),
-			g_ServerGlobalVariables->m_nMaxClients, KeyValues__GetCurrentPlaylist(), m_levelName,
+			g_ServerGlobalVariables->m_nMaxClients, v_Playlists_GetCurrent(), m_levelName,
 			static_cast<int>(g_pServer->GetCPUUsage() * 100.0f), (g_pEngine->GetFrameTime() * 1000.0f),
 			g_pServer->GetTick()).c_str());
 
@@ -337,7 +337,7 @@ void CHostState::Think(void) const
 			hostdesc->GetString(),
 			sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
 			g_pHostState->m_levelName,
-			KeyValues__GetCurrentPlaylist(),
+			v_Playlists_GetCurrent(),
 			hostip->GetString(),
 			hostport->GetInt(),
 			g_pNetKey->GetBase64NetKey(),

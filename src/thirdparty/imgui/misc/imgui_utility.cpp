@@ -5,7 +5,7 @@
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
 #include "tier0/memstd.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "filesystem/filesystem.h"
 #include "thirdparty/imgui/misc/imgui_utility.h"
 

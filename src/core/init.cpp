@@ -18,8 +18,8 @@
 #include "tier0/sigcache.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
+#include "tier1/keyvalues_iface.h"
 #include "vpc/IAppSystem.h"
-#include "vpc/keyvalues.h"
 #include "vpc/rson.h"
 #include "vpc/interfaces.h"
 #include "common/callback.h"
@@ -63,6 +63,7 @@
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "rtech/stryder/stryder.h"
+#include "rtech/playlists/playlists.h"
 #ifndef DEDICATED
 #include "rtech/rui/rui.h"
 #include "engine/client/cl_ents_parse.h"
@@ -552,6 +553,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(V_RTechGame);
 	REGISTER(V_RTechUtils);
 	REGISTER(VStryder);
+	REGISTER(VPlaylists);
 
 #ifndef DEDICATED
 	REGISTER(V_Rui);

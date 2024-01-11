@@ -9,7 +9,7 @@
 #define EIFACE_H
 #include "edict.h"
 #include "tier1/bitbuf.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations

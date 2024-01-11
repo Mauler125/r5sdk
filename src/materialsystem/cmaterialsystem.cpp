@@ -7,7 +7,7 @@
 #include "tier0/crashhandler.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"

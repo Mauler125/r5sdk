@@ -196,10 +196,10 @@ struct VPKPair_t
 class CPackedStore
 {
 public:
-	void InitLzCompParams(void);
+	void InitLzCompParams(const char* compressionLevel = "default", const lzham_int32 maxHelperThreads = -1);
 	void InitLzDecompParams(void);
 
-	lzham_compress_level GetCompressionLevel(void) const;
+	lzham_compress_level DetermineCompressionLevel(const char* compressionLevel) const;
 
 	void GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_t hDirectoryFile) const;
 	bool GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, const CUtlString& workspacePath, const CUtlString& dirFileName) const;

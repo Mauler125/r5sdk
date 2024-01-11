@@ -9,7 +9,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
-#include "vpc/keyvalues.h"
 #include "tier0/frametask.h"
 #include "engine/common.h"
 #include "engine/host.h"
@@ -20,6 +19,7 @@
 #include "common/callback.h"
 #include "cdll_engine_int.h"
 #include "vgui/vgui_baseui_interface.h"
+#include "rtech/playlists/playlists.h"
 #include <ebisusdk/EbisuSDK.h>
 #include <engine/cmd.h>
 
@@ -139,7 +139,7 @@ void CClientState::VConnectionClosing(CClientState* thisptr, const char* szReaso
             // Reload the local playlist to override the cached
             // one from the server we got disconnected from.
             v__DownloadPlaylists_f();
-            KeyValues::InitPlaylists();
+            Playlists_SDKInit();
         }, 0);
 }
 

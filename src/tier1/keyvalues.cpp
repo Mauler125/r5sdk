@@ -8,14 +8,25 @@
 #include "core/stdafx.h"
 #include "tier0/memstd.h"
 #include "tier1/strtools.h"
-#include "vpc/keyvalues.h"
-#include "vpc/kvleaktrace.h"
+#include "tier1/keyvalues.h"
+#include "tier1/kvleaktrace.h"
+#include "tier1/kverrorstack.h"
+#include "tier1/kverrorcontext.h"
+#include "tier1/kvtokenreader.h"
 #include "vstdlib/keyvaluessystem.h"
-#include "filesystem/filesystem.h"
+#include "public/ifilesystem.h"
 #include "mathlib/color.h"
 #include "rtech/stryder/stryder.h"
 #include "engine/sys_dll2.h"
 #include "engine/cmodel_bsp.h"
+
+static const char* s_LastFileLoadingFrom = "unknown"; // just needed for error messages
+CExpressionEvaluator g_ExpressionEvaluator;
+
+#define INTERNALWRITE( pData, nLen ) InternalWrite( pFileSystem, pHandle, pBuf, pData, nLen )
+
+#define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( uint16_t )x2) << 8 ) | (uint8_t)(x1))
+#define SPLIT_3_BYTES_INTO_1_AND_2( x1, x2, x3 ) do { x1 = (uint8)(x3); x2 = (uint16)( (x3) >> 8 ); } while( 0 )
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -185,6 +196,21 @@ void KeyValues::RemoveEverything(void)
 	m_sValue = nullptr;
 	delete[] m_wsValue;
 	m_wsValue = nullptr;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: looks up a key by symbol name
+//-----------------------------------------------------------------------------
+KeyValues* KeyValues::FindKey(int keySymbol) const
+{
+	AssertMsg(this, "Member function called on NULL KeyValues");
+	for (KeyValues* dat = this ? m_pSub : NULL; dat != NULL; dat = dat->m_pPeer)
+	{
+		if (dat->m_iKeyName == (uint32)keySymbol)
+			return dat;
+	}
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -603,6 +629,24 @@ KeyValues* KeyValues::GetNextKey() const
 const char* KeyValues::GetName(void) const
 {
 	return KeyValuesSystem()->GetStringForSymbol(MAKE_3_BYTES_FROM_1_AND_2(m_iKeyNameCaseSensitive1, m_iKeyNameCaseSensitive2));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get the symbol name of the current key section
+//-----------------------------------------------------------------------------
+int KeyValues::GetNameSymbol() const
+{
+	AssertMsg(this, "Member function called on NULL KeyValues");
+	return this ? m_iKeyName : INVALID_KEY_SYMBOL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get the symbol name of the current key section case sensitive
+//-----------------------------------------------------------------------------
+int KeyValues::GetNameSymbolCaseSensitive() const
+{
+	AssertMsg(this, "Member function called on NULL KeyValues");
+	return this ? MAKE_3_BYTES_FROM_1_AND_2(m_iKeyNameCaseSensitive1, m_iKeyNameCaseSensitive2) : INVALID_KEY_SYMBOL;
 }
 
 //-----------------------------------------------------------------------------
@@ -1219,21 +1263,829 @@ void KeyValues::RecursiveSaveToFile(CUtlBuffer& buf, int nIndentLevel)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Save keyvalues from disk, if subkey values are detected, calls
+// Purpose: Write out keyvalue data
+//-----------------------------------------------------------------------------
+void KeyValues::InternalWrite(IBaseFileSystem* filesystem, FileHandle_t f, CUtlBuffer* pBuf, const void* pData, ssize_t len)
+{
+	if (filesystem)
+	{
+		filesystem->Write(pData, len, f);
+	}
+
+	if (pBuf)
+	{
+		pBuf->Put(pData, len);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Write out a set of indenting
+//-----------------------------------------------------------------------------
+void KeyValues::WriteIndents(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel)
+{
+	for (int i = 0; i < nIndentLevel; i++)
+	{
+		INTERNALWRITE("\t", 1);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Write out a string where we convert the double quotes to backslash double quote
+//-----------------------------------------------------------------------------
+void KeyValues::WriteConvertedString(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, const char* pszString)
+{
+	// handle double quote chars within the string
+	// the worst possible case is that the whole string is quotes
+	size_t len = V_strlen(pszString);
+	char* convertedString = (char*)alloca((len + 1) * sizeof(char) * 2);
+	size_t j = 0;
+	for (size_t i = 0; i <= len; i++)
+	{
+		if (pszString[i] == '\"')
+		{
+			convertedString[j] = '\\';
+			j++;
+		}
+		else if (m_bHasEscapeSequences && pszString[i] == '\\')
+		{
+			convertedString[j] = '\\';
+			j++;
+		}
+		convertedString[j] = pszString[i];
+		j++;
+	}
+
+	INTERNALWRITE(convertedString, V_strlen(convertedString));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Save keyvalues to disk, if subkey values are detected, calls
 //			itself to save those
 //-----------------------------------------------------------------------------
 void KeyValues::RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel)
 {
-	KeyValues__RecursiveSaveToFile(this, pFileSystem, pHandle, pBuf, nIndentLevel);
+	// write header
+	WriteIndents(pFileSystem, pHandle, pBuf, nIndentLevel);
+	INTERNALWRITE("\"", 1);
+	WriteConvertedString(pFileSystem, pHandle, pBuf, GetName());
+	INTERNALWRITE("\"\n", 2);
+	WriteIndents(pFileSystem, pHandle, pBuf, nIndentLevel);
+	INTERNALWRITE("{\n", 2);
+
+	// loop through all our keys writing them to disk
+	for (KeyValues* dat = m_pSub; dat != NULL; dat = dat->m_pPeer)
+	{
+		if (dat->m_pSub)
+		{
+			dat->RecursiveSaveToFile(pFileSystem, pHandle, pBuf, nIndentLevel + 1);
+		}
+		else
+		{
+			// only write non-empty keys
+			switch (dat->m_iDataType)
+			{
+			case TYPE_STRING:
+			{
+				if (dat->m_sValue && *(dat->m_sValue))
+				{
+					WriteIndents(pFileSystem, pHandle, pBuf, nIndentLevel + 1);
+					INTERNALWRITE("\"", 1);
+					WriteConvertedString(pFileSystem, pHandle, pBuf, dat->GetName());
+					INTERNALWRITE("\"\t\t\"", 4);
+
+					WriteConvertedString(pFileSystem, pHandle, pBuf, dat->m_sValue);
+
+					INTERNALWRITE("\"\n", 2);
+				}
+				break;
+			}
+			case TYPE_WSTRING:
+			{
+				if (dat->m_wsValue)
+				{
+					static char buf[KEYVALUES_TOKEN_SIZE];
+					// make sure we have enough space
+					int result = V_UnicodeToUTF8(dat->m_wsValue, buf, KEYVALUES_TOKEN_SIZE);
+					if (result)
+					{
+						WriteIndents(pFileSystem, pHandle, pBuf, nIndentLevel + 1);
+						INTERNALWRITE("\"", 1);
+						INTERNALWRITE(dat->GetName(), V_strlen(dat->GetName()));
+						INTERNALWRITE("\"\t\t\"", 4);
+
+						WriteConvertedString(pFileSystem, pHandle, pBuf, buf);
+
+						INTERNALWRITE("\"\n", 2);
+					}
+				}
+				break;
+			}
+
+			case TYPE_INT:
+			{
+				WriteIndents(pFileSystem, pHandle, pBuf, nIndentLevel + 1);
+				INTERNALWRITE("\"", 1);
+				INTERNALWRITE(dat->GetName(), V_strlen(dat->GetName()));
+				INTERNALWRITE("\"\t\t\"", 4);
+
+				char buf[32];
+				V_snprintf(buf, sizeof(buf), "%d", dat->m_iValue);
+
+				INTERNALWRITE(buf, V_strlen(buf));
+				INTERNALWRITE("\"\n", 2);
+				break;
+			}
+
+			case TYPE_UINT64:
+			{
+				WriteIndents(pFileSystem, pHandle, pBuf, nIndentLevel + 1);
+				INTERNALWRITE("\"", 1);
+				INTERNALWRITE(dat->GetName(), V_strlen(dat->GetName()));
+				INTERNALWRITE("\"\t\t\"", 4);
+
+				char buf[32];
+				// write "0x" + 16 char 0-padded hex encoded 64 bit value
+				V_snprintf(buf, sizeof(buf), "0x%016llX", *((uint64*)dat->m_sValue));
+
+				INTERNALWRITE(buf, V_strlen(buf));
+				INTERNALWRITE("\"\n", 2);
+				break;
+			}
+
+			case TYPE_FLOAT:
+			{
+				WriteIndents(pFileSystem, pHandle, pBuf, nIndentLevel + 1);
+				INTERNALWRITE("\"", 1);
+				INTERNALWRITE(dat->GetName(), V_strlen(dat->GetName()));
+				INTERNALWRITE("\"\t\t\"", 4);
+
+				char buf[48];
+				V_snprintf(buf, sizeof(buf), "%f", dat->m_flValue);
+
+				INTERNALWRITE(buf, V_strlen(buf));
+				INTERNALWRITE("\"\n", 2);
+				break;
+			}
+			case TYPE_COLOR:
+				DevMsg(eDLL_T::COMMON, "%s: TODO, missing code for TYPE_COLOR.\n", __FUNCTION__);
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+
+	// write tail
+	WriteIndents(pFileSystem, pHandle, pBuf, nIndentLevel);
+	INTERNALWRITE("}\n", 2);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Save keyvalues from disk, if subkey values are detected, calls
-//			itself to save those
+// Purpose: 
 //-----------------------------------------------------------------------------
-KeyValues* KeyValues::LoadFromFile(IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc)
+void KeyValues::RecursiveLoadFromBuffer(char const* resourceName, CKeyValuesTokenReader& tokenReader, GetSymbolProc_t pfnEvaluateSymbolProc)
 {
-	return KeyValues__LoadFromFile(this, pFileSystem, pszResourceName, pszPathID, pfnEvaluateSymbolProc);
+	CKeyErrorContext errorReport(GetNameSymbolCaseSensitive());
+	bool wasQuoted;
+	bool wasConditional;
+	if (errorReport.GetStackLevel() > 100)
+	{
+		g_KeyValuesErrorStack.ReportError("RecursiveLoadFromBuffer:  recursion overflow");
+		return;
+	}
+
+	// keep this out of the stack until a key is parsed
+	CKeyErrorContext errorKey(INVALID_KEY_SYMBOL);
+
+	// Locate the last child.  (Almost always, we will not have any children.)
+	// We maintain the pointer to the last child here, so we don't have to re-locate
+	// it each time we append the next subkey, which causes O(N^2) time
+	KeyValues* pLastChild = FindLastSubKey();
+
+	// Keep parsing until we hit the closing brace which terminates this block, or a parse error
+	while (1)
+	{
+		bool bAccepted = true;
+
+		// get the key name
+		const char* name = tokenReader.ReadToken(wasQuoted, wasConditional);
+
+		if (!name)	// EOF stop reading
+		{
+			g_KeyValuesErrorStack.ReportError("RecursiveLoadFromBuffer:  got EOF instead of keyname");
+			break;
+		}
+
+		if (!*name) // empty token, maybe "" or EOF
+		{
+			g_KeyValuesErrorStack.ReportError("RecursiveLoadFromBuffer:  got empty keyname");
+			break;
+		}
+
+		if (*name == '}' && !wasQuoted)	// top level closed, stop reading
+			break;
+
+		// Always create the key; note that this could potentially
+		// cause some duplication, but that's what we want sometimes
+		KeyValues* dat = CreateKeyUsingKnownLastChild(name, pLastChild);
+
+		errorKey.Reset(dat->GetNameSymbolCaseSensitive());
+
+		// get the value
+		const char* value = tokenReader.ReadToken(wasQuoted, wasConditional);
+
+		bool bFoundConditional = wasConditional;
+		if (wasConditional && value)
+		{
+			bAccepted = EvaluateConditional(value, pfnEvaluateSymbolProc);
+
+			// get the real value
+			value = tokenReader.ReadToken(wasQuoted, wasConditional);
+		}
+
+		if (!value)
+		{
+			g_KeyValuesErrorStack.ReportError("RecursiveLoadFromBuffer:  got NULL key");
+			break;
+		}
+
+		// support the '=' as an assignment, makes multiple-keys-on-one-line easier to read in a keyvalues file
+		if (*value == '=' && !wasQuoted)
+		{
+			// just skip over it
+			value = tokenReader.ReadToken(wasQuoted, wasConditional);
+			bFoundConditional = wasConditional;
+			if (wasConditional && value)
+			{
+				bAccepted = EvaluateConditional(value, pfnEvaluateSymbolProc);
+
+				// get the real value
+				value = tokenReader.ReadToken(wasQuoted, wasConditional);
+			}
+
+			if (bFoundConditional && bAccepted)
+			{
+				// if there is a conditional key see if we already have the key defined and blow it away, last one in the list wins
+				KeyValues* pExistingKey = this->FindKey(dat->GetNameSymbol());
+				if (pExistingKey && pExistingKey != dat)
+				{
+					this->RemoveSubKey(pExistingKey);
+					pExistingKey->DeleteThis();
+				}
+			}
+		}
+
+		if (!value)
+		{
+			g_KeyValuesErrorStack.ReportError("RecursiveLoadFromBuffer:  got NULL key");
+			break;
+		}
+
+		if (*value == '}' && !wasQuoted)
+		{
+			g_KeyValuesErrorStack.ReportError("RecursiveLoadFromBuffer:  got } in key");
+			break;
+		}
+
+		if (*value == '{' && !wasQuoted)
+		{
+			// this isn't a key, it's a section
+			errorKey.Reset(INVALID_KEY_SYMBOL);
+			// sub value list
+			dat->RecursiveLoadFromBuffer(resourceName, tokenReader, pfnEvaluateSymbolProc);
+		}
+		else
+		{
+			if (wasConditional)
+			{
+				g_KeyValuesErrorStack.ReportError("RecursiveLoadFromBuffer:  got conditional between key and value");
+				break;
+			}
+
+			if (dat->m_sValue)
+			{
+				delete[] dat->m_sValue;
+				dat->m_sValue = NULL;
+			}
+
+			size_t len = V_strlen(value);
+
+			// Here, let's determine if we got a float or an int....
+			char* pIEnd;	// pos where int scan ended
+			char* pFEnd;	// pos where float scan ended
+			const char* pSEnd = value + len; // pos where token ends
+
+			const long lval = strtol(value, &pIEnd, 10);
+			const float fval = (float)strtod(value, &pFEnd);
+			const bool bOverflow = (lval == LONG_MAX || lval == LONG_MIN) && errno == ERANGE;
+#ifdef POSIX
+			// strtod supports hex representation in strings under posix but we DON'T
+			// want that support in keyvalues, so undo it here if needed
+			if (len > 1 && tolower(value[1]) == 'x')
+			{
+				fval = 0.0f;
+				pFEnd = (char*)value;
+			}
+#endif
+
+			if (*value == 0)
+			{
+				dat->m_iDataType = TYPE_STRING;
+			}
+			else if ((18 == len) && (value[0] == '0') && (value[1] == 'x'))
+			{
+				// an 18-byte value prefixed with "0x" (followed by 16 hex digits) is an int64 value
+				int64 retVal = 0;
+				for (int i = 2; i < 2 + 16; i++)
+				{
+					char digit = value[i];
+					if (digit >= 'a')
+						digit -= 'a' - ('9' + 1);
+					else
+						if (digit >= 'A')
+							digit -= 'A' - ('9' + 1);
+					retVal = (retVal * 16) + (digit - '0');
+				}
+				dat->m_sValue = new char[sizeof(uint64)];
+				*((uint64*)dat->m_sValue) = retVal;
+				dat->m_iDataType = TYPE_UINT64;
+			}
+			else if ((pFEnd > pIEnd) && (pFEnd == pSEnd))
+			{
+				dat->m_flValue = fval;
+				dat->m_iDataType = TYPE_FLOAT;
+			}
+			else if (pIEnd == pSEnd && !bOverflow)
+			{
+				dat->m_iValue = static_cast<int>(lval);
+				dat->m_iDataType = TYPE_INT;
+			}
+			else
+			{
+				dat->m_iDataType = TYPE_STRING;
+			}
+
+			if (dat->m_iDataType == TYPE_STRING)
+			{
+				// copy in the string information
+				dat->m_sValue = new char[len + 1];
+				memcpy(dat->m_sValue, value, len + 1);
+			}
+
+			// Look ahead one token for a conditional tag
+			const char* peek = tokenReader.ReadToken(wasQuoted, wasConditional);
+			if (wasConditional)
+			{
+				bAccepted = EvaluateConditional(peek, pfnEvaluateSymbolProc);
+			}
+			else
+			{
+				tokenReader.SeekBackOneToken();
+			}
+		}
+
+		Assert(dat->m_pPeer == NULL);
+		if (bAccepted)
+		{
+			Assert(pLastChild == NULL || pLastChild->m_pPeer == dat);
+			pLastChild = dat;
+		}
+		else
+		{
+			//this->RemoveSubKey( dat );
+			if (pLastChild == NULL)
+			{
+				Assert(this->m_pSub == dat);
+				this->m_pSub = NULL;
+			}
+			else
+			{
+				Assert(pLastChild->m_pPeer == dat);
+				pLastChild->m_pPeer = NULL;
+			}
+
+			delete dat;
+			dat = NULL;
+		}
+	}
+}
+
+// prevent two threads from entering this at the same time and trying to share the global error reporting and parse buffers
+static CThreadFastMutex g_KVMutex;
+//-----------------------------------------------------------------------------
+// Read from a buffer...
+//-----------------------------------------------------------------------------
+bool KeyValues::LoadFromBuffer(char const* resourceName, CUtlBuffer& buf, IBaseFileSystem* pFileSystem, const char* pPathID, GetSymbolProc_t pfnEvaluateSymbolProc)
+{
+	AUTO_LOCK(g_KVMutex);
+
+	//if (IsGameConsole())
+	//{
+	//	// Let's not crash if the buffer is empty
+	//	unsigned char* pData = buf.Size() > 0 ? (unsigned char*)buf.PeekGet() : NULL;
+	//	if (pData && (unsigned int)pData[0] == KV_BINARY_POOLED_FORMAT)
+	//	{
+	//		// skip past binary marker
+	//		buf.GetUnsignedChar();
+	//		// get the pool identifier, allows the fs to bind the expected string pool
+	//		unsigned int poolKey = buf.GetUnsignedInt();
+
+	//		RemoveEverything();
+	//		Init();
+
+	//		return ReadAsBinaryPooledFormat(buf, pFileSystem, poolKey, pfnEvaluateSymbolProc);
+	//	}
+	//}
+
+	KeyValues* pPreviousKey = NULL;
+	KeyValues* pCurrentKey = this;
+	CUtlVector< KeyValues* > includedKeys;
+	CUtlVector< KeyValues* > baseKeys;
+	bool wasQuoted;
+	bool wasConditional;
+	CKeyValuesTokenReader tokenReader(this, buf);
+
+	g_KeyValuesErrorStack.SetFilename(resourceName);
+	do
+	{
+		bool bAccepted = true;
+
+		// the first thing must be a key
+		const char* s = tokenReader.ReadToken(wasQuoted, wasConditional);
+		if (!buf.IsValid() || !s)
+			break;
+
+		if (!wasQuoted && *s == '\0')
+		{
+			// non quoted empty strings stop parsing
+			// quoted empty strings are allowed to support unnnamed KV sections
+			break;
+		}
+
+		if (!V_stricmp(s, "#include"))	// special include macro (not a key name)
+		{
+			s = tokenReader.ReadToken(wasQuoted, wasConditional);
+			// Name of subfile to load is now in s
+
+			if (!s || *s == 0)
+			{
+				g_KeyValuesErrorStack.ReportError("#include is NULL ");
+			}
+			else
+			{
+				ParseIncludedKeys(resourceName, s, pFileSystem, pPathID, includedKeys, pfnEvaluateSymbolProc);
+			}
+
+			continue;
+		}
+		else if (!V_stricmp(s, "#base"))
+		{
+			s = tokenReader.ReadToken(wasQuoted, wasConditional);
+			// Name of subfile to load is now in s
+
+			if (!s || *s == 0)
+			{
+				g_KeyValuesErrorStack.ReportError("#base is NULL ");
+			}
+			else
+			{
+				ParseIncludedKeys(resourceName, s, pFileSystem, pPathID, baseKeys, pfnEvaluateSymbolProc);
+			}
+
+			continue;
+		}
+
+		if (!pCurrentKey)
+		{
+			pCurrentKey = new KeyValues(s);
+			Assert(pCurrentKey);
+
+			pCurrentKey->UsesEscapeSequences(m_bHasEscapeSequences != 0); // same format has parent use
+
+			if (pPreviousKey)
+			{
+				pPreviousKey->SetNextKey(pCurrentKey);
+			}
+		}
+		else
+		{
+			pCurrentKey->SetName(s);
+		}
+
+		// get the '{'
+		s = tokenReader.ReadToken(wasQuoted, wasConditional);
+
+		if (wasConditional)
+		{
+			bAccepted = EvaluateConditional(s, pfnEvaluateSymbolProc);
+
+			// Now get the '{'
+			s = tokenReader.ReadToken(wasQuoted, wasConditional);
+		}
+
+		if (s && *s == '{' && !wasQuoted)
+		{
+			// header is valid so load the file
+			pCurrentKey->RecursiveLoadFromBuffer(resourceName, tokenReader, pfnEvaluateSymbolProc);
+		}
+		else
+		{
+			g_KeyValuesErrorStack.ReportError("LoadFromBuffer: missing {");
+		}
+
+		if (!bAccepted)
+		{
+			if (pPreviousKey)
+			{
+				pPreviousKey->SetNextKey(NULL);
+			}
+			pCurrentKey->Clear();
+		}
+		else
+		{
+			pPreviousKey = pCurrentKey;
+			pCurrentKey = NULL;
+		}
+	} while (buf.IsValid());
+
+	AppendIncludedKeys(includedKeys);
+	{
+		// delete included keys!
+		int i;
+		for (i = includedKeys.Count() - 1; i > 0; i--)
+		{
+			KeyValues* kv = includedKeys[i];
+			delete kv;
+		}
+	}
+
+	MergeBaseKeys(baseKeys);
+	{
+		// delete base keys!
+		int i;
+		for (i = baseKeys.Count() - 1; i >= 0; i--)
+		{
+			KeyValues* kv = baseKeys[i];
+			delete kv;
+		}
+	}
+
+	bool bErrors = g_KeyValuesErrorStack.EncounteredAnyErrors();
+	g_KeyValuesErrorStack.SetFilename("");
+	g_KeyValuesErrorStack.ClearErrorFlag();
+	return !bErrors;
+}
+
+//-----------------------------------------------------------------------------
+// Read from a buffer...
+//-----------------------------------------------------------------------------
+bool KeyValues::LoadFromBuffer(char const* resourceName, const char* pBuffer, IBaseFileSystem* pFileSystem, const char* pPathID, GetSymbolProc_t pfnEvaluateSymbolProc)
+{
+	if (!pBuffer)
+		return true;
+
+	if (IsGameConsole() && (unsigned int)((unsigned char*)pBuffer)[0] == KV_BINARY_POOLED_FORMAT)
+	{
+		// bad, got a binary compiled KV file through an unexpected text path
+		// not all paths support binary compiled kv, needs to get fixed
+		// need to have caller supply buffer length (strlen not valid), this interface change was never plumbed
+		Warning(eDLL_T::COMMON, "ERROR! Binary compiled KV '%s' in an unexpected handler\n", resourceName);
+		Assert(0);
+		return false;
+	}
+
+	size_t nLen = V_strlen(pBuffer);
+	CUtlBuffer buf(pBuffer, nLen, CUtlBuffer::READ_ONLY | CUtlBuffer::TEXT_BUFFER);
+	// Translate Unicode files into UTF-8 before proceeding
+	if (nLen > 2 && (uint8)pBuffer[0] == 0xFF && (uint8)pBuffer[1] == 0xFE)
+	{
+		int nUTF8Len = V_UnicodeToUTF8((wchar_t*)(pBuffer + 2), NULL, 0);
+		char* pUTF8Buf = new char[nUTF8Len];
+		V_UnicodeToUTF8((wchar_t*)(pBuffer + 2), pUTF8Buf, nUTF8Len);
+		buf.AssumeMemory(pUTF8Buf, nUTF8Len, nUTF8Len, CUtlBuffer::READ_ONLY | CUtlBuffer::TEXT_BUFFER);
+	}
+	return LoadFromBuffer(resourceName, buf, pFileSystem, pPathID, pfnEvaluateSymbolProc);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Load keyValues from disk
+//-----------------------------------------------------------------------------
+bool KeyValues::LoadFromFile(IBaseFileSystem* filesystem, const char* resourceName, const char* pathID, GetSymbolProc_t pfnEvaluateSymbolProc)
+{
+	//TM_ZONE_FILTERED( TELEMETRY_LEVEL0, 50, TMZF_NONE, "%s %s", __FUNCTION__, tmDynamicString( TELEMETRY_LEVEL0, resourceName ) );
+
+	FileHandle_t f = filesystem->Open(resourceName, "rt", pathID);
+	if (!f)
+		return false;
+
+	s_LastFileLoadingFrom = (char*)resourceName;
+
+	// load file into a null-terminated buffer
+	const ssize_t fileSize = filesystem->Size(f);
+	std::unique_ptr<char[]> pBuf(new char[fileSize + 1]);
+
+	const ssize_t nRead = filesystem->Read(pBuf.get(), fileSize, f);
+	filesystem->Close(f);
+
+	// TODO[ AMOS ]: unicode null terminate?
+	pBuf[nRead] = '\0';
+
+	return LoadFromBuffer(resourceName, pBuf.get(), filesystem, pathID, pfnEvaluateSymbolProc);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : includedKeys - 
+//-----------------------------------------------------------------------------
+void KeyValues::AppendIncludedKeys(CUtlVector< KeyValues* >& includedKeys)
+{
+	// Append any included keys, too...
+	int includeCount = includedKeys.Count();
+	int i;
+	for (i = 0; i < includeCount; i++)
+	{
+		KeyValues* kv = includedKeys[i];
+		Assert(kv);
+
+		KeyValues* insertSpot = this;
+		while (insertSpot->GetNextKey())
+		{
+			insertSpot = insertSpot->GetNextKey();
+		}
+
+		insertSpot->SetNextKey(kv);
+	}
+}
+
+void KeyValues::ParseIncludedKeys(char const* resourceName, const char* filetoinclude,
+	IBaseFileSystem* pFileSystem, const char* pPathID, CUtlVector< KeyValues* >& includedKeys, GetSymbolProc_t pfnEvaluateSymbolProc)
+{
+	Assert(resourceName);
+	Assert(filetoinclude);
+	Assert(pFileSystem);
+
+	// Load it...
+	if (!pFileSystem)
+	{
+		return;
+	}
+
+	// Get relative subdirectory
+	char fullpath[512];
+	V_strncpy(fullpath, resourceName, sizeof(fullpath));
+
+	// Strip off characters back to start or first /
+	bool done = false;
+	size_t len = V_strlen(fullpath);
+	while (!done)
+	{
+		if (len == 0)
+		{
+			break;
+		}
+
+		if (fullpath[len - 1] == '\\' ||
+			fullpath[len - 1] == '/')
+		{
+			break;
+		}
+
+		// zero it
+		fullpath[len - 1] = 0;
+		--len;
+	}
+
+	// Append included file
+	V_strncat(fullpath, filetoinclude, sizeof(fullpath));
+
+	KeyValues* newKV = new KeyValues(fullpath);
+
+	// CUtlSymbol save = s_CurrentFileSymbol;	// did that had any use ???
+
+	newKV->UsesEscapeSequences(m_bHasEscapeSequences != 0);	// use same format as parent
+
+	if (newKV->LoadFromFile(pFileSystem, fullpath, pPathID, pfnEvaluateSymbolProc))
+	{
+		includedKeys.AddToTail(newKV);
+	}
+	else
+	{
+		DevMsg(eDLL_T::COMMON, "%s: Couldn't load included keyvalue file %s\n", __FUNCTION__, fullpath);
+		delete newKV;
+	}
+
+	// s_CurrentFileSymbol = save;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : baseKeys - 
+//-----------------------------------------------------------------------------
+void KeyValues::MergeBaseKeys(CUtlVector< KeyValues* >& baseKeys)
+{
+	const int includeCount = baseKeys.Count();
+
+	for (int i = 0; i < includeCount; i++)
+	{
+		KeyValues* kv = baseKeys[i];
+		Assert(kv);
+
+		RecursiveMergeKeyValues(kv);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : baseKV - keyvalues we're basing ourselves on
+//-----------------------------------------------------------------------------
+void KeyValues::RecursiveMergeKeyValues(KeyValues* baseKV)
+{
+	// Merge ourselves
+	// we always want to keep our value, so nothing to do here
+
+	// Now merge our children
+	for (KeyValues* baseChild = baseKV->m_pSub; baseChild != NULL; baseChild = baseChild->m_pPeer)
+	{
+		// for each child in base, see if we have a matching kv
+
+		bool bFoundMatch = false;
+
+		// If we have a child by the same name, merge those keys
+		for (KeyValues* newChild = m_pSub; newChild != NULL; newChild = newChild->m_pPeer)
+		{
+			if (!V_strcmp(baseChild->GetName(), newChild->GetName()))
+			{
+				newChild->RecursiveMergeKeyValues(baseChild);
+				bFoundMatch = true;
+				break;
+			}
+		}
+
+		// If not merged, append this key
+		if (!bFoundMatch)
+		{
+			KeyValues* dat = baseChild->MakeCopy();
+			Assert(dat);
+			AddSubKey(dat);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Returns whether a keyvalues conditional expression string evaluates to true or false
+//-----------------------------------------------------------------------------
+bool KeyValues::EvaluateConditional(const char* pExpressionString, GetSymbolProc_t pfnEvaluateSymbolProc)
+{
+	// evaluate the infix expression, calling the symbol proc to resolve each symbol's value
+	bool bResult = false;
+	const bool bValid = g_ExpressionEvaluator.Evaluate(bResult, pExpressionString, pfnEvaluateSymbolProc);
+	if (!bValid)
+	{
+		g_KeyValuesErrorStack.ReportError("KV Conditional Evaluation Error");
+	}
+
+	return bResult;
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+KeyValues* KeyValues::CreateKeyUsingKnownLastChild(const char* keyName, KeyValues* pLastChild)
+{
+	// Create a new key
+	KeyValues* dat = new KeyValues(keyName);
+
+	dat->UsesEscapeSequences(m_bHasEscapeSequences != 0); // use same format as parent does
+
+	// add into subkey list
+	AddSubkeyUsingKnownLastChild(dat, pLastChild);
+
+	return dat;
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+void KeyValues::AddSubkeyUsingKnownLastChild(KeyValues* pSubkey, KeyValues* pLastChild)
+{
+	// Make sure the subkey isn't a child of some other keyvalues
+	Assert(pSubkey != NULL);
+	Assert(pSubkey->m_pPeer == NULL);
+
+	// Empty child list?
+	if (pLastChild == NULL)
+	{
+		Assert(m_pSub == NULL);
+		m_pSub = pSubkey;
+	}
+	else
+	{
+		Assert(m_pSub != NULL);
+		Assert(pLastChild->m_pPeer == NULL);
+
+		pLastChild->SetNextKey(pSubkey);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1327,136 +2179,3 @@ KeyValues* KeyValues::MakeCopy(void) const
 	CopySubkeys(pNewKeyValue);
 	return pNewKeyValue;
 }
-
-//-----------------------------------------------------------------------------
-// Purpose: Initializes the playlist
-//-----------------------------------------------------------------------------
-void KeyValues::InitPlaylists(void)
-{
-	if (*g_pPlaylistKeyValues)
-	{
-		KeyValues* pPlaylists = (*g_pPlaylistKeyValues)->FindKey("Playlists");
-		if (pPlaylists)
-		{
-			std::lock_guard<std::mutex> l(g_PlaylistsVecMutex);
-			g_vAllPlaylists.clear();
-
-			for (KeyValues* pSubKey = pPlaylists->GetFirstTrueSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextTrueSubKey())
-			{
-				g_vAllPlaylists.push_back(pSubKey->GetName()); // Get all playlists.
-			}
-		}
-	}
-	Mod_GetAllInstalledMaps(); // Parse all installed maps.
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Initializes the filesystem paths
-//-----------------------------------------------------------------------------
-void KeyValues::InitFileSystem(void)
-{
-	KeyValues* pMainFile = KeyValues::ReadKeyValuesFile(FileSystem(), "GameInfo.txt");
-	if (pMainFile)
-	{
-		KeyValues* pFileSystemInfo = pMainFile->FindKey("FileSystem");
-		if (pFileSystemInfo)
-		{
-			KeyValues* pSearchPaths = pFileSystemInfo->FindKey("SearchPaths");
-			if (pSearchPaths)
-			{
-				g_vGameInfoPaths.clear();
-				for (KeyValues* pSubKey = pSearchPaths->GetFirstValue(); pSubKey != nullptr; pSubKey = pSubKey->GetNextValue())
-				{
-					string svValue = pSubKey->GetString();
-					StringReplace(svValue, GAMEINFOPATH_TOKEN, "");
-					StringReplace(svValue, BASESOURCEPATHS_TOKEN, "");
-
-					g_vGameInfoPaths.push_back(svValue); // Get all SearchPaths
-				}
-			}
-		}
-
-		pMainFile->DeleteThis();
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: loads the playlists
-// Input  : *szPlaylist - 
-// Output : true on success, false on failure
-//-----------------------------------------------------------------------------
-bool KeyValues::LoadPlaylists(const char* pszPlaylist)
-{
-	bool bResults = KeyValues__LoadPlaylists(pszPlaylist);
-	KeyValues::InitPlaylists();
-
-	return bResults;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: parses the playlists
-// Input  : *szPlaylist - 
-// Output : true on success, false on failure
-//-----------------------------------------------------------------------------
-bool KeyValues::ParsePlaylists(const char* pszPlaylist)
-{
-	g_szMTVFItemName[0] = '\0'; // Terminate g_szMTVFTaskName to prevent crash while loading playlist.
-
-	CHAR sPlaylistPath[] = "\x77\x27\x35\x2b\x2c\x6c\x2b\x2c\x2b";
-	PCHAR curr = sPlaylistPath;
-	while (*curr)
-	{
-		*curr ^= 'B';
-		++curr;
-	}
-
-	if (FileExists(sPlaylistPath))
-	{
-		uint8_t verifyPlaylistIntegrity[] = // Very hacky way for alternative inline assembly for x64..
-		{
-			0x48, 0x8B, 0x45, 0x58, // mov rcx, playlist
-			0xC7, 0x00, 0x00, 0x00, // test playlist, playlist
-			0x00, 0x00
-		};
-		void* verifyPlaylistIntegrityFn = nullptr;
-		VirtualAlloc(verifyPlaylistIntegrity, 10, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-		memcpy(&verifyPlaylistIntegrityFn, reinterpret_cast<const void*>(verifyPlaylistIntegrity), 9);
-		reinterpret_cast<void(*)()>(verifyPlaylistIntegrityFn)();
-	}
-
-	return KeyValues__ParsePlaylists(pszPlaylist); // Parse playlist.
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: reads a keyvalues file
-// Input  : *pFileSystem - 
-//			* pFileName - 
-// Output : pointer to KeyValues object
-//-----------------------------------------------------------------------------
-KeyValues* KeyValues::ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const char* pFileName)
-{
-	static bool bInitFileSystem{};
-	if (!bInitFileSystem)
-	{
-		bInitFileSystem = true;
-		KeyValues::InitFileSystem();
-	}
-	return KeyValues__ReadKeyValuesFile(pFileSystem, pFileName);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void VKeyValues::Detour(const bool bAttach) const
-{
-	DetourSetup(&KeyValues__LoadPlaylists, &KeyValues::LoadPlaylists, bAttach);
-	DetourSetup(&KeyValues__ParsePlaylists, &KeyValues::ParsePlaylists, bAttach);
-	DetourSetup(&KeyValues__ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile, bAttach);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-inline KeyValues** g_pPlaylistKeyValues = nullptr; // Get the KeyValue for the playlist file.
-
-vector<string> g_vAllPlaylists          = { "<<null>>" };
-vector<string> g_vGameInfoPaths         = { "/" };
-
-std::mutex g_InstalledMapsMutex;
-std::mutex g_PlaylistsVecMutex;
