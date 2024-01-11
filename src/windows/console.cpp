@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 #include "core/init.h"
 #include "core/logdef.h"
 #include "tier0/frametask.h"
@@ -13,7 +13,7 @@
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 #include "windows/system.h"
 #include "windows/console.h"
 
@@ -80,7 +80,7 @@ void FlashConsoleBackground(int nFlashCount, int nFlashInterval, COLORREF color)
 //-----------------------------------------------------------------------------
 void Console_Init(const bool bAnsiColor)
 {
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 	///////////////////////////////////////////////////////////////////////////
 	// Create the console window
 	if (AllocConsole() == FALSE)
@@ -107,7 +107,7 @@ void Console_Init(const bool bAnsiColor)
 	{
 		CloseHandle(hThread);
 	}
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
 	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD dwMode = NULL;
@@ -128,9 +128,9 @@ void Console_Init(const bool bAnsiColor)
 		AnsiColors_Init();
 	}
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 }
 
 //-----------------------------------------------------------------------------
@@ -147,7 +147,7 @@ void Console_Shutdown()
 	}
 }
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 //#############################################################################
 // CONSOLE WORKER
 //#############################################################################
@@ -169,4 +169,4 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 	}
 	return NULL;
 }
-#endif // !NETCONSOLE
+#endif // !_TOOLS

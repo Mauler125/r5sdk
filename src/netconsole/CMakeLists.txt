@@ -6,13 +6,13 @@ start_sources()
 add_sources( SOURCE_GROUP "Core"
     "netconsole.cpp"
     "netconsole.h"
-    "plat_time.cpp"
     "${ENGINE_SOURCE_DIR}/core/logdef.cpp"
     "${ENGINE_SOURCE_DIR}/core/logdef.h"
     "${ENGINE_SOURCE_DIR}/core/logger.cpp"
     "${ENGINE_SOURCE_DIR}/core/logger.h"
     "${ENGINE_SOURCE_DIR}/core/termutil.cpp"
     "${ENGINE_SOURCE_DIR}/core/termutil.h"
+    "${ENGINE_SOURCE_DIR}/tier0/plat_time.cpp"
 )
 
 add_sources( SOURCE_GROUP "Engine"
@@ -40,7 +40,7 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/bin/"
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
-    "NETCONSOLE"
+    "_TOOLS"
 )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"

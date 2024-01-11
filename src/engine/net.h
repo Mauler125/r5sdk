@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 #include "engine/net_chan.h"
 #include "tier1/lzss.h"
 #define MAX_STREAMS         2
@@ -79,6 +79,6 @@ class VNet : public IDetour
 	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
 const char* NET_ErrorString(int iCode);
