@@ -49,37 +49,37 @@ public:
 //-----------------------------------------------------------------------------
 // List of character conversions
 //-----------------------------------------------------------------------------
-//BEGIN_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", '\\')
-//{
-//	'\n', "n"
-//},
-//	{ '\t', "t" },
-//	{ '\v', "v" },
-//	{ '\b', "b" },
-//	{ '\r', "r" },
-//	{ '\f', "f" },
-//	{ '\a', "a" },
-//	{ '\\', "\\" },
-//	{ '\?', "\?" },
-//	{ '\'', "\'" },
-//	{ '\"', "\"" },
-//END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", '\\')
-//
-//CUtlCharConversion* GetCStringCharConversion()
-//{
-//	return &s_StringCharConversion;
-//}
-//
-//BEGIN_CUSTOM_CHAR_CONVERSION(CUtlNoEscConversion, s_NoEscConversion, "\"", 0x7F)
-//{
-//	0x7F, ""
-//},
-//END_CUSTOM_CHAR_CONVERSION(CUtlNoEscConversion, s_NoEscConversion, "\"", 0x7F)
-//
-//CUtlCharConversion* GetNoEscCharConversion()
-//{
-//	return &s_NoEscConversion;
-//}
+BEGIN_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", '\\')
+{
+	'\n', "n"
+},
+	{ '\t', "t" },
+	{ '\v', "v" },
+	{ '\b', "b" },
+	{ '\r', "r" },
+	{ '\f', "f" },
+	{ '\a', "a" },
+	{ '\\', "\\" },
+	{ '\?', "\?" },
+	{ '\'', "\'" },
+	{ '\"', "\"" },
+END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", '\\')
+
+CUtlCharConversion* GetCStringCharConversion()
+{
+	return &s_StringCharConversion;
+}
+
+BEGIN_CUSTOM_CHAR_CONVERSION(CUtlNoEscConversion, s_NoEscConversion, "\"", 0x7F)
+{
+	0x7F, ""
+},
+END_CUSTOM_CHAR_CONVERSION(CUtlNoEscConversion, s_NoEscConversion, "\"", 0x7F)
+
+CUtlCharConversion* GetNoEscCharConversion()
+{
+	return &s_NoEscConversion;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ CUtlCStringConversion::CUtlCStringConversion(char nEscapeChar, const char* pDeli
 // Finds a conversion for the passed-in string, returns length
 char CUtlCStringConversion::FindConversion(const char* pString, ssize_t* pLength)
 {
-	char c = m_pConversion[(unsigned char)(pString[0])];
+	const char c = m_pConversion[(unsigned char)(pString[0])];
 	*pLength = (c != '\0') ? 1 : 0;
 	return c;
 }
