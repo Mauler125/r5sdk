@@ -214,7 +214,7 @@ void CUtlMemoryPool::AddNewBlob()
 
 	// Link it in at the end of the blob list.
 	pBlob->m_NumBytes = blobSize;
-	pBlob->m_pNext = m_pNext;
+	pBlob->m_pPrev = m_pNext;
 
 	m_pNext = pBlob;
 	m_pPrev = (CBlob*)AlignValue(pBlob->m_Data, m_nAlignment);

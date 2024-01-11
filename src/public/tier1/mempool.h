@@ -69,7 +69,7 @@ protected:
 	class CBlob
 	{
 	public:
-		CBlob* m_pPrev, * m_pNext;
+		CBlob*	m_pPrev;
 		int		m_NumBytes;		// Number of bytes in this blob.
 		char	m_Data[1];
 		char	m_Padding[3];	// to int align the struct
