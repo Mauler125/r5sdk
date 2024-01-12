@@ -199,24 +199,7 @@ public:
 	void InitLzCompParams(const char* compressionLevel = "default", const lzham_int32 maxHelperThreads = -1);
 	void InitLzDecompParams(void);
 
-	lzham_compress_level DetermineCompressionLevel(const char* compressionLevel) const;
-
-	void GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_t hDirectoryFile) const;
-	bool GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, const CUtlString& workspacePath, const CUtlString& dirFileName) const;
-
-	CUtlString GetNameParts(const CUtlString& dirFileName, int nCaptureGroup) const;
-	CUtlString GetLevelName(const CUtlString& dirFileName) const;
-
-	KeyValues* GetManifest(const CUtlString& workspacePath, const CUtlString& manifestFile) const;
-	bool GetIgnoreList(CUtlVector<CUtlString>& ignoreList, const CUtlString& workspacePath) const;
-
-	CUtlString FormatEntryPath(const CUtlString& filePath, const CUtlString& fileName, const CUtlString& fileExt) const;
-	void BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks, const CUtlString& workspacePath, const CUtlString& manifestName) const;
-
-	void ValidateCRC32PostDecomp(const CUtlString& assetPath, const uint32_t nFileCRC);
 	bool Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex);
-
-	bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& ignoreList) const;
 
 	void PackWorkspace(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath);
 	void UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName = "");
@@ -227,6 +210,5 @@ private:
 	std::unordered_map<string, const VPKChunkDescriptor_t&> m_ChunkHashMap;
 };
 ///////////////////////////////////////////////////////////////////////////////
-extern CPackedStore* g_pPackedStore;
 
 #endif // PACKEDSTORE_H
