@@ -85,10 +85,10 @@ static void ReVPK_Pack(const CCommand& args)
     Msg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.Get());
     timer.Start();
 
-    CPackedStore packedStore;
+    CPackedStoreBuilder builder;
 
-    packedStore.InitLzCompParams();
-    packedStore.PackWorkspace(pair, "ship/", "vpk/");
+    builder.InitLzCompParams();
+    builder.PackWorkspace(pair, "ship/", "vpk/");
 
     timer.End();
     Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -114,10 +114,10 @@ static void ReVPK_Unpack(const CCommand& args)
     Msg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", arg.Get());
     timer.Start();
 
-    CPackedStore packedStore;
+    CPackedStoreBuilder builder;
 
-    packedStore.InitLzDecompParams();
-    packedStore.UnpackWorkspace(vpk, "ship/");
+    builder.InitLzDecompParams();
+    builder.UnpackWorkspace(vpk, "ship/");
 
     timer.End();
     Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
