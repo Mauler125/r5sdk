@@ -49,6 +49,7 @@ set( FOLDER_CONTEXT "Tools" )
 add_subdirectory( sdklauncher )
 add_subdirectory( netconsole )
 add_subdirectory( naveditor )
+add_subdirectory( revpk )
 
 set( FOLDER_CONTEXT "System" )
 add_subdirectory( networksystem )
