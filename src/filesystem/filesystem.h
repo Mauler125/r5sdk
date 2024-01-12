@@ -36,10 +36,7 @@ extern CFileSystem_Stdio*  g_pFileSystem_Stdio;
 //-----------------------------------------------------------------------------
 // Singleton FileSystem
 //-----------------------------------------------------------------------------
-inline CFileSystem_Stdio* FileSystem()
-{
-	return (*g_pFullFileSystem);
-}
+extern CFileSystem_Stdio* FileSystem();
 
 ///////////////////////////////////////////////////////////////////////////////
 class VFileSystem_Stdio : public IDetour
