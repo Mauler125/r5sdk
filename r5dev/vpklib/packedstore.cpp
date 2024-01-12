@@ -61,7 +61,7 @@ static lzham_compress_level DetermineCompressionLevel(const char* compressionLev
 //-----------------------------------------------------------------------------
 // Purpose: initialize parameters for compression algorithm
 //-----------------------------------------------------------------------------
-void CPackedStore::InitLzCompParams(const char* compressionLevel, const lzham_int32 maxHelperThreads)
+void CPackedStoreBuilder::InitLzCompParams(const char* compressionLevel, const lzham_int32 maxHelperThreads)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzCompParams.m_struct_size          = sizeof(lzham_compress_params);
@@ -78,7 +78,7 @@ void CPackedStore::InitLzCompParams(const char* compressionLevel, const lzham_in
 //-----------------------------------------------------------------------------
 // Purpose: initialize parameters for decompression algorithm
 //-----------------------------------------------------------------------------
-void CPackedStore::InitLzDecompParams(void)
+void CPackedStoreBuilder::InitLzDecompParams(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzDecompParams.m_struct_size      = sizeof(lzham_decompress_params);
@@ -412,7 +412,7 @@ static void ValidateCRC32PostDecomp(const CUtlString& assetPath, const uint32_t 
 //          chunkIndex    - 
 // Output : true if the chunk was deduplicated, false otherwise
 //-----------------------------------------------------------------------------
-bool CPackedStore::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex)
+bool CPackedStoreBuilder::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex)
 {
 	string entryHash(reinterpret_cast<const char*>(pEntryBuffer), descriptor.m_nUncompressedSize);
 	entryHash = sha1(entryHash);
@@ -436,7 +436,7 @@ bool CPackedStore::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t
 //          *workspaceName - 
 //          *buildPath     - 
 //-----------------------------------------------------------------------------
-void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath)
+void CPackedStoreBuilder::PackWorkspace(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath)
 {
 	CUtlString workspacePath(workspaceName);
 	workspacePath.AppendSlash();
@@ -569,7 +569,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 // Input  : &vpkDirectory  - 
 //          &workspaceName - 
 //-----------------------------------------------------------------------------
-void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName)
+void CPackedStoreBuilder::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName)
 {
 	CUtlString workspacePath(workspaceName);
 

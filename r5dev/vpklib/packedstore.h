@@ -193,7 +193,7 @@ struct VPKPair_t
 //-----------------------------------------------------------------------------
 // VPK utility class.
 //-----------------------------------------------------------------------------
-class CPackedStore
+class CPackedStoreBuilder
 {
 public:
 	void InitLzCompParams(const char* compressionLevel = "default", const lzham_int32 maxHelperThreads = -1);
