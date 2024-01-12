@@ -39,35 +39,12 @@ static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir
 static const std::regex s_BlockFileRegex{ R"(pak000_([0-9]{3}))" };
 
 //-----------------------------------------------------------------------------
-// Purpose: initialize parameters for compression algorithm
-//-----------------------------------------------------------------------------
-void CPackedStore::InitLzCompParams(const char* compressionLevel, const lzham_int32 maxHelperThreads)
-{
-	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	m_lzCompParams.m_dict_size_log2     = VPK_DICT_SIZE;
-	m_lzCompParams.m_level              = DetermineCompressionLevel(compressionLevel);
-	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
-	m_lzCompParams.m_max_helper_threads = maxHelperThreads;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: initialize parameters for decompression algorithm
-//-----------------------------------------------------------------------------
-void CPackedStore::InitLzDecompParams(void)
-{
-	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	m_lzDecompParams.m_dict_size_log2   = VPK_DICT_SIZE;
-	m_lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED;
-	m_lzDecompParams.m_struct_size      = sizeof(lzham_decompress_params);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: gets the LZHAM compression level
 // output : lzham_compress_level
 //-----------------------------------------------------------------------------
-lzham_compress_level CPackedStore::DetermineCompressionLevel(const char* compressionLevel) const
+static lzham_compress_level DetermineCompressionLevel(const char* compressionLevel)
 {
-	if(strcmp(compressionLevel, "fastest") == NULL)
+	if (strcmp(compressionLevel, "fastest") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTEST;
 	else if (strcmp(compressionLevel, "faster") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTER;
@@ -82,12 +59,206 @@ lzham_compress_level CPackedStore::DetermineCompressionLevel(const char* compres
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: initialize parameters for compression algorithm
+//-----------------------------------------------------------------------------
+void CPackedStore::InitLzCompParams(const char* compressionLevel, const lzham_int32 maxHelperThreads)
+{
+	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+	m_lzCompParams.m_struct_size          = sizeof(lzham_compress_params);
+	m_lzCompParams.m_dict_size_log2       = VPK_DICT_SIZE;
+	m_lzCompParams.m_level                = DetermineCompressionLevel(compressionLevel);
+	m_lzCompParams.m_max_helper_threads   = maxHelperThreads;
+	m_lzCompParams.m_cpucache_total_lines = NULL;
+	m_lzCompParams.m_cpucache_line_size   = NULL;
+	m_lzCompParams.m_compress_flags       = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
+	m_lzCompParams.m_num_seed_bytes       = NULL;
+	m_lzCompParams.m_pSeed_bytes          = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: initialize parameters for decompression algorithm
+//-----------------------------------------------------------------------------
+void CPackedStore::InitLzDecompParams(void)
+{
+	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+	m_lzDecompParams.m_struct_size      = sizeof(lzham_decompress_params);
+	m_lzDecompParams.m_dict_size_log2   = VPK_DICT_SIZE;
+	m_lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED;
+	m_lzDecompParams.m_num_seed_bytes   = NULL;
+	m_lzDecompParams.m_pSeed_bytes      = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: formats the file entry path
+// Input  : &filePath - 
+//          &fileName - 
+//          &fileExt  - 
+// Output : formatted entry path
+//-----------------------------------------------------------------------------
+static CUtlString FormatEntryPath(const CUtlString& filePath,
+	const CUtlString& fileName, const CUtlString& fileExt)
+{
+	CUtlString result;
+
+	const char* pszFilePath = filePath.Get();
+	const bool isRoot = pszFilePath[0] == ' ';
+
+	result.Format("%s%s.%s", isRoot ? "" : pszFilePath,
+		fileName.Get(), fileExt.Get());
+
+	result.FixSlashes('/');
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: determines whether the file should be pruned from the build list
+// Input  : &filePath   - 
+//          &ignoreList - 
+// Output : true if it should be pruned, false otherwise
+//-----------------------------------------------------------------------------
+static bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& ignoreList)
+{
+	const char* pFilePath = filePath.Get();
+
+	if (!V_IsValidPath(pFilePath))
+	{
+		return true;
+	}
+
+	FOR_EACH_VEC(ignoreList, j)
+	{
+		const CUtlString& ignoreEntry = ignoreList[j];
+
+		if (ignoreEntry.IsEqual_CaseInsensitive(pFilePath))
+		{
+			return true;
+		}
+	}
+
+	FileHandle_t fileHandle = FileSystem()->Open(pFilePath, "rb", "PLATFORM");
+
+	if (fileHandle)
+	{
+		const ssize_t nSize = FileSystem()->Size(fileHandle);
+
+		if (!nSize)
+		{
+			Warning(eDLL_T::FS, "File '%s' listed in build manifest appears empty or truncated\n", pFilePath);
+			FileSystem()->Close(fileHandle);
+
+			return true;
+		}
+
+		FileSystem()->Close(fileHandle);
+	}
+	else
+	{
+		Warning(eDLL_T::FS, "File '%s' listed in build manifest couldn't be opened\n", pFilePath);
+		return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the parts of the directory file name
+// Input  : &dirFileName   - 
+//          nCaptureGroup  - (1 = locale + target, 2 = level)
+// Output : part of directory file name as string
+//-----------------------------------------------------------------------------
+//static CUtlString GetNameParts(const CUtlString& dirFileName, int nCaptureGroup)
+//{
+//	std::cmatch regexMatches;
+//	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
+//
+//	return regexMatches[nCaptureGroup].str().c_str();
+//}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the level name from the directory file name
+// Input  : &dirFileName - 
+// Output : level name as string (e.g. "mp_rr_box")
+//-----------------------------------------------------------------------------
+static CUtlString GetLevelName(const CUtlString& dirFileName)
+{
+	std::cmatch regexMatches;
+	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
+
+	CUtlString result;
+	result.Format("%s%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
+
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the manifest file associated with the VPK name (must be freed after wards)
+// Input  : &workspacePath - 
+//          &manifestFile  - 
+// Output : KeyValues (build manifest pointer)
+//-----------------------------------------------------------------------------
+static KeyValues* GetManifest(const CUtlString& workspacePath, const CUtlString& manifestFile)
+{
+	CUtlString outPath;
+	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestFile.Get());
+
+	KeyValues* pManifestKV = new KeyValues("BuildManifest");
+	pManifestKV->LoadFromFile(FileSystem(), outPath.Get(), "PLATFORM");
+
+	return pManifestKV;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the contents from the global ignore list (.vpkignore)
+// Input  : &ignoreList    - 
+//			&workspacePath - 
+// Output : a string vector of ignored directories/files and extensions
+//-----------------------------------------------------------------------------
+static bool GetIgnoreList(CUtlVector<CUtlString>& ignoreList, const CUtlString& workspacePath)
+{
+	CUtlString toIgnore;
+	toIgnore.Format("%s%s", workspacePath.Get(), VPK_IGNORE_FILE);
+
+	FileHandle_t hIgnoreFile = FileSystem()->Open(toIgnore.Get(), "rt", "PLATFORM");
+	if (!hIgnoreFile)
+	{
+		return false;
+	}
+
+	char szIgnore[MAX_PATH];
+
+	while (FileSystem()->ReadLine(szIgnore, sizeof(szIgnore) - 1, hIgnoreFile))
+	{
+		if (!strstr(szIgnore, "//")) // Skip comments.
+		{
+			if (char* pEOL = strchr(szIgnore, '\n'))
+			{
+				// Null newline character.
+				*pEOL = '\0';
+				if (pEOL - szIgnore > 0)
+				{
+					// Null carriage return.
+					if (*(pEOL - 1) == '\r')
+					{
+						*(pEOL - 1) = '\0';
+					}
+				}
+			}
+
+			ignoreList.AddToTail(szIgnore);
+		}
+	}
+
+	FileSystem()->Close(hIgnoreFile);
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: obtains and returns the entry block to the vector
 // Input  : &entryBlocks   - 
 //          hDirectoryFile - 
 // output : vector<VPKEntryBlock_t>
 //-----------------------------------------------------------------------------
-void CPackedStore::GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_t hDirectoryFile) const
+static void GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_t hDirectoryFile)
 {
 	CUtlString fileName, filePath, fileExtension;
 
@@ -113,8 +284,8 @@ void CPackedStore::GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, File
 //          *dirFileName   - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CPackedStore::GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, 
-	const CUtlString& workspacePath, const CUtlString& dirFileName) const
+static bool GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, 
+	const CUtlString& workspacePath, const CUtlString& dirFileName)
 {
 	KeyValues* pManifestKV = GetManifest(workspacePath, GetLevelName(dirFileName));
 
@@ -166,126 +337,12 @@ bool CPackedStore::GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues,
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the parts of the directory file name
-// Input  : &dirFileName   - 
-//          nCaptureGroup  - (1 = locale + target, 2 = level)
-// Output : part of directory file name as string
-//-----------------------------------------------------------------------------
-CUtlString CPackedStore::GetNameParts(const CUtlString& dirFileName, int nCaptureGroup) const
-{
-	std::cmatch regexMatches;
-	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
-
-	return regexMatches[nCaptureGroup].str().c_str();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the level name from the directory file name
-// Input  : &dirFileName - 
-// Output : level name as string (e.g. "mp_rr_box")
-//-----------------------------------------------------------------------------
-CUtlString CPackedStore::GetLevelName(const CUtlString& dirFileName) const
-{
-	std::cmatch regexMatches;
-	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
-
-	CUtlString result;
-	result.Format("%s%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
-
-	return result;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the manifest file associated with the VPK name (must be freed after wards)
-// Input  : &workspacePath - 
-//          &manifestFile  - 
-// Output : KeyValues (build manifest pointer)
-//-----------------------------------------------------------------------------
-KeyValues* CPackedStore::GetManifest(const CUtlString& workspacePath, const CUtlString& manifestFile) const
-{
-	CUtlString outPath;
-	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestFile.Get());
-
-	KeyValues* pManifestKV = new KeyValues("BuildManifest");
-	pManifestKV->LoadFromFile(FileSystem(), outPath.Get(), "PLATFORM");
-
-	return pManifestKV;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the contents from the global ignore list (.vpkignore)
-// Input  : &ignoreList    - 
-//			&workspacePath - 
-// Output : a string vector of ignored directories/files and extensions
-//-----------------------------------------------------------------------------
-bool CPackedStore::GetIgnoreList(CUtlVector<CUtlString>& ignoreList, const CUtlString& workspacePath) const
-{
-	CUtlString toIgnore;
-	toIgnore.Format("%s%s", workspacePath.Get(), VPK_IGNORE_FILE);
-
-	FileHandle_t hIgnoreFile = FileSystem()->Open(toIgnore.Get(), "rt", "PLATFORM");
-	if (!hIgnoreFile)
-	{
-		return false;
-	}
-
-	char szIgnore[MAX_PATH];
-
-	while (FileSystem()->ReadLine(szIgnore, sizeof(szIgnore) - 1, hIgnoreFile))
-	{
-		if (!strstr(szIgnore, "//")) // Skip comments.
-		{
-			if (char* pEOL = strchr(szIgnore, '\n'))
-			{
-				// Null newline character.
-				*pEOL = '\0';
-				if (pEOL - szIgnore > 0)
-				{
-					// Null carriage return.
-					if (*(pEOL - 1) == '\r')
-					{
-						*(pEOL - 1) = '\0';
-					}
-				}
-			}
-
-			ignoreList.AddToTail(szIgnore);
-		}
-	}
-
-	FileSystem()->Close(hIgnoreFile);
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: formats the file entry path
-// Input  : &filePath - 
-//          &fileName - 
-//          &fileExt  - 
-// Output : formatted entry path
-//-----------------------------------------------------------------------------
-CUtlString CPackedStore::FormatEntryPath(const CUtlString& filePath,
-	const CUtlString& fileName, const CUtlString& fileExt) const
-{
-	CUtlString result;
-
-	const char* pszFilePath = filePath.Get();
-	const bool isRoot = pszFilePath[0] == ' ';
-
-	result.Format("%s%s.%s", isRoot ? "" : pszFilePath,
-		fileName.Get(), fileExt.Get());
-
-	result.FixSlashes('/');
-	return result;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: builds the VPK manifest file
 // Input  : &entryBlocks   - 
 //          &workspacePath - 
 //          &manifestName  - 
 //-----------------------------------------------------------------------------
-void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks, const CUtlString& workspacePath, const CUtlString& manifestName) const
+static void BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks, const CUtlString& workspacePath, const CUtlString& manifestName)
 {
 	KeyValues kv("BuildManifest");
 
@@ -324,7 +381,7 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 // Input  : &assetPath - 
 //        : nFileCRC   - 
 //-----------------------------------------------------------------------------
-void CPackedStore::ValidateCRC32PostDecomp(const CUtlString& assetPath, const uint32_t nFileCRC)
+static void ValidateCRC32PostDecomp(const CUtlString& assetPath, const uint32_t nFileCRC)
 {
 	const char* pAssetPath = assetPath.Get();
 
@@ -367,56 +424,6 @@ bool CPackedStore::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t
 			chunkIndex, entryHash.c_str(), p.first->second.m_nPackFileOffset);
 		descriptor = p.first->second;
 
-		return true;
-	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: determines whether the file should be pruned from the build list
-// Input  : &filePath   - 
-//          &ignoreList - 
-// Output : true if it should be pruned, false otherwise
-//-----------------------------------------------------------------------------
-bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& ignoreList) const
-{
-	const char* pFilePath = filePath.Get();
-
-	if (!V_IsValidPath(pFilePath))
-	{
-		return true;
-	}
-
-	FOR_EACH_VEC(ignoreList, j)
-	{
-		const CUtlString& ignoreEntry = ignoreList[j];
-
-		if (ignoreEntry.IsEqual_CaseInsensitive(pFilePath))
-		{
-			return true;
-		}
-	}
-
-	FileHandle_t fileHandle = FileSystem()->Open(pFilePath, "rb", "PLATFORM");
-
-	if (fileHandle)
-	{
-		const ssize_t nSize = FileSystem()->Size(fileHandle);
-
-		if (!nSize)
-		{
-			Warning(eDLL_T::FS, "File '%s' listed in build manifest appears empty or truncated\n", pFilePath);
-			FileSystem()->Close(fileHandle);
-
-			return true;
-		}
-
-		FileSystem()->Close(fileHandle);
-	}
-	else
-	{
-		Warning(eDLL_T::FS, "File '%s' listed in build manifest couldn't be opened\n", pFilePath);
 		return true;
 	}
 
@@ -916,7 +923,7 @@ void VPKDir_t::Init(const CUtlString& dirFilePath)
 	FileSystem()->Read(&m_Header.m_nDirectorySize, sizeof(uint32_t), hDirFile); //
 	FileSystem()->Read(&m_Header.m_nSignatureSize, sizeof(uint32_t), hDirFile); //
 
-	g_pPackedStore->GetEntryBlocks(m_EntryBlocks, hDirFile);
+	GetEntryBlocks(m_EntryBlocks, hDirFile);
 	m_DirFilePath = dirFilePath; // Set path to vpk directory file.
 
 	// Obtain every referenced pack file from the directory tree.
@@ -1136,7 +1143,3 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 	Msg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%i' entries and '%i' descriptors\n",
 		size_t(sizeof(VPKDirHeader_t) + m_Header.m_nDirectorySize), entryBlocks.Count(), nDescriptors);
 }
-//-----------------------------------------------------------------------------
-// Singleton
-//-----------------------------------------------------------------------------
-CPackedStore* g_pPackedStore = new CPackedStore();

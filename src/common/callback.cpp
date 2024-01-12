@@ -648,8 +648,10 @@ void VPK_Pack_f(const CCommand& args)
 	Msg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.Get());
 	timer.Start();
 
-	g_pPackedStore->InitLzCompParams(fs_packedstore_compression_level->GetString(), fs_packedstore_max_helper_threads->GetInt());
-	g_pPackedStore->PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/");
+	CPackedStore packedStore;
+
+	packedStore.InitLzCompParams(fs_packedstore_compression_level->GetString(), fs_packedstore_max_helper_threads->GetInt());
+	packedStore.PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/");
 
 	timer.End();
 	Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -678,8 +680,10 @@ void VPK_Unpack_f(const CCommand& args)
 	Msg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", arg.Get());
 	timer.Start();
 
-	g_pPackedStore->InitLzDecompParams();
-	g_pPackedStore->UnpackWorkspace(vpk, fs_packedstore_workspace->GetString());
+	CPackedStore packedStore;
+
+	packedStore.InitLzDecompParams();
+	packedStore.UnpackWorkspace(vpk, fs_packedstore_workspace->GetString());
 
 	timer.End();
 	Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
