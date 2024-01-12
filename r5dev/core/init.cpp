@@ -649,3 +649,11 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VDXGI);
 #endif // !DEDICATED
 }
+
+//-----------------------------------------------------------------------------
+// Singleton accessors:
+//-----------------------------------------------------------------------------
+IKeyValuesSystem* KeyValuesSystem()
+{
+	return g_pKeyValuesSystem;
+}

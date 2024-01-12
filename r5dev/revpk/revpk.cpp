@@ -21,6 +21,14 @@ static CKeyValuesSystem s_KeyValuesSystem;
 static CFileSystem_Stdio g_FullFileSystem;
 
 //-----------------------------------------------------------------------------
+// Purpose: keyvalues singleton accessor
+//-----------------------------------------------------------------------------
+IKeyValuesSystem* KeyValuesSystem()
+{
+    return &s_KeyValuesSystem;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: filesystem singleton accessor
 //-----------------------------------------------------------------------------
 CFileSystem_Stdio* FileSystem()
@@ -33,10 +41,6 @@ CFileSystem_Stdio* FileSystem()
 //-----------------------------------------------------------------------------
 static void ReVPK_Init()
 {
-    // Assign global kv accessor to static singleton object as we aren't linked
-    // to the game!!!
-    g_pKeyValuesSystem = &s_KeyValuesSystem;
-
     g_CoreMsgVCallback = EngineLoggerSink;
     lzham_enable_fail_exceptions(true);
 
