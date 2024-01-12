@@ -1875,7 +1875,7 @@ bool KeyValues::LoadFromFile(IBaseFileSystem* filesystem, const char* resourceNa
 {
 	//TM_ZONE_FILTERED( TELEMETRY_LEVEL0, 50, TMZF_NONE, "%s %s", __FUNCTION__, tmDynamicString( TELEMETRY_LEVEL0, resourceName ) );
 
-	FileHandle_t f = filesystem->Open(resourceName, "rt", pathID);
+	FileHandle_t f = filesystem->Open(resourceName, "rb", pathID);
 	if (!f)
 		return false;
 
@@ -1883,6 +1883,10 @@ bool KeyValues::LoadFromFile(IBaseFileSystem* filesystem, const char* resourceNa
 
 	// load file into a null-terminated buffer
 	const ssize_t fileSize = filesystem->Size(f);
+
+	if (!fileSize)
+		return false;
+
 	std::unique_ptr<char[]> pBuf(new char[fileSize + 1]);
 
 	const ssize_t nRead = filesystem->Read(pBuf.get(), fileSize, f);
