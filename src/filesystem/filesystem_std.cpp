@@ -8,12 +8,12 @@
 
 ssize_t CBaseFileSystem::Read(void* pOutput, ssize_t size, FileHandle_t file)
 {
-	return fread(pOutput, size, 1, (FILE*)file);
+	return fread(pOutput, sizeof(uint8_t), size, (FILE*)file);
 }
 
 ssize_t CBaseFileSystem::Write(void const* pInput, ssize_t size, FileHandle_t file)
 {
-	return fwrite(pInput, size, 1, (FILE*)file);
+	return fwrite(pInput, sizeof(uint8_t), size, (FILE*)file);
 }
 
 FileHandle_t CBaseFileSystem::Open(const char* pFileName, const char* pOptions, const char* pPathID, int64_t unknown)
@@ -295,7 +295,7 @@ ssize_t CBaseFileSystem::ReadEx(void* pOutput, ssize_t /*destSize*/, ssize_t siz
 		return 0;
 	}
 
-	const ssize_t nRet = fread(pOutput, 1, size, (FILE*)file);
+	const ssize_t nRet = fread(pOutput, sizeof(uint8_t), size, (FILE*)file);
 	return nRet;
 
 }
