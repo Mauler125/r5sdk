@@ -15,7 +15,6 @@
 // Used for the 'Error' function, this tells the function to only log, not quit.
 //#define NO_ERROR 0
 
-bool HushAsserts();
 //-----------------------------------------------------------------------------
 enum class eDLL_T : int
 {
