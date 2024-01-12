@@ -6,7 +6,11 @@
 #include "tier1/utlvector.h"
 #include "tier1/utlmap.h"
 
-inline void* g_pKeyValuesMemPool = nullptr;
+class CKeyValuesSystem;
+
+/* ==== KEYVALUESSYSTEM ================================================================================================================================================= */
+extern CKeyValuesSystem* g_pKeyValuesSystem;
+extern void* g_pKeyValuesMemPool;
 
 class CKeyValuesSystem : public IKeyValuesSystem// VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {
@@ -102,17 +106,6 @@ private:
 
 	CThreadFastMutex m_Mutex;
 };
-
-/* ==== KEYVALUESSYSTEM ================================================================================================================================================= */
-inline CKeyValuesSystem* g_pKeyValuesSystem = nullptr;
-
-//-----------------------------------------------------------------------------
-// Instance singleton and expose interface to rest of code
-//-----------------------------------------------------------------------------
-FORCEINLINE IKeyValuesSystem* KeyValuesSystem()
-{
-	return g_pKeyValuesSystem;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 class HKeyValuesSystem : public IDetour

@@ -50,6 +50,9 @@
 #define MEM_4BYTES_FROM_0_AND_3BYTES( x03bytes ) ( ( (uint32) (x03bytes) ) & 0x00FFFFFF )
 #endif
 
+CKeyValuesSystem* g_pKeyValuesSystem = nullptr;
+void* g_pKeyValuesMemPool = nullptr;
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
