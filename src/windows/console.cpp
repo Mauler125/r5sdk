@@ -121,7 +121,7 @@ void Console_Init(const bool bAnsiColor)
 		{
 			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
 			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
-				"Please omit the '-ansicolor' parameter and restart \nthe program if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
+				"Please disable ansi-colors and restart \nthe program if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
 		}
 
 		SetConsoleBackgroundColor(0x00000000);

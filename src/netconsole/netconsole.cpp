@@ -7,6 +7,7 @@
 #include "core/stdafx.h"
 #include "core/logdef.h"
 #include "core/logger.h"
+#include "tier0/cpu.h"
 #include "tier0/utility.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
@@ -360,6 +361,8 @@ bool CNetCon::IsConnected(void)
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
+	CheckCPUforSSE2();
+
 	bool bEnableColor = false;
 
 	for (int i = 0; i < argc; i++)

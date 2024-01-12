@@ -126,4 +126,6 @@ const char* GetProcessorBrand(bool bRemovePadding);
 
 const CPUInformation& GetCPUInformation(void);
 
+void CheckCPUforSSE2();
+
 #endif // CPU_H

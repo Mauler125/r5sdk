@@ -6,6 +6,7 @@
 #include "core/logdef.h"
 #include "core/logger.h"
 #include "tier0/fasttimer.h"
+#include "tier0/cpu.h"
 #include "tier1/cmd.h"
 #include "tier1/keyvalues.h"
 #include "windows/console.h"
@@ -41,6 +42,8 @@ CFileSystem_Stdio* FileSystem()
 //-----------------------------------------------------------------------------
 static void ReVPK_Init()
 {
+    CheckCPUforSSE2();
+
     g_CoreMsgVCallback = EngineLoggerSink;
     lzham_enable_fail_exceptions(true);
 
