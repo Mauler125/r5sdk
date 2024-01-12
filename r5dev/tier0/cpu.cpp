@@ -572,3 +572,17 @@ const CPUInformation& GetCPUInformation(void)
 	}
 	return pi;
 }
+
+void CheckCPUforSSE2()
+{
+	const CPUInformation& pi = GetCPUInformation();
+
+	if (!(pi.m_bSSE && pi.m_bSSE2))
+	{
+		Assert(0);
+		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
+		}
+	}
+}
