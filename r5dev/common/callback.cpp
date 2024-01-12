@@ -560,7 +560,7 @@ void RTech_Decompress_f(const CCommand& args)
 	PakDecompState_t decompState;
 	const uint64_t nDecompSize = g_pRTech->DecompressPakFileInit(&decompState, pPakBuf, unsignedPakLen, NULL, sizeof(PakFileHeader_t));
 
-	if (nDecompSize == pHeader->m_compressedSize)
+	if (nDecompSize != pHeader->m_decompressedSize)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - calculated size: '%llu' expected: '%llu'!\n",
 			__FUNCTION__, nDecompSize, pHeader->m_decompressedSize);
@@ -575,7 +575,7 @@ void RTech_Decompress_f(const CCommand& args)
 	Msg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (pHeader->m_compressedSize * 100.f) / pHeader->m_decompressedSize);
 
 
-	std::unique_ptr<uint8_t[]> pDecompBufContainer(new uint8_t[nPakLen]);
+	std::unique_ptr<uint8_t[]> pDecompBufContainer(new uint8_t[pHeader->m_decompressedSize]);
 	uint8_t* const pDecompBuf = pDecompBufContainer.get();
 
 	decompState.m_outputMask = UINT64_MAX;
