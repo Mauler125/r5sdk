@@ -1,7 +1,7 @@
 #pragma once
 #include "public/ifilesystem.h"
 
-class CBaseFileSystem : public IFileSystem
+class CBaseFileSystem : public CTier1AppSystem<IFileSystem>
 {
 public:
 	//--------------------------------------------------------
