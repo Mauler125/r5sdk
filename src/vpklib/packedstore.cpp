@@ -900,7 +900,7 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 			if (sanitizedName.Find(targetName) != -1)
 			{
 				packDirPrefix.Append(targetName);
-				packDirPrefix = packDirPrefix.Replace(targetName, packDirPrefix);
+				sanitizedName = sanitizedName.Replace(targetName, packDirPrefix);
 
 				break;
 			}
