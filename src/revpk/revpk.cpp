@@ -73,20 +73,28 @@ static void ReVPK_Usage()
         "ReVPK instructions and options:\n"
         "For packing; run 'revpk %s' with the following parameters:\n"
         "\t<%s>\t- locale prefix for the directory tree file\n"
-        "\t<%s>\t- whether to build for 'server' or 'client'\n"
-        "\t<%s>\t- the level name for the VPK files\n"
-        "\t<%s>\t- ( optional ) path to the workspace containing the manifest file\n"
-        "\t<%s>\t- ( optional ) path in which the VPK files will be built\n\n"
+        "\t<%s>\t- context scope for the VPK files [\"server\", \"client\"]\n"
+        "\t<%s>\t- level name for the VPK files\n"
+        "\t<%s>\t- ( optional ) path to the workspace containing the control file\n"
+        "\t<%s>\t- ( optional ) path in which the VPK files will be built\n"
+        "\t<%s>\t- ( optional ) max LZHAM helper threads [\"%d\", \"%d\"] \"%d\" ( default ) for max practical\n"
+        "\t<%s>\t- ( optional ) the level of compression [\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"]\n\n"
 
         "For unpacking; run 'revpk %s' with the following parameters:\n"
-        "\t<%s>\t- path to the directory tree file\n"
-        "\t<%s>\t- ( optional ) path to the target directory tree file\n"
+        "\t<%s>\t- name of the target directory tree file\n"
+        "\t<%s>\t- ( optional ) path to directory containing the target directory tree file\n"
         "\t<%s>\t- ( optional ) whether to parse the directory tree file name from the data block file name\n",
 
-        PACK_COMMAND,
+        PACK_COMMAND, // Pack parameters:
         "locale", "context", "levelName", "workspacePath", "buildPath",
+        
+        "numThreads", // Num helper threads.
+        -1, LZHAM_MAX_HELPER_THREADS, -1,
+        
+        "compressLevel", // Compress level.
+        "fastest", "faster", "default", "better", "uber",
 
-        UNPACK_COMMAND,
+        UNPACK_COMMAND,// Unpack parameters:
         "fileName", "inputDir", "sanitize"
     );
 
@@ -114,10 +122,13 @@ static void ReVPK_Pack(const CCommand& args)
 
     CPackedStoreBuilder builder;
 
-    builder.InitLzCompParams();
+    builder.InitLzEncoder(
+        argCount > 7 ? (std::min)(atoi(args.Arg(7)), LZHAM_MAX_HELPER_THREADS) : -1, // Num threads.
+        argCount > 8 ? args.Arg(8) : "default"); // Compress level.
+
     builder.PackWorkspace(pair,
-        argCount > 5 ? args.Arg(5) : "ship/",
-        argCount > 6 ? args.Arg(6) : "vpk/");
+        argCount > 5 ? args.Arg(5) : "ship/", // Workspace path.
+        argCount > 6 ? args.Arg(6) : "vpk/"); // build path.
 
     timer.End();
     Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -147,7 +158,7 @@ static void ReVPK_Unpack(const CCommand& args)
 
     CPackedStoreBuilder builder;
 
-    builder.InitLzDecompParams();
+    builder.InitLzDecoder();
     builder.UnpackWorkspace(vpk, argCount > 3 ? args.Arg(3) : "ship/");
 
     timer.End();
