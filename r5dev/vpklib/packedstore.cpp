@@ -189,7 +189,11 @@ static KeyValues* GetManifest(const CUtlString& workspacePath, const CUtlString&
 	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestFile.Get());
 
 	KeyValues* pManifestKV = new KeyValues("BuildManifest");
-	pManifestKV->LoadFromFile(FileSystem(), outPath.Get(), "PLATFORM");
+	if (!pManifestKV->LoadFromFile(FileSystem(), outPath.Get(), "PLATFORM"))
+	{
+		pManifestKV->DeleteThis();
+		return nullptr;
+	}
 
 	return pManifestKV;
 }
@@ -278,7 +282,7 @@ static bool GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues,
 
 	if (!pManifestKV)
 	{
-		Warning(eDLL_T::FS, "Invalid VPK build manifest KV; unable to parse entry list\n");
+		Error(eDLL_T::FS, NO_ERROR, "Invalid or missing VPK build manifest KV; unable to parse entry list\n");
 		return false;
 	}
 
