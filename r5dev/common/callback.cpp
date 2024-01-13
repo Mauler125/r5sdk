@@ -651,7 +651,7 @@ void VPK_Pack_f(const CCommand& args)
 	CPackedStoreBuilder builder;
 
 	builder.InitLzEncoder(fs_packedstore_max_helper_threads->GetInt(), fs_packedstore_compression_level->GetString());
-	builder.PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/");
+	builder.PackStore(pair, fs_packedstore_workspace->GetString(), "vpk/");
 
 	timer.End();
 	Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -683,7 +683,7 @@ void VPK_Unpack_f(const CCommand& args)
 	CPackedStoreBuilder builder;
 
 	builder.InitLzDecoder();
-	builder.UnpackWorkspace(vpk, fs_packedstore_workspace->GetString());
+	builder.UnpackStore(vpk, fs_packedstore_workspace->GetString());
 
 	timer.End();
 	Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());

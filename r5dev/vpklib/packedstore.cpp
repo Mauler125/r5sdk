@@ -437,7 +437,7 @@ bool CPackedStoreBuilder::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescr
 //          *workspaceName - 
 //          *buildPath     - 
 //-----------------------------------------------------------------------------
-void CPackedStoreBuilder::PackWorkspace(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath)
+void CPackedStoreBuilder::PackStore(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath)
 {
 	CUtlString workspacePath(workspaceName);
 	workspacePath.AppendSlash();
@@ -570,7 +570,7 @@ void CPackedStoreBuilder::PackWorkspace(const VPKPair_t& vpkPair, const char* wo
 // Input  : &vpkDirectory  - 
 //          &workspaceName - 
 //-----------------------------------------------------------------------------
-void CPackedStoreBuilder::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName)
+void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* workspaceName)
 {
 	CUtlString workspacePath(workspaceName);
 

@@ -126,7 +126,7 @@ static void ReVPK_Pack(const CCommand& args)
         argCount > 7 ? (std::min)(atoi(args.Arg(7)), LZHAM_MAX_HELPER_THREADS) : -1, // Num threads.
         argCount > 8 ? args.Arg(8) : "default"); // Compress level.
 
-    builder.PackWorkspace(pair,
+    builder.PackStore(pair,
         argCount > 5 ? args.Arg(5) : "ship/", // Workspace path.
         argCount > 6 ? args.Arg(6) : "vpk/"); // build path.
 
@@ -159,7 +159,7 @@ static void ReVPK_Unpack(const CCommand& args)
     CPackedStoreBuilder builder;
 
     builder.InitLzDecoder();
-    builder.UnpackWorkspace(vpk, argCount > 3 ? args.Arg(3) : "ship/");
+    builder.UnpackStore(vpk, argCount > 3 ? args.Arg(3) : "ship/");
 
     timer.End();
     Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
