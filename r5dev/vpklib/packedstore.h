@@ -8,6 +8,7 @@
 * ██║  ██║ ██║     ╚████╔╝ ██║     ██║  ██╗    ███████╗██║██████╔╝ *
 * ╚═╝  ╚═╝ ╚═╝      ╚═══╝  ╚═╝     ╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝  *
 *******************************************************************/
+#include "public/ipackedstore.h"
 #include "public/ifilesystem.h"
 #include "public/tier1/strtools.h"
 #include "public/tier1/utlvector.h"
@@ -188,6 +189,7 @@ struct VPKPair_t
 	CUtlString m_DirName;
 
 	VPKPair_t(const char* svLocale, const char* svTarget, const char* svLevel, int nPatch);
+	CUtlString GetNameParts(const int nCaptureGroup);
 };
 
 //-----------------------------------------------------------------------------
