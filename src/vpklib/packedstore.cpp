@@ -438,7 +438,7 @@ void CPackedStoreBuilder::PackStore(const VPKPair_t& vpkPair, const char* worksp
 
 	// NOTE: we get the entry values prior to opening the file, because if we
 	// don't have a valid manifest file, we won't be able to build the store.
-	// If we had already opened the block file, and a one already existed, it
+	// If we had already opened the pack file, and a one already existed, it
 	// would be emptied out ("wb" flag) which we want to avoid here.
 	if (!GetEntryValues(entryValues, workspacePath, vpkPair.m_DirName))
 	{
@@ -868,17 +868,20 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 	std::cmatch regexMatches;
 	std::regex_search(dirFilePath.String(), regexMatches, s_BlockFileRegex);
 
-	if (regexMatches.empty())
+	if (regexMatches.empty()) // Not a block file, or not following the naming scheme.
 	{
 		Init(dirFilePath);
 		return;
 	}
 
-	CUtlString sanitizedName = dirFilePath;
+	CUtlString sanitizedName = dirFilePath; // Replace "pak000_xxx" with "pak000_dir".
 	sanitizedName = sanitizedName.Replace(regexMatches[0].str().c_str(), "pak000_dir");
 
 	bool bHasLocale = false;
 
+	// Check if caller passed in a string with a locale, while also specifying
+	// the sanitizer parameter. Data block files don't have a locale prefix!
+	// The user most likely passed in an actual directory tree file name.
 	for (size_t i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); i++)
 	{
 		if (sanitizedName.Find(g_LanguageNames[i]) != -1)
@@ -888,7 +891,11 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 		}
 	}
 
-	if (!bHasLocale) // Only sanitize if no locale was provided.
+	// If we don't have a locale prefix, replace the target name with
+	// locale+target, so you get something like "englishserver", and
+	// then we replace the target name in the passed in string with
+	// the new prefix to finalize name sanitization.
+	if (!bHasLocale)
 	{
 		CUtlString packDirPrefix;
 		packDirPrefix.Append(g_LanguageNames[0]);
