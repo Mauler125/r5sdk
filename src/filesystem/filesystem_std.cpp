@@ -6,6 +6,11 @@
 //=============================================================================//
 #include "filesystem_std.h"
 
+// These are used for the 'stat()' and 'access()' in CBaseFileSystem::IsDirectory().
+#include <io.h>
+#include <sys/types.h>
+#include <sys/stat.h> 
+
 ssize_t CBaseFileSystem::Read(void* pOutput, ssize_t size, FileHandle_t file)
 {
 	return fread(pOutput, sizeof(uint8_t), size, (FILE*)file);
@@ -329,6 +334,19 @@ int CBaseFileSystem::CreateDirHierarchy(const char* pFileName, const char* pPath
 
 	// Try to create the final directory in the path.
 	return _mkdir(fullPath);
+}
+
+bool CBaseFileSystem::IsDirectory(const char* path, const char* pathID)
+{
+	if (_access(path, 0) == 0)
+	{
+		struct stat status;
+		stat(path, &status);
+
+		return (status.st_mode & S_IFDIR) != 0;
+	}
+
+	return false;
 }
 
 char* CBaseFileSystem::ReadLine(char* maxChars, ssize_t maxOutputLength, FileHandle_t file)

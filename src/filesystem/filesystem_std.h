@@ -42,7 +42,7 @@ public:
 	virtual void			RemoveFile(char const* pRelativePath, const char* pathID = 0) {};                  // Deletes a file (on the WritePath)
 	virtual bool			RenameFile(char const* pOldPath, char const* pNewPath, const char* pathID = 0) { return false; }; // Renames a file (on the WritePath)
 	virtual int				CreateDirHierarchy(const char* path, const char* pathID = 0);                   // create a local directory structure
-	virtual bool			IsDirectory(const char* pFileName, const char* pathID = 0) { return false; };                     // File I/O and info
+	virtual bool			IsDirectory(const char* pFileName, const char* pathID = 0);                     // File I/O and info
 	virtual ssize_t			FileTimeToString(char* pStrip, ssize_t maxCharsIncludingTerminator, long fileTime) { return NULL; }; // Returns the string size
 
 	//--------------------------------------------------------
