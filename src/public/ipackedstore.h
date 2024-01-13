@@ -18,6 +18,12 @@ enum EPackedTextureFlags
 	TEXTURE_ENVIRONMENT_MAP = 1 << 10,
 };
 
+enum EPackedStoreTargets
+{
+	STORE_TARGET_SERVER,
+	STORE_TARGET_CLIENT
+};
+
 struct FileHandleTracker_t
 {
 	int m_nFileNumber;

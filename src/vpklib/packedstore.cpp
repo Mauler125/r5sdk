@@ -162,20 +162,6 @@ static bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& igno
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the parts of the directory file name
-// Input  : &dirFileName   - 
-//          nCaptureGroup  - (1 = locale + target, 2 = level)
-// Output : part of directory file name as string
-//-----------------------------------------------------------------------------
-//static CUtlString GetNameParts(const CUtlString& dirFileName, int nCaptureGroup)
-//{
-//	std::cmatch regexMatches;
-//	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
-//
-//	return regexMatches[nCaptureGroup].str().c_str();
-//}
-
-//-----------------------------------------------------------------------------
 // Purpose: gets the level name from the directory file name
 // Input  : &dirFileName - 
 // Output : level name as string (e.g. "mp_rr_box")
@@ -443,6 +429,26 @@ void CPackedStoreBuilder::PackStore(const VPKPair_t& vpkPair, const char* worksp
 	workspacePath.AppendSlash();
 	workspacePath.FixSlashes('/');
 
+	CUtlVector<VPKKeyValues_t> entryValues;
+	CUtlVector<VPKEntryBlock_t> entryBlocks;
+
+	// NOTE: we get the entry values prior to opening the file, because if we
+	// don't have a valid manifest file, we won't be able to build the store.
+	// If we had already opened the block file, and a one already existed, it
+	// would be emptied out ("wb" flag) which we want to avoid here.
+	if (!GetEntryValues(entryValues, workspacePath, vpkPair.m_DirName))
+	{
+		return;
+	}
+
+	std::unique_ptr<uint8_t[]> pEntryBuffer(new uint8_t[ENTRY_MAX_LEN]);
+
+	if (!pEntryBuffer)
+	{
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
+		return;
+	}
+
 	CUtlString packFilePath;
 	CUtlString dirFilePath;
 
@@ -454,24 +460,6 @@ void CPackedStoreBuilder::PackStore(const VPKPair_t& vpkPair, const char* worksp
 	if (!hPackFile)
 	{
 		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, packFilePath.Get());
-		return;
-	}
-
-	std::unique_ptr<uint8_t[]> pEntryBuffer(new uint8_t[ENTRY_MAX_LEN]);
-
-	if (!pEntryBuffer)
-	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
-		FileSystem()->Close(hPackFile);
-		return;
-	}
-
-	CUtlVector<VPKKeyValues_t> entryValues;
-	CUtlVector<VPKEntryBlock_t> entryBlocks;
-
-	if (!GetEntryValues(entryValues, workspacePath, vpkPair.m_DirName))
-	{
-		FileSystem()->Close(hPackFile);
 		return;
 	}
 
@@ -828,12 +816,26 @@ VPKPair_t::VPKPair_t(const char* pLocale, const char* pTarget, const char* pLeve
 
 	if (!bFoundTarget)
 	{
-		Warning(eDLL_T::FS, "Target '%s' not supported; using default '%s'\n", pTarget, DIR_TARGET[0]);
-		pTarget = DIR_TARGET[0];
+		Warning(eDLL_T::FS, "Target '%s' not supported; using default '%s'\n", pTarget, DIR_TARGET[STORE_TARGET_SERVER]);
+		pTarget = DIR_TARGET[STORE_TARGET_SERVER];
 	}
 
 	m_PackName.Format("%s_%s.bsp.pak000_%03d.vpk", pTarget, pLevel, nPatch);
 	m_DirName.Format("%s%s_%s.bsp.pak000_dir.vpk", pLocale, pTarget, pLevel);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the parts of the directory file name
+// Input  : &dirFileName   - 
+//          nCaptureGroup  - (1 = locale + target, 2 = level)
+// Output : part of directory file name as string
+//-----------------------------------------------------------------------------
+CUtlString VPKPair_t::GetNameParts(const int nCaptureGroup)
+{
+	std::cmatch regexMatches;
+	std::regex_search(m_DirName.Get(), regexMatches, s_DirFileRegex);
+
+	return regexMatches[nCaptureGroup].str().c_str();
 }
 
 //-----------------------------------------------------------------------------
