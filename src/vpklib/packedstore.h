@@ -145,6 +145,7 @@ struct VPKDir_t
 	// This set only contains packfile indices used
 	// by the directory tree, notated as pak000_xxx.
 	std::set<uint16_t>           m_PakFileIndices;
+	bool m_bInitFailed;
 
 	class CTreeBuilder
 	{
@@ -163,11 +164,13 @@ struct VPKDir_t
 	{
 		m_Header.m_nHeaderMarker = VPK_HEADER_MARKER; m_Header.m_nMajorVersion = VPK_MAJOR_VERSION;
 		m_Header.m_nMinorVersion = VPK_MINOR_VERSION; m_Header.m_nDirectorySize = NULL, m_Header.m_nSignatureSize = NULL;
+		m_bInitFailed = false;
 	};
 	VPKDir_t(const CUtlString& svDirectoryFile);
 	VPKDir_t(const CUtlString& svDirectoryFile, bool bSanitizeName);
 
 	void Init(const CUtlString& svPath);
+	inline bool Failed() const { return m_bInitFailed; }
 
 	CUtlString StripLocalePrefix(const CUtlString& svDirectoryFile) const;
 	CUtlString GetPackFileNameForIndex(uint16_t iPackFileIndex) const;

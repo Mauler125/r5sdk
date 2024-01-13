@@ -569,14 +569,6 @@ void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* worksp
 	workspacePath.AppendSlash();
 	workspacePath.FixSlashes('/');
 
-	if (vpkDir.m_Header.m_nHeaderMarker != VPK_HEADER_MARKER ||
-		vpkDir.m_Header.m_nMajorVersion != VPK_MAJOR_VERSION ||
-		vpkDir.m_Header.m_nMinorVersion != VPK_MINOR_VERSION)
-	{
-		Error(eDLL_T::FS, NO_ERROR, "Unsupported VPK directory file (invalid header criteria)\n");
-		return;
-	}
-
 	std::unique_ptr<uint8_t[]> pDestBuffer(new uint8_t[ENTRY_MAX_LEN]);
 	std::unique_ptr<uint8_t[]> pSourceBuffer(new uint8_t[ENTRY_MAX_LEN]);
 
@@ -927,13 +919,28 @@ void VPKDir_t::Init(const CUtlString& dirFilePath)
 	FileHandle_t hDirFile = FileSystem()->Open(dirFilePath.Get(), "rb", "GAME");
 	if (!hDirFile)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, dirFilePath.Get());
+		Error(eDLL_T::FS, NO_ERROR, "Unable to open '%s' (insufficient rights?)\n", dirFilePath.Get());
+		m_bInitFailed = true;
+
 		return;
 	}
 
 	FileSystem()->Read(&m_Header.m_nHeaderMarker, sizeof(uint32_t), hDirFile);
 	FileSystem()->Read(&m_Header.m_nMajorVersion, sizeof(uint16_t), hDirFile);  //
 	FileSystem()->Read(&m_Header.m_nMinorVersion, sizeof(uint16_t), hDirFile);  //
+
+	// Make sure this is an actual directory tree file, and one we support.
+	if (m_Header.m_nHeaderMarker != VPK_HEADER_MARKER ||
+		m_Header.m_nMajorVersion != VPK_MAJOR_VERSION ||
+		m_Header.m_nMinorVersion != VPK_MINOR_VERSION)
+	{
+		Error(eDLL_T::FS, NO_ERROR, "Unsupported VPK directory file (invalid header criteria)\n");
+		FileSystem()->Close(hDirFile);
+		m_bInitFailed = true;
+
+		return;
+	}
+
 	FileSystem()->Read(&m_Header.m_nDirectorySize, sizeof(uint32_t), hDirFile); //
 	FileSystem()->Read(&m_Header.m_nSignatureSize, sizeof(uint32_t), hDirFile); //
 
@@ -948,6 +955,7 @@ void VPKDir_t::Init(const CUtlString& dirFilePath)
 	}
 
 	FileSystem()->Close(hDirFile);
+	m_bInitFailed = false;
 }
 
 //-----------------------------------------------------------------------------
