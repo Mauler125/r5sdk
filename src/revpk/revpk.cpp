@@ -8,6 +8,7 @@
 #include "tier0/fasttimer.h"
 #include "tier0/cpu.h"
 #include "tier1/cmd.h"
+#include "tier1/fmtstr.h"
 #include "tier1/keyvalues.h"
 #include "windows/console.h"
 #include "vpklib/packedstore.h"
@@ -66,9 +67,30 @@ static void ReVPK_Shutdown()
 //-----------------------------------------------------------------------------
 static void ReVPK_Usage()
 {
-    Warning(eDLL_T::FS, "Usage:\n");
-    Warning(eDLL_T::FS, "  revpk " PACK_COMMAND " <locale> <context> <levelName>\n");
-    Warning(eDLL_T::FS, "  revpk " UNPACK_COMMAND " <fileName> <sanitize>\n");
+    CFmtStr1024 usage;
+
+    usage.Format(
+        "ReVPK instructions and options:\n"
+        "For packing; run 'revpk %s' with the following parameters:\n"
+        "\t<%s>\t- locale prefix for the directory tree file\n"
+        "\t<%s>\t- whether to build for 'server' or 'client'\n"
+        "\t<%s>\t- the level name for the VPK files\n"
+        "\t<%s>\t- ( optional ) path to the workspace containing the manifest file\n"
+        "\t<%s>\t- ( optional ) path in which the VPK files will be built\n\n"
+
+        "For unpacking; run 'revpk %s' with the following parameters:\n"
+        "\t<%s>\t- path to the directory tree file\n"
+        "\t<%s>\t- ( optional ) path to the target directory tree file\n"
+        "\t<%s>\t- ( optional ) whether to parse the directory tree file name from the data block file name\n",
+
+        PACK_COMMAND,
+        "locale", "context", "levelName", "workspacePath", "buildPath",
+
+        UNPACK_COMMAND,
+        "fileName", "inputDir", "sanitize"
+    );
+
+    Warning(eDLL_T::FS, "%s", usage.Get());
 }
 
 //-----------------------------------------------------------------------------
@@ -76,7 +98,9 @@ static void ReVPK_Usage()
 //-----------------------------------------------------------------------------
 static void ReVPK_Pack(const CCommand& args)
 {
-    if (args.ArgC() < 5)
+    const int argCount = args.ArgC();
+
+    if (argCount < 5)
     {
         ReVPK_Usage();
         return;
@@ -91,7 +115,9 @@ static void ReVPK_Pack(const CCommand& args)
     CPackedStoreBuilder builder;
 
     builder.InitLzCompParams();
-    builder.PackWorkspace(pair, "ship/", "vpk/");
+    builder.PackWorkspace(pair,
+        argCount > 5 ? args.Arg(5) : "ship/",
+        argCount > 6 ? args.Arg(6) : "vpk/");
 
     timer.End();
     Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -103,7 +129,9 @@ static void ReVPK_Pack(const CCommand& args)
 //-----------------------------------------------------------------------------
 static void ReVPK_Unpack(const CCommand& args)
 {
-    if (args.ArgC() < 3)
+    const int argCount = args.ArgC();
+
+    if (argCount < 3)
     {
         ReVPK_Usage();
         return;
@@ -111,7 +139,7 @@ static void ReVPK_Unpack(const CCommand& args)
 
     CUtlString arg = args.Arg(2);
 
-    VPKDir_t vpk(arg, (args.ArgC() > 3));
+    VPKDir_t vpk(arg, (argCount > 4));
     CFastTimer timer;
 
     Msg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", arg.Get());
@@ -120,7 +148,7 @@ static void ReVPK_Unpack(const CCommand& args)
     CPackedStoreBuilder builder;
 
     builder.InitLzDecompParams();
-    builder.UnpackWorkspace(vpk, "ship/");
+    builder.UnpackWorkspace(vpk, argCount > 3 ? args.Arg(3) : "ship/");
 
     timer.End();
     Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
