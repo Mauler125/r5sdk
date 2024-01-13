@@ -196,8 +196,8 @@ struct VPKPair_t
 class CPackedStoreBuilder
 {
 public:
-	void InitLzCompParams(const char* compressionLevel = "default", const lzham_int32 maxHelperThreads = -1);
-	void InitLzDecompParams(void);
+	void InitLzEncoder(const lzham_int32 maxHelperThreads = -1, const char* compressionLevel = "default");
+	void InitLzDecoder(void);
 
 	bool Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex);
 
@@ -205,8 +205,8 @@ public:
 	void UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName = "");
 
 private:
-	lzham_compress_params   m_lzCompParams;   // LZham compression parameters.
-	lzham_decompress_params m_lzDecompParams; // LZham decompression parameters.
+	lzham_compress_params   m_Encoder; // LZham compression parameters.
+	lzham_decompress_params m_Decoder; // LZham decompression parameters.
 	std::unordered_map<string, const VPKChunkDescriptor_t&> m_ChunkHashMap;
 };
 ///////////////////////////////////////////////////////////////////////////////

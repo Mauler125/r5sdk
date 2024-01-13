@@ -61,31 +61,31 @@ static lzham_compress_level DetermineCompressionLevel(const char* compressionLev
 //-----------------------------------------------------------------------------
 // Purpose: initialize parameters for compression algorithm
 //-----------------------------------------------------------------------------
-void CPackedStoreBuilder::InitLzCompParams(const char* compressionLevel, const lzham_int32 maxHelperThreads)
+void CPackedStoreBuilder::InitLzEncoder(const lzham_int32 maxHelperThreads, const char* compressionLevel)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	m_lzCompParams.m_struct_size          = sizeof(lzham_compress_params);
-	m_lzCompParams.m_dict_size_log2       = VPK_DICT_SIZE;
-	m_lzCompParams.m_level                = DetermineCompressionLevel(compressionLevel);
-	m_lzCompParams.m_max_helper_threads   = maxHelperThreads;
-	m_lzCompParams.m_cpucache_total_lines = NULL;
-	m_lzCompParams.m_cpucache_line_size   = NULL;
-	m_lzCompParams.m_compress_flags       = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
-	m_lzCompParams.m_num_seed_bytes       = NULL;
-	m_lzCompParams.m_pSeed_bytes          = NULL;
+	m_Encoder.m_struct_size          = sizeof(lzham_compress_params);
+	m_Encoder.m_dict_size_log2       = VPK_DICT_SIZE;
+	m_Encoder.m_level                = DetermineCompressionLevel(compressionLevel);
+	m_Encoder.m_max_helper_threads   = maxHelperThreads;
+	m_Encoder.m_cpucache_total_lines = NULL;
+	m_Encoder.m_cpucache_line_size   = NULL;
+	m_Encoder.m_compress_flags       = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
+	m_Encoder.m_num_seed_bytes       = NULL;
+	m_Encoder.m_pSeed_bytes          = NULL;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: initialize parameters for decompression algorithm
 //-----------------------------------------------------------------------------
-void CPackedStoreBuilder::InitLzDecompParams(void)
+void CPackedStoreBuilder::InitLzDecoder(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	m_lzDecompParams.m_struct_size      = sizeof(lzham_decompress_params);
-	m_lzDecompParams.m_dict_size_log2   = VPK_DICT_SIZE;
-	m_lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED;
-	m_lzDecompParams.m_num_seed_bytes   = NULL;
-	m_lzDecompParams.m_pSeed_bytes      = NULL;
+	m_Decoder.m_struct_size      = sizeof(lzham_decompress_params);
+	m_Decoder.m_dict_size_log2   = VPK_DICT_SIZE;
+	m_Decoder.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED;
+	m_Decoder.m_num_seed_bytes   = NULL;
+	m_Decoder.m_pSeed_bytes      = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -534,7 +534,7 @@ void CPackedStoreBuilder::PackWorkspace(const VPKPair_t& vpkPair, const char* wo
 
 			if (entryValue.m_bUseCompression)
 			{
-				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_lzCompParams, pEntryBuffer.get(), &descriptor.m_nCompressedSize, pEntryBuffer.get(),
+				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_Encoder, pEntryBuffer.get(), &descriptor.m_nCompressedSize, pEntryBuffer.get(),
 					descriptor.m_nUncompressedSize, nullptr);
 
 				if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
@@ -656,7 +656,7 @@ void CPackedStoreBuilder::UnpackWorkspace(const VPKDir_t& vpkDir, const char* wo
 				if (fragment.m_nCompressedSize > nDstLen)
 					break; // Corrupt or invalid chunk descriptor.
 
-				lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pDestBuffer.get(),
+				lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_Decoder, pDestBuffer.get(),
 					&nDstLen, pSourceBuffer.get(), fragment.m_nCompressedSize, nullptr);
 
 				if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)

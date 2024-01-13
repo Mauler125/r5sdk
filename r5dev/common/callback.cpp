@@ -650,7 +650,7 @@ void VPK_Pack_f(const CCommand& args)
 
 	CPackedStoreBuilder builder;
 
-	builder.InitLzCompParams(fs_packedstore_compression_level->GetString(), fs_packedstore_max_helper_threads->GetInt());
+	builder.InitLzEncoder(fs_packedstore_max_helper_threads->GetInt(), fs_packedstore_compression_level->GetString());
 	builder.PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/");
 
 	timer.End();
@@ -682,7 +682,7 @@ void VPK_Unpack_f(const CCommand& args)
 
 	CPackedStoreBuilder builder;
 
-	builder.InitLzDecompParams();
+	builder.InitLzDecoder();
 	builder.UnpackWorkspace(vpk, fs_packedstore_workspace->GetString());
 
 	timer.End();
