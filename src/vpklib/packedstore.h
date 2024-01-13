@@ -201,8 +201,8 @@ public:
 
 	bool Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex);
 
-	void PackWorkspace(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath);
-	void UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName = "");
+	void PackStore(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath);
+	void UnpackStore(const VPKDir_t& vpkDir, const char* workspaceName = "");
 
 private:
 	lzham_compress_params   m_Encoder; // LZham compression parameters.
