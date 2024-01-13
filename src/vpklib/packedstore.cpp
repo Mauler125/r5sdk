@@ -120,8 +120,9 @@ static bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& igno
 {
 	const char* pFilePath = filePath.Get();
 
-	if (!V_IsValidPath(pFilePath))
+	if (!VALID_CHARSTAR(pFilePath))
 	{
+		Warning(eDLL_T::FS, "File in build manifest has no name\n", pFilePath);
 		return true;
 	}
 
