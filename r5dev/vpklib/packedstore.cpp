@@ -91,9 +91,9 @@ void CPackedStoreBuilder::InitLzDecoder(void)
 //-----------------------------------------------------------------------------
 // Purpose: gets the level name from the directory file name
 // Input  : &dirFileName - 
-// Output : level name as string (e.g. "mp_rr_box")
+// Output : level name as string (e.g. "englishclient_mp_rr_box")
 //-----------------------------------------------------------------------------
-CUtlString PackedStore_GetDirLevelName(const CUtlString& dirFileName)
+CUtlString PackedStore_GetDirBaseName(const CUtlString& dirFileName)
 {
 	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
 
@@ -101,7 +101,7 @@ CUtlString PackedStore_GetDirLevelName(const CUtlString& dirFileName)
 	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
 
 	CUtlString result;
-	result.Format("%s%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
+	result.Format("%s_%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
 
 	return result;
 }
@@ -296,7 +296,7 @@ static void GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_
 static bool GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, 
 	const CUtlString& workspacePath, const CUtlString& dirFileName)
 {
-	KeyValues* pManifestKV = GetManifest(workspacePath, PackedStore_GetDirLevelName(dirFileName));
+	KeyValues* pManifestKV = GetManifest(workspacePath, PackedStore_GetDirBaseName(dirFileName));
 
 	if (!pManifestKV)
 	{
@@ -596,7 +596,7 @@ void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* worksp
 		return;
 	}
 
-	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, PackedStore_GetDirLevelName(vpkDir.m_DirFilePath));
+	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, PackedStore_GetDirBaseName(vpkDir.m_DirFilePath));
 	const CUtlString basePath = vpkDir.m_DirFilePath.StripFilename(false);
 
 	for (uint16_t packFileIndex : vpkDir.m_PakFileIndices)
