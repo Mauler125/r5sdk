@@ -56,6 +56,8 @@ ConsoleHandlerRoutine(
 {
 	switch (eventCode)
 	{
+	case CTRL_C_EVENT:
+	case CTRL_BREAK_EVENT:
 	case CTRL_CLOSE_EVENT:
 	case CTRL_LOGOFF_EVENT:
 	case CTRL_SHUTDOWN_EVENT:
@@ -64,7 +66,9 @@ ConsoleHandlerRoutine(
 			g_pHostState->m_iNextState = HostStates_t::HS_SHUTDOWN;
 		}
 
-		Sleep(10000);
+		// Give it time to shutdown properly, value is set to the max possible
+		// of SPI_GETWAITTOKILLSERVICETIMEOUT, which is 20000ms by default.
+		Sleep(20000);
 		return TRUE;
 	}
 
