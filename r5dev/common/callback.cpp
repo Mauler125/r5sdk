@@ -642,16 +642,24 @@ void VPK_Pack_f(const CCommand& args)
 		return;
 	}
 
-	VPKPair_t pair(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
-	CFastTimer timer;
+	const char* workspacePath = fs_packedstore_workspace->GetString();
 
-	Msg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.Get());
+	if (!FileSystem()->IsDirectory(workspacePath, "PLATFORM"));
+	{
+		Error(eDLL_T::FS, NO_ERROR, "Workspace path \"%s\" doesn't exist!\n", workspacePath);
+		return;
+	}
+
+	VPKPair_t pair(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
+	Msg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.String());
+
+	CFastTimer timer;
 	timer.Start();
 
 	CPackedStoreBuilder builder;
 
 	builder.InitLzEncoder(fs_packedstore_max_helper_threads->GetInt(), fs_packedstore_compression_level->GetString());
-	builder.PackStore(pair, fs_packedstore_workspace->GetString(), "vpk/");
+	builder.PackStore(pair, workspacePath, "vpk/");
 
 	timer.End();
 	Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -673,11 +681,18 @@ void VPK_Unpack_f(const CCommand& args)
 		return;
 	}
 
-	CUtlString arg = args.Arg(1);
-	VPKDir_t vpk(arg, (args.ArgC() > 2));
-	CFastTimer timer;
+	CUtlString fileName = args.Arg(1);
+	VPKDir_t vpk(fileName, (args.ArgC() > 2));
 
-	Msg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", arg.Get());
+	if (vpk.Failed())
+	{
+		Error(eDLL_T::FS, NO_ERROR, "Failed to parse directory tree file \"%s\"!\n", fileName.String());
+		return;
+	}
+
+	Msg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", fileName.String());
+
+	CFastTimer timer;
 	timer.Start();
 
 	CPackedStoreBuilder builder;
