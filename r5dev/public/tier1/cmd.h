@@ -130,6 +130,7 @@ inline const char* CCommand::Arg(int nIndex) const
 	// do the extra check and return an empty string if it's out of range
 	if (nIndex < 0 || nIndex >= m_nArgc)
 	{
+		Assert(0);
 		return "";
 	}
 	return m_ppArgv[nIndex];
