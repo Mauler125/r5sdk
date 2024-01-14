@@ -9,6 +9,7 @@ std::shared_ptr<spdlog::logger> g_SuppementalToolsLogger;
 std::ostringstream g_LogStream;
 std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
 
+#ifndef _TOOLS
 static void SpdLog_CreateRotatingLoggers()
 {
 	/************************
@@ -33,6 +34,7 @@ static void SpdLog_CreateRotatingLoggers()
 	spdlog::rotating_logger_mt<spdlog::synchronous_factory>("filesystem"
 		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "filesystem.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 }
+#endif // !_TOOLS
 
 #ifdef _TOOLS
 // NOTE: used for tools as additional file logger on top of the existing terminal logger.
