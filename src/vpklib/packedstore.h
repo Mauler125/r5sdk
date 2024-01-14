@@ -192,7 +192,6 @@ struct VPKPair_t
 	CUtlString m_DirName;
 
 	VPKPair_t(const char* svLocale, const char* svTarget, const char* svLevel, int nPatch);
-	CUtlString GetNameParts(const int nCaptureGroup);
 };
 
 //-----------------------------------------------------------------------------
@@ -214,6 +213,9 @@ private:
 	lzham_decompress_params m_Decoder; // LZham decompression parameters.
 	std::unordered_map<string, const VPKChunkDescriptor_t&> m_ChunkHashMap;
 };
+
+CUtlString PackedStore_GetDirLevelName(const CUtlString& dirFileName);
+CUtlString PackedStore_GetDirNameParts(const CUtlString& dirFileName, const int nCaptureGroup);
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif // PACKEDSTORE_H

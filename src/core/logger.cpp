@@ -307,7 +307,12 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	g_LogStream.clear();
 #endif // !DEDICATED
 
-#endif // !_TOOLS
+#else
+	if (g_SuppementalToolsLogger)
+	{
+		g_SuppementalToolsLogger->debug(message);
+	}
+#endif
 
 	if (exitCode) // Terminate the process if an exit code was passed.
 	{

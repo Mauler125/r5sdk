@@ -4,6 +4,8 @@
 std::shared_ptr<spdlog::logger> g_TermLogger;
 std::shared_ptr<spdlog::logger> g_ImGuiLogger;
 
+std::shared_ptr<spdlog::logger> g_SuppementalToolsLogger;
+
 std::ostringstream g_LogStream;
 std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
 
@@ -66,6 +68,14 @@ void SpdLog_Init(const bool bAnsiColor)
 	bInitialized = true;
 }
 
+//#############################################################################
+// SPDLOG SHUTDOWN
+//#############################################################################
+void SpdLog_Shutdown()
+{
+	spdlog::shutdown();
+}
+
 void SpdLog_Create()
 {
 	/************************
@@ -91,10 +101,11 @@ void SpdLog_Create()
 		, fmt::format("{:s}\\{:s}", g_LogSessionDirectory, "filesystem.log"), SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 }
 
-//#############################################################################
-// SPDLOG SHUTDOWN
-//#############################################################################
-void SpdLog_Shutdown()
+#ifdef _TOOLS
+// NOTE: used for tools as additional file logger on top of the existing terminal logger.
+void SpdLog_InstallSupplementalLogger(const char* pszLoggerName, const char* pszLogFileName, const char* pszPattern)
 {
-	spdlog::shutdown();
+	g_SuppementalToolsLogger = spdlog::basic_logger_mt(pszLoggerName, pszLogFileName);
+	g_SuppementalToolsLogger->set_pattern(pszPattern);
 }
+#endif // _TOOLS
