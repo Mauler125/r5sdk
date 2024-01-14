@@ -222,11 +222,10 @@ static void ReVPK_Unpack(const CCommand& args)
         return;
     }
 
-    CUtlString prefixName = PackedStore_GetDirNameParts(vpk.m_DirFilePath, 1);
-    CUtlString levelName = PackedStore_GetDirNameParts(vpk.m_DirFilePath, 2);
+    CUtlString baseName = PackedStore_GetDirBaseName(vpk.m_DirFilePath);
 
     // Write the unpack log to a file.
-    CFmtStr1024 textFileName("%s%s%s_%s.log", outPath, UNPACK_LOG_DIR, prefixName.String(), levelName.String());
+    CFmtStr1024 textFileName("%s%s%s.log", outPath, UNPACK_LOG_DIR, baseName.String());
     SpdLog_InstallSupplementalLogger("supplemental_logger_mt", textFileName.String());
 
     const char* actualDirFile = vpk.m_DirFilePath.String();
