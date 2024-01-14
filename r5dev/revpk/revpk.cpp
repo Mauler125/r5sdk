@@ -19,8 +19,14 @@
 #define PACK_COMMAND "pack"
 #define UNPACK_COMMAND "unpack"
 
+#define PACK_LOG_DIR "manifest/pack_logs/"
+#define UNPACK_LOG_DIR "manifest/unpack_logs/"
+
+#define FRONTEND_ENABLE_FILE "enable.txt"
+
 static CKeyValuesSystem s_KeyValuesSystem;
 static CFileSystem_Stdio g_FullFileSystem;
+static bool s_bUseAnsiColors = true;
 
 //-----------------------------------------------------------------------------
 // Purpose: keyvalues singleton accessor
@@ -48,8 +54,8 @@ static void ReVPK_Init()
     g_CoreMsgVCallback = EngineLoggerSink;
     lzham_enable_fail_exceptions(true);
 
-    Console_Init(true);
-    SpdLog_Init(true);
+    Console_Init(s_bUseAnsiColors);
+    SpdLog_Init(s_bUseAnsiColors);
 }
 
 //-----------------------------------------------------------------------------
@@ -102,6 +108,35 @@ static void ReVPK_Usage()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: writes the VPK front-end enable file
+//-----------------------------------------------------------------------------
+static void ReVPK_WriteEnableFile(const char* containingPath)
+{
+    CFmtStr1024 textFileName;
+    textFileName.Format("%s%s", containingPath, FRONTEND_ENABLE_FILE);
+
+    if (FileSystem()->FileExists(textFileName.String(), "PLATFORM"))
+    {
+        // Already exists.
+        return;
+    }
+
+    FileHandle_t enableTxt = FileSystem()->Open(textFileName.String(), "wb", "PLATFORM");
+
+    if (enableTxt)
+    {
+        const char* textData = "1 \r\n";
+        FileSystem()->Write(textData, strlen(textData), enableTxt);
+        FileSystem()->Close(enableTxt);
+    }
+    else
+    {
+        Error(eDLL_T::FS, NO_ERROR, "Failed to write front-end enable file \"%s\"; insufficient rights?\n",
+            textFileName.String());
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: packs VPK files into 'SHIP' VPK directory
 //-----------------------------------------------------------------------------
 static void ReVPK_Pack(const CCommand& args)
@@ -114,10 +149,38 @@ static void ReVPK_Pack(const CCommand& args)
         return;
     }
 
-    VPKPair_t pair(args.Arg(2), args.Arg(3), args.Arg(4), NULL);
-    CFastTimer timer;
+    CFmtStr1024 workspacePath = argCount > 5 ? args.Arg(5) : "ship/";
+    CFmtStr1024 buildPath     = argCount > 6 ? args.Arg(6) : "vpk/";
 
+    // Make sure there's always a trailing slash.
+    V_AppendSlash(workspacePath.Access(), workspacePath.GetMaxLength(), '/');
+    V_AppendSlash(buildPath.Access(), buildPath.GetMaxLength(), '/');
+
+    if (!FileSystem()->IsDirectory(workspacePath, "PLATFORM"))
+    {
+        Error(eDLL_T::FS, NO_ERROR, "Workspace path \"%s\" doesn't exist!\n", workspacePath.String());
+        return;
+    }
+
+    const char* localeName = args.Arg(2);
+    const char* contextName = args.Arg(3);
+    const char* levelName = args.Arg(4);
+
+    // For clients, we need an enable file which the engine uses to determine
+    // whether or not to mount the front-end VPK file.
+    if (V_strcmp(contextName, DIR_TARGET[EPackedStoreTargets::STORE_TARGET_CLIENT]) == NULL)
+    {
+        ReVPK_WriteEnableFile(buildPath);
+    }
+
+    // Write the pack log to a file.
+    CFmtStr1024 textFileName("%s%s%s%s_%s.log", buildPath.String(), PACK_LOG_DIR, localeName, contextName, levelName);
+    SpdLog_InstallSupplementalLogger("supplemental_logger_mt", textFileName.String());
+
+    VPKPair_t pair(localeName, contextName, levelName, NULL);
     Msg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.Get());
+
+    CFastTimer timer;
     timer.Start();
 
     CPackedStoreBuilder builder;
@@ -126,9 +189,7 @@ static void ReVPK_Pack(const CCommand& args)
         argCount > 7 ? (std::min)(atoi(args.Arg(7)), LZHAM_MAX_HELPER_THREADS) : -1, // Num threads.
         argCount > 8 ? args.Arg(8) : "default"); // Compress level.
 
-    builder.PackStore(pair,
-        argCount > 5 ? args.Arg(5) : "ship/", // Workspace path.
-        argCount > 6 ? args.Arg(6) : "vpk/"); // build path.
+    builder.PackStore(pair, workspacePath.String(), buildPath.String());
 
     timer.End();
     Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -148,12 +209,30 @@ static void ReVPK_Unpack(const CCommand& args)
         return;
     }
 
-    CUtlString arg = args.Arg(2);
+    const char* fileName = args.Arg(2);
+    const char* outPath = argCount > 3 ? args.Arg(3) : "ship/";
+    const bool sanitize = argCount > 4 ? atoi(args.Arg(4)) != NULL : false;
 
-    VPKDir_t vpk(arg, (argCount > 4));
+    VPKDir_t vpk(fileName, sanitize);
+
+    // Make sure the VPK directory tree was actually parsed correctly.
+    if (vpk.Failed())
+    {
+        Error(eDLL_T::FS, NO_ERROR, "Failed to parse directory tree file \"%s\"!\n", fileName);
+        return;
+    }
+
+    CUtlString prefixName = PackedStore_GetDirNameParts(vpk.m_DirFilePath, 1);
+    CUtlString levelName = PackedStore_GetDirNameParts(vpk.m_DirFilePath, 2);
+
+    // Write the unpack log to a file.
+    CFmtStr1024 textFileName("%s%s%s_%s.log", outPath, UNPACK_LOG_DIR, prefixName.String(), levelName.String());
+    SpdLog_InstallSupplementalLogger("supplemental_logger_mt", textFileName.String());
+
+    const char* actualDirFile = vpk.m_DirFilePath.String();
+    Msg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", actualDirFile);
+
     CFastTimer timer;
-
-    Msg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", arg.Get());
     timer.Start();
 
     CPackedStoreBuilder builder;
@@ -184,16 +263,20 @@ int main(int argc, char* argv[])
 
     args.Tokenize(str.Get(), cmd_source_t::kCommandSrcCode);
 
-    if (!args.ArgC())
+    if (!args.ArgC()) {
         ReVPK_Usage();
+    }
     else
     {
-        if (strcmp(args.Arg(1), PACK_COMMAND) == NULL)
+        if (V_strcmp(args.Arg(1), PACK_COMMAND) == NULL) {
             ReVPK_Pack(args);
-        else if (strcmp(args.Arg(1), UNPACK_COMMAND) == NULL)
+        }
+        else if (V_strcmp(args.Arg(1), UNPACK_COMMAND) == NULL) {
             ReVPK_Unpack(args);
-        else
+        }
+        else {
             ReVPK_Usage();
+        }
     }
 
     ReVPK_Shutdown();

@@ -35,7 +35,7 @@
 
 extern CFileSystem_Stdio* FileSystem();
 
-static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
+static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*)(?:_)(.*)(.bsp.pak000_dir).*)" };
 static const std::regex s_BlockFileRegex{ R"(pak000_([0-9]{3}))" };
 
 //-----------------------------------------------------------------------------
@@ -86,6 +86,40 @@ void CPackedStoreBuilder::InitLzDecoder(void)
 	m_Decoder.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED;
 	m_Decoder.m_num_seed_bytes   = NULL;
 	m_Decoder.m_pSeed_bytes      = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the level name from the directory file name
+// Input  : &dirFileName - 
+// Output : level name as string (e.g. "mp_rr_box")
+//-----------------------------------------------------------------------------
+CUtlString PackedStore_GetDirLevelName(const CUtlString& dirFileName)
+{
+	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
+
+	std::cmatch regexMatches;
+	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
+
+	CUtlString result;
+	result.Format("%s%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
+
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the parts of the directory file name
+// Input  : &dirFileName   - 
+//          nCaptureGroup  - (1 = locale + target, 2 = level)
+// Output : part of directory file name as string
+//-----------------------------------------------------------------------------
+CUtlString PackedStore_GetDirNameParts(const CUtlString& dirFileName, const int nCaptureGroup)
+{
+	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
+
+	std::cmatch regexMatches;
+	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
+
+	return regexMatches[nCaptureGroup].str().c_str();
 }
 
 //-----------------------------------------------------------------------------
@@ -159,22 +193,6 @@ static bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& igno
 	}
 
 	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the level name from the directory file name
-// Input  : &dirFileName - 
-// Output : level name as string (e.g. "mp_rr_box")
-//-----------------------------------------------------------------------------
-static CUtlString GetLevelName(const CUtlString& dirFileName)
-{
-	std::cmatch regexMatches;
-	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
-
-	CUtlString result;
-	result.Format("%s%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
-
-	return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -278,7 +296,7 @@ static void GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_
 static bool GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, 
 	const CUtlString& workspacePath, const CUtlString& dirFileName)
 {
-	KeyValues* pManifestKV = GetManifest(workspacePath, GetLevelName(dirFileName));
+	KeyValues* pManifestKV = GetManifest(workspacePath, PackedStore_GetDirLevelName(dirFileName));
 
 	if (!pManifestKV)
 	{
@@ -578,7 +596,7 @@ void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* worksp
 		return;
 	}
 
-	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, GetLevelName(vpkDir.m_DirFilePath));
+	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, PackedStore_GetDirLevelName(vpkDir.m_DirFilePath));
 	const CUtlString basePath = vpkDir.m_DirFilePath.StripFilename(false);
 
 	for (uint16_t packFileIndex : vpkDir.m_PakFileIndices)
@@ -818,20 +836,6 @@ VPKPair_t::VPKPair_t(const char* pLocale, const char* pTarget, const char* pLeve
 
 	m_PackName.Format("%s_%s.bsp.pak000_%03d.vpk", pTarget, pLevel, nPatch);
 	m_DirName.Format("%s%s_%s.bsp.pak000_dir.vpk", pLocale, pTarget, pLevel);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the parts of the directory file name
-// Input  : &dirFileName   - 
-//          nCaptureGroup  - (1 = locale + target, 2 = level)
-// Output : part of directory file name as string
-//-----------------------------------------------------------------------------
-CUtlString VPKPair_t::GetNameParts(const int nCaptureGroup)
-{
-	std::cmatch regexMatches;
-	std::regex_search(m_DirName.Get(), regexMatches, s_DirFileRegex);
-
-	return regexMatches[nCaptureGroup].str().c_str();
 }
 
 //-----------------------------------------------------------------------------
