@@ -31,5 +31,6 @@ void SpdLog_Init(const bool bAnsiColor);
 void SpdLog_Shutdown(void);
 
 #ifdef _TOOLS
-void SpdLog_InstallSupplementalLogger(const char* pszLoggerName, const char* pszLogFileName, const char* pszPattern = "[%Y-%m-%d %H:%M:%S.%e] %v");
+void SpdLog_InstallSupplementalLogger(const char* pszLoggerName, const char* pszLogFileName,
+	const char* pszPattern = "[%Y-%m-%d %H:%M:%S.%e] %v", const bool bTruncate = true);
 #endif // _TOOLS
