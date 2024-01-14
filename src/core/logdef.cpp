@@ -38,9 +38,9 @@ static void SpdLog_CreateRotatingLoggers()
 
 #ifdef _TOOLS
 // NOTE: used for tools as additional file logger on top of the existing terminal logger.
-void SpdLog_InstallSupplementalLogger(const char* pszLoggerName, const char* pszLogFileName, const char* pszPattern)
+void SpdLog_InstallSupplementalLogger(const char* pszLoggerName, const char* pszLogFileName, const char* pszPattern, const bool bTruncate)
 {
-	g_SuppementalToolsLogger = spdlog::basic_logger_mt(pszLoggerName, pszLogFileName);
+	g_SuppementalToolsLogger = spdlog::basic_logger_mt(pszLoggerName, pszLogFileName, bTruncate);
 	g_SuppementalToolsLogger->set_pattern(pszPattern);
 }
 #endif // _TOOLS
