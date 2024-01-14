@@ -999,24 +999,25 @@ CUtlString VPKDir_t::StripLocalePrefix(const CUtlString& directoryPath) const
 // Purpose: writes the vpk directory header
 // Input  : hDirectoryFile - 
 //-----------------------------------------------------------------------------
-void VPKDir_t::WriteHeader(FileHandle_t hDirectoryFile) const
+void VPKDir_t::WriteHeader(FileHandle_t hDirectoryFile)
 {
+	// Header versions.
+	m_Header.m_nHeaderMarker = VPK_HEADER_MARKER;
+	m_Header.m_nMajorVersion = VPK_MAJOR_VERSION;
+	m_Header.m_nMinorVersion = VPK_MINOR_VERSION;
+
+	// NOTE: directory size does not include header!
+	m_Header.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(hDirectoryFile) - sizeof(VPKDirHeader_t));
+	m_Header.m_nSignatureSize = NULL;
+
+	// Seek to start of file to write out the header.
+	FileSystem()->Seek(hDirectoryFile, 0, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+
 	FileSystem()->Write(&m_Header.m_nHeaderMarker, sizeof(uint32_t), hDirectoryFile);
 	FileSystem()->Write(&m_Header.m_nMajorVersion, sizeof(uint16_t), hDirectoryFile);
 	FileSystem()->Write(&m_Header.m_nMinorVersion, sizeof(uint16_t), hDirectoryFile);
 	FileSystem()->Write(&m_Header.m_nDirectorySize, sizeof(uint32_t), hDirectoryFile);
 	FileSystem()->Write(&m_Header.m_nSignatureSize, sizeof(uint32_t), hDirectoryFile);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: writes the directory tree size
-// Input  : hDirectoryFile - 
-//-----------------------------------------------------------------------------
-void VPKDir_t::WriteTreeSize(FileHandle_t hDirectoryFile) const
-{
-	FileSystem()->Seek(hDirectoryFile, offsetof(VPKDir_t, m_Header.m_nDirectorySize), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-	FileSystem()->Write(&m_Header.m_nDirectorySize, sizeof(uint32_t), hDirectoryFile);
-	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint32_t), hDirectoryFile);
 }
 
 //-----------------------------------------------------------------------------
@@ -1159,13 +1160,13 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 	CTreeBuilder treeBuilder;
 	treeBuilder.BuildTree(entryBlocks);
 
+	// Seek to leave space for header after we wrote the tree.
+	FileSystem()->Seek(hDirectoryFile, sizeof(VPKDirHeader_t), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+	const int nDescriptors = treeBuilder.WriteTree(hDirectoryFile);
+
 	WriteHeader(hDirectoryFile);
-	int nDescriptors = treeBuilder.WriteTree(hDirectoryFile);
-
-	m_Header.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(hDirectoryFile) - sizeof(VPKDirHeader_t));
-	WriteTreeSize(hDirectoryFile);
-
 	FileSystem()->Close(hDirectoryFile);
+
 	Msg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%i' entries and '%i' descriptors\n",
 		size_t(sizeof(VPKDirHeader_t) + m_Header.m_nDirectorySize), entryBlocks.Count(), nDescriptors);
 }

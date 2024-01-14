@@ -162,9 +162,9 @@ struct VPKDir_t
 
 	VPKDir_t()
 	{
-		m_Header.m_nHeaderMarker = VPK_HEADER_MARKER; m_Header.m_nMajorVersion = VPK_MAJOR_VERSION;
-		m_Header.m_nMinorVersion = VPK_MINOR_VERSION; m_Header.m_nDirectorySize = NULL, m_Header.m_nSignatureSize = NULL;
-		m_bInitFailed = false;
+		m_Header.m_nHeaderMarker = NULL; m_Header.m_nMajorVersion = NULL;
+		m_Header.m_nMinorVersion = NULL; m_Header.m_nDirectorySize = NULL,
+		m_Header.m_nSignatureSize = NULL; m_bInitFailed = false;
 	};
 	VPKDir_t(const CUtlString& svDirectoryFile);
 	VPKDir_t(const CUtlString& svDirectoryFile, bool bSanitizeName);
@@ -175,9 +175,7 @@ struct VPKDir_t
 	CUtlString StripLocalePrefix(const CUtlString& svDirectoryFile) const;
 	CUtlString GetPackFileNameForIndex(uint16_t iPackFileIndex) const;
 
-	void WriteHeader(FileHandle_t hDirectoryFile) const;
-	void WriteTreeSize(FileHandle_t hDirectoryFile) const;
-
+	void WriteHeader(FileHandle_t hDirectoryFile);
 	void BuildDirectoryFile(const CUtlString& svDirectoryFile, const CUtlVector<VPKEntryBlock_t>& entryBlocks);
 };
 
