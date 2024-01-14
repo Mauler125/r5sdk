@@ -110,4 +110,8 @@ void SpdLog_Init(const bool bAnsiColor)
 void SpdLog_Shutdown()
 {
 	spdlog::shutdown();
+#ifdef _TOOLS
+	// Destroy the tools logger to flush it.
+	g_SuppementalToolsLogger.reset();
+#endif // !_TOOLS
 }
