@@ -181,13 +181,19 @@ void CNetCon::TermSetup(const bool bAnsiColor)
 //-----------------------------------------------------------------------------
 void CNetCon::RunInput(const string& lineInput)
 {
-	std::lock_guard<std::mutex> l(m_Mutex);
+	if (lineInput.empty())
+	{
+		// Empty string given, don't process it.
+		return;
+	}
 
 	if (lineInput.compare("nquit") == 0)
 	{
 		SetQuitting(true);
 		return;
 	}
+
+	std::lock_guard<std::mutex> l(m_Mutex);
 
 	if (IsConnected())
 	{
@@ -218,7 +224,7 @@ void CNetCon::RunInput(const string& lineInput)
 					cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 			}
 		}
-		else if (!lineInput.empty()) // Single arg command query.
+		else // Single arg command query.
 		{
 			bSend = Serialize(vecMsg, lineInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 		}
