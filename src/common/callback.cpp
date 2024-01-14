@@ -644,7 +644,7 @@ void VPK_Pack_f(const CCommand& args)
 
 	const char* workspacePath = fs_packedstore_workspace->GetString();
 
-	if (!FileSystem()->IsDirectory(workspacePath, "PLATFORM"));
+	if (!FileSystem()->IsDirectory(workspacePath, "PLATFORM"))
 	{
 		Error(eDLL_T::FS, NO_ERROR, "Workspace path \"%s\" doesn't exist!\n", workspacePath);
 		return;
