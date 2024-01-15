@@ -215,7 +215,7 @@ void CTextOverlay::DrawGPUStats(void) const
 	const int nWidth  = cl_gpustats_invert_x->GetBool() ? g_nWindowRect[0] - cl_gpustats_offset_x->GetInt() : cl_gpustats_offset_x->GetInt();
 	const int nHeight = cl_gpustats_invert_y->GetBool() ? g_nWindowRect[1] - cl_gpustats_offset_y->GetInt() : cl_gpustats_offset_y->GetInt();
 
-	DrawFormat(nWidth, nHeight, c, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n",
+	DrawFormat(nWidth, nHeight, c, "%8zd/%8zd/%8zdkiB unusable/unfree/total GPU Streaming Texture memory\n",
 		*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nTotalStreamingTextureMemory / 1024);
 }
 
