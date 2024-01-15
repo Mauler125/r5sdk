@@ -74,9 +74,9 @@ inline const char*(*CMaterialSystem__DrawStreamOverlay)(void* thisptr, uint8_t* 
 
 inline void** s_pRenderContext; // NOTE: This is some CMaterial instance or array.
 
-inline int* g_nTotalStreamingTextureMemory    = nullptr;
-inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
-inline int* g_nUnusableStreamingTextureMemory = nullptr;
+inline ssize_t* g_nTotalStreamingTextureMemory    = nullptr;
+inline ssize_t* g_nUnfreeStreamingTextureMemory   = nullptr;
+inline ssize_t* g_nUnusableStreamingTextureMemory = nullptr;
 #endif // !MATERIALSYSTEM_NODX
 
 // TODO: move to materialsystem_global.h!
@@ -128,9 +128,9 @@ class VMaterialSystem : public IDetour
 	virtual void GetVar(void) const
 	{
 #ifndef MATERIALSYSTEM_NODX
-		g_nTotalStreamingTextureMemory = CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x1C).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
-		g_nUnfreeStreamingTextureMemory = CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x2D).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
-		g_nUnusableStreamingTextureMemory = CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x50).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
+		CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x1C).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_nTotalStreamingTextureMemory);
+		CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x2D).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_nUnfreeStreamingTextureMemory);
+		CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x50).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_nUnusableStreamingTextureMemory);
 
 		CMemory(v_DispatchDrawCall).FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(s_pRenderContext);
 		CMemory(CMaterialSystem__Disconnect).FindPattern("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_pMaterialAdapterMgr);
