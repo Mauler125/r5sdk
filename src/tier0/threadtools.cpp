@@ -13,25 +13,21 @@
 
 int CThreadFastMutex::Lock(void)
 {
-	DWORD threadId = GetCurrentThreadId();
+	const DWORD threadId = GetCurrentThreadId();
 	LONG result = ThreadInterlockedCompareExchange((volatile LONG*)&m_lAddend, 0, 1);
 
 	if (result)
 	{
 		if (m_nOwnerID == threadId)
 		{
-			result = m_nDepth + 1;
-			m_nDepth = result;
-
-			return result;
+			return ++m_nDepth;
 		}
 
 		LONG cycle = 1;
-		LONG64 delay;
 
 		while (true)
 		{
-			delay = (10 * cycle);
+			LONG64 delay = (10 * cycle);
 			if (delay)
 			{
 				do
@@ -77,10 +73,7 @@ int CThreadFastMutex::Lock(void)
 
 int CThreadFastMutex::Unlock()
 {
-	LONG result; // eax
-	HANDLE SemaphoreA; // rcx
-
-	result = m_nDepth - 1;
+	LONG result = m_nDepth - 1;
 	m_nDepth = result;
 
 	if (!result)
@@ -92,12 +85,12 @@ int CThreadFastMutex::Unlock()
 		{
 			if (!m_hSemaphore)
 			{
-				SemaphoreA = CreateSemaphoreA(NULL, INIT_SEM_COUNT, MAX_SEM_COUNT, NULL);
+				const HANDLE SemaphoreA = CreateSemaphoreA(NULL, INIT_SEM_COUNT, MAX_SEM_COUNT, NULL);
 
-				if (ThreadInterlockedAssignIf64(
-					(volatile LONG64*)&m_hSemaphore, NULL, (LONG64)SemaphoreA))
+				if (ThreadInterlockedAssignIf64((volatile LONG64*)&m_hSemaphore, NULL, (LONG64)SemaphoreA))
 					CloseHandle(SemaphoreA);
 			}
+
 			return ReleaseSemaphore(m_hSemaphore, 1, NULL);
 		}
 	}
