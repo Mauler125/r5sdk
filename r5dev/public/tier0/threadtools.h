@@ -275,6 +275,14 @@ inline ThreadId_t(*v_DeclareCurrentThreadIsMainThread)(void);
 class CThreadFastMutex
 {
 public:
+	CThreadFastMutex()
+		: m_nOwnerID(NULL)
+		, m_nDepth(NULL)
+		, m_lAddend(NULL)
+		, m_hSemaphore(NULL)
+	{
+	}
+
 	int Lock(void);
 	int Unlock(void);
 
