@@ -43,7 +43,7 @@ int CThreadFastMutex::Lock(void)
 
 			result = ThreadInterlockedCompareExchange((volatile LONG*)&m_lAddend, 0, 1);
 
-			if (result)
+			if (!result)
 				break;
 
 			if (++cycle > 5)
