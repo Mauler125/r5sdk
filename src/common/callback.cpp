@@ -25,9 +25,14 @@
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #endif // !CLIENT_DLL
-#include "rtech/rtech_game.h"
-#include "rtech/rtech_utils.h"
+
+#include "rtech/pak/pakdecode.h"
+#include "rtech/pak/pakparse.h"
+#include "rtech/pak/pakstate.h"
+#include "rtech/pak/paktools.h"
+
 #include "rtech/playlists/playlists.h"
+
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 #include "vpklib/packedstore.h"
@@ -295,13 +300,13 @@ void Pak_ListPaks_f(const CCommand& args)
 	{
 		const PakLoadedInfo_t& info = g_pLoadedPakInfo[i];
 
-		if (info.m_status == EPakStatus::PAK_STATUS_FREED)
+		if (info.status == EPakStatus::PAK_STATUS_FREED)
 			continue;
 
-		const char* szRpakStatus = g_pRTech->PakStatusToString(info.m_status);
+		const char* szRpakStatus = Pak_StatusToString(info.status);
 
 		// todo: make status into a string from an array/vector
-		Msg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11i |\n", info.m_handle, info.m_fileName, szRpakStatus, info.m_assetCount);
+		Msg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11i |\n", info.handle, info.fileName, szRpakStatus, info.assetCount);
 		nTotalLoaded++;
 	}
 	Msg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
@@ -325,10 +330,10 @@ void Pak_ListTypes_f(const CCommand& args)
 	{
 		PakAssetBinding_t* type = &g_pPakGlobals->m_assetBindings[i];
 
-		if (!type->m_description)
+		if (!type->description)
 			continue;
 
-		Msg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", FourCCToString(type->m_extension).c_str(), type->m_description, type->m_version, type->m_subHeaderSize, type->m_nativeClassSize);
+		Msg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", FourCCToString(type->extension).c_str(), type->description, type->version, type->headerSize, type->nativeClassSize);
 		nRegistered++;
 	}
 	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
@@ -348,37 +353,31 @@ void Pak_RequestUnload_f(const CCommand& args)
 		return;
 	}
 
-	try
+	if (args.HasOnlyDigits(1))
 	{
-		if (args.HasOnlyDigits(1))
-		{
-			const PakHandle_t pakHandle = atoi(args.Arg(1));
-			const PakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
-			if (!pakInfo)
-			{
-				throw std::exception("Found no pak entry for specified handle.");
-			}
+		const PakHandle_t pakHandle = atoi(args.Arg(1));
+		const PakLoadedInfo_t* const pakInfo = Pak_GetPakInfo(pakHandle);
 
-			const string pakName = pakInfo->m_fileName;
-			!pakName.empty() ? Msg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : Msg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
-			g_pakLoadApi->UnloadPak(pakHandle);
-		}
-		else
+		if (!pakInfo)
 		{
-			const PakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
-			if (!pakInfo)
-			{
-				throw std::exception("Found no pak entry for specified name.");
-			}
-
-			Msg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", args.Arg(1));
-			g_pakLoadApi->UnloadPak(pakInfo->m_handle);
+			Warning(eDLL_T::RTECH, "Found no pak entry for specified handle.\n");
+			return;
 		}
+
+		Msg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
+		g_pakLoadApi->UnloadAsync(pakHandle);
 	}
-	catch (const std::exception& e)
+	else
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
-		return;
+		const PakLoadedInfo_t* const pakInfo = Pak_GetPakInfo(args.Arg(1));
+		if (!pakInfo)
+		{
+			Warning(eDLL_T::RTECH, "Found no pak entry for specified name.\n");
+			return;
+		}
+
+		Msg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", args.Arg(1));
+		g_pakLoadApi->UnloadAsync(pakInfo->handle);
 	}
 }
 
@@ -400,49 +399,45 @@ Pak_Swap_f
 */
 void Pak_Swap_f(const CCommand& args)
 {
-	try
+	const char* pakName = nullptr;
+
+	PakHandle_t pakHandle = INVALID_PAK_HANDLE;
+	const PakLoadedInfo_t* pakInfo = nullptr;
+
+	if (args.HasOnlyDigits(1))
 	{
-		string pakName;
-		PakHandle_t pakHandle = 0;
-		PakLoadedInfo_t* pakInfo = nullptr;
+		pakHandle = atoi(args.Arg(1));
+		pakInfo = Pak_GetPakInfo(pakHandle);
 
-		if (args.HasOnlyDigits(1))
+		if (!pakInfo)
 		{
-			pakHandle = atoi(args.Arg(1));
-			pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
-			if (!pakInfo)
-			{
-				throw std::exception("Found no pak entry for specified handle.");
-			}
-
-			pakName = pakInfo->m_fileName;
-		}
-		else
-		{
-			pakName = args.Arg(1);
-			pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
-			if (!pakInfo)
-			{
-				throw std::exception("Found no pak entry for specified name.");
-			}
-
-			pakHandle = pakInfo->m_handle;
+			Warning(eDLL_T::RTECH, "Found no pak entry for specified handle.\n");
+			return;
 		}
 
-		!pakName.empty() ? Msg(eDLL_T::RTECH, "Requested pak swap for file '%s'\n", pakName.c_str()) : Msg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
-
-		g_pakLoadApi->UnloadPak(pakHandle);
-
-		while (pakInfo->m_status != EPakStatus::PAK_STATUS_FREED) // Wait till this slot gets free'd.
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-
-		g_pakLoadApi->LoadAsync(pakName.c_str(), AlignedMemAlloc(), NULL, 0);
+		pakName = pakInfo->fileName;
 	}
-	catch (const std::exception& e)
+	else
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
-		return;
+		pakName = args.Arg(1);
+		pakInfo = Pak_GetPakInfo(pakName);
+
+		if (!pakInfo)
+		{
+			Warning(eDLL_T::RTECH, "Found no pak entry for specified name.\n");
+			return;
+		}
+
+		pakHandle = pakInfo->handle;
 	}
+
+	Msg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
+	g_pakLoadApi->UnloadAsync(pakHandle);
+
+	while (pakInfo->status != EPakStatus::PAK_STATUS_FREED) // Wait till this slot gets free'd.
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	g_pakLoadApi->LoadAsync(pakName, AlignedMemAlloc(), NULL, 0);
 }
 
 /*
@@ -450,14 +445,14 @@ void Pak_Swap_f(const CCommand& args)
 RTech_StringToGUID_f
 =====================
 */
-void RTech_StringToGUID_f(const CCommand& args)
+void Pak_StringToGUID_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
 		return;
 	}
 
-	unsigned long long guid = g_pRTech->StringToGuid(args.Arg(1));
+	unsigned long long guid = Pak_StringToGuid(args.Arg(1));
 
 	Msg(eDLL_T::RTECH, "______________________________________________________________\n");
 	Msg(eDLL_T::RTECH, "] RTECH_HASH ]------------------------------------------------\n");
@@ -469,10 +464,10 @@ void RTech_StringToGUID_f(const CCommand& args)
 RTech_Decompress_f
 
   Decompresses input RPak file and
-  dumps results to 'paks\Win32\*.rpak'
+  dumps results to override path
 =====================
 */
-void RTech_Decompress_f(const CCommand& args)
+void Pak_Decompress_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
@@ -505,41 +500,41 @@ void RTech_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	const ssize_t nPakLen = FileSystem()->Size(hPakFile);
+	const ssize_t nFileSize = FileSystem()->Size(hPakFile);
 
-	std::unique_ptr<uint8_t[]> pPakBufContainer(new uint8_t[nPakLen]);
+	std::unique_ptr<uint8_t[]> pPakBufContainer(new uint8_t[nFileSize]);
 	uint8_t* const pPakBuf = pPakBufContainer.get();
 
-	FileSystem()->Read(pPakBuf, nPakLen, hPakFile);
+	FileSystem()->Read(pPakBuf, nFileSize, hPakFile);
 	FileSystem()->Close(hPakFile);
 
 	PakFileHeader_t* pHeader = reinterpret_cast<PakFileHeader_t*>(pPakBuf);
-	uint16_t flags = (pHeader->m_flags[0] << 8) | pHeader->m_flags[1];
+	uint16_t flags = (pHeader->flags[0] << 8) | pHeader->flags[1];
 
 	SYSTEMTIME systemTime;
-	FileTimeToSystemTime(&pHeader->m_fileTime, &systemTime);
+	FileTimeToSystemTime(&pHeader->fileTime, &systemTime);
 
 	Msg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
-	Msg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->m_magic);
-	Msg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->m_version);
+	Msg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->magic);
+	Msg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->version);
 	Msg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", flags);
 	Msg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",
-		systemTime.wYear,systemTime.wMonth,systemTime.wDay, systemTime.wDayOfWeek,
+		systemTime.wYear, systemTime.wMonth, systemTime.wDay, systemTime.wDayOfWeek,
 		systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
-	Msg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->m_checksum);
-	Msg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->m_assetEntryCount);
+	Msg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->checksum);
+	Msg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->assetCount);
 	Msg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
-	Msg(eDLL_T::RTECH, " |     |-- Size comp: '%zu'\n", pHeader->m_compressedSize);
-	Msg(eDLL_T::RTECH, " |     |-- Size decp: '%zu'\n", pHeader->m_decompressedSize);
+	Msg(eDLL_T::RTECH, " |     |-- Size comp: '%zu'\n", pHeader->compressedSize);
+	Msg(eDLL_T::RTECH, " |     |-- Size decp: '%zu'\n", pHeader->decompressedSize);
 
-	if (pHeader->m_magic != PAK_HEADER_MAGIC)
+	if (pHeader->magic != PAK_HEADER_MAGIC)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' has invalid magic!\n",
 			__FUNCTION__, inPakFile.String());
 
 		return;
 	}
-	if ((pHeader->m_flags[1] & 1) != 1)
+	if ((pHeader->flags[1] & 1) != 1)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' already decompressed!\n",
 			__FUNCTION__, inPakFile.String());
@@ -547,23 +542,21 @@ void RTech_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	const size_t unsignedPakLen = static_cast<size_t>(nPakLen);
-
-	if (pHeader->m_compressedSize != unsignedPakLen)
+	if (pHeader->compressedSize != size_t(nFileSize))
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%zu' doesn't match expected size '%zu'!\n",
-			__FUNCTION__, inPakFile.String(), unsignedPakLen, pHeader->m_decompressedSize);
+			__FUNCTION__, inPakFile.String(), size_t(nFileSize), pHeader->compressedSize);
 
 		return;
 	}
 
-	PakDecompState_t decompState;
-	const uint64_t nDecompSize = g_pRTech->DecompressPakFileInit(&decompState, pPakBuf, unsignedPakLen, NULL, sizeof(PakFileHeader_t));
+	PakDecoder_t decoder{}; // Needs full decode mask as we don't decompress in chunks.
+	const uint64_t nDecompSize = Pak_InitDefaultDecoder(&decoder, pPakBuf, PAK_DECODE_MASK_FULL, nFileSize, NULL, sizeof(PakFileHeader_t));
 
-	if (nDecompSize != pHeader->m_decompressedSize)
+	if (nDecompSize != pHeader->decompressedSize)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - calculated size: '%llu' expected: '%llu'!\n",
-			__FUNCTION__, nDecompSize, pHeader->m_decompressedSize);
+			__FUNCTION__, nDecompSize, pHeader->decompressedSize);
 
 		return;
 	}
@@ -572,24 +565,25 @@ void RTech_Decompress_f(const CCommand& args)
 		Msg(eDLL_T::RTECH, " |     |-- Size calc: '%llu'\n", nDecompSize);
 	}
 
-	Msg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (pHeader->m_compressedSize * 100.f) / pHeader->m_decompressedSize);
+	Msg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (pHeader->compressedSize * 100.f) / pHeader->decompressedSize);
 
 
-	std::unique_ptr<uint8_t[]> pDecompBufContainer(new uint8_t[pHeader->m_decompressedSize]);
+	std::unique_ptr<uint8_t[]> pDecompBufContainer(new uint8_t[pHeader->decompressedSize]);
 	uint8_t* const pDecompBuf = pDecompBufContainer.get();
 
-	decompState.m_outputMask = UINT64_MAX;
-	decompState.m_outputBuf = uint64_t(pDecompBuf);
+	// Needs full decode mask as we don't decompress in chunks.
+	decoder.outputMask = PAK_DECODE_MASK_FULL;
+	decoder.outputBuf = pDecompBuf;
 
-	uint8_t nDecompResult = g_pRTech->DecompressPakFile(&decompState, unsignedPakLen, pHeader->m_decompressedSize);
+	uint8_t nDecompResult = Pak_DefaultDecode(&decoder, pHeader->compressedSize, pHeader->decompressedSize);
 	if (nDecompResult != 1)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n",
 			__FUNCTION__, inPakFile.String(), nDecompResult);
 	}
 
-	pHeader->m_flags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
-	pHeader->m_compressedSize = pHeader->m_decompressedSize; // Equal compressed size with decompressed.
+	pHeader->flags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
+	pHeader->compressedSize = pHeader->decompressedSize; // Equal compressed size with decompressed.
 
 	FileSystem()->CreateDirHierarchy(PLATFORM_PAK_OVERRIDE_PATH, "GAME");
 	FileHandle_t hDecompFile = FileSystem()->Open(outPakFile.String(), "wb", "GAME");
@@ -602,25 +596,25 @@ void RTech_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	if (pHeader->m_patchIndex > 0) // Check if its an patch rpak.
+	if (pHeader->patchIndex > 0) // Check if its an patch rpak.
 	{
 		// Loop through all the structs and patch their compress size.
 		for (uint32_t i = 1, nPatchOffset = (sizeof(PakFileHeader_t) + sizeof(uint64_t));
-			i <= pHeader->m_patchIndex; i++, nPatchOffset += sizeof(PakPatchFileHeader_t))
+			i <= pHeader->patchIndex; i++, nPatchOffset += sizeof(PakPatchFileHeader_t))
 		{
 			PakPatchFileHeader_t* pPatchHeader = reinterpret_cast<PakPatchFileHeader_t*>(pDecompBuf + nPatchOffset);
 			Msg(eDLL_T::RTECH, " |     |-+ Patch #%02u -----------------------------------------\n", i);
-			Msg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->m_patchIndex ? "|" : " ", pPatchHeader->m_sizeDisk);
-			Msg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->m_patchIndex ? "|" : " ", pPatchHeader->m_sizeMemory);
+			Msg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->patchIndex ? "|" : " ", pPatchHeader->m_sizeDisk);
+			Msg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->patchIndex ? "|" : " ", pPatchHeader->m_sizeMemory);
 
 			pPatchHeader->m_sizeDisk = pPatchHeader->m_sizeMemory; // Fix size for decompress.
 		}
 	}
 
 	memcpy_s(pDecompBuf, sizeof(PakFileHeader_t), pPakBuf, sizeof(PakFileHeader_t));// Overwrite first 0x80 bytes which are NULL with the header data.
-	FileSystem()->Write(pDecompBuf, decompState.m_decompSize, hDecompFile);
+	FileSystem()->Write(pDecompBuf, decoder.decompSize, hDecompFile);
 
-	Msg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_decompSize));
+	Msg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decoder.decompSize));
 	Msg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", outPakFile.String());
 	Msg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 

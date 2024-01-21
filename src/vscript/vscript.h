@@ -4,7 +4,7 @@
 #include "vscript/languages/squirrel_re/include/sqstate.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 #include "vscript/ivscript.h"
-#include "vpc/rson.h"
+#include "rtech/rson.h"
 
 #define MOD_SCRIPT_PATH_IDENTIFIER "::MOD::"
 

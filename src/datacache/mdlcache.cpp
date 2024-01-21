@@ -12,7 +12,7 @@
 #include "datacache/mdlcache.h"
 #include "datacache/imdlcache.h"
 #include "datacache/idatacache.h"
-#include "rtech/rtech_utils.h"
+#include "rtech/pak/paktools.h"
 #include "public/studio.h"
 
 CStudioFallbackHandler g_StudioMdlFallbackHandler;
@@ -153,7 +153,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
     }
 
     pStudioData->processing = true;
-    g_pRTech->StringToGuid(modelName);
+    Pak_StringToGuid(modelName);
     pStudioData->processing = false;
 
     studiomodelcache_t* const modelCache = pStudioData->GetModelCache();

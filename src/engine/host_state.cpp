@@ -35,8 +35,6 @@
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #endif // !CLIENT_DLL
-#include "rtech/rtech_game.h"
-#include "rtech/rtech_utils.h"
 #include "rtech/stryder/stryder.h"
 #include "rtech/playlists/playlists.h"
 #ifndef DEDICATED

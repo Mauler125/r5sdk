@@ -59,7 +59,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "SV_RCon_Pb"
     "CL_RCon_Pb"
 
-    "rtech_tools"
+    "rson"
     "rtech_game"
     "playlists"
     "stryder"

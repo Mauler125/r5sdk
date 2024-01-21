@@ -2,7 +2,7 @@
 #include <tier0/memstd.h>
 #include "tier1/utlbuffer.h"
 #include <filesystem/filesystem.h>
-#include "vpc/rson.h"
+#include "rtech/rson.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: loads an RSON from a buffer

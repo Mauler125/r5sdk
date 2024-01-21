@@ -10,7 +10,6 @@
 #include <tier1/keyvalues.h>
 #include <windows/id3dx.h>
 #include <mathlib/color.h>
-#include <rtech/rtech_utils.h>
 #include <rtech/rui/rui.h>
 #include <vgui/vgui_debugpanel.h>
 #include <vguimatsurface/MatSystemSurface.h>

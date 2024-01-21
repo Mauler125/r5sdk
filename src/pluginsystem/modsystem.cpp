@@ -7,10 +7,10 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "vpc/rson.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "tier2/fileutils.h"
+#include "rtech/rson.h"
 #include "localize/localize.h"
 #include "modsystem.h"
 

@@ -2,6 +2,19 @@
 #include "engine/host_cmd.h"
 #include "tier0/jobthread.h"
 
+
+bool JT_IsJobDone(const JobID_t jobId)
+{
+	return (job_JT_Context[jobId & 0xFFF].field_24 ^ jobId) & 0xFFFFC000;
+}
+
+// TODO: confirm this actually returns a JobID_t and not some other int
+JobID_t JTGuts_AddJob(JobTypeID_t jobTypeId, JobID_t jobId, void* callbackFunc, void* callbackArg)
+{
+	const unsigned int jobIndex = JT_AllocateJob();
+	return JTGuts_AddJob_Internal(jobTypeId, jobId, callbackFunc, callbackArg, jobIndex, &job_JT_Context[jobIndex]);
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

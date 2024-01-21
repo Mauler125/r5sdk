@@ -1,9 +1,9 @@
 #pragma once
 
 #include "tier1/keyvalues.h"
-#include "vpc/rson.h"
+#include "rtech/rson.h"
 #include "filesystem/filesystem.h"
-#include "public/vscript/ivscript.h"
+#include "vscript/ivscript.h"
 
 #define MOD_STATUS_LIST_FILE "mods.vdf"
 #define MOD_SETTINGS_FILE "mod.vdf"

@@ -24,18 +24,6 @@ enum EPackedStoreTargets
 	STORE_TARGET_CLIENT
 };
 
-struct FileHandleTracker_t
-{
-	int m_nFileNumber;
-	int m_nCurOfs;
-	HANDLE m_hFileHandle;
-};
-
-struct pFileHandleTracker_t
-{
-	FileHandleTracker_t self[1024];
-};
-
 #pragma pack(push, 1)
 struct VPKFileEntry_t
 {

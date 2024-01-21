@@ -293,7 +293,9 @@ ConVar* curl_timeout                       = nullptr;
 ConVar* curl_debug                         = nullptr;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
-ConVar* rtech_debug                        = nullptr;
+ConVar* async_debug_level                  = nullptr;
+ConVar* async_debug_close                  = nullptr;
+ConVar* pak_debugrelations                 = nullptr;
 //-----------------------------------------------------------------------------
 // RUI                                                                        |
 #ifndef DEDICATED
@@ -366,11 +368,11 @@ void ConVar_StaticInit(void)
 	navmesh_debug_tile_range   = ConVar::StaticCreate("navmesh_debug_tile_range"   , "0"    , FCVAR_DEVELOPMENTONLY, "NavMesh debug draw tiles ranging from shift index to this cvar.", true, 0.f, false, 0.f, nullptr, nullptr);
 	navmesh_debug_camera_range = ConVar::StaticCreate("navmesh_debug_camera_range" , "2000" , FCVAR_DEVELOPMENTONLY, "Only debug draw tiles within this distance from camera origin.", true, 0.f, false, 0.f, nullptr, nullptr);
 #ifndef DEDICATED
-	navmesh_draw_bvtree            = ConVar::StaticCreate("navmesh_draw_bvtree"            , "-1", FCVAR_DEVELOPMENTONLY, "Draws the BVTree of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
-	navmesh_draw_portal            = ConVar::StaticCreate("navmesh_draw_portal"            , "-1", FCVAR_DEVELOPMENTONLY, "Draws the portal of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
-	navmesh_draw_polys             = ConVar::StaticCreate("navmesh_draw_polys"             , "-1", FCVAR_DEVELOPMENTONLY, "Draws the polys of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
-	navmesh_draw_poly_bounds       = ConVar::StaticCreate("navmesh_draw_poly_bounds"       , "-1", FCVAR_DEVELOPMENTONLY, "Draws the bounds of the NavMesh polys.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
-	navmesh_draw_poly_bounds_inner = ConVar::StaticCreate("navmesh_draw_poly_bounds_inner" , "0" , FCVAR_DEVELOPMENTONLY, "Draws the inner bounds of the NavMesh polys (requires navmesh_draw_poly_bounds).", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
+	navmesh_draw_bvtree            = ConVar::StaticCreate("navmesh_draw_bvtree"            , "-1", FCVAR_DEVELOPMENTONLY, "Draws the BVTree of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: >= 0 && < mesh->m_tileCount");
+	navmesh_draw_portal            = ConVar::StaticCreate("navmesh_draw_portal"            , "-1", FCVAR_DEVELOPMENTONLY, "Draws the portal of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: >= 0 && < mesh->m_tileCount");
+	navmesh_draw_polys             = ConVar::StaticCreate("navmesh_draw_polys"             , "-1", FCVAR_DEVELOPMENTONLY, "Draws the polys of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: >= 0 && < mesh->m_tileCount");
+	navmesh_draw_poly_bounds       = ConVar::StaticCreate("navmesh_draw_poly_bounds"       , "-1", FCVAR_DEVELOPMENTONLY, "Draws the bounds of the NavMesh polys.", false, 0.f, false, 0.f, nullptr, "Index: >= 0 && < mesh->m_tileCount");
+	navmesh_draw_poly_bounds_inner = ConVar::StaticCreate("navmesh_draw_poly_bounds_inner" , "0" , FCVAR_DEVELOPMENTONLY, "Draws the inner bounds of the NavMesh polys (requires navmesh_draw_poly_bounds).", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 
 	sv_language = ConVar::StaticCreate("sv_language", "english", FCVAR_RELEASE, "Language of the server. Sent to MasterServer for localising error messages.", false, 0.f, false, 0.f, LanguageChanged_f, nullptr);
@@ -521,7 +523,10 @@ void ConVar_StaticInit(void)
 	pylon_showdebuginfo        = ConVar::StaticCreate("pylon_showdebuginfo"       , "0"                , FCVAR_RELEASE, "Shows debug output for pylon.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
-	rtech_debug = ConVar::StaticCreate("rtech_debug", "0", FCVAR_DEVELOPMENTONLY, "Shows debug output for the RTech system.", false, 0.f, false, 0.f, nullptr, nullptr);
+	async_debug_level    = ConVar::StaticCreate("async_debug_level"   , "0", FCVAR_DEVELOPMENTONLY, "The debug level for async reads.", false, 0.f, false, 0.f, nullptr, "0 = disabled");
+	async_debug_close    = ConVar::StaticCreate("async_debug_close"   , "0", FCVAR_DEVELOPMENTONLY, "Debug async file closing.", false, 0.f, false, 0.f, nullptr, "0 = disabled");
+
+	pak_debugrelations   = ConVar::StaticCreate("pak_debugrelations"  , "0", FCVAR_DEVELOPMENTONLY, "Debug RPAK asset dependency resolving.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RUI                                                                    |
 #ifndef DEDICATED
@@ -765,8 +770,8 @@ void ConCommand_StaticInit(void)
 	ConCommand::StaticCreate("fs_vpk_unpack", "Unpack all files from a VPK file.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
-	ConCommand::StaticCreate("rtech_strtoguid", "Calculates the GUID from input data.", nullptr, FCVAR_DEVELOPMENTONLY, RTech_StringToGUID_f, nullptr);
-	ConCommand::StaticCreate("pak_decompress", "Decompresses specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, RTech_Decompress_f, RTech_PakDecompress_f_CompletionFunc);
+	ConCommand::StaticCreate("pak_strtoguid", "Calculates the GUID from input data.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_StringToGUID_f, nullptr);
+	ConCommand::StaticCreate("pak_decompress", "Decompresses specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_Decompress_f, RTech_PakDecompress_f_CompletionFunc);
 	ConCommand::StaticCreate("pak_requestload", "Requests asynchronous load for specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_RequestLoad_f, RTech_PakLoad_f_CompletionFunc);
 	ConCommand::StaticCreate("pak_requestunload", "Requests unload for specified RPAK file or ID.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_RequestUnload_f, RTech_PakUnload_f_CompletionFunc);
 	ConCommand::StaticCreate("pak_swap", "Requests swap for specified RPAK file or ID", nullptr, FCVAR_DEVELOPMENTONLY, Pak_Swap_f, nullptr);

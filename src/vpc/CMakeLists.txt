@@ -8,8 +8,6 @@ add_sources( SOURCE_GROUP "Private"
     "IAppSystem.h"
     "interfaces.cpp"
     "interfaces.h"
-    "rson.cpp"
-    "rson.h"
 )
 
 add_sources( SOURCE_GROUP "Public"
