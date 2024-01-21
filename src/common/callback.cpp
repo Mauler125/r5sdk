@@ -250,12 +250,17 @@ Host_Changelevel_f
 */
 void Host_Changelevel_f(const CCommand& args)
 {
-	if (args.ArgC() >= 2
+	const int argCount = args.ArgC();
+
+	if (argCount >= 2
 		&& IsOriginInitialized()
 		&& g_pServer->IsActive())
 	{
+		const char* levelName = args[1];
+		const char* landMarkName = argCount > 2 ? args[2] : "";
+
 		v_SetLaunchOptions(args);
-		v_HostState_ChangeLevelMP(args[1], args[2]);
+		v_HostState_ChangeLevelMP(levelName, landMarkName);
 	}
 }
 
@@ -399,6 +404,11 @@ Pak_Swap_f
 */
 void Pak_Swap_f(const CCommand& args)
 {
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
 	const char* pakName = nullptr;
 
 	PakHandle_t pakHandle = INVALID_PAK_HANDLE;
