@@ -34,17 +34,17 @@ public:
 	bool SendRequest(const char* endpoint, const rapidjson::Document& requestJson, rapidjson::Document& responseJson, string& outMessage, CURLINFO& status, const char* errorText = nullptr, const bool checkEula = true) const;
 	bool QueryServer(const char* endpoint, const char* request, string& outResponse, string& outMessage, CURLINFO& outStatus) const;
 
+	inline void SetCurrentToken(const string& token) { m_Token = token; }
 	inline const string& GetCurrentToken() const { return m_Token; }
+
+	inline void SetCurrentError(const string& error) { m_ErrorMsg = error; }
 	inline const string& GetCurrentError() const { return m_ErrorMsg; }
 
+	inline void SetHostIP(const string& ip) { m_HostIP = ip; };
 	inline const string& GetHostIP() const { return m_HostIP; };
 
-	inline void SetCurrentToken(const string& token) { m_Token = token; }
-	inline void SetCurrentError(const string& error) { m_ErrorMsg = error; }
-
-	inline void SetHostIP(const string& ip) { m_HostIP = ip; };
-
 	inline void SetLanguage(const char* lang) { m_Language = lang; };
+	inline const string& GetLanguage() const { return m_Language; };
 
 private:
 	string m_Token;

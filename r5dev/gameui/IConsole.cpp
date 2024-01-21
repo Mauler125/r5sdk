@@ -192,7 +192,7 @@ void CConsole::RunFrame(void)
 void CConsole::RunTask(void)
 {
     // m_Logger and m_vHistory are modified.
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
 
     ClampLogSize();
     ClampHistorySize();
@@ -279,7 +279,8 @@ void CConsole::DrawSurface(void)
 
     // Mutex is locked here, as we start using/modifying
     // non-atomic members that are used from several threads.
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
+
     m_Logger.Render();
 
     if (m_bCopyToClipBoard)
@@ -1043,7 +1044,7 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const ConLog_t& conLog)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
     m_Logger.InsertText(conLog);
 }
 
@@ -1073,8 +1074,9 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 void CConsole::RemoveLog(int nStart, int nEnd)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
-    int nLines = m_Logger.GetTotalLines();
+    AUTO_LOCK(m_Mutex);
+
+    const int nLines = m_Logger.GetTotalLines();
 
     if (nEnd >= nLines)
     {
@@ -1114,7 +1116,7 @@ void CConsole::RemoveLog(int nStart, int nEnd)
 //-----------------------------------------------------------------------------
 void CConsole::ClearLog(void)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
     m_Logger.RemoveLine(0, (m_Logger.GetTotalLines() - 1));
 }
 
@@ -1124,7 +1126,7 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 vector<string> CConsole::GetHistory(void) const
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
     return m_vHistory;
 }
 
@@ -1133,7 +1135,8 @@ vector<string> CConsole::GetHistory(void) const
 //-----------------------------------------------------------------------------
 void CConsole::ClearHistory(void)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
+
     m_vHistory.clear();
     BuildSummary();
 }

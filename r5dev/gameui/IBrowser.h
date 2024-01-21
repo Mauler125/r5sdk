@@ -7,7 +7,7 @@
 #include "public/isurfacesystem.h"
 #include "thirdparty/imgui/misc/imgui_utility.h"
 
-class CBrowser : public ISurface
+class CBrowser : public IDebugSurface
 {
 public:
     CBrowser(void);
@@ -53,7 +53,7 @@ private:
 
     ID3D11ShaderResourceView* m_idLockedIcon;
     MODULERESOURCE m_rLockedIconBlob;
-    mutable std::mutex m_Mutex;
+    mutable CThreadFastMutex m_Mutex;
 
     ////////////////////
     //   Server List  //
