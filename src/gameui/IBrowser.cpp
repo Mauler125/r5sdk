@@ -219,7 +219,7 @@ void CBrowser::Think(void)
 //-----------------------------------------------------------------------------
 void CBrowser::DrawSurface(void)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
 
     ImGui::BeginTabBar("CompMenu");
     if (ImGui::BeginTabItem("Browsing"))
@@ -374,7 +374,7 @@ void CBrowser::RefreshServerList(void)
     std::string svServerListMessage;
     g_ServerListManager.RefreshServerList(svServerListMessage);
 
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
     m_svServerListMessage = svServerListMessage;
 }
 
@@ -696,7 +696,7 @@ void CBrowser::UpdateHostingStatus(void)
     {
     case EHostStatus_t::NOT_HOSTING:
     {
-        std::lock_guard<std::mutex> g(m_Mutex);
+        AUTO_LOCK(m_Mutex);
         if (!m_svHostToken.empty())
         {
             m_svHostToken.clear();
@@ -782,15 +782,22 @@ void CBrowser::SendHostingPostRequest(const NetGameServer_t& gameServer)
     string svHostToken;
     string svHostIp;
 
-    bool result = g_MasterServer.PostServerHost(svHostRequestMessage, svHostToken, svHostIp, gameServer);
+    const bool result = g_MasterServer.PostServerHost(svHostRequestMessage, svHostToken, svHostIp, gameServer);
 
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
 
     m_svHostRequestMessage = svHostRequestMessage;
     m_svHostToken = svHostToken;
 
-    if(svHostIp.length() != 0)
-        g_MasterServer.SetHostIP(svHostIp);
+    if (!svHostIp.empty())
+    {
+        // Must be set from the main thread, dispatch it off
+        // and set it at the start of the next frame.
+        g_TaskScheduler->Dispatch([svHostIp]()
+            {
+                g_MasterServer.SetHostIP(svHostIp);
+            }, 0);
+    }
 
     if (result)
     {
@@ -847,7 +854,7 @@ void CBrowser::SettingsPanel(void)
 //-----------------------------------------------------------------------------
 void CBrowser::SetHostName(const char* pszHostName)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
     m_szMatchmakingHostName = pszHostName;
 }
 

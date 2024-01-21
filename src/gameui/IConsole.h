@@ -6,7 +6,7 @@
 #include "thirdparty/imgui/misc/imgui_logger.h"
 #include "thirdparty/imgui/misc/imgui_utility.h"
 
-class CConsole : public ISurface
+class CConsole : public IDebugSurface
 {
 public:
     enum PositionMode_t
@@ -73,8 +73,8 @@ private:
     const char*                    m_pszConsoleLabel;
     const char*                    m_pszLoggingLabel;
     char                           m_szInputBuf[512];
-    char                           m_szSummary[512];
-    char                           m_szWindowLabel[512];
+    char                           m_szSummary[256];
+    char                           m_szWindowLabel[128];
 
     string                         m_svInputConVar;
     ssize_t                        m_nHistoryPos;
@@ -104,7 +104,7 @@ private:
     ImVec2                         m_ivSuggestWindowPos;
     ImVec2                         m_ivSuggestWindowSize;
     CTextLogger                    m_Logger;
-    mutable std::mutex             m_Mutex;
+    mutable CThreadFastMutex       m_Mutex;
 
     ImGuiInputTextFlags m_nInputFlags;
     ImGuiWindowFlags m_nSuggestFlags;

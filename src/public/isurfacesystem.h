@@ -1,10 +1,10 @@
 #ifndef ISURFACESYSTEM_H
 #define ISURFACESYSTEM_H
 
-class ISurface
+class IDebugSurface
 {
 public:
-    virtual ~ISurface() { };
+    virtual ~IDebugSurface() { };
 	virtual bool Init() = 0;
 	virtual void Think() = 0;
 	virtual void RunFrame() = 0;
