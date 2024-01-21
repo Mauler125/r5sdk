@@ -52,4 +52,4 @@ private:
 	string m_HostIP;
 	string m_Language;
 };
-extern CPylon* g_pMasterServer;
+extern CPylon g_MasterServer;

@@ -72,7 +72,7 @@ void _Host_RunFrame(void* unused, float time)
 		}), g_FrameTasks.end());
 
 #ifndef DEDICATED
-	g_pOverlay->ShouldDraw(time);
+	g_TextOverlay.ShouldDraw(time);
 #endif // !DEDICATED
 
 	return v_Host_RunFrame(unused, time);

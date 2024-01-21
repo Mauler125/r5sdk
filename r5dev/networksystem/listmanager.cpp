@@ -35,7 +35,7 @@ CServerListManager::CServerListManager(void)
 size_t CServerListManager::RefreshServerList(string& svMessage)
 {
     ClearServerList();
-    vector<NetGameServer_t> vServerList = g_pMasterServer->GetServerList(svMessage);
+    vector<NetGameServer_t> vServerList = g_MasterServer.GetServerList(svMessage);
 
     std::lock_guard<std::mutex> l(m_Mutex);
     m_vServerList = vServerList;
@@ -137,4 +137,4 @@ void CServerListManager::ProcessCommand(const char* pszCommand) const
     //g_TaskScheduler->Dispatch(Cbuf_Execute, 0); // Run in main thread.
 }
 
-CServerListManager* g_pServerListManager = new CServerListManager();
+CServerListManager g_ServerListManager;

@@ -88,7 +88,7 @@ MP_HostName_Changed_f
 void MP_HostName_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
 #ifndef DEDICATED
-	g_pBrowser->SetHostName(pylon_matchmaking_hostname->GetString());
+	g_Browser.SetHostName(pylon_matchmaking_hostname->GetString());
 #endif // !DEDICATED
 }
 
@@ -100,7 +100,7 @@ ToggleConsole_f
 */
 void ToggleConsole_f(const CCommand& args)
 {
-	g_pConsole->m_bActivate ^= true;
+	g_Console.m_bActivate ^= true;
 	ResetInput(); // Disable input to game when console is drawn.
 }
 
@@ -111,7 +111,7 @@ ToggleBrowser_f
 */
 void ToggleBrowser_f(const CCommand& args)
 {
-	g_pBrowser->m_bActivate ^= true;
+	g_Browser.m_bActivate ^= true;
 	ResetInput(); // Disable input to game when browser is drawn.
 }
 #endif // !DEDICATED
@@ -137,22 +137,22 @@ void _Author_Client_f(const CCommand& args, EKickType type)
 	{
 		case KICK_NAME:
 		{
-			g_pBanSystem->KickPlayerByName(args.Arg(1), szReason);
+			g_BanSystem.KickPlayerByName(args.Arg(1), szReason);
 			break;
 		}
 		case KICK_ID:
 		{
-			g_pBanSystem->KickPlayerById(args.Arg(1), szReason);
+			g_BanSystem.KickPlayerById(args.Arg(1), szReason);
 			break;
 		}
 		case BAN_NAME:
 		{
-			g_pBanSystem->BanPlayerByName(args.Arg(1), szReason);
+			g_BanSystem.BanPlayerByName(args.Arg(1), szReason);
 			break;
 		}
 		case BAN_ID:
 		{
-			g_pBanSystem->BanPlayerById(args.Arg(1), szReason);
+			g_BanSystem.BanPlayerById(args.Arg(1), szReason);
 			break;
 		}
 		default:
@@ -216,7 +216,7 @@ void Host_Unban_f(const CCommand& args)
 		return;
 	}
 
-	g_pBanSystem->UnbanPlayer(args.Arg(1));
+	g_BanSystem.UnbanPlayer(args.Arg(1));
 }
 
 /*
@@ -226,7 +226,7 @@ Host_ReloadBanList_f
 */
 void Host_ReloadBanList_f(const CCommand& args)
 {
-	g_pBanSystem->LoadList(); // Reload banned list.
+	g_BanSystem.LoadList(); // Reload banned list.
 }
 
 /*
@@ -866,7 +866,7 @@ CON_LogHistory_f
 */
 void CON_LogHistory_f(const CCommand& args)
 {
-	const vector<string> vHistory = g_pConsole->GetHistory();
+	const vector<string> vHistory = g_Console.GetHistory();
 	for (size_t i = 0, nh = vHistory.size(); i < nh; i++)
 	{
 		Msg(eDLL_T::COMMON, "%3d: %s\n", i, vHistory[i].c_str());
@@ -892,7 +892,7 @@ void CON_RemoveLine_f(const CCommand& args)
 	int start = atoi(args[1]);
 	int end = atoi(args[2]);
 
-	g_pConsole->RemoveLog(start, end);
+	g_Console.RemoveLog(start, end);
 }
 
 /*
@@ -905,7 +905,7 @@ CON_ClearLines_f
 */
 void CON_ClearLines_f(const CCommand& args)
 {
-	g_pConsole->ClearLog();
+	g_Console.ClearLog();
 }
 
 /*
@@ -918,7 +918,7 @@ CON_ClearHistory_f
 */
 void CON_ClearHistory_f(const CCommand& args)
 {
-	g_pConsole->ClearHistory();
+	g_Console.ClearHistory();
 }
 
 /*
@@ -1059,7 +1059,7 @@ void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValu
 		}
 
 		pConVarRef->SetValue(pNewString);
-		g_pMasterServer->SetLanguage(pNewString);
+		g_MasterServer.SetLanguage(pNewString);
 	}
 }
 

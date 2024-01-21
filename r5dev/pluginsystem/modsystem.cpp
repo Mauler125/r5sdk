@@ -343,4 +343,4 @@ void CModSystem::ModInstance_t::ParseLocalizationFiles()
 	}
 }
 
-CModSystem* g_pModSystem = new CModSystem();
+CModSystem g_ModSystem;

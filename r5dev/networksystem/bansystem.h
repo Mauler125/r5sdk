@@ -56,4 +56,4 @@ private:
 	BannedList_t m_BannedList;
 };
 
-extern CBanSystem* g_pBanSystem;
+extern CBanSystem g_BanSystem;

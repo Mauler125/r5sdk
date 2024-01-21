@@ -425,4 +425,4 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CBanSystem* g_pBanSystem = new CBanSystem();
+CBanSystem g_BanSystem;

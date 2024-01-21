@@ -143,9 +143,9 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		return nullptr;
 	}
 
-	if (g_pBanSystem->IsBanListValid())
+	if (g_BanSystem.IsBanListValid())
 	{
-		if (g_pBanSystem->IsBanned(pszAddresBuffer, nNucleusID))
+		if (g_BanSystem.IsBanned(pszAddresBuffer, nNucleusID))
 		{
 			pServer->RejectConnection(pServer->m_Socket, &pChallenge->netAdr, "#Valve_Reject_Banned");
 			if (bEnableLogging)
@@ -158,7 +158,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 
 	CClient* pClient = CServer__ConnectClient(pServer, pChallenge);
 
-	for (auto& callback : !g_pPluginSystem->GetConnectClientCallbacks())
+	for (auto& callback : !g_PluginSystem.GetConnectClientCallbacks())
 	{
 		if (!callback(pServer, pClient, pChallenge))
 		{

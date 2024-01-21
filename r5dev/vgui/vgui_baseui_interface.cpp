@@ -21,7 +21,7 @@ int CEngineVGui::Paint(CEngineVGui* thisptr, PaintMode_t mode)
 
 	if (/*mode == PaintMode_t::PAINT_UIPANELS ||*/ mode == PaintMode_t::PAINT_INGAMEPANELS) // Render in-main menu and in-game.
 	{
-		g_pOverlay->Update();
+		g_TextOverlay.Update();
 	}
 
 	return result;

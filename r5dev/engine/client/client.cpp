@@ -150,7 +150,7 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 				"%lld-%s-%s",
 				this->m_DataBlock.userData,
 				playerName,
-				g_pMasterServer->GetHostIP().c_str()
+				g_MasterServer.GetHostIP().c_str()
 			);
 
 			DevMsg(eDLL_T::SERVER, "%s: newId=%s\n", __FUNCTION__, newId.c_str());

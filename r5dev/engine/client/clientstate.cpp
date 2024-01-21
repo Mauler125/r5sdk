@@ -219,7 +219,7 @@ bool CClientState::Authenticate(connectparams_t* connectParams, char* const reas
     // verify that the client is not lying about their account identity
     // code is immediately discarded upon verification
 
-    const bool ret = g_pMasterServer->AuthForConnection(*g_NucleusID, connectParams->netAdr, g_OriginAuthCode, msToken, message);
+    const bool ret = g_MasterServer.AuthForConnection(*g_NucleusID, connectParams->netAdr, g_OriginAuthCode, msToken, message);
     if (!ret)
     {
         FORMAT_ERROR_REASON("%s", message.c_str());

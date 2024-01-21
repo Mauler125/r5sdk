@@ -24,7 +24,7 @@ void SV_IsClientBanned(CClient* pClient, const string& svIPAddr,
 	Assert(pClient != nullptr);
 
 	string svError;
-	bool bCompBanned = g_pMasterServer->CheckForBan(svIPAddr, nNucleusID, svPersonaName, svError);
+	bool bCompBanned = g_MasterServer.CheckForBan(svIPAddr, nNucleusID, svPersonaName, svError);
 
 	if (bCompBanned)
 	{
@@ -56,7 +56,7 @@ void SV_IsClientBanned(CClient* pClient, const string& svIPAddr,
 void SV_ProcessBulkCheck(const CBanSystem::BannedList_t* pBannedVec, const bool bDelete)
 {
 	CBanSystem::BannedList_t* outBannedVec = new CBanSystem::BannedList_t();
-	g_pMasterServer->GetBannedList(*pBannedVec, *outBannedVec);
+	g_MasterServer.GetBannedList(*pBannedVec, *outBannedVec);
 
 	// Caller wants to destroy the vector.
 	if (bDelete)
