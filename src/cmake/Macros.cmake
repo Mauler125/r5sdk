@@ -51,14 +51,8 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRO
         add_library( ${PROJECT_NAME} )
     elseif( ${MODULE_TYPE} STREQUAL "shared_lib" )
         add_library( ${PROJECT_NAME} SHARED )
-        target_link_options( ${PROJECT_NAME} PRIVATE
-        "$<$<CONFIG:Release>:/LTCG>"
-    )
     elseif( ${MODULE_TYPE} STREQUAL "exe" )
         add_executable( ${PROJECT_NAME} )
-        target_link_options( ${PROJECT_NAME} PRIVATE
-        "$<$<CONFIG:Release>:/LTCG>"
-    )
     else()
         message( FATAL_ERROR "Invalid module type: ${MODULE_TYPE}; expected 'lib', 'shared_lib', or 'exe'." )
     endif()
@@ -80,6 +74,7 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRO
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Ot>
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GS->
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/Gy>
+            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GT>
             $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/fp:fast>
     )
     endif()
@@ -101,12 +96,13 @@ macro( define_compiler_variables )
 endmacro()
 
 # -----------------------------------------------------------------------------
-# Apply whole program optimization for this target in release ( !slow! )
+# Apply whole program optimization for this target in release and profile ( !slow! )
 # -----------------------------------------------------------------------------
 macro( whole_program_optimization )
-    target_compile_options( ${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:/GL>
-    )
+    if( ${OPTION_LTCG_MODE} STREQUAL "ON" )
+        set_property( TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+        set_property( TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION_PROFILE TRUE)
+    endif()
 endmacro()
 
 # -----------------------------------------------------------------------------
