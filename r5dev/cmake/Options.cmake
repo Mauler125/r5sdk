@@ -21,7 +21,13 @@ macro( apply_project_settings )
 
     # Some thirdparty code have Warnings as Errors disabled; this option won't override those.
     option( OPTION_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON )
-    option( OPTION_LTCG "Enable link-time code generation (significantly increases compile times)" OFF )
+
+    set( OPTION_LTCG_MODE "OFF" CACHE STRING "Enables link-time code generation (significantly increases compile times)" )
+    set_property( CACHE OPTION_LTCG_MODE PROPERTY STRINGS
+    "OFF"
+    "ON"
+    "ALL"
+    )
 
     option( OPTION_CERTAIN "This build is certain; debug statements (such as DevMsg(...)) will NOT be compiled" OFF )
     option( OPTION_RETAIL "This build is retail; enable this among with 'OPTION_CERTAIN' to form a release build" OFF )
@@ -74,11 +80,9 @@ macro( apply_project_settings )
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/EHsc>
     )
 
-    if( ${OPTION_LTCG} )
-        add_compile_options(
-            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Profile>>:/GL>
-            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GL>
-        )
+    if( ${OPTION_LTCG_MODE} STREQUAL "ALL" )
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_PROFILE ON)
     endif()
 
     set( CMAKE_EXE_LINKER_FLAGS_RELEASE
