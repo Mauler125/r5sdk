@@ -69,20 +69,20 @@ bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
 	string hostToken;
 	string hostIp;
 
-	const bool result = g_pMasterServer->PostServerHost(errorMsg, hostToken, hostIp, netGameServer);
+	const bool result = g_MasterServer.PostServerHost(errorMsg, hostToken, hostIp, netGameServer);
 	if (!result)
 	{
-		if (!errorMsg.empty() && g_pMasterServer->GetCurrentError().compare(errorMsg) != NULL)
+		if (!errorMsg.empty() && g_MasterServer.GetCurrentError().compare(errorMsg) != NULL)
 		{
-			g_pMasterServer->SetCurrentError(errorMsg);
+			g_MasterServer.SetCurrentError(errorMsg);
 			Error(eDLL_T::SERVER, NO_ERROR, "%s\n", errorMsg.c_str());
 		}
 	}
 	else // Attempt to log the token, if there is one.
 	{
-		if (!hostToken.empty() && g_pMasterServer->GetCurrentToken().compare(hostToken) != NULL)
+		if (!hostToken.empty() && g_MasterServer.GetCurrentToken().compare(hostToken) != NULL)
 		{
-			g_pMasterServer->SetCurrentToken(hostToken);
+			g_MasterServer.SetCurrentToken(hostToken);
 			Msg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
 				g_svReset, g_svGreyB,
 				hostToken.c_str(), g_svReset);
@@ -90,7 +90,7 @@ bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
 	}
 
 	if (hostIp.length() != 0)
-		g_pMasterServer->SetHostIP(hostIp);
+		g_MasterServer.SetHostIP(hostIp);
 
 	return result;
 }
@@ -252,7 +252,7 @@ void CHostState::Setup(void)
 {
 	g_pHostState->LoadConfig();
 #ifndef CLIENT_DLL
-	g_pBanSystem->LoadList();
+	g_BanSystem.LoadList();
 #endif // !CLIENT_DLL
 	ConVar_PurgeHostNames();
 

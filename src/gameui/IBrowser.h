@@ -79,5 +79,5 @@ private:
     ImGuiStyle_t m_Style;
 };
 
-extern CBrowser* g_pBrowser;
+extern CBrowser g_Browser;
 #endif

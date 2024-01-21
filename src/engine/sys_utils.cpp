@@ -98,9 +98,9 @@ void _Con_NPrintf(int pos, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	g_pOverlay->m_nCon_NPrintf_Idx = pos;
-	snprintf(g_pOverlay->m_szCon_NPrintf_Buf,
-		sizeof(g_pOverlay->m_szCon_NPrintf_Buf), "%s", buf);
+	g_TextOverlay.m_nCon_NPrintf_Idx = pos;
+	snprintf(g_TextOverlay.m_szCon_NPrintf_Buf,
+		sizeof(g_TextOverlay.m_szCon_NPrintf_Buf), "%s", buf);
 }
 #endif // !DEDICATED
 

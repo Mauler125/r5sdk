@@ -55,7 +55,7 @@ public:
 	virtual const char* GetVersion(void)                                        const override;
 };
 
-extern CFactorySystem* g_pFactorySystem;
+extern CFactorySystem g_FactorySystem;
 PLATFORM_INTERFACE IFactorySystem* GetFactorySystem();
 
 ///////////////////////////////////////////////////////////////////////////////

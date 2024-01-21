@@ -43,16 +43,16 @@ namespace VScriptCode
             }
 
             // Adjust browser settings.
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
 
-            g_pServerListManager->m_Server.m_svHostName = serverName;
-            g_pServerListManager->m_Server.m_svDescription = serverDescription;
-            g_pServerListManager->m_Server.m_svHostMap = serverMapName;
-            g_pServerListManager->m_Server.m_svPlaylist = serverPlaylist;
-            g_pServerListManager->m_ServerVisibility = eServerVisibility;
+            g_ServerListManager.m_Server.m_svHostName = serverName;
+            g_ServerListManager.m_Server.m_svDescription = serverDescription;
+            g_ServerListManager.m_Server.m_svHostMap = serverMapName;
+            g_ServerListManager.m_Server.m_svPlaylist = serverPlaylist;
+            g_ServerListManager.m_ServerVisibility = eServerVisibility;
 
             // Launch server.
-            g_pServerListManager->LaunchServer(g_pServer->IsActive());
+            g_ServerListManager.LaunchServer(g_pServer->IsActive());
 
             return SQ_OK;
 
@@ -82,7 +82,7 @@ namespace VScriptCode
             if (!VALID_CHARSTAR(reason))
                 reason = nullptr;
 
-            g_pBanSystem->KickPlayerByName(playerName, reason);
+            g_BanSystem.KickPlayerByName(playerName, reason);
 
             return SQ_OK;
         }
@@ -99,7 +99,7 @@ namespace VScriptCode
             if (!VALID_CHARSTAR(reason))
                 reason = nullptr;
 
-            g_pBanSystem->KickPlayerById(playerHandle, reason);
+            g_BanSystem.KickPlayerById(playerHandle, reason);
 
             return SQ_OK;
         }
@@ -116,7 +116,7 @@ namespace VScriptCode
             if (!VALID_CHARSTAR(reason))
                 reason = nullptr;
 
-            g_pBanSystem->BanPlayerByName(playerName, reason);
+            g_BanSystem.BanPlayerByName(playerName, reason);
 
             return SQ_OK;
         }
@@ -133,7 +133,7 @@ namespace VScriptCode
             if (!VALID_CHARSTAR(reason))
                 reason = nullptr;
 
-            g_pBanSystem->BanPlayerById(playerHandle, reason);
+            g_BanSystem.BanPlayerById(playerHandle, reason);
 
             return SQ_OK;
         }
@@ -144,7 +144,7 @@ namespace VScriptCode
         SQRESULT UnbanPlayer(HSQUIRRELVM v)
         {
             SQChar* szCriteria = sq_getstring(v, 1);
-            g_pBanSystem->UnbanPlayer(szCriteria);
+            g_BanSystem.UnbanPlayer(szCriteria);
 
             return SQ_OK;
         }

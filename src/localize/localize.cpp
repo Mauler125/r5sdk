@@ -8,7 +8,7 @@ bool Localize_LoadLocalizationFileLists(CLocalize* thisptr)
 	CLocalize__LoadLocalizationFileLists(thisptr);
 
 	const CUtlVector<CModSystem::ModInstance_t*>&
-		modList = g_pModSystem->GetModList();
+		modList = ModSystem()->GetModList();
 
 	FOR_EACH_VEC(modList, i)
 	{

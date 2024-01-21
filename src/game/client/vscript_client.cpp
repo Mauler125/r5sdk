@@ -25,7 +25,7 @@
 //-----------------------------------------------------------------------------
 static SQBool Script_CheckServerIndex(HSQUIRRELVM v, SQInteger iServer)
 {
-    SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
+    SQInteger iCount = static_cast<SQInteger>(g_ServerListManager.m_vServerList.size());
 
     if (iServer >= iCount)
     {
@@ -46,7 +46,7 @@ namespace VScriptCode
         SQRESULT RefreshServerList(HSQUIRRELVM v)
         {
             string serverMessage; // Refresh list.
-            size_t iCount = g_pServerListManager->RefreshServerList(serverMessage);
+            size_t iCount = g_ServerListManager.RefreshServerList(serverMessage);
 
             sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
@@ -58,7 +58,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerCount(HSQUIRRELVM v)
         {
-            size_t iCount = g_pServerListManager->m_vServerList.size();
+            size_t iCount = g_ServerListManager.m_vServerList.size();
             sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
             return SQ_OK;
@@ -77,7 +77,7 @@ namespace VScriptCode
             string hiddenServerRequestMessage;
             NetGameServer_t serverListing;
 
-            bool result = g_pMasterServer->GetServerByToken(serverListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
+            bool result = g_MasterServer.GetServerByToken(serverListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (!result)
             {
                 if (hiddenServerRequestMessage.empty())
@@ -120,7 +120,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -128,7 +128,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const string& serverName = g_pServerListManager->m_vServerList[iServer].m_svHostName;
+            const string& serverName = g_ServerListManager.m_vServerList[iServer].m_svHostName;
             sq_pushstring(v, serverName.c_str(), -1);
 
             return SQ_OK;
@@ -139,7 +139,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerDescription(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -147,7 +147,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const string& serverDescription = g_pServerListManager->m_vServerList[iServer].m_svDescription;
+            const string& serverDescription = g_ServerListManager.m_vServerList[iServer].m_svDescription;
             sq_pushstring(v, serverDescription.c_str(), -1);
 
             return SQ_OK;
@@ -158,7 +158,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -166,7 +166,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const string& svServerMapName = g_pServerListManager->m_vServerList[iServer].m_svHostMap;
+            const string& svServerMapName = g_ServerListManager.m_vServerList[iServer].m_svHostMap;
             sq_pushstring(v, svServerMapName.c_str(), -1);
 
             return SQ_OK;
@@ -177,7 +177,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -185,7 +185,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const string& serverPlaylist = g_pServerListManager->m_vServerList[iServer].m_svPlaylist;
+            const string& serverPlaylist = g_ServerListManager.m_vServerList[iServer].m_svPlaylist;
             sq_pushstring(v, serverPlaylist.c_str(), -1);
 
             return SQ_OK;
@@ -196,7 +196,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -204,7 +204,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const SQInteger playerCount = g_pServerListManager->m_vServerList[iServer].m_nPlayerCount;
+            const SQInteger playerCount = g_ServerListManager.m_vServerList[iServer].m_nPlayerCount;
             sq_pushinteger(v, playerCount);
 
             return SQ_OK;
@@ -215,7 +215,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMaxPlayers(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -223,7 +223,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const SQInteger maxPlayers = g_pServerListManager->m_vServerList[iServer].m_nMaxPlayers;
+            const SQInteger maxPlayers = g_ServerListManager.m_vServerList[iServer].m_nMaxPlayers;
             sq_pushinteger(v, maxPlayers);
 
             return SQ_OK;
@@ -295,7 +295,7 @@ namespace VScriptCode
             MSEulaData_t eulaData;
             string eulaRequestMessage;
 
-            if (g_pMasterServer->GetEULA(eulaData, eulaRequestMessage))
+            if (g_MasterServer.GetEULA(eulaData, eulaRequestMessage))
             {
                 // set EULA version cvar to the newly fetched EULA version
                 eula_version->SetValue(eulaData.version);
@@ -325,7 +325,7 @@ namespace VScriptCode
                 return SQ_OK;
 
             Msg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", ipAddress, cryptoKey);
-            g_pServerListManager->ConnectToServer(ipAddress, cryptoKey);
+            g_ServerListManager.ConnectToServer(ipAddress, cryptoKey);
 
             return SQ_OK;
         }
@@ -335,7 +335,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToListedServer(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -343,9 +343,9 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const NetGameServer_t& gameServer = g_pServerListManager->m_vServerList[iServer];
+            const NetGameServer_t& gameServer = g_ServerListManager.m_vServerList[iServer];
 
-            g_pServerListManager->ConnectToServer(gameServer.m_svIpAddress, gameServer.m_nGamePort,
+            g_ServerListManager.ConnectToServer(gameServer.m_svIpAddress, gameServer.m_nGamePort,
                 gameServer.m_svEncryptionKey);
 
             return SQ_OK;
@@ -364,10 +364,10 @@ namespace VScriptCode
             string hiddenServerRequestMessage;
             NetGameServer_t netListing;
 
-            bool result = g_pMasterServer->GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
+            bool result = g_MasterServer.GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (result)
             {
-                g_pServerListManager->ConnectToServer(netListing.m_svIpAddress, netListing.m_nGamePort, netListing.m_svEncryptionKey);
+                g_ServerListManager.ConnectToServer(netListing.m_svIpAddress, netListing.m_nGamePort, netListing.m_svEncryptionKey);
             }
             else
             {

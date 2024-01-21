@@ -1149,4 +1149,4 @@ void CConsole::SetStyleVar(void)
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 }
 
-CConsole* g_pConsole = new CConsole();
+CConsole g_Console;

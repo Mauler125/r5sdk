@@ -38,5 +38,5 @@ public:
 	mutable std::mutex m_Mutex;
 };
 
-extern CServerListManager* g_pServerListManager;
+extern CServerListManager g_ServerListManager;
 #endif // LISTMANAGER_H

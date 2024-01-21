@@ -76,4 +76,9 @@ private:
 	CUtlVector<ModInstance_t*> m_ModList;
 };
 
-extern CModSystem* g_pModSystem;
+extern CModSystem g_ModSystem;
+
+FORCEINLINE CModSystem* ModSystem()
+{
+	return &g_ModSystem;
+}

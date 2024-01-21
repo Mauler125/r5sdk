@@ -145,9 +145,9 @@ void CSquirrelVM::SetAsCompiler(RSON::Node_t* rson)
 //---------------------------------------------------------------------------------
 void CSquirrelVM::CompileModScripts()
 {
-	FOR_EACH_VEC(g_pModSystem->GetModList(), i)
+	FOR_EACH_VEC(ModSystem()->GetModList(), i)
 	{
-		const CModSystem::ModInstance_t* mod = g_pModSystem->GetModList()[i];
+		const CModSystem::ModInstance_t* mod = ModSystem()->GetModList()[i];
 
 		if (!mod->IsEnabled())
 			continue;

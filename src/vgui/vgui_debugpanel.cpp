@@ -296,4 +296,4 @@ Color CTextOverlay::GetLogColorForType(const eDLL_T context) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CTextOverlay* g_pOverlay = new CTextOverlay();
+CTextOverlay g_TextOverlay;

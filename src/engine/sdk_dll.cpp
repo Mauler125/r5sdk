@@ -20,11 +20,11 @@ void CEngineSDK::FixedFrame()
 	for (;;)
 	{
 #ifndef DEDICATED
-		g_pBrowser->Think();
-		g_pConsole->Think();
+		g_Browser.Think();
+		g_Console.Think();
 #endif // !DEDICATED
 		std::this_thread::sleep_for(IntervalToDuration(sdk_fixedframe_tickinterval->GetFloat()));
 	}
 }
 
-CEngineSDK* g_EngineSDK = new CEngineSDK();
+CEngineSDK g_EngineSDK;

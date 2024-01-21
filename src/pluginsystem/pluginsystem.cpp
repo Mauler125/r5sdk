@@ -209,4 +209,4 @@ void* CPluginSystem::HelpWithAnything(PluginHelpWithAnything_t* help)
 	return nullptr;
 }
 
-CPluginSystem* g_pPluginSystem = new CPluginSystem();
+CPluginSystem g_PluginSystem;

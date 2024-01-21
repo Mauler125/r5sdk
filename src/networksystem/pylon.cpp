@@ -617,4 +617,4 @@ void CPylon::LogBody(const rapidjson::Document& responseJson) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CPylon* g_pMasterServer(new CPylon());
+CPylon g_MasterServer;

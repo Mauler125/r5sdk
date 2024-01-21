@@ -117,11 +117,11 @@ void DrawImGui()
 	if (GImGui->ConfigNavWindowingKeyPrev)
 		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyPrev, ImGuiKeyOwner_None);
 
-	g_pBrowser->RunTask();
-	g_pBrowser->RunFrame();
+	g_Browser.RunTask();
+	g_Browser.RunFrame();
 
-	g_pConsole->RunTask();
-	g_pConsole->RunFrame();
+	g_Console.RunTask();
+	g_Console.RunFrame();
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -322,12 +322,12 @@ bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView*
 void ResetInput()
 {
 	g_pInputSystem->EnableInput( // Enables the input system when both are not drawn.
-		!g_pBrowser->m_bActivate && !g_pConsole->m_bActivate);
+		!g_Browser.m_bActivate && !g_Console.m_bActivate);
 }
 
 bool PanelsVisible()
 {
-	if (g_pBrowser->m_bActivate || g_pConsole->m_bActivate)
+	if (g_Browser.m_bActivate || g_Console.m_bActivate)
 	{
 		return true;
 	}

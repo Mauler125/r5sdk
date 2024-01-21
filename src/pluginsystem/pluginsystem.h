@@ -130,11 +130,11 @@ public:
 private:
 	CUtlVector<PluginInstance_t> m_Instances;
 };
-extern CPluginSystem* g_pPluginSystem;
+extern CPluginSystem g_PluginSystem;
 
 FORCEINLINE CPluginSystem* PluginSystem()
 {
-	return g_pPluginSystem;
+	return &g_PluginSystem;
 }
 
 // Monitor this and performance profile this if fps drops are detected.
