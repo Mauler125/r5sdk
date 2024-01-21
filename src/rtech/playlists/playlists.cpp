@@ -53,8 +53,6 @@ bool Playlists_Load(const char* pszPlaylist)
 //-----------------------------------------------------------------------------
 bool Playlists_Parse(const char* pszPlaylist)
 {
-	g_szMTVFItemName[0] = '\0'; // Terminate g_szMTVFTaskName to prevent crash while loading playlist.
-
 	CHAR sPlaylistPath[] = "\x77\x27\x35\x2b\x2c\x6c\x2b\x2c\x2b";
 	PCHAR curr = sPlaylistPath;
 	while (*curr)

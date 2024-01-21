@@ -70,7 +70,7 @@ void CServerListManager::LaunchServer(const bool bChangeLevel) const
         m_Server.m_svHostName.c_str(), m_Server.m_svHostMap.c_str(), m_Server.m_svPlaylist.c_str());
 
     /*
-    * Playlist gets parsed in two instances, first in KeyValues::ParsePlaylists with all the necessary
+    * Playlist gets parsed in two instances, first in Playlists_Parse() with all the necessary
     * values. Then when you would normally call launchplaylist which calls StartPlaylist it would cmd
     * call mp_gamemode which parses the gamemode specific part of the playlist..
     */
