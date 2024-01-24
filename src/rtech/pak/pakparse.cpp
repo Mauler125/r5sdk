@@ -337,7 +337,7 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
             fileStream->m_descriptors[v17].dataOffset = v16 + sizeof(PakFileHeader_t);
             fileStream->m_descriptors[v17].compressedSize = v16 + pakHeader->compressedSize;
             fileStream->m_descriptors[v17].decompressedSize = pakHeader->decompressedSize;
-            fileStream->m_descriptors[v17].isCompressed = pakHeader->flags[1] & 1;
+            fileStream->m_descriptors[v17].isCompressed = pakHeader->IsCompressed();
         }
         goto LABEL_17;
     }
@@ -345,6 +345,8 @@ LABEL_18:
     byte1F8 = pak->byte1F8;
     if (byte1F8 != fileStream->byteBF)
     {
+        const bool usesCustomCompression = pak->GetHeader().flags & PAK_HEADER_FLAGS_ZSTD;
+
         byte1FD = pak->byte1FD;
         do
         {
@@ -382,9 +384,9 @@ LABEL_18:
 
                 decodeContext = &pak->pakDecoder;
 
-                decompressedSize = Pak_InitDefaultDecoder(&pak->pakDecoder, fileStream->buffer,
-                    PAK_DECODE_MASK, v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
-                    v22->dataOffset - sizeof(PakFileHeader_t), sizeof(PakFileHeader_t));
+                decompressedSize = Pak_InitDecoder(&pak->pakDecoder, fileStream->buffer,
+                    PAK_DECODE_IN_BUFFER_MASK, v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
+                    v22->dataOffset - sizeof(PakFileHeader_t), sizeof(PakFileHeader_t), usesCustomCompression);
 
                 if (decompressedSize != v22->decompressedSize)
                     Error(eDLL_T::RTECH, EXIT_FAILURE,
@@ -394,7 +396,7 @@ LABEL_18:
                         pak->memoryData.pakHeader.decompressedSize);
 
                 pak->pakDecoder.outputBuf = pak->decompBuffer;
-                pak->pakDecoder.outputMask = PAK_DECODE_OUTPUT_MASK_PARTIAL;
+                pak->pakDecoder.outputMask = PAK_DECODE_OUT_BUFFER_SIZE_MASK;
             }
             else
             {
@@ -408,10 +410,21 @@ LABEL_18:
 
             if (qword1D0 != pak->pakDecoder.decompSize)
             {
-                Pak_DefaultDecode(decodeContext, fileStream->qword1D0, memoryData->processedPatchedDataSize + 0x400000);
+                const bool didDecode = Pak_StreamToBufferDecode(decodeContext, fileStream->qword1D0, memoryData->processedPatchedDataSize + PAK_DECODE_OUT_BUFFER_SIZE, usesCustomCompression);
+
                 qword1D0 = pak->pakDecoder.outBufBytePos;
                 pak->inputBytePos = pak->pakDecoder.inBufBytePos;
+
+                if (didDecode)
+                {
+                    if (usesCustomCompression && decodeContext->zstreamContext)
+                    {
+                        ZSTD_freeDStream(decodeContext->zstreamContext);
+                        decodeContext->zstreamContext = nullptr;
+                    }
+                }
             }
+
             compressedSize = v22->compressedSize;
 
         LABEL_41:
@@ -429,6 +442,10 @@ LABEL_18:
 LABEL_45:
     v28 = memoryData->field_2A8;
     numBytesToProcess = qword1D0 - memoryData->processedPatchedDataSize;
+
+    // temp debugging measure to set the patch func ptr to the one in sdk
+    if (memoryData->patchFunc == PakPatchFuncs_s::PatchFunc_t(0x000000014043e2a0))
+        memoryData->patchFunc = g_pakPatchApi[0];
 
     if (memoryData->patchSrcSize + v28)
     {

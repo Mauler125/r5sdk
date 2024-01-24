@@ -1,8 +1,11 @@
 //=============================================================================//
 //
-// Purpose: decoder initialization and pak decoding
+// Purpose: streamed & buffered pak file decoder
 //
 //=============================================================================//
+#include "thirdparty/zstd/zstd.h"
+#include "thirdparty/zstd/decompress/zstd_decompress_internal.h"
+
 #include "rtech/ipakfile.h"
 #include "pakdecode.h"
 
@@ -127,108 +130,9 @@ static const unsigned char /*141313180*/ s_defaultDecoderLUT[] =
 	0x4C, 0x39, 0x56, 0x75, 0x42, 0x52, 0x65, 0x75, 0x70, 0x35, 0x31, 0x77, 0x4C, 0x51, 0x64, 0x61,
 };
 
-//-----------------------------------------------------------------------------
-// initialize standard pak decoder context
-//-----------------------------------------------------------------------------
-size_t Pak_InitDefaultDecoder(PakDecoder_t* const decoder, const uint8_t* const fileBuffer,
-	const uint64_t inputMask, const size_t dataSize, const size_t dataOffset, const size_t headerSize)
-{
-	uint64_t v8; // r9
-	unsigned __int64 v9; // r11
-	unsigned __int64 v10; // r8
-	int v11; // er8
-	__int64 v12; // rbx
-	unsigned int v13; // ebp
-	unsigned __int64 v14; // rbx
-	uint64_t v15; // rax
-	unsigned int v16; // er9
-	unsigned __int64 v17; // r12
-	unsigned __int64 v18; // r11
-	unsigned __int64 v19; // r10
-	unsigned __int64 v20; // rax
-	int v21; // ebp
-	unsigned __int64 v22; // r10
-	unsigned int v23; // er9
-	uint64_t v24; // rax
-	__int64 v25; // rsi
-	uint64_t v26; // rdx
-	size_t result; // rax
-	uint64_t v28; // rdx
-
-	decoder->inputBuf = fileBuffer;
-	decoder->fileSize = dataOffset + dataSize;
-	decoder->outputBuf = nullptr;
-	decoder->outputMask = NULL;
-	decoder->dword44 = NULL;
-	decoder->inputMask = inputMask;
-
-	v8 = dataOffset + headerSize + 8;
-	v9 = *(_QWORD*)((inputMask & (dataOffset + headerSize)) + fileBuffer);
-
-	decoder->outBufBytePos = headerSize;
-	decoder->inBufBytePos = v8;
-
-	v10 = v9;
-	v9 >>= 6;
-	v11 = v10 & 0x3F;
-	decoder->decompSize = (1i64 << v11) | v9 & ((1i64 << v11) - 1);
-	v12 = *(_QWORD*)((inputMask & v8) + fileBuffer) << (64 - ((unsigned __int8)v11 + 6));
-	decoder->inBufBytePos = v8 + ((unsigned __int64)(unsigned int)(v11 + 6) >> 3);
-	v13 = ((v11 + 6) & 7) + 13;
-	v14 = (0xFFFFFFFFFFFFFFFFui64 >> ((v11 + 6) & 7)) & ((v9 >> v11) | v12);
-	v15 = inputMask & decoder->inBufBytePos;
-	v16 = (((_BYTE)v14 - 1) & 0x3F) + 1;
-	v17 = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (unsigned __int8)v16);
-	decoder->inputInvMask = v17;
-	v18 = 0xFFFFFFFFFFFFFFFFui64 >> (64 - ((((v14 >> 6) - 1) & 0x3F) + 1));
-	decoder->outputInvMask = v18;
-	v19 = (v14 >> 13) | (*(_QWORD*)(v15 + fileBuffer) << (64 - (unsigned __int8)v13));
-	v20 = v13;
-	v21 = v13 & 7;
-	decoder->inBufBytePos += v20 >> 3;
-	v22 = (0xFFFFFFFFFFFFFFFFui64 >> v21) & v19;
-
-	if (v17 == -1i64)
-	{
-		decoder->headerOffset = 0;
-		decoder->bufferSizeNeeded = dataSize;
-	}
-	else
-	{
-		v23 = v16 >> 3;
-		v24 = inputMask & decoder->inBufBytePos;
-		decoder->headerOffset = v23 + 1;
-		v25 = *(_QWORD*)(v24 + fileBuffer) & ((1i64 << (8 * ((unsigned __int8)v23 + 1))) - 1);
-		decoder->inBufBytePos += v23 + 1;
-		decoder->bufferSizeNeeded = v25;
-	}
-
-	decoder->bufferSizeNeeded += dataOffset;
-	v26 = decoder->bufferSizeNeeded;
-	decoder->currentByte = v22;
-	decoder->currentBit = v21;
-	decoder->qword70 = v17 + dataOffset - 6;
-	result = decoder->decompSize;
-	decoder->dword6C = 0;
-	decoder->compressedStreamSize = v26;
-	decoder->decompStreamSize = result;
-
-	if ((((unsigned __int8)(v14 >> 6) - 1) & 0x3F) != -1i64 && result - 1 > v18)
-	{
-		v28 = v26 - decoder->headerOffset;
-		decoder->decompStreamSize = v18 + 1;
-		decoder->compressedStreamSize = v28;
-	}
-
-	return result;
-}
-
-//-----------------------------------------------------------------------------
-// decode input pak data
-//-----------------------------------------------------------------------------
 bool Pak_DefaultDecode(PakDecoder_t* const decoder, const size_t inLen, const size_t outLen)
 {
-	char result; // al
+	bool result; // al
 	uint64_t m_decompBytePosition; // r15
 	uint8_t* m_outputBuf; // r11
 	uint32_t m_currentBit; // ebp
@@ -298,13 +202,13 @@ bool Pak_DefaultDecode(PakDecoder_t* const decoder, const size_t inLen, const si
 	uint32_t v71; // [rsp+60h] [rbp+8h]
 	const uint8_t* v74; // [rsp+78h] [rbp+20h]
 
-	if (inLen < decoder->bufferSizeNeeded)
-		return false;
+	//if (inLen < decoder->bufferSizeNeeded)
+	//	return false;
+
+	//if (outLen < decoder->outputInvMask + (decoder->outBufBytePos & ~decoder->outputInvMask) + 1 && outLen < decoder->decompSize)
+	//	return false;
 
 	m_decompBytePosition = decoder->outBufBytePos;
-
-	if (outLen < decoder->outputInvMask + (m_decompBytePosition & ~decoder->outputInvMask) + 1 && outLen < decoder->decompSize)
-		return false;
 
 	m_outputBuf = decoder->outputBuf;
 	m_currentBit = decoder->currentBit;
@@ -492,12 +396,12 @@ bool Pak_DefaultDecode(PakDecoder_t* const decoder, const size_t inLen, const si
 		m_outputBuf = v70;
 		v13 = (*(_QWORD*)&m_inputBuf[m_fileBytePosition & decoder->inputMask] << (64 - (unsigned __int8)m_currentBit)) | v19;
 	}
-	if (m_decompBytePosition != decoder->decompStreamSize)
+	if (m_decompBytePosition != decoder->decompressedStreamSize)
 		goto LABEL_25;
 	m_decompSize = decoder->decompSize;
 	if (m_decompBytePosition == m_decompSize)
 	{
-		result = 1;
+		result = true;
 		goto LABEL_69;
 	}
 	m_inputInvMask = decoder->inputInvMask;
@@ -525,7 +429,7 @@ bool Pak_DefaultDecode(PakDecoder_t* const decoder, const size_t inLen, const si
 		v36 = m_decompSize;
 		decoder->compressedStreamSize = m_headerOffset + v39;
 	}
-	decoder->decompStreamSize = v36;
+	decoder->decompressedStreamSize = v36;
 	if (inLen >= v38 && outLen >= v36)
 	{
 	LABEL_25:
@@ -547,11 +451,263 @@ bool Pak_DefaultDecode(PakDecoder_t* const decoder, const size_t inLen, const si
 		decoder->qword70 = v69 + m_inputInvMask + 1;
 	}
 	decoder->dword6C = v71;
-	result = 0;
+	result = false;
 	decoder->currentByte = v19;
 	decoder->currentBit = m_currentBit;
 LABEL_69:
 	decoder->outBufBytePos = m_decompBytePosition;
 	decoder->inBufBytePos = m_fileBytePosition;
 	return result;
+}
+
+
+//bool Pak_CustomDecode(PakDecoder_t* const decoder, const size_t inLen, const size_t outLen)
+//{
+//	//ZSTD_frameHeader& frameHeader = decoder->zstdContext->fParams;
+//
+//	// required size for next block
+//
+//	//if (outLen < decoder->decompSize)
+//	//	return false;
+//
+//	const size_t nextSrcSize = ZSTD_nextSrcSizeToDecompress(decoder->zstdContext);
+//
+//	if (inLen < nextSrcSize)
+//		return false;
+//
+//	// the current source size must equal required
+//	const size_t curSrcSize = Min(inLen, nextSrcSize);
+//
+//	const size_t decompSize = ZSTD_decompressContinue(
+//		decoder->zstdContext,
+//		decoder->outputBuf + decoder->outBufBytePos,
+//		decoder->decompSize - decoder->outBufBytePos,
+//		decoder->inputBuf + decoder->inBufBytePos,
+//		curSrcSize);
+//
+//	if (ZSTD_isError(decompSize))
+//	{
+//		Warning(eDLL_T::RTECH, "Decode error: %s\n", ZSTD_getErrorName(decompSize));
+//		return false;
+//	}
+//
+//	decoder->inBufBytePos += curSrcSize;
+//	decoder->outBufBytePos += decompSize;
+//
+//
+//	return decoder->outBufBytePos == decoder->decompSize;
+//}
+
+//-----------------------------------------------------------------------------
+// checks if we have enough output buffer room to decode the data stream
+//-----------------------------------------------------------------------------
+uint64_t Pak_HasEnoughOutputRoom(PakDecoder_t* const decoder, const size_t outLen)
+{
+	const uint64_t bytesWritten = (decoder->outBufBytePos & ~decoder->outputInvMask);
+
+	if (outLen < decoder->outputInvMask + bytesWritten+1 && outLen < decoder->decompSize)
+		return false;
+
+	return true;
+}
+
+bool Pak_ZStreamDecode(PakDecoder_t* const decoder, const size_t inLen, const size_t outLen)
+{
+	if (!Pak_HasEnoughOutputRoom(decoder, outLen))
+		return false;
+
+	size_t inBufLen = inLen;
+
+	if (decoder->frameHeaderSize)
+	{
+		if (inLen < decoder->frameHeaderSize)
+			return false; // not enough data available yet
+
+		inBufLen = decoder->frameHeaderSize;
+		decoder->frameHeaderSize = 0;
+	}
+
+	ZSTD_outBuffer outBuffer;
+
+	outBuffer.dst = decoder->outputBuf;
+	outBuffer.size = decoder->outputMask +1;
+	outBuffer.pos = NULL;
+
+	ZSTD_inBuffer inBuffer;
+
+	inBuffer.src = decoder->inputBuf;
+	inBuffer.size = inBufLen + decoder->inBufBytePos;
+	inBuffer.pos = decoder->inBufBytePos;
+
+	const size_t ret = ZSTD_decompressStream(decoder->zstreamContext, &outBuffer, &inBuffer);
+
+	if (ZSTD_isError(ret))
+	{
+		DevWarning(eDLL_T::RTECH, "Decode error: %s\n", ZSTD_getErrorName(ret));
+		return false;
+	}
+
+	// advance buffer io positions
+	decoder->inBufBytePos = inBuffer.pos;
+	decoder->outBufBytePos = outBuffer.pos;
+
+	return ret == NULL;
+}
+
+//-----------------------------------------------------------------------------
+// initialize the pak decoder context
+//-----------------------------------------------------------------------------
+size_t Pak_InitDefaultDecoder(PakDecoder_t* const decoder, const uint8_t* const fileBuffer,
+	const uint64_t inputMask, const size_t dataSize, const size_t dataOffset, const size_t headerSize)
+{
+	uint64_t v8; // r9
+	unsigned __int64 v9; // r11
+	unsigned __int64 v10; // r8
+	int v11; // er8
+	__int64 v12; // rbx
+	unsigned int v13; // ebp
+	unsigned __int64 v14; // rbx
+	uint64_t v15; // rax
+	unsigned int v16; // er9
+	unsigned __int64 v17; // r12
+	unsigned __int64 v18; // r11
+	unsigned __int64 v19; // r10
+	unsigned __int64 v20; // rax
+	int v21; // ebp
+	unsigned __int64 v22; // r10
+	unsigned int v23; // er9
+	uint64_t v24; // rax
+	__int64 v25; // rsi
+	uint64_t v26; // rdx
+	size_t result; // rax
+	uint64_t v28; // rdx
+
+	v8 = dataOffset + headerSize + 8;
+	v9 = *(_QWORD*)((inputMask & (dataOffset + headerSize)) + fileBuffer);
+
+	v10 = v9;
+	v9 >>= 6;
+	v11 = v10 & 0x3F;
+	decoder->decompSize = (1i64 << v11) | v9 & ((1i64 << v11) - 1);
+	v12 = *(_QWORD*)((inputMask & v8) + fileBuffer) << (64 - ((unsigned __int8)v11 + 6));
+	decoder->inBufBytePos = v8 + ((unsigned __int64)(unsigned int)(v11 + 6) >> 3);
+	v13 = ((v11 + 6) & 7) + 13;
+	v14 = (0xFFFFFFFFFFFFFFFFui64 >> ((v11 + 6) & 7)) & ((v9 >> v11) | v12);
+	v15 = inputMask & decoder->inBufBytePos;
+	v16 = (((_BYTE)v14 - 1) & 0x3F) + 1;
+	v17 = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (unsigned __int8)v16);
+	decoder->inputInvMask = v17;
+	v18 = 0xFFFFFFFFFFFFFFFFui64 >> (64 - ((((v14 >> 6) - 1) & 0x3F) + 1));
+	decoder->outputInvMask = v18;
+	v19 = (v14 >> 13) | (*(_QWORD*)(v15 + fileBuffer) << (64 - (unsigned __int8)v13));
+	v20 = v13;
+	v21 = v13 & 7;
+	decoder->inBufBytePos += v20 >> 3;
+	v22 = (0xFFFFFFFFFFFFFFFFui64 >> v21) & v19;
+
+	if (v17 == -1i64)
+	{
+		decoder->headerOffset = 0;
+		decoder->bufferSizeNeeded = dataSize;
+	}
+	else
+	{
+		v23 = v16 >> 3;
+		v24 = inputMask & decoder->inBufBytePos;
+		decoder->headerOffset = v23 + 1;
+		v25 = *(_QWORD*)(v24 + fileBuffer) & ((1i64 << (8 * ((unsigned __int8)v23 + 1))) - 1);
+		decoder->inBufBytePos += v23 + 1;
+		decoder->bufferSizeNeeded = v25;
+	}
+
+	decoder->bufferSizeNeeded += dataOffset;
+	v26 = decoder->bufferSizeNeeded;
+	decoder->currentByte = v22;
+	decoder->currentBit = v21;
+	decoder->qword70 = v17 + dataOffset - 6;
+	result = decoder->decompSize;
+	decoder->dword6C = 0;
+	decoder->compressedStreamSize = v26;
+	decoder->decompressedStreamSize = result;
+
+	if ((((unsigned __int8)(v14 >> 6) - 1) & 0x3F) != -1i64 && result - 1 > v18)
+	{
+		v28 = v26 - decoder->headerOffset;
+		decoder->decompressedStreamSize = v18 + 1;
+		decoder->compressedStreamSize = v28;
+	}
+
+	return result;
+}
+
+size_t Pak_InitDecoder(PakDecoder_t* const decoder, const uint8_t* const fileBuffer,
+	const uint64_t inputMask, const size_t dataSize, const size_t dataOffset, const size_t headerSize, const bool useCustom)
+{
+	decoder->inputBuf = fileBuffer;
+	decoder->outputBuf = nullptr;
+
+	decoder->fileSize = dataOffset + dataSize;
+	decoder->dword44 = NULL;
+
+	decoder->inputMask = inputMask;
+	decoder->outputMask = NULL;
+
+	decoder->inBufBytePos = dataOffset + headerSize;
+	decoder->outBufBytePos = headerSize;
+
+	if (useCustom)
+	{
+		// NOTE: on original paks, this data is passed out of the frame header, but
+		// for custom paks we are always limiting this to the max decode buffer size
+		decoder->outputInvMask = PAK_DECODE_OUT_BUFFER_SIZE_MASK;
+
+		ZSTD_DStream* const dctx = ZSTD_createDStream();
+		assert(dctx);
+
+		if (!dctx)
+			return NULL;
+
+		decoder->zstreamContext = dctx;
+
+		// this is the offset to the ZSTD header in the input buffer
+		decoder->headerOffset = static_cast<uint32_t>(decoder->inBufBytePos);
+
+		ZSTD_frameHeader& frameHeader = dctx->fParams;
+
+		if (ZSTD_getFrameHeader(&frameHeader, fileBuffer + decoder->inBufBytePos, dataSize) != 0)
+			return NULL; // content size error
+
+		//ZSTD_decompressBegin(dctx);
+
+		decoder->frameHeaderSize = ZSTD_initDStream(dctx);
+
+		// must include header size
+		const uint64_t decompSize = frameHeader.frameContentSize + headerSize;
+
+		decoder->decompSize = decompSize;
+		return decompSize;
+	}
+
+	return Pak_InitDefaultDecoder(decoder, fileBuffer, inputMask, dataSize, dataOffset, headerSize);
+}
+
+//-----------------------------------------------------------------------------
+// decode input pak data
+//-----------------------------------------------------------------------------
+bool Pak_StreamToBufferDecode(PakDecoder_t* const decoder, const size_t inLen, const size_t outLen, const bool useCustom)
+{
+	if (useCustom)
+		return Pak_ZStreamDecode(decoder, inLen, outLen);
+
+	if (inLen < decoder->bufferSizeNeeded)
+		return false;
+
+	const uint64_t bytesWritten = (decoder->outBufBytePos & ~decoder->outputInvMask);
+
+	if (outLen < decoder->outputInvMask + bytesWritten+1 && outLen < decoder->decompSize)
+		return false;
+
+	const bool decodeResult = Pak_DefaultDecode(decoder, inLen, outLen);
+
+	return decodeResult;
 }
