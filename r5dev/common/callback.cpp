@@ -519,7 +519,6 @@ void Pak_Decompress_f(const CCommand& args)
 	FileSystem()->Close(hPakFile);
 
 	PakFileHeader_t* pHeader = reinterpret_cast<PakFileHeader_t*>(pPakBuf);
-	uint16_t flags = (pHeader->flags[0] << 8) | pHeader->flags[1];
 
 	SYSTEMTIME systemTime;
 	FileTimeToSystemTime(&pHeader->fileTime, &systemTime);
@@ -527,7 +526,7 @@ void Pak_Decompress_f(const CCommand& args)
 	Msg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
 	Msg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->magic);
 	Msg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->version);
-	Msg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", flags);
+	Msg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", pHeader->flags);
 	Msg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",
 		systemTime.wYear, systemTime.wMonth, systemTime.wDay, systemTime.wDayOfWeek,
 		systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
@@ -544,7 +543,7 @@ void Pak_Decompress_f(const CCommand& args)
 
 		return;
 	}
-	if ((pHeader->flags[1] & 1) != 1)
+	if (!(pHeader->flags & PAK_HEADER_FLAGS_COMPRESSED))
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' already decompressed!\n",
 			__FUNCTION__, inPakFile.String());
@@ -560,8 +559,10 @@ void Pak_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	PakDecoder_t decoder{}; // Needs full decode mask as we don't decompress in chunks.
-	const uint64_t nDecompSize = Pak_InitDefaultDecoder(&decoder, pPakBuf, PAK_DECODE_MASK_FULL, nFileSize, NULL, sizeof(PakFileHeader_t));
+	const bool usesCustomCompression = pHeader->flags & PAK_HEADER_FLAGS_ZSTD;
+
+	PakDecoder_t decoder{};
+	const uint64_t nDecompSize = Pak_InitDecoder(&decoder, pPakBuf, UINT64_MAX, nFileSize, NULL, sizeof(PakFileHeader_t), usesCustomCompression);
 
 	if (nDecompSize != pHeader->decompressedSize)
 	{
@@ -582,17 +583,17 @@ void Pak_Decompress_f(const CCommand& args)
 	uint8_t* const pDecompBuf = pDecompBufContainer.get();
 
 	// Needs full decode mask as we don't decompress in chunks.
-	decoder.outputMask = PAK_DECODE_MASK_FULL;
+	decoder.outputMask = UINT64_MAX;
 	decoder.outputBuf = pDecompBuf;
 
-	uint8_t nDecompResult = Pak_DefaultDecode(&decoder, pHeader->compressedSize, pHeader->decompressedSize);
+	uint8_t nDecompResult = Pak_StreamToBufferDecode(&decoder, pHeader->compressedSize, pHeader->decompressedSize, usesCustomCompression);
 	if (nDecompResult != 1)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n",
 			__FUNCTION__, inPakFile.String(), nDecompResult);
 	}
 
-	pHeader->flags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
+	pHeader->flags &= ~PAK_HEADER_FLAGS_COMPRESSED; // Remove compressed flags.
 	pHeader->compressedSize = pHeader->decompressedSize; // Equal compressed size with decompressed.
 
 	FileSystem()->CreateDirHierarchy(PLATFORM_PAK_OVERRIDE_PATH, "GAME");
@@ -1233,46 +1234,46 @@ void Mat_CrossHair_f(const CCommand& args)
 		Msg(eDLL_T::MS, "______________________________________________________________\n");
 		Msg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
 		Msg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
-		Msg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
-		Msg(eDLL_T::MS, " |-- Streaming texture count: '%d'\n", material->m_nStreamableTextureCount);
-		Msg(eDLL_T::MS, " |-- Material width: '%d'\n", material->m_iWidth);
-		Msg(eDLL_T::MS, " |-- Material height: '%d'\n", material->m_iHeight);
-		Msg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
+		Msg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->assetGuid);
+		Msg(eDLL_T::MS, " |-- Num Streaming Textures: '%d'\n", material->numStreamingTextureHandles);
+		Msg(eDLL_T::MS, " |-- Material width: '%d'\n", material->width);
+		Msg(eDLL_T::MS, " |-- Material height: '%d'\n", material->height);
+		Msg(eDLL_T::MS, " |-- Samplers: '%08X'\n", material->samplers);
 
 		std::function<void(CMaterialGlue*, const char*)> fnPrintChild = [](CMaterialGlue* material, const char* print)
 		{
 			Msg(eDLL_T::MS, " |-+\n");
 			Msg(eDLL_T::MS, " | |-+ Child material ----------------------------------------\n");
 			Msg(eDLL_T::MS, print, material);
-			Msg(eDLL_T::MS, " |     |-- GUID: '%llX'\n", material->m_GUID);
-			Msg(eDLL_T::MS, " |     |-- Material name: '%s'\n", material->m_pszName);
+			Msg(eDLL_T::MS, " |     |-- GUID: '%llX'\n", material->assetGuid);
+			Msg(eDLL_T::MS, " |     |-- Material name: '%s'\n", material->name);
 		};
 
-		Msg(eDLL_T::MS, " |-- Material name: '%s'\n", material->m_pszName);
-		Msg(eDLL_T::MS, " |-- Material surface name 1: '%s'\n", material->m_pszSurfaceProp);
-		Msg(eDLL_T::MS, " |-- Material surface name 2: '%s'\n", material->m_pszSurfaceProp2);
-		Msg(eDLL_T::MS, " |-- DX buffer: '%llX'\n", material->m_pDXBuffer);
-		Msg(eDLL_T::MS, " |-- DX buffer VFTable: '%llX'\n", material->m_pID3D11BufferVTable);
+		Msg(eDLL_T::MS, " |-- Material name: '%s'\n", material->name);
+		Msg(eDLL_T::MS, " |-- Material surface name 1: '%s'\n", material->surfaceProp);
+		Msg(eDLL_T::MS, " |-- Material surface name 2: '%s'\n", material->surfaceProp2);
+		Msg(eDLL_T::MS, " |-- DX buffer: '%llX'\n", material->dxBuffer);
+		Msg(eDLL_T::MS, " |-- DX buffer VFTable: '%llX'\n", material->unkD3DPointer);
 
-		material->m_pDepthShadow 
-			? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadow: '%llX'\n") 
+		material->depthShadowMaterial
+			? fnPrintChild(material->depthShadowMaterial, " |   |-+ DepthShadow: '%llX'\n")
 			: Msg(eDLL_T::MS, " |   |-+ DepthShadow: 'NULL'\n");
-		material->m_pDepthPrepass 
-			? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass: '%llX'\n") 
+		material->depthPrepassMaterial
+			? fnPrintChild(material->depthPrepassMaterial, " |   |-+ DepthPrepass: '%llX'\n")
 			: Msg(eDLL_T::MS, " |   |-+ DepthPrepass: 'NULL'\n");
-		material->m_pDepthVSM 
-			? fnPrintChild(material->m_pDepthVSM, " |   |-+ DepthVSM: '%llX'\n") 
+		material->depthVSMMaterial
+			? fnPrintChild(material->depthVSMMaterial, " |   |-+ DepthVSM: '%llX'\n")
 			: Msg(eDLL_T::MS, " |   |-+ DepthVSM: 'NULL'\n");
-		material->m_pDepthShadow 
-			? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadowTight: '%llX'\n") 
+		material->depthShadowTightMaterial
+			? fnPrintChild(material->depthShadowTightMaterial, " |   |-+ DepthShadowTight: '%llX'\n")
 			: Msg(eDLL_T::MS, " |   |-+ DepthShadowTight: 'NULL'\n");
-		material->m_pColPass 
-			? fnPrintChild(material->m_pColPass, " |   |-+ ColPass: '%llX'\n") 
+		material->colpassMaterial
+			? fnPrintChild(material->colpassMaterial, " |   |-+ ColPass: '%llX'\n")
 			: Msg(eDLL_T::MS, " |   |-+ ColPass: 'NULL'\n");
 
 		Msg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
-		Msg(eDLL_T::MS, " |-- Texture handles: '%llX'\n", material->m_pTextureHandles);
-		Msg(eDLL_T::MS, " |-- Streaming texture handles: '%llX'\n", material->m_pStreamableTextureHandles);
+		Msg(eDLL_T::MS, " |-- Texture handles: '%llX'\n", material->textureHandles);
+		Msg(eDLL_T::MS, " |-- Streaming texture handles: '%llX'\n", material->streamingTextureHandles);
 
 		Msg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}
