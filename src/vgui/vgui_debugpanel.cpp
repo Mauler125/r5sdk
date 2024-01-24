@@ -229,12 +229,12 @@ void CTextOverlay::DrawCrosshairMaterial(void) const
 
 	static Color c = { 255, 255, 255, 255 };
 	DrawFormat(cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nstc: %i\ntc: %i",
-		pMaterialGlue->m_pszName,
-		pMaterialGlue->m_GUID,
-		pMaterialGlue->m_iWidth, pMaterialGlue->m_iHeight,
-		pMaterialGlue->m_pszSurfaceProp, pMaterialGlue->m_pszSurfaceProp2,
-		pMaterialGlue->m_nStreamableTextureCount,
-		pMaterialGlue->m_pShaderGlue->m_nTextureInputCount);
+		pMaterialGlue->name,
+		pMaterialGlue->assetGuid,
+		pMaterialGlue->width, pMaterialGlue->height,
+		pMaterialGlue->surfaceProp, pMaterialGlue->surfaceProp2,
+		pMaterialGlue->numStreamingTextureHandles,
+		pMaterialGlue->shaderset->m_nTextureInputCount);
 }
 
 //-----------------------------------------------------------------------------
