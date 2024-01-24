@@ -392,7 +392,7 @@ LABEL_18:
                     Error(eDLL_T::RTECH, EXIT_FAILURE,
                         "Error reading pak file \"%s\" -- decompressed size %zu doesn't match expected value %zu\n",
                         pak->memoryData.fileName,
-                        decompressedSize + sizeof(PakFileHeader_t),
+                        decompressedSize,
                         pak->memoryData.pakHeader.decompressedSize);
 
                 pak->pakDecoder.outputBuf = pak->decompBuffer;
