@@ -26,6 +26,7 @@
 #include "engine/server/server.h"
 #endif // !CLIENT_DLL
 
+#include "rtech/pak/pakencode.h"
 #include "rtech/pak/pakdecode.h"
 #include "rtech/pak/pakparse.h"
 #include "rtech/pak/pakstate.h"
@@ -630,6 +631,37 @@ void Pak_Decompress_f(const CCommand& args)
 	Msg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 
 	FileSystem()->Close(hDecompFile);
+}
+
+/*
+=====================
+RTech_Compress_f
+
+  Compresses input RPak file and
+  dumps results to base path
+=====================
+*/
+void Pak_Compress_f(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	CUtlString inPakFile;
+	CUtlString outPakFile;
+
+	inPakFile.Format(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
+	outPakFile.Format(PLATFORM_PAK_PATH "%s", args.Arg(1));
+
+	// NULL means default compress level
+	const int compressLevel = args.ArgC() > 2 ? atoi(args.Arg(2)) : NULL;
+
+	if (!Pak_EncodePakFile(inPakFile.String(), outPakFile.String(), compressLevel))
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - compression failed for '%s'!\n",
+			__FUNCTION__, inPakFile.String());
+	}
 }
 
 /*

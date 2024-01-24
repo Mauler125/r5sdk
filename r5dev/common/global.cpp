@@ -771,6 +771,7 @@ void ConCommand_StaticInit(void)
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	ConCommand::StaticCreate("pak_strtoguid", "Calculates the GUID from input data.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_StringToGUID_f, nullptr);
+	ConCommand::StaticCreate("pak_compress", "Compresses specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_Compress_f, RTech_PakCompress_f_CompletionFunc);
 	ConCommand::StaticCreate("pak_decompress", "Decompresses specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_Decompress_f, RTech_PakDecompress_f_CompletionFunc);
 	ConCommand::StaticCreate("pak_requestload", "Requests asynchronous load for specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_RequestLoad_f, RTech_PakLoad_f_CompletionFunc);
 	ConCommand::StaticCreate("pak_requestunload", "Requests unload for specified RPAK file or ID.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_RequestUnload_f, RTech_PakUnload_f_CompletionFunc);
