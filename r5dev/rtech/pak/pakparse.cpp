@@ -443,10 +443,6 @@ LABEL_45:
     v28 = memoryData->field_2A8;
     numBytesToProcess = qword1D0 - memoryData->processedPatchedDataSize;
 
-    // temp debugging measure to set the patch func ptr to the one in sdk
-    if (memoryData->patchFunc == PakPatchFuncs_s::PatchFunc_t(0x000000014043e2a0))
-        memoryData->patchFunc = g_pakPatchApi[0];
-
     if (memoryData->patchSrcSize + v28)
     {
         do
