@@ -66,6 +66,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
     "libdetours"
     "liblzham"
+    "libzstd"
     "libcurl"
     "libprotobuf"
     "libspdlog"
