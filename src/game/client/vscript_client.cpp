@@ -93,7 +93,7 @@ namespace VScriptCode
                 return SQ_OK;
             }
 
-            if (serverListing.m_svHostName.empty())
+            if (serverListing.name.empty())
             {
                 if (hiddenServerRequestMessage.empty())
                 {
@@ -108,7 +108,7 @@ namespace VScriptCode
             }
             else
             {
-                hiddenServerRequestMessage = Format("Found server: %s", serverListing.m_svHostName.c_str());
+                hiddenServerRequestMessage = Format("Found server: %s", serverListing.name.c_str());
                 sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
 
@@ -128,7 +128,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const string& serverName = g_ServerListManager.m_vServerList[iServer].m_svHostName;
+            const string& serverName = g_ServerListManager.m_vServerList[iServer].name;
             sq_pushstring(v, serverName.c_str(), -1);
 
             return SQ_OK;
@@ -147,7 +147,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const string& serverDescription = g_ServerListManager.m_vServerList[iServer].m_svDescription;
+            const string& serverDescription = g_ServerListManager.m_vServerList[iServer].description;
             sq_pushstring(v, serverDescription.c_str(), -1);
 
             return SQ_OK;
@@ -166,7 +166,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const string& svServerMapName = g_ServerListManager.m_vServerList[iServer].m_svHostMap;
+            const string& svServerMapName = g_ServerListManager.m_vServerList[iServer].map;
             sq_pushstring(v, svServerMapName.c_str(), -1);
 
             return SQ_OK;
@@ -185,7 +185,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const string& serverPlaylist = g_ServerListManager.m_vServerList[iServer].m_svPlaylist;
+            const string& serverPlaylist = g_ServerListManager.m_vServerList[iServer].playlist;
             sq_pushstring(v, serverPlaylist.c_str(), -1);
 
             return SQ_OK;
@@ -204,7 +204,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const SQInteger playerCount = g_ServerListManager.m_vServerList[iServer].m_nPlayerCount;
+            const SQInteger playerCount = g_ServerListManager.m_vServerList[iServer].numPlayers;
             sq_pushinteger(v, playerCount);
 
             return SQ_OK;
@@ -223,7 +223,7 @@ namespace VScriptCode
                 return SQ_ERROR;
             }
 
-            const SQInteger maxPlayers = g_ServerListManager.m_vServerList[iServer].m_nMaxPlayers;
+            const SQInteger maxPlayers = g_ServerListManager.m_vServerList[iServer].maxPlayers;
             sq_pushinteger(v, maxPlayers);
 
             return SQ_OK;
@@ -345,8 +345,8 @@ namespace VScriptCode
 
             const NetGameServer_t& gameServer = g_ServerListManager.m_vServerList[iServer];
 
-            g_ServerListManager.ConnectToServer(gameServer.m_svIpAddress, gameServer.m_nGamePort,
-                gameServer.m_svEncryptionKey);
+            g_ServerListManager.ConnectToServer(gameServer.address, gameServer.port,
+                gameServer.netKey);
 
             return SQ_OK;
         }
@@ -367,7 +367,7 @@ namespace VScriptCode
             bool result = g_MasterServer.GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (result)
             {
-                g_ServerListManager.ConnectToServer(netListing.m_svIpAddress, netListing.m_nGamePort, netListing.m_svEncryptionKey);
+                g_ServerListManager.ConnectToServer(netListing.address, netListing.port, netListing.netKey);
             }
             else
             {

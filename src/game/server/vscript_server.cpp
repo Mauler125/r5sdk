@@ -45,10 +45,10 @@ namespace VScriptCode
             // Adjust browser settings.
             std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
 
-            g_ServerListManager.m_Server.m_svHostName = serverName;
-            g_ServerListManager.m_Server.m_svDescription = serverDescription;
-            g_ServerListManager.m_Server.m_svHostMap = serverMapName;
-            g_ServerListManager.m_Server.m_svPlaylist = serverPlaylist;
+            g_ServerListManager.m_Server.name = serverName;
+            g_ServerListManager.m_Server.description = serverDescription;
+            g_ServerListManager.m_Server.map = serverMapName;
+            g_ServerListManager.m_Server.playlist = serverPlaylist;
             g_ServerListManager.m_ServerVisibility = eServerVisibility;
 
             // Launch server.

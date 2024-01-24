@@ -177,19 +177,19 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
 
     rapidjson::Document::AllocatorType& allocator = requestJson.GetAllocator();
 
-    requestJson.AddMember("name",        rapidjson::Value(netGameServer.m_svHostName.c_str(),       allocator), allocator);
-    requestJson.AddMember("description", rapidjson::Value(netGameServer.m_svDescription.c_str(),    allocator), allocator);
-    requestJson.AddMember("hidden",      netGameServer.m_bHidden,                                   allocator);
-    requestJson.AddMember("map",         rapidjson::Value(netGameServer.m_svHostMap.c_str(),        allocator), allocator);
-    requestJson.AddMember("playlist",    rapidjson::Value(netGameServer.m_svPlaylist.c_str(),       allocator), allocator);
-    requestJson.AddMember("ip",          rapidjson::Value(netGameServer.m_svIpAddress.c_str(),      allocator), allocator);
-    requestJson.AddMember("port",        netGameServer.m_nGamePort,                                 allocator);
-    requestJson.AddMember("key",         rapidjson::Value(netGameServer.m_svEncryptionKey.c_str(),  allocator), allocator);
-    requestJson.AddMember("checksum",    netGameServer.m_nRemoteChecksum,                           allocator);
-    requestJson.AddMember("version",     rapidjson::Value(netGameServer.m_svSDKVersion.c_str(),     allocator), allocator);
-    requestJson.AddMember("playerCount", netGameServer.m_nPlayerCount,                              allocator);
-    requestJson.AddMember("maxPlayers",  netGameServer.m_nMaxPlayers,                               allocator);
-    requestJson.AddMember("timeStamp",   netGameServer.m_nTimeStamp,                                allocator);
+    requestJson.AddMember("name",        rapidjson::Value(netGameServer.name.c_str(),        allocator), allocator);
+    requestJson.AddMember("description", rapidjson::Value(netGameServer.description.c_str(), allocator), allocator);
+    requestJson.AddMember("hidden",      netGameServer.hidden,                               allocator);
+    requestJson.AddMember("map",         rapidjson::Value(netGameServer.map.c_str(),         allocator), allocator);
+    requestJson.AddMember("playlist",    rapidjson::Value(netGameServer.playlist.c_str(),    allocator), allocator);
+    requestJson.AddMember("ip",          rapidjson::Value(netGameServer.address.c_str(),     allocator), allocator);
+    requestJson.AddMember("port",        netGameServer.port,                                 allocator);
+    requestJson.AddMember("key",         rapidjson::Value(netGameServer.netKey.c_str(),      allocator), allocator);
+    requestJson.AddMember("checksum",    netGameServer.checksum,                             allocator);
+    requestJson.AddMember("version",     rapidjson::Value(netGameServer.versionId.c_str(),   allocator), allocator);
+    requestJson.AddMember("playerCount", netGameServer.numPlayers,                           allocator);
+    requestJson.AddMember("maxPlayers",  netGameServer.maxPlayers,                           allocator);
+    requestJson.AddMember("timeStamp",   netGameServer.timeStamp,                            allocator);
 
     rapidjson::Document responseJson;
     CURLINFO status;
@@ -199,7 +199,7 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
         return false;
     }
 
-    if (netGameServer.m_bHidden)
+    if (netGameServer.hidden)
     {
         if (!responseJson.HasMember("token") || !responseJson["token"].IsString())
         {
