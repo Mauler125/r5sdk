@@ -15,6 +15,9 @@ add_sources( SOURCE_GROUP "Pak"
    "pak/pakalloc.cpp"
    "pak/pakalloc.h"
 
+   "pak/pakencode.cpp"
+   "pak/pakencode.h"
+
    "pak/pakdecode.cpp"
    "pak/pakdecode.h"
 

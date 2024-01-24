@@ -501,7 +501,7 @@ LABEL_69:
 //-----------------------------------------------------------------------------
 // checks if we have enough output buffer room to decode the data stream
 //-----------------------------------------------------------------------------
-uint64_t Pak_HasEnoughOutputRoom(PakDecoder_t* const decoder, const size_t outLen)
+uint64_t Pak_HasEnoughDecodeBufferLeft(PakDecoder_t* const decoder, const size_t outLen)
 {
 	const uint64_t bytesWritten = (decoder->outBufBytePos & ~decoder->outputInvMask);
 
@@ -513,7 +513,7 @@ uint64_t Pak_HasEnoughOutputRoom(PakDecoder_t* const decoder, const size_t outLe
 
 bool Pak_ZStreamDecode(PakDecoder_t* const decoder, const size_t inLen, const size_t outLen)
 {
-	if (!Pak_HasEnoughOutputRoom(decoder, outLen))
+	if (!Pak_HasEnoughDecodeBufferLeft(decoder, outLen))
 		return false;
 
 	size_t inBufLen = inLen;
