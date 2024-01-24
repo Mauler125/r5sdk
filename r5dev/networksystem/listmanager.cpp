@@ -67,17 +67,17 @@ void CServerListManager::LaunchServer(const bool bChangeLevel) const
     }
 
     Msg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" playlist: \"%s\"\n",
-        m_Server.m_svHostName.c_str(), m_Server.m_svHostMap.c_str(), m_Server.m_svPlaylist.c_str());
+        m_Server.name.c_str(), m_Server.map.c_str(), m_Server.playlist.c_str());
 
     /*
     * Playlist gets parsed in two instances, first in Playlists_Parse() with all the necessary
     * values. Then when you would normally call launchplaylist which calls StartPlaylist it would cmd
     * call mp_gamemode which parses the gamemode specific part of the playlist..
     */
-    v_Playlists_Parse(m_Server.m_svPlaylist.c_str());
-    mp_gamemode->SetValue(m_Server.m_svPlaylist.c_str());
+    v_Playlists_Parse(m_Server.playlist.c_str());
+    mp_gamemode->SetValue(m_Server.playlist.c_str());
 
-    ProcessCommand(Format("%s \"%s\"", bChangeLevel ? "changelevel" : "map", m_Server.m_svHostMap.c_str()).c_str());
+    ProcessCommand(Format("%s \"%s\"", bChangeLevel ? "changelevel" : "map", m_Server.map.c_str()).c_str());
 }
 
 //-----------------------------------------------------------------------------

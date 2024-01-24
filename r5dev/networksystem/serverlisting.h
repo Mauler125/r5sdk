@@ -1,35 +1,40 @@
 #pragma once
 
-
-//struct NetGameMod_t
-//{
-//	string m_svPackage;
-//	int m_nNumber;
-//	bool m_bRequired;
-//	string m_svDownloadLink;
-//
-//	//NLOHMANN_DEFINE_TYPE_INTRUSIVE(NetGameMod_t, m_svPackage, m_nNumber, m_bRequired, m_svDownloadLink)
-//};
-
 struct NetGameServer_t
 {
-	string m_svHostName;
-	string m_svDescription;
-	bool m_bHidden;
+	// the name and description of this listing, which will be display to the
+	// client's server browser
+	string name;
+	string description;
 
-	string m_svHostMap = "mp_lobby";
-	string m_svPlaylist = "dev_default";
+	// whether or not this is a visible 'public' gameserver; this is only used
+	// on the masterserver to determine whether or not to broadcast your
+	// listing from there
+	bool hidden = true;
 
-	string m_svIpAddress;
-	int m_nGamePort;
-	string m_svEncryptionKey;
+	// the level and playlist of the server, which will be display to the
+	// client's server browser
+	string map = "mp_lobby";
+	string playlist = "dev_default";
 
-	unsigned int m_nRemoteChecksum;
-	string m_svSDKVersion;
+	// the address and port of the server, validated and set from the
+	// masterserver
+	string address;
+	int port = NULL;
 
-	int m_nPlayerCount;
-	int m_nMaxPlayers;
-	int64_t m_nTimeStamp = -1;
+	// the base64 net key used to decrypt game packets, the client has to
+	// install this before issuing a connectionless packet
+	string netKey;
 
-	//vector<NetGameMod_t> m_vMods;
+	// version identifiers used to check if the gameserver and gameclient are
+	// compatible with each other
+	unsigned int checksum = NULL;
+	string versionId;
+
+	// current amount of players, and the maximum allowed for this gameserver
+	int numPlayers = NULL;
+	int maxPlayers = NULL;
+
+	// the issue time of this listing
+	int64_t timeStamp = -1;
 };
