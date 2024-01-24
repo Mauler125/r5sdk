@@ -5,10 +5,19 @@
 
 #include "rtech/iasync.h"
 #include "rtech/rstdlib.h"
+#include "thirdparty/zstd/zstd.h"
 
 // pak header versions
 #define PAK_HEADER_MAGIC (('k'<<24)+('a'<<16)+('P'<<8)+'R')
 #define PAK_HEADER_VERSION 8
+
+// pak header flags
+#define PAK_HEADER_FLAGS_HAS_MODULE (1<<0)
+#define PAK_HEADER_FLAGS_COMPRESSED (1<<8)
+
+// when using custom compression, all patches for this specific pak must
+// feature the same compression algorithm!
+#define PAK_HEADER_FLAGS_ZSTD       (1<<9)
 
 // max amount of types at runtime in which assets will be tracked
 #define PAK_MAX_TYPES 64
@@ -40,12 +49,11 @@
 // first before falling back to PLATFORM_PAK_PATH
 #define PLATFORM_PAK_OVERRIDE_PATH PAK_BASE_PATH"Win64_override\\"
 
-// some decode related masks, the names might not be correct, but it seems that
-// the input mask for decoder init is always 0xFFFFFF, and for output, 0x3FFFFF
-// seems to indicate its decoding the buffer in chunks (partially)?
-#define PAK_DECODE_MASK 0xFFFFFF
-#define PAK_DECODE_MASK_FULL 0xFFFFFFFFFFFFFFFF
-#define PAK_DECODE_OUTPUT_MASK_PARTIAL 0x3FFFFF
+// decode buffer size for streamed pak decoder
+#define PAK_DECODE_IN_BUFFER_MASK 0xFFFFFF
+
+#define PAK_DECODE_OUT_BUFFER_SIZE 0x400000
+#define PAK_DECODE_OUT_BUFFER_SIZE_MASK (PAK_DECODE_OUT_BUFFER_SIZE-1)
 
 // the handle that should be returned when a pak failed to load or process
 #define INVALID_PAK_HANDLE -1
@@ -250,12 +258,17 @@ struct PakFileHeader_t
 		return headerSize;
 	}
 
+	inline bool IsCompressed() const
+	{
+		return flags & PAK_HEADER_FLAGS_COMPRESSED;
+	}
+
 	// file versions
 	uint32_t magic;       // 'RPak'
 	uint16_t version;     // R2 = '7' R5 = '8'
 
-	//
-	uint8_t  flags[0x2];                // TODO: make this an uint16_t!!!
+	// pak file flags
+	uint16_t flags;
 
 	// when this pak file was built
 	FILETIME fileTime;
@@ -353,8 +366,17 @@ struct PakDecoder_t
 	uint32_t dword6C;
 	uint64_t qword70;
 
-	size_t compressedStreamSize;
-	size_t decompStreamSize;
+	union
+	{
+		size_t compressedStreamSize;
+		ZSTD_DStream* zstreamContext;
+	};
+
+	union
+	{
+		size_t decompressedStreamSize;
+		size_t frameHeaderSize;
+	};
 };
 
 struct PakFile_t;

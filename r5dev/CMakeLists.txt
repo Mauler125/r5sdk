@@ -32,6 +32,7 @@ add_subdirectory( thirdparty/spdlog )
 add_subdirectory( thirdparty/jwt )
 add_subdirectory( thirdparty/lzham )
 add_subdirectory( thirdparty/fastlz )
+add_subdirectory( thirdparty/zstd )
 
 set( FOLDER_CONTEXT "Thirdparty/ARM" )
 add_subdirectory( thirdparty/mbedtls )
