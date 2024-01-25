@@ -72,7 +72,7 @@ void Pak_OpenAssociatedStreamingFiles(PakLoadedInfo_t* const loadedInfo, PakLoad
 
         // make sure we successfully loaded mandatory streaming files, as we
         // would otherwise error in the game itself
-        if (set == STREAMING_SET_MANDATORY && fileNumber == -1)
+        if (set == STREAMING_SET_MANDATORY && fileNumber == FS_ASYNC_FILE_INVALID)
             Error(eDLL_T::RTECH, EXIT_FAILURE, "Error opening streaming file '%s'\n", streamingFilePath);
 
         streamInfo.streamFileNumber[numStreamFiles++] = fileNumber;
