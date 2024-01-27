@@ -415,15 +415,6 @@ LABEL_18:
 
                 if (didDecode)
                     DevMsg(eDLL_T::RTECH, "%s: pak '%s' decoded successfully\n", __FUNCTION__, pak->GetName());
-
-                if (didDecode)
-                {
-                    if (useZStream && decodeContext->zstreamContext)
-                    {
-                        ZSTD_freeDStream(decodeContext->zstreamContext);
-                        decodeContext->zstreamContext = nullptr;
-                    }
-                }
             }
 
             compressedSize = v22->compressedSize;
