@@ -46,7 +46,13 @@ public:
 	// Purpose: reads any value from the file with specified size
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Read(T& tValue, size_t nSize)
+	void Read(T* tValue, const size_t nSize)
+	{
+		if (IsReadable())
+			m_Stream.read(reinterpret_cast<char*>(tValue), nSize);
+	}
+	template<typename T>
+	void Read(T& tValue, const size_t nSize)
 	{
 		if (IsReadable())
 			m_Stream.read(reinterpret_cast<char*>(&tValue), nSize);
@@ -84,7 +90,7 @@ public:
 	// Purpose: writes any value to the file with specified size
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Write(T tValue, size_t nSize)
+	void Write(T* tValue, size_t nSize)
 	{
 		if (!IsWritable())
 			return;
