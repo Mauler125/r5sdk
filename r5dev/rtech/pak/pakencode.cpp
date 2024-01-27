@@ -41,7 +41,7 @@ bool Pak_BufferToBufferEncode(const uint8_t* const inBuf, const uint64_t inLen,
 	// these flags are required for the game's runtime to decide whether or not to
 	// decompress the pak, and how; see Pak_ProcessPakFile() for more details
 	outHeader->flags |= PAK_HEADER_FLAGS_COMPRESSED;
-	outHeader->flags |= PAK_HEADER_FLAGS_ZSTD;
+	outHeader->flags |= PAK_HEADER_FLAGS_ZSTREAM;
 
 	return true;
 }

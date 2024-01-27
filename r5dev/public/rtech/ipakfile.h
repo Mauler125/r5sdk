@@ -15,9 +15,9 @@
 #define PAK_HEADER_FLAGS_HAS_MODULE (1<<0)
 #define PAK_HEADER_FLAGS_COMPRESSED (1<<8)
 
-// when using custom compression, all patches for this specific pak must
+// when using ZStd compression, all patches for this specific pak must
 // feature the same compression algorithm!
-#define PAK_HEADER_FLAGS_ZSTD       (1<<9)
+#define PAK_HEADER_FLAGS_ZSTREAM    (1<<9)
 
 // max amount of types at runtime in which assets will be tracked
 #define PAK_MAX_TYPES 64
@@ -49,11 +49,14 @@
 // first before falling back to PLATFORM_PAK_PATH
 #define PLATFORM_PAK_OVERRIDE_PATH PAK_BASE_PATH"Win64_override\\"
 
-// decode buffer size for streamed pak decoder
-#define PAK_DECODE_IN_BUFFER_MASK 0xFFFFFF
+// input stream ring buffer size for pak decoder before wrapping around
+#define PAK_DECODE_IN_RING_BUFFER_SIZE 0x1000000
+#define PAK_DECODE_IN_RING_BUFFER_MASK (PAK_DECODE_IN_RING_BUFFER_SIZE-1)
 
-#define PAK_DECODE_OUT_BUFFER_SIZE 0x400000
-#define PAK_DECODE_OUT_BUFFER_SIZE_MASK (PAK_DECODE_OUT_BUFFER_SIZE-1)
+// output stream ring buffer size in which input buffer gets decoded to, we
+// can only decode up to this many bytes before we have to wrap around
+#define PAK_DECODE_OUT_RING_BUFFER_SIZE 0x400000
+#define PAK_DECODE_OUT_RING_BUFFER_MASK (PAK_DECODE_OUT_RING_BUFFER_SIZE-1)
 
 // the handle that should be returned when a pak failed to load or process
 #define INVALID_PAK_HANDLE -1
@@ -366,16 +369,12 @@ struct PakDecoder_t
 	uint32_t dword6C;
 	uint64_t qword70;
 
-	union
-	{
-		size_t compressedStreamSize;
-		ZSTD_DStream* zstreamContext;
-	};
+	size_t compressedStreamSize;
 
 	union
 	{
 		size_t decompressedStreamSize;
-		size_t frameHeaderSize;
+		ZSTD_DStream* zstreamContext;
 	};
 };
 
@@ -454,7 +453,7 @@ struct PakFileStream_t
 	Descriptor m_descriptors[8];
 	uint8_t* buffer;
 	_QWORD qword1C8;
-	_QWORD qword1D0;
+	_QWORD bytesStreamed;
 };
 
 typedef struct PakPatchFuncs_s

@@ -560,7 +560,7 @@ void Pak_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	const bool usesCustomCompression = pHeader->flags & PAK_HEADER_FLAGS_ZSTD;
+	const bool usesCustomCompression = pHeader->flags & PAK_HEADER_FLAGS_ZSTREAM;
 
 	PakDecoder_t decoder{};
 	const uint64_t nDecompSize = Pak_InitDecoder(&decoder, pPakBuf, UINT64_MAX, nFileSize, NULL, sizeof(PakFileHeader_t), usesCustomCompression);
@@ -611,11 +611,11 @@ void Pak_Decompress_f(const CCommand& args)
 	if (pHeader->patchIndex > 0) // Check if its an patch rpak.
 	{
 		// Loop through all the structs and patch their compress size.
-		for (uint32_t i = 1, nPatchOffset = (sizeof(PakFileHeader_t) + sizeof(uint64_t));
+		for (uint16_t i = 1, nPatchOffset = (sizeof(PakFileHeader_t) + sizeof(uint64_t));
 			i <= pHeader->patchIndex; i++, nPatchOffset += sizeof(PakPatchFileHeader_t))
 		{
 			PakPatchFileHeader_t* pPatchHeader = reinterpret_cast<PakPatchFileHeader_t*>(pDecompBuf + nPatchOffset);
-			Msg(eDLL_T::RTECH, " |     |-+ Patch #%02u -----------------------------------------\n", i);
+			Msg(eDLL_T::RTECH, " |     |-+ Patch #%02hu -----------------------------------------\n", i);
 			Msg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->patchIndex ? "|" : " ", pPatchHeader->m_sizeDisk);
 			Msg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->patchIndex ? "|" : " ", pPatchHeader->m_sizeMemory);
 
