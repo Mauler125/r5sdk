@@ -89,13 +89,11 @@ void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const ass
                             Error(eDLL_T::RTECH, EXIT_FAILURE, "Failed to resolve asset dependency %u of %u\n"
                                 "pak: '%s'\n"
                                 "asset: '0x%llX'\n"
-                                "target: '0x%llX'\n"
-                                "current: '0x%llX'\n",
+                                "target: '0x%llX'\n",
                                 i, asset->dependenciesCount,
                                 pak->memoryData.fileName,
                                 asset->guid,
-                                targetGuid,
-                                currentGuid);
+                                targetGuid);
                         }
 
                         break;
@@ -318,7 +316,7 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
         if (currentStatus == AsyncHandleStatus_t::FS_ASYNC_ERROR)
             Error(eDLL_T::RTECH, EXIT_FAILURE, "Error reading pak file \"%s\" -- %s\n", pak->memoryData.fileName, statusMsg);
 
-        fileStream->qword1D0 += bytesProcessed;
+        fileStream->bytesStreamed += bytesProcessed;
         if (v8)
         {
             byteBF = fileStream->byteBF++;
@@ -328,7 +326,7 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
             if (v8 == 2)
             {
                 v18 = v16 & fileStream->qword1C8;
-                fileStream->qword1D0 = bytesProcessed + v16;
+                fileStream->bytesStreamed = bytesProcessed + v16;
                 pakHeader = (PakFileHeader_t*)&fileStream->buffer[v18];
             }
 
@@ -345,7 +343,7 @@ LABEL_18:
     byte1F8 = pak->byte1F8;
     if (byte1F8 != fileStream->byteBF)
     {
-        const bool usesCustomCompression = pak->GetHeader().flags & PAK_HEADER_FLAGS_ZSTD;
+        const bool useZStream = pak->GetHeader().flags & PAK_HEADER_FLAGS_ZSTREAM;
 
         byte1FD = pak->byte1FD;
         do
@@ -377,16 +375,16 @@ LABEL_18:
                 LABEL_35:
                     compressedSize = v22->compressedSize;
                     qword1D0 = compressedSize;
-                    if (fileStream->qword1D0 < compressedSize)
-                        qword1D0 = fileStream->qword1D0;
+                    if (fileStream->bytesStreamed < compressedSize)
+                        qword1D0 = fileStream->bytesStreamed;
                     goto LABEL_41;
                 }
 
                 decodeContext = &pak->pakDecoder;
 
                 decompressedSize = Pak_InitDecoder(&pak->pakDecoder, fileStream->buffer,
-                    PAK_DECODE_IN_BUFFER_MASK, v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
-                    v22->dataOffset - sizeof(PakFileHeader_t), sizeof(PakFileHeader_t), usesCustomCompression);
+                    PAK_DECODE_IN_RING_BUFFER_MASK, v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
+                    v22->dataOffset - sizeof(PakFileHeader_t), sizeof(PakFileHeader_t), useZStream);
 
                 if (decompressedSize != v22->decompressedSize)
                     Error(eDLL_T::RTECH, EXIT_FAILURE,
@@ -396,7 +394,7 @@ LABEL_18:
                         pak->memoryData.pakHeader.decompressedSize);
 
                 pak->pakDecoder.outputBuf = pak->decompBuffer;
-                pak->pakDecoder.outputMask = PAK_DECODE_OUT_BUFFER_SIZE_MASK;
+                pak->pakDecoder.outputMask = PAK_DECODE_OUT_RING_BUFFER_MASK;
             }
             else
             {
@@ -410,14 +408,17 @@ LABEL_18:
 
             if (qword1D0 != pak->pakDecoder.decompSize)
             {
-                const bool didDecode = Pak_StreamToBufferDecode(decodeContext, fileStream->qword1D0, memoryData->processedPatchedDataSize + PAK_DECODE_OUT_BUFFER_SIZE, usesCustomCompression);
+                const bool didDecode = Pak_StreamToBufferDecode(decodeContext, fileStream->bytesStreamed, memoryData->processedPatchedDataSize + PAK_DECODE_OUT_RING_BUFFER_SIZE, useZStream);
 
                 qword1D0 = pak->pakDecoder.outBufBytePos;
                 pak->inputBytePos = pak->pakDecoder.inBufBytePos;
 
                 if (didDecode)
+                    DevMsg(eDLL_T::RTECH, "%s: pak '%s' decoded successfully\n", __FUNCTION__, pak->GetName());
+
+                if (didDecode)
                 {
-                    if (usesCustomCompression && decodeContext->zstreamContext)
+                    if (useZStream && decodeContext->zstreamContext)
                     {
                         ZSTD_freeDStream(decodeContext->zstreamContext);
                         decodeContext->zstreamContext = nullptr;
