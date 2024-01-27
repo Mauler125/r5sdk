@@ -502,11 +502,10 @@ PakRingBufferFrame_t Pak_ComputeRingBufferFrame(const uint64_t bufMask, const ui
 
 bool Pak_ZStreamDecode(PakDecoder_t* const decoder, const size_t inLen, const size_t outLen)
 {
-	// must have a zstream decoder at this point
-	assert(decoder->zstreamContext);
-
-	if (decoder->inBufBytePos >= inLen)
-		return false;
+	// must have a zstream decoder at this point, and input seek pos may not
+	// exceed or equal inLen as we can't read past currently streamed data;
+	// this should've been checked before calling this function
+	assert(decoder->zstreamContext && decoder->inBufBytePos < inLen);
 
 	PakRingBufferFrame_t outFrame = Pak_ComputeRingBufferFrame(decoder->outputMask, decoder->outBufBytePos, outLen);
 
@@ -543,7 +542,16 @@ bool Pak_ZStreamDecode(PakDecoder_t* const decoder, const size_t inLen, const si
 	decoder->inBufBytePos += inBuffer.pos;
 	decoder->outBufBytePos += outBuffer.pos;
 
-	return ret == NULL;
+	const bool decoded = ret == NULL;
+
+	// zstd decoder no longer necessary at this point, deallocate
+	if (decoded)
+	{
+		ZSTD_freeDStream(decoder->zstreamContext);
+		decoder->zstreamContext = nullptr;
+	}
+
+	return decoded;
 }
 
 //-----------------------------------------------------------------------------
