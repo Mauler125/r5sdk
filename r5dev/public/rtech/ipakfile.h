@@ -49,11 +49,19 @@
 // first before falling back to PLATFORM_PAK_PATH
 #define PLATFORM_PAK_OVERRIDE_PATH PAK_BASE_PATH"Win64_override\\"
 
-// input stream ring buffer size for pak decoder before wrapping around
+// the minimum stream ring buffer size when a pak is loaded who's compressed
+// size is below PAK_DECODE_IN_RING_BUFFER_SIZE, the system allocates a
+// buffer with the size of the compressed pak + the value of this define
+// the system should still use the default ring buffer input size for decoding
+// as these pak files get decoded in one-go; there is buffer wrapping going on
+#define PAK_DECODE_IN_RING_BUFFER_SMALL_SIZE 0x1000
+#define PAK_DECODE_IN_RING_BUFFER_SMALL_MASK (PAK_DECODE_IN_RING_BUFFER_SMALL_SIZE-1)
+
+// the input stream ring buffer size for pak decoder before wrapping around
 #define PAK_DECODE_IN_RING_BUFFER_SIZE 0x1000000
 #define PAK_DECODE_IN_RING_BUFFER_MASK (PAK_DECODE_IN_RING_BUFFER_SIZE-1)
 
-// output stream ring buffer size in which input buffer gets decoded to, we
+// the output stream ring buffer size in which input buffer gets decoded to, we
 // can only decode up to this many bytes before we have to wrap around
 #define PAK_DECODE_OUT_RING_BUFFER_SIZE 0x400000
 #define PAK_DECODE_OUT_RING_BUFFER_MASK (PAK_DECODE_OUT_RING_BUFFER_SIZE-1)
