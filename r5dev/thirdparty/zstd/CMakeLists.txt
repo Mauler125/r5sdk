@@ -81,7 +81,7 @@ add_sources( SOURCE_GROUP "DictBuilder"
 	"dictBuilder/zdict.c"
 )
 
-add_sources( SOURCE_GROUP "DictBuilder"
+add_sources( SOURCE_GROUP "Include"
 	"zdict.h"
 	"zstd.h"
 	"zstd_errors.h"
