@@ -145,3 +145,45 @@ const PakLoadedInfo_t* Pak_GetPakInfo(const char* const pakName)
 	Warning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for name '%s'\n", __FUNCTION__, pakName);
 	return nullptr;
 }
+
+//-----------------------------------------------------------------------------
+// returns a pointer to the patch data header
+//-----------------------------------------------------------------------------
+PakPatchDataHeader_t* Pak_GetPatchDataHeader(PakFileHeader_t* const pakHeader)
+{
+	// shouldn't be called if the pak doesn1't have patches!
+	assert(pakHeader->patchIndex > 0);
+	return reinterpret_cast<PakPatchDataHeader_t*>(reinterpret_cast<uint8_t* const>(pakHeader) + sizeof(PakFileHeader_t));
+}
+
+//-----------------------------------------------------------------------------
+// returns a pointer to the patch file header
+//-----------------------------------------------------------------------------
+PakPatchFileHeader_t* Pak_GetPatchFileHeader(PakFileHeader_t* const pakHeader, const int index)
+{
+	assert(pakHeader->patchIndex > 0 && index < pakHeader->patchIndex);
+	uint8_t* address = reinterpret_cast<uint8_t* const>(pakHeader);
+
+	// skip the file header
+	address += sizeof(PakFileHeader_t);
+
+	// skip the patch data header, the patch file headers start from there
+	address += sizeof(PakPatchDataHeader_t);
+	PakPatchFileHeader_t* const patchHeaders = reinterpret_cast<PakPatchFileHeader_t* const>(address);
+
+	return &patchHeaders[index];
+}
+
+//-----------------------------------------------------------------------------
+// returns the patch number belonging to the index provided
+//-----------------------------------------------------------------------------
+short Pak_GetPatchNumberForIndex(PakFileHeader_t* const pakHeader, const int index)
+{
+	const uint8_t* patchHeader = reinterpret_cast<const uint8_t*>(Pak_GetPatchFileHeader(pakHeader, pakHeader->patchIndex - 1));
+
+	// skip the last patch file header, the patch number start from there
+	patchHeader += sizeof(PakPatchFileHeader_t);
+	const short* patchNumber = reinterpret_cast<const short*>(patchHeader);
+
+	return patchNumber[index];
+}
