@@ -21,8 +21,12 @@ public:
 
 	void ComputeFileSize();
 
-	std::streampos GetPosition(Mode_t mode);
-	void SetPosition(std::streampos nOffset, Mode_t mode);
+	std::streampos TellGet();
+	std::streampos TellPut();
+
+	void SeekGet(const std::streampos nOffset);
+	void SeekPut(const std::streampos nOffset);
+	void Seek(const std::streampos nOffset);
 
 	const std::filebuf* GetData() const;
 	const std::streampos GetSize() const;
@@ -71,7 +75,7 @@ public:
 		m_Stream.read(reinterpret_cast<char*>(&value), sizeof(value));
 		return value;
 	}
-	bool ReadString(string& svOut);
+	bool ReadString(std::string& svOut);
 
 	//-----------------------------------------------------------------------------
 	// Purpose: writes any value to the file
@@ -98,10 +102,10 @@ public:
 		m_Stream.write(reinterpret_cast<const char*>(tValue), nSize);
 		m_nSize += nSize;
 	}
-	bool WriteString(const string& svInput);
+	bool WriteString(const std::string& svInput);
 
 private:
 	std::streampos  m_nSize;  // File size.
 	int             m_nFlags; // Stream flags.
-	fstream         m_Stream; // I/O stream.
+	std::fstream    m_Stream; // I/O stream.
 };
