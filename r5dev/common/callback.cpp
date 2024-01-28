@@ -335,7 +335,7 @@ void Pak_ListTypes_f(const CCommand& args)
 
 	for (int8_t i = 0; i < PAK_MAX_TYPES; ++i)
 	{
-		PakAssetBinding_t* type = &g_pPakGlobals->m_assetBindings[i];
+		PakAssetBinding_t* type = &g_pPakGlobals->assetBindings[i];
 
 		if (!type->description)
 			continue;

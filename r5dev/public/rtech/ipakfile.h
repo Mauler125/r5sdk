@@ -40,13 +40,12 @@
 #define PAK_MAX_HANDLES 512
 #define PAK_MAX_HANDLES_MASK (PAK_MAX_HANDLES-1)
 
-// base pak directory containing paks sorted in platform specific subdirectories
-#define PAK_BASE_PATH "paks\\"
-#define PLATFORM_PAK_PATH PAK_BASE_PATH"Win64\\"
-
-// pak override directory; the system will looks for pak files in this directory
-// first before falling back to PLATFORM_PAK_PATH
-#define PLATFORM_PAK_OVERRIDE_PATH PAK_BASE_PATH"Win64_override\\"
+// max amount of async streaming requests that could be made per pak file, if a
+// pak file has more patches than this number, and is already trying to stream
+// this amount in, all remainder patches would have to wait until one slot
+// becomes available again
+#define PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS 8
+#define PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK (PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS-1)
 
 // the minimum stream ring buffer size when a pak is loaded who's compressed
 // size is below PAK_DECODE_IN_RING_BUFFER_SIZE, the system allocates a
@@ -64,6 +63,14 @@
 // can only decode up to this many bytes before we have to wrap around
 #define PAK_DECODE_OUT_RING_BUFFER_SIZE 0x400000
 #define PAK_DECODE_OUT_RING_BUFFER_MASK (PAK_DECODE_OUT_RING_BUFFER_SIZE-1)
+
+// base pak directory containing paks sorted in platform specific subdirectories
+#define PAK_BASE_PATH "paks\\"
+#define PLATFORM_PAK_PATH PAK_BASE_PATH"Win64\\"
+
+// pak override directory; the system will looks for pak files in this directory
+// first before falling back to PLATFORM_PAK_PATH
+#define PLATFORM_PAK_OVERRIDE_PATH PAK_BASE_PATH"Win64_override\\"
 
 // the handle that should be returned when a pak failed to load or process
 #define INVALID_PAK_HANDLE -1
@@ -216,27 +223,27 @@ struct PakAssetShort_t
 	PakGuid_t guid;
 	uint32_t unk_8;
 	uint32_t unk_C;
-	void* m_head;
-	void* m_cpu;
+	void* head;
+	void* cpu;
 };
 
 struct PakGlobals_t
 {
-	PakAssetBinding_t m_assetBindings[PAK_MAX_TYPES]; // [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
-	PakAssetShort_t m_assets[PAK_MAX_ASSETS];
+	PakAssetBinding_t assetBindings[PAK_MAX_TYPES]; // [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
+	PakAssetShort_t assets[PAK_MAX_ASSETS];
 	// end size unknown, but there appears to be stuff below too
 };
 
 struct PakPatchFileHeader_t
 {
-	size_t m_sizeDisk;
-	size_t m_sizeMemory;
+	size_t compressedSize;
+	size_t decompressedSize;
 };
 
 struct PakPatchDataHeader_t
 {
-	int m_editStreamSize;
-	int m_pageCount;
+	int editStreamSize;
+	int pageCount;
 };
 
 struct PakFileHeader_t
@@ -451,7 +458,7 @@ struct PakFileStream_t
 		size_t compressedSize;
 		size_t decompressedSize;
 
-		// NOTE: if this is set, the game sets 'PakMemoryData_t::m_processedPatchedDataSize'
+		// NOTE: if this is set, the game sets 'PakMemoryData_t::processedPatchedDataSize'
 		// to 'dataOffset'; else its getting set to 'sizeof(PakFileHeader_t)'.
 		bool isCompressed;
 	};
@@ -467,7 +474,7 @@ struct PakFileStream_t
 	bool finishedLoadingPatches;
 	_BYTE gapBE;
 	_BYTE byteBF;
-	Descriptor m_descriptors[8];
+	Descriptor descriptors[PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS];
 	uint8_t* buffer;
 	_QWORD qword1C8;
 	_QWORD bytesStreamed;
