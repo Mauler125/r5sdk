@@ -5,6 +5,11 @@
 #include "core/logdef.h"
 #include "tier0/utility.h"
 
+// These are used for the 'stat()' and 'access()' in ::IsDirectory().
+#include <io.h>
+#include <sys/types.h>
+#include <sys/stat.h> 
+
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if a specific file exists.
 BOOL FileExists(LPCTSTR szPath)
@@ -16,8 +21,53 @@ BOOL FileExists(LPCTSTR szPath)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For creating a directory hierarchy
+int CreateDirHierarchy(const char* const filePath)
+{
+    char fullPath[1024];
+    int results;
+
+    snprintf(fullPath, sizeof(fullPath), "%s", filePath);
+
+    V_FixSlashes(fullPath);
+
+    char* pFullPath = fullPath;
+    while ((pFullPath = strchr(pFullPath, CORRECT_PATH_SEPARATOR)) != NULL)
+    {
+        // Temporarily turn the slash into a null
+        // to get the current directory.
+        *pFullPath = '\0';
+
+        results = _mkdir(fullPath);
+
+        if (results && errno != EEXIST)
+            return results;
+
+        *pFullPath++ = CORRECT_PATH_SEPARATOR;
+    }
+
+    // Try to create the final directory in the path.
+    return _mkdir(fullPath);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For checking if a directory exists
+bool IsDirectory(const char* path)
+{
+    if (_access(path, 0) == 0)
+    {
+        struct stat status;
+        stat(path, &status);
+
+        return (status.st_mode & S_IFDIR) != 0;
+    }
+
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if a specific file is empty.
-BOOL FileEmpty(ifstream& pFile)
+bool FileEmpty(ifstream& pFile)
 {
     return pFile.peek() == ifstream::traits_type::eof();
 }
@@ -97,7 +147,8 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, size
 {
     char szAscii[17];
     static std::mutex m;
-    static std::shared_ptr<spdlog::logger> logger = spdlog::default_logger();
+
+    std::shared_ptr<spdlog::logger> logger;
 
     m.lock();
     szAscii[16] = '\0';
@@ -112,6 +163,10 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, size
             assert(0);
             return;
         }
+    }
+    else
+    {
+        logger = spdlog::default_logger();
     }
 
     // Add time stamp.
