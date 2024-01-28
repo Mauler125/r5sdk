@@ -15,8 +15,7 @@
 #define PAK_HEADER_FLAGS_HAS_MODULE (1<<0)
 #define PAK_HEADER_FLAGS_COMPRESSED (1<<8)
 
-// when using ZStd compression, all patches for this specific pak must
-// feature the same compression algorithm!
+// use the ZStd decoder instead of the RTech one
 #define PAK_HEADER_FLAGS_ZSTREAM    (1<<9)
 
 // max amount of types at runtime in which assets will be tracked
