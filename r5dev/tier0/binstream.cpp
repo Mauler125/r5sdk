@@ -75,10 +75,14 @@ void CIOStream::Flush()
 //-----------------------------------------------------------------------------
 void CIOStream::ComputeFileSize()
 {
-	m_nSize = m_Stream.tellg();
+	const std::streampos currentPos = m_Stream.tellg();
+	m_nSize = currentPos;
+
 	m_Stream.seekg(0, std::ios::end);
 	m_nSize = m_Stream.tellg() - m_nSize;
-	m_Stream.seekg(0, std::ios::beg);
+
+	// Restore to original position.
+	m_Stream.seekg(currentPos, std::ios::beg);
 	m_Stream.clear();
 }
 
@@ -87,19 +91,13 @@ void CIOStream::ComputeFileSize()
 // Input  : mode - 
 // Output : std::streampos
 //-----------------------------------------------------------------------------
-std::streampos CIOStream::GetPosition(Mode_t mode)
+std::streampos CIOStream::TellGet()
 {
-	switch (mode)
-	{
-	case Mode_t::READ:
-		return m_Stream.tellg();
-		break;
-	case Mode_t::WRITE:
-		return m_Stream.tellp();
-		break;
-	default:
-		return static_cast<std::streampos>(NULL);
-	}
+	return m_Stream.tellg();
+}
+std::streampos CIOStream::TellPut()
+{
+	return m_Stream.tellp();
 }
 
 //-----------------------------------------------------------------------------
@@ -107,19 +105,18 @@ std::streampos CIOStream::GetPosition(Mode_t mode)
 // Input  : nOffset - 
 //			mode - 
 //-----------------------------------------------------------------------------
-void CIOStream::SetPosition(std::streampos nOffset, Mode_t mode)
+void CIOStream::SeekGet(const std::streampos nOffset)
 {
-	switch (mode)
-	{
-	case Mode_t::READ:
-		m_Stream.seekg(nOffset);
-		break;
-	case Mode_t::WRITE:
-		m_Stream.seekp(nOffset);
-		break;
-	default:
-		break;
-	}
+	m_Stream.seekg(nOffset, std::ios::beg);
+}
+void CIOStream::SeekPut(const std::streampos nOffset)
+{
+	m_Stream.seekp(nOffset, std::ios::beg);
+}
+void CIOStream::Seek(const std::streampos nOffset)
+{
+	SeekGet(nOffset);
+	SeekPut(nOffset);
 }
 
 //-----------------------------------------------------------------------------
@@ -178,7 +175,7 @@ bool CIOStream::IsEof() const
 // Input  : &svOut - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CIOStream::ReadString(string& svOut)
+bool CIOStream::ReadString(std::string& svOut)
 {
 	if (IsReadable())
 	{
@@ -197,13 +194,13 @@ bool CIOStream::ReadString(string& svOut)
 // Input  : &svInput - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CIOStream::WriteString(const string& svInput)
+bool CIOStream::WriteString(const std::string& svInput)
 {
 	if (!IsWritable())
 		return false;
 
-	const char* szText = svInput.c_str();
-	size_t nSize = svInput.size();
+	const char* const szText = svInput.c_str();
+	const size_t nSize = svInput.size();
 
 	m_Stream.write(szText, nSize);
 	m_nSize += nSize;
