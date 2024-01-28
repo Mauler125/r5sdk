@@ -238,45 +238,39 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
     PakFileStream_t* fileStream; // rsi
     PakMemoryData_t* memoryData; // r14
     __int64 dwordB8; // rcx
-    unsigned int v6; // eax // [was: int]
+    uint32_t v6; // eax
     __int64 v7; // rax
     char v8; // r13
-    //signed __int64 index_Maybe; // rdi
-    //char v10; // r15
-    //__int64 v11; // rdx
-    //const char* v12; // rbp
-    size_t bytesProcessed; // eax
-    char byteBF; // al
+    uint64_t bytesProcessed; // r12
     unsigned __int64 v16; // r9
     unsigned __int8 v17; // cl
     unsigned __int64 v18; // r8
     uint8_t byte1F8; // al
     uint8_t byte1FD; // cl
     PakFileStream_t::Descriptor* v22; // rdi
-    size_t dataOffset; // rax
+    uint64_t dataOffset; // rax
     PakDecoder_t* decodeContext; // rbp
-    size_t decompressedSize; // rax
-    size_t compressedSize; // rdx
+    uint64_t decompressedSize; // rax
+    uint64_t compressedSize; // rdx
     uint64_t qword1D0; // rcx
     __int64 v28; // rax
     unsigned int numBitsRemaining; // r8d
     int v35; // ecx
     int v39; // r10d
     int v40; // r9d
-    unsigned int v42; // ecx
+    uint64_t v42; // ecx
     unsigned int v43; // r8d
-    unsigned int v44; // r12d
+    uint64_t v44; // r12d
     char byteBC; // r15
     __int64 v46; // rbp
     __int64 v47; // r8
     unsigned __int64 v48; // rbp
     unsigned __int64 qword8; // rax
-    __int64 v50; // rdi
+    __int64 patchCount; // rcx
     char c; // al
     char* it; // rcx
     char* i; // rdx
     int v56; // edi
-    unsigned int patchCount; // r15
     unsigned __int64 v58; // rdx
     char pakPatchPath[MAX_PATH]; // [rsp+40h] [rbp-148h] BYREF
     unsigned __int64 v62; // [rsp+190h] [rbp+8h]
@@ -292,7 +286,7 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
         v62 = sizeof(PakFileHeader_t);
 
     v6 = fileStream->unsigned_intB4;
-    if (v6 != (_DWORD)dwordB8)
+    if (v6 != dwordB8)
     {
         while (1)
         {
@@ -319,18 +313,16 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
         fileStream->bytesStreamed += bytesProcessed;
         if (v8)
         {
-            byteBF = fileStream->byteBF++;
             pakHeader = &pak->memoryData.pakHeader;
             v16 = (unsigned __int64)fileStream->unsigned_intB4 << 19;
+            v17 = fileStream->byteBF++ & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK;
 
             if (v8 == 2)
             {
-                v18 = v16 & fileStream->qword1C8;
+                v18 = v16 & fileStream->bufferMask;
                 fileStream->bytesStreamed = bytesProcessed + v16;
                 pakHeader = (PakFileHeader_t*)&fileStream->buffer[v18];
             }
-
-            v17 = byteBF & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK;
 
             fileStream->descriptors[v17].dataOffset = v16 + sizeof(PakFileHeader_t);
             fileStream->descriptors[v17].compressedSize = v16 + pakHeader->compressedSize;
@@ -343,9 +335,9 @@ LABEL_18:
     byte1F8 = pak->byte1F8;
     if (byte1F8 != fileStream->byteBF)
     {
+        byte1FD = pak->byte1FD;
         const bool useZStream = pak->GetHeader().flags & PAK_HEADER_FLAGS_ZSTREAM;
 
-        byte1FD = pak->byte1FD;
         do
         {
             v22 = &fileStream->descriptors[byte1F8 & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK];
@@ -384,7 +376,7 @@ LABEL_18:
 
                 decompressedSize = Pak_InitDecoder(&pak->pakDecoder,
                     fileStream->buffer, pak->decompBuffer,
-                    PAK_DECODE_IN_RING_BUFFER_MASK, PAK_DECODE_OUT_RING_BUFFER_MASK, 
+                    PAK_DECODE_IN_RING_BUFFER_MASK, PAK_DECODE_OUT_RING_BUFFER_MASK,
                     v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
                     v22->dataOffset - sizeof(PakFileHeader_t), sizeof(PakFileHeader_t), useZStream);
 
@@ -493,7 +485,7 @@ LABEL_45:
         v43 = fileStream->dwordB8;
 
         if ((unsigned int)(pak->inputBytePos >> 19) < v42)
-            v42 = (unsigned int)pak->inputBytePos >> 19; // New cast added
+            v42 = pak->inputBytePos >> 19;
 
         v44 = v42 + 32;
 
@@ -512,18 +504,19 @@ LABEL_45:
                 qword8 = fileStream->qword8;
                 if (v62 < qword8)
                 {
-                    v50 = (unsigned int)v47;
                     if (v48 < qword8)
                         qword8 = v48;
-                    fileStream->gap14[(unsigned int)v47] = v_FS_ReadAsyncFile(
+
+                    fileStream->gap14[v47] = v_FS_ReadAsyncFile(
                         fileStream->fileHandle,
                         v62 - fileStream->qword0,
                         qword8 - v62,
-                        &fileStream->buffer[v62 & fileStream->qword1C8],
+                        &fileStream->buffer[v62 & fileStream->bufferMask],
                         0i64,
                         0i64,
                         4);
-                    fileStream->gap94[v50] = byteBC;
+
+                    fileStream->gap94[v47] = byteBC;
                     fileStream->byteBC = 0;
                     goto LABEL_65;
                 }
@@ -595,7 +588,7 @@ LABEL_45:
             fileStream->gap14[v47] = -2;
             fileStream->gap94[v47] = 1;
 
-            if ((((_BYTE)v47 + 1) & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK) == 0)
+            if ((((_BYTE)v47 + 1) & 7) == 0)
                 fileStream->byteBC = 2;
 
         LABEL_65:
