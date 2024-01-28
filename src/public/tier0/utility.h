@@ -4,7 +4,9 @@
 // Internals
 BOOL IsBadReadPtrV2(void* ptr);
 BOOL FileExists(LPCTSTR szPath);
-BOOL FileEmpty(ifstream& pFile);
+int CreateDirHierarchy(const char* filePath);
+bool IsDirectory(const char* path);
+bool FileEmpty(ifstream& pFile);
 MODULEINFO GetModuleInfo(const char* szModule);
 
 /////////////////////////////////////////////////////////////////////////////

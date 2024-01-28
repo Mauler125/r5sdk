@@ -4,12 +4,8 @@
 // ----------------------------------------------------------------------------
 // NOTE: use this for standalone/tools projects
 //=============================================================================//
+#include "tier0/utility.h"
 #include "filesystem_std.h"
-
-// These are used for the 'stat()' and 'access()' in CBaseFileSystem::IsDirectory().
-#include <io.h>
-#include <sys/types.h>
-#include <sys/stat.h> 
 
 ssize_t CBaseFileSystem::Read(void* pOutput, ssize_t size, FileHandle_t file)
 {
@@ -305,48 +301,16 @@ ssize_t CBaseFileSystem::ReadEx(void* pOutput, ssize_t /*destSize*/, ssize_t siz
 
 }
 
-int CBaseFileSystem::CreateDirHierarchy(const char* pFileName, const char* pPathID)
+int CBaseFileSystem::CreateDirHierarchy(const char* pPath, const char* pPathID)
 {
-	char fullPath[1024];
-	int results;
-
-	//if (pPathID)
-	//	snprintf(fullPath, sizeof(fullPath), "%s/%s", pPathID, pFileName);
-	//else
-	snprintf(fullPath, sizeof(fullPath), "%s", pFileName);
-
-	V_FixSlashes(fullPath);
-
-	char* pFullPath = fullPath;
-	while ((pFullPath = strchr(pFullPath, CORRECT_PATH_SEPARATOR)) != NULL)
-	{
-		// Temporarily turn the slash into a null
-		// to get the current directory.
-		*pFullPath = '\0';
-
-		results = _mkdir(fullPath);
-
-		if (results && errno != EEXIST)
-			return results;
-
-		*pFullPath++ = CORRECT_PATH_SEPARATOR;
-	}
-
-	// Try to create the final directory in the path.
-	return _mkdir(fullPath);
+	NOTE_UNUSED(pPathID);
+	return ::CreateDirHierarchy(pPath);
 }
 
-bool CBaseFileSystem::IsDirectory(const char* path, const char* pathID)
+bool CBaseFileSystem::IsDirectory(const char* pPath, const char* pPathID)
 {
-	if (_access(path, 0) == 0)
-	{
-		struct stat status;
-		stat(path, &status);
-
-		return (status.st_mode & S_IFDIR) != 0;
-	}
-
-	return false;
+	NOTE_UNUSED(pPathID);
+	return ::IsDirectory(pPath);
 }
 
 char* CBaseFileSystem::ReadLine(char* maxChars, ssize_t maxOutputLength, FileHandle_t file)
