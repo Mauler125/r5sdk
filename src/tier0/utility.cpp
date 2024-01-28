@@ -28,8 +28,19 @@ int CreateDirHierarchy(const char* const filePath)
     int results;
 
     snprintf(fullPath, sizeof(fullPath), "%s", filePath);
-
     V_FixSlashes(fullPath);
+
+    const size_t pathLen = strlen(fullPath);
+    char* const pathEnd = &fullPath[pathLen - 1];
+
+    // Strip the trailing slash if there's one
+    if (*pathEnd == CORRECT_PATH_SEPARATOR)
+        *pathEnd = '\0';
+
+    // Get the pointer to the last dir separator, the last dir is what we want
+    // to create and return the value of which is why we run that outside the
+    // loop
+    const char* const lastDir = strrchr(fullPath, CORRECT_PATH_SEPARATOR);
 
     char* pFullPath = fullPath;
     while ((pFullPath = strchr(pFullPath, CORRECT_PATH_SEPARATOR)) != NULL)
@@ -43,7 +54,14 @@ int CreateDirHierarchy(const char* const filePath)
         if (results && errno != EEXIST)
             return results;
 
-        *pFullPath++ = CORRECT_PATH_SEPARATOR;
+        *pFullPath = CORRECT_PATH_SEPARATOR;
+
+        // Last dir should be created separately, and its return value should
+        // be returned
+        if (pFullPath == lastDir)
+            break;
+
+        pFullPath++;
     }
 
     // Try to create the final directory in the path.
