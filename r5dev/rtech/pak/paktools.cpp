@@ -3,14 +3,56 @@
 // Purpose: general pak tools
 //
 //=============================================================================//
+#include "tier0/binstream.h"
 #include "rtech/ipakfile.h"
+
 #include "pakstate.h"
 #include "paktools.h"
 
 //----------------------------------------------------------------------------------
+// checks if the pak base path exists
+//----------------------------------------------------------------------------------
+bool Pak_BasePathExists()
+{
+	return IsDirectory(PLATFORM_PAK_PATH);
+}
+
+//----------------------------------------------------------------------------------
+// creates the pak base path if it doesn't exists
+//----------------------------------------------------------------------------------
+bool Pak_CreateBasePath()
+{
+	// already exists
+	if (Pak_BasePathExists())
+		return true;
+
+	return CreateDirHierarchy(PLATFORM_PAK_PATH) == 0;
+}
+
+//----------------------------------------------------------------------------------
+// checks if the pak override path exists
+//----------------------------------------------------------------------------------
+bool Pak_OverridePathExists()
+{
+	return IsDirectory(PLATFORM_PAK_OVERRIDE_PATH);
+}
+
+//----------------------------------------------------------------------------------
+// creates the pak override path if it doesn't exists
+//----------------------------------------------------------------------------------
+bool Pak_CreateOverridePath()
+{
+	// already exists
+	if (Pak_OverridePathExists())
+		return true;
+
+	return CreateDirHierarchy(PLATFORM_PAK_OVERRIDE_PATH) == 0;
+}
+
+//----------------------------------------------------------------------------------
 // checks if an override file exists and returns whether it should be loaded instead
 //----------------------------------------------------------------------------------
-bool Pak_GetOverride(const char* const pakFilePath, char* const outPath, const size_t outBufLen)
+bool Pak_FileOverrideExists(const char* const pakFilePath, char* const outPath, const size_t outBufLen)
 {
     // check the overrides path
     snprintf(outPath, outBufLen, PLATFORM_PAK_OVERRIDE_PATH"%s", V_UnqualifiedFileName(pakFilePath));
@@ -23,7 +65,7 @@ bool Pak_GetOverride(const char* const pakFilePath, char* const outPath, const s
 int Pak_FileExists(const char* const pakFilePath)
 {
     char fullPath[1024];
-    if (Pak_GetOverride(pakFilePath, fullPath, sizeof(fullPath)))
+    if (Pak_FileOverrideExists(pakFilePath, fullPath, sizeof(fullPath)))
         return true;
 
     // check the platform's default path
@@ -179,6 +221,7 @@ PakPatchFileHeader_t* Pak_GetPatchFileHeader(PakFileHeader_t* const pakHeader, c
 //-----------------------------------------------------------------------------
 short Pak_GetPatchNumberForIndex(PakFileHeader_t* const pakHeader, const int index)
 {
+	assert(pakHeader->patchIndex > 0 && index < pakHeader->patchIndex);
 	const uint8_t* patchHeader = reinterpret_cast<const uint8_t*>(Pak_GetPatchFileHeader(pakHeader, pakHeader->patchIndex - 1));
 
 	// skip the last patch file header, the patch number start from there
@@ -186,4 +229,88 @@ short Pak_GetPatchNumberForIndex(PakFileHeader_t* const pakHeader, const int ind
 	const short* patchNumber = reinterpret_cast<const short*>(patchHeader);
 
 	return patchNumber[index];
+}
+
+//-----------------------------------------------------------------------------
+// searches for pak patches and updates all referenced files in patch headers
+//-----------------------------------------------------------------------------
+bool Pak_UpdatePatchHeaders(uint8_t* const inBuf, const char* const outPakFile)
+{
+	// file name without extension and patch number ID
+	char baseFilePath[MAX_PATH];
+	snprintf(baseFilePath, sizeof(baseFilePath), "%s", outPakFile);
+
+	const char* const fileNameUnqualified = V_UnqualifiedFileName(baseFilePath);
+
+	V_StripExtension(baseFilePath, baseFilePath, sizeof(baseFilePath));
+
+	// strip the patch id, but make sure we only do this on the file name
+	// and not the path
+	char* const patchIdentifier = strrchr(baseFilePath, '(');
+
+	if (patchIdentifier && patchIdentifier > fileNameUnqualified)
+		*patchIdentifier = '\0';
+
+	// NOTE: we modify the in buffer as the patch headers belong to the
+	// compressed section
+	PakFileHeader_t* const inHeader = reinterpret_cast<PakFileHeader_t* const>(inBuf);
+
+	// update each patch header
+	for (uint16_t i = 0; i < inHeader->patchIndex; i++)
+	{
+		short patchNumber = Pak_GetPatchNumberForIndex(inHeader, i);
+		char patchFile[MAX_PATH];
+
+		// the first patch number does not have an identifier in its name
+		if (patchNumber == 0)
+			snprintf(patchFile, sizeof(patchFile), "%s.rpak", baseFilePath);
+		else
+			snprintf(patchFile, sizeof(patchFile), "%s(%02u).rpak", baseFilePath, patchNumber);
+
+		CIOStream inPatch;
+
+		// unable to open patch while there should be one, we must calculate
+		// new file sizes here, or else the runtime would fail to load them
+		if (!inPatch.Open(patchFile, CIOStream::READ | CIOStream::BINARY))
+			return false;
+
+		const size_t fileSize = inPatch.GetSize();
+
+		// pak appears truncated
+		if (fileSize <= sizeof(PakFileHeader_t))
+			return false;
+
+		DevMsg(eDLL_T::RTECH, "%s: updating patch header for pak '%s', new size = %zu\n",
+			__FUNCTION__, patchFile, fileSize);
+
+		PakPatchFileHeader_t* const patchHeader = Pak_GetPatchFileHeader(inHeader, i);
+		patchHeader->m_sizeDisk = fileSize;
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// prints the pak header details to the console
+//-----------------------------------------------------------------------------
+void Pak_ShowHeaderDetails(const PakFileHeader_t* const pakHeader)
+{
+	SYSTEMTIME systemTime;
+	FileTimeToSystemTime(&pakHeader->fileTime, &systemTime);
+
+	Msg(eDLL_T::RTECH, "______________________________________________________________\n");
+	Msg(eDLL_T::RTECH, "-+ Pak header details ----------------------------------------\n");
+	Msg(eDLL_T::RTECH, " |-- Magic    : '0x%08X'\n", pakHeader->magic);
+	Msg(eDLL_T::RTECH, " |-- Version  : '%hu'\n", pakHeader->version);
+	Msg(eDLL_T::RTECH, " |-- Flags    : '0x%04hX'\n", pakHeader->flags);
+	Msg(eDLL_T::RTECH, " |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",
+		systemTime.wYear, systemTime.wMonth, systemTime.wDay, systemTime.wDayOfWeek,
+		systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
+	Msg(eDLL_T::RTECH, " |-- Checksum : '0x%08llX'\n", pakHeader->checksum);
+	Msg(eDLL_T::RTECH, " |-- Assets   : '%u'\n", pakHeader->assetCount);
+	Msg(eDLL_T::RTECH, " |-+ Compression ---------------------------------------------\n");
+	Msg(eDLL_T::RTECH, " | |-- Size comp: '%zu'\n", pakHeader->compressedSize);
+	Msg(eDLL_T::RTECH, " | |-- Size decp: '%zu'\n", pakHeader->decompressedSize);
+	Msg(eDLL_T::RTECH, " | |-- Ratio    : '%.02f'\n", (pakHeader->compressedSize * 100.f) / pakHeader->decompressedSize);
+	Msg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 }
