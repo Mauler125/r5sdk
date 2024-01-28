@@ -9,6 +9,7 @@
 #include "windows/id3dx.h"
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
+#include "tier1/fmtstr.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
 #endif // !CLIENT_DLL
@@ -485,152 +486,14 @@ void Pak_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	CUtlString inPakFile;
-	CUtlString outPakFile;
+	CFmtStr1024 inPakFile(PLATFORM_PAK_PATH "%s", args.Arg(1));
+	CFmtStr1024 outPakFile(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
 
-	inPakFile.Format(PLATFORM_PAK_PATH "%s", args.Arg(1));
-	outPakFile.Format(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
-
-	Msg(eDLL_T::RTECH, "______________________________________________________________\n");
-	Msg(eDLL_T::RTECH, "-+ RTech decompress ------------------------------------------\n");
-
-	if (!FileSystem()->FileExists(inPakFile.String(), "GAME"))
+	if (!Pak_DecodePakFile(inPakFile.String(), outPakFile.String()))
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' does not exist!\n",
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s'!\n",
 			__FUNCTION__, inPakFile.String());
-		return;
 	}
-
-	Msg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", inPakFile.String());
-	FileHandle_t hPakFile = FileSystem()->Open(inPakFile.String(), "rb", "GAME");
-
-	if (!hPakFile)
-	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n",
-			__FUNCTION__, inPakFile.String());
-		return;
-	}
-
-	const ssize_t nFileSize = FileSystem()->Size(hPakFile);
-
-	std::unique_ptr<uint8_t[]> pPakBufContainer(new uint8_t[nFileSize]);
-	uint8_t* const pPakBuf = pPakBufContainer.get();
-
-	FileSystem()->Read(pPakBuf, nFileSize, hPakFile);
-	FileSystem()->Close(hPakFile);
-
-	PakFileHeader_t* pHeader = reinterpret_cast<PakFileHeader_t*>(pPakBuf);
-
-	SYSTEMTIME systemTime;
-	FileTimeToSystemTime(&pHeader->fileTime, &systemTime);
-
-	Msg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
-	Msg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->magic);
-	Msg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->version);
-	Msg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", pHeader->flags);
-	Msg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",
-		systemTime.wYear, systemTime.wMonth, systemTime.wDay, systemTime.wDayOfWeek,
-		systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
-	Msg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->checksum);
-	Msg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->assetCount);
-	Msg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
-	Msg(eDLL_T::RTECH, " |     |-- Size comp: '%zu'\n", pHeader->compressedSize);
-	Msg(eDLL_T::RTECH, " |     |-- Size decp: '%zu'\n", pHeader->decompressedSize);
-
-	if (pHeader->magic != PAK_HEADER_MAGIC)
-	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' has invalid magic!\n",
-			__FUNCTION__, inPakFile.String());
-
-		return;
-	}
-	if (!(pHeader->flags & PAK_HEADER_FLAGS_COMPRESSED))
-	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' already decompressed!\n",
-			__FUNCTION__, inPakFile.String());
-
-		return;
-	}
-
-	if (pHeader->compressedSize != size_t(nFileSize))
-	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%zu' doesn't match expected size '%zu'!\n",
-			__FUNCTION__, inPakFile.String(), size_t(nFileSize), pHeader->compressedSize);
-
-		return;
-	}
-
-	const bool usesCustomCompression = pHeader->flags & PAK_HEADER_FLAGS_ZSTREAM;
-
-	PakDecoder_t decoder{};
-	const uint64_t nDecompSize = Pak_InitDecoder(&decoder, pPakBuf, nullptr, UINT64_MAX, UINT64_MAX, nFileSize, NULL, sizeof(PakFileHeader_t), usesCustomCompression);
-
-	if (nDecompSize != pHeader->decompressedSize)
-	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - calculated size: '%llu' expected: '%llu'!\n",
-			__FUNCTION__, nDecompSize, pHeader->decompressedSize);
-
-		return;
-	}
-	else
-	{
-		Msg(eDLL_T::RTECH, " |     |-- Size calc: '%llu'\n", nDecompSize);
-	}
-
-	Msg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (pHeader->compressedSize * 100.f) / pHeader->decompressedSize);
-
-
-	std::unique_ptr<uint8_t[]> pDecompBufContainer(new uint8_t[pHeader->decompressedSize]);
-	uint8_t* const pDecompBuf = pDecompBufContainer.get();
-
-	// Needs full decode mask as we don't decompress in chunks.
-	decoder.outputMask = UINT64_MAX;
-	decoder.outputBuf = pDecompBuf;
-
-	uint8_t nDecompResult = Pak_StreamToBufferDecode(&decoder, pHeader->compressedSize, pHeader->decompressedSize, usesCustomCompression);
-	if (nDecompResult != 1)
-	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n",
-			__FUNCTION__, inPakFile.String(), nDecompResult);
-	}
-
-	pHeader->flags &= ~PAK_HEADER_FLAGS_COMPRESSED; // Remove compressed flags.
-	pHeader->compressedSize = pHeader->decompressedSize; // Equal compressed size with decompressed.
-
-	FileSystem()->CreateDirHierarchy(PLATFORM_PAK_OVERRIDE_PATH, "GAME");
-	FileHandle_t hDecompFile = FileSystem()->Open(outPakFile.String(), "wb", "GAME");
-
-	if (!hDecompFile)
-	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n",
-			__FUNCTION__, outPakFile.String());
-
-		return;
-	}
-
-	if (pHeader->patchIndex > 0) // Check if its an patch rpak.
-	{
-		// Loop through all the structs and patch their compress size.
-		for (uint16_t i = 1, nPatchOffset = (sizeof(PakFileHeader_t) + sizeof(uint64_t));
-			i <= pHeader->patchIndex; i++, nPatchOffset += sizeof(PakPatchFileHeader_t))
-		{
-			PakPatchFileHeader_t* pPatchHeader = reinterpret_cast<PakPatchFileHeader_t*>(pDecompBuf + nPatchOffset);
-			Msg(eDLL_T::RTECH, " |     |-+ Patch #%02hu -----------------------------------------\n", i);
-			Msg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->patchIndex ? "|" : " ", pPatchHeader->m_sizeDisk);
-			Msg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->patchIndex ? "|" : " ", pPatchHeader->m_sizeMemory);
-
-			pPatchHeader->m_sizeDisk = pPatchHeader->m_sizeMemory; // Fix size for decompress.
-		}
-	}
-
-	memcpy_s(pDecompBuf, sizeof(PakFileHeader_t), pPakBuf, sizeof(PakFileHeader_t));// Overwrite first 0x80 bytes which are NULL with the header data.
-	FileSystem()->Write(pDecompBuf, decoder.decompSize, hDecompFile);
-
-	Msg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decoder.decompSize));
-	Msg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", outPakFile.String());
-	Msg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
-
-	FileSystem()->Close(hDecompFile);
 }
 
 /*
@@ -648,11 +511,8 @@ void Pak_Compress_f(const CCommand& args)
 		return;
 	}
 
-	CUtlString inPakFile;
-	CUtlString outPakFile;
-
-	inPakFile.Format(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
-	outPakFile.Format(PLATFORM_PAK_PATH "%s", args.Arg(1));
+	CFmtStr1024 inPakFile(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
+	CFmtStr1024 outPakFile(PLATFORM_PAK_PATH "%s", args.Arg(1));
 
 	// NULL means default compress level
 	const int compressLevel = args.ArgC() > 2 ? atoi(args.Arg(2)) : NULL;

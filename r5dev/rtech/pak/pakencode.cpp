@@ -30,7 +30,12 @@ bool Pak_BufferToBufferEncode(const uint8_t* const inBuf, const uint64_t inLen,
 		level);
 
 	if (ZSTD_isError(compressSize))
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: compression failed! [%s]\n",
+			__FUNCTION__, ZSTD_getErrorName(compressSize));
+
 		return false;
+	}
 
 	PakFileHeader_t* const outHeader = reinterpret_cast<PakFileHeader_t* const>(outBuf);
 
@@ -47,126 +52,113 @@ bool Pak_BufferToBufferEncode(const uint8_t* const inBuf, const uint64_t inLen,
 }
 
 //-----------------------------------------------------------------------------
-// searches for pak patches and updates all referenced files in patch headers
-//-----------------------------------------------------------------------------
-bool Pak_UpdatePatchHeaders(uint8_t* const inBuf, const char* const outPakFile)
-{
-	// file name without extension and patch number ID
-	char baseFilePath[MAX_PATH];
-	snprintf(baseFilePath, sizeof(baseFilePath), "%s", outPakFile);
-
-	const char* const fileNameUnqualified = V_UnqualifiedFileName(baseFilePath);
-
-	V_StripExtension(baseFilePath, baseFilePath, sizeof(baseFilePath));
-
-	// strip the patch id, but make sure we only do this on the file name
-	// and not the path
-	char* const patchIdentifier = strrchr(baseFilePath, '(');
-
-	if (patchIdentifier && patchIdentifier > fileNameUnqualified)
-		*patchIdentifier = '\0';
-
-	// NOTE: we modify the in buffer as the patch headers belong to the
-	// compressed section
-	PakFileHeader_t* const inHeader = reinterpret_cast<PakFileHeader_t* const>(inBuf);
-
-	// update each patch header
-	for (uint16_t i = 0; i < inHeader->patchIndex; i++)
-	{
-		short patchNumber = Pak_GetPatchNumberForIndex(inHeader, i);
-		char patchFile[MAX_PATH];
-
-		// the first patch number does not have an identifier in its name
-		if (patchNumber == 0)
-			snprintf(patchFile, sizeof(patchFile), "%s.rpak", baseFilePath);
-		else
-			snprintf(patchFile, sizeof(patchFile), "%s(%02u).rpak", baseFilePath, patchNumber);
-
-		CIOStream inPatch;
-
-		// unable to open patch while there should be one, we must calculate
-		// new file sizes here, or else the runtime would fail to load them
-		if (!inPatch.Open(patchFile, CIOStream::READ | CIOStream::BINARY))
-			return false;
-
-		const size_t fileSize = inPatch.GetSize();
-
-		// pak appears truncated
-		if (fileSize <= sizeof(PakFileHeader_t))
-			return false;
-
-		DevMsg(eDLL_T::RTECH, "%s: updating patch header for pak '%s', new size = %zu\n",
-			__FUNCTION__, patchFile, fileSize);
-
-		PakPatchFileHeader_t* const patchHeader = Pak_GetPatchFileHeader(inHeader, i);
-		patchHeader->m_sizeDisk = fileSize;
-	}
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
 // encodes the pak file from file name
 //-----------------------------------------------------------------------------
 bool Pak_EncodePakFile(const char* const inPakFile, const char* const outPakFile, const int level)
 {
-	CIOStream inFile;
-
-	// failed to open
-	if (!inFile.Open(inPakFile, CIOStream::READ | CIOStream::BINARY))
-		return false;
-
-	const ssize_t fileSize = inFile.GetSize();
-
-	// file appears truncated
-	if (fileSize <= sizeof(PakFileHeader_t))
-		return false;
-
-	std::unique_ptr<uint8_t[]> pakBuf(new uint8_t[fileSize]);
-	uint8_t* const pPakBuf = pakBuf.get();
-
-	inFile.Read(pPakBuf, fileSize);
-	inFile.Close();
-
-	const PakFileHeader_t* inHeader = reinterpret_cast<PakFileHeader_t* const>(pPakBuf);
-
-	// incompatible pak, or not a pak
-	if (inHeader->magic != PAK_HEADER_MAGIC || inHeader->version != PAK_HEADER_VERSION)
-		return false;
-
-	// already compressed
-	if (inHeader->IsCompressed())
-		return false;
-
-	if (inHeader->patchIndex && !Pak_UpdatePatchHeaders(pPakBuf, outPakFile))
+	if (!Pak_CreateBasePath())
 	{
-		// pak has patches but one or more weren't found; the headers need to
-		// be updated with new compression sizes since the runtime uses them to
-		// check for truncation
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: failed to create output path for pak file '%s'!\n",
+			__FUNCTION__, outPakFile);
+
 		return false;
 	}
 
-	std::unique_ptr<uint8_t[]> outBuf(new uint8_t[inHeader->decompressedSize]);
-	uint8_t* const pOutBuf = outBuf.get();
+	CIOStream inPakStream;
 
-	PakFileHeader_t* const outHeader = reinterpret_cast<PakFileHeader_t* const>(pOutBuf);
+	if (!inPakStream.Open(inPakFile, CIOStream::READ | CIOStream::BINARY))
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: failed to open pak file '%s' for read!\n",
+			__FUNCTION__, inPakFile);
+
+		return false;
+	}
+
+	CIOStream outPakStream;
+
+	if (!outPakStream.Open(outPakFile, CIOStream::WRITE | CIOStream::BINARY))
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: failed to open pak file '%s' for write!\n",
+			__FUNCTION__, outPakFile);
+
+		return false;
+	}
+
+	const size_t fileSize = inPakStream.GetSize();
+
+	// file appears truncated
+	if (fileSize <= sizeof(PakFileHeader_t))
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: pak '%s' appears truncated!\n",
+			__FUNCTION__, inPakFile);
+
+		return false;
+	}
+
+	std::unique_ptr<uint8_t[]> inPakBufContainer(new uint8_t[fileSize]);
+	uint8_t* const inPakBuf = inPakBufContainer.get();
+
+	inPakStream.Read(inPakBuf, fileSize);
+	inPakStream.Close();
+
+	const PakFileHeader_t* inHeader = reinterpret_cast<PakFileHeader_t* const>(inPakBuf);
+
+	if (inHeader->magic != PAK_HEADER_MAGIC || inHeader->version != PAK_HEADER_VERSION)
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: pak '%s' has incompatible or invalid header!\n",
+			__FUNCTION__, inPakFile);
+
+		return false;
+	}
+
+	if (inHeader->IsCompressed())
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: pak '%s' is already compressed!\n",
+			__FUNCTION__, inPakFile);
+
+		return false;
+	}
+
+	if (inHeader->compressedSize != fileSize)
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: pak '%s' appears truncated or corrupt; compressed size: '%zu' expected: '%zu'!\n",
+			__FUNCTION__, inPakFile, fileSize, inHeader->compressedSize);
+
+		return false;
+	}
+
+	// NOTE: if the paks this particular pak patches have different sizes than
+	// current sizes in the patch header, the runtime will crash!
+	if (inHeader->patchIndex && !Pak_UpdatePatchHeaders(inPakBuf, outPakFile))
+	{
+		Warning(eDLL_T::RTECH, "%s: pak '%s' is a patch pak, but the pak(s) it patches weren't found; patch headers not updated!\n",
+			__FUNCTION__, inPakFile);
+	}
+
+	std::unique_ptr<uint8_t[]> outPakBufContainer(new uint8_t[inHeader->decompressedSize]);
+	uint8_t* const outPakBuf = outPakBufContainer.get();
+
+	PakFileHeader_t* const outHeader = reinterpret_cast<PakFileHeader_t* const>(outPakBuf);
 
 	// copy the header over
 	*outHeader = *inHeader;
 
 	// encoding failed
-	if (!Pak_BufferToBufferEncode(pPakBuf, fileSize, pOutBuf, inHeader->decompressedSize, level))
+	if (!Pak_BufferToBufferEncode(inPakBuf, inHeader->compressedSize, outPakBuf, inHeader->decompressedSize, level))
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: failed to compress pak file '%s'!\n",
+			__FUNCTION__, inPakFile);
+
 		return false;
+	}
 
-	CIOStream outFile;
+	const PakFileHeader_t* outPakHeader = reinterpret_cast<PakFileHeader_t* const>(outPakBuf);
 
-	// failure to open output file
-	if (!outFile.Open(outPakFile, CIOStream::WRITE | CIOStream::BINARY))
-		return false;
-
-	const PakFileHeader_t* outPakHeader = reinterpret_cast<PakFileHeader_t* const>(pOutBuf);
+	Pak_ShowHeaderDetails(outPakHeader);
 
 	// this will be true if the entire buffer has been written
-	outFile.Write(pOutBuf, outPakHeader->compressedSize);
+	outPakStream.Write(outPakBuf, outPakHeader->compressedSize);
+
+	Msg(eDLL_T::RTECH, "Compressed pak file to: '%s'\n", outPakFile);
 	return true;
 }
