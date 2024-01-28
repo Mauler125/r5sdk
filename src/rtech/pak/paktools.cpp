@@ -284,7 +284,7 @@ bool Pak_UpdatePatchHeaders(uint8_t* const inBuf, const char* const outPakFile)
 			__FUNCTION__, patchFile, fileSize);
 
 		PakPatchFileHeader_t* const patchHeader = Pak_GetPatchFileHeader(inHeader, i);
-		patchHeader->m_sizeDisk = fileSize;
+		patchHeader->compressedSize = fileSize;
 	}
 
 	return true;

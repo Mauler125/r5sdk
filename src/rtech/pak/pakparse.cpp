@@ -34,7 +34,7 @@ static bool Pak_ResolveAssetDependency(const PakFile_t* const pak, PakGuid_t cur
             return false;
 
         currentIndex &= PAK_MAX_ASSETS_MASK;
-        currentGuid = g_pPakGlobals->m_assets[currentIndex].guid;
+        currentGuid = g_pPakGlobals->assets[currentIndex].guid;
 
         if (currentGuid == targetGuid)
             return true;
@@ -64,7 +64,7 @@ void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const ass
 
         // get asset index
         int currentIndex = targetGuid & PAK_MAX_ASSETS_MASK;
-        const PakGuid_t currentGuid = g_pPakGlobals->m_assets[currentIndex].guid;
+        const PakGuid_t currentGuid = g_pPakGlobals->assets[currentIndex].guid;
 
         const int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
         *reinterpret_cast<PakGuid_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 2])) = targetGuid;
@@ -105,7 +105,7 @@ void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const ass
         }
 
         // finally write the pointer to the guid entry
-        *pCurrentGuid = g_pPakGlobals->m_assets[currentIndex].m_head;
+        *pCurrentGuid = g_pPakGlobals->assets[currentIndex].head;
     }
 }
 
@@ -157,7 +157,7 @@ void __fastcall Rebuild_14043E030(PakFile_t* const pak)
                 pak->memoryData.qword2E0[_numAssets] = (int)sub_14043D3C0(pak, pakAsset);
                 _InterlockedIncrement16(word_167ED7BDE);
                 v13 = assetBind;
-                if (g_pPakGlobals->m_assetBindings[(unsigned __int64)assetBind].loadAssetFunc)
+                if (g_pPakGlobals->assetBindings[(unsigned __int64)assetBind].loadAssetFunc)
                 {
                     qword2D8_low = pak->memoryData.pakId;
                     qword2D8_high = pak->memoryData.unkJobID;
@@ -330,12 +330,12 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
                 pakHeader = (PakFileHeader_t*)&fileStream->buffer[v18];
             }
 
-            v17 = byteBF & 7;
+            v17 = byteBF & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK;
 
-            fileStream->m_descriptors[v17].dataOffset = v16 + sizeof(PakFileHeader_t);
-            fileStream->m_descriptors[v17].compressedSize = v16 + pakHeader->compressedSize;
-            fileStream->m_descriptors[v17].decompressedSize = pakHeader->decompressedSize;
-            fileStream->m_descriptors[v17].isCompressed = pakHeader->IsCompressed();
+            fileStream->descriptors[v17].dataOffset = v16 + sizeof(PakFileHeader_t);
+            fileStream->descriptors[v17].compressedSize = v16 + pakHeader->compressedSize;
+            fileStream->descriptors[v17].decompressedSize = pakHeader->decompressedSize;
+            fileStream->descriptors[v17].isCompressed = pakHeader->IsCompressed();
         }
         goto LABEL_17;
     }
@@ -348,7 +348,7 @@ LABEL_18:
         byte1FD = pak->byte1FD;
         do
         {
-            v22 = &fileStream->m_descriptors[byte1F8 & 7];
+            v22 = &fileStream->descriptors[byte1F8 & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK];
 
             if (byte1FD)
             {
@@ -575,9 +575,9 @@ LABEL_45:
                 if (v56 == FS_ASYNC_FILE_INVALID)
                     Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't open file \"%s\".\n", pakPatchPath);
 
-                if (numBytesToProcess < pak->memoryData.patchHeaders[patchCount].m_sizeDisk)
+                if (numBytesToProcess < pak->memoryData.patchHeaders[patchCount].compressedSize)
                     Error(eDLL_T::RTECH, EXIT_FAILURE, "File \"%s\" appears truncated; read size: %zu < expected size: %zu.\n",
-                        pakPatchPath, numBytesToProcess, pak->memoryData.patchHeaders[patchCount].m_sizeDisk);
+                        pakPatchPath, numBytesToProcess, pak->memoryData.patchHeaders[patchCount].compressedSize);
 
                 FS_CloseAsyncFile((short)fileStream->fileHandle);
 
@@ -586,7 +586,7 @@ LABEL_45:
                 v58 = (unsigned __int64)((v43 + 7) & 0xFFFFFFF8) << 19;
                 fileStream->qword0 = v58;
                 fileStream->byteBC = (v43 == ((v43 + 7) & 0xFFFFFFF8)) + 1;
-                fileStream->qword8 = v58 + pak->memoryData.patchHeaders[patchCount].m_sizeDisk;
+                fileStream->qword8 = v58 + pak->memoryData.patchHeaders[patchCount].compressedSize;
             LABEL_84:
                 if (v43 == v44)
                     return memoryData->patchSrcSize == 0;
@@ -595,7 +595,7 @@ LABEL_45:
             fileStream->gap14[v47] = -2;
             fileStream->gap94[v47] = 1;
 
-            if ((((_BYTE)v47 + 1) & 7) == 0)
+            if ((((_BYTE)v47 + 1) & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK) == 0)
                 fileStream->byteBC = 2;
 
         LABEL_65:
@@ -645,7 +645,7 @@ bool SetupNextPageForPatching(PakLoadedInfo_t* a1, PakFile_t* pak)
     int assetTypeIdx = pakAsset->HashTableIndexForAssetType();
 
     pak->memoryData.patchDstPtr = reinterpret_cast<char*>(a1->segmentBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
-    pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pPakGlobals->m_assetBindings[assetTypeIdx].nativeClassSize;
+    pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pPakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
 
     return true;
 }
@@ -748,7 +748,7 @@ bool Pak_ProcessAssets(PakLoadedInfo_t* const a1)
 
             pak->memoryData.patchDstPtr = reinterpret_cast<char*>(a1->segmentBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
 
-            pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pPakGlobals->m_assetBindings[assetTypeIdx].nativeClassSize;
+            pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pPakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
         }
         else
         {
@@ -776,7 +776,7 @@ bool Pak_ProcessAssets(PakLoadedInfo_t* const a1)
             Pak_ResolveAssetRelations(pak, pAsset);
             const int v36 = pak->memoryData.qword2E0[i];
 
-            if (dword_167A40B3C[6 * g_pPakGlobals->m_assets[v36].unk_8] == j)
+            if (dword_167A40B3C[6 * g_pPakGlobals->assets[v36].unk_8] == j)
             {
                 if (*qword_167ED7BC8)
                 {
@@ -827,7 +827,7 @@ void Pak_StubInvalidAssetBinds(PakFile_t* const pak, PakSegmentDescriptor_t* con
         const uint8_t assetTypeIndex = asset->HashTableIndexForAssetType();
         desc->assetTypeCount[assetTypeIndex]++;
 
-        PakAssetBinding_t* const assetBinding = &g_pPakGlobals->m_assetBindings[assetTypeIndex];
+        PakAssetBinding_t* const assetBinding = &g_pPakGlobals->assetBindings[assetTypeIndex];
 
         if (assetBinding->type == PakAssetBinding_t::NONE)
         {
@@ -874,7 +874,7 @@ bool Pak_StartLoadingPak(PakLoadedInfo_t* const loadedInfo)
     const uint32_t numAssets = pakFile->GetAssetCount();
 
     if (pakFile->memoryData.pakHeader.patchIndex)
-        pakFile->firstPageIdx = pakFile->memoryData.patchDataHeader->m_pageCount;
+        pakFile->firstPageIdx = pakFile->memoryData.patchDataHeader->pageCount;
 
     sub_140442740(pakFile->memoryData.ppAssetEntries, &pakFile->memoryData.ppAssetEntries[numAssets], numAssets, pakFile);
 
