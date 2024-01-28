@@ -17,7 +17,7 @@ int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* con
 
     // is this a pak file and do we have an override
     if (strstr(fileToLoad, PLATFORM_PAK_PATH) &&
-        Pak_GetOverride(fileToLoad, overridePath, sizeof(overridePath)))
+        Pak_FileOverrideExists(fileToLoad, overridePath, sizeof(overridePath)))
     {
         fileToLoad = overridePath;
     }
