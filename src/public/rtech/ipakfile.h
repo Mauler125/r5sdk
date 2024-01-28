@@ -345,7 +345,7 @@ struct PakSegmentHeader_t
 	size_t dataSize;
 };
 
-struct PakSegmentDescriptor_t // TODO: give this a better name!!!
+struct PakSegmentDescriptor_t
 {
 	size_t assetTypeCount[PAK_MAX_TYPES];
 	int64_t segmentSizes[PAK_MAX_SEGMENTS];
@@ -465,8 +465,8 @@ struct PakFileStream_t
 
 	_QWORD qword0;
 	_QWORD qword8;
-	int fileHandle; // TODO: Unsigned?
-	int gap14[32];  // TODO: Unsigned?
+	int fileHandle;
+	int gap14[32];
 	_BYTE gap94[32];
 	unsigned int unsigned_intB4;
 	_DWORD dwordB8;
@@ -476,7 +476,7 @@ struct PakFileStream_t
 	_BYTE byteBF;
 	Descriptor descriptors[PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS];
 	uint8_t* buffer;
-	_QWORD qword1C8;
+	_QWORD bufferMask;
 	_QWORD bytesStreamed;
 };
 
@@ -567,6 +567,7 @@ struct PakMemoryData_t
 
 	const char* fileName;
 	PakFileHeader_t pakHeader;
+	PakPatchFileHeader_t patchHeader;
 };
 
 struct PakFile_t
@@ -695,7 +696,7 @@ struct UnknownPakStruct_t
 
 
 static_assert(sizeof(UnknownPakStruct_t) == 0x11D410);
-static_assert(sizeof(PakFile_t) == 2208); // S3+
+static_assert(sizeof(PakFile_t) == 2224); // S3+
 static_assert(sizeof(PakLoadedInfo_t) == 184);
 static_assert(sizeof(PakDecoder_t) == 136);
 static_assert(sizeof(PakPatchFileHeader_t) == 16);

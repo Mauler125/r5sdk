@@ -48,10 +48,10 @@ struct AsyncHandleStatus_t
 static_assert(sizeof(AsyncHandleStatus_t) == 0x40);
 
 extern int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* const fileSizeOut);
-extern void FS_CloseAsyncFile(const short fileHandle);
+extern void FS_CloseAsyncFile(const int fileHandle);
 
 inline int(*v_FS_OpenAsyncFile)(const char* const filePath, const int logLevel, size_t* const outFileSize);
-inline void(*v_FS_CloseAsyncFile)(short fileHandle);
+inline void(*v_FS_CloseAsyncFile)(const int fileHandle);
 
 inline int(*v_FS_ReadAsyncFile)(int a1, __int64 a2, unsigned __int64 a3, void* a4, void* a5, void* a6, int a7);
 inline uint8_t(*v_FS_CheckAsyncRequest)(AsyncHandleStatus_t* pakStatus, size_t* bytesProcessed, const char** stateString);

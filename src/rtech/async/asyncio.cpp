@@ -55,7 +55,7 @@ int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* con
 //----------------------------------------------------------------------------------
 // close a file and remove it from the async file handle array
 //----------------------------------------------------------------------------------
-void FS_CloseAsyncFile(const short fileHandle)
+void FS_CloseAsyncFile(const int fileHandle)
 {
     const int slotNum = fileHandle & ASYNC_MAX_FILE_HANDLES_MASK;
     AsyncHandleTracker_t& tracker = g_pAsyncFileSlots[slotNum];
