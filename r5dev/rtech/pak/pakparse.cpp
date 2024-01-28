@@ -382,8 +382,10 @@ LABEL_18:
 
                 decodeContext = &pak->pakDecoder;
 
-                decompressedSize = Pak_InitDecoder(&pak->pakDecoder, fileStream->buffer,
-                    PAK_DECODE_IN_RING_BUFFER_MASK, v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
+                decompressedSize = Pak_InitDecoder(&pak->pakDecoder,
+                    fileStream->buffer, pak->decompBuffer,
+                    PAK_DECODE_IN_RING_BUFFER_MASK, PAK_DECODE_OUT_RING_BUFFER_MASK, 
+                    v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
                     v22->dataOffset - sizeof(PakFileHeader_t), sizeof(PakFileHeader_t), useZStream);
 
                 if (decompressedSize != v22->decompressedSize)
@@ -392,9 +394,6 @@ LABEL_18:
                         pak->memoryData.fileName,
                         decompressedSize,
                         pak->memoryData.pakHeader.decompressedSize);
-
-                pak->pakDecoder.outputBuf = pak->decompBuffer;
-                pak->pakDecoder.outputMask = PAK_DECODE_OUT_RING_BUFFER_MASK;
             }
             else
             {

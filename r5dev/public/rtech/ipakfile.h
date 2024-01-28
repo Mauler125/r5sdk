@@ -363,7 +363,7 @@ struct PakDecoder_t
 	uint64_t outputInvMask;
 
 	uint32_t headerOffset;
-	uint32_t dword44;
+	uint32_t padding; // unused data, available for other stuff
 
 	uint64_t inBufBytePos;
 	uint64_t outBufBytePos;
@@ -377,13 +377,23 @@ struct PakDecoder_t
 	uint32_t dword6C;
 	uint64_t qword70;
 
-	size_t compressedStreamSize;
+	union
+	{
+		size_t compressedStreamSize;
+		size_t frameHeaderSize;
+	};
 
 	union
 	{
 		size_t decompressedStreamSize;
 		ZSTD_DStream* zstreamContext;
 	};
+};
+
+struct PakRingBufferFrame_t
+{
+	size_t bufIndex;
+	size_t frameLen;
 };
 
 struct PakFile_t;
