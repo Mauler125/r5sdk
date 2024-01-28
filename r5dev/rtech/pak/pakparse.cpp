@@ -848,10 +848,13 @@ void Pak_StubInvalidAssetBinds(PakFile_t* const pak, PakSegmentDescriptor_t* con
         // which isn't much help to the average user that can't rebuild other people's paks
         if (asset->version != assetBinding->version)
         {
+            FourCCString_t assetMagic;
+            FourCCToString(assetMagic, asset->magic);
+
             DevWarning(eDLL_T::RTECH,
-                "Unexpected asset version for \"%s\" (%.4s) asset with guid 0x%llX (asset %i in pakfile '%s'). Expected %i, found %i.\n",
+                "Unexpected asset version for \"%s\" (%.4s) asset with guid 0x%llX (asset %u in pakfile '%s'). Expected %u, found %u.\n",
                 assetBinding->description,
-                reinterpret_cast<char*>(&asset->magic),
+                assetMagic,
                 asset->guid,
                 i, pak->GetName(),
                 assetBinding->version, asset->version

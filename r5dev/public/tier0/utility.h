@@ -64,7 +64,8 @@ string& StringLTrim(string& svInput, const char* pszToTrim, bool bTrimBefore = f
 string& StringRTrim(string& svInput, const char* pszToTrim, bool bTrimAfter = false);
 string& StringTrim(string& svInput, const char* pszToTrim, bool bTrimAll = false);
 
-string FourCCToString(int n);
+typedef char FourCCString_t[5];
+void FourCCToString(FourCCString_t& buf, const int n);
 
 /////////////////////////////////////////////////////////////////////////////
 // Bytes

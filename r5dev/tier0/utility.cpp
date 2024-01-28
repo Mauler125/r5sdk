@@ -918,14 +918,13 @@ pair<vector<uint8_t>, string> StringToMaskedBytes(const char* szInput, bool bNul
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a 32-bit integer into a 4-char ascii string
-string FourCCToString(int n)
+void FourCCToString(FourCCString_t& buf, const int n)
 {
-    stringstream ss;
-    ss << (char)((n & 0x000000ff) >> 0);
-    ss << (char)((n & 0x0000ff00) >> 8);
-    ss << (char)((n & 0x00ff0000) >> 16);
-    ss << (char)((n & 0xff000000) >> 24);
-    return ss.str();
+    buf[0] = (char)((n & 0x000000ff) >> 0);
+    buf[1] = (char)((n & 0x0000ff00) >> 8);
+    buf[2] = (char)((n & 0x00ff0000) >> 16);
+    buf[3] = (char)((n & 0xff000000) >> 24);
+    buf[4] = '\0';
 };
 
 ///////////////////////////////////////////////////////////////////////////////

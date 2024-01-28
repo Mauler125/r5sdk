@@ -340,7 +340,10 @@ void Pak_ListTypes_f(const CCommand& args)
 		if (!type->description)
 			continue;
 
-		Msg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", FourCCToString(type->extension).c_str(), type->description, type->version, type->headerSize, type->nativeClassSize);
+		FourCCString_t assetExtension;
+		FourCCToString(assetExtension, type->extension);
+
+		Msg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", assetExtension, type->description, type->version, type->headerSize, type->nativeClassSize);
 		nRegistered++;
 	}
 	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
