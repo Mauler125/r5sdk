@@ -563,7 +563,7 @@ void Pak_Decompress_f(const CCommand& args)
 	const bool usesCustomCompression = pHeader->flags & PAK_HEADER_FLAGS_ZSTREAM;
 
 	PakDecoder_t decoder{};
-	const uint64_t nDecompSize = Pak_InitDecoder(&decoder, pPakBuf, UINT64_MAX, nFileSize, NULL, sizeof(PakFileHeader_t), usesCustomCompression);
+	const uint64_t nDecompSize = Pak_InitDecoder(&decoder, pPakBuf, nullptr, UINT64_MAX, UINT64_MAX, nFileSize, NULL, sizeof(PakFileHeader_t), usesCustomCompression);
 
 	if (nDecompSize != pHeader->decompressedSize)
 	{
