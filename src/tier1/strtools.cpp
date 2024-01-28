@@ -1014,7 +1014,6 @@ bool V_MakeRelativePath(const char* pFullPath, const char* pDirectory, char* pRe
 // Purpose: Strip off the last directory from dirName
 // Input  : *dirName - 
 //			maxLen - 
-//			*newLen - 
 // Output : Returns the new length of the string
 //-----------------------------------------------------------------------------
 size_t V_StripLastDir(char* dirName, size_t maxLen)
