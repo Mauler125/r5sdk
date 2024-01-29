@@ -186,21 +186,21 @@ size_t Pak_RStreamDecoderInit(PakDecoder_t* const decoder, const uint8_t* const 
 	decoder->decompSize = (1i64 << decompressedSizeBits) | frameHeader & ((1i64 << decompressedSizeBits) - 1);
 
 	const uint64_t bytePos = dataOffset + headerSize + 8;
-	const int64_t currByteLow = *(_QWORD*)((inputMask & bytePos) + fileBuffer) << (64 - ((unsigned __int8)decompressedSizeBits + 6));
+	const int64_t currByteLow = *(_QWORD*)((inputMask & bytePos) + fileBuffer) << (64 - ((uint8_t)decompressedSizeBits + 6));
 
-	decoder->inBufBytePos = bytePos + ((unsigned __int64)(unsigned int)(decompressedSizeBits + 6) >> 3);
+	decoder->inBufBytePos = bytePos + ((uint64_t)(uint32_t)(decompressedSizeBits + 6) >> 3);
 	const uint32_t bitPosFinal = ((decompressedSizeBits + 6) & 7) + 13;
 
 	const uint64_t currByte = (0xFFFFFFFFFFFFFFFFui64 >> ((decompressedSizeBits + 6) & 7)) & ((frameHeader >> decompressedSizeBits) | currByteLow);
 	const uint32_t currbits = (((_BYTE)currByte - 1) & 0x3F) + 1;
 
-	const uint64_t invMaskIn = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (unsigned __int8)currbits);
+	const uint64_t invMaskIn = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (uint8_t)currbits);
 	decoder->inputInvMask = invMaskIn;
 
 	const uint64_t invMaskOut = 0xFFFFFFFFFFFFFFFFui64 >> (64 - ((((currByte >> 6) - 1) & 0x3F) + 1));
 	decoder->outputInvMask = invMaskOut;
 
-	const uint64_t finalByteFull = (currByte >> 13) | (*(_QWORD*)((inputMask & decoder->inBufBytePos) + fileBuffer) << (64 - (unsigned __int8)bitPosFinal));
+	const uint64_t finalByteFull = (currByte >> 13) | (*(_QWORD*)((inputMask & decoder->inBufBytePos) + fileBuffer) << (64 - (uint8_t)bitPosFinal));
 	const uint32_t finalBitOffset = bitPosFinal & 7;
 
 	decoder->inBufBytePos += bitPosFinal >> 3;
@@ -216,7 +216,7 @@ size_t Pak_RStreamDecoderInit(PakDecoder_t* const decoder, const uint8_t* const 
 		const uint64_t finalPos = inputMask & decoder->inBufBytePos;
 		decoder->headerOffset = (currbits >> 3) + 1;
 		decoder->inBufBytePos += (currbits >> 3) + 1;
-		decoder->bufferSizeNeeded = *(_QWORD*)(finalPos + fileBuffer) & ((1i64 << (8 * ((unsigned __int8)(currbits >> 3) + 1))) - 1);;
+		decoder->bufferSizeNeeded = *(_QWORD*)(finalPos + fileBuffer) & ((1i64 << (8 * ((uint8_t)(currbits >> 3) + 1))) - 1);;
 	}
 
 	decoder->bufferSizeNeeded += dataOffset;
@@ -227,7 +227,7 @@ size_t Pak_RStreamDecoderInit(PakDecoder_t* const decoder, const uint8_t* const 
 	decoder->compressedStreamSize = decoder->bufferSizeNeeded;
 	decoder->decompressedStreamSize = decoder->decompSize;
 
-	if ((((unsigned __int8)(currByte >> 6) - 1) & 0x3F) != -1i64 && decoder->decompSize - 1 > decoder->outputInvMask)
+	if ((((uint8_t)(currByte >> 6) - 1) & 0x3F) != -1i64 && decoder->decompSize - 1 > decoder->outputInvMask)
 	{
 		const uint64_t streamCompressedSize = decoder->bufferSizeNeeded - decoder->headerOffset;
 		decoder->compressedStreamSize = streamCompressedSize;
@@ -628,7 +628,7 @@ bool Pak_ZStreamDecode(PakDecoder_t* const decoder, const size_t inLen, const si
 	// checked before calling this function
 	assert(decoder->zstreamContext && decoder->inBufBytePos <= inLen);
 
-	PakRingBufferFrame_t outFrame = Pak_DetermineRingBufferFrame(decoder->outputMask, decoder->outBufBytePos, outLen);
+	const PakRingBufferFrame_t outFrame = Pak_DetermineRingBufferFrame(decoder->outputMask, decoder->outBufBytePos, outLen);
 
 	ZSTD_outBuffer outBuffer = {
 		&decoder->outputBuf[outFrame.bufIndex],
@@ -636,7 +636,7 @@ bool Pak_ZStreamDecode(PakDecoder_t* const decoder, const size_t inLen, const si
 		NULL
 	};
 
-	PakRingBufferFrame_t inFrame = Pak_DetermineRingBufferFrame(decoder->inputMask, decoder->inBufBytePos, inLen);
+	const PakRingBufferFrame_t inFrame = Pak_DetermineRingBufferFrame(decoder->inputMask, decoder->inBufBytePos, inLen);
 
 	ZSTD_inBuffer inBuffer = {
 		&decoder->inputBuf[inFrame.bufIndex],
@@ -870,7 +870,7 @@ bool Pak_DecodePakFile(const char* const inPakFile, const char* const outPakFile
 		return false;
 	}
 
-	PakFileHeader_t* const outHeader = reinterpret_cast<PakFileHeader_t*>(outPakBuf);
+	const PakFileHeader_t* const outHeader = reinterpret_cast<PakFileHeader_t*>(outPakBuf);
 
 	// NOTE: if the paks this particular pak patches have different sizes than
 	// current sizes in the patch header, the runtime will crash!
