@@ -15,11 +15,16 @@ int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* con
     const CHAR* fileToLoad = filePath;
     char overridePath[1024];
 
-    // is this a pak file and do we have an override
-    if (strstr(fileToLoad, PLATFORM_PAK_PATH) &&
-        Pak_FileOverrideExists(fileToLoad, overridePath, sizeof(overridePath)))
+    // function can be called with null strings, for example if optional
+    // streaming sets  are missing; check for it
+    if (fileToLoad && *fileToLoad)
     {
-        fileToLoad = overridePath;
+        // is this a pak file and do we have an override
+        if (strstr(fileToLoad, PLATFORM_PAK_PATH) &&
+            Pak_FileOverrideExists(fileToLoad, overridePath, sizeof(overridePath)))
+        {
+            fileToLoad = overridePath;
+        }
     }
 
     const HANDLE hFile = CreateFileA(fileToLoad, GENERIC_READ,
