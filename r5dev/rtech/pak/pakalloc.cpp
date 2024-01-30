@@ -32,7 +32,7 @@ void Pak_AlignSegmentHeaders(PakFile_t* const pak, PakSegmentDescriptor_t* const
 
             desc->segmentSizeForType[SF_HEAD] = headersSize;
 
-            headerSegmentAlignment = static_cast<uint8_t>(max(headerSegmentAlignment, binding.headerAlignment));
+            headerSegmentAlignment = Max(headerSegmentAlignment, static_cast<uint8_t>(binding.headerAlignment));
             desc->segmentAlignmentForType[SF_HEAD] = headerSegmentAlignment;
         }
     }
@@ -63,7 +63,7 @@ void Pak_AlignSegments(PakFile_t* const pak, PakSegmentDescriptor_t* const desc)
 
             // check if this segment's alignment is higher than the previous highest for this type
             // if so, increase the alignment to accommodate this segment
-            desc->segmentAlignmentForType[segmentType] = max(desc->segmentAlignmentForType[segmentType], segHeader->dataAlignment);
+            desc->segmentAlignmentForType[segmentType] = Max(desc->segmentAlignmentForType[segmentType], segHeader->dataAlignment);
         }
     }
 }
