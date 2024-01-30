@@ -5,9 +5,9 @@
 
 struct AsyncHandleTracker_t
 {
-	int m_nFileNumber;
-	int m_nCurOfs;
-	HANDLE m_hFileHandle;
+	int slot;
+	int state;
+	HANDLE handle;
 };
 
 struct AsyncHandleStatus_t

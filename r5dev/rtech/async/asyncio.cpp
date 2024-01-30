@@ -47,9 +47,9 @@ int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* con
 
     AsyncHandleTracker_t& tracker = g_pAsyncFileSlots[slotNum];
 
-    tracker.m_nFileNumber = fileIdx;
-    tracker.m_hFileHandle = hFile;
-    tracker.m_nCurOfs = 1;
+    tracker.slot = fileIdx;
+    tracker.handle = hFile;
+    tracker.state = 1;
 
     if (async_debug_level->GetInt() >= logLevel)
         Msg(eDLL_T::RTECH, "%s: Opened file: '%s' to slot #%d\n", __FUNCTION__, fileToLoad, slotNum);
@@ -65,10 +65,10 @@ void FS_CloseAsyncFile(const int fileHandle)
     const int slotNum = fileHandle & ASYNC_MAX_FILE_HANDLES_MASK;
     AsyncHandleTracker_t& tracker = g_pAsyncFileSlots[slotNum];
 
-    if (ThreadInterlockedExchangeAdd(&tracker.m_nCurOfs, 0xFFFFFFFF) <= 1)
+    if (ThreadInterlockedExchangeAdd(&tracker.state, -1) <= 1)
     {
-        CloseHandle(tracker.m_hFileHandle);
-        tracker.m_hFileHandle = INVALID_HANDLE_VALUE;
+        CloseHandle(tracker.handle);
+        tracker.handle = INVALID_HANDLE_VALUE;
 
         g_pAsyncFileSlotMgr->FreeSlot(slotNum);
 
