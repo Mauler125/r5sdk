@@ -236,14 +236,14 @@ struct PakGlobals_t
 
 struct PakPatchFileHeader_t
 {
-	size_t compressedSize;
-	size_t decompressedSize;
+	uint64_t compressedSize;
+	uint64_t decompressedSize;
 };
 
 struct PakPatchDataHeader_t
 {
-	int editStreamSize;
-	int pageCount;
+	uint32_t editStreamSize;
+	uint32_t pageCount;
 };
 
 struct PakFileHeader_t
@@ -700,5 +700,6 @@ static_assert(sizeof(PakFile_t) == 2224); // S3+
 static_assert(sizeof(PakLoadedInfo_t) == 184);
 static_assert(sizeof(PakDecoder_t) == 136);
 static_assert(sizeof(PakPatchFileHeader_t) == 16);
+static_assert(sizeof(PakPatchDataHeader_t) == 8);
 
 #endif // RTECH_IPACKFILE_H
