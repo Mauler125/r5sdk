@@ -81,14 +81,14 @@ static void ReVPK_Usage()
         "\t<%s>\t- locale prefix for the directory tree file\n"
         "\t<%s>\t- context scope for the VPK files [\"server\", \"client\"]\n"
         "\t<%s>\t- level name for the VPK files\n"
-        "\t<%s>\t- ( optional ) path to the workspace containing the control file\n"
+        "\t<%s>\t- ( optional ) path to the workspace containing the manifest file\n"
         "\t<%s>\t- ( optional ) path in which the VPK files will be built\n"
         "\t<%s>\t- ( optional ) max LZHAM helper threads [\"%d\", \"%d\"] \"%d\" ( default ) for max practical\n"
         "\t<%s>\t- ( optional ) the level of compression [\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"]\n\n"
 
         "For unpacking; run 'revpk %s' with the following parameters:\n"
-        "\t<%s>\t- name of the target directory tree file\n"
-        "\t<%s>\t- ( optional ) path to directory containing the target directory tree file\n"
+        "\t<%s>\t- path and name of the target directory tree or data block file\n"
+        "\t<%s>\t- ( optional ) path in which the VPK files will be unpacked\n"
         "\t<%s>\t- ( optional ) whether to parse the directory tree file name from the data block file name\n",
 
         PACK_COMMAND, // Pack parameters:
