@@ -887,30 +887,55 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 		}
 	}
 
+	// NOTE: if we already have a locale, we call Init() anyways as that is the
+	// directory tree file the user wants, despite requesting for sanitization
+	bool found = false;
+
 	// If we don't have a locale prefix, replace the target name with
 	// locale+target, so you get something like "englishserver", and
 	// then we replace the target name in the passed in string with
 	// the new prefix to finalize name sanitization.
 	if (!bHasLocale)
 	{
-		CUtlString packDirPrefix;
-		packDirPrefix.Append(g_LanguageNames[0]);
-
-		for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_TARGET); i++)
+		for (size_t i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); i++)
 		{
-			const char* targetName = DIR_TARGET[i];
+			CUtlString packDirToSearch;
+			packDirToSearch.Append(g_LanguageNames[i]);
 
-			if (sanitizedName.Find(targetName) != -1)
+			for (size_t j = 0; j < SDK_ARRAYSIZE(DIR_TARGET); j++)
 			{
-				packDirPrefix.Append(targetName);
-				sanitizedName = sanitizedName.Replace(targetName, packDirPrefix);
+				const char* targetName = DIR_TARGET[j];
 
+				if (sanitizedName.Find(targetName) != -1)
+				{
+					packDirToSearch.Append(targetName);
+					packDirToSearch = sanitizedName.Replace(targetName, packDirToSearch);
+
+					break;
+				}
+			}
+
+			// R1 has multiple language VPK files, by default we check for english first
+			// but if it doesn't exist we continue looking until we've found a directory
+			// file
+			if (FileSystem()->FileExists(packDirToSearch.String(), "GAME"))
+			{
+				sanitizedName = packDirToSearch;
+				found = true;
 				break;
 			}
 		}
 	}
 
-	Init(sanitizedName);
+	if (bHasLocale || found)
+	{
+		Init(sanitizedName);
+	}
+	else
+	{
+		Error(eDLL_T::FS, NO_ERROR, "Corresponding VPK directory file for '%s' not found\n", dirFilePath.Get());
+		m_bInitFailed = true;
+	}
 }
 
 //-----------------------------------------------------------------------------
