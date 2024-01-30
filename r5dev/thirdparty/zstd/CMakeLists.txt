@@ -94,4 +94,5 @@ thirdparty_suppress_warnings()
 
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
 	"ZSTD_MULTITHREAD"
+	"DEBUGLEVEL=0"
 )
