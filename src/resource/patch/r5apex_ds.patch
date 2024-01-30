@@ -22,3 +22,8 @@
 
 // Prevent 'fps_max' from being reset in 'CEngine::Frame' if 'sv_cheats' isn't set; this is bound to the server's tickrate in sdk code to save CPU time.
 0x296587: "jnz     short loc_1402971B7" --> "jmp     short loc_1402971B7"
+
+// Disable pak asset streaming system by calling Pak_Initialize() with mode 0,
+// since the dedicated server doesn't use model or texture streaming, and as a
+// result the files aren't shipped.
+0x44BE87: "mov ecx, 0x1" --> "mov ecx, 0x0"
