@@ -266,12 +266,12 @@ void V_binarytohex(const byte* in, size_t inputbytes, char* out, size_t outsize)
 }
 
 
-int V_vsnprintfRet(char* pDest, int maxLen, const char* pFormat, va_list params, bool* pbTruncated)
+ssize_t V_vsnprintfRet(char* pDest, size_t maxLen, const char* pFormat, va_list params, bool* pbTruncated)
 {
 	Assert(maxLen > 0);
 
-	int len = _vsnprintf(pDest, maxLen, pFormat, params);
-	bool bTruncated = (len < 0) || (len >= maxLen);
+	ssize_t len = _vsnprintf(pDest, maxLen, pFormat, params);
+	const bool bTruncated = (len < 0) || (len >= (ssize_t)maxLen);
 
 	if (pbTruncated)
 	{

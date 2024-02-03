@@ -25,7 +25,7 @@
 #define FmtStrVSNPrintf( szBuf, nBufSize, bQuietTruncation, ppszFormat, nPrevLen, lastArg ) \
 	do \
 	{ \
-		int     result; \
+		ssize_t result; \
 		va_list arg_ptr; \
 		bool bTruncated = false; \
 		static int scAsserted = 0; \
