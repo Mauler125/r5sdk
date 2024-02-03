@@ -12,14 +12,11 @@ public:
 	};
 
 	CIOStream();
-	CIOStream(const fs::path& fsFileFullPath, int nFlags);
 	~CIOStream();
 
-	bool Open(const fs::path& fsFileFullPath, int nFlags);
+	bool Open(const char* const pFilePath, const int nFlags);
 	void Close();
 	void Flush();
-
-	void ComputeFileSize();
 
 	std::streampos TellGet();
 	std::streampos TellPut();
@@ -76,6 +73,7 @@ public:
 		return value;
 	}
 	bool ReadString(std::string& svOut);
+	bool ReadString(char* const pBuf, const size_t nLen);
 
 	//-----------------------------------------------------------------------------
 	// Purpose: writes any value to the file
