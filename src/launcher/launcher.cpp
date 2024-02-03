@@ -69,7 +69,7 @@ LONG WINAPI TopLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers)
 {
 	// Don't run the unhandled exception filter from the
 	// game if we have a valid vectored exception filter.
-	if (g_CrashHandler)
+	if (g_CrashHandler.IsValid())
 	{
 		return NULL;
 	}

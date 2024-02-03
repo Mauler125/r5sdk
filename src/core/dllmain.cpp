@@ -67,7 +67,7 @@ void Tier0_Init()
     g_CoreMsgVCallback = &EngineLoggerSink; // Setup logger callback sink.
 
     g_pCmdLine->CreateCmdLine(GetCommandLineA());
-    g_CrashHandler->SetCrashCallback(&Crash_Callback);
+    g_CrashHandler.SetCrashCallback(&Crash_Callback);
 
     // This prevents the game from recreating it,
     // see 'CCommandLine::StaticCreateCmdLine' for
