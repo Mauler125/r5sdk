@@ -1,4 +1,5 @@
 #include "tier0/binstream.h"
+#include <sys/stat.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: CIOStream constructors
@@ -7,10 +8,6 @@ CIOStream::CIOStream()
 {
 	m_nSize = 0;
 	m_nFlags = Mode_t::NONE;
-}
-CIOStream::CIOStream(const fs::path& svFileFullPath, int nFlags)
-{
-	Open(svFileFullPath, nFlags);
 }
 
 //-----------------------------------------------------------------------------
@@ -26,11 +23,11 @@ CIOStream::~CIOStream()
 
 //-----------------------------------------------------------------------------
 // Purpose: opens the file in specified mode
-// Input  : &fsFilePath - 
+// Input  : *pFilePath - 
 //			nFlags - 
 // Output : true if operation is successful
 //-----------------------------------------------------------------------------
-bool CIOStream::Open(const fs::path& fsFilePath, int nFlags)
+bool CIOStream::Open(const char* const pFilePath, const int nFlags)
 {
 	m_nFlags = nFlags;
 
@@ -38,7 +35,7 @@ bool CIOStream::Open(const fs::path& fsFilePath, int nFlags)
 	{
 		m_Stream.close();
 	}
-	m_Stream.open(fsFilePath, nFlags);
+	m_Stream.open(pFilePath, nFlags);
 	if (!m_Stream.is_open() || !m_Stream.good())
 	{
 		m_nFlags = Mode_t::NONE;
@@ -47,7 +44,13 @@ bool CIOStream::Open(const fs::path& fsFilePath, int nFlags)
 
 	if (nFlags & Mode_t::READ)
 	{
-		ComputeFileSize();
+		struct _stat64 status;
+		if (_stat64(pFilePath, &status) != NULL)
+		{
+			return false;
+		}
+
+		m_nSize = status.st_size;
 	}
 
 	return true;
@@ -68,22 +71,6 @@ void CIOStream::Flush()
 {
 	if (IsWritable())
 		m_Stream.flush();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: computes the input file size
-//-----------------------------------------------------------------------------
-void CIOStream::ComputeFileSize()
-{
-	const std::streampos currentPos = m_Stream.tellg();
-	m_nSize = currentPos;
-
-	m_Stream.seekg(0, std::ios::end);
-	m_nSize = m_Stream.tellg() - m_nSize;
-
-	// Restore to original position.
-	m_Stream.seekg(currentPos, std::ios::beg);
-	m_Stream.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -171,7 +158,7 @@ bool CIOStream::IsEof() const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: reads a string from the file and returns it
+// Purpose: reads a string from the file
 // Input  : &svOut - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
@@ -179,9 +166,43 @@ bool CIOStream::ReadString(std::string& svOut)
 {
 	if (IsReadable())
 	{
-		char c;
-		while (!m_Stream.eof() && (c = Read<char>()) != '\0')
+		while (!m_Stream.eof())
+		{
+			const char c = Read<char>();
+
+			if (c == '\0')
+				break;
+
 			svOut += c;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: reads a string from the file into a fixed size buffer
+// Input  : *pBuf - 
+//			nLen - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CIOStream::ReadString(char* const pBuf, const size_t nLen)
+{
+	if (IsReadable())
+	{
+		size_t i = 0;
+
+		while (i < nLen && !m_Stream.eof())
+		{
+			const char c = Read<char>();
+
+			if (c == '\0')
+				break;
+
+			pBuf[i++] = c;
+		}
 
 		return true;
 	}
