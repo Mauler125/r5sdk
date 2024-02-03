@@ -101,7 +101,7 @@ bool Pak_EncodePakFile(const char* const inPakFile, const char* const outPakFile
 	inPakStream.Read(inPakBuf, fileSize);
 	inPakStream.Close();
 
-	const PakFileHeader_t* inHeader = reinterpret_cast<PakFileHeader_t* const>(inPakBuf);
+	const PakFileHeader_t* const inHeader = reinterpret_cast<PakFileHeader_t* const>(inPakBuf);
 
 	if (inHeader->magic != PAK_HEADER_MAGIC || inHeader->version != PAK_HEADER_VERSION)
 	{
@@ -152,7 +152,7 @@ bool Pak_EncodePakFile(const char* const inPakFile, const char* const outPakFile
 		return false;
 	}
 
-	const PakFileHeader_t* outPakHeader = reinterpret_cast<PakFileHeader_t* const>(outPakBuf);
+	const PakFileHeader_t* const outPakHeader = reinterpret_cast<PakFileHeader_t* const>(outPakBuf);
 
 	Pak_ShowHeaderDetails(outPakHeader);
 
