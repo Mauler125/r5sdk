@@ -81,7 +81,7 @@ inline bool V_iswdigit(int c)
 }
 
 void V_binarytohex(const byte* in, size_t inputbytes, char* out, size_t outsize);
-int V_vsnprintfRet(char* pDest, int maxLen, const char* pFormat, va_list params, bool* pbTruncated);
+ssize_t V_vsnprintfRet(char* pDest, size_t maxLen, const char* pFormat, va_list params, bool* pbTruncated);
 
 // Strip white space at the beginning and end of a string
 ssize_t V_StrTrim(char* pStr);
