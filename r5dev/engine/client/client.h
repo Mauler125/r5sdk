@@ -67,7 +67,7 @@ public:
 	inline int64_t GetTeamNum() const { return m_iTeamNum; }
 	inline edict_t GetHandle(void) const { return m_nHandle; }
 	inline int GetUserID(void) const { return m_nUserID; }
-	inline uint64_t GetNucleusID(void) const { return m_nNucleusID; }
+	inline NucleusID_t GetNucleusID(void) const { return m_nNucleusID; }
 
 	inline SIGNONSTATE GetSignonState(void) const { return m_nSignonState; }
 	inline PERSISTENCE GetPersistenceState(void) const { return m_nPersistenceState; }
@@ -84,7 +84,7 @@ public:
 
 	inline void SetHandle(edict_t nHandle) { m_nHandle = nHandle; }
 	inline void SetUserID(uint32_t nUserID) { m_nUserID = nUserID; }
-	inline void SetNucleusID(uint64_t nNucleusID) { m_nNucleusID = nNucleusID; }
+	inline void SetNucleusID(NucleusID_t nNucleusID) { m_nNucleusID = nNucleusID; }
 
 	inline void SetSignonState(SIGNONSTATE nSignonState) { m_nSignonState = nSignonState; }
 	inline void SetPersistenceState(PERSISTENCE nPersistenceState) { m_nPersistenceState = nPersistenceState; }
@@ -180,7 +180,7 @@ private:
 	char pad_03A8[8];
 	SIGNONSTATE m_nSignonState;
 	int unk0;
-	uint64_t m_nNucleusID;
+	NucleusID_t m_nNucleusID;
 	int unk1;
 	int unk2;
 	int m_nDeltaTick;
