@@ -25,8 +25,8 @@ macro( apply_project_settings )
     set( OPTION_LTCG_MODE "OFF" CACHE STRING "Enables link-time code generation (significantly increases compile times)" )
     set_property( CACHE OPTION_LTCG_MODE PROPERTY STRINGS
     "OFF"
-    "ON"
-    "ALL"
+    "ON"  # Only on projects that specified LTCG
+    "ALL" # All projects, whether or not LTCG was specified
     )
 
     option( OPTION_CERTAIN "This build is certain; debug statements (such as DevMsg(...)) will NOT be compiled" OFF )
@@ -43,6 +43,12 @@ macro( apply_project_settings )
         # Don't set this to anything higher than SSE2, as the game supports from
         # SSE3 and higher, and the next level of optimizations in RapidJSON is SSE4.2.
         "RAPIDJSON_SSE2"
+
+        # Use iterative parsing to protect against stack overflows in rare cases; see:
+        # https://rapidjson.org/md_doc_features.html
+        # https://github.com/Tencent/rapidjson/issues/1227
+        # https://github.com/Tencent/rapidjson/issues/2260
+        "RAPIDJSON_PARSE_DEFAULT_FLAGS=kParseIterativeFlag"
 
         # Target is 64bits only.
         "PLATFORM_64BITS"
