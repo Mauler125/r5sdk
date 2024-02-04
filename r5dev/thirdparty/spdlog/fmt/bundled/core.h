@@ -3004,7 +3004,7 @@ void check_format_string(S format_str) {
   FMT_CONSTEXPR auto s = basic_string_view<typename S::char_type>(format_str);
   using checker = format_string_checker<typename S::char_type, error_handler,
                                         remove_cvref_t<Args>...>;
-  /*FMT_CONSTEXPR*/bool invalid_format =
+  /*FMT_CONSTEXPR*/ bool invalid_format =
       (parse_format_string<true>(s, checker(s, {})), true);
   ignore_unused(invalid_format);
 }
@@ -3145,7 +3145,7 @@ template <typename Char, typename... Args> class basic_format_string {
   template <typename S,
             FMT_ENABLE_IF(
                 std::is_convertible<const S&, basic_string_view<Char>>::value)>
-  FMT_CONSTEVAL FMT_INLINE basic_format_string(const S& s) : str_(s) {
+  /*FMT_CONSTEVAL*/ FMT_INLINE basic_format_string(const S& s) : str_(s) {
     static_assert(
         detail::count<
             (std::is_base_of<detail::view, remove_reference_t<Args>>::value &&
