@@ -67,6 +67,7 @@ const char* V_strnchr(const char* pStr, char c, ssize_t n);
 bool V_isspace(int c);
 
 inline bool V_isalnum(char c) { return isalnum((unsigned char)c) != 0; }
+bool V_IsAllDigit(const char* pString);
 
 // this is locale-unaware and therefore faster version of standard isdigit()
 // It also avoids sign-extension errors.

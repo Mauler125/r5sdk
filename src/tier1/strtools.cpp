@@ -242,6 +242,21 @@ bool V_isspace(int c)
 #endif
 }
 
+bool V_IsAllDigit(const char* pString)
+{
+	while (*pString)
+	{
+		if (!V_isdigit(*pString))
+		{
+			return false;
+		}
+
+		pString++;
+	}
+
+	return true;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *in - 
