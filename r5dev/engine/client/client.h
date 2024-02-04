@@ -1,6 +1,7 @@
 #pragma once
 #include "tier1/keyvalues.h"
 #include "common/protocol.h"
+#include "ebisusdk/EbisuTypes.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #include "public/edict.h"
