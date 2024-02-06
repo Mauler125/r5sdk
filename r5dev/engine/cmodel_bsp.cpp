@@ -111,7 +111,7 @@ void CustomPakData_t::UnloadBasePak(const EPakType type)
 //-----------------------------------------------------------------------------
 bool Mod_LevelHasChanged(const char* const pszLevelName)
 {
-    return (V_strcmp(pszLevelName, s_CurrentLevelName.String()) == NULL);
+    return (V_strcmp(pszLevelName, s_CurrentLevelName.String()) != NULL);
 }
 
 //-----------------------------------------------------------------------------
