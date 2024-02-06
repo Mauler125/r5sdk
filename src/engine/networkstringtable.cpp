@@ -93,36 +93,18 @@ bool CNetworkStringTable::Lock(bool bLock)
 void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContainer* thisp, CClient* pClient, unsigned int nTickAck, bf_write* pMsg)
 {
 #ifndef CLIENT_DLL
-	const double currentTime = Plat_FloatTime();
-
 	CClientExtended* const clientExtended = pClient->GetClientExtended();
-	int commandTick = -1; // -1 means we update statistics only; see 'CClientState::VProcessServerTick()'.
 
-	// NOTE: if we send this message each tick, the client will start to
-	// falter. Unlike other source games, we have to have some delay in
-	// between each server tick message for this to work correctly.
-	if (clientExtended->ShouldRetryClockSync() ||
-		(currentTime - clientExtended->GetLastClockSyncTime()) > sv_clockSyncInterval->GetFloat())
-	{
-		// Sync the clocks on the client with that of the server's.
-		commandTick = pClient->GetCommandTick();
-
-		clientExtended->SetLastClockSyncTime(currentTime);
-		clientExtended->SetRetryClockSync(false);
-	}
-
-	// If commandTick == statistics only while server opted out, do not
-	// send the message.
-	const bool shouldSend = (commandTick == -1 && !sv_stats->GetBool()) ? false : true;
-
-	if (shouldSend)
+	if (sv_stats->GetBool())
 	{
 		const uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer->GetCPUUsage() * 100.0f);
 		SVC_ServerTick serverTick(g_pServer->GetTick(), *host_frametime_unbounded, *host_frametime_stddeviation, nCPUPercentage);
 
 		serverTick.m_nGroup = 0;
 		serverTick.m_bReliable = true;
-		serverTick.m_NetTick.m_nCommandTick = commandTick;
+
+		// -1 means we update statistics only; see 'CClientState::VProcessServerTick()'.
+		serverTick.m_NetTick.m_nCommandTick = -1;
 
 		pMsg->WriteUBitLong(serverTick.GetType(), NETMSG_TYPE_BITS);
 
@@ -130,13 +112,10 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 		{
 			serverTick.WriteToBuffer(pMsg);
 		}
-		else
-		{
-			Assert(0, "Snapshot buffer overflowed before string table update!");
-			clientExtended->SetRetryClockSync(true); // Retry on next snapshot for this client.
-		}
 	}
 #endif // !CLIENT_DLL
+
+	Assert(!pMsg->IsOverflowed(), "Snapshot buffer overflowed before string table update!");
 	CNetworkStringTableContainer__WriteUpdateMessage(thisp, pClient, nTickAck, pMsg);
 }
 

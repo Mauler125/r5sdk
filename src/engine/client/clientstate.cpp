@@ -154,15 +154,20 @@ bool CClientState::VProcessServerTick(CClientState* thisptr, SVC_ServerTick* msg
 {
     if (msg->m_NetTick.m_nCommandTick != -1)
     {
+        // Updates statistics and updates clockdrift.
         return CClientState__ProcessServerTick(thisptr, msg);
     }
     else // Statistics only.
     {
         CClientState* const thisptr_ADJ = thisptr->GetShiftedBasePointer();
 
-        CNetChan* const pChan = thisptr_ADJ->m_NetChannel;
-        pChan->SetRemoteFramerate(msg->m_NetTick.m_flHostFrameTime, msg->m_NetTick.m_flHostFrameTimeStdDeviation);
-        pChan->SetRemoteCPUStatistics(msg->m_NetTick.m_nServerCPU);
+        if (thisptr_ADJ->IsConnected())
+        {
+            CNetChan* const pChan = thisptr_ADJ->m_NetChannel;
+
+            pChan->SetRemoteFramerate(msg->m_NetTick.m_flHostFrameTime, msg->m_NetTick.m_flHostFrameTimeStdDeviation);
+            pChan->SetRemoteCPUStatistics(msg->m_NetTick.m_nServerCPU);
+        }
 
         return true;
     }
