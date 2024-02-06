@@ -1086,14 +1086,20 @@ string FormatV(const char* szFormat, va_list args)
     assert(iLen >= 0);
     string result;
 
-    if (iLen < 0)
+    if (iLen <= 0)
     {
         result.clear();
     }
     else
     {
+        // NOTE: reserve enough buffer size for the string + the terminating
+        // NULL character, then resize it to just the string len so we don't
+        // count the NULL character in the string's size (i.e. when calling
+        // string::size()).
+        result.reserve(iLen+1);
         result.resize(iLen);
-        std::vsnprintf(&result[0], iLen+sizeof(char), szFormat, args);
+
+        std::vsnprintf(&result[0], iLen+1, szFormat, args);
     }
 
     return result;
