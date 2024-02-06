@@ -117,8 +117,6 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 	RCONClient()->RunFrame();
 #endif // !DEDICATED
 
-	HostStates_t oldState{};
-
 	// Disable "warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable"
 #pragma warning(push)
 #pragma warning(disable : 4611)
@@ -133,10 +131,11 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 #ifndef CLIENT_DLL
 		*g_bAbortServerSet = true;
 #endif // !CLIENT_DLL
-		do
+		while (true)
 		{
 			Cbuf_Execute();
-			oldState = g_pHostState->m_iCurrentState;
+
+			HostStates_t oldState = g_pHostState->m_iCurrentState;
 
 			switch (g_pHostState->m_iCurrentState)
 			{
@@ -205,10 +204,15 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			}
 			}
 
-		} while (
-			  (oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && single_frame_shutdown_for_reload->GetBool())
-			&& oldState != HostStates_t::HS_SHUTDOWN
-			&& oldState != HostStates_t::HS_RESTART);
+			// only do a single pass at HS_RUN per frame. All other states loop until they reach HS_RUN 
+			if (oldState == HostStates_t::HS_RUN && (g_pHostState->m_iNextState != HostStates_t::HS_LOAD_GAME || !single_frame_shutdown_for_reload->GetBool()))
+				break;
+
+			// shutting down
+			if (oldState == HostStates_t::HS_SHUTDOWN ||
+				oldState == HostStates_t::HS_RESTART)
+				break;
+		}
 	}
 }
 
