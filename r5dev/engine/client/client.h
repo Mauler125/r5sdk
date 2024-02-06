@@ -226,10 +226,8 @@ public:
 	{
 		m_flNetProcessingTimeMsecs = 0.0;
 		m_flNetProcessTimeBase = 0.0;
-		m_flLastClockSyncTime = 0.0;
 		m_flStringCommandQuotaTimeStart = 0.0;
 		m_nStringCommandQuotaCount = NULL;
-		m_bRetryClockSync = false;
 		m_bInitialConVarsSet = false;
 	}
 
@@ -241,31 +239,21 @@ public: // Inlines:
 	inline void SetNetProcessingTimeBase(const double flTime) { m_flNetProcessTimeBase = flTime; }
 	inline double GetNetProcessingTimeBase(void) const { return m_flNetProcessTimeBase; }
 
-	inline void SetLastClockSyncTime(const double flTime) { m_flLastClockSyncTime = flTime; }
-	inline double GetLastClockSyncTime(void) const { return m_flLastClockSyncTime; }
-
 	inline void SetStringCommandQuotaTimeStart(const double flTime) { m_flStringCommandQuotaTimeStart = flTime; }
 	inline double GetStringCommandQuotaTimeStart(void) const { return m_flStringCommandQuotaTimeStart; }
 
 	inline void SetStringCommandQuotaCount(const int iCount) { m_nStringCommandQuotaCount = iCount; }
 	inline int GetStringCommandQuotaCount(void) const { return m_nStringCommandQuotaCount; }
 
-	inline void SetRetryClockSync(const bool bSet) { m_bRetryClockSync = bSet; }
-	inline bool ShouldRetryClockSync() const { return m_bRetryClockSync; }
-
 private:
 	// Measure how long this client's packets took to process.
 	double m_flNetProcessingTimeMsecs;
 	double m_flNetProcessTimeBase;
 
-	// When was the last clock sync?
-	double m_flLastClockSyncTime;
-
 	// The start time of the first stringcmd since reset.
 	double m_flStringCommandQuotaTimeStart;
 	int m_nStringCommandQuotaCount;
 
-	bool m_bRetryClockSync;    // Whether or not we should retry sending clock sync msg.
 	bool m_bInitialConVarsSet; // Whether or not the initial ConVar KV's are set
 };
 

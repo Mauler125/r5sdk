@@ -118,8 +118,6 @@ extern ConVar* sv_maxunlag;
 extern ConVar* sv_unlag_clamp;
 extern ConVar* sv_clockcorrection_msecs;
 
-extern ConVar* sv_clockSyncInterval;
-
 extern ConVar* sv_updaterate_sp;
 extern ConVar* sv_updaterate_mp;
 
