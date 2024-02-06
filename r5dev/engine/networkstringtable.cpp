@@ -93,8 +93,6 @@ bool CNetworkStringTable::Lock(bool bLock)
 void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContainer* thisp, CClient* pClient, unsigned int nTickAck, bf_write* pMsg)
 {
 #ifndef CLIENT_DLL
-	CClientExtended* const clientExtended = pClient->GetClientExtended();
-
 	if (sv_stats->GetBool())
 	{
 		const uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer->GetCPUUsage() * 100.0f);
