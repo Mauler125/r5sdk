@@ -142,7 +142,7 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 			{
 				auto l = *nlabels.begin();
 				poly.disjointSetId = (unsigned short)l;
-				for (auto nl : nlabels)
+				for (const int nl : nlabels)
 					data.set_union(l, nl);
 			}
 			nlabels.clear();
