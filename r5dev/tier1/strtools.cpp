@@ -1105,14 +1105,21 @@ size_t V_StripLastDir(char* dirName, size_t maxLen)
 //-----------------------------------------------------------------------------
 const char* V_UnqualifiedFileName(const char* in)
 {
-	if (!in || !in[0])
-		return in;
+	Assert(in);
 
-	// back up until the character after the first path separator we find,
-	// or the beginning of the string
-	const char* out = in + strlen(in) - 1;
-	while ((out > in) && (!PATHSEPARATOR(*(out - 1))))
-		out--;
+	const char* out = in;
+
+	while (*in)
+	{
+		if (PATHSEPARATOR(*in))
+		{
+			// +1 to skip the slash
+			out = in + 1;;
+		}
+
+		in++;
+	}
+
 	return out;
 }
 
