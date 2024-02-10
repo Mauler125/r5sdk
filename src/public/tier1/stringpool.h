@@ -344,7 +344,7 @@ inline void CCountedStringPoolBase<T>::SpewStrings()
 	{
 		char* string = m_Elements[i].pString;
 
-		DevMsg("String %d: ref:%d %s\n", i, m_Elements[i].nReferenceCount, string == NULL? "EMPTY - ok for slot zero only!" : string);
+		DevMsg("String %d: ref:%hhu %s\n", i, m_Elements[i].nReferenceCount, string == NULL? "EMPTY - ok for slot zero only!" : string);
 	}
 
 	DevMsg("\n%d total counted strings.", m_Elements.Count());
