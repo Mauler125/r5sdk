@@ -157,6 +157,7 @@ public:
 	// flags
 	enum BufferFlags_t
 	{
+		FLAGS_NONE = 0x0,
 		TEXT_BUFFER = 0x1,			// Describes how get + put work (as strings, or binary)
 		EXTERNAL_GROWABLE = 0x2,	// This is used w/ external buffers and causes the utlbuf to switch to reallocatable memory if an overflow happens when Putting.
 		CONTAINS_CRLF = 0x4,		// For text buffers only, does this contain \n or \n\r?
@@ -168,8 +169,8 @@ public:
 	typedef bool (CUtlBuffer::* UtlBufferOverflowFunc_t)(ssize_t nSize);
 
 	// Constructors for growable + external buffers for serialization/unserialization
-	CUtlBuffer(ssize_t growSize = 0, ssize_t initSize = 0, int nFlags = 0);
-	CUtlBuffer(const void* pBuffer, ssize_t size, int nFlags = 0);
+	CUtlBuffer(ssize_t growSize = 0, ssize_t initSize = 0, int nFlags = FLAGS_NONE);
+	CUtlBuffer(const void* pBuffer, ssize_t size, int nFlags = FLAGS_NONE);
 	// This one isn't actually defined so that we catch constructors that are trying to pass a bool in as the third param.
 	CUtlBuffer(const void* pBuffer, ssize_t size, bool crap) = delete;
 
@@ -560,7 +561,7 @@ inline CUtlBuffer& operator<<(CUtlBuffer& b, const Vector2D& v)
 class CUtlInplaceBuffer : public CUtlBuffer
 {
 public:
-	CUtlInplaceBuffer(ssize_t growSize = 0, ssize_t initSize = 0, int nFlags = 0);
+	CUtlInplaceBuffer(ssize_t growSize = 0, ssize_t initSize = 0, int nFlags = FLAGS_NONE);
 
 	//
 	// Routines returning buffer-inplace-pointers
