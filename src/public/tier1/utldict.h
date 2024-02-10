@@ -31,11 +31,11 @@ enum EDictCompareType
 
 // This is a useful macro to iterate from start to end in order in a map
 #define FOR_EACH_DICT( dictName, iteratorName ) \
-	for( int iteratorName=dictName.First(); iteratorName != dictName.InvalidIndex(); iteratorName = dictName.Next( iteratorName ) )
+	for( decltype(dictName)::IndexType_t iteratorName=dictName.First(); iteratorName != dictName.InvalidIndex(); iteratorName = dictName.Next( iteratorName ) )
 
 // faster iteration, but in an unspecified order
 #define FOR_EACH_DICT_FAST( dictName, iteratorName ) \
-	for ( int iteratorName = 0; iteratorName < dictName.MaxElement(); ++iteratorName ) if ( !dictName.IsValidIndex( iteratorName ) ) continue; else
+	for ( decltype(dictName)::IndexType_t iteratorName = 0; iteratorName < dictName.MaxElement(); ++iteratorName ) if ( !dictName.IsValidIndex( iteratorName ) ) continue; else
 
 //-----------------------------------------------------------------------------
 // A dictionary mapping from symbol to structure
@@ -46,14 +46,15 @@ class CUtlDict
 public:
 	typedef const char* KeyType_t;
 	typedef T ElemType_t;
+	typedef I IndexType_t;
 
 	// constructor, destructor
 	// Left at growSize = 0, the memory will first allocate 1 element and double in size
 	// at each increment.
-	CUtlDict( int compareType = k_eDictCompareTypeCaseInsensitive, int growSize = 0, int initSize = 0 );
+	CUtlDict( EDictCompareType compareType = k_eDictCompareTypeCaseInsensitive, I growSize = 0, I initSize = 0 );
 	~CUtlDict( );
 
-	void EnsureCapacity( int );
+	void EnsureCapacity( I );
 	
 	// gets particular elements
 	T&         Element( I i );
@@ -68,7 +69,7 @@ public:
 	void		SetElementName( I i, char const *pName );
 
 	// Number of elements
-	unsigned int Count() const;
+	I Count() const;
 
 	// Number of allocated slots
 	I MaxElement() const;
@@ -114,7 +115,7 @@ protected:
 // constructor, destructor
 //-----------------------------------------------------------------------------
 template <class T, class I>
-CUtlDict<T, I>::CUtlDict( int compareType, int growSize, int initSize ) : m_Elements( growSize, initSize )
+CUtlDict<T, I>::CUtlDict( EDictCompareType compareType, I growSize, I initSize ) : m_Elements( growSize, initSize )
 {
 	if ( compareType == k_eDictCompareTypeFilenames )
 	{
@@ -137,7 +138,7 @@ CUtlDict<T, I>::~CUtlDict()
 }
 
 template <class T, class I>
-inline void CUtlDict<T, I>::EnsureCapacity( int num )        
+inline void CUtlDict<T, I>::EnsureCapacity( I num )        
 { 
 	return m_Elements.EnsureCapacity( num ); 
 }
@@ -199,7 +200,7 @@ inline void CUtlDict<T, I>::SetElementName( I i, char const *pName )
 // Num elements
 //-----------------------------------------------------------------------------
 template <class T, class I>
-inline	unsigned int CUtlDict<T, I>::Count() const          
+inline	I CUtlDict<T, I>::Count() const
 { 
 	return m_Elements.Count(); 
 }
