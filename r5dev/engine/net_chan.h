@@ -110,7 +110,7 @@ public:
 	inline int         GetDataRate(void)                 const { return m_Rate; }
 	inline int         GetBufferSize(void)               const { return NET_FRAMES_BACKUP; }
 
-	float        GetNetworkLoss() const;
+	float        GetResendRate() const;
 
 	inline float GetLatency(int flow)        const { Assert(flow >= 0 && flow < SDK_ARRAYSIZE(m_DataFlow)); return m_DataFlow[flow].latency; }
 	inline float GetAvgChoke(int flow)       const { Assert(flow >= 0 && flow < SDK_ARRAYSIZE(m_DataFlow)); return m_DataFlow[flow].avgchoke; }
@@ -128,13 +128,17 @@ public:
 	inline int   GetSocket(void)                  const { return m_Socket; }
 	inline const bf_write& GetStreamVoice(void)   const { return m_StreamVoice; }
 	inline const netadr_t& GetRemoteAddress(void) const { return remote_address; }
+
+	int         GetNumBitsWritten(const bool bReliable);
+	int         GetNumBitsLeft(const bool bReliable);
 	inline bool IsOverflowed(void)                const { return m_StreamReliable.IsOverflowed(); }
 
 	bool HasPendingReliableData(void);
 
 	inline bool CanPacket(void) const { return CNetChan__CanPacket(this); }
 	inline int SendDatagram(bf_write* pDatagram) { return CNetChan__SendDatagram(this, pDatagram); }
-	bool SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice);
+	bool SendNetMsg(INetMessage& msg, const bool bForceReliable, const bool bVoice);
+	bool SendData(bf_write& msg, const bool bReliable);
 
 	INetMessage* FindMessage(int type);
 	bool RegisterMessage(INetMessage* msg);
@@ -143,6 +147,8 @@ public:
 	inline void Shutdown(const char* szReason, uint8_t bBadRep, bool bRemoveNow) { CNetChan__Shutdown(this, szReason, bBadRep, bRemoveNow); }
 	void FreeReceiveList();
 	bool ProcessMessages(bf_read* pMsg);
+
+	bool ReadSubChannelData(bf_read& buf);
 
 	static void _Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 	static bool _ProcessMessages(CNetChan* pChan, bf_read* pMsg);
