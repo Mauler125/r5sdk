@@ -41,6 +41,8 @@
 #define V_strdup _strdup
 #define V_strcat strcat
 
+#define V_strcasecmp V_stricmp
+
 #define Q_vsnprintf V_vsnprintf
 #define Q_snprintf V_snprintf
 #define Q_strlower V_strlower
@@ -159,7 +161,7 @@ void V_StripExtension(const char* in, char* out, size_t outLen);
 void V_ExtractFileExtension(const char* path, char* dest, size_t destSize);
 
 // Returns a pointer to the file extension or NULL if one doesn't exist
-const char* V_GetFileExtension(const char* path);
+const char* V_GetFileExtension(const char* path, const bool keepDot = false);
 
 // Extracts the base name of a file (no path, no extension, assumes '/' or '\' as path separator)
 void V_FileBase(const char* in, OUT_Z_CAP(maxlen) char* out, size_t maxlen);

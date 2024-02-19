@@ -1114,7 +1114,7 @@ const char* V_UnqualifiedFileName(const char* in)
 		if (PATHSEPARATOR(*in))
 		{
 			// +1 to skip the slash
-			out = in + 1;;
+			out = in + 1;
 		}
 
 		in++;
@@ -1198,30 +1198,34 @@ void V_ExtractFileExtension(const char* path, char* dest, size_t destSize)
 //-----------------------------------------------------------------------------
 // Purpose: Returns a pointer to the file extension within a file name string
 // Input:	in - file name 
-// Output:	pointer to beginning of extension (after the "."), or NULL
-//				if there is no extension
+// Output:	pointer to beginning of extension (after the "."), or the passed
+//				in string if there is no extension
 //-----------------------------------------------------------------------------
-const char* V_GetFileExtension(const char* path)
+const char* V_GetFileExtension(const char* path, const bool keepDot)
 {
-	size_t len = V_strlen(path);
-	if (len <= 1)
-		return NULL;
+	Assert(path);
 
-	const char* src = path + len - 1;
+	const char* out = nullptr;
 
-	//
-	// back up until a . or the start
-	//
-	while (src != path && *(src - 1) != '.')
-		src--;
-
-	// check to see if the '.' is part of a pathname
-	if (src == path || PATHSEPARATOR(*src))
+	while (*path)
 	{
-		return NULL;  // no extension
+		if (*path == '.')
+		{
+			out = path;
+
+			if (!keepDot)
+				out++;
+		}
+		else if (PATHSEPARATOR(*path))
+		{
+			// didn't reach the file name yet, reset
+			out = nullptr;
+		}
+
+		path++;
 	}
 
-	return src;
+	return out ? out : path;
 }
 
 
