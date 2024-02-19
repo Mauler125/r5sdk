@@ -185,6 +185,24 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 // server messages:
 ///////////////////////////////////////////////////////////////////////////////////////
+class SVC_CreateStringTable : public CNetMessage
+{
+public:
+	const char* m_szTableName;
+	int m_nMaxEntries;
+	int m_nNumEntries;
+	char m_bUserDataFixedSize;
+	char _padding0[3];
+	int m_nUserDataSize;
+	int m_nUserDataSizeBits;
+	int m_nDictFlags;
+	int m_nLength;
+	bf_read m_DataIn;
+	bf_write m_DataOut;
+	char m_bDataCompressed;
+	char m_szTableNameBuffer[260];
+};
+
 class SVC_Print : public CNetMessage
 {
 public:

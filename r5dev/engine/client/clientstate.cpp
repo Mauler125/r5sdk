@@ -12,6 +12,7 @@
 #include "tier0/frametask.h"
 #include "engine/common.h"
 #include "engine/host.h"
+#include "engine/host_cmd.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #endif // !CLIENT_DLL
@@ -173,6 +174,12 @@ bool CClientState::VProcessServerTick(CClientState* thisptr, SVC_ServerTick* msg
     }
 }
 
+//------------------------------------------------------------------------------
+// Purpose: processes string commands sent from server
+// Input  : *thisptr - 
+//          *msg     - 
+// Output : true on success, false otherwise
+//------------------------------------------------------------------------------
 bool CClientState::_ProcessStringCmd(CClientState* thisptr, NET_StringCmd* msg)
 {
     CClientState* const thisptr_ADJ = thisptr->GetShiftedBasePointer();
@@ -205,6 +212,99 @@ bool CClientState::_ProcessStringCmd(CClientState* thisptr, NET_StringCmd* msg)
     }
 
     return true;
+}
+
+//------------------------------------------------------------------------------
+// Purpose: create's string tables from string table data sent from server
+// Input  : *thisptr - 
+//          *msg     - 
+// Output : true on success, false otherwise
+//------------------------------------------------------------------------------
+bool CClientState::_ProcessCreateStringTable(CClientState* thisptr, SVC_CreateStringTable* msg)
+{
+    CClientState* const cl = thisptr->GetShiftedBasePointer();
+
+    if (!cl->IsConnected())
+        return false;
+
+    CNetworkStringTableContainer* const container = cl->m_StringTableContainer;
+
+    // Must have a string table container at this point!
+    if (!container)
+    {
+        Assert(0);
+
+        COM_ExplainDisconnection(true, "String table container missing.\n");
+        v_Host_Disconnect(true);
+
+        return false;
+    }
+
+    container->AllowCreation(true);
+    const ssize_t startbit = msg->m_DataIn.GetNumBitsRead();
+
+    CNetworkStringTable* const table = (CNetworkStringTable*)container->CreateStringTable(false, msg->m_szTableName,
+        msg->m_nMaxEntries, msg->m_nUserDataSize, msg->m_nUserDataSizeBits, msg->m_nDictFlags);
+
+    table->SetTick(cl->GetServerTickCount());
+    CClientState__HookClientStringTable(cl, msg->m_szTableName);
+
+    if (msg->m_bDataCompressed)
+    {
+        // TODO[ AMOS ]: check sizes before proceeding to decode
+        // the string tables
+        unsigned int msgUncompressedSize = msg->m_DataIn.ReadLong();
+        unsigned int msgCompressedSize = msg->m_DataIn.ReadLong();
+
+        size_t uncompressedSize = msgUncompressedSize;
+        size_t compressedSize = msgCompressedSize;
+
+        bool bSuccess = false;
+
+        // TODO[ AMOS ]: this could do better. The engine does UINT_MAX-3
+        // which doesn't look very great. Clamp to more reasonable values
+        // than UINT_MAX-3 or UINT_MAX/2? The largest string tables sent
+        // are settings layout string tables which are roughly 256KiB
+        // compressed with LZSS. perhaps clamp this to something like 16MiB?
+        if (msg->m_DataIn.TotalBytesAvailable() > 0 && 
+            msgCompressedSize <= (unsigned int)msg->m_DataIn.TotalBytesAvailable() &&
+            msgCompressedSize < UINT_MAX / 2 && msgUncompressedSize < UINT_MAX / 2)
+        {
+            // allocate buffer for uncompressed data, align to 4 bytes boundary
+            uint8_t* const uncompressedBuffer = new uint8_t[PAD_NUMBER(msgUncompressedSize, 4)];
+            uint8_t* const compressedBuffer = new uint8_t[PAD_NUMBER(msgCompressedSize, 4)];
+
+            msg->m_DataIn.ReadBytes(compressedBuffer, msgCompressedSize);
+
+            // uncompress data
+            bSuccess = NET_BufferToBufferDecompress(compressedBuffer, compressedSize, uncompressedBuffer, uncompressedSize);
+            bSuccess &= (uncompressedSize == msgUncompressedSize);
+
+            if (bSuccess)
+            {
+                bf_read data(uncompressedBuffer, (int)uncompressedSize);
+                table->ParseUpdate(data, msg->m_nNumEntries);
+            }
+
+            delete[] uncompressedBuffer;
+            delete[] compressedBuffer;
+        }
+
+        if (!bSuccess)
+        {
+            Assert(false);
+            DevWarning(eDLL_T::CLIENT, "%s: Received malformed string table message!\n", __FUNCTION__);
+        }
+    }
+    else
+    {
+        table->ParseUpdate(msg->m_DataIn, msg->m_nNumEntries);
+    }
+
+    container->AllowCreation(false);
+    const ssize_t endbit = msg->m_DataIn.GetNumBitsRead();
+
+    return (endbit - startbit) == msg->m_nLength;
 }
 
 //------------------------------------------------------------------------------
@@ -295,6 +395,7 @@ void VClientState::Detour(const bool bAttach) const
     DetourSetup(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing, bAttach);
     DetourSetup(&CClientState__ProcessStringCmd, &CClientState::_ProcessStringCmd, bAttach);
     DetourSetup(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick, bAttach);
+    DetourSetup(&CClientState__ProcessCreateStringTable, &CClientState::_ProcessCreateStringTable, bAttach);
     DetourSetup(&CClientState__Connect, &CClientState::VConnect, bAttach);
 }
 
