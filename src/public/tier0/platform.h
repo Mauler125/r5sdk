@@ -406,6 +406,32 @@ uint64_t Plat_MSTime();
 const char* Plat_GetProcessUpTime();
 void Plat_GetProcessUpTime(char* szBuf, size_t nSize);
 
+inline bool Plat_IsInDebugSession()
+{
+#if defined( _X360 )
+	return (XBX_IsDebuggerPresent() != 0);
+#elif defined( _WIN32 )
+	return (IsDebuggerPresent() != 0);
+#elif defined( _PS3 ) && !defined(_CERT)
+	return snIsDebuggerPresent();
+#else
+	return false;
+#endif
+}
+
+inline void Plat_DebugString(const char* psz)
+{
+#if defined( _X360 )
+	XBX_OutputDebugString(psz);
+#elif defined( _WIN32 )
+	::OutputDebugStringA(psz);
+#elif defined(_PS3)
+	printf("%s", psz);
+#else 
+	// do nothing?
+#endif
+}
+
 #if defined( _X360 )
 #define Plat_FastMemset XMemSet
 #define Plat_FastMemcpy XMemCpy
