@@ -50,7 +50,7 @@ void CL_MoveEx()
 	if (cl->m_flNextCmdTime <= (maxFrameTime * 0.5f) + netTime)
 		sendPacket = chan->CanPacket();
 
-	else if (cl->m_nOutgoingCommandNr - (commandTick+1) < MAX_BACKUP_COMMANDS || isTimeScaleDefault)
+	else if (cl->m_nOutgoingCommandNr - (commandTick+1) < MAX_NEW_COMMANDS || isTimeScaleDefault)
 		sendPacket = false;
 
 	const bool isActive = cl->IsActive();
