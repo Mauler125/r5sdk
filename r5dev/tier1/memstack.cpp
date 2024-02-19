@@ -476,7 +476,6 @@ void CMemoryStack::PrintContents() const
 		return;
 	}
 
-	const size_t highest = m_pHighestAllocLimit - m_pBase;
 	MEMORY_BASIC_INFORMATION info;
 	char moduleName[260];
 	strcpy( moduleName, "unknown module" );
@@ -491,5 +490,5 @@ void CMemoryStack::PrintContents() const
 	DevMsg( eDLL_T::COMMON, "CMemoryStack %s in %s\n", m_pszAllocOwner, moduleName );
 	DevMsg( eDLL_T::COMMON, "    Total used memory:      %zu KB\n", GetUsed() / 1024 );
 	DevMsg( eDLL_T::COMMON, "    Total committed memory: %zu KB\n", GetSize() / 1024 );
-	DevMsg( eDLL_T::COMMON, "    Max committed memory: %zu KB out of %zu KB\n", highest / 1024, GetMaxSize() / 1024 );
+	DevMsg( eDLL_T::COMMON, "    Max committed memory: %zu KB out of %zu KB\n", (m_pHighestAllocLimit - m_pBase) / 1024, GetMaxSize() / 1024 );
 }
