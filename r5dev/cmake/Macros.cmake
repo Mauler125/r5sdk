@@ -132,7 +132,7 @@ macro( thirdparty_suppress_warnings )
         target_compile_options( ${PROJECT_NAME} PRIVATE
             /wd4057 # 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int [4]'
             /wd4100 # Unreferenced formal parameter.
-            /wd4131 # Using old-style declarations
+            /wd4131 # Using old-style declarations.
             /wd4152 # Function/data pointer conversion in expression.
             /wd4200 # Zero-sized array in union; SDL2 uses this for compiler compatibility.
             /wd4201 # Nameless struct/union.
