@@ -9,39 +9,75 @@ class ServerDataBlockSender : public NetDataBlockSender
 	friend class CClient;
 public:
 	virtual ~ServerDataBlockSender() override;
-	virtual void SendDataBlock(short unk0, int unk1,
-		short unk2, short unk3, const void* buffer, int length) override;
+	virtual void SendDataBlock(const short transferId, const int transferSize, const short transferNr,
+		const short blockNr, const uint8_t* const blockData, const int blockSize) override;
 
 	virtual float GetResendRate() const override;
 	virtual const char* GetReceiverName() const override;
 
+	void StartBlockSender(const int transferSize, const bool isMultiplayer, const char* const debugName);
+	void ResetBlockSender();
+
+	void WriteDataBlock(const uint8_t* const sourceData, const int dataSize, const bool isMultiplayer, const char* const debugName);
+
 protected:
 	char pad_0008[56];
-	RTL_SRWLOCK LOCK;
+	RTL_SRWLOCK m_Lock;
 	char pad_0048[56];
+
+	// the server side client handle that is our 'receiving' end
 	CClient* m_pClient;
+
 	char m_bInitialized;
 	char m_bStartedTransfer;
+
 	char m_bMultiplayer;
 	char field_8B;
+
+	// the current transfer id, and the global transfer count for this
+	// particular client. the transfer nr keeps getting incremented on
+	// each new context setup
 	short m_nTransferId;
-	short m_nCounter;
+	short m_nTransferNr;
+
+	// the total transfer size for the data, and the number of blocks this data
+	// has been carved up to
 	int m_nTransferSize;
 	int m_nTotalBlocks;
+
+	// last block that has been ack'd, and the current block that is pending to
+	// be sent to the receiver
 	int m_nBlockAckTick;
 	int m_nCurrentBlock;
-	int m_nUnkA0;
+
+	// the total number of bytes remaining to be sent, and the number of times
+	// we attempted to send data blocks
+	int m_nTotalSizeRemaining;
 	int m_nBlockSendsAttempted;
+
+	// the resend rate for this connection, which depends of the stability/loss
+	// and other factors computed from the netchan
 	float m_flResendRate;
-	char pad_00AC[4];
+	char pad_00AC[4]; // padding, in case we want to stuff our own vars in here
+
+	// times used to determine when a data block has been sent, and how long it
+	// took to get this out and acknowledged
 	double m_TimeCurrentSend;
 	double m_TimeFirstSend;
 	double m_TimeLastSend;
-	double m_flBlockTimesArray[DATABLOCK_STATUS_SIZE];
-	char m_szDebugName[64];
-	bool m_bBlockStatusArray[DATABLOCK_STATUS_SIZE];
-	void* m_pData;
-	bool m_bAbnormalSending_Maybe;
+
+	// the last time we attempted to send this block, this gets updated when
+	// a data block hasn't been acknowledged in time and is being resent
+	double m_flBlockSendTimes[MAX_DATABLOCK_FRAGMENTS];
+
+	// the debug name used when details get dumped to the console
+	char m_szDebugName[MAX_DATABLOCK_DEBUG_NAME];
+
+	// if a data block has been acknowledged by the receiver, we mark that
+	// particular block as acknowledged
+	bool m_bBlockAckStatus[MAX_DATABLOCK_FRAGMENTS];
+	uint8_t* m_pScratchBuffer;
+	bool m_bDumbDataBlockInfo;
 };
 
 struct ServerDataBlock
@@ -52,9 +88,15 @@ struct ServerDataBlock
 	ServerDataBlockSender sender;
 };
 
+struct ServerDataBlockHeader_s
+{
+	bool isCompressed;
+};
+
 inline void*(*ServerDataBlockSender__Destructor)(ServerDataBlockSender* thisptr);
 inline void* (*ServerDataBlockSender__SendDataBlock)(ServerDataBlockSender* thisptr,
-	short unk0, int unk1, short unk2, short unk3, const void* buffer, int length);
+	const short transferId, const int transferSize, const short transferNr,
+	const short blockNr, const uint8_t* const blockData, const int blockSize);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VServerDataBlockSender : public IDetour

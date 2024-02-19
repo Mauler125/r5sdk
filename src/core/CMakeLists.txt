@@ -64,9 +64,11 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "playlists"
     "stryder"
 
-    "libdetours"
     "liblzham"
     "libzstd"
+    "liblz4"
+
+    "libdetours"
     "libcurl"
     "libprotobuf"
     "libspdlog"

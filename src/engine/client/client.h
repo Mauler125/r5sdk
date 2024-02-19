@@ -116,6 +116,8 @@ public: // Hook statics:
 	static void* VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
 	static bool VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
 
+	static void WriteDataBlock(CClient* pClient, bf_write& buf);
+
 	static bool VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg);
 	static bool VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg);
 
@@ -265,6 +267,7 @@ inline void(*CClient__ActivatePlayer)(CClient* pClient);
 inline bool(*CClient__SetSignonState)(CClient* pClient, SIGNONSTATE signon);
 inline bool(*CClient__SendNetMsgEx)(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
 inline void*(*CClient__SendSnapshot)(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
+inline void(*CClient__WriteDataBlock)(CClient* pClient, bf_write& buf);
 inline bool(*CClient__ProcessStringCmd)(CClient* pClient, NET_StringCmd* pMsg);
 inline bool(*CClient__ProcessSetConVar)(CClient* pClient, NET_SetConVar* pMsg);
 
@@ -280,6 +283,7 @@ class VClient : public IDetour
 		LogFunAdr("CClient::SetSignonState", CClient__SetSignonState);
 		LogFunAdr("CClient::SendNetMsgEx", CClient__SendNetMsgEx);
 		LogFunAdr("CClient::SendSnapshot", CClient__SendSnapshot);
+		LogFunAdr("CClient::WriteDataBlock", CClient__WriteDataBlock);
 		LogFunAdr("CClient::ProcessStringCmd", CClient__ProcessStringCmd);
 		LogFunAdr("CClient::ProcessSetConVar", CClient__ProcessSetConVar);
 	}
@@ -291,6 +295,7 @@ class VClient : public IDetour
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 81 B0 03 ?? ?? 48 8B D9 C6").GetPtr(CClient__ActivatePlayer);
 		g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__SendNetMsgEx);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(CClient__SendSnapshot);
+		g_GameDll.FindPatternSIMD("40 53 57 48 83 EC 38 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__WriteDataBlock);
 		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20").GetPtr(CClient__ProcessStringCmd);
 
 		g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 C2 20").GetPtr(CClient__ProcessSetConVar);
