@@ -271,6 +271,10 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		}
 	}
 
+	// If a debugger is attached, emit the text there too
+	if (Plat_IsInDebugSession())
+		Plat_DebugString(message.c_str());
+
 #ifndef _TOOLS
 	// Output is always logged to the file.
 	std::shared_ptr<spdlog::logger> ntlogger = spdlog::get(pszLogger); // <-- Obtain by 'pszLogger'.
