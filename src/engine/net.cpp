@@ -27,13 +27,16 @@
 //-----------------------------------------------------------------------------
 bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 {
-	bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, net_encryptionEnable->GetBool());
+	const bool decryptPacket = (bEncrypted && net_encryptionEnable->GetBool());
+	const bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, decryptPacket);
+
 	if (result && net_tracePayload->GetBool())
 	{
 		// Log received packet data.
-		HexDump("[+] NET_ReceiveDatagram ", "net_trace", 
+		HexDump("[+] NET_ReceiveDatagram ", "net_trace",
 			pInpacket->pData, size_t(pInpacket->wiresize));
 	}
+
 	return result;
 }
 
@@ -48,12 +51,15 @@ bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 //-----------------------------------------------------------------------------
 int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypt)
 {
-	int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, net_encryptionEnable->GetBool());
+	const bool encryptPacket = (bEncrypt && net_encryptionEnable->GetBool());
+	const int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, encryptPacket);
+
 	if (result && net_tracePayload->GetBool())
 	{
 		// Log transmitted packet data.
 		HexDump("[+] NET_SendDatagram ", "net_trace", pPayload, size_t(iLenght));
 	}
+
 	return result;
 }
 
