@@ -4,13 +4,20 @@
  * _protocol.h
  *-----------------------------------------------------------------------------*/
 
+ // Largest # of commands to send in a packet
+#define NUM_NEW_COMMAND_BITS		4
+#define MAX_NEW_COMMANDS			((1 << NUM_NEW_COMMAND_BITS)-1)
+
  // Max number of history commands to send ( 2 by default ) in case of dropped packets
-#define NUM_BACKUP_COMMAND_BITS		4 // Originally 3 bits.
-#define MAX_BACKUP_COMMANDS			((1 << NUM_BACKUP_COMMAND_BITS)-1) // 15 in R5; see 'CL_Move'.
+#define NUM_BACKUP_COMMAND_BITS		3
+#define MAX_BACKUP_COMMANDS			((1 << NUM_BACKUP_COMMAND_BITS)-1)
 
 // Maximum amount of backup commands to process on the server.
-#define MAX_BACKUP_COMMANDS_PROCESS (MAX_BACKUP_COMMANDS+1) * NUM_BACKUP_COMMAND_BITS
-#define MAX_QUEUED_COMMANDS_PROCESS 0x1B0
+#define MAX_BACKUP_COMMANDS_PROCESS 64
+#define MAX_QUEUED_COMMANDS_PROCESS 432
+
+// The size of the snapshot scratch buffer, which also applies to data block packets
+#define SNAPSHOT_SCRATCH_BUFFER_SIZE 786432
 
 enum class SIGNONSTATE : int
 {
