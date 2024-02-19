@@ -19,16 +19,18 @@
 
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the netchannel network loss
+// Purpose: gets the netchannel resend rate
 // Output : float
 //-----------------------------------------------------------------------------
-float CNetChan::GetNetworkLoss() const
+float CNetChan::GetResendRate() const
 {
-	int64_t totalupdates = this->m_DataFlow[FLOW_INCOMING].totalupdates;
+	const int64_t totalupdates = this->m_DataFlow[FLOW_INCOMING].totalupdates;
+
 	if (!totalupdates && !this->m_nSequencesSkipped_MAYBE)
 		return 0.0f;
 
 	float lossRate = (float)(totalupdates + m_nSequencesSkipped_MAYBE);
+
 	if (totalupdates + m_nSequencesSkipped_MAYBE < 0.0f)
 		lossRate += float(2 ^ 64);
 
@@ -62,6 +64,36 @@ double CNetChan::GetTimeConnected(void) const
 {
 	double t = *g_pNetTime - connect_time;
 	return (t > 0.0) ? t : 0.0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the number of bits written in selected stream
+//-----------------------------------------------------------------------------
+int CNetChan::GetNumBitsWritten(const bool bReliable)
+{
+    bf_write* pStream = &m_StreamUnreliable;
+
+    if (bReliable)
+    {
+        pStream = &m_StreamReliable;
+    }
+
+    return pStream->GetNumBitsWritten();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the number of bits written in selected stream
+//-----------------------------------------------------------------------------
+int CNetChan::GetNumBitsLeft(const bool bReliable)
+{
+    bf_write* pStream = &m_StreamUnreliable;
+
+    if (bReliable)
+    {
+        pStream = &m_StreamReliable;
+    }
+
+    return pStream->GetNumBitsLeft();
 }
 
 //-----------------------------------------------------------------------------
@@ -394,8 +426,9 @@ bool CNetChan::ProcessMessages(bf_read* buf)
 
             if (!NET_ReadMessageType(&cmd, buf) && buf->m_bOverflow)
             {
-                Warning(eDLL_T::ENGINE, "%s(%s): Incoming buffer overflow!\n", __FUNCTION__, GetAddress());
+                Error(eDLL_T::ENGINE, 0, "%s(%s): Incoming buffer overflow!\n", __FUNCTION__, GetAddress());
                 m_MessageHandler->ConnectionCrashed("Buffer overflow in net message");
+
                 return false;
             }
 
@@ -475,6 +508,12 @@ bool CNetChan::ProcessMessages(bf_read* buf)
     }
 }
 
+bool CNetChan::ReadSubChannelData(bf_read& buf)
+{
+    // TODO: rebuild this and hook
+    return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: send message
 // Input  : &msg - 
@@ -482,10 +521,10 @@ bool CNetChan::ProcessMessages(bf_read* buf)
 //			bVoice - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
+bool CNetChan::SendNetMsg(INetMessage& msg, const bool bForceReliable, const bool bVoice)
 {
 	if (remote_address.GetType() == netadrtype_t::NA_NULL)
-		return false;
+		return true;
 
 	bf_write* pStream = &m_StreamUnreliable;
 
@@ -495,19 +534,59 @@ bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
 	if (bVoice)
 		pStream = &m_StreamVoice;
 
-	if (pStream != &m_StreamUnreliable ||
-		pStream->GetNumBytesLeft() >= NET_UNRELIABLE_STREAM_MINSIZE)
-	{
-		AcquireSRWLockExclusive(&m_Lock);
+	if (pStream == &m_StreamUnreliable && pStream->GetNumBytesLeft() < NET_UNRELIABLE_STREAM_MINSIZE)
+		return true;
 
-		pStream->WriteUBitLong(msg.GetType(), NETMSG_TYPE_BITS);
-		if (!pStream->IsOverflowed())
-			msg.WriteToBuffer(pStream);
+	AcquireSRWLockExclusive(&m_Lock);
 
-		ReleaseSRWLockExclusive(&m_Lock);
-	}
+	pStream->WriteUBitLong(msg.GetType(), NETMSG_TYPE_BITS);
+	const bool ret = msg.WriteToBuffer(pStream);
 
-	return true;
+	ReleaseSRWLockExclusive(&m_Lock);
+
+	return !pStream->IsOverflowed() && ret;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: send data
+// Input  : &msg - 
+//			bReliable - 
+// Output : true on success, false on failure
+//-----------------------------------------------------------------------------
+bool CNetChan::SendData(bf_write& msg, const bool bReliable)
+{
+    // Always queue any pending reliable data ahead of the fragmentation buffer
+
+    if (remote_address.GetType() == netadrtype_t::NA_NULL)
+        return true;
+
+    if (msg.GetNumBitsWritten() <= 0)
+        return true;
+
+    if (msg.IsOverflowed() && !bReliable)
+        return true;
+
+    bf_write& buf = bReliable
+        ? m_StreamReliable
+        : m_StreamUnreliable;
+
+    const int dataBits = msg.GetNumBitsWritten();
+    const int bitsLeft = buf.GetNumBitsLeft();
+
+    if (dataBits > bitsLeft)
+    {
+        if (bReliable)
+        {
+            Error(eDLL_T::ENGINE, 0, "%s(%s): Data too large for reliable buffer (%i > %i)!\n", 
+                __FUNCTION__, GetAddress(), msg.GetNumBytesWritten(), buf.GetNumBytesLeft());
+
+            m_MessageHandler->ChannelDisconnect("reliable buffer is full");
+        }
+
+        return false;
+    }
+
+    return buf.WriteBits(msg.GetData(), dataBits);
 }
 
 //-----------------------------------------------------------------------------
