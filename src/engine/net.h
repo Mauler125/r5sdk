@@ -24,7 +24,8 @@ inline void(*v_NET_SetKey)(netkey_t* pKey, const char* szHash);
 inline void(*v_NET_Config)(void);
 inline bool(*v_NET_ReceiveDatagram)(int iSocket, netpacket_s* pInpacket, bool bRaw);
 inline int(*v_NET_SendDatagram)(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypted);
-inline unsigned int(*v_NET_Decompress)(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize);
+inline bool(*v_NET_BufferToBufferCompress)(uint8_t* const dest, size_t* const destLen, uint8_t* const source, const size_t sourceLen);
+inline unsigned int(*v_NET_BufferToBufferDecompress_LZSS)(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize);
 inline void(*v_NET_PrintFunc)(const char* fmt, ...);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,6 +35,11 @@ void NET_SetKey(const string& svNetKey);
 void NET_GenerateKey();
 void NET_PrintFunc(const char* fmt, ...);
 void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
+
+bool NET_BufferToBufferCompress(uint8_t* const dest, size_t* const destLen, uint8_t* const source, const size_t sourceLen);
+unsigned int NET_BufferToBufferDecompress(uint8_t* pInput, size_t& coBufsize, uint8_t* pOutput, const size_t unBufSize);
+
+unsigned int NET_BufferToBufferDecompress_LZSS(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize);
 
 bool NET_ReadMessageType(int* outType, bf_read* buffer);
 
@@ -53,7 +59,8 @@ class VNet : public IDetour
 		LogFunAdr("NET_SetKey", v_NET_SetKey);
 		LogFunAdr("NET_ReceiveDatagram", v_NET_ReceiveDatagram);
 		LogFunAdr("NET_SendDatagram", v_NET_SendDatagram);
-		LogFunAdr("NET_Decompress", v_NET_Decompress);
+		LogFunAdr("NET_BufferToBufferCompress", v_NET_BufferToBufferCompress);
+		LogFunAdr("NET_BufferToBufferDecompress_LZSS", v_NET_BufferToBufferDecompress_LZSS);
 		LogFunAdr("NET_PrintFunc", v_NET_PrintFunc);
 		LogVarAdr("g_NetAdr", g_pNetAdr);
 		LogVarAdr("g_NetKey", g_pNetKey);
@@ -66,7 +73,10 @@ class VNet : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 41 B8").GetPtr(v_NET_SetKey);
 		g_GameDll.FindPatternSIMD("48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D AC 24 50 EB").GetPtr(v_NET_ReceiveDatagram);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 ?? ??").GetPtr(v_NET_SendDatagram);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 41 56 45 33 F6").GetPtr(v_NET_Decompress);
+
+		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 50 48 8B 05 ?? ?? ?? ?? 49 8B E9").GetPtr(v_NET_BufferToBufferCompress);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 41 56 45 33 F6").GetPtr(v_NET_BufferToBufferDecompress_LZSS);
+
 		g_GameDll.FindPatternSIMD("48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 C3 48").GetPtr(v_NET_PrintFunc);
 	}
 	virtual void GetVar(void) const

@@ -58,6 +58,54 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: compresses the input buffer into the output buffer
+// Input  : *dest - 
+//			*destLen - 
+//			*source - 
+//			sourceLen - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool NET_BufferToBufferCompress(uint8_t* const dest, size_t* const destLen, uint8_t* const source, const size_t sourceLen)
+{
+	CLZSS lzss;
+	uint32_t compLen = (uint32_t)sourceLen;
+
+	if (!lzss.CompressNoAlloc(source, (uint32_t)sourceLen, dest, &compLen))
+	{
+		memcpy(dest, source, sourceLen);
+
+		*destLen = sourceLen;
+		return false;
+	}
+
+	*destLen = compLen;
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: decompresses the input buffer into the output buffer
+// Input  : *source - 
+//			&sourceLen - 
+//			*dest - 
+//			destLen - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+unsigned int NET_BufferToBufferDecompress(uint8_t* const source, size_t& sourceLen, uint8_t* const dest, const size_t destLen)
+{
+	Assert(source);
+	Assert(sourceLen);
+
+	CLZSS lzss;
+
+	if (lzss.IsCompressed(source))
+	{
+		return lzss.SafeUncompress(source, dest, (unsigned int)destLen);
+	}
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: safely decompresses the input buffer into the output buffer
 // Input  : *lzss - 
 //			*pInput - 
@@ -65,7 +113,7 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool
 //			unBufSize - 
 // Output : total decompressed bytes
 //-----------------------------------------------------------------------------
-unsigned int NET_Decompress(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize)
+unsigned int NET_BufferToBufferDecompress_LZSS(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize)
 {
 	return lzss->SafeUncompress(pInput, pOutput, unBufSize);
 }
@@ -301,7 +349,9 @@ void VNet::Detour(const bool bAttach) const
 	DetourSetup(&v_NET_Config, &NET_Config, bAttach);
 	DetourSetup(&v_NET_ReceiveDatagram, &NET_ReceiveDatagram, bAttach);
 	DetourSetup(&v_NET_SendDatagram, &NET_SendDatagram, bAttach);
-	DetourSetup(&v_NET_Decompress, &NET_Decompress, bAttach);
+
+	DetourSetup(&v_NET_BufferToBufferCompress, &NET_BufferToBufferCompress, bAttach);
+	DetourSetup(&v_NET_BufferToBufferDecompress_LZSS, &NET_BufferToBufferDecompress_LZSS, bAttach);
 	DetourSetup(&v_NET_PrintFunc, &NET_PrintFunc, bAttach);
 }
 

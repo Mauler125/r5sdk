@@ -5,6 +5,7 @@
 #include "public/inetmsghandler.h"
 #include "public/isnapshotmgr.h"
 #include "engine/net_chan.h"
+#include "engine/networkstringtable.h"
 #include "engine/debugoverlay.h"
 #include "engine/clockdriftmgr.h"
 #include "engine/framesnapshot.h"
@@ -38,7 +39,9 @@ public: // Hook statics.
 	static void VConnectionClosing(CClientState* thisptr, const char* szReason);
 	static bool _ProcessStringCmd(CClientState* thisptr, NET_StringCmd* msg);
 	static bool VProcessServerTick(CClientState* thisptr, SVC_ServerTick* msg);
+	static bool _ProcessCreateStringTable(CClientState* thisptr, SVC_CreateStringTable* msg);
 	static void VConnect(CClientState* thisptr, connectparams_t* connectParams);
+
 
 public:
 	bool IsPaused() const;
@@ -63,7 +66,12 @@ public:
 protected:
 	FORCEINLINE CClientState* GetShiftedBasePointer(void)
 	{
-		char* const pShifted = reinterpret_cast<char*>(this) - 0x10; // Shifted due to compiler optimizations.
+		// NOTE: you must check in the disassembler if the CClientState method
+		// you detour is shifting the 'this' pointer with 16 bytes forward, if
+		// so, you need to call this and use this pointer instead! The shifting
+		// happens as part of a compiler optimization that truncated the vtable
+		// pointers off so the 'this' pointer points directly to the class data
+		char* const pShifted = reinterpret_cast<char*>(this) - 0x10;
 		return reinterpret_cast<CClientState*>(pShifted);
 	}
 
@@ -123,7 +131,7 @@ public:
 	_QWORD m_pServerClasses;
 	int m_nServerClasses;
 	int m_nServerClassBits;
-	__int64 m_StringTableContainer;
+	CNetworkStringTableContainer* m_StringTableContainer;
 	char m_PersistenceData[98304];
 	_BYTE m_bPersistenceBaselineRecvd;
 	int m_nPersistenceBaselineEntries;
@@ -215,8 +223,11 @@ inline void(*CClientState__RunFrame)(CClientState* thisptr);
 inline void(*CClientState__Connect)(CClientState* thisptr, connectparams_t* connectParams);
 inline void(*CClientState__Disconnect)(CClientState* thisptr, bool bSendTrackingContext);
 inline void(*CClientState__ConnectionClosing)(CClientState* thisptr, const char* szReason);
+inline bool(*CClientState__HookClientStringTable)(CClientState* thisptr, const char* tableName);
+
 inline bool(*CClientState__ProcessStringCmd)(CClientState* thisptr, NET_StringCmd* msg);
 inline bool(*CClientState__ProcessServerTick)(CClientState* thisptr, SVC_ServerTick* msg);
+inline bool(*CClientState__ProcessCreateStringTable)(CClientState* thisptr, SVC_CreateStringTable* msg);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VClientState : public IDetour
@@ -227,8 +238,10 @@ class VClientState : public IDetour
 		LogFunAdr("CClientState::Connect", CClientState__Connect);
 		LogFunAdr("CClientState::Disconnect", CClientState__Disconnect);
 		LogFunAdr("CClientState::ConnectionClosing", CClientState__ConnectionClosing);
+		LogFunAdr("CClientState::HookClientStringTable", CClientState__HookClientStringTable);
 		LogFunAdr("CClientState::ProcessStringCmd", CClientState__ProcessStringCmd);
 		LogFunAdr("CClientState::ProcessServerTick", CClientState__ProcessServerTick);
+		LogFunAdr("CClientState::ProcessCreateStringTable", CClientState__ProcessCreateStringTable);
 		LogVarAdr("g_ClientState", g_pClientState);
 		LogVarAdr("g_ClientState_Shifted", g_pClientState_Shifted);
 	}
@@ -238,8 +251,10 @@ class VClientState : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B 32").GetPtr(CClientState__Connect);
 		g_GameDll.FindPatternSIMD("40 56 57 41 54 41 55 41 57 48 83 EC 30 44 0F B6 FA").GetPtr(CClientState__Disconnect);
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B DA 0F 8E ?? ?? ?? ??").GetPtr(CClientState__ConnectionClosing);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 48 8B FA 48 8B 89 ?? ?? ?? ?? 48 85 C9 0F 84 ?? ?? ?? ??").GetPtr(CClientState__HookClientStringTable);
 		g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? ?? 48 8B DA").GetPtr(CClientState__ProcessStringCmd);
 		g_GameDll.FindPatternSIMD("40 57 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B F9 7C 66").GetPtr(CClientState__ProcessServerTick);
+		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 53 56 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ??").GetPtr(CClientState__ProcessCreateStringTable);
 	}
 	virtual void GetVar(void) const
 	{
