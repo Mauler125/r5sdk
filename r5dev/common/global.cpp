@@ -280,7 +280,10 @@ ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
 ConVar* net_processTimeBudget              = nullptr;
 
+ConVar* net_data_block_enabled             = nullptr;
 ConVar* net_datablock_networkLossForSlowSpeed = nullptr;
+ConVar* net_compressDataBlock              = nullptr;
+ConVar* net_compressDataBlockLzAcceleration  = nullptr;
 
 ConVar* pylon_matchmaking_hostname         = nullptr;
 ConVar* pylon_host_update_interval         = nullptr;
@@ -514,6 +517,8 @@ void ConVar_StaticInit(void)
 	net_encryptionEnable       = ConVar::StaticCreate("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	net_useRandomKey           = ConVar::StaticCreate("net_useRandomKey"          , "1"                        , FCVAR_RELEASE    , "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
 	net_processTimeBudget      = ConVar::StaticCreate("net_processTimeBudget"     ,"200"                       , FCVAR_RELEASE    , "Net message process time budget in milliseconds (removing netchannel if exceeded).", true, 0.f, false, 0.f, nullptr, "0 = disabled");
+
+	net_compressDataBlockLzAcceleration = ConVar::StaticCreate("net_compressDataBlockLzAcceleration", "1", FCVAR_DEVELOPMENTONLY, "The acceleration value for LZ4 data block compression.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
 	pylon_matchmaking_hostname = ConVar::StaticCreate("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
@@ -593,7 +598,11 @@ void ConVar_InitShipped(void)
 	hostport                         = g_pCVar->FindVar("hostport");
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	host_timescale                   = g_pCVar->FindVar("host_timescale");
+
+	net_data_block_enabled           = g_pCVar->FindVar("net_data_block_enabled");
+	net_compressDataBlock            = g_pCVar->FindVar("net_compressDataBlock");
 	net_datablock_networkLossForSlowSpeed = g_pCVar->FindVar("net_datablock_networkLossForSlowSpeed");
+
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 #ifndef CLIENT_DLL
 	sv_stats = g_pCVar->FindVar("sv_stats");

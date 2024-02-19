@@ -18,6 +18,11 @@
 #include "thirdparty/lzham/include/lzham_types.h"
 #include "thirdparty/lzham/include/lzham.h"
 
+#include "thirdparty/zstd/zstd.h"
+#include "thirdparty/zstd/decompress/zstd_decompress_internal.h"
+
+#include "thirdparty/lz4/lz4.h"
+
 #include "thirdparty/curl/include/curl/curl.h"
 
 #include "rapidjson/document.h"

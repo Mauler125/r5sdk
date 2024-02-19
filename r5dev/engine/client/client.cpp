@@ -341,6 +341,35 @@ bool CClient::VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, bool bLocal, bo
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: write data into data blocks to send to the client
+// Input  : &buf
+//---------------------------------------------------------------------------------
+void CClient::WriteDataBlock(CClient* pClient, bf_write& buf)
+{
+#ifndef CLIENT_DLL
+	if (net_data_block_enabled->GetBool())
+	{
+		buf.WriteUBitLong(net_NOP, NETMSG_TYPE_BITS);
+
+		const int remainingBits = buf.GetNumBitsWritten() % 8;
+
+		if (remainingBits && (8 - remainingBits) > 0)
+		{
+			// fill the last bits in the last byte with NOP
+			buf.WriteUBitLong(net_NOP, 8 - remainingBits);
+		}
+
+		const bool isMultiplayer = g_ServerGlobalVariables->m_nGameMode < GameMode_t::PVE_MODE;
+		pClient->m_DataBlock.sender.WriteDataBlock(buf.GetData(), buf.GetNumBytesWritten(), isMultiplayer, buf.GetDebugName());
+	}
+	else
+	{
+		pClient->m_NetChannel->SendData(buf, true);
+	}
+#endif // !CLIENT_DLL
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: some versions of the binary have an optimization that shifts the 'this'
 // pointer of the CClient structure by 8 bytes to avoid having to cache the vftable
 // pointer if it never get used. Here we shift it back so it aligns again.
@@ -492,6 +521,7 @@ void VClient::Detour(const bool bAttach) const
 	DetourSetup(&CClient__ActivatePlayer, &CClient::VActivatePlayer, bAttach);
 	DetourSetup(&CClient__SendNetMsgEx, &CClient::VSendNetMsgEx, bAttach);
 	//DetourSetup(&CClient__SendSnapshot, &CClient::VSendSnapshot, bAttach);
+	DetourSetup(&CClient__WriteDataBlock, &CClient::WriteDataBlock, bAttach);
 
 	DetourSetup(&CClient__ProcessStringCmd, &CClient::VProcessStringCmd, bAttach);
 	DetourSetup(&CClient__ProcessSetConVar, &CClient::VProcessSetConVar, bAttach);

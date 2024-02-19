@@ -1,14 +1,20 @@
 #ifndef IDATABLOCK_H
 #define IDATABLOCK_H
 
-#define DATABLOCK_STATUS_SIZE 0x300
+// the maximum size of each data block fragment
+#define MAX_DATABLOCK_FRAGMENT_SIZE 1024
+
+// the maximum amount of fragments per data block
+#define MAX_DATABLOCK_FRAGMENTS 768
+
+#define MAX_DATABLOCK_DEBUG_NAME 64
 
 abstract_class NetDataBlockSender
 {
 public:
 	virtual ~NetDataBlockSender() {};
-	virtual void SendDataBlock(short unk0, int unk1,
-		short unk2, short unk3, const void* buffer, int length) = 0;
+	virtual void SendDataBlock(const short transferId, const int transferSize,
+		const short transferNr, const short blockNr, const uint8_t* const blockData, const int blockSize) = 0;
 	virtual float GetResendRate() const = 0;
 	virtual const char* GetReceiverName() const = 0;
 };
