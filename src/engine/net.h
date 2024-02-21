@@ -22,10 +22,16 @@ constexpr const char* DEFAULT_NET_ENCRYPTION_KEY = "WDNWLmJYQ2ZlM0VoTid3Yg==";
 inline void*(*v_NET_Init)(bool bDeveloper);
 inline void(*v_NET_SetKey)(netkey_t* pKey, const char* szHash);
 inline void(*v_NET_Config)(void);
+
+inline int(*v_NET_GetPacket)(int iSocket, uint8_t* pScratch, bool bEncrypted);
+inline int(*v_NET_SendPacket)(CNetChan* pChan, int iSocket, const netadr_t& toAdr, const uint8_t* pData, unsigned int nLen, void* unused0, bool bCompress, void* unused1, bool bEncrypt);
+
 inline bool(*v_NET_ReceiveDatagram)(int iSocket, netpacket_s* pInpacket, bool bRaw);
 inline int(*v_NET_SendDatagram)(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypted);
+
 inline bool(*v_NET_BufferToBufferCompress)(uint8_t* const dest, size_t* const destLen, uint8_t* const source, const size_t sourceLen);
 inline unsigned int(*v_NET_BufferToBufferDecompress_LZSS)(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize);
+
 inline void(*v_NET_PrintFunc)(const char* fmt, ...);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,10 +63,16 @@ class VNet : public IDetour
 		LogFunAdr("NET_Init", v_NET_Init);
 		LogFunAdr("NET_Config", v_NET_Config);
 		LogFunAdr("NET_SetKey", v_NET_SetKey);
+
+		LogFunAdr("NET_GetPacket", v_NET_GetPacket);
+		LogFunAdr("NET_SendPacket", v_NET_SendPacket);
+
 		LogFunAdr("NET_ReceiveDatagram", v_NET_ReceiveDatagram);
 		LogFunAdr("NET_SendDatagram", v_NET_SendDatagram);
+
 		LogFunAdr("NET_BufferToBufferCompress", v_NET_BufferToBufferCompress);
 		LogFunAdr("NET_BufferToBufferDecompress_LZSS", v_NET_BufferToBufferDecompress_LZSS);
+
 		LogFunAdr("NET_PrintFunc", v_NET_PrintFunc);
 		LogVarAdr("g_NetAdr", g_pNetAdr);
 		LogVarAdr("g_NetKey", g_pNetKey);
@@ -71,6 +83,11 @@ class VNet : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 81 EC F0 01 ??").GetPtr(v_NET_Init);
 		g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 0F 57 C0").GetPtr(v_NET_Config);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 41 B8").GetPtr(v_NET_SetKey);
+
+
+		g_GameDll.FindPatternSIMD("48 8B C4 44 88 40 18 48 89 50 10 41 55").GetPtr(v_NET_GetPacket);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 55 57 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 4C 63 F2").GetPtr(v_NET_SendPacket);
+
 		g_GameDll.FindPatternSIMD("48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D AC 24 50 EB").GetPtr(v_NET_ReceiveDatagram);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 ?? ??").GetPtr(v_NET_SendDatagram);
 

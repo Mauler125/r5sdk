@@ -1,27 +1,60 @@
 //===========================================================================//
 // 
-// Purpose: server side datablock sender
+// Purpose: server side data block sender
 // 
 //===========================================================================//
 #include "engine/client/client.h"
+#include "common/proto_oob.h"
 #include "datablock_sender.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-ServerDataBlockSender::~ServerDataBlockSender()
-{
-	ServerDataBlockSender__Destructor(this);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: sends the datablock
+// Purpose: sends the data block
 //-----------------------------------------------------------------------------
 void ServerDataBlockSender::SendDataBlock(const short transferId, const int transferSize,
 	const short transferNr, const short blockNr, const uint8_t* const blockData, const int blockSize)
 {
-	ServerDataBlockSender__SendDataBlock(this, transferId, transferSize,
-		transferNr, blockNr, blockData, blockSize);
+	const CClient* const cl = m_pClient;
+
+	if (!cl)
+	{
+		Assert(0, "ServerDataBlockSender::SendDataBlock() called without a valid client handle!");
+		return;
+	}
+
+	const CNetChan* const chan = cl->m_NetChannel;
+
+	if (!chan)
+	{
+		Assert(0, "ServerDataBlockSender::SendDataBlock() called without a valid net channel!");
+		return;
+	}
+
+	char dataBuf[DATABLOCK_FRAGMENT_PACKET_SIZE];
+	bf_write buf(&dataBuf, sizeof(dataBuf));
+
+	// msg data (gets processed on client's out of band packet handler)
+	buf.WriteLong(CONNECTIONLESS_HEADER);
+	buf.WriteByte(S2C_DATABLOCK_FRAGMENT);
+
+	// transfer info
+	buf.WriteByte(transferId);
+	buf.WriteLong(transferSize);
+	buf.WriteByte(transferNr);
+
+	// block info
+	buf.WriteByte(blockNr);
+	buf.WriteLong(blockSize);
+
+	// block data
+	buf.WriteBytes(blockData, blockSize);
+
+	// send the data block packet
+	v_NET_SendPacket(NULL, 
+		chan->GetSocket(), 
+		chan->GetRemoteAddress(),
+		buf.GetData(),
+		buf.GetNumBytesWritten(), 
+		NULL, false, NULL, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -58,72 +91,6 @@ float ServerDataBlockSender::GetResendRate() const
 const char* ServerDataBlockSender::GetReceiverName() const
 {
     return m_pClient->m_szServerName;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: initialize the data block sender context
-//-----------------------------------------------------------------------------
-void ServerDataBlockSender::StartBlockSender(const int transferSize, const bool isMultiplayer, const char* const debugName)
-{
-	m_bMultiplayer = isMultiplayer;
-	m_nBlockAckTick = 0;
-	m_nTransferSize = transferSize + sizeof(ServerDataBlockHeader_s);
-
-	// calculate the number of data blocks we have, which get sent individually
-	// to the receiver
-	m_nTotalBlocks = m_nTransferSize / MAX_DATABLOCK_FRAGMENT_SIZE + (m_nTransferSize % MAX_DATABLOCK_FRAGMENT_SIZE != 0);
-
-	strncpy(m_szDebugName, debugName, sizeof(m_szDebugName));
-	m_szDebugName[sizeof(m_szDebugName) - 1] = '\0';
-
-	// null status memory
-	memset(m_bBlockAckStatus, 0, sizeof(m_bBlockAckStatus));
-	memset(m_flBlockSendTimes, 0, sizeof(m_flBlockSendTimes));
-
-	m_bInitialized = true;
-	m_bStartedTransfer = false;
-
-	const double currentTime = Plat_FloatTime();
-
-	m_TimeLastSend = currentTime;
-	m_TimeCurrentSend = currentTime;
-	m_TimeFirstSend = currentTime;
-
-	m_nTotalSizeRemaining = 4096;
-	m_nBlockSendsAttempted = 0;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: reset the data block sender context
-//-----------------------------------------------------------------------------
-void ServerDataBlockSender::ResetBlockSender(void)
-{
-	if (!m_bInitialized)
-		return;
-
-	m_bInitialized = false;
-	m_bStartedTransfer = false;
-
-	m_nTransferId = 0;
-	m_nTransferSize = 0;
-	m_nTotalBlocks = 0;
-	m_nBlockAckTick = 0;
-
-	m_TimeCurrentSend = 0.0;
-	m_TimeFirstSend = 0.0;
-
-	m_nTotalSizeRemaining = 0;
-
-	m_TimeLastSend = 0.0;
-	m_szDebugName[0] = '\0';
-	m_bDumbDataBlockInfo = false;
-	m_nCurrentBlock = -1;
-	m_nBlockSendsAttempted = 0;
-
-	memset(m_bBlockAckStatus, 0, sizeof(m_bBlockAckStatus));
-	memset(m_flBlockSendTimes, 0, sizeof(m_flBlockSendTimes));
-
-	m_nTransferNr++;
 }
 
 //-----------------------------------------------------------------------------
@@ -172,8 +139,10 @@ void ServerDataBlockSender::WriteDataBlock(const uint8_t* const sourceData, cons
 		memcpy(m_pScratchBuffer + sizeof(ServerDataBlockHeader_s), sourceData, actualDataSize);
 	}
 
-	// create the context
-	StartBlockSender(actualDataSize, isMultiplayer, debugName);
+	// NOTE: we copy data in the scratch buffer with an offset of
+	// sizeof(ServerDataBlockHeader_s), the header gets send up as well so we
+	// have to take this into account !!!
+	StartBlockSender(actualDataSize + sizeof(ServerDataBlockHeader_s), isMultiplayer, debugName);
 
 	ReleaseSRWLockExclusive(&m_Lock);
 }

@@ -136,6 +136,8 @@ add_sources( SOURCE_GROUP "Shared"
     "shared/base_rcon.h"
     "shared/shared_rcon.cpp"
     "shared/shared_rcon.h"
+    "shared/datablock.cpp"
+    "shared/datablock.h"
 )
 
 if( NOT ${PROJECT_NAME} STREQUAL "engine_ds" )
@@ -207,7 +209,6 @@ add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/dt_send.h"
     "${ENGINE_SOURCE_DIR}/public/dt_recv.h"
     "${ENGINE_SOURCE_DIR}/public/datamap.h"
-    "${ENGINE_SOURCE_DIR}/public/idatablock.h"
     "${ENGINE_SOURCE_DIR}/public/idebugoverlay.h"
     "${ENGINE_SOURCE_DIR}/public/iengine.h"
     "${ENGINE_SOURCE_DIR}/public/iserver.h"
