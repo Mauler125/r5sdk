@@ -246,6 +246,11 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
 )
 endif()
 
+target_include_directories( ${PROJECT_NAME} PRIVATE
+    "${THIRDPARTY_SOURCE_DIR}/recast/"
+    "${THIRDPARTY_SOURCE_DIR}/mbedtls/include"
+)
+
 endmacro()
 
 add_engine_project( "engine" )

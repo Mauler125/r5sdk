@@ -258,6 +258,66 @@ bool V_IsAllDigit(const char* pString)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Returns the 4 bit nibble for a hex character
+// Input  : c - 
+// Output : unsigned char
+//-----------------------------------------------------------------------------
+static unsigned char V_nibble(char c)
+{
+	if ((c >= '0') &&
+		(c <= '9'))
+	{
+		return (unsigned char)(c - '0');
+	}
+
+	if ((c >= 'A') &&
+		(c <= 'F'))
+	{
+		return (unsigned char)(c - 'A' + 0x0a);
+	}
+
+	if ((c >= 'a') &&
+		(c <= 'f'))
+	{
+		return (unsigned char)(c - 'a' + 0x0a);
+	}
+
+	return '0';
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *in - 
+//			numchars - 
+//			*out - 
+//			maxoutputbytes - 
+//-----------------------------------------------------------------------------
+void V_hextobinary(char const* in, size_t numchars, byte* out, size_t maxoutputbytes)
+{
+	size_t len = V_strlen(in);
+	numchars = Min(len, numchars);
+	// Make sure it's even
+	numchars = (numchars) & ~0x1;
+
+	// Must be an even # of input characters (two chars per output byte)
+	Assert(numchars >= 2);
+
+	memset(out, 0x00, maxoutputbytes);
+
+	byte* p;
+	size_t i;
+
+	p = out;
+	for (i = 0;
+		(i < numchars) && 
+		((size_t)(p - out) < maxoutputbytes);
+		i += 2, p++)
+	{
+		*p = (V_nibble(in[i]) << 4) | V_nibble(in[i + 1]);
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *in - 
 //			inputbytes - 
@@ -1163,7 +1223,7 @@ void V_StripExtension(const char* in, char* out, size_t outSize)
 
 	if (end > 0 && !PATHSEPARATOR(in[end]) && end < outSize)
 	{
-		size_t nChars = MIN(end, outSize - 1);
+		size_t nChars = Min(end, outSize - 1);
 		if (out != in)
 		{
 			memcpy(out, in, nChars);
@@ -1286,7 +1346,7 @@ void V_FileBase(const char* in, char* out, size_t maxlen)
 	// Length of new sting
 	len = end - start + 1;
 
-	size_t maxcopy = MIN(len + 1, maxlen);
+	size_t maxcopy = Min(len + 1, maxlen);
 
 	// Copy partial string
 	V_strncpy(out, &in[start], maxcopy);
