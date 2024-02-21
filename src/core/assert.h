@@ -10,6 +10,7 @@
 //    } while (false)
 //#else
 #   define Assert(condition, ...) assert(condition)
+#   define AssertFatalMsg Assert
 
 // TODO: this needs to go to dbg.h
 #   define AssertMsg(condition, ...) assert(condition)

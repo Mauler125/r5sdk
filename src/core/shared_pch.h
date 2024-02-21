@@ -23,7 +23,6 @@
 #include <shellapi.h>
 #include <Psapi.h>
 #include <setjmp.h>
-#include <tchar.h>
 #include <stdio.h>
 #include <shlobj.h>
 #include <objbase.h>

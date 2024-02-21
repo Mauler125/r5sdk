@@ -60,10 +60,11 @@
 #pragma warning(pop)
 
 // Tier0 includes.
+#include "tier0/basetypes.h"
+#include "tier0/wchartypes.h"
 #include "tier0/memaddr.h"
 #include "tier0/utility.h"
 #include "tier0/module.h"
-#include "tier0/basetypes.h"
 #include "tier0/platform.h"
 #include "tier0/platwindow.h"
 #include "tier0/annotations.h"
