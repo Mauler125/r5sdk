@@ -172,8 +172,6 @@ extern ConVar* bhit_abs_origin;
 extern ConVar* cl_rcon_inputonly;
 extern ConVar* cl_quota_stringCmdsPerSecond;
 
-extern ConVar* cl_move_use_dt;
-
 extern ConVar* enable_CmdKeyValues;
 
 extern ConVar* cl_notify_invert_x;

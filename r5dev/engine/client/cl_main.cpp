@@ -70,43 +70,38 @@ void CL_MoveEx()
 
 			float frameTime = 0.0f;
 
-			if (cl_move_use_dt->GetBool())
+			float timeScale;
+			float deltaTime;
+
+			if (isPaused)
 			{
-				float timeScale;
-				float deltaTime;
-
-				if (isPaused)
-				{
-					timeScale = 1.0f;
-					frameTime = movementCallTime - s_lastMovementCall;
-					deltaTime = frameTime;
-				}
-				else
-				{
-					timeScale = hostTimeScale;
-					frameTime = cl->m_flFrameTime + s_LastFrameTime;
-					deltaTime = frameTime / timeScale;
-				}
-
-				// Clamp the frame time to the maximum.
-				if (deltaTime > maxFrameTime)
-					frameTime = timeScale * maxFrameTime;
-
-				// Drop this frame if delta time is below the minimum.
-				const bool dropFrame = (isTimeScaleDefault && deltaTime < minFrameTime);
-
-				// This check originally was 'time < 0.0049999999', but
-				// that caused problems when the framerate was above 190.
-				if (dropFrame)
-				{
-					s_LastFrameTime = frameTime;
-					return;
-				}
-
-				s_LastFrameTime = 0.0;
+				timeScale = 1.0f;
+				frameTime = movementCallTime - s_lastMovementCall;
+				deltaTime = frameTime;
 			}
-			//else if (isPaused)
-			//	// This hlClient virtual call just returns false.
+			else
+			{
+				timeScale = hostTimeScale;
+				frameTime = cl->m_flFrameTime + s_LastFrameTime;
+				deltaTime = frameTime / timeScale;
+			}
+
+			// Clamp the frame time to the maximum.
+			if (deltaTime > maxFrameTime)
+				frameTime = timeScale * maxFrameTime;
+
+			// Drop this frame if delta time is below the minimum.
+			const bool dropFrame = (isTimeScaleDefault && deltaTime < minFrameTime);
+
+			// This check originally was 'time < 0.0049999999', but
+			// that caused problems when the framerate was above 190.
+			if (dropFrame)
+			{
+				s_LastFrameTime = frameTime;
+				return;
+			}
+
+			s_LastFrameTime = 0.0;
 
 			// Create and store usercmd structure.
 			g_pHLClient->CreateMove(nextCommandNr, frameTime, !isPaused);

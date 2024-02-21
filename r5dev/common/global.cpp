@@ -182,7 +182,6 @@ ConVar* bhit_abs_origin                    = nullptr;
 ConVar* cl_rcon_inputonly           = nullptr;
 ConVar* cl_quota_stringCmdsPerSecond       = nullptr;
 
-ConVar* cl_move_use_dt                     = nullptr;
 ConVar* cl_updaterate_mp                   = nullptr;
 
 ConVar* cl_notify_invert_x                 = nullptr;
@@ -562,7 +561,6 @@ void ConVar_InitShipped(void)
 	eula_version                     = g_pCVar->FindVar("eula_version");
 	eula_version_accepted            = g_pCVar->FindVar("eula_version_accepted");
 #ifndef DEDICATED
-	cl_move_use_dt                   = g_pCVar->FindVar("cl_move_use_dt");
 	cl_updaterate_mp                 = g_pCVar->FindVar("cl_updaterate_mp");
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
 	cl_language                      = g_pCVar->FindVar("cl_language");
