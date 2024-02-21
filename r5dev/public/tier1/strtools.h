@@ -83,6 +83,7 @@ inline bool V_iswdigit(int c)
 	return (((uint)(c - '0')) < 10);
 }
 
+void V_hextobinary(char const* in, size_t numchars, byte* out, size_t maxoutputbytes);
 void V_binarytohex(const byte* in, size_t inputbytes, char* out, size_t outsize);
 ssize_t V_vsnprintfRet(char* pDest, size_t maxLen, const char* pFormat, va_list params, bool* pbTruncated);
 
