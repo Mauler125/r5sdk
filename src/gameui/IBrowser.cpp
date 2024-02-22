@@ -37,6 +37,8 @@ History:
 #include "public/edict.h"
 #include "game/shared/vscript_shared.h"
 
+static ConCommand togglebrowser("togglebrowser", CBrowser::ToggleBrowser_f, "Show/hide the server browser", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -602,7 +604,7 @@ void CBrowser::HostPanel(void)
         {
             g_TaskScheduler->Dispatch([]()
                 {
-                    v__DownloadPlaylists_f();
+                    v_Playlists_Download_f();
                     Playlists_SDKInit(); // Re-Init playlist.
                 }, 0);
         }
@@ -867,6 +869,15 @@ void CBrowser::SetStyleVar(void)
 
     ImGui::SetNextWindowSize(ImVec2(928.f, 524.f), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500.f, 50.f), ImGuiCond_FirstUseEver);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: toggles the server browser
+//-----------------------------------------------------------------------------
+void CBrowser::ToggleBrowser_f()
+{
+    g_Browser.m_bActivate ^= true;
+    ResetInput(); // Disable input to game when browser is drawn.
 }
 
 CBrowser g_Browser;

@@ -235,3 +235,49 @@ void CPlayer::SetLastUserCommand(CUserCmd* pUserCmd)
 {
 	m_LastCmd.Copy(pUserCmd);
 }
+
+/*
+=====================
+CC_CreateFakePlayer_f
+
+  Creates a fake player
+  on the server
+=====================
+*/
+static void CC_CreateFakePlayer_f(const CCommand& args)
+{
+	if (!g_pServer->IsActive())
+		return;
+
+	if (args.ArgC() < 3)
+	{
+		Msg(eDLL_T::SERVER, "usage 'sv_addbot': name(string) teamid(int)\n");
+		return;
+	}
+
+	const int numPlayers = g_pServer->GetNumClients();
+
+	// Already at max, don't create.
+	if (numPlayers >= g_ServerGlobalVariables->m_nMaxClients)
+		return;
+
+	const char* playerName = args.Arg(1);
+
+	int teamNum = atoi(args.Arg(2));
+	const int maxTeams = int(g_pServer->GetMaxTeams()) + 1;
+
+	// Clamp team count, going above the limit will
+	// cause a crash. Going below 0 means that the
+	// engine will assign the bot to the last team.
+	if (teamNum > maxTeams)
+		teamNum = maxTeams;
+
+	g_pEngineServer->LockNetworkStringTables(true);
+
+	const edict_t nHandle = g_pEngineServer->CreateFakeClient(playerName, teamNum);
+	g_pServerGameClients->ClientFullyConnect(nHandle, false);
+
+	g_pEngineServer->LockNetworkStringTables(false);
+}
+
+static ConCommand sv_addbot("sv_addbot", CC_CreateFakePlayer_f, "Creates a bot on the server", FCVAR_RELEASE);

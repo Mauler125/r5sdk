@@ -29,7 +29,7 @@
 #define NORMAL_RESOLUTION                     (1.0f/(NORMAL_DENOMINATOR))
 
 // this is limited by the network fractional bits used for coords
-// because net coords will be only be accurate to 5 bits fractional
+// because net coords will only be accurate to 5 bits fractional
 // Standard collision test epsilon
 // 1/32nd inch collision epsilon
 #define DIST_EPSILON (0.03125)

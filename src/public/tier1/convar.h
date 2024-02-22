@@ -26,38 +26,57 @@ class ConCommandBase
 public:
 	virtual ~ConCommandBase(void) { };
 
-	virtual bool IsCommand(void) const = 0;
-	virtual bool IsFlagSet(int nFlags) const = 0;
+	virtual bool IsCommand(void) const;
+	virtual bool IsFlagSet(const int nFlags) const;
 
-	virtual void AddFlags(int nFlags) = 0;
-	virtual void RemoveFlags(int nFlags) = 0;
+	virtual void AddFlags(const int nFlags);
+	virtual void RemoveFlags(const int nFlags);
 
-	virtual int GetFlags(void) const = 0;
-	virtual const char* GetName(void) const = 0;
-	virtual const char* GetHelpText(void) const = 0;
-	virtual const char* GetUsageText(void) const = 0;
+	virtual int GetFlags(void) const;
+	virtual const char* GetName(void) const;
+	virtual const char* GetHelpText(void) const;
+	virtual const char* GetUsageText(void) const;
 
-	virtual void SetAccessor(IConCommandBaseAccessor* pAccessor) = 0;
-	virtual bool IsRegistered(void) const = 0;
+	virtual void SetAccessor(IConCommandBaseAccessor* const pAccessor);
+	virtual bool IsRegistered(void) const;
 
-	virtual int GetDLLIdentifier() const = 0;
+	virtual int GetDLLIdentifier() const;
 	virtual ConCommandBase* Create(const char* szName, const char* szHelpString,
-		int nFlags, const char* pszUsageString) = 0;
+		int nFlags, const char* pszUsageString);
 
-	virtual void				Init() = 0;
-
-	bool HasFlags(int nFlags) const;
+	virtual void				Init();
+	void						Shutdown();
 
 	ConCommandBase* GetNext(void) const;
 	char* CopyString(const char* szFrom) const;
 
+//private:
+	// Next ConVar in chain
+	// Prior to register, it points to the next convar in the DLL.
+	// Once registered, though, m_pNext is reset to point to the next
+	// convar in the global list
 	ConCommandBase*          m_pNext;          //0x0008
+
+	// Has the cvar been added to the global list?
 	bool                     m_bRegistered;    //0x0010
+
+	// Static data.
 	const char*              m_pszName;        //0x0018
 	const char*              m_pszHelpString;  //0x0020
 	const char*              m_pszUsageString; //0x0028
-	IConCommandBaseAccessor* s_pAccessor;      //0x0030 <-- unused since executable is monolithic.
+
+	IConCommandBaseAccessor* m_pAccessor;      //0x0030 <-- unused since executable is monolithic.
+
+	// ConVar flags
 	int                      m_nFlags;         //0x0038
+
+	// ConVars add themselves to this list for the executable. 
+	// Then ConVar_Register runs through  all the console variables 
+	// and registers them into a global list stored in vstdlib.dll
+	static ConCommandBase* s_pConCommandBases;
+
+	// ConVars in this executable use this 'global' to access values.
+	static IConCommandBaseAccessor* s_pAccessor;
 };
 static_assert(sizeof(ConCommandBase) == 0x40);
 
@@ -70,16 +89,37 @@ class ConCommand : public ConCommandBase
 {
 	friend class CCvar;
 public:
-	ConCommand(void);
+	typedef ConCommandBase BaseClass;
 
-	static ConCommand* StaticCreate(const char* szName, const char* szHelpString, const char* pszUsageString,
-		int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCommandCompletionCallback);
+	ConCommand(const char* pName, FnCommandCallbackV1_t callback,
+		const char* pHelpString = 0, int flags = 0, FnCommandCompletionCallback completionFunc = 0, const char* pszUsageString = 0);
+	ConCommand(const char* pName, FnCommandCallback_t callback,
+		const char* pHelpString = 0, int flags = 0, FnCommandCompletionCallback completionFunc = 0, const char* pszUsageString = 0);
+	ConCommand(const char* pName, ICommandCallback* pCallback,
+		const char* pHelpString = 0, int flags = 0, ICommandCompletionCallback* pCommandCompletionCallback = 0, const char* pszUsageString = 0);
 
-	virtual int AutoCompleteSuggest(const char* partial, CUtlVector< CUtlString >& commands) = 0;
-	virtual bool CanAutoComplete(void) const = 0;
+	virtual ~ConCommand(void);
 
+	virtual	bool IsCommand(void) const;
+
+	virtual int AutoCompleteSuggest(const char* partial, CUtlVector< CUtlString >& commands);
+	virtual bool CanAutoComplete(void) const;
+
+	// Invoke the function
+	virtual void Dispatch(const CCommand& command);
+
+//private:
 	void* m_nNullCallBack; //0x0040
 	void* m_pSubCallback;  //0x0048
+
+	// NOTE: To maintain backward compatibility, we have to be very careful:
+	// All public virtual methods must appear in the same order always
+	// since engine code will be calling into this code, which *does not match*
+	// in the mod code; it's using slightly different, but compatible versions
+	// of this class. Also: Be very careful about adding new fields to this class.
+	// Those fields will not exist in the version of this class that is instanced
+	// in mod code.
+
 	// Call this function when executing the command
 	union
 	{
@@ -232,6 +272,12 @@ FORCEINLINE const char* ConVar::GetString(void) const
 	char const* str = m_pParent->m_Value.m_pszString;
 	return str ? str : "";
 }
+
+//-----------------------------------------------------------------------------
+// Called by the framework to register ConCommands with the ICVar
+//-----------------------------------------------------------------------------
+void ConVar_Register(int nCVarFlag = 0, IConCommandBaseAccessor* pAccessor = NULL);
+void ConVar_Unregister();
 
 /* ==== CONVAR ========================================================================================================================================================== */
 inline void*(*ConVar__Register)(ConVar* thisptr, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString);

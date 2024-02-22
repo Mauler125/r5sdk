@@ -38,6 +38,10 @@ public:
 
     inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
 
+public:
+    // Command callbacks
+    static void ToggleBrowser_f();
+
     const char* m_pszBrowserLabel;
     bool m_bActivate;
 

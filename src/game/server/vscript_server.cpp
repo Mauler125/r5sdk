@@ -11,11 +11,29 @@
 #include "core/stdafx.h"
 #include "engine/server/server.h"
 #include "game/shared/vscript_shared.h"
+#include "vscript/vscript.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
 #include "vscript_server.h"
 #include <engine/host_state.h>
 #include <networksystem/listmanager.h>
+
+/*
+=====================
+SQVM_ServerScript_f
+
+  Executes input on the
+  VM in SERVER context.
+=====================
+*/
+static void SQVM_ServerScript_f(const CCommand& args)
+{
+    if (args.ArgC() >= 2)
+    {
+        Script_Execute(args.ArgS(), SQCONTEXT::SERVER);
+    }
+}
+static ConCommand script("script", SQVM_ServerScript_f, "Run input code as SERVER script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL | FCVAR_CHEAT);
 
 namespace VScriptCode
 {

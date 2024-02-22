@@ -5,7 +5,9 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
+#include "engine/server/server.h"
 #include "public/edict.h"
 #include "game/server/detour_impl.h"
 #include "game/server/ai_networkmanager.h"
@@ -131,6 +133,33 @@ void Detour_HotSwap()
     if (!Detour_IsLoaded())
         Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
 }
+
+/*
+=====================
+Detour_HotSwap_f
+
+  Hot swaps the NavMesh
+  while the game is running
+=====================
+*/
+static void Detour_HotSwap_f()
+{
+    if (!g_pServer->IsActive())
+        return; // Only execute if server is initialized and active.
+
+    Msg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n",
+        g_ServerGlobalVariables->m_pszMapName);
+
+    CFastTimer timer;
+
+    timer.Start();
+    Detour_HotSwap();
+
+    timer.End();
+    Msg(eDLL_T::SERVER, "Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
+}
+
+static ConCommand navmesh_hotswap("navmesh_hotswap", Detour_HotSwap_f, "Hot swap the NavMesh for all hulls", FCVAR_DEVELOPMENTONLY);
 
 ///////////////////////////////////////////////////////////////////////////////
 void VRecast::Detour(const bool bAttach) const

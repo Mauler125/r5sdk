@@ -332,7 +332,6 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
                     fileStream->bytesStreamed, (memoryData->processedPatchedDataSize + PAK_DECODE_OUT_RING_BUFFER_SIZE), v22->compressionMode);
 
                 qword1D0 = pak->pakDecoder.outBufBytePos;
-
                 pak->inputBytePos = pak->pakDecoder.inBufBytePos;
 
                 if (didDecode)
@@ -352,10 +351,6 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
     }
 
     size_t numBytesToProcess = qword1D0 - memoryData->processedPatchedDataSize;
-
-    // DEBUG: REMOVE
-    if ((long long)pak->memoryData.patchFunc == 0x14043E2A0)
-        pak->memoryData.patchFunc = g_pakPatchApi[0];
 
     while (memoryData->patchSrcSize + memoryData->field_2A8)
     {
@@ -1310,6 +1305,3 @@ void V_PakParse::Detour(const bool bAttach) const
 
     DetourSetup(&v_Pak_RunAssetLoadingJobs, &Pak_RunAssetLoadingJobs, bAttach);
 }
-
-// Symbols taken from R2 dll's.
-PakLoadFuncs_t* g_pakLoadApi = nullptr;

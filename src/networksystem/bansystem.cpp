@@ -413,4 +413,83 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Console command handlers
+///////////////////////////////////////////////////////////////////////////////
+
+static void _Author_Client_f(const CCommand& args, EKickType type)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	const char* szReason = args.ArgC() > 2 ? args.Arg(2) : nullptr;
+
+	switch (type)
+	{
+	case KICK_NAME:
+	{
+		g_BanSystem.KickPlayerByName(args.Arg(1), szReason);
+		break;
+	}
+	case KICK_ID:
+	{
+		g_BanSystem.KickPlayerById(args.Arg(1), szReason);
+		break;
+	}
+	case BAN_NAME:
+	{
+		g_BanSystem.BanPlayerByName(args.Arg(1), szReason);
+		break;
+	}
+	case BAN_ID:
+	{
+		g_BanSystem.BanPlayerById(args.Arg(1), szReason);
+		break;
+	}
+	default:
+	{
+		// Code bug.
+		Assert(0);
+	}
+	}
+}
+static void Host_Kick_f(const CCommand& args)
+{
+	_Author_Client_f(args, EKickType::KICK_NAME);
+}
+static void Host_KickID_f(const CCommand& args)
+{
+	_Author_Client_f(args, EKickType::KICK_ID);
+}
+static void Host_Ban_f(const CCommand& args)
+{
+	_Author_Client_f(args, EKickType::BAN_NAME);
+}
+static void Host_BanID_f(const CCommand& args)
+{
+	_Author_Client_f(args, EKickType::BAN_ID);
+}
+static void Host_Unban_f(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	g_BanSystem.UnbanPlayer(args.Arg(1));
+}
+static void Host_ReloadBanList_f()
+{
+	g_BanSystem.LoadList(); // Reload banned list.
+}
+
+static ConCommand kick("kick", Host_Kick_f, "Kick a client from the server by user name", FCVAR_RELEASE, nullptr, "kick \"<userId>\"");
+static ConCommand kickid("kickid", Host_KickID_f, "Kick a client from the server by handle, nucleus id or ip address", FCVAR_RELEASE, nullptr, "kickid \"<handle>\"/\"<nucleusId>/<ipAddress>\"");
+static ConCommand ban("ban", Host_Ban_f, "Bans a client from the server by user name", FCVAR_RELEASE, nullptr, "ban <userId>");
+static ConCommand banid("banid", Host_BanID_f, "Bans a client from the server by handle, nucleus id or ip address", FCVAR_RELEASE, nullptr, "banid \"<handle>\"/\"<nucleusId>/<ipAddress>\"");
+static ConCommand unban("unban", Host_Unban_f, "Unbans a client from the server by nucleus id or ip address", FCVAR_RELEASE, nullptr, "unban \"<nucleusId>\"/\"<ipAddress>\"");
+static ConCommand reload_banlist("banlist_reload", Host_ReloadBanList_f, "Reloads the banned list", FCVAR_RELEASE);
+
+///////////////////////////////////////////////////////////////////////////////
 CBanSystem g_BanSystem;

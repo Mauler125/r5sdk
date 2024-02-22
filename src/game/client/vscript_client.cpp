@@ -16,9 +16,46 @@
 #include "networksystem/pylon.h"
 #include "networksystem/listmanager.h"
 #include "game/shared/vscript_shared.h"
+
+#include "vscript/vscript.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
 #include "vscript_client.h"
+
+/*
+=====================
+SQVM_ClientScript_f
+
+  Executes input on the
+  VM in CLIENT context.
+=====================
+*/
+static void SQVM_ClientScript_f(const CCommand& args)
+{
+    if (args.ArgC() >= 2)
+    {
+        Script_Execute(args.ArgS(), SQCONTEXT::CLIENT);
+    }
+}
+
+/*
+=====================
+SQVM_UIScript_f
+
+  Executes input on the
+  VM in UI context.
+=====================
+*/
+static void SQVM_UIScript_f(const CCommand& args)
+{
+    if (args.ArgC() >= 2)
+    {
+        Script_Execute(args.ArgS(), SQCONTEXT::UI);
+    }
+}
+
+static ConCommand script_client("script_client", SQVM_ClientScript_f, "Run input code as CLIENT script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL | FCVAR_CHEAT);
+static ConCommand script_ui("script_ui", SQVM_UIScript_f, "Run input code as UI script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL | FCVAR_CHEAT);
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if the server index is valid, raises an error if not

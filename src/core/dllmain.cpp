@@ -62,8 +62,6 @@ void Tier0_Init()
     g_RadAudioDecoderDll.InitFromName("binkawin64.dll");
     g_RadAudioSystemDll.InitFromName("mileswin64.dll");
 #endif // !DEDICATED
-
-    g_pCmdLine = g_GameDll.GetExportedSymbol("g_pCmdLine").RCast<CCommandLine*>();
     g_CoreMsgVCallback = &EngineLoggerSink; // Setup logger callback sink.
 
     g_pCmdLine->CreateCmdLine(GetCommandLineA());

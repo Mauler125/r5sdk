@@ -28,49 +28,6 @@ inline int  (*Pak_TrackAsset)(PakFile_t* const a1, PakAsset_t* a2);
 // TODO: name these!
 inline void (*sub_14043D870)(PakLoadedInfo_t* a1, int a2);
 
-typedef struct PakLoadFuncs_s
-{
-	void* Initialize; // Returns the pak handle of the patch master RPak once initialized.
-	void* RegisterAsset;
-	char unknown0[8];
-	PakHandle_t(*LoadAsync)(const char* pakFileName, CAlignedMemAlloc* allocator, int nIdx, bool bUnk);
-	void* LoadAsyncAndWait;
-	void (*UnloadAsync)(PakHandle_t handle);
-	void* UnloadAsyncAndWait;
-	char unknown2[16];
-	void* Func7;
-	void* Func8;
-	EPakStatus(*WaitAsync)(PakHandle_t handle, void* finishCallback);
-	void* Func10;
-	void* Func11;
-	void* FindByGUID;
-	void* FindByName;
-	char unknown3[8];
-	void* Func14;
-	void* Func15;
-	void* Func16;
-	void* Func17;
-	void* Func18;
-	void* IncrementStreamingAssetCount;
-	void* DecrementStreamingAssetCount;
-	void* IsFullStreamingInstall;
-	char unknown4[48];
-	int (*OpenAsyncFile)(const char* const fileName, int logLevel, size_t* const outFileSize);
-	void (*CloseAsyncFile)(short fileHandle);
-	void* Func24;
-	void* Func25;
-	void* ReadAsyncFile;
-	void* ReadAsyncFileWithUserData;
-	uint8_t (*CheckAsyncRequest)(int idx, size_t* const bytesProcessed, const char** const statusMsg);
-	uint8_t (*WaitAndCheckAsyncRequest)(int idx, size_t* const bytesProcessed, const char** const statusMsg);
-	void* WaitForAsyncFileRead;
-	void* Func31;
-	void* Func32;
-	void* Func33;
-} PakLoadFuncs_t;
-
-extern PakLoadFuncs_t* g_pakLoadApi;
-
 ///////////////////////////////////////////////////////////////////////////////
 class V_PakParse : public IDetour
 {
@@ -89,8 +46,6 @@ class V_PakParse : public IDetour
 		LogFunAdr("Pak_ProcessPakFile", v_Pak_ProcessPakFile);
 		LogFunAdr("Pak_ProcessAssets", v_Pak_ProcessAssets);
 		LogFunAdr("Pak_ResolveAssetRelations", v_Pak_ResolveAssetRelations);
-
-		LogVarAdr("g_pakLoadApi", g_pakLoadApi);
 	}
 	virtual void GetFun(void) const
 	{
@@ -111,10 +66,7 @@ class V_PakParse : public IDetour
 
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? EB 14 48 8D 0D ?? ?? ?? ??").FollowNearCallSelf().GetPtr(sub_14043D870);
 	}
-	virtual void GetVar(void) const
-	{
-		g_pakLoadApi = CMemory(v_LauncherMain).Offset(0x820).FindPatternSelf("48 89").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PakLoadFuncs_t*>();
-	}
+	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;
 };
