@@ -278,10 +278,10 @@ bool CNetCon::RunFrame(void)
 {
 	if (IsInitialized())
 	{
+		std::lock_guard<std::mutex> l(m_Mutex);
+
 		if (IsConnected())
 		{
-			std::lock_guard<std::mutex> l(m_Mutex);
-
 			CConnectedNetConsoleData& pData = GetSocketCreator()->GetAcceptedSocketData(0);
 			Recv(pData);
 		}
