@@ -134,7 +134,7 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 
 	if (validation_result != L8W8JWT_VALID)
 	{
-		char reasonBuffer[256];
+		char reasonBuffer[64];
 		l8w8jwt_get_validation_result_desc(validation_result, reasonBuffer, sizeof(reasonBuffer));
 
 		ERROR_AND_RETURN("%s", reasonBuffer);
