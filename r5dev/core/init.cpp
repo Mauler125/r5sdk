@@ -72,6 +72,7 @@
 #include "rtech/rui/rui.h"
 #include "engine/client/cl_ents_parse.h"
 #include "engine/client/cl_main.h"
+#include "engine/client/cl_rcon.h"
 #include "engine/client/cl_splitscreen.h"
 #endif // !DEDICATED
 #include "engine/client/client.h"
@@ -94,6 +95,7 @@
 #include "engine/networkstringtable.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_main.h"
+#include "engine/server/sv_rcon.h"
 #endif // !CLIENT_DLL
 #include "engine/sdk_dll.h"
 #include "engine/sys_dll.h"
@@ -267,6 +269,14 @@ void Systems_Init()
 
 void Systems_Shutdown()
 {
+	// Shutdown RCON (closes all open sockets)
+#ifndef CLIENT_DLL
+	RCONServer()->Shutdown();
+#endif// !CLIENT_DLL
+#ifndef SERVER_DLL
+	RCONClient()->Shutdown();
+#endif // !SERVER_DLL
+
 	CFastTimer shutdownTimer;
 	shutdownTimer.Start();
 

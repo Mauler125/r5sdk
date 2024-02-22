@@ -13,8 +13,8 @@
 #include "engine/server/sv_rcon.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
-#include "mathlib/sha256.h"
 #include "common/igameserverdata.h"
+#include "mbedtls/include/mbedtls/sha512.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -39,6 +39,9 @@ CRConServer::CRConServer(void)
 //-----------------------------------------------------------------------------
 CRConServer::~CRConServer(void)
 {
+	// NOTE: do not call Shutdown() from the destructor as the OS's socket
+	// system would be shutdown by now, call Shutdown() in application
+	// shutdown code instead
 }
 
 //-----------------------------------------------------------------------------
@@ -73,13 +76,17 @@ void CRConServer::Init(void)
 //-----------------------------------------------------------------------------
 void CRConServer::Shutdown(void)
 {
+	m_bInitialized = false;
+
+	const int nConnCount = m_Socket.GetAcceptedSocketCount();
 	m_Socket.CloseAllAcceptedSockets();
+
 	if (m_Socket.IsListening())
 	{
 		m_Socket.CloseListenSocket();
 	}
 
-	m_bInitialized = false;
+	Msg(eDLL_T::SERVER, "Remote server access deinitialized ('%i' accepted sockets closed)\n", nConnCount);
 }
 
 //-----------------------------------------------------------------------------
@@ -123,9 +130,6 @@ void CRConServer::Think(void)
 //-----------------------------------------------------------------------------
 bool CRConServer::SetPassword(const char* pszPassword)
 {
-	m_bInitialized = false;
-	m_Socket.CloseAllAcceptedSockets();
-
 	const size_t nLen = strlen(pszPassword);
 	if (nLen < RCON_MIN_PASSWORD_LEN)
 	{
@@ -139,8 +143,26 @@ bool CRConServer::SetPassword(const char* pszPassword)
 		return false;
 	}
 
-	m_svPasswordHash = sha256(pszPassword);
-	Msg(eDLL_T::SERVER, "Password hash ('%s')\n", m_svPasswordHash.c_str());
+	// This is here so we only print the confirmation message if the user
+	// actually requested to change the password rather than initializing
+	// the RCON server
+	const bool wasInitialized = m_bInitialized;
+
+	m_bInitialized = false;
+	m_Socket.CloseAllAcceptedSockets();
+
+	const int nHashRet = mbedtls_sha512(reinterpret_cast<const uint8_t*>(pszPassword), nLen, m_PasswordHash, NULL);
+
+	if (nHashRet != 0)
+	{
+		Error(eDLL_T::SERVER, 0, "SHA-512 algorithm failed on RCON password [%i]\n", nHashRet);
+		return false;
+	}
+
+	if (wasInitialized)
+	{
+		Msg(eDLL_T::SERVER, "Successfully changed RCON server password\n");
+	}
 
 	m_bInitialized = true;
 	return true;
@@ -358,24 +380,21 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sha256 hashed password comparison
+// Purpose: sha512 hashed password comparison
 // Input  : &svPassword - 
 // Output : true if matches, false otherwise
 //-----------------------------------------------------------------------------
 bool CRConServer::Comparator(const string& svPassword) const
 {
-	string passwordHash = sha256(svPassword);
-	if (sv_rcon_debug->GetBool())
-	{
-		Msg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
-		Msg(eDLL_T::SERVER, "[ Server: '%s']\n", m_svPasswordHash.c_str());
-		Msg(eDLL_T::SERVER, "[ Client: '%s']\n", passwordHash.c_str());
-		Msg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
-	}
-	if (memcmp(passwordHash.data(), m_svPasswordHash.data(), SHA256::DIGEST_SIZE) == 0)
+	uint8_t clientPasswordHash[RCON_SHA512_HASH_SIZE];
+	mbedtls_sha512(reinterpret_cast<const uint8_t*>(svPassword.c_str()), svPassword.length(),
+		clientPasswordHash, NULL);
+
+	if (memcmp(clientPasswordHash, m_PasswordHash, RCON_SHA512_HASH_SIZE) == 0)
 	{
 		return true;
 	}
+
 	return false;
 }
 
@@ -492,7 +511,13 @@ void CRConServer::Execute(const cl_rcon::request& request) const
 	else // Invoke command callback directly.
 	{
 		CCommand cmd;
-		cmd.Tokenize(pValueString, cmd_source_t::kCommandSrcCode);
+
+		// Only tokenize if we actually have strings in the value buffer, some
+		// commands (like 'status') don't need any additional parameters.
+		if (VALID_CHARSTAR(pValueString))
+		{
+			cmd.Tokenize(pValueString, cmd_source_t::kCommandSrcCode);
+		}
 
 		v_Cmd_Dispatch(ECommandTarget_t::CBUF_SERVER, pCommandBase, &cmd, false);
 	}
@@ -653,8 +678,8 @@ int CRConServer::GetAuthenticatedCount(void) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CRConServer* g_RCONServer(new CRConServer());
+static CRConServer s_RCONServer;
 CRConServer* RCONServer() // Singleton RCON Server.
 {
-	return g_RCONServer;
+	return &s_RCONServer;
 }
