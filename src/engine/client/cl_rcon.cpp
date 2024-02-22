@@ -29,6 +29,9 @@ CRConClient::CRConClient()
 //-----------------------------------------------------------------------------
 CRConClient::~CRConClient(void)
 {
+	// NOTE: do not call Shutdown() from the destructor as the OS's socket
+	// system would be shutdown by now, call Shutdown() in application
+	// shutdown code instead
 }
 
 //-----------------------------------------------------------------------------
@@ -76,7 +79,7 @@ void CRConClient::Disconnect(const char* szReason)
 			szReason = "unknown reason";
 		}
 
-		Msg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
+		Msg(eDLL_T::CLIENT, "RCON disconnect: (%s)\n", szReason);
 		m_Socket.CloseAcceptedSocket(0);
 	}
 }
@@ -221,8 +224,8 @@ bool CRConClient::IsConnected(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CRConClient* g_RCONClient(new CRConClient());
+static CRConClient s_RCONClient;
 CRConClient* RCONClient() // Singleton RCON Client.
 {
-	return g_RCONClient;
+	return &s_RCONClient;
 }
