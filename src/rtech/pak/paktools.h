@@ -13,9 +13,11 @@ extern bool Pak_FileOverrideExists(const char* const pakFilePath, char* const ou
 extern int Pak_FileExists(const char* const pakFilePath);
 
 extern const char* Pak_StatusToString(const EPakStatus status);
+const char* Pak_DecoderToString(const EPakDecodeMode mode);
+
 extern PakGuid_t Pak_StringToGuid(const char* const string);
 
-extern const PakLoadedInfo_t* Pak_GetPakInfo(const PakHandle_t pakId);
+extern PakLoadedInfo_t* Pak_GetPakInfo(const PakHandle_t pakId);
 extern const PakLoadedInfo_t* Pak_GetPakInfo(const char* const pakName);
 
 extern PakPatchDataHeader_t* Pak_GetPatchDataHeader(PakFileHeader_t* const pakHeader);

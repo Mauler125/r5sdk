@@ -6,8 +6,10 @@
 #include "tier0/commandline.h"
 #include "rtech/async/asyncio.h"
 #include "rtech/ipakfile.h"
-#include "pakstream.h"
+
 #include "pakparse.h"
+#include "pakstate.h"
+#include "pakstream.h"
 
 //-----------------------------------------------------------------------------
 // determines whether or not to emulate the streaming install, this basically
@@ -16,23 +18,20 @@
 //-----------------------------------------------------------------------------
 static bool Pak_ShouldEmulateStreamingInstall()
 {
-    static bool initialized = false;
-    static bool shouldEmulate = false;
-
     // don't run the command line check every query
-    if (initialized)
-        return shouldEmulate;
+    if (g_pakGlobals->emulateStreamingInstallInit)
+        return g_pakGlobals->emulateStreamingInstall;
 
     const char* value = nullptr;
 
     if (CommandLine()->CheckParm("-emulate_streaming_install", &value))
     {
         if (value && atoi(value))
-            shouldEmulate = true;
+            g_pakGlobals->emulateStreamingInstall = true;
     }
 
-    initialized = true;
-    return shouldEmulate;
+    g_pakGlobals->emulateStreamingInstallInit = true;
+    return g_pakGlobals->emulateStreamingInstall;
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +94,7 @@ void Pak_EnableEmbeddedStreamingData(PakLoadedInfo_t* const loadedInfo, PakLoade
     const size_t basePathLen = hasPath ? 0 : strlen(PAK_BASE_PATH);
     const size_t totalBufLen = basePathLen + baseNameLen + 1;
 
-    char* const embeddedName = reinterpret_cast<char* const>(loadedInfo->allocator->Alloc(totalBufLen, sizeof(char)));
+    char* const embeddedName = reinterpret_cast<char* const>(loadedInfo->allocator->Alloc(totalBufLen, 1));
     assert(embeddedName);
 
     // copy the base path if none was found in the file name

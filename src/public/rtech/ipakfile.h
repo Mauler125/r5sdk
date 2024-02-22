@@ -5,7 +5,6 @@
 
 #include "rtech/iasync.h"
 #include "rtech/rstdlib.h"
-#include "thirdparty/zstd/zstd.h"
 
 // pak header versions
 #define PAK_HEADER_MAGIC (('k'<<24)+('a'<<16)+('P'<<8)+'R')
@@ -13,18 +12,24 @@
 
 // pak header flags
 #define PAK_HEADER_FLAGS_HAS_MODULE (1<<0)
+#define PAK_HEADER_FLAGS_HAS_MODULE_EXTENDED PAK_HEADER_FLAGS_HAS_MODULE | (1<<1)
+
 #define PAK_HEADER_FLAGS_COMPRESSED (1<<8)
 
 // use the ZStd decoder instead of the RTech one
-#define PAK_HEADER_FLAGS_ZSTREAM    (1<<9)
+#define PAK_HEADER_FLAGS_ZSTREAM_ENCODED (1<<9)
 
 // max amount of types at runtime in which assets will be tracked
 #define PAK_MAX_TYPES 64
 #define PAK_MAX_TYPES_MASK (PAK_MAX_TYPES-1)
 
 // max amount of global pak assets at runtime
-#define PAK_MAX_ASSETS 0x40000
+#define PAK_MAX_ASSETS 0x40000														// TODO: rename to PAK_MAX_LOADED_ASSETS
 #define PAK_MAX_ASSETS_MASK (PAK_MAX_ASSETS-1)
+
+// max amount of global pak assets tracked at runtime
+#define PAK_MAX_TRACKED_ASSETS (PAK_MAX_ASSETS/2)
+#define PAK_MAX_TRACKED_ASSETS_MASK (PAK_MAX_TRACKED_ASSETS-1)
 
 // max amount of segments a pak file could have
 #define PAK_MAX_SEGMENTS 20
@@ -37,7 +42,7 @@
 #define PAK_MAX_STREAMING_FILE_HANDLES_PER_SET 4
 
 // max amount of paks that could be loaded at runtime
-#define PAK_MAX_HANDLES 512
+#define PAK_MAX_HANDLES 512															// TODO: rename to PAK_MAX_LOADED_PAKS
 #define PAK_MAX_HANDLES_MASK (PAK_MAX_HANDLES-1)
 
 // max amount of async streaming requests that could be made per pak file, if a
@@ -51,7 +56,8 @@
 // size is below PAK_DECODE_IN_RING_BUFFER_SIZE, the system allocates a
 // buffer with the size of the compressed pak + the value of this define
 // the system should still use the default ring buffer input size for decoding
-// as these pak files get decoded in one-go; there is buffer wrapping going on
+// as these pak files get decoded in one-go; there is no input buffer wrapping
+// going on
 #define PAK_DECODE_IN_RING_BUFFER_SMALL_SIZE 0x1000
 #define PAK_DECODE_IN_RING_BUFFER_SMALL_MASK (PAK_DECODE_IN_RING_BUFFER_SMALL_SIZE-1)
 
@@ -64,6 +70,9 @@
 #define PAK_DECODE_OUT_RING_BUFFER_SIZE 0x400000
 #define PAK_DECODE_OUT_RING_BUFFER_MASK (PAK_DECODE_OUT_RING_BUFFER_SIZE-1)
 
+// max amount to read per async fs read request
+#define PAK_READ_DATA_CHUNK_SIZE (1ull << 19)
+
 // base pak directory containing paks sorted in platform specific subdirectories
 #define PAK_BASE_PATH "paks\\"
 #define PLATFORM_PAK_PATH PAK_BASE_PATH"Win64\\"
@@ -73,7 +82,10 @@
 #define PLATFORM_PAK_OVERRIDE_PATH PAK_BASE_PATH"Win64_override\\"
 
 // the handle that should be returned when a pak failed to load or process
-#define INVALID_PAK_HANDLE -1
+#define INVALID_PAK_HANDLE -1														// TODO: rename to PAK_INVALID_HANDLE
+
+#define PAK_MAX_DISPATCH_LOAD_JOBS 4
+#define PAK_DEFAULT_JOB_GROUP_ID 0x3000
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -116,6 +128,24 @@ union PakPage_t
 //-----------------------------------------------------------------------------
 // Enumerations
 //-----------------------------------------------------------------------------
+enum EPakDecodeMode : int32_t
+{
+	MODE_DISABLED = -1,
+
+	// the default decoder
+	MODE_RTECH,
+	MODE_ZSTD
+};
+
+enum EPakStreamSet
+{
+	STREAMING_SET_MANDATORY = 0,
+	STREAMING_SET_OPTIONAL,
+
+	// number of streaming sets
+	STREAMING_SET_COUNT
+};
+
 enum EPakStatus : int32_t
 {
 	PAK_STATUS_FREED = 0,
@@ -134,15 +164,6 @@ enum EPakStatus : int32_t
 	PAK_STATUS_ERROR = 13,
 	PAK_STATUS_INVALID_PAKHANDLE = 14,
 	PAK_STATUS_BUSY = 15
-};
-
-enum EPakStreamSet
-{
-	STREAMING_SET_MANDATORY = 0,
-	STREAMING_SET_OPTIONAL,
-
-	// number of streaming sets
-	STREAMING_SET_COUNT
 };
 
 struct PakAssetBinding_t
@@ -221,17 +242,152 @@ struct PakAsset_t
 struct PakAssetShort_t
 {
 	PakGuid_t guid;
-	uint32_t unk_8;
+	uint32_t trackerIndex;
 	uint32_t unk_C;
 	void* head;
 	void* cpu;
 };
 
-struct PakGlobals_t
+struct PakAssetTracker_s
 {
-	PakAssetBinding_t assetBindings[PAK_MAX_TYPES]; // [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
-	PakAssetShort_t assets[PAK_MAX_ASSETS];
-	// end size unknown, but there appears to be stuff below too
+	void* memPage;
+	int trackerIndex;
+	int loadedPakIndex;
+	uint8_t assetTypeHashIdx;
+	char unk_11[3];
+	char unk_10[4];
+};
+
+struct PakTracker_s
+{
+	uint32_t numPaksTracked;
+	int unk_4;
+	int unk_8;
+	char gap_C[644100];
+	int loadedAssetIndices[PAK_MAX_HANDLES];
+	char gap_9DC04[522240];
+};
+
+class PakLoadedInfo_t
+{
+public:
+	struct StreamingInfo_t
+	{
+		inline void Reset()
+		{
+			embeddedStarpakName = nullptr;
+			streamFileNumber[0] = FS_ASYNC_FILE_INVALID;
+			streamFileNumber[1] = FS_ASYNC_FILE_INVALID;
+			streamFileNumber[2] = FS_ASYNC_FILE_INVALID;
+			streamFileNumber[3] = FS_ASYNC_FILE_INVALID;
+			streamFileCount = NULL;
+			streamingDisabled = true;
+		}
+
+		char* embeddedStarpakName;
+		int streamFileNumber[PAK_MAX_STREAMING_FILE_HANDLES_PER_SET];
+		int streamFileCount;
+		bool streamingDisabled;
+		char padding_maybe[3];
+	};
+
+	PakHandle_t handle;
+	EPakStatus status;
+	JobID_t loadJobId;
+	uint32_t padding_maybe;
+
+	// the log level of the pak, this is also used for errors if a pak failed
+	// to load; the higher the level, the more important this pak file is
+	int logLevel;
+
+	uint32_t assetCount;
+	const char* fileName;
+	CAlignedMemAlloc* allocator;
+	PakGuid_t* assetGuids; //size of the array is m_nAssetCount
+	void* segmentBuffers[PAK_SEGMENT_BUFFER_TYPES];
+	_QWORD qword50;
+	FILETIME fileTime;
+	PakFile_t* pakFile;
+	StreamingInfo_t streamInfo[STREAMING_SET_COUNT];
+	uint32_t fileHandle;
+	uint8_t m_nUnk5;
+	HMODULE hModule;
+
+}; //Size: 0x00B8/0x00E8
+
+struct PakGlobals_s
+{
+	// [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
+	PakAssetBinding_t assetBindings[PAK_MAX_TYPES];
+	PakAssetShort_t loadedAssets[PAK_MAX_ASSETS];
+
+	// assets that are tracked across all asset types
+	PakAssetTracker_s trackedAssets[PAK_MAX_TRACKED_ASSETS];
+
+	RHashMap trackedAssetMap; // links to 'trackedAssets'
+	RHashMap loadedPakMap;    // links to 'loadedPaks'
+
+	// all currently loaded pak handles
+	PakLoadedInfo_t loadedPaks[PAK_MAX_HANDLES];
+
+	RMultiHashMap unkMap2; // links to 'unkIntArray' and 'unkIntArray2'
+	int unkIntArray[PAK_MAX_TRACKED_ASSETS];
+	int unkIntArray2[PAK_MAX_ASSETS];
+
+	// whether asset streaming (mandatory & optional) is enabled
+	b64 useStreamingSystem;
+
+	// whether we should emulate (fake) our streaming install for debugging
+	b64 emulateStreamingInstallInit;
+	b64 emulateStreamingInstall;
+
+	// mounted # streamable assets (globally across all paks)
+	int64_t numStreamableAssets;
+	b64 hasPendingUnloadJobs;
+
+	// paks that contain tracked assets
+	PakTracker_s* pakTracker;
+
+	// called when threads have to be synced (e.g. syncing the render thread
+	// when we execute the unloading of paks and assets)
+	void* threadSyncFunc;
+
+	// the index to the asset in the trackedAssets array of the last asset we
+	// tracked
+	int lastAssetTrackerIndex;
+	bool updateSplitScreenAnims;
+
+	// the current # pending asset loading jobs
+	int16_t numAssetLoadJobs;
+	JobFifoLock_s fifoLock;
+	JobID_t pakLoadJobId;
+
+	int16_t loadedPakCount;
+	int16_t requestedPakCount;
+
+	PakHandle_t loadedPakHandles[PAK_MAX_HANDLES];
+
+	JobTypeID_t assetBindJobTypes[PAK_MAX_TYPES];
+	JobTypeID_t jobTypeSlots_Unused[PAK_MAX_TYPES];
+
+	JobTypeID_t dispatchLoadJobTypes[PAK_MAX_DISPATCH_LOAD_JOBS];
+	uint8_t dispathLoadJobPriorities[PAK_MAX_DISPATCH_LOAD_JOBS]; // promoted to JobPriority_e
+	uint32_t dispatchLoadJobAffinities[PAK_MAX_DISPATCH_LOAD_JOBS];
+
+	RTL_SRWLOCK cpuDataLock;
+	char unknown_or_unused[32];
+	void* addToMapFunc;
+	void* removeFromMapFunc;
+	__int64 qword_167ED8540;
+	int dword_167ED8548;
+	int dword_167ED854C;
+	__int64 qword_167ED8550;
+	int dword_167ED8558;
+	int unknown_dword_or_nothing;
+	int dword_167ED8560;
+	int numPatchedPaks;
+	const char** patchedPakFiles;
+	uint8_t* patchNumbers;
 };
 
 struct PakPatchFileHeader_t
@@ -275,9 +431,19 @@ struct PakFileHeader_t
 		return headerSize;
 	}
 
-	inline bool IsCompressed() const
+	inline EPakDecodeMode GetCompressionMode() const
 	{
-		return flags & PAK_HEADER_FLAGS_COMPRESSED;
+		if (flags & PAK_HEADER_FLAGS_ZSTREAM_ENCODED)
+			return EPakDecodeMode::MODE_ZSTD;
+
+		// NOTE: this should be the first check once we rebuilt function
+		// 14043F300 and alloc ring buffer for the flags individually instead
+		// instead of having to define the main compress flag (which really
+		// just means that the pak is using the RTech decoder)
+		else if (flags & PAK_HEADER_FLAGS_COMPRESSED)
+			return EPakDecodeMode::MODE_RTECH;
+
+		return EPakDecodeMode::MODE_DISABLED;
 	}
 
 	// file versions
@@ -369,29 +535,45 @@ struct PakDecoder_t
 	uint64_t outputInvMask;
 
 	uint32_t headerOffset;
-	uint32_t padding; // unused data, available for other stuff
 
+	// this field was unused, it now contains the decoder mode
+	EPakDecodeMode decodeMode;
+
+	// NOTE: unless you are in the RTech decoder, use the getter if you need to
+	// get the current pos!!!
 	uint64_t inBufBytePos;
+	// NOTE: unless you are in the RTech decoder, use the getter if you need to
+	// get the current pos!!!
 	uint64_t outBufBytePos;
 
 	size_t bufferSizeNeeded;
 
-	// current byte and current bit of byte
-	uint64_t currentByte;
-	uint32_t currentBit;
+	union
+	{
+		// current byte and current bit of byte
+		uint64_t currentByte;
+	};
 
+	uint32_t currentBit;
 	uint32_t dword6C;
+
 	uint64_t qword70;
 
 	union
 	{
 		size_t compressedStreamSize;
+
+		// compressedStreamSize isn't used on ZStd paks, instead, we need to
+		// store the frame header size
 		size_t frameHeaderSize;
 	};
 
 	union
 	{
 		size_t decompressedStreamSize;
+
+		// decompressedStreamSize isn't used on ZStd paks; use this space for
+		// the decoder
 		ZSTD_DStream* zstreamContext;
 	};
 };
@@ -401,54 +583,6 @@ struct PakRingBufferFrame_t
 	size_t bufIndex;
 	size_t frameLen;
 };
-
-struct PakFile_t;
-
-class PakLoadedInfo_t
-{
-public:
-	struct StreamingInfo_t
-	{
-		inline void Reset()
-		{
-			embeddedStarpakName = nullptr;
-			streamFileNumber[0] = FS_ASYNC_FILE_INVALID;
-			streamFileNumber[1] = FS_ASYNC_FILE_INVALID;
-			streamFileNumber[2] = FS_ASYNC_FILE_INVALID;
-			streamFileNumber[3] = FS_ASYNC_FILE_INVALID;
-			streamFileCount = NULL;
-			streamingDisabled = true;
-		}
-
-		char* embeddedStarpakName;
-		int streamFileNumber[PAK_MAX_STREAMING_FILE_HANDLES_PER_SET];
-		int streamFileCount;
-		bool streamingDisabled;
-		char padding_maybe[3];
-	};
-
-	PakHandle_t handle;
-	EPakStatus status;
-	uint64_t m_nUnk1;
-
-	// the log level of the pak, this is also used for errors if a pak failed
-	// to load; the higher the level, the more important this pak file is
-	int logLevel;
-
-	uint32_t assetCount;
-	const char* fileName;
-	CAlignedMemAlloc* allocator;
-	PakGuid_t* assetGuids; //size of the array is m_nAssetCount
-	void* segmentBuffers[PAK_SEGMENT_BUFFER_TYPES];
-	_QWORD qword50;
-	FILETIME fileTime;
-	PakFile_t* pakFile;
-	StreamingInfo_t streamInfo[STREAMING_SET_COUNT];
-	uint32_t fileHandle;
-	uint8_t m_nUnk5;
-	uint64_t hModule;
-
-}; //Size: 0x00B8/0x00E8
 
 struct PakFileStream_t
 {
@@ -460,20 +594,20 @@ struct PakFileStream_t
 
 		// NOTE: if this is set, the game sets 'PakMemoryData_t::processedPatchedDataSize'
 		// to 'dataOffset'; else its getting set to 'sizeof(PakFileHeader_t)'.
-		bool isCompressed;
+		EPakDecodeMode compressionMode;
 	};
 
 	_QWORD qword0;
-	_QWORD qword8;
+	_QWORD fileSize;
 	int fileHandle;
-	int gap14[32];
+	int asyncRequestHandles[32];
 	_BYTE gap94[32];
-	unsigned int unsigned_intB4;
-	_DWORD dwordB8;
-	_BYTE byteBC;
+	unsigned int numDataChunksProcessed;
+	_DWORD numDataChunks;
+	_BYTE fileReadStatus;
 	bool finishedLoadingPatches;
 	_BYTE gapBE;
-	_BYTE byteBF;
+	_BYTE numLoadedFiles;
 	Descriptor descriptors[PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS];
 	uint8_t* buffer;
 	_QWORD bufferMask;
@@ -536,8 +670,8 @@ struct PakMemoryData_t
 
 	uint64_t qword2D0;
 	PakHandle_t pakId;
-	JobID_t unkJobID;
-	int* qword2E0;
+	JobID_t assetLoadJobId;
+	int* loadedAssetIndices;
 	uint8_t** memPageBuffers;
 
 	PakPatchFileHeader_t* patchHeaders;
@@ -684,22 +818,13 @@ struct PakFile_t
 	}
 };
 
-struct UnknownPakStruct_t
-{
-	uint32_t unk_0;
-	int unk_4;
-	int unk_8;
-	char gap_C[0x9D404];
-	int unk_array_9D410[512];
-	char gap_9DC04[0x7F800];
-};
 
-
-static_assert(sizeof(UnknownPakStruct_t) == 0x11D410);
+static_assert(sizeof(PakTracker_s) == 0x11D410);
 static_assert(sizeof(PakFile_t) == 2224); // S3+
 static_assert(sizeof(PakLoadedInfo_t) == 184);
 static_assert(sizeof(PakDecoder_t) == 136);
 static_assert(sizeof(PakPatchFileHeader_t) == 16);
 static_assert(sizeof(PakPatchDataHeader_t) == 8);
+static_assert(sizeof(PakGlobals_s) == 0xC98A48);
 
 #endif // RTECH_IPACKFILE_H

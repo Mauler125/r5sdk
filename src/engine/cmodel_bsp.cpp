@@ -140,7 +140,7 @@ void Mod_GetAllInstalledMaps()
 
         if (!regexMatches.empty())
         {
-            const string match = regexMatches[1].str();
+            const std::sub_match<const char*>& match = regexMatches[1];
 
             if (match.compare("frontend") == 0)
                 continue; // Frontend contains no BSP's.
@@ -152,8 +152,12 @@ void Mod_GetAllInstalledMaps()
 
                 continue; // Common contains mp_lobby.
             }
-            else if (!g_InstalledMaps.HasElement(match.c_str()))
-                g_InstalledMaps.AddToTail(match.c_str());
+            else
+            {
+                const string mapName = match.str();
+                if (!g_InstalledMaps.HasElement(mapName.c_str()))
+                    g_InstalledMaps.AddToTail(mapName.c_str());
+            }
         }
     }
 }
@@ -232,15 +236,18 @@ void Mod_QueuedPakCacheFrame()
         {
             if (*data->pakName)
             {
-                const int index = data->pakId & PAK_MAX_HANDLES_MASK;
+                PakLoadedInfo_t* const pakInfo = Pak_GetPakInfo(data->pakId);
                 EPakStatus status;
 
+                // TODO: revisit this, this appears incorrect but also the way
+                // respawn does this. it this always supposed to be true on
+                // retail builds?
                 bool keepLoaded = true;
                 data->keepLoaded = true;
 
-                if (g_pLoadedPakInfo[index].handle == data->pakId)
+                if (pakInfo->handle == data->pakId)
                 {
-                    status = g_pLoadedPakInfo[index].status;
+                    status = pakInfo->status;
                     keepLoaded = data->keepLoaded;
                 }
                 else
@@ -359,12 +366,14 @@ void Mod_QueuedPakCacheFrame()
                 {
                     if (!*(_BYTE*)(pMTVFTaskItem + 4))
                     {
-                        if (*g_pPakHasPendingUnloadJobs || *g_pLoadedPakCount != *g_pRequestedPakCount)
+                        JobFifoLock_s* const pakFifoLock = &g_pakGlobals->fifoLock;
+
+                        if (g_pakGlobals->hasPendingUnloadJobs || g_pakGlobals->loadedPakCount != g_pakGlobals->requestedPakCount)
                         {
-                            if (!JT_AcquireFifoLockOrHelp(g_pPakFifoLock)
-                                && !JT_HelpWithJobTypes((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))g_pPakFifoLockWrapper, g_pPakFifoLock, -1i64, 0i64))
+                            if (!JT_AcquireFifoLockOrHelp(pakFifoLock)
+                                && !JT_HelpWithJobTypes(g_pPakFifoLockWrapper, pakFifoLock, -1i64, 0i64))
                             {
-                                JT_HelpWithJobTypesOrSleep((unsigned __int8(__fastcall*)(_QWORD))g_pPakFifoLockWrapper, g_pPakFifoLock, -1i64, 0i64, 0i64, 1);
+                                JT_HelpWithJobTypesOrSleep(g_pPakFifoLockWrapper, pakFifoLock, -1i64, 0i64, 0i64, 1);
                             }
 
                             Mod_UnloadPendingAndPrecacheRequestedPaks();
@@ -374,10 +383,11 @@ void Mod_QueuedPakCacheFrame()
                                 if (*g_bPakFifoLockAcquired)
                                 {
                                     *g_bPakFifoLockAcquired = 0;
-                                    JT_ReleaseFifoLock(g_pPakFifoLock);
+                                    JT_ReleaseFifoLock(pakFifoLock);
                                 }
                             }
-                            JT_ReleaseFifoLock(g_pPakFifoLock);
+
+                            JT_ReleaseFifoLock(pakFifoLock);
 
                             pMTVFTaskItem = *g_pMTVFTaskItem;
                         }
@@ -413,9 +423,9 @@ CHECK_FOR_FAILURE:
 
     if (commonData->pakId != INVALID_PAK_HANDLE)
     {
-        const int infoIndex = (commonData->pakId & PAK_MAX_HANDLES_MASK);
+        const PakLoadedInfo_t* const pli = Pak_GetPakInfo(commonData->pakId);
 
-        if (g_pLoadedPakInfo[infoIndex].handle != commonData->pakId || ((g_pLoadedPakInfo[infoIndex].status - 9) & 0xFFFFFFFB) != 0)
+        if (pli->handle != commonData->pakId || ((pli->status - 9) & 0xFFFFFFFB) != 0)
         {
             *g_pPakPrecacheJobFinished = false;
             return;
