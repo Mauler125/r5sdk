@@ -62,6 +62,14 @@ public:
 
     inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
 
+public:
+    // Console command callbacks
+    static void ToggleConsole_f();
+    static void LogHistory_f();
+    static void RemoveLine_f(const CCommand& args);
+    static void ClearLines_f();
+    static void ClearHistory_f();
+
 private: // Internal only.
     void AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)*/;
 

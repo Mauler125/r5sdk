@@ -719,79 +719,19 @@ void ConVar_PurgeHostNames(void)
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: ConCommand registration
-//-----------------------------------------------------------------------------
-void ConCommand_StaticInit(void)
-{
-	//-------------------------------------------------------------------------
-	// ENGINE DLL                                                             |
-	ConCommand::StaticCreate("bhit", "Bullet-hit trajectory debug.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL, BHit_f, nullptr);
+static ConCommand bhit("bhit", BHit_f, "Bullet-hit trajectory debug", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL);
+
 #ifndef DEDICATED
-	ConCommand::StaticCreate("line", "Draw a debug line.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Line_f, nullptr);
-	ConCommand::StaticCreate("sphere", "Draw a debug sphere.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Sphere_f, nullptr);
-	ConCommand::StaticCreate("capsule", "Draw a debug capsule.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Capsule_f, nullptr);
+static ConCommand line("line", Line_f, "Draw a debug line", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+static ConCommand sphere("sphere", Sphere_f, "Draw a debug sphere", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+static ConCommand capsule("capsule", Capsule_f, "Draw a debug capsule", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
 #endif //!DEDICATED
-	ConCommand::StaticCreate("con_help", "Shows the colors and description of each context.", nullptr, FCVAR_RELEASE, CON_Help_f, nullptr);
-#ifndef CLIENT_DLL
-	ConCommand::StaticCreate("reload_playlists", "Reloads the playlists file.", nullptr, FCVAR_RELEASE, Host_ReloadPlaylists_f, nullptr);
-#endif // !CLIENT_DLL
-	//-------------------------------------------------------------------------
-	// SERVER DLL                                                             |
-#ifndef CLIENT_DLL
-	ConCommand::StaticCreate("script", "Run input code as SERVER script on the VM.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
-	ConCommand::StaticCreate("kick", "Kick a client from the server by user name.", "kick \"<userId>\"", FCVAR_RELEASE, Host_Kick_f, nullptr);
-	ConCommand::StaticCreate("kickid", "Kick a client from the server by handle, nucleus id or ip address.", "kickid \"<handle>\"/\"<nucleusId>/<ipAddress>\"", FCVAR_RELEASE, Host_KickID_f, nullptr);
-	ConCommand::StaticCreate("ban", "Bans a client from the server by user name.", "ban <userId>", FCVAR_RELEASE, Host_Ban_f, nullptr);
-	ConCommand::StaticCreate("banid", "Bans a client from the server by handle, nucleus id or ip address.", "banid \"<handle>\"/\"<nucleusId>/<ipAddress>\"", FCVAR_RELEASE, Host_BanID_f, nullptr);
-	ConCommand::StaticCreate("unban", "Unbans a client from the server by nucleus id or ip address.", "unban \"<nucleusId>\"/\"<ipAddress>\"", FCVAR_RELEASE, Host_Unban_f, nullptr);
-	ConCommand::StaticCreate("sv_reloadbanlist", "Reloads the banned list.", nullptr, FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
-	ConCommand::StaticCreate("sv_addbot", "Creates a bot on the server.", nullptr, FCVAR_RELEASE, CC_CreateFakePlayer_f, nullptr);
-	ConCommand::StaticCreate("navmesh_hotswap", "Hot swap the NavMesh for all hulls.", nullptr, FCVAR_DEVELOPMENTONLY, Detour_HotSwap_f, nullptr);
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
-	//-------------------------------------------------------------------------
-	// CLIENT DLL                                                             |
-	ConCommand::StaticCreate("script_client", "Run input code as CLIENT script on the VM.", nullptr, FCVAR_DEVELOPMENTONLY| FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_ClientScript_f, nullptr);
-	ConCommand::StaticCreate("rcon", "Forward RCON query to remote server.", "rcon \"<query>\"", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_CmdQuery_f, nullptr);
-	ConCommand::StaticCreate("rcon_disconnect", "Disconnect from RCON server.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_Disconnect_f, nullptr);
 
-	ConCommand::StaticCreate("con_history", "Shows the developer console submission history.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_LogHistory_f, nullptr);
-	ConCommand::StaticCreate("con_removeline", "Removes a range of lines from the developer console.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_RemoveLine_f, nullptr);
-	ConCommand::StaticCreate("con_clearlines", "Clears all lines from the developer console.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_ClearLines_f, nullptr);
-	ConCommand::StaticCreate("con_clearhistory", "Clears all submissions from the developer console history.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_ClearHistory_f, nullptr);
-
-	ConCommand::StaticCreate("toggleconsole", "Show/hide the developer console.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, ToggleConsole_f, nullptr);
-	ConCommand::StaticCreate("togglebrowser", "Show/hide the server browser.", nullptr, FCVAR_CLIENTDLL | FCVAR_RELEASE, ToggleBrowser_f, nullptr);
-	//-------------------------------------------------------------------------
-	// UI DLL                                                                 |
-	ConCommand::StaticCreate("script_ui", "Run input code as UI script on the VM.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_UIScript_f, nullptr);
-#endif // !DEDICATED
-	//-------------------------------------------------------------------------
-	// FILESYSTEM API                                                         |
-	ConCommand::StaticCreate("fs_vpk_mount", "Mount a VPK file for FileSystem usage.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Mount_f, nullptr);
-	ConCommand::StaticCreate("fs_vpk_unmount", "Unmount a VPK file and clear its cache.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Unmount_f, nullptr);
-	ConCommand::StaticCreate("fs_vpk_pack", "Pack a VPK file from current workspace.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Pack_f, nullptr);
-	ConCommand::StaticCreate("fs_vpk_unpack", "Unpack all files from a VPK file.", nullptr, FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
-	//-------------------------------------------------------------------------
-	// RTECH API                                                              |
-	ConCommand::StaticCreate("pak_strtoguid", "Calculates the GUID from input data.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_StringToGUID_f, nullptr);
-	ConCommand::StaticCreate("pak_compress", "Compresses specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_Compress_f, RTech_PakCompress_f_CompletionFunc);
-	ConCommand::StaticCreate("pak_decompress", "Decompresses specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_Decompress_f, RTech_PakDecompress_f_CompletionFunc);
-	ConCommand::StaticCreate("pak_requestload", "Requests asynchronous load for specified RPAK file.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_RequestLoad_f, RTech_PakLoad_f_CompletionFunc);
-	ConCommand::StaticCreate("pak_requestunload", "Requests unload for specified RPAK file or ID.", nullptr, FCVAR_DEVELOPMENTONLY, Pak_RequestUnload_f, RTech_PakUnload_f_CompletionFunc);
-	ConCommand::StaticCreate("pak_swap", "Requests swap for specified RPAK file or ID", nullptr, FCVAR_DEVELOPMENTONLY, Pak_Swap_f, nullptr);
-	ConCommand::StaticCreate("pak_listpaks", "Display a list of the loaded Pak files.", nullptr, FCVAR_RELEASE, Pak_ListPaks_f, nullptr);
-	ConCommand::StaticCreate("pak_listtypes", "Display a list of the registered asset types.", nullptr, FCVAR_RELEASE, Pak_ListTypes_f, nullptr);
-	//-------------------------------------------------------------------------
-	// NETCHANNEL                                                             |
-	ConCommand::StaticCreate("net_setkey", "Sets user specified base64 net key.", nullptr, FCVAR_RELEASE, NET_SetKey_f, nullptr);
-	ConCommand::StaticCreate("net_generatekey", "Generates and sets a random base64 net key.", nullptr, FCVAR_RELEASE, NET_GenerateKey_f, nullptr);
-	//-------------------------------------------------------------------------
-	// TIER0                                                                  |
-	if (!IsCert() && !IsRetail())
-		ConCommand::StaticCreate("sig_getadr", "Logs the sigscan results to the console.", nullptr, FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN, SIG_GetAdr_f, nullptr);
-}
+// TODO: move VPK building code to separate file and place this in 'packedstore.cpp'
+static ConCommand fs_vpk_mount("fs_vpk_mount", VPK_Mount_f, "Mount a VPK file for FileSystem usage", FCVAR_DEVELOPMENTONLY);
+static ConCommand fs_vpk_unmount("fs_vpk_unmount", VPK_Unmount_f, "Unmount a VPK file and clear its cache", FCVAR_DEVELOPMENTONLY);
+static ConCommand fs_vpk_pack("fs_vpk_pack", VPK_Pack_f, "Pack a VPK file from current workspace", FCVAR_DEVELOPMENTONLY);
+static ConCommand fs_vpk_unpack("fs_vpk_unpack", VPK_Unpack_f, "Unpack all files from a VPK file", FCVAR_DEVELOPMENTONLY);
 
 //-----------------------------------------------------------------------------
 // Purpose: shipped ConCommand initialization

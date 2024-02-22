@@ -18,6 +18,23 @@
 #endif // !_TOOLS
 
 #ifndef _TOOLS
+static void NET_SetKey_f(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	NET_SetKey(args.Arg(1));
+}
+static void NET_GenerateKey_f()
+{
+	NET_GenerateKey();
+}
+
+static ConCommand net_setkey("net_setkey", NET_SetKey_f, "Sets user specified base64 net key", FCVAR_RELEASE);
+static ConCommand net_generatekey("net_generatekey", NET_GenerateKey_f, "Generates and sets a random base64 net key", FCVAR_RELEASE);
+
 //-----------------------------------------------------------------------------
 // Purpose: hook and log the receive datagram
 // Input  : iSocket - 

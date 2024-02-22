@@ -86,7 +86,7 @@ void CCommandLine::AppendParametersFromFile(const char* const pszConfig)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CCommandLine* g_pCmdLine = nullptr;
+CCommandLine* g_pCmdLine = CModule::GetExportedSymbol(CModule::GetProcessEnvironmentBlock()->ImageBaseAddress, "g_pCmdLine").RCast<CCommandLine*>();
 
 
 void VCommandLine::Detour(const bool bAttach) const

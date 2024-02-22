@@ -23,6 +23,13 @@ History:
 #include "engine/cmd.h"
 #include "gameui/IConsole.h"
 
+static ConCommand toggleconsole("toggleconsole", CConsole::ToggleConsole_f, "Show/hide the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+
+static ConCommand con_history("con_history", CConsole::LogHistory_f, "Shows the developer console submission history", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+static ConCommand con_removeline("con_removeline", CConsole::RemoveLine_f, "Removes a range of lines from the developer console", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+static ConCommand con_clearlines("con_clearlines", CConsole::ClearLines_f, "Clears all lines from the developer console", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+static ConCommand con_clearhistory("con_clearhistory", CConsole::ClearHistory_f, "Clears all submissions from the developer console history", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -524,18 +531,24 @@ bool CConsole::AutoComplete(void)
     else if (m_bCanAutoComplete) // Command completion callback.
     {
         ResetAutoComplete();
-        string svCommand;
 
-        for (size_t i = 0; i < sizeof(m_szInputBuf); i++)
+        char szCommand[sizeof(m_szInputBuf)];
+        size_t i = 0;
+
+        // Truncate everything past (and including) the space to get the
+        // command string.
+        for (; i < sizeof(m_szInputBuf); i++)
         {
             if (isspace(m_szInputBuf[i]))
             {
                 break;
             }
-            svCommand += m_szInputBuf[i];
+
+            szCommand[i] = m_szInputBuf[i];
         }
 
-        ConCommand* pCommand = g_pCVar->FindCommand(svCommand.c_str());
+        szCommand[i] = '\0';
+        ConCommand* pCommand = g_pCVar->FindCommand(szCommand);
 
         if (pCommand && pCommand->CanAutoComplete())
         {
@@ -547,9 +560,9 @@ bool CConsole::AutoComplete(void)
                 return false;
             }
 
-            for (int i = 0; i < iret; ++i)
+            for (int j = 0; j < iret; ++j)
             {
-                m_vSuggest.push_back(CSuggest(commands[i].String(), COMMAND_COMPLETION_MARKER));
+                m_vSuggest.push_back(CSuggest(commands[j].String(), COMMAND_COMPLETION_MARKER));
             }
         }
         else
@@ -1150,6 +1163,60 @@ void CConsole::SetStyleVar(void)
 
     ImGui::SetNextWindowSize(ImVec2(1200, 524), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: toggles the console
+//-----------------------------------------------------------------------------
+void CConsole::ToggleConsole_f()
+{
+    g_Console.m_bActivate ^= true;
+    ResetInput(); // Disable input to game when console is drawn.
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: shows the game console submission history.
+//-----------------------------------------------------------------------------
+void CConsole::LogHistory_f()
+{
+    const vector<string> vHistory = g_Console.GetHistory();
+    for (size_t i = 0, nh = vHistory.size(); i < nh; i++)
+    {
+        Msg(eDLL_T::COMMON, "%3d: %s\n", i, vHistory[i].c_str());
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: removes a range of lines from the console.
+//-----------------------------------------------------------------------------
+void CConsole::RemoveLine_f(const CCommand& args)
+{
+    if (args.ArgC() < 3)
+    {
+        Msg(eDLL_T::CLIENT, "Usage 'con_removeline': start(int) end(int)\n");
+        return;
+    }
+
+    int start = atoi(args[1]);
+    int end = atoi(args[2]);
+
+    g_Console.RemoveLog(start, end);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears all lines from the developer console.
+//-----------------------------------------------------------------------------
+void CConsole::ClearLines_f()
+{
+    g_Console.ClearLog();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears all submissions from the developer console history.
+//-----------------------------------------------------------------------------
+void CConsole::ClearHistory_f()
+{
+    g_Console.ClearHistory();
 }
 
 CConsole g_Console;

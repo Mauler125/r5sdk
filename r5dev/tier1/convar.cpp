@@ -7,13 +7,238 @@
 #include "tier1/convar.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: Checks if ConCommand has requested flags.
-// Input  : nFlags - 
-// Output : True if ConCommand has nFlags.
+// Statically constructed list of ConCommandBases, 
+// used for registering them with the ICVar interface
 //-----------------------------------------------------------------------------
-bool ConCommandBase::HasFlags(int nFlags) const
+ConCommandBase* ConCommandBase::s_pConCommandBases = NULL;
+IConCommandBaseAccessor* ConCommandBase::s_pAccessor = NULL;
+
+static int s_nCVarFlag = 0;
+
+// An unique identifier indicating which DLL this convar came from
+static int s_nDLLIdentifier = -1;
+static bool s_bRegistered = false;
+
+class CDefaultAccessor : public IConCommandBaseAccessor
 {
-	return m_nFlags & nFlags;
+public:
+	virtual bool RegisterConCommandBase(ConCommandBase* const pVar)
+	{
+		// Link to engine's list instead
+		g_pCVar->RegisterConCommand(pVar);
+		return true;
+	}
+};
+
+static CDefaultAccessor s_DefaultAccessor;
+
+//-----------------------------------------------------------------------------
+// Called by the framework to register ConCommandBases with the ICVar
+//-----------------------------------------------------------------------------
+void ConVar_Register(int nCVarFlag, IConCommandBaseAccessor* pAccessor)
+{
+	if (!g_pCVar || s_bRegistered)
+		return;
+
+	Assert(s_nDLLIdentifier < 0);
+	s_bRegistered = true;
+	s_nCVarFlag = nCVarFlag;
+	s_nDLLIdentifier = g_pCVar->AllocateDLLIdentifier();
+
+	ConCommandBase* pCur, * pNext;
+
+	ConCommandBase::s_pAccessor = pAccessor ? pAccessor : &s_DefaultAccessor;
+	pCur = ConCommandBase::s_pConCommandBases;
+
+	while (pCur)
+	{
+		pNext = pCur->m_pNext;
+		pCur->AddFlags(s_nCVarFlag);
+		pCur->Init();
+		pCur = pNext;
+	}
+
+	g_pCVar->ProcessQueuedMaterialThreadConVarSets();
+
+	ConCommandBase::s_pConCommandBases = NULL;
+}
+
+void ConVar_Unregister()
+{
+	if (!g_pCVar || !s_bRegistered)
+		return;
+
+	Assert(s_nDLLIdentifier >= 0);
+
+	// Do this after unregister!!!
+	g_pCVar->UnregisterConCommands(s_nDLLIdentifier);
+	s_nDLLIdentifier = -1;
+	s_bRegistered = false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if this is a command 
+//-----------------------------------------------------------------------------
+bool ConCommandBase::IsCommand(void) const
+{
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Checks if ConCommand has requested flags.
+// Input  : flag - 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool ConCommandBase::IsFlagSet(const int flag) const
+{
+	return (flag & m_nFlags) ? true : false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : flags - 
+//-----------------------------------------------------------------------------
+void ConCommandBase::AddFlags(const int flags)
+{
+	m_nFlags |= flags;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: removes specified flags
+//-----------------------------------------------------------------------------
+void ConCommandBase::RemoveFlags(const int flags)
+{
+	m_nFlags &= ~flags;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns current flags
+//-----------------------------------------------------------------------------
+int ConCommandBase::GetFlags() const
+{
+	return m_nFlags;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return name of the command/var
+// Output : const char
+//-----------------------------------------------------------------------------
+const char* ConCommandBase::GetName(void) const
+{
+	return m_pszName;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : const char
+//-----------------------------------------------------------------------------
+const char* ConCommandBase::GetHelpText(void) const
+{
+	return m_pszHelpString;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : const char
+//-----------------------------------------------------------------------------
+const char* ConCommandBase::GetUsageText(void) const
+{
+	return m_pszUsageString;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void ConCommandBase::SetAccessor(IConCommandBaseAccessor* const pAccessor)
+{
+	m_pAccessor = pAccessor;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Has this cvar been registered
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool ConCommandBase::IsRegistered(void) const
+{
+	return m_bRegistered;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the DLL identifier
+//-----------------------------------------------------------------------------
+int ConCommandBase::GetDLLIdentifier(void) const
+{
+	return s_nDLLIdentifier;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Used internally by OneTimeInit to initialize.
+//-----------------------------------------------------------------------------
+void ConCommandBase::Init()
+{
+	if (s_pAccessor)
+	{
+		s_pAccessor->RegisterConCommandBase(this);
+	}
+}
+
+void ConCommandBase::Shutdown()
+{
+	if (g_pCVar)
+	{
+		g_pCVar->UnregisterConCommand(this);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *pName - 
+//			callback - 
+//			*pHelpString - 
+//			flags - 
+//-----------------------------------------------------------------------------
+ConCommandBase* ConCommandBase::Create(const char* pName, const char* pHelpString, int flags, const char* pszUsageString)
+{
+	m_bRegistered = false;
+
+	// Name should be static data
+	Assert(pName);
+	m_pszName = pName;
+
+	m_pszHelpString = pHelpString ? pHelpString : "";
+	m_pszUsageString = pszUsageString ? pszUsageString : "";
+
+	m_pAccessor = nullptr;
+
+	m_nFlags = flags;
+
+	const int releaseMask = FCVAR_ARCHIVE|FCVAR_USERINFO|FCVAR_CHEAT|
+		FCVAR_RELEASE|FCVAR_ARCHIVE_PLAYERPROFILE|FCVAR_CLIENTCMD_CAN_EXECUTE;
+
+	if (!(m_nFlags & releaseMask))
+	{
+		m_nFlags |= FCVAR_DEVELOPMENTONLY;
+	}
+
+	if (!(m_nFlags & FCVAR_UNREGISTERED))
+	{
+		m_pNext = s_pConCommandBases;
+		s_pConCommandBases = this;
+	}
+	else
+	{
+		// It's unregistered
+		m_pNext = NULL;
+	}
+
+	// If s_pAccessor is already set (this ConVar is not a global variable),
+	//  register it.
+	if (s_pAccessor)
+	{
+		Init();
+	}
+
+	return m_pNext;
 }
 
 //-----------------------------------------------------------------------------
@@ -65,48 +290,142 @@ int DefaultCompletionFunc(const char* partial, char commands[COMMAND_COMPLETION_
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: create
-//-----------------------------------------------------------------------------
-ConCommand* ConCommand::StaticCreate(const char* pszName, const char* pszHelpString, const char* pszUsageString,
-	int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCompletionFunc)
+ConCommand::ConCommand(const char* pName, FnCommandCallbackV1_t callback, const char* pHelpString /*= 0*/, 
+	int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/, const char* pszUsageString /*= 0*/)
 {
-	ConCommand* pCommand = (ConCommand*)malloc(sizeof(ConCommand));
-	*(ConCommand**)pCommand = g_pConCommandVFTable;
+	m_nNullCallBack = DefaultNullSub;
+	m_pSubCallback = nullptr;
 
-	pCommand->m_pNext = nullptr;
-	pCommand->m_bRegistered = false;
+	// Set the callback
+	m_fnCommandCallbackV1 = callback;
+	m_bUsingNewCommandCallback = false;
+	m_bUsingCommandCallbackInterface = false;
+	m_fnCompletionCallback = completionFunc ? completionFunc : DefaultCompletionFunc;
+	m_bHasCompletionCallback = completionFunc != 0 ? true : false;
 
-	pCommand->m_pszName = pszName;
-	pCommand->m_pszHelpString = pszHelpString;
-	pCommand->m_pszUsageString = pszUsageString;
-	pCommand->s_pAccessor = nullptr;
-	pCommand->m_nFlags = nFlags;
+	// Setup the rest
+	BaseClass::Create(pName, pHelpString, flags, pszUsageString);
+}
 
-	pCommand->m_nNullCallBack = DefaultNullSub;
-	pCommand->m_pSubCallback = nullptr;
-	pCommand->m_fnCommandCallback = pCallback;
-	pCommand->m_bHasCompletionCallback = pCompletionFunc != nullptr ? true : false;
-	pCommand->m_bUsingNewCommandCallback = true;
-	pCommand->m_bUsingCommandCallbackInterface = false;
-	pCommand->m_fnCompletionCallback = pCompletionFunc ? pCompletionFunc : DefaultCompletionFunc;
+ConCommand::ConCommand(const char* pName, FnCommandCallback_t callback, const char* pHelpString /*= 0*/, 
+	int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/, const char* pszUsageString /*= 0*/)
+{
+	m_nNullCallBack = DefaultNullSub;
+	m_pSubCallback = nullptr;
 
-	g_pCVar->RegisterConCommand(pCommand);
-	return pCommand;
+	// Set the callback
+	m_fnCommandCallback = callback;
+	m_bUsingNewCommandCallback = true;
+	m_fnCompletionCallback = completionFunc ? completionFunc : DefaultCompletionFunc;
+	m_bHasCompletionCallback = completionFunc != 0 ? true : false;
+	m_bUsingCommandCallbackInterface = false;
+
+	// Setup the rest
+	BaseClass::Create(pName, pHelpString, flags, pszUsageString);
+}
+
+ConCommand::ConCommand(const char* pName, ICommandCallback* pCallback, const char* pHelpString /*= 0*/, 
+	int flags /*= 0*/, ICommandCompletionCallback* pCompletionCallback /*= 0*/, const char* pszUsageString /*= 0*/)
+{
+	m_nNullCallBack = DefaultNullSub;
+	m_pSubCallback = nullptr;
+
+	// Set the callback
+	m_pCommandCallback = pCallback;
+	m_bUsingNewCommandCallback = false;
+	m_pCommandCompletionCallback = pCompletionCallback;
+	m_bHasCompletionCallback = (pCompletionCallback != 0);
+	m_bUsingCommandCallbackInterface = true;
+
+	// Setup the rest
+	BaseClass::Create(pName, pHelpString, flags, pszUsageString);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: construct/allocate
+// Purpose: destructor
 //-----------------------------------------------------------------------------
-ConCommand::ConCommand()
-	: m_nNullCallBack(nullptr)
-	, m_pSubCallback(nullptr)
-	, m_fnCommandCallbackV1(nullptr)
-	, m_fnCompletionCallback(nullptr)
-	, m_bHasCompletionCallback(false)
-	, m_bUsingNewCommandCallback(false)
-	, m_bUsingCommandCallbackInterface(false)
+ConCommand::~ConCommand()
 {
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if this is a command 
+//-----------------------------------------------------------------------------
+bool ConCommand::IsCommand(void) const
+{
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: calls the autocompletion method to get autocompletion suggestions
+//-----------------------------------------------------------------------------
+int	ConCommand::AutoCompleteSuggest(const char* partial, CUtlVector< CUtlString >& commands)
+{
+	if (m_bUsingCommandCallbackInterface)
+	{
+		if (!m_pCommandCompletionCallback)
+			return 0;
+
+		return m_pCommandCompletionCallback->CommandCompletionCallback(partial, commands);
+	}
+
+	Assert(m_fnCompletionCallback);
+
+	if (!m_fnCompletionCallback)
+		return 0;
+
+	char rgpchCommands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH];
+	const int iret = (m_fnCompletionCallback)(partial, rgpchCommands);
+
+	for (int i = 0; i < iret; ++i)
+	{
+		const CUtlString str = rgpchCommands[i];
+		commands.AddToTail(str);
+	}
+
+	return iret;
+}
+
+//-----------------------------------------------------------------------------
+// Returns true if the console command can autocomplete 
+//-----------------------------------------------------------------------------
+bool ConCommand::CanAutoComplete(void) const
+{
+	return m_bHasCompletionCallback;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: invoke the function if there is one
+//-----------------------------------------------------------------------------
+void ConCommand::Dispatch(const CCommand& command)
+{
+	if (m_bUsingNewCommandCallback)
+	{
+		if (m_fnCommandCallback)
+		{
+			(*m_fnCommandCallback)(command);
+			return;
+		}
+	}
+	else if (m_bUsingCommandCallbackInterface)
+	{
+		if (m_pCommandCallback)
+		{
+			m_pCommandCallback->CommandCallback(command);
+			return;
+		}
+	}
+	else
+	{
+		if (m_fnCommandCallbackV1)
+		{
+			(*m_fnCommandCallbackV1)();
+			return;
+		}
+	}
+
+	// Command without callback!!!
+	AssertMsg(0, "Encountered ConCommand '%s' without a callback!\n", GetName());
 }
 
 //-----------------------------------------------------------------------------
@@ -126,7 +445,7 @@ ConVar* ConVar::StaticCreate(const char* pszName, const char* pszDefaultValue,
 	pNewConVar->m_pszName = nullptr;
 	pNewConVar->m_pszHelpString = nullptr;
 	pNewConVar->m_pszUsageString = nullptr;
-	pNewConVar->s_pAccessor = nullptr;
+	pNewConVar->m_pAccessor = nullptr;
 	pNewConVar->m_nFlags = FCVAR_NONE;
 	pNewConVar->m_pNext = nullptr;
 

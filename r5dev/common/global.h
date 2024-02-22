@@ -299,7 +299,6 @@ void ConVar_StaticInit(void);
 void ConVar_InitShipped(void);
 void ConVar_PurgeShipped(void);
 void ConVar_PurgeHostNames(void);
-void ConCommand_StaticInit(void);
 void ConCommand_InitShipped(void);
 void ConCommand_PurgeShipped(void);
 

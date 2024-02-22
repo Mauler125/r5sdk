@@ -11,6 +11,19 @@ KeyValues** g_pPlaylistKeyValues = nullptr; // Get the KeyValue for the playlist
 vector<string> g_vAllPlaylists = { "<<null>>" };
 std::mutex g_PlaylistsVecMutex;
 
+/*
+=====================
+Host_ReloadPlaylists_f
+=====================
+*/
+static void Host_ReloadPlaylists_f()
+{
+	v_Playlists_Download_f();
+	Playlists_SDKInit(); // Re-Init playlist.
+}
+
+static ConCommand playlist_reload("playlist_reload", Host_ReloadPlaylists_f, "Reloads the playlists file", FCVAR_RELEASE);
+
 //-----------------------------------------------------------------------------
 // Purpose: Initializes the playlist globals
 //-----------------------------------------------------------------------------
