@@ -102,6 +102,20 @@ const char* Pak_StatusToString(const EPakStatus status)
 }
 
 //-----------------------------------------------------------------------------
+// returns pak decoder as string
+//-----------------------------------------------------------------------------
+const char* Pak_DecoderToString(const EPakDecodeMode mode)
+{
+	switch (mode)
+	{
+	case EPakDecodeMode::MODE_RTECH: return "RTech";
+	case EPakDecodeMode::MODE_ZSTD: return "ZStd";
+	}
+
+	UNREACHABLE();
+}
+
+//-----------------------------------------------------------------------------
 // compute a guid from input string data
 //-----------------------------------------------------------------------------
 PakGuid_t Pak_StringToGuid(const char* const string)
@@ -146,22 +160,9 @@ PakGuid_t Pak_StringToGuid(const char* const string)
 //-----------------------------------------------------------------------------
 // gets information about loaded pak file via pak id
 //-----------------------------------------------------------------------------
-const PakLoadedInfo_t* Pak_GetPakInfo(const PakHandle_t pakId)
+PakLoadedInfo_t* Pak_GetPakInfo(const PakHandle_t pakId)
 {
-	for (int16_t i = 0; i < *g_pLoadedPakCount; ++i)
-	{
-		const PakLoadedInfo_t* const info = &g_pLoadedPakInfo[i];
-		if (!info)
-			continue;
-
-		if (info->handle != pakId)
-			continue;
-
-		return info;
-	}
-
-	Warning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for handle '%d'\n", __FUNCTION__, pakId);
-	return nullptr;
+	return &g_pakGlobals->loadedPaks[pakId & PAK_MAX_HANDLES_MASK];
 }
 
 //-----------------------------------------------------------------------------
@@ -169,9 +170,9 @@ const PakLoadedInfo_t* Pak_GetPakInfo(const PakHandle_t pakId)
 //-----------------------------------------------------------------------------
 const PakLoadedInfo_t* Pak_GetPakInfo(const char* const pakName)
 {
-	for (int16_t i = 0; i < *g_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < g_pakGlobals->loadedPakCount; ++i)
 	{
-		const PakLoadedInfo_t* const info = &g_pLoadedPakInfo[i];
+		const PakLoadedInfo_t* const info = &g_pakGlobals->loadedPaks[i];
 		if (!info)
 			continue;
 

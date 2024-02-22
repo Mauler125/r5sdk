@@ -4,8 +4,13 @@
 typedef uint32_t JobID_t;
 typedef uint8_t JobTypeID_t;
 
+typedef bool(*JobHelpCallback_t)(__int64, _DWORD*, __int64, _QWORD*);
+
 struct JobFifoLock_s
 {
+	int id;
+	int depth;
+	short tls[64];
 };
 
 struct JobContext_s
@@ -35,13 +40,14 @@ extern JobID_t JTGuts_AddJob(JobTypeID_t jobTypeId, JobID_t jobId, void* callbac
 inline void(*JT_ParallelCall)(void);
 inline void*(*JT_HelpWithAnything)(bool bShouldLoadPak);
 
-inline bool(*JT_HelpWithJobTypes)(__int64(__fastcall* callback)(__int64, _DWORD*, __int64, _QWORD*), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4);
-inline __int64(*JT_HelpWithJobTypesOrSleep)(unsigned __int8(__fastcall* a1)(_QWORD), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6);
+inline bool(*JT_HelpWithJobTypes)(JobHelpCallback_t, JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4);
+inline __int64(*JT_HelpWithJobTypesOrSleep)(JobHelpCallback_t, JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6);
 
 inline bool(*JT_AcquireFifoLockOrHelp)(struct JobFifoLock_s* pFifo);
 inline void(*JT_ReleaseFifoLock)(struct JobFifoLock_s* pFifo);
 
 inline void(*JT_EndJobGroup)(const JobID_t jobId);
+
 inline unsigned int (*JT_AllocateJob)(); // Returns an index to the 'job_JT_Context' array
 inline JobID_t(*JTGuts_AddJob_Internal)(JobTypeID_t jobTypeId, JobID_t jobId, void* callbackfunc, void* callbackArg, int jobIndex, JobContext_s* context);
 

@@ -303,9 +303,9 @@ void Pak_ListPaks_f(const CCommand& args)
 
 	uint32_t nTotalLoaded = 0;
 
-	for (int16_t i = 0, n = *g_pLoadedPakCount; i < n; ++i)
+	for (int16_t i = 0, n = g_pakGlobals->loadedPakCount; i < n; ++i)
 	{
-		const PakLoadedInfo_t& info = g_pLoadedPakInfo[i];
+		const PakLoadedInfo_t& info = g_pakGlobals->loadedPaks[i];
 
 		if (info.status == EPakStatus::PAK_STATUS_FREED)
 			continue;
@@ -335,7 +335,7 @@ void Pak_ListTypes_f(const CCommand& args)
 
 	for (int8_t i = 0; i < PAK_MAX_TYPES; ++i)
 	{
-		PakAssetBinding_t* type = &g_pPakGlobals->assetBindings[i];
+		PakAssetBinding_t* type = &g_pakGlobals->assetBindings[i];
 
 		if (!type->description)
 			continue;

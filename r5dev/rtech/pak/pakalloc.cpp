@@ -17,7 +17,7 @@ void Pak_AlignSegmentHeaders(PakFile_t* const pak, PakSegmentDescriptor_t* const
 
     for (uint8_t i = 0; i < PAK_MAX_TYPES; ++i)
     {
-        const PakAssetBinding_t& binding = g_pPakGlobals->assetBindings[i];
+        const PakAssetBinding_t& binding = g_pakGlobals->assetBindings[i];
 
         if (desc->assetTypeCount[i])
         {

@@ -34,7 +34,7 @@ static bool Pak_ResolveAssetDependency(const PakFile_t* const pak, PakGuid_t cur
             return false;
 
         currentIndex &= PAK_MAX_ASSETS_MASK;
-        currentGuid = g_pPakGlobals->assets[currentIndex].guid;
+        currentGuid = g_pakGlobals->loadedAssets[currentIndex].guid;
 
         if (currentGuid == targetGuid)
             return true;
@@ -49,7 +49,7 @@ static bool Pak_ResolveAssetDependency(const PakFile_t* const pak, PakGuid_t cur
 void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const asset)
 {
     PakPage_t* const pGuidDescriptors = &pak->memoryData.guidDescriptors[asset->dependenciesIndex];
-    volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pPakGlobals) + 0x17 * (pak->memoryData.pakId & PAK_MAX_HANDLES_MASK) + 0x160212));
+    uint32_t* const v5 = (uint32_t*)g_pakGlobals->loadedPaks[pak->memoryData.pakId & PAK_MAX_HANDLES_MASK].qword50;
 
     if (pak_debugrelations->GetBool())
         Msg(eDLL_T::RTECH, "Resolving relations for asset: '0x%-16llX', dependencies: %-4u; in pak '%s'\n",
@@ -64,7 +64,7 @@ void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const ass
 
         // get asset index
         int currentIndex = targetGuid & PAK_MAX_ASSETS_MASK;
-        const PakGuid_t currentGuid = g_pPakGlobals->assets[currentIndex].guid;
+        const PakGuid_t currentGuid = g_pakGlobals->loadedAssets[currentIndex].guid;
 
         const int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
         *reinterpret_cast<PakGuid_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 2])) = targetGuid;
@@ -100,12 +100,12 @@ void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const ass
                     }
                 }
 
-                currentIndex = pak->memoryData.qword2E0[a];
+                currentIndex = pak->memoryData.loadedAssetIndices[a];
             }
         }
 
         // finally write the pointer to the guid entry
-        *pCurrentGuid = g_pPakGlobals->assets[currentIndex].head;
+        *pCurrentGuid = g_pakGlobals->loadedAssets[currentIndex].head;
     }
 }
 
@@ -131,59 +131,57 @@ uint32_t Pak_ProcessRemainingPagePointers(PakFile_t* const pak)
     return processedPointers;
 }
 
-void __fastcall Rebuild_14043E030(PakFile_t* const pak)
+void Pak_RunAssetLoadingJobs(PakFile_t* const pak)
 {
-    __int64 numAssets; // rsi
-    PakAsset_t* pakAsset; // rdi
-    __int64 _numAssets; // r14
-    unsigned int assetBind; // ebp
-    __int64 v13; // rcx
-    __int64 qword2D8_low; // rdi
-    JobID_t qword2D8_high; // ebp
-    JobTypeID_t v16; // si
-
     pak->numProcessedPointers = Pak_ProcessRemainingPagePointers(pak);
 
-    numAssets = (unsigned int)pak->processedAssetCount;
-    if ((_DWORD)numAssets != pak->memoryData.pakHeader.assetCount)
+    const uint32_t numAssets = pak->processedAssetCount;
+
+    if (numAssets == pak->memoryData.pakHeader.assetCount)
+        return;
+
+    PakAsset_t* pakAsset = &pak->memoryData.assetEntries[numAssets];
+
+    if (pakAsset->pageEnd > pak->processedPageCount)
+        return;
+
+    for (uint32_t currentAsset = numAssets; g_pakGlobals->numAssetLoadJobs <= 0xC8u;)
     {
-        pakAsset = &pak->memoryData.assetEntries[numAssets];
-        _numAssets = (unsigned int)numAssets;
-        if ((int)pakAsset->pageEnd <= pak->processedPageCount)
+        pak->memoryData.loadedAssetIndices[currentAsset] = Pak_TrackAsset(pak, pakAsset);
+
+        _InterlockedIncrement16(&g_pakGlobals->numAssetLoadJobs);
+
+        const uint8_t assetBind = pakAsset->HashTableIndexForAssetType();
+
+        if (g_pakGlobals->assetBindings[assetBind].loadAssetFunc)
         {
-            while ((unsigned __int16)*word_167ED7BDE <= 0xC8u)
-            {
-                assetBind = pakAsset->HashTableIndexForAssetType();
-                pak->memoryData.qword2E0[_numAssets] = (int)sub_14043D3C0(pak, pakAsset);
-                _InterlockedIncrement16(word_167ED7BDE);
-                v13 = assetBind;
-                if (g_pPakGlobals->assetBindings[(unsigned __int64)assetBind].loadAssetFunc)
-                {
-                    qword2D8_low = pak->memoryData.pakId;
-                    qword2D8_high = pak->memoryData.unkJobID;
-                    v16 = *((_BYTE*)&*g_pPakGlobals + v13 + 13207872);
+            const JobTypeID_t jobTypeId = g_pakGlobals->assetBindJobTypes[assetBind];
 
-                    JTGuts_AddJob(v16, qword2D8_high, (void*)qword2D8_low, (void*)_numAssets);
-                }
-                else
-                {
-                    if (_InterlockedExchangeAdd16((volatile signed __int16*)&pakAsset->numRemainingDependencies, 0xFFFFu) == 1)
-                        sub_14043D150(pak, pakAsset, (unsigned int)numAssets, assetBind);
-                    _InterlockedDecrement16(word_167ED7BDE);
-                }
-                numAssets = (unsigned int)++pak->processedAssetCount;
-                if ((_DWORD)numAssets == pak->memoryData.pakHeader.assetCount)
-                {
-                    JT_EndJobGroup(pak->memoryData.unkJobID);
-                    return;
-                }
-                _numAssets = (unsigned int)numAssets;
-                pakAsset = &pak->memoryData.assetEntries[numAssets];
+            // have to cast it to a bigger size to send it as param to JTGuts_AddJob().
+            const int64_t pakId = pak->memoryData.pakId;
 
-                if (pakAsset->pageEnd > pak->processedPageCount)
-                    return;
-            }
+            JTGuts_AddJob(jobTypeId, pak->memoryData.assetLoadJobId, (void*)pakId, (void*)(uint64_t)currentAsset);
         }
+        else
+        {
+            if (_InterlockedExchangeAdd16((volatile signed __int16*)&pakAsset->numRemainingDependencies, 0xFFFFu) == 1)
+                Pak_ProcessAssetRelationsAndResolveDependencies(pak, pakAsset, currentAsset, assetBind);
+
+            _InterlockedDecrement16(&g_pakGlobals->numAssetLoadJobs);
+        }
+
+        currentAsset = ++pak->processedAssetCount;
+
+        if (currentAsset == pak->memoryData.pakHeader.assetCount)
+        {
+            JT_EndJobGroup(pak->memoryData.assetLoadJobId);
+            return;
+        }
+
+        pakAsset = &pak->memoryData.assetEntries[currentAsset];
+
+        if (pakAsset->pageEnd > pak->processedPageCount)
+            return;
     }
 }
 
@@ -217,7 +215,7 @@ void Pak_UnloadAsync(PakHandle_t handle)
 {
     const PakLoadedInfo_t* const pakInfo = Pak_GetPakInfo(handle);
 
-    if (pakInfo && pakInfo->fileName)
+    if (pakInfo->fileName)
         Msg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo->fileName);
 
     v_Pak_UnloadAsync(handle);
@@ -234,246 +232,170 @@ static const int s_patchCmdToBytesToProcess[] = { CMD_INVALID, CMD_INVALID, CMD_
 //----------------------------------------------------------------------------------
 bool Pak_ProcessPakFile(PakFile_t* const pak)
 {
-    PakFileHeader_t* pakHeader; // r8
-    PakFileStream_t* fileStream; // rsi
-    PakMemoryData_t* memoryData; // r14
-    __int64 dwordB8; // rcx
-    uint32_t v6; // eax
-    __int64 v7; // rax
-    char v8; // r13
-    uint64_t bytesProcessed; // r12
-    unsigned __int64 v16; // r9
-    unsigned __int8 v17; // cl
-    unsigned __int64 v18; // r8
-    uint8_t byte1F8; // al
-    uint8_t byte1FD; // cl
-    PakFileStream_t::Descriptor* v22; // rdi
-    uint64_t dataOffset; // rax
-    PakDecoder_t* decodeContext; // rbp
-    uint64_t decompressedSize; // rax
-    uint64_t compressedSize; // rdx
-    uint64_t qword1D0; // rcx
-    __int64 v28; // rax
-    unsigned int numBitsRemaining; // r8d
-    int v35; // ecx
-    int v39; // r10d
-    int v40; // r9d
-    uint64_t v42; // ecx
-    unsigned int v43; // r8d
-    uint64_t v44; // r12d
-    char byteBC; // r15
-    __int64 v46; // rbp
-    __int64 v47; // r8
-    unsigned __int64 v48; // rbp
-    unsigned __int64 qword8; // rax
-    __int64 patchCount; // rcx
-    char c; // al
-    char* it; // rcx
-    char* i; // rdx
-    int v56; // edi
-    unsigned __int64 v58; // rdx
-    char pakPatchPath[MAX_PATH]; // [rsp+40h] [rbp-148h] BYREF
-    unsigned __int64 v62; // [rsp+190h] [rbp+8h]
-    size_t numBytesToProcess; // [rsp+198h] [rbp+10h] BYREF
+    PakFileStream_t* const fileStream = &pak->fileStream;
+    PakMemoryData_t* const memoryData = &pak->memoryData;
 
-    fileStream = &pak->fileStream;
-    memoryData = &pak->memoryData;
-    dwordB8 = (unsigned int)pak->fileStream.dwordB8;
+    // first request is always just the header?
+    size_t readStart = sizeof(PakFileHeader_t);
 
-    if ((_DWORD)dwordB8)
-        v62 = dwordB8 << 19;
-    else
-        v62 = sizeof(PakFileHeader_t);
+    if (fileStream->numDataChunks > 0)
+        readStart = fileStream->numDataChunks * PAK_READ_DATA_CHUNK_SIZE;
 
-    v6 = fileStream->unsigned_intB4;
-    if (v6 != dwordB8)
+    for (; fileStream->numDataChunksProcessed != fileStream->numDataChunks; fileStream->numDataChunksProcessed++)
     {
-        while (1)
+        const int v7 = fileStream->numDataChunksProcessed & 0x1F;
+        const uint8_t v8 = fileStream->gap94[v7];
+        if (v8 != 1)
         {
-            v7 = v6 & 0x1F;
-            v8 = fileStream->gap94[v7];
-            if (v8 != 1)
+            size_t bytesProcessed = 0;
+            const char* statusMsg = "(no reason)";
+            const uint8_t currentStatus = g_pakLoadApi->CheckAsyncRequest(fileStream->asyncRequestHandles[v7], &bytesProcessed, &statusMsg);
+
+            if (currentStatus == AsyncHandleStatus_t::FS_ASYNC_ERROR)
+                Error(eDLL_T::RTECH, EXIT_FAILURE, "Error reading pak file \"%s\" -- %s\n", pak->memoryData.fileName, statusMsg);
+            else if (currentStatus == AsyncHandleStatus_t::FS_ASYNC_PENDING)
                 break;
-        LABEL_17:
-            v6 = fileStream->unsigned_intB4 + 1;
-            fileStream->unsigned_intB4 = v6;
-            if (v6 == fileStream->dwordB8)
-                goto LABEL_18;
-        }
 
-        const char* statusMsg = "(no reason)";
-        const uint8_t currentStatus = g_pakLoadApi->CheckAsyncRequest((unsigned char)fileStream->gap14[v7], &bytesProcessed, &statusMsg);
-
-        if (currentStatus == AsyncHandleStatus_t::FS_ASYNC_PENDING)
-            goto LABEL_18;
-
-        if (currentStatus == AsyncHandleStatus_t::FS_ASYNC_ERROR)
-            Error(eDLL_T::RTECH, EXIT_FAILURE, "Error reading pak file \"%s\" -- %s\n", pak->memoryData.fileName, statusMsg);
-
-        fileStream->bytesStreamed += bytesProcessed;
-        if (v8)
-        {
-            pakHeader = &pak->memoryData.pakHeader;
-            v16 = (unsigned __int64)fileStream->unsigned_intB4 << 19;
-            v17 = fileStream->byteBF++ & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK;
-
-            if (v8 == 2)
+            fileStream->bytesStreamed += bytesProcessed;
+            if (v8)
             {
-                v18 = v16 & fileStream->bufferMask;
-                fileStream->bytesStreamed = bytesProcessed + v16;
-                pakHeader = (PakFileHeader_t*)&fileStream->buffer[v18];
+                const PakFileHeader_t* pakHeader = &pak->memoryData.pakHeader;
+                const uint64_t v16 = fileStream->numDataChunksProcessed * PAK_READ_DATA_CHUNK_SIZE;
+
+                if (v8 == 2)
+                {
+                    fileStream->bytesStreamed = bytesProcessed + v16;
+                    pakHeader = (PakFileHeader_t*)&fileStream->buffer[v16 & fileStream->bufferMask];
+                }
+
+                const uint8_t fileIndex = fileStream->numLoadedFiles++ & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK;
+
+                //printf("v16: %lld\n", v16);
+                fileStream->descriptors[fileIndex].dataOffset = v16 + sizeof(PakFileHeader_t);
+                fileStream->descriptors[fileIndex].compressedSize = v16 + pakHeader->compressedSize;
+                fileStream->descriptors[fileIndex].decompressedSize = pakHeader->decompressedSize;
+                fileStream->descriptors[fileIndex].compressionMode = pakHeader->GetCompressionMode();
             }
-
-            fileStream->descriptors[v17].dataOffset = v16 + sizeof(PakFileHeader_t);
-            fileStream->descriptors[v17].compressedSize = v16 + pakHeader->compressedSize;
-            fileStream->descriptors[v17].decompressedSize = pakHeader->decompressedSize;
-            fileStream->descriptors[v17].isCompressed = pakHeader->IsCompressed();
         }
-        goto LABEL_17;
     }
-LABEL_18:
-    byte1F8 = pak->byte1F8;
-    if (byte1F8 != fileStream->byteBF)
+
+    size_t qword1D0 = memoryData->processedPatchedDataSize;
+
+    for (; pak->byte1F8 != fileStream->numLoadedFiles; pak->byte1F8++)
     {
-        byte1FD = pak->byte1FD;
-        const bool useZStream = pak->GetHeader().flags & PAK_HEADER_FLAGS_ZSTREAM;
+        PakFileStream_t::Descriptor* v22 = &fileStream->descriptors[pak->byte1F8 & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK];
 
-        do
+        if (pak->byte1FD)
         {
-            v22 = &fileStream->descriptors[byte1F8 & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK];
+            pak->byte1FD = false;
+            pak->inputBytePos = v22->dataOffset;
 
-            if (byte1FD)
+            if (v22->compressionMode != EPakDecodeMode::MODE_DISABLED)
             {
-                pak->byte1FD = 0;
-                pak->inputBytePos = v22->dataOffset;
-
-                if (v22->isCompressed)
-                {
-                    pak->isOffsetted_MAYBE = 0;
-                    pak->isCompressed = 1;
-                    dataOffset = sizeof(PakFileHeader_t);
-                }
-                else
-                {
-                    pak->isOffsetted_MAYBE = 1;
-                    pak->isCompressed = 0;
-                    dataOffset = v22->dataOffset;
-                }
-
-                memoryData->processedPatchedDataSize = dataOffset;
-
-                if (!pak->isCompressed)
-                {
-                LABEL_35:
-                    compressedSize = v22->compressedSize;
-                    qword1D0 = compressedSize;
-                    if (fileStream->bytesStreamed < compressedSize)
-                        qword1D0 = fileStream->bytesStreamed;
-                    goto LABEL_41;
-                }
-
-                decodeContext = &pak->pakDecoder;
-
-                decompressedSize = Pak_InitDecoder(&pak->pakDecoder,
-                    fileStream->buffer, pak->decompBuffer,
-                    PAK_DECODE_IN_RING_BUFFER_MASK, PAK_DECODE_OUT_RING_BUFFER_MASK,
-                    v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
-                    v22->dataOffset - sizeof(PakFileHeader_t), sizeof(PakFileHeader_t), useZStream);
-
-                if (decompressedSize != v22->decompressedSize)
-                    Error(eDLL_T::RTECH, EXIT_FAILURE,
-                        "Error reading pak file \"%s\" -- decompressed size %zu doesn't match expected value %zu\n",
-                        pak->memoryData.fileName,
-                        decompressedSize,
-                        pak->memoryData.pakHeader.decompressedSize);
+                pak->isOffsetted_MAYBE = false;
+                pak->isCompressed = true;
+                memoryData->processedPatchedDataSize = sizeof(PakFileHeader_t);
             }
             else
             {
-                decodeContext = &pak->pakDecoder;
+                pak->isOffsetted_MAYBE = true;
+                pak->isCompressed = false;
+                //printf("v22->dataOffset: %lld\n", v22->dataOffset);
+                memoryData->processedPatchedDataSize = v22->dataOffset;
             }
 
-            if (!pak->isCompressed)
-                goto LABEL_35;
+            if (pak->isCompressed)
+            {
+                const size_t decompressedSize = Pak_InitDecoder(&pak->pakDecoder,
+                    fileStream->buffer, pak->decompBuffer,
+                    PAK_DECODE_IN_RING_BUFFER_MASK, PAK_DECODE_OUT_RING_BUFFER_MASK,
+                    v22->compressedSize - (v22->dataOffset - sizeof(PakFileHeader_t)),
+                    v22->dataOffset - sizeof(PakFileHeader_t), sizeof(PakFileHeader_t), v22->compressionMode);
 
+                if (decompressedSize != v22->decompressedSize)
+                    Error(eDLL_T::RTECH, EXIT_FAILURE,
+                        "Error reading pak file \"%s\" with decoder \"%s\" -- decompressed size %zu doesn't match expected value %zu\n",
+                        pak->memoryData.fileName,
+                        Pak_DecoderToString(v22->compressionMode),
+                        decompressedSize,
+                        pak->memoryData.pakHeader.decompressedSize);
+            }
+        }
+
+        if (pak->isCompressed)
+        {
             qword1D0 = pak->pakDecoder.outBufBytePos;
 
             if (qword1D0 != pak->pakDecoder.decompSize)
             {
-                const bool didDecode = Pak_StreamToBufferDecode(decodeContext, fileStream->bytesStreamed, memoryData->processedPatchedDataSize + PAK_DECODE_OUT_RING_BUFFER_SIZE, useZStream);
+                const bool didDecode = Pak_StreamToBufferDecode(&pak->pakDecoder, 
+                    fileStream->bytesStreamed, (memoryData->processedPatchedDataSize + PAK_DECODE_OUT_RING_BUFFER_SIZE), v22->compressionMode);
 
                 qword1D0 = pak->pakDecoder.outBufBytePos;
+
                 pak->inputBytePos = pak->pakDecoder.inBufBytePos;
 
                 if (didDecode)
                     DevMsg(eDLL_T::RTECH, "%s: pak '%s' decoded successfully\n", __FUNCTION__, pak->GetName());
             }
+        }
+        else
+        {
+            qword1D0 = Min(v22->compressedSize, fileStream->bytesStreamed);
+        }
 
-            compressedSize = v22->compressedSize;
+        if (pak->inputBytePos != v22->compressedSize || memoryData->processedPatchedDataSize != qword1D0)
+            break;
 
-        LABEL_41:
-            if (pak->inputBytePos != compressedSize || memoryData->processedPatchedDataSize != qword1D0)
-                goto LABEL_45;
-
-            byte1FD = 1;
-            byte1F8 = pak->byte1F8 + 1;
-            pak->byte1FD = 1;
-            pak->byte1F8 = byte1F8;
-        } while (byte1F8 != fileStream->byteBF);
+        pak->byte1FD = true;
+        qword1D0 = memoryData->processedPatchedDataSize;
     }
 
-    qword1D0 = memoryData->processedPatchedDataSize;
-LABEL_45:
-    v28 = memoryData->field_2A8;
-    numBytesToProcess = qword1D0 - memoryData->processedPatchedDataSize;
+    size_t numBytesToProcess = qword1D0 - memoryData->processedPatchedDataSize;
 
-    if (memoryData->patchSrcSize + v28)
+    // DEBUG: REMOVE
+    if ((long long)pak->memoryData.patchFunc == 0x14043E2A0)
+        pak->memoryData.patchFunc = g_pakPatchApi[0];
+
+    while (memoryData->patchSrcSize + memoryData->field_2A8)
     {
-        do
+        // if there are no bytes left to process in this patch operation
+        if (!memoryData->numBytesToProcess_maybe)
         {
-            // if there are no bytes left to process in this patch operation
-            if (!memoryData->numBytesToProcess_maybe)
+            RBitRead& bitbuf = memoryData->bitBuf;
+            bitbuf.ConsumeData(memoryData->patchData, bitbuf.BitsAvailable());
+
+            // advance patch data buffer by the number of bytes that have just been fetched
+            memoryData->patchData = &memoryData->patchData[bitbuf.BitsAvailable() >> 3];
+
+            // store the number of bits remaining to complete the data read
+            bitbuf.m_bitsAvailable = bitbuf.BitsAvailable() & 7; // number of bits above a whole byte
+
+            const __int8 cmd = memoryData->patchCommands[bitbuf.ReadBits(6)];
+
+            bitbuf.DiscardBits(memoryData->PATCH_field_68[bitbuf.ReadBits(6)]);
+
+            // get the next patch function to execute
+            memoryData->patchFunc = g_pakPatchApi[cmd];
+
+            if (cmd <= 3u)
             {
-                RBitRead& bitbuf = memoryData->bitBuf;
+                const uint8_t bitExponent = memoryData->PATCH_unk2[bitbuf.ReadBits(8)]; // number of stored bits for the data size
 
-                numBitsRemaining = bitbuf.m_bitsRemaining; // number of "free" bits in the bitbuf (how many to fetch)
+                bitbuf.DiscardBits(memoryData->PATCH_unk3[bitbuf.ReadBits(8)]);
 
-                // fetch remaining bits
-                bitbuf.m_dataBuf |= *(_QWORD*)memoryData->patchData << (64 - (unsigned __int8)numBitsRemaining);
+                memoryData->numBytesToProcess_maybe = (1ull << bitExponent) + bitbuf.ReadBits(bitExponent);
 
-                // advance patch data buffer by the number of bytes that have just been fetched
-                memoryData->patchData = &memoryData->patchData[numBitsRemaining >> 3];
-
-                // store the number of bits remaining to complete the data read
-                bitbuf.m_bitsRemaining = numBitsRemaining & 7; // number of bits above a whole byte
-
-                const unsigned __int8 index1 = static_cast<unsigned __int8>(bitbuf.ReadBits(6));
-                v35 = memoryData->PATCH_field_68[index1]; // number of bits to discard from bitbuf
-                __int8 cmd = memoryData->patchCommands[index1];
-
-                bitbuf.DiscardBits(v35);
-
-                // get the next patch function to execute
-                memoryData->patchFunc = g_pakPatchApi[cmd];
-
-                if (cmd <= 3u)
-                {
-                    const unsigned __int8 index2 = static_cast<unsigned __int8>(bitbuf.ReadBits(8));
-                    v39 = memoryData->PATCH_unk3[index2];
-                    v40 = memoryData->PATCH_unk2[index2]; // number of stored bits for the data size
-
-                    bitbuf.DiscardBits(v39);
-
-                    memoryData->numBytesToProcess_maybe = (1ull << v40) + bitbuf.ReadBits(v40);
-
-                    bitbuf.DiscardBits(v40);
-                }
-                else
-                {
-                    memoryData->numBytesToProcess_maybe = s_patchCmdToBytesToProcess[cmd];
-                }
+                bitbuf.DiscardBits(bitExponent);
             }
+            else
+            {
+                memoryData->numBytesToProcess_maybe = s_patchCmdToBytesToProcess[cmd];
+            }
+        }
 
-        } while (pak->memoryData.patchFunc(pak, &numBytesToProcess) && memoryData->patchSrcSize + memoryData->field_2A8);
+        if (!pak->memoryData.patchFunc(pak, &numBytesToProcess))
+            break;
     }
 
     if (pak->isOffsetted_MAYBE)
@@ -481,120 +403,118 @@ LABEL_45:
 
     if (!fileStream->finishedLoadingPatches)
     {
-        v42 = fileStream->unsigned_intB4;
-        v43 = fileStream->dwordB8;
+        const size_t v42 = min(fileStream->numDataChunksProcessed, pak->inputBytePos >> 19);
 
-        if ((unsigned int)(pak->inputBytePos >> 19) < v42)
-            v42 = pak->inputBytePos >> 19;
+        //if ((unsigned int)(pak->inputBytePos >> 19) < v42)
+        //    v42 = pak->inputBytePos >> 19;
 
-        v44 = v42 + 32;
-
-        if (v43 != v42 + 32)
+        while (fileStream->numDataChunks != v42 + 32)
         {
-            while (1)
+            const int8_t requestIdx = fileStream->numDataChunks & 0x1F;
+            const size_t readOffsetEnd = (fileStream->numDataChunks + 1ull) * PAK_READ_DATA_CHUNK_SIZE;
+
+            if (fileStream->fileReadStatus == 1)
             {
-                byteBC = fileStream->byteBC;
-                v46 = v43;
-                v47 = v43 & 0x1F;
-                v48 = (v46 + 1) << 19;
+                fileStream->asyncRequestHandles[requestIdx] = FS_ASYNC_REQ_INVALID;
+                fileStream->gap94[requestIdx] = 1;
 
-                if (byteBC == 1)
-                    break;
+                if (((requestIdx + 1) & PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS_MASK) == 0)
+                    fileStream->fileReadStatus = 2;
 
-                qword8 = fileStream->qword8;
-                if (v62 < qword8)
+                ++fileStream->numDataChunks;
+                readStart = readOffsetEnd;
+            }
+            else
+            {
+                if (readStart < fileStream->fileSize)
                 {
-                    if (v48 < qword8)
-                        qword8 = v48;
+                    const size_t lenToRead = Min(fileStream->fileSize, readOffsetEnd);
 
-                    fileStream->gap14[v47] = v_FS_ReadAsyncFile(
+                    const size_t readOffset = readStart - fileStream->qword0;
+                    const size_t readSize = lenToRead - readStart;
+
+                    fileStream->asyncRequestHandles[requestIdx] = v_FS_ReadAsyncFile(
                         fileStream->fileHandle,
-                        v62 - fileStream->qword0,
-                        qword8 - v62,
-                        &fileStream->buffer[v62 & fileStream->bufferMask],
-                        0i64,
-                        0i64,
+                        readOffset,
+                        readSize,
+                        &fileStream->buffer[readStart & fileStream->bufferMask],
+                        0,
+                        0,
                         4);
 
-                    fileStream->gap94[v47] = byteBC;
-                    fileStream->byteBC = 0;
-                    goto LABEL_65;
+                    fileStream->gap94[requestIdx] = fileStream->fileReadStatus;
+                    fileStream->fileReadStatus = 0;
+
+                    ++fileStream->numDataChunks;
+                    readStart = readOffsetEnd;
                 }
-
-                if (pak->patchCount >= pak->memoryData.pakHeader.patchIndex)
+                else
                 {
-                    FS_CloseAsyncFile((short)fileStream->fileHandle);
-                    fileStream->fileHandle = INVALID_PAK_HANDLE;
-                    fileStream->qword0 = 0i64;
-                    fileStream->finishedLoadingPatches = true;
-
-                    return memoryData->patchSrcSize == 0;
-                }
-
-                if (!pak->dword14)
-                    return memoryData->patchSrcSize == 0;
-
-                sprintf(pakPatchPath, PLATFORM_PAK_PATH"%s", pak->memoryData.fileName);
-                patchCount = pak->patchCount++;
-
-                // get path of next patch rpak to load
-                if (pak->memoryData.patchIndices[patchCount])
-                {
-                    c = pakPatchPath[0];
-                    it = pakPatchPath;
-
-                    for (i = nullptr; c; ++it)
+                    if (pak->patchCount >= pak->memoryData.pakHeader.patchIndex)
                     {
-                        if (c == '.')
-                        {
-                            i = it;
-                        }
-                        else if (c == '\\' || c == '/')
-                        {
-                            i = nullptr;
-                        }
-                        c = it[1];
+                        FS_CloseAsyncFile(fileStream->fileHandle);
+                        fileStream->fileHandle = INVALID_PAK_HANDLE;
+                        fileStream->qword0 = 0;
+                        fileStream->finishedLoadingPatches = true;
+
+                        return memoryData->patchSrcSize == 0;
                     }
-                    if (i)
-                        it = i;
 
-                    // replace extension '.rpak' with '(xx).rpak'
-                    snprintf(it, &pakPatchPath[sizeof(pakPatchPath)] - it,
-                        "(%02u).rpak", pak->memoryData.patchIndices[patchCount]);
+                    if (!pak->dword14)
+                        return memoryData->patchSrcSize == 0;
+
+                    char pakPatchPath[MAX_PATH] = {};
+                    sprintf(pakPatchPath, PLATFORM_PAK_PATH"%s", pak->memoryData.fileName);
+
+                    // get path of next patch rpak to load
+                    if (pak->memoryData.patchIndices[pak->patchCount])
+                    {
+                        char* pExtension = nullptr;
+
+                        char* it = pakPatchPath;
+                        while (*it)
+                        {
+                            if (*it == '.')
+                                pExtension = it;
+                            else if (*it == '\\' || *it == '/')
+                                pExtension = nullptr;
+
+                            ++it;
+                        }
+
+                        if (pExtension)
+                            it = pExtension;
+
+                        // replace extension '.rpak' with '(xx).rpak'
+                        snprintf(it, &pakPatchPath[sizeof(pakPatchPath)] - it,
+                            "(%02u).rpak", pak->memoryData.patchIndices[pak->patchCount]);
+                    }
+
+                    const int patchFileHandle = FS_OpenAsyncFile(pakPatchPath, 5, &numBytesToProcess);
+
+                    //printf("[%s] Opened pak '%s' with file handle %i\n", pak->GetName(), pakPatchPath, patchFileHandle);
+
+                    if (patchFileHandle == FS_ASYNC_FILE_INVALID)
+                        Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't open file \"%s\".\n", pakPatchPath);
+
+                    if (numBytesToProcess < pak->memoryData.patchHeaders[pak->patchCount].compressedSize)
+                        Error(eDLL_T::RTECH, EXIT_FAILURE, "File \"%s\" appears truncated; read size: %zu < expected size: %zu.\n",
+                            pakPatchPath, numBytesToProcess, pak->memoryData.patchHeaders[pak->patchCount].compressedSize);
+
+                    FS_CloseAsyncFile(fileStream->fileHandle);
+
+                    fileStream->fileHandle = patchFileHandle;
+
+                    const size_t v58 = ALIGN_VALUE(fileStream->numDataChunks, 8ull) * PAK_READ_DATA_CHUNK_SIZE;
+                    fileStream->fileReadStatus = (fileStream->numDataChunks == ALIGN_VALUE(fileStream->numDataChunks, 8ull)) + 1;
+
+                    //printf("[%s] dwordB8: %i, v58: %lld, byteBC: %i, numFiles: %i\n", pak->GetName(), fileStream->numDataChunks, v58, fileStream->byteBC, fileStream->numLoadedFiles);
+                    fileStream->qword0 = v58;
+                    fileStream->fileSize = v58 + pak->memoryData.patchHeaders[pak->patchCount].compressedSize;
+
+                    pak->patchCount++;
                 }
-
-                v56 = FS_OpenAsyncFile(pakPatchPath, 5i64, &numBytesToProcess);
-
-                if (v56 == FS_ASYNC_FILE_INVALID)
-                    Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't open file \"%s\".\n", pakPatchPath);
-
-                if (numBytesToProcess < pak->memoryData.patchHeaders[patchCount].compressedSize)
-                    Error(eDLL_T::RTECH, EXIT_FAILURE, "File \"%s\" appears truncated; read size: %zu < expected size: %zu.\n",
-                        pakPatchPath, numBytesToProcess, pak->memoryData.patchHeaders[patchCount].compressedSize);
-
-                FS_CloseAsyncFile((short)fileStream->fileHandle);
-
-                v43 = fileStream->dwordB8;
-                fileStream->fileHandle = v56;
-                v58 = (unsigned __int64)((v43 + 7) & 0xFFFFFFF8) << 19;
-                fileStream->qword0 = v58;
-                fileStream->byteBC = (v43 == ((v43 + 7) & 0xFFFFFFF8)) + 1;
-                fileStream->qword8 = v58 + pak->memoryData.patchHeaders[patchCount].compressedSize;
-            LABEL_84:
-                if (v43 == v44)
-                    return memoryData->patchSrcSize == 0;
             }
-
-            fileStream->gap14[v47] = -2;
-            fileStream->gap94[v47] = 1;
-
-            if ((((_BYTE)v47 + 1) & 7) == 0)
-                fileStream->byteBC = 2;
-
-        LABEL_65:
-            v43 = ++fileStream->dwordB8;
-            v62 = v48;
-            goto LABEL_84;
         }
     }
 
@@ -605,7 +525,7 @@ LABEL_45:
 // if this is a header page, fetch info from the next unprocessed asset and copy over the asset's header
 bool SetupNextPageForPatching(PakLoadedInfo_t* a1, PakFile_t* pak)
 {
-    Rebuild_14043E030(pak);
+    Pak_RunAssetLoadingJobs(pak);
 
     // numProcessedPointers has just been set in the above function call
     pak->memoryData.numShiftedPointers = pak->numProcessedPointers;
@@ -638,7 +558,7 @@ bool SetupNextPageForPatching(PakLoadedInfo_t* a1, PakFile_t* pak)
     int assetTypeIdx = pakAsset->HashTableIndexForAssetType();
 
     pak->memoryData.patchDstPtr = reinterpret_cast<char*>(a1->segmentBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
-    pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pPakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
+    pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
 
     return true;
 }
@@ -741,7 +661,7 @@ bool Pak_ProcessAssets(PakLoadedInfo_t* const a1)
 
             pak->memoryData.patchDstPtr = reinterpret_cast<char*>(a1->segmentBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
 
-            pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pPakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
+            pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
         }
         else
         {
@@ -754,7 +674,7 @@ bool Pak_ProcessAssets(PakLoadedInfo_t* const a1)
         }
     }
 
-    if (!JT_IsJobDone(pak->memoryData.unkJobID))
+    if (!JT_IsJobDone(pak->memoryData.assetLoadJobId))
         return false;
 
     uint32_t i = 0;
@@ -767,44 +687,55 @@ bool Pak_ProcessAssets(PakLoadedInfo_t* const a1)
         {
             //printf("[%s] processing deps for %llX (%.4s)\n", pak->GetName(), pAsset->guid, (char*)&pAsset->magic);
             Pak_ResolveAssetRelations(pak, pAsset);
-            const int v36 = pak->memoryData.qword2E0[i];
 
-            if (dword_167A40B3C[6 * g_pPakGlobals->assets[v36].unk_8] == j)
+            const int assetIndex = pak->memoryData.loadedAssetIndices[i];
+            const PakAssetShort_t& loadedAsset = g_pakGlobals->loadedAssets[assetIndex];
+
+            if (g_pakGlobals->trackedAssets[loadedAsset.trackerIndex].loadedPakIndex == j)
             {
-                if (*qword_167ED7BC8)
+                PakTracker_s* pakTracker = g_pakGlobals->pakTracker;
+
+                if (pakTracker)
                 {
-                    uint64_t v38 = 0;
-                    if ((*qword_167ED7BC8)->unk_0)
+                    if (pakTracker->numPaksTracked)
                     {
-                        int* v39 = (*qword_167ED7BC8)->unk_array_9D410;
-                        while (*v39 != v36)
+                        int* trackerIndices = g_pakGlobals->pakTracker->loadedAssetIndices;
+                        uint32_t count = 0;
+
+                        while (*trackerIndices != assetIndex)
                         {
-                            ++v38;
-                            ++v39;
-                            if (v38 >= (*qword_167ED7BC8)->unk_0)
+                            ++count;
+                            ++trackerIndices;
+
+                            if (count >= pakTracker->numPaksTracked)
                                 goto LABEL_41;
                         }
+
                         goto LABEL_42;
                     }
                 }
                 else
                 {
-                    //printf("allocating thing\n");
-                    *qword_167ED7BC8 = reinterpret_cast<UnknownPakStruct_t*>(AlignedMemAlloc()->Alloc(0x11D410, 8));
-                    (*qword_167ED7BC8)->unk_0 = 0;
-                    (*qword_167ED7BC8)->unk_4 = 0;
-                    (*qword_167ED7BC8)->unk_8 = 0;
+                   pakTracker = reinterpret_cast<PakTracker_s*>(AlignedMemAlloc()->Alloc(sizeof(PakTracker_s), 8));
+                   pakTracker->numPaksTracked = 0;
+                   pakTracker->unk_4 = 0;
+                   pakTracker->unk_8 = 0;
+
+                   g_pakGlobals->pakTracker = pakTracker;
                 }
             LABEL_41:
-                (*qword_167ED7BC8)->unk_array_9D410[(*qword_167ED7BC8)->unk_0] = v36;
-                ++(*qword_167ED7BC8)->unk_0;
+
+                pakTracker->loadedAssetIndices[pakTracker->numPaksTracked] = assetIndex;
+                ++pakTracker->numPaksTracked;
             }
         }
     LABEL_42:
         ++i;
     }
-    if (*qword_167ED7BC8)
+
+    if (g_pakGlobals->pakTracker)
         sub_14043D870(a1, 0);
+
     a1->status = EPakStatus::PAK_STATUS_LOADED;
 
     return true;
@@ -820,7 +751,7 @@ void Pak_StubInvalidAssetBinds(PakFile_t* const pak, PakSegmentDescriptor_t* con
         const uint8_t assetTypeIndex = asset->HashTableIndexForAssetType();
         desc->assetTypeCount[assetTypeIndex]++;
 
-        PakAssetBinding_t* const assetBinding = &g_pPakGlobals->assetBindings[assetTypeIndex];
+        PakAssetBinding_t* const assetBinding = &g_pakGlobals->assetBindings[assetTypeIndex];
 
         if (assetBinding->type == PakAssetBinding_t::NONE)
         {
@@ -897,10 +828,8 @@ bool Pak_StartLoadingPak(PakLoadedInfo_t* const loadedInfo)
 
     const PakFileHeader_t& pakHdr = pakFile->GetHeader();
 
-    if (*g_pUseAssetStreamingSystem)
-    {
+    if (Pak_StreamingEnabled())
         Pak_LoadStreamingData(loadedInfo);
-    }
 
     const __int64 v106 = pakHdr.descriptorCount + 2 * (pakHdr.patchIndex + pakHdr.assetCount + 4ull * pakHdr.assetCount + pakHdr.virtualSegmentCount);
     const __int64 patchDestOffset = pakHdr.GetTotalHeaderSize() + 2 * (pakHdr.patchIndex + 6ull * pakHdr.memPageCount + 4 * v106);
@@ -917,6 +846,456 @@ bool Pak_StartLoadingPak(PakLoadedInfo_t* const loadedInfo)
     return true;
 }
 
+// #STR: "(%02u).rpak", "Couldn't read package file \"%s\".\n", "Error 0x%08x", "paks\\Win64\\%s"
+//bool Pak_SetupBuffersAndLoad(PakHandle_t pakId)
+//{
+//    __int64 v2; // rdi
+//    const char* pakFilePath; // rsi
+//    unsigned int v7; // ebx
+//    unsigned int v8; // r14d
+//    char** v9; // r12
+//    int v10; // eax
+//    __int64 v11; // r11
+//    char v12; // al
+//    char* i; // rdx
+//    uint32_t pakFileHandle; // eax
+//    bool result; // al
+//    int AsyncFile; // bl
+//    signed __int64 v19; // rbx
+//    char v20; // r14
+//    __int64 v21; // rdx
+//    const char* v22; // rax
+//    __int64 v23; // rbx
+//    __int64 asset_entry_count_var; // rax MAPDST
+//    __int64 patchIndex; // r11
+//    __int64 memPageCount; // r9
+//    __int64 virtualSegmentCount; // rcx
+//    __int64 v32; // r8
+//    __int64 v33; // rcx
+//    __int64 v34; // r14
+//    __int64 v35; // r12
+//    uint64_t ringBufferStreamSize; // rsi
+//    uint64_t ringBufferOutSize; // rax
+//    PakFile_t* pak; // rax MAPDST
+//    _DWORD* v40; // rax
+//    __int64 v43; // rdx
+//    uint8_t** v44; // rcx
+//    PakAsset_t** v45; // rdx
+//    PakPatchFileHeader_t* p_patchHeader; // rcx
+//    uint16_t v47; // ax
+//    PakPatchFileHeader_t* p_decompressedSize; // rdx
+//    __int64 v49; // rcx
+//    __int64 v50; // rax
+//    unsigned __int16* v51; // rcx
+//    char* v52; // rcx
+//    char* v53; // rdx
+//    __int64 v54; // rax
+//    PakSegmentHeader_t* v55; // rdx
+//    __int64 v56; // rcx
+//    __int64 v57; // rax
+//    PakPageHeader_t* v58; // rcx
+//    __int64 descriptorCount; // rdx
+//    PakPage_t* v60; // rcx
+//    __int64 assetCount; // rax
+//    PakAsset_t* v62; // r8
+//    __int64 guidDescriptorCount; // r9
+//    PakPage_t* v64; // rdx
+//    __int64 relationsCounts; // rcx
+//    uint32_t* v66; // rax
+//    __int64 v67; // rdx
+//    uint32_t* v68; // rcx
+//    __int64 v69; // r8
+//    uint32_t* v70; // rax
+//    __int64 v71; // rcx
+//    PakPatchDataHeader_t* patchDataHeader; // rax
+//    size_t v73; // rdx
+//    uint8_t* ringBuffer; // rax
+//    bool v75; // zf
+//    __int64 v76; // r10
+//    unsigned __int64 v77; // r8
+//    __int64 v78; // rax
+//    PakFileHeader_t pakHdr; // [rsp+40h] [rbp-C0h] BYREF
+//    __int64 v80; // [rsp+C0h] [rbp-40h]
+//    __int64 v81; // [rsp+C8h] [rbp-38h]
+//    char relativeFilePath[260]; // [rsp+E0h] [rbp-20h] BYREF
+//    char v84[12]; // [rsp+1E4h] [rbp+E4h] BYREF
+//    CHAR LibFileName[4]; // [rsp+1F0h] [rbp+F0h] BYREF
+//    char v86[8252]; // [rsp+1F4h] [rbp+F4h]
+//    size_t pak_file_size_var; // [rsp+2248h] [rbp+2148h] BYREF
+//    __int64 v89; // [rsp+2250h] [rbp+2150h]
+//    uint64_t v90; // [rsp+2258h] [rbp+2158h]
+//
+//    v2 = 0i64;
+//
+//    PakLoadedInfo_t* const loadedInfo = Pak_GetPakInfo(pakId);
+//
+//    loadedInfo->status = PAK_STATUS_LOAD_STARTING;
+//    pakFilePath = loadedInfo->fileName;
+//
+//    //
+//    assert(pakFilePath);
+//
+//    const char* nameUnqualified = V_UnqualifiedFileName(pakFilePath);
+//
+//    if (nameUnqualified != pakFilePath)
+//        goto LABEL_27;
+//
+//    snprintf(relativeFilePath, 0x100ui64, "paks\\Win64\\%s", pakFilePath);
+//
+//    v7 = g_nPatchEntryCount;
+//    v8 = 0;
+//
+//    // if this pak is patched, load the last patch file first before proceeding
+//    // with any other pak that is getting patched. note that the patch number
+//    // does not indicate which pak file is the actual last patch file; a patch
+//    // with number (01) can also patch (02) and base, these details are
+//    // determined from the pak file header
+//    if (g_nPatchEntryCount)
+//    {
+//        v9 = g_pszPakPatchList;
+//
+//        int n;
+//        while (1)
+//        {
+//            n = V_stricmp(pakFilePath, v9[(v7 + v8) >> 1]);
+//
+//            if (n >= 0)
+//                break;
+//
+//            v7 = v11;
+//        LABEL_13:
+//            if (v8 >= v7)
+//                goto SKIP_PATCH_LOADING;
+//        }
+//
+//        if (n > 0)
+//        {
+//            v8 = v11 + 1;
+//            goto LABEL_13;
+//        }
+//
+//        const int patchNumber = g_pnPatchNumbers[v11];
+//
+//        if (patchNumber)
+//        {
+//            char* const extension = (char*)V_GetFileExtension(pakFilePath, true);
+//            snprintf(extension, &relativeFilePath[sizeof(relativeFilePath)] - extension, "(%02u).rpak", patchNumber);
+//        }
+//    }
+//
+//    if (!g_nPatchEntryCount)
+//        goto SKIP_PATCH_LOADING;
+//
+//    v9 = g_pszPakPatchList;
+//    while (1)
+//    {
+//        LOBYTE(v10) = stricmp(pakFilePath, v9[(v7 + v8) >> 1]);
+//        if (v10 >= 0)
+//            break;
+//        v7 = v11;
+//    LABEL_13:
+//        if (v8 >= v7)
+//            goto SKIP_PATCH_LOADING;
+//    }
+//    if (v10 > 0)
+//    {
+//        v8 = v11 + 1;
+//        goto LABEL_13;
+//    }
+//
+//    const int patchNumber = g_pnPatchNumbers[v11];
+//
+//    if (patchNumber)
+//    {
+//        char* const extension = (char*)V_GetFileExtension(pakFilePath, true);
+//        snprintf(extension, &relativeFilePath[sizeof(relativeFilePath)] - extension, "(%02u).rpak", patchNumber);
+//    }
+//
+//SKIP_PATCH_LOADING:
+//    pakFilePath = relativeFilePath;
+//LABEL_27:
+//    pakFileHandle = FS_OpenAsyncFile(pakFilePath, loadedInfo->logLevel, &pak_file_size_var);
+//
+//    if (pakFileHandle == FS_ASYNC_FILE_INVALID)
+//    {
+//        if (async_debug_level->GetInt() >= loadedInfo->logLevel)
+//            Error(eDLL_T::RTECH, NO_ERROR, "Couldn't read package file \"%s\".\n", pakFilePath);
+//
+//        loadedInfo->status = PAK_STATUS_ERROR;
+//        return false;
+//    }
+//
+//    loadedInfo->fileHandle = pakFileHandle;
+//
+//    // file appears truncated/corrupt
+//    if (pak_file_size_var < sizeof(PakFileHeader_t))
+//    {
+//        loadedInfo->status = PAK_STATUS_ERROR;
+//        return false;
+//    }
+//
+//    AsyncFile = v_FS_ReadAsyncFile(pakFileHandle, 0i64, sizeof(PakFileHeader_t), &pakHdr, 0i64, 0i64, 4);
+//    v_FS_WaitForAsyncRead(AsyncFile);
+//
+//    size_t bytesProcessed = 0;
+//    const char* statusMsg = "(no reason)";
+//    const uint8_t currentStatus = g_pakLoadApi->CheckAsyncRequest(AsyncFile, &bytesProcessed, &statusMsg);
+//
+//    if (currentStatus == AsyncHandleStatus_t::FS_ASYNC_ERROR)
+//    {
+//        Error(eDLL_T::RTECH, EXIT_FAILURE, "Error reading pak file \"%s\" -- %s\n", pak->memoryData.fileName, statusMsg);
+//
+//        loadedInfo->status = PAK_STATUS_ERROR;
+//        return false;
+//    }
+//
+//    if (pakHdr.magic != PAK_HEADER_MAGIC || pakHdr.version != PAK_HEADER_VERSION)
+//    {
+//        loadedInfo->status = PAK_STATUS_ERROR;
+//        return false;
+//    }
+//
+//    if (pakHdr.flags & PAK_HEADER_FLAGS_HAS_MODULE_EXTENDED)
+//    {
+//        v22 = V_GetFileExtension(pakFilePath);
+//        v23 = v22 - pakFilePath;
+//
+//        if ((unsigned __int64)(v22 - pakFilePath + 4) >= 0x2000)
+//        {
+//            loadedInfo->status = PAK_STATUS_ERROR;
+//            return false;
+//        }
+//
+//        memcpy(LibFileName, pakFilePath, v22 - pakFilePath);
+//
+//        *(_DWORD*)&LibFileName[v23] = *(_DWORD*)".dll";
+//        v86[v23] = '\0';
+//
+//        const HMODULE hModule = LoadLibraryA(LibFileName);
+//        loadedInfo->hModule = hModule;
+//
+//        if (!hModule)
+//        {
+//            loadedInfo->status = PAK_STATUS_ERROR;
+//            return false;
+//        }
+//    }
+//
+//    loadedInfo->fileTime = pakHdr.fileTime;
+//    asset_entry_count_var = pakHdr.assetCount;
+//
+//    loadedInfo->assetCount = pakHdr.assetCount;
+//
+//    asset_entry_count_var = pakHdr.assetCount;
+//    patchIndex = pakHdr.patchIndex;
+//    memPageCount = pakHdr.memPageCount;
+//    virtualSegmentCount = pakHdr.virtualSegmentCount;
+//    v32 = *(unsigned int*)&pakHdr.unk2[4];
+//
+//    loadedInfo->assetGuids = (PakGuid_t*)loadedInfo->allocator->Alloc(sizeof(PakGuid_t) * asset_entry_count_var, 8);;
+//
+//    size_t streamingFilesBuifSize = pakHdr.streamingFilesBufSize[STREAMING_SET_OPTIONAL] + pakHdr.streamingFilesBufSize[STREAMING_SET_MANDATORY];
+//
+//    v81 = 8 * memPageCount;
+//
+//    pak_file_size_var = streamingFilesBuifSize
+//        + ((_WORD)patchIndex != 0 ? 8 : 0)
+//        + 2
+//        * (patchIndex
+//            + 2
+//            * (pakHdr.relationsCounts
+//                + *(unsigned int*)pakHdr.unk2
+//                + 3 * memPageCount
+//                + 2 * (pakHdr.descriptorCount + pakHdr.guidDescriptorCount + 16i64 + 2 * (asset_entry_count_var + patchIndex + 4 * asset_entry_count_var + virtualSegmentCount))))
+//        + v32;
+//
+//    v80 = 4 * asset_entry_count_var;
+//    v90 = pak_file_size_var + 2080;
+//    v33 = -((_DWORD)pak_file_size_var + 2080 + 4 * (_DWORD)asset_entry_count_var) & 7;
+//    v89 = v33;
+//    v34 = 4 * asset_entry_count_var + pak_file_size_var + 2080 + v33 + 8 * memPageCount + 12 * asset_entry_count_var;
+//    v35 = (-(4 * (_DWORD)asset_entry_count_var + (_DWORD)pak_file_size_var + 2080 + (_DWORD)v33 + 8 * (_DWORD)memPageCount + 12 * (_DWORD)asset_entry_count_var) & 7) + 4088i64;
+//
+//    if ((pakHdr.flags & 0x100) != 0)
+//    {
+//        ringBufferStreamSize = PAK_DECODE_IN_RING_BUFFER_SIZE;
+//        ringBufferOutSize = PAK_DECODE_OUT_RING_BUFFER_SIZE;
+//
+//        if (pakHdr.compressedSize < PAK_DECODE_IN_RING_BUFFER_SIZE && !(_WORD)patchIndex)
+//            ringBufferStreamSize = (pakHdr.compressedSize + PAK_DECODE_IN_RING_BUFFER_SMALL_MASK) & 0xFFFFFFFFFFFFF000ui64;
+//    }
+//    else
+//    {
+//        ringBufferStreamSize = 0i64;
+//        ringBufferOutSize = PAK_DECODE_IN_RING_BUFFER_SIZE;
+//    }
+//
+//    if (ringBufferOutSize > pakHdr.decompressedSize && !(_WORD)patchIndex)
+//        ringBufferOutSize = (pakHdr.decompressedSize + PAK_DECODE_IN_RING_BUFFER_SMALL_MASK) & 0xFFFFFFFFFFFFF000ui64;
+//
+//    pak = (PakFile_t*)AlignedMemAlloc()->Alloc(v34 + v35 + ringBufferOutSize + ringBufferStreamSize, 8);
+//
+//    if (pak)
+//    {
+//        loadedInfo->pakFile = pak;
+//
+//        *(_QWORD*)&pak->processedPageCount = 0i64;
+//        *(_QWORD*)&pak->patchCount = 0i64;
+//        *(_QWORD*)&pak->numProcessedPointers = 0i64;
+//        *(_QWORD*)&pak->memoryData.someAssetCount = 0i64;
+//
+//        v40 = (_DWORD*)loadedInfo->allocator->Alloc(16i64 * pakHdr.guidDescriptorCount + 8, 8i64);
+//        loadedInfo->qword50 = v40;
+//
+//        *v40 = 0;
+//
+//        *(_DWORD*)(loadedInfo->qword50 + 4i64) = 0;
+//
+//        pak->memoryData.pakHeader = pakHdr;
+//
+//        pak->memoryData.pakId = pakId;
+//        pak->memoryData.qword2D0 = pak_file_size_var;
+//
+//        JobID_t jobId = PAK_DEFAULT_JOB_GROUP_ID;
+//
+//        if (pakHdr.assetCount)
+//            jobId = JT_BeginJobGroup(0);
+//
+//        pak->memoryData.unkJobID = jobId;
+//
+//
+//        v43 = v81;
+//        v44 = (uint8_t**)((char*)pak + v89 + v90 + v80);
+//        pak->memoryData.memPageBuffers = v44;
+//        v45 = (PakAsset_t**)((char*)v44 + v43);
+//        pak->memoryData.ppAssetEntries = v45;
+//        pak->memoryData.qword2E0 = (int*)&v45[pakHdr.assetCount];
+//        p_patchHeader = &pak->memoryData.patchHeader;
+//        v47 = pak->memoryData.pakHeader.patchIndex;
+//
+//        p_decompressedSize = (PakPatchFileHeader_t*)&pak->memoryData.patchHeader.decompressedSize;
+//        if (!v47)
+//            p_decompressedSize = &pak->memoryData.patchHeader;
+//        if (!v47)
+//            p_patchHeader = 0i64;
+//
+//        pak->memoryData.patchDataHeader = (PakPatchDataHeader_t*)p_patchHeader;
+//        v49 = pak->memoryData.pakHeader.patchIndex;
+//        pak->memoryData.patchHeaders = p_decompressedSize;
+//        v50 = pak->memoryData.pakHeader.patchIndex;
+//        v51 = (unsigned __int16*)&p_decompressedSize[v49];
+//        pak->memoryData.patchIndices = v51;
+//        v52 = (char*)&v51[v50];
+//        v53 = &v52[pak->memoryData.pakHeader.streamingFilesBufSize[0]];
+//        pak->memoryData.streamingFilePaths[0] = v52;
+//        v54 = pak->memoryData.pakHeader.streamingFilesBufSize[1];
+//        pak->memoryData.streamingFilePaths[1] = v53;
+//        v55 = (PakSegmentHeader_t*)&v53[v54];
+//        v56 = pak->memoryData.pakHeader.virtualSegmentCount;
+//        pak->memoryData.segmentHeaders = v55;
+//        v57 = pak->memoryData.pakHeader.memPageCount;
+//        v58 = (PakPageHeader_t*)&v55[v56];
+//        pak->memoryData.pageHeaders = v58;
+//        descriptorCount = pak->memoryData.pakHeader.descriptorCount;
+//        v60 = (PakPage_t*)&v58[v57];
+//        pak->memoryData.virtualPointers = v60;
+//        assetCount = pak->memoryData.pakHeader.assetCount;
+//        v62 = (PakAsset_t*)&v60[descriptorCount];
+//        pak->memoryData.assetEntries = v62;
+//        guidDescriptorCount = pak->memoryData.pakHeader.guidDescriptorCount;
+//        v64 = (PakPage_t*)&v62[assetCount];
+//        pak->memoryData.guidDescriptors = v64;
+//        relationsCounts = pak->memoryData.pakHeader.relationsCounts;
+//        v66 = (uint32_t*)&v64[guidDescriptorCount];
+//        pak->memoryData.fileRelations = v66;
+//        v67 = *(unsigned int*)pak->memoryData.pakHeader.unk2;
+//        v68 = &v66[relationsCounts];
+//        *(_QWORD*)pak->memoryData.gap5E0 = v68;
+//        v69 = *(unsigned int*)&pak->memoryData.pakHeader.unk2[4];
+//        *(_QWORD*)&pak->memoryData.gap5E0[16] = 0i64;
+//        v70 = &v68[v67];
+//        *(_QWORD*)&pak->memoryData.gap5E0[8] = v70;
+//        v71 = (__int64)v70 + v69;
+//        *(_QWORD*)&pak->memoryData.gap5E0[24] = (char*)v70 + v69;
+//        if (pak->memoryData.pakHeader.patchIndex)
+//        {
+//            patchDataHeader = pak->memoryData.patchDataHeader;
+//            if (patchDataHeader->editStreamSize)
+//            {
+//                *(_QWORD*)&pak->memoryData.gap5E0[16] = v71;
+//                *(_QWORD*)&pak->memoryData.gap5E0[24] = v71 + (unsigned int)patchDataHeader->editStreamSize;
+//            }
+//        }
+//        v73 = PAK_DECODE_IN_RING_BUFFER_MASK;
+//
+//        pak->memoryData.fileName = loadedInfo->fileName;
+//        pak->fileStream.qword0 = 0i64;
+//        pak->fileStream.fileSize = pakHdr.compressedSize;
+//        pak->fileStream.fileHandle = loadedInfo->fileHandle;
+//        loadedInfo->fileHandle = FS_ASYNC_FILE_INVALID;
+//
+//        pak->fileStream.bufferMask = PAK_DECODE_IN_RING_BUFFER_MASK;
+//
+//        ringBuffer = (uint8_t*)(((unsigned __int64)pak + v35 + v34) & 0xFFFFFFFFFFFFF000ui64);
+//
+//        pak->fileStream.buffer = ringBuffer;
+//        pak->fileStream.numDataChunksProcessed = 0;
+//        pak->fileStream.numDataChunks = 0;
+//        pak->fileStream.fileReadStatus = 3;
+//        pak->fileStream.finishedLoadingPatches = 0;
+//        pak->fileStream.numLoadedFiles = 0;
+//        pak->fileStream.bytesStreamed = sizeof(PakFileHeader_t);
+//        pak->decompBuffer = &ringBuffer[ringBufferStreamSize];
+//        pak->inputBytePos = sizeof(PakFileHeader_t);
+//        pak->byte1F8 = 0;
+//        pak->byte1FD = 1;
+//        pak->isOffsetted_MAYBE = 0;
+//        pak->isCompressed = 0;
+//
+//        // FINISHME: this means if the pak file is not encoded, but we should also
+//        // check on the zstd flags
+//        v75 = (pakHdr.flags & 0x100) == 0;
+//
+//        pak->qword298 = 128i64;
+//
+//        if (!v75)
+//            v73 = PAK_DECODE_OUT_RING_BUFFER_MASK;
+//
+//        pak->maxCopySize = v73;
+//        memset(&pak->pakDecoder, 0, sizeof(pak->pakDecoder));
+//
+//        pak->pakDecoder.outBufBytePos = 128i64;
+//        pak->pakDecoder.decompSize = 128i64;
+//        pak->memoryData.processedPatchedDataSize = 128i64;
+//        v76 = pakHdr.patchIndex;
+//        v77 = pakHdr.descriptorCount + 2 * (pakHdr.patchIndex + (unsigned __int64)pakHdr.assetCount + 4i64 * pakHdr.assetCount + pakHdr.virtualSegmentCount);
+//        v78 = pakHdr.memPageCount;
+//
+//        pak->memoryData.field_2A8 = 0i64;
+//        pak->memoryData.patchData = 0i64;
+//        pak->memoryData.patchDataPtr = 0i64;
+//        pak->memoryData.bitBuf.m_dataBuf = 0i64;
+//        pak->memoryData.bitBuf.m_bitsAvailable = 0;
+//        pak->memoryData.patchDataOffset = 0;
+//        pak->memoryData.patchSrcSize = v82 + ((_WORD)v76 != 0 ? 8 : 0) + 2 * (v76 + 6 * v78 + 4 * v77);
+//        pak->memoryData.patchDstPtr = (char*)&pak->memoryData.patchHeader;
+//        pak->memoryData.patchFunc = g_pakPatchApi[0];
+//
+//        LOBYTE(v2) = pakHdr.patchIndex == 0;
+//        pak->memoryData.numBytesToProcess_maybe = pak->memoryData.pakHeader.decompressedSize + v2 - 0x80;
+//
+//        Pak_ProcessPakFile(pak);
+//        return true;
+//    }
+//    else
+//    {
+//        loadedInfo->status = PAK_STATUS_ERROR;
+//        return false;
+//    }
+//
+//    return result;
+//}
+
 
 void V_PakParse::Detour(const bool bAttach) const
 {
@@ -929,7 +1308,7 @@ void V_PakParse::Detour(const bool bAttach) const
     DetourSetup(&v_Pak_ResolveAssetRelations, &Pak_ResolveAssetRelations, bAttach);
     DetourSetup(&v_Pak_ProcessAssets, &Pak_ProcessAssets, bAttach);
 
-    DetourSetup(&sub_14043E030, &Rebuild_14043E030, bAttach);
+    DetourSetup(&v_Pak_RunAssetLoadingJobs, &Pak_RunAssetLoadingJobs, bAttach);
 }
 
 // Symbols taken from R2 dll's.

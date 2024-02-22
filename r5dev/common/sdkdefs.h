@@ -22,6 +22,10 @@ typedef intptr_t intp;
 
 typedef const unsigned char* rsig_t;
 
+// 32bit and 64bit wide boolean type
+typedef int32_t b32;
+typedef int64_t b64;
+
 // signed size types
 typedef std::make_signed_t<std::size_t> ssize_t;
 
