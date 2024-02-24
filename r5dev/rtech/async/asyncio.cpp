@@ -7,6 +7,9 @@
 #include "rtech/pak/paktools.h"
 #include "asyncio.h"
 
+ConVar async_debug_level("async_debug_level", "0", FCVAR_DEVELOPMENTONLY, "The debug level for async reads", false, 0.f, false, 0.f, "0 = disabled");
+ConVar async_debug_close("async_debug_close", "0", FCVAR_DEVELOPMENTONLY, "Debug async file closing", false, 0.f, false, 0.f, "0 = disabled");
+
 //----------------------------------------------------------------------------------
 // open a file and add it to the async file handle array
 //----------------------------------------------------------------------------------
@@ -51,7 +54,7 @@ int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* con
     tracker.handle = hFile;
     tracker.state = 1;
 
-    if (async_debug_level->GetInt() >= logLevel)
+    if (async_debug_level.GetInt() >= logLevel)
         Msg(eDLL_T::RTECH, "%s: Opened file: '%s' to slot #%d\n", __FUNCTION__, fileToLoad, slotNum);
 
     return fileIdx;
@@ -72,7 +75,7 @@ void FS_CloseAsyncFile(const int fileHandle)
 
         g_pAsyncFileSlotMgr->FreeSlot(slotNum);
 
-        if (async_debug_close->GetBool())
+        if (async_debug_close.GetBool())
             Msg(eDLL_T::RTECH, "%s: Closed file from slot #%d\n", __FUNCTION__, slotNum);
     }
 }

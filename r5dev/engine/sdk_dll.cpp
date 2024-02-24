@@ -12,6 +12,8 @@
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
 
+static ConVar sdk_fixedframe_tickinterval("sdk_fixedframe_tickinterval", "0.01", FCVAR_RELEASE, "The tick interval used by the SDK fixed frame.");
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -23,7 +25,7 @@ void CEngineSDK::FixedFrame()
 		g_Browser.Think();
 		g_Console.Think();
 #endif // !DEDICATED
-		std::this_thread::sleep_for(IntervalToDuration(sdk_fixedframe_tickinterval->GetFloat()));
+		std::this_thread::sleep_for(IntervalToDuration(sdk_fixedframe_tickinterval.GetFloat()));
 	}
 }
 

@@ -21,6 +21,19 @@
 #include "pluginsystem/pluginsystem.h"
 
 //---------------------------------------------------------------------------------
+// Console variables
+//---------------------------------------------------------------------------------
+ConVar sv_showconnecting("sv_showconnecting", "1", FCVAR_RELEASE, "Logs information about the connecting client to the console");
+ConVar sv_globalBanlist("sv_globalBanlist", "1", FCVAR_RELEASE, "Determines whether or not to use the global banned list.", false, 0.f, false, 0.f, "0 = Disable, 1 = Enable.");
+
+ConVar sv_banlistRefreshRate("sv_banlistRefreshRate", "30.0", FCVAR_DEVELOPMENTONLY, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f);
+ConVar sv_statusRefreshRate("sv_statusRefreshRate", "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", true, 0.f, false, 0.f);
+
+static ConVar sv_validatePersonaName("sv_validatePersonaName", "1", FCVAR_RELEASE, "Validate the client's textual persona name on connect.");
+static ConVar sv_minPersonaNameLength("sv_minPersonaNameLength", "4", FCVAR_RELEASE, "The minimum length of the client's textual persona name.", true, 0.f, false, 0.f);
+static ConVar sv_maxPersonaNameLength("sv_maxPersonaNameLength", "16", FCVAR_RELEASE, "The maximum length of the client's textual persona name.", true, 0.f, false, 0.f);
+
+//---------------------------------------------------------------------------------
 // Purpose: Gets the number of human players on the server
 // Output : int
 //---------------------------------------------------------------------------------
@@ -109,7 +122,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 	char pszAddresBuffer[128]; // Render the client's address.
 	pChallenge->netAdr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer), true);
 
-	const bool bEnableLogging = sv_showconnecting->GetBool();
+	const bool bEnableLogging = sv_showconnecting.GetBool();
 	const int nPort = int(ntohs(pChallenge->netAdr.GetPort()));
 
 	if (bEnableLogging)
@@ -121,8 +134,8 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 	if (VALID_CHARSTAR(pszPersonaName) &&
 		V_IsValidUTF8(pszPersonaName))
 	{
-		if (sv_validatePersonaName->GetBool() && 
-			!IsValidPersonaName(pszPersonaName, sv_minPersonaNameLength->GetInt(), sv_maxPersonaNameLength->GetInt()))
+		if (sv_validatePersonaName.GetBool() && 
+			!IsValidPersonaName(pszPersonaName, sv_minPersonaNameLength.GetInt(), sv_maxPersonaNameLength.GetInt()))
 		{
 			bValidName = false;
 		}
@@ -167,7 +180,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		}
 	}
 
-	if (pClient && sv_globalBanlist->GetBool())
+	if (pClient && sv_globalBanlist.GetBool())
 	{
 		if (!pClient->GetNetChan()->GetRemoteAddress().IsLoopback())
 		{

@@ -14,6 +14,8 @@
 #include "pakdecode.h"
 #include "pakstream.h"
 
+static ConVar pak_debugrelations("pak_debugrelations", "0", FCVAR_DEVELOPMENTONLY, "Debug RPAK asset dependency resolving");
+
 //-----------------------------------------------------------------------------
 // resolve the target guid from lookuo table
 //-----------------------------------------------------------------------------
@@ -51,7 +53,7 @@ void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const ass
     PakPage_t* const pGuidDescriptors = &pak->memoryData.guidDescriptors[asset->dependenciesIndex];
     uint32_t* const v5 = (uint32_t*)g_pakGlobals->loadedPaks[pak->memoryData.pakId & PAK_MAX_HANDLES_MASK].qword50;
 
-    if (pak_debugrelations->GetBool())
+    if (pak_debugrelations.GetBool())
         Msg(eDLL_T::RTECH, "Resolving relations for asset: '0x%-16llX', dependencies: %-4u; in pak '%s'\n",
             asset->guid, asset->dependenciesCount, pak->memoryData.fileName);
 
@@ -1013,7 +1015,7 @@ bool Pak_StartLoadingPak(PakLoadedInfo_t* const loadedInfo)
 //
 //    if (pakFileHandle == FS_ASYNC_FILE_INVALID)
 //    {
-//        if (async_debug_level->GetInt() >= loadedInfo->logLevel)
+//        if (async_debug_level.GetInt() >= loadedInfo->logLevel)
 //            Error(eDLL_T::RTECH, NO_ERROR, "Couldn't read package file \"%s\".\n", pakFilePath);
 //
 //        loadedInfo->status = PAK_STATUS_ERROR;

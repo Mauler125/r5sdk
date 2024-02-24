@@ -17,6 +17,10 @@
 #include "server/vengineserver_impl.h"
 #endif // !CLIENT_DLL
 
+//-----------------------------------------------------------------------------
+// Console variables
+//-----------------------------------------------------------------------------
+static ConVar net_processTimeBudget("net_processTimeBudget", "200", FCVAR_RELEASE, "Net message process time budget in milliseconds (removing netchannel if exceeded).", true, 0.f, false, 0.f, "0 = disabled");
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the netchannel resend rate
@@ -368,7 +372,7 @@ void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep,
 bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 {
 #ifndef CLIENT_DLL
-    if (!ThreadInServerFrameThread() || !net_processTimeBudget->GetInt())
+    if (!ThreadInServerFrameThread() || !net_processTimeBudget.GetInt())
         return pChan->ProcessMessages(pBuf);
 
     const double flStartTime = Plat_FloatTime();
@@ -390,10 +394,10 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
     const double flCurrentTime = Plat_FloatTime();
     pExtended->SetNetProcessingTimeMsecs(flStartTime, flCurrentTime);
 
-    if (pExtended->GetNetProcessingTimeMsecs() > net_processTimeBudget->GetFloat())
+    if (pExtended->GetNetProcessingTimeMsecs() > net_processTimeBudget.GetFloat())
     {
         Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded time budget by '%3.1f'ms!)\n",
-            pChan->GetName(), pChan->GetAddress(), (pExtended->GetNetProcessingTimeMsecs() - net_processTimeBudget->GetFloat()));
+            pChan->GetName(), pChan->GetAddress(), (pExtended->GetNetProcessingTimeMsecs() - net_processTimeBudget.GetFloat()));
         pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
 
         return false;

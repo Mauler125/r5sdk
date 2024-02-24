@@ -12,6 +12,15 @@
 #include <engine/server/server.h>
 
 //-----------------------------------------------------------------------------
+// Console variables
+// NOTE: marked FCVAR_MATERIAL_SYSTEM_THREAD as these are also used in the
+// ImGui development panels
+//-----------------------------------------------------------------------------
+ConVar pylon_matchmaking_hostname("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Holds the pylon matchmaking hostname");
+ConVar pylon_host_update_interval("pylon_host_update_interval", "5", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Length of time in seconds between each status update interval to master server", true, 5.f, false, 0.f);
+ConVar pylon_showdebuginfo("pylon_showdebuginfo", "0", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Shows debug output for pylon");
+
+//-----------------------------------------------------------------------------
 // Purpose: checks if the server listing fields are valid.
 // Input  : &value - 
 // Output : true on success, false on failure.
@@ -468,7 +477,7 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
             return false;
         }
 
-        if (pylon_showdebuginfo->GetBool())
+        if (pylon_showdebuginfo.GetBool())
         {
             LogBody(responseJson);
         }
@@ -504,8 +513,8 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
 bool CPylon::QueryServer(const char* endpoint, const char* request,
     string& outResponse, string& outMessage, CURLINFO& outStatus) const
 {
-    const bool showDebug = pylon_showdebuginfo->GetBool();
-    const char* hostName = pylon_matchmaking_hostname->GetString();
+    const bool showDebug = pylon_showdebuginfo.GetBool();
+    const char* hostName = pylon_matchmaking_hostname.GetString();
 
     if (showDebug)
     {
@@ -520,9 +529,9 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
     CURLParams params;
 
     params.writeFunction = CURLWriteStringCallback;
-    params.timeout = curl_timeout->GetInt();
-    params.verifyPeer = ssl_verify_peer->GetBool();
-    params.verbose = curl_debug->GetBool();
+    params.timeout = curl_timeout.GetInt();
+    params.verifyPeer = ssl_verify_peer.GetBool();
+    params.verbose = curl_debug.GetBool();
 
     curl_slist* sList = nullptr;
     CURL* curl = CURLInitRequest(finalUrl.c_str(), request, outResponse, sList, params);

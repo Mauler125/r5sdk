@@ -78,7 +78,6 @@ CBrowser::~CBrowser(void)
 bool CBrowser::Init(void)
 {
     SetStyleVar();
-    m_szMatchmakingHostName = pylon_matchmaking_hostname->GetString();
 
     bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
         &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
@@ -169,7 +168,7 @@ void CBrowser::RunTask()
         bInitialized = true;
     }
 
-    if (timer.GetDurationInProgress().GetSeconds() > pylon_host_update_interval->GetFloat())
+    if (timer.GetDurationInProgress().GetSeconds() > pylon_host_update_interval.GetFloat())
     {
         UpdateHostingStatus();
         timer.Start();
@@ -236,11 +235,6 @@ void CBrowser::DrawSurface(void)
         ImGui::EndTabItem();
     }
 #endif // !CLIENT_DLL
-    if (ImGui::BeginTabItem("Settings"))
-    {
-        SettingsPanel();
-        ImGui::EndTabItem();
-    }
     ImGui::EndTabBar();
 }
 
@@ -371,7 +365,7 @@ void CBrowser::BrowserPanel(void)
 //-----------------------------------------------------------------------------
 void CBrowser::RefreshServerList(void)
 {
-    Msg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname->GetString());
+    Msg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname.GetString());
 
     std::string svServerListMessage;
     g_ServerListManager.RefreshServerList(svServerListMessage);
@@ -539,10 +533,10 @@ void CBrowser::HostPanel(void)
         ImGui::EndCombo();
     }
 
-    m_bQueryGlobalBanList = sv_globalBanlist->GetBool(); // Sync toggle with 'sv_globalBanlist'.
+    m_bQueryGlobalBanList = sv_globalBanlist.GetBool(); // Sync toggle with 'sv_globalBanlist'.
     if (ImGui::Checkbox("Load global banned list", &m_bQueryGlobalBanList))
     {
-        sv_globalBanlist->SetValue(m_bQueryGlobalBanList);
+        sv_globalBanlist.SetValue(m_bQueryGlobalBanList);
     }
 
     ImGui::Text("Server visibility");
@@ -827,37 +821,6 @@ void CBrowser::ProcessCommand(const char* pszCommand) const
 {
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
     //g_TaskScheduler->Dispatch(Cbuf_Execute, 0); // Run in main thread.
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: draws the settings section
-//-----------------------------------------------------------------------------
-void CBrowser::SettingsPanel(void)
-{
-    ImGui::InputTextWithHint("Hostname", "Matchmaking host name", &m_szMatchmakingHostName);
-    if (ImGui::Button("Update hostname"))
-    {
-        ProcessCommand(Format("%s \"%s\"", pylon_matchmaking_hostname->GetName(), m_szMatchmakingHostName.c_str()).c_str());
-    }
-
-    // The 'const' qualifier has been casted away, however the readonly flag is set.
-    // Still a hack, but better than modifying the Dear ImGui lib even more..
-    ImGui::InputTextWithHint("Netkey", "Network encryption key", const_cast<char*>(g_pNetKey->GetBase64NetKey()), ImGuiInputTextFlags_ReadOnly);
-    if (ImGui::Button("Regenerate encryption key"))
-    {
-        g_TaskScheduler->Dispatch(NET_GenerateKey, 0);
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: hooked to 'MP_HostName_Changed_f' to sync hostname field with 
-// the 'pylon_matchmaking_hostname' ConVar (!!! DO NOT USE !!!).
-// Input  : *pszHostName - 
-//-----------------------------------------------------------------------------
-void CBrowser::SetHostName(const char* pszHostName)
-{
-    AUTO_LOCK(m_Mutex);
-    m_szMatchmakingHostName = pszHostName;
 }
 
 //-----------------------------------------------------------------------------

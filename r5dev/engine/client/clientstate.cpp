@@ -307,6 +307,12 @@ bool CClientState::_ProcessCreateStringTable(CClientState* thisptr, SVC_CreateSt
     return (endbit - startbit) == msg->m_nLength;
 }
 
+static ConVar cl_onlineAuthEnable("cl_onlineAuthEnable", "1", FCVAR_RELEASE, "Enables the client-side online authentication system");
+
+static ConVar cl_onlineAuthToken("cl_onlineAuthToken", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token");
+static ConVar cl_onlineAuthTokenSignature1("cl_onlineAuthTokenSignature1", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token signature", false, 0.f, false, 0.f, "Primary");
+static ConVar cl_onlineAuthTokenSignature2("cl_onlineAuthTokenSignature2", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token signature", false, 0.f, false, 0.f, "Secondary");
+
 //------------------------------------------------------------------------------
 // Purpose: get authentication token for current connection context
 // Input  : *connectParams - 
@@ -347,21 +353,21 @@ bool CClientState::Authenticate(connectparams_t* connectParams, char* const reas
     *(char*)tokenSignatureDelim = '\0';
     const size_t sigLength = strlen(tokenSignatureDelim) - 1;
 
-    cl_onlineAuthToken->SetValue(token);
+    cl_onlineAuthToken.SetValue(token);
 
     if (sigLength > 0)
     {
         // get a pointer to the first part of the token signature to store in cl_onlineAuthTokenSignature1
         const char* tokenSignaturePart1 = tokenSignatureDelim + 1;
 
-        cl_onlineAuthTokenSignature1->SetValue(tokenSignaturePart1);
+        cl_onlineAuthTokenSignature1.SetValue(tokenSignaturePart1);
 
         if (sigLength > 255)
         {
             // get a pointer to the rest of the token signature to store in cl_onlineAuthTokenSignature2
             const char* tokenSignaturePart2 = tokenSignaturePart1 + 255;
 
-            cl_onlineAuthTokenSignature2->SetValue(tokenSignaturePart2);
+            cl_onlineAuthTokenSignature2.SetValue(tokenSignaturePart2);
         }
     }
 
@@ -376,7 +382,7 @@ bool IsLocalHost(connectparams_t* connectParams)
 
 void CClientState::VConnect(CClientState* thisptr, connectparams_t* connectParams)
 {
-    if (cl_onlineAuthEnable->GetBool() && !IsLocalHost(connectParams))
+    if (cl_onlineAuthEnable.GetBool() && !IsLocalHost(connectParams))
     {
         char authFailReason[512];
 

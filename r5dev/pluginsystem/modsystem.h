@@ -29,7 +29,7 @@ public:
 		~ModInstance_t();
 
 		bool ParseSettings();
-		void ParseConVars();
+		//void ParseConVars();
 		void ParseLocalizationFiles();
 
 		inline void SetState(eModState state) { m_iState = state; };

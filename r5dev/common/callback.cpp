@@ -77,21 +77,9 @@
 MP_GameMode_Changed_f
 =====================
 */
-void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString)
 {
 	v_SetupGamemode(mp_gamemode->GetString());
-}
-
-/*
-=====================
-MP_HostName_Changed_f
-=====================
-*/
-void MP_HostName_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
-{
-#ifndef DEDICATED
-	g_Browser.SetHostName(pylon_matchmaking_hostname->GetString());
-#endif // !DEDICATED
 }
 
 #ifndef CLIENT_DLL
@@ -120,6 +108,11 @@ void Host_Changelevel_f(const CCommand& args)
 }
 #endif // !CLIENT_DLL
 
+// TODO: move this to 'packedstore.cpp' and move everything in that file to 'packetstorebuilder.cpp'
+static ConVar fs_packedstore_workspace("fs_packedstore_workspace", "ship", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.");
+static ConVar fs_packedstore_compression_level("fs_packedstore_compression_level", "default", FCVAR_DEVELOPMENTONLY, "Determines the VPK compression level.", "fastest faster default better uber");
+static ConVar fs_packedstore_max_helper_threads("fs_packedstore_max_helper_threads", "-1", FCVAR_DEVELOPMENTONLY, "Max # of additional \"helper\" threads to create during compression.", true, -1, true, LZHAM_MAX_HELPER_THREADS, "Must range between [-1,LZHAM_MAX_HELPER_THREADS], where -1=max practical");
+
 /*
 =====================
 VPK_Pack_f
@@ -135,7 +128,7 @@ void VPK_Pack_f(const CCommand& args)
 		return;
 	}
 
-	const char* workspacePath = fs_packedstore_workspace->GetString();
+	const char* workspacePath = fs_packedstore_workspace.GetString();
 
 	if (!FileSystem()->IsDirectory(workspacePath, "PLATFORM"))
 	{
@@ -151,7 +144,7 @@ void VPK_Pack_f(const CCommand& args)
 
 	CPackedStoreBuilder builder;
 
-	builder.InitLzEncoder(fs_packedstore_max_helper_threads->GetInt(), fs_packedstore_compression_level->GetString());
+	builder.InitLzEncoder(fs_packedstore_max_helper_threads.GetInt(), fs_packedstore_compression_level.GetString());
 	builder.PackStore(pair, workspacePath, "vpk/");
 
 	timer.End();
@@ -191,7 +184,7 @@ void VPK_Unpack_f(const CCommand& args)
 	CPackedStoreBuilder builder;
 
 	builder.InitLzDecoder();
-	builder.UnpackStore(vpk, fs_packedstore_workspace->GetString());
+	builder.UnpackStore(vpk, fs_packedstore_workspace.GetString());
 
 	timer.End();
 	Msg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -236,37 +229,15 @@ void VPK_Unmount_f(const CCommand& args)
 
 /*
 =====================
-NET_UseRandomKeyChanged_f
-
-  Use random AES encryption
-  key for game packets
-=====================
-*/
-void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
-{
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
-	{
-		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
-			return; // Same value.
-
-		if (pConVarRef->GetBool())
-			NET_GenerateKey();
-		else
-			NET_SetKey(DEFAULT_NET_ENCRYPTION_KEY);
-	}
-}
-
-/*
-=====================
 NET_UseSocketsForLoopbackChanged_f
 
   Use random AES encryption
   key for game packets
 =====================
 */
-void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString)
 {
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{
 		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
 			return; // Same value.
@@ -283,37 +254,9 @@ void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString
 	}
 }
 
-#ifndef DEDICATED
-
-/*
-=====================
-RCON_SendLogs_f
-
-  request logs from RCON server
-=====================
-*/
-void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+void LanguageChanged_f(IConVar* pConVar, const char* pOldString)
 {
-	RCONClient()->RequestConsoleLog(RCONClient()->ShouldReceive());
-}
-
-/*
-=====================
-GFX_NVN_Changed_f
-
-  force update NVIDIA Reflex
-  Low Latency parameters
-=====================
-*/
-void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
-{
-	GFX_MarkLowLatencyParametersOutOfDate();
-}
-#endif // !DEDICATED
-
-void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
-{
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{
 		const char* pNewString = pConVarRef->GetString();
 
@@ -333,102 +276,6 @@ void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValu
 		g_MasterServer.SetLanguage(pNewString);
 	}
 }
-
-/*
-=====================
-RCON_PasswordChanged_f
-
-  Change RCON password
-  on server and client
-=====================
-*/
-void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
-{
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
-	{
-		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
-			return; // Same password.
-
-#ifndef DEDICATED
-		if (!RCONClient()->IsInitialized())
-			RCONClient()->Init(); // Initialize first.
-#endif // !DEDICATED
-#ifndef CLIENT_DLL
-		if (RCONServer()->IsInitialized())
-			RCONServer()->SetPassword(pConVarRef->GetString());
-		else
-			RCONServer()->Init(); // Initialize first.
-#endif // !CLIENT_DLL
-	}
-}
-
-#ifndef CLIENT_DLL
-/*
-=====================
-RCON_WhiteListAddresChanged_f
-
-  Change whitelist address
-  on RCON server
-=====================
-*/
-void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
-{
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
-	{
-		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
-			return; // Same address.
-
-		if (!RCONServer()->SetWhiteListAddress(pConVarRef->GetString()))
-		{
-			Warning(eDLL_T::SERVER, "Failed to set RCON whitelist address: %s\n", pConVarRef->GetString());
-		}
-	}
-}
-
-/*
-=====================
-RCON_ConnectionCountChanged_f
-
-  Change max connection
-  count on RCON server
-=====================
-*/
-void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
-{
-	if (!RCONServer()->IsInitialized())
-		return; // Not initialized; no sockets at this point.
-
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetCommandName()))
-	{
-		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
-			return; // Same count.
-
-		const int maxCount = pConVarRef->GetInt();
-
-		int count = RCONServer()->GetAuthenticatedCount();
-		CSocketCreator* pCreator = RCONServer()->GetSocketCreator();
-
-		if (count < maxCount)
-		{
-			if (!pCreator->IsListening())
-			{
-				pCreator->CreateListenSocket(*RCONServer()->GetNetAddress());
-			}
-		}
-		else
-		{
-			while (count > maxCount)
-			{
-				RCONServer()->Disconnect(count-1, "too many authenticated sockets");
-				count = RCONServer()->GetAuthenticatedCount();
-			}
-
-			pCreator->CloseListenSocket();
-			RCONServer()->CloseNonAuthConnection();
-		}
-	}
-}
-#endif // !CLIENT_DLL
 
 #ifndef DEDICATED
 /*
@@ -518,7 +365,7 @@ void Line_f(const CCommand& args)
 		end[i] = float(atof(args[i + 4]));
 	}
 
-	g_pDebugOverlay->AddLineOverlay(start, end, 255, 255, 0, !r_debug_draw_depth_test->GetBool(), 100);
+	g_pDebugOverlay->AddLineOverlay(start, end, 255, 255, 0, !r_debug_draw_depth_test.GetBool(), 100);
 }
 
 /*
@@ -577,6 +424,9 @@ void Capsule_f(const CCommand& args)
 }
 #endif // !DEDICATED
 
+// TODO: move to other file?
+static ConVar bhit_depth_test("bhit_depth_test", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use depth test for bullet ray trace overlay");
+static ConVar bhit_abs_origin("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging (requires 'r_visualizetraces' to be set!)");
 /*
 =====================
 BHit_f
@@ -616,13 +466,13 @@ void BHit_f(const CCommand& args)
 
 		g_pEngineTraceServer->TraceRay(ray, TRACE_MASK_NPCWORLDSTATIC, &trace);
 
-		g_pDebugOverlay->AddLineOverlay(trace.startpos, trace.endpos, 0, 255, 0, !bhit_depth_test->GetBool(), sv_visualizetraces_duration->GetFloat());
-		g_pDebugOverlay->AddLineOverlay(trace.endpos, vecAbsEnd, 255, 0, 0, !bhit_depth_test->GetBool(), sv_visualizetraces_duration->GetFloat());
+		g_pDebugOverlay->AddLineOverlay(trace.startpos, trace.endpos, 0, 255, 0, !bhit_depth_test.GetBool(), sv_visualizetraces_duration->GetFloat());
+		g_pDebugOverlay->AddLineOverlay(trace.endpos, vecAbsEnd, 255, 0, 0, !bhit_depth_test.GetBool(), sv_visualizetraces_duration->GetFloat());
 	}
 #endif // !CLIENT_DLL
 
 #ifndef DEDICATED
-	if (bhit_abs_origin->GetBool() && r_visualizetraces->GetBool())
+	if (bhit_abs_origin.GetBool() && r_visualizetraces->GetBool())
 	{
 		const int iEnt = atoi(args[2]);
 		if (const IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
@@ -697,6 +547,11 @@ Cmd_Exec_f
   executes a cfg file
 =====================
 */
+#ifndef DEDICATED
+static ConVar sv_quota_scriptExecsPerSecond("sv_quota_scriptExecsPerSecond", "3", FCVAR_REPLICATED | FCVAR_RELEASE,
+	"How many script executions per second clients are allowed to submit, 0 to disable the limitation thereof.", true, 0.f, false, 0.f);
+#endif // !DEDICATED
+
 void Cmd_Exec_f(const CCommand& args)
 {
 #ifndef DEDICATED
@@ -705,7 +560,7 @@ void Cmd_Exec_f(const CCommand& args)
 	// flag users that patch them out.
 	if (!ThreadInServerFrameThread() && g_pClientState->IsActive())
 	{
-		const int execQuota = sv_quota_scriptExecsPerSecond->GetInt();
+		const int execQuota = sv_quota_scriptExecsPerSecond.GetInt();
 
 		if (execQuota > 0)
 		{

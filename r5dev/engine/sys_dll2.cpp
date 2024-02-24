@@ -173,14 +173,31 @@ void CEngineAPI::PumpMessages()
 #endif // !DEDICATED
 }
 
+#ifndef DEDICATED
+//-----------------------------------------------------------------------------
+// Purpose: force update NVIDIA Reflex Low Latency parameters
+//-----------------------------------------------------------------------------
+static void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString)
+{
+    GFX_MarkLowLatencyParametersOutOfDate();
+}
+
+static ConVar fps_max_gfx("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f, GFX_NVN_Changed_f);
+static ConVar gfx_nvnUseLowLatency("gfx_nvnUseLowLatency", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK.", GFX_NVN_Changed_f);
+static ConVar gfx_nvnUseLowLatencyBoost("gfx_nvnUseLowLatencyBoost", "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", GFX_NVN_Changed_f);
+
+// NOTE: defaulted to 0 as it causes rubber banding on some hardware.
+static ConVar gfx_nvnUseMarkersToOptimize("gfx_nvnUseMarkersToOptimize", "0", FCVAR_RELEASE, "Use NVIDIA Reflex Low Latency markers to optimize (requires Low Latency Boost to be enabled).", GFX_NVN_Changed_f);
+#endif // !DEDICATED
+
 void CEngineAPI::UpdateLowLatencyParameters()
 {
 #ifndef DEDICATED
-    const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
-    const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
-    const bool bUseMarkersToOptimize = gfx_nvnUseMarkersToOptimize->GetBool();
+    const bool bUseLowLatencyMode = gfx_nvnUseLowLatency.GetBool();
+    const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost.GetBool();
+    const bool bUseMarkersToOptimize = gfx_nvnUseMarkersToOptimize.GetBool();
 
-    float fpsMax = fps_max_gfx->GetFloat();
+    float fpsMax = fps_max_gfx.GetFloat();
 
     if (fpsMax == -1.0f)
     {

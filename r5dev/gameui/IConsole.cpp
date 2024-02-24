@@ -23,6 +23,19 @@ History:
 #include "engine/cmd.h"
 #include "gameui/IConsole.h"
 
+//-----------------------------------------------------------------------------
+// Console variables
+//-----------------------------------------------------------------------------
+static ConVar con_max_lines("con_max_lines", "1024", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Maximum number of lines in the console before cleanup starts", true, 1.f, false, 0.f);
+static ConVar con_max_history("con_max_history", "512", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Maximum number of command submission items before history cleanup starts", true, 0.f, false, 0.f);
+static ConVar con_suggest_limit("con_suggest_limit", "128", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Maximum number of suggestions the autocomplete window will show for the console", true, 0.f, false, 0.f);
+
+static ConVar con_suggest_showhelptext("con_suggest_showhelptext", "1", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Show CommandBase help text in autocomplete window");
+static ConVar con_suggest_showflags("con_suggest_showflags", "1", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Show CommandBase flags in autocomplete window");
+
+//-----------------------------------------------------------------------------
+// Console commands
+//-----------------------------------------------------------------------------
 static ConCommand toggleconsole("toggleconsole", CConsole::ToggleConsole_f, "Show/hide the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE);
 
 static ConCommand con_history("con_history", CConsole::LogHistory_f, "Shows the developer console submission history", FCVAR_CLIENTDLL | FCVAR_RELEASE);
@@ -410,7 +423,7 @@ void CConsole::SuggestPanel(void)
 
         ImGui::PushID(static_cast<int>(i));
 
-        if (con_suggest_showflags->GetBool())
+        if (con_suggest_showflags.GetBool())
         {
             // Show the flag texture before the cvar name.
             const int mainTexIdx = GetFlagTextureIndex(suggest.m_nFlags);
@@ -603,7 +616,7 @@ void CConsole::FindFromPartial(void)
     ICvar::Iterator iter(g_pCVar);
     for (iter.SetFirst(); iter.IsValid(); iter.Next())
     {
-        if (m_vSuggest.size() >= con_suggest_limit->GetInt())
+        if (m_vSuggest.size() >= con_suggest_limit.GetInt())
         {
             break;
         }
@@ -633,7 +646,7 @@ void CConsole::FindFromPartial(void)
                 svValue.append(pConVar->GetString());
                 svValue.append("]");
             }
-            if (con_suggest_showhelptext->GetBool())
+            if (con_suggest_showhelptext.GetBool())
             {
                 std::function<void(string& , const char*)> fnAppendDocString = [&](string& svTarget, const char* pszDocString)
                 {
@@ -748,7 +761,7 @@ void CConsole::BuildSuggestPanelRect(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClampLogSize(void)
 {
-    const int nMaxLines = con_max_lines->GetInt();
+    const int nMaxLines = con_max_lines.GetInt();
 
     if (m_Logger.GetTotalLines() > nMaxLines)
     {
@@ -769,7 +782,7 @@ void CConsole::ClampLogSize(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClampHistorySize(void)
 {
-    while (m_vHistory.size() > con_max_history->GetInt())
+    while (m_vHistory.size() > con_max_history.GetInt())
     {
         m_vHistory.erase(m_vHistory.begin());
     }

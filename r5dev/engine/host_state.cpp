@@ -52,7 +52,16 @@
 #endif // !CLIENT_DLL
 #include "game/shared/vscript_shared.h"
 
+#ifdef DEDICATED
+static ConVar hostdesc("hostdesc", "", FCVAR_RELEASE, "Host game server description.");
+#endif // DEDICATED
+
 #ifndef CLIENT_DLL
+static ConVar sv_pylonVisibility("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", "0 = Offline, 1 = Hidden, 2 = Public.");
+static ConVar sv_pylonRefreshRate("sv_pylonRefreshRate", "5.0", FCVAR_DEVELOPMENTONLY, "Pylon host refresh rate (seconds).");
+
+static ConVar sv_autoReloadRate("sv_autoReloadRate", "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null).");
+
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
 // Input  : &netGameServer - 
@@ -60,7 +69,7 @@
 //-----------------------------------------------------------------------------
 bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
 {
-	if (!g_pServer->IsActive() || !sv_pylonVisibility->GetBool()) // Check for active game.
+	if (!g_pServer->IsActive() || !sv_pylonVisibility.GetBool()) // Check for active game.
 	{
 		return false;
 	}
@@ -267,7 +276,7 @@ void CHostState::Setup(void)
 	RCONClient()->Init();
 #endif // !DEDICATED
 
-	if (net_useRandomKey->GetBool())
+	if (net_useRandomKey.GetBool())
 	{
 		NET_GenerateKey();
 	}
@@ -307,14 +316,14 @@ void CHostState::Think(void) const
 #endif // DEDICATED
 		bInitialized = true;
 	}
-	if (sv_autoReloadRate->GetBool())
+	if (sv_autoReloadRate.GetBool())
 	{
-		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate->GetFloat())
+		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate.GetFloat())
 		{
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
 		}
 	}
-	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetFloat())
+	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate.GetFloat())
 	{
 		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s) - %d%% Server CPU (%.3f msec on frame %d)",
 			hostname->GetString(), g_pServer->GetNumClients(),
@@ -324,20 +333,20 @@ void CHostState::Think(void) const
 
 		statsTimer.Start();
 	}
-	if (sv_globalBanlist->GetBool() &&
-		banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetFloat())
+	if (sv_globalBanlist.GetBool() &&
+		banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate.GetFloat())
 	{
 		SV_CheckForBan();
 		banListTimer.Start();
 	}
 #ifdef DEDICATED
-	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate->GetFloat())
+	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate.GetFloat())
 	{
 		const NetGameServer_t netGameServer
 		{
 			hostname->GetString(),
-			hostdesc->GetString(),
-			sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
+			hostdesc.GetString(),
+			sv_pylonVisibility.GetInt() == EServerVisibility_t::HIDDEN,
 			g_pHostState->m_levelName,
 			v_Playlists_GetCurrent(),
 			hostip->GetString(),

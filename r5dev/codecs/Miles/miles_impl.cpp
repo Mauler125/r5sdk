@@ -3,6 +3,8 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 
+ConVar miles_debug("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System", "1 = print; 0 (zero) = no print");
+
 //-----------------------------------------------------------------------------
 // Purpose: logs debug output emitted from the Miles Sound System
 // Input  : nLogLevel - 
@@ -39,7 +41,7 @@ bool Miles_Initialize()
 
 void MilesQueueEventRun(Miles::Queue* queue, const char* eventName)
 {
-	if(miles_debug->GetBool())
+	if(miles_debug.GetBool())
 		Msg(eDLL_T::AUDIO, "%s: running event: '%s'\n", __FUNCTION__, eventName);
 
 	v_MilesQueueEventRun(queue, eventName);

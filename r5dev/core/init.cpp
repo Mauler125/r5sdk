@@ -231,8 +231,6 @@ void Systems_Init()
 	Msg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
 	Msg(eDLL_T::NONE, "\n");
 
-	ConVar_StaticInit();
-
 #ifdef DEDICATED
 	InitCommandLineParameters();
 #endif // DEDICATED
@@ -474,7 +472,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 
 	// Tier1
 	REGISTER(VCommandLine);
-	REGISTER(VConVar);
 	REGISTER(VCVar);
 
 	// VPC

@@ -17,12 +17,34 @@
 #include "mbedtls/include/mbedtls/sha512.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: constants
 //-----------------------------------------------------------------------------
 static const char s_NoAuthMessage[]  = "This server is password protected for console access; authenticate with 'PASS <password>' command.\n";
 static const char s_WrongPwMessage[] = "Admin password incorrect.\n";
 static const char s_AuthMessage[]    = "Authentication successful.\n";
 static const char s_BannedMessage[]  = "Go away.\n";
+
+//-----------------------------------------------------------------------------
+// Purpose: console variables
+//-----------------------------------------------------------------------------
+static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString);
+static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString);
+static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString);
+
+static ConVar rcon_password("rcon_password", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty)", false, 0.f, false, 0.f, &RCON_PasswordChanged_f);
+
+static ConVar sv_rcon_debug("sv_rcon_debug", "0", FCVAR_RELEASE, "Show rcon debug information ( !slower! )");
+static ConVar sv_rcon_sendlogs("sv_rcon_sendlogs", "0", FCVAR_RELEASE, "Network console logs to connected and authenticated sockets");
+
+//static ConVar sv_rcon_banpenalty("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication");
+
+static ConVar sv_rcon_maxfailures("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times an user can fail rcon authentication before being banned", true, 1.f, false, 0.f);
+static ConVar sv_rcon_maxignores("sv_rcon_maxignores", "15", FCVAR_RELEASE, "Max number of times an user can ignore the instruction message before being banned", true, 1.f, false, 0.f);
+static ConVar sv_rcon_maxsockets("sv_rcon_maxsockets", "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets", true, 1.f, true, MAX_PLAYERS);
+
+static ConVar sv_rcon_maxconnections("sv_rcon_maxconnections", "1", FCVAR_RELEASE, "Max number of authenticated connections before the server closes the listen socket", true, 1.f, true, MAX_PLAYERS, &RCON_ConnectionCountChanged_f);
+static ConVar sv_rcon_maxpacketsize("sv_rcon_maxpacketsize", "1024", FCVAR_RELEASE, "Max number of bytes allowed in a command packet from a non-authenticated netconsole", true, 0.f, false, 0.f);
+static ConVar sv_rcon_whitelist_address("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts", &RCON_WhiteListAddresChanged_f, "Format: '::ffff:127.0.0.1'");
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -51,7 +73,7 @@ void CRConServer::Init(void)
 {
 	if (!m_bInitialized)
 	{
-		if (!SetPassword(rcon_password->GetString()))
+		if (!SetPassword(rcon_password.GetString()))
 		{
 			return;
 		}
@@ -97,7 +119,7 @@ void CRConServer::Think(void)
 	const int nCount = m_Socket.GetAcceptedSocketCount();
 
 	// Close redundant sockets if there are too many except for whitelisted and authenticated.
-	if (nCount > sv_rcon_maxsockets->GetInt())
+	if (nCount > sv_rcon_maxsockets.GetInt())
 	{
 		for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
 		{
@@ -202,7 +224,7 @@ void CRConServer::RunFrame(void)
 				continue;
 			}
 
-			Recv(data, sv_rcon_maxpacketsize->GetInt());
+			Recv(data, sv_rcon_maxpacketsize.GetInt());
 		}
 	}
 }
@@ -350,13 +372,13 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 		if (Comparator(request.requestmsg()))
 		{
 			data.m_bAuthorized = true;
-			if (++m_nAuthConnections >= sv_rcon_maxconnections->GetInt())
+			if (++m_nAuthConnections >= sv_rcon_maxconnections.GetInt())
 			{
 				m_Socket.CloseListenSocket();
 				CloseNonAuthConnection();
 			}
 
-			const char* pSendLogs = (!sv_rcon_sendlogs->GetBool() || data.m_bInputOnly) ? "0" : "1";
+			const char* pSendLogs = (!sv_rcon_sendlogs.GetBool() || data.m_bInputOnly) ? "0" : "1";
 
 			SendEncode(data.m_hSocket, s_AuthMessage, pSendLogs,
 				sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
@@ -364,7 +386,7 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 		else // Bad password.
 		{
 			const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
-			if (sv_rcon_debug->GetBool())
+			if (sv_rcon_debug.GetBool())
 			{
 				Msg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
 			}
@@ -449,11 +471,11 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 				const bool bWantLog = atoi(request.requestval().c_str()) != NULL;
 
 				data.m_bInputOnly = !bWantLog;
-				if (bWantLog && !sv_rcon_sendlogs->GetBool())
+				if (bWantLog && !sv_rcon_sendlogs.GetBool())
 				{
 					// Toggle it on since there's at least 1 netconsole that
 					// wants to receive logs.
-					sv_rcon_sendlogs->SetValue(bWantLog);
+					sv_rcon_sendlogs.SetValue(bWantLog);
 				}
 			}
 			break;
@@ -539,7 +561,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData& data)
 
 	if (m_BannedList.size() >= RCON_MAX_BANNEDLIST_SIZE)
 	{
-		const char* pszWhiteListAddress = sv_rcon_whitelist_address->GetString();
+		const char* pszWhiteListAddress = sv_rcon_whitelist_address.GetString();
 		if (!pszWhiteListAddress[0])
 		{
 			Warning(eDLL_T::SERVER, "Banned list overflowed; please use a whitelist address. RCON shutting down...\n");
@@ -551,7 +573,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData& data)
 		// Only allow whitelisted at this point.
 		if (!m_WhiteListAddress.CompareAdr(netAdr))
 		{
-			if (sv_rcon_debug->GetBool())
+			if (sv_rcon_debug.GetBool())
 			{
 				Msg(eDLL_T::SERVER, "Banned list is full; dropping '%s'\n", szNetAdr);
 			}
@@ -569,8 +591,8 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData& data)
 	}
 
 	// Check if netconsole has reached maximum number of attempts > add to banned list.
-	if (data.m_nFailedAttempts >= sv_rcon_maxfailures->GetInt()
-		|| data.m_nIgnoredMessage >= sv_rcon_maxignores->GetInt())
+	if (data.m_nFailedAttempts >= sv_rcon_maxfailures.GetInt()
+		|| data.m_nIgnoredMessage >= sv_rcon_maxignores.GetInt())
 	{
 		// Don't add white listed address to banned list.
 		if (m_WhiteListAddress.CompareAdr(netAdr))
@@ -651,7 +673,7 @@ bool CRConServer::ShouldSend(const sv_rcon::response_t responseType) const
 
 	if (responseType == sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG)
 	{
-		if (!sv_rcon_sendlogs->GetBool() || !m_Socket.GetAuthorizedSocketCount())
+		if (!sv_rcon_sendlogs.GetBool() || !m_Socket.GetAuthorizedSocketCount())
 		{
 			// Disabled or no authorized clients to send to...
 			return false;
@@ -675,6 +697,79 @@ bool CRConServer::IsInitialized(void) const
 int CRConServer::GetAuthenticatedCount(void) const
 {
 	return m_nAuthConnections;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: change whitelist address on RCON server
+//-----------------------------------------------------------------------------
+static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same address.
+
+		if (!RCONServer()->SetWhiteListAddress(pConVarRef->GetString()))
+		{
+			Warning(eDLL_T::SERVER, "Failed to set RCON whitelist address: %s\n", pConVarRef->GetString());
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: change max connection count on RCON server
+//-----------------------------------------------------------------------------
+static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	if (!RCONServer()->IsInitialized())
+		return; // Not initialized; no sockets at this point.
+
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same count.
+
+		const int maxCount = pConVarRef->GetInt();
+
+		int count = RCONServer()->GetAuthenticatedCount();
+		CSocketCreator* pCreator = RCONServer()->GetSocketCreator();
+
+		if (count < maxCount)
+		{
+			if (!pCreator->IsListening())
+			{
+				pCreator->CreateListenSocket(*RCONServer()->GetNetAddress());
+			}
+		}
+		else
+		{
+			while (count > maxCount)
+			{
+				RCONServer()->Disconnect(count - 1, "too many authenticated sockets");
+				count = RCONServer()->GetAuthenticatedCount();
+			}
+
+			pCreator->CloseListenSocket();
+			RCONServer()->CloseNonAuthConnection();
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: change RCON password on server and drop all connections
+//-----------------------------------------------------------------------------
+void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same password.
+
+		if (RCONServer()->IsInitialized())
+			RCONServer()->SetPassword(pConVarRef->GetString());
+		else
+			RCONServer()->Init(); // Initialize first.
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

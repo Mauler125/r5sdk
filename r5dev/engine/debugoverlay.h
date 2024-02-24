@@ -4,13 +4,8 @@
 #include "mathlib/color.h"
 #include "mathlib/ssemath.h"
 
-// Something has to be hardcoded..
-constexpr auto MATERIALSYSTEM_VCALL_OFF_0 = 0x3F0;
-constexpr auto CMATQUEUEDRENDERCONTEXT_VCALL_OFS_0 = 0x288;
-constexpr auto CMATQUEUEDRENDERCONTEXT_VCALL_OFS_1 = 0x290;
-
-constexpr auto CMATQUEUEDRENDERCONTEXT_VCALL_OFS_2 = 0x8;
 constexpr auto NDEBUG_PERSIST_TILL_NEXT_SERVER = (0.01023f);
+extern ConVar r_debug_draw_depth_test;
 
 enum class OverlayType_t
 {

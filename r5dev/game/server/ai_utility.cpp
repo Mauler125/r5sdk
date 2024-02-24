@@ -12,6 +12,8 @@
 #include "game/server/detour_impl.h"
 #include "game/server/ai_networkmanager.h"
 
+static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! )");
+
 inline uint32_t g_HullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
 {
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -71,7 +73,7 @@ uint32_t GetHullMaskById(int hullId)
 //-----------------------------------------------------------------------------
 uint8_t IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef, int hullId)
 {
-    if (navmesh_always_reachable->GetBool())
+    if (navmesh_always_reachable.GetBool())
         return true;
 
     return dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);

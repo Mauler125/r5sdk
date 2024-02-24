@@ -22,6 +22,9 @@ constexpr int AINET_MINIMUM_SIZE          = 82; // The file is at least this lar
 constexpr const char* AINETWORK_EXT       = ".ain";
 constexpr const char* AINETWORK_PATH      = "maps/graphs/";
 
+
+static ConVar ai_ainDumpOnLoad("ai_ainDumpOnLoad", "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load");
+
 /*
 ==============================
 CAI_NetworkBuilder::BuildFile
@@ -521,7 +524,7 @@ void CAI_NetworkManager::LoadNetworkGraphEx(CAI_NetworkManager* pManager, CUtlBu
 {
 	CAI_NetworkManager__LoadNetworkGraph(pManager, pBuffer, szAIGraphFile);
 
-	if (ai_ainDumpOnLoad->GetBool())
+	if (ai_ainDumpOnLoad.GetBool())
 	{
 		Msg(eDLL_T::SERVER, "Dumping AI Network '%s'\n", szAIGraphFile);
 		CAI_NetworkBuilder::SaveNetworkGraph(pManager->m_pNetwork);

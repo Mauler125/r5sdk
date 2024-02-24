@@ -138,11 +138,13 @@ ssize_t SpinPresent(void)
 //			bComplain - 
 // Output : pointer to material
 //-----------------------------------------------------------------------------
+static ConVar mat_alwaysComplain("mat_alwaysComplain", "0", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Always complain when a material is missing");
+
 CMaterialGlue* CMaterialSystem::FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain)
 {
 	CMaterialGlue* pMaterial = CMaterialSystem__FindMaterialEx(pMatSys, pMaterialName, nMaterialType, nUnk, bComplain);
 
-	if ((bComplain || mat_alwaysComplain->GetBool()) && pMaterial->IsErrorMaterial())
+	if ((bComplain || mat_alwaysComplain.GetBool()) && pMaterial->IsErrorMaterial())
 	{
 		Error(eDLL_T::MS, NO_ERROR, "Material \"%s\" not found; replacing with \"%s\".\n", pMaterialName, pMaterial->GetName());
 	}
