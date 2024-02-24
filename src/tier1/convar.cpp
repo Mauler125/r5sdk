@@ -311,7 +311,7 @@ ConCommand::ConCommand(const char* pName, FnCommandCallbackV1_t callback, const 
 	int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/, const char* pszUsageString /*= 0*/)
 {
 	m_fnSupplementalFinishCallBack = DefaultNullSub;
-	m_fnSupplementalCallback = nullptr;
+	m_fnSupplementalCallback = (FnCommandSupplementalCallback_t)DefaultNullSub;
 
 	// Set the callback
 	m_fnCommandCallbackV1 = callback;
@@ -328,7 +328,7 @@ ConCommand::ConCommand(const char* pName, FnCommandCallback_t callback, const ch
 	int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/, const char* pszUsageString /*= 0*/)
 {
 	m_fnSupplementalFinishCallBack = DefaultNullSub;
-	m_fnSupplementalCallback = nullptr;
+	m_fnSupplementalCallback = (FnCommandSupplementalCallback_t)DefaultNullSub;
 
 	// Set the callback
 	m_fnCommandCallback = callback;
@@ -345,7 +345,7 @@ ConCommand::ConCommand(const char* pName, ICommandCallback* pCallback, const cha
 	int flags /*= 0*/, ICommandCompletionCallback* pCompletionCallback /*= 0*/, const char* pszUsageString /*= 0*/)
 {
 	m_fnSupplementalFinishCallBack = DefaultNullSub;
-	m_fnSupplementalCallback = nullptr;
+	m_fnSupplementalCallback = (FnCommandSupplementalCallback_t)DefaultNullSub;
 
 	// Set the callback
 	m_pCommandCallback = pCallback;
@@ -416,11 +416,16 @@ bool ConCommand::CanAutoComplete(void) const
 //-----------------------------------------------------------------------------
 void ConCommand::Dispatch(const ECommandTarget_t target, const CCommand& command, const bool bCallSupplemental)
 {
+	// If this is still false towards the end of this function, there is a bug
+	// somewhere in code
+	bool bRanCallback = false;
+
 	if (m_bUsingNewCommandCallback)
 	{
 		if (m_fnCommandCallback)
 		{
 			(*m_fnCommandCallback)(command);
+			bRanCallback = true;
 		}
 	}
 	else if (m_bUsingCommandCallbackInterface)
@@ -428,6 +433,7 @@ void ConCommand::Dispatch(const ECommandTarget_t target, const CCommand& command
 		if (m_pCommandCallback)
 		{
 			m_pCommandCallback->CommandCallback(command);
+			bRanCallback = true;
 		}
 	}
 	else
@@ -435,6 +441,7 @@ void ConCommand::Dispatch(const ECommandTarget_t target, const CCommand& command
 		if (m_fnCommandCallbackV1)
 		{
 			(*m_fnCommandCallbackV1)();
+			bRanCallback = true;
 		}
 	}
 
@@ -444,7 +451,7 @@ void ConCommand::Dispatch(const ECommandTarget_t target, const CCommand& command
 	}
 
 	// Command without callback!!!
-	AssertMsg(0, "Encountered ConCommand '%s' without a callback!\n", GetName());
+	AssertMsg(bRanCallback, "Encountered ConCommand '%s' without a callback!\n", GetName());
 }
 
 //-----------------------------------------------------------------------------
