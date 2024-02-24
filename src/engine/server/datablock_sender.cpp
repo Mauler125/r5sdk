@@ -7,6 +7,8 @@
 #include "common/proto_oob.h"
 #include "datablock_sender.h"
 
+ConVar net_compressDataBlockLzAcceleration("net_compressDataBlockLzAcceleration", "1", FCVAR_DEVELOPMENTONLY, "The acceleration value for LZ4 data block compression");
+
 //-----------------------------------------------------------------------------
 // Purpose: sends the data block
 //-----------------------------------------------------------------------------
@@ -109,7 +111,7 @@ void ServerDataBlockSender::WriteDataBlock(const uint8_t* const sourceData, cons
 	if (net_compressDataBlock->GetBool())
 	{
 		const int encodedSize = LZ4_compress_fast((const char*)sourceData, (char*)m_pScratchBuffer + sizeof(ServerDataBlockHeader_s),
-			dataSize, SNAPSHOT_SCRATCH_BUFFER_SIZE, net_compressDataBlockLzAcceleration->GetInt());
+			dataSize, SNAPSHOT_SCRATCH_BUFFER_SIZE, net_compressDataBlockLzAcceleration.GetInt());
 
 		// this shouldn't happen at all
 		if (!encodedSize)

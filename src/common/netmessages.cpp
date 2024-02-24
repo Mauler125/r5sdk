@@ -90,6 +90,7 @@ bool CLC_SetPlaylistVarOverride::WriteToBufferImpl(CLC_SetPlaylistVarOverride* t
 	return CLC_SetPlaylistVarOverride_WriteToBuffer(thisptr, buffer);
 }
 
+static ConVar enable_CmdKeyValues("enable_CmdKeyValues", "0", FCVAR_DEVELOPMENTONLY, "Toggle CmdKeyValues transmit and receive.");
 
 ///////////////////////////////////////////////////////////////////////////////////
 // below functions are hooked as 'CmdKeyValues' isn't really used in this game, but
@@ -98,8 +99,8 @@ bool CLC_SetPlaylistVarOverride::WriteToBufferImpl(CLC_SetPlaylistVarOverride* t
 ///////////////////////////////////////////////////////////////////////////////////
 bool Base_CmdKeyValues::ReadFromBufferImpl(Base_CmdKeyValues* thisptr, bf_read* buffer)
 {
-	// Abusable netmsg; only allow if cheats are enabled.
-	if (!enable_CmdKeyValues->GetBool())
+	// Abusable netmsg; only allow if explicitly enabled by the client.
+	if (!enable_CmdKeyValues.GetBool())
 	{
 		return false;
 	}
@@ -108,8 +109,8 @@ bool Base_CmdKeyValues::ReadFromBufferImpl(Base_CmdKeyValues* thisptr, bf_read* 
 }
 bool Base_CmdKeyValues::WriteToBufferImpl(Base_CmdKeyValues* thisptr, bf_write* buffer)
 {
-	// Abusable netmsg; only allow if cheats are enabled.
-	if (!enable_CmdKeyValues->GetBool())
+	// Abusable netmsg; only allow if explicitly enabled by the client.
+	if (!enable_CmdKeyValues.GetBool())
 	{
 		return false;
 	}

@@ -64,6 +64,16 @@ static const char JWT_PUBLIC_KEY[] =
 "dwIDAQAB\n"
 "-----END PUBLIC KEY-----\n";
 
+static ConVar sv_onlineAuthEnable("sv_onlineAuthEnable", "1", FCVAR_RELEASE, "Enables the server-side online authentication system");
+
+static ConVar sv_onlineAuthValidateExpiry("sv_onlineAuthValidateExpiry", "1", FCVAR_RELEASE, "Validate the online authentication token 'expiry' claim");
+static ConVar sv_onlineAuthValidateIssuedAt("sv_onlineAuthValidateIssuedAt", "1", FCVAR_RELEASE, "Validate the online authentication token 'issued at' claim");
+
+static ConVar sv_onlineAuthExpiryTolerance("sv_onlineAuthExpiryTolerance", "1", FCVAR_DEVELOPMENTONLY, "The online authentication token 'expiry' claim tolerance in seconds", true, 0.f, true, float(UINT8_MAX), "Must range between [0,255]");
+static ConVar sv_onlineAuthIssuedAtTolerance("sv_onlineAuthIssuedAtTolerance", "30", FCVAR_DEVELOPMENTONLY, "The online authentication token 'issued at' claim tolerance in seconds", true, 0.f, true, float(UINT8_MAX), "Must range between [0,255]");
+
+static ConVar sv_quota_stringCmdsPerSecond("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands", true, 0.f, false, 0.f);
+
 //---------------------------------------------------------------------------------
 // Purpose: check whether this client is authorized to join this server
 // Input  : *playerName  - 
@@ -120,11 +130,11 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 	params.verification_key = (unsigned char*)JWT_PUBLIC_KEY;
 	params.verification_key_length = sizeof(JWT_PUBLIC_KEY);
 
-	params.validate_exp = sv_onlineAuthValidateExpiry->GetBool();
-	params.exp_tolerance_seconds = (uint8_t)sv_onlineAuthExpiryTolerance->GetInt();
+	params.validate_exp = sv_onlineAuthValidateExpiry.GetBool();
+	params.exp_tolerance_seconds = (uint8_t)sv_onlineAuthExpiryTolerance.GetInt();
 
-	params.validate_iat = sv_onlineAuthValidateIssuedAt->GetBool();
-	params.iat_tolerance_seconds = (uint8_t)sv_onlineAuthIssuedAtTolerance->GetInt();
+	params.validate_iat = sv_onlineAuthValidateIssuedAt.GetBool();
+	params.iat_tolerance_seconds = (uint8_t)sv_onlineAuthIssuedAtTolerance.GetInt();
 
 	enum l8w8jwt_validation_result validation_result;
 	const int r = l8w8jwt_decode(&params, &validation_result, &claims, &numClaims);
@@ -205,14 +215,14 @@ bool CClient::Connect(const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 
 #define REJECT_CONNECTION(fmt, ...) V_snprintf(szMessage, nMessageSize, fmt, ##__VA_ARGS__);
 
-	if (sv_onlineAuthEnable->GetBool())
+	if (sv_onlineAuthEnable.GetBool())
 	{
 		char authFailReason[512];
 		if (!Authenticate(szName, authFailReason, sizeof(authFailReason)))
 		{
 			REJECT_CONNECTION("Failed to verify authentication token [%s]", authFailReason);
 
-			const bool bEnableLogging = sv_showconnecting->GetBool();
+			const bool bEnableLogging = sv_showconnecting.GetBool();
 			if (bEnableLogging)
 			{
 				const char* const netAdr = pNetChan ? pNetChan->GetAddress() : "<unknown>";
@@ -285,7 +295,7 @@ void CClient::VActivatePlayer(CClient* pClient)
 #ifndef CLIENT_DLL
 	const CNetChan* pNetChan = pClient->GetNetChan();
 
-	if (pNetChan && sv_showconnecting->GetBool())
+	if (pNetChan && sv_showconnecting.GetBool())
 	{
 		Msg(eDLL_T::SERVER, "Activated player #%d; channel %s(%s) ('%llu')\n",
 			pClient->GetUserID(), pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
@@ -399,7 +409,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	CClientExtended* const pSlot = pClient_Adj->GetClientExtended();
 
 	const double flStartTime = Plat_FloatTime();
-	const int nCmdQuotaLimit = sv_quota_stringCmdsPerSecond->GetInt();
+	const int nCmdQuotaLimit = sv_quota_stringCmdsPerSecond.GetInt();
 
 	if (!nCmdQuotaLimit)
 		return true;

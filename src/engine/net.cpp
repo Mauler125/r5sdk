@@ -32,6 +32,25 @@ static void NET_GenerateKey_f()
 	NET_GenerateKey();
 }
 
+void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same value.
+
+		if (pConVarRef->GetBool())
+			NET_GenerateKey();
+		else
+			NET_SetKey(DEFAULT_NET_ENCRYPTION_KEY);
+	}
+}
+
+ConVar net_useRandomKey("net_useRandomKey", "1", FCVAR_RELEASE, "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
+
+static ConVar net_tracePayload("net_tracePayload", "0", FCVAR_DEVELOPMENTONLY, "Log the payload of the send/recv datagram to a file on the disk.");
+static ConVar net_encryptionEnable("net_encryptionEnable", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use AES encryption on game packets.");
+
 static ConCommand net_setkey("net_setkey", NET_SetKey_f, "Sets user specified base64 net key", FCVAR_RELEASE);
 static ConCommand net_generatekey("net_generatekey", NET_GenerateKey_f, "Generates and sets a random base64 net key", FCVAR_RELEASE);
 
@@ -44,10 +63,10 @@ static ConCommand net_generatekey("net_generatekey", NET_GenerateKey_f, "Generat
 //-----------------------------------------------------------------------------
 bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 {
-	const bool decryptPacket = (bEncrypted && net_encryptionEnable->GetBool());
+	const bool decryptPacket = (bEncrypted && net_encryptionEnable.GetBool());
 	const bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, decryptPacket);
 
-	if (result && net_tracePayload->GetBool())
+	if (result && net_tracePayload.GetBool())
 	{
 		// Log received packet data.
 		HexDump("[+] NET_ReceiveDatagram ", "net_trace",
@@ -68,10 +87,10 @@ bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 //-----------------------------------------------------------------------------
 int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypt)
 {
-	const bool encryptPacket = (bEncrypt && net_encryptionEnable->GetBool());
+	const bool encryptPacket = (bEncrypt && net_encryptionEnable.GetBool());
 	const int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, encryptPacket);
 
-	if (result && net_tracePayload->GetBool())
+	if (result && net_tracePayload.GetBool())
 	{
 		// Log transmitted packet data.
 		HexDump("[+] NET_SendDatagram ", "net_trace", pPayload, size_t(iLenght));
@@ -177,9 +196,9 @@ void NET_SetKey(const string& svNetKey)
 //-----------------------------------------------------------------------------
 void NET_GenerateKey()
 {
-	if (!net_useRandomKey->GetBool())
+	if (!net_useRandomKey.GetBool())
 	{
-		net_useRandomKey->SetValue(1);
+		net_useRandomKey.SetValue(1);
 		return; // Change callback will handle this.
 	}
 

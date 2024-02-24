@@ -45,6 +45,9 @@ static IPostMessageW            s_oPostMessageW = NULL;
 static IDXGIResizeBuffers       s_fnResizeBuffers    = NULL;
 static IDXGISwapChainPresent    s_fnSwapChainPresent = NULL;
 
+///////////////////////////////////////////////////////////////////////////////////
+static CFrameLimit s_FrameLimiter;
+
 //#################################################################################
 // WINDOW PROCEDURE
 //#################################################################################
@@ -133,9 +136,33 @@ void DrawImGui()
 // IDXGI
 //#################################################################################
 
+static ConVar fps_max_rt("fps_max_rt", "0", FCVAR_RELEASE, "Frame rate limiter within the render thread. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f);
+static ConVar fps_max_rt_tolerance("fps_max_rt_tolerance", "0.25", FCVAR_RELEASE, "Maximum amount of frame time before frame limiter restarts.", true, 0.f, false, 0.f);
+static ConVar fps_max_rt_sleep_threshold("fps_max_rt_sleep_threshold", "0.016666667", FCVAR_RELEASE, "Frame limiter starts to sleep when frame time exceeds this threshold.", true, 0.f, false, 0.f);
+
 HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
 {
-	g_FrameLimiter.Run();
+	float targetFps = fps_max_rt.GetFloat();
+
+	if (targetFps > 0.0f)
+	{
+		const float globalFps = fps_max->GetFloat();
+
+		// Make sure the global fps limiter is 'unlimited'
+		// before we let the rt frame limiter cap it to
+		// the desktop's refresh rate; not adhering to
+		// this will result in a major performance drop.
+		if (globalFps == 0.0f && targetFps == -1)
+			targetFps = g_pGame->GetTVRefreshRate();
+
+		if (targetFps > 0.0f)
+		{
+			const float sleepThreshold = fps_max_rt_sleep_threshold.GetFloat();
+			const float maxTolerance = fps_max_rt_tolerance.GetFloat();
+
+			s_FrameLimiter.Run(targetFps, sleepThreshold, maxTolerance);
+		}
+	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	// NOTE: -1 since we need to sync this with its corresponding frame, g_FrameNum

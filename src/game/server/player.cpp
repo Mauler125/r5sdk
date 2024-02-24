@@ -176,6 +176,11 @@ void CPlayer::ClampUnlag(CUserCmd* cmd)
 //			droppedPackets - 
 //			paused - 
 //------------------------------------------------------------------------------
+// TODO: this code is experimental and has reported problems from players with
+// high latency, needs to be debugged or a different approach needs to be taken!
+// Defaulted to OFF for now
+static ConVar sv_unlag_clamp("sv_unlag_clamp", "0", FCVAR_RELEASE, "Clamp the difference between the current time and received command time to sv_maxunlag + sv_clockcorrection_msecs.");
+
 void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 	int droppedPackets, bool paused)
 {
@@ -198,7 +203,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 		if (lastCommandNumber == MAX_QUEUED_COMMANDS_PROCESS)
 			return;
 
-		if (sv_unlag_clamp->GetBool())
+		if (sv_unlag_clamp.GetBool())
 			ClampUnlag(cmd);
 
 		CUserCmd* queuedCmd = &m_Commands[lastCommandNumber];

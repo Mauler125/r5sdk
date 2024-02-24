@@ -20,6 +20,11 @@
 #include "game/server/ai_network.h"
 #endif // !CLIENT_DLL
 
+ConVar r_debug_draw_depth_test("r_debug_draw_depth_test", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Toggle depth test for other debug draw functionality");
+
+static ConVar r_debug_overlay_nodecay("r_debug_overlay_nodecay", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything");
+static ConVar r_debug_overlay_invisible("r_debug_overlay_invisible", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Show invisible debug overlays (alpha < 1 = 255)");
+static ConVar r_debug_overlay_wireframe("r_debug_overlay_wireframe", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Use wireframe in debug overlay");
 
 //------------------------------------------------------------------------------
 // Purpose: checks if overlay should be decayed
@@ -27,7 +32,7 @@
 //------------------------------------------------------------------------------
 bool OverlayBase_t::IsDead() const
 {
-    if (r_debug_overlay_nodecay->GetBool())
+    if (r_debug_overlay_nodecay.GetBool())
     {
         // Keep rendering the overlay if no-decay is set.
         return false;
@@ -107,7 +112,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         OverlayBox_t* pBox = static_cast<OverlayBox_t*>(pOverlay);
         if (pBox->a < 1)
         {
-            if (r_debug_overlay_invisible->GetBool())
+            if (r_debug_overlay_invisible.GetBool())
             {
                 pBox->a = 255;
             }
@@ -126,7 +131,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         OverlaySphere_t* pSphere = static_cast<OverlaySphere_t*>(pOverlay);
         if (pSphere->a < 1)
         {
-            if (r_debug_overlay_invisible->GetBool())
+            if (r_debug_overlay_invisible.GetBool())
             {
                 pSphere->a = 255;
             }
@@ -137,14 +142,14 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
         }
 
-        if (r_debug_overlay_wireframe->GetBool())
+        if (r_debug_overlay_wireframe.GetBool())
         {
             v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, 
-                Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), r_debug_draw_depth_test->GetBool());
+                Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), r_debug_draw_depth_test.GetBool());
         }
         else
         {
-            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16, r_debug_draw_depth_test->GetBool());
+            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16, r_debug_draw_depth_test.GetBool());
         }
         break;
     }
@@ -153,7 +158,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         OverlayLine_t* pLine = static_cast<OverlayLine_t*>(pOverlay);
         if (pLine->a < 1)
         {
-            if (r_debug_overlay_invisible->GetBool())
+            if (r_debug_overlay_invisible.GetBool())
             {
                 pLine->a = 255;
             }
@@ -188,7 +193,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         OverlayCapsule_t* pCapsule = static_cast<OverlayCapsule_t*>(pOverlay);
         if (pCapsule->a < 1)
         {
-            if (r_debug_overlay_invisible->GetBool())
+            if (r_debug_overlay_invisible.GetBool())
             {
                 pCapsule->a = 255;
             }
@@ -205,7 +210,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         AngleInverse(angles, angles);
 
         DebugDrawCapsule(pCapsule->start, angles, pCapsule->radius, pCapsule->start.DistTo(pCapsule->end), 
-            Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), r_debug_draw_depth_test->GetBool());
+            Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), r_debug_draw_depth_test.GetBool());
         break;
     }
     case OverlayType_t::OVERLAY_UNK0:

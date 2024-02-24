@@ -111,6 +111,13 @@ static_assert(sizeof(CServer) == 0x25264C0);
 
 extern CServer* g_pServer;
 
+extern ConVar sv_globalBanlist;
+extern ConVar sv_banlistRefreshRate;
+
+extern ConVar sv_statusRefreshRate;
+
+extern ConVar sv_showconnecting;
+
 /* ==== CSERVER ========================================================================================================================================================= */
 inline void(*CServer__FrameJob)(double flFrameTime, bool bRunOverlays, bool bUpdateFrame);
 inline void(*CServer__RunFrame)(CServer* pServer);

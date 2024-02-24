@@ -21,6 +21,12 @@
 #include "vscript/languages/squirrel_re/include/sqstdaux.h"
 
 //---------------------------------------------------------------------------------
+// Console variables
+//---------------------------------------------------------------------------------
+static ConVar script_show_output("script_show_output", "0", FCVAR_RELEASE, "Prints the VM output to the console ( !slower! ).", true, 0.f, true, 2.f, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify");
+static ConVar script_show_warning("script_show_warning", "0", FCVAR_RELEASE, "Prints the VM warning output to the console ( !slower! ).", true, 0.f, true, 2.f, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify");
+
+//---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
 // Input  : *sqvm - 
 //			*fmt - 
@@ -71,7 +77,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 
 	// Determine whether this is an info or warning log.
 	bool bLogLevelOverride = (g_bSQAuxError || (g_bSQAuxBadLogic && v == g_pErrorVM));
-	LogLevel_t level = LogLevel_t(script_show_output->GetInt());
+	LogLevel_t level = LogLevel_t(script_show_output.GetInt());
 	LogType_t type = bLogLevelOverride ? LogType_t::SQ_WARNING : LogType_t::SQ_INFO;
 
 	// Always log script related problems to the console.
@@ -124,7 +130,7 @@ SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStr
 		}
 
 		const std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
-		CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(script_show_warning->GetInt()),
+		CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(script_show_warning.GetInt()),
 			remoteContext, NO_ERROR, "squirrel_re(warning)", "%s", svConstructor.c_str());
 	}
 

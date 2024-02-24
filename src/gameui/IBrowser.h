@@ -31,9 +31,7 @@ public:
     void SendHostingPostRequest(const NetGameServer_t& gameServer);
 
     void ProcessCommand(const char* pszCommand) const;
-    void SettingsPanel(void);
 
-    void SetHostName(const char* pszHostName);
     virtual void SetStyleVar(void);
 
     inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
@@ -64,7 +62,6 @@ private:
     ////////////////////
     ImGuiTextFilter m_imServerBrowserFilter;
     string m_svServerListMessage;
-    string m_szMatchmakingHostName;
 
     ////////////////////
     //   Host Server  //

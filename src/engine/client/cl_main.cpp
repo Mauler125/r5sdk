@@ -42,8 +42,8 @@ void CL_MoveEx()
 	const float hostTimeScale = host_timescale->GetFloat();
 	const bool isTimeScaleDefault = hostTimeScale == 1.0;
 
-	const float minFrameTime = usercmd_frametime_min->GetFloat();
-	const float maxFrameTime = usercmd_frametime_max->GetFloat();
+	const float minFrameTime = usercmd_frametime_min.GetFloat();
+	const float maxFrameTime = usercmd_frametime_max.GetFloat();
 
 	const float netTime = float(*g_pNetTime);
 

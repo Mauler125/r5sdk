@@ -24,7 +24,7 @@
 class ConCommandBase
 {
 public:
-	virtual ~ConCommandBase(void) { };
+	virtual ~ConCommandBase(void);
 
 	virtual bool IsCommand(void) const;
 	virtual bool IsFlagSet(const int nFlags) const;
@@ -35,9 +35,10 @@ public:
 	virtual int GetFlags(void) const;
 	virtual const char* GetName(void) const;
 	virtual const char* GetHelpText(void) const;
-	virtual const char* GetUsageText(void) const;
 
-	virtual void SetAccessor(IConCommandBaseAccessor* const pAccessor);
+	virtual const char* GetUsageText(void) const;
+	virtual void        SetUsageText(const char* const usageText);
+
 	virtual bool IsRegistered(void) const;
 
 	virtual int GetDLLIdentifier() const;
@@ -63,9 +64,9 @@ public:
 	// Static data.
 	const char*              m_pszName;        //0x0018
 	const char*              m_pszHelpString;  //0x0020
-	const char*              m_pszUsageString; //0x0028
 
-	IConCommandBaseAccessor* m_pAccessor;      //0x0030 <-- unused since executable is monolithic.
+	const char*              m_pszStaticUsageString; //0x0028
+	const char*              m_pszCustomUsageString; //0x0030
 
 	// ConVar flags
 	int                      m_nFlags;         //0x0038
@@ -151,55 +152,109 @@ class ConVar : public ConCommandBase, public IConVar
 	friend class ConVarRef;
 
 public:
-	static ConVar* StaticCreate(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString,
-		bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString);
-	void Destroy(void);
+	typedef ConCommandBase BaseClass;
 
-	ConVar(void);
-	virtual ~ConVar(void) { };
+	ConVar(const char* pName, const char* pDefaultValue, int flags = 0);
 
-	FORCEINLINE bool GetBool(void) const;
-	FORCEINLINE float GetFloat(void) const;
-	FORCEINLINE int GetInt(void) const;
-	FORCEINLINE Color GetColor(void) const;
-	FORCEINLINE const char* GetString(void) const;
+	ConVar(const char* pName, const char* pDefaultValue, int flags,
+		const char* pHelpString, const char* pUsageString = 0);
+	ConVar(const char* pName, const char* pDefaultValue, int flags,
+		const char* pHelpString, bool bMin, float fMin, bool bMax, float fMax, const char* pUsageString = 0);
+	ConVar(const char* pName, const char* pDefaultValue, int flags,
+		const char* pHelpString, FnChangeCallback_t callback, const char* pUsageString = 0);
+	ConVar(const char* pName, const char* pDefaultValue, int flags,
+		const char* pHelpString, bool bMin, float fMin, bool bMax, float fMax,
+		FnChangeCallback_t callback, const char* pUsageString = 0);
 
-	void SetMax(float flMaxValue);
-	void SetMin(float flMinValue);
-	bool GetMin(float& flMinValue) const;
-	bool GetMax(float& flMaxValue) const;
-	float GetMinValue(void) const;
-	float GetMaxValue(void) const;
-	bool HasMin(void) const;
-	bool HasMax(void) const;
+	virtual ~ConVar(void);
 
-	void SetValue(int nValue);
-	void SetValue(float flValue);
-	void SetValue(const char* pszValue);
-	void SetValue(Color clValue);
+	virtual bool                IsCommand(void) const;
+	virtual bool                IsFlagSet(const int flag) const;
 
-	virtual void InternalSetValue(const char* pszValue) = 0;
-	virtual void InternalSetFloatValue(float flValue) = 0;
-	virtual void InternalSetIntValue(int nValue) = 0;
-	void InternalSetColorValue(Color value);
+	virtual void                AddFlags(const int flags);
+	virtual int                 GetFlags() const;
 
-	virtual __int64 Unknown0(unsigned int a2) = 0;
-	virtual __int64 Unknown1(const char* a2) = 0;
+	// Return name of cvar
+	virtual const char*         GetName(void) const;
 
-	void Revert(void);
-	virtual bool ClampValue(float& flValue) = 0;
+	// Return name of command (usually == GetName(), except in case of FCVAR_SS_ADDED vars
+	virtual const char*         GetBaseName(void) const;
+	virtual int                 GetSplitScreenPlayerSlot() const;
 
-	const char* GetDefault(void) const;
-	void SetDefault(const char* pszDefault);
-	bool SetColorFromString(const char* pszValue);
+	// Return help text for cvar
+	virtual const char*         GetHelpText(void) const;
 
-	virtual void ChangeStringValue(const char* pszTempValue) = 0;
-	virtual void CreateInternal(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString,
-		bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString) = 0;
+	virtual const char*         GetUsageText(void) const;
+	virtual void                SetUsageText(const char* const usageText);
 
-	void InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke);
-	void RemoveChangeCallback(FnChangeCallback_t callback);
+	virtual bool                IsRegistered(void) const;
 
+	// Install a change callback (there shouldn't already be one....)
+	void                        InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke);
+	void                        RemoveChangeCallback(FnChangeCallback_t callback);
+
+	int                         GetChangeCallbackCount() const { return m_pParent->m_fnChangeCallbacks.Count(); }
+	FnChangeCallback_t          GetChangeCallback(int slot) const { return m_pParent->m_fnChangeCallbacks[slot]; }
+
+	FORCEINLINE bool            GetBool(void) const;
+	FORCEINLINE float           GetFloat(void) const;
+	FORCEINLINE int             GetInt(void) const;
+	FORCEINLINE Color           GetColor(void) const;
+	FORCEINLINE const char*     GetString(void) const;
+
+	// Any function that allocates/frees memory needs to be virtual or else you'll have crashes
+	//  from alloc/free across dll/exe boundaries.
+	
+	// These just call into the IConCommandBaseAccessor to check flags and set the var (which ends up calling InternalSetValue).
+	virtual void                SetValue(const char *value);
+	virtual void                SetValue(float value);
+	virtual void                SetValue(int value);
+	void                        SetValue(Color value);
+
+	// Reset to default value
+	void                        Revert(void);
+
+	// True if it has a min/max setting
+	bool                        HasMin(void) const;
+	bool                        HasMax(void) const;
+
+	void                        SetMax(float flMaxValue);
+	void                        SetMin(float flMinValue);
+
+	bool                        GetMin(float& flMinValue) const;
+	bool                        GetMax(float& flMaxValue) const;
+
+	float                       GetMinValue(void) const;
+	float                       GetMaxValue(void) const;
+
+	const char*                 GetDefault(void) const;
+	void                        SetDefault(const char* pszDefault);
+
+private:
+	bool                        InternalSetColorFromString(const char* value);
+
+	// Called by CCvar when the value of a var is changing.
+	virtual void                InternalSetValue(const char* pszValue);
+
+	// For CVARs marked FCVAR_NEVER_AS_STRING
+	virtual void                InternalSetFloatValue(float flValue);
+	virtual void                InternalSetIntValue(int nValue);
+
+	virtual void                InternalSetColorValue(Color value);
+
+	// DoNothing in the engine, probably for tracking/debugging cvar strings in debug.
+	virtual void                TrackDefaultValue(const char* value) { };
+
+	virtual bool                ClampValue(float& flValue);
+
+	virtual void                ChangeStringValue(const char* pszTempValue);
+
+	virtual void                Create(const char* pName, const char* pDefaultValue, int flags = 0,
+		const char* pHelpString = 0, bool bMin = false, float fMin = 0.0, bool bMax = false, float fMax = false,
+		FnChangeCallback_t callback = 0, const char* pszUsageString = 0);
+
+//protected:
+public: // TODO: make protected!
 	struct CVValue_t
 	{
 		char*      m_pszString;
@@ -278,46 +333,5 @@ FORCEINLINE const char* ConVar::GetString(void) const
 //-----------------------------------------------------------------------------
 void ConVar_Register(int nCVarFlag = 0, IConCommandBaseAccessor* pAccessor = NULL);
 void ConVar_Unregister();
-
-/* ==== CONVAR ========================================================================================================================================================== */
-inline void*(*ConVar__Register)(ConVar* thisptr, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString);
-inline void(*ConVar__Unregister)(ConVar* thisptr);
-inline bool(*ConVar__IsFlagSet)(ConVar* pConVar, int nFlag);
-
-inline ConCommandBase* g_pConCommandBaseVFTable;
-inline ConCommand* g_pConCommandVFTable;
-inline ConVar* g_pConVarVBTable;
-inline IConVar* g_pConVarVFTable;
-
-///////////////////////////////////////////////////////////////////////////////
-class VConVar : public IDetour
-{
-	virtual void GetAdr(void) const
-	{
-		LogConAdr("ConCommandBase::`vftable'", g_pConCommandBaseVFTable);
-		LogConAdr("ConCommand::`vftable'", g_pConCommandVFTable);
-		LogConAdr("ConVar::`vbtable'", g_pConVarVBTable);
-		LogConAdr("ConVar::`vftable'", g_pConVarVFTable);
-		LogFunAdr("ConVar::Register", ConVar__Register);
-		LogFunAdr("ConVar::Unregister", ConVar__Unregister);
-		LogFunAdr("ConVar::IsFlagSet", ConVar__IsFlagSet);
-	}
-	virtual void GetFun(void) const
-	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40 F3 0F 10 84 24 ?? ?? ?? ??").GetPtr(ConVar__Register);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 79 58").GetPtr(ConVar__Unregister);
-		g_GameDll.FindPatternSIMD("48 8B 41 48 85 50 38").GetPtr(ConVar__IsFlagSet);
-	}
-	virtual void GetVar(void) const { }
-	virtual void GetCon(void) const
-	{
-		g_pConCommandBaseVFTable = g_GameDll.GetVirtualMethodTable(".?AVConCommandBase@@").RCast<ConCommandBase*>();
-		g_pConCommandVFTable = g_GameDll.GetVirtualMethodTable(".?AVConCommand@@").RCast<ConCommand*>();
-		g_pConVarVBTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 0).RCast<ConVar*>();
-		g_pConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 1).RCast<IConVar*>();
-	}
-	virtual void Detour(const bool bAttach) const { }
-};
-///////////////////////////////////////////////////////////////////////////////
 
 #endif // CONVAR_H

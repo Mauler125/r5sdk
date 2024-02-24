@@ -17,6 +17,20 @@
 
 
 //-----------------------------------------------------------------------------
+// Purpose: console variables
+//-----------------------------------------------------------------------------
+static ConVar rcon_address("rcon_address", "[loopback]:37015", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address");
+
+//-----------------------------------------------------------------------------
+// Purpose: console commands
+//-----------------------------------------------------------------------------
+static void RCON_Disconnect_f();
+static void RCON_CmdQuery_f(const CCommand& args);
+
+static ConCommand rcon("rcon", RCON_CmdQuery_f, "Forward RCON query to remote server", FCVAR_CLIENTDLL | FCVAR_RELEASE, nullptr, "rcon \"<query>\"");
+static ConCommand rcon_disconnect("rcon_disconnect", RCON_Disconnect_f, "Disconnect from RCON server", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CRConClient::CRConClient()
@@ -191,12 +205,22 @@ SocketHandle_t CRConClient::GetSocket(void)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: request whether to recv logs from RCON server when cvar changes
+//-----------------------------------------------------------------------------
+static void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	RCONClient()->RequestConsoleLog(RCONClient()->ShouldReceive());
+}
+
+static ConVar cl_rcon_inputonly("cl_rcon_inputonly", "0", FCVAR_RELEASE, "Tells the rcon server whether or not we are input only.",
+	false, 0.f, false, 0.f, RCON_InputOnlyChanged_f);
+
+//-----------------------------------------------------------------------------
 // Purpose: returns whether or not we should receive logs from the server
-// Output : SOCKET_ERROR (-1) on failure
 //-----------------------------------------------------------------------------
 bool CRConClient::ShouldReceive(void)
 {
-	return (!IsRemoteLocal() && !cl_rcon_inputonly->GetBool());
+	return (!IsRemoteLocal() && !cl_rcon_inputonly.GetBool());
 }
 
 //-----------------------------------------------------------------------------
@@ -244,7 +268,7 @@ static void RCON_CmdQuery_f(const CCommand& args)
 
 	if (argCount < 2)
 	{
-		const char* pszAddress = rcon_address->GetString();
+		const char* pszAddress = rcon_address.GetString();
 
 		if (RCONClient()->IsInitialized()
 			&& !RCONClient()->IsConnected()
@@ -272,9 +296,10 @@ static void RCON_CmdQuery_f(const CCommand& args)
 				{
 					bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
-				else // Use 'rcon_password' ConVar as password.
+				else
 				{
-					bSuccess = RCONClient()->Serialize(vecMsg, rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "no password given");
+					return;
 				}
 
 				if (bSuccess)
@@ -322,6 +347,3 @@ static void RCON_Disconnect_f()
 		Msg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }
-
-static ConCommand rcon("rcon", RCON_CmdQuery_f, "Forward RCON query to remote server", FCVAR_CLIENTDLL | FCVAR_RELEASE, nullptr, "rcon \"<query>\"");
-static ConCommand rcon_disconnect("rcon_disconnect", RCON_Disconnect_f, "Disconnect from RCON server", FCVAR_CLIENTDLL | FCVAR_RELEASE);

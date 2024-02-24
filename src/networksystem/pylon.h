@@ -4,6 +4,10 @@
 #include "serverlisting.h"
 #include "localize/ilocalize.h"
 
+extern ConVar pylon_matchmaking_hostname;
+extern ConVar pylon_host_update_interval;
+extern ConVar pylon_showdebuginfo;
+
 struct MSEulaData_t
 {
 	int version;

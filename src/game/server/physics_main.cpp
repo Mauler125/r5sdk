@@ -12,12 +12,14 @@
 #include "engine/client/client.h"
 #include "game/server/util_server.h"
 
+static ConVar sv_simulateBots("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.");
+
 //-----------------------------------------------------------------------------
 // Purpose: Runs the command simulation for fake players
 //-----------------------------------------------------------------------------
 void Physics_RunBotSimulation(bool bSimulating)
 {
-	if (!sv_simulateBots->GetBool())
+	if (!sv_simulateBots.GetBool())
 		return;
 
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
