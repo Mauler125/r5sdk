@@ -67,6 +67,9 @@ class CUtlString;
 typedef void (*FnCommandCallbackV1_t)(void);
 typedef void (*FnCommandCallback_t)(const CCommand& command);
 
+typedef void (*FnCommandSupplementalFinishCallback_t)();
+typedef void (*FnCommandSupplementalCallback_t)(const CCommand& command, FnCommandSupplementalFinishCallback_t);
+
 #define COMMAND_COMPLETION_MAXITEMS		128
 #define COMMAND_COMPLETION_ITEM_LENGTH	128
 

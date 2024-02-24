@@ -310,8 +310,8 @@ int DefaultCompletionFunc(const char* partial, char commands[COMMAND_COMPLETION_
 ConCommand::ConCommand(const char* pName, FnCommandCallbackV1_t callback, const char* pHelpString /*= 0*/, 
 	int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/, const char* pszUsageString /*= 0*/)
 {
-	m_nNullCallBack = DefaultNullSub;
-	m_pSubCallback = nullptr;
+	m_fnSupplementalFinishCallBack = DefaultNullSub;
+	m_fnSupplementalCallback = nullptr;
 
 	// Set the callback
 	m_fnCommandCallbackV1 = callback;
@@ -327,8 +327,8 @@ ConCommand::ConCommand(const char* pName, FnCommandCallbackV1_t callback, const 
 ConCommand::ConCommand(const char* pName, FnCommandCallback_t callback, const char* pHelpString /*= 0*/, 
 	int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/, const char* pszUsageString /*= 0*/)
 {
-	m_nNullCallBack = DefaultNullSub;
-	m_pSubCallback = nullptr;
+	m_fnSupplementalFinishCallBack = DefaultNullSub;
+	m_fnSupplementalCallback = nullptr;
 
 	// Set the callback
 	m_fnCommandCallback = callback;
@@ -344,8 +344,8 @@ ConCommand::ConCommand(const char* pName, FnCommandCallback_t callback, const ch
 ConCommand::ConCommand(const char* pName, ICommandCallback* pCallback, const char* pHelpString /*= 0*/, 
 	int flags /*= 0*/, ICommandCompletionCallback* pCompletionCallback /*= 0*/, const char* pszUsageString /*= 0*/)
 {
-	m_nNullCallBack = DefaultNullSub;
-	m_pSubCallback = nullptr;
+	m_fnSupplementalFinishCallBack = DefaultNullSub;
+	m_fnSupplementalCallback = nullptr;
 
 	// Set the callback
 	m_pCommandCallback = pCallback;
@@ -414,14 +414,13 @@ bool ConCommand::CanAutoComplete(void) const
 //-----------------------------------------------------------------------------
 // Purpose: invoke the function if there is one
 //-----------------------------------------------------------------------------
-void ConCommand::Dispatch(const CCommand& command)
+void ConCommand::Dispatch(const ECommandTarget_t target, const CCommand& command, const bool bCallSupplemental)
 {
 	if (m_bUsingNewCommandCallback)
 	{
 		if (m_fnCommandCallback)
 		{
 			(*m_fnCommandCallback)(command);
-			return;
 		}
 	}
 	else if (m_bUsingCommandCallbackInterface)
@@ -429,7 +428,6 @@ void ConCommand::Dispatch(const CCommand& command)
 		if (m_pCommandCallback)
 		{
 			m_pCommandCallback->CommandCallback(command);
-			return;
 		}
 	}
 	else
@@ -437,8 +435,12 @@ void ConCommand::Dispatch(const CCommand& command)
 		if (m_fnCommandCallbackV1)
 		{
 			(*m_fnCommandCallbackV1)();
-			return;
 		}
+	}
+
+	if (bCallSupplemental)
+	{
+		m_fnSupplementalCallback(command, m_fnSupplementalFinishCallBack);
 	}
 
 	// Command without callback!!!

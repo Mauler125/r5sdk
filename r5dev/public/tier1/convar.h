@@ -15,6 +15,7 @@
 #include "mathlib/color.h"
 #include "public/iconvar.h"
 #include "public/iconcommand.h"
+#include "tier1/cmd.h"
 #include "tier1/utlvector.h"
 #include "tier1/utlstring.h"
 
@@ -107,11 +108,11 @@ public:
 	virtual bool CanAutoComplete(void) const;
 
 	// Invoke the function
-	virtual void Dispatch(const CCommand& command);
+	virtual void Dispatch(const ECommandTarget_t target, const CCommand& command, const bool bCallSupplemental);
 
 //private:
-	void* m_nNullCallBack; //0x0040
-	void* m_pSubCallback;  //0x0048
+	FnCommandSupplementalFinishCallback_t m_fnSupplementalFinishCallBack; //0x0040
+	FnCommandSupplementalCallback_t m_fnSupplementalCallback;  //0x0048
 
 	// NOTE: To maintain backward compatibility, we have to be very careful:
 	// All public virtual methods must appear in the same order always
