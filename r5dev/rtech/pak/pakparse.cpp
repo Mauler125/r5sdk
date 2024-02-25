@@ -14,7 +14,7 @@
 #include "pakdecode.h"
 #include "pakstream.h"
 
-static ConVar pak_debugrelations("pak_debugrelations", "0", FCVAR_DEVELOPMENTONLY, "Debug RPAK asset dependency resolving");
+static ConVar pak_debugrelations("pak_debugrelations", "0", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Debug RPAK asset dependency resolving");
 
 //-----------------------------------------------------------------------------
 // resolve the target guid from lookuo table
