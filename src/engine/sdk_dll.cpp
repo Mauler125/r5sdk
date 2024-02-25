@@ -12,7 +12,7 @@
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
 
-static ConVar sdk_fixedframe_tickinterval("sdk_fixedframe_tickinterval", "0.01", FCVAR_RELEASE, "The tick interval used by the SDK fixed frame.");
+static ConVar sdk_fixedframe_tickinterval("sdk_fixedframe_tickinterval", "0.01", FCVAR_RELEASE | FCVAR_ACCESSIBLE_FROM_THREADS, "The tick interval used by the SDK fixed frame.");
 
 //-----------------------------------------------------------------------------
 // Purpose: 
