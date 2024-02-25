@@ -7,8 +7,8 @@
 #include "rtech/pak/paktools.h"
 #include "asyncio.h"
 
-ConVar async_debug_level("async_debug_level", "0", FCVAR_DEVELOPMENTONLY, "The debug level for async reads", false, 0.f, false, 0.f, "0 = disabled");
-ConVar async_debug_close("async_debug_close", "0", FCVAR_DEVELOPMENTONLY, "Debug async file closing", false, 0.f, false, 0.f, "0 = disabled");
+ConVar async_debug_level("async_debug_level", "0", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "The debug level for async reads", false, 0.f, false, 0.f, "0 = disabled");
+ConVar async_debug_close("async_debug_close", "0", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Debug async file closing", false, 0.f, false, 0.f, "0 = disabled");
 
 //----------------------------------------------------------------------------------
 // open a file and add it to the async file handle array
