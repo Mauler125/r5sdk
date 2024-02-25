@@ -173,6 +173,9 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 			uint8_t oobHash[32]; // hash of data collected from out of band packet
 			const int shRet = mbedtls_sha256((const uint8_t*)newId, idLen, oobHash, NULL);
 
+			if (shRet != NULL)
+				ERROR_AND_RETURN("Session ID hashing failed");
+
 			if (memcmp(oobHash, sessionHash, sizeof(sessionHash)) != 0)
 				ERROR_AND_RETURN("Token is not authorized for the connecting client");
 
