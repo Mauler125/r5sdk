@@ -19,6 +19,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
     "vpc"
     "tier0"
+    "tier1"
 
     "libdetours"
 )
