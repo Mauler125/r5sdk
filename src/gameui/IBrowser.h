@@ -28,6 +28,7 @@ public:
     void HostPanel(void);
 
     void UpdateHostingStatus(void);
+    void InstallHostingDetails(const bool postFailed, const char* const hostMessage, const char* const hostToken, const string& hostIp);
     void SendHostingPostRequest(const NetGameServer_t& gameServer);
 
     void ProcessCommand(const char* pszCommand) const;
@@ -44,6 +45,11 @@ public:
     bool m_bActivate;
 
 private:
+    inline void SetServerListMessage(const char* const message) { m_svServerListMessage = message; };
+    inline void SetHostMessage(const char* const message) { m_svHostMessage = message; }
+    inline void SetHostToken(const char* const message) { m_svHostToken = message; }
+
+private:
     bool m_bInitialized;
     bool m_bReclaimFocus;
     bool m_bReclaimFocusTokenField;
@@ -55,7 +61,6 @@ private:
 
     ID3D11ShaderResourceView* m_idLockedIcon;
     MODULERESOURCE m_rLockedIconBlob;
-    mutable CThreadFastMutex m_Mutex;
 
     ////////////////////
     //   Server List  //
@@ -66,14 +71,13 @@ private:
     ////////////////////
     //   Host Server  //
     ////////////////////
-    string m_svHostRequestMessage;
+    string m_svHostMessage;
     string m_svHostToken;
-    ImVec4 m_HostRequestMessageColor;
+    ImVec4 m_HostMessageColor;
 
     ////////////////////
     // Private Server //
     ////////////////////
-    string m_svHiddenServerToken;
     string m_svHiddenServerRequestMessage;
     ImVec4 m_ivHiddenServerMessageColor;
 

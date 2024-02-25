@@ -9,6 +9,7 @@
 #include "geforce/reflex.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
+#include "gameui/imgui_system.h"
 #include "engine/framelimit.h"
 #include "engine/sys_mainwind.h"
 #include "inputsystem/inputsystem.h"
@@ -34,7 +35,6 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-extern BOOL                     g_bImGuiInitialized = FALSE;
 extern UINT                     g_nWindowRect[2] = { NULL, NULL };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -82,65 +82,12 @@ BOOL WINAPI HPostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 }
 
 //#################################################################################
-// IMGUI
-//#################################################################################
-
-void ImGui_Init()
-{
-	///////////////////////////////////////////////////////////////////////////////
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-
-	ImGuiViewport* const vp = ImGui::GetMainViewport();
-	vp->PlatformHandleRaw = g_pGame->GetWindow();
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
-
-	ImGui_ImplWin32_Init(g_pGame->GetWindow());
-	ImGui_ImplDX11_Init(D3D11Device(), D3D11DeviceContext());
-}
-
-void ImGui_Shutdown()
-{
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-}
-
-void DrawImGui()
-{
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-
-	ImGui::NewFrame();
-
-	// This is required to disable the ctrl+tab menu as some users use this shortcut for other things in-game.
-	// See https://github.com/ocornut/imgui/issues/5641 for more details.
-	if (GImGui->ConfigNavWindowingKeyNext)
-		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyNext, ImGuiKeyOwner_None);
-	if (GImGui->ConfigNavWindowingKeyPrev)
-		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyPrev, ImGuiKeyOwner_None);
-
-	g_Browser.RunTask();
-	g_Browser.RunFrame();
-
-	g_Console.RunTask();
-	g_Console.RunFrame();
-
-	ImGui::EndFrame();
-	ImGui::Render();
-
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-}
-
-//#################################################################################
 // IDXGI
 //#################################################################################
 
-static ConVar fps_max_rt("fps_max_rt", "0", FCVAR_RELEASE, "Frame rate limiter within the render thread. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f);
-static ConVar fps_max_rt_tolerance("fps_max_rt_tolerance", "0.25", FCVAR_RELEASE, "Maximum amount of frame time before frame limiter restarts.", true, 0.f, false, 0.f);
-static ConVar fps_max_rt_sleep_threshold("fps_max_rt_sleep_threshold", "0.016666667", FCVAR_RELEASE, "Frame limiter starts to sleep when frame time exceeds this threshold.", true, 0.f, false, 0.f);
+static ConVar fps_max_rt("fps_max_rt", "0", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Frame rate limiter within the render thread. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f);
+static ConVar fps_max_rt_tolerance("fps_max_rt_tolerance", "0.25", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Maximum amount of frame time before frame limiter restarts.", true, 0.f, false, 0.f);
+static ConVar fps_max_rt_sleep_threshold("fps_max_rt_sleep_threshold", "0.016666667", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Frame limiter starts to sleep when frame time exceeds this threshold.", true, 0.f, false, 0.f);
 
 HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
 {
@@ -420,14 +367,6 @@ void DirectX_Shutdown()
 
 	// Commit the transaction
 	DetourTransactionCommit();
-
-	///////////////////////////////////////////////////////////////////////////////
-	// Shutdown ImGui
-	if (g_bImGuiInitialized)
-	{
-		ImGui_Shutdown();
-		g_bImGuiInitialized = false;
-	}
 }
 
 void VDXGI::GetAdr(void) const

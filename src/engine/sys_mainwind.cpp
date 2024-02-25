@@ -12,6 +12,7 @@
 #include "engine/keys.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
+#include "gameui/imgui_system.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: plays the startup video's
@@ -29,7 +30,7 @@ void CGame::PlayStartupVideos(void)
 //-----------------------------------------------------------------------------
 int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (!g_bImGuiInitialized)
+	if (!ImguiSystem_IsInitialized())
 		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
 
 	const IEngine::EngineState_t state = g_pEngine->GetState();

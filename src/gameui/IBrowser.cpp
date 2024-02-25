@@ -51,7 +51,7 @@ CBrowser::CBrowser(void)
     , m_bQueryListNonRecursive(false)
     , m_bQueryGlobalBanList(true)
     , m_flFadeAlpha(0.f)
-    , m_HostRequestMessageColor(1.00f, 1.00f, 1.00f, 1.00f)
+    , m_HostMessageColor(1.00f, 1.00f, 1.00f, 1.00f)
     , m_ivHiddenServerMessageColor(0.00f, 1.00f, 0.00f, 1.00f)
     , m_Style(ImGuiStyle_t::NONE)
 {
@@ -155,7 +155,6 @@ void CBrowser::RunFrame(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: runs tasks for the browser while not being drawn 
-// (!!! RunTask and RunFrame must be called from the same thread !!!)
 //-----------------------------------------------------------------------------
 void CBrowser::RunTask()
 {
@@ -178,10 +177,8 @@ void CBrowser::RunTask()
     {
         if (m_bQueryListNonRecursive)
         {
-            std::thread refresh(&CBrowser::RefreshServerList, this);
-            refresh.detach();
-
             m_bQueryListNonRecursive = false;
+            RefreshServerList();
         }
     }
     else // Refresh server list the next time 'm_bActivate' evaluates to true.
@@ -220,8 +217,6 @@ void CBrowser::Think(void)
 //-----------------------------------------------------------------------------
 void CBrowser::DrawSurface(void)
 {
-    AUTO_LOCK(m_Mutex);
-
     ImGui::BeginTabBar("CompMenu");
     if (ImGui::BeginTabItem("Browsing"))
     {
@@ -250,9 +245,7 @@ void CBrowser::BrowserPanel(void)
     if (ImGui::Button("Refresh"))
     {
         m_svServerListMessage.clear();
-
-        std::thread refresh(&CBrowser::RefreshServerList, this);
-        refresh.detach();
+        RefreshServerList();
     }
 
     ImGui::EndGroup();
@@ -369,11 +362,19 @@ void CBrowser::RefreshServerList(void)
 {
     Msg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname.GetString());
 
-    std::string svServerListMessage;
-    g_ServerListManager.RefreshServerList(svServerListMessage);
+    // Thread the request, and let the main thread assign status message back
+    std::thread request([&]
+        {
+            std::string svServerListMessage;
+            g_ServerListManager.RefreshServerList(svServerListMessage);
 
-    AUTO_LOCK(m_Mutex);
-    m_svServerListMessage = svServerListMessage;
+            g_TaskScheduler->Dispatch([&, svServerListMessage]
+                {
+                    SetServerListMessage(svServerListMessage.c_str());
+                }, 0);
+        }
+    );
+    request.detach();
 }
 
 //-----------------------------------------------------------------------------
@@ -415,9 +416,11 @@ void CBrowser::HiddenServersModal(void)
         ImGui::Text("Enter token to connect");
 
         const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
-
         ImGui::PushItemWidth(contentRegionMax.x); // Override item width.
-        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", &m_svHiddenServerToken);
+
+        string hiddenServerToken;
+        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", &hiddenServerToken);
+
         ImGui::PopItemWidth();
 
         if (m_bReclaimFocusTokenField)
@@ -436,10 +439,10 @@ void CBrowser::HiddenServersModal(void)
             m_svHiddenServerRequestMessage.clear();
             m_bReclaimFocusTokenField = true;
 
-            if (!m_svHiddenServerToken.empty())
+            if (!hiddenServerToken.empty())
             {
                 NetGameServer_t server;
-                bool result = g_MasterServer.GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
+                bool result = g_MasterServer.GetServerByToken(server, m_svHiddenServerRequestMessage, hiddenServerToken); // Send token connect request.
 
                 if (result && !server.name.empty())
                 {
@@ -467,6 +470,7 @@ void CBrowser::HiddenServersModal(void)
                 m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
+
         if (ImGui::Button("Close", ImVec2(contentRegionMax.x, 24)))
         {
             m_svHiddenServerRequestMessage.clear();
@@ -558,7 +562,7 @@ void CBrowser::HostPanel(void)
         g_ServerListManager.m_ServerVisibility = EServerVisibility_t::PUBLIC;
     }
 
-    ImGui::TextColored(m_HostRequestMessageColor, "%s", m_svHostRequestMessage.c_str());
+    ImGui::TextColored(m_HostMessageColor, "%s", m_svHostMessage.c_str());
     if (!m_svHostToken.empty())
     {
         ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
@@ -573,7 +577,7 @@ void CBrowser::HostPanel(void)
     {
         if (ImGui::Button("Start server", ImVec2(contentRegionMax.x, 32)))
         {
-            m_svHostRequestMessage.clear();
+            m_svHostMessage.clear();
 
             bool bEnforceField = g_ServerListManager.m_ServerVisibility == EServerVisibility_t::OFFLINE ? true : !g_ServerListManager.m_Server.name.empty();
             if (bEnforceField && !g_ServerListManager.m_Server.playlist.empty() && !g_ServerListManager.m_Server.map.empty())
@@ -584,36 +588,30 @@ void CBrowser::HostPanel(void)
             {
                 if (g_ServerListManager.m_Server.name.empty())
                 {
-                    m_svHostRequestMessage = "Server name is required.";
-                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                    m_svHostMessage = "Server name is required.";
+                    m_HostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
                 else if (g_ServerListManager.m_Server.playlist.empty())
                 {
-                    m_svHostRequestMessage = "Playlist is required.";
-                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                    m_svHostMessage = "Playlist is required.";
+                    m_HostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
                 else if (g_ServerListManager.m_Server.map.empty())
                 {
-                    m_svHostRequestMessage = "Level name is required.";
-                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                    m_svHostMessage = "Level name is required.";
+                    m_HostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
             }
         }
         if (ImGui::Button("Reload playlist", ImVec2(contentRegionMax.x, 32)))
         {
-            g_TaskScheduler->Dispatch([]()
-                {
-                    v_Playlists_Download_f();
-                    Playlists_SDKInit(); // Re-Init playlist.
-                }, 0);
+            v_Playlists_Download_f();
+            Playlists_SDKInit(); // Re-Init playlist.
         }
 
         if (ImGui::Button("Reload banlist", ImVec2(contentRegionMax.x, 32)))
         {
-            g_TaskScheduler->Dispatch([]()
-                {
-                    g_BanSystem.LoadList();
-                }, 0);
+            g_BanSystem.LoadList();
         }
     }
     else
@@ -621,11 +619,7 @@ void CBrowser::HostPanel(void)
         if (ImGui::Button("Stop server", ImVec2(contentRegionMax.x, 32)))
         {
             ProcessCommand("LeaveMatch"); // TODO: use script callback instead.
-            g_TaskScheduler->Dispatch([]()
-                {
-                    // Force CHostState::FrameUpdate to shutdown the server for dedicated.
-                    g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
-                }, 0);
+            g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
         }
 
         if (ImGui::Button("Change level", ImVec2(contentRegionMax.x, 32)))
@@ -636,8 +630,8 @@ void CBrowser::HostPanel(void)
             }
             else
             {
-                m_svHostRequestMessage = "Failed to change level: 'levelname' was empty.";
-                m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                m_svHostMessage = "Failed to change level: 'levelname' was empty.";
+                m_HostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
 
@@ -697,17 +691,16 @@ void CBrowser::UpdateHostingStatus(void)
     {
     case EHostStatus_t::NOT_HOSTING:
     {
-        AUTO_LOCK(m_Mutex);
         if (!m_svHostToken.empty())
         {
             m_svHostToken.clear();
         }
 
-        if (ImGui::ColorConvertFloat4ToU32(m_HostRequestMessageColor) == // Only clear if this is green (a valid hosting message).
+        if (ImGui::ColorConvertFloat4ToU32(m_HostMessageColor) == // Only clear if this is green (a valid hosting message).
             ImGui::ColorConvertFloat4ToU32(ImVec4(0.00f, 1.00f, 0.00f, 1.00f)))
         {
-            m_svHostRequestMessage.clear();
-            m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+            m_svHostMessage.clear();
+            m_HostMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         }
 
         break;
@@ -737,33 +730,26 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
-        g_TaskScheduler->Dispatch([this]()
+        NetGameServer_t netGameServer
         {
-            std::lock_guard<std::mutex> f(g_ServerListManager.m_Mutex);
-            NetGameServer_t netGameServer
-            {
-                g_ServerListManager.m_Server.name,
-                g_ServerListManager.m_Server.description,
-                g_ServerListManager.m_Server.hidden,
-                g_pHostState->m_levelName,
-                v_Playlists_GetCurrent(),
-                hostip->GetString(),
-                hostport->GetInt(),
-                g_pNetKey->GetBase64NetKey(),
-                *g_nServerRemoteChecksum,
-                SDK_VERSION,
-                g_pServer->GetNumClients(),
-                g_ServerGlobalVariables->m_nMaxClients,
-                std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::system_clock::now().time_since_epoch()
-                    ).count()
-            };
+            g_ServerListManager.m_Server.name,
+            g_ServerListManager.m_Server.description,
+            g_ServerListManager.m_Server.hidden,
+            g_pHostState->m_levelName,
+            v_Playlists_GetCurrent(),
+            hostip->GetString(),
+            hostport->GetInt(),
+            g_pNetKey->GetBase64NetKey(),
+            *g_nServerRemoteChecksum,
+            SDK_VERSION,
+            g_pServer->GetNumClients(),
+            g_ServerGlobalVariables->m_nMaxClients,
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+                ).count()
+        };
 
-        std::thread post(&CBrowser::SendHostingPostRequest, this, netGameServer);
-        post.detach();
-
-            }, 0);
-
+        SendHostingPostRequest(netGameServer);
         break;
     }
     default:
@@ -773,59 +759,74 @@ void CBrowser::UpdateHostingStatus(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sends the hosting POST request to the comp server
+// Purpose: sends the hosting POST request to the comp server and installs the
+//          host data on the server browser
 // Input  : &gameServer - 
 //-----------------------------------------------------------------------------
 void CBrowser::SendHostingPostRequest(const NetGameServer_t& gameServer)
 {
 #ifndef CLIENT_DLL
-    string svHostRequestMessage;
-    string svHostToken;
-    string svHostIp;
+    std::thread request([&, gameServer]
+        {
+            string hostRequestMessage;
+            string hostToken;
+            string hostIp;
 
-    const bool result = g_MasterServer.PostServerHost(svHostRequestMessage, svHostToken, svHostIp, gameServer);
+            const bool result = g_MasterServer.PostServerHost(hostRequestMessage, hostToken, hostIp, gameServer);
 
-    AUTO_LOCK(m_Mutex);
+            g_TaskScheduler->Dispatch([&, result, hostRequestMessage, hostToken, hostIp]
+                {
+                    InstallHostingDetails(result, hostRequestMessage.c_str(), hostToken.c_str(), hostIp);
+                }, 0);
+        }
+    );
+    request.detach();
+#endif // !CLIENT_DLL
+}
 
-    m_svHostRequestMessage = svHostRequestMessage;
-    m_svHostToken = svHostToken;
+//-----------------------------------------------------------------------------
+// Purpose: installs the host data on the server browser
+// Input  : postFailed - 
+//          *hostMessage - 
+//          *hostToken - 
+//          &hostIp - 
+//-----------------------------------------------------------------------------
+void CBrowser::InstallHostingDetails(const bool postFailed, const char* const hostMessage, const char* const hostToken, const string& hostIp)
+{
+#ifndef CLIENT_DLL
+    m_svHostMessage = hostMessage;
+    m_svHostToken = hostToken;
 
-    if (!svHostIp.empty())
+    if (!hostIp.empty())
     {
-        // Must be set from the main thread, dispatch it off
-        // and set it at the start of the next frame.
-        g_TaskScheduler->Dispatch([svHostIp]()
-            {
-                g_MasterServer.SetHostIP(svHostIp);
-            }, 0);
+        g_MasterServer.SetHostIP(hostIp);
     }
 
-    if (result)
+    if (postFailed)
     {
-        m_HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+        m_HostMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
         stringstream ssMessage;
         ssMessage << "Broadcasting: ";
         if (!m_svHostToken.empty())
         {
             ssMessage << "share the following token for clients to connect: ";
         }
-        m_svHostRequestMessage = ssMessage.str();
+        m_svHostMessage = ssMessage.str();
     }
     else
     {
-        m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+        m_HostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     }
 #endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: processes submitted commands for the main thread
+// Purpose: processes submitted commands
 // Input  : *pszCommand - 
 //-----------------------------------------------------------------------------
 void CBrowser::ProcessCommand(const char* pszCommand) const
 {
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
-    //g_TaskScheduler->Dispatch(Cbuf_Execute, 0); // Run in main thread.
 }
 
 //-----------------------------------------------------------------------------

@@ -8,9 +8,13 @@
 class CMaterialSystem
 {
 public:
+	static bool Connect(CMaterialSystem* thisptr, const CreateInterfaceFn factory);
+	static void Disconnect(CMaterialSystem* thisptr);
+
 	static InitReturnVal_t Init(CMaterialSystem* thisptr);
 	static int Shutdown(CMaterialSystem* thisptr);
 #ifndef MATERIALSYSTEM_NODX
+	static void* SwapBuffers(CMaterialSystem* pMatSys);
 	static CMaterialGlue* FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 	static Vector2D GetScreenSize(CMaterialSystem* pMatSys = nullptr);
 #endif // !MATERIALSYSTEM_NODX
@@ -59,11 +63,15 @@ inline CMaterialDeviceMgr* g_pMaterialAdapterMgr = nullptr;
 /* ==== MATERIALSYSTEM ================================================================================================================================================== */
 inline InitReturnVal_t(*CMaterialSystem__Init)(CMaterialSystem* thisptr);
 inline int(*CMaterialSystem__Shutdown)(CMaterialSystem* thisptr);
-inline void(*CMaterialSystem__Disconnect)(void);
+
+inline bool(*CMaterialSystem__Connect)(CMaterialSystem*, const CreateInterfaceFn);
+inline void(*CMaterialSystem__Disconnect)(CMaterialSystem*);
 
 inline CMaterialSystem* g_pMaterialSystem = nullptr;
 inline void* g_pMaterialVFTable = nullptr;
 #ifndef MATERIALSYSTEM_NODX
+inline void*(*CMaterialSystem__SwapBuffers)(CMaterialSystem* pMatSys);
+
 inline CMaterialGlue*(*CMaterialSystem__FindMaterialEx)(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 inline void(*CMaterialSystem__GetScreenSize)(CMaterialSystem* pMatSys, float* outX, float* outY);
 
@@ -98,8 +106,10 @@ class VMaterialSystem : public IDetour
 		LogConAdr("CMaterial::`vftable'", g_pMaterialVFTable);
 		LogFunAdr("CMaterialSystem::Init", CMaterialSystem__Init);
 		LogFunAdr("CMaterialSystem::Shutdown", CMaterialSystem__Shutdown);
+		LogFunAdr("CMaterialSystem::Connect", CMaterialSystem__Connect);
 		LogFunAdr("CMaterialSystem::Disconnect", CMaterialSystem__Disconnect);
 #ifndef MATERIALSYSTEM_NODX
+		LogFunAdr("CMaterialSystem::SwapBuffers", CMaterialSystem__SwapBuffers);
 		LogFunAdr("CMaterialSystem::FindMaterialEx", CMaterialSystem__FindMaterialEx);
 		LogFunAdr("CMaterialSystem::GetScreenSize", CMaterialSystem__GetScreenSize);
 		LogFunAdr("CMaterialSystem::GetStreamOverlay", CMaterialSystem__GetStreamOverlay);
@@ -122,8 +132,12 @@ class VMaterialSystem : public IDetour
 	{
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??").GetPtr(CMaterialSystem__Init);
 		g_GameDll.FindPatternSIMD("48 83 EC 58 48 89 6C 24 ??").GetPtr(CMaterialSystem__Shutdown);
+
+		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 56 48 83 EC 50").GetPtr(CMaterialSystem__Connect);
 		g_GameDll.FindPatternSIMD("48 83 EC 28 8B 0D ?? ?? ?? ?? 48 89 6C 24 ??").GetPtr(CMaterialSystem__Disconnect);
 #ifndef MATERIALSYSTEM_NODX
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 40 65 48 8B 04 25 ?? ?? ?? ??").GetPtr(CMaterialSystem__SwapBuffers);
+
 		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??").GetPtr(CMaterialSystem__FindMaterialEx);
 		g_GameDll.FindPatternSIMD("8B 05 ?? ?? ?? ?? 89 02 8B 05 ?? ?? ?? ?? 41 89 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 8B 05 ?? ?? ?? ??").GetPtr(CMaterialSystem__GetScreenSize);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 80 7C 24 ?? ?? 0F 84 ?? ?? ?? ?? 48 89 9C 24 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CMaterialSystem__GetStreamOverlay);

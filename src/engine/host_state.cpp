@@ -40,6 +40,7 @@
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
 #include "client/vengineclient_impl.h"
+#include "gameui/imgui_system.h"
 #endif // DEDICATED
 #include "networksystem/pylon.h"
 #ifndef CLIENT_DLL
@@ -124,6 +125,8 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	RCONClient()->RunFrame();
+
+	ImguiSystem_SampleFrame();
 #endif // !DEDICATED
 
 	// Disable "warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable"

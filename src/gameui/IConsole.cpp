@@ -26,12 +26,13 @@ History:
 //-----------------------------------------------------------------------------
 // Console variables
 //-----------------------------------------------------------------------------
-static ConVar con_max_lines("con_max_lines", "1024", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Maximum number of lines in the console before cleanup starts", true, 1.f, false, 0.f);
-static ConVar con_max_history("con_max_history", "512", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Maximum number of command submission items before history cleanup starts", true, 0.f, false, 0.f);
-static ConVar con_suggest_limit("con_suggest_limit", "128", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Maximum number of suggestions the autocomplete window will show for the console", true, 0.f, false, 0.f);
+static ConVar con_max_lines("con_max_lines", "1024", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Maximum number of lines in the console before cleanup starts", true, 1.f, false, 0.f);
 
-static ConVar con_suggest_showhelptext("con_suggest_showhelptext", "1", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Show CommandBase help text in autocomplete window");
-static ConVar con_suggest_showflags("con_suggest_showflags", "1", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Show CommandBase flags in autocomplete window");
+static ConVar con_max_history("con_max_history", "512", FCVAR_DEVELOPMENTONLY, "Maximum number of command submission items before history cleanup starts", true, 0.f, false, 0.f);
+static ConVar con_suggest_limit("con_suggest_limit", "128", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console", true, 0.f, false, 0.f);
+
+static ConVar con_suggest_showhelptext("con_suggest_showhelptext", "1", FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window");
+static ConVar con_suggest_showflags("con_suggest_showflags", "1", FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window");
 
 //-----------------------------------------------------------------------------
 // Console commands
@@ -207,15 +208,9 @@ void CConsole::RunFrame(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: runs tasks for the console while not being drawn 
-// (!!! RunTask and RunFrame must be called from the same thread !!!)
 //-----------------------------------------------------------------------------
 void CConsole::RunTask(void)
 {
-    // m_Logger and m_vHistory are modified.
-    AUTO_LOCK(m_Mutex);
-
-    ClampLogSize();
-    ClampHistorySize();
 }
 
 //-----------------------------------------------------------------------------
@@ -297,10 +292,7 @@ void CConsole::DrawSurface(void)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  iVars++;
     ImGui::BeginChild(m_pszLoggingLabel, ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
 
-    // Mutex is locked here, as we start using/modifying
-    // non-atomic members that are used from several threads.
     AUTO_LOCK(m_Mutex);
-
     m_Logger.Render();
 
     if (m_bCopyToClipBoard)
@@ -335,6 +327,8 @@ void CConsole::DrawSurface(void)
     ImGui::PushItemWidth(flFooterWidthReserve - 80);
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
+        // If we selected something in the suggestions window, create the
+        // command from that instead
         if (m_nSuggestPos > PositionMode_t::kPark)
         {
             BuildInputFromSelected(m_vSuggest[m_nSuggestPos], m_svInputConVar);
@@ -552,12 +546,14 @@ bool CConsole::AutoComplete(void)
         // command string.
         for (; i < sizeof(m_szInputBuf); i++)
         {
-            if (isspace(m_szInputBuf[i]))
+            const char c = m_szInputBuf[i];
+
+            if (c == '\0' || isspace(c))
             {
                 break;
             }
 
-            szCommand[i] = m_szInputBuf[i];
+            szCommand[i] = c;
         }
 
         szCommand[i] = '\0';
@@ -642,7 +638,7 @@ void CConsole::FindFromPartial(void)
             {
                 const ConVar* pConVar = reinterpret_cast<const ConVar*>(pCommandBase);
 
-                svValue = " = ["; // Assign default value to string if its a ConVar.
+                svValue = " = ["; // Assign current value to string if its a ConVar.
                 svValue.append(pConVar->GetString());
                 svValue.append("]");
             }
@@ -681,16 +677,7 @@ void CConsole::ProcessCommand(string svCommand)
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), svCommand.c_str(), cmd_source_t::kCommandSrcCode);
     m_nHistoryPos = PositionMode_t::kPark;
 
-    for (size_t i = m_vHistory.size(); i-- > 0;)
-    {
-        if (m_vHistory[i].compare(svCommand) == 0)
-        {
-            m_vHistory.erase(m_vHistory.begin() + i);
-            break;
-        }
-    }
-
-    m_vHistory.push_back(svCommand);
+    AddHistory(svCommand.c_str());
     m_Logger.ShouldScrollToBottom(true);
 }
 
@@ -754,38 +741,6 @@ void CConsole::BuildSuggestPanelRect(void)
         static_cast<float>(m_vSuggest.size()) * (flItemHeight), 37.0f, 127.5f));
 
     m_ivSuggestWindowSize = ImVec2(600, flWindowHeight);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: clamps the size of the log vector
-//-----------------------------------------------------------------------------
-void CConsole::ClampLogSize(void)
-{
-    const int nMaxLines = con_max_lines.GetInt();
-
-    if (m_Logger.GetTotalLines() > nMaxLines)
-    {
-        while (m_Logger.GetTotalLines() > nMaxLines)
-        {
-            m_Logger.RemoveLine(0);
-            m_nScrollBack++;
-            m_nSelectBack++;
-        }
-        m_Logger.MoveSelection(m_nSelectBack, false);
-        m_Logger.MoveCursor(m_nSelectBack, false);
-        m_nSelectBack = 0;
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: clamps the size of the history vector
-//-----------------------------------------------------------------------------
-void CConsole::ClampHistorySize(void)
-{
-    while (m_vHistory.size() > con_max_history.GetInt())
-    {
-        m_vHistory.erase(m_vHistory.begin());
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1065,18 +1020,21 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: adds logs to the vector
+// Purpose: adds logs to the console; this is the only place text is added to
+// the vector, do not call 'm_Logger.InsertText' elsewhere as we also manage
+// the size of the vector here !!!
 // Input  : &conLog - 
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const ConLog_t& conLog)
 {
     AUTO_LOCK(m_Mutex);
+
     m_Logger.InsertText(conLog);
+    ClampLogSize();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: adds logs to the vector (internal)
-// Only call when mutex lock is obtained!
+// Purpose: adds logs to the console (internal)
 // Input  : &color - 
 //          *fmt - 
 //          ... - 
@@ -1090,7 +1048,7 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)
     result = FormatV(fmt, args);
     va_end(args);
 
-    m_Logger.InsertText(ConLog_t(result, color));
+    AddLog(ConLog_t(result, color));
 }
 
 //-----------------------------------------------------------------------------
@@ -1147,12 +1105,55 @@ void CConsole::ClearLog(void)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: clamps the size of the log vector
+//-----------------------------------------------------------------------------
+void CConsole::ClampLogSize(void)
+{
+    const int nMaxLines = con_max_lines.GetInt();
+
+    if (m_Logger.GetTotalLines() > nMaxLines)
+    {
+        while (m_Logger.GetTotalLines() > nMaxLines)
+        {
+            m_Logger.RemoveLine(0);
+            m_nScrollBack++;
+            m_nSelectBack++;
+        }
+
+        m_Logger.MoveSelection(m_nSelectBack, false);
+        m_Logger.MoveCursor(m_nSelectBack, false);
+        m_nSelectBack = 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds a command to the history vector; this is the only place text 
+// is added to the vector, do not call 'm_History.push_back' elsewhere as we
+// also manage the size of the vector here !!!
+//-----------------------------------------------------------------------------
+void CConsole::AddHistory(const char* const command)
+{
+    // If this command was already in the history, remove it so when we push it
+    // in, it would appear all the way at the top of the list
+    for (size_t i = m_vHistory.size(); i-- > 0;)
+    {
+        if (m_vHistory[i].compare(command) == 0)
+        {
+            m_vHistory.erase(m_vHistory.begin() + i);
+            break;
+        }
+    }
+
+    m_vHistory.push_back(command);
+    ClampHistorySize();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: gets all console submissions
 // Output : vector of strings
 //-----------------------------------------------------------------------------
-vector<string> CConsole::GetHistory(void) const
+const vector<string>& CConsole::GetHistory(void) const
 {
-    AUTO_LOCK(m_Mutex);
     return m_vHistory;
 }
 
@@ -1161,10 +1162,19 @@ vector<string> CConsole::GetHistory(void) const
 //-----------------------------------------------------------------------------
 void CConsole::ClearHistory(void)
 {
-    AUTO_LOCK(m_Mutex);
-
     m_vHistory.clear();
     BuildSummary();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clamps the size of the history vector
+//-----------------------------------------------------------------------------
+void CConsole::ClampHistorySize(void)
+{
+    while (m_vHistory.size() > con_max_history.GetInt())
+    {
+        m_vHistory.erase(m_vHistory.begin());
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1192,7 +1202,7 @@ void CConsole::ToggleConsole_f()
 //-----------------------------------------------------------------------------
 void CConsole::LogHistory_f()
 {
-    const vector<string> vHistory = g_Console.GetHistory();
+    const vector<string>& vHistory = g_Console.GetHistory();
     for (size_t i = 0, nh = vHistory.size(); i < nh; i++)
     {
         Msg(eDLL_T::COMMON, "%3d: %s\n", i, vHistory[i].c_str());
