@@ -1109,7 +1109,8 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClampLogSize(void)
 {
-    const int nMaxLines = con_max_lines.GetInt();
+    // +1 since the first row is a dummy
+    const int nMaxLines = con_max_lines.GetInt() + 1;
 
     if (m_Logger.GetTotalLines() > nMaxLines)
     {
