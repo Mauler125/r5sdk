@@ -98,6 +98,15 @@ void CRConServer::Init(void)
 //-----------------------------------------------------------------------------
 void CRConServer::Shutdown(void)
 {
+	if (!m_bInitialized)
+	{
+		// If we aren't initialized, we shouldn't have any connections at all.
+		Assert(!m_Socket.GetAcceptedSocketCount(), "Accepted connections while RCON server isn't initialized!");
+		Assert(!m_Socket.IsListening(), "Listen socket active while RCON server isn't initialized!");
+
+		return;
+	}
+
 	m_bInitialized = false;
 
 	const int nConnCount = m_Socket.GetAcceptedSocketCount();
@@ -178,6 +187,12 @@ bool CRConServer::SetPassword(const char* pszPassword)
 	if (nHashRet != 0)
 	{
 		Error(eDLL_T::SERVER, 0, "SHA-512 algorithm failed on RCON password [%i]\n", nHashRet);
+
+		if (m_Socket.IsListening())
+		{
+			m_Socket.CloseListenSocket();
+		}
+
 		return false;
 	}
 
