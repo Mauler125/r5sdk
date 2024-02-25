@@ -17,10 +17,6 @@ bool HCVideoMode_Common__CreateGameWindow(int* pnRect)
 	g_nWindowRect[1] = pnRect[1];
 
 	const bool ret = CVideoMode_Common__CreateGameWindow(pnRect);
-
-	if (!ImguiSystem_Init())
-		Error(eDLL_T::MS, 0, "ImGui system initialization failed!\n");
-
 	return ret;
 }
 

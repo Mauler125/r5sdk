@@ -349,6 +349,9 @@ void DirectX_Init()
 		Assert(0);
 		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
+
+	if (!ImguiSystem_Init())
+		Error(eDLL_T::MS, 0, "ImGui system initialization failed!\n");
 }
 
 void DirectX_Shutdown()
@@ -367,6 +370,9 @@ void DirectX_Shutdown()
 
 	// Commit the transaction
 	DetourTransactionCommit();
+
+	if (ImguiSystem_IsInitialized())
+		ImguiSystem_Shutdown();
 }
 
 void VDXGI::GetAdr(void) const
