@@ -91,8 +91,10 @@ void ImGui_Init()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
+	ImGuiViewport* const vp = ImGui::GetMainViewport();
+	vp->PlatformHandleRaw = g_pGame->GetWindow();
+
 	ImGuiIO& io = ImGui::GetIO();
-	io.ImeWindowHandle = g_pGame->GetWindow();
 	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
 
 	ImGui_ImplWin32_Init(g_pGame->GetWindow());

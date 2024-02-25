@@ -334,7 +334,9 @@ void CBrowser::BrowserPanel(void)
     ImGui::PopStyleVar(iVars);
 
     ImGui::Separator();
-    ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth() / 4);
+
+    const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
+    ImGui::PushItemWidth(contentRegionMax.x / 4);
     {
         ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Server address and port", m_szServerAddressBuffer, IM_ARRAYSIZE(m_szServerAddressBuffer));
 
@@ -342,7 +344,7 @@ void CBrowser::BrowserPanel(void)
         ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
 
         ImGui::SameLine();
-        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
+        if (ImGui::Button("Connect", ImVec2(contentRegionMax.x / 4.3f, ImGui::GetFrameHeight())))
         {
             if (m_szServerAddressBuffer[0])
             {
@@ -351,7 +353,7 @@ void CBrowser::BrowserPanel(void)
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Private servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
+        if (ImGui::Button("Private servers", ImVec2(contentRegionMax.x / 4.3f, ImGui::GetFrameHeight())))
         {
             ImGui::OpenPopup("Private Server");
         }
@@ -412,7 +414,9 @@ void CBrowser::HiddenServersModal(void)
         ImGui::SameLine();
         ImGui::Text("Enter token to connect");
 
-        ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
+        const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
+
+        ImGui::PushItemWidth(contentRegionMax.x); // Override item width.
         ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", &m_svHiddenServerToken);
         ImGui::PopItemWidth();
 
@@ -422,12 +426,12 @@ void CBrowser::HiddenServersModal(void)
             m_bReclaimFocusTokenField = false;
         }
 
-        ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f)); // Place a dummy, basically making space inserting a blank element.
+        ImGui::Dummy(ImVec2(contentRegionMax.x, 19.f)); // Place a dummy, basically making space inserting a blank element.
 
         ImGui::TextColored(m_ivHiddenServerMessageColor, "%s", m_svHiddenServerRequestMessage.c_str());
         ImGui::Separator();
 
-        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
+        if (ImGui::Button("Connect", ImVec2(contentRegionMax.x, 24)))
         {
             m_svHiddenServerRequestMessage.clear();
             m_bReclaimFocusTokenField = true;
@@ -463,7 +467,7 @@ void CBrowser::HiddenServersModal(void)
                 m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
-        if (ImGui::Button("Close", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
+        if (ImGui::Button("Close", ImVec2(contentRegionMax.x, 24)))
         {
             m_svHiddenServerRequestMessage.clear();
             m_bReclaimFocusTokenField = true;
@@ -562,11 +566,12 @@ void CBrowser::HostPanel(void)
 
     ImGui::Spacing();
 
+    const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
     const bool bServerActive = g_pServer->IsActive();
 
     if (!g_pHostState->m_bActiveGame)
     {
-        if (ImGui::Button("Start server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Start server", ImVec2(contentRegionMax.x, 32)))
         {
             m_svHostRequestMessage.clear();
 
@@ -594,7 +599,7 @@ void CBrowser::HostPanel(void)
                 }
             }
         }
-        if (ImGui::Button("Reload playlist", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Reload playlist", ImVec2(contentRegionMax.x, 32)))
         {
             g_TaskScheduler->Dispatch([]()
                 {
@@ -603,7 +608,7 @@ void CBrowser::HostPanel(void)
                 }, 0);
         }
 
-        if (ImGui::Button("Reload banlist", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Reload banlist", ImVec2(contentRegionMax.x, 32)))
         {
             g_TaskScheduler->Dispatch([]()
                 {
@@ -613,7 +618,7 @@ void CBrowser::HostPanel(void)
     }
     else
     {
-        if (ImGui::Button("Stop server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Stop server", ImVec2(contentRegionMax.x, 32)))
         {
             ProcessCommand("LeaveMatch"); // TODO: use script callback instead.
             g_TaskScheduler->Dispatch([]()
@@ -623,7 +628,7 @@ void CBrowser::HostPanel(void)
                 }, 0);
         }
 
-        if (ImGui::Button("Change level", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Change level", ImVec2(contentRegionMax.x, 32)))
         {
             if (!g_ServerListManager.m_Server.map.empty())
             {
@@ -642,12 +647,12 @@ void CBrowser::HostPanel(void)
             ImGui::Separator();
             ImGui::Spacing();
 
-            if (ImGui::Button("AI network rebuild", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            if (ImGui::Button("AI network rebuild", ImVec2(contentRegionMax.x, 32)))
             {
                 ProcessCommand("BuildAINFile");
             }
 
-            if (ImGui::Button("NavMesh hot swap", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            if (ImGui::Button("NavMesh hot swap", ImVec2(contentRegionMax.x, 32)))
             {
                 ProcessCommand("navmesh_hotswap");
             }
@@ -656,7 +661,7 @@ void CBrowser::HostPanel(void)
             ImGui::Separator();
             ImGui::Spacing();
 
-            if (ImGui::Button("AI settings reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            if (ImGui::Button("AI settings reparse", ImVec2(contentRegionMax.x, 32)))
             {
                 Msg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
                 ProcessCommand("aisettings_reparse");
@@ -667,7 +672,7 @@ void CBrowser::HostPanel(void)
                 }
             }
 
-            if (ImGui::Button("Weapon settings reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            if (ImGui::Button("Weapon settings reparse", ImVec2(contentRegionMax.x, 32)))
             {
                 Msg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
                 ProcessCommand("weapon_reparse");
