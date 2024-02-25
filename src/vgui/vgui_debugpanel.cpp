@@ -22,7 +22,7 @@
 #include <engine/client/clientstate.h>
 #include <materialsystem/cmaterialglue.h>
 
-static ConVar con_drawnotify("con_drawnotify", "0", FCVAR_RELEASE, "Draws the RUI console to the hud");
+static ConVar con_drawnotify("con_drawnotify", "0", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Draws the RUI console to the hud");
 
 // Various cvars that dictate how many lines and how long the text is shown
 static ConVar con_notifylines("con_notifylines", "3", FCVAR_MATERIAL_SYSTEM_THREAD, "Number of console lines to overlay for debugging", true, 1.f, false, 0.f);
@@ -115,6 +115,8 @@ void CTextOverlay::Update(void)
 //-----------------------------------------------------------------------------
 void CTextOverlay::AddLog(const eDLL_T context, const char* pszText)
 {
+	Assert(pszText);
+
 	if (!con_drawnotify.GetBool() || !VALID_CHARSTAR(pszText))
 	{
 		return;
@@ -185,7 +187,7 @@ void CTextOverlay::DrawNotify(void)
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawFormat(const int x, const int y, const Color c, const char* pszFormat, ...) const
 {
-	static char szLogbuf[4096]{};
+	char szLogbuf[4096];
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, pszFormat);
@@ -209,7 +211,7 @@ void CTextOverlay::ShouldDraw(const float flFrameTime)
 	{
 		AUTO_LOCK(m_Mutex);
 
-		for (int i = m_NotifyLines.Count() - 1; i >= 0; i--)
+		FOR_EACH_VEC_BACK(m_NotifyLines, i)
 		{
 			CTextNotify* pNotify = &m_NotifyLines[i];
 			pNotify->m_flLifeRemaining -= flFrameTime;
@@ -283,7 +285,7 @@ void CTextOverlay::DrawCrosshairMaterial(void) const
 	if (!pMaterialGlue)
 		return;
 
-	static Color c = { 255, 255, 255, 255 };
+	static const Color c = { 255, 255, 255, 255 };
 	DrawFormat(cl_materialinfo_offset_x.GetInt(), cl_materialinfo_offset_y.GetInt(), c, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nstc: %i\ntc: %i",
 		pMaterialGlue->name,
 		pMaterialGlue->assetGuid,
