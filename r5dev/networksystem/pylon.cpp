@@ -13,12 +13,10 @@
 
 //-----------------------------------------------------------------------------
 // Console variables
-// NOTE: marked FCVAR_MATERIAL_SYSTEM_THREAD as these are also used in the
-// ImGui development panels
 //-----------------------------------------------------------------------------
-ConVar pylon_matchmaking_hostname("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Holds the pylon matchmaking hostname");
-ConVar pylon_host_update_interval("pylon_host_update_interval", "5", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Length of time in seconds between each status update interval to master server", true, 5.f, false, 0.f);
-ConVar pylon_showdebuginfo("pylon_showdebuginfo", "0", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Shows debug output for pylon");
+ConVar pylon_matchmaking_hostname("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE | FCVAR_ACCESSIBLE_FROM_THREADS, "Holds the pylon matchmaking hostname");
+ConVar pylon_host_update_interval("pylon_host_update_interval", "5", FCVAR_RELEASE | FCVAR_ACCESSIBLE_FROM_THREADS, "Length of time in seconds between each status update interval to master server", true, 5.f, false, 0.f);
+ConVar pylon_showdebuginfo("pylon_showdebuginfo", "0", FCVAR_RELEASE | FCVAR_ACCESSIBLE_FROM_THREADS, "Shows debug output for pylon");
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if the server listing fields are valid.
