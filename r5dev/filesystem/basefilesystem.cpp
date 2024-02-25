@@ -6,7 +6,7 @@
 #include "bspfile.h"
 #include "engine/modelloader.h"
 
-static ConVar fs_showWarnings("fs_showWarnings", "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level' ( !slower! ).", true, 0.f, true, 2.f, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify");
+static ConVar fs_showWarnings("fs_showWarnings", "0", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level' ( !slower! ).", true, 0.f, true, 2.f, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify");
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of the filesystem based on the warning level
