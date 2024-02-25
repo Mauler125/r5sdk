@@ -936,9 +936,12 @@ void CTextLogger::Render()
 
 	if (m_bScrollToBottom || (m_bAutoScroll && m_bScrolledToBottom && !m_bScrollToCursor))
 	{
+		ImGui::SetScrollHereX(0.0f);
 		ImGui::SetScrollHereY(1.0f);
+
 		m_bScrollToBottom = false;
 	}
+
 	m_bScrollToCursor = false;
 
 	if (m_bHandleUserInputs)
