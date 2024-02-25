@@ -30,9 +30,6 @@ bool CMaterialSystem::Connect(CMaterialSystem* thisptr, const CreateInterfaceFn 
 
 void CMaterialSystem::Disconnect(CMaterialSystem* thisptr)
 {
-#ifndef MATERIALSYSTEM_NODX
-	ImguiSystem_Shutdown();
-#endif
 	CMaterialSystem__Disconnect(thisptr);
 }
 

@@ -22,7 +22,6 @@ typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UI
 
 /////////////////////////////////////////////////////////////////////////////
 // Globals
-extern BOOL g_bImGuiInitialized;
 extern UINT g_nWindowRect[2]; // TODO[ AMOS ]: Remove this in favor of CGame's window rect members???
 
 /////////////////////////////////////////////////////////////////////////////
