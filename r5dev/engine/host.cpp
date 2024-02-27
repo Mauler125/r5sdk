@@ -61,15 +61,15 @@ Runs all active servers
 */
 void _Host_RunFrame(void* unused, float time)
 {
-	for (IFrameTask* const& task : g_FrameTasks)
+	for (IFrameTask* const& task : g_TaskQueueList)
 	{
 		task->RunFrame();
 	}
 
-	g_FrameTasks.erase(std::remove_if(g_FrameTasks.begin(), g_FrameTasks.end(), [](const IFrameTask* task)
+	g_TaskQueueList.erase(std::remove_if(g_TaskQueueList.begin(), g_TaskQueueList.end(), [](const IFrameTask* task)
 		{
 			return task->IsFinished();
-		}), g_FrameTasks.end());
+		}), g_TaskQueueList.end());
 
 #ifndef DEDICATED
 	g_TextOverlay.ShouldDraw(time);

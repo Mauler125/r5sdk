@@ -368,7 +368,7 @@ void CBrowser::RefreshServerList(void)
             std::string svServerListMessage;
             g_ServerListManager.RefreshServerList(svServerListMessage);
 
-            g_TaskScheduler->Dispatch([&, svServerListMessage]
+            g_TaskQueue.Dispatch([&, svServerListMessage]
                 {
                     SetServerListMessage(svServerListMessage.c_str());
                 }, 0);
@@ -774,7 +774,7 @@ void CBrowser::SendHostingPostRequest(const NetGameServer_t& gameServer)
 
             const bool result = g_MasterServer.PostServerHost(hostRequestMessage, hostToken, hostIp, gameServer);
 
-            g_TaskScheduler->Dispatch([&, result, hostRequestMessage, hostToken, hostIp]
+            g_TaskQueue.Dispatch([&, result, hostRequestMessage, hostToken, hostIp]
                 {
                     InstallHostingDetails(result, hostRequestMessage.c_str(), hostToken.c_str(), hostIp);
                 }, 0);
