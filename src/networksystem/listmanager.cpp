@@ -59,7 +59,7 @@ void CServerListManager::LaunchServer(const bool bChangeLevel) const
 {
     if (!ThreadInMainThread())
     {
-        g_TaskScheduler->Dispatch([this, bChangeLevel]()
+        g_TaskQueue.Dispatch([this, bChangeLevel]()
             {
                 this->LaunchServer(bChangeLevel);
             }, 0);
@@ -90,7 +90,7 @@ void CServerListManager::ConnectToServer(const string& svIp, const int nPort, co
 {
     if (!ThreadInMainThread())
     {
-        g_TaskScheduler->Dispatch([this, svIp, nPort, svNetKey]()
+        g_TaskQueue.Dispatch([this, svIp, nPort, svNetKey]()
             {
                 this->ConnectToServer(svIp, nPort, svNetKey);
             }, 0);
@@ -113,7 +113,7 @@ void CServerListManager::ConnectToServer(const string& svServer, const string& s
 {
     if (!ThreadInMainThread())
     {
-        g_TaskScheduler->Dispatch([this, svServer, svNetKey]()
+        g_TaskQueue.Dispatch([this, svServer, svNetKey]()
             {
                 this->ConnectToServer(svServer, svNetKey);
             }, 0);
@@ -134,7 +134,6 @@ void CServerListManager::ConnectToServer(const string& svServer, const string& s
 void CServerListManager::ProcessCommand(const char* pszCommand) const
 {
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
-    //g_TaskScheduler->Dispatch(Cbuf_Execute, 0); // Run in main thread.
 }
 
 CServerListManager g_ServerListManager;

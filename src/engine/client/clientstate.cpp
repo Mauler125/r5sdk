@@ -135,7 +135,7 @@ void CClientState::VConnectionClosing(CClientState* thisptr, const char* szReaso
 
     // Delay execution to the next frame; this is required to avoid a rare crash.
     // Cannot reload playlists while still disconnecting.
-    g_TaskScheduler->Dispatch([]()
+    g_TaskQueue.Dispatch([]()
         {
             // Reload the local playlist to override the cached
             // one from the server we got disconnected from.

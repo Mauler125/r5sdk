@@ -133,7 +133,7 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 	if (!ThreadInMainThread())
 	{
 		const string scode(code);
-		g_TaskScheduler->Dispatch([scode, context]()
+		g_TaskQueue.Dispatch([scode, context]()
 			{
 				Script_Execute(scode.c_str(), context);
 			}, 0);

@@ -118,7 +118,7 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 		cv->EnableDevCvars();
 	}
 
-	g_FrameTasks.push_back(std::move(g_TaskScheduler));
+	g_TaskQueueList.push_back(&g_TaskQueue);
 	g_bAppSystemInit = true;
 
 	return CModAppSystemGroup__Create(pModAppSystemGroup);

@@ -30,7 +30,7 @@ void SV_IsClientBanned(CClient* pClient, const string& svIPAddr,
 	{
 		if (!ThreadInMainThread())
 		{
-			g_TaskScheduler->Dispatch([pClient, svError, svIPAddr, nNucleusID, nPort]
+			g_TaskQueue.Dispatch([pClient, svError, svIPAddr, nNucleusID, nPort]
 				{
 					// Make sure client isn't already disconnected,
 					// and that if there is a valid netchannel, that
@@ -66,7 +66,7 @@ void SV_ProcessBulkCheck(const CBanSystem::BannedList_t* pBannedVec, const bool 
 
 	if (!ThreadInMainThread())
 	{
-		g_TaskScheduler->Dispatch([outBannedVec]
+		g_TaskQueue.Dispatch([outBannedVec]
 			{
 				SV_CheckForBan(outBannedVec, true);
 			}, 0);
