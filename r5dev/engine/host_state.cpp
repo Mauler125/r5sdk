@@ -125,8 +125,6 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	RCONClient()->RunFrame();
-
-	ImguiSystem_SampleFrame();
 #endif // !DEDICATED
 
 	// Disable "warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable"
@@ -147,8 +145,7 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 		{
 			Cbuf_Execute();
 
-			HostStates_t oldState = g_pHostState->m_iCurrentState;
-
+			const HostStates_t oldState = g_pHostState->m_iCurrentState;
 			switch (g_pHostState->m_iCurrentState)
 			{
 			case HostStates_t::HS_NEW_GAME:
@@ -452,7 +449,7 @@ void CHostState::State_NewGame(void)
 
 #ifndef CLIENT_DLL
 	const bool bSplitScreenConnect = m_bSplitScreenConnect;
-	m_bSplitScreenConnect = 0;
+	m_bSplitScreenConnect = false;
 
 	if (!g_pServerGameClients) // Init Game if it ain't valid.
 	{

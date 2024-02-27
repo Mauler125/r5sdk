@@ -30,16 +30,10 @@ void CGame::PlayStartupVideos(void)
 //-----------------------------------------------------------------------------
 int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (!ImguiSystem_IsInitialized())
+	if (!ImguiSystem()->IsInitialized())
 		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
 
-	const IEngine::EngineState_t state = g_pEngine->GetState();
-
-	if (state == IEngine::DLL_CLOSE ||
-		state == IEngine::DLL_RESTART)
-		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
-
-	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+	ImguiSystem()->MessageHandler(hWnd, uMsg, wParam, lParam);
 
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{

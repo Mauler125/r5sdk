@@ -3,6 +3,7 @@
 //  snapshot.SnapUsingSwap(ImGui::GetDrawData(), ImGui::GetTime());
 //  [...]
 //  ImGui_ImplDX11_RenderDrawData(&snapshot.DrawData);
+#pragma once
 
 // FIXME: Could store an ID in ImDrawList to make this easier for user.
 #include "imgui_internal.h" // ImPool<>, ImHashData
