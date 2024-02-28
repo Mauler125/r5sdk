@@ -811,7 +811,7 @@ void CTextLogger::Render()
 			const ImVec2 textScreenPos = ImVec2(lineStartScreenPos.x, lineStartScreenPos.y);
 
 			const Line& line = m_Lines[lineNo];
-			longest = TextDistanceToLineStart(Coordinates(lineNo, GetLineMaxColumn(lineNo)));
+			longest = ImMax(TextDistanceToLineStart(Coordinates(lineNo, GetLineMaxColumn(lineNo))), longest);
 
 			Coordinates lineStartCoord(lineNo, 0);
 			Coordinates lineEndCoord(lineNo, GetLineMaxColumn(lineNo));
