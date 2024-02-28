@@ -287,7 +287,6 @@ int CTextLogger::InsertTextAt(Coordinates& aWhere, const char* aValue, const ImU
 		}
 	}
 
-	// TODO[ AMOS ]: should we really pad it with a white space if buf empty?
 	if (!*aValue)
 	{
 		Line& line = m_Lines[aWhere.m_nLine];
@@ -669,9 +668,10 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 
 	if (!bHoveredScrollbar && !bActiveScrollbar && m_bWithinLoggingRect)
 	{
+		bool click = ImGui::IsMouseClicked(0);
+
 		if (!bShift && !bAlt)
 		{
-			bool click = ImGui::IsMouseClicked(0);
 			bool doubleClick = ImGui::IsMouseDoubleClicked(0);
 
 			double t = ImGui::GetTime();
@@ -702,6 +702,10 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 				if (!bCtrl)
 				{
 					m_State.m_CursorPosition = m_InteractiveStart = m_InteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
+
+					// Advance cursor to the end of the selection
+					m_InteractiveStart = FindWordStart(m_State.m_CursorPosition);
+					m_State.m_CursorPosition = m_InteractiveEnd = FindWordEnd(m_State.m_CursorPosition);
 
 					if (m_SelectionMode == SelectionMode::Line)
 						m_SelectionMode = SelectionMode::Normal;
@@ -763,6 +767,22 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 
 				m_nLinesOffsetAmount = 0;
 				m_InteractiveStart = newStart;
+			}
+		}
+		else if (bShift)
+		{
+			if (click) // Shift select range
+			{
+				Coordinates newSelection = ScreenPosToCoordinates(ImGui::GetMousePos());
+
+				if (newSelection > m_State.m_CursorPosition)
+					SetSelectionEnd(newSelection);
+				else
+					SetSelectionStart(newSelection);
+
+				m_InteractiveStart = m_State.m_SelectionStart;
+				m_InteractiveEnd = m_State.m_SelectionEnd;
+				m_State.m_CursorPosition = newSelection;
 			}
 		}
 	}
@@ -1042,7 +1062,8 @@ void CTextLogger::SetSelection(const Coordinates & aStart, const Coordinates & a
 		const int lineNo = m_State.m_SelectionEnd.m_nLine;
 		//const size_t lineSize = (size_t)lineNo < m_Lines.size() ? m_Lines[lineNo].size() : 0;
 		m_State.m_SelectionStart = Coordinates(m_State.m_SelectionStart.m_nLine, 0);
-		m_State.m_SelectionEnd = Coordinates(lineNo, GetLineMaxColumn(lineNo));
+		m_State.m_SelectionEnd = m_Lines.size() > lineNo + 1 ? Coordinates(lineNo + 1, 0) : Coordinates(lineNo, GetLineMaxColumn(lineNo));
+		m_State.m_CursorPosition = m_State.m_SelectionEnd;
 		break;
 	}
 	default:
@@ -1091,7 +1112,7 @@ void CTextLogger::MoveUp(int aAmount, bool aSelect)
 		else
 			m_InteractiveStart = m_InteractiveEnd = m_State.m_CursorPosition;
 
-		SetSelection(m_InteractiveStart, m_InteractiveEnd);
+		SetSelection(m_InteractiveStart, m_InteractiveEnd, SelectionMode::Normal);
 		EnsureCursorVisible();
 	}
 }
@@ -1120,7 +1141,7 @@ void CTextLogger::MoveDown(int aAmount, bool aSelect)
 		else
 			m_InteractiveStart = m_InteractiveEnd = m_State.m_CursorPosition;
 
-		SetSelection(m_InteractiveStart, m_InteractiveEnd);
+		SetSelection(m_InteractiveStart, m_InteractiveEnd, SelectionMode::Normal);
 		EnsureCursorVisible();
 	}
 }
@@ -1197,7 +1218,13 @@ void CTextLogger::MoveLeft(int aAmount, bool aSelect, bool aWordMode)
 		}
 	}
 	else
+	{
+		if (HasSelection() && !aWordMode)
+			m_State.m_CursorPosition = m_InteractiveStart;
+
 		m_InteractiveStart = m_InteractiveEnd = m_State.m_CursorPosition;
+	}
+
 	SetSelection(m_InteractiveStart, m_InteractiveEnd, aSelect && aWordMode ? SelectionMode::Word : SelectionMode::Normal);
 
 	EnsureCursorVisible();
@@ -1256,7 +1283,12 @@ void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 		}
 	}
 	else
+	{
+		if (HasSelection() && !aWordMode)
+			m_State.m_CursorPosition = m_InteractiveEnd;
+
 		m_InteractiveStart = m_InteractiveEnd = m_State.m_CursorPosition;
+	}
 	SetSelection(m_InteractiveStart, m_InteractiveEnd, aSelect && aWordMode ? SelectionMode::Word : SelectionMode::Normal);
 
 	EnsureCursorVisible();
