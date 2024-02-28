@@ -89,7 +89,8 @@ CConsole::CConsole(void)
     m_nLoggingFlags = 
         ImGuiWindowFlags_NoMove                    |
         ImGuiWindowFlags_HorizontalScrollbar       |
-        ImGuiWindowFlags_AlwaysVerticalScrollbar;
+        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
+        ImGuiWindowFlags_NoNavInputs;
 
     memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
     memset(m_szWindowLabel, '\0', sizeof(m_szWindowLabel));
