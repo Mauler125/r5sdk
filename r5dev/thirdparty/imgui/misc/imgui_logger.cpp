@@ -1239,7 +1239,7 @@ void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 			cindex += UTF8CharLength(line.buffer[cindex]);
 			m_State.m_CursorPosition = Coordinates(lindex, GetCharacterColumn(lindex, cindex));
 			if (aWordMode)
-				m_State.m_CursorPosition = FindNextWord(m_State.m_CursorPosition);
+				m_State.m_CursorPosition = FindWordEnd(m_State.m_CursorPosition);
 		}
 	}
 
