@@ -672,7 +672,9 @@ void CConsole::FindFromPartial(void)
 void CConsole::ProcessCommand(string svCommand)
 {
     StringRTrim(svCommand, " "); // Remove trailing white space characters to prevent history duplication.
-    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "%s] %s\n", Plat_GetProcessUpTime(), svCommand.c_str());
+
+    const ImU32 commandColor = ImGui::ColorConvertFloat4ToU32(ImVec4(1.00f, 0.80f, 0.60f, 1.00f));
+    AddLog(commandColor, "%s] %s\n", Plat_GetProcessUpTime(), svCommand.c_str());
 
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), svCommand.c_str(), cmd_source_t::kCommandSrcCode);
     m_nHistoryPos = PositionMode_t::kPark;
@@ -1025,11 +1027,11 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 // the size of the vector here !!!
 // Input  : &conLog - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const ConLog_t& conLog)
+void CConsole::AddLog(const char* const text, const ImU32 color)
 {
     AUTO_LOCK(m_Mutex);
 
-    m_Logger.InsertText(conLog);
+    m_Logger.InsertText(text, color);
     ClampLogSize();
 }
 
@@ -1039,16 +1041,15 @@ void CConsole::AddLog(const ConLog_t& conLog)
 //          *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)*/
+void CConsole::AddLog(const ImU32 color, const char* fmt, ...) /*IM_FMTARGS(2)*/
 {
-    string result;
     va_list args;
-
     va_start(args, fmt);
-    result = FormatV(fmt, args);
+
+    string result = FormatV(fmt, args);
     va_end(args);
 
-    AddLog(ConLog_t(result, color));
+    AddLog(result.c_str(), color);
 }
 
 //-----------------------------------------------------------------------------

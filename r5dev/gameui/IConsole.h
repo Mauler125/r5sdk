@@ -50,7 +50,7 @@ private:
 
     ///////////////////////////////////////////////////////////////////////////
 public:
-    void AddLog(const ConLog_t& conLog);
+    void AddLog(const char* const text, const ImU32 color);
     void RemoveLog(int nStart, int nEnd);
     void ClearLog(void);
 
@@ -69,7 +69,7 @@ public:
     static void ClearHistory_f();
 
 private: // Internals.
-    void AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)*/;
+    void AddLog(const ImU32 color, const char* fmt, ...) /*IM_FMTARGS(2)*/;
 
     void ClampLogSize(void);
     void ClampHistorySize(void);

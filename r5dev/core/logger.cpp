@@ -294,7 +294,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		g_ImGuiLogger->debug(message);
 
 		const string logStreamBuf = g_LogStream.str();
-		g_Console.AddLog(ConLog_t(logStreamBuf, overlayColor));
+		g_Console.AddLog(logStreamBuf.c_str(), ImGui::ColorConvertFloat4ToU32(overlayColor));
 
 		// We can only log to the in-game overlay console when the SDK has
 		// been fully initialized, due to the use of ConVar's.

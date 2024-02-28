@@ -12,17 +12,6 @@
 #include <mutex>
 #include "imgui.h"
 
-struct ConLog_t
-{
-	ConLog_t(const std::string& svConLog, const ImVec4& imColor)
-	{
-		m_svConLog = svConLog;
-		m_imColor = imColor;
-	}
-	std::string m_svConLog;
-	ImVec4 m_imColor;
-};
-
 class CTextLogger
 {
 public:
@@ -98,15 +87,34 @@ public:
 	typedef std::string String;
 	typedef uint8_t Char;
 
-	struct Glyph
-	{
-		Char m_Char;
-		ImVec4 m_Color = ImVec4(0.23f, 0.47f, 0.85f, 1.00f);
+	//struct Glyph
+	//{
+	//	Char m_Char;
+	//	ImVec4 m_Color = ImVec4(0.23f, 0.47f, 0.85f, 1.00f);
 
-		Glyph(Char aChar, ImVec4 aColor = ImVec4(0.80f, 0.80f, 0.80f, 1.00f)) : m_Char(aChar), m_Color(aColor) {}
+	//	Glyph(Char aChar, ImVec4 aColor = ImVec4(0.80f, 0.80f, 0.80f, 1.00f)) : m_Char(aChar), m_Color(aColor) {}
+	//};
+
+	//typedef std::vector<Glyph> Line;
+
+
+
+	struct Line
+	{
+		std::string buffer;
+		ImU32 color;
+
+		inline int Length() const
+		{
+			return static_cast<int>(buffer.size());
+		}
+
+		Line(const char* const text = "", const ImU32 col = 0xFFFFFFFF)
+			: buffer(text)
+			, color(col)
+		{}
 	};
 
-	typedef std::vector<Glyph> Line;
 	typedef std::vector<Line> Lines;
 
 	CTextLogger();
@@ -115,20 +123,17 @@ public:
 	void Render();
 	void Copy(bool aCopyAll = false);
 
-	void SetText(const ConLog_t& aText);
+	//void SetText(const ConLog_t& aText);
 	std::string GetText() const;
 
-	void SetTextLines(const std::vector<ConLog_t>& aLines);
+	//void SetTextLines(const std::vector<ConLog_t>& aLines);
 	std::vector<std::string> GetTextLines() const;
 
 	ImGuiTextFilter& GetFilter() { return m_itFilter; };
 	std::string GetSelectedText() const;
 	std::string GetCurrentLineText() const;
-	std::string GetTextFromLine(const Line& aLine) const;
 
-	int GetTotalFilterMatches() const;
 	int GetTotalLines() const { return (int)m_Lines.size(); }
-
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
 
 	void MoveCursor(int aLines, bool aForward = true);
@@ -136,9 +141,6 @@ public:
 
 	inline void SetHandleUserInputs (bool aValue){ m_bHandleUserInputs = aValue;}
 	inline bool IsHandleUserInputs() const { return m_bHandleUserInputs; }
-
-	inline void SetShowWhitespaces(bool aValue) { m_bShowWhiteSpaces = aValue; }
-	inline bool IsShowingWhitespaces() const { return m_bShowWhiteSpaces; }
 
 	inline void ShouldScrollToBottom(bool aValue) { m_bScrollToBottom = aValue; }
 	inline bool IsScrollingToBottom() const { return m_bScrollToBottom; }
@@ -149,7 +151,7 @@ public:
 	void SetTabSize(int aValue);
 	inline int GetTabSize() const { return m_nTabSize; }
 
-	void InsertText(const ConLog_t& aValue);
+	void InsertText(const char* const text, const ImU32 color);
 
 	void MoveUp(int aAmount = 1, bool aSelect = false);
 	void MoveDown(int aAmount = 1, bool aSelect = false);
@@ -188,8 +190,8 @@ private:
 	Coordinates SanitizeCoordinates(const Coordinates& aValue) const;
 	void Advance(Coordinates& aCoordinates) const;
 	void DeleteRange(const Coordinates& aStart, const Coordinates& aEnd);
-	int InsertTextAt(Coordinates& aWhere, const char* aValue, const ImVec4& aColor);
-	void MarkNewline(Coordinates& aWhere, const ImVec4& aColor, int aIndex);
+	int InsertTextAt(Coordinates& aWhere, const char* aValue, const ImU32 aColor);
+	void MarkNewline(Coordinates& aWhere, int aIndex);
 	Coordinates ScreenPosToCoordinates(const ImVec2& aPosition) const;
 	Coordinates FindWordStart(const Coordinates& aFrom) const;
 	Coordinates FindWordEnd(const Coordinates& aFrom) const;
@@ -202,7 +204,7 @@ private:
 	Line& InsertLine(int aIndex);
 	std::string GetWordUnderCursor() const;
 	std::string GetWordAt(const Coordinates& aCoords) const;
-	ImU32 GetGlyphColor(const Glyph& aGlyph) const;
+	//ImU32 GetGlyphColor(const Glyph& aGlyph) const;
 
 	void HandleKeyboardInputs(bool bHoveredScrollbar, bool bActiveScrollbar);
 	void HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollbar);
@@ -216,12 +218,10 @@ private:
 	bool m_bScrolledToBottom;
 	bool m_bHandleUserInputs;
 	bool m_bWithinLoggingRect;
-	bool m_bShowWhiteSpaces;
 	bool m_bLinesOffsetForward;
 	int m_nLinesOffsetAmount;
 	int m_nTabSize;
 	int m_nLeftMargin;
-	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
 	float m_flLineSpacing;
 	SelectionMode m_SelectionMode;
 	double m_flLastClick;
@@ -233,7 +233,5 @@ private:
 
 	ImVec2 m_CharAdvance;
 	Lines m_Lines;
-
-	std::string m_svLineBuffer;
 	ImGuiTextFilter m_itFilter;
 };
