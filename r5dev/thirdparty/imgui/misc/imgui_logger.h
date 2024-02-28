@@ -142,10 +142,12 @@ public:
 	inline void SetHandleUserInputs (bool aValue){ m_bHandleUserInputs = aValue;}
 	inline bool IsHandleUserInputs() const { return m_bHandleUserInputs; }
 
-	inline void ShouldScrollToBottom(bool aValue) { m_bScrollToBottom = aValue; }
-	inline bool IsScrollingToBottom() const { return m_bScrollToBottom; }
+	inline void ShouldScrollToStart(const bool aValue) { m_bScrollToStart = aValue; }
+	inline bool IsScrollingToStart() const { return m_bScrollToStart; }
+	inline bool IsScrolledToStart() const { return m_bScrolledToStart; }
 
-	inline void SetScrolledToBottom(bool aValue) { m_bScrolledToBottom = aValue; }
+	inline void ShouldScrollToBottom(const bool aValue) { m_bScrollToBottom = aValue; }
+	inline bool IsScrollingToBottom() const { return m_bScrollToBottom; }
 	inline bool IsScrolledToBottom() const { return m_bScrolledToBottom; }
 
 	void SetTabSize(int aValue);
@@ -213,13 +215,27 @@ public:
 	bool m_bAutoScroll;
 
 private:
+	// Whether to scroll to the cursor
 	bool m_bScrollToCursor;
+
+	// Whether to scroll to the start of the logging pane (horizontal axis), and
+	// whether we are already scrolled to the start
+	bool m_bScrollToStart;
+	bool m_bScrolledToStart;
+
+	// Whether to scroll to the bottom of the logging pane (vertical axis), and
+	// whether we are already scrolled to the bottom
 	bool m_bScrollToBottom;
 	bool m_bScrolledToBottom;
+
 	bool m_bHandleUserInputs;
 	bool m_bWithinLoggingRect;
+
+	// TODO[ AMOS ]: remove these as they aren't used and causes the structure to
+	// pad by 7 bytes
 	bool m_bLinesOffsetForward;
 	int m_nLinesOffsetAmount;
+
 	int m_nTabSize;
 	int m_nLeftMargin;
 	float m_flLineSpacing;

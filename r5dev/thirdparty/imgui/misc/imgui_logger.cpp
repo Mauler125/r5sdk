@@ -897,14 +897,24 @@ void CTextLogger::Render()
 		}
 	}
 
+	// This dummy is here to let Dear ImGui know where the last character of
+	// the line had ended, so that it could properly process the horizontal
+	// scrollbar
 	ImGui::Dummy(ImVec2((longest + 2), m_Lines.size() * m_CharAdvance.y));
+
+	m_bScrolledToStart = ImGui::GetScrollX() == 0.0f;
+
+	if (m_bScrollToStart || (m_bAutoScroll && m_bScrolledToStart && !m_bScrollToCursor))
+	{
+		ImGui::SetScrollHereX(0.0f);
+		m_bScrollToStart = false;
+	}
+
 	m_bScrolledToBottom = ImGui::GetScrollY() >= ImGui::GetScrollMaxY();
 
 	if (m_bScrollToBottom || (m_bAutoScroll && m_bScrolledToBottom && !m_bScrollToCursor))
 	{
-		ImGui::SetScrollHereX(0.0f); // TODO[ AMOS ]: only scroll x if a command has been submitted
 		ImGui::SetScrollHereY(1.0f);
-
 		m_bScrollToBottom = false;
 	}
 
