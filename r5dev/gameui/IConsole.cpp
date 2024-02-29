@@ -681,6 +681,8 @@ void CConsole::ProcessCommand(string svCommand)
     m_nHistoryPos = PositionMode_t::kPark;
 
     AddHistory(svCommand.c_str());
+
+    m_Logger.ShouldScrollToStart(true);
     m_Logger.ShouldScrollToBottom(true);
 }
 
