@@ -241,7 +241,7 @@ private:
 	float m_flLineSpacing;
 	SelectionMode m_SelectionMode;
 	double m_flLastClick;
-	uint64_t m_nStartTime;
+	double m_nStartTime;
 
 	Coordinates m_InteractiveStart;
 	Coordinates m_InteractiveEnd;
