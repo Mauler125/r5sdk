@@ -2,31 +2,22 @@
 #ifndef DEDICATED
 #include "common/sdkdefs.h"
 #include "windows/resource.h"
-#include "public/isurfacesystem.h"
-#include "thirdparty/imgui/misc/imgui_logger.h"
-#include "thirdparty/imgui/misc/imgui_utility.h"
+#include "imgui/misc/imgui_logger.h"
+#include "imgui/misc/imgui_utility.h"
 
-class CConsole : public IDebugSurface
+#include "imgui_surface.h"
+
+class CConsole : public CImguiSurface
 {
 public:
-    enum PositionMode_t
-    {
-        // Park means the position is out of screen.
-        kPark = -1,
-        kFirst,
-    };
-
     ///////////////////////////////////////////////////////////////////////////
     CConsole(void);
     virtual ~CConsole(void);
 
     virtual bool Init(void);
-    virtual void Think(void);
 
     virtual void RunFrame(void);
-    virtual void RunTask(void);
-
-    virtual void DrawSurface(void);
+    virtual bool DrawSurface(void);
 
 private:
     void OptionsPanel(void);
@@ -39,6 +30,8 @@ private:
     void ProcessCommand(string svCommand);
 
     void BuildSummary(string svConVar = "");
+
+    struct CSuggest;
     void BuildInputFromSelected(const CSuggest& suggest, string& svInput);
     void BuildSuggestPanelRect(void);
 
@@ -58,8 +51,6 @@ public:
     const vector<string>& GetHistory(void) const;
     void ClearHistory(void);
 
-    inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
-
 public:
     // Console command callbacks
     static void ToggleConsole_f();
@@ -74,12 +65,36 @@ private: // Internals.
     void ClampLogSize(void);
     void ClampHistorySize(void);
 
-    ///////////////////////////////////////////////////////////////////////////
-    virtual void SetStyleVar(void);
+private:
+    enum PositionMode_t
+    {
+        // Park means the position is out of screen.
+        kPark = -1,
+        kFirst,
+    };
+
+    struct CSuggest
+    {
+        CSuggest(const string& svName, int nFlags)
+        {
+            m_svName = svName;
+            m_nFlags = nFlags;
+        }
+        bool operator==(const string& a) const
+        {
+            return m_svName.compare(a) == 0;
+        }
+        bool operator<(const CSuggest& a) const
+        {
+            return m_svName < a.m_svName;
+        }
+
+        string m_svName;
+        int m_nFlags;
+    };
 
 private:
     ///////////////////////////////////////////////////////////////////////////
-    const char*                    m_pszConsoleLabel;
     const char*                    m_pszLoggingLabel;
     char                           m_szInputBuf[512];
     char                           m_szSummary[256];
@@ -93,10 +108,7 @@ private:
     int                            m_nInputTextLen;
     float                          m_flScrollX;
     float                          m_flScrollY;
-    float                          m_flFadeAlpha;
 
-    bool                           m_bInitialized;
-    bool                           m_bReclaimFocus;
     bool                           m_bCopyToClipBoard;
     bool                           m_bModifyInput;
 
@@ -109,7 +121,6 @@ private:
     vector<MODULERESOURCE>         m_vFlagIcons;
     vector<string>                 m_vHistory;
 
-    ImGuiStyle_t                   m_Style;
     ImVec2                         m_ivSuggestWindowPos;
     ImVec2                         m_ivSuggestWindowSize;
 
@@ -119,9 +130,6 @@ private:
     ImGuiInputTextFlags m_nInputFlags;
     ImGuiWindowFlags m_nSuggestFlags;
     ImGuiWindowFlags m_nLoggingFlags;
-
-public:
-    bool             m_bActivate = false;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

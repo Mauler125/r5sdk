@@ -131,10 +131,7 @@ void CImguiSystem::SampleFrame()
 
 	ImGui::NewFrame();
 
-	g_Browser.RunTask();
 	g_Browser.RunFrame();
-
-	g_Console.RunTask();
 	g_Console.RunFrame();
 
 	ImGui::EndFrame();

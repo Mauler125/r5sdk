@@ -56,9 +56,6 @@ bool CSourceAppSystemGroup::StaticCreate(CSourceAppSystemGroup* pSourceAppSystem
 //-----------------------------------------------------------------------------
 int CModAppSystemGroup::StaticMain(CModAppSystemGroup* pModAppSystemGroup)
 {
-	std::thread fixed(&CEngineSDK::FixedFrame, &g_EngineSDK);
-	fixed.detach();
-
 	int nRunResult = RUN_OK;
 	HEbisuSDK_Init(); // Not here in retail. We init EbisuSDK here though.
 

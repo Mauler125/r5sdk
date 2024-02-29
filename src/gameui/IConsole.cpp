@@ -48,8 +48,7 @@ static ConCommand con_clearhistory("con_clearhistory", CConsole::ClearHistory_f,
 // Purpose: 
 //-----------------------------------------------------------------------------
 CConsole::CConsole(void) 
-    : m_pszConsoleLabel("Console")
-    , m_pszLoggingLabel("LoggingRegion")
+    : m_pszLoggingLabel("LoggingRegion")
     , m_nHistoryPos(PositionMode_t::kPark)
     , m_nSuggestPos(PositionMode_t::kPark)
     , m_nScrollBack(0)
@@ -57,18 +56,15 @@ CConsole::CConsole(void)
     , m_nInputTextLen(0)
     , m_flScrollX(0.f)
     , m_flScrollY(0.f)
-    , m_flFadeAlpha(0.f)
-    , m_bInitialized(false)
-    , m_bReclaimFocus(false)
     , m_bCopyToClipBoard(false)
     , m_bModifyInput(false)
     , m_bCanAutoComplete(false)
     , m_bSuggestActive(false)
     , m_bSuggestMoved(false)
     , m_bSuggestUpdate(false)
-    , m_Style(ImGuiStyle_t::NONE)
-    , m_bActivate(false)
 {
+    m_surfaceLabel = "Console";
+
     m_nInputFlags = 
         ImGuiInputTextFlags_EnterReturnsTrue       |
         ImGuiInputTextFlags_CallbackCompletion     |
@@ -117,7 +113,7 @@ CConsole::~CConsole(void)
 //-----------------------------------------------------------------------------
 bool CConsole::Init(void)
 {
-    SetStyleVar();
+    SetStyleVar(1200, 524, -1000, 50);
     return LoadFlagIcons();
 }
 
@@ -136,26 +132,28 @@ void CConsole::RunFrame(void)
      * BASE PANEL SETUP       *
      **************************/
     {
-        if (!m_bInitialized)
+        if (!m_initialized)
         {
             Init();
-            m_bInitialized = true;
+            m_initialized = true;
         }
+
+        Animate();
 
         int nVars = 0;
         float flWidth;
         float flHeight;
-        if (m_Style == ImGuiStyle_t::MODERN)
+        if (m_surfaceStyle == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);                 nVars++;
 
             flWidth = 621.f;
             flHeight = 532.f;
         }
         else
         {
-            if (m_Style == ImGuiStyle_t::LEGACY)
+            if (m_surfaceStyle == ImGuiStyle_t::LEGACY)
             {
                 flWidth = 619.f;
                 flHeight = 526.f;
@@ -167,7 +165,7 @@ void CConsole::RunFrame(void)
             }
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);                 nVars++;
         }
         ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(flWidth, flHeight)); nVars++;
 
@@ -182,7 +180,7 @@ void CConsole::RunFrame(void)
         int nVars = 0;
         if (AutoComplete())
         {
-            if (m_Style == ImGuiStyle_t::MODERN)
+            if (m_surfaceStyle == ImGuiStyle_t::MODERN)
             {
                 const ImGuiStyle& style = ImGui::GetStyle();
                 m_ivSuggestWindowPos.y = m_ivSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
@@ -198,7 +196,7 @@ void CConsole::RunFrame(void)
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37)); nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);         nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);           nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);             nVars++;
 
             SuggestPanel();
 
@@ -208,47 +206,15 @@ void CConsole::RunFrame(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: runs tasks for the console while not being drawn 
-//-----------------------------------------------------------------------------
-void CConsole::RunTask(void)
-{
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: think
-//-----------------------------------------------------------------------------
-void CConsole::Think(void)
-{
-    if (m_bActivate)
-    {
-        if (m_flFadeAlpha < 1.f)
-        {
-            m_flFadeAlpha += .05f;
-            m_flFadeAlpha = (std::min)(m_flFadeAlpha, 1.f);
-        }
-    }
-    else // Reset to full transparent.
-    {
-        if (m_flFadeAlpha > 0.f)
-        {
-            m_flFadeAlpha -= .05f;
-            m_flFadeAlpha = (std::max)(m_flFadeAlpha, 0.f);
-        }
-
-        m_bReclaimFocus = true;
-    }
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: draws the console's main surface
 // Input  : *bDraw - 
 //-----------------------------------------------------------------------------
-void CConsole::DrawSurface(void)
+bool CConsole::DrawSurface(void)
 {
-    if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate, ImGuiWindowFlags_None, &ResetInput))
+    if (!ImGui::Begin(m_surfaceLabel, &m_activated, ImGuiWindowFlags_None, &ResetInput))
     {
         ImGui::End();
-        return;
+        return false;
     }
 
     const ImGuiStyle& style = ImGui::GetStyle();
@@ -283,7 +249,7 @@ void CConsole::DrawSurface(void)
         ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
         ImGuiID nID = pWindow->GetID(m_pszLoggingLabel);
 
-        snprintf(m_szWindowLabel, sizeof(m_szWindowLabel), "%s/%s_%08X", m_pszConsoleLabel, m_pszLoggingLabel, nID);
+        snprintf(m_szWindowLabel, sizeof(m_szWindowLabel), "%s/%s_%08X", m_surfaceLabel, m_pszLoggingLabel, nID);
         ImGui::SetWindowScrollY(m_szWindowLabel, m_flScrollY - m_nScrollBack * fontSize.y);
     }
     m_nScrollBack = 0;
@@ -321,7 +287,7 @@ void CConsole::DrawSurface(void)
         }
 
         BuildSummary();
-        m_bReclaimFocus = true;
+        m_reclaimFocus = true;
     };
 
     ///////////////////////////////////////////////////////////////////////
@@ -336,7 +302,7 @@ void CConsole::DrawSurface(void)
             BuildSummary(m_svInputConVar);
 
             m_bModifyInput = true;
-            m_bReclaimFocus = true;
+            m_reclaimFocus = true;
         }
         else
         {
@@ -348,10 +314,10 @@ void CConsole::DrawSurface(void)
     ImGui::SetItemDefaultFocus();
 
     // Auto-focus input field if reclaim is demanded.
-    if (m_bReclaimFocus)
+    if (m_reclaimFocus)
     {
         ImGui::SetKeyboardFocusHere(-1); // -1 means previous widget.
-        m_bReclaimFocus = false;
+        m_reclaimFocus = false;
     }
 
     BuildSuggestPanelRect();
@@ -361,7 +327,9 @@ void CConsole::DrawSurface(void)
     {
         fnHandleInput();
     }
+
     ImGui::End();
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -472,7 +440,7 @@ void CConsole::SuggestPanel(void)
             memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
 
             m_bCanAutoComplete = true;
-            m_bReclaimFocus = true;
+            m_reclaimFocus = true;
 
             BuildSummary(svConVar);
         }
@@ -962,7 +930,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 m_svInputConVar.clear();
 
                 m_bCanAutoComplete = true;
-                m_bReclaimFocus = true;
+                m_reclaimFocus = true;
             }
             m_bModifyInput = false;
         }
@@ -1183,22 +1151,11 @@ void CConsole::ClampHistorySize(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sets the console front-end style
-//-----------------------------------------------------------------------------
-void CConsole::SetStyleVar(void)
-{
-    m_Style = g_pImGuiConfig->InitStyle();
-
-    ImGui::SetNextWindowSize(ImVec2(1200, 524), ImGuiCond_FirstUseEver);
-    ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: toggles the console
 //-----------------------------------------------------------------------------
 void CConsole::ToggleConsole_f()
 {
-    g_Console.m_bActivate ^= true;
+    g_Console.m_activated ^= true;
     ResetInput(); // Disable input to game when console is drawn.
 }
 
