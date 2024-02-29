@@ -36,7 +36,7 @@ CTextLogger::CTextLogger()
 	, m_flLineSpacing(1.0f)
 	, m_SelectionMode(SelectionMode::Normal)
 	, m_flLastClick(-1.0)
-	, m_nStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+	, m_nStartTime(-1.0f)
 {
 	m_Lines.push_back(Line());
 }
@@ -864,10 +864,16 @@ void CTextLogger::Render()
 			// Render the cursor
 			if (m_State.m_CursorPosition.m_nLine == lineNo && ImGui::IsWindowFocused())
 			{
-				const ImS64 timeEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-				const ImU64 elapsed = timeEnd - m_nStartTime;
+				// Initialize the cursor start render time, this is done here
+				// as Dear ImGui typically isn't initialized during the
+				// construction of this class
+				if (m_nStartTime == -1.0)
+					m_nStartTime = ImGui::GetTime();
 
-				if (elapsed > 400)
+				const double currTime = ImGui::GetTime();
+				const double elapsed = currTime - m_nStartTime;
+
+				if (elapsed > 0.4)
 				{
 					const float width = 1.0f;
 					const float cx = TextDistanceToLineStart(m_State.m_CursorPosition);
@@ -877,8 +883,8 @@ void CTextLogger::Render()
 
 					drawList->AddRectFilled(cstart, cend, 0xffe0e0e0);
 
-					if (elapsed > 800)
-						m_nStartTime = timeEnd;
+					if (elapsed > 0.8)
+						m_nStartTime = currTime;
 				}
 			}
 
