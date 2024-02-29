@@ -37,15 +37,15 @@ int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{
-		if (wParam == g_pImGuiConfig->m_ConsoleConfig.m_nBind0 ||
-			wParam == g_pImGuiConfig->m_ConsoleConfig.m_nBind1)
+		if (wParam == g_ImGuiConfig.m_ConsoleConfig.m_nBind0 ||
+			wParam == g_ImGuiConfig.m_ConsoleConfig.m_nBind1)
 		{
 			g_Console.ToggleActive();
 			ResetInput(); // Disable input to game when console is drawn.
 		}
 
-		if (wParam == g_pImGuiConfig->m_BrowserConfig.m_nBind0 ||
-			wParam == g_pImGuiConfig->m_BrowserConfig.m_nBind1)
+		if (wParam == g_ImGuiConfig.m_BrowserConfig.m_nBind0 ||
+			wParam == g_ImGuiConfig.m_BrowserConfig.m_nBind1)
 		{
 			g_Browser.ToggleActive();
 			ResetInput(); // Disable input to game when browser is drawn.
