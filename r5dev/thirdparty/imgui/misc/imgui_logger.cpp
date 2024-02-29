@@ -23,6 +23,8 @@ static bool equals(InputIt1 first1, InputIt1 last1,
 CTextLogger::CTextLogger()
 	: m_bAutoScroll(true)
 	, m_bScrollToCursor(false)
+	, m_bScrollToStart(false)
+	, m_bScrolledToStart(false)
 	, m_bScrollToBottom(true)
 	, m_bScrolledToBottom(false)
 	, m_bHandleUserInputs(true)
@@ -1533,11 +1535,11 @@ void CTextLogger::EnsureCursorVisible()
 	float width = ImGui::GetWindowWidth();
 	float height = ImGui::GetWindowHeight();
 
-	int top = 1 + static_cast<int>(ImCeil(scrollY / m_CharAdvance.y));
-	int bottom = static_cast<int>(ImCeil((scrollY + height) / m_CharAdvance.y));
+	float top = 1.0f + ImCeil(scrollY / m_CharAdvance.y);
+	float bottom = ImCeil((scrollY + height) / m_CharAdvance.y);
 
-	int left = static_cast<int>(ImCeil(scrollX / m_CharAdvance.x));
-	int right = static_cast<int>(ImCeil((scrollX + width) / m_CharAdvance.x));
+	float left = ImCeil(scrollX / m_CharAdvance.x);
+	float right = ImCeil((scrollX + width) / m_CharAdvance.x);
 
 	if (pos.m_nColumn < left)
 		ImGui::SetScrollX(ImMax(0.0f, (pos.m_nColumn) * m_CharAdvance.x));
