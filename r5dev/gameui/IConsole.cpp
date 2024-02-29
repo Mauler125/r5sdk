@@ -128,6 +128,8 @@ void CConsole::RunFrame(void)
         //ImGui::ShowDemoWindow();
     }
 
+    bool drawn = false;
+
     /**************************
      * BASE PANEL SETUP       *
      **************************/
@@ -169,9 +171,13 @@ void CConsole::RunFrame(void)
         }
         ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(flWidth, flHeight)); nVars++;
 
-        DrawSurface();
+        drawn = DrawSurface();
         ImGui::PopStyleVar(nVars);
     }
+
+    // If we didn't draw the console, don't draw the suggest panel
+    if (!drawn)
+        return;
 
     /**************************
      * SUGGESTION PANEL SETUP *
