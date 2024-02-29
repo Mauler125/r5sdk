@@ -368,17 +368,17 @@ void CConsole::OptionsPanel(void)
     ImGui::Text("Console hotkey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##ToggleConsole", &g_pImGuiConfig->m_ConsoleConfig.m_nBind0, ImVec2(80, 80)))
+    if (ImGui::Hotkey("##ToggleConsole", &g_ImGuiConfig.m_ConsoleConfig.m_nBind0, ImVec2(80, 80)))
     {
-        g_pImGuiConfig->Save();
+        g_ImGuiConfig.Save();
     }
 
     ImGui::Text("Browser hotkey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##ToggleBrowser", &g_pImGuiConfig->m_BrowserConfig.m_nBind0, ImVec2(80, 80)))
+    if (ImGui::Hotkey("##ToggleBrowser", &g_ImGuiConfig.m_BrowserConfig.m_nBind0, ImVec2(80, 80)))
     {
-        g_pImGuiConfig->Save();
+        g_ImGuiConfig.Save();
     }
 
     ImGui::EndPopup();

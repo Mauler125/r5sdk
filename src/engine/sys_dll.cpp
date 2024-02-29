@@ -106,7 +106,7 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 	g_pClientEntityList = (CClientEntityList*)g_FactorySystem.GetFactory(VCLIENTENTITYLIST_INTERFACE_VERSION);
 	g_pEngineTraceClient = (CEngineTraceClient*)g_FactorySystem.GetFactory(INTERFACEVERSION_ENGINETRACE_CLIENT);
 
-	g_pImGuiConfig->Load(); // Load ImGui configs.
+	g_ImGuiConfig.Load(); // Load ImGui configs.
 	DirectX_Init();
 
 #endif // !DEDICATED

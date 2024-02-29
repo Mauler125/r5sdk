@@ -36,7 +36,7 @@ void CImguiSurface::Animate()
 void CImguiSurface::SetStyleVar(const float width, const float height, 
 	const float x, const float y)
 {
-	m_surfaceStyle = g_pImGuiConfig->InitStyle();
+	m_surfaceStyle = g_ImGuiConfig.InitStyle();
 
 	ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_FirstUseEver);
 	ImGui::SetWindowPos(ImVec2(x, y), ImGuiCond_FirstUseEver);
