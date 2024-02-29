@@ -736,7 +736,9 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 			// Mouse left button dragging (=> update selection)
 			else if (ImGui::IsMouseDragging(0) && ImGui::IsMouseDown(0))
 			{
+				m_SelectionMode = SelectionMode::Normal;
 				io.WantCaptureMouse = true;
+
 				m_State.m_CursorPosition = m_InteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
 
 				SetSelection(m_InteractiveStart, m_InteractiveEnd, m_SelectionMode);
