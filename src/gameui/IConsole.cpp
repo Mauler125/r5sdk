@@ -29,10 +29,13 @@ History:
 static ConVar con_max_lines("con_max_lines", "1024", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Maximum number of lines in the console before cleanup starts", true, 1.f, false, 0.f);
 
 static ConVar con_max_history("con_max_history", "512", FCVAR_DEVELOPMENTONLY, "Maximum number of command submission items before history cleanup starts", true, 0.f, false, 0.f);
-static ConVar con_suggest_limit("con_suggest_limit", "128", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console", true, 0.f, false, 0.f);
 
+static ConVar con_suggest_limit("con_suggest_limit", "128", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console", true, 0.f, false, 0.f);
 static ConVar con_suggest_showhelptext("con_suggest_showhelptext", "1", FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window");
 static ConVar con_suggest_showflags("con_suggest_showflags", "1", FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window");
+
+static ConVar con_autocomplete_window_width("con_autocomplete_window_width", "0", FCVAR_RELEASE, "The maximum width of the console's autocomplete window", true, 0.f, false, 0.f);
+static ConVar con_autocomplete_window_height("con_autocomplete_window_height", "217.5", FCVAR_RELEASE, "The maximum height of the console's autocomplete window", true, 0.f, false, 0.f);
 
 //-----------------------------------------------------------------------------
 // Console commands
@@ -200,7 +203,11 @@ void CConsole::RunFrame(void)
                 m_bSuggestUpdate = false;
             }
 
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37)); nVars++;
+            // NOTE: 68 is the minimum width of the autocomplete window as this
+            // leaves enough space to show the flag and the first 4 characters
+            // of the suggestion. 37 is the minimum height as anything lower
+            // will truncate the first element in the autocomplete window.
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(68, 37));  nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);         nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);             nVars++;
 
@@ -713,13 +720,30 @@ void CConsole::BuildSuggestPanelRect(void)
         flSinglePadding = flItemHeight;
     }
 
-    m_ivSuggestWindowPos = ImGui::GetItemRectMin();
-    m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
+    // NOTE: last item rect = the input text box, the idea here is to set the
+    // pos to that of the input text bar, whilst also clamping the width to it.
+    const ImVec2 lastItemRectMin = ImGui::GetItemRectMin();
+    const ImVec2 lastItemRectSize = ImGui::GetItemRectSize();
 
-    const float flWindowHeight = (flSinglePadding + std::clamp(
-        static_cast<float>(m_vSuggest.size()) * (flItemHeight), 37.0f, 127.5f));
+    m_ivSuggestWindowPos = lastItemRectMin;
+    m_ivSuggestWindowPos.y += lastItemRectSize.y;
 
-    m_ivSuggestWindowSize = ImVec2(600, flWindowHeight);
+    const float maxWindowWidth = con_autocomplete_window_width.GetFloat();
+
+    const float flWindowWidth = maxWindowWidth > 0
+        ? ImMin(con_autocomplete_window_width.GetFloat(), lastItemRectSize.x)
+        : lastItemRectSize.x;
+
+    // NOTE: minimum vertical size of the window, going below this will
+    // truncate the first element in the window making it looked bugged.
+    const static float minWindowHeight = 37.0f;
+
+    const float flWindowHeight = flSinglePadding + ImClamp(
+        static_cast<float>(m_vSuggest.size() * flItemHeight), 
+        minWindowHeight,
+        con_autocomplete_window_height.GetFloat());
+
+    m_ivSuggestWindowSize = ImVec2(flWindowWidth, flWindowHeight);
 }
 
 //-----------------------------------------------------------------------------
