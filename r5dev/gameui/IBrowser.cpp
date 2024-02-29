@@ -305,8 +305,15 @@ void CBrowser::BrowserPanel(void)
 
     ImGui::Separator();
 
-    const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
-    ImGui::PushItemWidth(contentRegionMax.x / 4);
+    const ImVec2 regionAvail = ImGui::GetContentRegionAvail();
+    const ImGuiStyle& style = ImGui::GetStyle();
+
+    // 4 elements means 3 spacings between items, this has to be subtracted
+    // from the remaining available region to get correct results on all
+    // window padding values!!!
+    const float itemWidth = (regionAvail.x - (3 * style.ItemSpacing.x)) / 4;
+
+    ImGui::PushItemWidth(itemWidth);
     {
         ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Server address and port", m_szServerAddressBuffer, IM_ARRAYSIZE(m_szServerAddressBuffer));
 
@@ -314,7 +321,7 @@ void CBrowser::BrowserPanel(void)
         ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
 
         ImGui::SameLine();
-        if (ImGui::Button("Connect", ImVec2(contentRegionMax.x / 4.3f, ImGui::GetFrameHeight())))
+        if (ImGui::Button("Connect", ImVec2(itemWidth, ImGui::GetFrameHeight())))
         {
             if (m_szServerAddressBuffer[0])
             {
@@ -323,12 +330,14 @@ void CBrowser::BrowserPanel(void)
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Private servers", ImVec2(contentRegionMax.x / 4.3f, ImGui::GetFrameHeight())))
+        if (ImGui::Button("Private servers", ImVec2(itemWidth, ImGui::GetFrameHeight())))
         {
             ImGui::OpenPopup("Private Server");
         }
+
         HiddenServersModal();
     }
+
     ImGui::PopItemWidth();
 }
 
