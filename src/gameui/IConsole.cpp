@@ -392,7 +392,7 @@ void CConsole::DrawAutoCompletePanel(void)
 
         ImGui::PushID(static_cast<int>(i));
 
-        if (con_autocomplete_window_textures.GetBool())
+        if (m_autoCompleteTexturesLoaded && con_autocomplete_window_textures.GetBool())
         {
             // Show the flag texture before the cvar name.
             const int mainTexIdx = GetFlagTextureIndex(suggest.flags);
@@ -772,13 +772,14 @@ bool CConsole::LoadFlagIcons(void)
         ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(rFlagIcon.m_pData), // !TODO: Fall-back texture.
             static_cast<int>(rFlagIcon.m_nSize), &rFlagIcon.m_idIcon, &rFlagIcon.m_nWidth, &rFlagIcon.m_nHeight);
 
-        IM_ASSERT(ret);
-
         if (!ret)
         {
+            Assert(0, "Texture flags load failed for %i", i);
             break;
         }
     }
+
+    m_autoCompleteTexturesLoaded = ret;
     return ret;
 }
 
