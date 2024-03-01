@@ -10,7 +10,9 @@ class CImguiSurface
 public:
 	CImguiSurface();
 	virtual ~CImguiSurface() { };
+
 	virtual bool Init() = 0;
+	virtual void Shutdown() = 0;
 
 	virtual void Animate();
 	virtual void RunFrame() = 0;

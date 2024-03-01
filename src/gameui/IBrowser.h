@@ -15,17 +15,18 @@ public:
     virtual ~CBrowser(void);
 
     virtual bool Init(void);
+    virtual void Shutdown(void);
 
     virtual void RunFrame(void);
     void RunTask(void);
 
     virtual bool DrawSurface(void);
 
-    void BrowserPanel(void);
+    void DrawBrowserPanel(void);
     void RefreshServerList(void);
 
     void HiddenServersModal(void);
-    void HostPanel(void);
+    void DrawHostPanel(void);
 
     void UpdateHostingStatus(void);
     void InstallHostingDetails(const bool postFailed, const char* const hostMessage, const char* const hostToken, const string& hostIp);
@@ -38,38 +39,38 @@ public:
     static void ToggleBrowser_f();
 
 private:
-    inline void SetServerListMessage(const char* const message) { m_svServerListMessage = message; };
-    inline void SetHostMessage(const char* const message) { m_svHostMessage = message; }
-    inline void SetHostToken(const char* const message) { m_svHostToken = message; }
+    inline void SetServerListMessage(const char* const message) { m_serverListMessage = message; };
+    inline void SetHostMessage(const char* const message) { m_hostMessage = message; }
+    inline void SetHostToken(const char* const message) { m_hostToken = message; }
 
 private:
-    bool m_bReclaimFocusTokenField;
-    bool m_bQueryListNonRecursive; // When set, refreshes the server list once the next frame.
-    bool m_bQueryGlobalBanList;
-    char m_szServerAddressBuffer[128];
-    char m_szServerEncKeyBuffer[30];
+    bool m_reclaimFocusOnTokenField;
+    bool m_queryNewListNonRecursive; // When set, refreshes the server list once the next frame.
+    bool m_queryGlobalBanList;
+    char m_serverAddressTextBuf[128];
+    char m_serverNetKeyTextBuf[30];
 
-    ID3D11ShaderResourceView* m_idLockedIcon;
-    MODULERESOURCE m_rLockedIconBlob;
+    ID3D11ShaderResourceView* m_lockedIconShaderResource;
+    MODULERESOURCE m_lockedIconDataResource;
 
     ////////////////////
     //   Server List  //
     ////////////////////
-    ImGuiTextFilter m_imServerBrowserFilter;
-    string m_svServerListMessage;
+    ImGuiTextFilter m_serverBrowserTextFilter;
+    string m_serverListMessage;
 
     ////////////////////
     //   Host Server  //
     ////////////////////
-    string m_svHostMessage;
-    string m_svHostToken;
-    ImVec4 m_HostMessageColor;
+    string m_hostMessage;
+    string m_hostToken;
+    ImVec4 m_hostMessageColor;
 
     ////////////////////
     // Private Server //
     ////////////////////
-    string m_svHiddenServerRequestMessage;
-    ImVec4 m_ivHiddenServerMessageColor;
+    string m_hiddenServerRequestMessage;
+    ImVec4 m_hiddenServerMessageColor;
 };
 
 extern CBrowser g_Browser;
