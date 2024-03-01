@@ -135,8 +135,6 @@ public:
 
 	int GetTotalLines() const { return (int)m_Lines.size(); }
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
-
-	void MoveCursor(int aLines, bool aForward = true);
 	void SetCursorPosition(const Coordinates& aPosition);
 
 	inline void SetHandleUserInputs (bool aValue){ m_bHandleUserInputs = aValue;}
@@ -170,7 +168,12 @@ public:
 	void SelectWordUnderCursor();
 	void SelectAll();
 	bool HasSelection() const;
+
+	void MoveCoordsInternal(Coordinates& coordOut, int aLines, bool aForward = true);
+
+	void MoveCursor(int aLines, bool aForward = true);
 	void MoveSelection(int aLines, bool aForward = true);
+	void MoveInteractives(int aLines, bool aForward = true);
 
 	void RemoveLine(int aStart, int aEnd);
 	void RemoveLine(int aIndex);
@@ -230,11 +233,6 @@ private:
 
 	bool m_bHandleUserInputs;
 	bool m_bWithinLoggingRect;
-
-	// TODO[ AMOS ]: remove these as they aren't used and causes the structure to
-	// pad by 7 bytes
-	bool m_bLinesOffsetForward;
-	int m_nLinesOffsetAmount;
 
 	int m_nTabSize;
 	int m_nLeftMargin;
