@@ -149,6 +149,11 @@ private:
     // the autocomplete window to keep the current selection visible.
     bool                           m_autoCompletePosMoved;
 
+    // If the textures failed to load, this will remain false and no textures
+    // will be drawn in the autocomplete window. This is because if one fails
+    // to load, the indices will be incorrect.
+    bool                           m_autoCompleteTexturesLoaded;
+
     // The position and rect of the autocomplete window, the pos is set to that
     // of the input text field + an offset to move it under the item.
     ImVec2                         m_autoCompleteWindowPos;
