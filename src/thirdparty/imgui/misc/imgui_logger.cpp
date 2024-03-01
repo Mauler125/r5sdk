@@ -29,8 +29,6 @@ CTextLogger::CTextLogger()
 	, m_bScrolledToBottom(false)
 	, m_bHandleUserInputs(true)
 	, m_bWithinLoggingRect(false)
-	, m_bLinesOffsetForward(false)
-	, m_nLinesOffsetAmount(0)
 	, m_nTabSize(4)
 	, m_nLeftMargin(0)
 	, m_flLineSpacing(1.0f)
@@ -744,34 +742,6 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 				SetSelection(m_InteractiveStart, m_InteractiveEnd, m_SelectionMode);
 				EnsureCursorVisible();
 			}
-			// Move start position of the selection when entries have been erased/inserted
-			if (m_nLinesOffsetAmount && ImGui::IsMouseDown(0))
-			{
-				Coordinates newStart;
-				newStart = m_InteractiveStart;
-
-				if (m_bLinesOffsetForward)
-				{
-					newStart.m_nLine += m_nLinesOffsetAmount;
-					if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
-					{
-						newStart.m_nLine = static_cast<int>(m_Lines.size()) - 1;
-						newStart.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
-					}
-				}
-				else
-				{
-					newStart.m_nLine -= m_nLinesOffsetAmount;
-					if (newStart.m_nLine < 0)
-					{
-						newStart.m_nLine = 0;
-						newStart.m_nColumn = 0;
-					}
-				}
-
-				m_nLinesOffsetAmount = 0;
-				m_InteractiveStart = newStart;
-			}
 		}
 		else if (bShift)
 		{
@@ -1001,36 +971,6 @@ void CTextLogger::Copy(bool aCopyAll)
 //		}
 //	}
 //}
-
-void CTextLogger::MoveCursor(int aLines, bool aForward)
-{
-	Coordinates newStart;
-
-	if (aForward)
-	{
-		newStart = m_State.m_CursorPosition;
-		newStart.m_nLine += aLines;
-
-		if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
-		{
-			newStart.m_nLine = static_cast<int>(m_Lines.size()) - 1;
-			newStart.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
-		}
-	}
-	else
-	{
-		newStart = m_State.m_CursorPosition;
-		newStart.m_nLine -= aLines;
-
-		if (newStart.m_nLine < 0)
-		{
-			newStart.m_nLine = 0;
-			newStart.m_nColumn = 0;
-		}
-	}
-
-	m_State.m_CursorPosition = newStart;
-}
 
 void CTextLogger::SetCursorPosition(const Coordinates & aPosition)
 {
@@ -1414,60 +1354,80 @@ bool CTextLogger::HasSelection() const
 	return m_State.m_SelectionEnd > m_State.m_SelectionStart;
 }
 
-void CTextLogger::MoveSelection(int aLines, bool aForward)
+void CTextLogger::MoveCoordsInternal(Coordinates& coordOut, int aLines, bool aForward)
 {
 	assert(aLines > 0);
 
 	if (aLines < 1)
 		return;
 
-	m_bLinesOffsetForward = aForward;
-	m_nLinesOffsetAmount = aLines;
+	if (aForward)
+	{
+		coordOut.m_nLine += aLines;
+
+		if (coordOut.m_nLine >= static_cast<int>(m_Lines.size()))
+		{
+			coordOut.m_nLine = static_cast<int>(m_Lines.size()) - 1;
+			coordOut.m_nColumn = GetLineMaxColumn(coordOut.m_nLine);
+		}
+	}
+	else
+	{
+		coordOut.m_nLine -= aLines;
+
+		if (coordOut.m_nLine < 0)
+		{
+			coordOut.m_nLine = 0;
+			coordOut.m_nColumn = 0;
+		}
+	}
+}
+
+// If you click on line 100, and the first line gets removed from the vector,
+// the line you clicked will now be 99. This function corrects the selection
+// again after the adjustments to the vector
+void CTextLogger::MoveSelection(int aLines, bool aForward)
+{
+	// This always has to be called as interactives are the start/end pos of a
+	// mouse click, which gets cached off.
+	MoveInteractives(aLines, aForward);
 
 	if (HasSelection())
 	{
-		Coordinates newStart;
-		Coordinates newEnd;
+		Coordinates newCoords[2];
 
-		newStart = m_State.m_SelectionStart;
-		newEnd = m_State.m_SelectionEnd;
+		newCoords[0] = m_State.m_SelectionStart;
+		newCoords[1] = m_State.m_SelectionEnd;
 
-		if (aForward)
+		for (size_t i = 0; i < IM_ARRAYSIZE(newCoords); i++)
 		{
-			newStart.m_nLine += aLines;
-			newEnd.m_nLine += aLines;
-
-			if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
-			{
-				newStart.m_nLine = static_cast<int>(m_Lines.size()) - 1;
-				newStart.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
-			}
-			if (newEnd.m_nLine >= static_cast<int>(m_Lines.size()))
-			{
-				newEnd.m_nLine = static_cast<int>(m_Lines.size()) - 1;
-				newEnd.m_nColumn = GetLineMaxColumn(newEnd.m_nLine);
-			}
-		}
-		else
-		{
-			newStart.m_nLine -= aLines;
-			newEnd.m_nLine -= aLines;
-
-			if (newStart.m_nLine < 0)
-			{
-				newStart.m_nLine = 0;
-				newStart.m_nColumn = 0;
-			}
-			if (newEnd.m_nLine < 0)
-			{
-				newEnd.m_nLine = 0;
-				newEnd.m_nColumn = 0;
-			}
+			MoveCoordsInternal(newCoords[i], aLines, aForward);
 		}
 
-		SetSelectionStart(newStart);
-		SetSelectionEnd(newEnd);
+		SetSelectionStart(newCoords[0]);
+		SetSelectionEnd(newCoords[1]);
 	}
+}
+
+void CTextLogger::MoveInteractives(int aLines, bool aForward)
+{
+	Coordinates newCoords[2];
+
+	newCoords[0] = m_InteractiveStart;
+	newCoords[1] = m_InteractiveEnd;
+
+	for (size_t i = 0; i < IM_ARRAYSIZE(newCoords); i++)
+	{
+		MoveCoordsInternal(newCoords[i], aLines, aForward);
+	}
+
+	m_InteractiveStart = newCoords[0];
+	m_InteractiveEnd = newCoords[1];
+}
+
+void CTextLogger::MoveCursor(int aLines, bool aForward)
+{
+	MoveCoordsInternal(m_State.m_CursorPosition, aLines, aForward);
 }
 
 std::string CTextLogger::GetText() const
