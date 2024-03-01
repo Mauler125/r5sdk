@@ -747,16 +747,14 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 		{
 			if (click) // Shift select range
 			{
-				Coordinates newSelection = ScreenPosToCoordinates(ImGui::GetMousePos());
+				const Coordinates newCursorPos = ScreenPosToCoordinates(ImGui::GetMousePos());
 
-				if (newSelection > m_State.m_CursorPosition)
-					SetSelectionEnd(newSelection);
-				else
-					SetSelectionStart(newSelection);
+				// Set selection from old cursor pos to new cursor pos
+				m_SelectionMode = SelectionMode::Normal;
+				SetSelection(m_State.m_CursorPosition, newCursorPos, m_SelectionMode);
 
 				m_InteractiveStart = m_State.m_SelectionStart;
 				m_InteractiveEnd = m_State.m_SelectionEnd;
-				m_State.m_CursorPosition = newSelection;
 			}
 		}
 	}
