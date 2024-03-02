@@ -343,7 +343,11 @@ void CBrowser::DrawBrowserPanel(void)
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Private servers", ImVec2(itemWidth, ImGui::GetFrameHeight())))
+
+        // NOTE: -9 to prevent the last button from clipping/colliding with the
+        // window drag handle! -9 makes the distance between the handle and the
+        // last button equal as that of the developer console.
+        if (ImGui::Button("Private servers", ImVec2(itemWidth - 9, ImGui::GetFrameHeight())))
         {
             ImGui::OpenPopup("Private Server");
         }
