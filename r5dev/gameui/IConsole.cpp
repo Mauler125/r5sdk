@@ -1037,9 +1037,8 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             iData->DeleteChars(0, 1);
         }
 
-        if (iData->BufTextLen) // Attempt to build a summary..
+        if (iData->BufTextLen)
         {
-            BuildSummaryText(iData->Buf);
             m_canAutoComplete = true;
         }
         else // Reset state and enable history scrolling when buffer is empty.
@@ -1047,6 +1046,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             ResetAutoCompleteData();
         }
 
+        BuildSummaryText(iData->Buf);
         break;
     }
     }
