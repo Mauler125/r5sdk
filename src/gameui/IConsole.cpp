@@ -218,12 +218,8 @@ bool CConsole::DrawSurface(void)
     }
 
     const ImGuiStyle& style = ImGui::GetStyle();
-
-    // Reserve enough left-over height and width for 1 separator + 1 input text
-    const float footerHeightReserve = style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    const float footerWidthReserve  = style.ItemSpacing.y + ImGui::GetWindowWidth();
-
     const ImVec2 fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr);
+
     ///////////////////////////////////////////////////////////////////////
     ImGui::Separator();
     if (ImGui::BeginPopup("Options"))
@@ -236,10 +232,10 @@ bool CConsole::DrawSurface(void)
     }
 
     ImGui::SameLine();
-    m_colorTextLogger.GetFilter().Draw("Filter | ", footerWidthReserve - 500);
 
-    ImGui::SameLine();
-    ImGui::Text("%s", m_summaryTextBuf);
+    // Reserve enough left-over height and width for 1 separator + 1 input text
+    const float footerWidthReserve = style.ItemSpacing.y + ImGui::GetWindowWidth();
+    m_colorTextLogger.GetFilter().Draw("Filter (inc,-exc)", footerWidthReserve - 350);
 
     ImGui::Separator();
 
@@ -256,10 +252,27 @@ bool CConsole::DrawSurface(void)
     }
     m_scrollBackAmount = 0;
 
-    ///////////////////////////////////////////////////////////////////////
-    int numStyleVars = 0; // Eliminate borders around log window.
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  numStyleVars++;
-    ImGui::BeginChild(m_loggerLabel, ImVec2(0, -footerHeightReserve), true, m_colorLoggerWindowFlags);
+    // Reserve enough left-over height for 2 text elements.
+    float footerHeightReserve = ImGui::GetFrameHeight() * 2;
+    ImGuiChildFlags loggerFlags = ImGuiChildFlags_None;
+
+    const bool isLegacyStyle = m_surfaceStyle == ImGuiStyle_t::LEGACY;
+    int numLoggerStyleVars = 0;
+
+    if (isLegacyStyle)
+    {
+        loggerFlags |= ImGuiChildFlags_Border;
+
+        // Eliminate padding around logger child. This padding gets added when
+        // ImGuiChildFlags_Border flag gets set.
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  numLoggerStyleVars++;
+
+        // if we use the legacy theme, also account for one extra space as the
+        // legacy theme has an extra separator at the bottom of the logger.
+        footerHeightReserve += style.ItemSpacing.y;
+    }
+
+    ImGui::BeginChild(m_loggerLabel, ImVec2(0, -footerHeightReserve), loggerFlags, m_colorLoggerWindowFlags);
 
     // NOTE: scoped so the mutex releases after we have rendered.
     // this is currently the only place the color logger is used
@@ -272,9 +285,15 @@ bool CConsole::DrawSurface(void)
     m_lastFrameScrollPos = ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY());
 
     ImGui::EndChild();
-    ImGui::PopStyleVar(numStyleVars);
 
-    ImGui::Separator();
+    if (numLoggerStyleVars)
+        ImGui::PopStyleVar(numLoggerStyleVars);
+
+    // The legacy theme also has a spacer here.
+    if (isLegacyStyle)
+        ImGui::Separator();
+
+    ImGui::Text("%s", m_summaryTextBuf);
 
     const std::function<void(void)> fnHandleInput = [&](void)
     {
