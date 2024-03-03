@@ -9,7 +9,7 @@
 
 inline void (*CGame__AttachToWindow)(void);
 inline void(*CGame__PlayStartupVideos)(void);
-inline int(*CGame__WindowProc)(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+inline LRESULT (*CGame__WindowProc)(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 //-----------------------------------------------------------------------------
 // Purpose: Main game interface, including message pump and window creation
 //-----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ class CGame
 {
 public:
 	static void PlayStartupVideos(void);
-	static int WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
 	inline HWND GetWindow() const { return m_hWindow; }
