@@ -185,7 +185,7 @@ void CBrowser::RunTask()
 //-----------------------------------------------------------------------------
 bool CBrowser::DrawSurface(void)
 {
-    if (!ImGui::Begin(m_surfaceLabel, &m_activated, ImGuiWindowFlags_NoScrollbar, &ResetInput))
+    if (!ImGui::Begin(m_surfaceLabel, &m_activated, ImGuiWindowFlags_None, &ResetInput))
     {
         ImGui::End();
         return false;
