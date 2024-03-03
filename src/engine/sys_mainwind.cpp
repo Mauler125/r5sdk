@@ -28,7 +28,7 @@ void CGame::PlayStartupVideos(void)
 //-----------------------------------------------------------------------------
 // Purpose: main windows procedure
 //-----------------------------------------------------------------------------
-int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (!ImguiSystem()->IsInitialized())
 		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
