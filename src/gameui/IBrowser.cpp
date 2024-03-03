@@ -257,56 +257,70 @@ void CBrowser::DrawBrowserPanel(void)
         ImGui::TableHeadersRow();
 
         g_ServerListManager.m_Mutex.lock();
+        vector<const NetGameServer_t*> filteredServers;
 
-        const int numServerItems = (int)g_ServerListManager.m_vServerList.size();
+        // Filter the server list first before running it over the ImGui list
+        // clipper, if we do this within the clipper, clipper.Step() will fail
+        // as the calculation for the remainder will be off.
+        for (int i = 0; i < g_ServerListManager.m_vServerList.size(); i++)
+        {
+            const NetGameServer_t& server = g_ServerListManager.m_vServerList[i];
+
+            const char* pszHostName = server.name.c_str();
+            const char* pszHostMap = server.map.c_str();
+            const char* pszPlaylist = server.playlist.c_str();
+
+            if (m_serverBrowserTextFilter.PassFilter(pszHostName)
+                || m_serverBrowserTextFilter.PassFilter(pszHostMap)
+                || m_serverBrowserTextFilter.PassFilter(pszPlaylist))
+            {
+                filteredServers.push_back(&server);
+            }
+        }
 
         ImGuiListClipper clipper;
-        clipper.Begin(numServerItems);
+        clipper.Begin(static_cast<int>(filteredServers.size()));
 
         while (clipper.Step())
         {
             for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
             {
-                const NetGameServer_t& server = g_ServerListManager.m_vServerList[i];
+                const NetGameServer_t* const server = filteredServers[i];
 
-                const char* pszHostName = server.name.c_str();
-                const char* pszHostMap = server.map.c_str();
-                const char* pszPlaylist = server.playlist.c_str();
+                const char* pszHostName = server->name.c_str();
+                const char* pszHostMap = server->map.c_str();
+                const char* pszPlaylist = server->playlist.c_str();
 
                 char pszHostPort[32];
-                sprintf(pszHostPort, "%d", server.port);
+                sprintf(pszHostPort, "%d", server->port);
 
-                if (m_serverBrowserTextFilter.PassFilter(pszHostName)
-                    || m_serverBrowserTextFilter.PassFilter(pszHostMap)
-                    || m_serverBrowserTextFilter.PassFilter(pszHostPort))
+                ImGui::TableNextColumn();
+                ImGui::Text("%s", pszHostName);
+
+                ImGui::TableNextColumn();
+                ImGui::Text("%s", pszHostMap);
+
+                ImGui::TableNextColumn();
+                ImGui::Text("%s", pszPlaylist);
+
+                ImGui::TableNextColumn();
+                ImGui::Text("%s", Format("%3d/%3d", server->numPlayers, server->maxPlayers).c_str());
+
+                ImGui::TableNextColumn();
+                ImGui::Text("%s", pszHostPort);
+
+                ImGui::TableNextColumn();
+                string svConnectBtn = "Connect##";
+                svConnectBtn.append(server->name + server->address + server->map);
+
+                if (ImGui::Button(svConnectBtn.c_str()))
                 {
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%s", pszHostName);
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%s", pszHostMap);
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%s", pszPlaylist);
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%s", Format("%3d/%3d", server.numPlayers, server.maxPlayers).c_str());
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%s", pszHostPort);
-
-                    ImGui::TableNextColumn();
-                    string svConnectBtn = "Connect##";
-                    svConnectBtn.append(server.name + server.address + server.map);
-
-                    if (ImGui::Button(svConnectBtn.c_str()))
-                    {
-                        g_ServerListManager.ConnectToServer(server.address, server.port, server.netKey);
-                    }
+                    g_ServerListManager.ConnectToServer(server->address, server->port, server->netKey);
                 }
             }
         }
 
+        filteredServers.clear();
         g_ServerListManager.m_Mutex.unlock();
 
         ImGui::EndTable();
