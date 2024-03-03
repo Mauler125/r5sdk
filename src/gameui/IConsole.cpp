@@ -27,7 +27,6 @@ History:
 // Console variables
 //-----------------------------------------------------------------------------
 static ConVar con_max_lines("con_max_lines", "1024", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Maximum number of lines in the console before cleanup starts", true, 1.f, false, 0.f);
-
 static ConVar con_max_history("con_max_history", "512", FCVAR_DEVELOPMENTONLY, "Maximum number of command submission items before history cleanup starts", true, 0.f, false, 0.f);
 
 static ConVar con_suggest_limit("con_suggest_limit", "128", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console", true, 0.f, false, 0.f);
@@ -64,29 +63,6 @@ CConsole::CConsole(void)
     , m_autoCompletePosMoved(false)
 {
     m_surfaceLabel = "Console";
-
-    m_inputTextFieldFlags = 
-        ImGuiInputTextFlags_EnterReturnsTrue       |
-        ImGuiInputTextFlags_CallbackCompletion     |
-        ImGuiInputTextFlags_CallbackHistory        |
-        ImGuiInputTextFlags_CallbackAlways         |
-        ImGuiInputTextFlags_CallbackCharFilter     |
-        ImGuiInputTextFlags_CallbackEdit           |
-        ImGuiInputTextFlags_AutoCaretEnd;
-
-    m_autoCompleteWindowFlags = 
-        ImGuiWindowFlags_NoTitleBar                |
-        ImGuiWindowFlags_NoMove                    |
-        ImGuiWindowFlags_NoSavedSettings           |
-        ImGuiWindowFlags_NoFocusOnAppearing        |
-        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
-        ImGuiWindowFlags_AlwaysHorizontalScrollbar;
-
-    m_colorLoggerWindowFlags = 
-        ImGuiWindowFlags_NoMove                    |
-        ImGuiWindowFlags_HorizontalScrollbar       |
-        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
-        ImGuiWindowFlags_NoNavInputs;
 
     memset(m_inputTextBuf, '\0', sizeof(m_inputTextBuf));
     snprintf(m_summaryTextBuf, sizeof(m_summaryTextBuf), "%zu history items", m_vecHistory.size());
@@ -272,7 +248,13 @@ bool CConsole::DrawSurface(void)
         footerHeightReserve += style.ItemSpacing.y;
     }
 
-    ImGui::BeginChild(m_loggerLabel, ImVec2(0, -footerHeightReserve), loggerFlags, m_colorLoggerWindowFlags);
+    const static int colorLoggerWindowFlags = 
+        ImGuiWindowFlags_NoMove                    |
+        ImGuiWindowFlags_HorizontalScrollbar       |
+        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
+        ImGuiWindowFlags_NoNavInputs;
+
+    ImGui::BeginChild(m_loggerLabel, ImVec2(0, -footerHeightReserve), loggerFlags, colorLoggerWindowFlags);
 
     // NOTE: scoped so the mutex releases after we have rendered.
     // this is currently the only place the color logger is used
@@ -310,8 +292,17 @@ bool CConsole::DrawSurface(void)
     };
 
     ///////////////////////////////////////////////////////////////////////
+    const static int inputTextFieldFlags =
+        ImGuiInputTextFlags_EnterReturnsTrue       |
+        ImGuiInputTextFlags_CallbackCompletion     |
+        ImGuiInputTextFlags_CallbackHistory        |
+        ImGuiInputTextFlags_CallbackAlways         |
+        ImGuiInputTextFlags_CallbackCharFilter     |
+        ImGuiInputTextFlags_CallbackEdit           |
+        ImGuiInputTextFlags_AutoCaretEnd;
+
     ImGui::PushItemWidth(footerWidthReserve - 80);
-    if (ImGui::InputText("##input", m_inputTextBuf, IM_ARRAYSIZE(m_inputTextBuf), m_inputTextFieldFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
+    if (ImGui::InputText("##input", m_inputTextBuf, IM_ARRAYSIZE(m_inputTextBuf), inputTextFieldFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
         // If we selected something in the suggestions window, create the
         // command from that instead
@@ -401,7 +392,15 @@ void CConsole::DrawOptionsPanel(void)
 //-----------------------------------------------------------------------------
 void CConsole::DrawAutoCompletePanel(void)
 {
-    ImGui::Begin("##suggest", nullptr, m_autoCompleteWindowFlags);
+    const static int autoCompleteWindowFlags = 
+        ImGuiWindowFlags_NoTitleBar                |
+        ImGuiWindowFlags_NoMove                    |
+        ImGuiWindowFlags_NoSavedSettings           |
+        ImGuiWindowFlags_NoFocusOnAppearing        |
+        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
+        ImGuiWindowFlags_AlwaysHorizontalScrollbar;
+
+    ImGui::Begin("##suggest", nullptr, autoCompleteWindowFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
     for (size_t i = 0, ns = m_vecSuggest.size(); i < ns; i++)

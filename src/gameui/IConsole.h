@@ -168,10 +168,6 @@ private:
     // multiple threads!
     CTextLogger                    m_colorTextLogger;
     mutable CThreadFastMutex       m_colorTextLoggerMutex;
-
-    ImGuiInputTextFlags m_inputTextFieldFlags;
-    ImGuiWindowFlags m_autoCompleteWindowFlags;
-    ImGuiWindowFlags m_colorLoggerWindowFlags;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
