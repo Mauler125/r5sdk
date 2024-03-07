@@ -239,7 +239,7 @@ private:
 	float m_flLineSpacing;
 	SelectionMode m_SelectionMode;
 	double m_flLastClick;
-	double m_nStartTime;
+	double m_flCursorBlinkerStartTime;
 
 	Coordinates m_InteractiveStart;
 	Coordinates m_InteractiveEnd;

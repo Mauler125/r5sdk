@@ -34,7 +34,7 @@ CTextLogger::CTextLogger()
 	, m_flLineSpacing(1.0f)
 	, m_SelectionMode(SelectionMode::Normal)
 	, m_flLastClick(-1.0)
-	, m_nStartTime(-1.0f)
+	, m_flCursorBlinkerStartTime(-1.0f)
 {
 	m_Lines.push_back(Line());
 }
@@ -835,11 +835,11 @@ void CTextLogger::Render()
 				// Initialize the cursor start render time, this is done here
 				// as Dear ImGui typically isn't initialized during the
 				// construction of this class
-				if (m_nStartTime == -1.0)
-					m_nStartTime = ImGui::GetTime();
+				if (m_flCursorBlinkerStartTime == -1.0)
+					m_flCursorBlinkerStartTime = ImGui::GetTime();
 
 				const double currTime = ImGui::GetTime();
-				const double elapsed = currTime - m_nStartTime;
+				const double elapsed = currTime - m_flCursorBlinkerStartTime;
 
 				if (elapsed > 0.4)
 				{
@@ -852,7 +852,7 @@ void CTextLogger::Render()
 					drawList->AddRectFilled(cstart, cend, 0xffe0e0e0);
 
 					if (elapsed > 0.8)
-						m_nStartTime = currTime;
+						m_flCursorBlinkerStartTime = currTime;
 				}
 			}
 
