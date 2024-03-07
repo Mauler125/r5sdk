@@ -1507,14 +1507,23 @@ void CTextLogger::EnsureCursorVisible()
 	const float left = ImCeil(scrollX / m_CharAdvance.x);
 	const float right = ImCeil((scrollX + width) / m_CharAdvance.x);
 
+	//const ImGuiWindow* const window = ImGui::GetCurrentWindow();
+
+	// For right offset, +.1f as otherwise it would render right below the
+	// first pixel making up the right perimeter.
+	// TODO: when the scrollbar feedback issue is fixed, uncomment the window
+	// scrollbar check !!!
+	const float rightOffsetAmount = 3.1f;// window->ScrollbarY ? 3.1f : 1.1f;
+	const float bottomOffsetAmount = 3.f; // window->ScrollbarX ? 3.f : 2.f;
+
 	if (pos.m_nColumn < left)
 		ImGui::SetScrollX(ImMax(0.0f, (pos.m_nColumn) * m_CharAdvance.x));
-	if (pos.m_nColumn > right - 3)
-		ImGui::SetScrollX(ImMax(0.0f, (pos.m_nColumn + 2) * m_CharAdvance.x - width));
+	if (pos.m_nColumn > right - rightOffsetAmount)
+		ImGui::SetScrollX(ImMax(0.0f, (pos.m_nColumn + rightOffsetAmount-1.f) * m_CharAdvance.x - width));
 	if (pos.m_nLine < top)
 		ImGui::SetScrollY(ImMax(0.0f, (pos.m_nLine) * m_CharAdvance.y));
-	if (pos.m_nLine > bottom - 3)
-		ImGui::SetScrollY(ImMax(0.0f, (pos.m_nLine + 2) * m_CharAdvance.y - height));
+	if (pos.m_nLine > bottom - bottomOffsetAmount)
+		ImGui::SetScrollY(ImMax(0.0f, (pos.m_nLine + bottomOffsetAmount-1.f) * m_CharAdvance.y - height));
 }
 
 int CTextLogger::GetPageSize() const
