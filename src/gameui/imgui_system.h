@@ -44,7 +44,10 @@ private:
 
 		// State gets set to this then buffers have been swapped for the first
 		// time.
-		IM_FRAME_SWAPPED
+		IM_FRAME_SWAPPED,
+
+		// Rendered for the first time.
+		IM_FRAME_RENDERED
 	};
 
 	ImguiSystemInitStage_e m_systemInitState;

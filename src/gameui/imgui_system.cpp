@@ -149,8 +149,13 @@ void CImguiSystem::RenderFrame()
 	if (m_systemInitState < ImguiSystemInitStage_e::IM_FRAME_SWAPPED)
 		return;
 
-	AUTO_LOCK(m_snapshotBufferMutex);
-	ImGui_ImplDX11_RenderDrawData(&m_snapshotData.DrawData);
+	{
+		AUTO_LOCK(m_snapshotBufferMutex);
+		ImGui_ImplDX11_RenderDrawData(&m_snapshotData.DrawData);
+	}
+
+	if (m_systemInitState == ImguiSystemInitStage_e::IM_FRAME_SAMPLED)
+		m_systemInitState = ImguiSystemInitStage_e::IM_FRAME_RENDERED;
 }
 
 //-----------------------------------------------------------------------------
