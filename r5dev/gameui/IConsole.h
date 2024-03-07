@@ -95,6 +95,7 @@ private:
 
 private:
     ///////////////////////////////////////////////////////////////////////////
+    ImGuiWindow*                   m_mainWindow;
     const char*                    m_loggerLabel;
     char                           m_inputTextBuf[512];
     char                           m_summaryTextBuf[256];

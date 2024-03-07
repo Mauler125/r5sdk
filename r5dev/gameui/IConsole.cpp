@@ -193,6 +193,8 @@ bool CConsole::DrawSurface(void)
         return false;
     }
 
+    m_mainWindow = ImGui::GetCurrentWindow();
+
     const ImGuiStyle& style = ImGui::GetStyle();
     const ImVec2 fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr);
 
@@ -218,8 +220,7 @@ bool CConsole::DrawSurface(void)
     ///////////////////////////////////////////////////////////////////////
     if (!m_colorTextLogger.IsScrolledToBottom() && m_scrollBackAmount > 0)
     {
-        ImGuiWindow* const window = ImGui::GetCurrentWindow();
-        const ImGuiID windowId = window->GetID(m_loggerLabel);
+        const ImGuiID windowId = m_mainWindow->GetID(m_loggerLabel);
 
         char windowName[128];
         snprintf(windowName, sizeof(windowName), "%s/%s_%08X", m_surfaceLabel, m_loggerLabel, windowId);
@@ -403,6 +404,15 @@ void CConsole::DrawAutoCompletePanel(void)
     ImGui::Begin("##suggest", nullptr, autoCompleteWindowFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
+    ImGuiWindow* const autocompleteWindow = ImGui::GetCurrentWindow();
+
+    // NOTE: this makes sure we always draw this window behind the main console
+    // window, this is necessary as otherwise if you were to drag another
+    // window above the console, and then focus on the console again, that
+    // window will now be in between the console window and the autocomplete
+    // suggest window.
+    ImGui::BringWindowToDisplayBehind(autocompleteWindow, m_mainWindow);
+
     for (size_t i = 0, ns = m_vecSuggest.size(); i < ns; i++)
     {
         const ConAutoCompleteSuggest_s& suggest = m_vecSuggest[i];
@@ -477,18 +487,17 @@ void CConsole::DrawAutoCompletePanel(void)
         {
             if (isIndexActive) // Bring the 'active' element into view
             {
-                ImGuiWindow* const pWindow = ImGui::GetCurrentWindow();
                 ImRect imRect = ImGui::GetCurrentContext()->LastItemData.Rect;
 
                 // Reset to keep flag icon in display.
-                imRect.Min.x = pWindow->InnerRect.Min.x;
-                imRect.Max.x = pWindow->InnerRect.Max.x;
+                imRect.Min.x = autocompleteWindow->InnerRect.Min.x;
+                imRect.Max.x = autocompleteWindow->InnerRect.Max.x;
 
                 // Eliminate jiggle when going up/down in the menu.
                 imRect.Min.y += 1;
                 imRect.Max.y -= 1;
 
-                ImGui::ScrollToRect(pWindow, imRect);
+                ImGui::ScrollToRect(autocompleteWindow, imRect);
                 m_autoCompletePosMoved = false;
             }
             else if (m_suggestPos == ConAutoCompletePos_e::kPark)
