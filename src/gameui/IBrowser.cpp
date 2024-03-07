@@ -751,7 +751,7 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
-        NetGameServer_t netGameServer
+        const NetGameServer_t netGameServer
         {
             g_ServerListManager.m_Server.name,
             g_ServerListManager.m_Server.description,
