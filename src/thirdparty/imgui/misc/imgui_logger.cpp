@@ -1501,7 +1501,7 @@ void CTextLogger::EnsureCursorVisible()
 	float width = ImGui::GetWindowWidth();
 	float height = ImGui::GetWindowHeight();
 
-	float top = 1.0f + ImCeil(scrollY / m_CharAdvance.y);
+	float top = ImCeil(scrollY / m_CharAdvance.y);
 	float bottom = ImCeil((scrollY + height) / m_CharAdvance.y);
 
 	float left = ImCeil(scrollX / m_CharAdvance.x);
@@ -1510,10 +1510,10 @@ void CTextLogger::EnsureCursorVisible()
 	if (pos.m_nColumn < left)
 		ImGui::SetScrollX(ImMax(0.0f, (pos.m_nColumn) * m_CharAdvance.x));
 	if (pos.m_nColumn > right - 3)
-		ImGui::SetScrollX(ImMax(0.0f, (pos.m_nColumn + 3) * m_CharAdvance.x - width));
+		ImGui::SetScrollX(ImMax(0.0f, (pos.m_nColumn + 2) * m_CharAdvance.x - width));
 	if (pos.m_nLine < top)
 		ImGui::SetScrollY(ImMax(0.0f, (pos.m_nLine) * m_CharAdvance.y));
-	if (pos.m_nLine > bottom - 2)
+	if (pos.m_nLine > bottom - 3)
 		ImGui::SetScrollY(ImMax(0.0f, (pos.m_nLine + 2) * m_CharAdvance.y - height));
 }
 
