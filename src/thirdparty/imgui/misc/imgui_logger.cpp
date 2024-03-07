@@ -1493,19 +1493,19 @@ float CTextLogger::TextDistanceToLineStart(const Coordinates& aFrom) const
 void CTextLogger::EnsureCursorVisible()
 {
 	m_bScrollToCursor = true;
-	Coordinates pos = GetActualCursorCoordinates();
+	const Coordinates pos = GetActualCursorCoordinates();
 
-	float scrollX = ImGui::GetScrollX();
-	float scrollY = ImGui::GetScrollY();
+	const float scrollX = ImGui::GetScrollX();
+	const float scrollY = ImGui::GetScrollY();
 
-	float width = ImGui::GetWindowWidth();
-	float height = ImGui::GetWindowHeight();
+	const float width = ImGui::GetWindowWidth();
+	const float height = ImGui::GetWindowHeight();
 
-	float top = ImCeil(scrollY / m_CharAdvance.y);
-	float bottom = ImCeil((scrollY + height) / m_CharAdvance.y);
+	const float top = ImCeil(scrollY / m_CharAdvance.y);
+	const float bottom = ImCeil((scrollY + height) / m_CharAdvance.y);
 
-	float left = ImCeil(scrollX / m_CharAdvance.x);
-	float right = ImCeil((scrollX + width) / m_CharAdvance.x);
+	const float left = ImCeil(scrollX / m_CharAdvance.x);
+	const float right = ImCeil((scrollX + width) / m_CharAdvance.x);
 
 	if (pos.m_nColumn < left)
 		ImGui::SetScrollX(ImMax(0.0f, (pos.m_nColumn) * m_CharAdvance.x));
