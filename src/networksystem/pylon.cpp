@@ -46,12 +46,10 @@ static bool IsServerListingValid(const rapidjson::Value& value)
 //-----------------------------------------------------------------------------
 // Purpose: gets a vector of hosted servers.
 // Input  : &outMessage - 
-// Output : vector<NetGameServer_t>
+// Output : true on success, false on failure.
 //-----------------------------------------------------------------------------
-vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
+bool CPylon::GetServerList(vector<NetGameServer_t>& outServerList, string& outMessage) const
 {
-    vector<NetGameServer_t> vecServers;
-
     rapidjson::Document requestJson;
     requestJson.SetObject();
     requestJson.AddMember("version", SDK_VERSION, requestJson.GetAllocator());
@@ -65,13 +63,13 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
     if (!SendRequest("/servers", requestJson, responseJson,
         outMessage, status, "server list error"))
     {
-        return vecServers;
+        return false;
     }
 
     if (!responseJson.HasMember("servers"))
     {
         outMessage = Format("Invalid response with status: %d", int(status));
-        return vecServers;
+        return false;
     }
 
     const rapidjson::Value& servers = responseJson["servers"];
@@ -87,7 +85,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
             continue;
         }
 
-        vecServers.push_back(
+        outServerList.push_back(
             NetGameServer_t
             {
                 obj["name"].GetString(),
@@ -107,7 +105,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
         );
     }
 
-    return vecServers;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -522,7 +520,7 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
 
     string finalUrl;
     CURLFormatUrl(finalUrl, hostName, endpoint);
-    finalUrl += Format("?language=%s", this->m_Language.c_str());
+    finalUrl += Format("?language=%s", this->GetLanguage().c_str());
 
     CURLParams params;
 

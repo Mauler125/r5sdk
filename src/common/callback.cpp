@@ -268,8 +268,12 @@ void LanguageChanged_f(IConVar* pConVar, const char* pOldString)
 			// if new text isn't valid but the old value is, reset the value
 			if (Localize_IsLanguageSupported(pOldString))
 				pNewString = pOldString;
-			else // this shouldn't really happen, but if neither the old nor new values are valid, set to english
+			else
+			{
+				// this shouldn't really happen, but if neither the old nor new values are valid, set to english
+				Assert(0);
 				pNewString = g_LanguageNames[0];
+			}
 		}
 
 		pConVarRef->SetValue(pNewString);

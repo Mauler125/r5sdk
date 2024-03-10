@@ -18,9 +18,9 @@ struct MSEulaData_t
 class CPylon
 {
 public:
-	CPylon() { m_Language = g_LanguageNames[0]; }
+	CPylon() { SetLanguage(g_LanguageNames[0]); }
 
-	vector<NetGameServer_t> GetServerList(string& outMessage) const;
+	bool GetServerList(vector<NetGameServer_t>& outServerList, string& outMessage) const;
 	bool GetServerByToken(NetGameServer_t& slOutServer, string& outMessage, const string& svToken) const;
 	bool PostServerHost(string& outMessage, string& svOutToken, string& outHostIp, const NetGameServer_t& netGameServer) const;
 
@@ -38,22 +38,19 @@ public:
 	bool SendRequest(const char* endpoint, const rapidjson::Document& requestJson, rapidjson::Document& responseJson, string& outMessage, CURLINFO& status, const char* errorText = nullptr, const bool checkEula = true) const;
 	bool QueryServer(const char* endpoint, const char* request, string& outResponse, string& outMessage, CURLINFO& outStatus) const;
 
-	inline void SetCurrentToken(const string& token) { m_Token = token; }
-	inline const string& GetCurrentToken() const { return m_Token; }
-
-	inline void SetCurrentError(const string& error) { m_ErrorMsg = error; }
-	inline const string& GetCurrentError() const { return m_ErrorMsg; }
-
-	inline void SetHostIP(const string& ip) { m_HostIP = ip; };
-	inline const string& GetHostIP() const { return m_HostIP; };
-
-	inline void SetLanguage(const char* lang) { m_Language = lang; };
-	inline const string& GetLanguage() const { return m_Language; };
+	inline void SetLanguage(const char* lang)
+	{
+		AUTO_LOCK(m_StringMutex);
+		m_Language = lang;
+	};
+	inline const string& GetLanguage() const
+	{
+		AUTO_LOCK(m_StringMutex);
+		return m_Language;
+	};
 
 private:
-	string m_Token;
-	string m_ErrorMsg;
-	string m_HostIP;
 	string m_Language;
+	mutable CThreadFastMutex m_StringMutex;
 };
 extern CPylon g_MasterServer;

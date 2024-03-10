@@ -83,8 +83,10 @@ namespace VScriptCode
         SQRESULT RefreshServerList(HSQUIRRELVM v)
         {
             string serverMessage; // Refresh list.
-            size_t iCount = g_ServerListManager.RefreshServerList(serverMessage);
+            size_t iCount;
 
+            // TODO: return error string on failure?
+            g_ServerListManager.RefreshServerList(serverMessage, iCount);
             sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
             return SQ_OK;
@@ -157,7 +159,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -176,7 +178,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerDescription(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -195,7 +197,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -214,7 +216,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -233,7 +235,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -252,7 +254,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMaxPlayers(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
@@ -372,7 +374,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToListedServer(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))

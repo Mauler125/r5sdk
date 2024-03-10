@@ -10,6 +10,7 @@
 #include "tier0/jobthread.h"
 #include "tier0/commandline.h"
 #include "tier0/fasttimer.h"
+#include "tier0/frametask.h"
 #include "tier1/cvar.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
@@ -45,6 +46,7 @@
 #include "networksystem/pylon.h"
 #ifndef CLIENT_DLL
 #include "networksystem/bansystem.h"
+#include "networksystem/hostmanager.h"
 #endif // !CLIENT_DLL
 #include "networksystem/listmanager.h"
 #include "public/edict.h"
@@ -53,58 +55,85 @@
 #endif // !CLIENT_DLL
 #include "game/shared/vscript_shared.h"
 
-#ifdef DEDICATED
-static ConVar hostdesc("hostdesc", "", FCVAR_RELEASE, "Host game server description.");
-#endif // DEDICATED
-
 #ifndef CLIENT_DLL
 static ConVar sv_pylonVisibility("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", "0 = Offline, 1 = Hidden, 2 = Public.");
 static ConVar sv_pylonRefreshRate("sv_pylonRefreshRate", "5.0", FCVAR_DEVELOPMENTONLY, "Pylon host refresh rate (seconds).");
 
 static ConVar sv_autoReloadRate("sv_autoReloadRate", "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null).");
+#endif // !CLIENT_DLL
 
+#ifdef DEDICATED
+static ConVar hostdesc("hostdesc", "", FCVAR_RELEASE, "Host game server description.");
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
-// Input  : &netGameServer - 
 // Output : Returns true on success, false otherwise.
 //-----------------------------------------------------------------------------
-bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
+static void HostState_KeepAlive()
 {
 	if (!g_pServer->IsActive() || !sv_pylonVisibility.GetBool()) // Check for active game.
 	{
-		return false;
+		return;
 	}
 
-	string errorMsg;
-	string hostToken;
-	string hostIp;
-
-	const bool result = g_MasterServer.PostServerHost(errorMsg, hostToken, hostIp, netGameServer);
-	if (!result)
+	const NetGameServer_t gameServer
 	{
-		if (!errorMsg.empty() && g_MasterServer.GetCurrentError().compare(errorMsg) != NULL)
-		{
-			g_MasterServer.SetCurrentError(errorMsg);
-			Error(eDLL_T::SERVER, NO_ERROR, "%s\n", errorMsg.c_str());
-		}
-	}
-	else // Attempt to log the token, if there is one.
-	{
-		if (!hostToken.empty() && g_MasterServer.GetCurrentToken().compare(hostToken) != NULL)
-		{
-			g_MasterServer.SetCurrentToken(hostToken);
-			Msg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
-				g_svReset, g_svGreyB,
-				hostToken.c_str(), g_svReset);
-		}
-	}
+		hostname->GetString(),
+		hostdesc.GetString(),
+		sv_pylonVisibility.GetInt() == ServerVisibility_e::HIDDEN,
+		g_pHostState->m_levelName,
+		v_Playlists_GetCurrent(),
+		hostip->GetString(),
+		hostport->GetInt(),
+		g_pNetKey->GetBase64NetKey(),
+		*g_nServerRemoteChecksum,
+		SDK_VERSION,
+		g_pServer->GetNumClients(),
+		g_ServerGlobalVariables->m_nMaxClients,
+		std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch()
+			).count()
+	};
 
-	if (hostIp.length() != 0)
-		g_MasterServer.SetHostIP(hostIp);
+	std::thread request([&, gameServer]
+		{
+			string errorMsg;
+			string hostToken;
+			string hostIp;
 
-	return result;
+			const bool result = g_MasterServer.PostServerHost(errorMsg, hostToken, hostIp, gameServer);
+
+			// Apply the data the next frame
+			g_TaskQueue.Dispatch([result, errorMsg, hostToken, hostIp]
+				{
+					if (!result)
+					{
+						if (!errorMsg.empty() && g_ServerHostManager.GetCurrentError().compare(errorMsg) != NULL)
+						{
+							g_ServerHostManager.SetCurrentError(errorMsg);
+							Error(eDLL_T::SERVER, NO_ERROR, "%s\n", errorMsg.c_str());
+						}
+					}
+					else // Attempt to log the token, if there is one.
+					{
+						if (!hostToken.empty() && g_ServerHostManager.GetCurrentToken().compare(hostToken) != NULL)
+						{
+							g_ServerHostManager.SetCurrentToken(hostToken);
+							Msg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
+								g_svReset, g_svGreyB,
+								hostToken.c_str(), g_svReset);
+						}
+					}
+
+					if (hostIp.length() != 0)
+						g_ServerHostManager.SetHostIP(hostIp);
+
+				}, 0);
+		}
+	);
+
+	request.detach();
 }
-#endif // !CLIENT_DLL
+#endif // DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
@@ -336,32 +365,13 @@ void CHostState::Think(void) const
 	if (sv_globalBanlist.GetBool() &&
 		banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate.GetFloat())
 	{
-		SV_CheckForBan();
+		SV_CheckClientsForBan();
 		banListTimer.Start();
 	}
 #ifdef DEDICATED
 	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate.GetFloat())
 	{
-		const NetGameServer_t netGameServer
-		{
-			hostname->GetString(),
-			hostdesc.GetString(),
-			sv_pylonVisibility.GetInt() == EServerVisibility_t::HIDDEN,
-			g_pHostState->m_levelName,
-			v_Playlists_GetCurrent(),
-			hostip->GetString(),
-			hostport->GetInt(),
-			g_pNetKey->GetBase64NetKey(),
-			*g_nServerRemoteChecksum,
-			SDK_VERSION,
-			g_pServer->GetNumClients(),
-			g_ServerGlobalVariables->m_nMaxClients,
-			std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch()
-				).count()
-		};
-
-		std::thread(&HostState_KeepAlive, netGameServer).detach();
+		HostState_KeepAlive();
 		pylonTimer.Start();
 	}
 #endif // DEDICATED

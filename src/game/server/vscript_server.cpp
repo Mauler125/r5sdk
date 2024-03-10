@@ -16,7 +16,7 @@
 
 #include "vscript_server.h"
 #include <engine/host_state.h>
-#include <networksystem/listmanager.h>
+#include <networksystem/hostmanager.h>
 
 /*
 =====================
@@ -51,7 +51,7 @@ namespace VScriptCode
             SQChar* serverDescription = sq_getstring(v, 2);
             SQChar* serverMapName = sq_getstring(v, 3);
             SQChar* serverPlaylist = sq_getstring(v, 4);
-            EServerVisibility_t eServerVisibility = static_cast<EServerVisibility_t>(sq_getinteger(v, 5));
+            ServerVisibility_e serverVisibility = static_cast<ServerVisibility_e>(sq_getinteger(v, 5));
 
             if (!VALID_CHARSTAR(serverName) ||
                 !VALID_CHARSTAR(serverMapName) ||
@@ -61,16 +61,16 @@ namespace VScriptCode
             }
 
             // Adjust browser settings.
-            std::lock_guard<std::mutex> l(g_ServerListManager.m_Mutex);
+            NetGameServer_t& details = g_ServerHostManager.GetDetails();
 
-            g_ServerListManager.m_Server.name = serverName;
-            g_ServerListManager.m_Server.description = serverDescription;
-            g_ServerListManager.m_Server.map = serverMapName;
-            g_ServerListManager.m_Server.playlist = serverPlaylist;
-            g_ServerListManager.m_ServerVisibility = eServerVisibility;
+            details.name = serverName;
+            details.description = serverDescription;
+            details.map = serverMapName;
+            details.playlist = serverPlaylist;
 
             // Launch server.
-            g_ServerListManager.LaunchServer(g_pServer->IsActive());
+            g_ServerHostManager.SetVisibility(serverVisibility);
+            g_ServerHostManager.LaunchServer(g_pServer->IsActive());
 
             return SQ_OK;
 

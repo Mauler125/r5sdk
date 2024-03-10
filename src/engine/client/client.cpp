@@ -14,6 +14,7 @@
 #include "engine/server/server.h"
 #include "engine/client/client.h"
 #ifndef CLIENT_DLL
+#include "networksystem/hostmanager.h"
 #include "jwt/include/decode.h"
 #include "mbedtls/include/mbedtls/sha256.h"
 #endif
@@ -162,7 +163,7 @@ bool CClient::Authenticate(const char* const playerName, char* const reasonBuf, 
 			const int idLen = snprintf(newId, sizeof(newId), "%llu-%s-%s",
 				(NucleusID_t)this->m_DataBlock.userData,
 				playerName,
-				g_MasterServer.GetHostIP().c_str());
+				g_ServerHostManager.GetHostIP().c_str());
 
 			if (idLen < 0)
 				ERROR_AND_RETURN("Session ID stitching failed");
