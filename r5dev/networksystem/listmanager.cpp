@@ -1,6 +1,6 @@
 //=============================================================================//
-//
-// Purpose: 
+// 
+// Purpose: server list manager
 // 
 //-----------------------------------------------------------------------------
 //
@@ -22,25 +22,30 @@
 // Purpose: 
 //-----------------------------------------------------------------------------
 CServerListManager::CServerListManager(void)
-	: m_HostingStatus(EHostStatus_t::NOT_HOSTING)
-	, m_ServerVisibility(EServerVisibility_t::OFFLINE)
 {
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: get server list from pylon
-// Input  : &svMessage - 
-// Output : amount of servers found
+// Input  : &outMessage - 
+//          &numServers - 
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-size_t CServerListManager::RefreshServerList(string& svMessage)
+bool CServerListManager::RefreshServerList(string& outMessage, size_t& numServers)
 {
     ClearServerList();
-    vector<NetGameServer_t> vServerList = g_MasterServer.GetServerList(svMessage);
 
-    std::lock_guard<std::mutex> l(m_Mutex);
-    m_vServerList = vServerList;
+    vector<NetGameServer_t> serverList;
+    const bool success = g_MasterServer.GetServerList(serverList, outMessage);
 
-    return m_vServerList.size();
+    if (!success)
+        return false;
+
+    AUTO_LOCK(m_Mutex);
+    m_vServerList = serverList;
+
+    numServers = m_vServerList.size();
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -48,36 +53,8 @@ size_t CServerListManager::RefreshServerList(string& svMessage)
 //-----------------------------------------------------------------------------
 void CServerListManager::ClearServerList(void)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
     m_vServerList.clear();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Launch server with given parameters
-//-----------------------------------------------------------------------------
-void CServerListManager::LaunchServer(const bool bChangeLevel) const
-{
-    if (!ThreadInMainThread())
-    {
-        g_TaskQueue.Dispatch([this, bChangeLevel]()
-            {
-                this->LaunchServer(bChangeLevel);
-            }, 0);
-        return;
-    }
-
-    Msg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" playlist: \"%s\"\n",
-        m_Server.name.c_str(), m_Server.map.c_str(), m_Server.playlist.c_str());
-
-    /*
-    * Playlist gets parsed in two instances, first in Playlists_Parse() with all the necessary
-    * values. Then when you would normally call launchplaylist which calls StartPlaylist it would cmd
-    * call mp_gamemode which parses the gamemode specific part of the playlist..
-    */
-    v_Playlists_Parse(m_Server.playlist.c_str());
-    mp_gamemode->SetValue(m_Server.playlist.c_str());
-
-    ProcessCommand(Format("%s \"%s\"", bChangeLevel ? "changelevel" : "map", m_Server.map.c_str()).c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -101,7 +78,9 @@ void CServerListManager::ConnectToServer(const string& svIp, const int nPort, co
     {
         NET_SetKey(svNetKey);
     }
-    ProcessCommand(Format("%s \"[%s]:%i\"", "connect", svIp.c_str(), nPort).c_str());
+
+    const string command = Format("%s \"[%s]:%i\"", "connect", svIp.c_str(), nPort);
+    Cbuf_AddText(Cbuf_GetCurrentPlayer(), command.c_str(), cmd_source_t::kCommandSrcCode);
 }
 
 //-----------------------------------------------------------------------------
@@ -124,16 +103,9 @@ void CServerListManager::ConnectToServer(const string& svServer, const string& s
     {
         NET_SetKey(svNetKey);
     }
-    ProcessCommand(Format("%s \"%s\"", "connect", svServer.c_str()).c_str());
-}
 
-//-----------------------------------------------------------------------------
-// Purpose: executes submitted commands in a separate thread
-// Input  : *pszCommand - 
-//-----------------------------------------------------------------------------
-void CServerListManager::ProcessCommand(const char* pszCommand) const
-{
-    Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
+    const string command = Format("%s \"%s\"", "connect", svServer.c_str()).c_str();
+    Cbuf_AddText(Cbuf_GetCurrentPlayer(), command.c_str(), cmd_source_t::kCommandSrcCode);
 }
 
 CServerListManager g_ServerListManager;
