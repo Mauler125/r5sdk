@@ -707,7 +707,7 @@ void CBrowser::UpdateHostingStatus(void)
 #ifndef CLIENT_DLL
     assert(g_pHostState && g_pCVar);
 
-    const HostStatus_e hostStatus = g_pServer->IsActive()
+    const HostStatus_e hostStatus = (g_ServerHostManager.GetVisibility() != ServerVisibility_e::OFFLINE && g_pServer->IsActive())
         ? HostStatus_e::HOSTING 
         : HostStatus_e::NOT_HOSTING;
 
