@@ -97,6 +97,107 @@ int CThreadFastMutex::Unlock()
 	return result;
 }
 
+void CThreadSpinRWLock::SpinLockForWrite()
+{
+	int i;
+	if (TryLockForWrite_UnforcedInline())
+	{
+		return;
+	}
+
+	for (i = THREAD_SPIN; i != 0; --i)
+	{
+		if (TryLockForWrite_UnforcedInline())
+		{
+			return;
+		}
+		ThreadPause();
+	}
+
+	for (i = THREAD_SPIN; i != 0; --i)
+	{
+		if (TryLockForWrite_UnforcedInline())
+		{
+			return;
+		}
+		ThreadPause();
+		if (i % 1024 == 0)
+		{
+			ThreadSleep(0);
+		}
+	}
+
+	for (i = THREAD_SPIN * 4; i != 0; --i)
+	{
+		if (TryLockForWrite_UnforcedInline())
+		{
+			return;
+		}
+
+		ThreadPause();
+		ThreadSleep(0);
+	}
+
+	for (;; ) // coded as for instead of while to make easy to breakpoint success
+	{
+		if (TryLockForWrite_UnforcedInline())
+		{
+			return;
+		}
+
+		ThreadPause();
+		ThreadSleep(1);
+	}
+}
+
+void CThreadSpinRWLock::SpinLockForRead()
+{
+	int i;
+	for (i = THREAD_SPIN; i != 0; --i)
+	{
+		if (TryLockForRead_UnforcedInline())
+		{
+			return;
+		}
+		ThreadPause();
+	}
+
+	for (i = THREAD_SPIN; i != 0; --i)
+	{
+		if (TryLockForRead_UnforcedInline())
+		{
+			return;
+		}
+		ThreadPause();
+		if (i % 1024 == 0)
+		{
+			ThreadSleep(0);
+		}
+	}
+
+	for (i = THREAD_SPIN * 4; i != 0; --i)
+	{
+		if (TryLockForRead_UnforcedInline())
+		{
+			return;
+		}
+
+		ThreadPause();
+		ThreadSleep(0);
+	}
+
+	for (;; ) // coded as for instead of while to make easy to breakpoint success
+	{
+		if (TryLockForRead_UnforcedInline())
+		{
+			return;
+		}
+
+		ThreadPause();
+		ThreadSleep(1);
+	}
+}
+
 // NOTE: originally the game exported 'ThreadInMainThread()' and ThreadInServerFrameThread(),
 // but since the game is built static, and all instances of said functions are inline, we had
 // to export the variable symbols instead and get them here to reimplement said functions.
