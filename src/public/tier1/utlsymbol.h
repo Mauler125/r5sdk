@@ -104,7 +104,7 @@ class CUtlSymbolTable
 {
 public:
 	// constructor, destructor
-	CUtlSymbolTable( int growSize = 0, int initSize = 16, bool caseInsensitive = false );
+	CUtlSymbolTable( ssize_t growSize = 0, ssize_t initSize = 16, bool caseInsensitive = false );
 	~CUtlSymbolTable();
 	
 	// Finds and/or creates a symbol based on the string
@@ -159,21 +159,21 @@ protected:
 	public:
 		CLess( int ignored = 0 ) {} // permits default initialization to NULL in CUtlRBTree
 		bool operator!() const { return false; }
-		bool operator()( const CStringPoolIndex &left, const CStringPoolIndex &right ) const;
+		int operator()( const CStringPoolIndex &left, const CStringPoolIndex &right ) const;
 	};
 
 	// Stores the symbol lookup
 	class CTree : public CUtlRBTree<CStringPoolIndex, unsigned short, CLess>
 	{
 	public:
-		CTree(  int growSize, int initSize ) : CUtlRBTree<CStringPoolIndex, unsigned short, CLess>( growSize, initSize ) {}
+		CTree( ssize_t growSize, ssize_t initSize ) : CUtlRBTree<CStringPoolIndex, unsigned short, CLess>( growSize, initSize ) {}
 		friend class CUtlSymbolTable::CLess; // Needed to allow CLess to calculate pointer to symbol table
 	};
 
 	struct StringPool_t
-	{	
-		int m_TotalLen;		// How large is 
-		int m_SpaceUsed;
+	{
+		size_t m_TotalLen;		// How large is 
+		size_t m_SpaceUsed;
 		char m_Data[1];
 	};
 
@@ -187,7 +187,7 @@ protected:
 	CUtlVector<StringPool_t*> m_StringPools;
 
 private:
-	int FindPoolWithSpace( int len ) const;
+	int FindPoolWithSpace( size_t len ) const;
 	const char* StringFromIndex( const CStringPoolIndex &index ) const;
 	const char* DecoratedStringFromIndex( const CStringPoolIndex &index ) const;
 
@@ -196,62 +196,60 @@ private:
 
 };
 
-// TODO[ AMOS ]: implement CThreadSpinRWLock
+class CUtlSymbolTableMT :  public CUtlSymbolTable
+{
+public:
+	CUtlSymbolTableMT( ssize_t growSize = 0, ssize_t initSize = 32, bool caseInsensitive = false )
+		: CUtlSymbolTable( growSize, initSize, caseInsensitive )
+	{
+	}
 
-//class CUtlSymbolTableMT :  public CUtlSymbolTable
-//{
-//public:
-//	CUtlSymbolTableMT( int growSize = 0, int initSize = 32, bool caseInsensitive = false )
-//		: CUtlSymbolTable( growSize, initSize, caseInsensitive )
-//	{
-//	}
-//
-//	CUtlSymbol AddString( const char* pString )
-//	{
-//		m_lock.LockForWrite();
-//		CUtlSymbol result = CUtlSymbolTable::AddString( pString );
-//		m_lock.UnlockWrite();
-//		return result;
-//	}
-//
-//	CUtlSymbol Find( const char* pString ) const
-//	{
-//		m_lock.LockForWrite();
-//		CUtlSymbol result = CUtlSymbolTable::Find( pString );
-//		m_lock.UnlockWrite();
-//		return result;
-//	}
-//
-//	const char* String( CUtlSymbol id ) const
-//	{
-//		m_lock.LockForRead();
-//		const char *pszResult = CUtlSymbolTable::String( id );
-//		m_lock.UnlockRead();
-//		return pszResult;
-//	}
-//
-//	const char * StringNoLock( CUtlSymbol id ) const
-//	{
-//		return CUtlSymbolTable::String( id );
-//	}
-//
-//	void LockForRead()
-//	{
-//		m_lock.LockForRead();
-//	}
-//
-//	void UnlockForRead()
-//	{
-//		m_lock.UnlockRead();
-//	}
-//
-//private:
-//#ifdef WIN32
-//	mutable CThreadSpinRWLock m_lock;
-//#else
-//	mutable CThreadRWLock m_lock;
-//#endif
-//};
+	CUtlSymbol AddString( const char* pString )
+	{
+		m_lock.LockForWrite();
+		CUtlSymbol result = CUtlSymbolTable::AddString( pString );
+		m_lock.UnlockWrite();
+		return result;
+	}
+
+	CUtlSymbol Find( const char* pString ) const
+	{
+		m_lock.LockForWrite();
+		CUtlSymbol result = CUtlSymbolTable::Find( pString );
+		m_lock.UnlockWrite();
+		return result;
+	}
+
+	const char* String( CUtlSymbol id ) const
+	{
+		m_lock.LockForRead();
+		const char *pszResult = CUtlSymbolTable::String( id );
+		m_lock.UnlockRead();
+		return pszResult;
+	}
+
+	const char * StringNoLock( CUtlSymbol id ) const
+	{
+		return CUtlSymbolTable::String( id );
+	}
+
+	void LockForRead()
+	{
+		m_lock.LockForRead();
+	}
+
+	void UnlockForRead()
+	{
+		m_lock.UnlockRead();
+	}
+
+private:
+#ifdef WIN32
+	mutable CThreadSpinRWLock m_lock;
+#else
+	mutable CThreadRWLock m_lock;
+#endif
+};
 
 
 
@@ -270,71 +268,68 @@ typedef void* FileNameHandle_t;
 
 // Symbol table for more efficiently storing filenames by breaking paths and filenames apart.
 // Refactored from BaseFileSystem.h
+class CUtlFilenameSymbolTable
+{
+	// Internal representation of a FileHandle_t
+	// If we get more than 64K filenames, we'll have to revisit...
+	// Right now CUtlSymbol is a short, so this packs into an int/void * pointer size...
+	struct FileNameHandleInternal_t
+	{
+		FileNameHandleInternal_t()
+		{
+			COMPILE_TIME_ASSERT( sizeof( *this ) == sizeof( FileNameHandle_t ) );
+			COMPILE_TIME_ASSERT( sizeof( value ) == 4 );
+			value = 0;
 
-// TODO[ AMOS ]: implement CThreadSpinRWLock
+#ifdef PLATFORM_64BITS
+			pad = 0;
+#endif
+		}
 
-//class CUtlFilenameSymbolTable
-//{
-//	// Internal representation of a FileHandle_t
-//	// If we get more than 64K filenames, we'll have to revisit...
-//	// Right now CUtlSymbol is a short, so this packs into an int/void * pointer size...
-//	struct FileNameHandleInternal_t
-//	{
-//		FileNameHandleInternal_t()
-//		{
-//			COMPILE_TIME_ASSERT( sizeof( *this ) == sizeof( FileNameHandle_t ) );
-//			COMPILE_TIME_ASSERT( sizeof( value ) == 4 );
-//			value = 0;
-//
-//#ifdef PLATFORM_64BITS
-//			pad = 0;
-//#endif
-//		}
-//
-//		// We pack the path and file values into a single 32 bit value.  We were running
-//		// out of space with the two 16 bit values (more than 64k files) so instead of increasing
-//		// the total size we split the underlying pool into two (paths and files) and 
-//		// use a smaller path string pool and a larger file string pool.
-//		unsigned int value;
-//
-//#ifdef PLATFORM_64BITS
-//		// some padding to make sure we are the same size as FileNameHandle_t on 64 bit.
-//		unsigned int pad;
-//#endif
-//
-//		static const unsigned int cNumBitsInPath = 12;
-//		static const unsigned int cNumBitsInFile = 32 - cNumBitsInPath;
-//
-//		static const unsigned int cMaxPathValue = 1 << cNumBitsInPath;
-//		static const unsigned int cMaxFileValue = 1 << cNumBitsInFile;
-//
-//		static const unsigned int cPathBitMask = cMaxPathValue - 1;
-//		static const unsigned int cFileBitMask = cMaxFileValue - 1;
-//
-//		// Part before the final '/' character
-//		unsigned int	GetPath() const { return ((value >> cNumBitsInFile) & cPathBitMask); }
-//		void			SetPath( unsigned int path ) { Assert( path < cMaxPathValue ); value = ((value & cFileBitMask) | ((path & cPathBitMask) << cNumBitsInFile)); }
-//
-//		// Part after the final '/', including extension
-//		unsigned int	GetFile() const { return (value & cFileBitMask); }
-//		void			SetFile( unsigned int file ) { Assert( file < cMaxFileValue ); value = ((value & (cPathBitMask << cNumBitsInFile)) | (file & cFileBitMask)); }
-//	};
-//
-//public:
-//	FileNameHandle_t	FindOrAddFileName( const char *pFileName );
-//	FileNameHandle_t	FindFileName( const char *pFileName );
-//	int					PathIndex( const FileNameHandle_t &handle ) { return (( const FileNameHandleInternal_t * )&handle)->GetPath(); }
-//	bool				String( const FileNameHandle_t& handle, char *buf, int buflen );
-//	void				RemoveAll();
-//	void				SpewStrings();
-//	bool				SaveToBuffer( CUtlBuffer &buffer );
-//	bool				RestoreFromBuffer( CUtlBuffer &buffer );
-//
-//private:
-//	CCountedStringPoolBase<unsigned short> m_PathStringPool;
-//	CCountedStringPoolBase<unsigned int> m_FileStringPool;
-//	mutable CThreadSpinRWLock m_lock;
-//};
+		// We pack the path and file values into a single 32 bit value.  We were running
+		// out of space with the two 16 bit values (more than 64k files) so instead of increasing
+		// the total size we split the underlying pool into two (paths and files) and 
+		// use a smaller path string pool and a larger file string pool.
+		unsigned int value;
+
+#ifdef PLATFORM_64BITS
+		// some padding to make sure we are the same size as FileNameHandle_t on 64 bit.
+		unsigned int pad;
+#endif
+
+		static const unsigned int cNumBitsInPath = 12;
+		static const unsigned int cNumBitsInFile = 32 - cNumBitsInPath;
+
+		static const unsigned int cMaxPathValue = 1 << cNumBitsInPath;
+		static const unsigned int cMaxFileValue = 1 << cNumBitsInFile;
+
+		static const unsigned int cPathBitMask = cMaxPathValue - 1;
+		static const unsigned int cFileBitMask = cMaxFileValue - 1;
+
+		// Part before the final '/' character
+		unsigned int	GetPath() const { return ((value >> cNumBitsInFile) & cPathBitMask); }
+		void			SetPath( unsigned int path ) { Assert( path < cMaxPathValue ); value = ((value & cFileBitMask) | ((path & cPathBitMask) << cNumBitsInFile)); }
+
+		// Part after the final '/', including extension
+		unsigned int	GetFile() const { return (value & cFileBitMask); }
+		void			SetFile( unsigned int file ) { Assert( file < cMaxFileValue ); value = ((value & (cPathBitMask << cNumBitsInFile)) | (file & cFileBitMask)); }
+	};
+
+public:
+	FileNameHandle_t	FindOrAddFileName( const char *pFileName );
+	FileNameHandle_t	FindFileName( const char *pFileName );
+	int					PathIndex( const FileNameHandle_t &handle ) { return (( const FileNameHandleInternal_t * )&handle)->GetPath(); }
+	bool				String( const FileNameHandle_t& handle, char *buf, int buflen );
+	void				RemoveAll();
+	void				SpewStrings();
+	bool				SaveToBuffer( CUtlBuffer &buffer );
+	bool				RestoreFromBuffer( CUtlBuffer &buffer );
+
+private:
+	CCountedStringPoolBase<unsigned short> m_PathStringPool;
+	CCountedStringPoolBase<unsigned int> m_FileStringPool;
+	mutable CThreadSpinRWLock m_lock;
+};
 
 // This creates a simple class that includes the underlying CUtlSymbol
 //  as a private member and then instances a private symbol table to
