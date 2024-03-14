@@ -7,7 +7,7 @@
 #include "common/proto_oob.h"
 #include "datablock_sender.h"
 
-ConVar net_compressDataBlockLzAcceleration("net_compressDataBlockLzAcceleration", "1", FCVAR_DEVELOPMENTONLY, "The acceleration value for LZ4 data block compression");
+static ConVar net_compressDataBlockLzAcceleration("net_compressDataBlockLzAcceleration", "1", FCVAR_DEVELOPMENTONLY, "The acceleration value for LZ4 data block compression");
 
 //-----------------------------------------------------------------------------
 // Purpose: sends the data block
@@ -80,9 +80,7 @@ float ServerDataBlockSender::GetResendRate() const
     const float netResendRate = pChan->GetResendRate();
 
     if (netResendRate < net_datablock_networkLossForSlowSpeed->GetFloat())
-    {
         return m_flResendRate;
-    }
 
     return netResendRate;
 }
