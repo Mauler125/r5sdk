@@ -228,7 +228,7 @@ int CUtlSymbolTable::CLess::operator()( const CStringPoolIndex &i1, const CStrin
 //-----------------------------------------------------------------------------
 // constructor, destructor
 //-----------------------------------------------------------------------------
-CUtlSymbolTable::CUtlSymbolTable( ssize_t growSize, ssize_t initSize, bool caseInsensitive ) :
+CUtlSymbolTable::CUtlSymbolTable( unsigned short growSize, unsigned short initSize, bool caseInsensitive ) :
 	m_Lookup( growSize, initSize ), m_bInsensitive( caseInsensitive ), m_StringPools( 8 ),
 	m_nUserSearchStringHash( 0 ), m_pUserSearchString( nullptr )
 {

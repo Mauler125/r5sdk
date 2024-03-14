@@ -104,7 +104,7 @@ class CUtlSymbolTable
 {
 public:
 	// constructor, destructor
-	CUtlSymbolTable( ssize_t growSize = 0, ssize_t initSize = 16, bool caseInsensitive = false );
+	CUtlSymbolTable( unsigned short growSize = 0, unsigned short initSize = 16, bool caseInsensitive = false );
 	~CUtlSymbolTable();
 	
 	// Finds and/or creates a symbol based on the string
@@ -166,7 +166,7 @@ protected:
 	class CTree : public CUtlRBTree<CStringPoolIndex, unsigned short, CLess>
 	{
 	public:
-		CTree( ssize_t growSize, ssize_t initSize ) : CUtlRBTree<CStringPoolIndex, unsigned short, CLess>( growSize, initSize ) {}
+		CTree( unsigned short growSize, unsigned short initSize ) : CUtlRBTree<CStringPoolIndex, unsigned short, CLess>( growSize, initSize ) {}
 		friend class CUtlSymbolTable::CLess; // Needed to allow CLess to calculate pointer to symbol table
 	};
 
@@ -193,13 +193,12 @@ private:
 
 	friend class CLess;
 	friend class CSymbolHash;
-
 };
 
-class CUtlSymbolTableMT :  public CUtlSymbolTable
+class CUtlSymbolTableMT : public CUtlSymbolTable
 {
 public:
-	CUtlSymbolTableMT( ssize_t growSize = 0, ssize_t initSize = 32, bool caseInsensitive = false )
+	CUtlSymbolTableMT( unsigned short growSize = 0, unsigned short initSize = 32, bool caseInsensitive = false )
 		: CUtlSymbolTable( growSize, initSize, caseInsensitive )
 	{
 	}

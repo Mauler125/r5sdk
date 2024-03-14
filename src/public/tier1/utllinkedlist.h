@@ -192,7 +192,7 @@ template < class T >
 class CUtlFixedLinkedList : public CUtlLinkedList< T, intptr_t, true, intptr_t, CUtlFixedMemory< UtlLinkedListElem_t< T, intptr_t > > >
 {
 public:
-	CUtlFixedLinkedList(ssize_t growSize = 0, ssize_t initSize = 0)
+	CUtlFixedLinkedList(intptr_t growSize = 0, intptr_t initSize = 0)
 		: CUtlLinkedList< T, intptr_t, true, intptr_t, CUtlFixedMemory< UtlLinkedListElem_t< T, intptr_t > > >(growSize, initSize) {}
 
 	bool IsValidIndex(intptr_t i) const
