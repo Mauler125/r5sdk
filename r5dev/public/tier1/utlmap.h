@@ -267,12 +267,12 @@ public:
 		LessFunc_t m_LessFunc;
 	};
 
-	typedef CUtlRBTree<Node_t, I, CKeyLess> CTree;
+	typedef CUtlRBTree<Node_t, IndexType_t, CKeyLess> CTree;
 
 	CTree *AccessTree()	{ return &m_Tree; }
 
 protected:
-	CTree 	   m_Tree;
+	CTree      m_Tree;
 };
 
 //-----------------------------------------------------------------------------
