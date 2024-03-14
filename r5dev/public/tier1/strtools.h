@@ -158,11 +158,12 @@ void V_ComposeFileName(const char* path, const char* filename, char* dest, size_
 // Remove any extension from in and return resulting string in out
 void V_StripExtension(const char* in, char* out, size_t outLen);
 
-// Copy out the file extension into dest
-void V_ExtractFileExtension(const char* path, char* dest, size_t destSize);
-
 // Returns a pointer to the file extension or NULL if one doesn't exist
 const char* V_GetFileExtension(const char* path, const bool keepDot = false);
+
+// Copy out the file extension into dest
+void V_ExtractFileExtension(const char* path, char* dest, size_t destSize);
+bool V_ExtractFilePath(const char* path, char* dest, size_t destSize);
 
 // Extracts the base name of a file (no path, no extension, assumes '/' or '\' as path separator)
 void V_FileBase(const char* in, OUT_Z_CAP(maxlen) char* out, size_t maxlen);

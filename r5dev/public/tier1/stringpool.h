@@ -248,7 +248,7 @@ inline T CCountedStringPoolBase<T>::ReferenceStringHandle( const char* pIntrinsi
 	}
 	else
 	{
-		unsigned int newElement = m_Elements.AddToTail();
+		T newElement = (T)m_Elements.AddToTail();
 		VerifyNotOverflowed( newElement );
 		nCurrentBucket = newElement;
 	}
@@ -260,7 +260,7 @@ inline T CCountedStringPoolBase<T>::ReferenceStringHandle( const char* pIntrinsi
 	m_HashTable[ nHashBucketIndex ] = nCurrentBucket;
 
 	m_Elements[nCurrentBucket].pString = new char[Q_strlen( pIntrinsic ) + 1];
-	Q_strcpy( m_Elements[nCurrentBucket].pString, pIntrinsic );
+	strcpy( m_Elements[nCurrentBucket].pString, pIntrinsic );
 	
     return nCurrentBucket;
 }
@@ -342,9 +342,10 @@ inline void CCountedStringPoolBase<T>::SpewStrings()
 	int i;
 	for ( i = 0; i < m_Elements.Count(); i++ )
 	{
-		char* string = m_Elements[i].pString;
+		char* pString = m_Elements[i].pString;
+		NOTE_UNUSED(pString);
 
-		DevMsg("String %d: ref:%hhu %s\n", i, m_Elements[i].nReferenceCount, string == NULL? "EMPTY - ok for slot zero only!" : string);
+		DevMsg("String %d: ref:%hhu %s\n", i, m_Elements[i].nReferenceCount, pString == NULL? "EMPTY - ok for slot zero only!" : pString);
 	}
 
 	DevMsg("\n%d total counted strings.", m_Elements.Count());

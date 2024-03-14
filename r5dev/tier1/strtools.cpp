@@ -1241,21 +1241,6 @@ void V_StripExtension(const char* in, char* out, size_t outSize)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *path - 
-//			*dest - 
-//			destSize - 
-// Output : void V_ExtractFileExtension
-//-----------------------------------------------------------------------------
-void V_ExtractFileExtension(const char* path, char* dest, size_t destSize)
-{
-	*dest = 0;
-	const char* extension = V_GetFileExtension(path);
-	if (NULL != extension)
-		V_strncpy(dest, extension, destSize);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Returns a pointer to the file extension within a file name string
 // Input:	in - file name 
 // Output:	pointer to beginning of extension (after the "."), or the passed
@@ -1288,6 +1273,52 @@ const char* V_GetFileExtension(const char* path, const bool keepDot)
 	return out ? out : path;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *path - 
+//			*dest - 
+//			destSize - 
+// Output : void V_ExtractFileExtension
+//-----------------------------------------------------------------------------
+void V_ExtractFileExtension(const char* path, char* dest, size_t destSize)
+{
+	*dest = 0;
+	const char* extension = V_GetFileExtension(path);
+	if (NULL != extension)
+		V_strncpy(dest, extension, destSize);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *path - 
+//			*dest - 
+//			destSize - 
+// Output : void V_ExtractFilePath
+//-----------------------------------------------------------------------------
+bool V_ExtractFilePath(const char* path, char* dest, size_t destSize)
+{
+	Assert(destSize >= 1);
+	if (destSize < 1)
+	{
+		return false;
+	}
+
+	// Last char
+	const size_t len = V_strlen(path);
+	const char* src = path + (len ? len - 1 : 0);
+
+	// back up until a \ or the start
+	while (src != path && !PATHSEPARATOR(*(src - 1)))
+	{
+		src--;
+	}
+
+	const ssize_t copysize = Min(size_t(src - path), destSize - 1);
+	memcpy(dest, path, copysize);
+	dest[copysize] = 0;
+
+	return copysize != 0 ? true : false;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Extracts the base name of a file (no path, no extension, assumes '/' or '\' as path separator)
