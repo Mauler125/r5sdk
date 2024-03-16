@@ -46,6 +46,10 @@ add_subdirectory( thirdparty/cppnet )
 set( FOLDER_CONTEXT "Thirdparty/Networking" )
 add_subdirectory( thirdparty/protobuf )
 add_subdirectory( thirdparty/curl )
+add_subdirectory( thirdparty/dirtysdk )
+
+set( FOLDER_CONTEXT "Thirdparty/Threading" )
+add_subdirectory( thirdparty/ea/EAThread )
 
 set( FOLDER_CONTEXT "Tools" )
 add_subdirectory( sdklauncher )

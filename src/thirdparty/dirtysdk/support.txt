@@ -1,0 +1,5 @@
+DirtySock SDK Support
+
+Please contact GS-DirtySock Support <GS-DirtySockSupport@ea.com> for all support inquiries.
+The DirtySock Customer Portal is located at https://developer.ea.com/display/dirtysock/DirtySock+Customer+Portal
+The GS Support webpage is located at https://developer.ea.com/display/TEAMS/GS+Support which describes the GS support process.

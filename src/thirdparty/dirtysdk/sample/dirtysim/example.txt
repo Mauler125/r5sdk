@@ -1,0 +1,31 @@
+Example of using DirtySim with Tester2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DirtySim creates a "bridge" between two clients.  It servers as a middle-man that can introduce packet loss, packet reordering, or packet corruption.  Here's an example setup and some Tester2 commands that are used to drive the clients that connect through the bridge for both game and voice.  In both cases, the three options are given; direct connection, tunneled connection, and tunneled connection through DirtySim.
+
+ClientA                   DirtySim                ClientB
+10.8.13.194:8010          10.8.13.194:8000        10.8.13.194:8020
+
+; Voice connnection, direct
+t2host voice create -nodevselect 8; voice connect 10.8.13.194:6000:6001
+t2host voice create -nodevselect 8; voice connect 10.8.13.194:6001:6000
+
+; Voice connection, tunneled, direct
+t2host tunnel create 43214321 8010; tunnel alloc 12341234 10.8.13.194 8020 abcd; net ctrl vadd 6000; voice create -nodevselect 8; voice ctrl clid 16777216; voice connect 1.0.0.0 01000001
+t2host tunnel create 12341234 8020; tunnel alloc 43214321 10.8.13.194 8010 abcd; net ctrl vadd 6000; voice create -nodevselect 8; voice ctrl clid 16777217; voice connect 1.0.0.0 01000000
+
+; Voice connection, tunneled, dirtysim
+t2host tunnel create 43214321 8010; tunnel alloc 12341234 10.8.13.194 8000 abcd; net ctrl vadd 6000; voice create -nodevselect 8; voice ctrl clid 16777216; voice connect 1.0.0.0 01000001
+t2host tunnel create 12341234 8020; tunnel alloc 43214321 10.8.13.194 8000 abcd; net ctrl vadd 6000; voice create -nodevselect 8; voice ctrl clid 16777217; voice connect 1.0.0.0 01000000
+
+; Game connection, direct
+t2host gamelink connect 10.8.13.194:3658:3659
+t2host gamelink connect 10.8.13.194:3659:3658
+
+; Game connection, tunneled, direct
+t2host tunnel create 43214321 8010; tunnel alloc 12341234 10.8.13.194 8020 abcd; net ctrl vadd 3658; gamelink connect 1.0.0.0:3658
+t2host tunnel create 12341234 8020; tunnel alloc 43214321 10.8.13.194 8010 abcd; net ctrl vadd 3658; gamelink connect 1.0.0.0:3658
+
+; Game connection, tunneled, dirtysim
+t2host tunnel create 43214321 8010; tunnel alloc 12341234 10.8.13.194 8000 abcd; net ctrl vadd 3658; gamelink connect 1.0.0.0:3658
+t2host tunnel create 12341234 8020; tunnel alloc 43214321 10.8.13.194 8000 abcd; net ctrl vadd 3658; gamelink connect 1.0.0.0:3658
