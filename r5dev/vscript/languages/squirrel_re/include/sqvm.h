@@ -1,6 +1,7 @@
 #pragma once
 #include "squirrel.h"
 #include "sqstate.h"
+#include "sqobject.h"
 
 //-----------------------------------------------------------------------------
 // 
@@ -29,6 +30,13 @@ struct SQVM
 		return (eDLL_T)GetContext();
 	}
 
+	// push sqobjectptr on to the stack
+	inline void Push(const SQObjectPtr& o)
+	{
+		this->_stack._vals[_top++] = o;
+	}
+
+	// ================================= //
 	SQVM* _vftable;
 	_BYTE gap000[16];
 	SQCONTEXT _contextidx;
@@ -40,15 +48,26 @@ struct SQVM
 	void* _callstack;
 	int _unk;
 	int _bottom;
-	SQInteger _stackbase;
-	SQInteger unk5c;
+	SQObjectPtr* _stackbase;
 	SQSharedState* _sharedstate;
 	char gap004[16];
 	int _top;
-	char gap005[148];
-	char gap006[30];
-	SQInteger _nnativecalls;
+	__int64 gap80;
+	sqvector<SQObjectPtr> _stack;
+	char gap_98[24];
+	SQObjectPtr temp_reg;
+	char gap_C8[32];
+	SQObjectPtr _roottable;
+	SQObjectPtr _lasterror;
+	char gap_100[48];
+	int _nnativecalls;
+	SQBool _suspended;
+	SQBool _suspended_root;
+	char gap_13C[8];
+	int suspended_traps;
 };
+static_assert(offsetof(SQVM, _top) == 0x78);
+static_assert(offsetof(SQVM, _nnativecalls) == 0x130);
 
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline SQRESULT(*v_SQVM_PrintFunc)(HSQUIRRELVM v, SQChar* fmt, ...);

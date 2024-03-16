@@ -15,10 +15,10 @@
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
-#include "vscript/languages/squirrel_re/include/squirrel.h"
-#include "vscript/languages/squirrel_re/include/sqvm.h"
-#include "vscript/languages/squirrel_re/include/sqstate.h"
-#include "vscript/languages/squirrel_re/include/sqstdaux.h"
+#include "squirrel.h"
+#include "sqvm.h"
+#include "sqstate.h"
+#include "sqstdaux.h"
 
 //---------------------------------------------------------------------------------
 // Console variables
@@ -36,7 +36,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 {
 	eDLL_T remoteContext;
 	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
-	// The compiler 'pointer truncation' warning couldn't be avoided, but it's safe to ignore it.
+	// The compiler 'pointer truncation' warning couldn't be avoided, but it's safe to ignore it here.
 #pragma warning(push)
 #pragma warning(disable : 4302 4311)
 	switch (static_cast<SQCONTEXT>(reinterpret_cast<int>(v)))

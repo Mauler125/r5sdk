@@ -15,6 +15,11 @@ add_sources( SOURCE_GROUP "Squirrel_RE"
 
 add_sources( SOURCE_GROUP "Squirrel_RE/squirrel"
     "languages/squirrel_re/squirrel/sqapi.cpp"
+    #"languages/squirrel_re/squirrel/sqcompiler.cpp"
+    "languages/squirrel_re/squirrel/sqfuncstate.cpp"
+    #"languages/squirrel_re/squirrel/sqlexer.cpp"
+    "languages/squirrel_re/squirrel/sqobject.cpp"
+    "languages/squirrel_re/squirrel/sqstring.cpp"
     "languages/squirrel_re/squirrel/sqvm.cpp"
 )
 
@@ -25,8 +30,14 @@ add_sources( SOURCE_GROUP "Squirrel_RE/sqstdlib"
 add_sources( SOURCE_GROUP "Squirrel_RE/include"
     "languages/squirrel_re/vsquirrel.cpp"
     "languages/squirrel_re/vsquirrel.h"
+    #"languages/squirrel_re/include/sqcompiler.h"
+    "languages/squirrel_re/include/sqfuncstate.h"
+    #"languages/squirrel_re/include/sqlexer.h"
+    "languages/squirrel_re/include/sqobject.h"
+    "languages/squirrel_re/include/sqopcodes.h"
     "languages/squirrel_re/include/sqstate.h"
     "languages/squirrel_re/include/sqstdaux.h"
+    "languages/squirrel_re/include/sqstring.h"
     "languages/squirrel_re/include/squirrel.h"
     "languages/squirrel_re/include/sqvm.h"
 )
@@ -36,3 +47,5 @@ add_sources( SOURCE_GROUP "Public"
 )
 
 end_sources()
+
+target_include_directories( ${PROJECT_NAME} PRIVATE "${ENGINE_SOURCE_DIR}/vscript/languages/squirrel_re/include/" )
