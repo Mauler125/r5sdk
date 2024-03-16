@@ -28,6 +28,73 @@ typedef int ScriptDataType_t;
 typedef struct SQVM* HSQUIRRELVM;
 struct SQBufState;
 
+struct SQString;
+
+#define SQOBJECT_REF_COUNTED 0x08000000
+
+typedef enum tagSQObjectType
+{
+	OT_VECTOR = 0x40000,
+	OT_NULL = 0x1000001,
+	OT_INTEGER = 0x5000002,
+	OT_FLOAT = 0x5000004,
+	OT_BOOL = 0x1000008,
+	OT_STRING = 0x8000010,
+	OT_TABLE = 0xA000020,
+	OT_ARRAY = 0x8000040,
+	OT_USERDATA = 0xA000080,
+	OT_CLOSURE = 0x8000100,
+	OT_NATIVECLOSURE = 0x8000200,
+	OT_ASSET = 0x8000400,
+	OT_USERPOINTER = 0x800,
+	OT_THREAD = 0x8001000,
+	OT_FUNCPROTO = 0x8002000,
+	OT_CLASS = 0x8004000,
+	OT_STRUCT = 0x8200000,
+	OT_INSTANCE = 0xA008000,
+	OT_ENTITY = 0xA400000,
+	OT_WEAKREF = 0x8010000,
+} SQObjectType;
+
+// does the type keep track of references?
+#define ISREFCOUNTED(t) (t & SQOBJECT_REF_COUNTED)
+
+typedef union tagSQObjectValue
+{
+	struct SQTable* pTable;
+	struct SQArray* pArray;
+	struct SQClosure* pClosure;
+	struct SQGenerator* pGenerator;
+	struct SQNativeClosure* pNativeClosure;
+	struct SQString* pString;
+	struct SQUserData* pUserData;
+	int nInteger;
+	float fFloat;
+	void* pUserPointer;
+	struct SQFunctionProto* pFunctionProto;
+	struct SQRefCounted* pRefCounted;
+	struct SQDelegable* pDelegable;
+	struct SQVM* pThread;
+	struct SQClass* pClass;
+	struct SQInstance* pInstance;
+	struct SQWeakRef* pWeakRef;
+	unsigned int raw;
+} SQObjectValue;
+
+typedef struct tagSQObject
+{
+	SQObjectType _type;
+	SQObjectValue _unVal;
+} SQObject;
+
+template<typename T> class sqvector
+{
+public:
+	T* _vals;
+	SQUnsignedInteger _size;
+	SQUnsignedInteger _allocated;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 SQRESULT sq_pushroottable(HSQUIRRELVM v);
 SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i);
@@ -36,6 +103,7 @@ SQRESULT sq_pushroottable(HSQUIRRELVM v);
 void sq_pushbool(HSQUIRRELVM v, SQBool b);
 void sq_pushstring(HSQUIRRELVM v, const SQChar* string, SQInteger len);
 void sq_pushinteger(HSQUIRRELVM v, SQInteger val);
+void sq_pushfloat(HSQUIRRELVM v, SQFloat n);
 void sq_newarray(HSQUIRRELVM v, SQInteger size);
 void sq_newtable(HSQUIRRELVM v);
 SQRESULT sq_newslot(HSQUIRRELVM v, SQInteger idx);
@@ -52,6 +120,7 @@ inline SQRESULT(*v_sq_pushroottable)(HSQUIRRELVM v);
 inline void(*v_sq_pushbool)(HSQUIRRELVM v, SQBool b);
 inline void(*v_sq_pushstring)(HSQUIRRELVM v, const SQChar* string, SQInteger len);
 inline void(*v_sq_pushinteger)(HSQUIRRELVM v, SQInteger val);
+inline void(*v_sq_pushfloat)(HSQUIRRELVM v, SQFloat val);
 inline void(*v_sq_newarray)(HSQUIRRELVM v, SQInteger size);
 inline void(*v_sq_newtable)(HSQUIRRELVM v);
 inline SQRESULT(*v_sq_newslot)(HSQUIRRELVM v, SQInteger idx);
@@ -63,6 +132,8 @@ inline SQRESULT(*v_sq_call)(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBo
 inline SQRESULT (*v_sq_startconsttable)(HSQUIRRELVM v);
 inline SQRESULT (*v_sq_endconsttable)(HSQUIRRELVM v);
 
+inline SQString* (*v_StringTable__Add)(void* a1, const SQChar* str, SQInteger len);
+
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrelAPI : public IDetour
 {
@@ -72,6 +143,7 @@ class VSquirrelAPI : public IDetour
 		LogFunAdr("sq_pushbool", v_sq_pushbool);
 		LogFunAdr("sq_pushstring", v_sq_pushstring);
 		LogFunAdr("sq_pushinteger", v_sq_pushinteger);
+		LogFunAdr("sq_pushfloat", v_sq_pushfloat);
 		LogFunAdr("sq_newarray", v_sq_newarray);
 		LogFunAdr("sq_arrayappend", v_sq_arrayappend);
 		LogFunAdr("sq_newtable", v_sq_newtable);
@@ -82,6 +154,8 @@ class VSquirrelAPI : public IDetour
 
 		LogFunAdr("sq_startconsttable", v_sq_startconsttable);
 		LogFunAdr("sq_endconsttable", v_sq_endconsttable);
+
+		LogFunAdr("StringTable::Add", v_StringTable__Add);
 	}
 	virtual void GetFun(void) const
 	{
@@ -89,6 +163,7 @@ class VSquirrelAPI : public IDetour
 		g_GameDll.FindPatternSIMD("48 83 EC 38 33 C0 48 C7 44 24 20 08 ?? ?? 01 48").GetPtr(v_sq_pushbool);
 		g_GameDll.FindPatternSIMD("40 56 48 83 EC 30 48 8B F1 48 85 D2 0F 84 8F ??").GetPtr(v_sq_pushstring);
 		g_GameDll.FindPatternSIMD("48 83 EC 38 33 C0 48 C7 44 24 20 02 ?? ?? 05 48").GetPtr(v_sq_pushinteger);
+		g_GameDll.FindPatternSIMD("48 83 EC 38 8B 51 78 33 C0").GetPtr(v_sq_pushfloat);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 40").GetPtr(v_sq_newarray);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 20").GetPtr(v_sq_newtable);
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 44 8B 49 ?? 48 8B D9 41 8B C1").GetPtr(v_sq_newslot);
@@ -99,6 +174,8 @@ class VSquirrelAPI : public IDetour
 
 		g_GameDll.FindPatternSIMD("8B 51 78 4C 8B 49 60 44 8B C2 49 C1 E0 04 4C 03 81 ?? ?? ?? ?? 8D 42 01 89 41 78 41 F7 81 ?? ?? ?? ?? ?? ?? ?? ?? 74 0A 49 8B 81 ?? ?? ?? ?? FF 40 08 41 F7 00 ?? ?? ?? ?? 41 0F 10 81 ?? ?? ?? ?? 74 15").GetPtr(v_sq_startconsttable);
 		g_GameDll.FindPatternSIMD("8B 41 78 45 33 C0 FF C8 8B D0 89 41 78 48 C1 E2 04 48 03 91 ?? ?? ?? ?? 8B 02 48 C7 02 ?? ?? ?? ?? 25 ?? ?? ?? ?? 74 15").GetPtr(v_sq_endconsttable);
+
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 41 8D 4D FF").FollowNearCallSelf().GetPtr(v_StringTable__Add);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
