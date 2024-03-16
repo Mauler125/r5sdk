@@ -15,6 +15,7 @@
 #include "windows/system.h"
 #include "mathlib/mathlib.h"
 #include "launcher/launcher.h"
+#include "protobuf/stubs/common.h"
 
 #ifndef DEDICATED
 #define SDK_DEFAULT_CFG "cfg/system/startup_default.cfg"
@@ -102,6 +103,7 @@ void SDK_Init()
     Input_Init();
 #endif // !DEDICATED
 
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
     curl_global_init(CURL_GLOBAL_ALL);
     lzham_enable_fail_exceptions(true);
 
