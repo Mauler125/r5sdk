@@ -41,6 +41,8 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "wldap32.lib"
     "ws2_32.lib"
     "Rpcrt4.lib"
+    "iphlpapi.lib"
+    "Winmm.lib"
 
     "vpc"
     "memoverride"
@@ -74,6 +76,9 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "libspdlog"
     "libdetour"
     "navdebugutils"
+
+    "EAThread"
+    "DirtySDK"
 
     "networksystem"
     "pluginsystem"
