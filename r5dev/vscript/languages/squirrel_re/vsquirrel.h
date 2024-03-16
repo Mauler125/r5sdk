@@ -69,6 +69,25 @@ inline CSquirrelVM* g_pClientScript;
 inline CSquirrelVM* g_pUIScript;
 #endif // !DEDICATED
 
+#define DEFINE_SCRIPTENUM_NAMED(s, enumName, startValue, ...) \
+	do { \
+		HSQUIRRELVM const v = s->GetVM(); \
+		const eDLL_T context = static_cast<eDLL_T>(s->GetContext());\
+		sq_startconsttable(v); \
+		sq_pushstring(v, enumName, -1); \
+		sq_newtable(v); \
+		const char* const enumFields[] = { __VA_ARGS__ }; \
+		int enumValue = startValue; \
+		for (int i = 0; i < V_ARRAYSIZE(enumFields); i++) { \
+			sq_pushstring(v, enumFields[i], -1); \
+			sq_pushinteger(v, enumValue++); \
+			if (sq_newslot(v, -3) < 0) \
+				Error(context, EXIT_FAILURE, "Error adding entry '%s' for enum '%s'.", enumFields[i], enumName); \
+		} \
+		if (sq_newslot(v, -3) < 0) \
+			Error(context, EXIT_FAILURE, "Error adding enum '%s' to const table.", enumName); \
+		sq_endconsttable(v); \
+	} while (0)
 
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrel : public IDetour

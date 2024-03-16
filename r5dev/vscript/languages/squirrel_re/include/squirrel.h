@@ -44,6 +44,9 @@ SQRESULT sq_pushstructure(HSQUIRRELVM v, const SQChar* name, const SQChar* membe
 SQRESULT sq_compilebuffer(HSQUIRRELVM v, SQBufState* bufferState, const SQChar* buffer, SQInteger context);
 SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
 
+SQRESULT sq_startconsttable(HSQUIRRELVM v);
+SQRESULT sq_endconsttable(HSQUIRRELVM v);
+
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline SQRESULT(*v_sq_pushroottable)(HSQUIRRELVM v);
 inline void(*v_sq_pushbool)(HSQUIRRELVM v, SQBool b);
@@ -56,6 +59,9 @@ inline SQRESULT(*v_sq_arrayappend)(HSQUIRRELVM v, SQInteger idx);
 inline SQRESULT(*v_sq_pushstructure)(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2);
 inline SQRESULT(*v_sq_compilebuffer)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level);
 inline SQRESULT(*v_sq_call)(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
+
+inline SQRESULT (*v_sq_startconsttable)(HSQUIRRELVM v);
+inline SQRESULT (*v_sq_endconsttable)(HSQUIRRELVM v);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrelAPI : public IDetour
@@ -73,6 +79,9 @@ class VSquirrelAPI : public IDetour
 		LogFunAdr("sq_pushstructure", v_sq_pushstructure);
 		LogFunAdr("sq_compilebuffer", v_sq_compilebuffer);
 		LogFunAdr("sq_call", v_sq_call);
+
+		LogFunAdr("sq_startconsttable", v_sq_startconsttable);
+		LogFunAdr("sq_endconsttable", v_sq_endconsttable);
 	}
 	virtual void GetFun(void) const
 	{
@@ -87,6 +96,9 @@ class VSquirrelAPI : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60 48 8B 59 60").GetPtr(v_sq_pushstructure);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 50 41 8B E9 49 8B F8").GetPtr(v_sq_compilebuffer);
 		g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B 08 49 89 6B 10 49 89 73 18 57 48 83 EC 50 8B F2").GetPtr(v_sq_call);
+
+		g_GameDll.FindPatternSIMD("8B 51 78 4C 8B 49 60 44 8B C2 49 C1 E0 04 4C 03 81 ?? ?? ?? ?? 8D 42 01 89 41 78 41 F7 81 ?? ?? ?? ?? ?? ?? ?? ?? 74 0A 49 8B 81 ?? ?? ?? ?? FF 40 08 41 F7 00 ?? ?? ?? ?? 41 0F 10 81 ?? ?? ?? ?? 74 15").GetPtr(v_sq_startconsttable);
+		g_GameDll.FindPatternSIMD("8B 41 78 45 33 C0 FF C8 8B D0 89 41 78 48 C1 E2 04 48 03 91 ?? ?? ?? ?? 8B 02 48 C7 02 ?? ?? ?? ?? 25 ?? ?? ?? ?? 74 15").GetPtr(v_sq_endconsttable);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

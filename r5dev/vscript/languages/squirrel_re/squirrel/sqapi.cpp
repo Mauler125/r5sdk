@@ -86,6 +86,16 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 	return v_sq_call(v, params, retval, raiseerror);
 }
 
+SQRESULT sq_startconsttable(HSQUIRRELVM v)
+{
+	return v_sq_startconsttable(v);
+}
+
+SQRESULT sq_endconsttable(HSQUIRRELVM v)
+{
+	return v_sq_endconsttable(v);
+}
+
 void VSquirrelAPI::Detour(const bool bAttach) const
 {
 	DetourSetup(&v_sq_pushroottable, &sq_pushroottable, bAttach);
@@ -99,4 +109,7 @@ void VSquirrelAPI::Detour(const bool bAttach) const
 	DetourSetup(&v_sq_pushstructure, &sq_pushstructure, bAttach);
 	DetourSetup(&v_sq_compilebuffer, &sq_compilebuffer, bAttach);
 	DetourSetup(&v_sq_call, &sq_call, bAttach);
+
+	DetourSetup(&v_sq_startconsttable, &sq_startconsttable, bAttach);
+	DetourSetup(&v_sq_endconsttable, &sq_endconsttable, bAttach);
 }
