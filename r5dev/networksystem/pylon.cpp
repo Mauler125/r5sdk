@@ -34,7 +34,7 @@ static bool IsServerListingValid(const rapidjson::Value& value)
         value.HasMember("port")        && value["port"].IsInt()           &&
         value.HasMember("key")         && value["key"].IsString()         &&
         value.HasMember("checksum")    && value["checksum"].IsUint()      &&
-        value.HasMember("playerCount") && value["playerCount"].IsInt()    &&
+        value.HasMember("numPlayers")  && value["numPlayers"].IsInt()    &&
         value.HasMember("maxPlayers")  && value["maxPlayers"].IsInt())
     {
         return true;
@@ -98,7 +98,7 @@ bool CPylon::GetServerList(vector<NetGameServer_t>& outServerList, string& outMe
                 obj["key"].GetString(),
                 obj["checksum"].GetUint(),
                 SDK_VERSION,
-                obj["playerCount"].GetInt(),
+                obj["numPlayers"].GetInt(),
                 obj["maxPlayers"].GetInt(),
                 -1,
             }
@@ -160,7 +160,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
         serverJson["key"].GetString(),
         serverJson["checksum"].GetUint(),
         SDK_VERSION,
-        serverJson["playerCount"].GetInt(),
+        serverJson["numPlayers"].GetInt(),
         serverJson["maxPlayers"].GetInt(),
         -1,
     };
@@ -192,7 +192,7 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
     requestJson.AddMember("key",         rapidjson::Value(netGameServer.netKey.c_str(),      allocator), allocator);
     requestJson.AddMember("checksum",    netGameServer.checksum,                             allocator);
     requestJson.AddMember("version",     rapidjson::Value(netGameServer.versionId.c_str(),   allocator), allocator);
-    requestJson.AddMember("playerCount", netGameServer.numPlayers,                           allocator);
+    requestJson.AddMember("numPlayers", netGameServer.numPlayers,                            allocator);
     requestJson.AddMember("maxPlayers",  netGameServer.maxPlayers,                           allocator);
     requestJson.AddMember("timeStamp",   netGameServer.timeStamp,                            allocator);
 
