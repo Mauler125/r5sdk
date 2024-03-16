@@ -110,7 +110,7 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: listen server constants (!!! only call on builds containing a listen server !!!)
+// Purpose: listen server constants
 // Input  : *s - 
 //---------------------------------------------------------------------------------
 void Script_RegisterListenServerConstants(CSquirrelVM* s)
