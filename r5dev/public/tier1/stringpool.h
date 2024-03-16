@@ -345,10 +345,10 @@ inline void CCountedStringPoolBase<T>::SpewStrings()
 		char* pString = m_Elements[i].pString;
 		NOTE_UNUSED(pString);
 
-		DevMsg("String %d: ref:%hhu %s\n", i, m_Elements[i].nReferenceCount, pString == NULL? "EMPTY - ok for slot zero only!" : pString);
+		DevMsg(eDLL_T::COMMON, "String %d: ref:%hhu %s\n", i, m_Elements[i].nReferenceCount, pString == NULL? "EMPTY - ok for slot zero only!" : pString);
 	}
 
-	DevMsg("\n%d total counted strings.", m_Elements.Count());
+	DevMsg(eDLL_T::COMMON, "\n%d total counted strings.", m_Elements.Count());
 }
 
 #define STRING_POOL_VERSION		MAKEID( 'C', 'S', 'P', '1' )
