@@ -9,7 +9,7 @@
 // the maximum size of each data block fragment
 #define MAX_DATABLOCK_FRAGMENT_SIZE 1024
 
-// the maximum amount of fragments per data block
+// the maximum amount of fragments per data block transfer
 #define MAX_DATABLOCK_FRAGMENTS 768
 
 #define DATABLOCK_DEBUG_NAME_LEN 64
