@@ -102,51 +102,37 @@ namespace VScriptCode
         std::atomic<int64_t> g_MatchID{0};
 
         //not exposed to sqvm
-        void setMatchID(int64_t newID) {
-            g_MatchID = newID;
+        void setMatchID(int64_t newID) 
+        {
+            g_MatchID.store(newID);
         }
 
         //not exposed to sqvm
-        int64_t VScriptCode::Shared::getMatchID() {
-            return g_MatchID;
+        int64_t getMatchID() 
+        {
+            return g_MatchID.load();
         }
 
 
         // exposed to sqvm - retrieves matchID
-        SQRESULT Shared::SQMatchID(HSQUIRRELVM v) {
-            std::string matchIDStr = std::to_string(g_MatchID);
+        SQRESULT Shared::SQMatchID(HSQUIRRELVM v) 
+        {
+            std::string matchIDStr = std::to_string(getMatchID());
             sq_pushstring(v, matchIDStr.c_str(), -1);
             return SQ_OK;
         }
 
-        // exposed to sqvm - Sets new matchid from scripts
-        SQRESULT Shared::SetMatchID(HSQUIRRELVM v) {
+        // set match ID
+        int64_t selfSetMatchID() 
+        {
             std::random_device rd;
             std::mt19937 gen(rd());
             std::uniform_int_distribution<int64_t> distr(0, INT64_MAX);
 
             int64_t randomNumber = distr(gen);
-            auto now = std::chrono::system_clock::now();
-            auto nowAsTimeT = std::chrono::system_clock::to_time_t(now);
-            auto nowAsInt64 = static_cast<int64_t>(nowAsTimeT);
-
-            int64_t newID = randomNumber + nowAsInt64;
-            setMatchID(newID);
-
-            return SQ_OK;
-        }
-
-
-        // Give control of logger to set match ID if none was set in scripts. 
-        int64_t selfSetMatchID() {
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::uniform_int_distribution<int64_t> distr(0, INT64_MAX);
-
-            int64_t randomNumber = distr(gen);
-            auto now = std::chrono::system_clock::now();
-            auto nowAsTimeT = std::chrono::system_clock::to_time_t(now);
-            auto nowAsInt64 = static_cast<int64_t>(nowAsTimeT);
+            std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+            time_t nowAsTimeT = std::chrono::system_clock::to_time_t(now);
+            int64_t nowAsInt64 = static_cast<int64_t>(nowAsTimeT);
 
             int64_t newID = randomNumber + nowAsInt64;
             setMatchID(newID);
@@ -156,66 +142,108 @@ namespace VScriptCode
 
 
         //-----------------------------------------------------------------------------
-       // Purpose: mkos funni io logger
-       //-----------------------------------------------------------------------------
-
+        // Purpose: mkos funni io logger
+        //-----------------------------------------------------------------------------
 
         // Check of is currently running -- returns true if not logging, false if running
-        SQRESULT isLogging(HSQUIRRELVM v) {
-
-            bool isRunning = LOGGER::Logger::getInstance().isLogging();
-            sq_pushbool(v, isRunning);
+        SQRESULT isLogging(HSQUIRRELVM v) 
+        {
+            bool state = LOGGER::Logger::getInstance().isLogging();
+            sq_pushbool(v, state);
             return SQ_OK;
         }
 
+        SQRESULT SQ_GetLogState(HSQUIRRELVM v)
+        {  
+            if ((sq_getinteger(v, 1) >= 0))
+            {
+                SQInteger flag = sq_getinteger(v, 1);
+                LOGGER::Logger& logger = LOGGER::Logger::getInstance();
+                LOGGER::Logger::LogState LogState = logger.intToLogState(flag);
+                bool state = logger.getLogState(LogState);
+                sq_pushbool(v, state);
+            }
+            else
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "SQ_ERROR: sq_getinteger(v, 1) value: %s", std::to_string(sq_getinteger(v, 1)).c_str());
+                sq_pushbool(v, false); 
+            }
+            return SQ_OK;
+        }
+
+        
 
         SQRESULT LogEvent(HSQUIRRELVM v)
         {
+            const SQChar* logString = sq_getstring(v, 1);
+            SQBool encrypt = sq_getbool(v, 2);
 
+            if (!VALID_CHARSTAR(logString)) 
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "INVALID CHARSTAR");
+                return SQ_ERROR;
+            }
+            
+           
+            LOGGER::pMkosLogger->LogEvent(logString, encrypt);
+
+            return SQ_OK;
+        }
+
+        SQRESULT InitializeLogThread_internal(HSQUIRRELVM v)
+        {   
             if (getMatchID() == 0)
             {
                 selfSetMatchID();
             }
-            std::string matchIDstr = std::to_string(g_MatchID);
 
-            std::string filename = matchIDstr;
-            const SQChar* logString = sq_getstring(v, 1);
-            SQBool checkDir = sq_getbool(v, 2);
-            SQBool encrypt = sq_getbool(v, 3);
-
-
-            if (!VALID_CHARSTAR(filename.c_str()) || !VALID_CHARSTAR(logString)) {
-                return SQ_ERROR;
-            }
-
+            SQBool encrypt = sq_getbool(v, 1);
+            SQBool state = true;
 
             LOGGER::Logger& logger = LOGGER::Logger::getInstance();
-            logger.LogEvent(filename.c_str(), logString, checkDir, encrypt);
+            logger.InitializeLogThread(encrypt);
+
+            sq_pushbool(v, state);
 
             return SQ_OK;
         }
 
 
-        SQRESULT stopLogging(HSQUIRRELVM v) {
+        SQRESULT stopLogging(HSQUIRRELVM v) 
+        {
+
             bool doSendToAPI = false;
 
             SQBool sendToAPI = sq_getbool(v, 1);
-            if (sendToAPI) {
+
+            if (sendToAPI) 
+            {
                 doSendToAPI = sendToAPI != 0;
             }
 
             DevMsg(eDLL_T::SERVER, "Send to API bool set to: %s \n", doSendToAPI ? "true" : "false");
-            LOGGER::Logger::getInstance().stopLogging(doSendToAPI);
+            LOGGER::pMkosLogger->stopLogging(doSendToAPI);
 
             return SQ_OK;
         }
 
         //-----------------------------------------------------------------------------
-        // Purpose: mkos debug
+        // Purpose: deletes oldest logs after specified MB limit within specified 
+        //          logfolder defined in settings json
         //-----------------------------------------------------------------------------
 
-        SQRESULT sqprint(HSQUIRRELVM v) {
+        SQRESULT CleanupLogs(HSQUIRRELVM v)
+        {
+            LOGGER::CleanupLogs(FileSystem());
+            return SQ_OK;
+        }
 
+        //-----------------------------------------------------------------------------
+        // Purpose: mkos debug - prints to console without devmode
+        //-----------------------------------------------------------------------------
+
+        SQRESULT sqprint(HSQUIRRELVM v) 
+        {
             SQChar* sqprintmsg = sq_getstring(v, 1);
             std::ostringstream oss;
             oss << sqprintmsg;
@@ -223,12 +251,27 @@ namespace VScriptCode
             std::string str = oss.str();
             DevMsg(eDLL_T::SERVER, ":: %s\n", str.c_str());
 
+            return SQ_OK;
+        }
+
+        SQRESULT sqerror(HSQUIRRELVM v)
+        {
+            SQChar* sqprintmsg = sq_getstring(v, 1);
+            std::ostringstream oss;
+            oss << sqprintmsg;
+
+            std::string str = oss.str();
+            Error(eDLL_T::SERVER, NO_ERROR, ":: %s\n", str.c_str());
 
             return SQ_OK;
         }
 
+        //-----------------------------------------------------------------------------
+        // Purpose: None whatsoever
+        //-----------------------------------------------------------------------------
 
-        SQRESULT testbool(HSQUIRRELVM v) {
+        SQRESULT testbool(HSQUIRRELVM v) 
+        {
             SQBool sqbool = sq_getbool(v, 1);
             std::string returnvalue = sqbool ? "true" : "false";
 
@@ -239,7 +282,13 @@ namespace VScriptCode
             return SQ_OK;
         }
 
-        SQRESULT EA_Verify(HSQUIRRELVM v) {
+        //-----------------------------------------------------------------------------
+        // Purpose: facilitates communication between sqvm and logger api calls 
+        // for ea account verification
+        //-----------------------------------------------------------------------------
+
+        SQRESULT EA_Verify(HSQUIRRELVM v) 
+        {
             const SQChar* token = sq_getstring(v, 1);
             const SQChar* OID = sq_getstring(v, 2);
             const SQChar* ea_name = sq_getstring(v, 3);
@@ -262,7 +311,12 @@ namespace VScriptCode
             return SQ_OK;
         }
 
-        SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v) {
+        //-----------------------------------------------------------------------------
+        // Purpose: api calls for stats
+        //-----------------------------------------------------------------------------
+
+        SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v) 
+        {
             const SQChar* action = sq_getstring(v, 1);
             const SQChar* player = sq_getstring(v, 2);
             const SQChar* OID = sq_getstring(v, 3);
@@ -274,13 +328,90 @@ namespace VScriptCode
             return SQ_OK;
         }
 
-        SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v) {
-            
+        SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v) 
+        {      
             const SQChar* recap = sq_getstring(v, 1);
             const SQChar* DISCORD_HOOK = sq_getstring(v, 2);
 
             LOGGER::NOTIFY_END_OF_MATCH( recap, DISCORD_HOOK );
+            return SQ_OK;
+        }
 
+        SQRESULT Shared::LoadKDString(HSQUIRRELVM v) 
+        {
+            const SQChar* player_oid = sq_getstring(v, 1);
+
+            LOGGER::TaskManager::getInstance().LoadKDString(player_oid);
+            
+            return SQ_OK;
+        }
+
+        SQRESULT Shared::LoadBatchKDStrings(HSQUIRRELVM v) 
+        {
+            const SQChar* player_oids = sq_getstring(v, 1);
+
+            LOGGER::TaskManager::getInstance().LoadBatchKDStrings(player_oids);
+         
+            return SQ_OK;
+        }
+
+        SQRESULT Shared::GetKDString(HSQUIRRELVM v) 
+        {
+            const SQChar* player_oid = sq_getstring(v, 1);
+            std::string stats = LOGGER::GetKDString(player_oid);
+
+            sq_pushstring(v, stats.c_str(), -1);
+
+            return SQ_OK;
+        }
+
+
+        SQRESULT Shared::SQ_UpdateLiveStats(HSQUIRRELVM v) 
+        {
+            std::string stats_json = sq_getstring(v, 1);
+            LOGGER::UpdateLiveStats(stats_json);
+
+            return SQ_OK;
+        }
+
+        SQRESULT Shared::SQ_ResetStats(HSQUIRRELVM v) 
+        {
+            const SQChar* player_oid = sq_getstring(v, 1);
+
+            LOGGER::TaskManager::getInstance().ResetPlayerStats(player_oid);
+
+            return SQ_OK;
+        }
+
+        SQRESULT Shared::FetchGlobalSettingsFromR5RDEV(HSQUIRRELVM v)
+        {
+            const SQChar* query = sq_getstring(v, 1);
+            std::string settings = LOGGER::FetchGlobalSettings(query);
+
+            sq_pushstring(v, settings.c_str(), -1);
+
+            return SQ_OK;
+        }
+
+
+        //-----------------------------------------------------------------------------
+        // Purpose: fetches a setting value by key in the settings map. 
+        // loaded from (r5rdev_config)
+        //-----------------------------------------------------------------------------
+
+        SQRESULT Shared::SQ_GetSetting(HSQUIRRELVM v)
+        {
+            const SQChar* setting_key = sq_getstring(v, 1);
+            const char* setting_value = LOGGER::GetSetting(setting_key);
+
+            sq_pushstring(v, setting_value, -1);
+
+            return SQ_OK;
+        }
+
+        SQRESULT Shared::SQ_ReloadConfig(HSQUIRRELVM v)
+        {
+            LOGGER::ReloadConfig("r5rdev_config.json");
             return SQ_OK;
         }
 
@@ -300,15 +431,24 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
 
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, ScriptError, "", "void", "string format, ...")
 
-    //for logging
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, LogEvent, "Logs event with GameEvent,DirectoryCheck,Encryption", "void", "string, bool, bool");
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SetMatchID, "Sets the match ID", "void", "");
+
+
+    //for stat settings (api keys, discord webhooks, server identifiers, preferences))
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQ_GetSetting, "Fetches value by key", "string", "string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQ_ReloadConfig, "Reloads R5R.DEV config file", "void", "");
+
+    //for logging 
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, InitializeLogThread_internal, "Initializes internal logevent thread", "void", "bool");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, LogEvent, "Logs event with GameEvent,Encryption", "void", "string, bool");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQMatchID, "Gets the match ID", "string", "");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, stopLogging, "Stops the logging thread, writes remaining queued messages", "void", "bool");
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, isLogging, "Checks if the log thread is running", "bool", "");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, isLogging, "Checks if the log thread is running, atomic", "bool", "");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQ_GetLogState, "Checks various states, returns true false", "bool", "int");
 
     // for debugging the sqvm
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, sqprint, "Prints string to console window from sqvm", "string", "string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, CleanupLogs, "Deletes oldest logs in platform/eventlogs when directory exceeds 20mb", "void", "");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, sqprint, "Prints string to console window from sqvm", "void", "string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, sqerror, "Prints error string to console window from sqvm", "void", "string");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, testbool, "Prints string to console window from sqvm", "bool", "bool");
 
     //for verification
@@ -316,7 +456,16 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
 
     // for stat updates
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, _STATSHOOK_UpdatePlayerCount, "Updates LIVE player count on R5R.DEV", "void", "string, string, string, string, string");
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, _STATSHOOK_EndOfMatch, "Updates match recap on R5R.DEV", "void", "string,string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, _STATSHOOK_EndOfMatch, "Updates match recap on R5R.DEV", "void", "string, string");
+
+    //for polling stats
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQ_UpdateLiveStats, "Updates live server stats R5R.DEV", "void", "string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, LoadKDString, "Initializes grabbing stats for player", "void", "string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetKDString, "Fetches stats for player on R5R.DEV", "string", "string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQ_ResetStats, "Sets map value for player_oid stats to empty string", "void", "string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, LoadBatchKDStrings, "Fetches batch player stats queries", "void", "string"); 
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, FetchGlobalSettingsFromR5RDEV, "Fetches global settings based on query", "string", "string");
+  
 }
 
 //---------------------------------------------------------------------------------

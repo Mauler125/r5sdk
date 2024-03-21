@@ -140,6 +140,41 @@ namespace VScriptCode
             return SQ_OK;
         }
 
+          //-----------------------------------------------------------------------------
+          // Purpose: adds an id to banlist
+          //-----------------------------------------------------------------------------
+            SQRESULT AddBanByID(HSQUIRRELVM v)
+            {
+                SQChar* ip = sq_getstring(v, 1);
+                SQChar* p_id = sq_getstring(v, 2);
+                bool bResult = false;
+
+                // Discard empty strings, this will use the default message instead.
+                if (!VALID_CHARSTAR(ip))
+                    ip = nullptr;
+
+                // string to NucleusID_t
+                char* endPtr = nullptr;
+                NucleusID_t id = strtoull(p_id, &endPtr, 10);
+
+                if (*endPtr != '\0') 
+                {
+                    bResult = false;
+                }
+
+                if (g_pBanSystem->AddEntry(ip, id))
+                {   
+                    g_pBanSystem->SaveList();
+                    bResult = true;
+                }
+
+
+                sq_pushbool(v, bResult);
+                return SQ_OK;
+
+            }
+
+
         //-----------------------------------------------------------------------------
         // Purpose: unbans a player by given nucleus id or ip address
         //-----------------------------------------------------------------------------
@@ -236,6 +271,8 @@ void Script_RegisterAdminPanelFunctions(CSquirrelVM* s)
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, BanPlayerByName, "Bans a player from the server by name", "void", "string, string");
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, BanPlayerById, "Bans a player from the server by handle or nucleus id", "void", "string, string");
+
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, AddBanByID, "Adds a player to banlist by ip & nucleus id, returns true for success", "bool", "string, string");
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, UnbanPlayer, "Unbans a player from the server by nucleus id or ip address", "void", "string");
 }

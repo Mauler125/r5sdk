@@ -13,6 +13,7 @@ namespace VScriptCode
 		SQRESULT BanPlayerByName(HSQUIRRELVM v);
 		SQRESULT BanPlayerById(HSQUIRRELVM v);
 		SQRESULT UnbanPlayer(HSQUIRRELVM v);
+		SQRESULT AddBanByID(HSQUIRRELVM v);
 
 		SQRESULT GetNumHumanPlayers(HSQUIRRELVM v);
 		SQRESULT GetNumFakeClients(HSQUIRRELVM v);

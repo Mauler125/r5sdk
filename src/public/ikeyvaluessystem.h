@@ -26,10 +26,10 @@ public:
 	// registers the size of the KeyValues in the specified instance
 	// so it can build a properly sized memory pool for the KeyValues objects
 	// the sizes will usually never differ but this is for versioning safety
-	virtual void RegisterSizeofKeyValues( ssize_t nSize ) = 0;
+	virtual void RegisterSizeofKeyValues( int64 nSize ) = 0;
 
 	// allocates/frees a KeyValues object from the shared mempool
-	virtual void *AllocKeyValuesMemory( ssize_t nSize ) = 0;
+	virtual void *AllocKeyValuesMemory( int64 nSize ) = 0;
 	virtual void FreeKeyValuesMemory( void *pMem ) = 0;
 
 	// symbol table access (used for key names)

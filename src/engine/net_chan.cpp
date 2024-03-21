@@ -358,7 +358,7 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
         (Plat_FloatTime() * 1000) - (flStartTime * 1000);
 
     if (pSlot->m_flCurrentNetProcessTime >
-        net_processTimeBudget->GetFloat() + 2000)
+        net_processTimeBudget->GetFloat())// + 2000)
     {
         Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n",
             pChan->GetName(), pChan->GetAddress(), (pSlot->m_flCurrentNetProcessTime - net_processTimeBudget->GetFloat()));
