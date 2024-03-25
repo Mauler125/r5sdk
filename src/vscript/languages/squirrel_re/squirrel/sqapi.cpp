@@ -7,18 +7,61 @@
 #include "core/stdafx.h"
 #include "squirrel.h"
 #include "sqvm.h"
+#include "sqarray.h"
 #include "sqstring.h"
 
 //---------------------------------------------------------------------------------
-SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i)
+bool sq_aux_gettypedarg(HSQUIRRELVM v, SQInteger idx, SQObjectType type, SQObjectPtr** o)
+{
+	*o = &stack_get(v, idx);
+	if (sq_type(**o) != type) {
+		SQObjectPtr oval;
+		v->PrintObjVal(**o, oval);
+		v_SQVM_RaiseError(v, _SC("wrong argument type, expected '%s' got '%.50s'"), IdType2Name(type), _stringval(oval));
+		return false;
+	}
+	return true;
+}
+
+//---------------------------------------------------------------------------------
+#define _GETSAFE_OBJ(v,idx,type,o) { if(!sq_aux_gettypedarg(v,idx,type,&o)) return SQ_ERROR; }
+
+#define sq_aux_paramscheck(v,count) \
+{ \
+	if(sq_gettop(v) < count){ v_SQVM_RaiseError(v, _SC("not enough params in the stack")); return SQ_ERROR; }\
+}
+
+//---------------------------------------------------------------------------------
+SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i) // TODO: deprecate and remove!
 {
 	return v->_stackbase[i]._unVal.pString->_val;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getstring(HSQUIRRELVM v, SQInteger idx, const SQChar** c)
+{
+	SQObjectPtr* o = NULL;
+	_GETSAFE_OBJ(v, idx, OT_STRING, o);
+	*c = _stringval(*o);
+	return SQ_OK;
 }
 
 //---------------------------------------------------------------------------------
 SQInteger sq_getinteger(HSQUIRRELVM v, SQInteger i)
 {
 	return v->_stackbase[i]._unVal.nInteger;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_get(HSQUIRRELVM v, SQInteger idx)
+{
+	return v_sq_get(v, idx);
+}
+
+//---------------------------------------------------------------------------------
+SQInteger sq_gettop(HSQUIRRELVM v)
+{
+	return (v->_top - v->_bottom);
 }
 
 //---------------------------------------------------------------------------------

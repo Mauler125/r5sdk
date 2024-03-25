@@ -1,7 +1,38 @@
-#ifndef SQTYPE_H
-#define SQTYPE_H
+/*
+Copyright (c) 2003-2009 Alberto Demichelis
+
+This software is provided 'as-is', without any
+express or implied warranty. In no event will the
+authors be held liable for any damages arising from
+the use of this software.
+
+Permission is granted to anyone to use this software
+for any purpose, including commercial applications,
+and to alter it and redistribute it freely, subject
+to the following restrictions:
+
+		1. The origin of this software must not be
+		misrepresented; you must not claim that
+		you wrote the original software. If you
+		use this software in a product, an
+		acknowledgment in the product
+		documentation would be appreciated but is
+		not required.
+
+		2. Altered source versions must be plainly
+		marked as such, and must not be
+		misrepresented as being the original
+		software.
+
+		3. This notice may not be removed or
+		altered from any source distribution.
+
+*/
+#ifndef _SQUIRREL_H_
+#define _SQUIRREL_H_
 
 #define SQ_OK (1)
+#define SQ_FAIL (0)
 #define SQ_ERROR (-1)
 #define SQ_FAILED(res) (res<0)
 #define SQ_SUCCEEDED(res) (res>=0)
@@ -14,10 +45,17 @@
 #define GET_FLAG_RAW                0x00000001
 #define GET_FLAG_DO_NOT_RAISE_ERROR 0x00000002
 
-typedef char SQChar;
-typedef float SQFloat;
+#define _SC(a) a
+
 typedef long SQInteger;
 typedef unsigned long SQUnsignedInteger;
+typedef short SQShort;
+typedef unsigned short SQUnsignedShort;
+
+typedef uint64 SQHash; /*should be the same size of a pointer*/
+
+typedef float SQFloat;
+
 typedef void* SQFunctor;
 
 typedef SQUnsignedInteger SQBool;
@@ -28,32 +66,67 @@ typedef int ScriptDataType_t;
 typedef struct SQVM* HSQUIRRELVM;
 struct SQBufState;
 
+typedef char SQChar;
 struct SQString;
 
 #define SQOBJECT_REF_COUNTED 0x08000000
+#define SQOBJECT_NUMERIC		0x04000000
+#define SQOBJECT_DELEGABLE		0x02000000
+#define SQOBJECT_CANBEFALSE		0x01000000
+
+#define SQ_MATCHTYPEMASKSTRING (-99999)
+
+#define _RT_MASK 0x00FFFFFF
+#define _RAW_TYPE(type) (type&_RT_MASK)
+
+#define _RT_NULL			0x00000001
+#define _RT_INTEGER			0x00000002
+#define _RT_FLOAT			0x00000004
+#define _RT_BOOL			0x00000008
+#define _RT_STRING			0x00000010
+#define _RT_TABLE			0x00000020
+#define _RT_ARRAY			0x00000040
+#define _RT_USERDATA		0x00000080
+#define _RT_CLOSURE			0x00000100
+#define _RT_NATIVECLOSURE	0x00000200
+#define _RT_ASSET			0x00000400
+#define _RT_USERPOINTER		0x00000800
+#define _RT_THREAD			0x00001000
+#define _RT_FUNCPROTO		0x00002000
+#define _RT_CLASS			0x00004000
+#define _RT_INSTANCE		0x00008000
+#define _RT_WEAKREF			0x00010000
+#define _RT_VECTOR			0x00040000
+#define _RT_UNIMPLEMENTED	0x00080000
+#define _RT_STRUCTDEF		0x00100000
+#define _RT_STRUCTINSTANCE	0x00200000
+#define _RT_ENTITY			0x00400000
 
 typedef enum tagSQObjectType
 {
-	OT_VECTOR = 0x40000,
-	OT_NULL = 0x1000001,
-	OT_INTEGER = 0x5000002,
-	OT_FLOAT = 0x5000004,
-	OT_BOOL = 0x1000008,
-	OT_STRING = 0x8000010,
-	OT_TABLE = 0xA000020,
-	OT_ARRAY = 0x8000040,
-	OT_USERDATA = 0xA000080,
-	OT_CLOSURE = 0x8000100,
-	OT_NATIVECLOSURE = 0x8000200,
-	OT_ASSET = 0x8000400,
-	OT_USERPOINTER = 0x800,
-	OT_THREAD = 0x8001000,
-	OT_FUNCPROTO = 0x8002000,
-	OT_CLASS = 0x8004000,
-	OT_STRUCT = 0x8200000,
-	OT_INSTANCE = 0xA008000,
-	OT_ENTITY = 0xA400000,
-	OT_WEAKREF = 0x8010000,
+	OT_NULL =			(_RT_NULL|SQOBJECT_CANBEFALSE),
+	OT_INTEGER =		(_RT_INTEGER|SQOBJECT_NUMERIC|SQOBJECT_CANBEFALSE),
+	OT_FLOAT =			(_RT_FLOAT|SQOBJECT_NUMERIC|SQOBJECT_CANBEFALSE),
+	OT_BOOL =			(_RT_BOOL|SQOBJECT_CANBEFALSE),
+	OT_STRING =			(_RT_STRING|SQOBJECT_REF_COUNTED),
+	OT_TABLE =			(_RT_TABLE|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
+	OT_ARRAY =			(_RT_ARRAY|SQOBJECT_REF_COUNTED),
+	OT_VAR =			NULL,
+	OT_USERDATA =		(_RT_USERDATA|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
+	OT_CLOSURE =		(_RT_CLOSURE|SQOBJECT_REF_COUNTED),
+	OT_NATIVECLOSURE =	(_RT_NATIVECLOSURE|SQOBJECT_REF_COUNTED),
+	OT_ASSET =			(_RT_ASSET|SQOBJECT_REF_COUNTED),
+	OT_USERPOINTER =	_RT_USERPOINTER,
+	OT_THREAD =			(_RT_THREAD|SQOBJECT_REF_COUNTED) ,
+	OT_FUNCPROTO =		(_RT_FUNCPROTO|SQOBJECT_REF_COUNTED), //internal usage only
+	OT_CLASS =			(_RT_CLASS|SQOBJECT_REF_COUNTED),
+	OT_WEAKREF =		(_RT_WEAKREF|SQOBJECT_REF_COUNTED),
+	OT_VECTOR =			_RT_VECTOR,
+	OT_UNIMPLEMENTED =	(_RT_UNIMPLEMENTED|SQOBJECT_REF_COUNTED),
+	OT_STRUCTDEF =		(_RT_STRUCTDEF|SQOBJECT_REF_COUNTED),
+	OT_STRUCTINSTANCE =	(_RT_STRUCTINSTANCE|SQOBJECT_REF_COUNTED),
+	OT_INSTANCE =		(_RT_INSTANCE|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
+	OT_ENTITY =			(_RT_ENTITY|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
 } SQObjectType;
 
 // does the type keep track of references?
@@ -84,21 +157,16 @@ typedef union tagSQObjectValue
 typedef struct tagSQObject
 {
 	SQObjectType _type;
+	SQInteger _pad;
 	SQObjectValue _unVal;
 } SQObject;
-
-template<typename T> class sqvector
-{
-public:
-	T* _vals;
-	SQUnsignedInteger _size;
-	SQUnsignedInteger _allocated;
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 SQRESULT sq_pushroottable(HSQUIRRELVM v);
 SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i);
 SQInteger sq_getinteger(HSQUIRRELVM v, SQInteger i);
+SQRESULT sq_get(HSQUIRRELVM v, SQInteger idx);
+SQInteger sq_gettop(HSQUIRRELVM v);
 SQRESULT sq_pushroottable(HSQUIRRELVM v);
 void sq_pushbool(HSQUIRRELVM v, SQBool b);
 void sq_pushstring(HSQUIRRELVM v, const SQChar* string, SQInteger len);
@@ -115,6 +183,26 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 SQRESULT sq_startconsttable(HSQUIRRELVM v);
 SQRESULT sq_endconsttable(HSQUIRRELVM v);
 
+/*UTILITY MACRO*/
+#define sq_istable(o) ((o)._type==OT_TABLE)
+#define sq_isarray(o) ((o)._type==OT_ARRAY)
+#define sq_isfunction(o) ((o)._type==OT_FUNCPROTO)
+#define sq_isclosure(o) ((o)._type==OT_CLOSURE)
+#define sq_isgenerator(o) ((o)._type==OT_GENERATOR)
+#define sq_isnativeclosure(o) ((o)._type==OT_NATIVECLOSURE)
+#define sq_isstring(o) ((o)._type==OT_STRING)
+#define sq_isinteger(o) ((o)._type==OT_INTEGER)
+#define sq_isfloat(o) ((o)._type==OT_FLOAT)
+#define sq_isuserpointer(o) ((o)._type==OT_USERPOINTER)
+#define sq_isuserdata(o) ((o)._type==OT_USERDATA)
+#define sq_isthread(o) ((o)._type==OT_THREAD)
+#define sq_isnull(o) ((o)._type==OT_NULL)
+#define sq_isclass(o) ((o)._type==OT_CLASS)
+#define sq_isinstance(o) ((o)._type==OT_INSTANCE)
+#define sq_isbool(o) ((o)._type==OT_BOOL)
+#define sq_isweakref(o) ((o)._type==OT_WEAKREF)
+#define sq_type(o) ((o)._type)
+
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline SQRESULT(*v_sq_pushroottable)(HSQUIRRELVM v);
 inline void(*v_sq_pushbool)(HSQUIRRELVM v, SQBool b);
@@ -128,6 +216,7 @@ inline SQRESULT(*v_sq_arrayappend)(HSQUIRRELVM v, SQInteger idx);
 inline SQRESULT(*v_sq_pushstructure)(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2);
 inline SQRESULT(*v_sq_compilebuffer)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level);
 inline SQRESULT(*v_sq_call)(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
+inline SQRESULT(*v_sq_get)(HSQUIRRELVM v, SQInteger idx);
 
 inline SQRESULT (*v_sq_startconsttable)(HSQUIRRELVM v);
 inline SQRESULT (*v_sq_endconsttable)(HSQUIRRELVM v);
@@ -151,6 +240,7 @@ class VSquirrelAPI : public IDetour
 		LogFunAdr("sq_pushstructure", v_sq_pushstructure);
 		LogFunAdr("sq_compilebuffer", v_sq_compilebuffer);
 		LogFunAdr("sq_call", v_sq_call);
+		LogFunAdr("sq_get", v_sq_get);
 
 		LogFunAdr("sq_startconsttable", v_sq_startconsttable);
 		LogFunAdr("sq_endconsttable", v_sq_endconsttable);
@@ -171,6 +261,7 @@ class VSquirrelAPI : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60 48 8B 59 60").GetPtr(v_sq_pushstructure);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 50 41 8B E9 49 8B F8").GetPtr(v_sq_compilebuffer);
 		g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B 08 49 89 6B 10 49 89 73 18 57 48 83 EC 50 8B F2").GetPtr(v_sq_call);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40 48 8B F9 8B 49 78").GetPtr(v_sq_get);
 
 		g_GameDll.FindPatternSIMD("8B 51 78 4C 8B 49 60 44 8B C2 49 C1 E0 04 4C 03 81 ?? ?? ?? ?? 8D 42 01 89 41 78 41 F7 81 ?? ?? ?? ?? ?? ?? ?? ?? 74 0A 49 8B 81 ?? ?? ?? ?? FF 40 08 41 F7 00 ?? ?? ?? ?? 41 0F 10 81 ?? ?? ?? ?? 74 15").GetPtr(v_sq_startconsttable);
 		g_GameDll.FindPatternSIMD("8B 41 78 45 33 C0 FF C8 8B D0 89 41 78 48 C1 E2 04 48 03 91 ?? ?? ?? ?? 8B 02 48 C7 02 ?? ?? ?? ?? 25 ?? ?? ?? ?? 74 15").GetPtr(v_sq_endconsttable);
@@ -182,4 +273,4 @@ class VSquirrelAPI : public IDetour
 	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-#endif // SQTYPE_H
+#endif // _SQUIRREL_H_

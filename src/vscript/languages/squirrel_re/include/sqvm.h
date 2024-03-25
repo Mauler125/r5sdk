@@ -3,6 +3,8 @@
 #include "sqstate.h"
 #include "sqobject.h"
 
+class CSquirrelVM;
+
 //-----------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
@@ -14,45 +16,32 @@ enum class SQCONTEXT : SQInteger
 	NONE
 };
 
-struct SQVM
+struct SQVM : public CHAINABLE_OBJ
 {
-	SQVM* GetVTable() const
-	{
-		return _vftable;
-	}
-	SQCONTEXT GetContext() const
-	{
-		return _contextidx;
-	}
-
-	eDLL_T GetNativeContext() const
-	{
-		return (eDLL_T)GetContext();
-	}
+	void PrintObjVal(const SQObject& oin, SQObject& oout);
 
 	// push sqobjectptr on to the stack
-	inline void Push(const SQObjectPtr& o)
-	{
-		this->_stack._vals[_top++] = o;
-	}
+	void Push(const SQObjectPtr& o);
+
+	SQObjectPtr& Top();
+	SQObjectPtr& PopGet();
+	SQObjectPtr& GetUp(SQInteger n);
+	SQObjectPtr& GetAt(SQInteger n);
+
+	CSquirrelVM* GetScriptVM();
+	SQChar* GetContextName();
+	SQCONTEXT GetContext();
+	eDLL_T GetNativeContext();
 
 	// ================================= //
-	SQVM* _vftable;
-	_BYTE gap000[16];
-	SQCONTEXT _contextidx;
-	_BYTE gap001[8];
-	_BYTE gap002[4];
-	void* _ncvftable;
-	void* _table;
-	_BYTE gap003[14];
+	_BYTE gap1C[8];
 	void* _callstack;
 	int _unk;
 	int _bottom;
 	SQObjectPtr* _stackbase;
 	SQSharedState* _sharedstate;
-	char gap004[16];
+	char gap68[16];
 	int _top;
-	__int64 gap80;
 	sqvector<SQObjectPtr> _stack;
 	char gap_98[24];
 	SQObjectPtr temp_reg;
@@ -69,6 +58,8 @@ struct SQVM
 static_assert(offsetof(SQVM, _top) == 0x78);
 static_assert(offsetof(SQVM, _nnativecalls) == 0x130);
 
+inline SQObjectPtr& stack_get(HSQUIRRELVM v, SQInteger idx) { return ((idx >= 0) ? (v->_stackbase[idx-1]) : (v->GetUp(idx))); }
+
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline SQRESULT(*v_SQVM_PrintFunc)(HSQUIRRELVM v, SQChar* fmt, ...);
 inline SQRESULT(*v_SQVM_sprintf)(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString);
@@ -78,14 +69,11 @@ inline void(*v_SQVM_CompileError)(HSQUIRRELVM v, const SQChar* pszError, const S
 inline void(*v_SQVM_LogicError)(SQBool bPrompt);
 inline SQInteger(*v_SQVM_ScriptError)(const SQChar* pszFormat, ...);
 inline SQInteger(*v_SQVM_RaiseError)(HSQUIRRELVM v, const SQChar* pszFormat, ...);
-inline SQBool(*v_SQVM_ThrowError)(__int64 a1, HSQUIRRELVM v);
+inline void(*v_SQVM_PrintObjVal)(HSQUIRRELVM v, const SQObjectPtr& oin, const SQObjectPtr& oout);
 
 SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...);
 SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString);
 void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn);
-
-const SQChar* SQVM_GetContextName(SQCONTEXT context);
-const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrelVM : public IDetour
@@ -100,7 +88,7 @@ class VSquirrelVM : public IDetour
 		LogFunAdr("SQVM_LogicError", v_SQVM_LogicError);
 		LogFunAdr("SQVM_ScriptError", v_SQVM_ScriptError);
 		LogFunAdr("SQVM_RaiseError", v_SQVM_RaiseError);
-		LogFunAdr("SQVM_ThrowError", v_SQVM_ThrowError);
+		LogFunAdr("SQVM_PrintObjVal", v_SQVM_PrintObjVal);
 	}
 	virtual void GetFun(void) const
 	{
@@ -112,7 +100,7 @@ class VSquirrelVM : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B D9 4C 8B F2").GetPtr(v_SQVM_CompileError);
 		g_GameDll.FindPatternSIMD("E9 ?? ?? ?? ?? F7 D2").FollowNearCallSelf().GetPtr(v_SQVM_ScriptError);
 		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 4C 89 44 24 ?? 4C 89 4C 24 ?? 53 56 57 48 83 EC 40").GetPtr(v_SQVM_RaiseError);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? BB ?? ?? ?? ?? 8B C3").FollowNearCallSelf().GetPtr(v_SQVM_ThrowError);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 50 45 33 ED").GetPtr(v_SQVM_PrintObjVal);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
