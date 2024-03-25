@@ -84,12 +84,7 @@ namespace VScriptCode
 
             v_SQVM_ScriptError("%s", pString);
 
-            // this should be moved to a wrapper for all script funcs
-            if (*reinterpret_cast<DWORD*>(&v->_sharedstate->gap43b9[127]))
-            {
-                v_SQVM_ThrowError(*reinterpret_cast<QWORD*>(&v->_sharedstate->gap43b9[111]), v);
-            }
-
+            SCRIPT_CHECK_INTERNAL_ERROR(v);
             return SQ_ERROR;
         }
     }
@@ -117,4 +112,38 @@ void Script_RegisterListenServerConstants(CSquirrelVM* s)
 {
     const SQBool hasListenServer = !IsClientDLL();
     s->RegisterConstant("LISTEN_SERVER", hasListenServer);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: server enums
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+void Script_RegisterCommonEnums_Server(CSquirrelVM* const s)
+{
+    v_Script_RegisterCommonEnums_Server(s);
+
+    if (ServerScriptRegisterEnum_Callback)
+        ServerScriptRegisterEnum_Callback(s);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: client/ui enums
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+void Script_RegisterCommonEnums_Client(CSquirrelVM* const s)
+{
+    v_Script_RegisterCommonEnums_Client(s);
+
+    const SQCONTEXT context = s->GetContext();
+
+    if (context == SQCONTEXT::CLIENT && ClientScriptRegisterEnum_Callback)
+        ClientScriptRegisterEnum_Callback(s);
+    else if (context == SQCONTEXT::UI && UIScriptRegisterEnum_Callback)
+        UIScriptRegisterEnum_Callback(s);
+}
+
+void VScriptShared::Detour(const bool bAttach) const
+{
+    DetourSetup(&v_Script_RegisterCommonEnums_Server, &Script_RegisterCommonEnums_Server, bAttach);
+    DetourSetup(&v_Script_RegisterCommonEnums_Client, &Script_RegisterCommonEnums_Client, bAttach);
 }

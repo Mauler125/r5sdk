@@ -147,15 +147,13 @@ SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStr
 //---------------------------------------------------------------------------------
 void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn)
 {
-	static SQCONTEXT context{};
 	static char szContextBuf[256]{};
-
-	context = v->GetContext();
 	v_SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf) - 1);
 
-	Error(static_cast<eDLL_T>(context), NO_ERROR, "%s SCRIPT COMPILE ERROR: %s\n", SQVM_GetContextName(context), pszError);
-	Error(static_cast<eDLL_T>(context), NO_ERROR, " -> %s\n\n", szContextBuf);
-	Error(static_cast<eDLL_T>(context), NO_ERROR, "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
+	const eDLL_T context = v->GetNativeContext();
+	Error(context, NO_ERROR, "%s SCRIPT COMPILE ERROR: %s\n", v->GetContextName(), pszError);
+	Error(context, NO_ERROR, " -> %s\n\n", szContextBuf);
+	Error(context, NO_ERROR, "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
 }
 
 //---------------------------------------------------------------------------------
@@ -176,41 +174,31 @@ void SQVM_LogicError(SQBool bPrompt)
 	v_SQVM_LogicError(bPrompt);
 }
 
-//---------------------------------------------------------------------------------
-// Purpose: Returns the VM name by context
-// Input  : context - 
-// Output : const SQChar* 
-//---------------------------------------------------------------------------------
-const SQChar* SQVM_GetContextName(SQCONTEXT context)
+void SQVM::Push(const SQObjectPtr& o) { _stack[_top++] = o; }
+SQObjectPtr& SQVM::Top() { return _stack[_top - 1]; }
+SQObjectPtr& SQVM::PopGet() { return _stack[--_top]; }
+SQObjectPtr& SQVM::GetUp(SQInteger n) { return _stack[_top + n]; }
+SQObjectPtr& SQVM::GetAt(SQInteger n) { return _stack[n]; }
+
+#include "vscript/languages/squirrel_re/vsquirrel.h"
+CSquirrelVM* SQVM::GetScriptVM()
 {
-	switch (context)
-	{
-	case SQCONTEXT::SERVER:
-		return "SERVER";
-	case SQCONTEXT::CLIENT:
-		return "CLIENT";
-	case SQCONTEXT::UI:
-		return "UI";
-	default:
-		return nullptr;
-	}
+	return _sharedstate->GetScriptVM();
 }
 
-//---------------------------------------------------------------------------------
-// Purpose: Returns the VM context by name
-// Input  : *sqvm - 
-// Output : const SQCONTEXT* 
-//---------------------------------------------------------------------------------
-const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v)
+SQChar* SQVM::GetContextName()
 {
-	if (strcmp(v->_sharedstate->_contextname, "SERVER") == 0)
-		return SQCONTEXT::SERVER;
-	if (strcmp(v->_sharedstate->_contextname, "CLIENT") == 0)
-		return SQCONTEXT::CLIENT;
-	if (strcmp(v->_sharedstate->_contextname, "UI") == 0)
-		return SQCONTEXT::UI;
+	return _sharedstate->_contextname;
+}
 
-	return SQCONTEXT::NONE;
+SQCONTEXT SQVM::GetContext()
+{
+	return GetScriptVM()->GetContext();
+}
+
+eDLL_T SQVM::GetNativeContext()
+{
+	return (eDLL_T)GetContext();
 }
 
 //---------------------------------------------------------------------------------

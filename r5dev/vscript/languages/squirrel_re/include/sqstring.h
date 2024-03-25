@@ -6,10 +6,10 @@
 
 struct SQString : public SQRefCounted
 {
-	char gap18[16];
 	SQSharedState* _sharedstate;
-	int _len;
-	char gap34[12];
+	SQInteger _len;
+	char gap34[4];
+	SQHash _hash;
 	SQChar _val[1];
 
 	static SQString* Create(SQSharedState* sharedstate, const SQChar* s, SQInteger len)

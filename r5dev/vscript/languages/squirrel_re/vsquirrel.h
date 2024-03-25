@@ -23,6 +23,7 @@ public:
 
 	FORCEINLINE HSQUIRRELVM GetVM() const { return m_sqVM; }
 	FORCEINLINE SQCONTEXT GetContext() const { return m_iContext; }
+	FORCEINLINE eDLL_T GetNativeContext() const { return (eDLL_T)GetContext(); }
 
 private:
 	SQChar pad0[0x8];
@@ -42,6 +43,10 @@ extern void(*ServerScriptRegister_Callback)(CSquirrelVM* s);
 extern void(*ClientScriptRegister_Callback)(CSquirrelVM* s);
 extern void(*UiScriptRegister_Callback)(CSquirrelVM* s);
 
+extern void(*ServerScriptRegisterEnum_Callback)(CSquirrelVM* const s);
+extern void(*ClientScriptRegisterEnum_Callback)(CSquirrelVM* const s);
+extern void(*UIScriptRegisterEnum_Callback)(CSquirrelVM* const s);
+
 extern void(*CoreServerScriptRegister_Callback)(CSquirrelVM* s);
 extern void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* s);
 
@@ -60,6 +65,8 @@ inline bool(*CSquirrelVM__PrecompileClientScripts)(CSquirrelVM* vm, SQCONTEXT co
 inline bool(*CSquirrelVM__PrecompileServerScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
 #endif
 
+inline bool(*CSquirrelVM__ThrowError)(CSquirrelVM* vm, HSQUIRRELVM v);
+
 #ifndef CLIENT_DLL
 inline CSquirrelVM* g_pServerScript;
 #endif // !CLIENT_DLL
@@ -70,24 +77,30 @@ inline CSquirrelVM* g_pUIScript;
 #endif // !DEDICATED
 
 #define DEFINE_SCRIPTENUM_NAMED(s, enumName, startValue, ...) \
-	do { \
-		HSQUIRRELVM const v = s->GetVM(); \
-		const eDLL_T context = static_cast<eDLL_T>(s->GetContext());\
-		sq_startconsttable(v); \
-		sq_pushstring(v, enumName, -1); \
-		sq_newtable(v); \
-		const char* const enumFields[] = { __VA_ARGS__ }; \
-		int enumValue = startValue; \
-		for (int i = 0; i < V_ARRAYSIZE(enumFields); i++) { \
-			sq_pushstring(v, enumFields[i], -1); \
-			sq_pushinteger(v, enumValue++); \
-			if (sq_newslot(v, -3) < 0) \
-				Error(context, EXIT_FAILURE, "Error adding entry '%s' for enum '%s'.", enumFields[i], enumName); \
-		} \
+	HSQUIRRELVM const v = s->GetVM(); \
+	const eDLL_T context = static_cast<eDLL_T>(s->GetContext());\
+	sq_startconsttable(v); \
+	sq_pushstring(v, enumName, -1); \
+	sq_newtable(v); \
+	const char* const enumFields[] = { __VA_ARGS__ }; \
+	int enumValue = startValue; \
+	for (int i = 0; i < V_ARRAYSIZE(enumFields); i++) { \
+		sq_pushstring(v, enumFields[i], -1); \
+		sq_pushinteger(v, enumValue++); \
 		if (sq_newslot(v, -3) < 0) \
-			Error(context, EXIT_FAILURE, "Error adding enum '%s' to const table.", enumName); \
-		sq_endconsttable(v); \
-	} while (0)
+			Error(context, EXIT_FAILURE, "Error adding entry '%s' for enum '%s'.", enumFields[i], enumName); \
+	} \
+	if (sq_newslot(v, -3) < 0) \
+		Error(context, EXIT_FAILURE, "Error adding enum '%s' to const table.", enumName); \
+	sq_endconsttable(v); \
+
+// Place this at the end of every script func
+#define SCRIPT_CHECK_INTERNAL_ERROR(v) \
+	SQSharedState* const sharedState = v->_sharedstate; \
+	if (sharedState->_internal_error) { \
+		CSquirrelVM__ThrowError(sharedState->_scriptvm, v); \
+		return SQ_ERROR; \
+	}
 
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrel : public IDetour
@@ -105,6 +118,7 @@ class VSquirrel : public IDetour
 #ifndef DEDICATED
 		LogFunAdr("CSquirrelVM::PrecompileClientScripts", CSquirrelVM__PrecompileClientScripts);
 #endif // !DEDICATED
+		LogFunAdr("CSquirrelVM::ThrowError", CSquirrelVM__ThrowError);
 	}
 	virtual void GetFun(void) const
 	{
@@ -122,6 +136,7 @@ class VSquirrel : public IDetour
 		// cl/ui scripts.rson compiling
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 44 0F B6 F0 48 85 DB").FollowNearCallSelf().GetPtr(CSquirrelVM__PrecompileClientScripts);
 #endif
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? BB ?? ?? ?? ?? 8B C3").FollowNearCallSelf().GetPtr(CSquirrelVM__ThrowError);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -13,6 +13,11 @@ void(*ServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
 void(*ClientScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
 void(*UiScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
 
+// Callbacks for registering script enums.
+void(*ServerScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
+void(*ClientScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
+void(*UIScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
+
 // Admin panel functions, NULL on client only builds.
 void(*CoreServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
 void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
@@ -159,7 +164,7 @@ void CSquirrelVM::CompileModScripts()
 		RSON::Node_t* rson = mod->LoadScriptCompileList();
 
 		if (!rson)
-			Error(GetVM()->GetNativeContext(), NO_ERROR, 
+			Error(GetNativeContext(), NO_ERROR, 
 				"%s: Failed to load RSON file '%s'\n", 
 				__FUNCTION__, mod->GetScriptCompileListPath().Get());
 
@@ -197,7 +202,7 @@ void CSquirrelVM::CompileModScripts()
 				scriptPathArray[j] = pszScriptPath;
 			}
 
-			switch (GetVM()->GetContext())
+			switch (GetContext())
 			{
 			case SQCONTEXT::SERVER:
 			{
