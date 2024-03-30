@@ -61,14 +61,6 @@ public:
 	// Copy the array.
 	CUtlVector<T, A>& operator=(const CUtlVector<T, A>& other);
 
-	// NOTE<R5SDK>:
-	// Do not call after initialization or after adding elements.
-	// This is added so it could be constructed nicely. Since the
-	// game executable in monolithic, we couldn't import the malloc
-	// functions, and thus not construct automatically when using
-	// the game's memalloc singleton.
-	void Init();
-
 	// element access
 	T& operator[](int i);
 	const T& operator[](int i) const;
@@ -662,15 +654,6 @@ inline CUtlVector<T, A>& CUtlVector<T, A>::operator=(const CUtlVector<T, A>& oth
 		(*this)[i] = other[i];
 	}
 	return *this;
-}
-
-template< typename T, class A >
-void CUtlVector<T, A>::Init()
-{
-	m_Memory.m_pMemory = nullptr;
-	m_Memory.m_nAllocationCount = 0;
-	m_Memory.m_nGrowSize = 0;
-	m_Size = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1417,24 +1400,23 @@ void CUtlVector<T, A>::Validate(CValidator& validator, char* pchName)
 
 // A vector class for storing pointers, so that the elements pointed to by the pointers are deleted
 // on exit.
-template<class T> class CUtlVectorAutoPurge : public CUtlVector< T, CUtlMemory< T, int> >
+template<class T> class CUtlVectorAutoPurge : public CUtlVector< T >
 {
 public:
 	~CUtlVectorAutoPurge(void)
 	{
 		this->PurgeAndDeleteElements();
 	}
-
 };
 
 // easy string list class with dynamically allocated strings. For use with V_SplitString, etc.
 // Frees the dynamic strings in destructor.
-class CUtlStringList : public CUtlVectorAutoPurge< char*>
+class CUtlStringList : public CUtlVectorAutoPurge<char*>
 {
 public:
 	void CopyAndAddToTail(char const* pString)			// clone the string and add to the end
 	{
-		char* pNewStr = new char[1 + strlen(pString)];
+		char* const pNewStr = new char[strlen(pString) + 1];
 		strcpy(pNewStr, pString);
 		AddToTail(pNewStr);
 	}
@@ -1446,27 +1428,25 @@ public:
 
 	CUtlStringList() {}
 
-	// !TODO:
+	CUtlStringList(char const* pString, char const* pSeparator)
+	{
+		SplitString(pString, pSeparator);
+	}
 
-	//CUtlStringList(char const* pString, char const* pSeparator)
-	//{
-	//	SplitString(pString, pSeparator);
-	//}
+	CUtlStringList(char const* pString, const char** pSeparators, ssize_t nSeparators)
+	{
+		SplitString2(pString, pSeparators, nSeparators);
+	}
 
-	//CUtlStringList(char const* pString, const char** pSeparators, int nSeparators)
-	//{
-	//	SplitString2(pString, pSeparators, nSeparators);
-	//}
+	void SplitString(char const* pString, char const* pSeparator)
+	{
+		V_SplitString(pString, pSeparator, *this);
+	}
 
-	//void SplitString(char const* pString, char const* pSeparator)
-	//{
-	//	V_SplitString(pString, pSeparator, *this);
-	//}
-
-	//void SplitString2(char const* pString, const char** pSeparators, int nSeparators)
-	//{
-	//	V_SplitString2(pString, pSeparators, nSeparators, *this);
-	//}
+	void SplitString2(char const* pString, const char** pSeparators, ssize_t nSeparators)
+	{
+		V_SplitString2(pString, pSeparators, nSeparators, *this);
+	}
 private:
 	CUtlStringList(const CUtlStringList& other); // copying directly will cause double-release of the same strings; maybe we need to do a deep copy, but unless and until such need arises, this will guard against double-release
 };

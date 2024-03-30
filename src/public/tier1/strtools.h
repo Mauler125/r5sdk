@@ -90,6 +90,10 @@ ssize_t V_vsnprintfRet(char* pDest, size_t maxLen, const char* pFormat, va_list 
 // Strip white space at the beginning and end of a string
 ssize_t V_StrTrim(char* pStr);
 
+class CUtlStringList;
+void V_SplitString2(const char* pString, const char** pSeparators, ssize_t nSeparators, CUtlStringList& outStrings);
+void V_SplitString(const char* pString, const char* pSeparator, CUtlStringList& outStrings);
+
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes);
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes);
 
