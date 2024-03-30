@@ -208,11 +208,14 @@ bool CWebSocket::IsInitialized() const
 //-----------------------------------------------------------------------------
 bool CWebSocket::ConnContext_s::Connect(const double queryTime, const ConnParams_s& params)
 {
-	const double retryTimeTotal = lastQueryTime + params.retryTime;
-	const double currTime = Plat_FloatTime();
+	if (state == CS_RETRY)
+	{
+		const double retryTimeTotal = lastQueryTime + params.retryTime;
+		const double currTime = Plat_FloatTime();
 
-	if (retryTimeTotal > currTime)
-		return false; // Still within retry period
+		if (retryTimeTotal > currTime)
+			return false; // Still within retry period
+	}
 
 	tryCount++;
 	webSocket = ProtoWebSocketCreate(params.bufSize);
