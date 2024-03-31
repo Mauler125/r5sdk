@@ -1990,15 +1990,13 @@ namespace VScriptCode
 SQRESULT VScriptCode::Server::LiveAPI_IsValidToRun(HSQUIRRELVM v)
 {
 	sq_pushbool(v, liveapi_enabled.GetBool());
-
-	SCRIPT_CHECK_INTERNAL_ERROR(v);
-	return SQ_OK;
+	SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 }
 
 SQRESULT VScriptCode::Server::LiveAPI_LogRaw(HSQUIRRELVM v)
 {
 	if (!LiveAPISystem()->IsEnabled())
-		return SQ_OK;
+		SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
 	SQRESULT result = SQ_OK;
 	SQObjectPtr& object = v->GetUp(-2);
@@ -2017,8 +2015,7 @@ SQRESULT VScriptCode::Server::LiveAPI_LogRaw(HSQUIRRELVM v)
 		result = SQ_FAIL;
 	}
 
-	SCRIPT_CHECK_INTERNAL_ERROR(v);
-	return result;
+	SCRIPT_CHECK_AND_RETURN(v, result);
 }
 
 void Script_RegisterLiveAPIFunctions(CSquirrelVM* const s)

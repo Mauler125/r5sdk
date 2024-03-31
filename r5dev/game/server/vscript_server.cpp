@@ -58,7 +58,7 @@ namespace VScriptCode
                 !VALID_CHARSTAR(serverMapName) ||
                 !VALID_CHARSTAR(serverPlaylist))
             {
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
             // Adjust browser settings.
@@ -73,10 +73,7 @@ namespace VScriptCode
             g_ServerHostManager.SetVisibility(serverVisibility);
             g_ServerHostManager.LaunchServer(g_pServer->IsActive());
 
-            return SQ_OK;
-
-            //v_SQVM_RaiseError(v, "\"%s\" is not supported on client builds.\n", "CreateServer");
-            //return SQ_ERROR;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
         //-----------------------------------------------------------------------------
         // Purpose: shuts the server down and disconnects all clients
@@ -86,7 +83,7 @@ namespace VScriptCode
             if (g_pHostState->m_bActiveGame)
                 g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -102,8 +99,7 @@ namespace VScriptCode
                 reason = nullptr;
 
             g_BanSystem.KickPlayerByName(playerName, reason);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -119,8 +115,7 @@ namespace VScriptCode
                 reason = nullptr;
 
             g_BanSystem.KickPlayerById(playerHandle, reason);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -136,8 +131,7 @@ namespace VScriptCode
                 reason = nullptr;
 
             g_BanSystem.BanPlayerByName(playerName, reason);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -153,8 +147,7 @@ namespace VScriptCode
                 reason = nullptr;
 
             g_BanSystem.BanPlayerById(playerHandle, reason);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -165,7 +158,7 @@ namespace VScriptCode
             SQChar* szCriteria = sq_getstring(v, 1);
             g_BanSystem.UnbanPlayer(szCriteria);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -174,7 +167,7 @@ namespace VScriptCode
         SQRESULT GetNumHumanPlayers(HSQUIRRELVM v)
         {
             sq_pushinteger(v, g_pServer->GetNumHumanPlayers());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -183,7 +176,7 @@ namespace VScriptCode
         SQRESULT GetNumFakeClients(HSQUIRRELVM v)
         {
             sq_pushinteger(v, g_pServer->GetNumFakeClients());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -192,9 +185,9 @@ namespace VScriptCode
         SQRESULT IsServerActive(HSQUIRRELVM v)
         {
             bool isActive = g_pServer->IsActive();
-
             sq_pushbool(v, isActive);
-            return SQ_OK;
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -203,7 +196,7 @@ namespace VScriptCode
         SQRESULT IsDedicated(HSQUIRRELVM v)
         {
             sq_pushbool(v, ::IsDedicated());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
     }
 }
