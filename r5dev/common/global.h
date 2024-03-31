@@ -98,6 +98,10 @@ extern ConVar* net_data_block_enabled;
 extern ConVar* net_datablock_networkLossForSlowSpeed;
 extern ConVar* net_compressDataBlock;
 
+extern ConVar* net_showmsg;
+extern ConVar* net_blockmsg;
+extern ConVar* net_showpeaks;
+
 extern ConVar ssl_verify_peer;
 extern ConVar curl_timeout;
 extern ConVar curl_debug;

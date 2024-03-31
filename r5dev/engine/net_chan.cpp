@@ -417,7 +417,25 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 bool CNetChan::ProcessMessages(bf_read* buf)
 {
     m_bStopProcessing = false;
-    //const double flStartTime = Plat_FloatTime();
+
+    const char* showMsgName = net_showmsg->GetString();
+    const char* blockMsgName = net_blockmsg->GetString();
+    const int netPeak = net_showpeaks->GetInt();
+
+    if (*showMsgName == '0')
+    {
+        showMsgName = NULL; // dont do strcmp all the time
+    }
+
+    if (*blockMsgName == '0')
+    {
+        blockMsgName = NULL; // dont do strcmp all the time
+    }
+
+    if (netPeak > 0 && netPeak < buf->GetNumBytesLeft())
+    {
+        showMsgName = "1"; // show messages for this packet only
+    }
 
     while (true)
     {
@@ -455,6 +473,26 @@ bool CNetChan::ProcessMessages(bf_read* buf)
                     __FUNCTION__, GetAddress(), netMsg->GetName());
                 Assert(0);
                 return false;
+            }
+
+            if (showMsgName)
+            {
+                if ((*showMsgName == '1') || !Q_stricmp(showMsgName, netMsg->GetName()))
+                {
+                    Msg(eDLL_T::ENGINE, "%s(%s): Received: %s\n",
+                        __FUNCTION__, GetAddress(), netMsg->ToString());
+                }
+            }
+
+            if (blockMsgName)
+            {
+                if ((*blockMsgName == '1') || !Q_stricmp(blockMsgName, netMsg->GetName()))
+                {
+                    Msg(eDLL_T::ENGINE, "%s(%s): Blocked: %s\n",
+                        __FUNCTION__, GetAddress(), netMsg->ToString());
+
+                    continue;
+                }
             }
 
             // Netmessage calls the Process function that was registered by

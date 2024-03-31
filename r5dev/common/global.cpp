@@ -111,6 +111,10 @@ ConVar* net_usesocketsforloopback;
 ConVar* net_data_block_enabled             = nullptr;
 ConVar* net_datablock_networkLossForSlowSpeed = nullptr;
 ConVar* net_compressDataBlock              = nullptr;
+
+ConVar* net_showmsg                        = nullptr;
+ConVar* net_blockmsg                       = nullptr;
+ConVar* net_showpeaks                      = nullptr;
 //-----------------------------------------------------------------------------
 // RUI                                                                        |
 #ifndef DEDICATED
@@ -183,6 +187,10 @@ void ConVar_InitShipped(void)
 	net_datablock_networkLossForSlowSpeed = g_pCVar->FindVar("net_datablock_networkLossForSlowSpeed");
 
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
+
+	net_showmsg = g_pCVar->FindVar("net_showmsg");
+	net_blockmsg = g_pCVar->FindVar("net_blockmsg");
+	net_showpeaks = g_pCVar->FindVar("net_showpeaks");
 #ifndef CLIENT_DLL
 	sv_stats = g_pCVar->FindVar("sv_stats");
 
