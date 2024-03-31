@@ -250,6 +250,8 @@ void Systems_Init()
 	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
 	CoreServerScriptRegister_Callback = Script_RegisterCoreServerFunctions;
 	AdminPanelScriptRegister_Callback = Script_RegisterAdminPanelFunctions;
+
+	ServerScriptRegisterEnum_Callback = Script_RegisterServerEnums;
 #endif// !CLIENT_DLL
 
 #ifndef SERVER_DLL
