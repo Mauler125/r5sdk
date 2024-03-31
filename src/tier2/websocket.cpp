@@ -275,7 +275,7 @@ bool CWebSocket::ConnContext_s::Process(const double queryTime)
 //-----------------------------------------------------------------------------
 void CWebSocket::ConnContext_s::SetParams(const ConnParams_s& params)
 {
-	Assert(webSocket);
+	Assert(webSocket, "Can't set parameters on a NULL instance!");
 
 	if (params.timeOut > 0)
 		ProtoWebSocketControl(webSocket, 'time', params.timeOut, 0, NULL);
@@ -292,11 +292,15 @@ void CWebSocket::ConnContext_s::SetParams(const ConnParams_s& params)
 //-----------------------------------------------------------------------------
 void CWebSocket::ConnContext_s::Disconnect()
 {
-	ProtoWebSocketDisconnect(webSocket);
-	ProtoWebSocketUpdate(webSocket);
-	ProtoWebSocketDestroy(webSocket);
+	if (webSocket)
+	{
+		ProtoWebSocketDisconnect(webSocket);
+		ProtoWebSocketUpdate(webSocket);
+		ProtoWebSocketDestroy(webSocket);
 
-	webSocket = nullptr;
+		webSocket = nullptr;
+	}
+
 	state = CS_UNAVAIL;
 }
 
