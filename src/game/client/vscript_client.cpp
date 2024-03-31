@@ -89,7 +89,7 @@ namespace VScriptCode
             g_ServerListManager.RefreshServerList(serverMessage, iCount);
             sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ namespace VScriptCode
             size_t iCount = g_ServerListManager.m_vServerList.size();
             sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ namespace VScriptCode
             SQChar* privateToken = sq_getstring(v, 1);
 
             if (!VALID_CHARSTAR(privateToken))
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
             string hiddenServerRequestMessage;
             NetGameServer_t serverListing;
@@ -120,28 +120,22 @@ namespace VScriptCode
             if (!result)
             {
                 if (hiddenServerRequestMessage.empty())
-                {
                     sq_pushstring(v, "Request failed", -1);
-                }
                 else
                 {
                     hiddenServerRequestMessage = Format("Request failed: %s", hiddenServerRequestMessage.c_str());
                     sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
                 }
 
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
             if (serverListing.name.empty())
             {
                 if (hiddenServerRequestMessage.empty())
-                {
                     hiddenServerRequestMessage = Format("Server listing empty");
-                }
                 else
-                {
                     hiddenServerRequestMessage = Format("Server listing empty: %s", hiddenServerRequestMessage.c_str());
-                }
 
                 sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
@@ -151,7 +145,7 @@ namespace VScriptCode
                 sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -163,14 +157,12 @@ namespace VScriptCode
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const string& serverName = g_ServerListManager.m_vServerList[iServer].name;
             sq_pushstring(v, serverName.c_str(), -1);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -182,14 +174,12 @@ namespace VScriptCode
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const string& serverDescription = g_ServerListManager.m_vServerList[iServer].description;
             sq_pushstring(v, serverDescription.c_str(), -1);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -201,14 +191,12 @@ namespace VScriptCode
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const string& svServerMapName = g_ServerListManager.m_vServerList[iServer].map;
             sq_pushstring(v, svServerMapName.c_str(), -1);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -220,14 +208,12 @@ namespace VScriptCode
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const string& serverPlaylist = g_ServerListManager.m_vServerList[iServer].playlist;
             sq_pushstring(v, serverPlaylist.c_str(), -1);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -239,14 +225,12 @@ namespace VScriptCode
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const SQInteger playerCount = g_ServerListManager.m_vServerList[iServer].numPlayers;
             sq_pushinteger(v, playerCount);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -258,14 +242,12 @@ namespace VScriptCode
             SQInteger iServer = sq_getinteger(v, 1);
 
             if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const SQInteger maxPlayers = g_ServerListManager.m_vServerList[iServer].maxPlayers;
             sq_pushinteger(v, maxPlayers);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -326,7 +308,7 @@ namespace VScriptCode
             }
 
             sq_pushstring(v, pszPromoKey, -1);
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         SQRESULT GetEULAContents(HSQUIRRELVM v)
@@ -349,7 +331,7 @@ namespace VScriptCode
                 sq_pushstring(v, error.c_str(), -1);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -361,12 +343,12 @@ namespace VScriptCode
             SQChar* cryptoKey = sq_getstring(v, 2);
 
             if (!VALID_CHARSTAR(ipAddress) || VALID_CHARSTAR(cryptoKey))
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
             Msg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", ipAddress, cryptoKey);
             g_ServerListManager.ConnectToServer(ipAddress, cryptoKey);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -379,7 +361,7 @@ namespace VScriptCode
 
             if (!Script_CheckServerIndex(v, iServer))
             {
-                return SQ_ERROR;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
             const NetGameServer_t& gameServer = g_ServerListManager.m_vServerList[iServer];
@@ -387,7 +369,7 @@ namespace VScriptCode
             g_ServerListManager.ConnectToServer(gameServer.address, gameServer.port,
                 gameServer.netKey);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -398,7 +380,7 @@ namespace VScriptCode
             SQChar* privateToken = sq_getstring(v, 1);
 
             if (!VALID_CHARSTAR(privateToken))
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
             string hiddenServerRequestMessage;
             NetGameServer_t netListing;
@@ -413,7 +395,7 @@ namespace VScriptCode
                 Warning(eDLL_T::UI, "Failed to connect to private server: %s\n", hiddenServerRequestMessage.c_str());
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -422,7 +404,7 @@ namespace VScriptCode
         SQRESULT IsClientDLL(HSQUIRRELVM v)
         {
             sq_pushbool(v, ::IsClientDLL());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
     }
 }

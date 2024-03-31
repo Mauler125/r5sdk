@@ -28,7 +28,7 @@ namespace VScriptCode
         SQRESULT GetSDKVersion(HSQUIRRELVM v)
         {
             sq_pushstring(v, SDK_VERSION, -1);
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ namespace VScriptCode
             std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
 
             if (g_InstalledMaps.IsEmpty())
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
             sq_newarray(v, 0);
 
@@ -51,7 +51,7 @@ namespace VScriptCode
                 sq_arrayappend(v, -2);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ namespace VScriptCode
             std::lock_guard<std::mutex> l(g_PlaylistsVecMutex);
 
             if (g_vAllPlaylists.empty())
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
             sq_newarray(v, 0);
             for (const string& it : g_vAllPlaylists)
@@ -71,7 +71,7 @@ namespace VScriptCode
                 sq_arrayappend(v, -2);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         SQRESULT ScriptError(HSQUIRRELVM v)
@@ -80,12 +80,10 @@ namespace VScriptCode
             SQInteger a4 = 0;
 
             if (SQVM_sprintf(v, 0, 1, &a4, &pString) < 0)
-                return SQ_ERROR;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             v_SQVM_ScriptError("%s", pString);
-
-            SCRIPT_CHECK_INTERNAL_ERROR(v);
-            return SQ_ERROR;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
     }
 }

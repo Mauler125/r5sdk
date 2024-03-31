@@ -94,12 +94,16 @@ inline CSquirrelVM* g_pUIScript;
 		Error(context, EXIT_FAILURE, "Error adding enum '%s' to const table.", enumName); \
 	sq_endconsttable(v); \
 
-// Place this at the end of every script func
-#define SCRIPT_CHECK_INTERNAL_ERROR(v) \
-	SQSharedState* const sharedState = v->_sharedstate; \
-	if (sharedState->_internal_error) { \
-		CSquirrelVM__ThrowError(sharedState->_scriptvm, v); \
-		return SQ_ERROR; \
+// Use this to return from any script func
+#define SCRIPT_CHECK_AND_RETURN(v, val) \
+	{ \
+		SQSharedState* const sharedState = v->_sharedstate; \
+		if (sharedState->_internal_error) { \
+			\
+				CSquirrelVM__ThrowError(sharedState->_scriptvm, v); \
+				return SQ_ERROR; \
+		} \
+		return val; \
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
