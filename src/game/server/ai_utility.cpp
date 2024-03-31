@@ -128,12 +128,18 @@ bool Detour_IsLoaded()
 //-----------------------------------------------------------------------------
 void Detour_HotSwap()
 {
+    Assert(ThreadInMainOrServerFrameThread());
+
+    // TODO: CodeCallback_OnNavMeshHotSwapStart()
+
     // Free and re-init NavMesh.
     Detour_LevelShutdown();
     v_Detour_LevelInit();
 
     if (!Detour_IsLoaded())
         Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
+
+    // TODO: CodeCallback_OnNavMeshHotSwapEnd()
 }
 
 /*
@@ -161,7 +167,7 @@ static void Detour_HotSwap_f()
     Msg(eDLL_T::SERVER, "Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
 }
 
-static ConCommand navmesh_hotswap("navmesh_hotswap", Detour_HotSwap_f, "Hot swap the NavMesh for all hulls", FCVAR_DEVELOPMENTONLY);
+static ConCommand navmesh_hotswap("navmesh_hotswap", Detour_HotSwap_f, "Hot swap the NavMesh for all hulls", FCVAR_DEVELOPMENTONLY | FCVAR_SERVER_FRAME_THREAD);
 
 ///////////////////////////////////////////////////////////////////////////////
 void VRecast::Detour(const bool bAttach) const

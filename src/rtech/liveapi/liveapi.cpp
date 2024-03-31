@@ -15,7 +15,6 @@
 //-----------------------------------------------------------------------------
 static void LiveAPI_ParamsChangedCallback(IConVar* var, const char* pOldValue)
 {
-	// TODO[ AMOS ]: latch this off to the server frame thread!
 	LiveAPISystem()->UpdateParams();
 }
 
@@ -24,7 +23,6 @@ static void LiveAPI_ParamsChangedCallback(IConVar* var, const char* pOldValue)
 //-----------------------------------------------------------------------------
 static void LiveAPI_AddressChangedCallback(IConVar* var, const char* pOldValue)
 {
-	// TODO[ AMOS ]: latch this off to the server frame thread!
 	LiveAPISystem()->InstallAddressList();
 }
 
