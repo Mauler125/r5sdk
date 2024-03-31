@@ -30,18 +30,56 @@ struct JobContext_s
 	__int64 unknownInt;
 };
 
+typedef struct JobUserData_s
+{
+	JobUserData_s(int32_t si)
+	{
+		data.sint = si;
+	}
+	JobUserData_s(uint32_t ui)
+	{
+		data.uint = ui;
+	}
+	JobUserData_s(int64_t si)
+	{
+		data.sint = si;
+	}
+	JobUserData_s(uint64_t ui)
+	{
+		data.uint = ui;
+	}
+	JobUserData_s(double sa)
+	{
+		data.scal = sa;
+	}
+	JobUserData_s(void* pt)
+	{
+		data.ptr = pt;
+	}
+
+	union
+	{
+		int64_t sint;
+		uint64_t uint;
+		double scal;
+		void* ptr;
+	} data;
+} JobUserData_t;
+
 // Array size = 2048*sizeof(JobContext_s)
 inline JobContext_s* job_JT_Context = nullptr;
 
 extern bool JT_IsJobDone(const JobID_t jobId);
 extern JobID_t JTGuts_AddJob(JobTypeID_t jobTypeId, JobID_t jobId, void* callbackFunc, void* callbackArg);
+extern JobID_t JT_GetCurrentJob();
 
 
 inline void(*JT_ParallelCall)(void);
 inline void*(*JT_HelpWithAnything)(bool bShouldLoadPak);
 
-inline bool(*JT_HelpWithJobTypes)(JobHelpCallback_t, JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4);
-inline __int64(*JT_HelpWithJobTypesOrSleep)(JobHelpCallback_t, JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6);
+inline bool(*JT_HelpWithJobTypes)(JobHelpCallback_t, JobUserData_t userData, __int64 a3, __int64 a4);
+inline __int64(*JT_HelpWithJobTypesOrSleep)(JobHelpCallback_t, JobUserData_t userData, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6);
+inline __int64(*JT_WaitForJobAndOnlyHelpWithJobTypes)(JobID_t, uint64_t unkMask1, uint64_t unkMask2);
 
 inline bool(*JT_AcquireFifoLockOrHelp)(struct JobFifoLock_s* pFifo);
 inline void(*JT_ReleaseFifoLock)(struct JobFifoLock_s* pFifo);
@@ -61,6 +99,7 @@ class VJobThread : public IDetour
 		LogFunAdr("JT_HelpWithAnything", JT_HelpWithAnything);
 		LogFunAdr("JT_HelpWithJobTypes", JT_HelpWithJobTypes);
 		LogFunAdr("JT_HelpWithJobTypesOrSleep", JT_HelpWithJobTypesOrSleep);
+		LogFunAdr("JT_WaitForJobAndOnlyHelpWithJobTypes", JT_WaitForJobAndOnlyHelpWithJobTypes);
 
 		LogFunAdr("JT_AcquireFifoLockOrHelp", JT_AcquireFifoLockOrHelp);
 		LogFunAdr("JT_ReleaseFifoLock", JT_ReleaseFifoLock);
@@ -76,6 +115,7 @@ class VJobThread : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 80 3D ?? ?? ?? ?? ??").GetPtr(JT_HelpWithAnything);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 89 4C 24 ?? 4C 89 44 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 60").GetPtr(JT_HelpWithJobTypes);
 		g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 4C 89 44 24 ?? 48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(JT_HelpWithJobTypesOrSleep);
+		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 8B F9").GetPtr(JT_WaitForJobAndOnlyHelpWithJobTypes);
 		g_GameDll.FindPatternSIMD("48 83 EC 08 65 48 8B 04 25 ?? ?? ?? ?? 4C 8B C1").GetPtr(JT_AcquireFifoLockOrHelp);
 		g_GameDll.FindPatternSIMD("48 83 EC 28 44 8B 11").GetPtr(JT_ReleaseFifoLock);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 65 48 8B 04 25 ?? ?? ?? ?? BA ?? ?? ?? ??").GetPtr(JT_AllocateJob);
