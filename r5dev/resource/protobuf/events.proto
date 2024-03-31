@@ -281,8 +281,7 @@ message PlayerDamaged
 }
 
 // Sent when a player is killed. Details are similar to PlayerDamaged event
-// The `awardedTo` field has been deprecated for simplicity.
-// Listen for the `PlayerStatChanged` message to determine which player the kill was awarded to.
+// The `awardedTo` field describes the player that the kill is given to
 message PlayerKilled
 {
 	uint64 timestamp	= 1;
@@ -290,7 +289,7 @@ message PlayerKilled
 
 	Player attacker		= 3;
 	Player victim		= 4;
-	reserved		  	  5; // formerly `Player awardedTo`
+	Player awardedTo  	= 5;
 	string weapon		= 6;
 }
 
