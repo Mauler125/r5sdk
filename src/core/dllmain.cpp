@@ -95,13 +95,15 @@ void SDK_Init()
     SpdLog_Init(bAnsiColor);
     Show_Emblem();
 
-    Winsock_Init(); // Initialize Winsock.
+    Winsock_Startup(); // Initialize Winsock.
     Systems_Init();
 
     WinSys_Init();
 #ifndef DEDICATED
     Input_Init();
 #endif // !DEDICATED
+
+    DirtySDK_Startup();
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     curl_global_init(CURL_GLOBAL_ALL);
@@ -128,6 +130,7 @@ void SDK_Shutdown()
     Msg(eDLL_T::NONE, "GameSDK shutdown initiated\n");
 
     curl_global_cleanup();
+    DirtySDK_Shutdown();
 
 #ifndef DEDICATED
     Input_Shutdown();

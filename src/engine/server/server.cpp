@@ -19,6 +19,7 @@
 #include "ebisusdk/EbisuSDK.h"
 #include "public/edict.h"
 #include "pluginsystem/pluginsystem.h"
+#include "rtech/liveapi/liveapi.h"
 
 //---------------------------------------------------------------------------------
 // Console variables
@@ -215,6 +216,7 @@ void CServer::BroadcastMessage(CNetMessage* const msg, const bool onlyActive, co
 void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame)
 {
 	CServer__FrameJob(flFrameTime, bRunOverlays, bUpdateFrame);
+	LiveAPISystem()->RunFrame();
 }
 
 //---------------------------------------------------------------------------------

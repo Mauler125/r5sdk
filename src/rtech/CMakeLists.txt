@@ -47,8 +47,8 @@ add_sources( SOURCE_GROUP "Public"
 end_sources()
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
-	"${THIRDPARTY_SOURCE_DIR}/dirtysdk/include/"
-	"${THIRDPARTY_SOURCE_DIR}/ea/"
+    "${THIRDPARTY_SOURCE_DIR}/dirtysdk/include/"
+    "${THIRDPARTY_SOURCE_DIR}/ea/"
 )
 
 add_module( "lib" "rson" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
