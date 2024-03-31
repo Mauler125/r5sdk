@@ -7,6 +7,7 @@
 //===========================================================================//
 
 #include "tier0/threadtools.h"
+#include "tier0/jobthread.h"
 
 #define INIT_SEM_COUNT 0
 #define MAX_SEM_COUNT 1
@@ -195,6 +196,42 @@ void CThreadSpinRWLock::SpinLockForRead()
 
 		ThreadPause();
 		ThreadSleep(1);
+	}
+}
+
+bool ThreadInMainThread()
+{
+	return (ThreadGetCurrentId() == (*g_ThreadMainThreadID));
+}
+
+bool ThreadInServerFrameThread()
+{
+	return (ThreadGetCurrentId() == (*g_ThreadServerFrameThreadID) 
+		&& JT_GetCurrentJob() == (*g_CurrentServerFrameJobID));
+}
+
+bool ThreadInMainOrServerFrameThread()
+{
+	return (ThreadInMainThread() || ThreadInServerFrameThread());
+}
+
+bool ThreadCouldDoServerWork()
+{
+	if (*g_ThreadServerFrameThreadID == -1)
+		return ThreadInMainThread();
+
+	return ThreadInServerFrameThread();
+}
+
+void ThreadJoinServerJob()
+{
+	if (ThreadCouldDoServerWork())
+		return; // No job to join
+
+	if (*g_AllocatedServerFrameJobID)
+	{
+		JT_WaitForJobAndOnlyHelpWithJobTypes(*g_AllocatedServerFrameJobID, NULL, 0xFFFFFFFFFFFFFFFF);
+		*g_AllocatedServerFrameJobID = 0;
 	}
 }
 
