@@ -133,17 +133,7 @@ SQBool Script_PrecompileClientScripts(CSquirrelVM* vm)
 void Script_Execute(const SQChar* code, const SQCONTEXT context)
 {
 	Assert(context != SQCONTEXT::NONE);
-
-	if (!ThreadInMainThread()) // TODO[ AMOS ]: server frame thread
-	{
-		const string scode(code);
-		g_TaskQueue.Dispatch([scode, context]()
-			{
-				Script_Execute(scode.c_str(), context);
-			}, 0);
-
-		return; // Only run in main thread.
-	}
+	Assert(ThreadInMainOrServerFrameThread());
 
 	CSquirrelVM* s = Script_GetScriptHandle(context);
 	const char* const contextName = s_scriptContextNames[(int)context];

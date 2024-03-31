@@ -523,6 +523,9 @@ void CRConServer::Execute(const cl_rcon::request& request) const
 
 	const char* const pValueString = request.requestval().c_str();
 
+	if (pCommandBase->IsFlagSet(FCVAR_SERVER_FRAME_THREAD))
+		ThreadJoinServerJob();
+
 	if (!pCommandBase->IsCommand())
 	{
 		// Here we want to skip over the command string in the value buffer.
