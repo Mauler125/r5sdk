@@ -24,16 +24,18 @@ CWebSocket::CWebSocket()
 //-----------------------------------------------------------------------------
 bool CWebSocket::Init(const char* const addressList, const ConnParams_s& params, const char*& initError)
 {
+	Assert(addressList);
+
 	if (!NetConnStatus('open', 0, NULL, 0))
 	{
 		initError = "Network connection module not initialized";
 		return false;
 	}
 
-	if (!SetupFromList(addressList))
+	if (!UpdateAddressList(addressList))
 	{
 		initError = (*addressList)
-			? "Failed to parse address list"
+			? "Address list is invalid"
 			: "Address list is empty";
 
 		return false;
@@ -55,10 +57,12 @@ void CWebSocket::Shutdown()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: setup connection list, returns false if connection list is empty
+// Purpose: adds comma separated addresses to connection list, returns false if
+// connection list is empty
 //-----------------------------------------------------------------------------
-bool CWebSocket::SetupFromList(const char* const addressList)
+bool CWebSocket::UpdateAddressList(const char* const addressList)
 {
+	Assert(addressList);
 	const CUtlStringList addresses(addressList, ",");
 
 	FOR_EACH_VEC(addresses, i)
@@ -107,7 +111,7 @@ void CWebSocket::Update()
 
 		if (conn.state == CS_CONNECTED || conn.state == CS_LISTENING)
 		{
-			conn.Status(queryTime);
+			conn.Process(queryTime);
 			continue;
 		}
 
@@ -138,20 +142,18 @@ void CWebSocket::DeleteUnavailable()
 	FOR_EACH_VEC_BACK(m_addressList, i)
 	{
 		if (m_addressList[i].state == CS_UNAVAIL)
-		{
 			m_addressList.FastRemove(i);
-		}
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: destroy all connections
+// Purpose: disconnect all connections
 //-----------------------------------------------------------------------------
-void CWebSocket::DestroyAll()
+void CWebSocket::DisconnectAll()
 {
 	for (ConnContext_s& conn : m_addressList)
 	{
-		conn.Destroy();
+		conn.Disconnect();
 	}
 }
 
@@ -171,7 +173,7 @@ void CWebSocket::ReconnectAll()
 //-----------------------------------------------------------------------------
 void CWebSocket::ClearAll()
 {
-	DestroyAll();
+	DisconnectAll();
 	m_addressList.Purge();
 }
 
@@ -180,6 +182,9 @@ void CWebSocket::ClearAll()
 //-----------------------------------------------------------------------------
 void CWebSocket::SendData(const char* const dataBuf, const int32_t dataSize)
 {
+	Assert(dataBuf);
+	Assert(dataSize);
+
 	if (!IsInitialized())
 		return;
 
@@ -189,9 +194,7 @@ void CWebSocket::SendData(const char* const dataBuf, const int32_t dataSize)
 			continue;
 
 		if (ProtoWebSocketSend(conn.webSocket, dataBuf, dataSize) < 0)
-		{
 			conn.Destroy(); // Reattempt the connection for this socket
-		}
 	}
 }
 
@@ -244,7 +247,7 @@ bool CWebSocket::ConnContext_s::Connect(const double queryTime, const ConnParams
 //-----------------------------------------------------------------------------
 // Purpose: check the connection status and destroy if not connected (-1)
 //-----------------------------------------------------------------------------
-bool CWebSocket::ConnContext_s::Status(const double queryTime)
+bool CWebSocket::ConnContext_s::Process(const double queryTime)
 {
 	const int32_t status = ProtoWebSocketStatus(webSocket, 'stat', NULL, 0);
 
@@ -275,14 +278,10 @@ void CWebSocket::ConnContext_s::SetParams(const ConnParams_s& params)
 	Assert(webSocket);
 
 	if (params.timeOut > 0)
-	{
 		ProtoWebSocketControl(webSocket, 'time', params.timeOut, 0, NULL);
-	}
 
 	if (params.keepAlive > 0)
-	{
 		ProtoWebSocketControl(webSocket, 'keep', params.keepAlive, 0, NULL);
-	}
 
 	ProtoWebSocketControl(webSocket, 'ncrt', params.laxSSL, 0, NULL);
 	ProtoWebSocketUpdate(webSocket);
