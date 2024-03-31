@@ -398,6 +398,7 @@ PROTOBUF_CONSTEXPR PlayerKilled::PlayerKilled(
   , /*decltype(_impl_.weapon_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.attacker_)*/nullptr
   , /*decltype(_impl_.victim_)*/nullptr
+  , /*decltype(_impl_.awardedto_)*/nullptr
   , /*decltype(_impl_.timestamp_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct PlayerKilledDefaultTypeInternal {
@@ -1287,6 +1288,7 @@ const uint32_t TableStruct_events_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(p
   PROTOBUF_FIELD_OFFSET(::rtech::liveapi::PlayerKilled, _impl_.category_),
   PROTOBUF_FIELD_OFFSET(::rtech::liveapi::PlayerKilled, _impl_.attacker_),
   PROTOBUF_FIELD_OFFSET(::rtech::liveapi::PlayerKilled, _impl_.victim_),
+  PROTOBUF_FIELD_OFFSET(::rtech::liveapi::PlayerKilled, _impl_.awardedto_),
   PROTOBUF_FIELD_OFFSET(::rtech::liveapi::PlayerKilled, _impl_.weapon_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::rtech::liveapi::PlayerDowned, _internal_metadata_),
@@ -1706,47 +1708,47 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 218, -1, -1, sizeof(::rtech::liveapi::PlayerUpgradeTierChanged)},
   { 228, -1, -1, sizeof(::rtech::liveapi::PlayerDamaged)},
   { 240, -1, -1, sizeof(::rtech::liveapi::PlayerKilled)},
-  { 251, -1, -1, sizeof(::rtech::liveapi::PlayerDowned)},
-  { 262, -1, -1, sizeof(::rtech::liveapi::PlayerAssist)},
-  { 273, -1, -1, sizeof(::rtech::liveapi::SquadEliminated)},
-  { 282, -1, -1, sizeof(::rtech::liveapi::GibraltarShieldAbsorbed)},
-  { 293, -1, -1, sizeof(::rtech::liveapi::RevenantForgedShadowDamaged)},
-  { 304, -1, -1, sizeof(::rtech::liveapi::PlayerRespawnTeam)},
-  { 314, -1, -1, sizeof(::rtech::liveapi::PlayerRevive)},
-  { 324, -1, -1, sizeof(::rtech::liveapi::ArenasItemSelected)},
-  { 335, -1, -1, sizeof(::rtech::liveapi::ArenasItemDeselected)},
-  { 346, -1, -1, sizeof(::rtech::liveapi::InventoryPickUp)},
-  { 357, -1, -1, sizeof(::rtech::liveapi::InventoryDrop)},
-  { 369, -1, -1, sizeof(::rtech::liveapi::InventoryUse)},
-  { 380, -1, -1, sizeof(::rtech::liveapi::BannerCollected)},
-  { 390, -1, -1, sizeof(::rtech::liveapi::PlayerAbilityUsed)},
-  { 400, -1, -1, sizeof(::rtech::liveapi::LegendUpgradeSelected)},
-  { 412, -1, -1, sizeof(::rtech::liveapi::ZiplineUsed)},
-  { 422, -1, -1, sizeof(::rtech::liveapi::GrenadeThrown)},
-  { 432, -1, -1, sizeof(::rtech::liveapi::BlackMarketAction)},
-  { 442, -1, -1, sizeof(::rtech::liveapi::WraithPortal)},
-  { 451, -1, -1, sizeof(::rtech::liveapi::WarpGateUsed)},
-  { 460, -1, -1, sizeof(::rtech::liveapi::AmmoUsed)},
-  { 473, -1, -1, sizeof(::rtech::liveapi::WeaponSwitched)},
-  { 484, -1, -1, sizeof(::rtech::liveapi::CustomEvent)},
-  { 493, -1, -1, sizeof(::rtech::liveapi::ChangeCamera)},
-  { 502, -1, -1, sizeof(::rtech::liveapi::PauseToggle)},
-  { 509, -1, -1, sizeof(::rtech::liveapi::CustomMatch_CreateLobby)},
-  { 515, -1, -1, sizeof(::rtech::liveapi::CustomMatch_JoinLobby)},
-  { 522, -1, -1, sizeof(::rtech::liveapi::CustomMatch_LeaveLobby)},
-  { 528, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetReady)},
-  { 535, -1, -1, sizeof(::rtech::liveapi::CustomMatch_GetLobbyPlayers)},
-  { 541, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetMatchmaking)},
-  { 548, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetTeam)},
-  { 557, -1, -1, sizeof(::rtech::liveapi::CustomMatch_KickPlayer)},
-  { 565, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetSettings)},
-  { 577, -1, -1, sizeof(::rtech::liveapi::CustomMatch_GetSettings)},
-  { 583, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetTeamName)},
-  { 591, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SendChat)},
-  { 598, -1, -1, sizeof(::rtech::liveapi::Request)},
-  { 621, -1, -1, sizeof(::rtech::liveapi::RequestStatus)},
-  { 628, -1, -1, sizeof(::rtech::liveapi::Response)},
-  { 636, -1, -1, sizeof(::rtech::liveapi::LiveAPIEvent)},
+  { 252, -1, -1, sizeof(::rtech::liveapi::PlayerDowned)},
+  { 263, -1, -1, sizeof(::rtech::liveapi::PlayerAssist)},
+  { 274, -1, -1, sizeof(::rtech::liveapi::SquadEliminated)},
+  { 283, -1, -1, sizeof(::rtech::liveapi::GibraltarShieldAbsorbed)},
+  { 294, -1, -1, sizeof(::rtech::liveapi::RevenantForgedShadowDamaged)},
+  { 305, -1, -1, sizeof(::rtech::liveapi::PlayerRespawnTeam)},
+  { 315, -1, -1, sizeof(::rtech::liveapi::PlayerRevive)},
+  { 325, -1, -1, sizeof(::rtech::liveapi::ArenasItemSelected)},
+  { 336, -1, -1, sizeof(::rtech::liveapi::ArenasItemDeselected)},
+  { 347, -1, -1, sizeof(::rtech::liveapi::InventoryPickUp)},
+  { 358, -1, -1, sizeof(::rtech::liveapi::InventoryDrop)},
+  { 370, -1, -1, sizeof(::rtech::liveapi::InventoryUse)},
+  { 381, -1, -1, sizeof(::rtech::liveapi::BannerCollected)},
+  { 391, -1, -1, sizeof(::rtech::liveapi::PlayerAbilityUsed)},
+  { 401, -1, -1, sizeof(::rtech::liveapi::LegendUpgradeSelected)},
+  { 413, -1, -1, sizeof(::rtech::liveapi::ZiplineUsed)},
+  { 423, -1, -1, sizeof(::rtech::liveapi::GrenadeThrown)},
+  { 433, -1, -1, sizeof(::rtech::liveapi::BlackMarketAction)},
+  { 443, -1, -1, sizeof(::rtech::liveapi::WraithPortal)},
+  { 452, -1, -1, sizeof(::rtech::liveapi::WarpGateUsed)},
+  { 461, -1, -1, sizeof(::rtech::liveapi::AmmoUsed)},
+  { 474, -1, -1, sizeof(::rtech::liveapi::WeaponSwitched)},
+  { 485, -1, -1, sizeof(::rtech::liveapi::CustomEvent)},
+  { 494, -1, -1, sizeof(::rtech::liveapi::ChangeCamera)},
+  { 503, -1, -1, sizeof(::rtech::liveapi::PauseToggle)},
+  { 510, -1, -1, sizeof(::rtech::liveapi::CustomMatch_CreateLobby)},
+  { 516, -1, -1, sizeof(::rtech::liveapi::CustomMatch_JoinLobby)},
+  { 523, -1, -1, sizeof(::rtech::liveapi::CustomMatch_LeaveLobby)},
+  { 529, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetReady)},
+  { 536, -1, -1, sizeof(::rtech::liveapi::CustomMatch_GetLobbyPlayers)},
+  { 542, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetMatchmaking)},
+  { 549, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetTeam)},
+  { 558, -1, -1, sizeof(::rtech::liveapi::CustomMatch_KickPlayer)},
+  { 566, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetSettings)},
+  { 578, -1, -1, sizeof(::rtech::liveapi::CustomMatch_GetSettings)},
+  { 584, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetTeamName)},
+  { 592, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SendChat)},
+  { 599, -1, -1, sizeof(::rtech::liveapi::Request)},
+  { 622, -1, -1, sizeof(::rtech::liveapi::RequestStatus)},
+  { 629, -1, -1, sizeof(::rtech::liveapi::Response)},
+  { 637, -1, -1, sizeof(::rtech::liveapi::LiveAPIEvent)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -1891,148 +1893,148 @@ const char descriptor_table_protodef_events_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\'\n\010a"
   "ttacker\030\003 \001(\0132\025.rtech.liveapi.Player\022%\n\006"
   "victim\030\004 \001(\0132\025.rtech.liveapi.Player\022\016\n\006w"
-  "eapon\030\005 \001(\t\022\027\n\017damageInflicted\030\006 \001(\r\"\231\001\n"
+  "eapon\030\005 \001(\t\022\027\n\017damageInflicted\030\006 \001(\r\"\275\001\n"
   "\014PlayerKilled\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010cate"
   "gory\030\002 \001(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liv"
   "eapi.Player\022%\n\006victim\030\004 \001(\0132\025.rtech.live"
-  "api.Player\022\016\n\006weapon\030\006 \001(\tJ\004\010\005\020\006\"\223\001\n\014Pla"
-  "yerDowned\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category"
-  "\030\002 \001(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liveapi"
-  ".Player\022%\n\006victim\030\004 \001(\0132\025.rtech.liveapi."
-  "Player\022\016\n\006weapon\030\005 \001(\t\"\224\001\n\014PlayerAssist\022"
-  "\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022(\n\t"
-  "assistant\030\003 \001(\0132\025.rtech.liveapi.Player\022%"
-  "\n\006victim\030\004 \001(\0132\025.rtech.liveapi.Player\022\016\n"
-  "\006weapon\030\005 \001(\t\"^\n\017SquadEliminated\022\021\n\ttime"
-  "stamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022&\n\007players"
-  "\030\003 \003(\0132\025.rtech.liveapi.Player\"\247\001\n\027Gibral"
-  "tarShieldAbsorbed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010"
-  "category\030\002 \001(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech"
-  ".liveapi.Player\022%\n\006victim\030\004 \001(\0132\025.rtech."
-  "liveapi.Player\022\027\n\017damageInflicted\030\006 \001(\r\""
-  "\253\001\n\033RevenantForgedShadowDamaged\022\021\n\ttimes"
-  "tamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\'\n\010attacker"
-  "\030\003 \001(\0132\025.rtech.liveapi.Player\022%\n\006victim\030"
-  "\004 \001(\0132\025.rtech.liveapi.Player\022\027\n\017damageIn"
-  "flicted\030\006 \001(\r\"\211\001\n\021PlayerRespawnTeam\022\021\n\tt"
-  "imestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006play"
-  "er\030\003 \001(\0132\025.rtech.liveapi.Player\022(\n\trespa"
-  "wned\030\004 \003(\0132\025.rtech.liveapi.Player\"\202\001\n\014Pl"
-  "ayerRevive\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010categor"
-  "y\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi."
-  "Player\022&\n\007revived\030\004 \001(\0132\025.rtech.liveapi."
-  "Player\"\200\001\n\022ArenasItemSelected\022\021\n\ttimesta"
-  "mp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001"
-  "(\0132\025.rtech.liveapi.Player\022\014\n\004item\030\004 \001(\t\022"
-  "\020\n\010quantity\030\005 \001(\005\"\202\001\n\024ArenasItemDeselect"
-  "ed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022"
-  "%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Player\022\014"
-  "\n\004item\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\"}\n\017Invent"
-  "oryPickUp\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category"
-  "\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.P"
-  "layer\022\014\n\004item\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\"\216\001"
-  "\n\rInventoryDrop\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010ca"
-  "tegory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liv"
-  "eapi.Player\022\014\n\004item\030\004 \001(\t\022\020\n\010quantity\030\005 "
-  "\001(\005\022\021\n\textraData\030\006 \003(\t\"z\n\014InventoryUse\022\021"
+  "api.Player\022(\n\tawardedTo\030\005 \001(\0132\025.rtech.li"
+  "veapi.Player\022\016\n\006weapon\030\006 \001(\t\"\223\001\n\014PlayerD"
+  "owned\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001"
+  "(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liveapi.Pla"
+  "yer\022%\n\006victim\030\004 \001(\0132\025.rtech.liveapi.Play"
+  "er\022\016\n\006weapon\030\005 \001(\t\"\224\001\n\014PlayerAssist\022\021\n\tt"
+  "imestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022(\n\tassi"
+  "stant\030\003 \001(\0132\025.rtech.liveapi.Player\022%\n\006vi"
+  "ctim\030\004 \001(\0132\025.rtech.liveapi.Player\022\016\n\006wea"
+  "pon\030\005 \001(\t\"^\n\017SquadEliminated\022\021\n\ttimestam"
+  "p\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022&\n\007players\030\003 \003"
+  "(\0132\025.rtech.liveapi.Player\"\247\001\n\027GibraltarS"
+  "hieldAbsorbed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010cate"
+  "gory\030\002 \001(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liv"
+  "eapi.Player\022%\n\006victim\030\004 \001(\0132\025.rtech.live"
+  "api.Player\022\027\n\017damageInflicted\030\006 \001(\r\"\253\001\n\033"
+  "RevenantForgedShadowDamaged\022\021\n\ttimestamp"
+  "\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\'\n\010attacker\030\003 \001"
+  "(\0132\025.rtech.liveapi.Player\022%\n\006victim\030\004 \001("
+  "\0132\025.rtech.liveapi.Player\022\027\n\017damageInflic"
+  "ted\030\006 \001(\r\"\211\001\n\021PlayerRespawnTeam\022\021\n\ttimes"
+  "tamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003"
+  " \001(\0132\025.rtech.liveapi.Player\022(\n\trespawned"
+  "\030\004 \003(\0132\025.rtech.liveapi.Player\"\202\001\n\014Player"
+  "Revive\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 "
+  "\001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Play"
+  "er\022&\n\007revived\030\004 \001(\0132\025.rtech.liveapi.Play"
+  "er\"\200\001\n\022ArenasItemSelected\022\021\n\ttimestamp\030\001"
+  " \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025"
+  ".rtech.liveapi.Player\022\014\n\004item\030\004 \001(\t\022\020\n\010q"
+  "uantity\030\005 \001(\005\"\202\001\n\024ArenasItemDeselected\022\021"
   "\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006p"
   "layer\030\003 \001(\0132\025.rtech.liveapi.Player\022\014\n\004it"
-  "em\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\"\207\001\n\017BannerCol"
-  "lected\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 "
-  "\001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Play"
-  "er\022(\n\tcollected\030\004 \001(\0132\025.rtech.liveapi.Pl"
-  "ayer\"u\n\021PlayerAbilityUsed\022\021\n\ttimestamp\030\001"
-  " \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025"
-  ".rtech.liveapi.Player\022\024\n\014linkedEntity\030\004 "
-  "\001(\t\"\234\001\n\025LegendUpgradeSelected\022\021\n\ttimesta"
-  "mp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001"
-  "(\0132\025.rtech.liveapi.Player\022\023\n\013upgradeName"
-  "\030\004 \001(\t\022\023\n\013upgradeDesc\030\005 \001(\t\022\r\n\005level\030\006 \001"
-  "(\005\"o\n\013ZiplineUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010"
-  "category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.l"
-  "iveapi.Player\022\024\n\014linkedEntity\030\004 \001(\t\"q\n\rG"
-  "renadeThrown\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010categ"
-  "ory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveap"
-  "i.Player\022\024\n\014linkedEntity\030\004 \001(\t\"m\n\021BlackM"
-  "arketAction\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010catego"
+  "em\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\"}\n\017InventoryP"
+  "ickUp\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001"
+  "(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Playe"
+  "r\022\014\n\004item\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\"\216\001\n\rIn"
+  "ventoryDrop\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010catego"
   "ry\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi"
-  ".Player\022\014\n\004item\030\004 \001(\t\"Z\n\014WraithPortal\022\021\n"
-  "\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006pl"
-  "ayer\030\003 \001(\0132\025.rtech.liveapi.Player\"Z\n\014War"
-  "pGateUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category"
-  "\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.P"
-  "layer\"\250\001\n\010AmmoUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n"
-  "\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech."
-  "liveapi.Player\022\020\n\010ammoType\030\004 \001(\t\022\022\n\namou"
-  "ntUsed\030\005 \001(\r\022\024\n\014oldAmmoCount\030\006 \001(\r\022\024\n\014ne"
-  "wAmmoCount\030\007 \001(\r\"\202\001\n\016WeaponSwitched\022\021\n\tt"
-  "imestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006play"
-  "er\030\003 \001(\0132\025.rtech.liveapi.Player\022\021\n\toldWe"
-  "apon\030\004 \001(\t\022\021\n\tnewWeapon\030\005 \001(\t\"\\\n\013CustomE"
-  "vent\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001("
-  "\t\022(\n\ncustomData\030\003 \003(\0132\024.google.protobuf."
-  "Any\"X\n\014ChangeCamera\022.\n\003poi\030\001 \001(\0162\037.rtech"
-  ".liveapi.PlayerOfInterestH\000\022\016\n\004name\030\002 \001("
-  "\tH\000B\010\n\006target\"\037\n\013PauseToggle\022\020\n\010preTimer"
-  "\030\001 \001(\002\"\031\n\027CustomMatch_CreateLobby\"*\n\025Cus"
-  "tomMatch_JoinLobby\022\021\n\troleToken\030\001 \001(\t\"\030\n"
-  "\026CustomMatch_LeaveLobby\"\'\n\024CustomMatch_S"
-  "etReady\022\017\n\007isReady\030\001 \001(\010\"\035\n\033CustomMatch_"
-  "GetLobbyPlayers\"-\n\032CustomMatch_SetMatchm"
-  "aking\022\017\n\007enabled\030\001 \001(\010\"\\\n\023CustomMatch_Se"
-  "tTeam\022\016\n\006teamId\030\001 \001(\005\022\032\n\022targetHardwareN"
-  "ame\030\002 \001(\t\022\031\n\021targetNucleusHash\030\003 \001(\t\"O\n\026"
-  "CustomMatch_KickPlayer\022\032\n\022targetHardware"
-  "Name\030\001 \001(\t\022\031\n\021targetNucleusHash\030\002 \001(\t\"\217\001"
-  "\n\027CustomMatch_SetSettings\022\024\n\014playlistNam"
-  "e\030\001 \001(\t\022\021\n\tadminChat\030\002 \001(\010\022\022\n\nteamRename"
-  "\030\003 \001(\010\022\022\n\nselfAssign\030\004 \001(\010\022\021\n\taimAssist\030"
-  "\005 \001(\010\022\020\n\010anonMode\030\006 \001(\010\"\031\n\027CustomMatch_G"
-  "etSettings\";\n\027CustomMatch_SetTeamName\022\016\n"
-  "\006teamId\030\001 \001(\005\022\020\n\010teamName\030\002 \001(\t\"$\n\024Custo"
-  "mMatch_SendChat\022\014\n\004text\030\001 \001(\t\"\226\010\n\007Reques"
-  "t\022\017\n\007withAck\030\001 \001(\010\022\024\n\014preSharedKey\030\002 \001(\t"
-  "\0220\n\tchangeCam\030\004 \001(\0132\033.rtech.liveapi.Chan"
-  "geCameraH\000\0221\n\013pauseToggle\030\005 \001(\0132\032.rtech."
-  "liveapi.PauseToggleH\000\022I\n\027customMatch_Cre"
-  "ateLobby\030\n \001(\0132&.rtech.liveapi.CustomMat"
-  "ch_CreateLobbyH\000\022E\n\025customMatch_JoinLobb"
-  "y\030\013 \001(\0132$.rtech.liveapi.CustomMatch_Join"
-  "LobbyH\000\022G\n\026customMatch_LeaveLobby\030\014 \001(\0132"
-  "%.rtech.liveapi.CustomMatch_LeaveLobbyH\000"
-  "\022C\n\024customMatch_SetReady\030\r \001(\0132#.rtech.l"
-  "iveapi.CustomMatch_SetReadyH\000\022O\n\032customM"
-  "atch_SetMatchmaking\030\016 \001(\0132).rtech.liveap"
-  "i.CustomMatch_SetMatchmakingH\000\022A\n\023custom"
-  "Match_SetTeam\030\017 \001(\0132\".rtech.liveapi.Cust"
-  "omMatch_SetTeamH\000\022G\n\026customMatch_KickPla"
-  "yer\030\020 \001(\0132%.rtech.liveapi.CustomMatch_Ki"
-  "ckPlayerH\000\022I\n\027customMatch_SetSettings\030\021 "
-  "\001(\0132&.rtech.liveapi.CustomMatch_SetSetti"
-  "ngsH\000\022C\n\024customMatch_SendChat\030\022 \001(\0132#.rt"
-  "ech.liveapi.CustomMatch_SendChatH\000\022Q\n\033cu"
-  "stomMatch_GetLobbyPlayers\030\023 \001(\0132*.rtech."
-  "liveapi.CustomMatch_GetLobbyPlayersH\000\022I\n"
-  "\027customMatch_SetTeamName\030\024 \001(\0132&.rtech.l"
-  "iveapi.CustomMatch_SetTeamNameH\000\022I\n\027cust"
-  "omMatch_GetSettings\030\025 \001(\0132&.rtech.liveap"
-  "i.CustomMatch_GetSettingsH\000B\t\n\007actions\"\037"
-  "\n\rRequestStatus\022\016\n\006status\030\001 \001(\t\"A\n\010Respo"
-  "nse\022\017\n\007success\030\001 \001(\010\022$\n\006result\030\002 \001(\0132\024.g"
-  "oogle.protobuf.Any\"M\n\014LiveAPIEvent\022\022\n\nev"
-  "ent_size\030\001 \001(\007\022)\n\013gameMessage\030\003 \001(\0132\024.go"
-  "ogle.protobuf.Any*\210\001\n\020PlayerOfInterest\022\017"
-  "\n\013UNSPECIFIED\020\000\022\010\n\004NEXT\020\001\022\014\n\010PREVIOUS\020\002\022"
-  "\017\n\013KILL_LEADER\020\003\022\021\n\rCLOSEST_ENEMY\020\004\022\022\n\016C"
-  "LOSEST_PLAYER\020\005\022\023\n\017LATEST_ATTACKER\020\006b\006pr"
-  "oto3"
+  ".Player\022\014\n\004item\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\022"
+  "\021\n\textraData\030\006 \003(\t\"z\n\014InventoryUse\022\021\n\tti"
+  "mestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006playe"
+  "r\030\003 \001(\0132\025.rtech.liveapi.Player\022\014\n\004item\030\004"
+  " \001(\t\022\020\n\010quantity\030\005 \001(\005\"\207\001\n\017BannerCollect"
+  "ed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022"
+  "%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Player\022("
+  "\n\tcollected\030\004 \001(\0132\025.rtech.liveapi.Player"
+  "\"u\n\021PlayerAbilityUsed\022\021\n\ttimestamp\030\001 \001(\004"
+  "\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rte"
+  "ch.liveapi.Player\022\024\n\014linkedEntity\030\004 \001(\t\""
+  "\234\001\n\025LegendUpgradeSelected\022\021\n\ttimestamp\030\001"
+  " \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025"
+  ".rtech.liveapi.Player\022\023\n\013upgradeName\030\004 \001"
+  "(\t\022\023\n\013upgradeDesc\030\005 \001(\t\022\r\n\005level\030\006 \001(\005\"o"
+  "\n\013ZiplineUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010cate"
+  "gory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.livea"
+  "pi.Player\022\024\n\014linkedEntity\030\004 \001(\t\"q\n\rGrena"
+  "deThrown\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030"
+  "\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Pl"
+  "ayer\022\024\n\014linkedEntity\030\004 \001(\t\"m\n\021BlackMarke"
+  "tAction\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002"
+  " \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Pla"
+  "yer\022\014\n\004item\030\004 \001(\t\"Z\n\014WraithPortal\022\021\n\ttim"
+  "estamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player"
+  "\030\003 \001(\0132\025.rtech.liveapi.Player\"Z\n\014WarpGat"
+  "eUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001"
+  "(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Playe"
+  "r\"\250\001\n\010AmmoUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010cat"
+  "egory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.live"
+  "api.Player\022\020\n\010ammoType\030\004 \001(\t\022\022\n\namountUs"
+  "ed\030\005 \001(\r\022\024\n\014oldAmmoCount\030\006 \001(\r\022\024\n\014newAmm"
+  "oCount\030\007 \001(\r\"\202\001\n\016WeaponSwitched\022\021\n\ttimes"
+  "tamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003"
+  " \001(\0132\025.rtech.liveapi.Player\022\021\n\toldWeapon"
+  "\030\004 \001(\t\022\021\n\tnewWeapon\030\005 \001(\t\"\\\n\013CustomEvent"
+  "\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022(\n"
+  "\ncustomData\030\003 \003(\0132\024.google.protobuf.Any\""
+  "X\n\014ChangeCamera\022.\n\003poi\030\001 \001(\0162\037.rtech.liv"
+  "eapi.PlayerOfInterestH\000\022\016\n\004name\030\002 \001(\tH\000B"
+  "\010\n\006target\"\037\n\013PauseToggle\022\020\n\010preTimer\030\001 \001"
+  "(\002\"\031\n\027CustomMatch_CreateLobby\"*\n\025CustomM"
+  "atch_JoinLobby\022\021\n\troleToken\030\001 \001(\t\"\030\n\026Cus"
+  "tomMatch_LeaveLobby\"\'\n\024CustomMatch_SetRe"
+  "ady\022\017\n\007isReady\030\001 \001(\010\"\035\n\033CustomMatch_GetL"
+  "obbyPlayers\"-\n\032CustomMatch_SetMatchmakin"
+  "g\022\017\n\007enabled\030\001 \001(\010\"\\\n\023CustomMatch_SetTea"
+  "m\022\016\n\006teamId\030\001 \001(\005\022\032\n\022targetHardwareName\030"
+  "\002 \001(\t\022\031\n\021targetNucleusHash\030\003 \001(\t\"O\n\026Cust"
+  "omMatch_KickPlayer\022\032\n\022targetHardwareName"
+  "\030\001 \001(\t\022\031\n\021targetNucleusHash\030\002 \001(\t\"\217\001\n\027Cu"
+  "stomMatch_SetSettings\022\024\n\014playlistName\030\001 "
+  "\001(\t\022\021\n\tadminChat\030\002 \001(\010\022\022\n\nteamRename\030\003 \001"
+  "(\010\022\022\n\nselfAssign\030\004 \001(\010\022\021\n\taimAssist\030\005 \001("
+  "\010\022\020\n\010anonMode\030\006 \001(\010\"\031\n\027CustomMatch_GetSe"
+  "ttings\";\n\027CustomMatch_SetTeamName\022\016\n\006tea"
+  "mId\030\001 \001(\005\022\020\n\010teamName\030\002 \001(\t\"$\n\024CustomMat"
+  "ch_SendChat\022\014\n\004text\030\001 \001(\t\"\226\010\n\007Request\022\017\n"
+  "\007withAck\030\001 \001(\010\022\024\n\014preSharedKey\030\002 \001(\t\0220\n\t"
+  "changeCam\030\004 \001(\0132\033.rtech.liveapi.ChangeCa"
+  "meraH\000\0221\n\013pauseToggle\030\005 \001(\0132\032.rtech.live"
+  "api.PauseToggleH\000\022I\n\027customMatch_CreateL"
+  "obby\030\n \001(\0132&.rtech.liveapi.CustomMatch_C"
+  "reateLobbyH\000\022E\n\025customMatch_JoinLobby\030\013 "
+  "\001(\0132$.rtech.liveapi.CustomMatch_JoinLobb"
+  "yH\000\022G\n\026customMatch_LeaveLobby\030\014 \001(\0132%.rt"
+  "ech.liveapi.CustomMatch_LeaveLobbyH\000\022C\n\024"
+  "customMatch_SetReady\030\r \001(\0132#.rtech.livea"
+  "pi.CustomMatch_SetReadyH\000\022O\n\032customMatch"
+  "_SetMatchmaking\030\016 \001(\0132).rtech.liveapi.Cu"
+  "stomMatch_SetMatchmakingH\000\022A\n\023customMatc"
+  "h_SetTeam\030\017 \001(\0132\".rtech.liveapi.CustomMa"
+  "tch_SetTeamH\000\022G\n\026customMatch_KickPlayer\030"
+  "\020 \001(\0132%.rtech.liveapi.CustomMatch_KickPl"
+  "ayerH\000\022I\n\027customMatch_SetSettings\030\021 \001(\0132"
+  "&.rtech.liveapi.CustomMatch_SetSettingsH"
+  "\000\022C\n\024customMatch_SendChat\030\022 \001(\0132#.rtech."
+  "liveapi.CustomMatch_SendChatH\000\022Q\n\033custom"
+  "Match_GetLobbyPlayers\030\023 \001(\0132*.rtech.live"
+  "api.CustomMatch_GetLobbyPlayersH\000\022I\n\027cus"
+  "tomMatch_SetTeamName\030\024 \001(\0132&.rtech.livea"
+  "pi.CustomMatch_SetTeamNameH\000\022I\n\027customMa"
+  "tch_GetSettings\030\025 \001(\0132&.rtech.liveapi.Cu"
+  "stomMatch_GetSettingsH\000B\t\n\007actions\"\037\n\rRe"
+  "questStatus\022\016\n\006status\030\001 \001(\t\"A\n\010Response\022"
+  "\017\n\007success\030\001 \001(\010\022$\n\006result\030\002 \001(\0132\024.googl"
+  "e.protobuf.Any\"M\n\014LiveAPIEvent\022\022\n\nevent_"
+  "size\030\001 \001(\007\022)\n\013gameMessage\030\003 \001(\0132\024.google"
+  ".protobuf.Any*\210\001\n\020PlayerOfInterest\022\017\n\013UN"
+  "SPECIFIED\020\000\022\010\n\004NEXT\020\001\022\014\n\010PREVIOUS\020\002\022\017\n\013K"
+  "ILL_LEADER\020\003\022\021\n\rCLOSEST_ENEMY\020\004\022\022\n\016CLOSE"
+  "ST_PLAYER\020\005\022\023\n\017LATEST_ATTACKER\020\006b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_events_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fany_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_events_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_events_2eproto = {
-    false, false, 8324, descriptor_table_protodef_events_2eproto,
+    false, false, 8360, descriptor_table_protodef_events_2eproto,
     "events.proto",
     &descriptor_table_events_2eproto_once, descriptor_table_events_2eproto_deps, 1, 64,
     schemas, file_default_instances, TableStruct_events_2eproto::offsets,
@@ -9695,6 +9697,7 @@ class PlayerKilled::_Internal {
  public:
   static const ::rtech::liveapi::Player& attacker(const PlayerKilled* msg);
   static const ::rtech::liveapi::Player& victim(const PlayerKilled* msg);
+  static const ::rtech::liveapi::Player& awardedto(const PlayerKilled* msg);
 };
 
 const ::rtech::liveapi::Player&
@@ -9704,6 +9707,10 @@ PlayerKilled::_Internal::attacker(const PlayerKilled* msg) {
 const ::rtech::liveapi::Player&
 PlayerKilled::_Internal::victim(const PlayerKilled* msg) {
   return *msg->_impl_.victim_;
+}
+const ::rtech::liveapi::Player&
+PlayerKilled::_Internal::awardedto(const PlayerKilled* msg) {
+  return *msg->_impl_.awardedto_;
 }
 PlayerKilled::PlayerKilled(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
@@ -9719,6 +9726,7 @@ PlayerKilled::PlayerKilled(const PlayerKilled& from)
     , decltype(_impl_.weapon_){}
     , decltype(_impl_.attacker_){nullptr}
     , decltype(_impl_.victim_){nullptr}
+    , decltype(_impl_.awardedto_){nullptr}
     , decltype(_impl_.timestamp_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
@@ -9745,6 +9753,9 @@ PlayerKilled::PlayerKilled(const PlayerKilled& from)
   if (from._internal_has_victim()) {
     _this->_impl_.victim_ = new ::rtech::liveapi::Player(*from._impl_.victim_);
   }
+  if (from._internal_has_awardedto()) {
+    _this->_impl_.awardedto_ = new ::rtech::liveapi::Player(*from._impl_.awardedto_);
+  }
   _this->_impl_.timestamp_ = from._impl_.timestamp_;
   // @@protoc_insertion_point(copy_constructor:rtech.liveapi.PlayerKilled)
 }
@@ -9758,6 +9769,7 @@ inline void PlayerKilled::SharedCtor(
     , decltype(_impl_.weapon_){}
     , decltype(_impl_.attacker_){nullptr}
     , decltype(_impl_.victim_){nullptr}
+    , decltype(_impl_.awardedto_){nullptr}
     , decltype(_impl_.timestamp_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -9786,6 +9798,7 @@ inline void PlayerKilled::SharedDtor() {
   _impl_.weapon_.Destroy();
   if (this != internal_default_instance()) delete _impl_.attacker_;
   if (this != internal_default_instance()) delete _impl_.victim_;
+  if (this != internal_default_instance()) delete _impl_.awardedto_;
 }
 
 void PlayerKilled::SetCachedSize(int size) const {
@@ -9808,6 +9821,10 @@ void PlayerKilled::Clear() {
     delete _impl_.victim_;
   }
   _impl_.victim_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && _impl_.awardedto_ != nullptr) {
+    delete _impl_.awardedto_;
+  }
+  _impl_.awardedto_ = nullptr;
   _impl_.timestamp_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -9848,6 +9865,14 @@ const char* PlayerKilled::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_victim(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // .rtech.liveapi.Player awardedTo = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+          ptr = ctx->ParseMessage(_internal_mutable_awardedto(), ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -9921,6 +9946,13 @@ uint8_t* PlayerKilled::_InternalSerialize(
         _Internal::victim(this).GetCachedSize(), target, stream);
   }
 
+  // .rtech.liveapi.Player awardedTo = 5;
+  if (this->_internal_has_awardedto()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(5, _Internal::awardedto(this),
+        _Internal::awardedto(this).GetCachedSize(), target, stream);
+  }
+
   // string weapon = 6;
   if (!this->_internal_weapon().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
@@ -9975,6 +10007,13 @@ size_t PlayerKilled::ByteSizeLong() const {
         *_impl_.victim_);
   }
 
+  // .rtech.liveapi.Player awardedTo = 5;
+  if (this->_internal_has_awardedto()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *_impl_.awardedto_);
+  }
+
   // uint64 timestamp = 1;
   if (this->_internal_timestamp() != 0) {
     total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_timestamp());
@@ -10011,6 +10050,10 @@ void PlayerKilled::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
   if (from._internal_has_victim()) {
     _this->_internal_mutable_victim()->::rtech::liveapi::Player::MergeFrom(
         from._internal_victim());
+  }
+  if (from._internal_has_awardedto()) {
+    _this->_internal_mutable_awardedto()->::rtech::liveapi::Player::MergeFrom(
+        from._internal_awardedto());
   }
   if (from._internal_timestamp() != 0) {
     _this->_internal_set_timestamp(from._internal_timestamp());

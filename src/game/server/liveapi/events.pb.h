@@ -5082,6 +5082,7 @@ class PlayerKilled final :
     kWeaponFieldNumber = 6,
     kAttackerFieldNumber = 3,
     kVictimFieldNumber = 4,
+    kAwardedToFieldNumber = 5,
     kTimestampFieldNumber = 1,
   };
   // string category = 2;
@@ -5148,6 +5149,24 @@ class PlayerKilled final :
       ::rtech::liveapi::Player* victim);
   ::rtech::liveapi::Player* unsafe_arena_release_victim();
 
+  // .rtech.liveapi.Player awardedTo = 5;
+  bool has_awardedto() const;
+  private:
+  bool _internal_has_awardedto() const;
+  public:
+  void clear_awardedto();
+  const ::rtech::liveapi::Player& awardedto() const;
+  PROTOBUF_NODISCARD ::rtech::liveapi::Player* release_awardedto();
+  ::rtech::liveapi::Player* mutable_awardedto();
+  void set_allocated_awardedto(::rtech::liveapi::Player* awardedto);
+  private:
+  const ::rtech::liveapi::Player& _internal_awardedto() const;
+  ::rtech::liveapi::Player* _internal_mutable_awardedto();
+  public:
+  void unsafe_arena_set_allocated_awardedto(
+      ::rtech::liveapi::Player* awardedto);
+  ::rtech::liveapi::Player* unsafe_arena_release_awardedto();
+
   // uint64 timestamp = 1;
   void clear_timestamp();
   uint64_t timestamp() const;
@@ -5169,6 +5188,7 @@ class PlayerKilled final :
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr weapon_;
     ::rtech::liveapi::Player* attacker_;
     ::rtech::liveapi::Player* victim_;
+    ::rtech::liveapi::Player* awardedto_;
     uint64_t timestamp_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -18030,6 +18050,96 @@ inline void PlayerKilled::set_allocated_victim(::rtech::liveapi::Player* victim)
   }
   _impl_.victim_ = victim;
   // @@protoc_insertion_point(field_set_allocated:rtech.liveapi.PlayerKilled.victim)
+}
+
+// .rtech.liveapi.Player awardedTo = 5;
+inline bool PlayerKilled::_internal_has_awardedto() const {
+  return this != internal_default_instance() && _impl_.awardedto_ != nullptr;
+}
+inline bool PlayerKilled::has_awardedto() const {
+  return _internal_has_awardedto();
+}
+inline void PlayerKilled::clear_awardedto() {
+  if (GetArenaForAllocation() == nullptr && _impl_.awardedto_ != nullptr) {
+    delete _impl_.awardedto_;
+  }
+  _impl_.awardedto_ = nullptr;
+}
+inline const ::rtech::liveapi::Player& PlayerKilled::_internal_awardedto() const {
+  const ::rtech::liveapi::Player* p = _impl_.awardedto_;
+  return p != nullptr ? *p : reinterpret_cast<const ::rtech::liveapi::Player&>(
+      ::rtech::liveapi::_Player_default_instance_);
+}
+inline const ::rtech::liveapi::Player& PlayerKilled::awardedto() const {
+  // @@protoc_insertion_point(field_get:rtech.liveapi.PlayerKilled.awardedTo)
+  return _internal_awardedto();
+}
+inline void PlayerKilled::unsafe_arena_set_allocated_awardedto(
+    ::rtech::liveapi::Player* awardedto) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.awardedto_);
+  }
+  _impl_.awardedto_ = awardedto;
+  if (awardedto) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:rtech.liveapi.PlayerKilled.awardedTo)
+}
+inline ::rtech::liveapi::Player* PlayerKilled::release_awardedto() {
+  
+  ::rtech::liveapi::Player* temp = _impl_.awardedto_;
+  _impl_.awardedto_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::rtech::liveapi::Player* PlayerKilled::unsafe_arena_release_awardedto() {
+  // @@protoc_insertion_point(field_release:rtech.liveapi.PlayerKilled.awardedTo)
+  
+  ::rtech::liveapi::Player* temp = _impl_.awardedto_;
+  _impl_.awardedto_ = nullptr;
+  return temp;
+}
+inline ::rtech::liveapi::Player* PlayerKilled::_internal_mutable_awardedto() {
+  
+  if (_impl_.awardedto_ == nullptr) {
+    auto* p = CreateMaybeMessage<::rtech::liveapi::Player>(GetArenaForAllocation());
+    _impl_.awardedto_ = p;
+  }
+  return _impl_.awardedto_;
+}
+inline ::rtech::liveapi::Player* PlayerKilled::mutable_awardedto() {
+  ::rtech::liveapi::Player* _msg = _internal_mutable_awardedto();
+  // @@protoc_insertion_point(field_mutable:rtech.liveapi.PlayerKilled.awardedTo)
+  return _msg;
+}
+inline void PlayerKilled::set_allocated_awardedto(::rtech::liveapi::Player* awardedto) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.awardedto_;
+  }
+  if (awardedto) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(awardedto);
+    if (message_arena != submessage_arena) {
+      awardedto = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, awardedto, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.awardedto_ = awardedto;
+  // @@protoc_insertion_point(field_set_allocated:rtech.liveapi.PlayerKilled.awardedTo)
 }
 
 // string weapon = 6;

@@ -1120,17 +1120,14 @@ static bool LiveAPI_HandlePlayerAttackCommon(HSQUIRRELVM const v, const SQObject
 	return true;
 }
 
-// PlayerKilled
-// PlayerDowned
-template<typename T>
-static bool LiveAPI_HandlePlayerInjuredActionCommon(HSQUIRRELVM const v, const SQObject& obj, T const event,
+static bool LiveAPI_HandlePlayerDowned(HSQUIRRELVM const v, const SQObject& obj, rtech::liveapi::PlayerDowned* const event,
 	const eLiveAPI_EventTypes eventType, const SQInteger fieldNum)
 {
 	LiveAPI_SetCommonMessageFields(event, eventType);
 
 	switch (fieldNum)
 	{
-	case event->kAttackerFieldNumber:
+	case rtech::liveapi::PlayerDowned::kAttackerFieldNumber:
 	{
 		LIVEAPI_ENSURE_TYPE(v, obj, OT_TABLE, event, fieldNum);
 		if (!LiveAPI_SetPlayerIdentityFields(v, _table(obj), event->mutable_attacker()))
@@ -1138,7 +1135,7 @@ static bool LiveAPI_HandlePlayerInjuredActionCommon(HSQUIRRELVM const v, const S
 
 		break;
 	}
-	case event->kVictimFieldNumber:
+	case rtech::liveapi::PlayerDowned::kVictimFieldNumber:
 	{
 		LIVEAPI_ENSURE_TYPE(v, obj, OT_TABLE, event, fieldNum);
 		if (!LiveAPI_SetPlayerIdentityFields(v, _table(obj), event->mutable_victim()))
@@ -1146,7 +1143,52 @@ static bool LiveAPI_HandlePlayerInjuredActionCommon(HSQUIRRELVM const v, const S
 
 		break;
 	}
-	case event->kWeaponFieldNumber:
+	case rtech::liveapi::PlayerDowned::kWeaponFieldNumber:
+	{
+		LIVEAPI_ENSURE_TYPE(v, obj, OT_STRING, event, fieldNum);
+		event->set_weapon(_string(obj)->_val);
+
+		break;
+	}
+	default:
+		LIVEAPI_FIELD_ERROR(v, fieldNum, event);
+	}
+
+	return true;
+}
+
+static bool LiveAPI_HandlePlayerKilled(HSQUIRRELVM const v, const SQObject& obj, rtech::liveapi::PlayerKilled* const event,
+	const eLiveAPI_EventTypes eventType, const SQInteger fieldNum)
+{
+	LiveAPI_SetCommonMessageFields(event, eventType);
+
+	switch (fieldNum)
+	{
+	case rtech::liveapi::PlayerKilled::kAttackerFieldNumber:
+	{
+		LIVEAPI_ENSURE_TYPE(v, obj, OT_TABLE, event, fieldNum);
+		if (!LiveAPI_SetPlayerIdentityFields(v, _table(obj), event->mutable_attacker()))
+			return false;
+
+		break;
+	}
+	case rtech::liveapi::PlayerKilled::kVictimFieldNumber:
+	{
+		LIVEAPI_ENSURE_TYPE(v, obj, OT_TABLE, event, fieldNum);
+		if (!LiveAPI_SetPlayerIdentityFields(v, _table(obj), event->mutable_victim()))
+			return false;
+
+		break;
+	}
+	case rtech::liveapi::PlayerKilled::kAwardedToFieldNumber:
+	{
+		LIVEAPI_ENSURE_TYPE(v, obj, OT_TABLE, event, fieldNum);
+		if (!LiveAPI_SetPlayerIdentityFields(v, _table(obj), event->mutable_awardedto()))
+			return false;
+
+		break;
+	}
+	case rtech::liveapi::PlayerKilled::kWeaponFieldNumber:
 	{
 		LIVEAPI_ENSURE_TYPE(v, obj, OT_STRING, event, fieldNum);
 		event->set_weapon(_string(obj)->_val);
@@ -1824,13 +1866,13 @@ static bool LiveAPI_HandleEventByCategory(HSQUIRRELVM const v, const SQTable* co
 			msg = &s_playerDamaged;
 			ret = LiveAPI_HandlePlayerDamaged(v, obj, &s_playerDamaged, eventType, fieldNum);
 			break;
-		case eLiveAPI_EventTypes::playerKilled:
-			msg = &s_playerKilled;
-			ret = LiveAPI_HandlePlayerInjuredActionCommon(v, obj, &s_playerKilled, eventType, fieldNum);
-			break;
 		case eLiveAPI_EventTypes::playerDowned:
 			msg = &s_playerDowned;
-			ret = LiveAPI_HandlePlayerInjuredActionCommon(v, obj, &s_playerDowned, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerDowned(v, obj, &s_playerDowned, eventType, fieldNum);
+			break;
+		case eLiveAPI_EventTypes::playerKilled:
+			msg = &s_playerKilled;
+			ret = LiveAPI_HandlePlayerKilled(v, obj, &s_playerKilled, eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerAssist:
 			msg = &s_playerAssist;
