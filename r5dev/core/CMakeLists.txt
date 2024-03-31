@@ -161,6 +161,11 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
 
 endif()
 
+target_include_directories( ${PROJECT_NAME} PRIVATE
+	"${THIRDPARTY_SOURCE_DIR}/dirtysdk/include/"
+	"${THIRDPARTY_SOURCE_DIR}/ea/"
+)
+
 target_link_options( ${PROJECT_NAME} PRIVATE
     "/STACK:8000000" # Match game executable stack reserve size
 

@@ -157,10 +157,6 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 	RCONClient()->RunFrame();
 #endif // !DEDICATED
 
-#ifndef CLIENT_DLL
-	LiveAPISystem()->RunFrame(); // TODO[ AMOS ]: move to server frame !!!
-#endif // !CLIENT_DLL
-
 	// Disable "warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable"
 #pragma warning(push)
 #pragma warning(disable : 4611)
@@ -311,7 +307,7 @@ void CHostState::Setup(void)
 #endif // !DEDICATED
 
 #ifndef CLIENT_DLL
-	LiveAPISystem()->Init(); // TODO[ AMOS ]: move to server frame !!!
+	LiveAPISystem()->Init();
 #endif // !CLIENT_DLL
 
 	if (net_useRandomKey.GetBool())

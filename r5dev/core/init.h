@@ -6,8 +6,10 @@ void SDK_Shutdown();
 void Systems_Init();
 void Systems_Shutdown();
 
-void Winsock_Init();
+void Winsock_Startup();
 void Winsock_Shutdown();
+void DirtySDK_Startup();
+void DirtySDK_Shutdown();
 void QuerySystemInfo();
 void CheckCPU();
 
