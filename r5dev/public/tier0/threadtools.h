@@ -431,9 +431,10 @@ FORCEINLINE bool CThreadSpinRWLock::TryLockForWrite()
 	if (!(curValue.m_i32 & 0x00010000) && ThreadInterlockedAssignIf((LONG*)&curValue.m_i32, 0x00010000, 0))
 	{
 		ThreadMemoryBarrier();
-		Assert(m_iWriteDepth == 0 && m_writerId == 0);
+		Assert(m_writerId == 0);
 		m_writerId = ThreadGetCurrentId();
 #ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+		Assert(m_iWriteDepth == 0);
 		m_iWriteDepth++;
 #endif
 		return true;
