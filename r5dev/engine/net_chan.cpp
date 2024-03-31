@@ -372,7 +372,7 @@ void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep,
 bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 {
 #ifndef CLIENT_DLL
-    if (!ThreadInServerFrameThread() || !net_processTimeBudget.GetInt())
+    if (!net_processTimeBudget.GetInt() || !ThreadInServerFrameThread())
         return pChan->ProcessMessages(pBuf);
 
     const double flStartTime = Plat_FloatTime();
