@@ -141,6 +141,7 @@ macro( thirdparty_suppress_warnings )
             /wd4244 # Type conversion truncation; protobuf has many, but this appears intentional.
             /wd4245 # 'return': conversion signed/unsigned mismatch
             /wd4267 # Type conversion truncation; protobuf has many, but this appears intentional.
+            /wd4295 # Array is too small to include terminating null character.
             /wd4307 # Integral constant overflow.
             /wd4389 # Signed/unsigned mismatch.
             /wd4456 # Declaration hides previous local declaration.
