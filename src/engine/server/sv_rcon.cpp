@@ -510,7 +510,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 //-----------------------------------------------------------------------------
 void CRConServer::Execute(const cl_rcon::request& request) const
 {
-	const string& commandString = request.requestmsg().c_str();
+	const string& commandString = request.requestmsg();
 	const char* const pCommandString = commandString.c_str();
 
 	ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(pCommandString);
