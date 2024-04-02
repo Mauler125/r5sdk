@@ -24,6 +24,7 @@
 #endif
 
 bool g_bSdkInitialized = false;
+HMODULE s_hModuleHandle = NULL;
 
 //#############################################################################
 // UTILITY
@@ -76,6 +77,14 @@ void Tier0_Init()
 
 void SDK_Init()
 {
+    CheckCPU(); // Check CPU as early as possible; error out if CPU isn't supported.
+    MathLib_Init(); // Initialize Mathlib.
+
+    PEB64* pEnv = CModule::GetProcessEnvironmentBlock();
+
+    g_GameDll.InitFromBase(pEnv->ImageBaseAddress);
+    g_SDKDll.InitFromBase((QWORD)s_hModuleHandle);
+
     Tier0_Init();
 
     if (!CommandLine()->CheckParm("-launcher"))
@@ -96,14 +105,14 @@ void SDK_Init()
     Show_Emblem();
 
     Winsock_Startup(); // Initialize Winsock.
+    DirtySDK_Startup();
+
     Systems_Init();
 
     WinSys_Init();
 #ifndef DEDICATED
     Input_Init();
 #endif // !DEDICATED
-
-    DirtySDK_Startup();
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     curl_global_init(CURL_GLOBAL_ALL);
@@ -130,7 +139,6 @@ void SDK_Shutdown()
     Msg(eDLL_T::NONE, "GameSDK shutdown initiated\n");
 
     curl_global_cleanup();
-    DirtySDK_Shutdown();
 
 #ifndef DEDICATED
     Input_Shutdown();
@@ -138,6 +146,8 @@ void SDK_Shutdown()
 
     WinSys_Shutdown();
     Systems_Shutdown();
+
+    DirtySDK_Shutdown();
     Winsock_Shutdown();
 
     SpdLog_Shutdown();
@@ -150,27 +160,18 @@ void SDK_Shutdown()
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
-    CheckCPU(); // Check CPU as early as possible; error out if CPU isn't supported.
-    MathLib_Init(); // Initialize Mathlib.
-
     NOTE_UNUSED(lpReserved);
 
     switch (dwReason)
     {
         case DLL_PROCESS_ATTACH:
         {
-            PEB64* pEnv = CModule::GetProcessEnvironmentBlock();
-
-            g_GameDll.InitFromBase(pEnv->ImageBaseAddress);
-            g_SDKDll.InitFromBase((QWORD)hModule);
-
-            SDK_Init();
+            s_hModuleHandle = hModule;
             break;
         }
-
         case DLL_PROCESS_DETACH:
         {
-            SDK_Shutdown();
+            s_hModuleHandle = NULL;
             break;
         }
     }

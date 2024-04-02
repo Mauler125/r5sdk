@@ -101,6 +101,8 @@ void SpdLog_Init(const bool bAnsiColor)
 #endif // !_TOOLS
 
 	spdlog::set_level(spdlog::level::trace);
+	spdlog::flush_every(std::chrono::seconds(5));
+
 	bInitialized = true;
 }
 
