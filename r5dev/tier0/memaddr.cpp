@@ -91,9 +91,9 @@ CMemory CMemory::FindPattern(const char* szPattern, const Direction searchDirect
 		{
 			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 			// our if clause will be false.
-			uint8_t currentByte = *(pScanBytes + nMemOffset + j);
-			_mm_prefetch(reinterpret_cast<const CHAR*>(static_cast<int64>(currentByte + nMemOffset + 64)), _MM_HINT_T0); // precache some data in L1.
-			if (currentByte != bytesInfo.second[j] && bytesInfo.second[j] != -1)
+			uint8_t* const pCurrentAddr = (pScanBytes + nMemOffset + j);
+			_mm_prefetch(reinterpret_cast<const char*>(pCurrentAddr + 64), _MM_HINT_T0); // precache some data in L1.
+			if (*pCurrentAddr != bytesInfo.second[j] && bytesInfo.second[j] != -1)
 			{
 				bFound = false;
 				break;
@@ -138,9 +138,9 @@ CMemory CMemory::FindPatternSelf(const char* szPattern, const Direction searchDi
 		{
 			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 			// our if clause will be false.
-			uint8_t currentByte = *(pScanBytes + nMemOffset + j);
-			_mm_prefetch(reinterpret_cast<const CHAR*>(static_cast<int64>(currentByte + nMemOffset + 64)), _MM_HINT_T0); // precache some data in L1.
-			if (currentByte != bytesInfo.second[j] && bytesInfo.second[j] != -1)
+			uint8_t* const pCurrentAddr = (pScanBytes + nMemOffset + j);
+			_mm_prefetch(reinterpret_cast<const char*>(pCurrentAddr + 64), _MM_HINT_T0); // precache some data in L1.
+			if (*pCurrentAddr != bytesInfo.second[j] && bytesInfo.second[j] != -1)
 			{
 				bFound = false;
 				break;
