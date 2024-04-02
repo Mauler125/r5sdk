@@ -1,7 +1,7 @@
 #pragma once
 
-void SDK_Init();
-void SDK_Shutdown();
+PLATFORM_INTERFACE void SDK_Init();
+PLATFORM_INTERFACE void SDK_Shutdown();
 
 void Systems_Init();
 void Systems_Shutdown();
