@@ -26,6 +26,12 @@ bool CWebSocket::Init(const char* const addressList, const ConnParams_s& params,
 {
 	Assert(addressList);
 
+	if (m_initialized)
+	{
+		initError = "Already initialized";
+		return false;
+	}
+
 	if (!NetConnStatus('open', 0, NULL, 0))
 	{
 		initError = "Network connection module not initialized";
@@ -52,6 +58,9 @@ bool CWebSocket::Init(const char* const addressList, const ConnParams_s& params,
 //-----------------------------------------------------------------------------
 void CWebSocket::Shutdown()
 {
+	if (!m_initialized)
+		return;
+
 	m_initialized = false;
 	ClearAll();
 }
