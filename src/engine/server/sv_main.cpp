@@ -12,7 +12,6 @@
 #include "networksystem/pylon.h"
 #include "networksystem/bansystem.h"
 #include "engine/client/client.h"
-#include "tier1/cvar.h"
 #include "server.h"
 
 //-----------------------------------------------------------------------------
