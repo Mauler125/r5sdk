@@ -548,15 +548,11 @@ struct PakDecoder_t
 
 	size_t bufferSizeNeeded;
 
-	union
-	{
-		// current byte and current bit of byte
-		uint64_t currentByte;
-	};
-
+	// current byte and current bit of byte
+	uint64_t currentByte;
 	uint32_t currentBit;
-	uint32_t dword6C;
 
+	uint32_t dword6C;
 	uint64_t qword70;
 
 	union
