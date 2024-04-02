@@ -1,6 +1,7 @@
 #ifndef RTECH_LIVEAPI_H
 #define RTECH_LIVEAPI_H
 #include "tier2/websocket.h"
+#include "thirdparty/protobuf/message.h"
 
 #define LIVE_API_MAX_FRAME_BUFFER_SIZE 0x8000
 
@@ -13,26 +14,43 @@ typedef void (*LiveAPISendCallback_t)(ProtoWebSocketRefT* webSocket);
 class LiveAPI
 {
 public:
-
 	LiveAPI();
+	~LiveAPI();
 
 	void Init();
 	void Shutdown();
 
+	void ToggleInit();
+
 	void CreateParams(CWebSocket::ConnParams_s& params);
 	void UpdateParams();
 
-	bool InitWebSocket(const char*& initError);
-	void InstallAddressList();
+	void InitWebSocket();
+	void ShutdownWebSocket();
+
+	void ToggleInitWebSocket();
+
+	void RebootWebSocket();
+
+	void CreateLogger();
+	void DestroyLogger();
 
 	void RunFrame();
-	void LogEvent(const char* const dataBuf, const int32_t dataSize);
+	void LogEvent(const google::protobuf::Message* const toTransmit, const google::protobuf::Message* toPrint);
 
 	bool IsEnabled() const;
+	bool IsValidToRun() const;
+
 	inline bool WebSocketInitialized() const { return webSocketSystem.IsInitialized(); }
+	inline bool FileLoggerInitialized() const { return matchLogger != nullptr; }
 
 private:
 	CWebSocket webSocketSystem;
+
+	std::shared_ptr<spdlog::logger> matchLogger;
+	int matchLogCount;
+	bool initialLog;
+	bool initialized;
 };
 
 LiveAPI* LiveAPISystem();
