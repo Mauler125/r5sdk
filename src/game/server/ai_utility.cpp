@@ -12,6 +12,8 @@
 #include "game/server/detour_impl.h"
 #include "game/server/ai_networkmanager.h"
 
+#include "vscript/languages/squirrel_re/vsquirrel.h"
+
 static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! )");
 
 inline uint32_t g_HullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
@@ -46,7 +48,7 @@ void ClearNavMeshForHull(int hullSize)
         // Frees tiles, polys, tris, anything dynamically
         // allocated for this navmesh, and the navmesh itself.
         v_Detour_FreeNavMesh(nav);
-        delete nav;
+        free(nav);
 
         g_pNavMesh[hullSize] = nullptr;
     }
@@ -129,8 +131,7 @@ bool Detour_IsLoaded()
 void Detour_HotSwap()
 {
     Assert(ThreadInMainOrServerFrameThread());
-
-    // TODO: CodeCallback_OnNavMeshHotSwapStart()
+    g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapBegin");
 
     // Free and re-init NavMesh.
     Detour_LevelShutdown();
@@ -139,7 +140,7 @@ void Detour_HotSwap()
     if (!Detour_IsLoaded())
         Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
 
-    // TODO: CodeCallback_OnNavMeshHotSwapEnd()
+    g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapEnd");
 }
 
 /*
