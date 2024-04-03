@@ -1,14 +1,18 @@
 #ifndef VSQUIRREL_H
 #define VSQUIRREL_H
+#include "tier1/utlmap.h"
+#include "tier1/utlhash.h"
+#include "tier1/utlbuffer.h"
+
 #include "vscript/languages/squirrel_re/include/squirrel.h"
 #include "vscript/languages/squirrel_re/include/sqstate.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 #include "vscript/ivscript.h"
+
 #include "rtech/rson.h"
 
 #define MAX_PRECOMPILED_SCRIPTS 1024
 
-#pragma pack(push, 4)
 class CSquirrelVM
 {
 public:
@@ -23,23 +27,31 @@ public:
 
 	bool ExecuteCodeCallback(const SQChar* const callbackName);
 
-	FORCEINLINE HSQUIRRELVM GetVM() const { return m_sqVM; }
+	FORCEINLINE HSQUIRRELVM GetVM() const { return m_hVM; }
 	FORCEINLINE SQCONTEXT GetContext() const { return m_iContext; }
 	FORCEINLINE eDLL_T GetNativeContext() const { return (eDLL_T)GetContext(); }
 
 private:
-	SQChar pad0[0x8];
-	HSQUIRRELVM m_sqVM;
-	SQChar pad1[0x8];
-	SQInteger m_nFlags;
-	SQChar pad2[4];
-	SQChar pad3[16];
-	SQChar pad4[4];
+	bool unk_00;
+	SQChar pad0[7];
+	HSQUIRRELVM m_hVM;
+	void* m_hDbg;
+	SQObjectPtr m_ErrorString;
+	SQChar pad3[8];
 	SQInteger m_nTick;
-	SQCONTEXT m_iContext; // 0x38
-	void* m_pCompareFunc;
+	int unk_34;
+	SQCONTEXT m_iContext;
+	SQChar pad6[4];
+	CUtlMap<SQClass*, CUtlHashFastGenericHash> m_TypeMap;
+	CUtlBuffer* m_pBuffer;
+	CUtlMap<void*, void*> m_PtrMap;
+	bool unk_A8;
+	int64_t unk_B0;
+	int64_t unk_B8;
+	bool unk_C0;
+	int64_t unk_C8;
+	int64_t unk_D0;
 };
-#pragma pack(pop)
 
 extern void(*ServerScriptRegister_Callback)(CSquirrelVM* s);
 extern void(*ClientScriptRegister_Callback)(CSquirrelVM* s);
