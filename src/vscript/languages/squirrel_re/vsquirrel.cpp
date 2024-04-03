@@ -102,6 +102,16 @@ SQRESULT CSquirrelVM::RegisterConstant(const SQChar* name, SQInteger value)
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: executes a code callback
+// Input  : *name - 
+// Output : true on success, false otherwise
+//---------------------------------------------------------------------------------
+bool CSquirrelVM::ExecuteCodeCallback(const SQChar* const callbackName)
+{
+	return CSquirrelVM__ExecuteCodeCallback(this, callbackName);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: registers a code function
 // Input  : *s - 
 //			*scriptName - 
