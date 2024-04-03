@@ -332,14 +332,6 @@ static bool LiveAPI_CheckSwitchType(HSQUIRRELVM const v, const SQObjectPtr& obj)
 #define LIVEAPI_UNSUPPORTED_TYPE_ERROR(v, gotType, eventMsg) {v_SQVM_RaiseError(v, "Value type \"%s\" is not supported for message \"%s\".\n", IdType2Name(gotType), eventMsg->GetTypeName().c_str()); return false; }
 #define LIVEAPI_CHECK_RECURSION_DEPTH(v, currDepth) { if (currDepth > LIVEAPI_MAX_ITEM_DEPTH) { v_SQVM_RaiseError(v, "Exceeded nesting depth limit of \"%i\".", LIVEAPI_MAX_ITEM_DEPTH); return false; }}
 
-uint64_t GetUnixTimeStamp() // TODO: move elsewhere
-{
-	__time64_t time;
-	_time64(&time);
-
-	return time;
-}
-
 
 /*
 	██╗███╗   ██╗████████╗███████╗██████╗ ███╗   ███╗███████╗██████╗ ██╗ █████╗ ██████╗ ██╗   ██╗

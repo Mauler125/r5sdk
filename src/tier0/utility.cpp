@@ -1149,6 +1149,16 @@ int CompareIPv6(const IN6_ADDR& ipA, const IN6_ADDR& ipB)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For obtaining the current timestamp.
+uint64_t GetUnixTimeStamp()
+{
+    __time64_t time;
+    _time64(&time);
+
+    return time;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For obtaining a duration from a certain interval.
 std::chrono::nanoseconds IntervalToDuration(const float flInterval)
 {
