@@ -1797,7 +1797,7 @@ static bool LiveAPI_SetCustomArrayFields(HSQUIRRELVM const v, google::protobuf::
 
 			if (arrayData == _array(valueObj))
 			{
-				v_SQVM_RaiseError(v, "Attempted to nest array \"%i\" into itself at index \"%i\".", counter.Get(), i);
+				v_SQVM_RaiseError(v, "Attempted to nest array at depth \"%i\" into itself at index \"%i\".", counter.Get(), i);
 				return false;
 			}
 
@@ -1842,7 +1842,7 @@ static bool LiveAPI_SetCustomTableFields(HSQUIRRELVM const v, google::protobuf::
 
 		if (keyType != OT_STRING)
 		{
-			v_SQVM_RaiseError(v, "Key must be a \"%s\", got \"%s\" for message \"%s\" in table \"%i\" at index \"%i\".",
+			v_SQVM_RaiseError(v, "Key in table must be a \"%s\", got \"%s\" for message \"%s\" at depth \"%i\" at index \"%i\".",
 				IdType2Name(OT_STRING), IdType2Name(keyType), structData->GetTypeName().c_str(), counter.Get(), i);
 
 			return false;
@@ -1879,7 +1879,7 @@ static bool LiveAPI_SetCustomTableFields(HSQUIRRELVM const v, google::protobuf::
 
 			if (tableData == _table(node.val))
 			{
-				v_SQVM_RaiseError(v, "Attempted to nest table \"%i\" into itself at index \"%i\".", counter.Get(), i);
+				v_SQVM_RaiseError(v, "Attempted to nest table at depth \"%i\" into itself at index \"%i\".", counter.Get(), i);
 				return false;
 			}
 
