@@ -2178,10 +2178,15 @@ SQRESULT VScriptCode::Server::LiveAPI_LogRaw(HSQUIRRELVM v)
 
 	if (sq_istable(object))
 	{
-		const SQTable* const table = object._unVal.pTable;
-		const eLiveAPI_EventTypes eventType = eLiveAPI_EventTypes(sq_getinteger(v, 2));
+		const SQTable* const table = _table(object);
+		SQInteger eventType = 0;
 
-		if (!LiveAPI_HandleEventByCategory(v, table, eventType))
+		if (SQ_FAILED(sq_getinteger(v, 3, &eventType)))
+		{
+			v_SQVM_ScriptError("Second argument must be an integer.");
+			result = SQ_FAIL;
+		}
+		else if (!LiveAPI_HandleEventByCategory(v, table, eLiveAPI_EventTypes(eventType)))
 			result = SQ_ERROR;
 	}
 	else

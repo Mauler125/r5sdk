@@ -4,7 +4,7 @@
 #include "sqvm.h"
 #include "sqstring.h"
 
-void SQVM::PrintObjVal(const SQObject& oin, SQObject& oout)
+void SQVM::PrintObjVal(const SQObject* oin, SQObject* oout)
 {
 	v_SQVM_PrintObjVal(this, oin, oout);
 }

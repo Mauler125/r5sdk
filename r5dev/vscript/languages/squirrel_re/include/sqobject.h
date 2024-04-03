@@ -93,8 +93,8 @@ struct SQWeakRef : SQRefCounted
 #define _stringval(obj) (obj)._unVal.pString->_val
 #define _userdataval(obj) (obj)._unVal.pUserData->_val
 
-#define tofloat(num) ((type(num)==OT_INTEGER)?(SQFloat)_integer(num):_float(num))
-#define tointeger(num) ((type(num)==OT_FLOAT)?(SQInteger)_float(num):_integer(num))
+#define tofloat(num) ((sq_type(num)==OT_INTEGER)?(SQFloat)_integer(num):_float(num))
+#define tointeger(num) ((sq_type(num)==OT_FLOAT)?(SQInteger)_float(num):_integer(num))
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 struct SQObjectPtr : public SQObject

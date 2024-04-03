@@ -163,8 +163,11 @@ typedef struct tagSQObject
 
 ///////////////////////////////////////////////////////////////////////////////
 SQRESULT sq_pushroottable(HSQUIRRELVM v);
-SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i);
-SQInteger sq_getinteger(HSQUIRRELVM v, SQInteger i);
+SQRESULT sq_getinteger(HSQUIRRELVM v, SQInteger idx, SQInteger* i);
+SQRESULT sq_getfloat(HSQUIRRELVM v, SQInteger idx, SQFloat* f);
+SQRESULT sq_getbool(HSQUIRRELVM v, SQInteger idx, SQBool* b);
+SQRESULT sq_getthread(HSQUIRRELVM v, SQInteger idx, HSQUIRRELVM* thread);
+SQRESULT sq_getstring(HSQUIRRELVM v, SQInteger idx, const SQChar** c);
 SQRESULT sq_get(HSQUIRRELVM v, SQInteger idx);
 SQInteger sq_gettop(HSQUIRRELVM v);
 SQRESULT sq_pushroottable(HSQUIRRELVM v);
@@ -184,6 +187,7 @@ SQRESULT sq_startconsttable(HSQUIRRELVM v);
 SQRESULT sq_endconsttable(HSQUIRRELVM v);
 
 /*UTILITY MACRO*/
+#define sq_isnumeric(o) ((o)._type&SQOBJECT_NUMERIC)
 #define sq_istable(o) ((o)._type==OT_TABLE)
 #define sq_isarray(o) ((o)._type==OT_ARRAY)
 #define sq_isfunction(o) ((o)._type==OT_FUNCPROTO)

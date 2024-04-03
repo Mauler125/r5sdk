@@ -60,13 +60,18 @@ static ConCommand script_ui("script_ui", SQVM_UIScript_f, "Run input code as UI 
 //-----------------------------------------------------------------------------
 // Purpose: checks if the server index is valid, raises an error if not
 //-----------------------------------------------------------------------------
-static SQBool Script_CheckServerIndex(HSQUIRRELVM v, SQInteger iServer)
+static SQBool Script_CheckServerIndexAndFailure(HSQUIRRELVM v, SQInteger iServer)
 {
     SQInteger iCount = static_cast<SQInteger>(g_ServerListManager.m_vServerList.size());
 
     if (iServer >= iCount)
     {
         v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
+        return false;
+    }
+    else if (iServer == -1) // If its still -1, then 'sq_getinteger' failed
+    {
+        v_SQVM_RaiseError(v, "Invalid argument type provided.\n");
         return false;
     }
 
@@ -108,10 +113,13 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetHiddenServerName(HSQUIRRELVM v)
         {
-            SQChar* privateToken = sq_getstring(v, 1);
+            const SQChar* privateToken = nullptr;
 
-            if (!VALID_CHARSTAR(privateToken))
-                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+            if (SQ_FAILED(sq_getstring(v, 2, &privateToken)) || VALID_CHARSTAR(privateToken))
+            {
+                v_SQVM_ScriptError("Empty or null private token");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             string hiddenServerRequestMessage;
             NetGameServer_t serverListing;
@@ -154,9 +162,11 @@ namespace VScriptCode
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
             AUTO_LOCK(g_ServerListManager.m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
 
-            if (!Script_CheckServerIndex(v, iServer))
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
+
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const string& serverName = g_ServerListManager.m_vServerList[iServer].name;
@@ -171,9 +181,11 @@ namespace VScriptCode
         SQRESULT GetServerDescription(HSQUIRRELVM v)
         {
             AUTO_LOCK(g_ServerListManager.m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
 
-            if (!Script_CheckServerIndex(v, iServer))
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
+
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const string& serverDescription = g_ServerListManager.m_vServerList[iServer].description;
@@ -188,9 +200,11 @@ namespace VScriptCode
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
             AUTO_LOCK(g_ServerListManager.m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
 
-            if (!Script_CheckServerIndex(v, iServer))
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
+
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const string& svServerMapName = g_ServerListManager.m_vServerList[iServer].map;
@@ -205,9 +219,11 @@ namespace VScriptCode
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
             AUTO_LOCK(g_ServerListManager.m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
 
-            if (!Script_CheckServerIndex(v, iServer))
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
+
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const string& serverPlaylist = g_ServerListManager.m_vServerList[iServer].playlist;
@@ -222,9 +238,11 @@ namespace VScriptCode
         SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v)
         {
             AUTO_LOCK(g_ServerListManager.m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
 
-            if (!Script_CheckServerIndex(v, iServer))
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
+
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const SQInteger playerCount = g_ServerListManager.m_vServerList[iServer].numPlayers;
@@ -239,9 +257,11 @@ namespace VScriptCode
         SQRESULT GetServerMaxPlayers(HSQUIRRELVM v)
         {
             AUTO_LOCK(g_ServerListManager.m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
 
-            if (!Script_CheckServerIndex(v, iServer))
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
+
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
 
             const SQInteger maxPlayers = g_ServerListManager.m_vServerList[iServer].maxPlayers;
@@ -265,7 +285,10 @@ namespace VScriptCode
                 PromoRightDesc
             };
 
-            R5RPromoData ePromoIndex = static_cast<R5RPromoData>(sq_getinteger(v, 1));
+            SQInteger idx = 0;
+            sq_getinteger(v, 2, &idx);
+
+            R5RPromoData ePromoIndex = static_cast<R5RPromoData>(idx);
             const char* pszPromoKey;
 
             switch (ePromoIndex)
@@ -339,11 +362,19 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToServer(HSQUIRRELVM v)
         {
-            SQChar* ipAddress = sq_getstring(v, 1);
-            SQChar* cryptoKey = sq_getstring(v, 2);
+            const SQChar* ipAddress = nullptr;
+            if (SQ_FAILED(sq_getstring(v, 2, &ipAddress)))
+            {
+                v_SQVM_ScriptError("Missing ip address");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
-            if (!VALID_CHARSTAR(ipAddress) || VALID_CHARSTAR(cryptoKey))
-                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+            const SQChar* cryptoKey = nullptr;
+            if (SQ_FAILED(sq_getstring(v, 3, &cryptoKey)))
+            {
+                v_SQVM_ScriptError("Missing encryption key");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             Msg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", ipAddress, cryptoKey);
             g_ServerListManager.ConnectToServer(ipAddress, cryptoKey);
@@ -357,9 +388,11 @@ namespace VScriptCode
         SQRESULT ConnectToListedServer(HSQUIRRELVM v)
         {
             AUTO_LOCK(g_ServerListManager.m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
 
-            if (!Script_CheckServerIndex(v, iServer))
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
+
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
             {
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
@@ -377,15 +410,19 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToHiddenServer(HSQUIRRELVM v)
         {
-            SQChar* privateToken = sq_getstring(v, 1);
+            const SQChar* privateToken = nullptr;
+            const SQRESULT strRet = sq_getstring(v, 2, &privateToken);
 
-            if (!VALID_CHARSTAR(privateToken))
-                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+            if (SQ_FAILED(strRet) || VALID_CHARSTAR(privateToken))
+            {
+                v_SQVM_ScriptError("Empty or null private token");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             string hiddenServerRequestMessage;
             NetGameServer_t netListing;
 
-            bool result = g_MasterServer.GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
+            const bool result = g_MasterServer.GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (result)
             {
                 g_ServerListManager.ConnectToServer(netListing.address, netListing.port, netListing.netKey);
