@@ -7,6 +7,7 @@
 
 extern ConVar liveapi_enabled;
 extern ConVar liveapi_session_name;
+extern ConVar liveapi_truncate_hash_fields;
 
 struct ProtoWebSocketRefT;
 typedef void (*LiveAPISendCallback_t)(ProtoWebSocketRefT* webSocket);
