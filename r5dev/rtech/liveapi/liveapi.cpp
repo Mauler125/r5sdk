@@ -36,6 +36,7 @@ static void LiveAPI_AddressChangedCallback(IConVar* var, const char* pOldValue)
 //-----------------------------------------------------------------------------
 ConVar liveapi_enabled("liveapi_enabled", "1", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Enable LiveAPI functionality", &LiveAPI_EnabledChangedCallback);
 ConVar liveapi_session_name("liveapi_session_name", "liveapi_session", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "LiveAPI session name to identify this connection");
+ConVar liveapi_truncate_hash_fields("liveapi_truncate_hash_fields", "1", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Whether to truncate hash fields in LiveAPI events to save on I/O");
 
 // WebSocket core
 static ConVar liveapi_websocket_enabled("liveapi_websocket_enabled", "1", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Whether to use WebSocket to transmit LiveAPI events", &LiveAPI_WebSocketEnabledChangedCallback);

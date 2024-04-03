@@ -9,20 +9,21 @@
 //
 //=============================================================================//
 #include "tier1/depthcounter.h"
+#include "mbedtls/include/mbedtls/sha512.h"
+#include "rtech/liveapi/liveapi.h"
+#include "engine/sys_utils.h"
 #include "vscript/languages/squirrel_re/include/sqtable.h"
 #include "vscript/languages/squirrel_re/include/sqarray.h"
 #include "game/server/vscript_server.h"
-#include "rtech/liveapi/liveapi.h"
 #include "liveapi.h"
-#include "engine/sys_utils.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4505)
 #include "protoc/events.pb.h"
 #pragma warning(pop) 
 
-// The total nesting depth cannot exceed this number
-#define LIVEAPI_MAX_ITEM_DEPTH 64
+#define LIVEAPI_MAX_ITEM_DEPTH 64 // The total nesting depth cannot exceed this number
+#define LIVEAPI_SHA512_HASH_SIZE 64
 
 
 /*
@@ -373,6 +374,27 @@ static void LiveAPI_SetVersion(rtech::liveapi::Version* const msg)
 	msg->set_revision(LIVEAPI_REVISION);
 }
 
+static void LiveAPI_SetNucleusHash(std::string* const msg, const SQString* const nucleusId)
+{
+	static const char hexChars[] = "0123456789abcdef";
+	uint8_t nucleusIdHash[LIVEAPI_SHA512_HASH_SIZE];
+
+	mbedtls_sha512(reinterpret_cast<const uint8_t*>(nucleusId->_val), nucleusId->_len, nucleusIdHash, NULL);
+
+	const size_t hashSize = liveapi_truncate_hash_fields.GetBool()
+		? LIVEAPI_SHA512_HASH_SIZE / 4
+		: LIVEAPI_SHA512_HASH_SIZE;
+
+	msg->reserve((hashSize * 2) + 1);
+	msg->resize((hashSize * 2));
+
+	for (size_t i = 0; i < hashSize; i++)
+	{
+		(*msg)[i * 2] = hexChars[(nucleusIdHash[i] >> 4) & 0xf];
+		(*msg)[i * 2 + 1] = hexChars[nucleusIdHash[i] & 0xf];
+	}
+}
+
 static bool LiveAPI_SetPlayerIdentityFields(HSQUIRRELVM const v, const SQTable* const table, rtech::liveapi::Player* const playerMsg)
 {
 	bool ranLoop = false;
@@ -454,7 +476,7 @@ static bool LiveAPI_SetPlayerIdentityFields(HSQUIRRELVM const v, const SQTable* 
 		case rtech::liveapi::Player::kNucleusHashFieldNumber:
 		{
 			LIVEAPI_ENSURE_TYPE(v, obj, OT_STRING, playerMsg, fieldNum);
-			playerMsg->set_nucleushash(_string(obj)->_val);
+			LiveAPI_SetNucleusHash(playerMsg->mutable_nucleushash(), _string(obj));
 
 			break;
 		}
