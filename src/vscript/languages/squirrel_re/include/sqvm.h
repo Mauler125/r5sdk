@@ -18,7 +18,7 @@ enum class SQCONTEXT : SQInteger
 
 struct SQVM : public CHAINABLE_OBJ
 {
-	void PrintObjVal(const SQObject& oin, SQObject& oout);
+	void PrintObjVal(const SQObject* oin, SQObject* oout);
 
 	// push sqobjectptr on to the stack
 	void Push(const SQObjectPtr& o);
@@ -69,7 +69,7 @@ inline void(*v_SQVM_CompileError)(HSQUIRRELVM v, const SQChar* pszError, const S
 inline void(*v_SQVM_LogicError)(SQBool bPrompt);
 inline SQInteger(*v_SQVM_ScriptError)(const SQChar* pszFormat, ...);
 inline SQInteger(*v_SQVM_RaiseError)(HSQUIRRELVM v, const SQChar* pszFormat, ...);
-inline void(*v_SQVM_PrintObjVal)(HSQUIRRELVM v, const SQObjectPtr& oin, const SQObjectPtr& oout);
+inline void(*v_SQVM_PrintObjVal)(HSQUIRRELVM v, const SQObject* oin, SQObject* oout);
 
 SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...);
 SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString);

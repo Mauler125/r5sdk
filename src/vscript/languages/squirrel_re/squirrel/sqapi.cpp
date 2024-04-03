@@ -16,7 +16,7 @@ bool sq_aux_gettypedarg(HSQUIRRELVM v, SQInteger idx, SQObjectType type, SQObjec
 	*o = &stack_get(v, idx);
 	if (sq_type(**o) != type) {
 		SQObjectPtr oval;
-		v->PrintObjVal(**o, oval);
+		v->PrintObjVal(*o, &oval);
 		v_SQVM_RaiseError(v, _SC("wrong argument type, expected '%s' got '%.50s'"), IdType2Name(type), _stringval(oval));
 		return false;
 	}
@@ -32,9 +32,45 @@ bool sq_aux_gettypedarg(HSQUIRRELVM v, SQInteger idx, SQObjectType type, SQObjec
 }
 
 //---------------------------------------------------------------------------------
-SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i) // TODO: deprecate and remove!
+SQRESULT sq_getinteger(HSQUIRRELVM v, SQInteger idx, SQInteger* i)
 {
-	return v->_stackbase[i]._unVal.pString->_val;
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isnumeric(o)) {
+		*i = tointeger(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getfloat(HSQUIRRELVM v, SQInteger idx, SQFloat* f)
+{
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isnumeric(o)) {
+		*f = tofloat(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getbool(HSQUIRRELVM v, SQInteger idx, SQBool* b)
+{
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isbool(o)) {
+		*b = _integer(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getthread(HSQUIRRELVM v, SQInteger idx, HSQUIRRELVM* thread)
+{
+	SQObjectPtr* o = NULL;
+	_GETSAFE_OBJ(v, idx, OT_THREAD, o);
+	*thread = _thread(*o);
+	return SQ_OK;
 }
 
 //---------------------------------------------------------------------------------
@@ -44,12 +80,6 @@ SQRESULT sq_getstring(HSQUIRRELVM v, SQInteger idx, const SQChar** c)
 	_GETSAFE_OBJ(v, idx, OT_STRING, o);
 	*c = _stringval(*o);
 	return SQ_OK;
-}
-
-//---------------------------------------------------------------------------------
-SQInteger sq_getinteger(HSQUIRRELVM v, SQInteger i)
-{
-	return v->_stackbase[i]._unVal.nInteger;
 }
 
 //---------------------------------------------------------------------------------
