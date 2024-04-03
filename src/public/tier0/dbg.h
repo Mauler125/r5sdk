@@ -161,6 +161,38 @@ template<class T> inline void AssertValidReadWritePtr(T* /*ptr*/, int count = 1)
 #define AssertValidThis() 
 #endif
 
+//-----------------------------------------------------------------------------
+// Macro to protect functions that are not reentrant
+
+#ifdef _DEBUG
+class CReentryGuard
+{
+public:
+	CReentryGuard(int* pSemaphore)
+		: m_pSemaphore(pSemaphore)
+	{
+		++(*m_pSemaphore);
+	}
+
+	~CReentryGuard()
+	{
+		--(*m_pSemaphore);
+	}
+
+private:
+	int* m_pSemaphore;
+};
+
+#define ASSERT_NO_REENTRY() \
+	static int fSemaphore##__LINE__; \
+	Assert( !fSemaphore##__LINE__ ); \
+	CReentryGuard ReentryGuard##__LINE__( &fSemaphore##__LINE__ )
+#else
+#define ASSERT_NO_REENTRY()
+#endif
+
+#define AssertMsg(condition, ...) assert(condition)
+
 typedef void (*CoreMsgVCallbackSink_t)(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	const char* pszLogger, const char* pszFormat, va_list args, const UINT exitCode, const char* pszUptimeOverride);
 
