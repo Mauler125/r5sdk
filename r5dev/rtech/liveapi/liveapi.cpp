@@ -34,13 +34,13 @@ static void LiveAPI_AddressChangedCallback(IConVar* var, const char* pOldValue)
 //-----------------------------------------------------------------------------
 // console variables
 //-----------------------------------------------------------------------------
-ConVar liveapi_enabled("liveapi_enabled", "1", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Enable LiveAPI functionality", &LiveAPI_EnabledChangedCallback);
+ConVar liveapi_enabled("liveapi_enabled", "0", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Enable LiveAPI functionality", &LiveAPI_EnabledChangedCallback);
 ConVar liveapi_session_name("liveapi_session_name", "liveapi_session", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "LiveAPI session name to identify this connection");
 ConVar liveapi_truncate_hash_fields("liveapi_truncate_hash_fields", "1", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Whether to truncate hash fields in LiveAPI events to save on I/O");
 
 // WebSocket core
-static ConVar liveapi_websocket_enabled("liveapi_websocket_enabled", "1", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Whether to use WebSocket to transmit LiveAPI events", &LiveAPI_WebSocketEnabledChangedCallback);
-static ConVar liveapi_servers("liveapi_servers", "ws://127.0.0.1:7777", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Comma separated list of addresses to connect to", &LiveAPI_AddressChangedCallback, "ws://domain.suffix:port");
+static ConVar liveapi_websocket_enabled("liveapi_websocket_enabled", "0", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Whether to use WebSocket to transmit LiveAPI events", &LiveAPI_WebSocketEnabledChangedCallback);
+static ConVar liveapi_servers("liveapi_servers", "", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Comma separated list of addresses to connect to", &LiveAPI_AddressChangedCallback, "ws://domain.suffix:port");
 
 // WebSocket connection base parameters
 static ConVar liveapi_retry_count("liveapi_retry_count", "5", FCVAR_RELEASE | FCVAR_SERVER_FRAME_THREAD, "Amount of times to retry connecting before marking the connection as unavailable", &LiveAPI_ParamsChangedCallback);
