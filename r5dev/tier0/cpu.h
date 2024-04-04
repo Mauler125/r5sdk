@@ -62,7 +62,9 @@ struct CPUInformation
 		m_bSSE4a : 1,
 		m_bSSE41 : 1,
 		m_bSSE42 : 1,
-		m_bAVX : 1;  // Is AVX supported?
+		m_bPOPCNT: 1, // Pop count
+		m_bAVX   : 1, // Advanced Vector Extensions
+		m_bHRVSR : 1; // Hypervisor
 
 	uint32 m_nModel;
 	uint32 m_nFeatures[3];
@@ -94,12 +96,14 @@ struct CPUInformation
 		m_szProcessorID    = nullptr;
 		m_szProcessorBrand = nullptr;
 
-		m_bSSE3  = false;
-		m_bSSSE3 = false;
-		m_bSSE4a = false;
-		m_bSSE41 = false;
-		m_bSSE42 = false;
-		m_bAVX   = false;
+		m_bSSE3   = false;
+		m_bSSSE3  = false;
+		m_bSSE4a  = false;
+		m_bSSE41  = false;
+		m_bSSE42  = false;
+		m_bPOPCNT = false;
+		m_bAVX    = false;
+		m_bHRVSR  = false;
 
 		m_nModel = 0;
 		m_nFeatures[0] = 0;
@@ -126,6 +130,6 @@ const char* GetProcessorBrand(bool bRemovePadding);
 
 const CPUInformation& GetCPUInformation(void);
 
-void CheckCPUforSSE2();
+void CheckSystemCPU();
 
 #endif // CPU_H

@@ -3,6 +3,7 @@
 #include "core/init.h"
 #include "core/logdef.h"
 #include "core/logger.h"
+#include "tier0/cpu.h"
 #include "tier0/basetypes.h"
 #include "tier0/crashhandler.h"
 #include "tier0/commandline.h"
@@ -24,6 +25,11 @@
 #endif
 
 bool g_bSdkInitialized = false;
+
+bool g_bSdkInitCallInitiated = false;
+bool g_bSdkShutdownCallInitiated = false;
+
+bool g_bSdkShutdownInitiatedFromConsoleHandler = false;
 HMODULE s_hModuleHandle = NULL;
 
 //#############################################################################
@@ -77,7 +83,21 @@ void Tier0_Init()
 
 void SDK_Init()
 {
-    CheckCPU(); // Check CPU as early as possible; error out if CPU isn't supported.
+    assert(!g_bSdkInitialized);
+
+    CheckSystemCPU(); // Check CPU as early as possible; error out if CPU isn't supported.
+
+    if (g_bSdkInitCallInitiated)
+    {
+        spdlog::error("Recursive initialization!\n");
+        return;
+    }
+
+    // Set after checking cpu and initializing MathLib since we check CPU
+    // features there. Else we crash on the recursive initialization error as
+    // SpdLog uses SSE features.
+    g_bSdkInitCallInitiated = true;
+
     MathLib_Init(); // Initialize Mathlib.
 
     PEB64* pEnv = CModule::GetProcessEnvironmentBlock();
@@ -129,13 +149,25 @@ void SDK_Shutdown()
 {
     assert(g_bSdkInitialized);
 
-    if (!g_bSdkInitialized)
+    // Also check CPU in shutdown, since this function is exported, if they
+    // call this with an unsupported CPU we should let them know rather than
+    // crashing the process.
+    CheckSystemCPU();
+
+    if (g_bSdkShutdownCallInitiated)
     {
         spdlog::error("Recursive shutdown!\n");
         return;
     }
 
-    g_bSdkInitialized = false;
+    g_bSdkShutdownCallInitiated = true;
+
+    if (!g_bSdkInitialized)
+    {
+        spdlog::error("Not initialized!\n");
+        return;
+    }
+
     Msg(eDLL_T::NONE, "GameSDK shutdown initiated\n");
 
     curl_global_cleanup();
@@ -151,7 +183,13 @@ void SDK_Shutdown()
     Winsock_Shutdown();
 
     SpdLog_Shutdown();
-    Console_Shutdown();
+
+    // If the shutdown was initiated from the console window itself, don't
+    // shutdown the console as it would otherwise deadlock in FreeConsole!
+    if (!g_bSdkShutdownInitiatedFromConsoleHandler)
+        Console_Shutdown();
+
+    g_bSdkInitialized = false;
 }
 
 //#############################################################################
