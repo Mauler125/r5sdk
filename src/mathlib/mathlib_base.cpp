@@ -4059,11 +4059,6 @@ void MathLib_Init(float gamma, float texGamma, float brightness, int overbright)
 
 	// FIXME: Hook SSE into VectorAligned + Vector4DAligned
 
-#if !defined( _GAMECONSOLE )
-	CheckCPUforSSE2();
-#endif //!360
-
-
 	s_bMathlibInitialized = true;
 
 	InitSinCosTable();

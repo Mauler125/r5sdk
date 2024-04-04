@@ -1,4 +1,5 @@
 #include "core/stdafx.h"
+#include "core/init.h"
 #include "windows/system.h"
 #include "engine/host_state.h"
 
@@ -61,14 +62,18 @@ ConsoleHandlerRoutine(
 	case CTRL_CLOSE_EVENT:
 	case CTRL_LOGOFF_EVENT:
 	case CTRL_SHUTDOWN_EVENT:
-		if (g_pHostState)
-		{
-			g_pHostState->m_iNextState = HostStates_t::HS_SHUTDOWN;
-		}
+		
+		if (!g_bSdkShutdownInitiatedFromConsoleHandler)
+			g_bSdkShutdownInitiatedFromConsoleHandler = true;
 
-		// Give it time to shutdown properly, value is set to the max possible
+		if (g_pHostState) // This tells the engine to gracefully shutdown on the next frame.
+			g_pHostState->m_iNextState = HostStates_t::HS_SHUTDOWN;
+
+		// Give it time to shutdown properly, this loop waits for max time
 		// of SPI_GETWAITTOKILLSERVICETIMEOUT, which is 20000ms by default.
-		Sleep(20000);
+		while (g_bSdkInitialized)
+			Sleep(50);
+
 		return TRUE;
 	}
 

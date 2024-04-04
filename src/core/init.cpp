@@ -418,33 +418,6 @@ void QuerySystemInfo()
 	}
 }
 
-void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions).
-{
-	CpuIdResult_t cpuResult;
-	__cpuid(reinterpret_cast<int*>(&cpuResult), 1);
-
-	char szBuf[1024];
-
-	if ((cpuResult.ecx & (1 << 0)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSE 3");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
-	}
-	if ((cpuResult.ecx & (1 << 9)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSSE 3 (Supplemental SSE 3 Instructions)");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
-	}
-	if ((cpuResult.ecx & (1 << 23)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "POPCNT");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
-	}
-}
-
 #if defined (DEDICATED)
 #define SIGDB_FILE "cfg/server/startup.bin"
 #elif defined (CLIENT_DLL)
