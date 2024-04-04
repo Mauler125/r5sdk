@@ -40,9 +40,10 @@ bool Miles_Initialize()
 		// if we are loading english and the file is still not found, we can let it hit the regular engine error, since that is not recoverable
 		if (!FileSystem()->FileExists(baseStreamFilePath.c_str()))
 		{
-			Error(eDLL_T::AUDIO, NO_ERROR, "%s: attempted to load language '%s' but the required stream bank (%s) was not found. falling back to english...\n", pszLanguage, baseStreamFilePath.c_str());
+			Error(eDLL_T::AUDIO, NO_ERROR, "%s: attempted to load language '%s' but the required streaming source file (%s) was not found. falling back to english...\n", __FUNCTION__, pszLanguage, baseStreamFilePath.c_str());
 
 			pszLanguage = MILES_DEFAULT_LANGUAGE;
+			miles_language->SetValue(pszLanguage);
 		}
 	}
 
@@ -67,7 +68,27 @@ void MilesQueueEventRun(Miles::Queue* queue, const char* eventName)
 
 void MilesBankPatch(Miles::Bank* bank, char* streamPatch, char* localizedStreamPatch)
 {
-	// TODO [REXX]: add print for patch loading when Miles::Bank struct is mapped out a bit better with file name
+	if (miles_debug.GetBool())
+	{
+		Msg(eDLL_T::AUDIO,
+			"%s: patching bank \"%s\". stream patches: \"%s\", \"%s\"\n",
+			__FUNCTION__,
+			bank->GetBankName(),
+			V_UnqualifiedFileName(streamPatch), V_UnqualifiedFileName(localizedStreamPatch)
+		);
+	}
+
+	const Miles::BankHeader_t* header = bank->GetHeader();
+
+	if (header->bankIndex >= header->project->bankCount)
+		Error(eDLL_T::AUDIO, EXIT_FAILURE,
+			"%s: Attempted to patch bank '%s' that identified itself as bank idx %i.\nProject expects a highest index of %i\n",
+			__FUNCTION__,
+			bank->GetBankName(),
+			header->bankIndex,
+			header->project->bankCount - 1
+		);
+
 	v_MilesBankPatch(bank, streamPatch, localizedStreamPatch);
 }
 
