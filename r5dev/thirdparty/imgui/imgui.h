@@ -1016,6 +1016,9 @@ enum ImGuiWindowFlags_
     ImGuiWindowFlags_NoDecoration           = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse,
     ImGuiWindowFlags_NoInputs               = ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus,
 
+    ImGuiWindowFlags_OverlayVerticalScrollbar   = 1 << 19, // Draw the vertical scrollbar as an overlay (scrollbar space will not take up content region space)
+    ImGuiWindowFlags_OverlayHorizontalScrollbar = 1 << 20, // Draw the horizontal scrollbar as an overlay (scrollbar space will not take up content region space)
+
     // [Internal]
     ImGuiWindowFlags_NavFlattened           = 1 << 23,  // [BETA] On child window: share focus scope, allow gamepad/keyboard navigation to cross over parent border to this child or between sibling child windows.
     ImGuiWindowFlags_ChildWindow            = 1 << 24,  // Don't use! For internal use by BeginChild()
