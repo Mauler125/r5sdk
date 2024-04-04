@@ -252,8 +252,8 @@ bool CConsole::DrawSurface(void)
     const static int colorLoggerWindowFlags = 
         ImGuiWindowFlags_NoMove                    |
         ImGuiWindowFlags_HorizontalScrollbar       |
-        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
-        ImGuiWindowFlags_NoNavInputs;
+        ImGuiWindowFlags_NoNavInputs               |
+        ImGuiWindowFlags_OverlayHorizontalScrollbar;
 
     ImGui::BeginChild(m_loggerLabel, ImVec2(0, -footerHeightReserve), loggerFlags, colorLoggerWindowFlags);
 
