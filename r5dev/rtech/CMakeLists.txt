@@ -34,12 +34,22 @@ add_sources( SOURCE_GROUP "Pak"
    "pak/paktools.h"
 )
 
+add_sources( SOURCE_GROUP "LiveAPI"
+   "liveapi/liveapi.cpp"
+   "liveapi/liveapi.h"
+)
+
 add_sources( SOURCE_GROUP "Public"
    "${ENGINE_SOURCE_DIR}/public/rtech/iasync.h"
    "${ENGINE_SOURCE_DIR}/public/rtech/ipakfile.h"
 )
 
 end_sources()
+
+target_include_directories( ${PROJECT_NAME} PRIVATE
+	"${THIRDPARTY_SOURCE_DIR}/dirtysdk/include/"
+	"${THIRDPARTY_SOURCE_DIR}/ea/"
+)
 
 add_module( "lib" "rson" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 

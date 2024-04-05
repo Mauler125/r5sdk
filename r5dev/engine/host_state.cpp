@@ -35,6 +35,7 @@
 #include "engine/cmodel_bsp.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
+#include "rtech/liveapi/liveapi.h"
 #endif // !CLIENT_DLL
 #include "rtech/stryder/stryder.h"
 #include "rtech/playlists/playlists.h"
@@ -155,6 +156,10 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 #ifndef DEDICATED
 	RCONClient()->RunFrame();
 #endif // !DEDICATED
+
+#ifndef CLIENT_DLL
+	LiveAPISystem()->RunFrame(); // TODO[ AMOS ]: move to server frame !!!
+#endif // !CLIENT_DLL
 
 	// Disable "warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable"
 #pragma warning(push)
@@ -304,6 +309,10 @@ void CHostState::Setup(void)
 #ifndef DEDICATED
 	RCONClient()->Init();
 #endif // !DEDICATED
+
+#ifndef CLIENT_DLL
+	LiveAPISystem()->Init(); // TODO[ AMOS ]: move to server frame !!!
+#endif // !CLIENT_DLL
 
 	if (net_useRandomKey.GetBool())
 	{
