@@ -453,7 +453,7 @@ bool CNetCon::IsConnected(void)
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-	CheckCPUforSSE2();
+	CheckSystemCPUForSSE2();
 
 	bool bEnableColor = false;
 
