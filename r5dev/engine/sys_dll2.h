@@ -5,13 +5,13 @@
 class CEngineAPI : public IEngineAPI
 {
 public:
-	virtual bool Connect(CreateInterfaceFn factory) = 0;
+	virtual bool Connect(const CreateInterfaceFn factory) = 0;
 	virtual void Disconnect() = 0;
-	virtual void* QueryInterface(const char* pInterfaceName) = 0;
+	virtual void* QueryInterface(const char* const pInterfaceName) = 0;
 	virtual InitReturnVal_t Init() = 0;
 	virtual void Shutdown() = 0;
 	virtual AppSystemTier_t GetTier() = 0;
-	virtual void Reconnect(CreateInterfaceFn factory, const char* pInterfaceName) = 0;
+	virtual void Reconnect(const CreateInterfaceFn factory, const char* const pInterfaceName) = 0;
 
 	// This function must be called before init
 	virtual bool SetStartupInfo(StartupInfo_t& info) = 0;
