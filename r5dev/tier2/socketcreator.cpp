@@ -6,9 +6,9 @@
 
 #include <tier1/NetAdr.h>
 #include <tier2/socketcreator.h>
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 #include <engine/sys_utils.h>
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 #include <engine/net.h>
 
 //-----------------------------------------------------------------------------

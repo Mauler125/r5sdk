@@ -20,7 +20,7 @@ void SpdLog_Init(const bool bAnsiColor)
 		return;
 	}
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 	g_LogSessionUUID = CreateUUID();
 	g_LogSessionDirectory = fmt::format("platform\\logs\\{:s}", g_LogSessionUUID);
 	/************************
@@ -33,16 +33,16 @@ void SpdLog_Init(const bool bAnsiColor)
 		g_ImGuiLogger->set_pattern("%v");
 		g_ImGuiLogger->set_level(spdlog::level::trace);
 	}
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 	/************************
 	 * WINDOWS LOGGER SETUP *
 	 ************************/
 	{
-#ifdef NETCONSOLE
+#ifdef _TOOLS
 		g_TermLogger = spdlog::default_logger();
 #else
 		g_TermLogger = spdlog::stdout_logger_mt("win_console");
-#endif // NETCONSOLE
+#endif // _TOOLS
 
 		// Determine if user wants ansi-color logging in the terminal.
 		if (bAnsiColor)
@@ -57,10 +57,10 @@ void SpdLog_Init(const bool bAnsiColor)
 		//g_TermLogger->set_level(spdlog::level::trace);
 	}
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 	spdlog::set_default_logger(g_TermLogger); // Set as default.
 	SpdLog_Create();
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
 	spdlog::set_level(spdlog::level::trace);
 	bInitialized = true;

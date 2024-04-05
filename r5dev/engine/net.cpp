@@ -6,7 +6,7 @@
 
 #include "core/stdafx.h"
 #include "engine/net.h"
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 #include "tier1/cvar.h"
 #include "mathlib/color.h"
 #include "net.h"
@@ -15,9 +15,9 @@
 #include "server/server.h"
 #include "client/client.h"
 #endif // !CLIENT_DLL
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 //-----------------------------------------------------------------------------
 // Purpose: hook and log the receive datagram
 // Input  : iSocket - 
@@ -190,7 +190,7 @@ bool NET_ReadMessageType(int* outType, bf_read* buffer)
 	return !buffer->IsOverflowed();
 }
 
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
 //-----------------------------------------------------------------------------
 // Purpose: returns the WSA error code
@@ -294,7 +294,7 @@ const char* NET_ErrorString(int iCode)
 	}
 }
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 ///////////////////////////////////////////////////////////////////////////////
 void VNet::Detour(const bool bAttach) const
 {
@@ -310,4 +310,4 @@ netadr_t* g_pNetAdr = nullptr;
 netkey_t* g_pNetKey = nullptr;
 
 double* g_pNetTime = nullptr;
-#endif // !NETCONSOLE
+#endif // !_TOOLS

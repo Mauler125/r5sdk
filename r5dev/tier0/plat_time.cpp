@@ -1,3 +1,9 @@
+//=============================================================================//
+//
+// Purpose: Static platform time utilities
+// ----------------------------------------------------------------------------
+// NOTE: use this for standalone/tools projects
+//=============================================================================//
 #include "core/stdafx.h"
 
 static LARGE_INTEGER g_PerformanceFrequency;
@@ -78,11 +84,11 @@ uint64 Plat_USTime()
 	return (uint64)((CurrentTime.QuadPart - g_ClockStart.QuadPart) * g_PerformanceCounterToUS);
 }
 
-#ifdef NETCONSOLE
+#ifdef _TOOLS
 #define TIMER_FORMAT "(%.3f) "
 #else
 #define TIMER_FORMAT "[%.3f] "
-#endif // NETCONSOLE
+#endif // _TOOLS
 
 const char* Plat_GetProcessUpTime()
 {
