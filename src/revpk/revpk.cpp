@@ -49,7 +49,7 @@ CFileSystem_Stdio* FileSystem()
 //-----------------------------------------------------------------------------
 static void ReVPK_Init()
 {
-    CheckCPUforSSE2();
+    CheckSystemCPUForSSE2();
 
     g_CoreMsgVCallback = EngineLoggerSink;
     lzham_enable_fail_exceptions(true);
