@@ -1,5 +1,5 @@
 #pragma once
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "common/protocol.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"

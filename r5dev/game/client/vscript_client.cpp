@@ -9,7 +9,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/host_state.h"
 #include "engine/client/cl_main.h"

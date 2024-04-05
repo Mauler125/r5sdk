@@ -61,6 +61,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
     "rtech_tools"
     "rtech_game"
+    "playlists"
     "stryder"
 
     "libdetours"

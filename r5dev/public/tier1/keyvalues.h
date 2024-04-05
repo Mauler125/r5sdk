@@ -1,16 +1,14 @@
 #pragma once
 #include "mathlib/color.h"
 #include "tier1/utlbuffer.h"
+#include "tier1/exprevaluator.h"
 #include "public/ifilesystem.h"
 
-#define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( uint16_t )x2) << 8 ) | (uint8_t)(x1))
-#define SPLIT_3_BYTES_INTO_1_AND_2( x1, x2, x3 ) do { x1 = (uint8)(x3); x2 = (uint16)( (x3) >> 8 ); } while( 0 )
+#define KEYVALUES_TOKEN_SIZE	(1024 * 32)
 
-extern vector<string> g_vAllPlaylists;
-extern vector<string> g_vGameInfoPaths;
-
-extern std::mutex g_InstalledMapsMutex;
-extern std::mutex g_PlaylistsVecMutex;
+// single byte identifies a xbox kv file in binary format
+// strings are pooled from a searchpath/zip mounted symbol table
+#define KV_BINARY_POOLED_FORMAT 0xAA
 
 //---------------------------------------------------------------------------------
 // Purpose: Forward declarations
@@ -18,15 +16,7 @@ extern std::mutex g_PlaylistsVecMutex;
 class KeyValues;
 class CFileSystem_Stdio;
 class IBaseFileSystem;
-
-/* ==== KEYVALUES ======================================================================================================================================================= */
-inline void*(*KeyValues__FindKey)(KeyValues* thisptr, const char* pkeyName, bool bCreate);
-inline bool(*KeyValues__LoadPlaylists)(const char* pszPlaylist);
-inline bool(*KeyValues__ParsePlaylists)(const char* pszPlaylist);
-inline const char* (*KeyValues__GetCurrentPlaylist)(void);
-inline KeyValues*(*KeyValues__ReadKeyValuesFile)(CFileSystem_Stdio* pFileSystem, const char* pFileName);
-inline void(*KeyValues__RecursiveSaveToFile)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel);
-inline KeyValues*(*KeyValues__LoadFromFile)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc);
+class CKeyValuesTokenReader;
 
 enum KeyValuesTypes_t : char
 {
@@ -51,6 +41,14 @@ enum MergeKeyValuesOp_t
 	MERGE_KV_BORROW,	// update values only update existing keys in storage, keys in update that do not exist in storage are discarded
 };
 
+#define FOR_EACH_SUBKEY( kvRoot, kvSubKey ) \
+	for ( KeyValues * kvSubKey = kvRoot->GetFirstSubKey(); kvSubKey != NULL; kvSubKey = kvSubKey->GetNextKey() )
+
+#define FOR_EACH_TRUE_SUBKEY( kvRoot, kvSubKey ) \
+	for ( KeyValues * kvSubKey = kvRoot->GetFirstTrueSubKey(); kvSubKey != NULL; kvSubKey = kvSubKey->GetNextTrueSubKey() )
+
+#define FOR_EACH_VALUE( kvRoot, kvValue ) \
+	for ( KeyValues * kvValue = kvRoot->GetFirstValue(); kvValue != NULL; kvValue = kvValue->GetNextValue() )
 
 //-----------------------------------------------------------------------------
 // Purpose: Simple recursive data access class
@@ -90,6 +88,7 @@ public:
 	void DeleteThis(void);
 	void RemoveEverything();
 
+	KeyValues* FindKey(int keySymbol) const;
 	KeyValues* FindKey(const char* pKeyName, bool bCreate = false);
 	KeyValues* FindLastSubKey(void) const;
 
@@ -109,6 +108,8 @@ public:
 	KeyValues* GetFirstSubKey() const;
 	KeyValues* GetNextKey() const;
 	const char* GetName(void) const;
+	int GetNameSymbol() const;
+	int GetNameSymbolCaseSensitive() const;
 	int GetInt(const char* pszKeyName, int iDefaultValue);
 	uint64_t GetUint64(const char* pszKeyName, uint64_t nDefaultValue);
 	void* GetPtr(const char* pszKeyName, void* pDefaultValue);
@@ -134,20 +135,41 @@ public:
 	void SetBool(const char* pszKeyName, bool bValue) { SetInt(pszKeyName, bValue ? 1 : 0); }
 	void UsesEscapeSequences(bool bState);
 
-	void RecursiveCopyKeyValues(KeyValues& src);
 	void RecursiveSaveToFile(CUtlBuffer& buf, int nIndentLevel);
-	void RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel);
-	KeyValues* LoadFromFile(IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc);
+
+	bool LoadFromFile(IBaseFileSystem* filesystem, const char* resourceName, const char* pathID, GetSymbolProc_t pfnEvaluateSymbolProc = nullptr);
+
+	bool LoadFromBuffer(char const* resourceName, CUtlBuffer& buf, IBaseFileSystem* pFileSystem, const char* pPathID, GetSymbolProc_t pfnEvaluateSymbolProc = nullptr);
+	bool LoadFromBuffer(char const* resourceName, const char* pBuffer, IBaseFileSystem* pFileSystem, const char* pPathID, GetSymbolProc_t pfnEvaluateSymbolProc = nullptr);
+
+	// for handling #include "filename"
+	void AppendIncludedKeys(CUtlVector< KeyValues* >& includedKeys);
+	void ParseIncludedKeys(char const* resourceName, const char* filetoinclude,
+		IBaseFileSystem* pFileSystem, const char* pPathID, CUtlVector< KeyValues* >& includedKeys, GetSymbolProc_t pfnEvaluateSymbolProc);
+
+	// For handling #base "filename"
+	void MergeBaseKeys(CUtlVector< KeyValues* >& baseKeys);
+	void RecursiveMergeKeyValues(KeyValues* baseKV);
 
 	void CopySubkeys(KeyValues* pParent) const;
 	KeyValues* MakeCopy(void) const;
 
-	// Initialization
-	static void InitPlaylists(void);
-	static void InitFileSystem(void);
-	static bool LoadPlaylists(const char* szPlaylist);
-	static bool ParsePlaylists(const char* szPlaylist);
-	static KeyValues* ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const char* pFileName);
+	KeyValues* CreateKeyUsingKnownLastChild(const char* keyName, KeyValues* pLastChild);
+	void AddSubkeyUsingKnownLastChild(KeyValues* pSubKey, KeyValues* pLastChild);
+
+private:
+	void RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel);
+	void RecursiveLoadFromBuffer(char const* resourceName, CKeyValuesTokenReader& tokenReader, GetSymbolProc_t pfnEvaluateSymbolProc);
+
+	void RecursiveCopyKeyValues(KeyValues& src);
+
+	// NOTE: If both filesystem and pBuf are non-null, it'll save to both of them.
+	// If filesystem is null, it'll ignore f.
+	void InternalWrite(IBaseFileSystem* filesystem, FileHandle_t f, CUtlBuffer* pBuf, const void* pData, ssize_t len);
+	void WriteIndents(IBaseFileSystem* filesystem, FileHandle_t f, CUtlBuffer* pBuf, int indentLevel);
+	void WriteConvertedString(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, const char* pszString);
+
+	bool EvaluateConditional(const char* pExpressionString, GetSymbolProc_t pfnEvaluateSymbolProc);
 
 public:
 	uint32_t         m_iKeyName               : 24;// 0x0000
@@ -169,40 +191,3 @@ public:
 	KeyValues*       m_pSub;                       // 0x0038
 	KeyValues*       m_pChain;                     // 0x0040
 };
-
-///////////////////////////////////////////////////////////////////////////////
-extern KeyValues** g_pPlaylistKeyValues;
-
-///////////////////////////////////////////////////////////////////////////////
-class VKeyValues : public IDetour
-{
-	virtual void GetAdr(void) const
-	{
-		LogFunAdr("KeyValues::FindKey", KeyValues__FindKey);
-		LogFunAdr("KeyValues::LoadPlaylists", KeyValues__LoadPlaylists);
-		LogFunAdr("KeyValues::ParsePlaylists", KeyValues__ParsePlaylists);
-		LogFunAdr("KeyValues::GetCurrentPlaylist", KeyValues__GetCurrentPlaylist);
-		LogFunAdr("KeyValues::ReadKeyValuesFile", KeyValues__ReadKeyValuesFile);
-		LogFunAdr("KeyValues::RecursiveSaveToFile", KeyValues__RecursiveSaveToFile);
-		LogFunAdr("KeyValues::LoadFromFile", KeyValues__LoadFromFile);
-		LogVarAdr("g_pPlaylistKeyValues", g_pPlaylistKeyValues);
-	}
-	virtual void GetFun(void) const
-	{
-		g_GameDll.FindPatternSIMD("40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45").GetPtr(KeyValues__FindKey);
-		g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? 48 85 C0 75 08 48 8D 05 ?? ?? ?? ?? C3 0F B7 50 2A").GetPtr(KeyValues__GetCurrentPlaylist);
-		g_GameDll.FindPatternSIMD("48 8B C4 55 53 57 41 54 48 8D 68 A1").GetPtr(KeyValues__ReadKeyValuesFile);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 89 4C 24 ?? 48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(KeyValues__LoadFromFile);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 40 48 8B F1").GetPtr(KeyValues__LoadPlaylists);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 0C").FollowNearCallSelf().GetPtr(KeyValues__ParsePlaylists);
-		g_GameDll.FindPatternSIMD("48 8B C4 53 ?? 57 41 55 41 ?? 48 83").GetPtr(KeyValues__RecursiveSaveToFile);
-	}
-	virtual void GetVar(void) const
-	{
-		g_pPlaylistKeyValues = g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 E8 B4")
-			.FindPatternSelf("48 8B 0D", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<KeyValues**>();
-	}
-	virtual void GetCon(void) const { }
-	virtual void Detour(const bool bAttach) const;
-};
-///////////////////////////////////////////////////////////////////////////////

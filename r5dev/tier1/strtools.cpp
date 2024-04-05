@@ -1,6 +1,76 @@
 #include "tier1/strtools.h"
 
 //-----------------------------------------------------------------------------
+// A special high-performance case-insensitive compare function
+// returns 0 if strings match exactly
+// returns >0 if strings match in a case-insensitive way, but do not match exactly
+// returns <0 if strings do not match even in a case-insensitive way
+//-----------------------------------------------------------------------------
+int	_V_stricmp_NegativeForUnequal(const char* s1, const char* s2)
+{
+	// It is not uncommon to compare a string to itself. Since stricmp
+	// is expensive and pointer comparison is cheap, this simple test
+	// can save a lot of cycles, and cache pollution.
+	if (s1 == s2)
+		return 0;
+
+	uint8 const* pS1 = (uint8 const*)s1;
+	uint8 const* pS2 = (uint8 const*)s2;
+	int iExactMatchResult = 1;
+	for (;;)
+	{
+		int c1 = *(pS1++);
+		int c2 = *(pS2++);
+		if (c1 == c2)
+		{
+			// strings are case-insensitive equal, coerce accumulated
+			// case-difference to 0/1 and return it
+			if (!c1) return !iExactMatchResult;
+		}
+		else
+		{
+			if (!c2)
+			{
+				// c2=0 and != c1  =>  not equal
+				return -1;
+			}
+			iExactMatchResult = 0;
+			c1 = FastASCIIToLower(c1);
+			c2 = FastASCIIToLower(c2);
+			if (c1 != c2)
+			{
+				// strings are not equal
+				return -1;
+			}
+		}
+		c1 = *(pS1++);
+		c2 = *(pS2++);
+		if (c1 == c2)
+		{
+			// strings are case-insensitive equal, coerce accumulated
+			// case-difference to 0/1 and return it
+			if (!c1) return !iExactMatchResult;
+		}
+		else
+		{
+			if (!c2)
+			{
+				// c2=0 and != c1  =>  not equal
+				return -1;
+			}
+			iExactMatchResult = 0;
+			c1 = FastASCIIToLower(c1);
+			c2 = FastASCIIToLower(c2);
+			if (c1 != c2)
+			{
+				// strings are not equal
+				return -1;
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Finds a string in another string with a case insensitive test
 //-----------------------------------------------------------------------------
 char const* V_stristr(char const* pStr, char const* pSearch)
@@ -152,6 +222,52 @@ bool V_isspace(int c)
 	}
 #endif
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *in - 
+//			inputbytes - 
+//			*out - 
+//			outsize - 
+//-----------------------------------------------------------------------------
+void V_binarytohex(const byte* in, size_t inputbytes, char* out, size_t outsize)
+{
+	Assert(outsize >= 1);
+	char doublet[10];
+	int i;
+
+	out[0] = 0;
+
+	for (i = 0; i < inputbytes; i++)
+	{
+		unsigned char c = in[i];
+		V_snprintf(doublet, sizeof(doublet), "%02x", c);
+		V_strncat(out, doublet, outsize);
+	}
+}
+
+
+int V_vsnprintfRet(char* pDest, int maxLen, const char* pFormat, va_list params, bool* pbTruncated)
+{
+	Assert(maxLen > 0);
+
+	int len = _vsnprintf(pDest, maxLen, pFormat, params);
+	bool bTruncated = (len < 0) || (len >= maxLen);
+
+	if (pbTruncated)
+	{
+		*pbTruncated = bTruncated;
+	}
+
+	if (bTruncated && maxLen > 0)
+	{
+		len = maxLen - 1;
+		pDest[maxLen - 1] = 0;
+	}
+
+	return len;
+}
+
 
 ssize_t V_StrTrim(char* pStr)
 {

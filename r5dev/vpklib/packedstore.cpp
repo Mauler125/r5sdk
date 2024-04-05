@@ -25,15 +25,15 @@
 // 
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "tier1/cvar.h"
+#include "tier1/keyvalues.h"
 #include "tier2/fileutils.h"
 #include "mathlib/adler32.h"
 #include "mathlib/crc32.h"
 #include "mathlib/sha1.h"
-#include "filesystem/filesystem.h"
-#include "vpc/keyvalues.h"
 #include "localize/ilocalize.h"
 #include "vpklib/packedstore.h"
+
+extern CFileSystem_Stdio* FileSystem();
 
 static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
 static const std::regex s_BlockFileRegex{ R"(pak000_([0-9]{3}))" };
@@ -41,13 +41,13 @@ static const std::regex s_BlockFileRegex{ R"(pak000_([0-9]{3}))" };
 //-----------------------------------------------------------------------------
 // Purpose: initialize parameters for compression algorithm
 //-----------------------------------------------------------------------------
-void CPackedStore::InitLzCompParams(void)
+void CPackedStore::InitLzCompParams(const char* compressionLevel, const lzham_int32 maxHelperThreads)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzCompParams.m_dict_size_log2     = VPK_DICT_SIZE;
-	m_lzCompParams.m_level              = GetCompressionLevel();
+	m_lzCompParams.m_level              = DetermineCompressionLevel(compressionLevel);
 	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
-	m_lzCompParams.m_max_helper_threads = fs_packedstore_max_helper_threads->GetInt();
+	m_lzCompParams.m_max_helper_threads = maxHelperThreads;
 }
 
 //-----------------------------------------------------------------------------
@@ -65,19 +65,17 @@ void CPackedStore::InitLzDecompParams(void)
 // Purpose: gets the LZHAM compression level
 // output : lzham_compress_level
 //-----------------------------------------------------------------------------
-lzham_compress_level CPackedStore::GetCompressionLevel(void) const
+lzham_compress_level CPackedStore::DetermineCompressionLevel(const char* compressionLevel) const
 {
-	const char* pszLevel = fs_packedstore_compression_level->GetString();
-
-	if(strcmp(pszLevel, "fastest") == NULL)
+	if(strcmp(compressionLevel, "fastest") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTEST;
-	else if (strcmp(pszLevel, "faster") == NULL)
+	else if (strcmp(compressionLevel, "faster") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTER;
-	else if (strcmp(pszLevel, "default") == NULL)
+	else if (strcmp(compressionLevel, "default") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_DEFAULT;
-	else if (strcmp(pszLevel, "better") == NULL)
+	else if (strcmp(compressionLevel, "better") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_BETTER;
-	else if (strcmp(pszLevel, "uber") == NULL)
+	else if (strcmp(compressionLevel, "uber") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_UBER;
 	else
 		return lzham_compress_level::LZHAM_COMP_LEVEL_DEFAULT;
@@ -208,7 +206,9 @@ KeyValues* CPackedStore::GetManifest(const CUtlString& workspacePath, const CUtl
 	CUtlString outPath;
 	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestFile.Get());
 
-	KeyValues* pManifestKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_COMMON, outPath.Get(), "PLATFORM");
+	KeyValues* pManifestKV = new KeyValues("BuildManifest");
+	pManifestKV->LoadFromFile(FileSystem(), outPath.Get(), "PLATFORM");
+
 	return pManifestKV;
 }
 
@@ -288,7 +288,6 @@ CUtlString CPackedStore::FormatEntryPath(const CUtlString& filePath,
 void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks, const CUtlString& workspacePath, const CUtlString& manifestName) const
 {
 	KeyValues kv("BuildManifest");
-	KeyValues* pManifestKV = kv.FindKey("BuildManifest", true);
 
 	FOR_EACH_VEC(entryBlocks, i)
 	{
@@ -301,7 +300,7 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 		CUtlString entryPath = entry.m_EntryPath;
 		entryPath.FixSlashes('\\');
 
-		KeyValues* pEntryKV = pManifestKV->FindKey(entryPath.Get(), true);
+		KeyValues* pEntryKV = kv.FindKey(entryPath.Get(), true);
 
 		pEntryKV->SetInt("preloadSize", entry.m_iPreloadSize);
 		pEntryKV->SetInt("loadFlags", descriptor.m_nLoadFlags);

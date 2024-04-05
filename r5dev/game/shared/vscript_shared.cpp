@@ -12,7 +12,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "vpc/keyvalues.h"
+#include "rtech/playlists/playlists.h"
 #include "engine/client/cl_main.h"
 #include "engine/cmodel_bsp.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"

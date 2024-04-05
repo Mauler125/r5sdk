@@ -25,6 +25,7 @@ inline void(*sub_140441220)(__int64 a1, __int64 a2);
 
 extern bool s_bBasePaksInitialized;
 extern CUtlVector<CUtlString> g_InstalledMaps;
+extern std::mutex g_InstalledMapsMutex;
 
 bool Mod_LevelHasChanged(const char* pszLevelName);
 void Mod_GetAllInstalledMaps();

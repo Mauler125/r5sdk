@@ -27,6 +27,7 @@
 #endif // !CLIENT_DLL
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
+#include "rtech/playlists/playlists.h"
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 #include "vpklib/packedstore.h"
@@ -231,7 +232,7 @@ Host_ReloadPlaylists_f
 void Host_ReloadPlaylists_f(const CCommand& args)
 {
 	v__DownloadPlaylists_f();
-	KeyValues::InitPlaylists(); // Re-Init playlist.
+	Playlists_SDKInit(); // Re-Init playlist.
 }
 
 /*
@@ -647,7 +648,7 @@ void VPK_Pack_f(const CCommand& args)
 	Msg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_DirName.Get());
 	timer.Start();
 
-	g_pPackedStore->InitLzCompParams();
+	g_pPackedStore->InitLzCompParams(fs_packedstore_compression_level->GetString(), fs_packedstore_max_helper_threads->GetInt());
 	g_pPackedStore->PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/");
 
 	timer.End();

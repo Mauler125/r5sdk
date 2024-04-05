@@ -29,6 +29,17 @@ add_sources( SOURCE_GROUP "Public"
 
 end_sources()
 
+add_module( "lib" "playlists" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Source"
+   "playlists/playlists.cpp"
+   "playlists/playlists.h"
+)
+
+end_sources()
+
 add_module( "lib" "rui" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()

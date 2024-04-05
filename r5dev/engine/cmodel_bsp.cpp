@@ -14,7 +14,7 @@
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_utils.h"
 #include "rtech/rtech_game.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "datacache/mdlcache.h"
 #include "filesystem/filesystem.h"
 #ifndef DEDICATED

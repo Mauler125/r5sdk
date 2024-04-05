@@ -113,6 +113,9 @@ PLATFORM_INTERFACE void NetMsg(LogType_t logType, eDLL_T context, const char* up
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Error(eDLL_T context, const UINT code, const char* fmt, ...) FMTFUNCTION(3, 4);
 
+// TODO[ AMOS ]: export to DLL?
+void Plat_FatalError(eDLL_T context, const char* fmt, ...);
+
 #if defined DBGFLAG_STRINGS_STRIP
 #define DevMsg( ... ) ((void)0)
 #define DevWarning( ... ) ((void)0)

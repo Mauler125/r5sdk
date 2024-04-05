@@ -31,7 +31,7 @@ History:
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
 #include "networksystem/listmanager.h"
-#include "vpc/keyvalues.h"
+#include "rtech/playlists/playlists.h"
 #include "common/callback.h"
 #include "gameui/IBrowser.h"
 #include "public/edict.h"
@@ -603,7 +603,7 @@ void CBrowser::HostPanel(void)
             g_TaskScheduler->Dispatch([]()
                 {
                     v__DownloadPlaylists_f();
-                    KeyValues::InitPlaylists(); // Re-Init playlist.
+                    Playlists_SDKInit(); // Re-Init playlist.
                 }, 0);
         }
 
@@ -745,7 +745,7 @@ void CBrowser::UpdateHostingStatus(void)
                 g_pServerListManager->m_Server.m_svDescription,
                 g_pServerListManager->m_Server.m_bHidden,
                 g_pHostState->m_levelName,
-                KeyValues__GetCurrentPlaylist(),
+                v_Playlists_GetCurrent(),
                 hostip->GetString(),
                 hostport->GetInt(),
                 g_pNetKey->GetBase64NetKey(),
