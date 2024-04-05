@@ -190,6 +190,7 @@ bool CEngineAPI::MainLoop()
             {
                 const bool bUseLowLatencyMode = gfx_nvnUseLowLatency->GetBool();
                 const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost->GetBool();
+                const bool bUseMarkersToOptimize = gfx_nvnUseMarkersToOptimize->GetBool();
 
                 float fpsMax = fps_max_gfx->GetFloat();
 
@@ -208,7 +209,7 @@ bool CEngineAPI::MainLoop()
                 }
 
                 GFX_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
-                    bUseLowLatencyBoost, false, fpsMax);
+                    bUseLowLatencyBoost, bUseMarkersToOptimize, fpsMax);
             }
 
             GFX_RunLowLatencyFrame(D3D11Device());

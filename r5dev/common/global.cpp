@@ -75,6 +75,7 @@ ConVar* r_visualizetraces_duration         = nullptr;
 
 ConVar* gfx_nvnUseLowLatency               = nullptr;
 ConVar* gfx_nvnUseLowLatencyBoost          = nullptr;
+ConVar* gfx_nvnUseMarkersToOptimize        = nullptr;
 #endif // !DEDICATED
 
 ConVar* stream_overlay                     = nullptr;
@@ -337,8 +338,9 @@ void ConVar_StaticInit(void)
 	fps_max_rt_sleep_threshold = ConVar::StaticCreate("fps_max_rt_sleep_threshold", "0.016666667", FCVAR_RELEASE, "Frame limiter starts to sleep when frame time exceeds this threshold.", true, 0.f, false, 0.f, nullptr, nullptr);
 
 	fps_max_gfx = ConVar::StaticCreate("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates use the desktop refresh. 0 is disabled.", true, -1.f, true, 295.f, &GFX_NVN_Changed_f, nullptr);
-	gfx_nvnUseLowLatency      = ConVar::StaticCreate("gfx_nvnUseLowLatency"     , "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK."  , false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
-	gfx_nvnUseLowLatencyBoost = ConVar::StaticCreate("gfx_nvnUseLowLatencyBoost", "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
+	gfx_nvnUseLowLatency        = ConVar::StaticCreate("gfx_nvnUseLowLatency"       , "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK."  , false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
+	gfx_nvnUseLowLatencyBoost   = ConVar::StaticCreate("gfx_nvnUseLowLatencyBoost"  , "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
+	gfx_nvnUseMarkersToOptimize = ConVar::StaticCreate("gfx_nvnUseMarkersToOptimize", "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Use NVIDIA Reflex Low Latency markers to optimize (requires Low Latency Boost to be enabled).", false, 0.f, false, 0.f, &GFX_NVN_Changed_f, nullptr);
 #endif // !DEDICATED
 
 	//-------------------------------------------------------------------------

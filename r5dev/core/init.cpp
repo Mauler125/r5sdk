@@ -100,6 +100,7 @@
 #include "engine/sys_mainwind.h"
 #include "engine/matsys_interface.h"
 #include "engine/gl_matsysiface.h"
+#include "engine/gl_drawlights.h"
 #include "engine/gl_screen.h"
 #include "engine/gl_rsurf.h"
 #include "engine/debugoverlay.h"
@@ -581,6 +582,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VGL_RMain);
 	REGISTER(VMatSys_Interface);
 	REGISTER(VGL_MatSysIFace);
+	REGISTER(VGL_DrawLights);
 	REGISTER(VGL_Screen);
 #endif // !DEDICATED
 

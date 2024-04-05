@@ -12,12 +12,13 @@
 #include "engine/cmodel_bsp.h"
 #include "geforce/reflex.h"
 #ifndef MATERIALSYSTEM_NODX
+#include "windows/id3dx.h"
 #include "materialsystem/cmaterialglue.h"
 #endif // !MATERIALSYSTEM_NODX
 #include "materialsystem/cmaterialsystem.h"
 
 #ifndef MATERIALSYSTEM_NODX
-//PCLSTATS_DEFINE()
+PCLSTATS_DEFINE()
 #endif // MATERIALSYSTEM_NODX
 
 //-----------------------------------------------------------------------------
@@ -38,10 +39,10 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 	// Initialize as usual.
 	GFX_EnableLowLatencySDK(!CommandLine()->CheckParm("-gfx_nvnDisableLowLatency"));
 
-	//if (GFX_IsLowLatencySDKEnabled())
-	//{
-	//	PCLSTATS_INIT(0);
-	//}
+	if (GFX_IsLowLatencySDKEnabled())
+	{
+		PCLSTATS_INIT(0);
+	}
 
 	return CMaterialSystem__Init(thisptr);
 #endif
@@ -52,10 +53,10 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 //-----------------------------------------------------------------------------
 int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 {
-	//if (GFX_IsLowLatencySDKEnabled())
-	//{
-	//	PCLSTATS_SHUTDOWN();
-	//}
+	if (GFX_IsLowLatencySDKEnabled())
+	{
+		PCLSTATS_SHUTDOWN();
+	}
 
 	return CMaterialSystem__Shutdown(thisptr);
 }
@@ -108,9 +109,21 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 	return v_DispatchDrawCall(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
 #endif
 }
-#endif // !MATERIALSYSTEM_NODX
 
-#ifndef MATERIALSYSTEM_NODX
+//---------------------------------------------------------------------------------
+// Purpose: run IDXGISwapChain::Present
+//---------------------------------------------------------------------------------
+ssize_t SpinPresent(void)
+{
+	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_END);
+
+	GFX_SetLatencyMarker(D3D11Device(), PRESENT_START);
+	const ssize_t val = v_SpinPresent();
+	GFX_SetLatencyMarker(D3D11Device(), PRESENT_END);
+
+	return val;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: finds a material
 // Input  : *pMatSys - 
@@ -154,6 +167,7 @@ void VMaterialSystem::Detour(const bool bAttach) const
 #ifndef MATERIALSYSTEM_NODX
 	DetourSetup(&v_StreamDB_Init, &StreamDB_Init, bAttach);
 	DetourSetup(&v_DispatchDrawCall, &DispatchDrawCall, bAttach);
+	DetourSetup(&v_SpinPresent, &SpinPresent, bAttach);
 	DetourSetup(&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx, bAttach);
 #endif // !MATERIALSYSTEM_NODX
 }

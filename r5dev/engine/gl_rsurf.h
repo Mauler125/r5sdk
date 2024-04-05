@@ -1,6 +1,9 @@
 #pragma once
 #include "public/ivrenderview.h"
 
+inline CMemory P_DrawDepthOfField;
+inline void*(*V_DrawDepthOfField)(const float a1);
+
 inline CMemory P_DrawWorldMeshes;
 inline void*(*V_DrawWorldMeshes)(void* baseEntity, void* renderContext, DrawWorldLists_t worldLists);
 
@@ -15,12 +18,14 @@ class VGL_RSurf : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("R_DrawDepthOfField", P_DrawDepthOfField.GetPtr());
 		LogFunAdr("R_DrawWorldMeshes", P_DrawWorldMeshes.GetPtr());
 		LogFunAdr("R_DrawWorldMeshesDepthOnly", P_DrawWorldMeshesDepthOnly.GetPtr());
 		LogFunAdr("R_DrawWorldMeshesDepthAtTheEnd", P_DrawWorldMeshesDepthAtTheEnd.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
+		P_DrawDepthOfField = g_GameDll.FindPatternSIMD("48 83 EC 48 0F 28 E8");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		P_DrawWorldMeshes              = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 48 83 EC 70");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
@@ -29,6 +34,7 @@ class VGL_RSurf : public IDetour
 		P_DrawWorldMeshesDepthOnly     = g_GameDll.FindPatternSIMD("40 56 57 B8 ?? ?? ?? ??");
 		P_DrawWorldMeshesDepthAtTheEnd = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 41 8B F9");
 
+		V_DrawDepthOfField             = P_DrawDepthOfField.RCast<void* (*)(const float)>();
 		V_DrawWorldMeshes              = P_DrawWorldMeshes.RCast<void* (*)(void*, void*, DrawWorldLists_t)>();                     /*48 8B C4 48 89 48 08 53 57 41 55*/
 		V_DrawWorldMeshesDepthOnly     = P_DrawWorldMeshesDepthOnly.RCast<void* (*)(void*, DrawWorldLists_t)>();                   /*40 56 57 B8 ?? ?? ?? ??*/
 		V_DrawWorldMeshesDepthAtTheEnd = P_DrawWorldMeshesDepthAtTheEnd.RCast<void* (*)(void*, void*, void*, DrawWorldLists_t)>(); /*48 89 5C 24 ?? 48 89 74 24 ? 57 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 41 8B F9*/
