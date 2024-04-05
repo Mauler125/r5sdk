@@ -35,6 +35,7 @@
 #include "engine/cmodel_bsp.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
+#include "rtech/liveapi/liveapi.h"
 #endif // !CLIENT_DLL
 #include "rtech/stryder/stryder.h"
 #include "rtech/playlists/playlists.h"
@@ -304,6 +305,10 @@ void CHostState::Setup(void)
 #ifndef DEDICATED
 	RCONClient()->Init();
 #endif // !DEDICATED
+
+#ifndef CLIENT_DLL
+	LiveAPISystem()->Init();
+#endif // !CLIENT_DLL
 
 	if (net_useRandomKey.GetBool())
 	{

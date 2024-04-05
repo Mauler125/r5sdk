@@ -1,0 +1,200 @@
+<html>
+    <body>
+        <br>
+        <center>
+            <H2>Tester2: To-Do/Feature Task List</H2>
+            (in order of attention)<br><br>
+        </center>
+        <table border=1 cellpadding=5>
+            <tr>
+                <td align="center"><b>Summary</b></td>
+                <td align="center"><b>Description</b></td>
+                <td align="center"><b>Status</b></td>
+                <td align="center"><b>Time Estimate<br>(days)</b></td>
+                <td align="center"><b>Actual Time Spent<br>(days)</b></td>
+            </tr>
+            <tr>
+                <td>Subcommands for NET</td>
+                <td>Make the "net" command use the subcommand architecture</td>
+                <td align=center>active</td>
+                <td align=center>2</td>
+                <td align=center>0</td>
+            </tr>
+            <tr>
+                <td>PS2 Login</td>
+                <td>Implement network config chooser for the "net login" command in T2Host.</td>
+                <td align=center>active</td>
+                <td align=center>8</td>
+                <td align=center>0</td>
+            </tr>
+            <tr>
+                <td>Xbox Login</td>
+                <td>Make the Xbox "net login" command do all the xbox live login stuff.</td>
+                <td align=center>active</td>
+                <td align=center>8</td>
+                <td align=center>0</td>
+            </tr>
+            <tr>
+                <td>PSP DSDemo Framework</td>
+                <td>Create basic PSP DSDemo framework.  Do not fill in completely - just use as needed.</td>
+                <td align=center>idle</td>
+                <td align=center>2</td>
+                <td align=center>0</td>
+            </tr>
+            <tr>
+                <td>PSP dynamic module loading</td>
+                <td>Build a module loader for PSP - like the PS2 IRX loader - to dynamically load PRXes</td>
+                <td align=center>idle</td>
+                <td align=center>8</td>
+                <td align=center>0</td>
+            </tr>
+            <tr>
+                <td>Delete Stale Commands on Startup</td>
+                <td>On startup, both the host and client should delete any data already present in the buffer (file)</td>
+                <td align="center">idle</td>
+                <td align="center">.25</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>'-' command prefix</td>
+                <td>Using the '-' prefix to a command ("-help") clears the debug output and then executes the command.</td>
+                <td align="center">idle</td>
+                <td align="center">.25</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>Script on Startup</td>
+                <td>Add the ability to run a script on startup</td>
+                <td align="center">idle</td>
+                <td align="center">.25</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>Differentiate host and client console output</td>
+                <td>Color-code or otherwise mark differently data which is coming from the host and data which is coming from the client.</td>
+                <td align="center">idle</td>
+                <td align="center">.5</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>Client Cleanup</td>
+                <td>Add "net stop" printf and make sure all other states properly printf as well.</td>
+                <td align="center">idle</td>
+                <td align="center">???</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>Client Cleanup</td>
+                <td>Debug the clear command for both the host and client.</td>
+                <td align="center">idle</td>
+                <td align="center">???</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>Separate out Debug Output</td>
+                <td>(from James)<br>
+                    The debug output can be overwhelming and it might be nice to have it separated 
+                    out (optionally?). Alternative ideas might be the ability to hide/show debug 
+                    output (as a toggle) or have a different coloration for it.</td>
+                <td align="center">idle</td>
+                <td align="center">1</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>File Logging</td>
+                <td>Add the ability to log debug output to a file.</td>
+                <td align="center">idle</td>
+                <td align="center">.5</td>
+                <td align="center">0</td>
+            </tr>
+
+            <tr>
+                <td>PING Command Fix</td>
+                <td>Dirtysock is leaking memory from the allocation at line 1618 in SocketLookup, 
+                where the HostentT structure is allocated.  This is being called by ProtoNameAsync 
+                inside the ping command.  The ping module probably isn't disposing of the 
+                host structure in all cases</td>
+                <td align="center">idle</td>
+                <td align="center">.1</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>Help Command</td>
+                <td>The help command by itself should only list all available commands.  
+                Additional help can then be accessed by typing "help <command>".  
+                The current help model comes from the original tester application and 
+                should be updated to reflect this design.</td>
+                <td align="center">idle</td>
+                <td align="center">.25</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>Concurrent Multi-user profiles</td>
+                <td>Fix the profile module to handle the case where multiple Tester2 clients can be open at once and write to the profile file safely.</td>
+                <td align=center>idle</td>
+                <td align=center>4</td>
+                <td align=center>0</td>
+            </tr>
+        </table>
+        <br><br><br>
+        <center>
+            <H2>Tester2: Done/Suspended Tasks</H2>
+            <br><br>
+        </center>
+        <table border=1 cellpadding=5>
+            <tr>
+                <td align="center"><b>Summary</b></td>
+                <td align="center"><b>Description</b></td>
+                <td align="center"><b>Status</b></td>
+                <td align="center"><b>Time Estimate<br>(days)</b></td>
+                <td align="center"><b>Actual Time Spent<br>(days)</b></td>
+            </tr>
+            <tr>
+                <td>Window Resizing</td>
+                <td>Currently, both windows are fixed in size. This matches the way the original 
+                    Tester application worked, but it would be nice to be able to resize the 
+                    window.  Additionally add a horizontal scroll bar.</td>
+                <td align="center">DONE</td>
+                <td align="center">.25</td>
+                <td align="center">.5</td>
+            </tr>
+            <tr>
+                <td>Client Cleanup</td>
+                <td>Find out why the client is starting dirtysock and kill it if possible.</td>
+                <td align="center">DONE</td>
+                <td align="center">.05</td>
+                <td align="center">.05</td>
+            </tr>
+            <tr>
+                <td>Xenon Investigation and Design</td>
+                <td>Investigate Xenon debugger interface. Examine refactoring/extracting common 
+                    functionality from the hostclientcomm module and adapting it to the debug 
+                    interface.</td>
+                <td align="center">DONE</td>
+                <td align="center">.5</td>
+                <td align="center">.5</td>
+            </tr>
+            <tr>
+                <td>Save History</td>
+                <td>Save historical commands and load them back in at startup</td>
+                <td align="center">DONE</td>
+                <td align="center">.25</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <td>Xenon Development</td>
+                <td>Implement hostclientcomm module for Xenon.</td>
+                <td align="center">DONE</td>
+                <td align="center">&nbsp;</td>
+                <td align="center">&nbsp;</td>
+            </tr>            
+            <tr>
+                <td>Title Bar</td>
+                <td>Make the title bar text on the client show the profile name.</td>
+                <td align="center">DONE</td>
+                <td align="center">.1</td>
+                <td align="center">.1</td>
+            </tr>
+        </table>        
+    </body>
+</html>

@@ -562,7 +562,7 @@ void Cmd_Exec_f(const CCommand& args)
 	// Prevent users from running neo strafe commands and other quick hacks.
 	// TODO: when reBar becomes a thing, we should verify this function and
 	// flag users that patch them out.
-	if (!ThreadInServerFrameThread() && g_pClientState->IsActive())
+	if (g_pClientState->IsActive() && !ThreadInServerFrameThread())
 	{
 		const int execQuota = sv_quota_scriptExecsPerSecond.GetInt();
 

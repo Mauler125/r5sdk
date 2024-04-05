@@ -85,7 +85,10 @@ void Console_Init(const bool bAnsiColor)
 	// Create the console window
 	if (AllocConsole() == FALSE)
 	{
-		OutputDebugStringA("Failed to create console window!\n");
+		char szBuf[2048];
+		snprintf(szBuf, sizeof(szBuf), "Failed to create console window! [%s]\n", std::system_category().message(static_cast<int>(::GetLastError())).c_str());
+
+		OutputDebugStringA(szBuf);
 		return;
 	}
 
@@ -120,8 +123,7 @@ void Console_Init(const bool bAnsiColor)
 		if (!SetConsoleMode(hOutput, dwMode)) // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
 		{
 			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
-			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
-				"Please disable ansi-colors and restart \nthe program if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
+			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'; please disable ansi-colors and restart the program if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
 		}
 
 		SetConsoleBackgroundColor(0x00000000);
@@ -142,7 +144,10 @@ void Console_Shutdown()
 	// Destroy the console window
 	if (FreeConsole() == FALSE)
 	{
-		OutputDebugStringA("Failed to destroy console window!\n");
+		char szBuf[2048];
+		snprintf(szBuf, sizeof(szBuf), "Failed to destroy console window! [%s]\n", std::system_category().message(static_cast<int>(::GetLastError())).c_str());
+
+		OutputDebugStringA(szBuf);
 		return;
 	}
 }

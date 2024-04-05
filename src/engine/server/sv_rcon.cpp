@@ -382,37 +382,36 @@ void CRConServer::Authenticate(const cl_rcon::request& request, CConnectedNetCon
 	{
 		return;
 	}
-	else // Authorize.
+
+	// Authorize.
+	if (Comparator(request.requestmsg()))
 	{
-		if (Comparator(request.requestmsg()))
+		data.m_bAuthorized = true;
+		if (++m_nAuthConnections >= sv_rcon_maxconnections.GetInt())
 		{
-			data.m_bAuthorized = true;
-			if (++m_nAuthConnections >= sv_rcon_maxconnections.GetInt())
-			{
-				m_Socket.CloseListenSocket();
-				CloseNonAuthConnection();
-			}
-
-			const char* pSendLogs = (!sv_rcon_sendlogs.GetBool() || data.m_bInputOnly) ? "0" : "1";
-
-			SendEncode(data.m_hSocket, s_AuthMessage, pSendLogs,
-				sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
+			m_Socket.CloseListenSocket();
+			CloseNonAuthConnection();
 		}
-		else // Bad password.
+
+		const char* pSendLogs = (!sv_rcon_sendlogs.GetBool() || data.m_bInputOnly) ? "0" : "1";
+
+		SendEncode(data.m_hSocket, s_AuthMessage, pSendLogs,
+			sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
+	}
+	else // Bad password.
+	{
+		const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+		if (sv_rcon_debug.GetBool())
 		{
-			const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
-			if (sv_rcon_debug.GetBool())
-			{
-				Msg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
-			}
-
-			SendEncode(data.m_hSocket, s_WrongPwMessage, "",
-				sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
-
-			data.m_bAuthorized = false;
-			data.m_bValidated = false;
-			data.m_nFailedAttempts++;
+			Msg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
 		}
+
+		SendEncode(data.m_hSocket, s_WrongPwMessage, "",
+			sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(eDLL_T::NETCON));
+
+		data.m_bAuthorized = false;
+		data.m_bValidated = false;
+		data.m_nFailedAttempts++;
 	}
 }
 
@@ -510,7 +509,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 //-----------------------------------------------------------------------------
 void CRConServer::Execute(const cl_rcon::request& request) const
 {
-	const string& commandString = request.requestmsg().c_str();
+	const string& commandString = request.requestmsg();
 	const char* const pCommandString = commandString.c_str();
 
 	ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(pCommandString);
@@ -522,6 +521,9 @@ void CRConServer::Execute(const cl_rcon::request& request) const
 	}
 
 	const char* const pValueString = request.requestval().c_str();
+
+	if (pCommandBase->IsFlagSet(FCVAR_SERVER_FRAME_THREAD))
+		ThreadJoinServerJob();
 
 	if (!pCommandBase->IsCommand())
 	{

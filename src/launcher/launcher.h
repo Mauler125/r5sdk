@@ -1,11 +1,12 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
+// NOTE: cannot hook this! this function is hooked by loader.dll and is also
+// used to gracefully shutdown the SDK.
 inline int(*v_LauncherMain)(HINSTANCE hInstance);
+
 inline LONG(*v_TopLevelExceptionFilter)(EXCEPTION_POINTERS* pExceptionPointer);
 inline void(*v_RemoveSpuriousGameParameters)(void);
-
-const char* ExitCodeToString(int nCode);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VLauncher : public IDetour

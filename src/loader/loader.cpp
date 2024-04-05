@@ -39,10 +39,14 @@ static const IMAGE_DOS_HEADER* s_DosHeader = nullptr;
 static const IMAGE_NT_HEADERS64* s_NtHeaders = nullptr;
 static HMODULE s_SdkModule = NULL;
 
+typedef void (*InitFunc)(void);
+static InitFunc s_SdkInitFunc = NULL;
+static InitFunc s_SdkShutdownFunc = NULL;
+
 //-----------------------------------------------------------------------------
-// WinMain function pointer
+// LauncherMain function pointer
 //-----------------------------------------------------------------------------
-static int (*v_WinMain)(HINSTANCE, HINSTANCE, LPSTR, int) = nullptr;
+static int (*v_LauncherMain)(HINSTANCE, HINSTANCE, LPSTR, int) = nullptr;
 
 //-----------------------------------------------------------------------------
 // Purpose: Terminates the process with an error when called
@@ -100,16 +104,49 @@ static void InitGameSDK(const LPSTR lpCmdLine)
 	{
 		Assert(0);
 		FatalError("Failed to load SDK: error code = %08x\n", GetLastError());
+
+		return;
+	}
+
+	s_SdkInitFunc = (InitFunc)GetProcAddress(s_SdkModule, "SDK_Init");
+	if (s_SdkInitFunc)
+		s_SdkShutdownFunc = (InitFunc)GetProcAddress(s_SdkModule, "SDK_Shutdown");
+
+	if (!s_SdkInitFunc || !s_SdkShutdownFunc)
+	{
+		Assert(0);
+		FatalError("Loaded SDK is invalid: error code = %08x\n", GetLastError());
+
+		return;
+	}
+
+	s_SdkInitFunc();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Unloads the SDK module
+//-----------------------------------------------------------------------------
+static void ShutdownGameSDK()
+{
+	if (s_SdkModule)
+	{
+		s_SdkShutdownFunc();
+
+		FreeLibrary(s_SdkModule);
+		s_SdkModule = NULL;
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: WinMain hook; loads the SDK before LauncherMain
+// Purpose: LauncherMain hook; loads the SDK before the game inits
 //-----------------------------------------------------------------------------
-int WINAPI hWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int WINAPI hLauncherMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	InitGameSDK(lpCmdLine); // Init GameSDK, internal function calls LauncherMain.
-	return v_WinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
+	const int ret = v_LauncherMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
+	ShutdownGameSDK();
+
+	return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -120,7 +157,7 @@ static void AttachEP()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	DetourAttach(&v_WinMain, &hWinMain);
+	DetourAttach(&v_LauncherMain, &hLauncherMain);
 
 	HRESULT hr = DetourTransactionCommit();
 	if (hr != NO_ERROR) // Failed to hook into the process, terminate...
@@ -138,7 +175,7 @@ static void DetachEP()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	DetourDetach(&v_WinMain, &hWinMain);
+	DetourDetach(&v_LauncherMain, &hLauncherMain);
 	HRESULT hr = DetourTransactionCommit();
 
 	Assert(hr != NO_ERROR);
@@ -159,7 +196,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 		s_NtHeaders = (IMAGE_NT_HEADERS64*)((uintptr_t)s_DosHeader
 			+ (uintptr_t)s_DosHeader->e_lfanew);
 
-		v_WinMain = CModule::GetExportedSymbol((QWORD)s_DosHeader, "WinMain")
+		v_LauncherMain = CModule::GetExportedSymbol((QWORD)s_DosHeader, "LauncherMain")
 			.RCast<int (*)(HINSTANCE, HINSTANCE, LPSTR, int)>();
 
 		AttachEP();
@@ -168,9 +205,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 
 	case DLL_PROCESS_DETACH:
 	{
-		if (s_SdkModule)
-			FreeLibrary(s_SdkModule);
-
 		DetachEP();
 		break;
 	}

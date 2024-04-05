@@ -12,6 +12,8 @@
 #include "game/shared/vscript_shared.h"
 #include "pluginsystem/modsystem.h"
 
+static const char* s_scriptContextNames[] = { "SERVER", "CLIENT", "UI", "NONE" };
+
 //---------------------------------------------------------------------------------
 // Purpose: Returns the script VM pointer by context
 // Input  : context - 
@@ -130,28 +132,22 @@ SQBool Script_PrecompileClientScripts(CSquirrelVM* vm)
 //---------------------------------------------------------------------------------
 void Script_Execute(const SQChar* code, const SQCONTEXT context)
 {
-	if (!ThreadInMainThread())
-	{
-		const string scode(code);
-		g_TaskQueue.Dispatch([scode, context]()
-			{
-				Script_Execute(scode.c_str(), context);
-			}, 0);
-
-		return; // Only run in main thread.
-	}
+	Assert(context != SQCONTEXT::NONE);
+	Assert(ThreadInMainOrServerFrameThread());
 
 	CSquirrelVM* s = Script_GetScriptHandle(context);
+	const char* const contextName = s_scriptContextNames[(int)context];
+
 	if (!s)
 	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script with no handle to VM\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script with no handle to VM\n", contextName);
 		return;
 	}
 
 	HSQUIRRELVM v = s->GetVM();
 	if (!v)
 	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script while VM isn't initialized\n", contextName);
 		return;
 	}
 
@@ -165,7 +161,7 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 
 		if (!SQ_SUCCEEDED(callResult))
 		{
-			Error(eDLL_T::ENGINE, NO_ERROR, "Failed to execute %s script \"%s\"\n", SQVM_GetContextName(context), code);
+			Error(eDLL_T::ENGINE, NO_ERROR, "Failed to execute %s script \"%s\"\n", contextName, code);
 		}
 	}
 }

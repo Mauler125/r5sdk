@@ -1,0 +1,173 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "T2ClientResource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROFILESELECT DIALOGEX 0, 0, 282, 222
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Tester2 Profile Selection"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Connect",ID_BUTTON_CONNECT,54,201,50,14
+    PUSHBUTTON      "Save Profile",IDC_BUTTON_SAVEPROFILE,220,20,55,20,
+                    BS_MULTILINE
+    PUSHBUTTON      "Delete Profile",IDC_BUTTON_DELETEPROFILE,220,45,55,20,
+                    BS_MULTILINE
+    PUSHBUTTON      "Exit",ID_BUTTON_EXIT,169,201,50,14
+    COMBOBOX        IDC_COMBO_PROFILENAME,85,20,125,130,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_HOSTNAME,85,40,125,130,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_SHARINGLOCATION,85,60,125,130,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_STARTUPPARAMS,85,80,125,130,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_FILELOGDIRECTORY,85,120,125,130,CBS_DROPDOWN | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Profile Name",IDC_LABEL_PROFILENAME,5,20,75,13,
+                    SS_CENTERIMAGE,WS_EX_RIGHT
+    LTEXT           "Hostname",IDC_HOSTNAME,5,40,75,13,SS_CENTERIMAGE,
+                    WS_EX_RIGHT
+    LTEXT           "Sharing Location",IDC_LABEL_SHARINGLOCATION,5,60,75,13,
+                    SS_CENTERIMAGE,WS_EX_RIGHT
+    LTEXT           "Extra Startup Params",IDC_LABEL_STARTUPPARAMS,5,80,75,
+                    13,SS_CENTERIMAGE,WS_EX_RIGHT
+    LTEXT           "File Log Directory",IDC_LABEL_FILELOGDIRECTORY,17,120,
+                    63,13,SS_CENTERIMAGE | WS_DISABLED,WS_EX_RIGHT
+    CONTROL         "Log to File",IDC_CHECKBOX_LOGGING,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,85,161,123,10
+    CONTROL         "Start Networking on Connect",
+                    IDC_CHECKBOX_STARTNETWORKING,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,85,180,123,10
+    LTEXT           "Scrollback size (KB)",IDC_LABEL_SCROLLBACKSIZE,7,100,73,
+                    13,SS_CENTERIMAGE,WS_EX_RIGHT
+    EDITTEXT        IDC_SCROLLBACKSIZE,85,100,125,14,ES_AUTOHSCROLL
+END
+
+IDD_COMMANDCONSOLE DIALOGEX 0, 0, 500, 217
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_WINDOWEDGE
+CAPTION "Tester2 Client Command Console"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_CONSOLE,1,7,497,191,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL | 
+                    NOT WS_TABSTOP
+    EDITTEXT        IDC_EDIT_COMMAND,1,202,497,12,ES_AUTOHSCROLL
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "T2ClientResource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_PROFILESELECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 275
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 215
+    END
+
+    IDD_COMMANDCONSOLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 1
+        RIGHTMARGIN, 498
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 214
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_CONSOLECONTEXTMENU MENU 
+BEGIN
+    POPUP "Console Options"
+    BEGIN
+        MENUITEM "Clear",                       ID_CONSOLEOPTIONS_CLEAR
+        MENUITEM "Select All",                  ID_CONSOLEOPTIONS_SELECTALL
+        MENUITEM SEPARATOR
+        MENUITEM "Reconnect",                   ID_CONSOLEOPTIONS_RECONNECT
+        MENUITEM "Disconnect",                  ID_CONSOLEOPTIONS_DISCONNECT
+    END
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

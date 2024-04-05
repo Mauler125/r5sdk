@@ -99,18 +99,18 @@ JsonObjectWriter* JsonObjectWriter::RenderUint32(StringPiece name,
 JsonObjectWriter* JsonObjectWriter::RenderInt64(StringPiece name,
                                                 int64_t value) {
   WritePrefix(name);
-  WriteChar('"');
+  //WriteChar('"');
   WriteRawString(StrCat(value));
-  WriteChar('"');
+  //WriteChar('"');
   return this;
 }
 
 JsonObjectWriter* JsonObjectWriter::RenderUint64(StringPiece name,
                                                  uint64_t value) {
   WritePrefix(name);
-  WriteChar('"');
+  //WriteChar('"');
   WriteRawString(StrCat(value));
-  WriteChar('"');
+  //WriteChar('"');
   return this;
 }
 

@@ -59,6 +59,9 @@
 #include "engine/server/datablock_sender.h"
 #endif // !CLIENT_DLL
 #include "studiorender/studiorendercontext.h"
+#ifndef CLIENT_DLL
+#include "rtech/liveapi/liveapi.h"
+#endif // !CLIENT_DLL
 #include "rtech/rstdlib.h"
 #include "rtech/rson.h"
 #include "rtech/async/asyncio.h"
@@ -147,6 +150,11 @@
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
+
+#include "DirtySDK/dirtysock.h"
+#include "DirtySDK/dirtysock/netconn.h"
+#include "DirtySDK/proto/protossl.h"
+#include "DirtySDK/proto/protowebsocket.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,6 +250,8 @@ void Systems_Init()
 	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
 	CoreServerScriptRegister_Callback = Script_RegisterCoreServerFunctions;
 	AdminPanelScriptRegister_Callback = Script_RegisterAdminPanelFunctions;
+
+	ServerScriptRegisterEnum_Callback = Script_RegisterServerEnums;
 #endif// !CLIENT_DLL
 
 #ifndef SERVER_DLL
@@ -274,6 +284,10 @@ void Systems_Shutdown()
 #ifndef SERVER_DLL
 	RCONClient()->Shutdown();
 #endif // !SERVER_DLL
+
+#ifndef CLIENT_DLL
+	LiveAPISystem()->Shutdown();
+#endif// !CLIENT_DLL
 
 	CFastTimer shutdownTimer;
 	shutdownTimer.Start();
@@ -309,25 +323,51 @@ void Systems_Shutdown()
 //
 /////////////////////////////////////////////////////
 
-void Winsock_Init()
+void Winsock_Startup()
 {
 	WSAData wsaData{};
-	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
+	const int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
+
 	if (nError != 0)
 	{
-		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to start Winsock: (%s)\n",
+		Error(eDLL_T::COMMON, 0, "%s: Windows Sockets API startup failure: (%s)\n",
 			__FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
+
 void Winsock_Shutdown()
 {
-	int nError = ::WSACleanup();
+	const int nError = ::WSACleanup();
+
 	if (nError != 0)
 	{
-		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to stop Winsock: (%s)\n",
+		Error(eDLL_T::COMMON, 0, "%s: Windows Sockets API shutdown failure: (%s)\n",
 			__FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
+
+void DirtySDK_Startup()
+{
+	const int32_t netConStartupRet = NetConnStartup("-servicename=sourcesdk");
+
+	if (netConStartupRet < 0)
+	{
+		Error(eDLL_T::COMMON, 0, "%s: Network connection module startup failure: (%i)\n",
+			__FUNCTION__, netConStartupRet);
+	}
+}
+
+void DirtySDK_Shutdown()
+{
+	const int32_t netConShutdownRet = NetConnShutdown(0);
+
+	if (netConShutdownRet < 0)
+	{
+		Error(eDLL_T::COMMON, 0, "%s: Network connection module shutdown failure: (%i)\n",
+			__FUNCTION__, netConShutdownRet);
+	}
+}
+
 void QuerySystemInfo()
 {
 #ifndef DEDICATED
@@ -375,33 +415,6 @@ void QuerySystemInfo()
 	{
 		Error(eDLL_T::COMMON, NO_ERROR, "Unable to retrieve system memory information: %s\n",
 			std::system_category().message(static_cast<int>(::GetLastError())).c_str());
-	}
-}
-
-void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions).
-{
-	CpuIdResult_t cpuResult;
-	__cpuid(reinterpret_cast<int*>(&cpuResult), 1);
-
-	char szBuf[1024];
-
-	if ((cpuResult.ecx & (1 << 0)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSE 3");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
-	}
-	if ((cpuResult.ecx & (1 << 9)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSSE 3 (Supplemental SSE 3 Instructions)");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
-	}
-	if ((cpuResult.ecx & (1 << 23)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "POPCNT");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
 	}
 }
 

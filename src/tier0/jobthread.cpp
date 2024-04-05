@@ -15,6 +15,11 @@ JobID_t JTGuts_AddJob(JobTypeID_t jobTypeId, JobID_t jobId, void* callbackFunc, 
 	return JTGuts_AddJob_Internal(jobTypeId, jobId, callbackFunc, callbackArg, jobIndex, &job_JT_Context[jobIndex]);
 }
 
+JobID_t JT_GetCurrentJob()
+{
+	return *(_DWORD*)(*(_QWORD*)CModule::GetThreadEnvironmentBlock()->ThreadLocalStoragePointer + 12i64);
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

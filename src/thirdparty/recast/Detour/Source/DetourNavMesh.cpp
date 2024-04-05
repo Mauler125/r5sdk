@@ -206,7 +206,7 @@ dtNavMesh::dtNavMesh() :
 	m_orig[2] = 0;
 }
 
-dtNavMesh::~dtNavMesh()
+dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this correctly
 {
 	for (int i = 0; i < m_maxTiles; ++i)
 	{
@@ -1021,7 +1021,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->data = data;
 	tile->dataSize = dataSize;
 	tile->flags = flags;
-	tile->unused = nullptr;
+	tile->unknownVTableInstance = nullptr;
 
 	connectIntLinks(tile);
 

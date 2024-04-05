@@ -103,6 +103,9 @@ enum dtTileFlags
 {
 	/// The navigation mesh owns the tile memory and is responsible for freeing it.
 	DT_TILE_FREE_DATA = 0x01,
+
+	/// The navigation mesh owns the offmesh connection memory and is responsible for freeing it.
+	DT_OFFMESH_FREE_DATA = 0x02,
 };
 
 /// Vertex flags returned by dtNavMeshQuery::findStraightPath.
@@ -326,7 +329,7 @@ struct dtMeshTile
 	int dataSize;							///< Size of the tile data.
 	int flags;								///< Tile flags. (See: #dtTileFlags)
 	dtMeshTile* next;						///< The next free tile, or the next tile in the spatial grid.
-	void* unused;
+	void* unknownVTableInstance; // See [r5apex_ds + F437D9] for usage
 private:
 	dtMeshTile(const dtMeshTile&);
 	dtMeshTile& operator=(const dtMeshTile&);

@@ -14,6 +14,7 @@
 #include "vscript/vscript.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
+#include "liveapi/liveapi.h"
 #include "vscript_server.h"
 #include <engine/host_state.h>
 #include <networksystem/hostmanager.h>
@@ -33,7 +34,7 @@ static void SQVM_ServerScript_f(const CCommand& args)
         Script_Execute(args.ArgS(), SQCONTEXT::SERVER);
     }
 }
-static ConCommand script("script", SQVM_ServerScript_f, "Run input code as SERVER script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL | FCVAR_CHEAT);
+static ConCommand script("script", SQVM_ServerScript_f, "Run input code as SERVER script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL | FCVAR_CHEAT | FCVAR_SERVER_FRAME_THREAD);
 
 namespace VScriptCode
 {
@@ -47,17 +48,25 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT CreateServer(HSQUIRRELVM v)
         {
-            SQChar* serverName = sq_getstring(v, 1);
-            SQChar* serverDescription = sq_getstring(v, 2);
-            SQChar* serverMapName = sq_getstring(v, 3);
-            SQChar* serverPlaylist = sq_getstring(v, 4);
-            ServerVisibility_e serverVisibility = static_cast<ServerVisibility_e>(sq_getinteger(v, 5));
+            const SQChar* serverName = nullptr;
+            const SQChar* serverDescription = nullptr;
+            const SQChar* serverMapName = nullptr;
+            const SQChar* serverPlaylist = nullptr;
+
+            sq_getstring(v, 2, &serverName);
+            sq_getstring(v, 3, &serverDescription);
+            sq_getstring(v, 4, &serverMapName);
+            sq_getstring(v, 5, &serverPlaylist);
+
+            SQInteger serverVisibility = 0;
+            sq_getinteger(v, 6, &serverVisibility);
 
             if (!VALID_CHARSTAR(serverName) ||
                 !VALID_CHARSTAR(serverMapName) ||
                 !VALID_CHARSTAR(serverPlaylist))
             {
-                return SQ_OK;
+                v_SQVM_ScriptError("Empty or null server criteria");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
             // Adjust browser settings.
@@ -69,13 +78,10 @@ namespace VScriptCode
             details.playlist = serverPlaylist;
 
             // Launch server.
-            g_ServerHostManager.SetVisibility(serverVisibility);
+            g_ServerHostManager.SetVisibility(ServerVisibility_e(serverVisibility));
             g_ServerHostManager.LaunchServer(g_pServer->IsActive());
 
-            return SQ_OK;
-
-            //v_SQVM_RaiseError(v, "\"%s\" is not supported on client builds.\n", "CreateServer");
-            //return SQ_ERROR;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
         //-----------------------------------------------------------------------------
         // Purpose: shuts the server down and disconnects all clients
@@ -85,7 +91,7 @@ namespace VScriptCode
             if (g_pHostState->m_bActiveGame)
                 g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -93,16 +99,24 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT KickPlayerByName(HSQUIRRELVM v)
         {
-            SQChar* playerName = sq_getstring(v, 1);
-            SQChar* reason = sq_getstring(v, 2);
+            const SQChar* playerName = nullptr;
+            const SQChar* reason = nullptr;
+
+            sq_getstring(v, 2, &playerName);
+            sq_getstring(v, 3, &reason);
+
+            if (!VALID_CHARSTAR(playerName))
+            {
+                v_SQVM_ScriptError("Empty or null player name");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             // Discard empty strings, this will use the default message instead.
             if (!VALID_CHARSTAR(reason))
                 reason = nullptr;
 
             g_BanSystem.KickPlayerByName(playerName, reason);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -110,16 +124,24 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT KickPlayerById(HSQUIRRELVM v)
         {
-            SQChar* playerHandle = sq_getstring(v, 1);
-            SQChar* reason = sq_getstring(v, 2);
+            const SQChar* playerHandle = nullptr;
+            const SQChar* reason = nullptr;
+
+            sq_getstring(v, 2, &playerHandle);
+            sq_getstring(v, 3, &reason);
+
+            if (!VALID_CHARSTAR(playerHandle))
+            {
+                v_SQVM_ScriptError("Empty or null player handle");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             // Discard empty strings, this will use the default message instead.
             if (!VALID_CHARSTAR(reason))
                 reason = nullptr;
 
             g_BanSystem.KickPlayerById(playerHandle, reason);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -127,16 +149,24 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT BanPlayerByName(HSQUIRRELVM v)
         {
-            SQChar* playerName = sq_getstring(v, 1);
-            SQChar* reason = sq_getstring(v, 2);
+            const SQChar* playerName = nullptr;
+            const SQChar* reason = nullptr;
+
+            sq_getstring(v, 2, &playerName);
+            sq_getstring(v, 3, &reason);
+
+            if (!VALID_CHARSTAR(playerName))
+            {
+                v_SQVM_ScriptError("Empty or null player name");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             // Discard empty strings, this will use the default message instead.
             if (!VALID_CHARSTAR(reason))
                 reason = nullptr;
 
             g_BanSystem.BanPlayerByName(playerName, reason);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -144,16 +174,24 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT BanPlayerById(HSQUIRRELVM v)
         {
-            SQChar* playerHandle = sq_getstring(v, 1);
-            SQChar* reason = sq_getstring(v, 2);
+            const SQChar* playerHandle = nullptr;
+            const SQChar* reason = nullptr;
+
+            sq_getstring(v, 2, &playerHandle);
+            sq_getstring(v, 3, &reason);
+
+            if (!VALID_CHARSTAR(playerHandle))
+            {
+                v_SQVM_ScriptError("Empty or null player handle");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             // Discard empty strings, this will use the default message instead.
             if (!VALID_CHARSTAR(reason))
                 reason = nullptr;
 
             g_BanSystem.BanPlayerById(playerHandle, reason);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -161,10 +199,18 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT UnbanPlayer(HSQUIRRELVM v)
         {
-            SQChar* szCriteria = sq_getstring(v, 1);
+            const SQChar* szCriteria = nullptr;
+            sq_getstring(v, 2, &szCriteria);
+
+            if (!VALID_CHARSTAR(szCriteria))
+            {
+                v_SQVM_ScriptError("Empty or null player criteria");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
             g_BanSystem.UnbanPlayer(szCriteria);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -173,7 +219,7 @@ namespace VScriptCode
         SQRESULT GetNumHumanPlayers(HSQUIRRELVM v)
         {
             sq_pushinteger(v, g_pServer->GetNumHumanPlayers());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -182,7 +228,7 @@ namespace VScriptCode
         SQRESULT GetNumFakeClients(HSQUIRRELVM v)
         {
             sq_pushinteger(v, g_pServer->GetNumFakeClients());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -191,9 +237,9 @@ namespace VScriptCode
         SQRESULT IsServerActive(HSQUIRRELVM v)
         {
             bool isActive = g_pServer->IsActive();
-
             sq_pushbool(v, isActive);
-            return SQ_OK;
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -202,7 +248,7 @@ namespace VScriptCode
         SQRESULT IsDedicated(HSQUIRRELVM v)
         {
             sq_pushbool(v, ::IsDedicated());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
     }
 }
@@ -216,6 +262,13 @@ void Script_RegisterServerFunctions(CSquirrelVM* s)
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreServerFunctions(s);
     Script_RegisterAdminPanelFunctions(s);
+
+    Script_RegisterLiveAPIFunctions(s);
+}
+
+void Script_RegisterServerEnums(CSquirrelVM* const s)
+{
+    Script_RegisterLiveAPIEnums(s);
 }
 
 //---------------------------------------------------------------------------------

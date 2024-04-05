@@ -7,7 +7,7 @@
 
 struct SQFuncState
 {
-	_BYTE gap0[17408];
+	_BYTE gap0[17400];
 	sqvector<SQInstruction> _instructions;
 	_BYTE gap4418[88];
 	SQObjectPtr _sourcename;

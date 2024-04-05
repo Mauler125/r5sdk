@@ -7,18 +7,91 @@
 #include "core/stdafx.h"
 #include "squirrel.h"
 #include "sqvm.h"
+#include "sqarray.h"
 #include "sqstring.h"
 
 //---------------------------------------------------------------------------------
-SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i)
+bool sq_aux_gettypedarg(HSQUIRRELVM v, SQInteger idx, SQObjectType type, SQObjectPtr** o)
 {
-	return v->_stackbase[i]._unVal.pString->_val;
+	*o = &stack_get(v, idx);
+	if (sq_type(**o) != type) {
+		SQObjectPtr oval;
+		v->PrintObjVal(*o, &oval);
+		v_SQVM_RaiseError(v, _SC("wrong argument type, expected '%s' got '%.50s'"), IdType2Name(type), _stringval(oval));
+		return false;
+	}
+	return true;
 }
 
 //---------------------------------------------------------------------------------
-SQInteger sq_getinteger(HSQUIRRELVM v, SQInteger i)
+#define _GETSAFE_OBJ(v,idx,type,o) { if(!sq_aux_gettypedarg(v,idx,type,&o)) return SQ_ERROR; }
+
+#define sq_aux_paramscheck(v,count) \
+{ \
+	if(sq_gettop(v) < count){ v_SQVM_RaiseError(v, _SC("not enough params in the stack")); return SQ_ERROR; }\
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getinteger(HSQUIRRELVM v, SQInteger idx, SQInteger* i)
 {
-	return v->_stackbase[i]._unVal.nInteger;
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isnumeric(o)) {
+		*i = tointeger(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getfloat(HSQUIRRELVM v, SQInteger idx, SQFloat* f)
+{
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isnumeric(o)) {
+		*f = tofloat(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getbool(HSQUIRRELVM v, SQInteger idx, SQBool* b)
+{
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isbool(o)) {
+		*b = _integer(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getthread(HSQUIRRELVM v, SQInteger idx, HSQUIRRELVM* thread)
+{
+	SQObjectPtr* o = NULL;
+	_GETSAFE_OBJ(v, idx, OT_THREAD, o);
+	*thread = _thread(*o);
+	return SQ_OK;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getstring(HSQUIRRELVM v, SQInteger idx, const SQChar** c)
+{
+	SQObjectPtr* o = NULL;
+	_GETSAFE_OBJ(v, idx, OT_STRING, o);
+	*c = _stringval(*o);
+	return SQ_OK;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_get(HSQUIRRELVM v, SQInteger idx)
+{
+	return v_sq_get(v, idx);
+}
+
+//---------------------------------------------------------------------------------
+SQInteger sq_gettop(HSQUIRRELVM v)
+{
+	return (v->_top - v->_bottom);
 }
 
 //---------------------------------------------------------------------------------

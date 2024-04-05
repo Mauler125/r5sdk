@@ -48,7 +48,7 @@ macro( apply_project_settings )
         # https://rapidjson.org/md_doc_features.html
         # https://github.com/Tencent/rapidjson/issues/1227
         # https://github.com/Tencent/rapidjson/issues/2260
-        "RAPIDJSON_PARSE_DEFAULT_FLAGS=kParseIterativeFlag"
+        "RAPIDJSON_PARSE_DEFAULT_FLAGS=kParseIterativeFlag|kParseValidateEncodingFlag"
 
         # Target is 64bits only.
         "PLATFORM_64BITS"

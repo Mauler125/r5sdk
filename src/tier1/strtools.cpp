@@ -18,6 +18,20 @@ static int FastToLower(char c)
 	return i;
 }
 
+//-----------------------------------------------------------------------------
+// Allocate a string buffer
+//-----------------------------------------------------------------------------
+char* AllocString(const char* pStr, ssize_t nMaxChars)
+{
+	const ssize_t allocLen = (nMaxChars == -1)
+		? strlen(pStr) + 1
+		: Min((ssize_t)strlen(pStr), nMaxChars) + 1;
+
+	char* const pOut = new char[allocLen];
+	V_strncpy(pOut, pStr, allocLen);
+
+	return pOut;
+}
 
 //-----------------------------------------------------------------------------
 // A special high-performance case-insensitive compare function
@@ -402,6 +416,57 @@ ssize_t V_StrTrim(char* pStr)
 	}
 
 	return pDest - pStart;
+}
+
+void V_SplitString2(const char* pString, const char** pSeparators, ssize_t nSeparators, CUtlStringList& outStrings)
+{
+	outStrings.Purge();
+	const char* pCurPos = pString;
+
+	while (true)
+	{
+		ssize_t iFirstSeparator = -1;
+		const char* pFirstSeparator = nullptr;
+
+		for (ssize_t i = 0; i < nSeparators; i++)
+		{
+			const char* const pTest = V_stristr(pCurPos, pSeparators[i]);
+
+			if (pTest && (!pFirstSeparator || pTest < pFirstSeparator))
+			{
+				iFirstSeparator = i;
+				pFirstSeparator = pTest;
+			}
+		}
+
+		if (pFirstSeparator)
+		{
+			// Split on this separator and continue on.
+			const ssize_t separatorLen = strlen(pSeparators[iFirstSeparator]);
+
+			if (pFirstSeparator > pCurPos)
+			{
+				outStrings.AddToTail(AllocString(pCurPos, pFirstSeparator - pCurPos));
+			}
+
+			pCurPos = pFirstSeparator + separatorLen;
+		}
+		else
+		{
+			// Copy the rest of the string
+			if (strlen(pCurPos))
+			{
+				outStrings.AddToTail(AllocString(pCurPos, -1));
+			}
+
+			return;
+		}
+	}
+}
+
+void V_SplitString(const char* pString, const char* pSeparator, CUtlStringList& outStrings)
+{
+	V_SplitString2(pString, &pSeparator, 1, outStrings);
 }
 
 //-----------------------------------------------------------------------------

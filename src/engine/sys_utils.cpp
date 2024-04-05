@@ -114,6 +114,23 @@ int Sys_GetProcessUpTime(char* szBuffer)
 	return v_Sys_GetProcessUpTime(szBuffer);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Gets the build string of the game (defined in build.txt), if the file
+// is absent, the changelist # will be returned instead
+//-----------------------------------------------------------------------------
+const char* Sys_GetBuildString(void)
+{
+	return v_Sys_GetBuildString();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Gets the platform string
+//-----------------------------------------------------------------------------
+const char* Sys_GetPlatformString(void)
+{
+	return "PC";
+}
+
 void VSys_Utils::Detour(const bool bAttach) const
 {
 	DetourSetup(&v_Error, &_Error, bAttach);
