@@ -1,6 +1,25 @@
 #include "tier1/strtools.h"
 
 //-----------------------------------------------------------------------------
+// Convert upper case characters to lower
+//-----------------------------------------------------------------------------
+static int FastToLower(char c)
+{
+	int i = (unsigned char)c;
+	if (i < 0x80)
+	{
+		// Brutally fast branchless ASCII tolower():
+		i += (((('A' - 1) - i) & (i - ('Z' + 1))) >> 26) & 0x20;
+	}
+	else
+	{
+		i += isupper(i) ? 0x20 : 0;
+	}
+	return i;
+}
+
+
+//-----------------------------------------------------------------------------
 // A special high-performance case-insensitive compare function
 // returns 0 if strings match exactly
 // returns >0 if strings match in a case-insensitive way, but do not match exactly
@@ -908,6 +927,87 @@ V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pSt
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 	return bRet;
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Makes a relative path
+//-----------------------------------------------------------------------------
+bool V_MakeRelativePath(const char* pFullPath, const char* pDirectory, char* pRelativePath, const size_t nBufLen)
+{
+	Assert(nBufLen);
+	pRelativePath[0] = 0;
+
+	const char* pPath = pFullPath;
+	const char* pDir = pDirectory;
+
+	// Strip out common parts of the path
+	const char* pLastCommonPath = NULL;
+	const char* pLastCommonDir = NULL;
+	while (*pPath && (FastToLower(*pPath) == FastToLower(*pDir) ||
+		(PATHSEPARATOR(*pPath) && (PATHSEPARATOR(*pDir) || (*pDir == 0)))))
+	{
+		if (PATHSEPARATOR(*pPath))
+		{
+			pLastCommonPath = pPath + 1;
+			pLastCommonDir = pDir + 1;
+		}
+		if (*pDir == 0)
+		{
+			--pLastCommonDir;
+			break;
+		}
+		++pDir; ++pPath;
+	}
+
+	// Nothing in common
+	if (!pLastCommonPath)
+		return false;
+
+	// For each path separator remaining in the dir, need a ../
+	size_t nOutLen = 0;
+	bool bLastCharWasSeparator = true;
+	for (; *pLastCommonDir; ++pLastCommonDir)
+	{
+		if (PATHSEPARATOR(*pLastCommonDir))
+		{
+			pRelativePath[nOutLen++] = '.';
+			pRelativePath[nOutLen++] = '.';
+			pRelativePath[nOutLen++] = CORRECT_PATH_SEPARATOR;
+			bLastCharWasSeparator = true;
+		}
+		else
+		{
+			bLastCharWasSeparator = false;
+		}
+	}
+
+	// Deal with relative paths not specified with a trailing slash
+	if (!bLastCharWasSeparator)
+	{
+		pRelativePath[nOutLen++] = '.';
+		pRelativePath[nOutLen++] = '.';
+		pRelativePath[nOutLen++] = CORRECT_PATH_SEPARATOR;
+	}
+
+	// Copy the remaining part of the relative path over, fixing the path separators
+	for (; *pLastCommonPath; ++pLastCommonPath)
+	{
+		if (PATHSEPARATOR(*pLastCommonPath))
+		{
+			pRelativePath[nOutLen++] = CORRECT_PATH_SEPARATOR;
+		}
+		else
+		{
+			pRelativePath[nOutLen++] = *pLastCommonPath;
+		}
+
+		// Check for overflow
+		if (nOutLen == nBufLen - 1)
+			break;
+	}
+
+	pRelativePath[nOutLen] = 0;
+	return true;
 }
 
 //-----------------------------------------------------------------------------

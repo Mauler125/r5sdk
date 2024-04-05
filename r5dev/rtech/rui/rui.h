@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RTECH_RUI_H
+#define RTECH_RUI_H
 
 /* ==== RUI ====================================================================================================================================================== */
 inline bool(*v_Rui_Draw)(__int64* a1, __m128* a2, const __m128i* a3, __int64 a4, __m128* a5);
@@ -25,3 +26,5 @@ class V_Rui : public IDetour
 	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
+
+#endif // RTECH_RUI_H

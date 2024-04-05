@@ -22,46 +22,45 @@ public:
 		RSON_ARRAY = 0x1000,
 	};
 
+
+	//-------------------------------------------------------------------------
+	// 
+	//-------------------------------------------------------------------------
 	struct Field_t;
 
+
+	//-------------------------------------------------------------------------
+	// 
+	//-------------------------------------------------------------------------
 	union Value_t
 	{
+		inline Field_t* GetSubKey() const { return pSubKey; };
+		inline const char* GetString() const { return pszString; };
+		inline int64_t GetInt() const { return integerValue; };
+
 		Field_t* pSubKey;
 		char* pszString;
-		__int64 integerValue;
+		int64_t integerValue;
 	};
 
+	//-------------------------------------------------------------------------
 	// used for the root node of rson tree
+	//-------------------------------------------------------------------------
 	struct Node_t
 	{
 		eFieldType m_Type;
 		int m_nValueCount;
 		Value_t m_Value;
 
-		Field_t* GetFirstSubKey()
-		{
-			if (m_Type & eFieldType::RSON_OBJECT)
-				return m_Value.pSubKey;
-			return NULL;
-		};
+		inline Field_t* GetFirstSubKey() const;
 
 		// does not support finding a key in a different level of the tree
-		Field_t* FindKey(const char* pszKeyName)
-		{
-			if ((m_Type & eFieldType::RSON_OBJECT) == 0)
-				return NULL;
-
-			for (Field_t* pKey = GetFirstSubKey(); pKey != nullptr; pKey = pKey->GetNextKey())
-			{
-				if (!_stricmp(pKey->m_pszName, pszKeyName))
-					return pKey;
-			}
-
-			return NULL;
-		}
+		inline Field_t* FindKey(const char* const pszKeyName) const;
 	};
 
+	//-------------------------------------------------------------------------
 	// used for every other field of the rson tree
+	//-------------------------------------------------------------------------
 	struct Field_t
 	{
 		char* m_pszName;
@@ -69,20 +68,48 @@ public:
 		Field_t* m_pNext;
 		Field_t* m_pPrev;
 
-		Field_t* GetNextKey() { return m_pNext; };
-		Field_t* GetLastKey() { return m_pPrev; };
+		// Inlines
+		inline const char* GetString() const { return (m_Node.m_Type == RSON_STRING) ? m_Node.m_Value.GetString() : NULL; };
+		inline Field_t* GetNextKey() const { return m_pNext; };
+		inline Field_t* GetLastKey() const { return m_pPrev; };
 
-		Field_t* GetFirstSubKey() { return m_Node.GetFirstSubKey(); };
-
-		Field_t* FindKey(const char* pszKeyName) { return m_Node.FindKey(pszKeyName); };
-
-		const char* GetString() { return (m_Node.m_Type == RSON_STRING) ? m_Node.m_Value.pszString : NULL; };
+		inline Field_t* GetFirstSubKey() const { return m_Node.GetFirstSubKey(); };
+		inline Field_t* FindKey(const char* pszKeyName) const { return m_Node.FindKey(pszKeyName); };
 	};
 
 public:
 	static Node_t* LoadFromBuffer(const char* pszBufferName, char* pBuffer, eFieldType rootType);
 	static Node_t* LoadFromFile(const char* pszFilePath, const char* pPathID = nullptr);
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+RSON::Field_t* RSON::Node_t::GetFirstSubKey() const
+{
+	if (m_Type & eFieldType::RSON_OBJECT)
+		return m_Value.pSubKey;
+
+	return NULL;
+};
+
+RSON::Field_t* RSON::Node_t::FindKey(const char* const pszKeyName) const
+{
+	if ((m_Type & eFieldType::RSON_OBJECT) == 0)
+		return NULL;
+
+	for (Field_t* pKey = GetFirstSubKey(); pKey != nullptr; pKey = pKey->GetNextKey())
+	{
+		if (!_stricmp(pKey->m_pszName, pszKeyName))
+			return pKey;
+	}
+
+	return NULL;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
 ///////////////////////////////////////////////////////////////////////////////
 inline RSON::Node_t* (*RSON_LoadFromBuffer)(const char* bufName, char* buf, RSON::eFieldType rootType, __int64 a4, void* a5);
 inline void (*RSON_Free)(RSON::Node_t* rson, CAlignedMemAlloc* allocator);

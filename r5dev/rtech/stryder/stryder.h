@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RTECH_STRYDER_H
+#define RTECH_STRYDER_H
 
 /* ==== STRYDER ================================================================================================================================================ */
 inline void*(*v_Stryder_StitchRequest)(void* a1);
@@ -22,3 +23,5 @@ class VStryder : public IDetour
 	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
+
+#endif // RTECH_STRYDER_H

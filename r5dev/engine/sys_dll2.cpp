@@ -24,7 +24,6 @@
 #include "client/vengineclient_impl.h"
 #include "geforce/reflex.h"
 #endif // !DEDICATED
-#include "rtech/rtech_utils.h"
 #include "filesystem/filesystem.h"
 constexpr char DFS_ENABLE_PATH[] = "/vpk/enable.txt";
 

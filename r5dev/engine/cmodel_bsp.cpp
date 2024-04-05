@@ -8,12 +8,17 @@
 #include "core/stdafx.h"
 #include "tier0/memstd.h"
 #include "tier0/jobthread.h"
+#include "tier1/fmtstr.h"
 #include "tier2/fileutils.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/cmodel_bsp.h"
-#include "rtech/rtech_utils.h"
-#include "rtech/rtech_game.h"
+
+#include "rtech/pak/pakstate.h"
+#include "rtech/pak/pakparse.h"
+#include "rtech/pak/paktools.h"
+#include "rtech/pak/pakstream.h"
+
 #include "tier1/keyvalues.h"
 #include "datacache/mdlcache.h"
 #include "filesystem/filesystem.h"
@@ -22,23 +27,91 @@
 #endif // !DEDICATED
 
 CUtlVector<CUtlString> g_InstalledMaps;
-string s_LevelName;
+CFmtStrN<MAX_MAP_NAME> s_CurrentLevelName;
 
-std::regex s_ArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
+static std::regex s_ArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 
-bool s_bLevelResourceInitialized = false;
-bool s_bBasePaksInitialized = false;
-KeyValues* s_pLevelSetKV = nullptr;
+static CustomPakData_t s_customPakData;
+static KeyValues* s_pLevelSetKV = nullptr;
 
+//-----------------------------------------------------------------------------
+// Purpose: load a custom pak and add it to the list
+//-----------------------------------------------------------------------------
+PakHandle_t CustomPakData_t::LoadAndAddPak(const char* const pakFile)
+{
+    if (numHandles >= MAX_CUSTOM_PAKS)
+    {
+        Error(eDLL_T::ENGINE, NO_ERROR, "Tried to load pak '%s', but already reached the SDK's limit of %d!\n", pakFile, MAX_CUSTOM_PAKS);
+        return INVALID_PAK_HANDLE;
+    }
+
+    const PakHandle_t pakId = g_pakLoadApi->LoadAsync(pakFile, AlignedMemAlloc(), 4, 0);
+
+    // failure, don't add and return the invalid handle.
+    if (pakId == INVALID_PAK_HANDLE)
+        return pakId;
+
+    handles[numHandles++] = pakId;
+    return pakId;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unloads all active custom pak handles
+//-----------------------------------------------------------------------------
+void CustomPakData_t::UnloadAndRemoveAll()
+{
+    for (; numHandles-1 >= CustomPakData_t::PAK_TYPE_COUNT; numHandles--)
+    {
+        const PakHandle_t pakId = handles[numHandles-1];
+
+        if (pakId == INVALID_PAK_HANDLE)
+        {
+            assert(0); // invalid handles should not be inserted
+            return;
+        }
+
+        g_pakLoadApi->UnloadAsync(pakId);
+        handles[numHandles-1] = INVALID_PAK_HANDLE;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: loads the base SDK pak file by type
+//-----------------------------------------------------------------------------
+PakHandle_t CustomPakData_t::LoadBasePak(const char* const pakFile, const EPakType type)
+{
+    const PakHandle_t pakId = g_pakLoadApi->LoadAsync(pakFile, AlignedMemAlloc(), 4, 0);
+
+    // the file is most likely missing
+    assert(pakId != INVALID_PAK_HANDLE);
+    handles[type] = pakId;
+
+    return pakId;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unload the SDK base pak file by type
+//-----------------------------------------------------------------------------
+void CustomPakData_t::UnloadBasePak(const EPakType type)
+{
+    const PakHandle_t pakId = handles[type];
+
+    // only unload if it was actually successfully loaded
+    if (pakId != INVALID_PAK_HANDLE)
+    {
+        g_pakLoadApi->UnloadAsync(pakId);
+        handles[type] = INVALID_PAK_HANDLE;
+    }
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if level has changed
 // Input  : *pszLevelName - 
 // Output : true if level name deviates from previous level
 //-----------------------------------------------------------------------------
-bool Mod_LevelHasChanged(const char* pszLevelName)
+bool Mod_LevelHasChanged(const char* const pszLevelName)
 {
-	return (s_LevelName.compare(pszLevelName) != 0);
+    return (V_strcmp(pszLevelName, s_CurrentLevelName.String()) == NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -86,308 +159,270 @@ void Mod_GetAllInstalledMaps()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the queued pak handles
-// Input  : *a1 - 
-//          *a2 - 
-//          a3 - 
-// Output : __int64
-//-----------------------------------------------------------------------------
-__int64 __fastcall Mod_GetQueuedPakHandle(char* a1, char* a2, __int64 a3)
-{
-    char v3; // al
-    signed int v4; // er11
-    __int64 v5; // r10
-    char* v6; // r9
-    signed __int64 v7; // rdx
-    char v8; // al
-    char* v10; // r8
-    char* v11; // r8
-
-    v3 = *a2;
-    v4 = 0;
-    *a1 = *a2;
-    v5 = 0i64;
-    if (v3)
-    {
-        v6 = a1;
-        v7 = a2 - a1;
-        while (1)
-        {
-            ++v5;
-            ++v6;
-            if (v5 == a3)
-                break;
-            v8 = v6[v7];
-            *v6 = v8;
-            if (!v8)
-                return v5;
-        }
-        *(v6 - 1) = 0;
-        if (--v5)
-        {
-            v10 = &a1[v5 - 1];
-            if ((*v10 & 0xC0) == 0x80)
-            {
-                do
-                    ++v4;
-                while ((v10[-v4] & 0xC0) == 0x80);
-            }
-            v11 = &v10[-v4];
-            if (v4 != (signed int)((0xE5000000 >> (((unsigned __int8)*v11 >> 3) & 0x1E)) & 3))
-            {
-                *v11 = 0;
-                v5 -= v4;
-            }
-        }
-    }
-    return v5;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: processes queued pak files
 //-----------------------------------------------------------------------------
-void Mod_ProcessPakQueue()
+void Mod_QueuedPakCacheFrame()
 {
-    char v0; // bl
-    char** v1; // r10
-    __int64 i; // er9
-    char* v3; // rcx
-    signed __int64 v4; // r8
-    int v5; // eax
-    int v6; // edx
-    __int64 v7; // eax
-    __int64 v8; // rbp
-    __int64 v9; // rsi
-    char* v10; // rbx
-    unsigned int v11; // ecx
-    __int64 v12; // rax
-    int v13; // edi
-    char v14; // al
-    char* v15; // rbx
-    __int64 v16; // edi
-    char* v17; // rsi
-    char* v18; // rax
-    int v19; // ecx
-    int v20; // er8
-    int v21; // ecx
-    __int64 v22; // rdx
-    __int64 v24{}; // rdx
-    __int64 v25{}; // rcx
-
-    v0 = 0;
 #ifndef DEDICATED
     bool bUnconnected = !(*g_pClientState_Shifted)->IsConnected();
 #else // !DEDICATED
     bool bUnconnected = true; // Always true for dedicated.
 #endif
 
-    if (*(float*)&*dword_14B383420 == 1.0 && *qword_167ED7BB8 && bUnconnected)
+    bool startFromFirst = false;
+
+    if (Pak_StreamingDownloadFinished() && Pak_GetNumStreamableAssets() && bUnconnected)
     {
-        *byte_16709DDDF = 0;
-        v0 = 1;
+        *g_pPakPrecacheJobFinished = false;
+        startFromFirst = true;
     }
-    else if (*byte_16709DDDF)
+    else if (*g_pPakPrecacheJobFinished)
     {
         return;
     }
-    if (FileSystem()->ResetItemCache() && !*dword_1634F445C)
+
+    if (!FileSystem()->ResetItemCache() || *g_pNumPrecacheItemsMTVTF)
     {
-        v1 = &*off_141874660;
-        for (i = 0; i < 5; ++i)
+        return;
+    }
+
+    const char** pPakName = &g_commonPakData[0].basePakName;
+    int i;
+
+    for (i = 0; i < 5; ++i)
+    {
+        if (*((_BYTE*)pPakName - 268))
+            break;
+
+        const char* pakName = g_commonPakData[i].pakName;
+        const int64_t v4 = *pPakName - pakName;
+
+        int v5;
+        int v6;
+
+        do
         {
-            if (*((_BYTE*)v1 - 268))
-                break;
-            v3 = (char*)&*unk_141874555 + 280 * i;
-            v4 = *v1 - v3;
-            do
-            {
-                v5 = (unsigned __int8)v3[v4];
-                v6 = (unsigned __int8)*v3 - v5;
-                if (v6)
-                    break;
-                ++v3;
-            }       while (v5);
+            v5 = (unsigned __int8)pakName[v4];
+            v6 = (unsigned __int8)*pakName - v5;
             if (v6)
                 break;
-            v1 += 35;
-        }
-        v7 = 0;
-        if (!v0)
-            v7 = i;
-        v8 = v7;
-        if (v7 <= 4i64)
-        {
-            v9 = 4i64;
-            v10 = (char*)&*unk_1418749B0;
-            do
-            {
-                if (v10[5])
-                {
-                    v11 = *(_DWORD*)v10;
-                    v12 = *(_DWORD*)v10 & 0x1FF;
-                    v10[4] = 1;
-                    if (*((_DWORD*)&*g_pLoadedPakInfo + 46 * v12) == v11)
-                    {
-                        v13 = *((_DWORD*)&*g_pLoadedPakInfo + 46 * v12 + 1);
-                        v14 = v10[4];
-                    }
-                    else
-                    {
-                        v13 = 14;
-                        v14 = 1;
-                    }
-                    if (!v14 || v13 == 9)
-                    {
-                        // SDK pak files must be unloaded before the engine pak files,
-                        // as we reference assets within engine pak files.
-                        const PakLoadedInfo_t* pLoadedPakInfo = g_pRTech->GetPakLoadedInfo(*(PakHandle_t*)v10);
-                        if (pLoadedPakInfo)
-                        {
-                            const char* pszLoadedPakName = pLoadedPakInfo->m_fileName;
 
-                            if (strcmp(pszLoadedPakName, "common.rpak") == 0)
-                            {
-                                g_StudioMdlFallbackHandler.Clear();
-                            }
-                            else if (strcmp(pszLoadedPakName, "common_mp.rpak") == 0 ||
-                                strcmp(pszLoadedPakName, "common_sp.rpak") == 0 ||
-                                strcmp(pszLoadedPakName, "common_pve.rpak") == 0)
-                            {
-                                const PakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("common_sdk.rpak");
+            ++pakName;
+        } while (v5);
 
-                                if (pLoadedSdkPak) // Only unload if sdk pak file is loaded.
-                                    g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_handle);
+        if (v6)
+            break;
 
-                            }
-#ifndef DEDICATED
-                            else if (strcmp(pszLoadedPakName, "ui_mp.rpak") == 0)
-                            {
-                                const PakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("ui_sdk.rpak");
-
-                                if (pLoadedSdkPak) // Only unload if sdk pak file is loaded.
-                                    g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_handle);
-                            }
-#endif // !DEDICATED
-                        }
-
-                        // The old gather props is set if a model couldn't be
-                        // loaded properly. If we unload level assets, we just
-                        // enable the new implementation again and re-evaluate
-                        // on the next level load. If we load a missing/bad
-                        // model again, we toggle the old implementation as
-                        // otherwise the fallback models won't render; the new
-                        // gather props solution does not attempt to obtain
-                        // studio hardware data on bad mdl handles. See
-                        // 'CMDLCache::GetErrorModel' for more information.
-                        g_StudioMdlFallbackHandler.DisableLegacyGatherProps();
-
-                        g_pakLoadApi->UnloadPak(*(PakHandle_t*)v10);
-                        Mod_UnloadPakFile(); // Unload mod pak files.
-
-                        if (s_pLevelSetKV)
-                        {
-                            // Delete current level settings if we drop all paks..
-                            s_pLevelSetKV->DeleteThis();
-                            s_pLevelSetKV = nullptr;
-                        }
-                    }
-                    if (v13 && (unsigned int)(v13 - 13) > 1)
-                        return;
-                    *((_WORD*)v10 + 2) = 0;
-                    *(_DWORD*)v10 = 0xFFFFFFFF;
-                }
-                --v9;
-                v10 -= 280;
-            }       while (v9 >= v8);
-        }
-        *byte_16709DDDF = 1;
-        v15 = (char*)&*unk_141874550;
-        v16 = 0;
-        while (1)
-        {
-            v17 = (char*)&*unk_141874550 + 280 * v16 + 5;
-            v18 = v17;
-            do
-            {
-                v19 = (unsigned __int8)v18[*((_QWORD*)v15 + 34) - (_QWORD)v17];
-                v20 = (unsigned __int8)*v18 - v19;
-                if (v20)
-                    break;
-                ++v18;
-            }       while (v19);
-            if (!v20)
-                goto LABEL_37;
-            Mod_GetQueuedPakHandle(v17, *((char**)v15 + 34), 260i64);
-            if (v15[5])
-                break;
-            *(_DWORD*)v15 = 0xFFFFFFFF;
-        LABEL_40:
-            ++v16;
-            v15 += 280;
-            if (v16 >= 5)
-            {
-                if (*byte_16709DDDF)
-                {
-                    if (*g_pMTVFTaskItem)
-                    {
-                        if (!*(_BYTE*)(*g_pMTVFTaskItem + 4))
-                        {
-                            if (*qword_167ED7BC0 || WORD2(*g_pPakLoadJobID) != HIWORD(*g_pPakLoadJobID))
-                            {
-                                if (!JT_AcquireFifoLock(g_pPakFifoLock)
-                                    && !(unsigned __int8)sub_14045BAC0((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))g_pPakFifoLockWrapper, g_pPakFifoLock, -1i64, 0i64))
-                                {
-                                    sub_14045A1D0((unsigned __int8(__fastcall*)(_QWORD))g_pPakFifoLockWrapper, g_pPakFifoLock, -1i64, 0i64, 0i64, 1);
-                                }
-
-                                sub_140441220(v25, v24);
-                                if (ThreadInMainThread())
-                                {
-                                    if (*g_bPakFifoLockAcquired)
-                                    {
-                                        *g_bPakFifoLockAcquired = 0;
-                                        JT_ReleaseFifoLock(g_pPakFifoLock);
-                                    }
-                                }
-                                JT_ReleaseFifoLock(g_pPakFifoLock);
-                            }
-                            FileSystem()->ResetItemCacheSize(256);
-                            FileSystem()->PrecacheTaskItem(*g_pMTVFTaskItem);
-                        }
-                    }
-                }
-                return;
-            }
-        }
-        if (strcmp(v17, "mp_lobby.rpak") == 0)
-            s_bBasePaksInitialized = true;
-
-        if (s_bBasePaksInitialized && !s_bLevelResourceInitialized)
-        {
-            Mod_PreloadLevelPaks(s_LevelName.c_str());
-            s_bLevelResourceInitialized = true;
-        }
-        *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, AlignedMemAlloc(), 4, 0);
-
-        if (strcmp(v17, "common_mp.rpak") == 0 || strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_pve.rpak") == 0)
-            g_pakLoadApi->LoadAsync("common_sdk.rpak", AlignedMemAlloc(), 4, 0);
-#ifndef DEDICATED
-        if (strcmp(v17, "ui_mp.rpak") == 0)
-            g_pakLoadApi->LoadAsync("ui_sdk.rpak", AlignedMemAlloc(), 4, 0);
-#endif // !DEDICATED
-
-    LABEL_37:
-        v21 = *(_DWORD*)v15;
-        if (*(_DWORD*)v15 != INVALID_PAK_HANDLE)
-        {
-            v22 = 184i64 * (v21 & 0x1FF);
-            if (*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22) != _DWORD(v21) || ((*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22 + 4) - 9) & 0xFFFFFFFB) != 0)
-            {
-                *byte_16709DDDF = 0;                return;
-            }
-        }
-        goto LABEL_40;
+        pPakName += 35;
     }
+
+    int startIndex = 0;
+
+    if (!startFromFirst)
+        startIndex = i; // start from last pre-cached
+
+    const int numToProcess = startIndex;
+
+    if (startIndex <= 4)
+    {
+        int numLeftToProcess = 4;
+        CommonPakData_t* data = &g_commonPakData[4];
+
+        do
+        {
+            if (*data->pakName)
+            {
+                const int index = data->pakId & PAK_MAX_HANDLES_MASK;
+                EPakStatus status;
+
+                bool keepLoaded = true;
+                data->keepLoaded = true;
+
+                if (g_pLoadedPakInfo[index].handle == data->pakId)
+                {
+                    status = g_pLoadedPakInfo[index].status;
+                    keepLoaded = data->keepLoaded;
+                }
+                else
+                {
+                    status = PAK_STATUS_INVALID_PAKHANDLE;
+                    keepLoaded = true;
+                }
+
+                if (!keepLoaded || status == PAK_STATUS_LOADED)
+                {
+                    // SDK pak files must be unloaded before the engine pak files,
+                    // as we use assets within engine pak files.
+                    switch (numLeftToProcess)
+                    {
+#ifndef DEDICATED
+                    case CommonPakData_t::PAK_TYPE_UI_GM:
+                        s_customPakData.UnloadBasePak(CustomPakData_t::PAK_TYPE_UI_SDK);
+                        break;
+#endif // !DEDICATED
+
+                    case CommonPakData_t::PAK_TYPE_COMMON:
+                        g_StudioMdlFallbackHandler.Clear();
+                        break;
+
+                    case CommonPakData_t::PAK_TYPE_COMMON_GM:
+                        s_customPakData.UnloadBasePak(CustomPakData_t::PAK_TYPE_COMMON_SDK);
+                        break;
+
+                    case CommonPakData_t::PAK_TYPE_LOBBY:
+                        s_customPakData.basePaksLoaded = false;
+                        break;
+
+                    default:
+                        break;
+                    }
+
+                    // The old gather props is set if a model couldn't be
+                    // loaded properly. If we unload level assets, we just
+                    // enable the new implementation again and re-evaluate
+                    // on the next level load. If we load a missing/bad
+                    // model again, we toggle the old implementation as
+                    // otherwise the fallback models won't render; the new
+                    // gather props solution does not attempt to obtain
+                    // studio hardware data on bad mdl handles. See
+                    // 'GatherStaticPropsSecondPass_PreInit()' for details.
+                    g_StudioMdlFallbackHandler.DisableLegacyGatherProps();
+
+                    g_pakLoadApi->UnloadAsync(data->pakId);
+
+                    Mod_UnloadPakFile(); // Unload mod pak files.
+
+                    if (s_pLevelSetKV)
+                    {
+                        // Delete current level settings if we drop all paks..
+                        s_pLevelSetKV->DeleteThis();
+                        s_pLevelSetKV = nullptr;
+                    }
+                }
+
+                if (status && (unsigned int)(status - 13) > 1)
+                    return;
+
+                data->keepLoaded = false;
+                data->pakName[0] = '\0';
+
+                data->pakId = INVALID_PAK_HANDLE;
+            }
+            --numLeftToProcess;
+            --data;
+        } while (numLeftToProcess >= numToProcess);
+    }
+
+    *g_pPakPrecacheJobFinished = true;
+    CommonPakData_t* commonData = g_commonPakData;
+
+    int it = 0;
+
+    char* name;
+    char* nameIt;
+
+    while (true)
+    {
+        name = g_commonPakData[it].pakName;
+        nameIt = name;
+        char c;
+        int v20;
+        do
+        {
+            c = (unsigned __int8)nameIt[(unsigned __int64)(commonData->basePakName - (const char*)name)];
+            v20 = (unsigned __int8)*nameIt - c;
+            if (v20)
+                break;
+
+            ++nameIt;
+        } while (c);
+
+        if (!v20)
+            goto CHECK_FOR_FAILURE;
+
+        V_strncpy(name, commonData->basePakName, MAX_PATH);
+
+        if (*commonData->pakName)
+            break;
+
+        commonData->pakId = INVALID_PAK_HANDLE;
+    LOOP_AGAIN_OR_FINISH:
+
+        ++it;
+        ++commonData;
+        if (it >= 5)
+        {
+            if (*g_pPakPrecacheJobFinished)
+            {
+                __int64 pMTVFTaskItem = *g_pMTVFTaskItem;
+                if (pMTVFTaskItem)
+                {
+                    if (!*(_BYTE*)(pMTVFTaskItem + 4))
+                    {
+                        if (*g_pPakHasPendingUnloadJobs || *g_pLoadedPakCount != *g_pRequestedPakCount)
+                        {
+                            if (!JT_AcquireFifoLockOrHelp(g_pPakFifoLock)
+                                && !JT_HelpWithJobTypes((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))g_pPakFifoLockWrapper, g_pPakFifoLock, -1i64, 0i64))
+                            {
+                                JT_HelpWithJobTypesOrSleep((unsigned __int8(__fastcall*)(_QWORD))g_pPakFifoLockWrapper, g_pPakFifoLock, -1i64, 0i64, 0i64, 1);
+                            }
+
+                            Mod_UnloadPendingAndPrecacheRequestedPaks();
+
+                            if (ThreadInMainThread())
+                            {
+                                if (*g_bPakFifoLockAcquired)
+                                {
+                                    *g_bPakFifoLockAcquired = 0;
+                                    JT_ReleaseFifoLock(g_pPakFifoLock);
+                                }
+                            }
+                            JT_ReleaseFifoLock(g_pPakFifoLock);
+
+                            pMTVFTaskItem = *g_pMTVFTaskItem;
+                        }
+
+                        FileSystem()->ResetItemCacheSize(256);
+                        FileSystem()->PrecacheTaskItem(pMTVFTaskItem);
+                    }
+                }
+            }
+            return;
+        }
+    }
+
+    if (it == CommonPakData_t::PAK_TYPE_LOBBY)
+        s_customPakData.basePaksLoaded = true;
+
+    if (s_customPakData.basePaksLoaded && !s_customPakData.levelResourcesLoaded)
+    {
+        Mod_PreloadLevelPaks(s_CurrentLevelName.String());
+        s_customPakData.levelResourcesLoaded = true;
+    }
+
+    commonData->pakId = g_pakLoadApi->LoadAsync(name, AlignedMemAlloc(), 4, 0);
+
+#ifndef DEDICATED
+    if (it == CommonPakData_t::PAK_TYPE_UI_GM)
+        s_customPakData.LoadBasePak("ui_sdk.rpak", CustomPakData_t::PAK_TYPE_UI_SDK);
+#endif // !DEDICATED
+    if (it == CommonPakData_t::PAK_TYPE_COMMON_GM)
+        s_customPakData.LoadBasePak("common_sdk.rpak", CustomPakData_t::PAK_TYPE_COMMON_SDK);
+
+CHECK_FOR_FAILURE:
+
+    if (commonData->pakId != INVALID_PAK_HANDLE)
+    {
+        const int infoIndex = (commonData->pakId & PAK_MAX_HANDLES_MASK);
+
+        if (g_pLoadedPakInfo[infoIndex].handle != commonData->pakId || ((g_pLoadedPakInfo[infoIndex].status - 9) & 0xFFFFFFFB) != 0)
+        {
+            *g_pPakPrecacheJobFinished = false;
+            return;
+        }
+    }
+
+    goto LOOP_AGAIN_OR_FINISH;
 }
 
 //-----------------------------------------------------------------------------
@@ -395,12 +430,12 @@ void Mod_ProcessPakQueue()
 // Input  : *szLevelName - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-void Mod_LoadPakForMap(const char* pszLevelName)
+void Mod_LoadPakForMap(const char* const pszLevelName)
 {
 	if (Mod_LevelHasChanged(pszLevelName))
-		s_bLevelResourceInitialized = false;
+        s_customPakData.levelResourcesLoaded = false;
 
-	s_LevelName = pszLevelName;
+	s_CurrentLevelName = pszLevelName;
 
 	// Dedicated should not load loadscreens.
 #ifndef DEDICATED
@@ -413,11 +448,12 @@ void Mod_LoadPakForMap(const char* pszLevelName)
 // Input  : *pszLevelName - 
 // Output : KeyValues*
 //-----------------------------------------------------------------------------
-KeyValues* Mod_GetLevelSettings(const char* pszLevelName)
+KeyValues* Mod_GetLevelSettings(const char* const pszLevelName)
 {
     if (s_pLevelSetKV)
     {
-        if (s_bLevelResourceInitialized)
+        // If we didn't change the level, return the current one
+        if (s_customPakData.levelResourcesLoaded)
             return s_pLevelSetKV;
 
         s_pLevelSetKV->DeleteThis();
@@ -434,14 +470,14 @@ KeyValues* Mod_GetLevelSettings(const char* pszLevelName)
 // Purpose: loads required pakfile assets for specified BSP level
 // Input  : &svSetFile - 
 //-----------------------------------------------------------------------------
-void Mod_PreloadLevelPaks(const char* pszLevelName)
+void Mod_PreloadLevelPaks(const char* const pszLevelName)
 {
-    KeyValues* pSettingsKV = Mod_GetLevelSettings(pszLevelName);
+    KeyValues* const pSettingsKV = Mod_GetLevelSettings(pszLevelName);
 
     if (!pSettingsKV)
         return;
 
-    KeyValues* pPakListKV = pSettingsKV->FindKey("PakList");
+    KeyValues* const pPakListKV = pSettingsKV->FindKey("PakList");
 
     if (!pPakListKV)
         return;
@@ -454,12 +490,10 @@ void Mod_PreloadLevelPaks(const char* pszLevelName)
             continue;
 
         snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pSubKey->GetName());
-        PakHandle_t nPakId = g_pakLoadApi->LoadAsync(szPathBuffer, AlignedMemAlloc(), 4, 0);
+        const PakHandle_t nPakId = s_customPakData.LoadAndAddPak(szPathBuffer);
 
         if (nPakId == INVALID_PAK_HANDLE)
             Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, szPathBuffer, nPakId);
-        else
-            g_vLoadedPakHandle.AddToTail(nPakId);
     }
 }
 
@@ -468,14 +502,7 @@ void Mod_PreloadLevelPaks(const char* pszLevelName)
 //-----------------------------------------------------------------------------
 void Mod_UnloadPakFile(void)
 {
-	for (const PakHandle_t& it : g_vLoadedPakHandle)
-	{
-		if (it >= 0)
-		{
-			g_pakLoadApi->UnloadPak(it);
-		}
-	}
-	g_vLoadedPakHandle.Purge();
+    s_customPakData.UnloadAndRemoveAll();
 
     g_StudioMdlFallbackHandler.ClearBadModelHandleCache();
     g_StudioMdlFallbackHandler.ClearSuppresionList();
@@ -484,5 +511,5 @@ void Mod_UnloadPakFile(void)
 void VModel_BSP::Detour(const bool bAttach) const
 {
 	DetourSetup(&v_Mod_LoadPakForMap, &Mod_LoadPakForMap, bAttach);
-	DetourSetup(&v_Mod_ProcessPakQueue, &Mod_ProcessPakQueue, bAttach);
+	DetourSetup(&v_Mod_QueuedPakCacheFrame, &Mod_QueuedPakCacheFrame, bAttach);
 }

@@ -20,7 +20,6 @@
 #include "tier1/cvar.h"
 #include "tier1/keyvalues_iface.h"
 #include "vpc/IAppSystem.h"
-#include "vpc/rson.h"
 #include "vpc/interfaces.h"
 #include "common/callback.h"
 #include "common/completion.h"
@@ -60,8 +59,13 @@
 #include "engine/server/datablock_sender.h"
 #endif // !CLIENT_DLL
 #include "studiorender/studiorendercontext.h"
-#include "rtech/rtech_game.h"
-#include "rtech/rtech_utils.h"
+#include "rtech/rstdlib.h"
+#include "rtech/rson.h"
+#include "rtech/async/asyncio.h"
+#include "rtech/pak/pakalloc.h"
+#include "rtech/pak/pakparse.h"
+#include "rtech/pak/pakstate.h"
+#include "rtech/pak/pakstream.h"
 #include "rtech/stryder/stryder.h"
 #include "rtech/playlists/playlists.h"
 #ifndef DEDICATED
@@ -550,8 +554,15 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #endif // !DEDICATED
 
 	// RTech
-	REGISTER(V_RTechGame);
-	REGISTER(V_RTechUtils);
+	REGISTER(V_ReSTD);
+
+	REGISTER(V_AsyncIO);
+
+	REGISTER(V_PakAlloc);
+	REGISTER(V_PakParse);
+	REGISTER(V_PakState);
+	REGISTER(V_PakStream);
+
 	REGISTER(VStryder);
 	REGISTER(VPlaylists);
 

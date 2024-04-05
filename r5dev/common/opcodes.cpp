@@ -23,7 +23,6 @@
 #include "game/server/ai_networkmanager.h"
 #include "game/server/detour_impl.h"
 #endif // !CLIENT_DLL
-#include "rtech/rtech_game.h"
 //#include "rtech/rui/rui.h"
 //#include "materialsystem/cmaterialsystem.h"
 //#include "studiorender/studiorendercontext.h"
@@ -350,16 +349,4 @@ void RuntimePtc_Init() /* .TEXT */
 #else
 	CMemory(v_SQVM_CompileError).Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | For dedicated we should not perform post-error events such as telemetry / showing 'COM_ExplainDisconnection' UI etc.
 #endif // !DEDICATED
-
-	const vector<uint8_t> starPakOpenFile = {
-		0x4D, 0x31, 0xC0,                                 // xor, r8, r8
-		0x48, 0x8D, 0x8C, 0x24, 0x90, 0x00, 0x00, 0x00,   // lea  rcx, [rsp+378h+90h] FileName
-
-		// call RTech::OpenFile [RIP+RVA]
-		0xE8, 0x77, 0x8F, 0xFF, 0xFF,
-		0x8B, 0xF8,                                       // mov  edi, eax
-		0xE9, 0xDA, 0x00, 0x00, 0x00                      // jmp  [RIP+RVA]
-	};
-
-	p_Pak_OpenFileOffset.Patch(starPakOpenFile);
 }

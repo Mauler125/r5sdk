@@ -8,7 +8,7 @@
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "tier1/keyvalues.h"
-#include "rtech/rtech_utils.h"
+#include "rtech/pak/pakparse.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"
 #include "geforce/reflex.h"

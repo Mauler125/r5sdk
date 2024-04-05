@@ -18,7 +18,8 @@ public:
 		, m_hFallbackMDL(NULL)
 	{}
 
-	// This must be cleared if 'common.rpak' is getting unloaded!
+	// This must be cleared if 'common.rpak' is getting unloaded, as this pak
+	// contains the default fallback models!!!
 	inline void Clear(void)
 	{
 		m_pFallbackHDR = nullptr;

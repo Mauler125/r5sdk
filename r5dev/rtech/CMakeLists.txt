@@ -3,28 +3,51 @@ add_module( "lib" "rtech_game" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
-add_sources( SOURCE_GROUP "Private"
-   "rtech_game.cpp"
-   "rtech_game.h"
+add_sources( SOURCE_GROUP "Async"
+   "async/asyncio.cpp"
+   "async/asyncio.h"
+)
+
+add_sources( SOURCE_GROUP "Pak"
+   "pak/pakparse.cpp"
+   "pak/pakparse.h"
+
+   "pak/pakalloc.cpp"
+   "pak/pakalloc.h"
+
+   "pak/pakdecode.cpp"
+   "pak/pakdecode.h"
+
+   "pak/pakpatch.cpp"
+   "pak/pakpatch.h"
+
+   "pak/pakstate.cpp"
+   "pak/pakstate.h"
+
+   "pak/pakstream.cpp"
+   "pak/pakstream.h"
+
+   "pak/paktools.cpp"
+   "pak/paktools.h"
 )
 
 add_sources( SOURCE_GROUP "Public"
+   "${ENGINE_SOURCE_DIR}/public/rtech/iasync.h"
    "${ENGINE_SOURCE_DIR}/public/rtech/ipakfile.h"
 )
 
 end_sources()
 
-add_module( "lib" "rtech_tools" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
+add_module( "lib" "rson" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
-add_sources( SOURCE_GROUP "Source"
-   "rtech_utils.cpp"
-   "rtech_utils.h"
+add_sources( SOURCE_GROUP "RSON"
+    "rdf/rson.cpp"
 )
 
 add_sources( SOURCE_GROUP "Public"
-   "${ENGINE_SOURCE_DIR}/public/rtech/ipakfile.h"
+   "${ENGINE_SOURCE_DIR}/public/rtech/rson.h"
 )
 
 end_sources()

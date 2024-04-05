@@ -64,8 +64,10 @@ inline void ThreadPause()
 FORCEINLINE int32 ThreadInterlockedIncrement(int32 volatile* p) { Assert((size_t)p % 4 == 0); return _InterlockedIncrement((volatile long*)p); }
 FORCEINLINE int32 ThreadInterlockedDecrement(int32 volatile* p) { Assert((size_t)p % 4 == 0); return _InterlockedDecrement((volatile long*)p); }
 
-FORCEINLINE int64 ThreadInterlockedIncrement64(int64 volatile* p) { AssertDbg((size_t)p % 8 == 0); return _InterlockedIncrement64((volatile int64*)p); }
-FORCEINLINE int64 ThreadInterlockedDecrement64(int64 volatile* p) { AssertDbg((size_t)p % 8 == 0); return _InterlockedDecrement64((volatile int64*)p); }
+FORCEINLINE int64 ThreadInterlockedIncrement64(int64 volatile* p) { Assert((size_t)p % 8 == 0); return _InterlockedIncrement64((volatile int64*)p); }
+FORCEINLINE int64 ThreadInterlockedDecrement64(int64 volatile* p) { Assert((size_t)p % 8 == 0); return _InterlockedDecrement64((volatile int64*)p); }
+
+FORCEINLINE int32 ThreadInterlockedExchangeAdd(int32 volatile* p, int32 value) { Assert((size_t)p % 4 == 0); return _InterlockedExchangeAdd((volatile long*)p, value); }
 
 FORCEINLINE int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand)
 {

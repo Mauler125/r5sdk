@@ -280,7 +280,9 @@ extern ConVar* curl_timeout;
 extern ConVar* curl_debug;
 //-------------------------------------------------------------------------
 // RTECH API                                                              |
-extern ConVar* rtech_debug;
+extern ConVar* async_debug_level;
+extern ConVar* async_debug_close;
+extern ConVar* pak_debugrelations;
 //-------------------------------------------------------------------------
 // RUI                                                                    |
 #ifndef DEDICATED
