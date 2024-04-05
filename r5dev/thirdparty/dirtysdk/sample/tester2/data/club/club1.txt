@@ -1,0 +1,89 @@
+#sign on an create a club
+club connect sdevlobby01.online.ea.com 11900 csoc030 csotest csoc030
+club create fooclub tag30 UK 1 2 3
+club recruit csoc031
+club recruit csoc032
+club recruit csoc033
+club recruit csoc034
+club recruit csoc035
+club recruit csoc036
+
+sleep 30
+
+#recruitee accepts
+club connect sdevlobby01.online.ea.com 11900 csoc031 csotest
+sleep 10
+# Find with no params, will find my recruited clubs..
+club find
+#note: accept also takes a clubid param, but, to make it easy, tester2 stores id from find above.
+club accept
+sleep 30
+
+#another dude accepts
+club connect sdevlobby01.online.ea.com 11900 csoc032 csotest
+sleep 10
+club find
+club accept
+sleep 30
+
+#just say no
+club connect sdevlobby01.online.ea.com 11900 csoc033 csotest
+sleep 10
+club find
+club reject
+sleep 30
+
+#another dude accepts
+club connect sdevlobby01.online.ea.com 11900 csoc034 csotest
+sleep 10
+club find
+club accept
+sleep 30
+
+#  now, GM can transfer  to member, who accepted was recruit above..
+club connect sdevlobby01.online.ea.com 11900 csoc031 csotest
+sleep 10
+club  get
+club transfer csoc032
+
+#  now, transferee can accept transfer  ..
+club connect sdevlobby01.online.ea.com 11900 csoc031 csotest
+sleep 10
+club  get
+club acceptX
+
+#new gm should be able to recruit..
+club recruit csoc038
+
+#report some scores.. NOTE fiso001 must belong to another club to see stats update..
+club score csoc032 1 fiso001 3
+club get
+
+ 
+
+club connect sdevlobby01.online.ea.com 11900 csoc035 csotest
+sleep 10
+club find
+club accept
+sleep 30
+
+club connect sdevlobby01.online.ea.com 11900 csoc038 csotest
+sleep 10
+club find
+club accept
+sleep 30
+
+#this will fail --not the gm
+club connect sdevlobby01.online.ea.com 11900 csoc030 csotest
+sleep 10
+club find tag30 T
+club  disband
+sleep 30
+
+
+
+
+
+
+
+
