@@ -29,6 +29,7 @@ add_subdirectory( thirdparty/curl )
 add_subdirectory( thirdparty/sdl )
 add_subdirectory( thirdparty/imgui )
 add_subdirectory( thirdparty/spdlog )
+add_subdirectory( thirdparty/jwt )
 add_subdirectory( thirdparty/lzham )
 add_subdirectory( thirdparty/fastlz )
 
