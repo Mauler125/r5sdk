@@ -33,14 +33,17 @@ add_subdirectory( thirdparty/jwt )
 add_subdirectory( thirdparty/lzham )
 add_subdirectory( thirdparty/fastlz )
 
-set( FOLDER_CONTEXT "Thirdparty/Recast" )
-add_subdirectory( thirdparty/recast )
+set( FOLDER_CONTEXT "Thirdparty/ARM" )
+add_subdirectory( thirdparty/mbedtls )
+
+set( FOLDER_CONTEXT "Thirdparty/Google" )
+add_subdirectory( thirdparty/protobuf )
 
 set( FOLDER_CONTEXT "Thirdparty/Microsoft" )
 add_subdirectory( thirdparty/detours )
 
-set( FOLDER_CONTEXT "Thirdparty/Google" )
-add_subdirectory( thirdparty/protobuf )
+set( FOLDER_CONTEXT "Thirdparty/Recast" )
+add_subdirectory( thirdparty/recast )
 
 set( FOLDER_CONTEXT "Tools" )
 add_subdirectory( sdklauncher )
