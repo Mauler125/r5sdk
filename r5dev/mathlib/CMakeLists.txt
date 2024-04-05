@@ -12,8 +12,6 @@ add_sources( SOURCE_GROUP "Hash"
     "IceKey.H"
     "sha1.cpp"
     "sha1.h"
-    "sha256.cpp"
-    "sha256.h"
 )
 
 add_sources( SOURCE_GROUP "RNG"
