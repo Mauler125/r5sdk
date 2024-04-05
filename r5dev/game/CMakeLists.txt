@@ -100,8 +100,6 @@ add_sources( SOURCE_GROUP "Utility"
 )
 
 add_sources( SOURCE_GROUP "LiveAPI"
-    "server/liveapi/events.pb.cc"
-    "server/liveapi/events.pb.h"
     "server/liveapi/liveapi.cpp"
     "server/liveapi/liveapi.h"
 )

@@ -25,31 +25,31 @@ message Vector3
 
 message Player
 {
-	string name = 1;
-	uint32 teamId = 2;
-	Vector3 pos = 3;
-	Vector3 angles = 4;
+	string name				= 1;
+	uint32 teamId			= 2;
+	Vector3 pos				= 3;
+	Vector3 angles			= 4;
 	
-	uint32 currentHealth = 5;
-	uint32 maxHealth = 6;
-	uint32 shieldHealth = 7;
-	uint32 shieldMaxHealth = 8;
+	uint32 currentHealth	= 5;
+	uint32 maxHealth		= 6;
+	uint32 shieldHealth		= 7;
+	uint32 shieldMaxHealth	= 8;
 	
-	string nucleusHash = 9;
-	string hardwareName = 10;
+	string nucleusHash		= 9;
+	string hardwareName		= 10;
 	
-	string teamName = 11;
-	uint32 squadIndex = 12;
-	string character = 13;
-	string skin = 14;
+	string teamName			= 11;
+	uint32 squadIndex		= 12;
+	string character		= 13;
+	string skin				= 14;
 }
 
 message CustomMatch_LobbyPlayer
 {
-	string name = 1;
-	uint32 teamId = 2;
+	string name			= 1;
+	uint32 teamId 		= 2;
 	
-	string nucleusHash = 3;
+	string nucleusHash 	= 3;
 	string hardwareName = 4;
 }
 
@@ -66,7 +66,7 @@ message Version
 	uint32 major_num	= 1;
 	uint32 minor_num	= 2;
 	uint32 build_stamp	= 3;
-	string revision = 4;
+	string revision 	= 4;
 }
 
 message InventoryItem
@@ -551,15 +551,17 @@ message WeaponSwitched
 // Custom events
 /////////////////////////////////////////
 
+import "google/protobuf/struct.proto";
+
 // Event defining custom user data that is otherwise too specific to create dedicated messages for
 message CustomEvent
 {
-	uint64 timestamp	= 1;
-	string category		= 2;
+	uint64 timestamp			= 1;
+	string category				= 2;
 	
-	repeated google.protobuf.Any customData = 3;
+	string name					= 3;
+	google.protobuf.Struct data	= 4;
 }
-
 
 //////////////////////////////////////////////////////////////////////
 // Input messages:

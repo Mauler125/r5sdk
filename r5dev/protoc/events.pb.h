@@ -32,6 +32,7 @@
 #include <thirdparty/protobuf/extension_set.h>  // IWYU pragma: export
 #include <thirdparty/protobuf/generated_enum_reflection.h>
 #include <thirdparty/protobuf/unknown_field_set.h>
+#include <thirdparty/protobuf/struct.pb.h>
 #include <thirdparty/protobuf/any.pb.h>
 // @@protoc_insertion_point(includes)
 #include <thirdparty/protobuf/port_def.inc>
@@ -9909,28 +9910,11 @@ class CustomEvent final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kCustomDataFieldNumber = 3,
     kCategoryFieldNumber = 2,
+    kNameFieldNumber = 3,
+    kDataFieldNumber = 4,
     kTimestampFieldNumber = 1,
   };
-  // repeated .google.protobuf.Any customData = 3;
-  int customdata_size() const;
-  private:
-  int _internal_customdata_size() const;
-  public:
-  void clear_customdata();
-  ::PROTOBUF_NAMESPACE_ID::Any* mutable_customdata(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >*
-      mutable_customdata();
-  private:
-  const ::PROTOBUF_NAMESPACE_ID::Any& _internal_customdata(int index) const;
-  ::PROTOBUF_NAMESPACE_ID::Any* _internal_add_customdata();
-  public:
-  const ::PROTOBUF_NAMESPACE_ID::Any& customdata(int index) const;
-  ::PROTOBUF_NAMESPACE_ID::Any* add_customdata();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >&
-      customdata() const;
-
   // string category = 2;
   void clear_category();
   const std::string& category() const;
@@ -9944,6 +9928,38 @@ class CustomEvent final :
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_category(const std::string& value);
   std::string* _internal_mutable_category();
   public:
+
+  // string name = 3;
+  void clear_name();
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_name(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_name();
+  PROTOBUF_NODISCARD std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
+  // .google.protobuf.Struct data = 4;
+  bool has_data() const;
+  private:
+  bool _internal_has_data() const;
+  public:
+  void clear_data();
+  const ::PROTOBUF_NAMESPACE_ID::Struct& data() const;
+  PROTOBUF_NODISCARD ::PROTOBUF_NAMESPACE_ID::Struct* release_data();
+  ::PROTOBUF_NAMESPACE_ID::Struct* mutable_data();
+  void set_allocated_data(::PROTOBUF_NAMESPACE_ID::Struct* data);
+  private:
+  const ::PROTOBUF_NAMESPACE_ID::Struct& _internal_data() const;
+  ::PROTOBUF_NAMESPACE_ID::Struct* _internal_mutable_data();
+  public:
+  void unsafe_arena_set_allocated_data(
+      ::PROTOBUF_NAMESPACE_ID::Struct* data);
+  ::PROTOBUF_NAMESPACE_ID::Struct* unsafe_arena_release_data();
 
   // uint64 timestamp = 1;
   void clear_timestamp();
@@ -9962,8 +9978,9 @@ class CustomEvent final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any > customdata_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr category_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+    ::PROTOBUF_NAMESPACE_ID::Struct* data_;
     uint64_t timestamp_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -23499,41 +23516,139 @@ inline void CustomEvent::set_allocated_category(std::string* category) {
   // @@protoc_insertion_point(field_set_allocated:rtech.liveapi.CustomEvent.category)
 }
 
-// repeated .google.protobuf.Any customData = 3;
-inline int CustomEvent::_internal_customdata_size() const {
-  return _impl_.customdata_.size();
+// string name = 3;
+inline void CustomEvent::clear_name() {
+  _impl_.name_.ClearToEmpty();
 }
-inline int CustomEvent::customdata_size() const {
-  return _internal_customdata_size();
+inline const std::string& CustomEvent::name() const {
+  // @@protoc_insertion_point(field_get:rtech.liveapi.CustomEvent.name)
+  return _internal_name();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Any* CustomEvent::mutable_customdata(int index) {
-  // @@protoc_insertion_point(field_mutable:rtech.liveapi.CustomEvent.customData)
-  return _impl_.customdata_.Mutable(index);
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void CustomEvent::set_name(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:rtech.liveapi.CustomEvent.name)
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >*
-CustomEvent::mutable_customdata() {
-  // @@protoc_insertion_point(field_mutable_list:rtech.liveapi.CustomEvent.customData)
-  return &_impl_.customdata_;
+inline std::string* CustomEvent::mutable_name() {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:rtech.liveapi.CustomEvent.name)
+  return _s;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Any& CustomEvent::_internal_customdata(int index) const {
-  return _impl_.customdata_.Get(index);
+inline const std::string& CustomEvent::_internal_name() const {
+  return _impl_.name_.Get();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Any& CustomEvent::customdata(int index) const {
-  // @@protoc_insertion_point(field_get:rtech.liveapi.CustomEvent.customData)
-  return _internal_customdata(index);
+inline void CustomEvent::_internal_set_name(const std::string& value) {
+  
+  _impl_.name_.Set(value, GetArenaForAllocation());
 }
-inline ::PROTOBUF_NAMESPACE_ID::Any* CustomEvent::_internal_add_customdata() {
-  return _impl_.customdata_.Add();
+inline std::string* CustomEvent::_internal_mutable_name() {
+  
+  return _impl_.name_.Mutable(GetArenaForAllocation());
 }
-inline ::PROTOBUF_NAMESPACE_ID::Any* CustomEvent::add_customdata() {
-  ::PROTOBUF_NAMESPACE_ID::Any* _add = _internal_add_customdata();
-  // @@protoc_insertion_point(field_add:rtech.liveapi.CustomEvent.customData)
-  return _add;
+inline std::string* CustomEvent::release_name() {
+  // @@protoc_insertion_point(field_release:rtech.liveapi.CustomEvent.name)
+  return _impl_.name_.Release();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >&
-CustomEvent::customdata() const {
-  // @@protoc_insertion_point(field_list:rtech.liveapi.CustomEvent.customData)
-  return _impl_.customdata_;
+inline void CustomEvent::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.name_.SetAllocated(name, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.name_.IsDefault()) {
+    _impl_.name_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:rtech.liveapi.CustomEvent.name)
+}
+
+// .google.protobuf.Struct data = 4;
+inline bool CustomEvent::_internal_has_data() const {
+  return this != internal_default_instance() && _impl_.data_ != nullptr;
+}
+inline bool CustomEvent::has_data() const {
+  return _internal_has_data();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::Struct& CustomEvent::_internal_data() const {
+  const ::PROTOBUF_NAMESPACE_ID::Struct* p = _impl_.data_;
+  return p != nullptr ? *p : reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Struct&>(
+      ::PROTOBUF_NAMESPACE_ID::_Struct_default_instance_);
+}
+inline const ::PROTOBUF_NAMESPACE_ID::Struct& CustomEvent::data() const {
+  // @@protoc_insertion_point(field_get:rtech.liveapi.CustomEvent.data)
+  return _internal_data();
+}
+inline void CustomEvent::unsafe_arena_set_allocated_data(
+    ::PROTOBUF_NAMESPACE_ID::Struct* data) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.data_);
+  }
+  _impl_.data_ = data;
+  if (data) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:rtech.liveapi.CustomEvent.data)
+}
+inline ::PROTOBUF_NAMESPACE_ID::Struct* CustomEvent::release_data() {
+  
+  ::PROTOBUF_NAMESPACE_ID::Struct* temp = _impl_.data_;
+  _impl_.data_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::PROTOBUF_NAMESPACE_ID::Struct* CustomEvent::unsafe_arena_release_data() {
+  // @@protoc_insertion_point(field_release:rtech.liveapi.CustomEvent.data)
+  
+  ::PROTOBUF_NAMESPACE_ID::Struct* temp = _impl_.data_;
+  _impl_.data_ = nullptr;
+  return temp;
+}
+inline ::PROTOBUF_NAMESPACE_ID::Struct* CustomEvent::_internal_mutable_data() {
+  
+  if (_impl_.data_ == nullptr) {
+    auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Struct>(GetArenaForAllocation());
+    _impl_.data_ = p;
+  }
+  return _impl_.data_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::Struct* CustomEvent::mutable_data() {
+  ::PROTOBUF_NAMESPACE_ID::Struct* _msg = _internal_mutable_data();
+  // @@protoc_insertion_point(field_mutable:rtech.liveapi.CustomEvent.data)
+  return _msg;
+}
+inline void CustomEvent::set_allocated_data(::PROTOBUF_NAMESPACE_ID::Struct* data) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.data_);
+  }
+  if (data) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(data));
+    if (message_arena != submessage_arena) {
+      data = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, data, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.data_ = data;
+  // @@protoc_insertion_point(field_set_allocated:rtech.liveapi.CustomEvent.data)
 }
 
 // -------------------------------------------------------------------

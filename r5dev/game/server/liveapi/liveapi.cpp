@@ -8,7 +8,7 @@
 // - Add code callback for player weapon switched  ( event WeaponSwitched )
 //
 //=============================================================================//
-#include "tier1/utlsymbol.h"
+#include "tier1/depthcounter.h"
 #include "vscript/languages/squirrel_re/include/sqtable.h"
 #include "vscript/languages/squirrel_re/include/sqarray.h"
 #include "game/server/vscript_server.h"
@@ -16,8 +16,13 @@
 #include "liveapi.h"
 #include "engine/sys_utils.h"
 
-#include "events.pb.h"
-#include "protobuf/util/json_util.h"
+#pragma warning(push)
+#pragma warning(disable : 4505)
+#include "protoc/events.pb.h"
+#pragma warning(pop) 
+
+// The total nesting depth cannot exceed this number
+#define LIVEAPI_MAX_ITEM_DEPTH 64
 
 
 /*
@@ -50,6 +55,7 @@ static rtech::liveapi::CharacterSelected s_characterSelected;
 //static rtech::liveapi::CustomMatch_SetSettings s_customMatch_SetSettings;
 //static rtech::liveapi::CustomMatch_SetTeam s_customMatch_SetTeam;
 //static rtech::liveapi::CustomMatch_SetTeamName s_customMatch_SetTeamName;
+static rtech::liveapi::CustomEvent s_customEvent;
 static rtech::liveapi::GameStateChanged s_gameStateChanged;
 static rtech::liveapi::GibraltarShieldAbsorbed s_gibraltarShieldAbsorbed;
 static rtech::liveapi::GrenadeThrown s_grenadeThrown;
@@ -125,7 +131,7 @@ enum class eLiveAPI_EventTypes
 		//customMatch_SetSettings,
 		//customMatch_SetTeam,
 		//customMatch_SetTeamName,
-
+	customEvent,
 	datacenter,
 		//gameConVar,
 	gameStateChanged,
@@ -221,6 +227,7 @@ static const char* LiveAPI_EventTypeToString(const eLiveAPI_EventTypes eventType
 		//case eLiveAPI_EventTypes::customMatch_SetSettings: return "customMatch_SetSettings";
 		//case eLiveAPI_EventTypes::customMatch_SetTeam: return "customMatch_SetTeam";
 		//case eLiveAPI_EventTypes::customMatch_SetTeamName: return "customMatch_SetTeamName";
+	case eLiveAPI_EventTypes::customEvent: return "customEvent";
 	case eLiveAPI_EventTypes::datacenter: return "datacenter";
 		//case eLiveAPI_EventTypes::gameConVar: return "gameConVar";
 	case eLiveAPI_EventTypes::gameStateChanged: return "gameStateChanged";
@@ -319,9 +326,11 @@ static bool LiveAPI_CheckSwitchType(HSQUIRRELVM const v, const SQObjectPtr& obj)
 }
 
 #define LIVEAPI_ENSURE_TYPE(v, obj, expectType, eventMsg, fieldNum) { if (!LiveAPI_EnsureType(v, obj, expectType, eventMsg, fieldNum)) return false; }
-#define LIVEAPI_EMPTY_TABLE_ERROR(v, eventMsg) { v_SQVM_RaiseError(v, "Empty table on message \"%s\".", eventMsg->GetTypeName().c_str()); return false; }
+#define LIVEAPI_EMPTY_TABLE_ERROR(v, eventMsg) { v_SQVM_RaiseError(v, "Empty iterable on message \"%s\".", eventMsg->GetTypeName().c_str()); return false; }
 #define LIVEAPI_FIELD_ERROR(v, fieldNum, eventMsg) { v_SQVM_RaiseError(v, "Field \"%d\" doesn't exist in message \"%s\".", fieldNum, eventMsg->GetTypeName().c_str()); return false; }
 #define LIVEAPI_ONEOF_FIELD_ERROR(v, fieldNum, eventMsg) { v_SQVM_RaiseError(v, "Tried to set member \"%d\" of oneof field in message \"%s\" while another has already been set.", fieldNum, eventMsg->GetTypeName().c_str()); return false; }
+#define LIVEAPI_UNSUPPORTED_TYPE_ERROR(v, gotType, eventMsg) {v_SQVM_RaiseError(v, "Value type \"%s\" is not supported for message \"%s\".\n", IdType2Name(gotType), eventMsg->GetTypeName().c_str()); return false; }
+#define LIVEAPI_CHECK_RECURSION_DEPTH(v, currDepth) { if (currDepth > LIVEAPI_MAX_ITEM_DEPTH) { v_SQVM_RaiseError(v, "Exceeded nesting depth limit of \"%i\".", LIVEAPI_MAX_ITEM_DEPTH); return false; }}
 
 uint64_t GetUnixTimeStamp() // TODO: move elsewhere
 {
@@ -1743,6 +1752,185 @@ static bool LiveAPI_HandlePlayerStatChanged(HSQUIRRELVM const v, const SQObject&
 	return true;
 }
 
+static void LiveAPI_SetCustomVectorField(google::protobuf::Struct* const structData, const Vector3D* const vecData)
+{
+	google::protobuf::Map<std::string, google::protobuf::Value>* const fieldData = structData->mutable_fields();
+
+	(*fieldData)["x"].set_number_value(vecData->x);
+	(*fieldData)["y"].set_number_value(vecData->y);
+	(*fieldData)["z"].set_number_value(vecData->z);
+}
+
+static bool LiveAPI_SetCustomTableFields(HSQUIRRELVM const v, google::protobuf::Struct* const structData, const SQTable* const tableData);
+static bool LiveAPI_SetCustomArrayFields(HSQUIRRELVM const v, google::protobuf::ListValue* const listData, const SQArray* const arrayData);
+
+static int s_currentDepth = 0;
+
+static bool LiveAPI_SetCustomArrayFields(HSQUIRRELVM const v, google::protobuf::ListValue* const listData, const SQArray* const arrayData)
+{
+	CDepthCounter<int> counter(s_currentDepth);
+	bool ranLoop = false;
+
+	for (SQInteger i = 0; i < arrayData->Size(); i++)
+	{
+		const SQObject& valueObj = arrayData->_values[i];
+
+		if (sq_isnull(valueObj))
+			continue;
+
+		if (!ranLoop)
+			ranLoop = true;
+
+		const SQObjectType valueType = sq_type(valueObj);
+
+		switch (valueType)
+		{
+		case OT_BOOL:
+			listData->add_values()->set_bool_value(_bool(valueObj));
+			break;
+		case OT_INTEGER:
+			listData->add_values()->set_number_value(_integer(valueObj));
+			break;
+		case OT_FLOAT:
+			listData->add_values()->set_number_value(_float(valueObj));
+			break;
+		case OT_STRING:
+			listData->add_values()->set_string_value(_string(valueObj)->_val);
+			break;
+		case OT_VECTOR:
+			LiveAPI_SetCustomVectorField(listData->add_values()->mutable_struct_value(), _vector3d(valueObj));
+			break;
+		case OT_ARRAY:
+			LIVEAPI_CHECK_RECURSION_DEPTH(v, counter.Get());
+
+			if (arrayData == _array(valueObj))
+			{
+				v_SQVM_RaiseError(v, "Attempted to nest array \"%i\" into itself at index \"%i\".", counter.Get(), i);
+				return false;
+			}
+
+			if (!LiveAPI_SetCustomArrayFields(v, listData->add_values()->mutable_list_value(), _array(valueObj)))
+				return false;
+
+			break;
+		case OT_TABLE:
+			LIVEAPI_CHECK_RECURSION_DEPTH(v, counter.Get());
+
+			if (!LiveAPI_SetCustomTableFields(v, listData->add_values()->mutable_struct_value(), _table(valueObj)))
+				return false;
+
+			break;
+		default:
+			LIVEAPI_UNSUPPORTED_TYPE_ERROR(v, valueType, listData);
+		}
+	}
+
+	if (!ranLoop)
+		LIVEAPI_EMPTY_TABLE_ERROR(v, listData);
+
+	return true;
+}
+
+static bool LiveAPI_SetCustomTableFields(HSQUIRRELVM const v, google::protobuf::Struct* const structData, const SQTable* const tableData)
+{
+	CDepthCounter<int> counter(s_currentDepth);
+	bool ranLoop = false;
+
+	SQ_FOR_EACH_TABLE(tableData, i)
+	{
+		const SQTable::_HashNode& node = tableData->_nodes[i];
+
+		if (sq_isnull(node.key))
+			continue;
+
+		if (!ranLoop)
+			ranLoop = true;
+
+		const SQObjectType keyType = sq_type(node.key);
+
+		if (keyType != OT_STRING)
+		{
+			v_SQVM_RaiseError(v, "Key must be a \"%s\", got \"%s\" for message \"%s\" in table \"%i\" at index \"%i\".",
+				IdType2Name(OT_STRING), IdType2Name(keyType), structData->GetTypeName().c_str(), counter.Get(), i);
+
+			return false;
+		}
+
+		const SQObjectType valueType = sq_type(node.val);
+
+		switch (valueType)
+		{
+		case OT_BOOL:
+			(*structData->mutable_fields())[_string(node.key)->_val].set_bool_value(_bool(node.val));
+			break;
+		case OT_INTEGER:
+			(*structData->mutable_fields())[_string(node.key)->_val].set_number_value(_integer(node.val));
+			break;
+		case OT_FLOAT:
+			(*structData->mutable_fields())[_string(node.key)->_val].set_number_value(_float(node.val));
+			break;
+		case OT_STRING:
+			(*structData->mutable_fields())[_string(node.key)->_val].set_string_value(_string(node.val)->_val);
+			break;
+		case OT_VECTOR:
+			LiveAPI_SetCustomVectorField((*structData->mutable_fields())[_string(node.key)->_val].mutable_struct_value(), _vector3d(node.val));
+			break;
+		case OT_ARRAY:
+			LIVEAPI_CHECK_RECURSION_DEPTH(v, counter.Get());
+
+			if (!LiveAPI_SetCustomArrayFields(v, (*structData->mutable_fields())[_string(node.key)->_val].mutable_list_value(), _array(node.val)))
+				return false;
+
+			break;
+		case OT_TABLE:
+			LIVEAPI_CHECK_RECURSION_DEPTH(v, counter.Get());
+
+			if (tableData == _table(node.val))
+			{
+				v_SQVM_RaiseError(v, "Attempted to nest table \"%i\" into itself at index \"%i\".", counter.Get(), i);
+				return false;
+			}
+
+			if (!LiveAPI_SetCustomTableFields(v, (*structData->mutable_fields())[_string(node.key)->_val].mutable_struct_value(), _table(node.val)))
+				return false;
+
+			break;
+		default:
+			LIVEAPI_UNSUPPORTED_TYPE_ERROR(v, valueType, structData);
+		}
+	}
+
+	if (!ranLoop)
+		LIVEAPI_EMPTY_TABLE_ERROR(v, structData);
+
+	return true;
+}
+
+static bool LiveAPI_HandleCustomEvent(HSQUIRRELVM const v, const SQObject& obj, rtech::liveapi::CustomEvent* const event,
+	const eLiveAPI_EventTypes eventType, const SQInteger fieldNum)
+{
+	LiveAPI_SetCommonMessageFields(event, eventType);
+
+	switch (fieldNum)
+	{
+	case rtech::liveapi::CustomEvent::kNameFieldNumber:
+		LIVEAPI_ENSURE_TYPE(v, obj, OT_STRING, event, fieldNum);
+		event->set_name(_string(obj)->_val);
+
+		break;
+	case rtech::liveapi::CustomEvent::kDataFieldNumber:
+		LIVEAPI_ENSURE_TYPE(v, obj, OT_TABLE, event, fieldNum);
+		if (!LiveAPI_SetCustomTableFields(v, event->mutable_data(), _table(obj)))
+			return false;
+
+		break;
+	default:
+		LIVEAPI_FIELD_ERROR(v, fieldNum, event);
+	}
+
+	return true;
+}
+
 /*
 	███████╗██╗   ██╗███████╗███╗   ██╗████████╗  ██████╗ ██╗███████╗██████╗  █████╗ ████████╗ ██████╗██╗  ██╗███████╗██████╗ 
 	██╔════╝██║   ██║██╔════╝████╗  ██║╚══██╔══╝  ██╔══██╗██║██╔════╝██╔══██╗██╔══██╗╚══██╔══╝██╔════╝██║  ██║██╔════╝██╔══██╗
@@ -1757,19 +1945,7 @@ static void LiveAPI_SendEvent(const google::protobuf::Message* const msg)
 	s_liveAPIEvent.set_event_size(msg->ByteSize());
 	s_liveAPIEvent.mutable_gamemessage()->PackFrom(*msg);
 
-	const string data = s_liveAPIEvent.SerializeAsString();
-	LiveAPISystem()->LogEvent(data.c_str(), (int)data.size());
-
-	std::string jsonStr;
-
-	google::protobuf::util::JsonPrintOptions options;
-	options.add_whitespace = true;
-	options.always_print_primitive_fields = true;
-
-	google::protobuf::util::MessageToJsonString(s_liveAPIEvent, &jsonStr, options);
-
-	Msg(eDLL_T::ENGINE, "%s\n", jsonStr.c_str());
-
+	LiveAPISystem()->LogEvent(&s_liveAPIEvent, &s_liveAPIEvent.gamemessage());
 	s_liveAPIEvent.Clear();
 }
 
@@ -1817,6 +1993,10 @@ static bool LiveAPI_HandleEventByCategory(HSQUIRRELVM const v, const SQTable* co
 		case eLiveAPI_EventTypes::bannerCollected:
 			msg = &s_bannerCollected;
 			ret = LiveAPI_HandleBannerCollected(v, obj, &s_bannerCollected, eventType, fieldNum);
+			break;
+		case eLiveAPI_EventTypes::customEvent:
+			msg = &s_customEvent;
+			ret = LiveAPI_HandleCustomEvent(v, obj, &s_customEvent, eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::inventoryPickUp:
 			msg = &s_inventoryPickUp;
@@ -1984,12 +2164,15 @@ namespace VScriptCode
 	{
 		SQRESULT LiveAPI_IsValidToRun(HSQUIRRELVM v);
 		SQRESULT LiveAPI_LogRaw(HSQUIRRELVM v);
+
+		SQRESULT LiveAPI_StartLogging(HSQUIRRELVM v);
+		SQRESULT LiveAPI_StopLogging(HSQUIRRELVM v);
 	}
 }
 
 SQRESULT VScriptCode::Server::LiveAPI_IsValidToRun(HSQUIRRELVM v)
 {
-	sq_pushbool(v, liveapi_enabled.GetBool());
+	sq_pushbool(v, LiveAPISystem()->IsValidToRun());
 	SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 }
 
@@ -1999,11 +2182,11 @@ SQRESULT VScriptCode::Server::LiveAPI_LogRaw(HSQUIRRELVM v)
 		SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
 	SQRESULT result = SQ_OK;
-	SQObjectPtr& object = v->GetUp(-2);
+	const SQObjectPtr& object = v->GetUp(-2);
 
 	if (sq_istable(object))
 	{
-		SQTable* const table = object._unVal.pTable;
+		const SQTable* const table = object._unVal.pTable;
 		const eLiveAPI_EventTypes eventType = eLiveAPI_EventTypes(sq_getinteger(v, 2));
 
 		if (!LiveAPI_HandleEventByCategory(v, table, eventType))
@@ -2018,10 +2201,25 @@ SQRESULT VScriptCode::Server::LiveAPI_LogRaw(HSQUIRRELVM v)
 	SCRIPT_CHECK_AND_RETURN(v, result);
 }
 
+SQRESULT VScriptCode::Server::LiveAPI_StartLogging(HSQUIRRELVM v)
+{
+	LiveAPISystem()->CreateLogger();
+	SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+}
+
+SQRESULT VScriptCode::Server::LiveAPI_StopLogging(HSQUIRRELVM v)
+{
+	LiveAPISystem()->DestroyLogger();
+	SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+}
+
 void Script_RegisterLiveAPIFunctions(CSquirrelVM* const s)
 {
 	DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LiveAPI_IsValidToRun, "Whether the LiveAPI system is enabled and able to run", "bool", "");
 	DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LiveAPI_LogRaw, "VM bridge to the LiveAPI logger from scripts", "void", "table< int, var > data, int eventType");
+
+	DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LiveAPI_StartLogging, "Start the LiveAPI session logger", "void", "");
+	DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LiveAPI_StopLogging, "Stop the LiveAPI session logger", "void", "");
 }
 
 void Script_RegisterLiveAPIEnums(CSquirrelVM* const s)
@@ -2050,6 +2248,7 @@ void Script_RegisterLiveAPIEnums(CSquirrelVM* const s)
 			//"customMatch_SetSettings",
 			//"customMatch_SetTeam",
 			//"customMatch_SetTeamName",
+		"customEvent",
 		"datacenter",
 			//"gameConVar",
 		"gameStateChanged",

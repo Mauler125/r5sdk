@@ -777,8 +777,9 @@ struct WeaponSwitchedDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 WeaponSwitchedDefaultTypeInternal _WeaponSwitched_default_instance_;
 PROTOBUF_CONSTEXPR CustomEvent::CustomEvent(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.customdata_)*/{}
-  , /*decltype(_impl_.category_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+    /*decltype(_impl_.category_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.data_)*/nullptr
   , /*decltype(_impl_.timestamp_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct CustomEventDefaultTypeInternal {
@@ -1531,7 +1532,8 @@ const uint32_t TableStruct_events_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(p
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::rtech::liveapi::CustomEvent, _impl_.timestamp_),
   PROTOBUF_FIELD_OFFSET(::rtech::liveapi::CustomEvent, _impl_.category_),
-  PROTOBUF_FIELD_OFFSET(::rtech::liveapi::CustomEvent, _impl_.customdata_),
+  PROTOBUF_FIELD_OFFSET(::rtech::liveapi::CustomEvent, _impl_.name_),
+  PROTOBUF_FIELD_OFFSET(::rtech::liveapi::CustomEvent, _impl_.data_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::rtech::liveapi::ChangeCamera, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -1731,24 +1733,24 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 461, -1, -1, sizeof(::rtech::liveapi::AmmoUsed)},
   { 474, -1, -1, sizeof(::rtech::liveapi::WeaponSwitched)},
   { 485, -1, -1, sizeof(::rtech::liveapi::CustomEvent)},
-  { 494, -1, -1, sizeof(::rtech::liveapi::ChangeCamera)},
-  { 503, -1, -1, sizeof(::rtech::liveapi::PauseToggle)},
-  { 510, -1, -1, sizeof(::rtech::liveapi::CustomMatch_CreateLobby)},
-  { 516, -1, -1, sizeof(::rtech::liveapi::CustomMatch_JoinLobby)},
-  { 523, -1, -1, sizeof(::rtech::liveapi::CustomMatch_LeaveLobby)},
-  { 529, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetReady)},
-  { 536, -1, -1, sizeof(::rtech::liveapi::CustomMatch_GetLobbyPlayers)},
-  { 542, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetMatchmaking)},
-  { 549, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetTeam)},
-  { 558, -1, -1, sizeof(::rtech::liveapi::CustomMatch_KickPlayer)},
-  { 566, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetSettings)},
-  { 578, -1, -1, sizeof(::rtech::liveapi::CustomMatch_GetSettings)},
-  { 584, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetTeamName)},
-  { 592, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SendChat)},
-  { 599, -1, -1, sizeof(::rtech::liveapi::Request)},
-  { 622, -1, -1, sizeof(::rtech::liveapi::RequestStatus)},
-  { 629, -1, -1, sizeof(::rtech::liveapi::Response)},
-  { 637, -1, -1, sizeof(::rtech::liveapi::LiveAPIEvent)},
+  { 495, -1, -1, sizeof(::rtech::liveapi::ChangeCamera)},
+  { 504, -1, -1, sizeof(::rtech::liveapi::PauseToggle)},
+  { 511, -1, -1, sizeof(::rtech::liveapi::CustomMatch_CreateLobby)},
+  { 517, -1, -1, sizeof(::rtech::liveapi::CustomMatch_JoinLobby)},
+  { 524, -1, -1, sizeof(::rtech::liveapi::CustomMatch_LeaveLobby)},
+  { 530, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetReady)},
+  { 537, -1, -1, sizeof(::rtech::liveapi::CustomMatch_GetLobbyPlayers)},
+  { 543, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetMatchmaking)},
+  { 550, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetTeam)},
+  { 559, -1, -1, sizeof(::rtech::liveapi::CustomMatch_KickPlayer)},
+  { 567, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetSettings)},
+  { 579, -1, -1, sizeof(::rtech::liveapi::CustomMatch_GetSettings)},
+  { 585, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SetTeamName)},
+  { 593, -1, -1, sizeof(::rtech::liveapi::CustomMatch_SendChat)},
+  { 600, -1, -1, sizeof(::rtech::liveapi::Request)},
+  { 623, -1, -1, sizeof(::rtech::liveapi::RequestStatus)},
+  { 630, -1, -1, sizeof(::rtech::liveapi::Response)},
+  { 638, -1, -1, sizeof(::rtech::liveapi::LiveAPIEvent)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -1819,224 +1821,227 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_events_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\014events.proto\022\rrtech.liveapi\032\031google/pr"
-  "otobuf/any.proto\"*\n\007Vector3\022\t\n\001x\030\001 \001(\002\022\t"
-  "\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"\276\002\n\006Player\022\014\n\004name\030"
-  "\001 \001(\t\022\016\n\006teamId\030\002 \001(\r\022#\n\003pos\030\003 \001(\0132\026.rte"
-  "ch.liveapi.Vector3\022&\n\006angles\030\004 \001(\0132\026.rte"
-  "ch.liveapi.Vector3\022\025\n\rcurrentHealth\030\005 \001("
-  "\r\022\021\n\tmaxHealth\030\006 \001(\r\022\024\n\014shieldHealth\030\007 \001"
-  "(\r\022\027\n\017shieldMaxHealth\030\010 \001(\r\022\023\n\013nucleusHa"
-  "sh\030\t \001(\t\022\024\n\014hardwareName\030\n \001(\t\022\020\n\010teamNa"
-  "me\030\013 \001(\t\022\022\n\nsquadIndex\030\014 \001(\r\022\021\n\tcharacte"
-  "r\030\r \001(\t\022\014\n\004skin\030\016 \001(\t\"b\n\027CustomMatch_Lob"
-  "byPlayer\022\014\n\004name\030\001 \001(\t\022\016\n\006teamId\030\002 \001(\r\022\023"
-  "\n\013nucleusHash\030\003 \001(\t\022\024\n\014hardwareName\030\004 \001("
-  "\t\"\?\n\nDatacenter\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010ca"
-  "tegory\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"V\n\007Version\022\021\n"
-  "\tmajor_num\030\001 \001(\r\022\021\n\tminor_num\030\002 \001(\r\022\023\n\013b"
-  "uild_stamp\030\003 \001(\r\022\020\n\010revision\030\004 \001(\t\"B\n\rIn"
-  "ventoryItem\022\020\n\010quantity\030\001 \001(\005\022\014\n\004item\030\002 "
-  "\001(\t\022\021\n\textraData\030\003 \001(\t\"v\n\024LoadoutConfigu"
-  "ration\022-\n\007weapons\030\001 \003(\0132\034.rtech.liveapi."
-  "InventoryItem\022/\n\tequipment\030\002 \003(\0132\034.rtech"
-  ".liveapi.InventoryItem\"\214\001\n\004Init\022\021\n\ttimes"
-  "tamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\023\n\013gameVers"
-  "ion\030\003 \001(\t\022*\n\napiVersion\030\004 \001(\0132\026.rtech.li"
-  "veapi.Version\022\020\n\010platform\030\005 \001(\t\022\014\n\004name\030"
-  "\006 \001(\t\"h\n\030CustomMatch_LobbyPlayers\022\023\n\013pla"
-  "yerToken\030\001 \001(\t\0227\n\007players\030\002 \003(\0132&.rtech."
-  "liveapi.CustomMatch_LobbyPlayer\"\262\001\n\020Obse"
-  "rverSwitched\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010categ"
-  "ory\030\002 \001(\t\022\'\n\010observer\030\003 \001(\0132\025.rtech.live"
-  "api.Player\022%\n\006target\030\004 \001(\0132\025.rtech.livea"
-  "pi.Player\022)\n\ntargetTeam\030\005 \003(\0132\025.rtech.li"
-  "veapi.Player\"S\n\022ObserverAnnotation\022\021\n\tti"
-  "mestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\030\n\020annot"
-  "ationSerial\030\003 \001(\005\"\225\002\n\nMatchSetup\022\021\n\ttime"
-  "stamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\013\n\003map\030\003 \001"
-  "(\t\022\024\n\014playlistName\030\004 \001(\t\022\024\n\014playlistDesc"
-  "\030\005 \001(\t\022-\n\ndatacenter\030\006 \001(\0132\031.rtech.livea"
-  "pi.Datacenter\022\023\n\013aimAssistOn\030\007 \001(\010\022\025\n\ran"
-  "onymousMode\030\010 \001(\010\022\020\n\010serverId\030\t \001(\t\022<\n\017s"
-  "tartingLoadout\030\n \001(\0132#.rtech.liveapi.Loa"
-  "doutConfiguration\"F\n\020GameStateChanged\022\021\n"
-  "\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\r\n\005st"
-  "ate\030\003 \001(\t\"_\n\021CharacterSelected\022\021\n\ttimest"
-  "amp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 "
-  "\001(\0132\025.rtech.liveapi.Player\"k\n\rMatchState"
-  "End\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t"
-  "\022\r\n\005state\030\003 \001(\t\022&\n\007winners\030\004 \003(\0132\025.rtech"
-  ".liveapi.Player\"\260\001\n\020RingStartClosing\022\021\n\t"
-  "timestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\r\n\005sta"
-  "ge\030\003 \001(\r\022&\n\006center\030\004 \001(\0132\026.rtech.liveapi"
-  ".Vector3\022\025\n\rcurrentRadius\030\005 \001(\002\022\021\n\tendRa"
-  "dius\030\006 \001(\002\022\026\n\016shrinkDuration\030\007 \001(\002\"\240\001\n\023R"
-  "ingFinishedClosing\022\021\n\ttimestamp\030\001 \001(\004\022\020\n"
-  "\010category\030\002 \001(\t\022\r\n\005stage\030\003 \001(\r\022&\n\006center"
-  "\030\004 \001(\0132\026.rtech.liveapi.Vector3\022\025\n\rcurren"
-  "tRadius\030\005 \001(\002\022\026\n\016shrinkDuration\030\007 \001(\002\"]\n"
-  "\017PlayerConnected\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010c"
-  "ategory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.li"
-  "veapi.Player\"\207\001\n\022PlayerDisconnected\022\021\n\tt"
-  "imestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006play"
-  "er\030\003 \001(\0132\025.rtech.liveapi.Player\022\024\n\014canRe"
-  "connect\030\004 \001(\010\022\017\n\007isAlive\030\005 \001(\010\"\274\001\n\021Playe"
-  "rStatChanged\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010categ"
-  "ory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveap"
-  "i.Player\022\020\n\010statName\030\004 \001(\t\022\022\n\010intValue\030\005"
-  " \001(\rH\000\022\024\n\nfloatValue\030\006 \001(\002H\000\022\023\n\tboolValu"
-  "e\030\007 \001(\010H\000B\n\n\010newValue\"u\n\030PlayerUpgradeTi"
-  "erChanged\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category"
-  "\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.P"
-  "layer\022\r\n\005level\030\004 \001(\005\"\255\001\n\rPlayerDamaged\022\021"
-  "\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\'\n\010a"
-  "ttacker\030\003 \001(\0132\025.rtech.liveapi.Player\022%\n\006"
-  "victim\030\004 \001(\0132\025.rtech.liveapi.Player\022\016\n\006w"
-  "eapon\030\005 \001(\t\022\027\n\017damageInflicted\030\006 \001(\r\"\275\001\n"
-  "\014PlayerKilled\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010cate"
-  "gory\030\002 \001(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liv"
-  "eapi.Player\022%\n\006victim\030\004 \001(\0132\025.rtech.live"
-  "api.Player\022(\n\tawardedTo\030\005 \001(\0132\025.rtech.li"
-  "veapi.Player\022\016\n\006weapon\030\006 \001(\t\"\223\001\n\014PlayerD"
-  "owned\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001"
-  "(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liveapi.Pla"
-  "yer\022%\n\006victim\030\004 \001(\0132\025.rtech.liveapi.Play"
-  "er\022\016\n\006weapon\030\005 \001(\t\"\224\001\n\014PlayerAssist\022\021\n\tt"
-  "imestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022(\n\tassi"
-  "stant\030\003 \001(\0132\025.rtech.liveapi.Player\022%\n\006vi"
-  "ctim\030\004 \001(\0132\025.rtech.liveapi.Player\022\016\n\006wea"
-  "pon\030\005 \001(\t\"^\n\017SquadEliminated\022\021\n\ttimestam"
-  "p\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022&\n\007players\030\003 \003"
-  "(\0132\025.rtech.liveapi.Player\"\247\001\n\027GibraltarS"
-  "hieldAbsorbed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010cate"
-  "gory\030\002 \001(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liv"
-  "eapi.Player\022%\n\006victim\030\004 \001(\0132\025.rtech.live"
-  "api.Player\022\027\n\017damageInflicted\030\006 \001(\r\"\253\001\n\033"
-  "RevenantForgedShadowDamaged\022\021\n\ttimestamp"
-  "\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\'\n\010attacker\030\003 \001"
-  "(\0132\025.rtech.liveapi.Player\022%\n\006victim\030\004 \001("
-  "\0132\025.rtech.liveapi.Player\022\027\n\017damageInflic"
-  "ted\030\006 \001(\r\"\211\001\n\021PlayerRespawnTeam\022\021\n\ttimes"
-  "tamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003"
-  " \001(\0132\025.rtech.liveapi.Player\022(\n\trespawned"
-  "\030\004 \003(\0132\025.rtech.liveapi.Player\"\202\001\n\014Player"
-  "Revive\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 "
-  "\001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Play"
-  "er\022&\n\007revived\030\004 \001(\0132\025.rtech.liveapi.Play"
-  "er\"\200\001\n\022ArenasItemSelected\022\021\n\ttimestamp\030\001"
-  " \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025"
-  ".rtech.liveapi.Player\022\014\n\004item\030\004 \001(\t\022\020\n\010q"
-  "uantity\030\005 \001(\005\"\202\001\n\024ArenasItemDeselected\022\021"
-  "\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006p"
-  "layer\030\003 \001(\0132\025.rtech.liveapi.Player\022\014\n\004it"
-  "em\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\"}\n\017InventoryP"
-  "ickUp\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001"
-  "(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Playe"
-  "r\022\014\n\004item\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\"\216\001\n\rIn"
-  "ventoryDrop\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010catego"
-  "ry\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi"
-  ".Player\022\014\n\004item\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\022"
-  "\021\n\textraData\030\006 \003(\t\"z\n\014InventoryUse\022\021\n\tti"
-  "mestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006playe"
-  "r\030\003 \001(\0132\025.rtech.liveapi.Player\022\014\n\004item\030\004"
-  " \001(\t\022\020\n\010quantity\030\005 \001(\005\"\207\001\n\017BannerCollect"
+  "\n\014events.proto\022\rrtech.liveapi\032\034google/pr"
+  "otobuf/struct.proto\032\031google/protobuf/any"
+  ".proto\"*\n\007Vector3\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022"
+  "\t\n\001z\030\003 \001(\002\"\276\002\n\006Player\022\014\n\004name\030\001 \001(\t\022\016\n\006t"
+  "eamId\030\002 \001(\r\022#\n\003pos\030\003 \001(\0132\026.rtech.liveapi"
+  ".Vector3\022&\n\006angles\030\004 \001(\0132\026.rtech.liveapi"
+  ".Vector3\022\025\n\rcurrentHealth\030\005 \001(\r\022\021\n\tmaxHe"
+  "alth\030\006 \001(\r\022\024\n\014shieldHealth\030\007 \001(\r\022\027\n\017shie"
+  "ldMaxHealth\030\010 \001(\r\022\023\n\013nucleusHash\030\t \001(\t\022\024"
+  "\n\014hardwareName\030\n \001(\t\022\020\n\010teamName\030\013 \001(\t\022\022"
+  "\n\nsquadIndex\030\014 \001(\r\022\021\n\tcharacter\030\r \001(\t\022\014\n"
+  "\004skin\030\016 \001(\t\"b\n\027CustomMatch_LobbyPlayer\022\014"
+  "\n\004name\030\001 \001(\t\022\016\n\006teamId\030\002 \001(\r\022\023\n\013nucleusH"
+  "ash\030\003 \001(\t\022\024\n\014hardwareName\030\004 \001(\t\"\?\n\nDatac"
+  "enter\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001"
+  "(\t\022\014\n\004name\030\003 \001(\t\"V\n\007Version\022\021\n\tmajor_num"
+  "\030\001 \001(\r\022\021\n\tminor_num\030\002 \001(\r\022\023\n\013build_stamp"
+  "\030\003 \001(\r\022\020\n\010revision\030\004 \001(\t\"B\n\rInventoryIte"
+  "m\022\020\n\010quantity\030\001 \001(\005\022\014\n\004item\030\002 \001(\t\022\021\n\text"
+  "raData\030\003 \001(\t\"v\n\024LoadoutConfiguration\022-\n\007"
+  "weapons\030\001 \003(\0132\034.rtech.liveapi.InventoryI"
+  "tem\022/\n\tequipment\030\002 \003(\0132\034.rtech.liveapi.I"
+  "nventoryItem\"\214\001\n\004Init\022\021\n\ttimestamp\030\001 \001(\004"
+  "\022\020\n\010category\030\002 \001(\t\022\023\n\013gameVersion\030\003 \001(\t\022"
+  "*\n\napiVersion\030\004 \001(\0132\026.rtech.liveapi.Vers"
+  "ion\022\020\n\010platform\030\005 \001(\t\022\014\n\004name\030\006 \001(\t\"h\n\030C"
+  "ustomMatch_LobbyPlayers\022\023\n\013playerToken\030\001"
+  " \001(\t\0227\n\007players\030\002 \003(\0132&.rtech.liveapi.Cu"
+  "stomMatch_LobbyPlayer\"\262\001\n\020ObserverSwitch"
   "ed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022"
-  "%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Player\022("
-  "\n\tcollected\030\004 \001(\0132\025.rtech.liveapi.Player"
-  "\"u\n\021PlayerAbilityUsed\022\021\n\ttimestamp\030\001 \001(\004"
-  "\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rte"
-  "ch.liveapi.Player\022\024\n\014linkedEntity\030\004 \001(\t\""
-  "\234\001\n\025LegendUpgradeSelected\022\021\n\ttimestamp\030\001"
+  "\'\n\010observer\030\003 \001(\0132\025.rtech.liveapi.Player"
+  "\022%\n\006target\030\004 \001(\0132\025.rtech.liveapi.Player\022"
+  ")\n\ntargetTeam\030\005 \003(\0132\025.rtech.liveapi.Play"
+  "er\"S\n\022ObserverAnnotation\022\021\n\ttimestamp\030\001 "
+  "\001(\004\022\020\n\010category\030\002 \001(\t\022\030\n\020annotationSeria"
+  "l\030\003 \001(\005\"\225\002\n\nMatchSetup\022\021\n\ttimestamp\030\001 \001("
+  "\004\022\020\n\010category\030\002 \001(\t\022\013\n\003map\030\003 \001(\t\022\024\n\014play"
+  "listName\030\004 \001(\t\022\024\n\014playlistDesc\030\005 \001(\t\022-\n\n"
+  "datacenter\030\006 \001(\0132\031.rtech.liveapi.Datacen"
+  "ter\022\023\n\013aimAssistOn\030\007 \001(\010\022\025\n\ranonymousMod"
+  "e\030\010 \001(\010\022\020\n\010serverId\030\t \001(\t\022<\n\017startingLoa"
+  "dout\030\n \001(\0132#.rtech.liveapi.LoadoutConfig"
+  "uration\"F\n\020GameStateChanged\022\021\n\ttimestamp"
+  "\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\r\n\005state\030\003 \001(\t\""
+  "_\n\021CharacterSelected\022\021\n\ttimestamp\030\001 \001(\004\022"
+  "\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtec"
+  "h.liveapi.Player\"k\n\rMatchStateEnd\022\021\n\ttim"
+  "estamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\r\n\005state\030"
+  "\003 \001(\t\022&\n\007winners\030\004 \003(\0132\025.rtech.liveapi.P"
+  "layer\"\260\001\n\020RingStartClosing\022\021\n\ttimestamp\030"
+  "\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\r\n\005stage\030\003 \001(\r\022&"
+  "\n\006center\030\004 \001(\0132\026.rtech.liveapi.Vector3\022\025"
+  "\n\rcurrentRadius\030\005 \001(\002\022\021\n\tendRadius\030\006 \001(\002"
+  "\022\026\n\016shrinkDuration\030\007 \001(\002\"\240\001\n\023RingFinishe"
+  "dClosing\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030"
+  "\002 \001(\t\022\r\n\005stage\030\003 \001(\r\022&\n\006center\030\004 \001(\0132\026.r"
+  "tech.liveapi.Vector3\022\025\n\rcurrentRadius\030\005 "
+  "\001(\002\022\026\n\016shrinkDuration\030\007 \001(\002\"]\n\017PlayerCon"
+  "nected\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 "
+  "\001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Play"
+  "er\"\207\001\n\022PlayerDisconnected\022\021\n\ttimestamp\030\001"
   " \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025"
-  ".rtech.liveapi.Player\022\023\n\013upgradeName\030\004 \001"
-  "(\t\022\023\n\013upgradeDesc\030\005 \001(\t\022\r\n\005level\030\006 \001(\005\"o"
-  "\n\013ZiplineUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010cate"
-  "gory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.livea"
-  "pi.Player\022\024\n\014linkedEntity\030\004 \001(\t\"q\n\rGrena"
-  "deThrown\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030"
-  "\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Pl"
-  "ayer\022\024\n\014linkedEntity\030\004 \001(\t\"m\n\021BlackMarke"
-  "tAction\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002"
-  " \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Pla"
-  "yer\022\014\n\004item\030\004 \001(\t\"Z\n\014WraithPortal\022\021\n\ttim"
-  "estamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player"
-  "\030\003 \001(\0132\025.rtech.liveapi.Player\"Z\n\014WarpGat"
-  "eUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001"
-  "(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Playe"
-  "r\"\250\001\n\010AmmoUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010cat"
-  "egory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.live"
-  "api.Player\022\020\n\010ammoType\030\004 \001(\t\022\022\n\namountUs"
-  "ed\030\005 \001(\r\022\024\n\014oldAmmoCount\030\006 \001(\r\022\024\n\014newAmm"
-  "oCount\030\007 \001(\r\"\202\001\n\016WeaponSwitched\022\021\n\ttimes"
-  "tamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003"
-  " \001(\0132\025.rtech.liveapi.Player\022\021\n\toldWeapon"
-  "\030\004 \001(\t\022\021\n\tnewWeapon\030\005 \001(\t\"\\\n\013CustomEvent"
-  "\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022(\n"
-  "\ncustomData\030\003 \003(\0132\024.google.protobuf.Any\""
-  "X\n\014ChangeCamera\022.\n\003poi\030\001 \001(\0162\037.rtech.liv"
-  "eapi.PlayerOfInterestH\000\022\016\n\004name\030\002 \001(\tH\000B"
-  "\010\n\006target\"\037\n\013PauseToggle\022\020\n\010preTimer\030\001 \001"
-  "(\002\"\031\n\027CustomMatch_CreateLobby\"*\n\025CustomM"
-  "atch_JoinLobby\022\021\n\troleToken\030\001 \001(\t\"\030\n\026Cus"
-  "tomMatch_LeaveLobby\"\'\n\024CustomMatch_SetRe"
-  "ady\022\017\n\007isReady\030\001 \001(\010\"\035\n\033CustomMatch_GetL"
-  "obbyPlayers\"-\n\032CustomMatch_SetMatchmakin"
-  "g\022\017\n\007enabled\030\001 \001(\010\"\\\n\023CustomMatch_SetTea"
-  "m\022\016\n\006teamId\030\001 \001(\005\022\032\n\022targetHardwareName\030"
-  "\002 \001(\t\022\031\n\021targetNucleusHash\030\003 \001(\t\"O\n\026Cust"
-  "omMatch_KickPlayer\022\032\n\022targetHardwareName"
-  "\030\001 \001(\t\022\031\n\021targetNucleusHash\030\002 \001(\t\"\217\001\n\027Cu"
-  "stomMatch_SetSettings\022\024\n\014playlistName\030\001 "
-  "\001(\t\022\021\n\tadminChat\030\002 \001(\010\022\022\n\nteamRename\030\003 \001"
-  "(\010\022\022\n\nselfAssign\030\004 \001(\010\022\021\n\taimAssist\030\005 \001("
-  "\010\022\020\n\010anonMode\030\006 \001(\010\"\031\n\027CustomMatch_GetSe"
-  "ttings\";\n\027CustomMatch_SetTeamName\022\016\n\006tea"
-  "mId\030\001 \001(\005\022\020\n\010teamName\030\002 \001(\t\"$\n\024CustomMat"
-  "ch_SendChat\022\014\n\004text\030\001 \001(\t\"\226\010\n\007Request\022\017\n"
-  "\007withAck\030\001 \001(\010\022\024\n\014preSharedKey\030\002 \001(\t\0220\n\t"
-  "changeCam\030\004 \001(\0132\033.rtech.liveapi.ChangeCa"
-  "meraH\000\0221\n\013pauseToggle\030\005 \001(\0132\032.rtech.live"
-  "api.PauseToggleH\000\022I\n\027customMatch_CreateL"
-  "obby\030\n \001(\0132&.rtech.liveapi.CustomMatch_C"
-  "reateLobbyH\000\022E\n\025customMatch_JoinLobby\030\013 "
-  "\001(\0132$.rtech.liveapi.CustomMatch_JoinLobb"
-  "yH\000\022G\n\026customMatch_LeaveLobby\030\014 \001(\0132%.rt"
-  "ech.liveapi.CustomMatch_LeaveLobbyH\000\022C\n\024"
-  "customMatch_SetReady\030\r \001(\0132#.rtech.livea"
-  "pi.CustomMatch_SetReadyH\000\022O\n\032customMatch"
-  "_SetMatchmaking\030\016 \001(\0132).rtech.liveapi.Cu"
-  "stomMatch_SetMatchmakingH\000\022A\n\023customMatc"
-  "h_SetTeam\030\017 \001(\0132\".rtech.liveapi.CustomMa"
-  "tch_SetTeamH\000\022G\n\026customMatch_KickPlayer\030"
-  "\020 \001(\0132%.rtech.liveapi.CustomMatch_KickPl"
-  "ayerH\000\022I\n\027customMatch_SetSettings\030\021 \001(\0132"
-  "&.rtech.liveapi.CustomMatch_SetSettingsH"
-  "\000\022C\n\024customMatch_SendChat\030\022 \001(\0132#.rtech."
-  "liveapi.CustomMatch_SendChatH\000\022Q\n\033custom"
-  "Match_GetLobbyPlayers\030\023 \001(\0132*.rtech.live"
-  "api.CustomMatch_GetLobbyPlayersH\000\022I\n\027cus"
-  "tomMatch_SetTeamName\030\024 \001(\0132&.rtech.livea"
-  "pi.CustomMatch_SetTeamNameH\000\022I\n\027customMa"
-  "tch_GetSettings\030\025 \001(\0132&.rtech.liveapi.Cu"
-  "stomMatch_GetSettingsH\000B\t\n\007actions\"\037\n\rRe"
-  "questStatus\022\016\n\006status\030\001 \001(\t\"A\n\010Response\022"
-  "\017\n\007success\030\001 \001(\010\022$\n\006result\030\002 \001(\0132\024.googl"
-  "e.protobuf.Any\"M\n\014LiveAPIEvent\022\022\n\nevent_"
-  "size\030\001 \001(\007\022)\n\013gameMessage\030\003 \001(\0132\024.google"
-  ".protobuf.Any*\210\001\n\020PlayerOfInterest\022\017\n\013UN"
-  "SPECIFIED\020\000\022\010\n\004NEXT\020\001\022\014\n\010PREVIOUS\020\002\022\017\n\013K"
-  "ILL_LEADER\020\003\022\021\n\rCLOSEST_ENEMY\020\004\022\022\n\016CLOSE"
-  "ST_PLAYER\020\005\022\023\n\017LATEST_ATTACKER\020\006b\006proto3"
+  ".rtech.liveapi.Player\022\024\n\014canReconnect\030\004 "
+  "\001(\010\022\017\n\007isAlive\030\005 \001(\010\"\274\001\n\021PlayerStatChang"
+  "ed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022"
+  "%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Player\022\020"
+  "\n\010statName\030\004 \001(\t\022\022\n\010intValue\030\005 \001(\rH\000\022\024\n\n"
+  "floatValue\030\006 \001(\002H\000\022\023\n\tboolValue\030\007 \001(\010H\000B"
+  "\n\n\010newValue\"u\n\030PlayerUpgradeTierChanged\022"
+  "\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006"
+  "player\030\003 \001(\0132\025.rtech.liveapi.Player\022\r\n\005l"
+  "evel\030\004 \001(\005\"\255\001\n\rPlayerDamaged\022\021\n\ttimestam"
+  "p\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\'\n\010attacker\030\003 "
+  "\001(\0132\025.rtech.liveapi.Player\022%\n\006victim\030\004 \001"
+  "(\0132\025.rtech.liveapi.Player\022\016\n\006weapon\030\005 \001("
+  "\t\022\027\n\017damageInflicted\030\006 \001(\r\"\275\001\n\014PlayerKil"
+  "led\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t"
+  "\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liveapi.Playe"
+  "r\022%\n\006victim\030\004 \001(\0132\025.rtech.liveapi.Player"
+  "\022(\n\tawardedTo\030\005 \001(\0132\025.rtech.liveapi.Play"
+  "er\022\016\n\006weapon\030\006 \001(\t\"\223\001\n\014PlayerDowned\022\021\n\tt"
+  "imestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\'\n\010atta"
+  "cker\030\003 \001(\0132\025.rtech.liveapi.Player\022%\n\006vic"
+  "tim\030\004 \001(\0132\025.rtech.liveapi.Player\022\016\n\006weap"
+  "on\030\005 \001(\t\"\224\001\n\014PlayerAssist\022\021\n\ttimestamp\030\001"
+  " \001(\004\022\020\n\010category\030\002 \001(\t\022(\n\tassistant\030\003 \001("
+  "\0132\025.rtech.liveapi.Player\022%\n\006victim\030\004 \001(\013"
+  "2\025.rtech.liveapi.Player\022\016\n\006weapon\030\005 \001(\t\""
+  "^\n\017SquadEliminated\022\021\n\ttimestamp\030\001 \001(\004\022\020\n"
+  "\010category\030\002 \001(\t\022&\n\007players\030\003 \003(\0132\025.rtech"
+  ".liveapi.Player\"\247\001\n\027GibraltarShieldAbsor"
+  "bed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t"
+  "\022\'\n\010attacker\030\003 \001(\0132\025.rtech.liveapi.Playe"
+  "r\022%\n\006victim\030\004 \001(\0132\025.rtech.liveapi.Player"
+  "\022\027\n\017damageInflicted\030\006 \001(\r\"\253\001\n\033RevenantFo"
+  "rgedShadowDamaged\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010"
+  "category\030\002 \001(\t\022\'\n\010attacker\030\003 \001(\0132\025.rtech"
+  ".liveapi.Player\022%\n\006victim\030\004 \001(\0132\025.rtech."
+  "liveapi.Player\022\027\n\017damageInflicted\030\006 \001(\r\""
+  "\211\001\n\021PlayerRespawnTeam\022\021\n\ttimestamp\030\001 \001(\004"
+  "\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rte"
+  "ch.liveapi.Player\022(\n\trespawned\030\004 \003(\0132\025.r"
+  "tech.liveapi.Player\"\202\001\n\014PlayerRevive\022\021\n\t"
+  "timestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006pla"
+  "yer\030\003 \001(\0132\025.rtech.liveapi.Player\022&\n\007revi"
+  "ved\030\004 \001(\0132\025.rtech.liveapi.Player\"\200\001\n\022Are"
+  "nasItemSelected\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010ca"
+  "tegory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liv"
+  "eapi.Player\022\014\n\004item\030\004 \001(\t\022\020\n\010quantity\030\005 "
+  "\001(\005\"\202\001\n\024ArenasItemDeselected\022\021\n\ttimestam"
+  "p\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001("
+  "\0132\025.rtech.liveapi.Player\022\014\n\004item\030\004 \001(\t\022\020"
+  "\n\010quantity\030\005 \001(\005\"}\n\017InventoryPickUp\022\021\n\tt"
+  "imestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006play"
+  "er\030\003 \001(\0132\025.rtech.liveapi.Player\022\014\n\004item\030"
+  "\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\"\216\001\n\rInventoryDro"
+  "p\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%"
+  "\n\006player\030\003 \001(\0132\025.rtech.liveapi.Player\022\014\n"
+  "\004item\030\004 \001(\t\022\020\n\010quantity\030\005 \001(\005\022\021\n\textraDa"
+  "ta\030\006 \003(\t\"z\n\014InventoryUse\022\021\n\ttimestamp\030\001 "
+  "\001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025."
+  "rtech.liveapi.Player\022\014\n\004item\030\004 \001(\t\022\020\n\010qu"
+  "antity\030\005 \001(\005\"\207\001\n\017BannerCollected\022\021\n\ttime"
+  "stamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030"
+  "\003 \001(\0132\025.rtech.liveapi.Player\022(\n\tcollecte"
+  "d\030\004 \001(\0132\025.rtech.liveapi.Player\"u\n\021Player"
+  "AbilityUsed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010catego"
+  "ry\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi"
+  ".Player\022\024\n\014linkedEntity\030\004 \001(\t\"\234\001\n\025Legend"
+  "UpgradeSelected\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010ca"
+  "tegory\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rtech.liv"
+  "eapi.Player\022\023\n\013upgradeName\030\004 \001(\t\022\023\n\013upgr"
+  "adeDesc\030\005 \001(\t\022\r\n\005level\030\006 \001(\005\"o\n\013ZiplineU"
+  "sed\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t"
+  "\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Player\022"
+  "\024\n\014linkedEntity\030\004 \001(\t\"q\n\rGrenadeThrown\022\021"
+  "\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006p"
+  "layer\030\003 \001(\0132\025.rtech.liveapi.Player\022\024\n\014li"
+  "nkedEntity\030\004 \001(\t\"m\n\021BlackMarketAction\022\021\n"
+  "\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006pl"
+  "ayer\030\003 \001(\0132\025.rtech.liveapi.Player\022\014\n\004ite"
+  "m\030\004 \001(\t\"Z\n\014WraithPortal\022\021\n\ttimestamp\030\001 \001"
+  "(\004\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.r"
+  "tech.liveapi.Player\"Z\n\014WarpGateUsed\022\021\n\tt"
+  "imestamp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022%\n\006play"
+  "er\030\003 \001(\0132\025.rtech.liveapi.Player\"\250\001\n\010Ammo"
+  "Used\022\021\n\ttimestamp\030\001 \001(\004\022\020\n\010category\030\002 \001("
+  "\t\022%\n\006player\030\003 \001(\0132\025.rtech.liveapi.Player"
+  "\022\020\n\010ammoType\030\004 \001(\t\022\022\n\namountUsed\030\005 \001(\r\022\024"
+  "\n\014oldAmmoCount\030\006 \001(\r\022\024\n\014newAmmoCount\030\007 \001"
+  "(\r\"\202\001\n\016WeaponSwitched\022\021\n\ttimestamp\030\001 \001(\004"
+  "\022\020\n\010category\030\002 \001(\t\022%\n\006player\030\003 \001(\0132\025.rte"
+  "ch.liveapi.Player\022\021\n\toldWeapon\030\004 \001(\t\022\021\n\t"
+  "newWeapon\030\005 \001(\t\"g\n\013CustomEvent\022\021\n\ttimest"
+  "amp\030\001 \001(\004\022\020\n\010category\030\002 \001(\t\022\014\n\004name\030\003 \001("
+  "\t\022%\n\004data\030\004 \001(\0132\027.google.protobuf.Struct"
+  "\"X\n\014ChangeCamera\022.\n\003poi\030\001 \001(\0162\037.rtech.li"
+  "veapi.PlayerOfInterestH\000\022\016\n\004name\030\002 \001(\tH\000"
+  "B\010\n\006target\"\037\n\013PauseToggle\022\020\n\010preTimer\030\001 "
+  "\001(\002\"\031\n\027CustomMatch_CreateLobby\"*\n\025Custom"
+  "Match_JoinLobby\022\021\n\troleToken\030\001 \001(\t\"\030\n\026Cu"
+  "stomMatch_LeaveLobby\"\'\n\024CustomMatch_SetR"
+  "eady\022\017\n\007isReady\030\001 \001(\010\"\035\n\033CustomMatch_Get"
+  "LobbyPlayers\"-\n\032CustomMatch_SetMatchmaki"
+  "ng\022\017\n\007enabled\030\001 \001(\010\"\\\n\023CustomMatch_SetTe"
+  "am\022\016\n\006teamId\030\001 \001(\005\022\032\n\022targetHardwareName"
+  "\030\002 \001(\t\022\031\n\021targetNucleusHash\030\003 \001(\t\"O\n\026Cus"
+  "tomMatch_KickPlayer\022\032\n\022targetHardwareNam"
+  "e\030\001 \001(\t\022\031\n\021targetNucleusHash\030\002 \001(\t\"\217\001\n\027C"
+  "ustomMatch_SetSettings\022\024\n\014playlistName\030\001"
+  " \001(\t\022\021\n\tadminChat\030\002 \001(\010\022\022\n\nteamRename\030\003 "
+  "\001(\010\022\022\n\nselfAssign\030\004 \001(\010\022\021\n\taimAssist\030\005 \001"
+  "(\010\022\020\n\010anonMode\030\006 \001(\010\"\031\n\027CustomMatch_GetS"
+  "ettings\";\n\027CustomMatch_SetTeamName\022\016\n\006te"
+  "amId\030\001 \001(\005\022\020\n\010teamName\030\002 \001(\t\"$\n\024CustomMa"
+  "tch_SendChat\022\014\n\004text\030\001 \001(\t\"\226\010\n\007Request\022\017"
+  "\n\007withAck\030\001 \001(\010\022\024\n\014preSharedKey\030\002 \001(\t\0220\n"
+  "\tchangeCam\030\004 \001(\0132\033.rtech.liveapi.ChangeC"
+  "ameraH\000\0221\n\013pauseToggle\030\005 \001(\0132\032.rtech.liv"
+  "eapi.PauseToggleH\000\022I\n\027customMatch_Create"
+  "Lobby\030\n \001(\0132&.rtech.liveapi.CustomMatch_"
+  "CreateLobbyH\000\022E\n\025customMatch_JoinLobby\030\013"
+  " \001(\0132$.rtech.liveapi.CustomMatch_JoinLob"
+  "byH\000\022G\n\026customMatch_LeaveLobby\030\014 \001(\0132%.r"
+  "tech.liveapi.CustomMatch_LeaveLobbyH\000\022C\n"
+  "\024customMatch_SetReady\030\r \001(\0132#.rtech.live"
+  "api.CustomMatch_SetReadyH\000\022O\n\032customMatc"
+  "h_SetMatchmaking\030\016 \001(\0132).rtech.liveapi.C"
+  "ustomMatch_SetMatchmakingH\000\022A\n\023customMat"
+  "ch_SetTeam\030\017 \001(\0132\".rtech.liveapi.CustomM"
+  "atch_SetTeamH\000\022G\n\026customMatch_KickPlayer"
+  "\030\020 \001(\0132%.rtech.liveapi.CustomMatch_KickP"
+  "layerH\000\022I\n\027customMatch_SetSettings\030\021 \001(\013"
+  "2&.rtech.liveapi.CustomMatch_SetSettings"
+  "H\000\022C\n\024customMatch_SendChat\030\022 \001(\0132#.rtech"
+  ".liveapi.CustomMatch_SendChatH\000\022Q\n\033custo"
+  "mMatch_GetLobbyPlayers\030\023 \001(\0132*.rtech.liv"
+  "eapi.CustomMatch_GetLobbyPlayersH\000\022I\n\027cu"
+  "stomMatch_SetTeamName\030\024 \001(\0132&.rtech.live"
+  "api.CustomMatch_SetTeamNameH\000\022I\n\027customM"
+  "atch_GetSettings\030\025 \001(\0132&.rtech.liveapi.C"
+  "ustomMatch_GetSettingsH\000B\t\n\007actions\"\037\n\rR"
+  "equestStatus\022\016\n\006status\030\001 \001(\t\"A\n\010Response"
+  "\022\017\n\007success\030\001 \001(\010\022$\n\006result\030\002 \001(\0132\024.goog"
+  "le.protobuf.Any\"M\n\014LiveAPIEvent\022\022\n\nevent"
+  "_size\030\001 \001(\007\022)\n\013gameMessage\030\003 \001(\0132\024.googl"
+  "e.protobuf.Any*\210\001\n\020PlayerOfInterest\022\017\n\013U"
+  "NSPECIFIED\020\000\022\010\n\004NEXT\020\001\022\014\n\010PREVIOUS\020\002\022\017\n\013"
+  "KILL_LEADER\020\003\022\021\n\rCLOSEST_ENEMY\020\004\022\022\n\016CLOS"
+  "EST_PLAYER\020\005\022\023\n\017LATEST_ATTACKER\020\006b\006proto"
+  "3"
   ;
-static const ::_pbi::DescriptorTable* const descriptor_table_events_2eproto_deps[1] = {
+static const ::_pbi::DescriptorTable* const descriptor_table_events_2eproto_deps[2] = {
   &::descriptor_table_google_2fprotobuf_2fany_2eproto,
+  &::descriptor_table_google_2fprotobuf_2fstruct_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_events_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_events_2eproto = {
-    false, false, 8360, descriptor_table_protodef_events_2eproto,
+    false, false, 8401, descriptor_table_protodef_events_2eproto,
     "events.proto",
-    &descriptor_table_events_2eproto_once, descriptor_table_events_2eproto_deps, 1, 64,
+    &descriptor_table_events_2eproto_once, descriptor_table_events_2eproto_deps, 2, 64,
     schemas, file_default_instances, TableStruct_events_2eproto::offsets,
     file_level_metadata_events_2eproto, file_level_enum_descriptors_events_2eproto,
     file_level_service_descriptors_events_2eproto,
@@ -17582,10 +17587,18 @@ void WeaponSwitched::InternalSwap(WeaponSwitched* other) {
 
 class CustomEvent::_Internal {
  public:
+  static const ::PROTOBUF_NAMESPACE_ID::Struct& data(const CustomEvent* msg);
 };
 
-void CustomEvent::clear_customdata() {
-  _impl_.customdata_.Clear();
+const ::PROTOBUF_NAMESPACE_ID::Struct&
+CustomEvent::_Internal::data(const CustomEvent* msg) {
+  return *msg->_impl_.data_;
+}
+void CustomEvent::clear_data() {
+  if (GetArenaForAllocation() == nullptr && _impl_.data_ != nullptr) {
+    delete _impl_.data_;
+  }
+  _impl_.data_ = nullptr;
 }
 CustomEvent::CustomEvent(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
@@ -17597,8 +17610,9 @@ CustomEvent::CustomEvent(const CustomEvent& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   CustomEvent* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.customdata_){from._impl_.customdata_}
-    , decltype(_impl_.category_){}
+      decltype(_impl_.category_){}
+    , decltype(_impl_.name_){}
+    , decltype(_impl_.data_){nullptr}
     , decltype(_impl_.timestamp_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
@@ -17611,6 +17625,17 @@ CustomEvent::CustomEvent(const CustomEvent& from)
     _this->_impl_.category_.Set(from._internal_category(), 
       _this->GetArenaForAllocation());
   }
+  _impl_.name_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.name_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_name().empty()) {
+    _this->_impl_.name_.Set(from._internal_name(), 
+      _this->GetArenaForAllocation());
+  }
+  if (from._internal_has_data()) {
+    _this->_impl_.data_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from._impl_.data_);
+  }
   _this->_impl_.timestamp_ = from._impl_.timestamp_;
   // @@protoc_insertion_point(copy_constructor:rtech.liveapi.CustomEvent)
 }
@@ -17620,14 +17645,19 @@ inline void CustomEvent::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.customdata_){arena}
-    , decltype(_impl_.category_){}
+      decltype(_impl_.category_){}
+    , decltype(_impl_.name_){}
+    , decltype(_impl_.data_){nullptr}
     , decltype(_impl_.timestamp_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.category_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.category_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.name_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.name_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
@@ -17642,8 +17672,9 @@ CustomEvent::~CustomEvent() {
 
 inline void CustomEvent::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.customdata_.~RepeatedPtrField();
   _impl_.category_.Destroy();
+  _impl_.name_.Destroy();
+  if (this != internal_default_instance()) delete _impl_.data_;
 }
 
 void CustomEvent::SetCachedSize(int size) const {
@@ -17656,8 +17687,12 @@ void CustomEvent::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.customdata_.Clear();
   _impl_.category_.ClearToEmpty();
+  _impl_.name_.ClearToEmpty();
+  if (GetArenaForAllocation() == nullptr && _impl_.data_ != nullptr) {
+    delete _impl_.data_;
+  }
+  _impl_.data_ = nullptr;
   _impl_.timestamp_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -17686,16 +17721,21 @@ const char* CustomEvent::_InternalParse(const char* ptr, ::_pbi::ParseContext* c
         } else
           goto handle_unusual;
         continue;
-      // repeated .google.protobuf.Any customData = 3;
+      // string name = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_customdata(), ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+          auto str = _internal_mutable_name();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "rtech.liveapi.CustomEvent.name"));
+        } else
+          goto handle_unusual;
+        continue;
+      // .google.protobuf.Struct data = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          ptr = ctx->ParseMessage(_internal_mutable_data(), ptr);
+          CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
@@ -17744,12 +17784,21 @@ uint8_t* CustomEvent::_InternalSerialize(
         2, this->_internal_category(), target);
   }
 
-  // repeated .google.protobuf.Any customData = 3;
-  for (unsigned i = 0,
-      n = static_cast<unsigned>(this->_internal_customdata_size()); i < n; i++) {
-    const auto& repfield = this->_internal_customdata(i);
+  // string name = 3;
+  if (!this->_internal_name().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "rtech.liveapi.CustomEvent.name");
+    target = stream->WriteStringMaybeAliased(
+        3, this->_internal_name(), target);
+  }
+
+  // .google.protobuf.Struct data = 4;
+  if (this->_internal_has_data()) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-        InternalWriteMessage(3, repfield, repfield.GetCachedSize(), target, stream);
+      InternalWriteMessage(4, _Internal::data(this),
+        _Internal::data(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -17768,18 +17817,25 @@ size_t CustomEvent::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .google.protobuf.Any customData = 3;
-  total_size += 1UL * this->_internal_customdata_size();
-  for (const auto& msg : this->_impl_.customdata_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
-  }
-
   // string category = 2;
   if (!this->_internal_category().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_category());
+  }
+
+  // string name = 3;
+  if (!this->_internal_name().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_name());
+  }
+
+  // .google.protobuf.Struct data = 4;
+  if (this->_internal_has_data()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *_impl_.data_);
   }
 
   // uint64 timestamp = 1;
@@ -17805,9 +17861,15 @@ void CustomEvent::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PR
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  _this->_impl_.customdata_.MergeFrom(from._impl_.customdata_);
   if (!from._internal_category().empty()) {
     _this->_internal_set_category(from._internal_category());
+  }
+  if (!from._internal_name().empty()) {
+    _this->_internal_set_name(from._internal_name());
+  }
+  if (from._internal_has_data()) {
+    _this->_internal_mutable_data()->::PROTOBUF_NAMESPACE_ID::Struct::MergeFrom(
+        from._internal_data());
   }
   if (from._internal_timestamp() != 0) {
     _this->_internal_set_timestamp(from._internal_timestamp());
@@ -17831,12 +17893,20 @@ void CustomEvent::InternalSwap(CustomEvent* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  _impl_.customdata_.InternalSwap(&other->_impl_.customdata_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.category_, lhs_arena,
       &other->_impl_.category_, rhs_arena
   );
-  swap(_impl_.timestamp_, other->_impl_.timestamp_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.name_, lhs_arena,
+      &other->_impl_.name_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(CustomEvent, _impl_.timestamp_)
+      + sizeof(CustomEvent::_impl_.timestamp_)
+      - PROTOBUF_FIELD_OFFSET(CustomEvent, _impl_.data_)>(
+          reinterpret_cast<char*>(&_impl_.data_),
+          reinterpret_cast<char*>(&other->_impl_.data_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata CustomEvent::GetMetadata() const {
