@@ -10,6 +10,7 @@ add_sources( SOURCE_GROUP "Private"
 )
 
 add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/vphysics/vcollide.h"
     "${ENGINE_SOURCE_DIR}/public/trace.h"
     "${ENGINE_SOURCE_DIR}/public/gametrace.h"
     "${ENGINE_SOURCE_DIR}/public/cmodel.h"
