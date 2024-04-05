@@ -1,60 +1,62 @@
 //===========================================================================//
 // 
-// Purpose: client side datablock receiver
+// Purpose: client side data block receiver
 // 
 //===========================================================================//
 #include "engine/client/clientstate.h"
 #include "datablock_receiver.h"
+#include "common/proto_oob.h"
 #include "engine/common.h"
 #include "engine/host_cmd.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-ClientDataBlockReceiver::~ClientDataBlockReceiver()
-{
-	ClientDataBlockReceiver__Destructor(this);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: send an ack back to the server to let them know
-// we received the datablock
+// we received the data block
 //-----------------------------------------------------------------------------
 void ClientDataBlockReceiver::AcknowledgeTransmission()
 {
-	ClientDataBlockReceiver__AcknowledgeTransmission(this);
-}
+	const CClientState* const cl = m_pClientState;
 
-//-----------------------------------------------------------------------------
-// Purpose: initialize the data block receiver context
-//-----------------------------------------------------------------------------
-void ClientDataBlockReceiver::StartBlockReceiver(const int transferSize, const double startTime)
-{
-	m_bStartedRecv = true;
-	m_nTransferSize = transferSize;
-	m_nTotalBlocks = transferSize / MAX_DATABLOCK_FRAGMENT_SIZE + (transferSize % MAX_DATABLOCK_FRAGMENT_SIZE != 0);
-	m_nBlockAckTick = 0;
-	m_flStartTime = startTime;
+	if (!cl)
+	{
+		Assert(0, "ClientDataBlockReceiver::AcknowledgeTransmission() called without a valid client handle!");
+		return;
+	}
 
-	memset(m_BlockStatus, 0, sizeof(m_BlockStatus));
-}
+	const CNetChan* const chan = cl->m_NetChannel;
 
-//-----------------------------------------------------------------------------
-// Purpose: reset the data block receiver context
-//-----------------------------------------------------------------------------
-void ClientDataBlockReceiver::ResetBlockReceiver(const short transferNr)
-{
-	m_nTransferNr = transferNr;
+	if (!chan)
+	{
+		Assert(0, "ClientDataBlockReceiver::AcknowledgeTransmission() called without a net channel!");
+		return;
+	}
 
-	m_bStartedRecv = false;
-	m_bCompletedRecv = false;
+	char dataBuf[DATABLOCK_FRAGMENT_PACKET_SIZE];
+	bf_write buf(&dataBuf, sizeof(dataBuf));
 
-	m_TransferId = 0;
-	m_nTotalBlocks = 0;
-	m_nBlockAckTick = 0;
-	m_flStartTime = 0.0;
+	buf.WriteLong(CONNECTIONLESS_HEADER);
+	buf.WriteByte(C2S_DATABLOCK_ACK);
 
-	memset(m_BlockStatus, 0, sizeof(m_BlockStatus));
+	buf.WriteShort(m_TransferId);
+	buf.WriteShort(m_nTransferNr);
+
+	for (int i = m_nTotalBlocks; (i--) > 0;)
+	{
+		if (m_BlockStatus[i])
+		{
+			// ack the last blockNr we recv'd and processed
+			buf.WriteShort(i);
+			break;
+		}
+	}
+
+	// send the data block ack packet
+	v_NET_SendPacket(NULL,
+		chan->GetSocket(),
+		chan->GetRemoteAddress(),
+		buf.GetData(),
+		buf.GetNumBytesWritten(),
+		NULL, false, NULL, true);
 }
 
 //-----------------------------------------------------------------------------
