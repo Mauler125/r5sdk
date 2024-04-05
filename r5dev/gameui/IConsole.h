@@ -42,9 +42,6 @@ private:
     void BuildInputFromSelected(const CSuggest& suggest, string& svInput);
     void BuildSuggestPanelRect(void);
 
-    void ClampLogSize(void);
-    void ClampHistorySize(void);
-
     bool LoadFlagIcons(void);
     int GetFlagTextureIndex(int nFlags) const;
 
@@ -57,7 +54,8 @@ public:
     void RemoveLog(int nStart, int nEnd);
     void ClearLog(void);
 
-    vector<string> GetHistory(void) const;
+    void AddHistory(const char* const command);
+    const vector<string>& GetHistory(void) const;
     void ClearHistory(void);
 
     inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
@@ -70,8 +68,11 @@ public:
     static void ClearLines_f();
     static void ClearHistory_f();
 
-private: // Internal only.
+private: // Internals.
     void AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)*/;
+
+    void ClampLogSize(void);
+    void ClampHistorySize(void);
 
     ///////////////////////////////////////////////////////////////////////////
     virtual void SetStyleVar(void);
@@ -111,6 +112,7 @@ private:
     ImGuiStyle_t                   m_Style;
     ImVec2                         m_ivSuggestWindowPos;
     ImVec2                         m_ivSuggestWindowSize;
+
     CTextLogger                    m_Logger;
     mutable CThreadFastMutex       m_Mutex;
 

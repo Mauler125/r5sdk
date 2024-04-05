@@ -161,6 +161,9 @@ add_sources( SOURCE_GROUP "GameUI"
     "${ENGINE_SOURCE_DIR}/gameui/IBrowser.h"
     "${ENGINE_SOURCE_DIR}/gameui/IConsole.cpp"
     "${ENGINE_SOURCE_DIR}/gameui/IConsole.h"
+
+    "${ENGINE_SOURCE_DIR}/gameui/imgui_system.cpp"
+    "${ENGINE_SOURCE_DIR}/gameui/imgui_system.h"
 )
 endif()
 

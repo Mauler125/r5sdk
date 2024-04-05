@@ -96,3 +96,9 @@ int CThreadFastMutex::Unlock()
 	}
 	return result;
 }
+
+// NOTE: originally the game exported 'ThreadInMainThread()' and ThreadInServerFrameThread(),
+// but since the game is built static, and all instances of said functions are inline, we had
+// to export the variable symbols instead and get them here to reimplement said functions.
+ThreadId_t* g_ThreadMainThreadID = CModule::GetExportedSymbol(CModule::GetProcessEnvironmentBlock()->ImageBaseAddress, "g_ThreadMainThreadID").RCast<ThreadId_t*>();
+ThreadId_t* g_ThreadServerFrameThreadID = CModule::GetExportedSymbol(CModule::GetProcessEnvironmentBlock()->ImageBaseAddress, "g_ThreadServerFrameThreadID").RCast<ThreadId_t*>();

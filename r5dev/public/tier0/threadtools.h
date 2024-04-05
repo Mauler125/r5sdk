@@ -97,9 +97,8 @@ FORCEINLINE bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value,
 //-----------------------------------------------------------------------------
 #ifndef BUILDING_MATHLIB
 
-inline ThreadId_t* g_ThreadMainThreadID = nullptr;
-inline ThreadId_t g_ThreadRenderThreadID = NULL;
-inline ThreadId_t* g_ThreadServerFrameThreadID = nullptr;
+extern ThreadId_t* g_ThreadMainThreadID;
+extern ThreadId_t* g_ThreadServerFrameThreadID;
 
 FORCEINLINE ThreadId_t ThreadGetCurrentId()
 {
@@ -121,11 +120,6 @@ FORCEINLINE ThreadId_t ThreadGetCurrentId()
 FORCEINLINE bool ThreadInMainThread()
 {
 	return (ThreadGetCurrentId() == (*g_ThreadMainThreadID));
-}
-
-FORCEINLINE bool ThreadInRenderThread()
-{
-	return (ThreadGetCurrentId() == g_ThreadRenderThreadID);
 }
 
 FORCEINLINE bool ThreadInServerFrameThread()
@@ -332,7 +326,7 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-template <int size>	struct CAutoLockTypeDeducer {};
+template <size_t size>	struct CAutoLockTypeDeducer {};
 template <> struct CAutoLockTypeDeducer<sizeof(CThreadFastMutex)> { typedef CThreadFastMutex Type_t; };
 
 #define AUTO_LOCK_( type, mutex ) \
@@ -360,11 +354,7 @@ class VThreadTools : public IDetour
 	{
 		g_GameDll.FindPatternSIMD("48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28").GetPtr(v_DeclareCurrentThreadIsMainThread);
 	}
-	virtual void GetVar(void) const
-	{
-		g_ThreadMainThreadID = CMemory(v_DeclareCurrentThreadIsMainThread).FindPattern("89 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
-		g_ThreadServerFrameThreadID = g_GameDll.FindPatternSIMD("83 79 ?? ?? 75 28 8B").FindPatternSelf("8B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
-	}
+	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool /*bAttach*/) const { }
 };

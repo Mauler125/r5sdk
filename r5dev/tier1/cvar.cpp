@@ -354,8 +354,8 @@ static bool ConCommandBaseLessFunc(ConCommandBase* const& lhs, ConCommandBase* c
 //-----------------------------------------------------------------------------
 // Singleton CCvarUtilities
 //-----------------------------------------------------------------------------
-static CCvarUtilities g_CvarUtilities;
-CCvarUtilities* cv = &g_CvarUtilities;
+static CCvarUtilities s_CvarUtilities;
+CCvarUtilities* cv = &s_CvarUtilities;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -709,7 +709,7 @@ static void CON_Help_f()
 static ConCommand con_help("con_help", CON_Help_f, "Shows the colors and description of each context", FCVAR_RELEASE);
 
 ///////////////////////////////////////////////////////////////////////////////
-CCvar* g_pCVar = CModule::GetExportedSymbol(CModule::GetProcessEnvironmentBlock()->ImageBaseAddress, "g_pCVar").RCast<CCvar*>();
+CCvar* g_pCVar = nullptr;
 
 
 static bool CVar_Connect(CCvar* thisptr, CreateInterfaceFn factory)

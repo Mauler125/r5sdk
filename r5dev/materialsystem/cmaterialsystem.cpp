@@ -13,7 +13,7 @@
 #include "engine/sys_engine.h"
 #include "geforce/reflex.h"
 #ifndef MATERIALSYSTEM_NODX
-#include "windows/id3dx.h"
+#include "gameui/imgui_system.h"
 #include "materialsystem/cmaterialglue.h"
 #endif // !MATERIALSYSTEM_NODX
 #include "materialsystem/cmaterialsystem.h"
@@ -21,6 +21,20 @@
 #ifndef MATERIALSYSTEM_NODX
 PCLSTATS_DEFINE()
 #endif // MATERIALSYSTEM_NODX
+
+bool CMaterialSystem::Connect(CMaterialSystem* thisptr, const CreateInterfaceFn factory)
+{
+	const bool result = CMaterialSystem__Connect(thisptr, factory);
+	return result;
+}
+
+void CMaterialSystem::Disconnect(CMaterialSystem* thisptr)
+{
+#ifndef MATERIALSYSTEM_NODX
+	ImguiSystem_Shutdown();
+#endif
+	CMaterialSystem__Disconnect(thisptr);
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: initialization of the material system
@@ -111,22 +125,16 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 //---------------------------------------------------------------------------------
 ssize_t SpinPresent(void)
 {
-	// TODO[ AMOS ]: move imgui code to a separate file.
-	extern void DrawImGui();
-	extern void ImGui_Init();
-
-	if (!g_bImGuiInitialized)
-	{
-		ImGui_Init();
-		g_ThreadRenderThreadID = GetCurrentThreadId();
-		g_bImGuiInitialized = true;
-	}
-
-	if (g_pEngine->GetQuitting() == IEngine::QUIT_NOTQUITTING)
-		DrawImGui();
+	ImguiSystem_RenderFrame();
 
 	const ssize_t val = v_SpinPresent();
 	return val;
+}
+
+void* CMaterialSystem::SwapBuffers(CMaterialSystem* pMatSys)
+{
+	ImguiSystem_SwapBuffers();
+	return CMaterialSystem__SwapBuffers(pMatSys);
 }
 
 //-----------------------------------------------------------------------------
@@ -171,10 +179,16 @@ void VMaterialSystem::Detour(const bool bAttach) const
 {
 	DetourSetup(&CMaterialSystem__Init, &CMaterialSystem::Init, bAttach);
 	DetourSetup(&CMaterialSystem__Shutdown, &CMaterialSystem::Shutdown, bAttach);
+
+	DetourSetup(&CMaterialSystem__Connect, &CMaterialSystem::Connect, bAttach);
+	DetourSetup(&CMaterialSystem__Disconnect, &CMaterialSystem::Disconnect, bAttach);
+
 #ifndef MATERIALSYSTEM_NODX
+	DetourSetup(&CMaterialSystem__SwapBuffers, &CMaterialSystem::SwapBuffers, bAttach);
+	DetourSetup(&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx, bAttach);
+
 	DetourSetup(&v_StreamDB_Init, &StreamDB_Init, bAttach);
 	DetourSetup(&v_DispatchDrawCall, &DispatchDrawCall, bAttach);
 	DetourSetup(&v_SpinPresent, &SpinPresent, bAttach);
-	DetourSetup(&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx, bAttach);
 #endif // !MATERIALSYSTEM_NODX
 }

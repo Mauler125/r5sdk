@@ -185,7 +185,11 @@ class VCVar : public IDetour
 
 		g_GameDll.FindPatternSIMD("B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 01 48 89 9C 24 ?? ?? ?? ??").GetPtr(v_ConVar_PrintDescription);
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 0F 45 C8 FF 05 ?? ?? ?? ?? 48 89 0D ?? ?? ?? ??")
+			.FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(3, 7).GetPtr(g_pCVar);
+	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;
 };
