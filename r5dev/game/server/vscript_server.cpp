@@ -14,6 +14,7 @@
 #include "vscript/vscript.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
+#include "liveapi/liveapi.h"
 #include "vscript_server.h"
 #include <engine/host_state.h>
 #include <networksystem/hostmanager.h>
@@ -216,6 +217,13 @@ void Script_RegisterServerFunctions(CSquirrelVM* s)
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreServerFunctions(s);
     Script_RegisterAdminPanelFunctions(s);
+
+    Script_RegisterLiveAPIFunctions(s);
+}
+
+void Script_RegisterServerEnums(CSquirrelVM* const s)
+{
+    Script_RegisterLiveAPIEnums(s);
 }
 
 //---------------------------------------------------------------------------------
