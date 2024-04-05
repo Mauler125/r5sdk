@@ -51,7 +51,7 @@ extern "C" {
  *
  *  @return Return code as defined in retcodes.h
  */
-L8W8JWT_API int l8w8jwt_base64_encode(int url, const uint8_t* data, size_t data_length, char** out, size_t* out_length);
+L8W8JWT_API int l8w8jwt_base64_encode(const int url, const uint8_t* data, const size_t data_length, char** out, size_t* out_length);
 
 /**
  *  Decodes a base-64 encoded string to an array of bytes. <p>
@@ -68,7 +68,7 @@ L8W8JWT_API int l8w8jwt_base64_encode(int url, const uint8_t* data, size_t data_
  *
  *  @return Return code as defined in retcodes.h
  */
-L8W8JWT_API int l8w8jwt_base64_decode(int url, const char* data, size_t data_length, uint8_t** out, size_t* out_length);
+L8W8JWT_API int l8w8jwt_base64_decode(const int url, const char* data, const size_t data_length, uint8_t** out, size_t* out_length);
 
 #ifdef __cplusplus
 } // extern "C"

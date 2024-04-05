@@ -24,8 +24,7 @@ extern "C" {
 #include "include/chillbuff.h"
 
 #include <string.h>
-
-#include <mbedtls/md.h> // SChannel???
+#include <mbedtls/md.h>
 
 void l8w8jwt_free_claims(struct l8w8jwt_claim* claims, const size_t claims_count)
 {

@@ -25,3 +25,7 @@ add_sources( SOURCE_GROUP "Include"
 
 end_sources()
 thirdparty_suppress_warnings()
+
+target_include_directories( ${PROJECT_NAME} PRIVATE
+    "${THIRDPARTY_SOURCE_DIR}/mbedtls/include/"
+)

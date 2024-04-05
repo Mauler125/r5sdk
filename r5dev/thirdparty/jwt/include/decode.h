@@ -34,6 +34,7 @@ extern "C" {
 #include <time.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #ifndef L8W8JWT_MAX_KEY_SIZE
 #define L8W8JWT_MAX_KEY_SIZE 8192
@@ -93,6 +94,31 @@ enum l8w8jwt_validation_result {
      */
     L8W8JWT_TYP_FAILURE = (unsigned)1 << (unsigned)8
 };
+
+static void l8w8jwt_get_validation_result_desc(enum l8w8jwt_validation_result res, char* out_buffer, size_t buffer_size)
+{
+#define JWT_OUTPUT_MSG(msg) snprintf(out_buffer, buffer_size, "%s", msg)
+#define JWT_FLAG_STATUS(flag, msg) if(res & flag) { JWT_OUTPUT_MSG(msg); return; }
+
+    if (res == L8W8JWT_VALID)
+    {
+        JWT_OUTPUT_MSG("Success");
+        return;
+    }
+
+    JWT_FLAG_STATUS(L8W8JWT_ISS_FAILURE, "Issuer claim is invalid");
+    JWT_FLAG_STATUS(L8W8JWT_SUB_FAILURE, "Subject claim is invalid");
+    JWT_FLAG_STATUS(L8W8JWT_AUD_FAILURE, "Audience claim is invalid");
+    JWT_FLAG_STATUS(L8W8JWT_JTI_FAILURE, "JWT ID claim is invalid");
+    JWT_FLAG_STATUS(L8W8JWT_EXP_FAILURE, "Token has expired");
+    JWT_FLAG_STATUS(L8W8JWT_NBF_FAILURE, "Token is not yet valid");
+    JWT_FLAG_STATUS(L8W8JWT_IAT_FAILURE, "Token has not been issued yet");
+    JWT_FLAG_STATUS(L8W8JWT_SIGNATURE_VERIFICATION_FAILURE, "Token signature is invalid");
+    JWT_FLAG_STATUS(L8W8JWT_TYP_FAILURE, "Token type is invalid");
+
+#undef JWT_OUTPUT_MSG
+#undef JWT_FLAG_STATUS
+}
 
 /**
  * Struct containing the parameters to use for decoding and validating a JWT.
