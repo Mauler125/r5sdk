@@ -164,6 +164,8 @@ add_sources( SOURCE_GROUP "GameUI"
 
     "${ENGINE_SOURCE_DIR}/gameui/imgui_system.cpp"
     "${ENGINE_SOURCE_DIR}/gameui/imgui_system.h"
+    "${ENGINE_SOURCE_DIR}/gameui/imgui_surface.cpp"
+    "${ENGINE_SOURCE_DIR}/gameui/imgui_surface.h"
 )
 endif()
 
@@ -233,7 +235,6 @@ if( NOT ${PROJECT_NAME} STREQUAL "engine_ds" )
 add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/client_class.h"
     "${ENGINE_SOURCE_DIR}/public/ivrenderview.h"
-    "${ENGINE_SOURCE_DIR}/public/isurfacesystem.h" # ImGui surface
 )
 endif()
 

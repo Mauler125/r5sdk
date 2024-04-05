@@ -298,12 +298,12 @@ bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView*
 void ResetInput()
 {
 	g_pInputSystem->EnableInput( // Enables the input system when both are not drawn.
-		!g_Browser.m_bActivate && !g_Console.m_bActivate);
+		!g_Browser.IsActivated() && !g_Console.IsActivated());
 }
 
 bool PanelsVisible()
 {
-	if (g_Browser.m_bActivate || g_Console.m_bActivate)
+	if (g_Browser.IsActivated() || g_Console.IsActivated())
 	{
 		return true;
 	}

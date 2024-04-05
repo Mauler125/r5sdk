@@ -4,22 +4,22 @@
 #include "windows/resource.h"
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
-#include "public/isurfacesystem.h"
 #include "thirdparty/imgui/misc/imgui_utility.h"
 
-class CBrowser : public IDebugSurface
+#include "imgui_surface.h"
+
+class CBrowser : public CImguiSurface
 {
 public:
     CBrowser(void);
     virtual ~CBrowser(void);
 
     virtual bool Init(void);
-    virtual void Think(void);
 
     virtual void RunFrame(void);
-    virtual void RunTask(void);
+    void RunTask(void);
 
-    virtual void DrawSurface(void);
+    virtual bool DrawSurface(void);
 
     void BrowserPanel(void);
     void RefreshServerList(void);
@@ -33,16 +33,9 @@ public:
 
     void ProcessCommand(const char* pszCommand) const;
 
-    virtual void SetStyleVar(void);
-
-    inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
-
 public:
     // Command callbacks
     static void ToggleBrowser_f();
-
-    const char* m_pszBrowserLabel;
-    bool m_bActivate;
 
 private:
     inline void SetServerListMessage(const char* const message) { m_svServerListMessage = message; };
@@ -50,14 +43,11 @@ private:
     inline void SetHostToken(const char* const message) { m_svHostToken = message; }
 
 private:
-    bool m_bInitialized;
-    bool m_bReclaimFocus;
     bool m_bReclaimFocusTokenField;
     bool m_bQueryListNonRecursive; // When set, refreshes the server list once the next frame.
     bool m_bQueryGlobalBanList;
     char m_szServerAddressBuffer[128];
     char m_szServerEncKeyBuffer[30];
-    float m_flFadeAlpha;
 
     ID3D11ShaderResourceView* m_idLockedIcon;
     MODULERESOURCE m_rLockedIconBlob;
@@ -80,8 +70,6 @@ private:
     ////////////////////
     string m_svHiddenServerRequestMessage;
     ImVec4 m_ivHiddenServerMessageColor;
-
-    ImGuiStyle_t m_Style;
 };
 
 extern CBrowser g_Browser;

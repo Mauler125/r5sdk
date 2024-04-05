@@ -43,18 +43,14 @@ static ConCommand togglebrowser("togglebrowser", CBrowser::ToggleBrowser_f, "Sho
 // Purpose: 
 //-----------------------------------------------------------------------------
 CBrowser::CBrowser(void)
-    : m_pszBrowserLabel("Server Browser")
-    , m_bActivate(false)
-    , m_bInitialized(false)
-    , m_bReclaimFocus(false)
-    , m_bReclaimFocusTokenField(false)
+    : m_bReclaimFocusTokenField(false)
     , m_bQueryListNonRecursive(false)
     , m_bQueryGlobalBanList(true)
-    , m_flFadeAlpha(0.f)
     , m_HostMessageColor(1.00f, 1.00f, 1.00f, 1.00f)
     , m_ivHiddenServerMessageColor(0.00f, 1.00f, 0.00f, 1.00f)
-    , m_Style(ImGuiStyle_t::NONE)
 {
+    m_surfaceLabel = "Server Browser";
+
     memset(m_szServerAddressBuffer, '\0', sizeof(m_szServerAddressBuffer));
     memset(m_szServerEncKeyBuffer, '\0', sizeof(m_szServerEncKeyBuffer));
 
@@ -77,7 +73,7 @@ CBrowser::~CBrowser(void)
 //-----------------------------------------------------------------------------
 bool CBrowser::Init(void)
 {
-    SetStyleVar();
+    SetStyleVar(928.f, 524.f, -500.f, 50.f);
 
     bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
         &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
@@ -97,26 +93,29 @@ void CBrowser::RunFrame(void)
         //ImGui::ShowDemoWindow();
     }
 
-    if (!m_bInitialized)
+    if (!m_initialized)
     {
         Init();
-        m_bInitialized = true;
+        m_initialized = true;
     }
+
+    Animate();
+    RunTask();
 
     int nVars = 0;
     float flWidth;
     float flHeight;
-    if (m_Style == ImGuiStyle_t::MODERN)
+    if (m_surfaceStyle == ImGuiStyle_t::MODERN)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);                 nVars++;
 
         flWidth = 621.f;
         flHeight = 532.f;
     }
     else
     {
-        if (m_Style == ImGuiStyle_t::LEGACY)
+        if (m_surfaceStyle == ImGuiStyle_t::LEGACY)
         {
             flWidth = 619.f;
             flHeight = 526.f;
@@ -128,19 +127,19 @@ void CBrowser::RunFrame(void)
         }
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);                 nVars++;
 
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
     }
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(flWidth, flHeight)); nVars++;
 
-    if (m_bActivate && m_bReclaimFocus) // Reclaim focus on window apparition.
+    if (m_activated && m_reclaimFocus) // Reclaim focus on window apparition.
     {
         ImGui::SetNextWindowFocus();
-        m_bReclaimFocus = false;
+        m_reclaimFocus = false;
     }
 
-    if (!ImGui::Begin(m_pszBrowserLabel, &m_bActivate, ImGuiWindowFlags_NoScrollbar, &ResetInput))
+    if (!ImGui::Begin(m_surfaceLabel, &m_activated, ImGuiWindowFlags_NoScrollbar, &ResetInput))
     {
         ImGui::End();
         ImGui::PopStyleVar(nVars);
@@ -173,7 +172,7 @@ void CBrowser::RunTask()
         timer.Start();
     }
 
-    if (m_bActivate)
+    if (m_activated)
     {
         if (m_bQueryListNonRecursive)
         {
@@ -181,41 +180,17 @@ void CBrowser::RunTask()
             RefreshServerList();
         }
     }
-    else // Refresh server list the next time 'm_bActivate' evaluates to true.
+    else // Refresh server list the next time 'm_activated' evaluates to true.
     {
-        m_bReclaimFocus = true;
         m_bReclaimFocusTokenField = true;
         m_bQueryListNonRecursive = true;
     }
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: think
-//-----------------------------------------------------------------------------
-void CBrowser::Think(void)
-{
-    if (m_bActivate)
-    {
-        if (m_flFadeAlpha < 1.f)
-        {
-            m_flFadeAlpha += .05f;
-            m_flFadeAlpha = (std::min)(m_flFadeAlpha, 1.f);
-        }
-    }
-    else // Reset to full transparent.
-    {
-        if (m_flFadeAlpha > 0.f)
-        {
-            m_flFadeAlpha -= .05f;
-            m_flFadeAlpha = (std::max)(m_flFadeAlpha, 0.f);
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: draws the compmenu
 //-----------------------------------------------------------------------------
-void CBrowser::DrawSurface(void)
+bool CBrowser::DrawSurface(void)
 {
     ImGui::BeginTabBar("CompMenu");
     if (ImGui::BeginTabItem("Browsing"))
@@ -231,6 +206,8 @@ void CBrowser::DrawSurface(void)
     }
 #endif // !CLIENT_DLL
     ImGui::EndTabBar();
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -261,7 +238,7 @@ void CBrowser::BrowserPanel(void)
     if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable))
     {
         int nVars = 0;
-        if (m_Style == ImGuiStyle_t::MODERN)
+        if (m_surfaceStyle == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); nVars++;
         }
@@ -383,7 +360,7 @@ void CBrowser::RefreshServerList(void)
 void CBrowser::HiddenServersModal(void)
 {
     float flHeight; // Set the padding accordingly for each theme.
-    switch (m_Style)
+    switch (m_surfaceStyle)
     {
     case ImGuiStyle_t::LEGACY:
         flHeight = 207.f;
@@ -830,22 +807,11 @@ void CBrowser::ProcessCommand(const char* pszCommand) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sets the browser front-end style
-//-----------------------------------------------------------------------------
-void CBrowser::SetStyleVar(void)
-{
-    m_Style = g_pImGuiConfig->InitStyle();
-
-    ImGui::SetNextWindowSize(ImVec2(928.f, 524.f), ImGuiCond_FirstUseEver);
-    ImGui::SetWindowPos(ImVec2(-500.f, 50.f), ImGuiCond_FirstUseEver);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: toggles the server browser
 //-----------------------------------------------------------------------------
 void CBrowser::ToggleBrowser_f()
 {
-    g_Browser.m_bActivate ^= true;
+    g_Browser.m_activated ^= true;
     ResetInput(); // Disable input to game when browser is drawn.
 }
 

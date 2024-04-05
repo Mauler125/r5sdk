@@ -4,7 +4,6 @@
 class CEngineSDK
 {
 public:
-	void FixedFrame();
 };
 
 extern CEngineSDK g_EngineSDK;
