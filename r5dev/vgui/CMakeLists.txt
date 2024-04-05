@@ -16,4 +16,9 @@ add_sources( SOURCE_GROUP "Debug"
     "vgui_fpspanel.h"
 )
 
+add_sources( SOURCE_GROUP "vgui_controls"
+    "vgui_controls/RichText.cpp"
+    "vgui_controls/RichText.h"
+)
+
 end_sources()

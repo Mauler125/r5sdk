@@ -1,4 +1,4 @@
-//=============================================================================//
+ //=============================================================================//
 //
 // Purpose: Expose native code to VScript API
 // 
@@ -290,6 +290,25 @@ namespace VScriptCode
             return SQ_OK;
         }
 
+        SQRESULT GetEULAContents(HSQUIRRELVM v)
+        {
+            MSEulaData_t eulaData;
+            if (g_pMasterServer->GetEULA(eulaData))
+            {
+                // set EULA version cvar to the newly fetched EULA version
+                eula_version->SetValue(eulaData.version);
+
+                sq_pushstring(v, eulaData.contents.c_str(), -1);
+            }
+            else
+            {
+                Warning(eDLL_T::UI, "Failed to load EULA Data\n");
+                sq_pushstring(v, "Failed to load EULA Data", -1);
+            }
+
+            return SQ_OK;
+        }
+
         //-----------------------------------------------------------------------------
         // Purpose: connect to server from native server browser entries
         //-----------------------------------------------------------------------------
@@ -400,6 +419,7 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 
     // Misc main menu functions
     DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetPromoData, "Gets promo data for specified slot type", "string", "int");
+    DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, GetEULAContents, "Gets EULA contents from masterserver", "string", "");
 
     // Functions for connecting to servers
     DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, ConnectToServer, "Joins server by ip address and encryption key", "void", "string, string");
