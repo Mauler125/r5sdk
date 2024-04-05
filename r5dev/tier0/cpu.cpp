@@ -575,7 +575,7 @@ const CPUInformation& GetCPUInformation(void)
 	return pi;
 }
 
-void CheckSystemCPU()
+void CheckSystemCPUForSSE2()
 {
 	const CPUInformation& pi = GetCPUInformation();
 
@@ -586,6 +586,12 @@ void CheckSystemCPU()
 			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
 		}
 	}
+}
+
+void CheckSystemCPUForSSE3()
+{
+	const CPUInformation& pi = GetCPUInformation();
+
 	if (!pi.m_bSSE3)
 	{
 		if (MessageBoxA(NULL, "SSE3 is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
@@ -593,6 +599,12 @@ void CheckSystemCPU()
 			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
 		}
 	}
+}
+
+void CheckSystemCPUForSupplementalSSE3()
+{
+	const CPUInformation& pi = GetCPUInformation();
+
 	if (!pi.m_bSSSE3)
 	{
 		if (MessageBoxA(NULL, "SSSE3 (Supplemental SSE3 Instructions) is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
@@ -600,6 +612,12 @@ void CheckSystemCPU()
 			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
 		}
 	}
+}
+
+void CheckSystemCPUForPopCount()
+{
+	const CPUInformation& pi = GetCPUInformation();
+
 	if (!pi.m_bPOPCNT)
 	{
 		if (MessageBoxA(NULL, "POPCNT is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
@@ -607,4 +625,12 @@ void CheckSystemCPU()
 			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
 		}
 	}
+}
+
+void CheckSystemCPU()
+{
+	CheckSystemCPUForSSE2();
+	CheckSystemCPUForSSE3();
+	CheckSystemCPUForSupplementalSSE3();
+	CheckSystemCPUForPopCount();
 }
