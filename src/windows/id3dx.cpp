@@ -9,10 +9,11 @@
 #include "geforce/reflex.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
+#include "gameui/imgui_system.h"
 #include "engine/framelimit.h"
-#include "engine/sys_engine.h"
 #include "engine/sys_mainwind.h"
 #include "inputsystem/inputsystem.h"
+#include "materialsystem/cmaterialsystem.h"
 #include "public/bitmap/stb_image.h"
 #include "public/rendersystem/schema/texture.g.h"
 
@@ -34,7 +35,6 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-extern BOOL                     g_bImGuiInitialized = FALSE;
 extern UINT                     g_nWindowRect[2] = { NULL, NULL };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@ static IPostMessageW            s_oPostMessageW = NULL;
 ///////////////////////////////////////////////////////////////////////////////////
 static IDXGIResizeBuffers       s_fnResizeBuffers    = NULL;
 static IDXGISwapChainPresent    s_fnSwapChainPresent = NULL;
+
+///////////////////////////////////////////////////////////////////////////////////
+static CFrameLimit s_FrameLimiter;
 
 //#################################################################################
 // WINDOW PROCEDURE
@@ -79,76 +82,49 @@ BOOL WINAPI HPostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 }
 
 //#################################################################################
-// IMGUI
-//#################################################################################
-
-void ImGui_Init()
-{
-	///////////////////////////////////////////////////////////////////////////////
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.ImeWindowHandle = g_pGame->GetWindow();
-	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
-
-	ImGui_ImplWin32_Init(g_pGame->GetWindow());
-	ImGui_ImplDX11_Init(D3D11Device(), D3D11DeviceContext());
-}
-
-void ImGui_Shutdown()
-{
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-}
-
-void DrawImGui()
-{
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-
-	ImGui::NewFrame();
-
-	// This is required to disable the ctrl+tab menu as some users use this shortcut for other things in-game.
-	// See https://github.com/ocornut/imgui/issues/5641 for more details.
-	if (GImGui->ConfigNavWindowingKeyNext)
-		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyNext, ImGuiKeyOwner_None);
-	if (GImGui->ConfigNavWindowingKeyPrev)
-		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyPrev, ImGuiKeyOwner_None);
-
-	g_pBrowser->RunTask();
-	g_pBrowser->RunFrame();
-
-	g_pConsole->RunTask();
-	g_pConsole->RunFrame();
-
-	ImGui::EndFrame();
-	ImGui::Render();
-
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-}
-
-//#################################################################################
 // IDXGI
 //#################################################################################
 
+static ConVar fps_max_rt("fps_max_rt", "0", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Frame rate limiter within the render thread. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f);
+static ConVar fps_max_rt_tolerance("fps_max_rt_tolerance", "0.25", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Maximum amount of frame time before frame limiter restarts.", true, 0.f, false, 0.f);
+static ConVar fps_max_rt_sleep_threshold("fps_max_rt_sleep_threshold", "0.016666667", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Frame limiter starts to sleep when frame time exceeds this threshold.", true, 0.f, false, 0.f);
+
 HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
 {
-	if (!g_bImGuiInitialized)
+	float targetFps = fps_max_rt.GetFloat();
+
+	if (targetFps > 0.0f)
 	{
-		ImGui_Init();
-		g_ThreadRenderThreadID = GetCurrentThreadId();
-		g_bImGuiInitialized = true;
+		const float globalFps = fps_max->GetFloat();
+
+		// Make sure the global fps limiter is 'unlimited'
+		// before we let the rt frame limiter cap it to
+		// the desktop's refresh rate; not adhering to
+		// this will result in a major performance drop.
+		if (globalFps == 0.0f && targetFps == -1)
+			targetFps = g_pGame->GetTVRefreshRate();
+
+		if (targetFps > 0.0f)
+		{
+			const float sleepThreshold = fps_max_rt_sleep_threshold.GetFloat();
+			const float maxTolerance = fps_max_rt_tolerance.GetFloat();
+
+			s_FrameLimiter.Run(targetFps, sleepThreshold, maxTolerance);
+		}
 	}
 
-	g_FrameLimiter.Run();
-
-	if (g_pEngine->GetQuitting() == IEngine::QUIT_NOTQUITTING)
-		DrawImGui();
 	///////////////////////////////////////////////////////////////////////////////
+	// NOTE: -1 since we need to sync this with its corresponding frame, g_FrameNum
+	// gets incremented in CMaterialSystem::SwapBuffers, which is after the markers
+	// for simulation start/end and render submit start. The render thread (here)
+	// continues after to finish the frame.
+	const NvU64 frameID = (NvU64)MaterialSystem()->GetCurrentFrameCount() - 1;
+	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_END, frameID);
 
-	HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+	GFX_SetLatencyMarker(D3D11Device(), PRESENT_START, frameID);
+	const HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+	GFX_SetLatencyMarker(D3D11Device(), PRESENT_END, frameID);
+
 	return result;
 }
 
@@ -169,7 +145,6 @@ HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, U
 // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
 // Also disable 6378, complains that there is no control path where it would use 'nullptr', if that happens 'Error' will be called though.
 #pragma warning( disable : 6262 6387)
-CMemory p_CreateTextureResource;
 void(*v_CreateTextureResource)(TextureHeader_t*, INT_PTR);
 constexpr uint32_t ALIGNMENT_SIZE = 15; // Creates 2D texture and shader resource from textureHeader and imageData.
 void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
@@ -323,12 +298,12 @@ bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView*
 void ResetInput()
 {
 	g_pInputSystem->EnableInput( // Enables the input system when both are not drawn.
-		!g_pBrowser->m_bActivate && !g_pConsole->m_bActivate);
+		!g_Browser.IsActivated() && !g_Console.IsActivated());
 }
 
 bool PanelsVisible()
 {
-	if (g_pBrowser->m_bActivate || g_pConsole->m_bActivate)
+	if (g_Browser.IsActivated() || g_Console.IsActivated())
 	{
 		return true;
 	}
@@ -371,8 +346,12 @@ void DirectX_Init()
 	if (hr != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
+		Assert(0);
 		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
+
+	if (!ImguiSystem()->Init())
+		Error(eDLL_T::COMMON, 0, "ImguiSystem()->Init() failed!\n");
 }
 
 void DirectX_Shutdown()
@@ -392,57 +371,40 @@ void DirectX_Shutdown()
 	// Commit the transaction
 	DetourTransactionCommit();
 
-	///////////////////////////////////////////////////////////////////////////////
-	// Shutdown ImGui
-	if (g_bImGuiInitialized)
-	{
-		ImGui_Shutdown();
-		g_bImGuiInitialized = false;
-	}
+	ImguiSystem()->Shutdown();
 }
 
 void VDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
-	LogFunAdr("IDXGISwapChain::Present", reinterpret_cast<uintptr_t>(s_fnSwapChainPresent));
-	LogFunAdr("CreateTextureResource", p_CreateTextureResource.GetPtr());
-	LogVarAdr("g_pSwapChain", reinterpret_cast<uintptr_t>(g_ppSwapChain));
-	LogVarAdr("g_pGameDevice", reinterpret_cast<uintptr_t>(g_ppGameDevice));
-	LogVarAdr("g_pImmediateContext", reinterpret_cast<uintptr_t>(g_ppImmediateContext));
+	LogFunAdr("IDXGISwapChain::Present", s_fnSwapChainPresent);
+	LogFunAdr("CreateTextureResource", v_CreateTextureResource);
+	LogVarAdr("g_pSwapChain", g_ppSwapChain);
+	LogVarAdr("g_pGameDevice", g_ppGameDevice);
+	LogVarAdr("g_pImmediateContext", g_ppImmediateContext);
 }
 
 void VDXGI::GetFun(void) const
 {
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	p_CreateTextureResource = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 55 41 55");
-	v_CreateTextureResource = p_CreateTextureResource.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*48 8B C4 48 89 48 08 53 55 41 55*/
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	p_CreateTextureResource = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60").FollowNearCallSelf();
-	v_CreateTextureResource = p_CreateTextureResource.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
-#endif
+	g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60").FollowNearCallSelf().GetPtr(v_CreateTextureResource);
 }
 
 void VDXGI::GetVar(void) const
 {
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	CMemory pBase = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 53 48 83 EC 50 48 8B 05 ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	CMemory pBase = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B 08 48 83 EC 58");
-#endif
+	CMemory base = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B 08 48 83 EC 58");
+
 	// Grab device pointers..
-	g_ppGameDevice = pBase.FindPattern("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11Device**>();
-	g_ppImmediateContext = pBase.FindPattern("48 89 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11DeviceContext**>();
+	g_ppGameDevice = base.FindPattern("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11Device**>();
+	g_ppImmediateContext = base.FindPattern("48 89 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11DeviceContext**>();
 
 	// Grab swap chain..
-	pBase = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 45 33 C0 33 D2");
-	g_ppSwapChain = pBase.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<IDXGISwapChain**>();
+	base = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 45 33 C0 33 D2");
+	g_ppSwapChain = base.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<IDXGISwapChain**>();
 }
 
 void VDXGI::Detour(const bool bAttach) const
 {
-#ifdef GAMEDLL_S3
 	DetourSetup(&v_CreateTextureResource, &CreateTextureResource, bAttach);
-#endif // GAMEDLL_S3
 }
 
 #endif // !DEDICATED

@@ -5,6 +5,11 @@
 #include "core/logdef.h"
 #include "tier0/utility.h"
 
+// These are used for the 'stat()' and 'access()' in ::IsDirectory().
+#include <io.h>
+#include <sys/types.h>
+#include <sys/stat.h> 
+
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if a specific file exists.
 BOOL FileExists(LPCTSTR szPath)
@@ -16,8 +21,71 @@ BOOL FileExists(LPCTSTR szPath)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For creating a directory hierarchy
+int CreateDirHierarchy(const char* const filePath)
+{
+    char fullPath[1024];
+    int results;
+
+    snprintf(fullPath, sizeof(fullPath), "%s", filePath);
+    V_FixSlashes(fullPath);
+
+    const size_t pathLen = strlen(fullPath);
+    char* const pathEnd = &fullPath[pathLen - 1];
+
+    // Strip the trailing slash if there's one
+    if (*pathEnd == CORRECT_PATH_SEPARATOR)
+        *pathEnd = '\0';
+
+    // Get the pointer to the last dir separator, the last dir is what we want
+    // to create and return the value of which is why we run that outside the
+    // loop
+    const char* const lastDir = strrchr(fullPath, CORRECT_PATH_SEPARATOR);
+
+    char* pFullPath = fullPath;
+    while ((pFullPath = strchr(pFullPath, CORRECT_PATH_SEPARATOR)) != NULL)
+    {
+        // Temporarily turn the slash into a null
+        // to get the current directory.
+        *pFullPath = '\0';
+
+        results = _mkdir(fullPath);
+
+        if (results && errno != EEXIST)
+            return results;
+
+        *pFullPath = CORRECT_PATH_SEPARATOR;
+
+        // Last dir should be created separately, and its return value should
+        // be returned
+        if (pFullPath == lastDir)
+            break;
+
+        pFullPath++;
+    }
+
+    // Try to create the final directory in the path.
+    return _mkdir(fullPath);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For checking if a directory exists
+bool IsDirectory(const char* path)
+{
+    if (_access(path, 0) == 0)
+    {
+        struct stat status;
+        stat(path, &status);
+
+        return (status.st_mode & S_IFDIR) != 0;
+    }
+
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if a specific file is empty.
-BOOL FileEmpty(ifstream& pFile)
+bool FileEmpty(ifstream& pFile)
 {
     return pFile.peek() == ifstream::traits_type::eof();
 }
@@ -97,7 +165,8 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, size
 {
     char szAscii[17];
     static std::mutex m;
-    static std::shared_ptr<spdlog::logger> logger = spdlog::default_logger();
+
+    std::shared_ptr<spdlog::logger> logger;
 
     m.lock();
     szAscii[16] = '\0';
@@ -112,6 +181,10 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, size
             assert(0);
             return;
         }
+    }
+    else
+    {
+        logger = spdlog::default_logger();
     }
 
     // Add time stamp.
@@ -845,14 +918,13 @@ pair<vector<uint8_t>, string> StringToMaskedBytes(const char* szInput, bool bNul
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a 32-bit integer into a 4-char ascii string
-string FourCCToString(int n)
+void FourCCToString(FourCCString_t& buf, const int n)
 {
-    stringstream ss;
-    ss << (char)((n & 0x000000ff) >> 0);
-    ss << (char)((n & 0x0000ff00) >> 8);
-    ss << (char)((n & 0x00ff0000) >> 16);
-    ss << (char)((n & 0xff000000) >> 24);
-    return ss.str();
+    buf[0] = (char)((n & 0x000000ff) >> 0);
+    buf[1] = (char)((n & 0x0000ff00) >> 8);
+    buf[2] = (char)((n & 0x00ff0000) >> 16);
+    buf[3] = (char)((n & 0xff000000) >> 24);
+    buf[4] = '\0';
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1014,14 +1086,20 @@ string FormatV(const char* szFormat, va_list args)
     assert(iLen >= 0);
     string result;
 
-    if (iLen < 0)
+    if (iLen <= 0)
     {
         result.clear();
     }
     else
     {
+        // NOTE: reserve enough buffer size for the string + the terminating
+        // NULL character, then resize it to just the string len so we don't
+        // count the NULL character in the string's size (i.e. when calling
+        // string::size()).
+        result.reserve(iLen+1);
         result.resize(iLen);
-        std::vsnprintf(&result[0], iLen+sizeof(char), szFormat, args);
+
+        std::vsnprintf(&result[0], iLen+1, szFormat, args);
     }
 
     return result;
@@ -1068,6 +1146,16 @@ int CompareIPv6(const IN6_ADDR& ipA, const IN6_ADDR& ipB)
         }
     }
     return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For obtaining the current timestamp.
+uint64_t GetUnixTimeStamp()
+{
+    __time64_t time;
+    _time64(&time);
+
+    return time;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -8,22 +8,11 @@ class CClient;
 class CClient;
 
 /* ==== SV_MAIN ======================================================================================================================================================= */
-inline CMemory p_SV_InitGameDLL;
-inline void(*v_SV_InitGameDLL)(void);
-
-inline CMemory p_SV_ShutdownGameDLL;
-inline void(*v_SV_ShutdownGameDLL)(void);
-
-inline CMemory p_SV_ActivateServer;
-inline bool(*v_SV_ActivateServer)(void);
-
-inline CMemory p_SV_CreateBaseline;
-inline bool(*v_SV_CreateBaseline)(void);
-
-inline CMemory p_CGameServer__SpawnServer;
 inline bool(*CGameServer__SpawnServer)(void* thisptr, const char* pszMapName, const char* pszMapGroupName);
-
-inline CMemory p_SV_BroadcastVoiceData;
+inline void(*v_SV_InitGameDLL)(void);
+inline void(*v_SV_ShutdownGameDLL)(void);
+inline bool(*v_SV_ActivateServer)(void);
+inline bool(*v_SV_CreateBaseline)(void);
 inline void(*v_SV_BroadcastVoiceData)(CClient* cl, int nBytes, char* data);
 
 inline bool* s_bIsDedicated = nullptr;
@@ -39,9 +28,9 @@ inline bool IsDedicated()
 void SV_InitGameDLL();
 void SV_ShutdownGameDLL();
 bool SV_ActivateServer();
-void SV_BroadcastVoiceData(CClient* cl, int nBytes, char* data);
-void SV_IsClientBanned(CClient* pClient, const string& svIPAddr, const NucleusID_t nNucleusID, const string& svPersonaName, const int nPort);
-void SV_CheckForBan(const CBanSystem::BannedList_t* pBannedVec = nullptr, const bool bDelete = false);
+void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data);
+void SV_CheckForBanAndDisconnect(CClient* const pClient, const string& svIPAddr, const NucleusID_t nNucleusID, const string& svPersonaName, const int nPort);
+void SV_CheckClientsForBan(const CBanSystem::BannedList_t* const pBannedVec = nullptr);
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,34 +38,22 @@ class HSV_Main : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CGameServer::SpawnServer", p_CGameServer__SpawnServer.GetPtr());
-		LogFunAdr("SV_InitGameDLL", p_SV_InitGameDLL.GetPtr());
-		LogFunAdr("SV_ShutdownGameDLL", p_SV_ShutdownGameDLL.GetPtr());
-		LogFunAdr("SV_ActivateServer", p_SV_ActivateServer.GetPtr());
-		LogFunAdr("SV_CreateBaseline", p_SV_CreateBaseline.GetPtr());
-		LogFunAdr("SV_BroadcastVoiceData", p_SV_BroadcastVoiceData.GetPtr());
-		LogVarAdr("s_bIsDedicated", reinterpret_cast<uintptr_t>(s_bIsDedicated));
+		LogFunAdr("CGameServer::SpawnServer", CGameServer__SpawnServer);
+		LogFunAdr("SV_InitGameDLL", v_SV_InitGameDLL);
+		LogFunAdr("SV_ShutdownGameDLL", v_SV_ShutdownGameDLL);
+		LogFunAdr("SV_ActivateServer", v_SV_ActivateServer);
+		LogFunAdr("SV_CreateBaseline", v_SV_CreateBaseline);
+		LogFunAdr("SV_BroadcastVoiceData", v_SV_BroadcastVoiceData);
+		LogVarAdr("s_bIsDedicated", s_bIsDedicated);
 	}
 	virtual void GetFun(void) const
 	{
-		p_SV_InitGameDLL     = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ??");
-		p_SV_ShutdownGameDLL = g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48");
-		p_SV_ActivateServer  = g_GameDll.FindPatternSIMD("48 8B C4 56 48 81 EC ?? ?? ?? ?? 48 89 ?? ?? 48 8D");
-		p_SV_CreateBaseline  = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 07");
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CGameServer__SpawnServer = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 55 41 56 41 57 48 81 EC ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CGameServer__SpawnServer = g_GameDll.FindPatternSIMD("48 8B C4 53 55 56 57 41 54 41 55 41 57");
-#endif
-		p_SV_BroadcastVoiceData = g_GameDll.FindPatternSIMD("4C 8B DC 56 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??");
-
-		v_SV_InitGameDLL           = p_SV_InitGameDLL.RCast<void(*)(void)>();
-		v_SV_ShutdownGameDLL       = p_SV_ShutdownGameDLL.RCast<void(*)(void)>();
-		v_SV_ActivateServer        = p_SV_ActivateServer.RCast<bool(*)(void)>();
-		v_SV_CreateBaseline        = p_SV_CreateBaseline.RCast<bool(*)(void)>();
-		v_SV_BroadcastVoiceData = p_SV_BroadcastVoiceData.RCast<void(*)(CClient* cl, int nBytes, char* data)>();
-
-		CGameServer__SpawnServer = p_CGameServer__SpawnServer.RCast<bool(*)(void*, const char*, const char*)>();
+		g_GameDll.FindPatternSIMD("48 8B C4 53 55 56 57 41 54 41 55 41 57").GetPtr(CGameServer__SpawnServer);
+		g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ??").GetPtr(v_SV_InitGameDLL);
+		g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48").GetPtr(v_SV_ShutdownGameDLL);
+		g_GameDll.FindPatternSIMD("48 8B C4 56 48 81 EC ?? ?? ?? ?? 48 89 ?? ?? 48 8D").GetPtr(v_SV_ActivateServer);
+		g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 07").GetPtr(v_SV_CreateBaseline);
+		g_GameDll.FindPatternSIMD("4C 8B DC 56 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??").GetPtr(v_SV_BroadcastVoiceData);
 	}
 	virtual void GetVar(void) const
 	{

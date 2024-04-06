@@ -9,7 +9,7 @@
 #define EIFACE_H
 #include "edict.h"
 #include "tier1/bitbuf.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -153,11 +153,6 @@ public:
 
 	// Get a convar keyvalue for specified client
 	virtual const char* GetClientConVarValue(int nClientIndex, const char* szConVarName) = 0;
-
-
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	virtual void NullSub1(void) = 0; // Additional nullsub only present in s0 and s1 gamedll's
-#endif // GAMEDLL_S0 || GAMEDLL_S1
 
 	// Returns the name as represented on the server of specified client
 	virtual const char* GetClientServerName(int nClientIndex) = 0;

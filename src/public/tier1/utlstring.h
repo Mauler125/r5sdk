@@ -14,10 +14,6 @@
 #include "tier1/strtools.h"
 #include "limits.h"
 
-#ifndef SIZE_MAX
-#define SIZE_MAX ((size_t) -1)
-#endif
-
 //-----------------------------------------------------------------------------
 // Base class, containing simple memory management
 //-----------------------------------------------------------------------------
@@ -260,7 +256,7 @@ public:
 	// Take a piece out of the string.
 	// If you only specify nStart, it'll go from nStart to the end.
 	// You can use negative numbers and it'll wrap around to the start.
-	CUtlString Slice( ssize_t nStart=0, ssize_t nEnd=INT_MAX );
+	CUtlString Slice( ssize_t nStart=0, ssize_t nEnd=SSIZE_MAX );
 
 	// Grab a substring starting from the left or the right side.
 	CUtlString Left( ssize_t nChars );

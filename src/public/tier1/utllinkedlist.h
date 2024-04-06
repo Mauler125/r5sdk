@@ -24,7 +24,7 @@
 
 // This is a useful macro to iterate from head to tail in a linked list.
 #define FOR_EACH_LL( listName, iteratorName ) \
-	for( int iteratorName=listName.Head(); iteratorName != listName.InvalidIndex(); iteratorName = listName.Next( iteratorName ) )
+	for( decltype(listName)::IndexLocalType_t iteratorName=listName.Head(); iteratorName != listName.InvalidIndex(); iteratorName = listName.Next( iteratorName ) )
 
 //-----------------------------------------------------------------------------
 // class CUtlLinkedList:
@@ -62,12 +62,12 @@ class CUtlLinkedList
 {
 public:
 	typedef T ElemType_t;
-	typedef S IndexType_t; // should really be called IndexStorageType_t, but that would be a huge change
+	typedef S IndexStorageType_t;
 	typedef I IndexLocalType_t;
 	typedef M MemoryAllocator_t;
 
 	// constructor, destructor
-	CUtlLinkedList(ssize_t growSize = 0, ssize_t initSize = 0);
+	CUtlLinkedList(IndexStorageType_t growSize = 0, IndexStorageType_t initSize = 0);
 	~CUtlLinkedList();
 
 	// gets particular elements
@@ -77,9 +77,9 @@ public:
 	T const& operator[](I i) const;
 
 	// Make sure we have a particular amount of memory
-	void EnsureCapacity(int num);
+	void EnsureCapacity(IndexStorageType_t num);
 
-	void SetGrowSize(int growSize);
+	void SetGrowSize(IndexStorageType_t growSize);
 
 	// Memory deallocation
 	void Purge();
@@ -192,7 +192,7 @@ template < class T >
 class CUtlFixedLinkedList : public CUtlLinkedList< T, intptr_t, true, intptr_t, CUtlFixedMemory< UtlLinkedListElem_t< T, intptr_t > > >
 {
 public:
-	CUtlFixedLinkedList(ssize_t growSize = 0, ssize_t initSize = 0)
+	CUtlFixedLinkedList(intptr_t growSize = 0, intptr_t initSize = 0)
 		: CUtlLinkedList< T, intptr_t, true, intptr_t, CUtlFixedMemory< UtlLinkedListElem_t< T, intptr_t > > >(growSize, initSize) {}
 
 	bool IsValidIndex(intptr_t i) const
@@ -221,7 +221,7 @@ template < class T, class I = unsigned short >
 class CUtlBlockLinkedList : public CUtlLinkedList< T, I, true, I, CUtlBlockMemory< UtlLinkedListElem_t< T, I >, I > >
 {
 public:
-	CUtlBlockLinkedList(int growSize = 0, int initSize = 0)
+	CUtlBlockLinkedList(I growSize = 0, I initSize = 0)
 		: CUtlLinkedList< T, I, true, I, CUtlBlockMemory< UtlLinkedListElem_t< T, I >, I > >(growSize, initSize) {}
 protected:
 	void ResetDbgInfo() {}
@@ -233,7 +233,7 @@ protected:
 //-----------------------------------------------------------------------------
 
 template <class T, class S, bool ML, class I, class M>
-CUtlLinkedList<T, S, ML, I, M>::CUtlLinkedList(ssize_t growSize, ssize_t initSize) :
+CUtlLinkedList<T, S, ML, I, M>::CUtlLinkedList(S growSize, S initSize) :
 	m_Memory(growSize, initSize), m_LastAlloc(m_Memory.InvalidIterator())
 {
 	// Prevent signed non-int datatypes
@@ -398,7 +398,7 @@ inline bool CUtlFixedLinkedList<T>::IsInList( int i ) const
 //-----------------------------------------------------------------------------
 
 template< class T, class S, bool ML, class I, class M >
-void CUtlLinkedList<T, S, ML, I, M>::EnsureCapacity(int num)
+void CUtlLinkedList<T, S, ML, I, M>::EnsureCapacity(S num)
 {
 	MEM_ALLOC_CREDIT_CLASS();
 	m_Memory.EnsureCapacity(num);
@@ -406,7 +406,7 @@ void CUtlLinkedList<T, S, ML, I, M>::EnsureCapacity(int num)
 }
 
 template< class T, class S, bool ML, class I, class M >
-void CUtlLinkedList<T, S, ML, I, M>::SetGrowSize(int growSize)
+void CUtlLinkedList<T, S, ML, I, M>::SetGrowSize(S growSize)
 {
 	RemoveAll();
 	m_Memory.Init(growSize);
@@ -998,7 +998,7 @@ public:
 		m_nElems = 0;
 	}
 
-	int	Count() const
+	size_t	Count() const
 	{
 		return m_nElems;
 	}
@@ -1078,7 +1078,7 @@ private:
 	}
 
 	Node_t* m_pFirst;
-	unsigned m_nElems;
+	size_t m_nElems;
 };
 
 //-----------------------------------------------------------------------------

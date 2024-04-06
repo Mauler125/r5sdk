@@ -42,10 +42,6 @@ which are located in `<gamedir>\platform\cfg\startup_*.cfg`.
 This is not a cheat or hack; attempting to use the SDK on the live version of the game could result in a permanent account ban.<br />
 The supported game versions are:
 
- * S0 `R5pc_r5launch_J1557_CL387233_2019_01_28_07_43_PM`.
- * S0 `R5pc_r5launch_J1624A_CL394493_2019_02_24_09_29_PM`.
- * S1 `R5pc_r5launch_N52A_CL399039_2019_03_12_03_21_PM`.
- * S2 `R5pc_r5launch_N428_CL436418_2019_08_07_09_35_PM`.
  * S3 `R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM`.
 
 ## Pylon [DISCLAIMER]

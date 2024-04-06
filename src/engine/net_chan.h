@@ -87,23 +87,12 @@ enum EBufType
 	BUF_VOICE
 };
 
-inline CMemory p_NetChan_Clear;
-inline void(*v_NetChan_Clear)(CNetChan* pChan, bool bStopProcessing);
-
-inline CMemory p_NetChan_Shutdown;
-inline void(*v_NetChan_Shutdown)(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
-
-inline CMemory p_NetChan_CanPacket;
-inline bool(*v_NetChan_CanPacket)(const CNetChan* pChan);
-
-inline CMemory p_NetChan_FlowNewPacket;
-inline void(*v_NetChan_FlowNewPacket)(CNetChan* pChan, int flow, int outSeqNr, int inSeqNr, int nChoked, int nDropped, int nSize);
-
-inline CMemory p_NetChan_SendDatagram;
-inline int(*v_NetChan_SendDatagram)(CNetChan* pChan, bf_write* pMsg);
-
-inline CMemory p_NetChan_ProcessMessages;
-inline bool(*v_NetChan_ProcessMessages)(CNetChan* pChan, bf_read* pMsg);
+inline void(*CNetChan__Clear)(CNetChan* pChan, bool bStopProcessing);
+inline void(*CNetChan__Shutdown)(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
+inline bool(*CNetChan__CanPacket)(const CNetChan* pChan);
+inline void(*CNetChan__FlowNewPacket)(CNetChan* pChan, int flow, int outSeqNr, int inSeqNr, int nChoked, int nDropped, int nSize);
+inline int(*CNetChan__SendDatagram)(CNetChan* pChan, bf_write* pMsg);
+inline bool(*CNetChan__ProcessMessages)(CNetChan* pChan, bf_read* pMsg);
 
 //-----------------------------------------------------------------------------
 class CNetChan
@@ -121,7 +110,7 @@ public:
 	inline int         GetDataRate(void)                 const { return m_Rate; }
 	inline int         GetBufferSize(void)               const { return NET_FRAMES_BACKUP; }
 
-	float        GetNetworkLoss() const;
+	float        GetResendRate() const;
 
 	inline float GetLatency(int flow)        const { Assert(flow >= 0 && flow < SDK_ARRAYSIZE(m_DataFlow)); return m_DataFlow[flow].latency; }
 	inline float GetAvgChoke(int flow)       const { Assert(flow >= 0 && flow < SDK_ARRAYSIZE(m_DataFlow)); return m_DataFlow[flow].avgchoke; }
@@ -139,21 +128,27 @@ public:
 	inline int   GetSocket(void)                  const { return m_Socket; }
 	inline const bf_write& GetStreamVoice(void)   const { return m_StreamVoice; }
 	inline const netadr_t& GetRemoteAddress(void) const { return remote_address; }
+
+	int         GetNumBitsWritten(const bool bReliable);
+	int         GetNumBitsLeft(const bool bReliable);
 	inline bool IsOverflowed(void)                const { return m_StreamReliable.IsOverflowed(); }
 
 	bool HasPendingReliableData(void);
 
-	inline bool CanPacket(void) const { return v_NetChan_CanPacket(this); }
-	inline int SendDatagram(bf_write* pDatagram) { return v_NetChan_SendDatagram(this, pDatagram); }
-	bool SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice);
+	inline bool CanPacket(void) const { return CNetChan__CanPacket(this); }
+	inline int SendDatagram(bf_write* pDatagram) { return CNetChan__SendDatagram(this, pDatagram); }
+	bool SendNetMsg(INetMessage& msg, const bool bForceReliable, const bool bVoice);
+	bool SendData(bf_write& msg, const bool bReliable);
 
 	INetMessage* FindMessage(int type);
 	bool RegisterMessage(INetMessage* msg);
 
-	inline void Clear(bool bStopProcessing) { v_NetChan_Clear(this, bStopProcessing); }
-	inline void Shutdown(const char* szReason, uint8_t bBadRep, bool bRemoveNow) { v_NetChan_Shutdown(this, szReason, bBadRep, bRemoveNow); }
+	inline void Clear(bool bStopProcessing) { CNetChan__Clear(this, bStopProcessing); }
+	inline void Shutdown(const char* szReason, uint8_t bBadRep, bool bRemoveNow) { CNetChan__Shutdown(this, szReason, bBadRep, bRemoveNow); }
 	void FreeReceiveList();
 	bool ProcessMessages(bf_read* pMsg);
+
+	bool ReadSubChannelData(bf_read& buf);
 
 	static void _Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 	static bool _ProcessMessages(CNetChan* pChan, bf_read* pMsg);
@@ -174,12 +169,9 @@ public:
 	int                 m_nInSequenceNr;
 	int                 m_nOutSequenceNrAck;
 	int                 m_nChokedPackets;
-	int                 unknown_challenge_var;
+	int                 m_nRealTimePackets; // Number of packets without pre-scaled frame times.
 
 private:
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-	char                pad[8];
-#endif
 	int                 m_nLastRecvFlags;
 	RTL_SRWLOCK         m_Lock;
 	bf_write            m_StreamReliable;
@@ -231,11 +223,7 @@ private:
 	char                m_Name[NET_CHANNELNAME_MAXLEN];
 	netadr_t            remote_address;
 };
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-static_assert(sizeof(CNetChan) == 0x1AD0);
-#else
 static_assert(sizeof(CNetChan) == 0x1AC8);
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the remote frame times
@@ -263,32 +251,21 @@ class VNetChan : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CNetChan::Clear", p_NetChan_Clear.GetPtr());
-		LogFunAdr("CNetChan::Shutdown", p_NetChan_Shutdown.GetPtr());
-		LogFunAdr("CNetChan::CanPacket", p_NetChan_CanPacket.GetPtr());
-		LogFunAdr("CNetChan::FlowNewPacket", p_NetChan_FlowNewPacket.GetPtr());
-		LogFunAdr("CNetChan::SendDatagram", p_NetChan_SendDatagram.GetPtr());
-		LogFunAdr("CNetChan::ProcessMessages", p_NetChan_ProcessMessages.GetPtr());
+		LogFunAdr("CNetChan::Clear", CNetChan__Clear);
+		LogFunAdr("CNetChan::Shutdown", CNetChan__Shutdown);
+		LogFunAdr("CNetChan::CanPacket", CNetChan__CanPacket);
+		LogFunAdr("CNetChan::FlowNewPacket", CNetChan__FlowNewPacket);
+		LogFunAdr("CNetChan::SendDatagram", CNetChan__SendDatagram);
+		LogFunAdr("CNetChan::ProcessMessages", CNetChan__ProcessMessages);
 	}
 	virtual void GetFun(void) const
 	{
-		p_NetChan_Clear = g_GameDll.FindPatternSIMD("88 54 24 10 53 55 57");
-		v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan*, bool)>();
-
-		p_NetChan_Shutdown = g_GameDll.FindPatternSIMD("48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9");
-		v_NetChan_Shutdown = p_NetChan_Shutdown.RCast<void (*)(CNetChan*, const char*, uint8_t, bool)>();
-
-		p_NetChan_CanPacket = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B D9 75 15 48 8B 05 ?? ?? ?? ??");
-		v_NetChan_CanPacket = p_NetChan_CanPacket.RCast<bool (*)(const CNetChan*)>();
-
-		p_NetChan_FlowNewPacket = g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 89 54 24 10 56");
-		v_NetChan_FlowNewPacket = p_NetChan_FlowNewPacket.RCast<void (*)(CNetChan*, int, int, int, int, int, int)>();
-
-		p_NetChan_SendDatagram = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 56 41 57 48 83 EC 70");
-		v_NetChan_SendDatagram = p_NetChan_SendDatagram.RCast<int (*)(CNetChan*, bf_write*)>();
-
-		p_NetChan_ProcessMessages = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA");
-		v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan*, bf_read*)>();
+		g_GameDll.FindPatternSIMD("88 54 24 10 53 55 57").GetPtr(CNetChan__Clear);
+		g_GameDll.FindPatternSIMD("48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9").GetPtr(CNetChan__Shutdown);
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B D9 75 15 48 8B 05 ?? ?? ?? ??").GetPtr(CNetChan__CanPacket);
+		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 89 54 24 10 56").GetPtr(CNetChan__FlowNewPacket);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 56 41 57 48 83 EC 70").GetPtr(CNetChan__SendDatagram);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA").GetPtr(CNetChan__ProcessMessages);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

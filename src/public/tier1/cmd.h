@@ -73,7 +73,7 @@ public:
 private:
 	cmd_source_t m_nQueuedVal;
 	int          m_nArgc;
-	int64_t      m_nArgv0Size;
+	ssize_t      m_nArgv0Size;
 	char         m_pArgSBuffer[COMMAND_MAX_LENGTH];
 	char         m_pArgvBuffer[COMMAND_MAX_LENGTH];
 	const char*  m_ppArgv[COMMAND_MAX_ARGC];
@@ -130,6 +130,7 @@ inline const char* CCommand::Arg(int nIndex) const
 	// do the extra check and return an empty string if it's out of range
 	if (nIndex < 0 || nIndex >= m_nArgc)
 	{
+		Assert(0);
 		return "";
 	}
 	return m_ppArgv[nIndex];

@@ -23,7 +23,6 @@
 #include "game/server/ai_networkmanager.h"
 #include "game/server/detour_impl.h"
 #endif // !CLIENT_DLL
-#include "rtech/rtech_game.h"
 //#include "rtech/rui/rui.h"
 //#include "materialsystem/cmaterialsystem.h"
 //#include "studiorender/studiorendercontext.h"
@@ -345,43 +344,9 @@ void RuntimePtc_Init() /* .TEXT */
 #ifndef DEDICATED
 	p_WASAPI_GetAudioDevice.Offset(0x410).FindPatternSelf("FF 15 ?? ?? 01 00", CMemory::Direction::DOWN, 100).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }); // CAL --> NOP | Disable debugger check when miles searches for audio device to allow attaching the debugger to the game upon launch.
 
-	p_SQVM_CompileError.Offset(0x0).FindPatternSelf("41 B0 01", CMemory::Direction::DOWN, 400).Patch({ 0x41, 0xB0, 0x00 });        // MOV --> MOV | Set script error level to 0 (not severe): 'mov r8b, 0'.
-	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | TODO: causes errors on client script error. Research required (same function as soft error but that one doesn't crash).
+	CMemory(v_SQVM_CompileError).Offset(0x0).FindPatternSelf("41 B0 01", CMemory::Direction::DOWN, 400).Patch({ 0x41, 0xB0, 0x00 });        // MOV --> MOV | Set script error level to 0 (not severe): 'mov r8b, 0'.
+	CMemory(v_SQVM_CompileError).Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | TODO: causes errors on client script error. Research required (same function as soft error but that one doesn't crash).
 #else
-	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | For dedicated we should not perform post-error events such as telemetry / showing 'COM_ExplainDisconnection' UI etc.
+	CMemory(v_SQVM_CompileError).Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | For dedicated we should not perform post-error events such as telemetry / showing 'COM_ExplainDisconnection' UI etc.
 #endif // !DEDICATED
-
-#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-#ifndef CLIENT_DLL
-	//p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
-	//p_Detour_LevelInit.Offset(0x100).FindPatternSelf("74", CMemory::Direction::DOWN, 600).Patch({ 0xEB });                                                              // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
-#endif // !CLIENT_DLL
-#endif
-
-	vector<uint8_t> starPakOpenFile = {
-		0x4D, 0x31, 0xC0,                                 // xor, r8, r8
-		0x48, 0x8D, 0x8C, 0x24, 0x90, 0x00, 0x00, 0x00,   // lea  rcx, [rsp+378h+90h] FileName
-
-		// call RTech::OpenFile [RIP+RVA]
-    #if defined (GAMEDLL_S0)
-		0xE8, 0x87, 0x96, 0xFF, 0xFF,
-    #elif defined (GAMEDLL_S1)
-		0xE8, 0x27, 0x95, 0xFF, 0xFF,
-    #elif defined (GAMEDLL_S2)
-		0xE8, 0x87, 0x95, 0xFF, 0xFF,
-    #elif defined (GAMEDLL_S3)
-		0xE8, 0x77, 0x8F, 0xFF, 0xFF,
-    #endif
-
-		0x8B, 0xF8,                                       // mov  edi, eax
-
-		// jmp  [RIP+RVA]
-	#if defined (GAMEDLL_S0) || defined(GAMEDLL_S1)
-		0xE9, 0xDC, 0x00, 0x00, 0x00
-    #elif defined (GAMEDLL_S2) || defined(GAMEDLL_S3)
-		0xE9, 0xDA, 0x00, 0x00, 0x00
-	#endif
-	};
-
-	p_Pak_OpenFileOffset.Patch(starPakOpenFile);
 }

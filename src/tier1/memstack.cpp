@@ -41,7 +41,6 @@ CMemoryStack::CMemoryStack()
 	, m_pBase( nullptr )
 	, m_pUnkPtr( nullptr )
 	, m_bRegisteredAllocation( false )
- 	, m_unkSize( 0 )
  	, m_maxSize( 0 )
 	, m_alignment( 16 )
 #ifdef MEMSTACK_VIRTUAL_MEMORY_AVAILABLE
@@ -69,11 +68,12 @@ CMemoryStack::~CMemoryStack()
 
 //-------------------------------------
 
-bool CMemoryStack::Init( const char *pszAllocOwner, uint64 maxSize, uint64 commitIncrement, uint64 initialCommit, uint64 alignment )
+bool CMemoryStack::Init( const char *pszAllocOwner, size_t maxSize, size_t commitIncrement, size_t initialCommit, size_t alignment )
 {
 	Assert( !m_pBase );
 
 	m_bPhysical = false;
+	m_unkSize = 0x100000; // NOTE: always set to this value in this place for R5 (see [r5apex.exe+478B96]).
 
 	m_maxSize = maxSize;
 	m_alignment = AlignValue( alignment, 4 );
@@ -186,7 +186,7 @@ bool CMemoryStack::Init( const char *pszAllocOwner, uint64 maxSize, uint64 commi
 //-------------------------------------
 
 #ifdef _GAMECONSOLE
-bool CMemoryStack::InitPhysical( const char *pszAllocOwner, uint size, uint nBaseAddrAlignment, uint alignment, uint32 nFlags )
+bool CMemoryStack::InitPhysical( const char *pszAllocOwner, size_t size, size_t nBaseAddrAlignment, size_t alignment, uint32 nFlags )
 {
 	m_bPhysical = true;
 
@@ -471,7 +471,11 @@ void CMemoryStack::Access( void **ppRegion, uint64 *pBytes )
 
 void CMemoryStack::PrintContents() const
 {
-	size_t highest = m_pHighestAllocLimit - m_pBase;
+	if (IsCert())
+	{
+		return;
+	}
+
 	MEMORY_BASIC_INFORMATION info;
 	char moduleName[260];
 	strcpy( moduleName, "unknown module" );
@@ -486,5 +490,5 @@ void CMemoryStack::PrintContents() const
 	DevMsg( eDLL_T::COMMON, "CMemoryStack %s in %s\n", m_pszAllocOwner, moduleName );
 	DevMsg( eDLL_T::COMMON, "    Total used memory:      %zu KB\n", GetUsed() / 1024 );
 	DevMsg( eDLL_T::COMMON, "    Total committed memory: %zu KB\n", GetSize() / 1024 );
-	DevMsg( eDLL_T::COMMON, "    Max committed memory: %zu KB out of %zu KB\n", highest / 1024, GetMaxSize() / 1024 );
+	DevMsg( eDLL_T::COMMON, "    Max committed memory: %zu KB out of %zu KB\n", (m_pHighestAllocLimit - m_pBase) / 1024, GetMaxSize() / 1024 );
 }

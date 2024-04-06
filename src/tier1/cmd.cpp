@@ -58,7 +58,7 @@ CCommand::CCommand(int nArgC, const char** ppArgV, cmd_source_t source)
 	for (int i = 0; i < nArgC; ++i)
 	{
 		m_ppArgv[i] = pBuf;
-		int64 nLen = strlen(ppArgV[i]);
+		ssize_t nLen = strlen(ppArgV[i]);
 		memcpy(pBuf, ppArgV[i], nLen + 1);
 		if (i == 0)
 		{
@@ -119,7 +119,7 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 	size_t nLen = Q_strlen(pCommand);
 	if (nLen >= COMMAND_MAX_LENGTH - 1)
 	{
-		Warning(eDLL_T::COMMON, "%s: Encountered command which overflows the tokenizer buffer... Skipping!\n", __FUNCTION__);
+		Warning(eDLL_T::COMMON, "%s: Encountered command which overflows the tokenizer buffer... Skipped!\n", __FUNCTION__);
 		return false;
 	}
 
@@ -127,14 +127,14 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 
 	// Parse the current command into the current command buffer
 	CUtlBuffer bufParse(m_pArgSBuffer, nLen, CUtlBuffer::TEXT_BUFFER | CUtlBuffer::READ_ONLY);
-	int64 nArgvBufferSize = 0;
+	ssize_t nArgvBufferSize = 0;
 
 	while (bufParse.IsValid() && (m_nArgc < COMMAND_MAX_ARGC))
 	{
 		char* pArgvBuf = &m_pArgvBuffer[nArgvBufferSize];
-		int64 nMaxLen = COMMAND_MAX_LENGTH - nArgvBufferSize;
-		int64 nStartGet = bufParse.TellGet();
-		int64 nSize = bufParse.ParseToken(pBreakSet, pArgvBuf, nMaxLen);
+		ssize_t nMaxLen = COMMAND_MAX_LENGTH - nArgvBufferSize;
+		ssize_t nStartGet = bufParse.TellGet();
+		ssize_t nSize = bufParse.ParseToken(pBreakSet, pArgvBuf, nMaxLen);
 
 		if (nSize < 0)
 			break;
@@ -175,7 +175,7 @@ bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_
 
 		if (m_nArgc >= COMMAND_MAX_ARGC)
 		{
-			Warning(eDLL_T::COMMON, "%s: Encountered command which overflows the argument buffer.. Clamped!\n", __FUNCTION__);
+			Warning(eDLL_T::COMMON, "%s: Encountered command which overflows the argument buffer... Clamped!\n", __FUNCTION__);
 		}
 
 		nArgvBufferSize += nSize + 1;
@@ -195,7 +195,7 @@ bool CCommand::HasOnlyDigits(int nIndex) const
 
 	for (size_t i = 0; source[i] != '\0'; i++)
 	{
-		if (!isdigit(source[i]))
+		if (!V_isdigit(source[i]))
 		{
 			return false;
 		}

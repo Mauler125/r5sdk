@@ -4059,21 +4059,6 @@ void MathLib_Init(float gamma, float texGamma, float brightness, int overbright)
 
 	// FIXME: Hook SSE into VectorAligned + Vector4DAligned
 
-#if !defined( _GAMECONSOLE )
-	// Grab the processor information:
-	const CPUInformation& pi = GetCPUInformation();
-
-	if (!(pi.m_bSSE && pi.m_bSSE2))
-	{
-		Assert(0);
-		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-		{
-			TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
-		}
-	}
-#endif //!360
-
-
 	s_bMathlibInitialized = true;
 
 	InitSinCosTable();

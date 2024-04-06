@@ -15,10 +15,16 @@
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
-#include "vscript/languages/squirrel_re/include/squirrel.h"
-#include "vscript/languages/squirrel_re/include/sqvm.h"
-#include "vscript/languages/squirrel_re/include/sqstate.h"
-#include "vscript/languages/squirrel_re/include/sqstdaux.h"
+#include "squirrel.h"
+#include "sqvm.h"
+#include "sqstate.h"
+#include "sqstdaux.h"
+
+//---------------------------------------------------------------------------------
+// Console variables
+//---------------------------------------------------------------------------------
+static ConVar script_show_output("script_show_output", "0", FCVAR_RELEASE, "Prints the VM output to the console ( !slower! ).", true, 0.f, true, 2.f, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify");
+static ConVar script_show_warning("script_show_warning", "0", FCVAR_RELEASE, "Prints the VM warning output to the console ( !slower! ).", true, 0.f, true, 2.f, "0 = log to file. 1 = 0 + log to console. 2 = 1 + log to notify");
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
@@ -30,7 +36,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 {
 	eDLL_T remoteContext;
 	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
-	// The compiler 'pointer truncation' warning couldn't be avoided, but it's safe to ignore it.
+	// The compiler 'pointer truncation' warning couldn't be avoided, but it's safe to ignore it here.
 #pragma warning(push)
 #pragma warning(disable : 4302 4311)
 	switch (static_cast<SQCONTEXT>(reinterpret_cast<int>(v)))
@@ -71,7 +77,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 
 	// Determine whether this is an info or warning log.
 	bool bLogLevelOverride = (g_bSQAuxError || (g_bSQAuxBadLogic && v == g_pErrorVM));
-	LogLevel_t level = LogLevel_t(script_show_output->GetInt());
+	LogLevel_t level = LogLevel_t(script_show_output.GetInt());
 	LogType_t type = bLogLevelOverride ? LogType_t::SQ_WARNING : LogType_t::SQ_INFO;
 
 	// Always log script related problems to the console.
@@ -99,12 +105,12 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 //---------------------------------------------------------------------------------
 SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
-	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
-	SQRESULT result = v_SQVM_sprintf(v, a2, a3, nStringSize, ppString);
+	static void* const retaddr = reinterpret_cast<void*>(CMemory(v_SQVM_WarningCmd).Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
+	const SQRESULT result = v_SQVM_sprintf(v, a2, a3, nStringSize, ppString);
 
 	if (retaddr == _ReturnAddress()) // Check if its SQVM_Warning calling.
 	{
-		SQCONTEXT scriptContext = v->GetContext();
+		const SQCONTEXT scriptContext = v->GetContext();
 		eDLL_T remoteContext;
 
 		switch (scriptContext)
@@ -123,8 +129,8 @@ SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStr
 			break;
 		}
 
-		std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
-		CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(script_show_warning->GetInt()),
+		const std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
+		CoreMsg(LogType_t::SQ_WARNING, static_cast<LogLevel_t>(script_show_warning.GetInt()),
 			remoteContext, NO_ERROR, "squirrel_re(warning)", "%s", svConstructor.c_str());
 	}
 
@@ -141,15 +147,13 @@ SQRESULT SQVM_sprintf(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStr
 //---------------------------------------------------------------------------------
 void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn)
 {
-	static SQCONTEXT context{};
 	static char szContextBuf[256]{};
-
-	context = v->GetContext();
 	v_SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf) - 1);
 
-	Error(static_cast<eDLL_T>(context), NO_ERROR, "%s SCRIPT COMPILE ERROR: %s\n", SQVM_GetContextName(context), pszError);
-	Error(static_cast<eDLL_T>(context), NO_ERROR, " -> %s\n\n", szContextBuf);
-	Error(static_cast<eDLL_T>(context), NO_ERROR, "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
+	const eDLL_T context = v->GetNativeContext();
+	Error(context, NO_ERROR, "%s SCRIPT COMPILE ERROR: %s\n", v->GetContextName(), pszError);
+	Error(context, NO_ERROR, " -> %s\n\n", szContextBuf);
+	Error(context, NO_ERROR, "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
 }
 
 //---------------------------------------------------------------------------------
@@ -170,41 +174,31 @@ void SQVM_LogicError(SQBool bPrompt)
 	v_SQVM_LogicError(bPrompt);
 }
 
-//---------------------------------------------------------------------------------
-// Purpose: Returns the VM name by context
-// Input  : context - 
-// Output : const SQChar* 
-//---------------------------------------------------------------------------------
-const SQChar* SQVM_GetContextName(SQCONTEXT context)
+void SQVM::Push(const SQObjectPtr& o) { _stack[_top++] = o; }
+SQObjectPtr& SQVM::Top() { return _stack[_top - 1]; }
+SQObjectPtr& SQVM::PopGet() { return _stack[--_top]; }
+SQObjectPtr& SQVM::GetUp(SQInteger n) { return _stack[_top + n]; }
+SQObjectPtr& SQVM::GetAt(SQInteger n) { return _stack[n]; }
+
+#include "vscript/languages/squirrel_re/vsquirrel.h"
+CSquirrelVM* SQVM::GetScriptVM()
 {
-	switch (context)
-	{
-	case SQCONTEXT::SERVER:
-		return "SERVER";
-	case SQCONTEXT::CLIENT:
-		return "CLIENT";
-	case SQCONTEXT::UI:
-		return "UI";
-	default:
-		return nullptr;
-	}
+	return _sharedstate->GetScriptVM();
 }
 
-//---------------------------------------------------------------------------------
-// Purpose: Returns the VM context by name
-// Input  : *sqvm - 
-// Output : const SQCONTEXT* 
-//---------------------------------------------------------------------------------
-const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v)
+SQChar* SQVM::GetContextName()
 {
-	if (strcmp(v->_sharedstate->_contextname, "SERVER") == 0)
-		return SQCONTEXT::SERVER;
-	if (strcmp(v->_sharedstate->_contextname, "CLIENT") == 0)
-		return SQCONTEXT::CLIENT;
-	if (strcmp(v->_sharedstate->_contextname, "UI") == 0)
-		return SQCONTEXT::UI;
+	return _sharedstate->_contextname;
+}
 
-	return SQCONTEXT::NONE;
+SQCONTEXT SQVM::GetContext()
+{
+	return GetScriptVM()->GetContext();
+}
+
+eDLL_T SQVM::GetNativeContext()
+{
+	return (eDLL_T)GetContext();
 }
 
 //---------------------------------------------------------------------------------

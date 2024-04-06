@@ -76,14 +76,14 @@ void COM_ExplainDisconnection(bool bPrint, const char* fmt, ...)
 
 				char conStr[256];
 				(*g_ppVGuiLocalize)->ConvertUnicodeToANSI(formatStr, conStr, sizeof(conStr));
-				Error(eDLL_T::ENGINE, NO_ERROR, "%s\n", conStr);
+				Error(eDLL_T::CLIENT, NO_ERROR, "%s\n", conStr);
 			}
 			else
-				Error(eDLL_T::ENGINE, NO_ERROR, "%s\n", szBuf);
+				Error(eDLL_T::CLIENT, NO_ERROR, "%s\n", szBuf);
 		}
 		else
 		{
-			Error(eDLL_T::ENGINE, NO_ERROR, "%s\n", szBuf);
+			Error(eDLL_T::CLIENT, NO_ERROR, "%s\n", szBuf);
 		}
 	}
 

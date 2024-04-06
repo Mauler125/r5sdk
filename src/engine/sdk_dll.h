@@ -4,9 +4,8 @@
 class CEngineSDK
 {
 public:
-	void FixedFrame();
 };
 
-extern CEngineSDK* g_EngineSDK;
+extern CEngineSDK g_EngineSDK;
 
 #endif // SDK_DLL_H

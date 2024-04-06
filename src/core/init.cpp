@@ -18,9 +18,8 @@
 #include "tier0/sigcache.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
+#include "tier1/keyvalues_iface.h"
 #include "vpc/IAppSystem.h"
-#include "vpc/keyvalues.h"
-#include "vpc/rson.h"
 #include "vpc/interfaces.h"
 #include "common/callback.h"
 #include "common/completion.h"
@@ -38,6 +37,7 @@
 #include "codecs/miles/miles_impl.h"
 #include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
+#include "vphysics/physics_collide.h"
 #include "vphysics/QHull.h"
 #include "engine/staticpropmgr.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -59,13 +59,23 @@
 #include "engine/server/datablock_sender.h"
 #endif // !CLIENT_DLL
 #include "studiorender/studiorendercontext.h"
-#include "rtech/rtech_game.h"
-#include "rtech/rtech_utils.h"
+#ifndef CLIENT_DLL
+#include "rtech/liveapi/liveapi.h"
+#endif // !CLIENT_DLL
+#include "rtech/rstdlib.h"
+#include "rtech/rson.h"
+#include "rtech/async/asyncio.h"
+#include "rtech/pak/pakalloc.h"
+#include "rtech/pak/pakparse.h"
+#include "rtech/pak/pakstate.h"
+#include "rtech/pak/pakstream.h"
 #include "rtech/stryder/stryder.h"
+#include "rtech/playlists/playlists.h"
 #ifndef DEDICATED
 #include "rtech/rui/rui.h"
 #include "engine/client/cl_ents_parse.h"
 #include "engine/client/cl_main.h"
+#include "engine/client/cl_rcon.h"
 #include "engine/client/cl_splitscreen.h"
 #endif // !DEDICATED
 #include "engine/client/client.h"
@@ -88,6 +98,7 @@
 #include "engine/networkstringtable.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_main.h"
+#include "engine/server/sv_rcon.h"
 #endif // !CLIENT_DLL
 #include "engine/sdk_dll.h"
 #include "engine/sys_dll.h"
@@ -96,13 +107,15 @@
 #include "engine/sys_utils.h"
 #ifndef DEDICATED
 #include "engine/sys_getmodes.h"
-#include "engine/gl_rmain.h"
 #include "engine/sys_mainwind.h"
 #include "engine/matsys_interface.h"
+#include "engine/gl_rmain.h"
 #include "engine/gl_matsysiface.h"
+#include "engine/gl_drawlights.h"
 #include "engine/gl_screen.h"
 #include "engine/gl_rsurf.h"
 #include "engine/debugoverlay.h"
+#include "engine/keys.h"
 #endif // !DEDICATED
 #include "vscript/languages/squirrel_re/include/squirrel.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
@@ -137,6 +150,11 @@
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
+
+#include "DirtySDK/dirtysock.h"
+#include "DirtySDK/dirtysock/netconn.h"
+#include "DirtySDK/proto/protossl.h"
+#include "DirtySDK/proto/protowebsocket.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -211,6 +229,7 @@ void Systems_Init()
 	if (hr != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
+		Assert(0);
 		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 
@@ -219,8 +238,6 @@ void Systems_Init()
 		initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 	Msg(eDLL_T::NONE, "+-------------------------------------------------------------+\n");
 	Msg(eDLL_T::NONE, "\n");
-
-	ConVar_StaticInit();
 
 #ifdef DEDICATED
 	InitCommandLineParameters();
@@ -233,6 +250,8 @@ void Systems_Init()
 	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
 	CoreServerScriptRegister_Callback = Script_RegisterCoreServerFunctions;
 	AdminPanelScriptRegister_Callback = Script_RegisterAdminPanelFunctions;
+
+	ServerScriptRegisterEnum_Callback = Script_RegisterServerEnums;
 #endif// !CLIENT_DLL
 
 #ifndef SERVER_DLL
@@ -258,6 +277,18 @@ void Systems_Init()
 
 void Systems_Shutdown()
 {
+	// Shutdown RCON (closes all open sockets)
+#ifndef CLIENT_DLL
+	RCONServer()->Shutdown();
+#endif// !CLIENT_DLL
+#ifndef SERVER_DLL
+	RCONClient()->Shutdown();
+#endif // !SERVER_DLL
+
+#ifndef CLIENT_DLL
+	LiveAPISystem()->Shutdown();
+#endif// !CLIENT_DLL
+
 	CFastTimer shutdownTimer;
 	shutdownTimer.Start();
 
@@ -292,25 +323,51 @@ void Systems_Shutdown()
 //
 /////////////////////////////////////////////////////
 
-void Winsock_Init()
+void Winsock_Startup()
 {
 	WSAData wsaData{};
-	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
+	const int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
+
 	if (nError != 0)
 	{
-		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to start Winsock: (%s)\n",
+		Error(eDLL_T::COMMON, 0, "%s: Windows Sockets API startup failure: (%s)\n",
 			__FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
+
 void Winsock_Shutdown()
 {
-	int nError = ::WSACleanup();
+	const int nError = ::WSACleanup();
+
 	if (nError != 0)
 	{
-		Error(eDLL_T::COMMON, NO_ERROR, "%s: Failed to stop Winsock: (%s)\n",
+		Error(eDLL_T::COMMON, 0, "%s: Windows Sockets API shutdown failure: (%s)\n",
 			__FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 }
+
+void DirtySDK_Startup()
+{
+	const int32_t netConStartupRet = NetConnStartup("-servicename=sourcesdk");
+
+	if (netConStartupRet < 0)
+	{
+		Error(eDLL_T::COMMON, 0, "%s: Network connection module startup failure: (%i)\n",
+			__FUNCTION__, netConStartupRet);
+	}
+}
+
+void DirtySDK_Shutdown()
+{
+	const int32_t netConShutdownRet = NetConnShutdown(0);
+
+	if (netConShutdownRet < 0)
+	{
+		Error(eDLL_T::COMMON, 0, "%s: Network connection module shutdown failure: (%i)\n",
+			__FUNCTION__, netConShutdownRet);
+	}
+}
+
 void QuerySystemInfo()
 {
 #ifndef DEDICATED
@@ -358,33 +415,6 @@ void QuerySystemInfo()
 	{
 		Error(eDLL_T::COMMON, NO_ERROR, "Unable to retrieve system memory information: %s\n",
 			std::system_category().message(static_cast<int>(::GetLastError())).c_str());
-	}
-}
-
-void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions).
-{
-	CpuIdResult_t cpuResult;
-	__cpuid(reinterpret_cast<int*>(&cpuResult), 1);
-
-	char szBuf[1024];
-
-	if ((cpuResult.ecx & (1 << 0)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSE 3");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
-	}
-	if ((cpuResult.ecx & (1 << 9)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSSE 3 (Supplemental SSE 3 Instructions)");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
-	}
-	if ((cpuResult.ecx & (1 << 23)) == 0)
-	{
-		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "POPCNT");
-		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
-		ExitProcess(0xFFFFFFFF);
 	}
 }
 
@@ -455,7 +485,6 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 
 	// Tier1
 	REGISTER(VCommandLine);
-	REGISTER(VConVar);
 	REGISTER(VCVar);
 
 	// VPC
@@ -499,6 +528,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #endif // !DEDICATED
 
 	// VPhysics
+	REGISTER(VPhysicsCollide);
 	REGISTER(VQHull);
 
 	// StaticPropMgr
@@ -544,9 +574,17 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #endif // !DEDICATED
 
 	// RTech
-	REGISTER(V_RTechGame);
-	REGISTER(V_RTechUtils);
+	REGISTER(V_ReSTD);
+
+	REGISTER(V_AsyncIO);
+
+	REGISTER(V_PakAlloc);
+	REGISTER(V_PakParse);
+	REGISTER(V_PakState);
+	REGISTER(V_PakStream);
+
 	REGISTER(VStryder);
+	REGISTER(VPlaylists);
 
 #ifndef DEDICATED
 	REGISTER(V_Rui);
@@ -581,6 +619,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VGL_RMain);
 	REGISTER(VMatSys_Interface);
 	REGISTER(VGL_MatSysIFace);
+	REGISTER(VGL_DrawLights);
 	REGISTER(VGL_Screen);
 #endif // !DEDICATED
 
@@ -591,6 +630,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VGL_RSurf);
 
 	REGISTER(VDebugOverlay); // !TODO: This also needs to be exposed to server dll!!!
+	REGISTER(VKeys);
 #endif // !DEDICATED
 
 	// VScript
@@ -639,4 +679,12 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VInputSystem);
 	REGISTER(VDXGI);
 #endif // !DEDICATED
+}
+
+//-----------------------------------------------------------------------------
+// Singleton accessors:
+//-----------------------------------------------------------------------------
+IKeyValuesSystem* KeyValuesSystem()
+{
+	return g_pKeyValuesSystem;
 }

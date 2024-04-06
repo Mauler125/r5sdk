@@ -15,6 +15,7 @@ end_sources( "${BUILD_OUTPUT_DIR}/bin/x64_retail/plugins/" )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "memoverride"
     "tier0"
+    "tier1"
 
     "libdetours"
     "libprotobuf"

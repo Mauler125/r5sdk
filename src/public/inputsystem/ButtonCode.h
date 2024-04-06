@@ -1,4 +1,6 @@
 #pragma once
+#include "InputEnums.h"
+#include "common/xbox/xboxstubs.h"
 
 #define JOYSTICK_BUTTON_INTERNAL( _joystick, _button ) ( JOYSTICK_FIRST_BUTTON + ((_joystick) * JOYSTICK_MAX_BUTTON_COUNT) + (_button) )
 #define JOYSTICK_POV_BUTTON_INTERNAL( _joystick, _button ) ( JOYSTICK_FIRST_POV_BUTTON + ((_joystick) * JOYSTICK_POV_BUTTON_COUNT) + (_button) )
@@ -7,24 +9,6 @@
 #define JOYSTICK_BUTTON( _joystick, _button ) ( (ButtonCode_t)JOYSTICK_BUTTON_INTERNAL( _joystick, _button ) )
 #define JOYSTICK_POV_BUTTON( _joystick, _button ) ( (ButtonCode_t)JOYSTICK_POV_BUTTON_INTERNAL( _joystick, _button ) )
 #define JOYSTICK_AXIS_BUTTON( _joystick, _button ) ( (ButtonCode_t)JOYSTICK_AXIS_BUTTON_INTERNAL( _joystick, _button ) )
-
-// Buttons are not confirmed to be the same. They have been always the same throughout the source engine. Lets hope they did not change them.
-enum
-{
-	MAX_JOYSTICKS = MAX_SPLITSCREEN_CLIENTS,
-	MOUSE_BUTTON_COUNT = 5,
-};
-
-enum JoystickAxis_t
-{
-	JOY_AXIS_X = 0,
-	JOY_AXIS_Y,
-	JOY_AXIS_Z,
-	JOY_AXIS_R,
-	JOY_AXIS_U,
-	JOY_AXIS_V,
-	MAX_JOYSTICK_AXES,
-};
 
 enum
 {
@@ -150,8 +134,9 @@ enum ButtonCode_t
 	KEY_CAPSLOCKTOGGLE,
 	KEY_NUMLOCKTOGGLE,
 	KEY_SCROLLLOCKTOGGLE,
+	KEY_CREDITSIGN,
 
-	KEY_LAST = KEY_SCROLLLOCKTOGGLE,
+	KEY_LAST = KEY_CREDITSIGN,
 	KEY_COUNT = KEY_LAST - KEY_FIRST + 1,
 
 	// Mouse
@@ -178,18 +163,17 @@ enum ButtonCode_t
 	JOYSTICK_FIRST_AXIS_BUTTON,
 	JOYSTICK_LAST_AXIS_BUTTON = JOYSTICK_AXIS_BUTTON_INTERNAL(MAX_JOYSTICKS - 1, JOYSTICK_AXIS_BUTTON_COUNT - 1),
 
-	JOYSTICK_LAST = JOYSTICK_LAST_AXIS_BUTTON,
+	// New in R5
+	JOYSTICK_UP_DOWN,
+	JOYSTICK_LEFT_RIGHT,
+
+	JOYSTICK_LAST = JOYSTICK_LEFT_RIGHT,
 
 	BUTTON_CODE_LAST,
 	BUTTON_CODE_COUNT = BUTTON_CODE_LAST - KEY_FIRST + 1,
 
 	// Helpers for XBox 360
-	KEY_XBUTTON_UP = JOYSTICK_FIRST_POV_BUTTON,     // POV buttons
-	KEY_XBUTTON_RIGHT,
-	KEY_XBUTTON_DOWN,
-	KEY_XBUTTON_LEFT,
-
-	KEY_XBUTTON_A = JOYSTICK_FIRST_BUTTON,          // Buttons
+	KEY_XBUTTON_A = JOYSTICK_FIRST_BUTTON,             // Buttons
 	KEY_XBUTTON_B,
 	KEY_XBUTTON_X,
 	KEY_XBUTTON_Y,
@@ -200,15 +184,162 @@ enum ButtonCode_t
 	KEY_XBUTTON_STICK1,
 	KEY_XBUTTON_STICK2,
 	KEY_XBUTTON_INACTIVE_START,
+	KEY_XBUTTON_LTRIGGER_FULL,
+	KEY_XBUTTON_RTRIGGER_FULL,
+	KEY_XBUTTON_RELOAD,
+	KEY_XBUTTON_TRIGGER,
+	KEY_XBUTTON_PUMP_ACTION,
+	KEY_XBUTTON_ROLL_RIGHT,
+	KEY_XBUTTON_ROLL_LEFT,
 
-	KEY_XSTICK1_RIGHT = JOYSTICK_FIRST_AXIS_BUTTON, // XAXIS POSITIVE
-	KEY_XSTICK1_LEFT,                               // XAXIS NEGATIVE
-	KEY_XSTICK1_DOWN,                               // YAXIS POSITIVE
-	KEY_XSTICK1_UP,                                 // YAXIS NEGATIVE
-	KEY_XBUTTON_LTRIGGER,                           // ZAXIS POSITIVE
-	KEY_XBUTTON_RTRIGGER,                           // ZAXIS NEGATIVE
-	KEY_XSTICK2_RIGHT,                              // UAXIS POSITIVE
-	KEY_XSTICK2_LEFT,                               // UAXIS NEGATIVE
-	KEY_XSTICK2_DOWN,                               // VAXIS POSITIVE
-	KEY_XSTICK2_UP,                                 // VAXIS NEGATIVE
+	KEY_XBUTTON_UP = JOYSTICK_FIRST_POV_BUTTON,        // POV buttons
+	KEY_XBUTTON_RIGHT,
+	KEY_XBUTTON_DOWN,
+	KEY_XBUTTON_LEFT,
+
+	KEY_XSTICK1_RIGHT = JOYSTICK_FIRST_AXIS_BUTTON,    // XAXIS POSITIVE
+	KEY_XSTICK1_LEFT,                                  // XAXIS NEGATIVE
+	KEY_XSTICK1_DOWN,                                  // YAXIS POSITIVE
+	KEY_XSTICK1_UP,                                    // YAXIS NEGATIVE
+	KEY_XBUTTON_LTRIGGER,                              // ZAXIS POSITIVE
+	KEY_XBUTTON_RTRIGGER,                              // ZAXIS NEGATIVE
+	KEY_XSTICK2_RIGHT,                                 // UAXIS POSITIVE
+	KEY_XSTICK2_LEFT,                                  // UAXIS NEGATIVE
+	KEY_XSTICK2_DOWN,                                  // VAXIS POSITIVE
+	KEY_XSTICK2_UP,                                    // VAXIS NEGATIVE
 };
+
+//-----------------------------------------------------------------------------
+// Inline helpers
+//-----------------------------------------------------------------------------
+inline bool IsAlpha( const ButtonCode_t code )
+{
+	return ( code >= KEY_A ) && ( code <= KEY_Z );
+}
+
+inline bool IsAlphaNumeric( const ButtonCode_t code )
+{
+	return ( code >= KEY_0 ) && ( code <= KEY_Z );
+}
+
+inline bool IsSpace( const ButtonCode_t code )
+{
+	return ( code == KEY_ENTER ) || ( code == KEY_TAB ) || ( code == KEY_SPACE );
+}
+
+inline bool IsKeypad( const ButtonCode_t code )
+{
+	return ( code >= MOUSE_FIRST ) && ( code <= KEY_PAD_DECIMAL );
+}
+
+inline bool IsPunctuation( const ButtonCode_t code )
+{
+	return ( code >= KEY_0 ) && ( code <= KEY_SPACE ) && !IsAlphaNumeric( code ) && !IsSpace( code ) && !IsKeypad( code );
+}
+
+inline bool IsKeyCode( const ButtonCode_t code )
+{
+	return ( code >= KEY_FIRST ) && ( code <= KEY_LAST );
+}
+
+inline bool IsMouseCode( const ButtonCode_t code )
+{
+	return ( code >= MOUSE_FIRST ) && ( code <= MOUSE_LAST );
+}
+
+inline bool IsJoystickCode( const ButtonCode_t code )
+{
+	return ( ( code >= JOYSTICK_FIRST ) && ( code <= JOYSTICK_LAST ) );
+}
+
+inline bool IsJoystickButtonCode( const ButtonCode_t code )
+{
+	return ( code >= JOYSTICK_FIRST_BUTTON ) && ( code <= JOYSTICK_LAST_BUTTON );
+}
+
+inline bool IsJoystickPOVCode( const ButtonCode_t code )
+{
+	return ( code >= JOYSTICK_FIRST_POV_BUTTON ) && ( code <= JOYSTICK_LAST_POV_BUTTON );
+}
+
+inline bool IsJoystickAxisCode( const ButtonCode_t code )
+{
+	return ( code >= JOYSTICK_FIRST_AXIS_BUTTON ) && ( code <= JOYSTICK_LAST_AXIS_BUTTON );
+}
+
+inline ButtonCode_t GetBaseButtonCode( const ButtonCode_t code )
+{
+	if ( IsJoystickButtonCode( code ) )
+	{
+		const int offset = ( code - JOYSTICK_FIRST_BUTTON ) % JOYSTICK_MAX_BUTTON_COUNT;
+		return (ButtonCode_t)( JOYSTICK_FIRST_BUTTON + offset );
+	}
+
+	if ( IsJoystickPOVCode( code ) )
+	{
+		const int offset = ( code - JOYSTICK_FIRST_POV_BUTTON ) % JOYSTICK_POV_BUTTON_COUNT;
+		return (ButtonCode_t)( JOYSTICK_FIRST_POV_BUTTON + offset );
+	}
+
+	if ( IsJoystickAxisCode( code ) )
+	{
+		const int offset = ( code - JOYSTICK_FIRST_AXIS_BUTTON ) % JOYSTICK_AXIS_BUTTON_COUNT;
+		return (ButtonCode_t)( JOYSTICK_FIRST_AXIS_BUTTON + offset );
+	}
+
+	return code;
+}
+
+inline int GetJoystickForCode( const ButtonCode_t code )
+{
+	if ( !IsJoystickCode( code ) )
+		return 0;
+
+	if ( IsJoystickButtonCode( code ) )
+	{
+		const int offset = ( code - JOYSTICK_FIRST_BUTTON ) / JOYSTICK_MAX_BUTTON_COUNT;
+		return offset;
+	}
+	if ( IsJoystickPOVCode( code ) )
+	{
+		const int offset = ( code - JOYSTICK_FIRST_POV_BUTTON ) / JOYSTICK_POV_BUTTON_COUNT;
+		return offset;
+	}
+	if ( IsJoystickAxisCode( code ) )
+	{
+		const int offset = ( code - JOYSTICK_FIRST_AXIS_BUTTON ) / JOYSTICK_AXIS_BUTTON_COUNT;
+		return offset;
+	}
+
+	return 0;
+}
+
+inline ButtonCode_t ButtonCodeToJoystickButtonCode( ButtonCode_t code, int nDesiredJoystick )
+{
+	if ( !IsJoystickCode( code ) || nDesiredJoystick == 0 )
+		return code;
+
+	nDesiredJoystick = clamp( nDesiredJoystick, 0, MAX_JOYSTICKS - 1 );
+	code = GetBaseButtonCode( code );
+
+	// Now upsample it
+	if ( IsJoystickButtonCode( code ) )
+	{
+		const int nOffset = code - JOYSTICK_FIRST_BUTTON;
+		return JOYSTICK_BUTTON( nDesiredJoystick, nOffset );
+	}
+
+	if ( IsJoystickPOVCode( code ) )
+	{
+		const int nOffset = code - JOYSTICK_FIRST_POV_BUTTON;
+		return JOYSTICK_POV_BUTTON( nDesiredJoystick, nOffset );
+	}
+
+	if ( IsJoystickAxisCode( code ) )
+	{
+		const int nOffset = code - JOYSTICK_FIRST_AXIS_BUTTON;
+		return JOYSTICK_AXIS_BUTTON( nDesiredJoystick, nOffset );
+	}
+
+	return code;
+}

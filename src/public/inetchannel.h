@@ -51,6 +51,22 @@ public:
 struct CS_INetChannelHandler : INetChannelHandler
 {};
 
+enum netsocket_e
+{
+	NS_CLIENT = 0,	// client socket
+	NS_SERVER,		// server socket
+
+	// unknown as this seems unused in R5, but if the socket equals to this in
+	// CServer::ConnectionlessPacketHandler() in case C2S_Challenge, the packet
+	// sent back won't be encrypted
+	NS_UNK0,
+
+	// used for chat room, communities, discord presence, EA/Origin, etc
+	NS_PRESENCE,
+
+	MAX_SOCKETS // 4 in R5
+};
+
 typedef struct netpacket_s
 {
 	netadr_t from;

@@ -12,17 +12,18 @@ public:
 	};
 
 	CIOStream();
-	CIOStream(const fs::path& fsFileFullPath, int nFlags);
 	~CIOStream();
 
-	bool Open(const fs::path& fsFileFullPath, int nFlags);
+	bool Open(const char* const pFilePath, const int nFlags);
 	void Close();
 	void Flush();
 
-	void ComputeFileSize();
+	std::streampos TellGet();
+	std::streampos TellPut();
 
-	std::streampos GetPosition(Mode_t mode);
-	void SetPosition(std::streampos nOffset, Mode_t mode);
+	void SeekGet(const std::streampos nOffset);
+	void SeekPut(const std::streampos nOffset);
+	void Seek(const std::streampos nOffset);
 
 	const std::filebuf* GetData() const;
 	const std::streampos GetSize() const;
@@ -46,7 +47,13 @@ public:
 	// Purpose: reads any value from the file with specified size
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Read(T& tValue, size_t nSize)
+	void Read(T* tValue, const size_t nSize)
+	{
+		if (IsReadable())
+			m_Stream.read(reinterpret_cast<char*>(tValue), nSize);
+	}
+	template<typename T>
+	void Read(T& tValue, const size_t nSize)
 	{
 		if (IsReadable())
 			m_Stream.read(reinterpret_cast<char*>(&tValue), nSize);
@@ -65,7 +72,8 @@ public:
 		m_Stream.read(reinterpret_cast<char*>(&value), sizeof(value));
 		return value;
 	}
-	bool ReadString(string& svOut);
+	bool ReadString(std::string& svOut);
+	bool ReadString(char* const pBuf, const size_t nLen);
 
 	//-----------------------------------------------------------------------------
 	// Purpose: writes any value to the file
@@ -84,7 +92,7 @@ public:
 	// Purpose: writes any value to the file with specified size
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Write(T tValue, size_t nSize)
+	void Write(T* tValue, size_t nSize)
 	{
 		if (!IsWritable())
 			return;
@@ -92,10 +100,10 @@ public:
 		m_Stream.write(reinterpret_cast<const char*>(tValue), nSize);
 		m_nSize += nSize;
 	}
-	bool WriteString(const string& svInput);
+	bool WriteString(const std::string& svInput);
 
 private:
 	std::streampos  m_nSize;  // File size.
 	int             m_nFlags; // Stream flags.
-	fstream         m_Stream; // I/O stream.
+	std::fstream    m_Stream; // I/O stream.
 };

@@ -95,26 +95,29 @@ void CNetworkStringTableContainer::WriteUpdateMessage(CNetworkStringTableContain
 #ifndef CLIENT_DLL
 	if (sv_stats->GetBool())
 	{
-		uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer->GetCPUUsage() * 100.0f);
+		const uint8_t nCPUPercentage = static_cast<uint8_t>(g_pServer->GetCPUUsage() * 100.0f);
 		SVC_ServerTick serverTick(g_pServer->GetTick(), *host_frametime_unbounded, *host_frametime_stddeviation, nCPUPercentage);
 
 		serverTick.m_nGroup = 0;
 		serverTick.m_bReliable = true;
-		serverTick.m_NetTick.m_nCommandTick = -1; // Statistics only, see 'CClientState::VProcessServerTick'.
+
+		// -1 means we update statistics only; see 'CClientState::VProcessServerTick()'.
+		serverTick.m_NetTick.m_nCommandTick = -1;
 
 		pMsg->WriteUBitLong(serverTick.GetType(), NETMSG_TYPE_BITS);
+
 		if (!pMsg->IsOverflowed())
 		{
 			serverTick.WriteToBuffer(pMsg);
 		}
 	}
 #endif // !CLIENT_DLL
-	v_CNetworkStringTableContainer__WriteUpdateMessage(thisp, pClient, nTickAck, pMsg);
+
+	Assert(!pMsg->IsOverflowed(), "Snapshot buffer overflowed before string table update!");
+	CNetworkStringTableContainer__WriteUpdateMessage(thisp, pClient, nTickAck, pMsg);
 }
 
 void VNetworkStringTableContainer::Detour(const bool bAttach) const
 {
-#if !defined (CLIENT_DLL) && !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) // TODO: doesn't work properly for S0/S1 yet.
-	DetourSetup(&v_CNetworkStringTableContainer__WriteUpdateMessage, &CNetworkStringTableContainer::WriteUpdateMessage, bAttach);
-#endif // !CLIENT_DLL && !GAMEDLL_S0 && !GAMEDLL_S1
+	DetourSetup(&CNetworkStringTableContainer__WriteUpdateMessage, &CNetworkStringTableContainer::WriteUpdateMessage, bAttach);
 }

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "vpc/keyvalues.h"
-#include "vpc/rson.h"
+#include "tier1/keyvalues.h"
+#include "rtech/rson.h"
 #include "filesystem/filesystem.h"
-#include "public/vscript/ivscript.h"
+#include "vscript/ivscript.h"
 
 #define MOD_STATUS_LIST_FILE "mods.vdf"
 #define MOD_SETTINGS_FILE "mod.vdf"
@@ -29,7 +29,7 @@ public:
 		~ModInstance_t();
 
 		bool ParseSettings();
-		void ParseConVars();
+		//void ParseConVars();
 		void ParseLocalizationFiles();
 
 		inline void SetState(eModState state) { m_iState = state; };
@@ -76,4 +76,9 @@ private:
 	CUtlVector<ModInstance_t*> m_ModList;
 };
 
-extern CModSystem* g_pModSystem;
+extern CModSystem g_ModSystem;
+
+FORCEINLINE CModSystem* ModSystem()
+{
+	return &g_ModSystem;
+}

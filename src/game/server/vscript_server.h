@@ -1,5 +1,6 @@
 #ifndef VSCRIPT_SERVER_H
 #define VSCRIPT_SERVER_H
+#include "vscript/languages/squirrel_re/vsquirrel.h"
 
 namespace VScriptCode
 {
@@ -26,6 +27,8 @@ namespace VScriptCode
 void Script_RegisterServerFunctions(CSquirrelVM* s);
 void Script_RegisterCoreServerFunctions(CSquirrelVM* s);
 void Script_RegisterAdminPanelFunctions(CSquirrelVM* s);
+
+void Script_RegisterServerEnums(CSquirrelVM* const s);
 
 #define DEFINE_SERVER_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
 	returnType, parameters)                                             \

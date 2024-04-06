@@ -17,7 +17,12 @@ add_sources( SOURCE_GROUP "Utility"
     "strtools.cpp"
     "utlbuffer.cpp"
     "utlstring.cpp"
+    "utlsymbol.cpp"
     "characterset.cpp"
+    "mempool.cpp"
+    "memstack.cpp"
+    "exprevaluator.cpp"
+    "keyvalues.cpp"
 )
 
 add_sources( SOURCE_GROUP "Private"
@@ -26,6 +31,10 @@ add_sources( SOURCE_GROUP "Private"
     "convar.cpp"
     "cvar.cpp"
     "interface.cpp"
+    "keyvalues_iface.cpp"
+    "kvleaktrace.h"
+    "kverrorstack.h"
+    "kvtokenreader.h"
 )
 
 file( GLOB TIER1_PUBLIC_HEADERS

@@ -24,55 +24,48 @@ History:
 #include "gameui/IConsole.h"
 
 //-----------------------------------------------------------------------------
+// Console variables
+//-----------------------------------------------------------------------------
+static ConVar con_max_lines("con_max_lines", "1024", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Maximum number of lines in the console before cleanup starts", true, 1.f, false, 0.f);
+static ConVar con_max_history("con_max_history", "512", FCVAR_DEVELOPMENTONLY, "Maximum number of command submission items before history cleanup starts", true, 0.f, false, 0.f);
+
+static ConVar con_suggest_limit("con_suggest_limit", "128", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console", true, 0.f, false, 0.f);
+static ConVar con_suggest_helptext("con_suggest_helptext", "1", FCVAR_RELEASE, "Show CommandBase help text in autocomplete window");
+
+static ConVar con_autocomplete_window_textures("con_autocomplete_window_textures", "1", FCVAR_RELEASE, "Show help textures in autocomplete window");
+static ConVar con_autocomplete_window_width("con_autocomplete_window_width", "0", FCVAR_RELEASE, "The maximum width of the console's autocomplete window", true, 0.f, false, 0.f);
+static ConVar con_autocomplete_window_height("con_autocomplete_window_height", "217.5", FCVAR_RELEASE, "The maximum height of the console's autocomplete window", true, 0.f, false, 0.f);
+
+//-----------------------------------------------------------------------------
+// Console commands
+//-----------------------------------------------------------------------------
+static ConCommand toggleconsole("toggleconsole", CConsole::ToggleConsole_f, "Show/hide the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+
+static ConCommand con_history("con_history", CConsole::LogHistory_f, "Shows the developer console submission history", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+static ConCommand con_removeline("con_removeline", CConsole::RemoveLine_f, "Removes a range of lines from the developer console", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+static ConCommand con_clearlines("con_clearlines", CConsole::ClearLines_f, "Clears all lines from the developer console", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+static ConCommand con_clearhistory("con_clearhistory", CConsole::ClearHistory_f, "Clears all submissions from the developer console history", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CConsole::CConsole(void) 
-    : m_pszConsoleLabel("Console")
-    , m_pszLoggingLabel("LoggingRegion")
-    , m_nHistoryPos(PositionMode_t::kPark)
-    , m_nSuggestPos(PositionMode_t::kPark)
-    , m_nScrollBack(0)
-    , m_nSelectBack(0)
-    , m_nInputTextLen(0)
-    , m_flScrollX(0.f)
-    , m_flScrollY(0.f)
-    , m_flFadeAlpha(0.f)
-    , m_bInitialized(false)
-    , m_bReclaimFocus(false)
-    , m_bCopyToClipBoard(false)
-    , m_bModifyInput(false)
-    , m_bCanAutoComplete(false)
-    , m_bSuggestActive(false)
-    , m_bSuggestMoved(false)
-    , m_bSuggestUpdate(false)
-    , m_Style(ImGuiStyle_t::NONE)
-    , m_bActivate(false)
+    : m_loggerLabel("LoggingRegion")
+    , m_historyPos(ConAutoCompletePos_e::kPark)
+    , m_suggestPos(ConAutoCompletePos_e::kPark)
+    , m_scrollBackAmount(0)
+    , m_selectBackAmount(0)
+    , m_selectedSuggestionTextLen(0)
+    , m_lastFrameScrollPos(0.f, 0.f)
+    , m_inputTextBufModified(false)
+    , m_canAutoComplete(false)
+    , m_autoCompleteActive(false)
+    , m_autoCompletePosMoved(false)
 {
-    m_nInputFlags = 
-        ImGuiInputTextFlags_EnterReturnsTrue       |
-        ImGuiInputTextFlags_CallbackCompletion     |
-        ImGuiInputTextFlags_CallbackHistory        |
-        ImGuiInputTextFlags_CallbackAlways         |
-        ImGuiInputTextFlags_CallbackCharFilter     |
-        ImGuiInputTextFlags_CallbackEdit           |
-        ImGuiInputTextFlags_AutoCaretEnd;
+    m_surfaceLabel = "Console";
 
-    m_nSuggestFlags = 
-        ImGuiWindowFlags_NoTitleBar                |
-        ImGuiWindowFlags_NoMove                    |
-        ImGuiWindowFlags_NoSavedSettings           |
-        ImGuiWindowFlags_NoFocusOnAppearing        |
-        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
-        ImGuiWindowFlags_AlwaysHorizontalScrollbar;
-
-    m_nLoggingFlags = 
-        ImGuiWindowFlags_NoMove                    |
-        ImGuiWindowFlags_HorizontalScrollbar       |
-        ImGuiWindowFlags_AlwaysVerticalScrollbar;
-
-    memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
-    memset(m_szWindowLabel, '\0', sizeof(m_szWindowLabel));
-    snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
+    memset(m_inputTextBuf, '\0', sizeof(m_inputTextBuf));
+    snprintf(m_summaryTextBuf, sizeof(m_summaryTextBuf), "%zu history items", m_vecHistory.size());
 }
 
 //-----------------------------------------------------------------------------
@@ -80,23 +73,31 @@ CConsole::CConsole(void)
 //-----------------------------------------------------------------------------
 CConsole::~CConsole(void)
 {
-    for (MODULERESOURCE& flagIcon : m_vFlagIcons)
+    Shutdown();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: game console initialization
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CConsole::Init(void)
+{
+    SetStyleVar(1200, 524, -1000, 50);
+    return LoadFlagIcons();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: game console shutdown
+//-----------------------------------------------------------------------------
+void CConsole::Shutdown(void)
+{
+    for (MODULERESOURCE& flagIcon : m_vecFlagIcons)
     {
         if (flagIcon.m_idIcon)
         {
             flagIcon.m_idIcon->Release();
         }
     }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: game console setup
-// Output : true on success, false otherwise
-//-----------------------------------------------------------------------------
-bool CConsole::Init(void)
-{
-    SetStyleVar();
-    return LoadFlagIcons();
 }
 
 //-----------------------------------------------------------------------------
@@ -113,140 +114,95 @@ void CConsole::RunFrame(void)
     /**************************
      * BASE PANEL SETUP       *
      **************************/
+    if (!m_initialized)
     {
-        if (!m_bInitialized)
-        {
-            Init();
-            m_bInitialized = true;
-        }
-
-        int nVars = 0;
-        float flWidth;
-        float flHeight;
-        if (m_Style == ImGuiStyle_t::MODERN)
-        {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
-
-            flWidth = 621.f;
-            flHeight = 532.f;
-        }
-        else
-        {
-            if (m_Style == ImGuiStyle_t::LEGACY)
-            {
-                flWidth = 619.f;
-                flHeight = 526.f;
-            }
-            else
-            {
-                flWidth = 618.f;
-                flHeight = 524.f;
-            }
-
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
-        }
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(flWidth, flHeight)); nVars++;
-
-        DrawSurface();
-        ImGui::PopStyleVar(nVars);
+        Init();
+        m_initialized = true;
     }
+
+    Animate();
+
+    int baseWindowStyleVars = 0;
+    ImVec2 minBaseWindowRect;
+
+    if (m_surfaceStyle == ImGuiStyle_t::MODERN)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); baseWindowStyleVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);                 baseWindowStyleVars++;
+
+        minBaseWindowRect = ImVec2(621.f, 532.f);
+    }
+    else
+    {
+        minBaseWindowRect = m_surfaceStyle == ImGuiStyle_t::LEGACY
+            ? ImVec2(619.f, 526.f)
+            : ImVec2(618.f, 524.f);
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  baseWindowStyleVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);                 baseWindowStyleVars++;
+    }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, minBaseWindowRect);       baseWindowStyleVars++;
+
+    const bool drawn = DrawSurface();
+    ImGui::PopStyleVar(baseWindowStyleVars);
+
+    // If we didn't draw the console, don't draw the suggest panel
+    if (!drawn)
+        return;
 
     /**************************
      * SUGGESTION PANEL SETUP *
      **************************/
+    if (RunAutoComplete())
     {
-        int nVars = 0;
-        if (AutoComplete())
+        if (m_surfaceStyle == ImGuiStyle_t::MODERN)
         {
-            if (m_Style == ImGuiStyle_t::MODERN)
-            {
-                const ImGuiStyle& style = ImGui::GetStyle();
-                m_ivSuggestWindowPos.y = m_ivSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
-            }
-
-            ImGui::SetNextWindowPos(m_ivSuggestWindowPos);
-            ImGui::SetNextWindowSize(m_ivSuggestWindowSize);
-            if (m_bSuggestUpdate)
-            {
-                ImGui::SetNextWindowScroll(ImVec2(0.f, 0.f));
-                m_bSuggestUpdate = false;
-            }
-
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37)); nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);         nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);           nVars++;
-
-            SuggestPanel();
-
-            ImGui::PopStyleVar(nVars);
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: runs tasks for the console while not being drawn 
-// (!!! RunTask and RunFrame must be called from the same thread !!!)
-//-----------------------------------------------------------------------------
-void CConsole::RunTask(void)
-{
-    // m_Logger and m_vHistory are modified.
-    std::lock_guard<std::mutex> l(m_Mutex);
-
-    ClampLogSize();
-    ClampHistorySize();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: think
-//-----------------------------------------------------------------------------
-void CConsole::Think(void)
-{
-    if (m_bActivate)
-    {
-        if (m_flFadeAlpha < 1.f)
-        {
-            m_flFadeAlpha += .05f;
-            m_flFadeAlpha = (std::min)(m_flFadeAlpha, 1.f);
-        }
-    }
-    else // Reset to full transparent.
-    {
-        if (m_flFadeAlpha > 0.f)
-        {
-            m_flFadeAlpha -= .05f;
-            m_flFadeAlpha = (std::max)(m_flFadeAlpha, 0.f);
+            const ImGuiStyle& style = ImGui::GetStyle();
+            m_autoCompleteWindowPos.y = m_autoCompleteWindowPos.y + style.WindowPadding.y + 1.5f;
         }
 
-        m_bReclaimFocus = true;
+        ImGui::SetNextWindowPos(m_autoCompleteWindowPos);
+        ImGui::SetNextWindowSize(m_autoCompleteWindowRect);
+
+        int autoCompleteStyleVars = 0;
+
+        // NOTE: 68 is the minimum width of the autocomplete window as this
+        // leaves enough space to show the flag and the first 4 characters
+        // of the suggestion. 37 is the minimum height as anything lower
+        // will truncate the first element in the autocomplete window.
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(68, 37));  autoCompleteStyleVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);         autoCompleteStyleVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);             autoCompleteStyleVars++;
+
+        DrawAutoCompletePanel();
+
+        ImGui::PopStyleVar(autoCompleteStyleVars);
     }
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: draws the console's main surface
-// Input  : *bDraw - 
+// Output : true if a frame has been drawn, false otherwise
 //-----------------------------------------------------------------------------
-void CConsole::DrawSurface(void)
+bool CConsole::DrawSurface(void)
 {
-    if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate, ImGuiWindowFlags_None, &ResetInput))
+    if (!ImGui::Begin(m_surfaceLabel, &m_activated, ImGuiWindowFlags_None, &ResetInput))
     {
         ImGui::End();
-        return;
+        return false;
     }
 
+    m_mainWindow = ImGui::GetCurrentWindow();
+
     const ImGuiStyle& style = ImGui::GetStyle();
+    const ImVec2 fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr);
 
-    // Reserve enough left-over height and width for 1 separator + 1 input text
-    const float flFooterHeightReserve = style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    const float flFooterWidthReserve  = style.ItemSpacing.y + ImGui::GetWindowWidth();
-
-    ImVec2 fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr);
     ///////////////////////////////////////////////////////////////////////
     ImGui::Separator();
     if (ImGui::BeginPopup("Options"))
     {
-        OptionsPanel();
+        DrawOptionsPanel();
     }
     if (ImGui::Button("Options"))
     {
@@ -254,73 +210,110 @@ void CConsole::DrawSurface(void)
     }
 
     ImGui::SameLine();
-    m_Logger.GetFilter().Draw("Filter | ", flFooterWidthReserve - 500);
 
-    ImGui::SameLine();
-    ImGui::Text("%s", m_szSummary);
+    // Reserve enough left-over height and width for 1 separator + 1 input text
+    const float footerWidthReserve = style.ItemSpacing.y + ImGui::GetWindowWidth();
+    m_colorTextLogger.GetFilter().Draw("Filter (inc,-exc)", footerWidthReserve - 350);
 
     ImGui::Separator();
 
     ///////////////////////////////////////////////////////////////////////
-    if (!m_Logger.IsScrolledToBottom() && m_nScrollBack > 0)
+    if (!m_colorTextLogger.IsScrolledToBottom() && m_scrollBackAmount > 0)
     {
-        ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
-        ImGuiID nID = pWindow->GetID(m_pszLoggingLabel);
+        const ImGuiID windowId = m_mainWindow->GetID(m_loggerLabel);
 
-        snprintf(m_szWindowLabel, sizeof(m_szWindowLabel), "%s/%s_%08X", m_pszConsoleLabel, m_pszLoggingLabel, nID);
-        ImGui::SetWindowScrollY(m_szWindowLabel, m_flScrollY - m_nScrollBack * fontSize.y);
+        char windowName[128];
+        snprintf(windowName, sizeof(windowName), "%s/%s_%08X", m_surfaceLabel, m_loggerLabel, windowId);
+
+        ImGui::SetWindowScrollY(windowName, m_lastFrameScrollPos.y - m_scrollBackAmount * fontSize.y);
     }
-    m_nScrollBack = 0;
+    m_scrollBackAmount = 0;
 
-    ///////////////////////////////////////////////////////////////////////
-    int iVars = 0; // Eliminate borders around log window.
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  iVars++;
-    ImGui::BeginChild(m_pszLoggingLabel, ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
+    // Reserve enough left-over height for 2 text elements.
+    float footerHeightReserve = ImGui::GetFrameHeight() * 2;
+    ImGuiChildFlags loggerFlags = ImGuiChildFlags_None;
 
-    // Mutex is locked here, as we start using/modifying
-    // non-atomic members that are used from several threads.
-    std::lock_guard<std::mutex> l(m_Mutex);
-    m_Logger.Render();
+    const bool isLegacyStyle = m_surfaceStyle == ImGuiStyle_t::LEGACY;
+    int numLoggerStyleVars = 0;
 
-    if (m_bCopyToClipBoard)
+    if (isLegacyStyle)
     {
-        m_Logger.Copy(true);
-        m_bCopyToClipBoard = false;
+        loggerFlags |= ImGuiChildFlags_Border;
+
+        // Eliminate padding around logger child. This padding gets added when
+        // ImGuiChildFlags_Border flag gets set.
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  numLoggerStyleVars++;
+
+        // if we use the legacy theme, also account for one extra space as the
+        // legacy theme has an extra separator at the bottom of the logger.
+        footerHeightReserve += style.ItemSpacing.y;
     }
 
-    m_flScrollX = ImGui::GetScrollX();
-    m_flScrollY = ImGui::GetScrollY();
+    const static int colorLoggerWindowFlags = 
+        ImGuiWindowFlags_NoMove                    |
+        ImGuiWindowFlags_HorizontalScrollbar       |
+        ImGuiWindowFlags_NoNavInputs               |
+        ImGuiWindowFlags_OverlayHorizontalScrollbar;
+
+    ImGui::BeginChild(m_loggerLabel, ImVec2(0, -footerHeightReserve), loggerFlags, colorLoggerWindowFlags);
+
+    // NOTE: scoped so the mutex releases after we have rendered.
+    // this is currently the only place the color logger is used
+    // during the drawing of the base panel.
+    {
+        AUTO_LOCK(m_colorTextLoggerMutex);
+        m_colorTextLogger.Render();
+    }
+
+    m_lastFrameScrollPos = ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY());
 
     ImGui::EndChild();
-    ImGui::PopStyleVar(iVars);
 
-    ImGui::Separator();
+    if (numLoggerStyleVars)
+        ImGui::PopStyleVar(numLoggerStyleVars);
 
-    std::function<void(void)> fnHandleInput = [&](void)
+    // The legacy theme also has a spacer here.
+    if (isLegacyStyle)
+        ImGui::Separator();
+
+    ImGui::Text("%s", m_summaryTextBuf);
+
+    const std::function<void(void)> fnHandleInput = [&](void)
     {
-        if (m_szInputBuf[0])
+        if (m_inputTextBuf[0])
         {
-            ProcessCommand(m_szInputBuf);
-            ResetAutoComplete();
+            ProcessCommand(m_inputTextBuf);
+            ResetAutoCompleteData();
 
-            m_bModifyInput = true;
+            m_inputTextBufModified = true;
         }
 
-        BuildSummary();
-        m_bReclaimFocus = true;
+        BuildSummaryText("");
+        m_reclaimFocus = true;
     };
 
     ///////////////////////////////////////////////////////////////////////
-    ImGui::PushItemWidth(flFooterWidthReserve - 80);
-    if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
-    {
-        if (m_nSuggestPos > PositionMode_t::kPark)
-        {
-            BuildInputFromSelected(m_vSuggest[m_nSuggestPos], m_svInputConVar);
-            BuildSummary(m_svInputConVar);
+    const static int inputTextFieldFlags =
+        ImGuiInputTextFlags_EnterReturnsTrue       |
+        ImGuiInputTextFlags_CallbackCompletion     |
+        ImGuiInputTextFlags_CallbackHistory        |
+        ImGuiInputTextFlags_CallbackAlways         |
+        ImGuiInputTextFlags_CallbackCharFilter     |
+        ImGuiInputTextFlags_CallbackEdit           |
+        ImGuiInputTextFlags_AutoCaretEnd;
 
-            m_bModifyInput = true;
-            m_bReclaimFocus = true;
+    ImGui::PushItemWidth(footerWidthReserve - 80);
+    if (ImGui::InputText("##input", m_inputTextBuf, IM_ARRAYSIZE(m_inputTextBuf), inputTextFieldFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
+    {
+        // If we selected something in the suggestions window, create the
+        // command from that instead
+        if (m_suggestPos > ConAutoCompletePos_e::kPark)
+        {
+            DetermineInputTextFromSelectedSuggestion(m_vecSuggest[m_suggestPos], m_selectedSuggestionText);
+            BuildSummaryText(m_selectedSuggestionText.c_str());
+
+            m_inputTextBufModified = true;
+            m_reclaimFocus = true;
         }
         else
         {
@@ -332,28 +325,30 @@ void CConsole::DrawSurface(void)
     ImGui::SetItemDefaultFocus();
 
     // Auto-focus input field if reclaim is demanded.
-    if (m_bReclaimFocus)
+    if (m_reclaimFocus)
     {
         ImGui::SetKeyboardFocusHere(-1); // -1 means previous widget.
-        m_bReclaimFocus = false;
+        m_reclaimFocus = false;
     }
 
-    BuildSuggestPanelRect();
+    DetermineAutoCompleteWindowRect();
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
     {
         fnHandleInput();
     }
+
     ImGui::End();
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: draws the options panel
 //-----------------------------------------------------------------------------
-void CConsole::OptionsPanel(void)
+void CConsole::DrawOptionsPanel(void)
 {
-    ImGui::Checkbox("Auto-scroll", &m_Logger.m_bAutoScroll);
+    ImGui::Checkbox("Auto-scroll", &m_colorTextLogger.m_bAutoScroll);
 
     ImGui::SameLine();
     ImGui::PushItemWidth(100);
@@ -366,57 +361,81 @@ void CConsole::OptionsPanel(void)
     }
 
     ImGui::SameLine();
-    m_bCopyToClipBoard = ImGui::SmallButton("Copy");
+
+    // Copies all logged text to the clip board
+    if (ImGui::SmallButton("Copy"))
+    {
+        AUTO_LOCK(m_colorTextLoggerMutex);
+        m_colorTextLogger.Copy(true);
+    }
 
     ImGui::Text("Console hotkey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##ToggleConsole", &g_pImGuiConfig->m_ConsoleConfig.m_nBind0, ImVec2(80, 80)))
+    if (ImGui::Hotkey("##ToggleConsole", &g_ImGuiConfig.m_ConsoleConfig.m_nBind0, ImVec2(80, 80)))
     {
-        g_pImGuiConfig->Save();
+        g_ImGuiConfig.Save();
     }
 
     ImGui::Text("Browser hotkey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##ToggleBrowser", &g_pImGuiConfig->m_BrowserConfig.m_nBind0, ImVec2(80, 80)))
+    if (ImGui::Hotkey("##ToggleBrowser", &g_ImGuiConfig.m_BrowserConfig.m_nBind0, ImVec2(80, 80)))
     {
-        g_pImGuiConfig->Save();
+        g_ImGuiConfig.Save();
     }
 
     ImGui::EndPopup();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draws the suggestion panel with results based on user input
+// Purpose: draws the autocomplete panel with results based on user input
 //-----------------------------------------------------------------------------
-void CConsole::SuggestPanel(void)
+void CConsole::DrawAutoCompletePanel(void)
 {
-    ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
+    const static int autoCompleteWindowFlags = 
+        ImGuiWindowFlags_NoTitleBar                |
+        ImGuiWindowFlags_NoMove                    |
+        ImGuiWindowFlags_NoSavedSettings           |
+        ImGuiWindowFlags_NoFocusOnAppearing        |
+        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
+        ImGuiWindowFlags_AlwaysHorizontalScrollbar;
+
+    ImGui::Begin("##suggest", nullptr, autoCompleteWindowFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
-    for (size_t i = 0, ns = m_vSuggest.size(); i < ns; i++)
+    ImGuiWindow* const autocompleteWindow = ImGui::GetCurrentWindow();
+
+    // NOTE: this makes sure we always draw this window behind the main console
+    // window, this is necessary as otherwise if you were to drag another
+    // window above the console, and then focus on the console again, that
+    // window will now be in between the console window and the autocomplete
+    // suggest window.
+    ImGui::BringWindowToDisplayBehind(autocompleteWindow, m_mainWindow);
+
+    for (size_t i = 0, ns = m_vecSuggest.size(); i < ns; i++)
     {
-        const CSuggest& suggest = m_vSuggest[i];
-        const bool bIsIndexActive = m_nSuggestPos == ssize_t(i);
+        const ConAutoCompleteSuggest_s& suggest = m_vecSuggest[i];
+        const bool isIndexActive = m_suggestPos == ssize_t(i);
 
         ImGui::PushID(static_cast<int>(i));
 
-        if (con_suggest_showflags->GetBool())
+        if (m_autoCompleteTexturesLoaded && con_autocomplete_window_textures.GetBool())
         {
             // Show the flag texture before the cvar name.
-            const int mainTexIdx = GetFlagTextureIndex(suggest.m_nFlags);
-            const MODULERESOURCE& mainRes = m_vFlagIcons[mainTexIdx];
+            const int mainTexIdx = GetFlagTextureIndex(suggest.flags);
+            const MODULERESOURCE& mainRes = m_vecFlagIcons[mainTexIdx];
+
             ImGui::Image(mainRes.m_idIcon, ImVec2(float(mainRes.m_nWidth), float(mainRes.m_nHeight)));
 
             // Show a more detailed description of the flag when user hovers over the texture.
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly) &&
-                suggest.m_nFlags != COMMAND_COMPLETION_MARKER)
+                suggest.flags != COMMAND_COMPLETION_MARKER)
             {
-                std::function<void(const ConVarFlags::FlagDesc_t&)> fnAddHint = [&](const ConVarFlags::FlagDesc_t& cvarInfo)
+                const std::function<void(const ConVarFlags::FlagDesc_t&)> fnAddHint = [&](const ConVarFlags::FlagDesc_t& cvarInfo)
                 {
                     const int hintTexIdx = GetFlagTextureIndex(cvarInfo.bit);
-                    const MODULERESOURCE& hintRes = m_vFlagIcons[hintTexIdx];
+                    const MODULERESOURCE& hintRes = m_vecFlagIcons[hintTexIdx];
 
                     ImGui::Image(hintRes.m_idIcon, ImVec2(float(hintRes.m_nWidth), float(hintRes.m_nHeight)));
                     ImGui::SameLine();
@@ -424,19 +443,19 @@ void CConsole::SuggestPanel(void)
                 };
 
                 ImGui::BeginTooltip();
-                bool bFlagSet = false;
+                bool isFlagSet = false;
 
                 // Reverse loop to display the most significant flag first.
                 for (int j = IM_ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc); (j--) > 0;)
                 {
                     const ConVarFlags::FlagDesc_t& info = g_ConVarFlags.m_FlagsToDesc[j];
-                    if (suggest.m_nFlags & info.bit)
+                    if (suggest.flags & info.bit)
                     {
-                        bFlagSet = true;
+                        isFlagSet = true;
                         fnAddHint(info);
                     }
                 }
-                if (!bFlagSet) // Display the FCVAR_NONE flag if no flags are set.
+                if (!isFlagSet) // Display the FCVAR_NONE flag if no flags are set.
                 {
                     fnAddHint(g_ConVarFlags.m_FlagsToDesc[0]);
                 }
@@ -447,48 +466,47 @@ void CConsole::SuggestPanel(void)
             ImGui::SameLine();
         }
 
-        if (ImGui::Selectable(suggest.m_svName.c_str(), bIsIndexActive))
+        if (ImGui::Selectable(suggest.text.c_str(), isIndexActive))
         {
             ImGui::Separator();
-            string svConVar;
+            string newInputText;
 
-            BuildInputFromSelected(suggest, svConVar);
-            memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
+            DetermineInputTextFromSelectedSuggestion(suggest, newInputText);
+            memmove(m_inputTextBuf, newInputText.data(), newInputText.size() + 1);
 
-            m_bCanAutoComplete = true;
-            m_bReclaimFocus = true;
+            m_canAutoComplete = true;
+            m_reclaimFocus = true;
 
-            BuildSummary(svConVar);
+            BuildSummaryText(newInputText.c_str());
         }
 
         ImGui::PopID();
 
         // Update the suggest position
-        if (m_bSuggestMoved)
+        if (m_autoCompletePosMoved)
         {
-            if (bIsIndexActive) // Bring the 'active' element into view
+            if (isIndexActive) // Bring the 'active' element into view
             {
-                ImGuiWindow* const pWindow = ImGui::GetCurrentWindow();
                 ImRect imRect = ImGui::GetCurrentContext()->LastItemData.Rect;
 
-                // Reset to keep flag in display.
-                imRect.Min.x = pWindow->InnerRect.Min.x;
-                imRect.Max.x = pWindow->InnerRect.Max.x;
+                // Reset to keep flag icon in display.
+                imRect.Min.x = autocompleteWindow->InnerRect.Min.x;
+                imRect.Max.x = autocompleteWindow->InnerRect.Max.x;
 
                 // Eliminate jiggle when going up/down in the menu.
                 imRect.Min.y += 1;
                 imRect.Max.y -= 1;
 
-                ImGui::ScrollToRect(pWindow, imRect);
-                m_bSuggestMoved = false;
+                ImGui::ScrollToRect(autocompleteWindow, imRect);
+                m_autoCompletePosMoved = false;
             }
-            else if (m_nSuggestPos == PositionMode_t::kPark)
+            else if (m_suggestPos == ConAutoCompletePos_e::kPark)
             {
                 // Reset position; kPark = no active element.
                 ImGui::SetScrollX(0.0f);
                 ImGui::SetScrollY(0.0f);
 
-                m_bSuggestMoved = false;
+                m_autoCompletePosMoved = false;
             }
         }
     }
@@ -501,54 +519,63 @@ void CConsole::SuggestPanel(void)
 // Purpose: runs the auto complete for the console
 // Output : true if auto complete is performed, false otherwise
 //-----------------------------------------------------------------------------
-bool CConsole::AutoComplete(void)
+bool CConsole::RunAutoComplete(void)
 {
     // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
-    if (!m_szInputBuf[0] || strstr(m_szInputBuf, ";"))
+    if (!m_inputTextBuf[0] || strstr(m_inputTextBuf, ";"))
     {
-        if (m_bSuggestActive)
+        if (m_autoCompleteActive)
         {
-            ResetAutoComplete();
+            ResetAutoCompleteData();
         }
+
         return false;
     }
 
-    if (!strstr(m_szInputBuf, " "))
+    if (!strstr(m_inputTextBuf, " "))
     {
-        if (m_bCanAutoComplete)
+        if (m_canAutoComplete)
         {
-            FindFromPartial();
+            CreateSuggestionsFromPartial();
         }
     }
-    else if (m_bCanAutoComplete) // Command completion callback.
+    else if (m_canAutoComplete) // Command completion callback.
     {
-        ResetAutoComplete();
-        string svCommand;
+        ResetAutoCompleteData();
 
-        for (size_t i = 0; i < sizeof(m_szInputBuf); i++)
+        char szCommand[sizeof(m_inputTextBuf)];
+        size_t i = 0;
+
+        // Truncate everything past (and including) the space to get the
+        // command string.
+        for (; i < sizeof(m_inputTextBuf); i++)
         {
-            if (isspace(m_szInputBuf[i]))
+            const char c = m_inputTextBuf[i];
+
+            if (c == '\0' || isspace(c))
             {
                 break;
             }
-            svCommand += m_szInputBuf[i];
+
+            szCommand[i] = c;
         }
 
-        ConCommand* pCommand = g_pCVar->FindCommand(svCommand.c_str());
+        szCommand[i] = '\0';
+        ConCommand* const pCommand = g_pCVar->FindCommand(szCommand);
 
         if (pCommand && pCommand->CanAutoComplete())
         {
             CUtlVector< CUtlString > commands;
-            int iret = pCommand->AutoCompleteSuggest(m_szInputBuf, commands);
+            const int iret = pCommand->AutoCompleteSuggest(m_inputTextBuf, commands);
 
             if (!iret)
             {
                 return false;
             }
 
-            for (int i = 0; i < iret; ++i)
+            for (int j = 0; j < iret; ++j)
             {
-                m_vSuggest.push_back(CSuggest(commands[i].String(), COMMAND_COMPLETION_MARKER));
+                m_vecSuggest.push_back(ConAutoCompleteSuggest_s(commands[j].String(), COMMAND_COMPLETION_MARKER));
             }
         }
         else
@@ -557,208 +584,202 @@ bool CConsole::AutoComplete(void)
         }
     }
 
-    if (m_vSuggest.empty())
+    if (m_vecSuggest.empty())
     {
         return false;
     }
 
-    m_bSuggestActive = true;
+    m_autoCompleteActive = true;
     return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: resets the auto complete window
 //-----------------------------------------------------------------------------
-void CConsole::ResetAutoComplete(void)
+void CConsole::ResetAutoCompleteData(void)
 {
-    m_nSuggestPos = PositionMode_t::kPark;
-    m_bCanAutoComplete = false;
-    m_bSuggestActive = false;
-    m_bSuggestMoved = true;
-    m_vSuggest.clear();
+    m_suggestPos = ConAutoCompletePos_e::kPark;
+    m_canAutoComplete = false;
+    m_autoCompleteActive = false;
+    m_autoCompletePosMoved = true;
+    m_vecSuggest.clear();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: find ConVars/ConCommands from user input and add to vector
 // - Ignores ConVars marked FCVAR_HIDDEN
 //-----------------------------------------------------------------------------
-void CConsole::FindFromPartial(void)
+void CConsole::CreateSuggestionsFromPartial(void)
 {
-    ResetAutoComplete();
+    ResetAutoCompleteData();
 
     ICvar::Iterator iter(g_pCVar);
     for (iter.SetFirst(); iter.IsValid(); iter.Next())
     {
-        if (m_vSuggest.size() >= con_suggest_limit->GetInt())
+        if (m_vecSuggest.size() >= con_suggest_limit.GetInt())
         {
             break;
         }
 
-        const ConCommandBase* pCommandBase = iter.Get();
-        if (pCommandBase->IsFlagSet(FCVAR_HIDDEN))
+        const ConCommandBase* const commandBase = iter.Get();
+
+        if (commandBase->IsFlagSet(FCVAR_HIDDEN))
         {
             continue;
         }
 
-        const char* pCommandName = pCommandBase->GetName();
-        if (!V_stristr(pCommandName, m_szInputBuf))
+        const char* const commandName = commandBase->GetName();
+
+        if (!V_stristr(commandName, m_inputTextBuf))
         {
             continue;
         }
 
-        if (std::find(m_vSuggest.begin(), m_vSuggest.end(),
-            pCommandName) == m_vSuggest.end())
+        if (std::find(m_vecSuggest.begin(), m_vecSuggest.end(),
+            commandName) == m_vecSuggest.end())
         {
-            string svValue;
+            string docString;
 
-            if (!pCommandBase->IsCommand())
+            if (!commandBase->IsCommand())
             {
-                const ConVar* pConVar = reinterpret_cast<const ConVar*>(pCommandBase);
+                const ConVar* conVar = reinterpret_cast<const ConVar*>(commandBase);
 
-                svValue = " = ["; // Assign default value to string if its a ConVar.
-                svValue.append(pConVar->GetString());
-                svValue.append("]");
+                docString = " = ["; // Assign current value to string if its a ConVar.
+                docString.append(conVar->GetString());
+                docString.append("]");
             }
-            if (con_suggest_showhelptext->GetBool())
+            if (con_suggest_helptext.GetBool())
             {
-                std::function<void(string& , const char*)> fnAppendDocString = [&](string& svTarget, const char* pszDocString)
+                std::function<void(string& , const char*)> fnAppendDocString = [&](string& targetString, const char* toAppend)
                 {
-                    if (VALID_CHARSTAR(pszDocString))
+                    if (VALID_CHARSTAR(toAppend))
                     {
-                        svTarget.append(" - \"");
-                        svTarget.append(pszDocString);
-                        svTarget.append("\"");
+                        targetString.append(" - \"");
+                        targetString.append(toAppend);
+                        targetString.append("\"");
                     }
                 };
 
-                fnAppendDocString(svValue, pCommandBase->GetHelpText());
-                fnAppendDocString(svValue, pCommandBase->GetUsageText());
+                fnAppendDocString(docString, commandBase->GetHelpText());
+                fnAppendDocString(docString, commandBase->GetUsageText());
             }
-            m_vSuggest.push_back(CSuggest(pCommandName + svValue, pCommandBase->GetFlags()));
+            m_vecSuggest.push_back(ConAutoCompleteSuggest_s(commandName + docString, commandBase->GetFlags()));
         }
-        else { break; }
+        else
+        {
+            // Trying to push a duplicate ConCommandBase in the vector; code bug.
+            Assert(0);
+        }
     }
 
-    std::sort(m_vSuggest.begin(), m_vSuggest.end());
+    std::sort(m_vecSuggest.begin(), m_vecSuggest.end());
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: processes submitted commands for the main thread
-// Input  : svCommand - 
+// Input  : inputText - 
 //-----------------------------------------------------------------------------
-void CConsole::ProcessCommand(string svCommand)
+void CConsole::ProcessCommand(const char* const inputText)
 {
-    StringRTrim(svCommand, " "); // Remove trailing white space characters to prevent history duplication.
-    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "%s] %s\n", Plat_GetProcessUpTime(), svCommand.c_str());
+    string commandFormatted(inputText);
+    StringRTrim(commandFormatted, " "); // Remove trailing white space characters to prevent history duplication.
 
-    Cbuf_AddText(Cbuf_GetCurrentPlayer(), svCommand.c_str(), cmd_source_t::kCommandSrcCode);
-    m_nHistoryPos = PositionMode_t::kPark;
+    const ImU32 commandColor = ImGui::ColorConvertFloat4ToU32(ImVec4(1.00f, 0.80f, 0.60f, 1.00f));
+    AddLog(commandColor, "%s] %s\n", Plat_GetProcessUpTime(), commandFormatted.c_str());
 
-    for (size_t i = m_vHistory.size(); i-- > 0;)
-    {
-        if (m_vHistory[i].compare(svCommand) == 0)
-        {
-            m_vHistory.erase(m_vHistory.begin() + i);
-            break;
-        }
-    }
+    Cbuf_AddText(Cbuf_GetCurrentPlayer(), commandFormatted.c_str(), cmd_source_t::kCommandSrcCode);
+    m_historyPos = ConAutoCompletePos_e::kPark;
 
-    m_vHistory.push_back(svCommand);
-    m_Logger.ShouldScrollToBottom(true);
+    AddHistory(commandFormatted.c_str());
+
+    m_colorTextLogger.ShouldScrollToStart(true);
+    m_colorTextLogger.ShouldScrollToBottom(true);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: builds the console summary
-// Input  : svConVar - 
+// Purpose: builds the console summary, this function will attempt to search
+//          for a ConVar first, from which it formats the current and default
+//          value. If the string is empty, or no ConVar is found, the function
+//          formats the number of history items instead
+// Input  : inputText - 
 //-----------------------------------------------------------------------------
-void CConsole::BuildSummary(string svConVar)
+void CConsole::BuildSummaryText(const char* const inputText)
 {
-    if (!svConVar.empty())
+    if (*inputText)
     {
-        // Remove trailing space and/or semicolon before we call 'g_pCVar->FindVar(..)'.
-        StringRTrim(svConVar, " ;", true);
-        const ConVar* const pConVar = g_pCVar->FindVar(svConVar.c_str());
+        string conVarFormatted(inputText);
 
-        if (pConVar && !pConVar->IsFlagSet(FCVAR_HIDDEN))
+        // Remove trailing space and/or semicolon before we call 'g_pCVar->FindVar(..)'.
+        StringRTrim(conVarFormatted, " ;", true);
+        const ConVar* const conVar = g_pCVar->FindVar(conVarFormatted.c_str());
+
+        if (conVar && !conVar->IsFlagSet(FCVAR_HIDDEN))
         {
             // Display the current and default value of ConVar if found.
-            snprintf(m_szSummary, sizeof(m_szSummary), "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
+            snprintf(m_summaryTextBuf, sizeof(m_summaryTextBuf), "(\"%s\", default \"%s\")", 
+                conVar->GetString(), conVar->GetDefault());
+
             return;
         }
     }
 
-    snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
+    snprintf(m_summaryTextBuf, sizeof(m_summaryTextBuf), "%zu history items", m_vecHistory.size());
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: builds the selected suggestion for input field
+// Purpose: creates the selected suggestion for input field
 // Input  : &suggest - 
 //-----------------------------------------------------------------------------
-void CConsole::BuildInputFromSelected(const CSuggest& suggest, string& svInput)
+void CConsole::DetermineInputTextFromSelectedSuggestion(const ConAutoCompleteSuggest_s& suggest, string& svInput)
 {
-    if (suggest.m_nFlags == COMMAND_COMPLETION_MARKER)
+    if (suggest.flags == COMMAND_COMPLETION_MARKER)
     {
-        svInput = suggest.m_svName + ' ';
+        svInput = suggest.text + ' ';
     }
     else // Remove the default value from ConVar before assigning it to the input buffer.
     {
-        svInput = suggest.m_svName.substr(0, suggest.m_svName.find(' ')) + ' ';
+        svInput = suggest.text.substr(0, suggest.text.find(' ')) + ' ';
     }
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: builds the suggestion panel rect
+// Purpose: determines the autocomplete window rect
 //-----------------------------------------------------------------------------
-void CConsole::BuildSuggestPanelRect(void)
+void CConsole::DetermineAutoCompleteWindowRect(void)
 {
     float flSinglePadding = 0.f;
     const float flItemHeight = ImGui::GetTextLineHeightWithSpacing() + 1.0f;
 
-    if (m_vSuggest.size() > 1)
+    if (m_vecSuggest.size() > 1)
     {
         // Pad with 18 to keep all items in view.
         flSinglePadding = flItemHeight;
     }
 
-    m_ivSuggestWindowPos = ImGui::GetItemRectMin();
-    m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
+    // NOTE: last item rect = the input text box, the idea here is to set the
+    // pos to that of the input text bar, whilst also clamping the width to it.
+    const ImVec2 lastItemRectMin = ImGui::GetItemRectMin();
+    const ImVec2 lastItemRectSize = ImGui::GetItemRectSize();
 
-    const float flWindowHeight = (flSinglePadding + std::clamp(
-        static_cast<float>(m_vSuggest.size()) * (flItemHeight), 37.0f, 127.5f));
+    m_autoCompleteWindowPos = lastItemRectMin;
+    m_autoCompleteWindowPos.y += lastItemRectSize.y;
 
-    m_ivSuggestWindowSize = ImVec2(600, flWindowHeight);
-}
+    const float maxWindowWidth = con_autocomplete_window_width.GetFloat();
 
-//-----------------------------------------------------------------------------
-// Purpose: clamps the size of the log vector
-//-----------------------------------------------------------------------------
-void CConsole::ClampLogSize(void)
-{
-    const int nMaxLines = con_max_lines->GetInt();
+    const float flWindowWidth = maxWindowWidth > 0
+        ? ImMin(con_autocomplete_window_width.GetFloat(), lastItemRectSize.x)
+        : lastItemRectSize.x;
 
-    if (m_Logger.GetTotalLines() > nMaxLines)
-    {
-        while (m_Logger.GetTotalLines() > nMaxLines)
-        {
-            m_Logger.RemoveLine(0);
-            m_nScrollBack++;
-            m_nSelectBack++;
-        }
-        m_Logger.MoveSelection(m_nSelectBack, false);
-        m_Logger.MoveCursor(m_nSelectBack, false);
-        m_nSelectBack = 0;
-    }
-}
+    // NOTE: minimum vertical size of the window, going below this will
+    // truncate the first element in the window making it looked bugged.
+    const static float minWindowHeight = 37.0f;
 
-//-----------------------------------------------------------------------------
-// Purpose: clamps the size of the history vector
-//-----------------------------------------------------------------------------
-void CConsole::ClampHistorySize(void)
-{
-    while (m_vHistory.size() > con_max_history->GetInt())
-    {
-        m_vHistory.erase(m_vHistory.begin());
-    }
+    const float flWindowHeight = flSinglePadding + ImClamp(
+        static_cast<float>(m_vecSuggest.size() * flItemHeight), 
+        minWindowHeight,
+        con_autocomplete_window_height.GetFloat());
+
+    m_autoCompleteWindowRect = ImVec2(flWindowWidth, flWindowHeight);
 }
 
 //-----------------------------------------------------------------------------
@@ -772,18 +793,20 @@ bool CConsole::LoadFlagIcons(void)
     // Get all flag image resources for displaying flags.
     for (int i = IDB_PNG3, k = NULL; i <= IDB_PNG32; i++, k++)
     {
-        m_vFlagIcons.push_back(MODULERESOURCE(GetModuleResource(i)));
-        MODULERESOURCE& rFlagIcon = m_vFlagIcons[k];
+        m_vecFlagIcons.push_back(MODULERESOURCE(GetModuleResource(i)));
+        MODULERESOURCE& rFlagIcon = m_vecFlagIcons[k];
 
         ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(rFlagIcon.m_pData), // !TODO: Fall-back texture.
             static_cast<int>(rFlagIcon.m_nSize), &rFlagIcon.m_idIcon, &rFlagIcon.m_nWidth, &rFlagIcon.m_nHeight);
 
-        IM_ASSERT(ret);
         if (!ret)
         {
+            Assert(0, "Texture flags load failed for %i", i);
             break;
         }
     }
+
+    m_autoCompleteTexturesLoaded = ret;
     return ret;
 }
 
@@ -792,9 +815,9 @@ bool CConsole::LoadFlagIcons(void)
 //          in the future we should build the texture procedurally with use of popcnt.
 // Input  : nFlags - 
 //-----------------------------------------------------------------------------
-int CConsole::GetFlagTextureIndex(int nFlags) const
+int CConsole::GetFlagTextureIndex(const int flags) const
 {
-    switch (nFlags) // All indices for single/dual flag textures.
+    switch (flags) // All indices for single/dual flag textures.
     {
     case FCVAR_DEVELOPMENTONLY:
         return 9;
@@ -841,7 +864,7 @@ int CConsole::GetFlagTextureIndex(int nFlags) const
 
     default: // Hit when flag is zero/non-indexed or 3+ bits are set.
 
-        int v = __popcnt(nFlags);
+        const unsigned int v = __popcnt(flags);
         switch (v)
         {
         case 0:
@@ -854,17 +877,17 @@ int CConsole::GetFlagTextureIndex(int nFlags) const
             // and display the appropriate checker texture.
             bool mul = v > 2;
 
-            if (nFlags & FCVAR_DEVELOPMENTONLY)
+            if (flags & FCVAR_DEVELOPMENTONLY)
             {
                 return mul ? 4 : 3;
             }
-            else if (nFlags & FCVAR_CHEAT)
+            else if (flags & FCVAR_CHEAT)
             {
                 return mul ? 6 : 5;
             }
-            else if (nFlags & FCVAR_RELEASE && // RELEASE command but no context restriction.
-                !(nFlags & FCVAR_SERVER_CAN_EXECUTE) && 
-                !(nFlags & FCVAR_CLIENTCMD_CAN_EXECUTE))
+            else if (flags & FCVAR_RELEASE && // RELEASE command but no context restriction.
+                !(flags & FCVAR_SERVER_CAN_EXECUTE) &&
+                !(flags & FCVAR_CLIENTCMD_CAN_EXECUTE))
             {
                 return mul ? 8 : 7;
             }
@@ -903,88 +926,99 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     }
     case ImGuiInputTextFlags_CallbackHistory:
     {
-        if (m_bSuggestActive)
+        if (m_autoCompleteActive)
         {
-            if (iData->EventKey == ImGuiKey_UpArrow && m_nSuggestPos > - 1)
+            if (iData->EventKey == ImGuiKey_UpArrow && m_suggestPos > - 1)
             {
-                m_nSuggestPos--;
-                m_bSuggestMoved = true;
+                m_suggestPos--;
+                m_autoCompletePosMoved = true;
             }
             else if (iData->EventKey == ImGuiKey_DownArrow)
             {
-                if (m_nSuggestPos < static_cast<ssize_t>(m_vSuggest.size()) - 1)
+                if (m_suggestPos < static_cast<int>(m_vecSuggest.size()) - 1)
                 {
-                    m_nSuggestPos++;
-                    m_bSuggestMoved = true;
+                    m_suggestPos++;
+                    m_autoCompletePosMoved = true;
                 }
             }
         }
         else // Allow user to navigate through the history if suggest panel isn't drawn.
         {
-            const ssize_t nPrevHistoryPos = m_nHistoryPos;
+            const int prevHistoryPos = m_historyPos;
+
             if (iData->EventKey == ImGuiKey_UpArrow)
             {
-                if (m_nHistoryPos == PositionMode_t::kPark)
+                if (m_historyPos == ConAutoCompletePos_e::kPark)
                 {
-                    m_nHistoryPos = static_cast<ssize_t>(m_vHistory.size()) - 1;
+                    m_historyPos = static_cast<int>(m_vecHistory.size()) - 1;
                 }
-                else if (m_nHistoryPos > 0)
+                else if (m_historyPos > 0)
                 {
-                    m_nHistoryPos--;
+                    m_historyPos--;
                 }
             }
             else if (iData->EventKey == ImGuiKey_DownArrow)
             {
-                if (m_nHistoryPos != PositionMode_t::kPark)
+                if (m_historyPos != ConAutoCompletePos_e::kPark)
                 {
-                    if (++m_nHistoryPos >= static_cast<ssize_t>(m_vHistory.size()))
+                    if (++m_historyPos >= static_cast<int>(m_vecHistory.size()))
                     {
-                        m_nHistoryPos = PositionMode_t::kPark;
+                        m_historyPos = ConAutoCompletePos_e::kPark;
                     }
                 }
             }
-            if (nPrevHistoryPos != m_nHistoryPos)
+
+            if (prevHistoryPos != m_historyPos)
             {
-                string svHistory = (m_nHistoryPos >= 0) ? m_vHistory[m_nHistoryPos] : "";
-                if (!svHistory.empty())
+                string historyText = (m_historyPos >= 0) ? m_vecHistory[m_historyPos] : "";
+
+                if (!historyText.empty())
                 {
-                    if (svHistory.find(' ') == string::npos)
+                    if (historyText.find(' ') == string::npos)
                     {
-                        // Append whitespace to previous entered command if absent or no parameters where passed.
-                        svHistory.append(" ");
+                        // Append whitespace to previous entered command if 
+                        // absent or no parameters where passed. This is to
+                        // the user could directly start adding their own
+                        // params without needing to hit the space bar first.
+                        historyText.append(" ");
                     }
                 }
 
                 iData->DeleteChars(0, iData->BufTextLen);
-                iData->InsertChars(0, svHistory.c_str());
+                iData->InsertChars(0, historyText.c_str());
             }
         }
-        BuildSummary(iData->Buf);
+
+        BuildSummaryText(iData->Buf);
         break;
     }
     case ImGuiInputTextFlags_CallbackAlways:
     {
-        m_nInputTextLen = iData->BufTextLen;
-        if (m_bModifyInput) // User entered a value in the input field.
+        m_selectedSuggestionTextLen = iData->BufTextLen;
+
+        if (m_inputTextBufModified) // User entered a value in the input field.
         {
-            iData->DeleteChars(0, m_nInputTextLen);
+            iData->DeleteChars(0, m_selectedSuggestionTextLen);
 
-            if (!m_svInputConVar.empty()) // User selected a ConVar from the suggestion window, copy it to the buffer.
+            if (!m_selectedSuggestionText.empty()) // User selected a ConVar from the suggestion window, copy it to the buffer.
             {
-                iData->InsertChars(0, m_svInputConVar.c_str());
-                m_svInputConVar.clear();
+                iData->InsertChars(0, m_selectedSuggestionText.c_str());
+                m_selectedSuggestionText.clear();
 
-                m_bCanAutoComplete = true;
-                m_bReclaimFocus = true;
+                m_canAutoComplete = true;
+                m_reclaimFocus = true;
             }
-            m_bModifyInput = false;
+
+            m_inputTextBufModified = false;
         }
+
         break;
     }
     case ImGuiInputTextFlags_CallbackCharFilter:
     {
         const ImWchar c = iData->EventChar;
-        if (!m_nInputTextLen)
+
+        if (!m_selectedSuggestionTextLen)
         {
             if (c == '~') // Discard tilde character as first input.
             {
@@ -992,6 +1026,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 return 1;
             }
         }
+
         if (c == '`') // Discard back quote character (default console invoke key).
         {
             iData->EventChar = 0;
@@ -1010,19 +1045,20 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             iData->DeleteChars(0, 1);
         }
 
-        if (iData->BufTextLen) // Attempt to build a summary..
+        if (iData->BufTextLen)
         {
-            BuildSummary(iData->Buf);
-            m_bCanAutoComplete = true;
+            m_canAutoComplete = true;
         }
         else // Reset state and enable history scrolling when buffer is empty.
         {
-            ResetAutoComplete();
+            ResetAutoCompleteData();
         }
 
+        BuildSummaryText(iData->Buf);
         break;
     }
     }
+
     return 0;
 }
 
@@ -1033,37 +1069,39 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
 //-----------------------------------------------------------------------------
 int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 {
-    CConsole* pConsole = reinterpret_cast<CConsole*>(iData->UserData);
+    CConsole* const pConsole = reinterpret_cast<CConsole*>(iData->UserData);
     return pConsole->TextEditCallback(iData);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: adds logs to the vector
+// Purpose: adds logs to the console; this is the only place text is added to
+// the vector, do not call 'm_Logger.InsertText' elsewhere as we also manage
+// the size of the vector here !!!
 // Input  : &conLog - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const ConLog_t& conLog)
+void CConsole::AddLog(const char* const text, const ImU32 color)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
-    m_Logger.InsertText(conLog);
+    AUTO_LOCK(m_colorTextLoggerMutex);
+
+    m_colorTextLogger.InsertText(text, color);
+    ClampLogSize();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: adds logs to the vector (internal)
-// Only call when mutex lock is obtained!
+// Purpose: adds logs to the console (internal)
 // Input  : &color - 
 //          *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)*/
+void CConsole::AddLog(const ImU32 color, const char* fmt, ...) /*IM_FMTARGS(2)*/
 {
-    string result;
     va_list args;
-
     va_start(args, fmt);
-    result = FormatV(fmt, args);
+
+    string result = FormatV(fmt, args);
     va_end(args);
 
-    m_Logger.InsertText(ConLog_t(result, color));
+    AddLog(result.c_str(), color);
 }
 
 //-----------------------------------------------------------------------------
@@ -1073,13 +1111,14 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) /*IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 void CConsole::RemoveLog(int nStart, int nEnd)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
-    int nLines = m_Logger.GetTotalLines();
+    AUTO_LOCK(m_colorTextLoggerMutex);
 
-    if (nEnd >= nLines)
+    const int numLines = m_colorTextLogger.GetTotalLines();
+
+    if (nEnd >= numLines)
     {
         // Sanitize for last array elem.
-        nEnd = (nLines - 1);
+        nEnd = (numLines - 1);
     }
 
     if (nStart >= nEnd)
@@ -1100,13 +1139,13 @@ void CConsole::RemoveLog(int nStart, int nEnd)
     }
 
     // User wants to remove everything.
-    if (nLines <= (nStart - nEnd))
+    if (numLines <= (nStart - nEnd))
     {
         ClearLog();
         return;
     }
 
-    m_Logger.RemoveLine(nStart, nEnd);
+    m_colorTextLogger.RemoveLine(nStart, nEnd);
 }
 
 //-----------------------------------------------------------------------------
@@ -1114,18 +1153,64 @@ void CConsole::RemoveLog(int nStart, int nEnd)
 //-----------------------------------------------------------------------------
 void CConsole::ClearLog(void)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
-    m_Logger.RemoveLine(0, (m_Logger.GetTotalLines() - 1));
+    AUTO_LOCK(m_colorTextLoggerMutex);
+    m_colorTextLogger.RemoveLine(0, (m_colorTextLogger.GetTotalLines() - 1));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clamps the size of the log vector
+//-----------------------------------------------------------------------------
+void CConsole::ClampLogSize(void)
+{
+    // +1 since the first row is a dummy
+    const int maxLines = con_max_lines.GetInt() + 1;
+
+    if (m_colorTextLogger.GetTotalLines() > maxLines)
+    {
+        while (m_colorTextLogger.GetTotalLines() > maxLines)
+        {
+            m_colorTextLogger.RemoveLine(0);
+
+            m_scrollBackAmount++;
+            m_selectBackAmount++;
+        }
+
+        m_colorTextLogger.MoveSelection(m_selectBackAmount, false);
+        m_colorTextLogger.MoveCursor(m_selectBackAmount, false);
+
+        m_selectBackAmount = 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds a command to the history vector; this is the only place text 
+// is added to the vector, do not call 'm_History.push_back' elsewhere as we
+// also manage the size of the vector here !!!
+//-----------------------------------------------------------------------------
+void CConsole::AddHistory(const char* const command)
+{
+    // If this command was already in the history, remove it so when we push it
+    // in, it would appear all the way at the top of the list
+    for (size_t i = m_vecHistory.size(); i-- > 0;)
+    {
+        if (m_vecHistory[i].compare(command) == 0)
+        {
+            m_vecHistory.erase(m_vecHistory.begin() + i);
+            break;
+        }
+    }
+
+    m_vecHistory.push_back(command);
+    ClampHistorySize();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: gets all console submissions
 // Output : vector of strings
 //-----------------------------------------------------------------------------
-vector<string> CConsole::GetHistory(void) const
+const vector<string>& CConsole::GetHistory(void) const
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
-    return m_vHistory;
+    return m_vecHistory;
 }
 
 //-----------------------------------------------------------------------------
@@ -1133,20 +1218,73 @@ vector<string> CConsole::GetHistory(void) const
 //-----------------------------------------------------------------------------
 void CConsole::ClearHistory(void)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
-    m_vHistory.clear();
-    BuildSummary();
+    m_vecHistory.clear();
+    BuildSummaryText("");
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sets the console front-end style
+// Purpose: clamps the size of the history vector
 //-----------------------------------------------------------------------------
-void CConsole::SetStyleVar(void)
+void CConsole::ClampHistorySize(void)
 {
-    m_Style = g_pImGuiConfig->InitStyle();
-
-    ImGui::SetNextWindowSize(ImVec2(1200, 524), ImGuiCond_FirstUseEver);
-    ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
+    while (m_vecHistory.size() > con_max_history.GetInt())
+    {
+        m_vecHistory.erase(m_vecHistory.begin());
+    }
 }
 
-CConsole* g_pConsole = new CConsole();
+//-----------------------------------------------------------------------------
+// Purpose: toggles the console
+//-----------------------------------------------------------------------------
+void CConsole::ToggleConsole_f()
+{
+    g_Console.m_activated ^= true;
+    ResetInput(); // Disable input to game when console is drawn.
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: shows the game console submission history.
+//-----------------------------------------------------------------------------
+void CConsole::LogHistory_f()
+{
+    const vector<string>& vHistory = g_Console.GetHistory();
+    for (size_t i = 0, nh = vHistory.size(); i < nh; i++)
+    {
+        Msg(eDLL_T::COMMON, "%3d: %s\n", i, vHistory[i].c_str());
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: removes a range of lines from the console.
+//-----------------------------------------------------------------------------
+void CConsole::RemoveLine_f(const CCommand& args)
+{
+    if (args.ArgC() < 3)
+    {
+        Msg(eDLL_T::CLIENT, "Usage 'con_removeline': start(int) end(int)\n");
+        return;
+    }
+
+    const int start = atoi(args[1]);
+    const int end = atoi(args[2]);
+
+    g_Console.RemoveLog(start, end);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears all lines from the developer console.
+//-----------------------------------------------------------------------------
+void CConsole::ClearLines_f()
+{
+    g_Console.ClearLog();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears all submissions from the developer console history.
+//-----------------------------------------------------------------------------
+void CConsole::ClearHistory_f()
+{
+    g_Console.ClearHistory();
+}
+
+CConsole g_Console;

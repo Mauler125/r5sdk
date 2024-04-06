@@ -65,6 +65,7 @@ private:
 
 FORCEINLINE CLZSS::CLZSS( int nWindowSize )
 {
+	Assert( IsPowerOfTwo( nWindowSize ) );
 	m_nWindowSize = nWindowSize;
 }
 #endif

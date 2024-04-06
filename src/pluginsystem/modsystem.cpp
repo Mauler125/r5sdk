@@ -7,12 +7,18 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "vpc/rson.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "tier2/fileutils.h"
+#include "rtech/rson.h"
 #include "localize/localize.h"
 #include "modsystem.h"
+
+//-----------------------------------------------------------------------------
+// Console variables
+//-----------------------------------------------------------------------------
+static ConVar modsystem_enable("modsystem_enable", "1", FCVAR_RELEASE, "Enable the modsystem");
+static ConVar modsystem_debug("modsystem_debug", "0", FCVAR_RELEASE, "Debug the modsystem");
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -32,7 +38,7 @@ CModSystem::~CModSystem()
 //-----------------------------------------------------------------------------
 void CModSystem::Init()
 {
-	if (!modsystem_enable->GetBool())
+	if (!modsystem_enable.GetBool())
 		return;
 
 	// no mods installed, no point in initializing.
@@ -43,7 +49,7 @@ void CModSystem::Init()
 	// executes commands/convars over the command line. we check for an
 	// explicit modsystem debug flag, and set the convar from here.
 	if (CommandLine()->CheckParm("-modsystem_debug"))
-		modsystem_debug->SetValue(true);
+		modsystem_debug.SetValue(true);
 
 	CUtlVector<CUtlString> modFileList;
 	RecursiveFindFilesMatchingName(modFileList,
@@ -88,7 +94,7 @@ void CModSystem::UpdateModStatusList()
 
 		if (!enabledList.HasElement(mod->m_ModID))
 		{
-			if (modsystem_debug->GetBool())
+			if (modsystem_debug.GetBool())
 				Msg(eDLL_T::ENGINE, "Mod '%s' does not exist in '%s'; enabling...\n",
 					mod->m_ModID.Get(), MOD_STATUS_LIST_FILE);
 
@@ -99,7 +105,7 @@ void CModSystem::UpdateModStatusList()
 			const bool bEnable = enabledList.FindElement(mod->m_ModID, false);
 			mod->SetState(bEnable ? eModState::ENABLED : eModState::DISABLED);
 
-			if (modsystem_debug->GetBool())
+			if (modsystem_debug.GetBool())
 				Msg(eDLL_T::ENGINE, "Mod '%s' exists in '%s' and is %s.\n",
 					mod->m_ModID.Get(), MOD_STATUS_LIST_FILE, bEnable ? "enabled" : "disabled");
 		}
@@ -174,7 +180,7 @@ CModSystem::ModInstance_t::ModInstance_t(const CUtlString& basePath)
 	}
 
 	// parse any additional info from mod.vdf
-	ParseConVars();
+	//ParseConVars();
 	ParseLocalizationFiles();
 
 	// add mod folder to search paths so files can be easily loaded from here
@@ -273,56 +279,56 @@ bool CModSystem::ModInstance_t::ParseSettings()
 //-----------------------------------------------------------------------------
 // Purpose: parses and registers convars listed in settings KV
 //-----------------------------------------------------------------------------
-void CModSystem::ModInstance_t::ParseConVars()
-{
-	Assert(m_SettingsKV);
-	KeyValues* pConVars = m_SettingsKV->FindKey("ConVars");
-
-	if (pConVars)
-	{
-		for (KeyValues* pSubKey = pConVars->GetFirstSubKey();
-			pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
-		{
-			const char* pszName = pSubKey->GetName();
-			const char* pszFlagsString = pSubKey->GetString("flags", "NONE");
-			const char* pszHelpString = pSubKey->GetString("helpText");
-			const char* pszUsageString = pSubKey->GetString("usageText");
-
-			KeyValues* pValues = pSubKey->FindKey("Values");
-
-			const char* pszDefaultValue = "0";
-			bool bMin = false;
-			bool bMax = false;
-			float fMin = 0.f;
-			float fMax = 0.f;
-
-			if (pValues)
-			{
-				pszDefaultValue = pValues->GetString("default", "0");
-
-				// minimum cvar value
-				if (pValues->FindKey("min"))
-				{
-					bMin = true; // has min value
-					fMin = pValues->GetFloat("min", 0.f);
-				}
-
-				// maximum cvar value
-				if (pValues->FindKey("max"))
-				{
-					bMax = true; // has max value
-					fMax = pValues->GetFloat("max", 1.f);
-				}
-			}
-
-			int flags = FCVAR_NONE;
-
-			if (ConVar_ParseFlagString(pszFlagsString, flags, pszName))
-				ConVar::StaticCreate(pszName, pszDefaultValue, flags,
-					pszHelpString, bMin, fMin, bMax, fMax, nullptr, pszUsageString);
-		}
-	}
-}
+//void CModSystem::ModInstance_t::ParseConVars()
+//{
+//	Assert(m_SettingsKV);
+//	KeyValues* pConVars = m_SettingsKV->FindKey("ConVars");
+//
+//	if (pConVars)
+//	{
+//		for (KeyValues* pSubKey = pConVars->GetFirstSubKey();
+//			pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
+//		{
+//			const char* pszName = pSubKey->GetName();
+//			const char* pszFlagsString = pSubKey->GetString("flags", "NONE");
+//			const char* pszHelpString = pSubKey->GetString("helpText");
+//			const char* pszUsageString = pSubKey->GetString("usageText");
+//
+//			KeyValues* pValues = pSubKey->FindKey("Values");
+//
+//			const char* pszDefaultValue = "0";
+//			bool bMin = false;
+//			bool bMax = false;
+//			float fMin = 0.f;
+//			float fMax = 0.f;
+//
+//			if (pValues)
+//			{
+//				pszDefaultValue = pValues->GetString("default", "0");
+//
+//				// minimum cvar value
+//				if (pValues->FindKey("min"))
+//				{
+//					bMin = true; // has min value
+//					fMin = pValues->GetFloat("min", 0.f);
+//				}
+//
+//				// maximum cvar value
+//				if (pValues->FindKey("max"))
+//				{
+//					bMax = true; // has max value
+//					fMax = pValues->GetFloat("max", 1.f);
+//				}
+//			}
+//
+//			int flags = FCVAR_NONE;
+//
+//			if (ConVar_ParseFlagString(pszFlagsString, flags, pszName))
+//				ConVar::StaticCreate(pszName, pszDefaultValue, flags,
+//					pszHelpString, bMin, fMin, bMax, fMax, nullptr, pszUsageString);
+//		}
+//	}
+//}
 
 //-----------------------------------------------------------------------------
 // Purpose: parses and stores localization file paths in a vector
@@ -343,4 +349,4 @@ void CModSystem::ModInstance_t::ParseLocalizationFiles()
 	}
 }
 
-CModSystem* g_pModSystem = new CModSystem();
+CModSystem g_ModSystem;

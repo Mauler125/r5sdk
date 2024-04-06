@@ -11,6 +11,8 @@ int g_DebugConnectNode1 = -1;
 int g_DebugConnectNode2 = -1;
 #define DebuggingConnect( node1, node2 ) ( ( node1 == g_DebugConnectNode1 && node2 == g_DebugConnectNode2 ) || ( node1 == g_DebugConnectNode2 && node2 == g_DebugConnectNode1 ) )
 
+static ConVar ai_ainDebugConnect("ai_ainDebugConnect", "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections");
+
 //-----------------------------------------------------------------------------
 // Purpose: debug logs node connections
 // Input  : node1 - 
@@ -20,7 +22,7 @@ int g_DebugConnectNode2 = -1;
 //-----------------------------------------------------------------------------
 void CAI_Network::DebugConnectMsg(int node1, int node2, const char* pszFormat, ...)
 {
-	if (ai_ainDebugConnect->GetBool())
+	if (ai_ainDebugConnect.GetBool())
 	{
 		if (DebuggingConnect(node1, node2))
 		{
@@ -139,7 +141,7 @@ CAI_Node* CAI_Network::GetPathNode(int id) const
 //-----------------------------------------------------------------------------
 CAI_Node* CAI_Network::AddPathNode(const Vector3D* origin, const float jaw)
 {
-	return v_CAI_Network__AddPathNode(this, origin, jaw);
+	return CAI_Network__AddPathNode(this, origin, jaw);
 }
 
 //-----------------------------------------------------------------------------
@@ -150,11 +152,11 @@ CAI_Node* CAI_Network::AddPathNode(const Vector3D* origin, const float jaw)
 //-----------------------------------------------------------------------------
 CAI_NodeLink* CAI_Network::CreateNodeLink(int srcID, int destID)
 {
-	return v_CAI_Network__CreateNodeLink(this, srcID, destID);
+	return CAI_Network__CreateNodeLink(this, srcID, destID);
 }
 
 //-----------------------------------------------------------------------------
 void VAI_Network::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg, bAttach);
+	DetourSetup(&CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg, bAttach);
 }

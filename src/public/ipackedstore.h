@@ -18,16 +18,10 @@ enum EPackedTextureFlags
 	TEXTURE_ENVIRONMENT_MAP = 1 << 10,
 };
 
-struct FileHandleTracker_t
+enum EPackedStoreTargets
 {
-	int m_nFileNumber;
-	int m_nCurOfs;
-	HANDLE m_hFileHandle;
-};
-
-struct pFileHandleTracker_t
-{
-	FileHandleTracker_t self[1024];
+	STORE_TARGET_SERVER,
+	STORE_TARGET_CLIENT
 };
 
 #pragma pack(push, 1)

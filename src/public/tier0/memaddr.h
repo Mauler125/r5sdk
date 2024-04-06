@@ -48,6 +48,12 @@ public:
 		return ptr;
 	}
 
+	template<typename T>
+	inline void GetPtr(T*& outPtr) const
+	{
+		outPtr = reinterpret_cast<T*>(ptr);
+	}
+
 	template<class T> inline T GetValue(void) const
 	{
 		return *reinterpret_cast<T*>(ptr);

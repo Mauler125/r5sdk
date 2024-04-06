@@ -21,6 +21,19 @@
 #include "thirdparty/recast/Detour/Include/DetourCommon.h"
 #include "thirdparty/recast/Detour/Include/DetourNavMesh.h"
 
+static ConVar ai_script_nodes_draw_range("ai_script_nodes_draw_range", "0", FCVAR_DEVELOPMENTONLY, "Debug draw AIN script nodes ranging from shift index to this cvar");
+static ConVar ai_script_nodes_draw_nearest("ai_script_nodes_draw_nearest", "1", FCVAR_DEVELOPMENTONLY, "Debug draw AIN script node links to nearest node (build order is used if null)");
+
+static ConVar navmesh_debug_type("navmesh_debug_type", "0", FCVAR_DEVELOPMENTONLY, "NavMesh debug draw hull index", true, 0.f, true, 4.f, nullptr, "0 = small, 1 = med_short, 2 = medium, 3 = large, 4 = extra large");
+static ConVar navmesh_debug_tile_range("navmesh_debug_tile_range", "0", FCVAR_DEVELOPMENTONLY, "NavMesh debug draw tiles ranging from shift index to this cvar", true, 0.f, false, 0.f);
+static ConVar navmesh_debug_camera_range("navmesh_debug_camera_range", "2000", FCVAR_DEVELOPMENTONLY, "Only debug draw tiles within this distance from camera origin", true, 0.f, false, 0.f);
+
+static ConVar navmesh_draw_bvtree("navmesh_draw_bvtree", "-1", FCVAR_DEVELOPMENTONLY, "Draws the BVTree of the NavMesh tiles", false, 0.f, false, 0.f, nullptr, "Index: >= 0 && < mesh->m_tileCount");
+static ConVar navmesh_draw_portal("navmesh_draw_portal", "-1", FCVAR_DEVELOPMENTONLY, "Draws the portal of the NavMesh tiles", false, 0.f, false, 0.f, nullptr, "Index: >= 0 && < mesh->m_tileCount");
+static ConVar navmesh_draw_polys("navmesh_draw_polys", "-1", FCVAR_DEVELOPMENTONLY, "Draws the polys of the NavMesh tiles", false, 0.f, false, 0.f, nullptr, "Index: >= 0 && < mesh->m_tileCount");
+static ConVar navmesh_draw_poly_bounds("navmesh_draw_poly_bounds", "-1", FCVAR_DEVELOPMENTONLY, "Draws the bounds of the NavMesh polys", false, 0.f, false, 0.f, nullptr, "Index: >= 0 && < mesh->m_tileCount");
+static ConVar navmesh_draw_poly_bounds_inner("navmesh_draw_poly_bounds_inner", "0", FCVAR_DEVELOPMENTONLY, "Draws the inner bounds of the NavMesh polys (requires navmesh_draw_poly_bounds)");
+
 //------------------------------------------------------------------------------
 // Purpose:
 //------------------------------------------------------------------------------
@@ -43,10 +56,10 @@ static const fltx4 s_xSubMask = LoadAlignedSIMD(s_vSubMask);
 void CAI_Utility::RunRenderFrame(void)
 {
     const int iScriptNodeIndex = ai_script_nodes_draw->GetInt();
-    const int iNavMeshBVTreeIndex = navmesh_draw_bvtree->GetInt();
-    const int iNavMeshPortalIndex = navmesh_draw_portal->GetInt();
-    const int iNavMeshPolyIndex = navmesh_draw_polys->GetInt();
-    const int iNavMeshPolyBoundIndex = navmesh_draw_poly_bounds->GetInt();
+    const int iNavMeshBVTreeIndex = navmesh_draw_bvtree.GetInt();
+    const int iNavMeshPortalIndex = navmesh_draw_portal.GetInt();
+    const int iNavMeshPolyIndex = navmesh_draw_polys.GetInt();
+    const int iNavMeshPolyBoundIndex = navmesh_draw_poly_bounds.GetInt();
 
     if (iScriptNodeIndex <= -1 &&
         iNavMeshBVTreeIndex <= -1 &&
@@ -64,9 +77,9 @@ void CAI_Utility::RunRenderFrame(void)
     const Vector3D vNormal = vCamera - aCamera.GetNormal() * 256.0f;
     const VPlane vCullPlane(vNormal, aCamera);
 
-    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
-    const int nTileRange = navmesh_debug_tile_range->GetInt();
-    const bool bUseDepthBuffer = r_debug_draw_depth_test->GetBool();
+    const float flCameraRange = navmesh_debug_camera_range.GetFloat();
+    const int nTileRange = navmesh_debug_tile_range.GetInt();
+    const bool bUseDepthBuffer = r_debug_draw_depth_test.GetBool();
 
     if (iScriptNodeIndex > -1)
         g_pAIUtility->DrawAIScriptNetwork(*g_pAINetwork, vCamera, iScriptNodeIndex, flCameraRange, bUseDepthBuffer);
@@ -98,8 +111,8 @@ void CAI_Utility::DrawAIScriptNetwork(
     if (!pNetwork)
         return; // AI Network not build or loaded.
 
-    const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
-    const int  nNodeRange = ai_script_nodes_draw_range->GetInt();
+    const bool bDrawNearest = ai_script_nodes_draw_nearest.GetBool();
+    const int  nNodeRange = ai_script_nodes_draw_range.GetInt();
 
     OverlayBox_t::Transforms vTransforms;
     std::unordered_set<int64_t> uLinkSet;
@@ -174,7 +187,7 @@ void CAI_Utility::DrawNavMeshBVTree(
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -235,7 +248,7 @@ void CAI_Utility::DrawNavMeshPortals(const dtNavMesh* pMesh,
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -355,7 +368,7 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -439,11 +452,11 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
     Color col{ 20, 140, 255, 255 };
 
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const bool bDrawInner = navmesh_draw_poly_bounds_inner->GetBool();
+    const bool bDrawInner = navmesh_draw_poly_bounds_inner.GetBool();
 
     for (int i = iBoundaryIndex, nt = pMesh->getTileCount(); i < nt; ++i)
     {

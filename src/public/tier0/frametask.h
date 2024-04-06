@@ -8,7 +8,9 @@
 // Committed tasks are scheduled to execute after 'i' frames.
 // ----------------------------------------------------------------------------
 // A use case for scheduling tasks in the main thread would be (for example)
-// calling 'KeyValues::ParsePlaylists(...)' from the render thread.
+// performing a web request in a separate thread, and apply the results (such as
+// server lists in the browser) onto the imgui panels which are created/drawn in
+// the main thread
 //=============================================================================//
 class CFrameTask : public IFrameTask
 {
@@ -17,14 +19,14 @@ public:
     virtual void RunFrame();
     virtual bool IsFinished() const;
 
-    void Dispatch(std::function<void()> functor, int frames);
+    void Dispatch(std::function<void()> functor, unsigned int frames);
 
 private:
     mutable std::mutex m_Mutex;
-    std::list<ScheduledTasks_s> m_ScheduledTasks;
+    std::list<QueuedTasks_s> m_QueuedTasks;
 };
 
-extern std::list<IFrameTask*> g_FrameTasks;
-extern CFrameTask* g_TaskScheduler;
+extern std::list<IFrameTask*> g_TaskQueueList;
+extern CFrameTask g_TaskQueue;
 
 #endif // TIER0_FRAMETASK_H

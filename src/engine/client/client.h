@@ -1,6 +1,7 @@
 #pragma once
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "common/protocol.h"
+#include "ebisusdk/EbisuTypes.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #include "public/edict.h"
@@ -21,6 +22,7 @@ enum Reputation_t
 //-----------------------------------------------------------------------------
 class CServer;
 class CClient;
+class CClientExtended;
 
 struct Spike_t
 {
@@ -66,12 +68,16 @@ public:
 	inline int64_t GetTeamNum() const { return m_iTeamNum; }
 	inline edict_t GetHandle(void) const { return m_nHandle; }
 	inline int GetUserID(void) const { return m_nUserID; }
-	inline uint64_t GetNucleusID(void) const { return m_nNucleusID; }
+	inline NucleusID_t GetNucleusID(void) const { return m_nNucleusID; }
 
 	inline SIGNONSTATE GetSignonState(void) const { return m_nSignonState; }
 	inline PERSISTENCE GetPersistenceState(void) const { return m_nPersistenceState; }
 	inline CNetChan* GetNetChan(void) const { return m_NetChannel; }
 	inline CServer* GetServer(void) const { return m_pServer; }
+
+#ifndef CLIENT_DLL
+	CClientExtended* GetClientExtended(void) const;
+#endif // !CLIENT_DLL
 
 	inline int GetCommandTick(void) const { return m_nCommandTick; }
 	inline const char* GetServerName(void) const { return m_szServerName; }
@@ -79,7 +85,7 @@ public:
 
 	inline void SetHandle(edict_t nHandle) { m_nHandle = nHandle; }
 	inline void SetUserID(uint32_t nUserID) { m_nUserID = nUserID; }
-	inline void SetNucleusID(uint64_t nNucleusID) { m_nNucleusID = nNucleusID; }
+	inline void SetNucleusID(NucleusID_t nNucleusID) { m_nNucleusID = nNucleusID; }
 
 	inline void SetSignonState(SIGNONSTATE nSignonState) { m_nSignonState = nSignonState; }
 	inline void SetPersistenceState(PERSISTENCE nPersistenceState) { m_nPersistenceState = nPersistenceState; }
@@ -109,6 +115,8 @@ public: // Hook statics:
 	static void VActivatePlayer(CClient* pClient);
 	static void* VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
 	static bool VSendNetMsgEx(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
+
+	static void WriteDataBlock(CClient* pClient, bf_write& buf);
 
 	static bool VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg);
 	static bool VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg);
@@ -175,7 +183,7 @@ private:
 	char pad_03A8[8];
 	SIGNONSTATE m_nSignonState;
 	int unk0;
-	uint64_t m_nNucleusID;
+	NucleusID_t m_nNucleusID;
 	int unk1;
 	int unk2;
 	int m_nDeltaTick;
@@ -183,10 +191,8 @@ private:
 	int m_nSignonTick;
 	int m_nBaselineUpdateTick_MAYBE;
 	char pad_03C0[448];
-#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	int unk3;
 	int m_nForceWaitForTick;
-#endif
 	bool m_bFakePlayer;
 	bool m_bReceivedPacket;
 	bool m_bLowViolence;
@@ -197,94 +203,103 @@ private:
 	ServerDataBlock m_DataBlock;
 	char pad_4A3D8[60];
 	int m_LastMovementTick;
-#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	char pad_4A418[86];
-#endif
 	char pad_4A46E[80];
 };
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-static_assert(sizeof(CClient) == 0x4A440);
-#else
 static_assert(sizeof(CClient) == 0x4A4C0);
-#endif
+
+//-----------------------------------------------------------------------------
+// Extended CClient class
+//-----------------------------------------------------------------------------
+// NOTE: since we interface directly with the engine, we cannot modify the
+// client structure. In order to add new data to each client instance, we
+// need to use this new class which we link directly to the corresponding
+// client instance through its UserID.
+//-----------------------------------------------------------------------------
+class CClientExtended
+{
+	friend class CClient;
+public:
+	CClientExtended(void)
+	{
+		Reset();
+	}
+	inline void Reset(void)
+	{
+		m_flNetProcessingTimeMsecs = 0.0;
+		m_flNetProcessTimeBase = 0.0;
+		m_flStringCommandQuotaTimeStart = 0.0;
+		m_nStringCommandQuotaCount = NULL;
+		m_bInitialConVarsSet = false;
+	}
+
+public: // Inlines:
+	inline void SetNetProcessingTimeMsecs(const double flStartTime, const double flCurrentTime)
+	{ m_flNetProcessingTimeMsecs = (flCurrentTime * 1000) - (flStartTime * 1000); }
+	inline double GetNetProcessingTimeMsecs(void) const { return m_flNetProcessingTimeMsecs; }
+
+	inline void SetNetProcessingTimeBase(const double flTime) { m_flNetProcessTimeBase = flTime; }
+	inline double GetNetProcessingTimeBase(void) const { return m_flNetProcessTimeBase; }
+
+	inline void SetStringCommandQuotaTimeStart(const double flTime) { m_flStringCommandQuotaTimeStart = flTime; }
+	inline double GetStringCommandQuotaTimeStart(void) const { return m_flStringCommandQuotaTimeStart; }
+
+	inline void SetStringCommandQuotaCount(const int iCount) { m_nStringCommandQuotaCount = iCount; }
+	inline int GetStringCommandQuotaCount(void) const { return m_nStringCommandQuotaCount; }
+
+private:
+	// Measure how long this client's packets took to process.
+	double m_flNetProcessingTimeMsecs;
+	double m_flNetProcessTimeBase;
+
+	// The start time of the first stringcmd since reset.
+	double m_flStringCommandQuotaTimeStart;
+	int m_nStringCommandQuotaCount;
+
+	bool m_bInitialConVarsSet; // Whether or not the initial ConVar KV's are set
+};
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
-inline CMemory p_CClient_Connect;
-inline bool(*v_CClient_Connect)(CClient* pClient, const char* szName, CNetChan* pNetChan, bool bFakePlayer, CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize);
-
-inline CMemory p_CClient_Disconnect;
-inline bool(*v_CClient_Disconnect)(CClient* pClient, const Reputation_t nRepLvl, const char* szReason, ...);
-
-inline CMemory p_CClient_Clear;
-inline void(*v_CClient_Clear)(CClient* pClient);
-
-inline CMemory p_CClient_ActivatePlayer;
-inline void(*v_CClient_ActivatePlayer)(CClient* pClient);
-
-inline CMemory p_CClient_SetSignonState;
-inline bool(*v_CClient_SetSignonState)(CClient* pClient, SIGNONSTATE signon);
-
-inline CMemory p_CClient_SendNetMsgEx;
-inline bool(*v_CClient_SendNetMsgEx)(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
-
-inline CMemory p_CClient_SendSnapshot;
-inline void*(*v_CClient_SendSnapshot)(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
-
-inline CMemory p_CClient_ProcessStringCmd;
-inline bool(*v_CClient_ProcessStringCmd)(CClient* pClient, NET_StringCmd* pMsg);
-
-inline CMemory p_CClient_ProcessSetConVar;
-inline bool(*v_CClient_ProcessSetConVar)(CClient* pClient, NET_SetConVar* pMsg);
+inline bool(*CClient__Connect)(CClient* pClient, const char* szName, CNetChan* pNetChan, bool bFakePlayer, CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize);
+inline bool(*CClient__Disconnect)(CClient* pClient, const Reputation_t nRepLvl, const char* szReason, ...);
+inline void(*CClient__Clear)(CClient* pClient);
+inline void(*CClient__ActivatePlayer)(CClient* pClient);
+inline bool(*CClient__SetSignonState)(CClient* pClient, SIGNONSTATE signon);
+inline bool(*CClient__SendNetMsgEx)(CClient* pClient, CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
+inline void*(*CClient__SendSnapshot)(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
+inline void(*CClient__WriteDataBlock)(CClient* pClient, bf_write& buf);
+inline bool(*CClient__ProcessStringCmd)(CClient* pClient, NET_StringCmd* pMsg);
+inline bool(*CClient__ProcessSetConVar)(CClient* pClient, NET_SetConVar* pMsg);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CClient::Connect", p_CClient_Connect.GetPtr());
-		LogFunAdr("CClient::Disconnect", p_CClient_Disconnect.GetPtr());
-		LogFunAdr("CClient::Clear", p_CClient_Clear.GetPtr());
-		LogFunAdr("CClient::ActivatePlayer", p_CClient_ActivatePlayer.GetPtr());
-		LogFunAdr("CClient::SetSignonState", p_CClient_SetSignonState.GetPtr());
-		LogFunAdr("CClient::SendNetMsgEx", p_CClient_SendNetMsgEx.GetPtr());
-		LogFunAdr("CClient::SendSnapshot", p_CClient_SendSnapshot.GetPtr());
-		LogFunAdr("CClient::ProcessStringCmd", p_CClient_ProcessStringCmd.GetPtr());
-		LogFunAdr("CClient::ProcessSetConVar", p_CClient_ProcessSetConVar.GetPtr());
+		LogFunAdr("CClient::Connect", CClient__Connect);
+		LogFunAdr("CClient::Disconnect", CClient__Disconnect);
+		LogFunAdr("CClient::Clear", CClient__Clear);
+		LogFunAdr("CClient::ActivatePlayer", CClient__ActivatePlayer);
+		LogFunAdr("CClient::SetSignonState", CClient__SetSignonState);
+		LogFunAdr("CClient::SendNetMsgEx", CClient__SendNetMsgEx);
+		LogFunAdr("CClient::SendSnapshot", CClient__SendSnapshot);
+		LogFunAdr("CClient::WriteDataBlock", CClient__WriteDataBlock);
+		LogFunAdr("CClient::ProcessStringCmd", CClient__ProcessStringCmd);
+		LogFunAdr("CClient::ProcessSetConVar", CClient__ProcessSetConVar);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CClient_Connect    = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9");
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-		p_CClient_Disconnect = g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 0F B6 F2");
-#else // !GAMEDLL_S0 || !GAMEDLL_S1 || !GAMEDLL_S2
-		p_CClient_Disconnect = g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2");
-#endif
-		p_CClient_Clear      = g_GameDll.FindPatternSIMD("40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74");
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CClient_ActivatePlayer = g_GameDll.FindPatternSIMD("40 53 57 41 57 48 83 EC 30 8B 81 ?? ?? ?? ??");
-		p_CClient_SendNetMsg = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 45 0F B6 F1");
-		p_CClient_SendSnapshot = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 55");
-		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 48 81 EC ?? ?? ?? ?? 49 8B D8");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CClient_ActivatePlayer = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 81 B0 03 ?? ?? 48 8B D9 C6");
-		p_CClient_SendNetMsgEx = g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??");
-		p_CClient_SendSnapshot = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 41 55 41 56 41 57 48 8D 6C 24 ??");
-		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20");
-#endif // !GAMEDLL_S0 || !GAMEDLL_S1
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9").GetPtr(CClient__Connect);
+		g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2").GetPtr(CClient__Disconnect);
+		g_GameDll.FindPatternSIMD("40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74").GetPtr(CClient__Clear);
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 81 B0 03 ?? ?? 48 8B D9 C6").GetPtr(CClient__ActivatePlayer);
+		g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__SendNetMsgEx);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(CClient__SendSnapshot);
+		g_GameDll.FindPatternSIMD("40 53 57 48 83 EC 38 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__WriteDataBlock);
+		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20").GetPtr(CClient__ProcessStringCmd);
 
-		p_CClient_ProcessSetConVar = g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 C2 20");
-		p_CClient_SetSignonState = g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2");
-
-		v_CClient_Connect    = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, CNetChan*, bool, CUtlVector<NET_SetConVar::cvar_t>*, char*, int)>();
-		v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient*, const Reputation_t, const char*, ...)>();
-		v_CClient_Clear      = p_CClient_Clear.RCast<void (*)(CClient*)>();
-		v_CClient_ActivatePlayer = p_CClient_ActivatePlayer.RCast<void (*)(CClient* pClient)>();
-		v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient*, SIGNONSTATE)>();
-		v_CClient_SendNetMsgEx = p_CClient_SendNetMsgEx.RCast<bool (*)(CClient*, CNetMessage*, bool, bool, bool)>();
-		v_CClient_SendSnapshot = p_CClient_SendSnapshot.RCast<void* (*)(CClient*, CClientFrame*, int, int)>();
-
-		v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (*)(CClient*, NET_StringCmd*)>();
-		v_CClient_ProcessSetConVar = p_CClient_ProcessSetConVar.RCast<bool (*)(CClient*, NET_SetConVar*)>();
+		g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 C2 20").GetPtr(CClient__ProcessSetConVar);
+		g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2").GetPtr(CClient__SetSignonState);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

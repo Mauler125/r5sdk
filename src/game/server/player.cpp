@@ -48,7 +48,7 @@ void CPlayer::RunNullCommand(void)
 //------------------------------------------------------------------------------
 QAngle* CPlayer::EyeAngles(QAngle* pAngles)
 {
-	return v_CPlayer__EyeAngles(this, pAngles);
+	return CPlayer__EyeAngles(this, pAngles);
 }
 
 //------------------------------------------------------------------------------
@@ -176,6 +176,11 @@ void CPlayer::ClampUnlag(CUserCmd* cmd)
 //			droppedPackets - 
 //			paused - 
 //------------------------------------------------------------------------------
+// TODO: this code is experimental and has reported problems from players with
+// high latency, needs to be debugged or a different approach needs to be taken!
+// Defaulted to OFF for now
+static ConVar sv_unlag_clamp("sv_unlag_clamp", "0", FCVAR_RELEASE, "Clamp the difference between the current time and received command time to sv_maxunlag + sv_clockcorrection_msecs.");
+
 void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 	int droppedPackets, bool paused)
 {
@@ -198,7 +203,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 		if (lastCommandNumber == MAX_QUEUED_COMMANDS_PROCESS)
 			return;
 
-		if (sv_unlag_clamp->GetBool())
+		if (sv_unlag_clamp.GetBool())
 			ClampUnlag(cmd);
 
 		CUserCmd* queuedCmd = &m_Commands[lastCommandNumber];
@@ -224,7 +229,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 //------------------------------------------------------------------------------
 void CPlayer::PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover)
 {
-	v_CPlayer__PlayerRunCommand(this, pUserCmd, pMover);
+	CPlayer__PlayerRunCommand(this, pUserCmd, pMover);
 }
 
 //------------------------------------------------------------------------------
@@ -235,3 +240,49 @@ void CPlayer::SetLastUserCommand(CUserCmd* pUserCmd)
 {
 	m_LastCmd.Copy(pUserCmd);
 }
+
+/*
+=====================
+CC_CreateFakePlayer_f
+
+  Creates a fake player
+  on the server
+=====================
+*/
+static void CC_CreateFakePlayer_f(const CCommand& args)
+{
+	if (!g_pServer->IsActive())
+		return;
+
+	if (args.ArgC() < 3)
+	{
+		Msg(eDLL_T::SERVER, "usage 'sv_addbot': name(string) teamid(int)\n");
+		return;
+	}
+
+	const int numPlayers = g_pServer->GetNumClients();
+
+	// Already at max, don't create.
+	if (numPlayers >= g_ServerGlobalVariables->m_nMaxClients)
+		return;
+
+	const char* playerName = args.Arg(1);
+
+	int teamNum = atoi(args.Arg(2));
+	const int maxTeams = int(g_pServer->GetMaxTeams()) + 1;
+
+	// Clamp team count, going above the limit will
+	// cause a crash. Going below 0 means that the
+	// engine will assign the bot to the last team.
+	if (teamNum > maxTeams)
+		teamNum = maxTeams;
+
+	g_pEngineServer->LockNetworkStringTables(true);
+
+	const edict_t nHandle = g_pEngineServer->CreateFakeClient(playerName, teamNum);
+	g_pServerGameClients->ClientFullyConnect(nHandle, false);
+
+	g_pEngineServer->LockNetworkStringTables(false);
+}
+
+static ConCommand sv_addbot("sv_addbot", CC_CreateFakePlayer_f, "Creates a bot on the server", FCVAR_RELEASE);

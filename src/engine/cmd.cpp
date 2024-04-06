@@ -60,6 +60,10 @@ bool Cbuf_AddTextWithMarkers(const char* const pText, const ECmdExecutionMarker 
 // Input  : *args - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
+#ifndef DEDICATED
+ConVar cl_quota_stringCmdsPerSecond("cl_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second user is allowed to submit, 0 to allow all submissions.", true, 0.f, false, 0.f);
+#endif // DEDICATED
+
 bool Cmd_ForwardToServer(const CCommand* args)
 {
 #ifndef DEDICATED
@@ -72,7 +76,7 @@ bool Cmd_ForwardToServer(const CCommand* args)
 		return false;
 
 	const double flStartTime = Plat_FloatTime();
-	const int nCmdQuotaLimit = cl_quota_stringCmdsPerSecond->GetInt();
+	const int nCmdQuotaLimit = cl_quota_stringCmdsPerSecond.GetInt();
 	const char* pszCmdString = nullptr;
 
 	// Special case: "cmd whatever args..." is forwarded as "whatever args...";
@@ -101,6 +105,7 @@ bool Cmd_ForwardToServer(const CCommand* args)
 	}
 	return v_Cmd_ForwardToServer(args);
 #else // !DEDICATED
+	Assert(0);
 	return false; // Client only.
 #endif // DEDICATED
 }

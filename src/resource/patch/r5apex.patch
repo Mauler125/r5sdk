@@ -44,6 +44,15 @@
 // screen. This satisfies the required memory size to render all 120 player models (active players on server).
 0xE6530: "mov     r8d, 200000h"
 
+// This patch assigns the model and anim cache pointers to NULL instead of 0xDEADFEEDDEADFEED,
+// if the asset failed to load. The 0xDEADFEEDDEADFEED (DC_INVALID_HANDLE) assignment was most
+// likely done to catch errors in the asset loading system, since the pointer test won't fail
+// while the pointer is invalid, this cause a hard crash. We however don't want this as this
+// would cause issues loading BSP's with missing assets (the SDK handles the errors properly
+// and also logs what was failed to load).
+0x1E3CB6: "xor rax, rax" // NULL RAX instead of mov'ing '0xDEADFEEDDEADFEED' to cache ptr in 'Pak_UpdateModelAsset()'
+0x1E3EE2: "xor rax, rax" // NULL RAX instead of mov'ing '0xDEADFEEDDEADFEED' to cache ptr in 'Pak_UpdateAnimRigAsset()'
+
 /////////////////////////////
 /////////////////////////////
 ////    Code defects     ////

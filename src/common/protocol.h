@@ -4,13 +4,20 @@
  * _protocol.h
  *-----------------------------------------------------------------------------*/
 
+ // Largest # of commands to send in a packet
+#define NUM_NEW_COMMAND_BITS		4
+#define MAX_NEW_COMMANDS			((1 << NUM_NEW_COMMAND_BITS)-1)
+
  // Max number of history commands to send ( 2 by default ) in case of dropped packets
-#define NUM_BACKUP_COMMAND_BITS		4 // Originally 3 bits.
-#define MAX_BACKUP_COMMANDS			((1 << NUM_BACKUP_COMMAND_BITS)-1) // 15 in R5; see 'CL_Move'.
+#define NUM_BACKUP_COMMAND_BITS		3
+#define MAX_BACKUP_COMMANDS			((1 << NUM_BACKUP_COMMAND_BITS)-1)
 
 // Maximum amount of backup commands to process on the server.
-#define MAX_BACKUP_COMMANDS_PROCESS (MAX_BACKUP_COMMANDS+1) * NUM_BACKUP_COMMAND_BITS
-#define MAX_QUEUED_COMMANDS_PROCESS 0x1B0
+#define MAX_BACKUP_COMMANDS_PROCESS 64
+#define MAX_QUEUED_COMMANDS_PROCESS 432
+
+// The size of the snapshot scratch buffer, which also applies to data block packets
+#define SNAPSHOT_SCRATCH_BUFFER_SIZE 786432
 
 enum class SIGNONSTATE : int
 {
@@ -31,12 +38,17 @@ enum class PERSISTENCE : int
 	PERSISTENCE_NONE      = 0, // no persistence data for this client yet.
 	PERSISTENCE_PENDING   = 1, // pending or processing persistence data.
 	PERSISTENCE_AVAILABLE = 2, // persistence is available for this client.
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-	PERSISTENCE_READY     = 3  // persistence is ready for this client.
-#else
 	PERSISTENCE_READY     = 5  // persistence is ready for this client.
-#endif
 };
 
 #define net_NOP        0 // nop command used for padding.
 #define net_Disconnect 1 // disconnect, last message in connection.
+
+// each channel packet has 1 byte of FLAG bits
+#define PACKET_FLAG_RELIABLE			(1<<0)	// packet contains subchannel stream data
+#define PACKET_FLAG_COMPRESSED			(1<<1)	// packet is compressed
+#define PACKET_FLAG_ENCRYPTED			(1<<2)  // packet is encrypted
+#define PACKET_FLAG_SPLIT				(1<<3)  // packet is split
+#define PACKET_FLAG_CHOKED				(1<<4)  // packet was choked by sender
+#define PACKET_FLAG_PRESCALED			(1<<5)  // packet was sent by sender with prescaled frame time
+#define PACKET_FLAG_LOOPBACK			(1<<6)  // packet was sent from loopback connection

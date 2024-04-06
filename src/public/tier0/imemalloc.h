@@ -10,6 +10,15 @@
 #ifndef TIER0_IMEMALLOC_H
 #define TIER0_IMEMALLOC_H
 
+inline void* MemAlloc_Alloc(size_t nSize, const char* pFileName = NULL, int nLine = 0) { return malloc(nSize); }
+inline void MemAlloc_Free(void* ptr, const char* pFileName = NULL, int nLine = 0) { free(ptr); }
+
+inline void* MemAlloc_AllocAligned(size_t size, size_t align) { return _aligned_malloc(size, align); }
+inline void* MemAlloc_AllocAlignedFileLine(size_t size, size_t align, const char* pszFile = NULL, int nLine = 0) { return _aligned_malloc(size, align); }
+inline void MemAlloc_FreeAligned(void* pMemBlock, const char* pszFile = NULL, int nLine = 0) { free(pMemBlock); }
+
+//-----------------------------------------------------------------------------
+
 /// This interface class is used to let the mem_dump command retrieve
 /// information about memory allocations outside of the heap. It is currently
 /// used by CMemoryStack to report on its allocations.

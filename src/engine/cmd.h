@@ -27,19 +27,10 @@ extern bool Cbuf_HasRoomForExecutionMarkers(const int cExecutionMarkers);
 extern bool Cbuf_AddTextWithMarkers(const char* text, const ECmdExecutionMarker markerLeft, const ECmdExecutionMarker markerRight);
 
 /* ==== COMMAND_BUFFER ================================================================================================================================================== */
-inline CMemory p_Cbuf_AddText;
 inline void(*Cbuf_AddText)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource);
-
-inline CMemory p_Cbuf_AddExecutionMarker;
 inline void(*Cbuf_AddExecutionMarker)(ECommandTarget_t target, ECmdExecutionMarker marker);
-
-inline CMemory p_Cbuf_Execute;
 inline void(*Cbuf_Execute)(void);
-
-inline CMemory p_Cmd_Dispatch;
 inline void(*v_Cmd_Dispatch)(ECommandTarget_t eTarget, const ConCommandBase* pCmdBase, const CCommand* pCommand, bool bCallBackupCallback);
-
-inline CMemory p_Cmd_ForwardToServer;
 inline bool(*v_Cmd_ForwardToServer)(const CCommand* pCommand);
 
 extern CCommandBuffer** s_pCommandBuffer;
@@ -53,35 +44,29 @@ class VCmd : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("Cbuf_AddText", p_Cbuf_AddText.GetPtr());
-		LogFunAdr("Cbuf_AddExecutionMarker", p_Cbuf_AddExecutionMarker.GetPtr());
-		LogFunAdr("Cbuf_Execute", p_Cbuf_Execute.GetPtr());
-		LogFunAdr("Cmd_Dispatch", p_Cmd_Dispatch.GetPtr());
-		LogFunAdr("Cmd_ForwardToServer", p_Cmd_ForwardToServer.GetPtr());
-		LogVarAdr("s_CommandBuffer", reinterpret_cast<uintptr_t>(s_pCommandBuffer));
-		LogVarAdr("s_CommandBufferMutex", reinterpret_cast<uintptr_t>(s_pCommandBufferMutex));
-		LogVarAdr("g_ExecutionMarkers", reinterpret_cast<uintptr_t>(g_pExecutionMarkers));
+		LogFunAdr("Cbuf_AddText", Cbuf_AddText);
+		LogFunAdr("Cbuf_AddExecutionMarker", Cbuf_AddExecutionMarker);
+		LogFunAdr("Cbuf_Execute", Cbuf_Execute);
+		LogFunAdr("Cmd_Dispatch", v_Cmd_Dispatch);
+		LogFunAdr("Cmd_ForwardToServer", v_Cmd_ForwardToServer);
+		LogVarAdr("s_CommandBuffer", s_pCommandBuffer);
+		LogVarAdr("s_CommandBufferMutex", s_pCommandBufferMutex);
+		LogVarAdr("g_ExecutionMarkers", g_pExecutionMarkers);
 	}
 	virtual void GetFun(void) const
 	{
-		p_Cbuf_AddText            = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??");
-		p_Cbuf_AddExecutionMarker = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 05 ?? ?? ?? ??");
-		p_Cbuf_Execute            = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??");
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??").GetPtr(Cbuf_AddText);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 05 ?? ?? ?? ??").GetPtr(Cbuf_AddExecutionMarker);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??").GetPtr(Cbuf_Execute);
 
-		p_Cmd_Dispatch            = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B ?? 0C 49 FF C7").FollowNearCallSelf();
-		p_Cmd_ForwardToServer     = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 59 04");
-
-		Cbuf_AddText            = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t, const char*, cmd_source_t)>(); /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??*/
-		Cbuf_AddExecutionMarker = p_Cbuf_AddExecutionMarker.RCast<void(*)(ECommandTarget_t, ECmdExecutionMarker)>();
-		Cbuf_Execute            = p_Cbuf_Execute.RCast<void (*)(void)>();                                        /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??*/
-		v_Cmd_Dispatch          = p_Cmd_Dispatch.RCast<void (*)(ECommandTarget_t, const ConCommandBase*, const CCommand*, bool)>();
-		v_Cmd_ForwardToServer   = p_Cmd_ForwardToServer.RCast<bool (*)(const CCommand*)>();             /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 59 04*/
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B ?? 0C 49 FF C7").FollowNearCallSelf().GetPtr(v_Cmd_Dispatch);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 59 04").GetPtr(v_Cmd_ForwardToServer);
 	}
 	virtual void GetVar(void) const
 	{
-		s_pCommandBuffer      = p_Cbuf_AddText.FindPattern("48 8D 05").ResolveRelativeAddressSelf(3, 7).RCast<CCommandBuffer**>();
-		s_pCommandBufferMutex = p_Cbuf_AddText.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<LPCRITICAL_SECTION>();
-		g_pExecutionMarkers   = p_Cbuf_AddExecutionMarker.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(3, 7).RCast<CUtlVector<int>*>();
+		s_pCommandBuffer      = CMemory(Cbuf_AddText).FindPattern("48 8D 05").ResolveRelativeAddressSelf(3, 7).RCast<CCommandBuffer**>();
+		s_pCommandBufferMutex = CMemory(Cbuf_AddText).FindPattern("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<LPCRITICAL_SECTION>();
+		g_pExecutionMarkers   = CMemory(Cbuf_AddExecutionMarker).FindPattern("48 8B 0D").ResolveRelativeAddressSelf(3, 7).RCast<CUtlVector<int>*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;

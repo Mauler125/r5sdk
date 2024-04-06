@@ -359,7 +359,7 @@ public:
 	// Makes sure we've got at least this much memory
 	void EnsureCapacity(ssize_t num)
 	{
-		size_t nSize = sizeof(T) * MAX(num, Count());
+		size_t nSize = sizeof(T) * Max(num, Count());
 		ReAlloc(nSize);
 	}
 

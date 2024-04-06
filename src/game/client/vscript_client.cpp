@@ -9,27 +9,69 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/host_state.h"
 #include "engine/client/cl_main.h"
 #include "networksystem/pylon.h"
 #include "networksystem/listmanager.h"
 #include "game/shared/vscript_shared.h"
+
+#include "vscript/vscript.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
 #include "vscript_client.h"
 
+/*
+=====================
+SQVM_ClientScript_f
+
+  Executes input on the
+  VM in CLIENT context.
+=====================
+*/
+static void SQVM_ClientScript_f(const CCommand& args)
+{
+    if (args.ArgC() >= 2)
+    {
+        Script_Execute(args.ArgS(), SQCONTEXT::CLIENT);
+    }
+}
+
+/*
+=====================
+SQVM_UIScript_f
+
+  Executes input on the
+  VM in UI context.
+=====================
+*/
+static void SQVM_UIScript_f(const CCommand& args)
+{
+    if (args.ArgC() >= 2)
+    {
+        Script_Execute(args.ArgS(), SQCONTEXT::UI);
+    }
+}
+
+static ConCommand script_client("script_client", SQVM_ClientScript_f, "Run input code as CLIENT script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL | FCVAR_CHEAT);
+static ConCommand script_ui("script_ui", SQVM_UIScript_f, "Run input code as UI script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL | FCVAR_CHEAT);
+
 //-----------------------------------------------------------------------------
 // Purpose: checks if the server index is valid, raises an error if not
 //-----------------------------------------------------------------------------
-static SQBool Script_CheckServerIndex(HSQUIRRELVM v, SQInteger iServer)
+static SQBool Script_CheckServerIndexAndFailure(HSQUIRRELVM v, SQInteger iServer)
 {
-    SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
+    SQInteger iCount = static_cast<SQInteger>(g_ServerListManager.m_vServerList.size());
 
     if (iServer >= iCount)
     {
         v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
+        return false;
+    }
+    else if (iServer == -1) // If its still -1, then 'sq_getinteger' failed
+    {
+        v_SQVM_RaiseError(v, "Invalid argument type provided.\n");
         return false;
     }
 
@@ -46,11 +88,13 @@ namespace VScriptCode
         SQRESULT RefreshServerList(HSQUIRRELVM v)
         {
             string serverMessage; // Refresh list.
-            size_t iCount = g_pServerListManager->RefreshServerList(serverMessage);
+            size_t iCount;
 
+            // TODO: return error string on failure?
+            g_ServerListManager.RefreshServerList(serverMessage, iCount);
             sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -58,10 +102,10 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerCount(HSQUIRRELVM v)
         {
-            size_t iCount = g_pServerListManager->m_vServerList.size();
+            size_t iCount = g_ServerListManager.m_vServerList.size();
             sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -69,50 +113,47 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetHiddenServerName(HSQUIRRELVM v)
         {
-            SQChar* privateToken = sq_getstring(v, 1);
+            const SQChar* privateToken = nullptr;
 
-            if (!VALID_CHARSTAR(privateToken))
-                return SQ_OK;
+            if (SQ_FAILED(sq_getstring(v, 2, &privateToken)) || VALID_CHARSTAR(privateToken))
+            {
+                v_SQVM_ScriptError("Empty or null private token");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             string hiddenServerRequestMessage;
             NetGameServer_t serverListing;
 
-            bool result = g_pMasterServer->GetServerByToken(serverListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
+            bool result = g_MasterServer.GetServerByToken(serverListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (!result)
             {
                 if (hiddenServerRequestMessage.empty())
-                {
                     sq_pushstring(v, "Request failed", -1);
-                }
                 else
                 {
                     hiddenServerRequestMessage = Format("Request failed: %s", hiddenServerRequestMessage.c_str());
                     sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
                 }
 
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
-            if (serverListing.m_svHostName.empty())
+            if (serverListing.name.empty())
             {
                 if (hiddenServerRequestMessage.empty())
-                {
                     hiddenServerRequestMessage = Format("Server listing empty");
-                }
                 else
-                {
                     hiddenServerRequestMessage = Format("Server listing empty: %s", hiddenServerRequestMessage.c_str());
-                }
 
                 sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
             else
             {
-                hiddenServerRequestMessage = Format("Found server: %s", serverListing.m_svHostName.c_str());
+                hiddenServerRequestMessage = Format("Found server: %s", serverListing.name.c_str());
                 sq_pushstring(v, hiddenServerRequestMessage.c_str(), -1);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -120,18 +161,18 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
 
-            if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
 
-            const string& serverName = g_pServerListManager->m_vServerList[iServer].m_svHostName;
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+
+            const string& serverName = g_ServerListManager.m_vServerList[iServer].name;
             sq_pushstring(v, serverName.c_str(), -1);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -139,18 +180,18 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerDescription(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
 
-            if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
 
-            const string& serverDescription = g_pServerListManager->m_vServerList[iServer].m_svDescription;
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+
+            const string& serverDescription = g_ServerListManager.m_vServerList[iServer].description;
             sq_pushstring(v, serverDescription.c_str(), -1);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -158,18 +199,18 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
 
-            if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
 
-            const string& svServerMapName = g_pServerListManager->m_vServerList[iServer].m_svHostMap;
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+
+            const string& svServerMapName = g_ServerListManager.m_vServerList[iServer].map;
             sq_pushstring(v, svServerMapName.c_str(), -1);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -177,18 +218,18 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
 
-            if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
 
-            const string& serverPlaylist = g_pServerListManager->m_vServerList[iServer].m_svPlaylist;
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+
+            const string& serverPlaylist = g_ServerListManager.m_vServerList[iServer].playlist;
             sq_pushstring(v, serverPlaylist.c_str(), -1);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -196,18 +237,18 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
 
-            if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
 
-            const SQInteger playerCount = g_pServerListManager->m_vServerList[iServer].m_nPlayerCount;
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+
+            const SQInteger playerCount = g_ServerListManager.m_vServerList[iServer].numPlayers;
             sq_pushinteger(v, playerCount);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -215,18 +256,18 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMaxPlayers(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
 
-            if (!Script_CheckServerIndex(v, iServer))
-            {
-                return SQ_ERROR;
-            }
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
 
-            const SQInteger maxPlayers = g_pServerListManager->m_vServerList[iServer].m_nMaxPlayers;
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+
+            const SQInteger maxPlayers = g_ServerListManager.m_vServerList[iServer].maxPlayers;
             sq_pushinteger(v, maxPlayers);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -244,7 +285,10 @@ namespace VScriptCode
                 PromoRightDesc
             };
 
-            R5RPromoData ePromoIndex = static_cast<R5RPromoData>(sq_getinteger(v, 1));
+            SQInteger idx = 0;
+            sq_getinteger(v, 2, &idx);
+
+            R5RPromoData ePromoIndex = static_cast<R5RPromoData>(idx);
             const char* pszPromoKey;
 
             switch (ePromoIndex)
@@ -287,7 +331,7 @@ namespace VScriptCode
             }
 
             sq_pushstring(v, pszPromoKey, -1);
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         SQRESULT GetEULAContents(HSQUIRRELVM v)
@@ -295,7 +339,7 @@ namespace VScriptCode
             MSEulaData_t eulaData;
             string eulaRequestMessage;
 
-            if (g_pMasterServer->GetEULA(eulaData, eulaRequestMessage))
+            if (g_MasterServer.GetEULA(eulaData, eulaRequestMessage))
             {
                 // set EULA version cvar to the newly fetched EULA version
                 eula_version->SetValue(eulaData.version);
@@ -310,7 +354,7 @@ namespace VScriptCode
                 sq_pushstring(v, error.c_str(), -1);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -318,16 +362,24 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToServer(HSQUIRRELVM v)
         {
-            SQChar* ipAddress = sq_getstring(v, 1);
-            SQChar* cryptoKey = sq_getstring(v, 2);
+            const SQChar* ipAddress = nullptr;
+            if (SQ_FAILED(sq_getstring(v, 2, &ipAddress)))
+            {
+                v_SQVM_ScriptError("Missing ip address");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
-            if (!VALID_CHARSTAR(ipAddress) || VALID_CHARSTAR(cryptoKey))
-                return SQ_OK;
+            const SQChar* cryptoKey = nullptr;
+            if (SQ_FAILED(sq_getstring(v, 3, &cryptoKey)))
+            {
+                v_SQVM_ScriptError("Missing encryption key");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             Msg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", ipAddress, cryptoKey);
-            g_pServerListManager->ConnectToServer(ipAddress, cryptoKey);
+            g_ServerListManager.ConnectToServer(ipAddress, cryptoKey);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -335,20 +387,22 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToListedServer(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-            SQInteger iServer = sq_getinteger(v, 1);
+            AUTO_LOCK(g_ServerListManager.m_Mutex);
 
-            if (!Script_CheckServerIndex(v, iServer))
+            SQInteger iServer = -1;
+            sq_getinteger(v, 2, &iServer);
+
+            if (!Script_CheckServerIndexAndFailure(v, iServer))
             {
-                return SQ_ERROR;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            const NetGameServer_t& gameServer = g_pServerListManager->m_vServerList[iServer];
+            const NetGameServer_t& gameServer = g_ServerListManager.m_vServerList[iServer];
 
-            g_pServerListManager->ConnectToServer(gameServer.m_svIpAddress, gameServer.m_nGamePort,
-                gameServer.m_svEncryptionKey);
+            g_ServerListManager.ConnectToServer(gameServer.address, gameServer.port,
+                gameServer.netKey);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -356,25 +410,29 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToHiddenServer(HSQUIRRELVM v)
         {
-            SQChar* privateToken = sq_getstring(v, 1);
+            const SQChar* privateToken = nullptr;
+            const SQRESULT strRet = sq_getstring(v, 2, &privateToken);
 
-            if (!VALID_CHARSTAR(privateToken))
-                return SQ_OK;
+            if (SQ_FAILED(strRet) || VALID_CHARSTAR(privateToken))
+            {
+                v_SQVM_ScriptError("Empty or null private token");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             string hiddenServerRequestMessage;
             NetGameServer_t netListing;
 
-            bool result = g_pMasterServer->GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
+            const bool result = g_MasterServer.GetServerByToken(netListing, hiddenServerRequestMessage, privateToken); // Send token connect request.
             if (result)
             {
-                g_pServerListManager->ConnectToServer(netListing.m_svIpAddress, netListing.m_nGamePort, netListing.m_svEncryptionKey);
+                g_ServerListManager.ConnectToServer(netListing.address, netListing.port, netListing.netKey);
             }
             else
             {
                 Warning(eDLL_T::UI, "Failed to connect to private server: %s\n", hiddenServerRequestMessage.c_str());
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -383,7 +441,7 @@ namespace VScriptCode
         SQRESULT IsClientDLL(HSQUIRRELVM v)
         {
             sq_pushbool(v, ::IsClientDLL());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
     }
 }
@@ -439,3 +497,14 @@ void Script_RegisterCoreClientFunctions(CSquirrelVM* s)
 {
     DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, IsClientDLL, "Returns whether this build is client only", "bool", "");
 }
+
+//---------------------------------------------------------------------------------
+// Purpose: console variables for scripts, these should not be used in engine/sdk code !!!
+//---------------------------------------------------------------------------------
+static ConVar settings_reflex("settings_reflex", "1", FCVAR_RELEASE, "Selected NVIDIA Reflex mode.", "0 = Off. 1 = On. 2 = On + Boost.");
+static ConVar serverbrowser_hideEmptyServers("serverbrowser_hideEmptyServers", "0", FCVAR_RELEASE, "Hide empty servers in the server browser.");
+static ConVar serverbrowser_mapFilter("serverbrowser_mapFilter", "0", FCVAR_RELEASE, "Filter servers by map in the server browser.");
+static ConVar serverbrowser_gamemodeFilter("serverbrowser_gamemodeFilter", "0", FCVAR_RELEASE, "Filter servers by gamemode in the server browser.");
+
+// NOTE: if we want to make a certain promo only show once, add the playerprofile flag to the cvar below. Current behavior = always show after game restart.
+static ConVar promo_version_accepted("promo_version_accepted", "0", FCVAR_RELEASE, "The accepted promo version.");

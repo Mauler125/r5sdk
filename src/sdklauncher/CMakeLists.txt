@@ -36,6 +36,8 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE
 )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"
+    "tier1"
+
     "libdetours"
     "libcppkore"
     "libspdlog"

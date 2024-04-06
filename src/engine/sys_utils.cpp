@@ -98,9 +98,9 @@ void _Con_NPrintf(int pos, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	g_pOverlay->m_nCon_NPrintf_Idx = pos;
-	snprintf(g_pOverlay->m_szCon_NPrintf_Buf,
-		sizeof(g_pOverlay->m_szCon_NPrintf_Buf), "%s", buf);
+	g_TextOverlay.m_nCon_NPrintf_Idx = pos;
+	snprintf(g_TextOverlay.m_szCon_NPrintf_Buf,
+		sizeof(g_TextOverlay.m_szCon_NPrintf_Buf), "%s", buf);
 }
 #endif // !DEDICATED
 
@@ -112,6 +112,23 @@ void _Con_NPrintf(int pos, const char* fmt, ...)
 int Sys_GetProcessUpTime(char* szBuffer)
 {
 	return v_Sys_GetProcessUpTime(szBuffer);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Gets the build string of the game (defined in build.txt), if the file
+// is absent, the changelist # will be returned instead
+//-----------------------------------------------------------------------------
+const char* Sys_GetBuildString(void)
+{
+	return v_Sys_GetBuildString();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Gets the platform string
+//-----------------------------------------------------------------------------
+const char* Sys_GetPlatformString(void)
+{
+	return "PC";
 }
 
 void VSys_Utils::Detour(const bool bAttach) const

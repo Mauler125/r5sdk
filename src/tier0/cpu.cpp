@@ -470,7 +470,9 @@ const CPUInformation& GetCPUInformation(void)
 		pi.m_bSSE41 = (cpuid1.ecx >> 19) & 1;
 		pi.m_bSSE42 = (cpuid1.ecx >> 20) & 1;
 		pi.m_b3DNow = Check3DNowTechnology();
+		pi.m_bPOPCNT= (cpuid1.ecx >> 23) & 1;
 		pi.m_bAVX   = (cpuid1.ecx >> 28) & 1;
+		pi.m_bHRVSR = (cpuid1.ecx >> 31) & 1;
 		pi.m_szProcessorID = const_cast<char*>(GetProcessorVendorId());
 		pi.m_szProcessorBrand = const_cast<char*>(GetProcessorBrand());
 		pi.m_bHT = (pi.m_nPhysicalProcessors < pi.m_nLogicalProcessors); //HTSupported();
@@ -571,4 +573,38 @@ const CPUInformation& GetCPUInformation(void)
 		}
 	}
 	return pi;
+}
+
+void CheckSystemCPU()
+{
+	const CPUInformation& pi = GetCPUInformation();
+
+	if (!(pi.m_bSSE && pi.m_bSSE2))
+	{
+		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
+		}
+	}
+	if (!pi.m_bSSE3)
+	{
+		if (MessageBoxA(NULL, "SSE3 is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
+		}
+	}
+	if (!pi.m_bSSSE3)
+	{
+		if (MessageBoxA(NULL, "SSSE3 (Supplemental SSE3 Instructions) is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
+		}
+	}
+	if (!pi.m_bPOPCNT)
+	{
+		if (MessageBoxA(NULL, "POPCNT is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
+		}
+	}
 }

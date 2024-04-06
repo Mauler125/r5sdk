@@ -10,7 +10,7 @@
 
 VMatrix* CViewRender::GetWorldMatrixForView(int8_t slot)
 {
-	return CViewRender_GetWorldMatrixForView(this, slot);
+	return CViewRender__GetWorldMatrixForView(this, slot);
 }
 
 const Vector3D& MainViewOrigin()

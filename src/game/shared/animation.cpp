@@ -16,10 +16,10 @@ int CStudioHdr::LookupSequence(CStudioHdr* pStudio, const char* pszName)
 	if (!pStudio->m_pMDLCache)
 		return -1; // animations are unavailable for missing dynamic props! (mdl/error.rmdl).
 
-	return v_CStudioHdr__LookupSequence(pStudio, pszName);
+	return CStudioHdr__LookupSequence(pStudio, pszName);
 }
 
 void VAnimation::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_CStudioHdr__LookupSequence, &CStudioHdr::LookupSequence, bAttach);
+	DetourSetup(&CStudioHdr__LookupSequence, &CStudioHdr::LookupSequence, bAttach);
 }

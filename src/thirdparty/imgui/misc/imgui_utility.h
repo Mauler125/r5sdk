@@ -30,4 +30,4 @@ public:
     ImGuiStyle_t InitStyle() const;
 };
 
-extern ImGuiConfig* g_pImGuiConfig;
+extern ImGuiConfig g_ImGuiConfig;

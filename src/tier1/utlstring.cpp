@@ -365,10 +365,14 @@ CUtlString &CUtlString::operator+=( char c )
 CUtlString &CUtlString::operator+=( ssize_t rhs )
 {
 	Assert( !m_Storage.IsReadOnly() );
-	Assert( sizeof( rhs ) == 4 );
+	Assert( sizeof( rhs ) == sizeof( ssize_t ) );
 
-	char tmpBuf[ 12 ];	// Sufficient for a signed 32 bit integer [ -2147483648 to +2147483647 ]
-	Q_snprintf( tmpBuf, sizeof( tmpBuf ), "%lld", rhs );
+	// 12 = sufficient for a signed 32 bit integer [ -2147483648 to +2147483647 ]
+	// 22 = sufficient for a signed 64 bit integer [ -9223372036854775807 to +9223372036854775807 ]
+	const size_t bufLen = sizeof( ssize_t ) == 4 ? 12 : 22;
+
+	char tmpBuf[ bufLen ];
+	Q_snprintf( tmpBuf, sizeof( tmpBuf ), "%zd", rhs );
 	tmpBuf[ sizeof( tmpBuf ) - 1 ] = '\0';
 
 	return operator+=( tmpBuf );
@@ -378,7 +382,17 @@ CUtlString &CUtlString::operator+=( double rhs )
 {
 	Assert( !m_Storage.IsReadOnly() );
 
-	char tmpBuf[ 256 ];	// How big can doubles be???  Dunno.
+	// from: https://stackoverflow.com/questions/1701055/what-is-the-maximum-length-in-chars-needed-to-represent-any-double-value
+	// 
+	// The longest number is actually the smallest representable negative
+	// number: it needs enough digits to cover both the exponent and the
+	// mantissa. This value is -pow(2, DBL_MIN_EXP - DBL_MANT_DIG), where
+	// DBL_MIN_EXP is negative. It's fairly easy to see (and prove by
+	// induction) that -pow(2,-N) needs 3+N characters for a non-scientific
+	// decimal representation ("-0.", followed by N digits).
+	const size_t maxDigits = ( sizeof( "-0." ) - 1 ) + DBL_MANT_DIG - DBL_MIN_EXP;
+
+	char tmpBuf[ maxDigits + 1 ]; // +1 for terminating NULL.
 	Q_snprintf( tmpBuf, sizeof( tmpBuf ), "%lg", rhs );
 	tmpBuf[ sizeof( tmpBuf ) - 1 ] = '\0';
 
@@ -411,13 +425,28 @@ int CUtlString::Format( const char *pFormat, ... )
 
 int CUtlString::FormatV( const char *pFormat, va_list marker )
 {
-	char tmpBuf[ 4096 ];	//< Nice big 4k buffer, as much memory as my first computer had, a Radio Shack Color Computer
+	// Initialize use of the variable argument array.
+	va_list argsCopy;
+	va_copy( argsCopy, marker );
 
-	//va_start( marker, pFormat );
-	int len = V_vsprintf_safe( tmpBuf, pFormat, marker );
-	//va_end( marker );
-	Set( tmpBuf );
-	return len;
+	// Dry run to obtain required buffer size.
+	const int iLen = vsnprintf( nullptr, 0, pFormat, argsCopy );
+	va_end( argsCopy );
+
+	assert( iLen >= 0 );
+
+	if ( iLen <= 0 )
+	{
+		Clear();
+	}
+	else
+	{
+		// NOTE: SetLength already adds +1 to account for the terminating NULL.
+		SetLength( iLen );
+		vsnprintf( (char*)m_Storage.Get(), m_Storage.Length(), pFormat, marker );
+	}
+
+	return iLen;
 }
 
 //-----------------------------------------------------------------------------

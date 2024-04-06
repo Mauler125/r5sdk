@@ -1,4 +1,5 @@
 #include "core/stdafx.h"
+#include "core/init.h"
 #include "windows/system.h"
 #include "engine/host_state.h"
 
@@ -56,15 +57,23 @@ ConsoleHandlerRoutine(
 {
 	switch (eventCode)
 	{
+	case CTRL_C_EVENT:
+	case CTRL_BREAK_EVENT:
 	case CTRL_CLOSE_EVENT:
 	case CTRL_LOGOFF_EVENT:
 	case CTRL_SHUTDOWN_EVENT:
-		if (g_pHostState)
-		{
-			g_pHostState->m_iNextState = HostStates_t::HS_SHUTDOWN;
-		}
+		
+		if (!g_bSdkShutdownInitiatedFromConsoleHandler)
+			g_bSdkShutdownInitiatedFromConsoleHandler = true;
 
-		Sleep(10000);
+		if (g_pHostState) // This tells the engine to gracefully shutdown on the next frame.
+			g_pHostState->m_iNextState = HostStates_t::HS_SHUTDOWN;
+
+		// Give it time to shutdown properly, this loop waits for max time
+		// of SPI_GETWAITTOKILLSERVICETIMEOUT, which is 20000ms by default.
+		while (g_bSdkInitialized)
+			Sleep(50);
+
 		return TRUE;
 	}
 
@@ -96,6 +105,7 @@ void WinSys_Init()
 	if (hr != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
+		Assert(0);
 		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 #endif // DEDICATED

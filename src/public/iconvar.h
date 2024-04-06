@@ -67,6 +67,9 @@ class CUtlString;
 typedef void (*FnCommandCallbackV1_t)(void);
 typedef void (*FnCommandCallback_t)(const CCommand& command);
 
+typedef void (*FnCommandSupplementalFinishCallback_t)();
+typedef void (*FnCommandSupplementalCallback_t)(const CCommand& command, FnCommandSupplementalFinishCallback_t);
+
 #define COMMAND_COMPLETION_MAXITEMS		128
 #define COMMAND_COMPLETION_ITEM_LENGTH	128
 
@@ -96,7 +99,7 @@ public:
 // Called when a ConVar changes value
 // NOTE: For FCVAR_NEVER_AS_STRING ConVars, pOldValue == NULL
 //-----------------------------------------------------------------------------
-typedef void (*FnChangeCallback_t)(IConVar* var, const char* pOldValue, float flOldValue);
+typedef void (*FnChangeCallback_t)(IConVar* var, const char* pOldValue);
 
 
 //-----------------------------------------------------------------------------
@@ -112,17 +115,15 @@ public:
 	virtual void SetValue(float flValue) = 0;
 	virtual void SetValue(int nValue) = 0;
 
-	// Original name 'GetName'. Renamed due to name ambiguity
-	// as we are not implementing it in ConVar, we are just
-	// interfacing it with the game executable.
-	virtual const char* GetCommandName(void) const = 0;
+	// Return name of command
+	virtual const char* GetName(void) const = 0;
 
 	// Return name of command (usually == GetName(), except in case of FCVAR_SS_ADDED vars
 	virtual const char* GetBaseName(void) const = 0;
 
 	// Accessors.. not as efficient as using GetState()/GetInfo()
 	// if you call these methods multiple times on the same IConVar
-	virtual bool IsConVarFlagSet(int nFlag) const = 0; // Original name 'IsFlagSet'. Renamed for same reason as 'GetName'.
+	virtual bool IsFlagSet(const int nFlag) const = 0;
 
 	virtual int GetSplitScreenPlayerSlot() const = 0;
 };

@@ -9,7 +9,10 @@ add_sources( SOURCE_GROUP "Private"
 )
 
 add_sources( SOURCE_GROUP "Public"
+    "${ENGINE_SOURCE_DIR}/public/inputsystem/iinputsystem.h"
+    "${ENGINE_SOURCE_DIR}/public/inputsystem/AnalogCode.h"
     "${ENGINE_SOURCE_DIR}/public/inputsystem/ButtonCode.h"
+    "${ENGINE_SOURCE_DIR}/public/inputsystem/InputEnums.h"
 )
 
 end_sources()

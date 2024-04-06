@@ -7,7 +7,7 @@
 #include "core/stdafx.h"
 #include "tier0/frametask.h"
 #include "tier1/cvar.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "common/callback.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
@@ -17,18 +17,24 @@
 #include "server/vengineserver_impl.h"
 #endif // !CLIENT_DLL
 
+//-----------------------------------------------------------------------------
+// Console variables
+//-----------------------------------------------------------------------------
+static ConVar net_processTimeBudget("net_processTimeBudget", "200", FCVAR_RELEASE, "Net message process time budget in milliseconds (removing netchannel if exceeded).", true, 0.f, false, 0.f, "0 = disabled");
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the netchannel network loss
+// Purpose: gets the netchannel resend rate
 // Output : float
 //-----------------------------------------------------------------------------
-float CNetChan::GetNetworkLoss() const
+float CNetChan::GetResendRate() const
 {
-	int64_t totalupdates = this->m_DataFlow[FLOW_INCOMING].totalupdates;
+	const int64_t totalupdates = this->m_DataFlow[FLOW_INCOMING].totalupdates;
+
 	if (!totalupdates && !this->m_nSequencesSkipped_MAYBE)
 		return 0.0f;
 
 	float lossRate = (float)(totalupdates + m_nSequencesSkipped_MAYBE);
+
 	if (totalupdates + m_nSequencesSkipped_MAYBE < 0.0f)
 		lossRate += float(2 ^ 64);
 
@@ -62,6 +68,36 @@ double CNetChan::GetTimeConnected(void) const
 {
 	double t = *g_pNetTime - connect_time;
 	return (t > 0.0) ? t : 0.0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the number of bits written in selected stream
+//-----------------------------------------------------------------------------
+int CNetChan::GetNumBitsWritten(const bool bReliable)
+{
+    bf_write* pStream = &m_StreamUnreliable;
+
+    if (bReliable)
+    {
+        pStream = &m_StreamReliable;
+    }
+
+    return pStream->GetNumBitsWritten();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the number of bits written in selected stream
+//-----------------------------------------------------------------------------
+int CNetChan::GetNumBitsLeft(const bool bReliable)
+{
+    bf_write* pStream = &m_StreamUnreliable;
+
+    if (bReliable)
+    {
+        pStream = &m_StreamReliable;
+    }
+
+    return pStream->GetNumBitsLeft();
 }
 
 //-----------------------------------------------------------------------------
@@ -324,7 +360,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
 //-----------------------------------------------------------------------------
 void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
-	v_NetChan_Shutdown(pChan, szReason, bBadRep, bRemoveNow);
+	CNetChan__Shutdown(pChan, szReason, bBadRep, bRemoveNow);
 }
 
 //-----------------------------------------------------------------------------
@@ -336,7 +372,7 @@ void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep,
 bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 {
 #ifndef CLIENT_DLL
-    if (!ThreadInServerFrameThread() || !net_processTimeBudget->GetInt())
+    if (!net_processTimeBudget.GetInt() || !ThreadInServerFrameThread())
         return pChan->ProcessMessages(pBuf);
 
     const double flStartTime = Plat_FloatTime();
@@ -345,23 +381,23 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
     if (!pChan->m_MessageHandler) // NetChannel removed?
         return bResult;
 
-    CClient* pClient = reinterpret_cast<CClient*>(pChan->m_MessageHandler);
-    ServerPlayer_t* pSlot = &g_ServerPlayer[pClient->GetUserID()];
+    CClient* const pClient = reinterpret_cast<CClient*>(pChan->m_MessageHandler);
+    CClientExtended* const pExtended = pClient->GetClientExtended();
 
-    if (flStartTime - pSlot->m_flLastNetProcessTime >= 1.0 ||
-        pSlot->m_flLastNetProcessTime == -1.0)
+    // Reset every second.
+    if ((flStartTime - pExtended->GetNetProcessingTimeBase()) > 1.0)
     {
-        pSlot->m_flLastNetProcessTime = flStartTime;
-        pSlot->m_flCurrentNetProcessTime = 0.0;
+        pExtended->SetNetProcessingTimeBase(flStartTime);
+        pExtended->SetNetProcessingTimeMsecs(0.0, 0.0);
     }
-    pSlot->m_flCurrentNetProcessTime +=
-        (Plat_FloatTime() * 1000) - (flStartTime * 1000);
 
-    if (pSlot->m_flCurrentNetProcessTime >
-        net_processTimeBudget->GetFloat())// + 2000)
+    const double flCurrentTime = Plat_FloatTime();
+    pExtended->SetNetProcessingTimeMsecs(flStartTime, flCurrentTime);
+
+    if (pExtended->GetNetProcessingTimeMsecs() > net_processTimeBudget.GetFloat())
     {
-        Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n",
-            pChan->GetName(), pChan->GetAddress(), (pSlot->m_flCurrentNetProcessTime - net_processTimeBudget->GetFloat()));
+        Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded time budget by '%3.1f'ms!)\n",
+            pChan->GetName(), pChan->GetAddress(), (pExtended->GetNetProcessingTimeMsecs() - net_processTimeBudget.GetFloat()));
         pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
 
         return false;
@@ -381,7 +417,25 @@ bool CNetChan::_ProcessMessages(CNetChan* pChan, bf_read* pBuf)
 bool CNetChan::ProcessMessages(bf_read* buf)
 {
     m_bStopProcessing = false;
-    //const double flStartTime = Plat_FloatTime();
+
+    const char* showMsgName = net_showmsg->GetString();
+    const char* blockMsgName = net_blockmsg->GetString();
+    const int netPeak = net_showpeaks->GetInt();
+
+    if (*showMsgName == '0')
+    {
+        showMsgName = NULL; // dont do strcmp all the time
+    }
+
+    if (*blockMsgName == '0')
+    {
+        blockMsgName = NULL; // dont do strcmp all the time
+    }
+
+    if (netPeak > 0 && netPeak < buf->GetNumBytesLeft())
+    {
+        showMsgName = "1"; // show messages for this packet only
+    }
 
     while (true)
     {
@@ -394,8 +448,9 @@ bool CNetChan::ProcessMessages(bf_read* buf)
 
             if (!NET_ReadMessageType(&cmd, buf) && buf->m_bOverflow)
             {
-                Warning(eDLL_T::ENGINE, "%s(%s): Incoming buffer overflow!\n", __FUNCTION__, GetAddress());
+                Error(eDLL_T::ENGINE, 0, "%s(%s): Incoming buffer overflow!\n", __FUNCTION__, GetAddress());
                 m_MessageHandler->ConnectionCrashed("Buffer overflow in net message");
+
                 return false;
             }
 
@@ -418,6 +473,26 @@ bool CNetChan::ProcessMessages(bf_read* buf)
                     __FUNCTION__, GetAddress(), netMsg->GetName());
                 Assert(0);
                 return false;
+            }
+
+            if (showMsgName)
+            {
+                if ((*showMsgName == '1') || !Q_stricmp(showMsgName, netMsg->GetName()))
+                {
+                    Msg(eDLL_T::ENGINE, "%s(%s): Received: %s\n",
+                        __FUNCTION__, GetAddress(), netMsg->ToString());
+                }
+            }
+
+            if (blockMsgName)
+            {
+                if ((*blockMsgName == '1') || !Q_stricmp(blockMsgName, netMsg->GetName()))
+                {
+                    Msg(eDLL_T::ENGINE, "%s(%s): Blocked: %s\n",
+                        __FUNCTION__, GetAddress(), netMsg->ToString());
+
+                    continue;
+                }
             }
 
             // Netmessage calls the Process function that was registered by
@@ -475,6 +550,12 @@ bool CNetChan::ProcessMessages(bf_read* buf)
     }
 }
 
+bool CNetChan::ReadSubChannelData(bf_read& buf)
+{
+    // TODO: rebuild this and hook
+    return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: send message
 // Input  : &msg - 
@@ -482,10 +563,10 @@ bool CNetChan::ProcessMessages(bf_read* buf)
 //			bVoice - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
+bool CNetChan::SendNetMsg(INetMessage& msg, const bool bForceReliable, const bool bVoice)
 {
 	if (remote_address.GetType() == netadrtype_t::NA_NULL)
-		return false;
+		return true;
 
 	bf_write* pStream = &m_StreamUnreliable;
 
@@ -495,19 +576,59 @@ bool CNetChan::SendNetMsg(INetMessage& msg, bool bForceReliable, bool bVoice)
 	if (bVoice)
 		pStream = &m_StreamVoice;
 
-	if (pStream != &m_StreamUnreliable ||
-		pStream->GetNumBytesLeft() >= NET_UNRELIABLE_STREAM_MINSIZE)
-	{
-		AcquireSRWLockExclusive(&m_Lock);
+	if (pStream == &m_StreamUnreliable && pStream->GetNumBytesLeft() < NET_UNRELIABLE_STREAM_MINSIZE)
+		return true;
 
-		pStream->WriteUBitLong(msg.GetType(), NETMSG_TYPE_BITS);
-		if (!pStream->IsOverflowed())
-			msg.WriteToBuffer(pStream);
+	AcquireSRWLockExclusive(&m_Lock);
 
-		ReleaseSRWLockExclusive(&m_Lock);
-	}
+	pStream->WriteUBitLong(msg.GetType(), NETMSG_TYPE_BITS);
+	const bool ret = msg.WriteToBuffer(pStream);
 
-	return true;
+	ReleaseSRWLockExclusive(&m_Lock);
+
+	return !pStream->IsOverflowed() && ret;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: send data
+// Input  : &msg - 
+//			bReliable - 
+// Output : true on success, false on failure
+//-----------------------------------------------------------------------------
+bool CNetChan::SendData(bf_write& msg, const bool bReliable)
+{
+    // Always queue any pending reliable data ahead of the fragmentation buffer
+
+    if (remote_address.GetType() == netadrtype_t::NA_NULL)
+        return true;
+
+    if (msg.GetNumBitsWritten() <= 0)
+        return true;
+
+    if (msg.IsOverflowed() && !bReliable)
+        return true;
+
+    bf_write& buf = bReliable
+        ? m_StreamReliable
+        : m_StreamUnreliable;
+
+    const int dataBits = msg.GetNumBitsWritten();
+    const int bitsLeft = buf.GetNumBitsLeft();
+
+    if (dataBits > bitsLeft)
+    {
+        if (bReliable)
+        {
+            Error(eDLL_T::ENGINE, 0, "%s(%s): Data too large for reliable buffer (%i > %i)!\n", 
+                __FUNCTION__, GetAddress(), msg.GetNumBytesWritten(), buf.GetNumBytesLeft());
+
+            m_MessageHandler->ChannelDisconnect("reliable buffer is full");
+        }
+
+        return false;
+    }
+
+    return buf.WriteBits(msg.GetData(), dataBits);
 }
 
 //-----------------------------------------------------------------------------
@@ -575,7 +696,7 @@ bool CNetChan::HasPendingReliableData(void)
 ///////////////////////////////////////////////////////////////////////////////
 void VNetChan::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_NetChan_Shutdown, &CNetChan::_Shutdown, bAttach);
-	DetourSetup(&v_NetChan_FlowNewPacket, &CNetChan::_FlowNewPacket, bAttach);
-	DetourSetup(&v_NetChan_ProcessMessages, &CNetChan::_ProcessMessages, bAttach);
+	DetourSetup(&CNetChan__Shutdown, &CNetChan::_Shutdown, bAttach);
+	DetourSetup(&CNetChan__FlowNewPacket, &CNetChan::_FlowNewPacket, bAttach);
+	DetourSetup(&CNetChan__ProcessMessages, &CNetChan::_ProcessMessages, bAttach);
 }

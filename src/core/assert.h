@@ -10,4 +10,5 @@
 //    } while (false)
 //#else
 #   define Assert(condition, ...) assert(condition)
+#   define AssertFatalMsg Assert
 //#endif

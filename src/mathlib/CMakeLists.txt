@@ -12,8 +12,6 @@ add_sources( SOURCE_GROUP "Hash"
     "IceKey.H"
     "sha1.cpp"
     "sha1.h"
-    "sha256.cpp"
-    "sha256.h"
 )
 
 add_sources( SOURCE_GROUP "RNG"
@@ -64,5 +62,6 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "BUILDING_MATHLIB"
+    "ALLOW_SIMD_QUATERNION_MATH"
     $<$<OR:$<CONFIG:Debug>,$<CONFIG:Profile>>:DEBUG_MATHLIB>
 )

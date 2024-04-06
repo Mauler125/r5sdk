@@ -15,12 +15,12 @@
 //-----------------------------------------------------------------------------
 ConVar* HCFPSPanel_Paint(void* thisptr)
 {
-	g_pOverlay->Update();
-	return CFPSPanel_Paint(thisptr);
+	g_TextOverlay.Update();
+	return CFPSPanel__Paint(thisptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void VFPSPanel::Detour(const bool bAttach) const
 {
-	DetourSetup(&CFPSPanel_Paint, &HCFPSPanel_Paint, bAttach);
+	DetourSetup(&CFPSPanel__Paint, &HCFPSPanel_Paint, bAttach);
 }

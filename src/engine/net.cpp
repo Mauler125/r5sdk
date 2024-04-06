@@ -6,7 +6,7 @@
 
 #include "core/stdafx.h"
 #include "engine/net.h"
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 #include "tier1/cvar.h"
 #include "mathlib/color.h"
 #include "net.h"
@@ -15,9 +15,45 @@
 #include "server/server.h"
 #include "client/client.h"
 #endif // !CLIENT_DLL
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
+static void NET_SetKey_f(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	NET_SetKey(args.Arg(1));
+}
+static void NET_GenerateKey_f()
+{
+	NET_GenerateKey();
+}
+
+void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same value.
+
+		if (pConVarRef->GetBool())
+			NET_GenerateKey();
+		else
+			NET_SetKey(DEFAULT_NET_ENCRYPTION_KEY);
+	}
+}
+
+ConVar net_useRandomKey("net_useRandomKey", "1", FCVAR_RELEASE, "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
+
+static ConVar net_tracePayload("net_tracePayload", "0", FCVAR_DEVELOPMENTONLY, "Log the payload of the send/recv datagram to a file on the disk.");
+static ConVar net_encryptionEnable("net_encryptionEnable", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use AES encryption on game packets.");
+
+static ConCommand net_setkey("net_setkey", NET_SetKey_f, "Sets user specified base64 net key", FCVAR_RELEASE);
+static ConCommand net_generatekey("net_generatekey", NET_GenerateKey_f, "Generates and sets a random base64 net key", FCVAR_RELEASE);
+
 //-----------------------------------------------------------------------------
 // Purpose: hook and log the receive datagram
 // Input  : iSocket - 
@@ -27,13 +63,16 @@
 //-----------------------------------------------------------------------------
 bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 {
-	bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, net_encryptionEnable->GetBool());
-	if (result && net_tracePayload->GetBool())
+	const bool decryptPacket = (bEncrypted && net_encryptionEnable.GetBool());
+	const bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, decryptPacket);
+
+	if (result && net_tracePayload.GetBool())
 	{
 		// Log received packet data.
-		HexDump("[+] NET_ReceiveDatagram ", "net_trace", 
+		HexDump("[+] NET_ReceiveDatagram ", "net_trace",
 			pInpacket->pData, size_t(pInpacket->wiresize));
 	}
+
 	return result;
 }
 
@@ -48,13 +87,64 @@ bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 //-----------------------------------------------------------------------------
 int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypt)
 {
-	int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, net_encryptionEnable->GetBool());
-	if (result && net_tracePayload->GetBool())
+	const bool encryptPacket = (bEncrypt && net_encryptionEnable.GetBool());
+	const int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, encryptPacket);
+
+	if (result && net_tracePayload.GetBool())
 	{
 		// Log transmitted packet data.
 		HexDump("[+] NET_SendDatagram ", "net_trace", pPayload, size_t(iLenght));
 	}
+
 	return result;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: compresses the input buffer into the output buffer
+// Input  : *dest - 
+//			*destLen - 
+//			*source - 
+//			sourceLen - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool NET_BufferToBufferCompress(uint8_t* const dest, size_t* const destLen, uint8_t* const source, const size_t sourceLen)
+{
+	CLZSS lzss;
+	uint32_t compLen = (uint32_t)sourceLen;
+
+	if (!lzss.CompressNoAlloc(source, (uint32_t)sourceLen, dest, &compLen))
+	{
+		memcpy(dest, source, sourceLen);
+
+		*destLen = sourceLen;
+		return false;
+	}
+
+	*destLen = compLen;
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: decompresses the input buffer into the output buffer
+// Input  : *source - 
+//			&sourceLen - 
+//			*dest - 
+//			destLen - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+unsigned int NET_BufferToBufferDecompress(uint8_t* const source, size_t& sourceLen, uint8_t* const dest, const size_t destLen)
+{
+	Assert(source);
+	Assert(sourceLen);
+
+	CLZSS lzss;
+
+	if (lzss.IsCompressed(source))
+	{
+		return lzss.SafeUncompress(source, dest, (unsigned int)destLen);
+	}
+
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -65,7 +155,7 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool
 //			unBufSize - 
 // Output : total decompressed bytes
 //-----------------------------------------------------------------------------
-unsigned int NET_Decompress(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize)
+unsigned int NET_BufferToBufferDecompress_LZSS(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize)
 {
 	return lzss->SafeUncompress(pInput, pOutput, unBufSize);
 }
@@ -106,9 +196,9 @@ void NET_SetKey(const string& svNetKey)
 //-----------------------------------------------------------------------------
 void NET_GenerateKey()
 {
-	if (!net_useRandomKey->GetBool())
+	if (!net_useRandomKey.GetBool())
 	{
-		net_useRandomKey->SetValue(1);
+		net_useRandomKey.SetValue(1);
 		return; // Change callback will handle this.
 	}
 
@@ -175,7 +265,6 @@ void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8
 
 	pClient->GetNetChan()->Shutdown(szReason, bBadRep, bRemoveNow); // Shutdown NetChannel.
 	pClient->Clear();                                               // Reset CClient slot.
-	g_ServerPlayer[nIndex].Reset();                                 // Reset ServerPlayer slot.
 #endif // !CLIENT_DLL
 }
 
@@ -191,7 +280,7 @@ bool NET_ReadMessageType(int* outType, bf_read* buffer)
 	return !buffer->IsOverflowed();
 }
 
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
 //-----------------------------------------------------------------------------
 // Purpose: returns the WSA error code
@@ -295,14 +384,16 @@ const char* NET_ErrorString(int iCode)
 	}
 }
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 ///////////////////////////////////////////////////////////////////////////////
 void VNet::Detour(const bool bAttach) const
 {
 	DetourSetup(&v_NET_Config, &NET_Config, bAttach);
 	DetourSetup(&v_NET_ReceiveDatagram, &NET_ReceiveDatagram, bAttach);
 	DetourSetup(&v_NET_SendDatagram, &NET_SendDatagram, bAttach);
-	DetourSetup(&v_NET_Decompress, &NET_Decompress, bAttach);
+
+	DetourSetup(&v_NET_BufferToBufferCompress, &NET_BufferToBufferCompress, bAttach);
+	DetourSetup(&v_NET_BufferToBufferDecompress_LZSS, &NET_BufferToBufferDecompress_LZSS, bAttach);
 	DetourSetup(&v_NET_PrintFunc, &NET_PrintFunc, bAttach);
 }
 
@@ -311,4 +402,4 @@ netadr_t* g_pNetAdr = nullptr;
 netkey_t* g_pNetKey = nullptr;
 
 double* g_pNetTime = nullptr;
-#endif // !NETCONSOLE
+#endif // !_TOOLS

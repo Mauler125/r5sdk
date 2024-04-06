@@ -8,11 +8,6 @@ add_sources( SOURCE_GROUP "Private"
     "IAppSystem.h"
     "interfaces.cpp"
     "interfaces.h"
-    "keyvalues.cpp"
-    "keyvalues.h"
-    "kvleaktrace.h"
-    "rson.cpp"
-    "rson.h"
 )
 
 add_sources( SOURCE_GROUP "Public"

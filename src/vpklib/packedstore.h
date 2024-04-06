@@ -8,6 +8,7 @@
 * ██║  ██║ ██║     ╚████╔╝ ██║     ██║  ██╗    ███████╗██║██████╔╝ *
 * ╚═╝  ╚═╝ ╚═╝      ╚═══╝  ╚═╝     ╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝  *
 *******************************************************************/
+#include "public/ipackedstore.h"
 #include "public/ifilesystem.h"
 #include "public/tier1/strtools.h"
 #include "public/tier1/utlvector.h"
@@ -144,6 +145,7 @@ struct VPKDir_t
 	// This set only contains packfile indices used
 	// by the directory tree, notated as pak000_xxx.
 	std::set<uint16_t>           m_PakFileIndices;
+	bool m_bInitFailed;
 
 	class CTreeBuilder
 	{
@@ -160,20 +162,20 @@ struct VPKDir_t
 
 	VPKDir_t()
 	{
-		m_Header.m_nHeaderMarker = VPK_HEADER_MARKER; m_Header.m_nMajorVersion = VPK_MAJOR_VERSION;
-		m_Header.m_nMinorVersion = VPK_MINOR_VERSION; m_Header.m_nDirectorySize = NULL, m_Header.m_nSignatureSize = NULL;
+		m_Header.m_nHeaderMarker = NULL; m_Header.m_nMajorVersion = NULL;
+		m_Header.m_nMinorVersion = NULL; m_Header.m_nDirectorySize = NULL,
+		m_Header.m_nSignatureSize = NULL; m_bInitFailed = false;
 	};
 	VPKDir_t(const CUtlString& svDirectoryFile);
 	VPKDir_t(const CUtlString& svDirectoryFile, bool bSanitizeName);
 
 	void Init(const CUtlString& svPath);
+	inline bool Failed() const { return m_bInitFailed; }
 
 	CUtlString StripLocalePrefix(const CUtlString& svDirectoryFile) const;
 	CUtlString GetPackFileNameForIndex(uint16_t iPackFileIndex) const;
 
-	void WriteHeader(FileHandle_t hDirectoryFile) const;
-	void WriteTreeSize(FileHandle_t hDirectoryFile) const;
-
+	void WriteHeader(FileHandle_t hDirectoryFile);
 	void BuildDirectoryFile(const CUtlString& svDirectoryFile, const CUtlVector<VPKEntryBlock_t>& entryBlocks);
 };
 
@@ -193,40 +195,25 @@ struct VPKPair_t
 //-----------------------------------------------------------------------------
 // VPK utility class.
 //-----------------------------------------------------------------------------
-class CPackedStore
+class CPackedStoreBuilder
 {
 public:
-	void InitLzCompParams(void);
-	void InitLzDecompParams(void);
+	void InitLzEncoder(const lzham_int32 maxHelperThreads = -1, const char* compressionLevel = "default");
+	void InitLzDecoder(void);
 
-	lzham_compress_level GetCompressionLevel(void) const;
-
-	void GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_t hDirectoryFile) const;
-	bool GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, const CUtlString& workspacePath, const CUtlString& dirFileName) const;
-
-	CUtlString GetNameParts(const CUtlString& dirFileName, int nCaptureGroup) const;
-	CUtlString GetLevelName(const CUtlString& dirFileName) const;
-
-	KeyValues* GetManifest(const CUtlString& workspacePath, const CUtlString& manifestFile) const;
-	bool GetIgnoreList(CUtlVector<CUtlString>& ignoreList, const CUtlString& workspacePath) const;
-
-	CUtlString FormatEntryPath(const CUtlString& filePath, const CUtlString& fileName, const CUtlString& fileExt) const;
-	void BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks, const CUtlString& workspacePath, const CUtlString& manifestName) const;
-
-	void ValidateCRC32PostDecomp(const CUtlString& assetPath, const uint32_t nFileCRC);
 	bool Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex);
 
-	bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& ignoreList) const;
-
-	void PackWorkspace(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath);
-	void UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName = "");
+	void PackStore(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath);
+	void UnpackStore(const VPKDir_t& vpkDir, const char* workspaceName = "");
 
 private:
-	lzham_compress_params   m_lzCompParams;   // LZham compression parameters.
-	lzham_decompress_params m_lzDecompParams; // LZham decompression parameters.
+	lzham_compress_params   m_Encoder; // LZham compression parameters.
+	lzham_decompress_params m_Decoder; // LZham decompression parameters.
 	std::unordered_map<string, const VPKChunkDescriptor_t&> m_ChunkHashMap;
 };
+
+CUtlString PackedStore_GetDirBaseName(const CUtlString& dirFileName);
+CUtlString PackedStore_GetDirNameParts(const CUtlString& dirFileName, const int nCaptureGroup);
 ///////////////////////////////////////////////////////////////////////////////
-extern CPackedStore* g_pPackedStore;
 
 #endif // PACKEDSTORE_H

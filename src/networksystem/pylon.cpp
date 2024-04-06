@@ -1,6 +1,6 @@
 //=============================================================================//
 //
-// Purpose: Implementation of the pylon server backend.
+// Purpose: Implementation of the pylon client.
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -10,6 +10,13 @@
 #include <tier2/curlutils.h>
 #include <networksystem/pylon.h>
 #include <engine/server/server.h>
+
+//-----------------------------------------------------------------------------
+// Console variables
+//-----------------------------------------------------------------------------
+ConVar pylon_matchmaking_hostname("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE | FCVAR_ACCESSIBLE_FROM_THREADS, "Holds the pylon matchmaking hostname");
+ConVar pylon_host_update_interval("pylon_host_update_interval", "5", FCVAR_RELEASE | FCVAR_ACCESSIBLE_FROM_THREADS, "Length of time in seconds between each status update interval to master server", true, 5.f, false, 0.f);
+ConVar pylon_showdebuginfo("pylon_showdebuginfo", "0", FCVAR_RELEASE | FCVAR_ACCESSIBLE_FROM_THREADS, "Shows debug output for pylon");
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if the server listing fields are valid.
@@ -27,7 +34,7 @@ static bool IsServerListingValid(const rapidjson::Value& value)
         value.HasMember("port")        && value["port"].IsInt()           &&
         value.HasMember("key")         && value["key"].IsString()         &&
         value.HasMember("checksum")    && value["checksum"].IsUint()      &&
-        value.HasMember("playerCount") && value["playerCount"].IsInt()    &&
+        value.HasMember("numPlayers")  && value["numPlayers"].IsInt()    &&
         value.HasMember("maxPlayers")  && value["maxPlayers"].IsInt())
     {
         return true;
@@ -39,12 +46,10 @@ static bool IsServerListingValid(const rapidjson::Value& value)
 //-----------------------------------------------------------------------------
 // Purpose: gets a vector of hosted servers.
 // Input  : &outMessage - 
-// Output : vector<NetGameServer_t>
+// Output : true on success, false on failure.
 //-----------------------------------------------------------------------------
-vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
+bool CPylon::GetServerList(vector<NetGameServer_t>& outServerList, string& outMessage) const
 {
-    vector<NetGameServer_t> vecServers;
-
     rapidjson::Document requestJson;
     requestJson.SetObject();
     requestJson.AddMember("version", SDK_VERSION, requestJson.GetAllocator());
@@ -58,13 +63,13 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
     if (!SendRequest("/servers", requestJson, responseJson,
         outMessage, status, "server list error"))
     {
-        return vecServers;
+        return false;
     }
 
     if (!responseJson.HasMember("servers"))
     {
         outMessage = Format("Invalid response with status: %d", int(status));
-        return vecServers;
+        return false;
     }
 
     const rapidjson::Value& servers = responseJson["servers"];
@@ -80,7 +85,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
             continue;
         }
 
-        vecServers.push_back(
+        outServerList.push_back(
             NetGameServer_t
             {
                 obj["name"].GetString(),
@@ -93,14 +98,14 @@ vector<NetGameServer_t> CPylon::GetServerList(string& outMessage) const
                 obj["key"].GetString(),
                 obj["checksum"].GetUint(),
                 SDK_VERSION,
-                obj["playerCount"].GetInt(),
+                obj["numPlayers"].GetInt(),
                 obj["maxPlayers"].GetInt(),
                 -1,
             }
         );
     }
 
-    return vecServers;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -155,7 +160,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
         serverJson["key"].GetString(),
         serverJson["checksum"].GetUint(),
         SDK_VERSION,
-        serverJson["playerCount"].GetInt(),
+        serverJson["numPlayers"].GetInt(),
         serverJson["maxPlayers"].GetInt(),
         -1,
     };
@@ -177,19 +182,19 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
 
     rapidjson::Document::AllocatorType& allocator = requestJson.GetAllocator();
 
-    requestJson.AddMember("name",        rapidjson::Value(netGameServer.m_svHostName.c_str(),       allocator), allocator);
-    requestJson.AddMember("description", rapidjson::Value(netGameServer.m_svDescription.c_str(),    allocator), allocator);
-    requestJson.AddMember("hidden",      netGameServer.m_bHidden,                                   allocator);
-    requestJson.AddMember("map",         rapidjson::Value(netGameServer.m_svHostMap.c_str(),        allocator), allocator);
-    requestJson.AddMember("playlist",    rapidjson::Value(netGameServer.m_svPlaylist.c_str(),       allocator), allocator);
-    requestJson.AddMember("ip",          rapidjson::Value(netGameServer.m_svIpAddress.c_str(),      allocator), allocator);
-    requestJson.AddMember("port",        netGameServer.m_nGamePort,                                 allocator);
-    requestJson.AddMember("key",         rapidjson::Value(netGameServer.m_svEncryptionKey.c_str(),  allocator), allocator);
-    requestJson.AddMember("checksum",    netGameServer.m_nRemoteChecksum,                           allocator);
-    requestJson.AddMember("version",     rapidjson::Value(netGameServer.m_svSDKVersion.c_str(),     allocator), allocator);
-    requestJson.AddMember("playerCount", netGameServer.m_nPlayerCount,                              allocator);
-    requestJson.AddMember("maxPlayers",  netGameServer.m_nMaxPlayers,                               allocator);
-    requestJson.AddMember("timeStamp",   netGameServer.m_nTimeStamp,                                allocator);
+    requestJson.AddMember("name",        rapidjson::Value(netGameServer.name.c_str(),        allocator), allocator);
+    requestJson.AddMember("description", rapidjson::Value(netGameServer.description.c_str(), allocator), allocator);
+    requestJson.AddMember("hidden",      netGameServer.hidden,                               allocator);
+    requestJson.AddMember("map",         rapidjson::Value(netGameServer.map.c_str(),         allocator), allocator);
+    requestJson.AddMember("playlist",    rapidjson::Value(netGameServer.playlist.c_str(),    allocator), allocator);
+    requestJson.AddMember("ip",          rapidjson::Value(netGameServer.address.c_str(),     allocator), allocator);
+    requestJson.AddMember("port",        netGameServer.port,                                 allocator);
+    requestJson.AddMember("key",         rapidjson::Value(netGameServer.netKey.c_str(),      allocator), allocator);
+    requestJson.AddMember("checksum",    netGameServer.checksum,                             allocator);
+    requestJson.AddMember("version",     rapidjson::Value(netGameServer.versionId.c_str(),   allocator), allocator);
+    requestJson.AddMember("numPlayers", netGameServer.numPlayers,                            allocator);
+    requestJson.AddMember("maxPlayers",  netGameServer.maxPlayers,                           allocator);
+    requestJson.AddMember("timeStamp",   netGameServer.timeStamp,                            allocator);
 
     rapidjson::Document responseJson;
     CURLINFO status;
@@ -199,7 +204,7 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
         return false;
     }
 
-    if (netGameServer.m_bHidden)
+    if (netGameServer.hidden)
     {
         if (!responseJson.HasMember("token") || !responseJson["token"].IsString())
         {
@@ -230,7 +235,9 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
 bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSystem::BannedList_t& outBannedVec) const
 {
     rapidjson::Document requestJson;
-    requestJson.SetArray();
+    requestJson.SetObject();
+
+    rapidjson::Value playersArray(rapidjson::kArrayType);
 
     rapidjson::Document::AllocatorType& allocator = requestJson.GetAllocator();
 
@@ -241,8 +248,10 @@ bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSyst
         rapidjson::Value player(rapidjson::kObjectType);
         player.AddMember("id", banned.m_NucleusID, allocator);
         player.AddMember("ip", rapidjson::Value(banned.m_Address.String(), allocator), allocator);
-        requestJson.PushBack(player, allocator);
+        playersArray.PushBack(player, allocator);
     }
+
+    requestJson.AddMember("players", playersArray, allocator);
 
     rapidjson::Document responseJson;
 
@@ -464,7 +473,7 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
             return false;
         }
 
-        if (pylon_showdebuginfo->GetBool())
+        if (pylon_showdebuginfo.GetBool())
         {
             LogBody(responseJson);
         }
@@ -500,8 +509,8 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
 bool CPylon::QueryServer(const char* endpoint, const char* request,
     string& outResponse, string& outMessage, CURLINFO& outStatus) const
 {
-    const bool showDebug = pylon_showdebuginfo->GetBool();
-    const char* hostName = pylon_matchmaking_hostname->GetString();
+    const bool showDebug = pylon_showdebuginfo.GetBool();
+    const char* hostName = pylon_matchmaking_hostname.GetString();
 
     if (showDebug)
     {
@@ -511,14 +520,14 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
 
     string finalUrl;
     CURLFormatUrl(finalUrl, hostName, endpoint);
-    finalUrl += Format("?language=%s", this->m_Language.c_str());
+    finalUrl += Format("?language=%s", this->GetLanguage().c_str());
 
     CURLParams params;
 
     params.writeFunction = CURLWriteStringCallback;
-    params.timeout = curl_timeout->GetInt();
-    params.verifyPeer = ssl_verify_peer->GetBool();
-    params.verbose = curl_debug->GetBool();
+    params.timeout = curl_timeout.GetInt();
+    params.verifyPeer = ssl_verify_peer.GetBool();
+    params.verbose = curl_debug.GetBool();
 
     curl_slist* sList = nullptr;
     CURL* curl = CURLInitRequest(finalUrl.c_str(), request, outResponse, sList, params);
@@ -613,4 +622,4 @@ void CPylon::LogBody(const rapidjson::Document& responseJson) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CPylon* g_pMasterServer(new CPylon());
+CPylon g_MasterServer;

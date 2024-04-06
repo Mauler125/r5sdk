@@ -45,7 +45,8 @@ public:
 	inline int GetMaxClients(void) const { return m_nMaxClients; }
 
 	inline int64_t GetMaxTeams(void) const { return m_iMaxTeams; }
-	inline CClient* GetClient(int nIndex) { Assert(nIndex >= NULL && nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
+	inline CClient* GetClient(const int nIndex) { Assert(nIndex >= NULL && nIndex < MAX_PLAYERS); return &m_Clients[nIndex]; }
+	inline CClientExtended* GetClientExtended(const int nIndex) { Assert(nIndex >= NULL && nIndex < MAX_PLAYERS); return &sm_ClientsExtended[nIndex]; }
 
 	inline float GetTime(void) const { return m_nTickCount * m_flTickInterval; }
 	inline float GetCPUUsage(void) const { return m_fCPUPercent; }
@@ -56,8 +57,10 @@ public:
 
 	void RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage);
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
+
+	void BroadcastMessage(CNetMessage* const msg, const bool onlyActive, const bool reliable);
 	static void RunFrame(CServer* pServer);
-	static void FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval);
+	static void FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame);
 #endif // !CLIENT_DLL
 
 private:
@@ -98,28 +101,29 @@ private:
 	float                         m_fStartTime;
 	float                         m_fLastCPUCheckTime;
 	bool                          m_bTeams[MAX_TEAMS];           // Something with teams, unclear what this does; see '[r5apex_ds.exe + 0x30CE40]'
+
+	// Maps directly to m_Clients, contains extended client data which we
+	// cannot add to the CClient class as it would otherwise mismatch the
+	// structure in the engine.
+	static CClientExtended sm_ClientsExtended[MAX_PLAYERS];
 };
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-// !TODO: check if struct size is correct for S1!
-static_assert(sizeof(CServer) == 0x25220C0);
-#else
 static_assert(sizeof(CServer) == 0x25264C0);
-#endif
 
 extern CServer* g_pServer;
 
+extern ConVar sv_globalBanlist;
+extern ConVar sv_banlistRefreshRate;
+
+extern ConVar sv_statusRefreshRate;
+
+extern ConVar sv_showconnecting;
+
 /* ==== CSERVER ========================================================================================================================================================= */
-inline CMemory p_CServer_FrameJob;
-inline void(*v_CServer_FrameJob)(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval);
-
-inline CMemory p_CServer_RunFrame;
-inline void(*v_CServer_RunFrame)(CServer* pServer);
-
-inline CMemory p_CServer_ConnectClient;
-inline CClient*(*v_CServer_ConnectClient)(CServer* pServer, user_creds_s* pCreds);
-
-inline CMemory p_CServer_RejectConnection;
-inline void*(*v_CServer_RejectConnection)(CServer* pServer, int iSocket, netadr_t* pNetAdr, const char* szMessage);
+inline void(*CServer__FrameJob)(double flFrameTime, bool bRunOverlays, bool bUpdateFrame);
+inline void(*CServer__RunFrame)(CServer* pServer);
+inline CClient*(*CServer__ConnectClient)(CServer* pServer, user_creds_s* pCreds);
+inline void*(*CServer__RejectConnection)(CServer* pServer, int iSocket, netadr_t* pNetAdr, const char* szMessage);
+inline void (*CServer__BroadcastMessage)(CServer* pServer, CNetMessage* const msg, const bool onlyActive, const bool reliable);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VServer : public IDetour
@@ -127,36 +131,23 @@ class VServer : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
-		LogFunAdr("CServer::FrameJob", p_CServer_FrameJob.GetPtr());
-		LogFunAdr("CServer::RunFrame", p_CServer_RunFrame.GetPtr());
-		LogFunAdr("CServer::ConnectClient", p_CServer_ConnectClient.GetPtr());
-		LogFunAdr("CServer::RejectConnection", p_CServer_RejectConnection.GetPtr());
-		LogVarAdr("g_Server", reinterpret_cast<uintptr_t>(g_pServer));
+		LogFunAdr("CServer::FrameJob", CServer__FrameJob);
+		LogFunAdr("CServer::RunFrame", CServer__RunFrame);
+		LogFunAdr("CServer::ConnectClient", CServer__ConnectClient);
+		LogFunAdr("CServer::RejectConnection", CServer__RejectConnection);
+		LogFunAdr("CServer::BroadcastMessage", CServer__BroadcastMessage);
+		LogVarAdr("g_Server", g_pServer);
 #endif // !CLIENT_DLL
 	}
 	virtual void GetFun(void) const
 	{
 #ifndef CLIENT_DLL
-		p_CServer_FrameJob = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 56 41 54 41 56");
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CServer_ConnectClient = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 55 56 57 48 8D AC 24 ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2)
-		p_CServer_ConnectClient = g_GameDll.FindPatternSIMD("44 89 44 24 ?? 56 57 48 81 EC ?? ?? ?? ??");
-#else
-		p_CServer_ConnectClient = g_GameDll.FindPatternSIMD("40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??");
-#endif
+		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 56 41 54 41 56").GetPtr(CServer__FrameJob);
+		g_GameDll.FindPatternSIMD("40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??").GetPtr(CServer__ConnectClient);
 
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CServer_RunFrame = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 48 81 EC ?? ?? ?? ?? 0F 29 B4 24 ?? ?? ?? ??");
-#else
-		p_CServer_RunFrame = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 88 05 ?? ?? ?? ??").FollowNearCallSelf();
-#endif
-		p_CServer_RejectConnection = g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9");
-
-		v_CServer_FrameJob = p_CServer_FrameJob.RCast<void (*)(double, bool, bool)>();                                       /*48 89 6C 24 ?? 56 41 54 41 56*/
-		v_CServer_RunFrame = p_CServer_RunFrame.RCast<void (*)(CServer*)>();
-		v_CServer_ConnectClient = p_CServer_ConnectClient.RCast<CClient* (*)(CServer*, user_creds_s*)>();                     /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
-		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer*, int, netadr_t*, const char*)>();   /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 88 05 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CServer__RunFrame);
+		g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9").GetPtr(CServer__RejectConnection);
+		g_GameDll.FindPatternSIMD("4C 8B DC 45 88 43 18 56").GetPtr(CServer__BroadcastMessage);
 #endif // !CLIENT_DLL
 	}
 	virtual void GetVar(void) const

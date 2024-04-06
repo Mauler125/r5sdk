@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -26,29 +26,31 @@ public:
 	// registers the size of the KeyValues in the specified instance
 	// so it can build a properly sized memory pool for the KeyValues objects
 	// the sizes will usually never differ but this is for versioning safety
-	virtual void RegisterSizeofKeyValues( int64 nSize ) = 0;
+	virtual void RegisterSizeofKeyValues( const ssize_t nSize ) = 0;
 
 	// allocates/frees a KeyValues object from the shared mempool
-	virtual void *AllocKeyValuesMemory( int64 nSize ) = 0;
-	virtual void FreeKeyValuesMemory( void *pMem ) = 0;
+	virtual void *AllocKeyValuesMemory( const ssize_t nSize ) = 0;
+	virtual void FreeKeyValuesMemory( void *const pMem ) = 0;
 
 	// symbol table access (used for key names)
-	virtual HKeySymbol GetSymbolForString( const char *pName, bool bCreate = true ) = 0;
-	virtual const char *GetStringForSymbol( HKeySymbol symbol ) = 0;
+	virtual HKeySymbol GetSymbolForString( const char *const pName, const bool bCreate = true ) = 0;
+	virtual const char *GetStringForSymbol( const HKeySymbol symbol ) = 0;
 
 	// for debugging, adds KeyValues record into global list so we can track memory leaks
-	virtual void AddKeyValuesToMemoryLeakList( void *pMem, HKeySymbol name ) = 0;
-	virtual void RemoveKeyValuesFromMemoryLeakList( void *pMem ) = 0;
+	virtual void AddKeyValuesToMemoryLeakList( const void *const pMem, const HKeySymbol name ) = 0;
+	virtual void RemoveKeyValuesFromMemoryLeakList( const void *const pMem ) = 0;
 
 	// Returns the globally allocated keyvalues memory pool.
 	virtual void *GetKeyValuesMemory( void ) = 0;
 	// set/get a value for keyvalues resolution symbol
 	// e.g.: SetKeyValuesExpressionSymbol( "LOWVIOLENCE", true ) - enables [$LOWVIOLENCE]
-	virtual void SetKeyValuesExpressionSymbol( const char *pName, bool bValue ) = 0;
-	virtual bool GetKeyValuesExpressionSymbol( const char *pName ) = 0;
+	virtual void SetKeyValuesExpressionSymbol( const char *const pName, const bool bValue ) = 0;
+	virtual bool GetKeyValuesExpressionSymbol( const char *const pName ) = 0;
 
 	// symbol table access from code with case-preserving requirements (used for key names)
-	virtual HKeySymbol GetSymbolForStringCaseSensitive( HKeySymbol &hCaseInsensitiveSymbol, const char *pName, bool bCreate = true ) = 0;
+	virtual HKeySymbol GetSymbolForStringCaseSensitive( HKeySymbol &hCaseInsensitiveSymbol, const char *const pName, const bool bCreate = true ) = 0;
 };
+
+IKeyValuesSystem* KeyValuesSystem();
 
 #endif // VSTDLIB_IKEYVALUESSYSTEM_H

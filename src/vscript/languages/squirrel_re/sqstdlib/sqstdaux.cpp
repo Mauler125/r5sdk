@@ -6,8 +6,8 @@
 
 #include "core/stdafx.h"
 #include "tier0/tslist.h"
-#include "vscript/languages/squirrel_re/include/sqvm.h"
-#include "vscript/languages/squirrel_re/include/sqstdaux.h"
+#include "sqvm.h"
+#include "sqstdaux.h"
 
 bool g_bSQAuxError = false;
 bool g_bSQAuxBadLogic = false;

@@ -55,25 +55,22 @@ public:
 	virtual const char* GetVersion(void)                                        const override;
 };
 
-extern CFactorySystem* g_pFactorySystem;
+extern CFactorySystem g_FactorySystem;
 PLATFORM_INTERFACE IFactorySystem* GetFactorySystem();
 
 ///////////////////////////////////////////////////////////////////////////////
-
-inline CMemory p_CreateInterfaceInternal;
-inline void*(*CreateInterfaceInternal)(const char* pName, int* pReturnCode);
+inline void*(*v_CreateInterfaceInternal)(const char* pName, int* pReturnCode);
 
 class VFactory : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CreateInterfaceInternal", p_CreateInterfaceInternal.GetPtr());
-		LogVarAdr("s_pInterfaceRegs", reinterpret_cast<uintptr_t>(s_ppInterfaceRegs));
+		LogFunAdr("CreateInterfaceInternal", v_CreateInterfaceInternal);
+		LogVarAdr("s_pInterfaceRegs", s_ppInterfaceRegs);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CreateInterfaceInternal = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B FA");
-		CreateInterfaceInternal = p_CreateInterfaceInternal.RCast<void*(*)(const char*, int*)>();
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B FA").GetPtr(v_CreateInterfaceInternal);
 	}
 	virtual void GetVar(void) const
 	{
@@ -81,6 +78,6 @@ class VFactory : public IDetour
 			.FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<InterfaceReg**>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Detour(const bool bAttach) const { }
+	virtual void Detour(const bool /*bAttach*/) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

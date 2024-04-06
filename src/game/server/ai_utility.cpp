@@ -5,10 +5,16 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
+#include "engine/server/server.h"
 #include "public/edict.h"
 #include "game/server/detour_impl.h"
 #include "game/server/ai_networkmanager.h"
+
+#include "vscript/languages/squirrel_re/vsquirrel.h"
+
+static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! )");
 
 inline uint32_t g_HullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
 {
@@ -42,7 +48,7 @@ void ClearNavMeshForHull(int hullSize)
         // Frees tiles, polys, tris, anything dynamically
         // allocated for this navmesh, and the navmesh itself.
         v_Detour_FreeNavMesh(nav);
-        delete nav;
+        free(nav);
 
         g_pNavMesh[hullSize] = nullptr;
     }
@@ -69,10 +75,10 @@ uint32_t GetHullMaskById(int hullId)
 //-----------------------------------------------------------------------------
 uint8_t IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef, int hullId)
 {
-    if (navmesh_always_reachable->GetBool())
+    if (navmesh_always_reachable.GetBool())
         return true;
 
-    return v_dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);
+    return dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);
 }
 
 //-----------------------------------------------------------------------------
@@ -124,17 +130,49 @@ bool Detour_IsLoaded()
 //-----------------------------------------------------------------------------
 void Detour_HotSwap()
 {
+    Assert(ThreadInMainOrServerFrameThread());
+    g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapBegin");
+
     // Free and re-init NavMesh.
     Detour_LevelShutdown();
     v_Detour_LevelInit();
 
     if (!Detour_IsLoaded())
         Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
+
+    g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapEnd");
 }
+
+/*
+=====================
+Detour_HotSwap_f
+
+  Hot swaps the NavMesh
+  while the game is running
+=====================
+*/
+static void Detour_HotSwap_f()
+{
+    if (!g_pServer->IsActive())
+        return; // Only execute if server is initialized and active.
+
+    Msg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n",
+        g_ServerGlobalVariables->m_pszMapName);
+
+    CFastTimer timer;
+
+    timer.Start();
+    Detour_HotSwap();
+
+    timer.End();
+    Msg(eDLL_T::SERVER, "Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
+}
+
+static ConCommand navmesh_hotswap("navmesh_hotswap", Detour_HotSwap_f, "Hot swap the NavMesh for all hulls", FCVAR_DEVELOPMENTONLY | FCVAR_SERVER_FRAME_THREAD);
 
 ///////////////////////////////////////////////////////////////////////////////
 void VRecast::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_dtNavMesh__isPolyReachable, &IsGoalPolyReachable, bAttach);
+	DetourSetup(&dtNavMesh__isPolyReachable, &IsGoalPolyReachable, bAttach);
 	DetourSetup(&v_Detour_LevelInit, &Detour_LevelInit, bAttach);
 }

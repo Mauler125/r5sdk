@@ -6,26 +6,13 @@
 //===========================================================================//
 #include "core/stdafx.h"
 #include "core/logdef.h"
+#include "core/init.h"
 #include "tier0/crashhandler.h"
 #include "tier0/commandline.h"
 #include "tier1/strtools.h"
 #include "launcher/launcher.h"
 #include <eiface.h>
 
-int LauncherMain(HINSTANCE hInstance)
-{
-	// Flush buffers every 5 seconds for every logger.
-	// Has to be done here, don't move this to SpdLog
-	// init, as this could cause deadlocks on certain
-	// compilers (VS2017)!!!
-	spdlog::flush_every(std::chrono::seconds(5));
-
-	int results = v_LauncherMain(hInstance);
-	Msg(eDLL_T::NONE, "%s returned: %s\n", __FUNCTION__, ExitCodeToString(results));
-	return results;
-}
-
-#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
 // Remove all but the last -game parameter.
 // This is for mods based off something other than Half-Life 2 (like HL2MP mods).
 // The Steam UI does 'steam -applaunch 320 -game c:\steam\steamapps\sourcemods\modname', but applaunch inserts
@@ -52,26 +39,12 @@ void RemoveSpuriousGameParameters()
 		CommandLine()->AppendParm("-game", lastGameArg);
 	}
 }
-#endif
-
-const char* ExitCodeToString(int nCode)
-{
-	switch (nCode)
-	{
-	case EXIT_SUCCESS:
-		return "EXIT_SUCCESS";
-	case EXIT_FAILURE:
-		return "EXIT_FAILURE";
-	default:
-		return "UNKNOWN_EXIT_CODE";
-	}
-}
 
 LONG WINAPI TopLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers)
 {
 	// Don't run the unhandled exception filter from the
 	// game if we have a valid vectored exception filter.
-	if (g_CrashHandler)
+	if (g_CrashHandler.IsValid())
 	{
 		return NULL;
 	}
@@ -81,9 +54,6 @@ LONG WINAPI TopLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers)
 
 void VLauncher::Detour(const bool bAttach) const
 {
-	DetourSetup(&v_LauncherMain, &LauncherMain, bAttach);
 	DetourSetup(&v_TopLevelExceptionFilter, &TopLevelExceptionFilter, bAttach);
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	DetourSetup(&v_RemoveSpuriousGameParameters, &RemoveSpuriousGameParameters, bAttach);
-#endif
 }

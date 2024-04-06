@@ -10,6 +10,11 @@
 #include "game/shared/in_buttons.h"
 #include "game/shared/weapon_types.h"
 
+ConVar usercmd_frametime_max("usercmd_frametime_max", "0.100"   , FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "The largest amount of simulation seconds a UserCmd can have." );
+ConVar usercmd_frametime_min("usercmd_frametime_min", "0.002857", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "The smallest amount of simulation seconds a UserCmd can have.");
+
+ConVar usercmd_dualwield_enable("usercmd_dualwield_enable", "0", FCVAR_REPLICATED | FCVAR_RELEASE, "Allows setting dual wield cycle slots, and activating multiple inventory weapons from UserCmd.");
+
 //-----------------------------------------------------------------------------
 // Purpose: Read in a delta compressed usercommand.
 // Input  : *buf - 
@@ -47,13 +52,13 @@ int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from)
 	// it couldn't be circumvented by busting out the client side clamps.
 	if (host_timescale->GetFloat() == 1.0f)
 		move->frametime = clamp(move->frametime,
-			usercmd_frametime_min->GetFloat(),
-			usercmd_frametime_max->GetFloat());
+			usercmd_frametime_min.GetFloat(),
+			usercmd_frametime_max.GetFloat());
 
 	// Checks are only required if cycleslot is valid; see 'CPlayer::UpdateWeaponSlots'.
 	if (move->cycleslot != WEAPON_INVENTORY_SLOT_INVALID)
 	{
-		const bool dualWieldEnabled = usercmd_dualwield_enable->GetBool();
+		const bool dualWieldEnabled = usercmd_dualwield_enable.GetBool();
 
 		// Client could instruct the server to switch cycle slots for inventory
 		// weapons, however, the client could also cycle to the dual wield slots.

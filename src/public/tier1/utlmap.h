@@ -24,11 +24,11 @@
 
 // This is a useful macro to iterate from start to end in order in a map
 #define FOR_EACH_MAP( mapName, iteratorName ) \
-	for ( unsigned short iteratorName = (mapName).FirstInorder(); (mapName).IsUtlMap && iteratorName != (mapName).InvalidIndex(); iteratorName = (mapName).NextInorder( iteratorName ) )
+	for ( decltype(mapName)::IndexType_t iteratorName = (mapName).FirstInorder(); (mapName).IsUtlMap && iteratorName != (mapName).InvalidIndex(); iteratorName = (mapName).NextInorder( iteratorName ) )
 
 // faster iteration, but in an unspecified order
 #define FOR_EACH_MAP_FAST( mapName, iteratorName ) \
-	for ( unsigned short iteratorName = 0; (mapName).IsUtlMap && iteratorName < (mapName).MaxElement(); ++iteratorName ) if ( !(mapName).IsValidIndex( iteratorName ) ) continue; else
+	for ( decltype(mapName)::IndexType_t iteratorName = 0; (mapName).IsUtlMap && iteratorName < (mapName).MaxElement(); ++iteratorName ) if ( !(mapName).IsValidIndex( iteratorName ) ) continue; else
 
 
 struct base_utlmap_t
@@ -54,7 +54,7 @@ public:
 	// Left at growSize = 0, the memory will first allocate 1 element and double in size
 	// at each increment.
 	// LessFunc_t is required, but may be set after the constructor using SetLessFunc() below
-	CUtlMap( int growSize = 0, int initSize = 0, const LessFunc_t &lessfunc = 0 )
+	CUtlMap( IndexType_t growSize = 0, IndexType_t initSize = 0, const LessFunc_t &lessfunc = 0 )
 		: m_Tree( growSize, initSize, CKeyLess( lessfunc ) )
 	{
 	}
@@ -64,7 +64,7 @@ public:
 	{
 	}
 	
-	void EnsureCapacity( int num )							{ m_Tree.EnsureCapacity( num ); }
+	void EnsureCapacity( IndexType_t num )							{ m_Tree.EnsureCapacity( num ); }
 
 	// gets particular elements
 	ElemType_t &		Element( IndexType_t i )			{ return m_Tree.Element( i ).elem; }
@@ -76,7 +76,7 @@ public:
 
 	
 	// Num elements
-	unsigned int Count() const								{ return m_Tree.Count(); }
+	IndexType_t  Count() const								{ return m_Tree.Count(); }
 	
 	// Max "size" of the vector
 	IndexType_t  MaxElement() const							{ return m_Tree.MaxElement(); }
@@ -267,12 +267,12 @@ public:
 		LessFunc_t m_LessFunc;
 	};
 
-	typedef CUtlRBTree<Node_t, I, CKeyLess> CTree;
+	typedef CUtlRBTree<Node_t, IndexType_t, CKeyLess> CTree;
 
 	CTree *AccessTree()	{ return &m_Tree; }
 
 protected:
-	CTree 	   m_Tree;
+	CTree      m_Tree;
 };
 
 //-----------------------------------------------------------------------------

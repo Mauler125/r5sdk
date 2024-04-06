@@ -9,7 +9,7 @@
 #ifndef GL_MODEL_PRIVATE_H
 #define GL_MODEL_PRIVATE_H
 
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "mathlib/vector.h"
 #include "common/qlimits.h"
 #include "datacache/imdlcache.h"

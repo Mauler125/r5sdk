@@ -104,7 +104,7 @@ class CUtlSymbolTable
 {
 public:
 	// constructor, destructor
-	CUtlSymbolTable( int growSize = 0, int initSize = 16, bool caseInsensitive = false );
+	CUtlSymbolTable( unsigned short growSize = 0, unsigned short initSize = 16, bool caseInsensitive = false );
 	~CUtlSymbolTable();
 	
 	// Finds and/or creates a symbol based on the string
@@ -159,21 +159,21 @@ protected:
 	public:
 		CLess( int ignored = 0 ) {} // permits default initialization to NULL in CUtlRBTree
 		bool operator!() const { return false; }
-		bool operator()( const CStringPoolIndex &left, const CStringPoolIndex &right ) const;
+		int operator()( const CStringPoolIndex &left, const CStringPoolIndex &right ) const;
 	};
 
 	// Stores the symbol lookup
 	class CTree : public CUtlRBTree<CStringPoolIndex, unsigned short, CLess>
 	{
 	public:
-		CTree(  int growSize, int initSize ) : CUtlRBTree<CStringPoolIndex, unsigned short, CLess>( growSize, initSize ) {}
+		CTree( unsigned short growSize, unsigned short initSize ) : CUtlRBTree<CStringPoolIndex, unsigned short, CLess>( growSize, initSize ) {}
 		friend class CUtlSymbolTable::CLess; // Needed to allow CLess to calculate pointer to symbol table
 	};
 
 	struct StringPool_t
-	{	
-		int m_TotalLen;		// How large is 
-		int m_SpaceUsed;
+	{
+		size_t m_TotalLen;		// How large is 
+		size_t m_SpaceUsed;
 		char m_Data[1];
 	};
 
@@ -187,19 +187,18 @@ protected:
 	CUtlVector<StringPool_t*> m_StringPools;
 
 private:
-	int FindPoolWithSpace( int len ) const;
+	int FindPoolWithSpace( size_t len ) const;
 	const char* StringFromIndex( const CStringPoolIndex &index ) const;
 	const char* DecoratedStringFromIndex( const CStringPoolIndex &index ) const;
 
 	friend class CLess;
 	friend class CSymbolHash;
-
 };
 
-class CUtlSymbolTableMT :  public CUtlSymbolTable
+class CUtlSymbolTableMT : public CUtlSymbolTable
 {
 public:
-	CUtlSymbolTableMT( int growSize = 0, int initSize = 32, bool caseInsensitive = false )
+	CUtlSymbolTableMT( unsigned short growSize = 0, unsigned short initSize = 32, bool caseInsensitive = false )
 		: CUtlSymbolTable( growSize, initSize, caseInsensitive )
 	{
 	}

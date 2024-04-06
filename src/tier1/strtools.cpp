@@ -1,6 +1,109 @@
 #include "tier1/strtools.h"
 
 //-----------------------------------------------------------------------------
+// Convert upper case characters to lower
+//-----------------------------------------------------------------------------
+static int FastToLower(char c)
+{
+	int i = (unsigned char)c;
+	if (i < 0x80)
+	{
+		// Brutally fast branchless ASCII tolower():
+		i += (((('A' - 1) - i) & (i - ('Z' + 1))) >> 26) & 0x20;
+	}
+	else
+	{
+		i += isupper(i) ? 0x20 : 0;
+	}
+	return i;
+}
+
+//-----------------------------------------------------------------------------
+// Allocate a string buffer
+//-----------------------------------------------------------------------------
+char* AllocString(const char* pStr, ssize_t nMaxChars)
+{
+	const ssize_t allocLen = (nMaxChars == -1)
+		? strlen(pStr) + 1
+		: Min((ssize_t)strlen(pStr), nMaxChars) + 1;
+
+	char* const pOut = new char[allocLen];
+	V_strncpy(pOut, pStr, allocLen);
+
+	return pOut;
+}
+
+//-----------------------------------------------------------------------------
+// A special high-performance case-insensitive compare function
+// returns 0 if strings match exactly
+// returns >0 if strings match in a case-insensitive way, but do not match exactly
+// returns <0 if strings do not match even in a case-insensitive way
+//-----------------------------------------------------------------------------
+int	_V_stricmp_NegativeForUnequal(const char* s1, const char* s2)
+{
+	// It is not uncommon to compare a string to itself. Since stricmp
+	// is expensive and pointer comparison is cheap, this simple test
+	// can save a lot of cycles, and cache pollution.
+	if (s1 == s2)
+		return 0;
+
+	uint8 const* pS1 = (uint8 const*)s1;
+	uint8 const* pS2 = (uint8 const*)s2;
+	int iExactMatchResult = 1;
+	for (;;)
+	{
+		int c1 = *(pS1++);
+		int c2 = *(pS2++);
+		if (c1 == c2)
+		{
+			// strings are case-insensitive equal, coerce accumulated
+			// case-difference to 0/1 and return it
+			if (!c1) return !iExactMatchResult;
+		}
+		else
+		{
+			if (!c2)
+			{
+				// c2=0 and != c1  =>  not equal
+				return -1;
+			}
+			iExactMatchResult = 0;
+			c1 = FastASCIIToLower(c1);
+			c2 = FastASCIIToLower(c2);
+			if (c1 != c2)
+			{
+				// strings are not equal
+				return -1;
+			}
+		}
+		c1 = *(pS1++);
+		c2 = *(pS2++);
+		if (c1 == c2)
+		{
+			// strings are case-insensitive equal, coerce accumulated
+			// case-difference to 0/1 and return it
+			if (!c1) return !iExactMatchResult;
+		}
+		else
+		{
+			if (!c2)
+			{
+				// c2=0 and != c1  =>  not equal
+				return -1;
+			}
+			iExactMatchResult = 0;
+			c1 = FastASCIIToLower(c1);
+			c2 = FastASCIIToLower(c2);
+			if (c1 != c2)
+			{
+				// strings are not equal
+				return -1;
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Finds a string in another string with a case insensitive test
 //-----------------------------------------------------------------------------
 char const* V_stristr(char const* pStr, char const* pSearch)
@@ -153,6 +256,127 @@ bool V_isspace(int c)
 #endif
 }
 
+bool V_IsAllDigit(const char* pString)
+{
+	while (*pString)
+	{
+		if (!V_isdigit(*pString))
+		{
+			return false;
+		}
+
+		pString++;
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the 4 bit nibble for a hex character
+// Input  : c - 
+// Output : unsigned char
+//-----------------------------------------------------------------------------
+static unsigned char V_nibble(char c)
+{
+	if ((c >= '0') &&
+		(c <= '9'))
+	{
+		return (unsigned char)(c - '0');
+	}
+
+	if ((c >= 'A') &&
+		(c <= 'F'))
+	{
+		return (unsigned char)(c - 'A' + 0x0a);
+	}
+
+	if ((c >= 'a') &&
+		(c <= 'f'))
+	{
+		return (unsigned char)(c - 'a' + 0x0a);
+	}
+
+	return '0';
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *in - 
+//			numchars - 
+//			*out - 
+//			maxoutputbytes - 
+//-----------------------------------------------------------------------------
+void V_hextobinary(char const* in, size_t numchars, byte* out, size_t maxoutputbytes)
+{
+	size_t len = V_strlen(in);
+	numchars = Min(len, numchars);
+	// Make sure it's even
+	numchars = (numchars) & ~0x1;
+
+	// Must be an even # of input characters (two chars per output byte)
+	Assert(numchars >= 2);
+
+	memset(out, 0x00, maxoutputbytes);
+
+	byte* p;
+	size_t i;
+
+	p = out;
+	for (i = 0;
+		(i < numchars) && 
+		((size_t)(p - out) < maxoutputbytes);
+		i += 2, p++)
+	{
+		*p = (V_nibble(in[i]) << 4) | V_nibble(in[i + 1]);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *in - 
+//			inputbytes - 
+//			*out - 
+//			outsize - 
+//-----------------------------------------------------------------------------
+void V_binarytohex(const byte* in, size_t inputbytes, char* out, size_t outsize)
+{
+	Assert(outsize >= 1);
+	char doublet[10];
+	int i;
+
+	out[0] = 0;
+
+	for (i = 0; i < inputbytes; i++)
+	{
+		unsigned char c = in[i];
+		V_snprintf(doublet, sizeof(doublet), "%02x", c);
+		V_strncat(out, doublet, outsize);
+	}
+}
+
+
+ssize_t V_vsnprintfRet(char* pDest, size_t maxLen, const char* pFormat, va_list params, bool* pbTruncated)
+{
+	Assert(maxLen > 0);
+
+	ssize_t len = _vsnprintf(pDest, maxLen, pFormat, params);
+	const bool bTruncated = (len < 0) || (len >= (ssize_t)maxLen);
+
+	if (pbTruncated)
+	{
+		*pbTruncated = bTruncated;
+	}
+
+	if (bTruncated && maxLen > 0)
+	{
+		len = maxLen - 1;
+		pDest[maxLen - 1] = 0;
+	}
+
+	return len;
+}
+
+
 ssize_t V_StrTrim(char* pStr)
 {
 	char* pSource = pStr;
@@ -192,6 +416,57 @@ ssize_t V_StrTrim(char* pStr)
 	}
 
 	return pDest - pStart;
+}
+
+void V_SplitString2(const char* pString, const char** pSeparators, ssize_t nSeparators, CUtlStringList& outStrings)
+{
+	outStrings.Purge();
+	const char* pCurPos = pString;
+
+	while (true)
+	{
+		ssize_t iFirstSeparator = -1;
+		const char* pFirstSeparator = nullptr;
+
+		for (ssize_t i = 0; i < nSeparators; i++)
+		{
+			const char* const pTest = V_stristr(pCurPos, pSeparators[i]);
+
+			if (pTest && (!pFirstSeparator || pTest < pFirstSeparator))
+			{
+				iFirstSeparator = i;
+				pFirstSeparator = pTest;
+			}
+		}
+
+		if (pFirstSeparator)
+		{
+			// Split on this separator and continue on.
+			const ssize_t separatorLen = strlen(pSeparators[iFirstSeparator]);
+
+			if (pFirstSeparator > pCurPos)
+			{
+				outStrings.AddToTail(AllocString(pCurPos, pFirstSeparator - pCurPos));
+			}
+
+			pCurPos = pFirstSeparator + separatorLen;
+		}
+		else
+		{
+			// Copy the rest of the string
+			if (strlen(pCurPos))
+			{
+				outStrings.AddToTail(AllocString(pCurPos, -1));
+			}
+
+			return;
+		}
+	}
+}
+
+void V_SplitString(const char* pString, const char* pSeparator, CUtlStringList& outStrings)
+{
+	V_SplitString2(pString, &pSeparator, 1, outStrings);
 }
 
 //-----------------------------------------------------------------------------
@@ -795,10 +1070,90 @@ V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, const char* pSt
 }
 
 //-----------------------------------------------------------------------------
+// Makes a relative path
+//-----------------------------------------------------------------------------
+bool V_MakeRelativePath(const char* pFullPath, const char* pDirectory, char* pRelativePath, const size_t nBufLen)
+{
+	Assert(nBufLen);
+	pRelativePath[0] = 0;
+
+	const char* pPath = pFullPath;
+	const char* pDir = pDirectory;
+
+	// Strip out common parts of the path
+	const char* pLastCommonPath = NULL;
+	const char* pLastCommonDir = NULL;
+	while (*pPath && (FastToLower(*pPath) == FastToLower(*pDir) ||
+		(PATHSEPARATOR(*pPath) && (PATHSEPARATOR(*pDir) || (*pDir == 0)))))
+	{
+		if (PATHSEPARATOR(*pPath))
+		{
+			pLastCommonPath = pPath + 1;
+			pLastCommonDir = pDir + 1;
+		}
+		if (*pDir == 0)
+		{
+			--pLastCommonDir;
+			break;
+		}
+		++pDir; ++pPath;
+	}
+
+	// Nothing in common
+	if (!pLastCommonPath)
+		return false;
+
+	// For each path separator remaining in the dir, need a ../
+	size_t nOutLen = 0;
+	bool bLastCharWasSeparator = true;
+	for (; *pLastCommonDir; ++pLastCommonDir)
+	{
+		if (PATHSEPARATOR(*pLastCommonDir))
+		{
+			pRelativePath[nOutLen++] = '.';
+			pRelativePath[nOutLen++] = '.';
+			pRelativePath[nOutLen++] = CORRECT_PATH_SEPARATOR;
+			bLastCharWasSeparator = true;
+		}
+		else
+		{
+			bLastCharWasSeparator = false;
+		}
+	}
+
+	// Deal with relative paths not specified with a trailing slash
+	if (!bLastCharWasSeparator)
+	{
+		pRelativePath[nOutLen++] = '.';
+		pRelativePath[nOutLen++] = '.';
+		pRelativePath[nOutLen++] = CORRECT_PATH_SEPARATOR;
+	}
+
+	// Copy the remaining part of the relative path over, fixing the path separators
+	for (; *pLastCommonPath; ++pLastCommonPath)
+	{
+		if (PATHSEPARATOR(*pLastCommonPath))
+		{
+			pRelativePath[nOutLen++] = CORRECT_PATH_SEPARATOR;
+		}
+		else
+		{
+			pRelativePath[nOutLen++] = *pLastCommonPath;
+		}
+
+		// Check for overflow
+		if (nOutLen == nBufLen - 1)
+			break;
+	}
+
+	pRelativePath[nOutLen] = 0;
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Strip off the last directory from dirName
 // Input  : *dirName - 
 //			maxLen - 
-//			*newLen - 
 // Output : Returns the new length of the string
 //-----------------------------------------------------------------------------
 size_t V_StripLastDir(char* dirName, size_t maxLen)
@@ -875,14 +1230,21 @@ size_t V_StripLastDir(char* dirName, size_t maxLen)
 //-----------------------------------------------------------------------------
 const char* V_UnqualifiedFileName(const char* in)
 {
-	if (!in || !in[0])
-		return in;
+	Assert(in);
 
-	// back up until the character after the first path separator we find,
-	// or the beginning of the string
-	const char* out = in + strlen(in) - 1;
-	while ((out > in) && (!PATHSEPARATOR(*(out - 1))))
-		out--;
+	const char* out = in;
+
+	while (*in)
+	{
+		if (PATHSEPARATOR(*in))
+		{
+			// +1 to skip the slash
+			out = in + 1;
+		}
+
+		in++;
+	}
+
 	return out;
 }
 
@@ -926,7 +1288,7 @@ void V_StripExtension(const char* in, char* out, size_t outSize)
 
 	if (end > 0 && !PATHSEPARATOR(in[end]) && end < outSize)
 	{
-		size_t nChars = MIN(end, outSize - 1);
+		size_t nChars = Min(end, outSize - 1);
 		if (out != in)
 		{
 			memcpy(out, in, nChars);
@@ -941,6 +1303,39 @@ void V_StripExtension(const char* in, char* out, size_t outSize)
 			V_strncpy(out, in, outSize);
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns a pointer to the file extension within a file name string
+// Input:	in - file name 
+// Output:	pointer to beginning of extension (after the "."), or the passed
+//				in string if there is no extension
+//-----------------------------------------------------------------------------
+const char* V_GetFileExtension(const char* path, const bool keepDot)
+{
+	Assert(path);
+
+	const char* out = nullptr;
+
+	while (*path)
+	{
+		if (*path == '.')
+		{
+			out = path;
+
+			if (!keepDot)
+				out++;
+		}
+		else if (PATHSEPARATOR(*path))
+		{
+			// didn't reach the file name yet, reset
+			out = nullptr;
+		}
+
+		path++;
+	}
+
+	return out ? out : path;
 }
 
 //-----------------------------------------------------------------------------
@@ -959,34 +1354,36 @@ void V_ExtractFileExtension(const char* path, char* dest, size_t destSize)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Returns a pointer to the file extension within a file name string
-// Input:	in - file name 
-// Output:	pointer to beginning of extension (after the "."), or NULL
-//				if there is no extension
+// Purpose: 
+// Input  : *path - 
+//			*dest - 
+//			destSize - 
+// Output : void V_ExtractFilePath
 //-----------------------------------------------------------------------------
-const char* V_GetFileExtension(const char* path)
+bool V_ExtractFilePath(const char* path, char* dest, size_t destSize)
 {
-	size_t len = V_strlen(path);
-	if (len <= 1)
-		return NULL;
-
-	const char* src = path + len - 1;
-
-	//
-	// back up until a . or the start
-	//
-	while (src != path && *(src - 1) != '.')
-		src--;
-
-	// check to see if the '.' is part of a pathname
-	if (src == path || PATHSEPARATOR(*src))
+	Assert(destSize >= 1);
+	if (destSize < 1)
 	{
-		return NULL;  // no extension
+		return false;
 	}
 
-	return src;
-}
+	// Last char
+	const size_t len = V_strlen(path);
+	const char* src = path + (len ? len - 1 : 0);
 
+	// back up until a \ or the start
+	while (src != path && !PATHSEPARATOR(*(src - 1)))
+	{
+		src--;
+	}
+
+	const ssize_t copysize = Min(size_t(src - path), destSize - 1);
+	memcpy(dest, path, copysize);
+	dest[copysize] = 0;
+
+	return copysize != 0 ? true : false;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Extracts the base name of a file (no path, no extension, assumes '/' or '\' as path separator)
@@ -1045,7 +1442,7 @@ void V_FileBase(const char* in, char* out, size_t maxlen)
 	// Length of new sting
 	len = end - start + 1;
 
-	size_t maxcopy = MIN(len + 1, maxlen);
+	size_t maxcopy = Min(len + 1, maxlen);
 
 	// Copy partial string
 	V_strncpy(out, &in[start], maxcopy);

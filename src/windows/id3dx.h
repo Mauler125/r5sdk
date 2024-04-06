@@ -8,7 +8,6 @@
 void DirectX_Init();
 void DirectX_Shutdown();
 
-extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
 extern bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
 
@@ -22,7 +21,6 @@ typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UI
 
 /////////////////////////////////////////////////////////////////////////////
 // Globals
-extern BOOL g_bImGuiInitialized;
 extern UINT g_nWindowRect[2]; // TODO[ AMOS ]: Remove this in favor of CGame's window rect members???
 
 /////////////////////////////////////////////////////////////////////////////

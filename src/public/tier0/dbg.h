@@ -15,7 +15,6 @@
 // Used for the 'Error' function, this tells the function to only log, not quit.
 //#define NO_ERROR 0
 
-bool HushAsserts();
 //-----------------------------------------------------------------------------
 enum class eDLL_T : int
 {
@@ -113,6 +112,9 @@ PLATFORM_INTERFACE void NetMsg(LogType_t logType, eDLL_T context, const char* up
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Error(eDLL_T context, const UINT code, const char* fmt, ...) FMTFUNCTION(3, 4);
 
+// TODO[ AMOS ]: export to DLL?
+void Plat_FatalError(eDLL_T context, const char* fmt, ...);
+
 #if defined DBGFLAG_STRINGS_STRIP
 #define DevMsg( ... ) ((void)0)
 #define DevWarning( ... ) ((void)0)
@@ -158,6 +160,38 @@ template<class T> inline void AssertValidWritePtr(T* /*ptr*/, int count = 1) { N
 template<class T> inline void AssertValidReadWritePtr(T* /*ptr*/, int count = 1) { NOTE_UNUSED(count); }
 #define AssertValidThis() 
 #endif
+
+//-----------------------------------------------------------------------------
+// Macro to protect functions that are not reentrant
+
+#ifdef _DEBUG
+class CReentryGuard
+{
+public:
+	CReentryGuard(int* pSemaphore)
+		: m_pSemaphore(pSemaphore)
+	{
+		++(*m_pSemaphore);
+	}
+
+	~CReentryGuard()
+	{
+		--(*m_pSemaphore);
+	}
+
+private:
+	int* m_pSemaphore;
+};
+
+#define ASSERT_NO_REENTRY() \
+	static int fSemaphore##__LINE__; \
+	Assert( !fSemaphore##__LINE__ ); \
+	CReentryGuard ReentryGuard##__LINE__( &fSemaphore##__LINE__ )
+#else
+#define ASSERT_NO_REENTRY()
+#endif
+
+#define AssertMsg(condition, ...) assert(condition)
 
 typedef void (*CoreMsgVCallbackSink_t)(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	const char* pszLogger, const char* pszFormat, va_list args, const UINT exitCode, const char* pszUptimeOverride);

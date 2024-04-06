@@ -8,29 +8,16 @@
 
 #include "tier0/dbg.h"
 #include "tier0/platform.h"
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 #include "tier0/threadtools.h"
 #include "tier0/commandline.h"
 
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
 #endif
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
 CoreMsgVCallbackSink_t g_CoreMsgVCallback = nullptr;
-
-//-----------------------------------------------------------------------------
-// True if -hushasserts was passed on command line.
-//-----------------------------------------------------------------------------
-bool HushAsserts()
-{
-#if defined (DBGFLAG_ASSERT) && !defined (NETCONSOLE)
-	static bool s_bHushAsserts = !!CommandLine()->FindParm("-hushasserts");
-	return s_bHushAsserts;
-#else
-	return true;
-#endif
-}
 
 //-----------------------------------------------------------------------------
 // Templates to assist in validating pointers:
@@ -222,3 +209,17 @@ void DevWarning(eDLL_T context, const char* fmt, ...)
 	va_end(args);
 }
 #endif // !DBGFLAG_STRINGS_STRIP
+
+//-----------------------------------------------------------------------------
+// Purpose: Print engine and SDK errors, and exit process
+// Input  : context - 
+//			code - 
+//			*fmt - ... - 
+//-----------------------------------------------------------------------------
+void Plat_FatalError(eDLL_T context, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	CoreMsgV(LogType_t::LOG_ERROR, LogLevel_t::LEVEL_NOTIFY, context, "sdk(error)", fmt, args, EXIT_FAILURE);
+	va_end(args);
+}

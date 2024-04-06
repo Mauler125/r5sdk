@@ -49,7 +49,7 @@ const char* CFactorySystem::GetVersion(void) const
 //---------------------------------------------------------------------------------
 void* CreateInterface(const char* pName, int* pReturnCode)
 {
-	return CreateInterfaceInternal(pName, pReturnCode);
+	return v_CreateInterfaceInternal(pName, pReturnCode);
 }
 
 //---------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ void* CreateInterface(const char* pName, int* pReturnCode)
 //---------------------------------------------------------------------------------
 IFactorySystem* GetFactorySystem()
 {
-	return g_pFactorySystem;
+	return &g_FactorySystem;
 }
 
-CFactorySystem* g_pFactorySystem = new CFactorySystem();
+CFactorySystem g_FactorySystem;

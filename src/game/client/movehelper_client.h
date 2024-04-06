@@ -35,12 +35,12 @@ class VMoveHelperClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("s_MoveHelperClient", reinterpret_cast<uintptr_t>(s_MoveHelperClient));
+		LogVarAdr("s_MoveHelperClient", s_MoveHelperClient);
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		CMemory pFunc = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 80 3D ?? ?? ?? ?? ?? 48 8B D9 74 1A");
+		const CMemory pFunc = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 80 3D ?? ?? ?? ?? ?? 48 8B D9 74 1A");
 		s_MoveHelperClient = pFunc.FindPattern("4C 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMoveHelperClient*>();
 	}
 	virtual void GetCon(void) const { }

@@ -11,10 +11,10 @@ int Game_Give_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLE
 
 int RTech_PakLoad_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 int RTech_PakUnload_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
+int RTech_PakCompress_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 int RTech_PakDecompress_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 
-inline CMemory p_CBaseAutoCompleteFileList_AutoCompletionFunc;
-inline int(*v_CBaseAutoCompleteFileList_AutoCompletionFunc)
+inline int(*CBaseAutoCompleteFileList__AutoCompletionFunc)
 (CBaseAutoCompleteFileList* thisp, const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,17 +22,11 @@ class VCompletion : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CBaseAutoCompleteFileList::AutoCompletionFunc", p_CBaseAutoCompleteFileList_AutoCompletionFunc.GetPtr());
+		LogFunAdr("CBaseAutoCompleteFileList::AutoCompletionFunc", CBaseAutoCompleteFileList__AutoCompletionFunc);
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CBaseAutoCompleteFileList_AutoCompletionFunc = g_GameDll.FindPatternSIMD("40 55 53 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B 39");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CBaseAutoCompleteFileList_AutoCompletionFunc = g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 55 41 54");
-#endif
-		v_CBaseAutoCompleteFileList_AutoCompletionFunc = p_CBaseAutoCompleteFileList_AutoCompletionFunc.RCast<int(*)(
-			CBaseAutoCompleteFileList*, const char*, char[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])>();
+		g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 55 41 54").GetPtr(CBaseAutoCompleteFileList__AutoCompletionFunc);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

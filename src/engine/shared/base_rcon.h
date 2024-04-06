@@ -11,7 +11,7 @@ public:
 	CNetConBase(void)
 	{}
 
-	virtual bool Connect(const char* pHostAdr, const int nHostPort = SOCKET_ERROR);
+	virtual bool Connect(const char* pHostName, const int nHostPort = SOCKET_ERROR);
 	virtual void Disconnect(const char* szReason = nullptr) { NOTE_UNUSED(szReason); };
 
 	virtual bool ProcessBuffer(CConnectedNetConsoleData& data, const char* pRecvBuf, int nRecvLen, const int nMaxLen = SOCKET_ERROR);
