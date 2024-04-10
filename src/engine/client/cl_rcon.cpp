@@ -330,17 +330,10 @@ static void RCON_CmdQuery_f(const CCommand& args)
 				{
 					bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(2), "", netcon::request_e::SERVERDATA_REQUEST_AUTH);
 				}
-				else // Auth with RCON server using rcon_password ConVar value.
+				else // Need at least 3 arguments for a password in PASS command (rcon PASS <password>)
 				{
-					const char* storedPassword = rcon_password.GetString();
-
-					if (!strlen(storedPassword))
-					{
-						Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "no password given");
-						return;
-					}
-
-					bSuccess = RCONClient()->Serialize(vecMsg, storedPassword, "", netcon::request_e::SERVERDATA_REQUEST_AUTH);
+					Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "no password given");
+					return;
 				}
 
 				if (bSuccess)

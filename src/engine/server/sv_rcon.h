@@ -17,6 +17,8 @@ public:
 	void Init(const char* pPassword, const char* pNetKey = nullptr);
 	void Shutdown(void);
 
+	void Reboot(void);
+
 	bool SetPassword(const char* pszPassword);
 	bool SetWhiteListAddress(const char* pszAddress);
 

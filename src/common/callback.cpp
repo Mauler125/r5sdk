@@ -245,12 +245,7 @@ void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString
 
 #ifndef CLIENT_DLL
 		// Reboot the RCON server to switch address type.
-		if (RCONServer()->IsInitialized())
-		{
-			Msg(eDLL_T::SERVER, "Rebooting RCON server...\n");
-			RCONServer()->Shutdown();
-			RCONServer()->Init(rcon_password.GetString(), RCONServer()->GetKey());
-		}
+		RCONServer()->Reboot();
 #endif // !CLIENT_DLL
 	}
 }

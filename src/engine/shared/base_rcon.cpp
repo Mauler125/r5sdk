@@ -94,9 +94,9 @@ void CNetConBase::SetKey(const char* pBase64NetKey, const bool bUseDefaultOnFail
 					Error(eDLL_T::ENGINE, NO_ERROR, "RCON Key: encode error (%d)\n", encodeRet);
 					useDefaultKey = true;
 				}
-				else if (numBytesEncoded != sizeof(m_NetKey))
+				else if (numBytesEncoded != AES_128_B64_ENCODED_SIZE)
 				{
-					Error(eDLL_T::ENGINE, NO_ERROR, "RCON Key: write error (%zu != %zu)\n", numBytesEncoded, sizeof(m_NetKey));
+					Error(eDLL_T::ENGINE, NO_ERROR, "RCON Key: write error (%zu != %zu)\n", numBytesEncoded, AES_128_B64_ENCODED_SIZE);
 					failure = true;
 				}
 				else

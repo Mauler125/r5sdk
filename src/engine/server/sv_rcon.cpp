@@ -10,14 +10,13 @@
 #include "tier2/socketcreator.h"
 #include "engine/cmd.h"
 #include "engine/net.h"
+#include "engine/shared/shared_rcon.h"
 #include "engine/server/sv_rcon.h"
 #include "protoc/netcon.pb.h"
 #include "common/igameserverdata.h"
 #include "mbedtls/include/mbedtls/sha512.h"
-#include <thirdparty/mbedtls/include/mbedtls/aes.h>
-#include <random>
-#include <thirdparty/mbedtls/include/mbedtls/ctr_drbg.h>
-#include <engine/shared/shared_rcon.h>
+#include "mbedtls/aes.h"
+#include "mbedtls/ctr_drbg.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: constants
@@ -30,9 +29,11 @@ static const char s_BannedMessage[]  = "Go away.\n";
 //-----------------------------------------------------------------------------
 // Purpose: console variables
 //-----------------------------------------------------------------------------
+static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString);
 static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString);
 static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString);
 
+static ConVar sv_rcon_password("sv_rcon_password", "", FCVAR_RELEASE, "Remote server access password (rcon server is disabled if empty)", &RCON_PasswordChanged_f);
 static ConVar sv_rcon_sendlogs("sv_rcon_sendlogs", "0", FCVAR_RELEASE, "Network console logs to connected and authenticated sockets");
 //static ConVar sv_rcon_banpenalty("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication");
 
@@ -41,7 +42,7 @@ static ConVar sv_rcon_maxignores("sv_rcon_maxignores", "15", FCVAR_RELEASE, "Max
 static ConVar sv_rcon_maxsockets("sv_rcon_maxsockets", "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets", true, 1.f, true, MAX_PLAYERS);
 
 static ConVar sv_rcon_maxconnections("sv_rcon_maxconnections", "1", FCVAR_RELEASE, "Max number of authenticated connections before the server closes the listen socket", true, 1.f, true, MAX_PLAYERS, &RCON_ConnectionCountChanged_f);
-static ConVar sv_rcon_maxframesize("sv_rcon_maxframesize", "1024", FCVAR_RELEASE, "Max number of bytes allowed in a command frame from a non-authenticated netconsole", true, 0.f, false, 0.f);
+static ConVar sv_rcon_maxframesize("sv_rcon_maxframesize", "1024", FCVAR_RELEASE, "Max number of bytes allowed in a message frame from a non-authenticated netconsole", true, 0.f, false, 0.f);
 static ConVar sv_rcon_whitelist_address("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts", &RCON_WhiteListAddresChanged_f, "Format: '::ffff:127.0.0.1'");
 
 //-----------------------------------------------------------------------------
@@ -121,6 +122,19 @@ void CRConServer::Shutdown(void)
 	}
 
 	Msg(eDLL_T::SERVER, "Remote server access deinitialized ('%i' accepted sockets closed)\n", nConnCount);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: reboots the RCON server if initialized
+//-----------------------------------------------------------------------------
+void CRConServer::Reboot(void)
+{
+	if (RCONServer()->IsInitialized())
+	{
+		Msg(eDLL_T::SERVER, "Rebooting RCON server...\n");
+		RCONServer()->Shutdown();
+		RCONServer()->Init(sv_rcon_password.GetString(), RCONServer()->GetKey());
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -569,7 +583,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData& data)
 		const char* pszWhiteListAddress = sv_rcon_whitelist_address.GetString();
 		if (!pszWhiteListAddress[0])
 		{
-			Warning(eDLL_T::SERVER, "Banned list overflowed; please use a whitelist address. RCON shutting down...\n");
+			Warning(eDLL_T::SERVER, "Banned list overflowed, please use a whitelist address; remote server access shutting down...\n");
 			Shutdown();
 
 			return true;
@@ -580,7 +594,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData& data)
 		{
 			if (rcon_debug.GetBool())
 			{
-				Msg(eDLL_T::SERVER, "Banned list is full; dropping '%s'\n", szNetAdr);
+				Msg(eDLL_T::SERVER, "Banned list is full, dropping '%s'\n", szNetAdr);
 			}
 
 			return true;
@@ -702,6 +716,29 @@ bool CRConServer::IsInitialized(void) const
 int CRConServer::GetAuthenticatedCount(void) const
 {
 	return m_nAuthConnections;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: change RCON password on server and drop all connections
+//-----------------------------------------------------------------------------
+static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		const char* pNewString = pConVarRef->GetString();
+
+		if (strcmp(pOldString, pNewString) == NULL)
+			return; // Same password.
+
+		if (RCONServer()->IsInitialized())
+		{
+			RCONServer()->SetPassword(pNewString);
+		}
+		else // Initialize first
+		{
+			RCON_InitServerAndTrySyncKeys(pNewString);
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

@@ -7,8 +7,10 @@
 extern ConVar rcon_debug;
 extern ConVar rcon_encryptframes;
 extern ConVar rcon_key;
-extern ConVar rcon_password;
 
+#ifndef CLIENT_DLL
+extern void RCON_InitServerAndTrySyncKeys(const char* pPassword);
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 extern void RCON_InitClientAndTrySyncKeys();
 #endif // !DEDICATED
