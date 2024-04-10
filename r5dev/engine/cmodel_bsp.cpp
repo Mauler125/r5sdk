@@ -42,13 +42,13 @@ PakHandle_t CustomPakData_t::LoadAndAddPak(const char* const pakFile)
     if (numHandles >= MAX_CUSTOM_PAKS)
     {
         Error(eDLL_T::ENGINE, NO_ERROR, "Tried to load pak '%s', but already reached the SDK's limit of %d!\n", pakFile, MAX_CUSTOM_PAKS);
-        return INVALID_PAK_HANDLE;
+        return PAK_INVALID_HANDLE;
     }
 
     const PakHandle_t pakId = g_pakLoadApi->LoadAsync(pakFile, AlignedMemAlloc(), 4, 0);
 
     // failure, don't add and return the invalid handle.
-    if (pakId == INVALID_PAK_HANDLE)
+    if (pakId == PAK_INVALID_HANDLE)
         return pakId;
 
     handles[numHandles++] = pakId;
@@ -64,14 +64,14 @@ void CustomPakData_t::UnloadAndRemoveAll()
     {
         const PakHandle_t pakId = handles[numHandles-1];
 
-        if (pakId == INVALID_PAK_HANDLE)
+        if (pakId == PAK_INVALID_HANDLE)
         {
             assert(0); // invalid handles should not be inserted
             return;
         }
 
         g_pakLoadApi->UnloadAsync(pakId);
-        handles[numHandles-1] = INVALID_PAK_HANDLE;
+        handles[numHandles-1] = PAK_INVALID_HANDLE;
     }
 }
 
@@ -83,7 +83,7 @@ PakHandle_t CustomPakData_t::LoadBasePak(const char* const pakFile, const EPakTy
     const PakHandle_t pakId = g_pakLoadApi->LoadAsync(pakFile, AlignedMemAlloc(), 4, 0);
 
     // the file is most likely missing
-    assert(pakId != INVALID_PAK_HANDLE);
+    assert(pakId != PAK_INVALID_HANDLE);
     handles[type] = pakId;
 
     return pakId;
@@ -97,10 +97,10 @@ void CustomPakData_t::UnloadBasePak(const EPakType type)
     const PakHandle_t pakId = handles[type];
 
     // only unload if it was actually successfully loaded
-    if (pakId != INVALID_PAK_HANDLE)
+    if (pakId != PAK_INVALID_HANDLE)
     {
         g_pakLoadApi->UnloadAsync(pakId);
-        handles[type] = INVALID_PAK_HANDLE;
+        handles[type] = PAK_INVALID_HANDLE;
     }
 }
 
@@ -313,7 +313,7 @@ void Mod_QueuedPakCacheFrame()
                 data->keepLoaded = false;
                 data->pakName[0] = '\0';
 
-                data->pakId = INVALID_PAK_HANDLE;
+                data->pakId = PAK_INVALID_HANDLE;
             }
             --numLeftToProcess;
             --data;
@@ -352,7 +352,7 @@ void Mod_QueuedPakCacheFrame()
         if (*commonData->pakName)
             break;
 
-        commonData->pakId = INVALID_PAK_HANDLE;
+        commonData->pakId = PAK_INVALID_HANDLE;
     LOOP_AGAIN_OR_FINISH:
 
         ++it;
@@ -421,7 +421,7 @@ void Mod_QueuedPakCacheFrame()
 
 CHECK_FOR_FAILURE:
 
-    if (commonData->pakId != INVALID_PAK_HANDLE)
+    if (commonData->pakId != PAK_INVALID_HANDLE)
     {
         const PakLoadedInfo_t* const pli = Pak_GetPakInfo(commonData->pakId);
 
@@ -502,7 +502,7 @@ void Mod_PreloadLevelPaks(const char* const pszLevelName)
         snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pSubKey->GetName());
         const PakHandle_t nPakId = s_customPakData.LoadAndAddPak(szPathBuffer);
 
-        if (nPakId == INVALID_PAK_HANDLE)
+        if (nPakId == PAK_INVALID_HANDLE)
             Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, szPathBuffer, nPakId);
     }
 }

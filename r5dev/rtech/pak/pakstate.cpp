@@ -52,7 +52,7 @@ static void Pak_ListTypes_f()
 
 	uint32_t nRegistered = 0;
 
-	for (int8_t i = 0; i < PAK_MAX_TYPES; ++i)
+	for (int8_t i = 0; i < PAK_MAX_TRACKED_TYPES; ++i)
 	{
 		PakAssetBinding_t* type = &g_pakGlobals->assetBindings[i];
 
@@ -135,7 +135,7 @@ static void Pak_Swap_f(const CCommand& args)
 
 	const char* pakName = nullptr;
 
-	PakHandle_t pakHandle = INVALID_PAK_HANDLE;
+	PakHandle_t pakHandle = PAK_INVALID_HANDLE;
 	const PakLoadedInfo_t* pakInfo = nullptr;
 
 	if (args.HasOnlyDigits(1))

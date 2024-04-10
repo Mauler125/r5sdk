@@ -39,7 +39,7 @@ struct CommonPakData_t
 
 	void Reset()
 	{
-		pakId = INVALID_PAK_HANDLE;
+		pakId = PAK_INVALID_HANDLE;
 		keepLoaded = false;
 		basePakName = nullptr;
 
@@ -83,14 +83,14 @@ struct CustomPakData_t
 		// the absolute max number of custom paks, note that the engine's limit
 		// could still be reached before this number as game scripts and other
 		// code still loads paks such as gladiator cards or load screens
-		MAX_CUSTOM_PAKS = (PAK_MAX_HANDLES - CommonPakData_t::PAK_TYPE_COUNT)
+		MAX_CUSTOM_PAKS = (PAK_MAX_LOADED_PAKS - CommonPakData_t::PAK_TYPE_COUNT)
 	};
 
 	CustomPakData_t()
 	{
 		for (size_t i = 0; i < V_ARRAYSIZE(handles); i++)
 		{
-			handles[i] = INVALID_PAK_HANDLE;
+			handles[i] = PAK_INVALID_HANDLE;
 		}
 
 		// the first # handles are reserved for base SDK paks

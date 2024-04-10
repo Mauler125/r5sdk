@@ -1,3 +1,8 @@
+//=============================================================================//
+//
+// Purpose: pak file constants and types
+//
+//=============================================================================//
 #ifndef RTECH_IPACKFILE_H
 #define RTECH_IPACKFILE_H
 #include "tier0/jobthread.h"
@@ -20,15 +25,15 @@
 #define PAK_HEADER_FLAGS_ZSTREAM_ENCODED (1<<9)
 
 // max amount of types at runtime in which assets will be tracked
-#define PAK_MAX_TYPES 64
-#define PAK_MAX_TYPES_MASK (PAK_MAX_TYPES-1)
+#define PAK_MAX_TRACKED_TYPES 64
+#define PAK_MAX_TRACKED_TYPES_MASK (PAK_MAX_TRACKED_TYPES-1)
 
 // max amount of global pak assets at runtime
-#define PAK_MAX_ASSETS 0x40000														// TODO: rename to PAK_MAX_LOADED_ASSETS
-#define PAK_MAX_ASSETS_MASK (PAK_MAX_ASSETS-1)
+#define PAK_MAX_LOADED_ASSETS 0x40000
+#define PAK_MAX_LOADED_ASSETS_MASK (PAK_MAX_LOADED_ASSETS-1)
 
 // max amount of global pak assets tracked at runtime
-#define PAK_MAX_TRACKED_ASSETS (PAK_MAX_ASSETS/2)
+#define PAK_MAX_TRACKED_ASSETS (PAK_MAX_LOADED_ASSETS/2)
 #define PAK_MAX_TRACKED_ASSETS_MASK (PAK_MAX_TRACKED_ASSETS-1)
 
 // max amount of segments a pak file could have
@@ -42,8 +47,8 @@
 #define PAK_MAX_STREAMING_FILE_HANDLES_PER_SET 4
 
 // max amount of paks that could be loaded at runtime
-#define PAK_MAX_HANDLES 512															// TODO: rename to PAK_MAX_LOADED_PAKS
-#define PAK_MAX_HANDLES_MASK (PAK_MAX_HANDLES-1)
+#define PAK_MAX_LOADED_PAKS 512
+#define PAK_MAX_LOADED_PAKS_MASK (PAK_MAX_LOADED_PAKS-1)
 
 // max amount of async streaming requests that could be made per pak file, if a
 // pak file has more patches than this number, and is already trying to stream
@@ -82,7 +87,7 @@
 #define PLATFORM_PAK_OVERRIDE_PATH PAK_BASE_PATH"Win64_override\\"
 
 // the handle that should be returned when a pak failed to load or process
-#define INVALID_PAK_HANDLE -1														// TODO: rename to PAK_INVALID_HANDLE
+#define PAK_INVALID_HANDLE -1
 
 #define PAK_MAX_DISPATCH_LOAD_JOBS 4
 #define PAK_DEFAULT_JOB_GROUP_ID 0x3000
@@ -235,7 +240,7 @@ struct PakAsset_t
 
 	FORCEINLINE uint8_t HashTableIndexForAssetType() const
 	{
-		return (((0x1020601 * magic) >> 24) & PAK_MAX_TYPES_MASK);
+		return (((0x1020601 * magic) >> 24) & PAK_MAX_TRACKED_TYPES_MASK);
 	}
 };
 
@@ -264,7 +269,7 @@ struct PakTracker_s
 	int unk_4;
 	int unk_8;
 	char gap_C[644100];
-	int loadedAssetIndices[PAK_MAX_HANDLES];
+	int loadedAssetIndices[PAK_MAX_LOADED_PAKS];
 	char gap_9DC04[522240];
 };
 
@@ -318,8 +323,8 @@ public:
 struct PakGlobals_s
 {
 	// [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
-	PakAssetBinding_t assetBindings[PAK_MAX_TYPES];
-	PakAssetShort_t loadedAssets[PAK_MAX_ASSETS];
+	PakAssetBinding_t assetBindings[PAK_MAX_TRACKED_TYPES];
+	PakAssetShort_t loadedAssets[PAK_MAX_LOADED_ASSETS];
 
 	// assets that are tracked across all asset types
 	PakAssetTracker_s trackedAssets[PAK_MAX_TRACKED_ASSETS];
@@ -328,11 +333,11 @@ struct PakGlobals_s
 	RHashMap loadedPakMap;    // links to 'loadedPaks'
 
 	// all currently loaded pak handles
-	PakLoadedInfo_t loadedPaks[PAK_MAX_HANDLES];
+	PakLoadedInfo_t loadedPaks[PAK_MAX_LOADED_PAKS];
 
 	RMultiHashMap unkMap2; // links to 'unkIntArray' and 'unkIntArray2'
 	int unkIntArray[PAK_MAX_TRACKED_ASSETS];
-	int unkIntArray2[PAK_MAX_ASSETS];
+	int unkIntArray2[PAK_MAX_LOADED_ASSETS];
 
 	// whether asset streaming (mandatory & optional) is enabled
 	b64 useStreamingSystem;
@@ -365,10 +370,10 @@ struct PakGlobals_s
 	int16_t loadedPakCount;
 	int16_t requestedPakCount;
 
-	PakHandle_t loadedPakHandles[PAK_MAX_HANDLES];
+	PakHandle_t loadedPakHandles[PAK_MAX_LOADED_PAKS];
 
-	JobTypeID_t assetBindJobTypes[PAK_MAX_TYPES];
-	JobTypeID_t jobTypeSlots_Unused[PAK_MAX_TYPES];
+	JobTypeID_t assetBindJobTypes[PAK_MAX_TRACKED_TYPES];
+	JobTypeID_t jobTypeSlots_Unused[PAK_MAX_TRACKED_TYPES];
 
 	JobTypeID_t dispatchLoadJobTypes[PAK_MAX_DISPATCH_LOAD_JOBS];
 	uint8_t dispathLoadJobPriorities[PAK_MAX_DISPATCH_LOAD_JOBS]; // promoted to JobPriority_e
@@ -513,7 +518,7 @@ struct PakSegmentHeader_t
 
 struct PakSegmentDescriptor_t
 {
-	size_t assetTypeCount[PAK_MAX_TYPES];
+	size_t assetTypeCount[PAK_MAX_TRACKED_TYPES];
 	int64_t segmentSizes[PAK_MAX_SEGMENTS];
 
 	size_t segmentSizeForType[PAK_SEGMENT_BUFFER_TYPES];
@@ -693,7 +698,7 @@ struct PakMemoryData_t
 	int numShiftedPointers;
 
 	// array of sizes/offsets in the SF_HEAD segment buffer
-	__int64 unkAssetTypeBindingSizes[PAK_MAX_TYPES];
+	__int64 unkAssetTypeBindingSizes[PAK_MAX_TRACKED_TYPES];
 
 	const char* fileName;
 	PakFileHeader_t pakHeader;

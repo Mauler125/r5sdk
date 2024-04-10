@@ -32,10 +32,10 @@ static bool Pak_ResolveAssetDependency(const PakFile_t* const pak, PakGuid_t cur
 
         currentIndex++;
 
-        if (currentIndex >= PAK_MAX_ASSETS)
+        if (currentIndex >= PAK_MAX_LOADED_ASSETS)
             return false;
 
-        currentIndex &= PAK_MAX_ASSETS_MASK;
+        currentIndex &= PAK_MAX_LOADED_ASSETS_MASK;
         currentGuid = g_pakGlobals->loadedAssets[currentIndex].guid;
 
         if (currentGuid == targetGuid)
@@ -51,7 +51,7 @@ static bool Pak_ResolveAssetDependency(const PakFile_t* const pak, PakGuid_t cur
 void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const asset)
 {
     PakPage_t* const pGuidDescriptors = &pak->memoryData.guidDescriptors[asset->dependenciesIndex];
-    uint32_t* const v5 = (uint32_t*)g_pakGlobals->loadedPaks[pak->memoryData.pakId & PAK_MAX_HANDLES_MASK].qword50;
+    uint32_t* const v5 = (uint32_t*)g_pakGlobals->loadedPaks[pak->memoryData.pakId & PAK_MAX_LOADED_PAKS_MASK].qword50;
 
     if (pak_debugrelations.GetBool())
         Msg(eDLL_T::RTECH, "Resolving relations for asset: '0x%-16llX', dependencies: %-4u; in pak '%s'\n",
@@ -65,7 +65,7 @@ void Pak_ResolveAssetRelations(PakFile_t* const pak, const PakAsset_t* const ass
         const PakGuid_t targetGuid = reinterpret_cast<uint64_t>(*pCurrentGuid);
 
         // get asset index
-        int currentIndex = targetGuid & PAK_MAX_ASSETS_MASK;
+        int currentIndex = targetGuid & PAK_MAX_LOADED_ASSETS_MASK;
         const PakGuid_t currentGuid = g_pakGlobals->loadedAssets[currentIndex].guid;
 
         const int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
@@ -192,14 +192,14 @@ void Pak_RunAssetLoadingJobs(PakFile_t* const pak)
 //-----------------------------------------------------------------------------
 PakHandle_t Pak_LoadAsync(const char* const fileName, CAlignedMemAlloc* const allocator, const int nIdx, const bool bUnk)
 {
-    PakHandle_t pakId = INVALID_PAK_HANDLE;
+    PakHandle_t pakId = PAK_INVALID_HANDLE;
 
     if (Pak_FileExists(fileName))
     {
         Msg(eDLL_T::RTECH, "Loading pak file: '%s'\n", fileName);
         pakId = v_Pak_LoadAsync(fileName, allocator, nIdx, bUnk);
 
-        if (pakId == INVALID_PAK_HANDLE)
+        if (pakId == PAK_INVALID_HANDLE)
             Error(eDLL_T::RTECH, NO_ERROR, "%s: Failed read '%s' results '%d'\n", __FUNCTION__, fileName, pakId);
     }
     else
@@ -450,7 +450,7 @@ bool Pak_ProcessPakFile(PakFile_t* const pak)
                     if (pak->patchCount >= pak->memoryData.pakHeader.patchIndex)
                     {
                         FS_CloseAsyncFile(fileStream->fileHandle);
-                        fileStream->fileHandle = INVALID_PAK_HANDLE;
+                        fileStream->fileHandle = PAK_INVALID_HANDLE;
                         fileStream->qword0 = 0;
                         fileStream->finishedLoadingPatches = true;
 
@@ -677,7 +677,7 @@ bool Pak_ProcessAssets(PakLoadedInfo_t* const a1)
     uint32_t i = 0;
     PakAsset_t* pAsset = nullptr;
 
-    for (int j = pak->memoryData.pakId & PAK_MAX_HANDLES_MASK; i < pak->GetHeader().assetCount; a1->assetGuids[i - 1] = pAsset->guid)
+    for (int j = pak->memoryData.pakId & PAK_MAX_LOADED_PAKS_MASK; i < pak->GetHeader().assetCount; a1->assetGuids[i - 1] = pAsset->guid)
     {
         pAsset = &pak->memoryData.assetEntries[i];
         if (pAsset->numRemainingDependencies)
