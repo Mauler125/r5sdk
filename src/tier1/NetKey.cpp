@@ -10,6 +10,5 @@
 //////////////////////////////////////////////////////////////////////
 const char* CNetKey::GetBase64NetKey(void) const
 {
-	// TODO: should we not acquire lock for m_Mutex here?
 	return m_szBase64;
 }
