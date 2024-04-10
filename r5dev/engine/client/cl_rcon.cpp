@@ -29,7 +29,7 @@ static ConVar cl_rcon_inputonly("cl_rcon_inputonly", "0", FCVAR_RELEASE, "Tells 
 //-----------------------------------------------------------------------------
 static void RCON_CmdQuery_f(const CCommand& args);
 
-static ConCommand rcon("rcon", RCON_CmdQuery_f, "Forward RCON query to remote server", FCVAR_CLIENTDLL | FCVAR_RELEASE, nullptr, "rcon \"<query>\"");
+static ConCommand rcon("rcon", RCON_CmdQuery_f, "Forward RCON message to remote server", FCVAR_CLIENTDLL | FCVAR_RELEASE, nullptr, "rcon \"<message>\"");
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -249,7 +249,9 @@ CRConClient* RCONClient() // Singleton RCON Client.
 =====================
 RCON_AddressChanged_f
 
-  
+  changes the address of the rcon
+  server and attempts to connect
+  to it
 =====================
 */
 static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString)
@@ -258,11 +260,6 @@ static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString)
 	{
 		const char* pNewString = pConVarRef->GetString();
 
-		if (strcmp(pOldString, pNewString) == NULL)
-		{
-			return; // Same address.
-		}
-
 		if (!*pNewString) // Empty address means nothing to network to; shutdown client...
 		{
 			RCONClient()->Shutdown();
@@ -270,6 +267,16 @@ static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString)
 		else
 		{
 			RCON_InitClientAndTrySyncKeys();
+
+			if (RCONClient()->IsInitialized() && !RCONClient()->IsConnected())
+			{
+				if (RCONClient()->IsConnected())
+				{
+					RCONClient()->Disconnect("address change requested");
+				}
+
+				RCONClient()->Connect(pNewString);
+			}
 		}
 	}
 }
@@ -302,14 +309,8 @@ static void RCON_CmdQuery_f(const CCommand& args)
 
 	if (argCount < 2)
 	{
-		const char* pszAddress = cl_rcon_address.GetString();
-
-		if (RCONClient()->IsInitialized()
-			&& !RCONClient()->IsConnected()
-			&& pszAddress[0])
-		{
-			RCONClient()->Connect(pszAddress);
-		}
+		Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "no command provided");
+		return;
 	}
 	else
 	{
@@ -332,7 +333,7 @@ static void RCON_CmdQuery_f(const CCommand& args)
 				}
 				else // Need at least 3 arguments for a password in PASS command (rcon PASS <password>)
 				{
-					Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "no password given");
+					Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "no password provided");
 					return;
 				}
 

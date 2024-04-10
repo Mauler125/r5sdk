@@ -81,7 +81,7 @@ bool CL_NetConConnect(CNetConBase* pBase, const char* pHostAdr, const int nHostP
 	string svLocalHost;
 	const bool bValidSocket = nHostPort != SOCKET_ERROR;
 
-	if (bValidSocket && strcmp(pHostAdr, "localhost") == 0)
+	if (bValidSocket && (strcmp(pHostAdr, "localhost") == 0))
 	{
 		char szHostName[512];
 		if (!gethostname(szHostName, sizeof(szHostName)))
