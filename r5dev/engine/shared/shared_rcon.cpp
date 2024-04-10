@@ -325,7 +325,6 @@ void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString);
 ConVar rcon_debug("rcon_debug", "0", FCVAR_RELEASE, "Show rcon debug information ( !slower! )");
 ConVar rcon_encryptframes("rcon_encryptframes", "1", FCVAR_RELEASE, "Whether to encrypt RCON messages");
 ConVar rcon_key("rcon_key", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Base64 remote server access encryption key (random if empty or invalid)", &RCON_KeyChanged_f);
-ConVar rcon_password("rcon_password", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon server is disabled if empty)", &RCON_PasswordChanged_f);
 
 //-----------------------------------------------------------------------------
 // Purpose: change RCON key on server and client
@@ -364,45 +363,22 @@ void RCON_KeyChanged_f(IConVar* pConVar, const char* pOldString)
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: change RCON password on server and drop all connections
-//-----------------------------------------------------------------------------
-void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString)
-{
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
-	{
-		const char* pNewString = pConVarRef->GetString();
-
-		if (strcmp(pOldString, pNewString) == NULL)
-			return; // Same password.
-
 #ifndef CLIENT_DLL
-		if (RCONServer()->IsInitialized())
-		{
-			RCONServer()->SetPassword(pNewString);
-		}
-		else // Initialize first
-#endif // !CLIENT_DLL
-		{
-#if !defined(DEDICATED) && !defined(CLIENT_DLL)
-			RCONServer()->Init(pNewString, rcon_key.GetString());
-			
-			if (RCONServer()->IsInitialized())
-			{
-				// Sync server & client keys
-				RCONClient()->SetKey(RCONServer()->GetKey());
-			}
-#else
-#ifdef DEDICATED
-			RCONServer()->Init(pNewString, rcon_key.GetString());
-#endif // DEDICATED
-#ifdef CLIENT_DLL
-			RCONClient()->Init(rcon_key.GetString());
-#endif // CLIENT_DLL
-#endif // !DEDICATED && !CLIENT_DLL
-		}
+void RCON_InitServerAndTrySyncKeys(const char* pPassword)
+{
+#ifndef DEDICATED
+	RCONServer()->Init(pPassword, rcon_key.GetString());
+
+	if (RCONServer()->IsInitialized())
+	{
+		// Sync server & client keys
+		RCONClient()->SetKey(RCONServer()->GetKey());
 	}
+#else
+	RCONServer()->Init(pPassword, rcon_key.GetString());
+#endif // !DEDICATED
 }
+#endif // !CLIENT_DLL
 
 #ifndef DEDICATED
 void RCON_InitClientAndTrySyncKeys()
