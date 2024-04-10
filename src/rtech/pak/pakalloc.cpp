@@ -15,7 +15,7 @@ void Pak_AlignSegmentHeaders(PakFile_t* const pak, PakSegmentDescriptor_t* const
     uint64_t headersSize = 0;
     uint8_t headerSegmentAlignment = static_cast<int8_t>(desc->segmentAlignmentForType[SF_HEAD]);
 
-    for (uint8_t i = 0; i < PAK_MAX_TYPES; ++i)
+    for (uint8_t i = 0; i < PAK_MAX_TRACKED_TYPES; ++i)
     {
         const PakAssetBinding_t& binding = g_pakGlobals->assetBindings[i];
 

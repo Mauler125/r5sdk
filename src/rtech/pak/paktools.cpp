@@ -255,7 +255,7 @@ PakGuid_t Pak_StringToGuid(const char* const string)
 //-----------------------------------------------------------------------------
 PakLoadedInfo_t* Pak_GetPakInfo(const PakHandle_t pakId)
 {
-	return &g_pakGlobals->loadedPaks[pakId & PAK_MAX_HANDLES_MASK];
+	return &g_pakGlobals->loadedPaks[pakId & PAK_MAX_LOADED_PAKS_MASK];
 }
 
 //-----------------------------------------------------------------------------
