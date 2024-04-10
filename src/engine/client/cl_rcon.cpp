@@ -7,8 +7,7 @@
 #include "core/stdafx.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
-#include "protoc/sv_rcon.pb.h"
-#include "protoc/cl_rcon.pb.h"
+#include "protoc/netcon.pb.h"
 #include "engine/client/cl_rcon.h"
 #include "engine/shared/shared_rcon.h"
 #include "engine/net.h"
@@ -19,16 +18,18 @@
 //-----------------------------------------------------------------------------
 // Purpose: console variables
 //-----------------------------------------------------------------------------
-static ConVar rcon_address("rcon_address", "[loopback]:37015", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address");
+static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString);
+static void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString);
+
+static ConVar cl_rcon_address("cl_rcon_address", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address (rcon client is disabled if empty)", &RCON_AddressChanged_f);
+static ConVar cl_rcon_inputonly("cl_rcon_inputonly", "0", FCVAR_RELEASE, "Tells the rcon server whether or not we are input only.", RCON_InputOnlyChanged_f);
 
 //-----------------------------------------------------------------------------
 // Purpose: console commands
 //-----------------------------------------------------------------------------
-static void RCON_Disconnect_f();
 static void RCON_CmdQuery_f(const CCommand& args);
 
 static ConCommand rcon("rcon", RCON_CmdQuery_f, "Forward RCON query to remote server", FCVAR_CLIENTDLL | FCVAR_RELEASE, nullptr, "rcon \"<query>\"");
-static ConCommand rcon_disconnect("rcon_disconnect", RCON_Disconnect_f, "Disconnect from RCON server", FCVAR_CLIENTDLL | FCVAR_RELEASE);
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -51,8 +52,9 @@ CRConClient::~CRConClient(void)
 //-----------------------------------------------------------------------------
 // Purpose: NETCON systems init
 //-----------------------------------------------------------------------------
-void CRConClient::Init(void)
+void CRConClient::Init(const char* pNetKey)
 {
+	SetKey(pNetKey);
 	m_bInitialized = true;
 }
 
@@ -105,18 +107,17 @@ void CRConClient::Disconnect(const char* szReason)
 //-----------------------------------------------------------------------------
 bool CRConClient::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
-	sv_rcon::response response;
-	bool bSuccess = Decode(&response, pMsgBuf, nMsgLen);
+	netcon::response response;
 
-	if (!bSuccess)
+	if (!SH_NetConUnpackEnvelope(this, pMsgBuf, nMsgLen, &response, rcon_debug.GetBool()))
 	{
-		Error(eDLL_T::CLIENT, NO_ERROR, "Failed to decode RCON buffer\n");
+		Disconnect("received invalid message");
 		return false;
 	}
 
 	switch (response.responsetype())
 	{
-	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
+	case netcon::response_e::SERVERDATA_RESPONSE_AUTH:
 	{
 		if (!response.responseval().empty())
 		{
@@ -132,7 +133,7 @@ bool CRConClient::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		Msg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
 		break;
 	}
-	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
+	case netcon::response_e::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
 		NetMsg(static_cast<LogType_t>(response.messagetype()), 
 			static_cast<eDLL_T>(response.messageid()),
@@ -165,7 +166,7 @@ void CRConClient::RequestConsoleLog(const bool bWantLog)
 	const SocketHandle_t hSocket = GetSocket();
 
 	vector<char> vecMsg;
-	bool ret = Serialize(vecMsg, "", szEnable, cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+	bool ret = Serialize(vecMsg, "", szEnable, netcon::request_e::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
 
 	if (ret && !Send(hSocket, vecMsg.data(), int(vecMsg.size())))
 	{
@@ -181,9 +182,10 @@ void CRConClient::RequestConsoleLog(const bool bWantLog)
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
 bool CRConClient::Serialize(vector<char>& vecBuf, const char* szReqBuf,
-	const char* szReqVal, const cl_rcon::request_t requestType) const
+	const char* szReqVal, const netcon::request_e requestType) const
 {
-	return CL_NetConSerialize(this, vecBuf, szReqBuf, szReqVal, requestType);
+	return CL_NetConSerialize(this, vecBuf, szReqBuf, szReqVal, requestType,
+		rcon_encryptframes.GetBool(), rcon_debug.GetBool());
 }
 
 //-----------------------------------------------------------------------------
@@ -203,17 +205,6 @@ SocketHandle_t CRConClient::GetSocket(void)
 {
 	return SH_GetNetConSocketHandle(this, 0);
 }
-
-//-----------------------------------------------------------------------------
-// Purpose: request whether to recv logs from RCON server when cvar changes
-//-----------------------------------------------------------------------------
-static void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString)
-{
-	RCONClient()->RequestConsoleLog(RCONClient()->ShouldReceive());
-}
-
-static ConVar cl_rcon_inputonly("cl_rcon_inputonly", "0", FCVAR_RELEASE, "Tells the rcon server whether or not we are input only.",
-	false, 0.f, false, 0.f, RCON_InputOnlyChanged_f);
 
 //-----------------------------------------------------------------------------
 // Purpose: returns whether or not we should receive logs from the server
@@ -256,6 +247,49 @@ CRConClient* RCONClient() // Singleton RCON Client.
 
 /*
 =====================
+RCON_AddressChanged_f
+
+  
+=====================
+*/
+static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		const char* pNewString = pConVarRef->GetString();
+
+		if (strcmp(pOldString, pNewString) == NULL)
+		{
+			return; // Same address.
+		}
+
+		if (!*pNewString) // Empty address means nothing to network to; shutdown client...
+		{
+			RCONClient()->Shutdown();
+		}
+		else
+		{
+			RCON_InitClientAndTrySyncKeys();
+		}
+	}
+}
+
+/*
+=====================
+RCON_InputOnlyChanged_f
+
+  request whether to recv logs
+  from RCON server when cvar
+  changes
+=====================
+*/
+static void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	RCONClient()->RequestConsoleLog(RCONClient()->ShouldReceive());
+}
+
+/*
+=====================
 RCON_CmdQuery_f
 
   Issues an RCON command to the
@@ -268,7 +302,7 @@ static void RCON_CmdQuery_f(const CCommand& args)
 
 	if (argCount < 2)
 	{
-		const char* pszAddress = rcon_address.GetString();
+		const char* pszAddress = cl_rcon_address.GetString();
 
 		if (RCONClient()->IsInitialized()
 			&& !RCONClient()->IsConnected()
@@ -290,16 +324,23 @@ static void RCON_CmdQuery_f(const CCommand& args)
 			bool bSuccess = false;
 			const SocketHandle_t hSocket = RCONClient()->GetSocket();
 
-			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
+			if (strcmp(args.Arg(1), "PASS") == 0)
 			{
 				if (argCount > 2)
 				{
-					bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(2), "", netcon::request_e::SERVERDATA_REQUEST_AUTH);
 				}
-				else
+				else // Auth with RCON server using rcon_password ConVar value.
 				{
-					Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "no password given");
-					return;
+					const char* storedPassword = rcon_password.GetString();
+
+					if (!strlen(storedPassword))
+					{
+						Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "no password given");
+						return;
+					}
+
+					bSuccess = RCONClient()->Serialize(vecMsg, storedPassword, "", netcon::request_e::SERVERDATA_REQUEST_AUTH);
 				}
 
 				if (bSuccess)
@@ -311,11 +352,11 @@ static void RCON_CmdQuery_f(const CCommand& args)
 			}
 			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 			{
-				RCONClient()->Disconnect("issued by user");
+				RCONClient()->Disconnect("ordered by user");
 				return;
 			}
 
-			bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(1), args.ArgS(), cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			bSuccess = RCONClient()->Serialize(vecMsg, args.Arg(1), args.ArgS(), netcon::request_e::SERVERDATA_REQUEST_EXECCOMMAND);
 			if (bSuccess)
 			{
 				RCONClient()->Send(hSocket, vecMsg.data(), int(vecMsg.size()));
@@ -327,23 +368,5 @@ static void RCON_CmdQuery_f(const CCommand& args)
 			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "unconnected");
 			return;
 		}
-	}
-}
-
-/*
-=====================
-RCON_Disconnect_f
-
-  Disconnect from RCON server
-=====================
-*/
-static void RCON_Disconnect_f()
-{
-	const bool bIsConnected = RCONClient()->IsConnected();
-	RCONClient()->Disconnect("issued by user");
-
-	if (bIsConnected) // Log if client was indeed connected.
-	{
-		Msg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }

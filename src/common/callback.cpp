@@ -10,6 +10,7 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 #include "tier1/fmtstr.h"
+#include "engine/shared/shared_rcon.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
 #endif // !CLIENT_DLL
@@ -248,7 +249,7 @@ void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString
 		{
 			Msg(eDLL_T::SERVER, "Rebooting RCON server...\n");
 			RCONServer()->Shutdown();
-			RCONServer()->Init();
+			RCONServer()->Init(rcon_password.GetString(), RCONServer()->GetKey());
 		}
 #endif // !CLIENT_DLL
 	}

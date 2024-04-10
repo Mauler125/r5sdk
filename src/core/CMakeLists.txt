@@ -59,8 +59,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
     "SigCache_Pb"
     "LiveAPI_Pb"
-    "SV_RCon_Pb"
-    "CL_RCon_Pb"
+    "NetCon_Pb"
 
     "rson"
     "rtech_game"
@@ -80,6 +79,10 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
     "EAThread"
     "DirtySDK"
+
+    "libmbedcrypto"
+    "libmbedtls"
+    "libmbedx509"
 
     "networksystem"
     "pluginsystem"
@@ -115,9 +118,6 @@ endif()
 
 if( NOT ${PROJECT_NAME} STREQUAL "client" )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
-    "libmbedcrypto"
-    "libmbedtls"
-    "libmbedx509"
     "libjwt"
 )
 endif()

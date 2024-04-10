@@ -12,8 +12,7 @@
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
 #include "windows/console.h"
-#include "protoc/sv_rcon.pb.h"
-#include "protoc/cl_rcon.pb.h"
+#include "protoc/netcon.pb.h"
 #include "engine/net.h"
 #include "engine/shared/shared_rcon.h"
 #include "netconsole/netconsole.h"
@@ -25,6 +24,7 @@ CNetCon::CNetCon(void)
 	: m_bInitialized(false)
 	, m_bQuitting(false)
 	, m_bPromptConnect(true)
+	, m_bEncryptFrames(true)
 	, m_flTickInterval(0.05f)
 {
 	// Empty character set used for ip addresses if we still need to initiate a
@@ -216,17 +216,17 @@ void CNetCon::RunInput(const string& lineInput)
 			if (V_strcmp(cmd.Arg(0), "PASS") == 0) // Auth with RCON server.
 			{
 				bSend = Serialize(vecMsg, cmd.Arg(1), "",
-					cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					netcon::request_e::SERVERDATA_REQUEST_AUTH);
 			}
 			else // Execute command query.
 			{
 				bSend = Serialize(vecMsg, cmd.Arg(0), cmd.GetCommandString(),
-					cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+					netcon::request_e::SERVERDATA_REQUEST_EXECCOMMAND);
 			}
 		}
 		else // Single arg command query.
 		{
-			bSend = Serialize(vecMsg, lineInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			bSend = Serialize(vecMsg, lineInput.c_str(), "", netcon::request_e::SERVERDATA_REQUEST_EXECCOMMAND);
 		}
 
 		if (bSend) // Only send if serialization process was successful.
@@ -244,25 +244,47 @@ void CNetCon::RunInput(const string& lineInput)
 
 		if (cmd.ArgC() > 1)
 		{
-			const char* inAddr = cmd.Arg(0);
-			const char* inPort = cmd.Arg(1);
+			const char* inAdr = cmd.Arg(0);
+			const char* inKey = cmd.Arg(1);
 
-			if (!*inAddr || !*inPort)
+			if (!*inAdr)
 			{
-				Warning(eDLL_T::CLIENT, "No IP address or port provided\n");
+				Warning(eDLL_T::CLIENT, "No address provided\n");
 				SetPrompting(true);
 				return;
 			}
 
-			if (!Connect(inAddr, atoi(inPort)))
+			if (!*inKey)
+			{
+				Warning(eDLL_T::CLIENT, "No key provided; using default %s'%s%s%s'\n",
+					g_svReset, g_svGreyB, DEFAULT_NET_ENCRYPTION_KEY, g_svReset);
+
+				SetKey(DEFAULT_NET_ENCRYPTION_KEY, true);
+			}
+			else
+			{
+				SetKey(inKey, true);
+			}
+
+			m_bEncryptFrames = true;
+
+			Msg(eDLL_T::CLIENT, "Attempting connection to '%s' with key %s'%s%s%s'\n",
+				inAdr, g_svReset, g_svGreyB, GetKey(), g_svReset);
+
+			if (!Connect(inAdr))
 			{
 				SetPrompting(true);
 				return;
 			}
 		}
-		else
+		else // No encryption
 		{
-			if (!Connect(cmd.GetCommandString()))
+			const char* inAdr = cmd.GetCommandString();
+			m_bEncryptFrames = false;
+
+			Msg(eDLL_T::CLIENT, "Attempting connection to '%s'\n", inAdr);
+
+			if (!Connect(inAdr))
 			{
 				SetPrompting(true);
 				return;
@@ -287,7 +309,7 @@ bool CNetCon::RunFrame(void)
 		}
 		else if (GetPrompting())
 		{
-			Msg(eDLL_T::NONE, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
+			Msg(eDLL_T::NONE, "Enter [<address>]:<port> and <key>: ");
 			SetPrompting(false);
 		}
 	}
@@ -360,18 +382,17 @@ void CNetCon::Disconnect(const char* szReason)
 //-----------------------------------------------------------------------------
 bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
-	sv_rcon::response response;
-	bool bSuccess = Decode(&response, pMsgBuf, nMsgLen);
+	netcon::response response;
 
-	if (!bSuccess)
+	if (!SH_NetConUnpackEnvelope(this, pMsgBuf, nMsgLen, &response, true))
 	{
-		Error(eDLL_T::CLIENT, NO_ERROR, "Failed to decode RCON buffer\n");
+		Disconnect("received invalid message");
 		return false;
 	}
 
 	switch (response.responsetype())
 	{
-	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
+	case netcon::response_e::SERVERDATA_RESPONSE_AUTH:
 	{
 		if (!response.responseval().empty())
 		{
@@ -379,7 +400,7 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 			if (!i) // Means we are marked 'input only' on the rcon server.
 			{
 				vector<char> vecMsg;
-				bool ret = Serialize(vecMsg, "", "1", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+				bool ret = Serialize(vecMsg, "", "1", netcon::request_e::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
 
 				if (ret && !Send(GetSocket(), vecMsg.data(), int(vecMsg.size())))
 				{
@@ -391,7 +412,7 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 		Msg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
 		break;
 	}
-	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
+	case netcon::response_e::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
 		NetMsg(static_cast<LogType_t>(response.messagetype()),
 			static_cast<eDLL_T>(response.messageid()),
@@ -416,9 +437,9 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
 bool CNetCon::Serialize(vector<char>& vecBuf, const char* szReqBuf,
-	const char* szReqVal, const cl_rcon::request_t requestType) const
+	const char* szReqVal, const netcon::request_e requestType) const
 {
-	return CL_NetConSerialize(this, vecBuf, szReqBuf, szReqVal, requestType);
+	return CL_NetConSerialize(this, vecBuf, szReqBuf, szReqVal, requestType, m_bEncryptFrames, true);
 }
 
 //-----------------------------------------------------------------------------

@@ -122,6 +122,26 @@ MODULEINFO GetModuleInfo(const char* szModule)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For generating random data.
+static BCRYPT_ALG_HANDLE s_bcryptAlgorithmProvider;
+bool CryptoGenRandom(unsigned char* pData, const uint32_t nDataLen, const char*& outMsg)
+{
+    if (!s_bcryptAlgorithmProvider && (BCryptOpenAlgorithmProvider(&s_bcryptAlgorithmProvider, L"RNG", 0, 0) < 0))
+    {
+        outMsg = "Failed to open rng algorithm";
+        return false;
+    }
+
+    if (BCryptGenRandom(s_bcryptAlgorithmProvider, pData, nDataLen, 0) < 0)
+    {
+        outMsg = "Failed to generate random data";
+        return false;
+    }
+
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For printing output to the debugger.
 void DbgPrint(LPCSTR sFormat, ...)
 {

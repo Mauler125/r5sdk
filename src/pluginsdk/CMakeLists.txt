@@ -23,8 +23,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "libspdlog"
 
     "SigCache_Pb"
-    "SV_RCon_Pb"
-    "CL_RCon_Pb"
+    "NetCon_Pb"
     "Rpcrt4.lib"
 )
 

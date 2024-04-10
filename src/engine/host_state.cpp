@@ -300,13 +300,6 @@ void CHostState::Setup(void)
 	ConVar_PurgeHostNames();
 
 #ifndef CLIENT_DLL
-	RCONServer()->Init();
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
-	RCONClient()->Init();
-#endif // !DEDICATED
-
-#ifndef CLIENT_DLL
 	LiveAPISystem()->Init();
 #endif // !CLIENT_DLL
 

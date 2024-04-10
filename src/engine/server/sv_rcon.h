@@ -1,8 +1,7 @@
 #pragma once
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
-#include "protoc/sv_rcon.pb.h"
-#include "protoc/cl_rcon.pb.h"
+#include "protoc/netcon.pb.h"
 #include "engine/shared/base_rcon.h"
 
 #define RCON_MIN_PASSWORD_LEN 8
@@ -15,7 +14,7 @@ public:
 	CRConServer(void);
 	~CRConServer(void);
 
-	void Init(void);
+	void Init(const char* pPassword, const char* pNetKey = nullptr);
 	void Shutdown(void);
 
 	bool SetPassword(const char* pszPassword);
@@ -24,36 +23,37 @@ public:
 	void Think(void);
 	void RunFrame(void);
 
-	bool SendEncode(const char* pResponseMsg, const char* pResponseVal,
-		const sv_rcon::response_t responseType,
+	bool SendEncoded(const char* pResponseMsg, const char* pResponseVal,
+		const netcon::response_e responseType,
 		const int nMessageId = static_cast<int>(eDLL_T::NETCON),
 		const int nMessageType = static_cast<int>(LogType_t::LOG_NET)) const;
 
-	bool SendEncode(const SocketHandle_t hSocket, const char* pResponseMsg,
-		const char* pResponseVal, const sv_rcon::response_t responseType,
+	bool SendEncoded(const SocketHandle_t hSocket, const char* pResponseMsg,
+		const char* pResponseVal, const netcon::response_e responseType,
 		const int nMessageId = static_cast<int>(eDLL_T::NETCON),
 		const int nMessageType = static_cast<int>(LogType_t::LOG_NET)) const;
 
 	bool SendToAll(const char* pMsgBuf, const int nMsgLen) const;
-	bool Serialize(vector<char>& vecBuf, const char* pResponseMsg, const char* pResponseVal, const sv_rcon::response_t responseType,
+	bool Serialize(vector<char>& vecBuf, const char* pResponseMsg, const char* pResponseVal, const netcon::response_e responseType,
 		const int nMessageId = static_cast<int>(eDLL_T::NETCON), const int nMessageType = static_cast<int>(LogType_t::LOG_NET)) const;
 
-	void Authenticate(const cl_rcon::request& request, CConnectedNetConsoleData& data);
+	void Authenticate(const netcon::request& request, CConnectedNetConsoleData& data);
 	bool Comparator(const string& svPassword) const;
 
 	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
-	void Execute(const cl_rcon::request& request) const;
+	void Execute(const netcon::request& request) const;
 	bool CheckForBan(CConnectedNetConsoleData& data);
 
 	virtual void Disconnect(const char* szReason = nullptr) override;
 	void Disconnect(const int nIndex, const char* szReason = nullptr);
 	void CloseNonAuthConnection(void);
 
-	bool ShouldSend(const sv_rcon::response_t responseType) const;
+	bool ShouldSend(const netcon::response_e responseType) const;
 	bool IsInitialized(void) const;
 
 	int GetAuthenticatedCount(void) const;
+	void CloseAllSockets() { m_Socket.CloseAllAcceptedSockets(); }
 
 private:
 	int                      m_nConnIndex;
