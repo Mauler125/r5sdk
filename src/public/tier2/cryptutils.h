@@ -1,6 +1,8 @@
 #ifndef TIER2_CRYPTUTILS_H
 #define TIER2_CRYPTUTILS_H
 
+bool Plat_GenerateRandom(unsigned char* pBuffer, const uint32_t nBufLen, const char*& errorMsg);
+
 typedef unsigned char CryptoIV_t[16];
 typedef unsigned char CryptoKey_t[16];
 

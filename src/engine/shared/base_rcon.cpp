@@ -74,7 +74,7 @@ void CNetConBase::SetKey(const char* pBase64NetKey, const bool bUseDefaultOnFail
 		{
 			const char* errorMsg = nullptr;
 
-			if (!CryptoGenRandom(m_NetKey, sizeof(m_NetKey), errorMsg))
+			if (!Plat_GenerateRandom(m_NetKey, sizeof(m_NetKey), errorMsg))
 			{
 				Error(eDLL_T::ENGINE, NO_ERROR, "RCON Key: generate error (%s)\n", errorMsg);
 				useDefaultKey = true;
