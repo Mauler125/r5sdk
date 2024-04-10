@@ -8,7 +8,6 @@ int CreateDirHierarchy(const char* filePath);
 bool IsDirectory(const char* path);
 bool FileEmpty(ifstream& pFile);
 MODULEINFO GetModuleInfo(const char* szModule);
-bool CryptoGenRandom(unsigned char* pData, const uint32_t nDataLen, const char*& outMsg);
 
 /////////////////////////////////////////////////////////////////////////////
 // Debug

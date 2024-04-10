@@ -11,6 +11,24 @@
 
 #include "tier2/cryptutils.h"
 
+static BCRYPT_ALG_HANDLE s_algorithmProvider;
+bool Plat_GenerateRandom(unsigned char* buffer, const uint32_t bufferSize, const char*& errorMsg)
+{
+	if (!s_algorithmProvider && (BCryptOpenAlgorithmProvider(&s_algorithmProvider, L"RNG", 0, 0) < 0))
+	{
+		errorMsg = "Failed to open rng algorithm";
+		return false;
+	}
+
+	if (BCryptGenRandom(s_algorithmProvider, buffer, bufferSize, 0) < 0)
+	{
+		errorMsg = "Failed to generate random data";
+		return false;
+	}
+
+	return true;
+}
+
 bool Crypto_GenerateIV(CryptoContext_s& ctx, const unsigned char* const data, const size_t size)
 {
 	mbedtls_entropy_context entropy;
