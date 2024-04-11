@@ -236,8 +236,8 @@ void Mod_QueuedPakCacheFrame()
         {
             if (*data->pakName)
             {
-                PakLoadedInfo_t* const pakInfo = Pak_GetPakInfo(data->pakId);
-                EPakStatus status;
+                PakLoadedInfo_s* const pakInfo = Pak_GetPakInfo(data->pakId);
+                PakStatus_e status;
 
                 // TODO: revisit this, this appears incorrect but also the way
                 // respawn does this. it this always supposed to be true on
@@ -423,7 +423,7 @@ CHECK_FOR_FAILURE:
 
     if (commonData->pakId != PAK_INVALID_HANDLE)
     {
-        const PakLoadedInfo_t* const pli = Pak_GetPakInfo(commonData->pakId);
+        const PakLoadedInfo_s* const pli = Pak_GetPakInfo(commonData->pakId);
 
         if (pli->handle != commonData->pakId || ((pli->status - 9) & 0xFFFFFFFB) != 0)
         {

@@ -35,7 +35,7 @@ bool Pak_BufferToBufferEncode(const uint8_t* const inBuf, const uint64_t inLen,
 {
 	// offset to the actual pak data, the main file header shouldn't be
 	// compressed
-	const size_t dataOffset = sizeof(PakFileHeader_t);
+	const size_t dataOffset = sizeof(PakFileHeader_s);
 
 	uint8_t* const dstBuf = outBuf + dataOffset;
 	const size_t dstLen = outLen - dataOffset;
@@ -55,7 +55,7 @@ bool Pak_BufferToBufferEncode(const uint8_t* const inBuf, const uint64_t inLen,
 		return false;
 	}
 
-	PakFileHeader_t* const outHeader = reinterpret_cast<PakFileHeader_t* const>(outBuf);
+	PakFileHeader_s* const outHeader = reinterpret_cast<PakFileHeader_s* const>(outBuf);
 
 	// the compressed size includes the entire buffer, even the data we didn't
 	// compress like the file header
@@ -105,7 +105,7 @@ bool Pak_EncodePakFile(const char* const inPakFile, const char* const outPakFile
 	const size_t fileSize = inPakStream.GetSize();
 
 	// file appears truncated
-	if (fileSize <= sizeof(PakFileHeader_t))
+	if (fileSize <= sizeof(PakFileHeader_s))
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s: pak '%s' appears truncated!\n",
 			__FUNCTION__, inPakFile);
@@ -119,7 +119,7 @@ bool Pak_EncodePakFile(const char* const inPakFile, const char* const outPakFile
 	inPakStream.Read(inPakBuf, fileSize);
 	inPakStream.Close();
 
-	const PakFileHeader_t* const inHeader = reinterpret_cast<PakFileHeader_t* const>(inPakBuf);
+	const PakFileHeader_s* const inHeader = reinterpret_cast<PakFileHeader_s* const>(inPakBuf);
 
 	if (inHeader->magic != PAK_HEADER_MAGIC || inHeader->version != PAK_HEADER_VERSION)
 	{
@@ -129,7 +129,7 @@ bool Pak_EncodePakFile(const char* const inPakFile, const char* const outPakFile
 		return false;
 	}
 
-	if (inHeader->GetCompressionMode() != EPakDecodeMode::MODE_DISABLED)
+	if (inHeader->GetCompressionMode() != PakDecodeMode_e::MODE_DISABLED)
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s: pak '%s' is already compressed!\n",
 			__FUNCTION__, inPakFile);
@@ -158,7 +158,7 @@ bool Pak_EncodePakFile(const char* const inPakFile, const char* const outPakFile
 	std::unique_ptr<uint8_t[]> outPakBufContainer(new uint8_t[outBufSize]);
 	uint8_t* const outPakBuf = outPakBufContainer.get();
 
-	PakFileHeader_t* const outHeader = reinterpret_cast<PakFileHeader_t* const>(outPakBuf);
+	PakFileHeader_s* const outHeader = reinterpret_cast<PakFileHeader_s* const>(outPakBuf);
 
 	// copy the header over
 	*outHeader = *inHeader;
@@ -172,7 +172,7 @@ bool Pak_EncodePakFile(const char* const inPakFile, const char* const outPakFile
 		return false;
 	}
 
-	const PakFileHeader_t* const outPakHeader = reinterpret_cast<PakFileHeader_t* const>(outPakBuf);
+	const PakFileHeader_s* const outPakHeader = reinterpret_cast<PakFileHeader_s* const>(outPakBuf);
 
 	Pak_ShowHeaderDetails(outPakHeader);
 
