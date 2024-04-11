@@ -69,7 +69,7 @@ void DebugDrawCylinder(const Vector3D& vOrigin, const QAngle& vAngles, float flR
     float flDegrees = 360.f / float(nSides);
     QAngle vComposed;
     Vector3D vForward;
-    vector<Vector3D> vvPoints;
+    CUtlVector<Vector3D> vecPoints(0, nSides);
 
     AngleVectors(vAngles, &vForward);
 
@@ -79,13 +79,13 @@ void DebugDrawCylinder(const Vector3D& vOrigin, const QAngle& vAngles, float flR
 
         AngleCompose(vAngles, { 0.f, 0.f, flDegrees * i }, vComposed);
         AngleVectors(vComposed, nullptr, &right, nullptr);
-        vvPoints.push_back(vOrigin + (right * flRadius));
+        vecPoints.AddToTail(vOrigin + (right * flRadius));
     }
 
     for (int i = 0; i < nSides; i++)
     {
-        Vector3D vStart = vvPoints[i];
-        Vector3D vEnd = i == 0 ? vvPoints[nSides - 1] : vvPoints[i - 1];
+        Vector3D vStart = vecPoints[i];
+        Vector3D vEnd = i == 0 ? vecPoints[nSides - 1] : vecPoints[i - 1];
 
         v_RenderLine(vStart, vEnd, color, bZBuffer);
         v_RenderLine(vStart + (vForward * flHeight), vEnd + (vForward * flHeight), color, bZBuffer);
