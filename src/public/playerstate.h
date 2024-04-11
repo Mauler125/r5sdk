@@ -25,20 +25,20 @@ public:
 	__int64 requestedClass;
 	__int64 onDeathClass;
 	__int64 oldClass;
-	__int64 netname;
+	string_t netname;
 	int fixangle;
-	Vector3D anglechange;
+	QAngle anglechange;
 	int index;
-	Vector3D forceWorldViewAngle;
+	QAngle forceWorldViewAngle;
 	int forceWorldViewAngleUntilTick;
 	bool replay;
 	char gap_5d[3];
 	int lastPlayerView_tickcount;
 	Vector3D lastPlayerView_origin;
-	Vector3D lastPlayerView_angle;
+	QAngle lastPlayerView_angle;
 	bool deadflag;
 	char gap_7d[3];
-	Vector3D m_localViewAngles;
+	QAngle m_localViewAngles;
 };
 
 #endif // PLAYERSTATE_H
