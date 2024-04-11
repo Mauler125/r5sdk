@@ -48,12 +48,15 @@ public:
 	int32_t command_number;
 	int32_t tick_count;
 	float_t command_time;
+
 	QAngle viewangles;
 	QAngle pitchangles; // Pitch angles? See [r5apex_ds+705D80].
+
 	float_t forwardmove;
 	float_t sidemove;
 	float_t upmove;
 	int32_t buttons;
+
 	byte impulse;
 	byte cycleslot;
 	byte weaponindex;
@@ -64,12 +67,18 @@ public:
 	bool controllermode;
 	bool fixangles;
 	bool setlastcycleslot;
-	char pad_0x0034[157];
-	QAngle renderangles;                  // IDK what this is used for.
-	QAngle renderangles_copy;             // IDK what this is used for.
+	char pad_0x0034[149];
+
+	// Zipline vars (see [r5apex_ds+8A6573] for read).
+	bool placedZiplineStation;
+	char unk[3];
+	int nUnkDC;
+	Vector3D beginStationOrigin;
+	Vector3D stationWorldRelative;
 	float fUnkF8;
-	QAngle another_renderangles_copy;     // IDK what this is used for.
-	QAngle yet_another_renderangles_copy; // IDK what this is used for.
+	Vector3D endStationOrigin;
+	QAngle stationWorldAngles;
+
 	char pad_0x00114[112];
 	int32_t randomseed;
 	byte bUnk188;
