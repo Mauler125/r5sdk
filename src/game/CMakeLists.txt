@@ -73,6 +73,8 @@ add_sources( SOURCE_GROUP "Network"
 add_sources( SOURCE_GROUP "Player"
     "server/player.cpp"
     "server/player.h"
+    "server/player_command.cpp"
+    "server/player_command.h"
     "server/playerlocaldata.h"
 )
 

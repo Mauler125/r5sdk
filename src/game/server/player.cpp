@@ -13,6 +13,9 @@
 
 #include "engine/server/server.h"
 
+// NOTE[ AMOS ]: default tick interval (0.05) * default cvar value (10) = total time buffer of 0.5, which is the default of cvar 'sv_maxunlag'.
+static ConVar sv_maxUserCmdProcessTicks("sv_maxUserCmdProcessTicks", "10", FCVAR_NONE, "Maximum number of client-issued UserCmd ticks that can be replayed in packet loss conditions, 0 to allow no restrictions.");
+
 //------------------------------------------------------------------------------
 // Purpose: executes a null command for this player
 //------------------------------------------------------------------------------
@@ -64,7 +67,7 @@ inline void CPlayer::SetTimeBase(float flTimeBase)
 
 	SetLastUCmdSimulationRemainderTime(flTime);
 
-	float flSimulationTime = flTimeBase - m_lastUCmdSimulationRemainderTime * (*g_pGlobals)->m_flTickInterval;
+	float flSimulationTime = flTimeBase - m_lastUCmdSimulationRemainderTime * TICK_INTERVAL;
 	if (flSimulationTime >= 0.0f)
 	{
 		flTime = flSimulationTime;
@@ -241,6 +244,25 @@ void CPlayer::SetLastUserCommand(CUserCmd* pUserCmd)
 	m_LastCmd.Copy(pUserCmd);
 }
 
+//------------------------------------------------------------------------------
+// Purpose: run physics simulation for player
+// Input  : *player (this) - 
+//			numPerIteration - 
+//			adjustTimeBase - 
+//------------------------------------------------------------------------------
+bool Player_PhysicsSimulate(CPlayer* player, int numPerIteration, bool adjustTimeBase)
+{
+	CClientExtended* const cle = g_pServer->GetClientExtended(player->GetEdict() - 1);
+	const int numUserCmdProcessTicksMax = sv_maxUserCmdProcessTicks.GetInt();
+
+	if (numUserCmdProcessTicksMax && (*g_pGlobals)->m_nGameMode != GameMode_t::SP_MODE) // don't apply this filter in SP games
+		cle->InitializeMovementTimeForUserCmdProcessing(numUserCmdProcessTicksMax, TICK_INTERVAL);
+	else // Otherwise we don't care to track time
+		cle->SetRemainingMovementTimeForUserCmdProcessing(FLT_MAX);
+
+	return CPlayer__PhysicsSimulate(player, numPerIteration, adjustTimeBase);
+}
+
 /*
 =====================
 CC_CreateFakePlayer_f
@@ -286,3 +308,8 @@ static void CC_CreateFakePlayer_f(const CCommand& args)
 }
 
 static ConCommand sv_addbot("sv_addbot", CC_CreateFakePlayer_f, "Creates a bot on the server", FCVAR_RELEASE);
+
+void VPlayer::Detour(const bool bAttach) const
+{
+	DetourSetup(&CPlayer__PhysicsSimulate, &Player_PhysicsSimulate, bAttach);
+}

@@ -230,6 +230,7 @@ public:
 		m_flNetProcessTimeBase = 0.0;
 		m_flStringCommandQuotaTimeStart = 0.0;
 		m_nStringCommandQuotaCount = NULL;
+		m_flMovementTimeForUserCmdProcessingRemaining = 0.0f;
 		m_bInitialConVarsSet = false;
 	}
 
@@ -247,6 +248,12 @@ public: // Inlines:
 	inline void SetStringCommandQuotaCount(const int iCount) { m_nStringCommandQuotaCount = iCount; }
 	inline int GetStringCommandQuotaCount(void) const { return m_nStringCommandQuotaCount; }
 
+	inline void SetRemainingMovementTimeForUserCmdProcessing(const float flValue) { m_flMovementTimeForUserCmdProcessingRemaining = flValue; }
+	inline float GetRemainingMovementTimeForUserCmdProcessing() const { return m_flMovementTimeForUserCmdProcessingRemaining; }
+
+	void InitializeMovementTimeForUserCmdProcessing(const int numUserCmdProcessTicksMax, const float tickInterval);
+	float ConsumeMovementTimeForUserCmdProcessing(const float flTimeNeeded);
+
 private:
 	// Measure how long this client's packets took to process.
 	double m_flNetProcessingTimeMsecs;
@@ -255,6 +262,9 @@ private:
 	// The start time of the first stringcmd since reset.
 	double m_flStringCommandQuotaTimeStart;
 	int m_nStringCommandQuotaCount;
+
+	// How much of a movement time buffer can we process from this user?
+	float m_flMovementTimeForUserCmdProcessingRemaining;
 
 	bool m_bInitialConVarsSet; // Whether or not the initial ConVar KV's are set
 };
