@@ -26,6 +26,8 @@
 #define FIXANGLE_ABSOLUTE		1
 #define FIXANGLE_RELATIVE		2
 
+#define FL_FAKECLIENT			(1<<7)	// Fake client, simulated server side; don't send network messages to them
+
 enum RenderMode_t
 {
 	kRenderNormal = 0,		// src
