@@ -3,11 +3,11 @@
 #include "rtech/ipakfile.h"
 #include "pakstate.h"
 
-extern void Pak_OpenAssociatedStreamingFiles(PakLoadedInfo_t* const loadedInfo, PakLoadedInfo_t::StreamingInfo_t& streamInfo,
-    const uint16_t fileNamesBufSize, const EPakStreamSet set);
+extern void Pak_OpenAssociatedStreamingFiles(PakLoadedInfo_s* const loadedInfo, PakLoadedInfo_s::StreamingInfo_t& streamInfo,
+    const uint16_t fileNamesBufSize, const PakStreamSet_e set);
 
-extern void Pak_EnableEmbeddedStreamingData(PakLoadedInfo_t* const loadedInfo, PakLoadedInfo_t::StreamingInfo_t& streamInfo);
-extern void Pak_LoadStreamingData(PakLoadedInfo_t* const loadedInfo);
+extern void Pak_EnableEmbeddedStreamingData(PakLoadedInfo_s* const loadedInfo, PakLoadedInfo_s::StreamingInfo_t& streamInfo);
+extern void Pak_LoadStreamingData(PakLoadedInfo_s* const loadedInfo);
 
 // the current download progress of optional streaming assets
 inline float* g_pStreamingDownloadProgress = nullptr;

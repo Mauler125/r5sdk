@@ -95,7 +95,7 @@
 //-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------
-struct PakFile_t;
+struct PakFile_s;
 
 //-----------------------------------------------------------------------------
 // Handle types
@@ -106,7 +106,7 @@ typedef uint64_t PakGuid_t;
 //-----------------------------------------------------------------------------
 // Page handle types
 //-----------------------------------------------------------------------------
-struct PakPageHeader_t
+struct PakPageHeader_s
 {
 	uint32_t segmentIdx;
 	uint32_t pageAlignment;
@@ -120,7 +120,7 @@ struct PakPageHeader_t
 #define IS_PAKPTR_VALID(pak, ptr) ((ptr)->index != UINT32_MAX && (ptr)->offset != UINT32_MAX && (ptr)->index < (pak)->GetPageCount() && (ptr)->offset <= (pak)->GetPageSize((ptr)->index))
 #define ASSERT_PAKPTR_VALID(pak, ptr) Assert(IS_PAKPTR_VALID(pak, ptr), "Invalid pak page pointer")
 
-union PakPage_t
+union PakPage_u
 {
 	struct
 	{
@@ -133,7 +133,7 @@ union PakPage_t
 //-----------------------------------------------------------------------------
 // Enumerations
 //-----------------------------------------------------------------------------
-enum EPakDecodeMode : int32_t
+enum PakDecodeMode_e
 {
 	MODE_DISABLED = -1,
 
@@ -142,7 +142,7 @@ enum EPakDecodeMode : int32_t
 	MODE_ZSTD
 };
 
-enum EPakStreamSet
+enum PakStreamSet_e
 {
 	STREAMING_SET_MANDATORY = 0,
 	STREAMING_SET_OPTIONAL,
@@ -151,7 +151,7 @@ enum EPakStreamSet
 	STREAMING_SET_COUNT
 };
 
-enum EPakStatus : int32_t
+enum PakStatus_e
 {
 	PAK_STATUS_FREED = 0,
 	PAK_STATUS_LOAD_PENDING = 1,
@@ -171,7 +171,7 @@ enum EPakStatus : int32_t
 	PAK_STATUS_BUSY = 15
 };
 
-struct PakAssetBinding_t
+struct PakAssetBinding_s
 {
 	enum EType
 	{
@@ -210,15 +210,15 @@ struct PakAssetBinding_t
 	// [ PIXIE ]: Should be the full size across Season 0-3.
 };
 
-struct PakAsset_t
+struct PakAsset_s
 {
 	// the guid of this asset, which will be used to index into, and retrieve
 	// this asset from the hash table
 	PakGuid_t guid;
 	uint64_t padding; // Unknown.
 
-	PakPage_t headPtr;
-	PakPage_t dataPtr;
+	PakPage_u headPtr;
+	PakPage_u dataPtr;
 
 	// offset to the streaming data in the streaming set
 	uint64_t streamingDataFileOffset[STREAMING_SET_COUNT];
@@ -244,7 +244,7 @@ struct PakAsset_t
 	}
 };
 
-struct PakAssetShort_t
+struct PakAssetShort_s
 {
 	PakGuid_t guid;
 	uint32_t trackerIndex;
@@ -273,7 +273,7 @@ struct PakTracker_s
 	char gap_9DC04[522240];
 };
 
-class PakLoadedInfo_t
+class PakLoadedInfo_s
 {
 public:
 	struct StreamingInfo_t
@@ -297,7 +297,7 @@ public:
 	};
 
 	PakHandle_t handle;
-	EPakStatus status;
+	PakStatus_e status;
 	JobID_t loadJobId;
 	uint32_t padding_maybe;
 
@@ -312,7 +312,7 @@ public:
 	void* segmentBuffers[PAK_SEGMENT_BUFFER_TYPES];
 	_QWORD qword50;
 	FILETIME fileTime;
-	PakFile_t* pakFile;
+	PakFile_s* pakFile;
 	StreamingInfo_t streamInfo[STREAMING_SET_COUNT];
 	uint32_t fileHandle;
 	uint8_t m_nUnk5;
@@ -320,11 +320,11 @@ public:
 
 }; //Size: 0x00B8/0x00E8
 
-struct PakGlobals_s
+struct PakGlobalState_s
 {
 	// [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
-	PakAssetBinding_t assetBindings[PAK_MAX_TRACKED_TYPES];
-	PakAssetShort_t loadedAssets[PAK_MAX_LOADED_ASSETS];
+	PakAssetBinding_s assetBindings[PAK_MAX_TRACKED_TYPES];
+	PakAssetShort_s loadedAssets[PAK_MAX_LOADED_ASSETS];
 
 	// assets that are tracked across all asset types
 	PakAssetTracker_s trackedAssets[PAK_MAX_TRACKED_ASSETS];
@@ -333,7 +333,7 @@ struct PakGlobals_s
 	RHashMap loadedPakMap;    // links to 'loadedPaks'
 
 	// all currently loaded pak handles
-	PakLoadedInfo_t loadedPaks[PAK_MAX_LOADED_PAKS];
+	PakLoadedInfo_s loadedPaks[PAK_MAX_LOADED_PAKS];
 
 	RMultiHashMap unkMap2; // links to 'unkIntArray' and 'unkIntArray2'
 	int unkIntArray[PAK_MAX_TRACKED_ASSETS];
@@ -395,19 +395,19 @@ struct PakGlobals_s
 	uint8_t* patchNumbers;
 };
 
-struct PakPatchFileHeader_t
+struct PakPatchFileHeader_s
 {
 	uint64_t compressedSize;
 	uint64_t decompressedSize;
 };
 
-struct PakPatchDataHeader_t
+struct PakPatchDataHeader_s
 {
 	uint32_t editStreamSize;
 	uint32_t pageCount;
 };
 
-struct PakFileHeader_t
+struct PakFileHeader_s
 {
 	inline uint32_t GetTotalStreamingNamesBufferSize() const
 	{
@@ -425,30 +425,30 @@ struct PakFileHeader_t
 
 	inline uint64_t GetTotalHeaderSize() const
 	{
-		uint64_t headerSize = sizeof(PakFileHeader_t);
+		uint64_t headerSize = sizeof(PakFileHeader_s);
 
 		// if we have patches, we should include the patch header as well
 		if (patchIndex > 0)
-			headerSize += sizeof(PakPatchDataHeader_t);
+			headerSize += sizeof(PakPatchDataHeader_s);
 
 		// the streaming file paths belong to the header as well
 		headerSize += GetTotalStreamingNamesBufferSize();
 		return headerSize;
 	}
 
-	inline EPakDecodeMode GetCompressionMode() const
+	inline PakDecodeMode_e GetCompressionMode() const
 	{
 		if (flags & PAK_HEADER_FLAGS_ZSTREAM_ENCODED)
-			return EPakDecodeMode::MODE_ZSTD;
+			return PakDecodeMode_e::MODE_ZSTD;
 
 		// NOTE: this should be the first check once we rebuilt function
 		// 14043F300 and alloc ring buffer for the flags individually instead
 		// instead of having to define the main compress flag (which really
 		// just means that the pak is using the RTech decoder)
 		else if (flags & PAK_HEADER_FLAGS_COMPRESSED)
-			return EPakDecodeMode::MODE_RTECH;
+			return PakDecodeMode_e::MODE_RTECH;
 
-		return EPakDecodeMode::MODE_DISABLED;
+		return PakDecodeMode_e::MODE_DISABLED;
 	}
 
 	// file versions
@@ -501,7 +501,7 @@ struct PakFileHeader_t
 	uint32_t memPageOffset;
 
 	uint8_t  unk3[0x8];
-}; static_assert(sizeof(PakFileHeader_t) == 0x80);
+}; static_assert(sizeof(PakFileHeader_s) == 0x80);
 
 // segment flags
 #define SF_HEAD (0)
@@ -509,14 +509,14 @@ struct PakFileHeader_t
 #define SF_CPU  (1 << 1) // 0x2
 #define SF_DEV  (1 << 8) // 0x80
 
-struct PakSegmentHeader_t
+struct PakSegmentHeader_s
 {
 	int typeFlags;
 	int dataAlignment;
 	size_t dataSize;
 };
 
-struct PakSegmentDescriptor_t
+struct PakSegmentDescriptor_s
 {
 	size_t assetTypeCount[PAK_MAX_TRACKED_TYPES];
 	int64_t segmentSizes[PAK_MAX_SEGMENTS];
@@ -525,7 +525,7 @@ struct PakSegmentDescriptor_t
 	int segmentAlignmentForType[PAK_SEGMENT_BUFFER_TYPES];
 };
 
-struct PakDecoder_t
+struct PakDecoder_s
 {
 	const uint8_t* inputBuf;
 	uint8_t* outputBuf;
@@ -542,7 +542,7 @@ struct PakDecoder_t
 	uint32_t headerOffset;
 
 	// this field was unused, it now contains the decoder mode
-	EPakDecodeMode decodeMode;
+	PakDecodeMode_e decodeMode;
 
 	// NOTE: unless you are in the RTech decoder, use the getter if you need to
 	// get the current pos!!!
@@ -579,13 +579,13 @@ struct PakDecoder_t
 	};
 };
 
-struct PakRingBufferFrame_t
+struct PakRingBufferFrame_s
 {
 	size_t bufIndex;
 	size_t frameLen;
 };
 
-struct PakFileStream_t
+struct PakFileStream_s
 {
 	struct Descriptor
 	{
@@ -595,7 +595,7 @@ struct PakFileStream_t
 
 		// NOTE: if this is set, the game sets 'PakMemoryData_t::processedPatchedDataSize'
 		// to 'dataOffset'; else its getting set to 'sizeof(PakFileHeader_t)'.
-		EPakDecodeMode compressionMode;
+		PakDecodeMode_e compressionMode;
 	};
 
 	_QWORD qword0;
@@ -615,11 +615,11 @@ struct PakFileStream_t
 	_QWORD bytesStreamed;
 };
 
-typedef struct PakPatchFuncs_s
+struct PakPatchFuncs_s
 {
-	typedef bool (*PatchFunc_t)(PakFile_t* const pak, size_t* const numAvailableBytes);
+	typedef bool (*PatchFunc_t)(PakFile_s* const pak, size_t* const numAvailableBytes);
 
-	enum EPatchCommands
+	enum PatchCommands_e
 	{
 		PATCH_CMD0,
 		PATCH_CMD1,
@@ -641,9 +641,9 @@ typedef struct PakPatchFuncs_s
 
 	PatchFunc_t patchFuncs[PATCH_CMD_COUNT];
 
-} PakPatchFuncs_t;
+};
 
-struct PakMemoryData_t
+struct PakMemoryData_s
 {
 	uint64_t processedPatchedDataSize;
 	char* patchData; // pointer to patch stream data
@@ -675,24 +675,24 @@ struct PakMemoryData_t
 	int* loadedAssetIndices;
 	uint8_t** memPageBuffers;
 
-	PakPatchFileHeader_t* patchHeaders;
+	PakPatchFileHeader_s* patchHeaders;
 	unsigned short* patchIndices;
 
 	char* streamingFilePaths[STREAMING_SET_COUNT];
 
-	PakSegmentHeader_t* segmentHeaders;
-	PakPageHeader_t* pageHeaders;
+	PakSegmentHeader_s* segmentHeaders;
+	PakPageHeader_s* pageHeaders;
 
-	PakPage_t* virtualPointers;
-	PakAsset_t* assetEntries;
+	PakPage_u* virtualPointers;
+	PakAsset_s* assetEntries;
 
-	PakPage_t* guidDescriptors;
+	PakPage_u* guidDescriptors;
 	uint32_t* fileRelations;
 
 	char gap5E0[32];
 
-	PakPatchDataHeader_t* patchDataHeader;
-	PakAsset_t** ppAssetEntries;
+	PakPatchDataHeader_s* patchDataHeader;
+	PakAsset_s** ppAssetEntries;
 
 	int someAssetCount;
 	int numShiftedPointers;
@@ -701,11 +701,11 @@ struct PakMemoryData_t
 	__int64 unkAssetTypeBindingSizes[PAK_MAX_TRACKED_TYPES];
 
 	const char* fileName;
-	PakFileHeader_t pakHeader;
-	PakPatchFileHeader_t patchHeader;
+	PakFileHeader_s pakHeader;
+	PakPatchFileHeader_s patchHeader;
 };
 
-struct PakFile_t
+struct PakFile_s
 {
 	int numProcessedPointers;
 	uint32_t processedAssetCount;
@@ -715,26 +715,26 @@ struct PakFile_t
 	uint32_t patchCount;
 	uint32_t dword14;
 
-	PakFileStream_t fileStream;
+	PakFileStream_s fileStream;
 	uint64_t inputBytePos;
 	uint8_t byte1F8;
 	char gap1F9[4];
 	uint8_t byte1FD;
 	bool isOffsetted_MAYBE;
 	bool isCompressed;
-	PakDecoder_t pakDecoder;
+	PakDecoder_s pakDecoder;
 	uint8_t* decompBuffer;
 	size_t maxCopySize;
 	uint64_t qword298;
 
-	PakMemoryData_t memoryData;
+	PakMemoryData_s memoryData;
 
 	inline const char* GetName() const
 	{
 		return memoryData.fileName;
 	}
 
-	inline const PakFileHeader_t& GetHeader() const
+	inline const PakFileHeader_s& GetHeader() const
 	{
 		return memoryData.pakHeader;
 	}
@@ -771,7 +771,7 @@ struct PakFile_t
 		return true;
 	}
 
-	inline const PakPageHeader_t* GetPageHeader(const uint32_t i) const
+	inline const PakPageHeader_s* GetPageHeader(const uint32_t i) const
 	{
 		assert(i != UINT32_MAX && i < GetPageCount());
 
@@ -791,14 +791,14 @@ struct PakFile_t
 		return memoryData.memPageBuffers[index] + offset;
 	}
 
-	inline void* GetPointerForPageOffset(const PakPage_t& ptr) const
+	inline void* GetPointerForPageOffset(const PakPage_u& ptr) const
 	{
 		assert(IsPageOffsetValid(ptr.index, ptr.offset));
 
 		return memoryData.memPageBuffers[ptr.index] + ptr.offset;
 	}
 
-	inline void* GetPointerForPageOffset(const PakPage_t* ptr) const
+	inline void* GetPointerForPageOffset(const PakPage_u* ptr) const
 	{
 		assert(IsPageOffsetValid(ptr->index, ptr->offset));
 
@@ -811,7 +811,7 @@ struct PakFile_t
 		return GetHeader().virtualSegmentCount;
 	}
 
-	inline const PakSegmentHeader_t* GetSegmentHeader(const uint32_t i) const
+	inline const PakSegmentHeader_s* GetSegmentHeader(const uint32_t i) const
 	{
 		assert(i < GetSegmentCount());
 
@@ -821,11 +821,11 @@ struct PakFile_t
 
 
 static_assert(sizeof(PakTracker_s) == 0x11D410);
-static_assert(sizeof(PakFile_t) == 2224); // S3+
-static_assert(sizeof(PakLoadedInfo_t) == 184);
-static_assert(sizeof(PakDecoder_t) == 136);
-static_assert(sizeof(PakPatchFileHeader_t) == 16);
-static_assert(sizeof(PakPatchDataHeader_t) == 8);
-static_assert(sizeof(PakGlobals_s) == 0xC98A48);
+static_assert(sizeof(PakFile_s) == 2224); // S3+
+static_assert(sizeof(PakLoadedInfo_s) == 184);
+static_assert(sizeof(PakDecoder_s) == 136);
+static_assert(sizeof(PakPatchFileHeader_s) == 16);
+static_assert(sizeof(PakPatchDataHeader_s) == 8);
+static_assert(sizeof(PakGlobalState_s) == 0xC98A48);
 
 #endif // RTECH_IPACKFILE_H

@@ -10,14 +10,14 @@
 //-----------------------------------------------------------------------------
 // aligns the segment headers for each asset type
 //-----------------------------------------------------------------------------
-void Pak_AlignSegmentHeaders(PakFile_t* const pak, PakSegmentDescriptor_t* const desc)
+void Pak_AlignSegmentHeaders(PakFile_s* const pak, PakSegmentDescriptor_s* const desc)
 {
     uint64_t headersSize = 0;
     uint8_t headerSegmentAlignment = static_cast<int8_t>(desc->segmentAlignmentForType[SF_HEAD]);
 
     for (uint8_t i = 0; i < PAK_MAX_TRACKED_TYPES; ++i)
     {
-        const PakAssetBinding_t& binding = g_pakGlobals->assetBindings[i];
+        const PakAssetBinding_s& binding = g_pakGlobals->assetBindings[i];
 
         if (desc->assetTypeCount[i])
         {
@@ -41,11 +41,11 @@ void Pak_AlignSegmentHeaders(PakFile_t* const pak, PakSegmentDescriptor_t* const
 //-----------------------------------------------------------------------------
 // aligns each individual non-header segment
 //-----------------------------------------------------------------------------
-void Pak_AlignSegments(PakFile_t* const pak, PakSegmentDescriptor_t* const desc)
+void Pak_AlignSegments(PakFile_s* const pak, PakSegmentDescriptor_s* const desc)
 {
     for (uint16_t i = 0; i < pak->GetSegmentCount(); ++i)
     {
-        const PakSegmentHeader_t* const segHeader = pak->GetSegmentHeader(i);
+        const PakSegmentHeader_s* const segHeader = pak->GetSegmentHeader(i);
 
         const uint8_t segmentType = segHeader->typeFlags & (SF_TEMP | SF_CPU);
 
@@ -71,14 +71,14 @@ void Pak_AlignSegments(PakFile_t* const pak, PakSegmentDescriptor_t* const desc)
 //-----------------------------------------------------------------------------
 // copy's pages into pre-allocated and aligned segments
 //-----------------------------------------------------------------------------
-void Pak_CopyPagesToSegments(PakFile_t* const pak, PakLoadedInfo_t* const loadedInfo, PakSegmentDescriptor_t* const desc)
+void Pak_CopyPagesToSegments(PakFile_s* const pak, PakLoadedInfo_s* const loadedInfo, PakSegmentDescriptor_s* const desc)
 {
     for (uint32_t i = 0; i < pak->GetPageCount(); ++i)
     {
-        const PakPageHeader_t* const pageHeader = pak->GetPageHeader(i);
+        const PakPageHeader_s* const pageHeader = pak->GetPageHeader(i);
         const uint32_t segmentIndex = pageHeader->segmentIdx;
 
-        const PakSegmentHeader_t* const segHeader = pak->GetSegmentHeader(segmentIndex);
+        const PakSegmentHeader_s* const segHeader = pak->GetSegmentHeader(segmentIndex);
         const int typeFlags = segHeader->typeFlags;
 
         // check if header page

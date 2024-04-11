@@ -45,12 +45,12 @@ static bool Pak_OptionalStreamingDataDownloaded()
 //-----------------------------------------------------------------------------
 // opens all associated streaming assets for this pak
 //-----------------------------------------------------------------------------
-void Pak_OpenAssociatedStreamingFiles(PakLoadedInfo_t* const loadedInfo, PakLoadedInfo_t::StreamingInfo_t& streamInfo,
-    const uint16_t fileNamesBufSize, const EPakStreamSet set)
+void Pak_OpenAssociatedStreamingFiles(PakLoadedInfo_s* const loadedInfo, PakLoadedInfo_s::StreamingInfo_t& streamInfo,
+    const uint16_t fileNamesBufSize, const PakStreamSet_e set)
 {
     assert(set < STREAMING_SET_COUNT);
 
-    const PakMemoryData_t& memoryData = loadedInfo->pakFile->memoryData;
+    const PakMemoryData_s& memoryData = loadedInfo->pakFile->memoryData;
     uint16_t numStreamFiles = 0;
 
     // load all streaming sets
@@ -83,7 +83,7 @@ void Pak_OpenAssociatedStreamingFiles(PakLoadedInfo_t* const loadedInfo, PakLoad
 //-----------------------------------------------------------------------------
 // allocates the pak string to be used for embedded streaming data
 //-----------------------------------------------------------------------------
-void Pak_EnableEmbeddedStreamingData(PakLoadedInfo_t* const loadedInfo, PakLoadedInfo_t::StreamingInfo_t& streamInfo)
+void Pak_EnableEmbeddedStreamingData(PakLoadedInfo_s* const loadedInfo, PakLoadedInfo_s::StreamingInfo_t& streamInfo)
 {
     const char* const baseName = V_UnqualifiedFileName(loadedInfo->fileName);
     const size_t baseNameLen = strlen(baseName);
@@ -113,13 +113,13 @@ void Pak_EnableEmbeddedStreamingData(PakLoadedInfo_t* const loadedInfo, PakLoade
 //-----------------------------------------------------------------------------
 // parse and open all streaming files
 //-----------------------------------------------------------------------------
-void Pak_LoadStreamingData(PakLoadedInfo_t* const loadedInfo)
+void Pak_LoadStreamingData(PakLoadedInfo_s* const loadedInfo)
 {
-    const PakFileHeader_t& pakHeader = loadedInfo->pakFile->GetHeader();
+    const PakFileHeader_s& pakHeader = loadedInfo->pakFile->GetHeader();
 
     for (int i = 0; i < STREAMING_SET_COUNT; i++)
     {
-        PakLoadedInfo_t::StreamingInfo_t& streamInfo = loadedInfo->streamInfo[i];
+        PakLoadedInfo_s::StreamingInfo_t& streamInfo = loadedInfo->streamInfo[i];
         streamInfo.Reset();
 
         const bool optional = (i == STREAMING_SET_OPTIONAL);
@@ -141,7 +141,7 @@ void Pak_LoadStreamingData(PakLoadedInfo_t* const loadedInfo)
             // external streaming files; mistake while building the pak?
             assert(!embeddedStreamingDataSize);
 
-            Pak_OpenAssociatedStreamingFiles(loadedInfo, streamInfo, filesBufLen, EPakStreamSet(i));
+            Pak_OpenAssociatedStreamingFiles(loadedInfo, streamInfo, filesBufLen, PakStreamSet_e(i));
         }
         else if (embeddedStreamingDataSize > 0)
         {

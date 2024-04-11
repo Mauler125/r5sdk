@@ -18,7 +18,7 @@ struct PakLoadFuncs_s
 	char unknown2[16];
 	void* Func7;
 	void* Func8;
-	EPakStatus(*WaitAsync)(PakHandle_t handle, void* finishCallback);
+	PakStatus_e(*WaitAsync)(PakHandle_t handle, void* finishCallback);
 	void* Func10;
 	void* Func11;
 	void* FindByGUID;
@@ -47,7 +47,7 @@ struct PakLoadFuncs_s
 	void* Func33;
 };
 
-inline PakGlobals_s* g_pakGlobals;
+inline PakGlobalState_s* g_pakGlobals;
 extern PakLoadFuncs_s* g_pakLoadApi;
 
 inline JobHelpCallback_t g_pPakFifoLockWrapper; // Pointer to functor that takes the global pak fifolock as argument.
@@ -72,7 +72,7 @@ class V_PakState : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_pakGlobals = g_GameDll.FindPatternSIMD("48 8D 1D ?? ?? ?? ?? 45 8D 5A 0E").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PakGlobals_s*>();
+		g_pakGlobals = g_GameDll.FindPatternSIMD("48 8D 1D ?? ?? ?? ?? 45 8D 5A 0E").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PakGlobalState_s*>();
 		g_pakLoadApi = CMemory(v_LauncherMain).Offset(0x820).FindPatternSelf("48 89").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PakLoadFuncs_s*>();
 
 		const CMemory jtBase(JT_HelpWithAnything);
