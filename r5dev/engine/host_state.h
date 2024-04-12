@@ -58,6 +58,9 @@ inline void(*v_HostState_ChangeLevelMP)(char const* pNewLevel, char const* pLand
 
 ///////////////////////////////////////////////////////////////////////////////
 extern CHostState* g_pHostState;
+#ifndef CLIENT_DLL
+extern bool g_hostReloadState;
+#endif // !CLIENT_DLL
 
 ///////////////////////////////////////////////////////////////////////////////
 class VHostState : public IDetour
