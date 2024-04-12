@@ -407,6 +407,9 @@ void CHostState::LoadConfig(void) const
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec tools/rcon_client_dev.cfg\n", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
 		}
+#ifndef CLIENT_DLL
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec liveapi.cfg\n", cmd_source_t::kCommandSrcCode);
+#endif //!CLIENT_DLL
 #ifndef DEDICATED
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec bind.cfg\n", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
