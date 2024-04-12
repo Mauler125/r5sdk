@@ -72,8 +72,9 @@ ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_single_core_dedi                = nullptr;
 
-ConVar* sv_maxunlag = nullptr;
-ConVar* sv_clockcorrection_msecs = nullptr;
+ConVar* sv_maxunlag                        = nullptr;
+ConVar* sv_lagpushticks                    = nullptr;
+ConVar* sv_clockcorrection_msecs           = nullptr;
 
 ConVar* sv_updaterate_sp                   = nullptr;
 ConVar* sv_updaterate_mp                   = nullptr;
@@ -201,6 +202,7 @@ void ConVar_InitShipped(void)
 	sv_stats = g_pCVar->FindVar("sv_stats");
 
 	sv_maxunlag = g_pCVar->FindVar("sv_maxunlag");
+	sv_lagpushticks = g_pCVar->FindVar("sv_lagpushticks");
 	sv_clockcorrection_msecs = g_pCVar->FindVar("sv_clockcorrection_msecs");
 
 	sv_updaterate_sp = g_pCVar->FindVar("sv_updaterate_sp");
