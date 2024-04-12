@@ -79,7 +79,11 @@ public:
 	CClientExtended* GetClientExtended(void) const;
 #endif // !CLIENT_DLL
 
+	inline int GetDeltaTick(void) const { return m_nDeltaTick; }
 	inline int GetCommandTick(void) const { return m_nCommandTick; }
+	inline int GetLastMovementTick() const { return m_LastMovementTick; }
+	inline int GetSnapshotTick() const { return m_nSnapshotTick; }
+
 	inline const char* GetServerName(void) const { return m_szServerName; }
 	inline const char* GetClientName(void) const { return m_szClientName; }
 
@@ -197,14 +201,23 @@ private:
 	bool m_bReceivedPacket;
 	bool m_bLowViolence;
 	bool m_bFullyAuthenticated;
-	char pad_05A4[24];
+	int unk_5A4;
+	int unknownTick;
+	float m_fNextMessageTime;
+	int unk_5B0;
+	char pad_5B8[8];
 	PERSISTENCE m_nPersistenceState;
 	char pad_05C0[48];
 	ServerDataBlock m_DataBlock;
 	char pad_4A3D8[60];
 	int m_LastMovementTick;
 	char pad_4A418[86];
-	char pad_4A46E[80];
+	char pad_4A46E[58];
+	int unkInt_4A4A8;
+	int m_nSnapshotTick;
+	int unkTick_4A4B0;
+	int unkTick_4A4B4;
+	int unkInt_4A4B8;
 };
 static_assert(sizeof(CClient) == 0x4A4C0);
 
