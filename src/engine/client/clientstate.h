@@ -100,7 +100,7 @@ public:
 	_BYTE field_149;
 	int m_nDeltaTick;
 	int m_nStringTableAckTick;
-	int m_nProcesseedDeltaTick;
+	int m_nProcessedDeltaTick;
 	int m_nProcessedStringTableAckTick;
 	bool m_bPendingTicksAvailable;
 	_BYTE field_15D;
