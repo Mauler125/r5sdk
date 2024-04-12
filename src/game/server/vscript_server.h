@@ -9,6 +9,8 @@ namespace VScriptCode
 		SQRESULT CreateServer(HSQUIRRELVM v);
 		SQRESULT DestroyServer(HSQUIRRELVM v);
 
+		SQRESULT SetAutoReloadState(HSQUIRRELVM v);
+
 		SQRESULT KickPlayerByName(HSQUIRRELVM v);
 		SQRESULT KickPlayerById(HSQUIRRELVM v);
 		SQRESULT BanPlayerByName(HSQUIRRELVM v);

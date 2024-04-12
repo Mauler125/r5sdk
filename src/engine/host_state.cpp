@@ -57,10 +57,10 @@
 #include "game/shared/vscript_shared.h"
 
 #ifndef CLIENT_DLL
-static ConVar sv_pylonVisibility("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", "0 = Offline, 1 = Hidden, 2 = Public.");
-static ConVar sv_pylonRefreshRate("sv_pylonRefreshRate", "5.0", FCVAR_DEVELOPMENTONLY, "Pylon host refresh rate (seconds).");
+static ConVar host_statusRefreshRate("host_statusRefreshRate", "0.5", FCVAR_RELEASE, "Host status refresh rate (seconds).", true, 0.f, false, 0.f);
 
-static ConVar sv_autoReloadRate("sv_autoReloadRate", "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null).");
+static ConVar host_autoReloadRate("host_autoReloadRate", "0", FCVAR_RELEASE, "Time in seconds between each auto-reload (disabled if null).");
+static ConVar host_autoReloadRespectGameState("host_autoReloadRespectGameState", "0", FCVAR_RELEASE, "Check the game state before proceeding to auto-reload (don't reload in the middle of a match).");
 #endif // !CLIENT_DLL
 
 #ifdef DEDICATED
@@ -135,6 +135,24 @@ static void HostState_KeepAlive()
 	request.detach();
 }
 #endif // DEDICATED
+
+#ifndef CLIENT_DLL
+void HostState_HandleAutoReload()
+{
+	if (host_autoReloadRate.GetBool())
+	{
+		if (g_ServerGlobalVariables->m_flCurTime > host_autoReloadRate.GetFloat())
+		{
+			// We should respect the game state, and the game isn't finished yet so
+			// don't reload the server now.
+			if (host_autoReloadRespectGameState.GetBool() && !g_hostReloadState)
+				return;
+
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
+		}
+	}
+}
+#endif // !CLIENT_DLL
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
@@ -343,14 +361,10 @@ void CHostState::Think(void) const
 #endif // DEDICATED
 		bInitialized = true;
 	}
-	if (sv_autoReloadRate.GetBool())
-	{
-		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate.GetFloat())
-		{
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
-		}
-	}
-	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate.GetFloat())
+
+	HostState_HandleAutoReload();
+
+	if (statsTimer.GetDurationInProgress().GetSeconds() > host_statusRefreshRate.GetFloat())
 	{
 		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s) - %d%% Server CPU (%.3f msec on frame %d)",
 			hostname->GetString(), g_pServer->GetNumClients(),
@@ -547,3 +561,7 @@ void VHostState::Detour(const bool bAttach) const
 
 ///////////////////////////////////////////////////////////////////////////////
 CHostState* g_pHostState = nullptr;
+
+#ifndef CLIENT_DLL
+bool g_hostReloadState = false;
+#endif // !CLIENT_DLL
