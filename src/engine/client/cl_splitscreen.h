@@ -133,7 +133,7 @@ class VSplitScreen : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		const char* const pszPattern = "40 53 48 83 EC 20 48 8D 1D ?? ?? ?? ?? 83 FA FF 75 12 48 8B 05 ?? ?? ?? ?? 48 8B CB FF 50 28 48 63 C8 EB 03 48 63 CA 48 69 C1 ?? ?? ?? ?? 66 C7 84 18 ?? ?? ?? ?? ?? ??";;
+		const char* const pszPattern = "40 53 48 83 EC 20 48 8D 1D ?? ?? ?? ?? 83 FA FF 75 12 48 8B 05 ?? ?? ?? ?? 48 8B CB FF 50 28 48 63 C8 EB 03 48 63 CA 48 69 C1 ?? ?? ?? ?? 66 C7 84 18 ?? ?? ?? ?? ?? ??";
 		const char* const pszInstruction = "48 8D";
 
 		g_pSplitScreenMgr = g_GameDll.FindPatternSIMD(pszPattern).FindPatternSelf(pszInstruction).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CSplitScreen*>();

@@ -259,7 +259,7 @@ bool CClient::Connect(const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 bool CClient::VConnect(CClient* pClient, const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 	CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize)
 {
-	return pClient->Connect(szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize);;
+	return pClient->Connect(szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize);
 }
 
 //---------------------------------------------------------------------------------
