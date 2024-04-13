@@ -1089,7 +1089,7 @@ bool Pak_StartLoadingPak(PakLoadedInfo_s* const loadedInfo)
 //    virtualSegmentCount = pakHdr.virtualSegmentCount;
 //    v32 = *(unsigned int*)&pakHdr.unk2[4];
 //
-//    loadedInfo->assetGuids = (PakGuid_t*)loadedInfo->allocator->Alloc(sizeof(PakGuid_t) * asset_entry_count_var, 8);;
+//    loadedInfo->assetGuids = (PakGuid_t*)loadedInfo->allocator->Alloc(sizeof(PakGuid_t) * asset_entry_count_var, 8);
 //
 //    size_t streamingFilesBuifSize = pakHdr.streamingFilesBufSize[STREAMING_SET_OPTIONAL] + pakHdr.streamingFilesBufSize[STREAMING_SET_MANDATORY];
 //
