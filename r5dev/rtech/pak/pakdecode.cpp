@@ -218,7 +218,7 @@ size_t Pak_RTechDecoderInit(PakDecoder_s* const decoder, const uint8_t* const fi
 		const uint64_t finalPos = inputMask & decoder->inBufBytePos;
 		decoder->headerOffset = (currbits >> 3) + 1;
 		decoder->inBufBytePos += (currbits >> 3) + 1;
-		decoder->bufferSizeNeeded = *(_QWORD*)(finalPos + fileBuffer) & ((1i64 << (8 * ((uint8_t)(currbits >> 3) + 1))) - 1);;
+		decoder->bufferSizeNeeded = *(_QWORD*)(finalPos + fileBuffer) & ((1i64 << (8 * ((uint8_t)(currbits >> 3) + 1))) - 1);
 	}
 
 	decoder->bufferSizeNeeded += dataOffset;
