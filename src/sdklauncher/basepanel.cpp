@@ -6,7 +6,10 @@
 #include "basepanel.h"
 #include "sdklauncher.h"
 #include "mathlib/bits.h"
-#include "utility/vdf_parser.h"
+#include "vstdlib/keyvaluessystem.h"
+#include "filesystem/filesystem_std.h"
+
+extern CFileSystem_Stdio* FileSystem();
 
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
@@ -494,6 +497,8 @@ void CSurface::Init()
 	this->PerformLayout();
 
 	// END DESIGNER CODE
+
+	this->Setup();
 }
 
 //-----------------------------------------------------------------------------
@@ -522,97 +527,60 @@ void CSurface::Setup()
 //-----------------------------------------------------------------------------
 void CSurface::LoadSettings()
 {
-	const fs::path settingsPath(Format("platform/%s/%s", SDK_SYSTEM_CFG_PATH, LAUNCHER_SETTING_FILE));
-	if (!fs::exists(settingsPath))
+	CUtlString settingsPath;
+	settingsPath.Format("platform/" SDK_SYSTEM_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
+
+	const char* pSettingsPath = settingsPath.String();
+
+	if (!FileSystem()->FileExists(pSettingsPath))
+		return;
+
+	KeyValues kv("LauncherSettings");
+
+	if (!kv.LoadFromFile(FileSystem(), pSettingsPath, nullptr))
 	{
+		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__, pSettingsPath);
 		return;
 	}
 
-	bool success{ };
-	std::ifstream fileStream(settingsPath, fstream::in);
-	vdf::object vRoot = vdf::read(fileStream, &success);
+	const int settingsVersion = kv.GetInt("version", -1);
 
-	if (!success)
-	{
-		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__,
-			settingsPath.u8string().c_str());
+	if (settingsVersion != SDK_LAUNCHER_VERSION)
 		return;
-	}
 
-	try
+	KeyValues* sv = kv.FindKey("vars");
+
+	if (!sv)
 	{
-		string& attributeView = vRoot.attribs["version"];
-
-		int settingsVersion = atoi(attributeView.c_str());
-		if (settingsVersion != SDK_LAUNCHER_VERSION)
-			return;
-
-		vdf::object* pSubKey = vRoot.childs["vars"].get();
-		if (!pSubKey)
-			return;
-
-		// Game.
-		attributeView = pSubKey->attribs["playlistsFile"];
-		this->m_PlaylistFileTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["enableCheats"];
-		this->m_CheatsToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["enableDeveloper"];
-		this->m_DeveloperToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["enableConsole"];
-		this->m_ConsoleToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["colorConsole"];
-		this->m_ColorConsoleToggle->SetChecked(attributeView != "0");
-
-		// Engine.
-		attributeView = pSubKey->attribs["reservedCoreCount"];
-		this->m_ReservedCoresTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["workerThreadCount"];
-		this->m_WorkerThreadsTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["processorAffinity"];
-		this->m_ProcessorAffinityTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["noAsync"]; // No-async
-		this->m_NoAsyncJobsToggle->SetChecked(attributeView != "0");
-
-		// Network.
-		attributeView = pSubKey->attribs["encryptPackets"];
-		this->m_NetEncryptionToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["randomNetKey"];
-		this->m_NetRandomKeyToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["queuedPackets"];
-		this->m_QueuedPacketThread->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["noTimeOut"];
-		this->m_NoTimeOutToggle->SetChecked(attributeView != "0");
-
-		// Video.
-		attributeView = pSubKey->attribs["windowed"];
-		this->m_WindowedToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["borderless"];
-		this->m_NoBorderToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["maxFPS"];
-		this->m_FpsTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["width"];
-		this->m_WidthTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["height"];
-		this->m_HeightTextBox->SetText(attributeView.data());
+		printf("%s: VDF file '%s' lacks subkey: '%s'\n", __FUNCTION__, pSettingsPath, "vars");
+		return; // No settings to apply
 	}
-	catch (const std::exception& e)
-	{
-		printf("%s: Exception while parsing VDF file: %s\n", __FUNCTION__, e.what());
-	}
+
+	// Game.
+	this->m_PlaylistFileTextBox->SetText(sv->GetString("playlistsFile"));
+	this->m_CheatsToggle->SetChecked(sv->GetBool("enableCheats"));
+	this->m_DeveloperToggle->SetChecked(sv->GetBool("enableDeveloper"));
+	this->m_ConsoleToggle->SetChecked(sv->GetBool("enableConsole"));
+	this->m_ColorConsoleToggle->SetChecked(sv->GetBool("colorConsole"));
+
+	// Engine.
+	this->m_ReservedCoresTextBox->SetText(sv->GetString("reservedCoreCount", "-1"));
+	this->m_WorkerThreadsTextBox->SetText(sv->GetString("workerThreadCount", "-1"));
+	this->m_ProcessorAffinityTextBox->SetText(sv->GetString("processorAffinity", "0"));
+	this->m_NoAsyncJobsToggle->SetChecked(sv->GetBool("noAsync"));
+
+	// Network.
+	this->m_NetEncryptionToggle->SetChecked(sv->GetBool("encryptPackets", true));
+	this->m_NetRandomKeyToggle->SetChecked(sv->GetBool("randomNetKey", true));
+	this->m_QueuedPacketThread->SetChecked(sv->GetBool("queuedPackets", true));
+	this->m_NoTimeOutToggle->SetChecked(sv->GetBool("noTimeOut"));
+
+	// Video.
+	this->m_WindowedToggle->SetChecked(sv->GetBool("windowed"));
+	this->m_NoBorderToggle->SetChecked(sv->GetBool("borderless"));
+	this->m_FpsTextBox->SetText(sv->GetString("maxFPS", "-1"));
+	this->m_WidthTextBox->SetText(sv->GetString("width"));
+	this->m_HeightTextBox->SetText(sv->GetString("height"));
 }
 
 //-----------------------------------------------------------------------------
@@ -620,60 +588,69 @@ void CSurface::LoadSettings()
 //-----------------------------------------------------------------------------
 void CSurface::SaveSettings()
 {
-	const fs::path settingsPath(Format("platform/%s/%s", SDK_SYSTEM_CFG_PATH, LAUNCHER_SETTING_FILE));
-	const fs::path parentPath = settingsPath.parent_path();
+	CUtlString settingsPath;
+	settingsPath.Format("platform/" SDK_SYSTEM_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
 
-	if (!fs::exists(parentPath) && !fs::create_directories(parentPath))
+	CUtlString settingsDir = settingsPath.DirName();
+
+	const char* pSettingsPath = settingsPath.String();
+	const char* pSettingsDir = settingsDir.String();
+
+	FileSystem()->CreateDirHierarchy(pSettingsDir);
+
+	if (!FileSystem()->IsDirectory(pSettingsDir))
 	{
-		printf("%s: Failed to create directory: '%s'\n", __FUNCTION__,
-			parentPath.relative_path().u8string().c_str());
+		printf("%s: Failed to create directory: '%s'\n", __FUNCTION__, pSettingsPath);
 		return;
 	}
 
-	std::ofstream fileStream(settingsPath, fstream::out);
-	if (!fileStream)
+	KeyValues kv("LauncherSettings");
+	kv.SetInt("version", SDK_LAUNCHER_VERSION);
+
+	KeyValues* sv = new KeyValues("vars");
+
+	if (!sv)
 	{
-		printf("%s: Failed to create VDF file: '%s'\n", __FUNCTION__,
-			settingsPath.u8string().c_str());
-		return;
+		printf("%s: Failed to allocate subkey: '%s'\n", __FUNCTION__, "vars");
+		return; // No settings to apply
 	}
 
-	vdf::object vRoot;
-	vRoot.set_name("LauncherSettings");
-	vRoot.add_attribute("version", std::to_string(SDK_LAUNCHER_VERSION));
-
-	vdf::object* vVars = new vdf::object();
-	vVars->set_name("vars");
+	kv.AddSubKey(sv);
 
 	// Game.
-	vVars->add_attribute("playlistsFile", GetControlValue(this->m_PlaylistFileTextBox));
-	vVars->add_attribute("enableCheats", GetControlValue(this->m_CheatsToggle));
-	vVars->add_attribute("enableDeveloper", GetControlValue(this->m_DeveloperToggle));
-	vVars->add_attribute("enableConsole", GetControlValue(this->m_ConsoleToggle));
-	vVars->add_attribute("colorConsole", GetControlValue(this->m_ColorConsoleToggle));
+	sv->SetString("playlistsFile", GetControlValue(this->m_PlaylistFileTextBox));
+	sv->SetBool("enableCheats", this->m_CheatsToggle->Checked());
+	sv->SetBool("enableDeveloper", this->m_DeveloperToggle->Checked());
+	sv->SetBool("enableConsole", this->m_ConsoleToggle->Checked());
+	sv->SetBool("colorConsole", this->m_ColorConsoleToggle->Checked());
 
 	// Engine.
-	vVars->add_attribute("reservedCoreCount", GetControlValue(this->m_ReservedCoresTextBox));
-	vVars->add_attribute("workerThreadCount", GetControlValue(this->m_WorkerThreadsTextBox));
-	vVars->add_attribute("processorAffinity", GetControlValue(this->m_ProcessorAffinityTextBox));
-	vVars->add_attribute("noAsync", GetControlValue(this->m_NoAsyncJobsToggle));
+	sv->SetString("reservedCoreCount", GetControlValue(this->m_ReservedCoresTextBox));
+	sv->SetString("workerThreadCount", GetControlValue(this->m_WorkerThreadsTextBox));
+	sv->SetString("processorAffinity", GetControlValue(this->m_ProcessorAffinityTextBox));
+	sv->SetBool("noAsync", this->m_NoAsyncJobsToggle->Checked());
 
 	// Network.
-	vVars->add_attribute("encryptPackets", GetControlValue(this->m_NetEncryptionToggle));
-	vVars->add_attribute("randomNetKey", GetControlValue(this->m_NetRandomKeyToggle));
-	vVars->add_attribute("queuedPackets", GetControlValue(this->m_QueuedPacketThread));
-	vVars->add_attribute("noTimeOut", GetControlValue(this->m_NoTimeOutToggle));
+	sv->SetBool("encryptPackets", this->m_NetEncryptionToggle->Checked());
+	sv->SetBool("randomNetKey", this->m_NetRandomKeyToggle->Checked());
+	sv->SetBool("queuedPackets", this->m_QueuedPacketThread->Checked());
+	sv->SetBool("noTimeOut", this->m_NoTimeOutToggle->Checked());
 
 	// Video.
-	vVars->add_attribute("windowed", GetControlValue(this->m_WindowedToggle));
-	vVars->add_attribute("borderless", GetControlValue(this->m_NoBorderToggle));
-	vVars->add_attribute("maxFPS", GetControlValue(this->m_FpsTextBox));
-	vVars->add_attribute("width", GetControlValue(this->m_WidthTextBox));
-	vVars->add_attribute("height", GetControlValue(this->m_HeightTextBox));
+	sv->SetBool("windowed", this->m_WindowedToggle->Checked());
+	sv->SetBool("borderless", this->m_NoBorderToggle->Checked());
+	sv->SetString("maxFPS", GetControlValue(this->m_FpsTextBox));
+	sv->SetString("width", GetControlValue(this->m_WidthTextBox));
+	sv->SetString("height", GetControlValue(this->m_HeightTextBox));
 
-	vRoot.add_child(std::unique_ptr<vdf::object>(vVars));
+	CUtlBuffer outBuf(ssize_t(0), 0, CUtlBuffer::TEXT_BUFFER);
+	kv.RecursiveSaveToFile(outBuf, 0);
 
-	vdf::write(fileStream, vRoot);
+	if (!FileSystem()->WriteFile(pSettingsPath, "PLATFORM", outBuf))
+	{
+		printf("%s: Failed to create VDF file: '%s'\n", __FUNCTION__, pSettingsPath);
+		return;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -735,11 +712,11 @@ void CSurface::LaunchGame(Forms::Control* pSender)
 	string svParameter;
 	pSurface->AppendParameterInternal(svParameter, "-launcher");
 
-	eLaunchMode launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
+	eLaunchMode launchMode = g_Launcher.BuildParameter(svParameter);
 	uint64_t nProcessorAffinity = pSurface->GetProcessorAffinity(svParameter);
 
-	if (g_pLauncher->CreateLaunchContext(launchMode, nProcessorAffinity, svParameter.c_str(), "startup_launcher.cfg"))
-		g_pLauncher->LaunchProcess();
+	if (g_Launcher.CreateLaunchContext(launchMode, nProcessorAffinity, svParameter.c_str(), "startup_launcher.cfg"))
+		g_Launcher.LaunchProcess();
 }
 
 //-----------------------------------------------------------------------------
@@ -790,40 +767,38 @@ void CSurface::ParseMaps()
 //-----------------------------------------------------------------------------
 void CSurface::ParsePlaylists()
 {
-	fs::path playlistPath(Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString()));
-	m_PlaylistCombo->Items.Add("");
+	CUtlString playlistPath;
+	playlistPath.Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString());
 
-	if (!fs::exists(playlistPath))
+	const char* pPlaylistPath = playlistPath.String();
+
+	if (!m_PlaylistCombo->Items.Contains(""))
+		m_PlaylistCombo->Items.Add("");
+
+	if (!FileSystem()->FileExists(pPlaylistPath))
+		return;
+
+	KeyValues kv("playlists");
+
+	if (!kv.LoadFromFile(FileSystem(), pPlaylistPath, nullptr))
 	{
+		printf("%s: Failed to parse playlists file: '%s'\n", __FUNCTION__, pPlaylistPath);
 		return;
 	}
 
-	bool success{ };
-	std::ifstream iFile(playlistPath);
-	vdf::object vRoot = vdf::read(iFile, &success);
+	KeyValues* playlists = kv.FindKey("Playlists");
 
-	if (!success)
-	{
-		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__,
-			playlistPath.u8string().c_str());
-		return;
-	}
+	if (!playlists)
+		return; // Empty playlists
 
-	try
+	for (KeyValues* pSubKey = playlists->GetFirstTrueSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextTrueSubKey())
 	{
-		const auto& vcPlaylists = vRoot.childs.at("Playlists");
-		for (auto [id, it] = std::tuple<int, decltype(vcPlaylists->childs.begin())>
-			{ 1, vcPlaylists->childs.begin() }; it != vcPlaylists->childs.end(); id++, it++)
+		const char* keyName = pSubKey->GetName();
+
+		if (!this->m_PlaylistCombo->Items.Contains(keyName))
 		{
-			if (!this->m_PlaylistCombo->Items.Contains(it->first.c_str()))
-			{
-				this->m_PlaylistCombo->Items.Add(it->first.c_str());
-			}
+			this->m_PlaylistCombo->Items.Add(keyName);
 		}
-	}
-	catch (const std::exception& e)
-	{
-		printf("%s: Exception while parsing VDF file: %s\n", __FUNCTION__, e.what());
 	}
 }
 
@@ -1300,8 +1275,4 @@ const char* CSurface::GetControlValue(Forms::Control* pControl)
 //-----------------------------------------------------------------------------
 CSurface::CSurface() : Forms::Form()
 {
-	this->Init();
-	this->Setup();
 }
-
-CSurface* g_pMainUI;

@@ -38,6 +38,9 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"
     "tier1"
 
+    "filesystem_std"
+    "vstdlib"
+
     "libdetours"
     "libcppkore"
     "libspdlog"

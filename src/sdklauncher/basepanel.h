@@ -22,8 +22,10 @@ public:
 	UIX::UIXListView* ConsoleListView() const { return m_ConsoleListView; };
 	std::vector<LogList_t> m_LogList;
 
-private:
 	void Init();
+	eLaunchMode BuildParameter(string& svParameter);
+
+private:
 	void Setup();
 	void LoadSettings();
 	void SaveSettings();
@@ -43,8 +45,6 @@ private:
 
 	const char* GetControlValue(Forms::Control* pControl);
 	uint64_t GetProcessorAffinity(string& szParameter);
-
-	eLaunchMode BuildParameter(string& svParameter);
 
 	void AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument = nullptr);
 	void AppendProcessorParameters(string& svParameter);
