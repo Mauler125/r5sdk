@@ -109,6 +109,11 @@ void CSurface::Init()
 	this->m_ConsoleToggle->SetSize({ 110, 18 });
 	this->m_ConsoleToggle->SetLocation({ 290, 7 });
 	this->m_ConsoleToggle->SetTabIndex(0);
+#ifdef DEDI_LAUNCHER
+	this->m_ConsoleToggle->SetChecked(true);
+#else // For client builds, don't show the console by default
+	this->m_ConsoleToggle->SetChecked(false);
+#endif // DEDI_LAUNCHER
 	this->m_ConsoleToggle->SetText("Show console");
 	this->m_ConsoleToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_GameGroupExt->AddControl(this->m_ConsoleToggle);
@@ -968,6 +973,8 @@ void CSurface::AppendConsoleParameters(string& svParameters)
 {
 	if (this->m_ConsoleToggle->Checked())
 		AppendParameterInternal(svParameters, "-wconsole");
+	else
+		AppendParameterInternal(svParameters, "-noconsole");
 
 	if (this->m_ColorConsoleToggle->Checked())
 		AppendParameterInternal(svParameters, "-ansicolor");

@@ -77,8 +77,9 @@ void FlashConsoleBackground(int nFlashCount, int nFlashInterval, COLORREF color)
 //-----------------------------------------------------------------------------
 // Purpose: terminal window setup
 // Input  : bAnsiColor - 
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-void Console_Init(const bool bAnsiColor)
+bool Console_Init(const bool bAnsiColor)
 {
 #ifndef _TOOLS
 	///////////////////////////////////////////////////////////////////////////
@@ -89,7 +90,7 @@ void Console_Init(const bool bAnsiColor)
 		snprintf(szBuf, sizeof(szBuf), "Failed to create console window! [%s]\n", std::system_category().message(static_cast<int>(::GetLastError())).c_str());
 
 		OutputDebugStringA(szBuf);
-		return;
+		return false;
 	}
 
 	//-- Set the window title
@@ -133,12 +134,15 @@ void Console_Init(const bool bAnsiColor)
 #ifndef _TOOLS
 	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
 #endif // !_TOOLS
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: terminal window shutdown
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-void Console_Shutdown()
+bool Console_Shutdown()
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Destroy the console window
@@ -148,8 +152,10 @@ void Console_Shutdown()
 		snprintf(szBuf, sizeof(szBuf), "Failed to destroy console window! [%s]\n", std::system_category().message(static_cast<int>(::GetLastError())).c_str());
 
 		OutputDebugStringA(szBuf);
-		return;
+		return false;
 	}
+
+	return true;
 }
 
 #ifndef _TOOLS
