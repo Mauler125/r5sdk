@@ -382,7 +382,6 @@ void CSurface::Init()
 	this->m_WindowedToggle->SetSize({ 105, 18 });
 	this->m_WindowedToggle->SetLocation({ 15, 7 });
 	this->m_WindowedToggle->SetTabIndex(0);
-	this->m_WindowedToggle->SetChecked(true);
 	this->m_WindowedToggle->SetText("Windowed");
 	this->m_WindowedToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineVideoGroup->AddControl(this->m_WindowedToggle);
@@ -578,7 +577,7 @@ void CSurface::LoadSettings()
 	// Video.
 	this->m_WindowedToggle->SetChecked(sv->GetBool("windowed"));
 	this->m_NoBorderToggle->SetChecked(sv->GetBool("borderless"));
-	this->m_FpsTextBox->SetText(sv->GetString("maxFPS", "-1"));
+	this->m_FpsTextBox->SetText(sv->GetString("fpsMax", "-1"));
 	this->m_WidthTextBox->SetText(sv->GetString("width"));
 	this->m_HeightTextBox->SetText(sv->GetString("height"));
 }
@@ -639,7 +638,7 @@ void CSurface::SaveSettings()
 	// Video.
 	sv->SetBool("windowed", this->m_WindowedToggle->Checked());
 	sv->SetBool("borderless", this->m_NoBorderToggle->Checked());
-	sv->SetString("maxFPS", GetControlValue(this->m_FpsTextBox));
+	sv->SetString("fpsMax", GetControlValue(this->m_FpsTextBox));
 	sv->SetString("width", GetControlValue(this->m_WidthTextBox));
 	sv->SetString("height", GetControlValue(this->m_HeightTextBox));
 
