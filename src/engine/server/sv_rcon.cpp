@@ -32,6 +32,7 @@ static const char s_BannedMessage[]  = "Go away.\n";
 static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString);
 static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString);
 static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString);
+static void RCON_UseLoopbackSocketChanged_f(IConVar* pConVar, const char* pOldString);
 
 static ConVar sv_rcon_password("sv_rcon_password", "", FCVAR_RELEASE, "Remote server access password (rcon server is disabled if empty)", &RCON_PasswordChanged_f);
 static ConVar sv_rcon_sendlogs("sv_rcon_sendlogs", "0", FCVAR_RELEASE, "Network console logs to connected and authenticated sockets");
@@ -44,6 +45,8 @@ static ConVar sv_rcon_maxsockets("sv_rcon_maxsockets", "32", FCVAR_RELEASE, "Max
 static ConVar sv_rcon_maxconnections("sv_rcon_maxconnections", "1", FCVAR_RELEASE, "Max number of authenticated connections before the server closes the listen socket", true, 1.f, true, MAX_PLAYERS, &RCON_ConnectionCountChanged_f);
 static ConVar sv_rcon_maxframesize("sv_rcon_maxframesize", "1024", FCVAR_RELEASE, "Max number of bytes allowed in a message frame from a non-authenticated netconsole", true, 0.f, false, 0.f);
 static ConVar sv_rcon_whitelist_address("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts", &RCON_WhiteListAddresChanged_f, "Format: '::ffff:127.0.0.1'");
+
+static ConVar sv_rcon_useloopbacksocket("sv_rcon_useloopbacksocket", "0", FCVAR_RELEASE, "Whether to bind rcon server to the loopback socket", &RCON_UseLoopbackSocketChanged_f);
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -86,7 +89,7 @@ void CRConServer::Init(const char* pPassword, const char* pNetKey)
 		return;
 	}
 
-	const char* pszAddress = net_usesocketsforloopback->GetBool() ? NET_IPV6_UNSPEC : NET_IPV6_LOOPBACK;
+	const char* pszAddress = sv_rcon_useloopbacksocket.GetBool() ? NET_IPV6_UNSPEC : NET_IPV6_LOOPBACK;
 
 	m_Address.SetFromString(Format("[%s]:%i", pszAddress, hostport->GetInt()).c_str(), true);
 	m_Socket.CreateListenSocket(m_Address);
@@ -794,6 +797,23 @@ static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldStri
 			pCreator->CloseListenSocket();
 			RCONServer()->CloseNonAuthConnection();
 		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: change whether to bind on loopback socket
+//-----------------------------------------------------------------------------
+static void RCON_UseLoopbackSocketChanged_f(IConVar* pConVar, const char* pOldString)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same value.
+
+#ifndef CLIENT_DLL
+		// Reboot the RCON server to switch address type.
+		RCONServer()->Reboot();
+#endif // !CLIENT_DLL
 	}
 }
 

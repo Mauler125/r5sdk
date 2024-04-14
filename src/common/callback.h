@@ -14,7 +14,6 @@ void VPK_Pack_f(const CCommand& args);
 void VPK_Unpack_f(const CCommand& args);
 void VPK_Mount_f(const CCommand& args);
 void VPK_Unmount_f(const CCommand& args);
-void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString);
 #ifndef DEDICATED
 
 void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString);

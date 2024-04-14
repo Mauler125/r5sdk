@@ -256,7 +256,6 @@ void ConVar_InitShipped(void)
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);
 	net_usesocketsforloopback->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-	net_usesocketsforloopback->InstallChangeCallback(NET_UseSocketsForLoopbackChanged_f, false);
 #ifndef DEDICATED
 	language_cvar->InstallChangeCallback(LanguageChanged_f, false);
 #endif // !DEDICATED
