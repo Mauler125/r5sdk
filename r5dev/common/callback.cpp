@@ -228,28 +228,6 @@ void VPK_Unmount_f(const CCommand& args)
 	FileSystem()->UnmountVPKFile(args.Arg(1));
 }
 
-/*
-=====================
-NET_UseSocketsForLoopbackChanged_f
-
-  Use random AES encryption
-  key for game packets
-=====================
-*/
-void NET_UseSocketsForLoopbackChanged_f(IConVar* pConVar, const char* pOldString)
-{
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
-	{
-		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
-			return; // Same value.
-
-#ifndef CLIENT_DLL
-		// Reboot the RCON server to switch address type.
-		RCONServer()->Reboot();
-#endif // !CLIENT_DLL
-	}
-}
-
 void LanguageChanged_f(IConVar* pConVar, const char* pOldString)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
