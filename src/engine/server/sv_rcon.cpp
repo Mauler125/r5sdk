@@ -514,57 +514,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 //-----------------------------------------------------------------------------
 void CRConServer::Execute(const netcon::request& request) const
 {
-	const string& commandString = request.requestmsg();
-	const char* const pCommandString = commandString.c_str();
-
-	ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(pCommandString);
-
-	if (!pCommandBase)
-	{
-		// Found nothing.
-		return;
-	}
-
-	const char* const pValueString = request.requestval().c_str();
-
-	if (pCommandBase->IsFlagSet(FCVAR_SERVER_FRAME_THREAD))
-		ThreadJoinServerJob();
-
-	if (!pCommandBase->IsCommand())
-	{
-		// Here we want to skip over the command string in the value buffer.
-		// So if we got 'sv_cheats 1' in our value buffer, we want to skip
-		// over 'sv_cheats ', so that we are pointing directly to the value.
-		const char* pFound = V_strstr(pValueString,  pCommandString);
-		const char* pValue = nullptr;
-
-		if (pFound)
-		{
-			pValue = pFound + commandString.length();
-
-			// Skip any leading space characters.
-			while (*pValue == ' ')
-			{
-				++pValue;
-			}
-		}
-
-		ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
-		pConVar->SetValue(pValue ? pValue : pValueString);
-	}
-	else // Invoke command callback directly.
-	{
-		CCommand cmd;
-
-		// Only tokenize if we actually have strings in the value buffer, some
-		// commands (like 'status') don't need any additional parameters.
-		if (VALID_CHARSTAR(pValueString))
-		{
-			cmd.Tokenize(pValueString, cmd_source_t::kCommandSrcCode);
-		}
-
-		v_Cmd_Dispatch(ECommandTarget_t::CBUF_SERVER, pCommandBase, &cmd, false);
-	}
+	Cmd_ExecuteUnrestricted(request.requestmsg().c_str(), request.requestval().c_str());
 }
 
 //-----------------------------------------------------------------------------
