@@ -248,6 +248,15 @@ namespace VScriptCode
         }
 
         //-----------------------------------------------------------------------------
+        // Purpose: gets the current server id
+        //-----------------------------------------------------------------------------
+        SQRESULT GetServerID(HSQUIRRELVM v)
+        {
+            sq_pushstring(v, g_LogSessionUUID.c_str(), (SQInteger)g_LogSessionUUID.length());
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+
+        //-----------------------------------------------------------------------------
         // Purpose: checks whether the server is active
         //-----------------------------------------------------------------------------
         SQRESULT IsServerActive(HSQUIRRELVM v)
@@ -300,6 +309,8 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, DestroyServer, "Shuts the local server down", "void", "");
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SetAutoReloadState, "Set whether we can auto-reload the server", "void", "bool");
+
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetServerID, "Gets the current server ID", "string", "");
 }
 
 //---------------------------------------------------------------------------------
