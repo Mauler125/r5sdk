@@ -20,6 +20,8 @@ namespace VScriptCode
 		SQRESULT GetNumHumanPlayers(HSQUIRRELVM v);
 		SQRESULT GetNumFakeClients(HSQUIRRELVM v);
 
+		SQRESULT GetServerID(HSQUIRRELVM v);
+
 		SQRESULT IsServerActive(HSQUIRRELVM v);
 		SQRESULT IsDedicated(HSQUIRRELVM v);
 	}
