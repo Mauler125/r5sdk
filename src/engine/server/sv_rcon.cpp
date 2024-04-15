@@ -89,7 +89,7 @@ void CRConServer::Init(const char* pPassword, const char* pNetKey)
 		return;
 	}
 
-	const char* pszAddress = sv_rcon_useloopbacksocket.GetBool() ? NET_IPV6_UNSPEC : NET_IPV6_LOOPBACK;
+	const char* pszAddress = sv_rcon_useloopbacksocket.GetBool() ? NET_IPV6_LOOPBACK : NET_IPV6_UNSPEC;
 
 	m_Address.SetFromString(Format("[%s]:%i", pszAddress, hostport->GetInt()).c_str(), true);
 	m_Socket.CreateListenSocket(m_Address);
