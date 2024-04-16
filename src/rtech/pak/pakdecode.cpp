@@ -620,7 +620,8 @@ bool Pak_ZStdStreamDecode(PakDecoder_s* const decoder, const PakRingBufferFrame_
 		inFrame.frameLen, NULL
 	};
 
-	const size_t ret = ZSTD_decompressStream(decoder->zstreamContext, &outBuffer, &inBuffer);
+	ZSTD_DStream* const dctx = decoder->zstreamContext;
+	const size_t ret = ZSTD_decompressStream(dctx, &outBuffer, &inBuffer);
 
 	if (ZSTD_isError(ret))
 	{
@@ -646,14 +647,14 @@ bool Pak_ZStdStreamDecode(PakDecoder_s* const decoder, const PakRingBufferFrame_
 	//
 	// if the input stream has fully decoded, this should equal the size of the
 	// encoded pak file
-	decoder->bufferSizeNeeded = decoder->inBufBytePos;
+	decoder->bufferSizeNeeded = decoder->inBufBytePos + ZSTD_nextSrcSizeToDecompress(dctx);
 
 	const bool decoded = ret == NULL;
 
 	// zstd decoder no longer necessary at this point, deallocate
 	if (decoded)
 	{
-		ZSTD_freeDStream(decoder->zstreamContext);
+		ZSTD_freeDStream(dctx);
 		decoder->zstreamContext = nullptr;
 	}
 

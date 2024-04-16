@@ -94,5 +94,6 @@ thirdparty_suppress_warnings()
 
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
 	"ZSTD_MULTITHREAD"
+	"ZSTD_NO_FORWARD_PROGRESS_MAX=1024"
 	"DEBUGLEVEL=0"
 )
