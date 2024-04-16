@@ -5,6 +5,7 @@
 //=============================================================================//
 #pragma once
 #include "mathlib/vector.h"
+#include "mathlib/bitvec.h"
 constexpr int MAX_HULLS = 5;
 
 constexpr int NOT_CACHED = -2;			// Returned if data not in cache
@@ -153,13 +154,15 @@ struct CAI_ScriptNode
 };
 
 //=============================================================================
-//	>> CAI_ScriptNode
+//	>> CAI_HullData
 //=============================================================================
 struct CAI_HullData
 {
-	short m_Count; // Multiplied by 4; probably total buffer size.
-	short unk1;
-	int unk2;
-	void* pBuffer; // Hull data buffer.
+	CVarBitVec m_bitVec;
+
+	// Unknown, possible part of CVarBitVec ??? see [r5apex_ds + 1A52B0] if,
+	// this is part of CVarBitVec, it seems to be unused in any of the
+	// compiled CVarBitVec and CLargeVarBitVec methods so i think it should be
+	// just part of this struct.
 	char unk3[8];
 };
