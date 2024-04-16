@@ -25,8 +25,6 @@ CPlayerMove::CPlayerMove(void)
 void CPlayerMove::StaticRunCommand(CPlayerMove* thisp, CPlayer* player, CUserCmd* ucmd, IMoveHelper* moveHelper)
 {
 	CClientExtended* const cle = g_pServer->GetClientExtended(player->GetEdict() - 1);
-
-	const float playerCurTime = (player->m_lastUCmdSimulationRemainderTime * TICK_INTERVAL) + player->m_totalExtraClientCmdTimeAttempted;
 	float playerFrameTime;
 	
 	// Always default to clamped UserCmd frame time if this cvar is set
