@@ -16,7 +16,7 @@ public:
 	CNetCon(void);
 	~CNetCon(void);
 
-	bool Init(const bool bAnsiColor, const char* pHostName = nullptr, const int nPort = SOCKET_ERROR);
+	bool Init(const bool bAnsiColor, const char* pAdr = nullptr, const char* pKey = nullptr);
 	bool Shutdown(void);
 	void TermSetup(const bool bAnsiColor);
 
@@ -32,9 +32,12 @@ public:
 	inline float GetTickInterval() const { return m_flTickInterval; }
 	static BOOL WINAPI CloseHandler(DWORD eventCode);
 
-	virtual void Disconnect(const char* szReason = nullptr);
+	virtual bool Connect(const char* pHostName, const int nHostPort = SOCKET_ERROR) override;
+	virtual void Disconnect(const char* szReason = nullptr) override;
+
 	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
+	void TrySetKey(const char* const pKey);
 	bool Serialize(vector<char>& vecBuf, const char* szReqBuf,
 		const char* szReqVal, const netcon::request_e requestType) const;
 
