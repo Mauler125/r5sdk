@@ -24,7 +24,7 @@ CNetCon::CNetCon(void)
 	: m_bInitialized(false)
 	, m_bQuitting(false)
 	, m_bPromptConnect(true)
-	, m_bEncryptFrames(true)
+	, m_bEncryptFrames(false)
 	, m_flTickInterval(0.05f)
 {
 	// Empty character set used for ip addresses if we still need to initiate a
@@ -44,7 +44,7 @@ CNetCon::~CNetCon(void)
 // Purpose: WSA and NETCON systems init
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CNetCon::Init(const bool bAnsiColor, const char* pHostName, const int nPort)
+bool CNetCon::Init(const bool bAnsiColor, const char* pAdr, const char* pKey)
 {
 	std::lock_guard<std::mutex> l(m_Mutex);
 
@@ -60,12 +60,20 @@ bool CNetCon::Init(const bool bAnsiColor, const char* pHostName, const int nPort
 		return false;
 	}
 
-	// Try to connect from given parameters, these are passed in from the
-	// command line. If we fail, return out as this allows the user to
-	// quickly retry again.
-	if (pHostName && nPort != SOCKET_ERROR)
+	// Install the encryption key and enable encryption if this has been passed
+	// in by the user.
+	if (pKey)
 	{
-		if (!Connect(pHostName, nPort))
+		SetKey(pKey, true);
+		m_bEncryptFrames = true;
+	}
+
+	// Try and connect to the giver remote address if this has been passed in
+	// by the user. If we fail, return out as this allows the user to quickly
+	// try again.
+	if (pAdr)
+	{
+		if (!Connect(pAdr))
 		{
 			return false;
 		}
@@ -177,6 +185,24 @@ void CNetCon::TermSetup(const bool bAnsiColor)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: tries to set the passed in netkey, falls back to default on failure
+//-----------------------------------------------------------------------------
+void CNetCon::TrySetKey(const char* const pKey)
+{
+	if (!*pKey)
+	{
+		Warning(eDLL_T::CLIENT, "No key provided; using default %s'%s%s%s'\n",
+			g_svReset, g_svGreyB, DEFAULT_NET_ENCRYPTION_KEY, g_svReset);
+
+		SetKey(DEFAULT_NET_ENCRYPTION_KEY, true);
+	}
+	else
+	{
+		SetKey(pKey, true);
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: gets input IP and port for initialization
 //-----------------------------------------------------------------------------
 void CNetCon::RunInput(const string& lineInput)
@@ -254,22 +280,8 @@ void CNetCon::RunInput(const string& lineInput)
 				return;
 			}
 
-			if (!*inKey)
-			{
-				Warning(eDLL_T::CLIENT, "No key provided; using default %s'%s%s%s'\n",
-					g_svReset, g_svGreyB, DEFAULT_NET_ENCRYPTION_KEY, g_svReset);
-
-				SetKey(DEFAULT_NET_ENCRYPTION_KEY, true);
-			}
-			else
-			{
-				SetKey(inKey, true);
-			}
-
+			TrySetKey(inKey);
 			m_bEncryptFrames = true;
-
-			Msg(eDLL_T::CLIENT, "Attempting connection to '%s' with key %s'%s%s%s'\n",
-				inAdr, g_svReset, g_svGreyB, GetKey(), g_svReset);
 
 			if (!Connect(inAdr))
 			{
@@ -281,8 +293,6 @@ void CNetCon::RunInput(const string& lineInput)
 		{
 			const char* inAdr = cmd.GetCommandString();
 			m_bEncryptFrames = false;
-
-			Msg(eDLL_T::CLIENT, "Attempting connection to '%s'\n", inAdr);
 
 			if (!Connect(inAdr))
 			{
@@ -352,6 +362,28 @@ bool CNetCon::GetPrompting(void) const
 void CNetCon::SetPrompting(const bool bPrompt)
 {
 	m_bPromptConnect = bPrompt;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: connect to remote
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CNetCon::Connect(const char* pHostName, const int nPort)
+{
+	Assert(nPort == SOCKET_ERROR, "Port should be part of the address on the CNetCon implementation!");
+	NOTE_UNUSED(nPort);
+
+	if (m_bEncryptFrames)
+	{
+		Msg(eDLL_T::CLIENT, "Attempting connection to '%s' with key %s'%s%s%s'\n",
+			pHostName, g_svReset, g_svGreyB, GetKey(), g_svReset);
+	}
+	else
+	{
+		Msg(eDLL_T::CLIENT, "Attempting connection to '%s'\n", pHostName);
+	}
+
+	return CL_NetConConnect(this, pHostName, SOCKET_ERROR);
 }
 
 //-----------------------------------------------------------------------------
@@ -487,16 +519,21 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	const char* pHostName = nullptr;
-	int nPort = SOCKET_ERROR;
+	// The address and key from command line if passed in.
+	const char* pAdr = nullptr;
+	const char* pKey = nullptr;
 
-	if (argc >= 3) // Get IP and Port from command line.
+	if (argc >= 2)
 	{
-		pHostName = argv[1];
-		nPort = atoi(argv[2]);
+		pAdr = argv[1];
 	}
 
-	if (!NetConsole()->Init(bEnableColor, pHostName, nPort))
+	if (argc >= 3)
+	{
+		pKey = argv[2];
+	}
+
+	if (!NetConsole()->Init(bEnableColor, pAdr, pKey))
 	{
 		return EXIT_FAILURE;
 	}
