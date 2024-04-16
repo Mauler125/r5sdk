@@ -12,7 +12,7 @@ public:
 	static void DebugConnectMsg(int node1, int node2, const char* pszFormat, ...);
 	void* GetVTable(void) const;
 	int NumLinks(void) const;
-	int NumZones(void) const;
+	int NumZones(const int idx) const;
 	int NumHints(void) const;
 	int NumScriptNodes(void) const;
 	int NumPathNodes(void) const;
@@ -32,12 +32,7 @@ public:
 	int m_nUnk0;
 
 	CAI_HullData m_HullData[MAX_HULLS];
-
-	int m_iNumZones;              // +0x0088
-	int m_iUnkCount0;
-	int m_iUnkCount1;
-	int m_iUnkCount2;
-	int m_iUnkCount4;
+	int m_iNumZones[MAX_HULLS];   // +0x0088
 
 	// unk8 on disk
 	int unk5;                     // +0x009C
