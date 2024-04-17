@@ -435,7 +435,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
     if (__argc < 2)
     {
 #ifdef _DEBUG
-        Console_Init(true, true);
+        Console_Init(true);
 #endif // _DEBUG
         SDKLauncher()->Init();
         SDKLauncher()->RunSurface();
