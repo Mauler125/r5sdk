@@ -12,6 +12,29 @@
 extern CFileSystem_Stdio* FileSystem();
 
 //-----------------------------------------------------------------------------
+// Purpose: creates a font by name
+//-----------------------------------------------------------------------------
+HFONT CreateFontByName(const char* const name, const int size)
+{
+	return CreateFont(
+		size,                   // Height of font
+		0,                      // Width of font
+		0,                      // Angle of escapement
+		0,                      // Orientation angle
+		FW_NORMAL,              // Font weight
+		FALSE,                  // Italic
+		FALSE,                  // Underline
+		FALSE,                  // Strikeout
+		DEFAULT_CHARSET,        // Character set identifier
+		OUT_DEFAULT_PRECIS,     // Output precision
+		CLIP_DEFAULT_PRECIS,    // Clipping precision
+		DEFAULT_QUALITY,        // Output quality
+		DEFAULT_PITCH | FF_DONTCARE, // Pitch and family
+		TEXT(name)              // Font name
+	);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
 //-----------------------------------------------------------------------------
 void CSurface::Init()
@@ -19,6 +42,9 @@ void CSurface::Init()
 	// START DESIGNER CODE
 	const INT WindowX = 800;
 	const INT WindowY = 353;
+
+	const HFONT font = (HFONT)CreateFontByName("Microsoft Sans Serif", -11);
+	this->SetFont(new Drawing::Font(this->_Handle, font, true));
 
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
@@ -141,7 +167,7 @@ void CSurface::Init()
 	this->m_PlaylistFileLabel->SetLocation({ 311, 32 });
 	this->m_PlaylistFileLabel->SetTabIndex(0);
 	this->m_PlaylistFileLabel->SetText("Playlists file");
-	this->m_PlaylistFileLabel->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
+	this->m_PlaylistFileLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_GameGroupExt->AddControl(this->m_PlaylistFileLabel);
 
 	// ########################################################################
@@ -423,7 +449,7 @@ void CSurface::Init()
 	this->m_WidthTextBox->SetTabIndex(0);
 	this->m_WidthTextBox->SetReadOnly(false);
 	this->m_WidthTextBox->SetText("");
-	this->m_WidthTextBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Right);
+	this->m_WidthTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineVideoGroup->AddControl(this->m_WidthTextBox);
 
 	this->m_HeightTextBox = new UIX::UIXTextBox();
@@ -432,7 +458,7 @@ void CSurface::Init()
 	this->m_HeightTextBox->SetTabIndex(0);
 	this->m_HeightTextBox->SetReadOnly(false);
 	this->m_HeightTextBox->SetText("");
-	this->m_HeightTextBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Right);
+	this->m_HeightTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineVideoGroup->AddControl(this->m_HeightTextBox);
 
 	this->m_ResolutionLabel = new UIX::UIXLabel();
@@ -452,7 +478,7 @@ void CSurface::Init()
 	this->m_ConsoleGroup->SetLocation({ 359, 160 });
 	this->m_ConsoleGroup->SetTabIndex(0);
 	this->m_ConsoleGroup->SetText("Console");
-	this->m_ConsoleGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ConsoleGroup->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->AddControl(this->m_ConsoleGroup);
 
 	this->m_ConsoleGroupExt = new UIX::UIXGroupBox();
@@ -460,7 +486,7 @@ void CSurface::Init()
 	this->m_ConsoleGroupExt->SetLocation({ 359, 174 });
 	this->m_ConsoleGroupExt->SetTabIndex(0);
 	this->m_ConsoleGroupExt->SetText("");
-	this->m_ConsoleGroupExt->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ConsoleGroupExt->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->AddControl(this->m_ConsoleGroupExt);
 
 	this->m_ConsoleListView = new UIX::UIXListView();
@@ -468,7 +494,7 @@ void CSurface::Init()
 	this->m_ConsoleListView->SetLocation({ 1, -23 }); // HACK: hide columns
 	this->m_ConsoleListView->SetTabIndex(0);
 	this->m_ConsoleListView->SetBackColor(Drawing::Color(29, 33, 37));
-	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_ConsoleListView->SetView(Forms::View::Details);
 	this->m_ConsoleListView->SetVirtualMode(true);
 	this->m_ConsoleListView->SetFullRowSelect(true);
@@ -484,7 +510,7 @@ void CSurface::Init()
 	this->m_ConsoleCommandTextBox->SetTabIndex(0);
 	this->m_ConsoleCommandTextBox->SetReadOnly(false);
 	this->m_ConsoleCommandTextBox->SetText("");
-	this->m_ConsoleCommandTextBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
+	this->m_ConsoleCommandTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleCommandTextBox);
 
 	this->m_ConsoleSendCommand = new UIX::UIXButton();
@@ -493,7 +519,7 @@ void CSurface::Init()
 	this->m_ConsoleSendCommand->SetTabIndex(0);
 	this->m_ConsoleSendCommand->SetText("Send");
 	this->m_ConsoleSendCommand->SetBackColor(Drawing::Color(3, 102, 214));
-	this->m_ConsoleSendCommand->SetAnchor(Forms::AnchorStyles::None);
+	this->m_ConsoleSendCommand->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_ConsoleSendCommand->Click += &ForwardCommandToGame;
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleSendCommand);
 
@@ -681,10 +707,7 @@ void CSurface::OnClose(const std::unique_ptr<FormClosingEventArgs>& /*pEventArgs
 //-----------------------------------------------------------------------------
 void CSurface::CleanSDK(Forms::Control* pSender)
 {
-	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
-	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running cleaner for SDK installation\n"));
-	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
-
+	Msg(eDLL_T::COMMON, "Running cleaner for SDK installation\n");
 	std::system("bin\\clean_sdk.bat");
 }
 
@@ -694,10 +717,7 @@ void CSurface::CleanSDK(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CSurface::UpdateSDK(Forms::Control* pSender)
 {
-	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
-	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running updater for SDK installation\n"));
-	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
-
+	Msg(eDLL_T::COMMON, "Running updater for SDK installation\n");
 	std::system("bin\\update_sdk.bat");
 }
 
@@ -708,19 +728,15 @@ void CSurface::UpdateSDK(Forms::Control* pSender)
 void CSurface::LaunchGame(Forms::Control* pSender)
 {
 	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
-
-	pSurface->m_LogList.clear(); // Clear console.
-	pSurface->m_ConsoleListView->SetVirtualListSize(0);
-	pSurface->m_ConsoleListView->Refresh();
-
 	string svParameter;
+
 	pSurface->AppendParameterInternal(svParameter, "-launcher");
 
-	eLaunchMode launchMode = g_Launcher.BuildParameter(svParameter);
+	eLaunchMode launchMode = SDKLauncher()->BuildParameter(svParameter);
 	uint64_t nProcessorAffinity = pSurface->GetProcessorAffinity(svParameter);
 
-	if (g_Launcher.CreateLaunchContext(launchMode, nProcessorAffinity, svParameter.c_str(), "startup_launcher.cfg"))
-		g_Launcher.LaunchProcess();
+	if (SDKLauncher()->CreateLaunchContext(launchMode, nProcessorAffinity, svParameter.c_str(), "startup_launcher.cfg"))
+		SDKLauncher()->LaunchProcess();
 }
 
 //-----------------------------------------------------------------------------
@@ -820,6 +836,26 @@ void CSurface::ReloadPlaylists(Forms::Control* pSender)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: adds a log to the surface console
+// Input  : type - 
+// Input  : *pszText - 
+//-----------------------------------------------------------------------------
+void CSurface::AddLog(const LogType_t type, const char* const pszText)
+{
+	m_LogList.push_back(LogList_t(type, pszText));
+
+	// Clamp the log list size, as we cannot fit more elements than
+	// 8 in the console window.
+	while (m_LogList.size() > 8)
+	{
+		m_LogList.erase(m_LogList.begin());
+	}
+
+	m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_LogList.size()));
+	m_ConsoleListView->Refresh();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: copies selected virtual items to clipboard
 // Input  : &pEventArgs - 
 // Input  : *pSender - 
@@ -859,30 +895,34 @@ void CSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEv
 
 	static const Drawing::Color cColor[] =
 	{
-		Drawing::Color(255, 255, 255), // Trace
-		Drawing::Color(0, 120, 215),   // Debug
 		Drawing::Color(92, 236, 89),   // Info
+
+		Drawing::Color(255, 255, 255),   // Unused
+
 		Drawing::Color(236, 203, 0),   // Warn
 		Drawing::Color(236, 28, 0),    // Error
-		Drawing::Color(236, 28, 0),    // Critical
-		Drawing::Color(255, 255, 255), // General
+
+		Drawing::Color(255, 255, 255),   // Unused
+		Drawing::Color(255, 255, 255),   // Unused
 	};
 	static const String svLevel[] =
 	{
-		"trace",
-		"debug",
 		"info",
+
+		"other",
+
 		"warning",
 		"error",
-		"critical",
-		"general",
+
+		"other",
+		"other",
 	};
 
 	switch (pEventArgs->SubItemIndex)
 	{
 	case 0:
-		pEventArgs->Style.ForeColor = cColor[pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
-		pEventArgs->Text = svLevel[pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Style.ForeColor = cColor[(int)pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Text = svLevel[(int)pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
 		break;
 	case 1:
 		pEventArgs->Text = pSurface->m_LogList[pEventArgs->ItemIndex].m_svText;
@@ -905,7 +945,11 @@ void CSurface::ForwardCommandToGame(Forms::Control* pSender)
 	if (vecHandles.empty())
 		return;
 
-	const string kzCommand = pSurface->m_ConsoleCommandTextBox->Text().ToCString();
+	const String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
+
+	if (String::IsNullOrEmpty(kzCommand))
+		return;
+
 	bool bSuccess = false;
 
 	for (const HWND hWindow : vecHandles)
@@ -913,7 +957,7 @@ void CSurface::ForwardCommandToGame(Forms::Control* pSender)
 		char szWindowName[256];
 		GetWindowTextA(hWindow, szWindowName, 256);
 
-		COPYDATASTRUCT cData = { 0, (DWORD)(std::min)(kzCommand.size(), (size_t)259) + 1, (void*)kzCommand.c_str() };
+		COPYDATASTRUCT cData = { 0, (DWORD)(std::min)(kzCommand.Length(), (uint32_t)259) + 1, (void*)kzCommand.ToCString() };
 		bool bProcessingMessage = SendMessageA(hWindow, WM_COPYDATA, NULL, (LPARAM)&cData); // WM_COPYDATA will only return 0 or 1, that's why we use a boolean.
 		if (bProcessingMessage && !bSuccess)
 		{
@@ -923,9 +967,7 @@ void CSurface::ForwardCommandToGame(Forms::Control* pSender)
 
 	if (bSuccess) // At least one game instance received the command.
 	{
-		pSurface->m_LogList.push_back(LogList_t((spdlog::level::level_enum)2, kzCommand));
-		pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
-		pSurface->m_ConsoleListView->Refresh();
+		pSurface->AddLog(LogType_t::LOG_INFO, Format("Sent command: %s\n", kzCommand.ToCString()).c_str());
 		pSurface->m_ConsoleCommandTextBox->SetText("");
 	}
 }

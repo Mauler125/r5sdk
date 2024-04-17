@@ -3,16 +3,21 @@
 // Purpose: SDK launcher implementation.
 //
 //=============================================================================//
+#include "core/logger.h"
+#include "core/logdef.h"
+#include "tier0/cpu.h"
 #include "tier0/binstream.h"
 #include "tier1/fmtstr.h"
 #include "basepanel.h"
 #include "sdklauncher.h"
 
+#include "windows/console.h"
 #include "vstdlib/keyvaluessystem.h"
 #include "filesystem/filesystem_std.h"
 
 static CKeyValuesSystem s_KeyValuesSystem;
-static CFileSystem_Stdio g_FullFileSystem;
+static CFileSystem_Stdio s_FullFileSystem;
+static CLauncher s_Launcher;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: keyvalues singleton accessor
@@ -27,7 +32,28 @@ IKeyValuesSystem* KeyValuesSystem()
 ///////////////////////////////////////////////////////////////////////////////
 CFileSystem_Stdio* FileSystem()
 {
-    return &g_FullFileSystem;
+    return &s_FullFileSystem;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Purpose: launcher singleton accessor.
+///////////////////////////////////////////////////////////////////////////////
+CLauncher* SDKLauncher()
+{
+    return &s_Launcher;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Purpose: launcher logger sink
+///////////////////////////////////////////////////////////////////////////////
+void LauncherLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
+    const char* pszLogger, const char* pszFormat, va_list args,
+    const UINT exitCode /*= NO_ERROR*/, const char* pszUptimeOverride /*= nullptr*/)
+{
+    const string buffer = FormatV(pszFormat, args);
+
+    SDKLauncher()->AddLog(logType, buffer.c_str());
+    EngineLoggerSink(logType, logLevel, context, pszLogger, pszFormat, args, exitCode, pszUptimeOverride);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,30 +64,42 @@ void CLauncher::RunSurface()
     Forms::Application::EnableVisualStyles();
     UIX::UIXTheme::InitializeRenderer(new Themes::KoreTheme());
 
-    m_Surface.Init();
-    Forms::Application::Run(&g_Launcher.m_Surface, false);
+    m_pSurface = new CSurface();
+    m_pSurface->Init();
+
+    Forms::Application::Run(m_pSurface, true);
     UIX::UIXTheme::ShutdownRenderer();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Purpose: initializes the console (development only)
+// Purpose: initializes the launcher
 ///////////////////////////////////////////////////////////////////////////////
-void CLauncher::InitConsole()
+void CLauncher::Init()
 {
-    AllocConsole();
-    freopen("conin$", "r", stdin);
-    freopen("conout$", "w", stdout);
-    freopen("conout$", "w", stderr);
+    g_CoreMsgVCallback = &LauncherLoggerSink; // Setup logger callback sink.
+
+    // Init time.
+    Plat_FloatTime();
+    SpdLog_Init(true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Purpose: initializes the logger
+// Purpose: de-initializes the launcher
 ///////////////////////////////////////////////////////////////////////////////
-void CLauncher::InitLogger()
+void CLauncher::Shutdown()
 {
-    m_pLogger->set_pattern("[%^%l%$] %v");
-    m_pLogger->set_level(spdlog::level::trace);
-    spdlog::set_default_logger(m_pLogger); // Set as default.
+    SpdLog_Shutdown();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Purpose: adds a log to the surface console
+///////////////////////////////////////////////////////////////////////////////
+void CLauncher::AddLog(const LogType_t level, const char* szText)
+{
+    if (m_pSurface)
+    {
+        m_pSurface->AddLog(level, szText);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -120,13 +158,13 @@ int CLauncher::HandleCommandLine(int argc, char* argv[])
 ///////////////////////////////////////////////////////////////////////////////
 int CLauncher::HandleInput()
 {
-    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::warn, "The '%s' options are for development purposes; use the '%s' options for default usage.\n", "DEV", "PROD");
-    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::info, "%-6s ('0' = %s | '1' = %s).\n", "GAME", "DEV", "PROD");
-    AddLog(spdlog::level::level_enum::info, "%-6s ('2' = %s | '3' = %s).\n", "SERVER", "DEV", "PROD");
-    AddLog(spdlog::level::level_enum::info, "%-6s ('4' = %s | '5' = %s).\n", "CLIENT", "DEV", "PROD");
-    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
+    Msg(eDLL_T::NONE, "--------------------------------------------------------------------------------------------------------------\n");
+    Warning(eDLL_T::COMMON, "The '%s' options are for development purposes; use the '%s' options for default usage.\n", "DEV", "PROD");
+    Msg(eDLL_T::NONE, "--------------------------------------------------------------------------------------------------------------\n");
+    Msg(eDLL_T::COMMON, "%-6s ('0' = %s | '1' = %s).\n", "GAME", "DEV", "PROD");
+    Msg(eDLL_T::COMMON, "%-6s ('2' = %s | '3' = %s).\n", "SERVER", "DEV", "PROD");
+    Msg(eDLL_T::COMMON, "%-6s ('4' = %s | '5' = %s).\n", "CLIENT", "DEV", "PROD");
+    Msg(eDLL_T::NONE, "--------------------------------------------------------------------------------------------------------------\n");
     std::cout << "User input: ";
 
     std::string input;
@@ -142,17 +180,24 @@ int CLauncher::HandleInput()
             }
             else
             {
-                AddLog(spdlog::level::level_enum::err, "Invalid mode (range 0-5).\n");
+                Error(eDLL_T::COMMON, 0, "Invalid mode (range 0-5).\n");
+                Sleep(2500);
+
                 return EXIT_FAILURE;
             }
         }
         catch (const std::exception& e)
         {
-            AddLog(spdlog::level::level_enum::err, "SDK Launcher only takes numerical input (error = %s).\n", e.what());
+            Error(eDLL_T::COMMON, 0, "SDK Launcher only takes numerical input (error = %s).\n", e.what());
+            Sleep(2500);
+
             return EXIT_FAILURE;
         }
     }
-    AddLog(spdlog::level::level_enum::err, "SDK Launcher requires numerical input.\n");
+
+    Error(eDLL_T::COMMON, 0, "SDK Launcher requires numerical input.\n");
+    Sleep(2500);
+
     return EXIT_FAILURE;
 }
 
@@ -229,14 +274,13 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffini
     }
     default:
     {
-        AddLog(spdlog::level::level_enum::err, "No launch mode specified.\n");
+        Error(eDLL_T::COMMON, 0, "No launch mode specified.\n");
         return false;
     }
     }
 
     SetupLaunchContext(szConfig, szGameDLL, szCommandLine);
-    AddLog(spdlog::level::level_enum::info, "*** LAUNCHING %s [%s] ***\n",
-        szContext, szLevel);
+    Msg(eDLL_T::COMMON, "*** LAUNCHING %s [%s] ***\n", szContext, szLevel);
 
     return true;
 }
@@ -251,20 +295,19 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffini
 void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, const char* szCommandLine)
 {
     CIOStream cfgFile;
+
+    CFmtStrN<1024> cfgFileName;
     CFmtStrMax commandLine;
 
     if (szConfig && szConfig[0])
     {
-        commandLine.Format(GAME_CFG_PATH"%s", szConfig);
+        cfgFileName.Format(GAME_CFG_PATH"%s", szConfig);
 
-        if (cfgFile.Open(commandLine.String(), CIOStream::READ))
+        if (cfgFile.Open(cfgFileName.String(), CIOStream::READ))
         {
-            // Reuse the stack string for the actual command line buffer.
-            commandLine.Clear();
-
             if (!cfgFile.ReadString(commandLine.Access(), commandLine.GetMaxLength()))
             {
-                AddLog(spdlog::level::level_enum::err, "Failed to read file '%s'!\n", szConfig);
+                Error(eDLL_T::COMMON, 0, "Failed to read file '%s'!\n", szConfig);
             }
             else
             {
@@ -273,7 +316,7 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, 
         }
         else // Failed to open config file.
         {
-            AddLog(spdlog::level::level_enum::err, "Failed to open file '%s'!\n", szConfig);
+            Error(eDLL_T::COMMON, 0, "Failed to open file '%s'!\n", szConfig);
         }
     }
 
@@ -287,11 +330,11 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, 
 
     ///////////////////////////////////////////////////////////////////////////
     // Print the file paths and arguments.
-    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    AddLog(spdlog::level::level_enum::debug, "- CWD: %s\n", m_svCurrentDir.c_str());
-    AddLog(spdlog::level::level_enum::debug, "- EXE: %s\n", m_svGameDll.c_str());
-    AddLog(spdlog::level::level_enum::debug, "- CLI: %s\n", commandLine.String());
-    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
+    Msg(eDLL_T::NONE, "--------------------------------------------------------------------------------------------------------------\n");
+    Msg(eDLL_T::COMMON, "- CWD: %s\n", m_svCurrentDir.c_str());
+    Msg(eDLL_T::COMMON, "- EXE: %s\n", m_svGameDll.c_str());
+    Msg(eDLL_T::COMMON, "- CLI: %s\n", commandLine.String());
+    Msg(eDLL_T::NONE, "--------------------------------------------------------------------------------------------------------------\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -386,28 +429,39 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 ///////////////////////////////////////////////////////////////////////////////
 // EntryPoint.
 ///////////////////////////////////////////////////////////////////////////////
-int main(int argc, char* argv[]/*, char* envp[]*/)
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 {
-    g_Launcher.InitLogger();
-    if (argc < 2)
+    CheckSystemCPUForSSE2();
+    if (__argc < 2)
     {
-#ifdef NDEBUG
-        FreeConsole();
-#endif // NDEBUG
-        g_Launcher.RunSurface();
+#ifdef _DEBUG
+        Console_Init(true, true);
+#endif // _DEBUG
+        SDKLauncher()->Init();
+        SDKLauncher()->RunSurface();
+        SDKLauncher()->Shutdown();
+#ifdef _DEBUG
+        Console_Shutdown();
+#endif // _DEBUG
     }
     else
     {
-        int results = g_Launcher.HandleCommandLine(argc, argv);
-        if (results != -1)
-            return results;
+        if (!Console_Init(true))
+            return EXIT_FAILURE;
 
-        return g_Launcher.HandleInput();
+        SDKLauncher()->Init();
+
+        int cmdRet = SDKLauncher()->HandleCommandLine(__argc, __argv);
+
+        if (cmdRet == -1)
+            cmdRet = SDKLauncher()->HandleInput();
+
+        SDKLauncher()->Shutdown();
+
+        if (!Console_Shutdown())
+            return EXIT_FAILURE;
+
+        return cmdRet;
     }
     return EXIT_SUCCESS;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// Singleton Launcher.
-///////////////////////////////////////////////////////////////////////////////
-CLauncher g_Launcher("win_console");
