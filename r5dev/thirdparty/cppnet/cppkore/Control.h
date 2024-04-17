@@ -146,7 +146,7 @@ namespace Forms
 
 		// Retrieves the current font for this control.
 		Drawing::Font* GetFont();
-		// Retrieves the current font for this control.
+		// Sets the current font for this control.
 		void SetFont(Drawing::Font* Font);
 
 		// The parent of this control.
