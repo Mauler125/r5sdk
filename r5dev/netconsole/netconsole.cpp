@@ -51,6 +51,8 @@ bool CNetCon::Init(const bool bAnsiColor, const char* pAdr, const char* pKey)
 	g_CoreMsgVCallback = &EngineLoggerSink;
 	TermSetup(bAnsiColor);
 
+	Msg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
+
 	WSAData wsaData;
 	const int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 
@@ -80,7 +82,6 @@ bool CNetCon::Init(const bool bAnsiColor, const char* pAdr, const char* pKey)
 	}
 
 	m_bInitialized = true;
-	Msg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
 
 	static std::thread frame([this]()
 		{
