@@ -52,6 +52,7 @@ CBrowser::CBrowser(void)
 {
     m_surfaceLabel = "Server Browser";
 
+    memset(m_serverTokenTextBuf, '\0', sizeof(m_serverTokenTextBuf));
     memset(m_serverAddressTextBuf, '\0', sizeof(m_serverAddressTextBuf));
     memset(m_serverNetKeyTextBuf, '\0', sizeof(m_serverNetKeyTextBuf));
 
@@ -343,10 +344,10 @@ void CBrowser::DrawBrowserPanel(void)
 
     ImGui::PushItemWidth(itemWidth);
     {
-        ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Server address and port", m_serverAddressTextBuf, IM_ARRAYSIZE(m_serverAddressTextBuf));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Server address and port", m_serverAddressTextBuf, sizeof(m_serverAddressTextBuf));
 
         ImGui::SameLine();
-        ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Encryption key", m_serverNetKeyTextBuf, IM_ARRAYSIZE(m_serverNetKeyTextBuf));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Encryption key", m_serverNetKeyTextBuf, sizeof(m_serverNetKeyTextBuf));
 
         ImGui::SameLine();
         if (ImGui::Button("Connect", ImVec2(itemWidth, ImGui::GetFrameHeight())))
@@ -437,8 +438,8 @@ void CBrowser::HiddenServersModal(void)
         const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
         ImGui::PushItemWidth(contentRegionMax.x); // Override item width.
 
-        string hiddenServerToken;
-        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", &hiddenServerToken);
+        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", 
+            m_serverTokenTextBuf, sizeof(m_serverTokenTextBuf));
 
         ImGui::PopItemWidth();
 
@@ -458,10 +459,10 @@ void CBrowser::HiddenServersModal(void)
             m_hiddenServerRequestMessage.clear();
             m_reclaimFocusOnTokenField = true;
 
-            if (!hiddenServerToken.empty())
+            if (m_serverTokenTextBuf[0])
             {
                 NetGameServer_t server;
-                const bool result = g_MasterServer.GetServerByToken(server, m_hiddenServerRequestMessage, hiddenServerToken); // Send token connect request.
+                const bool result = g_MasterServer.GetServerByToken(server, m_hiddenServerRequestMessage, m_serverTokenTextBuf); // Send token connect request.
 
                 if (result && !server.name.empty())
                 {
