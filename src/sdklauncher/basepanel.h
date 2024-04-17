@@ -2,13 +2,13 @@
 
 struct LogList_t
 {
-	LogList_t(const spdlog::level::level_enum nLevel, const string& svText)
+	LogList_t(const LogType_t nLevel, const string& svText)
 	{
 		m_nLevel = nLevel;
 		m_svText = svText;
 	}
 
-	spdlog::level::level_enum m_nLevel;
+	LogType_t m_nLevel;
 	string m_svText;
 };
 
@@ -23,6 +23,8 @@ public:
 	std::vector<LogList_t> m_LogList;
 
 	void Init();
+	void AddLog(const LogType_t type, const char* const pszText);
+
 	eLaunchMode BuildParameter(string& svParameter);
 
 private:
