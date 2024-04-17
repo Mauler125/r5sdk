@@ -71,7 +71,7 @@ CBrowser::~CBrowser(void)
 //-----------------------------------------------------------------------------
 bool CBrowser::Init(void)
 {
-    SetStyleVar(928.f, 524.f, -500.f, 50.f);
+    SetStyleVar(927.f, 524.f, -500.f, 50.f);
 
     bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_lockedIconDataResource.m_pData), int(m_lockedIconDataResource.m_nSize),
         &m_lockedIconShaderResource, &m_lockedIconDataResource.m_nWidth, &m_lockedIconDataResource.m_nHeight);
