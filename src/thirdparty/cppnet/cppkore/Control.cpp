@@ -725,6 +725,11 @@ namespace Forms
 		return this->_RTTI;
 	}
 
+	uint32_t Control::GetControlCount()
+	{
+		return this->_Controls->Count();
+	}
+
 	Control* Control::FindForm()
 	{
 		auto Cur = this;

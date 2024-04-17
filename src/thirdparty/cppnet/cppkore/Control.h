@@ -209,6 +209,8 @@ namespace Forms
 		HWND GetHandle();
 		// Returns the type of this control
 		ControlTypes GetType();
+		// Returns the number of child controls
+		uint32_t GetControlCount();
 
 		// Retrieves the form that the control is on.
 		Control* FindForm();
