@@ -438,8 +438,8 @@ void CBrowser::HiddenServersModal(void)
         const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
         ImGui::PushItemWidth(contentRegionMax.x); // Override item width.
 
-        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", 
-            m_serverTokenTextBuf, sizeof(m_serverTokenTextBuf));
+        const bool hitEnter = ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", 
+            m_serverTokenTextBuf, sizeof(m_serverTokenTextBuf), ImGuiInputTextFlags_EnterReturnsTrue);
 
         ImGui::PopItemWidth();
 
@@ -454,7 +454,7 @@ void CBrowser::HiddenServersModal(void)
         ImGui::TextColored(m_hiddenServerMessageColor, "%s", m_hiddenServerRequestMessage.c_str());
         ImGui::Separator();
 
-        if (ImGui::Button("Connect", ImVec2(contentRegionMax.x, 24)))
+        if (ImGui::Button("Connect", ImVec2(contentRegionMax.x, 24)) || hitEnter)
         {
             m_hiddenServerRequestMessage.clear();
             m_reclaimFocusOnTokenField = true;
