@@ -81,20 +81,23 @@ void FlashConsoleBackground(int nFlashCount, int nFlashInterval, COLORREF color)
 //-----------------------------------------------------------------------------
 bool Console_Init(const bool bAnsiColor)
 {
-#ifndef _TOOLS
+	char msgBuf[2048];
+
 	///////////////////////////////////////////////////////////////////////////
 	// Create the console window
 	if (AllocConsole() == FALSE)
 	{
-		char szBuf[2048];
-		snprintf(szBuf, sizeof(szBuf), "Failed to create console window! [%s]\n", std::system_category().message(static_cast<int>(::GetLastError())).c_str());
+		snprintf(msgBuf, sizeof(msgBuf), "Failed to create console window! [%s]\n", 
+			std::system_category().message(static_cast<int>(::GetLastError())).c_str());
 
-		OutputDebugStringA(szBuf);
+		OutputDebugStringA(msgBuf);
 		return false;
 	}
 
+#ifndef _TOOLS
 	//-- Set the window title
 	SetConsoleTitleA("R5");
+#endif // !_TOOLS
 
 	//-- Open input/output streams
 	FILE* fDummy;
@@ -102,6 +105,7 @@ bool Console_Init(const bool bAnsiColor)
 	freopen_s(&fDummy, "CONOUT$", "w", stdout);
 	freopen_s(&fDummy, "CONOUT$", "w", stderr);
 
+#ifndef _TOOLS
 	//-- Create a worker thread to process console commands
 	DWORD dwThreadId = NULL;
 	DWORD __stdcall ProcessConsoleWorker(LPVOID);
@@ -113,27 +117,42 @@ bool Console_Init(const bool bAnsiColor)
 	}
 #endif // !_TOOLS
 
-	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-	DWORD dwMode = NULL;
-
 	if (bAnsiColor)
 	{
-		GetConsoleMode(hOutput, &dwMode);
-		dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-		if (!SetConsoleMode(hOutput, dwMode)) // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
+		if (!Console_ColorInit())
 		{
-			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
-			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'; please disable ansi-colors and restart the program if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
-		}
+			Assert(0);
+			//snprintf(msgBuf, sizeof(msgBuf), "Failed to set color console mode! [%s]\n",
+			//	std::system_category().message(static_cast<int>(::GetLastError())).c_str());
 
-		SetConsoleBackgroundColor(0x00000000);
-		AnsiColors_Init();
+			//MessageBoxA(NULL, msgBuf, "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
+		}
 	}
 
 #ifndef _TOOLS
 	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
 #endif // !_TOOLS
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: terminal color setup
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool Console_ColorInit()
+{
+	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	DWORD dwMode = NULL;
+
+	GetConsoleMode(hOutput, &dwMode); // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
+	dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+	if (!SetConsoleMode(hOutput, dwMode))
+		return false; // Failure.
+
+	SetConsoleBackgroundColor(0x00000000);
+	AnsiColors_Init();
 
 	return true;
 }
@@ -149,7 +168,8 @@ bool Console_Shutdown()
 	if (FreeConsole() == FALSE)
 	{
 		char szBuf[2048];
-		snprintf(szBuf, sizeof(szBuf), "Failed to destroy console window! [%s]\n", std::system_category().message(static_cast<int>(::GetLastError())).c_str());
+		snprintf(szBuf, sizeof(szBuf), "Failed to destroy console window! [%s]\n", 
+			std::system_category().message(static_cast<int>(::GetLastError())).c_str());
 
 		OutputDebugStringA(szBuf);
 		return false;

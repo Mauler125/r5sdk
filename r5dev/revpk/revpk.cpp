@@ -25,7 +25,7 @@
 #define FRONTEND_ENABLE_FILE "enable.txt"
 
 static CKeyValuesSystem s_KeyValuesSystem;
-static CFileSystem_Stdio g_FullFileSystem;
+static CFileSystem_Stdio s_FullFileSystem;
 static bool s_bUseAnsiColors = true;
 
 //-----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ IKeyValuesSystem* KeyValuesSystem()
 //-----------------------------------------------------------------------------
 CFileSystem_Stdio* FileSystem()
 {
-    return &g_FullFileSystem;
+    return &s_FullFileSystem;
 }
 
 //-----------------------------------------------------------------------------
@@ -51,10 +51,15 @@ static void ReVPK_Init()
 {
     CheckSystemCPUForSSE2();
 
+    // Init time.
+    Plat_FloatTime();
+
     g_CoreMsgVCallback = EngineLoggerSink;
     lzham_enable_fail_exceptions(true);
 
-    Console_Init(s_bUseAnsiColors);
+    if (s_bUseAnsiColors)
+        Console_ColorInit();
+
     SpdLog_Init(s_bUseAnsiColors);
 }
 
