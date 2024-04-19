@@ -31,6 +31,7 @@ public:
 	FORCEINLINE SQCONTEXT GetContext() const { return m_iContext; }
 	FORCEINLINE eDLL_T GetNativeContext() const { return (eDLL_T)GetContext(); }
 
+	bool Run(const SQChar* const script);
 	ScriptStatus_t ExecuteFunction(HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope);
 
 private:
