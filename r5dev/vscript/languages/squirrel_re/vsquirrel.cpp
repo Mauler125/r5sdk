@@ -106,9 +106,24 @@ SQRESULT CSquirrelVM::RegisterConstant(const SQChar* name, SQInteger value)
 // Input  : *name - 
 // Output : true on success, false otherwise
 //---------------------------------------------------------------------------------
-bool CSquirrelVM::ExecuteCodeCallback(const SQChar* const callbackName)
+bool CSquirrelVM::ExecuteCodeCallback(const SQChar* const name)
 {
-	return CSquirrelVM__ExecuteCodeCallback(this, callbackName);
+	return CSquirrelVM__ExecuteCodeCallback(this, name);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: executes a function by handle
+// Input  : hFunction - 
+//			*pArgs - 
+//			nArgs - 
+//			*pReturn - 
+//			hScope - 
+// Output : SCRIPT_DONE on success, SCRIPT_ERROR otherwise
+//---------------------------------------------------------------------------------
+ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope)
+{
+	// NOTE: pArgs and pReturn are most likely of type 'ScriptVariant_t', needs to be reversed.
+	return CSquirrelVM__ExecuteFunction(this, hFunction, pArgs, nArgs, pReturn, hScope);
 }
 
 //---------------------------------------------------------------------------------
