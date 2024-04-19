@@ -131,16 +131,6 @@ bool CSquirrelVM::Run(const SQChar* const script)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: executes a code callback
-// Input  : *name - 
-// Output : true on success, false otherwise
-//---------------------------------------------------------------------------------
-bool CSquirrelVM::ExecuteCodeCallback(const SQChar* const name)
-{
-	return CSquirrelVM__ExecuteCodeCallback(this, name);
-}
-
-//---------------------------------------------------------------------------------
 // Purpose: executes a function by handle
 // Input  : hFunction - 
 //			*pArgs - 
@@ -153,6 +143,16 @@ ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, void** pArgs, uns
 {
 	// NOTE: pArgs and pReturn are most likely of type 'ScriptVariant_t', needs to be reversed.
 	return CSquirrelVM__ExecuteFunction(this, hFunction, pArgs, nArgs, pReturn, hScope);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: executes a code callback
+// Input  : *name - 
+// Output : true on success, false otherwise
+//---------------------------------------------------------------------------------
+bool CSquirrelVM::ExecuteCodeCallback(const SQChar* const name)
+{
+	return CSquirrelVM__ExecuteCodeCallback(this, name);
 }
 
 //---------------------------------------------------------------------------------
