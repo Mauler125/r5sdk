@@ -177,9 +177,9 @@ SQRESULT sq_pushstructure(HSQUIRRELVM v, const SQChar* name, const SQChar* membe
 }
 
 //---------------------------------------------------------------------------------
-SQRESULT sq_compilebuffer(HSQUIRRELVM v, SQBufState* bufferState, const SQChar* buffer, SQInteger level)
+SQRESULT sq_compilebuffer(HSQUIRRELVM v, SQBufState* bufferState, const SQChar* buffer, SQInteger level, SQBool raiseerror)
 {
-	return v_sq_compilebuffer(v, bufferState, buffer, level);
+	return v_sq_compilebuffer(v, bufferState, buffer, level, raiseerror);
 }
 
 //---------------------------------------------------------------------------------

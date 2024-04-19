@@ -187,7 +187,7 @@ void sq_newtable(HSQUIRRELVM v);
 SQRESULT sq_newslot(HSQUIRRELVM v, SQInteger idx);
 SQRESULT sq_arrayappend(HSQUIRRELVM v, SQInteger idx);
 SQRESULT sq_pushstructure(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2);
-SQRESULT sq_compilebuffer(HSQUIRRELVM v, SQBufState* bufferState, const SQChar* buffer, SQInteger context);
+SQRESULT sq_compilebuffer(HSQUIRRELVM v, SQBufState* bufferState, const SQChar* buffer, SQInteger context, SQBool raiseerror);
 SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
 
 SQRESULT sq_startconsttable(HSQUIRRELVM v);
@@ -228,7 +228,7 @@ inline void(*v_sq_newtable)(HSQUIRRELVM v);
 inline SQRESULT(*v_sq_newslot)(HSQUIRRELVM v, SQInteger idx);
 inline SQRESULT(*v_sq_arrayappend)(HSQUIRRELVM v, SQInteger idx);
 inline SQRESULT(*v_sq_pushstructure)(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2);
-inline SQRESULT(*v_sq_compilebuffer)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level);
+inline SQRESULT(*v_sq_compilebuffer)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level, SQBool raiseerror);
 inline SQRESULT(*v_sq_call)(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
 inline SQRESULT(*v_sq_get)(HSQUIRRELVM v, SQInteger idx);
 

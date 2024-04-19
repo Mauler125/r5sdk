@@ -133,7 +133,11 @@ SQBool Script_PrecompileClientScripts(CSquirrelVM* vm)
 void Script_Execute(const SQChar* code, const SQCONTEXT context)
 {
 	Assert(context != SQCONTEXT::NONE);
-	Assert(ThreadInMainOrServerFrameThread());
+
+	if (context == SQCONTEXT::CLIENT || context == SQCONTEXT::UI)
+		Assert(ThreadInMainThread());
+	else if (context == SQCONTEXT::SERVER)
+		Assert(ThreadInServerFrameThread());
 
 	CSquirrelVM* s = Script_GetScriptHandle(context);
 	const char* const contextName = s_scriptContextNames[(int)context];
@@ -145,24 +149,29 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 	}
 
 	HSQUIRRELVM v = s->GetVM();
+
 	if (!v)
 	{
 		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script while VM isn't initialized\n", contextName);
 		return;
 	}
 
-	SQBufState bufState = SQBufState(code);
-	SQRESULT compileResult = sq_compilebuffer(v, &bufState, "console", -1);
+	SQBufState bufState(code);
 
-	if (SQ_SUCCEEDED(compileResult))
+	if (SQ_SUCCEEDED(sq_compilebuffer(v, &bufState, "unnamed", -1, SQTrue)))
 	{
-		sq_pushroottable(v);
-		SQRESULT callResult = sq_call(v, 1, false, false);
+		SQObject hScript;
+		sq_getstackobj(v, -1, &hScript);
 
-		if (!SQ_SUCCEEDED(callResult))
+		sq_addref(v, &hScript);
+		sq_pop(v, 1);
+
+		if (s->ExecuteFunction((HSCRIPT)&hScript, NULL, 0, NULL, NULL) == SCRIPT_ERROR)
 		{
 			Error(eDLL_T::ENGINE, NO_ERROR, "Failed to execute %s script \"%s\"\n", contextName, code);
 		}
+
+		sq_release(v, &hScript);
 	}
 }
 
