@@ -25,14 +25,14 @@ public:
 	SQRESULT RegisterFunction(const SQChar* scriptname, const SQChar* nativename, const SQChar* helpstring, const SQChar* returntype, const SQChar* parameters, void* functor);
 	SQRESULT RegisterConstant(const SQChar* name, SQInteger value);
 
-	bool ExecuteCodeCallback(const SQChar* const name);
-
 	FORCEINLINE HSQUIRRELVM GetVM() const { return m_hVM; }
 	FORCEINLINE SQCONTEXT GetContext() const { return m_iContext; }
 	FORCEINLINE eDLL_T GetNativeContext() const { return (eDLL_T)GetContext(); }
 
 	bool Run(const SQChar* const script);
+
 	ScriptStatus_t ExecuteFunction(HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope);
+	bool ExecuteCodeCallback(const SQChar* const name);
 
 private:
 	bool unk_00;
