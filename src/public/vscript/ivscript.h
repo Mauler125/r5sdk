@@ -17,6 +17,15 @@ typedef void* ScriptFunctionBindingStorageType_t;
 
 //---------------------------------------------------------
 
+enum ScriptStatus_t
+{
+	SCRIPT_ERROR = -1,
+	SCRIPT_DONE,
+	SCRIPT_RUNNING,
+};
+
+//---------------------------------------------------------
+
 enum ExtendedFieldType
 {
 	FIELD_TYPEUNKNOWN = FIELD_TYPECOUNT,
