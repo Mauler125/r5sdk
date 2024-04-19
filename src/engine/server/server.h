@@ -129,6 +129,7 @@ inline void(*CServer__RunFrame)(CServer* pServer);
 inline CClient*(*CServer__ConnectClient)(CServer* pServer, user_creds_s* pCreds);
 inline void*(*CServer__RejectConnection)(CServer* pServer, int iSocket, netadr_t* pNetAdr, const char* szMessage);
 inline void (*CServer__BroadcastMessage)(CServer* pServer, CNetMessage* const msg, const bool onlyActive, const bool reliable);
+inline bool(*CServer__SpawnServer)(CServer* pServer, const char* pszMapName, const char* pszMapGroupName);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VServer : public IDetour
@@ -141,6 +142,7 @@ class VServer : public IDetour
 		LogFunAdr("CServer::ConnectClient", CServer__ConnectClient);
 		LogFunAdr("CServer::RejectConnection", CServer__RejectConnection);
 		LogFunAdr("CServer::BroadcastMessage", CServer__BroadcastMessage);
+		LogFunAdr("CServer::SpawnServer", CServer__SpawnServer);
 		LogVarAdr("g_Server", g_pServer);
 #endif // !CLIENT_DLL
 	}
@@ -153,6 +155,7 @@ class VServer : public IDetour
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 88 05 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CServer__RunFrame);
 		g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9").GetPtr(CServer__RejectConnection);
 		g_GameDll.FindPatternSIMD("4C 8B DC 45 88 43 18 56").GetPtr(CServer__BroadcastMessage);
+		g_GameDll.FindPatternSIMD("48 8B C4 53 55 56 57 41 54 41 55 41 57").GetPtr(CServer__SpawnServer);
 #endif // !CLIENT_DLL
 	}
 	virtual void GetVar(void) const
