@@ -156,22 +156,10 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 		return;
 	}
 
-	SQBufState bufState(code);
-
-	if (SQ_SUCCEEDED(sq_compilebuffer(v, &bufState, "unnamed", -1, SQTrue)))
+	if (!s->Run(code))
 	{
-		SQObject hScript;
-		sq_getstackobj(v, -1, &hScript);
-
-		sq_addref(v, &hScript);
-		sq_pop(v, 1);
-
-		if (s->ExecuteFunction((HSCRIPT)&hScript, NULL, 0, NULL, NULL) == SCRIPT_ERROR)
-		{
-			Error(eDLL_T::ENGINE, NO_ERROR, "Failed to execute %s script \"%s\"\n", contextName, code);
-		}
-
-		sq_release(v, &hScript);
+		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to run %s script \"%s\"\n", contextName, code);
+		return;
 	}
 }
 

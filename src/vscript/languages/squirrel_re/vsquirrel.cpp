@@ -102,6 +102,35 @@ SQRESULT CSquirrelVM::RegisterConstant(const SQChar* name, SQInteger value)
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: runs text as script on the VM
+// Input  : *script - 
+// Output : true on success, false otherwise
+//---------------------------------------------------------------------------------
+bool CSquirrelVM::Run(const SQChar* const script)
+{
+	Assert(m_hVM);
+
+	bool success = false;
+	SQBufState bufState(script);
+
+	if (SQ_SUCCEEDED(sq_compilebuffer(m_hVM, &bufState, "unnamed", -1, SQTrue)))
+	{
+		SQObject hScript;
+		sq_getstackobj(m_hVM, -1, &hScript);
+
+		sq_addref(m_hVM, &hScript);
+		sq_pop(m_hVM, 1);
+
+		if (ExecuteFunction((HSCRIPT)&hScript, NULL, 0, NULL, NULL) == SCRIPT_DONE)
+			success = true;
+
+		sq_release(m_hVM, &hScript);
+	}
+
+	return success;
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: executes a code callback
 // Input  : *name - 
 // Output : true on success, false otherwise
