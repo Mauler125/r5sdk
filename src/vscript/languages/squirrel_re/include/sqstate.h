@@ -13,6 +13,10 @@ struct RefTable {
 		SQUnsignedInteger refs;
 		struct RefNode* next;
 	};
+	void AddRef(SQObject& obj);
+	SQBool Release(SQObject& obj);
+
+	RefTable::RefNode* Get(SQObject& obj, SQHash& mainpos, RefNode** prev, bool add);
 private:
 	SQUnsignedInteger _numofslots;
 	SQUnsignedInteger _slotused;
