@@ -20,6 +20,7 @@
 #include "engine/host_cmd.h"
 #include "engine/enginetrace.h"
 #ifndef CLIENT_DLL
+#include "engine/server/server.h"
 #include "engine/server/sv_main.h"
 #include "server/vengineserver_impl.h"
 #include "game/server/gameinterface.h"
@@ -116,8 +117,11 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 	}
 
 	g_TaskQueueList.push_back(&g_TaskQueue);
-	g_bAppSystemInit = true;
+#ifndef CLIENT_DLL
+	g_ServerTaskQueueList.push_back(&g_ServerTaskQueue);
+#endif // !CLIENT_DLL
 
+	g_bAppSystemInit = true;
 	return CModAppSystemGroup__Create(pModAppSystemGroup);
 }
 

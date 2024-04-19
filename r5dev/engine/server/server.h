@@ -1,4 +1,5 @@
 #pragma once
+#include "tier0/frametask.h"
 #include "tier1/NetAdr.h"
 #include "networksystem/pylon.h"
 #include "engine/client/client.h"
@@ -110,6 +111,9 @@ private:
 static_assert(sizeof(CServer) == 0x25264C0);
 
 extern CServer* g_pServer;
+
+extern std::list<IFrameTask*> g_ServerTaskQueueList;
+extern CFrameTask g_ServerTaskQueue;
 
 extern ConVar sv_showconnecting;
 
