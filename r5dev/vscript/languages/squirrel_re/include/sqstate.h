@@ -75,13 +75,13 @@ struct SQBufState
 {
 	const SQChar* buf;
 	const SQChar* bufTail;
-	const SQChar* bufCopy;
+	const SQChar* bufPos;
 
 	SQBufState(const SQChar* code)
 	{
 		buf = code;
 		bufTail = code + strlen(code);
-		bufCopy = code;
+		bufPos = code;
 	}
 };
 #endif // SQSTATE_H
