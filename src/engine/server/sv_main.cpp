@@ -164,6 +164,9 @@ bool SV_ActivateServer()
 
 void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data)
 {
+	if (IsTrainingDedi())
+		return;
+
 	if (!sv_voiceenable->GetBool())
 		return;
 
@@ -174,7 +177,7 @@ void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data
 
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
-		CClient* pClient = g_pServer->GetClient(i);
+		CClient* const pClient = g_pServer->GetClient(i);
 
 		if (!pClient)
 			continue;
@@ -194,7 +197,7 @@ void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data
 		// there's also supposed to be some xplat checks here
 		// but since r5r is only on PC, there's no point in implementing them here
 
-		CNetChan* pNetChan = pClient->GetNetChan();
+		CNetChan* const pNetChan = pClient->GetNetChan();
 
 		if (!pNetChan)
 			continue;
