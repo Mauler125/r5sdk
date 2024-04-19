@@ -133,11 +133,7 @@ SQBool Script_PrecompileClientScripts(CSquirrelVM* vm)
 void Script_Execute(const SQChar* code, const SQCONTEXT context)
 {
 	Assert(context != SQCONTEXT::NONE);
-
-	if (context == SQCONTEXT::CLIENT || context == SQCONTEXT::UI)
-		Assert(ThreadInMainThread());
-	else if (context == SQCONTEXT::SERVER)
-		Assert(ThreadInServerFrameThread());
+	Assert(ThreadInMainOrServerFrameThread());
 
 	CSquirrelVM* s = Script_GetScriptHandle(context);
 	const char* const contextName = s_scriptContextNames[(int)context];

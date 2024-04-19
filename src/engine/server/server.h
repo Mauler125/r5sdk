@@ -112,9 +112,6 @@ static_assert(sizeof(CServer) == 0x25264C0);
 
 extern CServer* g_pServer;
 
-extern std::list<IFrameTask*> g_ServerTaskQueueList;
-extern CFrameTask g_ServerTaskQueue;
-
 extern ConVar sv_showconnecting;
 
 extern ConVar sv_pylonVisibility;

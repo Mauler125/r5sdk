@@ -117,11 +117,8 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 	}
 
 	g_TaskQueueList.push_back(&g_TaskQueue);
-#ifndef CLIENT_DLL
-	g_ServerTaskQueueList.push_back(&g_ServerTaskQueue);
-#endif // !CLIENT_DLL
-
 	g_bAppSystemInit = true;
+
 	return CModAppSystemGroup__Create(pModAppSystemGroup);
 }
 

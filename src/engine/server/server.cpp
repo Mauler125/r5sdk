@@ -218,17 +218,6 @@ void CServer::BroadcastMessage(CNetMessage* const msg, const bool onlyActive, co
 //---------------------------------------------------------------------------------
 void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame)
 {
-	for (IFrameTask* const& task : g_ServerTaskQueueList)
-	{
-		task->RunFrame();
-	}
-
-	g_ServerTaskQueueList.erase(std::remove_if(g_ServerTaskQueueList.begin(), 
-		g_ServerTaskQueueList.end(), [](const IFrameTask* task)
-		{
-			return task->IsFinished();
-		}), g_ServerTaskQueueList.end());
-
 	CServer__FrameJob(flFrameTime, bRunOverlays, bUpdateFrame);
 	LiveAPISystem()->RunFrame();
 }
@@ -254,6 +243,3 @@ void VServer::Detour(const bool bAttach) const
 ///////////////////////////////////////////////////////////////////////////////
 CServer* g_pServer = nullptr;
 CClientExtended CServer::sm_ClientsExtended[MAX_PLAYERS];
-
-std::list<IFrameTask*> g_ServerTaskQueueList;
-CFrameTask g_ServerTaskQueue;

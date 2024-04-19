@@ -31,18 +31,6 @@ static void SQVM_ServerScript_f(const CCommand& args)
 {
     if (args.ArgC() >= 2)
     {
-        const char* code = args.ArgS();
-
-        if (!ThreadInServerFrameThread())
-        {
-            const string scode(code);
-            g_ServerTaskQueue.Dispatch([scode]()
-                    {
-                        Script_Execute(scode.c_str(), SQCONTEXT::SERVER);
-                    }, 0);
-            return; // Only run in server frame thread.
-        }
-
         Script_Execute(args.ArgS(), SQCONTEXT::SERVER);
     }
 }
