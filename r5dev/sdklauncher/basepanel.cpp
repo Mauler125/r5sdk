@@ -1303,4 +1303,62 @@ uint64_t CSurface::GetProcessorAffinity(string& svParameters)
 //-----------------------------------------------------------------------------
 CSurface::CSurface() : Forms::Form()
 {
+	// Game.
+	m_GameGroup = nullptr;
+	m_GameGroupExt = nullptr;
+	m_MapLabel = nullptr;
+	m_MapCombo = nullptr;
+	m_PlaylistLabel = nullptr;
+	m_PlaylistCombo = nullptr;
+	m_CheatsToggle = nullptr;
+	m_DeveloperToggle = nullptr;
+	m_ConsoleToggle = nullptr;
+	m_ColorConsoleToggle = nullptr;
+	m_PlaylistFileTextBox = nullptr;
+	m_PlaylistFileLabel = nullptr;
+
+	// Main.
+	m_MainGroup = nullptr;
+	m_MainGroupExt = nullptr;
+	m_ModeCombo = nullptr;
+	m_ModeLabel = nullptr;
+	m_HostNameTextBox = nullptr;
+	m_HostNameLabel = nullptr;
+	m_VisibilityCombo = nullptr;
+	m_VisibilityLabel = nullptr;
+	m_LaunchArgsTextBox = nullptr;
+	m_LaunchArgsLabel = nullptr;
+	m_CleanSDK = nullptr;
+	m_UpdateSDK = nullptr;
+	m_LaunchSDK = nullptr;
+
+	// Engine.
+	m_EngineBaseGroup = nullptr;
+	m_EngineNetworkGroup = nullptr;
+	m_EngineVideoGroup = nullptr;
+	m_ReservedCoresTextBox = nullptr;
+	m_ReservedCoresLabel = nullptr;
+	m_WorkerThreadsTextBox = nullptr;
+	m_WorkerThreadsLabel = nullptr;
+	m_ProcessorAffinityTextBox = nullptr;
+	m_ProcessorAffinityLabel = nullptr;
+	m_NoAsyncJobsToggle = nullptr;
+	m_NetEncryptionToggle = nullptr;
+	m_NetRandomKeyToggle = nullptr;
+	m_QueuedPacketThread = nullptr;
+	m_NoTimeOutToggle = nullptr;
+	m_WindowedToggle = nullptr;
+	m_NoBorderToggle = nullptr;
+	m_FpsTextBox = nullptr;
+	m_FpsLabel = nullptr;
+	m_WidthTextBox = nullptr;
+	m_HeightTextBox = nullptr;
+	m_ResolutionLabel = nullptr;
+
+	// Console.
+	m_ConsoleGroup = nullptr;
+	m_ConsoleGroupExt = nullptr;
+	m_ConsoleListView = nullptr;
+	m_ConsoleCommandTextBox = nullptr;
+	m_ConsoleSendCommand = nullptr;
 }
