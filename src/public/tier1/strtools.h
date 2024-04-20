@@ -7,6 +7,7 @@
 #define INCORRECT_PATH_SEPARATOR_S "/"
 #define CHARACTERS_WHICH_SEPARATE_DIRECTORY_COMPONENTS_IN_PATHNAMES ":/\\"
 #define PATHSEPARATOR(c) ((c) == '\\' || (c) == '/')
+#define PATHSEPARATORW(c) ((c) == L'\\' || (c) == L'/')
 #elif POSIX || defined( _PS3 )
 #define CORRECT_PATH_SEPARATOR '/'
 #define CORRECT_PATH_SEPARATOR_S "/"
@@ -14,6 +15,7 @@
 #define INCORRECT_PATH_SEPARATOR_S "\\"
 #define CHARACTERS_WHICH_SEPARATE_DIRECTORY_COMPONENTS_IN_PATHNAMES "/"
 #define PATHSEPARATOR(c) ((c) == '/')
+#define PATHSEPARATORW(c) ((c) == L'/')
 #endif
 
 #define COPY_ALL_CHARACTERS -1
@@ -156,6 +158,8 @@ inline void V_MakeAbsolutePath(char* pOut, size_t outLen, const char* pPath, con
 size_t V_StripLastDir(char* dirName, size_t maxLen);
 // Returns a pointer to the unqualified file name (no path) of a file name
 const char* V_UnqualifiedFileName(const char* in);
+const wchar_t* V_UnqualifiedFileName(const wchar_t* in);
+
 // Given a path and a filename, composes "path\filename", inserting the (OS correct) separator if necessary
 void V_ComposeFileName(const char* path, const char* filename, char* dest, size_t destSize);
 

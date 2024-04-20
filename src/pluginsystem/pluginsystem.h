@@ -6,6 +6,7 @@
 class CModAppSystemGroup;
 class CServer;
 class CClient;
+class CPlayer;
 struct user_creds_s;
 
 template<typename T>
@@ -82,6 +83,32 @@ private:
 	CUtlVector<T> m_vCallbacks;
 };
 
+template<typename T>
+class CPluginCallback
+{
+	friend class CPluginSystem;
+public:
+	CPluginCallback(T f) : function(f) {};
+
+	inline const T& Function() { return function; };
+	inline const wchar_t* ModuleName() { return moduleName; };
+
+	operator bool() const
+	{
+		return function;
+	}
+
+protected:
+	inline void SetModuleName(wchar_t* name)
+	{
+		wcscpy_s(moduleName, name);
+	};
+
+private:
+	T function;
+	wchar_t moduleName[MAX_PATH];
+};
+
 class CPluginSystem : IPluginSystem
 {
 public:	
@@ -120,10 +147,11 @@ public:
 
 	virtual void* HelpWithAnything(PluginHelpWithAnything_t* help);
 
-#define CREATE_PLUGIN_CALLBACK(typeName, type, funcName, varName) public: using typeName = type; CPluginCallbackList<typeName>& funcName() { return varName; } private: CPluginCallbackList<typeName> varName;
+#define CREATE_PLUGIN_CALLBACK(typeName, type, funcName, varName) public: using typeName = type; CPluginCallbackList<CPluginCallback<typeName>>& funcName() { return varName; } private: CPluginCallbackList<CPluginCallback<typeName>> varName;
 
 	CREATE_PLUGIN_CALLBACK(CreateFn, bool(*)(CModAppSystemGroup*), GetCreateCallbacks, createCallbacks);
 	CREATE_PLUGIN_CALLBACK(ConnectClientFn, bool(*)(CServer*, CClient*, user_creds_s*), GetConnectClientCallbacks, connectClientCallbacks);
+	CREATE_PLUGIN_CALLBACK(OnChatMessageFn, bool(*)(CPlayer*, const char*, bool), GetChatMessageCallbacks, chatMessageCallbacks);
 
 #undef CREATE_PLUGIN_CALLBACK
 
@@ -140,4 +168,4 @@ FORCEINLINE CPluginSystem* PluginSystem()
 // Monitor this and performance profile this if fps drops are detected.
 #define CALL_PLUGIN_CALLBACKS(callback, ...)      \
 	for (auto& cb : !callback)                    \
-		cb(__VA_ARGS__)                            
+		cb.Function()(__VA_ARGS__)                
