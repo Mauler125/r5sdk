@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.16 )
-add_module( "exe" "netconsole" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
+add_module( "exe" "netcon" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -31,11 +31,8 @@ add_sources( SOURCE_GROUP "Windows"
 
 end_sources( "${BUILD_OUTPUT_DIR}/bin/" )
 
-set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME
-    "netcon32"
-)
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND "netcon32.exe"
+    VS_DEBUGGER_COMMAND "${PROJECT_NAME}.exe"
     VS_DEBUGGER_COMMAND_ARGUMENTS "-ansicolor"
     VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/bin/"
 )
