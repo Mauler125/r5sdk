@@ -58,7 +58,7 @@ void CSurface::Init()
 	this->SetBackColor(Drawing::Color(47, 54, 61));
 
 	this->Load += &OnLoad;
-	this->FormClosing += &OnClose;
+	this->Closing += &OnClose;
 
 	// ########################################################################
 	//	GAME
@@ -648,16 +648,16 @@ void CSurface::SaveSettings()
 	kv.AddSubKey(sv);
 
 	// Game.
-	sv->SetString("playlistsFile", GetControlValue(this->m_PlaylistFileTextBox));
+	sv->SetString("playlistsFile", this->m_PlaylistFileTextBox->Text().ToCString());
 	sv->SetBool("enableCheats", this->m_CheatsToggle->Checked());
 	sv->SetBool("enableDeveloper", this->m_DeveloperToggle->Checked());
 	sv->SetBool("enableConsole", this->m_ConsoleToggle->Checked());
 	sv->SetBool("colorConsole", this->m_ColorConsoleToggle->Checked());
 
 	// Engine.
-	sv->SetString("reservedCoreCount", GetControlValue(this->m_ReservedCoresTextBox));
-	sv->SetString("workerThreadCount", GetControlValue(this->m_WorkerThreadsTextBox));
-	sv->SetString("processorAffinity", GetControlValue(this->m_ProcessorAffinityTextBox));
+	sv->SetString("reservedCoreCount", this->m_ReservedCoresTextBox->Text().ToCString());
+	sv->SetString("workerThreadCount", this->m_WorkerThreadsTextBox->Text().ToCString());
+	sv->SetString("processorAffinity", this->m_ProcessorAffinityTextBox->Text().ToCString());
 	sv->SetBool("noAsync", this->m_NoAsyncJobsToggle->Checked());
 
 	// Network.
@@ -669,9 +669,9 @@ void CSurface::SaveSettings()
 	// Video.
 	sv->SetBool("windowed", this->m_WindowedToggle->Checked());
 	sv->SetBool("borderless", this->m_NoBorderToggle->Checked());
-	sv->SetString("fpsMax", GetControlValue(this->m_FpsTextBox));
-	sv->SetString("width", GetControlValue(this->m_WidthTextBox));
-	sv->SetString("height", GetControlValue(this->m_HeightTextBox));
+	sv->SetString("fpsMax", this->m_FpsTextBox->Text().ToCString());
+	sv->SetString("width", this->m_WidthTextBox->Text().ToCString());
+	sv->SetString("height", this->m_HeightTextBox->Text().ToCString());
 
 	CUtlBuffer outBuf(ssize_t(0), 0, CUtlBuffer::TEXT_BUFFER);
 	kv.RecursiveSaveToFile(outBuf, 0);
@@ -1296,26 +1296,6 @@ uint64_t CSurface::GetProcessorAffinity(string& svParameters)
 	}
 
 	return nProcessorAffinity;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the control item value
-// Input  : *pControl - 
-//-----------------------------------------------------------------------------
-const char* CSurface::GetControlValue(Forms::Control* pControl)
-{
-	switch (pControl->GetType())
-	{
-	case Forms::ControlTypes::CheckBox:
-	case Forms::ControlTypes::RadioButton:
-	{
-		return reinterpret_cast<UIX::UIXCheckBox*>(pControl)->Checked() ? "1" : "0";
-	}
-	default:
-	{
-		return pControl->Text().ToCString();
-	}
-	}
 }
 
 //-----------------------------------------------------------------------------
