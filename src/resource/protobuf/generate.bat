@@ -1,3 +1,3 @@
-protoc64 --cpp_out=. sig_map.proto
-protoc64 --cpp_out=. netcon.proto
-protoc64 --cpp_out=. events.proto
+protoc --cpp_out=. sig_map.proto
+protoc --cpp_out=. netcon.proto
+protoc --cpp_out=. events.proto
