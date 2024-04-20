@@ -45,7 +45,6 @@ private:
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
 
-	const char* GetControlValue(Forms::Control* pControl);
 	uint64_t GetProcessorAffinity(string& szParameter);
 
 	void AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument = nullptr);
