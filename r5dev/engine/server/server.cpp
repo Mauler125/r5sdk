@@ -177,7 +177,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 
 	for (auto& callback : !g_PluginSystem.GetConnectClientCallbacks())
 	{
-		if (!callback(pServer, pClient, pChallenge))
+		if (!callback.Function()(pServer, pClient, pChallenge))
 		{
 			pClient->Disconnect(REP_MARK_BAD, "#Valve_Reject_Banned");
 			return nullptr;

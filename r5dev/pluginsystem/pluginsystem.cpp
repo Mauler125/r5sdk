@@ -131,7 +131,16 @@ CUtlVector<CPluginSystem::PluginInstance_t>& CPluginSystem::GetInstances()
 //-----------------------------------------------------------------------------
 void CPluginSystem::AddCallback(PluginHelpWithAnything_t* help)
 {
-#define ADD_PLUGIN_CALLBACK(fn, callback, function) callback += reinterpret_cast<fn>(function)
+#define ADD_PLUGIN_CALLBACK(fn, callback, function) callback += reinterpret_cast<fn>(function); callback.GetCallbacks().Tail().SetModuleName(moduleName)
+
+	if (!help->m_pFunction)
+		return;
+
+	// [rexx]: This fetches the path to the module that contains the requested callback function.
+	// The module name is fetched so that callbacks can be identified by the plugin that they came from.
+	// This must use the wide-char version of this func, as file paths may contain non-ASCII characters and we don't really want those to break.
+	wchar_t moduleName[MAX_PATH] = {};
+	GetMappedFileNameW((HANDLE)-1, help->m_pFunction, moduleName, MAX_PATH);
 
 	switch (help->m_nCallbackID)
 	{
@@ -143,6 +152,11 @@ void CPluginSystem::AddCallback(PluginHelpWithAnything_t* help)
 	case PluginHelpWithAnything_t::ePluginCallback::CServer_ConnectClient:
 	{
 		ADD_PLUGIN_CALLBACK(ConnectClientFn, GetConnectClientCallbacks(), help->m_pFunction);
+		break;
+	}
+	case PluginHelpWithAnything_t::ePluginCallback::OnReceivedChatMessage:
+	{
+		ADD_PLUGIN_CALLBACK(OnChatMessageFn, GetChatMessageCallbacks(), help->m_pFunction);
 		break;
 	}
 	default:
@@ -160,6 +174,9 @@ void CPluginSystem::RemoveCallback(PluginHelpWithAnything_t* help)
 {
 #define REMOVE_PLUGIN_CALLBACK(fn, callback, function) callback -= reinterpret_cast<fn>(function)
 
+	if (!help->m_pFunction)
+		return;
+
 	switch (help->m_nCallbackID)
 	{
 	case PluginHelpWithAnything_t::ePluginCallback::CModAppSystemGroup_Create:
@@ -170,6 +187,11 @@ void CPluginSystem::RemoveCallback(PluginHelpWithAnything_t* help)
 	case PluginHelpWithAnything_t::ePluginCallback::CServer_ConnectClient:
 	{
 		REMOVE_PLUGIN_CALLBACK(ConnectClientFn, GetConnectClientCallbacks(), help->m_pFunction);
+		break;
+	}
+	case PluginHelpWithAnything_t::ePluginCallback::OnReceivedChatMessage:
+	{
+		REMOVE_PLUGIN_CALLBACK(OnChatMessageFn, GetChatMessageCallbacks(), help->m_pFunction);
 		break;
 	}
 	default:
