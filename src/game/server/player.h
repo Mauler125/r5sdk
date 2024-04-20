@@ -263,6 +263,8 @@ public:
 
 	inline bool IsBot() const { return (GetFlags() & FL_FAKECLIENT) != 0; }
 
+	inline NucleusID_t GetPlatformUserId() const { return m_platformUserId; };
+
 private:
 	int m_StuckLast;
 	char gap_5a8c[4];
@@ -279,7 +281,7 @@ private:
 	char m_hardwareIcon[16];
 	bool m_happyHourActive;
 	char gap_5ee6[2];
-	__int64 m_platformUserId;
+	NucleusID_t m_platformUserId;
 	char m_hardware;
 	char gap_5ef1[7];
 	__int64 m_classModsActive;
