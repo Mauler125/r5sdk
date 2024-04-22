@@ -6,8 +6,10 @@
 #include "basepanel.h"
 #include "sdklauncher.h"
 #include "mathlib/bits.h"
+#include "vpklib/packedstore.h"
 #include "vstdlib/keyvaluessystem.h"
 #include "filesystem/filesystem_std.h"
+#include "tier2/fileutils.h"
 
 extern CFileSystem_Stdio* FileSystem();
 
@@ -93,6 +95,7 @@ void CSurface::Init()
 	this->m_MapCombo->SetLocation({ 15, 25 });
 	this->m_MapCombo->SetTabIndex(0);
 	this->m_MapCombo->SetSelectedIndex(0);
+	this->m_MapCombo->DropDownOpened += ReloadMaplists;
 	this->m_MapCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MapCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_MapCombo);
@@ -111,6 +114,7 @@ void CSurface::Init()
 	this->m_PlaylistCombo->SetLocation({ 15, 50 });
 	this->m_PlaylistCombo->SetTabIndex(0);
 	this->m_PlaylistCombo->SetSelectedIndex(0);
+	this->m_PlaylistCombo->DropDownOpened += ReloadPlaylists;
 	this->m_PlaylistCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_PlaylistCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_PlaylistCombo);
@@ -159,7 +163,6 @@ void CSurface::Init()
 	this->m_PlaylistFileTextBox->SetTabIndex(0);
 	this->m_PlaylistFileTextBox->SetText("playlists_r5_patch.txt");
 	this->m_PlaylistFileTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_PlaylistFileTextBox->LostFocus += &ReloadPlaylists;
 	this->m_GameGroupExt->AddControl(this->m_PlaylistFileTextBox);
 
 	this->m_PlaylistFileLabel = new UIX::UIXLabel();
@@ -536,9 +539,6 @@ void CSurface::Init()
 //-----------------------------------------------------------------------------
 void CSurface::Setup()
 {
-	this->ParseMaps();
-	this->ParsePlaylists();
-
 	this->m_ModeCombo->Items.Add("Host");
 	this->m_ModeCombo->Items.Add("Server");
 	this->m_ModeCombo->Items.Add("Client");
@@ -744,29 +744,33 @@ void CSurface::LaunchGame(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CSurface::ParseMaps()
 {
+	if (!m_MapCombo->Items.Contains(""))
+		m_MapCombo->Items.Add("");
+
 	const fs::path vpkPath("vpk");
+
 	if (!fs::exists(vpkPath))
 	{
 		return;
 	}
 
 	fs::directory_iterator directoryIterator(vpkPath);
-	std::regex archiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
-	std::smatch regexMatches;
+	std::cmatch regexMatches;
 
-	m_MapCombo->Items.Add("");
 	for (const fs::directory_entry& directoryEntry : directoryIterator)
 	{
 		std::string fileName = directoryEntry.path().u8string();
-		std::regex_search(fileName, regexMatches, archiveRegex);
+		std::regex_search(fileName.c_str(), regexMatches, g_VpkDirFileRegex);
 
 		if (!regexMatches.empty())
 		{
-			if (regexMatches[1].str().compare("frontend") == 0)
+			const std::sub_match<const char*>& match = regexMatches[2];
+
+			if (match.compare("frontend") == 0)
 			{
 				continue;
 			}
-			else if (regexMatches[1].str().compare("mp_common") == 0)
+			else if (match.compare("mp_common") == 0)
 			{
 				if (!this->m_MapCombo->Items.Contains("mp_lobby"))
 				{
@@ -774,9 +778,14 @@ void CSurface::ParseMaps()
 				}
 				continue;
 			}
-			else if (!this->m_MapCombo->Items.Contains(regexMatches[1].str().c_str()))
+			else
 			{
-				this->m_MapCombo->Items.Add(regexMatches[1].str().c_str());
+				const string mapName = match.str();
+
+				if (!this->m_MapCombo->Items.Contains(match.str().c_str()))
+				{
+					this->m_MapCombo->Items.Add(match.str().c_str());
+				}
 			}
 		}
 	}
@@ -787,13 +796,13 @@ void CSurface::ParseMaps()
 //-----------------------------------------------------------------------------
 void CSurface::ParsePlaylists()
 {
+	if (!m_PlaylistCombo->Items.Contains(""))
+		m_PlaylistCombo->Items.Add("");
+
 	CUtlString playlistPath;
 	playlistPath.Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString());
 
 	const char* pPlaylistPath = playlistPath.String();
-
-	if (!m_PlaylistCombo->Items.Contains(""))
-		m_PlaylistCombo->Items.Add("");
 
 	if (!FileSystem()->FileExists(pPlaylistPath))
 		return;
@@ -823,6 +832,20 @@ void CSurface::ParsePlaylists()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: clears the form and reloads the map list
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CSurface::ReloadMaplists(Forms::Control* pSender)
+{
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+
+	pSurface->m_MapCombo->Items.Clear();
+	pSurface->m_MapCombo->OnSizeChanged();
+
+	pSurface->ParseMaps();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: clears the form and reloads the playlist
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
@@ -832,6 +855,7 @@ void CSurface::ReloadPlaylists(Forms::Control* pSender)
 
 	pSurface->m_PlaylistCombo->Items.Clear();
 	pSurface->m_PlaylistCombo->OnSizeChanged();
+
 	pSurface->ParsePlaylists();
 }
 
