@@ -66,4 +66,22 @@ enum MoveType_t
 	MOVETYPE_ZEROG          // ?
 };
 
+inline const char* const g_GameDllTargets[] = {
+	"server",
+	"client"
+};
+
+inline bool V_GameTargetExists(const char* const pTarget)
+{
+	for (size_t i = 0; i < V_ARRAYSIZE(g_GameDllTargets); i++)
+	{
+		if (V_strcmp(pTarget, g_GameDllTargets[i]) == NULL)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 #endif // CONST_H
