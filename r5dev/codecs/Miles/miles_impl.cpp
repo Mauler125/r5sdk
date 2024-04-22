@@ -6,6 +6,7 @@
 #include "filesystem/filesystem.h"
 
 static ConVar miles_debug("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System", "1 = print; 0 (zero) = no print");
+static ConVar miles_warnings("miles_warnings", "0", FCVAR_RELEASE, "Enables warning prints for the Miles Sound System", "1 = print; 0 (zero) = no print");
 
 //-----------------------------------------------------------------------------
 // Purpose: logs debug output emitted from the Miles Sound System
@@ -40,7 +41,8 @@ bool Miles_Initialize()
 		// if we are loading english and the file is still not found, we can let it hit the regular engine error, since that is not recoverable
 		if (!FileSystem()->FileExists(baseStreamFilePath.c_str()))
 		{
-			Error(eDLL_T::AUDIO, NO_ERROR, "%s: attempted to load language '%s' but the required streaming source file (%s) was not found. falling back to english...\n", __FUNCTION__, pszLanguage, baseStreamFilePath.c_str());
+			Error(eDLL_T::AUDIO, NO_ERROR, "%s: attempted to load language '%s' but the required streaming source file (%s) was not found. falling back to '%s'...\n",
+				__FUNCTION__, pszLanguage, baseStreamFilePath.c_str(), MILES_DEFAULT_LANGUAGE);
 
 			pszLanguage = MILES_DEFAULT_LANGUAGE;
 			miles_language->SetValue(pszLanguage);
@@ -99,11 +101,14 @@ void CSOM_AddEventToQueue(const char* eventName)
 
 	v_CSOM_AddEventToQueue(eventName);
 
-	if (g_milesGlobals->queuedEventHash == 1)
-		Warning(eDLL_T::AUDIO, "%s: failed to add event to queue; invalid event name '%s'\n", __FUNCTION__, eventName);
+	if (miles_warnings.GetBool())
+	{
+		if (g_milesGlobals->queuedEventHash == 1)
+			Warning(eDLL_T::AUDIO, "%s: failed to add event to queue; invalid event name '%s'\n", __FUNCTION__, eventName);
 
-	if (g_milesGlobals->queuedEventHash == 2)
-		Warning(eDLL_T::AUDIO, "%s: failed to add event to queue; event '%s' not found.\n", __FUNCTION__, eventName);
+		if (g_milesGlobals->queuedEventHash == 2)
+			Warning(eDLL_T::AUDIO, "%s: failed to add event to queue; event '%s' not found.\n", __FUNCTION__, eventName);
+	}
 };
 
 
