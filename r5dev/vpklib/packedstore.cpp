@@ -35,9 +35,6 @@
 
 extern CFileSystem_Stdio* FileSystem();
 
-static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*)(?:_)(.*)(.bsp.pak000_dir).*)" };
-static const std::regex s_BlockFileRegex{ R"(pak000_([0-9]{3}))" };
-
 //-----------------------------------------------------------------------------
 // Purpose: gets the LZHAM compression level
 // output : lzham_compress_level
@@ -98,7 +95,7 @@ CUtlString PackedStore_GetDirBaseName(const CUtlString& dirFileName)
 	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
 
 	std::cmatch regexMatches;
-	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
+	std::regex_search(baseFileName, regexMatches, g_VpkDirFileRegex);
 
 	CUtlString result;
 	result.Format("%s_%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
@@ -117,7 +114,7 @@ CUtlString PackedStore_GetDirNameParts(const CUtlString& dirFileName, const int 
 	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
 
 	std::cmatch regexMatches;
-	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
+	std::regex_search(baseFileName, regexMatches, g_VpkDirFileRegex);
 
 	return regexMatches[nCaptureGroup].str().c_str();
 }
@@ -846,7 +843,7 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 	}
 
 	std::cmatch regexMatches;
-	std::regex_search(dirFilePath.String(), regexMatches, s_BlockFileRegex);
+	std::regex_search(dirFilePath.String(), regexMatches, g_VpkPackFileRegex);
 
 	if (regexMatches.empty()) // Not a block file, or not following the naming scheme.
 	{

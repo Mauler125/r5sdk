@@ -9,6 +9,7 @@
 #include "tier0/memstd.h"
 #include "tier0/jobthread.h"
 #include "tier1/fmtstr.h"
+#include "tier1/keyvalues.h"
 #include "tier2/fileutils.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
@@ -19,7 +20,7 @@
 #include "rtech/pak/paktools.h"
 #include "rtech/pak/pakstream.h"
 
-#include "tier1/keyvalues.h"
+#include "vpklib/packedstore.h"
 #include "datacache/mdlcache.h"
 #include "filesystem/filesystem.h"
 #ifndef DEDICATED
@@ -28,8 +29,6 @@
 
 CUtlVector<CUtlString> g_InstalledMaps;
 CFmtStrN<MAX_MAP_NAME> s_CurrentLevelName;
-
-static std::regex s_ArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 
 static CustomPakData_t s_customPakData;
 static KeyValues* s_pLevelSetKV = nullptr;
@@ -136,11 +135,11 @@ void Mod_GetAllInstalledMaps()
         // slash, as the files are loaded from 'vpk/'.
         Assert(pFileName);
 
-        std::regex_search(pFileName, regexMatches, s_ArchiveRegex);
+        std::regex_search(pFileName, regexMatches, g_VpkDirFileRegex);
 
         if (!regexMatches.empty())
         {
-            const std::sub_match<const char*>& match = regexMatches[1];
+            const std::sub_match<const char*>& match = regexMatches[2];
 
             if (match.compare("frontend") == 0)
                 continue; // Frontend contains no BSP's.
@@ -155,6 +154,7 @@ void Mod_GetAllInstalledMaps()
             else
             {
                 const string mapName = match.str();
+
                 if (!g_InstalledMaps.HasElement(mapName.c_str()))
                     g_InstalledMaps.AddToTail(mapName.c_str());
             }

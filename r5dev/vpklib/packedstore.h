@@ -27,6 +27,9 @@ constexpr int PACKFILEINDEX_SEP = 0x0;
 constexpr int PACKFILEINDEX_END = 0xffff;
 constexpr const char VPK_IGNORE_FILE[] = ".vpkignore";
 
+static const std::regex g_VpkDirFileRegex{ R"((?:.*\/)?([^_]*)(?:_)(.*)(.bsp.pak000_dir).*)" };
+static const std::regex g_VpkPackFileRegex{ R"(pak000_([0-9]{3}))" };
+
 //-----------------------------------------------------------------------------
 // KeyValues structure for the VPK manifest file. This struct gets populated by
 // the VPK's corresponding manifest file, which ultimately determines how each
