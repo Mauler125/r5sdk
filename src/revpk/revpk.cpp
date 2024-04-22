@@ -13,6 +13,8 @@
 #include "windows/console.h"
 #include "vpklib/packedstore.h"
 
+#include "public/const.h"
+#include "localize/ilocalize.h"
 #include "vstdlib/keyvaluessystem.h"
 #include "filesystem/filesystem_std.h"
 
@@ -83,8 +85,8 @@ static void ReVPK_Usage()
     usage.Format(
         "ReVPK instructions and options:\n"
         "For packing; run 'revpk %s' with the following parameters:\n"
-        "\t<%s>\t- locale prefix for the directory tree file\n"
-        "\t<%s>\t- context scope for the VPK files [\"server\", \"client\"]\n"
+        "\t<%s>\t- locale prefix for the directory file ( defaults to \"%s\" )\n"
+        "\t<%s>\t- context scope for the VPK files [\"%s\", \"%s\"]\n"
         "\t<%s>\t- level name for the VPK files\n"
         "\t<%s>\t- ( optional ) path to the workspace containing the manifest file\n"
         "\t<%s>\t- ( optional ) path in which the VPK files will be built\n"
@@ -92,12 +94,15 @@ static void ReVPK_Usage()
         "\t<%s>\t- ( optional ) the level of compression [\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"]\n\n"
 
         "For unpacking; run 'revpk %s' with the following parameters:\n"
-        "\t<%s>\t- path and name of the target directory tree or data block file\n"
+        "\t<%s>\t- path and name of the target VPK files\n"
         "\t<%s>\t- ( optional ) path in which the VPK files will be unpacked\n"
-        "\t<%s>\t- ( optional ) whether to parse the directory tree file name from the data block file name\n",
+        "\t<%s>\t- ( optional ) whether to parse the directory file name from the pack file name\n",
 
         PACK_COMMAND, // Pack parameters:
-        "locale", "context", "levelName", "workspacePath", "buildPath",
+        "locale", g_LanguageNames[0],
+        "context", g_GameDllTargets[0], g_GameDllTargets[1],
+        
+        "levelName", "workspacePath", "buildPath",
         
         "numThreads", // Num helper threads.
         -1, LZHAM_MAX_HELPER_THREADS, -1,
@@ -106,7 +111,7 @@ static void ReVPK_Usage()
         "fastest", "faster", "default", "better", "uber",
 
         UNPACK_COMMAND,// Unpack parameters:
-        "fileName", "inputDir", "sanitize"
+        "fileName", "outPath", "sanitize"
     );
 
     Warning(eDLL_T::FS, "%s", usage.Get());
@@ -173,7 +178,7 @@ static void ReVPK_Pack(const CCommand& args)
 
     // For clients, we need an enable file which the engine uses to determine
     // whether or not to mount the front-end VPK file.
-    if (V_strcmp(contextName, DIR_TARGET[EPackedStoreTargets::STORE_TARGET_CLIENT]) == NULL)
+    if (V_strcmp(contextName, g_GameDllTargets[EPackedStoreTargets::STORE_TARGET_CLIENT]) == NULL)
     {
         ReVPK_WriteEnableFile(buildPath);
     }
