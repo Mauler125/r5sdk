@@ -5,7 +5,7 @@
 #include "tier1/cvar.h"
 #include "filesystem/filesystem.h"
 
-static ConVar miles_debug("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System", "1 = print; 0 (zero) = no print");
+static ConVar miles_debug("miles_debug", "0", FCVAR_DEVELOPMENTONLY, "Enables debug prints for the Miles Sound System", "1 = print; 0 (zero) = no print");
 static ConVar miles_warnings("miles_warnings", "0", FCVAR_RELEASE, "Enables warning prints for the Miles Sound System", "1 = print; 0 (zero) = no print");
 
 //-----------------------------------------------------------------------------
@@ -29,16 +29,16 @@ bool Miles_Initialize()
 	if (!pszLanguage[0])
 		pszLanguage = MILES_DEFAULT_LANGUAGE;
 
-	const bool isEnglishLanguage = _stricmp(pszLanguage, "english") == 0;
+	const bool isDefaultLanguage = _stricmp(pszLanguage, MILES_DEFAULT_LANGUAGE) == 0;
 
-	if (!isEnglishLanguage)
+	if (!isDefaultLanguage)
 	{
 		const bool useShipSound = !CommandLine()->FindParm("-devsound") || CommandLine()->FindParm("-shipsound");
 
 		const std::string baseStreamFilePath = Format("%s/general_%s.mstr", useShipSound ? "audio/ship" : "audio/dev", pszLanguage);
 
-		// if the requested language for miles does not have a MSTR file present, throw a non-fatal error and force english as a fallback
-		// if we are loading english and the file is still not found, we can let it hit the regular engine error, since that is not recoverable
+		// if the requested language for miles does not have a MSTR file present, throw a non-fatal error and force MILES_DEFAULT_LANGUAGE as a fallback
+		// if we are loading MILES_DEFAULT_LANGUAGE and the file is still not found, we can let it hit the regular engine error, since that is not recoverable
 		if (!FileSystem()->FileExists(baseStreamFilePath.c_str()))
 		{
 			Error(eDLL_T::AUDIO, NO_ERROR, "%s: attempted to load language '%s' but the required streaming source file (%s) was not found. falling back to '%s'...\n",
@@ -84,7 +84,7 @@ void MilesBankPatch(Miles::Bank* bank, char* streamPatch, char* localizedStreamP
 
 	if (header->bankIndex >= header->project->bankCount)
 		Error(eDLL_T::AUDIO, EXIT_FAILURE,
-			"%s: Attempted to patch bank '%s' that identified itself as bank idx %i.\nProject expects a highest index of %i\n",
+			"%s: attempted to patch bank \"%s\" that identified itself as bank #%i, project expects a highest index of #%i\n",
 			__FUNCTION__,
 			bank->GetBankName(),
 			header->bankIndex,
