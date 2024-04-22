@@ -40,7 +40,10 @@ private:
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);
 	static void UpdateSDK(Forms::Control* pSender);
+
+	static void ReloadMaplists(Forms::Control* pSender);
 	static void ReloadPlaylists(Forms::Control* pSender);
+
 	static void VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
