@@ -1,0 +1,56 @@
+//////////////////////////////////////////////////////////////////////
+// R5Sdk netconsole protocol
+//////////////////////////////////////////////////////////////////////
+syntax = "proto3";
+package netcon;
+option optimize_for = LITE_RUNTIME;
+
+//////////////////////////////////////////////////////////////////////
+// Request from netconsole
+//////////////////////////////////////////////////////////////////////
+
+enum request_e
+{
+    SERVERDATA_REQUEST_EXECCOMMAND      = 0;
+    SERVERDATA_REQUEST_AUTH             = 1;
+    SERVERDATA_REQUEST_SEND_CONSOLE_LOG = 2;
+}
+
+message request
+{
+    optional int32     messageId   = 1;
+    optional int32     messageType = 2;
+    optional request_e requestType = 3;
+    optional string    requestMsg  = 4;
+    optional string    requestVal  = 5;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Response to netconsole
+//////////////////////////////////////////////////////////////////////
+
+enum response_e
+{
+    SERVERDATA_RESPONSE_AUTH        = 0;
+    SERVERDATA_RESPONSE_CONSOLE_LOG = 1;
+}
+
+message response
+{
+    optional int32      messageId    = 1;
+    optional int32      messageType  = 2;
+    optional response_e responseType = 3;
+    optional string     responseMsg  = 4;
+    optional string     responseVal  = 5;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Message envelope
+//////////////////////////////////////////////////////////////////////
+
+message envelope
+{
+    bool  encrypted = 1;
+    bytes nonce     = 2;
+    bytes data      = 3;
+}

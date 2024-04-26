@@ -23,6 +23,7 @@ add_sources( SOURCE_GROUP "Squirrel_RE/squirrel"
     "languages/squirrel_re/squirrel/sqstring.cpp"
     "languages/squirrel_re/squirrel/sqtable.cpp"
     "languages/squirrel_re/squirrel/sqmem.cpp"
+    "languages/squirrel_re/squirrel/sqstate.cpp"
     "languages/squirrel_re/squirrel/sqvm.cpp"
 )
 

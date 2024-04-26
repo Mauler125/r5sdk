@@ -10,6 +10,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "common/protocol.h"
+#include "tier0/frametask.h"
 #include "tier1/cvar.h"
 #include "tier1/strtools.h"
 #include "engine/server/sv_main.h"
@@ -25,10 +26,12 @@
 // Console variables
 //---------------------------------------------------------------------------------
 ConVar sv_showconnecting("sv_showconnecting", "1", FCVAR_RELEASE, "Logs information about the connecting client to the console");
-ConVar sv_globalBanlist("sv_globalBanlist", "1", FCVAR_RELEASE, "Determines whether or not to use the global banned list.", false, 0.f, false, 0.f, "0 = Disable, 1 = Enable.");
 
+ConVar sv_pylonVisibility("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", "0 = Offline, 1 = Hidden, 2 = Public.");
+ConVar sv_pylonRefreshRate("sv_pylonRefreshRate", "5.0", FCVAR_DEVELOPMENTONLY, "Pylon host refresh rate (seconds).");
+
+ConVar sv_globalBanlist("sv_globalBanlist", "1", FCVAR_RELEASE, "Determines whether or not to use the global banned list.", false, 0.f, false, 0.f, "0 = Disable, 1 = Enable.");
 ConVar sv_banlistRefreshRate("sv_banlistRefreshRate", "30.0", FCVAR_DEVELOPMENTONLY, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f);
-ConVar sv_statusRefreshRate("sv_statusRefreshRate", "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", true, 0.f, false, 0.f);
 
 static ConVar sv_validatePersonaName("sv_validatePersonaName", "1", FCVAR_RELEASE, "Validate the client's textual persona name on connect.");
 static ConVar sv_minPersonaNameLength("sv_minPersonaNameLength", "4", FCVAR_RELEASE, "The minimum length of the client's textual persona name.", true, 0.f, false, 0.f);
@@ -174,7 +177,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 
 	for (auto& callback : !g_PluginSystem.GetConnectClientCallbacks())
 	{
-		if (!callback(pServer, pClient, pChallenge))
+		if (!callback.Function()(pServer, pClient, pChallenge))
 		{
 			pClient->Disconnect(REP_MARK_BAD, "#Valve_Reject_Banned");
 			return nullptr;

@@ -35,9 +35,6 @@
 
 extern CFileSystem_Stdio* FileSystem();
 
-static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*)(?:_)(.*)(.bsp.pak000_dir).*)" };
-static const std::regex s_BlockFileRegex{ R"(pak000_([0-9]{3}))" };
-
 //-----------------------------------------------------------------------------
 // Purpose: gets the LZHAM compression level
 // output : lzham_compress_level
@@ -98,7 +95,7 @@ CUtlString PackedStore_GetDirBaseName(const CUtlString& dirFileName)
 	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
 
 	std::cmatch regexMatches;
-	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
+	std::regex_search(baseFileName, regexMatches, g_VpkDirFileRegex);
 
 	CUtlString result;
 	result.Format("%s_%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
@@ -117,7 +114,7 @@ CUtlString PackedStore_GetDirNameParts(const CUtlString& dirFileName, const int 
 	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
 
 	std::cmatch regexMatches;
-	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
+	std::regex_search(baseFileName, regexMatches, g_VpkDirFileRegex);
 
 	return regexMatches[nCaptureGroup].str().c_str();
 }
@@ -463,7 +460,7 @@ void CPackedStoreBuilder::PackStore(const VPKPair_t& vpkPair, const char* worksp
 		return;
 	}
 
-	std::unique_ptr<uint8_t[]> pEntryBuffer(new uint8_t[ENTRY_MAX_LEN]);
+	std::unique_ptr<uint8_t[]> pEntryBuffer(new uint8_t[VPK_ENTRY_MAX_LEN]);
 
 	if (!pEntryBuffer)
 	{
@@ -587,8 +584,8 @@ void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* worksp
 	workspacePath.AppendSlash();
 	workspacePath.FixSlashes('/');
 
-	std::unique_ptr<uint8_t[]> pDestBuffer(new uint8_t[ENTRY_MAX_LEN]);
-	std::unique_ptr<uint8_t[]> pSourceBuffer(new uint8_t[ENTRY_MAX_LEN]);
+	std::unique_ptr<uint8_t[]> pDestBuffer(new uint8_t[VPK_ENTRY_MAX_LEN]);
+	std::unique_ptr<uint8_t[]> pSourceBuffer(new uint8_t[VPK_ENTRY_MAX_LEN]);
 
 	if (!pDestBuffer || !pSourceBuffer)
 	{
@@ -652,7 +649,7 @@ void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* worksp
 					continue;
 				}
 
-				size_t nDstLen = ENTRY_MAX_LEN;
+				size_t nDstLen = VPK_ENTRY_MAX_LEN;
 				assert(fragment.m_nCompressedSize <= nDstLen);
 
 				if (fragment.m_nCompressedSize > nDstLen)
@@ -747,13 +744,13 @@ VPKEntryBlock_t::VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOff
 
 	m_EntryPath.FixSlashes('/');
 
-	size_t nFragmentCount = (nLen + ENTRY_MAX_LEN - 1) / ENTRY_MAX_LEN;
+	size_t nFragmentCount = (nLen + VPK_ENTRY_MAX_LEN - 1) / VPK_ENTRY_MAX_LEN;
 	size_t nFileSize = nLen;
 	int64_t nCurrentOffset = nOffset;
 
 	for (size_t i = 0; i < nFragmentCount; i++) // Fragment data into 1 MiB chunks.
 	{
-		size_t nSize = std::min<uint64_t>(ENTRY_MAX_LEN, nFileSize);
+		size_t nSize = std::min<uint64_t>(VPK_ENTRY_MAX_LEN, nFileSize);
 		nFileSize -= nSize;
 		m_Fragments.AddToTail(VPKChunkDescriptor_t(nLoadFlags, nTextureFlags, nCurrentOffset, nSize, nSize));
 		nCurrentOffset += nSize;
@@ -802,15 +799,7 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextur
 //-----------------------------------------------------------------------------
 VPKPair_t::VPKPair_t(const char* pLocale, const char* pTarget, const char* pLevel, int nPatch)
 {
-	bool bFoundLocale = false;
-
-	for (size_t i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); i++)
-	{
-		if (V_strcmp(pLocale, g_LanguageNames[i]) == NULL)
-		{
-			bFoundLocale = true;
-		}
-	}
+	const bool bFoundLocale = V_LocaleExists(pLocale);
 
 	if (!bFoundLocale)
 	{
@@ -818,20 +807,12 @@ VPKPair_t::VPKPair_t(const char* pLocale, const char* pTarget, const char* pLeve
 		pLocale = g_LanguageNames[0];
 	}
 
-	bool bFoundTarget = false;
-
-	for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_TARGET); i++)
-	{
-		if (V_strcmp(pTarget, DIR_TARGET[i]) == NULL)
-		{
-			bFoundTarget = true;
-		}
-	}
+	const bool bFoundTarget = V_GameTargetExists(pTarget);
 
 	if (!bFoundTarget)
 	{
-		Warning(eDLL_T::FS, "Target '%s' not supported; using default '%s'\n", pTarget, DIR_TARGET[STORE_TARGET_SERVER]);
-		pTarget = DIR_TARGET[STORE_TARGET_SERVER];
+		Warning(eDLL_T::FS, "Target '%s' not supported; using default '%s'\n", pTarget, g_GameDllTargets[STORE_TARGET_SERVER]);
+		pTarget = g_GameDllTargets[STORE_TARGET_SERVER];
 	}
 
 	m_PackName.Format("%s_%s.bsp.pak000_%03d.vpk", pTarget, pLevel, nPatch);
@@ -862,7 +843,7 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 	}
 
 	std::cmatch regexMatches;
-	std::regex_search(dirFilePath.String(), regexMatches, s_BlockFileRegex);
+	std::regex_search(dirFilePath.String(), regexMatches, g_VpkPackFileRegex);
 
 	if (regexMatches.empty()) // Not a block file, or not following the naming scheme.
 	{
@@ -902,9 +883,9 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 			CUtlString packDirToSearch;
 			packDirToSearch.Append(g_LanguageNames[i]);
 
-			for (size_t j = 0; j < SDK_ARRAYSIZE(DIR_TARGET); j++)
+			for (size_t j = 0; j < SDK_ARRAYSIZE(g_GameDllTargets); j++)
 			{
-				const char* targetName = DIR_TARGET[j];
+				const char* targetName = g_GameDllTargets[j];
 
 				if (sanitizedName.Find(targetName) != -1)
 				{

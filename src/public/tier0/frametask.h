@@ -4,8 +4,8 @@
 #include "public/iframetask.h"
 
 //=============================================================================//
-// This class is set up to run before each frame (main thread).
-// Committed tasks are scheduled to execute after 'i' frames.
+// This class is set up to run before each frame, committed tasks are scheduled
+// to execute after 'i' frames.
 // ----------------------------------------------------------------------------
 // A use case for scheduling tasks in the main thread would be (for example)
 // performing a web request in a separate thread, and apply the results (such as

@@ -12,7 +12,7 @@ namespace Forms
 	public:
 		// Begins running a standard application message loop on the current
 		// thread, and makes the specified form visible.
-		static void Run(Form* MainWindow);
+		static void Run(Form* MainWindow, bool DeleteWindow);
 
 		// Begins running a dialog application loop on the
 		// current thread, you MUST clean up the dialog after use.

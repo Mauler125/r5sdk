@@ -26,6 +26,10 @@ FORCEINLINE ECommandTarget_t Cbuf_GetCurrentPlayer(void)
 extern bool Cbuf_HasRoomForExecutionMarkers(const int cExecutionMarkers);
 extern bool Cbuf_AddTextWithMarkers(const char* text, const ECmdExecutionMarker markerLeft, const ECmdExecutionMarker markerRight);
 
+#ifndef CLIENT_DLL
+extern bool Cmd_ExecuteUnrestricted(const char* const pCommandString, const char* const pValueString);
+#endif // CLIENT_DLL
+
 /* ==== COMMAND_BUFFER ================================================================================================================================================== */
 inline void(*Cbuf_AddText)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource);
 inline void(*Cbuf_AddExecutionMarker)(ECommandTarget_t target, ECmdExecutionMarker marker);

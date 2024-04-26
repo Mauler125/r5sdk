@@ -44,6 +44,10 @@ struct CTether
 //-----------------------------------------------------------------------------
 class CBaseCombatCharacter : public CBaseAnimatingOverlay
 {
+public:
+	inline const char* GetNetName() const { return m_szNetname; };
+
+private:
 	bool m_bPreventWeaponPickup;
 	char gap_15b1[3];
 	float m_phaseShiftTimeStart;
@@ -146,5 +150,4 @@ class CBaseCombatCharacter : public CBaseAnimatingOverlay
 	int m_headAttachment;
 	int m_chestAttachment;
 };
-
 #endif // BASECOMBATCHARACTER_H

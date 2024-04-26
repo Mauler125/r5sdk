@@ -77,26 +77,26 @@ int Pak_FileExists(const char* const pakFilePath)
 //-----------------------------------------------------------------------------
 // returns pak status as string
 //-----------------------------------------------------------------------------
-const char* Pak_StatusToString(const EPakStatus status)
+const char* Pak_StatusToString(const PakStatus_e status)
 {
 	switch (status)
 	{
-	case EPakStatus::PAK_STATUS_FREED:                  return "PAK_STATUS_FREED";
-	case EPakStatus::PAK_STATUS_LOAD_PENDING:           return "PAK_STATUS_LOAD_PENDING";
-	case EPakStatus::PAK_STATUS_REPAK_RUNNING:          return "PAK_STATUS_REPAK_RUNNING";
-	case EPakStatus::PAK_STATUS_REPAK_DONE:             return "PAK_STATUS_REPAK_DONE";
-	case EPakStatus::PAK_STATUS_LOAD_STARTING:          return "PAK_STATUS_LOAD_STARTING";
-	case EPakStatus::PAK_STATUS_LOAD_PAKHDR:            return "PAK_STATUS_LOAD_PAKHDR";
-	case EPakStatus::PAK_STATUS_LOAD_PATCH_INIT:        return "PAK_STATUS_LOAD_PATCH_INIT";
-	case EPakStatus::PAK_STATUS_LOAD_PATCH_EDIT_STREAM: return "PAK_STATUS_LOAD_PATCH_EDIT_STREAM";
-	case EPakStatus::PAK_STATUS_LOAD_ASSETS:            return "PAK_STATUS_LOAD_ASSETS";
-	case EPakStatus::PAK_STATUS_LOADED:                 return "PAK_STATUS_LOADED";
-	case EPakStatus::PAK_STATUS_UNLOAD_PENDING:         return "PAK_STATUS_UNLOAD_PENDING";
-	case EPakStatus::PAK_STATUS_FREE_PENDING:           return "PAK_STATUS_FREE_PENDING";
-	case EPakStatus::PAK_STATUS_CANCELING:              return "PAK_STATUS_CANCELING";
-	case EPakStatus::PAK_STATUS_ERROR:                  return "PAK_STATUS_ERROR";
-	case EPakStatus::PAK_STATUS_INVALID_PAKHANDLE:      return "PAK_STATUS_INVALID_PAKHANDLE";
-	case EPakStatus::PAK_STATUS_BUSY:                   return "PAK_STATUS_BUSY";
+	case PakStatus_e::PAK_STATUS_FREED:                  return "PAK_STATUS_FREED";
+	case PakStatus_e::PAK_STATUS_LOAD_PENDING:           return "PAK_STATUS_LOAD_PENDING";
+	case PakStatus_e::PAK_STATUS_REPAK_RUNNING:          return "PAK_STATUS_REPAK_RUNNING";
+	case PakStatus_e::PAK_STATUS_REPAK_DONE:             return "PAK_STATUS_REPAK_DONE";
+	case PakStatus_e::PAK_STATUS_LOAD_STARTING:          return "PAK_STATUS_LOAD_STARTING";
+	case PakStatus_e::PAK_STATUS_LOAD_PAKHDR:            return "PAK_STATUS_LOAD_PAKHDR";
+	case PakStatus_e::PAK_STATUS_LOAD_PATCH_INIT:        return "PAK_STATUS_LOAD_PATCH_INIT";
+	case PakStatus_e::PAK_STATUS_LOAD_PATCH_EDIT_STREAM: return "PAK_STATUS_LOAD_PATCH_EDIT_STREAM";
+	case PakStatus_e::PAK_STATUS_LOAD_ASSETS:            return "PAK_STATUS_LOAD_ASSETS";
+	case PakStatus_e::PAK_STATUS_LOADED:                 return "PAK_STATUS_LOADED";
+	case PakStatus_e::PAK_STATUS_UNLOAD_PENDING:         return "PAK_STATUS_UNLOAD_PENDING";
+	case PakStatus_e::PAK_STATUS_FREE_PENDING:           return "PAK_STATUS_FREE_PENDING";
+	case PakStatus_e::PAK_STATUS_CANCELING:              return "PAK_STATUS_CANCELING";
+	case PakStatus_e::PAK_STATUS_ERROR:                  return "PAK_STATUS_ERROR";
+	case PakStatus_e::PAK_STATUS_INVALID_PAKHANDLE:      return "PAK_STATUS_INVALID_PAKHANDLE";
+	case PakStatus_e::PAK_STATUS_BUSY:                   return "PAK_STATUS_BUSY";
 	default:                                            return "PAK_STATUS_UNKNOWN";
 	}
 }
@@ -104,12 +104,12 @@ const char* Pak_StatusToString(const EPakStatus status)
 //-----------------------------------------------------------------------------
 // returns pak decoder as string
 //-----------------------------------------------------------------------------
-const char* Pak_DecoderToString(const EPakDecodeMode mode)
+const char* Pak_DecoderToString(const PakDecodeMode_e mode)
 {
 	switch (mode)
 	{
-	case EPakDecodeMode::MODE_RTECH: return "RTech";
-	case EPakDecodeMode::MODE_ZSTD: return "ZStd";
+	case PakDecodeMode_e::MODE_RTECH: return "RTech";
+	case PakDecodeMode_e::MODE_ZSTD: return "ZStd";
 	}
 
 	UNREACHABLE();
@@ -253,19 +253,19 @@ PakGuid_t Pak_StringToGuid(const char* const string)
 //-----------------------------------------------------------------------------
 // gets information about loaded pak file via pak id
 //-----------------------------------------------------------------------------
-PakLoadedInfo_t* Pak_GetPakInfo(const PakHandle_t pakId)
+PakLoadedInfo_s* Pak_GetPakInfo(const PakHandle_t pakId)
 {
-	return &g_pakGlobals->loadedPaks[pakId & PAK_MAX_HANDLES_MASK];
+	return &g_pakGlobals->loadedPaks[pakId & PAK_MAX_LOADED_PAKS_MASK];
 }
 
 //-----------------------------------------------------------------------------
 // gets information about loaded pak file via pak name
 //-----------------------------------------------------------------------------
-const PakLoadedInfo_t* Pak_GetPakInfo(const char* const pakName)
+const PakLoadedInfo_s* Pak_GetPakInfo(const char* const pakName)
 {
 	for (int16_t i = 0; i < g_pakGlobals->loadedPakCount; ++i)
 	{
-		const PakLoadedInfo_t* const info = &g_pakGlobals->loadedPaks[i];
+		const PakLoadedInfo_s* const info = &g_pakGlobals->loadedPaks[i];
 		if (!info)
 			continue;
 
@@ -285,27 +285,27 @@ const PakLoadedInfo_t* Pak_GetPakInfo(const char* const pakName)
 //-----------------------------------------------------------------------------
 // returns a pointer to the patch data header
 //-----------------------------------------------------------------------------
-PakPatchDataHeader_t* Pak_GetPatchDataHeader(PakFileHeader_t* const pakHeader)
+PakPatchDataHeader_s* Pak_GetPatchDataHeader(PakFileHeader_s* const pakHeader)
 {
 	// shouldn't be called if the pak doesn1't have patches!
 	assert(pakHeader->patchIndex > 0);
-	return reinterpret_cast<PakPatchDataHeader_t*>(reinterpret_cast<uint8_t* const>(pakHeader) + sizeof(PakFileHeader_t));
+	return reinterpret_cast<PakPatchDataHeader_s*>(reinterpret_cast<uint8_t* const>(pakHeader) + sizeof(PakFileHeader_s));
 }
 
 //-----------------------------------------------------------------------------
 // returns a pointer to the patch file header
 //-----------------------------------------------------------------------------
-PakPatchFileHeader_t* Pak_GetPatchFileHeader(PakFileHeader_t* const pakHeader, const int index)
+PakPatchFileHeader_s* Pak_GetPatchFileHeader(PakFileHeader_s* const pakHeader, const int index)
 {
 	assert(pakHeader->patchIndex > 0 && index < pakHeader->patchIndex);
 	uint8_t* address = reinterpret_cast<uint8_t* const>(pakHeader);
 
 	// skip the file header
-	address += sizeof(PakFileHeader_t);
+	address += sizeof(PakFileHeader_s);
 
 	// skip the patch data header, the patch file headers start from there
-	address += sizeof(PakPatchDataHeader_t);
-	PakPatchFileHeader_t* const patchHeaders = reinterpret_cast<PakPatchFileHeader_t* const>(address);
+	address += sizeof(PakPatchDataHeader_s);
+	PakPatchFileHeader_s* const patchHeaders = reinterpret_cast<PakPatchFileHeader_s* const>(address);
 
 	return &patchHeaders[index];
 }
@@ -313,13 +313,13 @@ PakPatchFileHeader_t* Pak_GetPatchFileHeader(PakFileHeader_t* const pakHeader, c
 //-----------------------------------------------------------------------------
 // returns the patch number belonging to the index provided
 //-----------------------------------------------------------------------------
-short Pak_GetPatchNumberForIndex(PakFileHeader_t* const pakHeader, const int index)
+short Pak_GetPatchNumberForIndex(PakFileHeader_s* const pakHeader, const int index)
 {
 	assert(pakHeader->patchIndex > 0 && index < pakHeader->patchIndex);
 	const uint8_t* patchHeader = reinterpret_cast<const uint8_t*>(Pak_GetPatchFileHeader(pakHeader, pakHeader->patchIndex - 1));
 
 	// skip the last patch file header, the patch number start from there
-	patchHeader += sizeof(PakPatchFileHeader_t);
+	patchHeader += sizeof(PakPatchFileHeader_s);
 	const short* patchNumber = reinterpret_cast<const short*>(patchHeader);
 
 	return patchNumber[index];
@@ -347,7 +347,7 @@ bool Pak_UpdatePatchHeaders(uint8_t* const inBuf, const char* const outPakFile)
 
 	// NOTE: we modify the in buffer as the patch headers belong to the
 	// compressed section
-	PakFileHeader_t* const inHeader = reinterpret_cast<PakFileHeader_t* const>(inBuf);
+	PakFileHeader_s* const inHeader = reinterpret_cast<PakFileHeader_s* const>(inBuf);
 
 	// update each patch header
 	for (uint16_t i = 0; i < inHeader->patchIndex; i++)
@@ -371,13 +371,13 @@ bool Pak_UpdatePatchHeaders(uint8_t* const inBuf, const char* const outPakFile)
 		const size_t fileSize = inPatch.GetSize();
 
 		// pak appears truncated
-		if (fileSize <= sizeof(PakFileHeader_t))
+		if (fileSize <= sizeof(PakFileHeader_s))
 			return false;
 
 		DevMsg(eDLL_T::RTECH, "%s: updating patch header for pak '%s', new size = %zu\n",
 			__FUNCTION__, patchFile, fileSize);
 
-		PakPatchFileHeader_t* const patchHeader = Pak_GetPatchFileHeader(inHeader, i);
+		PakPatchFileHeader_s* const patchHeader = Pak_GetPatchFileHeader(inHeader, i);
 		patchHeader->compressedSize = fileSize;
 	}
 
@@ -387,7 +387,7 @@ bool Pak_UpdatePatchHeaders(uint8_t* const inBuf, const char* const outPakFile)
 //-----------------------------------------------------------------------------
 // prints the pak header details to the console
 //-----------------------------------------------------------------------------
-void Pak_ShowHeaderDetails(const PakFileHeader_t* const pakHeader)
+void Pak_ShowHeaderDetails(const PakFileHeader_s* const pakHeader)
 {
 	SYSTEMTIME systemTime;
 	FileTimeToSystemTime(&pakHeader->fileTime, &systemTime);

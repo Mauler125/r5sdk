@@ -1,6 +1,4 @@
-﻿#ifndef PACKEDSTORE_H
-#define PACKEDSTORE_H
-/*******************************************************************
+﻿/*******************************************************************
 * ██████╗  ██╗    ██╗   ██╗██████╗ ██╗  ██╗    ██╗     ██╗██████╗  *
 * ██╔══██╗███║    ██║   ██║██╔══██╗██║ ██╔╝    ██║     ██║██╔══██╗ *
 * ██████╔╝╚██║    ██║   ██║██████╔╝█████╔╝     ██║     ██║██████╔╝ *
@@ -8,6 +6,10 @@
 * ██║  ██║ ██║     ╚████╔╝ ██║     ██║  ██╗    ███████╗██║██████╔╝ *
 * ╚═╝  ╚═╝ ╚═╝      ╚═══╝  ╚═╝     ╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝  *
 *******************************************************************/
+#ifndef PACKEDSTORE_H
+#define PACKEDSTORE_H
+
+#include "public/const.h"
 #include "public/ipackedstore.h"
 #include "public/ifilesystem.h"
 #include "public/tier1/strtools.h"
@@ -19,17 +21,14 @@ constexpr unsigned int VPK_HEADER_MARKER = 0x55AA1234;
 constexpr unsigned int VPK_MAJOR_VERSION = 2;
 constexpr unsigned int VPK_MINOR_VERSION = 3;
 constexpr unsigned int VPK_DICT_SIZE = 20;
-constexpr int ENTRY_MAX_LEN = 1024 * 1024;
+constexpr unsigned int VPK_ENTRY_MAX_LEN = 1024 * 1024;
 constexpr int PACKFILEPATCH_MAX = 512;
 constexpr int PACKFILEINDEX_SEP = 0x0;
 constexpr int PACKFILEINDEX_END = 0xffff;
 constexpr const char VPK_IGNORE_FILE[] = ".vpkignore";
 
-static const char* const DIR_TARGET[]
-{
-	"server",
-	"client"
-};
+static const std::regex g_VpkDirFileRegex{ R"((?:.*\/)?([^_]*)(?:_)(.*)(.bsp.pak000_dir).*)" };
+static const std::regex g_VpkPackFileRegex{ R"(pak000_([0-9]{3}))" };
 
 //-----------------------------------------------------------------------------
 // KeyValues structure for the VPK manifest file. This struct gets populated by
@@ -131,6 +130,15 @@ struct VPKDirHeader_t
 	uint16_t m_nMinorVersion;  // Vpk minor version.
 	uint32_t m_nDirectorySize; // Directory tree size.
 	uint32_t m_nSignatureSize; // Directory signature.
+
+	VPKDirHeader_t()
+	{
+		m_nHeaderMarker = 0;
+		m_nMajorVersion = 0;
+		m_nMinorVersion = 0;
+		m_nDirectorySize = 0;
+		m_nSignatureSize = 0;
+	}
 };
 
 //-----------------------------------------------------------------------------

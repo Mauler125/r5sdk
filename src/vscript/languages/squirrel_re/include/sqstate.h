@@ -13,6 +13,10 @@ struct RefTable {
 		SQUnsignedInteger refs;
 		struct RefNode* next;
 	};
+	void AddRef(SQObject& obj);
+	SQBool Release(SQObject& obj);
+
+	RefTable::RefNode* Get(SQObject& obj, SQHash& mainpos, RefNode** prev, bool add);
 private:
 	SQUnsignedInteger _numofslots;
 	SQUnsignedInteger _slotused;
@@ -71,13 +75,13 @@ struct SQBufState
 {
 	const SQChar* buf;
 	const SQChar* bufTail;
-	const SQChar* bufCopy;
+	const SQChar* bufPos;
 
 	SQBufState(const SQChar* code)
 	{
 		buf = code;
 		bufTail = code + strlen(code);
-		bufCopy = code;
+		bufPos = code;
 	}
 };
 #endif // SQSTATE_H

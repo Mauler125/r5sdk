@@ -259,7 +259,7 @@ bool CClient::Connect(const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 bool CClient::VConnect(CClient* pClient, const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 	CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize)
 {
-	return pClient->Connect(szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize);;
+	return pClient->Connect(szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize);
 }
 
 //---------------------------------------------------------------------------------
@@ -522,6 +522,48 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 #endif // !CLIENT_DLL
 
 	return true;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: set UserCmd time buffer
+// Input  : numUserCmdProcessTicksMax - 
+//			tickInterval - 
+//---------------------------------------------------------------------------------
+void CClientExtended::InitializeMovementTimeForUserCmdProcessing(const int numUserCmdProcessTicksMax, const float tickInterval)
+{
+	// Grant the client some time buffer to execute user commands
+	m_flMovementTimeForUserCmdProcessingRemaining += tickInterval;
+
+	// but never accumulate more than N ticks
+	if (m_flMovementTimeForUserCmdProcessingRemaining > numUserCmdProcessTicksMax * tickInterval)
+		m_flMovementTimeForUserCmdProcessingRemaining = numUserCmdProcessTicksMax * tickInterval;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: consume UserCmd time buffer
+// Input  : flTimeNeeded -
+// Output : max time allowed for processing
+//---------------------------------------------------------------------------------
+float CClientExtended::ConsumeMovementTimeForUserCmdProcessing(const float flTimeNeeded)
+{
+	if (m_flMovementTimeForUserCmdProcessingRemaining <= 0.0f)
+		return 0.0f;
+	else if (flTimeNeeded > m_flMovementTimeForUserCmdProcessingRemaining + FLT_EPSILON)
+	{
+		const float flResult = m_flMovementTimeForUserCmdProcessingRemaining;
+		m_flMovementTimeForUserCmdProcessingRemaining = 0.0f;
+
+		return flResult;
+	}
+	else
+	{
+		m_flMovementTimeForUserCmdProcessingRemaining -= flTimeNeeded;
+
+		if (m_flMovementTimeForUserCmdProcessingRemaining < 0.0f)
+			m_flMovementTimeForUserCmdProcessingRemaining = 0.0f;
+
+		return flTimeNeeded;
+	}
 }
 
 void VClient::Detour(const bool bAttach) const

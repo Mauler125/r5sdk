@@ -130,6 +130,11 @@ const char* GetProcessorBrand(bool bRemovePadding);
 
 const CPUInformation& GetCPUInformation(void);
 
+void CheckSystemCPUForSSE2();
+void CheckSystemCPUForSSE3();
+void CheckSystemCPUForSupplementalSSE3();
+void CheckSystemCPUForPopCount();
+
 void CheckSystemCPU();
 
 #endif // CPU_H

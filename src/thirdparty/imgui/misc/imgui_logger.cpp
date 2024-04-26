@@ -765,6 +765,7 @@ void CTextLogger::Render()
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
 	ImGuiWindow* const pWindow = ImGui::GetCurrentWindow();
+	const ImGuiStyle& style = ImGui::GetStyle();
 
 	const ImGuiID activeID = ImGui::GetActiveID();
 	const ImGuiID hoveredID = ImGui::GetHoveredID();
@@ -878,7 +879,8 @@ void CTextLogger::Render()
 	// This dummy is here to let Dear ImGui know where the last character of
 	// the line had ended, so that it could properly process the horizontal
 	// scrollbar
-	ImGui::Dummy(ImVec2((longest + 2), m_Lines.size() * m_CharAdvance.y));
+	const float additional = pWindow->ScrollbarY ? style.ScrollbarSize : 0.0f;
+	ImGui::Dummy(ImVec2(longest + additional, m_Lines.size() * m_CharAdvance.y));
 
 	m_bScrolledToStart = ImGui::GetScrollX() == 0.0f;
 

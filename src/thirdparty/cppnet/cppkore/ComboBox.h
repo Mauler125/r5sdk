@@ -134,11 +134,13 @@ namespace Forms
 		virtual void OnHandleCreated();
 		virtual void OnSelectedItemChanged();
 		virtual void OnSelectedIndexChanged();
+		virtual void OnDropDownOpened();
 		virtual void OnDropDownClosed();
 
 		// We must define event handlers here
 		EventBase<void(*)(Control*)> SelectedItemChanged;
 		EventBase<void(*)(Control*)> SelectedIndexChanged;
+		EventBase<void(*)(Control*)> DropDownOpened;
 		EventBase<void(*)(Control*)> DropDownClosed;
 
 		// Override WndProc for specific combo box messages.

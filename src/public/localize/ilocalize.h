@@ -73,4 +73,17 @@ inline const char* const g_LanguageNames[] = {
 	"polish",
 };
 
+inline bool V_LocaleExists(const char* const pLocale)
+{
+	for (size_t i = 0; i < V_ARRAYSIZE(g_LanguageNames); i++)
+	{
+		if (V_strcmp(pLocale, g_LanguageNames[i]) == NULL)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 #endif // LOCALIZE_H

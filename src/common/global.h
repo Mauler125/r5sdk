@@ -60,6 +60,7 @@ extern ConVar* sv_forceChatToTeamOnly;
 extern ConVar* sv_single_core_dedi;
 
 extern ConVar* sv_maxunlag;
+extern ConVar* sv_lagpushticks;
 extern ConVar* sv_clockcorrection_msecs;
 
 extern ConVar* sv_updaterate_sp;
@@ -72,7 +73,13 @@ extern ConVar* sv_voiceEcho;
 extern ConVar* sv_voiceenable;
 extern ConVar* sv_alltalk;
 
+extern ConVar* sv_clampPlayerFrameTime;
+
+extern ConVar* playerframetimekick_margin;
+extern ConVar* playerframetimekick_decayrate;
+
 extern ConVar* player_userCmdsQueueWarning;
+extern ConVar* player_disallow_negative_frametime;
 
 #endif // CLIENT_DLL
 extern ConVar* sv_cheats;

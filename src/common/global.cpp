@@ -72,8 +72,9 @@ ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_single_core_dedi                = nullptr;
 
-ConVar* sv_maxunlag = nullptr;
-ConVar* sv_clockcorrection_msecs = nullptr;
+ConVar* sv_maxunlag                        = nullptr;
+ConVar* sv_lagpushticks                    = nullptr;
+ConVar* sv_clockcorrection_msecs           = nullptr;
 
 ConVar* sv_updaterate_sp                   = nullptr;
 ConVar* sv_updaterate_mp                   = nullptr;
@@ -85,7 +86,13 @@ ConVar* sv_voiceEcho                       = nullptr;
 ConVar* sv_voiceenable                     = nullptr;
 ConVar* sv_alltalk                         = nullptr;
 
+ConVar* sv_clampPlayerFrameTime            = nullptr;
+
+ConVar* playerframetimekick_margin         = nullptr;
+ConVar* playerframetimekick_decayrate      = nullptr;
+
 ConVar* player_userCmdsQueueWarning        = nullptr;
+ConVar* player_disallow_negative_frametime = nullptr;
 
 #endif // !CLIENT_DLL
 ConVar* sv_cheats                          = nullptr;
@@ -196,6 +203,7 @@ void ConVar_InitShipped(void)
 	sv_stats = g_pCVar->FindVar("sv_stats");
 
 	sv_maxunlag = g_pCVar->FindVar("sv_maxunlag");
+	sv_lagpushticks = g_pCVar->FindVar("sv_lagpushticks");
 	sv_clockcorrection_msecs = g_pCVar->FindVar("sv_clockcorrection_msecs");
 
 	sv_updaterate_sp = g_pCVar->FindVar("sv_updaterate_sp");
@@ -209,7 +217,14 @@ void ConVar_InitShipped(void)
 	sv_voiceenable = g_pCVar->FindVar("sv_voiceenable");
 	sv_voiceEcho = g_pCVar->FindVar("sv_voiceEcho");
 	sv_alltalk = g_pCVar->FindVar("sv_alltalk");
+
+	sv_clampPlayerFrameTime = g_pCVar->FindVar("sv_clampPlayerFrameTime");
+
+	playerframetimekick_margin = g_pCVar->FindVar("playerframetimekick_margin");
+	playerframetimekick_decayrate = g_pCVar->FindVar("playerframetimekick_decayrate");
+
 	player_userCmdsQueueWarning = g_pCVar->FindVar("player_userCmdsQueueWarning");
+	player_disallow_negative_frametime = g_pCVar->FindVar("player_disallow_negative_frametime");
 
 	sv_updaterate_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	sv_updaterate_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
@@ -242,7 +257,6 @@ void ConVar_InitShipped(void)
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);
 	net_usesocketsforloopback->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-	net_usesocketsforloopback->InstallChangeCallback(NET_UseSocketsForLoopbackChanged_f, false);
 #ifndef DEDICATED
 	language_cvar->InstallChangeCallback(LanguageChanged_f, false);
 #endif // !DEDICATED

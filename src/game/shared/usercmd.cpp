@@ -27,8 +27,7 @@ int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from)
 	const int seed = v_ReadUserCmd(buf, move, from);
 
 	// Initialize the camera position as <0,0,0>, this should at least avoid
-	// crash and meme behaviors. Has not been tested yet unlike all the
-	// patches performed below.
+	// crash and meme behaviors.
 	if (!move->camerapos.IsValid())
 		move->camerapos.Init();
 

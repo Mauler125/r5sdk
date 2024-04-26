@@ -13,8 +13,12 @@ struct PluginHelpWithAnything_t
 
 	enum class ePluginCallback : int16_t
 	{
-		CModAppSystemGroup_Create = 0,
-		CServer_ConnectClient
+		// !! - WARNING: if any existing values are changed, you must increment INTERFACEVERSION_PLUGINSYSTEM - !! 
+
+		CModAppSystemGroup_Create  = 0,
+		CServer_ConnectClient      = 1,
+		SV_RegisterScriptFunctions = 2,
+		OnReceivedChatMessage      = 3,
 	};
 
 	ePluginHelp m_nHelpID;

@@ -18,14 +18,15 @@
 #include "engine/server/server.h"
 #include "game/shared/usercmd.h"
 #include "game/server/util_server.h"
+#include "pluginsystem/pluginsystem.h"
 
 //-----------------------------------------------------------------------------
 // This is called when a new game is started. (restart, map)
 //-----------------------------------------------------------------------------
-void CServerGameDLL::GameInit(void)
+bool CServerGameDLL::GameInit(void)
 {
 	const static int index = 1;
-	CallVFunc<void>(index, this);
+	return CallVFunc<bool>(index, this);
 }
 
 //-----------------------------------------------------------------------------
@@ -77,8 +78,39 @@ ServerClass* CServerGameDLL::GetAllServerClasses(void)
 	return CallVFunc<ServerClass*>(index, this);
 }
 
+static ConVar chat_debug("chat_debug", "0", FCVAR_RELEASE, "Enables chat-related debug printing.");
+
 void __fastcall CServerGameDLL::OnReceivedSayTextMessage(void* thisptr, int senderId, const char* text, bool isTeamChat)
 {
+	const CGlobalVars* globals = *g_pGlobals;
+	if (senderId > 0)
+	{
+		if (senderId <= globals->m_nMaxPlayers && senderId != 0xFFFF)
+		{
+			CPlayer* player = reinterpret_cast<CPlayer*>(globals->m_pEdicts[senderId + 30728]);
+
+			if (player && player->IsConnected())
+			{
+				for (auto& cb : !g_PluginSystem.GetChatMessageCallbacks())
+				{
+					if (!cb.Function()(player, text, sv_forceChatToTeamOnly->GetBool()))
+					{
+						if (chat_debug.GetBool())
+						{
+							char moduleName[MAX_PATH] = {};
+
+							V_UnicodeToUTF8(V_UnqualifiedFileName(cb.ModuleName()), moduleName, MAX_PATH);
+
+							Msg(eDLL_T::SERVER, "[%s] Plugin blocked chat message from '%s' (%llu): \"%s\"\n", moduleName, player->GetNetName(), player->GetPlatformUserId(), text);
+						}
+
+						return;
+					}
+				}
+			}
+		}
+	}
+
 	// set isTeamChat to false so that we can let the convar sv_forceChatToTeamOnly decide whether team chat should be enforced
 	// this isn't a great way of doing it but it works so meh
 	CServerGameDLL__OnReceivedSayTextMessage(thisptr, senderId, text, false);

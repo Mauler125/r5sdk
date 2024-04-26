@@ -20,6 +20,7 @@
 #include "engine/host_cmd.h"
 #include "engine/enginetrace.h"
 #ifndef CLIENT_DLL
+#include "engine/server/server.h"
 #include "engine/server/sv_main.h"
 #include "server/vengineserver_impl.h"
 #include "game/server/gameinterface.h"

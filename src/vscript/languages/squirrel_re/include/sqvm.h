@@ -20,6 +20,9 @@ struct SQVM : public CHAINABLE_OBJ
 {
 	void PrintObjVal(const SQObject* oin, SQObject* oout);
 
+	void Pop();
+	void Pop(SQInteger n);
+
 	// push sqobjectptr on to the stack
 	void Push(const SQObjectPtr& o);
 
@@ -59,6 +62,7 @@ static_assert(offsetof(SQVM, _top) == 0x78);
 static_assert(offsetof(SQVM, _nnativecalls) == 0x130);
 
 inline SQObjectPtr& stack_get(HSQUIRRELVM v, SQInteger idx) { return ((idx >= 0) ? (v->_stackbase[idx-1]) : (v->GetUp(idx))); }
+#define _ss(_vm_) (_vm_)->_sharedstate
 
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline SQRESULT(*v_SQVM_PrintFunc)(HSQUIRRELVM v, SQChar* fmt, ...);

@@ -2,13 +2,13 @@
 
 struct LogList_t
 {
-	LogList_t(const spdlog::level::level_enum nLevel, const string& svText)
+	LogList_t(const LogType_t nLevel, const string& svText)
 	{
 		m_nLevel = nLevel;
 		m_svText = svText;
 	}
 
-	spdlog::level::level_enum m_nLevel;
+	LogType_t m_nLevel;
 	string m_svText;
 };
 
@@ -22,8 +22,12 @@ public:
 	UIX::UIXListView* ConsoleListView() const { return m_ConsoleListView; };
 	std::vector<LogList_t> m_LogList;
 
-private:
 	void Init();
+	void AddLog(const LogType_t type, const char* const pszText);
+
+	eLaunchMode BuildParameter(string& svParameter);
+
+private:
 	void Setup();
 	void LoadSettings();
 	void SaveSettings();
@@ -36,15 +40,15 @@ private:
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);
 	static void UpdateSDK(Forms::Control* pSender);
+
+	static void ReloadMaplists(Forms::Control* pSender);
 	static void ReloadPlaylists(Forms::Control* pSender);
+
 	static void VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
 
-	const char* GetControlValue(Forms::Control* pControl);
 	uint64_t GetProcessorAffinity(string& szParameter);
-
-	eLaunchMode BuildParameter(string& svParameter);
 
 	void AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument = nullptr);
 	void AppendProcessorParameters(string& svParameter);

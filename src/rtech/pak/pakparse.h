@@ -11,22 +11,22 @@
 inline PakHandle_t(*v_Pak_Initialize)(int mode);
 
 inline PakHandle_t(*v_Pak_LoadAsync)(const char* fileName, CAlignedMemAlloc* allocator, int nIdx, bool bUnk);
-inline EPakStatus(*v_Pak_WaitAsync)(PakHandle_t handle, void* finishCallback);
+inline PakStatus_e(*v_Pak_WaitAsync)(PakHandle_t handle, void* finishCallback);
 inline void(*v_Pak_UnloadAsync)(PakHandle_t handle);
 inline void(*v_Pak_RegisterAsset)(int, int, const char*, void*, void*, void*, void*, int, int, uint32_t, int, int);
 
-inline bool(*v_Pak_StartLoadingPak)(PakLoadedInfo_t* loadedInfo);
-inline bool(*v_Pak_ProcessPakFile)(PakFile_t* const pak);
-inline bool(*v_Pak_ProcessAssets)(PakLoadedInfo_t* pakInfo);
-inline void(*v_Pak_ResolveAssetRelations)(PakFile_t* const pak, const PakAsset_t* const asset);
+inline bool(*v_Pak_StartLoadingPak)(PakLoadedInfo_s* loadedInfo);
+inline bool(*v_Pak_ProcessPakFile)(PakFile_s* const pak);
+inline bool(*v_Pak_ProcessAssets)(PakLoadedInfo_s* pakInfo);
+inline void(*v_Pak_ResolveAssetRelations)(PakFile_s* const pak, const PakAsset_s* const asset);
 
-inline void (*v_Pak_RunAssetLoadingJobs)(PakFile_t* pak);
-inline void (*Pak_ProcessAssetRelationsAndResolveDependencies)(PakFile_t* pak_arg, PakAsset_t* asset_arg, unsigned int asset_idx_arg, unsigned int a4);
+inline void (*v_Pak_RunAssetLoadingJobs)(PakFile_s* pak);
+inline void (*Pak_ProcessAssetRelationsAndResolveDependencies)(PakFile_s* pak_arg, PakAsset_s* asset_arg, unsigned int asset_idx_arg, unsigned int a4);
 
-inline int  (*Pak_TrackAsset)(PakFile_t* const a1, PakAsset_t* a2);
+inline int  (*Pak_TrackAsset)(PakFile_s* const a1, PakAsset_s* a2);
 
 // TODO: name these!
-inline void (*sub_14043D870)(PakLoadedInfo_t* a1, int a2);
+inline void (*sub_14043D870)(PakLoadedInfo_s* a1, int a2);
 
 ///////////////////////////////////////////////////////////////////////////////
 class V_PakParse : public IDetour

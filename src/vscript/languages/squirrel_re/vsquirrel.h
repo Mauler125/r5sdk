@@ -25,11 +25,14 @@ public:
 	SQRESULT RegisterFunction(const SQChar* scriptname, const SQChar* nativename, const SQChar* helpstring, const SQChar* returntype, const SQChar* parameters, void* functor);
 	SQRESULT RegisterConstant(const SQChar* name, SQInteger value);
 
-	bool ExecuteCodeCallback(const SQChar* const callbackName);
-
 	FORCEINLINE HSQUIRRELVM GetVM() const { return m_hVM; }
 	FORCEINLINE SQCONTEXT GetContext() const { return m_iContext; }
 	FORCEINLINE eDLL_T GetNativeContext() const { return (eDLL_T)GetContext(); }
+
+	bool Run(const SQChar* const script);
+
+	ScriptStatus_t ExecuteFunction(HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope);
+	bool ExecuteCodeCallback(const SQChar* const name);
 
 private:
 	bool unk_00;
@@ -78,7 +81,9 @@ inline bool(*CSquirrelVM__PrecompileClientScripts)(CSquirrelVM* vm, SQCONTEXT co
 #ifndef CLIENT_DLL
 inline bool(*CSquirrelVM__PrecompileServerScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
 #endif
+inline ScriptStatus_t(*CSquirrelVM__ExecuteFunction)(CSquirrelVM* s, HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope);
 inline bool(*CSquirrelVM__ExecuteCodeCallback)(CSquirrelVM* s, const SQChar* callbackName);
+
 inline bool(*CSquirrelVM__ThrowError)(CSquirrelVM* vm, HSQUIRRELVM v);
 
 #ifndef CLIENT_DLL
@@ -136,6 +141,7 @@ class VSquirrel : public IDetour
 #ifndef DEDICATED
 		LogFunAdr("CSquirrelVM::PrecompileClientScripts", CSquirrelVM__PrecompileClientScripts);
 #endif // !DEDICATED
+		LogFunAdr("CSquirrelVM::ExecuteFunction", CSquirrelVM__ExecuteFunction);
 		LogFunAdr("CSquirrelVM::ExecuteCodeCallback", CSquirrelVM__ExecuteCodeCallback);
 		LogFunAdr("CSquirrelVM::ThrowError", CSquirrelVM__ThrowError);
 	}
@@ -155,6 +161,7 @@ class VSquirrel : public IDetour
 		// cl/ui scripts.rson compiling
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 44 0F B6 F0 48 85 DB").FollowNearCallSelf().GetPtr(CSquirrelVM__PrecompileClientScripts);
 #endif
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 83 FB 5C").FollowNearCallSelf().GetPtr(CSquirrelVM__ExecuteFunction);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? C6 47 1C 01").FollowNearCallSelf().GetPtr(CSquirrelVM__ExecuteCodeCallback);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? BB ?? ?? ?? ?? 8B C3").FollowNearCallSelf().GetPtr(CSquirrelVM__ThrowError);
 	}

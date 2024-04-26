@@ -3,8 +3,8 @@
 
 namespace Drawing
 {
-	Font::Font(HWND Handle, const HFONT hFont)
-		: _Handle(Handle), _NativeFont(hFont), _OwnsFont(false)
+	Font::Font(HWND Handle, const HFONT hFont, const bool OwnsFont)
+		: _Handle(Handle), _NativeFont(hFont), _OwnsFont(OwnsFont)
 	{
 	}
 
