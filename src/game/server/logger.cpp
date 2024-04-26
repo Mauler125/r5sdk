@@ -31,6 +31,7 @@
 #include <cctype>
 #include <condition_variable>
 #include <future>
+#include <networksystem/hostmanager.h>
 
 
 //-----------------------------------------------------------------------------
@@ -45,19 +46,19 @@ LOGGER::Logger* LOGGER::pMkosLogger = nullptr;
 const std::string SERVER_V = "rc_2.4.5";
 const std::string API_KEY = "Kfvtu2TSNKQ7S2pP"; //public
 constexpr const char* R5RDEV_CONFIG = "r5rdev_config.json";
-const std::string STATS_API = "https://r5r.dev/api/stats5.php";
+const std::string STATS_API = "https://r5r.dev/api/stats6.php";
 
 //-----------------------------------------------------------------------------
 // string manipulation split function
 //-----------------------------------------------------------------------------
 
-std::vector<std::string> split(const std::string& str, char delimiter) 
+std::vector<std::string> split(const std::string& str, char delimiter)
 {
     std::vector<std::string> result;
     size_t start = 0;
     size_t end = str.find(delimiter);
 
-    while (end != std::string::npos) 
+    while (end != std::string::npos)
     {
         result.push_back(str.substr(start, end - start));
         start = end + 1;
@@ -69,13 +70,37 @@ std::vector<std::string> split(const std::string& str, char delimiter)
 }
 
 
+//-----------------------------------------------------------------------------
+// Safely access non-dedi data
+//-----------------------------------------------------------------------------
+
+enum ServerData
+{
+    HOST_NAME,
+    HOST_DESCRIPTION,
+    HOST_PLAYLIST,
+};
+
+std::string GetLocalServerData( ServerData dataType )
+{
+    //why is there no auto lock for this?
+    const NetGameServer_t& server = g_ServerHostManager.GetDetails();
+
+    switch (dataType)
+    {
+        case HOST_NAME: return server.name;
+        case HOST_DESCRIPTION:return server.description;
+        case HOST_PLAYLIST: return server.playlist;  
+        default: return "";
+    }
+}
 
 
 //-----------------------------------------------------------------------------
 // string manipulation sanitize function
 //-----------------------------------------------------------------------------
 
-std::string SanitizeString(const std::string & input) 
+std::string SanitizeString(const std::string& input)
 {
     //appropriate
     auto isDisallowed = [](unsigned char c) {
@@ -91,8 +116,8 @@ std::string SanitizeString(const std::string & input)
 
 
 
-namespace LOGGER 
-{   
+namespace LOGGER
+{
 
     std::unordered_map<std::string, std::string> g_configMap;
     std::shared_timed_mutex g_configMapMutex;
@@ -103,9 +128,9 @@ namespace LOGGER
     //-----------------------------------------------------------------------------
 
 
-    void CleanupLogs(IFileSystem* pFileSystem) 
+    void CleanupLogs(IFileSystem* pFileSystem)
     {
-        if (pFileSystem == nullptr) 
+        if (pFileSystem == nullptr)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "FileSystem pointer is null\n");
             return;
@@ -124,13 +149,13 @@ namespace LOGGER
             DEL_ALL = (strcmp(delete_all, "true") == 0);
         }
 
-        if (!subDir) 
+        if (!subDir)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Attempted to load an invalid setting value.\n");
             return;
         }
 
-        if (!pFileSystem->IsDirectory(subDir, "PLATFORM")) 
+        if (!pFileSystem->IsDirectory(subDir, "PLATFORM"))
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Directory does not exist: %s\n", subDir);
             return;
@@ -157,9 +182,9 @@ namespace LOGGER
 
         const char* fn = pFileSystem->FindFirstEx(searchPath, "PLATFORM", &findHandle);
 
-        while (fn != nullptr) 
+        while (fn != nullptr)
         {
-            if (!pFileSystem->FindIsDirectory(findHandle)) 
+            if (!pFileSystem->FindIsDirectory(findHandle))
             {
                 FileInfo info;
                 info.fullPath = std::string(subDir) + "/" + fn;
@@ -177,61 +202,61 @@ namespace LOGGER
             return a.fileTime < b.fileTime;
             });
 
-        for (const auto& fileInfo : fileInfos) 
+        for (const auto& fileInfo : fileInfos)
         {
-            if ( !DEL_ALL && dirSize <= sv_maxdir_size_t * 1024 * 1024)
+            if (!DEL_ALL && dirSize <= sv_maxdir_size_t * 1024 * 1024)
             {
                 break;
             }
 
             pFileSystem->RemoveFile(fileInfo.fullPath.c_str(), "PLATFORM");
             dirSize -= fileInfo.fileSize;
-            DevMsg(eDLL_T::SERVER, "Removing log: %s\n", fileInfo.fullPath.c_str());
+            Msg(eDLL_T::SERVER, "Removing log: %s\n", fileInfo.fullPath.c_str());
         }
 
-        DevMsg(eDLL_T::SERVER, "Final statlog directory size: %zd bytes\n", dirSize);
+        Msg(eDLL_T::SERVER, "Final statlog directory size: %zd bytes\n", dirSize);
     }
 
 
 
 
-    void AddToConfigMap(const rapidjson::Value& value, const std::string& parentKey = "", int depth = 0) 
+    void AddToConfigMap(const rapidjson::Value& value, const std::string& parentKey = "", int depth = 0)
     {
-        if (depth > 30) 
-        { 
+        if (depth > 30)
+        {
             Error(eDLL_T::SERVER, NO_ERROR, "Object depth exceeded allocated recursion limit.. \n");
             return;
         }
 
-        for (rapidjson::Value::ConstMemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) 
+        for (rapidjson::Value::ConstMemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr)
         {
             std::string key = parentKey.empty() ? itr->name.GetString() : parentKey + "." + itr->name.GetString();
 
-            if (itr->value.IsObject()) 
+            if (itr->value.IsObject())
             {
                 AddToConfigMap(itr->value, key, depth + 1);
             }
-            else 
+            else
             {
                 std::string valueStr;
-                if (itr->value.IsString()) 
+                if (itr->value.IsString())
                 {
                     valueStr = itr->value.GetString();
                 }
-                else if (itr->value.IsInt()) 
+                else if (itr->value.IsInt())
                 {
                     valueStr = std::to_string(itr->value.GetInt());
                 }
-                else if (itr->value.IsBool()) 
+                else if (itr->value.IsBool())
                 {
                     valueStr = itr->value.GetBool() ? "true" : "false";
                 }
-                else if (itr->value.IsDouble()) 
+                else if (itr->value.IsDouble())
                 {
                     valueStr = std::to_string(itr->value.GetDouble());
                 }
 
-                if (!valueStr.empty()) 
+                if (!valueStr.empty())
                 {
                     std::lock_guard<std::shared_timed_mutex> lock(g_configMapMutex);
                     g_configMap[key] = valueStr;
@@ -243,8 +268,8 @@ namespace LOGGER
 
 
 
-    void LoadConfig(IFileSystem* pFileSystem, const char* configFileName) 
-    {   
+    void LoadConfig(IFileSystem* pFileSystem, const char* configFileName)
+    {
         if (!configFileName)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Error in [LoadConfig] : configFileName was nullptr \n");
@@ -260,7 +285,7 @@ namespace LOGGER
         FileHandle_t configFile = pFileSystem->Open(configFileName, "rt");
         if (!configFile)
         {
-            DevMsg(eDLL_T::SERVER, "Failed to open config file: %s\n", configFileName);
+            Msg(eDLL_T::SERVER, "Failed to open config file: %s\n", configFileName);
             return;
         }
 
@@ -269,30 +294,30 @@ namespace LOGGER
         ssize_t bytesRead = pFileSystem->Read(buffer.get(), fileLength, configFile);
         pFileSystem->Close(configFile);
 
-        buffer[bytesRead] = '\0'; 
+        buffer[bytesRead] = '\0';
 
         rapidjson::Document document;
         if (document.Parse(buffer.get()).HasParseError())
         {
-            DevMsg(eDLL_T::SERVER, "JSON parse error: %s\n", rapidjson::GetParseError_En(document.GetParseError()));
+            Error(eDLL_T::SERVER, NO_ERROR, "JSON parse error: %s\n", rapidjson::GetParseError_En(document.GetParseError()));
             return;
         }
 
-        if (document.IsObject()) 
+        if (document.IsObject())
         {
             AddToConfigMap(document);
-            DevMsg(eDLL_T::SERVER, "Loaded R5R.DEV config file: %s \n", configFileName);
+            Msg(eDLL_T::SERVER, "Loaded R5R.DEV config file: %s \n", configFileName);
         }
         else
         {
-            DevMsg(eDLL_T::SERVER, "Failed to load stats config file: File was not a valid json object. \n");
+            Error(eDLL_T::SERVER, NO_ERROR, "Failed to load stats config file: File was not a valid json object. \n");
         }
     }
 
 
 
     // get setting value by key
-    const char* GetSetting(const char*key)
+    const char* GetSetting(const char* key)
     {
         if (!key)
         {
@@ -303,7 +328,7 @@ namespace LOGGER
         std::shared_lock<std::shared_timed_mutex> lock(g_configMapMutex);
         std::unordered_map<std::string, std::string>::const_iterator itr = g_configMap.find(key);
 
-        if (itr != g_configMap.end()) 
+        if (itr != g_configMap.end())
         {
             return itr->second.c_str();
         }
@@ -330,45 +355,45 @@ namespace LOGGER
     // class CURLConnectionPool
     //-----------------------------------------------------------------------------
 
-    CURLConnectionPool::CURLConnectionPool() 
-    { 
-        ResetPool(); 
+    CURLConnectionPool::CURLConnectionPool()
+    {
+        ResetPool();
 
-        for (int i = 0; i < 5; ++i) 
+        for (int i = 0; i < 5; ++i)
         {
             CURL* handle = curl_easy_init();
-            if (handle) 
+            if (handle)
             {
                 curl_easy_setopt(handle, CURLOPT_TCP_NODELAY, 1L);
                 curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1L);
                 pool.push(handle);
             }
-            else 
+            else
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to initialize CURL handle. \n");
             }
         }
     }
 
-    CURLConnectionPool& CURLConnectionPool::GetInstance() 
+    CURLConnectionPool& CURLConnectionPool::GetInstance()
     {
         static CURLConnectionPool instance;
         return instance;
     }
 
-    CURL* CURLConnectionPool::GetHandle() 
+    CURL* CURLConnectionPool::GetHandle()
     {
         std::unique_lock<std::mutex> lock(poolMutex);
 
-        while (pool.empty()) 
+        while (pool.empty())
         {
-            if (!poolCond.wait_for(lock, handleWaitTimeout, [this] { return !pool.empty(); })) 
+            if (!poolCond.wait_for(lock, handleWaitTimeout, [this] { return !pool.empty(); }))
             {
-                if (pool.size() < maxPoolSize) 
+                if (pool.size() < maxPoolSize)
                 {
                     return CreateHandle();
                 }
-                else 
+                else
                 {
                     Error(eDLL_T::SERVER, NO_ERROR, "Timeout waiting for CURL handle and pool is full. \n");
                     return nullptr;
@@ -382,16 +407,16 @@ namespace LOGGER
         return handle;
     }
 
-    CURL* CURLConnectionPool::CreateHandle() 
+    CURL* CURLConnectionPool::CreateHandle()
     {
         CURL* handle = curl_easy_init();
 
-        if (handle) 
+        if (handle)
         {
             curl_easy_setopt(handle, CURLOPT_TCP_NODELAY, 1L);
             curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1L);
         }
-        else 
+        else
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Failed to initialize CURL handle. \n");
         }
@@ -400,12 +425,12 @@ namespace LOGGER
     }
 
     bool CURLConnectionPool::HandleCurlResult(CURL* handle, CURLcode res, const char* func)
-    {    
-        if (res == CURLE_OK) 
+    {
+        if (res == CURLE_OK)
         {
             return true;
         }
-        else 
+        else
         {
             Error(eDLL_T::SERVER, NO_ERROR, "CURL failed in [%s] : %s\n", func, curl_easy_strerror(res));
 
@@ -434,23 +459,23 @@ namespace LOGGER
         return false;
     }
 
-    void CURLConnectionPool::ReturnHandle(CURL* handle) 
+    void CURLConnectionPool::ReturnHandle(CURL* handle)
     {
         std::lock_guard<std::mutex> lock(poolMutex);
-        if (handle && pool.size() < maxPoolSize) 
+        if (handle && pool.size() < maxPoolSize)
         {
             curl_easy_reset(handle);
             pool.push(handle);
             poolCond.notify_one();
         }
-        else 
+        else
         {
-            if (handle) 
+            if (handle)
             {
-                DevMsg(eDLL_T::SERVER, ":: Handle discarded as pool is full \n");
+                //DevMsg(eDLL_T::SERVER, ":: Handle discarded as pool is full \n");
                 curl_easy_cleanup(handle);
             }
-            else 
+            else
             {
                 handle = nullptr;
                 Error(eDLL_T::SERVER, NO_ERROR, "Attempted to return a null CURL handle to the pool. \n");
@@ -461,16 +486,16 @@ namespace LOGGER
     void CURLConnectionPool::DiscardHandle(CURL* handle)
     {
         std::lock_guard<std::mutex> lock(poolMutex);
-        if (handle) 
+        if (handle)
         {
             curl_easy_cleanup(handle);
         }
     }
 
-    void CURLConnectionPool::ResetPool() 
+    void CURLConnectionPool::ResetPool()
     {
         std::lock_guard<std::mutex> lock(poolMutex);
-        while (!pool.empty()) 
+        while (!pool.empty())
         {
             curl_easy_cleanup(pool.front());
             pool.pop();
@@ -480,7 +505,7 @@ namespace LOGGER
 
 
 
-    CURLConnectionPool::~CURLConnectionPool() 
+    CURLConnectionPool::~CURLConnectionPool()
     {
         ResetPool();
     }
@@ -490,9 +515,9 @@ namespace LOGGER
 
 
     //UTILITY
-    int64_t GetMaxLogfileSize(const char* settingValue) 
+    int64_t GetMaxLogfileSize(const char* settingValue)
     {
-        if (!settingValue) 
+        if (!settingValue)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Max log file size setting is empty.\n");
             return -1;
@@ -514,7 +539,7 @@ namespace LOGGER
 
 
     std::string LOGGER::GetEndingMatchID()
-    {    
+    {
         return std::to_string(last_match_id.load());
     }
 
@@ -529,7 +554,7 @@ namespace LOGGER
 
 
 
-    std::string LOGGER::replace_all(std::string str, const std::string& from, const std::string& to) 
+    std::string LOGGER::replace_all(std::string str, const std::string& from, const std::string& to)
     {
         size_t start_pos = 0;
         while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
@@ -561,7 +586,7 @@ namespace LOGGER
 
 
 
-    size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp) 
+    size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp)
     {
         size_t totalSize = size * nmemb;
         userp->append((char*)contents, totalSize);
@@ -576,11 +601,11 @@ namespace LOGGER
     //////////////////
 
 
-    std::atomic<bool> stop_tasks_flag{false};
+    std::atomic<bool> stop_tasks_flag{ false };
     std::queue<std::function<void()>> taskQueue;
 
 
-    TaskManager& TaskManager::getInstance() 
+    TaskManager& TaskManager::getInstance()
     {
         static TaskManager instance;
         return instance;
@@ -589,7 +614,7 @@ namespace LOGGER
 
 
 
-    TaskManager::TaskManager() 
+    TaskManager::TaskManager()
     {
         StartWorkerThread();
     }
@@ -597,7 +622,7 @@ namespace LOGGER
 
 
 
-    TaskManager::~TaskManager() 
+    TaskManager::~TaskManager()
     {
         StopWorkerThread();
     }
@@ -605,12 +630,12 @@ namespace LOGGER
 
 
 
-    void TaskManager::StopWorkerThread() 
+    void TaskManager::StopWorkerThread()
     {
         stop_tasks_flag = true;
         condVar.notify_one();
 
-        if (workerThread.joinable()) 
+        if (workerThread.joinable())
         {
             workerThread.join();
         }
@@ -619,7 +644,7 @@ namespace LOGGER
 
 
 
-    void TaskManager::StartWorkerThread() 
+    void TaskManager::StartWorkerThread()
     {
         workerThread = std::thread(&TaskManager::ProcessTasks, this);
     }
@@ -627,7 +652,7 @@ namespace LOGGER
 
 
 
-    void TaskManager::AddTask(const std::function<void()>& task) 
+    void TaskManager::AddTask(const std::function<void()>& task)
     {
         std::lock_guard<std::mutex> lock(queueMutex);
         taskQueue.push(task);
@@ -638,9 +663,9 @@ namespace LOGGER
 
 
     //keeps map lean by removing map slot for player after assignment in squirrel
-    void LOGGER::TaskManager::ResetPlayerStats(const char* player_oid) 
+    void LOGGER::TaskManager::ResetPlayerStats(const char* player_oid)
     {
-        if (player_oid == nullptr || std::strlen(player_oid) == 0) 
+        if (player_oid == nullptr || std::strlen(player_oid) == 0)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "ResetPlayerStats called with empty or null player_oid. \n");
             return;
@@ -648,18 +673,18 @@ namespace LOGGER
 
         std::string playerOidStr(player_oid);
 
-        std::function<void()> task = [playerOidStr]() 
+        std::function<void()> task = [playerOidStr]()
             {
                 std::unique_lock<std::shared_timed_mutex> lock(statsMutex, std::defer_lock);
-                if (lock.try_lock_for(std::chrono::milliseconds(10000))) 
+                if (lock.try_lock_for(std::chrono::milliseconds(10000)))
                 {
                     std::unordered_map<std::string, std::string>::iterator it = playerStatsMap.find(playerOidStr);
-                    if (it != playerStatsMap.end()) 
+                    if (it != playerStatsMap.end())
                     {
                         playerStatsMap.erase(it);
                     }
                 }
-                else 
+                else
                 {
                     Error(eDLL_T::SERVER, NO_ERROR, "Could not aquire lock to remove player slot in map. \n");
                 }
@@ -671,37 +696,37 @@ namespace LOGGER
 
 
 
-    void TaskManager::ProcessTasks() 
+    void TaskManager::ProcessTasks()
     {
-       
-        while (true) 
+
+        while (true)
         {
             std::function<void()> task;
             bool execute = false;
 
-            { 
+            {
                 std::unique_lock<std::mutex> lock(queueMutex);
                 condVar.wait(lock, [this] { return stop_tasks_flag || !taskQueue.empty(); });
 
                 if (stop_tasks_flag && taskQueue.empty())
-                {   
+                {
                     lock.unlock();
                     break; //compiler lies
                 }
-   
+
                 task = taskQueue.front();
                 taskQueue.pop();
                 execute = true;
 
-            } 
+            }
 
-            if (execute) 
+            if (execute)
             {
                 try {
                     task();
                 }
                 catch (const std::exception& e) {
-             
+
                     Error(eDLL_T::SERVER, NO_ERROR, "Exception in ProcessTasks: %s \n", e.what());
                 }
                 catch (...) {
@@ -709,17 +734,17 @@ namespace LOGGER
                     Error(eDLL_T::SERVER, NO_ERROR, "Unknown exception in ProcessTasks \n");
                 }
             }
-        }   
+        }
     }
 
 
 
 
-   //////////////////////////////
-   /// STAT FUNCTIONS FOR SQVM ///////////////////////////////////////////////////////////
-   //////////////////////////////
+    //////////////////////////////
+    /// STAT FUNCTIONS FOR SQVM ///////////////////////////////////////////////////////////
+    //////////////////////////////
 
-    //input: oid, output: player stats if available in the playerstatsmap comma separated string
+     //input: oid, output: player stats if available in the playerstatsmap comma separated string
     const char* GetKDString(const char* player_oid)
     {
         if (!player_oid)
@@ -750,9 +775,9 @@ namespace LOGGER
 
 
 
- /*********************************
- /     API PLAYER STATS
- /********************************/
+    /*********************************
+    /     API PLAYER STATS
+    /********************************/
 
     //called by TaskManager::LoadBatchKDStrings
     std::string FetchBatchPlayerStats(const std::vector<std::string>& player_oids)
@@ -805,7 +830,7 @@ namespace LOGGER
         } while (retry < max_attempts);
 
 
-        bool check = CURLConnectionPool::GetInstance().HandleCurlResult(easy_handle,res,"FetchBatchPlayerStats");
+        bool check = CURLConnectionPool::GetInstance().HandleCurlResult(easy_handle, res, "FetchBatchPlayerStats");
 
         return check == true ? readBuffer : "NA";
     }
@@ -816,86 +841,86 @@ namespace LOGGER
     //input: string of comma separated oids; fetches from api and sets playerstatsmap foreach as oid->kills,deaths,superglides
     void TaskManager::LoadBatchKDStrings(const std::string& player_oids_str)
     {
-        AddTask([player_oids_str, this]() 
-        {
-            if (player_oids_str.empty())
+        AddTask([player_oids_str, this]()
             {
-                Error(eDLL_T::SERVER, NO_ERROR, "Error in [LoadBatchKDStrings] : player_oids_str was empty \n");
-                return;
-            }
-
-            std::vector<std::string> player_oids = split(player_oids_str, ',');
-
-            std::string stats_json = FetchBatchPlayerStats(player_oids);
-
-            rapidjson::Document document;
-            if (document.Parse(stats_json.c_str()).HasParseError()) 
-            {
-                Error(eDLL_T::SERVER, NO_ERROR, "JSON parsing failed: %s\n",
-                    rapidjson::GetParseError_En(document.GetParseError()));
-                return;
-            }
-
-            if (!document.IsObject()) 
-            {
-                Error(eDLL_T::SERVER, NO_ERROR, "JSON root is not an object\n");
-                return;
-            }
-
-            for (rapidjson::Value::ConstMemberIterator itr = document.MemberBegin(); itr != document.MemberEnd(); ++itr) 
-            {
-                std::string player_oid = itr->name.GetString();
-
-                if (!itr->value.IsObject()) continue;
-
-                const rapidjson::Value& player_stats = itr->value;
-                std::string stats_str;
-                if (player_stats.HasMember("kills") && player_stats["kills"].IsInt() &&
-                    player_stats.HasMember("deaths") && player_stats["deaths"].IsInt() &&
-                    player_stats.HasMember("superglides") && player_stats["superglides"].IsInt() &&
-                    player_stats.HasMember("playtime") && player_stats["playtime"].IsInt() &&
-                    player_stats.HasMember("total_matches") && player_stats["total_matches"].IsInt() &&
-                    player_stats.HasMember("score") && player_stats["total_matches"].IsInt()
-                    ) 
+                if (player_oids_str.empty())
                 {
-                    stats_str = std::to_string(player_stats["kills"].GetInt()) + "," +
-                    std::to_string(player_stats["deaths"].GetInt()) + "," +
-                    std::to_string(player_stats["superglides"].GetInt()) + "," + 
-                    std::to_string(player_stats["playtime"].GetInt()) + "," +
-                    std::to_string(player_stats["total_matches"].GetInt()) + "," +
-                    std::to_string(player_stats["score"].GetInt());
-                }
-                else
-                {
-                    Error(eDLL_T::SERVER, NO_ERROR, "LoadBatchKDStrings contained invaliid object members for: %s\n", player_oid.c_str());
-                    stats_str = "0,0,0,0,0,0";
+                    Error(eDLL_T::SERVER, NO_ERROR, "Error in [LoadBatchKDStrings] : player_oids_str was empty \n");
+                    return;
                 }
 
-                if (player_stats.HasMember("settings") && player_stats["settings"].IsObject()) 
+                std::vector<std::string> player_oids = split(player_oids_str, ',');
+
+                std::string stats_json = FetchBatchPlayerStats(player_oids);
+
+                rapidjson::Document document;
+                if (document.Parse(stats_json.c_str()).HasParseError())
                 {
-                    const rapidjson::Value& settings = player_stats["settings"];
-                    for (rapidjson::Value::ConstMemberIterator m = settings.MemberBegin(); m != settings.MemberEnd(); ++m) 
+                    Error(eDLL_T::SERVER, NO_ERROR, "JSON parsing failed: %s\n",
+                        rapidjson::GetParseError_En(document.GetParseError()));
+                    return;
+                }
+
+                if (!document.IsObject())
+                {
+                    Error(eDLL_T::SERVER, NO_ERROR, "JSON root is not an object\n");
+                    return;
+                }
+
+                for (rapidjson::Value::ConstMemberIterator itr = document.MemberBegin(); itr != document.MemberEnd(); ++itr)
+                {
+                    std::string player_oid = itr->name.GetString();
+
+                    if (!itr->value.IsObject()) continue;
+
+                    const rapidjson::Value& player_stats = itr->value;
+                    std::string stats_str;
+                    if (player_stats.HasMember("kills") && player_stats["kills"].IsInt() &&
+                        player_stats.HasMember("deaths") && player_stats["deaths"].IsInt() &&
+                        player_stats.HasMember("superglides") && player_stats["superglides"].IsInt() &&
+                        player_stats.HasMember("playtime") && player_stats["playtime"].IsInt() &&
+                        player_stats.HasMember("total_matches") && player_stats["total_matches"].IsInt() &&
+                        player_stats.HasMember("score") && player_stats["total_matches"].IsInt()
+                        )
                     {
-                        // appended as key:value
-                        stats_str += "," + std::string(m->name.GetString()) + ":" + std::string(m->value.GetString());
+                        stats_str = std::to_string(player_stats["kills"].GetInt()) + "," +
+                            std::to_string(player_stats["deaths"].GetInt()) + "," +
+                            std::to_string(player_stats["superglides"].GetInt()) + "," +
+                            std::to_string(player_stats["playtime"].GetInt()) + "," +
+                            std::to_string(player_stats["total_matches"].GetInt()) + "," +
+                            std::to_string(player_stats["score"].GetInt());
                     }
-                }
+                    else
+                    {
+                        Error(eDLL_T::SERVER, NO_ERROR, "LoadBatchKDStrings contained invaliid object members for: %s\n", player_oid.c_str());
+                        stats_str = "0,0,0,0,0,0";
+                    }
 
-                bool has_lock = false;
-                std::unique_lock<std::shared_timed_mutex> lock(statsMutex, std::defer_lock);
-                if (lock.try_lock_for(std::chrono::milliseconds(3000))) 
-                {
-                    playerStatsMap[player_oid] = stats_str;
-                    has_lock = true;
-                }
+                    if (player_stats.HasMember("settings") && player_stats["settings"].IsObject())
+                    {
+                        const rapidjson::Value& settings = player_stats["settings"];
+                        for (rapidjson::Value::ConstMemberIterator m = settings.MemberBegin(); m != settings.MemberEnd(); ++m)
+                        {
+                            // appended as key:value
+                            stats_str += "," + std::string(m->name.GetString()) + ":" + std::string(m->value.GetString());
+                        }
+                    }
 
-                if (!has_lock) 
-                {
-                    Error(eDLL_T::SERVER, NO_ERROR, "failed to aquire lock to write player stats into map\n");
-                }
+                    bool has_lock = false;
+                    std::unique_lock<std::shared_timed_mutex> lock(statsMutex, std::defer_lock);
+                    if (lock.try_lock_for(std::chrono::milliseconds(3000)))
+                    {
+                        playerStatsMap[player_oid] = stats_str;
+                        has_lock = true;
+                    }
 
-            }
-        });
+                    if (!has_lock)
+                    {
+                        Error(eDLL_T::SERVER, NO_ERROR, "failed to aquire lock to write player stats into map\n");
+                    }
+
+                }
+            });
     }
 
 
@@ -912,7 +937,7 @@ namespace LOGGER
 
         CURL* easy_handle = CURLConnectionPool::GetInstance().GetHandle();
 
-        if (!easy_handle) 
+        if (!easy_handle)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Failed to acquire curl handle from pool\n");
             return "NA";
@@ -951,25 +976,25 @@ namespace LOGGER
 
         std::string playerOidStr(player_oid);
 
-        AddTask([playerOidStr, this]() 
-        {
-
-            std::string stats = FetchPlayerStats(playerOidStr.c_str());
-            
-            bool has_lock = false;
-            std::unique_lock<std::shared_timed_mutex> lock(statsMutex, std::defer_lock);
-            if (lock.try_lock_for(std::chrono::milliseconds(3000))) 
+        AddTask([playerOidStr, this]()
             {
-                playerStatsMap[playerOidStr] = stats;
-                has_lock = true;
-            }
 
-            if (!has_lock) 
-            {
-                Error(eDLL_T::SERVER, NO_ERROR, "failed to aquire lock to write player stats into map for: %s\n", playerOidStr.c_str());
-            }
+                std::string stats = FetchPlayerStats(playerOidStr.c_str());
 
-        });
+                bool has_lock = false;
+                std::unique_lock<std::shared_timed_mutex> lock(statsMutex, std::defer_lock);
+                if (lock.try_lock_for(std::chrono::milliseconds(3000)))
+                {
+                    playerStatsMap[playerOidStr] = stats;
+                    has_lock = true;
+                }
+
+                if (!has_lock)
+                {
+                    Error(eDLL_T::SERVER, NO_ERROR, "failed to aquire lock to write player stats into map for: %s\n", playerOidStr.c_str());
+                }
+
+            });
     }
 
 
@@ -980,8 +1005,8 @@ namespace LOGGER
     /********************************/
 
     //separate thread
-    void RunUpdateLiveStats(std::string stats_json_copy ) 
-    {   
+    void RunUpdateLiveStats(std::string stats_json_copy)
+    {
         const char* stats_json = stats_json_copy.c_str();
 
         if (!stats_json)
@@ -1004,8 +1029,8 @@ namespace LOGGER
 
         rapidjson::Document stats;
         stats.Parse(stats_json);
-        if (stats.HasParseError()) 
-        {   
+        if (stats.HasParseError())
+        {
             size_t offset = stats.GetErrorOffset();
             Error(eDLL_T::SERVER, NO_ERROR, "[RunUpdateLiveStats] Failed to parse stats JSON at offset %zu: %s\n", offset, rapidjson::GetParseError_En(stats.GetParseError()));
             return;
@@ -1013,7 +1038,7 @@ namespace LOGGER
 
         std::string uniquekey = SanitizeString(GetSetting("uniquekey"));
         std::string identifier = SanitizeString(GetSetting("identifier"));
-        std::string serverName = ::IsDedicated() ? hostname->GetString() : g_pServerListManager->m_Server.m_svHostName;
+        std::string serverName = ::IsDedicated() ? hostname->GetString() : GetLocalServerData( HOST_NAME );
 
         doc.AddMember("stats", stats, allocator);
         doc.AddMember("servername", rapidjson::Value(serverName.c_str(), allocator), allocator);
@@ -1048,16 +1073,16 @@ namespace LOGGER
 
     //used to keep livestats up to date for matchmaking
     void UpdateLiveStats(std::string stats_json)
-    {   
+    {
         if (stats_json.empty())
         {
             Error(eDLL_T::SERVER, NO_ERROR, "[UpdateLiveStats] failed: stats_json empty\n");
             return;
         }
-        
+
         std::thread updateLiveStatsThread([stats_json]() {
             RunUpdateLiveStats(stats_json);
-        });
+            });
 
         updateLiveStatsThread.detach();
     }
@@ -1085,10 +1110,10 @@ namespace LOGGER
             Error(eDLL_T::SERVER, NO_ERROR, "Failed to acquire curl handle from pool\n");
             return;
         }
-        
+
 
         std::string postData = "servername=";
-        postData += ::IsDedicated() ? hostname->GetString() : g_pServerListManager->m_Server.m_svHostName;
+        postData += ::IsDedicated() ? hostname->GetString() : GetLocalServerData(HOST_NAME);
         postData += "&action=";
         postData += action;
         postData += "&player_name=";
@@ -1112,17 +1137,17 @@ namespace LOGGER
         CURLConnectionPool::GetInstance().HandleCurlResult(curl, res, "PlayerCountUpdate");
     }
 
-     //needs re worked - dont allow setting discord hooks in playlist file
-    // Sends join/leave data to api for various use. replace DISCORD_HOOK with internal r5r.dev functions via string starting with __apicall_ 
+    //needs re worked - dont allow setting discord hooks in playlist file
+   // Sends join/leave data to api for various use. replace DISCORD_HOOK with internal r5r.dev functions via string starting with __apicall_ 
     void UPDATE_PLAYER_COUNT(const char* action, const char* player, const char* OID, const char* count, const char* DISCORD_HOOK)
     {
 
-        if ( !action || !player || !OID || !count || !DISCORD_HOOK )
+        if (!action || !player || !OID || !count || !DISCORD_HOOK)
         {
             return;
         }
 
-        if ( strcmp(DISCORD_HOOK, "") == 0)
+        if (strcmp(DISCORD_HOOK, "") == 0)
         {
             DISCORD_HOOK = GetSetting("webhooks.PLAYERS_WEBHOOK");
         }
@@ -1139,7 +1164,7 @@ namespace LOGGER
    /       API END GAME UPDATES
    /********************************/
 
-    //by ref
+   //by ref
     void EndMatchUpdate(std::string recap, std::string discord_hook)
     {
 
@@ -1159,7 +1184,7 @@ namespace LOGGER
         if (discord_hook.empty())
         {
             discord_hook = std::string(GetSetting("webhooks.MATCHES_WEBHOOK"));
-        } 
+        }
 
         LOGGER::Logger& logger = LOGGER::Logger::getInstance();
 
@@ -1172,7 +1197,7 @@ namespace LOGGER
             return;
         }
 
-        const std::string serverName = ::IsDedicated() ? hostname->GetString() : g_pServerListManager->m_Server.m_svHostName;
+        const std::string serverName = ::IsDedicated() ? hostname->GetString() : GetLocalServerData(HOST_NAME);
 
         size_t recap_len = recap.length();
         if (recap_len > static_cast<size_t>(INT_MAX))
@@ -1223,7 +1248,7 @@ namespace LOGGER
     void NOTIFY_END_OF_MATCH(const char* recap, const char* DISCORD_HOOK)
     {
 
-        if ( !recap || !DISCORD_HOOK )
+        if (!recap || !DISCORD_HOOK)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Error in [NOTIFY_END_OF_MATCH] : recap or DISCORD_HOOK was nullptr");
             return;
@@ -1285,7 +1310,7 @@ namespace LOGGER
         Warning(eDLL_T::SERVER, "Response for %s: %s\n", ea_name.c_str(), readBuffer.c_str());
 
         return check == true ? readBuffer : "8";
-    
+
     }
 
 
@@ -1313,7 +1338,7 @@ namespace LOGGER
             return "";
         }
 
-  
+
         std::string identifier = SanitizeString(GetSetting("identifier"));
         std::string postfields = "KEY=" + API_KEY + "&query=" + query + "&identifier=" + identifier;
 
@@ -1330,136 +1355,136 @@ namespace LOGGER
 
         return check == true ? readBuffer : "";
     }
-        
 
-   
 
-   //////////////////////////////
-   /// ENCRYPTION OBJECT ///////////////////////////////////////////////////////////
-   //////////////////////////////
+
+
+    //////////////////////////////
+    /// ENCRYPTION OBJECT ///////////////////////////////////////////////////////////
+    //////////////////////////////
 
 
     const std::string LOGGER::Encryption::base64_chars =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz"
-            "0123456789+/";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz"
+        "0123456789+/";
 
 
 
 
-        // created with eObj && only encryption bool true
-        std::vector<uint8_t> LOGGER::Encryption::hex2bytes(const std::string& hex) {
-            if (hex.length() % 2 != 0) {
-                throw std::invalid_argument("Hex string has an odd length");
-            }
-
-            std::vector<uint8_t> bytes;
-
-            for (unsigned int i = 0; i < hex.length(); i += 2) {
-                std::string byteString = hex.substr(i, 2);
-                char* end;
-                long byte = std::strtol(byteString.c_str(), &end, 16);
-
-                if (*end != '\0' || byte < 0 || byte > 0xFF) {
-                    throw std::invalid_argument("Invalid hex value: " + byteString);
-                }
-
-                bytes.push_back(static_cast<uint8_t>(byte));
-            }
-
-            return bytes;
+    // created with eObj && only encryption bool true
+    std::vector<uint8_t> LOGGER::Encryption::hex2bytes(const std::string& hex) {
+        if (hex.length() % 2 != 0) {
+            throw std::invalid_argument("Hex string has an odd length");
         }
 
+        std::vector<uint8_t> bytes;
 
+        for (unsigned int i = 0; i < hex.length(); i += 2) {
+            std::string byteString = hex.substr(i, 2);
+            char* end;
+            long byte = std::strtol(byteString.c_str(), &end, 16);
 
-
-        // created with eObj && only encryption bool true
-        std::string LOGGER::Encryption::bbase64Encode(std::vector<uint8_t> bytes_to_encode) {
-            std::string ret;
-            int i = 0;
-            int j = 0;
-            uint8_t char_array_3[3] = { 0 };
-            uint8_t char_array_4[4] = { 0 };
-
-            for (unsigned int in_len = 0; in_len < bytes_to_encode.size(); ++in_len) {
-                char_array_3[i++] = bytes_to_encode[in_len];
-                if (i == 3) {
-                    char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-                    char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-                    char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-                    char_array_4[3] = char_array_3[2] & 0x3f;
-
-                    for (i = 0; (i < 4); i++)
-                        ret += base64_chars[char_array_4[i]];
-                    i = 0;
-                }
+            if (*end != '\0' || byte < 0 || byte > 0xFF) {
+                throw std::invalid_argument("Invalid hex value: " + byteString);
             }
 
-            if (i) {
-                for (j = i; j < 3; j++)
-                    char_array_3[j] = '\0';
+            bytes.push_back(static_cast<uint8_t>(byte));
+        }
 
+        return bytes;
+    }
+
+
+
+
+    // created with eObj && only encryption bool true
+    std::string LOGGER::Encryption::bbase64Encode(std::vector<uint8_t> bytes_to_encode) {
+        std::string ret;
+        int i = 0;
+        int j = 0;
+        uint8_t char_array_3[3] = { 0 };
+        uint8_t char_array_4[4] = { 0 };
+
+        for (unsigned int in_len = 0; in_len < bytes_to_encode.size(); ++in_len) {
+            char_array_3[i++] = bytes_to_encode[in_len];
+            if (i == 3) {
                 char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
                 char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
                 char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
                 char_array_4[3] = char_array_3[2] & 0x3f;
 
-                for (j = 0; (j < i + 1); j++)
-                    ret += base64_chars[char_array_4[j]];
-
-                while ((i++ < 3))
-                    ret += '=';
+                for (i = 0; (i < 4); i++)
+                    ret += base64_chars[char_array_4[i]];
+                i = 0;
             }
-
-            return ret;
         }
 
+        if (i) {
+            for (j = i; j < 3; j++)
+                char_array_3[j] = '\0';
 
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
 
-        // created with eObj && only encryption bool true
-        std::string LOGGER::Encryption::doEncrypt(const std::string& plainText, const std::vector<uint8_t>& keyBytes, const std::vector<uint8_t>& ivBytes) {
-            // PKCS7 padding
-            std::vector<uint8_t> plainTextBytes(plainText.begin(), plainText.end());
-            size_t length = plainTextBytes.size();
-            size_t padded_length = length + AES_BLOCKLEN - length % AES_BLOCKLEN;
-            plainTextBytes.resize(padded_length);
+            for (j = 0; (j < i + 1); j++)
+                ret += base64_chars[char_array_4[j]];
 
-            int padding = static_cast<int>(padded_length - length);
-            for (int i = 0; i < padding; i++) {
-                plainTextBytes[length + i] = static_cast<uint8_t>(padding);
-            }
-
-            // encrypt - initialize here
-            struct AES_ctx ctx;
-
-            AES_init_ctx_iv(&ctx, keyBytes.data(), ivBytes.data());
-            if (padded_length > UINT32_MAX) {
-                throw std::runtime_error("padded_length is too large to be safely cast to uint32_t");
-            }
-            
-            AES_CBC_encrypt_buffer(&ctx, plainTextBytes.data(), static_cast<uint32_t>(padded_length));
-
-            // convert to base64
-            std::string cipherTextBase64 = bbase64Encode(plainTextBytes);
-
-            return cipherTextBase64;
+            while ((i++ < 3))
+                ret += '=';
         }
 
+        return ret;
+    }
 
 
 
-     //////////////////////////////
-     /// LOGGER OBJECT ///////////////////////////////////////////////////////////
-     //////////////////////////////
+    // created with eObj && only encryption bool true
+    std::string LOGGER::Encryption::doEncrypt(const std::string& plainText, const std::vector<uint8_t>& keyBytes, const std::vector<uint8_t>& ivBytes) {
+        // PKCS7 padding
+        std::vector<uint8_t> plainTextBytes(plainText.begin(), plainText.end());
+        size_t length = plainTextBytes.size();
+        size_t padded_length = length + AES_BLOCKLEN - length % AES_BLOCKLEN;
+        plainTextBytes.resize(padded_length);
+
+        int padding = static_cast<int>(padded_length - length);
+        for (int i = 0; i < padding; i++) {
+            plainTextBytes[length + i] = static_cast<uint8_t>(padding);
+        }
+
+        // encrypt - initialize here
+        struct AES_ctx ctx;
+
+        AES_init_ctx_iv(&ctx, keyBytes.data(), ivBytes.data());
+        if (padded_length > UINT32_MAX) {
+            throw std::runtime_error("padded_length is too large to be safely cast to uint32_t");
+        }
+
+        AES_CBC_encrypt_buffer(&ctx, plainTextBytes.data(), static_cast<uint32_t>(padded_length));
+
+        // convert to base64
+        std::string cipherTextBase64 = bbase64Encode(plainTextBytes);
+
+        return cipherTextBase64;
+    }
 
 
-    /*********************************
-    /     Logger instance
-    /********************************/
 
-    // constructor
+
+    //////////////////////////////
+    /// LOGGER OBJECT ///////////////////////////////////////////////////////////
+    //////////////////////////////
+
+
+   /*********************************
+   /     Logger instance
+   /********************************/
+
+   // constructor
     Logger::Logger() : filePath("")
-    {   
+    {
         if (FileSystem() != nullptr)
         {
             LoadConfig(FileSystem(), R5RDEV_CONFIG);
@@ -1468,7 +1493,7 @@ namespace LOGGER
         {
             Error(eDLL_T::SERVER, NOERROR, "INIT balls");
         }
-        
+
         keyHex = this->eObj.hex2bytes("c7abf6c3574e60bb7e8c2945ff21ec53");
         ivHex = this->eObj.hex2bytes("ac6fe374229715e475928b70ab53648e");
         setLogState(LogState::Busy, false);
@@ -1489,7 +1514,7 @@ namespace LOGGER
                 Error(eDLL_T::SERVER, NO_ERROR, "Invalid data for setting CVAR_MAX_BUFFER\n");
             }
         }
-        
+
         if (!sleeptime.empty())
         {
             try
@@ -1508,13 +1533,13 @@ namespace LOGGER
     }
 
     // destructor 
-    Logger::~Logger() 
+    Logger::~Logger()
     {
         stopLoggingThread();
     }
 
     // one instance only
-    Logger& Logger::getInstance() 
+    Logger& Logger::getInstance()
     {
         static Logger instance;
         pMkosLogger = &instance;
@@ -1559,10 +1584,10 @@ namespace LOGGER
     {
         switch (flag)
         {
-            case 1: return Logger::LogState::Ready;
-            case 2: return Logger::LogState::Busy;
-            case 3: return Logger::LogState::Safe;
-            default: return Logger::LogState::None;
+        case 1: return Logger::LogState::Ready;
+        case 2: return Logger::LogState::Busy;
+        case 3: return Logger::LogState::Safe;
+        default: return Logger::LogState::None;
         }
     }
 
@@ -1587,8 +1612,8 @@ namespace LOGGER
 
 
 
-    std::string LOGGER::Logger::GetLatestFile(const std::string& directoryPath,std::string matchID = "") 
-    {   
+    std::string LOGGER::Logger::GetLatestFile(const std::string& directoryPath, std::string matchID = "")
+    {
         if (directoryPath.empty())
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Error [INTERNAL] :[GetLatestFile] : empty.\n");
@@ -1610,7 +1635,7 @@ namespace LOGGER
                 return "";
             }
         }
-        
+
         Error(eDLL_T::SERVER, NO_ERROR, "MatchID was empty.\n");
         return "";
     }
@@ -1619,7 +1644,7 @@ namespace LOGGER
 
 
     // function to split a string
-    std::vector<std::string> LOGGER::Logger::splitString(std::string str, const std::string& delimiter) 
+    std::vector<std::string> LOGGER::Logger::splitString(std::string str, const std::string& delimiter)
     {
         std::vector<std::string> lines;
         size_t pos = 0;
@@ -1635,7 +1660,7 @@ namespace LOGGER
 
 
 
-    
+
     //atomic
     bool Logger::isLogging()
     {
@@ -1650,7 +1675,7 @@ namespace LOGGER
 
     // ship to stats server
     void LOGGER::Logger::sendLogToAPI()
-    {   
+    {
         std::string matchID = GetEndingMatchID();
 
         if (matchID.empty() || matchID == "0")
@@ -1686,24 +1711,24 @@ namespace LOGGER
                 return;
             }
         }
-        
+
         CURL* curl = CURLConnectionPool::GetInstance().GetHandle();
 
-        if (!curl) 
+        if (!curl)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Failed to acquire curl handle from pool\n");
             return;
         }
 
-        DevMsg(eDLL_T::SERVER, "Curl initialized...\n");
+        //DevMsg(eDLL_T::SERVER, "Curl initialized...\n");
         curl_easy_setopt(curl, CURLOPT_URL, "https://r5r.dev/api/tracker.php");
-    
-        std::string serverName = ::IsDedicated() ? hostname->GetString() : g_pServerListManager->m_Server.m_svHostName;
+
+        std::string serverName = ::IsDedicated() ? hostname->GetString() : GetLocalServerData(HOST_NAME);
         std::string serverMap = g_pHostState->m_levelName;
-        std::string gameType = KeyValues_GetCurrentPlaylist();
+        std::string gameType = GetLocalServerData(HOST_PLAYLIST);
         std::string identifier = GetSetting("identifier");
         std::string uniquekey = GetSetting("apikey");
-        
+
         if (SanitizeString(identifier).empty())
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Invalid characters in identifier. \n");
@@ -1714,9 +1739,9 @@ namespace LOGGER
             Error(eDLL_T::SERVER, NO_ERROR, "Invalid characters in uniquekey. \n");
         }
 
-        DevMsg(eDLL_T::SERVER, "Server name: %s \n", serverName.c_str());
-        DevMsg(eDLL_T::SERVER, "Server map: %s \n", serverMap.c_str());
-        DevMsg(eDLL_T::SERVER, "MatchID to ship: %s \n", matchID.c_str());
+        //DevMsg(eDLL_T::SERVER, "Server name: %s \n", serverName.c_str());
+        //DevMsg(eDLL_T::SERVER, "Server map: %s \n", serverMap.c_str());
+        //DevMsg(eDLL_T::SERVER, "MatchID to ship: %s \n", matchID.c_str());
 
         std::string logdata_url_encoded = url_encode(logdata);
 
@@ -1801,7 +1826,7 @@ namespace LOGGER
     //-----------------------------------------------------------------------------
 
 
-    bool LOGGER::Logger::openLogFile(const std::filesystem::path& Path) 
+    bool LOGGER::Logger::openLogFile(const std::filesystem::path& Path)
     {
         if (Path.empty())
         {
@@ -1812,7 +1837,7 @@ namespace LOGGER
         std::lock_guard<std::mutex> fileLock(fileMutex);
         logFile.open(Path, std::ios_base::app);
 
-        if (!logFile) 
+        if (!logFile)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Unable to open log file: '%s'. Check permissions and disk space.\n", Path.string().c_str());
             return false;
@@ -1824,10 +1849,10 @@ namespace LOGGER
 
 
 
-    void LOGGER::Logger::closeLogFile() 
+    void LOGGER::Logger::closeLogFile()
     {
         std::lock_guard<std::mutex> fileLock(fileMutex);
-        if (logFile.is_open()) 
+        if (logFile.is_open())
         {
             logFile.close();
         }
@@ -1836,8 +1861,8 @@ namespace LOGGER
 
 
 
-    void LOGGER::Logger::writeBufferToFile(const std::deque<std::string> &q_buffer)
-    {            
+    void LOGGER::Logger::writeBufferToFile(const std::deque<std::string>& q_buffer)
+    {
         std::lock_guard<std::mutex> guard(fileMutex);
 
         if (!logFile.good())
@@ -1847,13 +1872,13 @@ namespace LOGGER
         }
 
         for (const std::string& logstring : q_buffer)
-        {   
+        {
             logFile << logstring << "\n";
         }
 
         logFile.flush();
     }
- 
+
 
 
     void LOGGER::Logger::logToFile()
@@ -1884,7 +1909,7 @@ namespace LOGGER
                 }
 
                 if (!writeBuffer.empty())
-                {   
+                {
                     writeBufferToFile(writeBuffer);
                     writeBuffer.clear();
                 }
@@ -1919,10 +1944,10 @@ namespace LOGGER
 
 
     //Log controlled stop logging
-    void Logger::stopLoggingThread() 
+    void Logger::stopLoggingThread()
     {
-        
-        if (isLogging()) 
+
+        if (isLogging())
         {
             finished = true;
             VScriptCode::Shared::setMatchID(0);
@@ -1934,7 +1959,7 @@ namespace LOGGER
 
             Warning(eDLL_T::SERVER, "Stopping logging thread...\n\n");
 
-            if (logThread.joinable()) 
+            if (logThread.joinable())
             {
                 logThread.join();
             }
@@ -1953,9 +1978,9 @@ namespace LOGGER
             CallClosure();
 
         }
-        else 
+        else
         {
-            DevMsg(eDLL_T::RTECH, "No active logging thread.\n\n");
+            //DevMsg(eDLL_T::RTECH, "No active logging thread.\n\n");
         }
     }
 
@@ -1963,14 +1988,14 @@ namespace LOGGER
 
 
     void LOGGER::Logger::handleNewMatch(const char* matchID)
-    {   
+    {
         if (!matchID)
-        {   
+        {
             Error(eDLL_T::SERVER, NO_ERROR, "matchID was nullptr at handlenewmatch\n");
             return;
         }
 
-        if (isLogging()) 
+        if (isLogging())
         {
             Warning(eDLL_T::SERVER, "WARNING: LOG THREAD WAS RUNNING DURING HANDLE NEW MATCH\n");
             stopLoggingThread();
@@ -1992,22 +2017,22 @@ namespace LOGGER
         setLogState(LogState::Ready, true);
     }
 
-  
+
     void LOGGER::Logger::stopLogging(bool sendToAPI)
     {
         std::thread stopThread(&LOGGER::Logger::stopLogging_Async, this, sendToAPI);
         stopThread.detach();
     }
-   
+
 
     // SQVM controlled-Stop logging true/false for api stat send
     void LOGGER::Logger::stopLogging_Async(bool sendToAPI) //
-    {   
+    {
         SaveEndingMatchID();
 
-        if (!logThread.joinable()) 
+        if (!logThread.joinable())
         {
-            DevMsg(eDLL_T::RTECH, "No active logging thread to stop.\n");
+            //DevMsg(eDLL_T::RTECH, "No active logging thread to stop.\n");
             return;
         }
 
@@ -2022,7 +2047,7 @@ namespace LOGGER
 
         bool close = WaitForState(LogState::Busy, false, 5000);
 
-        if (!close) 
+        if (!close)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Logger wait time expired during shutdown...\n");
             return;
@@ -2037,34 +2062,34 @@ namespace LOGGER
             logThread.join();
         }
 
-        if (sendToAPI) 
-        {   
-            DevMsg(eDLL_T::SERVER, " .. Shipping logfile to tracker https://r5r.dev \n");
+        if (sendToAPI)
+        {
+            //DevMsg(eDLL_T::SERVER, " .. Shipping logfile to tracker https://r5r.dev \n");
 
             {
                 std::lock_guard<std::mutex> apilock(file_mtx);
-                if (apiThread.joinable()) 
+                if (apiThread.joinable())
                 {
                     apiThread.join();
                 }
                 apiThread = std::thread(&Logger::sendLogToAPI, this);
             }
         }
-        else 
+        else
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Stats shipping omitted;\n");
             CallClosure();
         }
 
     }
-    
 
 
 
-    void LOGGER::Logger::UpdateMatchId(const std::string& matchId) 
+
+    void LOGGER::Logger::UpdateMatchId(const std::string& matchId)
     {
         std::unique_lock<std::shared_mutex> lock(pathMutex);
-        currentMatchId = matchId; 
+        currentMatchId = matchId;
         pCurrentLogPath = nullptr;
     }
 
@@ -2080,11 +2105,11 @@ namespace LOGGER
 
 
 
-    std::filesystem::path* LOGGER::Logger::InitializeAndGetLogPath() 
+    std::filesystem::path* LOGGER::Logger::InitializeAndGetLogPath()
     {
         std::unique_lock<std::shared_mutex> lock(pathMutex);
 
-        if (pCurrentLogPath == nullptr) 
+        if (pCurrentLogPath == nullptr)
         {
             const char* folder_setting = GetSetting("logfolder");
             std::string folderPathStr = folder_setting ? std::string(folder_setting) : "eventlogs";
@@ -2092,17 +2117,17 @@ namespace LOGGER
 
             bool dir_created = false;
 
-            try 
+            try
             {
                 dir_created = std::filesystem::create_directories(dirPath);
 
-                if (dir_created) 
+                if (dir_created)
                 {
-                    DevMsg(eDLL_T::SERVER, "Created logging directory: '%s'\n", dirPath.string().c_str());
+                    Warning(eDLL_T::SERVER, "Created logging directory: '%s'\n", dirPath.string().c_str());
                 }
             }
 
-            catch (const std::filesystem::filesystem_error& e) 
+            catch (const std::filesystem::filesystem_error& e)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to create logging directory: '%s'. Error: %s\n", dirPath.string().c_str(), e.what());
                 return nullptr;
@@ -2128,9 +2153,9 @@ namespace LOGGER
         std::chrono::milliseconds timeout(timeout_in_ms);
         std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
 
-        while (getLogState(state) != flag) 
-        { 
-            if (std::chrono::steady_clock::now() - start > timeout) 
+        while (getLogState(state) != flag)
+        {
+            if (std::chrono::steady_clock::now() - start > timeout)
             {
                 return false;
             }
@@ -2163,10 +2188,10 @@ namespace LOGGER
 
 
     void LOGGER::Logger::InitializeLogThread_Async(bool encrypt)
-    {   
+    {
         bool success = WaitForState(LogState::Busy, false, 5000);
 
-        if (!success) 
+        if (!success)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Logger exceeded busy state limit. Aborting logthread start...");
             return;
@@ -2182,9 +2207,9 @@ namespace LOGGER
         std::filesystem::path* pFilePath = InitializeAndGetLogPath();
 
         try
-        {   
+        {
 
-            if ( !pFilePath)
+            if (!pFilePath)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Error: [InitializeLogThread_Async] file path nullptr \n");
                 return;
@@ -2198,7 +2223,7 @@ namespace LOGGER
 
             handleNewMatch(matchID.c_str());
 
-            if ( pFilePath && !openLogFile(*pFilePath))
+            if (pFilePath && !openLogFile(*pFilePath))
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "CRITICAL ERROR: Could not open file to write (nullptr?)\n");
                 stopLoggingThread();
@@ -2221,12 +2246,12 @@ namespace LOGGER
             return;
         }
 
-        std::vector<std::string> startLines; 
+        std::vector<std::string> startLines;
 
-        std::string serverName = ::IsDedicated() ? hostname->GetString() : g_pServerListManager->m_Server.m_svHostName;
+        std::string serverName = ::IsDedicated() ? hostname->GetString() : GetLocalServerData(HOST_NAME);
         std::string serverMap = g_pHostState->m_levelName;
-        std::string gameType = KeyValues_GetCurrentPlaylist();
-   
+        std::string gameType = GetLocalServerData(HOST_PLAYLIST);
+
         startLines.push_back("|#MatchID:" + matchID);
         startLines.push_back("|#Gameversion:" + SERVER_V);
         startLines.push_back("|#Gametype:" + gameType);
@@ -2250,7 +2275,7 @@ namespace LOGGER
                 logQueue.push(line);
             }
         }
-        
+
         {
             std::unique_lock<std::mutex> lock(mtx);
             cvLog.notify_all();
@@ -2270,7 +2295,7 @@ namespace LOGGER
     void LOGGER::Logger::LogEvent(const char* logString, bool encrypt)
     {
 
-        if ( !getLogState(LogState::Safe) || finished )
+        if (!getLogState(LogState::Safe) || finished)
         {
             Error(eDLL_T::SERVER, NO_ERROR, "Tried to queue to log but logthread is not fully initialized. \n");
             return;

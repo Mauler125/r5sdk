@@ -202,8 +202,12 @@ namespace VScriptCode
           //-----------------------------------------------------------------------------
             SQRESULT AddBanByID(HSQUIRRELVM v)
             {
-                SQChar* ip = sq_getstring(v, 1);
-                SQChar* p_id = sq_getstring(v, 2);
+                const SQChar* ip = nullptr;
+                const SQChar* p_id = nullptr;
+
+                sq_getstring(v, 2, &ip );
+                sq_getstring(v, 3, &p_id );
+
                 bool bResult = false;
 
                 // Discard empty strings, this will use the default message instead.
@@ -219,9 +223,9 @@ namespace VScriptCode
                     bResult = false;
                 }
 
-                if (g_pBanSystem->AddEntry(ip, id))
+                if (g_BanSystem.AddEntry(ip, id))
                 {   
-                    g_pBanSystem->SaveList();
+                    g_BanSystem.SaveList();
                     bResult = true;
                 }
 
@@ -303,12 +307,12 @@ void Script_RegisterServerFunctions(CSquirrelVM* s)
     Script_RegisterCoreServerFunctions(s);
     Script_RegisterAdminPanelFunctions(s);
 
-    Script_RegisterLiveAPIFunctions(s);
+    //Script_RegisterLiveAPIFunctions(s);
 }
 
 void Script_RegisterServerEnums(CSquirrelVM* const s)
 {
-    Script_RegisterLiveAPIEnums(s);
+    //Script_RegisterLiveAPIEnums(s);
 }
 
 //---------------------------------------------------------------------------------

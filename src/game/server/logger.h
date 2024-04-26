@@ -12,166 +12,166 @@
 #include <vector>
 #include "thirdparty/curl/include/curl/curl.h"
 
-namespace LOGGER 
+namespace LOGGER
 {
-    
 
-    class Encryption 
+
+    class Encryption
     {
-        public:
-            std::vector<uint8_t> hex2bytes(const std::string& hex);
-            std::string bbase64Encode(std::vector<uint8_t> bytes_to_encode);
-            std::string doEncrypt(const std::string& plainText, const std::vector<uint8_t>& keyBytes, const std::vector<uint8_t>& ivBytes);
-            static const std::string base64_chars;
-            ~Encryption() = default;
+    public:
+        std::vector<uint8_t> hex2bytes(const std::string& hex);
+        std::string bbase64Encode(std::vector<uint8_t> bytes_to_encode);
+        std::string doEncrypt(const std::string& plainText, const std::vector<uint8_t>& keyBytes, const std::vector<uint8_t>& ivBytes);
+        static const std::string base64_chars;
+        ~Encryption() = default;
     };
 
-    class Logger 
+    class Logger
     {
-        public:
+    public:
 
-            static Logger& getInstance();
-            
-
-            enum class LogState : uint8_t {
-                None = 0,
-                Ready = 1 << 0,
-                Busy = 1 << 1,
-                Safe = 1 << 2
-            };
-
-            LogState intToLogState(int flag);
-  
-            // Main Logging Functions
-            bool getLogState(LogState flag) const; //bitstate callable from sqvm
-            void InitializeLogThread(bool encrypt); //callable from sqvm
-            void LogEvent(const char* logString, bool encrypt); //callable from sqvm
-            void stopLogging(bool sendToAPI); //callable from sqvm //wrapper
-            bool isLogging(); //callable from sqvm
+        static Logger& getInstance();
 
 
-            //utility
-            std::string GetLatestFile(const std::string& directoryPath, std::string matchID);
-            void stopLoggingThread(); 
-            void startLogging();  
-            void sendLogToAPI();
-            void ThreadSleep(int ms);
-            bool WaitForState(const LogState state, bool flag, const int timeout_in_ms);
+        enum class LogState : uint8_t {
+            None = 0,
+            Ready = 1 << 0,
+            Busy = 1 << 1,
+            Safe = 1 << 2
+        };
 
-            //file management
-            void logToFile();
-            void CallClosure();  
-            bool openLogFile(const std::filesystem::path& filePath);
-            void closeLogFile();
+        LogState intToLogState(int flag);
 
-            std::ofstream logFile; //manual handle management >.>
-            std::mutex fileMutex;
+        // Main Logging Functions
+        bool getLogState(LogState flag) const; //bitstate callable from sqvm
+        void InitializeLogThread(bool encrypt); //callable from sqvm
+        void LogEvent(const char* logString, bool encrypt); //callable from sqvm
+        void stopLogging(bool sendToAPI); //callable from sqvm //wrapper
+        bool isLogging(); //callable from sqvm
 
-            //vars
-            int CVAR_LTHREAD_DEBOUNCE = 1;
-            size_t CVAR_MAX_BUFFER = 30;
 
-        private:
+        //utility
+        std::string GetLatestFile(const std::string& directoryPath, std::string matchID);
+        void stopLoggingThread();
+        void startLogging();
+        void sendLogToAPI();
+        void ThreadSleep(int ms);
+        bool WaitForState(const LogState state, bool flag, const int timeout_in_ms);
 
-            Logger();
-            ~Logger();
+        //file management
+        void logToFile();
+        void CallClosure();
+        bool openLogFile(const std::filesystem::path& filePath);
+        void closeLogFile();
 
-            // ensures only one instance
-            Logger(const Logger&) = delete; 
-            Logger& operator=(const Logger&) = delete;
+        std::ofstream logFile; //manual handle management >.>
+        std::mutex fileMutex;
 
-            // pointers
-            std::filesystem::path* pCurrentLogPath = nullptr;
-            std::filesystem::path filePath;
-            std::string currentMatchId;
+        //vars
+        int CVAR_LTHREAD_DEBOUNCE = 1;
+        size_t CVAR_MAX_BUFFER = 50000;
 
-            // aes encryption object
-            Encryption eObj;
+    private:
 
-            std::vector<uint8_t> keyHex;
-            std::vector<uint8_t> ivHex;
+        Logger();
+        ~Logger();
 
-            //structs
-            std::deque<std::string> buffer;
+        // ensures only one instance
+        Logger(const Logger&) = delete;
+        Logger& operator=(const Logger&) = delete;
 
-            // func
-            void InitializeLogThread_Async(bool encrypt);
-            void setLogState(LogState flag, bool value); //bit state
-            void stopLogging_Async(bool sendToAPI);
-            void writeBufferToFile(const std::deque<std::string>& q_buffer);
-            void UpdateMatchId(const std::string& matchId);
-            std::filesystem::path* InitializeAndGetLogPath();
-            void ResetLogPath();
-            void handleNewMatch(const char* matchID);
-            std::vector<std::string> splitString(std::string str, const std::string& delimiter);        
+        // pointers
+        std::filesystem::path* pCurrentLogPath = nullptr;
+        std::filesystem::path filePath;
+        std::string currentMatchId;
 
-            // synchronization
-            std::atomic<uint8_t> StateBits;
-            std::atomic<bool> finished{true};
-            std::mutex file_mtx;
-            std::thread apiThread;
-            std::mutex mtx;
-            std::condition_variable cvLog;
-            std::queue<std::string> logQueue;
-            std::thread logThread;
-            std::shared_mutex pathMutex;
+        // aes encryption object
+        Encryption eObj;
+
+        std::vector<uint8_t> keyHex;
+        std::vector<uint8_t> ivHex;
+
+        //structs
+        std::deque<std::string> buffer;
+
+        // func
+        void InitializeLogThread_Async(bool encrypt);
+        void setLogState(LogState flag, bool value); //bit state
+        void stopLogging_Async(bool sendToAPI);
+        void writeBufferToFile(const std::deque<std::string>& q_buffer);
+        void UpdateMatchId(const std::string& matchId);
+        std::filesystem::path* InitializeAndGetLogPath();
+        void ResetLogPath();
+        void handleNewMatch(const char* matchID);
+        std::vector<std::string> splitString(std::string str, const std::string& delimiter);
+
+        // synchronization
+        std::atomic<uint8_t> StateBits;
+        std::atomic<bool> finished{ true };
+        std::mutex file_mtx;
+        std::thread apiThread;
+        std::mutex mtx;
+        std::condition_variable cvLog;
+        std::queue<std::string> logQueue;
+        std::thread logThread;
+        std::shared_mutex pathMutex;
     };
 
-    class TaskManager 
+    class TaskManager
     {
-        public:
-            static TaskManager& getInstance();
+    public:
+        static TaskManager& getInstance();
 
-            void AddTask(const std::function<void()>& task);
-            void LoadKDString(const char* player_oid);
-            void ResetPlayerStats(const char* player_oid);
-            void LoadBatchKDStrings(const std::string& player_oids_str);
+        void AddTask(const std::function<void()>& task);
+        void LoadKDString(const char* player_oid);
+        void ResetPlayerStats(const char* player_oid);
+        void LoadBatchKDStrings(const std::string& player_oids_str);
 
-        private:
-            TaskManager();
-            ~TaskManager();
-            TaskManager(const TaskManager&) = delete;
-            TaskManager& operator=(const TaskManager&) = delete;
+    private:
+        TaskManager();
+        ~TaskManager();
+        TaskManager(const TaskManager&) = delete;
+        TaskManager& operator=(const TaskManager&) = delete;
 
-            void StartWorkerThread();
-            void StopWorkerThread();
-            void ProcessTasks();
+        void StartWorkerThread();
+        void StopWorkerThread();
+        void ProcessTasks();
 
-            std::queue<std::function<void()>> taskQueue;
-            std::mutex queueMutex;
-            std::condition_variable condVar;
-            std::thread workerThread;
-            std::atomic<bool> stop_tasks_flag{false};
+        std::queue<std::function<void()>> taskQueue;
+        std::mutex queueMutex;
+        std::condition_variable condVar;
+        std::thread workerThread;
+        std::atomic<bool> stop_tasks_flag{ false };
     };
 
-    class CURLConnectionPool 
+    class CURLConnectionPool
     {
-        public:
+    public:
 
-            static CURLConnectionPool& GetInstance();
+        static CURLConnectionPool& GetInstance();
 
-            CURL* GetHandle();
-            bool HandleCurlResult(CURL* handle, CURLcode res, const char* func);
-            void DiscardHandle(CURL* handle);
-            void ReturnHandle(CURL* handle);
-            void ResetPool();
-            ~CURLConnectionPool();
+        CURL* GetHandle();
+        bool HandleCurlResult(CURL* handle, CURLcode res, const char* func);
+        void DiscardHandle(CURL* handle);
+        void ReturnHandle(CURL* handle);
+        void ResetPool();
+        ~CURLConnectionPool();
 
-        private:
+    private:
 
-            std::queue<CURL*> pool;
-            std::mutex poolMutex;
+        std::queue<CURL*> pool;
+        std::mutex poolMutex;
 
-            CURLConnectionPool();
+        CURLConnectionPool();
 
-            CURLConnectionPool(const CURLConnectionPool&) = delete;
-            CURLConnectionPool& operator=(const CURLConnectionPool&) = delete;
+        CURLConnectionPool(const CURLConnectionPool&) = delete;
+        CURLConnectionPool& operator=(const CURLConnectionPool&) = delete;
 
-            std::condition_variable poolCond;
-            const size_t maxPoolSize = 5;
-            const std::chrono::seconds handleWaitTimeout = std::chrono::seconds(3);
+        std::condition_variable poolCond;
+        const size_t maxPoolSize = 5;
+        const std::chrono::seconds handleWaitTimeout = std::chrono::seconds(3);
 
-            CURL* CreateHandle();
+        CURL* CreateHandle();
     };
 
     //pointers
@@ -182,7 +182,7 @@ namespace LOGGER
     void CleanupLogs(IFileSystem* pFileSystem);
     void SaveEndingMatchID();
     std::string GetEndingMatchID();
-    
+
 
     //settings
     void AddToConfigMap(const rapidjson::Value& value, const std::string& parentKey, int depth);
@@ -203,7 +203,7 @@ namespace LOGGER
     void UPDATE_PLAYER_COUNT(const char* action, const char* player, const char* OID, const char* count, const char* DISCORD_HOOK);
 
     //Api call for end game
-    void EndMatchUpdate( std::string recap, std::string DISCORD_HOOK);
+    void EndMatchUpdate(std::string recap, std::string DISCORD_HOOK);
     void NOTIFY_END_OF_MATCH(const char* recap, const char* DISCORD_HOOK);
 
     //Api calls for stats
@@ -215,7 +215,7 @@ namespace LOGGER
     void RunUpdateLiveStats(std::string stats_json); //onshutdown dispatch thread
     void UpdateLiveStats(std::string stats_json); //onshutdown 
     std::string FetchGlobalSettings(const char* query);//on startup init
-    
+
 }
 
 #endif // LOGGER_H

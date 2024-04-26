@@ -199,7 +199,7 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 				if (LOGGER::Logger::getInstance().isLogging()) {
 					LOGGER::Logger::getInstance().stopLoggingThread();
 				}
-#endif
+#endif // !CLIENT_DLL
 
 				g_pHostState->State_ChangeLevelSP();
 				break;
@@ -210,7 +210,7 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 				if (LOGGER::Logger::getInstance().isLogging()) {
 					LOGGER::Logger::getInstance().stopLoggingThread();
 				}
-#endif
+#endif // !CLIENT_DLL
 
 				g_pHostState->State_ChangeLevelMP();
 				break;

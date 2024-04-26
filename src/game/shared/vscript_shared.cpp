@@ -18,7 +18,18 @@
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 #include "vscript_shared.h"
 #include "game/server/logger.h"
+#pragma once
+#include "game/server/gameinterface.h"
+#include "common/callback.h"
+#include "common/netmessages.h"
+#include <networksystem/hostmanager.h>
 #include <random>
+#include "game/server/player.cpp"
+
+#ifndef CLIENT_DLL
+#include "engine/server/server.h"
+#endif // !CLIENT_DLL
+
 
 namespace VScriptCode
 {
@@ -89,34 +100,34 @@ namespace VScriptCode
         }
 
         //-----------------------------------------------------------------------------
-        // Generate / get usable matchID 
-        //-----------------------------------------------------------------------------
+      // Generate / get usable matchID 
+      //-----------------------------------------------------------------------------
 
-        std::atomic<int64_t> g_MatchID{0};
+        std::atomic<int64_t> g_MatchID{ 0 };
 
         //not exposed to sqvm
-        void setMatchID(int64_t newID) 
+        void setMatchID(int64_t newID)
         {
             g_MatchID.store(newID);
         }
 
         //not exposed to sqvm
-        int64_t getMatchID() 
+        int64_t getMatchID()
         {
             return g_MatchID.load();
         }
 
 
         // exposed to sqvm - retrieves matchID
-        SQRESULT Shared::SQMatchID(HSQUIRRELVM v) 
+        SQRESULT Shared::SQMatchID(HSQUIRRELVM v)
         {
             std::string matchIDStr = std::to_string(getMatchID());
             sq_pushstring(v, matchIDStr.c_str(), -1);
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         // set match ID
-        int64_t selfSetMatchID() 
+        int64_t selfSetMatchID()
         {
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -138,86 +149,103 @@ namespace VScriptCode
         // Purpose: mkos funni io logger
         //-----------------------------------------------------------------------------
 
-        // Check of is currently running -- returns true if not logging, false if running
-        SQRESULT isLogging(HSQUIRRELVM v) 
+        // Check of is currently running -- returns true if logging, false if not running
+        SQRESULT isLogging(HSQUIRRELVM v)
         {
             bool state = LOGGER::Logger::getInstance().isLogging();
             sq_pushbool(v, state);
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         SQRESULT SQ_GetLogState(HSQUIRRELVM v)
-        {  
-            if ((sq_getinteger(v, 1) >= 0))
+        {
+            SQInteger flag = NULL;
+
+            if ( SQ_SUCCEEDED(sq_getinteger(v, 2, &flag)) )
             {
-                SQInteger flag = sq_getinteger(v, 1);
                 LOGGER::Logger& logger = LOGGER::Logger::getInstance();
                 LOGGER::Logger::LogState LogState = logger.intToLogState(flag);
                 bool state = logger.getLogState(LogState);
                 sq_pushbool(v, state);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
             else
             {
-                Error(eDLL_T::SERVER, NO_ERROR, "SQ_ERROR: sq_getinteger(v, 1) value: %s", std::to_string(sq_getinteger(v, 1)).c_str());
-                sq_pushbool(v, false); 
+                Error(eDLL_T::SERVER, NO_ERROR, "SQ_ERROR: SQ_GetLogState");
+                sq_pushbool(v, false);
             }
-            return SQ_OK;
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
-        
+
 
         SQRESULT LogEvent(HSQUIRRELVM v)
         {
-            const SQChar* logString = sq_getstring(v, 1);
-            SQBool encrypt = sq_getbool(v, 2);
+            const SQChar* logString = nullptr;
+            SQBool encrypt = false;
 
-            if (!VALID_CHARSTAR(logString)) 
+            SQRESULT getStringResult = sq_getstring(v, 2, &logString);
+            SQRESULT getBoolResult = sq_getbool(v, 3, &encrypt);
+
+            if (SQ_SUCCEEDED(getStringResult) && SQ_SUCCEEDED(getBoolResult))
             {
-                Error(eDLL_T::SERVER, NO_ERROR, "INVALID CHARSTAR");
-                return SQ_ERROR;
-            }
-            
-           
-            LOGGER::pMkosLogger->LogEvent(logString, encrypt);
+                if (!VALID_CHARSTAR(logString))
+                {
+                    Error(eDLL_T::SERVER, NO_ERROR, "INVALID CHARSTAR");
+                    SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+                }
 
-            return SQ_OK;
+                LOGGER::pMkosLogger->LogEvent(logString, encrypt);
+                return SQ_OK;
+            }
+            else
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Error retrieving parameters.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
         }
 
+
         SQRESULT InitializeLogThread_internal(HSQUIRRELVM v)
-        {   
+        {
+            SQBool encrypt = false;
             if (getMatchID() == 0)
             {
                 selfSetMatchID();
             }
 
-            SQBool encrypt = sq_getbool(v, 1);
-            SQBool state = true;
+            if (SQ_FAILED(sq_getbool(v, 2, &encrypt)))
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'encrypt' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             LOGGER::Logger& logger = LOGGER::Logger::getInstance();
             logger.InitializeLogThread(encrypt);
 
-            sq_pushbool(v, state);
-
-            return SQ_OK;
+            sq_pushbool(v, true);
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
 
-        SQRESULT stopLogging(HSQUIRRELVM v) 
+
+        SQRESULT stopLogging(HSQUIRRELVM v)
         {
+            SQBool sendToAPI = false;
 
-            bool doSendToAPI = false;
-
-            SQBool sendToAPI = sq_getbool(v, 1);
-
-            if (sendToAPI) 
+            if (SQ_FAILED(sq_getbool(v, 2, &sendToAPI)))
             {
-                doSendToAPI = sendToAPI != 0;
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'sendToAPI' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            DevMsg(eDLL_T::SERVER, "Send to API bool set to: %s \n", doSendToAPI ? "true" : "false");
+            bool doSendToAPI = sendToAPI != 0;
+
+            //DevMsg(eDLL_T::SERVER, "Send to API bool set to: %s \n", doSendToAPI ? "true" : "false");
             LOGGER::pMkosLogger->stopLogging(doSendToAPI);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -228,51 +256,46 @@ namespace VScriptCode
         SQRESULT CleanupLogs(HSQUIRRELVM v)
         {
             LOGGER::CleanupLogs(FileSystem());
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
         // Purpose: mkos debug - prints to console without devmode
         //-----------------------------------------------------------------------------
 
-        SQRESULT sqprint(HSQUIRRELVM v) 
+        SQRESULT sqprint(HSQUIRRELVM v)
         {
-            SQChar* sqprintmsg = sq_getstring(v, 1);
-            std::ostringstream oss;
-            oss << sqprintmsg;
+            const SQChar* sqprintmsg = nullptr;
+            SQRESULT res = sq_getstring(v, 2, &sqprintmsg);
 
-            std::string str = oss.str();
-            DevMsg(eDLL_T::SERVER, ":: %s\n", str.c_str());
+            if (SQ_FAILED(res) || !sqprintmsg)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'sqprintmsg' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
-            return SQ_OK;
+            std::string str = sqprintmsg;
+            Msg(eDLL_T::SERVER, ":: %s\n", str.c_str());
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
 
         SQRESULT sqerror(HSQUIRRELVM v)
         {
-            SQChar* sqprintmsg = sq_getstring(v, 1);
-            std::ostringstream oss;
-            oss << sqprintmsg;
+            const SQChar* sqprintmsg = nullptr;
+            SQRESULT res = sq_getstring(v, 2, &sqprintmsg);
 
-            std::string str = oss.str();
+            if (SQ_FAILED(res) || !sqprintmsg)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'sqprintmsg' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            std::string str = sqprintmsg;
             Error(eDLL_T::SERVER, NO_ERROR, ":: %s\n", str.c_str());
 
-            return SQ_OK;
-        }
-
-        //-----------------------------------------------------------------------------
-        // Purpose: None whatsoever
-        //-----------------------------------------------------------------------------
-
-        SQRESULT testbool(HSQUIRRELVM v) 
-        {
-            SQBool sqbool = sq_getbool(v, 1);
-            std::string returnvalue = sqbool ? "true" : "false";
-
-            DevMsg(eDLL_T::SERVER, "Bool value: %s \n", returnvalue.c_str());
-
-            sq_pushbool(v, sqbool);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -280,111 +303,166 @@ namespace VScriptCode
         // for ea account verification
         //-----------------------------------------------------------------------------
 
-        SQRESULT EA_Verify(HSQUIRRELVM v) 
+        SQRESULT EA_Verify(HSQUIRRELVM v)
         {
-            const SQChar* token = sq_getstring(v, 1);
-            const SQChar* OID = sq_getstring(v, 2);
-            const SQChar* ea_name = sq_getstring(v, 3);
+            const SQChar* token = nullptr;
+            const SQChar* OID = nullptr;
+            const SQChar* ea_name = nullptr;
+
+            if (SQ_FAILED(sq_getstring(v, 2, &token)) || !token ||
+                SQ_FAILED(sq_getstring(v, 3, &OID)) || !OID ||
+                SQ_FAILED(sq_getstring(v, 4, &ea_name)) || !ea_name)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve parameters.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             int32_t status_num = 0;
             string status = LOGGER::VERIFY_EA_ACCOUNT(token, OID, ea_name);
+
             try {
                 status_num = std::stoi(status);
-                //DevMsg(eDLL_T::SERVER, "Conversion successful, number is: %d\n", status_num);
             }
             catch (const std::invalid_argument& e) {
-                DevMsg(eDLL_T::SERVER, "Error: Invalid argument for conversion: %s\n", e.what());
+                Msg(eDLL_T::SERVER, "Error: Invalid argument for conversion: %s\n", e.what());
             }
             catch (const std::out_of_range& e) {
-                DevMsg(eDLL_T::SERVER, "Error: Value out of range for conversion: %s\n", e.what());
+                Msg(eDLL_T::SERVER, "Error: Value out of range for conversion: %s\n", e.what());
             }
 
             sq_pushinteger(v, status_num);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
 
         //-----------------------------------------------------------------------------
         // Purpose: api calls for stats
         //-----------------------------------------------------------------------------
 
-        SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v) 
+        SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v)
         {
-            const SQChar* action = sq_getstring(v, 1);
-            const SQChar* player = sq_getstring(v, 2);
-            const SQChar* OID = sq_getstring(v, 3);
-            const SQChar* count = sq_getstring(v, 4);
-            const SQChar* DISCORD_HOOK = sq_getstring(v, 5);
+            const SQChar* action = nullptr;
+            const SQChar* player = nullptr;
+            const SQChar* OID = nullptr;
+            const SQChar* count = nullptr;
+            const SQChar* DISCORD_HOOK = nullptr;
+
+            if (SQ_FAILED(sq_getstring(v, 2, &action)) || !action ||
+                SQ_FAILED(sq_getstring(v, 3, &player)) || !player ||
+                SQ_FAILED(sq_getstring(v, 4, &OID)) || !OID ||
+                SQ_FAILED(sq_getstring(v, 5, &count)) || !count ||
+                SQ_FAILED(sq_getstring(v, 6, &DISCORD_HOOK)) || !DISCORD_HOOK)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve parameters.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             LOGGER::UPDATE_PLAYER_COUNT(action, player, OID, count, DISCORD_HOOK);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
-        SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v) 
-        {      
-            const SQChar* recap = sq_getstring(v, 1);
-            const SQChar* DISCORD_HOOK = sq_getstring(v, 2);
 
-            LOGGER::NOTIFY_END_OF_MATCH( recap, DISCORD_HOOK );
-            return SQ_OK;
-        }
-
-        SQRESULT Shared::LoadKDString(HSQUIRRELVM v) 
+        SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v)
         {
-            const SQChar* player_oid = sq_getstring(v, 1);
+            const SQChar* recap = nullptr;
+            const SQChar* DISCORD_HOOK = nullptr;
+
+            if (SQ_FAILED(sq_getstring(v, 2, &recap)) || !recap ||
+                SQ_FAILED(sq_getstring(v, 3, &DISCORD_HOOK)) || !DISCORD_HOOK)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve parameters.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            LOGGER::NOTIFY_END_OF_MATCH(recap, DISCORD_HOOK);
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+
+
+        SQRESULT Shared::LoadKDString(HSQUIRRELVM v)
+        {
+            const SQChar* player_oid = nullptr;
+
+            if (SQ_FAILED(sq_getstring(v, 2, &player_oid)) || !player_oid)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             LOGGER::TaskManager::getInstance().LoadKDString(player_oid);
-            
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
-        SQRESULT Shared::LoadBatchKDStrings(HSQUIRRELVM v) 
+
+        SQRESULT Shared::LoadBatchKDStrings(HSQUIRRELVM v)
         {
-            const SQChar* player_oids = sq_getstring(v, 1);
+            const SQChar* player_oids = nullptr;
+
+            if (SQ_FAILED(sq_getstring(v, 2, &player_oids)) || !player_oids)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oids' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             LOGGER::TaskManager::getInstance().LoadBatchKDStrings(player_oids);
-         
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
-        SQRESULT Shared::GetKDString(HSQUIRRELVM v) 
+
+        SQRESULT Shared::GetKDString(HSQUIRRELVM v)
         {
-            const SQChar* player_oid = sq_getstring(v, 1);
+            const SQChar* player_oid = nullptr;
+
+            if (SQ_FAILED(sq_getstring(v, 2, &player_oid)) || !player_oid)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
             std::string stats = LOGGER::GetKDString(player_oid);
-
             sq_pushstring(v, stats.c_str(), -1);
-
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
 
-        SQRESULT Shared::SQ_UpdateLiveStats(HSQUIRRELVM v) 
+        SQRESULT Shared::SQ_UpdateLiveStats(HSQUIRRELVM v)
         {
-            std::string stats_json = sq_getstring(v, 1);
+            const SQChar* stats_json = nullptr;
+         
+            if (SQ_FAILED(sq_getstring(v, 2, &stats_json)))
+            {
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
             LOGGER::UpdateLiveStats(stats_json);
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
-        SQRESULT Shared::SQ_ResetStats(HSQUIRRELVM v) 
+
+
+        SQRESULT Shared::SQ_ResetStats(HSQUIRRELVM v)
         {
-            const SQChar* player_oid = sq_getstring(v, 1);
-
-            LOGGER::TaskManager::getInstance().ResetPlayerStats(player_oid);
-
-            return SQ_OK;
+            const SQChar* player_oid = nullptr;
+            if (SQ_SUCCEEDED(sq_getstring(v, 2, &player_oid)) && player_oid)
+            {
+                LOGGER::TaskManager::getInstance().ResetPlayerStats(player_oid);
+            }
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
 
         SQRESULT Shared::FetchGlobalSettingsFromR5RDEV(HSQUIRRELVM v)
         {
-            const SQChar* query = sq_getstring(v, 1);
-            std::string settings = LOGGER::FetchGlobalSettings(query);
-
-            sq_pushstring(v, settings.c_str(), -1);
-
-            return SQ_OK;
+            const SQChar* query = nullptr;
+            if (SQ_SUCCEEDED(sq_getstring(v, 2, &query)) && query)
+            {
+                std::string settings = LOGGER::FetchGlobalSettings(query);
+                sq_pushstring(v, settings.c_str(), -1);
+            }
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
 
 
         //-----------------------------------------------------------------------------
@@ -394,20 +472,107 @@ namespace VScriptCode
 
         SQRESULT Shared::SQ_GetSetting(HSQUIRRELVM v)
         {
-            const SQChar* setting_key = sq_getstring(v, 1);
-            const char* setting_value = LOGGER::GetSetting(setting_key);
-
-            sq_pushstring(v, setting_value, -1);
-
-            return SQ_OK;
+            const SQChar* setting_key = nullptr;
+            if (SQ_SUCCEEDED(sq_getstring(v, 2, &setting_key)) && setting_key)
+            {
+                const char* setting_value = LOGGER::GetSetting(setting_key);
+                sq_pushstring(v, setting_value, -1);
+            }
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
 
         SQRESULT Shared::SQ_ReloadConfig(HSQUIRRELVM v)
         {
             LOGGER::ReloadConfig("r5rdev_config.json");
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
 
+        SQRESULT Shared::SQ_ServerMsg(HSQUIRRELVM v)
+        {
+            const SQChar* inMsg = nullptr;
+
+            if (SQ_FAILED(sq_getstring(v, 2, &inMsg)) || !inMsg)
+            {
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            SQInteger senderId = 0;
+
+            if (SQ_FAILED(sq_getinteger(v, 3, &senderId)) || senderId < 0 || senderId > 255)
+            {
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            const std::string msg(inMsg);
+            void* thisptr = nullptr;
+
+            CServerGameDLL::OnReceivedSayTextMessage(thisptr, static_cast<int>(senderId), msg.c_str(), false);
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+
+
+
+        SQRESULT Shared::SQ_CreateServerBot(HSQUIRRELVM v)
+        {
+            if (!g_pServer->IsActive())
+            {
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            const SQChar* ImmutableName = nullptr;
+            if (SQ_FAILED(sq_getstring(v, 2, &ImmutableName)) || !ImmutableName)
+            {
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            std::vector<std::string> args = { "sv_addbot", "[" + std::string(ImmutableName) + "]", "1" };
+
+            const char* c_args[3];
+
+            for (size_t i = 0; i < args.size(); ++i)
+            {
+                c_args[i] = args[i].c_str();
+            }
+
+            CCommand cmd(3, c_args, cmd_source_t::kCommandSrcUserInput);
+            CC_CreateFakePlayer_f(cmd);
+
+            for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+            {
+                CClient* pClient = g_pServer->GetClient(i);
+
+                if (!pClient)
+                {
+                    continue;
+                }
+
+                if (!pClient->IsHumanPlayer())
+                {
+                    const CNetChan* pNetChan = pClient->GetNetChan();
+
+                    if (pNetChan->GetName() == "[" + std::string(ImmutableName) + "]")
+                    {
+                        int ID = pClient->GetUserID();
+
+                        if (ID >= 0 && ID < 119)
+                        {
+                            sq_newarray(v, 0);
+                            sq_pushinteger(v, static_cast<int>(pClient->GetHandle()));
+                            sq_arrayappend(v, -2);
+                            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+                        }
+                    }
+                }
+            }
+
+            //return array with -1 at element[0]
+            sq_newarray(v, 0);
+            sq_pushinteger(v, -1);
+            sq_arrayappend(v, -2);
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
     }
 }
 
@@ -442,7 +607,6 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, CleanupLogs, "Deletes oldest logs in platform/eventlogs when directory exceeds 20mb", "void", "");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, sqprint, "Prints string to console window from sqvm", "void", "string");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, sqerror, "Prints error string to console window from sqvm", "void", "string");
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, testbool, "Prints string to console window from sqvm", "bool", "bool");
 
     //for verification
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, EA_Verify, "Verifys EA Account on R5R.DEV", "int", "string, string, string");
@@ -456,9 +620,12 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, LoadKDString, "Initializes grabbing stats for player", "void", "string");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetKDString, "Fetches stats for player on R5R.DEV", "string", "string");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQ_ResetStats, "Sets map value for player_oid stats to empty string", "void", "string");
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, LoadBatchKDStrings, "Fetches batch player stats queries", "void", "string"); 
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, LoadBatchKDStrings, "Fetches batch player stats queries", "void", "string");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, FetchGlobalSettingsFromR5RDEV, "Fetches global settings based on query", "string", "string");
-  
+
+    //send a message as a bot.
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQ_CreateServerBot, "Creates a bot to send messages", "array< int >", "string");
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, SQ_ServerMsg, "Says message from specified senderId", "void", "string,int");
 }
 
 //---------------------------------------------------------------------------------
