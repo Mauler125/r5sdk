@@ -29,11 +29,13 @@
 #include "engine/gl_screen.h"
 #include "engine/host.h"
 #include "engine/host_cmd.h"
+
 #ifndef CLIENT_DLL
 #ifndef logger_h
 #include "game/server/logger.h"
 #endif // logger_h mkos
 #endif
+
 #include "engine/host_state.h"
 #include "engine/sys_engine.h"
 #include "engine/modelloader.h"

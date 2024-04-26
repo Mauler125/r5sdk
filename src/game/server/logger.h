@@ -1,5 +1,7 @@
+#pragma once
 #ifndef LOGGER_H
 #define LOGGER_H
+#ifndef CLIENT_DLL
 #include <string>
 #include <deque>
 #include <queue>
@@ -218,4 +220,5 @@ namespace LOGGER
 
 }
 
+#endif // !CLIENT.DLL
 #endif // LOGGER_H

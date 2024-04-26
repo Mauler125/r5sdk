@@ -1,4 +1,5 @@
 #pragma once
+#ifndef CLIENT_DLL
 #include <tiny-aes/aes.hpp>
 #include "core/stdafx.h"
 #include "engine/server/server.h"
@@ -6,7 +7,7 @@
 #include "thirdparty/curl/include/curl/curl.h"
 #include <engine/host_state.h>
 #include <networksystem/listmanager.h>
-#include <game/shared/vscript_shared.h>
+#include <game/server/vscript_server.h>
 #include "engine/server/vengineserver_impl.h"
 #include "logger.h"
 #include <filesystem>
@@ -32,7 +33,6 @@
 #include <condition_variable>
 #include <future>
 #include <networksystem/hostmanager.h>
-
 
 //-----------------------------------------------------------------------------
 // POINTERS
@@ -548,7 +548,7 @@ namespace LOGGER
 
     void LOGGER::SaveEndingMatchID()
     {
-        last_match_id.store(VScriptCode::Shared::getMatchID());
+        last_match_id.store(VScriptCode::Server::getMatchID());
     }
 
 
@@ -1950,7 +1950,7 @@ namespace LOGGER
         if (isLogging())
         {
             finished = true;
-            VScriptCode::Shared::setMatchID(0);
+            VScriptCode::Server::setMatchID(0);
 
             {
                 std::unique_lock<std::mutex> lock(mtx);
@@ -2041,7 +2041,7 @@ namespace LOGGER
         {
             std::unique_lock<std::mutex> lock(mtx);
             finished = true;
-            VScriptCode::Shared::setMatchID(0);
+            VScriptCode::Server::setMatchID(0);
             cvLog.notify_all();
         }
 
@@ -2202,7 +2202,7 @@ namespace LOGGER
             stopLoggingThread();
         }
 
-        const std::string matchID = std::to_string(VScriptCode::Shared::getMatchID());
+        const std::string matchID = std::to_string(VScriptCode::Server::getMatchID());
         UpdateMatchId(matchID);
         std::filesystem::path* pFilePath = InitializeAndGetLogPath();
 
@@ -2335,3 +2335,4 @@ namespace LOGGER
     }
 
 } // namespace LOGGER
+#endif

@@ -25,6 +25,39 @@ namespace VScriptCode
 
 		SQRESULT IsServerActive(HSQUIRRELVM v);
 		SQRESULT IsDedicated(HSQUIRRELVM v);
+
+		SQRESULT InitializeLogThread_internal(HSQUIRRELVM v);
+		SQRESULT LogEvent(HSQUIRRELVM v);
+		SQRESULT SQMatchID(HSQUIRRELVM v);
+		SQRESULT stopLogging(HSQUIRRELVM v);
+		SQRESULT isLogging(HSQUIRRELVM v);
+		SQRESULT SQ_GetLogState(HSQUIRRELVM v);
+
+
+		SQRESULT sqprint(HSQUIRRELVM v);
+		SQRESULT sqerror(HSQUIRRELVM v);
+
+		SQRESULT EA_Verify(HSQUIRRELVM v);
+		SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v);
+		SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v);
+		SQRESULT LoadKDString(HSQUIRRELVM v);
+		SQRESULT GetKDString(HSQUIRRELVM v);
+		SQRESULT SQ_UpdateLiveStats(HSQUIRRELVM v);
+		SQRESULT SQ_ResetStats(HSQUIRRELVM v);
+		SQRESULT LoadBatchKDStrings(HSQUIRRELVM v);
+		SQRESULT CleanupLogs(HSQUIRRELVM v);
+		SQRESULT SQ_GetSetting(HSQUIRRELVM v);
+		SQRESULT SQ_ReloadConfig(HSQUIRRELVM v);
+		SQRESULT FetchGlobalSettingsFromR5RDEV(HSQUIRRELVM v);
+
+
+		SQRESULT SQ_ServerMsg(HSQUIRRELVM v);
+		SQRESULT SQ_CreateServerBot(HSQUIRRELVM v);
+
+
+		//Declare to be used with logger
+		int64_t getMatchID();
+		void setMatchID(int64_t newID);
 	}
 }
 
