@@ -391,7 +391,6 @@ void ConCommand_InitShipped(void)
 			"connectAsSpectator",
 			"connectWithKey",
 			"silentconnect",
-			"set",
 			"ping",
 #endif // !DEDICATED
 			"launchplaylist",
@@ -399,6 +398,7 @@ void ConCommand_InitShipped(void)
 			"exit",
 			"reload",
 			"restart",
+			"set",
 			"status",
 			"version",
 		};
