@@ -9,6 +9,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
+#include "mathlib/bitvec.h"
 #include "tier0/frametask.h"
 #include "engine/common.h"
 #include "engine/host.h"
@@ -307,6 +308,36 @@ bool CClientState::_ProcessCreateStringTable(CClientState* thisptr, SVC_CreateSt
     return (endbit - startbit) == msg->m_nLength;
 }
 
+//------------------------------------------------------------------------------
+// Purpose: processes user message data
+// Input  : *thisptr - 
+//          *msg     - 
+// Output : true on success, false otherwise
+//------------------------------------------------------------------------------
+bool CClientState::_ProcessUserMessage(CClientState* thisptr, SVC_UserMessage* msg)
+{
+    CClientState* const cl = thisptr->GetShiftedBasePointer();
+
+    if (!cl->IsConnected())
+        return false;
+
+    // buffer for incoming user message
+    ALIGN4 byte userdata[MAX_USER_MSG_DATA] ALIGN4_POST = { 0 };
+    bf_read userMsg("UserMessage(read)", userdata, sizeof(userdata));
+
+    int bitsRead = msg->m_DataIn.ReadBitsClamped(userdata, msg->m_nLength);
+    userMsg.StartReading(userdata, Bits2Bytes(bitsRead));
+
+    // dispatch message to client.dll
+    if (!g_pHLClient->DispatchUserMessage(msg->m_nMsgType, &userMsg))
+    {
+        Warning(eDLL_T::CLIENT, "Couldn't dispatch user message (%i)\n", msg->m_nMsgType);
+        return false;
+    }
+
+    return true;
+}
+
 static ConVar cl_onlineAuthEnable("cl_onlineAuthEnable", "1", FCVAR_RELEASE, "Enables the client-side online authentication system");
 
 static ConVar cl_onlineAuthToken("cl_onlineAuthToken", "", FCVAR_HIDDEN | FCVAR_USERINFO | FCVAR_DONTRECORD | FCVAR_SERVER_CANNOT_QUERY | FCVAR_PLATFORM_SYSTEM, "The client's online authentication token");
@@ -402,6 +433,7 @@ void VClientState::Detour(const bool bAttach) const
     DetourSetup(&CClientState__ProcessStringCmd, &CClientState::_ProcessStringCmd, bAttach);
     DetourSetup(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick, bAttach);
     DetourSetup(&CClientState__ProcessCreateStringTable, &CClientState::_ProcessCreateStringTable, bAttach);
+    DetourSetup(&CClientState__ProcessUserMessage, &CClientState::_ProcessUserMessage, bAttach);
     DetourSetup(&CClientState__Connect, &CClientState::VConnect, bAttach);
 }
 
