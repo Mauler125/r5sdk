@@ -380,7 +380,7 @@ public:
 		: CBitRead(pData, nBytes, nBits) {}
 
 	bf_read(const char* pDebugName, void* pData, int nBytes, int nMaxBits = -1) 
-		: CBitRead(pDebugName, pData, nMaxBits) {}
+		: CBitRead(pDebugName, pData, nBytes, nMaxBits) {}
 
 	bf_read(void) : CBitRead()
 	{}
