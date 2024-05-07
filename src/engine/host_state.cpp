@@ -29,13 +29,6 @@
 #include "engine/gl_screen.h"
 #include "engine/host.h"
 #include "engine/host_cmd.h"
-
-#ifndef CLIENT_DLL
-#ifndef logger_h
-#include "game/server/logger.h"
-#endif // logger_h mkos
-#endif
-
 #include "engine/host_state.h"
 #include "engine/sys_engine.h"
 #include "engine/modelloader.h"
@@ -63,6 +56,11 @@
 #endif // !CLIENT_DLL
 #include "game/shared/vscript_shared.h"
 
+#ifndef CLIENT_DLL
+#if !defined(LOGGER_H)
+	#include "game/server/logger.h"
+#endif
+#endif // !CLIENT_DLL
 
 #ifndef CLIENT_DLL
 static ConVar host_statusRefreshRate("host_statusRefreshRate", "0.5", FCVAR_RELEASE, "Host status refresh rate (seconds).", true, 0.f, false, 0.f);

@@ -238,7 +238,6 @@ struct SpeedChangeHistoryEntry
 	float maxSpeedChange;
 };
 
-
 class CPlayer : public CBaseCombatCharacter
 {
 	friend class CPlayerMove;
@@ -825,3 +824,5 @@ class VPlayer : public IDetour
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif // PLAYER_H
+
+void CC_CreateFakePlayer_f(const CCommand& args);

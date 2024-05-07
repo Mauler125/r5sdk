@@ -1,37 +1,11 @@
 #pragma once
 #ifndef CLIENT_DLL
+
 #include <tiny-aes/aes.hpp>
-#include "core/stdafx.h"
 #include "engine/server/server.h"
-#include "vscript/languages/squirrel_re/include/sqvm.h"
-#include "thirdparty/curl/include/curl/curl.h"
 #include <engine/host_state.h>
-#include <networksystem/listmanager.h>
 #include <game/server/vscript_server.h>
-#include "engine/server/vengineserver_impl.h"
 #include "logger.h"
-#include <filesystem>
-#include <sstream>
-#include <fstream>
-#include <queue>
-#include <thread>
-#include <condition_variable>
-#include <iostream>
-#include <cstring>
-#include <chrono>
-#include <unordered_map>
-#include <mutex>
-#include <shared_mutex>
-#include <string>
-#include <vector>
-#include <deque>
-#include <utility>
-#include <atomic>
-#include "public\ifilesystem.h"
-#include <algorithm>
-#include <cctype>
-#include <condition_variable>
-#include <future>
 #include <networksystem/hostmanager.h>
 
 //-----------------------------------------------------------------------------

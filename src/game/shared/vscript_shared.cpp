@@ -17,14 +17,6 @@
 #include "engine/cmodel_bsp.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 #include "vscript_shared.h"
-#pragma once
-//#include "game/server/gameinterface.h"
-//#include "common/callback.h"
-//#include "common/netmessages.h"
-//#include <networksystem/hostmanager.h>
-//#include <random>
-//#include "game/server/player.cpp"
-
 
 namespace VScriptCode
 {
@@ -93,10 +85,6 @@ namespace VScriptCode
             v_SQVM_ScriptError("%s", pString);
             SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
-
-#ifndef CLIENT_DLL
- 
-#endif // !CLIENT_DLL
     }
 }
 
@@ -112,12 +100,6 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailablePlaylists, "Gets an array of all available playlists", "array< string >", "");
 
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, ScriptError, "", "void", "string format, ...")
-
-
-#ifndef CLIENT_DLL
-
-
-#endif // !CLIENT_DLL
 }
 
 //---------------------------------------------------------------------------------

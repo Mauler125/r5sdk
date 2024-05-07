@@ -6,8 +6,8 @@
 inline void (*v_Script_RegisterCommonEnums_Server)(CSquirrelVM* const s);
 inline void (*v_Script_RegisterCommonEnums_Client)(CSquirrelVM* const s);
 
-inline void*(*v_Script_Remote_BeginRegisteringFunctions)(void);
-inline void*(*v_RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2);
+inline void* (*v_Script_Remote_BeginRegisteringFunctions)(void);
+inline void* (*v_RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2);
 
 inline uint32_t* g_nServerRemoteChecksum = nullptr;
 inline uint32_t* g_nClientRemoteChecksum = nullptr;
@@ -19,11 +19,6 @@ namespace VScriptCode
 		SQRESULT GetSDKVersion(HSQUIRRELVM v);
 		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
-
-		//mkos
-#ifndef CLIENT_DLL
-
-#endif
 	}
 }
 

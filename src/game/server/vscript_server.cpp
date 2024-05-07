@@ -14,20 +14,17 @@
 #include "vscript/vscript.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
-#include "game/server/liveapi/liveapi.h"
+#include "liveapi/liveapi.h"
 #include "vscript_server.h"
 #include <engine/host_state.h>
-#include <networksystem/listmanager.h>
+#include <networksystem/hostmanager.h>
 #include <random>
 
 #pragma once
-#include "game/server/player.cpp"
-
 #ifndef CLIENT_DLL
     #include "game/server/logger.h"
+    #include "player.h"
 #endif
-
-#include <networksystem/hostmanager.h>
 
 /*
 =====================
@@ -419,6 +416,7 @@ namespace VScriptCode
                 if (!VALID_CHARSTAR(logString))
                 {
                     Error(eDLL_T::SERVER, NO_ERROR, "INVALID CHARSTAR");
+                    v_SQVM_ScriptError("INVALID CHARSTAR");
                     SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
                 }
 
@@ -428,6 +426,7 @@ namespace VScriptCode
             else
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Error retrieving parameters.");
+                v_SQVM_ScriptError("Error retrieving parameters.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
         }
@@ -444,6 +443,7 @@ namespace VScriptCode
             if (SQ_FAILED(sq_getbool(v, 2, &encrypt)))
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'encrypt' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'encrypt' parameter.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -463,6 +463,7 @@ namespace VScriptCode
             if (SQ_FAILED(sq_getbool(v, 2, &sendToAPI)))
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'sendToAPI' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'sendToAPI' parameter.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -497,6 +498,7 @@ namespace VScriptCode
             if (SQ_FAILED(res) || !sqprintmsg)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'sqprintmsg' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'sqprintmsg' parameter.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -515,6 +517,7 @@ namespace VScriptCode
             if (SQ_FAILED(res) || !sqprintmsg)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'sqprintmsg' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'sqprintmsg' parameter.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -540,6 +543,7 @@ namespace VScriptCode
                 SQ_FAILED(sq_getstring(v, 4, &ea_name)) || !ea_name)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve parameters.");
+                v_SQVM_ScriptError("Failed to retrieve parameters.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -580,6 +584,7 @@ namespace VScriptCode
                 SQ_FAILED(sq_getstring(v, 6, &DISCORD_HOOK)) || !DISCORD_HOOK)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve parameters.");
+                v_SQVM_ScriptError("Failed to retrieve parameters.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -597,6 +602,7 @@ namespace VScriptCode
                 SQ_FAILED(sq_getstring(v, 3, &DISCORD_HOOK)) || !DISCORD_HOOK)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve parameters.");
+                v_SQVM_ScriptError("Failed to retrieve parameters.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -612,6 +618,7 @@ namespace VScriptCode
             if (SQ_FAILED(sq_getstring(v, 2, &player_oid)) || !player_oid)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'player_oid' parameter.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -627,6 +634,7 @@ namespace VScriptCode
             if (SQ_FAILED(sq_getstring(v, 2, &player_oids)) || !player_oids)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oids' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'player_oids' parameter.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -642,6 +650,7 @@ namespace VScriptCode
             if (SQ_FAILED(sq_getstring(v, 2, &player_oid)) || !player_oid)
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'player_oid' parameter.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -657,6 +666,7 @@ namespace VScriptCode
 
             if (SQ_FAILED(sq_getstring(v, 2, &stats_json)))
             {
+                v_SQVM_ScriptError("Failed to get stats_json");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -711,7 +721,7 @@ namespace VScriptCode
         SQRESULT SQ_ReloadConfig(HSQUIRRELVM v)
         {
             LOGGER::ReloadConfig("r5rdev_config.json");
-            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         SQRESULT SQ_ServerMsg(HSQUIRRELVM v)
@@ -720,6 +730,7 @@ namespace VScriptCode
 
             if (SQ_FAILED(sq_getstring(v, 2, &inMsg)) || !inMsg)
             {
+                v_SQVM_ScriptError("Failed to get servermsg string");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -727,6 +738,7 @@ namespace VScriptCode
 
             if (SQ_FAILED(sq_getinteger(v, 3, &senderId)) || senderId < 0 || senderId > 255)
             {
+                v_SQVM_ScriptError("Failed to get servermsg int or out of bounds");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
@@ -744,12 +756,13 @@ namespace VScriptCode
         {
             if (!g_pServer->IsActive())
             {
-                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
             const SQChar* ImmutableName = nullptr;
             if (SQ_FAILED(sq_getstring(v, 2, &ImmutableName)) || !ImmutableName)
             {
+                v_SQVM_ScriptError("Failed to get server msgbot name");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 

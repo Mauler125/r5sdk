@@ -28,17 +28,17 @@ static ConVar net_processTimeBudget("net_processTimeBudget", "200", FCVAR_RELEAS
 //-----------------------------------------------------------------------------
 float CNetChan::GetResendRate() const
 {
-	const int64_t totalupdates = this->m_DataFlow[FLOW_INCOMING].totalupdates;
+    const int64_t totalupdates = this->m_DataFlow[FLOW_INCOMING].totalupdates;
 
-	if (!totalupdates && !this->m_nSequencesSkipped_MAYBE)
-		return 0.0f;
+    if (!totalupdates && !this->m_nSequencesSkipped_MAYBE)
+        return 0.0f;
 
-	float lossRate = (float)(totalupdates + m_nSequencesSkipped_MAYBE);
+    float lossRate = (float)(totalupdates + m_nSequencesSkipped_MAYBE);
 
-	if (totalupdates + m_nSequencesSkipped_MAYBE < 0.0f)
-		lossRate += float(2 ^ 64);
+    if (totalupdates + m_nSequencesSkipped_MAYBE < 0.0f)
+        lossRate += float(2 ^ 64);
 
-	return m_nSequencesSkipped_MAYBE / lossRate;
+    return m_nSequencesSkipped_MAYBE / lossRate;
 }
 
 //-----------------------------------------------------------------------------
@@ -48,16 +48,16 @@ float CNetChan::GetResendRate() const
 //-----------------------------------------------------------------------------
 int CNetChan::GetSequenceNr(int flow) const
 {
-	if (flow == FLOW_OUTGOING)
-	{
-		return m_nOutSequenceNr;
-	}
-	else if (flow == FLOW_INCOMING)
-	{
-		return m_nInSequenceNr;
-	}
+    if (flow == FLOW_OUTGOING)
+    {
+        return m_nOutSequenceNr;
+    }
+    else if (flow == FLOW_INCOMING)
+    {
+        return m_nInSequenceNr;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -66,8 +66,8 @@ int CNetChan::GetSequenceNr(int flow) const
 //-----------------------------------------------------------------------------
 double CNetChan::GetTimeConnected(void) const
 {
-	double t = *g_pNetTime - connect_time;
-	return (t > 0.0) ? t : 0.0;
+    double t = *g_pNetTime - connect_time;
+    return (t > 0.0) ? t : 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -360,7 +360,7 @@ void CNetChan::_FlowNewPacket(CNetChan* pChan, int flow, int outSeqNr, int inSeq
 //-----------------------------------------------------------------------------
 void CNetChan::_Shutdown(CNetChan* pChan, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
-	CNetChan__Shutdown(pChan, szReason, bBadRep, bRemoveNow);
+    CNetChan__Shutdown(pChan, szReason, bBadRep, bRemoveNow);
 }
 
 //-----------------------------------------------------------------------------
@@ -565,28 +565,28 @@ bool CNetChan::ReadSubChannelData(bf_read& buf)
 //-----------------------------------------------------------------------------
 bool CNetChan::SendNetMsg(INetMessage& msg, const bool bForceReliable, const bool bVoice)
 {
-	if (remote_address.GetType() == netadrtype_t::NA_NULL)
-		return true;
+    if (remote_address.GetType() == netadrtype_t::NA_NULL)
+        return true;
 
-	bf_write* pStream = &m_StreamUnreliable;
+    bf_write* pStream = &m_StreamUnreliable;
 
-	if (msg.IsReliable() || bForceReliable)
-		pStream = &m_StreamReliable;
+    if (msg.IsReliable() || bForceReliable)
+        pStream = &m_StreamReliable;
 
-	if (bVoice)
-		pStream = &m_StreamVoice;
+    if (bVoice)
+        pStream = &m_StreamVoice;
 
-	if (pStream == &m_StreamUnreliable && pStream->GetNumBytesLeft() < NET_UNRELIABLE_STREAM_MINSIZE)
-		return true;
+    if (pStream == &m_StreamUnreliable && pStream->GetNumBytesLeft() < NET_UNRELIABLE_STREAM_MINSIZE)
+        return true;
 
-	AcquireSRWLockExclusive(&m_Lock);
+    AcquireSRWLockExclusive(&m_Lock);
 
-	pStream->WriteUBitLong(msg.GetType(), NETMSG_TYPE_BITS);
-	const bool ret = msg.WriteToBuffer(pStream);
+    pStream->WriteUBitLong(msg.GetType(), NETMSG_TYPE_BITS);
+    const bool ret = msg.WriteToBuffer(pStream);
 
-	ReleaseSRWLockExclusive(&m_Lock);
+    ReleaseSRWLockExclusive(&m_Lock);
 
-	return !pStream->IsOverflowed() && ret;
+    return !pStream->IsOverflowed() && ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -619,7 +619,7 @@ bool CNetChan::SendData(bf_write& msg, const bool bReliable)
     {
         if (bReliable)
         {
-            Error(eDLL_T::ENGINE, 0, "%s(%s): Data too large for reliable buffer (%i > %i)!\n", 
+            Error(eDLL_T::ENGINE, 0, "%s(%s): Data too large for reliable buffer (%i > %i)!\n",
                 __FUNCTION__, GetAddress(), msg.GetNumBytesWritten(), buf.GetNumBytesLeft());
 
             m_MessageHandler->ChannelDisconnect("reliable buffer is full");
@@ -689,14 +689,14 @@ void CNetChan::FreeReceiveList()
 //-----------------------------------------------------------------------------
 bool CNetChan::HasPendingReliableData(void)
 {
-	return (m_StreamReliable.GetNumBitsWritten() > 0)
-		|| (m_WaitingList.Count() > 0);
+    return (m_StreamReliable.GetNumBitsWritten() > 0)
+        || (m_WaitingList.Count() > 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void VNetChan::Detour(const bool bAttach) const
 {
-	DetourSetup(&CNetChan__Shutdown, &CNetChan::_Shutdown, bAttach);
-	DetourSetup(&CNetChan__FlowNewPacket, &CNetChan::_FlowNewPacket, bAttach);
-	DetourSetup(&CNetChan__ProcessMessages, &CNetChan::_ProcessMessages, bAttach);
+    DetourSetup(&CNetChan__Shutdown, &CNetChan::_Shutdown, bAttach);
+    DetourSetup(&CNetChan__FlowNewPacket, &CNetChan::_FlowNewPacket, bAttach);
+    DetourSetup(&CNetChan__ProcessMessages, &CNetChan::_ProcessMessages, bAttach);
 }
