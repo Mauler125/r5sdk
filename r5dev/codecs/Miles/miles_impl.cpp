@@ -1,9 +1,10 @@
 #include "core/stdafx.h"
-#include "miles_impl.h"
 #include "tier0/fasttimer.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "filesystem/filesystem.h"
+#include "ebisusdk/EbisuSDK.h"
+#include "miles_impl.h"
 
 static ConVar miles_debug("miles_debug", "0", FCVAR_DEVELOPMENTONLY, "Enables debug prints for the Miles Sound System", "1 = print; 0 (zero) = no print");
 static ConVar miles_warnings("miles_warnings", "0", FCVAR_RELEASE, "Enables warning prints for the Miles Sound System", "1 = print; 0 (zero) = no print");
@@ -25,10 +26,7 @@ void AIL_LogFunc(int64_t nLogLevel, const char* pszMessage)
 //-----------------------------------------------------------------------------
 bool Miles_Initialize()
 {
-	const char* pszLanguage = miles_language->GetString();
-	if (!pszLanguage[0])
-		pszLanguage = MILES_DEFAULT_LANGUAGE;
-
+	const char* pszLanguage = HEbisuSDK_GetLanguage();
 	const bool isDefaultLanguage = _stricmp(pszLanguage, MILES_DEFAULT_LANGUAGE) == 0;
 
 	if (!isDefaultLanguage)
