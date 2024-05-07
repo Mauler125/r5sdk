@@ -124,10 +124,12 @@ public:
 	int         GetSequenceNr(int flow) const;
 	double      GetTimeConnected(void) const;
 
-	inline float GetTimeoutSeconds(void)          const { return m_Timeout; }
-	inline int   GetSocket(void)                  const { return m_Socket; }
-	inline const bf_write& GetStreamVoice(void)   const { return m_StreamVoice; }
-	inline const netadr_t& GetRemoteAddress(void) const { return remote_address; }
+	inline float GetTimeoutSeconds(void)             const { return m_Timeout; }
+	inline int   GetSocket(void)                     const { return m_Socket; }
+	inline const bf_write& GetStreamVoice(void)      const { return m_StreamVoice; }
+	inline const bf_write& GetStreamReliable(void)   const { return m_StreamReliable; }
+	inline const bf_write& GetStreamUnreliable(void) const { return m_StreamUnreliable; }
+	inline const netadr_t& GetRemoteAddress(void)    const { return remote_address; }
 
 	int         GetNumBitsWritten(const bool bReliable);
 	int         GetNumBitsLeft(const bool bReliable);

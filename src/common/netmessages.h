@@ -372,6 +372,70 @@ public:
 	void* m_DataOut;
 };
 
+struct SVC_DurangoVoiceData : public CNetMessage
+{
+public:
+	SVC_DurangoVoiceData() = default;
+	SVC_DurangoVoiceData(int senderClient, int nBytes, char* data, int unknown, bool useUnreliableStream)
+	{
+		void** pVFTable = reinterpret_cast<void**>(this);
+		*pVFTable = g_pSVC_VoiceData_VFTable;
+
+		m_bReliable = false;
+		m_NetChannel = nullptr;
+
+		m_nFromClient = senderClient;
+		m_nLength = nBytes; // length in bits
+
+		m_unknown = unknown;
+		m_useVoiceStream = useUnreliableStream;
+
+		m_DataOut = data;
+
+		m_nGroup = 2; // must be set to 2 to avoid being copied into replay buffer
+	};
+
+	virtual	~SVC_DurangoVoiceData() {};
+
+	virtual void	SetNetChannel(CNetChan* netchan) { m_NetChannel = netchan; }
+	virtual void	SetReliable(bool state) { m_bReliable = state; };
+
+	virtual bool	Process(void)
+	{
+		return CallVFunc<bool>(NetMessageVtbl::Process, this);
+	};
+	virtual	bool	ReadFromBuffer(bf_read* buffer)
+	{
+		return CallVFunc<bool>(NetMessageVtbl::ReadFromBuffer, this, buffer);
+	}
+	virtual	bool	WriteToBuffer(bf_write* buffer)
+	{
+		return CallVFunc<bool>(NetMessageVtbl::WriteToBuffer, this, buffer);
+	}
+
+	virtual bool	IsReliable(void) const { return m_bReliable; };
+
+	virtual int          GetGroup(void) const { return m_nGroup; };
+	virtual int          GetType(void) const { return NetMessageType::svc_DurangoVoiceData; };
+	virtual const char* GetName(void) const { return "svc_DurangoVoiceData"; };
+	virtual CNetChan* GetNetChannel(void) const { return m_NetChannel; };
+	virtual const char* ToString(void) const
+	{
+		static char szBuf[4096];
+		V_snprintf(szBuf, sizeof(szBuf), "%s: client %i, bytes %i", this->GetName(), m_nFromClient, ((m_nLength + 7) >> 3));
+
+		return szBuf;
+	};
+	virtual size_t       GetSize(void) const { return sizeof(SVC_DurangoVoiceData); };
+
+	int m_nFromClient;
+	int m_nLength;
+	int m_unknown;
+	bool m_useVoiceStream;
+	bf_read m_DataIn;
+	void* m_DataOut;
+};
+
 class SVC_PlaylistOverrides : public CNetMessage
 {
 private:
@@ -384,6 +448,31 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////
 // Client messages:
 ///////////////////////////////////////////////////////////////////////////////////////
+
+class CLC_VoiceData : public CNetMessage
+{
+public:
+	void* unk0;
+	int m_nLength;
+	bf_read m_DataIn;
+	bf_write m_DataOut;
+	int unk1;
+	int unk2;
+};
+
+class CLC_DurangoVoiceData : public CNetMessage
+{
+public:
+	void* unk0;
+	int m_nLength;
+	bf_read m_DataIn;
+	bf_write m_DataOut;
+	bool m_skipXidCheck;
+	bool m_useVoiceStream;
+	int m_xid;
+	int m_unknown;
+};
+
 
 class CLC_ClientTick : public CNetMessage
 {
