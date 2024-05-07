@@ -50,6 +50,8 @@ extern ConVar* eula_version_accepted;
 
 extern ConVar* language_cvar;
 
+extern ConVar* voice_noxplat;
+
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 #ifndef CLIENT_DLL

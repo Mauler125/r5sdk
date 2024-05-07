@@ -212,6 +212,24 @@ public:
 	int64           ReadSignedVarInt64() { return bitbuf::ZigZagDecode64(ReadVarInt64()); }
 
 	void            ReadBits(void* pOutData, int nBits);
+
+	// Helper 'safe' template function that infers the size of the destination
+	// array. This version of the function should be preferred.
+	// Usage: char databuffer[100];
+	//        ReadBitsClamped( dataBuffer, msg->m_nLength );
+	template <typename T, int N>
+	FORCEINLINE int ReadBitsClamped(T (&pOut)[N], int nBits)
+	{
+		const int outSizeBytes = N * sizeof(T);
+		const int outSizeBits = outSizeBytes * 8;
+
+		if (nBits > outSizeBits)
+			nBits = outSizeBits;
+
+		ReadBits(pOut, nBits);
+		return nBits;
+	}
+
 	bool            ReadBytes(void* pOut, int nBytes);
 
 
