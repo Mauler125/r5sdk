@@ -9,6 +9,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
+#include "mathlib/bitvec.h"
 #include "tier1/cvar.h"
 #include "tier1/strtools.h"
 #include "engine/server/server.h"
@@ -525,6 +526,45 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: process voice data
+// Input  : *pClient - (ADJ)
+//			*pMsg - 
+// Output : 
+//---------------------------------------------------------------------------------
+bool CClient::VProcessVoiceData(CClient* pClient, CLC_VoiceData* pMsg)
+{
+#ifndef CLIENT_DLL
+	char voiceDataBuffer[4096];
+	const int bitsRead = pMsg->m_DataIn.ReadBitsClamped(voiceDataBuffer, pMsg->m_nLength);
+
+	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
+	SV_BroadcastVoiceData(pAdj, Bits2Bytes(bitsRead), voiceDataBuffer);
+#endif // !CLIENT_DLL
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: process durango voice data
+// Input  : *pClient - (ADJ)
+//			*pMsg - 
+// Output : 
+//---------------------------------------------------------------------------------
+bool CClient::VProcessDurangoVoiceData(CClient* pClient, CLC_DurangoVoiceData* pMsg)
+{
+#ifndef CLIENT_DLL
+	char voiceDataBuffer[4096];
+	const int bitsRead = pMsg->m_DataIn.ReadBitsClamped(voiceDataBuffer, pMsg->m_nLength);
+
+	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
+	SV_BroadcastDurangoVoiceData(pAdj, Bits2Bytes(bitsRead), voiceDataBuffer,
+		pMsg->m_xid, pMsg->m_unknown, pMsg->m_useVoiceStream, pMsg->m_skipXidCheck);
+#endif // !CLIENT_DLL
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: set UserCmd time buffer
 // Input  : numUserCmdProcessTicksMax - 
 //			tickInterval - 
@@ -578,5 +618,7 @@ void VClient::Detour(const bool bAttach) const
 
 	DetourSetup(&CClient__ProcessStringCmd, &CClient::VProcessStringCmd, bAttach);
 	DetourSetup(&CClient__ProcessSetConVar, &CClient::VProcessSetConVar, bAttach);
+	DetourSetup(&CClient__ProcessVoiceData, &CClient::VProcessVoiceData, bAttach);
+	DetourSetup(&CClient__ProcessDurangoVoiceData, &CClient::VProcessDurangoVoiceData, bAttach);
 #endif // !CLIENT_DLL
 }

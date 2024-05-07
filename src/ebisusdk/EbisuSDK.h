@@ -3,6 +3,7 @@
 inline void(*EbisuSDK_Tier0_Init)(void);
 inline void(*EbisuSDK_CVar_Init)(void);
 inline void(*EbisuSDK_SetState)(void);
+inline const char*(*EbisuSDK_GetLanguage)(void);
 
 inline uint64_t* g_NucleusID = nullptr;
 inline char* g_NucleusToken = nullptr; /*SIZE = 1024*/
@@ -13,6 +14,8 @@ inline bool* g_EbisuProfileInit = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 void HEbisuSDK_Init();
+const char* HEbisuSDK_GetLanguage();
+
 bool IsOriginInitialized();
 bool IsValidPersonaName(const char* pszName, int nMinLen, int nMaxLen);
 
@@ -24,6 +27,7 @@ class VEbisuSDK : public IDetour
 		LogFunAdr("EbisuSDK_Tier0_Init", EbisuSDK_Tier0_Init);
 		LogFunAdr("EbisuSDK_CVar_Init", EbisuSDK_CVar_Init);
 		LogFunAdr("EbisuSDK_SetState", EbisuSDK_SetState);
+		LogFunAdr("EbisuSDK_SetState", EbisuSDK_GetLanguage);
 		LogVarAdr("g_NucleusID", g_NucleusID);
 		LogVarAdr("g_NucleusToken", g_NucleusToken);
 		LogVarAdr("g_OriginAuthCode", g_OriginAuthCode);
@@ -36,6 +40,7 @@ class VEbisuSDK : public IDetour
 		g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 0F 85 ?? 02 ?? ?? 48 89 5C 24 20").GetPtr(EbisuSDK_Tier0_Init);
 		g_GameDll.FindPatternSIMD("40 57 48 83 EC 40 83 3D").GetPtr(EbisuSDK_CVar_Init);
 		g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 5B").GetPtr(EbisuSDK_SetState);
+		g_GameDll.FindPatternSIMD("48 8B C4 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ??").GetPtr(EbisuSDK_GetLanguage);
 	}
 	virtual void GetVar(void) const
 	{
@@ -47,6 +52,6 @@ class VEbisuSDK : public IDetour
 		g_EbisuSDKInit = CMemory(EbisuSDK_Tier0_Init).Offset(0x0).FindPatternSelf("80 3D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Detour(const bool bAttach) const { }
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

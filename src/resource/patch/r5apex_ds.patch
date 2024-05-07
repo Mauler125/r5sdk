@@ -27,3 +27,10 @@
 // since the dedicated server doesn't use model or texture streaming, and as a
 // result the files aren't shipped.
 0x44BE87: "mov ecx, 0x1" --> "mov ecx, 0x0"
+
+// Prevent this global bool from being set, as setting this enables CMaterialRenderContext code which shouldn't run on the dedicated server.
+0x1E4CE0: "mov     cs:byte_165C4D15B, al" --> "mov     cs:byte_165C4D15B, 0x0"
+
+// Prevent VFTable global pointer from being initialized to HardwareConfigDX11, which disables additional DX/Render code.
+0x44A460: "lea rax, ds:off_141F03730" --> "nop"
+0x44A467: "mov ds:off_141F03730, rax" --> "nop"

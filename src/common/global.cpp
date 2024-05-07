@@ -63,6 +63,8 @@ ConVar* eula_version_accepted              = nullptr;
 
 ConVar* language_cvar                      = nullptr;
 
+ConVar* voice_noxplat                      = nullptr;
+
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 #ifndef CLIENT_DLL
@@ -153,7 +155,8 @@ void ConVar_InitShipped(void)
 	eula_version                     = g_pCVar->FindVar("eula_version");
 	eula_version_accepted            = g_pCVar->FindVar("eula_version_accepted");
 
-	language_cvar = g_pCVar->FindVar("language");
+	language_cvar                    = g_pCVar->FindVar("language");
+	voice_noxplat                    = g_pCVar->FindVar("voice_noxplat");
 #ifndef DEDICATED
 	cl_updaterate_mp                 = g_pCVar->FindVar("cl_updaterate_mp");
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
@@ -392,7 +395,6 @@ void ConCommand_InitShipped(void)
 			"connectAsSpectator",
 			"connectWithKey",
 			"silentconnect",
-			"set",
 			"ping",
 #endif // !DEDICATED
 			"launchplaylist",
@@ -400,6 +402,7 @@ void ConCommand_InitShipped(void)
 			"exit",
 			"reload",
 			"restart",
+			"set",
 			"status",
 			"version",
 		};

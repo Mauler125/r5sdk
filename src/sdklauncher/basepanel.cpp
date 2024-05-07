@@ -539,6 +539,11 @@ void CSurface::Init()
 //-----------------------------------------------------------------------------
 void CSurface::Setup()
 {
+	// Already parse these out since you can scroll select in a combo box
+	// without uncollapsing it.
+	this->ParseMaps();
+	this->ParsePlaylists();
+
 	this->m_ModeCombo->Items.Add("Host");
 	this->m_ModeCombo->Items.Add("Server");
 	this->m_ModeCombo->Items.Add("Client");
