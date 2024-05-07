@@ -40,6 +40,7 @@ public: // Hook statics.
 	static bool _ProcessStringCmd(CClientState* thisptr, NET_StringCmd* msg);
 	static bool VProcessServerTick(CClientState* thisptr, SVC_ServerTick* msg);
 	static bool _ProcessCreateStringTable(CClientState* thisptr, SVC_CreateStringTable* msg);
+	static bool _ProcessUserMessage(CClientState* thisptr, SVC_UserMessage* msg);
 	static void VConnect(CClientState* thisptr, connectparams_t* connectParams);
 
 
@@ -228,6 +229,7 @@ inline bool(*CClientState__HookClientStringTable)(CClientState* thisptr, const c
 inline bool(*CClientState__ProcessStringCmd)(CClientState* thisptr, NET_StringCmd* msg);
 inline bool(*CClientState__ProcessServerTick)(CClientState* thisptr, SVC_ServerTick* msg);
 inline bool(*CClientState__ProcessCreateStringTable)(CClientState* thisptr, SVC_CreateStringTable* msg);
+inline bool(*CClientState__ProcessUserMessage)(CClientState* thisptr, SVC_UserMessage* msg);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VClientState : public IDetour
@@ -242,6 +244,7 @@ class VClientState : public IDetour
 		LogFunAdr("CClientState::ProcessStringCmd", CClientState__ProcessStringCmd);
 		LogFunAdr("CClientState::ProcessServerTick", CClientState__ProcessServerTick);
 		LogFunAdr("CClientState::ProcessCreateStringTable", CClientState__ProcessCreateStringTable);
+		LogFunAdr("CClientState::ProcessUserMessage", CClientState__ProcessUserMessage);
 		LogVarAdr("g_ClientState", g_pClientState);
 		LogVarAdr("g_ClientState_Shifted", g_pClientState_Shifted);
 	}
@@ -255,6 +258,7 @@ class VClientState : public IDetour
 		g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? ?? 48 8B DA").GetPtr(CClientState__ProcessStringCmd);
 		g_GameDll.FindPatternSIMD("40 57 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B F9 7C 66").GetPtr(CClientState__ProcessServerTick);
 		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 53 56 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ??").GetPtr(CClientState__ProcessCreateStringTable);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ??").GetPtr(CClientState__ProcessUserMessage);
 	}
 	virtual void GetVar(void) const
 	{

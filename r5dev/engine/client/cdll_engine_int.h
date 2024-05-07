@@ -47,6 +47,12 @@ public:
 		const static int index = 28;
 		return CallVFunc<CUserCmd*>(index, this, sequenceNumber); /*48 83 EC 28 48 8B 05 ? ? ? ? 48 8D 0D ? ? ? ? 44 8B C2*/
 	}
+
+	bool DispatchUserMessage(int msgType, bf_read* msgData)
+	{
+		const static int index = 59;
+		return CallVFunc<bool>(index, this, msgType, msgData);
+	}
 };
 
 /* ==== CHLCLIENT ======================================================================================================================================================= */
