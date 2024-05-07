@@ -799,7 +799,7 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextur
 //-----------------------------------------------------------------------------
 VPKPair_t::VPKPair_t(const char* pLocale, const char* pTarget, const char* pLevel, int nPatch)
 {
-	const bool bFoundLocale = V_LocaleExists(pLocale);
+	const bool bFoundLocale = V_LocaleNameExists(pLocale);
 
 	if (!bFoundLocale)
 	{
