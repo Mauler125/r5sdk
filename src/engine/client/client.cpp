@@ -533,11 +533,13 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 //---------------------------------------------------------------------------------
 bool CClient::VProcessVoiceData(CClient* pClient, CLC_VoiceData* pMsg)
 {
+#ifndef CLIENT_DLL
 	char voiceDataBuffer[4096];
 	const int bitsRead = pMsg->m_DataIn.ReadBitsClamped(voiceDataBuffer, pMsg->m_nLength);
 
 	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
 	SV_BroadcastVoiceData(pAdj, Bits2Bytes(bitsRead), voiceDataBuffer);
+#endif // !CLIENT_DLL
 
 	return true;
 }
@@ -550,12 +552,14 @@ bool CClient::VProcessVoiceData(CClient* pClient, CLC_VoiceData* pMsg)
 //---------------------------------------------------------------------------------
 bool CClient::VProcessDurangoVoiceData(CClient* pClient, CLC_DurangoVoiceData* pMsg)
 {
+#ifndef CLIENT_DLL
 	char voiceDataBuffer[4096];
 	const int bitsRead = pMsg->m_DataIn.ReadBitsClamped(voiceDataBuffer, pMsg->m_nLength);
 
 	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
 	SV_BroadcastDurangoVoiceData(pAdj, Bits2Bytes(bitsRead), voiceDataBuffer,
 		pMsg->m_xid, pMsg->m_unknown, pMsg->m_useVoiceStream, pMsg->m_skipXidCheck);
+#endif // !CLIENT_DLL
 
 	return true;
 }
