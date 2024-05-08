@@ -965,7 +965,7 @@ namespace LOGGER
                     playerStatsMap[playerOidStr] = stats;
                     has_lock = true;
 
-                    std::string command = "CodeCallback_PlayerStatsReady(\"" + playerOidStr + "\")";
+                    std::string command = "CodeCallback_PlayerStatsReady(\"" + SanitizeString(playerOidStr) + "\")";
                     Script_Execute( command.c_str(), SQCONTEXT::SERVER);
                 }
 
