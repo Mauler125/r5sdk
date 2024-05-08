@@ -26,33 +26,32 @@ namespace VScriptCode
 		SQRESULT IsServerActive(HSQUIRRELVM v);
 		SQRESULT IsDedicated(HSQUIRRELVM v);
 
-		SQRESULT InitializeLogThread_internal(HSQUIRRELVM v);
-		SQRESULT LogEvent(HSQUIRRELVM v);
-		SQRESULT SQMatchID(HSQUIRRELVM v);
-		SQRESULT stopLogging(HSQUIRRELVM v);
-		SQRESULT isLogging(HSQUIRRELVM v);
-		SQRESULT SQ_GetLogState(HSQUIRRELVM v);
+		SQRESULT InitializeLogThread__internal(HSQUIRRELVM v);
+		SQRESULT LogEvent__internal(HSQUIRRELVM v);
+		SQRESULT SQMatchID__internal(HSQUIRRELVM v);
+		SQRESULT stopLogging__internal(HSQUIRRELVM v);
+		SQRESULT isLogging__internal(HSQUIRRELVM v);
+		SQRESULT SQ_GetLogState__internal(HSQUIRRELVM v);
 
 
 		SQRESULT sqprint(HSQUIRRELVM v);
 		SQRESULT sqerror(HSQUIRRELVM v);
 
-		SQRESULT EA_Verify(HSQUIRRELVM v);
-		SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v);
-		SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v);
-		SQRESULT LoadKDString(HSQUIRRELVM v);
-		SQRESULT GetKDString(HSQUIRRELVM v);
-		SQRESULT SQ_UpdateLiveStats(HSQUIRRELVM v);
-		SQRESULT SQ_ResetStats(HSQUIRRELVM v);
-		SQRESULT LoadBatchKDStrings(HSQUIRRELVM v);
-		SQRESULT CleanupLogs(HSQUIRRELVM v);
-		SQRESULT SQ_GetSetting(HSQUIRRELVM v);
-		SQRESULT SQ_ReloadConfig(HSQUIRRELVM v);
-		SQRESULT FetchGlobalSettingsFromR5RDEV(HSQUIRRELVM v);
+		SQRESULT EA_Verify__internal(HSQUIRRELVM v);
+		SQRESULT _STATSHOOK_UpdatePlayerCount__internal(HSQUIRRELVM v);
+		SQRESULT _STATSHOOK_EndOfMatch__internal(HSQUIRRELVM v);
+		SQRESULT LoadSyncData__internal(HSQUIRRELVM v);
+		SQRESULT GetSyncData__internal(HSQUIRRELVM v);
+		SQRESULT SQ_UpdateLiveStats__internal(HSQUIRRELVM v);
+		SQRESULT SQ_ResetStats__internal(HSQUIRRELVM v);
+		SQRESULT LoadBatchSyncData__internal(HSQUIRRELVM v);
+		SQRESULT CleanupLogs__internal(HSQUIRRELVM v);
+		SQRESULT SQ_GetSetting__internal(HSQUIRRELVM v);
+		SQRESULT SQ_ReloadConfig__internal(HSQUIRRELVM v);
+		SQRESULT FetchGlobalSettingsFromR5RDEV__internal(HSQUIRRELVM v);
 
-
-		SQRESULT SQ_ServerMsg(HSQUIRRELVM v);
-		SQRESULT SQ_CreateServerBot(HSQUIRRELVM v);
+		SQRESULT SQ_ServerMsg__internal(HSQUIRRELVM v);
+		SQRESULT SQ_CreateServerBot__internal(HSQUIRRELVM v);
 
 
 		//Declare to be used with logger

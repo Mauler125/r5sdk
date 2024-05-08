@@ -7,6 +7,7 @@
 #include <game/server/vscript_server.h>
 #include "logger.h"
 #include <networksystem/hostmanager.h>
+#include "vscript/vscript.h"
 
 //-----------------------------------------------------------------------------
 // POINTERS
@@ -894,6 +895,8 @@ namespace LOGGER
                     }
 
                 }
+
+                g_pServerScript->ExecuteCodeCallback("CodeCallback_BatchStatsLoaded");
             });
     }
 
@@ -961,6 +964,9 @@ namespace LOGGER
                 {
                     playerStatsMap[playerOidStr] = stats;
                     has_lock = true;
+
+                    std::string command = "CodeCallback_PlayerStatsReady(\"" + playerOidStr + "\")";
+                    Script_Execute( command.c_str(), SQCONTEXT::SERVER);
                 }
 
                 if (!has_lock)

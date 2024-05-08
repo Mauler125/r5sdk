@@ -342,7 +342,7 @@ namespace VScriptCode
 
 
         // exposed to sqvm - retrieves matchID
-        SQRESULT SQMatchID(HSQUIRRELVM v)
+        SQRESULT SQMatchID__internal(HSQUIRRELVM v)
         {
             std::string matchIDStr = std::to_string(getMatchID());
             sq_pushstring(v, matchIDStr.c_str(), -1);
@@ -373,14 +373,14 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
 
         // Check of is currently running -- returns true if logging, false if not running
-        SQRESULT isLogging(HSQUIRRELVM v)
+        SQRESULT isLogging__internal(HSQUIRRELVM v)
         {
             bool state = LOGGER::Logger::getInstance().isLogging();
             sq_pushbool(v, state);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
-        SQRESULT SQ_GetLogState(HSQUIRRELVM v)
+        SQRESULT SQ_GetLogState__internal(HSQUIRRELVM v)
         {
             SQInteger flag = NULL;
 
@@ -403,7 +403,7 @@ namespace VScriptCode
 
 
 
-        SQRESULT LogEvent(HSQUIRRELVM v)
+        SQRESULT LogEvent__internal(HSQUIRRELVM v)
         {
             const SQChar* logString = nullptr;
             SQBool encrypt = false;
@@ -432,7 +432,7 @@ namespace VScriptCode
         }
 
 
-        SQRESULT InitializeLogThread_internal(HSQUIRRELVM v)
+        SQRESULT InitializeLogThread__internal(HSQUIRRELVM v)
         {
             SQBool encrypt = false;
             if (getMatchID() == 0)
@@ -456,7 +456,7 @@ namespace VScriptCode
 
 
 
-        SQRESULT stopLogging(HSQUIRRELVM v)
+        SQRESULT stopLogging__internal(HSQUIRRELVM v)
         {
             SQBool sendToAPI = false;
 
@@ -480,7 +480,7 @@ namespace VScriptCode
         //          logfolder defined in settings json
         //-----------------------------------------------------------------------------
 
-        SQRESULT CleanupLogs(HSQUIRRELVM v)
+        SQRESULT CleanupLogs__internal(HSQUIRRELVM v)
         {
             LOGGER::CleanupLogs(FileSystem());
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
@@ -532,7 +532,7 @@ namespace VScriptCode
         // for ea account verification
         //-----------------------------------------------------------------------------
 
-        SQRESULT EA_Verify(HSQUIRRELVM v)
+        SQRESULT EA_Verify__internal(HSQUIRRELVM v)
         {
             const SQChar* token = nullptr;
             const SQChar* OID = nullptr;
@@ -569,7 +569,7 @@ namespace VScriptCode
         // Purpose: api calls for stats
         //-----------------------------------------------------------------------------
 
-        SQRESULT _STATSHOOK_UpdatePlayerCount(HSQUIRRELVM v)
+        SQRESULT _STATSHOOK_UpdatePlayerCount__internal(HSQUIRRELVM v)
         {
             const SQChar* action = nullptr;
             const SQChar* player = nullptr;
@@ -593,7 +593,7 @@ namespace VScriptCode
         }
 
 
-        SQRESULT _STATSHOOK_EndOfMatch(HSQUIRRELVM v)
+        SQRESULT _STATSHOOK_EndOfMatch__internal(HSQUIRRELVM v)
         {
             const SQChar* recap = nullptr;
             const SQChar* DISCORD_HOOK = nullptr;
@@ -611,7 +611,7 @@ namespace VScriptCode
         }
 
 
-        SQRESULT LoadKDString(HSQUIRRELVM v)
+        SQRESULT LoadSyncData__internal(HSQUIRRELVM v)
         {
             const SQChar* player_oid = nullptr;
 
@@ -627,7 +627,7 @@ namespace VScriptCode
         }
 
 
-        SQRESULT LoadBatchKDStrings(HSQUIRRELVM v)
+        SQRESULT LoadBatchSyncData__internal(HSQUIRRELVM v)
         {
             const SQChar* player_oids = nullptr;
 
@@ -643,7 +643,7 @@ namespace VScriptCode
         }
 
 
-        SQRESULT GetKDString(HSQUIRRELVM v)
+        SQRESULT GetSyncData__internal(HSQUIRRELVM v)
         {
             const SQChar* player_oid = nullptr;
 
@@ -660,7 +660,7 @@ namespace VScriptCode
         }
 
 
-        SQRESULT SQ_UpdateLiveStats(HSQUIRRELVM v)
+        SQRESULT SQ_UpdateLiveStats__internal(HSQUIRRELVM v)
         {
             const SQChar* stats_json = nullptr;
 
@@ -677,7 +677,7 @@ namespace VScriptCode
 
 
 
-        SQRESULT SQ_ResetStats(HSQUIRRELVM v)
+        SQRESULT SQ_ResetStats__internal(HSQUIRRELVM v)
         {
             const SQChar* player_oid = nullptr;
             if (SQ_SUCCEEDED(sq_getstring(v, 2, &player_oid)) && player_oid)
@@ -688,7 +688,7 @@ namespace VScriptCode
         }
 
 
-        SQRESULT FetchGlobalSettingsFromR5RDEV(HSQUIRRELVM v)
+        SQRESULT FetchGlobalSettingsFromR5RDEV__internal(HSQUIRRELVM v)
         {
             const SQChar* query = nullptr;
             if (SQ_SUCCEEDED(sq_getstring(v, 2, &query)) && query)
@@ -706,7 +706,7 @@ namespace VScriptCode
         // loaded from (r5rdev_config)
         //-----------------------------------------------------------------------------
 
-        SQRESULT SQ_GetSetting(HSQUIRRELVM v)
+        SQRESULT SQ_GetSetting__internal(HSQUIRRELVM v)
         {
             const SQChar* setting_key = nullptr;
             if (SQ_SUCCEEDED(sq_getstring(v, 2, &setting_key)) && setting_key)
@@ -718,13 +718,13 @@ namespace VScriptCode
         }
 
 
-        SQRESULT SQ_ReloadConfig(HSQUIRRELVM v)
+        SQRESULT SQ_ReloadConfig__internal(HSQUIRRELVM v)
         {
             LOGGER::ReloadConfig("r5rdev_config.json");
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
-        SQRESULT SQ_ServerMsg(HSQUIRRELVM v)
+        SQRESULT SQ_ServerMsg__internal(HSQUIRRELVM v)
         {
             const SQChar* inMsg = nullptr;
 
@@ -752,7 +752,7 @@ namespace VScriptCode
 
 
 
-        SQRESULT SQ_CreateServerBot(HSQUIRRELVM v)
+        SQRESULT SQ_CreateServerBot__internal(HSQUIRRELVM v)
         {
             if (!g_pServer->IsActive())
             {
@@ -775,7 +775,7 @@ namespace VScriptCode
                 c_args[i] = args[i].c_str();
             }
 
-            CCommand cmd(3, c_args, cmd_source_t::kCommandSrcUserInput);
+            CCommand cmd(3, c_args, cmd_source_t::kCommandSrcCode);
             CC_CreateFakePlayer_f(cmd);
 
             for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
@@ -815,6 +815,7 @@ namespace VScriptCode
     }
 }
 
+
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in SERVER context
 // Input  : *s - 
@@ -849,6 +850,42 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SetAutoReloadState, "Set whether we can auto-reload the server", "void", "bool");
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetServerID, "Gets the current server ID", "string", "");
+
+    //for stat settings (api keys, discord webhooks, server identifiers, preferences))
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_GetSetting__internal, "Fetches value by key", "string", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_ReloadConfig__internal, "Reloads R5R.DEV config file", "void", "");
+
+    //for logging 
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, InitializeLogThread__internal, "Initializes internal logevent thread", "void", "bool");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LogEvent__internal, "Logs event with GameEvent,Encryption", "void", "string, bool");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQMatchID__internal, "Gets the match ID", "string", "");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, stopLogging__internal, "Stops the logging thread, writes remaining queued messages", "void", "bool");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, isLogging__internal, "Checks if the log thread is running, atomic", "bool", "");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_GetLogState__internal, "Checks various states, returns true false", "bool", "int");
+
+    // for debugging the sqvm
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, CleanupLogs__internal, "Deletes oldest logs in platform/eventlogs when directory exceeds 20mb", "void", "");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, sqprint, "Prints string to console window from sqvm", "void", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, sqerror, "Prints error string to console window from sqvm", "void", "string");
+
+    //for verification
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, EA_Verify__internal, "Verifys EA Account on R5R.DEV", "int", "string, string, string");
+
+    // for stat updates
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, _STATSHOOK_UpdatePlayerCount__internal, "Updates LIVE player count on R5R.DEV", "void", "string, string, string, string, string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, _STATSHOOK_EndOfMatch__internal, "Updates match recap on R5R.DEV", "void", "string, string");
+
+    //for polling stats
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_UpdateLiveStats__internal, "Updates live server stats R5R.DEV", "void", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadSyncData__internal, "Initializes grabbing stats for player", "void", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetSyncData__internal, "Fetches stats for player on R5R.DEV", "string", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_ResetStats__internal, "Sets map value for player_oid stats to empty string", "void", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadBatchSyncData__internal, "Fetches batch player stats queries", "void", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, FetchGlobalSettingsFromR5RDEV__internal, "Fetches global settings based on query", "string", "string");
+
+    //send a message as a bot.
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_CreateServerBot__internal, "Creates a bot to send messages", "array< int >", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_ServerMsg__internal, "Says message from specified senderId", "void", "string,int");
 }
 
 //---------------------------------------------------------------------------------
@@ -873,41 +910,4 @@ void Script_RegisterAdminPanelFunctions(CSquirrelVM* s)
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, AddBanByID, "Adds a player to banlist by ip & nucleus id, returns true for success", "bool", "string, string");
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, UnbanPlayer, "Unbans a player from the server by nucleus id or ip address", "void", "string");
-
-
-    //for stat settings (api keys, discord webhooks, server identifiers, preferences))
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_GetSetting, "Fetches value by key", "string", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_ReloadConfig, "Reloads R5R.DEV config file", "void", "");
-
-    //for logging 
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, InitializeLogThread_internal, "Initializes internal logevent thread", "void", "bool");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LogEvent, "Logs event with GameEvent,Encryption", "void", "string, bool");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQMatchID, "Gets the match ID", "string", "");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, stopLogging, "Stops the logging thread, writes remaining queued messages", "void", "bool");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, isLogging, "Checks if the log thread is running, atomic", "bool", "");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_GetLogState, "Checks various states, returns true false", "bool", "int");
-
-    // for debugging the sqvm
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, CleanupLogs, "Deletes oldest logs in platform/eventlogs when directory exceeds 20mb", "void", "");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, sqprint, "Prints string to console window from sqvm", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, sqerror, "Prints error string to console window from sqvm", "void", "string");
-
-    //for verification
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, EA_Verify, "Verifys EA Account on R5R.DEV", "int", "string, string, string");
-
-    // for stat updates
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, _STATSHOOK_UpdatePlayerCount, "Updates LIVE player count on R5R.DEV", "void", "string, string, string, string, string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, _STATSHOOK_EndOfMatch, "Updates match recap on R5R.DEV", "void", "string, string");
-
-    //for polling stats
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_UpdateLiveStats, "Updates live server stats R5R.DEV", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadKDString, "Initializes grabbing stats for player", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetKDString, "Fetches stats for player on R5R.DEV", "string", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_ResetStats, "Sets map value for player_oid stats to empty string", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadBatchKDStrings, "Fetches batch player stats queries", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, FetchGlobalSettingsFromR5RDEV, "Fetches global settings based on query", "string", "string");
-
-    //send a message as a bot.
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_CreateServerBot, "Creates a bot to send messages", "array< int >", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_ServerMsg, "Says message from specified senderId", "void", "string,int");
 }
