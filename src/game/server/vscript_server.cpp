@@ -41,7 +41,7 @@ static void SQVM_ServerScript_f(const CCommand& args)
         Script_Execute(args.ArgS(), SQCONTEXT::SERVER);
     }
 }
-static ConCommand script("script", SQVM_ServerScript_f, "Run input code as SERVER script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT | FCVAR_SERVER_FRAME_THREAD);
+static ConCommand script("script", SQVM_ServerScript_f, "Run input code as SERVER script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL | FCVAR_CHEAT | FCVAR_SERVER_FRAME_THREAD);
 
 namespace VScriptCode
 {

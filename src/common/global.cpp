@@ -65,6 +65,12 @@ ConVar* language_cvar                      = nullptr;
 
 ConVar* voice_noxplat                      = nullptr;
 
+ConVar* platform_user_id                   = nullptr;
+
+#ifndef DEDICATED
+ConVar* name_cvar                          = nullptr;
+#endif // !DEDICATED
+
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 #ifndef CLIENT_DLL
@@ -157,7 +163,9 @@ void ConVar_InitShipped(void)
 
 	language_cvar                    = g_pCVar->FindVar("language");
 	voice_noxplat                    = g_pCVar->FindVar("voice_noxplat");
+	platform_user_id                 = g_pCVar->FindVar("platform_user_id");
 #ifndef DEDICATED
+	name_cvar                        = g_pCVar->FindVar("name");
 	cl_updaterate_mp                 = g_pCVar->FindVar("cl_updaterate_mp");
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
 #endif // !DEDICATED
