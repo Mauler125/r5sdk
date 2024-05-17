@@ -25,6 +25,36 @@
 #include <ebisusdk/EbisuSDK.h>
 #include <engine/cmd.h>
 
+//------------------------------------------------------------------------------
+// Purpose: console command callbacks
+//------------------------------------------------------------------------------
+static void SetName_f(const CCommand& args)
+{
+    if (args.ArgC() < 2)
+        return;
+
+    if (!IsOriginDisabled())
+        return;
+
+    const char* pszName = args.Arg(1);
+
+    if (!pszName[0])
+        pszName = "unnamed";
+
+    const size_t nLen = strlen(pszName);
+
+    if (nLen > MAX_PERSONA_NAME_LEN)
+        return;
+
+    // Update nucleus name.
+    memset(g_PersonaName, '\0', MAX_PERSONA_NAME_LEN);
+    strncpy(g_PersonaName, pszName, nLen);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: console commands
+//------------------------------------------------------------------------------
+static ConCommand cl_setname("cl_setname", SetName_f, "Sets the client's persona name", FCVAR_RELEASE);
 
 //------------------------------------------------------------------------------
 // Purpose: returns true if client simulation is paused

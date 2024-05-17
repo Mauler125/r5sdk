@@ -52,6 +52,12 @@ extern ConVar* language_cvar;
 
 extern ConVar* voice_noxplat;
 
+extern ConVar* platform_user_id;
+
+#ifndef DEDICATED
+extern ConVar* name_cvar;
+#endif // !DEDICATED
+
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 #ifndef CLIENT_DLL
