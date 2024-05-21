@@ -45,6 +45,7 @@ add_sources( SOURCE_GROUP "Squirrel_RE/include"
     "languages/squirrel_re/include/sqstdaux.h"
     "languages/squirrel_re/include/sqstring.h"
     "languages/squirrel_re/include/sqtable.h"
+    "languages/squirrel_re/include/sqclosure.h"
     "languages/squirrel_re/include/squirrel.h"
     "languages/squirrel_re/include/sqvm.h"
 )

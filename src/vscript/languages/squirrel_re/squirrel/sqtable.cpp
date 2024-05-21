@@ -17,3 +17,21 @@ bool SQTable::Get(const SQObjectPtr& key, SQObjectPtr& val)
 	}
 	return false;
 }
+
+bool SQTable::Next(SQObjectPtr& outkey, SQObjectPtr& outval) 
+{
+    static SQInteger _nextidx = 0;
+    if (_nextidx >= _numofnodes) {
+        _nextidx = 0;
+        return false;
+    }
+    while (_nodes[_nextidx].key._type == OT_NULL) {
+        if (++_nextidx >= _numofnodes) {
+            _nextidx = 0;
+            return false;
+        }
+    }
+    outkey = _nodes[_nextidx].key;
+    outval = _nodes[_nextidx++].val;
+    return true;
+}

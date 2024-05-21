@@ -9,6 +9,8 @@
 #include "sqvm.h"
 #include "sqarray.h"
 #include "sqstring.h"
+#include "sqtable.h"
+#include "sqclosure.h"
 
 //---------------------------------------------------------------------------------
 bool sq_aux_gettypedarg(HSQUIRRELVM v, SQInteger idx, SQObjectType type, SQObjectPtr** o)
@@ -213,6 +215,95 @@ SQBool sq_release(HSQUIRRELVM v, SQObject* po)
 	if (!ISREFCOUNTED(sq_type(*po))) return SQTrue;
 	return _ss(v)->_refs_table.Release(*po);
 }
+
+//---------------------------------------------------------------------------------
+void sq_pushuserpointer(HSQUIRRELVM v, void* p)
+{
+	SQObject obj;
+	obj._type = OT_USERPOINTER;
+	obj._unVal.pUserPointer = p;
+	sq_push(v, obj);
+}
+
+//---------------------------------------------------------------------------------
+#include "squirrel.h"
+
+void sq_newclosure(HSQUIRRELVM v, SQFUNCTION func, SQUnsignedInteger nfreevars) {
+	SQNativeClosure* nc = SQNativeClosure::Create(_ss(v), func);
+	if (!nc) {
+		Msg(eDLL_T::SERVER, "sq_newclosure Creation Failed");
+		return;
+	}
+
+	nc->_outervalues.resize(nfreevars);
+	for (SQUnsignedInteger i = 0; i < nfreevars; ++i) {
+		nc->_outervalues[i] = v->Top();
+		v->Pop();
+	}
+
+	v->Push(SQObjectPtr(nc));
+}
+
+SQRESULT sq_setnativeclosurename(HSQUIRRELVM v, SQInteger idx, const SQChar* name) {
+	SQObject o = stack_get(v, idx);
+	if (sq_isnativeclosure(o)) {
+		SQNativeClosure* nc = _nativeclosure(o);
+		size_t raw_len = strlen(name);
+
+#undef max
+		if (raw_len > static_cast<size_t>(std::numeric_limits<SQInteger>::max())) {
+			return SQ_ERROR;
+		}
+
+		SQInteger len = static_cast<SQInteger>(raw_len);
+		nc->_name = SQString::Create(_ss(v), name, len);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+void sq_push(HSQUIRRELVM v, SQObject& obj)
+{
+	v->Push(obj);
+}
+
+//---------------------------------------------------------------------------------
+void sq_pushobject(HSQUIRRELVM v, SQObject& obj) 
+{
+	v->Push(obj);
+}
+
+//---------------------------------------------------------------------------------
+void sq_pushnull(HSQUIRRELVM v) 
+{
+	v->Push(_null_);
+}
+
+//---------------------------------------------------------------------------------
+SQObjectType sq_gettype(HSQUIRRELVM v, SQInteger idx) 
+{
+	return sq_type(stack_get(v, idx));
+}
+
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_next(HSQUIRRELVM v, SQInteger idx) 
+{
+	SQObjectPtr& o = stack_get(v, idx);
+	if (o._type == OT_TABLE) {
+		SQTable* table = _table(o);
+		SQObjectPtr key, value;
+		if (table->Next(key, value)) {
+			v->Push(key);
+			v->Push(value);
+			return SQ_OK;
+		}
+		return SQ_ERROR;
+	}
+	return SQ_ERROR;
+}
+
 
 void VSquirrelAPI::Detour(const bool bAttach) const
 {

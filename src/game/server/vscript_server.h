@@ -40,25 +40,36 @@ namespace VScriptCode
 		SQRESULT EA_Verify__internal(HSQUIRRELVM v);
 		SQRESULT _STATSHOOK_UpdatePlayerCount__internal(HSQUIRRELVM v);
 		SQRESULT _STATSHOOK_EndOfMatch__internal(HSQUIRRELVM v);
+
 		SQRESULT LoadSyncData__internal(HSQUIRRELVM v);
 		SQRESULT GetSyncData__internal(HSQUIRRELVM v);
+
 		SQRESULT SQ_UpdateLiveStats__internal(HSQUIRRELVM v);
 		SQRESULT SQ_ResetStats__internal(HSQUIRRELVM v);
+
 		SQRESULT LoadBatchSyncData__internal(HSQUIRRELVM v);
+
 		SQRESULT CleanupLogs__internal(HSQUIRRELVM v);
-		SQRESULT SQ_GetSetting__internal(HSQUIRRELVM v);
+
+		SQRESULT SQ_GetSetting__internal(HSQUIRRELVM v); //DEPRECATED
+		SQRESULT GetPlayerStats__internal(HSQUIRRELVM v); //NEW
+
 		SQRESULT SQ_ReloadConfig__internal(HSQUIRRELVM v);
 		SQRESULT FetchGlobalSettingsFromR5RDEV__internal(HSQUIRRELVM v);
 
 		SQRESULT SQ_ServerMsg__internal(HSQUIRRELVM v);
 		SQRESULT SQ_CreateServerBot__internal(HSQUIRRELVM v);
 
+		SQRESULT PrintStack(HSQUIRRELVM v);
 
 		//Declare to be used with logger
 		int64_t getMatchID();
 		void setMatchID(int64_t newID);
+
 	}
 }
+
+void Script_RegisterPlayerFunctions(HSQUIRRELVM v);
 
 void Script_RegisterServerFunctions(CSquirrelVM* s);
 void Script_RegisterCoreServerFunctions(CSquirrelVM* s);

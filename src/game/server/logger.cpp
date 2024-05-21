@@ -21,7 +21,7 @@ LOGGER::Logger* LOGGER::pMkosLogger = nullptr;
 const std::string SERVER_V = "rc_2.4.5";
 const std::string API_KEY = "Kfvtu2TSNKQ7S2pP"; //public
 constexpr const char* R5RDEV_CONFIG = "r5rdev_config.json";
-const std::string STATS_API = "https://r5r.dev/api/stats6.php";
+const std::string STATS_API = "https://r5r.dev/api/stats7.php";
 
 //-----------------------------------------------------------------------------
 // string manipulation split function
@@ -720,11 +720,11 @@ namespace LOGGER
     //////////////////////////////
 
      //input: oid, output: player stats if available in the playerstatsmap comma separated string
-    const char* GetKDString(const char* player_oid)
+    const char* GetPlayerJsonData(const char* player_oid)
     {
         if (!player_oid)
         {
-            Error(eDLL_T::SERVER, NO_ERROR, "[GetKDString] Error: player_oid nullptr \n");
+            Error(eDLL_T::SERVER, NO_ERROR, "[GetPlayerJsonData] Error: player_oid nullptr \n");
             return "NA";
         }
 
@@ -755,7 +755,7 @@ namespace LOGGER
     /********************************/
 
     //called by TaskManager::LoadBatchKDStrings
-    std::string FetchBatchPlayerStats(const std::vector<std::string>& player_oids)
+    std::string FetchBatchPlayerStats( const std::vector<std::string>& player_oids, const std::string& requestedStats )
     {
         if (player_oids.empty())
         {
@@ -773,7 +773,7 @@ namespace LOGGER
 
         std::string readBuffer;
         std::string identifier = SanitizeString(GetSetting("identifier"));
-        std::string url = STATS_API + "?TYPE=batch&KEY=" + API_KEY + "&identifier=" + identifier;
+        std::string url = STATS_API + "?TYPE=batch&KEY=" + API_KEY + "&identifier=" + identifier + "&requestedStats=" + requestedStats;
 
         for (const std::string& oid : player_oids)
         {
@@ -810,13 +810,10 @@ namespace LOGGER
         return check == true ? readBuffer : "NA";
     }
 
-
-
-    //needs a rewrite
-    //input: string of comma separated oids; fetches from api and sets playerstatsmap foreach as oid->kills,deaths,superglides
-    void TaskManager::LoadBatchKDStrings(const std::string& player_oids_str)
+    //input: stores json struct in the map, later used to build stats table when fetched from scripts. 
+    void TaskManager::LoadBatchKDStrings(const std::string& player_oids_str, const std::string& requestedStats)
     {
-        AddTask([player_oids_str, this]()
+        AddTask([player_oids_str, requestedStats, this]()
             {
                 if (player_oids_str.empty())
                 {
@@ -826,7 +823,7 @@ namespace LOGGER
 
                 std::vector<std::string> player_oids = split(player_oids_str, ',');
 
-                std::string stats_json = FetchBatchPlayerStats(player_oids);
+                std::string stats_json = FetchBatchPlayerStats(player_oids, requestedStats);
 
                 rapidjson::Document document;
                 if (document.Parse(stats_json.c_str()).HasParseError())
@@ -848,52 +845,24 @@ namespace LOGGER
 
                     if (!itr->value.IsObject()) continue;
 
-                    const rapidjson::Value& player_stats = itr->value;
-                    std::string stats_str;
-                    if (player_stats.HasMember("kills") && player_stats["kills"].IsInt() &&
-                        player_stats.HasMember("deaths") && player_stats["deaths"].IsInt() &&
-                        player_stats.HasMember("superglides") && player_stats["superglides"].IsInt() &&
-                        player_stats.HasMember("playtime") && player_stats["playtime"].IsInt() &&
-                        player_stats.HasMember("total_matches") && player_stats["total_matches"].IsInt() &&
-                        player_stats.HasMember("score") && player_stats["total_matches"].IsInt()
-                        )
-                    {
-                        stats_str = std::to_string(player_stats["kills"].GetInt()) + "," +
-                            std::to_string(player_stats["deaths"].GetInt()) + "," +
-                            std::to_string(player_stats["superglides"].GetInt()) + "," +
-                            std::to_string(player_stats["playtime"].GetInt()) + "," +
-                            std::to_string(player_stats["total_matches"].GetInt()) + "," +
-                            std::to_string(player_stats["score"].GetInt());
-                    }
-                    else
-                    {
-                        Error(eDLL_T::SERVER, NO_ERROR, "LoadBatchKDStrings contained invaliid object members for: %s\n", player_oid.c_str());
-                        stats_str = "0,0,0,0,0,0";
-                    }
+                    rapidjson::StringBuffer buffer;
+                    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+                    itr->value.Accept(writer);
 
-                    if (player_stats.HasMember("settings") && player_stats["settings"].IsObject())
-                    {
-                        const rapidjson::Value& settings = player_stats["settings"];
-                        for (rapidjson::Value::ConstMemberIterator m = settings.MemberBegin(); m != settings.MemberEnd(); ++m)
-                        {
-                            // appended as key:value
-                            stats_str += "," + std::string(m->name.GetString()) + ":" + std::string(m->value.GetString());
-                        }
-                    }
+                    std::string player_stats_json = buffer.GetString();
 
                     bool has_lock = false;
                     std::unique_lock<std::shared_timed_mutex> lock(statsMutex, std::defer_lock);
                     if (lock.try_lock_for(std::chrono::milliseconds(3000)))
                     {
-                        playerStatsMap[player_oid] = stats_str;
+                        playerStatsMap[player_oid] = player_stats_json;
                         has_lock = true;
                     }
 
                     if (!has_lock)
                     {
-                        Error(eDLL_T::SERVER, NO_ERROR, "failed to aquire lock to write player stats into map\n");
+                        Error(eDLL_T::SERVER, NO_ERROR, "failed to acquire lock to write player stats into map\n");
                     }
-
                 }
 
                 g_pServerScript->ExecuteCodeCallback("CodeCallback_BatchStatsLoaded");
@@ -904,7 +873,7 @@ namespace LOGGER
 
 
     //called by TaskManager::LoadKDString
-    std::string FetchPlayerStats(const char* player_oid)
+    std::string FetchPlayerStats(const char* player_oid, const char* requestedStats)
     {
         if (!player_oid)
         {
@@ -922,7 +891,7 @@ namespace LOGGER
 
         std::string readBuffer;
         std::string identifier = SanitizeString(GetSetting("identifier"));
-        std::string url = STATS_API + "?KEY=" + API_KEY + "&player_oid=" + player_oid + "&identifier=" + identifier;
+        std::string url = STATS_API + "?KEY=" + API_KEY + "&requestedStats=" + requestedStats + "&player_oid=" + player_oid + "&identifier=" + identifier;
 
         curl_easy_setopt(easy_handle, CURLOPT_URL, url.c_str());
         curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
@@ -943,8 +912,8 @@ namespace LOGGER
 
 
 
-    //for individual players, sets player stats in playerstatsmap as i,i,i: kills,deaths,superglides
-    void TaskManager::LoadKDString(const char* player_oid)
+    //for individual players, stores data in playerStatsMap
+    void TaskManager::LoadKDString(const char* player_oid, const char* requestedStats)
     {
         if (!player_oid)
         {
@@ -952,11 +921,12 @@ namespace LOGGER
         }
 
         std::string playerOidStr(player_oid);
+        std::string requestedStatsStr(requestedStats);
 
-        AddTask([playerOidStr, this]()
+        AddTask([playerOidStr, requestedStatsStr, this]()
             {
 
-                std::string stats = FetchPlayerStats(playerOidStr.c_str());
+                std::string stats = FetchPlayerStats(playerOidStr.c_str(), requestedStatsStr.c_str());
 
                 bool has_lock = false;
                 std::unique_lock<std::shared_timed_mutex> lock(statsMutex, std::defer_lock);
@@ -966,7 +936,7 @@ namespace LOGGER
                     has_lock = true;
 
                     std::string command = "CodeCallback_PlayerStatsReady(\"" + SanitizeString(playerOidStr) + "\")";
-                    Script_Execute( command.c_str(), SQCONTEXT::SERVER);
+                    Script_Execute( command.c_str(), SQCONTEXT::SERVER );
                 }
 
                 if (!has_lock)

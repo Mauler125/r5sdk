@@ -40,7 +40,9 @@ public:
 		} while (n->hash != -1);
 		return NULL;
 	}
+
 	bool Get(const SQObjectPtr& key, SQObjectPtr& val);
+	bool Next(SQObjectPtr& outkey, SQObjectPtr& outval); //mkos added to iterate roottable
 
 	_HashNode* _nodes;
 	SQInteger _numofnodes;

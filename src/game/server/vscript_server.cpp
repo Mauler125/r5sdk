@@ -614,6 +614,7 @@ namespace VScriptCode
         SQRESULT LoadSyncData__internal(HSQUIRRELVM v)
         {
             const SQChar* player_oid = nullptr;
+            const SQChar* requestedStats = nullptr;
 
             if (SQ_FAILED(sq_getstring(v, 2, &player_oid)) || !player_oid)
             {
@@ -622,7 +623,14 @@ namespace VScriptCode
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            LOGGER::TaskManager::getInstance().LoadKDString(player_oid);
+            if (SQ_FAILED(sq_getstring(v, 3, &requestedStats)) || !requestedStats)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'requestedStats' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'requestedStats' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            LOGGER::TaskManager::getInstance().LoadKDString(player_oid, requestedStats);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
@@ -630,6 +638,7 @@ namespace VScriptCode
         SQRESULT LoadBatchSyncData__internal(HSQUIRRELVM v)
         {
             const SQChar* player_oids = nullptr;
+            const SQChar* requestedStats = nullptr;
 
             if (SQ_FAILED(sq_getstring(v, 2, &player_oids)) || !player_oids)
             {
@@ -638,11 +647,18 @@ namespace VScriptCode
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            LOGGER::TaskManager::getInstance().LoadBatchKDStrings(player_oids);
+            if (SQ_FAILED(sq_getstring(v, 3, &requestedStats)) || !requestedStats)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'requestedStats' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'requestedStats' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            LOGGER::TaskManager::getInstance().LoadBatchKDStrings(player_oids, requestedStats);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
-
+        //DEPRECATED
         SQRESULT GetSyncData__internal(HSQUIRRELVM v)
         {
             const SQChar* player_oid = nullptr;
@@ -654,9 +670,90 @@ namespace VScriptCode
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            std::string stats = LOGGER::GetKDString(player_oid);
+            std::string stats = LOGGER::GetPlayerJsonData(player_oid);
             sq_pushstring(v, stats.c_str(), -1);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+
+        //NEW
+        SQRESULT GetPlayerStats__internal(HSQUIRRELVM v)
+        {
+            const SQChar* player_oid = nullptr;
+
+            if (SQ_FAILED(sq_getstring(v, 2, &player_oid)) || !player_oid)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'player_oid' parameter.");
+                sq_pushinteger(v, -1); // Push a default error value
+                return SQ_OK;
+            }
+
+            const char* statsJson = LOGGER::GetPlayerJsonData(player_oid);
+
+            if (strcmp(statsJson, "") == 0 || strcmp(statsJson, "NA") == 0)
+            {
+                sq_newtable(v);
+                return SQ_OK;
+            }
+
+            rapidjson::Document document;
+            if (document.Parse(statsJson).HasParseError())
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "JSON parsing failed: %s\n", rapidjson::GetParseError_En(document.GetParseError()));
+                sq_pushinteger(v, -1);
+                return SQ_OK;
+            }
+
+            if (!document.IsObject())
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "JSON root is not an object\n");
+                sq_pushinteger(v, -1);
+                return SQ_OK;
+            }
+
+            sq_newtable(v);
+
+            for (rapidjson::Value::ConstMemberIterator itr = document.MemberBegin(); itr != document.MemberEnd(); ++itr)
+            {
+                const char* key = itr->name.GetString();
+                const rapidjson::Value& value = itr->value;
+
+                sq_pushstring(v, key, -1);
+
+                if (value.IsInt())
+                {
+                    sq_pushinteger(v, value.GetInt());
+                }
+                else if (value.IsString())
+                {
+                    sq_pushstring(v, value.GetString(), -1);
+                }
+                else if (value.IsBool())
+                {
+                    sq_pushbool(v, value.GetBool());
+                }
+                else if (value.IsFloat())
+                {
+                    sq_pushfloat(v, value.GetFloat());
+                }
+                else if (value.IsObject() && strcmp(key, "settings") == 0) //don't want to deal with recursion yet
+                {
+                    std::string settings_str;
+                    for (rapidjson::Value::ConstMemberIterator m = value.MemberBegin(); m != value.MemberEnd(); ++m)
+                    {
+                        if (!settings_str.empty())
+                        {
+                            settings_str += ",";
+                        }
+                        settings_str += std::string(m->name.GetString()) + ":" + m->value.GetString();
+                    }
+                    sq_pushstring(v, settings_str.c_str(), -1);
+                }
+
+                sq_newslot(v, -3);
+            }
+
+            return SQ_OK;
         }
 
 
@@ -693,6 +790,12 @@ namespace VScriptCode
             const SQChar* query = nullptr;
             if (SQ_SUCCEEDED(sq_getstring(v, 2, &query)) && query)
             {
+                if (std::strcmp(query, "") == 0)
+                {
+                    Error(eDLL_T::SERVER, NO_ERROR, "Query string was empty\n");
+                    SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+                }
+
                 std::string settings = LOGGER::FetchGlobalSettings(query);
                 sq_pushstring(v, settings.c_str(), -1);
             }
@@ -812,7 +915,116 @@ namespace VScriptCode
             sq_arrayappend(v, -2);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
+        SQRESULT PrintStack(HSQUIRRELVM v)
+        {
+            SQInteger top = sq_gettop(v);
+            for (SQInteger i = 1; i <= top; i++)
+            {
+                SQObjectType type = sq_gettype(v, i);
+                const SQChar* typeName;
+                const SQChar* name = nullptr;
+
+                sq_getstring(v, i, &name); //idc
+
+                switch (type) {
+                case OT_NULL: typeName = "null"; break;
+                case OT_INTEGER: typeName = "integer"; break;
+                case OT_FLOAT: typeName = "float"; break;
+                case OT_BOOL: typeName = "bool"; break;
+                case OT_STRING: typeName = "string"; break;
+                case OT_TABLE: typeName = "table"; break;
+                case OT_ARRAY: typeName = "array"; break;
+                case OT_USERDATA: typeName = "userdata"; break;
+                case OT_CLOSURE: typeName = "closure"; break;
+                case OT_NATIVECLOSURE: typeName = "nativeclosure"; break;
+                case OT_USERPOINTER: typeName = "userpointer"; break;
+                case OT_THREAD: typeName = "thread"; break;
+                case OT_FUNCPROTO: typeName = "funcproto"; break;
+                case OT_CLASS: typeName = "class"; break;
+                case OT_INSTANCE: typeName = "instance"; break;
+                case OT_WEAKREF: typeName = "weakref"; break;
+                default: typeName = "unknown"; break;
+                }
+                Msg(eDLL_T::SERVER, "Stack [%d]: %s -- %s\n", i, name, typeName);
+            }
+
+            return SQ_OK;
+        }
+
+    } //namespace SERVER
+}
+
+
+
+//---------------------------------------------------------------------------------
+// Purpose: registers CPlayer class functions as native funcs to be overriden in scripts
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+
+SQRESULT sq_getclass(HSQUIRRELVM v, SQInteger idx)
+{
+    SQObjectType type = sq_gettype(v, idx);
+    if (type == OT_CLASS)
+    {
+        return SQ_OK;
     }
+    return SQ_ERROR;
+}
+
+void EnsurePlayerClassExists(HSQUIRRELVM v) 
+{
+    sq_pushroottable(v);
+    sq_pushstring(v, _SC("player"), -1);
+
+    if (SQ_FAILED(sq_get(v, -2))) 
+    {
+        Msg(eDLL_T::SERVER, "Player table does not exist. Creating new.\n");
+
+        sq_newtable(v);
+        sq_pushstring(v, _SC("player"), -1);
+        SQObject playerTable;
+        sq_getstackobj(v, -2, &playerTable);
+        sq_pushobject(v, playerTable);
+        sq_newslot(v, -3);
+
+        Msg(eDLL_T::SERVER, "Player table created and added to root.\n");
+        sq_pop(v, 1);
+    }
+    else 
+    {
+        Msg(eDLL_T::SERVER, "Player table exists.\n");
+        sq_pop(v, 1);
+    }
+    sq_pop(v, 1);
+}
+
+void BindFunction(HSQUIRRELVM v, const SQChar* funcName, SQFUNCTION func) 
+{
+    sq_pushroottable(v);
+    sq_pushstring(v, _SC("player"), -1);
+    if (SQ_SUCCEEDED(sq_get(v, -2))) 
+    {
+        sq_pushstring(v, funcName, -1);
+        sq_newclosure(v, func, 0);
+        sq_setnativeclosurename(v, -1, funcName);
+        SQObject closureObj;
+        sq_getstackobj(v, -1, &closureObj);
+        sq_pushobject(v, closureObj);
+        sq_newslot(v, -3);
+        VScriptCode::Server::PrintStack(v);
+        sq_pop(v, 1);
+    }
+    sq_pop(v, 1);
+}
+
+// Example usage
+void Script_RegisterPlayerFunctions(HSQUIRRELVM v) {
+    EnsurePlayerClassExists(v);
+    BindFunction(v, _SC("GetPlayerStatInt"), VScriptCode::Server::GetPlayerStatInt);
+    BindFunction(v, _SC("GetPlayerStatString"), VScriptCode::Server::GetPlayerStatString);
+    BindFunction(v, _SC("GetPlayerStatBool"), VScriptCode::Server::GetPlayerStatBool);
+    BindFunction(v, _SC("GetPlayerStatFloat"), VScriptCode::Server::GetPlayerStatFloat);
 }
 
 
@@ -822,6 +1034,7 @@ namespace VScriptCode
 //---------------------------------------------------------------------------------
 void Script_RegisterServerFunctions(CSquirrelVM* s)
 {
+    Script_RegisterPlayerFunctions(s->GetVM());
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreServerFunctions(s);
     Script_RegisterAdminPanelFunctions(s);
@@ -867,7 +1080,9 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, CleanupLogs__internal, "Deletes oldest logs in platform/eventlogs when directory exceeds 20mb", "void", "");
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, sqprint, "Prints string to console window from sqvm", "void", "string");
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, sqerror, "Prints error string to console window from sqvm", "void", "string");
-
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, PrintStack, "PRINT STACK", "void", "");
+  
+    
     //for verification
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, EA_Verify__internal, "Verifys EA Account on R5R.DEV", "int", "string, string, string");
 
@@ -877,10 +1092,13 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
 
     //for polling stats
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_UpdateLiveStats__internal, "Updates live server stats R5R.DEV", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadSyncData__internal, "Initializes grabbing stats for player", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetSyncData__internal, "Fetches stats for player on R5R.DEV", "string", "string");
+
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadSyncData__internal, "Initializes grabbing stats for player", "void", "string, string"); //new: specify what stats
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetSyncData__internal, "Fetches stats for player on R5R.DEV", "string", "string"); //DEPRECATED
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetPlayerStats__internal, "Fetches stats for player on R5R.DEV", "table", "string"); //NEW
+
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_ResetStats__internal, "Sets map value for player_oid stats to empty string", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadBatchSyncData__internal, "Fetches batch player stats queries", "void", "string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadBatchSyncData__internal, "Fetches batch player stats queries", "void", "string, string"); //new: specify what stats
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, FetchGlobalSettingsFromR5RDEV__internal, "Fetches global settings based on query", "string", "string");
 
     //send a message as a bot.
