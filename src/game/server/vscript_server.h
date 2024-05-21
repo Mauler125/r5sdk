@@ -69,8 +69,6 @@ namespace VScriptCode
 	}
 }
 
-void Script_RegisterPlayerFunctions(HSQUIRRELVM v);
-
 void Script_RegisterServerFunctions(CSquirrelVM* s);
 void Script_RegisterCoreServerFunctions(CSquirrelVM* s);
 void Script_RegisterAdminPanelFunctions(CSquirrelVM* s);

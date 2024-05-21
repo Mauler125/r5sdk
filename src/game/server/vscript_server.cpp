@@ -956,85 +956,12 @@ namespace VScriptCode
 }
 
 
-
-//---------------------------------------------------------------------------------
-// Purpose: registers CPlayer class functions as native funcs to be overriden in scripts
-// Input  : *s - 
-//---------------------------------------------------------------------------------
-
-SQRESULT sq_getclass(HSQUIRRELVM v, SQInteger idx)
-{
-    SQObjectType type = sq_gettype(v, idx);
-    if (type == OT_CLASS)
-    {
-        return SQ_OK;
-    }
-    return SQ_ERROR;
-}
-
-void EnsurePlayerClassExists(HSQUIRRELVM v) 
-{
-    sq_pushroottable(v);
-    sq_pushstring(v, _SC("player"), -1);
-
-    if (SQ_FAILED(sq_get(v, -2))) 
-    {
-        Msg(eDLL_T::SERVER, "Player table does not exist. Creating new.\n");
-
-        sq_newtable(v);
-        sq_pushstring(v, _SC("player"), -1);
-        SQObject playerTable;
-        sq_getstackobj(v, -2, &playerTable);
-        sq_pushobject(v, playerTable);
-        sq_newslot(v, -3);
-
-        Msg(eDLL_T::SERVER, "Player table created and added to root.\n");
-        sq_pop(v, 1);
-    }
-    else 
-    {
-        Msg(eDLL_T::SERVER, "Player table exists.\n");
-        sq_pop(v, 1);
-    }
-    sq_pop(v, 1);
-}
-
-void BindFunction(HSQUIRRELVM v, const SQChar* funcName, SQFUNCTION func) 
-{
-    sq_pushroottable(v);
-    sq_pushstring(v, _SC("player"), -1);
-    if (SQ_SUCCEEDED(sq_get(v, -2))) 
-    {
-        sq_pushstring(v, funcName, -1);
-        sq_newclosure(v, func, 0);
-        sq_setnativeclosurename(v, -1, funcName);
-        SQObject closureObj;
-        sq_getstackobj(v, -1, &closureObj);
-        sq_pushobject(v, closureObj);
-        sq_newslot(v, -3);
-        VScriptCode::Server::PrintStack(v);
-        sq_pop(v, 1);
-    }
-    sq_pop(v, 1);
-}
-
-// Example usage
-void Script_RegisterPlayerFunctions(HSQUIRRELVM v) {
-    EnsurePlayerClassExists(v);
-    BindFunction(v, _SC("GetPlayerStatInt"), VScriptCode::Server::GetPlayerStatInt);
-    BindFunction(v, _SC("GetPlayerStatString"), VScriptCode::Server::GetPlayerStatString);
-    BindFunction(v, _SC("GetPlayerStatBool"), VScriptCode::Server::GetPlayerStatBool);
-    BindFunction(v, _SC("GetPlayerStatFloat"), VScriptCode::Server::GetPlayerStatFloat);
-}
-
-
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in SERVER context
 // Input  : *s - 
 //---------------------------------------------------------------------------------
 void Script_RegisterServerFunctions(CSquirrelVM* s)
 {
-    Script_RegisterPlayerFunctions(s->GetVM());
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreServerFunctions(s);
     Script_RegisterAdminPanelFunctions(s);
