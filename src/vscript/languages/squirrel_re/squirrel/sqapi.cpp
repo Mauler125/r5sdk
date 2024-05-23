@@ -226,7 +226,6 @@ void sq_pushuserpointer(HSQUIRRELVM v, void* p)
 }
 
 //---------------------------------------------------------------------------------
-#include "squirrel.h"
 
 void sq_newclosure(HSQUIRRELVM v, SQFUNCTION func, SQUnsignedInteger nfreevars) {
 	SQNativeClosure* nc = SQNativeClosure::Create(_ss(v), func);
