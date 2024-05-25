@@ -46,7 +46,7 @@ std::vector<std::string> split(const std::string& str, char delimiter)
 
 
 //-----------------------------------------------------------------------------
-// Safely access non-dedi data
+// access non-dedi data
 //-----------------------------------------------------------------------------
 
 enum ServerData
@@ -58,7 +58,6 @@ enum ServerData
 
 std::string GetLocalServerData( ServerData dataType )
 {
-    //why is there no auto lock for this?
     const NetGameServer_t& server = g_ServerHostManager.GetDetails();
 
     switch (dataType)
@@ -326,6 +325,7 @@ namespace LOGGER
     }
 
 
+
     //-----------------------------------------------------------------------------
     // class CURLConnectionPool
     //-----------------------------------------------------------------------------
@@ -339,8 +339,12 @@ namespace LOGGER
             CURL* handle = curl_easy_init();
             if (handle)
             {
-                curl_easy_setopt(handle, CURLOPT_TCP_NODELAY, 1L);
                 curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1L);
+                curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+                curl_easy_setopt(handle, CURLOPT_TCP_KEEPALIVE, 1L);
+                curl_easy_setopt(handle, CURLOPT_TCP_KEEPIDLE, 60L);
+                curl_easy_setopt(handle, CURLOPT_TCP_KEEPINTVL, 60L);
+                curl_easy_setopt(handle, CURLOPT_TCP_KEEPIDLE, 30L);
                 pool.push(handle);
             }
             else
@@ -378,7 +382,7 @@ namespace LOGGER
 
         CURL* handle = pool.front();
         pool.pop();
-        //DevMsg(eDLL_T::SERVER, ":: Handle returned \n");
+
         return handle;
     }
 
@@ -388,8 +392,12 @@ namespace LOGGER
 
         if (handle)
         {
-            curl_easy_setopt(handle, CURLOPT_TCP_NODELAY, 1L);
             curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1L);
+            curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            curl_easy_setopt(handle, CURLOPT_TCP_KEEPALIVE, 1L);
+            curl_easy_setopt(handle, CURLOPT_TCP_KEEPIDLE, 60L);
+            curl_easy_setopt(handle, CURLOPT_TCP_KEEPINTVL, 60L); 
+            curl_easy_setopt(handle, CURLOPT_TCP_KEEPIDLE, 30L);
         }
         else
         {
@@ -403,6 +411,7 @@ namespace LOGGER
     {
         if (res == CURLE_OK)
         {
+            ReturnHandle(handle);
             return true;
         }
         else
@@ -411,23 +420,23 @@ namespace LOGGER
 
             switch (res)
             {
-                case CURLE_COULDNT_CONNECT:
-                case CURLE_COULDNT_RESOLVE_HOST:
-                case CURLE_COULDNT_RESOLVE_PROXY:
+            case CURLE_COULDNT_CONNECT:
+            case CURLE_COULDNT_RESOLVE_HOST:
+            case CURLE_COULDNT_RESOLVE_PROXY:
 
-                    ReturnHandle(handle);
-                    return true;
-                    break;
+                ReturnHandle(handle);
+                return true;
+                break;
 
-                case CURLE_SSL_CONNECT_ERROR:
-                case CURLE_SSL_CIPHER:
-                case CURLE_SSL_CACERT:
+            case CURLE_SSL_CONNECT_ERROR:
+            case CURLE_SSL_CIPHER:
+            case CURLE_SSL_CACERT:
 
-                    DiscardHandle(handle);
-                    return false;
+                DiscardHandle(handle);
+                return false;
 
-                default:
-                    DiscardHandle(handle);
+            default:
+                DiscardHandle(handle);
             }
         }
 
@@ -436,9 +445,13 @@ namespace LOGGER
 
     void CURLConnectionPool::ReturnHandle(CURL* handle)
     {
+        //Msg(eDLL_T::SERVER, ":: Handle return called \n");
+
         std::lock_guard<std::mutex> lock(poolMutex);
+        
         if (handle && pool.size() < maxPoolSize)
         {
+            //Msg(eDLL_T::SERVER, ":: resetting \n");
             curl_easy_reset(handle);
             pool.push(handle);
             poolCond.notify_one();
@@ -447,13 +460,12 @@ namespace LOGGER
         {
             if (handle)
             {
-                //DevMsg(eDLL_T::SERVER, ":: Handle discarded as pool is full \n");
+                //Msg(eDLL_T::SERVER, ":: Handle discarded as pool is full \n");
                 curl_easy_cleanup(handle);
             }
             else
             {
-                handle = nullptr;
-                Error(eDLL_T::SERVER, NO_ERROR, "Attempted to return a null CURL handle to the pool. \n");
+                Error(eDLL_T::SERVER, NO_ERROR, "Attempted to return an invalid CURL handle to the pool. \n");
             }
         }
     }
@@ -485,6 +497,7 @@ namespace LOGGER
         ResetPool();
     }
     //END CLASS CURLConnectionPool
+
 
 
 
@@ -935,7 +948,6 @@ namespace LOGGER
                 {
                     playerStatsMap[playerOidStr] = stats;
                     has_lock = true;
-
                     std::string command = "CodeCallback_PlayerStatsReady(\"" + SanitizeString(playerOidStr) + "\")";
                     Script_Execute( command.c_str(), SQCONTEXT::SERVER );
                 }

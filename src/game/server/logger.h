@@ -171,7 +171,7 @@ namespace LOGGER
 
         std::condition_variable poolCond;
         const size_t maxPoolSize = 5;
-        const std::chrono::seconds handleWaitTimeout = std::chrono::seconds(3);
+        const std::chrono::milliseconds handleWaitTimeout = std::chrono::milliseconds(5000);
 
         CURL* CreateHandle();
     };
