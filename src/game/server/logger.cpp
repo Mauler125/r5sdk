@@ -755,7 +755,7 @@ namespace LOGGER
     /********************************/
 
     //called by TaskManager::LoadBatchKDStrings
-    std::string FetchBatchPlayerStats( const std::vector<std::string>& player_oids, const std::string& requestedStats )
+    std::string FetchBatchPlayerStats( const std::vector<std::string>& player_oids, const std::string& requestedStats, const std::string& requestedSettings )
     {
         if (player_oids.empty())
         {
@@ -773,7 +773,7 @@ namespace LOGGER
 
         std::string readBuffer;
         std::string identifier = SanitizeString(GetSetting("identifier"));
-        std::string url = STATS_API + "?TYPE=batch&KEY=" + API_KEY + "&identifier=" + identifier + "&requestedStats=" + requestedStats;
+        std::string url = STATS_API + "?TYPE=batch&KEY=" + API_KEY + "&identifier=" + identifier + "&requestedStats=" + requestedStats + "&requestedSettings=" + requestedSettings;
 
         for (const std::string& oid : player_oids)
         {
@@ -811,9 +811,9 @@ namespace LOGGER
     }
 
     //input: stores json struct in the map, later used to build stats table when fetched from scripts. 
-    void TaskManager::LoadBatchKDStrings(const std::string& player_oids_str, const std::string& requestedStats)
+    void TaskManager::LoadBatchKDStrings(const std::string& player_oids_str, const std::string& requestedStats, const std::string& requestedSettings)
     {
-        AddTask([player_oids_str, requestedStats, this]()
+        AddTask([player_oids_str, requestedStats, requestedSettings, this]()
             {
                 if (player_oids_str.empty())
                 {
@@ -823,7 +823,7 @@ namespace LOGGER
 
                 std::vector<std::string> player_oids = split(player_oids_str, ',');
 
-                std::string stats_json = FetchBatchPlayerStats(player_oids, requestedStats);
+                std::string stats_json = FetchBatchPlayerStats(player_oids, requestedStats, requestedSettings);
 
                 rapidjson::Document document;
                 if (document.Parse(stats_json.c_str()).HasParseError())
@@ -873,7 +873,7 @@ namespace LOGGER
 
 
     //called by TaskManager::LoadKDString
-    std::string FetchPlayerStats(const char* player_oid, const char* requestedStats)
+    std::string FetchPlayerStats(const char* player_oid, const char* requestedStats, const char* requestedSettings)
     {
         if (!player_oid)
         {
@@ -891,7 +891,7 @@ namespace LOGGER
 
         std::string readBuffer;
         std::string identifier = SanitizeString(GetSetting("identifier"));
-        std::string url = STATS_API + "?KEY=" + API_KEY + "&requestedStats=" + requestedStats + "&player_oid=" + player_oid + "&identifier=" + identifier;
+        std::string url = STATS_API + "?KEY=" + API_KEY + "&requestedStats=" + requestedStats + "&player_oid=" + player_oid + "&identifier=" + identifier + "&requestedSettings=" + requestedSettings;
 
         curl_easy_setopt(easy_handle, CURLOPT_URL, url.c_str());
         curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
@@ -913,7 +913,7 @@ namespace LOGGER
 
 
     //for individual players, stores data in playerStatsMap
-    void TaskManager::LoadKDString(const char* player_oid, const char* requestedStats)
+    void TaskManager::LoadKDString(const char* player_oid, const char* requestedStats, const char* requestedSettings)
     {
         if (!player_oid)
         {
@@ -922,11 +922,12 @@ namespace LOGGER
 
         std::string playerOidStr(player_oid);
         std::string requestedStatsStr(requestedStats);
+        std::string requestedSettingsStr(requestedSettings);
 
-        AddTask([playerOidStr, requestedStatsStr, this]()
+        AddTask([playerOidStr, requestedStatsStr, requestedSettingsStr, this]()
             {
 
-                std::string stats = FetchPlayerStats(playerOidStr.c_str(), requestedStatsStr.c_str());
+                std::string stats = FetchPlayerStats(playerOidStr.c_str(), requestedStatsStr.c_str(), requestedSettingsStr.c_str());
 
                 bool has_lock = false;
                 std::unique_lock<std::shared_timed_mutex> lock(statsMutex, std::defer_lock);

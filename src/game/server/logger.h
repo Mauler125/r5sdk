@@ -125,9 +125,9 @@ namespace LOGGER
         static TaskManager& getInstance();
 
         void AddTask(const std::function<void()>& task);
-        void LoadKDString(const char* player_oid, const char* requestedStats);
+        void LoadKDString(const char* player_oid, const char* requestedStats, const char* requestedSettings);
         void ResetPlayerStats(const char* player_oid);
-        void LoadBatchKDStrings(const std::string& player_oids_str, const std::string& requestedStats);
+        void LoadBatchKDStrings(const std::string& player_oids_str, const std::string& requestedStats, const std::string& requestedSettings);
 
     private:
         TaskManager();
@@ -211,8 +211,8 @@ namespace LOGGER
     //Api calls for stats
     static std::unordered_map<std::string, std::string> playerStatsMap;
     static std::shared_timed_mutex statsMutex;
-    std::string FetchPlayerStats(const char* player_oid, const char* requestedStats); // on player connect if batch is complete only
-    std::string FetchBatchPlayerStats(const std::vector<std::string>& player_oids, std::string& requestedStats); //on startup only
+    std::string FetchPlayerStats(const char* player_oid, const char* requestedStats, const char* requestedSettings); // on player connect if batch is complete only
+    std::string FetchBatchPlayerStats(const std::vector<std::string>& player_oids, std::string& requestedStats, std::string& requestedSettings); //on startup only
     const char* GetPlayerJsonData(const char* player_oid); //on startup / player connect
     void RunUpdateLiveStats(std::string stats_json); //onshutdown dispatch thread
     void UpdateLiveStats(std::string stats_json); //onshutdown 

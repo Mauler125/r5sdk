@@ -238,6 +238,7 @@ struct SpeedChangeHistoryEntry
 	float maxSpeedChange;
 };
 
+
 class CPlayer : public CBaseCombatCharacter
 {
 	friend class CPlayerMove;
@@ -246,13 +247,11 @@ public:
 	QAngle* EyeAngles(QAngle* pAngles);
 
 	void SetTimeBase(float flTimeBase);
-	void SetLastUCmdSimulationRemainderTime(float flRemainderTime);
+	void SetLastUCmdSimulationRemainderTime(int nRemainderTime);
 	void SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime);
 
 	void ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 		int droppedPackets, bool paused);
-
-	void ClampUnlag(CUserCmd* cmd);
 
 	void PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover);
 	void SetLastUserCommand(CUserCmd* pUserCmd);
@@ -575,7 +574,7 @@ private:
 	float m_totalFrameTime;
 	float m_joinFrameTime;
 	int m_lastUCmdSimulationTicks;
-	float m_lastUCmdSimulationRemainderTime;
+	int m_lastUCmdSimulationRemainderTime; // Originally float???
 	float m_totalExtraClientCmdTimeAttempted;
 	int m_hPlayerViewEntity;
 	bool m_atLeastOneCommandRunThisServerFrame;
@@ -798,7 +797,7 @@ private:
 };
 static_assert(sizeof(CPlayer) == 0x7EF0); // !TODO: backwards compatibility.
 
-inline QAngle*(*CPlayer__EyeAngles)(CPlayer* pPlayer, QAngle* pAngles);
+inline QAngle* (*CPlayer__EyeAngles)(CPlayer* pPlayer, QAngle* pAngles);
 inline void(*CPlayer__PlayerRunCommand)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover);
 inline bool(*CPlayer__PhysicsSimulate)(CPlayer* pPlayer, int numPerIteration, bool adjustTimeBase);
 
@@ -823,6 +822,6 @@ class VPlayer : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif // PLAYER_H
-
 void CC_CreateFakePlayer_f(const CCommand& args);
+
+#endif // PLAYER_H

@@ -60,37 +60,29 @@ QAngle* CPlayer::EyeAngles(QAngle* pAngles)
 //------------------------------------------------------------------------------
 inline void CPlayer::SetTimeBase(float flTimeBase)
 {
-	float flTime = float(TIME_TO_TICKS(flTimeBase));
+	const int nRemainderTime = Max(TIME_TO_TICKS(flTimeBase), 0);
+	SetLastUCmdSimulationRemainderTime(nRemainderTime);
 
-	if (flTime < 0.0f)
-		flTime = 0.0f;
-
-	SetLastUCmdSimulationRemainderTime(flTime);
-
-	float flSimulationTime = flTimeBase - m_lastUCmdSimulationRemainderTime * TICK_INTERVAL;
-	if (flSimulationTime >= 0.0f)
-	{
-		flTime = flSimulationTime;
-	}
-
-	SetTotalExtraClientCmdTimeAttempted(flTime);
+	const float flAttemptedTime = Max(flTimeBase - (m_lastUCmdSimulationRemainderTime * TICK_INTERVAL), 0.0f);
+	SetTotalExtraClientCmdTimeAttempted(flAttemptedTime);
 }
 
 //------------------------------------------------------------------------------
 // Purpose: sets the last user cmd simulation remainder time
-// Input  : flRemainderTime - 
+// Input  : nRemainderTime - 
 //------------------------------------------------------------------------------
-void CPlayer::SetLastUCmdSimulationRemainderTime(float flRemainderTime)
+void CPlayer::SetLastUCmdSimulationRemainderTime(int nRemainderTime)
 {
-	if (m_lastUCmdSimulationRemainderTime != flRemainderTime)
+	if (m_lastUCmdSimulationRemainderTime != nRemainderTime)
 	{
-		edict_t nEdict = NetworkProp()->GetEdict();
+		const edict_t nEdict = NetworkProp()->GetEdict();
+
 		if (nEdict != FL_EDICT_INVALID)
 		{
 			_InterlockedOr16((SHORT*)(*g_pGlobals)->m_pEdicts + nEdict + 32, 0x200u);
 		}
 
-		m_lastUCmdSimulationRemainderTime = flRemainderTime;
+		m_lastUCmdSimulationRemainderTime = nRemainderTime;
 	}
 }
 
@@ -102,7 +94,8 @@ void CPlayer::SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime)
 {
 	if (m_totalExtraClientCmdTimeAttempted != flAttemptedTime)
 	{
-		edict_t nEdict = NetworkProp()->GetEdict();
+		const edict_t nEdict = NetworkProp()->GetEdict();
+
 		if (nEdict != FL_EDICT_INVALID)
 		{
 			_InterlockedOr16((SHORT*)(*g_pGlobals)->m_pEdicts + nEdict + 32, 0x200u);
@@ -229,7 +222,6 @@ CC_CreateFakePlayer_f
   on the server
 =====================
 */
-
 void CC_CreateFakePlayer_f(const CCommand& args)
 {
 	if (!g_pServer->IsActive())

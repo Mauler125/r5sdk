@@ -615,6 +615,7 @@ namespace VScriptCode
         {
             const SQChar* player_oid = nullptr;
             const SQChar* requestedStats = nullptr;
+            const SQChar* requestedSettings = nullptr;
 
             if (SQ_FAILED(sq_getstring(v, 2, &player_oid)) || !player_oid)
             {
@@ -630,7 +631,14 @@ namespace VScriptCode
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            LOGGER::TaskManager::getInstance().LoadKDString(player_oid, requestedStats);
+            if (SQ_FAILED(sq_getstring(v, 4, &requestedSettings)) || !requestedSettings)
+            {
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'requestedSettings' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'requestedSettings' parameter.");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            LOGGER::TaskManager::getInstance().LoadKDString(player_oid, requestedStats, requestedSettings);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
@@ -639,6 +647,7 @@ namespace VScriptCode
         {
             const SQChar* player_oids = nullptr;
             const SQChar* requestedStats = nullptr;
+            const SQChar* requestedSettings = nullptr;
 
             if (SQ_FAILED(sq_getstring(v, 2, &player_oids)) || !player_oids)
             {
@@ -654,24 +663,14 @@ namespace VScriptCode
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            LOGGER::TaskManager::getInstance().LoadBatchKDStrings(player_oids, requestedStats);
-            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
-        }
-
-        //DEPRECATED
-        SQRESULT GetSyncData__internal(HSQUIRRELVM v)
-        {
-            const SQChar* player_oid = nullptr;
-
-            if (SQ_FAILED(sq_getstring(v, 2, &player_oid)) || !player_oid)
+            if (SQ_FAILED(sq_getstring(v, 4, &requestedSettings)) || !requestedSettings)
             {
-                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
-                v_SQVM_ScriptError("Failed to retrieve 'player_oid' parameter.");
+                Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'requestedSettings' parameter.");
+                v_SQVM_ScriptError("Failed to retrieve 'requestedSettings' parameter.");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            std::string stats = LOGGER::GetPlayerJsonData(player_oid);
-            sq_pushstring(v, stats.c_str(), -1);
+            LOGGER::TaskManager::getInstance().LoadBatchKDStrings(player_oids, requestedStats, requestedSettings);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
@@ -684,16 +683,16 @@ namespace VScriptCode
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
                 v_SQVM_ScriptError("Failed to retrieve 'player_oid' parameter.");
-                sq_pushinteger(v, -1); // Push a default error value
-                return SQ_OK;
+                sq_pushinteger(v, -1);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
             const char* statsJson = LOGGER::GetPlayerJsonData(player_oid);
 
             if (strcmp(statsJson, "") == 0 || strcmp(statsJson, "NA") == 0)
             {
-                sq_newtable(v);
-                return SQ_OK;
+                sq_pushinteger(v, -1);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
             rapidjson::Document document;
@@ -701,14 +700,14 @@ namespace VScriptCode
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "JSON parsing failed: %s\n", rapidjson::GetParseError_En(document.GetParseError()));
                 sq_pushinteger(v, -1);
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
             if (!document.IsObject())
             {
                 Error(eDLL_T::SERVER, NO_ERROR, "JSON root is not an object\n");
                 sq_pushinteger(v, -1);
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
             sq_newtable(v);
@@ -753,7 +752,7 @@ namespace VScriptCode
                 sq_newslot(v, -3);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
 
@@ -1020,12 +1019,11 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
     //for polling stats
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_UpdateLiveStats__internal, "Updates live server stats R5R.DEV", "void", "string");
 
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadSyncData__internal, "Initializes grabbing stats for player", "void", "string, string"); //new: specify what stats
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetSyncData__internal, "Fetches stats for player on R5R.DEV", "string", "string"); //DEPRECATED
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadSyncData__internal, "Initializes grabbing stats for player", "void", "string, string, string"); //new: specify what stats|settings
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetPlayerStats__internal, "Fetches stats for player on R5R.DEV", "table", "string"); //NEW
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SQ_ResetStats__internal, "Sets map value for player_oid stats to empty string", "void", "string");
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadBatchSyncData__internal, "Fetches batch player stats queries", "void", "string, string"); //new: specify what stats
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, LoadBatchSyncData__internal, "Fetches batch player stats queries", "void", "string, string, string"); //new: specify what stats|settings
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, FetchGlobalSettingsFromR5RDEV__internal, "Fetches global settings based on query", "string", "string");
 
     //send a message as a bot.
