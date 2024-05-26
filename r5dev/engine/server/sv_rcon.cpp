@@ -547,7 +547,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData& data)
 		{
 			if (rcon_debug.GetBool())
 			{
-				Msg(eDLL_T::SERVER, "Banned list is full, dropping '%s'\n", szNetAdr);
+				Warning(eDLL_T::SERVER, "Banned list is full, dropping '%s'\n", szNetAdr);
 			}
 
 			return true;
