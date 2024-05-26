@@ -768,7 +768,7 @@ void CConsole::DetermineAutoCompleteWindowRect(void)
     const float maxWindowWidth = con_autocomplete_window_width.GetFloat();
 
     const float flWindowWidth = maxWindowWidth > 0
-        ? ImMin(con_autocomplete_window_width.GetFloat(), lastItemRectSize.x)
+        ? ImMin(maxWindowWidth, lastItemRectSize.x)
         : lastItemRectSize.x;
 
     // NOTE: minimum vertical size of the window, going below this will
