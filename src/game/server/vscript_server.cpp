@@ -888,21 +888,36 @@ namespace VScriptCode
                     continue;
                 }
 
-                if (!pClient->IsHumanPlayer())
+                if (!pClient || pClient->IsHumanPlayer())
                 {
-                    const CNetChan* pNetChan = pClient->GetNetChan();
+                    continue;
+                }
 
-                    if (pNetChan->GetName() == "[" + std::string(ImmutableName) + "]")
+                const CNetChan* pNetChan = pClient->GetNetChan();
+                
+                if (!pNetChan)
+                {
+                    continue;
+                }
+
+                const char* clientName = pNetChan->GetName();
+                
+                if (!clientName)
+                {
+                    continue;
+                }
+
+                std::string expectedBotName = "[" + std::string(ImmutableName) + "]";
+                
+                if ( strcmp( clientName, expectedBotName.c_str()) == 0 )
+                {
+                    int ID = pClient->GetUserID();
+                    if (ID >= 0 && ID <= 120)
                     {
-                        int ID = pClient->GetUserID();
-
-                        if (ID >= 0 && ID < 119)
-                        {
-                            sq_newarray(v, 0);
-                            sq_pushinteger(v, static_cast<int>(pClient->GetHandle()));
-                            sq_arrayappend(v, -2);
-                            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
-                        }
+                        sq_newarray(v, 0);
+                        sq_pushinteger(v, static_cast<int>(pClient->GetHandle()));
+                        sq_arrayappend(v, -2);
+                        SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
                     }
                 }
             }
