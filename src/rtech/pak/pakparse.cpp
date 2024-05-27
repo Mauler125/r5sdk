@@ -461,7 +461,7 @@ bool Pak_ProcessPakFile(PakFile_s* const pak)
                         return memoryData->patchSrcSize == 0;
 
                     char pakPatchPath[MAX_PATH] = {};
-                    sprintf(pakPatchPath, PLATFORM_PAK_PATH"%s", pak->memoryData.fileName);
+                    sprintf(pakPatchPath, PAK_PLATFORM_PATH"%s", pak->memoryData.fileName);
 
                     // get path of next patch rpak to load
                     if (pak->memoryData.patchIndices[pak->patchCount])

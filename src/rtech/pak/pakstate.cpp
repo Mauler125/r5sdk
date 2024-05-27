@@ -208,8 +208,8 @@ static void Pak_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	CFmtStr1024 inPakFile(PLATFORM_PAK_PATH "%s", args.Arg(1));
-	CFmtStr1024 outPakFile(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
+	CFmtStr1024 inPakFile(PAK_PLATFORM_PATH "%s", args.Arg(1));
+	CFmtStr1024 outPakFile(PAK_PLATFORM_OVERRIDE_PATH "%s", args.Arg(1));
 
 	if (!Pak_DecodePakFile(inPakFile.String(), outPakFile.String()))
 	{
@@ -233,8 +233,8 @@ static void Pak_Compress_f(const CCommand& args)
 		return;
 	}
 
-	CFmtStr1024 inPakFile(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
-	CFmtStr1024 outPakFile(PLATFORM_PAK_PATH "%s", args.Arg(1));
+	CFmtStr1024 inPakFile(PAK_PLATFORM_OVERRIDE_PATH "%s", args.Arg(1));
+	CFmtStr1024 outPakFile(PAK_PLATFORM_PATH "%s", args.Arg(1));
 
 	// NULL means default compress level
 	const int compressLevel = args.ArgC() > 2 ? atoi(args.Arg(2)) : NULL;
