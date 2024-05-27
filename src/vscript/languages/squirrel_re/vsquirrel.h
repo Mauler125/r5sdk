@@ -125,6 +125,10 @@ inline CSquirrelVM* g_pUIScript;
 		return val; \
 	}
 
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrel : public IDetour
 {

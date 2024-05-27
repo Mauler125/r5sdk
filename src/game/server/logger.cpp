@@ -8,6 +8,7 @@
 #include "logger.h"
 #include <networksystem/hostmanager.h>
 #include "vscript/vscript.h"
+#include "engine/cmd.h"
 
 //-----------------------------------------------------------------------------
 // POINTERS
@@ -948,8 +949,9 @@ namespace LOGGER
                 {
                     playerStatsMap[playerOidStr] = stats;
                     has_lock = true;
-                    std::string command = "CodeCallback_PlayerStatsReady(\"" + SanitizeString(playerOidStr) + "\")";
-                    Script_Execute( command.c_str(), SQCONTEXT::SERVER );
+                    std::string command = "script CodeCallback_PlayerStatsReady(\"" + SanitizeString(playerOidStr) + "\")";
+                    //Script_Execute( command.c_str(), SQCONTEXT::SERVER );
+                    Cbuf_AddText(Cbuf_GetCurrentPlayer(), command.c_str(), cmd_source_t::kCommandSrcCode);
                 }
 
                 if (!has_lock)

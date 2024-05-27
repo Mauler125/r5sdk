@@ -845,9 +845,8 @@ namespace VScriptCode
             }
 
             const std::string msg(inMsg);
-            void* thisptr = nullptr;
 
-            CServerGameDLL::OnReceivedSayTextMessage(thisptr, static_cast<int>(senderId), msg.c_str(), false);
+            CServerGameDLL::OnReceivedSayTextMessage(g_pServerGameDLL, static_cast<int>(senderId), msg.c_str(), false);
 
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
