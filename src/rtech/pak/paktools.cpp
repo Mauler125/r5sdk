@@ -14,7 +14,7 @@
 //----------------------------------------------------------------------------------
 bool Pak_BasePathExists()
 {
-	return IsDirectory(PLATFORM_PAK_PATH);
+	return IsDirectory(PAK_PLATFORM_PATH);
 }
 
 //----------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ bool Pak_CreateBasePath()
 	if (Pak_BasePathExists())
 		return true;
 
-	return CreateDirHierarchy(PLATFORM_PAK_PATH) == 0;
+	return CreateDirHierarchy(PAK_PLATFORM_PATH) == 0;
 }
 
 //----------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ bool Pak_CreateBasePath()
 //----------------------------------------------------------------------------------
 bool Pak_OverridePathExists()
 {
-	return IsDirectory(PLATFORM_PAK_OVERRIDE_PATH);
+	return IsDirectory(PAK_PLATFORM_OVERRIDE_PATH);
 }
 
 //----------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ bool Pak_CreateOverridePath()
 	if (Pak_OverridePathExists())
 		return true;
 
-	return CreateDirHierarchy(PLATFORM_PAK_OVERRIDE_PATH) == 0;
+	return CreateDirHierarchy(PAK_PLATFORM_OVERRIDE_PATH) == 0;
 }
 
 //----------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ bool Pak_CreateOverridePath()
 bool Pak_FileOverrideExists(const char* const pakFilePath, char* const outPath, const size_t outBufLen)
 {
     // check the overrides path
-    snprintf(outPath, outBufLen, PLATFORM_PAK_OVERRIDE_PATH"%s", V_UnqualifiedFileName(pakFilePath));
+    snprintf(outPath, outBufLen, PAK_PLATFORM_OVERRIDE_PATH"%s", V_UnqualifiedFileName(pakFilePath));
     return FileExists(outPath);
 }
 
@@ -69,7 +69,7 @@ int Pak_FileExists(const char* const pakFilePath)
         return true;
 
     // check the platform's default path
-    snprintf(fullPath, sizeof(fullPath), PLATFORM_PAK_PATH"%s", pakFilePath);
+    snprintf(fullPath, sizeof(fullPath), PAK_PLATFORM_PATH"%s", pakFilePath);
 
     return FileExists(fullPath);
 }

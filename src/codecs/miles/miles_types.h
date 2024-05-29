@@ -31,7 +31,7 @@ namespace Miles
 	// internal project data structure
 	struct IntProjectData_t
 	{
-		char gap0[0xCF0];
+		char gap0[0xE28];
 		int bankCount;
 		BankHeader_t** loadedBanks;
 	};
