@@ -390,6 +390,7 @@ void ConCommand_InitShipped(void)
 #ifndef DEDICATED
 	mat_crosshair->m_fnCommandCallback = Mat_CrossHair_f;
 	give->m_fnCompletionCallback = Game_Give_f_CompletionFunc;
+	fps_max->AddFlags(FCVAR_ARCHIVE);
 #endif // !DEDICATED
 
 	/// ------------------------------------------------------ [ FLAG REMOVAL ]
