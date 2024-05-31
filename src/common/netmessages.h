@@ -452,7 +452,6 @@ private:
 class CLC_VoiceData : public CNetMessage
 {
 public:
-	void* unk0;
 	int m_nLength;
 	bf_read m_DataIn;
 	bf_write m_DataOut;
@@ -463,7 +462,6 @@ public:
 class CLC_DurangoVoiceData : public CNetMessage
 {
 public:
-	void* unk0;
 	int m_nLength;
 	bf_read m_DataIn;
 	bf_write m_DataOut;
