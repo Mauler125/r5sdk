@@ -237,8 +237,11 @@ inline SQRESULT (*v_sq_endconsttable)(HSQUIRRELVM v);
 
 inline SQString* (*v_StringTable__Add)(void* a1, const SQChar* str, SQInteger len);
 
-inline void* /*RefTable::RefNode*/ (*v_RefTable__Get)(void* /*RefTable*/ thisp, SQObject* obj, SQHash* mainpos, void*/*RefTable::RefNode**/ prev, bool add);
-inline SQBool(*v_RefTable__Release)(void* /*RefTable*/ thisp, SQObject* obj);
+// returns: RefTable::RefNode*
+// thisp = RefTable*
+// prev = RefTable::RefNode*
+inline void* (*v_RefTable__Get)(void* thisp, SQObject* obj, SQHash* mainpos, void* prev, bool add);
+inline SQBool(*v_RefTable__Release)(void* thisp, SQObject* obj);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrelAPI : public IDetour
