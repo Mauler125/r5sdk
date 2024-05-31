@@ -258,6 +258,7 @@ void ConVar_InitShipped(void)
 	origin_disconnectWhenOffline->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	discord_updatePresence->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #endif // !DEDICATED
+	fps_max->AddFlags(FCVAR_ARCHIVE);
 	fps_max_vsync->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
 	base_tickinterval_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
