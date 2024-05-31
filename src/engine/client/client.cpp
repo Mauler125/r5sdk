@@ -537,6 +537,9 @@ bool CClient::VProcessVoiceData(CClient* pClient, CLC_VoiceData* pMsg)
 	char voiceDataBuffer[4096];
 	const int bitsRead = pMsg->m_DataIn.ReadBitsClamped(voiceDataBuffer, pMsg->m_nLength);
 
+	if (pMsg->m_DataIn.IsOverflowed())
+		return false;
+
 	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
 	SV_BroadcastVoiceData(pAdj, Bits2Bytes(bitsRead), voiceDataBuffer);
 #endif // !CLIENT_DLL
@@ -555,6 +558,9 @@ bool CClient::VProcessDurangoVoiceData(CClient* pClient, CLC_DurangoVoiceData* p
 #ifndef CLIENT_DLL
 	char voiceDataBuffer[4096];
 	const int bitsRead = pMsg->m_DataIn.ReadBitsClamped(voiceDataBuffer, pMsg->m_nLength);
+
+	if (pMsg->m_DataIn.IsOverflowed())
+		return false;
 
 	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
 	SV_BroadcastDurangoVoiceData(pAdj, Bits2Bytes(bitsRead), voiceDataBuffer,
