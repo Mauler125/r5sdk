@@ -280,7 +280,7 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 			FileHandle_t hLumpFile = FileSystem()->Open(lumpPathBuf, "rb");
 			if (hLumpFile != FILESYSTEM_INVALID_HANDLE)
 			{
-				//DevMsg(eDLL_T::ENGINE, "Loading lump %.4x from file. Buffer: %p\n", lumpToLoad, loader->m_pRawData);
+				DevMsg(eDLL_T::ENGINE, "Loading lump %.4x from file. Buffer: %p\n", lumpToLoad, loader->m_pRawData);
 				FileSystem()->ReadEx(loader->m_pRawData, lumpSize, lumpSize, hLumpFile);
 				FileSystem()->Close(hLumpFile);
 
@@ -345,20 +345,11 @@ void AddGameLump()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VModelLoader::Attach() const
+void VModelLoader::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&CModelLoader__LoadModel, &CModelLoader::LoadModel);
-	DetourAttach((LPVOID*)&CModelLoader__Map_LoadModelGuts, &CModelLoader::Map_LoadModelGuts);
+	DetourSetup(&CModelLoader__LoadModel, &CModelLoader::LoadModel, bAttach);
+	DetourSetup(&CModelLoader__Map_LoadModelGuts, &CModelLoader::Map_LoadModelGuts, bAttach);
 
-	DetourAttach((LPVOID*)&CMapLoadHelper__CMapLoadHelper, &CMapLoadHelper::Constructor);
-	DetourAttach((LPVOID*)&v_AddGameLump, &AddGameLump);
-}
-
-void VModelLoader::Detach() const
-{
-	DetourDetach((LPVOID*)&CModelLoader__LoadModel, &CModelLoader::LoadModel);
-	DetourDetach((LPVOID*)&CModelLoader__Map_LoadModelGuts, &CModelLoader::Map_LoadModelGuts);
-
-	DetourDetach((LPVOID*)&CMapLoadHelper__CMapLoadHelper, &CMapLoadHelper::Constructor);
-	DetourDetach((LPVOID*)&v_AddGameLump, &AddGameLump);
+	DetourSetup(&CMapLoadHelper__CMapLoadHelper, &CMapLoadHelper::Constructor, bAttach);
+	DetourSetup(&v_AddGameLump, &AddGameLump, bAttach);
 }

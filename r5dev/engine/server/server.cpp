@@ -19,6 +19,20 @@
 #include "ebisusdk/EbisuSDK.h"
 #include "public/edict.h"
 #include "pluginsystem/pluginsystem.h"
+#include "rtech/liveapi/liveapi.h"
+
+//---------------------------------------------------------------------------------
+// Console variables
+//---------------------------------------------------------------------------------
+ConVar sv_showconnecting("sv_showconnecting", "1", FCVAR_RELEASE, "Logs information about the connecting client to the console");
+ConVar sv_globalBanlist("sv_globalBanlist", "1", FCVAR_RELEASE, "Determines whether or not to use the global banned list.", false, 0.f, false, 0.f, "0 = Disable, 1 = Enable.");
+
+ConVar sv_banlistRefreshRate("sv_banlistRefreshRate", "30.0", FCVAR_DEVELOPMENTONLY, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f);
+ConVar sv_statusRefreshRate("sv_statusRefreshRate", "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", true, 0.f, false, 0.f);
+
+static ConVar sv_validatePersonaName("sv_validatePersonaName", "1", FCVAR_RELEASE, "Validate the client's textual persona name on connect.");
+static ConVar sv_minPersonaNameLength("sv_minPersonaNameLength", "4", FCVAR_RELEASE, "The minimum length of the client's textual persona name.", true, 0.f, false, 0.f);
+static ConVar sv_maxPersonaNameLength("sv_maxPersonaNameLength", "16", FCVAR_RELEASE, "The maximum length of the client's textual persona name.", true, 0.f, false, 0.f);
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of human players on the server
@@ -81,6 +95,17 @@ int CServer::GetNumClients(void) const
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: Rejects connection request and sends back a message
+// Input  : iSocket - 
+//			*pChallenge - 
+//			*szMessage - 
+//---------------------------------------------------------------------------------
+void CServer::RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage)
+{
+	CServer__RejectConnection(this, iSocket, pNetAdr, szMessage);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: Initializes a CSVClient for a new net connection. This will only be called
 //			once for a player each game, not once for each level change.
 // Input  : *pServer - 
@@ -98,11 +123,11 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 	char pszAddresBuffer[128]; // Render the client's address.
 	pChallenge->netAdr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer), true);
 
-	const bool bEnableLogging = sv_showconnecting->GetBool();
+	const bool bEnableLogging = sv_showconnecting.GetBool();
 	const int nPort = int(ntohs(pChallenge->netAdr.GetPort()));
 
 	if (bEnableLogging)
-		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '[%s]:%i' ('%llu')\n",
+		Msg(eDLL_T::SERVER, "Processing connectionless challenge for '[%s]:%i' ('%llu')\n",
 			pszAddresBuffer, nPort, nNucleusID);
 
 	bool bValidName = false;
@@ -110,8 +135,8 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 	if (VALID_CHARSTAR(pszPersonaName) &&
 		V_IsValidUTF8(pszPersonaName))
 	{
-		if (sv_validatePersonaName->GetBool() && 
-			!IsValidPersonaName(pszPersonaName, sv_minPersonaNameLength->GetInt(), sv_maxPersonaNameLength->GetInt()))
+		if (sv_validatePersonaName.GetBool() && 
+			!IsValidPersonaName(pszPersonaName, sv_minPersonaNameLength.GetInt(), sv_maxPersonaNameLength.GetInt()))
 		{
 			bValidName = false;
 		}
@@ -132,9 +157,9 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		return nullptr;
 	}
 
-	if (g_pBanSystem->IsBanListValid())
+	if (g_BanSystem.IsBanListValid())
 	{
-		if (g_pBanSystem->IsBanned(pszAddresBuffer, nNucleusID))
+		if (g_BanSystem.IsBanned(pszAddresBuffer, nNucleusID))
 		{
 			pServer->RejectConnection(pServer->m_Socket, &pChallenge->netAdr, "#Valve_Reject_Banned");
 			if (bEnableLogging)
@@ -145,9 +170,9 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		}
 	}
 
-	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
+	CClient* pClient = CServer__ConnectClient(pServer, pChallenge);
 
-	for (auto& callback : !g_pPluginSystem->GetConnectClientCallbacks())
+	for (auto& callback : !g_PluginSystem.GetConnectClientCallbacks())
 	{
 		if (!callback(pServer, pClient, pChallenge))
 		{
@@ -156,11 +181,14 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		}
 	}
 
-	if (pClient && sv_globalBanlist->GetBool())
+	if (pClient && sv_globalBanlist.GetBool())
 	{
 		if (!pClient->GetNetChan()->GetRemoteAddress().IsLoopback())
 		{
-			std::thread th(SV_IsClientBanned, pClient, string(pszAddresBuffer), nNucleusID, string(pszPersonaName), nPort);
+			const string addressBufferCopy(pszAddresBuffer);
+			const string personaNameCopy(pszPersonaName);
+
+			std::thread th(SV_CheckForBanAndDisconnect, pClient, addressBufferCopy, nNucleusID, personaNameCopy, nPort);
 			th.detach();
 		}
 	}
@@ -169,25 +197,26 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: Rejects connection request and sends back a message
-// Input  : iSocket - 
-//			*pChallenge - 
-//			*szMessage - 
+// Purpose: Sends netmessage to all active clients
+// Input  : *msg       -
+//          onlyActive - 
+//          reliable   - 
 //---------------------------------------------------------------------------------
-void CServer::RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage)
+void CServer::BroadcastMessage(CNetMessage* const msg, const bool onlyActive, const bool reliable)
 {
-	v_CServer_RejectConnection(this, iSocket, pNetAdr, szMessage);
+	CServer__BroadcastMessage(this, msg, onlyActive, reliable);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: Runs the server frame job
 // Input  : flFrameTime - 
 //			bRunOverlays - 
-//			bUniformSnapshotInterval - 
+//			bUpdateFrame - 
 //---------------------------------------------------------------------------------
-void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval)
+void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUpdateFrame)
 {
-	v_CServer_FrameJob(flFrameTime, bRunOverlays, bUniformSnapshotInterval);
+	CServer__FrameJob(flFrameTime, bRunOverlays, bUpdateFrame);
+	LiveAPISystem()->RunFrame();
 }
 
 //---------------------------------------------------------------------------------
@@ -196,27 +225,18 @@ void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnaps
 //---------------------------------------------------------------------------------
 void CServer::RunFrame(CServer* pServer)
 {
-	v_CServer_RunFrame(pServer);
+	CServer__RunFrame(pServer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VServer::Attach() const
+void VServer::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CServer_RunFrame, &CServer::RunFrame);
-#if	defined(GAMEDLL_S3)
-	DetourAttach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
-	DetourAttach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
-#endif // !TODO: S1 and S2 CServer functions require work.
+	DetourSetup(&CServer__RunFrame, &CServer::RunFrame, bAttach);
+	DetourSetup(&CServer__ConnectClient, &CServer::ConnectClient, bAttach);
+	DetourSetup(&CServer__FrameJob, &CServer::FrameJob, bAttach);
 }
 
-void VServer::Detach() const
-{
-	DetourDetach(&v_CServer_RunFrame, &CServer::RunFrame);
-#if	defined(GAMEDLL_S3)
-	DetourDetach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
-	DetourDetach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
-#endif // !TODO: S1 and S2 CServer functions require work.
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 CServer* g_pServer = nullptr;
+CClientExtended CServer::sm_ClientsExtended[MAX_PLAYERS];

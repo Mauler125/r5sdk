@@ -18,12 +18,8 @@ int QHull_PrintFunc(const char* fmt, ...)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VQHull::Attach() const
+void VQHull::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&v_QHull_PrintFunc, &QHull_PrintFunc);
+	DetourSetup(&v_QHull_PrintFunc, &QHull_PrintFunc, bAttach);
 }
 
-void VQHull::Detach() const
-{
-	DetourDetach((LPVOID*)&v_QHull_PrintFunc, &QHull_PrintFunc);
-}

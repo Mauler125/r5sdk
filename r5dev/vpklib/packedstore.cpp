@@ -25,61 +25,240 @@
 // 
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "tier1/cvar.h"
+#include "tier1/keyvalues.h"
 #include "tier2/fileutils.h"
 #include "mathlib/adler32.h"
 #include "mathlib/crc32.h"
 #include "mathlib/sha1.h"
-#include "filesystem/filesystem.h"
-#include "vpc/keyvalues.h"
+#include "localize/ilocalize.h"
 #include "vpklib/packedstore.h"
 
-static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
+extern CFileSystem_Stdio* FileSystem();
+
+static const std::regex s_DirFileRegex{ R"((?:.*\/)?([^_]*)(?:_)(.*)(.bsp.pak000_dir).*)" };
 static const std::regex s_BlockFileRegex{ R"(pak000_([0-9]{3}))" };
-
-//-----------------------------------------------------------------------------
-// Purpose: initialize parameters for compression algorithm
-//-----------------------------------------------------------------------------
-void CPackedStore::InitLzCompParams(void)
-{
-	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	m_lzCompParams.m_dict_size_log2     = VPK_DICT_SIZE;
-	m_lzCompParams.m_level              = GetCompressionLevel();
-	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
-	m_lzCompParams.m_max_helper_threads = fs_packedstore_max_helper_threads->GetInt();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: initialize parameters for decompression algorithm
-//-----------------------------------------------------------------------------
-void CPackedStore::InitLzDecompParams(void)
-{
-	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	m_lzDecompParams.m_dict_size_log2   = VPK_DICT_SIZE;
-	m_lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED;
-	m_lzDecompParams.m_struct_size      = sizeof(lzham_decompress_params);
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the LZHAM compression level
 // output : lzham_compress_level
 //-----------------------------------------------------------------------------
-lzham_compress_level CPackedStore::GetCompressionLevel(void) const
+static lzham_compress_level DetermineCompressionLevel(const char* compressionLevel)
 {
-	const char* pszLevel = fs_packedstore_compression_level->GetString();
-
-	if(strcmp(pszLevel, "fastest") == NULL)
+	if (strcmp(compressionLevel, "fastest") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTEST;
-	else if (strcmp(pszLevel, "faster") == NULL)
+	else if (strcmp(compressionLevel, "faster") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTER;
-	else if (strcmp(pszLevel, "default") == NULL)
+	else if (strcmp(compressionLevel, "default") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_DEFAULT;
-	else if (strcmp(pszLevel, "better") == NULL)
+	else if (strcmp(compressionLevel, "better") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_BETTER;
-	else if (strcmp(pszLevel, "uber") == NULL)
+	else if (strcmp(compressionLevel, "uber") == NULL)
 		return lzham_compress_level::LZHAM_COMP_LEVEL_UBER;
 	else
 		return lzham_compress_level::LZHAM_COMP_LEVEL_DEFAULT;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: initialize parameters for compression algorithm
+//-----------------------------------------------------------------------------
+void CPackedStoreBuilder::InitLzEncoder(const lzham_int32 maxHelperThreads, const char* compressionLevel)
+{
+	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+	m_Encoder.m_struct_size          = sizeof(lzham_compress_params);
+	m_Encoder.m_dict_size_log2       = VPK_DICT_SIZE;
+	m_Encoder.m_level                = DetermineCompressionLevel(compressionLevel);
+	m_Encoder.m_max_helper_threads   = maxHelperThreads;
+	m_Encoder.m_cpucache_total_lines = NULL;
+	m_Encoder.m_cpucache_line_size   = NULL;
+	m_Encoder.m_compress_flags       = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
+	m_Encoder.m_num_seed_bytes       = NULL;
+	m_Encoder.m_pSeed_bytes          = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: initialize parameters for decompression algorithm
+//-----------------------------------------------------------------------------
+void CPackedStoreBuilder::InitLzDecoder(void)
+{
+	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+	m_Decoder.m_struct_size      = sizeof(lzham_decompress_params);
+	m_Decoder.m_dict_size_log2   = VPK_DICT_SIZE;
+	m_Decoder.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED;
+	m_Decoder.m_num_seed_bytes   = NULL;
+	m_Decoder.m_pSeed_bytes      = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the level name from the directory file name
+// Input  : &dirFileName - 
+// Output : level name as string (e.g. "englishclient_mp_rr_box")
+//-----------------------------------------------------------------------------
+CUtlString PackedStore_GetDirBaseName(const CUtlString& dirFileName)
+{
+	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
+
+	std::cmatch regexMatches;
+	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
+
+	CUtlString result;
+	result.Format("%s_%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
+
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the parts of the directory file name
+// Input  : &dirFileName   - 
+//          nCaptureGroup  - (1 = locale + target, 2 = level)
+// Output : part of directory file name as string
+//-----------------------------------------------------------------------------
+CUtlString PackedStore_GetDirNameParts(const CUtlString& dirFileName, const int nCaptureGroup)
+{
+	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
+
+	std::cmatch regexMatches;
+	std::regex_search(baseFileName, regexMatches, s_DirFileRegex);
+
+	return regexMatches[nCaptureGroup].str().c_str();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: formats the file entry path
+// Input  : &filePath - 
+//          &fileName - 
+//          &fileExt  - 
+// Output : formatted entry path
+//-----------------------------------------------------------------------------
+static CUtlString FormatEntryPath(const CUtlString& filePath,
+	const CUtlString& fileName, const CUtlString& fileExt)
+{
+	CUtlString result;
+
+	const char* pszFilePath = filePath.Get();
+	const bool isRoot = pszFilePath[0] == ' ';
+
+	result.Format("%s%s.%s", isRoot ? "" : pszFilePath,
+		fileName.Get(), fileExt.Get());
+
+	result.FixSlashes('/');
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: determines whether the file should be pruned from the build list
+// Input  : &filePath   - 
+//          &ignoreList - 
+// Output : true if it should be pruned, false otherwise
+//-----------------------------------------------------------------------------
+static bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& ignoreList)
+{
+	const char* pFilePath = filePath.Get();
+
+	if (!VALID_CHARSTAR(pFilePath))
+	{
+		Warning(eDLL_T::FS, "File in build manifest has no name\n", pFilePath);
+		return true;
+	}
+
+	FOR_EACH_VEC(ignoreList, j)
+	{
+		const CUtlString& ignoreEntry = ignoreList[j];
+
+		if (ignoreEntry.IsEqual_CaseInsensitive(pFilePath))
+		{
+			return true;
+		}
+	}
+
+	FileHandle_t fileHandle = FileSystem()->Open(pFilePath, "rb", "PLATFORM");
+
+	if (fileHandle)
+	{
+		const ssize_t nSize = FileSystem()->Size(fileHandle);
+
+		if (!nSize)
+		{
+			Warning(eDLL_T::FS, "File '%s' listed in build manifest appears empty or truncated\n", pFilePath);
+			FileSystem()->Close(fileHandle);
+
+			return true;
+		}
+
+		FileSystem()->Close(fileHandle);
+	}
+	else
+	{
+		Warning(eDLL_T::FS, "File '%s' listed in build manifest couldn't be opened\n", pFilePath);
+		return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the manifest file associated with the VPK name (must be freed after wards)
+// Input  : &workspacePath - 
+//          &manifestFile  - 
+// Output : KeyValues (build manifest pointer)
+//-----------------------------------------------------------------------------
+static KeyValues* GetManifest(const CUtlString& workspacePath, const CUtlString& manifestFile)
+{
+	CUtlString outPath;
+	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestFile.Get());
+
+	KeyValues* pManifestKV = new KeyValues("BuildManifest");
+	if (!pManifestKV->LoadFromFile(FileSystem(), outPath.Get(), "PLATFORM"))
+	{
+		pManifestKV->DeleteThis();
+		return nullptr;
+	}
+
+	return pManifestKV;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the contents from the global ignore list (.vpkignore)
+// Input  : &ignoreList    - 
+//			&workspacePath - 
+// Output : a string vector of ignored directories/files and extensions
+//-----------------------------------------------------------------------------
+static bool GetIgnoreList(CUtlVector<CUtlString>& ignoreList, const CUtlString& workspacePath)
+{
+	CUtlString toIgnore;
+	toIgnore.Format("%s%s", workspacePath.Get(), VPK_IGNORE_FILE);
+
+	FileHandle_t hIgnoreFile = FileSystem()->Open(toIgnore.Get(), "rt", "PLATFORM");
+	if (!hIgnoreFile)
+	{
+		return false;
+	}
+
+	char szIgnore[MAX_PATH];
+
+	while (FileSystem()->ReadLine(szIgnore, sizeof(szIgnore) - 1, hIgnoreFile))
+	{
+		if (!strstr(szIgnore, "//")) // Skip comments.
+		{
+			if (char* pEOL = strchr(szIgnore, '\n'))
+			{
+				// Null newline character.
+				*pEOL = '\0';
+				if (pEOL - szIgnore > 0)
+				{
+					// Null carriage return.
+					if (*(pEOL - 1) == '\r')
+					{
+						*(pEOL - 1) = '\0';
+					}
+				}
+			}
+
+			ignoreList.AddToTail(szIgnore);
+		}
+	}
+
+	FileSystem()->Close(hIgnoreFile);
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -88,7 +267,7 @@ lzham_compress_level CPackedStore::GetCompressionLevel(void) const
 //          hDirectoryFile - 
 // output : vector<VPKEntryBlock_t>
 //-----------------------------------------------------------------------------
-void CPackedStore::GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_t hDirectoryFile) const
+static void GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, FileHandle_t hDirectoryFile)
 {
 	CUtlString fileName, filePath, fileExtension;
 
@@ -114,14 +293,14 @@ void CPackedStore::GetEntryBlocks(CUtlVector<VPKEntryBlock_t>& entryBlocks, File
 //          *dirFileName   - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CPackedStore::GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, 
-	const CUtlString& workspacePath, const CUtlString& dirFileName) const
+static bool GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues, 
+	const CUtlString& workspacePath, const CUtlString& dirFileName)
 {
-	KeyValues* pManifestKV = GetManifest(workspacePath, GetLevelName(dirFileName));
+	KeyValues* pManifestKV = GetManifest(workspacePath, PackedStore_GetDirBaseName(dirFileName));
 
 	if (!pManifestKV)
 	{
-		Warning(eDLL_T::FS, "Invalid VPK build manifest KV; unable to parse entry list\n");
+		Error(eDLL_T::FS, NO_ERROR, "Invalid or missing VPK build manifest KV; unable to parse entry list\n");
 		return false;
 	}
 
@@ -167,127 +346,14 @@ bool CPackedStore::GetEntryValues(CUtlVector<VPKKeyValues_t>& entryValues,
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the parts of the directory file name
-// Input  : &dirFileName   - 
-//          nCaptureGroup  - (1 = locale + target, 2 = level)
-// Output : part of directory file name as string
-//-----------------------------------------------------------------------------
-CUtlString CPackedStore::GetNameParts(const CUtlString& dirFileName, int nCaptureGroup) const
-{
-	std::cmatch regexMatches;
-	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
-
-	return regexMatches[nCaptureGroup].str().c_str();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the level name from the directory file name
-// Input  : &dirFileName - 
-// Output : level name as string (e.g. "mp_rr_box")
-//-----------------------------------------------------------------------------
-CUtlString CPackedStore::GetLevelName(const CUtlString& dirFileName) const
-{
-	std::cmatch regexMatches;
-	std::regex_search(dirFileName.Get(), regexMatches, s_DirFileRegex);
-
-	CUtlString result;
-	result.Format("%s%s", regexMatches[1].str().c_str(), regexMatches[2].str().c_str());
-
-	return result;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the manifest file associated with the VPK name (must be freed after wards)
-// Input  : &workspacePath - 
-//          &manifestFile  - 
-// Output : KeyValues (build manifest pointer)
-//-----------------------------------------------------------------------------
-KeyValues* CPackedStore::GetManifest(const CUtlString& workspacePath, const CUtlString& manifestFile) const
-{
-	CUtlString outPath;
-	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestFile.Get());
-
-	KeyValues* pManifestKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_COMMON, outPath.Get(), "PLATFORM");
-	return pManifestKV;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets the contents from the global ignore list (.vpkignore)
-// Input  : &ignoreList    - 
-//			&workspacePath - 
-// Output : a string vector of ignored directories/files and extensions
-//-----------------------------------------------------------------------------
-bool CPackedStore::GetIgnoreList(CUtlVector<CUtlString>& ignoreList, const CUtlString& workspacePath) const
-{
-	CUtlString toIgnore;
-	toIgnore.Format("%s%s", workspacePath.Get(), VPK_IGNORE_FILE);
-
-	FileHandle_t hIgnoreFile = FileSystem()->Open(toIgnore.Get(), "rt", "PLATFORM");
-	if (!hIgnoreFile)
-	{
-		return false;
-	}
-
-	char szIgnore[MAX_PATH];
-
-	while (FileSystem()->ReadLine(szIgnore, sizeof(szIgnore) - 1, hIgnoreFile))
-	{
-		if (!strstr(szIgnore, "//")) // Skip comments.
-		{
-			if (char* pEOL = strchr(szIgnore, '\n'))
-			{
-				// Null newline character.
-				*pEOL = '\0';
-				if (pEOL - szIgnore > 0)
-				{
-					// Null carriage return.
-					if (*(pEOL - 1) == '\r')
-					{
-						*(pEOL - 1) = '\0';
-					}
-				}
-			}
-
-			ignoreList.AddToTail(szIgnore);
-		}
-	}
-
-	FileSystem()->Close(hIgnoreFile);
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: formats the file entry path
-// Input  : &filePath - 
-//          &fileName - 
-//          &fileExt  - 
-// Output : formatted entry path
-//-----------------------------------------------------------------------------
-CUtlString CPackedStore::FormatEntryPath(const CUtlString& filePath,
-	const CUtlString& fileName, const CUtlString& fileExt) const
-{
-	CUtlString result;
-
-	const char* pszFilePath = filePath.Get();
-	const bool isRoot = pszFilePath[0] == ' ';
-
-	result.Format("%s%s.%s", isRoot ? "" : pszFilePath,
-		fileName.Get(), fileExt.Get());
-
-	result.FixSlashes('/');
-	return result;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: builds the VPK manifest file
 // Input  : &entryBlocks   - 
 //          &workspacePath - 
 //          &manifestName  - 
 //-----------------------------------------------------------------------------
-void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks, const CUtlString& workspacePath, const CUtlString& manifestName) const
+static void BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks, const CUtlString& workspacePath, const CUtlString& manifestName)
 {
 	KeyValues kv("BuildManifest");
-	KeyValues* pManifestKV = kv.FindKey("BuildManifest", true);
 
 	FOR_EACH_VEC(entryBlocks, i)
 	{
@@ -300,7 +366,7 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 		CUtlString entryPath = entry.m_EntryPath;
 		entryPath.FixSlashes('\\');
 
-		KeyValues* pEntryKV = pManifestKV->FindKey(entryPath.Get(), true);
+		KeyValues* pEntryKV = kv.FindKey(entryPath.Get(), true);
 
 		pEntryKV->SetInt("preloadSize", entry.m_iPreloadSize);
 		pEntryKV->SetInt("loadFlags", descriptor.m_nLoadFlags);
@@ -312,7 +378,7 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 	CUtlString outPath;
 	outPath.Format("%s%s%s.txt", workspacePath.Get(), "manifest/", manifestName.Get());
 
-	CUtlBuffer outBuf(int64_t(0), 0, CUtlBuffer::TEXT_BUFFER);
+	CUtlBuffer outBuf(ssize_t(0), 0, CUtlBuffer::TEXT_BUFFER);
 	kv.RecursiveSaveToFile(outBuf, 0);
 
 	FileSystem()->CreateDirHierarchy(outPath.DirName().Get(), "PLATFORM");
@@ -324,7 +390,7 @@ void CPackedStore::BuildManifest(const CUtlVector<VPKEntryBlock_t>& entryBlocks,
 // Input  : &assetPath - 
 //        : nFileCRC   - 
 //-----------------------------------------------------------------------------
-void CPackedStore::ValidateCRC32PostDecomp(const CUtlString& assetPath, const uint32_t nFileCRC)
+static void ValidateCRC32PostDecomp(const CUtlString& assetPath, const uint32_t nFileCRC)
 {
 	const char* pAssetPath = assetPath.Get();
 
@@ -335,7 +401,7 @@ void CPackedStore::ValidateCRC32PostDecomp(const CUtlString& assetPath, const ui
 		return;
 	}
 
-	uint32_t nLen = FileSystem()->Size(hAsset);
+	const ssize_t nLen = FileSystem()->Size(hAsset);
 	std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
 
 	FileSystem()->Read(pBuf.get(), nLen, hAsset);
@@ -355,7 +421,7 @@ void CPackedStore::ValidateCRC32PostDecomp(const CUtlString& assetPath, const ui
 //          chunkIndex    - 
 // Output : true if the chunk was deduplicated, false otherwise
 //-----------------------------------------------------------------------------
-bool CPackedStore::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex)
+bool CPackedStoreBuilder::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t& descriptor, const size_t chunkIndex)
 {
 	string entryHash(reinterpret_cast<const char*>(pEntryBuffer), descriptor.m_nUncompressedSize);
 	entryHash = sha1(entryHash);
@@ -363,60 +429,10 @@ bool CPackedStore::Deduplicate(const uint8_t* pEntryBuffer, VPKChunkDescriptor_t
 	auto p = m_ChunkHashMap.insert({ entryHash.c_str(), descriptor });
 	if (!p.second) // Map to existing chunk to avoid having copies of the same data.
 	{
-		DevMsg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n",
+		Msg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n",
 			chunkIndex, entryHash.c_str(), p.first->second.m_nPackFileOffset);
 		descriptor = p.first->second;
 
-		return true;
-	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: determines whether the file should be pruned from the build list
-// Input  : &filePath   - 
-//          &ignoreList - 
-// Output : true if it should be pruned, false otherwise
-//-----------------------------------------------------------------------------
-bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& ignoreList) const
-{
-	const char* pFilePath = filePath.Get();
-
-	if (!V_IsValidPath(pFilePath))
-	{
-		return true;
-	}
-
-	FOR_EACH_VEC(ignoreList, j)
-	{
-		const CUtlString& ignoreEntry = ignoreList[j];
-
-		if (ignoreEntry.IsEqual_CaseInsensitive(pFilePath))
-		{
-			return true;
-		}
-	}
-
-	FileHandle_t fileHandle = FileSystem()->Open(pFilePath, "rb", "PLATFORM");
-
-	if (fileHandle)
-	{
-		const int nSize = FileSystem()->Size(fileHandle);
-
-		if (!nSize)
-		{
-			Warning(eDLL_T::FS, "File '%s' listed in build manifest appears empty or truncated\n", pFilePath);
-			FileSystem()->Close(fileHandle);
-
-			return true;
-		}
-
-		FileSystem()->Close(fileHandle);
-	}
-	else
-	{
-		Warning(eDLL_T::FS, "File '%s' listed in build manifest couldn't be opened\n", pFilePath);
 		return true;
 	}
 
@@ -429,11 +445,31 @@ bool CPackedStore::ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString
 //          *workspaceName - 
 //          *buildPath     - 
 //-----------------------------------------------------------------------------
-void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath)
+void CPackedStoreBuilder::PackStore(const VPKPair_t& vpkPair, const char* workspaceName, const char* buildPath)
 {
 	CUtlString workspacePath(workspaceName);
 	workspacePath.AppendSlash();
 	workspacePath.FixSlashes('/');
+
+	CUtlVector<VPKKeyValues_t> entryValues;
+	CUtlVector<VPKEntryBlock_t> entryBlocks;
+
+	// NOTE: we get the entry values prior to opening the file, because if we
+	// don't have a valid manifest file, we won't be able to build the store.
+	// If we had already opened the pack file, and a one already existed, it
+	// would be emptied out ("wb" flag) which we want to avoid here.
+	if (!GetEntryValues(entryValues, workspacePath, vpkPair.m_DirName))
+	{
+		return;
+	}
+
+	std::unique_ptr<uint8_t[]> pEntryBuffer(new uint8_t[ENTRY_MAX_LEN]);
+
+	if (!pEntryBuffer)
+	{
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
+		return;
+	}
 
 	CUtlString packFilePath;
 	CUtlString dirFilePath;
@@ -449,26 +485,8 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		return;
 	}
 
-	std::unique_ptr<uint8_t[]> pEntryBuffer(new uint8_t[ENTRY_MAX_LEN]);
-
-	if (!pEntryBuffer)
-	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
-		FileSystem()->Close(hPackFile);
-		return;
-	}
-
-	CUtlVector<VPKKeyValues_t> entryValues;
-	CUtlVector<VPKEntryBlock_t> entryBlocks;
-
-	if (!GetEntryValues(entryValues, workspacePath, vpkPair.m_DirName))
-	{
-		FileSystem()->Close(hPackFile);
-		return;
-	}
-
-	uint64_t nSharedTotal = NULL;
-	uint64_t nSharedCount = NULL;
+	size_t nSharedTotal = NULL;
+	size_t nSharedCount = NULL;
 
 	FOR_EACH_VEC(entryValues, i)
 	{
@@ -489,13 +507,13 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 			szDestPath++;
 		}
 
-		uint32_t nLen = FileSystem()->Size(hAsset);
+		const ssize_t nLen = FileSystem()->Size(hAsset);
 		std::unique_ptr<uint8_t[]> pBuf(new uint8_t[nLen]);
 
 		FileSystem()->Read(pBuf.get(), nLen, hAsset);
 		FileSystem()->Seek(hAsset, 0, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
 
-		DevMsg(eDLL_T::FS, "Packing entry '%i' ('%s')\n", i, szDestPath);
+		Msg(eDLL_T::FS, "Packing entry '%i' ('%s')\n", i, szDestPath);
 		int index = entryBlocks.AddToTail(VPKEntryBlock_t(
 			pBuf.get(),
 			nLen,
@@ -512,7 +530,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 		{
 			VPKChunkDescriptor_t& descriptor = entryBlock.m_Fragments[j];
 
-			FileSystem()->Read(pEntryBuffer.get(), int(descriptor.m_nCompressedSize), hAsset);
+			FileSystem()->Read(pEntryBuffer.get(), descriptor.m_nCompressedSize, hAsset);
 			descriptor.m_nPackFileOffset = FileSystem()->Tell(hPackFile);
 
 			if (entryValue.m_bDeduplicate && Deduplicate(pEntryBuffer.get(), descriptor, j))
@@ -526,7 +544,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 
 			if (entryValue.m_bUseCompression)
 			{
-				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_lzCompParams, pEntryBuffer.get(), &descriptor.m_nCompressedSize, pEntryBuffer.get(),
+				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_Encoder, pEntryBuffer.get(), &descriptor.m_nCompressedSize, pEntryBuffer.get(),
 					descriptor.m_nUncompressedSize, nullptr);
 
 				if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
@@ -542,13 +560,13 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 				descriptor.m_nCompressedSize = descriptor.m_nUncompressedSize;
 			}
 
-			FileSystem()->Write(pEntryBuffer.get(), int(descriptor.m_nCompressedSize), hPackFile);
+			FileSystem()->Write(pEntryBuffer.get(), descriptor.m_nCompressedSize, hPackFile);
 		}
 
 		FileSystem()->Close(hAsset);
 	}
 
-	DevMsg(eDLL_T::FS, "*** Build block totaling '%lu' bytes with '%llu' shared bytes among '%llu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
+	Msg(eDLL_T::FS, "*** Build block totaling '%zd' bytes with '%zu' shared bytes among '%zu' chunks\n", FileSystem()->Tell(hPackFile), nSharedTotal, nSharedCount);
 	FileSystem()->Close(hPackFile);
 
 	m_ChunkHashMap.clear();
@@ -562,20 +580,12 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vpkPair, const char* workspace
 // Input  : &vpkDirectory  - 
 //          &workspaceName - 
 //-----------------------------------------------------------------------------
-void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspaceName)
+void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* workspaceName)
 {
 	CUtlString workspacePath(workspaceName);
 
 	workspacePath.AppendSlash();
 	workspacePath.FixSlashes('/');
-
-	if (vpkDir.m_Header.m_nHeaderMarker != VPK_HEADER_MARKER ||
-		vpkDir.m_Header.m_nMajorVersion != VPK_MAJOR_VERSION ||
-		vpkDir.m_Header.m_nMinorVersion != VPK_MINOR_VERSION)
-	{
-		Error(eDLL_T::FS, NO_ERROR, "Unsupported VPK directory file (invalid header criteria)\n");
-		return;
-	}
 
 	std::unique_ptr<uint8_t[]> pDestBuffer(new uint8_t[ENTRY_MAX_LEN]);
 	std::unique_ptr<uint8_t[]> pSourceBuffer(new uint8_t[ENTRY_MAX_LEN]);
@@ -586,7 +596,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 		return;
 	}
 
-	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, GetLevelName(vpkDir.m_DirFilePath));
+	BuildManifest(vpkDir.m_EntryBlocks, workspacePath, PackedStore_GetDirBaseName(vpkDir.m_DirFilePath));
 	const CUtlString basePath = vpkDir.m_DirFilePath.StripFilename(false);
 
 	for (uint16_t packFileIndex : vpkDir.m_PakFileIndices)
@@ -626,19 +636,19 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				continue;
 			}
 
-			DevMsg(eDLL_T::FS, "Unpacking entry '%i' from block '%hu' ('%s')\n",
+			Msg(eDLL_T::FS, "Unpacking entry '%i' from block '%hu' ('%s')\n",
 				j, packFileIndex, pEntryPath);
 
 			FOR_EACH_VEC(entryBlock.m_Fragments, k)
 			{
 				const VPKChunkDescriptor_t& fragment = entryBlock.m_Fragments[k];
 
-				FileSystem()->Seek(hPackFile, int(fragment.m_nPackFileOffset), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-				FileSystem()->Read(pSourceBuffer.get(), int(fragment.m_nCompressedSize), hPackFile);
+				FileSystem()->Seek(hPackFile, fragment.m_nPackFileOffset, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+				FileSystem()->Read(pSourceBuffer.get(), fragment.m_nCompressedSize, hPackFile);
 
 				if (fragment.m_nCompressedSize == fragment.m_nUncompressedSize) // Data is not compressed.
 				{
-					FileSystem()->Write(pSourceBuffer.get(), int(fragment.m_nUncompressedSize), hAsset);
+					FileSystem()->Write(pSourceBuffer.get(), fragment.m_nUncompressedSize, hAsset);
 					continue;
 				}
 
@@ -648,7 +658,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				if (fragment.m_nCompressedSize > nDstLen)
 					break; // Corrupt or invalid chunk descriptor.
 
-				lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pDestBuffer.get(),
+				lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_Decoder, pDestBuffer.get(),
 					&nDstLen, pSourceBuffer.get(), fragment.m_nCompressedSize, nullptr);
 
 				if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
@@ -658,7 +668,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vpkDir, const char* workspace
 				}
 				else // If successfully decompressed, write to file.
 				{
-					FileSystem()->Write(pDestBuffer.get(), int(nDstLen), hAsset);
+					FileSystem()->Write(pDestBuffer.get(), nDstLen, hAsset);
 				}
 			}
 
@@ -794,9 +804,9 @@ VPKPair_t::VPKPair_t(const char* pLocale, const char* pTarget, const char* pLeve
 {
 	bool bFoundLocale = false;
 
-	for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_LOCALE); i++)
+	for (size_t i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); i++)
 	{
-		if (V_strcmp(pLocale, DIR_LOCALE[i]) == NULL)
+		if (V_strcmp(pLocale, g_LanguageNames[i]) == NULL)
 		{
 			bFoundLocale = true;
 		}
@@ -804,8 +814,8 @@ VPKPair_t::VPKPair_t(const char* pLocale, const char* pTarget, const char* pLeve
 
 	if (!bFoundLocale)
 	{
-		Warning(eDLL_T::FS, "Locale '%s' not supported; using default '%s'\n", pLocale, DIR_LOCALE[0]);
-		pLocale = DIR_LOCALE[0];
+		Warning(eDLL_T::FS, "Locale '%s' not supported; using default '%s'\n", pLocale, g_LanguageNames[0]);
+		pLocale = g_LanguageNames[0];
 	}
 
 	bool bFoundTarget = false;
@@ -820,8 +830,8 @@ VPKPair_t::VPKPair_t(const char* pLocale, const char* pTarget, const char* pLeve
 
 	if (!bFoundTarget)
 	{
-		Warning(eDLL_T::FS, "Target '%s' not supported; using default '%s'\n", pTarget, DIR_TARGET[0]);
-		pTarget = DIR_TARGET[0];
+		Warning(eDLL_T::FS, "Target '%s' not supported; using default '%s'\n", pTarget, DIR_TARGET[STORE_TARGET_SERVER]);
+		pTarget = DIR_TARGET[STORE_TARGET_SERVER];
 	}
 
 	m_PackName.Format("%s_%s.bsp.pak000_%03d.vpk", pTarget, pLevel, nPatch);
@@ -854,46 +864,78 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 	std::cmatch regexMatches;
 	std::regex_search(dirFilePath.String(), regexMatches, s_BlockFileRegex);
 
-	if (regexMatches.empty())
+	if (regexMatches.empty()) // Not a block file, or not following the naming scheme.
 	{
 		Init(dirFilePath);
 		return;
 	}
 
-	CUtlString sanitizedName = dirFilePath;
+	CUtlString sanitizedName = dirFilePath; // Replace "pak000_xxx" with "pak000_dir".
 	sanitizedName = sanitizedName.Replace(regexMatches[0].str().c_str(), "pak000_dir");
 
 	bool bHasLocale = false;
 
-	for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_LOCALE); i++)
+	// Check if caller passed in a string with a locale, while also specifying
+	// the sanitizer parameter. Data block files don't have a locale prefix!
+	// The user most likely passed in an actual directory tree file name.
+	for (size_t i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); i++)
 	{
-		if (sanitizedName.Find(DIR_LOCALE[i]) != -1)
+		if (sanitizedName.Find(g_LanguageNames[i]) != -1)
 		{
 			bHasLocale = true;
 			break;
 		}
 	}
 
-	if (!bHasLocale) // Only sanitize if no locale was provided.
+	// NOTE: if we already have a locale, we call Init() anyways as that is the
+	// directory tree file the user wants, despite requesting for sanitization
+	bool found = false;
+
+	// If we don't have a locale prefix, replace the target name with
+	// locale+target, so you get something like "englishserver", and
+	// then we replace the target name in the passed in string with
+	// the new prefix to finalize name sanitization.
+	if (!bHasLocale)
 	{
-		CUtlString packDirPrefix;
-		packDirPrefix.Append(DIR_LOCALE[0]);
-
-		for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_TARGET); i++)
+		for (size_t i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); i++)
 		{
-			const char* targetName = DIR_TARGET[i];
+			CUtlString packDirToSearch;
+			packDirToSearch.Append(g_LanguageNames[i]);
 
-			if (sanitizedName.Find(targetName) != -1)
+			for (size_t j = 0; j < SDK_ARRAYSIZE(DIR_TARGET); j++)
 			{
-				packDirPrefix.Append(targetName);
-				packDirPrefix = packDirPrefix.Replace(targetName, packDirPrefix);
+				const char* targetName = DIR_TARGET[j];
 
+				if (sanitizedName.Find(targetName) != -1)
+				{
+					packDirToSearch.Append(targetName);
+					packDirToSearch = sanitizedName.Replace(targetName, packDirToSearch);
+
+					break;
+				}
+			}
+
+			// R1 has multiple language VPK files, by default we check for english first
+			// but if it doesn't exist we continue looking until we've found a directory
+			// file
+			if (FileSystem()->FileExists(packDirToSearch.String(), "GAME"))
+			{
+				sanitizedName = packDirToSearch;
+				found = true;
 				break;
 			}
 		}
 	}
 
-	Init(sanitizedName);
+	if (bHasLocale || found)
+	{
+		Init(sanitizedName);
+	}
+	else
+	{
+		Error(eDLL_T::FS, NO_ERROR, "Corresponding VPK directory file for '%s' not found\n", dirFilePath.Get());
+		m_bInitFailed = true;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -906,17 +948,32 @@ void VPKDir_t::Init(const CUtlString& dirFilePath)
 	FileHandle_t hDirFile = FileSystem()->Open(dirFilePath.Get(), "rb", "GAME");
 	if (!hDirFile)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, dirFilePath.Get());
+		Error(eDLL_T::FS, NO_ERROR, "Unable to open '%s' (insufficient rights?)\n", dirFilePath.Get());
+		m_bInitFailed = true;
+
 		return;
 	}
 
 	FileSystem()->Read(&m_Header.m_nHeaderMarker, sizeof(uint32_t), hDirFile);
 	FileSystem()->Read(&m_Header.m_nMajorVersion, sizeof(uint16_t), hDirFile);  //
 	FileSystem()->Read(&m_Header.m_nMinorVersion, sizeof(uint16_t), hDirFile);  //
+
+	// Make sure this is an actual directory tree file, and one we support.
+	if (m_Header.m_nHeaderMarker != VPK_HEADER_MARKER ||
+		m_Header.m_nMajorVersion != VPK_MAJOR_VERSION ||
+		m_Header.m_nMinorVersion != VPK_MINOR_VERSION)
+	{
+		Error(eDLL_T::FS, NO_ERROR, "Unsupported VPK directory file (invalid header criteria)\n");
+		FileSystem()->Close(hDirFile);
+		m_bInitFailed = true;
+
+		return;
+	}
+
 	FileSystem()->Read(&m_Header.m_nDirectorySize, sizeof(uint32_t), hDirFile); //
 	FileSystem()->Read(&m_Header.m_nSignatureSize, sizeof(uint32_t), hDirFile); //
 
-	g_pPackedStore->GetEntryBlocks(m_EntryBlocks, hDirFile);
+	GetEntryBlocks(m_EntryBlocks, hDirFile);
 	m_DirFilePath = dirFilePath; // Set path to vpk directory file.
 
 	// Obtain every referenced pack file from the directory tree.
@@ -927,6 +984,7 @@ void VPKDir_t::Init(const CUtlString& dirFilePath)
 	}
 
 	FileSystem()->Close(hDirFile);
+	m_bInitFailed = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -954,9 +1012,9 @@ CUtlString VPKDir_t::StripLocalePrefix(const CUtlString& directoryPath) const
 {
 	CUtlString fileName = directoryPath.UnqualifiedFilename();
 
-	for (size_t i = 0; i < SDK_ARRAYSIZE(DIR_LOCALE); i++)
+	for (size_t i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); i++)
 	{
-		fileName = fileName.Replace(DIR_LOCALE[i], "");
+		fileName = fileName.Replace(g_LanguageNames[i], "");
 	}
 
 	return fileName;
@@ -966,24 +1024,25 @@ CUtlString VPKDir_t::StripLocalePrefix(const CUtlString& directoryPath) const
 // Purpose: writes the vpk directory header
 // Input  : hDirectoryFile - 
 //-----------------------------------------------------------------------------
-void VPKDir_t::WriteHeader(FileHandle_t hDirectoryFile) const
+void VPKDir_t::WriteHeader(FileHandle_t hDirectoryFile)
 {
+	// Header versions.
+	m_Header.m_nHeaderMarker = VPK_HEADER_MARKER;
+	m_Header.m_nMajorVersion = VPK_MAJOR_VERSION;
+	m_Header.m_nMinorVersion = VPK_MINOR_VERSION;
+
+	// NOTE: directory size does not include header!
+	m_Header.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(hDirectoryFile) - sizeof(VPKDirHeader_t));
+	m_Header.m_nSignatureSize = NULL;
+
+	// Seek to start of file to write out the header.
+	FileSystem()->Seek(hDirectoryFile, 0, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+
 	FileSystem()->Write(&m_Header.m_nHeaderMarker, sizeof(uint32_t), hDirectoryFile);
 	FileSystem()->Write(&m_Header.m_nMajorVersion, sizeof(uint16_t), hDirectoryFile);
 	FileSystem()->Write(&m_Header.m_nMinorVersion, sizeof(uint16_t), hDirectoryFile);
 	FileSystem()->Write(&m_Header.m_nDirectorySize, sizeof(uint32_t), hDirectoryFile);
 	FileSystem()->Write(&m_Header.m_nSignatureSize, sizeof(uint32_t), hDirectoryFile);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: writes the directory tree size
-// Input  : hDirectoryFile - 
-//-----------------------------------------------------------------------------
-void VPKDir_t::WriteTreeSize(FileHandle_t hDirectoryFile) const
-{
-	FileSystem()->Seek(hDirectoryFile, offsetof(VPKDir_t, m_Header.m_nDirectorySize), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-	FileSystem()->Write(&m_Header.m_nDirectorySize, sizeof(uint32_t), hDirectoryFile);
-	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint32_t), hDirectoryFile);
 }
 
 //-----------------------------------------------------------------------------
@@ -1063,14 +1122,14 @@ int VPKDir_t::CTreeBuilder::WriteTree(FileHandle_t hDirectoryFile) const
 
 	for (auto& iKeyValue : m_FileTree)
 	{
-		FileSystem()->Write(iKeyValue.first.c_str(), int(iKeyValue.first.length() + 1), hDirectoryFile);
+		FileSystem()->Write(iKeyValue.first.c_str(), iKeyValue.first.length() + 1, hDirectoryFile);
 		for (auto& jKeyValue : iKeyValue.second)
 		{
-			FileSystem()->Write(jKeyValue.first.c_str(), int(jKeyValue.first.length() + 1), hDirectoryFile);
+			FileSystem()->Write(jKeyValue.first.c_str(), jKeyValue.first.length() + 1, hDirectoryFile);
 			for (auto& vEntry : jKeyValue.second)
 			{
-				CUtlString entryPath = vEntry.m_EntryPath.UnqualifiedFilename().StripExtension();
-				FileSystem()->Write(entryPath.Get(), int(entryPath.Length() + 1), hDirectoryFile);
+				const CUtlString entryPath = vEntry.m_EntryPath.UnqualifiedFilename().StripExtension();
+				FileSystem()->Write(entryPath.Get(), entryPath.Length() + 1, hDirectoryFile);
 
 				FileSystem()->Write(&vEntry.m_nFileCRC, sizeof(uint32_t), hDirectoryFile);
 				FileSystem()->Write(&vEntry.m_iPreloadSize, sizeof(uint16_t), hDirectoryFile);
@@ -1126,17 +1185,13 @@ void VPKDir_t::BuildDirectoryFile(const CUtlString& directoryPath, const CUtlVec
 	CTreeBuilder treeBuilder;
 	treeBuilder.BuildTree(entryBlocks);
 
+	// Seek to leave space for header after we wrote the tree.
+	FileSystem()->Seek(hDirectoryFile, sizeof(VPKDirHeader_t), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+	const int nDescriptors = treeBuilder.WriteTree(hDirectoryFile);
+
 	WriteHeader(hDirectoryFile);
-	int nDescriptors = treeBuilder.WriteTree(hDirectoryFile);
-
-	m_Header.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(hDirectoryFile) - sizeof(VPKDirHeader_t));
-	WriteTreeSize(hDirectoryFile);
-
 	FileSystem()->Close(hDirectoryFile);
-	DevMsg(eDLL_T::FS, "*** Build directory totaling '%llu' bytes with '%i' entries and '%i' descriptors\n",
+
+	Msg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%i' entries and '%i' descriptors\n",
 		size_t(sizeof(VPKDirHeader_t) + m_Header.m_nDirectorySize), entryBlocks.Count(), nDescriptors);
 }
-//-----------------------------------------------------------------------------
-// Singleton
-//-----------------------------------------------------------------------------
-CPackedStore* g_pPackedStore = new CPackedStore();

@@ -34,17 +34,16 @@ class VMoveHelperServer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("s_MoveHelperServer", reinterpret_cast<uintptr_t>(s_MoveHelperServer));
+		LogVarAdr("s_MoveHelperServer", s_MoveHelperServer);
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		CMemory pFunc = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 85 C0 0F 84 ?? ?? ?? ?? 48 8B 47 10").FollowNearCallSelf();
+		const CMemory pFunc = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 85 C0 0F 84 ?? ?? ?? ?? 48 8B 47 10").FollowNearCallSelf();
 		s_MoveHelperServer = pFunc.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMoveHelperServer*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

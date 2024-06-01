@@ -11,6 +11,10 @@
 #define LittleDWord( val )			( val )
 #define LittleQWord( val )			( val )
 
+// If a swapped float passes through the fpu, the bytes may get changed.
+// Prevent this by swapping floats as DWORDs.
+#define SafeSwapFloat( pOut, pIn )	(*((uint*)pOut) = DWordSwap( *((uint*)pIn) ))
+
 template <typename T>
 inline T WordSwapC(T w)
 {
@@ -98,6 +102,12 @@ inline void StoreLittleInt64(uint64* base, unsigned int nWordIndex, uint64 nWord
 	__storedoublewordbytereverse(nWord, nWordIndex << 2, base);
 }
 #endif
+
+// Pass floats by pointer for swapping to avoid truncation in the fpu
+#define BigFloat( pOut, pIn )		( *pOut = *pIn )
+#define LittleFloat( pOut, pIn )	SafeSwapFloat( pOut, pIn )
+#define SwapFloat( pOut, pIn )		LittleFloat( pOut, pIn )
+
 #else
 inline uint32 LoadLittleDWord(uint32* base, unsigned int dwordIndex)
 {
@@ -108,4 +118,9 @@ inline void StoreLittleDWord(uint32* base, unsigned int dwordIndex, uint32 dword
 {
 	base[dwordIndex] = LittleDWord(dword);
 }
+
+// Pass floats by pointer for swapping to avoid truncation in the fpu
+#define BigFloat( pOut, pIn )		SafeSwapFloat( pOut, pIn )
+#define LittleFloat( pOut, pIn )	( *pOut = *pIn )
+#define SwapFloat( pOut, pIn )		BigFloat( pOut, pIn )
 #endif

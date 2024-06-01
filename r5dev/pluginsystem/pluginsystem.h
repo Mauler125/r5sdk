@@ -12,17 +12,21 @@ template<typename T>
 class CPluginCallbackList
 {
 public:
-	CPluginCallbackList() : m_vCallbacks() {}
-	CPluginCallbackList(const vector<T>& cbs) : m_vCallbacks(cbs) {}
+	CPluginCallbackList() {}
+	CPluginCallbackList(const CUtlVector<T>& cbs)
+	{
+		for (auto it : cbs)
+			m_vCallbacks.AddToTail(it);
+	}
 
-	vector<T>& GetCallbacks() { return m_vCallbacks; }
+	CUtlVector<T>& GetCallbacks() { return m_vCallbacks; }
 
 	operator bool()
 	{
-		return !this->m_vCallbacks.empty;
+		return !this->m_vCallbacks.IsEmpty();
 	}
 
-	vector<T>& operator!()
+	CUtlVector<T>& operator!()
 	{
 		return this->m_vCallbacks;
 	}
@@ -30,17 +34,17 @@ public:
 	CPluginCallbackList<T>& operator+=(const T& rhs)
 	{
 		if (rhs)
-			this->m_vCallbacks.push_back(rhs);
+			this->m_vCallbacks.AddToTail(rhs);
 
 		return *this;
 	}
 
-	CPluginCallbackList<T>& operator+=(const vector<T>& rhs)
+	CPluginCallbackList<T>& operator+=(const CUtlVector<T>& rhs)
 	{
 		for (auto it : rhs)
 		{
 			if (it)
-				this->m_vCallbacks.push_back(it);
+				this->m_vCallbacks.AddToTail(it);
 		}
 
 		return *this;
@@ -48,23 +52,26 @@ public:
 
 	CPluginCallbackList<T>& operator-=(const T& rhs)
 	{
-		if (rhs) {
-			auto it = std::find(m_vCallbacks.begin(), m_vCallbacks.end(), rhs);
-			if (it != m_vCallbacks.end())
-				m_vCallbacks.erase(it);
+		if (rhs)
+		{
+			const int fnd = m_vCallbacks.Find(rhs);
+
+			if (fnd != m_vCallbacks.InvalidIndex())
+				m_vCallbacks.Remove(fnd);
 		}
 
 		return *this;
 	}
 
-	CPluginCallbackList<T>& operator-=(const vector<T>& rhs)
+	CPluginCallbackList<T>& operator-=(const CUtlVector<T>& rhs)
 	{
 		for (auto itc : rhs)
 		{
 			if (itc) {
-				auto it = std::find(m_vCallbacks.begin(), m_vCallbacks.end(), itc);
-				if (it != m_vCallbacks.end())
-					m_vCallbacks.erase(it);
+				const int fnd = m_vCallbacks.Find(itc);
+
+				if (fnd != m_vCallbacks.InvalidIndex())
+					m_vCallbacks.Remove(fnd);
 			}
 		}
 
@@ -72,7 +79,7 @@ public:
 	}
 
 private:
-	vector<T> m_vCallbacks;
+	CUtlVector<T> m_vCallbacks;
 };
 
 class CPluginSystem : IPluginSystem
@@ -80,28 +87,36 @@ class CPluginSystem : IPluginSystem
 public:	
 	struct PluginInstance_t
 	{
-		PluginInstance_t(string svPluginName, string svPluginFullPath) : m_svPluginName(svPluginName), m_svPluginFullPath(svPluginFullPath), m_svDescription(std::string()), m_bIsLoaded(false) {};
+		PluginInstance_t(const char* pName, const char* pPath, const char* pDescription = "")
+			: m_Name(pName)
+			, m_Path(pPath)
+			, m_Description(pDescription)
+			, m_bIsLoaded(false)
+		{
+		};
 
 		// Might wanna make a status code system.
 		typedef bool(*OnLoad)(const char*, const char*);
 		typedef void(*OnUnload)();
 
 		CModule m_hModule;
-		string m_svPluginName;
-		string m_svPluginFullPath;
-		string m_svDescription;
+		CUtlString m_Name;
+		CUtlString m_Path;
+		CUtlString m_Description;
 		bool m_bIsLoaded; // [ PIXIE ]: I don't like this and it's bad.
 		// I will make a module manager later which will grab all modules from the process and adds each module / removes module that passes through DLLMain.
 	};
 
-	void PluginSystem_Init();
-	bool ReloadPluginInstance(PluginInstance_t& pluginInst);
-	bool LoadPluginInstance(PluginInstance_t& pluginInst);
-	bool UnloadPluginInstance(PluginInstance_t& pluginInst);
-	void AddPluginCallback(PluginHelpWithAnything_t* help);
-	void RemovePluginCallback(PluginHelpWithAnything_t* help);
+	void Init();
 
-	vector<PluginInstance_t>& GetPluginInstances();
+	bool LoadInstance(PluginInstance_t& pluginInst);
+	bool UnloadInstance(PluginInstance_t& pluginInst);
+	bool ReloadInstance(PluginInstance_t& pluginInst);
+
+	void AddCallback(PluginHelpWithAnything_t* help);
+	void RemoveCallback(PluginHelpWithAnything_t* help);
+
+	CUtlVector<PluginInstance_t>& GetInstances();
 
 	virtual void* HelpWithAnything(PluginHelpWithAnything_t* help);
 
@@ -113,11 +128,16 @@ public:
 #undef CREATE_PLUGIN_CALLBACK
 
 private:
-	vector<PluginInstance_t> pluginInstances;
+	CUtlVector<PluginInstance_t> m_Instances;
 };
-extern CPluginSystem* g_pPluginSystem;
+extern CPluginSystem g_PluginSystem;
+
+FORCEINLINE CPluginSystem* PluginSystem()
+{
+	return &g_PluginSystem;
+}
 
 // Monitor this and performance profile this if fps drops are detected.
 #define CALL_PLUGIN_CALLBACKS(callback, ...)      \
 	for (auto& cb : !callback)                    \
-		cb(__VA_ARGS__)                                   
+		cb(__VA_ARGS__)                            

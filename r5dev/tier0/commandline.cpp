@@ -20,7 +20,7 @@ void CCommandLine::StaticCreateCmdLine(CCommandLine* thisptr, const char* pszCom
 	// get lost when the game recreates it in 'LauncherMain'.
 	if (!g_bCommandLineCreated)
 	{
-		v_CCommandLine__CreateCmdLine(thisptr, pszCommandLine);
+		CCommandLine__CreateCmdLine(thisptr, pszCommandLine);
 	}
 }
 
@@ -86,15 +86,10 @@ void CCommandLine::AppendParametersFromFile(const char* const pszConfig)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CCommandLine* g_pCmdLine = nullptr;
+CCommandLine* g_pCmdLine = CModule::GetExportedSymbol(CModule::GetProcessEnvironmentBlock()->ImageBaseAddress, "g_pCmdLine").RCast<CCommandLine*>();
 
 
-void VCommandLine::Attach() const
+void VCommandLine::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine);
-}
-
-void VCommandLine::Detach() const
-{
-	DetourDetach(&v_CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine);
+	DetourSetup(&CCommandLine__CreateCmdLine, &CCommandLine::StaticCreateCmdLine, bAttach);
 }

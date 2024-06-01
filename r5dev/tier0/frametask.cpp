@@ -13,20 +13,24 @@
 void CFrameTask::RunFrame()
 {
     std::lock_guard<std::mutex> l(m_Mutex);
-    for (auto& delay : m_ScheduledTasks)
+
+    for (QueuedTasks_s& delay : m_QueuedTasks)
     {
-        delay.m_nDelayedFrames = (std::max)(delay.m_nDelayedFrames - 1, 0);
         if (delay.m_nDelayedFrames == 0)
         {
             delay.m_rFunctor();
         }
+
+        --delay.m_nDelayedFrames;
     }
 
-    auto newEnd = std::remove_if(m_ScheduledTasks.begin(), m_ScheduledTasks.end(), [](const ScheduledTasks_s& delay)
+    const auto newEnd = std::remove_if(m_QueuedTasks.begin(), m_QueuedTasks.end(),
+        [](const QueuedTasks_s& delay)
         {
             return delay.m_nDelayedFrames == 0;
         });
-    m_ScheduledTasks.erase(newEnd, m_ScheduledTasks.end());
+
+    m_QueuedTasks.erase(newEnd, m_QueuedTasks.end());
 }
 
 //-----------------------------------------------------------------------------
@@ -43,12 +47,12 @@ bool CFrameTask::IsFinished() const
 // Input  : functor - 
 //          frames - 
 //-----------------------------------------------------------------------------
-void CFrameTask::Dispatch(std::function<void()> functor, int frames)
+void CFrameTask::Dispatch(std::function<void()> functor, unsigned int frames)
 {
     std::lock_guard<std::mutex> l(m_Mutex);
-    m_ScheduledTasks.emplace_back(frames, functor);
+    m_QueuedTasks.emplace_back(frames, functor);
 }
 
 //-----------------------------------------------------------------------------
-std::list<IFrameTask*> g_FrameTasks;
-CFrameTask* g_TaskScheduler = new CFrameTask();
+std::list<IFrameTask*> g_TaskQueueList;
+CFrameTask g_TaskQueue;

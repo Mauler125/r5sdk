@@ -17,15 +17,21 @@ public:
 	CNetCon(void);
 	~CNetCon(void);
 
-	bool Init(const bool bAnsiColor);
+	bool Init(const bool bAnsiColor, const char* pHostName = nullptr, const int nPort = SOCKET_ERROR);
 	bool Shutdown(void);
-
 	void TermSetup(const bool bAnsiColor);
-	void UserInput(void);
-	void ClearInput(void);
 
-	void RunFrame(void);
-	bool ShouldQuit(void) const;
+	void RunInput(const string& lineInput);
+	bool RunFrame(void);
+
+	bool GetQuitting(void) const;
+	void SetQuitting(const bool bQuit);
+
+	bool GetPrompting(void) const;
+	void SetPrompting(const bool bPrompt);
+
+	inline float GetTickInterval() const { return m_flTickInterval; }
+	static BOOL WINAPI CloseHandler(DWORD eventCode);
 
 	virtual void Disconnect(const char* szReason = nullptr);
 	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
@@ -39,13 +45,11 @@ public:
 
 private:
 	bool m_bInitialized;
-	bool m_bQuitApplication;
+	bool m_bQuitting;
 	bool m_bPromptConnect;
 	float m_flTickInterval;
 
 	characterset_t m_CharacterSet;
-
-	std::string m_Input;
 	mutable std::mutex m_Mutex;
 };
 

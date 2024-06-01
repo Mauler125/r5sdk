@@ -26,7 +26,16 @@ add_sources( SOURCE_GROUP "Debug"
     "debugoverlay.h"
 )
 
+add_sources( SOURCE_GROUP "Input"
+    "keys.cpp"
+    "keys.h"
+)
+
 add_sources( SOURCE_GROUP "Render"
+    "framelimit.cpp"
+    "framelimit.h"
+    "gl_drawlights.cpp"
+    "gl_drawlights.h"
     "gl_matsysiface.h"
     "gl_model_private.h"
     "gl_rmain.cpp"
@@ -127,6 +136,8 @@ add_sources( SOURCE_GROUP "Shared"
     "shared/base_rcon.h"
     "shared/shared_rcon.cpp"
     "shared/shared_rcon.h"
+    "shared/datablock.cpp"
+    "shared/datablock.h"
 )
 
 if( NOT ${PROJECT_NAME} STREQUAL "engine_ds" )
@@ -150,6 +161,11 @@ add_sources( SOURCE_GROUP "GameUI"
     "${ENGINE_SOURCE_DIR}/gameui/IBrowser.h"
     "${ENGINE_SOURCE_DIR}/gameui/IConsole.cpp"
     "${ENGINE_SOURCE_DIR}/gameui/IConsole.h"
+
+    "${ENGINE_SOURCE_DIR}/gameui/imgui_system.cpp"
+    "${ENGINE_SOURCE_DIR}/gameui/imgui_system.h"
+    "${ENGINE_SOURCE_DIR}/gameui/imgui_surface.cpp"
+    "${ENGINE_SOURCE_DIR}/gameui/imgui_surface.h"
 )
 endif()
 
@@ -185,6 +201,7 @@ add_sources( SOURCE_GROUP "Common"
     "${ENGINE_SOURCE_DIR}/common/qlimits.h"
     "${ENGINE_SOURCE_DIR}/common/sdkdefs.h"
     "${ENGINE_SOURCE_DIR}/common/x86defs.h"
+    "${ENGINE_SOURCE_DIR}/common/xbox/xboxstubs.h"
 )
 
 file( GLOB ENGINE_PUBLIC_HEADERS
@@ -197,10 +214,8 @@ add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/dt_send.h"
     "${ENGINE_SOURCE_DIR}/public/dt_recv.h"
     "${ENGINE_SOURCE_DIR}/public/datamap.h"
-    "${ENGINE_SOURCE_DIR}/public/idatablock.h"
     "${ENGINE_SOURCE_DIR}/public/idebugoverlay.h"
     "${ENGINE_SOURCE_DIR}/public/iengine.h"
-    "${ENGINE_SOURCE_DIR}/public/igame.h"
     "${ENGINE_SOURCE_DIR}/public/iserver.h"
     "${ENGINE_SOURCE_DIR}/public/isnapshotmgr.h"
     "${ENGINE_SOURCE_DIR}/public/inetchannel.h"
@@ -220,7 +235,6 @@ if( NOT ${PROJECT_NAME} STREQUAL "engine_ds" )
 add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/client_class.h"
     "${ENGINE_SOURCE_DIR}/public/ivrenderview.h"
-    "${ENGINE_SOURCE_DIR}/public/isurfacesystem.h" # ImGui surface
 )
 endif()
 
@@ -235,6 +249,11 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "CLIENT_DLL"
 )
 endif()
+
+target_include_directories( ${PROJECT_NAME} PRIVATE
+    "${THIRDPARTY_SOURCE_DIR}/recast/"
+    "${THIRDPARTY_SOURCE_DIR}/mbedtls/include"
+)
 
 endmacro()
 

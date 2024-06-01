@@ -421,8 +421,8 @@ FORCEINLINE fltx4 QuaternionSlerpNoAlignSIMD(const fltx4& p, const fltx4& q, flo
 		SubFloat(result, 1) = SubFloat(q, 0);
 		SubFloat(result, 2) = -SubFloat(q, 3);
 		SubFloat(result, 3) = SubFloat(q, 2);
-		sclp = sin((1.0f - t) * (0.5f * M_PI));
-		sclq = sin(t * (0.5f * M_PI));
+		sclp = (float)sin((1.0f - t) * (0.5f * M_PI));
+		sclq = (float)sin(t * (0.5f * M_PI));
 		SubFloat(result, 0) = sclp * SubFloat(p, 0) + sclq * SubFloat(result, 0);
 		SubFloat(result, 1) = sclp * SubFloat(p, 1) + sclq * SubFloat(result, 1);
 		SubFloat(result, 2) = sclp * SubFloat(p, 2) + sclq * SubFloat(result, 2);

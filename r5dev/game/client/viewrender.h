@@ -15,30 +15,28 @@ public:
 const Vector3D& MainViewOrigin();
 const QAngle& MainViewAngles();
 
-inline CMemory p_CViewRender_GetWorldMatrixForView;
-inline VMatrix*(*CViewRender_GetWorldMatrixForView)(CViewRender*, int8_t);
+inline VMatrix*(*CViewRender__GetWorldMatrixForView)(CViewRender*, int8_t);
 
 inline Vector3D* g_vecRenderOrigin = nullptr;
 inline QAngle* g_vecRenderAngles = nullptr;
 
 inline CViewRender* g_pViewRender = nullptr;
-inline CMemory g_pViewRender_VFTable;
+inline void* g_pViewRender_VFTable;
 
 ///////////////////////////////////////////////////////////////////////////////
 class V_ViewRender : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("CViewRender::`vftable'", g_pViewRender_VFTable.GetPtr());
-		LogFunAdr("CViewRender::GetWorldMatrixForView", p_CViewRender_GetWorldMatrixForView.GetPtr());
-		LogVarAdr("g_ViewRender", reinterpret_cast<uintptr_t>(g_pViewRender));
-		LogVarAdr("g_vecRenderOrigin", reinterpret_cast<uintptr_t>(g_vecRenderOrigin));
-		LogVarAdr("g_vecRenderAngles", reinterpret_cast<uintptr_t>(g_vecRenderAngles));
+		LogConAdr("CViewRender::`vftable'", g_pViewRender_VFTable);
+		LogFunAdr("CViewRender::GetWorldMatrixForView", CViewRender__GetWorldMatrixForView);
+		LogVarAdr("g_ViewRender", g_pViewRender);
+		LogVarAdr("g_vecRenderOrigin", g_vecRenderOrigin);
+		LogVarAdr("g_vecRenderAngles", g_vecRenderAngles);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CViewRender_GetWorldMatrixForView = g_pViewRender_VFTable.WalkVTable(16).Deref(); // 16th vfunc.
-		CViewRender_GetWorldMatrixForView = p_CViewRender_GetWorldMatrixForView.RCast<VMatrix* (*)(CViewRender*, int8_t)>();
+		CMemory(g_pViewRender_VFTable).WalkVTable(16).Deref().GetPtr(CViewRender__GetWorldMatrixForView); // 16th vfunc.
 	}
 	virtual void GetVar(void) const
 	{
@@ -53,7 +51,6 @@ class V_ViewRender : public IDetour
 	{
 		g_pViewRender_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCViewRender@@");
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

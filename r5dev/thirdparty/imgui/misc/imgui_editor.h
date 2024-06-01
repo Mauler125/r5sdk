@@ -67,7 +67,6 @@ public:
 	// because it is rendered as "    ABC" on the screen.
 	struct Coordinates
 	{
-		int m_nLine, m_nColumn;
 		Coordinates() : m_nLine(0), m_nColumn(0) {}
 		Coordinates(int aLine, int aColumn) : m_nLine(aLine), m_nColumn(aColumn)
 		{
@@ -117,6 +116,8 @@ public:
 				return m_nLine > o.m_nLine;
 			return m_nColumn >= o.m_nColumn;
 		}
+
+		int m_nLine, m_nColumn;
 	};
 
 	struct Identifier
@@ -219,7 +220,7 @@ public:
 	void SetCursorPosition(const Coordinates& aPosition);
 
 	inline void SetHandleMouseInputs    (bool aValue){ m_bHandleMouseInputs    = aValue;}
-	inline bool IsHandleMouseInputsEnabled() const { return m_bHandleKeyboardInputs; }
+	inline bool IsHandleMouseInputsEnabled() const { return m_bHandleMouseInputs; }
 
 	inline void SetHandleKeyboardInputs (bool aValue){ m_bHandleKeyboardInputs = aValue;}
 	inline bool IsHandleKeyboardInputsEnabled() const { return m_bHandleKeyboardInputs; }

@@ -70,7 +70,7 @@ void CBaseAnimating::HitboxToWorldTransforms(uint32_t iBone, matrix3x4_t* transf
 void CBaseAnimating::LockStudioHdr()
 {
 	// Populates the 'm_pStudioHdr' field.
-	v_CBaseAnimating__LockStudioHdr(this);
+	CBaseAnimating__LockStudioHdr(this);
 }
 
 CStudioHdr* CBaseAnimating::GetModelPtr(void)
@@ -80,11 +80,4 @@ CStudioHdr* CBaseAnimating::GetModelPtr(void)
 		LockStudioHdr();
 	}
 	return (m_pStudioHdr && m_pStudioHdr->IsValid()) ? m_pStudioHdr : nullptr;
-}
-
-void BaseAnimating_Attach()
-{
-}
-void BaseAnimating_Detach()
-{
 }

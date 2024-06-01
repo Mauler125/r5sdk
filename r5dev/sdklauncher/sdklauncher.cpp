@@ -4,6 +4,7 @@
 //
 //=============================================================================//
 #include "tier0/binstream.h"
+#include "tier1/fmtstr.h"
 #include "base_surface.h"
 #include "advanced_surface.h"
 #include "sdklauncher.h"
@@ -235,15 +236,24 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffini
 void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, const char* szCommandLine)
 {
     CIOStream cfgFile;
-    string commandLine;
+    CFmtStrMax commandLine;
 
     if (szConfig && szConfig[0])
     {
-        if (cfgFile.Open(Format(GAME_CFG_PATH"%s", szConfig), CIOStream::READ))
+        commandLine.Format(GAME_CFG_PATH"%s", szConfig);
+
+        if (cfgFile.Open(commandLine.String(), CIOStream::READ))
         {
-            if (!cfgFile.ReadString(commandLine))
+            // Reuse the stack string for the actual command line buffer.
+            commandLine.Clear();
+
+            if (!cfgFile.ReadString(commandLine.Access(), commandLine.GetMaxLength()))
             {
                 AddLog(spdlog::level::level_enum::err, "Failed to read file '%s'!\n", szConfig);
+            }
+            else
+            {
+                commandLine.SetLength(strlen(commandLine.String()));
             }
         }
         else // Failed to open config file.
@@ -254,18 +264,18 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, 
 
     if (szCommandLine && szCommandLine[0])
     {
-        commandLine.append(szCommandLine);
+        commandLine.Append(szCommandLine);
     }
 
     m_svGameDll = Format("%s\\%s", m_svCurrentDir.c_str(), szGameDll);
-    m_svCmdLine = Format("%s\\%s %s", m_svCurrentDir.c_str(), szGameDll, commandLine.c_str());
+    m_svCmdLine = Format("%s\\%s %s", m_svCurrentDir.c_str(), szGameDll, commandLine.String());
 
     ///////////////////////////////////////////////////////////////////////////
     // Print the file paths and arguments.
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
     AddLog(spdlog::level::level_enum::debug, "- CWD: %s\n", m_svCurrentDir.c_str());
     AddLog(spdlog::level::level_enum::debug, "- EXE: %s\n", m_svGameDll.c_str());
-    AddLog(spdlog::level::level_enum::debug, "- CLI: %s\n", commandLine.c_str());
+    AddLog(spdlog::level::level_enum::debug, "- CLI: %s\n", commandLine.String());
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
 }
 

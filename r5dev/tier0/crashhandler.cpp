@@ -12,8 +12,7 @@
 //-----------------------------------------------------------------------------
 void CCrashHandler::Start()
 {
-	Lock();
-	m_bExceptionHandling = true;
+	AcquireSRWLockExclusive(&m_Lock);
 }
 
 //-----------------------------------------------------------------------------
@@ -21,8 +20,7 @@ void CCrashHandler::Start()
 //-----------------------------------------------------------------------------
 void CCrashHandler::End()
 {
-	m_bExceptionHandling = false;
-	Unlock();
+	ReleaseSRWLockExclusive(&m_Lock);
 }
 
 //-----------------------------------------------------------------------------
@@ -30,12 +28,12 @@ void CCrashHandler::End()
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatCrash()
 {
-	m_svBuffer.append("crash:\n{\n");
+	m_Buffer.Append("crash:\n{\n");
 
 	FormatExceptionAddress();
 	FormatExceptionCode();
 
-	m_svBuffer.append("}\n");
+	m_Buffer.Append("}\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -43,23 +41,25 @@ void CCrashHandler::FormatCrash()
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatCallstack()
 {
-	m_svBuffer.append("callstack:\n{\n");
+	m_Buffer.Append("callstack:\n{\n");
 
 	if (m_nCapturedFrames)
 	{
-		PEXCEPTION_RECORD pExceptionRecord = m_pExceptionPointers->ExceptionRecord;
+		const PEXCEPTION_RECORD pExceptionRecord = m_pExceptionPointers->ExceptionRecord;
+
 		if (m_ppStackTrace[m_nCapturedFrames - 1] == pExceptionRecord->ExceptionAddress)
 		{
-			PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
+			const PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
 			MEMORY_BASIC_INFORMATION mbi = { 0 };
-			SIZE_T t = VirtualQuery((LPCVOID)pContextRecord->Rsp, &mbi, sizeof(LPCVOID));
+
+			const SIZE_T t = VirtualQuery((LPCVOID)pContextRecord->Rsp, &mbi, sizeof(LPCVOID));
 
 			if (t >= sizeof(mbi)
 				&& !(mbi.Protect & PAGE_NOACCESS)
-				&& ((mbi.Protect & PAGE_READONLY) | PAGE_READWRITE)
+				&& (mbi.Protect & (PAGE_READONLY | PAGE_READWRITE))
 				&& (mbi.State & MEM_COMMIT))
 			{
-				m_svBuffer.append("\t// call stack ended; possible return address?\n");
+				m_Buffer.Append("\t// call stack ended; possible return address?\n");
 			}
 		}
 	}
@@ -68,7 +68,7 @@ void CCrashHandler::FormatCallstack()
 		FormatExceptionAddress(reinterpret_cast<LPCSTR>(m_ppStackTrace[i]));
 	}
 
-	m_svBuffer.append("}\n");
+	m_Buffer.Append("}\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -76,8 +76,8 @@ void CCrashHandler::FormatCallstack()
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatRegisters()
 {
-	m_svBuffer.append("registers:\n{\n");
-	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
+	m_Buffer.Append("registers:\n{\n");
+	const PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
 
 	FormatALU("rax", pContextRecord->Rax);
 	FormatALU("rbx", pContextRecord->Rbx);
@@ -114,7 +114,7 @@ void CCrashHandler::FormatRegisters()
 	FormatFPU("xmm14", &pContextRecord->Xmm14);
 	FormatFPU("xmm15", &pContextRecord->Xmm15);
 
-	m_svBuffer.append("}\n");
+	m_Buffer.Append("}\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -122,14 +122,14 @@ void CCrashHandler::FormatRegisters()
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatModules()
 {
-	m_svBuffer.append("modules:\n{\n");
+	m_Buffer.Append("modules:\n{\n");
 
-	std::unique_ptr<HMODULE[]> hModule(new HMODULE[CRASHHANDLER_MAX_MODULES]);
-	HANDLE hProcess = GetCurrentProcess();
+	const HANDLE hProcess = GetCurrentProcess();
+
 	DWORD cbNeeded;
+	const BOOL result = K32EnumProcessModulesEx(hProcess, m_ppModuleHandles, MAX_MODULE_HANDLES, &cbNeeded, LIST_MODULES_ALL);
 
-	BOOL result = K32EnumProcessModulesEx(hProcess, &*hModule.get(), CRASHHANDLER_MAX_MODULES, &cbNeeded, LIST_MODULES_ALL);
-	if (result && cbNeeded <= CRASHHANDLER_MAX_MODULES && cbNeeded >> 3)
+	if (result && cbNeeded <= MAX_MODULE_HANDLES && cbNeeded >> 3)
 	{
 		CHAR szModuleName[MAX_FILEPATH];
 		LPSTR pszModuleName;
@@ -137,10 +137,11 @@ void CCrashHandler::FormatModules()
 
 		for (DWORD i = 0, j = cbNeeded >> 3; j; i++, j--)
 		{
-			DWORD m = GetModuleFileNameA(hModule.get()[i], szModuleName, sizeof(szModuleName));
+			const DWORD m = GetModuleFileNameA(m_ppModuleHandles[i], szModuleName, sizeof(szModuleName));
+
 			if ((m - 1) > (sizeof(szModuleName) - 2)) // Too small for buffer.
 			{
-				snprintf(szModuleName, sizeof(szModuleName), "module@%p", hModule.get()[i]);
+				snprintf(szModuleName, sizeof(szModuleName), "module@%p", m_ppModuleHandles[i]);
 				pszModuleName = szModuleName;
 			}
 			else
@@ -148,14 +149,14 @@ void CCrashHandler::FormatModules()
 				pszModuleName = strrchr(szModuleName, '\\') + 1;
 			}
 
-			K32GetModuleInformation(hProcess, &*hModule.get()[i], &modInfo, sizeof(modInfo));
+			K32GetModuleInformation(hProcess, m_ppModuleHandles[i], &modInfo, sizeof(modInfo));
 
-			m_svBuffer.append(Format("\t%-15s: [%p, %p]\n", 
-				pszModuleName, modInfo.lpBaseOfDll, (reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll) + modInfo.SizeOfImage)));
+			m_Buffer.AppendFormat("\t%-15s: [%p, %p]\n", 
+				pszModuleName, modInfo.lpBaseOfDll, (reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll) + modInfo.SizeOfImage));
 		}
 	}
 
-	m_svBuffer.append("}\n");
+	m_Buffer.Append("}\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -163,17 +164,18 @@ void CCrashHandler::FormatModules()
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatSystemInfo()
 {
-	m_svBuffer.append("system:\n{\n");
+	m_Buffer.Append("system:\n{\n");
 
 	const CPUInformation& pi = GetCPUInformation();
 
-	m_svBuffer.append(Format("\tcpu_model = \"%s\"\n", pi.m_szProcessorBrand));
-	m_svBuffer.append(Format("\tcpu_speed = %010lld // clock cycles\n", pi.m_Speed));
+	m_Buffer.AppendFormat("\tcpu_model = \"%s\"\n", pi.m_szProcessorBrand);
+	m_Buffer.AppendFormat("\tcpu_speed = %010lld // clock cycles\n", pi.m_Speed);
 
 	for (DWORD i = 0; ; i++)
 	{
 		DISPLAY_DEVICE dd = { sizeof(dd), {0} };
-		BOOL f = EnumDisplayDevices(NULL, i, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
+		const BOOL f = EnumDisplayDevices(NULL, i, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
+
 		if (!f)
 		{
 			break;
@@ -181,8 +183,8 @@ void CCrashHandler::FormatSystemInfo()
 
 		if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) // The primary device is the only relevant device.
 		{
-			m_svBuffer.append(Format("\tgpu_model = \"%s\"\n", dd.DeviceString));
-			m_svBuffer.append(Format("\tgpu_flags = 0x%08X // primary device\n", dd.StateFlags));
+			m_Buffer.AppendFormat("\tgpu_model = \"%s\"\n", dd.DeviceString);
+			m_Buffer.AppendFormat("\tgpu_flags = 0x%08X // primary device\n", dd.StateFlags);
 		}
 	}
 
@@ -191,11 +193,11 @@ void CCrashHandler::FormatSystemInfo()
 
 	if (GlobalMemoryStatusEx(&statex))
 	{
-		m_svBuffer.append(Format("\tram_total = [%010d, %010d] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024));
-		m_svBuffer.append(Format("\tram_avail = [%010d, %010d] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024));
+		m_Buffer.AppendFormat("\tram_total = [%010d, %010d] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024);
+		m_Buffer.AppendFormat("\tram_avail = [%010d, %010d] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024);
 	}
 
-	m_svBuffer.append("}\n");
+	m_Buffer.Append("}\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -203,7 +205,7 @@ void CCrashHandler::FormatSystemInfo()
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatBuildInfo()
 {
-	m_svBuffer.append(Format("build_id: %u\n", g_SDKDll.GetNTHeaders()->FileHeader.TimeDateStamp));
+	m_Buffer.AppendFormat("build_id: %u\n", g_SDKDll.GetNTHeaders()->FileHeader.TimeDateStamp);
 }
 
 //-----------------------------------------------------------------------------
@@ -218,37 +220,40 @@ void CCrashHandler::FormatExceptionAddress()
 // Purpose: formats the module, address and exception
 // Input  : pExceptionAddress - 
 //-----------------------------------------------------------------------------
-void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
+void CCrashHandler::FormatExceptionAddress(const LPCSTR pExceptionAddress)
 {
 	HMODULE hCrashedModule;
 	if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, pExceptionAddress, &hCrashedModule))
 	{
-		m_svBuffer.append(Format("\t!!!unknown-module!!!: %p\n", pExceptionAddress));
+		m_Buffer.AppendFormat("\t!!!unknown-module!!!: %p\n", pExceptionAddress);
 		m_nCrashMsgFlags = 0; // Display the "unknown DLL or EXE" message.
 		return;
 	}
 
-	LPCSTR pModuleBase = reinterpret_cast<LPCSTR>(pExceptionAddress - reinterpret_cast<LPCSTR>(hCrashedModule));
+	const LPCSTR pModuleBase = reinterpret_cast<LPCSTR>(pExceptionAddress - reinterpret_cast<LPCSTR>(hCrashedModule));
 
-	CHAR szCrashedModuleFullName[512];
+	CHAR szCrashedModuleFullName[MAX_PATH];
 	if (GetModuleFileNameExA(GetCurrentProcess(), hCrashedModule, szCrashedModuleFullName, sizeof(szCrashedModuleFullName)) - 1 > 0x1FE)
 	{
-		m_svBuffer.append(Format("\tmodule@%p: %p\n", (void*)hCrashedModule, pModuleBase));
+		m_Buffer.AppendFormat("\tmodule@%p: %p\n", (void*)hCrashedModule, pModuleBase);
 		m_nCrashMsgFlags = 2; // Display the "Apex crashed" message without additional information regarding the module.
 		return;
 	}
 
-	// TODO: REMOVE EXT.
-	const CHAR* szCrashedModuleName = strrchr(szCrashedModuleFullName, '\\') + 1;
-	m_svBuffer.append(Format("\t%-15s: %p\n", szCrashedModuleName, pModuleBase));
+	// NOTE: original implementation strips the extension as well, but we keep
+	// this in as its useful for when additional modules are loaded that aren't
+	// part of the OS or game
+	const char* const szCrashedModuleName = strrchr(szCrashedModuleFullName, '\\') + 1;
+
+	m_Buffer.AppendFormat("\t%-15s: %p\n", szCrashedModuleName, pModuleBase);
 	m_nCrashMsgFlags = 1; // Display the "Apex crashed in <module>" message.
 
 	// Only set it once to the crashing module,
 	// empty strings get treated as "unknown
 	// DLL or EXE" in the crashmsg executable.
-	if (m_svCrashMsgInfo.empty())
+	if (!m_CrashingModule.Length())
 	{
-		m_svCrashMsgInfo = szCrashedModuleName;
+		m_CrashingModule.Append(szCrashedModuleName);
 	}
 }
 
@@ -257,40 +262,42 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatExceptionCode()
 {
-	DWORD nExceptionCode = m_pExceptionPointers->ExceptionRecord->ExceptionCode;
+	const DWORD nExceptionCode = m_pExceptionPointers->ExceptionRecord->ExceptionCode;
+
 	if (nExceptionCode > EXCEPTION_IN_PAGE_ERROR)
 	{
-		m_svBuffer.append(Format(ExceptionToString(), nExceptionCode));
+		m_Buffer.AppendFormat(ExceptionToString(), nExceptionCode);
 	}
 	else if (nExceptionCode >= EXCEPTION_ACCESS_VIOLATION)
 	{
 		const CHAR* pszException = "EXCEPTION_IN_PAGE_ERROR";
+
 		if (nExceptionCode == EXCEPTION_ACCESS_VIOLATION)
 		{
 			pszException = "EXCEPTION_ACCESS_VIOLATION";
 		}
 
-		ULONG_PTR uExceptionInfo0 = m_pExceptionPointers->ExceptionRecord->ExceptionInformation[0];
-		ULONG_PTR uExceptionInfo1 = m_pExceptionPointers->ExceptionRecord->ExceptionInformation[1];
+		const ULONG_PTR uExceptionInfo0 = m_pExceptionPointers->ExceptionRecord->ExceptionInformation[0];
+		const ULONG_PTR uExceptionInfo1 = m_pExceptionPointers->ExceptionRecord->ExceptionInformation[1];
 
 		if (uExceptionInfo0)
 		{
 			if (uExceptionInfo0 == 1)
 			{
-				m_svBuffer.append(Format("\t%s(write): %p\n", pszException, uExceptionInfo1));
+				m_Buffer.AppendFormat("\t%s(write): %p\n", pszException, uExceptionInfo1);
 			}
 			else if (uExceptionInfo0 == 8)
 			{
-				m_svBuffer.append(Format("\t%s(execute): %p\n", pszException, uExceptionInfo1));
+				m_Buffer.AppendFormat("\t%s(execute): %p\n", pszException, uExceptionInfo1);
 			}
 			else
 			{
-				m_svBuffer.append(Format("\t%s(unknown): %p\n", pszException, uExceptionInfo1));
+				m_Buffer.AppendFormat("\t%s(unknown): %p\n", pszException, uExceptionInfo1);
 			}
 		}
 		else
 		{
-			m_svBuffer.append(Format("\t%s(read): %p\n", pszException, uExceptionInfo1));
+			m_Buffer.AppendFormat("\t%s(read): %p\n", pszException, uExceptionInfo1);
 		}
 
 		if (uExceptionInfo0 != 8)
@@ -303,7 +310,7 @@ void CCrashHandler::FormatExceptionCode()
 	}
 	else
 	{
-		m_svBuffer.append(Format(ExceptionToString(), nExceptionCode));
+		m_Buffer.AppendFormat(ExceptionToString(), nExceptionCode);
 	}
 }
 
@@ -312,29 +319,29 @@ void CCrashHandler::FormatExceptionCode()
 // Input  : *pszRegister - 
 //			nContent - 
 //-----------------------------------------------------------------------------
-void CCrashHandler::FormatALU(const CHAR* pszRegister, DWORD64 nContent)
+void CCrashHandler::FormatALU(const char* const pszRegister, const DWORD64 nContent)
 {
 	if (nContent >= 1000000)
 	{
 		if (nContent > UINT_MAX)
 		{
 			// Print the full 64bits of the register.
-			m_svBuffer.append(Format("\t%s = 0x%016llX\n", pszRegister, nContent));
+			m_Buffer.AppendFormat("\t%s = 0x%016llX\n", pszRegister, nContent);
 		}
 		else
 		{
-			m_svBuffer.append(Format("\t%s = 0x%08X\n", pszRegister, nContent));
+			m_Buffer.AppendFormat("\t%s = 0x%08X\n", pszRegister, nContent);
 		}
 	}
 	else if (nContent >= 10)
 	{
 		// Print as decimal with a hexadecimal comment.
-		m_svBuffer.append(Format("\t%s = %-6i // 0x%08X\n", pszRegister, nContent, nContent));
+		m_Buffer.AppendFormat("\t%s = %-6i // 0x%08X\n", pszRegister, nContent, nContent);
 	}
 	else
 	{
 		// Print as decimal only.
-		m_svBuffer.append(Format("\t%s = %-10i\n", pszRegister, nContent));
+		m_Buffer.AppendFormat("\t%s = %-10i\n", pszRegister, nContent);
 	}
 }
 
@@ -343,9 +350,9 @@ void CCrashHandler::FormatALU(const CHAR* pszRegister, DWORD64 nContent)
 // Input  : *pszRegister - 
 //			*pxContent - 
 //-----------------------------------------------------------------------------
-void CCrashHandler::FormatFPU(const CHAR* pszRegister, M128A* pxContent)
+void CCrashHandler::FormatFPU(const char* const pszRegister, const M128A* const pxContent)
 {
-	DWORD nVec[4] =
+	const DWORD nVec[4] =
 	{
 		static_cast<DWORD>(pxContent->Low & UINT_MAX),
 		static_cast<DWORD>(pxContent->Low >> 32),
@@ -353,25 +360,24 @@ void CCrashHandler::FormatFPU(const CHAR* pszRegister, M128A* pxContent)
 		static_cast<DWORD>(pxContent->High >> 32),
 	};
 
-	m_svBuffer.append(Format("\t%s = [ [%.8g, %.8g, %.8g, %.8g]", pszRegister,
-		*reinterpret_cast<FLOAT*>(&nVec[0]),
-		*reinterpret_cast<FLOAT*>(&nVec[1]),
-		*reinterpret_cast<FLOAT*>(&nVec[2]),
-		*reinterpret_cast<FLOAT*>(&nVec[3])));
+	m_Buffer.AppendFormat("\t%s = [ [%.8g, %.8g, %.8g, %.8g]", pszRegister,
+		*reinterpret_cast<const FLOAT*>(&nVec[0]),
+		*reinterpret_cast<const FLOAT*>(&nVec[1]),
+		*reinterpret_cast<const FLOAT*>(&nVec[2]),
+		*reinterpret_cast<const FLOAT*>(&nVec[3]));
 
-	const CHAR* pszVectorFormat = ", [%i, %i, %i, %i] ]\n";
 	const LONG nHighest = abs(LONG(*MaxElementABS(std::begin(nVec), std::end(nVec))));
 
 	if (nHighest >= 1000000)
 	{
-		pszVectorFormat = ", [0x%08X, 0x%08X, 0x%08X, 0x%08X] ]\n";
-		m_svBuffer.append(Format(pszVectorFormat, nVec[0], nVec[1], nVec[2], nVec[3]));
+		m_Buffer.AppendFormat(", [0x%08X, 0x%08X, 0x%08X, 0x%08X] ]\n",
+			nVec[0], nVec[1], nVec[2], nVec[3]);
 	}
 	else
 	{
-		m_svBuffer.append(Format(pszVectorFormat,
+		m_Buffer.AppendFormat(", [%i, %i, %i, %i] ]\n",
 			static_cast<LONG>(nVec[0]), static_cast<LONG>(nVec[1]),
-			static_cast<LONG>(nVec[2]), static_cast<LONG>(nVec[3])));
+			static_cast<LONG>(nVec[2]), static_cast<LONG>(nVec[3]));
 	}
 }
 
@@ -379,7 +385,7 @@ void CCrashHandler::FormatFPU(const CHAR* pszRegister, M128A* pxContent)
 // Purpose: returns the current exception code as string
 // Output : exception code, "UNKNOWN_EXCEPTION" if exception code doesn't exist in this context
 //-----------------------------------------------------------------------------
-const CHAR* CCrashHandler::ExceptionToString(DWORD nExceptionCode) const
+const char* CCrashHandler::ExceptionToString(const DWORD nExceptionCode) const
 {
 	switch (nExceptionCode)
 	{
@@ -421,10 +427,10 @@ const char* CCrashHandler::ExceptionToString() const
 //-----------------------------------------------------------------------------
 bool CCrashHandler::IsPageAccessible() const
 {
-	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
+	const PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
 	MEMORY_BASIC_INFORMATION mbi = { 0 };
 
-	SIZE_T t = VirtualQuery((LPCVOID)pContextRecord->Rsp, &mbi, sizeof(LPCVOID));
+	const SIZE_T t = VirtualQuery((LPCVOID)pContextRecord->Rsp, &mbi, sizeof(LPCVOID));
 	if (t < sizeof(mbi) || (mbi.Protect & PAGE_NOACCESS) || !((mbi.Protect & PAGE_NOACCESS) | PAGE_READWRITE))
 	{
 		return false;
@@ -438,41 +444,9 @@ bool CCrashHandler::IsPageAccessible() const
 //-----------------------------------------------------------------------------
 // Purpose: captures the callstack
 //-----------------------------------------------------------------------------
-void CCrashHandler::GetCallStack()
+void CCrashHandler::CaptureCallStack()
 {
 	m_nCapturedFrames = RtlCaptureStackBackTrace(2, NUM_FRAMES_TO_CAPTURE, m_ppStackTrace, NULL);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: adds a whitelist exception address
-//-----------------------------------------------------------------------------
-void CCrashHandler::AddWhitelist(void* pWhitelist)
-{
-	m_WhiteList.insert(pWhitelist);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: removes a whitelist exception address
-//-----------------------------------------------------------------------------
-void CCrashHandler::RemoveWhitelist(void* pWhitelist)
-{
-	m_WhiteList.erase(pWhitelist);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: checks if callstack contains whitelisted addresses up to 'MAX_IMI_SEARCH' frames.
-// Output : true is exist, false otherwise
-//-----------------------------------------------------------------------------
-bool CCrashHandler::HasWhitelist()
-{
-	for (WORD i = 0; i < NUM_FRAMES_TO_SEARCH; i++)
-	{
-		if (m_WhiteList.count(m_ppStackTrace[i]))
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -480,16 +454,19 @@ bool CCrashHandler::HasWhitelist()
 //-----------------------------------------------------------------------------
 void CCrashHandler::WriteFile()
 {
-	const string logDirectory = Format("%s\\%s.txt", g_LogSessionDirectory.c_str(), "apex_crash");
-	CIOStream logFile;
+	CFmtStrQuietTruncationN<256> outFile;
 
-	if (logFile.Open(logDirectory, CIOStream::Mode_t::WRITE))
+	outFile.Format("%s/%s.txt", g_LogSessionDirectory.c_str(), "apex_crash");
+	HANDLE hTxtFile = CreateFile(outFile.String(), GENERIC_WRITE, 0, 0, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (hTxtFile != INVALID_HANDLE_VALUE)
 	{
-		logFile.WriteString(m_svBuffer);
+		::WriteFile(hTxtFile, m_Buffer.String(), (DWORD)m_Buffer.Length(), NULL, NULL);
+		CloseHandle(hTxtFile);
 	}
 
-	const string dmpDirectory = Format("%s\\%s.dmp", g_LogSessionDirectory.c_str(), "minidump");
-	HANDLE hDmpFile = CreateFileA(dmpDirectory.c_str(), GENERIC_WRITE, 0, 0, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
+	outFile.Format("%s/%s.dmp", g_LogSessionDirectory.c_str(), "minidump");
+	HANDLE hDmpFile = CreateFile(outFile.String(), GENERIC_WRITE, 0, 0, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (hDmpFile != INVALID_HANDLE_VALUE)
 	{
@@ -514,32 +491,37 @@ void CCrashHandler::WriteFile()
 //-----------------------------------------------------------------------------
 void CCrashHandler::CreateMessageProcess()
 {
-	if (m_bCrashMsgCreated)
+	if (m_bMessageCreated)
 	{
-		return; // CrashMsg already displayed.
+		// Crash message already displayed.
+		return;
 	}
-	m_bCrashMsgCreated = true;
 
-	PEXCEPTION_RECORD pExceptionRecord = m_pExceptionPointers->ExceptionRecord;
-	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
+	m_bMessageCreated = true;
+
+	const PEXCEPTION_RECORD pExceptionRecord = m_pExceptionPointers->ExceptionRecord;
+	const PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
 
 	if (pExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION &&
 		pExceptionRecord->ExceptionInformation[0] == 8 &&
 		pExceptionRecord->ExceptionInformation[1] != pContextRecord->Rip)
 	{
-		m_svCrashMsgInfo = CRASHMESSAGE_MSG_EXECUTABLE" overclock";
+		m_MessageCmdLine.Clear();
+		m_MessageCmdLine.Append(CRASHMESSAGE_MSG_EXECUTABLE" overclock");
 	}
 	else
 	{
-		m_svCrashMsgInfo = Format(CRASHMESSAGE_MSG_EXECUTABLE" crash %u \"%s\"", m_nCrashMsgFlags, m_svCrashMsgInfo.c_str());
+		m_MessageCmdLine.Format(CRASHMESSAGE_MSG_EXECUTABLE" crash %hhu \"%s\"",
+			m_nCrashMsgFlags, m_CrashingModule.String());
 	}
 
-	PROCESS_INFORMATION processInfo;
 	STARTUPINFOA startupInfo = { 0 };
+	PROCESS_INFORMATION processInfo;
 
 	startupInfo.cb = sizeof(STARTUPINFOA);
 
-	if (CreateProcessA(NULL, (LPSTR)m_svCrashMsgInfo.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
+	if (CreateProcessA(NULL, (LPSTR)m_MessageCmdLine.String(),
+		NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
 	{
 		CloseHandle(processInfo.hProcess);
 		CloseHandle(processInfo.hThread);
@@ -562,56 +544,54 @@ void CCrashHandler::CrashCallback()
 // Input  : 
 // Output : 
 //-----------------------------------------------------------------------------
-long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
+long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* const pExceptionInfo)
 {
-	g_CrashHandler->Start();
-	g_CrashHandler->SetExceptionPointers(pExceptionInfo);
+	g_CrashHandler.Start();
 
-	// Let the higher level exception handlers deal with this particular exception.
-	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(0xFFFFFFFF))
+	// If the exception couldn't be handled, run the crash callback and
+	// terminate the process
+	if (g_CrashHandler.GetExit())
 	{
-		g_CrashHandler->End();
+		g_CrashHandler.CrashCallback();
+		ExitProcess(EXIT_FAILURE);
+	}
+
+	g_CrashHandler.Reset();
+	g_CrashHandler.SetExceptionPointers(pExceptionInfo);
+
+	// Let the higher level exception handlers deal with this particular
+	// exception.
+	if (g_CrashHandler.ExceptionToString() == g_CrashHandler.ExceptionToString(0xFFFFFFFF))
+	{
+		g_CrashHandler.End();
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
 	// Don't run when a debugger is present.
 	if (IsDebuggerPresent())
 	{
-		g_CrashHandler->End();
+		g_CrashHandler.End();
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
-	g_CrashHandler->GetCallStack();
+	g_CrashHandler.SetExit(true);
 
-	// Don't run filter when exception return address is in whitelist.
-	// This is useful for when we want to use a different exception handler instead.
-	if (g_CrashHandler->HasWhitelist())
-	{
-		g_CrashHandler->End();
-		return EXCEPTION_CONTINUE_SEARCH;
-	}
+	g_CrashHandler.CaptureCallStack();
 
-	// Kill on recursive call.
-	if (g_CrashHandler->GetState())
-	{
-		g_CrashHandler->CrashCallback();
-		ExitProcess(1u);
-	}
+	g_CrashHandler.FormatCrash();
+	g_CrashHandler.FormatCallstack();
+	g_CrashHandler.FormatRegisters();
+	g_CrashHandler.FormatModules();
+	g_CrashHandler.FormatSystemInfo();
+	g_CrashHandler.FormatBuildInfo();
 
-	g_CrashHandler->SetState(true);
+	g_CrashHandler.WriteFile();
 
-	g_CrashHandler->FormatCrash();
-	g_CrashHandler->FormatCallstack();
-	g_CrashHandler->FormatRegisters();
-	g_CrashHandler->FormatModules();
-	g_CrashHandler->FormatSystemInfo();
-	g_CrashHandler->FormatBuildInfo();
+	// Display the message to the user.
+	g_CrashHandler.CreateMessageProcess();
 
-	g_CrashHandler->WriteFile();
-	g_CrashHandler->CreateMessageProcess(); // Display the message to the user.
-
-	// Don't end, just unlock the mutex so the next call kills the process.
-	g_CrashHandler->Unlock();
+	// End it here, the next recursive call terminates the process.
+	g_CrashHandler.End();
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -621,6 +601,7 @@ long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 //-----------------------------------------------------------------------------
 void CCrashHandler::Init()
 {
+	InitializeSRWLock(&m_Lock);
 	m_hExceptionHandler = AddVectoredExceptionHandler(TRUE, BottomLevelExceptionFilter);
 }
 
@@ -639,16 +620,28 @@ void CCrashHandler::Shutdown()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CCrashHandler::Reset()
+{
+	m_Buffer.Clear();
+	m_CrashingModule.Clear();
+	m_MessageCmdLine.Clear();
+
+	m_nCrashMsgFlags = 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 CCrashHandler::CCrashHandler()
 	: m_ppStackTrace()
+	, m_nCapturedFrames(0)
+	, m_ppModuleHandles()
 	, m_pCrashCallback(nullptr)
 	, m_hExceptionHandler(nullptr)
 	, m_pExceptionPointers(nullptr)
-	, m_nCapturedFrames(0)
 	, m_nCrashMsgFlags(0)
-	, m_bCallState(false)
-	, m_bCrashMsgCreated(false)
-	, m_bExceptionHandling(false)
+	, m_bExit(false)
+	, m_bMessageCreated(false)
 {
 	Init();
 }
@@ -661,4 +654,4 @@ CCrashHandler::~CCrashHandler()
 	Shutdown();
 }
 
-CCrashHandler* g_CrashHandler = new CCrashHandler();
+CCrashHandler g_CrashHandler;

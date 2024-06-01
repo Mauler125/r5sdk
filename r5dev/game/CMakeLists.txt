@@ -41,7 +41,7 @@ endif()
 
 if( ${PROJECT_NAME} STREQUAL "server_static" )
 
-add_sources( SOURCE_GROUP "Server"
+add_sources( SOURCE_GROUP "AI"
     "server/ai_network.cpp"
     "server/ai_network.h"
     "server/ai_networkmanager.cpp"
@@ -49,30 +49,59 @@ add_sources( SOURCE_GROUP "Server"
     "server/ai_node.h"
     "server/ai_utility.cpp"
     "server/ai_utility.h"
+    "server/detour_impl.h"
+)
+
+add_sources( SOURCE_GROUP "Entity"
     "server/baseanimating.cpp"
     "server/baseanimating.h"
     "server/baseanimatingoverlay.h"
     "server/basecombatcharacter.h"
     "server/baseentity.cpp"
     "server/baseentity.h"
-    "server/detour_impl.h"
     "server/entitylist.cpp"
     "server/entitylist.h"
+    "server/entityoutput.cpp"
+    "server/entityoutput.h"
+)
+
+add_sources( SOURCE_GROUP "Network"
+    "server/networkproperty.cpp"
+    "server/networkproperty.h"
+)
+
+add_sources( SOURCE_GROUP "Player"
+    "server/player.cpp"
+    "server/player.h"
+    "server/playerlocaldata.h"
+)
+
+add_sources( SOURCE_GROUP "Script"
+    "server/vscript_server.cpp"
+    "server/vscript_server.h"
+)
+
+add_sources( SOURCE_GROUP "Physics"
+    "server/physics_main.cpp"
+    "server/physics_main.h"
+)
+
+add_sources( SOURCE_GROUP "Utility"
+    "server/cbase.cpp"
+    "server/cbase.h"
     "server/gameinterface.cpp"
     "server/gameinterface.h"
     "server/movehelper_server.cpp"
     "server/movehelper_server.h"
-    "server/networkproperty.cpp"
-    "server/networkproperty.h"
-    "server/physics_main.cpp"
-    "server/physics_main.h"
-    "server/player.cpp"
-    "server/player.h"
-    "server/playerlocaldata.h"
     "server/util_server.cpp"
     "server/util_server.h"
-    "server/vscript_server.cpp"
-    "server/vscript_server.h"
+    "server/variant_t.cpp"
+    "server/variant_t.h"
+)
+
+add_sources( SOURCE_GROUP "LiveAPI"
+    "server/liveapi/liveapi.cpp"
+    "server/liveapi/liveapi.h"
 )
 
 add_sources( SOURCE_GROUP "Public"
@@ -146,6 +175,7 @@ endif()
 target_include_directories( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/tier0/"
     "${ENGINE_SOURCE_DIR}/tier1/"
+    "${THIRDPARTY_SOURCE_DIR}/mbedtls/include"
 )
 
 endmacro()

@@ -9,7 +9,6 @@ public:
 private:
 };
 
-inline CMemory p_CInput__SetCustomWeaponActivity;
 inline void(*v_CInput__SetCustomWeaponActivity)(CInput* pInput, int weaponActivity);
 
 inline IInput* g_pInput_VFTable = nullptr;
@@ -20,15 +19,14 @@ class VInput : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("CInput::`vftable'", reinterpret_cast<uintptr_t>(g_pInput_VFTable));
-		LogFunAdr("CInput::SetCustomWeaponActivity", p_CInput__SetCustomWeaponActivity.GetPtr());
-		LogVarAdr("g_Input", reinterpret_cast<uintptr_t>(g_pInput));
+		LogConAdr("CInput::`vftable'", g_pInput_VFTable);
+		LogFunAdr("CInput::SetCustomWeaponActivity", v_CInput__SetCustomWeaponActivity);
+		LogVarAdr("g_Input", g_pInput);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CInput__SetCustomWeaponActivity = g_GameDll.
-			FindPatternSIMD("89 91 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC F3 0F 11 89 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC F3 0F 10 81 ?? ?? ?? ??");
-		v_CInput__SetCustomWeaponActivity = p_CInput__SetCustomWeaponActivity.RCast<void (*)(CInput*, int)>();
+		g_GameDll.FindPatternSIMD("89 91 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC F3 0F 11 89 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC F3 0F 10 81 ?? ?? ?? ??")
+			.GetPtr(v_CInput__SetCustomWeaponActivity);
 	}
 	virtual void GetVar(void) const
 	{
@@ -39,8 +37,7 @@ class VInput : public IDetour
 	{
 		g_pInput_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCInput@@").RCast<IInput*>();
 	}
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

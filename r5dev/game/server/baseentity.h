@@ -17,9 +17,28 @@
 #include "public/iserverentity.h"
 #include "engine/gl_model_private.h"
 #include "game/shared/collisionproperty.h"
+#include "game/shared/shareddefs.h"
 #include "networkproperty.h"
 #include "entitylist.h"
+#include "entityoutput.h"
 
+//-----------------------------------------------------------------------------
+
+typedef void (CBaseEntity::* BASEPTR)(void);
+typedef void (CBaseEntity::* ENTITYFUNCPTR)(CBaseEntity* pOther);
+typedef void (CBaseEntity::* USEPTR)(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value);
+
+//-----------------------------------------------------------------------------
+// Purpose: think contexts
+//-----------------------------------------------------------------------------
+struct thinkfunc_t
+{
+	BASEPTR		m_pfnThink;
+	bool		m_fireBeforeBaseThink;
+	string_t	m_iszContext;
+	int			m_nNextThinkTick;
+	int			m_nLastThinkTick;
+};
 
 class CBaseEntity : public IServerEntity
 {
@@ -34,8 +53,11 @@ public:
 	int				GetModelIndex(void) const; // Virtual in-engine!
 	string_t		GetModelName(void) const;  // Virtual in-engine!
 
+	inline edict_t GetEdict(void) { return NetworkProp()->GetEdict(); }
+	inline string_t GetEntityName(void) const { return m_iName; }
+
 protected:
-	char m_RefEHandle[4];
+	CBaseHandle m_RefEHandle;
 	char gap_c[4];
 	void* m_collideable;
 	void* m_networkable;
@@ -48,14 +70,14 @@ protected:
 	string_t m_ModelName;
 	int m_entIndex;
 	char gap_74[8]; // Aligns properly in IDA and generated code after setting from 4 to 8.
-	const char* m_iClassname;
+	string_t* m_iClassname;
 	float m_flAnimTime;
 	float m_flSimulationTime;
 	int m_creationTick;
 	int m_nLastThinkTick;
 	int m_PredictableID;
 	int touchStamp;
-	char m_aThinkFunctions[32];
+	CUtlVector<thinkfunc_t> m_aThinkFunctions;
 	float m_entitySpawnTime;
 	int m_spawner;
 	bool m_wantsDamageCallbacks;
@@ -65,7 +87,7 @@ protected:
 	int m_fEffects;
 	bool m_thinkNextFrame;
 	char gap_cd[3];
-	__int64 m_target;
+	string_t m_target;
 	int m_networkedFlags;
 	char m_nRenderFX;
 	char m_nRenderMode;
@@ -101,7 +123,7 @@ protected:
 	int m_fDataObjectTypes;
 	int m_iEFlags;
 	int m_fFlags;
-	__int64 m_iName;
+	string_t m_iName;
 	int m_scriptNameIndex;
 	int m_instanceNameIndex;
 	char m_scriptName[64];
@@ -145,7 +167,7 @@ protected:
 	Vector3D m_vecAbsVelocity;
 	Vector3D m_vecAngVelocity;
 	char gap_3f4[12];
-	float m_rgflCoordinateFrame[12];
+	matrix3x4_t m_rgflCoordinateFrame;
 	float m_flFriction;
 	float m_flLocalTime;
 	float m_flVPhysicsUpdateLocalTime;
@@ -156,7 +178,7 @@ protected:
 	Vector3D m_angAbsRotation;
 	Vector3D m_vecVelocity;
 	char gap_474[4];
-	__int64 m_iParent;
+	string_t m_iParent;
 	int m_iHammerID;
 	float m_flSpeed;
 	int m_iMaxHealth;
@@ -176,9 +198,9 @@ protected:
 	float m_lastTitanFootstepDamageTime;
 	float m_flMaxspeed;
 	int m_visibilityFlags;
-	char m_OnUser1[40];
-	char m_OnDeath[40];
-	char m_OnDestroy[40];
+	COutputEvent m_OnUser1;
+	COutputEvent m_OnDeath;
+	COutputEvent m_OnDestroy;
 	int m_cellWidth;
 	int m_cellBits;
 	int m_cellX;
@@ -205,7 +227,7 @@ protected:
 	float m_entityFadeDist;
 	int m_dissolveEffectEntityHandle;
 	float m_fadeDist;
-	__int64 m_iSignifierName;
+	string_t m_iSignifierName;
 	int m_collectedInvalidateFlags;
 	bool m_collectingInvalidateFlags;
 	char gap_5d5[3];
@@ -219,7 +241,7 @@ protected:
 	void* m_pTimedOverlay;
 	char m_ScriptScope[32];
 	char m_hScriptInstance[8];
-	__int64 m_iszScriptId;
+	string_t m_iszScriptId;
 	int m_bossPlayer;
 	int m_usableType;
 	int m_usablePriority;
@@ -252,30 +274,28 @@ protected:
 	char m_realmsTransmitMaskCached[16];
 	int m_realmsTransmitMaskCachedSerialNumber;
 };
+static_assert(sizeof(CBaseEntity) == 2824);
 
-inline CMemory p_CBaseEntity__GetBaseEntity;
-inline CBaseEntity*(*v_CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
+inline CBaseEntity*(*CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VBaseEntity : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CBaseEntity::GetBaseEntity", p_CBaseEntity__GetBaseEntity.GetPtr());
-		LogVarAdr("g_pEntityList", reinterpret_cast<uintptr_t>(g_pEntityList));
+		LogFunAdr("CBaseEntity::GetBaseEntity", CBaseEntity__GetBaseEntity);
+		LogVarAdr("g_pEntityList", g_pEntityList);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CBaseEntity__GetBaseEntity = g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30");
-		v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
+		g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30").GetPtr(CBaseEntity__GetBaseEntity);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pEntityList = p_CBaseEntity__GetBaseEntity.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEntInfo**>();
+		g_pEntityList = CMemory(CBaseEntity__GetBaseEntity).FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEntInfo**>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

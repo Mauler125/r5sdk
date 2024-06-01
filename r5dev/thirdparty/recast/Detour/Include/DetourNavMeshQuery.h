@@ -514,7 +514,7 @@ public:
 	
 	/// Gets the node pool.
 	/// @returns The node pool.
-	class dtNodePool* getNodePool() const { return m_nodePool; }
+	class dtNodePool* getNodePool() const { return m_query.m_nodePool; }
 	
 	/// Gets the navigation mesh the query object is using.
 	/// @return The navigation mesh the query object is using.
@@ -568,12 +568,13 @@ private:
 		float startPos[3], endPos[3];
 		unsigned int options;
 		float raycastLimitSqr;
-	};
-	dtQueryData m_query;				///< Sliced query state.
 
-	class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
-	class dtNodePool* m_nodePool;		///< Pointer to node pool.
-	class dtNodeQueue* m_openList;		///< Pointer to open list queue.
+		class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
+		class dtNodePool* m_nodePool;		///< Pointer to node pool.
+		class dtNodeQueue* m_openList;		///< Pointer to open list queue.
+	};
+
+	dtQueryData m_query;				///< Sliced query state.
 	const dtQueryFilter* m_queryFilter;	///< Pointer to query filter.
 };
 

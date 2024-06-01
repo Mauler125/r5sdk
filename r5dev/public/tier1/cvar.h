@@ -18,6 +18,7 @@
 #include "tier1/utlmap.h"
 #include "tier1/utlvector.h"
 #include "tier1/utlstring.h"
+#include "tier1/utlbuffer.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -68,19 +69,19 @@ protected:
 	friend class CCvarUtilities;
 
 private:
-	CUtlVector< FnChangeCallback_t > m_GlobalChangeCallbacks;
-	char pad0[30];           //!TODO:
-	int m_nNextDLLIdentifier;
-	ConCommandBase* m_pConCommandList;
-	CConCommandHash m_CommandHash;
-	CUtlVector<void*> m_Unknown;
-	char pad2[32];
-	void* m_pCallbackStub;
-	void* m_pAllocFunc;
-	char pad3[16];
-	CUtlVector< QueuedConVarSet_t > m_QueuedConVarSets;
-	bool m_bMaterialSystemThreadSetAllowed;
+	CUtlVector< FnChangeCallback_t >   m_GlobalChangeCallbacks;
+	CUtlVector< IConsoleDisplayFunc* > m_DisplayFuncs;
+	int                                m_nNextDLLIdentifier;
+
+	ConCommandBase*                    m_pConCommandList;
+	CConCommandHash                    m_CommandHash;
+
+	// temporary console area so we can store prints before console display funs are installed
+	mutable CUtlBuffer                 m_TempConsoleBuffer;
+	CUtlVector< QueuedConVarSet_t >    m_QueuedConVarSets;
+	bool                               m_bMaterialSystemThreadSetAllowed;
 };
+static_assert(sizeof(CCvar) == 360);
 
 extern CCvar* g_pCVar;
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,33 +162,36 @@ extern ConVarFlags g_ConVarFlags;
 bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName = "<<unspecified>>");
 void ConVar_PrintDescription(ConCommandBase* pVar);
 
-inline CMemory p_ConVar_PrintDescription;
-inline void* (*v_ConVar_PrintDescription)(ConCommandBase* pVar);
+inline bool (*CCvar__Connect)(CCvar* thisptr, CreateInterfaceFn factory);
+inline void (*CCvar__Disconnect)(CCvar* thisptr);
+
+inline void (*v_ConVar_PrintDescription)(ConCommandBase* pVar);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("ConVar_PrintDescription", p_ConVar_PrintDescription.GetPtr());
-		LogVarAdr("g_pCVar", reinterpret_cast<uintptr_t>(g_pCVar));
+		LogFunAdr("CCvar::Connect", CCvar__Connect);
+		LogFunAdr("CCvar::Disconnect", CCvar__Disconnect);
+		LogFunAdr("ConVar_PrintDescription", v_ConVar_PrintDescription);
+		LogVarAdr("g_pCVar", g_pCVar);
 	}
 	virtual void GetFun(void) const 
 	{
-		p_ConVar_PrintDescription = g_GameDll.FindPatternSIMD("B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 01 48 89 9C 24 ?? ?? ?? ??");
-		v_ConVar_PrintDescription = p_ConVar_PrintDescription.RCast<void* (*)(ConCommandBase*)>();
+		g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 0F 45 C8 FF 05 ?? ?? ?? ?? 48 89 0D ?? ?? ?? ??").GetPtr(CCvar__Connect);
+		g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 48 85 C9 74 26 80 3D ?? ?? ?? ?? ?? 74 1D 48 8B 01 8B 15 ?? "
+			"?? ?? ?? FF 50 58 C7 05 ?? ?? ?? ?? ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 C7 05 ?? ?? ?? ?? ?? ?? ?? ??").GetPtr(CCvar__Disconnect);
+
+		g_GameDll.FindPatternSIMD("B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 01 48 89 9C 24 ?? ?? ?? ??").GetPtr(v_ConVar_PrintDescription);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pCVar = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 89 15")
-			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CCvar*>();
-
-		//g_pCVar = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 83 3D ?? ?? ?? ?? ?? 48 8B D9 74 09") // Actual CCvar, above is the vtable ptr.
-			//.FindPatternSelf("48 83 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x8).RCast<CCvar*>();
+		g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 0F 45 C8 FF 05 ?? ?? ?? ?? 48 89 0D ?? ?? ?? ??")
+			.FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(3, 7).GetPtr(g_pCVar);
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

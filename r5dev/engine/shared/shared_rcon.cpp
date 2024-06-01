@@ -79,7 +79,7 @@ bool CL_NetConConnect(CNetConBase* pBase, const char* pHostAdr, const int nHostP
 		return false;
 	}
 
-	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", pNetAdr->ToString());
+	Msg(eDLL_T::CLIENT, "Connected to: %s\n", pNetAdr->ToString());
 	return true;
 }
 

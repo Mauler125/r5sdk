@@ -4,7 +4,9 @@
 // Internals
 BOOL IsBadReadPtrV2(void* ptr);
 BOOL FileExists(LPCTSTR szPath);
-BOOL FileEmpty(ifstream& pFile);
+int CreateDirHierarchy(const char* filePath);
+bool IsDirectory(const char* path);
+bool FileEmpty(ifstream& pFile);
 MODULEINFO GetModuleInfo(const char* szModule);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -62,7 +64,8 @@ string& StringLTrim(string& svInput, const char* pszToTrim, bool bTrimBefore = f
 string& StringRTrim(string& svInput, const char* pszToTrim, bool bTrimAfter = false);
 string& StringTrim(string& svInput, const char* pszToTrim, bool bTrimAll = false);
 
-string FourCCToString(int n);
+typedef char FourCCString_t[5];
+void FourCCToString(FourCCString_t& buf, const int n);
 
 /////////////////////////////////////////////////////////////////////////////
 // Bytes
@@ -85,6 +88,8 @@ string PrintPercentageEscape(const string& svInput);
 string FormatBytes(size_t nBytes);
 string FormatV(const char* szFormat, va_list args);
 string Format(const char* szFormat, ...);
+
+void JSON_DocumentToBufferDeserialize(const rapidjson::Document& document, rapidjson::StringBuffer& buffer, unsigned int indent = 4);
 
 /////////////////////////////////////////////////////////////////////////////
 // Array
@@ -117,6 +122,7 @@ int CompareIPv6(const IN6_ADDR& ipA, const IN6_ADDR& ipB);
 
 /////////////////////////////////////////////////////////////////////////////
 // Time
+uint64_t GetUnixTimeStamp();
 std::chrono::nanoseconds IntervalToDuration(const float flInterval);
 
 /////////////////////////////////////////////////////////////////////////////

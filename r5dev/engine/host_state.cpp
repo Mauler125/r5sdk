@@ -10,10 +10,10 @@
 #include "tier0/jobthread.h"
 #include "tier0/commandline.h"
 #include "tier0/fasttimer.h"
+#include "tier0/frametask.h"
 #include "tier1/cvar.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
-#include "vpc/keyvalues.h"
 #include "datacache/mdlcache.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
@@ -35,17 +35,19 @@
 #include "engine/cmodel_bsp.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
+#include "rtech/liveapi/liveapi.h"
 #endif // !CLIENT_DLL
-#include "rtech/rtech_game.h"
-#include "rtech/rtech_utils.h"
 #include "rtech/stryder/stryder.h"
+#include "rtech/playlists/playlists.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
 #include "client/vengineclient_impl.h"
+#include "gameui/imgui_system.h"
 #endif // DEDICATED
 #include "networksystem/pylon.h"
 #ifndef CLIENT_DLL
 #include "networksystem/bansystem.h"
+#include "networksystem/hostmanager.h"
 #endif // !CLIENT_DLL
 #include "networksystem/listmanager.h"
 #include "public/edict.h"
@@ -55,44 +57,84 @@
 #include "game/shared/vscript_shared.h"
 
 #ifndef CLIENT_DLL
+static ConVar sv_pylonVisibility("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", "0 = Offline, 1 = Hidden, 2 = Public.");
+static ConVar sv_pylonRefreshRate("sv_pylonRefreshRate", "5.0", FCVAR_DEVELOPMENTONLY, "Pylon host refresh rate (seconds).");
+
+static ConVar sv_autoReloadRate("sv_autoReloadRate", "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null).");
+#endif // !CLIENT_DLL
+
+#ifdef DEDICATED
+static ConVar hostdesc("hostdesc", "", FCVAR_RELEASE, "Host game server description.");
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
-// Input  : &netGameServer - 
 // Output : Returns true on success, false otherwise.
 //-----------------------------------------------------------------------------
-bool HostState_KeepAlive(const NetGameServer_t& netGameServer)
+static void HostState_KeepAlive()
 {
-	if (!g_pServer->IsActive() || !sv_pylonVisibility->GetBool()) // Check for active game.
+	if (!g_pServer->IsActive() || !sv_pylonVisibility.GetBool()) // Check for active game.
 	{
-		return false;
+		return;
 	}
 
-	string errorMsg;
-	string hostToken;
-
-	const bool result = g_pMasterServer->PostServerHost(errorMsg, hostToken, netGameServer);
-	if (!result)
+	const NetGameServer_t gameServer
 	{
-		if (!errorMsg.empty() && g_pMasterServer->GetCurrentError().compare(errorMsg) != NULL)
+		hostname->GetString(),
+		hostdesc.GetString(),
+		sv_pylonVisibility.GetInt() == ServerVisibility_e::HIDDEN,
+		g_pHostState->m_levelName,
+		v_Playlists_GetCurrent(),
+		hostip->GetString(),
+		hostport->GetInt(),
+		g_pNetKey->GetBase64NetKey(),
+		*g_nServerRemoteChecksum,
+		SDK_VERSION,
+		g_pServer->GetNumClients(),
+		g_ServerGlobalVariables->m_nMaxClients,
+		std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch()
+			).count()
+	};
+
+	std::thread request([&, gameServer]
 		{
-			g_pMasterServer->SetCurrentError(errorMsg);
-			Error(eDLL_T::SERVER, NO_ERROR, "%s\n", errorMsg.c_str());
-		}
-	}
-	else // Attempt to log the token, if there is one.
-	{
-		if (!hostToken.empty() && g_pMasterServer->GetCurrentToken().compare(hostToken) != NULL)
-		{
-			g_pMasterServer->SetCurrentToken(hostToken);
-			DevMsg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
-				g_svReset, g_svGreyB,
-				hostToken.c_str(), g_svReset);
-		}
-	}
+			string errorMsg;
+			string hostToken;
+			string hostIp;
 
-	return result;
+			const bool result = g_MasterServer.PostServerHost(errorMsg, hostToken, hostIp, gameServer);
+
+			// Apply the data the next frame
+			g_TaskQueue.Dispatch([result, errorMsg, hostToken, hostIp]
+				{
+					if (!result)
+					{
+						if (!errorMsg.empty() && g_ServerHostManager.GetCurrentError().compare(errorMsg) != NULL)
+						{
+							g_ServerHostManager.SetCurrentError(errorMsg);
+							Error(eDLL_T::SERVER, NO_ERROR, "%s\n", errorMsg.c_str());
+						}
+					}
+					else // Attempt to log the token, if there is one.
+					{
+						if (!hostToken.empty() && g_ServerHostManager.GetCurrentToken().compare(hostToken) != NULL)
+						{
+							g_ServerHostManager.SetCurrentToken(hostToken);
+							Msg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
+								g_svReset, g_svGreyB,
+								hostToken.c_str(), g_svReset);
+						}
+					}
+
+					if (hostIp.length() != 0)
+						g_ServerHostManager.SetHostIP(hostIp);
+
+				}, 0);
+		}
+	);
+
+	request.detach();
 }
-#endif // !CLIENT_DLL
+#endif // DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
@@ -115,8 +157,6 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 	RCONClient()->RunFrame();
 #endif // !DEDICATED
 
-	HostStates_t oldState{};
-
 	// Disable "warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable"
 #pragma warning(push)
 #pragma warning(disable : 4611)
@@ -131,11 +171,11 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 #ifndef CLIENT_DLL
 		*g_bAbortServerSet = true;
 #endif // !CLIENT_DLL
-		do
+		while (true)
 		{
 			Cbuf_Execute();
-			oldState = g_pHostState->m_iCurrentState;
 
+			const HostStates_t oldState = g_pHostState->m_iCurrentState;
 			switch (g_pHostState->m_iCurrentState)
 			{
 			case HostStates_t::HS_NEW_GAME:
@@ -168,32 +208,32 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 					bResetIdleName = true;
 				}
 
-				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
+				CHostState__State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s: Shutdown host game\n", __FUNCTION__);
-				CHostState_State_GameShutDown(g_pHostState);
+				Msg(eDLL_T::ENGINE, "%s: Shutdown host game\n", __FUNCTION__);
+				CHostState__State_GameShutDown(g_pHostState);
 				break;
 			}
 			case HostStates_t::HS_RESTART:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s: Restarting state machine\n", __FUNCTION__);
+				Msg(eDLL_T::ENGINE, "%s: Restarting state machine\n", __FUNCTION__);
 #ifndef DEDICATED
-				CL_EndMovie();
+				v_CL_EndMovie();
 #endif // !DEDICATED
-				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
+				v_Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
 				g_pEngine->SetNextState(IEngine::DLL_RESTART);
 				break;
 			}
 			case HostStates_t::HS_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s: Shutdown state machine\n", __FUNCTION__);
+				Msg(eDLL_T::ENGINE, "%s: Shutdown state machine\n", __FUNCTION__);
 #ifndef DEDICATED
-				CL_EndMovie();
+				v_CL_EndMovie();
 #endif // !DEDICATED
-				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
+				v_Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
 				g_pEngine->SetNextState(IEngine::DLL_CLOSE);
 				break;
 			}
@@ -203,10 +243,15 @@ void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float
 			}
 			}
 
-		} while (
-			  (oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && single_frame_shutdown_for_reload->GetBool())
-			&& oldState != HostStates_t::HS_SHUTDOWN
-			&& oldState != HostStates_t::HS_RESTART);
+			// only do a single pass at HS_RUN per frame. All other states loop until they reach HS_RUN 
+			if (oldState == HostStates_t::HS_RUN && (g_pHostState->m_iNextState != HostStates_t::HS_LOAD_GAME || !single_frame_shutdown_for_reload->GetBool()))
+				break;
+
+			// shutting down
+			if (oldState == HostStates_t::HS_SHUTDOWN ||
+				oldState == HostStates_t::HS_RESTART)
+				break;
+		}
 	}
 }
 
@@ -219,7 +264,7 @@ void CHostState::Init(void)
 	{
 		if (m_iNextState == HostStates_t::HS_GAME_SHUTDOWN)
 		{
-			CHostState_State_GameShutDown(this);
+			CHostState__State_GameShutDown(this);
 		}
 		else
 		{
@@ -250,7 +295,7 @@ void CHostState::Setup(void)
 {
 	g_pHostState->LoadConfig();
 #ifndef CLIENT_DLL
-	g_pBanSystem->Load();
+	g_BanSystem.LoadList();
 #endif // !CLIENT_DLL
 	ConVar_PurgeHostNames();
 
@@ -261,7 +306,11 @@ void CHostState::Setup(void)
 	RCONClient()->Init();
 #endif // !DEDICATED
 
-	if (net_useRandomKey->GetBool())
+#ifndef CLIENT_DLL
+	LiveAPISystem()->Init();
+#endif // !CLIENT_DLL
+
+	if (net_useRandomKey.GetBool())
 	{
 		NET_GenerateKey();
 	}
@@ -301,50 +350,33 @@ void CHostState::Think(void) const
 #endif // DEDICATED
 		bInitialized = true;
 	}
-	if (sv_autoReloadRate->GetBool())
+	if (sv_autoReloadRate.GetBool())
 	{
-		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate->GetDouble())
+		if (g_ServerGlobalVariables->m_flCurTime > sv_autoReloadRate.GetFloat())
 		{
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
 		}
 	}
-	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
+	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate.GetFloat())
 	{
-		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s)",
+		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s) - %d%% Server CPU (%.3f msec on frame %d)",
 			hostname->GetString(), g_pServer->GetNumClients(),
-			g_ServerGlobalVariables->m_nMaxClients, KeyValues_GetCurrentPlaylist(), m_levelName).c_str());
+			g_ServerGlobalVariables->m_nMaxClients, v_Playlists_GetCurrent(), m_levelName,
+			static_cast<int>(g_pServer->GetCPUUsage() * 100.0f), (g_pEngine->GetFrameTime() * 1000.0f),
+			g_pServer->GetTick()).c_str());
 
 		statsTimer.Start();
 	}
-	if (sv_globalBanlist->GetBool() &&
-		banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetDouble())
+	if (sv_globalBanlist.GetBool() &&
+		banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate.GetFloat())
 	{
-		SV_CheckForBan();
+		SV_CheckClientsForBan();
 		banListTimer.Start();
 	}
 #ifdef DEDICATED
-	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate->GetDouble())
+	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate.GetFloat())
 	{
-		const NetGameServer_t netGameServer
-		{
-			hostname->GetString(),
-			hostdesc->GetString(),
-			sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
-			g_pHostState->m_levelName,
-			KeyValues_GetCurrentPlaylist(),
-			hostip->GetString(),
-			hostport->GetString(),
-			g_pNetKey->GetBase64NetKey(),
-			std::to_string(*g_nServerRemoteChecksum),
-			SDK_VERSION,
-			std::to_string(g_pServer->GetNumClients()),
-			std::to_string(g_ServerGlobalVariables->m_nMaxClients),
-			std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch()
-				).count()
-		};
-
-		std::thread(&HostState_KeepAlive, netGameServer).detach();
+		HostState_KeepAlive();
 		pylonTimer.Start();
 	}
 #endif // DEDICATED
@@ -389,6 +421,24 @@ void CHostState::LoadConfig(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: set state machine
+// Input  : newState  - 
+//          clearNext - 
+//-----------------------------------------------------------------------------
+void CHostState::SetState(const HostStates_t newState)
+{
+	m_iCurrentState = newState;
+
+	// If our next state isn't a shutdown, or its a forced shutdown then set
+	// next state to run.
+	if (m_iNextState != HostStates_t::HS_SHUTDOWN ||
+		!host_hasIrreversibleShutdown->GetBool())
+	{
+		m_iNextState = newState;
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: shutdown active game
 //-----------------------------------------------------------------------------
 void CHostState::GameShutDown(void)
@@ -408,13 +458,13 @@ void CHostState::GameShutDown(void)
 //-----------------------------------------------------------------------------
 void CHostState::State_NewGame(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s: Loading level: '%s'\n", __FUNCTION__, g_pHostState->m_levelName);
+	Msg(eDLL_T::ENGINE, "%s: Loading level: '%s'\n", __FUNCTION__, g_pHostState->m_levelName);
 
 	LARGE_INTEGER time{};
 
 #ifndef CLIENT_DLL
-	bool bSplitScreenConnect = m_bSplitScreenConnect;
-	m_bSplitScreenConnect = 0;
+	const bool bSplitScreenConnect = m_bSplitScreenConnect;
+	m_bSplitScreenConnect = false;
 
 	if (!g_pServerGameClients) // Init Game if it ain't valid.
 	{
@@ -434,13 +484,7 @@ void CHostState::State_NewGame(void)
 	}
 #endif // !CLIENT_DLL
 
-	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
-
-	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
-	{
-		m_iNextState = HostStates_t::HS_RUN;
-	}
+	SetState(HostStates_t::HS_RUN);
 }
 
 //-----------------------------------------------------------------------------
@@ -448,7 +492,7 @@ void CHostState::State_NewGame(void)
 //-----------------------------------------------------------------------------
 void CHostState::State_ChangeLevelSP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s: Changing singleplayer level to: '%s'\n", __FUNCTION__, m_levelName);
+	Msg(eDLL_T::ENGINE, "%s: Changing singleplayer level to: '%s'\n", __FUNCTION__, m_levelName);
 	m_flShortFrameTime = 1.5; // Set frame time.
 
 	if (CModelLoader__Map_IsValid(g_pModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
@@ -460,13 +504,8 @@ void CHostState::State_ChangeLevelSP(void)
 		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Unable to find level: '%s'\n", __FUNCTION__, m_levelName);
 	}
 
-	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
-
-	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
-	{
-		m_iNextState = HostStates_t::HS_RUN;
-	}
+	// Set current state to run.
+	SetState(HostStates_t::HS_RUN);
 }
 
 //-----------------------------------------------------------------------------
@@ -474,7 +513,7 @@ void CHostState::State_ChangeLevelSP(void)
 //-----------------------------------------------------------------------------
 void CHostState::State_ChangeLevelMP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s: Changing multiplayer level to: '%s'\n", __FUNCTION__, m_levelName);
+	Msg(eDLL_T::ENGINE, "%s: Changing multiplayer level to: '%s'\n", __FUNCTION__, m_levelName);
 	m_flShortFrameTime = 0.5; // Set frame time.
 
 #ifndef CLIENT_DLL
@@ -492,13 +531,8 @@ void CHostState::State_ChangeLevelMP(void)
 		Error(eDLL_T::ENGINE, NO_ERROR, "%s: Unable to find level: '%s'\n", __FUNCTION__, m_levelName);
 	}
 
-	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
-
-	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
-	{
-		m_iNextState = HostStates_t::HS_RUN;
-	}
+	// Set current state to run.
+	SetState(HostStates_t::HS_RUN);
 }
 
 //-----------------------------------------------------------------------------
@@ -510,13 +544,9 @@ void CHostState::ResetLevelName(void)
 	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), "%s", szNoMap);
 }
 
-void VHostState::Attach(void) const
+void VHostState::Detour(const bool bAttach) const
 {
-	DetourAttach(&CHostState_FrameUpdate, &CHostState::FrameUpdate);
-}
-void VHostState::Detach(void) const
-{
-	DetourDetach(&CHostState_FrameUpdate, &CHostState::FrameUpdate);
+	DetourSetup(&CHostState__FrameUpdate, &CHostState::FrameUpdate, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

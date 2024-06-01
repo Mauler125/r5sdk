@@ -59,13 +59,6 @@ inline CMemory Host_Shutdown;
 inline CMemory Host_Disconnect;
 
 //-------------------------------------------------------------------------
-// RUNTIME: S2C_CHALLENGE
-//-------------------------------------------------------------------------
-#ifndef CLIENT_DLL
-inline CMemory Server_S2C_CONNECT_1;
-#endif // !CLIENT_DLL
-
-//-------------------------------------------------------------------------
 // RUNTIME: 
 //-------------------------------------------------------------------------
 inline CMemory MatchMaking_Frame;
@@ -88,9 +81,6 @@ class VOpcodes : public IDetour
 //		LogFunAdr("Sys_InitGame", Sys_InitGame.GetPtr());
 //		LogFunAdr("Host_Init_1", gHost_Init_1.GetPtr());
 //		LogFunAdr("Host_Init_2", gHost_Init_2.GetPtr());
-#ifndef CLIENT_DLL
-		LogFunAdr("Server_S2C_CONNECT", Server_S2C_CONNECT_1.GetPtr());
-#endif // !CLIENT_DLL
 //		LogFunAdr("GetEngineClientThread", GetEngineClientThread.GetPtr());
 //		LogFunAdr("MatchMaking_Frame", MatchMaking_Frame.GetPtr());
 //#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
@@ -148,9 +138,6 @@ class VOpcodes : public IDetour
 //		// 0x140236640 // 88 4C 24 08 53 55 56 57 48 83 EC 68 //
 //
 //		//-------------------------------------------------------------------------
-#ifndef CLIENT_DLL
-		Server_S2C_CONNECT_1 = g_GameDll.FindPatternSIMD("48 3B 05 ?? ?? ?? ?? 74 0C");
-#endif // !CLIENT_DLL
 //
 //		//-------------------------------------------------------------------------
 //#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
@@ -174,7 +161,6 @@ class VOpcodes : public IDetour
 //#endif //48 83 EC 28 33 C9 FF 15 ? ? ? ? 48 8D 0D ? ? ? ?
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,8 @@ start_sources()
 add_sources( SOURCE_GROUP "Private"
     "bansystem.cpp"
     "bansystem.h"
+    "hostmanager.cpp"
+    "hostmanager.h"
     "listmanager.cpp"
     "listmanager.h"
     "pylon.cpp"

@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -10,13 +10,19 @@
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "tier1/strtools.h"
+#include "engine/sys_engine.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/traceinit.h"
-#include "rtech/rtech_utils.h"
 #ifndef DEDICATED
+#include "engine/sys_mainwind.h"
+#include "inputsystem/inputsystem.h"
+#include "vgui/vgui_baseui_interface.h"
+#include "materialsystem/cmaterialsystem.h"
+#include "windows/id3dx.h"
 #include "client/vengineclient_impl.h"
+#include "geforce/reflex.h"
 #endif // !DEDICATED
 #include "filesystem/filesystem.h"
 constexpr char DFS_ENABLE_PATH[] = "/vpk/enable.txt";
@@ -79,7 +85,7 @@ static void InitVPKSystem()
 
 InitReturnVal_t CEngineAPI::VInit(CEngineAPI* pEngineAPI)
 {
-    return CEngineAPI_Init(pEngineAPI);
+    return CEngineAPI__Init(pEngineAPI);
 }
 
 //-----------------------------------------------------------------------------
@@ -90,7 +96,7 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
     // Register new Pak Assets here!
     //RTech_RegisterAsset(0, 1, "", nullptr, nullptr, nullptr, CMemory(0x1660AD0A8).RCast<void**>(), 8, 8, 8, 0, 0xFFFFFFC);
 
-	bool results = CEngineAPI_ModInit(pEngineAPI, pModName, pGameDir);
+	bool results = CEngineAPI__ModInit(pEngineAPI, pModName, pGameDir);
 	if (!IsValveMod(pModName) && !IsRespawnMod(pModName))
 	{
 #ifndef DEDICATED
@@ -107,7 +113,6 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
 //-----------------------------------------------------------------------------
 void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo)
 {
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
     if (*g_bTextMode)
     {
         return;
@@ -142,26 +147,138 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
     InitVPKSystem();
 
     v_TRACEINIT(NULL, "COM_InitFilesystem( m_StartupInfo.m_szInitialMod )", "COM_ShutdownFileSystem()");
-    COM_InitFilesystem(pEngineAPI->m_StartupInfo.m_szInitialMod);
+    v_COM_InitFilesystem(pEngineAPI->m_StartupInfo.m_szInitialMod);
 
     *g_bTextMode = true;
-#else
-    // !TODO: 'TRACEINIT' needs to be reimplemented in S0/S1 (inline).
-    v_CEngineAPI_SetStartupInfo(pEngineAPI, pStartupInfo);
-#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1)
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CEngineAPI::PumpMessages()
+{
+#ifndef DEDICATED
+    MSG msg;
+    while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+        TranslateMessage(&msg);
+        DispatchMessageW(&msg);
+    }
+
+    if (in_syncRT->GetBool())
+        (*g_fnSyncRTWithIn)();
+
+    g_pInputSystem->PollInputState(v_UIEventDispatcher);
+    g_pGame->DispatchAllStoredGameMessages();
+#endif // !DEDICATED
+}
+
+#ifndef DEDICATED
+//-----------------------------------------------------------------------------
+// Purpose: force update NVIDIA Reflex Low Latency parameters
+//-----------------------------------------------------------------------------
+static void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString)
+{
+    GFX_MarkLowLatencyParametersOutOfDate();
+}
+
+static ConVar fps_max_gfx("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f, GFX_NVN_Changed_f);
+static ConVar gfx_nvnUseLowLatency("gfx_nvnUseLowLatency", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK.", GFX_NVN_Changed_f);
+static ConVar gfx_nvnUseLowLatencyBoost("gfx_nvnUseLowLatencyBoost", "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", GFX_NVN_Changed_f);
+
+// NOTE: defaulted to 0 as it causes rubber banding on some hardware.
+static ConVar gfx_nvnUseMarkersToOptimize("gfx_nvnUseMarkersToOptimize", "0", FCVAR_RELEASE, "Use NVIDIA Reflex Low Latency markers to optimize (requires Low Latency Boost to be enabled).", GFX_NVN_Changed_f);
+#endif // !DEDICATED
+
+void CEngineAPI::UpdateLowLatencyParameters()
+{
+#ifndef DEDICATED
+    const bool bUseLowLatencyMode = gfx_nvnUseLowLatency.GetBool();
+    const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost.GetBool();
+    const bool bUseMarkersToOptimize = gfx_nvnUseMarkersToOptimize.GetBool();
+
+    float fpsMax = fps_max_gfx.GetFloat();
+
+    if (fpsMax == -1.0f)
+    {
+        const float globalFps = fps_max->GetFloat();
+
+        // Make sure the global fps limiter is 'unlimited'
+        // before we let the gfx frame limiter cap it to
+        // the desktop's refresh rate; not adhering to
+        // this will result in a major performance drop.
+        if (globalFps == 0.0f)
+            fpsMax = g_pGame->GetTVRefreshRate();
+        else
+            fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
+    }
+
+    GFX_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
+        bUseLowLatencyBoost, bUseMarkersToOptimize, fpsMax);
+#endif // !DEDICATED
+}
+
+void CEngineAPI::RunLowLatencyFrame()
+{
+#ifndef DEDICATED
+    if (GFX_IsLowLatencySDKEnabled())
+    {
+        if (GFX_HasPendingLowLatencyParameterUpdates())
+        {
+            UpdateLowLatencyParameters();
+        }
+
+        GFX_RunLowLatencyFrame(D3D11Device());
+    }
+#endif // !DEDICATED
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CEngineAPI::MainLoop()
+{
+#ifndef DEDICATED
+    bool bRunLowLatency = false;
+#endif // !DEDICATED
+
+    // Main message pump
+    while (true)
+    {
+        // Pump messages unless someone wants to quit
+        if (g_pEngine->GetQuitting() != IEngine::QUIT_NOTQUITTING)
+        {
+            if (g_pEngine->GetQuitting() != IEngine::QUIT_TODESKTOP) {
+                return true;
+            }
+
+            return false;
+        }
+
+#ifndef DEDICATED
+        if (bRunLowLatency) {
+            CEngineAPI::RunLowLatencyFrame();
+            bRunLowLatency = false;
+        }
+        CEngineAPI::PumpMessages();
+#endif // !DEDICATED
+
+        if (g_pEngine->Frame())
+        {
+#ifndef DEDICATED
+            // Only run reflex if we ran an actual engine frame.
+            bRunLowLatency = true;
+#endif // !DEDICATED
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VSys_Dll2::Attach() const
+void VSys_Dll2::Detour(const bool bAttach) const
 {
-	DetourAttach(&CEngineAPI_Init, &CEngineAPI::VInit);
-	DetourAttach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
-	DetourAttach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
-}
-
-void VSys_Dll2::Detach() const
-{
-	DetourDetach(&CEngineAPI_Init, &CEngineAPI::VInit);
-	DetourDetach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
-	DetourDetach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
+	DetourSetup(&CEngineAPI__Init, &CEngineAPI::VInit, bAttach);
+	DetourSetup(&CEngineAPI__ModInit, &CEngineAPI::VModInit, bAttach);
+	DetourSetup(&CEngineAPI__PumpMessages, &CEngineAPI::PumpMessages, bAttach);
+	DetourSetup(&CEngineAPI__MainLoop, &CEngineAPI::MainLoop, bAttach);
+	DetourSetup(&CEngineAPI__SetStartupInfo, &CEngineAPI::VSetStartupInfo, bAttach);
 }

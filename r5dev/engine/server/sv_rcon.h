@@ -7,6 +7,7 @@
 
 #define RCON_MIN_PASSWORD_LEN 8
 #define RCON_MAX_BANNEDLIST_SIZE 512
+#define RCON_SHA512_HASH_SIZE 64
 
 class CRConServer : public CNetConBase
 {
@@ -59,7 +60,7 @@ private:
 	int                      m_nAuthConnections;
 	bool                     m_bInitialized;
 	std::unordered_set<std::string> m_BannedList;
-	std::string              m_svPasswordHash;
+	uint8_t                  m_PasswordHash[RCON_SHA512_HASH_SIZE];
 	netadr_t                 m_WhiteListAddress;
 };
 

@@ -5,7 +5,7 @@
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
 #include "tier0/memstd.h"
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "filesystem/filesystem.h"
 #include "thirdparty/imgui/misc/imgui_utility.h"
 
@@ -15,7 +15,7 @@
 void ImGuiConfig::Load()
 {
     const string svPath = Format(SDK_SYSTEM_CFG_PATH"%s", IMGUI_BIND_FILE);
-    DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", svPath.c_str());
+    Msg(eDLL_T::MS, "Loading ImGui config file '%s'\n", svPath.c_str());
 
     FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
     KeyValues* pKeyMapKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_COMMON, svPath.c_str(), "PLATFORM");
@@ -45,7 +45,7 @@ void ImGuiConfig::Load()
 void ImGuiConfig::Save()
 {
     const string svPath = Format(SDK_SYSTEM_CFG_PATH"%s", IMGUI_BIND_FILE);
-    DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", svPath.c_str());
+    Msg(eDLL_T::MS, "Saving ImGui config file '%s'\n", svPath.c_str());
 
     FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
 
@@ -115,14 +115,9 @@ ImGuiStyle_t ImGuiConfig::InitStyle() const
         style.WindowBorderSize  = 0.0f;
         style.FrameBorderSize   = 1.0f;
         style.ChildBorderSize   = 1.0f;
-        style.PopupBorderSize   = 1.0f;
-        style.TabBorderSize     = 1.0f;
 
-        style.WindowRounding    = 4.0f;
-        style.FrameRounding     = 1.0f;
         style.ChildRounding     = 1.0f;
         style.PopupRounding     = 3.0f;
-        style.TabRounding       = 1.0f;
         style.ScrollbarRounding = 1.0f;
 
         result = ImGuiStyle_t::LEGACY;
@@ -167,14 +162,9 @@ ImGuiStyle_t ImGuiConfig::InitStyle() const
         style.WindowBorderSize  = 1.0f;
         style.FrameBorderSize   = 0.0f;
         style.ChildBorderSize   = 0.0f;
-        style.PopupBorderSize   = 1.0f;
-        style.TabBorderSize     = 1.0f;
 
-        style.WindowRounding    = 4.0f;
-        style.FrameRounding     = 1.0f;
         style.ChildRounding     = 1.0f;
         style.PopupRounding     = 3.0f;
-        style.TabRounding       = 1.0f;
         style.ScrollbarRounding = 3.0f;
 
         result = ImGuiStyle_t::MODERN;
@@ -223,19 +213,22 @@ ImGuiStyle_t ImGuiConfig::InitStyle() const
         style.WindowBorderSize  = 1.0f;
         style.FrameBorderSize   = 1.0f;
         style.ChildBorderSize   = 0.0f;
-        style.PopupBorderSize   = 1.0f;
-        style.TabBorderSize     = 1.0f;
 
-        style.WindowRounding    = 4.0f;
-        style.FrameRounding     = 1.0f;
         style.ChildRounding     = 2.0f;
         style.PopupRounding     = 4.0f;
-        style.TabRounding       = 1.0f;
         style.GrabRounding      = 1.0f;
         style.ScrollbarRounding = 1.0f;
 
         result = ImGuiStyle_t::DEFAULT;
     }
+
+    style.PopupBorderSize   = 1.0f;
+    style.TabBorderSize     = 1.0f;
+    style.TabBarBorderSize  = 1.0f;
+
+    style.WindowRounding    = 4.0f;
+    style.FrameRounding     = 1.0f;
+    style.TabRounding       = 1.0f;
 
     style.ItemSpacing       = ImVec2(5, 4);
     style.FramePadding      = ImVec2(4, 4);
@@ -244,4 +237,4 @@ ImGuiStyle_t ImGuiConfig::InitStyle() const
     return result;
 }
 
-ImGuiConfig* g_pImGuiConfig = new ImGuiConfig();
+ImGuiConfig g_ImGuiConfig;

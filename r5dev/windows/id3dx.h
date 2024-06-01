@@ -8,7 +8,6 @@
 void DirectX_Init();
 void DirectX_Shutdown();
 
-extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
 extern bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
 
@@ -22,8 +21,7 @@ typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UI
 
 /////////////////////////////////////////////////////////////////////////////
 // Globals
-extern BOOL g_bImGuiInitialized;
-extern UINT g_nWindowRect[2];
+extern UINT g_nWindowRect[2]; // TODO[ AMOS ]: Remove this in favor of CGame's window rect members???
 
 /////////////////////////////////////////////////////////////////////////////
 // Enums
@@ -107,9 +105,13 @@ enum class DXGISwapChainVTbl : short
 };
 
 #ifndef BUILDING_LIBIMGUI
-inline ID3D11Device** g_ppGameDevice = nullptr;
+inline ID3D11Device**        g_ppGameDevice       = nullptr;
 inline ID3D11DeviceContext** g_ppImmediateContext = nullptr;
-inline IDXGISwapChain** g_ppSwapChain = nullptr;
+inline IDXGISwapChain**      g_ppSwapChain        = nullptr;
+
+FORCEINLINE ID3D11Device*        D3D11Device()        { Assert(g_ppGameDevice);       return (*g_ppGameDevice);       }
+FORCEINLINE ID3D11DeviceContext* D3D11DeviceContext() { Assert(g_ppImmediateContext); return (*g_ppImmediateContext); }
+FORCEINLINE IDXGISwapChain*      D3D11SwapChain()     { Assert(g_ppSwapChain);        return (*g_ppSwapChain);        }
 
 class VDXGI : public IDetour
 {
@@ -117,8 +119,7 @@ class VDXGI : public IDetour
 	virtual void GetFun(void) const;
 	virtual void GetVar(void) const;
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 	///////////////////////////////////////////////////////////////////////////////
 };
 #endif // !BUILDING_LIBIMGUI

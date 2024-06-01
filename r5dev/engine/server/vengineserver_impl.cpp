@@ -12,21 +12,13 @@
 bool CVEngineServer::PersistenceAvailable(void* entidx, int clientidx)
 {
 	///////////////////////////////////////////////////////////////////////////
-	return IVEngineServer__PersistenceAvailable(entidx, clientidx);
+	return CVEngineServer__PersistenceAvailable(entidx, clientidx);
 }
 
-void HVEngineServer::Attach() const
+void HVEngineServer::Detour(const bool bAttach) const
 {
-	DetourAttach(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
+	DetourSetup(&CVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable, bAttach);
 }
-
-void HVEngineServer::Detach() const
-{
-	DetourDetach(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-ServerPlayer_t g_ServerPlayer[MAX_PLAYERS];
 
 IVEngineServer* g_pEngineServerVFTable = nullptr;
 CVEngineServer* g_pEngineServer = reinterpret_cast<CVEngineServer*>(&g_pEngineServerVFTable);

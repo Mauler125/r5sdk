@@ -1,5 +1,9 @@
 #ifndef THREADTOOLS_H
 #define THREADTOOLS_H
+#include "dbg.h"
+#ifndef BUILDING_MATHLIB
+#include "jobthread.h"
+#endif // BUILDING_MATHLIB
 
 inline void ThreadSleep(unsigned nMilliseconds)
 {
@@ -60,6 +64,14 @@ inline void ThreadPause()
 //
 //-----------------------------------------------------------------------------
 
+FORCEINLINE int32 ThreadInterlockedIncrement(int32 volatile* p) { Assert((size_t)p % 4 == 0); return _InterlockedIncrement((volatile long*)p); }
+FORCEINLINE int32 ThreadInterlockedDecrement(int32 volatile* p) { Assert((size_t)p % 4 == 0); return _InterlockedDecrement((volatile long*)p); }
+
+FORCEINLINE int64 ThreadInterlockedIncrement64(int64 volatile* p) { Assert((size_t)p % 8 == 0); return _InterlockedIncrement64((volatile int64*)p); }
+FORCEINLINE int64 ThreadInterlockedDecrement64(int64 volatile* p) { Assert((size_t)p % 8 == 0); return _InterlockedDecrement64((volatile int64*)p); }
+
+FORCEINLINE int32 ThreadInterlockedExchangeAdd(int32 volatile* p, int32 value) { Assert((size_t)p % 4 == 0); return _InterlockedExchangeAdd((volatile long*)p, value); }
+
 FORCEINLINE int32 ThreadInterlockedCompareExchange(LONG volatile* pDest, int32 value, int32 comperand)
 {
 	return _InterlockedCompareExchange(pDest, comperand, value);
@@ -86,12 +98,6 @@ FORCEINLINE bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value,
 // Thread checking methods.
 //
 //-----------------------------------------------------------------------------
-#ifndef BUILDING_MATHLIB
-
-inline ThreadId_t* g_ThreadMainThreadID = nullptr;
-inline ThreadId_t g_ThreadRenderThreadID = NULL;
-inline ThreadId_t* g_ThreadServerFrameThreadID = nullptr;
-
 FORCEINLINE ThreadId_t ThreadGetCurrentId()
 {
 #ifdef _WIN32
@@ -109,20 +115,18 @@ FORCEINLINE ThreadId_t ThreadGetCurrentId()
 #endif
 }
 
-FORCEINLINE bool ThreadInMainThread()
-{
-	return (ThreadGetCurrentId() == (*g_ThreadMainThreadID));
-}
+#ifndef BUILDING_MATHLIB
 
-FORCEINLINE bool ThreadInRenderThread()
-{
-	return (ThreadGetCurrentId() == g_ThreadRenderThreadID);
-}
+extern ThreadId_t* g_ThreadMainThreadID;
+extern ThreadId_t* g_ThreadServerFrameThreadID;
+inline JobID_t* g_CurrentServerFrameJobID;
+inline JobID_t* g_AllocatedServerFrameJobID;
 
-FORCEINLINE bool ThreadInServerFrameThread()
-{
-	return (ThreadGetCurrentId() == (*g_ThreadServerFrameThreadID));
-}
+PLATFORM_INTERFACE bool ThreadInMainThread();
+PLATFORM_INTERFACE bool ThreadInServerFrameThread();
+PLATFORM_INTERFACE bool ThreadInMainOrServerFrameThread();
+PLATFORM_INTERFACE bool ThreadCouldDoServerWork();
+PLATFORM_INTERFACE void ThreadJoinServerJob();
 
 #endif // !BUILDING_MATHLIB
 
@@ -260,8 +264,7 @@ typedef CInterlockedIntT<unsigned> CInterlockedUInt;
 
 #ifndef BUILDING_MATHLIB
 //=============================================================================
-inline CMemory p_DeclareCurrentThreadIsMainThread;
-inline ThreadId_t(*v_DeclareCurrentThreadIsMainThread)(void);
+
 
 #endif // !BUILDING_MATHLIB
 
@@ -269,6 +272,14 @@ inline ThreadId_t(*v_DeclareCurrentThreadIsMainThread)(void);
 class CThreadFastMutex
 {
 public:
+	CThreadFastMutex()
+		: m_nOwnerID(NULL)
+		, m_nDepth(NULL)
+		, m_lAddend(NULL)
+		, m_hSemaphore(NULL)
+	{
+	}
+
 	int Lock(void);
 	int Unlock(void);
 
@@ -316,7 +327,7 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-template <int size>	struct CAutoLockTypeDeducer {};
+template <size_t size>	struct CAutoLockTypeDeducer {};
 template <> struct CAutoLockTypeDeducer<sizeof(CThreadFastMutex)> { typedef CThreadFastMutex Type_t; };
 
 #define AUTO_LOCK_( type, mutex ) \
@@ -330,29 +341,244 @@ template <> struct CAutoLockTypeDeducer<sizeof(CThreadFastMutex)> { typedef CThr
 	AUTO_LOCK_(CAutoLockTypeDeducer<sizeof(mutex)>::Type_t, mutex)
 #endif
 
+//-----------------------------------------------------------------------------
+//
+// CThreadSpinRWLock inline functions
+//
+//-----------------------------------------------------------------------------
+
+class ALIGN8 PLATFORM_CLASS CThreadSpinRWLock
+{
+public:
+	CThreadSpinRWLock()
+	{
+		m_lockInfo.m_i32 = 0;
+		m_writerId = 0;
+#ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+		m_iWriteDepth = 0;
+#endif
+	}
+
+	bool IsLockedForWrite();
+	bool IsLockedForRead();
+
+	FORCEINLINE bool TryLockForWrite();
+	bool TryLockForWrite_UnforcedInline();
+
+	void LockForWrite();
+	void SpinLockForWrite();
+
+	FORCEINLINE bool TryLockForRead();
+	bool TryLockForRead_UnforcedInline();
+
+	void LockForRead();
+	void SpinLockForRead();
+
+	void UnlockWrite();
+	void UnlockRead();
+
+	bool TryLockForWrite() const { return const_cast<CThreadSpinRWLock*>(this)->TryLockForWrite(); }
+	bool TryLockForRead() const { return const_cast<CThreadSpinRWLock*>(this)->TryLockForRead(); }
+	void LockForRead() const { const_cast<CThreadSpinRWLock*>(this)->LockForRead(); }
+	void UnlockRead() const { const_cast<CThreadSpinRWLock*>(this)->UnlockRead(); }
+	void LockForWrite() const { const_cast<CThreadSpinRWLock*>(this)->LockForWrite(); }
+	void UnlockWrite() const { const_cast<CThreadSpinRWLock*>(this)->UnlockWrite(); }
+
+private:
+	enum
+	{
+		THREAD_SPIN = (8 * 1024)
+	};
+
+#pragma warning(push)
+#pragma warning(disable : 4201)
+	union LockInfo_t
+	{
+		struct
+		{
+#if PLAT_LITTLE_ENDIAN
+			uint16 m_nReaders;
+			uint16 m_fWriting;
+#else
+			uint16 m_fWriting;
+			uint16 m_nReaders;
+#endif
+		};
+		uint32 m_i32;
+	};
+#pragma warning(pop)
+
+	LockInfo_t	m_lockInfo;
+	ThreadId_t	m_writerId;
+#ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+	int			m_iWriteDepth;
+	uint32		pad;
+#endif
+} ALIGN8_POST;
+
+inline bool CThreadSpinRWLock::IsLockedForWrite()
+{
+	return (m_lockInfo.m_fWriting == 1);
+}
+
+inline bool CThreadSpinRWLock::IsLockedForRead()
+{
+	return (m_lockInfo.m_nReaders > 0);
+}
+
+FORCEINLINE bool CThreadSpinRWLock::TryLockForWrite()
+{
+	volatile LockInfo_t& curValue = m_lockInfo;
+	if (!(curValue.m_i32 & 0x00010000) && ThreadInterlockedAssignIf((LONG*)&curValue.m_i32, 0x00010000, 0))
+	{
+		ThreadMemoryBarrier();
+		Assert(m_writerId == 0);
+		m_writerId = ThreadGetCurrentId();
+#ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+		Assert(m_iWriteDepth == 0);
+		m_iWriteDepth++;
+#endif
+		return true;
+	}
+
+	return false;
+}
+
+inline bool CThreadSpinRWLock::TryLockForWrite_UnforcedInline()
+{
+	if (TryLockForWrite())
+	{
+		return true;
+	}
+
+#ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+	if (m_writerId != ThreadGetCurrentId())
+	{
+		return false;
+	}
+	m_iWriteDepth++;
+	return true;
+#else
+	return false;
+#endif
+}
+
+FORCEINLINE void CThreadSpinRWLock::LockForWrite()
+{
+	if (!TryLockForWrite())
+	{
+		SpinLockForWrite();
+	}
+}
+
+FORCEINLINE bool CThreadSpinRWLock::TryLockForRead()
+{
+	volatile LockInfo_t& curValue = m_lockInfo;
+	if (!(curValue.m_i32 & 0x00010000)) // !m_lockInfo.m_fWriting
+	{
+		LockInfo_t oldValue;
+		LockInfo_t newValue;
+		oldValue.m_i32 = (curValue.m_i32 & 0xffff);
+		newValue.m_i32 = oldValue.m_i32 + 1;
+
+		if (ThreadInterlockedAssignIf((LONG*)&m_lockInfo.m_i32, newValue.m_i32, oldValue.m_i32))
+		{
+			ThreadMemoryBarrier();
+			Assert(m_lockInfo.m_fWriting == 0);
+			return true;
+		}
+	}
+	return false;
+}
+
+inline bool CThreadSpinRWLock::TryLockForRead_UnforcedInline()
+{
+#ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+	if (m_lockInfo.m_i32 & 0x00010000) // m_lockInfo.m_fWriting
+	{
+		if (m_writerId == ThreadGetCurrentId())
+		{
+			m_lockInfo.m_nReaders++;
+			return true;
+		}
+
+		return false;
+	}
+#endif
+	return TryLockForRead();
+}
+
+FORCEINLINE void CThreadSpinRWLock::LockForRead()
+{
+	if (!TryLockForRead())
+	{
+		SpinLockForRead();
+	}
+}
+
+FORCEINLINE void CThreadSpinRWLock::UnlockWrite()
+{
+	Assert(m_writerId == ThreadGetCurrentId());
+#ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+	if (--m_iWriteDepth == 0)
+#endif
+	{
+		m_writerId = 0;
+		ThreadMemoryBarrier();
+		m_lockInfo.m_i32 = 0;
+	}
+}
+
+#ifndef REENTRANT_THREAD_SPIN_RW_LOCK
+FORCEINLINE
+#else
+inline
+#endif
+void CThreadSpinRWLock::UnlockRead()
+{
+	Assert(m_writerId == 0 || (m_writerId == ThreadGetCurrentId() && m_lockInfo.m_fWriting));
+#ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+	if (!(m_lockInfo.m_i32 & 0x00010000)) // !m_lockInfo.m_fWriting
+#endif
+	{
+		ThreadMemoryBarrier();
+		ThreadInterlockedDecrement((int32*)&m_lockInfo.m_i32);
+		Assert(m_writerId == 0 && !m_lockInfo.m_fWriting);
+	}
+#ifdef REENTRANT_THREAD_SPIN_RW_LOCK
+	else if (m_writerId == ThreadGetCurrentId())
+	{
+		m_lockInfo.m_nReaders--;
+	}
+	else
+	{
+		RWLAssert(0);
+	}
+#endif
+}
+
 #ifndef BUILDING_MATHLIB
 ///////////////////////////////////////////////////////////////////////////////
 class VThreadTools : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("DeclareCurrentThreadIsMainThread", p_DeclareCurrentThreadIsMainThread.GetPtr());
-		LogVarAdr("g_ThreadMainThreadID", reinterpret_cast<uintptr_t>(g_ThreadMainThreadID));
-		LogVarAdr("g_ThreadServerFrameThreadID", reinterpret_cast<uintptr_t>(g_ThreadServerFrameThreadID));
+		LogVarAdr("g_ThreadMainThreadID", g_ThreadMainThreadID);
+		LogVarAdr("g_ThreadServerFrameThreadID", g_ThreadServerFrameThreadID);
+		LogVarAdr("g_CurrentServerFrameJobID", g_CurrentServerFrameJobID);
+		LogVarAdr("g_AllocatedServerFrameJobID", g_AllocatedServerFrameJobID);
 	}
-	virtual void GetFun(void) const
-	{
-		p_DeclareCurrentThreadIsMainThread = g_GameDll.FindPatternSIMD("48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28");
-		v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThread.RCast<ThreadId_t(*)(void)>(); /*48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28 */
-	}
+	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_ThreadMainThreadID = p_DeclareCurrentThreadIsMainThread.FindPattern("89 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
-		g_ThreadServerFrameThreadID = g_GameDll.FindPatternSIMD("83 79 ?? ?? 75 28 8B").FindPatternSelf("8B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
+		g_GameDll.FindPatternSIMD("66 89 54 24 ?? 53 55 56 57 41 54 48 81 EC ?? ?? ?? ??")
+			.FindPatternSelf("39 05").ResolveRelativeAddressSelf(2, 6).GetPtr(g_CurrentServerFrameJobID);
+
+		g_GameDll.FindPatternSIMD("48 83 EC 28 FF 15 ?? ?? ?? ?? 8B 0D ?? ?? ?? ??")
+			.FindPatternSelf("8B 0D").ResolveRelativeAddressSelf(2, 6).GetPtr(g_AllocatedServerFrameJobID);
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool /*bAttach*/) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

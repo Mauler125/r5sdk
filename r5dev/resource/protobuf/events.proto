@@ -1,0 +1,781 @@
+//////////////////////////////////////////////////////////////////////
+// Apex Legends Live API
+// Copyright 2023 Respawn Entertainment
+//
+// Contains all messages used by LiveAPI with annotations as comments
+// See readme.txt for more information on how to consume this file
+//////////////////////////////////////////////////////////////////////
+
+syntax = "proto3";
+
+package rtech.liveapi;
+
+
+//////////////////////////////////////////////////////////////////////
+// Intermediary messages:
+// Not used directly, but as part of other messages
+//////////////////////////////////////////////////////////////////////
+
+message Vector3
+{
+	float x = 1;
+	float y = 2;
+	float z = 3;
+}
+
+message Player
+{
+	string name				= 1;
+	uint32 teamId			= 2;
+	Vector3 pos				= 3;
+	Vector3 angles			= 4;
+	
+	uint32 currentHealth	= 5;
+	uint32 maxHealth		= 6;
+	uint32 shieldHealth		= 7;
+	uint32 shieldMaxHealth	= 8;
+	
+	string nucleusHash		= 9;
+	string hardwareName		= 10;
+	
+	string teamName			= 11;
+	uint32 squadIndex		= 12;
+	string character		= 13;
+	string skin				= 14;
+}
+
+message CustomMatch_LobbyPlayer
+{
+	string name			= 1;
+	uint32 teamId 		= 2;
+	
+	string nucleusHash 	= 3;
+	string hardwareName = 4;
+}
+
+message Datacenter
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	string name 		= 3;
+}
+
+message Version
+{
+	uint32 major_num	= 1;
+	uint32 minor_num	= 2;
+	uint32 build_stamp	= 3;
+	string revision 	= 4;
+}
+
+message InventoryItem
+{
+	int32 quantity 	= 1;
+	string item 	= 2;
+
+	// any mods or additional info on the item
+	string extraData = 3;
+}
+
+message LoadoutConfiguration
+{
+	repeated InventoryItem weapons 		= 1;
+	repeated InventoryItem equipment 	= 2;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Output messages:
+// Game events that describe the ongoing state of the match
+// Every message will have a timestamp and category 
+//////////////////////////////////////////////////////////////////////
+
+// Traffic initialization
+// This message is sent upon successfully connecting over WebSockets
+message Init
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	string gameVersion 	= 3;
+	Version apiVersion	= 4;
+	string platform		= 5;
+	
+	// Named specified by `liveapi_session_name`
+	string name		= 6;
+}
+
+// Response to the CustomMatch_GetLobbyPlayers
+// Contains the list of all players in the lobby
+message CustomMatch_LobbyPlayers
+{
+	string playerToken 							= 1;
+	repeated CustomMatch_LobbyPlayer players 	= 2;
+}
+
+/////////////////////////////////////////
+// Observer Events
+/////////////////////////////////////////
+
+// Event when the observer camera switches from viewing one player to another
+message ObserverSwitched
+{	
+	uint64 timestamp		= 1;
+	string category			= 2;
+	
+	Player observer 		= 3;
+	Player target 			= 4;
+	repeated Player targetTeam = 5;
+}
+
+// Used by observers to annotate events uniquely
+message ObserverAnnotation
+{	
+	uint64 timestamp		= 1;
+	string category			= 2;
+	
+	int32 annotationSerial = 3;
+}
+
+
+/////////////////////////////////////////
+// Match Information
+/////////////////////////////////////////
+
+// Sent during the first phase of a match. This event gives a full description of what match is being played
+message MatchSetup
+{
+	uint64 timestamp		= 1;
+	string category			= 2;
+
+	string map 				= 3;
+	string playlistName 	= 4;
+	string playlistDesc 	= 5;
+	Datacenter datacenter 	= 6;
+	bool aimAssistOn		= 7;
+	bool anonymousMode		= 8;
+	string serverId			= 9;
+
+	LoadoutConfiguration startingLoadout = 10;
+}
+
+// Sent whenever the match changes phases (e.g. prematch, playing)
+message GameStateChanged
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	string state 		= 3;
+}
+
+// Occurs when any player has locked in a character during legend select
+message CharacterSelected
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	Player player 		= 3;
+}
+
+// Event to summarize the match after it has ended
+message MatchStateEnd
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	string state 		= 3;
+	repeated Player winners = 4;
+}
+
+// Fired whenever the ring begins moving in a match
+message RingStartClosing
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	uint32 stage 		= 3;
+	Vector3 center		= 4;
+	float currentRadius = 5;
+	float endRadius		= 6;
+	float shrinkDuration= 7;
+}
+
+// Used when the ring has finished moving and prior to it moving again
+message RingFinishedClosing
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	uint32 stage 		= 3;
+	Vector3 center		= 4;
+	float currentRadius = 5;
+	float shrinkDuration= 7;
+}
+
+// Used when a player has connected to the match
+message PlayerConnected
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player 		= 3;
+}
+
+// Used when a player has disconnected, even temporarily
+// `canReconnect` will indicate if the player is able to reconnect or has forfeited
+message PlayerDisconnected
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player 		= 3;
+	bool canReconnect	= 4;
+	bool isAlive		= 5;
+}
+
+// Generic event for a change in the player stats
+// Common stat names that can come with this event include "knockdowns", "revivesGiven", "kills"
+message PlayerStatChanged
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	Player player 		= 3;
+	string statName		= 4;
+
+	oneof newValue // R5R: formerly of type `uint32`
+	{
+		uint32 intValue	= 5;
+		float floatValue= 6;
+		bool boolValue  = 7;
+	}
+}
+
+// Event used to notify when a player goes above their current tier level
+// Tier levels start at 1. Following this event, players may have Upgrades to their legend
+// Selection of upgrades will produce a separate `LegendUpgradeSelected` event
+message PlayerUpgradeTierChanged
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	Player player 		= 3;
+	int32  level		= 4;
+}
+
+/////////////////////////////////////////
+// Combat events
+/////////////////////////////////////////
+
+// Event describing a player taking damage
+// Details include the attacker, victim, the weapon used and the amount of damage
+message PlayerDamaged
+{
+	uint64 timestamp		= 1;
+	string category			= 2;
+
+	Player attacker			= 3;
+	Player victim			= 4;
+	string weapon			= 5;
+	uint32 damageInflicted 	= 6;
+}
+
+// Sent when a player is killed. Details are similar to PlayerDamaged event
+// The `awardedTo` field describes the player that the kill is given to
+message PlayerKilled
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	Player attacker		= 3;
+	Player victim		= 4;
+	Player awardedTo  	= 5;
+	string weapon		= 6;
+}
+
+// Event describing a player that has been downed after taking sufficient damage
+// Similar to PlayerDamaged, but may not be sent in certain game modes (e.g. Control)
+message PlayerDowned
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	Player attacker		= 3;
+	Player victim		= 4;
+	string weapon		= 5;
+}
+
+// Sent when a player is killed if there is an assist awarded
+// This event may come in rapid succession to the PlayerKilled event with a corresponding `victim` field
+message PlayerAssist
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	Player assistant	= 3;
+	Player victim		= 4;
+	string weapon		= 5;
+}
+
+// Occurs when the entire squad in a game has been eliminated
+// The event contains all player in said squad. May not occur in certain game modes
+message SquadEliminated
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	repeated Player players = 3;
+}
+
+// Occurs when Gibraltars shield has taken any enemy damage
+// The field `damageInflicted` will indicate how much was absorbed by the shield
+message GibraltarShieldAbsorbed
+{
+	uint64 timestamp		= 1;
+	string category			= 2;
+	
+	Player attacker			= 3;
+	Player victim			= 4;
+	uint32 damageInflicted 	= 6;
+}
+
+// Occurs when Revenant, while using his Forged Shadows ultimate, takes any enemy damage
+// This event is distinct from `PlayerDamaged` since the player may receive no actual damage if the shadow is able to absorb it
+// The field `damageInflicted` will indicate how much damage (in total) was dealt
+// If there is any leftover damage that goes affects the player, that amount will be what is registered in a different `PlayerDamaged` event
+message RevenantForgedShadowDamaged
+{
+	uint64 timestamp		= 1;
+	string category			= 2;
+	
+	Player attacker			= 3;
+	Player victim			= 4;
+	uint32 damageInflicted 	= 6;
+}
+
+/////////////////////////////////////////
+// Interaction events
+/////////////////////////////////////////
+
+// Sent when a player is respawned and comes back into game
+// For example, when using a respawn beacon
+message PlayerRespawnTeam
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	repeated Player respawned = 4; // R5R: formerly of type `string`
+}
+
+// Occurs when a player finishes assisting a downed player
+// May not be sent in certain game modes (e.g. Control)
+message PlayerRevive
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	Player revived		= 4;
+}
+
+// Specific Arenas-only event that occurs when players select an item
+message ArenasItemSelected
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string item			= 4;
+	int32  quantity		= 5;
+}
+
+// Specific Arenas-only event that occurs when players deselect an item
+message ArenasItemDeselected
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string item			= 4;
+	int32  quantity		= 5;
+}
+
+// Event that occurs when a player has picked up loot into their inventory
+message InventoryPickUp
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string item			= 4;
+	int32  quantity		= 5;
+}
+
+// Event that occurs when a player has dropped loot from their inventory
+// The item itself may have attachments that will be described in the `extraData` field
+message InventoryDrop
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string item			= 4;
+	int32  quantity		= 5;
+	repeated string extraData = 6;
+}
+
+// Used to indicate the player has used a consumable item (e.g. syringe, shield cell) from their inventory 
+message InventoryUse
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string item			= 4;
+	int32  quantity		= 5;
+}
+
+// Event used when a teammate banner has been picked up
+message BannerCollected
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	Player collected	= 4;
+}
+
+// Used to indicate that the player has activated one of their legend's abilities
+// The ability can be a Tactical or an Ultimate and is decribed in the `linkedEntity` field
+// For example: `linkedEntity: "Tactical (Eye of the Allfather)"` for Bloodhound's tactical
+message PlayerAbilityUsed
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string linkedEntity = 4;
+}
+
+// Signals that a player has selected an upgrade at a particular tier level
+// Updates to their tier level will be sent as a PlayerUpgradeTierChanged event
+message LegendUpgradeSelected
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+
+	Player player 		= 3;
+	string upgradeName	= 4;
+	string upgradeDesc  = 5;
+	int32  level		= 6;
+}
+
+// Indicates that a player has started using the zipline
+message ZiplineUsed
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string linkedEntity = 4;
+}
+
+// Used to indicate that a player has tossed a grenade
+// The `linkedEntity` will describe the grenade in further detail and it may be a legend's Ability
+// For example: `linkedEntity: "Ultimate (Rolling Thunder)"` for Bangalore's Ultimate ability
+message GrenadeThrown
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string linkedEntity = 4;
+}
+
+// Event specifying that a player has picked up loot from Loba's Black Market
+// This event may fire in quick succession to the InventoryPickUp event
+message BlackMarketAction
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string item			= 4;
+}
+
+// Used to indicate a player has traversed a Wraith Portal
+message WraithPortal
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+}
+
+// Used to indicate a player has traversed a Warp Gate
+message WarpGateUsed
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+}
+
+// Used to indicate that a player has used ammo
+// This event may not fire immediately and updates may be batched to save bandwidth
+message AmmoUsed
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string ammoType		= 4;
+	uint32 amountUsed	= 5;
+	uint32 oldAmmoCount	= 6;
+	uint32 newAmmoCount = 7;
+}
+
+// Used to indicate that a player has switched weapons, either to a weapon in their inventory or swapped with a weapon on the ground
+message WeaponSwitched
+{
+	uint64 timestamp	= 1;
+	string category		= 2;
+	
+	Player player		= 3;
+	string oldWeapon	= 4;
+	string newWeapon	= 5;
+}
+
+/////////////////////////////////////////
+// Custom events
+/////////////////////////////////////////
+
+import "google/protobuf/struct.proto";
+
+// Event defining custom user data that is otherwise too specific to create dedicated messages for
+message CustomEvent
+{
+	uint64 timestamp			= 1;
+	string category				= 2;
+	
+	string name					= 3;
+	google.protobuf.Struct data	= 4;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Input messages:
+// Used by observers to programmatically interact with the game
+//////////////////////////////////////////////////////////////////////
+
+
+// Enum used to quickly described the target of a ChangeCamera operation
+enum PlayerOfInterest
+{
+	UNSPECIFIED = 0;
+
+	// cycle through known Players in a team
+	NEXT = 1;
+	PREVIOUS = 2;
+
+	// Go to an interesting player
+	KILL_LEADER = 3;
+	CLOSEST_ENEMY = 4;
+	CLOSEST_PLAYER = 5;
+	LATEST_ATTACKER = 6;
+}
+
+// Request to change the observer camera
+// If changing by a target's name, be aware that the 
+//   - server may skip the request if the player is not actively in the game (i.e. waiting for reconnect, downed or killed)
+//   - If the string is longer than 256 characters, the request will fail
+message ChangeCamera
+{
+	oneof target
+	{
+		// Set the camera to an interesting player (e.g. the Kill Leader)
+		PlayerOfInterest poi = 1;
+
+		// Change camera to a player by name
+		string 	name = 2;
+	}
+}
+
+// Request message to toggle pause in a match type that supports it
+message PauseToggle
+{
+	float preTimer = 1;
+}
+
+// Request to create a custom match lobby
+message CustomMatch_CreateLobby 
+{
+}
+
+// Request to join an existing custom match lobby identified by the `roleToken`
+message CustomMatch_JoinLobby 
+{
+	string roleToken = 1;
+}
+
+// Request to leave a custom match lobby
+message CustomMatch_LeaveLobby 
+{
+}
+
+// Request to programatically change your player's ready state in a custom match lobby
+message CustomMatch_SetReady 
+{
+	bool isReady = 1;
+}
+
+// Request to retrieve all connected players in a custom match lobby
+message CustomMatch_GetLobbyPlayers
+{
+}
+
+// Request to change the state of matchmaking in a custom match lobby
+// When enabled is True, the lobby will attempt to being a match
+message CustomMatch_SetMatchmaking
+{
+	bool enabled = 1;
+}
+
+// Request to assign a particular player to a specific team
+// Note that the `targetHardwareName` and `targetNucleusHash` can be obtained from a prior request to CustomMatch_GetLobbyPlayers
+// If the parameters do not match any lobby player, the request is ignored
+// The `teamId` is across the entire lobby. Meaning, observers have a teamId of 0 and match players will be teamId of 1 and upwards
+message CustomMatch_SetTeam
+{
+	int32 teamId = 1;
+	string targetHardwareName = 2;
+	string targetNucleusHash = 3;
+}
+
+// Request to remove a player from the currently connected custom match lobby
+message CustomMatch_KickPlayer
+{
+	string targetHardwareName = 1;
+	string targetNucleusHash = 2;
+}
+
+// Request to alter the settings of a custom match lobby
+// Your request should specify all fields being set with the new value
+// For convinience, call `CustomMatch_GetSettings` to get the full state of settings
+message CustomMatch_SetSettings
+{
+	string playlistName = 1;
+	bool adminChat = 2;
+	bool teamRename = 3;
+	bool selfAssign = 4;
+	bool aimAssist = 5;
+	bool anonMode = 6;
+}
+
+// Review all the current settings. This request will be replied to with
+// `CustomMatch_SetSettings` from which you can modify and reply with any new values for your convenience
+message CustomMatch_GetSettings
+{
+}
+
+// Request to set the name of a team in custom match lobby
+// Requires special access and is subject to text filtering
+message CustomMatch_SetTeamName
+{
+	int32 teamId = 1;
+	string teamName = 2;
+}
+
+// Request to programatically send a chat message to the entire custom match lobby
+message CustomMatch_SendChat
+{
+	string text = 1;
+}
+
+// Envelope message for any Live API request
+// This allows a single uniform data structure for requests to be made and for the game to receive them
+// Specifically, there is only one possible action per request. You can request an acknowledgement of your request by setting `withAck` to true
+// Acknowledgements will come in the form of a Response message. More information can be found with that event
+//
+// A single example to create a CustomMatch_JoinLobby request in python is as follows
+// ```
+// req = Request()
+// req.customMatch_JoinLobby.roleToken = "<some token>"
+// req.withAck = True
+// ```
+// For more information, consult the Protobuf documentation for your language of choice and look at details regarding the `oneof` field (https://protobuf.dev/programming-guides/proto3/#oneof)
+message Request
+{
+	// Receive an acknowledgement of the request having been received
+	bool	withAck	 		= 1;
+
+	// Preshared key to use with the request. Only necessary if the connecting game has a preshared key specified through `cl_liveapi_requests_psk`
+	string	preSharedKey 	= 2;
+
+	oneof actions
+	{
+		ChangeCamera	changeCam = 4;
+		PauseToggle		pauseToggle = 5;
+		
+		// Custom Match specific requests (reserved 10 -> 30)
+		CustomMatch_CreateLobby customMatch_CreateLobby = 10;
+		CustomMatch_JoinLobby customMatch_JoinLobby = 11;
+		CustomMatch_LeaveLobby customMatch_LeaveLobby = 12;
+		CustomMatch_SetReady customMatch_SetReady = 13;
+		CustomMatch_SetMatchmaking customMatch_SetMatchmaking = 14;
+		CustomMatch_SetTeam customMatch_SetTeam = 15;
+		CustomMatch_KickPlayer customMatch_KickPlayer = 16;
+		CustomMatch_SetSettings customMatch_SetSettings = 17;
+		CustomMatch_SendChat customMatch_SendChat = 18;
+		CustomMatch_GetLobbyPlayers customMatch_GetLobbyPlayers = 19;
+		CustomMatch_SetTeamName customMatch_SetTeamName = 20;
+		CustomMatch_GetSettings customMatch_GetSettings = 21;
+
+	}
+}
+
+//////////////////////////////////////////////////////////////////////
+// Reply messages:
+// Used by the game to send data to any connected clients
+//////////////////////////////////////////////////////////////////////
+
+import "google/protobuf/any.proto";
+
+// Message used to indicate the status of a request
+// Generally, it is used to provide a plain text, detailed response in case of failures or problems
+message RequestStatus
+{
+	string status = 1;
+}
+
+// Message used to indicate the response to a request made to the API
+// Only the requesting part will receive this message and this message is only sent if the request required an acknowledgement by setting `withAck` to true in the Request object
+// This message is always sent within a LiveAPIEvent and never on its own to allow any applications to have a uniform method of reading events over the wire
+// If `success` is true, it does not mean that the Request has finished or that it was completed correctly. In this case, it means that it was successfully received and contains no issues (it is a well-formed request)
+// The `result` field may sometimes be populated to give more context around the request, especially in the case of error
+// Refer to the LiveAPIEvent message on how to the the Any field
+message Response
+{
+	bool success = 1;
+	google.protobuf.Any result	= 2;
+}
+
+// Envelope for all LiveAPI Events
+// Any game events or responses to requests will be sent using this message. The specific event or message is stored in the `gameMessage` field
+// Before proceeding, familiarize yourself with the proto3 `Any` field type at: https://protobuf.dev/programming-guides/proto3/#any
+// In order to read the message successfully, check the type contained in `gameMessage` and create an instance of that type where you can unpack the data to
+// Protobuf has several ways of doing type to instance lookups that will allow you to do this after you've generated bindings
+// For example, to read and unpack any LiveAPIEvent in Python, the following can be done (assume `pb_msg` contains the LiveAPIEvent object)
+// ```
+// from events_pb2 import *
+// from google.protobuf import symbol_database
+// [ ... ]
+// result_type = pb_msg.gameMessage.TypeName()
+// msg_result = symbol_database.Default().GetSymbol(result_type)()
+// pb_msg.gameMessage.Unpack(msg_result) # msg_result now holds the actual event you want to read
+// ```
+message LiveAPIEvent
+{
+	fixed32 event_size = 1;
+	google.protobuf.Any gameMessage		= 3;
+}

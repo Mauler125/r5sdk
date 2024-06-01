@@ -27,7 +27,7 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 		substring = (char*)partial + strlen(cmdname);
 	}
 
-	const int mapcount = (int)g_InstalledMaps.size();
+	const int mapcount = g_InstalledMaps.Count();
 	const int longest = COMMAND_COMPLETION_ITEM_LENGTH;
 	const int count = MIN(mapcount, COMMAND_COMPLETION_MAXITEMS);
 
@@ -36,9 +36,9 @@ int _Host_Map_f_CompletionFunc(char const* cmdname, char const* partial, char co
 	{
 		for (int i = 0; i < count; i++)
 		{
-			if (strstr(g_InstalledMaps[i].c_str(), substring))
+			if (strstr(g_InstalledMaps[i].String(), substring))
 			{
-				strncpy(commands[filtered_count], g_InstalledMaps[i].c_str(), longest);
+				strncpy(commands[filtered_count], g_InstalledMaps[i].String(), longest);
 
 				char old[COMMAND_COMPLETION_ITEM_LENGTH];
 				strncpy(old, commands[filtered_count], sizeof(old));
@@ -168,6 +168,18 @@ static CBaseAutoCompleteFileList s_PakUnloadAutoFileList("pak_requestunload", "p
 int RTech_PakUnload_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
 {
 	return _Host_Pak_f_CompletionFunc(&s_PakUnloadAutoFileList, partial, commands);
+}
+
+static CBaseAutoCompleteFileList s_PakCompress("pak_compress", "paks/Win64_override", "rpak");
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *partial - 
+//			**commands - 
+// Output : int
+//-----------------------------------------------------------------------------
+int RTech_PakCompress_f_CompletionFunc(char const* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
+{
+	return _Host_Pak_f_CompletionFunc(&s_PakCompress, partial, commands);
 }
 
 static CBaseAutoCompleteFileList s_PakDecompress("pak_decompress", "paks/Win64", "rpak");

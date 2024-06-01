@@ -7,6 +7,7 @@
 #include "core/stdafx.h"
 #include "core/logdef.h"
 #include "core/logger.h"
+#include "tier0/cpu.h"
 #include "tier0/utility.h"
 #include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
@@ -22,7 +23,7 @@
 //-----------------------------------------------------------------------------
 CNetCon::CNetCon(void)
 	: m_bInitialized(false)
-	, m_bQuitApplication(false)
+	, m_bQuitting(false)
 	, m_bPromptConnect(true)
 	, m_flTickInterval(0.05f)
 {
@@ -43,9 +44,12 @@ CNetCon::~CNetCon(void)
 // Purpose: WSA and NETCON systems init
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CNetCon::Init(const bool bAnsiColor)
+bool CNetCon::Init(const bool bAnsiColor, const char* pHostName, const int nPort)
 {
+	std::lock_guard<std::mutex> l(m_Mutex);
+
 	g_CoreMsgVCallback = &EngineLoggerSink;
+	TermSetup(bAnsiColor);
 
 	WSAData wsaData;
 	const int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -56,19 +60,41 @@ bool CNetCon::Init(const bool bAnsiColor)
 		return false;
 	}
 
-	m_bInitialized = true;
+	// Try to connect from given parameters, these are passed in from the
+	// command line. If we fail, return out as this allows the user to
+	// quickly retry again.
+	if (pHostName && nPort != SOCKET_ERROR)
+	{
+		if (!Connect(pHostName, nPort))
+		{
+			return false;
+		}
+	}
 
-	TermSetup(bAnsiColor);
-	DevMsg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
+	m_bInitialized = true;
+	Msg(eDLL_T::NONE, "R5 TCP net console [Version %s]\n", NETCON_VERSION);
 
 	static std::thread frame([this]()
 		{
-			for (;;)
-			{
-				RunFrame();
-			}
+			while (RunFrame())
+			{}
 		});
 	frame.detach();
+
+
+	static std::thread input([this]()
+		{
+			while (!NetConsole()->GetQuitting())
+			{
+				std::string lineInput;
+
+				if (std::getline(std::cin, lineInput))
+				{
+					NetConsole()->RunInput(lineInput);
+				}
+			}
+		});
+	input.detach();
 
 	return true;
 }
@@ -79,9 +105,19 @@ bool CNetCon::Init(const bool bAnsiColor)
 //-----------------------------------------------------------------------------
 bool CNetCon::Shutdown(void)
 {
+	if (!m_bInitialized)
+	{
+		// Called twice!
+		Assert(0);
+		return false;
+	}
+
+	m_bInitialized = false;
+
+	std::lock_guard<std::mutex> l(m_Mutex);
 	bool bResult = false;
 
-	m_Socket.CloseAllAcceptedSockets();
+	GetSocketCreator()->CloseAllAcceptedSockets();
 
 	const int nError = ::WSACleanup();
 	if (nError == 0)
@@ -95,9 +131,31 @@ bool CNetCon::Shutdown(void)
 	}
 
 	SpdLog_Shutdown();
-	Console_Shutdown();
-
 	return bResult;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: handle close events outside application routines
+//-----------------------------------------------------------------------------
+BOOL WINAPI CNetCon::CloseHandler(DWORD eventCode)
+{
+	switch (eventCode)
+	{
+	case CTRL_C_EVENT:
+	case CTRL_BREAK_EVENT:
+	case CTRL_CLOSE_EVENT:
+	case CTRL_LOGOFF_EVENT:
+	case CTRL_SHUTDOWN_EVENT:
+
+		NetConsole()->SetQuitting(true);
+
+		// Give it time to shutdown properly, value is set to the max possible
+		// of SPI_GETWAITTOKILLSERVICETIMEOUT, which is 20000ms by default.
+		Sleep(20000);
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 //-----------------------------------------------------------------------------
@@ -107,136 +165,171 @@ void CNetCon::TermSetup(const bool bAnsiColor)
 {
 	SpdLog_Init(bAnsiColor);
 	Console_Init(bAnsiColor);
+
+	// Handle ctrl+x or X close events, give the application time to shutdown
+	// properly and flush all logging buffers.
+	SetConsoleCtrlHandler(CloseHandler, true);
+
+	// Write console output to a file, this includes everything from local logs
+	// to messages over the wire. Note that logs emitted locally are prefixed
+	// with timestamps in () while messages over the wire are in [].
+	SpdLog_InstallSupplementalLogger("supplemental_logger_mt", "netconsole.log");
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: gets input IP and port for initialization
 //-----------------------------------------------------------------------------
-void CNetCon::UserInput(void)
+void CNetCon::RunInput(const string& lineInput)
 {
-	if (std::getline(std::cin, m_Input))
+	if (lineInput.empty())
 	{
-		if (m_Input.compare("nquit") == 0)
+		// Empty string given, don't process it.
+		return;
+	}
+
+	if (lineInput.compare("nquit") == 0)
+	{
+		SetQuitting(true);
+		return;
+	}
+
+	std::lock_guard<std::mutex> l(m_Mutex);
+
+	if (IsConnected())
+	{
+		CCommand cmd;
+		cmd.Tokenize(lineInput.c_str());
+
+		if (V_strcmp(cmd.Arg(0), "disconnect") == 0)
 		{
-			m_bQuitApplication = true;
+			Disconnect("user closed connection");
 			return;
 		}
 
-		std::lock_guard<std::mutex> l(m_Mutex);
+		vector<char> vecMsg;
 
-		if (IsConnected())
+		const SocketHandle_t hSocket = GetSocket();
+		bool bSend = false;
+
+		if (cmd.ArgC() > 1)
 		{
-			CCommand cmd;
-			cmd.Tokenize(m_Input.c_str());
-
-			if (V_strcmp(cmd.Arg(0), "disconnect") == 0)
+			if (V_strcmp(cmd.Arg(0), "PASS") == 0) // Auth with RCON server.
 			{
-				Disconnect("user closed connection");
-				return;
+				bSend = Serialize(vecMsg, cmd.Arg(1), "",
+					cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 			}
-
-			vector<char> vecMsg;
-
-			const SocketHandle_t hSocket = GetSocket();
-			bool bSend = false;
-
-			if (cmd.ArgC() > 1)
+			else // Execute command query.
 			{
-				if (V_strcmp(cmd.Arg(0), "PASS") == 0) // Auth with RCON server.
-				{
-					bSend = Serialize(vecMsg, cmd.Arg(1), "",
-						cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
-				}
-				else // Execute command query.
-				{
-					bSend = Serialize(vecMsg, cmd.Arg(0), cmd.GetCommandString(),
-						cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-				}
-			}
-			else if (!m_Input.empty()) // Single arg command query.
-			{
-				bSend = Serialize(vecMsg, m_Input.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			}
-
-			if (bSend) // Only send if serialization process was successful.
-			{
-				if (!Send(hSocket, vecMsg.data(), int(vecMsg.size())))
-				{
-					Error(eDLL_T::CLIENT, NO_ERROR, "Failed to send RCON message: (%s)\n", "SOCKET_ERROR");
-				}
+				bSend = Serialize(vecMsg, cmd.Arg(0), cmd.GetCommandString(),
+					cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 			}
 		}
-		else // Setup connection from input.
+		else // Single arg command query.
 		{
-			CCommand cmd;
-			cmd.Tokenize(m_Input.c_str(), cmd_source_t::kCommandSrcCode, &m_CharacterSet);
+			bSend = Serialize(vecMsg, lineInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+		}
 
-			if (cmd.ArgC() > 1)
+		if (bSend) // Only send if serialization process was successful.
+		{
+			if (!Send(hSocket, vecMsg.data(), int(vecMsg.size())))
 			{
-				const char* inAddr = cmd.Arg(0);
-				const char* inPort = cmd.Arg(1);
-
-				if (!*inAddr || !*inPort)
-				{
-					Warning(eDLL_T::CLIENT, "No IP address or port provided\n");
-					m_bPromptConnect = true;
-					return;
-				}
-
-				if (!Connect(inAddr, atoi(inPort)))
-				{
-					m_bPromptConnect = true;
-					return;
-				}
-			}
-			else
-			{
-				if (!Connect(cmd.GetCommandString()))
-				{
-					m_bPromptConnect = true;
-					return;
-				}
+				Error(eDLL_T::CLIENT, NO_ERROR, "Failed to send RCON message: (%s)\n", "SOCKET_ERROR");
 			}
 		}
 	}
-}
+	else // Setup connection from input.
+	{
+		CCommand cmd;
+		cmd.Tokenize(lineInput.c_str(), cmd_source_t::kCommandSrcCode, &m_CharacterSet);
 
-//-----------------------------------------------------------------------------
-// Purpose: clears the input buffer
-//-----------------------------------------------------------------------------
-void CNetCon::ClearInput(void)
-{
-	m_Input.clear();
+		if (cmd.ArgC() > 1)
+		{
+			const char* inAddr = cmd.Arg(0);
+			const char* inPort = cmd.Arg(1);
+
+			if (!*inAddr || !*inPort)
+			{
+				Warning(eDLL_T::CLIENT, "No IP address or port provided\n");
+				SetPrompting(true);
+				return;
+			}
+
+			if (!Connect(inAddr, atoi(inPort)))
+			{
+				SetPrompting(true);
+				return;
+			}
+		}
+		else
+		{
+			if (!Connect(cmd.GetCommandString()))
+			{
+				SetPrompting(true);
+				return;
+			}
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: client's main processing loop
 //-----------------------------------------------------------------------------
-void CNetCon::RunFrame(void)
+bool CNetCon::RunFrame(void)
 {
-	if (IsInitialized() && IsConnected())
+	if (IsInitialized())
 	{
 		std::lock_guard<std::mutex> l(m_Mutex);
 
-		CConnectedNetConsoleData& pData = m_Socket.GetAcceptedSocketData(0);
-		Recv(pData);
-	}
-	else if (m_bPromptConnect)
-	{
-		DevMsg(eDLL_T::NONE, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
-		m_bPromptConnect = false;
+		if (IsConnected())
+		{
+			CConnectedNetConsoleData& pData = GetSocketCreator()->GetAcceptedSocketData(0);
+			Recv(pData);
+		}
+		else if (GetPrompting())
+		{
+			Msg(eDLL_T::NONE, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
+			SetPrompting(false);
+		}
 	}
 
 	std::this_thread::sleep_for(IntervalToDuration(m_flTickInterval));
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if application should be terminated
 // Output : true for termination, false otherwise
 //-----------------------------------------------------------------------------
-bool CNetCon::ShouldQuit(void) const
+bool CNetCon::GetQuitting(void) const
 {
-	return m_bQuitApplication;
+	return m_bQuitting;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: set whether we should quit
+// input : bQuit
+//-----------------------------------------------------------------------------
+void CNetCon::SetQuitting(const bool bQuit)
+{
+	m_bQuitting = bQuit;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if we should prompt the connect message
+// Output : true for prompting, false otherwise
+//-----------------------------------------------------------------------------
+bool CNetCon::GetPrompting(void) const
+{
+	return m_bPromptConnect;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: set whether we should prompt the connect message
+// input : bPrompt
+//-----------------------------------------------------------------------------
+void CNetCon::SetPrompting(const bool bPrompt)
+{
+	m_bPromptConnect = bPrompt;
 }
 
 //-----------------------------------------------------------------------------
@@ -252,11 +345,11 @@ void CNetCon::Disconnect(const char* szReason)
 			szReason = "unknown reason";
 		}
 
-		DevMsg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
-		m_Socket.CloseAcceptedSocket(0);
+		Msg(eDLL_T::CLIENT, "Disconnect: (%s)\n", szReason);
+		GetSocketCreator()->CloseAcceptedSocket(0);
 	}
 
-	m_bPromptConnect = true;
+	SetPrompting(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -295,7 +388,7 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 			}
 		}
 
-		DevMsg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
+		Msg(eDLL_T::NETCON, "%s", response.responsemsg().c_str());
 		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
@@ -360,6 +453,8 @@ bool CNetCon::IsConnected(void)
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
+	CheckCPUforSSE2();
+
 	bool bEnableColor = false;
 
 	for (int i = 0; i < argc; i++)
@@ -371,23 +466,25 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (!NetConsole()->Init(bEnableColor))
+	const char* pHostName = nullptr;
+	int nPort = SOCKET_ERROR;
+
+	if (argc >= 3) // Get IP and Port from command line.
+	{
+		pHostName = argv[1];
+		nPort = atoi(argv[2]);
+	}
+
+	if (!NetConsole()->Init(bEnableColor, pHostName, nPort))
 	{
 		return EXIT_FAILURE;
 	}
 
-	if (argc >= 3) // Get IP and Port from command line.
+	while (!NetConsole()->GetQuitting())
 	{
-		if (!NetConsole()->Connect(argv[1], atoi(argv[2])))
-		{
-			return EXIT_FAILURE;
-		}
-	}
-
-	while (!NetConsole()->ShouldQuit())
-	{
-		NetConsole()->UserInput();
-		NetConsole()->ClearInput();
+		// Run with a reasonable tick rate so we don't eat all the CPU.
+		std::this_thread::sleep_for(
+			IntervalToDuration(NetConsole()->GetTickInterval()));
 	}
 
 	if (!NetConsole()->Shutdown())

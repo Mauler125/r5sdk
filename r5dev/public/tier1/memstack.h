@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 
-typedef uint64 MemoryStackMark_t;
+typedef size_t MemoryStackMark_t;
 
 class CMemoryStack //: private IMemoryInfo
 {
@@ -28,27 +28,27 @@ public:
 	CMemoryStack();
 	~CMemoryStack();
 
-	bool Init( const char *pszAllocOwner, uint64 maxSize = 0, uint64 commitIncrement = 0, uint64 initialCommit = 0, uint64 alignment = 16 );
+	bool Init( const char *pszAllocOwner, size_t maxSize = 0, size_t commitIncrement = 0, size_t initialCommit = 0, size_t alignment = 16 );
 	void Term();
 
-	uint64 GetSize() const;
-	uint64 GetMaxSize() const ;
-	uint64 GetUsed() const;
+	size_t GetSize() const;
+	size_t GetMaxSize() const ;
+	size_t GetUsed() const;
 	
-	void *Alloc( uint64 bytes, bool bClear = false ) RESTRICT;
+	void *Alloc( size_t bytes, bool bClear = false ) RESTRICT;
 
 	MemoryStackMark_t GetCurrentAllocPoint() const;
 	void FreeToAllocPoint( MemoryStackMark_t mark, bool bDecommit = true );
 	void FreeAll( bool bDecommit = true );
 	
-	void Access( void **ppRegion, uint64 *pBytes );
+	void Access( void **ppRegion, size_t *pBytes );
 
 	void PrintContents() const;
 
 	void *GetBase();
 	const void *GetBase() const {  return const_cast<CMemoryStack *>(this)->GetBase(); }
 
-	bool CommitSize( uint64 nBytes );
+	bool CommitSize( size_t nBytes );
 
 	void SetAllocOwner( const char *pszAllocOwner );
 
@@ -78,12 +78,12 @@ private:
 	bool m_bPhysical;
 	char *m_pszAllocOwner;
 
-	uint64 m_unkSize; // Unknown field..
-	uint64 m_maxSize; // m_maxSize stores how big the stack can grow. It measures the reservation size.
-	uint64 m_alignment;
+	size_t m_unkSize; // Unknown field..
+	size_t m_maxSize; // m_maxSize stores how big the stack can grow. It measures the reservation size.
+	size_t m_alignment;
 #ifdef MEMSTACK_VIRTUAL_MEMORY_AVAILABLE
-	uint64 m_commitIncrement;
-	uint64 m_minCommit;
+	size_t m_commitIncrement;
+	size_t m_minCommit;
 #endif
 #if defined( MEMSTACK_VIRTUAL_MEMORY_AVAILABLE ) && defined( _PS3 )
 	IVirtualMemorySection *m_pVirtualMemorySection;
@@ -97,7 +97,7 @@ private:
 
 //-------------------------------------
 
-FORCEINLINE void *CMemoryStack::Alloc( uint64 bytes, bool bClear ) RESTRICT
+FORCEINLINE void *CMemoryStack::Alloc( size_t bytes, bool bClear ) RESTRICT
 {
 	sizeof(CMemoryStack);
 	Assert( m_pBase );
@@ -129,7 +129,7 @@ FORCEINLINE void *CMemoryStack::Alloc( uint64 bytes, bool bClear ) RESTRICT
 
 //-------------------------------------
 
-inline bool CMemoryStack::CommitSize( uint64 nBytes )
+inline bool CMemoryStack::CommitSize( size_t nBytes )
 {
 	if ( GetSize() != nBytes )
 	{
@@ -142,14 +142,14 @@ inline bool CMemoryStack::CommitSize( uint64 nBytes )
 
 // How big can this memory stack grow? This is equivalent to how many
 // bytes are reserved.
-inline uint64 CMemoryStack::GetMaxSize() const
+inline size_t CMemoryStack::GetMaxSize() const
 { 
 	return m_maxSize;
 }
 
 //-------------------------------------
 
-inline uint64 CMemoryStack::GetUsed() const
+inline size_t CMemoryStack::GetUsed() const
 { 
 	return ( m_pNextAlloc - m_pBase ); 
 }

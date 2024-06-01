@@ -12,12 +12,14 @@
 #include "engine/client/client.h"
 #include "game/server/util_server.h"
 
+static ConVar sv_simulateBots("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.");
+
 //-----------------------------------------------------------------------------
 // Purpose: Runs the command simulation for fake players
 //-----------------------------------------------------------------------------
 void Physics_RunBotSimulation(bool bSimulating)
 {
-	if (!sv_simulateBots->GetBool())
+	if (!sv_simulateBots.GetBool())
 		return;
 
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
@@ -45,12 +47,7 @@ void Physics_RunThinkFunctions(bool bSimulating)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VPhysics_Main::Attach() const
+void VPhysics_Main::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_Physics_RunThinkFunctions, &Physics_RunThinkFunctions);
-}
-
-void VPhysics_Main::Detach() const
-{
-	DetourDetach(&v_Physics_RunThinkFunctions, &Physics_RunThinkFunctions);
+	DetourSetup(&v_Physics_RunThinkFunctions, &Physics_RunThinkFunctions, bAttach);
 }

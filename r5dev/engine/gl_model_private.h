@@ -9,20 +9,57 @@
 #ifndef GL_MODEL_PRIVATE_H
 #define GL_MODEL_PRIVATE_H
 
-#include "vpc/keyvalues.h"
+#include "tier1/keyvalues.h"
 #include "mathlib/vector.h"
 #include "common/qlimits.h"
 #include "datacache/imdlcache.h"
 #include "public/model_types.h"
+#include "public/bspfile.h"
 
 #ifndef DEDICATED
 #include "game/client/enginesprite.h"
 #endif // !DEDICATED
 typedef int ModelFileNameHandle_t; // 4 bytes in r5, void* originally.
 
+struct worldbrushdata_t
+{
+	char unk[64];
+	Vector3D* vertpositions;
+	int numvertices;
+	char unk_4C[4];
+	Vector3D* vertnormals;
+	int numvertnormals;
+	int numtexdata;
+	dtexdata_t* texdata;
+	char* surfacenames;
+	char unk_60[4];
+	int nummeshes;
+	char unk_78[72];
+	int nummaterialsorts;
+	char unk_C4[4];
+	char* lmapTypes;
+	int* lmapSizes;
+	dlightmapheader_t* lmapHeaders;
+	char* rtlData;
+	char* rtlPageData;
+	int numRtlPages;
+	int numLightmapHeaders;
+	bool externalLightmaps;
+	int numlightprobeindices;
+	int* lightprobeindices;
+	int numlightprobes;
+	dlightprobe_t* lightprobes;
+	char* lightproberefs;
+	char* lightprobetrees;
+	char* lightprobeparentinfos;
+	char unk_130[16];
+	char* worldlights;
+	int numworldlights;
+};
+
 struct brushdata_t // !! UNCONFIRMED !!
 {
-	void* pShared; // worldbrushdata_t
+	worldbrushdata_t* pShared; // worldbrushdata_t
 	int				firstmodelsurface;
 	int				nummodelsurfaces;
 

@@ -12,7 +12,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "vpc/keyvalues.h"
+#include "rtech/playlists/playlists.h"
 #include "engine/client/cl_main.h"
 #include "engine/cmodel_bsp.h"
 #include "vscript/languages/squirrel_re/include/sqvm.h"
@@ -28,7 +28,7 @@ namespace VScriptCode
         SQRESULT GetSDKVersion(HSQUIRRELVM v)
         {
             sq_pushstring(v, SDK_VERSION, -1);
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -38,17 +38,20 @@ namespace VScriptCode
         {
             std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
 
-            if (g_InstalledMaps.empty())
-                return SQ_OK;
+            if (g_InstalledMaps.IsEmpty())
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
             sq_newarray(v, 0);
-            for (const string& it : g_InstalledMaps)
+
+            FOR_EACH_VEC(g_InstalledMaps, i)
             {
-                sq_pushstring(v, it.c_str(), -1);
+                const CUtlString& mapName = g_InstalledMaps[i];
+
+                sq_pushstring(v, mapName.String(), -1);
                 sq_arrayappend(v, -2);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
         //-----------------------------------------------------------------------------
@@ -59,7 +62,7 @@ namespace VScriptCode
             std::lock_guard<std::mutex> l(g_PlaylistsVecMutex);
 
             if (g_vAllPlaylists.empty())
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
             sq_newarray(v, 0);
             for (const string& it : g_vAllPlaylists)
@@ -68,7 +71,19 @@ namespace VScriptCode
                 sq_arrayappend(v, -2);
             }
 
-            return SQ_OK;
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+
+        SQRESULT ScriptError(HSQUIRRELVM v)
+        {
+            SQChar* pString = NULL;
+            SQInteger a4 = 0;
+
+            if (SQVM_sprintf(v, 0, 1, &a4, &pString) < 0)
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+
+            v_SQVM_ScriptError("%s", pString);
+            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
     }
 }
@@ -83,14 +98,50 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
 
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailableMaps, "Gets an array of all available maps", "array< string >", "");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailablePlaylists, "Gets an array of all available playlists", "array< string >", "");
+
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, ScriptError, "", "void", "string format, ...")
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: listen server constants (!!! only call on builds containing a listen server !!!)
+// Purpose: listen server constants
 // Input  : *s - 
 //---------------------------------------------------------------------------------
 void Script_RegisterListenServerConstants(CSquirrelVM* s)
 {
     const SQBool hasListenServer = !IsClientDLL();
     s->RegisterConstant("LISTEN_SERVER", hasListenServer);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: server enums
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+void Script_RegisterCommonEnums_Server(CSquirrelVM* const s)
+{
+    v_Script_RegisterCommonEnums_Server(s);
+
+    if (ServerScriptRegisterEnum_Callback)
+        ServerScriptRegisterEnum_Callback(s);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: client/ui enums
+// Input  : *s - 
+//---------------------------------------------------------------------------------
+void Script_RegisterCommonEnums_Client(CSquirrelVM* const s)
+{
+    v_Script_RegisterCommonEnums_Client(s);
+
+    const SQCONTEXT context = s->GetContext();
+
+    if (context == SQCONTEXT::CLIENT && ClientScriptRegisterEnum_Callback)
+        ClientScriptRegisterEnum_Callback(s);
+    else if (context == SQCONTEXT::UI && UIScriptRegisterEnum_Callback)
+        UIScriptRegisterEnum_Callback(s);
+}
+
+void VScriptShared::Detour(const bool bAttach) const
+{
+    DetourSetup(&v_Script_RegisterCommonEnums_Server, &Script_RegisterCommonEnums_Server, bAttach);
+    DetourSetup(&v_Script_RegisterCommonEnums_Client, &Script_RegisterCommonEnums_Client, bAttach);
 }

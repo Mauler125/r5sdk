@@ -9,8 +9,3 @@
 #include "public/basehandle.h"
 #include "baseentity.h"
 #include "networkproperty.h"
-
-edict_t CServerNetworkProperty::GetEdict(void) const
-{
-	return m_edict;
-}

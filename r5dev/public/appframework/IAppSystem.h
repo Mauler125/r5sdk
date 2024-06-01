@@ -54,15 +54,15 @@ enum AppSystemTier_t
 abstract_class IAppSystem
 {
 public:
-	virtual ~IAppSystem() = 0; // Prepended on each class derived class in assembly.
+	virtual ~IAppSystem() {}; // Prepended on each class derived class in assembly.
 
 	// Here's where the app systems get to learn about each other 
-	virtual bool Connect(CreateInterfaceFn factory) = 0;
+	virtual bool Connect(const CreateInterfaceFn factory) = 0;
 	virtual void Disconnect() = 0;
 
 	// Here's where systems can access other interfaces implemented by this object
 	// Returns NULL if it doesn't implement the requested interface
-	virtual void* QueryInterface(const char* pInterfaceName) = 0;
+	virtual void* QueryInterface(const char* const pInterfaceName) = 0;
 
 	// Init, shutdown
 	virtual InitReturnVal_t Init() = 0;
@@ -75,7 +75,7 @@ public:
 	virtual AppSystemTier_t GetTier() = 0;
 
 	// Reconnect to a particular interface
-	virtual void Reconnect(CreateInterfaceFn factory, const char* pInterfaceName) = 0;
+	virtual void Reconnect(const CreateInterfaceFn factory, const char* const pInterfaceName) = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -85,15 +85,15 @@ template< class IInterface >
 class CBaseAppSystem : public IInterface
 {
 public:
-	virtual ~CBaseAppSystem() = 0; // Prepended on each class derived class in assembly.
+	virtual ~CBaseAppSystem() {}; // Prepended on each class derived class in assembly.
 
 	// Here's where the app systems get to learn about each other 
-	virtual bool Connect(CreateInterfaceFn factory) = 0;
+	virtual bool Connect(const CreateInterfaceFn factory) = 0;
 	virtual void Disconnect() = 0;
 
 	// Here's where systems can access other interfaces implemented by this object
 	// Returns NULL if it doesn't implement the requested interface
-	virtual void* QueryInterface(const char* pInterfaceName) = 0;
+	virtual void* QueryInterface(const char* const pInterfaceName) = 0;
 
 	// Init, shutdown
 	virtual InitReturnVal_t Init() = 0;
@@ -106,7 +106,15 @@ public:
 	virtual AppSystemTier_t GetTier() = 0;
 
 	// Reconnect to a particular interface
-	virtual void Reconnect(CreateInterfaceFn factory, const char* pInterfaceName) = 0;
+	virtual void Reconnect(const CreateInterfaceFn factory, const char* const pInterfaceName) = 0;
+};
+
+//-----------------------------------------------------------------------------
+// Helper implementation of an IAppSystem for tier0
+//-----------------------------------------------------------------------------
+template< class IInterface >
+class CTier0AppSystem : public CBaseAppSystem< IInterface >
+{
 };
 
 #endif // IAPPSYSTEM_H

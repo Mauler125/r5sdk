@@ -5,43 +5,131 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "vscript/languages/squirrel_re/include/squirrel.h"
-#include "vscript/languages/squirrel_re/include/sqvm.h"
+#include "squirrel.h"
+#include "sqvm.h"
+#include "sqarray.h"
+#include "sqstring.h"
 
 //---------------------------------------------------------------------------------
-SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i)
+bool sq_aux_gettypedarg(HSQUIRRELVM v, SQInteger idx, SQObjectType type, SQObjectPtr** o)
 {
-	return *reinterpret_cast<SQChar**>(*reinterpret_cast<int64_t*>(&v->_stackbase) + 0x10i64 * i + 0x8) + 0x40;
+	*o = &stack_get(v, idx);
+	if (sq_type(**o) != type) {
+		SQObjectPtr oval;
+		v->PrintObjVal(*o, &oval);
+		v_SQVM_RaiseError(v, _SC("wrong argument type, expected '%s' got '%.50s'"), IdType2Name(type), _stringval(oval));
+		return false;
+	}
+	return true;
 }
 
 //---------------------------------------------------------------------------------
-SQInteger sq_getinteger(HSQUIRRELVM v, SQInteger i)
+#define _GETSAFE_OBJ(v,idx,type,o) { if(!sq_aux_gettypedarg(v,idx,type,&o)) return SQ_ERROR; }
+
+#define sq_aux_paramscheck(v,count) \
+{ \
+	if(sq_gettop(v) < count){ v_SQVM_RaiseError(v, _SC("not enough params in the stack")); return SQ_ERROR; }\
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getinteger(HSQUIRRELVM v, SQInteger idx, SQInteger* i)
 {
-	return *reinterpret_cast<SQInteger*>(*reinterpret_cast<int64_t*>(&v->_stackbase) + 0x10i64 * i + 0x8);
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isnumeric(o)) {
+		*i = tointeger(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getfloat(HSQUIRRELVM v, SQInteger idx, SQFloat* f)
+{
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isnumeric(o)) {
+		*f = tofloat(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getbool(HSQUIRRELVM v, SQInteger idx, SQBool* b)
+{
+	SQObjectPtr& o = stack_get(v, idx);
+	if (sq_isbool(o)) {
+		*b = _integer(o);
+		return SQ_OK;
+	}
+	return SQ_ERROR;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getthread(HSQUIRRELVM v, SQInteger idx, HSQUIRRELVM* thread)
+{
+	SQObjectPtr* o = NULL;
+	_GETSAFE_OBJ(v, idx, OT_THREAD, o);
+	*thread = _thread(*o);
+	return SQ_OK;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_getstring(HSQUIRRELVM v, SQInteger idx, const SQChar** c)
+{
+	SQObjectPtr* o = NULL;
+	_GETSAFE_OBJ(v, idx, OT_STRING, o);
+	*c = _stringval(*o);
+	return SQ_OK;
+}
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_get(HSQUIRRELVM v, SQInteger idx)
+{
+	return v_sq_get(v, idx);
+}
+
+//---------------------------------------------------------------------------------
+SQInteger sq_gettop(HSQUIRRELVM v)
+{
+	return (v->_top - v->_bottom);
 }
 
 //---------------------------------------------------------------------------------
 SQRESULT sq_pushroottable(HSQUIRRELVM v)
 {
-	return v_sq_pushroottable(v);
+	v->Push(v->_roottable);
+
+	return SQ_OK;
 }
 
 //---------------------------------------------------------------------------------
 void sq_pushbool(HSQUIRRELVM v, SQBool b)
 {
-	v_sq_pushbool(v, b);
+	v->Push(b?true:false);
 }
 
 //---------------------------------------------------------------------------------
 void sq_pushstring(HSQUIRRELVM v, const SQChar* s, SQInteger len)
 {
-	v_sq_pushstring(v, s, len);
+	if (s)
+	{
+		SQString* pString = SQString::Create(v->_sharedstate, s, len);
+		v->Push(pString);
+	}
+	else
+		v->Push(_null_);
 }
 
 //---------------------------------------------------------------------------------
 void sq_pushinteger(HSQUIRRELVM v, SQInteger val)
 {
-	v_sq_pushinteger(v, val);
+	v->Push(val);
+}
+
+//---------------------------------------------------------------------------------
+void sq_pushfloat(HSQUIRRELVM v, SQFloat n)
+{
+	v->Push(n);
 }
 
 //---------------------------------------------------------------------------------
@@ -86,32 +174,31 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 	return v_sq_call(v, params, retval, raiseerror);
 }
 
-void VSquirrelAPI::Attach() const
+SQRESULT sq_startconsttable(HSQUIRRELVM v)
 {
-	DetourAttach(&v_sq_pushroottable, &sq_pushroottable);
-	DetourAttach(&v_sq_pushbool, &sq_pushbool);
-	DetourAttach(&v_sq_pushstring, &sq_pushstring);
-	DetourAttach(&v_sq_pushinteger, &sq_pushinteger);
-	DetourAttach(&v_sq_newarray, &sq_newarray);
-	DetourAttach(&v_sq_newtable, &sq_newtable);
-	DetourAttach(&v_sq_newslot, &sq_newslot);
-	DetourAttach(&v_sq_arrayappend, &sq_arrayappend);
-	DetourAttach(&v_sq_pushstructure, &sq_pushstructure);
-	DetourAttach(&v_sq_compilebuffer, &sq_compilebuffer);
-	DetourAttach(&v_sq_call, &sq_call);
+	return v_sq_startconsttable(v);
 }
 
-void VSquirrelAPI::Detach() const
+SQRESULT sq_endconsttable(HSQUIRRELVM v)
 {
-	DetourDetach(&v_sq_pushroottable, &sq_pushroottable);
-	DetourDetach(&v_sq_pushbool, &sq_pushbool);
-	DetourDetach(&v_sq_pushstring, &sq_pushstring);
-	DetourDetach(&v_sq_pushinteger, &sq_pushinteger);
-	DetourDetach(&v_sq_newarray, &sq_newarray);
-	DetourDetach(&v_sq_newtable, &sq_newtable);
-	DetourDetach(&v_sq_newslot, &sq_newslot);
-	DetourDetach(&v_sq_arrayappend, &sq_arrayappend);
-	DetourDetach(&v_sq_pushstructure, &sq_pushstructure);
-	DetourDetach(&v_sq_compilebuffer, &sq_compilebuffer);
-	DetourDetach(&v_sq_call, &sq_call);
+	return v_sq_endconsttable(v);
+}
+
+void VSquirrelAPI::Detour(const bool bAttach) const
+{
+	DetourSetup(&v_sq_pushroottable, &sq_pushroottable, bAttach);
+	//DetourSetup(&v_sq_pushbool, &sq_pushbool, bAttach);
+	//DetourSetup(&v_sq_pushstring, &sq_pushstring, bAttach);
+	//DetourSetup(&v_sq_pushinteger, &sq_pushinteger, bAttach);
+	//DetourSetup(&v_sq_pushfloat, &sq_pushfloat, bAttach);
+	DetourSetup(&v_sq_newarray, &sq_newarray, bAttach);
+	DetourSetup(&v_sq_newtable, &sq_newtable, bAttach);
+	DetourSetup(&v_sq_newslot, &sq_newslot, bAttach);
+	DetourSetup(&v_sq_arrayappend, &sq_arrayappend, bAttach);
+	DetourSetup(&v_sq_pushstructure, &sq_pushstructure, bAttach);
+	DetourSetup(&v_sq_compilebuffer, &sq_compilebuffer, bAttach);
+	DetourSetup(&v_sq_call, &sq_call, bAttach);
+
+	DetourSetup(&v_sq_startconsttable, &sq_startconsttable, bAttach);
+	DetourSetup(&v_sq_endconsttable, &sq_endconsttable, bAttach);
 }

@@ -41,6 +41,8 @@
 #define V_strdup _strdup
 #define V_strcat strcat
 
+#define V_strcasecmp V_stricmp
+
 #define Q_vsnprintf V_vsnprintf
 #define Q_snprintf V_snprintf
 #define Q_strlower V_strlower
@@ -59,15 +61,38 @@
 #define Q_strcat V_strcat
 
 template <size_t maxLenInCharacters> int V_vsprintf_safe(OUT_Z_ARRAY char(&pDest)[maxLenInCharacters], PRINTF_FORMAT_STRING const char* pFormat, va_list params) { return V_vsnprintf(pDest, maxLenInCharacters, pFormat, params); }
-
+int	_V_stricmp_NegativeForUnequal(const char* s1, const char* s2);
 
 char const* V_stristr(char const* pStr, char const* pSearch);
-const char* V_strnistr(const char* pStr, const char* pSearch, int64_t n);
-const char* V_strnchr(const char* pStr, char c, int64_t n);
+const char* V_strnistr(const char* pStr, const char* pSearch, ssize_t n);
+const char* V_strnchr(const char* pStr, char c, ssize_t n);
 bool V_isspace(int c);
 
+inline bool V_isalnum(char c) { return isalnum((unsigned char)c) != 0; }
+bool V_IsAllDigit(const char* pString);
+
+// this is locale-unaware and therefore faster version of standard isdigit()
+// It also avoids sign-extension errors.
+inline bool V_isdigit(char c)
+{
+	return c >= '0' && c <= '9';
+}
+
+inline bool V_iswdigit(int c)
+{
+	return (((uint)(c - '0')) < 10);
+}
+
+void V_hextobinary(char const* in, size_t numchars, byte* out, size_t maxoutputbytes);
+void V_binarytohex(const byte* in, size_t inputbytes, char* out, size_t outsize);
+ssize_t V_vsnprintfRet(char* pDest, size_t maxLen, const char* pFormat, va_list params, bool* pbTruncated);
+
 // Strip white space at the beginning and end of a string
-int64_t V_StrTrim(char* pStr);
+ssize_t V_StrTrim(char* pStr);
+
+class CUtlStringList;
+void V_SplitString2(const char* pString, const char** pSeparators, ssize_t nSeparators, CUtlStringList& outStrings);
+void V_SplitString(const char* pString, const char* pSeparator, CUtlStringList& outStrings);
 
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes);
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes);
@@ -137,11 +162,12 @@ void V_ComposeFileName(const char* path, const char* filename, char* dest, size_
 // Remove any extension from in and return resulting string in out
 void V_StripExtension(const char* in, char* out, size_t outLen);
 
+// Returns a pointer to the file extension or NULL if one doesn't exist
+const char* V_GetFileExtension(const char* path, const bool keepDot = false);
+
 // Copy out the file extension into dest
 void V_ExtractFileExtension(const char* path, char* dest, size_t destSize);
-
-// Returns a pointer to the file extension or NULL if one doesn't exist
-const char* V_GetFileExtension(const char* path);
+bool V_ExtractFilePath(const char* path, char* dest, size_t destSize);
 
 // Extracts the base name of a file (no path, no extension, assumes '/' or '\' as path separator)
 void V_FileBase(const char* in, OUT_Z_CAP(maxlen) char* out, size_t maxlen);

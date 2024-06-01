@@ -21,7 +21,7 @@ protected:
 	virtual size_t FS_vfprintf(FILE* fp, const char* fmt, va_list list) = 0;
 	virtual int FS_ferror(FILE* fp) = 0;
 	virtual int FS_fflush(FILE* fp) = 0;
-	virtual char* FS_fgets(char* dest, int destSize, FILE* fp) = 0;
+	virtual char* FS_fgets(char* dest, unsigned int destSize) = 0;
 	virtual int FS_stat(const char* path, struct _stat* buf, bool* pbLoadedFromSteamCache = NULL) = 0;
 	virtual int FS_chmod(const char* path, int pmode) = 0;
 	virtual HANDLE FS_FindFirstFile(const char* findname, WIN32_FIND_DATA* dat) = 0;
@@ -36,18 +36,15 @@ extern CFileSystem_Stdio*  g_pFileSystem_Stdio;
 //-----------------------------------------------------------------------------
 // Singleton FileSystem
 //-----------------------------------------------------------------------------
-inline CFileSystem_Stdio* FileSystem()
-{
-	return (*g_pFullFileSystem);
-}
+extern CFileSystem_Stdio* FileSystem();
 
 ///////////////////////////////////////////////////////////////////////////////
 class VFileSystem_Stdio : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("g_pFullFileSystem", reinterpret_cast<uintptr_t>(g_pFullFileSystem));
-		LogVarAdr("g_pFileSystem_Stdio", reinterpret_cast<uintptr_t>(g_pFileSystem_Stdio));
+		LogVarAdr("g_pFullFileSystem", g_pFullFileSystem);
+		LogVarAdr("g_pFileSystem_Stdio", g_pFileSystem_Stdio);
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -58,8 +55,7 @@ class VFileSystem_Stdio : public IDetour
 			.FindPattern("48 89", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CFileSystem_Stdio*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -4,80 +4,74 @@
 #include "windows/resource.h"
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
-#include "public/isurfacesystem.h"
 #include "thirdparty/imgui/misc/imgui_utility.h"
 
-class CBrowser : public ISurface
+#include "imgui_surface.h"
+
+class CBrowser : public CImguiSurface
 {
 public:
     CBrowser(void);
     virtual ~CBrowser(void);
 
     virtual bool Init(void);
-    virtual void Think(void);
+    virtual void Shutdown(void);
 
     virtual void RunFrame(void);
-    virtual void RunTask(void);
+    void RunTask(void);
 
-    virtual void DrawSurface(void);
+    virtual bool DrawSurface(void);
 
-    void BrowserPanel(void);
+    void DrawBrowserPanel(void);
     void RefreshServerList(void);
 
     void HiddenServersModal(void);
-    void HostPanel(void);
+    void DrawHostPanel(void);
 
     void UpdateHostingStatus(void);
+    void InstallHostingDetails(const bool postFailed, const char* const hostMessage, const char* const hostToken, const string& hostIp);
     void SendHostingPostRequest(const NetGameServer_t& gameServer);
 
     void ProcessCommand(const char* pszCommand) const;
-    void SettingsPanel(void);
 
-    void SetHostName(const char* pszHostName);
-    virtual void SetStyleVar(void);
-
-    inline bool IsVisible() { return m_flFadeAlpha > 0.0f; }
-
-    const char* m_pszBrowserLabel;
-    bool m_bActivate;
+public:
+    // Command callbacks
+    static void ToggleBrowser_f();
 
 private:
-    bool m_bInitialized;
-    bool m_bReclaimFocus;
-    bool m_bReclaimFocusTokenField;
-    bool m_bQueryListNonRecursive; // When set, refreshes the server list once the next frame.
-    bool m_bQueryGlobalBanList;
-    char m_szServerAddressBuffer[128];
-    char m_szServerEncKeyBuffer[30];
-    float m_flFadeAlpha;
+    inline void SetServerListMessage(const char* const message) { m_serverListMessage = message; };
+    inline void SetHostMessage(const char* const message) { m_hostMessage = message; }
+    inline void SetHostToken(const char* const message) { m_hostToken = message; }
 
-    ID3D11ShaderResourceView* m_idLockedIcon;
-    MODULERESOURCE m_rLockedIconBlob;
-    mutable std::mutex m_Mutex;
+private:
+    bool m_reclaimFocusOnTokenField;
+    bool m_queryNewListNonRecursive; // When set, refreshes the server list once the next frame.
+    bool m_queryGlobalBanList;
+    char m_serverAddressTextBuf[128];
+    char m_serverNetKeyTextBuf[30];
+
+    ID3D11ShaderResourceView* m_lockedIconShaderResource;
+    MODULERESOURCE m_lockedIconDataResource;
 
     ////////////////////
     //   Server List  //
     ////////////////////
-    ImGuiTextFilter m_imServerBrowserFilter;
-    string m_svServerListMessage;
-    string m_szMatchmakingHostName;
+    ImGuiTextFilter m_serverBrowserTextFilter;
+    string m_serverListMessage;
 
     ////////////////////
     //   Host Server  //
     ////////////////////
-    string m_svHostRequestMessage;
-    string m_svHostToken;
-    ImVec4 m_HostRequestMessageColor;
+    string m_hostMessage;
+    string m_hostToken;
+    ImVec4 m_hostMessageColor;
 
     ////////////////////
     // Private Server //
     ////////////////////
-    string m_svHiddenServerToken;
-    string m_svHiddenServerRequestMessage;
-    ImVec4 m_ivHiddenServerMessageColor;
-
-    ImGuiStyle_t m_Style;
+    string m_hiddenServerRequestMessage;
+    ImVec4 m_hiddenServerMessageColor;
 };
 
-extern CBrowser* g_pBrowser;
+extern CBrowser g_Browser;
 #endif

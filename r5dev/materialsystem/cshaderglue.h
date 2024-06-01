@@ -33,30 +33,25 @@ static_assert(sizeof(CShaderGlue) == 0x40); // [ PIXIE ]: All vars have proper d
 /* ==== CSHADERGLUE ================================================================================================================================================== */
 inline int(*CShaderGlue_SetupShader)(CShaderGlue* thisptr, uint64_t nCount, uint64_t a3, void* pRawMaterialGlueWithoutVTable);
 
-inline CMemory CShaderGlue_VTable;
 inline void* g_pShaderGlueVFTable = nullptr;
 
-void CShaderGlue_Attach();
-void CShaderGlue_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VShaderGlue : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("CShaderGlue::`vftable'", reinterpret_cast<uintptr_t>(g_pShaderGlueVFTable));
-		LogFunAdr("CShaderGlue::SetupShader", reinterpret_cast<uintptr_t>(CShaderGlue_SetupShader));
+		LogConAdr("CShaderGlue::`vftable'", g_pShaderGlueVFTable);
+		LogFunAdr("CShaderGlue::SetupShader", CShaderGlue_SetupShader);
 	}
 	virtual void GetFun(void) const 
 	{
-		CShaderGlue_SetupShader = CShaderGlue_VTable.WalkVTable(4).Deref().RCast<int(*)(CShaderGlue*, uint64_t, uint64_t, void*)>();
+		CShaderGlue_SetupShader = CMemory(g_pShaderGlueVFTable).WalkVTable(4).Deref().RCast<int(*)(CShaderGlue*, uint64_t, uint64_t, void*)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		CShaderGlue_VTable = g_GameDll.GetVirtualMethodTable(".?AVCShaderGlue@@");
-		g_pShaderGlueVFTable = CShaderGlue_VTable.RCast<void*>();
+		g_pShaderGlueVFTable = g_GameDll.GetVirtualMethodTable(".?AVCShaderGlue@@");
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -20,16 +20,17 @@ macro( apply_project_settings )
     )
 
     # Some thirdparty code have Warnings as Errors disabled; this option won't override those.
-    option( GLOBAL_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON )
-    option( ENABLE_LTCG "Enable link-time code generation (significantly increases compile times)" OFF )
+    option( OPTION_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON )
 
-    set( GAMEDLL_OPTION "GAMEDLL_S3" CACHE STRING "Game DLL version" )
-    set_property( CACHE GAMEDLL_OPTION PROPERTY STRINGS
-        "GAMEDLL_S0"
-        "GAMEDLL_S1"
-        "GAMEDLL_S2"
-        "GAMEDLL_S3"
+    set( OPTION_LTCG_MODE "OFF" CACHE STRING "Enables link-time code generation (significantly increases compile times)" )
+    set_property( CACHE OPTION_LTCG_MODE PROPERTY STRINGS
+    "OFF"
+    "ON"  # Only on projects that specified LTCG
+    "ALL" # All projects, whether or not LTCG was specified
     )
+
+    option( OPTION_CERTAIN "This build is certain; debug statements (such as DevMsg(...)) will NOT be compiled" OFF )
+    option( OPTION_RETAIL "This build is retail; enable this among with 'OPTION_CERTAIN' to form a release build" OFF )
 
     # Set common defines
     add_compile_definitions(
@@ -37,9 +38,33 @@ macro( apply_project_settings )
         "SPDLOG_COMPILED_LIB"
         "SPDLOG_NO_EXCEPTIONS"
         "CURL_STATICLIB"
-        "PLATFORM_64BITS" # Target is 64bits only.
-        "${GAMEDLL_OPTION}"
+
+        # Must be explicitly defined to toggle SIMD optimizations for RapidJSON.
+        # Don't set this to anything higher than SSE2, as the game supports from
+        # SSE3 and higher, and the next level of optimizations in RapidJSON is SSE4.2.
+        "RAPIDJSON_SSE2"
+
+        # Use iterative parsing to protect against stack overflows in rare cases; see:
+        # https://rapidjson.org/md_doc_features.html
+        # https://github.com/Tencent/rapidjson/issues/1227
+        # https://github.com/Tencent/rapidjson/issues/2260
+        "RAPIDJSON_PARSE_DEFAULT_FLAGS=kParseIterativeFlag|kParseValidateEncodingFlag"
+
+        # Target is 64bits only.
+        "PLATFORM_64BITS"
     )
+
+    if( ${OPTION_CERTAIN} )
+    add_compile_definitions(
+        "_CERT"
+    )
+    endif()
+
+    if( ${OPTION_RETAIL} )
+    add_compile_definitions(
+        "_RETAIL"
+    )
+    endif()
 
     # Set settings for Debug configuration
     add_compile_options(
@@ -61,11 +86,9 @@ macro( apply_project_settings )
         $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/EHsc>
     )
 
-    if( ${ENABLE_LTCG} )
-        add_compile_options(
-            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Profile>>:/GL>
-            $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/GL>
-        )
+    if( ${OPTION_LTCG_MODE} STREQUAL "ALL" )
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_PROFILE ON)
     endif()
 
     set( CMAKE_EXE_LINKER_FLAGS_RELEASE
@@ -81,9 +104,9 @@ macro( apply_project_settings )
     include_directories(
         "${ENGINE_SOURCE_DIR}/"
         "${ENGINE_SOURCE_DIR}/public/"
-        "${ENGINE_SOURCE_DIR}/thirdparty/"
-        "${ENGINE_SOURCE_DIR}/thirdparty/imgui/"
-        "${ENGINE_SOURCE_DIR}/thirdparty/recast/"
+        "${THIRDPARTY_SOURCE_DIR}/"
+        "${THIRDPARTY_SOURCE_DIR}/imgui/"
+        "${THIRDPARTY_SOURCE_DIR}/recast/"
     )
 endmacro()
 

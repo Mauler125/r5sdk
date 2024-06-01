@@ -8,7 +8,7 @@ class VRadShal : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("WASAPI_GetAudioDevice", p_WASAPI_GetAudioDevice.GetPtr());
+		LogFunAdr("WASAPI_GetAudioDevice", (void*)p_WASAPI_GetAudioDevice.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -17,7 +17,6 @@ class VRadShal : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////

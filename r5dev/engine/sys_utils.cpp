@@ -26,7 +26,7 @@
 //			... - 
 // Output : void _Error
 //-----------------------------------------------------------------------------
-void _Error(char* fmt, ...)
+void _Error(const char* fmt, ...)
 {
 	char buf[4096];
 	bool shouldNewline = true;
@@ -53,7 +53,7 @@ void _Error(char* fmt, ...)
 //			*error - ... - 
 // Output : void* _Warning
 //-----------------------------------------------------------------------------
-void _Warning(int level, char* fmt, ...)
+void _Warning(int level, const char* fmt, ...)
 {
 	char buf[10000];
 	bool shouldNewline = true;
@@ -98,9 +98,9 @@ void _Con_NPrintf(int pos, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	g_pOverlay->m_nCon_NPrintf_Idx = pos;
-	snprintf(g_pOverlay->m_szCon_NPrintf_Buf,
-		sizeof(g_pOverlay->m_szCon_NPrintf_Buf), "%s", buf);
+	g_TextOverlay.m_nCon_NPrintf_Idx = pos;
+	snprintf(g_TextOverlay.m_szCon_NPrintf_Buf,
+		sizeof(g_TextOverlay.m_szCon_NPrintf_Buf), "%s", buf);
 }
 #endif // !DEDICATED
 
@@ -114,20 +114,28 @@ int Sys_GetProcessUpTime(char* szBuffer)
 	return v_Sys_GetProcessUpTime(szBuffer);
 }
 
-void VSys_Utils::Attach() const
+//-----------------------------------------------------------------------------
+// Purpose: Gets the build string of the game (defined in build.txt), if the file
+// is absent, the changelist # will be returned instead
+//-----------------------------------------------------------------------------
+const char* Sys_GetBuildString(void)
 {
-	DetourAttach((LPVOID*)&v_Error, &_Error);
-	DetourAttach((LPVOID*)&v_Warning, &_Warning);
-#ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_Con_NPrintf, &_Con_NPrintf);
-#endif // !DEDICATED
+	return v_Sys_GetBuildString();
 }
 
-void VSys_Utils::Detach() const
+//-----------------------------------------------------------------------------
+// Purpose: Gets the platform string
+//-----------------------------------------------------------------------------
+const char* Sys_GetPlatformString(void)
 {
-	DetourDetach((LPVOID*)&v_Error, &_Error);
-	DetourDetach((LPVOID*)&v_Warning, &_Warning);
+	return "PC";
+}
+
+void VSys_Utils::Detour(const bool bAttach) const
+{
+	DetourSetup(&v_Error, &_Error, bAttach);
+	DetourSetup(&v_Warning, &_Warning, bAttach);
 #ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_Con_NPrintf, &_Con_NPrintf);
+	DetourSetup(&v_Con_NPrintf, &_Con_NPrintf, bAttach);
 #endif // !DEDICATED
 }

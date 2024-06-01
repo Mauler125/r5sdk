@@ -18,17 +18,35 @@ CModule g_RadAudioSystemDll;
 string g_LogSessionUUID;
 string g_LogSessionDirectory;
 
-static const char* s_AdrFmt = "| {:s}: {:42s}: {:#18x} |\n";
+static const char* const s_AdrFmt = "| {:s}: {:42s}: {:#18x} |\n";
 
-void LogFunAdr(const char* szFun, uintptr_t nAdr) // Logging function addresses.
+void LogFunAdr(const char* const szFun, const void* const pAdr) // Logging function addresses.
 {
-	spdlog::debug(s_AdrFmt, "FUN", szFun, nAdr);
+	if (!IsCert() && !IsRetail())
+		spdlog::debug(s_AdrFmt, "FUN", szFun, uintptr_t(pAdr));
+	else
+	{
+		NOTE_UNUSED(szFun);
+		NOTE_UNUSED(pAdr);
+	}
 }
-void LogVarAdr(const char* szVar, uintptr_t nAdr) // Logging variable addresses.
+void LogVarAdr(const char* const szVar, const void* const pAdr) // Logging variable addresses.
 {
-	spdlog::debug(s_AdrFmt, "VAR", szVar, nAdr);
+	if (!IsCert() && !IsRetail())
+		spdlog::debug(s_AdrFmt, "VAR", szVar, uintptr_t(pAdr));
+	else
+	{
+		NOTE_UNUSED(szVar);
+		NOTE_UNUSED(pAdr);
+	}
 }
-void LogConAdr(const char* szCon, uintptr_t nAdr) // Logging constant addresses.
+void LogConAdr(const char* const szCon, const void* const pAdr) // Logging constant addresses.
 {
-	spdlog::debug(s_AdrFmt, "CON", szCon, nAdr);
+	if (!IsCert() && !IsRetail())
+		spdlog::debug(s_AdrFmt, "CON", szCon, uintptr_t(pAdr));
+	else
+	{
+		NOTE_UNUSED(szCon);
+		NOTE_UNUSED(pAdr);
+	}
 }

@@ -30,33 +30,32 @@ History:
 #include "engine/client/clientstate.h"
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
+#include "networksystem/hostmanager.h"
 #include "networksystem/listmanager.h"
-#include "vpc/keyvalues.h"
+#include "rtech/playlists/playlists.h"
 #include "common/callback.h"
 #include "gameui/IBrowser.h"
 #include "public/edict.h"
 #include "game/shared/vscript_shared.h"
 
+static ConCommand togglebrowser("togglebrowser", CBrowser::ToggleBrowser_f, "Show/hide the server browser", FCVAR_CLIENTDLL | FCVAR_RELEASE);
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CBrowser::CBrowser(void)
-    : m_pszBrowserLabel("Server Browser")
-    , m_bActivate(false)
-    , m_bInitialized(false)
-    , m_bReclaimFocus(false)
-    , m_bReclaimFocusTokenField(false)
-    , m_bQueryListNonRecursive(false)
-    , m_bQueryGlobalBanList(true)
-    , m_flFadeAlpha(0.f)
-    , m_HostRequestMessageColor(1.00f, 1.00f, 1.00f, 1.00f)
-    , m_ivHiddenServerMessageColor(0.00f, 1.00f, 0.00f, 1.00f)
-    , m_Style(ImGuiStyle_t::NONE)
+    : m_reclaimFocusOnTokenField(false)
+    , m_queryNewListNonRecursive(false)
+    , m_queryGlobalBanList(true)
+    , m_hostMessageColor(1.00f, 1.00f, 1.00f, 1.00f)
+    , m_hiddenServerMessageColor(0.00f, 1.00f, 0.00f, 1.00f)
 {
-    memset(m_szServerAddressBuffer, '\0', sizeof(m_szServerAddressBuffer));
-    memset(m_szServerEncKeyBuffer, '\0', sizeof(m_szServerEncKeyBuffer));
+    m_surfaceLabel = "Server Browser";
 
-    m_rLockedIconBlob = GetModuleResource(IDB_PNG2);
+    memset(m_serverAddressTextBuf, '\0', sizeof(m_serverAddressTextBuf));
+    memset(m_serverNetKeyTextBuf, '\0', sizeof(m_serverNetKeyTextBuf));
+
+    m_lockedIconDataResource = GetModuleResource(IDB_PNG2);
 }
 
 //-----------------------------------------------------------------------------
@@ -64,10 +63,7 @@ CBrowser::CBrowser(void)
 //-----------------------------------------------------------------------------
 CBrowser::~CBrowser(void)
 {
-    if (m_idLockedIcon)
-    {
-        m_idLockedIcon->Release();
-    }
+    Shutdown();
 }
 
 //-----------------------------------------------------------------------------
@@ -75,14 +71,24 @@ CBrowser::~CBrowser(void)
 //-----------------------------------------------------------------------------
 bool CBrowser::Init(void)
 {
-    SetStyleVar();
-    m_szMatchmakingHostName = pylon_matchmaking_hostname->GetString();
+    SetStyleVar(928.f, 524.f, -500.f, 50.f);
 
-    bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), int(m_rLockedIconBlob.m_nSize),
-        &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
+    bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_lockedIconDataResource.m_pData), int(m_lockedIconDataResource.m_nSize),
+        &m_lockedIconShaderResource, &m_lockedIconDataResource.m_nWidth, &m_lockedIconDataResource.m_nHeight);
 
-    IM_ASSERT(ret && m_idLockedIcon);
+    IM_ASSERT(ret && m_lockedIconShaderResource);
     return ret;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBrowser::Shutdown(void)
+{
+    if (m_lockedIconShaderResource)
+    {
+        m_lockedIconShaderResource->Release();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -96,65 +102,51 @@ void CBrowser::RunFrame(void)
         //ImGui::ShowDemoWindow();
     }
 
-    if (!m_bInitialized)
+    if (!m_initialized)
     {
         Init();
-        m_bInitialized = true;
+        m_initialized = true;
     }
 
-    int nVars = 0;
-    float flWidth;
-    float flHeight;
-    if (m_Style == ImGuiStyle_t::MODERN)
-    {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+    Animate();
+    RunTask();
 
-        flWidth = 621.f;
-        flHeight = 532.f;
+    int baseWindowStyleVars = 0;
+    ImVec2 minBaseWindowRect;
+
+    if (m_surfaceStyle == ImGuiStyle_t::MODERN)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); baseWindowStyleVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);                 baseWindowStyleVars++;
+
+        minBaseWindowRect = ImVec2(621.f, 532.f);
     }
     else
     {
-        if (m_Style == ImGuiStyle_t::LEGACY)
-        {
-            flWidth = 619.f;
-            flHeight = 526.f;
-        }
-        else
-        {
-            flWidth = 618.f;
-            flHeight = 524.f;
-        }
+        minBaseWindowRect = m_surfaceStyle == ImGuiStyle_t::LEGACY
+            ? ImVec2(619.f, 526.f)
+            : ImVec2(618.f, 524.f);
 
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  baseWindowStyleVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha);                 baseWindowStyleVars++;
 
-        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              baseWindowStyleVars++;
     }
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(flWidth, flHeight)); nVars++;
 
-    if (m_bActivate && m_bReclaimFocus) // Reclaim focus on window apparition.
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, minBaseWindowRect);       baseWindowStyleVars++;
+
+    if (m_activated && m_reclaimFocus) // Reclaim focus on window apparition.
     {
         ImGui::SetNextWindowFocus();
-        m_bReclaimFocus = false;
-    }
-
-    if (!ImGui::Begin(m_pszBrowserLabel, &m_bActivate, ImGuiWindowFlags_NoScrollbar, &ResetInput))
-    {
-        ImGui::End();
-        ImGui::PopStyleVar(nVars);
-        return;
+        m_reclaimFocus = false;
     }
 
     DrawSurface();
-
-    ImGui::End();
-    ImGui::PopStyleVar(nVars);
+    ImGui::PopStyleVar(baseWindowStyleVars);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: runs tasks for the browser while not being drawn 
-// (!!! RunTask and RunFrame must be called from the same thread !!!)
 //-----------------------------------------------------------------------------
 void CBrowser::RunTask()
 {
@@ -167,118 +159,94 @@ void CBrowser::RunTask()
         bInitialized = true;
     }
 
-    if (timer.GetDurationInProgress().GetSeconds() > pylon_host_update_interval->GetDouble())
+    if (timer.GetDurationInProgress().GetSeconds() > pylon_host_update_interval.GetFloat())
     {
         UpdateHostingStatus();
         timer.Start();
     }
 
-    if (m_bActivate)
+    if (m_activated)
     {
-        if (m_bQueryListNonRecursive)
+        if (m_queryNewListNonRecursive)
         {
-            std::thread refresh(&CBrowser::RefreshServerList, g_pBrowser);
-            refresh.detach();
-
-            m_bQueryListNonRecursive = false;
+            m_queryNewListNonRecursive = false;
+            RefreshServerList();
         }
     }
-    else // Refresh server list the next time 'm_bActivate' evaluates to true.
+    else // Refresh server list the next time 'm_activated' evaluates to true.
     {
-        m_bReclaimFocus = true;
-        m_bReclaimFocusTokenField = true;
-        m_bQueryListNonRecursive = true;
+        m_reclaimFocusOnTokenField = true;
+        m_queryNewListNonRecursive = true;
     }
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: think
+// Purpose: draws the server browser's main surface
+// Output : true if a frame has been drawn, false otherwise
 //-----------------------------------------------------------------------------
-void CBrowser::Think(void)
+bool CBrowser::DrawSurface(void)
 {
-    if (m_bActivate)
+    if (!ImGui::Begin(m_surfaceLabel, &m_activated, ImGuiWindowFlags_None, &ResetInput))
     {
-        if (m_flFadeAlpha < 1.f)
-        {
-            m_flFadeAlpha += .05f;
-            m_flFadeAlpha = (std::min)(m_flFadeAlpha, 1.f);
-        }
+        ImGui::End();
+        return false;
     }
-    else // Reset to full transparent.
-    {
-        if (m_flFadeAlpha > 0.f)
-        {
-            m_flFadeAlpha -= .05f;
-            m_flFadeAlpha = (std::max)(m_flFadeAlpha, 0.f);
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: draws the compmenu
-//-----------------------------------------------------------------------------
-void CBrowser::DrawSurface(void)
-{
-    std::lock_guard<std::mutex> l(m_Mutex);
 
     ImGui::BeginTabBar("CompMenu");
     if (ImGui::BeginTabItem("Browsing"))
     {
-        BrowserPanel();
+        DrawBrowserPanel();
         ImGui::EndTabItem();
     }
 #ifndef CLIENT_DLL
     if (ImGui::BeginTabItem("Hosting"))
     {
-        HostPanel();
+        DrawHostPanel();
         ImGui::EndTabItem();
     }
 #endif // !CLIENT_DLL
-    if (ImGui::BeginTabItem("Settings"))
-    {
-        SettingsPanel();
-        ImGui::EndTabItem();
-    }
+
     ImGui::EndTabBar();
+    ImGui::End();
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: draws the server browser section
 //-----------------------------------------------------------------------------
-void CBrowser::BrowserPanel(void)
+void CBrowser::DrawBrowserPanel(void)
 {
     ImGui::BeginGroup();
-    m_imServerBrowserFilter.Draw();
+    m_serverBrowserTextFilter.Draw();
     ImGui::SameLine();
 
     if (ImGui::Button("Refresh"))
     {
-        m_svServerListMessage.clear();
-
-        std::thread refresh(&CBrowser::RefreshServerList, this);
-        refresh.detach();
+        m_serverListMessage.clear();
+        RefreshServerList();
     }
 
     ImGui::EndGroup();
-    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "%s", m_svServerListMessage.c_str());
+    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "%s", m_serverListMessage.c_str());
     ImGui::Separator();
 
-    int iVars = 0; // Eliminate borders around server list table.
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 0.f });  iVars++;
+    int windowStyleVars = 0; // Eliminate borders around server list table.
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 0.f });  windowStyleVars++;
 
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
     if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable))
     {
-        int nVars = 0;
-        if (m_Style == ImGuiStyle_t::MODERN)
+        int frameStyleVars = 0;
+        if (m_surfaceStyle == ImGuiStyle_t::MODERN)
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); frameStyleVars++;
         }
         else
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4.f, 0.f }); nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4.f, 0.f }); frameStyleVars++;
         }
 
         ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 25);
@@ -289,18 +257,44 @@ void CBrowser::BrowserPanel(void)
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableHeadersRow();
 
-        g_pServerListManager->m_Mutex.lock();
-        for (const NetGameServer_t& server : g_pServerListManager->m_vServerList)
-        {
-            const char* pszHostName = server.m_svHostName.c_str();
-            const char* pszHostMap = server.m_svHostMap.c_str();
-            const char* pszPlaylist = server.m_svPlaylist.c_str();
-            const char* pszHostPort = server.m_svGamePort.c_str();
+        g_ServerListManager.m_Mutex.Lock();
+        vector<const NetGameServer_t*> filteredServers;
 
-            if (m_imServerBrowserFilter.PassFilter(pszHostName)
-                || m_imServerBrowserFilter.PassFilter(pszHostMap)
-                || m_imServerBrowserFilter.PassFilter(pszHostPort))
+        // Filter the server list first before running it over the ImGui list
+        // clipper, if we do this within the clipper, clipper.Step() will fail
+        // as the calculation for the remainder will be off.
+        for (int i = 0; i < g_ServerListManager.m_vServerList.size(); i++)
+        {
+            const NetGameServer_t& server = g_ServerListManager.m_vServerList[i];
+
+            const char* pszHostName = server.name.c_str();
+            const char* pszHostMap = server.map.c_str();
+            const char* pszPlaylist = server.playlist.c_str();
+
+            if (m_serverBrowserTextFilter.PassFilter(pszHostName)
+                || m_serverBrowserTextFilter.PassFilter(pszHostMap)
+                || m_serverBrowserTextFilter.PassFilter(pszPlaylist))
             {
+                filteredServers.push_back(&server);
+            }
+        }
+
+        ImGuiListClipper clipper;
+        clipper.Begin(static_cast<int>(filteredServers.size()));
+
+        while (clipper.Step())
+        {
+            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+            {
+                const NetGameServer_t* const server = filteredServers[i];
+
+                const char* pszHostName = server->name.c_str();
+                const char* pszHostMap = server->map.c_str();
+                const char* pszPlaylist = server->playlist.c_str();
+
+                char pszHostPort[32];
+                sprintf(pszHostPort, "%d", server->port);
+
                 ImGui::TableNextColumn();
                 ImGui::Text("%s", pszHostName);
 
@@ -311,54 +305,71 @@ void CBrowser::BrowserPanel(void)
                 ImGui::Text("%s", pszPlaylist);
 
                 ImGui::TableNextColumn();
-                ImGui::Text("%s", Format("%3d/%3d", strtol(server.m_svPlayerCount.c_str(), NULL, NULL), strtol(server.m_svMaxPlayers.c_str(), NULL, NULL)).c_str());
+                ImGui::Text("%s", Format("%3d/%3d", server->numPlayers, server->maxPlayers).c_str());
 
                 ImGui::TableNextColumn();
                 ImGui::Text("%s", pszHostPort);
 
                 ImGui::TableNextColumn();
                 string svConnectBtn = "Connect##";
-                svConnectBtn.append(server.m_svHostName + server.m_svIpAddress + server.m_svHostMap);
+                svConnectBtn.append(server->name + server->address + server->map);
 
                 if (ImGui::Button(svConnectBtn.c_str()))
                 {
-                    g_pServerListManager->ConnectToServer(server.m_svIpAddress, pszHostPort, server.m_svEncryptionKey);
+                    g_ServerListManager.ConnectToServer(server->address, server->port, server->netKey);
                 }
             }
         }
-        g_pServerListManager->m_Mutex.unlock();
+
+        filteredServers.clear();
+        g_ServerListManager.m_Mutex.Unlock();
 
         ImGui::EndTable();
-        ImGui::PopStyleVar(nVars);
+        ImGui::PopStyleVar(frameStyleVars);
     }
 
     ImGui::EndChild();
-    ImGui::PopStyleVar(iVars);
+    ImGui::PopStyleVar(windowStyleVars);
 
     ImGui::Separator();
-    ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth() / 4);
+
+    const ImVec2 regionAvail = ImGui::GetContentRegionAvail();
+    const ImGuiStyle& style = ImGui::GetStyle();
+
+    // 4 elements means 3 spacings between items, this has to be subtracted
+    // from the remaining available region to get correct results on all
+    // window padding values!!!
+    const float itemWidth = (regionAvail.x - (3 * style.ItemSpacing.x)) / 4;
+
+    ImGui::PushItemWidth(itemWidth);
     {
-        ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Server address and port", m_szServerAddressBuffer, IM_ARRAYSIZE(m_szServerAddressBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerCon", "Server address and port", m_serverAddressTextBuf, IM_ARRAYSIZE(m_serverAddressTextBuf));
 
         ImGui::SameLine();
-        ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerKey", "Encryption key", m_serverNetKeyTextBuf, IM_ARRAYSIZE(m_serverNetKeyTextBuf));
 
         ImGui::SameLine();
-        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
+        if (ImGui::Button("Connect", ImVec2(itemWidth, ImGui::GetFrameHeight())))
         {
-            if (m_szServerAddressBuffer[0])
+            if (m_serverAddressTextBuf[0])
             {
-                g_pServerListManager->ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
+                g_ServerListManager.ConnectToServer(m_serverAddressTextBuf, m_serverNetKeyTextBuf);
             }
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Private servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
+
+        // NOTE: -9 to prevent the last button from clipping/colliding with the
+        // window drag handle! -9 makes the distance between the handle and the
+        // last button equal as that of the developer console.
+        if (ImGui::Button("Private servers", ImVec2(itemWidth - 9, ImGui::GetFrameHeight())))
         {
             ImGui::OpenPopup("Private Server");
         }
+
         HiddenServersModal();
     }
+
     ImGui::PopItemWidth();
 }
 
@@ -367,13 +378,23 @@ void CBrowser::BrowserPanel(void)
 //-----------------------------------------------------------------------------
 void CBrowser::RefreshServerList(void)
 {
-    DevMsg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname->GetString());
+    Msg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname.GetString());
 
-    std::string svServerListMessage;
-    g_pServerListManager->RefreshServerList(svServerListMessage);
+    // Thread the request, and let the main thread assign status message back
+    std::thread request([&]
+        {
+            std::string serverListMessage;
+            size_t numServers;
+            g_ServerListManager.RefreshServerList(serverListMessage, numServers);
 
-    std::lock_guard<std::mutex> l(m_Mutex);
-    m_svServerListMessage = svServerListMessage;
+            g_TaskQueue.Dispatch([&, serverListMessage]
+                {
+                    SetServerListMessage(serverListMessage.c_str());
+                }, 0);
+        }
+    );
+
+    request.detach();
 }
 
 //-----------------------------------------------------------------------------
@@ -381,32 +402,31 @@ void CBrowser::RefreshServerList(void)
 //-----------------------------------------------------------------------------
 void CBrowser::HiddenServersModal(void)
 {
-    float flHeight; // Set the padding accordingly for each theme.
-    switch (m_Style)
+    float modalWindowHeight; // Set the padding accordingly for each theme.
+    switch (m_surfaceStyle)
     {
     case ImGuiStyle_t::LEGACY:
-        flHeight = 207.f;
+        modalWindowHeight = 207.f;
         break;
     case ImGuiStyle_t::MODERN:
-        flHeight = 214.f;
+        modalWindowHeight = 214.f;
         break;
     default:
-        flHeight = 206.f;
+        modalWindowHeight = 206.f;
         break;
     }
 
-    int nVars = 0;
-    bool bModalOpen = true;
+    int modalStyleVars = 0;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(408.f, modalWindowHeight));    modalStyleVars++;
 
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(408.f, flHeight));    nVars++;
-
-    if (ImGui::BeginPopupModal("Private Server", &bModalOpen, ImGuiWindowFlags_NoResize))
+    bool isModalStillOpen = true;
+    if (ImGui::BeginPopupModal("Private Server", &isModalStillOpen, ImGuiWindowFlags_NoResize))
     {
-        ImGui::SetWindowSize(ImVec2(408.f, flHeight), ImGuiCond_Always);
+        ImGui::SetWindowSize(ImVec2(408.f, modalWindowHeight), ImGuiCond_Always);
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f)); // Override the style color for child bg.
 
-        ImGui::BeginChild("##HiddenServersConnectModal_IconParent", ImVec2(float(m_rLockedIconBlob.m_nWidth), float(m_rLockedIconBlob.m_nHeight)));
-        ImGui::Image(m_idLockedIcon, ImVec2(float(m_rLockedIconBlob.m_nWidth), float(m_rLockedIconBlob.m_nHeight))); // Display texture.
+        ImGui::BeginChild("##HiddenServersConnectModal_IconParent", ImVec2(float(m_lockedIconDataResource.m_nWidth), float(m_lockedIconDataResource.m_nHeight)));
+        ImGui::Image(m_lockedIconShaderResource, ImVec2(float(m_lockedIconDataResource.m_nWidth), float(m_lockedIconDataResource.m_nHeight))); // Display texture.
         ImGui::EndChild();
 
         ImGui::PopStyleColor(); // Pop the override for the child bg.
@@ -414,101 +434,106 @@ void CBrowser::HiddenServersModal(void)
         ImGui::SameLine();
         ImGui::Text("Enter token to connect");
 
-        ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
-        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", &m_svHiddenServerToken);
+        const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
+        ImGui::PushItemWidth(contentRegionMax.x); // Override item width.
+
+        string hiddenServerToken;
+        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (required)", &hiddenServerToken);
+
         ImGui::PopItemWidth();
 
-        if (m_bReclaimFocusTokenField)
+        if (m_reclaimFocusOnTokenField)
         {
             ImGui::SetKeyboardFocusHere(-1); // -1 means previous widget.
-            m_bReclaimFocusTokenField = false;
+            m_reclaimFocusOnTokenField = false;
         }
 
-        ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f)); // Place a dummy, basically making space inserting a blank element.
+        ImGui::Dummy(ImVec2(contentRegionMax.x, 19.f)); // Place a dummy, basically making space inserting a blank element.
 
-        ImGui::TextColored(m_ivHiddenServerMessageColor, "%s", m_svHiddenServerRequestMessage.c_str());
+        ImGui::TextColored(m_hiddenServerMessageColor, "%s", m_hiddenServerRequestMessage.c_str());
         ImGui::Separator();
 
-        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
+        if (ImGui::Button("Connect", ImVec2(contentRegionMax.x, 24)))
         {
-            m_svHiddenServerRequestMessage.clear();
-            m_bReclaimFocusTokenField = true;
+            m_hiddenServerRequestMessage.clear();
+            m_reclaimFocusOnTokenField = true;
 
-            if (!m_svHiddenServerToken.empty())
+            if (!hiddenServerToken.empty())
             {
                 NetGameServer_t server;
-                bool result = g_pMasterServer->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
+                const bool result = g_MasterServer.GetServerByToken(server, m_hiddenServerRequestMessage, hiddenServerToken); // Send token connect request.
 
-                if (result && !server.m_svHostName.empty())
+                if (result && !server.name.empty())
                 {
-                    g_pServerListManager->ConnectToServer(server.m_svIpAddress, server.m_svGamePort, server.m_svEncryptionKey); // Connect to the server
-                    m_svHiddenServerRequestMessage = Format("Found server: %s", server.m_svHostName.c_str());
-                    m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+                    g_ServerListManager.ConnectToServer(server.address, server.port, server.netKey); // Connect to the server
+                    m_hiddenServerRequestMessage = Format("Found server: %s", server.name.c_str());
+                    m_hiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
                     ImGui::CloseCurrentPopup();
                 }
                 else
                 {
-                    if (m_svHiddenServerRequestMessage.empty())
+                    if (m_hiddenServerRequestMessage.empty())
                     {
-                        m_svHiddenServerRequestMessage = "Unknown error.";
+                        m_hiddenServerRequestMessage = "Unknown error.";
                     }
                     else // Display error message.
                     {
-                        m_svHiddenServerRequestMessage = Format("Error: %s", m_svHiddenServerRequestMessage.c_str());
+                        m_hiddenServerRequestMessage = Format("Error: %s", m_hiddenServerRequestMessage.c_str());
                     }
-                    m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                    m_hiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
             }
             else
             {
-                m_svHiddenServerRequestMessage = "Token is required.";
-                m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                m_hiddenServerRequestMessage = "Token is required.";
+                m_hiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
-        if (ImGui::Button("Close", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
+
+        if (ImGui::Button("Close", ImVec2(contentRegionMax.x, 24)))
         {
-            m_svHiddenServerRequestMessage.clear();
-            m_bReclaimFocusTokenField = true;
+            m_hiddenServerRequestMessage.clear();
+            m_reclaimFocusOnTokenField = true;
 
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
-        ImGui::PopStyleVar(nVars);
+        ImGui::PopStyleVar(modalStyleVars);
     }
-    else if (!bModalOpen)
+    else if (!isModalStillOpen)
     {
-        m_svHiddenServerRequestMessage.clear();
-        m_bReclaimFocusTokenField = true;
+        m_hiddenServerRequestMessage.clear();
+        m_reclaimFocusOnTokenField = true;
 
-        ImGui::PopStyleVar(nVars);
+        ImGui::PopStyleVar(modalStyleVars);
     }
     else
     {
-        ImGui::PopStyleVar(nVars);
+        ImGui::PopStyleVar(modalStyleVars);
     }
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: draws the host section
 //-----------------------------------------------------------------------------
-void CBrowser::HostPanel(void)
+void CBrowser::DrawHostPanel(void)
 {
 #ifndef CLIENT_DLL
-    std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+    NetGameServer_t& details = g_ServerHostManager.GetDetails();
 
-    ImGui::InputTextWithHint("##ServerHost_ServerName", "Server name (required)", &g_pServerListManager->m_Server.m_svHostName);
-    ImGui::InputTextWithHint("##ServerHost_ServerDesc", "Server description (optional)", &g_pServerListManager->m_Server.m_svDescription);
+    ImGui::InputTextWithHint("##ServerHost_ServerName", "Server name (required)", &details.name);
+    ImGui::InputTextWithHint("##ServerHost_ServerDesc", "Server description (optional)", &details.description);
     ImGui::Spacing();
 
-    if (ImGui::BeginCombo("Mode", g_pServerListManager->m_Server.m_svPlaylist.c_str()))
+    if (ImGui::BeginCombo("Mode", details.playlist.c_str()))
     {
         g_PlaylistsVecMutex.lock();
         for (const string& svPlaylist : g_vAllPlaylists)
         {
-            if (ImGui::Selectable(svPlaylist.c_str(), svPlaylist == g_pServerListManager->m_Server.m_svPlaylist))
+            if (ImGui::Selectable(svPlaylist.c_str(), svPlaylist == details.playlist))
             {
-                g_pServerListManager->m_Server.m_svPlaylist = svPlaylist;
+                details.playlist = svPlaylist;
             }
         }
 
@@ -516,14 +541,18 @@ void CBrowser::HostPanel(void)
         ImGui::EndCombo();
     }
 
-    if (ImGui::BeginCombo("Map", g_pServerListManager->m_Server.m_svHostMap.c_str()))
+    if (ImGui::BeginCombo("Map", details.map.c_str()))
     {
         g_InstalledMapsMutex.lock();
-        for (const string& svMap : g_InstalledMaps)
+
+        FOR_EACH_VEC(g_InstalledMaps, i)
         {
-            if (ImGui::Selectable(svMap.c_str(), svMap == g_pServerListManager->m_Server.m_svHostMap))
+            const CUtlString& mapName = g_InstalledMaps[i];
+
+            if (ImGui::Selectable(mapName.String(),
+                mapName.IsEqual_CaseInsensitive(details.map.c_str())))
             {
-                g_pServerListManager->m_Server.m_svHostMap = svMap;
+                details.map = mapName.String();
             }
         }
 
@@ -531,121 +560,116 @@ void CBrowser::HostPanel(void)
         ImGui::EndCombo();
     }
 
-    m_bQueryGlobalBanList = sv_globalBanlist->GetBool(); // Sync toggle with 'sv_globalBanlist'.
-    if (ImGui::Checkbox("Load global banned list", &m_bQueryGlobalBanList))
+    m_queryGlobalBanList = sv_globalBanlist.GetBool(); // Sync toggle with 'sv_globalBanlist'.
+    if (ImGui::Checkbox("Load global banned list", &m_queryGlobalBanList))
     {
-        sv_globalBanlist->SetValue(m_bQueryGlobalBanList);
+        sv_globalBanlist.SetValue(m_queryGlobalBanList);
     }
 
     ImGui::Text("Server visibility");
 
-    if (ImGui::SameLine(); ImGui::RadioButton("offline", g_pServerListManager->m_ServerVisibility == EServerVisibility_t::OFFLINE))
+    if (ImGui::SameLine(); ImGui::RadioButton("offline", g_ServerHostManager.GetVisibility() == ServerVisibility_e::OFFLINE))
     {
-        g_pServerListManager->m_ServerVisibility = EServerVisibility_t::OFFLINE;
+        g_ServerHostManager.SetVisibility(ServerVisibility_e::OFFLINE);
     }
-    if (ImGui::SameLine(); ImGui::RadioButton("hidden", g_pServerListManager->m_ServerVisibility == EServerVisibility_t::HIDDEN))
+    if (ImGui::SameLine(); ImGui::RadioButton("hidden", g_ServerHostManager.GetVisibility() == ServerVisibility_e::HIDDEN))
     {
-        g_pServerListManager->m_ServerVisibility = EServerVisibility_t::HIDDEN;
+        g_ServerHostManager.SetVisibility(ServerVisibility_e::HIDDEN);
     }
-    if (ImGui::SameLine(); ImGui::RadioButton("public", g_pServerListManager->m_ServerVisibility == EServerVisibility_t::PUBLIC))
+    if (ImGui::SameLine(); ImGui::RadioButton("public", g_ServerHostManager.GetVisibility() == ServerVisibility_e::PUBLIC))
     {
-        g_pServerListManager->m_ServerVisibility = EServerVisibility_t::PUBLIC;
+        g_ServerHostManager.SetVisibility(ServerVisibility_e::PUBLIC);
     }
 
-    ImGui::TextColored(m_HostRequestMessageColor, "%s", m_svHostRequestMessage.c_str());
-    if (!m_svHostToken.empty())
+    ImGui::TextColored(m_hostMessageColor, "%s", m_hostMessage.c_str());
+    if (!m_hostToken.empty())
     {
-        ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
+        ImGui::InputText("##ServerHost_HostToken", &m_hostToken, ImGuiInputTextFlags_ReadOnly);
     }
 
     ImGui::Spacing();
 
-    const bool bServerActive = g_pServer->IsActive();
+    const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
+    const bool serverActive = g_pServer->IsActive();
 
     if (!g_pHostState->m_bActiveGame)
     {
-        if (ImGui::Button("Start server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Start server", ImVec2(contentRegionMax.x, 32)))
         {
-            m_svHostRequestMessage.clear();
+            m_hostMessage.clear();
 
-            bool bEnforceField = g_pServerListManager->m_ServerVisibility == EServerVisibility_t::OFFLINE ? true : !g_pServerListManager->m_Server.m_svHostName.empty();
-            if (bEnforceField && !g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
+            const bool enforceField = g_ServerHostManager.GetVisibility() == ServerVisibility_e::OFFLINE
+                ? true 
+                : !details.name.empty();
+
+            if (enforceField && !details.playlist.empty() && !details.map.empty())
             {
-                g_pServerListManager->LaunchServer(bServerActive); // Launch server.
+                g_ServerHostManager.LaunchServer(serverActive); // Launch server.
             }
             else
             {
-                if (g_pServerListManager->m_Server.m_svHostName.empty())
+                if (details.name.empty())
                 {
-                    m_svHostRequestMessage = "Server name is required.";
-                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                    m_hostMessage = "Server name is required.";
+                    m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
-                else if (g_pServerListManager->m_Server.m_svPlaylist.empty())
+                else if (details.playlist.empty())
                 {
-                    m_svHostRequestMessage = "Playlist is required.";
-                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                    m_hostMessage = "Playlist is required.";
+                    m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
-                else if (g_pServerListManager->m_Server.m_svHostMap.empty())
+                else if (details.map.empty())
                 {
-                    m_svHostRequestMessage = "Level name is required.";
-                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                    m_hostMessage = "Level name is required.";
+                    m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
             }
         }
-        if (ImGui::Button("Reload playlist", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+
+        if (ImGui::Button("Reload playlist", ImVec2(contentRegionMax.x, 32)))
         {
-            g_TaskScheduler->Dispatch([]()
-                {
-                    _DownloadPlaylists_f();
-                    KeyValues::InitPlaylists(); // Re-Init playlist.
-                }, 0);
+            v_Playlists_Download_f();
+            Playlists_SDKInit(); // Re-Init playlist.
         }
 
-        if (ImGui::Button("Reload banlist", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Reload banlist", ImVec2(contentRegionMax.x, 32)))
         {
-            g_TaskScheduler->Dispatch([]()
-                {
-                    g_pBanSystem->Load();
-                }, 0);
+            g_BanSystem.LoadList();
         }
     }
     else
     {
-        if (ImGui::Button("Stop server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Stop server", ImVec2(contentRegionMax.x, 32)))
         {
             ProcessCommand("LeaveMatch"); // TODO: use script callback instead.
-            g_TaskScheduler->Dispatch([]()
-                {
-                    // Force CHostState::FrameUpdate to shutdown the server for dedicated.
-                    g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
-                }, 0);
+            g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
         }
 
-        if (ImGui::Button("Change level", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (ImGui::Button("Change level", ImVec2(contentRegionMax.x, 32)))
         {
-            if (!g_pServerListManager->m_Server.m_svHostMap.empty())
+            if (!details.map.empty())
             {
-                g_pServerListManager->LaunchServer(bServerActive);
+                g_ServerHostManager.LaunchServer(serverActive);
             }
             else
             {
-                m_svHostRequestMessage = "Failed to change level: 'levelname' was empty.";
-                m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                m_hostMessage = "Failed to change level: 'levelname' was empty.";
+                m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
 
-        if (bServerActive)
+        if (serverActive)
         {
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::Spacing();
 
-            if (ImGui::Button("AI network rebuild", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            if (ImGui::Button("AI network rebuild", ImVec2(contentRegionMax.x, 32)))
             {
                 ProcessCommand("BuildAINFile");
             }
 
-            if (ImGui::Button("NavMesh hot swap", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            if (ImGui::Button("NavMesh hot swap", ImVec2(contentRegionMax.x, 32)))
             {
                 ProcessCommand("navmesh_hotswap");
             }
@@ -654,9 +678,9 @@ void CBrowser::HostPanel(void)
             ImGui::Separator();
             ImGui::Spacing();
 
-            if (ImGui::Button("AI settings reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            if (ImGui::Button("AI settings reparse", ImVec2(contentRegionMax.x, 32)))
             {
-                DevMsg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
+                Msg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
                 ProcessCommand("aisettings_reparse");
 
                 if (g_pClientState->IsActive())
@@ -665,9 +689,9 @@ void CBrowser::HostPanel(void)
                 }
             }
 
-            if (ImGui::Button("Weapon settings reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            if (ImGui::Button("Weapon settings reparse", ImVec2(contentRegionMax.x, 32)))
             {
-                DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
+                Msg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
                 ProcessCommand("weapon_reparse");
             }
         }
@@ -683,31 +707,36 @@ void CBrowser::UpdateHostingStatus(void)
 #ifndef CLIENT_DLL
     assert(g_pHostState && g_pCVar);
 
-    std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-    g_pServerListManager->m_HostingStatus = g_pServer->IsActive() ? EHostStatus_t::HOSTING : EHostStatus_t::NOT_HOSTING; // Are we hosting a server?
+    const HostStatus_e hostStatus = (g_ServerHostManager.GetVisibility() != ServerVisibility_e::OFFLINE && g_pServer->IsActive())
+        ? HostStatus_e::HOSTING 
+        : HostStatus_e::NOT_HOSTING;
 
-    switch (g_pServerListManager->m_HostingStatus)
+    g_ServerHostManager.SetHostStatus(hostStatus); // Are we hosting a server?
+
+    switch (hostStatus)
     {
-    case EHostStatus_t::NOT_HOSTING:
+    case HostStatus_e::NOT_HOSTING:
     {
-        std::lock_guard<std::mutex> g(m_Mutex);
-        if (!m_svHostToken.empty())
+        if (!m_hostToken.empty())
         {
-            m_svHostToken.clear();
+            m_hostToken.clear();
         }
 
-        if (ImGui::ColorConvertFloat4ToU32(m_HostRequestMessageColor) == // Only clear if this is green (a valid hosting message).
+        if (ImGui::ColorConvertFloat4ToU32(m_hostMessageColor) == // Only clear if this is green (a valid hosting message).
             ImGui::ColorConvertFloat4ToU32(ImVec4(0.00f, 1.00f, 0.00f, 1.00f)))
         {
-            m_svHostRequestMessage.clear();
-            m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+            m_hostMessage.clear();
+            m_hostMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         }
 
         break;
     }
-    case EHostStatus_t::HOSTING:
+    case HostStatus_e::HOSTING:
     {
-        if (g_pServerListManager->m_ServerVisibility == EServerVisibility_t::OFFLINE)
+        const ServerVisibility_e serverVisibility = g_ServerHostManager.GetVisibility();
+        NetGameServer_t& details = g_ServerHostManager.GetDetails();
+
+        if (serverVisibility == ServerVisibility_e::OFFLINE)
         {
             break;
         }
@@ -717,46 +746,39 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
-        switch (g_pServerListManager->m_ServerVisibility)
+        switch (serverVisibility)
         {
 
-        case EServerVisibility_t::HIDDEN:
-            g_pServerListManager->m_Server.m_bHidden = true;
+        case ServerVisibility_e::HIDDEN:
+            details.hidden = true;
             break;
-        case EServerVisibility_t::PUBLIC:
-            g_pServerListManager->m_Server.m_bHidden = false;
+        case ServerVisibility_e::PUBLIC:
+            details.hidden = false;
             break;
         default:
             break;
         }
 
-        g_TaskScheduler->Dispatch([this]()
+        const NetGameServer_t netGameServer
         {
-            std::lock_guard<std::mutex> f(g_pServerListManager->m_Mutex);
-            NetGameServer_t netGameServer
-            {
-                g_pServerListManager->m_Server.m_svHostName,
-                g_pServerListManager->m_Server.m_svDescription,
-                g_pServerListManager->m_Server.m_bHidden,
-                g_pHostState->m_levelName,
-                KeyValues_GetCurrentPlaylist(),
-                hostip->GetString(),
-                hostport->GetString(),
-                g_pNetKey->GetBase64NetKey(),
-                std::to_string(*g_nServerRemoteChecksum),
-                SDK_VERSION,
-                std::to_string(g_pServer->GetNumClients()),
-                std::to_string(g_ServerGlobalVariables->m_nMaxClients),
-                std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::system_clock::now().time_since_epoch()
-                    ).count()
-            };
+            details.name,
+            details.description,
+            details.hidden,
+            g_pHostState->m_levelName,
+            v_Playlists_GetCurrent(),
+            hostip->GetString(),
+            hostport->GetInt(),
+            g_pNetKey->GetBase64NetKey(),
+            *g_nServerRemoteChecksum,
+            SDK_VERSION,
+            g_pServer->GetNumClients(),
+            g_ServerGlobalVariables->m_nMaxClients,
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+                ).count()
+        };
 
-        std::thread post(&CBrowser::SendHostingPostRequest, this, netGameServer);
-        post.detach();
-
-            }, 0);
-
+        SendHostingPostRequest(netGameServer);
         break;
     }
     default:
@@ -766,89 +788,84 @@ void CBrowser::UpdateHostingStatus(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sends the hosting POST request to the comp server
+// Purpose: sends the hosting POST request to the comp server and installs the
+//          host data on the server browser
 // Input  : &gameServer - 
 //-----------------------------------------------------------------------------
 void CBrowser::SendHostingPostRequest(const NetGameServer_t& gameServer)
 {
 #ifndef CLIENT_DLL
-    string svHostRequestMessage;
-    string svHostToken;
-    bool result = g_pMasterServer->PostServerHost(svHostRequestMessage, svHostToken, gameServer);
-
-    std::lock_guard<std::mutex> l(m_Mutex);
-
-    m_svHostRequestMessage = svHostRequestMessage;
-    m_svHostToken = svHostToken;
-
-    if (result)
-    {
-        m_HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
-        stringstream ssMessage;
-        ssMessage << "Broadcasting: ";
-        if (!m_svHostToken.empty())
+    std::thread request([&, gameServer]
         {
-            ssMessage << "share the following token for clients to connect: ";
+            string hostRequestMessage;
+            string hostToken;
+            string hostIp;
+
+            const bool result = g_MasterServer.PostServerHost(hostRequestMessage, hostToken, hostIp, gameServer);
+
+            g_TaskQueue.Dispatch([&, result, hostRequestMessage, hostToken, hostIp]
+                {
+                    InstallHostingDetails(result, hostRequestMessage.c_str(), hostToken.c_str(), hostIp);
+                }, 0);
         }
-        m_svHostRequestMessage = ssMessage.str();
+    );
+    request.detach();
+#endif // !CLIENT_DLL
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: installs the host data on the server browser
+// Input  : postFailed - 
+//          *hostMessage - 
+//          *hostToken - 
+//          &hostIp - 
+//-----------------------------------------------------------------------------
+void CBrowser::InstallHostingDetails(const bool postFailed, const char* const hostMessage, const char* const hostToken, const string& hostIp)
+{
+#ifndef CLIENT_DLL
+    m_hostMessage = hostMessage;
+    m_hostToken = hostToken;
+
+    if (!hostIp.empty())
+    {
+        g_ServerHostManager.SetHostIP(hostIp);
+    }
+
+    if (postFailed)
+    {
+        m_hostMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+        stringstream ssMessage;
+        ssMessage << "Broadcasting";
+        if (!m_hostToken.empty())
+        {
+            ssMessage << ": share the following token for clients to connect: ";
+        }
+
+        m_hostMessage = ssMessage.str();
     }
     else
     {
-        m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+        m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     }
 #endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: processes submitted commands for the main thread
+// Purpose: processes submitted commands
 // Input  : *pszCommand - 
 //-----------------------------------------------------------------------------
 void CBrowser::ProcessCommand(const char* pszCommand) const
 {
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
-    //g_TaskScheduler->Dispatch(Cbuf_Execute, 0); // Run in main thread.
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draws the settings section
+// Purpose: toggles the server browser
 //-----------------------------------------------------------------------------
-void CBrowser::SettingsPanel(void)
+void CBrowser::ToggleBrowser_f()
 {
-    ImGui::InputTextWithHint("Hostname", "Matchmaking host name", &m_szMatchmakingHostName);
-    if (ImGui::Button("Update hostname"))
-    {
-        ProcessCommand(Format("%s \"%s\"", pylon_matchmaking_hostname->GetName(), m_szMatchmakingHostName.c_str()).c_str());
-    }
-
-    // The 'const' qualifier has been casted away, however the readonly flag is set.
-    // Still a hack, but better than modifying the Dear ImGui lib even more..
-    ImGui::InputTextWithHint("Netkey", "Network encryption key", const_cast<char*>(g_pNetKey->GetBase64NetKey()), ImGuiInputTextFlags_ReadOnly);
-    if (ImGui::Button("Regenerate encryption key"))
-    {
-        g_TaskScheduler->Dispatch(NET_GenerateKey, 0);
-    }
+    g_Browser.m_activated ^= true;
+    ResetInput(); // Disable input to game when browser is drawn.
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: hooked to 'MP_HostName_Changed_f' to sync hostname field with 
-// the 'pylon_matchmaking_hostname' ConVar (!!! DO NOT USE !!!).
-// Input  : *pszHostName - 
-//-----------------------------------------------------------------------------
-void CBrowser::SetHostName(const char* pszHostName)
-{
-    std::lock_guard<std::mutex> l(m_Mutex);
-    m_szMatchmakingHostName = pszHostName;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: sets the browser front-end style
-//-----------------------------------------------------------------------------
-void CBrowser::SetStyleVar(void)
-{
-    m_Style = g_pImGuiConfig->InitStyle();
-
-    ImGui::SetNextWindowSize(ImVec2(928.f, 524.f), ImGuiCond_FirstUseEver);
-    ImGui::SetWindowPos(ImVec2(-500.f, 50.f), ImGuiCond_FirstUseEver);
-}
-
-CBrowser* g_pBrowser = new CBrowser();
+CBrowser g_Browser;

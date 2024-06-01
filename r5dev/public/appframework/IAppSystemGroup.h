@@ -3,6 +3,7 @@
 
 #include "tier1/interface.h"
 #include "tier1/utlvector.h"
+#include "tier1/utldict.h"
 #include "filesystem/filesystem.h"
 
 //-----------------------------------------------------------------------------
@@ -76,10 +77,13 @@ public:
 	// Returns the stage at which the app system group ran into an error
 	AppSystemGroupStage_t GetCurrentStage() const;
 
+	// Method to look up a particular named system...
+	void* FindSystem(const char* pInterfaceName);
+
 private:
 	struct Module_t
 	{
-		void /*CSysModule*/* m_pModule;
+		CSysModule* m_pModule;
 		CreateInterfaceFn m_Factory;
 		char* m_pModuleName;
 	};
@@ -88,34 +92,28 @@ protected:
 	CUtlVector<Module_t> m_Modules;
 	CUtlVector<IAppSystem*> m_Systems;
 	CUtlVector<CreateInterfaceFn> m_NonAppSystemFactories;
-	char m_Pad[56]; // <-- unknown
+	CUtlDict<int, unsigned short> m_SystemDict;
+	CAppSystemGroup* m_pParentAppSystem;
 	AppSystemGroupStage_t m_nCurrentStage;
 };
 static_assert(sizeof(CAppSystemGroup) == 0xA8);
 
-inline CMemory p_CAppSystemGroup_Destroy;
-inline void(*CAppSystemGroup_Destroy)(CAppSystemGroup* pAppSystemGroup);
+inline void(*CAppSystemGroup__Destroy)(CAppSystemGroup* pAppSystemGroup);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VAppSystemGroup : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CAppSystemGroup::Destroy", p_CAppSystemGroup_Destroy.GetPtr());
+		LogFunAdr("CAppSystemGroup::Destroy", CAppSystemGroup__Destroy);
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CAppSystemGroup_Destroy = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 20 8B 81 ?? ?? ?? ??");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CAppSystemGroup_Destroy = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B 81 ?? ?? ?? ?? 48 8B F9");
-#endif
-		CAppSystemGroup_Destroy = p_CAppSystemGroup_Destroy.RCast<void(*)(CAppSystemGroup*)>();
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B 81 ?? ?? ?? ?? 48 8B F9").GetPtr(CAppSystemGroup__Destroy);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 
 #endif // APPSYSTEMGROUP_H

@@ -17,25 +17,20 @@
 //-----------------------------------------------------------------------------
 int CEngineVGui::Paint(CEngineVGui* thisptr, PaintMode_t mode)
 {
-	int result = CEngineVGui_Paint(thisptr, mode);
+	int result = CEngineVGui__Paint(thisptr, mode);
 
 	if (/*mode == PaintMode_t::PAINT_UIPANELS ||*/ mode == PaintMode_t::PAINT_INGAMEPANELS) // Render in-main menu and in-game.
 	{
-		g_pOverlay->Update();
+		g_TextOverlay.Update();
 	}
 
 	return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VEngineVGui::Attach() const
+void VEngineVGui::Detour(const bool bAttach) const
 {
-	DetourAttach((LPVOID*)&CEngineVGui_Paint, &CEngineVGui::Paint);
-}
-
-void VEngineVGui::Detach() const
-{
-	DetourDetach((LPVOID*)&CEngineVGui_Paint, &CEngineVGui::Paint);
+	DetourSetup(&CEngineVGui__Paint, &CEngineVGui::Paint, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -5,10 +5,10 @@
 
 bool Localize_LoadLocalizationFileLists(CLocalize* thisptr)
 {
-	v_CLocalize__LoadLocalizationFileLists(thisptr);
+	CLocalize__LoadLocalizationFileLists(thisptr);
 
 	const CUtlVector<CModSystem::ModInstance_t*>&
-		modList = g_pModSystem->GetModList();
+		modList = ModSystem()->GetModList();
 
 	FOR_EACH_VEC(modList, i)
 	{
@@ -22,7 +22,7 @@ bool Localize_LoadLocalizationFileLists(CLocalize* thisptr)
 		{
 			const char* localizationFile = mod->m_LocalizationFiles.Element(j).Get();
 
-			if (!v_CLocalize__AddFile(thisptr, localizationFile, "PLATFORM"))
+			if (!CLocalize__AddFile(thisptr, localizationFile, "PLATFORM"))
 				Warning(eDLL_T::ENGINE, "Failed to add localization file '%s'\n", localizationFile);
 		}
 	}
@@ -30,12 +30,18 @@ bool Localize_LoadLocalizationFileLists(CLocalize* thisptr)
 	return true;
 }
 
-void VLocalize::Attach() const
+bool Localize_IsLanguageSupported(const char* pLocaleName)
 {
-	DetourAttach((LPVOID*)&v_CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists);
+	for (int i = 0; i < SDK_ARRAYSIZE(g_LanguageNames); ++i)
+	{
+		if (strcmp(pLocaleName, g_LanguageNames[i]) == NULL)
+			return true;
+	}
+
+	return false;
 }
 
-void VLocalize::Detach() const
+void VLocalize::Detour(const bool bAttach) const
 {
-	DetourDetach((LPVOID*)&v_CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists);
+	DetourSetup(&CLocalize__LoadLocalizationFileLists, &Localize_LoadLocalizationFileLists, bAttach);
 }

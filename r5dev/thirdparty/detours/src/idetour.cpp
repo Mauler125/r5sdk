@@ -6,6 +6,8 @@
 #include <cassert>
 #include <vector>
 #include <unordered_set>
+#include <Windows.h>
+#include "../include/detours.h"
 #include "../include/idetour.h"
 
 //-----------------------------------------------------------------------------

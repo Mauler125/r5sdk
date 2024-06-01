@@ -26,7 +26,7 @@ public:
 	float				GetModelScale() const { return m_flModelScale; }
 
 protected:
-	char gap_b04[8]; // Aligns properly in IDA and generated code after setting from 12 to 8.
+	void* __vftable;
 	bool m_markedForServerInterpolation;
 	bool m_animRemoveFromServerInterpolationNextFrame;
 	char gap_b12[2];
@@ -135,28 +135,22 @@ protected:
 	int m_numAnimSyncScriptProps;
 };
 
-inline CMemory p_CBaseAnimating__LockStudioHdr;
-inline CBaseAnimating*(*v_CBaseAnimating__LockStudioHdr)(CBaseAnimating* thisp);
-
-void BaseAnimating_Attach();
-void BaseAnimating_Detach();
+inline CBaseAnimating*(*CBaseAnimating__LockStudioHdr)(CBaseAnimating* thisp);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VBaseAnimating : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CBaseAnimating::LockStudioHdr", p_CBaseAnimating__LockStudioHdr.GetPtr());
+		LogFunAdr("CBaseAnimating::LockStudioHdr", CBaseAnimating__LockStudioHdr);
 	}
 	virtual void GetFun(void) const
 	{
-		p_CBaseAnimating__LockStudioHdr = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 20 0F BF 41 58");
-		v_CBaseAnimating__LockStudioHdr = p_CBaseAnimating__LockStudioHdr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 20 0F BF 41 58").GetPtr(CBaseAnimating__LockStudioHdr);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Detour(const bool bAttach) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

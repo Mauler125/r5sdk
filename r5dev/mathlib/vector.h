@@ -1958,7 +1958,7 @@ void Quaternion::Print() const
 {
 #ifndef _CERT
 #if !defined(__SPU__)
-	DevMsg(eDLL_T::COMMON, "q{ %.3fi + %.3fj + %.3fk + %.3f }", x, y, z, w);
+	Msg(eDLL_T::COMMON, "q{ %.3fi + %.3fj + %.3fk + %.3f }", x, y, z, w);
 #endif
 #endif
 }
@@ -2428,6 +2428,7 @@ public:
 
 	void Normalize();
 	void NormalizePositive();
+	inline Vector3D GetNormal() const;
 
 	inline struct matrix3x4_t ToMatrix() const;
 	inline Quaternion ToQuaternion() const;
@@ -2533,6 +2534,11 @@ inline void QAngle::NormalizePositive()
 	z = AngleNormalizePositive(z);
 }
 
+inline Vector3D QAngle::GetNormal() const
+{
+	Vector3D ret(cos(VEC_DEG2RAD(y)), sin(VEC_DEG2RAD(y)), -sin(VEC_DEG2RAD(x)));
+	return ret;
+}
 
 #if !defined(__SPU__)
 inline void QAngle::Random(vec_t minVal, vec_t maxVal)

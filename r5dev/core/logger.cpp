@@ -9,13 +9,13 @@
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
 #endif // !CLIENT_DLL
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 #include "vscript/languages/squirrel_re/include/sqstdaux.h"
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 static const std::regex s_AnsiRowRegex("\\\033\\[.*?m");
 std::mutex g_LogMutex;
 
-#if !defined (DEDICATED) && !defined (NETCONSOLE)
+#if !defined (DEDICATED) && !defined (_TOOLS)
 ImVec4 CheckForWarnings(LogType_t type, eDLL_T context, const ImVec4& defaultCol)
 {
 	ImVec4 color = defaultCol;
@@ -67,7 +67,7 @@ ImVec4 GetColorForContext(LogType_t type, eDLL_T context)
 		return CheckForWarnings(type, context, ImVec4(0.81f, 0.81f, 0.81f, 1.00f));
 	}
 }
-#endif // !DEDICATED && !NETCONSOLE
+#endif // !DEDICATED && !_TOOLS
 
 const char* GetContextNameByIndex(eDLL_T context, const bool ansiColor = false)
 {
@@ -150,18 +150,18 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	const char* pszContext = GetContextNameByIndex(context, bUseColor);
 	message.append(pszContext);
 
-#if !defined (DEDICATED) && !defined (NETCONSOLE)
+#if !defined (DEDICATED) && !defined (_TOOLS)
 	ImVec4 overlayColor = GetColorForContext(logType, context);
 	eDLL_T overlayContext = context;
-#endif // !DEDICATED && !NETCONSOLE
+#endif // !DEDICATED && !_TOOLS
 
-#if !defined (NETCONSOLE)
+#if !defined (_TOOLS)
 	bool bSquirrel = false;
 	bool bWarning = false;
 	bool bError = false;
 #else
 	NOTE_UNUSED(pszLogger);
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
 	//-------------------------------------------------------------------------
 	// Setup logger and context
@@ -169,24 +169,24 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	switch (logType)
 	{
 	case LogType_t::LOG_WARNING:
-#if !defined (DEDICATED) && !defined (NETCONSOLE)
+#if !defined (DEDICATED) && !defined (_TOOLS)
 		overlayContext = eDLL_T::SYSTEM_WARNING;
-#endif // !DEDICATED && !NETCONSOLE
+#endif // !DEDICATED && !_TOOLS
 		if (bUseColor)
 		{
 			message.append(g_svYellowF);
 		}
 		break;
 	case LogType_t::LOG_ERROR:
-#if !defined (DEDICATED) && !defined (NETCONSOLE)
+#if !defined (DEDICATED) && !defined (_TOOLS)
 		overlayContext = eDLL_T::SYSTEM_ERROR;
-#endif // !DEDICATED && !NETCONSOLE
+#endif // !DEDICATED && !_TOOLS
 		if (bUseColor)
 		{
 			message.append(g_svRedF);
 		}
 		break;
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 	case LogType_t::SQ_INFO:
 		bSquirrel = true;
 		break;
@@ -198,7 +198,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		bSquirrel = true;
 		bWarning = true;
 		break;
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 	default:
 		break;
 	}
@@ -211,7 +211,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	const string formatted = FormatV(pszFormat, argsCopy);
 	va_end(argsCopy);
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 	//-------------------------------------------------------------------------
 	// Colorize script warnings and errors
 	//-------------------------------------------------------------------------
@@ -253,7 +253,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 			message.append(g_svYellowF);
 		}
 	}
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 	message.append(formatted);
 
 	//-------------------------------------------------------------------------
@@ -271,7 +271,11 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		}
 	}
 
-#ifndef NETCONSOLE
+	// If a debugger is attached, emit the text there too
+	if (Plat_IsInDebugSession())
+		Plat_DebugString(message.c_str());
+
+#ifndef _TOOLS
 	// Output is always logged to the file.
 	std::shared_ptr<spdlog::logger> ntlogger = spdlog::get(pszLogger); // <-- Obtain by 'pszLogger'.
 	assert(ntlogger.get() != nullptr);
@@ -290,14 +294,14 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		g_ImGuiLogger->debug(message);
 
 		const string logStreamBuf = g_LogStream.str();
-		g_pConsole->AddLog(ConLog_t(logStreamBuf, overlayColor));
+		g_Console.AddLog(logStreamBuf.c_str(), ImGui::ColorConvertFloat4ToU32(overlayColor));
 
 		// We can only log to the in-game overlay console when the SDK has
 		// been fully initialized, due to the use of ConVar's.
 		if (g_bSdkInitialized && logLevel >= LogLevel_t::LEVEL_NOTIFY)
 		{
 			// Draw to mini console.
-			g_pOverlay->AddLog(overlayContext, logStreamBuf.c_str());
+			g_TextOverlay.AddLog(overlayContext, logStreamBuf.c_str());
 		}
 #endif // !DEDICATED
 	}
@@ -307,7 +311,12 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	g_LogStream.clear();
 #endif // !DEDICATED
 
-#endif // !NETCONSOLE
+#else
+	if (g_SuppementalToolsLogger)
+	{
+		g_SuppementalToolsLogger->debug(message);
+	}
+#endif
 
 	if (exitCode) // Terminate the process if an exit code was passed.
 	{

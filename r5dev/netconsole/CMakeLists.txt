@@ -40,7 +40,7 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/bin/"
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
-    "NETCONSOLE"
+    "_TOOLS"
 )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier0"

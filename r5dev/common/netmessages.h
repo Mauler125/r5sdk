@@ -7,6 +7,7 @@
 
 #pragma once
 #include "tier1/bitbuf.h"
+#include "common/qlimits.h"
 #include "public/inetchannel.h"
 #include "public/inetmessage.h"
 #include "public/inetmsghandler.h"
@@ -184,6 +185,24 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////
 // server messages:
 ///////////////////////////////////////////////////////////////////////////////////////
+class SVC_CreateStringTable : public CNetMessage
+{
+public:
+	const char* m_szTableName;
+	int m_nMaxEntries;
+	int m_nNumEntries;
+	char m_bUserDataFixedSize;
+	char _padding0[3];
+	int m_nUserDataSize;
+	int m_nUserDataSizeBits;
+	int m_nDictFlags;
+	int m_nLength;
+	bf_read m_DataIn;
+	bf_write m_DataOut;
+	char m_bDataCompressed;
+	char m_szTableNameBuffer[260];
+};
+
 class SVC_Print : public CNetMessage
 {
 public:
@@ -362,6 +381,10 @@ private:
 	bf_write	m_DataOut;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////
+// Client messages:
+///////////////////////////////////////////////////////////////////////////////////////
+
 class CLC_ClientTick : public CNetMessage
 {
 public:
@@ -427,13 +450,26 @@ private:
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
-// Client messages:
+// Shared messages:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 struct NET_StringCmd : CNetMessage
 {
 	const char* cmd;
 	char buffer[1024];
+};
+
+class NET_SetConVar : public CNetMessage
+{
+public:
+
+	typedef struct cvar_s
+	{
+		char	name[MAX_OSPATH];
+		char	value[MAX_OSPATH];
+	} cvar_t;
+
+	CUtlVector<cvar_t> m_ConVars;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -476,15 +512,15 @@ class V_NetMessages : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("SVC_Print::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_Print_VFTable));
-		LogConAdr("SVC_UserMessage::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
-		LogConAdr("SVC_ServerTick::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_ServerTick_VFTable));
-		LogConAdr("SVC_VoiceData::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_VoiceData_VFTable));
-		LogConAdr("SVC_PlaylistOverrides::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_PlaylistOverrides_VFTable));
-		LogConAdr("CLC_ClientTick::`vftable'", reinterpret_cast<uintptr_t>(g_pCLC_ClientTick_VFTable));
-		LogConAdr("CLC_SetPlaylistVarOverride::`vftable'", reinterpret_cast<uintptr_t>(g_pCLC_SetPlaylistVarOverride_VFTable));
-		LogConAdr("Base_CmdKeyValues::`vftable'", reinterpret_cast<uintptr_t>(g_pBase_CmdKeyValues_VFTable));
-		//LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
+		LogConAdr("SVC_Print::`vftable'", g_pSVC_Print_VFTable);
+		LogConAdr("SVC_UserMessage::`vftable'", g_pSVC_UserMessage_VFTable);
+		LogConAdr("SVC_ServerTick::`vftable'", g_pSVC_ServerTick_VFTable);
+		LogConAdr("SVC_VoiceData::`vftable'", g_pSVC_VoiceData_VFTable);
+		LogConAdr("SVC_PlaylistOverrides::`vftable'", g_pSVC_PlaylistOverrides_VFTable);
+		LogConAdr("CLC_ClientTick::`vftable'", g_pCLC_ClientTick_VFTable);
+		LogConAdr("CLC_SetPlaylistVarOverride::`vftable'", g_pCLC_SetPlaylistVarOverride_VFTable);
+		LogConAdr("Base_CmdKeyValues::`vftable'", g_pBase_CmdKeyValues_VFTable);
+		//LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString);
 	}
 	virtual void GetFun(void) const
 	{
@@ -504,8 +540,7 @@ class V_NetMessages : public IDetour
 		g_pCLC_SetPlaylistVarOverride_VFTable = g_GameDll.GetVirtualMethodTable(".?AVCLC_SetPlaylistVarOverride@@");
 		g_pBase_CmdKeyValues_VFTable = g_GameDll.GetVirtualMethodTable(".?AVBase_CmdKeyValues@@");
 	}
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

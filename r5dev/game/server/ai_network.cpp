@@ -11,6 +11,8 @@ int g_DebugConnectNode1 = -1;
 int g_DebugConnectNode2 = -1;
 #define DebuggingConnect( node1, node2 ) ( ( node1 == g_DebugConnectNode1 && node2 == g_DebugConnectNode2 ) || ( node1 == g_DebugConnectNode2 && node2 == g_DebugConnectNode1 ) )
 
+static ConVar ai_ainDebugConnect("ai_ainDebugConnect", "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections");
+
 //-----------------------------------------------------------------------------
 // Purpose: debug logs node connections
 // Input  : node1 - 
@@ -20,7 +22,7 @@ int g_DebugConnectNode2 = -1;
 //-----------------------------------------------------------------------------
 void CAI_Network::DebugConnectMsg(int node1, int node2, const char* pszFormat, ...)
 {
-	if (ai_ainDebugConnect->GetBool())
+	if (ai_ainDebugConnect.GetBool())
 	{
 		if (DebuggingConnect(node1, node2))
 		{
@@ -36,7 +38,7 @@ void CAI_Network::DebugConnectMsg(int node1, int node2, const char* pszFormat, .
 			}/////////////////////////////
 
 
-			DevMsg(eDLL_T::SERVER, "%s", buf);
+			Msg(eDLL_T::SERVER, "%s", buf);
 		}
 	}
 }
@@ -54,7 +56,7 @@ void* CAI_Network::GetVTable(void) const
 // Purpose: gets the number of node links
 // Output : int
 //-----------------------------------------------------------------------------
-int CAI_Network::GetNumLinks(void) const
+int CAI_Network::NumLinks(void) const
 {
 	return m_iNumLinks;
 }
@@ -63,7 +65,7 @@ int CAI_Network::GetNumLinks(void) const
 // Purpose: gets the number of zones
 // Output : int
 //-----------------------------------------------------------------------------
-int CAI_Network::GetNumZones(void) const
+int CAI_Network::NumZones(void) const
 {
 	return m_iNumZones;
 }
@@ -72,7 +74,7 @@ int CAI_Network::GetNumZones(void) const
 // Purpose: gets the number of hints
 // Output : int
 //-----------------------------------------------------------------------------
-int CAI_Network::GetNumHints(void) const
+int CAI_Network::NumHints(void) const
 {
 	return m_iNumHints;
 }
@@ -81,16 +83,16 @@ int CAI_Network::GetNumHints(void) const
 // Purpose: gets the number of script nodes
 // Output : int
 //-----------------------------------------------------------------------------
-int CAI_Network::GetNumScriptNodes(void) const
+int CAI_Network::NumScriptNodes(void) const
 {
 	return m_iNumScriptNodes;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the path nodes
-// Output : int64_t
+// Output : int
 //-----------------------------------------------------------------------------
-int64_t CAI_Network::GetNumPathNodes(void) const
+int CAI_Network::NumPathNodes(void) const
 {
 	return m_iNumNodes;
 }
@@ -115,21 +117,46 @@ CAI_ScriptNode* CAI_Network::GetScriptNodes(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the pointer to path nodes
+// Purpose: gets the pointer to path node
+// Input  : id - 
 // Output : CAI_Node**
 //-----------------------------------------------------------------------------
-CAI_Node** CAI_Network::GetPathNodes(void) const
+CAI_Node* CAI_Network::GetPathNode(int id) const
 {
-	return m_pAInode;
+	if (id >= 0 &&
+		id < m_iNumNodes)
+	{
+		return m_pAInode[id];
+	}
+
+	Assert(0);
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
-void VAI_Network::Attach() const
+// Purpose: adds a path node
+// Input  : *origin - 
+//          jaw - 
+// Output : CAI_Node*
+//-----------------------------------------------------------------------------
+CAI_Node* CAI_Network::AddPathNode(const Vector3D* origin, const float jaw)
 {
-	DetourAttach(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);
+	return CAI_Network__AddPathNode(this, origin, jaw);
 }
 
-void VAI_Network::Detach() const
+//-----------------------------------------------------------------------------
+// Purpose: creates a node link
+// Input  : srcID - 
+//          destID - 
+// Output : CAI_NodeLink*
+//-----------------------------------------------------------------------------
+CAI_NodeLink* CAI_Network::CreateNodeLink(int srcID, int destID)
 {
-	DetourDetach(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);
+	return CAI_Network__CreateNodeLink(this, srcID, destID);
+}
+
+//-----------------------------------------------------------------------------
+void VAI_Network::Detour(const bool bAttach) const
+{
+	DetourSetup(&CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg, bAttach);
 }

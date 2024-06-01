@@ -1,33 +1,135 @@
 #pragma once
 #include "tier0/jobthread.h"
+#include "rtech/ipakfile.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------
 class KeyValues;
 
-inline CMemory p_Mod_LoadPakForMap;
+//-----------------------------------------------------------------------------
+// this structure contains handles and names to the base pak files the engine
+// loads for a level, this is used for load/unload management during level
+// changes or engine shutdown
+//-----------------------------------------------------------------------------
+struct CommonPakData_t
+{
+	enum EPakType
+	{
+		// the UI pak assigned to the current gamemode (range in GameMode_t)
+		PAK_TYPE_UI_GM = 0,
+		PAK_TYPE_COMMON,
+
+		// the base pak assigned to the current gamemode (range in GameMode_t)
+		PAK_TYPE_COMMON_GM,
+		PAK_TYPE_LOBBY,
+
+		// NOTE: this one is assigned to the name of the level, the prior ones are
+		// all static!
+		PAK_TYPE_LEVEL,
+
+		// the total number of pak files to watch and manage
+		PAK_TYPE_COUNT
+	};
+
+	CommonPakData_t()
+	{
+		Reset();
+	}
+
+	void Reset()
+	{
+		pakId = INVALID_PAK_HANDLE;
+		keepLoaded = false;
+		basePakName = nullptr;
+
+		memset(pakName, '\0', sizeof(pakName));
+	}
+
+	PakHandle_t pakId;
+	bool keepLoaded;
+
+	// the pak name that's being requested to be loaded for this particular slot
+	char pakName[MAX_PATH];
+
+	// the actual base pak name, like "common_pve.rpak" as set when this array is
+	// being initialized
+	const char* basePakName;
+};
+
+//-----------------------------------------------------------------------------
+// this structure contains handles and names to the custom pak files that are
+// loaded with the settings KV for that level, these paks are loaded after the
+// common paks are loaded, but unloaded before the common paks are unloaded
+//-----------------------------------------------------------------------------
+struct CustomPakData_t
+{
+	enum EPakType
+	{
+		// the pak that loads after CommonPakData_t::PAK_TYPE_UI_GM has loaded, and
+		// unloads before CommonPakData_t::PAK_TYPE_UI_GM gets unloaded
+		PAK_TYPE_UI_SDK = 0,
+
+		// the pak that loads after CommonPakData_t::PAK_TYPE_COMMON_GM has loaded,
+		// and unloads before CommonPakData_t::PAK_TYPE_COMMON_GM gets unloaded
+		PAK_TYPE_COMMON_SDK,
+
+		// the total number of base SDK pak files
+		PAK_TYPE_COUNT
+	};
+
+	enum
+	{
+		// the absolute max number of custom paks, note that the engine's limit
+		// could still be reached before this number as game scripts and other
+		// code still loads paks such as gladiator cards or load screens
+		MAX_CUSTOM_PAKS = (PAK_MAX_HANDLES - CommonPakData_t::PAK_TYPE_COUNT)
+	};
+
+	CustomPakData_t()
+	{
+		for (size_t i = 0; i < V_ARRAYSIZE(handles); i++)
+		{
+			handles[i] = INVALID_PAK_HANDLE;
+		}
+
+		// the first # handles are reserved for base SDK paks
+		numHandles = PAK_TYPE_COUNT;
+
+		levelResourcesLoaded = false;
+		basePaksLoaded = false;
+	}
+
+	PakHandle_t LoadAndAddPak(const char* const pakFile);
+	void UnloadAndRemoveAll();
+
+	PakHandle_t LoadBasePak(const char* const pakFile, const EPakType type);
+	void UnloadBasePak(const EPakType type);
+
+	// Pak handles that have been loaded with the level
+	// from within the level settings KV (located in
+	// scripts/levels/settings/*.kv). On level unload,
+	// each pak listed in this vector gets unloaded.
+	PakHandle_t handles[MAX_CUSTOM_PAKS];
+	size_t numHandles;
+
+	bool levelResourcesLoaded;
+	bool basePaksLoaded;
+};
+
+// array size = CommonPakData_t::PAK_TYPE_COUNT
+inline CommonPakData_t* g_commonPakData;
+
 inline void(*v_Mod_LoadPakForMap)(const char* szLevelName);
+inline void(*v_Mod_QueuedPakCacheFrame)(void);
 
-inline CMemory p_Mod_ProcessPakQueue;
-inline void(*v_Mod_ProcessPakQueue)(void);
+inline int32_t * g_pNumPrecacheItemsMTVTF;
+inline bool* g_pPakPrecacheJobFinished;
 
-inline float* dword_14B383420;
-inline int32_t * dword_1634F445C;
-inline void** qword_167ED7BB8;
-inline bool* byte_16709DDDF;
-inline char** off_141874660;
-inline void** unk_141874555;
-inline void** unk_1418749B0;
-inline void** unk_141874550;
-inline int64_t* qword_167ED7BC0;
+inline void(*Mod_UnloadPendingAndPrecacheRequestedPaks)(void);
 
-inline __int64(*sub_14045BAC0)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4);
-inline __int64(*sub_14045A1D0)(unsigned __int8(__fastcall* a1)(_QWORD), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6);
-inline void(*sub_140441220)(__int64 a1, __int64 a2);
-
-extern bool s_bBasePaksInitialized;
-extern vector<string> g_InstalledMaps;
+extern CUtlVector<CUtlString> g_InstalledMaps;
+extern std::mutex g_InstalledMapsMutex;
 
 bool Mod_LevelHasChanged(const char* pszLevelName);
 void Mod_GetAllInstalledMaps();
@@ -41,55 +143,30 @@ class VModel_BSP : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("Mod_LoadPakForMap", p_Mod_LoadPakForMap.GetPtr());
-		LogFunAdr("Mod_ProcessPakQueue", p_Mod_ProcessPakQueue.GetPtr());
-		LogFunAdr("sub_14045BAC0", reinterpret_cast<uintptr_t>(sub_14045BAC0));
-		LogFunAdr("sub_14045A1D0", reinterpret_cast<uintptr_t>(sub_14045A1D0));
-		LogFunAdr("sub_140441220", reinterpret_cast<uintptr_t>(sub_140441220));
-		LogVarAdr("dword_14B383420", reinterpret_cast<uintptr_t>(dword_14B383420));
-		LogVarAdr("dword_1634F445C", reinterpret_cast<uintptr_t>(dword_1634F445C));
-		LogVarAdr("qword_167ED7BB8", reinterpret_cast<uintptr_t>(qword_167ED7BB8));
-		LogVarAdr("byte_16709DDDF", reinterpret_cast<uintptr_t>(byte_16709DDDF));
-		LogVarAdr("off_141874660", reinterpret_cast<uintptr_t>(off_141874660));
-		LogVarAdr("unk_141874555", reinterpret_cast<uintptr_t>(unk_141874555));
-		LogVarAdr("unk_1418749B0", reinterpret_cast<uintptr_t>(unk_1418749B0));
-		LogVarAdr("unk_141874550", reinterpret_cast<uintptr_t>(unk_141874550));
-		LogVarAdr("qword_167ED7BC0", reinterpret_cast<uintptr_t>(qword_167ED7BC0));
+		LogFunAdr("Mod_LoadPakForMap", v_Mod_LoadPakForMap);
+		LogFunAdr("Mod_QueuedPakCacheFrame", v_Mod_QueuedPakCacheFrame);
+
+		LogFunAdr("Mod_UnloadPendingAndPrecacheRequestedPaks", Mod_UnloadPendingAndPrecacheRequestedPaks);
+
+		LogVarAdr("g_numPrecacheItemsMTVTF", g_pNumPrecacheItemsMTVTF);
+		LogVarAdr("g_pakPrecacheJobFinished", g_pPakPrecacheJobFinished);
+
+		LogVarAdr("g_commonPakData", g_commonPakData);
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_Mod_LoadPakForMap = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? 4C 8B C1 48 8D 15 ?? ?? ?? ?? 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 4C 8D 0D ?? ?? ?? ??");
-		v_Mod_LoadPakForMap = p_Mod_LoadPakForMap.RCast<void(*)(const char*)>(); /*48 81 EC ? ? ? ? 4C 8B C1 48 8D 15 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? 4C 8D 0D ? ? ? ?*/
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_Mod_LoadPakForMap = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? 0F B6 05 ?? ?? ?? ?? 4C 8D 05 ?? ?? ?? ?? 84 C0");
-		v_Mod_LoadPakForMap = p_Mod_LoadPakForMap.RCast<void(*)(const char*)>(); /*48 81 EC ? ? ? ? 0F B6 05 ? ? ? ? 4C 8D 05 ? ? ? ? 84 C0*/
-#endif
-		p_Mod_ProcessPakQueue = g_GameDll.FindPatternSIMD("40 53 48 83 EC ?? F3 0F 10 05 ?? ?? ?? ?? 32 DB");
-		v_Mod_ProcessPakQueue = p_Mod_ProcessPakQueue.RCast<void(*)(void)>(); /*40 53 48 83 EC ?? F3 0F 10 05 ? ? ? ? 32 DB*/
-
-		sub_14045BAC0 = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 89 4C 24 ?? 4C 89 44 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 60").RCast<__int64(*)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4)>();
-		sub_14045A1D0 = g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 4C 89 44 24 ?? 48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ??").RCast<__int64(*)(unsigned __int8(__fastcall* a1)(_QWORD), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6)>();
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		sub_140441220 = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 48 83 EC 20 33 ED 48 39 2D ?? ?? ?? ??").RCast<void(*)(__int64 a1, __int64 a2)>();
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		sub_140441220 = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 33 ED 48 8D 35 ?? ?? ?? ?? 48 39 2D ?? ?? ?? ??").RCast<void(*)(__int64 a1, __int64 a2)>();
-#endif
+		g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? 0F B6 05 ?? ?? ?? ?? 4C 8D 05 ?? ?? ?? ?? 84 C0").GetPtr(v_Mod_LoadPakForMap);
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC ?? F3 0F 10 05 ?? ?? ?? ?? 32 DB").GetPtr(v_Mod_QueuedPakCacheFrame);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 33 ED 48 8D 35 ?? ?? ?? ?? 48 39 2D ?? ?? ?? ??").GetPtr(Mod_UnloadPendingAndPrecacheRequestedPaks);
 	}
 	virtual void GetVar(void) const
 	{
-		dword_14B383420 = p_Mod_ProcessPakQueue.FindPattern("F3 0F 10").ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
-		dword_1634F445C = p_Mod_ProcessPakQueue.FindPattern("8B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<int32_t*>();
-		qword_167ED7BB8 = p_Mod_ProcessPakQueue.Offset(0x10).FindPatternSelf("48 83").ResolveRelativeAddressSelf(0x3, 0x8).RCast<void**>();
-		byte_16709DDDF = p_Mod_ProcessPakQueue.Offset(0x20).FindPatternSelf("88 1D").ResolveRelativeAddressSelf(0x2, 0x6).RCast<bool*>();
-		off_141874660 = p_Mod_ProcessPakQueue.Offset(0x40).FindPatternSelf("4C 8D 15").ResolveRelativeAddressSelf(0x3, 0x7).RCast<char**>();
-		unk_141874555 = p_Mod_ProcessPakQueue.Offset(0x40).FindPatternSelf("4C 8D 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
-		unk_1418749B0 = p_Mod_ProcessPakQueue.Offset(0xA0).FindPatternSelf("48 8D 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
-		unk_141874550 = p_Mod_ProcessPakQueue.Offset(0x150).FindPatternSelf("48 8D 2D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
-		qword_167ED7BC0 = p_Mod_ProcessPakQueue.Offset(0x200).FindPatternSelf("48 83 3D").ResolveRelativeAddressSelf(0x3, 0x8).RCast<int64_t*>();
+		g_pNumPrecacheItemsMTVTF = CMemory(v_Mod_QueuedPakCacheFrame).FindPattern("8B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<int32_t*>();
+		g_pPakPrecacheJobFinished = CMemory(v_Mod_QueuedPakCacheFrame).Offset(0x20).FindPatternSelf("88 1D").ResolveRelativeAddressSelf(0x2, 0x6).RCast<bool*>();
+
+		CMemory(v_Mod_QueuedPakCacheFrame).Offset(0xA0).FindPatternSelf("48 8D 2D").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_commonPakData);
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

@@ -9,8 +9,10 @@
 #include "windows/input.h"
 #include "engine/sys_mainwind.h"
 #include "engine/sys_engine.h"
+#include "engine/keys.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
+#include "gameui/imgui_system.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: plays the startup video's
@@ -19,44 +21,38 @@ void CGame::PlayStartupVideos(void)
 {
 	if (!CommandLine()->CheckParm("-novid"))
 	{
-		v_CGame__PlayStartupVideos();
+		CGame__PlayStartupVideos();
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: main windows procedure
 //-----------------------------------------------------------------------------
-int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (!g_bImGuiInitialized)
-		return v_CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+	if (!ImguiSystem()->IsInitialized())
+		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
 
-	const IEngine::EngineState_t state = g_pEngine->GetState();
-
-	if (state == IEngine::DLL_CLOSE ||
-		state == IEngine::DLL_RESTART)
-		return v_CGame__WindowProc(hWnd, uMsg, wParam, lParam);
-
-	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+	ImguiSystem()->MessageHandler(hWnd, uMsg, wParam, lParam);
 
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{
-		if (wParam == g_pImGuiConfig->m_ConsoleConfig.m_nBind0 ||
-			wParam == g_pImGuiConfig->m_ConsoleConfig.m_nBind1)
+		if (wParam == g_ImGuiConfig.m_ConsoleConfig.m_nBind0 ||
+			wParam == g_ImGuiConfig.m_ConsoleConfig.m_nBind1)
 		{
-			g_pConsole->m_bActivate ^= true;
+			g_Console.ToggleActive();
 			ResetInput(); // Disable input to game when console is drawn.
 		}
 
-		if (wParam == g_pImGuiConfig->m_BrowserConfig.m_nBind0 ||
-			wParam == g_pImGuiConfig->m_BrowserConfig.m_nBind1)
+		if (wParam == g_ImGuiConfig.m_BrowserConfig.m_nBind0 ||
+			wParam == g_ImGuiConfig.m_BrowserConfig.m_nBind1)
 		{
-			g_pBrowser->m_bActivate ^= true;
+			g_Browser.ToggleActive();
 			ResetInput(); // Disable input to game when browser is drawn.
 		}
 	}
 
-	if (g_pConsole->m_bActivate || g_pBrowser->m_bActivate)
+	if (g_Console.IsActivated() || g_Browser.IsActivated())
 	{//////////////////////////////////////////////////////////////////////////////
 		g_bBlockInput = true;
 
@@ -91,18 +87,72 @@ int CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		g_bBlockInput = false;
 	}
 
-	return v_CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+	return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the window rect
+//-----------------------------------------------------------------------------
+void CGame::GetWindowRect(int* const x, int* const y, int* const w, int* const h) const
+{
+	if (x)
+	{
+		*x = m_x;
+	}
+	if (y)
+	{
+		*y = m_y;
+	}
+	if (w)
+	{
+		*w = m_width;
+	}
+	if (h)
+	{
+		*h = m_height;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: dispatch key event
+//-----------------------------------------------------------------------------
+void CGame::DispatchKeyEvent(const uint64_t currentTick, const ButtonCode_t buttonCode) const
+{
+	// Controller 'hold' keys are delayed longer.
+	// TODO[ AMOS ]: use ConVar's instead?
+	const float delay = buttonCode == KEY_XBUTTON_BACK ? 1.0f : 0.2f;
+	KeyInfo_t& keyInfo = g_pKeyInfo[buttonCode];
+
+	if (!keyInfo.m_bKeyDown && ((currentTick - keyInfo.m_nEventTick) * 0.001f) >= delay)
+	{
+		KeyEvent_t keyEvent;
+
+		keyEvent.m_pCommand = keyInfo.m_pKeyBinding[KeyInfo_t::KEY_HELD_BIND];
+		keyEvent.m_nTick = buttonCode;
+		keyEvent.m_bDown = true;
+
+		v_Key_Event(keyEvent);
+		keyInfo.m_bKeyDown = true;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: dispatch all the queued up messages
+//-----------------------------------------------------------------------------
+void CGame::DispatchAllStoredGameMessages() const
+{
+	const uint64_t ticks = Plat_MSTime();
+	const short eventCount = *g_nKeyEventCount;
+
+	for (short i = 0; i < eventCount; i++)
+	{
+		DispatchKeyEvent(ticks, g_pKeyEventTicks[i]);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void VGame::Attach() const
+void VGame::Detour(const bool bAttach) const
 {
-	DetourAttach(&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos);
-	DetourAttach(&v_CGame__WindowProc, &CGame::WindowProc);
-}
-
-void VGame::Detach() const
-{
-	DetourDetach(&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos);
-	DetourDetach(&v_CGame__WindowProc, &CGame::WindowProc);
+	DetourSetup(&CGame__PlayStartupVideos, &CGame::PlayStartupVideos, bAttach);
+	DetourSetup(&CGame__WindowProc, &CGame::WindowProc, bAttach);
 }

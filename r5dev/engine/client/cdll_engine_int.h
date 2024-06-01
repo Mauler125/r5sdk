@@ -10,7 +10,7 @@ enum class ClientFrameStage_t : int
 	FRAME_UNDEFINED = -1, // (haven't run any frames yet)
 	FRAME_START,
 
-	// A network packet is being recieved
+	// A network packet is being received
 	FRAME_NET_UPDATE_START,
 	// Data has been received and we're going to start calling PostDataUpdate
 	FRAME_NET_UPDATE_POSTDATAUPDATE_START,
@@ -51,20 +51,11 @@ public:
 
 /* ==== CHLCLIENT ======================================================================================================================================================= */
 #ifndef DEDICATED
-inline CMemory p_CHLClient_PostInit;
-inline void*(*CHLClient_PostInit)(void);
-
-inline CMemory p_CHLClient_LevelShutdown;
-inline void*(*CHLClient_LevelShutdown)(CHLClient* thisptr);
-
-inline CMemory p_CHLClient_HudProcessInput;
-inline void(*CHLClient_HudProcessInput)(CHLClient* thisptr, bool bActive);
-
-inline CMemory p_CHLClient_FrameStageNotify;
-inline void(*CHLClient_FrameStageNotify)(CHLClient* thisptr, ClientFrameStage_t frameStage);
-
-inline CMemory p_CHLClient_GetAllClasses;
-inline ClientClass*(*CHLClient_GetAllClasses)();
+inline void*(*CHLClient__PostInit)(void);
+inline void*(*CHLClient__LevelShutdown)(CHLClient* thisptr);
+inline void(*CHLClient__HudProcessInput)(CHLClient* thisptr, bool bActive);
+inline void(*CHLClient__FrameStageNotify)(CHLClient* thisptr, ClientFrameStage_t frameStage);
+inline ClientClass*(*CHLClient__GetAllClasses)();
 #endif // !DEDICATED
 
 inline CHLClient* g_pHLClient = nullptr;
@@ -76,39 +67,25 @@ class VDll_Engine_Int : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef DEDICATED
-		LogFunAdr("CHLClient::PostInit", p_CHLClient_PostInit.GetPtr());
-		LogFunAdr("CHLClient::LevelShutdown", p_CHLClient_LevelShutdown.GetPtr());
-		LogFunAdr("CHLClient::HudProcessInput", p_CHLClient_HudProcessInput.GetPtr());
-		LogFunAdr("CHLClient::FrameStageNotify", p_CHLClient_FrameStageNotify.GetPtr());
-		LogFunAdr("CHLClient::GetAllClasses", p_CHLClient_GetAllClasses.GetPtr());
+		LogFunAdr("CHLClient::PostInit", CHLClient__PostInit);
+		LogFunAdr("CHLClient::LevelShutdown", CHLClient__LevelShutdown);
+		LogFunAdr("CHLClient::HudProcessInput", CHLClient__HudProcessInput);
+		LogFunAdr("CHLClient::FrameStageNotify", CHLClient__FrameStageNotify);
+		LogFunAdr("CHLClient::GetAllClasses", CHLClient__GetAllClasses);
 #endif // !DEDICATED
-		LogVarAdr("g_HLClient", reinterpret_cast<uintptr_t>(g_pHLClient));
-		LogVarAdr("g_pHLClient", reinterpret_cast<uintptr_t>(g_ppHLClient));
+		LogVarAdr("g_HLClient", g_pHLClient);
+		LogVarAdr("g_pHLClient", g_ppHLClient);
 	}
 	virtual void GetFun(void) const
 	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CHLClient_LevelShutdown    = g_GameDll.FindPatternSIMD("40 53 56 41 54 41 56 48 83 EC 28 48 8B F1");
 #ifndef DEDICATED
-		p_CHLClient_PostInit         = g_GameDll.FindPatternSIMD("48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??");
-		p_CHLClient_FrameStageNotify = g_GameDll.FindPatternSIMD("48 83 EC 38 89 15 ?? ?? ?? ??");
-		p_CHLClient_GetAllClasses    = g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 89 74 24 ??");
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??").GetPtr(CHLClient__LevelShutdown);
+		g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??").GetPtr(CHLClient__PostInit);
+		g_GameDll.FindPatternSIMD("48 83 EC 28 89 15 ?? ?? ?? ??").GetPtr(CHLClient__FrameStageNotify);
+		g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ??").GetPtr(CHLClient__GetAllClasses);
 #endif // !DEDICATED
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 #ifndef DEDICATED
-		p_CHLClient_LevelShutdown    = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??");
-		p_CHLClient_PostInit         = g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??");
-		p_CHLClient_FrameStageNotify = g_GameDll.FindPatternSIMD("48 83 EC 28 89 15 ?? ?? ?? ??");
-		p_CHLClient_GetAllClasses    = g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ??");
-#endif // !DEDICATED
-#endif
-#ifndef DEDICATED
-		p_CHLClient_HudProcessInput  = g_GameDll.FindPatternSIMD("48 83 EC 28 0F B6 0D ?? ?? ?? ?? 88 15 ?? ?? ?? ??");
-		CHLClient_LevelShutdown    = p_CHLClient_LevelShutdown.RCast<void*(*)(CHLClient*)>();                       /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??*/
-		CHLClient_PostInit         = p_CHLClient_PostInit.RCast<void*(*)(void)>();                                  /*48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??*/
-		CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void(*)(CHLClient*, ClientFrameStage_t)>(); /*48 83 EC 28 89 15 ?? ?? ?? ??*/
-		CHLClient_HudProcessInput  = p_CHLClient_HudProcessInput.RCast<void(*)(CHLClient*, bool)>();                /*48 83 EC 28 0F B6 0D ?? ?? ?? ?? 88 15 ?? ?? ?? ??*/
-		CHLClient_GetAllClasses    = p_CHLClient_GetAllClasses.RCast<ClientClass*(*)()>();                          /*48 8B 05 ? ? ? ? C3 CC CC CC CC CC CC CC CC 48 8B 05 ? ? ? ? 48 8D 0D ? ? ? ?*/
+		g_GameDll.FindPatternSIMD("48 83 EC 28 0F B6 0D ?? ?? ?? ?? 88 15 ?? ?? ?? ??").GetPtr(CHLClient__HudProcessInput);
 #endif // !DEDICATED
 	}
 	virtual void GetVar(void) const
@@ -120,7 +97,6 @@ class VDll_Engine_Int : public IDetour
 			.FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient**>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const;
-	virtual void Detach(void) const;
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////

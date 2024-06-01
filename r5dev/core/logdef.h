@@ -18,11 +18,19 @@ inline bool g_bSpdLog_UseAnsiClr = false;
 extern std::shared_ptr<spdlog::logger> g_TermLogger;
 extern std::shared_ptr<spdlog::logger> g_ImGuiLogger;
 
+#ifdef _TOOLS
+extern std::shared_ptr<spdlog::logger> g_SuppementalToolsLogger;
+#endif // _TOOLS
+
 //-------------------------------------------------------------------------
 // IMGUI CONSOLE SINK                                                     |
 extern std::ostringstream g_LogStream;
 extern std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
 
 void SpdLog_Init(const bool bAnsiColor);
-void SpdLog_Create(void);
 void SpdLog_Shutdown(void);
+
+#ifdef _TOOLS
+void SpdLog_InstallSupplementalLogger(const char* pszLoggerName, const char* pszLogFileName,
+	const char* pszPattern = "[%Y-%m-%d %H:%M:%S.%e] %v", const bool bTruncate = true);
+#endif // _TOOLS

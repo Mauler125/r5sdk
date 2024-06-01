@@ -10,7 +10,19 @@ constexpr int MAX_HULLS = 5;
 constexpr int NOT_CACHED = -2;			// Returned if data not in cache
 constexpr int NO_NODE    = -1;			// Returned when no node meets the qualification
 
-#pragma pack(push, 1)
+//=========================================================
+//	>> The type of node
+//=========================================================
+enum NodeType_e // !TODO: unconfirmed for r1/r2/r5.
+{
+	NODE_ANY,			// Used to specify any type of node (for search)
+	NODE_DELETED,		// Used in wc_edit mode to remove nodes during runtime     
+	NODE_GROUND,
+	NODE_AIR,
+	NODE_CLIMB,
+	NODE_WATER
+};
+
 //=============================================================================
 //	>> CAI_NodeLink
 //=============================================================================
@@ -18,36 +30,41 @@ struct CAI_NodeLink
 {
 	short m_iSrcID;
 	short m_iDestID;
-	bool m_bHulls[MAX_HULLS];
-	char unk0;
+	byte m_iAcceptedMoveTypes[MAX_HULLS];
+	byte m_LinkInfo;
 	char unk1; // maps => unk0 on disk
 	char unk2[5];
 	int64_t m_nFlags;
 };
 
 //=============================================================================
-//	>> CAI_NodeLinkDisk
-//=============================================================================
-struct CAI_NodeLinkDisk
-{
-	short m_iSrcID;
-	short m_iDestID;
-	char unk0;
-	bool m_bHulls[MAX_HULLS];
-};
-
-//=============================================================================
 //	>> CAI_Node
 //=============================================================================
-struct CAI_Node
+class CAI_Node
 {
-	int m_nIndex; // Not present on disk
-	Vector3D m_vOrigin;
-	float m_fHulls[MAX_HULLS];
-	float m_flYaw;
+public:
+	const Vector3D& GetOrigin() const { return m_vOrigin; }
+	Vector3D& AccessOrigin() { return m_vOrigin; }
+	float			GetYaw() const { return m_flYaw; }
 
-	int unk0;            // Always 2 in buildainfile, maps directly to unk0 in disk struct
-	int unk1;            // Maps directly to unk1 in disk struct
+	int				NumLinks() const { return m_Links.Count(); }
+	void			ClearLinks() { m_Links.Purge(); }
+	CAI_NodeLink* GetLinkByIndex(int i) const { return m_Links[i]; }
+
+	NodeType_e		SetType(NodeType_e type) { return (m_eNodeType = type); }
+	NodeType_e		GetType() const { return m_eNodeType; }
+
+	int				SetInfo(int info) { return m_eNodeInfo = info; }
+	int				GetInfo() const { return m_eNodeInfo; }
+
+	int        m_iID;                  // ID for this node
+	Vector3D   m_vOrigin;              // location of this node in space
+	float      m_flVOffset[MAX_HULLS]; // vertical offset for each hull type, assuming ground node, 0 otherwise
+	float      m_flYaw;                // NPC on this node should face this yaw to face the hint, or climb a ladder
+
+	NodeType_e m_eNodeType; // The type of node; always 2 in buildainfile.
+	int        m_eNodeInfo; // bits that tell us more about this nodes
+
 	int unk2[MAX_HULLS]; // Maps directly to unk2 in disk struct, despite being ints rather than shorts
 
 	// View server.dll+393672 for context
@@ -55,35 +72,72 @@ struct CAI_Node
 	char pad[3];           // Aligns next bytes
 	float unk4[MAX_HULLS]; // I have no clue, calculated using some kind float function magic
 
-	CAI_NodeLink** links;
-	char unk5[16];
-	int m_nNumLinks;
-	int unk11;     // Bad name lmao
+	CUtlVector<CAI_NodeLink*> m_Links;
 	short unk6;    // Should match up to unk4 on disk
 	char unk7[16]; // Padding until next bit
-	short unk8;    // Should match up to unk5 on disk
-	char unk9[8];  // Padding until next bit
-	char unk10[8]; // Should match up to unk6 on disk
+	short unk8;
+	short unk9;    // Should match up to unk5 on disk
+	char unk10[6]; // Padding until next bit
+	char unk11[8]; // Should match up to unk6 on disk
 };
 
 //=============================================================================
-//	>> CAI_NodeDisk
+//	>> CAI_Cluster
 //=============================================================================
-struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
+class CAI_Cluster
 {
-	Vector3D m_vOrigin;
+public:
+	const Vector3D& GetOrigin() const { return m_vOrigin; }
+	Vector3D& AccessOrigin() { return m_vOrigin; }
 
-	float m_flYaw;
-	float hulls[MAX_HULLS];
-
+	int m_nIndex;
 	char unk0;
-	int unk1;
-	short unk2[MAX_HULLS];
-	char unk3[MAX_HULLS];
-	short unk4;
-	short unk5;
-	char unk6[8];
-}; // Total size of 68 bytes
+	char unk1;   // Maps to unk1 on disk
+
+	Vector3D m_vOrigin;
+	char unkC; // idk, might be a 4 bytes type or just padding.
+
+	// These are utlvectors in engine, but its
+	// unknown what they do yet.
+	CUtlVector<int> unkVec0;
+	CUtlVector<int> unkVec1;
+
+	// This is an array of floats that is indexed
+	// into by teamNum at [r5apex_ds + EC84DC];
+	// Seems to be used along with the cvar:
+	// 'ai_path_dangerous_cluster_min_time'.
+	float clusterTime[MAX_TEAMS];
+
+	float field_0250;
+	float field_0254;
+	float field_0258;
+	char unk5;
+};
+static_assert(sizeof(CAI_Cluster) == 608);
+
+//=============================================================================
+//	>> CAI_ClusterLink
+//=============================================================================
+struct CAI_ClusterLink
+{
+	short m_iSrcID;
+	short m_iDestID;
+	int unk2;
+	char flags;
+	char unkFlags4;
+	char unkFlags5;
+};
+static_assert(sizeof(CAI_ClusterLink) == 12);
+
+//=============================================================================
+//	>> CAI_ScriptNode
+//=============================================================================
+struct CAI_TraverseNode
+{
+	Quaternion m_Quat;
+	int m_Index_MAYBE;
+};
+static_assert(sizeof(CAI_TraverseNode) == 20);
 
 //=============================================================================
 //	>> CAI_ScriptNode
@@ -91,39 +145,21 @@ struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
 struct CAI_ScriptNode
 {
 	Vector3D m_vOrigin;
-	uint64_t scriptdata;
+
+	// Might be wrong; seems to be used for clamping.
+	// See [r5apex_ds + 0xF28A6E]
+	int m_nMin;
+	int m_nMax;
 };
 
-struct AINodeClusters
+//=============================================================================
+//	>> CAI_ScriptNode
+//=============================================================================
+struct CAI_HullData
 {
-	int m_nIndex;
-	char unk0;
-	char unk1;	  // Maps to unk1 on disk
-	char pad0[2]; // Padding to +8
-
-	Vector3D m_vOrigin;
-
-	char pad5[4];
-	int* unk2;     // Maps to unk5 on disk;
-	char pad1[16]; // Pad to +48
-	int unkcount0; // Maps to unkcount0 on disk
-
-	char pad2[4];  // Pad to +56
-	int* unk3;
-	char pad3[16]; // Pad to +80
-	int unkcount1;
-
-	char pad4[132];
-	char unk5;
-};
-
-struct AINodeClusterLinks
-{
-	short unk0;
+	short m_Count; // Multiplied by 4; probably total buffer size.
 	short unk1;
 	int unk2;
-	char unk3;
-	char unk4;
-	char unk5;
+	void* pBuffer; // Hull data buffer.
+	char unk3[8];
 };
-#pragma pack(pop)

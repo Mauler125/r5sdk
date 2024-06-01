@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 #include "core/init.h"
 #include "core/logdef.h"
 #include "tier0/frametask.h"
@@ -13,7 +13,7 @@
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 #include "windows/system.h"
 #include "windows/console.h"
 
@@ -80,12 +80,15 @@ void FlashConsoleBackground(int nFlashCount, int nFlashInterval, COLORREF color)
 //-----------------------------------------------------------------------------
 void Console_Init(const bool bAnsiColor)
 {
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 	///////////////////////////////////////////////////////////////////////////
 	// Create the console window
 	if (AllocConsole() == FALSE)
 	{
-		OutputDebugStringA("Failed to create console window!\n");
+		char szBuf[2048];
+		snprintf(szBuf, sizeof(szBuf), "Failed to create console window! [%s]\n", std::system_category().message(static_cast<int>(::GetLastError())).c_str());
+
+		OutputDebugStringA(szBuf);
 		return;
 	}
 
@@ -107,7 +110,7 @@ void Console_Init(const bool bAnsiColor)
 	{
 		CloseHandle(hThread);
 	}
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 
 	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD dwMode = NULL;
@@ -120,17 +123,16 @@ void Console_Init(const bool bAnsiColor)
 		if (!SetConsoleMode(hOutput, dwMode)) // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
 		{
 			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
-			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
-				"Please omit the '-ansicolor' parameter and restart \nthe program if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
+			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'; please disable ansi-colors and restart the program if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
 		}
 
 		SetConsoleBackgroundColor(0x00000000);
 		AnsiColors_Init();
 	}
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
-#endif // !NETCONSOLE
+#endif // !_TOOLS
 }
 
 //-----------------------------------------------------------------------------
@@ -142,12 +144,15 @@ void Console_Shutdown()
 	// Destroy the console window
 	if (FreeConsole() == FALSE)
 	{
-		OutputDebugStringA("Failed to destroy console window!\n");
+		char szBuf[2048];
+		snprintf(szBuf, sizeof(szBuf), "Failed to destroy console window! [%s]\n", std::system_category().message(static_cast<int>(::GetLastError())).c_str());
+
+		OutputDebugStringA(szBuf);
 		return;
 	}
 }
 
-#ifndef NETCONSOLE
+#ifndef _TOOLS
 //#############################################################################
 // CONSOLE WORKER
 //#############################################################################
@@ -169,4 +174,4 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 	}
 	return NULL;
 }
-#endif // !NETCONSOLE
+#endif // !_TOOLS
