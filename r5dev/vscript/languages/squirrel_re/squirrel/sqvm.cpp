@@ -174,6 +174,16 @@ void SQVM_LogicError(SQBool bPrompt)
 	v_SQVM_LogicError(bPrompt);
 }
 
+void SQVM::Pop() {
+	_stack[--_top] = _null_;
+}
+
+void SQVM::Pop(SQInteger n) {
+	for (SQInteger i = 0; i < n; i++) {
+		_stack[--_top] = _null_;
+	}
+}
+
 void SQVM::Push(const SQObjectPtr& o) { _stack[_top++] = o; }
 SQObjectPtr& SQVM::Top() { return _stack[_top - 1]; }
 SQObjectPtr& SQVM::PopGet() { return _stack[--_top]; }

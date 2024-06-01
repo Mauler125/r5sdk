@@ -95,6 +95,20 @@ SQInteger sq_gettop(HSQUIRRELVM v)
 }
 
 //---------------------------------------------------------------------------------
+SQRESULT sq_getstackobj(HSQUIRRELVM v, SQInteger idx, SQObject* po)
+{
+	*po = stack_get(v, idx);
+	return SQ_OK;
+}
+
+//---------------------------------------------------------------------------------
+void sq_pop(HSQUIRRELVM v, SQInteger nelemstopop)
+{
+	Assert(v->_top >= nelemstopop);
+	v->Pop(nelemstopop);
+}
+
+//---------------------------------------------------------------------------------
 SQRESULT sq_pushroottable(HSQUIRRELVM v)
 {
 	v->Push(v->_roottable);
@@ -174,14 +188,30 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 	return v_sq_call(v, params, retval, raiseerror);
 }
 
+//---------------------------------------------------------------------------------
 SQRESULT sq_startconsttable(HSQUIRRELVM v)
 {
 	return v_sq_startconsttable(v);
 }
 
+//---------------------------------------------------------------------------------
 SQRESULT sq_endconsttable(HSQUIRRELVM v)
 {
 	return v_sq_endconsttable(v);
+}
+
+//---------------------------------------------------------------------------------
+void sq_addref(HSQUIRRELVM v, SQObject* po)
+{
+	if (!ISREFCOUNTED(sq_type(*po))) return;
+	_ss(v)->_refs_table.AddRef(*po);
+}
+
+//---------------------------------------------------------------------------------
+SQBool sq_release(HSQUIRRELVM v, SQObject* po)
+{
+	if (!ISREFCOUNTED(sq_type(*po))) return SQTrue;
+	return _ss(v)->_refs_table.Release(*po);
 }
 
 void VSquirrelAPI::Detour(const bool bAttach) const
