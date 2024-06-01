@@ -8,6 +8,28 @@
 #include "basepanel.h"
 #include "sdklauncher.h"
 
+#include "vstdlib/keyvaluessystem.h"
+#include "filesystem/filesystem_std.h"
+
+static CKeyValuesSystem s_KeyValuesSystem;
+static CFileSystem_Stdio g_FullFileSystem;
+
+///////////////////////////////////////////////////////////////////////////////
+// Purpose: keyvalues singleton accessor
+///////////////////////////////////////////////////////////////////////////////
+IKeyValuesSystem* KeyValuesSystem()
+{
+    return &s_KeyValuesSystem;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Purpose: filesystem singleton accessor
+///////////////////////////////////////////////////////////////////////////////
+CFileSystem_Stdio* FileSystem()
+{
+    return &g_FullFileSystem;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: initializes and runs the user interface
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,8 +38,8 @@ void CLauncher::RunSurface()
     Forms::Application::EnableVisualStyles();
     UIX::UIXTheme::InitializeRenderer(new Themes::KoreTheme());
 
-    m_pSurface = new CSurface();
-    Forms::Application::Run(g_pLauncher->m_pSurface);
+    m_Surface.Init();
+    Forms::Application::Run(&g_Launcher.m_Surface, false);
     UIX::UIXTheme::ShutdownRenderer();
 }
 
@@ -366,21 +388,21 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[]/*, char* envp[]*/)
 {
-    g_pLauncher->InitLogger();
+    g_Launcher.InitLogger();
     if (argc < 2)
     {
 #ifdef NDEBUG
         FreeConsole();
 #endif // NDEBUG
-        g_pLauncher->RunSurface();
+        g_Launcher.RunSurface();
     }
     else
     {
-        int results = g_pLauncher->HandleCommandLine(argc, argv);
+        int results = g_Launcher.HandleCommandLine(argc, argv);
         if (results != -1)
             return results;
 
-        return g_pLauncher->HandleInput();
+        return g_Launcher.HandleInput();
     }
     return EXIT_SUCCESS;
 }
@@ -388,4 +410,4 @@ int main(int argc, char* argv[]/*, char* envp[]*/)
 ///////////////////////////////////////////////////////////////////////////////
 // Singleton Launcher.
 ///////////////////////////////////////////////////////////////////////////////
-CLauncher* g_pLauncher(new CLauncher("win_console"));
+CLauncher g_Launcher("win_console");

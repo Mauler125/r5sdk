@@ -11,7 +11,7 @@ namespace Forms
 	std::atomic<bool> Application::IsGdipInitialized = false;
 	ULONG_PTR Application::GdipToken = NULL;
 
-	void Application::Run(Form* MainWindow)
+	void Application::Run(Form* MainWindow, bool DeleteWindow)
 	{
 		if (MainWindow == nullptr)
 			return;
@@ -27,7 +27,7 @@ namespace Forms
 		// Execute on the main loop
 		Application::RunMainLoop(MainWindow);
 
-		if (MainWindow)
+		if (MainWindow && DeleteWindow)
 			delete MainWindow;
 
 		// Shutdown COM
