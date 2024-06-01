@@ -9,6 +9,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
+#include "mathlib/bitvec.h"
 #include "tier1/cvar.h"
 #include "tier1/strtools.h"
 #include "engine/server/server.h"
@@ -259,7 +260,7 @@ bool CClient::Connect(const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 bool CClient::VConnect(CClient* pClient, const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 	CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize)
 {
-	return pClient->Connect(szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize);;
+	return pClient->Connect(szName, pNetChan, bFakePlayer, conVars, szMessage, nMessageSize);
 }
 
 //---------------------------------------------------------------------------------
@@ -524,6 +525,93 @@ bool CClient::VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg)
 	return true;
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: process voice data
+// Input  : *pClient - (ADJ)
+//			*pMsg - 
+// Output : 
+//---------------------------------------------------------------------------------
+bool CClient::VProcessVoiceData(CClient* pClient, CLC_VoiceData* pMsg)
+{
+#ifndef CLIENT_DLL
+	char voiceDataBuffer[4096];
+	const int bitsRead = pMsg->m_DataIn.ReadBitsClamped(voiceDataBuffer, pMsg->m_nLength);
+
+	if (pMsg->m_DataIn.IsOverflowed())
+		return false;
+
+	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
+	SV_BroadcastVoiceData(pAdj, Bits2Bytes(bitsRead), voiceDataBuffer);
+#endif // !CLIENT_DLL
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: process durango voice data
+// Input  : *pClient - (ADJ)
+//			*pMsg - 
+// Output : 
+//---------------------------------------------------------------------------------
+bool CClient::VProcessDurangoVoiceData(CClient* pClient, CLC_DurangoVoiceData* pMsg)
+{
+#ifndef CLIENT_DLL
+	char voiceDataBuffer[4096];
+	const int bitsRead = pMsg->m_DataIn.ReadBitsClamped(voiceDataBuffer, pMsg->m_nLength);
+
+	if (pMsg->m_DataIn.IsOverflowed())
+		return false;
+
+	CClient* const pAdj = AdjustShiftedThisPointer(pClient);
+	SV_BroadcastDurangoVoiceData(pAdj, Bits2Bytes(bitsRead), voiceDataBuffer,
+		pMsg->m_xid, pMsg->m_unknown, pMsg->m_useVoiceStream, pMsg->m_skipXidCheck);
+#endif // !CLIENT_DLL
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: set UserCmd time buffer
+// Input  : numUserCmdProcessTicksMax - 
+//			tickInterval - 
+//---------------------------------------------------------------------------------
+void CClientExtended::InitializeMovementTimeForUserCmdProcessing(const int numUserCmdProcessTicksMax, const float tickInterval)
+{
+	// Grant the client some time buffer to execute user commands
+	m_flMovementTimeForUserCmdProcessingRemaining += tickInterval;
+
+	// but never accumulate more than N ticks
+	if (m_flMovementTimeForUserCmdProcessingRemaining > numUserCmdProcessTicksMax * tickInterval)
+		m_flMovementTimeForUserCmdProcessingRemaining = numUserCmdProcessTicksMax * tickInterval;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: consume UserCmd time buffer
+// Input  : flTimeNeeded -
+// Output : max time allowed for processing
+//---------------------------------------------------------------------------------
+float CClientExtended::ConsumeMovementTimeForUserCmdProcessing(const float flTimeNeeded)
+{
+	if (m_flMovementTimeForUserCmdProcessingRemaining <= 0.0f)
+		return 0.0f;
+	else if (flTimeNeeded > m_flMovementTimeForUserCmdProcessingRemaining + FLT_EPSILON)
+	{
+		const float flResult = m_flMovementTimeForUserCmdProcessingRemaining;
+		m_flMovementTimeForUserCmdProcessingRemaining = 0.0f;
+
+		return flResult;
+	}
+	else
+	{
+		m_flMovementTimeForUserCmdProcessingRemaining -= flTimeNeeded;
+
+		if (m_flMovementTimeForUserCmdProcessingRemaining < 0.0f)
+			m_flMovementTimeForUserCmdProcessingRemaining = 0.0f;
+
+		return flTimeNeeded;
+	}
+}
+
 void VClient::Detour(const bool bAttach) const
 {
 #ifndef CLIENT_DLL
@@ -536,5 +624,7 @@ void VClient::Detour(const bool bAttach) const
 
 	DetourSetup(&CClient__ProcessStringCmd, &CClient::VProcessStringCmd, bAttach);
 	DetourSetup(&CClient__ProcessSetConVar, &CClient::VProcessSetConVar, bAttach);
+	DetourSetup(&CClient__ProcessVoiceData, &CClient::VProcessVoiceData, bAttach);
+	DetourSetup(&CClient__ProcessDurangoVoiceData, &CClient::VProcessDurangoVoiceData, bAttach);
 #endif // !CLIENT_DLL
 }

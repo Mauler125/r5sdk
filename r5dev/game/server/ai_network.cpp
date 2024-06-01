@@ -63,11 +63,13 @@ int CAI_Network::NumLinks(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the number of zones
+// input  : idx - 
 // Output : int
 //-----------------------------------------------------------------------------
-int CAI_Network::NumZones(void) const
+int CAI_Network::NumZones(const int idx) const
 {
-	return m_iNumZones;
+	Assert(idx >= 0 && idx < sizeof(m_iNumZones));
+	return m_iNumZones[idx];
 }
 
 //-----------------------------------------------------------------------------

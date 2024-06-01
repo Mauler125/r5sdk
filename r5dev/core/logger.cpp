@@ -284,9 +284,9 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	if (bToConsole)
 	{
 #ifndef CLIENT_DLL
-		if (!LoggedFromClient(context) && RCONServer()->ShouldSend(sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG))
+		if (!LoggedFromClient(context) && RCONServer()->ShouldSend(netcon::response_e::SERVERDATA_RESPONSE_CONSOLE_LOG))
 		{
-			RCONServer()->SendEncode(formatted.c_str(), pszUpTime, sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG,
+			RCONServer()->SendEncoded(formatted.c_str(), pszUpTime, netcon::response_e::SERVERDATA_RESPONSE_CONSOLE_LOG,
 				int(context), int(logType));
 		}
 #endif // !CLIENT_DLL

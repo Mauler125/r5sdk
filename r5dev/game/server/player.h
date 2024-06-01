@@ -241,24 +241,27 @@ struct SpeedChangeHistoryEntry
 
 class CPlayer : public CBaseCombatCharacter
 {
+	friend class CPlayerMove;
 public:
 	void RunNullCommand(void);
 	QAngle* EyeAngles(QAngle* pAngles);
 
 	void SetTimeBase(float flTimeBase);
-	void SetLastUCmdSimulationRemainderTime(float flRemainderTime);
+	void SetLastUCmdSimulationRemainderTime(int nRemainderTime);
 	void SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime);
 
 	void ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 		int droppedPackets, bool paused);
-
-	void ClampUnlag(CUserCmd* cmd);
 
 	void PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover);
 	void SetLastUserCommand(CUserCmd* pUserCmd);
 
 	inline bool	IsConnected() const { return m_iConnected != PlayerDisconnected; }
 	inline bool	IsDisconnecting() const { return m_iConnected == PlayerDisconnecting; }
+
+	inline bool IsBot() const { return (GetFlags() & FL_FAKECLIENT) != 0; }
+
+	inline NucleusID_t GetPlatformUserId() const { return m_platformUserId; };
 
 private:
 	int m_StuckLast;
@@ -276,7 +279,7 @@ private:
 	char m_hardwareIcon[16];
 	bool m_happyHourActive;
 	char gap_5ee6[2];
-	__int64 m_platformUserId;
+	NucleusID_t m_platformUserId;
 	char m_hardware;
 	char gap_5ef1[7];
 	__int64 m_classModsActive;
@@ -571,7 +574,7 @@ private:
 	float m_totalFrameTime;
 	float m_joinFrameTime;
 	int m_lastUCmdSimulationTicks;
-	float m_lastUCmdSimulationRemainderTime;
+	int m_lastUCmdSimulationRemainderTime; // Originally float???
 	float m_totalExtraClientCmdTimeAttempted;
 	int m_hPlayerViewEntity;
 	bool m_atLeastOneCommandRunThisServerFrame;
@@ -796,6 +799,7 @@ static_assert(sizeof(CPlayer) == 0x7EF0); // !TODO: backwards compatibility.
 
 inline QAngle*(*CPlayer__EyeAngles)(CPlayer* pPlayer, QAngle* pAngles);
 inline void(*CPlayer__PlayerRunCommand)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover);
+inline bool(*CPlayer__PhysicsSimulate)(CPlayer* pPlayer, int numPerIteration, bool adjustTimeBase);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VPlayer : public IDetour
@@ -804,15 +808,17 @@ class VPlayer : public IDetour
 	{
 		LogFunAdr("CPlayer::EyeAngles", CPlayer__EyeAngles);
 		LogFunAdr("CPlayer::PlayerRunCommand", CPlayer__PlayerRunCommand);
+		LogFunAdr("CPlayer::PhysicsSimulate", CPlayer__PhysicsSimulate);
 	}
 	virtual void GetFun(void) const
 	{
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 F2 0F 10 05 ?? ?? ?? ??").GetPtr(CPlayer__EyeAngles);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 03 49 81 C6 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CPlayer__PlayerRunCommand);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ?? 84 C0 74 06").FollowNearCallSelf().GetPtr(CPlayer__PhysicsSimulate);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Detour(const bool bAttach) const { }
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

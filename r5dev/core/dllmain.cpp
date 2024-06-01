@@ -30,7 +30,9 @@ bool g_bSdkInitCallInitiated = false;
 bool g_bSdkShutdownCallInitiated = false;
 
 bool g_bSdkShutdownInitiatedFromConsoleHandler = false;
-HMODULE s_hModuleHandle = NULL;
+
+static bool s_bConsoleInitialized = false;
+static HMODULE s_hModuleHandle = NULL;
 
 //#############################################################################
 // UTILITY
@@ -116,9 +118,11 @@ void SDK_Init()
 
 #ifndef DEDICATED
     if (CommandLine()->CheckParm("-wconsole"))
-#endif // !DEDICATED
+#else
+    if (!CommandLine()->CheckParm("-noconsole"))
+#endif  // !DEDICATED
     {
-        Console_Init(bAnsiColor);
+        s_bConsoleInitialized = Console_Init(bAnsiColor);
     }
 
     SpdLog_Init(bAnsiColor);
@@ -186,7 +190,7 @@ void SDK_Shutdown()
 
     // If the shutdown was initiated from the console window itself, don't
     // shutdown the console as it would otherwise deadlock in FreeConsole!
-    if (!g_bSdkShutdownInitiatedFromConsoleHandler)
+    if (s_bConsoleInitialized && !g_bSdkShutdownInitiatedFromConsoleHandler)
         Console_Shutdown();
 
     g_bSdkInitialized = false;

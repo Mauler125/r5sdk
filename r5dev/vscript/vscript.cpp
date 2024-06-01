@@ -145,24 +145,17 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 	}
 
 	HSQUIRRELVM v = s->GetVM();
+
 	if (!v)
 	{
 		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script while VM isn't initialized\n", contextName);
 		return;
 	}
 
-	SQBufState bufState = SQBufState(code);
-	SQRESULT compileResult = sq_compilebuffer(v, &bufState, "console", -1);
-
-	if (SQ_SUCCEEDED(compileResult))
+	if (!s->Run(code))
 	{
-		sq_pushroottable(v);
-		SQRESULT callResult = sq_call(v, 1, false, false);
-
-		if (!SQ_SUCCEEDED(callResult))
-		{
-			Error(eDLL_T::ENGINE, NO_ERROR, "Failed to execute %s script \"%s\"\n", contextName, code);
-		}
+		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to run %s script \"%s\"\n", contextName, code);
+		return;
 	}
 }
 

@@ -63,6 +63,14 @@ ConVar* eula_version_accepted              = nullptr;
 
 ConVar* language_cvar                      = nullptr;
 
+ConVar* voice_noxplat                      = nullptr;
+
+ConVar* platform_user_id                   = nullptr;
+
+#ifndef DEDICATED
+ConVar* name_cvar                          = nullptr;
+#endif // !DEDICATED
+
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 #ifndef CLIENT_DLL
@@ -72,8 +80,9 @@ ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_single_core_dedi                = nullptr;
 
-ConVar* sv_maxunlag = nullptr;
-ConVar* sv_clockcorrection_msecs = nullptr;
+ConVar* sv_maxunlag                        = nullptr;
+ConVar* sv_lagpushticks                    = nullptr;
+ConVar* sv_clockcorrection_msecs           = nullptr;
 
 ConVar* sv_updaterate_sp                   = nullptr;
 ConVar* sv_updaterate_mp                   = nullptr;
@@ -85,7 +94,13 @@ ConVar* sv_voiceEcho                       = nullptr;
 ConVar* sv_voiceenable                     = nullptr;
 ConVar* sv_alltalk                         = nullptr;
 
+ConVar* sv_clampPlayerFrameTime            = nullptr;
+
+ConVar* playerframetimekick_margin         = nullptr;
+ConVar* playerframetimekick_decayrate      = nullptr;
+
 ConVar* player_userCmdsQueueWarning        = nullptr;
+ConVar* player_disallow_negative_frametime = nullptr;
 
 #endif // !CLIENT_DLL
 ConVar* sv_cheats                          = nullptr;
@@ -145,8 +160,11 @@ void ConVar_InitShipped(void)
 	eula_version                     = g_pCVar->FindVar("eula_version");
 	eula_version_accepted            = g_pCVar->FindVar("eula_version_accepted");
 
-	language_cvar = g_pCVar->FindVar("language");
+	language_cvar                    = g_pCVar->FindVar("language");
+	voice_noxplat                    = g_pCVar->FindVar("voice_noxplat");
+	platform_user_id                 = g_pCVar->FindVar("platform_user_id");
 #ifndef DEDICATED
+	name_cvar                        = g_pCVar->FindVar("name");
 	cl_updaterate_mp                 = g_pCVar->FindVar("cl_updaterate_mp");
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
 #endif // !DEDICATED
@@ -195,6 +213,7 @@ void ConVar_InitShipped(void)
 	sv_stats = g_pCVar->FindVar("sv_stats");
 
 	sv_maxunlag = g_pCVar->FindVar("sv_maxunlag");
+	sv_lagpushticks = g_pCVar->FindVar("sv_lagpushticks");
 	sv_clockcorrection_msecs = g_pCVar->FindVar("sv_clockcorrection_msecs");
 
 	sv_updaterate_sp = g_pCVar->FindVar("sv_updaterate_sp");
@@ -208,7 +227,14 @@ void ConVar_InitShipped(void)
 	sv_voiceenable = g_pCVar->FindVar("sv_voiceenable");
 	sv_voiceEcho = g_pCVar->FindVar("sv_voiceEcho");
 	sv_alltalk = g_pCVar->FindVar("sv_alltalk");
+
+	sv_clampPlayerFrameTime = g_pCVar->FindVar("sv_clampPlayerFrameTime");
+
+	playerframetimekick_margin = g_pCVar->FindVar("playerframetimekick_margin");
+	playerframetimekick_decayrate = g_pCVar->FindVar("playerframetimekick_decayrate");
+
 	player_userCmdsQueueWarning = g_pCVar->FindVar("player_userCmdsQueueWarning");
+	player_disallow_negative_frametime = g_pCVar->FindVar("player_disallow_negative_frametime");
 
 	sv_updaterate_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	sv_updaterate_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
@@ -232,6 +258,7 @@ void ConVar_InitShipped(void)
 	origin_disconnectWhenOffline->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	discord_updatePresence->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #endif // !DEDICATED
+	fps_max->AddFlags(FCVAR_ARCHIVE);
 	fps_max_vsync->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
 	base_tickinterval_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
@@ -241,7 +268,6 @@ void ConVar_InitShipped(void)
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);
 	net_usesocketsforloopback->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-	net_usesocketsforloopback->InstallChangeCallback(NET_UseSocketsForLoopbackChanged_f, false);
 #ifndef DEDICATED
 	language_cvar->InstallChangeCallback(LanguageChanged_f, false);
 #endif // !DEDICATED
@@ -377,7 +403,6 @@ void ConCommand_InitShipped(void)
 			"connectAsSpectator",
 			"connectWithKey",
 			"silentconnect",
-			"set",
 			"ping",
 #endif // !DEDICATED
 			"launchplaylist",
@@ -385,6 +410,7 @@ void ConCommand_InitShipped(void)
 			"exit",
 			"reload",
 			"restart",
+			"set",
 			"status",
 			"version",
 		};

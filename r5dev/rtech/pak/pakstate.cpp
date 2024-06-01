@@ -24,9 +24,9 @@ static void Pak_ListPaks_f()
 
 	for (int16_t i = 0, n = g_pakGlobals->loadedPakCount; i < n; ++i)
 	{
-		const PakLoadedInfo_t& info = g_pakGlobals->loadedPaks[i];
+		const PakLoadedInfo_s& info = g_pakGlobals->loadedPaks[i];
 
-		if (info.status == EPakStatus::PAK_STATUS_FREED)
+		if (info.status == PakStatus_e::PAK_STATUS_FREED)
 			continue;
 
 		const char* szRpakStatus = Pak_StatusToString(info.status);
@@ -52,9 +52,9 @@ static void Pak_ListTypes_f()
 
 	uint32_t nRegistered = 0;
 
-	for (int8_t i = 0; i < PAK_MAX_TYPES; ++i)
+	for (int8_t i = 0; i < PAK_MAX_TRACKED_TYPES; ++i)
 	{
-		PakAssetBinding_t* type = &g_pakGlobals->assetBindings[i];
+		PakAssetBinding_s* type = &g_pakGlobals->assetBindings[i];
 
 		if (!type->description)
 			continue;
@@ -85,7 +85,7 @@ static void Pak_RequestUnload_f(const CCommand& args)
 	if (args.HasOnlyDigits(1))
 	{
 		const PakHandle_t pakHandle = atoi(args.Arg(1));
-		const PakLoadedInfo_t* const pakInfo = Pak_GetPakInfo(pakHandle);
+		const PakLoadedInfo_s* const pakInfo = Pak_GetPakInfo(pakHandle);
 
 		if (!pakInfo)
 		{
@@ -98,7 +98,7 @@ static void Pak_RequestUnload_f(const CCommand& args)
 	}
 	else
 	{
-		const PakLoadedInfo_t* const pakInfo = Pak_GetPakInfo(args.Arg(1));
+		const PakLoadedInfo_s* const pakInfo = Pak_GetPakInfo(args.Arg(1));
 		if (!pakInfo)
 		{
 			Warning(eDLL_T::RTECH, "Found no pak entry for specified name.\n");
@@ -135,8 +135,8 @@ static void Pak_Swap_f(const CCommand& args)
 
 	const char* pakName = nullptr;
 
-	PakHandle_t pakHandle = INVALID_PAK_HANDLE;
-	const PakLoadedInfo_t* pakInfo = nullptr;
+	PakHandle_t pakHandle = PAK_INVALID_HANDLE;
+	const PakLoadedInfo_s* pakInfo = nullptr;
 
 	if (args.HasOnlyDigits(1))
 	{
@@ -168,7 +168,7 @@ static void Pak_Swap_f(const CCommand& args)
 	Msg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
 	g_pakLoadApi->UnloadAsync(pakHandle);
 
-	while (pakInfo->status != EPakStatus::PAK_STATUS_FREED) // Wait till this slot gets free'd.
+	while (pakInfo->status != PakStatus_e::PAK_STATUS_FREED) // Wait till this slot gets free'd.
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	g_pakLoadApi->LoadAsync(pakName, AlignedMemAlloc(), NULL, 0);
@@ -208,8 +208,8 @@ static void Pak_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	CFmtStr1024 inPakFile(PLATFORM_PAK_PATH "%s", args.Arg(1));
-	CFmtStr1024 outPakFile(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
+	CFmtStr1024 inPakFile(PAK_PLATFORM_PATH "%s", args.Arg(1));
+	CFmtStr1024 outPakFile(PAK_PLATFORM_OVERRIDE_PATH "%s", args.Arg(1));
 
 	if (!Pak_DecodePakFile(inPakFile.String(), outPakFile.String()))
 	{
@@ -233,8 +233,8 @@ static void Pak_Compress_f(const CCommand& args)
 		return;
 	}
 
-	CFmtStr1024 inPakFile(PLATFORM_PAK_OVERRIDE_PATH "%s", args.Arg(1));
-	CFmtStr1024 outPakFile(PLATFORM_PAK_PATH "%s", args.Arg(1));
+	CFmtStr1024 inPakFile(PAK_PLATFORM_OVERRIDE_PATH "%s", args.Arg(1));
+	CFmtStr1024 outPakFile(PAK_PLATFORM_PATH "%s", args.Arg(1));
 
 	// NULL means default compress level
 	const int compressLevel = args.ArgC() > 2 ? atoi(args.Arg(2)) : NULL;
@@ -246,7 +246,7 @@ static void Pak_Compress_f(const CCommand& args)
 	}
 }
 
-static ConCommand pak_strtoguid("pak_strtoguid", Pak_StringToGUID_f, "Calculates the GUID from input data", FCVAR_DEVELOPMENTONLY);
+static ConCommand pak_stringtoguid("pak_stringtoguid", Pak_StringToGUID_f, "Calculates the GUID from input text", FCVAR_DEVELOPMENTONLY);
 
 static ConCommand pak_compress("pak_compress", Pak_Compress_f, "Compresses specified RPAK file", FCVAR_DEVELOPMENTONLY, RTech_PakCompress_f_CompletionFunc);
 static ConCommand pak_decompress("pak_decompress", Pak_Decompress_f, "Decompresses specified RPAK file", FCVAR_DEVELOPMENTONLY, RTech_PakDecompress_f_CompletionFunc);

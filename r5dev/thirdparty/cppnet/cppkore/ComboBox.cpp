@@ -283,6 +283,11 @@ namespace Forms
 		SelectedIndexChanged.RaiseEvent(this);
 	}
 
+	void ComboBox::OnDropDownOpened()
+	{
+		DropDownOpened.RaiseEvent(this);
+	}
+
 	void ComboBox::OnDropDownClosed()
 	{
 		DropDownClosed.RaiseEvent(this);
@@ -412,6 +417,8 @@ namespace Forms
 			OnSelectedIndexChanged();
 			OnSelectedItemChanged();
 			break;
+		case CBN_DROPDOWN:
+			OnDropDownOpened();
 		case CBN_CLOSEUP:
 			OnDropDownClosed();
 			break;

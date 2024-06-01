@@ -83,6 +83,7 @@ namespace VScriptCode
 
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
         //-----------------------------------------------------------------------------
         // Purpose: shuts the server down and disconnects all clients
         //-----------------------------------------------------------------------------
@@ -91,6 +92,21 @@ namespace VScriptCode
             if (g_pHostState->m_bActiveGame)
                 g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
 
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: sets whether the server could auto reload at this time (e.g. if
+        // server admin has host_autoReloadRate AND host_autoReloadRespectGameState
+        // set, and its time to auto reload, but the match hasn't finished yet, wait
+        // until this is set to proceed the reload of the server
+        //-----------------------------------------------------------------------------
+        SQRESULT SetAutoReloadState(HSQUIRRELVM v)
+        {
+            SQBool state = false;
+            sq_getbool(v, 2, &state);
+
+            g_hostReloadState = state;
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
@@ -232,6 +248,15 @@ namespace VScriptCode
         }
 
         //-----------------------------------------------------------------------------
+        // Purpose: gets the current server id
+        //-----------------------------------------------------------------------------
+        SQRESULT GetServerID(HSQUIRRELVM v)
+        {
+            sq_pushstring(v, g_LogSessionUUID.c_str(), (SQInteger)g_LogSessionUUID.length());
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+
+        //-----------------------------------------------------------------------------
         // Purpose: checks whether the server is active
         //-----------------------------------------------------------------------------
         SQRESULT IsServerActive(HSQUIRRELVM v)
@@ -282,6 +307,10 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, CreateServer, "Starts server with the specified settings", "void", "string, string, string, string, int");
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, DestroyServer, "Shuts the local server down", "void", "");
+
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SetAutoReloadState, "Set whether we can auto-reload the server", "void", "bool");
+
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetServerID, "Gets the current server ID", "string", "");
 }
 
 //---------------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 #include "tier0/memstd.h"
 #include "tier0/jobthread.h"
 #include "tier1/fmtstr.h"
+#include "tier1/keyvalues.h"
 #include "tier2/fileutils.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
@@ -19,7 +20,7 @@
 #include "rtech/pak/paktools.h"
 #include "rtech/pak/pakstream.h"
 
-#include "tier1/keyvalues.h"
+#include "vpklib/packedstore.h"
 #include "datacache/mdlcache.h"
 #include "filesystem/filesystem.h"
 #ifndef DEDICATED
@@ -28,8 +29,6 @@
 
 CUtlVector<CUtlString> g_InstalledMaps;
 CFmtStrN<MAX_MAP_NAME> s_CurrentLevelName;
-
-static std::regex s_ArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 
 static CustomPakData_t s_customPakData;
 static KeyValues* s_pLevelSetKV = nullptr;
@@ -42,13 +41,13 @@ PakHandle_t CustomPakData_t::LoadAndAddPak(const char* const pakFile)
     if (numHandles >= MAX_CUSTOM_PAKS)
     {
         Error(eDLL_T::ENGINE, NO_ERROR, "Tried to load pak '%s', but already reached the SDK's limit of %d!\n", pakFile, MAX_CUSTOM_PAKS);
-        return INVALID_PAK_HANDLE;
+        return PAK_INVALID_HANDLE;
     }
 
     const PakHandle_t pakId = g_pakLoadApi->LoadAsync(pakFile, AlignedMemAlloc(), 4, 0);
 
     // failure, don't add and return the invalid handle.
-    if (pakId == INVALID_PAK_HANDLE)
+    if (pakId == PAK_INVALID_HANDLE)
         return pakId;
 
     handles[numHandles++] = pakId;
@@ -64,14 +63,14 @@ void CustomPakData_t::UnloadAndRemoveAll()
     {
         const PakHandle_t pakId = handles[numHandles-1];
 
-        if (pakId == INVALID_PAK_HANDLE)
+        if (pakId == PAK_INVALID_HANDLE)
         {
             assert(0); // invalid handles should not be inserted
             return;
         }
 
         g_pakLoadApi->UnloadAsync(pakId);
-        handles[numHandles-1] = INVALID_PAK_HANDLE;
+        handles[numHandles-1] = PAK_INVALID_HANDLE;
     }
 }
 
@@ -83,7 +82,7 @@ PakHandle_t CustomPakData_t::LoadBasePak(const char* const pakFile, const EPakTy
     const PakHandle_t pakId = g_pakLoadApi->LoadAsync(pakFile, AlignedMemAlloc(), 4, 0);
 
     // the file is most likely missing
-    assert(pakId != INVALID_PAK_HANDLE);
+    assert(pakId != PAK_INVALID_HANDLE);
     handles[type] = pakId;
 
     return pakId;
@@ -97,10 +96,10 @@ void CustomPakData_t::UnloadBasePak(const EPakType type)
     const PakHandle_t pakId = handles[type];
 
     // only unload if it was actually successfully loaded
-    if (pakId != INVALID_PAK_HANDLE)
+    if (pakId != PAK_INVALID_HANDLE)
     {
         g_pakLoadApi->UnloadAsync(pakId);
-        handles[type] = INVALID_PAK_HANDLE;
+        handles[type] = PAK_INVALID_HANDLE;
     }
 }
 
@@ -136,11 +135,11 @@ void Mod_GetAllInstalledMaps()
         // slash, as the files are loaded from 'vpk/'.
         Assert(pFileName);
 
-        std::regex_search(pFileName, regexMatches, s_ArchiveRegex);
+        std::regex_search(pFileName, regexMatches, g_VpkDirFileRegex);
 
         if (!regexMatches.empty())
         {
-            const std::sub_match<const char*>& match = regexMatches[1];
+            const std::sub_match<const char*>& match = regexMatches[2];
 
             if (match.compare("frontend") == 0)
                 continue; // Frontend contains no BSP's.
@@ -155,6 +154,7 @@ void Mod_GetAllInstalledMaps()
             else
             {
                 const string mapName = match.str();
+
                 if (!g_InstalledMaps.HasElement(mapName.c_str()))
                     g_InstalledMaps.AddToTail(mapName.c_str());
             }
@@ -236,8 +236,8 @@ void Mod_QueuedPakCacheFrame()
         {
             if (*data->pakName)
             {
-                PakLoadedInfo_t* const pakInfo = Pak_GetPakInfo(data->pakId);
-                EPakStatus status;
+                PakLoadedInfo_s* const pakInfo = Pak_GetPakInfo(data->pakId);
+                PakStatus_e status;
 
                 // TODO: revisit this, this appears incorrect but also the way
                 // respawn does this. it this always supposed to be true on
@@ -313,7 +313,7 @@ void Mod_QueuedPakCacheFrame()
                 data->keepLoaded = false;
                 data->pakName[0] = '\0';
 
-                data->pakId = INVALID_PAK_HANDLE;
+                data->pakId = PAK_INVALID_HANDLE;
             }
             --numLeftToProcess;
             --data;
@@ -352,7 +352,7 @@ void Mod_QueuedPakCacheFrame()
         if (*commonData->pakName)
             break;
 
-        commonData->pakId = INVALID_PAK_HANDLE;
+        commonData->pakId = PAK_INVALID_HANDLE;
     LOOP_AGAIN_OR_FINISH:
 
         ++it;
@@ -421,9 +421,9 @@ void Mod_QueuedPakCacheFrame()
 
 CHECK_FOR_FAILURE:
 
-    if (commonData->pakId != INVALID_PAK_HANDLE)
+    if (commonData->pakId != PAK_INVALID_HANDLE)
     {
-        const PakLoadedInfo_t* const pli = Pak_GetPakInfo(commonData->pakId);
+        const PakLoadedInfo_s* const pli = Pak_GetPakInfo(commonData->pakId);
 
         if (pli->handle != commonData->pakId || ((pli->status - 9) & 0xFFFFFFFB) != 0)
         {
@@ -502,7 +502,7 @@ void Mod_PreloadLevelPaks(const char* const pszLevelName)
         snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pSubKey->GetName());
         const PakHandle_t nPakId = s_customPakData.LoadAndAddPak(szPathBuffer);
 
-        if (nPakId == INVALID_PAK_HANDLE)
+        if (nPakId == PAK_INVALID_HANDLE)
             Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, szPathBuffer, nPakId);
     }
 }

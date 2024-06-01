@@ -6,7 +6,7 @@
 #include "rtech/ipakfile.h"
 #include "pakpatch.h"
 
-bool PATCH_CMD_0(PakFile_t* const pak, size_t* const numAvailableBytes)
+bool PATCH_CMD_0(PakFile_s* const pak, size_t* const numAvailableBytes)
 {
     unsigned __int64 m_numBytesToProcess_maybe; // r9
     unsigned __int64 v4; // rdi
@@ -83,7 +83,7 @@ bool PATCH_CMD_0(PakFile_t* const pak, size_t* const numAvailableBytes)
     return pak->memoryData.numBytesToProcess_maybe == 0;
 }
 
-bool PATCH_CMD_1(PakFile_t* const pak, size_t* const numAvailableBytes)
+bool PATCH_CMD_1(PakFile_s* const pak, size_t* const numAvailableBytes)
 {
     unsigned __int64 m_numBytesToProcess_maybe; // r8
     size_t v3; // r9
@@ -111,7 +111,7 @@ bool PATCH_CMD_1(PakFile_t* const pak, size_t* const numAvailableBytes)
     }
 }
 
-bool PATCH_CMD_2(PakFile_t* const pak, size_t* const numAvailableBytes)
+bool PATCH_CMD_2(PakFile_s* const pak, size_t* const numAvailableBytes)
 {
     NOTE_UNUSED(numAvailableBytes);
 
@@ -153,7 +153,7 @@ bool PATCH_CMD_2(PakFile_t* const pak, size_t* const numAvailableBytes)
     return pak->memoryData.numBytesToProcess_maybe == 0;
 }
 
-bool PATCH_CMD_3(PakFile_t* const pak, size_t* const numAvailableBytes)
+bool PATCH_CMD_3(PakFile_s* const pak, size_t* const numAvailableBytes)
 {
     size_t patchSrcSize = pak->memoryData.patchSrcSize;
 
@@ -172,7 +172,7 @@ bool PATCH_CMD_3(PakFile_t* const pak, size_t* const numAvailableBytes)
     return pak->memoryData.numBytesToProcess_maybe == 0;
 }
 
-bool PATCH_CMD_4_5(PakFile_t* const pak, size_t* const numAvailableBytes)
+bool PATCH_CMD_4_5(PakFile_s* const pak, size_t* const numAvailableBytes)
 {
     const size_t v2 = *numAvailableBytes;
     if (!v2)
@@ -188,7 +188,7 @@ bool PATCH_CMD_4_5(PakFile_t* const pak, size_t* const numAvailableBytes)
     return PATCH_CMD_0(pak, numAvailableBytes);
 }
 
-bool PATCH_CMD_6(PakFile_t* const pak, size_t* const numAvailableBytes)
+bool PATCH_CMD_6(PakFile_s* const pak, size_t* const numAvailableBytes)
 {
     const size_t v2 = *numAvailableBytes;
     size_t v3 = 2;
@@ -238,7 +238,7 @@ bool PATCH_CMD_6(PakFile_t* const pak, size_t* const numAvailableBytes)
     return false;
 }
 
-const PakPatchFuncs_t g_pakPatchApi
+const PakPatchFuncs_s g_pakPatchApi
 {
     PATCH_CMD_0,
     PATCH_CMD_1,

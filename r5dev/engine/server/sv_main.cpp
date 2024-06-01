@@ -162,19 +162,39 @@ bool SV_ActivateServer()
 	return v_SV_ActivateServer();
 }
 
-void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data)
+//-----------------------------------------------------------------------------
+// Purpose: returns whether voice data can be broadcasted from the server
+//-----------------------------------------------------------------------------
+bool SV_CanBroadcastVoice()
 {
+	if (IsPartyDedi())
+		return false;
+
+	if (IsTrainingDedi())
+		return false;
+
 	if (!sv_voiceenable->GetBool())
-		return;
+		return false;
 
 	if (g_ServerGlobalVariables->m_nMaxClients <= 0)
+		return false;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: relays voice data to other clients
+//-----------------------------------------------------------------------------
+void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data)
+{
+	if (!SV_CanBroadcastVoice())
 		return;
 
 	SVC_VoiceData voiceData(cl->GetUserID(), nBytes, data);
 
 	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
 	{
-		CClient* pClient = g_pServer->GetClient(i);
+		CClient* const pClient = g_pServer->GetClient(i);
 
 		if (!pClient)
 			continue;
@@ -191,10 +211,13 @@ void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data
 		if (pClient->GetTeamNum() != cl->GetTeamNum() && !sv_alltalk->GetBool())
 			continue;
 
-		// there's also supposed to be some xplat checks here
-		// but since r5r is only on PC, there's no point in implementing them here
+		//if (voice_noxplat->GetBool() && cl->GetXPlatID() != pClient->GetXPlatID())
+		//{
+		//	if ((cl->GetXPlatID() -1) > 1 || (pClient->GetXPlatID() -1) > 1)
+		//		continue;
+		//}
 
-		CNetChan* pNetChan = pClient->GetNetChan();
+		CNetChan* const pNetChan = pClient->GetNetChan();
 
 		if (!pNetChan)
 			continue;
@@ -202,5 +225,71 @@ void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data
 		// if voice stream has enough space for new data
 		if (pNetChan->GetStreamVoice().GetNumBitsLeft() >= 8 * nBytes + 96)
 			pClient->SendNetMsgEx(&voiceData, false, false, true);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: relays durango voice data to other clients
+//-----------------------------------------------------------------------------
+void SV_BroadcastDurangoVoiceData(CClient* const cl, const int nBytes, char* const data,
+	const int nXid, const int unknown, const bool useVoiceStream, const bool skipXidCheck)
+{
+	if (!SV_CanBroadcastVoice())
+		return;
+
+	SVC_DurangoVoiceData voiceData(cl->GetUserID(), nBytes, data, unknown, useVoiceStream);
+
+	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	{
+		CClient* const pClient = g_pServer->GetClient(i);
+
+		if (!pClient)
+			continue;
+
+		// is this client fully connected
+		if (pClient->GetSignonState() != SIGNONSTATE::SIGNONSTATE_FULL)
+			continue;
+
+		// is this client the sender
+		if (pClient == cl && !sv_voiceEcho->GetBool())
+			continue;
+
+		if (!skipXidCheck && i != nXid)
+			continue;
+
+		// is this client on the sender's team
+		if (pClient->GetTeamNum() != cl->GetTeamNum() && !sv_alltalk->GetBool())
+		{
+			// NOTE: on Durango packets, the game appears to bypass the team
+			// check if 'useVoiceStream' is false, thus forcing the usage
+			// of the reliable stream. Omitted the check as it appears that
+			// could be exploited to transmit voice to other teams while cvar
+			// 'sv_alltalk' is unset.
+			continue;
+		}
+
+		// NOTE: xplat code checks disabled; CClient::GetXPlatID() seems to be
+		// an enumeration of platforms, but the enum hasn't been reversed yet.
+		//if (voice_noxplat->GetBool() && cl->GetXPlatID() != pClient->GetXPlatID())
+		//{
+		//	if ((cl->GetXPlatID() - 1) > 1 || (pClient->GetXPlatID() - 1) > 1)
+		//		continue;
+		//}
+
+		CNetChan* const pNetChan = pClient->GetNetChan();
+
+		if (!pNetChan)
+			continue;
+
+		// NOTE: the game appears to have the ability to use the unreliable
+		// stream as well, but the condition to hit that code path can never
+		// evaluate to true - appears to be a compile time option that hasn't
+		// been fully optimized away? For now only switch between voice and
+		// reliable streams as that is what the original code does.
+		const bf_write& stream = useVoiceStream ? pNetChan->GetStreamVoice() : pNetChan->GetStreamReliable();
+
+		// if stream has enough space for new data
+		if (stream.GetNumBitsLeft() >= 8 * nBytes + 34)
+			pClient->SendNetMsgEx(&voiceData, false, !useVoiceStream, useVoiceStream);
 	}
 }

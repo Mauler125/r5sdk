@@ -8,6 +8,7 @@
 #include "engine/net.h"
 #ifndef _TOOLS
 #include "tier1/cvar.h"
+#include "tier2/cryptutils.h"
 #include "mathlib/color.h"
 #include "net.h"
 #include "net_chan.h"
@@ -202,21 +203,16 @@ void NET_GenerateKey()
 		return; // Change callback will handle this.
 	}
 
-	BCRYPT_ALG_HANDLE hAlgorithm;
-	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
+	uint8_t keyBuf[AES_128_KEY_SIZE];
+	const char* errorMsg = nullptr;
+
+	if (!Plat_GenerateRandom(keyBuf, sizeof(keyBuf), errorMsg))
 	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to open rng algorithm\n");
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s\n", errorMsg);
 		return;
 	}
 
-	uint8_t pBuffer[AES_128_KEY_SIZE];
-	if (BCryptGenRandom(hAlgorithm, pBuffer, AES_128_KEY_SIZE, 0) < 0)
-	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to generate random data\n");
-		return;
-	}
-
-	NET_SetKey(Base64Encode(string(reinterpret_cast<char*>(&pBuffer), AES_128_KEY_SIZE)));
+	NET_SetKey(Base64Encode(string(reinterpret_cast<char*>(&keyBuf), AES_128_KEY_SIZE)));
 }
 
 //-----------------------------------------------------------------------------

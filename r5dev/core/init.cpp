@@ -35,6 +35,7 @@
 #ifndef DEDICATED
 #include "codecs/bink/bink_impl.h"
 #include "codecs/miles/miles_impl.h"
+#include "codecs/miles/miles_shim.h"
 #include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
 #include "vphysics/physics_collide.h"
@@ -135,6 +136,8 @@
 #include "game/server/detour_impl.h"
 #include "game/server/gameinterface.h"
 #include "game/server/movehelper_server.h"
+#include "game/server/player.h"
+#include "game/server/player_command.h"
 #include "game/server/physics_main.h"
 #include "game/server/vscript_server.h"
 #endif // !CLIENT_DLL
@@ -523,6 +526,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// Codecs
 	REGISTER(BinkCore); // REGISTER CLIENT ONLY!
 	REGISTER(MilesCore); // REGISTER CLIENT ONLY!
+	REGISTER(MilesShim);
 	REGISTER(VRadShal);
 
 #endif // !DEDICATED
@@ -663,6 +667,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VBaseEntity);
 	REGISTER(VBaseAnimating);
 	REGISTER(VPlayer);
+	REGISTER(VPlayerMove);
 
 #endif // !CLIENT_DLL
 

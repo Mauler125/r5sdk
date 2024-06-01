@@ -102,13 +102,57 @@ SQRESULT CSquirrelVM::RegisterConstant(const SQChar* name, SQInteger value)
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: runs text as script on the VM
+// Input  : *script - 
+// Output : true on success, false otherwise
+//---------------------------------------------------------------------------------
+bool CSquirrelVM::Run(const SQChar* const script)
+{
+	Assert(m_hVM);
+
+	bool success = false;
+	SQBufState bufState(script);
+
+	if (SQ_SUCCEEDED(sq_compilebuffer(m_hVM, &bufState, "unnamed", -1, SQTrue)))
+	{
+		SQObject hScript;
+		sq_getstackobj(m_hVM, -1, &hScript);
+
+		sq_addref(m_hVM, &hScript);
+		sq_pop(m_hVM, 1);
+
+		if (ExecuteFunction((HSCRIPT)&hScript, NULL, 0, NULL, NULL) == SCRIPT_DONE)
+			success = true;
+
+		sq_release(m_hVM, &hScript);
+	}
+
+	return success;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: executes a function by handle
+// Input  : hFunction - 
+//			*pArgs - 
+//			nArgs - 
+//			*pReturn - 
+//			hScope - 
+// Output : SCRIPT_DONE on success, SCRIPT_ERROR otherwise
+//---------------------------------------------------------------------------------
+ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope)
+{
+	// NOTE: pArgs and pReturn are most likely of type 'ScriptVariant_t', needs to be reversed.
+	return CSquirrelVM__ExecuteFunction(this, hFunction, pArgs, nArgs, pReturn, hScope);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: executes a code callback
 // Input  : *name - 
 // Output : true on success, false otherwise
 //---------------------------------------------------------------------------------
-bool CSquirrelVM::ExecuteCodeCallback(const SQChar* const callbackName)
+bool CSquirrelVM::ExecuteCodeCallback(const SQChar* const name)
 {
-	return CSquirrelVM__ExecuteCodeCallback(this, callbackName);
+	return CSquirrelVM__ExecuteCodeCallback(this, name);
 }
 
 //---------------------------------------------------------------------------------

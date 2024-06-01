@@ -503,8 +503,15 @@ int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes
 		cchResult = wcstombs(pUTF8, pUnicode, cubDestSizeInBytes);
 #endif
 
-	if (cubDestSizeInBytes > 0)
-		pUTF8[cubDestSizeInBytes - 1] = 0;
+	if (cchResult <= 0 || cchResult > cubDestSizeInBytes)
+	{
+		if (cchResult != cubDestSizeInBytes || pUTF8[cubDestSizeInBytes - 1] != '\0')
+		{
+			*pUTF8 = '\0';
+		}
+	}
+	else
+		pUTF8[cchResult] = '\0';
 
 	return cchResult;
 }
@@ -1237,6 +1244,26 @@ const char* V_UnqualifiedFileName(const char* in)
 	while (*in)
 	{
 		if (PATHSEPARATOR(*in))
+		{
+			// +1 to skip the slash
+			out = in + 1;
+		}
+
+		in++;
+	}
+
+	return out;
+}
+
+const wchar_t* V_UnqualifiedFileName(const wchar_t* in)
+{
+	Assert(in);
+
+	const wchar_t* out = in;
+
+	while (*in)
+	{
+		if (PATHSEPARATORW(*in))
 		{
 			// +1 to skip the slash
 			out = in + 1;

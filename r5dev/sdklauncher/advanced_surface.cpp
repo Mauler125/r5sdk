@@ -6,7 +6,35 @@
 #include "advanced_surface.h"
 #include "sdklauncher.h"
 #include "mathlib/bits.h"
-#include "utility/vdf_parser.h"
+#include "vpklib/packedstore.h"
+#include "vstdlib/keyvaluessystem.h"
+#include "filesystem/filesystem_std.h"
+#include "tier2/fileutils.h"
+
+extern CFileSystem_Stdio* FileSystem();
+
+//-----------------------------------------------------------------------------
+// Purpose: creates a font by name
+//-----------------------------------------------------------------------------
+HFONT CreateFontByName(const char* const name, const int size)
+{
+	return CreateFont(
+		size,                   // Height of font
+		0,                      // Width of font
+		0,                      // Angle of escapement
+		0,                      // Orientation angle
+		FW_NORMAL,              // Font weight
+		FALSE,                  // Italic
+		FALSE,                  // Underline
+		FALSE,                  // Strikeout
+		DEFAULT_CHARSET,        // Character set identifier
+		OUT_DEFAULT_PRECIS,     // Output precision
+		CLIP_DEFAULT_PRECIS,    // Clipping precision
+		DEFAULT_QUALITY,        // Output quality
+		DEFAULT_PITCH | FF_DONTCARE, // Pitch and family
+		TEXT(name)              // Font name
+	);
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
@@ -16,6 +44,9 @@ void CAdvancedSurface::Init()
 	// START DESIGNER CODE
 	const INT WindowX = 800;
 	const INT WindowY = 353;
+
+	const HFONT font = (HFONT)CreateFontByName("Microsoft Sans Serif", -11);
+	this->SetFont(new Drawing::Font(this->_Handle, font, true));
 
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
@@ -29,7 +60,7 @@ void CAdvancedSurface::Init()
 	this->SetBackColor(Drawing::Color(47, 54, 61));
 
 	this->Load += &OnLoad;
-	this->FormClosing += &OnClose;
+	this->Closing += &OnClose;
 
 	// ########################################################################
 	//	GAME
@@ -64,6 +95,7 @@ void CAdvancedSurface::Init()
 	this->m_MapCombo->SetLocation({ 15, 25 });
 	this->m_MapCombo->SetTabIndex(0);
 	this->m_MapCombo->SetSelectedIndex(0);
+	this->m_MapCombo->DropDownOpened += ReloadMaplists;
 	this->m_MapCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MapCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_MapCombo);
@@ -82,6 +114,7 @@ void CAdvancedSurface::Init()
 	this->m_PlaylistCombo->SetLocation({ 15, 50 });
 	this->m_PlaylistCombo->SetTabIndex(0);
 	this->m_PlaylistCombo->SetSelectedIndex(0);
+	this->m_PlaylistCombo->DropDownOpened += ReloadPlaylists;
 	this->m_PlaylistCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_PlaylistCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_PlaylistCombo);
@@ -106,6 +139,11 @@ void CAdvancedSurface::Init()
 	this->m_ConsoleToggle->SetSize({ 110, 18 });
 	this->m_ConsoleToggle->SetLocation({ 290, 7 });
 	this->m_ConsoleToggle->SetTabIndex(0);
+#ifdef DEDI_LAUNCHER
+	this->m_ConsoleToggle->SetChecked(true);
+#else // For client builds, don't show the console by default
+	this->m_ConsoleToggle->SetChecked(false);
+#endif // DEDI_LAUNCHER
 	this->m_ConsoleToggle->SetText("Show console");
 	this->m_ConsoleToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_GameGroupExt->AddControl(this->m_ConsoleToggle);
@@ -125,7 +163,6 @@ void CAdvancedSurface::Init()
 	this->m_PlaylistFileTextBox->SetTabIndex(0);
 	this->m_PlaylistFileTextBox->SetText("playlists_r5_patch.txt");
 	this->m_PlaylistFileTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_PlaylistFileTextBox->LostFocus += &ReloadPlaylists;
 	this->m_GameGroupExt->AddControl(this->m_PlaylistFileTextBox);
 
 	this->m_PlaylistFileLabel = new UIX::UIXLabel();
@@ -133,7 +170,7 @@ void CAdvancedSurface::Init()
 	this->m_PlaylistFileLabel->SetLocation({ 311, 32 });
 	this->m_PlaylistFileLabel->SetTabIndex(0);
 	this->m_PlaylistFileLabel->SetText("Playlists file");
-	this->m_PlaylistFileLabel->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
+	this->m_PlaylistFileLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_GameGroupExt->AddControl(this->m_PlaylistFileLabel);
 
 	// ########################################################################
@@ -379,7 +416,6 @@ void CAdvancedSurface::Init()
 	this->m_WindowedToggle->SetSize({ 105, 18 });
 	this->m_WindowedToggle->SetLocation({ 15, 7 });
 	this->m_WindowedToggle->SetTabIndex(0);
-	this->m_WindowedToggle->SetChecked(true);
 	this->m_WindowedToggle->SetText("Windowed");
 	this->m_WindowedToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineVideoGroup->AddControl(this->m_WindowedToggle);
@@ -416,7 +452,7 @@ void CAdvancedSurface::Init()
 	this->m_WidthTextBox->SetTabIndex(0);
 	this->m_WidthTextBox->SetReadOnly(false);
 	this->m_WidthTextBox->SetText("");
-	this->m_WidthTextBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Right);
+	this->m_WidthTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineVideoGroup->AddControl(this->m_WidthTextBox);
 
 	this->m_HeightTextBox = new UIX::UIXTextBox();
@@ -425,7 +461,7 @@ void CAdvancedSurface::Init()
 	this->m_HeightTextBox->SetTabIndex(0);
 	this->m_HeightTextBox->SetReadOnly(false);
 	this->m_HeightTextBox->SetText("");
-	this->m_HeightTextBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Right);
+	this->m_HeightTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineVideoGroup->AddControl(this->m_HeightTextBox);
 
 	this->m_ResolutionLabel = new UIX::UIXLabel();
@@ -445,7 +481,7 @@ void CAdvancedSurface::Init()
 	this->m_ConsoleGroup->SetLocation({ 359, 160 });
 	this->m_ConsoleGroup->SetTabIndex(0);
 	this->m_ConsoleGroup->SetText("Console");
-	this->m_ConsoleGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ConsoleGroup->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->AddControl(this->m_ConsoleGroup);
 
 	this->m_ConsoleGroupExt = new UIX::UIXGroupBox();
@@ -453,7 +489,7 @@ void CAdvancedSurface::Init()
 	this->m_ConsoleGroupExt->SetLocation({ 359, 174 });
 	this->m_ConsoleGroupExt->SetTabIndex(0);
 	this->m_ConsoleGroupExt->SetText("");
-	this->m_ConsoleGroupExt->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ConsoleGroupExt->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->AddControl(this->m_ConsoleGroupExt);
 
 	this->m_ConsoleListView = new UIX::UIXListView();
@@ -461,7 +497,7 @@ void CAdvancedSurface::Init()
 	this->m_ConsoleListView->SetLocation({ 1, -23 }); // HACK: hide columns
 	this->m_ConsoleListView->SetTabIndex(0);
 	this->m_ConsoleListView->SetBackColor(Drawing::Color(29, 33, 37));
-	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_ConsoleListView->SetView(Forms::View::Details);
 	this->m_ConsoleListView->SetVirtualMode(true);
 	this->m_ConsoleListView->SetFullRowSelect(true);
@@ -477,7 +513,7 @@ void CAdvancedSurface::Init()
 	this->m_ConsoleCommandTextBox->SetTabIndex(0);
 	this->m_ConsoleCommandTextBox->SetReadOnly(false);
 	this->m_ConsoleCommandTextBox->SetText("");
-	this->m_ConsoleCommandTextBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
+	this->m_ConsoleCommandTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleCommandTextBox);
 
 	this->m_ConsoleSendCommand = new UIX::UIXButton();
@@ -486,7 +522,7 @@ void CAdvancedSurface::Init()
 	this->m_ConsoleSendCommand->SetTabIndex(0);
 	this->m_ConsoleSendCommand->SetText("Send");
 	this->m_ConsoleSendCommand->SetBackColor(Drawing::Color(3, 102, 214));
-	this->m_ConsoleSendCommand->SetAnchor(Forms::AnchorStyles::None);
+	this->m_ConsoleSendCommand->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_ConsoleSendCommand->Click += &ForwardCommandToGame;
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleSendCommand);
 
@@ -494,6 +530,8 @@ void CAdvancedSurface::Init()
 	this->PerformLayout();
 
 	// END DESIGNER CODE
+
+	this->Setup();
 }
 
 //-----------------------------------------------------------------------------
@@ -501,6 +539,8 @@ void CAdvancedSurface::Init()
 //-----------------------------------------------------------------------------
 void CAdvancedSurface::Setup()
 {
+	// Already parse these out since you can scroll select in a combo box
+	// without uncollapsing it.
 	this->ParseMaps();
 	this->ParsePlaylists();
 
@@ -522,97 +562,60 @@ void CAdvancedSurface::Setup()
 //-----------------------------------------------------------------------------
 void CAdvancedSurface::LoadSettings()
 {
-	const fs::path settingsPath(Format("platform/%s/%s", SDK_SYSTEM_CFG_PATH, LAUNCHER_SETTING_FILE));
-	if (!fs::exists(settingsPath))
+	CUtlString settingsPath;
+	settingsPath.Format("platform/" SDK_SYSTEM_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
+
+	const char* pSettingsPath = settingsPath.String();
+
+	if (!FileSystem()->FileExists(pSettingsPath))
+		return;
+
+	KeyValues kv("LauncherSettings");
+
+	if (!kv.LoadFromFile(FileSystem(), pSettingsPath, nullptr))
 	{
+		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__, pSettingsPath);
 		return;
 	}
 
-	bool success{ };
-	std::ifstream fileStream(settingsPath, fstream::in);
-	vdf::object vRoot = vdf::read(fileStream, &success);
+	const int settingsVersion = kv.GetInt("version", -1);
 
-	if (!success)
-	{
-		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__,
-			settingsPath.u8string().c_str());
+	if (settingsVersion != SDK_LAUNCHER_VERSION)
 		return;
-	}
 
-	try
+	KeyValues* sv = kv.FindKey("vars");
+
+	if (!sv)
 	{
-		string& attributeView = vRoot.attribs["version"];
-
-		int settingsVersion = atoi(attributeView.c_str());
-		if (settingsVersion != SDK_LAUNCHER_VERSION)
-			return;
-
-		vdf::object* pSubKey = vRoot.childs["vars"].get();
-		if (!pSubKey)
-			return;
-
-		// Game.
-		attributeView = pSubKey->attribs["playlistsFile"];
-		this->m_PlaylistFileTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["enableCheats"];
-		this->m_CheatsToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["enableDeveloper"];
-		this->m_DeveloperToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["enableConsole"];
-		this->m_ConsoleToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["colorConsole"];
-		this->m_ColorConsoleToggle->SetChecked(attributeView != "0");
-
-		// Engine.
-		attributeView = pSubKey->attribs["reservedCoreCount"];
-		this->m_ReservedCoresTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["workerThreadCount"];
-		this->m_WorkerThreadsTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["processorAffinity"];
-		this->m_ProcessorAffinityTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["noAsync"]; // No-async
-		this->m_NoAsyncJobsToggle->SetChecked(attributeView != "0");
-
-		// Network.
-		attributeView = pSubKey->attribs["encryptPackets"];
-		this->m_NetEncryptionToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["randomNetKey"];
-		this->m_NetRandomKeyToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["queuedPackets"];
-		this->m_QueuedPacketThread->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["noTimeOut"];
-		this->m_NoTimeOutToggle->SetChecked(attributeView != "0");
-
-		// Video.
-		attributeView = pSubKey->attribs["windowed"];
-		this->m_WindowedToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["borderless"];
-		this->m_NoBorderToggle->SetChecked(attributeView != "0");
-
-		attributeView = pSubKey->attribs["maxFPS"];
-		this->m_FpsTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["width"];
-		this->m_WidthTextBox->SetText(attributeView.data());
-
-		attributeView = pSubKey->attribs["height"];
-		this->m_HeightTextBox->SetText(attributeView.data());
+		printf("%s: VDF file '%s' lacks subkey: '%s'\n", __FUNCTION__, pSettingsPath, "vars");
+		return; // No settings to apply
 	}
-	catch (const std::exception& e)
-	{
-		printf("%s: Exception while parsing VDF file: %s\n", __FUNCTION__, e.what());
-	}
+
+	// Game.
+	this->m_PlaylistFileTextBox->SetText(sv->GetString("playlistsFile"));
+	this->m_CheatsToggle->SetChecked(sv->GetBool("enableCheats"));
+	this->m_DeveloperToggle->SetChecked(sv->GetBool("enableDeveloper"));
+	this->m_ConsoleToggle->SetChecked(sv->GetBool("enableConsole"));
+	this->m_ColorConsoleToggle->SetChecked(sv->GetBool("colorConsole"));
+
+	// Engine.
+	this->m_ReservedCoresTextBox->SetText(sv->GetString("reservedCoreCount", "-1"));
+	this->m_WorkerThreadsTextBox->SetText(sv->GetString("workerThreadCount", "-1"));
+	this->m_ProcessorAffinityTextBox->SetText(sv->GetString("processorAffinity", "0"));
+	this->m_NoAsyncJobsToggle->SetChecked(sv->GetBool("noAsync"));
+
+	// Network.
+	this->m_NetEncryptionToggle->SetChecked(sv->GetBool("encryptPackets", true));
+	this->m_NetRandomKeyToggle->SetChecked(sv->GetBool("randomNetKey", true));
+	this->m_QueuedPacketThread->SetChecked(sv->GetBool("queuedPackets", true));
+	this->m_NoTimeOutToggle->SetChecked(sv->GetBool("noTimeOut"));
+
+	// Video.
+	this->m_WindowedToggle->SetChecked(sv->GetBool("windowed"));
+	this->m_NoBorderToggle->SetChecked(sv->GetBool("borderless"));
+	this->m_FpsTextBox->SetText(sv->GetString("fpsMax", "-1"));
+	this->m_WidthTextBox->SetText(sv->GetString("width"));
+	this->m_HeightTextBox->SetText(sv->GetString("height"));
 }
 
 //-----------------------------------------------------------------------------
@@ -620,60 +623,69 @@ void CAdvancedSurface::LoadSettings()
 //-----------------------------------------------------------------------------
 void CAdvancedSurface::SaveSettings()
 {
-	const fs::path settingsPath(Format("platform/%s/%s", SDK_SYSTEM_CFG_PATH, LAUNCHER_SETTING_FILE));
-	const fs::path parentPath = settingsPath.parent_path();
+	CUtlString settingsPath;
+	settingsPath.Format("platform/" SDK_SYSTEM_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
 
-	if (!fs::exists(parentPath) && !fs::create_directories(parentPath))
+	CUtlString settingsDir = settingsPath.DirName();
+
+	const char* pSettingsPath = settingsPath.String();
+	const char* pSettingsDir = settingsDir.String();
+
+	FileSystem()->CreateDirHierarchy(pSettingsDir);
+
+	if (!FileSystem()->IsDirectory(pSettingsDir))
 	{
-		printf("%s: Failed to create directory: '%s'\n", __FUNCTION__,
-			parentPath.relative_path().u8string().c_str());
+		printf("%s: Failed to create directory: '%s'\n", __FUNCTION__, pSettingsPath);
 		return;
 	}
 
-	std::ofstream fileStream(settingsPath, fstream::out);
-	if (!fileStream)
+	KeyValues kv("LauncherSettings");
+	kv.SetInt("version", SDK_LAUNCHER_VERSION);
+
+	KeyValues* sv = new KeyValues("vars");
+
+	if (!sv)
 	{
-		printf("%s: Failed to create VDF file: '%s'\n", __FUNCTION__,
-			settingsPath.u8string().c_str());
-		return;
+		printf("%s: Failed to allocate subkey: '%s'\n", __FUNCTION__, "vars");
+		return; // No settings to apply
 	}
 
-	vdf::object vRoot;
-	vRoot.set_name("LauncherSettings");
-	vRoot.add_attribute("version", std::to_string(SDK_LAUNCHER_VERSION));
-
-	vdf::object* vVars = new vdf::object();
-	vVars->set_name("vars");
+	kv.AddSubKey(sv);
 
 	// Game.
-	vVars->add_attribute("playlistsFile", GetControlValue(this->m_PlaylistFileTextBox));
-	vVars->add_attribute("enableCheats", GetControlValue(this->m_CheatsToggle));
-	vVars->add_attribute("enableDeveloper", GetControlValue(this->m_DeveloperToggle));
-	vVars->add_attribute("enableConsole", GetControlValue(this->m_ConsoleToggle));
-	vVars->add_attribute("colorConsole", GetControlValue(this->m_ColorConsoleToggle));
+	sv->SetString("playlistsFile", this->m_PlaylistFileTextBox->Text().ToCString());
+	sv->SetBool("enableCheats", this->m_CheatsToggle->Checked());
+	sv->SetBool("enableDeveloper", this->m_DeveloperToggle->Checked());
+	sv->SetBool("enableConsole", this->m_ConsoleToggle->Checked());
+	sv->SetBool("colorConsole", this->m_ColorConsoleToggle->Checked());
 
 	// Engine.
-	vVars->add_attribute("reservedCoreCount", GetControlValue(this->m_ReservedCoresTextBox));
-	vVars->add_attribute("workerThreadCount", GetControlValue(this->m_WorkerThreadsTextBox));
-	vVars->add_attribute("processorAffinity", GetControlValue(this->m_ProcessorAffinityTextBox));
-	vVars->add_attribute("noAsync", GetControlValue(this->m_NoAsyncJobsToggle));
+	sv->SetString("reservedCoreCount", this->m_ReservedCoresTextBox->Text().ToCString());
+	sv->SetString("workerThreadCount", this->m_WorkerThreadsTextBox->Text().ToCString());
+	sv->SetString("processorAffinity", this->m_ProcessorAffinityTextBox->Text().ToCString());
+	sv->SetBool("noAsync", this->m_NoAsyncJobsToggle->Checked());
 
 	// Network.
-	vVars->add_attribute("encryptPackets", GetControlValue(this->m_NetEncryptionToggle));
-	vVars->add_attribute("randomNetKey", GetControlValue(this->m_NetRandomKeyToggle));
-	vVars->add_attribute("queuedPackets", GetControlValue(this->m_QueuedPacketThread));
-	vVars->add_attribute("noTimeOut", GetControlValue(this->m_NoTimeOutToggle));
+	sv->SetBool("encryptPackets", this->m_NetEncryptionToggle->Checked());
+	sv->SetBool("randomNetKey", this->m_NetRandomKeyToggle->Checked());
+	sv->SetBool("queuedPackets", this->m_QueuedPacketThread->Checked());
+	sv->SetBool("noTimeOut", this->m_NoTimeOutToggle->Checked());
 
 	// Video.
-	vVars->add_attribute("windowed", GetControlValue(this->m_WindowedToggle));
-	vVars->add_attribute("borderless", GetControlValue(this->m_NoBorderToggle));
-	vVars->add_attribute("maxFPS", GetControlValue(this->m_FpsTextBox));
-	vVars->add_attribute("width", GetControlValue(this->m_WidthTextBox));
-	vVars->add_attribute("height", GetControlValue(this->m_HeightTextBox));
+	sv->SetBool("windowed", this->m_WindowedToggle->Checked());
+	sv->SetBool("borderless", this->m_NoBorderToggle->Checked());
+	sv->SetString("fpsMax", this->m_FpsTextBox->Text().ToCString());
+	sv->SetString("width", this->m_WidthTextBox->Text().ToCString());
+	sv->SetString("height", this->m_HeightTextBox->Text().ToCString());
 
-	vRoot.add_child(std::unique_ptr<vdf::object>(vVars));
+	CUtlBuffer outBuf(ssize_t(0), 0, CUtlBuffer::TEXT_BUFFER);
+	kv.RecursiveSaveToFile(outBuf, 0);
 
-	vdf::write(fileStream, vRoot);
+	if (!FileSystem()->WriteFile(pSettingsPath, "PLATFORM", outBuf))
+	{
+		printf("%s: Failed to create VDF file: '%s'\n", __FUNCTION__, pSettingsPath);
+		return;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -700,10 +712,7 @@ void CAdvancedSurface::OnClose(const std::unique_ptr<FormClosingEventArgs>& /*pE
 //-----------------------------------------------------------------------------
 void CAdvancedSurface::CleanSDK(Forms::Control* pSender)
 {
-	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
-	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running cleaner for SDK installation\n"));
-	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
-
+	Msg(eDLL_T::COMMON, "Running cleaner for SDK installation\n");
 	std::system("bin\\clean_sdk.bat");
 }
 
@@ -713,10 +722,7 @@ void CAdvancedSurface::CleanSDK(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CAdvancedSurface::UpdateSDK(Forms::Control* pSender)
 {
-	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
-	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running updater for SDK installation\n"));
-	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
-
+	Msg(eDLL_T::COMMON, "Running updater for SDK installation\n");
 	std::system("bin\\update_sdk.bat");
 }
 
@@ -726,20 +732,16 @@ void CAdvancedSurface::UpdateSDK(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CAdvancedSurface::LaunchGame(Forms::Control* pSender)
 {
-	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
-
-	pSurface->m_LogList.clear(); // Clear console.
-	pSurface->m_ConsoleListView->SetVirtualListSize(0);
-	pSurface->m_ConsoleListView->Refresh();
-
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
 	string svParameter;
+
 	pSurface->AppendParameterInternal(svParameter, "-launcher");
 
-	eLaunchMode launchMode = pSurface->BuildParameter(svParameter);
+	eLaunchMode launchMode = SDKLauncher()->BuildParameter(svParameter);
 	uint64_t nProcessorAffinity = pSurface->GetProcessorAffinity(svParameter);
 
-	if (g_pLauncher->CreateLaunchContext(launchMode, nProcessorAffinity, svParameter.c_str(), "startup_launcher.cfg"))
-		g_pLauncher->LaunchProcess();
+	if (SDKLauncher()->CreateLaunchContext(launchMode, nProcessorAffinity, svParameter.c_str(), "startup_launcher.cfg"))
+		SDKLauncher()->LaunchProcess();
 }
 
 //-----------------------------------------------------------------------------
@@ -747,29 +749,33 @@ void CAdvancedSurface::LaunchGame(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CAdvancedSurface::ParseMaps()
 {
+	if (!m_MapCombo->Items.Contains(""))
+		m_MapCombo->Items.Add("");
+
 	const fs::path vpkPath("vpk");
+
 	if (!fs::exists(vpkPath))
 	{
 		return;
 	}
 
 	fs::directory_iterator directoryIterator(vpkPath);
-	std::regex archiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
-	std::smatch regexMatches;
+	std::cmatch regexMatches;
 
-	m_MapCombo->Items.Add("");
 	for (const fs::directory_entry& directoryEntry : directoryIterator)
 	{
 		std::string fileName = directoryEntry.path().u8string();
-		std::regex_search(fileName, regexMatches, archiveRegex);
+		std::regex_search(fileName.c_str(), regexMatches, g_VpkDirFileRegex);
 
 		if (!regexMatches.empty())
 		{
-			if (regexMatches[1].str().compare("frontend") == 0)
+			const std::sub_match<const char*>& match = regexMatches[2];
+
+			if (match.compare("frontend") == 0)
 			{
 				continue;
 			}
-			else if (regexMatches[1].str().compare("mp_common") == 0)
+			else if (match.compare("mp_common") == 0)
 			{
 				if (!this->m_MapCombo->Items.Contains("mp_lobby"))
 				{
@@ -777,9 +783,14 @@ void CAdvancedSurface::ParseMaps()
 				}
 				continue;
 			}
-			else if (!this->m_MapCombo->Items.Contains(regexMatches[1].str().c_str()))
+			else
 			{
-				this->m_MapCombo->Items.Add(regexMatches[1].str().c_str());
+				const string mapName = match.str();
+
+				if (!this->m_MapCombo->Items.Contains(match.str().c_str()))
+				{
+					this->m_MapCombo->Items.Add(match.str().c_str());
+				}
 			}
 		}
 	}
@@ -790,41 +801,53 @@ void CAdvancedSurface::ParseMaps()
 //-----------------------------------------------------------------------------
 void CAdvancedSurface::ParsePlaylists()
 {
-	fs::path playlistPath(Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString()));
-	m_PlaylistCombo->Items.Add("");
+	if (!m_PlaylistCombo->Items.Contains(""))
+		m_PlaylistCombo->Items.Add("");
 
-	if (!fs::exists(playlistPath))
+	CUtlString playlistPath;
+	playlistPath.Format("platform\\%s", this->m_PlaylistFileTextBox->Text().ToCString());
+
+	const char* pPlaylistPath = playlistPath.String();
+
+	if (!FileSystem()->FileExists(pPlaylistPath))
+		return;
+
+	KeyValues kv("playlists");
+
+	if (!kv.LoadFromFile(FileSystem(), pPlaylistPath, nullptr))
 	{
+		printf("%s: Failed to parse playlists file: '%s'\n", __FUNCTION__, pPlaylistPath);
 		return;
 	}
 
-	bool success{ };
-	std::ifstream iFile(playlistPath);
-	vdf::object vRoot = vdf::read(iFile, &success);
+	KeyValues* playlists = kv.FindKey("Playlists");
 
-	if (!success)
-	{
-		printf("%s: Failed to parse VDF file: '%s'\n", __FUNCTION__,
-			playlistPath.u8string().c_str());
-		return;
-	}
+	if (!playlists)
+		return; // Empty playlists
 
-	try
+	for (KeyValues* pSubKey = playlists->GetFirstTrueSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextTrueSubKey())
 	{
-		const auto& vcPlaylists = vRoot.childs.at("Playlists");
-		for (auto [id, it] = std::tuple<int, decltype(vcPlaylists->childs.begin())>
-			{ 1, vcPlaylists->childs.begin() }; it != vcPlaylists->childs.end(); id++, it++)
+		const char* keyName = pSubKey->GetName();
+
+		if (!this->m_PlaylistCombo->Items.Contains(keyName))
 		{
-			if (!this->m_PlaylistCombo->Items.Contains(it->first.c_str()))
-			{
-				this->m_PlaylistCombo->Items.Add(it->first.c_str());
-			}
+			this->m_PlaylistCombo->Items.Add(keyName);
 		}
 	}
-	catch (const std::exception& e)
-	{
-		printf("%s: Exception while parsing VDF file: %s\n", __FUNCTION__, e.what());
-	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears the form and reloads the map list
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CSurface::ReloadMaplists(Forms::Control* pSender)
+{
+	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+
+	pSurface->m_MapCombo->Items.Clear();
+	pSurface->m_MapCombo->OnSizeChanged();
+
+	pSurface->ParseMaps();
 }
 
 //-----------------------------------------------------------------------------
@@ -837,7 +860,28 @@ void CAdvancedSurface::ReloadPlaylists(Forms::Control* pSender)
 
 	pSurface->m_PlaylistCombo->Items.Clear();
 	pSurface->m_PlaylistCombo->OnSizeChanged();
+
 	pSurface->ParsePlaylists();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds a log to the surface console
+// Input  : type - 
+// Input  : *pszText - 
+//-----------------------------------------------------------------------------
+void CSurface::AddLog(const LogType_t type, const char* const pszText)
+{
+	m_LogList.push_back(LogList_t(type, pszText));
+
+	// Clamp the log list size, as we cannot fit more elements than
+	// 8 in the console window.
+	while (m_LogList.size() > 8)
+	{
+		m_LogList.erase(m_LogList.begin());
+	}
+
+	m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_LogList.size()));
+	m_ConsoleListView->Refresh();
 }
 
 //-----------------------------------------------------------------------------
@@ -880,30 +924,34 @@ void CAdvancedSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtu
 
 	static const Drawing::Color cColor[] =
 	{
-		Drawing::Color(255, 255, 255), // Trace
-		Drawing::Color(0, 120, 215),   // Debug
 		Drawing::Color(92, 236, 89),   // Info
+
+		Drawing::Color(255, 255, 255),   // Unused
+
 		Drawing::Color(236, 203, 0),   // Warn
 		Drawing::Color(236, 28, 0),    // Error
-		Drawing::Color(236, 28, 0),    // Critical
-		Drawing::Color(255, 255, 255), // General
+
+		Drawing::Color(255, 255, 255),   // Unused
+		Drawing::Color(255, 255, 255),   // Unused
 	};
 	static const String svLevel[] =
 	{
-		"trace",
-		"debug",
 		"info",
+
+		"other",
+
 		"warning",
 		"error",
-		"critical",
-		"general",
+
+		"other",
+		"other",
 	};
 
 	switch (pEventArgs->SubItemIndex)
 	{
 	case 0:
-		pEventArgs->Style.ForeColor = cColor[pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
-		pEventArgs->Text = svLevel[pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Style.ForeColor = cColor[(int)pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Text = svLevel[(int)pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
 		break;
 	case 1:
 		pEventArgs->Text = pSurface->m_LogList[pEventArgs->ItemIndex].m_svText;
@@ -926,7 +974,11 @@ void CAdvancedSurface::ForwardCommandToGame(Forms::Control* pSender)
 	if (vecHandles.empty())
 		return;
 
-	const string kzCommand = pSurface->m_ConsoleCommandTextBox->Text().ToCString();
+	const String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
+
+	if (String::IsNullOrEmpty(kzCommand))
+		return;
+
 	bool bSuccess = false;
 
 	for (const HWND hWindow : vecHandles)
@@ -934,7 +986,7 @@ void CAdvancedSurface::ForwardCommandToGame(Forms::Control* pSender)
 		char szWindowName[256];
 		GetWindowTextA(hWindow, szWindowName, 256);
 
-		COPYDATASTRUCT cData = { 0, (DWORD)(std::min)(kzCommand.size(), (size_t)259) + 1, (void*)kzCommand.c_str() };
+		COPYDATASTRUCT cData = { 0, (DWORD)(std::min)(kzCommand.Length(), (uint32_t)259) + 1, (void*)kzCommand.ToCString() };
 		bool bProcessingMessage = SendMessageA(hWindow, WM_COPYDATA, NULL, (LPARAM)&cData); // WM_COPYDATA will only return 0 or 1, that's why we use a boolean.
 		if (bProcessingMessage && !bSuccess)
 		{
@@ -944,9 +996,7 @@ void CAdvancedSurface::ForwardCommandToGame(Forms::Control* pSender)
 
 	if (bSuccess) // At least one game instance received the command.
 	{
-		pSurface->m_LogList.push_back(LogList_t((spdlog::level::level_enum)2, kzCommand));
-		pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
-		pSurface->m_ConsoleListView->Refresh();
+		pSurface->AddLog(LogType_t::LOG_INFO, Format("Sent command: %s\n", kzCommand.ToCString()).c_str());
 		pSurface->m_ConsoleCommandTextBox->SetText("");
 	}
 }
@@ -994,6 +1044,8 @@ void CAdvancedSurface::AppendConsoleParameters(string& svParameters)
 {
 	if (this->m_ConsoleToggle->Checked())
 		AppendParameterInternal(svParameters, "-wconsole");
+	else
+		AppendParameterInternal(svParameters, "-noconsole");
 
 	if (this->m_ColorConsoleToggle->Checked())
 		AppendParameterInternal(svParameters, "-ansicolor");
@@ -1276,32 +1328,66 @@ uint64_t CAdvancedSurface::GetProcessorAffinity(string& svParameters)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the control item value
-// Input  : *pControl - 
-//-----------------------------------------------------------------------------
-const char* CAdvancedSurface::GetControlValue(Forms::Control* pControl)
-{
-	switch (pControl->GetType())
-	{
-	case Forms::ControlTypes::CheckBox:
-	case Forms::ControlTypes::RadioButton:
-	{
-		return reinterpret_cast<UIX::UIXCheckBox*>(pControl)->Checked() ? "1" : "0";
-	}
-	default:
-	{
-		return pControl->Text().ToCString();
-	}
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CAdvancedSurface::CAdvancedSurface() : Forms::Form()
 {
-	this->Init();
-	this->Setup();
-}
+	// Game.
+	m_GameGroup = nullptr;
+	m_GameGroupExt = nullptr;
+	m_MapLabel = nullptr;
+	m_MapCombo = nullptr;
+	m_PlaylistLabel = nullptr;
+	m_PlaylistCombo = nullptr;
+	m_CheatsToggle = nullptr;
+	m_DeveloperToggle = nullptr;
+	m_ConsoleToggle = nullptr;
+	m_ColorConsoleToggle = nullptr;
+	m_PlaylistFileTextBox = nullptr;
+	m_PlaylistFileLabel = nullptr;
 
-CAdvancedSurface* g_pMainUI;
+	// Main.
+	m_MainGroup = nullptr;
+	m_MainGroupExt = nullptr;
+	m_ModeCombo = nullptr;
+	m_ModeLabel = nullptr;
+	m_HostNameTextBox = nullptr;
+	m_HostNameLabel = nullptr;
+	m_VisibilityCombo = nullptr;
+	m_VisibilityLabel = nullptr;
+	m_LaunchArgsTextBox = nullptr;
+	m_LaunchArgsLabel = nullptr;
+	m_CleanSDK = nullptr;
+	m_UpdateSDK = nullptr;
+	m_LaunchSDK = nullptr;
+
+	// Engine.
+	m_EngineBaseGroup = nullptr;
+	m_EngineNetworkGroup = nullptr;
+	m_EngineVideoGroup = nullptr;
+	m_ReservedCoresTextBox = nullptr;
+	m_ReservedCoresLabel = nullptr;
+	m_WorkerThreadsTextBox = nullptr;
+	m_WorkerThreadsLabel = nullptr;
+	m_ProcessorAffinityTextBox = nullptr;
+	m_ProcessorAffinityLabel = nullptr;
+	m_NoAsyncJobsToggle = nullptr;
+	m_NetEncryptionToggle = nullptr;
+	m_NetRandomKeyToggle = nullptr;
+	m_QueuedPacketThread = nullptr;
+	m_NoTimeOutToggle = nullptr;
+	m_WindowedToggle = nullptr;
+	m_NoBorderToggle = nullptr;
+	m_FpsTextBox = nullptr;
+	m_FpsLabel = nullptr;
+	m_WidthTextBox = nullptr;
+	m_HeightTextBox = nullptr;
+	m_ResolutionLabel = nullptr;
+
+	// Console.
+	m_ConsoleGroup = nullptr;
+	m_ConsoleGroupExt = nullptr;
+	m_ConsoleListView = nullptr;
+	m_ConsoleCommandTextBox = nullptr;
+	m_ConsoleSendCommand = nullptr;
+}

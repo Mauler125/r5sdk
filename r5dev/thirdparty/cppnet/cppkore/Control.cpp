@@ -231,8 +231,13 @@ namespace Forms
 		SetWindowLongPtrA(this->_Handle, GWLP_USERDATA, (intptr_t)this);
 
 		// Setup the default font if none was previously set
+
 		if (this->_Font == nullptr)
-			this->_Font = std::make_unique<Drawing::Font>(this->_Handle, (HFONT)GetStockObject(DEFAULT_GUI_FONT));
+			if (this->_Parent && this->_Parent->_Font)
+				this->_Font = std::make_unique<Drawing::Font>(this->_Handle, this->_Parent->_Font.get()->GetFontHandle());
+			else
+				this->_Font = std::make_unique<Drawing::Font>(this->_Handle, (HFONT)GetStockObject(DEFAULT_GUI_FONT));
+
 		// Notify the window of the font selection
 		SendMessageA(this->_Handle, WM_SETFONT, (WPARAM)this->_Font->GetFontHandle(), NULL);
 
@@ -718,6 +723,11 @@ namespace Forms
 	ControlTypes Control::GetType()
 	{
 		return this->_RTTI;
+	}
+
+	uint32_t Control::GetControlCount()
+	{
+		return this->_Controls->Count();
 	}
 
 	Control* Control::FindForm()

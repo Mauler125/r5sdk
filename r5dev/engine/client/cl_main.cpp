@@ -29,13 +29,12 @@ void CL_MoveEx()
 	if (!v_Host_ShouldRun())
 		return;
 
-	int commandTick = -1;
-
-	if (cl->m_CurrFrameSnapshot)
-		commandTick = cl->m_CurrFrameSnapshot->m_TickUpdate.m_nCommandTick;
+	const int commandTick = cl->m_CurrFrameSnapshot
+		? cl->m_CurrFrameSnapshot->m_TickUpdate.m_nCommandTick
+		: -1;
 
 	bool sendPacket = true;
-	CNetChan* chan = cl->m_NetChannel;
+	CNetChan* const chan = cl->m_NetChannel;
 
 	// Only perform clamping and packeting if the timescale value is default,
 	// else the timescale change won't be handled in the player's movement.

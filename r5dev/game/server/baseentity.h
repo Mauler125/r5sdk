@@ -56,6 +56,8 @@ public:
 	inline edict_t GetEdict(void) { return NetworkProp()->GetEdict(); }
 	inline string_t GetEntityName(void) const { return m_iName; }
 
+	inline int		GetFlags(void) const { return m_fFlags; }
+
 protected:
 	CBaseHandle m_RefEHandle;
 	char gap_c[4];

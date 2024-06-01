@@ -5,8 +5,7 @@
 //===========================================================================//
 #pragma once
 #include "tier1/cmd.h"
-#include "protoc/cl_rcon.pb.h"
-#include "protoc/sv_rcon.pb.h"
+#include "protoc/netcon.pb.h"
 #include "engine/shared/base_rcon.h"
 
 constexpr const char* NETCON_VERSION = "2.0.0.1";
@@ -17,7 +16,7 @@ public:
 	CNetCon(void);
 	~CNetCon(void);
 
-	bool Init(const bool bAnsiColor, const char* pHostName = nullptr, const int nPort = SOCKET_ERROR);
+	bool Init(const bool bAnsiColor, const char* pAdr = nullptr, const char* pKey = nullptr);
 	bool Shutdown(void);
 	void TermSetup(const bool bAnsiColor);
 
@@ -33,11 +32,14 @@ public:
 	inline float GetTickInterval() const { return m_flTickInterval; }
 	static BOOL WINAPI CloseHandler(DWORD eventCode);
 
-	virtual void Disconnect(const char* szReason = nullptr);
+	virtual bool Connect(const char* pHostName, const int nHostPort = SOCKET_ERROR) override;
+	virtual void Disconnect(const char* szReason = nullptr) override;
+
 	virtual bool ProcessMessage(const char* pMsgBuf, const int nMsgLen) override;
 
+	void TrySetKey(const char* const pKey);
 	bool Serialize(vector<char>& vecBuf, const char* szReqBuf,
-		const char* szReqVal, const cl_rcon::request_t requestType) const;
+		const char* szReqVal, const netcon::request_e requestType) const;
 
 	SocketHandle_t GetSocket(void);
 	bool IsInitialized(void) const;
@@ -47,6 +49,7 @@ private:
 	bool m_bInitialized;
 	bool m_bQuitting;
 	bool m_bPromptConnect;
+	bool m_bEncryptFrames;
 	float m_flTickInterval;
 
 	characterset_t m_CharacterSet;

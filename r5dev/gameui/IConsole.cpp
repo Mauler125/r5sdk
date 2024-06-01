@@ -242,7 +242,7 @@ bool CConsole::DrawSurface(void)
 
         // Eliminate padding around logger child. This padding gets added when
         // ImGuiChildFlags_Border flag gets set.
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f });  numLoggerStyleVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 1.f }); numLoggerStyleVars++;
 
         // if we use the legacy theme, also account for one extra space as the
         // legacy theme has an extra separator at the bottom of the logger.
@@ -255,6 +255,7 @@ bool CConsole::DrawSurface(void)
         ImGuiWindowFlags_NoNavInputs               |
         ImGuiWindowFlags_OverlayHorizontalScrollbar;
 
+    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_fadeAlpha); numLoggerStyleVars++;
     ImGui::BeginChild(m_loggerLabel, ImVec2(0, -footerHeightReserve), loggerFlags, colorLoggerWindowFlags);
 
     // NOTE: scoped so the mutex releases after we have rendered.
@@ -767,7 +768,7 @@ void CConsole::DetermineAutoCompleteWindowRect(void)
     const float maxWindowWidth = con_autocomplete_window_width.GetFloat();
 
     const float flWindowWidth = maxWindowWidth > 0
-        ? ImMin(con_autocomplete_window_width.GetFloat(), lastItemRectSize.x)
+        ? ImMin(maxWindowWidth, lastItemRectSize.x)
         : lastItemRectSize.x;
 
     // NOTE: minimum vertical size of the window, going below this will

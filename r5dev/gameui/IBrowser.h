@@ -47,8 +47,9 @@ private:
     bool m_reclaimFocusOnTokenField;
     bool m_queryNewListNonRecursive; // When set, refreshes the server list once the next frame.
     bool m_queryGlobalBanList;
+    char m_serverTokenTextBuf[128];
     char m_serverAddressTextBuf[128];
-    char m_serverNetKeyTextBuf[30];
+    char m_serverNetKeyTextBuf[45];
 
     ID3D11ShaderResourceView* m_lockedIconShaderResource;
     MODULERESOURCE m_lockedIconDataResource;

@@ -69,6 +69,7 @@ public:
 	inline edict_t GetHandle(void) const { return m_nHandle; }
 	inline int GetUserID(void) const { return m_nUserID; }
 	inline NucleusID_t GetNucleusID(void) const { return m_nNucleusID; }
+	inline int GetXPlatID(void) const { return m_XPlatID; }
 
 	inline SIGNONSTATE GetSignonState(void) const { return m_nSignonState; }
 	inline PERSISTENCE GetPersistenceState(void) const { return m_nPersistenceState; }
@@ -79,7 +80,11 @@ public:
 	CClientExtended* GetClientExtended(void) const;
 #endif // !CLIENT_DLL
 
+	inline int GetDeltaTick(void) const { return m_nDeltaTick; }
 	inline int GetCommandTick(void) const { return m_nCommandTick; }
+	inline int GetLastMovementTick() const { return m_LastMovementTick; }
+	inline int GetSnapshotTick() const { return m_nSnapshotTick; }
+
 	inline const char* GetServerName(void) const { return m_szServerName; }
 	inline const char* GetClientName(void) const { return m_szClientName; }
 
@@ -120,6 +125,8 @@ public: // Hook statics:
 
 	static bool VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg);
 	static bool VProcessSetConVar(CClient* pClient, NET_SetConVar* pMsg);
+	static bool VProcessVoiceData(CClient* pClient, CLC_VoiceData* pMsg);
+	static bool VProcessDurangoVoiceData(CClient* pClient, CLC_DurangoVoiceData* pMsg);
 
 private:
 	// Stub reimplementation to avoid the 'no overrider' compiler errors in the
@@ -197,14 +204,26 @@ private:
 	bool m_bReceivedPacket;
 	bool m_bLowViolence;
 	bool m_bFullyAuthenticated;
-	char pad_05A4[24];
+	int unk_5A4;
+	int unknownTick;
+	float m_fNextMessageTime;
+	int unk_5B0;
+	char pad_5B8[8];
 	PERSISTENCE m_nPersistenceState;
 	char pad_05C0[48];
+	char SnapshotBuffer_AndSomeUnknowns[98344]; // TODO: needs to be reversed further.
+	int m_XPlatID;
+	char pad_30758[196964];
 	ServerDataBlock m_DataBlock;
 	char pad_4A3D8[60];
 	int m_LastMovementTick;
 	char pad_4A418[86];
-	char pad_4A46E[80];
+	char pad_4A46E[58];
+	int unkInt_4A4A8;
+	int m_nSnapshotTick;
+	int unkTick_4A4B0;
+	int unkTick_4A4B4;
+	int unkInt_4A4B8;
 };
 static_assert(sizeof(CClient) == 0x4A4C0);
 
@@ -230,6 +249,7 @@ public:
 		m_flNetProcessTimeBase = 0.0;
 		m_flStringCommandQuotaTimeStart = 0.0;
 		m_nStringCommandQuotaCount = NULL;
+		m_flMovementTimeForUserCmdProcessingRemaining = 0.0f;
 		m_bInitialConVarsSet = false;
 	}
 
@@ -247,6 +267,12 @@ public: // Inlines:
 	inline void SetStringCommandQuotaCount(const int iCount) { m_nStringCommandQuotaCount = iCount; }
 	inline int GetStringCommandQuotaCount(void) const { return m_nStringCommandQuotaCount; }
 
+	inline void SetRemainingMovementTimeForUserCmdProcessing(const float flValue) { m_flMovementTimeForUserCmdProcessingRemaining = flValue; }
+	inline float GetRemainingMovementTimeForUserCmdProcessing() const { return m_flMovementTimeForUserCmdProcessingRemaining; }
+
+	void InitializeMovementTimeForUserCmdProcessing(const int numUserCmdProcessTicksMax, const float tickInterval);
+	float ConsumeMovementTimeForUserCmdProcessing(const float flTimeNeeded);
+
 private:
 	// Measure how long this client's packets took to process.
 	double m_flNetProcessingTimeMsecs;
@@ -255,6 +281,9 @@ private:
 	// The start time of the first stringcmd since reset.
 	double m_flStringCommandQuotaTimeStart;
 	int m_nStringCommandQuotaCount;
+
+	// How much of a movement time buffer can we process from this user?
+	float m_flMovementTimeForUserCmdProcessingRemaining;
 
 	bool m_bInitialConVarsSet; // Whether or not the initial ConVar KV's are set
 };
@@ -270,6 +299,8 @@ inline void*(*CClient__SendSnapshot)(CClient* pClient, CClientFrame* pFrame, int
 inline void(*CClient__WriteDataBlock)(CClient* pClient, bf_write& buf);
 inline bool(*CClient__ProcessStringCmd)(CClient* pClient, NET_StringCmd* pMsg);
 inline bool(*CClient__ProcessSetConVar)(CClient* pClient, NET_SetConVar* pMsg);
+inline bool(*CClient__ProcessVoiceData)(CClient* pClient, CLC_VoiceData* pMsg);
+inline bool(*CClient__ProcessDurangoVoiceData)(CClient* pClient, CLC_DurangoVoiceData* pMsg);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VClient : public IDetour
@@ -286,6 +317,8 @@ class VClient : public IDetour
 		LogFunAdr("CClient::WriteDataBlock", CClient__WriteDataBlock);
 		LogFunAdr("CClient::ProcessStringCmd", CClient__ProcessStringCmd);
 		LogFunAdr("CClient::ProcessSetConVar", CClient__ProcessSetConVar);
+		LogFunAdr("CClient::ProcessVoiceData", CClient__ProcessVoiceData);
+		LogFunAdr("CClient::ProcessDurangoVoiceData", CClient__ProcessDurangoVoiceData);
 	}
 	virtual void GetFun(void) const
 	{
@@ -300,6 +333,8 @@ class VClient : public IDetour
 
 		g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 C2 20").GetPtr(CClient__ProcessSetConVar);
 		g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2").GetPtr(CClient__SetSignonState);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 44 8B 42 20").GetPtr(CClient__ProcessVoiceData);
+		g_GameDll.FindPatternSIMD("40 53 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 44 8B 42 20").GetPtr(CClient__ProcessDurangoVoiceData);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

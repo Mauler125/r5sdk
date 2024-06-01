@@ -146,7 +146,7 @@ namespace Forms
 
 		// Retrieves the current font for this control.
 		Drawing::Font* GetFont();
-		// Retrieves the current font for this control.
+		// Sets the current font for this control.
 		void SetFont(Drawing::Font* Font);
 
 		// The parent of this control.
@@ -209,6 +209,8 @@ namespace Forms
 		HWND GetHandle();
 		// Returns the type of this control
 		ControlTypes GetType();
+		// Returns the number of child controls
+		uint32_t GetControlCount();
 
 		// Retrieves the form that the control is on.
 		Control* FindForm();

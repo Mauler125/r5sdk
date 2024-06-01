@@ -10,7 +10,7 @@ namespace Drawing
 	{
 	public:
 		Font() = default;
-		Font(HWND Handle, const HFONT hFont);
+		Font(HWND Handle, const HFONT hFont, const bool OwnsFont = false);
 		Font(HWND Handle, const Gdiplus::Font& FontObject);
 
 		virtual ~Font();

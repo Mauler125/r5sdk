@@ -23,7 +23,6 @@ public:
 
 struct ServerDataBlock
 {
-	char blockBuffer[295312]; // this might be wrong !!!
 	void* userData;
 	char gapC0008[56];
 	ServerDataBlockSender sender;

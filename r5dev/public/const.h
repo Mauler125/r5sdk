@@ -26,6 +26,8 @@
 #define FIXANGLE_ABSOLUTE		1
 #define FIXANGLE_RELATIVE		2
 
+#define FL_FAKECLIENT			(1<<7)	// Fake client, simulated server side; don't send network messages to them
+
 enum RenderMode_t
 {
 	kRenderNormal = 0,		// src
@@ -63,5 +65,23 @@ enum MoveType_t
 	MOVETYPE_MELEE_LUNGE,   // Currently in melee lunge
 	MOVETYPE_ZEROG          // ?
 };
+
+inline const char* const g_GameDllTargets[] = {
+	"server",
+	"client"
+};
+
+inline bool V_GameTargetExists(const char* const pTarget)
+{
+	for (size_t i = 0; i < V_ARRAYSIZE(g_GameDllTargets); i++)
+	{
+		if (V_strcmp(pTarget, g_GameDllTargets[i]) == NULL)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 #endif // CONST_H

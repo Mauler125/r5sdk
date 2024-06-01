@@ -47,6 +47,9 @@ to the following restrictions:
 
 #define _SC(a) a
 
+#define SQTrue  (1)
+#define SQFalse (0)
+
 typedef long SQInteger;
 typedef unsigned long SQUnsignedInteger;
 typedef short SQShort;
@@ -64,6 +67,8 @@ typedef SQInteger SQRESULT;
 typedef int ScriptDataType_t;
 
 typedef struct SQVM* HSQUIRRELVM;
+//typedef SQObject HSQOBJECT;
+
 struct SQBufState;
 
 typedef char SQChar;
@@ -170,6 +175,8 @@ SQRESULT sq_getthread(HSQUIRRELVM v, SQInteger idx, HSQUIRRELVM* thread);
 SQRESULT sq_getstring(HSQUIRRELVM v, SQInteger idx, const SQChar** c);
 SQRESULT sq_get(HSQUIRRELVM v, SQInteger idx);
 SQInteger sq_gettop(HSQUIRRELVM v);
+SQRESULT sq_getstackobj(HSQUIRRELVM v, SQInteger idx, SQObject* po);
+void sq_pop(HSQUIRRELVM v, SQInteger nelemstopop);
 SQRESULT sq_pushroottable(HSQUIRRELVM v);
 void sq_pushbool(HSQUIRRELVM v, SQBool b);
 void sq_pushstring(HSQUIRRELVM v, const SQChar* string, SQInteger len);
@@ -180,11 +187,14 @@ void sq_newtable(HSQUIRRELVM v);
 SQRESULT sq_newslot(HSQUIRRELVM v, SQInteger idx);
 SQRESULT sq_arrayappend(HSQUIRRELVM v, SQInteger idx);
 SQRESULT sq_pushstructure(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2);
-SQRESULT sq_compilebuffer(HSQUIRRELVM v, SQBufState* bufferState, const SQChar* buffer, SQInteger context);
+SQRESULT sq_compilebuffer(HSQUIRRELVM v, SQBufState* bufferState, const SQChar* buffer, SQInteger context, SQBool raiseerror);
 SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
 
 SQRESULT sq_startconsttable(HSQUIRRELVM v);
 SQRESULT sq_endconsttable(HSQUIRRELVM v);
+
+void sq_addref(HSQUIRRELVM v, SQObject* po);
+SQBool sq_release(HSQUIRRELVM v, SQObject* po);
 
 /*UTILITY MACRO*/
 #define sq_isnumeric(o) ((o)._type&SQOBJECT_NUMERIC)
@@ -218,7 +228,7 @@ inline void(*v_sq_newtable)(HSQUIRRELVM v);
 inline SQRESULT(*v_sq_newslot)(HSQUIRRELVM v, SQInteger idx);
 inline SQRESULT(*v_sq_arrayappend)(HSQUIRRELVM v, SQInteger idx);
 inline SQRESULT(*v_sq_pushstructure)(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2);
-inline SQRESULT(*v_sq_compilebuffer)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level);
+inline SQRESULT(*v_sq_compilebuffer)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level, SQBool raiseerror);
 inline SQRESULT(*v_sq_call)(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
 inline SQRESULT(*v_sq_get)(HSQUIRRELVM v, SQInteger idx);
 
@@ -226,6 +236,12 @@ inline SQRESULT (*v_sq_startconsttable)(HSQUIRRELVM v);
 inline SQRESULT (*v_sq_endconsttable)(HSQUIRRELVM v);
 
 inline SQString* (*v_StringTable__Add)(void* a1, const SQChar* str, SQInteger len);
+
+// returns: RefTable::RefNode*
+// thisp = RefTable*
+// prev = RefTable::RefNode*
+inline void* (*v_RefTable__Get)(void* thisp, SQObject* obj, SQHash* mainpos, void* prev, bool add);
+inline SQBool(*v_RefTable__Release)(void* thisp, SQObject* obj);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrelAPI : public IDetour
@@ -250,6 +266,9 @@ class VSquirrelAPI : public IDetour
 		LogFunAdr("sq_endconsttable", v_sq_endconsttable);
 
 		LogFunAdr("StringTable::Add", v_StringTable__Add);
+
+		LogFunAdr("RefTable::Get", v_RefTable__Get);
+		LogFunAdr("RefTable::Release", v_RefTable__Release);
 	}
 	virtual void GetFun(void) const
 	{
@@ -271,6 +290,9 @@ class VSquirrelAPI : public IDetour
 		g_GameDll.FindPatternSIMD("8B 41 78 45 33 C0 FF C8 8B D0 89 41 78 48 C1 E2 04 48 03 91 ?? ?? ?? ?? 8B 02 48 C7 02 ?? ?? ?? ?? 25 ?? ?? ?? ?? 74 15").GetPtr(v_sq_endconsttable);
 
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 41 8D 4D FF").FollowNearCallSelf().GetPtr(v_StringTable__Add);
+
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? FF 40 10 FF C6").FollowNearCallSelf().GetPtr(v_RefTable__Get);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 40 84 7D BC").FollowNearCallSelf().GetPtr(v_RefTable__Release);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

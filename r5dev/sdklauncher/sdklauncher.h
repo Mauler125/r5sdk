@@ -6,43 +6,22 @@
 class CLauncher
 {
 public:
-    CLauncher(const char* pszLoggerName)
+    CLauncher()
     {
-		m_pSurface = nullptr;
-		m_pLogger = spdlog::stdout_color_mt(pszLoggerName);
+        m_pSurface = nullptr;
         m_ProcessorAffinity = NULL;
 		m_svCurrentDir = fs::current_path().u8string();
     }
     ~CLauncher()
     {
-		if (m_pSurface)
-		{
-			delete m_pSurface;
-		}
-    }
-
-    void AddLog(spdlog::level::level_enum nLevel, const char* szFormat, ...)
-    {
-        string svBuffer;
-        va_list args;
-        va_start(args, szFormat);
-        svBuffer = FormatV(szFormat, args);
-        va_end(args);
-
-        m_pLogger->log(nLevel, svBuffer);
-        m_pLogger->flush();
-
-        //if (m_pSurface)
-        //{
-        //    m_pSurface->m_LogList.push_back(LogList_t(nLevel, svBuffer));
-        //    m_pSurface->ConsoleListView()->SetVirtualListSize(static_cast<int32_t>(m_pSurface->m_LogList.size()));
-        //    m_pSurface->ConsoleListView()->Refresh();
-        //}
     }
 
     void RunSurface();
-    void InitConsole();
-    void InitLogger();
+
+    void Init();
+    void Shutdown();
+
+    void AddLog(const LogType_t level, const char* szText);
 
     int HandleCommandLine(int argc, char* argv[]);
     int HandleInput();
@@ -52,11 +31,10 @@ public:
     bool LaunchProcess() const;
     bool LaunchGameDefault() const;
 
-    CBaseSurface* GetMainSurface() const { return m_pSurface; }
+    eLaunchMode BuildParameter(string& parameterList) { return m_pSurface->BuildParameter(parameterList); }
 
 private:
-    CBaseSurface* m_pSurface;
-	std::shared_ptr<spdlog::logger> m_pLogger;
+    CAdvancedSurface* m_pSurface;
 
     uint64_t m_ProcessorAffinity;
 
@@ -67,4 +45,4 @@ private:
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 
-extern CLauncher* g_pLauncher;
+extern CLauncher* SDKLauncher();

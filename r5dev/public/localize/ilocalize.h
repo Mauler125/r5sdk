@@ -65,6 +65,7 @@ inline const char* const g_LanguageNames[] = {
 	"italian",
 	"korean",
 	"spanish",
+	"mspanish",
 	"schinese",
 	"tchinese",
 	"russian",
@@ -72,5 +73,47 @@ inline const char* const g_LanguageNames[] = {
 	"portuguese",
 	"polish",
 };
+
+inline const char* const g_LanguageCodes[] = {
+	"en_US",
+	"de_DE",
+	"fr_FR",
+	"it_IT",
+	"ko_KR",
+	"es_ES",
+	"es_MX",
+	"zh_CN",
+	"zh_TW",
+	"ru_RU",
+	"ja_JP",
+	"pt_BR",
+	"pl_PL",
+};
+
+inline bool V_LocaleNameExists(const char* const localeName)
+{
+	for (size_t i = 0; i < V_ARRAYSIZE(g_LanguageNames); i++)
+	{
+		if (V_strcmp(localeName, g_LanguageNames[i]) == NULL)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+inline bool V_LocaleCodeExists(const char* const localeCode)
+{
+	for (size_t i = 0; i < V_ARRAYSIZE(g_LanguageCodes); i++)
+	{
+		if (V_strcmp(localeCode, g_LanguageCodes[i]) == NULL)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 #endif // LOCALIZE_H
