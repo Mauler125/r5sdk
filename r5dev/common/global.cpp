@@ -85,7 +85,13 @@ ConVar* sv_voiceEcho                       = nullptr;
 ConVar* sv_voiceenable                     = nullptr;
 ConVar* sv_alltalk                         = nullptr;
 
+ConVar* sv_clampPlayerFrameTime            = nullptr;
+
+ConVar* playerframetimekick_margin         = nullptr;
+ConVar* playerframetimekick_decayrate      = nullptr;
+
 ConVar* player_userCmdsQueueWarning        = nullptr;
+ConVar* player_disallow_negative_frametime = nullptr;
 
 #endif // !CLIENT_DLL
 ConVar* sv_cheats                          = nullptr;
@@ -208,7 +214,14 @@ void ConVar_InitShipped(void)
 	sv_voiceenable = g_pCVar->FindVar("sv_voiceenable");
 	sv_voiceEcho = g_pCVar->FindVar("sv_voiceEcho");
 	sv_alltalk = g_pCVar->FindVar("sv_alltalk");
+
+	sv_clampPlayerFrameTime = g_pCVar->FindVar("sv_clampPlayerFrameTime");
+
+	playerframetimekick_margin = g_pCVar->FindVar("playerframetimekick_margin");
+	playerframetimekick_decayrate = g_pCVar->FindVar("playerframetimekick_decayrate");
+
 	player_userCmdsQueueWarning = g_pCVar->FindVar("player_userCmdsQueueWarning");
+	player_disallow_negative_frametime = g_pCVar->FindVar("player_disallow_negative_frametime");
 
 	sv_updaterate_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	sv_updaterate_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);

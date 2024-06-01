@@ -72,7 +72,13 @@ extern ConVar* sv_voiceEcho;
 extern ConVar* sv_voiceenable;
 extern ConVar* sv_alltalk;
 
+extern ConVar* sv_clampPlayerFrameTime;
+
+extern ConVar* playerframetimekick_margin;
+extern ConVar* playerframetimekick_decayrate;
+
 extern ConVar* player_userCmdsQueueWarning;
+extern ConVar* player_disallow_negative_frametime;
 
 #endif // CLIENT_DLL
 extern ConVar* sv_cheats;

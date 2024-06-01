@@ -22,10 +22,10 @@
 //-----------------------------------------------------------------------------
 // This is called when a new game is started. (restart, map)
 //-----------------------------------------------------------------------------
-void CServerGameDLL::GameInit(void)
+bool CServerGameDLL::GameInit(void)
 {
 	const static int index = 1;
-	CallVFunc<void>(index, this);
+	return CallVFunc<bool>(index, this);
 }
 
 //-----------------------------------------------------------------------------
