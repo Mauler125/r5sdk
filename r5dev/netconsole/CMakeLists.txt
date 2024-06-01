@@ -48,8 +48,15 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "tier2"
     "libprotobuf"
     "libspdlog"
-    "SV_RCon_Pb"
-    "CL_RCon_Pb"
+    "libmbedcrypto"
+    "libmbedtls"
+    "libmbedx509"
+    "NetCon_Pb"
     "Rpcrt4.lib"
     "ws2_32.lib"
+    "bcrypt.lib"
+    "crypt32.lib"
+)
+target_include_directories( ${PROJECT_NAME} PRIVATE
+    "${THIRDPARTY_SOURCE_DIR}/mbedtls/include"
 )

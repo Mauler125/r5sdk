@@ -23,25 +23,13 @@ add_sources( SOURCE_GROUP "Runtime"
 end_sources()
 thirdparty_suppress_warnings()
 
-add_module( "lib" "SV_RCon_Pb" "vpc" ${FOLDER_CONTEXT} FALSE TRUE )
+add_module( "lib" "NetCon_Pb" "vpc" ${FOLDER_CONTEXT} FALSE TRUE )
 
 start_sources()
 
 add_sources( SOURCE_GROUP "Runtime"
-    "sv_rcon.pb.cc"
-    "sv_rcon.pb.h"
-)
-
-end_sources()
-thirdparty_suppress_warnings()
-
-add_module( "lib" "CL_RCon_Pb" "vpc" ${FOLDER_CONTEXT} FALSE TRUE )
-
-start_sources()
-
-add_sources( SOURCE_GROUP "Runtime"
-    "cl_rcon.pb.cc"
-    "cl_rcon.pb.h"
+    "netcon.pb.cc"
+    "netcon.pb.h"
 )
 
 end_sources()
