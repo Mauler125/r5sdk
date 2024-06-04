@@ -14,7 +14,7 @@ Steps:
     1. Run `CreateSolution.bat` in the root folder, this will generate the files in `build_intermediate`.
     2. Move all the game files in the `game` folder so that the path `game/r5apex(_ds).exe` is valid.
 2. Open `r5sdk.sln` in Visual Studio and compile the solution.
-    1. All binaries and symbols are compiled in the `game` folder.
+    1. All binaries and symbols are compiled to the `game` folder.
     2. Run `launcher.exe`, toggle and set the desired options and hit the `Launch Game` button.
 
 ## Debugging
@@ -25,9 +25,7 @@ Steps:
     1. Select `Project -> Set as Startup Project`.
 2. Configure the project's debugging settings.
     1. Debug settings are found in `Project -> Properties -> Configuration Properties -> Debugging`.
-    2. The `Working Directory` field should be set to `$(SolutionDir)\game\`.
-    3. The `Command` field should be set to the target executable (`r5apex_ds.exe` for example).
-    4. Additional command line arguments could be set in the `Command Arguments` field.
+    2. Additional command line arguments could be set in the `Command Arguments` field.
 
 ## Launch Parameters
 - The `-wconsole` parameter toggles the external console window to which output of the game is getting logged to.
