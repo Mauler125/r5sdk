@@ -89,6 +89,9 @@
 // the handle that should be returned when a pak failed to load or process
 #define PAK_INVALID_HANDLE -1
 
+// the guid that should be returned for assets that do not exist in the runtime
+#define PAK_INVALID_GUID 0
+
 #define PAK_MAX_DISPATCH_LOAD_JOBS 4
 #define PAK_DEFAULT_JOB_GROUP_ID 0x3000
 

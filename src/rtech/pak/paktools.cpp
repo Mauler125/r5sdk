@@ -283,6 +283,48 @@ const PakLoadedInfo_s* Pak_GetPakInfo(const char* const pakName)
 }
 
 //-----------------------------------------------------------------------------
+// returns a pointer to the asset data by GUID, returns NULL if not found in
+// the runtime
+//-----------------------------------------------------------------------------
+void* Pak_FindAssetByGUID(const PakGuid_t guid)
+{
+	int assetIndex = guid & PAK_MAX_LOADED_ASSETS_MASK;
+	const PakAssetShort_s* asset = &g_pakGlobals->loadedAssets[assetIndex];
+
+	PakGuid_t assetGuid = asset->guid;
+
+	if (assetGuid == guid)
+		return asset->head;
+
+	while (assetGuid)
+	{
+		assetIndex = (assetIndex +1) & PAK_MAX_LOADED_ASSETS_MASK;
+		asset = &g_pakGlobals->loadedAssets[assetIndex];
+
+		assetGuid = asset->guid;
+
+		if (assetGuid == guid)
+			return asset->head;
+	}
+
+	return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+// returns the guid of the asset if it exists in the runtime, returns
+// PAK_INVALID_GUID if not found in the runtime
+//-----------------------------------------------------------------------------
+PakGuid_t Pak_GetValidAssetGUID(const char* const name)
+{
+	const PakGuid_t guid = Pak_StringToGuid(name);
+
+	if (guid && Pak_FindAssetByGUID(guid))
+		return guid;
+
+	return PAK_INVALID_GUID;
+}
+
+//-----------------------------------------------------------------------------
 // returns a pointer to the patch data header
 //-----------------------------------------------------------------------------
 PakPatchDataHeader_s* Pak_GetPatchDataHeader(PakFileHeader_s* const pakHeader)
