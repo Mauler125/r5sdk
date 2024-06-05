@@ -885,7 +885,6 @@ namespace LOGGER
 
 
 
-
     //called by TaskManager::LoadKDString
     std::string FetchPlayerStats(const char* player_oid, const char* requestedStats, const char* requestedSettings)
     {
@@ -949,9 +948,14 @@ namespace LOGGER
                 {
                     playerStatsMap[playerOidStr] = stats;
                     has_lock = true;
-                    std::string command = "script CodeCallback_PlayerStatsReady(\"" + SanitizeString(playerOidStr) + "\")";
-                    //Script_Execute( command.c_str(), SQCONTEXT::SERVER );
-                    Cbuf_AddText(Cbuf_GetCurrentPlayer(), command.c_str(), cmd_source_t::kCommandSrcCode);
+
+                    std::string command = "CodeCallback_PlayerStatsReady(\"" + SanitizeString(playerOidStr) + "\")";
+                    
+                    g_TaskQueue.Dispatch([command] {
+                        g_pServerScript->Run(command.c_str());
+                    }, 0);
+
+                    //Cbuf_AddText( ECommandTarget_t::CBUF_SERVER, command.c_str(), cmd_source_t::kCommandSrcCode );
                 }
 
                 if (!has_lock)

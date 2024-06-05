@@ -20,11 +20,8 @@
 #include <networksystem/hostmanager.h>
 #include <random>
 
-#pragma once
-#ifndef CLIENT_DLL
-    #include "game/server/logger.h"
-    #include "player.h"
-#endif
+#include "game/server/logger.h"
+#include "player.h"
 
 /*
 =====================

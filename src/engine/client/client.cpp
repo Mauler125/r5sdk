@@ -624,7 +624,7 @@ void VClient::Detour(const bool bAttach) const
 
 	DetourSetup(&CClient__ProcessStringCmd, &CClient::VProcessStringCmd, bAttach);
 	DetourSetup(&CClient__ProcessSetConVar, &CClient::VProcessSetConVar, bAttach);
-	DetourSetup(&CClient__ProcessVoiceData, &CClient::VProcessVoiceData, bAttach);
-	DetourSetup(&CClient__ProcessDurangoVoiceData, &CClient::VProcessDurangoVoiceData, bAttach);
+	//DetourSetup(&CClient__ProcessVoiceData, &CClient::VProcessVoiceData, bAttach);
+	//DetourSetup(&CClient__ProcessDurangoVoiceData, &CClient::VProcessDurangoVoiceData, bAttach);
 #endif // !CLIENT_DLL
 }
