@@ -37,7 +37,7 @@ Launch parameters can be added to the `startup_*.cfg` files,<br />
 which are located in `<gamedir>\platform\cfg\startup_*.cfg`.
 
 ## Note [IMPORTANT]
-This is not a cheat or hack; attempting to use the SDK on the live version of the game could result in a permanent account ban.<br /> The supported game versions are:
+This is not a cheat or hack; attempting to use the SDK on the live version of the game could result in a permanent account ban. The supported game versions are:
 
  * S3 `R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM`.
 
