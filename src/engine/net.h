@@ -37,6 +37,7 @@ inline void(*v_NET_PrintFunc)(const char* fmt, ...);
 ///////////////////////////////////////////////////////////////////////////////
 bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bRaw);
 int  NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypted);
+void NET_PrintKey();
 void NET_SetKey(const string& svNetKey);
 void NET_GenerateKey();
 void NET_PrintFunc(const char* fmt, ...);
