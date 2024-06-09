@@ -37,8 +37,7 @@ Launch parameters can be added to the `startup_*.cfg` files,<br />
 which are located in `<gamedir>\platform\cfg\startup_*.cfg`.
 
 ## Note [IMPORTANT]
-This is not a cheat or hack; attempting to use the SDK on the live version of the game could result in a permanent account ban.<br />
-The supported game versions are:
+This is not a cheat or hack; attempting to use the SDK on the live version of the game could result in a permanent account ban. The supported game versions are:
 
  * S3 `R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM`.
 
@@ -47,9 +46,9 @@ When you host game servers on the Server Browser (Pylon) you will stream your IP
 which will be stored there until you stop hosting the server; this is needed so other people can connect to your server.
 
 There is a checkbox in the Server Browser called `Server Visibility` that defaults to `Offline`.
-- `Offline`: No data is broadcasted to the Pylon master server; you are playing offline.
-- `Hidden`: Your server will be broadcasted to the Pylon master server, but could only be joined using a private token.
-- `Online`: Your server will be broadcasted to the Pylon master server, and could be joined from the public list.
+- `Offline`: No data is broadcasted to the master server; you are playing offline.
+- `Hidden`: Your server will be broadcasted to the master server, but could only be joined using a private token.
+- `Online`: Your server will be broadcasted to the master server, and could be joined from the public list.
 
 Alternatively, you can host game servers without the use of our master server. You can grant people access to your game server
 by sharing the IP address and port manually. The client can connect using the `connect` command. The usage of the `connect`

@@ -19,6 +19,10 @@
 #endif // !_TOOLS
 
 #ifndef _TOOLS
+static void NET_GetKey_f()
+{
+	NET_PrintKey();
+}
 static void NET_SetKey_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
@@ -52,6 +56,7 @@ ConVar net_useRandomKey("net_useRandomKey", "1", FCVAR_RELEASE, "Use random AES 
 static ConVar net_tracePayload("net_tracePayload", "0", FCVAR_DEVELOPMENTONLY, "Log the payload of the send/recv datagram to a file on the disk.");
 static ConVar net_encryptionEnable("net_encryptionEnable", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use AES encryption on game packets.");
 
+static ConCommand net_getkey("net_getkey", NET_GetKey_f, "Gets the installed base64 net key", FCVAR_RELEASE);
 static ConCommand net_setkey("net_setkey", NET_SetKey_f, "Sets user specified base64 net key", FCVAR_RELEASE);
 static ConCommand net_generatekey("net_generatekey", NET_GenerateKey_f, "Generates and sets a random base64 net key", FCVAR_RELEASE);
 
@@ -171,6 +176,15 @@ void NET_Config()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: prints the currently installed encryption key
+//-----------------------------------------------------------------------------
+void NET_PrintKey()
+{
+	Msg(eDLL_T::ENGINE, "Installed NetKey: %s'%s%s%s'\n",
+		g_svReset, g_svGreyB, g_pNetKey->GetBase64NetKey(), g_svReset);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets the user specified encryption key
 // Input  : svNetKey - 
 //-----------------------------------------------------------------------------
@@ -182,9 +196,7 @@ void NET_SetKey(const string& svNetKey)
 		IsValidBase64(svNetKey, &svTokenizedKey)) // Results are tokenized by 'IsValidBase64()'.
 	{
 		v_NET_SetKey(g_pNetKey, svTokenizedKey.c_str());
-
-		Msg(eDLL_T::ENGINE, "Installed NetKey: %s'%s%s%s'\n",
-			g_svReset, g_svGreyB, g_pNetKey->GetBase64NetKey(), g_svReset);
+		NET_PrintKey();
 	}
 	else
 	{

@@ -508,3 +508,5 @@ static ConVar serverbrowser_gamemodeFilter("serverbrowser_gamemodeFilter", "0", 
 
 // NOTE: if we want to make a certain promo only show once, add the playerprofile flag to the cvar below. Current behavior = always show after game restart.
 static ConVar promo_version_accepted("promo_version_accepted", "0", FCVAR_RELEASE, "The accepted promo version.");
+
+static ConVar player_setting_damage_closes_deathbox_menu("player_setting_damage_closes_deathbox_menu", "1", FCVAR_ARCHIVE | FCVAR_RELEASE, "Controls whether death box automatically closes when taking damage (used for menus).");
