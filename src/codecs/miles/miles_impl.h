@@ -6,6 +6,7 @@ inline void(*v_AIL_LogFunc)(int64_t nLogLevel, const char* pszMessage);
 inline bool(*v_Miles_Initialize)();
 inline void(*v_MilesQueueEventRun)(Miles::Queue*, const char*);
 inline void(*v_MilesBankPatch)(Miles::Bank*, char*, char*);
+inline unsigned int (*v_MilesSampleSetSourceRaw)(__int64 a1, __int64 a2, unsigned int a3, int a4, unsigned __int16 a5, bool a6);
 inline void(*v_CSOM_AddEventToQueue)(const char* eventName);
 
 struct MilesBankList_t
@@ -54,6 +55,7 @@ class MilesCore : public IDetour
 		LogFunAdr("Miles_Initialize", v_Miles_Initialize);
 		LogFunAdr("MilesQueueEventRun", v_MilesQueueEventRun);
 		LogFunAdr("MilesBankPatch", v_MilesBankPatch);
+		LogFunAdr("MilesSampleSetSourceRaw", v_MilesSampleSetSourceRaw);
 		LogFunAdr("CSOM_AddEventToQueue", v_CSOM_AddEventToQueue);
 		LogVarAdr("g_milesGlobals", g_milesGlobals);
 	}
@@ -69,6 +71,7 @@ class MilesCore : public IDetour
 
 		g_RadAudioSystemDll.GetExportedSymbol("MilesQueueEventRun").GetPtr(v_MilesQueueEventRun);
 		g_RadAudioSystemDll.GetExportedSymbol("MilesBankPatch").GetPtr(v_MilesBankPatch);
+		g_RadAudioSystemDll.GetExportedSymbol("MilesSampleSetSourceRaw").GetPtr(v_MilesSampleSetSourceRaw);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

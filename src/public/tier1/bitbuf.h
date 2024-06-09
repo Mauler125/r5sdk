@@ -441,7 +441,9 @@ FORCEINLINE void CBitRead::GrabNextDWord(bool bOverFlowImmediately)
 	{
 		if (m_pDataIn > m_pBufferEnd)
 		{
-			SetOverflowFlag();
+			if (!IsOverflowed())
+				SetOverflowFlag();
+
 			m_nInBufWord = 0;
 		}
 		else

@@ -35,6 +35,7 @@
 #ifndef DEDICATED
 #include "codecs/bink/bink_impl.h"
 #include "codecs/miles/miles_impl.h"
+#include "codecs/miles/miles_shim.h"
 #include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
 #include "vphysics/physics_collide.h"
@@ -525,6 +526,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	// Codecs
 	REGISTER(BinkCore); // REGISTER CLIENT ONLY!
 	REGISTER(MilesCore); // REGISTER CLIENT ONLY!
+	REGISTER(MilesShim);
 	REGISTER(VRadShal);
 
 #endif // !DEDICATED
