@@ -878,7 +878,7 @@ namespace LOGGER
                         Error(eDLL_T::SERVER, NO_ERROR, "failed to acquire lock to write player stats into map\n");
                     }
                 }
-
+                
                 g_pServerScript->ExecuteCodeCallback("CodeCallback_BatchStatsLoaded");
             });
     }
