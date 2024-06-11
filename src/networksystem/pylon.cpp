@@ -395,7 +395,7 @@ bool CPylon::GetEULA(MSEulaData_t& outData, string& outMessage) const
 
     // check if the EULA response fields are valid.
     if (!JSON_GetValue(data, "version", JSONFieldType_e::kSint32, version) ||
-        !JSON_GetValue(data, "language", JSONFieldType_e::kString, language) ||
+        !JSON_GetValue(data, "lang", JSONFieldType_e::kString, language) ||
         !JSON_GetValue(data, "contents", JSONFieldType_e::kString, contents))
     {
         outMessage = "schema is invalid";
