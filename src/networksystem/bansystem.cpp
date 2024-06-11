@@ -7,6 +7,7 @@
 
 #include "core/stdafx.h"
 #include "tier1/strtools.h"
+#include "tier2/jsonutils.h"
 #include "engine/net.h"
 #include "engine/server/server.h"
 #include "engine/client/client.h"
@@ -47,25 +48,33 @@ void CBanSystem::LoadList(void)
 		return;
 	}
 
-	uint64_t nTotalBans = 0;
-	if (document.HasMember("totalBans") && document["totalBans"].IsUint64())
+	int nTotalBans = 0;
+
+	if (!JSON_GetValue(document, "totalBans", JSONFieldType_e::kSint32, nTotalBans))
 	{
-		nTotalBans = document["totalBans"].GetUint64();
+		return;
 	}
 
-	for (uint64_t i = 0; i < nTotalBans; i++)
+	for (int i = 0; i < nTotalBans; i++)
 	{
-		char idx[64]; _ui64toa(i, idx, 10);
+		char idx[12]; itoa(i, idx, 10);
 
-		if (document.HasMember(idx) && document[idx].IsObject())
+		rapidjson::Value::ConstMemberIterator entryIt;
+
+		if (JSON_GetIterator(document, idx, JSONFieldType_e::kObject, entryIt))
 		{
-			const rapidjson::Value& entry = document[idx];
-			if (entry.HasMember("ipAddress") && entry["ipAddress"].IsString() &&
-				entry.HasMember("nucleusId") && entry["nucleusId"].IsUint64())
+			const rapidjson::Value& entry = entryIt->value;
+
+			const char* ipAddress = nullptr;
+			NucleusID_t nucleusId = NULL;
+
+			if (JSON_GetValue(entry, "ipAddress", JSONFieldType_e::kString, ipAddress) && 
+				JSON_GetValue(entry, "nucleusId", JSONFieldType_e::kUint64, nucleusId))
 			{
 				Banned_t banned;
-				banned.m_Address = entry["ipAddress"].GetString();
-				banned.m_NucleusID = entry["nucleusId"].GetUint64();
+
+				banned.m_Address = ipAddress;
+				banned.m_NucleusID = nucleusId;
 
 				m_BannedList.AddToTail(banned);
 			}
@@ -93,9 +102,10 @@ void CBanSystem::SaveList(void) const
 	FOR_EACH_VEC(m_BannedList, i)
 	{
 		const Banned_t& banned = m_BannedList[i];
-		char idx[64]; _ui64toa(i, idx, 10);
+		char idx[12]; itoa(i, idx, 10);
 
 		rapidjson::Value obj(rapidjson::kObjectType);
+
 		obj.AddMember("ipAddress", rapidjson::Value(banned.m_Address.String(), allocator), allocator);
 		obj.AddMember("nucleusId", banned.m_NucleusID, allocator);
 

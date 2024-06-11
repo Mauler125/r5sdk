@@ -8,6 +8,7 @@
 #include <core/stdafx.h>
 #include <tier1/cvar.h>
 #include <tier2/curlutils.h>
+#include <tier2/jsonutils.h>
 #include <networksystem/pylon.h>
 #include <engine/server/server.h>
 
@@ -19,23 +20,24 @@ ConVar pylon_host_update_interval("pylon_host_update_interval", "5", FCVAR_RELEA
 ConVar pylon_showdebuginfo("pylon_showdebuginfo", "0", FCVAR_RELEASE | FCVAR_ACCESSIBLE_FROM_THREADS, "Shows debug output for pylon");
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if the server listing fields are valid.
+// Purpose: checks if server listing fields are valid, and sets outGameServer
 // Input  : &value - 
+//          &outGameServer - 
 // Output : true on success, false on failure.
 //-----------------------------------------------------------------------------
-static bool IsServerListingValid(const rapidjson::Value& value)
+static bool GetServerListingFromJSON(const rapidjson::Value& value, NetGameServer_t& outGameServer)
 {
-    if (value.HasMember("name")        && value["name"].IsString()        &&
-        value.HasMember("description") && value["description"].IsString() &&
-        value.HasMember("hidden")      && value["hidden"].IsBool()        &&
-        value.HasMember("map")         && value["map"].IsString()         &&
-        value.HasMember("playlist")    && value["playlist"].IsString()    &&
-        value.HasMember("ip")          && value["ip"].IsString()          &&
-        value.HasMember("port")        && value["port"].IsInt()           &&
-        value.HasMember("key")         && value["key"].IsString()         &&
-        value.HasMember("checksum")    && value["checksum"].IsUint()      &&
-        value.HasMember("numPlayers")  && value["numPlayers"].IsInt()    &&
-        value.HasMember("maxPlayers")  && value["maxPlayers"].IsInt())
+    if (JSON_GetValue(value, "name",        JSONFieldType_e::kString, outGameServer.name)        &&
+        JSON_GetValue(value, "description", JSONFieldType_e::kString, outGameServer.description) &&
+        JSON_GetValue(value, "hidden",      JSONFieldType_e::kBool,   outGameServer.hidden)      &&
+        JSON_GetValue(value, "map",         JSONFieldType_e::kString, outGameServer.map)         &&
+        JSON_GetValue(value, "playlist",    JSONFieldType_e::kString, outGameServer.playlist)    &&
+        JSON_GetValue(value, "ip",          JSONFieldType_e::kString, outGameServer.address)     &&
+        JSON_GetValue(value, "port",        JSONFieldType_e::kSint32, outGameServer.port)        &&
+        JSON_GetValue(value, "key",         JSONFieldType_e::kString, outGameServer.netKey)      &&
+        JSON_GetValue(value, "checksum",    JSONFieldType_e::kUint32, outGameServer.checksum)    &&
+        JSON_GetValue(value, "numPlayers",  JSONFieldType_e::kSint32, outGameServer.numPlayers)  &&
+        JSON_GetValue(value, "maxPlayers",  JSONFieldType_e::kSint32, outGameServer.maxPlayers))
     {
         return true;
     }
@@ -66,43 +68,27 @@ bool CPylon::GetServerList(vector<NetGameServer_t>& outServerList, string& outMe
         return false;
     }
 
-    if (!responseJson.HasMember("servers"))
+    rapidjson::Document::ConstMemberIterator serversIt;
+
+    if (!JSON_GetIterator(responseJson, "servers", JSONFieldType_e::kArray, serversIt))
     {
         outMessage = Format("Invalid response with status: %d", int(status));
         return false;
     }
 
-    const rapidjson::Value& servers = responseJson["servers"];
+    const rapidjson::Value::ConstArray serverArray = serversIt->value.GetArray();
 
-    for (rapidjson::Value::ConstValueIterator itr = servers.Begin();
-        itr != servers.End(); ++itr)
+    for (const rapidjson::Value& obj : serverArray)
     {
-        const rapidjson::Value& obj = *itr;
+        NetGameServer_t gameServer;
 
-        if (!IsServerListingValid(obj))
+        if (!GetServerListingFromJSON(obj, gameServer))
         {
             // Missing details; skip this server listing.
             continue;
         }
 
-        outServerList.push_back(
-            NetGameServer_t
-            {
-                obj["name"].GetString(),
-                obj["description"].GetString(),
-                obj["hidden"].GetBool(),
-                obj["map"].GetString(),
-                obj["playlist"].GetString(),
-                obj["ip"].GetString(),
-                obj["port"].GetInt(),
-                obj["key"].GetString(),
-                obj["checksum"].GetUint(),
-                SDK_VERSION,
-                obj["numPlayers"].GetInt(),
-                obj["maxPlayers"].GetInt(),
-                -1,
-            }
-        );
+        outServerList.push_back(gameServer);
     }
 
     return true;
@@ -134,36 +120,21 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
         return false;
     }
 
-    if (!responseJson.HasMember("server"))
+    rapidjson::Document::ConstMemberIterator serversIt;
+
+    if (!JSON_GetIterator(responseJson, "servers", JSONFieldType_e::kArray, serversIt))
     {
         outMessage = Format("Invalid response with status: %d", int(status));
         return false;
     }
 
-    const rapidjson::Value& serverJson = responseJson["server"];
+    const rapidjson::Value& serverJson = serversIt->value;
 
-    if (!IsServerListingValid(serverJson))
+    if (!GetServerListingFromJSON(serverJson, outGameServer))
     {
         outMessage = Format("Invalid server listing data!");
         return false;
     }
-
-    outGameServer = NetGameServer_t
-    {
-        serverJson["name"].GetString(),
-        serverJson["description"].GetString(),
-        serverJson["hidden"].GetBool(),
-        serverJson["map"].GetString(),
-        serverJson["playlist"].GetString(),
-        serverJson["ip"].GetString(),
-        serverJson["port"].GetInt(),
-        serverJson["key"].GetString(),
-        serverJson["checksum"].GetUint(),
-        SDK_VERSION,
-        serverJson["numPlayers"].GetInt(),
-        serverJson["maxPlayers"].GetInt(),
-        -1,
-    };
 
     return true;
 }
@@ -192,7 +163,7 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
     requestJson.AddMember("key",         rapidjson::Value(netGameServer.netKey.c_str(),      allocator), allocator);
     requestJson.AddMember("checksum",    netGameServer.checksum,                             allocator);
     requestJson.AddMember("version",     rapidjson::Value(netGameServer.versionId.c_str(),   allocator), allocator);
-    requestJson.AddMember("numPlayers", netGameServer.numPlayers,                            allocator);
+    requestJson.AddMember("numPlayers",  netGameServer.numPlayers,                           allocator);
     requestJson.AddMember("maxPlayers",  netGameServer.maxPlayers,                           allocator);
     requestJson.AddMember("timeStamp",   netGameServer.timeStamp,                            allocator);
 
@@ -206,21 +177,25 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
 
     if (netGameServer.hidden)
     {
-        if (!responseJson.HasMember("token") || !responseJson["token"].IsString())
+        const char* token = nullptr;
+
+        if (!JSON_GetValue(responseJson, "token", JSONFieldType_e::kString, token))
         {
             outMessage = Format("Invalid response with status: %d", int(status));
             outToken.clear();
             return false;
         }
 
-        outToken = responseJson["token"].GetString();
+        outToken = token;
     }
 
-    if (responseJson.HasMember("ip") && responseJson["ip"].IsString() &&
-        responseJson.HasMember("port") && responseJson["port"].IsInt())
+    const char* ip = nullptr;
+    int port = 0;
+
+    if (JSON_GetValue(responseJson, "ip", JSONFieldType_e::kString, ip) &&
+        JSON_GetValue(responseJson, "port", JSONFieldType_e::kSint32, port))
     {
-        outHostIp = Format("[%s]:%i",
-            responseJson["ip"].GetString(), responseJson["port"].GetInt());
+        outHostIp = Format("[%s]:%i", ip, port);
     }
 
     return true;
@@ -244,10 +219,11 @@ bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSyst
     FOR_EACH_VEC(inBannedVec, i)
     {
         const CBanSystem::Banned_t& banned = inBannedVec[i];
-
         rapidjson::Value player(rapidjson::kObjectType);
+
         player.AddMember("id", banned.m_NucleusID, allocator);
         player.AddMember("ip", rapidjson::Value(banned.m_Address.String(), allocator), allocator);
+
         playersArray.PushBack(player, allocator);
     }
 
@@ -263,19 +239,25 @@ bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSyst
         return false;
     }
 
-    if (!responseJson.HasMember("bannedPlayers") || !responseJson["bannedPlayers"].IsArray())
+    rapidjson::Value::ConstMemberIterator bannedPlayersIt;
+
+    if (!JSON_GetIterator(responseJson, "bannedPlayers", JSONFieldType_e::kArray, bannedPlayersIt))
     {
         outMessage = Format("Invalid response with status: %d", int(status));
         return false;
     }
 
-    const rapidjson::Value& bannedPlayers = responseJson["bannedPlayers"];
-    for (const rapidjson::Value& obj : bannedPlayers.GetArray())
+    const rapidjson::Value::ConstArray bannedPlayers = bannedPlayersIt->value.GetArray();
+
+    for (const rapidjson::Value& obj : bannedPlayers)
     {
-        CBanSystem::Banned_t banned(
-            obj.HasMember("reason") ? obj["reason"].GetString() : "#DISCONNECT_BANNED",
-            obj.HasMember("id") && obj["id"].IsUint64() ? obj["id"].GetUint64() : NucleusID_t(NULL)
-        );
+        const char* reason = nullptr;
+        JSON_GetValue(obj, "reason", JSONFieldType_e::kString, reason);
+
+        NucleusID_t nuc = NULL;
+        JSON_GetValue(obj, "id", JSONFieldType_e::kUint64, nuc);
+
+        CBanSystem::Banned_t banned(reason ? reason : "#DISCONNECT_BANNED", nuc);
         outBannedVec.AddToTail(banned);
     }
 
@@ -309,11 +291,18 @@ bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId, cons
         return false;
     }
 
-    if (responseJson.HasMember("banned") && responseJson["banned"].IsBool())
+    bool isBanned = false;
+
+    if (JSON_GetValue(responseJson, "banned", JSONFieldType_e::kBool, isBanned))
     {
-        if (responseJson["banned"].GetBool())
+        if (isBanned)
         {
-            outReason = responseJson.HasMember("reason") ? responseJson["reason"].GetString() : "#DISCONNECT_BANNED";
+            const char* reason = nullptr;
+
+            outReason = JSON_GetValue(responseJson, "reason", JSONFieldType_e::kString, reason)
+                ? reason
+                : "#DISCONNECT_BANNED";
+
             return true;
         }
     }
@@ -351,37 +340,15 @@ bool CPylon::AuthForConnection(const uint64_t nucleusId, const char* ipAddress,
         return false;
     }
 
-    if (responseJson.HasMember("token") && responseJson["token"].IsString())
+    const char* token = nullptr;
+
+    if (JSON_GetValue(responseJson, "token", JSONFieldType_e::kString, token))
     {
-        outToken = responseJson["token"].GetString();
+        outToken = token;
         return true;
     }
 
     return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: checks if the EULA response fields are valid.
-// Input  : &doc - 
-// Output : true on success, false on failure.
-//-----------------------------------------------------------------------------
-static bool ValidateEULAData(const rapidjson::Document& doc)
-{
-    if (!doc.HasMember("data") || !doc["data"].IsObject())
-        return false;
-
-    const rapidjson::Value& data = doc["data"];
-
-    if (!data.HasMember("version") || !data["version"].IsInt())
-        return false;
-
-    if (!data.HasMember("lang") || !data["lang"].IsString())
-        return false;
-
-    if (!data.HasMember("contents") || !data["contents"].IsString())
-        return false;
-
-    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -412,16 +379,32 @@ bool CPylon::GetEULA(MSEulaData_t& outData, string& outMessage) const
         return false;
     }
 
-    if (!ValidateEULAData(responseJson))
+    rapidjson::Document::ConstMemberIterator serversIt;
+
+    if (!JSON_GetIterator(responseJson, "data", JSONFieldType_e::kObject, serversIt))
     {
+        outMessage = "missing or invalid data";
         return false;
     }
 
-    const rapidjson::Value& data = responseJson["data"];
+    const rapidjson::Value& data = serversIt->value;
 
-    outData.version = data["version"].GetInt();
-    outData.language = data["lang"].GetString();
-    outData.contents = data["contents"].GetString();
+    int version = 0;
+    const char* language = nullptr;
+    const char* contents = nullptr;
+
+    // check if the EULA response fields are valid.
+    if (!JSON_GetValue(data, "version", JSONFieldType_e::kSint32, version) ||
+        !JSON_GetValue(data, "language", JSONFieldType_e::kString, language) ||
+        !JSON_GetValue(data, "contents", JSONFieldType_e::kString, contents))
+    {
+        outMessage = "schema is invalid";
+        return false;
+    }
+
+    outData.version = version;
+    outData.language = language;
+    outData.contents = contents;
 
     return true;
 }
@@ -478,9 +461,10 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
             LogBody(responseJson);
         }
 
-        if (responseJson.HasMember("success") &&
-            responseJson["success"].IsBool() &&
-            responseJson["success"].GetBool())
+        bool success = false;
+
+        if (JSON_GetValue(responseJson, "success", JSONFieldType_e::kBool, success)
+            && success)
         {
             return true;
         }
@@ -564,10 +548,12 @@ bool CPylon::QueryServer(const char* endpoint, const char* request,
 void CPylon::ExtractError(const rapidjson::Document& resultJson, string& outMessage,
     CURLINFO status, const char* errorText) const
 {
-    if (resultJson.IsObject() && resultJson.HasMember("error") &&
-        resultJson["error"].IsString())
+    const char* error = nullptr;
+
+    if (resultJson.IsObject() && 
+        JSON_GetValue(resultJson, "error", JSONFieldType_e::kString, error))
     {
-        outMessage = resultJson["error"].GetString();
+        outMessage = error;
     }
     else
     {

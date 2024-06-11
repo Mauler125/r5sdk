@@ -89,8 +89,6 @@ string FormatBytes(size_t nBytes);
 string FormatV(const char* szFormat, va_list args);
 string Format(const char* szFormat, ...);
 
-void JSON_DocumentToBufferDeserialize(const rapidjson::Document& document, rapidjson::StringBuffer& buffer, unsigned int indent = 4);
-
 /////////////////////////////////////////////////////////////////////////////
 // Array
 template <typename Iter, typename Compare>
