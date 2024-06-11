@@ -464,7 +464,7 @@ void CPackedStoreBuilder::PackStore(const VPKPair_t& vpkPair, const char* worksp
 
 	if (!pEntryBuffer)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate block buffer!\n", __FUNCTION__);
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate chunk buffer!\n", __FUNCTION__);
 		return;
 	}
 
@@ -589,7 +589,7 @@ void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* worksp
 
 	if (!pDestBuffer || !pSourceBuffer)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate block buffer!\n", __FUNCTION__);
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate chunk buffer!\n", __FUNCTION__);
 		return;
 	}
 
