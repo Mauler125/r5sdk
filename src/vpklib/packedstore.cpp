@@ -157,9 +157,9 @@ static bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& igno
 		return true;
 	}
 
-	FOR_EACH_VEC(ignoreList, j)
+	FOR_EACH_VEC(ignoreList, i)
 	{
-		const CUtlString& ignoreEntry = ignoreList[j];
+		const CUtlString& ignoreEntry = ignoreList[i];
 
 		if (ignoreEntry.IsEqual_CaseInsensitive(pFilePath))
 		{
@@ -175,7 +175,7 @@ static bool ShouldPrune(const CUtlString& filePath, CUtlVector<CUtlString>& igno
 
 		if (!nSize)
 		{
-			Warning(eDLL_T::FS, "File '%s' listed in build manifest appears empty or truncated\n", pFilePath);
+			Warning(eDLL_T::FS, "File '%s' listed in build manifest appears empty\n", pFilePath);
 			FileSystem()->Close(fileHandle);
 
 			return true;
@@ -464,7 +464,7 @@ void CPackedStoreBuilder::PackStore(const VPKPair_t& vpkPair, const char* worksp
 
 	if (!pEntryBuffer)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate block buffer!\n", __FUNCTION__);
 		return;
 	}
 
@@ -589,7 +589,7 @@ void CPackedStoreBuilder::UnpackStore(const VPKDir_t& vpkDir, const char* worksp
 
 	if (!pDestBuffer || !pSourceBuffer)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate memory for entry buffer!\n", __FUNCTION__);
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to allocate block buffer!\n", __FUNCTION__);
 		return;
 	}
 
