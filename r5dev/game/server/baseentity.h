@@ -52,6 +52,7 @@ public:
 	model_t*		GetModel(void);
 	int				GetModelIndex(void) const; // Virtual in-engine!
 	string_t		GetModelName(void) const;  // Virtual in-engine!
+	const			Vector3D GetAbsOrigin(void) const;
 
 	inline edict_t GetEdict(void) { return NetworkProp()->GetEdict(); }
 	inline string_t GetEntityName(void) const { return m_iName; }
@@ -280,6 +281,10 @@ static_assert(sizeof(CBaseEntity) == 2824);
 
 inline CBaseEntity*(*CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
 
+inline const Vector3D CBaseEntity::GetAbsOrigin(void) const
+{
+	return m_vecAbsOrigin;
+}
 ///////////////////////////////////////////////////////////////////////////////
 class VBaseEntity : public IDetour
 {
