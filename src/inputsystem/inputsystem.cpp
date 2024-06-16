@@ -52,6 +52,14 @@
 //	return CallVFunc<ButtonCode_t>(index, this, pString);
 //}
 
+//-----------------------------------------------------------------------------
+// Returns the currently attached window
+//-----------------------------------------------------------------------------
+PlatWindow_t CInputSystem::GetAttachedWindow() const
+{
+	return (PlatWindow_t)m_hAttachedHWnd;
+}
+
 LRESULT CInputSystem::WindowProc(void* unused, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (g_pInputSystem->m_bEnabled &&

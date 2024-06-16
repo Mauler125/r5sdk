@@ -12,6 +12,9 @@ class CInputSystem : public CTier1AppSystem< IInputSystem >
 public:
 	// !!!interface implemented in engine!!!
 public:
+	PlatWindow_t GetAttachedWindow() const;
+
+public:
 	// Hook statics:
 	static LRESULT WindowProc(void* unused, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
