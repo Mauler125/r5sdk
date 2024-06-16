@@ -151,6 +151,7 @@
 #ifndef DEDICATED
 #include "public/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"
+#include "inputsystem/inputstacksystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
 
@@ -682,6 +683,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 
 #ifndef DEDICATED
 	REGISTER(VInputSystem);
+	REGISTER(VInputStackSystem);
 	REGISTER(VDXGI);
 #endif // !DEDICATED
 }
