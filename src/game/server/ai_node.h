@@ -131,7 +131,7 @@ struct CAI_ClusterLink
 static_assert(sizeof(CAI_ClusterLink) == 12);
 
 //=============================================================================
-//	>> CAI_ScriptNode
+//	>> CAI_TraverseNode
 //=============================================================================
 struct CAI_TraverseNode
 {
@@ -147,10 +147,9 @@ struct CAI_ScriptNode
 {
 	Vector3D m_vOrigin;
 
-	// Might be wrong; seems to be used for clamping.
-	// See [r5apex_ds + 0xF28A6E]
-	int m_nMin;
-	int m_nMax;
+	// 64 bits of data slots, used by abstracted script function
+	// NavMeshNode_GetBooleanData and NavMeshNode_GetBooleanData
+	CBitVec<64> m_DataSlots;
 };
 
 //=============================================================================
