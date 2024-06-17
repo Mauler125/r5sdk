@@ -151,6 +151,7 @@ struct CAI_ScriptNode
 	// NavMeshNode_GetBooleanData and NavMeshNode_GetBooleanData
 	CBitVec<64> m_DataSlots;
 };
+static_assert(sizeof(CAI_ScriptNode) == 20);
 
 //=============================================================================
 //	>> CAI_HullData
@@ -165,3 +166,4 @@ struct CAI_HullData
 	// just part of this struct.
 	char unk3[8];
 };
+static_assert(sizeof(CAI_HullData) == 24);
