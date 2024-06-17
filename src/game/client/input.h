@@ -1,11 +1,48 @@
 #ifndef CLIENT_INPUT_H
 #define CLIENT_INPUT_H
+#include "game/shared/weapon_types.h"
 #include "game/client/iinput.h"
 
 class CInput : public IInput
 {
 public:
-	static void SetCustomWeaponActivity(CInput* pInput, int weaponActivity);
+	virtual void sub_140701C40() = 0;
+	virtual void sub_140701D60() = 0;
+	virtual void sub_140701D90() = 0;
+
+	virtual int GetMaxAbilityBindingCount( void ) = 0;
+	virtual int GetMaxAbilityBindingLength( void ) = 0;
+
+	virtual void sub_140701DC0() = 0;
+
+	virtual void SetJoystickDebounce( int nSlot = -1 ) = 0;
+	virtual void ClearJoystickDebounce( int nSlot = -1 ) = 0;
+
+	virtual float		GetLastSwapSelectTime() = 0;
+	virtual void		SetLastSwapSelectTime( float lastSelectTime ) = 0;
+	virtual float		Unknown_GetFloat20() = 0;
+	virtual void		Unknown_SetFloat20( float a2 ) = 0;
+	virtual float		Unknown_GetFloat24() = 0;
+	virtual void		Unknown_SetFloat24( float a2 ) = 0;
+
+	virtual float		GetLastButtonPressTime( void ) = 0;
+	virtual void		SetLastButtonPressTime( float lastPressTime ) = 0;
+	virtual void		LinkButtonPair( int button1, int button2, int output ) = 0;
+
+	virtual void sub_140701720() = 0;
+
+	virtual void SetCustomWeaponActivity( WeaponActivity_t weaponActivity ) = 0;
+	virtual void ActivateOffhandWeaponByIndex( char index /*TODO[ AMOS ]: needs enum, enumVal 6 = INVALID; see Script_ActivateOffhandWeaponByIndex*/ ) = 0;
+
+	virtual void ChangeControllerMode( bool newMode ) = 0;
+
+	virtual void SetZoomScale( float zoomScale ) = 0;      // Used for SetBigMapZoomScale script func
+	virtual float GetZoomScale() = 0;                      // Used for GetBigMapZoomScale script func
+	virtual void SetZoomAnchor( Vector2D& inAnchor ) = 0;  // Used for SetBigMapZoomAnchor script func
+	virtual void GetZoomAnchor( Vector2D& outAnchor ) = 0; // Used for SetBigMapZoomAnchor script func
+
+public: // Hook statics
+	static void VSetCustomWeaponActivity( CInput* pInput, int weaponActivity );
 private:
 };
 
