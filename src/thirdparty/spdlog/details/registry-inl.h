@@ -99,10 +99,6 @@ SPDLOG_INLINE logger *registry::get_default_raw() { return default_logger_.get()
 // default logger is stored in default_logger_ (for faster retrieval) and in the loggers_ map.
 SPDLOG_INLINE void registry::set_default_logger(std::shared_ptr<logger> new_default_logger) {
     std::lock_guard<std::mutex> lock(logger_map_mutex_);
-    // remove previous default logger from the map
-    if (default_logger_ != nullptr) {
-        loggers_.erase(default_logger_->name());
-    }
     if (new_default_logger != nullptr) {
         loggers_[new_default_logger->name()] = new_default_logger;
     }
