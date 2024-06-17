@@ -109,7 +109,7 @@ bool CRConClient::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
 	netcon::response response;
 
-	if (!SH_NetConUnpackEnvelope(this, pMsgBuf, nMsgLen, &response, rcon_debug.GetBool()))
+	if (!NetconShared_UnpackEnvelope(this, pMsgBuf, nMsgLen, &response, rcon_debug.GetBool()))
 	{
 		Disconnect("received invalid message");
 		return false;
@@ -184,7 +184,7 @@ void CRConClient::RequestConsoleLog(const bool bWantLog)
 bool CRConClient::Serialize(vector<char>& vecBuf, const char* szReqBuf,
 	const char* szReqVal, const netcon::request_e requestType) const
 {
-	return CL_NetConSerialize(this, vecBuf, szReqBuf, szReqVal, requestType,
+	return NetconClient_Serialize(this, vecBuf, szReqBuf, szReqVal, requestType,
 		rcon_encryptframes.GetBool(), rcon_debug.GetBool());
 }
 
@@ -194,7 +194,7 @@ bool CRConClient::Serialize(vector<char>& vecBuf, const char* szReqBuf,
 //-----------------------------------------------------------------------------
 CConnectedNetConsoleData* CRConClient::GetData(void)
 {
-	return SH_GetNetConData(this, 0);
+	return NetconShared_GetConnData(this, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -203,7 +203,7 @@ CConnectedNetConsoleData* CRConClient::GetData(void)
 //-----------------------------------------------------------------------------
 SocketHandle_t CRConClient::GetSocket(void)
 {
-	return SH_GetNetConSocketHandle(this, 0);
+	return NetconShared_GetSocketHandle(this, 0);
 }
 
 //-----------------------------------------------------------------------------

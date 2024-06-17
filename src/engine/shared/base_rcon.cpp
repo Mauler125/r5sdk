@@ -133,7 +133,7 @@ const char* CNetConBase::GetKey(void) const
 //-----------------------------------------------------------------------------
 bool CNetConBase::Connect(const char* pHostName, const int nPort)
 {
-	return CL_NetConConnect(this, pHostName, nPort);
+	return NetconClient_Connect(this, pHostName, nPort);
 }
 
 //-----------------------------------------------------------------------------

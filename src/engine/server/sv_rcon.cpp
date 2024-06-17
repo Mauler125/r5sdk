@@ -371,7 +371,7 @@ bool CRConServer::SendEncoded(const SocketHandle_t hSocket, const char* pRespons
 bool CRConServer::Serialize(vector<char>& vecBuf, const char* pResponseMsg, const char* pResponseVal,
 	const netcon::response_e responseType, const int nMessageId, const int nMessageType) const
 {
-	return SV_NetConSerialize(this, vecBuf, pResponseMsg, pResponseVal, responseType, nMessageId, nMessageType,
+	return NetconServer_Serialize(this, vecBuf, pResponseMsg, pResponseVal, responseType, nMessageId, nMessageType,
 		rcon_encryptframes.GetBool(), rcon_debug.GetBool());
 }
 
@@ -448,7 +448,7 @@ bool CRConServer::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
 	netcon::request request;
 
-	if (!SH_NetConUnpackEnvelope(this, pMsgBuf, nMsgLen, &request, rcon_debug.GetBool()))
+	if (!NetconShared_UnpackEnvelope(this, pMsgBuf, nMsgLen, &request, rcon_debug.GetBool()))
 	{
 		Disconnect("received invalid message");
 		return false;

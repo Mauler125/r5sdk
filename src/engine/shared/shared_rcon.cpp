@@ -21,7 +21,7 @@
 //			bDebug - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool SV_NetConSerialize(const CNetConBase* pBase, vector<char>& vecBuf, const char* pResponseMsg, const char* pResponseVal,
+bool NetconServer_Serialize(const CNetConBase* pBase, vector<char>& vecBuf, const char* pResponseMsg, const char* pResponseVal,
 	const netcon::response_e responseType, const int nMessageId, const int nMessageType, const bool bEncrypt, const bool bDebug)
 {
 	netcon::response response;
@@ -32,7 +32,7 @@ bool SV_NetConSerialize(const CNetConBase* pBase, vector<char>& vecBuf, const ch
 	response.set_responsemsg(pResponseMsg);
 	response.set_responseval(pResponseVal);
 
-	if (!SH_NetConPackEnvelope(pBase, vecBuf, response.ByteSizeLong(), &response, bEncrypt, bDebug))
+	if (!NetconShared_PackEnvelope(pBase, vecBuf, response.ByteSizeLong(), &response, bEncrypt, bDebug))
 	{
 		return false;
 	}
@@ -51,7 +51,7 @@ bool SV_NetConSerialize(const CNetConBase* pBase, vector<char>& vecBuf, const ch
 //			bDebug - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CL_NetConSerialize(const CNetConBase* pBase, vector<char>& vecBuf, const char* szReqBuf,
+bool NetconClient_Serialize(const CNetConBase* pBase, vector<char>& vecBuf, const char* szReqBuf,
 	const char* szReqVal, const netcon::request_e requestType, const bool bEncrypt, const bool bDebug)
 {
 	netcon::request request;
@@ -61,7 +61,7 @@ bool CL_NetConSerialize(const CNetConBase* pBase, vector<char>& vecBuf, const ch
 	request.set_requestmsg(szReqBuf);
 	request.set_requestval(szReqVal);
 
-	if (!SH_NetConPackEnvelope(pBase, vecBuf, request.ByteSizeLong(), &request, bEncrypt, bDebug))
+	if (!NetconShared_PackEnvelope(pBase, vecBuf, request.ByteSizeLong(), &request, bEncrypt, bDebug))
 	{
 		return false;
 	}
@@ -76,7 +76,7 @@ bool CL_NetConSerialize(const CNetConBase* pBase, vector<char>& vecBuf, const ch
 //			nHostPort - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CL_NetConConnect(CNetConBase* pBase, const char* pHostAdr, const int nHostPort)
+bool NetconClient_Connect(CNetConBase* pBase, const char* pHostAdr, const int nHostPort)
 {
 	string svLocalHost;
 	const bool bValidSocket = nHostPort != SOCKET_ERROR;
@@ -124,7 +124,7 @@ bool CL_NetConConnect(CNetConBase* pBase, const char* pHostAdr, const int nHostP
 //			bDebug - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool SH_NetConPackEnvelope(const CNetConBase* pBase, vector<char>& outMsgBuf, const size_t nMsgLen,
+bool NetconShared_PackEnvelope(const CNetConBase* pBase, vector<char>& outMsgBuf, const size_t nMsgLen,
 	google::protobuf::MessageLite* inMsg, const bool bEncrypt, const bool bDebug)
 {
 	char* encodeBuf = new char[nMsgLen];
@@ -194,7 +194,7 @@ bool SH_NetConPackEnvelope(const CNetConBase* pBase, vector<char>& outMsgBuf, co
 //			bDebug - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool SH_NetConUnpackEnvelope(const CNetConBase* pBase, const char* pMsgBuf, const size_t nMsgLen,
+bool NetconShared_UnpackEnvelope(const CNetConBase* pBase, const char* pMsgBuf, const size_t nMsgLen,
 	google::protobuf::MessageLite* outMsg, const bool bDebug)
 {
 	netcon::envelope envelope;
@@ -279,7 +279,7 @@ bool SH_NetConUnpackEnvelope(const CNetConBase* pBase, const char* pMsgBuf, cons
 //			iSocket - 
 // Output : nullptr on failure
 //-----------------------------------------------------------------------------
-CConnectedNetConsoleData* SH_GetNetConData(CNetConBase* pBase, const int iSocket)
+CConnectedNetConsoleData* NetconShared_GetConnData(CNetConBase* pBase, const int iSocket)
 {
 	CSocketCreator* pCreator = pBase->GetSocketCreator();
 	Assert(iSocket >= 0 && (pCreator->GetAcceptedSocketCount() == 0
@@ -299,9 +299,9 @@ CConnectedNetConsoleData* SH_GetNetConData(CNetConBase* pBase, const int iSocket
 //			iSocket - 
 // Output : SOCKET_ERROR (-1) on failure
 //-----------------------------------------------------------------------------
-SocketHandle_t SH_GetNetConSocketHandle(CNetConBase* pBase, const int iSocket)
+SocketHandle_t NetconShared_GetSocketHandle(CNetConBase* pBase, const int iSocket)
 {
-	const CConnectedNetConsoleData* pData = SH_GetNetConData(pBase, iSocket);
+	const CConnectedNetConsoleData* pData = NetconShared_GetConnData(pBase, iSocket);
 	if (!pData)
 	{
 		return SOCKET_ERROR;
