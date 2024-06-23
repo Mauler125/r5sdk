@@ -95,9 +95,6 @@ extern "C"
         const size_t nTotal = nCount * nSize;
         void* const pMemOut = MemAllocSingleton()->Realloc(pBlock, nTotal);
 
-        if (!pBlock)
-            memset(pMemOut, NULL, nTotal);
-
         return pMemOut;
     }
     //-------------------------------------------------------------------------
