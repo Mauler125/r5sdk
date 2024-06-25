@@ -172,21 +172,19 @@ extern "C"
         if (!pBlock)
             return _aligned_malloc_base(nSize, nAlign);
 
-        void* pAlloc, * pResult;
-
         // Figure out the actual allocation point
-        pAlloc = pBlock;
+        void* pAlloc = pBlock;
         pAlloc = (void*)(((size_t)pAlloc & ~(sizeof(void*) - 1)) - sizeof(void*));
         pAlloc = *((void**)pAlloc);
 
         // See if we have enough space
-        size_t nOffset = (size_t)pBlock - (size_t)pAlloc;
-        size_t nOldSize = MemAllocSingleton()->GetSize(pAlloc);
+        const size_t nOffset = (size_t)pBlock - (size_t)pAlloc;
+        const size_t nOldSize = MemAllocSingleton()->GetSize(pAlloc);
 
         if (nOldSize >= nSize + nOffset)
             return pBlock;
 
-        pResult = _aligned_malloc_base(nSize, nAlign);
+        void* pResult = _aligned_malloc_base(nSize, nAlign);
         memcpy(pResult, pBlock, nOldSize - nOffset);
 
         MemAllocSingleton()->Free(pAlloc);
@@ -453,7 +451,7 @@ extern "C"
     }
     int __cdecl CheckBytes(unsigned char* pb, unsigned char bCheck, size_t nSize)
     {
-        int bOkay = TRUE;
+        const int bOkay = TRUE;
         return bOkay;
     }
     _CRT_DUMP_CLIENT __cdecl _CrtGetDumpClient(void)
