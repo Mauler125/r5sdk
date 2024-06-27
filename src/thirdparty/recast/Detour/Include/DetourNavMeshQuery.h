@@ -561,6 +561,27 @@ private:
 
 	struct dtQueryData
 	{
+		void Reset()
+		{
+			status = 0;
+			lastBestNode = nullptr;
+			lastBestNodeCost = 0.0f;
+			startRef = 0; endRef = 0;
+
+			startPos[0] = 0.0f;
+			startPos[1] = 0.0f;
+			startPos[2] = 0.0f;
+
+			endPos[0] = 0.0f;
+			endPos[1] = 0.0f;
+			endPos[2] = 0.0f;
+
+			options = 0;
+			raycastLimitSqr = 0.0f;
+
+			// NOTE: the nodepool/nodequeue pointers should not be reset !!!
+		}
+
 		dtStatus status;
 		struct dtNode* lastBestNode;
 		float lastBestNodeCost;

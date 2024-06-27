@@ -1202,7 +1202,7 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 	dtAssert(m_query.m_openList);
 
 	// Init path state.
-	memset(&m_query, 0, sizeof(dtQueryData));
+	m_query.Reset();
 	m_query.status = DT_FAILURE;
 	m_query.startRef = startRef;
 	m_query.endRef = endRef;
@@ -1487,7 +1487,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 	if (dtStatusFailed(m_query.status))
 	{
 		// Reset query.
-		memset(&m_query, 0, sizeof(dtQueryData));
+		m_query.Reset();
 		return DT_FAILURE;
 	}
 
@@ -1557,7 +1557,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 	const dtStatus details = m_query.status & DT_STATUS_DETAIL_MASK;
 
 	// Reset query.
-	memset(&m_query, 0, sizeof(dtQueryData));
+	m_query.Reset();
 	
 	*pathCount = n;
 	
@@ -1578,7 +1578,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 	if (dtStatusFailed(m_query.status))
 	{
 		// Reset query.
-		memset(&m_query, 0, sizeof(dtQueryData));
+		m_query.Reset();
 		return DT_FAILURE;
 	}
 	
@@ -1658,7 +1658,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 	const dtStatus details = m_query.status & DT_STATUS_DETAIL_MASK;
 
 	// Reset query.
-	memset(&m_query, 0, sizeof(dtQueryData));
+	m_query.Reset();
 	
 	*pathCount = n;
 	
