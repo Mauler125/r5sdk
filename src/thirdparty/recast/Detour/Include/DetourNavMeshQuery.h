@@ -514,7 +514,7 @@ public:
 	
 	/// Gets the node pool.
 	/// @returns The node pool.
-	class dtNodePool* getNodePool() const { return m_query.m_nodePool; }
+	class dtNodePool* getNodePool() const { return m_nodePool; }
 	
 	/// Gets the navigation mesh the query object is using.
 	/// @return The navigation mesh the query object is using.
@@ -561,27 +561,6 @@ private:
 
 	struct dtQueryData
 	{
-		void Reset()
-		{
-			status = 0;
-			lastBestNode = nullptr;
-			lastBestNodeCost = 0.0f;
-			startRef = 0; endRef = 0;
-
-			startPos[0] = 0.0f;
-			startPos[1] = 0.0f;
-			startPos[2] = 0.0f;
-
-			endPos[0] = 0.0f;
-			endPos[1] = 0.0f;
-			endPos[2] = 0.0f;
-
-			options = 0;
-			raycastLimitSqr = 0.0f;
-
-			// NOTE: the nodepool/nodequeue pointers should not be reset !!!
-		}
-
 		dtStatus status;
 		struct dtNode* lastBestNode;
 		float lastBestNodeCost;
@@ -589,14 +568,13 @@ private:
 		float startPos[3], endPos[3];
 		unsigned int options;
 		float raycastLimitSqr;
-
-		class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
-		class dtNodePool* m_nodePool;		///< Pointer to node pool.
-		class dtNodeQueue* m_openList;		///< Pointer to open list queue.
 	};
 
 	dtQueryData m_query;				///< Sliced query state.
-	const dtQueryFilter* m_queryFilter;	///< Pointer to query filter.
+	class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
+	class dtNodePool* m_nodePool;		///< Pointer to node pool.
+	class dtNodeQueue* m_openList;		///< Pointer to open list queue.
+	const dtQueryFilter* m_queryFilter;	///< Pointer to query filter [NOTE: this field is possibly static in r5! Refactoring this in Recast is a big change however..].
 };
 
 /// Allocates a query object using the Detour allocator.
