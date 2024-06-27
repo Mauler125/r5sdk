@@ -89,7 +89,6 @@ end_sources( "${BUILD_OUTPUT_DIR}/bin/" )
 whole_program_optimization()
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND "naveditor.exe"
     VS_DEBUGGER_COMMAND_ARGUMENTS "-console"
     VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/bin/"
 )
