@@ -119,6 +119,15 @@ void generate_points(float* pts, int count, float dx, float dy, float dz)
 	}
 }
 
+void get_model_name(const std::string& nameIn, std::string& nameOut)
+{
+	const size_t charPos = nameIn.find_last_of(".");
+
+	nameOut = charPos == string::npos 
+		? nameIn
+		: nameIn.substr(0, charPos);
+}
+
 void auto_load(const char* path, BuildContext& ctx, Editor*& editor,InputGeom*& geom, string& meshName)
 {
 	string geom_path = std::string(path);
@@ -140,7 +149,7 @@ void auto_load(const char* path, BuildContext& ctx, Editor*& editor,InputGeom*& 
 	if (editor && geom)
 	{
 		editor->handleMeshChanged(geom);
-		editor->m_modelName = meshName.substr(0, meshName.size() - 4);
+		get_model_name(meshName, editor->m_modelName);
 	}
 }
 
@@ -985,7 +994,7 @@ int not_main(int argc, char** argv)
 			if (editor && geom)
 			{
 				editor->handleMeshChanged(geom);
-				editor->m_modelName = meshName.substr(0, meshName.size() - 4);
+				get_model_name(meshName, editor->m_modelName);
 			}
 
 			if (geom || editor)
@@ -1059,7 +1068,7 @@ int not_main(int argc, char** argv)
 					if (editor && geom)
 					{
 						editor->handleMeshChanged(geom);
-						editor->m_modelName = meshName.substr(0, meshName.size() - 4);
+						get_model_name(meshName, editor->m_modelName);
 					}
 
 					// This will ensure that tile & poly bits are updated in tiled editor.
