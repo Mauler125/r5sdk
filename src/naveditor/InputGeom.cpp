@@ -511,25 +511,35 @@ void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const
 									 unsigned char bidir, unsigned char area, unsigned short flags)
 {
 	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
-	float* v = &m_offMeshConVerts[m_offMeshConCount*3*2];
+	float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
+	float* verts = &m_offMeshConVerts[m_offMeshConCount*3*2];
+	float yaw = dtCalcOffMeshRefYaw(spos, epos);
+
+	dtCalcOffMeshRefPos(spos, yaw, DT_OFFMESH_CON_REFPOS_OFFSET, refs);
+
 	m_offMeshConRads[m_offMeshConCount] = rad;
+	m_offMeshConRefYaws[m_offMeshConCount] = yaw;
 	m_offMeshConDirs[m_offMeshConCount] = bidir;
 	m_offMeshConAreas[m_offMeshConCount] = area;
 	m_offMeshConFlags[m_offMeshConCount] = flags;
 	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
-	rcVcopy(&v[0], spos);
-	rcVcopy(&v[3], epos);
+	rcVcopy(&verts[0], spos);
+	rcVcopy(&verts[3], epos);
 	m_offMeshConCount++;
 }
 
 void InputGeom::deleteOffMeshConnection(int i)
 {
 	m_offMeshConCount--;
-	float* src = &m_offMeshConVerts[m_offMeshConCount*3*2];
-	float* dst = &m_offMeshConVerts[i*3*2];
-	rcVcopy(&dst[0], &src[0]);
-	rcVcopy(&dst[3], &src[3]);
+	float* vertsSrc = &m_offMeshConVerts[m_offMeshConCount*3*2];
+	float* vertsDst = &m_offMeshConVerts[i*3*2];
+	float* refSrc = &m_offMeshConRefPos[m_offMeshConCount*3];
+	float* refDst = &m_offMeshConRefPos[i*3];
+	rcVcopy(&vertsDst[0], &vertsSrc[0]);
+	rcVcopy(&vertsDst[3], &vertsSrc[3]);
+	rcVcopy(&refDst[0], &refSrc[0]);
 	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
+	m_offMeshConRefYaws[i] = m_offMeshConRefYaws[m_offMeshConCount];
 	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
 	m_offMeshConAreas[i] = m_offMeshConAreas[m_offMeshConCount];
 	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];

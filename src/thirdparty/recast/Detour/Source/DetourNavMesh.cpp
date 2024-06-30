@@ -258,6 +258,7 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint and it will overflow.
 	m_saltBits = dtMin((unsigned int)31, 32 - m_tileBits - m_polyBits);
 
+	// NOTE[ AMOS ]: this check doesn't exist in R5!
 	if (m_saltBits < 10)
 		return DT_FAILURE | DT_INVALID_PARAM;
 #endif
@@ -1613,3 +1614,22 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	return DT_SUCCESS;
 }
 
+float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
+{
+	float dx = epos[0] - spos[0];
+	float dy = epos[1] - spos[1];
+
+	// Amos: yaw on original r2 sp navs' seem to be of range [180, -180], might need to multiply this with (180.0f/DT_PI).
+	float yaw = dtMathAtan2f(dy, dx);
+	return yaw;
+}
+
+void dtCalcOffMeshRefPos(const float* spos, float yaw, float offset, float* res)
+{
+	float dx = offset * dtMathCosf(yaw);
+	float dy = offset * dtMathSinf(yaw);
+
+	res[0] = spos[0] + dx;
+	res[1] = spos[1] + dy;
+	res[2] = spos[2];
+}

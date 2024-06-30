@@ -59,7 +59,7 @@ void patchTileGame(dtMeshTile* t)
 	for (size_t i = 0; i < t->header->detailVertCount * 3; i += 3)
 		coordGameSwap(t->detailVerts + i);
 	for (size_t i = 0; i < t->header->polyCount; i++)
-		coordGameSwap(t->polys[i].org);
+		coordGameSwap(t->polys[i].center);
 	//might be wrong because of coord change might break tree layout
 	for (size_t i = 0; i < t->header->bvNodeCount; i++)
 	{
@@ -70,7 +70,7 @@ void patchTileGame(dtMeshTile* t)
 	{
 		coordGameSwap(t->offMeshCons[i].pos);
 		coordGameSwap(t->offMeshCons[i].pos + 3);
-		coordGameSwap(t->offMeshCons[i].unk);
+		coordGameSwap(t->offMeshCons[i].refPos);
 	}
 }
 void unpatchTileGame(dtMeshTile* t)
@@ -83,7 +83,7 @@ void unpatchTileGame(dtMeshTile* t)
 	for (size_t i = 0; i < t->header->detailVertCount * 3; i += 3)
 		coordGameUnswap(t->detailVerts + i);
 	for (size_t i = 0; i < t->header->polyCount; i++)
-		coordGameUnswap(t->polys[i].org);
+		coordGameUnswap(t->polys[i].center);
 	//might be wrong because of coord change might break tree layout
 	for (size_t i = 0; i < t->header->bvNodeCount; i++)
 	{
@@ -94,7 +94,7 @@ void unpatchTileGame(dtMeshTile* t)
 	{
 		coordGameUnswap(t->offMeshCons[i].pos);
 		coordGameUnswap(t->offMeshCons[i].pos + 3);
-		coordGameUnswap(t->offMeshCons[i].unk);
+		coordGameUnswap(t->offMeshCons[i].refPos);
 	}
 }
 
@@ -164,11 +164,13 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 }
 void setReachable(std::vector<int>& data, int count, int id1, int id2, bool value)
 {
-	int w = ((count + 31) / 32);
-	auto& cell = data[id1 * w + id2 / 32];
-	uint32_t value_mask = ~(1 << (id2 & 0x1f));
+	const int w = ((count + 31) / 32);
+	const unsigned int valueMask = ~(1 << (id2 & 0x1f));
+
+	int& cell = data[id1 * w + id2 / 32];
+
 	if (!value)
-		cell = (cell & value_mask);
+		cell = (cell & valueMask);
 	else
-		cell = (cell & value_mask) | (1 << (id2 & 0x1f));
+		cell = (cell & valueMask) | (1 << (id2 & 0x1f));
 }

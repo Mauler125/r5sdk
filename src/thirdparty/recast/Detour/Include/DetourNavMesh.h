@@ -93,6 +93,9 @@ static const unsigned int DT_NULL_LINK = 0xffffffff;
 /// A flag that indicates that an off-mesh connection can be traversed in both directions. (Is bidirectional.)
 static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
+/// A value that determines the offset between the start pos and the ref pos in an off-mesh connection.
+static const float DT_OFFMESH_CON_REFPOS_OFFSET = 35.f;
+
 /// The maximum number of user defined area ids.
 /// @ingroup detour
 static const int DT_MAX_AREAS = 32; // <-- confirmed 32 see [r5apex_ds.exe + 0xf47dda] '-> test    [rcx+80h], ax'.
@@ -183,7 +186,9 @@ struct dtPoly
 	unsigned short disjointSetId;
 	unsigned short unk;						//IDK but looks filled
 	unsigned int unk1;						//!TODO: debug this if you ever find where this gets used in the engine..
-	float org[3];							// Seems to be used for AIN file generation (build from large navmesh).
+
+	/// The center of the polygon; see abstracted script function 'Navmesh_RandomPositions'.
+	float center[3];
 
 	/// Sets the user defined area id. [Limit: < #DT_MAX_AREAS]
 	inline void setArea(unsigned char a) { areaAndtype = (areaAndtype & 0xc0) | (a & 0x3f); }
@@ -255,9 +260,23 @@ struct dtOffMeshConnection
 	/// The id of the offmesh connection. (User assigned when the navigation mesh is built.)
 	unsigned int userId;
 
-	float unk[3];
-	float traverseYaw;
+	/// The reference position set to the start of the off-mesh connection with an offset of DT_OFFMESH_CON_REFPOS_OFFSET
+	float refPos[3]; // See [r5apex_ds + F114CF], [r5apex_ds + F11B42], [r5apex_ds + F12447].
+	/// The reference yaw angle set towards the end position of the off-mesh connection.
+	float refYaw;    // See [r5apex_ds + F11527], [r5apex_ds + F11F90], [r5apex_ds + F12836].
 };
+
+/// Calculates the yaw angle in an off-mesh connection.
+/// @param	spos[in]		The start position of the off mesh connection.
+/// @param	epos[in]		The end position of the off mesh connection.
+///								returns the yaw angle on the XY plane.
+extern float dtCalcOffMeshRefYaw(const float* spos, const float* epos);
+/// Calculates the ref position in an off-mesh connection.
+/// @param	spos[in]		The start position of the off mesh connection.
+/// @param	yaw[in]			The yaw angle of the off-mesh connection.
+/// @param	offset[in]		The desired offset from the start position.
+/// @param	res[in]			The output ref position.
+extern void dtCalcOffMeshRefPos(const float* spos, float yaw, float offset, float* res);
 
 /// Provides high level information related to a dtMeshTile object.
 /// @ingroup detour
@@ -337,7 +356,7 @@ private:
 
 /// Get flags for edge in detail triangle.
 /// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
-/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0,
+/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0.
 ///								returns flags for edge AB.
 inline int dtGetDetailTriEdgeFlags(unsigned char triFlags, int edgeIndex)
 {

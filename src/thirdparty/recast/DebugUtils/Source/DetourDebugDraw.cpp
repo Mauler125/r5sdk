@@ -22,6 +22,15 @@
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNode.h"
 
+static void drawOffMeshConnectionRefPosition(duDebugDraw* dd, const dtOffMeshConnection* con)
+{
+	float refPosDir[3];
+	dtCalcOffMeshRefPos(con->refPos, con->refYaw, DT_OFFMESH_CON_REFPOS_OFFSET, refPosDir);
+
+	duAppendArrow(dd, con->refPos[0], con->refPos[1], con->refPos[2],
+		refPosDir[0], refPosDir[1], refPosDir[2], 0.f, 10.f, duRGBA(255, 255, 0, 255));
+}
+
 static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 							   const unsigned int col, const float linew,
 							   bool inner)
@@ -190,7 +199,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 
 			dd->vertex(vb[0],vb[1],vb[2], col);
 			dd->vertex(con->pos[3],con->pos[4],con->pos[5], col);
-			col2 = endSet ? col : duRGBA(220,32,16,196);
+			col2 = endSet ? col : duRGBA(32,220,16,196);
 			duAppendCircle(dd, con->pos[3],con->pos[4],con->pos[5]+5.0f, con->rad, col2);
 			
 			// End point vertices.
@@ -203,6 +212,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			// Connection arc.
 			duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
 						(con->flags & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, col);
+
+			// Reference positions.
+			drawOffMeshConnectionRefPosition(dd, con);
 		}
 		dd->end();
 	}
@@ -443,6 +455,8 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 		// Connection arc.
 		duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
 					(con->flags & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, c);
+
+		drawOffMeshConnectionRefPosition(dd, con);
 		
 		dd->end();
 	}
