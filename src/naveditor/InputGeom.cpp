@@ -570,6 +570,13 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 			duAppendArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f,
 						(m_offMeshConDirs[i]&DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, conColor);
 		}
+
+		float* r = &m_offMeshConRefPos[i*3];
+		float refPosDir[3];
+
+		dtCalcOffMeshRefPos(r, m_offMeshConRefYaws[i], DT_OFFMESH_CON_REFPOS_OFFSET, refPosDir);
+
+		duAppendArrow(dd, r[0],r[1],r[2], refPosDir[0],refPosDir[1],refPosDir[2], 0.f, 10.f, duRGBA(255,255,0,255));
 	}	
 	dd->end();
 
