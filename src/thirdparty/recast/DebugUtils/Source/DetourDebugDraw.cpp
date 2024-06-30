@@ -111,6 +111,15 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 	dd->end();
 }
 
+static void drawPolyCenters(duDebugDraw* dd, const dtMeshTile* tile, const unsigned int col, const float linew)
+{
+	for (int i = 0; i < tile->header->polyCount; ++i)
+	{
+		const dtPoly* p = &tile->polys[i];
+		duDebugDrawCross(dd, p->center[0], p->center[1], p->center[2], 3.0f, col, linew);
+	}
+}
+
 static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, unsigned char flags)
 {
@@ -160,6 +169,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	
 	// Draw outer poly boundaries
 	drawPolyBoundaries(dd, tile, duRGBA(0,48,64,220), 2.5f, false);
+
+	// Draw poly centers
+	drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f);
 
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
 	{
