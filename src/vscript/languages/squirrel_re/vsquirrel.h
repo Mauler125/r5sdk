@@ -93,6 +93,8 @@ inline CSquirrelVM* g_pServerScript;
 #ifndef DEDICATED
 inline CSquirrelVM* g_pClientScript;
 inline CSquirrelVM* g_pUIScript;
+
+inline bool* g_bUIScriptInitialized;
 #endif // !DEDICATED
 
 #define DEFINE_SCRIPTENUM_NAMED(s, enumName, startValue, ...) \
@@ -165,7 +167,13 @@ class VSquirrel : public IDetour
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? C6 47 1C 01").FollowNearCallSelf().GetPtr(CSquirrelVM__ExecuteCodeCallback);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? BB ?? ?? ?? ?? 8B C3").FollowNearCallSelf().GetPtr(CSquirrelVM__ThrowError);
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+#ifndef DEDICATED
+		CMemory p_Script_InitUIVM = g_GameDll.FindPatternSIMD("48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 74 ?? 32 C0");
+		p_Script_InitUIVM.Offset(0x10).FindPatternSelf("80 3D").ResolveRelativeAddressSelf(2, 7).GetPtr(g_bUIScriptInitialized);
+#endif
+	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;
 };

@@ -13,8 +13,10 @@
 #include "engine/shared/shared_rcon.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
+#include "engine/server/server.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
+#include "engine/gl_screen.h"
 #include "engine/client/cl_rcon.h"
 #include "engine/client/cdll_engine_int.h"
 #include "engine/client/clientstate.h"
@@ -24,9 +26,6 @@
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/enginetrace.h"
-#ifndef CLIENT_DLL
-#include "engine/server/server.h"
-#endif // !CLIENT_DLL
 
 #include "rtech/pak/pakencode.h"
 #include "rtech/pak/pakdecode.h"
@@ -71,6 +70,7 @@
 #include "game/client/cliententitylist.h"
 #include "game/client/viewrender.h"
 #endif // !DEDICATED
+#include "vscript/languages/squirrel_re/vsquirrel.h"
 
 
 /*
@@ -566,8 +566,28 @@ void Cmd_Exec_f(const CCommand& args)
 	v__Cmd_Exec_f(args);
 }
 
+#ifndef DEDICATED
+void UIScript_Reset_f()
+{
+	// NOTE: function 'Script_InitUIVM' hasn't been called yet; nothing to reset,
+	// prevent crashing during init code.
+	if (!*g_bUIScriptInitialized)
+		return;
+
+	// NOTE: don't allow the execution of this command in loading screens, doing
+	// so will hard crash the engine!
+	if (*scr_drawloading)
+		return;
+
+	v__UIScript_Reset_f();
+}
+#endif // !DEDICATED
+
 
 void VCallback::Detour(const bool bAttach) const
 {
 	DetourSetup(&v__Cmd_Exec_f, &Cmd_Exec_f, bAttach);
+#ifndef DEDICATED
+	DetourSetup(&v__UIScript_Reset_f, &UIScript_Reset_f, bAttach);
+#endif // !DEDICATED
 }
