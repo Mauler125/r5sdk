@@ -273,15 +273,23 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 			// Off-mesh connection
 			if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS)
 			{
-				float* v = &m_offMeshConVerts[m_offMeshConCount*3*2];
-				int bidir, area = 0, flags = 0;
+				float* verts = &m_offMeshConVerts[m_offMeshConCount*3*2];
+				float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
 				float rad;
-				sscanf(row+1, "%f %f %f  %f %f %f %f %d %d %d",
-					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir, &area, &flags);
+				float yaw;
+				int bidir, area = 0, flags = 0;
+				sscanf(row+1, "%f %f %f %f %f %f %f %d %d %d %f %f %f %f",
+					   &verts[0], &verts[1], &verts[2],
+					   &verts[3], &verts[4], &verts[5],
+					   &rad,
+					   &bidir, &area, &flags,
+					   &refs[0], &refs[1], &refs[2],
+					   &yaw);
 				m_offMeshConRads[m_offMeshConCount] = rad;
 				m_offMeshConDirs[m_offMeshConCount] = (unsigned char)bidir;
 				m_offMeshConAreas[m_offMeshConCount] = (unsigned char)area;
 				m_offMeshConFlags[m_offMeshConCount] = (unsigned short)flags;
+				m_offMeshConRefYaws[m_offMeshConCount] = yaw;
 				m_offMeshConCount++;
 			}
 		}
@@ -403,13 +411,20 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	// Store off-mesh links.
 	for (int i = 0; i < m_offMeshConCount; ++i)
 	{
-		const float* v = &m_offMeshConVerts[i*3*2];
+		const float* verts = &m_offMeshConVerts[i*3*2];
+		const float* refs = &m_offMeshConRefPos[i*3];
 		const float rad = m_offMeshConRads[i];
+		const float yaw = m_offMeshConRefYaws[i];
 		const int bidir = m_offMeshConDirs[i];
 		const int area = m_offMeshConAreas[i];
 		const int flags = m_offMeshConFlags[i];
-		fprintf(fp, "c %f %f %f  %f %f %f  %f %d %d %d\n",
-				v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir, area, flags);
+		fprintf(fp, "c %f %f %f %f %f %f %f %d %d %d %f %f %f %f\n",
+				verts[0], verts[1], verts[2],
+				verts[3], verts[4], verts[5],
+				rad,
+				bidir, area, flags,
+				refs[0], refs[1], refs[2],
+				yaw);
 	}
 
 	// Convex volumes
