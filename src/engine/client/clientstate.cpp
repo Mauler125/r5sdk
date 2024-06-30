@@ -50,11 +50,16 @@ static void SetName_f(const CCommand& args)
     memset(g_PersonaName, '\0', MAX_PERSONA_NAME_LEN);
     strncpy(g_PersonaName, pszName, nLen);
 }
+static void Reconnect_f(const CCommand& args)
+{
+    g_pClientState->Reconnect();
+}
 
 //------------------------------------------------------------------------------
 // Purpose: console commands
 //------------------------------------------------------------------------------
 static ConCommand cl_setname("cl_setname", SetName_f, "Sets the client's persona name", FCVAR_RELEASE);
+static ConCommand reconnect("reconnect", Reconnect_f, "Reconnect to current server.", FCVAR_DONTRECORD|FCVAR_RELEASE);
 
 //------------------------------------------------------------------------------
 // Purpose: returns true if client simulation is paused
@@ -455,6 +460,31 @@ void CClientState::VConnect(CClientState* thisptr, connectparams_t* connectParam
     }
 
     CClientState__Connect(thisptr, connectParams);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: reconnects to currently connected server
+//------------------------------------------------------------------------------
+void CClientState::Reconnect()
+{
+    if (!IsConnected())
+    {
+        Warning(eDLL_T::CLIENT, "Attempted to reconnect while unconnected, please defer it.\n");
+        return;
+    }
+
+    const netadr_t& remoteAdr = m_NetChannel->GetRemoteAddress();
+
+    if (remoteAdr.IsLoopback() || NET_IsRemoteLocal(remoteAdr))
+    {
+        Warning(eDLL_T::CLIENT, "Reconnecting to a listen server isn't supported, use \"reload\" instead.\n");
+        return;
+    }
+
+    char buf[1024];
+    V_snprintf(buf, sizeof(buf), "connect \"%s\"", remoteAdr.ToString());
+
+    Cbuf_AddText(ECommandTarget_t::CBUF_FIRST_PLAYER, buf, cmd_source_t::kCommandSrcCode);
 }
 
 void VClientState::Detour(const bool bAttach) const

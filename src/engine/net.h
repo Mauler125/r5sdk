@@ -49,6 +49,7 @@ unsigned int NET_BufferToBufferDecompress(uint8_t* pInput, size_t& coBufsize, ui
 unsigned int NET_BufferToBufferDecompress_LZSS(CLZSS* lzss, unsigned char* pInput, unsigned char* pOutput, unsigned int unBufSize);
 
 bool NET_ReadMessageType(int* outType, bf_read* buffer);
+bool NET_IsRemoteLocal(const CNetAdr& netAdr);
 
 ///////////////////////////////////////////////////////////////////////////////
 extern netadr_t* g_pNetAdr;

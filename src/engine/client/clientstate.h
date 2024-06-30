@@ -64,6 +64,8 @@ public:
 
 	bool Authenticate(connectparams_t* connectParams, char* const reasonBuf, const size_t reasonBufLen) const;
 
+	void Reconnect();
+
 protected:
 	FORCEINLINE CClientState* GetShiftedBasePointer(void)
 	{

@@ -219,7 +219,7 @@ bool CRConClient::ShouldReceive(void)
 //-----------------------------------------------------------------------------
 bool CRConClient::IsRemoteLocal(void)
 {
-	return (g_pNetAdr->ComparePort(m_Address) && g_pNetAdr->CompareAdr(m_Address));
+	return NET_IsRemoteLocal(m_Address);
 }
 
 //-----------------------------------------------------------------------------
