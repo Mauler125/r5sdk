@@ -69,9 +69,10 @@ protected:
 	void* m_pfnMoveDone;
 	void* m_pfnThink;
 	CServerNetworkProperty m_Network;
+	char padding_or_unknown[8];
 	string_t m_ModelName;
 	int m_entIndex;
-	char gap_74[8]; // Aligns properly in IDA and generated code after setting from 4 to 8.
+	char gap_74[4];
 	string_t* m_iClassname;
 	float m_flAnimTime;
 	float m_flSimulationTime;
@@ -276,7 +277,7 @@ protected:
 	char m_realmsTransmitMaskCached[16];
 	int m_realmsTransmitMaskCachedSerialNumber;
 };
-static_assert(sizeof(CBaseEntity) == 2824);
+static_assert(sizeof(CBaseEntity) == 0xB08);
 
 inline CBaseEntity*(*CBaseEntity__GetBaseEntity)(CBaseEntity* thisp);
 

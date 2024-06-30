@@ -263,7 +263,22 @@ public:
 
 	inline NucleusID_t GetPlatformUserId() const { return m_platformUserId; };
 
+	inline const char* GetNetName() const { return m_szNetname; };
+
 private:
+	char m_szNetname[256];
+	bool m_zoomViewdriftDebounceEnabled;
+	bool m_bZooming;
+	char gap_5a62[2];
+	float m_zoomToggleOnStartTime;
+	float m_zoomBaseFrac;
+	float m_zoomBaseTime;
+	float m_zoomFullStartTime;
+	int m_physicsSolidMask;
+	int m_rightHandAttachment;
+	int m_leftHandAttachment;
+	int m_headAttachment;
+	int m_chestAttachment;
 	int m_StuckLast;
 	char gap_5a8c[4];
 	CPlayerLocalData m_Local;
@@ -795,7 +810,7 @@ private:
 	char gap_7ee5[3];
 	int m_armsModelIndex;
 };
-static_assert(sizeof(CPlayer) == 0x7EF0); // !TODO: backwards compatibility.
+static_assert(sizeof(CPlayer) == 0x7EF0);
 
 inline QAngle*(*CPlayer__EyeAngles)(CPlayer* pPlayer, QAngle* pAngles);
 inline void(*CPlayer__PlayerRunCommand)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover);

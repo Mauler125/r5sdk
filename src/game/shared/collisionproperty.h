@@ -38,4 +38,6 @@ class CCollisionProperty : public ICollideable
 	float m_hitboxTestRadius;
 };
 
+static_assert(sizeof(CCollisionProperty) == 0x78);
+
 #endif // COLLISIONPROPERTY_H

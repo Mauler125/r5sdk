@@ -133,7 +133,10 @@ protected:
 	char gap_119c[4];
 	__int64 m_AnimSyncScriptProps[8];
 	int m_numAnimSyncScriptProps;
+	char padding_unknown[8];
 };
+
+static_assert(sizeof(CBaseAnimating) == 0x11F0);
 
 inline CBaseAnimating*(*CBaseAnimating__LockStudioHdr)(CBaseAnimating* thisp);
 

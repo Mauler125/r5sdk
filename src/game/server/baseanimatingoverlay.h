@@ -14,7 +14,6 @@
 
 class CBaseAnimatingOverlay : public CBaseAnimating
 {
-	void* __vftable;
 	int m_maxOverlays;
 	char gap_11f4[4];
 	CAnimationLayer m_AnimOverlay;
@@ -42,5 +41,7 @@ class CBaseAnimatingOverlay : public CBaseAnimating
 	float m_localAnimOverlayFadeInDuration[4];
 	float m_localAnimOverlayFadeOutDuration[4];
 };
+
+static_assert(sizeof(CBaseAnimatingOverlay) == 0x15B0);
 
 #endif // BASE_ANIMATING_OVERLAY_H

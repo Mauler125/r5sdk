@@ -44,9 +44,6 @@ struct CTether
 //-----------------------------------------------------------------------------
 class CBaseCombatCharacter : public CBaseAnimatingOverlay
 {
-public:
-	inline const char* GetNetName() const { return m_szNetname; };
-
 private:
 	bool m_bPreventWeaponPickup;
 	char gap_15b1[3];
@@ -136,18 +133,8 @@ private:
 	char gap_5949[3];
 	int m_latest3pWeaponGettingEquipped[2];
 	char gap_5954[12];
-	char m_szNetname[256];
-	bool m_zoomViewdriftDebounceEnabled;
-	bool m_bZooming;
-	char gap_5a62[2];
-	float m_zoomToggleOnStartTime;
-	float m_zoomBaseFrac;
-	float m_zoomBaseTime;
-	float m_zoomFullStartTime;
-	int m_physicsSolidMask;
-	int m_rightHandAttachment;
-	int m_leftHandAttachment;
-	int m_headAttachment;
-	int m_chestAttachment;
 };
+
+static_assert(sizeof(CBaseCombatCharacter) == 0x5960);
+
 #endif // BASECOMBATCHARACTER_H
