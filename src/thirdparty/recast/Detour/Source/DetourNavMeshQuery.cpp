@@ -1363,9 +1363,13 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters,
 			if (!filter->passFilter(neighbourRef, neighbourTile, neighbourPoly))
 				continue;
 			
+			unsigned char crossSide = 0; // See https://github.com/recastnavigation/recastnavigation/issues/438
+
+			if (bestTile->links[i].side != 0xff)
+				crossSide = bestTile->links[i].side >> 1;
 
 			// get the neighbor node
-			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, 0);
+			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, crossSide);
 			if (!neighbourNode)
 			{
 				m_query.status |= DT_OUT_OF_NODES;
