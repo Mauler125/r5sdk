@@ -1436,7 +1436,7 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 		return false;
 	
 	// Find edges which share the removed vertex.
-	unsigned short edges[MAX_REM_EDGES];
+	unsigned short edges[MAX_REM_EDGES*3]; // Should be *3, see https://github.com/recastnavigation/recastnavigation/issues/508
 	int nedges = 0;
 	
 	for (int i = 0; i < mesh.npolys; ++i)
