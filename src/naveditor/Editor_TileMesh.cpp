@@ -451,7 +451,7 @@ void Editor_TileMesh::handleRender()
 	const int tw = (gw + (int)m_tileSize-1) / (int)m_tileSize;
 	const int th = (gh + (int)m_tileSize-1) / (int)m_tileSize;
 	const float s = m_tileSize*m_cellSize;
-	duDebugDrawGridXY_TF2(&m_dd, bmax[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
+	duDebugDrawGridXY(&m_dd, bmax[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
 	
 	// Draw active tile
 	duDebugDrawBoxWire(&m_dd, m_lastBuiltTileBmin[0],m_lastBuiltTileBmin[1],m_lastBuiltTileBmin[2],
