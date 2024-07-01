@@ -491,9 +491,9 @@ bool dtPathCorridor::moveTargetPosition(const float* npos, dtNavMeshQuery* navqu
 		m_npath = dtMergeCorridorEndMoved(m_path, m_npath, m_maxPath, visited, nvisited);
 		// TODO: should we do that?
 		// Adjust the position to stay on top of the navmesh.
-		/*	float h = m_target[1];
+		/*	float h = m_target[2];
 		 navquery->getPolyHeight(m_path[m_npath-1], result, &h);
-		 result[1] = h;*/
+		 result[2] = h;*/
 		
 		dtVcopy(m_target, result);
 		

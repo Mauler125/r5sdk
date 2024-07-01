@@ -560,7 +560,7 @@ void NavMeshTesterTool::handleToggle()
 			dtVcopy(m_iterPos, endPos);
 			float eh = 0.0f;
 			m_navQuery->getPolyHeight(m_pathIterPolys[0], m_iterPos, &eh);
-			m_iterPos[1] = eh;
+			m_iterPos[2] = eh;
 		}
 	}
 	
