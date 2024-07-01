@@ -777,7 +777,7 @@ int not_main(int argc, char** argv)
 		cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
 		cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
 
-		cameraPos[1] += (moveUp - moveDown) * keybSpeed * dt;
+		cameraPos[2] += (moveUp - moveDown) * keybSpeed * dt;
 
 		glEnable(GL_FOG);
 
