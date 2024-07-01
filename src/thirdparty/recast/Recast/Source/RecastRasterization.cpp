@@ -98,13 +98,13 @@ static void freeSpan(rcHeightfield& hf, rcSpan* span)
 ///
 /// @param[in]	hf					Heightfield to add spans to
 /// @param[in]	x					The new span's column cell x index
-/// @param[in]	z					The new span's column cell z index
+/// @param[in]	y					The new span's column cell y index
 /// @param[in]	min					The new span's minimum cell index
 /// @param[in]	max					The new span's maximum cell index
 /// @param[in]	areaID				The new span's area type ID
 /// @param[in]	flagMergeThreshold	How close two spans maximum extents need to be to merge area type IDs
 static bool addSpan(rcHeightfield& hf,
-                    const int x, const int z,
+                    const int x, const int y,
                     const unsigned short min, const unsigned short max,
                     const unsigned char areaID, const int flagMergeThreshold)
 {
@@ -119,7 +119,7 @@ static bool addSpan(rcHeightfield& hf,
 	newSpan->area = areaID;
 	newSpan->next = NULL;
 	
-	const int columnIndex = x + z * hf.width;
+	const int columnIndex = x + y * hf.width;
 	rcSpan* previousSpan = NULL;
 	rcSpan* currentSpan = hf.spans[columnIndex];
 	
@@ -331,13 +331,13 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	const int h = hf.height;
 	const float bz = hfBBMax[2] - hfBBMin[2];
 
-	// Calculate the footprint of the triangle on the grid's z-axis
-	int z0 = (int)((triBBMin[1] - hfBBMin[1]) * inverseCellSize);
-	int z1 = (int)((triBBMax[1] - hfBBMin[1]) * inverseCellSize);
+	// Calculate the footprint of the triangle on the grid's y-axis
+	int y0 = (int)((triBBMin[1] - hfBBMin[1]) * inverseCellSize);
+	int y1 = (int)((triBBMax[1] - hfBBMin[1]) * inverseCellSize);
 
 	// use -1 rather than 0 to cut the polygon properly at the start of the tile
-	z0 = rcClamp(z0, -1, h - 1);
-	z1 = rcClamp(z1, 0, h - 1);
+	y0 = rcClamp(y0, -1, h - 1);
+	y1 = rcClamp(y1, 0, h - 1);
 
 	// Clip the triangle into all grid cells it touches.
 	float buf[7 * 3 * 4];
@@ -352,10 +352,10 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	int nvRow;
 	int nvIn = 3;
 
-	for (int z = z0; z <= z1; ++z)
+	for (int y = y0; y <= y1; ++y)
 	{
 		// Clip polygon to row. Store the remaining polygon as well
-		const float cellY = hfBBMin[1] + (float)z * cellSize;
+		const float cellY = hfBBMin[1] + (float)y * cellSize;
 		dividePoly(in, nvIn, inRow, &nvRow, p1, &nvIn, cellY + cellSize, RC_AXIS_Y);
 		rcSwap(in, p1);
 		
@@ -363,7 +363,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 		{
 			continue;
 		}
-		if (z < 0)
+		if (y < 0)
 		{
 			continue;
 		}
@@ -445,7 +445,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			unsigned short spanMinCellIndex = (unsigned short)rcClamp((int)floorf(spanMin * inverseCellHeight), 0, RC_SPAN_MAX_HEIGHT);
 			unsigned short spanMaxCellIndex = (unsigned short)rcClamp((int)ceilf(spanMax * inverseCellHeight), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
 
-			if (!addSpan(hf, x, z, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))
+			if (!addSpan(hf, x, y, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))
 			{
 				return false;
 			}
