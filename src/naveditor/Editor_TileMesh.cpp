@@ -1106,7 +1106,8 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'dmesh'.");
 		return 0;
 	}
-	rcFlipPolyMesh(*m_pmesh);
+	
+	//rcFlipPolyMesh(*m_pmesh);
 	if (!rcBuildPolyMeshDetail(m_ctx, *m_pmesh, *m_chf,
 							   m_cfg.detailSampleDist, m_cfg.detailSampleMaxError,
 							   *m_dmesh))

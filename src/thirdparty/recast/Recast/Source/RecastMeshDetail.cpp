@@ -759,12 +759,12 @@ static void setTriFlags(rcIntArray& tris, int nhull, int* hull)
 	for (int i = 0; i < tris.size(); i += 4)
 	{
 		int a = tris[i + 0];
-		int b = tris[i + 2];
-		int c = tris[i + 1];
+		int b = tris[i + 1];
+		int c = tris[i + 2];
 		unsigned short flags = 0;
-		flags |= (onHull(a, b, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 0;
-		flags |= (onHull(b, c, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 2;
-		flags |= (onHull(c, a, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 4;
+		flags |= (onHull(a, c, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 0;
+		flags |= (onHull(c, b, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 2;
+		flags |= (onHull(b, a, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 4;
 		tris[i + 3] = (int)flags;
 	}
 }
@@ -1583,8 +1583,9 @@ static unsigned char flip_flags(unsigned char flags_in)
 	flags |= ((flags_in >>4) & 0b11) << 4;
 	return flags;
 }
-bool rcFlipPolyMeshDetail(rcPolyMeshDetail& mdetail,int poly_tris)
+void rcFlipPolyMeshDetail(rcPolyMeshDetail& mdetail,int poly_tris)
 {
+#if !REVERSE_DIRECTION
 	for (int i = 0; i < mdetail.ntris; i++)
 	{
 		auto tri_begin = mdetail.tris + i * 4;
@@ -1597,5 +1598,5 @@ bool rcFlipPolyMeshDetail(rcPolyMeshDetail& mdetail,int poly_tris)
 		std::swap(tri_begin[0], tri_begin[2]);
 		tri_begin[3]=flip_flags(tri_begin[3]);
 	}
-	return true;
+#endif // !REVERSE_DIRECTION
 }
