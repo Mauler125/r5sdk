@@ -1093,7 +1093,7 @@ int rcGetHeightFieldSpanCount(rcContext* context, const rcHeightfield& heightfie
 /// @param[out]		compactHeightfield	The resulting compact heightfield. (Must be pre-allocated.)
 /// @returns True if the operation completed successfully.
 bool rcBuildCompactHeightfield(rcContext* context, int walkableHeight, int walkableClimb,
-							   rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield);
+							   const rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield);
 
 /// Erodes the walkable area within the heightfield by the specified radius. 
 /// @ingroup recast
@@ -1281,7 +1281,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 /// @param[out]		cset		The resulting contour set. (Must be pre-allocated.)
 /// @param[in]		buildFlags	The build flags. (See: #rcBuildContoursFlags)
 /// @returns True if the operation completed successfully.
-bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
+bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 					 float maxError, int maxEdgeLen,
 					 rcContourSet& cset, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
 

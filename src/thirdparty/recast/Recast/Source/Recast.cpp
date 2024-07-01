@@ -401,19 +401,19 @@ int rcGetHeightFieldSpanCount(rcContext* context, const rcHeightfield& heightfie
 }
 
 bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, const int walkableClimb,
-                               rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield)
+                               const rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield)
 {
 	rcAssert(context);
 
 	rcScopedTimer timer(context, RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
 
 	const int xSize = heightfield.width;
-	const int zSize = heightfield.height;
+	const int ySize = heightfield.height;
 	const int spanCount = rcGetHeightFieldSpanCount(context, heightfield);
 
 	// Fill in header.
 	compactHeightfield.width = xSize;
-	compactHeightfield.height = zSize;
+	compactHeightfield.height = ySize;
 	compactHeightfield.spanCount = spanCount;
 	compactHeightfield.walkableHeight = walkableHeight;
 	compactHeightfield.walkableClimb = walkableClimb;
@@ -423,13 +423,13 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 	compactHeightfield.bmax[2] += walkableHeight * heightfield.ch;
 	compactHeightfield.cs = heightfield.cs;
 	compactHeightfield.ch = heightfield.ch;
-	compactHeightfield.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell) * xSize * zSize, RC_ALLOC_PERM);
+	compactHeightfield.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell) * xSize * ySize, RC_ALLOC_PERM);
 	if (!compactHeightfield.cells)
 	{
-		context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.cells' (%d)", xSize * zSize);
+		context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.cells' (%d)", xSize * ySize);
 		return false;
 	}
-	memset(compactHeightfield.cells, 0, sizeof(rcCompactCell) * xSize * zSize);
+	memset(compactHeightfield.cells, 0, sizeof(rcCompactCell) * xSize * ySize);
 	compactHeightfield.spans = (rcCompactSpan*)rcAlloc(sizeof(rcCompactSpan) * spanCount, RC_ALLOC_PERM);
 	if (!compactHeightfield.spans)
 	{
@@ -449,7 +449,7 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 
 	// Fill in cells and spans.
 	int currentCellIndex = 0;
-	const int numColumns = xSize * zSize;
+	const int numColumns = xSize * ySize;
 	for (int columnIndex = 0; columnIndex < numColumns; ++columnIndex)
 	{
 		const rcSpan* span = heightfield.spans[columnIndex];
@@ -483,11 +483,11 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 	const int MAX_LAYERS = RC_NOT_CONNECTED - 1;
 	int maxLayerIndex = 0;
 	const int zStride = xSize; // for readability
-	for (int z = 0; z < zSize; ++z)
+	for (int y = 0; y < ySize; ++y)
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
-			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
+			const rcCompactCell& cell = compactHeightfield.cells[x + y * zStride];
 			for (int i = (int)cell.index, ni = (int)(cell.index + cell.count); i < ni; ++i)
 			{
 				rcCompactSpan& span = compactHeightfield.spans[i];
@@ -496,9 +496,9 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 				{
 					rcSetCon(span, dir, RC_NOT_CONNECTED);
 					const int neighborX = x + rcGetDirOffsetX(dir);
-					const int neighborZ = z + rcGetDirOffsetY(dir);
+					const int neighborZ = y + rcGetDirOffsetY(dir);
 					// First check that the neighbour cell is in bounds.
-					if (neighborX < 0 || neighborZ < 0 || neighborX >= xSize || neighborZ >= zSize)
+					if (neighborX < 0 || neighborZ < 0 || neighborX >= xSize || neighborZ >= ySize)
 					{
 						continue;
 					}

@@ -28,9 +28,9 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 	rcScopedTimer timer(context, RC_TIMER_FILTER_LOW_OBSTACLES);
 
 	const int xSize = heightfield.width;
-	const int zSize = heightfield.height;
+	const int ySize = heightfield.height;
 
-	for (int z = 0; z < zSize; ++z)
+	for (int y = 0; y < ySize; ++y)
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
@@ -38,7 +38,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 			bool previousWasWalkable = false;
 			unsigned char previousArea = RC_NULL_AREA;
 
-			for (rcSpan* span = heightfield.spans[x + z * xSize]; span != NULL; previousSpan = span, span = span->next)
+			for (rcSpan* span = heightfield.spans[x + y * xSize]; span != NULL; previousSpan = span, span = span->next)
 			{
 				const bool walkable = span->area != RC_NULL_AREA;
 				// If current span is not walkable, but there is walkable
@@ -71,11 +71,11 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 	const int MAX_HEIGHT = 0xffff; // TODO (graham): Move this to a more visible constant and update usages.
 	
 	// Mark border spans.
-	for (int z = 0; z < zSize; ++z)
+	for (int y = 0; y < zSize; ++y)
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
-			for (rcSpan* span = heightfield.spans[x + z * xSize]; span; span = span->next)
+			for (rcSpan* span = heightfield.spans[x + y * xSize]; span; span = span->next)
 			{
 				// Skip non walkable spans.
 				if (span->area == RC_NULL_AREA)
@@ -96,7 +96,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 				for (int direction = 0; direction < 4; ++direction)
 				{
 					int dx = x + rcGetDirOffsetX(direction);
-					int dy = z + rcGetDirOffsetY(direction);
+					int dy = y + rcGetDirOffsetY(direction);
 					// Skip neighbours which are out of bounds.
 					if (dx < 0 || dy < 0 || dx >= xSize || dy >= zSize)
 					{
@@ -161,16 +161,16 @@ void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight
 	rcScopedTimer timer(context, RC_TIMER_FILTER_WALKABLE);
 	
 	const int xSize = heightfield.width;
-	const int zSize = heightfield.height;
+	const int ySize = heightfield.height;
 	const int MAX_HEIGHT = 0xffff;
 	
 	// Remove walkable flag from spans which do not have enough
 	// space above them for the agent to stand there.
-	for (int z = 0; z < zSize; ++z)
+	for (int y = 0; y < ySize; ++y)
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
-			for (rcSpan* span = heightfield.spans[x + z*xSize]; span; span = span->next)
+			for (rcSpan* span = heightfield.spans[x + y*xSize]; span; span = span->next)
 			{
 				const int bot = (int)(span->smax);
 				const int top = span->next ? (int)(span->next->smin) : MAX_HEIGHT;
