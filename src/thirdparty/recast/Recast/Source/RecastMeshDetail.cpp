@@ -293,7 +293,12 @@ static int findEdge(const int* edges, int nedges, int s, int t)
 	for (int i = 0; i < nedges; i++)
 	{
 		const int* e = &edges[i*4];
+
+#if REVERSE_DIRECTION
+		if ((e[1] == s && e[0] == t) || (e[1] == t && e[0] == s))
+#else
 		if ((e[0] == s && e[1] == t) || (e[0] == t && e[1] == s))
+#endif
 			return i;
 	}
 	return EV_UNDEF;
@@ -384,8 +389,8 @@ static bool overlapEdges(const float* pts, const int* edges, int nedges, int s1,
 {
 	for (int i = 0; i < nedges; ++i)
 	{
-		const int s0 = edges[i*4+0];
-		const int t0 = edges[i*4+1];
+		const int t0 = edges[i*4+0];
+		const int s0 = edges[i*4+1];
 		// Same or connected edges do not overlap.
 		if (s0 == s1 || s0 == t1 || t0 == s1 || t0 == t1)
 			continue;
@@ -1038,7 +1043,7 @@ static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& 
 		for (int k = 0; k < 9 && dmin > 0; ++k)
 		{
 			const int ax = (int)verts[poly[j]*3+0] + offset[k*2+0];
-			const int ay = (int)verts[poly[j]*3+1] + offset[k * 2 + 1];
+			const int ay = (int)verts[poly[j]*3+1] + offset[k*2+1];
 			const int az = (int)verts[poly[j]*3+2];
 			if (ax < hp.xmin || ax >= hp.xmin+hp.width ||
 				ay < hp.ymin || ay >= hp.ymin+hp.height)
@@ -1566,8 +1571,8 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 		for (int k = 0; k < dm->ntris; ++k)
 		{
 			mesh.tris[mesh.ntris*4+0] = dm->tris[k*4+0];
-			mesh.tris[mesh.ntris*4+1] = dm->tris[k*4+1];
-			mesh.tris[mesh.ntris*4+2] = dm->tris[k*4+2];
+			mesh.tris[mesh.ntris*4+1] = dm->tris[k*4+1]; // TODO: flip 1 with 2?
+			mesh.tris[mesh.ntris*4+2] = dm->tris[k*4+2]; // TODO: flip 2 with 1?
 			mesh.tris[mesh.ntris*4+3] = dm->tris[k*4+3];
 			mesh.ntris++;
 		}
@@ -1575,6 +1580,7 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 	
 	return true;
 }
+#if !REVERSE_DIRECTION
 static unsigned char flip_flags(unsigned char flags_in)
 {
 	unsigned char flags = 0;
@@ -1583,7 +1589,8 @@ static unsigned char flip_flags(unsigned char flags_in)
 	flags |= ((flags_in >>4) & 0b11) << 4;
 	return flags;
 }
-void rcFlipPolyMeshDetail(rcPolyMeshDetail& mdetail,int poly_tris)
+#endif // !REVERSE_DIRECTION
+void rcFlipPolyMeshDetail(rcPolyMeshDetail& /*mdetail*/,int /*poly_tris*/)
 {
 #if !REVERSE_DIRECTION
 	for (int i = 0; i < mdetail.ntris; i++)
