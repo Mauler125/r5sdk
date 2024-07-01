@@ -111,18 +111,18 @@ void dtPathQueue::update(const int maxIters)
 		// Handle query start.
 		if (q.status == 0)
 		{
-			q.status = m_navquery->initSlicedFindPath(q.startRef, q.endRef, q.startPos, q.endPos, q.filter);
+			q.status = m_navquery->initSlicedFindPath(q.startRef, q.endRef, q.startPos, q.endPos);
 		}		
 		// Handle query in progress.
 		if (dtStatusInProgress(q.status))
 		{
 			int iters = 0;
-			q.status = m_navquery->updateSlicedFindPath(iterCount, &iters);
+			q.status = m_navquery->updateSlicedFindPath(iterCount, &iters, q.filter);
 			iterCount -= iters;
 		}
 		if (dtStatusSucceed(q.status))
 		{
-			q.status = m_navquery->finalizeSlicedFindPath(q.path, &q.npath, m_maxPathSize);
+			q.status = m_navquery->finalizeSlicedFindPath(q.path, &q.npath, m_maxPathSize, q.filter);
 		}
 
 		if (iterCount <= 0)

@@ -579,11 +579,11 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 	{
 		if (dtStatusInProgress(m_pathFindStatus))
 		{
-			m_pathFindStatus = m_navQuery->updateSlicedFindPath(1,0);
+			m_pathFindStatus = m_navQuery->updateSlicedFindPath(1,0, &m_filter);
 		}
 		if (dtStatusSucceed(m_pathFindStatus))
 		{
-			m_navQuery->finalizeSlicedFindPath(m_polys, &m_npolys, MAX_POLYS);
+			m_navQuery->finalizeSlicedFindPath(m_polys, &m_npolys, MAX_POLYS, &m_filter);
 			m_nstraightPath = 0;
 			if (m_npolys)
 			{
@@ -821,7 +821,7 @@ void NavMeshTesterTool::recalc()
 			m_npolys = 0;
 			m_nstraightPath = 0;
 			
-			m_pathFindStatus = m_navQuery->initSlicedFindPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, DT_FINDPATH_ANY_ANGLE);
+			m_pathFindStatus = m_navQuery->initSlicedFindPath(m_startRef, m_endRef, m_spos, m_epos, DT_FINDPATH_ANY_ANGLE);
 		}
 		else
 		{

@@ -364,9 +364,9 @@ bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQuer
 	
 	dtPolyRef res[MAX_RES];
 	int nres = 0;
-	navquery->initSlicedFindPath(m_path[0], m_path[m_npath-1], m_pos, m_target, filter);
-	navquery->updateSlicedFindPath(MAX_ITER, 0);
-	dtStatus status = navquery->finalizeSlicedFindPathPartial(m_path, m_npath, res, &nres, MAX_RES);
+	navquery->initSlicedFindPath(m_path[0], m_path[m_npath-1], m_pos, m_target);
+	navquery->updateSlicedFindPath(MAX_ITER, 0, filter);
+	dtStatus status = navquery->finalizeSlicedFindPathPartial(m_path, m_npath, res, &nres, MAX_RES, filter);
 	
 	if (dtStatusSucceed(status) && nres > 0)
 	{

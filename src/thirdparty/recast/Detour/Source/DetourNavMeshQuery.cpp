@@ -139,8 +139,7 @@ dtNavMeshQuery::dtNavMeshQuery() :
 	m_nav(0),
 	m_tinyNodePool(0),
 	m_nodePool(0),
-	m_openList(0),
-	m_queryFilter(0)
+	m_openList(0)
 {
 	memset(&m_query, 0, sizeof(dtQueryData));
 }
@@ -1198,7 +1197,7 @@ dtStatus dtNavMeshQuery::getPathToNode(dtNode* endNode, dtPolyRef* path, int* pa
 ///
 dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
 											const float* startPos, const float* endPos,
-											const dtQueryFilter* filter, const unsigned int options)
+											const unsigned int options)
 {
 	dtAssert(m_nav);
 	dtAssert(m_nodePool);
@@ -1213,14 +1212,13 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 		dtVcopy(m_query.startPos, startPos);
 	if (endPos)
 		dtVcopy(m_query.endPos, endPos);
-	m_queryFilter = filter;
 	m_query.options = options;
 	m_query.raycastLimitSqr = FLT_MAX;
 	
 	// Validate input
 	if (!m_nav->isValidPolyRef(startRef) || !m_nav->isValidPolyRef(endRef) ||
 		!startPos || !dtVisfinite(startPos) ||
-		!endPos || !dtVisfinite(endPos) || !filter)
+		!endPos || !dtVisfinite(endPos))
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
@@ -1260,10 +1258,15 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 	return m_query.status;
 }
 	
-dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
+dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters, const dtQueryFilter* filter)
 {
+	dtAssert(filter);
+
 	if (!dtStatusInProgress(m_query.status))
 		return m_query.status;
+
+	if (!filter)
+		return DT_FAILURE | DT_INVALID_PARAM;
 
 	// Make sure the request is still valid.
 	if (!m_nav->isValidPolyRef(m_query.startRef) || !m_nav->isValidPolyRef(m_query.endRef))
@@ -1357,9 +1360,10 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			const dtPoly* neighbourPoly = 0;
 			m_nav->getTileAndPolyByRefUnsafe(neighbourRef, &neighbourTile, &neighbourPoly);			
 			
-			if (!m_queryFilter->passFilter(neighbourRef, neighbourTile, neighbourPoly))
+			if (!filter->passFilter(neighbourRef, neighbourTile, neighbourPoly))
 				continue;
 			
+
 			// get the neighbor node
 			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, 0);
 			if (!neighbourNode)
@@ -1389,7 +1393,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			rayHit.pathCost = rayHit.t = 0;
 			if (tryLOS)
 			{
-				raycast(parentRef, parentNode->pos, neighbourNode->pos, m_queryFilter, DT_RAYCAST_USE_COSTS, &rayHit, grandpaRef);
+				raycast(parentRef, parentNode->pos, neighbourNode->pos, filter, DT_RAYCAST_USE_COSTS, &rayHit, grandpaRef);
 				foundShortCut = rayHit.t >= 1.0f;
 			}
 
@@ -1402,7 +1406,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			else
 			{
 				// No shortcut found.
-				const float curCost = m_queryFilter->getCost(bestNode->pos, neighbourNode->pos,
+				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos,
 															  parentRef, parentTile, parentPoly,
 															bestRef, bestTile, bestPoly,
 															neighbourRef, neighbourTile, neighbourPoly);
@@ -1412,7 +1416,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			// Special case for last node.
 			if (neighbourRef == m_query.endRef)
 			{
-				const float endCost = m_queryFilter->getCost(neighbourNode->pos, m_query.endPos,
+				const float endCost = filter->getCost(neighbourNode->pos, m_query.endPos,
 															  bestRef, bestTile, bestPoly,
 															  neighbourRef, neighbourTile, neighbourPoly,
 															  0, 0, 0);
@@ -1477,9 +1481,12 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 	return m_query.status;
 }
 
-dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount, const int maxPath)
+dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount, const int maxPath, const dtQueryFilter* filter)
 {
-	if (!pathCount)
+	dtAssert(filter);
+	dtAssert(pathCount);
+
+	if (!filter || !pathCount)
 		return DT_FAILURE | DT_INVALID_PARAM;
 
 	*pathCount = 0;
@@ -1534,7 +1541,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 			{
 				float t, normal[3];
 				int m;
-				status = raycast(node->id, node->pos, next->pos, m_queryFilter, &t, normal, path+n, &m, maxPath-n);
+				status = raycast(node->id, node->pos, next->pos, filter, &t, normal, path+n, &m, maxPath-n);
 				n += m;
 				// raycast ends on poly boundary and the path might include the next poly boundary.
 				if (path[n-1] == next->id)
@@ -1568,7 +1575,8 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 }
 
 dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing, const int existingSize,
-													   dtPolyRef* path, int* pathCount, const int maxPath)
+													   dtPolyRef* path, int* pathCount, const int maxPath,
+													   const dtQueryFilter* filter)
 {
 	if (!pathCount)
 		return DT_FAILURE | DT_INVALID_PARAM;
@@ -1635,7 +1643,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 			{
 				float t, normal[3];
 				int m;
-				status = raycast(node->id, node->pos, next->pos, m_queryFilter, &t, normal, path+n, &m, maxPath-n);
+				status = raycast(node->id, node->pos, next->pos, filter, &t, normal, path+n, &m, maxPath-n);
 				n += m;
 				// raycast ends on poly boundary and the path might include the next poly boundary.
 				if (path[n-1] == next->id)

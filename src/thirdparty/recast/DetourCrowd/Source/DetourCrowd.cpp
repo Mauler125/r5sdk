@@ -472,18 +472,19 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 
 			// Quick search towards the goal.
 			static const int MAX_ITER = 20;
-			m_navquery->initSlicedFindPath(path[0], ag->targetRef, ag->npos, ag->targetPos, &m_filters[ag->params.queryFilterType]);
-			m_navquery->updateSlicedFindPath(MAX_ITER, 0);
+			const dtQueryFilter* queryFilter = &m_filters[ag->params.queryFilterType];
+			m_navquery->initSlicedFindPath(path[0], ag->targetRef, ag->npos, ag->targetPos);
+			m_navquery->updateSlicedFindPath(MAX_ITER, 0, queryFilter);
 			dtStatus status = 0;
 			if (ag->targetReplan) // && npath > 10)
 			{
 				// Try to use existing steady path during replan if possible.
-				status = m_navquery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
+				status = m_navquery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES, queryFilter);
 			}
 			else
 			{
 				// Try to move towards target when goal changes.
-				status = m_navquery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
+				status = m_navquery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES, queryFilter);
 			}
 
 			if (!dtStatusFailed(status) && reqPathCount > 0)
