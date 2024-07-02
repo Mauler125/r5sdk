@@ -1091,7 +1091,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 				else
 				{
 					// The region does not have an outline.
-					// This can happen if the contour becaomes selfoverlapping because of
+					// This can happen if the contour becomes selfoverlapping because of
 					// too aggressive simplification settings.
 					ctx->log(RC_LOG_ERROR, "rcBuildContours: Bad outline for region %d, contour simplification is likely too aggressive.", i);
 				}
