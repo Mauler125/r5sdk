@@ -481,7 +481,7 @@ inline bool xorb(bool x, bool y)
 	return !x ^ !y;
 }
 
-// Returns true iff c is strictly to the left of the directed
+// Returns true if c is strictly to the left of the directed
 // line through a to b.
 inline bool left(const int* a, const int* b, const int* c)
 {
@@ -498,7 +498,7 @@ inline bool collinear(const int* a, const int* b, const int* c)
 	return area2(a, b, c) == 0;
 }
 
-//	Returns true iff ab properly intersects cd: they share
+//	Returns true if ab properly intersects cd: they share
 //	a point interior to both segments.  The properness of the
 //	intersection is ensured by using strict leftness.
 static bool intersectProp(const int* a, const int* b, const int* c, const int* d)
@@ -511,7 +511,7 @@ static bool intersectProp(const int* a, const int* b, const int* c, const int* d
 	return xorb(left(a,b,c), left(a,b,d)) && xorb(left(c,d,a), left(c,d,b));
 }
 
-// Returns T iff (a,b,c) are collinear and point c lies
+// Returns T if (a,b,c) are collinear and point c lies
 // on the closed segment ab.
 static bool between(const int* a, const int* b, const int* c)
 {
@@ -524,7 +524,7 @@ static bool between(const int* a, const int* b, const int* c)
 		return	((a[1] <= c[1]) && (c[1] <= b[1])) || ((a[1] >= c[1]) && (c[1] >= b[1]));
 }
 
-// Returns true iff segments ab and cd intersect, properly or improperly.
+// Returns true if segments ab and cd intersect, properly or improperly.
 static bool intersect(const int* a, const int* b, const int* c, const int* d)
 {
 	if (intersectProp(a, b, c, d))
