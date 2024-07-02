@@ -12,6 +12,9 @@ Members in this module are wrappers around the standard math library
 // if cmath is included before math.h.
 #include <cmath>
 
+/// The value of PI used by Recast.
+static const float DT_PI = 3.14159265f;
+
 inline float dtMathFabsf(float x) { return fabsf(x); }
 inline float dtMathSqrtf(float x) { return sqrtf(x); }
 inline float dtMathFloorf(float x) { return floorf(x); }

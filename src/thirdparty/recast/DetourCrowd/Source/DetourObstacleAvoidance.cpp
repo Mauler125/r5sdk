@@ -25,8 +25,6 @@
 #include <float.h>
 #include <new>
 
-static const float DT_PI = 3.14159265f;
-
 static int sweepCircleCircle(const float* c0, const float r0, const float* v,
 							 const float* c1, const float r1,
 							 float& tmin, float& tmax)
