@@ -229,7 +229,7 @@ void Editor_TileMesh::handleSettings()
 	}
 	Editor::handleCommonSettings();
 
-	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
+	if (imguiCheck("Keep Intermediate Results", m_keepInterResults))
 		m_keepInterResults = !m_keepInterResults;
 
 	if (imguiCheck("Build All Tiles", m_buildAll))
