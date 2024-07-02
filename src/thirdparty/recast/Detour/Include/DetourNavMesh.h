@@ -70,13 +70,13 @@ static const int DT_VERTS_PER_POLYGON = 6;
 ///
 
 /// A magic number used to detect compatibility of navigation tile data.
-static const int DT_NAVMESH_MAGIC = 'D' << 24 | 'N' << 16 | 'A' << 8 | 'V';
+static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V';
 
 /// A version number used to detect compatibility of navigation tile data.
 static const int DT_NAVMESH_VERSION = 16;
 
 /// A magic number used to detect the compatibility of navigation tile states.
-static const int DT_NAVMESH_STATE_MAGIC = 'D' << 24 | 'N' << 16 | 'M' << 8 | 'S';
+static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S';
 
 /// A version number used to detect compatibility of navigation tile states.
 static const int DT_NAVMESH_STATE_VERSION = 1;
@@ -583,9 +583,9 @@ public:
 	inline dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
 	{
 #ifdef DT_POLYREF64
-		return ((dtPolyRef)salt << (DT_POLY_BITS + DT_TILE_BITS)) | ((dtPolyRef)it << DT_POLY_BITS) | (dtPolyRef)ip;
+		return ((dtPolyRef)salt << (DT_POLY_BITS+DT_TILE_BITS)) | ((dtPolyRef)it << DT_POLY_BITS) | (dtPolyRef)ip;
 #else
-		return ((dtPolyRef)salt << (m_polyBits + m_tileBits)) | ((dtPolyRef)it << m_polyBits) | (dtPolyRef)ip;
+		return ((dtPolyRef)salt << (m_polyBits+m_tileBits)) | ((dtPolyRef)it << m_polyBits) | (dtPolyRef)ip;
 #endif
 	}
 
@@ -599,17 +599,17 @@ public:
 	inline void decodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
 	{
 #ifdef DT_POLYREF64
-		const dtPolyRef saltMask = ((dtPolyRef)1 << DT_SALT_BITS) - 1;
-		const dtPolyRef tileMask = ((dtPolyRef)1 << DT_TILE_BITS) - 1;
-		const dtPolyRef polyMask = ((dtPolyRef)1 << DT_POLY_BITS) - 1;
-		salt = (unsigned int)((ref >> (DT_POLY_BITS + DT_TILE_BITS)) & saltMask);
+		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
+		salt = (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
 		it = (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
 		ip = (unsigned int)(ref & polyMask);
 #else
-		const dtPolyRef saltMask = ((dtPolyRef)1 << m_saltBits) - 1;
-		const dtPolyRef tileMask = ((dtPolyRef)1 << m_tileBits) - 1;
-		const dtPolyRef polyMask = ((dtPolyRef)1 << m_polyBits) - 1;
-		salt = (unsigned int)((ref >> (m_polyBits + m_tileBits)) & saltMask);
+		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
+		salt = (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
 		it = (unsigned int)((ref >> m_polyBits) & tileMask);
 		ip = (unsigned int)(ref & polyMask);
 #endif
@@ -622,11 +622,11 @@ public:
 	inline unsigned int decodePolyIdSalt(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
-		const dtPolyRef saltMask = ((dtPolyRef)1 << DT_SALT_BITS) - 1;
-		return (unsigned int)((ref >> (DT_POLY_BITS + DT_TILE_BITS)) & saltMask);
+		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+		return (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
 #else
-		const dtPolyRef saltMask = ((dtPolyRef)1 << m_saltBits) - 1;
-		return (unsigned int)((ref >> (m_polyBits + m_tileBits)) & saltMask);
+		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
+		return (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
 #endif
 	}
 
@@ -637,10 +637,10 @@ public:
 	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
-		const dtPolyRef tileMask = ((dtPolyRef)1 << DT_TILE_BITS) - 1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
 		return (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
 #else
-		const dtPolyRef tileMask = ((dtPolyRef)1 << m_tileBits) - 1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
 		return (unsigned int)((ref >> m_polyBits) & tileMask);
 #endif
 	}
@@ -652,10 +652,10 @@ public:
 	inline unsigned int decodePolyIdPoly(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
-		const dtPolyRef polyMask = ((dtPolyRef)1 << DT_POLY_BITS) - 1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
 		return (unsigned int)(ref & polyMask);
 #else
-		const dtPolyRef polyMask = ((dtPolyRef)1 << m_polyBits) - 1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
 		return (unsigned int)(ref & polyMask);
 #endif
 	}

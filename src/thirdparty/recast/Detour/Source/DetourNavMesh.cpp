@@ -1604,8 +1604,8 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 
 float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
 {
-	float dx = epos[0] - spos[0];
-	float dy = epos[1] - spos[1];
+	float dx = epos[0]-spos[0];
+	float dy = epos[1]-spos[1];
 
 	// Amos: yaw on original r2 sp navs' seem to be of range [180, -180], might need to multiply this with (180.0f/DT_PI).
 	float yaw = dtMathAtan2f(dy, dx);
@@ -1614,10 +1614,10 @@ float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
 
 void dtCalcOffMeshRefPos(const float* spos, float yaw, float offset, float* res)
 {
-	float dx = offset * dtMathCosf(yaw);
-	float dy = offset * dtMathSinf(yaw);
+	float dx = offset*dtMathCosf(yaw);
+	float dy = offset*dtMathSinf(yaw);
 
-	res[0] = spos[0] + dx;
-	res[1] = spos[1] + dy;
+	res[0] = spos[0]+dx;
+	res[1] = spos[1]+dy;
 	res[2] = spos[2];
 }
