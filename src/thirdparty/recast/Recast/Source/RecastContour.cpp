@@ -395,8 +395,8 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 			if (tess)
 			{
 				int dx = bx - ax;
-				int dz = by - ay;
-				if (dx*dx + dz*dz > maxEdgeLen*maxEdgeLen)
+				int dy = by - ay;
+				if (dx*dx + dy*dy > maxEdgeLen*maxEdgeLen)
 				{
 					// Round based on the segments in lexilogical order so that the
 					// max tesselation is consistent regardles in which direction
