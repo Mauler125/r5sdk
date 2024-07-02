@@ -960,18 +960,8 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 	dtStatus status = navMesh->getTileAndPolyByRef(ref, &tile, &poly);
 	if (dtStatusFailed(status))
 		return;
-		
-	for (int i = 0; i < (int)poly->vertCount; ++i)
-	{
-		const float* v = &tile->verts[poly->verts[i]*3];
-		center[0] += v[0];
-		center[1] += v[1];
-		center[2] += v[2];
-	}
-	const float s = 1.0f / poly->vertCount;
-	center[0] *= s;
-	center[1] *= s;
-	center[2] *= s;
+
+	dtVcopy(center, poly->center);
 }
 
 
