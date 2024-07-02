@@ -165,10 +165,6 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint and it will overflow.
 	m_saltBits = dtMin((unsigned int)31, 32 - m_tileBits);
 
-	// NOTE[ AMOS ]: this check doesn't exist in dtNavMesh::init for R5, so it probably also doesn't exist here!
-	if (m_saltBits < 10)
-		return DT_FAILURE | DT_INVALID_PARAM;
-	
 	return DT_SUCCESS;
 }
 
