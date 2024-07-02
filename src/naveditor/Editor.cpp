@@ -162,7 +162,7 @@ void Editor::collectSettings(BuildSettings& settings)
 
 void Editor::resetCommonSettings()
 {
-	m_cellSize = 15.0f;
+	m_cellSize = 16.0f;
 	m_cellHeight = 5.85f;
 	m_agentHeight = 2.0f;
 	m_agentRadius = 0.6f;
