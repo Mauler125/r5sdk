@@ -250,12 +250,11 @@ void Editor_TileMesh::handleSettings()
 		const int th = (gh + ts-1) / ts;
 		snprintf(text, 64, "Tiles  %d x %d", tw, th);
 		imguiValue(text);
-		snprintf(text, 64, "Tile Sizes  %g x %g", tw*m_cellSize, th*m_cellSize);
+		snprintf(text, 64, "Tile Sizes  %g x %g (%g)", tw*m_cellSize, th*m_cellSize, m_tileSize*m_cellSize);
 		imguiValue(text);
 		// Max tiles and max polys affect how the tile IDs are calculated.
 		// There are 28 bits available for identifying a tile and a polygon.
 		int tileBits = rcMin((int)ilog2(nextPow2(tw*th)), 16);
-		if (tileBits > 16) tileBits = 16;
 		int polyBits = 28 - tileBits;
 		m_maxTiles = 1 << tileBits;
 		m_maxPolysPerTile = 1 << polyBits;
