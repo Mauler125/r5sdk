@@ -2367,7 +2367,7 @@ dtStatus dtNavMeshQuery::getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly,
 /// This method is meant to be used for quick, short distance checks.
 ///
 /// If the path array is too small to hold the result, it will be filled as 
-/// far as possible from the start postion toward the end position.
+/// far as possible from the start position toward the end position.
 ///
 /// <b>Using the Hit Parameter (t)</b>
 /// 
@@ -2425,7 +2425,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 /// This method is meant to be used for quick, short distance checks.
 ///
 /// If the path array is too small to hold the result, it will be filled as 
-/// far as possible from the start postion toward the end position.
+/// far as possible from the start position toward the end position.
 ///
 /// <b>Using the Hit Parameter t of RaycastHit</b>
 /// 
@@ -2605,7 +2605,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 				float lmax = left[1] + (right[1] - left[1])*(link->bmax*s);
 				if (lmin > lmax) dtSwap(lmin, lmax);
 				
-				// Find y intersection.
+				// Find Y intersection.
 				float y = startPos[1] + (endPos[1]-startPos[1])*tmax;
 				if (y >= lmin && y <= lmax)
 				{
@@ -3071,7 +3071,7 @@ dtStatus dtNavMeshQuery::getPathFromDijkstraSearch(dtPolyRef endRef, dtPolyRef* 
 /// the start polygon.
 ///
 /// The same intersection test restrictions that apply to the findPolysAroundCircle 
-/// mehtod applies to this method.
+/// method applies to this method.
 ///
 /// The value of the center point is used as the start point for cost calculations. 
 /// It is not projected onto the surface of the mesh, so its y-value will effect 
@@ -3460,7 +3460,7 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 /// radius. In this case the values of @p hitPos and @p hitNormal are
 /// undefined.
 ///
-/// The normal will become unpredicable if @p hitDist is a very small number.
+/// The normal will become unpredictable if @p hitDist is a very small number.
 ///
 dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* centerPos, const float maxRadius,
 											const dtQueryFilter* filter,
@@ -3502,7 +3502,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 		bestNode->flags |= DT_NODE_CLOSED;
 		
 		// Get poly and tile.
-		// The API input has been cheked already, skip checking internal data.
+		// The API input has been checked already, skip checking internal data.
 		const dtPolyRef bestRef = bestNode->id;
 		const dtMeshTile* bestTile = 0;
 		const dtPoly* bestPoly = 0;

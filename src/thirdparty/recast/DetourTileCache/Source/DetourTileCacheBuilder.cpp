@@ -1074,7 +1074,7 @@ inline int area2(const unsigned char* a, const unsigned char* b, const unsigned 
 	return ((int)b[0] - (int)a[0]) * ((int)c[1] - (int)a[1]) - ((int)c[0] - (int)a[0]) * ((int)b[1] - (int)a[1]);
 }
 
-//	Exclusive or: true iff exactly one argument is true.
+//	Exclusive or: true if exactly one argument is true.
 //	The arguments are negated to ensure that they are 0/1
 //	values.  Then the bitwise Xor operator may apply.
 //	(This idea is due to Michael Baldwin.)
@@ -1083,7 +1083,7 @@ inline bool xorb(bool x, bool y)
 	return !x ^ !y;
 }
 
-// Returns true iff c is strictly to the left of the directed
+// Returns true if c is strictly to the left of the directed
 // line through a to b.
 inline bool left(const unsigned char* a, const unsigned char* b, const unsigned char* c)
 {
@@ -1100,7 +1100,7 @@ inline bool collinear(const unsigned char* a, const unsigned char* b, const unsi
 	return area2(a, b, c) == 0;
 }
 
-//	Returns true iff ab properly intersects cd: they share
+//	Returns true if ab properly intersects cd: they share
 //	a point interior to both segments.  The properness of the
 //	intersection is ensured by using strict leftness.
 static bool intersectProp(const unsigned char* a, const unsigned char* b,
@@ -1114,8 +1114,8 @@ static bool intersectProp(const unsigned char* a, const unsigned char* b,
 	return xorb(left(a,b,c), left(a,b,d)) && xorb(left(c,d,a), left(c,d,b));
 }
 
-// Returns T iff (a,b,c) are collinear and point c lies 
-// on the closed segement ab.
+// Returns T if (a,b,c) are collinear and point c lies 
+// on the closed segment ab.
 static bool between(const unsigned char* a, const unsigned char* b, const unsigned char* c)
 {
 	if (!collinear(a, b, c))
@@ -1127,7 +1127,7 @@ static bool between(const unsigned char* a, const unsigned char* b, const unsign
 		return ((a[1] <= c[1]) && (c[1] <= b[1])) || ((a[1] >= c[1]) && (c[1] >= b[1]));
 }
 
-// Returns true iff segments ab and cd intersect, properly or improperly.
+// Returns true if segments ab and cd intersect, properly or improperly.
 static bool intersect(const unsigned char* a, const unsigned char* b,
 					  const unsigned char* c, const unsigned char* d)
 {
@@ -1145,7 +1145,7 @@ static bool vequal(const unsigned char* a, const unsigned char* b)
 	return a[0] == b[0] && a[1] == b[1];
 }
 
-// Returns T iff (v_i, v_j) is a proper internal *or* external
+// Returns T if (v_i, v_j) is a proper internal *or* external
 // diagonal of P, *ignoring edges incident to v_i and v_j*.
 static bool diagonalie(int i, int j, int n, const unsigned char* verts, const unsigned short* indices)
 {
@@ -1172,7 +1172,7 @@ static bool diagonalie(int i, int j, int n, const unsigned char* verts, const un
 	return true;
 }
 
-// Returns true iff the diagonal (i,j) is strictly internal to the 
+// Returns true if the diagonal (i,j) is strictly internal to the 
 // polygon P in the neighborhood of the i endpoint.
 static bool	inCone(int i, int j, int n, const unsigned char* verts, const unsigned short* indices)
 {
@@ -1189,7 +1189,7 @@ static bool	inCone(int i, int j, int n, const unsigned char* verts, const unsign
 	return !(leftOn(pi, pj, pi1) && leftOn(pj, pi, pin1));
 }
 
-// Returns T iff (v_i, v_j) is a proper internal
+// Returns T if (v_i, v_j) is a proper internal
 // diagonal of P.
 static bool diagonal(int i, int j, int n, const unsigned char* verts, const unsigned short* indices)
 {

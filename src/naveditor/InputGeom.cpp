@@ -48,7 +48,7 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 	if (d <= 0.0f) return false;
 	
 	// Compute intersection t value of pq with plane of triangle. A ray
-	// intersects iff 0 <= t. Segment intersects iff 0 <= t <= 1. Delay
+	// intersects if 0 <= t. Segment intersects if 0 <= t <= 1. Delay
 	// dividing by d until intersection has been found to pierce triangle
 	rcVsub(ap, sp, a);
 	t = rcVdot(ap, norm);
