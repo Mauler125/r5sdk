@@ -425,7 +425,10 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 					
 					link->next = poly->firstLink;
 					poly->firstLink = idx;
-					link->flags = 0xffff00ff;
+
+					link->jumpType = 0xFF;
+					link->otherUnk = 0;
+					link->reverseLinkIndex = 0xFFFF;
 
 					// Compress portal limits to a byte value.
 					if (dir == 0 || dir == 4)
@@ -498,7 +501,9 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			// Add to linked list.
 			link->next = targetPoly->firstLink;
 			targetPoly->firstLink = idx;
-			link->flags = 0xffff00ff;
+			link->jumpType = 0xFF;
+			link->otherUnk = 0;
+			link->reverseLinkIndex = 0xFFFF;
 		}
 		
 		// Link target poly to off-mesh connection.
@@ -517,7 +522,9 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				// Add to linked list.
 				link->next = landPoly->firstLink;
 				landPoly->firstLink = tidx;
-				link->flags = 0xffff00ff;
+				link->jumpType = 0xFF;
+				link->otherUnk = 0;
+				link->reverseLinkIndex = 0xFFFF;
 			}
 		}
 	}
@@ -555,7 +562,9 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 				// Add to linked list.
 				link->next = poly->firstLink;
 				poly->firstLink = idx;
-				link->flags = 0xffff00ff;
+				link->jumpType = 0xFF;
+				link->otherUnk = 0;
+				link->reverseLinkIndex = 0xFFFF;
 			}
 		}
 	}
@@ -599,7 +608,9 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 			// Add to linked list.
 			link->next = poly->firstLink;
 			poly->firstLink = idx;
-			link->flags = 0xffff00ff;
+			link->jumpType = 0xFF;
+			link->otherUnk = 0;
+			link->reverseLinkIndex = 0xFFFF;
 		}
 
 		// Start end-point is always connect back to off-mesh connection. 
@@ -616,7 +627,9 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 			// Add to linked list.
 			link->next = landPoly->firstLink;
 			landPoly->firstLink = tidx;
-			link->flags = 0xffff00ff;
+			link->jumpType = 0xFF;
+			link->otherUnk = 0;
+			link->reverseLinkIndex = 0xFFFF;
 		}
 	}
 }
