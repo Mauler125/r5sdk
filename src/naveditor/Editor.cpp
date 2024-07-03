@@ -433,33 +433,11 @@ void Editor::saveAll(std::string path, dtNavMesh* mesh)
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
 
-	//LinkTableData linkData;
-	//buildLinkTable(mesh, linkData);
-	//int tableSize = ((linkData.setCount + 31) / 32) * linkData.setCount * 32;
+	// TODO: this has to be done during navmesh init, not here!!!
+	LinkTableData linkData;
+	buildLinkTable(mesh, linkData);
 
-	//std::vector<int> reachability(tableSize, 0);
-	//for (int i = 0; i < linkData.setCount; i++)
-	//	setReachable(reachability, linkData.setCount, i, i, true);
-
-	//if (reachability.size() > 0)
-	//{
-	//	for (size_t i = reachability.size() - 1; i >= 0; i--)
-	//	{
-	//		if (reachability[i] == 0)
-	//		{
-	//			reachability.erase(reachability.begin() + i);
-	//			tableSize--;
-	//		}
-	//		else
-	//			break;
-	//	}
-	//}
-
-	//header.params.disjointPolyGroupCount = linkData.setCount;
-	//header.params.reachabilityTableCount = m_reachabilityTableCount;
-	//header.params.reachabilityTableSize = tableSize;
-
-	header.params.disjointPolyGroupCount = 4;
+	header.params.disjointPolyGroupCount = linkData.setCount;
 	header.params.reachabilityTableCount = m_reachabilityTableCount;
 	header.params.reachabilityTableSize = ((header.params.disjointPolyGroupCount + 31) / 32) * header.params.disjointPolyGroupCount * 32;
 
@@ -480,23 +458,12 @@ void Editor::saveAll(std::string path, dtNavMesh* mesh)
 		fwrite(tile->data, tile->dataSize, 1, fp);
 	}
 
-	////still dont know what this thing is...
-	//int header_sth = 0;
-	//for (int i = 0; i < linkData.setCount; i++)
-	//	fwrite(&header_sth, sizeof(int), 1, fp);
-
-	//for (int i = 0; i < header.params.reachabilityTableCount; i++)
-	//	fwrite(reachability.data(), sizeof(int), tableSize, fp);
-
-	int header_sth[4] = { 0,0,0 };
-	fwrite(header_sth, sizeof(int), 4, fp);
-
-	unsigned int reachability[32 * 4];
-	for (int i = 0; i < 32 * 4; i++)
-		reachability[i] = 0xffffffff;
+	std::vector<int> reachability(tableSize, 0);
+	for (int i = 0; i < linkData.setCount; i++)
+		setReachable(reachability, linkData.setCount, i, i, true);
 
 	for (int i = 0; i < header.params.reachabilityTableCount; i++)
-		fwrite(reachability, sizeof(int), (header.params.reachabilityTableSize / 4), fp);
+		fwrite(reachability.data(), sizeof(int), (header.params.reachabilityTableSize / 4), fp);
 
 	fclose(fp);
 }
