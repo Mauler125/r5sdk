@@ -98,8 +98,12 @@ void unpatchTileGame(dtMeshTile* t)
 	}
 }
 
-void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
+int buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 {
+	// Reserve the first 2 poly groups
+	data.insert_new(); // 0 = technically usable for normal poly groups, but for simplicity we reserve it for now.
+	data.insert_new(); // 1 = DT_STRAY_POLY_GROUP.
+
 	//clear all labels
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
@@ -118,7 +122,7 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
-		int pcount = tile->header->polyCount;
+		const int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
@@ -132,16 +136,21 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 
 				if (p->disjointSetId != (unsigned short)-1)
 					nlabels.insert(p->disjointSetId);
+
 				plink = l.next;
 			}
 			if (nlabels.empty())
 			{
-				poly.disjointSetId = (unsigned short)data.insert_new();
+				if (poly.firstLink == DT_NULL_LINK)
+					poly.disjointSetId = DT_STRAY_POLY_GROUP;
+				else
+					poly.disjointSetId = (unsigned short)data.insert_new();
 			}
 			else
 			{
-				auto l = *nlabels.begin();
+				int l = *nlabels.begin();
 				poly.disjointSetId = (unsigned short)l;
+
 				for (const int nl : nlabels)
 					data.set_union(l, nl);
 			}
@@ -149,11 +158,12 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 		}
 	}
 	//second pass
+	// TODO[ AMOS ]: is this necessary?
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
-		int pcount = tile->header->polyCount;
+		const int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
@@ -161,6 +171,8 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 			poly.disjointSetId = (unsigned short)id;
 		}
 	}
+
+	return (data.setCount-1) * ((data.setCount + 31) / 32) + (data.setCount-1) / 32;
 }
 void setReachable(std::vector<int>& data, int count, int id1, int id2, bool value)
 {

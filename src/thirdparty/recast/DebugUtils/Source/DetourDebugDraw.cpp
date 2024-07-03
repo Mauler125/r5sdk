@@ -22,18 +22,31 @@
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNode.h"
 
+static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd)
+{
+	return poly->disjointSetId == DT_STRAY_POLY_GROUP
+		? duTransCol(duRGBA(240,20,10,255), 170)
+		: duTransCol(dd->areaToCol(poly->getArea()), 170);
+}
+
+static unsigned int getPolyBoundaryColor(const dtPoly* poly, const bool inner)
+{
+	return poly->disjointSetId == DT_STRAY_POLY_GROUP
+		? inner ? duRGBA(32,24,0,32) : duRGBA(32,24,0,220)
+		: inner ? duRGBA(0,48,64,32) : duRGBA(0,48,64,220);
+}
+
 static void drawOffMeshConnectionRefPosition(duDebugDraw* dd, const dtOffMeshConnection* con)
 {
 	float refPosDir[3];
 	dtCalcOffMeshRefPos(con->refPos, con->refYaw, DT_OFFMESH_CON_REFPOS_OFFSET, refPosDir);
 
 	duAppendArrow(dd, con->refPos[0], con->refPos[1], con->refPos[2],
-		refPosDir[0], refPosDir[1], refPosDir[2], 0.f, 10.f, duRGBA(255, 255, 0, 255));
+		refPosDir[0], refPosDir[1], refPosDir[2], 0.f, 10.f, duRGBA(255,255,0,255));
 }
 
 static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
-							   const unsigned int col, const float linew,
-							   bool inner)
+							   const float linew, bool inner)
 {
 	static const float thr = 0.01f*0.01f;
 
@@ -49,7 +62,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 		
 		for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
 		{
-			unsigned int c = col;
+			unsigned int c = getPolyBoundaryColor(p, inner);
 			if (inner)
 			{
 				if (p->neis[j] == 0) continue;
@@ -147,7 +160,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
 				col = tileColor;
 			else
-				col = duTransCol(dd->areaToCol(p->getArea()), 170);
+				col = getPolySurfaceColor(p, dd);
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -164,11 +177,11 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	}
 	dd->end();
 	
-	// Draw inter poly boundaries
-	drawPolyBoundaries(dd, tile, duRGBA(0,48,64,32), 1.5f, true);
+	// Draw inner poly boundaries
+	drawPolyBoundaries(dd, tile, 1.5f, true);
 	
 	// Draw outer poly boundaries
-	drawPolyBoundaries(dd, tile, duRGBA(0,48,64,220), 2.5f, false);
+	drawPolyBoundaries(dd, tile, 2.5f, false);
 
 	// Draw poly centers
 	drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f);

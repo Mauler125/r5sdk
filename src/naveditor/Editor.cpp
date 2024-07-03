@@ -435,11 +435,11 @@ void Editor::saveAll(std::string path, dtNavMesh* mesh)
 
 	// TODO: this has to be done during navmesh init, not here!!!
 	LinkTableData linkData;
-	buildLinkTable(mesh, linkData);
+	const int tableSize = buildLinkTable(mesh, linkData);
 
 	header.params.disjointPolyGroupCount = linkData.setCount;
 	header.params.reachabilityTableCount = m_reachabilityTableCount;
-	header.params.reachabilityTableSize = (linkData.setCount - 1) * ((linkData.setCount + 31) / 32) + (linkData.setCount - 1) / 32;
+	header.params.reachabilityTableSize = tableSize;
 
 	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
 
@@ -458,7 +458,7 @@ void Editor::saveAll(std::string path, dtNavMesh* mesh)
 		fwrite(tile->data, tile->dataSize, 1, fp);
 	}
 
-	std::vector<int> reachability(header.params.reachabilityTableSize, 0);
+	std::vector<int> reachability(tableSize, 0);
 	for (int i = 0; i < linkData.setCount; i++)
 		setReachable(reachability, linkData.setCount, i, i, true);
 

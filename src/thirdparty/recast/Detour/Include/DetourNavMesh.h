@@ -63,6 +63,10 @@ typedef unsigned int dtTileRef;
 /// @ingroup detour
 static const int DT_VERTS_PER_POLYGON = 6;
 
+/// A poly group that is unconnected and considered 'trash'; see [r5apex_ds + CA88B2].
+/// For reference, r2 single player NavMeshes also marked everything unconnected as '1'.
+static const unsigned short DT_STRAY_POLY_GROUP = 1;
+
 /// @{
 /// @name Tile Serialization Constants
 /// These constants are used to detect whether a navigation tile's data

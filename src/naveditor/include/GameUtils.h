@@ -14,7 +14,7 @@ void unpatchHeaderGame(NavMeshSetHeader& h);
 void patchTileGame(dtMeshTile* t);
 void unpatchTileGame(dtMeshTile* t);
 
-void buildLinkTable(dtNavMesh* mesh, LinkTableData& data);
+int buildLinkTable(dtNavMesh* mesh, LinkTableData& data);
 void setReachable(std::vector<int>& data, int count, int id1, int id2, bool value);
 
 #endif // GAMEUTILS_H
