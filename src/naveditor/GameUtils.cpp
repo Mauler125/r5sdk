@@ -172,7 +172,7 @@ int buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 		}
 	}
 
-	return (data.setCount-1) * ((data.setCount + 31) / 32) + (data.setCount-1) / 32;
+	return sizeof(int)*(data.setCount-1) * ((data.setCount + 31) / 32) + (data.setCount-1) / 32;
 }
 void setReachable(std::vector<int>& data, int count, int id1, int id2, bool value)
 {
