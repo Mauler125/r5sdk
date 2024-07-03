@@ -18,6 +18,7 @@
 
 #include "Pch.h"
 #include "Recast/Include/Recast.h"
+#include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
@@ -614,6 +615,10 @@ bool Editor_TileMesh::handleBuild()
 	params.tileHeight = m_tileSize*m_cellSize;
 	params.maxTiles = m_maxTiles;
 	params.maxPolys = m_maxPolysPerTile;
+	params.disjointPolyGroupCount = 0;
+	params.reachabilityTableSize = 0;
+	params.reachabilityTableCount = DT_NUM_REACHABILITY_TABLES;
+	params.allocSize = 0;
 	
 	dtStatus status;
 	
@@ -752,6 +757,11 @@ void Editor_TileMesh::buildAllTiles()
 					dtFree(data);
 			}
 		}
+	}
+
+	if (!dtBuildStaticPathingData(m_navMesh))
+	{
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build static pathing data.");
 	}
 	
 	// Start the build process.	

@@ -67,6 +67,17 @@ static const int DT_VERTS_PER_POLYGON = 6;
 /// For reference, r2 single player NavMeshes also marked everything unconnected as '1'.
 static const unsigned short DT_STRAY_POLY_GROUP = 1;
 
+/// The minimum required number of poly groups for static pathing logic to work.
+/// (E.g. if we have 2 poly groups, group id 1 (DT_STRAY_POLY_GROUP), and group
+/// id 2, then 1 is never reachable as its considered 'trash' by design, and 2
+/// is always reachable as that's the only group id. If group id 3 is involved
+/// then code can use the static patching logic to quickly query if we are even
+/// on the same (or connected) poly island before trying to compute a path).
+static const int DT_MIN_POLY_GROUP_COUNT = 3;
+
+/// The number of reachability tables that will be used for static pathing.
+static const int DT_NUM_REACHABILITY_TABLES = 4;
+
 /// @{
 /// @name Tile Serialization Constants
 /// These constants are used to detect whether a navigation tile's data
@@ -382,10 +393,10 @@ struct dtNavMeshParams
 	int maxPolys;					///< The maximum number of polygons each tile can contain. This and maxTiles are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 //	
 //// i hate this
-	int disjointPolyGroupCount = 0;
-	int reachabilityTableSize = 0;
-	int reachabilityTableCount = 0;
-	int allocSize = 0;
+	int disjointPolyGroupCount;
+	int reachabilityTableSize;
+	int reachabilityTableCount;
+	int allocSize;
 };
 
 #pragma pack(push, 4)
@@ -719,7 +730,7 @@ public:
 	dtMeshTile** m_posLookup;			///< Tile hash lookup.
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
-	dtPolyRef** m_setTables;			///< Array of set tables.
+	int** m_setTables;					///< Array of set tables.
 	void* m_unk0;						///< FIXME: unknown structure pointer.
 
 	char m_meshFlags;	// Maybe.
@@ -742,6 +753,14 @@ public:
 	friend class dtNavMeshQuery;
 };
 #pragma pack(pop)
+
+/// Returns the total size needed for the static pathing table.
+///  @param[in]	numPolyGroups	The total number of poly groups.
+///  @ingroup detour
+inline int calcStaticPathingTableSize(const int numPolyGroups)
+{
+	return sizeof(int)*numPolyGroups*((numPolyGroups+31)/32);
+}
 
 /// Allocates a navigation mesh object using the Detour allocator.
 /// @return A navigation mesh that is ready for initialization, or null on failure.

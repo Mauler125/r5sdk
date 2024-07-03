@@ -268,6 +268,130 @@ static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, co
 	return 0xff;	
 }
 
+static void setReachable(int* const tableData, const int numPolyGroups,
+	const int polyGroup, const bool isReachable)
+{
+	const int w = ((numPolyGroups + 31) / 32);
+	const unsigned int valueMask = ~(1 << (polyGroup & 0x1f));
+
+	int& cell = tableData[polyGroup * w + polyGroup / 32];
+
+	cell = isReachable 
+		? (cell & valueMask) | (1 << (polyGroup & 0x1f))
+		: (cell & valueMask);
+}
+
+bool dtBuildStaticPathingData(dtNavMesh* mesh)
+{
+	dtAssert(mesh);
+
+	// Reserve the first 2 poly groups
+	// 0 = technically usable for normal poly groups, but for simplicity we reserve it for now.
+	// 1 = DT_STRAY_POLY_GROUP.
+	dtDisjointSet data(2);
+
+	// Clear all labels.
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			poly.disjointSetId = (unsigned short)-1;
+		}
+	}
+
+	// First pass.
+	std::set<int> nlabels;
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			unsigned int plink = poly.firstLink;
+			while (plink != DT_NULL_LINK)
+			{
+				const dtLink l = tile->links[plink];
+				const dtMeshTile* t;
+				const dtPoly* p;
+				mesh->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
+
+				if (p->disjointSetId != (unsigned short)-1)
+					nlabels.insert(p->disjointSetId);
+
+				plink = l.next;
+			}
+			if (nlabels.empty())
+			{
+				// This poly isn't connected to anything, mark it so the game
+				// won't consider this poly in path generation.
+				if (poly.firstLink == DT_NULL_LINK)
+					poly.disjointSetId = DT_STRAY_POLY_GROUP;
+				else
+					poly.disjointSetId = (unsigned short)data.insertNew();
+			}
+			else
+			{
+				const int l = *nlabels.begin();
+				poly.disjointSetId = (unsigned short)l;
+
+				for (const int nl : nlabels)
+					data.setUnion(l, nl);
+			}
+			nlabels.clear();
+		}
+	}
+
+	// Second pass.
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			int id = data.find(poly.disjointSetId);
+			poly.disjointSetId = (unsigned short)id;
+		}
+	}
+
+	const int numPolyGroups = data.getSetCount();
+	const int tableSize = calcStaticPathingTableSize(numPolyGroups);
+	const int tableCount = DT_NUM_REACHABILITY_TABLES;
+
+	dtAssert(mesh->m_setTables);
+
+	// NOTE: the game allocates 4 reachability table buffers, original
+	// navmeshes have slightly different data per table. Currently ours are all
+	// the same. Not a big problem as this just-works, but it might be nice to
+	// figure out why we need 4 tables and what the differences are.
+	for (int i = 0; i < tableCount; i++)
+	{
+		int* const reachabilityTable = (int*)dtAlloc(sizeof(int)*tableSize, DT_ALLOC_PERM);
+
+		if (!reachabilityTable)
+			return false;
+
+		mesh->m_setTables[i] = reachabilityTable;
+		memset(reachabilityTable, 0, sizeof(int)*tableSize);
+
+		for (int j = 0; j < numPolyGroups; j++)
+			setReachable(reachabilityTable, numPolyGroups, j, true);
+	}
+
+	mesh->m_params.disjointPolyGroupCount = numPolyGroups;
+	mesh->m_params.reachabilityTableSize = tableSize;
+	mesh->m_params.reachabilityTableCount = tableCount;
+
+	return true;
+}
+
 // TODO: Better error handling.
 
 /// @par

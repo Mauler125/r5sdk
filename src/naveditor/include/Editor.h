@@ -134,7 +134,6 @@ protected:
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	int m_partitionType;
-	int m_reachabilityTableCount;
 	const char* m_navmeshName = "unnamed";
 	
 	EditorTool* m_tool;
@@ -145,7 +144,7 @@ protected:
 	EditorDebugDraw m_dd;
 	
 	dtNavMesh* loadAll(std::string path);
-	void saveAll(std::string path, dtNavMesh* mesh);
+	void saveAll(std::string path, const dtNavMesh* mesh);
 
 public:
 	std::string m_modelName;

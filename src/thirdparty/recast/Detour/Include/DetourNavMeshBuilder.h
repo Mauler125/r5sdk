@@ -108,6 +108,70 @@ struct dtNavMeshCreateParams
 	/// @}
 };
 
+/// Disjoint set algorithm used to build the static pathing data for the navmesh.
+/// @ingroup detour
+class dtDisjointSet
+{
+public:
+	dtDisjointSet(const int size)
+	{
+		init(size);
+	}
+
+	void init(const int size)
+	{
+		rank.resize(size);
+		parent.resize(size);
+
+		setCount = size;
+
+		for (int i = 0; i < parent.size(); i++)
+			parent[i] = i;
+	}
+	int insertNew()
+	{
+		rank.push_back(0);
+		parent.push_back(setCount);
+
+		return setCount++;
+	}
+	inline int find(const int id) const
+	{
+		if (parent[id] != id)
+			return find(parent[id]);
+
+		return id;
+	}
+	void setUnion(const int x, const int y)
+	{
+		const int sx = find(x);
+		const int sy = find(y);
+
+		if (sx == sy) // Same set already.
+			return;
+
+		if (rank[sx] < rank[sy])
+			parent[sx] = sy;
+		else if (rank[sx] > rank[sy])
+			parent[sy] = sx;
+		else
+		{
+			parent[sy] = sx;
+			rank[sx] += 1;
+		}
+	}
+
+	inline int getSetCount() const { return setCount; }
+
+private:
+	std::vector<int> rank;
+	std::vector<int> parent;
+
+	int setCount = 0;
+};
+
+bool dtBuildStaticPathingData(dtNavMesh* mesh);
+
 /// Builds navigation mesh tile data from the provided tile creation data.
 /// @ingroup detour
 ///  @param[in]		params		Tile creation data.

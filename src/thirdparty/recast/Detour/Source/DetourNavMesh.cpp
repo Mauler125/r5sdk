@@ -193,7 +193,12 @@ dtNavMesh::dtNavMesh() :
 	m_tileLutMask(0),
 	m_posLookup(0),
 	m_nextFree(0),
-	m_tiles(0)
+	m_tiles(0),
+	m_setTables(0),
+	m_unk0(0),
+	m_meshFlags(0),
+	m_tileFlags(0),
+	m_unk1(0)
 {
 #ifndef DT_POLYREF64
 	m_saltBits = 0;
@@ -217,8 +222,19 @@ dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this c
 			m_tiles[i].dataSize = 0;
 		}
 	}
+
 	dtFree(m_posLookup);
 	dtFree(m_tiles);
+
+	for (int i = 0; i < m_params.reachabilityTableCount; i++)
+	{
+		int* reachabilityTable = m_setTables[i];
+
+		if (reachabilityTable)
+			dtFree(reachabilityTable);
+	}
+
+	dtFree(m_setTables);
 }
 		
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
@@ -241,8 +257,21 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	m_posLookup = (dtMeshTile**)dtAlloc(sizeof(dtMeshTile*)*m_tileLutSize, DT_ALLOC_PERM);
 	if (!m_posLookup)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
-	memset(m_tiles, 0, sizeof(dtMeshTile)*m_maxTiles);
-	memset(m_posLookup, 0, sizeof(dtMeshTile*)*m_tileLutSize);
+	memset(m_tiles, 0, sizeof(dtMeshTile) * m_maxTiles);
+	memset(m_posLookup, 0, sizeof(dtMeshTile*) * m_tileLutSize);
+
+	const int reachabilityTableCount = params->reachabilityTableCount;
+	if (reachabilityTableCount)
+	{
+		const int setTableBufSize = sizeof(int**)*reachabilityTableCount;
+
+		m_setTables = (int**)dtAlloc(setTableBufSize, DT_ALLOC_PERM);
+		if (!m_setTables)
+			return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+		memset(m_setTables, 0, setTableBufSize);
+	}
+
 	m_nextFree = 0;
 	for (int i = m_maxTiles-1; i >= 0; --i)
 	{
@@ -277,6 +306,10 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 	params.tileHeight = header->bmax[1] - header->bmin[1];
 	params.maxTiles = 1;
 	params.maxPolys = header->polyCount;
+	params.disjointPolyGroupCount = 0;
+	params.reachabilityTableSize = 0;
+	params.reachabilityTableCount = DT_NUM_REACHABILITY_TABLES;
+	params.allocSize = 0;
 	
 	dtStatus status = init(&params);
 	if (dtStatusFailed(status))

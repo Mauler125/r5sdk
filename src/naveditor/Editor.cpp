@@ -18,6 +18,7 @@
 
 #include "Pch.h"
 #include "Recast/Include/Recast.h"
+#include "Detour/Include/DetourAssert.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
@@ -176,7 +177,6 @@ void Editor::resetCommonSettings()
 	m_detailSampleDist = 6.0f;
 	m_detailSampleMaxError = 1.0f;
 	m_partitionType = EDITOR_PARTITION_WATERSHED;
-	m_reachabilityTableCount = 4;
 }
 void Editor::handleCommonSettings()
 {
@@ -395,11 +395,34 @@ dtNavMesh* Editor::loadAll(std::string path)
 		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, NULL);
 	}
 
+	// Read read static pathing data.
+	if (header.params.disjointPolyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
+	{
+		for (int i = 0; i < header.params.reachabilityTableCount; i++)
+		{
+			int* reachabilityTable = (int*)dtAlloc(header.params.reachabilityTableSize, DT_ALLOC_PERM);
+			if (!reachabilityTable)
+				break;
+
+			memset(reachabilityTable, 0, header.params.reachabilityTableSize);
+			readLen = fread(reachabilityTable, header.params.reachabilityTableSize, 1, fp);
+
+			if (readLen != 1)
+			{
+				dtFree(reachabilityTable);
+				fclose(fp);
+				return 0;
+			}
+
+			mesh->m_setTables[i] = reachabilityTable;
+		}
+	}
+
 	fclose(fp);
 	return mesh;
 }
 
-void Editor::saveAll(std::string path, dtNavMesh* mesh)
+void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 {
 	if (!mesh)
 		return;
@@ -425,28 +448,20 @@ void Editor::saveAll(std::string path, dtNavMesh* mesh)
 
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
-		dtMeshTile* tile = mesh->getTile(i);
+		const dtMeshTile* tile = mesh->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize)
 			continue;
 
 		header.numTiles++;
 	}
+
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
-
-	// TODO: this has to be done during navmesh init, not here!!!
-	LinkTableData linkData;
-	const int tableSize = buildLinkTable(mesh, linkData);
-
-	header.params.disjointPolyGroupCount = linkData.setCount;
-	header.params.reachabilityTableCount = m_reachabilityTableCount;
-	header.params.reachabilityTableSize = tableSize;
-
 	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
 
 	// Store tiles.
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
-		dtMeshTile* tile = mesh->getTile(i);
+		const dtMeshTile* tile = mesh->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize)
 			continue;
 
@@ -458,12 +473,19 @@ void Editor::saveAll(std::string path, dtNavMesh* mesh)
 		fwrite(tile->data, tile->dataSize, 1, fp);
 	}
 
-	std::vector<int> reachability(tableSize, 0);
-	for (int i = 0; i < linkData.setCount; i++)
-		setReachable(reachability, linkData.setCount, i, i, true);
+	// Only store if we have 3 or more poly groups.
+	if (mesh->m_params.disjointPolyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
+	{
+		dtAssert(mesh->m_setTables);
 
-	for (int i = 0; i < header.params.reachabilityTableCount; i++)
-		fwrite(reachability.data(), sizeof(int), (header.params.reachabilityTableSize / 4), fp);
+		for (int i = 0; i < header.params.reachabilityTableCount; i++)
+		{
+			const int* const tableData = mesh->m_setTables[i];
+			dtAssert(tableData);
+
+			fwrite(tableData, sizeof(int), (header.params.reachabilityTableSize/4), fp);
+		}
+	}
 
 	fclose(fp);
 }
