@@ -128,8 +128,12 @@ public:
 	}
 	int insertNew()
 	{
-		rank.push_back(0);
-		return parent.emplace_back((int)parent.size());
+		rank.push(0);
+
+		const int newId = parent.size();
+		parent.push(newId);
+
+		return newId;
 	}
 	inline int find(const int id) const
 	{
@@ -157,11 +161,11 @@ public:
 		}
 	}
 
-	inline int getSetCount() const { return (int)parent.size(); }
+	inline int getSetCount() const { return parent.size(); }
 
 private:
-	std::vector<int> rank;
-	std::vector<int> parent;
+	rdIntArray rank;
+	rdIntArray parent;
 };
 
 bool dtBuildStaticPathingData(dtNavMesh* mesh);
