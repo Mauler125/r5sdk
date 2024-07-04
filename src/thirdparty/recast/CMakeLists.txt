@@ -1,9 +1,33 @@
 cmake_minimum_required( VERSION 3.16 )
 
 # -----------------------------------------------------------------------------
+# Recast & Detour shared common
+# -----------------------------------------------------------------------------
+add_module( "lib" "navsharedcommon" "" ${FOLDER_CONTEXT} TRUE TRUE )
+
+start_sources()
+
+add_sources( SOURCE_GROUP "Source"
+    "Shared/Source/SharedAlloc.cpp"
+    "Shared/Source/SharedAssert.cpp"
+)
+
+add_sources( SOURCE_GROUP "Include"
+    "Shared/Include/SharedAlloc.h"
+    "Shared/Include/SharedAssert.h"
+)
+
+end_sources()
+whole_program_optimization()
+
+target_precompile_headers( ${PROJECT_NAME} PRIVATE
+    "Pch.h"
+)
+
+# -----------------------------------------------------------------------------
 # Recast & Detour debug utilities
 # -----------------------------------------------------------------------------
-add_module( "lib" "navdebugutils" "" ${FOLDER_CONTEXT} TRUE TRUE )
+add_module( "lib" "navdebugutils" "navsharedcommon" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -24,20 +48,14 @@ add_sources( SOURCE_GROUP "Include"
 end_sources()
 whole_program_optimization()
 
-target_precompile_headers( ${PROJECT_NAME} PRIVATE
-    "Pch.h"
-)
-
 # -----------------------------------------------------------------------------
 # Detour runtime
 # -----------------------------------------------------------------------------
-add_module( "lib" "libdetour" "navdebugutils" ${FOLDER_CONTEXT} TRUE TRUE )
+add_module( "lib" "libdetour" "navsharedcommon" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
 add_sources( SOURCE_GROUP "Source"
-    "Detour/Source/DetourAlloc.cpp"
-    "Detour/Source/DetourAssert.cpp"
     "Detour/Source/DetourCommon.cpp"
     "Detour/Source/DetourNavMesh.cpp"
     "Detour/Source/DetourNavMeshBuilder.cpp"
@@ -46,8 +64,6 @@ add_sources( SOURCE_GROUP "Source"
 )
 
 add_sources( SOURCE_GROUP "Include"
-    "Detour/Include/DetourAlloc.h"
-    "Detour/Include/DetourAssert.h"
     "Detour/Include/DetourCommon.h"
     "Detour/Include/DetourMath.h"
     "Detour/Include/DetourNavMesh.h"
@@ -63,7 +79,7 @@ whole_program_optimization()
 # -----------------------------------------------------------------------------
 # Detour crowd
 # -----------------------------------------------------------------------------
-add_module( "lib" "libdetourcrowd" "navdebugutils" ${FOLDER_CONTEXT} TRUE TRUE )
+add_module( "lib" "libdetourcrowd" "navsharedcommon" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -93,7 +109,7 @@ whole_program_optimization()
 # -----------------------------------------------------------------------------
 # Detour tile cache
 # -----------------------------------------------------------------------------
-add_module( "lib" "libdetourtilecache" "navdebugutils" ${FOLDER_CONTEXT} TRUE TRUE )
+add_module( "lib" "libdetourtilecache" "navsharedcommon" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
@@ -113,15 +129,13 @@ whole_program_optimization()
 # -----------------------------------------------------------------------------
 # Recast runtime
 # -----------------------------------------------------------------------------
-add_module( "lib" "librecast" "navdebugutils" ${FOLDER_CONTEXT} TRUE TRUE )
+add_module( "lib" "librecast" "navsharedcommon" ${FOLDER_CONTEXT} TRUE TRUE )
 
 start_sources()
 
 add_sources( SOURCE_GROUP "Source"
     "Recast/Source/Recast.cpp"
-    "Recast/Source/RecastAlloc.cpp"
     "Recast/Source/RecastArea.cpp"
-    "Recast/Source/RecastAssert.cpp"
     "Recast/Source/RecastContour.cpp"
     "Recast/Source/RecastFilter.cpp"
     "Recast/Source/RecastLayers.cpp"
@@ -133,8 +147,6 @@ add_sources( SOURCE_GROUP "Source"
 
 add_sources( SOURCE_GROUP "Include"
     "Recast/Include/Recast.h"
-    "Recast/Include/RecastAlloc.h"
-    "Recast/Include/RecastAssert.h"
 )
 
 end_sources()

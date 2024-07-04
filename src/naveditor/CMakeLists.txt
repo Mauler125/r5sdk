@@ -99,6 +99,7 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/thirdparty/recast/Pch.h"
 )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "navsharedcommon"
     "navdebugutils"
     "libsdl2"
     "libdetour"
