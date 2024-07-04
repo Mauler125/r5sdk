@@ -281,9 +281,9 @@ static void setPolyGroupsReachability(int* const tableData, const int numPolyGro
 		tableData[index] &= ~value;
 }
 
-bool dtCreateStaticPathingData(dtNavMesh* mesh)
+bool dtCreateStaticPathingData(dtNavMesh* nav)
 {
-	rdAssert(mesh);
+	rdAssert(nav);
 
 	// Reserve the first 2 poly groups
 	// 0 = technically usable for normal poly groups, but for simplicity we reserve it for now.
@@ -291,9 +291,9 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 	dtDisjointSet data(2);
 
 	// Clear all labels.
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
-		dtMeshTile* tile = mesh->getTile(i);
+		dtMeshTile* tile = nav->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
 		int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
@@ -305,9 +305,9 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 
 	// First pass to group linked and unlinked poly islands.
 	std::set<int> nlabels;
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
-		dtMeshTile* tile = mesh->getTile(i);
+		dtMeshTile* tile = nav->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
 		const int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
@@ -319,7 +319,7 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 				const dtLink l = tile->links[plink];
 				const dtMeshTile* t;
 				const dtPoly* p;
-				mesh->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
+				nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
 
 				if (p->disjointSetId != (unsigned short)-1)
 					nlabels.insert(p->disjointSetId);
@@ -348,9 +348,9 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 	}
 
 	// Second pass to ensure all poly's have their root disjoint set ID.
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
-		dtMeshTile* tile = mesh->getTile(i);
+		dtMeshTile* tile = nav->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
 		const int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
@@ -367,9 +367,9 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 	// Gather all unique polygroups and map them to a contiguous range.
 	std::map<unsigned short, unsigned short> groupMap;
 	unsigned short numPolyGroups = DT_STRAY_POLY_GROUP+1; // Anything <= DT_STRAY_POLY_GROUP is reserved!
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
-		dtMeshTile* tile = mesh->getTile(i);
+		dtMeshTile* tile = nav->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
 		const int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
@@ -382,9 +382,9 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 	}
 
 	// Third pass to apply the new mapping to all polys.
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
-		dtMeshTile* tile = mesh->getTile(i);
+		dtMeshTile* tile = nav->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
 		const int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
@@ -398,7 +398,7 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 	const int tableSize = calcStaticPathingTableSize(numPolyGroups);
 	const int tableCount = DT_NUM_REACHABILITY_TABLES;
 
-	rdAssert(mesh->m_setTables);
+	rdAssert(nav->m_setTables);
 
 	// NOTE: the game allocates 4 reachability table buffers, original
 	// navmeshes have slightly different data per table. Currently ours are all
@@ -411,7 +411,7 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 		if (!reachabilityTable)
 			return false;
 
-		mesh->m_setTables[i] = reachabilityTable;
+		nav->m_setTables[i] = reachabilityTable;
 		memset(reachabilityTable, 0, sizeof(int)*tableSize);
 
 		for (int j = 0; j < numPolyGroups; j++)
@@ -425,9 +425,9 @@ bool dtCreateStaticPathingData(dtNavMesh* mesh)
 		}
 	}
 
-	mesh->m_params.disjointPolyGroupCount = numPolyGroups;
-	mesh->m_params.reachabilityTableSize = tableSize;
-	mesh->m_params.reachabilityTableCount = tableCount;
+	nav->m_params.disjointPolyGroupCount = numPolyGroups;
+	nav->m_params.reachabilityTableSize = tableSize;
+	nav->m_params.reachabilityTableCount = tableCount;
 
 	return true;
 }

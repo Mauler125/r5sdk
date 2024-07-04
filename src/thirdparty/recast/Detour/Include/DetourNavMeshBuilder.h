@@ -170,9 +170,9 @@ private:
 
 /// Builds navigation mesh static pathing data from the provided navmesh.
 /// @ingroup detour
-///  @param[in]		mesh		Tile creation data.
+///  @param[in]		nav		The navigation mesh to use.
 /// @return True if the static pathing data was successfully created.
-bool dtCreateStaticPathingData(dtNavMesh* mesh);
+bool dtCreateStaticPathingData(dtNavMesh* nav);
 
 /// Builds navigation mesh tile data from the provided tile creation data.
 /// @ingroup detour
