@@ -123,17 +123,13 @@ public:
 		rank.resize(size);
 		parent.resize(size);
 
-		setCount = size;
-
 		for (int i = 0; i < parent.size(); i++)
 			parent[i] = i;
 	}
 	int insertNew()
 	{
 		rank.push_back(0);
-		parent.push_back(setCount);
-
-		return setCount++;
+		return parent.emplace_back((int)parent.size());
 	}
 	inline int find(const int id) const
 	{
@@ -161,13 +157,11 @@ public:
 		}
 	}
 
-	inline int getSetCount() const { return setCount; }
+	inline int getSetCount() const { return (int)parent.size(); }
 
 private:
 	std::vector<int> rank;
 	std::vector<int> parent;
-
-	int setCount = 0;
 };
 
 bool dtBuildStaticPathingData(dtNavMesh* mesh);
