@@ -23,8 +23,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 
 /// @par 
 /// 
@@ -36,14 +36,14 @@
 /// @see rcCompactHeightfield, rcBuildCompactHeightfield, rcConfig::walkableRadius
 bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	const int w = chf.width;
 	const int h = chf.height;
 	
 	rcScopedTimer timer(ctx, RC_TIMER_ERODE_AREA);
 	
-	unsigned char* dist = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
+	unsigned char* dist = (unsigned char*)rdAlloc(sizeof(unsigned char)*chf.spanCount, RD_ALLOC_TEMP);
 	if (!dist)
 	{
 		ctx->log(RC_LOG_ERROR, "erodeWalkableArea: Out of memory 'dist' (%d).", chf.spanCount);
@@ -213,7 +213,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 		if (dist[i] < thr)
 			chf.areas[i] = RC_NULL_AREA;
 	
-	rcFree(dist);
+	rdFree(dist);
 	
 	return true;
 }
@@ -238,14 +238,14 @@ static void insertSort(unsigned char* a, const int n)
 /// @see rcCompactHeightfield
 bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	const int w = chf.width;
 	const int h = chf.height;
 	
 	rcScopedTimer timer(ctx, RC_TIMER_MEDIAN_AREA);
 	
-	unsigned char* areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
+	unsigned char* areas = (unsigned char*)rdAlloc(sizeof(unsigned char)*chf.spanCount, RD_ALLOC_TEMP);
 	if (!areas)
 	{
 		ctx->log(RC_LOG_ERROR, "medianFilterWalkableArea: Out of memory 'areas' (%d).", chf.spanCount);
@@ -303,7 +303,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 	
 	memcpy(chf.areas, areas, sizeof(unsigned char)*chf.spanCount);
 	
-	rcFree(areas);
+	rdFree(areas);
 	
 	return true;
 }
@@ -316,7 +316,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigned char areaId,
 				   rcCompactHeightfield& chf)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_MARK_BOX_AREA);
 
@@ -382,7 +382,7 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 						  const float hmin, const float hmax, unsigned char areaId,
 						  rcCompactHeightfield& chf)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_MARK_CONVEXPOLY_AREA);
 
@@ -530,7 +530,7 @@ void rcMarkCylinderArea(rcContext* ctx, const float* pos,
 						const float r, const float h, unsigned char areaId,
 						rcCompactHeightfield& chf)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_MARK_CYLINDER_AREA);
 	

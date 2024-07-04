@@ -73,8 +73,8 @@ private:
 	float* m_tpen;
 };
 
-dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData();
-void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr);
+dtObstacleAvoidanceDebugData* rdAllocObstacleAvoidanceDebugData();
+void rdFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr);
 
 
 static const int DT_MAX_PATTERN_DIVS = 32;	///< Max numver of adaptive divs.
@@ -152,8 +152,8 @@ private:
 	int m_nsegments;
 };
 
-dtObstacleAvoidanceQuery* dtAllocObstacleAvoidanceQuery();
-void dtFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr);
+dtObstacleAvoidanceQuery* rdAllocObstacleAvoidanceQuery();
+void rdFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr);
 
 
 #endif // DETOUROBSTACLEAVOIDANCE_H

@@ -21,7 +21,7 @@
 
 // Only use types for function prototypes
 #ifndef GAMESDK
-#include "Detour/Include/DetourAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 #include "Detour/Include/DetourStatus.h"
 #endif // !GAMESDK
 
@@ -765,12 +765,12 @@ inline int calcStaticPathingTableSize(const int numPolyGroups)
 /// Allocates a navigation mesh object using the Detour allocator.
 /// @return A navigation mesh that is ready for initialization, or null on failure.
 ///  @ingroup detour
-dtNavMesh* dtAllocNavMesh();
+dtNavMesh* rdAllocNavMesh();
 
 /// Frees the specified navigation mesh object using the Detour allocator.
-///  @param[in]	navmesh		A navigation mesh allocated using #dtAllocNavMesh
+///  @param[in]	navmesh		A navigation mesh allocated using #rdAllocNavMesh
 ///  @ingroup detour
-void dtFreeNavMesh(dtNavMesh* navmesh);
+void rdFreeNavMesh(dtNavMesh* navmesh);
 
 #endif // DETOURNAVMESH_H
 

@@ -18,7 +18,7 @@
 
 #include "Pch.h"
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/TestCase.h"
@@ -38,7 +38,7 @@ struct SampleItem
 Editor* createTile() { return new Editor_TileMesh(); }
 Editor* createDebug() { return new Editor_Debug(); }
 
-void save_ply(std::vector<float>& pts,std::vector<int>& colors,rcIntArray& tris)
+void save_ply(std::vector<float>& pts,std::vector<int>& colors,rdIntArray& tris)
 {
 	static int counter = 0;
 	char fname[255];
@@ -247,7 +247,7 @@ int main(int argc, char** argv)
 
 extern void delaunayHull(rcContext* ctx, const int npts, const float* pts,
 	const int nhull, const int* hull,
-	rcIntArray& tris, rcIntArray& edges);
+	rdIntArray& tris, rdIntArray& edges);
 
 int main_test_delaunay(int /*argc*/, char** /*argv*/)
 {
@@ -263,15 +263,15 @@ int main_test_delaunay(int /*argc*/, char** /*argv*/)
 	for (auto h : hull)
 		colors[h] = 0xffff0000;
 
-	rcIntArray tris;
+	rdIntArray tris;
 	save_ply(pts, colors, tris);
 
-	rcIntArray edges;
+	rdIntArray edges;
 	delaunayHull(&ctx, pts.size()/3, pts.data(), hull.size(), hull.data(), tris, edges);
 	save_ply(pts, colors, tris);
 	return 0;
 }
-void compact_tris(rcIntArray& tris)
+void compact_tris(rdIntArray& tris)
 {
 	int j = 3;
 	for (int i = 4; i < tris.size(); i++)
@@ -297,10 +297,10 @@ int main(int argc, char** argv)
 	for (auto h : hull)
 		colors[h] = 0xffff0000;
 
-	rcIntArray tris;
+	rdIntArray tris;
 	//save_ply(pts, colors, tris);
 
-	rcIntArray edges;
+	rdIntArray edges;
 	delaunayHull(&ctx, pts.size() / 3, pts.data(), hull.size(), hull.data(), tris, edges);
 	compact_tris(tris);
 	save_ply(pts, colors, tris);

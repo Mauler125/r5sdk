@@ -19,8 +19,8 @@
 #include "DetourCrowd\Include\DetourObstacleAvoidance.h"
 #include "Detour\Include\DetourCommon.h"
 #include "Detour\Include\DetourMath.h"
-#include "Detour\Include\DetourAlloc.h"
-#include "Detour\Include\DetourAssert.h"
+#include "Shared\Include\SharedAlloc.h"
+#include "Shared\Include\SharedAssert.h"
 #include <string.h>
 #include <float.h>
 #include <new>
@@ -67,18 +67,18 @@ static int isectRaySeg(const float* ap, const float* u,
 
 
 
-dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData()
+dtObstacleAvoidanceDebugData* rdAllocObstacleAvoidanceDebugData()
 {
-	void* mem = dtAlloc(sizeof(dtObstacleAvoidanceDebugData), DT_ALLOC_PERM);
+	void* mem = rdAlloc(sizeof(dtObstacleAvoidanceDebugData), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtObstacleAvoidanceDebugData;
 }
 
-void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr)
+void rdFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtObstacleAvoidanceDebugData();
-	dtFree(ptr);
+	rdFree(ptr);
 }
 
 
@@ -97,39 +97,39 @@ dtObstacleAvoidanceDebugData::dtObstacleAvoidanceDebugData() :
 
 dtObstacleAvoidanceDebugData::~dtObstacleAvoidanceDebugData()
 {
-	dtFree(m_vel);
-	dtFree(m_ssize);
-	dtFree(m_pen);
-	dtFree(m_vpen);
-	dtFree(m_vcpen);
-	dtFree(m_spen);
-	dtFree(m_tpen);
+	rdFree(m_vel);
+	rdFree(m_ssize);
+	rdFree(m_pen);
+	rdFree(m_vpen);
+	rdFree(m_vcpen);
+	rdFree(m_spen);
+	rdFree(m_tpen);
 }
 		
 bool dtObstacleAvoidanceDebugData::init(const int maxSamples)
 {
-	dtAssert(maxSamples);
+	rdAssert(maxSamples);
 	m_maxSamples = maxSamples;
 
-	m_vel = (float*)dtAlloc(sizeof(float)*3*m_maxSamples, DT_ALLOC_PERM);
+	m_vel = (float*)rdAlloc(sizeof(float)*3*m_maxSamples, RD_ALLOC_PERM);
 	if (!m_vel)
 		return false;
-	m_pen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_pen = (float*)rdAlloc(sizeof(float)*m_maxSamples, RD_ALLOC_PERM);
 	if (!m_pen)
 		return false;
-	m_ssize = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_ssize = (float*)rdAlloc(sizeof(float)*m_maxSamples, RD_ALLOC_PERM);
 	if (!m_ssize)
 		return false;
-	m_vpen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_vpen = (float*)rdAlloc(sizeof(float)*m_maxSamples, RD_ALLOC_PERM);
 	if (!m_vpen)
 		return false;
-	m_vcpen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_vcpen = (float*)rdAlloc(sizeof(float)*m_maxSamples, RD_ALLOC_PERM);
 	if (!m_vcpen)
 		return false;
-	m_spen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_spen = (float*)rdAlloc(sizeof(float)*m_maxSamples, RD_ALLOC_PERM);
 	if (!m_spen)
 		return false;
-	m_tpen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_tpen = (float*)rdAlloc(sizeof(float)*m_maxSamples, RD_ALLOC_PERM);
 	if (!m_tpen)
 		return false;
 	
@@ -146,13 +146,13 @@ void dtObstacleAvoidanceDebugData::addSample(const float* vel, const float ssize
 {
 	if (m_nsamples >= m_maxSamples)
 		return;
-	dtAssert(m_vel);
-	dtAssert(m_ssize);
-	dtAssert(m_pen);
-	dtAssert(m_vpen);
-	dtAssert(m_vcpen);
-	dtAssert(m_spen);
-	dtAssert(m_tpen);
+	rdAssert(m_vel);
+	rdAssert(m_ssize);
+	rdAssert(m_pen);
+	rdAssert(m_vpen);
+	rdAssert(m_vcpen);
+	rdAssert(m_spen);
+	rdAssert(m_tpen);
 	dtVcopy(&m_vel[m_nsamples*3], vel);
 	m_ssize[m_nsamples] = ssize;
 	m_pen[m_nsamples] = pen;
@@ -189,18 +189,18 @@ void dtObstacleAvoidanceDebugData::normalizeSamples()
 }
 
 
-dtObstacleAvoidanceQuery* dtAllocObstacleAvoidanceQuery()
+dtObstacleAvoidanceQuery* rdAllocObstacleAvoidanceQuery()
 {
-	void* mem = dtAlloc(sizeof(dtObstacleAvoidanceQuery), DT_ALLOC_PERM);
+	void* mem = rdAlloc(sizeof(dtObstacleAvoidanceQuery), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtObstacleAvoidanceQuery;
 }
 
-void dtFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr)
+void rdFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtObstacleAvoidanceQuery();
-	dtFree(ptr);
+	rdFree(ptr);
 }
 
 
@@ -219,22 +219,22 @@ dtObstacleAvoidanceQuery::dtObstacleAvoidanceQuery() :
 
 dtObstacleAvoidanceQuery::~dtObstacleAvoidanceQuery()
 {
-	dtFree(m_circles);
-	dtFree(m_segments);
+	rdFree(m_circles);
+	rdFree(m_segments);
 }
 
 bool dtObstacleAvoidanceQuery::init(const int maxCircles, const int maxSegments)
 {
 	m_maxCircles = maxCircles;
 	m_ncircles = 0;
-	m_circles = (dtObstacleCircle*)dtAlloc(sizeof(dtObstacleCircle)*m_maxCircles, DT_ALLOC_PERM);
+	m_circles = (dtObstacleCircle*)rdAlloc(sizeof(dtObstacleCircle)*m_maxCircles, RD_ALLOC_PERM);
 	if (!m_circles)
 		return false;
 	memset(m_circles, 0, sizeof(dtObstacleCircle)*m_maxCircles);
 
 	m_maxSegments = maxSegments;
 	m_nsegments = 0;
-	m_segments = (dtObstacleSegment*)dtAlloc(sizeof(dtObstacleSegment)*m_maxSegments, DT_ALLOC_PERM);
+	m_segments = (dtObstacleSegment*)rdAlloc(sizeof(dtObstacleSegment)*m_maxSegments, RD_ALLOC_PERM);
 	if (!m_segments)
 		return false;
 	memset(m_segments, 0, sizeof(dtObstacleSegment)*m_maxSegments);

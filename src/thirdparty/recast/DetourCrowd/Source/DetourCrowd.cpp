@@ -28,22 +28,22 @@
 #include "Detour\Include\DetourNavMeshQuery.h"
 #include "Detour\Include\DetourCommon.h"
 #include "Detour\Include\DetourMath.h"
-#include "Detour\Include\DetourAssert.h"
-#include "Detour\Include\DetourAlloc.h"
+#include "Shared\Include\SharedAssert.h"
+#include "Shared\Include\SharedAlloc.h"
 
 
-dtCrowd* dtAllocCrowd()
+dtCrowd* rdAllocCrowd()
 {
-	void* mem = dtAlloc(sizeof(dtCrowd), DT_ALLOC_PERM);
+	void* mem = rdAlloc(sizeof(dtCrowd), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtCrowd;
 }
 
-void dtFreeCrowd(dtCrowd* ptr)
+void rdFreeCrowd(dtCrowd* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtCrowd();
-	dtFree(ptr);
+	rdFree(ptr);
 }
 
 
@@ -67,7 +67,7 @@ of the crowd features.
 
 A common method for setting up the crowd is as follows:
 
--# Allocate the crowd using #dtAllocCrowd.
+-# Allocate the crowd using #rdAllocCrowd.
 -# Initialize the crowd using #init().
 -# Set the avoidance configurations using #setObstacleAvoidanceParams().
 -# Add agents using #addAgent() and make an initial movement request using #requestMoveTarget().
@@ -92,7 +92,7 @@ Notes:
 - This class is meant to provide 'local' movement. There is a limit of 256 polygons in the path corridor.  
   So it is not meant to provide automatic pathfinding services over long distances.
 
-@see dtAllocCrowd(), dtFreeCrowd(), init(), dtCrowdAgent
+@see rdAllocCrowd(), rdFreeCrowd(), init(), dtCrowdAgent
 
 */
 
@@ -120,26 +120,26 @@ void dtCrowd::purge()
 {
 	for (int i = 0; i < m_maxAgents; ++i)
 		m_agents[i].~dtCrowdAgent();
-	dtFree(m_agents);
+	rdFree(m_agents);
 	m_agents = 0;
 	m_maxAgents = 0;
 	
-	dtFree(m_activeAgents);
+	rdFree(m_activeAgents);
 	m_activeAgents = 0;
 
-	dtFree(m_agentAnims);
+	rdFree(m_agentAnims);
 	m_agentAnims = 0;
 	
-	dtFree(m_pathResult);
+	rdFree(m_pathResult);
 	m_pathResult = 0;
 	
-	dtFreeProximityGrid(m_grid);
+	rdFreeProximityGrid(m_grid);
 	m_grid = 0;
 
-	dtFreeObstacleAvoidanceQuery(m_obstacleQuery);
+	rdFreeObstacleAvoidanceQuery(m_obstacleQuery);
 	m_obstacleQuery = 0;
 	
-	dtFreeNavMeshQuery(m_navquery);
+	rdFreeNavMeshQuery(m_navquery);
 	m_navquery = 0;
 }
 
@@ -156,13 +156,13 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	// Larger than agent radius because it is also used for agent recovery.
 	dtVset(m_agentPlacementHalfExtents, m_maxAgentRadius*2.0f, m_maxAgentRadius*1.5f, m_maxAgentRadius*2.0f);
 	
-	m_grid = dtAllocProximityGrid();
+	m_grid = rdAllocProximityGrid();
 	if (!m_grid)
 		return false;
 	if (!m_grid->init(m_maxAgents*4, maxAgentRadius*3))
 		return false;
 	
-	m_obstacleQuery = dtAllocObstacleAvoidanceQuery();
+	m_obstacleQuery = rdAllocObstacleAvoidanceQuery();
 	if (!m_obstacleQuery)
 		return false;
 	if (!m_obstacleQuery->init(6, 8))
@@ -187,22 +187,22 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	
 	// Allocate temp buffer for merging paths.
 	m_maxPathResult = 256;
-	m_pathResult = (dtPolyRef*)dtAlloc(sizeof(dtPolyRef)*m_maxPathResult, DT_ALLOC_PERM);
+	m_pathResult = (dtPolyRef*)rdAlloc(sizeof(dtPolyRef)*m_maxPathResult, RD_ALLOC_PERM);
 	if (!m_pathResult)
 		return false;
 	
 	if (!m_pathq.init(m_maxPathResult, MAX_PATHQUEUE_NODES, nav))
 		return false;
 	
-	m_agents = (dtCrowdAgent*)dtAlloc(sizeof(dtCrowdAgent)*m_maxAgents, DT_ALLOC_PERM);
+	m_agents = (dtCrowdAgent*)rdAlloc(sizeof(dtCrowdAgent)*m_maxAgents, RD_ALLOC_PERM);
 	if (!m_agents)
 		return false;
 	
-	m_activeAgents = (dtCrowdAgent**)dtAlloc(sizeof(dtCrowdAgent*)*m_maxAgents, DT_ALLOC_PERM);
+	m_activeAgents = (dtCrowdAgent**)rdAlloc(sizeof(dtCrowdAgent*)*m_maxAgents, RD_ALLOC_PERM);
 	if (!m_activeAgents)
 		return false;
 
-	m_agentAnims = (dtCrowdAgentAnimation*)dtAlloc(sizeof(dtCrowdAgentAnimation)*m_maxAgents, DT_ALLOC_PERM);
+	m_agentAnims = (dtCrowdAgentAnimation*)rdAlloc(sizeof(dtCrowdAgentAnimation)*m_maxAgents, RD_ALLOC_PERM);
 	if (!m_agentAnims)
 		return false;
 	
@@ -220,7 +220,7 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	}
 
 	// The navquery is mostly used for local searches, no need for large node pool.
-	m_navquery = dtAllocNavMeshQuery();
+	m_navquery = rdAllocNavMeshQuery();
 	if (!m_navquery)
 		return false;
 	if (dtStatusFailed(m_navquery->init(nav, MAX_COMMON_NODES)))
@@ -463,7 +463,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 		{
 			const dtPolyRef* path = ag->corridor.getPath();
 			const int npath = ag->corridor.getPathCount();
-			dtAssert(npath);
+			rdAssert(npath);
 
 			static const int MAX_RES = 32;
 			float reqPos[3];
@@ -579,7 +579,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 			{
 				const dtPolyRef* path = ag->corridor.getPath();
 				const int npath = ag->corridor.getPathCount();
-				dtAssert(npath);
+				rdAssert(npath);
 				
 				// Apply results.
 				float targetPos[3];

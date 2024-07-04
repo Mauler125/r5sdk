@@ -399,7 +399,7 @@ struct rcHeightfieldLayer
 
 /// Represents a set of heightfield layers.
 /// @ingroup recast
-/// @see rcAllocHeightfieldLayerSet, rcFreeHeightfieldLayerSet 
+/// @see rdAllocHeightfieldLayerSet, rdFreeHeightfieldLayerSet 
 struct rcHeightfieldLayerSet
 {
 	rcHeightfieldLayerSet();
@@ -500,80 +500,80 @@ private:
 
 /// @name Allocation Functions
 /// Functions used to allocate and de-allocate Recast objects.
-/// @see rcAllocSetCustom
+/// @see rdAllocSetCustom
 /// @{
 
 /// Allocates a heightfield object using the Recast allocator.
 /// @return A heightfield that is ready for initialization, or null on failure.
 /// @ingroup recast
-/// @see rcCreateHeightfield, rcFreeHeightField
-rcHeightfield* rcAllocHeightfield();
+/// @see rcCreateHeightfield, rdFreeHeightField
+rcHeightfield* rdAllocHeightfield();
 
 /// Frees the specified heightfield object using the Recast allocator.
-/// @param[in]		heightfield	A heightfield allocated using #rcAllocHeightfield
+/// @param[in]		heightfield	A heightfield allocated using #rdAllocHeightfield
 /// @ingroup recast
-/// @see rcAllocHeightfield
-void rcFreeHeightField(rcHeightfield* heightfield);
+/// @see rdAllocHeightfield
+void rdFreeHeightField(rcHeightfield* heightfield);
 
 /// Allocates a compact heightfield object using the Recast allocator.
 /// @return A compact heightfield that is ready for initialization, or null on failure.
 /// @ingroup recast
-/// @see rcBuildCompactHeightfield, rcFreeCompactHeightfield
-rcCompactHeightfield* rcAllocCompactHeightfield();
+/// @see rcBuildCompactHeightfield, rdFreeCompactHeightfield
+rcCompactHeightfield* rdAllocCompactHeightfield();
 
 /// Frees the specified compact heightfield object using the Recast allocator.
-/// @param[in]		compactHeightfield		A compact heightfield allocated using #rcAllocCompactHeightfield
+/// @param[in]		compactHeightfield		A compact heightfield allocated using #rdAllocCompactHeightfield
 /// @ingroup recast
-/// @see rcAllocCompactHeightfield
-void rcFreeCompactHeightfield(rcCompactHeightfield* compactHeightfield);
+/// @see rdAllocCompactHeightfield
+void rdFreeCompactHeightfield(rcCompactHeightfield* compactHeightfield);
 
 /// Allocates a heightfield layer set using the Recast allocator.
 /// @return A heightfield layer set that is ready for initialization, or null on failure.
 /// @ingroup recast
-/// @see rcBuildHeightfieldLayers, rcFreeHeightfieldLayerSet
-rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet();
+/// @see rcBuildHeightfieldLayers, rdFreeHeightfieldLayerSet
+rcHeightfieldLayerSet* rdAllocHeightfieldLayerSet();
 
 /// Frees the specified heightfield layer set using the Recast allocator.
-/// @param[in]		layerSet	A heightfield layer set allocated using #rcAllocHeightfieldLayerSet
+/// @param[in]		layerSet	A heightfield layer set allocated using #rdAllocHeightfieldLayerSet
 /// @ingroup recast
-/// @see rcAllocHeightfieldLayerSet
-void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* layerSet);
+/// @see rdAllocHeightfieldLayerSet
+void rdFreeHeightfieldLayerSet(rcHeightfieldLayerSet* layerSet);
 
 /// Allocates a contour set object using the Recast allocator.
 /// @return A contour set that is ready for initialization, or null on failure.
 /// @ingroup recast
-/// @see rcBuildContours, rcFreeContourSet
-rcContourSet* rcAllocContourSet();
+/// @see rcBuildContours, rdFreeContourSet
+rcContourSet* rdAllocContourSet();
 
 /// Frees the specified contour set using the Recast allocator.
-/// @param[in]		contourSet	A contour set allocated using #rcAllocContourSet
+/// @param[in]		contourSet	A contour set allocated using #rdAllocContourSet
 /// @ingroup recast
-/// @see rcAllocContourSet
-void rcFreeContourSet(rcContourSet* contourSet);
+/// @see rdAllocContourSet
+void rdFreeContourSet(rcContourSet* contourSet);
 
 /// Allocates a polygon mesh object using the Recast allocator.
 /// @return A polygon mesh that is ready for initialization, or null on failure.
 /// @ingroup recast
-/// @see rcBuildPolyMesh, rcFreePolyMesh
-rcPolyMesh* rcAllocPolyMesh();
+/// @see rcBuildPolyMesh, rdFreePolyMesh
+rcPolyMesh* rdAllocPolyMesh();
 
 /// Frees the specified polygon mesh using the Recast allocator.
-/// @param[in]		polyMesh	A polygon mesh allocated using #rcAllocPolyMesh
+/// @param[in]		polyMesh	A polygon mesh allocated using #rdAllocPolyMesh
 /// @ingroup recast
-/// @see rcAllocPolyMesh
-void rcFreePolyMesh(rcPolyMesh* polyMesh);
+/// @see rdAllocPolyMesh
+void rdFreePolyMesh(rcPolyMesh* polyMesh);
 
 /// Allocates a detail mesh object using the Recast allocator.
 /// @return A detail mesh that is ready for initialization, or null on failure.
 /// @ingroup recast
-/// @see rcBuildPolyMeshDetail, rcFreePolyMeshDetail
-rcPolyMeshDetail* rcAllocPolyMeshDetail();
+/// @see rcBuildPolyMeshDetail, rdFreePolyMeshDetail
+rcPolyMeshDetail* rdAllocPolyMeshDetail();
 
 /// Frees the specified detail mesh using the Recast allocator.
-/// @param[in]		detailMesh	A detail mesh allocated using #rcAllocPolyMeshDetail
+/// @param[in]		detailMesh	A detail mesh allocated using #rdAllocPolyMeshDetail
 /// @ingroup recast
-/// @see rcAllocPolyMeshDetail
-void rcFreePolyMeshDetail(rcPolyMeshDetail* detailMesh);
+/// @see rdAllocPolyMeshDetail
+void rdFreePolyMeshDetail(rcPolyMeshDetail* detailMesh);
 
 /// @}
 
@@ -843,7 +843,7 @@ void rcCalcGridSize(const float* minBounds, const float* maxBounds, float cellSi
 /// Initializes a new heightfield.
 /// See the #rcConfig documentation for more information on the configuration parameters.
 /// 
-/// @see rcAllocHeightfield, rcHeightfield
+/// @see rdAllocHeightfield, rcHeightfield
 /// @ingroup recast
 /// 
 /// @param[in,out]	context		The build context to use during the operation.
@@ -1081,7 +1081,7 @@ int rcGetHeightFieldSpanCount(rcContext* context, const rcHeightfield& heightfie
 ///
 /// See the #rcConfig documentation for more information on the configuration parameters.
 ///
-/// @see rcAllocCompactHeightfield, rcHeightfield, rcCompactHeightfield, rcConfig
+/// @see rdAllocCompactHeightfield, rcHeightfield, rcCompactHeightfield, rcConfig
 /// @ingroup recast
 /// 
 /// @param[in,out]	context				The build context to use during the operation.

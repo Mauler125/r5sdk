@@ -23,8 +23,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 #include <algorithm>
 
 static const unsigned RC_UNSET_HEIGHT = 0xffff;
@@ -33,7 +33,7 @@ static const unsigned RC_UNSET_HEIGHT = 0xffff;
 struct rcHeightPatch
 {
 	inline rcHeightPatch() : data(0), xmin(0), ymin(0), width(0), height(0) {}
-	inline ~rcHeightPatch() { rcFree(data); }
+	inline ~rcHeightPatch() { rdFree(data); }
 	unsigned short* data;
 	int xmin, ymin, width, height;
 };
@@ -523,7 +523,7 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 #undef addEdgeN
 void delaunayHull(rcContext* ctx, const int npts, const float* pts,
 						 const int nhull, const int* hull,
-						 rcIntArray& tris, rcIntArray& edges)
+						 rdIntArray& tris, rdIntArray& edges)
 {
 	int nfaces = 0;
 	int nedges = 0;
@@ -662,7 +662,7 @@ inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
 #define STEP_DIR next
 #define REV_STEP_DIR prev
 #endif
-static void triangulateHull(const int /*nverts*/, const float* verts, const int nhull, const int* hull, const int nin, rcIntArray& tris)
+static void triangulateHull(const int /*nverts*/, const float* verts, const int nhull, const int* hull, const int nin, rdIntArray& tris)
 {
 	int start = 0, left = 1, right = nhull-1;
 	
@@ -756,7 +756,7 @@ static bool onHull(int a, int b, int nhull, int* hull)
 }
 
 // Find edges that lie on hull and mark them as such.
-static void setTriFlags(rcIntArray& tris, int nhull, int* hull)
+static void setTriFlags(rdIntArray& tris, int nhull, int* hull)
 {
 	// Matches DT_DETAIL_EDGE_BOUNDARY
 	const int DETAIL_EDGE_BOUNDARY = 0x1;
@@ -778,7 +778,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 							const float sampleDist, const float sampleMaxError,
 							const int heightSearchRadius, const rcCompactHeightfield& chf,
 							const rcHeightPatch& hp, float* verts, int& nverts,
-							rcIntArray& tris, rcIntArray& edges, rcIntArray& samples)
+							rdIntArray& tris, rdIntArray& edges, rdIntArray& samples)
 {
 	static const int MAX_VERTS = 127;
 	static const int MAX_TRIS = 255;	// Max tris for delaunay is 2n-2-k (n=num verts, k=num hull verts).
@@ -1025,7 +1025,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& chf,
 									const unsigned short* poly, const int npoly,
 									const unsigned short* verts, const int bs,
-									rcHeightPatch& hp, rcIntArray& array)
+									rcHeightPatch& hp, rdIntArray& array)
 {
 	// Note: Reads to the compact heightfield are offset by border size (bs)
 	// since border size offset is already removed from the polymesh vertices.
@@ -1065,7 +1065,7 @@ static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& 
 		}
 	}
 	
-	rcAssert(startSpanIndex != -1);
+	rdAssert(startSpanIndex != -1);
 	// Find center of the polygon
 	int pcx = 0, pcy = 0;
 	for (int j = 0; j < npoly; ++j)
@@ -1155,7 +1155,7 @@ static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& 
 }
 
 
-static void push3(rcIntArray& queue, int v1, int v2, int v3)
+static void push3(rdIntArray& queue, int v1, int v2, int v3)
 {
 	queue.resize(queue.size() + 3);
 	queue[queue.size() - 3] = v1;
@@ -1166,7 +1166,7 @@ static void push3(rcIntArray& queue, int v1, int v2, int v3)
 static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 						  const unsigned short* poly, const int npoly,
 						  const unsigned short* verts, const int bs,
-						  rcHeightPatch& hp, rcIntArray& queue,
+						  rcHeightPatch& hp, rdIntArray& queue,
 						  int region)
 {
 	// Note: Reads to the compact heightfield are offset by border size (bs)
@@ -1284,12 +1284,12 @@ static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 ///
 /// See the #rcConfig documentation for more information on the configuration parameters.
 ///
-/// @see rcAllocPolyMeshDetail, rcPolyMesh, rcCompactHeightfield, rcPolyMeshDetail, rcConfig
+/// @see rdAllocPolyMeshDetail, rcPolyMesh, rcCompactHeightfield, rcPolyMeshDetail, rcConfig
 bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompactHeightfield& chf,
 						   const float sampleDist, const float sampleMaxError,
 						   rcPolyMeshDetail& dmesh)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_POLYMESHDETAIL);
 	
@@ -1303,22 +1303,22 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	const int borderSize = mesh.borderSize;
 	const int heightSearchRadius = rcMax(1, (int)ceilf(mesh.maxEdgeError));
 	
-	rcIntArray edges(64);
-	rcIntArray tris(512);
-	rcIntArray arr(512);
-	rcIntArray samples(512);
+	rdIntArray edges(64);
+	rdIntArray tris(512);
+	rdIntArray arr(512);
+	rdIntArray samples(512);
 	float verts[256*3];
 	rcHeightPatch hp;
 	int nPolyVerts = 0;
 	int maxhw = 0, maxhh = 0;
 	
-	rcScopedDelete<int> bounds((int*)rcAlloc(sizeof(int)*mesh.npolys*4, RC_ALLOC_TEMP));
+	rdScopedDelete<int> bounds((int*)rdAlloc(sizeof(int)*mesh.npolys*4, RD_ALLOC_TEMP));
 	if (!bounds)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'bounds' (%d).", mesh.npolys*4);
 		return false;
 	}
-	rcScopedDelete<float> poly((float*)rcAlloc(sizeof(float)*nvp*3, RC_ALLOC_TEMP));
+	rdScopedDelete<float> poly((float*)rdAlloc(sizeof(float)*nvp*3, RD_ALLOC_TEMP));
 	if (!poly)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'poly' (%d).", nvp*3);
@@ -1356,7 +1356,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		maxhh = rcMax(maxhh, ymax-ymin);
 	}
 	
-	hp.data = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxhw*maxhh, RC_ALLOC_TEMP);
+	hp.data = (unsigned short*)rdAlloc(sizeof(unsigned short)*maxhw*maxhh, RD_ALLOC_TEMP);
 	if (!hp.data)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'hp.data' (%d).", maxhw*maxhh);
@@ -1366,7 +1366,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	dmesh.nmeshes = mesh.npolys;
 	dmesh.nverts = 0;
 	dmesh.ntris = 0;
-	dmesh.meshes = (unsigned int*)rcAlloc(sizeof(unsigned int)*dmesh.nmeshes*4, RC_ALLOC_PERM);
+	dmesh.meshes = (unsigned int*)rdAlloc(sizeof(unsigned int)*dmesh.nmeshes*4, RD_ALLOC_PERM);
 	if (!dmesh.meshes)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.meshes' (%d).", dmesh.nmeshes*4);
@@ -1377,14 +1377,14 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	int tcap = vcap*2;
 	
 	dmesh.nverts = 0;
-	dmesh.verts = (float*)rcAlloc(sizeof(float)*vcap*3, RC_ALLOC_PERM);
+	dmesh.verts = (float*)rdAlloc(sizeof(float)*vcap*3, RD_ALLOC_PERM);
 	if (!dmesh.verts)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.verts' (%d).", vcap*3);
 		return false;
 	}
 	dmesh.ntris = 0;
-	dmesh.tris = (unsigned char*)rcAlloc(sizeof(unsigned char)*tcap*4, RC_ALLOC_PERM);
+	dmesh.tris = (unsigned char*)rdAlloc(sizeof(unsigned char)*tcap*4, RD_ALLOC_PERM);
 	if (!dmesh.tris)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.tris' (%d).", tcap*4);
@@ -1454,7 +1454,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 			while (dmesh.nverts+nverts > vcap)
 				vcap += 256;
 			
-			float* newv = (float*)rcAlloc(sizeof(float)*vcap*3, RC_ALLOC_PERM);
+			float* newv = (float*)rdAlloc(sizeof(float)*vcap*3, RD_ALLOC_PERM);
 			if (!newv)
 			{
 				ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'newv' (%d).", vcap*3);
@@ -1462,7 +1462,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 			}
 			if (dmesh.nverts)
 				memcpy(newv, dmesh.verts, sizeof(float)*3*dmesh.nverts);
-			rcFree(dmesh.verts);
+			rdFree(dmesh.verts);
 			dmesh.verts = newv;
 		}
 		for (int j = 0; j < nverts; ++j)
@@ -1478,7 +1478,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		{
 			while (dmesh.ntris+ntris > tcap)
 				tcap += 256;
-			unsigned char* newt = (unsigned char*)rcAlloc(sizeof(unsigned char)*tcap*4, RC_ALLOC_PERM);
+			unsigned char* newt = (unsigned char*)rdAlloc(sizeof(unsigned char)*tcap*4, RD_ALLOC_PERM);
 			if (!newt)
 			{
 				ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'newt' (%d).", tcap*4);
@@ -1486,7 +1486,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 			}
 			if (dmesh.ntris)
 				memcpy(newt, dmesh.tris, sizeof(unsigned char)*4*dmesh.ntris);
-			rcFree(dmesh.tris);
+			rdFree(dmesh.tris);
 			dmesh.tris = newt;
 		}
 		for (int j = 0; j < ntris; ++j)
@@ -1504,10 +1504,10 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	return true;
 }
 
-/// @see rcAllocPolyMeshDetail, rcPolyMeshDetail
+/// @see rdAllocPolyMeshDetail, rcPolyMeshDetail
 bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int nmeshes, rcPolyMeshDetail& mesh)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_MERGE_POLYMESHDETAIL);
 	
@@ -1524,7 +1524,7 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 	}
 	
 	mesh.nmeshes = 0;
-	mesh.meshes = (unsigned int*)rcAlloc(sizeof(unsigned int)*maxMeshes*4, RC_ALLOC_PERM);
+	mesh.meshes = (unsigned int*)rdAlloc(sizeof(unsigned int)*maxMeshes*4, RD_ALLOC_PERM);
 	if (!mesh.meshes)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'pmdtl.meshes' (%d).", maxMeshes*4);
@@ -1532,7 +1532,7 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 	}
 	
 	mesh.ntris = 0;
-	mesh.tris = (unsigned char*)rcAlloc(sizeof(unsigned char)*maxTris*4, RC_ALLOC_PERM);
+	mesh.tris = (unsigned char*)rdAlloc(sizeof(unsigned char)*maxTris*4, RD_ALLOC_PERM);
 	if (!mesh.tris)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.tris' (%d).", maxTris*4);
@@ -1540,7 +1540,7 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 	}
 	
 	mesh.nverts = 0;
-	mesh.verts = (float*)rcAlloc(sizeof(float)*maxVerts*3, RC_ALLOC_PERM);
+	mesh.verts = (float*)rdAlloc(sizeof(float)*maxVerts*3, RD_ALLOC_PERM);
 	if (!mesh.verts)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.verts' (%d).", maxVerts*3);

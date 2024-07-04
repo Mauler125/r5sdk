@@ -20,8 +20,8 @@
 #include "DetourCrowd\Include\DetourPathCorridor.h"
 #include "Detour\Include\DetourNavMeshQuery.h"
 #include "Detour\Include\DetourCommon.h"
-#include "Detour\Include\DetourAssert.h"
-#include "Detour\Include\DetourAlloc.h"
+#include "Shared\Include\SharedAssert.h"
+#include "Shared\Include\SharedAlloc.h"
 
 
 int dtMergeCorridorStartMoved(dtPolyRef* path, const int npath, const int maxPath,
@@ -100,7 +100,7 @@ int dtMergeCorridorEndMoved(dtPolyRef* path, const int npath, const int maxPath,
 	const int ppos = furthestPath+1;
 	const int vpos = furthestVisited+1;
 	const int count = dtMin(nvisited-vpos, maxPath-ppos);
-	dtAssert(ppos+count <= maxPath);
+	rdAssert(ppos+count <= maxPath);
 	if (count)
 		memcpy(path+ppos, visited+vpos, sizeof(dtPolyRef)*count);
 	
@@ -206,7 +206,7 @@ dtPathCorridor::dtPathCorridor() :
 
 dtPathCorridor::~dtPathCorridor()
 {
-	dtFree(m_path);
+	rdFree(m_path);
 }
 
 /// @par
@@ -214,8 +214,8 @@ dtPathCorridor::~dtPathCorridor()
 /// @warning Cannot be called more than once.
 bool dtPathCorridor::init(const int maxPath)
 {
-	dtAssert(!m_path);
-	m_path = (dtPolyRef*)dtAlloc(sizeof(dtPolyRef)*maxPath, DT_ALLOC_PERM);
+	rdAssert(!m_path);
+	m_path = (dtPolyRef*)rdAlloc(sizeof(dtPolyRef)*maxPath, RD_ALLOC_PERM);
 	if (!m_path)
 		return false;
 	m_npath = 0;
@@ -229,7 +229,7 @@ bool dtPathCorridor::init(const int maxPath)
 /// equal to the position.
 void dtPathCorridor::reset(dtPolyRef ref, const float* pos)
 {
-	dtAssert(m_path);
+	rdAssert(m_path);
 	dtVcopy(m_pos, pos);
 	dtVcopy(m_target, pos);
 	m_path[0] = ref;
@@ -252,8 +252,8 @@ int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 							  dtPolyRef* cornerPolys, const int maxCorners,
 							  dtNavMeshQuery* navquery, const dtQueryFilter* /*filter*/)
 {
-	dtAssert(m_path);
-	dtAssert(m_npath);
+	rdAssert(m_path);
+	rdAssert(m_npath);
 	
 	static const float MIN_TARGET_DIST = 0.01f;
 	
@@ -310,7 +310,7 @@ This function is not suitable for long distance searches.
 void dtPathCorridor::optimizePathVisibility(const float* next, const float pathOptimizationRange,
 										  dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
-	dtAssert(m_path);
+	rdAssert(m_path);
 	
 	// Clamp the ray to max distance.
 	float goal[3];
@@ -352,9 +352,9 @@ the call to match the needs to the agent.
 */
 bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
-	dtAssert(navquery);
-	dtAssert(filter);
-	dtAssert(m_path);
+	rdAssert(navquery);
+	rdAssert(filter);
+	rdAssert(m_path);
 	
 	if (m_npath < 3)
 		return false;
@@ -381,9 +381,9 @@ bool dtPathCorridor::moveOverOffmeshConnection(dtPolyRef offMeshConRef, dtPolyRe
 											   float* startPos, float* endPos,
 											   dtNavMeshQuery* navquery)
 {
-	dtAssert(navquery);
-	dtAssert(m_path);
-	dtAssert(m_npath);
+	rdAssert(navquery);
+	rdAssert(m_path);
+	rdAssert(m_npath);
 
 	// Advance the path up to and over the off-mesh connection.
 	dtPolyRef prevRef = 0, polyRef = m_path[0];
@@ -409,7 +409,7 @@ bool dtPathCorridor::moveOverOffmeshConnection(dtPolyRef offMeshConRef, dtPolyRe
 	refs[1] = polyRef;
 	
 	const dtNavMesh* nav = navquery->getAttachedNavMesh();
-	dtAssert(nav);
+	rdAssert(nav);
 
 	dtStatus status = nav->getOffMeshConnectionPolyEndPoints(refs[0], refs[1], startPos, endPos);
 	if (dtStatusSucceed(status))
@@ -438,8 +438,8 @@ or it can't be reached using a local search.
 */
 bool dtPathCorridor::movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
-	dtAssert(m_path);
-	dtAssert(m_npath);
+	rdAssert(m_path);
+	rdAssert(m_npath);
 	
 	// Move along navmesh and update new position.
 	float result[3];
@@ -476,8 +476,8 @@ The resulting target will differ from the desired target if the desired target i
 */
 bool dtPathCorridor::moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
-	dtAssert(m_path);
-	dtAssert(m_npath);
+	rdAssert(m_path);
+	rdAssert(m_npath);
 	
 	// Move along navmesh and update new position.
 	float result[3];
@@ -510,9 +510,9 @@ bool dtPathCorridor::moveTargetPosition(const float* npos, dtNavMeshQuery* navqu
 /// @warning The size of the path must not exceed the size of corridor's path buffer set during #init().
 void dtPathCorridor::setCorridor(const float* target, const dtPolyRef* path, const int npath)
 {
-	dtAssert(m_path);
-	dtAssert(npath > 0);
-	dtAssert(npath <= m_maxPath);
+	rdAssert(m_path);
+	rdAssert(npath > 0);
+	rdAssert(npath <= m_maxPath);
 	
 	dtVcopy(m_target, target);
 	memcpy(m_path, path, sizeof(dtPolyRef)*npath);
@@ -521,7 +521,7 @@ void dtPathCorridor::setCorridor(const float* target, const dtPolyRef* path, con
 
 bool dtPathCorridor::fixPathStart(dtPolyRef safeRef, const float* safePos)
 {
-	dtAssert(m_path);
+	rdAssert(m_path);
 
 	dtVcopy(m_pos, safePos);
 	if (m_npath < 3 && m_npath > 0)
@@ -543,9 +543,9 @@ bool dtPathCorridor::fixPathStart(dtPolyRef safeRef, const float* safePos)
 bool dtPathCorridor::trimInvalidPath(dtPolyRef safeRef, const float* safePos,
 									 dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
-	dtAssert(navquery);
-	dtAssert(filter);
-	dtAssert(m_path);
+	rdAssert(navquery);
+	rdAssert(filter);
+	rdAssert(m_path);
 	
 	// Keep valid path as far as possible.
 	int n = 0;

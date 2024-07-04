@@ -18,7 +18,7 @@
 
 #include "Pch.h"
 #include "Recast/Include/Recast.h"
-#include "Detour/Include/DetourAssert.h"
+#include "Shared/Include/SharedAssert.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
@@ -63,8 +63,8 @@ Editor::Editor() :
 	m_ctx(0)
 {
 	resetCommonSettings();
-	m_navQuery = dtAllocNavMeshQuery();
-	m_crowd = dtAllocCrowd();
+	m_navQuery = rdAllocNavMeshQuery();
+	m_crowd = rdAllocCrowd();
 
 	for (int i = 0; i < MAX_TOOLS; i++)
 		m_toolStates[i] = 0;
@@ -72,9 +72,9 @@ Editor::Editor() :
 
 Editor::~Editor()
 {
-	dtFreeNavMeshQuery(m_navQuery);
-	dtFreeNavMesh(m_navMesh);
-	dtFreeCrowd(m_crowd);
+	rdFreeNavMeshQuery(m_navQuery);
+	rdFreeNavMesh(m_navMesh);
+	rdFreeCrowd(m_crowd);
 	delete m_tool;
 	for (int i = 0; i < MAX_TOOLS; i++)
 		delete m_toolStates[i];
@@ -349,7 +349,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 		return 0;
 	}
 
-	dtNavMesh* mesh = dtAllocNavMesh();
+	dtNavMesh* mesh = rdAllocNavMesh();
 	if (!mesh)
 	{
 		fclose(fp);
@@ -378,7 +378,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
 			break;
 
-		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
+		unsigned char* data = (unsigned char*)rdAlloc(tileHeader.dataSize, RD_ALLOC_PERM);
 		if (!data)
 			break;
 
@@ -387,7 +387,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 
 		if (readLen != 1)
 		{
-			dtFree(data);
+			rdFree(data);
 			fclose(fp);
 			return 0;
 		}
@@ -400,7 +400,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 	{
 		for (int i = 0; i < header.params.reachabilityTableCount; i++)
 		{
-			int* reachabilityTable = (int*)dtAlloc(header.params.reachabilityTableSize, DT_ALLOC_PERM);
+			int* reachabilityTable = (int*)rdAlloc(header.params.reachabilityTableSize, RD_ALLOC_PERM);
 			if (!reachabilityTable)
 				break;
 
@@ -409,7 +409,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 
 			if (readLen != 1)
 			{
-				dtFree(reachabilityTable);
+				rdFree(reachabilityTable);
 				fclose(fp);
 				return 0;
 			}
@@ -476,12 +476,12 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 	// Only store if we have 3 or more poly groups.
 	if (mesh->m_params.disjointPolyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
 	{
-		dtAssert(mesh->m_setTables);
+		rdAssert(mesh->m_setTables);
 
 		for (int i = 0; i < header.params.reachabilityTableCount; i++)
 		{
 			const int* const tableData = mesh->m_setTables[i];
-			dtAssert(tableData);
+			rdAssert(tableData);
 
 			fwrite(tableData, sizeof(int), (header.params.reachabilityTableSize/4), fp);
 		}

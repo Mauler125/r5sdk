@@ -17,13 +17,13 @@
 //
 
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAssert.h"
 
 #include <stdlib.h>
 
 void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableClimb, rcHeightfield& heightfield)
 {
-	rcAssert(context);
+	rdAssert(context);
 
 	rcScopedTimer timer(context, RC_TIMER_FILTER_LOW_OBSTACLES);
 
@@ -62,7 +62,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int walkableClimb,
                         rcHeightfield& heightfield)
 {
-	rcAssert(context);
+	rdAssert(context);
 	
 	rcScopedTimer timer(context, RC_TIMER_FILTER_BORDER);
 
@@ -156,7 +156,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 
 void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight, rcHeightfield& heightfield)
 {
-	rcAssert(context);
+	rdAssert(context);
 	
 	rcScopedTimer timer(context, RC_TIMER_FILTER_WALKABLE);
 	

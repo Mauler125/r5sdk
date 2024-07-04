@@ -19,8 +19,8 @@
 #include <math.h>
 #include <stdio.h>
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 
 /// Check whether two bounding boxes overlap
 ///
@@ -49,7 +49,7 @@ static rcSpan* allocSpan(rcHeightfield& hf)
 	{
 		// Create new page.
 		// Allocate memory for the new pool.
-		rcSpanPool* spanPool = (rcSpanPool*)rcAlloc(sizeof(rcSpanPool), RC_ALLOC_PERM);
+		rcSpanPool* spanPool = (rcSpanPool*)rdAlloc(sizeof(rcSpanPool), RD_ALLOC_PERM);
 		if (spanPool == NULL)
 		{
 			return NULL;
@@ -194,7 +194,7 @@ bool rcAddSpan(rcContext* context, rcHeightfield& heightfield,
                const unsigned short spanMin, const unsigned short spanMax,
                const unsigned char areaID, const int flagMergeThreshold)
 {
-	rcAssert(context);
+	rdAssert(context);
 
 	if (!addSpan(heightfield, x, z, spanMin, spanMax, areaID, flagMergeThreshold))
 	{
@@ -228,7 +228,7 @@ static void dividePoly(const float* inVerts, int inVertsCount,
                        float* outVerts2, int* outVerts2Count,
                        float axisOffset, rcAxis axis)
 {
-	rcAssert(inVertsCount <= 12);
+	rdAssert(inVertsCount <= 12);
 	
 	// How far positive or negative away from the separating axis is each vertex.
 	float inVertAxisDelta[12];
@@ -459,7 +459,7 @@ bool rcRasterizeTriangle(rcContext* context,
                          const float* v0, const float* v1, const float* v2,
                          const unsigned char areaID, rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rdAssert(context != NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 
@@ -480,7 +480,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const int* tris, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rdAssert(context != NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 	
@@ -507,7 +507,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const unsigned short* tris, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rdAssert(context != NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 
@@ -533,7 +533,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rdAssert(context != NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 	

@@ -19,7 +19,7 @@
 #ifndef DETOURNAVMESHBUILDER_H
 #define DETOURNAVMESHBUILDER_H
 
-#include "Detour/Include/DetourAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 
 /// Represents the source data used to build an navigation mesh tile.
 /// @ingroup detour

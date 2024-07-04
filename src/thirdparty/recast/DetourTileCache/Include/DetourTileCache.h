@@ -256,7 +256,7 @@ private:
 	int m_nupdate;
 };
 
-dtTileCache* dtAllocTileCache();
-void dtFreeTileCache(dtTileCache* tc);
+dtTileCache* rdAllocTileCache();
+void rdFreeTileCache(dtTileCache* tc);
 
 #endif

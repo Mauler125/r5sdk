@@ -17,8 +17,8 @@
 //
 
 #include "Detour/Include/DetourNode.h"
-#include "Detour/Include/DetourAlloc.h"
-#include "Detour/Include/DetourAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 #include "Detour/Include/DetourCommon.h"
 #include <string.h>
 
@@ -56,18 +56,18 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	m_hashSize(hashSize),
 	m_nodeCount(0)
 {
-	dtAssert(dtNextPow2(m_hashSize) == (unsigned int)m_hashSize);
+	rdAssert(dtNextPow2(m_hashSize) == (unsigned int)m_hashSize);
 	// pidx is special as 0 means "none" and 1 is the first node. For that reason
 	// we have 1 fewer nodes available than the number of values it can contain.
-	dtAssert(m_maxNodes > 0 && m_maxNodes <= DT_NULL_IDX && m_maxNodes <= (1 << DT_NODE_PARENT_BITS) - 1);
+	rdAssert(m_maxNodes > 0 && m_maxNodes <= DT_NULL_IDX && m_maxNodes <= (1 << DT_NODE_PARENT_BITS) - 1);
 
-	m_nodes = (dtNode*)dtAlloc(sizeof(dtNode)*m_maxNodes, DT_ALLOC_PERM);
-	m_next = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*m_maxNodes, DT_ALLOC_PERM);
-	m_first = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*hashSize, DT_ALLOC_PERM);
+	m_nodes = (dtNode*)rdAlloc(sizeof(dtNode)*m_maxNodes, RD_ALLOC_PERM);
+	m_next = (dtNodeIndex*)rdAlloc(sizeof(dtNodeIndex)*m_maxNodes, RD_ALLOC_PERM);
+	m_first = (dtNodeIndex*)rdAlloc(sizeof(dtNodeIndex)*hashSize, RD_ALLOC_PERM);
 
-	dtAssert(m_nodes);
-	dtAssert(m_next);
-	dtAssert(m_first);
+	rdAssert(m_nodes);
+	rdAssert(m_next);
+	rdAssert(m_first);
 
 	memset(m_first, 0xff, sizeof(dtNodeIndex)*m_hashSize);
 	memset(m_next, 0xff, sizeof(dtNodeIndex)*m_maxNodes);
@@ -75,9 +75,9 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 
 dtNodePool::~dtNodePool()
 {
-	dtFree(m_nodes);
-	dtFree(m_next);
-	dtFree(m_first);
+	rdFree(m_nodes);
+	rdFree(m_next);
+	rdFree(m_first);
 }
 
 void dtNodePool::clear()
@@ -158,15 +158,15 @@ dtNodeQueue::dtNodeQueue(int n) :
 	m_capacity(n),
 	m_size(0)
 {
-	dtAssert(m_capacity > 0);
+	rdAssert(m_capacity > 0);
 	
-	m_heap = (dtNode**)dtAlloc(sizeof(dtNode*)*(m_capacity+1), DT_ALLOC_PERM);
-	dtAssert(m_heap);
+	m_heap = (dtNode**)rdAlloc(sizeof(dtNode*)*(m_capacity+1), RD_ALLOC_PERM);
+	rdAssert(m_heap);
 }
 
 dtNodeQueue::~dtNodeQueue()
 {
-	dtFree(m_heap);
+	rdFree(m_heap);
 }
 
 void dtNodeQueue::bubbleUp(int i, dtNode* node)

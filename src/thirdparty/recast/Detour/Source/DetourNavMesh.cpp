@@ -23,8 +23,8 @@
 #include "Detour/Include/DetourNode.h"
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourMath.h"
-#include "Detour/Include/DetourAlloc.h"
-#include "Detour/Include/DetourAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 #include <new>
 
 
@@ -135,9 +135,9 @@ inline void freeLink(dtMeshTile* tile, unsigned int link)
 }
 
 
-dtNavMesh* dtAllocNavMesh()
+dtNavMesh* rdAllocNavMesh()
 {
-	void* mem = dtAlloc(sizeof(dtNavMesh), DT_ALLOC_PERM);
+	void* mem = rdAlloc(sizeof(dtNavMesh), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtNavMesh;
 }
@@ -146,11 +146,11 @@ dtNavMesh* dtAllocNavMesh()
 ///
 /// This function will only free the memory for tiles with the #DT_TILE_FREE_DATA
 /// flag set.
-void dtFreeNavMesh(dtNavMesh* navmesh)
+void rdFreeNavMesh(dtNavMesh* navmesh)
 {
 	if (!navmesh) return;
 	navmesh->~dtNavMesh();
-	dtFree(navmesh);
+	rdFree(navmesh);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ Notes:
 - This class does not implement any asynchronous methods. So the ::dtStatus result of all methods will 
   always contain either a success or failure flag.
 
-@see dtNavMeshQuery, dtCreateNavMeshData, dtNavMeshCreateParams, #dtAllocNavMesh, #dtFreeNavMesh
+@see dtNavMeshQuery, dtCreateNavMeshData, dtNavMeshCreateParams, #rdAllocNavMesh, #rdFreeNavMesh
 */
 
 dtNavMesh::dtNavMesh() :
@@ -217,24 +217,24 @@ dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this c
 	{
 		if (m_tiles[i].flags & DT_TILE_FREE_DATA)
 		{
-			dtFree(m_tiles[i].data);
+			rdFree(m_tiles[i].data);
 			m_tiles[i].data = 0;
 			m_tiles[i].dataSize = 0;
 		}
 	}
 
-	dtFree(m_posLookup);
-	dtFree(m_tiles);
+	rdFree(m_posLookup);
+	rdFree(m_tiles);
 
 	for (int i = 0; i < m_params.reachabilityTableCount; i++)
 	{
 		int* reachabilityTable = m_setTables[i];
 
 		if (reachabilityTable)
-			dtFree(reachabilityTable);
+			rdFree(reachabilityTable);
 	}
 
-	dtFree(m_setTables);
+	rdFree(m_setTables);
 }
 		
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
@@ -251,10 +251,10 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	if (!m_tileLutSize) m_tileLutSize = 1;
 	m_tileLutMask = m_tileLutSize-1;
 	
-	m_tiles = (dtMeshTile*)dtAlloc(sizeof(dtMeshTile)*m_maxTiles, DT_ALLOC_PERM);
+	m_tiles = (dtMeshTile*)rdAlloc(sizeof(dtMeshTile)*m_maxTiles, RD_ALLOC_PERM);
 	if (!m_tiles)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
-	m_posLookup = (dtMeshTile**)dtAlloc(sizeof(dtMeshTile*)*m_tileLutSize, DT_ALLOC_PERM);
+	m_posLookup = (dtMeshTile**)rdAlloc(sizeof(dtMeshTile*)*m_tileLutSize, RD_ALLOC_PERM);
 	if (!m_posLookup)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(m_tiles, 0, sizeof(dtMeshTile) * m_maxTiles);
@@ -265,7 +265,7 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	{
 		const int setTableBufSize = sizeof(int**)*reachabilityTableCount;
 
-		m_setTables = (int**)dtAlloc(setTableBufSize, DT_ALLOC_PERM);
+		m_setTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
 		if (!m_setTables)
 			return DT_FAILURE | DT_OUT_OF_MEMORY;
 
@@ -1346,7 +1346,7 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	if (tile->flags & DT_TILE_FREE_DATA)
 	{
 		// Owns data
-		dtFree(tile->data);
+		rdFree(tile->data);
 		tile->data = 0;
 		tile->dataSize = 0;
 		if (data) *data = 0;
@@ -1573,7 +1573,7 @@ const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(dtPolyRef ref) c
 		return 0;
 
 	const unsigned int idx =  ip - tile->header->offMeshBase;
-	dtAssert(idx < (unsigned int)tile->header->offMeshConCount);
+	rdAssert(idx < (unsigned int)tile->header->offMeshConCount);
 	return &tile->offMeshCons[idx];
 }
 

@@ -19,7 +19,7 @@
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourMath.h"
 #include "Detour/Include/DetourStatus.h"
-#include "Detour/Include/DetourAssert.h"
+#include "Shared/Include/SharedAssert.h"
 #include "DetourTileCache/Include/DetourTileCacheBuilder.h"
 #include <string.h>
 
@@ -54,18 +54,18 @@ static const int MAX_REM_EDGES = 48;		// TODO: make this an expression.
 
 
 
-dtTileCacheContourSet* dtAllocTileCacheContourSet(dtTileCacheAlloc* alloc)
+dtTileCacheContourSet* rdAllocTileCacheContourSet(dtTileCacheAlloc* alloc)
 {
-	dtAssert(alloc);
+	rdAssert(alloc);
 
 	dtTileCacheContourSet* cset = (dtTileCacheContourSet*)alloc->alloc(sizeof(dtTileCacheContourSet));
 	memset(cset, 0, sizeof(dtTileCacheContourSet));
 	return cset;
 }
 
-void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset)
+void rdFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset)
 {
-	dtAssert(alloc);
+	rdAssert(alloc);
 
 	if (!cset) return;
 	for (int i = 0; i < cset->nconts; ++i)
@@ -74,18 +74,18 @@ void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* c
 	alloc->free(cset);
 }
 
-dtTileCachePolyMesh* dtAllocTileCachePolyMesh(dtTileCacheAlloc* alloc)
+dtTileCachePolyMesh* rdAllocTileCachePolyMesh(dtTileCacheAlloc* alloc)
 {
-	dtAssert(alloc);
+	rdAssert(alloc);
 
 	dtTileCachePolyMesh* lmesh = (dtTileCachePolyMesh*)alloc->alloc(sizeof(dtTileCachePolyMesh));
 	memset(lmesh, 0, sizeof(dtTileCachePolyMesh));
 	return lmesh;
 }
 
-void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh)
+void rdFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh)
 {
-	dtAssert(alloc);
+	rdAssert(alloc);
 	
 	if (!lmesh) return;
 	alloc->free(lmesh->verts);
@@ -178,7 +178,7 @@ dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 								 dtTileCacheLayer& layer,
 								 const int walkableClimb)
 {
-	dtAssert(alloc);
+	rdAssert(alloc);
 	
 	const int w = (int)layer.header->width;
 	const int h = (int)layer.header->height;
@@ -741,7 +741,7 @@ dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 								  const int walkableClimb, 	const float maxError,
 								  dtTileCacheContourSet& lcset)
 {
-	dtAssert(alloc);
+	rdAssert(alloc);
 
 	const int w = (int)layer.header->width;
 	const int h = (int)layer.header->height;
@@ -1741,7 +1741,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 								  dtTileCacheContourSet& lcset,
 								  dtTileCachePolyMesh& mesh)
 {
-	dtAssert(alloc);
+	rdAssert(alloc);
 	
 	int maxVertices = 0;
 	int maxTris = 0;
@@ -2104,7 +2104,7 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = (int)header->width * (int)header->height;
 	const int maxDataSize = headerSize + comp->maxCompressedSize(gridSize*3);
-	unsigned char* data = (unsigned char*)dtAlloc(maxDataSize, DT_ALLOC_PERM);
+	unsigned char* data = (unsigned char*)rdAlloc(maxDataSize, RD_ALLOC_PERM);
 	if (!data)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(data, 0, maxDataSize);
@@ -2114,10 +2114,10 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	
 	// Concatenate grid data for compression.
 	const int bufferSize = gridSize*3;
-	unsigned char* buffer = (unsigned char*)dtAlloc(bufferSize, DT_ALLOC_TEMP);
+	unsigned char* buffer = (unsigned char*)rdAlloc(bufferSize, RD_ALLOC_TEMP);
 	if (!buffer)
 	{
-		dtFree(data);
+		rdFree(data);
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	}
 
@@ -2132,22 +2132,22 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	dtStatus status = comp->compress(buffer, bufferSize, compressed, maxCompressedSize, &compressedSize);
 	if (dtStatusFailed(status))
 	{
-		dtFree(buffer);
-		dtFree(data);
+		rdFree(buffer);
+		rdFree(data);
 		return status;
 	}
 
 	*outData = data;
 	*outDataSize = headerSize + compressedSize;
 	
-	dtFree(buffer);
+	rdFree(buffer);
 	
 	return DT_SUCCESS;
 }
 
-void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer)
+void rdFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer)
 {
-	dtAssert(alloc);
+	rdAssert(alloc);
 	// The layer is allocated as one conitguous blob of data.
 	alloc->free(layer);
 }
@@ -2156,8 +2156,8 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 									unsigned char* compressed, const int compressedSize,
 									dtTileCacheLayer** layerOut)
 {
-	dtAssert(alloc);
-	dtAssert(comp);
+	rdAssert(alloc);
+	rdAssert(comp);
 
 	if (!layerOut)
 		return DT_FAILURE | DT_INVALID_PARAM;

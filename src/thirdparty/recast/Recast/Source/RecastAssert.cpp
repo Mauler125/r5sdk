@@ -16,18 +16,18 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAssert.h"
 
 #ifndef NDEBUG
 
-static rcAssertFailFunc* sRecastAssertFailFunc = 0;
+static rdAssertFailFunc* sRecastAssertFailFunc = 0;
 
-void rcAssertFailSetCustom(rcAssertFailFunc *assertFailFunc)
+void rdAssertFailSetCustom(rdAssertFailFunc *assertFailFunc)
 {
 	sRecastAssertFailFunc = assertFailFunc;
 }
 
-rcAssertFailFunc* rcAssertFailGetCustom()
+rdAssertFailFunc* rdAssertFailGetCustom()
 {
 	return sRecastAssertFailFunc;
 }

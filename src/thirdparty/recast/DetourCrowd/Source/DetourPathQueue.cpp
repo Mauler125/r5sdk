@@ -20,7 +20,7 @@
 #include "DetourCrowd\Include\DetourPathQueue.h"
 #include "Detour\Include\DetourNavMesh.h"
 #include "Detour\Include\DetourNavMeshQuery.h"
-#include "Detour\Include\DetourAlloc.h"
+#include "Shared\Include\SharedAlloc.h"
 #include "Detour\Include\DetourCommon.h"
 
 
@@ -41,11 +41,11 @@ dtPathQueue::~dtPathQueue()
 
 void dtPathQueue::purge()
 {
-	dtFreeNavMeshQuery(m_navquery);
+	rdFreeNavMeshQuery(m_navquery);
 	m_navquery = 0;
 	for (int i = 0; i < MAX_QUEUE; ++i)
 	{
-		dtFree(m_queue[i].path);
+		rdFree(m_queue[i].path);
 		m_queue[i].path = 0;
 	}
 }
@@ -54,7 +54,7 @@ bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, dtNa
 {
 	purge();
 
-	m_navquery = dtAllocNavMeshQuery();
+	m_navquery = rdAllocNavMeshQuery();
 	if (!m_navquery)
 		return false;
 	if (dtStatusFailed(m_navquery->init(nav, maxSearchNodeCount)))
@@ -64,7 +64,7 @@ bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, dtNa
 	for (int i = 0; i < MAX_QUEUE; ++i)
 	{
 		m_queue[i].ref = DT_PATHQ_INVALID;
-		m_queue[i].path = (dtPolyRef*)dtAlloc(sizeof(dtPolyRef)*m_maxPathSize, DT_ALLOC_PERM);
+		m_queue[i].path = (dtPolyRef*)rdAlloc(sizeof(dtPolyRef)*m_maxPathSize, RD_ALLOC_PERM);
 		if (!m_queue[i].path)
 			return false;
 	}

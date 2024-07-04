@@ -28,8 +28,8 @@
 #include "Detour\Include\DetourNavMeshQuery.h"
 #include "Detour\Include\DetourCommon.h"
 #include "Detour\Include\DetourMath.h"
-#include "Detour\Include\DetourAssert.h"
-#include "Detour\Include\DetourAlloc.h"
+#include "Shared\Include\SharedAssert.h"
+#include "Shared\Include\SharedAlloc.h"
 
 
 void integrate(dtCrowdAgent* ag, const float dt)
@@ -146,7 +146,7 @@ int addNeighbour(const int idx, const float dist,
 		const int tgt = i+1;
 		const int n = dtMin(nneis-i, maxNeis-tgt);
 		
-		dtAssert(tgt+n <= maxNeis);
+		rdAssert(tgt+n <= maxNeis);
 		
 		if (n > 0)
 			memmove(&neis[tgt], &neis[i], sizeof(dtCrowdNeighbour)*n);
@@ -218,7 +218,7 @@ int addToOptQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents,
 		const int tgt = i+1;
 		const int n = dtMin(nagents-i, maxAgents-tgt);
 		
-		dtAssert(tgt+n <= maxAgents);
+		rdAssert(tgt+n <= maxAgents);
 		
 		if (n > 0)
 			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);
@@ -254,7 +254,7 @@ int addToPathQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents
 		const int tgt = i+1;
 		const int n = dtMin(nagents-i, maxAgents-tgt);
 		
-		dtAssert(tgt+n <= maxAgents);
+		rdAssert(tgt+n <= maxAgents);
 		
 		if (n > 0)
 			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);

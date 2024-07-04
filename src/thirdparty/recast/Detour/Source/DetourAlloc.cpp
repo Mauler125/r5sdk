@@ -17,33 +17,33 @@
 //
 
 #include <stdlib.h>
-#include "Detour/Include/DetourAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 
-static void *dtAllocDefault(size_t size, dtAllocHint)
+static void *rdAllocDefault(size_t size, rdAllocHint)
 {
 	return malloc(size);
 }
 
-static void dtFreeDefault(void *ptr)
+static void rdFreeDefault(void *ptr)
 {
 	free(ptr);
 }
 
-static dtAllocFunc* sAllocFunc = dtAllocDefault;
-static dtFreeFunc* sFreeFunc = dtFreeDefault;
+static rdAllocFunc* sAllocFunc = rdAllocDefault;
+static rdFreeFunc* sFreeFunc = rdFreeDefault;
 
-void dtAllocSetCustom(dtAllocFunc *allocFunc, dtFreeFunc *freeFunc)
+void rdAllocSetCustom(rdAllocFunc *allocFunc, rdFreeFunc *freeFunc)
 {
-	sAllocFunc = allocFunc ? allocFunc : dtAllocDefault;
-	sFreeFunc = freeFunc ? freeFunc : dtFreeDefault;
+	sAllocFunc = allocFunc ? allocFunc : rdAllocDefault;
+	sFreeFunc = freeFunc ? freeFunc : rdFreeDefault;
 }
 
-void* dtAlloc(size_t size, dtAllocHint hint)
+void* rdAlloc(size_t size, rdAllocHint hint)
 {
 	return sAllocFunc(size, hint);
 }
 
-void dtFree(void* ptr)
+void rdFree(void* ptr)
 {
 	if (ptr)
 		sFreeFunc(ptr);

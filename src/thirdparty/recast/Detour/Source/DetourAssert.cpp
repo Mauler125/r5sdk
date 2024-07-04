@@ -16,18 +16,18 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Detour/Include/DetourAssert.h"
+#include "Shared/Include/SharedAssert.h"
 
 #ifndef NDEBUG
 
-static dtAssertFailFunc* sAssertFailFunc = 0;
+static rdAssertFailFunc* sAssertFailFunc = 0;
 
-void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc)
+void rdAssertFailSetCustom(rdAssertFailFunc *assertFailFunc)
 {
 	sAssertFailFunc = assertFailFunc;
 }
 
-dtAssertFailFunc* dtAssertFailGetCustom()
+rdAssertFailFunc* rdAssertFailGetCustom()
 {
 	return sAssertFailFunc;
 }

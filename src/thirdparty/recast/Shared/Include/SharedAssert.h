@@ -16,13 +16,16 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTASSERT_H
-#define RECASTASSERT_H
+#ifndef RECASTDETOURASSERT_H
+#define RECASTDETOURASSERT_H
+
+// Note: This header file's only purpose is to include define assert.
+// Feel free to change the file and include your own implementation instead.
 
 #ifdef NDEBUG
 
 // From http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/
-#	define rcAssert(x) do { (void)sizeof(x); } while ((void)(__LINE__==-1), false)
+#	define rdAssert(x) do { (void)sizeof(x); } while((void)(__LINE__==-1),false)  
 
 #else
 
@@ -30,24 +33,24 @@
 //  @param[in]		expression  asserted expression.
 //  @param[in]		file  Filename of the failed assertion.
 //  @param[in]		line  Line number of the failed assertion.
-///  @see rcAssertFailSetCustom
-typedef void (rcAssertFailFunc)(const char* expression, const char* file, int line);
+///  @see rdAssertFailSetCustom
+typedef void (rdAssertFailFunc)(const char* expression, const char* file, int line);
 
-/// Sets the base custom assertion failure function to be used by Recast.
-///  @param[in]		assertFailFunc	The function to be used in case of failure of #dtAssert
-void rcAssertFailSetCustom(rcAssertFailFunc* assertFailFunc);
+/// Sets the base custom assertion failure function to be used by Detour.
+///  @param[in]		assertFailFunc	The function to be invoked in case of failure of #rdAssert
+void rdAssertFailSetCustom(rdAssertFailFunc *assertFailFunc);
 
-/// Gets the base custom assertion failure function to be used by Recast.
-rcAssertFailFunc* rcAssertFailGetCustom();
+/// Gets the base custom assertion failure function to be used by Detour.
+rdAssertFailFunc* rdAssertFailGetCustom();
 
 #	include <assert.h> 
-#	define rcAssert(expression) \
+#	define rdAssert(expression) \
 		{ \
-			rcAssertFailFunc* failFunc = rcAssertFailGetCustom(); \
-			if (failFunc == NULL) { assert(expression); } \
-			else if (!(expression)) { (*failFunc)(#expression, __FILE__, __LINE__); } \
+			rdAssertFailFunc* failFunc = rdAssertFailGetCustom(); \
+			if(failFunc == NULL) { assert(expression); } \
+			else if(!(expression)) { (*failFunc)(#expression, __FILE__, __LINE__); } \
 		}
 
 #endif
 
-#endif // RECASTASSERT_H
+#endif // RECASTDETOURASSERT_H

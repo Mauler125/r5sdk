@@ -583,11 +583,11 @@ private:
 /// Allocates a query object using the Detour allocator.
 /// @return An allocated query object, or null on failure.
 /// @ingroup detour
-dtNavMeshQuery* dtAllocNavMeshQuery();
+dtNavMeshQuery* rdAllocNavMeshQuery();
 
 /// Frees the specified query object using the Detour allocator.
-///  @param[in]		query		A query object allocated using #dtAllocNavMeshQuery
+///  @param[in]		query		A query object allocated using #rdAllocNavMeshQuery
 /// @ingroup detour
-void dtFreeNavMeshQuery(dtNavMeshQuery* query);
+void rdFreeNavMeshQuery(dtNavMeshQuery* query);
 
 #endif // DETOURNAVMESHQUERY_H

@@ -357,12 +357,12 @@ private:
 /// Allocates a crowd object using the Detour allocator.
 /// @return A crowd object that is ready for initialization, or null on failure.
 ///  @ingroup crowd
-dtCrowd* dtAllocCrowd();
+dtCrowd* rdAllocCrowd();
 
 /// Frees the specified crowd object using the Detour allocator.
-///  @param[in]		ptr		A crowd object allocated using #dtAllocCrowd
+///  @param[in]		ptr		A crowd object allocated using #rdAllocCrowd
 ///  @ingroup crowd
-void dtFreeCrowd(dtCrowd* ptr);
+void rdFreeCrowd(dtCrowd* ptr);
 
 
 #endif // DETOURCROWD_H

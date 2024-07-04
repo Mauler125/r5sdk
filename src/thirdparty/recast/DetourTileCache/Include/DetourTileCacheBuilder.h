@@ -19,7 +19,7 @@
 #ifndef DETOURTILECACHEBUILDER_H
 #define DETOURTILECACHEBUILDER_H
 
-#include "Detour/Include/DetourAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 #include "Detour/Include/DetourStatus.h"
 
 static const int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'L'<<8 | 'R'; ///< 'DTLR';
@@ -84,12 +84,12 @@ struct dtTileCacheAlloc
 	
 	virtual void* alloc(const size_t size)
 	{
-		return dtAlloc(size, DT_ALLOC_TEMP);
+		return rdAlloc(size, RD_ALLOC_TEMP);
 	}
 	
 	virtual void free(void* ptr)
 	{
-		dtFree(ptr);
+		rdFree(ptr);
 	}
 };
 
@@ -112,17 +112,17 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   const unsigned char* cons,
 							   unsigned char** outData, int* outDataSize);
 
-void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer);
+void rdFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer);
 
 dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompressor* comp,
 									unsigned char* compressed, const int compressedSize,
 									dtTileCacheLayer** layerOut);
 
-dtTileCacheContourSet* dtAllocTileCacheContourSet(dtTileCacheAlloc* alloc);
-void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset);
+dtTileCacheContourSet* rdAllocTileCacheContourSet(dtTileCacheAlloc* alloc);
+void rdFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset);
 
-dtTileCachePolyMesh* dtAllocTileCachePolyMesh(dtTileCacheAlloc* alloc);
-void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh);
+dtTileCachePolyMesh* rdAllocTileCachePolyMesh(dtTileCacheAlloc* alloc);
+void rdFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh);
 
 dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
 							const float* pos, const float radius, const float height, const unsigned char areaId);

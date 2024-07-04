@@ -21,22 +21,22 @@
 #include "DetourCrowd\Include\DetourProximityGrid.h"
 #include "Detour\Include\DetourCommon.h"
 #include "Detour\Include\DetourMath.h"
-#include "Detour\Include\DetourAlloc.h"
-#include "Detour\Include\DetourAssert.h"
+#include "Shared\Include\SharedAlloc.h"
+#include "Shared\Include\SharedAssert.h"
 
 
-dtProximityGrid* dtAllocProximityGrid()
+dtProximityGrid* rdAllocProximityGrid()
 {
-	void* mem = dtAlloc(sizeof(dtProximityGrid), DT_ALLOC_PERM);
+	void* mem = rdAlloc(sizeof(dtProximityGrid), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtProximityGrid;
 }
 
-void dtFreeProximityGrid(dtProximityGrid* ptr)
+void rdFreeProximityGrid(dtProximityGrid* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtProximityGrid();
-	dtFree(ptr);
+	rdFree(ptr);
 }
 
 
@@ -59,28 +59,28 @@ dtProximityGrid::dtProximityGrid() :
 
 dtProximityGrid::~dtProximityGrid()
 {
-	dtFree(m_buckets);
-	dtFree(m_pool);
+	rdFree(m_buckets);
+	rdFree(m_pool);
 }
 
 bool dtProximityGrid::init(const int poolSize, const float cellSize)
 {
-	dtAssert(poolSize > 0);
-	dtAssert(cellSize > 0.0f);
+	rdAssert(poolSize > 0);
+	rdAssert(cellSize > 0.0f);
 	
 	m_cellSize = cellSize;
 	m_invCellSize = 1.0f / m_cellSize;
 	
 	// Allocate hashs buckets
 	m_bucketsSize = dtNextPow2(poolSize);
-	m_buckets = (unsigned short*)dtAlloc(sizeof(unsigned short)*m_bucketsSize, DT_ALLOC_PERM);
+	m_buckets = (unsigned short*)rdAlloc(sizeof(unsigned short)*m_bucketsSize, RD_ALLOC_PERM);
 	if (!m_buckets)
 		return false;
 	
 	// Allocate pool of items.
 	m_poolSize = poolSize;
 	m_poolHead = 0;
-	m_pool = (Item*)dtAlloc(sizeof(Item)*m_poolSize, DT_ALLOC_PERM);
+	m_pool = (Item*)rdAlloc(sizeof(Item)*m_poolSize, RD_ALLOC_PERM);
 	if (!m_pool)
 		return false;
 	

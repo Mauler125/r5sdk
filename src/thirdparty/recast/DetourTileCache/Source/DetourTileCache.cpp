@@ -4,23 +4,23 @@
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourMath.h"
-#include "Detour/Include/DetourAlloc.h"
-#include "Detour/Include/DetourAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 #include <string.h>
 #include <new>
 
-dtTileCache* dtAllocTileCache()
+dtTileCache* rdAllocTileCache()
 {
-	void* mem = dtAlloc(sizeof(dtTileCache), DT_ALLOC_PERM);
+	void* mem = rdAlloc(sizeof(dtTileCache), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtTileCache;
 }
 
-void dtFreeTileCache(dtTileCache* tc)
+void rdFreeTileCache(dtTileCache* tc)
 {
 	if (!tc) return;
 	tc->~dtTileCache();
-	dtFree(tc);
+	rdFree(tc);
 }
 
 static bool contains(const dtCompressedTileRef* a, const int n, const dtCompressedTileRef v)
@@ -46,11 +46,11 @@ struct NavMeshTileBuildContext
 	inline ~NavMeshTileBuildContext() { purge(); }
 	void purge()
 	{
-		dtFreeTileCacheLayer(alloc, layer);
+		rdFreeTileCacheLayer(alloc, layer);
 		layer = 0;
-		dtFreeTileCacheContourSet(alloc, lcset);
+		rdFreeTileCacheContourSet(alloc, lcset);
 		lcset = 0;
-		dtFreeTileCachePolyMesh(alloc, lmesh);
+		rdFreeTileCachePolyMesh(alloc, lmesh);
 		lmesh = 0;
 	}
 	struct dtTileCacheLayer* layer;
@@ -86,15 +86,15 @@ dtTileCache::~dtTileCache()
 	{
 		if (m_tiles[i].flags & DT_COMPRESSEDTILE_FREE_DATA)
 		{
-			dtFree(m_tiles[i].data);
+			rdFree(m_tiles[i].data);
 			m_tiles[i].data = 0;
 		}
 	}
-	dtFree(m_obstacles);
+	rdFree(m_obstacles);
 	m_obstacles = 0;
-	dtFree(m_posLookup);
+	rdFree(m_posLookup);
 	m_posLookup = 0;
-	dtFree(m_tiles);
+	rdFree(m_tiles);
 	m_tiles = 0;
 	m_nreqs = 0;
 	m_nupdate = 0;
@@ -127,7 +127,7 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 	memcpy(&m_params, params, sizeof(m_params));
 	
 	// Alloc space for obstacles.
-	m_obstacles = (dtTileCacheObstacle*)dtAlloc(sizeof(dtTileCacheObstacle)*m_params.maxObstacles, DT_ALLOC_PERM);
+	m_obstacles = (dtTileCacheObstacle*)rdAlloc(sizeof(dtTileCacheObstacle)*m_params.maxObstacles, RD_ALLOC_PERM);
 	if (!m_obstacles)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(m_obstacles, 0, sizeof(dtTileCacheObstacle)*m_params.maxObstacles);
@@ -144,10 +144,10 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 	if (!m_tileLutSize) m_tileLutSize = 1;
 	m_tileLutMask = m_tileLutSize-1;
 	
-	m_tiles = (dtCompressedTile*)dtAlloc(sizeof(dtCompressedTile)*m_params.maxTiles, DT_ALLOC_PERM);
+	m_tiles = (dtCompressedTile*)rdAlloc(sizeof(dtCompressedTile)*m_params.maxTiles, RD_ALLOC_PERM);
 	if (!m_tiles)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
-	m_posLookup = (dtCompressedTile**)dtAlloc(sizeof(dtCompressedTile*)*m_tileLutSize, DT_ALLOC_PERM);
+	m_posLookup = (dtCompressedTile**)rdAlloc(sizeof(dtCompressedTile*)*m_tileLutSize, RD_ALLOC_PERM);
 	if (!m_posLookup)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(m_tiles, 0, sizeof(dtCompressedTile)*m_params.maxTiles);
@@ -316,7 +316,7 @@ dtStatus dtTileCache::removeTile(dtCompressedTileRef ref, unsigned char** data, 
 	if (tile->flags & DT_COMPRESSEDTILE_FREE_DATA)
 	{
 		// Owns data
-		dtFree(tile->data);
+		rdFree(tile->data);
 		tile->data = 0;
 		tile->dataSize = 0;
 		if (data) *data = 0;
@@ -648,8 +648,8 @@ dtStatus dtTileCache::buildNavMeshTilesAt(const int tx, const int ty, dtNavMesh*
 
 dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh* navmesh)
 {	
-	dtAssert(m_talloc);
-	dtAssert(m_tcomp);
+	rdAssert(m_talloc);
+	rdAssert(m_tcomp);
 	
 	unsigned int idx = decodeTileIdTile(ref);
 	if (idx > (unsigned int)m_params.maxTiles)
@@ -701,7 +701,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	if (dtStatusFailed(status))
 		return status;
 	
-	bc.lcset = dtAllocTileCacheContourSet(m_talloc);
+	bc.lcset = rdAllocTileCacheContourSet(m_talloc);
 	if (!bc.lcset)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	status = dtBuildTileCacheContours(m_talloc, *bc.layer, walkableClimbVx,
@@ -709,7 +709,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	if (dtStatusFailed(status))
 		return status;
 	
-	bc.lmesh = dtAllocTileCachePolyMesh(m_talloc);
+	bc.lmesh = rdAllocTileCachePolyMesh(m_talloc);
 	if (!bc.lmesh)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	status = dtBuildTileCachePolyMesh(m_talloc, *bc.lcset, *bc.lmesh);
@@ -765,7 +765,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 		status = navmesh->addTile(navData,navDataSize,DT_TILE_FREE_DATA,0,0);
 		if (dtStatusFailed(status))
 		{
-			dtFree(navData);
+			rdFree(navData);
 			return status;
 		}
 	}

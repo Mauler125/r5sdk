@@ -19,7 +19,6 @@
 #include "Pch.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourCommon.h"
-#include "Detour/Include/DetourAssert.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/NavMeshPruneTool.h"
 #include "NavEditor/Include/InputGeom.h"
@@ -33,7 +32,7 @@ class NavmeshFlags
 {
 	struct TileFlags
 	{
-		inline void purge() { dtFree(flags); }
+		inline void purge() { rdFree(flags); }
 		unsigned char* flags;
 		int nflags;
 		dtPolyRef base;
@@ -53,7 +52,7 @@ public:
 	{
 		for (int i = 0; i < m_ntiles; ++i)
 			m_tiles[i].purge();
-		dtFree(m_tiles);
+		rdFree(m_tiles);
 	}
 	
 	bool init(const dtNavMesh* nav)
@@ -61,7 +60,7 @@ public:
 		m_ntiles = nav->getMaxTiles();
 		if (!m_ntiles)
 			return true;
-		m_tiles = (TileFlags*)dtAlloc(sizeof(TileFlags)*m_ntiles, DT_ALLOC_TEMP);
+		m_tiles = (TileFlags*)rdAlloc(sizeof(TileFlags)*m_ntiles, RD_ALLOC_TEMP);
 		if (!m_tiles)
 		{
 			return false;
@@ -78,7 +77,7 @@ public:
 			tf->base = nav->getPolyRefBase(tile);
 			if (tf->nflags)
 			{
-				tf->flags = (unsigned char*)dtAlloc(tf->nflags, DT_ALLOC_TEMP);
+				tf->flags = (unsigned char*)rdAlloc(tf->nflags, RD_ALLOC_TEMP);
 				if (!tf->flags)
 					return false;
 				memset(tf->flags, 0, tf->nflags);
@@ -102,8 +101,8 @@ public:
 	
 	inline unsigned char getFlags(dtPolyRef ref)
 	{
-		dtAssert(m_nav);
-		dtAssert(m_ntiles);
+		rdAssert(m_nav);
+		rdAssert(m_ntiles);
 		// Assume the ref is valid, no bounds checks.
 		unsigned int salt, it, ip;
 		m_nav->decodePolyId(ref, salt, it, ip);
@@ -112,8 +111,8 @@ public:
 
 	inline void setFlags(dtPolyRef ref, unsigned char flags)
 	{
-		dtAssert(m_nav);
-		dtAssert(m_ntiles);
+		rdAssert(m_nav);
+		rdAssert(m_ntiles);
 		// Assume the ref is valid, no bounds checks.
 		unsigned int salt, it, ip;
 		m_nav->decodePolyId(ref, salt, it, ip);
@@ -139,7 +138,7 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 		openList.pop_back();
 
 		// Get current poly and tile.
-		// The API input has been cheked already, skip checking internal data.
+		// The API input has been checked already, skip checking internal data.
 		const dtMeshTile* tile = 0;
 		const dtPoly* poly = 0;
 		nav->getTileAndPolyByRefUnsafe(ref, &tile, &poly);

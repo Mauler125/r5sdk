@@ -16,33 +16,33 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Recast/Include/RecastAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 
-static void* rcAllocDefault(size_t size, rcAllocHint)
+static void* rdAllocDefault(size_t size, rdAllocHint)
 {
 	return malloc(size);
 }
 
-static void rcFreeDefault(void *ptr)
+static void rdFreeDefault(void *ptr)
 {
 	free(ptr);
 }
 
-static rcAllocFunc* sRecastAllocFunc = rcAllocDefault;
-static rcFreeFunc* sRecastFreeFunc = rcFreeDefault;
+static rdAllocFunc* sRecastAllocFunc = rdAllocDefault;
+static rdFreeFunc* sRecastFreeFunc = rdFreeDefault;
 
-void rcAllocSetCustom(rcAllocFunc* allocFunc, rcFreeFunc* freeFunc)
+void rdAllocSetCustom(rdAllocFunc* allocFunc, rdFreeFunc* freeFunc)
 {
-	sRecastAllocFunc = allocFunc ? allocFunc : rcAllocDefault;
-	sRecastFreeFunc = freeFunc ? freeFunc : rcFreeDefault;
+	sRecastAllocFunc = allocFunc ? allocFunc : rdAllocDefault;
+	sRecastFreeFunc = freeFunc ? freeFunc : rdFreeDefault;
 }
 
-void* rcAlloc(size_t size, rcAllocHint hint)
+void* rdAlloc(size_t size, rdAllocHint hint)
 {
 	return sRecastAllocFunc(size, hint);
 }
 
-void rcFree(void* ptr)
+void rdFree(void* ptr)
 {
 	if (ptr != NULL)
 	{

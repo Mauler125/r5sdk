@@ -21,7 +21,7 @@
 #include "DetourCrowd\Include\DetourLocalBoundary.h"
 #include "Detour\Include\DetourNavMeshQuery.h"
 #include "Detour\Include\DetourCommon.h"
-#include "Detour\Include\DetourAssert.h"
+#include "Shared\Include\SharedAssert.h"
 
 
 dtLocalBoundary::dtLocalBoundary() :
@@ -68,7 +68,7 @@ void dtLocalBoundary::addSegment(const float dist, const float* s)
 				break;
 		const int tgt = i+1;
 		const int n = dtMin(m_nsegs-i, MAX_LOCAL_SEGS-tgt);
-		dtAssert(tgt+n <= MAX_LOCAL_SEGS);
+		rdAssert(tgt+n <= MAX_LOCAL_SEGS);
 		if (n > 0)
 			memmove(&m_segs[tgt], &m_segs[i], sizeof(Segment)*n);
 		seg = &m_segs[i];

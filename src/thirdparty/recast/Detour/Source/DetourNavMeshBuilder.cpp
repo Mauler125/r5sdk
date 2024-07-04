@@ -24,8 +24,8 @@
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourMath.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
-#include "Detour/Include/DetourAlloc.h"
-#include "Detour/Include/DetourAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 
 static unsigned short MESH_NULL_IDX = 0xffff;
 
@@ -172,7 +172,7 @@ static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nn
 {
 	// Build tree
 	float quantFactor = 1 / params->cs;
-	BVItem* items = (BVItem*)dtAlloc(sizeof(BVItem)*params->polyCount, DT_ALLOC_TEMP);
+	BVItem* items = (BVItem*)rdAlloc(sizeof(BVItem)*params->polyCount, RD_ALLOC_TEMP);
 	for (int i = 0; i < params->polyCount; i++)
 	{
 		BVItem& it = items[i];
@@ -235,7 +235,7 @@ static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nn
 	int curNode = 0;
 	subdivide(items, params->polyCount, 0, params->polyCount, curNode, nodes);
 	
-	dtFree(items);
+	rdFree(items);
 	
 	return curNode;
 }
@@ -283,7 +283,7 @@ static void setReachable(int* const tableData, const int numPolyGroups,
 
 bool dtBuildStaticPathingData(dtNavMesh* mesh)
 {
-	dtAssert(mesh);
+	rdAssert(mesh);
 
 	// Reserve the first 2 poly groups
 	// 0 = technically usable for normal poly groups, but for simplicity we reserve it for now.
@@ -365,7 +365,7 @@ bool dtBuildStaticPathingData(dtNavMesh* mesh)
 	const int tableSize = calcStaticPathingTableSize(numPolyGroups);
 	const int tableCount = DT_NUM_REACHABILITY_TABLES;
 
-	dtAssert(mesh->m_setTables);
+	rdAssert(mesh->m_setTables);
 
 	// NOTE: the game allocates 4 reachability table buffers, original
 	// navmeshes have slightly different data per table. Currently ours are all
@@ -373,7 +373,7 @@ bool dtBuildStaticPathingData(dtNavMesh* mesh)
 	// figure out why we need 4 tables and what the differences are.
 	for (int i = 0; i < tableCount; i++)
 	{
-		int* const reachabilityTable = (int*)dtAlloc(sizeof(int)*tableSize, DT_ALLOC_PERM);
+		int* const reachabilityTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
 
 		if (!reachabilityTable)
 			return false;
@@ -396,7 +396,7 @@ bool dtBuildStaticPathingData(dtNavMesh* mesh)
 
 /// @par
 /// 
-/// The output data array is allocated using the detour allocator (dtAlloc()).  The method
+/// The output data array is allocated using the detour allocator (rdAlloc()).  The method
 /// used to free the memory will be determined by how the tile is added to the navigation
 /// mesh.
 ///
@@ -422,7 +422,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	
 	if (params->offMeshConCount > 0)
 	{
-		offMeshConClass = (unsigned char*)dtAlloc(sizeof(unsigned char)*params->offMeshConCount*2, DT_ALLOC_TEMP);
+		offMeshConClass = (unsigned char*)rdAlloc(sizeof(unsigned char)*params->offMeshConCount*2, RD_ALLOC_TEMP);
 		if (!offMeshConClass)
 			return false;
 
@@ -567,10 +567,10 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	//printf("%i %i %i %i(%i links) %i %i %i %i %i\n", headerSize, vertsSize, polysSize, linksSize, maxLinkCount, detailMeshesSize, detailVertsSize, detailTrisSize, bvTreeSize, offMeshConsSize);
 	//printf("%i\n", dataSize);
 
-	unsigned char* data = (unsigned char*)dtAlloc(sizeof(unsigned char)*dataSize, DT_ALLOC_PERM);
+	unsigned char* data = (unsigned char*)rdAlloc(sizeof(unsigned char)*dataSize, RD_ALLOC_PERM);
 	if (!data)
 	{
-		dtFree(offMeshConClass);
+		rdFree(offMeshConClass);
 		return false;
 	}
 	memset(data, 0, dataSize);
@@ -797,7 +797,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 		
-	dtFree(offMeshConClass);
+	rdFree(offMeshConClass);
 	
 	*outData = data;
 	*outDataSize = dataSize;

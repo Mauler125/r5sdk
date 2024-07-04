@@ -189,7 +189,7 @@ Editor_TileMesh::Editor_TileMesh() :
 Editor_TileMesh::~Editor_TileMesh()
 {
 	cleanup();
-	dtFreeNavMesh(m_navMesh);
+	rdFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 }
 
@@ -197,15 +197,15 @@ void Editor_TileMesh::cleanup()
 {
 	delete [] m_triareas;
 	m_triareas = 0;
-	rcFreeHeightField(m_solid);
+	rdFreeHeightField(m_solid);
 	m_solid = 0;
-	rcFreeCompactHeightfield(m_chf);
+	rdFreeCompactHeightfield(m_chf);
 	m_chf = 0;
-	rcFreeContourSet(m_cset);
+	rdFreeContourSet(m_cset);
 	m_cset = 0;
-	rcFreePolyMesh(m_pmesh);
+	rdFreePolyMesh(m_pmesh);
 	m_pmesh = 0;
-	rcFreePolyMeshDetail(m_dmesh);
+	rdFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
 }
 const hulldef hulls[5] = {
@@ -277,7 +277,7 @@ void Editor_TileMesh::handleSettings()
 	
 	if (imguiButton("Load"))
 	{
-		dtFreeNavMesh(m_navMesh);
+		rdFreeNavMesh(m_navMesh);
 		m_navMesh = Editor::loadAll(m_modelName.c_str());
 		m_navQuery->init(m_navMesh, 2048);
 	}
@@ -577,7 +577,7 @@ void Editor_TileMesh::handleMeshChanged(InputGeom* geom)
 
 	cleanup();
 
-	dtFreeNavMesh(m_navMesh);
+	rdFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 
 	if (m_tool)
@@ -597,9 +597,9 @@ bool Editor_TileMesh::handleBuild()
 		return false;
 	}
 	
-	dtFreeNavMesh(m_navMesh);
+	rdFreeNavMesh(m_navMesh);
 	
-	m_navMesh = dtAllocNavMesh();
+	m_navMesh = rdAllocNavMesh();
 	if (!m_navMesh)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not allocate navmesh.");
@@ -678,7 +678,7 @@ void Editor_TileMesh::buildTile(const float* pos)
 		// Let the navmesh own the data.
 		dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
 		if (dtStatusFailed(status))
-			dtFree(data);
+			rdFree(data);
 	}
 	
 	m_ctx->dumpLog("Build Tile (%d,%d):", tx,ty);
@@ -754,7 +754,7 @@ void Editor_TileMesh::buildAllTiles()
 				// Let the navmesh own the data.
 				dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
 				if (dtStatusFailed(status))
-					dtFree(data);
+					rdFree(data);
 			}
 		}
 	}
@@ -886,7 +886,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts/1000.0f, ntris/1000.0f);
 	
 	// Allocate voxel heightfield where we rasterize our input data to.
-	m_solid = rcAllocHeightfield();
+	m_solid = rdAllocHeightfield();
 	if (!m_solid)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
@@ -984,7 +984,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// Compact the heightfield so that it is faster to handle from now on.
 	// This will result more cache coherent data as well as the neighbours
 	// between walkable cells will be calculated.
-	m_chf = rcAllocCompactHeightfield();
+	m_chf = rdAllocCompactHeightfield();
 	if (!m_chf)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
@@ -998,7 +998,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	
 	if (!m_keepInterResults)
 	{
-		rcFreeHeightField(m_solid);
+		rdFreeHeightField(m_solid);
 		m_solid = 0;
 	}
 
@@ -1078,7 +1078,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	 	
 	// Create contours.
-	m_cset = rcAllocContourSet();
+	m_cset = rdAllocContourSet();
 	if (!m_cset)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
@@ -1096,7 +1096,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	
 	// Build polygon navmesh from the contours.
-	m_pmesh = rcAllocPolyMesh();
+	m_pmesh = rdAllocPolyMesh();
 	if (!m_pmesh)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
@@ -1109,7 +1109,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	
 	// Build detail mesh.
-	m_dmesh = rcAllocPolyMeshDetail();
+	m_dmesh = rdAllocPolyMeshDetail();
 	if (!m_dmesh)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'dmesh'.");
@@ -1128,9 +1128,9 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	//rcFlipPolyMeshDetail(*m_dmesh,m_pmesh->nverts);
 	if (!m_keepInterResults)
 	{
-		rcFreeCompactHeightfield(m_chf);
+		rdFreeCompactHeightfield(m_chf);
 		m_chf = 0;
-		rcFreeContourSet(m_cset);
+		rdFreeContourSet(m_cset);
 		m_cset = 0;
 	}
 	

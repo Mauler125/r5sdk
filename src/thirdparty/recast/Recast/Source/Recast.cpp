@@ -17,8 +17,8 @@
 //
 
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 
 #include <math.h>
 #include <string.h>
@@ -30,10 +30,10 @@ namespace
 /// Allocates and constructs an object of the given type, returning a pointer.
 /// @param[in]		allocLifetime	Allocation lifetime hint
 template<typename T>
-T* rcNew(const rcAllocHint allocLifetime)
+T* rcNew(const rdAllocHint allocLifetime)
 {
-	T* ptr = (T*)rcAlloc(sizeof(T), allocLifetime);
-	::new(rcNewTag(), (void*)ptr) T();
+	T* ptr = (T*)rdAlloc(sizeof(T), allocLifetime);
+	::new(rdNewTag(), (void*)ptr) T();
 	return ptr;
 }
 
@@ -45,7 +45,7 @@ void rcDelete(T* ptr)
 	if (ptr)
 	{
 		ptr->~T();
-		rcFree((void*)ptr);
+		rdFree((void*)ptr);
 	}
 }
 } // anonymous namespace
@@ -83,12 +83,12 @@ void rcContext::doResetLog()
 	// Defined out of line to fix the weak v-tables warning
 }
 
-rcHeightfield* rcAllocHeightfield()
+rcHeightfield* rdAllocHeightfield()
 {
-	return rcNew<rcHeightfield>(RC_ALLOC_PERM);
+	return rcNew<rcHeightfield>(RD_ALLOC_PERM);
 }
 
-void rcFreeHeightField(rcHeightfield* heightfield)
+void rdFreeHeightField(rcHeightfield* heightfield)
 {
 	rcDelete(heightfield);
 }
@@ -109,22 +109,22 @@ rcHeightfield::rcHeightfield()
 rcHeightfield::~rcHeightfield()
 {
 	// Delete span array.
-	rcFree(spans);
+	rdFree(spans);
 	// Delete span pools.
 	while (pools)
 	{
 		rcSpanPool* next = pools->next;
-		rcFree(pools);
+		rdFree(pools);
 		pools = next;
 	}
 }
 
-rcCompactHeightfield* rcAllocCompactHeightfield()
+rcCompactHeightfield* rdAllocCompactHeightfield()
 {
-	return rcNew<rcCompactHeightfield>(RC_ALLOC_PERM);
+	return rcNew<rcCompactHeightfield>(RD_ALLOC_PERM);
 }
 
-void rcFreeCompactHeightfield(rcCompactHeightfield* compactHeightfield)
+void rdFreeCompactHeightfield(rcCompactHeightfield* compactHeightfield)
 {
 	rcDelete(compactHeightfield);
 }
@@ -151,18 +151,18 @@ rcCompactHeightfield::rcCompactHeightfield()
 
 rcCompactHeightfield::~rcCompactHeightfield()
 {
-	rcFree(cells);
-	rcFree(spans);
-	rcFree(dist);
-	rcFree(areas);
+	rdFree(cells);
+	rdFree(spans);
+	rdFree(dist);
+	rdFree(areas);
 }
 
-rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet()
+rcHeightfieldLayerSet* rdAllocHeightfieldLayerSet()
 {
-	return rcNew<rcHeightfieldLayerSet>(RC_ALLOC_PERM);
+	return rcNew<rcHeightfieldLayerSet>(RD_ALLOC_PERM);
 }
 
-void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* layerSet)
+void rdFreeHeightfieldLayerSet(rcHeightfieldLayerSet* layerSet)
 {
 	rcDelete(layerSet);
 }
@@ -177,20 +177,20 @@ rcHeightfieldLayerSet::~rcHeightfieldLayerSet()
 {
 	for (int i = 0; i < nlayers; ++i)
 	{
-		rcFree(layers[i].heights);
-		rcFree(layers[i].areas);
-		rcFree(layers[i].cons);
+		rdFree(layers[i].heights);
+		rdFree(layers[i].areas);
+		rdFree(layers[i].cons);
 	}
-	rcFree(layers);
+	rdFree(layers);
 }
 
 
-rcContourSet* rcAllocContourSet()
+rcContourSet* rdAllocContourSet()
 {
-	return rcNew<rcContourSet>(RC_ALLOC_PERM);
+	return rcNew<rcContourSet>(RD_ALLOC_PERM);
 }
 
-void rcFreeContourSet(rcContourSet* contourSet)
+void rdFreeContourSet(rcContourSet* contourSet)
 {
 	rcDelete(contourSet);
 }
@@ -213,18 +213,18 @@ rcContourSet::~rcContourSet()
 {
 	for (int i = 0; i < nconts; ++i)
 	{
-		rcFree(conts[i].verts);
-		rcFree(conts[i].rverts);
+		rdFree(conts[i].verts);
+		rdFree(conts[i].rverts);
 	}
-	rcFree(conts);
+	rdFree(conts);
 }
 
-rcPolyMesh* rcAllocPolyMesh()
+rcPolyMesh* rdAllocPolyMesh()
 {
-	return rcNew<rcPolyMesh>(RC_ALLOC_PERM);
+	return rcNew<rcPolyMesh>(RD_ALLOC_PERM);
 }
 
-void rcFreePolyMesh(rcPolyMesh* polyMesh)
+void rdFreePolyMesh(rcPolyMesh* polyMesh)
 {
 	rcDelete(polyMesh);
 }
@@ -250,28 +250,28 @@ rcPolyMesh::rcPolyMesh()
 
 rcPolyMesh::~rcPolyMesh()
 {
-	rcFree(verts);
-	rcFree(polys);
-	rcFree(regs);
-	rcFree(flags);
-	rcFree(areas);
+	rdFree(verts);
+	rdFree(polys);
+	rdFree(regs);
+	rdFree(flags);
+	rdFree(areas);
 }
 
-rcPolyMeshDetail* rcAllocPolyMeshDetail()
+rcPolyMeshDetail* rdAllocPolyMeshDetail()
 {
-	return rcNew<rcPolyMeshDetail>(RC_ALLOC_PERM);
+	return rcNew<rcPolyMeshDetail>(RD_ALLOC_PERM);
 }
 
-void rcFreePolyMeshDetail(rcPolyMeshDetail* detailMesh)
+void rdFreePolyMeshDetail(rcPolyMeshDetail* detailMesh)
 {
 	if (detailMesh == NULL)
 	{
 		return;
 	}
-	rcFree(detailMesh->meshes);
-	rcFree(detailMesh->verts);
-	rcFree(detailMesh->tris);
-	rcFree(detailMesh);
+	rdFree(detailMesh->meshes);
+	rdFree(detailMesh->verts);
+	rdFree(detailMesh->tris);
+	rdFree(detailMesh);
 }
 
 rcPolyMeshDetail::rcPolyMeshDetail()
@@ -315,7 +315,7 @@ bool rcCreateHeightfield(rcContext* context, rcHeightfield& heightfield, int siz
 	rcVcopy(heightfield.bmax, maxBounds);
 	heightfield.cs = cellSize;
 	heightfield.ch = cellHeight;
-	heightfield.spans = (rcSpan**)rcAlloc(sizeof(rcSpan*) * heightfield.width * heightfield.height, RC_ALLOC_PERM);
+	heightfield.spans = (rcSpan**)rdAlloc(sizeof(rcSpan*) * heightfield.width * heightfield.height, RD_ALLOC_PERM);
 	if (!heightfield.spans)
 	{
 		return false;
@@ -403,7 +403,7 @@ int rcGetHeightFieldSpanCount(rcContext* context, const rcHeightfield& heightfie
 bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, const int walkableClimb,
                                const rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield)
 {
-	rcAssert(context);
+	rdAssert(context);
 
 	rcScopedTimer timer(context, RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
 
@@ -423,21 +423,21 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 	compactHeightfield.bmax[2] += walkableHeight * heightfield.ch;
 	compactHeightfield.cs = heightfield.cs;
 	compactHeightfield.ch = heightfield.ch;
-	compactHeightfield.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell) * xSize * ySize, RC_ALLOC_PERM);
+	compactHeightfield.cells = (rcCompactCell*)rdAlloc(sizeof(rcCompactCell) * xSize * ySize, RD_ALLOC_PERM);
 	if (!compactHeightfield.cells)
 	{
 		context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.cells' (%d)", xSize * ySize);
 		return false;
 	}
 	memset(compactHeightfield.cells, 0, sizeof(rcCompactCell) * xSize * ySize);
-	compactHeightfield.spans = (rcCompactSpan*)rcAlloc(sizeof(rcCompactSpan) * spanCount, RC_ALLOC_PERM);
+	compactHeightfield.spans = (rcCompactSpan*)rdAlloc(sizeof(rcCompactSpan) * spanCount, RD_ALLOC_PERM);
 	if (!compactHeightfield.spans)
 	{
 		context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.spans' (%d)", spanCount);
 		return false;
 	}
 	memset(compactHeightfield.spans, 0, sizeof(rcCompactSpan) * spanCount);
-	compactHeightfield.areas = (unsigned char*)rcAlloc(sizeof(unsigned char) * spanCount, RC_ALLOC_PERM);
+	compactHeightfield.areas = (unsigned char*)rdAlloc(sizeof(unsigned char) * spanCount, RD_ALLOC_PERM);
 	if (!compactHeightfield.areas)
 	{
 		context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.areas' (%d)", spanCount);

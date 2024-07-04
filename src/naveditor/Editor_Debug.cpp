@@ -48,7 +48,7 @@ Editor_Debug::Editor_Debug() :
 	resetCommonSettings();
 
 	// Test
-/*	m_chf = rcAllocCompactHeightfield();
+/*	m_chf = rdAllocCompactHeightfield();
 	FileIO io;
 	if (!io.openForRead("test.chf"))
 	{
@@ -125,7 +125,7 @@ Editor_Debug::Editor_Debug() :
 	
 
 	{
-		m_cset = rcAllocContourSet();
+		m_cset = rdAllocContourSet();
 		if (m_cset)
 		{
 			FileIO io;
@@ -151,7 +151,7 @@ Editor_Debug::Editor_Debug() :
 
 /*		if (m_cset)
 		{
-			m_pmesh = rcAllocPolyMesh();
+			m_pmesh = rdAllocPolyMesh();
 			if (m_pmesh)
 			{
 				rcBuildPolyMesh(m_ctx, *m_cset, 6, *m_pmesh);
@@ -163,9 +163,9 @@ Editor_Debug::Editor_Debug() :
 
 Editor_Debug::~Editor_Debug()
 {
-	rcFreeCompactHeightfield(m_chf);
-	rcFreeContourSet(m_cset);
-	rcFreePolyMesh(m_pmesh);
+	rdFreeCompactHeightfield(m_chf);
+	rdFreeContourSet(m_cset);
+	rdFreePolyMesh(m_pmesh);
 }
 
 void Editor_Debug::handleSettings()
@@ -357,11 +357,11 @@ bool Editor_Debug::handleBuild()
 
 	if (m_chf)
 	{
-		rcFreeContourSet(m_cset);
+		rdFreeContourSet(m_cset);
 		m_cset = 0;
 		
 		// Create contours.
-		m_cset = rcAllocContourSet();
+		m_cset = rdAllocContourSet();
 		if (!m_cset)
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
