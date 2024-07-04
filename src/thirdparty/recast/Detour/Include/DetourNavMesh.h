@@ -759,7 +759,7 @@ public:
 ///  @ingroup detour
 inline int calcStaticPathingTableSize(const int numPolyGroups)
 {
-	return sizeof(int)*numPolyGroups*((numPolyGroups+31)/32);
+	return sizeof(int)*(numPolyGroups*((numPolyGroups+31)/32));
 }
 
 /// Allocates a navigation mesh object using the Detour allocator.
