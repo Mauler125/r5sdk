@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#include <map>
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourMath.h"
@@ -269,16 +270,15 @@ static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, co
 }
 
 static void setReachable(int* const tableData, const int numPolyGroups,
-	const int polyGroup, const bool isReachable)
+	const int polyGroup1, const int polyGroup2, const bool isReachable)
 {
-	const int w = ((numPolyGroups + 31) / 32);
-	const unsigned int valueMask = ~(1 << (polyGroup & 0x1f));
+	const int index = polyGroup1*((numPolyGroups+31)/32)+(polyGroup2/32);
+	const int value = 1<<(polyGroup2 & 31);
 
-	int& cell = tableData[polyGroup * w + polyGroup / 32];
-
-	cell = isReachable 
-		? (cell & valueMask) | (1 << (polyGroup & 0x1f))
-		: (cell & valueMask);
+	if (isReachable)
+		tableData[index] |= value;
+	else
+		tableData[index] &= ~value;
 }
 
 bool dtBuildStaticPathingData(dtNavMesh* mesh)
@@ -356,12 +356,45 @@ bool dtBuildStaticPathingData(dtNavMesh* mesh)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			int id = data.find(poly.disjointSetId);
-			poly.disjointSetId = (unsigned short)id;
+			if (poly.disjointSetId != DT_STRAY_POLY_GROUP)
+			{
+				int id = data.find(poly.disjointSetId);
+				poly.disjointSetId = (unsigned short)id;
+			}
 		}
 	}
 
-	const int numPolyGroups = data.getSetCount();
+	// Gather all unique polygroups and map them to a contiguous range.
+	std::map<unsigned short, unsigned short> groupMap;
+	unsigned short numPolyGroups = DT_STRAY_POLY_GROUP+1; // Anything <= DT_STRAY_POLY_GROUP is reserved!
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			unsigned short oldId = poly.disjointSetId;
+			if (oldId != DT_STRAY_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
+				groupMap[oldId] = numPolyGroups++;
+		}
+	}
+
+	// Third pass to apply the new mapping to all polys.
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			if (poly.disjointSetId != DT_STRAY_POLY_GROUP)
+				poly.disjointSetId = groupMap[poly.disjointSetId];
+		}
+	}
+
 	const int tableSize = calcStaticPathingTableSize(numPolyGroups);
 	const int tableCount = DT_NUM_REACHABILITY_TABLES;
 
@@ -382,7 +415,13 @@ bool dtBuildStaticPathingData(dtNavMesh* mesh)
 		memset(reachabilityTable, 0, sizeof(int)*tableSize);
 
 		for (int j = 0; j < numPolyGroups; j++)
-			setReachable(reachabilityTable, numPolyGroups, j, true);
+		{
+			for (int k = 0; k < numPolyGroups; k++)
+			{
+				const bool isReachable = j == k || data.find(j) == data.find(k);
+				setReachable(reachabilityTable, numPolyGroups, j, k, isReachable);
+			}
+		}
 	}
 
 	mesh->m_params.disjointPolyGroupCount = numPolyGroups;
