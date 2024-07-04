@@ -168,7 +168,11 @@ private:
 	rdIntArray parent;
 };
 
-bool dtBuildStaticPathingData(dtNavMesh* mesh);
+/// Builds navigation mesh static pathing data from the provided navmesh.
+/// @ingroup detour
+///  @param[in]		mesh		Tile creation data.
+/// @return True if the static pathing data was successfully created.
+bool dtCreateStaticPathingData(dtNavMesh* mesh);
 
 /// Builds navigation mesh tile data from the provided tile creation data.
 /// @ingroup detour

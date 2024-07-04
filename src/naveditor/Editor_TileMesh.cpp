@@ -759,7 +759,7 @@ void Editor_TileMesh::buildAllTiles()
 		}
 	}
 
-	if (!dtBuildStaticPathingData(m_navMesh))
+	if (!dtCreateStaticPathingData(m_navMesh))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build static pathing data.");
 	}

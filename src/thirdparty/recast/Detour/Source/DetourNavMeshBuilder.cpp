@@ -269,7 +269,7 @@ static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, co
 	return 0xff;	
 }
 
-static void setReachable(int* const tableData, const int numPolyGroups,
+static void setPolyGroupsReachability(int* const tableData, const int numPolyGroups,
 	const int polyGroup1, const int polyGroup2, const bool isReachable)
 {
 	const int index = polyGroup1*((numPolyGroups+31)/32)+(polyGroup2/32);
@@ -281,7 +281,7 @@ static void setReachable(int* const tableData, const int numPolyGroups,
 		tableData[index] &= ~value;
 }
 
-bool dtBuildStaticPathingData(dtNavMesh* mesh)
+bool dtCreateStaticPathingData(dtNavMesh* mesh)
 {
 	rdAssert(mesh);
 
@@ -303,7 +303,7 @@ bool dtBuildStaticPathingData(dtNavMesh* mesh)
 		}
 	}
 
-	// First pass.
+	// First pass to group linked and unlinked poly islands.
 	std::set<int> nlabels;
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
@@ -347,7 +347,7 @@ bool dtBuildStaticPathingData(dtNavMesh* mesh)
 		}
 	}
 
-	// Second pass.
+	// Second pass to ensure all poly's have their root disjoint set ID.
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
@@ -418,8 +418,9 @@ bool dtBuildStaticPathingData(dtNavMesh* mesh)
 		{
 			for (int k = 0; k < numPolyGroups; k++)
 			{
+				// Only reachable if its the same polygroup or if they are linked!
 				const bool isReachable = j == k || data.find(j) == data.find(k);
-				setReachable(reachabilityTable, numPolyGroups, j, k, isReachable);
+				setPolyGroupsReachability(reachabilityTable, numPolyGroups, j, k, isReachable);
 			}
 		}
 	}
