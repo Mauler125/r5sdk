@@ -10,6 +10,12 @@
 #include "vphysics/physics_collide.h"
 #include "public/rtech/ipakfile.h"
 
+//-----------------------------------------------------------------------------
+// TODO[ AMOS ]: currently error.rmdl is located in common.rpak, but ideally
+// its in common_early.rpak as that pak is always loaded. Moving the model to
+// common_early.rpak (or any pak that's loaded among common_early) will make
+// the fallback handler a lot more reliable.
+//-----------------------------------------------------------------------------
 class CStudioFallbackHandler
 {
 public:
