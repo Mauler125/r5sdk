@@ -32,7 +32,8 @@ enum TraverseAnimType_e
 	ANIMTYPE_GOLIATH,
 
 	// Not an anim type!
-	ANIMTYPE_COUNT
+	ANIMTYPE_COUNT,
+	ANIMTYPE_NONE = -1 // No Animtype (appears after animtype count as we don't want to count it)
 };
 
 #endif // AI_AGENT_H

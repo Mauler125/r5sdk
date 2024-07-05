@@ -9,9 +9,9 @@
 //-------------------------------------------------------------------------
 inline void(*v_Detour_LevelInit)(void);
 inline void(*v_Detour_FreeNavMesh)(dtNavMesh* mesh);
+inline bool(*v_Detour_IsGoalPolyReachable)(dtNavMesh* const nav, const dtPolyRef fromPoly, const dtPolyRef goalPoly, const TraverseAnimType_e animType);
 inline dtStatus(*dtNavMesh__Init)(dtNavMesh* thisptr, unsigned char* data, int flags);
 inline dtStatus(*dtNavMesh__addTile)(dtNavMesh* thisptr, unsigned char* data, dtMeshHeader* header, int dataSize, int flags, dtTileRef lastRef);
-inline uint8_t(*dtNavMesh__isPolyReachable)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, TraverseAnimType_e animType);
 
 
 constexpr const char* NAVMESH_PATH = "maps/navmesh/";
@@ -33,9 +33,9 @@ class VRecast : public IDetour
 	{
 		LogFunAdr("Detour_LevelInit", v_Detour_LevelInit);
 		LogFunAdr("Detour_FreeNavMesh", v_Detour_FreeNavMesh);
+		LogFunAdr("Detour_IsGoalPolyReachable", v_Detour_IsGoalPolyReachable);
 		LogFunAdr("dtNavMesh::Init", dtNavMesh__Init);
 		LogFunAdr("dtNavMesh::addTile", dtNavMesh__addTile);
-		LogFunAdr("dtNavMesh::isPolyReachable", dtNavMesh__isPolyReachable);
 		LogVarAdr("g_pNavMesh[ NavMeshType_e::NAVMESH_COUNT ]", g_pNavMesh);
 		LogVarAdr("g_pNavMeshQuery", g_pNavMeshQuery);
 	}
@@ -43,9 +43,9 @@ class VRecast : public IDetour
 	{
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 45 33 E4").GetPtr(v_Detour_LevelInit);
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 48 89 6C 24 ?? 48 8B D9").GetPtr(v_Detour_FreeNavMesh);
+		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 49 63 F1").GetPtr(v_Detour_IsGoalPolyReachable);
 		g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 53 41 56 48 81 EC ?? ?? ?? ?? 0F 10 11").GetPtr(dtNavMesh__Init);
 		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 41 55").GetPtr(dtNavMesh__addTile);
-		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 49 63 F1").GetPtr(dtNavMesh__isPolyReachable);
 	}
 	virtual void GetVar(void) const
 	{

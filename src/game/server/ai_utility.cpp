@@ -7,6 +7,7 @@
 #include "core/stdafx.h"
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
+#include "mathlib/bitvec.h"
 #include "engine/server/server.h"
 #include "public/edict.h"
 #include "game/server/detour_impl.h"
@@ -49,18 +50,54 @@ void Detour_FreeNavMeshByType(const NavMeshType_e navMeshType)
 
 //-----------------------------------------------------------------------------
 // Purpose: determines whether goal poly is reachable from agent poly
+//          (only checks static pathing)
 // input  : *nav - 
 //			fromRef - 
 //			goalRef - 
 //			animType - 
 // Output : value if reachable, false otherwise
 //-----------------------------------------------------------------------------
-uint8_t Detour_IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef, TraverseAnimType_e animType)
+bool Detour_IsGoalPolyReachable(dtNavMesh* const nav, const dtPolyRef fromRef, 
+    const dtPolyRef goalRef, const TraverseAnimType_e animType)
 {
     if (navmesh_always_reachable.GetBool())
         return true;
 
-    return dtNavMesh__isPolyReachable(nav, fromRef, goalRef, animType);
+    // Same poly is always reachable.
+    if (fromRef == goalRef)
+        return true;
+
+    const dtMeshTile* fromTile = nullptr;
+    const dtMeshTile* goalTile = nullptr;
+    const dtPoly* fromPoly = nullptr;
+    const dtPoly* goalPoly = nullptr;
+
+    nav->getTileAndPolyByRefUnsafe(fromRef, &fromTile, &fromPoly);
+    nav->getTileAndPolyByRefUnsafe(goalRef, &goalTile, &goalPoly);
+
+    const unsigned short fromPolyGroupId = fromPoly->groupId;
+    const unsigned short goalPolyGroupId = goalPoly->groupId;
+
+    // If we don't have an anim type, then we shouldn't use the traversal tables
+    // since these are used for linking separate poly islands together (which 
+    // requires jumping or some form of animation). So instead, check if we are
+    // on the same poly island.
+    if (animType == ANIMTYPE_NONE)
+        return fromPolyGroupId == goalPolyGroupId;
+
+    const int* const traversalTable = nav->m_traversalTables[NavMesh_GetTraversalTableIndexForAnimType(animType)];
+
+    // Traversal table doesn't exist, attempt the path finding anyways (this is
+    // a bug in the NavMesh, rebuild it!).
+    if (!traversalTable)
+        return true;
+
+    const int polyGroupCount = nav->m_params.polyGroupCount;
+    const int fromPolyBitCell = traversalTable[calcTraversalTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
+
+    // Check if the bit corresponding to our goal poly is set, if it isn't then
+    // there are no available traversal links from the current poly to the goal.
+    return fromPolyBitCell & BitVec_Bit(goalPolyGroupId);
 }
 
 //-----------------------------------------------------------------------------
@@ -160,6 +197,6 @@ static ConCommand navmesh_hotswap("navmesh_hotswap", Detour_HotSwap_f, "Hot swap
 ///////////////////////////////////////////////////////////////////////////////
 void VRecast::Detour(const bool bAttach) const
 {
-	DetourSetup(&dtNavMesh__isPolyReachable, &Detour_IsGoalPolyReachable, bAttach);
+	DetourSetup(&v_Detour_IsGoalPolyReachable, &Detour_IsGoalPolyReachable, bAttach);
 	DetourSetup(&v_Detour_LevelInit, &Detour_LevelInit, bAttach);
 }
