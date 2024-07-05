@@ -408,7 +408,6 @@ struct dtNavMeshParams
 	int magicDataCount;
 };
 
-#pragma pack(push, 4)
 /// A navigation mesh based on tiles of convex polygons.
 /// @ingroup detour
 class dtNavMesh
@@ -764,7 +763,6 @@ public:
 #endif
 	friend class dtNavMeshQuery;
 };
-#pragma pack(pop)
 
 /// Returns the total size needed for the static pathing table.
 ///  @param[in]	numPolyGroups	The total number of poly groups.
