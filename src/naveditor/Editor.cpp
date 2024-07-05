@@ -396,25 +396,25 @@ dtNavMesh* Editor::loadAll(std::string path)
 	}
 
 	// Read read static pathing data.
-	if (header.params.disjointPolyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
+	if (header.params.polyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
 	{
-		for (int i = 0; i < header.params.reachabilityTableCount; i++)
+		for (int i = 0; i < header.params.traversalTableCount; i++)
 		{
-			int* reachabilityTable = (int*)rdAlloc(header.params.reachabilityTableSize, RD_ALLOC_PERM);
-			if (!reachabilityTable)
+			int* traversalTable = (int*)rdAlloc(header.params.traversalTableSize, RD_ALLOC_PERM);
+			if (!traversalTable)
 				break;
 
-			memset(reachabilityTable, 0, header.params.reachabilityTableSize);
-			readLen = fread(reachabilityTable, header.params.reachabilityTableSize, 1, fp);
+			memset(traversalTable, 0, header.params.traversalTableSize);
+			readLen = fread(traversalTable, header.params.traversalTableSize, 1, fp);
 
 			if (readLen != 1)
 			{
-				rdFree(reachabilityTable);
+				rdFree(traversalTable);
 				fclose(fp);
 				return 0;
 			}
 
-			mesh->m_setTables[i] = reachabilityTable;
+			mesh->m_traversalTables[i] = traversalTable;
 		}
 	}
 
@@ -474,16 +474,16 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 	}
 
 	// Only store if we have 3 or more poly groups.
-	if (mesh->m_params.disjointPolyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
+	if (mesh->m_params.polyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
 	{
-		rdAssert(mesh->m_setTables);
+		rdAssert(mesh->m_traversalTables);
 
-		for (int i = 0; i < header.params.reachabilityTableCount; i++)
+		for (int i = 0; i < header.params.traversalTableCount; i++)
 		{
-			const int* const tableData = mesh->m_setTables[i];
+			const int* const tableData = mesh->m_traversalTables[i];
 			rdAssert(tableData);
 
-			fwrite(tableData, sizeof(int), (header.params.reachabilityTableSize/4), fp);
+			fwrite(tableData, sizeof(int), (header.params.traversalTableSize/4), fp);
 		}
 	}
 

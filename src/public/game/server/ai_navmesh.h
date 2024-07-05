@@ -35,16 +35,16 @@ inline const char* NavMesh_GetNameForType(const NavMeshType_e navMeshType)
 }
 
 inline const int g_traverseAnimTypeSetTableIndices[ANIMTYPE_COUNT] = {
-	// NAVMESH_SMALL has 5 reachability tables, so each traverse anim type indexes
+	// NAVMESH_SMALL has 5 traversal tables, so each traverse anim type indexes
 	// into its own.
 	0, 0, 0, 0, 0,
 
-	// All other navmeshes have 1 reachability table, so we need to subtract the
+	// All other navmeshes have 1 traversal table, so we need to subtract the
 	// number from the enumerant to index into the first one.
 	-5, -6, -7, -8
 };
 
-inline int NavMesh_GetReachabilityTableIndexForTraverseAnimType(const TraverseAnimType_e animType)
+inline int NavMesh_GetTraversalTableIndexForAnimType(const TraverseAnimType_e animType)
 {
 	Assert(animType >= 0 && animType < V_ARRAYSIZE(g_traverseAnimTypeSetTableIndices));
 	return animType + g_traverseAnimTypeSetTableIndices[animType];

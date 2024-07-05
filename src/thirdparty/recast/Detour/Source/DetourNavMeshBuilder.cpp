@@ -269,10 +269,10 @@ static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, co
 	return 0xff;	
 }
 
-static void setPolyGroupsReachability(int* const tableData, const int numPolyGroups,
-	const int polyGroup1, const int polyGroup2, const bool isReachable)
+static void setPolyGroupsTraversalReachability(int* const tableData, const int numPolyGroups,
+	const unsigned short polyGroup1, const unsigned short polyGroup2, const bool isReachable)
 {
-	const int index = polyGroup1*((numPolyGroups+31)/32)+(polyGroup2/32);
+	const int index = calcTraversalTableCellIndex(numPolyGroups, polyGroup1, polyGroup2);
 	const int value = 1<<(polyGroup2 & 31);
 
 	if (isReachable)
@@ -401,39 +401,39 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 		}
 	}
 
-	const int tableSize = calcStaticPathingTableSize(numPolyGroups);
-	const int tableCount = DT_NUM_REACHABILITY_TABLES;
+	const int tableSize = calcTraversalTableSize(numPolyGroups);
+	const int tableCount = DT_NUM_TRAVERSAL_TABLES;
 
-	rdAssert(nav->m_setTables);
+	rdAssert(nav->m_traversalTables);
 
-	// NOTE: the game allocates 4 reachability table buffers, original
+	// NOTE: the game allocates 4 traversal table buffers, original
 	// navmeshes have slightly different data per table. Currently ours are all
 	// the same. Not a big problem as this just-works, but it might be nice to
 	// figure out why we need 4 tables and what the differences are.
 	for (int i = 0; i < tableCount; i++)
 	{
-		int* const reachabilityTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
+		int* const traversalTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
 
-		if (!reachabilityTable)
+		if (!traversalTable)
 			return false;
 
-		nav->m_setTables[i] = reachabilityTable;
-		memset(reachabilityTable, 0, sizeof(int)*tableSize);
+		nav->m_traversalTables[i] = traversalTable;
+		memset(traversalTable, 0, sizeof(int)*tableSize);
 
-		for (int j = 0; j < numPolyGroups; j++)
+		for (unsigned short j = 0; j < numPolyGroups; j++)
 		{
-			for (int k = 0; k < numPolyGroups; k++)
+			for (unsigned short k = 0; k < numPolyGroups; k++)
 			{
 				// Only reachable if its the same polygroup or if they are linked!
 				const bool isReachable = j == k || data.find(j) == data.find(k);
-				setPolyGroupsReachability(reachabilityTable, numPolyGroups, j, k, isReachable);
+				setPolyGroupsTraversalReachability(traversalTable, numPolyGroups, j, k, isReachable);
 			}
 		}
 	}
 
-	nav->m_params.disjointPolyGroupCount = numPolyGroups;
-	nav->m_params.reachabilityTableSize = tableSize;
-	nav->m_params.reachabilityTableCount = tableCount;
+	nav->m_params.polyGroupCount = numPolyGroups;
+	nav->m_params.traversalTableSize = tableSize;
+	nav->m_params.traversalTableCount = tableCount;
 
 	return true;
 }

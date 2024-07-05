@@ -75,8 +75,8 @@ static const unsigned short DT_STRAY_POLY_GROUP = 1;
 /// on the same (or connected) poly island before trying to compute a path).
 static const int DT_MIN_POLY_GROUP_COUNT = 3;
 
-/// The number of reachability tables that will be used for static pathing.
-static const int DT_NUM_REACHABILITY_TABLES = 4;
+/// The number of traversal tables that will be used for static pathing.
+static const int DT_NUM_TRAVERSAL_TABLES = 4;
 
 /// @{
 /// @name Tile Serialization Constants
@@ -398,12 +398,12 @@ struct dtNavMeshParams
 	float tileHeight;				///< The height of each tile. (Along the z-axis.)
 	int maxTiles;					///< The maximum number of tiles the navigation mesh can contain. This and maxPolys are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 	int maxPolys;					///< The maximum number of polygons each tile can contain. This and maxTiles are used to calculate how many bits are needed to identify tiles and polygons uniquely.
-	int disjointPolyGroupCount;		///< The total number of unique polygon groups.
-	int reachabilityTableSize;		///< The total size of the reachability (static pathing) table. This is computed using calcStaticPathingTableSize(disjointPolyGroupcount).
-	int reachabilityTableCount;		///< The total number of reachability (static pathing) tables in this navmesh. Each TraverseAnimType uses its own table as their available jump links should match their behavior and abilities.
+	int polyGroupCount;				///< The total number of disjoint polygon groups.
+	int traversalTableSize;			///< The total size of the static traversal table. This is computed using calcTraversalTableSize(polyGroupcount).
+	int traversalTableCount;		///< The total number of traversal tables in this navmesh. Each TraverseAnimType uses its own table as their available jump links should match their behavior and abilities.
 
 	// NOTE: this seems to be used for some wallrunning code. This allocates a buffer of size 0x30 * magicDataCount,
-	// then copies in the data 0x30 * magicDataCount at the end of the navmesh file (past the reachability tables).
+	// then copies in the data 0x30 * magicDataCount at the end of the navmesh file (past the traversal tables).
 	// See [r5apex_ds + F43600] for buffer allocation and data copy, see note at dtNavMesh::m_someMagicData for usage.
 	int magicDataCount;
 };
@@ -738,7 +738,7 @@ public:
 	dtMeshTile** m_posLookup;			///< Tile hash lookup.
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
-	int** m_setTables;					///< Array of set tables.
+	int** m_traversalTables;					///< Array of set tables.
 
 	///< FIXME: unknown structure pointer, used for some wallrunning code, see [r5apex_ds + F12687] for usage.
 	///< See note at dtNavMeshParams::magicDataCount for buffer allocation.
@@ -764,10 +764,23 @@ public:
 	friend class dtNavMeshQuery;
 };
 
-/// Returns the total size needed for the static pathing table.
+/// Returns the cell index for the static traversal table.
 ///  @param[in]	numPolyGroups	The total number of poly groups.
+///  @param[in]	polyGroup1		The poly group ID of the first island.
+///  @param[in]	polyGroup2		The poly group ID of the second island.
+///  @return The cell index for the static traversal table.
 ///  @ingroup detour
-inline int calcStaticPathingTableSize(const int numPolyGroups)
+inline int calcTraversalTableCellIndex(const int numPolyGroups,
+	const unsigned short polyGroup1, const unsigned short polyGroup2)
+{
+	return polyGroup1*((numPolyGroups+31)/32)+(polyGroup2/32);
+}
+
+/// Returns the total size needed for the static traversal table.
+///  @param[in]	numPolyGroups	The total number of poly groups.
+///  @return the total size needed for the static traversal table.
+///  @ingroup detour
+inline int calcTraversalTableSize(const int numPolyGroups)
 {
 	return sizeof(int)*(numPolyGroups*((numPolyGroups+31)/32));
 }

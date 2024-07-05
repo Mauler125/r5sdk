@@ -222,10 +222,10 @@ void Editor_TileMesh::handleSettings()
 		if (imguiButton(h.name))
 		{
 			m_agentRadius = h.radius;
-			m_agentMaxClimb = h.climb_height;
+			m_agentMaxClimb = h.climbHeight;
 			m_agentHeight = h.height;
 			m_navmeshName = h.name;
-			m_tileSize = h.tile_size;
+			m_tileSize = h.tileSize;
 		}
 	}
 	Editor::handleCommonSettings();
@@ -615,9 +615,9 @@ bool Editor_TileMesh::handleBuild()
 	params.tileHeight = m_tileSize*m_cellSize;
 	params.maxTiles = m_maxTiles;
 	params.maxPolys = m_maxPolysPerTile;
-	params.disjointPolyGroupCount = 0;
-	params.reachabilityTableSize = 0;
-	params.reachabilityTableCount = DT_NUM_REACHABILITY_TABLES;
+	params.polyGroupCount = 0;
+	params.traversalTableSize = 0;
+	params.traversalTableCount = DT_NUM_TRAVERSAL_TABLES;
 	params.magicDataCount = 0;
 	
 	dtStatus status;
@@ -794,10 +794,10 @@ void Editor_TileMesh::buildAllHulls()
 	for (const hulldef& h : hulls)
 	{
 		m_agentRadius = h.radius;
-		m_agentMaxClimb = h.climb_height;
+		m_agentMaxClimb = h.climbHeight;
 		m_agentHeight = h.height;
 		m_navmeshName = h.name;
-		m_tileSize = h.tile_size;
+		m_tileSize = h.tileSize;
 
 		m_ctx->resetLog();
 

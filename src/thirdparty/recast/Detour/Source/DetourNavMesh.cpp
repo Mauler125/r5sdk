@@ -194,7 +194,7 @@ dtNavMesh::dtNavMesh() :
 	m_posLookup(0),
 	m_nextFree(0),
 	m_tiles(0),
-	m_setTables(0),
+	m_traversalTables(0),
 	m_someMagicData(0),
 	m_meshFlags(0),
 	m_tileFlags(0),
@@ -226,15 +226,15 @@ dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this c
 	rdFree(m_posLookup);
 	rdFree(m_tiles);
 
-	for (int i = 0; i < m_params.reachabilityTableCount; i++)
+	for (int i = 0; i < m_params.traversalTableCount; i++)
 	{
-		int* reachabilityTable = m_setTables[i];
+		int* traversalTable = m_traversalTables[i];
 
-		if (reachabilityTable)
-			rdFree(reachabilityTable);
+		if (traversalTable)
+			rdFree(traversalTable);
 	}
 
-	rdFree(m_setTables);
+	rdFree(m_traversalTables);
 }
 		
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
@@ -260,16 +260,16 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	memset(m_tiles, 0, sizeof(dtMeshTile) * m_maxTiles);
 	memset(m_posLookup, 0, sizeof(dtMeshTile*) * m_tileLutSize);
 
-	const int reachabilityTableCount = params->reachabilityTableCount;
-	if (reachabilityTableCount)
+	const int traversalTableCount = params->traversalTableCount;
+	if (traversalTableCount)
 	{
-		const int setTableBufSize = sizeof(int**)*reachabilityTableCount;
+		const int setTableBufSize = sizeof(int**)*traversalTableCount;
 
-		m_setTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
-		if (!m_setTables)
+		m_traversalTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
+		if (!m_traversalTables)
 			return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-		memset(m_setTables, 0, setTableBufSize);
+		memset(m_traversalTables, 0, setTableBufSize);
 	}
 
 	m_nextFree = 0;
@@ -306,9 +306,9 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 	params.tileHeight = header->bmax[1] - header->bmin[1];
 	params.maxTiles = 1;
 	params.maxPolys = header->polyCount;
-	params.disjointPolyGroupCount = 0;
-	params.reachabilityTableSize = 0;
-	params.reachabilityTableCount = DT_NUM_REACHABILITY_TABLES;
+	params.polyGroupCount = 0;
+	params.traversalTableSize = 0;
+	params.traversalTableCount = DT_NUM_TRAVERSAL_TABLES;
 	params.magicDataCount = 0;
 	
 	dtStatus status = init(&params);

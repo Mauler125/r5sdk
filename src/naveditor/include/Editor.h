@@ -27,10 +27,8 @@ struct hulldef
 	const char* name;
 	float radius;
 	float height;
-	float climb_height;
-
-	float tile_size;
-	//TODO: voxel size, tile size
+	float climbHeight;
+	float tileSize;
 };
 extern const hulldef hulls[5];
 
