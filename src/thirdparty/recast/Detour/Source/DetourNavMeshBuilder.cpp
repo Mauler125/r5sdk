@@ -320,19 +320,27 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 		{
 			dtPoly& poly = tile->polys[j];
 			unsigned int plink = poly.firstLink;
-			while (plink != DT_NULL_LINK)
+
+			// Off-mesh connections need their own ID's
+			if (poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
 			{
-				const dtLink l = tile->links[plink];
-				const dtMeshTile* t;
-				const dtPoly* p;
-				nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
+				while (plink != DT_NULL_LINK)
+				{
+					const dtLink l = tile->links[plink];
+					const dtMeshTile* t;
+					const dtPoly* p;
+					nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
 
-				if (p->groupId != (unsigned short)-1)
-					nlabels.insert(p->groupId);
+					if (p->groupId != (unsigned short)-1)
+						nlabels.insert(p->groupId);
 
-				plink = l.next;
+					plink = l.next;
+				}
 			}
-			if (nlabels.empty())
+
+			const bool noLabels = nlabels.empty();
+
+			if (noLabels)
 			{
 				// This poly isn't connected to anything, mark it so the game
 				// won't consider this poly in path generation.
@@ -349,7 +357,9 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 				for (const int nl : nlabels)
 					data.setUnion(l, nl);
 			}
-			nlabels.clear();
+
+			if (!noLabels)
+				nlabels.clear();
 		}
 	}
 
