@@ -127,6 +127,10 @@ bool Detour_IsLoaded()
 //-----------------------------------------------------------------------------
 // Purpose: hot swaps the NavMesh with the current files on the disk
 // (All hulls will be reloaded! If NavMesh for hull no longer exist, it will be kept empty!!!)
+// 
+// TODO: Currently when hotswapping, the game crashes if there's AI in the world.
+// Loop over all CAI_BaseNPC instances, and call m_pPathfinder->m_navQuery.init()
+// to clear NavMesh cache !!!
 //-----------------------------------------------------------------------------
 void Detour_HotSwap()
 {
