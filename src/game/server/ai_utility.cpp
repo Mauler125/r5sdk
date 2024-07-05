@@ -16,53 +16,35 @@
 
 static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! )");
 
-inline uint32_t g_HullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
-{
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0xfffffffb, 0xfffffffa, 0xfffffff9, 0xfffffff8, 0x00040200
-};
-
 //-----------------------------------------------------------------------------
-// Purpose: gets the navmesh by hull from global array [small, med_short, medium, large, extra_large]
-// input  : hull - 
+// Purpose: gets the navmesh by type from global array [small, med_short, medium, large, extra_large]
+// input  : navMeshType - 
 // Output : pointer to navmesh
 //-----------------------------------------------------------------------------
-dtNavMesh* GetNavMeshForHull(int hullSize)
+dtNavMesh* Detour_GetNavMeshByType(const NavMeshType_e navMeshType)
 {
-    Assert(hullSize >= NULL && hullSize < MAX_HULLS); // Programmer error.
-    return g_pNavMesh[hullSize];
+    Assert(navMeshType >= NULL && navMeshType < NAVMESH_COUNT); // Programmer error.
+    return g_pNavMesh[navMeshType];
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the navmesh by hull from global array [small, med_short, medium, large, extra_large]
-// input  : hull - 
-// Output : pointer to navmesh
+// Purpose: free's the navmesh by type from global array [small, med_short, medium, large, extra_large]
+// input  : navMeshType - 
 //-----------------------------------------------------------------------------
-void ClearNavMeshForHull(int hullSize)
+void Detour_FreeNavMeshByType(const NavMeshType_e navMeshType)
 {
-    Assert(hullSize >= NULL && hullSize < MAX_HULLS); // Programmer error.
-    dtNavMesh* nav = g_pNavMesh[hullSize];
+    Assert(navMeshType >= NULL && navMeshType < NAVMESH_COUNT); // Programmer error.
+    dtNavMesh* const nav = g_pNavMesh[navMeshType];
 
-    if (nav) // Only free if NavMesh for hull is loaded.
+    if (nav) // Only free if NavMesh for type is loaded.
     {
         // Frees tiles, polys, tris, anything dynamically
         // allocated for this navmesh, and the navmesh itself.
         v_Detour_FreeNavMesh(nav);
         free(nav);
 
-        g_pNavMesh[hullSize] = nullptr;
+        g_pNavMesh[navMeshType] = nullptr;
     }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: gets hull mask by id
-// input  : hullId - 
-// Output : hull mask
-//-----------------------------------------------------------------------------
-uint32_t GetHullMaskById(int hullId)
-{
-    Assert(hullId >= NULL && hullId < SDK_ARRAYSIZE(g_HullMasks)); // Programmer error.
-    return (hullId + g_HullMasks[hullId]);
 }
 
 //-----------------------------------------------------------------------------
@@ -70,15 +52,15 @@ uint32_t GetHullMaskById(int hullId)
 // input  : *nav - 
 //			fromRef - 
 //			goalRef - 
-//			hull_type - 
+//			animType - 
 // Output : value if reachable, false otherwise
 //-----------------------------------------------------------------------------
-uint8_t IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef, int hullId)
+uint8_t Detour_IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef, TraverseAnimType_e animType)
 {
     if (navmesh_always_reachable.GetBool())
         return true;
 
-    return dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);
+    return dtNavMesh__isPolyReachable(nav, fromRef, goalRef, animType);
 }
 
 //-----------------------------------------------------------------------------
@@ -95,9 +77,9 @@ void Detour_LevelInit()
 //-----------------------------------------------------------------------------
 void Detour_LevelShutdown()
 {
-    for (int i = 0; i < MAX_HULLS; i++)
+    for (int i = 0; i < NAVMESH_COUNT; i++)
     {
-        ClearNavMeshForHull(i);
+        Detour_FreeNavMeshByType(NavMeshType_e(i));
     }
 }
 
@@ -108,20 +90,21 @@ void Detour_LevelShutdown()
 bool Detour_IsLoaded()
 {
     int ret = 0;
-    for (int i = 0; i < MAX_HULLS; i++)
+    for (int i = 0; i < NAVMESH_COUNT; i++)
     {
-        const dtNavMesh* nav = GetNavMeshForHull(i);
+        const dtNavMesh* nav = Detour_GetNavMeshByType(NavMeshType_e(i));
         if (!nav) // Failed to load...
         {
             Warning(eDLL_T::SERVER, "NavMesh '%s%s_%s%s' not loaded\n", 
-                NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, S_HULL_TYPE[i], NAVMESH_EXT);
+                NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, 
+                NavMesh_GetNameForType(NavMeshType_e(i)), NAVMESH_EXT);
 
             ret++;
         }
     }
 
-    Assert(ret <= MAX_HULLS);
-    return (ret != MAX_HULLS);
+    Assert(ret <= NAVMESH_COUNT);
+    return (ret != NAVMESH_COUNT);
 }
 
 //-----------------------------------------------------------------------------
@@ -177,6 +160,6 @@ static ConCommand navmesh_hotswap("navmesh_hotswap", Detour_HotSwap_f, "Hot swap
 ///////////////////////////////////////////////////////////////////////////////
 void VRecast::Detour(const bool bAttach) const
 {
-	DetourSetup(&dtNavMesh__isPolyReachable, &IsGoalPolyReachable, bAttach);
+	DetourSetup(&dtNavMesh__isPolyReachable, &Detour_IsGoalPolyReachable, bAttach);
 	DetourSetup(&v_Detour_LevelInit, &Detour_LevelInit, bAttach);
 }

@@ -187,7 +187,7 @@ void CAI_Utility::DrawNavMeshBVTree(
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
+        pMesh = Detour_GetNavMeshByType(NavMeshType_e(navmesh_debug_type.GetInt()));
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -248,7 +248,7 @@ void CAI_Utility::DrawNavMeshPortals(const dtNavMesh* pMesh,
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
+        pMesh = Detour_GetNavMeshByType(NavMeshType_e(navmesh_debug_type.GetInt()));
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -368,7 +368,7 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
+        pMesh = Detour_GetNavMeshByType(NavMeshType_e(navmesh_debug_type.GetInt()));
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -455,7 +455,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
     Color col{ 20, 140, 255, 255 };
 
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
+        pMesh = Detour_GetNavMeshByType(NavMeshType_e(navmesh_debug_type.GetInt()));
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 

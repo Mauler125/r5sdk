@@ -71,7 +71,6 @@ add_sources( SOURCE_GROUP "AI"
     "server/ai_networkmanager.cpp"
     "server/ai_networkmanager.h"
     "server/ai_node.h"
-    "server/ai_hull.h"
     "server/ai_utility.cpp"
     "server/ai_utility.h"
     "server/detour_impl.h"
@@ -135,6 +134,12 @@ add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/iserverentity.h"
     "${ENGINE_SOURCE_DIR}/public/iservernetworkable.h"
     "${ENGINE_SOURCE_DIR}/public/iserverunknown.h"
+)
+
+add_sources( SOURCE_GROUP "Public/AI"
+    "${ENGINE_SOURCE_DIR}/public/game/server/ai_agent.h"
+    "${ENGINE_SOURCE_DIR}/public/game/server/ai_hull.h"
+    "${ENGINE_SOURCE_DIR}/public/game/server/ai_navmesh.h"
 )
 
 endif()

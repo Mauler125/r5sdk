@@ -14,6 +14,7 @@
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
+#include "game/server/ai_navmesh.h"
 #include <public/worldsize.h>
 
 constexpr int AINET_SCRIPT_VERSION_NUMBER = 21;
@@ -39,7 +40,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	char szMeshPath[MAX_PATH];
 	char szGraphPath[MAX_PATH];
 
-	V_snprintf(szMeshPath,  sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, S_HULL_TYPE[E_HULL_TYPE::LARGE], NAVMESH_EXT);
+	V_snprintf(szMeshPath,  sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, NavMesh_GetNameForType(NAVMESH_LARGE), NAVMESH_EXT);
 	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, g_ServerGlobalVariables->m_pszMapName, AINETWORK_EXT);
 
 	CFastTimer masterTimer;
@@ -104,7 +105,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 		buf.PutChar((char)aiNode->GetType());
 		buf.PutInt(aiNode->GetInfo());
 
-		for (int j = 0; j < MAX_HULLS; j++)
+		for (int j = 0; j < NAVMESH_COUNT; j++)
 		{
 			buf.PutShort((short)aiNode->unk2[j]);
 		}
@@ -225,7 +226,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	// Dump the hull data blocks
 	// -------------------------------
 
-	for (int i = 0; i < MAX_HULLS; i++)
+	for (int i = 0; i < NAVMESH_COUNT; i++)
 	{
 		const CAI_HullData& hullData = pNetwork->m_HullData[i];
 		const int numHullZones = pNetwork->m_iNumZones[i];
@@ -240,7 +241,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	timer.End();
-	Msg(eDLL_T::SERVER, "...done writing hull data blocks. %lf seconds (%d blocks)\n", timer.GetDuration().GetSeconds(), MAX_HULLS);
+	Msg(eDLL_T::SERVER, "...done writing hull data blocks. %lf seconds (%d blocks)\n", timer.GetDuration().GetSeconds(), NAVMESH_COUNT);
 
 
 	timer.Start();
@@ -371,7 +372,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	if (!pNavMesh)
 	{
 		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n",
-			__FUNCTION__, S_HULL_TYPE[E_HULL_TYPE::LARGE]);
+			__FUNCTION__, NavMesh_GetNameForType(NAVMESH_LARGE));
 	}
 	else
 	{
@@ -418,7 +419,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 	char szMeshPath[MAX_PATH];
 	char szGraphPath[MAX_PATH];
 
-	V_snprintf(szMeshPath, sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, S_HULL_TYPE[E_HULL_TYPE::LARGE], NAVMESH_EXT);
+	V_snprintf(szMeshPath, sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, NavMesh_GetNameForType(NAVMESH_LARGE), NAVMESH_EXT);
 	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, g_ServerGlobalVariables->m_pszMapName, AINETWORK_EXT);
 
 	int nAiNetVersion = NULL;
@@ -432,7 +433,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
 	if (!pNavMesh)
 	{
-		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, S_HULL_TYPE[E_HULL_TYPE::LARGE]);
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, NavMesh_GetNameForType(NAVMESH_LARGE));
 		bNavMeshAvailable = false;
 	}
 	else

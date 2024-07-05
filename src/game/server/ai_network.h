@@ -1,5 +1,6 @@
 #pragma once
 #include "game/server/ai_node.h"
+#include "game/server/ai_navmesh.h"
 
 //-----------------------------------------------------------------------------
 // CAI_Network
@@ -31,8 +32,8 @@ public:
 	int m_iNumLinks;              // +0x0008
 	int m_nUnk0;
 
-	CAI_HullData m_HullData[MAX_HULLS];
-	int m_iNumZones[MAX_HULLS];   // +0x0088
+	CAI_HullData m_HullData[NAVMESH_COUNT];
+	int m_iNumZones[NAVMESH_COUNT];// +0x0088
 
 	// unk8 on disk
 	int unk5;                     // +0x009C

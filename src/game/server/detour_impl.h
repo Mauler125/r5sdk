@@ -2,6 +2,7 @@
 #include "thirdparty/recast/Detour/Include/DetourStatus.h"
 #include "thirdparty/recast/Detour/Include/DetourNavMesh.h"
 #include "thirdparty/recast/Detour/Include/DetourNavMeshQuery.h"
+#include "game/server/ai_navmesh.h"
 
 //-------------------------------------------------------------------------
 // RUNTIME: DETOUR
@@ -10,35 +11,16 @@ inline void(*v_Detour_LevelInit)(void);
 inline void(*v_Detour_FreeNavMesh)(dtNavMesh* mesh);
 inline dtStatus(*dtNavMesh__Init)(dtNavMesh* thisptr, unsigned char* data, int flags);
 inline dtStatus(*dtNavMesh__addTile)(dtNavMesh* thisptr, unsigned char* data, dtMeshHeader* header, int dataSize, int flags, dtTileRef lastRef);
-inline uint8_t(*dtNavMesh__isPolyReachable)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, int hull_type);
+inline uint8_t(*dtNavMesh__isPolyReachable)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, TraverseAnimType_e animType);
 
 
 constexpr const char* NAVMESH_PATH = "maps/navmesh/";
 constexpr const char* NAVMESH_EXT = ".nm";
 
-static const char* S_HULL_TYPE[5] =
-{
-	"small",
-	"med_short",
-	"medium",
-	"large",
-	"extra_large"
-};
-
-enum E_HULL_TYPE
-{
-	SMALL = 0,
-	MED_SHORT,
-	MEDIUM,
-	LARGE,
-	EXTRA_LARGE
-};
-
 inline dtNavMesh** g_pNavMesh = nullptr;
 inline dtNavMeshQuery* g_pNavMeshQuery = nullptr;
 
-dtNavMesh* GetNavMeshForHull(int hullSize);
-uint32_t GetHullMaskById(int hullId);
+dtNavMesh* Detour_GetNavMeshByType(const NavMeshType_e navMeshType);
 
 void Detour_LevelInit();
 void Detour_LevelShutdown();
@@ -54,7 +36,7 @@ class VRecast : public IDetour
 		LogFunAdr("dtNavMesh::Init", dtNavMesh__Init);
 		LogFunAdr("dtNavMesh::addTile", dtNavMesh__addTile);
 		LogFunAdr("dtNavMesh::isPolyReachable", dtNavMesh__isPolyReachable);
-		LogVarAdr("g_pNavMesh[ MAX_HULLS ]", g_pNavMesh);
+		LogVarAdr("g_pNavMesh[ NavMeshType_e::NAVMESH_COUNT ]", g_pNavMesh);
 		LogVarAdr("g_pNavMeshQuery", g_pNavMeshQuery);
 	}
 	virtual void GetFun(void) const
