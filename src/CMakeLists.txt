@@ -24,9 +24,11 @@ set( FOLDER_CONTEXT "Respawn" )
 add_subdirectory( rtech )
 
 set( FOLDER_CONTEXT "Thirdparty" )
-add_subdirectory( thirdparty/spdlog )
-add_subdirectory( thirdparty/recast )
 add_subdirectory( thirdparty/detours )
+add_subdirectory( thirdparty/spdlog )
+
+set( FOLDER_CONTEXT "Thirdparty/Navigation" )
+add_subdirectory( thirdparty/recast )
 
 set( FOLDER_CONTEXT "Thirdparty/Compression" )
 add_subdirectory( thirdparty/lzham )
