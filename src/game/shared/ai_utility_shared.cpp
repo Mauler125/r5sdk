@@ -388,7 +388,10 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
         {
             const dtPoly* pPoly = &pTile->polys[j];
 
-            Color col{ 110, 200, 220, 255 };
+            Color col = pPoly->groupId == DT_STRAY_POLY_GROUP
+                ? Color(220, 120, 0, 255)
+                : Color(0, 200, 220, 255);
+
             const unsigned int ip = (unsigned int)(pPoly - pTile->polys);
 
             if (pPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
@@ -503,12 +506,20 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                             col = Color(0, 0, 0, 255);
                     }
                     else
-                        col = Color(0, 48, 64, 255);
+                    {
+                        col = pPoly->groupId == DT_STRAY_POLY_GROUP
+                            ? Color(32, 24, 0, 255)
+                            : Color(0, 48, 64, 255);
+                    }
                 }
                 else
                 {
                     if (pPoly->neis[e] != 0)
                         continue;
+
+                    col = pPoly->groupId == DT_STRAY_POLY_GROUP
+                        ? Color(255, 20, 10, 255)
+                        : Color(20, 140, 255, 255);
                 }
 
                 const float* v0 = &pTile->verts[pPoly->verts[e] * 3];
