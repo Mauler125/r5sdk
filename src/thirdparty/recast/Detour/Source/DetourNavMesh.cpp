@@ -195,7 +195,7 @@ dtNavMesh::dtNavMesh() :
 	m_nextFree(0),
 	m_tiles(0),
 	m_setTables(0),
-	m_unk0(0),
+	m_someMagicData(0),
 	m_meshFlags(0),
 	m_tileFlags(0),
 	m_unk1(0)
@@ -309,7 +309,7 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 	params.disjointPolyGroupCount = 0;
 	params.reachabilityTableSize = 0;
 	params.reachabilityTableCount = DT_NUM_REACHABILITY_TABLES;
-	params.allocSize = 0;
+	params.magicDataCount = 0;
 	
 	dtStatus status = init(&params);
 	if (dtStatusFailed(status))

@@ -24,14 +24,14 @@
 
 static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd)
 {
-	return poly->disjointSetId == DT_STRAY_POLY_GROUP
+	return poly->groupId == DT_STRAY_POLY_GROUP
 		? duTransCol(duRGBA(240,20,10,255), 170)
 		: duTransCol(dd->areaToCol(poly->getArea()), 170);
 }
 
 static unsigned int getPolyBoundaryColor(const dtPoly* poly, const bool inner)
 {
-	return poly->disjointSetId == DT_STRAY_POLY_GROUP
+	return poly->groupId == DT_STRAY_POLY_GROUP
 		? inner ? duRGBA(32,24,0,32) : duRGBA(32,24,0,220)
 		: inner ? duRGBA(0,48,64,32) : duRGBA(0,48,64,220);
 }

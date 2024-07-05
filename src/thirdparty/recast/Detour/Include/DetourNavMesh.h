@@ -198,9 +198,16 @@ struct dtPoly
 	/// @note Use the structure's set and get methods to access this value.
 	unsigned char areaAndtype;
 
-	unsigned short disjointSetId;
-	unsigned short unk;						//IDK but looks filled
-	unsigned int unk1;						//!TODO: debug this if you ever find where this gets used in the engine..
+	/// The poly group id determining to which island it belongs, and to which it connects.
+	unsigned short groupId;
+
+	// These 3 are most likely related, it needs to be reversed still.
+	// No use case has been found in the executable yet, its possible these are
+	// used internally in the editor. Dynamic reverse engineering required to
+	// confirm this.
+	unsigned short unk0;
+	unsigned short unk1;
+	unsigned short unk2;
 
 	/// The center of the polygon; see abstracted script function 'Navmesh_RandomPositions'.
 	float center[3];
@@ -391,12 +398,14 @@ struct dtNavMeshParams
 	float tileHeight;				///< The height of each tile. (Along the z-axis.)
 	int maxTiles;					///< The maximum number of tiles the navigation mesh can contain. This and maxPolys are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 	int maxPolys;					///< The maximum number of polygons each tile can contain. This and maxTiles are used to calculate how many bits are needed to identify tiles and polygons uniquely.
-//	
-//// i hate this
-	int disjointPolyGroupCount;
-	int reachabilityTableSize;
-	int reachabilityTableCount;
-	int allocSize;
+	int disjointPolyGroupCount;		///< The total number of unique polygon groups.
+	int reachabilityTableSize;		///< The total size of the reachability (static pathing) table. This is computed using calcStaticPathingTableSize(disjointPolyGroupcount).
+	int reachabilityTableCount;		///< The total number of reachability (static pathing) tables in this navmesh. Each TraverseAnimType uses its own table as their available jump links should match their behavior and abilities.
+
+	// NOTE: this seems to be used for some wallrunning code. This allocates a buffer of size 0x30 * magicDataCount,
+	// then copies in the data 0x30 * magicDataCount at the end of the navmesh file (past the reachability tables).
+	// See [r5apex_ds + F43600] for buffer allocation and data copy, see note at dtNavMesh::m_someMagicData for usage.
+	int magicDataCount;
 };
 
 #pragma pack(push, 4)
@@ -731,7 +740,10 @@ public:
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
 	int** m_setTables;					///< Array of set tables.
-	void* m_unk0;						///< FIXME: unknown structure pointer.
+
+	///< FIXME: unknown structure pointer, used for some wallrunning code, see [r5apex_ds + F12687] for usage.
+	///< See note at dtNavMeshParams::magicDataCount for buffer allocation.
+	void* m_someMagicData;
 
 	char m_meshFlags;	// Maybe.
 	char m_tileFlags;	// Maybe.

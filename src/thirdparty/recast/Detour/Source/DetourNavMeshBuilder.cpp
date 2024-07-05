@@ -299,7 +299,13 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			poly.disjointSetId = (unsigned short)-1;
+			poly.groupId = (unsigned short)-1;
+
+			// NOTE: these fields are unknown and need to be reversed.
+			// It is possible these are used internally only.
+			poly.unk0 = (unsigned short)-1;
+			poly.unk1 = (unsigned short)-1;
+			poly.unk2 = (unsigned short)-1;
 		}
 	}
 
@@ -321,8 +327,8 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 				const dtPoly* p;
 				nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
 
-				if (p->disjointSetId != (unsigned short)-1)
-					nlabels.insert(p->disjointSetId);
+				if (p->groupId != (unsigned short)-1)
+					nlabels.insert(p->groupId);
 
 				plink = l.next;
 			}
@@ -331,14 +337,14 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 				// This poly isn't connected to anything, mark it so the game
 				// won't consider this poly in path generation.
 				if (poly.firstLink == DT_NULL_LINK)
-					poly.disjointSetId = DT_STRAY_POLY_GROUP;
+					poly.groupId = DT_STRAY_POLY_GROUP;
 				else
-					poly.disjointSetId = (unsigned short)data.insertNew();
+					poly.groupId = (unsigned short)data.insertNew();
 			}
 			else
 			{
 				const int l = *nlabels.begin();
-				poly.disjointSetId = (unsigned short)l;
+				poly.groupId = (unsigned short)l;
 
 				for (const int nl : nlabels)
 					data.setUnion(l, nl);
@@ -356,10 +362,10 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			if (poly.disjointSetId != DT_STRAY_POLY_GROUP)
+			if (poly.groupId != DT_STRAY_POLY_GROUP)
 			{
-				int id = data.find(poly.disjointSetId);
-				poly.disjointSetId = (unsigned short)id;
+				int id = data.find(poly.groupId);
+				poly.groupId = (unsigned short)id;
 			}
 		}
 	}
@@ -375,7 +381,7 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			unsigned short oldId = poly.disjointSetId;
+			unsigned short oldId = poly.groupId;
 			if (oldId != DT_STRAY_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
 				groupMap[oldId] = numPolyGroups++;
 		}
@@ -390,8 +396,8 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			if (poly.disjointSetId != DT_STRAY_POLY_GROUP)
-				poly.disjointSetId = groupMap[poly.disjointSetId];
+			if (poly.groupId != DT_STRAY_POLY_GROUP)
+				poly.groupId = groupMap[poly.groupId];
 		}
 	}
 
@@ -702,8 +708,6 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		p->flags = params->polyFlags[i];
 		p->setArea(params->polyAreas[i]);
 		p->setType(DT_POLYTYPE_GROUND);
-		//p->org=params->polys
-		p->disjointSetId = 2; //0 is invalid 1 is special?
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (src[j] == MESH_NULL_IDX) break;

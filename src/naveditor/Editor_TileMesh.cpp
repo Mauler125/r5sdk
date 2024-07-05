@@ -618,7 +618,7 @@ bool Editor_TileMesh::handleBuild()
 	params.disjointPolyGroupCount = 0;
 	params.reachabilityTableSize = 0;
 	params.reachabilityTableCount = DT_NUM_REACHABILITY_TABLES;
-	params.allocSize = 0;
+	params.magicDataCount = 0;
 	
 	dtStatus status;
 	
