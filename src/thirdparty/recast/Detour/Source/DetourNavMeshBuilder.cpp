@@ -321,7 +321,13 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 			dtPoly& poly = tile->polys[j];
 			unsigned int plink = poly.firstLink;
 
-			// Off-mesh connections need their own ID's
+			// Off-mesh connections need their own ID's, skip the assignment
+			// here since else we will be marking 2 (or more) poly islands 
+			// under the same group id.
+			// NOTE: when we implement jump links, we will have to check on
+			// these here as well! They also shouldn't merge 2 islands together.
+			// Ultimately, the jump links should only be used during traversal
+			// table building to mark linked islands as reachable.
 			if (poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
 			{
 				while (plink != DT_NULL_LINK)
@@ -416,10 +422,23 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 
 	rdAssert(nav->m_traversalTables);
 
-	// NOTE: the game allocates 4 traversal table buffers, original
-	// navmeshes have slightly different data per table. Currently ours are all
-	// the same. Not a big problem as this just-works, but it might be nice to
-	// figure out why we need 4 tables and what the differences are.
+	// TODO: currently we allocate 5 buffers and just copy the same traversal
+	// tables in, this works fine since we don't generate jump links and
+	// therefore all poly islands should be marked unreachable from each other.
+	// But when we generate jump links, we need to take into consideration that
+	// the '_small' navmesh supports 5 animation types (dictated by the field
+	// "TraverseAnimType" in the NPC's settings file, and each of them have
+	// different properties in regards to how far they can jump, or the angle,
+	// ect... For example the "frag_drone" anim type can take far further jumps
+	// than the "human" one. The human indexes into the first table while 
+	// frag_drone indexes into the fourth. We have to set different links per
+	// table. The 'dtLink::jumpType' field probably determines what belongs to
+	// what TraverseAnimType, which we could use to set the traversability. 
+	// More reasearch is needed for the jump links and flags... For other
+	// navmeshes, e.g. the '_large' one, they all contain only 1 traversal
+	// table as they only support one TraverseAnimType each. but also here
+	// we have to "reverse" the properties from existing Titanfall 2 single
+	// player navmeshes and determine the traversability in this loop below.
 	for (int i = 0; i < tableCount; i++)
 	{
 		int* const traversalTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);

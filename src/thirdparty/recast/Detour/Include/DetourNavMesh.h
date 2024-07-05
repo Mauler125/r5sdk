@@ -63,8 +63,9 @@ typedef unsigned int dtTileRef;
 /// @ingroup detour
 static const int DT_VERTS_PER_POLYGON = 6;
 
-/// A poly group that is unconnected and considered 'trash'; see [r5apex_ds + CA88B2].
-/// For reference, r2 single player NavMeshes also marked everything unconnected as '1'.
+/// A poly group that holds all unconnected stray polys (not linked to anything).
+/// These are considered 'trash' by the game engine; see [r5apex_ds + CA88B2]. 
+/// For reference, Titanfall 2 single player NavMeshes also marked everything unconnected as '1'.
 static const unsigned short DT_STRAY_POLY_GROUP = 1;
 
 /// The minimum required number of poly groups for static pathing logic to work.
@@ -76,7 +77,7 @@ static const unsigned short DT_STRAY_POLY_GROUP = 1;
 static const int DT_MIN_POLY_GROUP_COUNT = 3;
 
 /// The number of traversal tables that will be used for static pathing.
-static const int DT_NUM_TRAVERSAL_TABLES = 4;
+static const int DT_NUM_TRAVERSAL_TABLES = 5;
 
 /// @{
 /// @name Tile Serialization Constants
