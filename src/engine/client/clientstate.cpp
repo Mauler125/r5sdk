@@ -475,6 +475,10 @@ void CClientState::Reconnect()
 
     const netadr_t& remoteAdr = m_NetChannel->GetRemoteAddress();
 
+    // NOTE: technically the engine supports running "connect localhost" to
+    // reconnect to the listen server without killing it, however when running
+    // this, an engine error occurs "Couldn't create a world static vertex buffer\n"
+    // Needs investigation.
     if (remoteAdr.IsLoopback() || NET_IsRemoteLocal(remoteAdr))
     {
         Warning(eDLL_T::CLIENT, "Reconnecting to a listen server isn't supported, use \"reload\" instead.\n");
