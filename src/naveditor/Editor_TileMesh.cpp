@@ -17,6 +17,7 @@
 //
 
 #include "Pch.h"
+#include "Shared/Include/SharedAssert.h"
 #include "Recast/Include/Recast.h"
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
@@ -31,6 +32,10 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Editor.h"
 #include "NavEditor/Include/Editor_TileMesh.h"
+
+#include "tier0/commonmacros.h"
+#include "game/server/ai_navmesh.h"
+#include "game/server/ai_hull.h"
 
 
 inline unsigned int nextPow2(unsigned int v)
@@ -208,12 +213,12 @@ void Editor_TileMesh::cleanup()
 	rdFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
 }
-const hulldef hulls[5] = {
-	{ "small", 8, 72 * 0.5, 45, 32.0f },
-	{ "med_short", 20, 72 * 0.5, 50, 32.0f },
-	{ "medium", 48, 150 * 0.5, 55, 32.0f },
-	{ "large", 60, 235 * 0.5, 60, 64.0f },
-	{ "extra_large", 88, 235 * 0.5, 65, 64.0f },
+const hulldef hulls[NAVMESH_COUNT] = {
+	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , 45, 32.0f },
+	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Width(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), 50, 32.0f },
+	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Width(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , 55, 32.0f },
+	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , 60, 64.0f },
+	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), 65, 64.0f },
 };
 void Editor_TileMesh::handleSettings()
 {
