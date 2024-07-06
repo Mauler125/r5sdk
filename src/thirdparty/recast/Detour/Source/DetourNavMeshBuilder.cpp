@@ -294,7 +294,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			poly.groupId = (unsigned short)-1;
+			poly.groupId = DT_NULL_POLY_GROUP;
 
 			// NOTE: these fields are unknown and need to be reversed.
 			// It is possible these are used internally only.
@@ -332,7 +332,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 					const dtPoly* p;
 					nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
 
-					if (p->groupId != (unsigned short)-1)
+					if (p->groupId != DT_NULL_POLY_GROUP)
 						nlabels.insert(p->groupId);
 
 					plink = l.next;

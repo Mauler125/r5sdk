@@ -63,6 +63,9 @@ typedef unsigned int dtTileRef;
 /// @ingroup detour
 static const int DT_VERTS_PER_POLYGON = 6;
 
+/// A value that indicates that this poly hasn't been assigned to a group yet.
+static const unsigned short DT_NULL_POLY_GROUP = 0;
+
 /// A poly group that holds all unconnected stray polys (not linked to anything).
 /// These are considered 'trash' by the game engine; see [r5apex_ds + CA88B2]. 
 /// For reference, Titanfall 2 single player NavMeshes also marked everything unconnected as '1'.
