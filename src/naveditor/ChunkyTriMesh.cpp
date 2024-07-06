@@ -242,32 +242,32 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm,
 	return n;
 }
 
-int rcGetChunksOverlappingRect(const rcChunkyTriMesh * cm, float bmin[2], float bmax[2], int * ids, const int maxIds, int& count_returned, int & current_idx)
+int rcGetChunksOverlappingRect(const rcChunkyTriMesh * cm, float bmin[2], float bmax[2], int * ids, const int maxIds, int& currentCount, int& currentNode)
 {
 	// Traverse tree
-	while (current_idx < cm->nnodes)
+	while (currentNode < cm->nnodes)
 	{
-		const rcChunkyTriMeshNode* node = &cm->nodes[current_idx];
+		const rcChunkyTriMeshNode* node = &cm->nodes[currentNode];
 		const bool overlap = checkOverlapRect(bmin, bmax, node->bmin, node->bmax);
 		const bool isLeafNode = node->i >= 0;
 
 		if (isLeafNode && overlap)
 		{
-			if (count_returned < maxIds)
+			if (currentCount < maxIds)
 			{
-				ids[count_returned] = current_idx;
-				count_returned++;
+				ids[currentCount] = currentNode;
+				currentCount++;
 			}
 		}
 
 		if (overlap || isLeafNode)
-			current_idx++;
+			currentNode++;
 		else
 		{
 			const int escapeIndex = -node->i;
-			current_idx += escapeIndex;
+			currentNode += escapeIndex;
 		}
-		if (count_returned == maxIds)
+		if (currentCount == maxIds)
 		{
 			return 0;
 		}
