@@ -25,17 +25,19 @@
 
 enum DrawNavMeshFlags
 {
-	DU_DRAWNAVMESH_OFFMESHCONS   = 1 << 0,
-	DU_DRAWNAVMESH_CLOSEDLIST    = 1 << 1,
-	DU_DRAWNAVMESH_COLOR_TILES   = 1 << 2,
-	DU_DRAWNAVMESH_VERTS         = 1 << 3, // Render vertex points
-	DU_DRAWNAVMESH_INNERBOUND    = 1 << 4, // Render inner poly boundaries
-	DU_DRAWNAVMESH_OUTERBOUND    = 1 << 5, // Render outer poly boundaries
-	DU_DRAWNAVMESH_NO_ALPHA      = 1 << 6, // Render meshes as opaque.
+	DU_DRAWNAVMESH_OFFMESHCONS   = 1 << 0, // Render off-mesh connections.
+	DU_DRAWNAVMESH_CLOSEDLIST    = 1 << 1, // Render navmesh with closed list.
+	DU_DRAWNAVMESH_COLOR_TILES   = 1 << 2, // Render tiles colored by their ID's.
+	DU_DRAWNAVMESH_VERTS         = 1 << 3, // Render vertex points.
+	DU_DRAWNAVMESH_INNERBOUND    = 1 << 4, // Render inner poly boundaries.
+	DU_DRAWNAVMESH_OUTERBOUND    = 1 << 5, // Render outer poly boundaries.
+	DU_DRAWNAVMESH_POLYCENTERS   = 1 << 6, // Render poly centers.
+	DU_DRAWNAVMESH_NO_DEPTH_MASK = 1 << 7, // Disable render depth mask.
+	DU_DRAWNAVMESH_NO_ALPHA      = 1 << 8, // Disable navmesh transparency.
 };
 
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags);
+void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned int flags);
 void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query);
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
 void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh);

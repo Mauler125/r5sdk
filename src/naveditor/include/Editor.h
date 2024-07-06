@@ -113,7 +113,7 @@ protected:
 	class dtNavMeshQuery* m_navQuery;
 	class dtCrowd* m_crowd;
 
-	unsigned char m_navMeshDrawFlags;
+	unsigned int m_navMeshDrawFlags;
 	bool m_filterLowHangingObstacles;
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
@@ -179,10 +179,10 @@ public:
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
 	
-	inline unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
-	inline void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
+	inline unsigned int getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
+	inline void setNavMeshDrawFlags(unsigned int flags) { m_navMeshDrawFlags = flags; }
 
-	inline void toggleNavMeshDrawFlag(unsigned char flag) { m_navMeshDrawFlags ^= flag; }
+	inline void toggleNavMeshDrawFlag(unsigned int flag) { m_navMeshDrawFlags ^= flag; }
 
 	void updateToolStates(const float dt);
 	void initToolStates(Editor* editor);

@@ -377,6 +377,15 @@ void Editor_TileMesh::handleDebugMode()
 
 	imguiLabel("Render Options");
 
+	if (imguiCheck("Draw Off-Mesh Connections", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OFFMESHCONS)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OFFMESHCONS);
+
+	if (imguiCheck("Draw Closed List", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_CLOSEDLIST)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_CLOSEDLIST);
+
+	if (imguiCheck("Draw Tile ID Colors", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_COLOR_TILES)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_COLOR_TILES);
+
 	if (imguiCheck("Draw Vertex Points", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_VERTS)))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_VERTS);
 
@@ -385,6 +394,12 @@ void Editor_TileMesh::handleDebugMode()
 
 	if (imguiCheck("Draw Outer Poly Boundaries", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OUTERBOUND)))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OUTERBOUND);
+
+	if (imguiCheck("Draw Poly Centers", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYCENTERS)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYCENTERS);
+
+	if (imguiCheck("Disable NavMesh Depth Mask", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_DEPTH_MASK)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_DEPTH_MASK);
 
 	if (imguiCheck("Disable NavMesh Transparency", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_ALPHA)))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_ALPHA);
