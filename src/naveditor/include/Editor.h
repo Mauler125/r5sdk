@@ -179,8 +179,10 @@ public:
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
 	
-	unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
-	void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
+	inline unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
+	inline void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
+
+	inline void toggleNavMeshDrawFlag(unsigned char flag) { m_navMeshDrawFlags ^= flag; }
 
 	void updateToolStates(const float dt);
 	void initToolStates(Editor* editor);

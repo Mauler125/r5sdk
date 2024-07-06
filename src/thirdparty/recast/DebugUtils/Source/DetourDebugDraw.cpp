@@ -22,11 +22,11 @@
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNode.h"
 
-static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd)
+static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd, const unsigned int alpha)
 {
 	return poly->groupId == DT_STRAY_POLY_GROUP
-		? duTransCol(duRGBA(240,20,10,255), 170)
-		: duTransCol(dd->areaToCol(poly->getArea()), 170);
+		? duTransCol(duRGBA(240,20,10,255), alpha)
+		: duTransCol(dd->areaToCol(poly->getArea()), alpha);
 }
 
 static unsigned int getPolyBoundaryColor(const dtPoly* poly, const bool inner)
@@ -139,9 +139,13 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	dtPolyRef base = mesh.getPolyRefBase(tile);
 
 	int tileNum = mesh.decodePolyIdTile(base);
-	const unsigned int tileColor = duIntToCol(tileNum, 128);
+
+	// If "No Alpha" flag is set, force the colour to be opaque instead of semi-transparent.
+	const int tileAlpha = flags & DU_DRAWNAVMESH_NO_ALPHA ? 255 : 170;
+
+	const unsigned int tileColor = duIntToCol(tileNum, tileAlpha);
 	
-	dd->depthMask(false);
+	dd->depthMask(true);
 
 	dd->begin(DU_DRAW_TRIS);
 	for (int i = 0; i < tile->header->polyCount; ++i)
@@ -160,7 +164,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
 				col = tileColor;
 			else
-				col = getPolySurfaceColor(p, dd);
+				col = getPolySurfaceColor(p, dd, tileAlpha);
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -178,10 +182,12 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	dd->end();
 	
 	// Draw inner poly boundaries
-	drawPolyBoundaries(dd, tile, 1.5f, true);
+	if (!(flags & DU_DRAWNAVMESH_NO_INNERBOUND))
+		drawPolyBoundaries(dd, tile, 1.5f, true);
 	
 	// Draw outer poly boundaries
-	drawPolyBoundaries(dd, tile, 2.5f, false);
+	if (!(flags & DU_DRAWNAVMESH_NO_OUTERBOUND))
+		drawPolyBoundaries(dd, tile, 2.5f, false);
 
 	// Draw poly centers
 	drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f);
@@ -244,14 +250,17 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->end();
 	}
 	
-	const unsigned int vcol = duRGBA(0,0,0,196);
-	dd->begin(DU_DRAW_POINTS, 3.0f);
-	for (int i = 0; i < tile->header->vertCount; ++i)
+	if ((flags & DU_DRAWNAVMESH_NO_VERTS) == 0)
 	{
-		const float* v = &tile->verts[i*3];
-		dd->vertex(v[0], v[1], v[2], vcol);
+		const unsigned int vcol = duRGBA(0,0,0,196);
+		dd->begin(DU_DRAW_POINTS, 3.0f);
+		for (int i = 0; i < tile->header->vertCount; ++i)
+		{
+			const float* v = &tile->verts[i*3];
+			dd->vertex(v[0], v[1], v[2], vcol);
+		}
+		dd->end();
 	}
-	dd->end();
 
 	dd->depthMask(true);
 }

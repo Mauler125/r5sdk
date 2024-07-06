@@ -374,6 +374,20 @@ void Editor_TileMesh::handleDebugMode()
 	
 	if (unavail == MAX_DRAWMODE)
 		return;
+
+	imguiLabel("Render Options");
+
+	if (imguiCheck("Draw Vertex Points", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_VERTS) == 0))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_VERTS);
+
+	if (imguiCheck("Draw Inner Poly Boundaries", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_INNERBOUND) == 0))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_INNERBOUND);
+
+	if (imguiCheck("Draw Outer Poly Boundaries", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_OUTERBOUND) == 0))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_OUTERBOUND);
+
+	if (imguiCheck("Disable NavMesh Transparency", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_ALPHA)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_ALPHA);
 	
 	imguiLabel("Draw");
 	if (imguiCheck("Input Mesh", m_drawMode == DRAWMODE_MESH, valid[DRAWMODE_MESH]))

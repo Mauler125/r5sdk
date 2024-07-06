@@ -25,9 +25,13 @@
 
 enum DrawNavMeshFlags
 {
-	DU_DRAWNAVMESH_OFFMESHCONS = 0x01,
-	DU_DRAWNAVMESH_CLOSEDLIST = 0x02,
-	DU_DRAWNAVMESH_COLOR_TILES = 0x04,
+	DU_DRAWNAVMESH_OFFMESHCONS   = 1 << 0,
+	DU_DRAWNAVMESH_CLOSEDLIST    = 1 << 1,
+	DU_DRAWNAVMESH_COLOR_TILES   = 1 << 2,
+	DU_DRAWNAVMESH_NO_VERTS      = 1 << 3, // Do not render vertex points
+	DU_DRAWNAVMESH_NO_INNERBOUND = 1 << 4, // Do not render inner poly boundaries
+	DU_DRAWNAVMESH_NO_OUTERBOUND = 1 << 5, // Do not render outer poly boundaries
+	DU_DRAWNAVMESH_NO_ALPHA      = 1 << 6, // Render meshes as opaque.
 };
 
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
