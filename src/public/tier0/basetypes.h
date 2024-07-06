@@ -1,4 +1,5 @@
 #pragma once
+#include "common/sdkint.h"
 
 /*-----------------------------------------------------------------------------
  * _basetypes
@@ -265,9 +266,6 @@ typedef int qboolean;
 
 typedef float				vec_t;
 typedef float				vec3_t[3];
-
-typedef float				float32;
-typedef double				float64;
 
 struct vrect_t
 {

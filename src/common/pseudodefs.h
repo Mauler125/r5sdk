@@ -42,23 +42,25 @@
 #define HEXRAYS_CONSTEXPR
 #endif
 
-typedef unsigned int uint;
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned long ulong;
-
-typedef          char   int8;
-typedef   signed char   sint8;
-typedef unsigned char   uint8;
-typedef          short  int16;
-typedef   signed short  sint16;
-typedef unsigned short  uint16;
-typedef          int    int32;
-typedef   signed int    sint32;
-typedef unsigned int    uint32;
-typedef ll              int64;
-typedef ll              sint64;
-typedef ull             uint64;
+// R5Sdk: commented as we already define these.
+//typedef unsigned int uint;
+//typedef unsigned char uchar;
+//typedef unsigned short ushort;
+//typedef unsigned long ulong;
+//
+//typedef          char   int8;
+//typedef   signed char   sint8;
+//typedef unsigned char   uint8;
+//typedef          short  int16;
+//typedef   signed short  sint16;
+//typedef unsigned short  uint16;
+//typedef          int    int32;
+//typedef   signed int    sint32;
+//typedef unsigned int    uint32;
+//typedef ll              int64;
+//typedef ll              sint64;
+//typedef ull             uint64;
+#include "sdkint.h"
 
 // Partially defined types. They are used when the decompiler does not know
 // anything about the type except its size.

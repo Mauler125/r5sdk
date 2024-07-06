@@ -1,5 +1,5 @@
-#ifndef DTPCH_H
-#define DTPCH_H
+#ifndef RDPCH_H
+#define RDPCH_H
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -55,16 +55,8 @@
 #include "NavEditor/Include/imguiRenderGL.h"
 
 // SDK types
+#include "tier0/basetypes.h"
+#include "tier0/commonmacros.h"
 #include "common/sdkdefs.h"
 
-typedef uint8_t byte;
-typedef int8_t int8;
-typedef uint8_t uint8;
-typedef int16_t int16;
-typedef uint16_t uint16;
-typedef int32_t int32;
-typedef uint32_t uint32;
-typedef int64_t int64;
-typedef uint64_t uint64;
-
-#endif // DTPCH_H
+#endif // RDPCH_H
