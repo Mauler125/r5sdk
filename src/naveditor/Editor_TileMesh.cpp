@@ -377,14 +377,14 @@ void Editor_TileMesh::handleDebugMode()
 
 	imguiLabel("Render Options");
 
-	if (imguiCheck("Draw Vertex Points", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_VERTS) == 0))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_VERTS);
+	if (imguiCheck("Draw Vertex Points", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_VERTS)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_VERTS);
 
-	if (imguiCheck("Draw Inner Poly Boundaries", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_INNERBOUND) == 0))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_INNERBOUND);
+	if (imguiCheck("Draw Inner Poly Boundaries", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_INNERBOUND)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_INNERBOUND);
 
-	if (imguiCheck("Draw Outer Poly Boundaries", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_OUTERBOUND) == 0))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_OUTERBOUND);
+	if (imguiCheck("Draw Outer Poly Boundaries", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OUTERBOUND)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OUTERBOUND);
 
 	if (imguiCheck("Disable NavMesh Transparency", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_ALPHA)))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_ALPHA);

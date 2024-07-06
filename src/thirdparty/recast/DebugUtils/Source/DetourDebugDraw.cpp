@@ -182,11 +182,11 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	dd->end();
 	
 	// Draw inner poly boundaries
-	if (!(flags & DU_DRAWNAVMESH_NO_INNERBOUND))
+	if (flags & DU_DRAWNAVMESH_INNERBOUND)
 		drawPolyBoundaries(dd, tile, 1.5f, true);
 	
 	// Draw outer poly boundaries
-	if (!(flags & DU_DRAWNAVMESH_NO_OUTERBOUND))
+	if (flags & DU_DRAWNAVMESH_OUTERBOUND)
 		drawPolyBoundaries(dd, tile, 2.5f, false);
 
 	// Draw poly centers
@@ -250,7 +250,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->end();
 	}
 	
-	if ((flags & DU_DRAWNAVMESH_NO_VERTS) == 0)
+	if (flags & DU_DRAWNAVMESH_VERTS)
 	{
 		const unsigned int vcol = duRGBA(0,0,0,196);
 		dd->begin(DU_DRAW_POINTS, 3.0f);

@@ -28,9 +28,9 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_OFFMESHCONS   = 1 << 0,
 	DU_DRAWNAVMESH_CLOSEDLIST    = 1 << 1,
 	DU_DRAWNAVMESH_COLOR_TILES   = 1 << 2,
-	DU_DRAWNAVMESH_NO_VERTS      = 1 << 3, // Do not render vertex points
-	DU_DRAWNAVMESH_NO_INNERBOUND = 1 << 4, // Do not render inner poly boundaries
-	DU_DRAWNAVMESH_NO_OUTERBOUND = 1 << 5, // Do not render outer poly boundaries
+	DU_DRAWNAVMESH_VERTS         = 1 << 3, // Render vertex points
+	DU_DRAWNAVMESH_INNERBOUND    = 1 << 4, // Render inner poly boundaries
+	DU_DRAWNAVMESH_OUTERBOUND    = 1 << 5, // Render outer poly boundaries
 	DU_DRAWNAVMESH_NO_ALPHA      = 1 << 6, // Render meshes as opaque.
 };
 
