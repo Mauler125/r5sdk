@@ -305,7 +305,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 	}
 
 	// First pass to group linked and unlinked poly islands.
-	std::set<int> nlabels;
+	std::set<unsigned short> linkedGroups;
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
 		dtMeshTile* tile = nav->getTile(i);
@@ -333,15 +333,15 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 					nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
 
 					if (p->groupId != DT_NULL_POLY_GROUP)
-						nlabels.insert(p->groupId);
+						linkedGroups.insert(p->groupId);
 
 					plink = l.next;
 				}
 			}
 
-			const bool noLabels = nlabels.empty();
+			const bool noLinkedGroups = linkedGroups.empty();
 
-			if (noLabels)
+			if (noLinkedGroups)
 			{
 				// This poly isn't connected to anything, mark it so the game
 				// won't consider this poly in path generation.
@@ -352,15 +352,15 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			}
 			else
 			{
-				const int l = *nlabels.begin();
-				poly.groupId = (unsigned short)l;
+				const unsigned short rootGroup = *linkedGroups.begin();
+				poly.groupId = rootGroup;
 
-				for (const int nl : nlabels)
-					disjoint.setUnion(l, nl);
+				for (const int linkedGroup : linkedGroups)
+					disjoint.setUnion(rootGroup, linkedGroup);
 			}
 
-			if (!noLabels)
-				nlabels.clear();
+			if (!noLinkedGroups)
+				linkedGroups.clear();
 		}
 	}
 
