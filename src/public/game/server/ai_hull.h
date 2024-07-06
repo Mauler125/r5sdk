@@ -98,6 +98,7 @@ namespace NAI_Hull
 	inline float Length(const Hull_e id) { return (g_aiHullProperties[id].maxs.x - g_aiHullProperties[id].mins.x); }
 	inline float Width(const Hull_e id)  { return (g_aiHullProperties[id].maxs.y - g_aiHullProperties[id].mins.y); }
 	inline float Height(const Hull_e id) { return (g_aiHullProperties[id].maxs.z - g_aiHullProperties[id].mins.z); }
+	inline float Scale(const Hull_e id)  { return g_aiHullProperties[id].scale; }
 
 	inline int Bits(const Hull_e id) { return g_aiHullProperties[id].hullBit; }
 
