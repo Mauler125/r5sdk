@@ -94,6 +94,7 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "WIN32"
+    "_TOOLS"
 )
 target_precompile_headers( ${PROJECT_NAME} PRIVATE
     "${ENGINE_SOURCE_DIR}/thirdparty/recast/Pch.h"

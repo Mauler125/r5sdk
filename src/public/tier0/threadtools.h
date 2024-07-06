@@ -1,9 +1,14 @@
 #ifndef THREADTOOLS_H
 #define THREADTOOLS_H
 #include "dbg.h"
-#ifndef BUILDING_MATHLIB
-#include "jobthread.h"
+
+#ifdef BUILDING_MATHLIB
+#define _TOOLS
 #endif // BUILDING_MATHLIB
+
+#ifndef _TOOLS
+#include "jobthread.h"
+#endif // _TOOLS
 
 inline void ThreadSleep(unsigned nMilliseconds)
 {
@@ -115,7 +120,7 @@ FORCEINLINE ThreadId_t ThreadGetCurrentId()
 #endif
 }
 
-#ifndef BUILDING_MATHLIB
+#ifndef _TOOLS
 
 extern ThreadId_t* g_ThreadMainThreadID;
 extern ThreadId_t* g_ThreadServerFrameThreadID;
@@ -128,7 +133,7 @@ PLATFORM_INTERFACE bool ThreadInMainOrServerFrameThread();
 PLATFORM_INTERFACE bool ThreadCouldDoServerWork();
 PLATFORM_INTERFACE void ThreadJoinServerJob();
 
-#endif // !BUILDING_MATHLIB
+#endif // !_TOOLS
 
 #ifdef _WIN32
 #define NOINLINE
@@ -262,11 +267,11 @@ private:
 typedef CInterlockedIntT<int> CInterlockedInt;
 typedef CInterlockedIntT<unsigned> CInterlockedUInt;
 
-#ifndef BUILDING_MATHLIB
+#ifndef _TOOLS
 //=============================================================================
 
 
-#endif // !BUILDING_MATHLIB
+#endif // !_TOOLS
 
 ///////////////////////////////////////////////////////////////////////////////
 class CThreadFastMutex
@@ -557,7 +562,7 @@ void CThreadSpinRWLock::UnlockRead()
 #endif
 }
 
-#ifndef BUILDING_MATHLIB
+#ifndef _TOOLS
 ///////////////////////////////////////////////////////////////////////////////
 class VThreadTools : public IDetour
 {
@@ -582,5 +587,5 @@ class VThreadTools : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif // !BUILDING_MATHLIB
+#endif // !_TOOLS
 #endif // THREADTOOLS_H
