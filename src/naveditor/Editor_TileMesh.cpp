@@ -260,7 +260,7 @@ void Editor_TileMesh::handleSettings()
 	
 	if (m_geom)
 	{
-		char text[64];
+		char text[128];
 		int gw = 0, gh = 0;
 		const float* bmin = m_geom->getNavMeshBoundsMin();
 		const float* bmax = m_geom->getNavMeshBoundsMax();
@@ -268,9 +268,9 @@ void Editor_TileMesh::handleSettings()
 		const int ts = (int)m_tileSize;
 		const int tw = (gw + ts-1) / ts;
 		const int th = (gh + ts-1) / ts;
-		snprintf(text, 64, "Tiles  %d x %d", tw, th);
+		snprintf(text, sizeof(text), "Tiles  %d x %d", tw, th);
 		imguiValue(text);
-		snprintf(text, 64, "Tile Sizes  %g x %g (%g)", tw*m_cellSize, th*m_cellSize, m_tileSize*m_cellSize);
+		snprintf(text, sizeof(text), "Tile Sizes  %g x %g (%g)", tw*m_cellSize, th*m_cellSize, m_tileSize*m_cellSize);
 		imguiValue(text);
 		// Max tiles and max polys affect how the tile IDs are calculated.
 		// There are 28 bits available for identifying a tile and a polygon.
@@ -278,9 +278,9 @@ void Editor_TileMesh::handleSettings()
 		int polyBits = 28 - tileBits;
 		m_maxTiles = 1 << tileBits;
 		m_maxPolysPerTile = 1 << polyBits;
-		snprintf(text, 64, "Max Tiles  %d", m_maxTiles);
+		snprintf(text, sizeof(text), "Max Tiles  %d", m_maxTiles);
 		imguiValue(text);
-		snprintf(text, 64, "Max Polys  %d", m_maxPolysPerTile);
+		snprintf(text, sizeof(text), "Max Polys  %d", m_maxPolysPerTile);
 		imguiValue(text);
 	}
 	else
@@ -309,11 +309,33 @@ void Editor_TileMesh::handleSettings()
 	imguiUnindent();
 	imguiUnindent();
 	
-	char msg[64];
-	snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	char msg[128];
+	snprintf(msg, sizeof(msg), "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
 	
 	imguiSeparator();
+
+	if (m_navMesh)
+	{
+		const dtNavMeshParams& params = m_navMesh->m_params;
+		const float* origin = m_navMesh->m_orig;
+
+		char result[256];
+		snprintf(result, sizeof(result), "Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
+		imguiLabel(result);
+		snprintf(result, sizeof(result), "Mesh Origin: <%g, %g, %g>", origin[0], origin[1], origin[2]);
+		imguiLabel(result);
+		snprintf(result, sizeof(result), "Poly Group Count: %d", params.polyGroupCount);
+		imguiLabel(result);
+		snprintf(result, sizeof(result), "Traversal Table Size: %d", params.traversalTableSize);
+		imguiLabel(result);
+		snprintf(result, sizeof(result), "Traversal Table Count: %d", params.traversalTableCount);
+		imguiLabel(result);
+		snprintf(result, sizeof(result), "Max Tiles: %d", params.maxTiles);
+		imguiLabel(result);
+		snprintf(result, sizeof(result), "Max Polys: %d", params.maxPolys);
+		imguiLabel(result);
+	}
 	
 	imguiSeparator();
 	
