@@ -1,7 +1,7 @@
 #pragma once
 
-PLATFORM_INTERFACE void SDK_Init();
-PLATFORM_INTERFACE void SDK_Shutdown();
+DLL_EXPORT void SDK_Init();
+DLL_EXPORT void SDK_Shutdown();
 
 void Systems_Init();
 void Systems_Shutdown();
