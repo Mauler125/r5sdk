@@ -13,7 +13,7 @@
 #define V_CONSTEXPR
 #endif
 
-#define TIER0_DLL_EXPORT
+#define STATIC_TIER0
 
 #ifdef _MSC_VER
 #define COMPILER_MSVC 1 // !TODO: Set in CMake!
