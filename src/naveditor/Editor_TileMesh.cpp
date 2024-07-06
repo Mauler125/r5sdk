@@ -321,9 +321,9 @@ void Editor_TileMesh::handleSettings()
 		const float* origin = m_navMesh->m_orig;
 
 		char result[256];
-		snprintf(result, sizeof(result), "Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
-		imguiLabel(result);
 		snprintf(result, sizeof(result), "Mesh Origin: <%g, %g, %g>", origin[0], origin[1], origin[2]);
+		imguiLabel(result);
+		snprintf(result, sizeof(result), "Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
 		imguiLabel(result);
 		snprintf(result, sizeof(result), "Poly Group Count: %d", params.polyGroupCount);
 		imguiLabel(result);
