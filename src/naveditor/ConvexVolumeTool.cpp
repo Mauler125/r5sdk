@@ -23,7 +23,9 @@
 #include "NavEditor/Include/ConvexVolumeTool.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Editor.h"
-#include <naveditor/include/GameUtils.h>
+#include "naveditor/include/GameUtils.h"
+
+#include "coordsize.h"
 
 // Quick and dirty convex hull.
 
@@ -112,9 +114,9 @@ void ConvexVolumeTool::reset()
 
 void ConvexVolumeTool::handleMenu()
 {
-	imguiSlider("Shape Height", &m_boxHeight, 0.1f, 2000.0f, 0.1f);
-	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, 2000.0f, 0.1f);
-	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, 1000.0f, 0.1f);
+	imguiSlider("Shape Height", &m_boxHeight, 0.1f, MAX_COORD_FLOAT, 0.1f);
+	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, MAX_COORD_FLOAT, 0.1f);
+	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, MAX_COORD_FLOAT/2, 0.1f);
 
 	imguiSeparator();
 
