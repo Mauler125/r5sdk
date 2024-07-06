@@ -281,14 +281,9 @@ static void setPolyGroupsTraversalReachability(int* const tableData, const int n
 		tableData[index] &= ~value;
 }
 
-bool dtCreateStaticPathingData(dtNavMesh* nav)
+bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 {
 	rdAssert(nav);
-
-	// Reserve the first 2 poly groups
-	// 0 = technically usable for normal poly groups, but for simplicity we reserve it for now.
-	// 1 = DT_STRAY_POLY_GROUP.
-	dtDisjointSet data(2);
 
 	// Clear all labels.
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
@@ -353,7 +348,7 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 				if (poly.firstLink == DT_NULL_LINK)
 					poly.groupId = DT_STRAY_POLY_GROUP;
 				else
-					poly.groupId = (unsigned short)data.insertNew();
+					poly.groupId = (unsigned short)disjoint.insertNew();
 			}
 			else
 			{
@@ -361,7 +356,7 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 				poly.groupId = (unsigned short)l;
 
 				for (const int nl : nlabels)
-					data.setUnion(l, nl);
+					disjoint.setUnion(l, nl);
 			}
 
 			if (!noLabels)
@@ -380,7 +375,7 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 			dtPoly& poly = tile->polys[j];
 			if (poly.groupId != DT_STRAY_POLY_GROUP)
 			{
-				int id = data.find(poly.groupId);
+				int id = disjoint.find(poly.groupId);
 				poly.groupId = (unsigned short)id;
 			}
 		}
@@ -388,7 +383,7 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 
 	// Gather all unique polygroups and map them to a contiguous range.
 	std::map<unsigned short, unsigned short> groupMap;
-	unsigned short numPolyGroups = DT_STRAY_POLY_GROUP+1; // Anything <= DT_STRAY_POLY_GROUP is reserved!
+	unsigned short numPolyGroups = DT_FIRST_USABLE_POLY_GROUP; // Anything <= DT_STRAY_POLY_GROUP is reserved!
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
 		dtMeshTile* tile = nav->getTile(i);
@@ -417,8 +412,15 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 		}
 	}
 
-	const int tableSize = calcTraversalTableSize(numPolyGroups);
-	const int tableCount = DT_NUM_TRAVERSAL_TABLES;
+	nav->m_params.polyGroupCount = numPolyGroups;
+	return true;
+}
+
+// todo(amos): remove param 'tableCount' and make struct 'dtTraversalTableCreateParams'
+bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount)
+{
+	const int polyGroupCount = nav->m_params.polyGroupCount;
+	const int tableSize = calcTraversalTableSize(polyGroupCount);
 
 	rdAssert(nav->m_traversalTables);
 
@@ -449,18 +451,17 @@ bool dtCreateStaticPathingData(dtNavMesh* nav)
 		nav->m_traversalTables[i] = traversalTable;
 		memset(traversalTable, 0, sizeof(int)*tableSize);
 
-		for (unsigned short j = 0; j < numPolyGroups; j++)
+		for (unsigned short j = 0; j < polyGroupCount; j++)
 		{
-			for (unsigned short k = 0; k < numPolyGroups; k++)
+			for (unsigned short k = 0; k < polyGroupCount; k++)
 			{
 				// Only reachable if its the same polygroup or if they are linked!
-				const bool isReachable = j == k || data.find(j) == data.find(k);
-				setPolyGroupsTraversalReachability(traversalTable, numPolyGroups, j, k, isReachable);
+				const bool isReachable = j == k || disjoint.find(j) == disjoint.find(k);
+				setPolyGroupsTraversalReachability(traversalTable, polyGroupCount, j, k, isReachable);
 			}
 		}
 	}
 
-	nav->m_params.polyGroupCount = numPolyGroups;
 	nav->m_params.traversalTableSize = tableSize;
 	nav->m_params.traversalTableCount = tableCount;
 

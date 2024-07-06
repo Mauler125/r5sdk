@@ -168,11 +168,19 @@ private:
 	rdIntArray parent;
 };
 
-/// Builds navigation mesh static pathing data from the provided navmesh.
+/// Builds navigation mesh disjoint poly groups from the provided navmesh.
 /// @ingroup detour
-///  @param[in]		nav		The navigation mesh to use.
-/// @return True if the static pathing data was successfully created.
-bool dtCreateStaticPathingData(dtNavMesh* nav);
+///  @param[in]		nav			The navigation mesh to use.
+///  @param[Out]	disjoint	The disjoint set data.
+/// @return True if the disjoint set data was successfully created.
+bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint);
+
+/// Builds navigation mesh static traversal table from the provided navmesh.
+/// @ingroup detour
+///  @param[in]		nav			The navigation mesh to use.
+///  @param[in]		disjoint	The disjoint set data.
+/// @return True if the static traversal table was successfully created.
+bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount);
 
 /// Builds navigation mesh tile data from the provided tile creation data.
 /// @ingroup detour

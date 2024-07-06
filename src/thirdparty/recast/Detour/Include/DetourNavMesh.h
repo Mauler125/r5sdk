@@ -68,6 +68,9 @@ static const int DT_VERTS_PER_POLYGON = 6;
 /// For reference, Titanfall 2 single player NavMeshes also marked everything unconnected as '1'.
 static const unsigned short DT_STRAY_POLY_GROUP = 1;
 
+/// The first non-reserved poly group; DT_STRAY_POLY_GROUP and below are reserved.
+static const unsigned short DT_FIRST_USABLE_POLY_GROUP = 2;
+
 /// The minimum required number of poly groups for static pathing logic to work.
 /// (E.g. if we have 2 poly groups, group id 1 (DT_STRAY_POLY_GROUP), and group
 /// id 2, then 1 is never reachable as its considered 'trash' by design, and 2
@@ -76,8 +79,8 @@ static const unsigned short DT_STRAY_POLY_GROUP = 1;
 /// on the same (or connected) poly island before trying to compute a path).
 static const int DT_MIN_POLY_GROUP_COUNT = 3;
 
-/// The number of traversal tables that will be used for static pathing.
-static const int DT_NUM_TRAVERSAL_TABLES = 5;
+/// The maximum number of traversal tables per navmesh that will be used for static pathing.
+static const int DT_MAX_TRAVERSAL_TABLES = 5;
 
 /// @{
 /// @name Tile Serialization Constants

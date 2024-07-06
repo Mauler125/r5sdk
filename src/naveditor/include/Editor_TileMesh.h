@@ -94,6 +94,8 @@ public:
 	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
 	virtual void collectSettings(struct BuildSettings& settings);
+
+	void selectNavMeshType(const NavMeshType_e navMeshType);
 	
 	void getTilePos(const float* pos, int& tx, int& ty);
 	void getTileExtents(int tx, int ty, float* bmin, float* bmax);

@@ -263,6 +263,7 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	const int traversalTableCount = params->traversalTableCount;
 	if (traversalTableCount)
 	{
+		rdAssert(traversalTableCount > 0 && traversalTableCount <= DT_MAX_TRAVERSAL_TABLES);
 		const int setTableBufSize = sizeof(int**)*traversalTableCount;
 
 		m_traversalTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
@@ -308,7 +309,7 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 	params.maxPolys = header->polyCount;
 	params.polyGroupCount = 0;
 	params.traversalTableSize = 0;
-	params.traversalTableCount = DT_NUM_TRAVERSAL_TABLES;
+	params.traversalTableCount = 0;
 	params.magicDataCount = 0;
 	
 	dtStatus status = init(&params);

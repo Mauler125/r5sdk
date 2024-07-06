@@ -33,7 +33,6 @@
 #include "NavEditor/Include/Editor.h"
 #include "NavEditor/Include/Editor_TileMesh.h"
 
-#include "tier0/commonmacros.h"
 #include "game/server/ai_navmesh.h"
 #include "game/server/ai_hull.h"
 
@@ -185,6 +184,8 @@ Editor_TileMesh::Editor_TileMesh() :
 	m_tileTriCount(0)
 {
 	resetCommonSettings();
+	selectNavMeshType(NAVMESH_SMALL);
+
 	memset(m_lastBuiltTileBmin, 0, sizeof(m_lastBuiltTileBmin));
 	memset(m_lastBuiltTileBmax, 0, sizeof(m_lastBuiltTileBmax));
 	
@@ -220,19 +221,32 @@ const hulldef hulls[NAVMESH_COUNT] = {
 	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , 60, 64.0f },
 	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), 65, 64.0f },
 };
+
+void Editor_TileMesh::selectNavMeshType(const NavMeshType_e navMeshType)
+{
+	const hulldef& h = hulls[navMeshType];
+
+	m_agentRadius = h.radius;
+	m_agentMaxClimb = h.climbHeight;
+	m_agentHeight = h.height;
+	m_navmeshName = h.name;
+	m_tileSize = h.tileSize;
+
+	m_navMeshType = navMeshType;
+}
+
 void Editor_TileMesh::handleSettings()
 {
-	for (const hulldef& h : hulls)
+	for (int i = 0; i < NAVMESH_COUNT; i++)
 	{
-		if (imguiButton(h.name))
+		const NavMeshType_e navMeshType = NavMeshType_e(i);
+
+		if (imguiButton(NavMesh_GetNameForType(navMeshType)))
 		{
-			m_agentRadius = h.radius;
-			m_agentMaxClimb = h.climbHeight;
-			m_agentHeight = h.height;
-			m_navmeshName = h.name;
-			m_tileSize = h.tileSize;
+			selectNavMeshType(navMeshType);
 		}
 	}
+
 	Editor::handleCommonSettings();
 
 	if (imguiCheck("Keep Intermediate Results", m_keepInterResults))
@@ -654,7 +668,7 @@ bool Editor_TileMesh::handleBuild()
 	params.maxPolys = m_maxPolysPerTile;
 	params.polyGroupCount = 0;
 	params.traversalTableSize = 0;
-	params.traversalTableCount = DT_NUM_TRAVERSAL_TABLES;
+	params.traversalTableCount = NavMesh_GetTraversalTableCountForNavMeshType(m_navMeshType);
 	params.magicDataCount = 0;
 	
 	dtStatus status;
@@ -662,7 +676,7 @@ bool Editor_TileMesh::handleBuild()
 	status = m_navMesh->init(&params);
 	if (dtStatusFailed(status))
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
+		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init Detour navmesh.");
 		return false;
 	}
 	
@@ -796,9 +810,19 @@ void Editor_TileMesh::buildAllTiles()
 		}
 	}
 
-	if (!dtCreateStaticPathingData(m_navMesh))
+	// Reserve the first poly groups
+	// 0 = technically usable for normal poly groups, but for possible internal usage we reserve it for now.
+	// 1 = DT_STRAY_POLY_GROUP.
+	dtDisjointSet data(DT_FIRST_USABLE_POLY_GROUP);
+
+	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build static pathing data.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
+	}
+
+	if (!dtCreateTraversalTableData(m_navMesh, data, NavMesh_GetTraversalTableCountForNavMeshType(m_navMeshType)))
+	{
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
 	}
 	
 	// Start the build process.	

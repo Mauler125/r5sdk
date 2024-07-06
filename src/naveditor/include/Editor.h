@@ -22,6 +22,8 @@
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/EditorInterfaces.h"
 
+#include "game/server/ai_navmesh.h"
+
 struct hulldef
 {
 	const char* name;
@@ -132,7 +134,9 @@ protected:
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	int m_partitionType;
-	const char* m_navmeshName = "unnamed";
+
+	NavMeshType_e m_navMeshType;
+	const char* m_navmeshName;
 	
 	EditorTool* m_tool;
 	EditorToolState* m_toolStates[MAX_TOOLS];
