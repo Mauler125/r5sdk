@@ -32,8 +32,9 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_INNERBOUND    = 1 << 4, // Render inner poly boundaries.
 	DU_DRAWNAVMESH_OUTERBOUND    = 1 << 5, // Render outer poly boundaries.
 	DU_DRAWNAVMESH_POLYCENTERS   = 1 << 6, // Render poly centers.
-	DU_DRAWNAVMESH_NO_DEPTH_MASK = 1 << 7, // Disable render depth mask.
-	DU_DRAWNAVMESH_NO_ALPHA      = 1 << 8, // Disable navmesh transparency.
+	DU_DRAWNAVMESH_POLYGROUPS    = 1 << 7, // Render poly group by color.
+	DU_DRAWNAVMESH_NO_DEPTH_MASK = 1 << 8, // Disable render depth mask.
+	DU_DRAWNAVMESH_NO_ALPHA      = 1 << 9, // Disable navmesh transparency.
 };
 
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);

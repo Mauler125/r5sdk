@@ -136,14 +136,12 @@ static void drawPolyCenters(duDebugDraw* dd, const dtMeshTile* tile, const unsig
 static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, unsigned int flags)
 {
-	dtPolyRef base = mesh.getPolyRefBase(tile);
-	int tileNum = mesh.decodePolyIdTile(base);
-
 	// If "No Alpha" flag is set, force the colour to be opaque instead of semi-transparent.
-	const int tileAlpha = flags & DU_DRAWNAVMESH_NO_ALPHA ? 255 : 170;
-	const unsigned int tileColor = duIntToCol(tileNum, tileAlpha);
-	
+	const int tileAlpha = flags & DU_DRAWNAVMESH_NO_ALPHA ? 255 : 170;	
 	const bool disableDepthTest = flags & DU_DRAWNAVMESH_NO_DEPTH_MASK;
+
+	dtPolyRef base = mesh.getPolyRefBase(tile);
+
 	dd->depthMask(!disableDepthTest);
 
 	dd->begin(DU_DRAW_TRIS);
@@ -161,7 +159,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		else
 		{
 			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
-				col = tileColor;
+				col = duIntToCol(mesh.decodePolyIdTile(base), tileAlpha);
+			else if (flags & DU_DRAWNAVMESH_POLYGROUPS)
+				col = duIntToCol(p->groupId, tileAlpha);
 			else
 				col = getPolySurfaceColor(p, dd, tileAlpha);
 		}

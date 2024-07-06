@@ -403,6 +403,9 @@ void Editor_TileMesh::handleDebugMode()
 	if (imguiCheck("Draw Poly Centers", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYCENTERS)))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYCENTERS);
 
+	if (imguiCheck("Draw Poly Groups", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYGROUPS)))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYGROUPS);
+
 	if (imguiCheck("Disable NavMesh Depth Mask", (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_DEPTH_MASK)))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_DEPTH_MASK);
 
