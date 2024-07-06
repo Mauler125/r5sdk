@@ -53,4 +53,9 @@ rdAssertFailFunc* rdAssertFailGetCustom();
 
 #endif
 
+// This is required to make the navmesh editor work with external code.
+#ifndef Assert
+#	define Assert rdAssert
+#endif // !Assert
+
 #endif // RECASTDETOURASSERT_H
