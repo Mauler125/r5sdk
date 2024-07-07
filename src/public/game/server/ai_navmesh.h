@@ -45,7 +45,7 @@ inline const int g_navMeshTraverseTableCountIndicesPerType[NAVMESH_COUNT] = {
 
 inline int NavMesh_GetTraversalTableCountForNavMeshType(const NavMeshType_e navMeshType)
 {
-	Assert(navMeshType >= 0 && navMeshType < V_ARRAYSIZE(g_navMeshTraverseTableCountIndicesPerType));
+	Assert(navMeshType >= 0 && navMeshType < NAVMESH_COUNT);
 	return g_navMeshTraverseTableCountIndicesPerType[navMeshType];
 }
 
@@ -61,8 +61,24 @@ inline const int g_navMeshTraverseTableIndicesPerType[ANIMTYPE_COUNT] = {
 
 inline int NavMesh_GetTraversalTableIndexForAnimType(const TraverseAnimType_e animType)
 {
-	Assert(animType >= 0 && animType < V_ARRAYSIZE(g_navMeshTraverseTableIndicesPerType));
+	Assert(animType >= 0 && animType < ANIMTYPE_COUNT);
 	return animType + g_navMeshTraverseTableIndicesPerType[animType];
+}
+
+
+inline const TraverseAnimType_e g_navMeshFirstTraverseAnimTypeForNavMeshType[NAVMESH_COUNT]
+{
+	ANIMTYPE_HUMAN, // NAVMESH_SMALL starts at traversal table 0, 
+	ANIMTYPE_PROWLER,
+	ANIMTYPE_SUPER_SPECTRE,
+	ANIMTYPE_TITAN,
+	ANIMTYPE_GOLIATH
+};
+
+inline TraverseAnimType_e NavMesh_GetFirstTraverseAnimTypeForType(const NavMeshType_e navMeshType)
+{
+	Assert(navMeshType >= 0 && navMeshType < NAVMESH_COUNT);
+	return g_navMeshFirstTraverseAnimTypeForNavMeshType[navMeshType];
 }
 
 #endif // AI_NAVMESH_H
