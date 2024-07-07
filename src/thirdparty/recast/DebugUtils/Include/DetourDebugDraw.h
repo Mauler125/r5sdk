@@ -37,7 +37,7 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_NO_ALPHA      = 1 << 9, // Disable navmesh transparency.
 };
 
-void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
+void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned int flags);
 void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned int flags);
 void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query);
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
