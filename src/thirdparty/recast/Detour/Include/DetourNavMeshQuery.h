@@ -505,6 +505,15 @@ public:
 	/// @name Miscellaneous Functions
 	/// @{
 
+	/// Returns whether goal poly is reachable from start poly
+	///  @param[in]		fromRef		The reference to the start poly.
+	///  @param[in]		goalRef		The reference to the goal poly.
+	///  @param[in]		checkDisjointGroupsOnly	Whether to only check disjoint poly groups.
+	///  @param[in]		traversalTableIndex		Traversal table to use for checking if islands are linked together.
+	/// @return True if goal polygon is reachable from start polygon.
+	bool isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef,
+		const bool checkDisjointGroupsOnly, const int traversalTableIndex) const;
+
 	/// Returns true if the polygon reference is valid and passes the filter restrictions.
 	///  @param[in]		ref			The polygon reference to check.
 	///  @param[in]		filter		The filter to apply.

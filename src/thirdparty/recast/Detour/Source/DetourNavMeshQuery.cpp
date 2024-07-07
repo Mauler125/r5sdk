@@ -3649,6 +3649,13 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 	return status;
 }
 
+bool dtNavMeshQuery::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef,
+	const bool checkDisjointGroupsOnly, const int traversalTableIndex) const
+{
+	rdAssert(m_nav);
+	return m_nav->isGoalPolyReachable(fromRef, goalRef, checkDisjointGroupsOnly, traversalTableIndex);
+}
+
 bool dtNavMeshQuery::isValidPolyRef(dtPolyRef ref, const dtQueryFilter* filter) const
 {
 	const dtMeshTile* tile = 0;
