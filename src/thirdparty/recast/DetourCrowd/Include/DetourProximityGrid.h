@@ -66,8 +66,8 @@ private:
 	dtProximityGrid& operator=(const dtProximityGrid&);
 };
 
-dtProximityGrid* rdAllocProximityGrid();
-void rdFreeProximityGrid(dtProximityGrid* ptr);
+dtProximityGrid* dtAllocProximityGrid();
+void dtFreeProximityGrid(dtProximityGrid* ptr);
 
 
 #endif // DETOURPROXIMITYGRID_H

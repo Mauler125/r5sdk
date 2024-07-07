@@ -54,7 +54,7 @@ static const int MAX_REM_EDGES = 48;		// TODO: make this an expression.
 
 
 
-dtTileCacheContourSet* rdAllocTileCacheContourSet(dtTileCacheAlloc* alloc)
+dtTileCacheContourSet* dtAllocTileCacheContourSet(dtTileCacheAlloc* alloc)
 {
 	rdAssert(alloc);
 
@@ -63,7 +63,7 @@ dtTileCacheContourSet* rdAllocTileCacheContourSet(dtTileCacheAlloc* alloc)
 	return cset;
 }
 
-void rdFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset)
+void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset)
 {
 	rdAssert(alloc);
 
@@ -74,7 +74,7 @@ void rdFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* c
 	alloc->free(cset);
 }
 
-dtTileCachePolyMesh* rdAllocTileCachePolyMesh(dtTileCacheAlloc* alloc)
+dtTileCachePolyMesh* dtAllocTileCachePolyMesh(dtTileCacheAlloc* alloc)
 {
 	rdAssert(alloc);
 
@@ -83,7 +83,7 @@ dtTileCachePolyMesh* rdAllocTileCachePolyMesh(dtTileCacheAlloc* alloc)
 	return lmesh;
 }
 
-void rdFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh)
+void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh)
 {
 	rdAssert(alloc);
 	
@@ -2145,7 +2145,7 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	return DT_SUCCESS;
 }
 
-void rdFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer)
+void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer)
 {
 	rdAssert(alloc);
 	// The layer is allocated as one conitguous blob of data.

@@ -195,7 +195,7 @@ Editor_TileMesh::Editor_TileMesh() :
 Editor_TileMesh::~Editor_TileMesh()
 {
 	cleanup();
-	rdFreeNavMesh(m_navMesh);
+	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 }
 
@@ -203,15 +203,15 @@ void Editor_TileMesh::cleanup()
 {
 	delete [] m_triareas;
 	m_triareas = 0;
-	rdFreeHeightField(m_solid);
+	rcFreeHeightField(m_solid);
 	m_solid = 0;
-	rdFreeCompactHeightfield(m_chf);
+	rcFreeCompactHeightfield(m_chf);
 	m_chf = 0;
-	rdFreeContourSet(m_cset);
+	rcFreeContourSet(m_cset);
 	m_cset = 0;
-	rdFreePolyMesh(m_pmesh);
+	rcFreePolyMesh(m_pmesh);
 	m_pmesh = 0;
-	rdFreePolyMeshDetail(m_dmesh);
+	rcFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
 }
 const hulldef hulls[NAVMESH_COUNT] = {
@@ -296,7 +296,7 @@ void Editor_TileMesh::handleSettings()
 	
 	if (imguiButton("Load"))
 	{
-		rdFreeNavMesh(m_navMesh);
+		dtFreeNavMesh(m_navMesh);
 		m_navMesh = Editor::loadAll(m_modelName.c_str());
 		m_navQuery->init(m_navMesh, 2048);
 
@@ -653,7 +653,7 @@ void Editor_TileMesh::handleMeshChanged(InputGeom* geom)
 
 	cleanup();
 
-	rdFreeNavMesh(m_navMesh);
+	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 
 	if (m_tool)
@@ -673,9 +673,9 @@ bool Editor_TileMesh::handleBuild()
 		return false;
 	}
 	
-	rdFreeNavMesh(m_navMesh);
+	dtFreeNavMesh(m_navMesh);
 	
-	m_navMesh = rdAllocNavMesh();
+	m_navMesh = dtAllocNavMesh();
 	if (!m_navMesh)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not allocate navmesh.");
@@ -974,7 +974,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts/1000.0f, ntris/1000.0f);
 	
 	// Allocate voxel heightfield where we rasterize our input data to.
-	m_solid = rdAllocHeightfield();
+	m_solid = rcAllocHeightfield();
 	if (!m_solid)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
@@ -1072,7 +1072,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// Compact the heightfield so that it is faster to handle from now on.
 	// This will result more cache coherent data as well as the neighbours
 	// between walkable cells will be calculated.
-	m_chf = rdAllocCompactHeightfield();
+	m_chf = rcAllocCompactHeightfield();
 	if (!m_chf)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
@@ -1086,7 +1086,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	
 	if (!m_keepInterResults)
 	{
-		rdFreeHeightField(m_solid);
+		rcFreeHeightField(m_solid);
 		m_solid = 0;
 	}
 
@@ -1166,7 +1166,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	 	
 	// Create contours.
-	m_cset = rdAllocContourSet();
+	m_cset = rcAllocContourSet();
 	if (!m_cset)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
@@ -1184,7 +1184,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	
 	// Build polygon navmesh from the contours.
-	m_pmesh = rdAllocPolyMesh();
+	m_pmesh = rcAllocPolyMesh();
 	if (!m_pmesh)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
@@ -1197,7 +1197,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	
 	// Build detail mesh.
-	m_dmesh = rdAllocPolyMeshDetail();
+	m_dmesh = rcAllocPolyMeshDetail();
 	if (!m_dmesh)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'dmesh'.");
@@ -1216,9 +1216,9 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	//rcFlipPolyMeshDetail(*m_dmesh,m_pmesh->nverts);
 	if (!m_keepInterResults)
 	{
-		rdFreeCompactHeightfield(m_chf);
+		rcFreeCompactHeightfield(m_chf);
 		m_chf = 0;
-		rdFreeContourSet(m_cset);
+		rcFreeContourSet(m_cset);
 		m_cset = 0;
 	}
 	

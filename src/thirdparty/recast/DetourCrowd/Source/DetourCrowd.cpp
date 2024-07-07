@@ -32,14 +32,14 @@
 #include "Shared\Include\SharedAlloc.h"
 
 
-dtCrowd* rdAllocCrowd()
+dtCrowd* dtAllocCrowd()
 {
 	void* mem = rdAlloc(sizeof(dtCrowd), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtCrowd;
 }
 
-void rdFreeCrowd(dtCrowd* ptr)
+void dtFreeCrowd(dtCrowd* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtCrowd();
@@ -67,7 +67,7 @@ of the crowd features.
 
 A common method for setting up the crowd is as follows:
 
--# Allocate the crowd using #rdAllocCrowd.
+-# Allocate the crowd using #dtAllocCrowd.
 -# Initialize the crowd using #init().
 -# Set the avoidance configurations using #setObstacleAvoidanceParams().
 -# Add agents using #addAgent() and make an initial movement request using #requestMoveTarget().
@@ -92,7 +92,7 @@ Notes:
 - This class is meant to provide 'local' movement. There is a limit of 256 polygons in the path corridor.  
   So it is not meant to provide automatic pathfinding services over long distances.
 
-@see rdAllocCrowd(), rdFreeCrowd(), init(), dtCrowdAgent
+@see dtAllocCrowd(), dtFreeCrowd(), init(), dtCrowdAgent
 
 */
 
@@ -133,13 +133,13 @@ void dtCrowd::purge()
 	rdFree(m_pathResult);
 	m_pathResult = 0;
 	
-	rdFreeProximityGrid(m_grid);
+	dtFreeProximityGrid(m_grid);
 	m_grid = 0;
 
-	rdFreeObstacleAvoidanceQuery(m_obstacleQuery);
+	dtFreeObstacleAvoidanceQuery(m_obstacleQuery);
 	m_obstacleQuery = 0;
 	
-	rdFreeNavMeshQuery(m_navquery);
+	dtFreeNavMeshQuery(m_navquery);
 	m_navquery = 0;
 }
 
@@ -156,13 +156,13 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	// Larger than agent radius because it is also used for agent recovery.
 	dtVset(m_agentPlacementHalfExtents, m_maxAgentRadius*2.0f, m_maxAgentRadius*1.5f, m_maxAgentRadius*2.0f);
 	
-	m_grid = rdAllocProximityGrid();
+	m_grid = dtAllocProximityGrid();
 	if (!m_grid)
 		return false;
 	if (!m_grid->init(m_maxAgents*4, maxAgentRadius*3))
 		return false;
 	
-	m_obstacleQuery = rdAllocObstacleAvoidanceQuery();
+	m_obstacleQuery = dtAllocObstacleAvoidanceQuery();
 	if (!m_obstacleQuery)
 		return false;
 	if (!m_obstacleQuery->init(6, 8))
@@ -220,7 +220,7 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	}
 
 	// The navquery is mostly used for local searches, no need for large node pool.
-	m_navquery = rdAllocNavMeshQuery();
+	m_navquery = dtAllocNavMeshQuery();
 	if (!m_navquery)
 		return false;
 	if (dtStatusFailed(m_navquery->init(nav, MAX_COMMON_NODES)))

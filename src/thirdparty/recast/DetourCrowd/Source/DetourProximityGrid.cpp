@@ -25,14 +25,14 @@
 #include "Shared\Include\SharedAssert.h"
 
 
-dtProximityGrid* rdAllocProximityGrid()
+dtProximityGrid* dtAllocProximityGrid()
 {
 	void* mem = rdAlloc(sizeof(dtProximityGrid), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtProximityGrid;
 }
 
-void rdFreeProximityGrid(dtProximityGrid* ptr)
+void dtFreeProximityGrid(dtProximityGrid* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtProximityGrid();

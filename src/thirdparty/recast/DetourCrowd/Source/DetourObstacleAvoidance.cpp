@@ -67,14 +67,14 @@ static int isectRaySeg(const float* ap, const float* u,
 
 
 
-dtObstacleAvoidanceDebugData* rdAllocObstacleAvoidanceDebugData()
+dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData()
 {
 	void* mem = rdAlloc(sizeof(dtObstacleAvoidanceDebugData), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtObstacleAvoidanceDebugData;
 }
 
-void rdFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr)
+void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtObstacleAvoidanceDebugData();
@@ -189,14 +189,14 @@ void dtObstacleAvoidanceDebugData::normalizeSamples()
 }
 
 
-dtObstacleAvoidanceQuery* rdAllocObstacleAvoidanceQuery()
+dtObstacleAvoidanceQuery* dtAllocObstacleAvoidanceQuery()
 {
 	void* mem = rdAlloc(sizeof(dtObstacleAvoidanceQuery), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtObstacleAvoidanceQuery;
 }
 
-void rdFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr)
+void dtFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtObstacleAvoidanceQuery();

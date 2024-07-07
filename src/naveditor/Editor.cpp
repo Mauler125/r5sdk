@@ -68,8 +68,8 @@ Editor::Editor() :
 	m_ctx(0)
 {
 	resetCommonSettings();
-	m_navQuery = rdAllocNavMeshQuery();
-	m_crowd = rdAllocCrowd();
+	m_navQuery = dtAllocNavMeshQuery();
+	m_crowd = dtAllocCrowd();
 
 	for (int i = 0; i < MAX_TOOLS; i++)
 		m_toolStates[i] = 0;
@@ -77,9 +77,9 @@ Editor::Editor() :
 
 Editor::~Editor()
 {
-	rdFreeNavMeshQuery(m_navQuery);
-	rdFreeNavMesh(m_navMesh);
-	rdFreeCrowd(m_crowd);
+	dtFreeNavMeshQuery(m_navQuery);
+	dtFreeNavMesh(m_navMesh);
+	dtFreeCrowd(m_crowd);
 	delete m_tool;
 	for (int i = 0; i < MAX_TOOLS; i++)
 		delete m_toolStates[i];
@@ -354,7 +354,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 		return 0;
 	}
 
-	dtNavMesh* mesh = rdAllocNavMesh();
+	dtNavMesh* mesh = dtAllocNavMesh();
 	if (!mesh)
 	{
 		fclose(fp);

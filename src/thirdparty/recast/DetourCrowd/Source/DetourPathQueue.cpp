@@ -41,7 +41,7 @@ dtPathQueue::~dtPathQueue()
 
 void dtPathQueue::purge()
 {
-	rdFreeNavMeshQuery(m_navquery);
+	dtFreeNavMeshQuery(m_navquery);
 	m_navquery = 0;
 	for (int i = 0; i < MAX_QUEUE; ++i)
 	{
@@ -54,7 +54,7 @@ bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, dtNa
 {
 	purge();
 
-	m_navquery = rdAllocNavMeshQuery();
+	m_navquery = dtAllocNavMeshQuery();
 	if (!m_navquery)
 		return false;
 	if (dtStatusFailed(m_navquery->init(nav, maxSearchNodeCount)))

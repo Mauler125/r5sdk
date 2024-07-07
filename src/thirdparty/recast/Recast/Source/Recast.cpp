@@ -83,12 +83,12 @@ void rcContext::doResetLog()
 	// Defined out of line to fix the weak v-tables warning
 }
 
-rcHeightfield* rdAllocHeightfield()
+rcHeightfield* rcAllocHeightfield()
 {
 	return rcNew<rcHeightfield>(RD_ALLOC_PERM);
 }
 
-void rdFreeHeightField(rcHeightfield* heightfield)
+void rcFreeHeightField(rcHeightfield* heightfield)
 {
 	rcDelete(heightfield);
 }
@@ -119,12 +119,12 @@ rcHeightfield::~rcHeightfield()
 	}
 }
 
-rcCompactHeightfield* rdAllocCompactHeightfield()
+rcCompactHeightfield* rcAllocCompactHeightfield()
 {
 	return rcNew<rcCompactHeightfield>(RD_ALLOC_PERM);
 }
 
-void rdFreeCompactHeightfield(rcCompactHeightfield* compactHeightfield)
+void rcFreeCompactHeightfield(rcCompactHeightfield* compactHeightfield)
 {
 	rcDelete(compactHeightfield);
 }
@@ -157,12 +157,12 @@ rcCompactHeightfield::~rcCompactHeightfield()
 	rdFree(areas);
 }
 
-rcHeightfieldLayerSet* rdAllocHeightfieldLayerSet()
+rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet()
 {
 	return rcNew<rcHeightfieldLayerSet>(RD_ALLOC_PERM);
 }
 
-void rdFreeHeightfieldLayerSet(rcHeightfieldLayerSet* layerSet)
+void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* layerSet)
 {
 	rcDelete(layerSet);
 }
@@ -185,12 +185,12 @@ rcHeightfieldLayerSet::~rcHeightfieldLayerSet()
 }
 
 
-rcContourSet* rdAllocContourSet()
+rcContourSet* rcAllocContourSet()
 {
 	return rcNew<rcContourSet>(RD_ALLOC_PERM);
 }
 
-void rdFreeContourSet(rcContourSet* contourSet)
+void rcFreeContourSet(rcContourSet* contourSet)
 {
 	rcDelete(contourSet);
 }
@@ -219,12 +219,12 @@ rcContourSet::~rcContourSet()
 	rdFree(conts);
 }
 
-rcPolyMesh* rdAllocPolyMesh()
+rcPolyMesh* rcAllocPolyMesh()
 {
 	return rcNew<rcPolyMesh>(RD_ALLOC_PERM);
 }
 
-void rdFreePolyMesh(rcPolyMesh* polyMesh)
+void rcFreePolyMesh(rcPolyMesh* polyMesh)
 {
 	rcDelete(polyMesh);
 }
@@ -257,12 +257,12 @@ rcPolyMesh::~rcPolyMesh()
 	rdFree(areas);
 }
 
-rcPolyMeshDetail* rdAllocPolyMeshDetail()
+rcPolyMeshDetail* rcAllocPolyMeshDetail()
 {
 	return rcNew<rcPolyMeshDetail>(RD_ALLOC_PERM);
 }
 
-void rdFreePolyMeshDetail(rcPolyMeshDetail* detailMesh)
+void rcFreePolyMeshDetail(rcPolyMeshDetail* detailMesh)
 {
 	if (detailMesh == NULL)
 	{

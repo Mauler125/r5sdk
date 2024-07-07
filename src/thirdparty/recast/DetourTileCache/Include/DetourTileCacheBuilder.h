@@ -112,17 +112,17 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   const unsigned char* cons,
 							   unsigned char** outData, int* outDataSize);
 
-void rdFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer);
+void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer);
 
 dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompressor* comp,
 									unsigned char* compressed, const int compressedSize,
 									dtTileCacheLayer** layerOut);
 
-dtTileCacheContourSet* rdAllocTileCacheContourSet(dtTileCacheAlloc* alloc);
-void rdFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset);
+dtTileCacheContourSet* dtAllocTileCacheContourSet(dtTileCacheAlloc* alloc);
+void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset);
 
-dtTileCachePolyMesh* rdAllocTileCachePolyMesh(dtTileCacheAlloc* alloc);
-void rdFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh);
+dtTileCachePolyMesh* dtAllocTileCachePolyMesh(dtTileCacheAlloc* alloc);
+void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh);
 
 dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
 							const float* pos, const float radius, const float height, const unsigned char areaId);

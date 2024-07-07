@@ -103,14 +103,14 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
 static const float H_SCALE = 0.999f; // Search heuristic scale.
 
 
-dtNavMeshQuery* rdAllocNavMeshQuery()
+dtNavMeshQuery* dtAllocNavMeshQuery()
 {
 	void* mem = rdAlloc(sizeof(dtNavMeshQuery), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtNavMeshQuery;
 }
 
-void rdFreeNavMeshQuery(dtNavMeshQuery* navmesh)
+void dtFreeNavMeshQuery(dtNavMeshQuery* navmesh)
 {
 	if (!navmesh) return;
 	navmesh->~dtNavMeshQuery();
@@ -133,7 +133,7 @@ void rdFreeNavMeshQuery(dtNavMeshQuery* navmesh)
 /// considered impassable. A @e portal is a passable segment between polygons.
 /// A portal may be treated as a wall based on the dtQueryFilter used for a query.
 ///
-/// @see dtNavMesh, dtQueryFilter, #rdAllocNavMeshQuery(), #rdAllocNavMeshQuery()
+/// @see dtNavMesh, dtQueryFilter, #dtAllocNavMeshQuery(), #dtAllocNavMeshQuery()
 
 dtNavMeshQuery::dtNavMeshQuery() :
 	m_nav(0),

@@ -115,7 +115,7 @@ CrowdToolState::CrowdToolState() :
 	
 	memset(m_trails, 0, sizeof(m_trails));
 	
-	m_vod = rdAllocObstacleAvoidanceDebugData();
+	m_vod = dtAllocObstacleAvoidanceDebugData();
 	m_vod->init(2048);
 	
 	memset(&m_agentDebug, 0, sizeof(m_agentDebug));
@@ -125,7 +125,7 @@ CrowdToolState::CrowdToolState() :
 
 CrowdToolState::~CrowdToolState()
 {
-	rdFreeObstacleAvoidanceDebugData(m_vod);
+	dtFreeObstacleAvoidanceDebugData(m_vod);
 }
 
 void CrowdToolState::init(class Editor* editor)

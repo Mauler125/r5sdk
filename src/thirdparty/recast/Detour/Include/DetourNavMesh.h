@@ -795,12 +795,12 @@ int calcTraversalTableSize(const int numPolyGroups);
 /// Allocates a navigation mesh object using the Detour allocator.
 /// @return A navigation mesh that is ready for initialization, or null on failure.
 ///  @ingroup detour
-dtNavMesh* rdAllocNavMesh();
+dtNavMesh* dtAllocNavMesh();
 
 /// Frees the specified navigation mesh object using the Detour allocator.
-///  @param[in]	navmesh		A navigation mesh allocated using #rdAllocNavMesh
+///  @param[in]	navmesh		A navigation mesh allocated using #dtAllocNavMesh
 ///  @ingroup detour
-void rdFreeNavMesh(dtNavMesh* navmesh);
+void dtFreeNavMesh(dtNavMesh* navmesh);
 
 #endif // DETOURNAVMESH_H
 

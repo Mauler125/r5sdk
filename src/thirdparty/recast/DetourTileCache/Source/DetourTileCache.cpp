@@ -9,14 +9,14 @@
 #include <string.h>
 #include <new>
 
-dtTileCache* rdAllocTileCache()
+dtTileCache* dtAllocTileCache()
 {
 	void* mem = rdAlloc(sizeof(dtTileCache), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtTileCache;
 }
 
-void rdFreeTileCache(dtTileCache* tc)
+void dtFreeTileCache(dtTileCache* tc)
 {
 	if (!tc) return;
 	tc->~dtTileCache();
@@ -46,11 +46,11 @@ struct NavMeshTileBuildContext
 	inline ~NavMeshTileBuildContext() { purge(); }
 	void purge()
 	{
-		rdFreeTileCacheLayer(alloc, layer);
+		dtFreeTileCacheLayer(alloc, layer);
 		layer = 0;
-		rdFreeTileCacheContourSet(alloc, lcset);
+		dtFreeTileCacheContourSet(alloc, lcset);
 		lcset = 0;
-		rdFreeTileCachePolyMesh(alloc, lmesh);
+		dtFreeTileCachePolyMesh(alloc, lmesh);
 		lmesh = 0;
 	}
 	struct dtTileCacheLayer* layer;
@@ -701,7 +701,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	if (dtStatusFailed(status))
 		return status;
 	
-	bc.lcset = rdAllocTileCacheContourSet(m_talloc);
+	bc.lcset = dtAllocTileCacheContourSet(m_talloc);
 	if (!bc.lcset)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	status = dtBuildTileCacheContours(m_talloc, *bc.layer, walkableClimbVx,
@@ -709,7 +709,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	if (dtStatusFailed(status))
 		return status;
 	
-	bc.lmesh = rdAllocTileCachePolyMesh(m_talloc);
+	bc.lmesh = dtAllocTileCachePolyMesh(m_talloc);
 	if (!bc.lmesh)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	status = dtBuildTileCachePolyMesh(m_talloc, *bc.lcset, *bc.lmesh);

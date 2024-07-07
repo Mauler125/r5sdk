@@ -145,7 +145,7 @@ int calcTraversalTableSize(const int numPolyGroups)
 	return sizeof(int)*(numPolyGroups*((numPolyGroups+(DT_BITS_PER_BIT_CELL-1))/DT_BITS_PER_BIT_CELL));
 }
 
-dtNavMesh* rdAllocNavMesh()
+dtNavMesh* dtAllocNavMesh()
 {
 	void* mem = rdAlloc(sizeof(dtNavMesh), RD_ALLOC_PERM);
 	if (!mem) return 0;
@@ -156,7 +156,7 @@ dtNavMesh* rdAllocNavMesh()
 ///
 /// This function will only free the memory for tiles with the #DT_TILE_FREE_DATA
 /// flag set.
-void rdFreeNavMesh(dtNavMesh* navmesh)
+void dtFreeNavMesh(dtNavMesh* navmesh)
 {
 	if (!navmesh) return;
 	navmesh->~dtNavMesh();
@@ -192,7 +192,7 @@ Notes:
 - This class does not implement any asynchronous methods. So the ::dtStatus result of all methods will 
   always contain either a success or failure flag.
 
-@see dtNavMeshQuery, dtCreateNavMeshData, dtNavMeshCreateParams, #rdAllocNavMesh, #rdFreeNavMesh
+@see dtNavMeshQuery, dtCreateNavMeshData, dtNavMeshCreateParams, #dtAllocNavMesh, #dtFreeNavMesh
 */
 
 dtNavMesh::dtNavMesh() :
