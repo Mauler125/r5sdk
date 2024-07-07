@@ -101,6 +101,7 @@ CrowdToolState::CrowdToolState() :
 	m_toolParams.m_showPerfGraph = false;
 	m_toolParams.m_showDetailAll = false;
 	m_toolParams.m_expandOptions = true;
+	m_toolParams.m_expandTraversalOptions = false;
 	m_toolParams.m_anticipateTurns = true;
 	m_toolParams.m_optimizeVis = true;
 	m_toolParams.m_optimizeTopo = true;
@@ -110,6 +111,7 @@ CrowdToolState::CrowdToolState() :
 	m_toolParams.m_separationWeight = 20.0f;
 	m_toolParams.m_maxAcceleration = 800.f;
 	m_toolParams.m_maxSpeed = 200.f;
+	m_toolParams.m_traverseAnimType = ANIMTYPE_NONE;
 	
 	memset(m_trails, 0, sizeof(m_trails));
 	
@@ -135,6 +137,8 @@ void CrowdToolState::init(class Editor* editor)
 	
 	dtNavMesh* nav = m_editor->getNavMesh();
 	dtCrowd* crowd = m_editor->getCrowd();
+
+	m_toolParams.m_traverseAnimType = NavMesh_GetFirstTraverseAnimTypeForType(m_editor->getLoadedNavMeshType());
 	
 	if (nav && crowd && (m_nav != nav || m_crowd != crowd))
 	{
@@ -562,7 +566,12 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2]+h,
 							   model, proj, view, &x, &y, &z))
 				{
-					snprintf(label, 32, "%d", i);
+					const TraverseAnimType_e animType = ag->params.traverseAnimType;
+					const char* animTypeName = animType == ANIMTYPE_NONE
+						? "none"
+						: g_traverseAnimTypeNames[animType];
+
+					snprintf(label, 32, "%s (%d)", animTypeName, i);
 					imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
 				}
 			}			
@@ -649,6 +658,7 @@ void CrowdToolState::addAgent(const float* p)
 		ap.updateFlags |= DT_CROWD_SEPARATION;
 	ap.obstacleAvoidanceType = (unsigned char)m_toolParams.m_obstacleAvoidanceType;
 	ap.separationWeight = m_toolParams.m_separationWeight;
+	ap.traverseAnimType = m_toolParams.m_traverseAnimType;
 	
 	int idx = crowd->addAgent(p, &ap);
 	if (idx != -1)
@@ -941,6 +951,37 @@ void CrowdTool::handleMenu()
 			m_state->updateAgentParams();
 		}
 		
+		imguiUnindent();
+	}
+
+	if (imguiCollapse("Traverse Animation Type", 0, params->m_expandTraversalOptions))
+		params->m_expandTraversalOptions = !params->m_expandTraversalOptions;
+
+	const NavMeshType_e loadedNavMeshType = m_editor->getLoadedNavMeshType();
+
+	// TODO: perhaps clamp with m_nav->m_params.traversalTableCount? Technically a navmesh should 
+	// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
+	const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
+	const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
+
+	if (params->m_expandTraversalOptions)
+	{
+		imguiIndent();
+
+		for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
+		{
+			const bool noAnimtype = i == ANIMTYPE_NONE;
+
+			const TraverseAnimType_e animTypeIndex = noAnimtype ? ANIMTYPE_NONE : TraverseAnimType_e((int)baseType + i);
+			const char* animtypeName = noAnimtype ? "none" : g_traverseAnimTypeNames[animTypeIndex];
+
+			if (imguiCheck(animtypeName, params->m_traverseAnimType == animTypeIndex))
+			{
+				params->m_traverseAnimType = animTypeIndex;
+				m_state->updateAgentParams();
+			}
+		}
+
 		imguiUnindent();
 	}
 

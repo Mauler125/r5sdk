@@ -135,7 +135,8 @@ protected:
 	float m_detailSampleMaxError;
 	int m_partitionType;
 
-	NavMeshType_e m_navMeshType;
+	NavMeshType_e m_selectedNavMeshType;
+	NavMeshType_e m_loadedNavMeshType;
 	const char* m_navmeshName;
 	
 	EditorTool* m_tool;
@@ -187,6 +188,9 @@ public:
 	inline void setNavMeshDrawFlags(unsigned int flags) { m_navMeshDrawFlags = flags; }
 
 	inline void toggleNavMeshDrawFlag(unsigned int flag) { m_navMeshDrawFlags ^= flag; }
+
+	inline NavMeshType_e getSelectedNavMeshType() const { return m_selectedNavMeshType; }
+	inline NavMeshType_e getLoadedNavMeshType() const { return m_loadedNavMeshType; }
 
 	void updateToolStates(const float dt);
 	void initToolStates(Editor* editor);

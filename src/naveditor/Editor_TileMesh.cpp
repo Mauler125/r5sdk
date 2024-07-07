@@ -232,7 +232,7 @@ void Editor_TileMesh::selectNavMeshType(const NavMeshType_e navMeshType)
 	m_navmeshName = h.name;
 	m_tileSize = h.tileSize;
 
-	m_navMeshType = navMeshType;
+	m_selectedNavMeshType = navMeshType;
 }
 
 void Editor_TileMesh::handleSettings()
@@ -299,6 +299,9 @@ void Editor_TileMesh::handleSettings()
 		rdFreeNavMesh(m_navMesh);
 		m_navMesh = Editor::loadAll(m_modelName.c_str());
 		m_navQuery->init(m_navMesh, 2048);
+
+		m_loadedNavMeshType = m_selectedNavMeshType;
+		initToolStates(this);
 	}
 
 	if (imguiButton("Save"))
@@ -679,6 +682,8 @@ bool Editor_TileMesh::handleBuild()
 		return false;
 	}
 
+	m_loadedNavMeshType = m_selectedNavMeshType;
+
 	dtNavMeshParams params;
 	rcVcopy(params.orig, m_geom->getNavMeshBoundsMin());
 
@@ -690,7 +695,7 @@ bool Editor_TileMesh::handleBuild()
 	params.maxPolys = m_maxPolysPerTile;
 	params.polyGroupCount = 0;
 	params.traversalTableSize = 0;
-	params.traversalTableCount = NavMesh_GetTraversalTableCountForNavMeshType(m_navMeshType);
+	params.traversalTableCount = NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType);
 	params.magicDataCount = 0;
 	
 	dtStatus status;
@@ -842,7 +847,7 @@ void Editor_TileMesh::buildAllTiles()
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
 	}
 
-	if (!dtCreateTraversalTableData(m_navMesh, data, NavMesh_GetTraversalTableCountForNavMeshType(m_navMeshType)))
+	if (!dtCreateTraversalTableData(m_navMesh, data, NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType)))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
 	}

@@ -26,6 +26,8 @@
 #include "DetourProximityGrid.h"
 #include "DetourPathQueue.h"
 
+#include "game/server/ai_navmesh.h"
+
 /// The maximum number of neighbors that a crowd agent can take into account
 /// for steering decisions.
 /// @ingroup crowd
@@ -83,8 +85,12 @@ struct dtCrowdAgentParams
 
 	float pathOptimizationRange;		///< The path visibility optimization range. [Limit: > 0]
 
-	/// How aggresive the agent manager should be at avoiding collisions with this agent. [Limit: >= 0]
+	/// How aggressive the agent manager should be at avoiding collisions with this agent. [Limit: >= 0]
 	float separationWeight;
+
+	/// The traversal animation type, which is used to determine which traversal table this agent will use.
+	/// [Limit: ANIMTYPE_NONE >= value <= #dtNavMeshParams::traversalTableCount]
+	TraverseAnimType_e traverseAnimType;
 
 	/// Flags that impact steering behavior. (See: #UpdateFlags)
 	unsigned char updateFlags;

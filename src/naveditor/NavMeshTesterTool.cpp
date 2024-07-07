@@ -159,6 +159,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_navQuery(0),
 	m_pathFindStatus(DT_FAILURE),
 	m_toolMode(TOOLMODE_PATHFIND_FOLLOW),
+	m_traverseAnimType(ANIMTYPE_NONE),
 	m_straightPathOptions(0),
 	m_startRef(0),
 	m_endRef(0),
@@ -401,7 +402,33 @@ void NavMeshTesterTool::handleMenu()
 	}
 	imguiUnindent();
 
-	imguiSeparator();	
+	imguiSeparator();
+	imguiLabel("Traverse Anim Type");
+
+	imguiIndent();
+
+	const NavMeshType_e loadedNavMeshType = m_editor->getLoadedNavMeshType();
+
+	// TODO: perhaps clamp with m_nav->m_params.traversalTableCount? Technically a navmesh should 
+	// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
+	const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
+	const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
+
+	for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
+	{
+		const bool noAnimtype = i == ANIMTYPE_NONE;
+
+		const TraverseAnimType_e animTypeIndex = noAnimtype ? ANIMTYPE_NONE : TraverseAnimType_e((int)baseType + i);
+		const char* animtypeName = noAnimtype ? "none" : g_traverseAnimTypeNames[animTypeIndex];
+
+		if (imguiCheck(animtypeName, m_traverseAnimType == animTypeIndex))
+		{
+			m_traverseAnimType = animTypeIndex;
+		}
+	}
+
+	imguiUnindent();
+	imguiSeparator();
 }
 
 void NavMeshTesterTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -431,7 +458,19 @@ void NavMeshTesterTool::handleToggle()
 		
 	if (!m_sposSet || !m_eposSet || !m_startRef || !m_endRef)
 		return;
-		
+
+	const bool hasAnimType = m_traverseAnimType != ANIMTYPE_NONE;
+	const int traversalTableIndex = hasAnimType
+		? NavMesh_GetTraversalTableIndexForAnimType(m_traverseAnimType)
+		: NULL;
+
+	if (!m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex))
+	{
+		printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);
+		reset();
+		return;
+	}
+
 	static const float STEP_SIZE = 10.0f;
 	static const float SLOP = 2.0f;
 
@@ -632,6 +671,18 @@ void NavMeshTesterTool::recalc()
 		m_endRef = 0;
 	
 	m_pathFindStatus = DT_FAILURE;
+
+	const bool hasAnimType = m_traverseAnimType != ANIMTYPE_NONE;
+	const int traversalTableIndex = hasAnimType
+		? NavMesh_GetTraversalTableIndexForAnimType(m_traverseAnimType)
+		: NULL;
+
+	if (!m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex))
+	{
+		printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);
+		reset();
+		return;
+	}
 	
 	if (m_toolMode == TOOLMODE_PATHFIND_FOLLOW)
 	{
@@ -1317,6 +1368,31 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 	{
 		imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, "End", imguiRGBA(0,0,0,220));
 	}
+
+	// Useful utility to draw all polygroup id's at the center of the polygons.
+	// The code has been commented as this is very expensive, and we need to add
+	// an option to only render a range of group id's.
+	//if (m_navMesh)
+	//{
+	//	for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
+	//	{
+	//		const dtMeshTile* tile = m_navMesh->getTile(i);
+	//		if (!tile->header) continue;
+
+	//		for (int j = 0; j < tile->header->polyCount; j++)
+	//		{
+	//			const dtPoly* poly = &tile->polys[j];
+
+	//			if (gluProject((GLdouble)poly->center[0], (GLdouble)poly->center[1], (GLdouble)poly->center[2] + 30,
+	//				model, proj, view, &x, &y, &z))
+	//			{
+	//				char label[6];
+	//				snprintf(label, sizeof(label), "%hu", poly->groupId);
+	//				imguiDrawText((int)x, (int)y, IMGUI_ALIGN_CENTER, label, imguiRGBA(0, 0, 0, 220));
+	//			}
+	//		}
+	//	}
+	//}
 	
 	// Tool help
 	const int h = view[3];

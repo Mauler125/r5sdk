@@ -25,6 +25,8 @@
 #include "NavEditor/Include/ValueHistory.h"
 #include "NavEditor/Include/Editor.h"
 
+#include "game/server/ai_navmesh.h"
+
 // Tool to create crowds.
 
 struct CrowdToolParams
@@ -45,6 +47,7 @@ struct CrowdToolParams
 	bool m_showDetailAll;
 	
 	bool m_expandOptions;
+	bool m_expandTraversalOptions;
 	bool m_anticipateTurns;
 	bool m_optimizeVis;
 	bool m_optimizeTopo;
@@ -55,6 +58,8 @@ struct CrowdToolParams
 
 	float m_maxAcceleration;
 	float m_maxSpeed;
+
+	TraverseAnimType_e m_traverseAnimType;
 };
 
 class CrowdToolState : public EditorToolState
