@@ -63,41 +63,12 @@ bool Detour_IsGoalPolyReachable(dtNavMesh* const nav, const dtPolyRef fromRef,
     if (navmesh_always_reachable.GetBool())
         return true;
 
-    // Same poly is always reachable.
-    if (fromRef == goalRef)
-        return true;
+    const bool hasAnimType = animType != ANIMTYPE_NONE;
+    const int traversalTableIndex = hasAnimType
+        ? NavMesh_GetTraversalTableIndexForAnimType(animType)
+        : NULL;
 
-    const dtMeshTile* fromTile = nullptr;
-    const dtMeshTile* goalTile = nullptr;
-    const dtPoly* fromPoly = nullptr;
-    const dtPoly* goalPoly = nullptr;
-
-    nav->getTileAndPolyByRefUnsafe(fromRef, &fromTile, &fromPoly);
-    nav->getTileAndPolyByRefUnsafe(goalRef, &goalTile, &goalPoly);
-
-    const unsigned short fromPolyGroupId = fromPoly->groupId;
-    const unsigned short goalPolyGroupId = goalPoly->groupId;
-
-    // If we don't have an anim type, then we shouldn't use the traversal tables
-    // since these are used for linking separate poly islands together (which 
-    // requires jumping or some form of animation). So instead, check if we are
-    // on the same poly island.
-    if (animType == ANIMTYPE_NONE)
-        return fromPolyGroupId == goalPolyGroupId;
-
-    const int* const traversalTable = nav->m_traversalTables[NavMesh_GetTraversalTableIndexForAnimType(animType)];
-
-    // Traversal table doesn't exist, attempt the path finding anyways (this is
-    // a bug in the NavMesh, rebuild it!).
-    if (!traversalTable)
-        return true;
-
-    const int polyGroupCount = nav->m_params.polyGroupCount;
-    const int fromPolyBitCell = traversalTable[calcTraversalTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
-
-    // Check if the bit corresponding to our goal poly is set, if it isn't then
-    // there are no available traversal links from the current poly to the goal.
-    return fromPolyBitCell & BitVec_Bit(goalPolyGroupId);
+    return nav->isGoalPolyReachable(fromRef, goalRef, !hasAnimType, traversalTableIndex);
 }
 
 //-----------------------------------------------------------------------------

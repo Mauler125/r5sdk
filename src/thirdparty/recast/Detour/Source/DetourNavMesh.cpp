@@ -134,6 +134,16 @@ inline void freeLink(dtMeshTile* tile, unsigned int link)
 	tile->linksFreeList = link;
 }
 
+int calcTraversalTableCellIndex(const int numPolyGroups,
+	const unsigned short polyGroup1, const unsigned short polyGroup2)
+{
+	return polyGroup1*((numPolyGroups+(DT_BITS_PER_BIT_CELL-1))/DT_BITS_PER_BIT_CELL)+(polyGroup2/DT_BITS_PER_BIT_CELL);
+}
+
+int calcTraversalTableSize(const int numPolyGroups)
+{
+	return sizeof(int)*(numPolyGroups*((numPolyGroups+(DT_BITS_PER_BIT_CELL-1))/DT_BITS_PER_BIT_CELL));
+}
 
 dtNavMesh* rdAllocNavMesh()
 {
@@ -1273,6 +1283,47 @@ void dtNavMesh::getTileAndPolyByRefUnsafe(const dtPolyRef ref, const dtMeshTile*
 	decodePolyId(ref, salt, it, ip);
 	*tile = &m_tiles[it];
 	*poly = &m_tiles[it].polys[ip];
+}
+
+bool dtNavMesh::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef, 
+	const bool checkDisjointGroupsOnly, const int traversalTableIndex) const
+{
+	// Same poly is always reachable.
+	if (fromRef == goalRef)
+		return true;
+
+	const dtMeshTile* fromTile = nullptr;
+	const dtMeshTile* goalTile = nullptr;
+	const dtPoly* fromPoly = nullptr;
+	const dtPoly* goalPoly = nullptr;
+
+	getTileAndPolyByRefUnsafe(fromRef, &fromTile, &fromPoly);
+	getTileAndPolyByRefUnsafe(goalRef, &goalTile, &goalPoly);
+
+	const unsigned short fromPolyGroupId = fromPoly->groupId;
+	const unsigned short goalPolyGroupId = goalPoly->groupId;
+
+	// If we don't have an anim type, then we shouldn't use the traversal tables
+	// since these are used for linking isolated poly islands together (which 
+	// requires jumping or some form of animation). So instead, check if we are
+	// on the same poly island.
+	if (checkDisjointGroupsOnly)
+		return fromPolyGroupId == goalPolyGroupId;
+
+	rdAssert(traversalTableIndex >= 0 && traversalTableIndex < m_params.traversalTableCount);
+	const int* const traversalTable = m_traversalTables[traversalTableIndex];
+
+	// Traversal table doesn't exist, attempt the path finding anyways (this is
+	// a bug in the NavMesh, rebuild it!).
+	if (!traversalTable)
+		return true;
+
+	const int polyGroupCount = m_params.polyGroupCount;
+	const int fromPolyBitCell = traversalTable[calcTraversalTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
+
+	// Check if the bit corresponding to our goal poly is set, if it isn't then
+	// there are no available traversal links from the current poly to the goal.
+	return fromPolyBitCell & dtBitCellBit(goalPolyGroupId);
 }
 
 bool dtNavMesh::isValidPolyRef(dtPolyRef ref) const

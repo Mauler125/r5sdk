@@ -19,11 +19,8 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
-// Only use types for function prototypes
-#ifndef GAMESDK
 #include "Shared/Include/SharedAlloc.h"
 #include "Detour/Include/DetourStatus.h"
-#endif // !GAMESDK
 
 // Undefine (or define in a build config) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
@@ -529,6 +526,15 @@ public:
 	///  @param[out]	poly	The polygon.
 	void getTileAndPolyByRefUnsafe(const dtPolyRef ref, const dtMeshTile** tile, const dtPoly** poly) const;
 
+	/// Returns whether goal poly is reachable from start poly
+	///  @param[in]		fromRef		The reference to the start poly.
+	///  @param[in]		goalRef		The reference to the goal poly.
+	///  @param[in]		checkDisjointGroupsOnly	Whether to only check disjoint poly groups.
+	///  @param[in]		traversalTableIndex		Traversal table to use for checking if islands are linked together.
+	/// @return True if goal polygon is reachable from start polygon.
+	bool isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef,
+		const bool checkDisjointGroupsOnly, const int traversalTableIndex) const;
+
 	/// Checks the validity of a polygon reference.
 	///  @param[in]	ref		The polygon reference to check.
 	/// @return True if polygon reference is valid for the navigation mesh.
@@ -777,20 +783,14 @@ public:
 ///  @param[in]	polyGroup2		The poly group ID of the second island.
 ///  @return The cell index for the static traversal table.
 ///  @ingroup detour
-inline int calcTraversalTableCellIndex(const int numPolyGroups,
-	const unsigned short polyGroup1, const unsigned short polyGroup2)
-{
-	return polyGroup1*((numPolyGroups+31)/32)+(polyGroup2/32);
-}
+int calcTraversalTableCellIndex(const int numPolyGroups,
+	const unsigned short polyGroup1, const unsigned short polyGroup2);
 
 /// Returns the total size needed for the static traversal table.
 ///  @param[in]	numPolyGroups	The total number of poly groups.
 ///  @return the total size needed for the static traversal table.
 ///  @ingroup detour
-inline int calcTraversalTableSize(const int numPolyGroups)
-{
-	return sizeof(int)*(numPolyGroups*((numPolyGroups+31)/32));
-}
+int calcTraversalTableSize(const int numPolyGroups);
 
 /// Allocates a navigation mesh object using the Detour allocator.
 /// @return A navigation mesh that is ready for initialization, or null on failure.
