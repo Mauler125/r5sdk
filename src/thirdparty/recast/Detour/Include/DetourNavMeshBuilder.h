@@ -113,6 +113,7 @@ struct dtNavMeshCreateParams
 class dtDisjointSet
 {
 public:
+	dtDisjointSet() = default;
 	dtDisjointSet(const int size)
 	{
 		init(size);

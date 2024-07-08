@@ -837,10 +837,7 @@ void Editor_TileMesh::buildAllTiles()
 		}
 	}
 
-	// Reserve the first poly groups
-	// 0 = DT_NULL_POLY_GROUP.
-	// 1 = DT_STRAY_POLY_GROUP.
-	dtDisjointSet data(DT_FIRST_USABLE_POLY_GROUP);
+	dtDisjointSet data;
 
 	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
 	{

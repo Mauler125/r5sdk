@@ -285,6 +285,11 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 {
 	rdAssert(nav);
 
+	// Reserve the first poly groups
+	// 0 = DT_NULL_POLY_GROUP.
+	// 1 = DT_STRAY_POLY_GROUP.
+	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
+
 	// Clear all labels.
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
@@ -381,6 +386,38 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		}
 	}
 
+	// Gather all unique polygroups and map them to a contiguous range.
+	std::map<unsigned short, unsigned short> groupMap;
+	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
+
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			unsigned short oldId = poly.groupId;
+			if (oldId != DT_STRAY_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
+				groupMap[oldId] = (unsigned short)disjoint.insertNew();
+		}
+	}
+
+	// Fourth pass to apply the new mapping to all polys.
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			if (poly.groupId != DT_STRAY_POLY_GROUP)
+				poly.groupId = groupMap[poly.groupId];
+		}
+	}
+
 	// Third pass to handle off-mesh connections.
 	// note(amos): this has to happen after the first and second pass as these
 	// are for grouping directly connected polygons together, else groups linked
@@ -424,38 +461,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		}
 	}
 
-	// Gather all unique polygroups and map them to a contiguous range.
-	std::map<unsigned short, unsigned short> groupMap;
-	unsigned short numPolyGroups = DT_FIRST_USABLE_POLY_GROUP; // Anything <= DT_STRAY_POLY_GROUP is reserved!
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			unsigned short oldId = poly.groupId;
-			if (oldId != DT_STRAY_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
-				groupMap[oldId] = numPolyGroups++;
-		}
-	}
-
-	// Fourth pass to apply the new mapping to all polys.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_STRAY_POLY_GROUP)
-				poly.groupId = groupMap[poly.groupId];
-		}
-	}
-
-	nav->m_params.polyGroupCount = numPolyGroups;
+	nav->m_params.polyGroupCount = disjoint.getSetCount();
 	return true;
 }
 
