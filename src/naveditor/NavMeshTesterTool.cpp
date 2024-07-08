@@ -207,6 +207,7 @@ void NavMeshTesterTool::init(Editor* editor)
 	
 	m_neighbourhoodRadius = editor->getAgentRadius() * 20.0f;
 	m_randomRadius = editor->getAgentRadius() * 30.0f;
+	m_traverseAnimType = NavMesh_GetFirstTraverseAnimTypeForType(editor->getLoadedNavMeshType());
 }
 
 void NavMeshTesterTool::handleMenu()
@@ -257,8 +258,6 @@ void NavMeshTesterTool::handleMenu()
 		recalc();
 	}
 
-	imguiSeparator();
-
 	if (imguiCheck("Raycast", m_toolMode == TOOLMODE_RAYCAST))
 	{
 		m_toolMode = TOOLMODE_RAYCAST;
@@ -277,8 +276,6 @@ void NavMeshTesterTool::handleMenu()
 		m_toolMode = TOOLMODE_FIND_POLYS_IN_SHAPE;
 		recalc();
 	}
-
-	imguiSeparator();
 
 	if (imguiCheck("Find Local Neighbourhood", m_toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD))
 	{
