@@ -63,6 +63,7 @@ Editor::Editor() :
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
 	m_selectedNavMeshType(NAVMESH_SMALL),
+	m_loadedNavMeshType(NAVMESH_SMALL),
 	m_navmeshName(NavMesh_GetNameForType(NAVMESH_SMALL)),
 	m_tool(0),
 	m_ctx(0)
