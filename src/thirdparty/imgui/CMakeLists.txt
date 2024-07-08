@@ -22,6 +22,10 @@ add_sources( SOURCE_GROUP "Backends"
 	"backends/imgui_impl_dx11.h"
 	"backends/imgui_impl_win32.cpp"
 	"backends/imgui_impl_win32.h"
+	"backends/imgui_impl_sdl2.cpp"
+	"backends/imgui_impl_sdl2.h"
+	"backends/imgui_impl_opengl2.cpp"
+	"backends/imgui_impl_opengl2.h"
 )
 
 add_sources( SOURCE_GROUP "Misc"
@@ -39,4 +43,6 @@ add_sources( SOURCE_GROUP "Misc"
 
 end_sources()
 thirdparty_suppress_warnings()
+
 target_compile_definitions( ${PROJECT_NAME} PRIVATE BUILDING_LIBIMGUI )
+target_include_directories( ${PROJECT_NAME} PRIVATE "${THIRDPARTY_SOURCE_DIR}/sdl/include/" )
