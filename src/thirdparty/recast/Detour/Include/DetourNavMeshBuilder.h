@@ -153,14 +153,17 @@ public:
 		if (sx == sy) // Same set already.
 			return;
 
-		if (rank[sx] < rank[sy])
+		int& rankSx = rank[sx];
+		int& rankSy = rank[sy];
+
+		if (rankSx < rankSy)
 			parent[sx] = sy;
-		else if (rank[sx] > rank[sy])
+		else if (rankSx > rankSy)
 			parent[sy] = sx;
 		else
 		{
 			parent[sy] = sx;
-			rank[sx] += 1;
+			rankSx += 1;
 		}
 	}
 
