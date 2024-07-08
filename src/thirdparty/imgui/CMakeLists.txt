@@ -7,7 +7,6 @@ add_sources( SOURCE_GROUP "Core"
 	"imconfig.h"
 	"imgui.cpp"
 	"imgui.h"
-	"imgui_demo.cpp"
 	"imgui_draw.cpp"
 	"imgui_internal.h"
 	"imgui_tables.cpp"
@@ -41,8 +40,14 @@ add_sources( SOURCE_GROUP "Misc"
 	"misc/cpp/imgui_stdlib.h"
 )
 
+add_sources( SOURCE_GROUP "Demos"
+	"demos/imgui_demo.cpp"
+)
+
 end_sources()
 thirdparty_suppress_warnings()
 
 target_compile_definitions( ${PROJECT_NAME} PRIVATE BUILDING_LIBIMGUI )
+
+target_include_directories( ${PROJECT_NAME} PRIVATE "${THIRDPARTY_SOURCE_DIR}/imgui/" )
 target_include_directories( ${PROJECT_NAME} PRIVATE "${THIRDPARTY_SOURCE_DIR}/sdl/include/" )
