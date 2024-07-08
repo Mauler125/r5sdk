@@ -66,7 +66,7 @@ protected:
 	
 	int m_maxTiles;
 	int m_maxPolysPerTile;
-	float m_tileSize;
+	int m_tileSize;
 	
 	unsigned int m_tileCol;
 	float m_lastBuiltTileBmin[3];

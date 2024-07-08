@@ -176,18 +176,18 @@ void Editor::resetCommonSettings()
 	m_agentMaxSlope = 45.0f;
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
-	m_edgeMaxLen = 12.0f;
+	m_edgeMaxLen = 12;
 	m_edgeMaxError = 1.3f;
-	m_vertsPerPoly = 6.0f;
+	m_vertsPerPoly = 6;
 	m_detailSampleDist = 6.0f;
 	m_detailSampleMaxError = 1.0f;
 	m_partitionType = EDITOR_PARTITION_WATERSHED;
 }
 void Editor::handleCommonSettings()
 {
-	imguiLabel("Rasterization");
-	imguiSlider("Cell Size", &m_cellSize, 0.1f, 100.0f, 0.01f);
-	imguiSlider("Cell Height", &m_cellHeight, 0.1f, 100.0f, 0.01f);
+	ImGui::Text("Rasterization");
+	ImGui::SliderFloat("Cell Size", &m_cellSize, 0.1f, 100.0f);
+	ImGui::SliderFloat("Cell Height", &m_cellHeight, 0.1f, 100.0f);
 	
 	if (m_geom)
 	{
@@ -197,51 +197,57 @@ void Editor::handleCommonSettings()
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 		char text[64];
 		snprintf(text, 64, "Voxels  %d x %d", gw, gh);
-		imguiValue(text);
+		ImGui::Text(text);
 	}
 	
-	imguiSeparator();
-	imguiLabel("Agent");
-	imguiSlider("Height", &m_agentHeight, 0.1f, 500.0f, 0.1f);
-	imguiSlider("Radius", &m_agentRadius, 0.0f, 500.0f, 0.1f);
-	imguiSlider("Max Climb", &m_agentMaxClimb, 0.1f, 120.0f, 0.1f);
-	imguiSlider("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f, 1.0f);
+	ImGui::Separator();
+	ImGui::Text("Agent");
+	ImGui::SliderFloat("Height", &m_agentHeight, 0.1f, 500.0f);
+	ImGui::SliderFloat("Radius", &m_agentRadius, 0.0f, 500.0f);
+	ImGui::SliderFloat("Max Climb", &m_agentMaxClimb, 0.1f, 120.0f);
+	ImGui::SliderFloat("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f); // ImGui_Upgrade: Slider step was 1.0f
 	
-	imguiSeparator();
-	imguiLabel("Region");
-	imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 750.0f, 1.0f);
-	imguiSlider("Merged Region Size", &m_regionMergeSize, 0.0f, 750.0f, 1.0f);
+	ImGui::Separator();
+	ImGui::Text("Region");
+	ImGui::SliderInt("Min Region Size", &m_regionMinSize, 0, 750); // todo(amos): increase because of larger map scale?
+	ImGui::SliderInt("Merged Region Size", &m_regionMergeSize, 0, 750); // todo(amos): increase because of larger map scale?
 
-	imguiSeparator();
-	imguiLabel("Partitioning");
-	if (imguiCheck("Watershed", m_partitionType == EDITOR_PARTITION_WATERSHED))
+	ImGui::Separator();
+	ImGui::Text("Partitioning");
+
+	bool isEnabled = m_partitionType == EDITOR_PARTITION_WATERSHED;
+
+	if (ImGui::Checkbox("Watershed", &isEnabled))
 		m_partitionType = EDITOR_PARTITION_WATERSHED;
-	if (imguiCheck("Monotone", m_partitionType == EDITOR_PARTITION_MONOTONE))
+
+	isEnabled = m_partitionType == EDITOR_PARTITION_MONOTONE;
+
+	if (ImGui::Checkbox("Monotone", &isEnabled))
 		m_partitionType = EDITOR_PARTITION_MONOTONE;
-	if (imguiCheck("Layers", m_partitionType == EDITOR_PARTITION_LAYERS))
+
+	isEnabled = m_partitionType == EDITOR_PARTITION_LAYERS;
+
+	if (ImGui::Checkbox("Layers", &isEnabled))
 		m_partitionType = EDITOR_PARTITION_LAYERS;
 	
-	imguiSeparator();
-	imguiLabel("Filtering");
-	if (imguiCheck("Low Hanging Obstacles", m_filterLowHangingObstacles))
-		m_filterLowHangingObstacles = !m_filterLowHangingObstacles;
-	if (imguiCheck("Ledge Spans", m_filterLedgeSpans))
-		m_filterLedgeSpans= !m_filterLedgeSpans;
-	if (imguiCheck("Walkable Low Height Spans", m_filterWalkableLowHeightSpans))
-		m_filterWalkableLowHeightSpans = !m_filterWalkableLowHeightSpans;
+	ImGui::Separator();
+	ImGui::Text("Filtering");
+	ImGui::Checkbox("Low Hanging Obstacles", &m_filterLowHangingObstacles);
+	ImGui::Checkbox("Ledge Spans", &m_filterLedgeSpans);
+	ImGui::Checkbox("Walkable Low Height Spans", &m_filterWalkableLowHeightSpans);
 
-	imguiSeparator();
-	imguiLabel("Polygonization");
-	imguiSlider("Max Edge Length", &m_edgeMaxLen, 0.0f, 50.0f, 1.0f);
-	imguiSlider("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f, 0.1f);
-	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 6.0f, 1.0f);
+	ImGui::Separator();
+	ImGui::Text("Polygonization");
+	ImGui::SliderInt("Max Edge Length", &m_edgeMaxLen, 0, 50); // todo(amos): increase due to larger scale maps?
+	ImGui::SliderFloat("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f);
+	ImGui::SliderInt("Verts Per Poly", &m_vertsPerPoly, 3, 6);
 
-	imguiSeparator();
-	imguiLabel("Detail Mesh");
-	imguiSlider("Sample Distance", &m_detailSampleDist, 1.0f, 16.0f, 1.0f);
-	imguiSlider("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f, 1.0f);
+	ImGui::Separator();
+	ImGui::Text("Detail Mesh");
+	ImGui::SliderFloat("Sample Distance", &m_detailSampleDist, 1.0f, 16.0f);
+	ImGui::SliderFloat("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f);
 	
-	imguiSeparator();
+	ImGui::Separator();
 }
 
 void Editor::handleClick(const float* s, const float* p, bool shift)

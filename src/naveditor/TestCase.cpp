@@ -376,7 +376,7 @@ void TestCase::handleRender()
 bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
-	char text[64], subtext[64];
+	char text[256];
 	int n = 0;
 
 	static const float LABEL_DIST = 1.0f;
@@ -406,46 +406,46 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2],
 					   model, proj, view, &x, &y, &z))
 		{
-			snprintf(text, 64, "Path %d\n", n);
-			unsigned int col = imguiRGBA(0,0,0,128);
+			ImVec4 col = ImVec4(0,0,0,128);
 			if (iter->expand)
-				col = imguiRGBA(255,192,0,220);
-			imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, text, col);
+				col = ImVec4(255,192,0,220);
+
+			ImGui::SetCursorPos(ImVec2((float)x, (float)y-25));
+			ImGui::TextColored(col, "Path %d\n", n);
 		}
 		n++;
 	}
 	
-	static int resScroll = 0;
-	bool mouseOverMenu = imguiBeginScrollArea("Test Results", 10, view[3] - 10 - 350, 200, 350, &resScroll);
-//		mouseOverMenu = true;
-		
-	n = 0;
-	for (Test* iter = m_tests; iter; iter = iter->next)
+	if (ImGui::BeginChild("Test Results", ImVec2(200, 350)))
 	{
-		const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
-		snprintf(subtext, 64, "%.4f ms", (float)total/1000.0f);
-		snprintf(text, 64, "Path %d", n);
-		
-		if (imguiCollapse(text, subtext, iter->expand))
-			iter->expand = !iter->expand;
-		if (iter->expand)
+		n = 0;
+		for (Test* iter = m_tests; iter; iter = iter->next)
 		{
-			snprintf(text, 64, "Poly: %.4f ms", (float)iter->findNearestPolyTime/1000.0f);
-			imguiValue(text);
+			const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
+			snprintf(text, sizeof(text), "Path %d %.4f ms", n, (float)total / 1000.0f);
 
-			snprintf(text, 64, "Path: %.4f ms", (float)iter->findPathTime/1000.0f);
-			imguiValue(text);
+			if (ImGui::CollapsingHeader(text))
+			{
+				iter->expand = true;
 
-			snprintf(text, 64, "Straight: %.4f ms", (float)iter->findStraightPathTime/1000.0f);
-			imguiValue(text);
-			
-			imguiSeparator();
+				snprintf(text, sizeof(text), "Poly: %.4f ms", (float)iter->findNearestPolyTime / 1000.0f);
+				ImGui::Text(text);
+
+				snprintf(text, sizeof(text), "Path: %.4f ms", (float)iter->findPathTime / 1000.0f);
+				ImGui::Text(text);
+
+				snprintf(text, sizeof(text), "Straight: %.4f ms", (float)iter->findStraightPathTime / 1000.0f);
+				ImGui::Text(text);
+
+				ImGui::Separator();
+			}
+			else
+				iter->expand = false;
+
+			n++;
 		}
-		
-		n++;
 	}
 
-	imguiEndScrollArea();
-	
-	return mouseOverMenu;
+	ImGui::EndChild();
+	return true;
 }

@@ -211,12 +211,12 @@ void NavMeshPruneTool::handleMenu()
 	if (!nav) return;
 	if (!m_flags) return;
 
-	if (imguiButton("Clear Selection"))
+	if (ImGui::Button("Clear Selection"))
 	{
 		m_flags->clearAllFlags();
 	}
 	
-	if (imguiButton("Prune Unselected"))
+	if (ImGui::Button("Prune Unselected"))
 	{
 		disableUnvisitedPolys(nav, m_flags);
 		delete m_flags;
@@ -312,5 +312,6 @@ void NavMeshPruneTool::handleRenderOverlay(double* proj, double* model, int* vie
 	// Tool help
 	const int h = view[3];
 
-	imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Click fill area.", imguiRGBA(255,255,255,192));
+	ImGui::SetCursorPos(ImVec2(280, (float)h-40));
+	ImGui::TextColored(ImVec4(255,255,255,192), "LMB: Click fill area.");
 }

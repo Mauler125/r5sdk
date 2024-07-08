@@ -51,8 +51,13 @@
 #	include <cstring>
 #endif
 
-#include "NavEditor/Include/imgui.h"
-#include "NavEditor/Include/imguiRenderGL.h"
+// todo(amos): we need to make a new PCH dedicated for the recast editor and
+// move the SDL2 and ImGui includes there!
+#include "thirdparty/imgui/imgui.h"
+#include "thirdparty/imgui/imgui_internal.h"
+#include "thirdparty/imgui/misc/imgui_plotter.h"
+#include "thirdparty/imgui/backends/imgui_impl_sdl2.h"
+#include "thirdparty/imgui/backends/imgui_impl_opengl2.h"
 
 // SDK types
 #include "tier0/basetypes.h"
