@@ -32,6 +32,10 @@ add_sources( SOURCE_GROUP "Misc"
 	"misc/imgui_editor.h"
 	"misc/imgui_logger.cpp"
 	"misc/imgui_logger.h"
+	"misc/imgui_plotter.cpp"
+	"misc/imgui_plotter.h"
+	"misc/imgui_plotter_items.cpp"
+	"misc/imgui_plotter_internal.h"
 	"misc/imgui_snapshot.cpp"
 	"misc/imgui_snapshot.h"
 	"misc/imgui_utility.cpp"
@@ -42,6 +46,7 @@ add_sources( SOURCE_GROUP "Misc"
 
 add_sources( SOURCE_GROUP "Demos"
 	"demos/imgui_demo.cpp"
+	"demos/imgui_plotter_demo.cpp"
 )
 
 end_sources()
@@ -50,4 +55,5 @@ thirdparty_suppress_warnings()
 target_compile_definitions( ${PROJECT_NAME} PRIVATE BUILDING_LIBIMGUI )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE "${THIRDPARTY_SOURCE_DIR}/imgui/" )
+target_include_directories( ${PROJECT_NAME} PRIVATE "${THIRDPARTY_SOURCE_DIR}/imgui/misc/" )
 target_include_directories( ${PROJECT_NAME} PRIVATE "${THIRDPARTY_SOURCE_DIR}/sdl/include/" )
