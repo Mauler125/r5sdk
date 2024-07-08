@@ -1371,6 +1371,8 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 	// an option to only render a range of group id's.
 	//if (m_navMesh)
 	//{
+	//	std::set<unsigned short> contained;
+
 	//	for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
 	//	{
 	//		const dtMeshTile* tile = m_navMesh->getTile(i);
@@ -1379,8 +1381,14 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 	//		for (int j = 0; j < tile->header->polyCount; j++)
 	//		{
 	//			const dtPoly* poly = &tile->polys[j];
+	//			const unsigned int groupId = poly->groupId;
 
-	//			if (gluProject((GLdouble)poly->center[0], (GLdouble)poly->center[1], (GLdouble)poly->center[2] + 30,
+	//			if (groupId == DT_STRAY_POLY_GROUP)
+	//				continue; // These are already rendered in red.
+
+	//			auto p = contained.insert(poly->groupId);
+
+	//			if ((p.second) && gluProject((GLdouble)poly->center[0], (GLdouble)poly->center[1], (GLdouble)poly->center[2] + 30,
 	//				model, proj, view, &x, &y, &z))
 	//			{
 	//				char label[6];
