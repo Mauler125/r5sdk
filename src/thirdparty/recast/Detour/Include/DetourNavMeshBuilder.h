@@ -136,12 +136,14 @@ public:
 
 		return newId;
 	}
-	inline int find(const int id) const
+	int find(const int id) const
 	{
-		if (parent[id] != id)
-			return find(parent[id]);
+		int& parentRef = parent[id];
 
-		return id;
+		if (parentRef != id)
+			parentRef = find(parentRef);
+
+		return parentRef;
 	}
 	void setUnion(const int x, const int y)
 	{
@@ -166,7 +168,7 @@ public:
 
 private:
 	rdIntArray rank;
-	rdIntArray parent;
+	mutable rdIntArray parent;
 };
 
 /// Builds navigation mesh disjoint poly groups from the provided navmesh.
