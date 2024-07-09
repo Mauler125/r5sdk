@@ -42,6 +42,8 @@ add_sources( SOURCE_GROUP "Misc"
 	"misc/imgui_style.h"
 	"misc/imgui_utility.cpp"
 	"misc/imgui_utility.h"
+	"misc/imgui_wrapper.cpp"
+	"misc/imgui_wrapper.h"
 	"misc/cpp/imgui_stdlib.cpp"
 	"misc/cpp/imgui_stdlib.h"
 )
