@@ -88,21 +88,17 @@ CrowdToolState::CrowdToolState() :
 	m_graphSampleTime(0.0f),
 	m_run(true)
 {
-	m_toolParams.m_expandSelectedDebugDraw = true;
 	m_toolParams.m_showCorners = false;
 	m_toolParams.m_showCollisionSegments = false;
 	m_toolParams.m_showPath = false;
 	m_toolParams.m_showVO = false;
 	m_toolParams.m_showOpt = false;
 	m_toolParams.m_showNeis = false;
-	m_toolParams.m_expandDebugDraw = false;
 	m_toolParams.m_showLabels = false;
 	m_toolParams.m_showGrid = false;
 	m_toolParams.m_showNodes = false;
 	m_toolParams.m_showPerfGraph = false;
 	m_toolParams.m_showDetailAll = false;
-	m_toolParams.m_expandOptions = true;
-	m_toolParams.m_expandTraversalOptions = false;
 	m_toolParams.m_anticipateTurns = true;
 	m_toolParams.m_optimizeVis = true;
 	m_toolParams.m_optimizeTopo = true;
@@ -1002,31 +998,28 @@ void CrowdTool::handleMenu()
 		const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
 		const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
 
-		if (params->m_expandTraversalOptions)
+		ImGui::Indent();
+
+		for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
 		{
-			ImGui::Indent();
+			const bool noAnimtype = i == ANIMTYPE_NONE;
 
-			for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
+			const TraverseAnimType_e animTypeIndex = noAnimtype ? ANIMTYPE_NONE : TraverseAnimType_e((int)baseType + i);
+			const char* animtypeName = noAnimtype ? "none" : g_traverseAnimTypeNames[animTypeIndex];
+
+			bool isAnimTypeEnabled = params->m_traverseAnimType == animTypeIndex;
+
+			if (ImGui::Checkbox(animtypeName, &isAnimTypeEnabled))
 			{
-				const bool noAnimtype = i == ANIMTYPE_NONE;
-
-				const TraverseAnimType_e animTypeIndex = noAnimtype ? ANIMTYPE_NONE : TraverseAnimType_e((int)baseType + i);
-				const char* animtypeName = noAnimtype ? "none" : g_traverseAnimTypeNames[animTypeIndex];
-
-				bool isAnimTypeEnabled = params->m_traverseAnimType == animTypeIndex;
-
-				if (ImGui::Checkbox(animtypeName, &isAnimTypeEnabled))
-				{
-					params->m_traverseAnimType = animTypeIndex;
-					m_state->updateAgentParams();
-				}
+				params->m_traverseAnimType = animTypeIndex;
+				m_state->updateAgentParams();
 			}
-
-			ImGui::Unindent();
 		}
+
+		ImGui::Unindent();
 	}
 
-	if (ImGui::CollapsingHeader("Selected Debug Draw", 0, params->m_expandSelectedDebugDraw))
+	if (ImGui::CollapsingHeader("Selected Debug Draw"))
 	{
 		ImGui::Indent();
 		ImGui::Checkbox("Show Corners", &params->m_showCorners);
@@ -1038,7 +1031,7 @@ void CrowdTool::handleMenu()
 		ImGui::Unindent();
 	}
 		
-	if (ImGui::CollapsingHeader("Debug Draw", 0, params->m_expandDebugDraw))
+	if (ImGui::CollapsingHeader("Debug Draw"))
 	{
 		ImGui::Indent();
 		ImGui::Checkbox("Show Labels", &params->m_showLabels);
