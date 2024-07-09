@@ -186,7 +186,9 @@ void Editor::resetCommonSettings()
 }
 void Editor::handleCommonSettings()
 {
+	ImGui::PushItemWidth(180.f);
 	ImGui::Text("Rasterization");
+
 	ImGui::SliderFloat("Cell Size", &m_cellSize, 0.1f, 100.0f);
 	ImGui::SliderFloat("Cell Height", &m_cellHeight, 0.1f, 100.0f);
 	
@@ -207,11 +209,16 @@ void Editor::handleCommonSettings()
 	ImGui::SliderFloat("Radius", &m_agentRadius, 0.0f, 500.0f);
 	ImGui::SliderFloat("Max Climb", &m_agentMaxClimb, 0.1f, 120.0f);
 	ImGui::SliderFloat("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f); // ImGui_Upgrade: Slider step was 1.0f
+
+	ImGui::PopItemWidth();
+	ImGui::PushItemWidth(140.f);
 	
 	ImGui::Separator();
 	ImGui::Text("Region");
 	ImGui::SliderInt("Min Region Size", &m_regionMinSize, 0, 750); // todo(amos): increase because of larger map scale?
 	ImGui::SliderInt("Merged Region Size", &m_regionMergeSize, 0, 750); // todo(amos): increase because of larger map scale?
+
+	ImGui::PopItemWidth();
 
 	ImGui::Separator();
 	ImGui::Text("Partitioning");
@@ -237,7 +244,9 @@ void Editor::handleCommonSettings()
 	ImGui::Checkbox("Ledge Spans", &m_filterLedgeSpans);
 	ImGui::Checkbox("Walkable Low Height Spans", &m_filterWalkableLowHeightSpans);
 
+	ImGui::PushItemWidth(145.f);
 	ImGui::Separator();
+
 	ImGui::Text("Polygonization");
 	ImGui::SliderInt("Max Edge Length", &m_edgeMaxLen, 0, 50); // todo(amos): increase due to larger scale maps?
 	ImGui::SliderFloat("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f);
@@ -247,6 +256,8 @@ void Editor::handleCommonSettings()
 	ImGui::Text("Detail Mesh");
 	ImGui::SliderFloat("Sample Distance", &m_detailSampleDist, 1.0f, 16.0f);
 	ImGui::SliderFloat("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f);
+
+	ImGui::PopItemWidth();
 	
 	ImGui::Separator();
 }

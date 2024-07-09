@@ -617,8 +617,8 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 		ImVec2* totalSample = m_crowdTotalTime.getSampleBuffer();
 		ImVec2* crowdSample = m_crowdSampleCount.getSampleBuffer();
 
-		ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
-		ImGui::SetNextWindowSizeConstraints(ImVec2(380, 200), ImVec2(FLT_MAX, FLT_MAX));
+		ImGui::SetNextWindowPos(ImVec2(250.f+30.f, 10.f), ImGuiCond_Once);
+		ImGui::SetNextWindowSizeConstraints(ImVec2(420, 200), ImVec2(FLT_MAX, FLT_MAX));
 
 		if (ImGui::Begin("Graph", nullptr))
 		{
@@ -949,11 +949,10 @@ void CrowdTool::handleMenu()
 	if (ImGui::Checkbox("Toggle Polys", &isEnabled))
 		m_mode = TOOLMODE_TOGGLE_POLYS;
 	
-	ImGui::Separator(); // was imguiSeperatorLine
+	ImGui::Separator();
 	
 	if (ImGui::CollapsingHeader("Options"))
 	{
-		ImGui::Indent();
 		if (ImGui::Checkbox("Optimize Visibility", &params->m_optimizeVis))
 			m_state->updateAgentParams();
 
@@ -966,6 +965,7 @@ void CrowdTool::handleMenu()
 		if (ImGui::Checkbox("Obstacle Avoidance", &params->m_obstacleAvoidance))
 			m_state->updateAgentParams();
 
+		ImGui::PushItemWidth(90.f);
 		if (ImGui::SliderInt("Avoidance Quality", &params->m_obstacleAvoidanceType, 0, 3))
 		{
 			m_state->updateAgentParams();
@@ -985,8 +985,7 @@ void CrowdTool::handleMenu()
 		{
 			m_state->updateAgentParams();
 		}
-		
-		ImGui::Unindent();
+		ImGui::PopItemWidth();
 	}
 
 	if (ImGui::CollapsingHeader("Traverse Animation Type"))
@@ -997,8 +996,6 @@ void CrowdTool::handleMenu()
 		// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
 		const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
 		const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
-
-		ImGui::Indent();
 
 		for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
 		{
@@ -1015,31 +1012,25 @@ void CrowdTool::handleMenu()
 				m_state->updateAgentParams();
 			}
 		}
-
-		ImGui::Unindent();
 	}
 
 	if (ImGui::CollapsingHeader("Selected Debug Draw"))
 	{
-		ImGui::Indent();
 		ImGui::Checkbox("Show Corners", &params->m_showCorners);
 		ImGui::Checkbox("Show Collision Segs", &params->m_showCollisionSegments);
 		ImGui::Checkbox("Show Path", &params->m_showPath);
 		ImGui::Checkbox("Show VO", &params->m_showVO);
 		ImGui::Checkbox("Show Path Optimization", &params->m_showOpt);
 		ImGui::Checkbox("Show Neighbours", &params->m_showNeis);
-		ImGui::Unindent();
 	}
 		
 	if (ImGui::CollapsingHeader("Debug Draw"))
 	{
-		ImGui::Indent();
 		ImGui::Checkbox("Show Labels", &params->m_showLabels);
 		ImGui::Checkbox("Show Prox Grid", &params->m_showGrid);
 		ImGui::Checkbox("Show Nodes", &params->m_showNodes);
 		ImGui::Checkbox("Show Perf Graph", &params->m_showPerfGraph);
 		ImGui::Checkbox("Show Detail All", &params->m_showDetailAll);
-		ImGui::Unindent();
 	}
 }
 

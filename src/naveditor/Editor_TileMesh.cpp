@@ -237,23 +237,25 @@ void Editor_TileMesh::selectNavMeshType(const NavMeshType_e navMeshType)
 
 void Editor_TileMesh::handleSettings()
 {
+	ImGui::Text("NavMesh Type");
 	for (int i = 0; i < NAVMESH_COUNT; i++)
 	{
 		const NavMeshType_e navMeshType = NavMeshType_e(i);
 
-		if (ImGui::Button(NavMesh_GetNameForType(navMeshType)))
+		if (ImGui::Button(NavMesh_GetNameForType(navMeshType), ImVec2(120, 0)))
 		{
 			selectNavMeshType(navMeshType);
 		}
 	}
 
+	ImGui::Separator();
 	Editor::handleCommonSettings();
-
-	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
-	ImGui::Checkbox("Build All Tiles", &m_buildAll);
 	
 	ImGui::Text("Tiling");
 	ImGui::SliderInt("TileSize", &m_tileSize, 8, 1024);
+
+	ImGui::Checkbox("Build All Tiles", &m_buildAll);
+	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
 	
 	if (m_geom)
 	{
@@ -290,8 +292,9 @@ void Editor_TileMesh::handleSettings()
 	
 	ImGui::Indent();
 	ImGui::Indent();
-	
-	if (ImGui::Button("Load"))
+
+
+	if (ImGui::Button("Load", ImVec2(123, 0)))
 	{
 		dtFreeNavMesh(m_navMesh);
 		m_navMesh = Editor::loadAll(m_modelName.c_str());
@@ -301,7 +304,7 @@ void Editor_TileMesh::handleSettings()
 		initToolStates(this);
 	}
 
-	if (ImGui::Button("Save"))
+	if (ImGui::Button("Save", ImVec2(123, 0)))
 	{
 		Editor::saveAll(m_modelName.c_str(), m_navMesh);
 	}
@@ -310,25 +313,24 @@ void Editor_TileMesh::handleSettings()
 	ImGui::Unindent();
 	
 	ImGui::Text("Build Time: %.1fms", m_totalBuildTimeMs);
-	
-	ImGui::Separator();
 
 	if (m_navMesh)
 	{
 		const dtNavMeshParams& params = m_navMesh->m_params;
 		const float* origin = m_navMesh->m_orig;
 
-		ImGui::Text("Mesh Origin: <%g, %g, %g>", origin[0], origin[1], origin[2]);
+		ImGui::Text("Mesh Origin: \n\tX: %g \n\tY: %g \n\tZ: %g", origin[0], origin[1], origin[2]);
 		ImGui::Text("Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
 		ImGui::Text("Poly Group Count: %d", params.polyGroupCount);
 		ImGui::Text("Traversal Table Size: %d", params.traversalTableSize);
 		ImGui::Text("Traversal Table Count: %d", params.traversalTableCount);
 		ImGui::Text("Max Tiles: %d", params.maxTiles);
 		ImGui::Text("Max Polys: %d", params.maxPolys);
+
+		ImGui::Separator();
 	}
-	
-	ImGui::Separator();
-	
+	else
+		ImGui::Separator();
 }
 
 void Editor_TileMesh::handleTools()
@@ -371,7 +373,7 @@ void Editor_TileMesh::handleTools()
 		setTool(new CrowdTool);
 	}
 	
-	ImGui::Separator(); // was imguiSeperatorLine
+	ImGui::Separator();
 
 	ImGui::Indent();
 
@@ -469,7 +471,8 @@ void Editor_TileMesh::handleDebugMode()
 	if (ImGui::Checkbox("Disable NavMesh Transparency", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_ALPHA);
 	
-	ImGui::Text("Draw");
+	ImGui::Separator();
+	ImGui::Text("Draw Options");
 
 	isEnabled = m_drawMode == DRAWMODE_MESH;
 	ImGui::BeginDisabled(!valid[DRAWMODE_MESH]);

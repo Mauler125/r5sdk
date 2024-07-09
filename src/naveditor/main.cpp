@@ -189,11 +189,10 @@ bool imgui_init(SDL_Window* window, SDL_Renderer* /*renderer*/, SDL_GLContext co
 	imguiContext->ConfigNavWindowingKeyNext = 0;
 	imguiContext->ConfigNavWindowingKeyPrev = 0;
 
-	// todo(amos): check if this is required.
-	//ImGuiIO& io = ImGui::GetIO();
-	//io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
-
 	ImGui_SetStyle(ImGuiStyle_t::DEFAULT);
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Colors[ImGuiCol_Separator] = ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
 
 	if (!ImGui_ImplSDL2_InitForOpenGL(window, context))
 	{
@@ -443,7 +442,7 @@ int not_main(int argc, char** argv)
 	
 	vector<string> files;
 	const string meshesFolder = "Levels";
-	string meshName = "Choose Level...";
+	string meshName;
 	const string testCasesFolder = "TestCases";
 	
 	float markerPosition[3] = {0, 0, 0};
@@ -868,8 +867,9 @@ int not_main(int argc, char** argv)
 
 		if (showMenu)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)width-250-10, 10.f), ImGuiCond_Once);
-			ImGui::SetNextWindowSize(ImVec2(250, (float)height-20), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2((float)width-300-10, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(300, (float)height-20), ImGuiCond_Once);
+			ImGui::SetNextWindowSizeConstraints(ImVec2(300, 300), ImVec2(FLT_MAX, FLT_MAX));
 
 			if (ImGui::Begin("Properties", nullptr, baseWindowFlags))
 			{
@@ -909,7 +909,7 @@ int not_main(int argc, char** argv)
 						meshName = geom_path.substr(geom_path.rfind("\\") + 1);
 					}
 				}
-				if (ImGui::Button(meshName.c_str()))
+				if (ImGui::Button(meshName.empty() ? "Choose Level..." : meshName.c_str()))
 				{
 					if (showLevels)
 					{
@@ -933,15 +933,15 @@ int not_main(int argc, char** argv)
 						geom->getMesh()->getTriCount() / 1000.0f);
 					ImGui::Text(text);
 				}
+
 				ImGui::Separator();
 
 				if (geom && editor)
 				{
-					ImGui::Separator(); // was imguiSeperatorLine
 
 					editor->handleSettings();
 
-					if (ImGui::Button("Build"))
+					if (ImGui::Button("Build", ImVec2(165, 0)))
 					{
 						ctx.resetLog();
 						if (!editor->handleBuild())
@@ -960,7 +960,6 @@ int not_main(int argc, char** argv)
 
 				if (editor)
 				{
-					ImGui::Separator(); // was imguiSeperatorLine
 					editor->handleDebugMode();
 				}
 			}
@@ -990,7 +989,7 @@ int not_main(int argc, char** argv)
 		// Level selection dialog.
 		if (showLevels)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-250, (float)height-10-900), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-300, (float)height-10-900), ImGuiCond_Once);
 			ImGui::SetNextWindowSize(ImVec2(250.f, 450.f), ImGuiCond_Once);
 			if (ImGui::Begin("Choose Level", nullptr, baseWindowFlags))
 			{
@@ -1060,7 +1059,7 @@ int not_main(int argc, char** argv)
 		// Test cases
 		if (showTestCases)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-250, (float)height-10-900), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-300, (float)height-10-900), ImGuiCond_Once);
 			ImGui::SetNextWindowSize(ImVec2(250.f, 450.f), ImGuiCond_Once);
 
 			if (ImGui::Begin("Choose Test To Run", nullptr, baseWindowFlags))
@@ -1155,7 +1154,7 @@ int not_main(int argc, char** argv)
 		// Log
 		if (showLog && showMenu)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)250+20, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2(250.f+30.f, height-450.f-10.f), ImGuiCond_Once);
 			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f), ImGuiCond_Once);
 
 			if (ImGui::Begin("Log"))
@@ -1171,7 +1170,8 @@ int not_main(int argc, char** argv)
 		if (!showTestCases && showTools && showMenu) // && geom && editor)
 		{
 			ImGui::SetNextWindowPos(ImVec2(10.f, 10.f), ImGuiCond_Once);
-			ImGui::SetNextWindowSize(ImVec2(250, (float)height-20), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(260, (float)height-20), ImGuiCond_Once);
+			ImGui::SetNextWindowSizeConstraints(ImVec2(260, 300), ImVec2(FLT_MAX, FLT_MAX));
 
 			if (ImGui::Begin("Tools", nullptr, baseWindowFlags))
 			{

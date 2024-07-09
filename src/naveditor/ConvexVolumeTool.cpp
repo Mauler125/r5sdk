@@ -114,9 +114,13 @@ void ConvexVolumeTool::reset()
 
 void ConvexVolumeTool::handleMenu()
 {
+	ImGui::PushItemWidth(120.f);
+
 	ImGui::SliderFloat("Shape Height", &m_boxHeight, 0.1f, MAX_COORD_FLOAT);
 	ImGui::SliderFloat("Shape Descent", &m_boxDescent, 0.1f, MAX_COORD_FLOAT);
 	ImGui::SliderFloat("Poly Offset", &m_polyOffset, 0.0f, MAX_COORD_FLOAT/2);
+
+	ImGui::PopItemWidth();
 
 	ImGui::Separator();
 
