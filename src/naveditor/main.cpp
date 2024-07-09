@@ -279,6 +279,30 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 	return true;
 }
 
+// Gradient background
+void draw_background(const GLfloat width, const GLfloat height)
+{
+	glBegin(GL_QUADS);
+
+	// top-left
+	glColor3f(0.4f, 0.4f, 0.4f);
+	glVertex2f(0.0f, 0.0f);
+
+	// top-right
+	glColor3f(0.4f, 0.4f, 0.4f);
+	glVertex2f(width, 0.0f);
+
+	// bottom-right
+	glColor3f(0.1f, 0.1f, 0.1f);
+	glVertex2f(width, height);
+
+	// bottom-left
+	glColor3f(0.1f, 0.1f, 0.1f);
+	glVertex2f(0.0f, height);
+
+	glEnd();
+}
+
 #if 1
 int main(int argc, char** argv)
 #else
@@ -747,8 +771,10 @@ int not_main(int argc, char** argv)
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		
 		// Clear the screen
-		glClearColor(0.20f, 0.21f, 0.22f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
+		draw_background((GLfloat)width, (GLfloat)height);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_TEXTURE_2D);
@@ -842,8 +868,6 @@ int not_main(int argc, char** argv)
 		ImGui_ImplSDL2_NewFrame();
 
 		ImGui::NewFrame();
-
-		//imguiBeginFrame(mousePos[0], mousePos[1], mouseButtonMask, mouseScroll);
 		
 		if (editor)
 		{
