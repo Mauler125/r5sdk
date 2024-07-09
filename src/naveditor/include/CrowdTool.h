@@ -85,6 +85,7 @@ class CrowdToolState : public EditorToolState
 	
 	ValueHistory m_crowdTotalTime;
 	ValueHistory m_crowdSampleCount;
+	float m_graphSampleTime;
 
 	CrowdToolParams m_toolParams;
 

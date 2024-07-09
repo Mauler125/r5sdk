@@ -85,6 +85,7 @@ CrowdToolState::CrowdToolState() :
 	m_nav(0),
 	m_crowd(0),
 	m_targetRef(0),
+	m_graphSampleTime(0.0f),
 	m_run(true)
 {
 	m_toolParams.m_expandSelectedDebugDraw = true;
@@ -616,21 +617,50 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 	
 	if (m_toolParams.m_showPerfGraph)
 	{
-		if (!ImPlot::GetCurrentContext())
-			ImPlot::CreateContext();
+		static const ImPlotAxisFlags flags = ImPlotFlags_None;
+		ImVec2* totalSample = m_crowdTotalTime.getSampleBuffer();
+		ImVec2* crowdSample = m_crowdSampleCount.getSampleBuffer();
 
-		//GraphParams gp;
-		//gp.setRect(300, 10, 500, 200, 8);
-		//gp.setValueRange(0.0f, 2.0f, 4, "ms");
-		//
-		//drawGraphBackground(&gp);
-		//drawGraph(&gp, &m_crowdTotalTime, 1, "Total", duRGBA(255,128,0,255));
-		//
-		//gp.setRect(300, 10, 500, 50, 8);
-		//gp.setValueRange(0.0f, 2000.0f, 1, "");
-		//drawGraph(&gp, &m_crowdSampleCount, 0, "Sample Count", duRGBA(96,96,96,128));
+		ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
+		ImGui::SetNextWindowSizeConstraints(ImVec2(380, 200), ImVec2(FLT_MAX, FLT_MAX));
 
-		ImPlot::ShowDemoWindow();
+		if (ImGui::Begin("Graph", nullptr))
+		{
+			static const float history = 4.0f;
+
+			ImVec2 windowSize = ImGui::GetWindowSize();
+			if (ImPlot::BeginPlot("##GraphPlotter", ImVec2(windowSize.x-16.f, windowSize.y-52.f)))
+			{
+				ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
+				ImPlot::SetupAxisLimits(ImAxis_X1, m_graphSampleTime - history, m_graphSampleTime, ImGuiCond_Always);
+				ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 2);
+				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
+
+				ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+				ImPlot::PlotShaded("Total Time", &totalSample[0].x, &totalSample[0].y, m_crowdTotalTime.getSampleCount(), -INFINITY, 0, m_crowdTotalTime.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PlotShaded("Sample Count", &crowdSample[0].x, &crowdSample[0].y, m_crowdSampleCount.getSampleCount(), -INFINITY, 0, m_crowdSampleCount.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PopStyleVar();
+
+				ImPlot::PlotLine("Total Time", &totalSample[0].x, &totalSample[0].y, m_crowdTotalTime.getSampleCount(), 0, m_crowdTotalTime.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PlotLine("Sample Count", &crowdSample[0].x, &crowdSample[0].y, m_crowdSampleCount.getSampleCount(), 0, m_crowdSampleCount.getSampleOffset(), 2 * sizeof(float));
+
+				ImPlot::EndPlot();
+
+				char labelBuffer[256];
+
+				snprintf(labelBuffer, sizeof(labelBuffer), "Total Time (avg %.2f ms).", m_crowdTotalTime.getAverage());
+				ImGui::Text(labelBuffer);
+
+				ImGui::SameLine();
+
+				snprintf(labelBuffer, sizeof(labelBuffer), "Sample Count (avg %.2f).", m_crowdSampleCount.getAverage());
+				ImGui::Text(labelBuffer);
+
+				ImGui::SameLine();
+			}
+		}
+
+		ImGui::End();
 	}
 }
 
@@ -857,8 +887,11 @@ void CrowdToolState::updateTick(const float dt)
 	
 	m_agentDebug.vod->normalizeSamples();
 	
-	m_crowdSampleCount.addSample((float)crowd->getVelocitySampleCount());
-	m_crowdTotalTime.addSample(getPerfTimeUsec(endTime - startTime) / 1000.0f);
+
+	m_graphSampleTime += ImGui::GetIO().DeltaTime;
+
+	m_crowdSampleCount.addSample(m_graphSampleTime, (float)crowd->getVelocitySampleCount());
+	m_crowdTotalTime.addSample(m_graphSampleTime, getPerfTimeUsec(endTime - startTime) / 1000.0f);
 }
 
 

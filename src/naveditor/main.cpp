@@ -180,6 +180,11 @@ bool imgui_init(SDL_Window* window, SDL_Renderer* /*renderer*/, SDL_GLContext co
 	if (!imguiContext)
 		return false;
 
+	ImPlotContext* const implotContext = ImPlot::CreateContext();
+
+	if (!implotContext)
+		return false;
+
 	// todo(amos): check if this is required.
 	//imguiContext->ConfigNavWindowingKeyNext = 0;
 	//imguiContext->ConfigNavWindowingKeyPrev = 0;
