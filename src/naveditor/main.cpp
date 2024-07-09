@@ -990,8 +990,8 @@ int not_main(int argc, char** argv)
 		// Level selection dialog.
 		if (showLevels)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-200, (float)height-10-900), ImGuiCond_Once);
-			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-250, (float)height-10-900), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(250.f, 450.f), ImGuiCond_Once);
 			if (ImGui::Begin("Choose Level", nullptr, baseWindowFlags))
 			{
 				vector<string>::const_iterator fileIter = files.begin();
@@ -1060,8 +1060,8 @@ int not_main(int argc, char** argv)
 		// Test cases
 		if (showTestCases)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-200, (float)height-10-900), ImGuiCond_Once);
-			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f), ImGuiCond_Once);
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-250, (float)height-10-900), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(250.f, 450.f), ImGuiCond_Once);
 
 			if (ImGui::Begin("Choose Test To Run", nullptr, baseWindowFlags))
 			{
