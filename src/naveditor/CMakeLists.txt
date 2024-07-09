@@ -13,16 +13,6 @@ add_sources( SOURCE_GROUP "Builder/Include"
     "include/InputGeom.h"
 )
 
-add_sources( SOURCE_GROUP "Contrib"
-    "imgui.cpp"
-    "imguiRenderGL.cpp"
-)
-
-add_sources( SOURCE_GROUP "Contrib/Include"
-    "include/imgui.h"
-    "include/imguiRenderGL.h"
-)
-
 add_sources( SOURCE_GROUP "Core"
     "Editor.cpp"
     "main.cpp"
@@ -102,11 +92,12 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "navsharedcommon"
     "navdebugutils"
-    "libsdl2"
     "libdetour"
     "libdetourcrowd"
     "libdetourtilecache"
     "librecast"
+    "libsdl2"
+    "libimgui"
     "FastLZ"
     "Rpcrt4.lib"
     "ws2_32.lib"

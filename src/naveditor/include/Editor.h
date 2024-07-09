@@ -30,7 +30,7 @@ struct hulldef
 	float radius;
 	float height;
 	float climbHeight;
-	float tileSize;
+	int tileSize;
 };
 extern const hulldef hulls[5];
 
@@ -126,11 +126,11 @@ protected:
 	float m_agentRadius;
 	float m_agentMaxClimb;
 	float m_agentMaxSlope;
-	float m_regionMinSize;
-	float m_regionMergeSize;
-	float m_edgeMaxLen;
+	int m_regionMinSize;
+	int m_regionMergeSize;
+	int m_edgeMaxLen;
 	float m_edgeMaxError;
-	float m_vertsPerPoly;
+	int m_vertsPerPoly;
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	int m_partitionType;

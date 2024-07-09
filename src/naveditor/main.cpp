@@ -172,6 +172,49 @@ void update_camera(const float* bmin, const float* bmax,float* cameraPos,float* 
 	glFogf(GL_FOG_END, camr * 1.25f);
 }
 
+bool imgui_init(SDL_Window* window, SDL_Renderer* /*renderer*/, SDL_GLContext context)
+{
+	IMGUI_CHECKVERSION();
+	ImGuiContext* const imguiContext = ImGui::CreateContext();
+
+	if (!imguiContext)
+		return false;
+
+	ImPlotContext* const implotContext = ImPlot::CreateContext();
+
+	if (!implotContext)
+		return false;
+
+	// Disable ctrl+tab menu.
+	imguiContext->ConfigNavWindowingKeyNext = 0;
+	imguiContext->ConfigNavWindowingKeyPrev = 0;
+
+	ImGui_SetStyle(ImGuiStyle_t::DEFAULT);
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Colors[ImGuiCol_Separator] = ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
+
+	if (!ImGui_ImplSDL2_InitForOpenGL(window, context))
+	{
+		return false;
+	}
+
+	if (!ImGui_ImplOpenGL2_Init())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void imgui_shutdown()
+{
+	ImGui_ImplOpenGL2_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+
+	ImGui::DestroyContext();
+}
+
 bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &height, bool presentationMode)
 {
 	// Init SDL
@@ -224,9 +267,9 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 	}
 
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	SDL_GL_CreateContext(window);
+	SDL_GLContext context = SDL_GL_CreateContext(window);
 
-	if (!imguiRenderGLInit(droidsans_data))
+	if (!imgui_init(window, renderer, context))
 	{
 		printf("Could not initialise GUI renderer.\n");
 		SDL_Quit();
@@ -234,6 +277,30 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 	}
 
 	return true;
+}
+
+// Gradient background
+void draw_background(const GLfloat width, const GLfloat height)
+{
+	glBegin(GL_QUADS);
+
+	// top-left
+	glColor3f(0.4f, 0.4f, 0.4f);
+	glVertex2f(0.0f, 0.0f);
+
+	// top-right
+	glColor3f(0.4f, 0.4f, 0.4f);
+	glVertex2f(width, 0.0f);
+
+	// bottom-right
+	glColor3f(0.1f, 0.1f, 0.1f);
+	glVertex2f(width, height);
+
+	// bottom-left
+	glColor3f(0.1f, 0.1f, 0.1f);
+	glVertex2f(0.0f, height);
+
+	glEnd();
 }
 
 #if 1
@@ -399,7 +466,7 @@ int not_main(int argc, char** argv)
 	
 	vector<string> files;
 	const string meshesFolder = "Levels";
-	string meshName = "Choose Level...";
+	string meshName;
 	const string testCasesFolder = "TestCases";
 	
 	float markerPosition[3] = {0, 0, 0};
@@ -470,9 +537,7 @@ int not_main(int argc, char** argv)
 	bool showTestCases = false;
 
 	// Window scroll positions.
-	int propScroll = 0;
-	int logScroll = 0;
-	int toolsScroll = 0;
+	//int propScroll = 0;
 
 	float t = 0.0f;
 	float timeAcc = 0.0f;
@@ -492,6 +557,8 @@ int not_main(int argc, char** argv)
 		
 		while (SDL_PollEvent(&event))
 		{
+			ImGui_ImplSDL2_ProcessEvent(&event);
+
 			switch (event.type)
 			{
 				case SDL_KEYDOWN:
@@ -502,10 +569,12 @@ int not_main(int argc, char** argv)
 					}
 					else if (event.key.keysym.sym == SDLK_t)
 					{
-						showLevels = false;
-						showEditor = false;
-						showTestCases = true;
-						scanDirectory(testCasesFolder, ".txt", files);
+						showLevels ^= false;
+						showEditor ^= false;
+						showTestCases ^= true;
+
+						if (showTestCases)
+							scanDirectory(testCasesFolder, ".txt", files);
 					}
 					else if (event.key.keysym.sym == SDLK_TAB)
 					{
@@ -630,12 +699,6 @@ int not_main(int argc, char** argv)
 					break;
 			}
 		}
-
-		unsigned char mouseButtonMask = 0;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_LMASK)
-			mouseButtonMask |= IMGUI_MBUT_LEFT;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_RMASK)
-			mouseButtonMask |= IMGUI_MBUT_RIGHT;
 		
 		Uint32 time = SDL_GetTicks();
 		float dt = (time - prevFrameTime) / 1000.0f;
@@ -708,8 +771,10 @@ int not_main(int argc, char** argv)
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		
 		// Clear the screen
-		glClearColor(0.20f, 0.21f, 0.22f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
+		draw_background((GLfloat)width, (GLfloat)height);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_TEXTURE_2D);
@@ -796,9 +861,13 @@ int not_main(int argc, char** argv)
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
-		mouseOverMenu = false;
+		ImGuiIO& io = ImGui::GetIO();
+		mouseOverMenu = io.WantCaptureMouse;
 		
-		imguiBeginFrame(mousePos[0], mousePos[1], mouseButtonMask, mouseScroll);
+		ImGui_ImplOpenGL2_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+
+		ImGui::NewFrame();
 		
 		if (editor)
 		{
@@ -807,117 +876,118 @@ int not_main(int argc, char** argv)
 		}
 		if (test)
 		{
-			if (test->handleRenderOverlay(reinterpret_cast<double*>(projectionMatrix), reinterpret_cast<double*>(modelviewMatrix), reinterpret_cast<int*>(viewport)))
-				mouseOverMenu = true;
+			test->handleRenderOverlay(reinterpret_cast<double*>(projectionMatrix), reinterpret_cast<double*>(modelviewMatrix), reinterpret_cast<int*>(viewport));
 		}
 
 		// Help text.
 		if (showMenu)
 		{
-			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
-			imguiDrawText(280, height-20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255,255,255,128));
+			ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, 
+				ImVec2(280, 20), ImVec4(1.0f,1.0f,1.0f,0.5f), "W/S/A/D: Move  RMB: Rotate");
 		}
 		string geom_path;
+
+		const ImGuiWindowFlags baseWindowFlags = ImGuiWindowFlags_None;
+
 		if (showMenu)
 		{
-			if (imguiBeginScrollArea("Properties", width-250-10, 10, 250, height-20, &propScroll))
-				mouseOverMenu = true;
+			ImGui::SetNextWindowPos(ImVec2((float)width-300-10, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(300, (float)height-20), ImGuiCond_Once);
+			ImGui::SetNextWindowSizeConstraints(ImVec2(300, 300), ImVec2(FLT_MAX, FLT_MAX));
 
-			if (imguiCheck("Show Log", showLog))
-				showLog = !showLog;
-			if (imguiCheck("Show Tools", showTools))
-				showTools = !showTools;
-
-			imguiSeparator();
-			imguiLabel("Input Level");
-
-			if (imguiButton("Load Level..."))
+			if (ImGui::Begin("Properties", nullptr, baseWindowFlags))
 			{
-				char szFile[260];
-				OPENFILENAMEA diag = { 0 };
-				diag.lStructSize = sizeof(diag);
+				ImGui::Checkbox("Show Log", &showLog);
+				ImGui::Checkbox("Show Tools", &showTools);
 
-				SDL_SysWMinfo sdlinfo;
-				SDL_version sdlver;
-				SDL_VERSION(&sdlver);
-				sdlinfo.version = sdlver;
-				SDL_GetWindowWMInfo(window, &sdlinfo);
+				ImGui::Separator();
+				ImGui::Text("Input Level");
 
-				diag.hwndOwner = sdlinfo.info.win.window;
-
-				diag.lpstrFile = szFile;
-				diag.lpstrFile[0] = 0;
-				diag.nMaxFile = sizeof(szFile);
-				diag.lpstrFilter = "OBJ\0*.obj\0Ply\0*.ply\0All\0*.*\0"; //TODO: BSP\0*.bsp\0
-				diag.nFilterIndex = 1;
-				diag.lpstrFileTitle = NULL;
-				diag.nMaxFileTitle = 0;
-				diag.lpstrInitialDir = NULL;
-				diag.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-				if (GetOpenFileNameA(&diag))
+				if (ImGui::Button("Load Level..."))
 				{
-					geom_path = std::string(szFile);
-					meshName = geom_path.substr(geom_path.rfind("\\")+1);
-				}
-			}
-			if (imguiButton(meshName.c_str()))
-			{
-				if (showLevels)
-				{
-					showLevels = false;
-				}
-				else
-				{
-					showEditor = false;
-					showTestCases = false;
-					showLevels = true;
-					scanDirectory(meshesFolder, ".obj", files);
-					scanDirectoryAppend(meshesFolder, ".gset", files);
-					scanDirectoryAppend(meshesFolder, ".ply", files);
-				}
-			}
-			if (geom)
-			{
-				char text[64];
-				snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
-						 geom->getMesh()->getVertCount()/1000.0f,
-						 geom->getMesh()->getTriCount()/1000.0f);
-				imguiValue(text);
-			}
-			imguiSeparator();
+					char szFile[260];
+					OPENFILENAMEA diag = { 0 };
+					diag.lStructSize = sizeof(diag);
 
-			if (geom && editor)
-			{
-				imguiSeparatorLine();
-				
-				editor->handleSettings();
+					SDL_SysWMinfo sdlinfo;
+					SDL_version sdlver;
+					SDL_VERSION(&sdlver);
+					sdlinfo.version = sdlver;
+					SDL_GetWindowWMInfo(window, &sdlinfo);
 
-				if (imguiButton("Build"))
-				{
-					ctx.resetLog();
-					if (!editor->handleBuild())
+					diag.hwndOwner = sdlinfo.info.win.window;
+
+					diag.lpstrFile = szFile;
+					diag.lpstrFile[0] = 0;
+					diag.nMaxFile = sizeof(szFile);
+					diag.lpstrFilter = "OBJ\0*.obj\0Ply\0*.ply\0All\0*.*\0"; //TODO: BSP\0*.bsp\0
+					diag.nFilterIndex = 1;
+					diag.lpstrFileTitle = NULL;
+					diag.nMaxFileTitle = 0;
+					diag.lpstrInitialDir = NULL;
+					diag.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+					if (GetOpenFileNameA(&diag))
 					{
-						showLog = true;
-						logScroll = 0;
+						geom_path = std::string(szFile);
+						meshName = geom_path.substr(geom_path.rfind("\\") + 1);
 					}
-					ctx.dumpLog("Build log %s:", meshName.c_str());
-					
-					// Clear test.
-					delete test;
-					test = 0;
+				}
+				if (ImGui::Button(meshName.empty() ? "Choose Level..." : meshName.c_str()))
+				{
+					if (showLevels)
+					{
+						showLevels = false;
+					}
+					else
+					{
+						showEditor = false;
+						showTestCases = false;
+						showLevels = true;
+						scanDirectory(meshesFolder, ".obj", files);
+						scanDirectoryAppend(meshesFolder, ".gset", files);
+						scanDirectoryAppend(meshesFolder, ".ply", files);
+					}
+				}
+				if (geom)
+				{
+					char text[64];
+					snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
+						geom->getMesh()->getVertCount() / 1000.0f,
+						geom->getMesh()->getTriCount() / 1000.0f);
+					ImGui::Text(text);
 				}
 
-				imguiSeparator();
-			}
-			
-			if (editor)
-			{
-				imguiSeparatorLine();
-				editor->handleDebugMode();
-			}
+				ImGui::Separator();
 
-			imguiEndScrollArea();
+				if (geom && editor)
+				{
+
+					editor->handleSettings();
+
+					if (ImGui::Button("Build", ImVec2(165, 0)))
+					{
+						ctx.resetLog();
+						if (!editor->handleBuild())
+						{
+							showLog = true;
+						}
+						ctx.dumpLog("Build log %s:", meshName.c_str());
+
+						// Clear test.
+						delete test;
+						test = 0;
+					}
+
+					ImGui::Separator();
+				}
+
+				if (editor)
+				{
+					editor->handleDebugMode();
+				}
+			}
+			ImGui::End();
 		}
 		
 		// Editor selection dialog.
@@ -937,40 +1007,41 @@ int not_main(int argc, char** argv)
 				update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
 			}
 			
-			imguiEndScrollArea();
+			//ImGui::EndChild();
 		}
 
 		// Level selection dialog.
 		if (showLevels)
 		{
-			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Level", width - 10 - 250 - 10 - 200, height - 10 - 450, 200, 450, &levelScroll))
-				mouseOverMenu = true;
-			
-			vector<string>::const_iterator fileIter = files.begin();
-			vector<string>::const_iterator filesEnd = files.end();
-			vector<string>::const_iterator levelToLoad = filesEnd;
-			for (; fileIter != filesEnd; ++fileIter)
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-300, (float)height-10-900), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(250.f, 450.f), ImGuiCond_Once);
+			if (ImGui::Begin("Choose Level", nullptr, baseWindowFlags))
 			{
-				if (imguiItem(fileIter->c_str()))
+				vector<string>::const_iterator fileIter = files.begin();
+				vector<string>::const_iterator filesEnd = files.end();
+				vector<string>::const_iterator levelToLoad = filesEnd;
+				for (; fileIter != filesEnd; ++fileIter)
 				{
-					levelToLoad = fileIter;
+					// was imguiItem
+					if (ImGui::MenuItem(fileIter->c_str()))
+					{
+						levelToLoad = fileIter;
+					}
+				}
+
+				if (levelToLoad != filesEnd)
+				{
+					meshName = *levelToLoad;
+					showLevels = false;
+
+					delete geom;
+					geom = 0;
+
+					geom_path = meshesFolder + "/" + meshName;
 				}
 			}
 			
-			if (levelToLoad != filesEnd)
-			{
-				meshName = *levelToLoad;
-				showLevels = false;
-				
-				delete geom;
-				geom = 0;
-				
-				geom_path= meshesFolder + "/" + meshName;
-			}
-			
-			imguiEndScrollArea();
-			
+			ImGui::End();
 		}
 		if (!geom_path.empty())
 		{
@@ -988,7 +1059,6 @@ int not_main(int argc, char** argv)
 				}
 
 				showLog = true;
-				logScroll = 0;
 				ctx.dumpLog("Geom load log %s:", meshName.c_str());
 			}
 			if (editor && geom)
@@ -1013,117 +1083,127 @@ int not_main(int argc, char** argv)
 		// Test cases
 		if (showTestCases)
 		{
-			static int testScroll = 0;
-			if (imguiBeginScrollArea("Choose Test To Run", width-10-250-10-200, height-10-450, 200, 450, &testScroll))
-				mouseOverMenu = true;
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-300, (float)height-10-900), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(250.f, 450.f), ImGuiCond_Once);
 
-			vector<string>::const_iterator fileIter = files.begin();
-			vector<string>::const_iterator filesEnd = files.end();
-			vector<string>::const_iterator testToLoad = filesEnd;
-			for (; fileIter != filesEnd; ++fileIter)
+			if (ImGui::Begin("Choose Test To Run", nullptr, baseWindowFlags))
 			{
-				if (imguiItem(fileIter->c_str()))
+				vector<string>::const_iterator fileIter = files.begin();
+				vector<string>::const_iterator filesEnd = files.end();
+				vector<string>::const_iterator testToLoad = filesEnd;
+				for (; fileIter != filesEnd; ++fileIter)
 				{
-					testToLoad = fileIter;
+					if (ImGui::MenuItem(fileIter->c_str()))
+					{
+						testToLoad = fileIter;
+					}
+				}
+
+				if (testToLoad != filesEnd)
+				{
+					string path = testCasesFolder + "/" + *testToLoad;
+					test = new TestCase;
+					if (test)
+					{
+						// Load the test.
+						if (!test->load(path))
+						{
+							delete test;
+							test = 0;
+						}
+
+						if (editor)
+						{
+							editor->setContext(&ctx);
+							showEditor = false;
+						}
+
+						// Load geom.
+						meshName = test->getGeomFileName();
+
+
+						path = meshesFolder + "/" + meshName;
+
+						delete geom;
+						geom = new InputGeom;
+						if (!geom || !geom->load(&ctx, path))
+						{
+							delete geom;
+							geom = 0;
+							delete editor;
+							editor = 0;
+							showLog = true;
+							ctx.dumpLog("Geom load log %s:", meshName.c_str());
+						}
+						if (editor && geom)
+						{
+							editor->handleMeshChanged(geom);
+							get_model_name(meshName, editor->m_modelName);
+						}
+
+						// This will ensure that tile & poly bits are updated in tiled editor.
+						if (editor)
+							editor->handleSettings();
+
+						ctx.resetLog();
+						if (editor && !editor->handleBuild())
+						{
+							ctx.dumpLog("Build log %s:", meshName.c_str());
+						}
+
+						if (geom || editor)
+						{
+							const float* bmin = 0;
+							const float* bmax = 0;
+							if (geom)
+							{
+								bmin = geom->getNavMeshBoundsMin();
+								bmax = geom->getNavMeshBoundsMax();
+							}
+							// Reset camera and fog to match the mesh bounds.
+							update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
+						}
+
+						// Do the tests.
+						if (editor)
+							test->doTests(editor->getNavMesh(), editor->getNavMeshQuery());
+					}
 				}
 			}
-			
-			if (testToLoad != filesEnd)
-			{
-				string path = testCasesFolder + "/" + *testToLoad;
-				test = new TestCase;
-				if (test)
-				{
-					// Load the test.
-					if (!test->load(path))
-					{
-						delete test;
-						test = 0;
-					}
 
-					if (editor)
-					{
-						editor->setContext(&ctx);
-						showEditor = false;
-					}
-
-					// Load geom.
-					meshName = test->getGeomFileName();
-					
-					
-					path = meshesFolder + "/" + meshName;
-					
-					delete geom;
-					geom = new InputGeom;
-					if (!geom || !geom->load(&ctx, path))
-					{
-						delete geom;
-						geom = 0;
-						delete editor;
-						editor = 0;
-						showLog = true;
-						logScroll = 0;
-						ctx.dumpLog("Geom load log %s:", meshName.c_str());
-					}
-					if (editor && geom)
-					{
-						editor->handleMeshChanged(geom);
-						get_model_name(meshName, editor->m_modelName);
-					}
-
-					// This will ensure that tile & poly bits are updated in tiled editor.
-					if (editor)
-						editor->handleSettings();
-
-					ctx.resetLog();
-					if (editor && !editor->handleBuild())
-					{
-						ctx.dumpLog("Build log %s:", meshName.c_str());
-					}
-					
-					if (geom || editor)
-					{
-						const float* bmin = 0;
-						const float* bmax = 0;
-						if (geom)
-						{
-							bmin = geom->getNavMeshBoundsMin();
-							bmax = geom->getNavMeshBoundsMax();
-						}
-						// Reset camera and fog to match the mesh bounds.
-						update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
-					}
-					
-					// Do the tests.
-					if (editor)
-						test->doTests(editor->getNavMesh(), editor->getNavMeshQuery());
-				}
-			}				
-				
-			imguiEndScrollArea();
+			ImGui::End();
 		}
 
 		
 		// Log
 		if (showLog && showMenu)
 		{
-			if (imguiBeginScrollArea("Log", 250 + 20, 10, width - 300 - 250, 200, &logScroll))
-				mouseOverMenu = true;
-			for (int i = 0; i < ctx.getLogCount(); ++i)
-				imguiLabel(ctx.getLogText(i));
-			imguiEndScrollArea();
+			ImGui::SetNextWindowPos(ImVec2(250.f+30.f, height-450.f-10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f), ImGuiCond_Once);
+
+			if (ImGui::Begin("Log"))
+			{
+				for (int i = 0; i < ctx.getLogCount(); ++i)
+					ImGui::Text(ctx.getLogText(i));
+			}
+
+			ImGui::End();
 		}
 		
 		// Left column tools menu
 		if (!showTestCases && showTools && showMenu) // && geom && editor)
 		{
-			if (imguiBeginScrollArea("Tools", 10, 10, 250, height - 20, &toolsScroll))
-				mouseOverMenu = true;
+			ImGui::SetNextWindowPos(ImVec2(10.f, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(260, (float)height-20), ImGuiCond_Once);
+			ImGui::SetNextWindowSizeConstraints(ImVec2(260, 300), ImVec2(FLT_MAX, FLT_MAX));
 
-			if (editor)
-				editor->handleTools();
+			if (ImGui::Begin("Tools", nullptr, baseWindowFlags))
+			{
+				if (editor)
+					editor->handleTools();
+			}
 			
-			imguiEndScrollArea();
+			ImGui::End();
 		}
 		
 		// Marker
@@ -1147,16 +1227,16 @@ int not_main(int argc, char** argv)
 			glLineWidth(1.0f);
 		}
 		
-		imguiEndFrame();
-		imguiRenderGLDraw();		
-		
+		ImGui::EndFrame();
+
+		ImGui::Render();
 		glEnable(GL_DEPTH_TEST);
+
+		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 		SDL_GL_SwapWindow(window);
-		
 	}
 	
-	imguiRenderGLDestroy();
-	
+	imgui_shutdown();
 	SDL_Quit();
 	
 	delete editor;

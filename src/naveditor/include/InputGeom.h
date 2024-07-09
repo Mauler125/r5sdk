@@ -47,15 +47,15 @@ struct BuildSettings
 	float agentMaxSlope;
 	// Region minimum size in voxels.
 	// regionMinSize = sqrt(regionMinArea)
-	float regionMinSize;
+	int regionMinSize;
 	// Region merge size in voxels.
 	// regionMergeSize = sqrt(regionMergeArea)
-	float regionMergeSize;
+	int regionMergeSize;
 	// Edge max length in world units
-	float edgeMaxLen;
+	int edgeMaxLen;
 	// Edge max error in voxels
 	float edgeMaxError;
-	float vertsPerPoly;
+	int vertsPerPoly;
 	// Detail sample distance in voxels
 	float detailSampleDist;
 	// Detail sample max error in voxel heights.
@@ -66,7 +66,7 @@ struct BuildSettings
 	float navMeshBMin[3];
 	float navMeshBMax[3];
 	// Size of the tiles in voxels
-	float tileSize;
+	int tileSize;
 };
 
 class InputGeom

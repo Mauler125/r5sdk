@@ -114,31 +114,49 @@ void ConvexVolumeTool::reset()
 
 void ConvexVolumeTool::handleMenu()
 {
-	imguiSlider("Shape Height", &m_boxHeight, 0.1f, MAX_COORD_FLOAT, 0.1f);
-	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, MAX_COORD_FLOAT, 0.1f);
-	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, MAX_COORD_FLOAT/2, 0.1f);
+	ImGui::PushItemWidth(120.f);
 
-	imguiSeparator();
+	ImGui::SliderFloat("Shape Height", &m_boxHeight, 0.1f, MAX_COORD_FLOAT);
+	ImGui::SliderFloat("Shape Descent", &m_boxDescent, 0.1f, MAX_COORD_FLOAT);
+	ImGui::SliderFloat("Poly Offset", &m_polyOffset, 0.0f, MAX_COORD_FLOAT/2);
 
-	imguiLabel("Area Type");
-	imguiIndent();
-	if (imguiCheck("Ground", m_areaType == EDITOR_POLYAREA_GROUND))
+	ImGui::PopItemWidth();
+
+	ImGui::Separator();
+
+	ImGui::Text("Area Type");
+	ImGui::Indent();
+
+	bool isEnabled = m_areaType == EDITOR_POLYAREA_GROUND;
+
+	if (ImGui::Checkbox("Ground", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_GROUND;
-	if (imguiCheck("Water", m_areaType == EDITOR_POLYAREA_WATER))
+
+	isEnabled = m_areaType == EDITOR_POLYAREA_WATER;
+	if (ImGui::Checkbox("Water", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_WATER;
-	if (imguiCheck("Road", m_areaType == EDITOR_POLYAREA_ROAD))
+
+	isEnabled = m_areaType == EDITOR_POLYAREA_ROAD;
+	if (ImGui::Checkbox("Road", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_ROAD;
-	if (imguiCheck("Door", m_areaType == EDITOR_POLYAREA_DOOR))
+
+	isEnabled = m_areaType == EDITOR_POLYAREA_DOOR;
+	if (ImGui::Checkbox("Door", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_DOOR;
-	if (imguiCheck("Grass", m_areaType == EDITOR_POLYAREA_GRASS))
+
+	isEnabled = m_areaType == EDITOR_POLYAREA_GRASS;
+	if (ImGui::Checkbox("Grass", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_GRASS;
-	if (imguiCheck("Jump", m_areaType == EDITOR_POLYAREA_JUMP))
+
+	isEnabled = m_areaType == EDITOR_POLYAREA_JUMP;
+	if (ImGui::Checkbox("Jump", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_JUMP;
-	imguiUnindent();
 
-	imguiSeparator();
+	ImGui::Unindent();
 
-	if (imguiButton("Clear Shape"))
+	ImGui::Separator();
+
+	if (ImGui::Button("Clear Shape"))
 	{
 		m_npts = 0;
 		m_nhull = 0;
@@ -276,18 +294,17 @@ void ConvexVolumeTool::handleRender()
 	dd.end();	
 }
 
-void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
+void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
 	// Tool help
-	const int h = view[3];
 	if (!m_npts)
 	{
-		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).");
 	}
 	else
 	{
-		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "Click LMB to add new points. Click on the red point to finish the shape.", imguiRGBA(255,255,255,192));	
-		imguiDrawText(280, h-60, IMGUI_ALIGN_LEFT, "The shape will be convex hull of all added points.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 60), ImVec4(1.0f,1.0f,1.0f,0.75f), "The shape will be convex hull of all added points.");
 	}
-	
 }

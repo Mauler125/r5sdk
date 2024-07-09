@@ -61,9 +61,14 @@ void OffMeshConnectionTool::reset()
 
 void OffMeshConnectionTool::handleMenu()
 {
-	if (imguiCheck("One Way", !m_bidir))
+	bool isOneWay = !m_bidir;
+
+	if (ImGui::Checkbox("One Way", &isOneWay))
 		m_bidir = false;
-	if (imguiCheck("Bidirectional", m_bidir))
+
+	bool isBiDirectional = m_bidir;
+
+	if (ImGui::Checkbox("Bidirectional", &isBiDirectional))
 		m_bidir = true;
 }
 
@@ -143,22 +148,24 @@ void OffMeshConnectionTool::handleRender()
 void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
+	const int h = view[3];
 	
 	// Draw start and end point labels
 	if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
 								model, proj, view, &x, &y, &z))
 	{
-		imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0,0,0,220));
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "Start");
 	}
 	
 	// Tool help
-	const int h = view[3];
 	if (!m_hitPosSet)
 	{
-		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.");
 	}
 	else
 	{
-		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Set connection end point and finish.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, 
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Set connection end point and finish.");
 	}
 }

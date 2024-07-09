@@ -85,28 +85,25 @@ CrowdToolState::CrowdToolState() :
 	m_nav(0),
 	m_crowd(0),
 	m_targetRef(0),
+	m_graphSampleTime(0.0f),
 	m_run(true)
 {
-	m_toolParams.m_expandSelectedDebugDraw = true;
 	m_toolParams.m_showCorners = false;
 	m_toolParams.m_showCollisionSegments = false;
 	m_toolParams.m_showPath = false;
 	m_toolParams.m_showVO = false;
 	m_toolParams.m_showOpt = false;
 	m_toolParams.m_showNeis = false;
-	m_toolParams.m_expandDebugDraw = false;
 	m_toolParams.m_showLabels = false;
 	m_toolParams.m_showGrid = false;
 	m_toolParams.m_showNodes = false;
 	m_toolParams.m_showPerfGraph = false;
 	m_toolParams.m_showDetailAll = false;
-	m_toolParams.m_expandOptions = true;
-	m_toolParams.m_expandTraversalOptions = false;
 	m_toolParams.m_anticipateTurns = true;
 	m_toolParams.m_optimizeVis = true;
 	m_toolParams.m_optimizeTopo = true;
 	m_toolParams.m_obstacleAvoidance = true;
-	m_toolParams.m_obstacleAvoidanceType = 3.0f;
+	m_toolParams.m_obstacleAvoidanceType = 3;
 	m_toolParams.m_separation = true;
 	m_toolParams.m_separationWeight = 20.0f;
 	m_toolParams.m_maxAcceleration = 800.f;
@@ -508,20 +505,25 @@ void CrowdToolState::handleRender()
 	dd.depthMask(true);
 }
 
+namespace ImPlot
+{
+	extern void Demo_ShadedPlots();
+};
 
 void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
+	const int windowHeight = view[3];
 	
 	// Draw start and end point labels
 	if (m_targetRef && gluProject((GLdouble)m_targetPos[0], (GLdouble)m_targetPos[1], (GLdouble)m_targetPos[2],
 								  model, proj, view, &x, &y, &z))
 	{
-		imguiDrawText((int)x, (int)(y+25), IMGUI_ALIGN_CENTER, "TARGET", imguiRGBA(0,0,0,220));
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+			ImVec2((float)x, windowHeight-((float)y+25)), ImVec4(0,0,0,0.8f), "TARGET");
 	}
 	
-	char label[32];
-	
+
 	if (m_toolParams.m_showNodes)
 	{
 		dtCrowd* crowd = m_editor->getCrowd();
@@ -543,8 +545,8 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 									   model, proj, view, &x, &y, &z))
 						{
 							const float heuristic = node->total;// - node->cost;
-							snprintf(label, 32, "%.2f", heuristic);
-							imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
+							ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+								ImVec2((float)x, windowHeight-((float)y+25)), ImVec4(0,0,0,0.8f), "%.2f", heuristic);
 						}
 					}
 				}
@@ -571,10 +573,10 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						? "none"
 						: g_traverseAnimTypeNames[animType];
 
-					snprintf(label, 32, "%s (%d)", animTypeName, i);
-					imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
+					ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+						ImVec2((float)x, windowHeight-((float)y+15)), ImVec4(0,0,0,0.8f), "%s (%d)", animTypeName, i);
 				}
-			}			
+			}
 		}
 	}
 	if (m_agentDebug.idx != -1)
@@ -600,8 +602,8 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						if (gluProject((GLdouble)nei->npos[0], (GLdouble)nei->npos[1], (GLdouble)nei->npos[2]+radius,
 									   model, proj, view, &x, &y, &z))
 						{
-							snprintf(label, 32, "%.3f", ag->neis[j].dist);
-							imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255,255,255,220));
+							ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, 
+								ImVec2((float)x, windowHeight-((float)y+15)), ImVec4(1.0f,1.0f,1.0f,0.8f), "%.3f", ag->neis[j].dist);
 						}
 					}
 				}
@@ -609,21 +611,53 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 		}
 	}
 	
-	
 	if (m_toolParams.m_showPerfGraph)
 	{
-		GraphParams gp;
-		gp.setRect(300, 10, 500, 200, 8);
-		gp.setValueRange(0.0f, 2.0f, 4, "ms");
-		
-		drawGraphBackground(&gp);
-		drawGraph(&gp, &m_crowdTotalTime, 1, "Total", duRGBA(255,128,0,255));
-		
-		gp.setRect(300, 10, 500, 50, 8);
-		gp.setValueRange(0.0f, 2000.0f, 1, "");
-		drawGraph(&gp, &m_crowdSampleCount, 0, "Sample Count", duRGBA(96,96,96,128));
+		static const ImPlotAxisFlags flags = ImPlotFlags_None;
+		ImVec2* totalSample = m_crowdTotalTime.getSampleBuffer();
+		ImVec2* crowdSample = m_crowdSampleCount.getSampleBuffer();
+
+		ImGui::SetNextWindowPos(ImVec2(250.f+30.f, 10.f), ImGuiCond_Once);
+		ImGui::SetNextWindowSizeConstraints(ImVec2(420, 200), ImVec2(FLT_MAX, FLT_MAX));
+
+		if (ImGui::Begin("Graph", nullptr))
+		{
+			static const float history = 4.0f;
+
+			ImVec2 windowSize = ImGui::GetWindowSize();
+			if (ImPlot::BeginPlot("##GraphPlotter", ImVec2(windowSize.x-16.f, windowSize.y-52.f)))
+			{
+				ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
+				ImPlot::SetupAxisLimits(ImAxis_X1, m_graphSampleTime - history, m_graphSampleTime, ImGuiCond_Always);
+				ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 2);
+				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
+
+				ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+				ImPlot::PlotShaded("Total Time", &totalSample[0].x, &totalSample[0].y, m_crowdTotalTime.getSampleCount(), -INFINITY, 0, m_crowdTotalTime.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PlotShaded("Sample Count", &crowdSample[0].x, &crowdSample[0].y, m_crowdSampleCount.getSampleCount(), -INFINITY, 0, m_crowdSampleCount.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PopStyleVar();
+
+				ImPlot::PlotLine("Total Time", &totalSample[0].x, &totalSample[0].y, m_crowdTotalTime.getSampleCount(), 0, m_crowdTotalTime.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PlotLine("Sample Count", &crowdSample[0].x, &crowdSample[0].y, m_crowdSampleCount.getSampleCount(), 0, m_crowdSampleCount.getSampleOffset(), 2 * sizeof(float));
+
+				ImPlot::EndPlot();
+
+				char labelBuffer[256];
+
+				snprintf(labelBuffer, sizeof(labelBuffer), "Total Time (avg %.2f ms).", m_crowdTotalTime.getAverage());
+				ImGui::Text(labelBuffer);
+
+				ImGui::SameLine();
+
+				snprintf(labelBuffer, sizeof(labelBuffer), "Sample Count (avg %.2f).", m_crowdSampleCount.getAverage());
+				ImGui::Text(labelBuffer);
+
+				ImGui::SameLine();
+			}
+		}
+
+		ImGui::End();
 	}
-	
 }
 
 void CrowdToolState::handleUpdate(const float dt)
@@ -849,8 +883,11 @@ void CrowdToolState::updateTick(const float dt)
 	
 	m_agentDebug.vod->normalizeSamples();
 	
-	m_crowdSampleCount.addSample((float)crowd->getVelocitySampleCount());
-	m_crowdTotalTime.addSample(getPerfTimeUsec(endTime - startTime) / 1000.0f);
+
+	m_graphSampleTime += ImGui::GetIO().DeltaTime;
+
+	m_crowdSampleCount.addSample(m_graphSampleTime, (float)crowd->getVelocitySampleCount());
+	m_crowdTotalTime.addSample(m_graphSampleTime, getPerfTimeUsec(endTime - startTime) / 1000.0f);
 }
 
 
@@ -892,81 +929,73 @@ void CrowdTool::handleMenu()
 		return;
 	CrowdToolParams* params = m_state->getToolParams();
 
-	if (imguiCheck("Create Agents", m_mode == TOOLMODE_CREATE))
+	bool isEnabled = m_mode == TOOLMODE_CREATE;
+
+	if (ImGui::Checkbox("Create Agents", &isEnabled))
 		m_mode = TOOLMODE_CREATE;
-	if (imguiCheck("Move Target", m_mode == TOOLMODE_MOVE_TARGET))
+
+	isEnabled = m_mode == TOOLMODE_MOVE_TARGET;
+
+	if (ImGui::Checkbox("Move Target", &isEnabled))
 		m_mode = TOOLMODE_MOVE_TARGET;
-	if (imguiCheck("Select Agent", m_mode == TOOLMODE_SELECT))
+
+	isEnabled = m_mode == TOOLMODE_SELECT;
+
+	if (ImGui::Checkbox("Select Agent", &isEnabled))
 		m_mode = TOOLMODE_SELECT;
-	if (imguiCheck("Toggle Polys", m_mode == TOOLMODE_TOGGLE_POLYS))
+
+	isEnabled = m_mode == TOOLMODE_TOGGLE_POLYS;
+
+	if (ImGui::Checkbox("Toggle Polys", &isEnabled))
 		m_mode = TOOLMODE_TOGGLE_POLYS;
 	
-	imguiSeparatorLine();
-		
-	if (imguiCollapse("Options", 0, params->m_expandOptions))
-		params->m_expandOptions = !params->m_expandOptions;
+	ImGui::Separator();
 	
-	if (params->m_expandOptions)
+	if (ImGui::CollapsingHeader("Options"))
 	{
-		imguiIndent();
-		if (imguiCheck("Optimize Visibility", params->m_optimizeVis))
-		{
-			params->m_optimizeVis = !params->m_optimizeVis;
+		if (ImGui::Checkbox("Optimize Visibility", &params->m_optimizeVis))
 			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Optimize Topology", params->m_optimizeTopo))
-		{
-			params->m_optimizeTopo = !params->m_optimizeTopo;
+
+		if (ImGui::Checkbox("Optimize Topology", &params->m_optimizeTopo))
 			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Anticipate Turns", params->m_anticipateTurns))
-		{
-			params->m_anticipateTurns = !params->m_anticipateTurns;
+
+		if (ImGui::Checkbox("Anticipate Turns", &params->m_anticipateTurns))
 			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Obstacle Avoidance", params->m_obstacleAvoidance))
-		{
-			params->m_obstacleAvoidance = !params->m_obstacleAvoidance;
+
+		if (ImGui::Checkbox("Obstacle Avoidance", &params->m_obstacleAvoidance))
 			m_state->updateAgentParams();
-		}
-		if (imguiSlider("Avoidance Quality", &params->m_obstacleAvoidanceType, 0.0f, 3.0f, 1.0f))
+
+		ImGui::PushItemWidth(90.f);
+		if (ImGui::SliderInt("Avoidance Quality", &params->m_obstacleAvoidanceType, 0, 3))
 		{
 			m_state->updateAgentParams();
 		}
-		if (imguiCheck("Separation", params->m_separation))
-		{
-			params->m_separation = !params->m_separation;
+		if (ImGui::Checkbox("Separation", &params->m_separation))
 			m_state->updateAgentParams();
-		}
-		if (imguiSlider("Separation Weight", &params->m_separationWeight, 0.0f, 200.0f, 0.01f))
+
+		if (ImGui::SliderFloat("Separation Weight", &params->m_separationWeight, 0.0f, 200.0f))
 		{
 			m_state->updateAgentParams();
 		}
-		if (imguiSlider("Max Acceleration", &params->m_maxAcceleration, 0.0f, 2000.0f, 0.01f))
+		if (ImGui::SliderFloat("Max Acceleration", &params->m_maxAcceleration, 0.0f, 2000.0f))
 		{
 			m_state->updateAgentParams();
 		}
-		if (imguiSlider("Max Speed", &params->m_maxSpeed, 0.0f, 2000.0f, 0.01f))
+		if (ImGui::SliderFloat("Max Speed", &params->m_maxSpeed, 0.0f, 2000.0f))
 		{
 			m_state->updateAgentParams();
 		}
-		
-		imguiUnindent();
+		ImGui::PopItemWidth();
 	}
 
-	if (imguiCollapse("Traverse Animation Type", 0, params->m_expandTraversalOptions))
-		params->m_expandTraversalOptions = !params->m_expandTraversalOptions;
-
-	const NavMeshType_e loadedNavMeshType = m_editor->getLoadedNavMeshType();
-
-	// TODO: perhaps clamp with m_nav->m_params.traversalTableCount? Technically a navmesh should 
-	// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
-	const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
-	const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
-
-	if (params->m_expandTraversalOptions)
+	if (ImGui::CollapsingHeader("Traverse Animation Type"))
 	{
-		imguiIndent();
+		const NavMeshType_e loadedNavMeshType = m_editor->getLoadedNavMeshType();
+
+		// TODO: perhaps clamp with m_nav->m_params.traversalTableCount? Technically a navmesh should 
+		// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
+		const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
+		const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
 
 		for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
 		{
@@ -975,54 +1004,33 @@ void CrowdTool::handleMenu()
 			const TraverseAnimType_e animTypeIndex = noAnimtype ? ANIMTYPE_NONE : TraverseAnimType_e((int)baseType + i);
 			const char* animtypeName = noAnimtype ? "none" : g_traverseAnimTypeNames[animTypeIndex];
 
-			if (imguiCheck(animtypeName, params->m_traverseAnimType == animTypeIndex))
+			bool isAnimTypeEnabled = params->m_traverseAnimType == animTypeIndex;
+
+			if (ImGui::Checkbox(animtypeName, &isAnimTypeEnabled))
 			{
 				params->m_traverseAnimType = animTypeIndex;
 				m_state->updateAgentParams();
 			}
 		}
-
-		imguiUnindent();
 	}
 
-	if (imguiCollapse("Selected Debug Draw", 0, params->m_expandSelectedDebugDraw))
-		params->m_expandSelectedDebugDraw = !params->m_expandSelectedDebugDraw;
-		
-	if (params->m_expandSelectedDebugDraw)
+	if (ImGui::CollapsingHeader("Selected Debug Draw"))
 	{
-		imguiIndent();
-		if (imguiCheck("Show Corners", params->m_showCorners))
-			params->m_showCorners = !params->m_showCorners;
-		if (imguiCheck("Show Collision Segs", params->m_showCollisionSegments))
-			params->m_showCollisionSegments = !params->m_showCollisionSegments;
-		if (imguiCheck("Show Path", params->m_showPath))
-			params->m_showPath = !params->m_showPath;
-		if (imguiCheck("Show VO", params->m_showVO))
-			params->m_showVO = !params->m_showVO;
-		if (imguiCheck("Show Path Optimization", params->m_showOpt))
-			params->m_showOpt = !params->m_showOpt;
-		if (imguiCheck("Show Neighbours", params->m_showNeis))
-			params->m_showNeis = !params->m_showNeis;
-		imguiUnindent();
+		ImGui::Checkbox("Show Corners", &params->m_showCorners);
+		ImGui::Checkbox("Show Collision Segs", &params->m_showCollisionSegments);
+		ImGui::Checkbox("Show Path", &params->m_showPath);
+		ImGui::Checkbox("Show VO", &params->m_showVO);
+		ImGui::Checkbox("Show Path Optimization", &params->m_showOpt);
+		ImGui::Checkbox("Show Neighbours", &params->m_showNeis);
 	}
 		
-	if (imguiCollapse("Debug Draw", 0, params->m_expandDebugDraw))
-		params->m_expandDebugDraw = !params->m_expandDebugDraw;
-	
-	if (params->m_expandDebugDraw)
+	if (ImGui::CollapsingHeader("Debug Draw"))
 	{
-		imguiIndent();
-		if (imguiCheck("Show Labels", params->m_showLabels))
-			params->m_showLabels = !params->m_showLabels;
-		if (imguiCheck("Show Prox Grid", params->m_showGrid))
-			params->m_showGrid = !params->m_showGrid;
-		if (imguiCheck("Show Nodes", params->m_showNodes))
-			params->m_showNodes = !params->m_showNodes;
-		if (imguiCheck("Show Perf Graph", params->m_showPerfGraph))
-			params->m_showPerfGraph = !params->m_showPerfGraph;
-		if (imguiCheck("Show Detail All", params->m_showDetailAll))
-			params->m_showDetailAll = !params->m_showDetailAll;
-		imguiUnindent();
+		ImGui::Checkbox("Show Labels", &params->m_showLabels);
+		ImGui::Checkbox("Show Prox Grid", &params->m_showGrid);
+		ImGui::Checkbox("Show Nodes", &params->m_showNodes);
+		ImGui::Checkbox("Show Perf Graph", &params->m_showPerfGraph);
+		ImGui::Checkbox("Show Detail All", &params->m_showDetailAll);
 	}
 }
 
@@ -1113,31 +1121,44 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	rcIgnoreUnused(model);
 	rcIgnoreUnused(proj);
+	rcIgnoreUnused(view);
 
 	// Tool help
-	const int h = view[3];
-	int ty = h-40;
+	float ty = 40;
 	
 	if (m_mode == TOOLMODE_CREATE)
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "LMB: add agent.  Shift+LMB: remove agent.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: add agent.  Shift+LMB: remove agent.");
 	}
 	else if (m_mode == TOOLMODE_MOVE_TARGET)
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "LMB: set move target.  Shift+LMB: adjust set velocity.", imguiRGBA(255,255,255,192));	
-		ty -= 20;
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "Setting velocity will move the agents without pathfinder.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: set move target.  Shift+LMB: adjust set velocity.");
+
+		ty += 20;
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "Setting velocity will move the agents without pathfinder.");
 	}
 	else if (m_mode == TOOLMODE_SELECT)
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "LMB: select agent.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: select agent.");
 	}
-	ty -= 20;
-	imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "SPACE: Run/Pause simulation.  1: Step simulation.", imguiRGBA(255,255,255,192));	
-	ty -= 20;
 
+	ty += 20.f;
+	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+		ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "SPACE: Run/Pause simulation.  1: Step simulation.");
+
+	ty += 20.f;
 	if (m_state && m_state->isRunning())
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "- RUNNING -", imguiRGBA(255,32,16,255));	
-	else 
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "- PAUSED -", imguiRGBA(255,255,255,128));	
+	{
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(0.15f,1.0f,0.05f,0.8f), "- RUNNING -");
+	}
+	else
+	{
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,0.15f,0.05f,0.8f), "- PAUSED -");
+	}
 }
