@@ -185,15 +185,15 @@ bool imgui_init(SDL_Window* window, SDL_Renderer* /*renderer*/, SDL_GLContext co
 	if (!implotContext)
 		return false;
 
-	// todo(amos): check if this is required.
-	//imguiContext->ConfigNavWindowingKeyNext = 0;
-	//imguiContext->ConfigNavWindowingKeyPrev = 0;
+	// Disable ctrl+tab menu.
+	imguiContext->ConfigNavWindowingKeyNext = 0;
+	imguiContext->ConfigNavWindowingKeyPrev = 0;
 
 	// todo(amos): check if this is required.
 	//ImGuiIO& io = ImGui::GetIO();
 	//io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
 
-	ImGui::StyleColorsDark();
+	ImGui_SetStyle(ImGuiStyle_t::DEFAULT);
 
 	if (!ImGui_ImplSDL2_InitForOpenGL(window, context))
 	{
@@ -863,12 +863,12 @@ int not_main(int argc, char** argv)
 		}
 		string geom_path;
 
-		const ImGuiWindowFlags baseWindowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+		const ImGuiWindowFlags baseWindowFlags = ImGuiWindowFlags_None;
 
 		if (showMenu)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)width-250-10, 10.f));
-			ImGui::SetNextWindowSize(ImVec2(250, (float)height-20));
+			ImGui::SetNextWindowPos(ImVec2((float)width-250-10, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(250, (float)height-20), ImGuiCond_Once);
 
 			if (ImGui::Begin("Properties", nullptr, baseWindowFlags))
 			{
@@ -989,8 +989,8 @@ int not_main(int argc, char** argv)
 		// Level selection dialog.
 		if (showLevels)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-200, (float)height-10-900));
-			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f));
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-200, (float)height-10-900), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f), ImGuiCond_Once);
 			if (ImGui::Begin("Choose Level", nullptr, baseWindowFlags))
 			{
 				vector<string>::const_iterator fileIter = files.begin();
@@ -1059,8 +1059,8 @@ int not_main(int argc, char** argv)
 		// Test cases
 		if (showTestCases)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-200, (float)height-10-900));
-			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f));
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-200, (float)height-10-900), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f), ImGuiCond_Once);
 
 			if (ImGui::Begin("Choose Test To Run", nullptr, baseWindowFlags))
 			{
@@ -1154,8 +1154,8 @@ int not_main(int argc, char** argv)
 		// Log
 		if (showLog && showMenu)
 		{
-			ImGui::SetNextWindowPos(ImVec2((float)250+20, 10.f));
-			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f));
+			ImGui::SetNextWindowPos(ImVec2((float)250+20, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f), ImGuiCond_Once);
 
 			if (ImGui::Begin("Log"))
 			{
@@ -1169,8 +1169,8 @@ int not_main(int argc, char** argv)
 		// Left column tools menu
 		if (!showTestCases && showTools && showMenu) // && geom && editor)
 		{
-			ImGui::SetNextWindowPos(ImVec2(10.f, 10.f));
-			ImGui::SetNextWindowSize(ImVec2(250, (float)height-20));
+			ImGui::SetNextWindowPos(ImVec2(10.f, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(250, (float)height-20), ImGuiCond_Once);
 
 			if (ImGui::Begin("Tools", nullptr, baseWindowFlags))
 			{
