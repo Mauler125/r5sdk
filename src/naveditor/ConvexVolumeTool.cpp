@@ -290,20 +290,17 @@ void ConvexVolumeTool::handleRender()
 	dd.end();	
 }
 
-void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
+void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
 	// Tool help
-	const int h = view[3];
 	if (!m_npts)
 	{
-		ImGui::SetCursorPos(ImVec2(280, (float)h-40));
-		ImGui::TextColored(ImVec4(255,255,255,192), "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).");
 	}
 	else
 	{
-		ImGui::SetCursorPos(ImVec2(280, (float)h-40));
-		ImGui::TextColored(ImVec4(255,255,255,192), "Click LMB to add new points. Click on the red point to finish the shape.");
-		ImGui::SetCursorPos(ImVec2(280, (float)h-60));
-		ImGui::TextColored(ImVec4(255,255,255,192), "The shape will be convex hull of all added points.");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 60), ImVec4(1.0f,1.0f,1.0f,0.75f), "The shape will be convex hull of all added points.");
 	}
 }

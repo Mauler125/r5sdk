@@ -145,21 +145,19 @@ public:
 	virtual void handleRenderOverlay(double* proj, double* model, int* view)
 	{
 		GLdouble x, y, z;
+		const int h = view[3];
 		if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
 									  model, proj, view, &x, &y, &z))
 		{
 			int tx=0, ty=0;
 			m_editor->getTilePos(m_hitPos, tx, ty);
 
-			ImGui::SetCursorPos(ImVec2((float)x, (float)y-25));
-			ImGui::TextColored(ImVec4(0,0,0,220), "(%d,%d)", tx,ty);
+			ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "(%d,%d)", tx,ty);
 		}
 		
 		// Tool help
-		const int h = view[3];
-
-		ImGui::SetCursorPos(ImVec2(280, (float)h-40));
-		ImGui::TextColored(ImVec4(255,255,255,192), "LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40), 
+			ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
 	}
 };
 
@@ -756,13 +754,14 @@ void Editor_TileMesh::handleRender()
 void Editor_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
+	const int h = view[3];
 	
 	// Draw start and end point labels
 	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_lastBuiltTileBmin[0]+m_lastBuiltTileBmax[0])/2, (GLdouble)(m_lastBuiltTileBmin[1]+m_lastBuiltTileBmax[1])/2, (GLdouble)(m_lastBuiltTileBmin[2]+m_lastBuiltTileBmax[2])/2,
 											 model, proj, view, &x, &y, &z))
 	{
-		ImGui::SetCursorPos(ImVec2((float)x, (float)y-25));
-		ImGui::TextColored(ImVec4(0,0,0,220), "%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-(float)(y-25)),
+			ImVec4(0,0,0,0.8f), "%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
 	}
 	
 	if (m_tool)

@@ -308,10 +308,8 @@ void NavMeshPruneTool::handleRenderOverlay(double* proj, double* model, int* vie
 {
 	rcIgnoreUnused(model);
 	rcIgnoreUnused(proj);
+	rcIgnoreUnused(view);
 
 	// Tool help
-	const int h = view[3];
-
-	ImGui::SetCursorPos(ImVec2(280, (float)h-40));
-	ImGui::TextColored(ImVec4(255,255,255,192), "LMB: Click fill area.");
+	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Click fill area.");
 }

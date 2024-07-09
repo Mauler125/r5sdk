@@ -857,9 +857,8 @@ int not_main(int argc, char** argv)
 		// Help text.
 		if (showMenu)
 		{
-			// todo(amos): imgui
-			//ImGui::SetCursorPos(ImVec2(280, (float)height-20));
-			ImGui::TextColored(ImVec4(255,255,255,128), "W/S/A/D: Move  RMB: Rotate", ImVec4(255,255,255,128));
+			ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, 
+				ImVec2(280, 20), ImVec4(1.0f,1.0f,1.0f,0.5f), "W/S/A/D: Move  RMB: Rotate");
 		}
 		string geom_path;
 

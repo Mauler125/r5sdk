@@ -376,6 +376,7 @@ void TestCase::handleRender()
 bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
+	const int h = view[3];
 	char text[256];
 	int n = 0;
 
@@ -406,12 +407,11 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2],
 					   model, proj, view, &x, &y, &z))
 		{
-			ImVec4 col = ImVec4(0,0,0,128);
+			ImVec4 col = ImVec4(0.0f,0.0f,0.0f,0.5f);
 			if (iter->expand)
-				col = ImVec4(255,192,0,220);
+				col = ImVec4(1.0f,0.75f,0.0f,0.85f);
 
-			ImGui::SetCursorPos(ImVec2((float)x, (float)y-25));
-			ImGui::TextColored(col, "Path %d\n", n);
+			ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-((float)y-25)), col, "Path %d\n", n);
 		}
 		n++;
 	}

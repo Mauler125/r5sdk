@@ -513,13 +513,14 @@ namespace ImPlot
 void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
+	const int windowHeight = view[3];
 	
 	// Draw start and end point labels
 	if (m_targetRef && gluProject((GLdouble)m_targetPos[0], (GLdouble)m_targetPos[1], (GLdouble)m_targetPos[2],
 								  model, proj, view, &x, &y, &z))
 	{
-		ImGui::SetCursorPos(ImVec2((float)x, (float)y+25));
-		ImGui::TextColored(ImVec4(0,0,0,220), "TARGET"); // IMGUI_ALIGN_CENTER
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+			ImVec2((float)x, windowHeight-((float)y+25)), ImVec4(0,0,0,0.8f), "TARGET");
 	}
 	
 
@@ -544,9 +545,8 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 									   model, proj, view, &x, &y, &z))
 						{
 							const float heuristic = node->total;// - node->cost;
-
-							ImGui::SetCursorPos(ImVec2((float)x, (float)y+25));
-							ImGui::TextColored(ImVec4(0,0,0,220), "%.2f", heuristic);
+							ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+								ImVec2((float)x, windowHeight-((float)y+25)), ImVec4(0,0,0,0.8f), "%.2f", heuristic);
 						}
 					}
 				}
@@ -573,10 +573,10 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						? "none"
 						: g_traverseAnimTypeNames[animType];
 
-					ImGui::SetCursorPos(ImVec2((float)x, (float)y+15));
-					ImGui::TextColored(ImVec4(0,0,0,220), "%s (%d)", animTypeName, i);
+					ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+						ImVec2((float)x, windowHeight-((float)y+15)), ImVec4(0,0,0,0.8f), "%s (%d)", animTypeName, i);
 				}
-			}			
+			}
 		}
 	}
 	if (m_agentDebug.idx != -1)
@@ -602,8 +602,8 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						if (gluProject((GLdouble)nei->npos[0], (GLdouble)nei->npos[1], (GLdouble)nei->npos[2]+radius,
 									   model, proj, view, &x, &y, &z))
 						{
-							ImGui::SetCursorPos(ImVec2((float)x, (float)y+15));
-							ImGui::TextColored(ImVec4(255,255,255,220), "%.3f", ag->neis[j].dist);
+							ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, 
+								ImVec2((float)x, windowHeight-((float)y+15)), ImVec4(1.0f,1.0f,1.0f,0.8f), "%.3f", ag->neis[j].dist);
 						}
 					}
 				}
@@ -1130,44 +1130,44 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	rcIgnoreUnused(model);
 	rcIgnoreUnused(proj);
+	rcIgnoreUnused(view);
 
 	// Tool help
-	const int h = view[3];
-	float ty = (float)h-40;
+	float ty = 40;
 	
 	if (m_mode == TOOLMODE_CREATE)
 	{
-		ImGui::SetCursorPos(ImVec2(280, ty));
-		ImGui::TextColored(ImVec4(255,255,255,192), "LMB: add agent.  Shift+LMB: remove agent.");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: add agent.  Shift+LMB: remove agent.");
 	}
 	else if (m_mode == TOOLMODE_MOVE_TARGET)
 	{
-		ImGui::SetCursorPos(ImVec2(280, ty));
-		ImGui::TextColored(ImVec4(255,255,255,192), "LMB: set move target.  Shift+LMB: adjust set velocity.");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: set move target.  Shift+LMB: adjust set velocity.");
 
-		ty -= 20;
-		ImGui::SetCursorPos(ImVec2(280, ty));
-		ImGui::TextColored(ImVec4(255,255,255,192), "Setting velocity will move the agents without pathfinder.");
+		ty += 20;
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "Setting velocity will move the agents without pathfinder.");
 	}
 	else if (m_mode == TOOLMODE_SELECT)
 	{
-		ImGui::SetCursorPos(ImVec2(280, ty));
-		ImGui::TextColored(ImVec4(255,255,255,192), "LMB: select agent.");	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: select agent.");
 	}
 
-	ty -= 20.f;
-	ImGui::SetCursorPos(ImVec2(280, ty));
-	ImGui::TextColored(ImVec4(255,255,255,192), "SPACE: Run/Pause simulation.  1: Step simulation.");
+	ty += 20.f;
+	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+		ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "SPACE: Run/Pause simulation.  1: Step simulation.");
 
-	ty -= 20.f;
+	ty += 20.f;
 	if (m_state && m_state->isRunning())
 	{
-		ImGui::SetCursorPos(ImVec2(280, ty));
-		ImGui::TextColored(ImVec4(255,32,16,255), "- RUNNING -");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(0.15f,1.0f,0.05f,0.8f), "- RUNNING -");
 	}
 	else
 	{
-		ImGui::SetCursorPos(ImVec2(280, ty));
-		ImGui::TextColored(ImVec4(255,255,255,128), "- PAUSED -");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,0.15f,0.05f,0.8f), "- PAUSED -");
 	}
 }

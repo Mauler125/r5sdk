@@ -148,25 +148,24 @@ void OffMeshConnectionTool::handleRender()
 void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
+	const int h = view[3];
 	
 	// Draw start and end point labels
 	if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
 								model, proj, view, &x, &y, &z))
 	{
-		ImGui::SetCursorPos(ImVec2((float)x, (float)y-25));
-		ImGui::TextColored(ImVec4(0,0,0,220), "Start");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "Start");
 	}
 	
 	// Tool help
-	const int h = view[3];
 	if (!m_hitPosSet)
 	{
-		ImGui::SetCursorPos(ImVec2(280, (float)h-40));
-		ImGui::TextColored(ImVec4(255,255,255,192), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.");
 	}
 	else
 	{
-		ImGui::SetCursorPos(ImVec2(280, (float)h-40));
-		ImGui::TextColored(ImVec4(255,255,255,192), "LMB: Set connection end point and finish.");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, 
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Set connection end point and finish.");
 	}
 }

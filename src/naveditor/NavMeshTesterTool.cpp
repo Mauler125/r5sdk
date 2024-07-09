@@ -1417,19 +1417,20 @@ void NavMeshTesterTool::handleRender()
 void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
-	
+	const int h = view[3];
+
 	// Draw start and end point labels
 	if (m_sposSet && gluProject((GLdouble)m_spos[0], (GLdouble)m_spos[1], (GLdouble)m_spos[2],
 								model, proj, view, &x, &y, &z))
 	{
-		ImGui::SetCursorPos(ImVec2((float)x, (float)y-25));
-		ImGui::TextColored(ImVec4(0,0,0,220), "Start");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+			ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "Start");
 	}
 	if (m_eposSet && gluProject((GLdouble)m_epos[0], (GLdouble)m_epos[1], (GLdouble)m_epos[2],
 								model, proj, view, &x, &y, &z))
 	{
-		ImGui::SetCursorPos(ImVec2((float)x, (float)y-25));
-		ImGui::TextColored(ImVec4(0,0,0,220), "End");
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+			ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "End");
 	}
 
 	// Useful utility to draw all polygroup id's at the center of the polygons.
@@ -1457,19 +1458,16 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 	//			if ((p.second) && gluProject((GLdouble)poly->center[0], (GLdouble)poly->center[1], (GLdouble)poly->center[2] + 30,
 	//				model, proj, view, &x, &y, &z))
 	//			{
-	//				char label[6];
-	//				snprintf(label, sizeof(label), "%hu", poly->groupId);
-	//				ImGui::TextColored((int)x, (int)y, IMGUI_ALIGN_CENTER, label, ImVec4(0, 0, 0, 220));
+	//				ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, 
+	//					ImVec2((float)x, h-(float)y), ImVec4(0, 0, 0, 0.8f), "%hu", poly->groupId);
 	//			}
 	//		}
 	//	}
 	//}
 	
 	// Tool help
-	const int h = view[3];
-
-	ImGui::SetCursorPos(ImVec2(280, (float)h-40));
-	ImGui::TextColored(ImVec4(255,255,255,192), "LMB+SHIFT: Set start location  LMB: Set end location");
+	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40),
+		ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB+SHIFT: Set start location  LMB: Set end location");
 }
 
 void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col)
