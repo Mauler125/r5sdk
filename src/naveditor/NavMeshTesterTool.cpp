@@ -478,7 +478,7 @@ void NavMeshTesterTool::handleMenu()
 		const bool noAnimtype = i == ANIMTYPE_NONE;
 
 		const TraverseAnimType_e animTypeIndex = noAnimtype ? ANIMTYPE_NONE : TraverseAnimType_e((int)baseType + i);
-		const char* animtypeName = noAnimtype ? "none" : g_traverseAnimTypeNames[animTypeIndex]; // todo(amos): crashes sometimes when animTypeIndex = ANIMTYPE_NONE
+		const char* animtypeName = noAnimtype ? "none" : g_traverseAnimTypeNames[animTypeIndex];
 
 		isEnabled = m_traverseAnimType == animTypeIndex;
 
