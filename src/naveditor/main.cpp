@@ -546,10 +546,12 @@ int not_main(int argc, char** argv)
 					}
 					else if (event.key.keysym.sym == SDLK_t)
 					{
-						showLevels = false;
-						showEditor = false;
-						showTestCases = true;
-						scanDirectory(testCasesFolder, ".txt", files);
+						showLevels ^= false;
+						showEditor ^= false;
+						showTestCases ^= true;
+
+						if (showTestCases)
+							scanDirectory(testCasesFolder, ".txt", files);
 					}
 					else if (event.key.keysym.sym == SDLK_TAB)
 					{
