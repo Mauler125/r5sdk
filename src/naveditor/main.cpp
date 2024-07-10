@@ -26,6 +26,7 @@
 #include "NavEditor/Include/Editor_TileMesh.h"
 #include "NavEditor/Include/Editor_Debug.h"
 #include "NavEditor/include/DroidSans.h"
+#include "NavEditor/include/Icon.h"
 
 using std::string;
 using std::vector;
@@ -215,6 +216,30 @@ void imgui_shutdown()
 	ImGui::DestroyContext();
 }
 
+bool window_decoration_init(SDL_Window* window)
+{
+	SDL_RWops* const rw = SDL_RWFromMem((void*)g_recastNavigationIcon, sizeof(g_recastNavigationIcon));
+	if (!rw)
+	{
+		SDL_Log("Failed to create r/w structure from icon data: %s", SDL_GetError());
+		return false;
+	}
+
+	SDL_Surface* const surface = SDL_LoadBMP_RW(rw, 1);
+
+	if (!surface)
+	{
+		SDL_Log("Failed to load icon data from r/w structure: %s", SDL_GetError());
+		return false;
+	}
+
+	SDL_SetWindowIcon(window, surface);
+	SDL_FreeSurface(surface);
+
+	SDL_SetWindowTitle(window, "Recast Navigation");
+	return true;
+}
+
 bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &height, bool presentationMode)
 {
 	// Init SDL
@@ -265,6 +290,8 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 		printf("Error: %s\n", SDL_GetError());
 		return false;
 	}
+
+	window_decoration_init(window);
 
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	SDL_GLContext context = SDL_GL_CreateContext(window);

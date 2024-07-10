@@ -75,6 +75,11 @@ add_sources( SOURCE_GROUP "Utils/Include"
     "include/ValueHistory.h"
 )
 
+add_sources( SOURCE_GROUP "Resource"
+    "Include/Icon.h"
+    "Include/DroidSans.h"
+)
+
 end_sources( "${BUILD_OUTPUT_DIR}/bin/" )
 whole_program_optimization()
 
