@@ -260,7 +260,7 @@ void NavMeshTesterTool::handleMenu()
 		ImGui::Unindent();
 	}
 
-	isEnabled = m_straightPathOptions == TOOLMODE_PATHFIND_SLICED;
+	isEnabled = m_toolMode == TOOLMODE_PATHFIND_SLICED;
 
 	if (ImGui::Checkbox("Pathfind Sliced", &isEnabled))
 	{
@@ -324,7 +324,7 @@ void NavMeshTesterTool::handleMenu()
 		}
 	}
 
-	ImGui::BeginDisabled(m_sposSet);
+	ImGui::BeginDisabled(!m_sposSet);
 
 	if (ImGui::Button("Set Random End"))
 	{
@@ -360,7 +360,7 @@ void NavMeshTesterTool::handleMenu()
 		}
 	}
 
-	ImGui::BeginDisabled(m_sposSet);
+	ImGui::BeginDisabled(!m_sposSet);
 
 	if (ImGui::Button("Make Random Points Around"))
 	{
