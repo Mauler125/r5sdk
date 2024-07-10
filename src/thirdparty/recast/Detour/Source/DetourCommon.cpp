@@ -332,10 +332,10 @@ bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 							   const float s, const float t, float* out)
 {
-	// Calc triangle araes
+	// Calc triangle areas
 	float areasum = 0.0f;
 	for (int i = 2; i < npts; i++) {
-		areas[i] = dtTriArea2D(&pts[0], &pts[(i-1)*3], &pts[i*3]);
+		areas[i] = dtTriArea2D(&pts[0], &pts[i*3], &pts[(i-1)*3]);
 		areasum += dtMax(0.001f, areas[i]);
 	}
 	// Find sub triangle weighted by area.
@@ -360,8 +360,8 @@ void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 	const float b = (1 - u) * v;
 	const float c = u * v;
 	const float* pa = &pts[0];
-	const float* pb = &pts[(tri-1)*3];
-	const float* pc = &pts[tri*3];
+	const float* pb = &pts[tri*3];
+	const float* pc = &pts[(tri-1)*3];
 	
 	out[0] = a*pa[0] + b*pb[0] + c*pc[0];
 	out[1] = a*pa[1] + b*pb[1] + c*pc[1];
