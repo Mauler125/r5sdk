@@ -1860,7 +1860,7 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 						return DT_FAILURE | DT_INVALID_PARAM;
 					}
 
-					// Apeend portals along the current straight path segment.
+					// Append portals along the current straight path segment.
 					if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
 					{
 						// Ignore status return value as we're just about to return anyway.
@@ -1894,37 +1894,37 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 				toType = DT_POLYTYPE_GROUND;
 			}
 			
-			// Right vertex.
-			if (dtTriArea2D(portalApex, portalRight, right) <= 0.0f)
+			// Left vertex.
+			if (dtTriArea2D(portalApex, portalLeft, left) <= 0.0f)
 			{
-				if (dtVequal(portalApex, portalRight) || dtTriArea2D(portalApex, portalLeft, right) > 0.0f)
+				if (dtVequal(portalApex, portalLeft) || dtTriArea2D(portalApex, portalRight, left) > 0.0f)
 				{
-					dtVcopy(portalRight, right);
-					rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
-					rightPolyType = toType;
-					rightIndex = i;
+					dtVcopy(portalLeft, left);
+					leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
+					leftPolyType = toType;
+					leftIndex = i;
 				}
 				else
 				{
 					// Append portals along the current straight path segment.
 					if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
 					{
-						stat = appendPortals(apexIndex, leftIndex, portalLeft, path,
+						stat = appendPortals(apexIndex, rightIndex, portalRight, path,
 											 straightPath, straightPathFlags, straightPathRefs,
 											 straightPathCount, maxStraightPath, options);
 						if (stat != DT_IN_PROGRESS)
 							return stat;					
 					}
 				
-					dtVcopy(portalApex, portalLeft);
-					apexIndex = leftIndex;
+					dtVcopy(portalApex, portalRight);
+					apexIndex = rightIndex;
 					
 					unsigned char flags = 0;
-					if (!leftPolyRef)
+					if (!rightPolyRef)
 						flags = DT_STRAIGHTPATH_END;
-					else if (leftPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
+					else if (rightPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
 						flags = DT_STRAIGHTPATH_OFFMESH_CONNECTION;
-					dtPolyRef ref = leftPolyRef;
+					dtPolyRef ref = rightPolyRef;
 					
 					// Append or update vertex
 					stat = appendVertex(portalApex, flags, ref,
@@ -1945,37 +1945,37 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 				}
 			}
 			
-			// Left vertex.
-			if (dtTriArea2D(portalApex, portalLeft, left) >= 0.0f)
+			// Right vertex.
+			if (dtTriArea2D(portalApex, portalRight, right) >= 0.0f)
 			{
-				if (dtVequal(portalApex, portalLeft) || dtTriArea2D(portalApex, portalRight, left) < 0.0f)
+				if (dtVequal(portalApex, portalRight) || dtTriArea2D(portalApex, portalLeft, right) < 0.0f)
 				{
-					dtVcopy(portalLeft, left);
-					leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
-					leftPolyType = toType;
-					leftIndex = i;
+					dtVcopy(portalRight, right);
+					rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
+					rightPolyType = toType;
+					rightIndex = i;
 				}
 				else
 				{
 					// Append portals along the current straight path segment.
 					if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
 					{
-						stat = appendPortals(apexIndex, rightIndex, portalRight, path,
+						stat = appendPortals(apexIndex, leftIndex, portalLeft, path,
 											 straightPath, straightPathFlags, straightPathRefs,
 											 straightPathCount, maxStraightPath, options);
 						if (stat != DT_IN_PROGRESS)
 							return stat;
 					}
 
-					dtVcopy(portalApex, portalRight);
-					apexIndex = rightIndex;
+					dtVcopy(portalApex, portalLeft);
+					apexIndex = leftIndex;
 					
 					unsigned char flags = 0;
-					if (!rightPolyRef)
+					if (!leftPolyRef)
 						flags = DT_STRAIGHTPATH_END;
-					else if (rightPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
+					else if (leftPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
 						flags = DT_STRAIGHTPATH_OFFMESH_CONNECTION;
-					dtPolyRef ref = rightPolyRef;
+					dtPolyRef ref = leftPolyRef;
 
 					// Append or update vertex
 					stat = appendVertex(portalApex, flags, ref,
@@ -2313,8 +2313,8 @@ dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly,
 	// Find portal vertices.
 	const int v0 = fromPoly->verts[link->edge];
 	const int v1 = fromPoly->verts[(link->edge+1) % (int)fromPoly->vertCount];
-	dtVcopy(left, &fromTile->verts[v1*3]);
-	dtVcopy(right, &fromTile->verts[v0*3]);
+	dtVcopy(left, &fromTile->verts[v0*3]);
+	dtVcopy(right, &fromTile->verts[v1*3]);
 	
 	// If the link is at tile boundary, dtClamp the vertices to
 	// the link width.
@@ -2326,8 +2326,8 @@ dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly,
 			const float s = 1.0f/255.0f;
 			const float tmin = link->bmin*s;
 			const float tmax = link->bmax*s;
-			dtVlerp(left, &fromTile->verts[v1*3], &fromTile->verts[v0*3], tmin);
-			dtVlerp(right, &fromTile->verts[v1*3], &fromTile->verts[v0*3], tmax);
+			dtVlerp(left, &fromTile->verts[v0*3], &fromTile->verts[v1*3], tmin);
+			dtVlerp(right, &fromTile->verts[v0*3], &fromTile->verts[v1*3], tmax);
 		}
 	}
 	
@@ -2591,8 +2591,8 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			}
 			
 			// Check for partial edge links.
-			const int v0 = poly->verts[link->edge];
-			const int v1 = poly->verts[(link->edge+1) % poly->vertCount];
+			const int v1 = poly->verts[link->edge];
+			const int v0 = poly->verts[(link->edge+1) % poly->vertCount];
 			const float* left = &tile->verts[v0*3];
 			const float* right = &tile->verts[v1*3];
 			
@@ -3146,7 +3146,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 		nstack--;
 		
 		// Get poly and tile.
-		// The API input has been cheked already, skip checking internal data.
+		// The API input has been checked already, skip checking internal data.
 		const dtPolyRef curRef = curNode->id;
 		const dtMeshTile* curTile = 0;
 		const dtPoly* curPoly = 0;
@@ -3160,7 +3160,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 			if (!neighbourRef)
 				continue;
 			
-			// Skip if cannot alloca more nodes.
+			// Skip if cannot allocate more nodes.
 			dtNode* neighbourNode = m_tinyNodePool->getNode(neighbourRef);
 			if (!neighbourNode)
 				continue;
@@ -3301,7 +3301,7 @@ static void insertInterval(dtSegInterval* ints, int& nints, const int maxInts,
 /// Otherwise only the wall segments are returned.
 /// 
 /// A segment that is normally a portal will be included in the result set as a 
-/// wall if the @p filter results in the neighbor polygon becoomming impassable.
+/// wall if the @p filter results in the neighbor polygon becoming impassable.
 /// 
 /// The @p segmentVerts and @p segmentRefs buffers should normally be sized for the 
 /// maximum segments per polygon of the source navigation mesh.
