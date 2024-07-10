@@ -174,7 +174,7 @@ Editor_TileMesh::Editor_TileMesh() :
 	m_cset(0),
 	m_pmesh(0),
 	m_dmesh(0),
-	m_drawMode(DRAWMODE_NAVMESH),
+	m_tileMeshDrawFlags(TM_DRAWFLAGS_INPUT_MESH|TM_DRAWFLAGS_NAVMESH),
 	m_maxTiles(0),
 	m_maxPolysPerTile(0),
 	m_tileSize(32),
@@ -385,241 +385,185 @@ void Editor_TileMesh::handleTools()
 
 void Editor_TileMesh::handleDebugMode()
 {
-	// Check which modes are valid.
-	bool valid[MAX_DRAWMODE];
-	for (int i = 0; i < MAX_DRAWMODE; ++i)
-		valid[i] = false;
-	
-	if (m_geom)
-	{
-		valid[DRAWMODE_NAVMESH] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_NODES] = m_navQuery != 0;
-		valid[DRAWMODE_NAVMESH_PORTALS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != 0;
-		valid[DRAWMODE_MESH] = true;
-		valid[DRAWMODE_VOXELS] = m_solid != 0;
-		valid[DRAWMODE_VOXELS_WALKABLE] = m_solid != 0;
-		valid[DRAWMODE_COMPACT] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_DISTANCE] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_REGIONS] = m_chf != 0;
-		valid[DRAWMODE_REGION_CONNECTIONS] = m_cset != 0;
-		valid[DRAWMODE_RAW_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_BOTH_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
-		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
-	}
-	
-	int unavail = 0;
-	for (int i = 0; i < MAX_DRAWMODE; ++i)
-		if (!valid[i]) unavail++;
-	
-	if (unavail == MAX_DRAWMODE)
-		return;
-
-	ImGui::Text("Render Options");
+	ImGui::Text("NavMesh Render Options");
 
 	bool isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OFFMESHCONS);
 
-	if (ImGui::Checkbox("Draw Off-Mesh Connections", &isEnabled))
+	if (ImGui::Checkbox("Off-Mesh Connections", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OFFMESHCONS);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NODES);
+
+	if (ImGui::Checkbox("Query Nodes", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NODES);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_BVTREE);
+
+	if (ImGui::Checkbox("BVTree", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_BVTREE);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_PORTALS);
+
+	if (ImGui::Checkbox("Portals", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_PORTALS);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_CLOSEDLIST);
 
-	if (ImGui::Checkbox("Draw Closed List", &isEnabled))
+	if (ImGui::Checkbox("Closed List", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_CLOSEDLIST);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_COLOR_TILES);
 
-	if (ImGui::Checkbox("Draw Tile ID Colors", &isEnabled))
+	if (ImGui::Checkbox("Tile ID Colors", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_COLOR_TILES);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_VERTS);
 
-	if (ImGui::Checkbox("Draw Vertex Points", &isEnabled))
+	if (ImGui::Checkbox("Vertex Points", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_VERTS);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_INNERBOUND);
 
-	if (ImGui::Checkbox("Draw Inner Poly Boundaries", &isEnabled))
+	if (ImGui::Checkbox("Inner Poly Boundaries", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_INNERBOUND);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OUTERBOUND);
 
-	if (ImGui::Checkbox("Draw Outer Poly Boundaries", &isEnabled))
+	if (ImGui::Checkbox("Outer Poly Boundaries", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OUTERBOUND);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYCENTERS);
 
-	if (ImGui::Checkbox("Draw Poly Centers", &isEnabled))
+	if (ImGui::Checkbox("Poly Centers", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYCENTERS);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYGROUPS);
 
-	if (ImGui::Checkbox("Draw Poly Groups", &isEnabled))
+	if (ImGui::Checkbox("Poly Group Colors", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYGROUPS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_DEPTH_MASK);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_DEPTH_MASK);
 
-	if (ImGui::Checkbox("Disable NavMesh Depth Mask", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_DEPTH_MASK);
+	if (ImGui::Checkbox("Depth Mask", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_DEPTH_MASK);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NO_ALPHA);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_ALPHA);
 
-	if (ImGui::Checkbox("Disable NavMesh Transparency", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NO_ALPHA);
+	if (ImGui::Checkbox("Transparency", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
 	
 	ImGui::Separator();
-	ImGui::Text("Draw Options");
+	ImGui::Text("TileMesh Render Options");
 
-	isEnabled = m_drawMode == DRAWMODE_MESH;
-	ImGui::BeginDisabled(!valid[DRAWMODE_MESH]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_INPUT_MESH;
 
+	// This should always be available, since if we load a large mesh we want to
+	// be able to toggle this off to save on performance. The renderer has to be
+	// moved to its own thread to solve this issue.
 	if (ImGui::Checkbox("Input Mesh", &isEnabled))
-		m_drawMode = DRAWMODE_MESH;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_INPUT_MESH);
 
-	ImGui::EndDisabled();
+	// Check which modes are valid.
+	const bool hasNavMesh = m_navMesh != 0;
+	const bool hasChf = m_chf != 0;
+	const bool hasCset = m_cset != 0;
+	const bool hasSolid = m_solid != 0;
+	const bool hasDMesh = m_dmesh != 0;
 
-	isEnabled = m_drawMode == DRAWMODE_NAVMESH;
-	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH]);
+	const bool intermediateDataUnavailable = !hasChf||!hasCset||!hasSolid||!hasDMesh;
+
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH;
+	ImGui::BeginDisabled(!hasNavMesh);
 
 	if (ImGui::Checkbox("Navmesh", &isEnabled))
-		m_drawMode = DRAWMODE_NAVMESH;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_NAVMESH);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_NAVMESH_INVIS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_INVIS]);
-
-	if (ImGui::Checkbox("Navmesh Invis", &isEnabled))
-		m_drawMode = DRAWMODE_NAVMESH_INVIS;
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_drawMode == DRAWMODE_NAVMESH_TRANS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_TRANS]);
-
-	if (ImGui::Checkbox("Navmesh Trans", &isEnabled))
-		m_drawMode = DRAWMODE_NAVMESH_TRANS;
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_drawMode == DRAWMODE_NAVMESH_BVTREE;
-	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_BVTREE]);
-
-	if (ImGui::Checkbox("Navmesh BVTree", &isEnabled))
-		m_drawMode = DRAWMODE_NAVMESH_BVTREE;
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_drawMode == DRAWMODE_NAVMESH_NODES;
-	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_NODES]);
-
-	if (ImGui::Checkbox("Navmesh Nodes", &isEnabled))
-		m_drawMode = DRAWMODE_NAVMESH_NODES;
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_drawMode == DRAWMODE_NAVMESH_PORTALS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_PORTALS]);
-
-	if (ImGui::Checkbox("Navmesh Portals", &isEnabled))
-		m_drawMode = DRAWMODE_NAVMESH_PORTALS;
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_drawMode == DRAWMODE_VOXELS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_VOXELS]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_VOXELS;
+	ImGui::BeginDisabled(!hasSolid);
 
 	if (ImGui::Checkbox("Voxels", &isEnabled))
-		m_drawMode = DRAWMODE_VOXELS;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_VOXELS);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_VOXELS_WALKABLE;
-	ImGui::BeginDisabled(!valid[DRAWMODE_VOXELS_WALKABLE]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_VOXELS_WALKABLE;
+	ImGui::BeginDisabled(!hasSolid);
 
 	if (ImGui::Checkbox("Walkable Voxels", &isEnabled))
-		m_drawMode = DRAWMODE_VOXELS_WALKABLE;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_VOXELS_WALKABLE);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_COMPACT;
-	ImGui::BeginDisabled(!valid[DRAWMODE_COMPACT]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT;
+	ImGui::BeginDisabled(!hasChf);
 
 	if (ImGui::Checkbox("Compact", &isEnabled))
-		m_drawMode = DRAWMODE_COMPACT;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_COMPACT);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_COMPACT_DISTANCE;
-	ImGui::BeginDisabled(!valid[DRAWMODE_COMPACT_DISTANCE]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT_DISTANCE;
+	ImGui::BeginDisabled(!hasChf);
 
 	if (ImGui::Checkbox("Compact Distance", &isEnabled))
-		m_drawMode = DRAWMODE_COMPACT_DISTANCE;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_COMPACT_DISTANCE);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_COMPACT_REGIONS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_COMPACT_REGIONS]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT_REGIONS;
+	ImGui::BeginDisabled(!hasChf);
 
 	if (ImGui::Checkbox("Compact Regions", &isEnabled))
-		m_drawMode = DRAWMODE_COMPACT_REGIONS;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_COMPACT_REGIONS);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_REGION_CONNECTIONS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_REGION_CONNECTIONS]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_REGION_CONNECTIONS;
+	ImGui::BeginDisabled(!hasCset);
 
 	if (ImGui::Checkbox("Region Connections", &isEnabled))
-		m_drawMode = DRAWMODE_REGION_CONNECTIONS;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_REGION_CONNECTIONS);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_RAW_CONTOURS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_RAW_CONTOURS]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_RAW_CONTOURS;
+	ImGui::BeginDisabled(!hasCset);
 
 	if (ImGui::Checkbox("Raw Contours", &isEnabled))
-		m_drawMode = DRAWMODE_RAW_CONTOURS;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_RAW_CONTOURS);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_BOTH_CONTOURS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_BOTH_CONTOURS]);
-
-	if (ImGui::Checkbox("Both Contours", &isEnabled))
-		m_drawMode = DRAWMODE_BOTH_CONTOURS;
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_drawMode == DRAWMODE_CONTOURS;
-	ImGui::BeginDisabled(!valid[DRAWMODE_CONTOURS]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_CONTOURS;
+	ImGui::BeginDisabled(!hasCset);
 
 	if (ImGui::Checkbox("Contours", &isEnabled))
-		m_drawMode = DRAWMODE_CONTOURS;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_CONTOURS);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_POLYMESH;
-	ImGui::BeginDisabled(!valid[DRAWMODE_POLYMESH]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_POLYMESH;
+	ImGui::BeginDisabled(!hasDMesh);
 
 	if (ImGui::Checkbox("Poly Mesh", &isEnabled))
-		m_drawMode = DRAWMODE_POLYMESH;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_POLYMESH);
 
 	ImGui::EndDisabled();
 
-	isEnabled = m_drawMode == DRAWMODE_POLYMESH_DETAIL;
-	ImGui::BeginDisabled(!valid[DRAWMODE_POLYMESH_DETAIL]);
+	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_POLYMESH_DETAIL;
+	ImGui::BeginDisabled(!hasDMesh);
 
 	if (ImGui::Checkbox("Poly Mesh Detail", &isEnabled))
-		m_drawMode = DRAWMODE_POLYMESH_DETAIL;
+		toggleTileMeshDrawFlag(TM_DRAWFLAGS_POLYMESH_DETAIL);
 
 	ImGui::EndDisabled();
 		
-	if (unavail)
+	if (intermediateDataUnavailable)
 	{
+		ImGui::Separator();
+
 		ImGui::Text("Tick 'Keep Intermediate Results'");
 		ImGui::Text("rebuild some tiles to see");
 		ImGui::Text("more debug mode options.");
@@ -633,14 +577,13 @@ void Editor_TileMesh::handleRender()
 	
 	const float texScale = 1.0f / (m_cellSize * 10.0f);
 	
-	// Draw mesh
-	if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
+	// Draw input mesh
+	if (m_tileMeshDrawFlags & TM_DRAWFLAGS_INPUT_MESH)
 	{
 		// Draw mesh
 		duDebugDrawTriMeshSlope(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
 								m_agentMaxSlope, texScale);
-		m_geom->drawOffMeshConnections(&m_dd);
 	}
 		
 	glDepthMask(GL_FALSE);
@@ -661,70 +604,62 @@ void Editor_TileMesh::handleRender()
 	// Draw active tile
 	duDebugDrawBoxWire(&m_dd, m_lastBuiltTileBmin[0],m_lastBuiltTileBmin[1],m_lastBuiltTileBmin[2],
 					   m_lastBuiltTileBmax[0],m_lastBuiltTileBmax[1],m_lastBuiltTileBmax[2], m_tileCol, 1.0f);
-		
-	if (m_navMesh && m_navQuery &&
-		(m_drawMode == DRAWMODE_NAVMESH ||
-		 m_drawMode == DRAWMODE_NAVMESH_TRANS ||
-		 m_drawMode == DRAWMODE_NAVMESH_BVTREE ||
-		 m_drawMode == DRAWMODE_NAVMESH_NODES ||
-		 m_drawMode == DRAWMODE_NAVMESH_PORTALS ||
-		 m_drawMode == DRAWMODE_NAVMESH_INVIS))
+
+	if (m_navMesh && m_navQuery)
 	{
-		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
+		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH)
+		{
 			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
-		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
-			duDebugDrawNavMeshBVTree(&m_dd, *m_navMesh);
-		if (m_drawMode == DRAWMODE_NAVMESH_PORTALS)
-			duDebugDrawNavMeshPortals(&m_dd, *m_navMesh);
-		if (m_drawMode == DRAWMODE_NAVMESH_NODES)
-			duDebugDrawNavMeshNodes(&m_dd, *m_navQuery);
-		duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
+			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, duRGBA(0, 0, 0, 128));
+		}
 	}
-	
-	
+
 	glDepthMask(GL_TRUE);
-	
-	if (m_chf && m_drawMode == DRAWMODE_COMPACT)
-		duDebugDrawCompactHeightfieldSolid(&m_dd, *m_chf);
-	
-	if (m_chf && m_drawMode == DRAWMODE_COMPACT_DISTANCE)
-		duDebugDrawCompactHeightfieldDistance(&m_dd, *m_chf);
-	if (m_chf && m_drawMode == DRAWMODE_COMPACT_REGIONS)
-		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
-	if (m_solid && m_drawMode == DRAWMODE_VOXELS)
+
+	if (m_chf)
 	{
-		glEnable(GL_FOG);
-		duDebugDrawHeightfieldSolid(&m_dd, *m_solid);
-		glDisable(GL_FOG);
+		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT)
+			duDebugDrawCompactHeightfieldSolid(&m_dd, *m_chf);
+
+		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT_DISTANCE)
+			duDebugDrawCompactHeightfieldDistance(&m_dd, *m_chf);
+		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT_REGIONS)
+			duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
 	}
-	if (m_solid && m_drawMode == DRAWMODE_VOXELS_WALKABLE)
+
+	if (m_solid)
 	{
-		glEnable(GL_FOG);
-		duDebugDrawHeightfieldWalkable(&m_dd, *m_solid);
-		glDisable(GL_FOG);
+		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_VOXELS)
+		{
+			glEnable(GL_FOG);
+			duDebugDrawHeightfieldSolid(&m_dd, *m_solid);
+			glDisable(GL_FOG);
+		}
+		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_VOXELS_WALKABLE)
+		{
+			glEnable(GL_FOG);
+			duDebugDrawHeightfieldWalkable(&m_dd, *m_solid);
+			glDisable(GL_FOG);
+		}
 	}
-	
-	if (m_cset && m_drawMode == DRAWMODE_RAW_CONTOURS)
+
+	if (m_cset)
 	{
-		glDepthMask(GL_FALSE);
-		duDebugDrawRawContours(&m_dd, *m_cset);
-		glDepthMask(GL_TRUE);
+		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_RAW_CONTOURS)
+		{
+			glDepthMask(GL_FALSE);
+			duDebugDrawRawContours(&m_dd, *m_cset);
+			glDepthMask(GL_TRUE);
+		}
+		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_CONTOURS)
+		{
+			glDepthMask(GL_FALSE);
+			duDebugDrawContours(&m_dd, *m_cset);
+			glDepthMask(GL_TRUE);
+		}
 	}
-	
-	if (m_cset && m_drawMode == DRAWMODE_BOTH_CONTOURS)
-	{
-		glDepthMask(GL_FALSE);
-		duDebugDrawRawContours(&m_dd, *m_cset, 0.5f);
-		duDebugDrawContours(&m_dd, *m_cset);
-		glDepthMask(GL_TRUE);
-	}
-	if (m_cset && m_drawMode == DRAWMODE_CONTOURS)
-	{
-		glDepthMask(GL_FALSE);
-		duDebugDrawContours(&m_dd, *m_cset);
-		glDepthMask(GL_TRUE);
-	}
-	if (m_chf && m_cset && m_drawMode == DRAWMODE_REGION_CONNECTIONS)
+
+	if ((m_chf && m_cset) && (m_tileMeshDrawFlags & TM_DRAWFLAGS_REGION_CONNECTIONS))
 	{
 		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
 		
@@ -732,23 +667,28 @@ void Editor_TileMesh::handleRender()
 		duDebugDrawRegionConnections(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_pmesh && m_drawMode == DRAWMODE_POLYMESH)
+
+	if (m_pmesh && (m_tileMeshDrawFlags & TM_DRAWFLAGS_POLYMESH))
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawPolyMesh(&m_dd, *m_pmesh);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_dmesh && m_drawMode == DRAWMODE_POLYMESH_DETAIL)
+
+	if (m_dmesh && (m_tileMeshDrawFlags & TM_DRAWFLAGS_POLYMESH_DETAIL))
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawPolyMeshDetail(&m_dd, *m_dmesh);
 		glDepthMask(GL_TRUE);
 	}
-		
+
+	// TODO: also add flags for this
 	m_geom->drawConvexVolumes(&m_dd);
+	m_geom->drawOffMeshConnections(&m_dd);
 	
 	if (m_tool)
 		m_tool->handleRender();
+
 	renderToolStates();
 
 	glDepthMask(GL_TRUE);

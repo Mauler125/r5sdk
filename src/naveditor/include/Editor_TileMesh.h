@@ -39,30 +39,23 @@ protected:
 	rcPolyMeshDetail* m_dmesh;
 	rcConfig m_cfg;	
 	
-	enum DrawMode
+	enum DrawTileMeshFlags
 	{
-		DRAWMODE_NAVMESH,
-		DRAWMODE_NAVMESH_TRANS,
-		DRAWMODE_NAVMESH_BVTREE,
-		DRAWMODE_NAVMESH_NODES,
-		DRAWMODE_NAVMESH_PORTALS,
-		DRAWMODE_NAVMESH_INVIS,
-		DRAWMODE_MESH,
-		DRAWMODE_VOXELS,
-		DRAWMODE_VOXELS_WALKABLE,
-		DRAWMODE_COMPACT,
-		DRAWMODE_COMPACT_DISTANCE,
-		DRAWMODE_COMPACT_REGIONS,
-		DRAWMODE_REGION_CONNECTIONS,
-		DRAWMODE_RAW_CONTOURS,
-		DRAWMODE_BOTH_CONTOURS,
-		DRAWMODE_CONTOURS,
-		DRAWMODE_POLYMESH,
-		DRAWMODE_POLYMESH_DETAIL,		
-		MAX_DRAWMODE
+		TM_DRAWFLAGS_INPUT_MESH         = (1<<0),
+		TM_DRAWFLAGS_NAVMESH            = (1<<1),
+		TM_DRAWFLAGS_VOXELS             = (1<<2),
+		TM_DRAWFLAGS_VOXELS_WALKABLE    = (1<<3),
+		TM_DRAWFLAGS_COMPACT            = (1<<4),
+		TM_DRAWFLAGS_COMPACT_DISTANCE   = (1<<5),
+		TM_DRAWFLAGS_COMPACT_REGIONS    = (1<<6),
+		TM_DRAWFLAGS_REGION_CONNECTIONS = (1<<7),
+		TM_DRAWFLAGS_RAW_CONTOURS       = (1<<8),
+		TM_DRAWFLAGS_CONTOURS           = (1<<9),
+		TM_DRAWFLAGS_POLYMESH           = (1<<10),
+		TM_DRAWFLAGS_POLYMESH_DETAIL    = (1<<11),
 	};
-		
-	DrawMode m_drawMode;
+
+	unsigned int m_tileMeshDrawFlags;
 	
 	int m_maxTiles;
 	int m_maxPolysPerTile;
@@ -96,6 +89,11 @@ public:
 	virtual void collectSettings(struct BuildSettings& settings);
 
 	void selectNavMeshType(const NavMeshType_e navMeshType);
+
+	inline unsigned int getTileMeshDrawFlags() const { return m_tileMeshDrawFlags; }
+	inline void setTileMeshDrawFlags(unsigned int flags) { m_tileMeshDrawFlags = flags; }
+
+	inline void toggleTileMeshDrawFlag(unsigned int flag) { m_tileMeshDrawFlags ^= flag; }
 	
 	void getTilePos(const float* pos, int& tx, int& ty);
 	void getTileExtents(int tx, int ty, float* bmin, float* bmax);

@@ -136,13 +136,13 @@ static void drawPolyCenters(duDebugDraw* dd, const dtMeshTile* tile, const unsig
 static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, unsigned int flags)
 {
-	// If "No Alpha" flag is set, force the colour to be opaque instead of semi-transparent.
-	const int tileAlpha = flags & DU_DRAWNAVMESH_NO_ALPHA ? 255 : 170;	
-	const bool disableDepthTest = flags & DU_DRAWNAVMESH_NO_DEPTH_MASK;
+	// If the "Alpha" flag isn't set, force the colour to be opaque instead of semi-transparent.
+	const int tileAlpha = flags & DU_DRAWNAVMESH_ALPHA ? 170 : 255;
+	const bool depthTest = flags & DU_DRAWNAVMESH_DEPTH_MASK;
 
 	dtPolyRef base = mesh.getPolyRefBase(tile);
 
-	dd->depthMask(!disableDepthTest);
+	dd->depthMask(depthTest);
 
 	dd->begin(DU_DRAW_TRIS);
 	for (int i = 0; i < tile->header->polyCount; ++i)
@@ -289,6 +289,13 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 		if (!tile->header) continue;
 		drawMeshTile(dd, mesh, q, tile, flags);
 	}
+
+	if (flags & DU_DRAWNAVMESH_BVTREE)
+		duDebugDrawNavMeshBVTree(dd, mesh);
+	if (flags & DU_DRAWNAVMESH_PORTALS)
+		duDebugDrawNavMeshPortals(dd, mesh);
+	if (flags & DU_DRAWNAVMESH_NODES)
+		duDebugDrawNavMeshNodes(dd, query);
 }
 
 void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query)

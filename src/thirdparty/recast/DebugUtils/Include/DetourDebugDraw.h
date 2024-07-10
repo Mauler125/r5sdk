@@ -25,16 +25,19 @@
 
 enum DrawNavMeshFlags
 {
-	DU_DRAWNAVMESH_OFFMESHCONS   = 1 << 0, // Render off-mesh connections.
-	DU_DRAWNAVMESH_CLOSEDLIST    = 1 << 1, // Render navmesh with closed list.
-	DU_DRAWNAVMESH_COLOR_TILES   = 1 << 2, // Render tiles colored by their ID's.
-	DU_DRAWNAVMESH_VERTS         = 1 << 3, // Render vertex points.
-	DU_DRAWNAVMESH_INNERBOUND    = 1 << 4, // Render inner poly boundaries.
-	DU_DRAWNAVMESH_OUTERBOUND    = 1 << 5, // Render outer poly boundaries.
-	DU_DRAWNAVMESH_POLYCENTERS   = 1 << 6, // Render poly centers.
-	DU_DRAWNAVMESH_POLYGROUPS    = 1 << 7, // Render poly group by color.
-	DU_DRAWNAVMESH_NO_DEPTH_MASK = 1 << 8, // Disable render depth mask.
-	DU_DRAWNAVMESH_NO_ALPHA      = 1 << 9, // Disable navmesh transparency.
+	DU_DRAWNAVMESH_OFFMESHCONS = 1 << 0,  // Render off-mesh connections.
+	DU_DRAWNAVMESH_NODES       = 1 << 1,  // Render navmesh query nodes.
+	DU_DRAWNAVMESH_BVTREE      = 1 << 2,  // Render BVTree.
+	DU_DRAWNAVMESH_PORTALS     = 1 << 3,  // Render portals.
+	DU_DRAWNAVMESH_CLOSEDLIST  = 1 << 4,  // Render navmesh with closed list.
+	DU_DRAWNAVMESH_COLOR_TILES = 1 << 5,  // Render tiles colored by their ID's.
+	DU_DRAWNAVMESH_VERTS       = 1 << 6,  // Render vertex points.
+	DU_DRAWNAVMESH_INNERBOUND  = 1 << 7,  // Render inner poly boundaries.
+	DU_DRAWNAVMESH_OUTERBOUND  = 1 << 8,  // Render outer poly boundaries.
+	DU_DRAWNAVMESH_POLYCENTERS = 1 << 9,  // Render poly centers.
+	DU_DRAWNAVMESH_POLYGROUPS  = 1 << 10, // Render poly group by color.
+	DU_DRAWNAVMESH_DEPTH_MASK  = 1 << 11, // Use depth mask.
+	DU_DRAWNAVMESH_ALPHA       = 1 << 12, // Use transparency.
 };
 
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned int flags);
