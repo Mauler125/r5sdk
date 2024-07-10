@@ -60,7 +60,7 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
 	const float ch = pmesh.ch;
 	const float* orig = pmesh.bmin;
 	
-	ioprintf(io, "# Recast Navmesh\n");
+	ioprintf(io, "# Recast NavMesh\n");
 	ioprintf(io, "o NavMesh\n");
 
 	ioprintf(io, "\n");
@@ -102,7 +102,7 @@ bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, duFileIO* io)
 		return false;
 	}
 	
-	ioprintf(io, "# Recast Navmesh\n");
+	ioprintf(io, "# Recast NavMesh\n");
 	ioprintf(io, "o NavMesh\n");
 	
 	ioprintf(io, "\n");

@@ -338,13 +338,13 @@ void Editor_TileMesh::handleTools()
 	int type = !m_tool ? TOOL_NONE : m_tool->type();
 	bool isEnabled = type == TOOL_NAVMESH_TESTER;
 
-	if (ImGui::Checkbox("Test Navmesh", &isEnabled))
+	if (ImGui::Checkbox("Test NavMesh", &isEnabled))
 	{
 		setTool(new NavMeshTesterTool);
 	}
 
 	isEnabled = type == TOOL_NAVMESH_PRUNE;
-	if (ImGui::Checkbox("Prune Navmesh", &isEnabled))
+	if (ImGui::Checkbox("Prune NavMesh", &isEnabled))
 	{
 		setTool(new NavMeshPruneTool);
 	}
@@ -475,7 +475,7 @@ void Editor_TileMesh::handleDebugMode()
 	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH;
 	ImGui::BeginDisabled(!hasNavMesh);
 
-	if (ImGui::Checkbox("Navmesh", &isEnabled))
+	if (ImGui::Checkbox("NavMesh", &isEnabled))
 		toggleTileMeshDrawFlag(TM_DRAWFLAGS_NAVMESH);
 
 	ImGui::EndDisabled();
