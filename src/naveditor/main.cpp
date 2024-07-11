@@ -205,6 +205,12 @@ bool imgui_init(SDL_Window* window, SDL_Renderer* /*renderer*/, SDL_GLContext co
 		return false;
 	}
 
+	ImFontConfig fontCfg;
+	ImGuiIO& imguiIo = ImGui::GetIO();
+
+	fontCfg.FontDataOwnedByAtlas = false;
+	imguiIo.Fonts->AddFontFromMemoryTTF((void*)g_droidSansData, g_droidSansDataSize, 15, &fontCfg);
+
 	return true;
 }
 
