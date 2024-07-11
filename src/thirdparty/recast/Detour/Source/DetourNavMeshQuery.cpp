@@ -2387,7 +2387,7 @@ dtStatus dtNavMeshQuery::getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly,
 ///
 /// <b>Use Case Restriction</b>
 ///
-/// The raycast ignores the y-value of the end position. (2D check.) This 
+/// The raycast ignores the z-value of the end position. (2D check.) This 
 /// places significant limits on how it can be used. For example:
 ///
 /// Consider a scene where there is a main floor with a second floor balcony 
