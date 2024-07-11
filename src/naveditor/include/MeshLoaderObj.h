@@ -33,9 +33,6 @@ public:
 	virtual int getVertCount() const = 0;
 	virtual int getTriCount() const = 0;
 	virtual const std::string& getFileName() const = 0;
-
-	bool m_flipAxis = false; // !TODO: ImGui import option.
-	bool m_flipTris = false; // !TODO: ImGui import option.
 };
 class rcMeshLoaderObj:public IMeshLoader
 {
