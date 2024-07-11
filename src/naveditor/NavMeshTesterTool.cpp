@@ -324,18 +324,15 @@ void NavMeshTesterTool::handleMenu()
 		}
 	}
 
-	ImGui::BeginDisabled(!m_sposSet);
+	ImGui::BeginDisabled(!m_sposSet || !m_startRef);
 
 	if (ImGui::Button("Set Random End"))
 	{
-		if (m_sposSet)
+		dtStatus status = m_navQuery->findRandomPointAroundCircle(m_startRef, m_spos, m_randomRadius, &m_filter, frand, &m_endRef, m_epos);
+		if (dtStatusSucceed(status))
 		{
-			dtStatus status = m_navQuery->findRandomPointAroundCircle(m_startRef, m_spos, m_randomRadius, &m_filter, frand, &m_endRef, m_epos);
-			if (dtStatusSucceed(status))
-			{
-				m_eposSet = true;
-				recalc();
-			}
+			m_eposSet = true;
+			recalc();
 		}
 	}
 
@@ -528,7 +525,9 @@ void NavMeshTesterTool::handleToggle()
 	if (!m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex))
 	{
 		printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);
-		reset();
+
+		m_npolys = 0;
+		m_nsmoothPath = 0;
 		return;
 	}
 
@@ -733,22 +732,26 @@ void NavMeshTesterTool::recalc()
 	
 	m_pathFindStatus = DT_FAILURE;
 
-	const bool hasAnimType = m_traverseAnimType != ANIMTYPE_NONE;
-	const int traversalTableIndex = hasAnimType
-		? NavMesh_GetTraversalTableIndexForAnimType(m_traverseAnimType)
-		: NULL;
+	const bool everythingSet = m_sposSet && m_eposSet && m_startRef && m_endRef;
+	bool isReachable = true;
 
-	if (!m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex))
+	if (m_startRef && m_endRef)
 	{
-		printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);
-		reset();
-		return;
+		const bool hasAnimType = m_traverseAnimType != ANIMTYPE_NONE;
+		const int traversalTableIndex = hasAnimType
+			? NavMesh_GetTraversalTableIndexForAnimType(m_traverseAnimType)
+			: NULL;
+
+		isReachable = m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex);
+
+		if (!isReachable)
+			printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);
 	}
 	
 	if (m_toolMode == TOOLMODE_PATHFIND_FOLLOW)
 	{
 		m_pathIterNum = 0;
-		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
+		if (everythingSet && isReachable)
 		{
 #ifdef DUMP_REQS
 			printf("pi  %f %f %f  %f %f %f  0x%x 0x%x\n",
@@ -893,7 +896,7 @@ void NavMeshTesterTool::recalc()
 	}
 	else if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
-		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
+		if (everythingSet && isReachable)
 		{
 #ifdef DUMP_REQS
 			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
@@ -923,7 +926,7 @@ void NavMeshTesterTool::recalc()
 	}
 	else if (m_toolMode == TOOLMODE_PATHFIND_SLICED)
 	{
-		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
+		if (everythingSet && isReachable)
 		{
 #ifdef DUMP_REQS
 			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
@@ -944,7 +947,7 @@ void NavMeshTesterTool::recalc()
 	else if (m_toolMode == TOOLMODE_RAYCAST)
 	{
 		m_nstraightPath = 0;
-		if (m_sposSet && m_eposSet && m_startRef)
+		if (m_sposSet && m_eposSet && m_startRef && isReachable)
 		{
 #ifdef DUMP_REQS
 			printf("rc  %f %f %f  %f %f %f  0x%x 0x%x\n",
