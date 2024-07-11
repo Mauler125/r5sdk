@@ -8,9 +8,6 @@ Members in this module are wrappers around the standard math library
 #define DETOURMATH_H
 
 #include <math.h>
-// This include is required because libstdc++ has problems with isfinite
-// if cmath is included before math.h.
-#include <cmath>
 
 /// The value of PI used by Recast.
 static const float DT_PI = 3.14159265f;
@@ -27,6 +24,6 @@ inline float dtMathCeilf(float x) { return ceilf(x); }
 inline float dtMathCosf(float x) { return cosf(x); }
 inline float dtMathSinf(float x) { return sinf(x); }
 inline float dtMathAtan2f(float y, float x) { return atan2f(y, x); }
-inline bool dtMathIsfinite(float x) { return std::isfinite(x); }
+inline bool dtMathIsfinite(float x) { return isfinite(x); }
 
 #endif
