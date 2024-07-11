@@ -219,9 +219,10 @@ void imgui_shutdown()
 bool window_decoration_init(SDL_Window* window)
 {
 	SDL_RWops* const rw = SDL_RWFromMem((void*)g_recastNavigationIcon, sizeof(g_recastNavigationIcon));
+
 	if (!rw)
 	{
-		SDL_Log("Failed to create r/w structure from icon data: %s", SDL_GetError());
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to create r/w structure from icon data: %s", SDL_GetError());
 		return false;
 	}
 
@@ -229,7 +230,7 @@ bool window_decoration_init(SDL_Window* window)
 
 	if (!surface)
 	{
-		SDL_Log("Failed to load icon data from r/w structure: %s", SDL_GetError());
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to load icon data from r/w structure: %s", SDL_GetError());
 		return false;
 	}
 
@@ -242,11 +243,12 @@ bool window_decoration_init(SDL_Window* window)
 
 bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &height, bool presentationMode)
 {
+	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
+
 	// Init SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
-		printf("Could not initialise SDL.\n");
-		printf("Error: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_PRIORITY_CRITICAL, "Failed to initialise SDL: %s\n", SDL_GetError());
 		return false;
 	}
 
@@ -282,12 +284,12 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 		height = displayMode.h - 80;
 	}
 
-	int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
+	const int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
 
 	if (errorCode != 0 || !window || !renderer)
 	{
-		printf("Could not initialise SDL OpenGL.\n");
-		printf("Error: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to initialise SDL OpenGL: %s\n", SDL_GetError());
+		SDL_Quit();
 		return false;
 	}
 
@@ -298,7 +300,7 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 
 	if (!imgui_init(window, renderer, context))
 	{
-		printf("Could not initialise GUI renderer.\n");
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "failed to initialise GUI renderer.\n");
 		SDL_Quit();
 		return false;
 	}
