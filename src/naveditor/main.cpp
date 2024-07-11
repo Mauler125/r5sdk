@@ -981,8 +981,11 @@ int not_main(int argc, char** argv)
 				if (geom)
 				{
 					char text[64];
-					snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
-						geom->getMesh()->getVertCount() / 1000.0f,
+					snprintf(text, sizeof(text), "Verts: %.1fk",
+						geom->getMesh()->getVertCount() / 1000.0f);
+					ImGui::Text(text);
+
+					snprintf(text, sizeof(text), "Tris: %.1fk",
 						geom->getMesh()->getTriCount() / 1000.0f);
 					ImGui::Text(text);
 				}

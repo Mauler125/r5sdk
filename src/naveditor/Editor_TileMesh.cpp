@@ -252,7 +252,7 @@ void Editor_TileMesh::handleSettings()
 	Editor::handleCommonSettings();
 	
 	ImGui::Text("Tiling");
-	ImGui::SliderInt("TileSize", &m_tileSize, 8, 1024);
+	ImGui::SliderInt("Tile Size", &m_tileSize, 8, 1024);
 
 	ImGui::Checkbox("Build All Tiles", &m_buildAll);
 	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
@@ -267,9 +267,9 @@ void Editor_TileMesh::handleSettings()
 		const int ts = m_tileSize;
 		const int tw = (gw + ts-1) / ts;
 		const int th = (gh + ts-1) / ts;
-		snprintf(text, sizeof(text), "Tiles  %d x %d", tw, th);
+		snprintf(text, sizeof(text), "Tiles: %d x %d", tw, th);
 		ImGui::Text(text);
-		snprintf(text, sizeof(text), "Tile Sizes  %g x %g (%g)", tw*m_cellSize, th*m_cellSize, m_tileSize*m_cellSize);
+		snprintf(text, sizeof(text), "Tile Sizes: %g x %g (%g)", tw*m_cellSize, th*m_cellSize, m_tileSize*m_cellSize);
 		ImGui::Text(text);
 		// Max tiles and max polys affect how the tile IDs are calculated.
 		// There are 28 bits available for identifying a tile and a polygon.
@@ -277,9 +277,9 @@ void Editor_TileMesh::handleSettings()
 		int polyBits = 28 - tileBits;
 		m_maxTiles = 1 << tileBits;
 		m_maxPolysPerTile = 1 << polyBits;
-		snprintf(text, sizeof(text), "Max Tiles  %d", m_maxTiles);
+		snprintf(text, sizeof(text), "Max Tiles: %d", m_maxTiles);
 		ImGui::Text(text);
-		snprintf(text, sizeof(text), "Max Polys  %d", m_maxPolysPerTile);
+		snprintf(text, sizeof(text), "Max Polys: %d", m_maxPolysPerTile);
 		ImGui::Text(text);
 	}
 	else
