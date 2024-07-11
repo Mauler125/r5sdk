@@ -389,7 +389,7 @@ void NavMeshTesterTool::handleMenu()
 
 	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_WALK) != 0;
 
-	if (ImGui::Checkbox("Walk", &isEnabled))
+	if (ImGui::Checkbox("Walk##IncludeFlags", &isEnabled))
 	{
 		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_WALK);
 		recalc();
@@ -397,7 +397,7 @@ void NavMeshTesterTool::handleMenu()
 
 	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_SWIM) != 0;
 
-	if (ImGui::Checkbox("Swim", &isEnabled))
+	if (ImGui::Checkbox("Swim##IncludeFlags", &isEnabled))
 	{
 		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_SWIM);
 		recalc();
@@ -405,7 +405,7 @@ void NavMeshTesterTool::handleMenu()
 
 	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_DOOR) != 0;
 
-	if (ImGui::Checkbox("Door", &isEnabled))
+	if (ImGui::Checkbox("Door##IncludeFlags", &isEnabled))
 	{
 		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_DOOR);
 		recalc();
@@ -413,7 +413,7 @@ void NavMeshTesterTool::handleMenu()
 
 	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_JUMP) != 0;
 
-	if (ImGui::Checkbox("Jump", &isEnabled))
+	if (ImGui::Checkbox("Jump##IncludeFlags", &isEnabled))
 	{
 		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_JUMP);
 		recalc();
@@ -427,7 +427,7 @@ void NavMeshTesterTool::handleMenu()
 
 	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_WALK) != 0;
 
-	if (ImGui::Checkbox("Walk", &isEnabled))
+	if (ImGui::Checkbox("Walk##ExcludeFlags", &isEnabled))
 	{
 		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_WALK);
 		recalc();
@@ -435,7 +435,7 @@ void NavMeshTesterTool::handleMenu()
 
 	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_SWIM) != 0;
 
-	if (ImGui::Checkbox("Swim", &isEnabled))
+	if (ImGui::Checkbox("Swim##ExcludeFlags", &isEnabled))
 	{
 		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_SWIM);
 		recalc();
@@ -443,7 +443,7 @@ void NavMeshTesterTool::handleMenu()
 
 	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_DOOR) != 0;
 
-	if (ImGui::Checkbox("Door", &isEnabled))
+	if (ImGui::Checkbox("Door##ExcludeFlags", &isEnabled))
 	{
 		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_DOOR);
 		recalc();
@@ -451,7 +451,7 @@ void NavMeshTesterTool::handleMenu()
 
 	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_JUMP) != 0;
 
-	if (ImGui::Checkbox("Jump", &isEnabled))
+	if (ImGui::Checkbox("Jump##ExcludeFlags", &isEnabled))
 	{
 		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_JUMP);
 		recalc();
