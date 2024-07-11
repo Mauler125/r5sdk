@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by r5launch.rc
+// Used by sdklauncher.rc
 //
 #include "sdklauncher_const.h"
 #define IDI_ICON1                       101
