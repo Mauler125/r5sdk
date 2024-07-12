@@ -1695,7 +1695,7 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	return DT_SUCCESS;
 }
 
-float dtCalcPolyArea(const dtPoly* poly, const float* verts)
+float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts)
 {
 	float polyArea = 0.0f;
 
