@@ -700,11 +700,11 @@ static void triangulateHull(const int /*nverts*/, const float* verts, const int 
 	
 	// Triangulate the polygon by moving left or right,
 	// depending on which triangle has shorter perimeter.
-	// This heuristic was chose emprically, since it seems
-	// handle tesselated straight edges well.
+	// This heuristic was chose empirically, since it seems
+	// handle tessellated straight edges well.
 	while (STEP_DIR(left, nhull) != right)
 	{
-		// Check to see if se should advance left or right.
+		// Check to see if we should advance left or right.
 		int nleft = STEP_DIR(left, nhull);
 		int nright = REV_STEP_DIR(right, nhull);
 		
