@@ -278,6 +278,11 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 			y += dy;
 		}
 	}
+
+	// No height found, return a reasonable fall back height.
+	if (h == RC_UNSET_HEIGHT)
+		h = (unsigned short)floorf(fz/ch);
+
 	return h;
 }
 
