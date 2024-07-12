@@ -1030,7 +1030,7 @@ void CrowdTool::handleMenu()
 		ImGui::Checkbox("Show Prox Grid", &params->m_showGrid);
 		ImGui::Checkbox("Show Nodes", &params->m_showNodes);
 		ImGui::Checkbox("Show Perf Graph", &params->m_showPerfGraph);
-		ImGui::Checkbox("Show Detail All", &params->m_showDetailAll);
+		ImGui::Checkbox("Show Details For All", &params->m_showDetailAll);
 	}
 }
 
