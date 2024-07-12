@@ -303,7 +303,6 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 
 			// NOTE: these fields are unknown and need to be reversed.
 			// It is possible these are used internally only.
-			poly.unk0 = (unsigned short)-1;
 			poly.unk1 = (unsigned short)-1;
 			poly.unk2 = (unsigned short)-1;
 		}
@@ -815,6 +814,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			p->vertCount++;
 		}
 		dtVscale(p->center, p->center, 1 / (float)(p->vertCount));
+		p->surfaceArea = (unsigned short)dtMathRoundf(dtCalcPolySurfaceArea(p,navVerts) / DT_POLY_AREA_QUANT_FACTOR);
+
 		src += nvp*2;
 	}
 	// Off-mesh connection vertices.

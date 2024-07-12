@@ -82,6 +82,9 @@ static const int DT_MIN_POLY_GROUP_COUNT = 3;
 /// The maximum number of traversal tables per navmesh that will be used for static pathing.
 static const int DT_MAX_TRAVERSAL_TABLES = 5;
 
+/// The cached poly surface area quantization factor.
+static const float DT_POLY_AREA_QUANT_FACTOR = 50.f;
+
 /// @{
 /// @name Tile Serialization Constants
 /// These constants are used to detect whether a navigation tile's data
@@ -205,11 +208,13 @@ struct dtPoly
 	/// The poly group id determining to which island it belongs, and to which it connects.
 	unsigned short groupId;
 
-	// These 3 are most likely related, it needs to be reversed still.
+	/// The poly surface area. (Quantized by #DT_POLY_AREA_QUANT_FACTOR).
+	unsigned short surfaceArea;
+
+	// These 2 are most likely related, it needs to be reversed still.
 	// No use case has been found in the executable yet, its possible these are
 	// used internally in the editor. Dynamic reverse engineering required to
 	// confirm this.
-	unsigned short unk0;
 	unsigned short unk1;
 	unsigned short unk2;
 
@@ -228,6 +233,12 @@ struct dtPoly
 	/// Gets the polygon type. (See: #dtPolyTypes)
 	inline unsigned char getType() const { return areaAndtype >> 6; }
 };
+
+/// Calculates the surface area of the polygon.
+///  @param[in]		poly	The polygon.
+///  @param[in]		verts	The polygon vertices.
+/// @return The total surface are of the polygon.
+float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts);
 
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
 struct dtPolyDetail

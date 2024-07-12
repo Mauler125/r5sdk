@@ -1695,6 +1695,23 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	return DT_SUCCESS;
 }
 
+float dtCalcPolyArea(const dtPoly* poly, const float* verts)
+{
+	float polyArea = 0.0f;
+
+	// Only run if we have more than 2 verts since poly's with 2 verts
+	// (off-mesh connections) don't have any surface area.
+	for (int j = 2; j < poly->vertCount; ++j)
+	{
+		const float* va = &verts[poly->verts[0]*3];
+		const float* vb = &verts[poly->verts[j]*3];
+		const float* vc = &verts[poly->verts[j-1]*3];
+		polyArea += dtTriArea2D(va,vb,vc);
+	}
+
+	return polyArea;
+}
+
 float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
 {
 	float dx = epos[0]-spos[0];
