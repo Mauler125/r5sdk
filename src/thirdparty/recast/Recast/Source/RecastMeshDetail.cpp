@@ -968,7 +968,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 		
 		// Add the samples starting from the one that has the most
 		// error. The procedure stops when all samples are added
-		// or when the max error is within treshold.
+		// or when the max error is within threshold.
 		const int nsamples = samples.size()/4;
 		for (int iter = 0; iter < nsamples; ++iter)
 		{
@@ -998,7 +998,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 					rcVcopy(bestpt,pt);
 				}
 			}
-			// If the max error is within accepted threshold, stop tesselating.
+			// If the max error is within accepted threshold, stop tessellating.
 			if (bestd <= sampleMaxError || besti == -1)
 				break;
 			// Mark sample as added.
