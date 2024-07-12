@@ -263,14 +263,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 			continue;
 
 		// Calc area of the polygon.
-		float polyArea = 0.0f;
-		for (int j = 2; j < p->vertCount; ++j)
-		{
-			const float* va = &tile->verts[p->verts[0]*3];
-			const float* vb = &tile->verts[p->verts[j]*3];
-			const float* vc = &tile->verts[p->verts[j-1]*3];
-			polyArea += dtTriArea2D(va,vb,vc);
-		}
+		const float polyArea = dtCalcPolyArea(p, tile->verts);
 
 		// Choose random polygon weighted by area, using reservoir sampling.
 		areaSum += polyArea;
@@ -371,14 +364,8 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 		if (bestPoly->getType() == DT_POLYTYPE_GROUND)
 		{
 			// Calc area of the polygon.
-			float polyArea = 0.0f;
-			for (int j = 2; j < bestPoly->vertCount; ++j)
-			{
-				const float* va = &bestTile->verts[bestPoly->verts[0]*3];
-				const float* vb = &bestTile->verts[bestPoly->verts[j]*3];
-				const float* vc = &bestTile->verts[bestPoly->verts[j-1]*3];
-				polyArea += dtTriArea2D(va,vb,vc);
-			}
+			const float polyArea = dtCalcPolyArea(bestPoly, bestTile->verts);
+
 			// Choose random polygon weighted by area, using reservoir sampling.
 			areaSum += polyArea;
 			const float u = frand();
