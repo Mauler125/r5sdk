@@ -319,7 +319,7 @@ struct rcHeightfield
 	float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
 	float cs;			///< The size of each cell. (On the xy-plane.)
-	float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
+	float ch;			///< The height of each cell. (The minimum increment along the z-axis.)
 	rcSpan** spans;		///< Heightfield of spans (width*height).
 	rcSpanPool* pools;	///< Linked list of span pools.
 	rcSpan* freelist;	///< The next free span.
@@ -364,7 +364,7 @@ struct rcCompactHeightfield
 	float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
 	float cs;					///< The size of each cell. (On the xy-plane.)
-	float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
+	float ch;					///< The height of each cell. (The minimum increment along the z-axis.)
 	rcCompactCell* cells;		///< Array of cells. [Size: #width*#height]
 	rcCompactSpan* spans;		///< Array of spans. [Size: #spanCount]
 	unsigned short* dist;		///< Array containing border distance data. [Size: #spanCount]
@@ -383,7 +383,7 @@ struct rcHeightfieldLayer
 	float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
 	float cs;					///< The size of each cell. (On the xy-plane.)
-	float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
+	float ch;					///< The height of each cell. (The minimum increment along the z-axis.)
 	int width;					///< The width of the heightfield. (Along the x-axis in cell units.)
 	int height;					///< The height of the heightfield. (Along the y-axis in cell units.)
 	int minx;					///< The minimum x-bounds of usable data.
@@ -437,7 +437,7 @@ struct rcContourSet
 	float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
 	float cs;			///< The size of each cell. (On the xy-plane.)
-	float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
+	float ch;			///< The height of each cell. (The minimum increment along the z-axis.)
 	int width;			///< The width of the set. (Along the x-axis in cell units.) 
 	int height;			///< The height of the set. (Along the y-axis in cell units.) 
 	int borderSize;		///< The AABB border size used to generate the source data from which the contours were derived.
@@ -468,7 +468,7 @@ struct rcPolyMesh
 	float bmin[3];			///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];			///< The maximum bounds in world space. [(x, y, z)]
 	float cs;				///< The size of each cell. (On the xy-plane.)
-	float ch;				///< The height of each cell. (The minimum increment along the y-axis.)
+	float ch;				///< The height of each cell. (The minimum increment along the z-axis.)
 	int borderSize;			///< The AABB border size used to generate the source data from which the mesh was derived.
 	float maxEdgeError;		///< The max error of the polygon edges in the mesh.
 	
