@@ -4,11 +4,15 @@ add_module( "exe" "recast" "" ${FOLDER_CONTEXT} TRUE TRUE )
 start_sources()
 
 add_sources( SOURCE_GROUP "Builder"
+    "Editor_Common.cpp"
+    "Editor_SoloMesh.cpp"
     "Editor_TileMesh.cpp"
     "InputGeom.cpp"
 )
 
 add_sources( SOURCE_GROUP "Builder/Include"
+    "Include/Editor_Common.h"
+    "Include/Editor_SoloMesh.h"
     "include/Editor_TileMesh.h"
     "include/InputGeom.h"
 )

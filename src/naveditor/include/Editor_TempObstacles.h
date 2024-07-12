@@ -16,50 +16,21 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTSAMPLETEMPOBSTACLE_H
-#define RECASTSAMPLETEMPOBSTACLE_H
+#ifndef RECASTEDITORTEMPOBSTACLE_H
+#define RECASTEDITORTEMPOBSTACLE_H
 
 #include "Recast/Include/Recast.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "NavEditor/Include/ChunkyTriMesh.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
+#include "NavEditor/Include/Editor_Common.h"
 
 
-class Editor_TempObstacles : public Sample
+class Editor_TempObstacles : public Editor_DynamicTileMeshCommon
 {
 protected:
-	bool m_keepInterResults;
-
-	struct LinearAllocator* m_talloc;
-	struct FastLZCompressor* m_tcomp;
-	struct MeshProcess* m_tmproc;
-
-	class dtTileCache* m_tileCache;
-	
-	float m_cacheBuildTimeMs;
-	int m_cacheCompressedSize;
-	int m_cacheRawSize;
-	int m_cacheLayerCount;
-	unsigned int m_cacheBuildMemUsage;
-	
-	enum DrawMode
-	{
-		DRAWMODE_NAVMESH,
-		DRAWMODE_NAVMESH_TRANS,
-		DRAWMODE_NAVMESH_BVTREE,
-		DRAWMODE_NAVMESH_NODES,
-		DRAWMODE_NAVMESH_PORTALS,
-		DRAWMODE_NAVMESH_INVIS,
-		DRAWMODE_MESH,
-		DRAWMODE_CACHE_BOUNDS,
-		MAX_DRAWMODE
-	};
-	
-	DrawMode m_drawMode;
-	
 	int m_maxTiles;
 	int m_maxPolysPerTile;
-	float m_tileSize;
 	
 public:
 	Editor_TempObstacles();
@@ -95,4 +66,4 @@ private:
 };
 
 
-#endif // RECASTSAMPLETEMPOBSTACLE_H
+#endif // RECASTEDITORTEMPOBSTACLE_H

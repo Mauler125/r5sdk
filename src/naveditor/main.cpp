@@ -23,6 +23,7 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/TestCase.h"
 #include "NavEditor/Include/Filelist.h"
+#include "NavEditor/Include/Editor_SoloMesh.h"
 #include "NavEditor/Include/Editor_TileMesh.h"
 #include "NavEditor/Include/Editor_Debug.h"
 #include "NavEditor/include/DroidSans.h"
@@ -36,6 +37,7 @@ struct SampleItem
 	Editor* (*create)();
 	const string name;
 };
+Editor* createSolo() { return new Editor_SoloMesh(); }
 Editor* createTile() { return new Editor_TileMesh(); }
 Editor* createDebug() { return new Editor_Debug(); }
 

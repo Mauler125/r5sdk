@@ -120,6 +120,7 @@ protected:
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
 
+	int m_tileSize;
 	float m_cellSize;
 	float m_cellHeight;
 	float m_agentHeight;
@@ -197,6 +198,11 @@ public:
 	void resetToolStates();
 	void renderToolStates();
 	void renderOverlayToolStates(double* proj, double* model, int* view);
+
+	void renderNavMeshDebugMenu();
+	void renderIntermediateTileMeshOptions();
+
+	void selectNavMeshType(const NavMeshType_e navMeshType);
 
 	void resetCommonSettings();
 	void handleCommonSettings();

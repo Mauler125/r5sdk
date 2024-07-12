@@ -29,6 +29,9 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Editor.h"
 
+#include "game/server/ai_navmesh.h"
+#include "game/server/ai_hull.h"
+
 unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 {
 	switch(area)
@@ -170,12 +173,11 @@ void Editor::collectSettings(BuildSettings& settings)
 
 void Editor::resetCommonSettings()
 {
+	selectNavMeshType(NAVMESH_SMALL);
+
 	m_cellSize = 16.0f;
 	m_cellHeight = 5.85f;
-	m_agentHeight = 2.0f;
-	m_agentRadius = 0.6f;
-	m_agentMaxClimb = 0.9f;
-	m_agentMaxSlope = 45.0f;
+	m_agentMaxSlope = 45.0f; // todo(amos) put into hull def!
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
 	m_edgeMaxLen = 12;
@@ -187,6 +189,19 @@ void Editor::resetCommonSettings()
 }
 void Editor::handleCommonSettings()
 {
+	ImGui::Text("NavMesh Type");
+	for (int i = 0; i < NAVMESH_COUNT; i++)
+	{
+		const NavMeshType_e navMeshType = NavMeshType_e(i);
+
+		if (ImGui::Button(NavMesh_GetNameForType(navMeshType), ImVec2(120, 0)))
+		{
+			selectNavMeshType(navMeshType);
+		}
+	}
+
+	ImGui::Separator();
+
 	ImGui::PushItemWidth(180.f);
 	ImGui::Text("Rasterization");
 
@@ -339,6 +354,97 @@ void Editor::renderOverlayToolStates(double* proj, double* model, int* view)
 	}
 }
 
+void Editor::renderNavMeshDebugMenu()
+{
+	ImGui::Text("NavMesh Render Options");
+
+	bool isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OFFMESHCONS);
+
+	if (ImGui::Checkbox("Off-Mesh Connections", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OFFMESHCONS);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NODES);
+
+	if (ImGui::Checkbox("Query Nodes", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NODES);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_BVTREE);
+
+	if (ImGui::Checkbox("BVTree", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_BVTREE);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_PORTALS);
+
+	if (ImGui::Checkbox("Portals", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_PORTALS);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_CLOSEDLIST);
+
+	if (ImGui::Checkbox("Closed List", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_CLOSEDLIST);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_COLOR_TILES);
+
+	if (ImGui::Checkbox("Tile ID Colors", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_COLOR_TILES);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_VERTS);
+
+	if (ImGui::Checkbox("Vertex Points", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_VERTS);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_INNERBOUND);
+
+	if (ImGui::Checkbox("Inner Poly Boundaries", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_INNERBOUND);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OUTERBOUND);
+
+	if (ImGui::Checkbox("Outer Poly Boundaries", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OUTERBOUND);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYCENTERS);
+
+	if (ImGui::Checkbox("Poly Centers", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYCENTERS);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYGROUPS);
+
+	if (ImGui::Checkbox("Poly Group Colors", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYGROUPS);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_DEPTH_MASK);
+
+	if (ImGui::Checkbox("Depth Mask", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_DEPTH_MASK);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_ALPHA);
+
+	if (ImGui::Checkbox("Transparency", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
+}
+
+const hulldef hulls[NAVMESH_COUNT] = {
+	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , 45, 32 },
+	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Width(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), 50, 32 },
+	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Width(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , 55, 32 },
+	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , 60, 64 },
+	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), 65, 64 },
+};
+
+void Editor::selectNavMeshType(const NavMeshType_e navMeshType)
+{
+	const hulldef& h = hulls[navMeshType];
+
+	m_agentRadius = h.radius;
+	m_agentMaxClimb = h.climbHeight;
+	m_agentHeight = h.height;
+	m_navmeshName = h.name;
+	m_tileSize = h.tileSize;
+
+	m_selectedNavMeshType = navMeshType;
+}
+
 dtNavMesh* Editor::loadAll(std::string path)
 {
 	fs::path p = "..\\maps\\navmesh\\";
@@ -362,12 +468,12 @@ dtNavMesh* Editor::loadAll(std::string path)
 		fclose(fp);
 		return 0;
 	}
-	if (header.magic != NAVMESHSET_MAGIC)
+	if (header.magic != NAVMESHSET_MAGIC) // todo(amos) check for tool mode since tilecache uses different constants!
 	{
 		fclose(fp);
 		return 0;
 	}
-	if (header.version != NAVMESHSET_VERSION)
+	if (header.version != NAVMESHSET_VERSION) // todo(amos) check for tool mode since tilecache uses different constants!
 	{
 		fclose(fp);
 		return 0;

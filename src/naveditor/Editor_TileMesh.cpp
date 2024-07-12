@@ -37,30 +37,6 @@
 #include "game/server/ai_hull.h"
 
 
-inline unsigned int nextPow2(unsigned int v)
-{
-	v--;
-	v |= v >> 1;
-	v |= v >> 2;
-	v |= v >> 4;
-	v |= v >> 8;
-	v |= v >> 16;
-	v++;
-	return v;
-}
-
-inline unsigned int ilog2(unsigned int v)
-{
-	unsigned int r;
-	unsigned int shift;
-	r = (v > 0xffff) << 4; v >>= r;
-	shift = (v > 0xff) << 3; v >>= shift; r |= shift;
-	shift = (v > 0xf) << 2; v >>= shift; r |= shift;
-	shift = (v > 0x3) << 1; v >>= shift; r |= shift;
-	r |= (v >> 1);
-	return r;
-}
-
 class NavMeshTileTool : public EditorTool
 {
 	Editor_TileMesh* m_editor;
@@ -165,20 +141,10 @@ public:
 
 
 Editor_TileMesh::Editor_TileMesh() :
-	m_keepInterResults(false),
 	m_buildAll(true),
-	m_totalBuildTimeMs(0),
-	m_triareas(0),
-	m_solid(0),
-	m_chf(0),
-	m_cset(0),
-	m_pmesh(0),
-	m_dmesh(0),
-	m_tileMeshDrawFlags(TM_DRAWFLAGS_INPUT_MESH|TM_DRAWFLAGS_NAVMESH),
 	m_maxTiles(0),
 	m_maxPolysPerTile(0),
 	m_tileSize(32),
-	m_tileCol(duRGBA(0,0,0,32)),
 	m_tileBuildTime(0),
 	m_tileMemUsage(0),
 	m_tileTriCount(0)
@@ -190,6 +156,8 @@ Editor_TileMesh::Editor_TileMesh() :
 	memset(m_lastBuiltTileBmax, 0, sizeof(m_lastBuiltTileBmax));
 	
 	setTool(new NavMeshTileTool);
+
+	m_drawActiveTile = true;
 }
 
 Editor_TileMesh::~Editor_TileMesh()
@@ -199,56 +167,8 @@ Editor_TileMesh::~Editor_TileMesh()
 	m_navMesh = 0;
 }
 
-void Editor_TileMesh::cleanup()
-{
-	delete [] m_triareas;
-	m_triareas = 0;
-	rcFreeHeightField(m_solid);
-	m_solid = 0;
-	rcFreeCompactHeightfield(m_chf);
-	m_chf = 0;
-	rcFreeContourSet(m_cset);
-	m_cset = 0;
-	rcFreePolyMesh(m_pmesh);
-	m_pmesh = 0;
-	rcFreePolyMeshDetail(m_dmesh);
-	m_dmesh = 0;
-}
-const hulldef hulls[NAVMESH_COUNT] = {
-	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , 45, 32 },
-	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Width(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), 50, 32 },
-	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Width(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , 55, 32 },
-	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , 60, 64 },
-	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), 65, 64 },
-};
-
-void Editor_TileMesh::selectNavMeshType(const NavMeshType_e navMeshType)
-{
-	const hulldef& h = hulls[navMeshType];
-
-	m_agentRadius = h.radius;
-	m_agentMaxClimb = h.climbHeight;
-	m_agentHeight = h.height;
-	m_navmeshName = h.name;
-	m_tileSize = h.tileSize;
-
-	m_selectedNavMeshType = navMeshType;
-}
-
 void Editor_TileMesh::handleSettings()
 {
-	ImGui::Text("NavMesh Type");
-	for (int i = 0; i < NAVMESH_COUNT; i++)
-	{
-		const NavMeshType_e navMeshType = NavMeshType_e(i);
-
-		if (ImGui::Button(NavMesh_GetNameForType(navMeshType), ImVec2(120, 0)))
-		{
-			selectNavMeshType(navMeshType);
-		}
-	}
-
-	ImGui::Separator();
 	Editor::handleCommonSettings();
 	
 	ImGui::Text("Tiling");
@@ -257,80 +177,10 @@ void Editor_TileMesh::handleSettings()
 	ImGui::Checkbox("Build All Tiles", &m_buildAll);
 	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
 	
-	if (m_geom)
-	{
-		char text[128];
-		int gw = 0, gh = 0;
-		const float* bmin = m_geom->getNavMeshBoundsMin();
-		const float* bmax = m_geom->getNavMeshBoundsMax();
-		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
-		const int ts = m_tileSize;
-		const int tw = (gw + ts-1) / ts;
-		const int th = (gh + ts-1) / ts;
-		snprintf(text, sizeof(text), "Tiles: %d x %d", tw, th);
-		ImGui::Text(text);
-		snprintf(text, sizeof(text), "Tile Sizes: %g x %g (%g)", tw*m_cellSize, th*m_cellSize, m_tileSize*m_cellSize);
-		ImGui::Text(text);
-		// Max tiles and max polys affect how the tile IDs are calculated.
-		// There are 28 bits available for identifying a tile and a polygon.
-		int tileBits = rcMin((int)ilog2(nextPow2(tw*th)), 16);
-		int polyBits = 28 - tileBits;
-		m_maxTiles = 1 << tileBits;
-		m_maxPolysPerTile = 1 << polyBits;
-		snprintf(text, sizeof(text), "Max Tiles: %d", m_maxTiles);
-		ImGui::Text(text);
-		snprintf(text, sizeof(text), "Max Polys: %d", m_maxPolysPerTile);
-		ImGui::Text(text);
-	}
-	else
-	{
-		m_maxTiles = 0;
-		m_maxPolysPerTile = 0;
-	}
+	EditorCommon_SetAndRenderTileProperties(m_geom, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
 	
 	ImGui::Separator();
-	
-	ImGui::Indent();
-	ImGui::Indent();
-
-
-	if (ImGui::Button("Load", ImVec2(123, 0)))
-	{
-		dtFreeNavMesh(m_navMesh);
-		m_navMesh = Editor::loadAll(m_modelName.c_str());
-		m_navQuery->init(m_navMesh, 2048);
-
-		m_loadedNavMeshType = m_selectedNavMeshType;
-		initToolStates(this);
-	}
-
-	if (ImGui::Button("Save", ImVec2(123, 0)))
-	{
-		Editor::saveAll(m_modelName.c_str(), m_navMesh);
-	}
-
-	ImGui::Unindent();
-	ImGui::Unindent();
-	
-	ImGui::Text("Build Time: %.1fms", m_totalBuildTimeMs);
-
-	if (m_navMesh)
-	{
-		const dtNavMeshParams& params = m_navMesh->m_params;
-		const float* origin = m_navMesh->m_orig;
-
-		ImGui::Text("Mesh Origin: \n\tX: %g \n\tY: %g \n\tZ: %g", origin[0], origin[1], origin[2]);
-		ImGui::Text("Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
-		ImGui::Text("Poly Group Count: %d", params.polyGroupCount);
-		ImGui::Text("Traversal Table Size: %d", params.traversalTableSize);
-		ImGui::Text("Traversal Table Count: %d", params.traversalTableCount);
-		ImGui::Text("Max Tiles: %d", params.maxTiles);
-		ImGui::Text("Max Polys: %d", params.maxPolys);
-
-		ImGui::Separator();
-	}
-	else
-		ImGui::Separator();
+	Editor_StaticTileMeshCommon::renderIntermediateTileMeshOptions();
 }
 
 void Editor_TileMesh::handleTools()
@@ -385,313 +235,14 @@ void Editor_TileMesh::handleTools()
 
 void Editor_TileMesh::handleDebugMode()
 {
-	ImGui::Text("NavMesh Render Options");
-
-	bool isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OFFMESHCONS);
-
-	if (ImGui::Checkbox("Off-Mesh Connections", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OFFMESHCONS);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NODES);
-
-	if (ImGui::Checkbox("Query Nodes", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NODES);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_BVTREE);
-
-	if (ImGui::Checkbox("BVTree", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_BVTREE);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_PORTALS);
-
-	if (ImGui::Checkbox("Portals", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_PORTALS);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_CLOSEDLIST);
-
-	if (ImGui::Checkbox("Closed List", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_CLOSEDLIST);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_COLOR_TILES);
-
-	if (ImGui::Checkbox("Tile ID Colors", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_COLOR_TILES);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_VERTS);
-
-	if (ImGui::Checkbox("Vertex Points", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_VERTS);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_INNERBOUND);
-
-	if (ImGui::Checkbox("Inner Poly Boundaries", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_INNERBOUND);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OUTERBOUND);
-
-	if (ImGui::Checkbox("Outer Poly Boundaries", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OUTERBOUND);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYCENTERS);
-
-	if (ImGui::Checkbox("Poly Centers", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYCENTERS);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYGROUPS);
-
-	if (ImGui::Checkbox("Poly Group Colors", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYGROUPS);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_DEPTH_MASK);
-
-	if (ImGui::Checkbox("Depth Mask", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_DEPTH_MASK);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_ALPHA);
-
-	if (ImGui::Checkbox("Transparency", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
-	
+	Editor::renderNavMeshDebugMenu();
 	ImGui::Separator();
-	ImGui::Text("TileMesh Render Options");
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_INPUT_MESH;
-
-	// This should always be available, since if we load a large mesh we want to
-	// be able to toggle this off to save on performance. The renderer has to be
-	// moved to its own thread to solve this issue.
-	if (ImGui::Checkbox("Input Mesh", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_INPUT_MESH);
-
-	// Check which modes are valid.
-	const bool hasNavMesh = m_navMesh != 0;
-	const bool hasChf = m_chf != 0;
-	const bool hasCset = m_cset != 0;
-	const bool hasSolid = m_solid != 0;
-	const bool hasDMesh = m_dmesh != 0;
-
-	const bool intermediateDataUnavailable = !hasChf||!hasCset||!hasSolid||!hasDMesh;
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH;
-	ImGui::BeginDisabled(!hasNavMesh);
-
-	if (ImGui::Checkbox("NavMesh", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_NAVMESH);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_VOXELS;
-	ImGui::BeginDisabled(!hasSolid);
-
-	if (ImGui::Checkbox("Voxels", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_VOXELS);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_VOXELS_WALKABLE;
-	ImGui::BeginDisabled(!hasSolid);
-
-	if (ImGui::Checkbox("Walkable Voxels", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_VOXELS_WALKABLE);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT;
-	ImGui::BeginDisabled(!hasChf);
-
-	if (ImGui::Checkbox("Compact", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_COMPACT);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT_DISTANCE;
-	ImGui::BeginDisabled(!hasChf);
-
-	if (ImGui::Checkbox("Compact Distance", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_COMPACT_DISTANCE);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT_REGIONS;
-	ImGui::BeginDisabled(!hasChf);
-
-	if (ImGui::Checkbox("Compact Regions", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_COMPACT_REGIONS);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_REGION_CONNECTIONS;
-	ImGui::BeginDisabled(!hasCset);
-
-	if (ImGui::Checkbox("Region Connections", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_REGION_CONNECTIONS);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_RAW_CONTOURS;
-	ImGui::BeginDisabled(!hasCset);
-
-	if (ImGui::Checkbox("Raw Contours", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_RAW_CONTOURS);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_CONTOURS;
-	ImGui::BeginDisabled(!hasCset);
-
-	if (ImGui::Checkbox("Contours", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_CONTOURS);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_POLYMESH;
-	ImGui::BeginDisabled(!hasDMesh);
-
-	if (ImGui::Checkbox("Poly Mesh", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_POLYMESH);
-
-	ImGui::EndDisabled();
-
-	isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_POLYMESH_DETAIL;
-	ImGui::BeginDisabled(!hasDMesh);
-
-	if (ImGui::Checkbox("Poly Mesh Detail", &isEnabled))
-		toggleTileMeshDrawFlag(TM_DRAWFLAGS_POLYMESH_DETAIL);
-
-	ImGui::EndDisabled();
-		
-	if (intermediateDataUnavailable)
-	{
-		ImGui::Separator();
-
-		ImGui::Text("Tick 'Keep Intermediate Results'");
-		ImGui::Text("rebuild some tiles to see");
-		ImGui::Text("more debug mode options.");
-	}
+	Editor_StaticTileMeshCommon::renderTileMeshRenderOptions();
 }
 
 void Editor_TileMesh::handleRender()
 {
-	if (!m_geom || !m_geom->getMesh())
-		return;
-	
-	const float texScale = 1.0f / (m_cellSize * 10.0f);
-	
-	// Draw input mesh
-	if (m_tileMeshDrawFlags & TM_DRAWFLAGS_INPUT_MESH)
-	{
-		// Draw mesh
-		duDebugDrawTriMeshSlope(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
-								m_agentMaxSlope, texScale);
-	}
-		
-	glDepthMask(GL_FALSE);
-	
-	// Draw bounds
-	const float* bmin = m_geom->getNavMeshBoundsMin();
-	const float* bmax = m_geom->getNavMeshBoundsMax();
-	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
-	
-	// Tiling grid.
-	int gw = 0, gh = 0;
-	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
-	const int tw = (gw + m_tileSize-1) / m_tileSize;
-	const int th = (gh + m_tileSize-1) / m_tileSize;
-	const float s = m_tileSize*m_cellSize;
-	duDebugDrawGridXY(&m_dd, bmax[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
-	
-	// Draw active tile
-	duDebugDrawBoxWire(&m_dd, m_lastBuiltTileBmin[0],m_lastBuiltTileBmin[1],m_lastBuiltTileBmin[2],
-					   m_lastBuiltTileBmax[0],m_lastBuiltTileBmax[1],m_lastBuiltTileBmax[2], m_tileCol, 1.0f);
-
-	if (m_navMesh && m_navQuery)
-	{
-		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH)
-		{
-			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
-			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, duRGBA(0, 0, 0, 128));
-		}
-	}
-
-	glDepthMask(GL_TRUE);
-
-	if (m_chf)
-	{
-		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT)
-			duDebugDrawCompactHeightfieldSolid(&m_dd, *m_chf);
-
-		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT_DISTANCE)
-			duDebugDrawCompactHeightfieldDistance(&m_dd, *m_chf);
-		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_COMPACT_REGIONS)
-			duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
-	}
-
-	if (m_solid)
-	{
-		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_VOXELS)
-		{
-			glEnable(GL_FOG);
-			duDebugDrawHeightfieldSolid(&m_dd, *m_solid);
-			glDisable(GL_FOG);
-		}
-		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_VOXELS_WALKABLE)
-		{
-			glEnable(GL_FOG);
-			duDebugDrawHeightfieldWalkable(&m_dd, *m_solid);
-			glDisable(GL_FOG);
-		}
-	}
-
-	if (m_cset)
-	{
-		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_RAW_CONTOURS)
-		{
-			glDepthMask(GL_FALSE);
-			duDebugDrawRawContours(&m_dd, *m_cset);
-			glDepthMask(GL_TRUE);
-		}
-		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_CONTOURS)
-		{
-			glDepthMask(GL_FALSE);
-			duDebugDrawContours(&m_dd, *m_cset);
-			glDepthMask(GL_TRUE);
-		}
-	}
-
-	if ((m_chf && m_cset) && (m_tileMeshDrawFlags & TM_DRAWFLAGS_REGION_CONNECTIONS))
-	{
-		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
-		
-		glDepthMask(GL_FALSE);
-		duDebugDrawRegionConnections(&m_dd, *m_cset);
-		glDepthMask(GL_TRUE);
-	}
-
-	if (m_pmesh && (m_tileMeshDrawFlags & TM_DRAWFLAGS_POLYMESH))
-	{
-		glDepthMask(GL_FALSE);
-		duDebugDrawPolyMesh(&m_dd, *m_pmesh);
-		glDepthMask(GL_TRUE);
-	}
-
-	if (m_dmesh && (m_tileMeshDrawFlags & TM_DRAWFLAGS_POLYMESH_DETAIL))
-	{
-		glDepthMask(GL_FALSE);
-		duDebugDrawPolyMeshDetail(&m_dd, *m_dmesh);
-		glDepthMask(GL_TRUE);
-	}
-
-	// TODO: also add flags for this
-	m_geom->drawConvexVolumes(&m_dd);
-	m_geom->drawOffMeshConnections(&m_dd);
-	
-	if (m_tool)
-		m_tool->handleRender();
-
-	renderToolStates();
-
-	glDepthMask(GL_TRUE);
+	Editor_StaticTileMeshCommon::renderTileMeshData();
 }
 
 void Editor_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
