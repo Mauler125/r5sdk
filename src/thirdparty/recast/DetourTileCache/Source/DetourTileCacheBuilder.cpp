@@ -230,7 +230,7 @@ dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 				const unsigned char nr = layer.regs[yidx];
 				if (nr != 0xff)
 				{
-					// Set neighbour when first valid neighbour is encoutered.
+					// Set neighbour when first valid neighbour is encountered.
 					if (sweeps[sid].ns == 0)
 						sweeps[sid].nei = nr;
 					
@@ -242,7 +242,7 @@ dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 					}
 					else
 					{
-						// This is hit if there is nore than one neighbour.
+						// This is hit if there is more than one neighbour.
 						// Invalidate the neighbour.
 						sweeps[sid].nei = 0xff;
 					}
@@ -393,14 +393,14 @@ static bool appendVertex(dtTempContour& cont, const int x, const int y, const in
 		{
 			if (pa[0] == pb[0] && (int)pb[0] == x)
 			{
-				// The verts are aligned aling x-axis, update y.
+				// The verts are aligned along x-axis, update y.
 				pb[1] = (unsigned char)y;
-				pb[0] = (unsigned char)x;
+				pb[2] = (unsigned char)z;
 				return true;
 			}
 			else if (pa[1] == pb[1] && (int)pb[1] == y)
 			{
-				// The verts are aligned aling y-axis, update x.
+				// The verts are aligned along y-axis, update x.
 				pb[0] = (unsigned char)x;
 				pb[1] = (unsigned char)y;
 				return true;
@@ -497,7 +497,7 @@ static bool walkContour(dtTileCacheLayer& layer, int x, int y, dtTempContour& co
 			}
 			
 			// Try to merge with previous vertex.
-			if (!appendVertex(cont, px, (int)layer.heights[x+y*w], py,rn))
+			if (!appendVertex(cont, px, py, (int)layer.heights[x+y*w],rn))
 				return false;
 			
 			ndir = (dir+1) & 0x3;  // Rotate CW
@@ -789,7 +789,6 @@ dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 				// Note: If you hit here often, try increasing 'maxTempVerts'.
 				return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 			}
-			
 			simplifyContour(temp, maxError);
 			
 			// Store contour.
@@ -850,7 +849,7 @@ static unsigned short addVertex(unsigned short x, unsigned short y, unsigned sho
 	while (i != DT_TILECACHE_NULL_IDX)
 	{
 		const unsigned short* v = &verts[i*3];
-		if (v[0] == x && v[1] == y && (dtAbs(v[1] - z) <= 2))
+		if (v[0] == x && v[1] == y && (dtAbs(v[2] - z) <= 2))
 			return i;
 		i = nextVert[i]; // next
 	}
@@ -982,10 +981,10 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 			{
 				// Find matching vertical edge
 				const unsigned short x = (unsigned short)va[0];
-				unsigned short ymin = (unsigned short)va[1];
-				unsigned short ymax = (unsigned short)vb[1];
-				if (ymin > ymax)
-					dtSwap(ymin, ymax);
+				unsigned short zmin = (unsigned short)va[2];
+				unsigned short zmax = (unsigned short)vb[2];
+				if (zmin > zmax)
+					dtSwap(zmin, zmax);
 				
 				for (int m = 0; m < edgeCount; ++m)
 				{
@@ -997,11 +996,11 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 					const unsigned short* evb = &verts[e.vert[1]*3];
 					if (eva[0] == x && evb[0] == x)
 					{
-						unsigned short eymin = eva[1];
-						unsigned short eymax = evb[1];
-						if (eymin > eymax)
-							dtSwap(eymin, eymax);
-						if (overlapRangeExl(ymin,ymax, eymin, eymax))
+						unsigned short ezmin = eva[2];
+						unsigned short ezmax = evb[2];
+						if (ezmin > ezmax)
+							dtSwap(ezmin, ezmax);
+						if (overlapRangeExl(zmin,zmax, ezmin, ezmax))
 						{
 							// Reuse the other polyedge to store dir.
 							e.polyEdge[1] = dir;
@@ -1094,6 +1093,16 @@ inline bool leftOn(const unsigned char* a, const unsigned char* b, const unsigne
 {
 	return area2(a, b, c) <= 0;
 }
+#define REVERSE_DIRECTION 1
+inline bool right(const unsigned char* a, const unsigned char* b, const unsigned char* c)
+{
+	return area2(a, b, c) > 0;
+}
+
+inline bool rightOn(const unsigned char* a, const unsigned char* b, const unsigned char* c)
+{
+	return area2(a, b, c) >= 0;
+}
 
 inline bool collinear(const unsigned char* a, const unsigned char* b, const unsigned char* c)
 {
@@ -1110,8 +1119,11 @@ static bool intersectProp(const unsigned char* a, const unsigned char* b,
 	if (collinear(a,b,c) || collinear(a,b,d) ||
 		collinear(c,d,a) || collinear(c,d,b))
 		return false;
-	
+#if REVERSE_DIRECTION
+	return xorb(right(a,b,c), right(a,b,d)) && xorb(right(c,d,a), right(c,d,b));
+#else
 	return xorb(left(a,b,c), left(a,b,d)) && xorb(left(c,d,a), left(c,d,b));
+#endif
 }
 
 // Returns T if (a,b,c) are collinear and point c lies 
@@ -1144,7 +1156,13 @@ static bool vequal(const unsigned char* a, const unsigned char* b)
 {
 	return a[0] == b[0] && a[1] == b[1];
 }
-
+#if REVERSE_DIRECTION
+#define STEP_DIR prev
+#define REV_STEP_DIR next
+#else
+#define STEP_DIR next
+#define REV_STEP_DIR prev
+#endif
 // Returns T if (v_i, v_j) is a proper internal *or* external
 // diagonal of P, *ignoring edges incident to v_i and v_j*.
 static bool diagonalie(int i, int j, int n, const unsigned char* verts, const unsigned short* indices)
@@ -1155,7 +1173,7 @@ static bool diagonalie(int i, int j, int n, const unsigned char* verts, const un
 	// For each edge (k,k+1) of P
 	for (int k = 0; k < n; k++)
 	{
-		int k1 = next(k, n);
+		int k1 = STEP_DIR(k, n);
 		// Skip edges incident to i or j
 		if (!((k == i) || (k1 == i) || (k == j) || (k1 == j)))
 		{
@@ -1178,15 +1196,23 @@ static bool	inCone(int i, int j, int n, const unsigned char* verts, const unsign
 {
 	const unsigned char* pi = &verts[(indices[i] & 0x7fff) * 4];
 	const unsigned char* pj = &verts[(indices[j] & 0x7fff) * 4];
-	const unsigned char* pi1 = &verts[(indices[next(i, n)] & 0x7fff) * 4];
-	const unsigned char* pin1 = &verts[(indices[prev(i, n)] & 0x7fff) * 4];
-	
+	const unsigned char* pi1 = &verts[(indices[STEP_DIR(i, n)] & 0x7fff) * 4];
+	const unsigned char* pin1 = &verts[(indices[REV_STEP_DIR(i, n)] & 0x7fff) * 4];
+#if REVERSE_DIRECTION
+	// If P[i] is a convex vertex [ i+1 right or on (i-1,i) ].
+	if (rightOn(pin1, pi, pi1))
+		return right(pi, pj, pin1) && right(pj, pi, pi1);
+	// Assume (i-1,i,i+1) not collinear.
+	// else P[i] is reflex.
+	return !(rightOn(pi, pj, pi1) && rightOn(pj, pi, pin1));
+#else
 	// If P[i] is a convex vertex [ i+1 left or on (i-1,i) ].
 	if (leftOn(pin1, pi, pi1))
 		return left(pi, pj, pin1) && left(pj, pi, pi1);
 	// Assume (i-1,i,i+1) not collinear.
 	// else P[i] is reflex.
 	return !(leftOn(pi, pj, pi1) && leftOn(pj, pi, pin1));
+#endif
 }
 
 // Returns T if (v_i, v_j) is a proper internal
@@ -1204,8 +1230,8 @@ static int triangulate(int n, const unsigned char* verts, unsigned short* indice
 	// The last bit of the index is used to indicate if the vertex can be removed.
 	for (int i = 0; i < n; i++)
 	{
-		int i1 = next(i, n);
-		int i2 = next(i1, n);
+		int i1 = STEP_DIR(i, n);
+		int i2 = STEP_DIR(i1, n);
 		if (diagonal(i, i2, n, verts, indices))
 			indices[i1] |= 0x8000;
 	}
@@ -1216,11 +1242,11 @@ static int triangulate(int n, const unsigned char* verts, unsigned short* indice
 		int mini = -1;
 		for (int i = 0; i < n; i++)
 		{
-			int i1 = next(i, n);
+			int i1 = STEP_DIR(i, n);
 			if (indices[i1] & 0x8000)
 			{
 				const unsigned char* p0 = &verts[(indices[i] & 0x7fff) * 4];
-				const unsigned char* p2 = &verts[(indices[next(i1, n)] & 0x7fff) * 4];
+				const unsigned char* p2 = &verts[(indices[STEP_DIR(i1, n)] & 0x7fff) * 4];
 				
 				const int dx = (int)p2[0] - (int)p0[0];
 				const int dy = (int)p2[1] - (int)p0[1];
@@ -1246,8 +1272,8 @@ static int triangulate(int n, const unsigned char* verts, unsigned short* indice
 		}
 		
 		int i = mini;
-		int i1 = next(i, n);
-		int i2 = next(i1, n);
+		int i1 = STEP_DIR(i, n);
+		int i2 = STEP_DIR(i1, n);
 		
 		*dst++ = indices[i] & 0x7fff;
 		*dst++ = indices[i1] & 0x7fff;
@@ -1260,24 +1286,30 @@ static int triangulate(int n, const unsigned char* verts, unsigned short* indice
 			indices[k] = indices[k+1];
 		
 		if (i1 >= n) i1 = 0;
-		i = prev(i1,n);
+		i = REV_STEP_DIR(i1,n);
 		// Update diagonal flags.
-		if (diagonal(prev(i, n), i1, n, verts, indices))
+		if (diagonal(REV_STEP_DIR(i, n), i1, n, verts, indices))
 			indices[i] |= 0x8000;
 		else
 			indices[i] &= 0x7fff;
 		
-		if (diagonal(i, next(i1, n), n, verts, indices))
+		if (diagonal(i, STEP_DIR(i1, n), n, verts, indices))
 			indices[i1] |= 0x8000;
 		else
 			indices[i1] &= 0x7fff;
 	}
 	
 	// Append the remaining triangle.
+#if REVERSE_DIRECTION
+	*dst++ = indices[2] & 0x7fff;
+	*dst++ = indices[1] & 0x7fff;
+	*dst++ = indices[0] & 0x7fff;
+#else
 	*dst++ = indices[0] & 0x7fff;
 	*dst++ = indices[1] & 0x7fff;
 	*dst++ = indices[2] & 0x7fff;
 	ntris++;
+#endif
 	
 	return ntris;
 }
@@ -1294,7 +1326,12 @@ static int countPolyVerts(const unsigned short* p)
 inline bool uleft(const unsigned short* a, const unsigned short* b, const unsigned short* c)
 {
 	return ((int)b[0] - (int)a[0]) * ((int)c[1] - (int)a[1]) -
-	((int)c[0] - (int)a[0]) * ((int)b[1] - (int)a[1]) < 0;
+	       ((int)c[0] - (int)a[0]) * ((int)b[1] - (int)a[1]) < 0;
+}
+inline bool uright(const unsigned short* a, const unsigned short* b, const unsigned short* c)
+{
+	return ((int)b[0] - (int)a[0]) * ((int)c[1] - (int)a[1]) -
+	       ((int)c[0] - (int)a[0]) * ((int)b[1] - (int)a[1]) > 0;
 }
 
 static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
@@ -1342,15 +1379,23 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 	va = pa[(ea+na-1) % na];
 	vb = pa[ea];
 	vc = pb[(eb+2) % nb];
+#if REVERSE_DIRECTION
+	if (!uright(&verts[va*3], &verts[vb*3], &verts[vc*3]))
+		return -1;
+#else
 	if (!uleft(&verts[va*3], &verts[vb*3], &verts[vc*3]))
 		return -1;
-	
+#endif
 	va = pb[(eb+nb-1) % nb];
 	vb = pb[eb];
 	vc = pa[(ea+2) % na];
+#if REVERSE_DIRECTION
+	if (!uright(&verts[va*3], &verts[vb*3], &verts[vc*3]))
+		return -1;
+#else
 	if (!uleft(&verts[va*3], &verts[vb*3], &verts[vc*3]))
 		return -1;
-	
+#endif
 	va = pa[ea];
 	vb = pa[(ea+1)%na];
 	
@@ -1459,12 +1504,21 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 				for (int m = 0; m < nedges; ++m)
 				{
 					unsigned short* e = &edges[m*3];
+#if REVERSE_DIRECTION
+					if (e[2] == b)
+					{
+						// Exists, increment vertex share count.
+						e[1]++;
+						exists = true;
+					}
+#else
 					if (e[1] == b)
 					{
 						// Exists, increment vertex share count.
 						e[2]++;
 						exists = true;
 					}
+#endif
 				}
 				// Add new edge.
 				if (!exists)
@@ -1780,7 +1834,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 	if (!mesh.flags)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-	// Just allocate and clean the mesh flags array. The user is resposible for filling it.
+	// Just allocate and clean the mesh flags array. The user is responsible for filling it.
 	memset(mesh.flags, 0, sizeof(unsigned short) * maxTris);
 		
 	mesh.nverts = 0;
@@ -2051,13 +2105,13 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	float cx = (center[0] - orig[0])*ics;
 	float cy = (center[1] - orig[1])*ics;
 	
-	float maxr = 1.41f*dtMax(halfExtents[0], halfExtents[2]);
+	float maxr = 1.41f*dtMax(halfExtents[0], halfExtents[1]);
 	int minx = (int)floorf(cx - maxr*ics);
 	int maxx = (int)floorf(cx + maxr*ics);
 	int miny = (int)floorf(cy - maxr*ics);
 	int maxy = (int)floorf(cy + maxr*ics);
-	int minz = (int)floorf((center[1]-halfExtents[1]-orig[1])*ich);
-	int maxz = (int)floorf((center[1]+halfExtents[1]-orig[1])*ich);
+	int minz = (int)floorf((center[2]-halfExtents[2]-orig[2])*ich);
+	int maxz = (int)floorf((center[2]+halfExtents[2]-orig[2])*ich);
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
@@ -2148,7 +2202,7 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer)
 {
 	rdAssert(alloc);
-	// The layer is allocated as one conitguous blob of data.
+	// The layer is allocated as one contiguous blob of data.
 	alloc->free(layer);
 }
 
