@@ -144,7 +144,6 @@ Editor_TileMesh::Editor_TileMesh() :
 	m_buildAll(true),
 	m_maxTiles(0),
 	m_maxPolysPerTile(0),
-	m_tileSize(32),
 	m_tileBuildTime(0),
 	m_tileMemUsage(0),
 	m_tileTriCount(0)

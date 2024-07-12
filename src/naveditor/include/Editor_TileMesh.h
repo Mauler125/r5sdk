@@ -32,7 +32,6 @@ protected:
 	
 	int m_maxTiles;
 	int m_maxPolysPerTile;
-	int m_tileSize;
 	
 	float m_tileBuildTime;
 	float m_tileMemUsage;
