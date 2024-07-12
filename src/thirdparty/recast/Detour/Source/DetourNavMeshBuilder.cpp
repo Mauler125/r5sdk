@@ -814,7 +814,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			p->vertCount++;
 		}
 		dtVscale(p->center, p->center, 1 / (float)(p->vertCount));
-		p->surfaceArea = (unsigned short)dtMathRoundf(dtCalcPolySurfaceArea(p,navVerts) / DT_POLY_AREA_QUANT_FACTOR);
+		p->surfaceArea = (unsigned short)dtMathFloorf(dtCalcPolySurfaceArea(p,navVerts) / DT_POLY_AREA_QUANT_FACTOR);
 
 		src += nvp*2;
 	}

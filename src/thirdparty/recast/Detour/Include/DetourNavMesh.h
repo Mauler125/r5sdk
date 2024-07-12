@@ -83,7 +83,7 @@ static const int DT_MIN_POLY_GROUP_COUNT = 3;
 static const int DT_MAX_TRAVERSAL_TABLES = 5;
 
 /// The cached poly surface area quantization factor.
-static const float DT_POLY_AREA_QUANT_FACTOR = 50.f;
+static const float DT_POLY_AREA_QUANT_FACTOR = 100.f;
 
 /// @{
 /// @name Tile Serialization Constants
