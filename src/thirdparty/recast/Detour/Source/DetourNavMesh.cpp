@@ -301,7 +301,7 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	return DT_SUCCESS;
 }
 
-dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flags)
+dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int tableCount, const int flags)
 {
 	// Make sure the data is in right format.
 	dtMeshHeader* header = (dtMeshHeader*)data;
@@ -319,7 +319,7 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 	params.maxPolys = header->polyCount;
 	params.polyGroupCount = 0;
 	params.traversalTableSize = 0;
-	params.traversalTableCount = 0;
+	params.traversalTableCount = tableCount;
 	params.magicDataCount = 0;
 	
 	dtStatus status = init(&params);

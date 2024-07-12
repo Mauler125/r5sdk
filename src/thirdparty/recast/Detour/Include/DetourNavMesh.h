@@ -431,10 +431,11 @@ public:
 	/// Initializes the navigation mesh for single tile use.
 	///  @param[in]	data		Data of the new tile. (See: #dtCreateNavMeshData)
 	///  @param[in]	dataSize	The data size of the new tile.
+	///  @param[in]	tableCount	The number of traversal tables this navmesh will use.
 	///  @param[in]	flags		The tile flags. (See: #dtTileFlags)
 	/// @return The status flags for the operation.
 	///  @see dtCreateNavMeshData
-	dtStatus init(unsigned char* data, const int dataSize, const int flags);
+	dtStatus init(unsigned char* data, const int dataSize, const int tableCount, const int flags);
 
 	/// The navigation mesh initialization params.
 	const dtNavMeshParams* getParams() const;
