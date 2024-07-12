@@ -124,12 +124,12 @@ void ConvexVolumeTool::handleMenu()
 
 	ImGui::Separator();
 
-	ImGui::Text("Area Type");
+	ImGui::Text("Brushes");
 	ImGui::Indent();
 
 	bool isEnabled = m_areaType == EDITOR_POLYAREA_GROUND;
 
-	if (ImGui::Checkbox("Ground", &isEnabled))
+	if (ImGui::Checkbox("Clip", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_GROUND;
 
 	isEnabled = m_areaType == EDITOR_POLYAREA_WATER;
