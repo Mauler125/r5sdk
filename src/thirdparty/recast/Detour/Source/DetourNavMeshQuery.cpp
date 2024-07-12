@@ -263,7 +263,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 			continue;
 
 		// Calc area of the polygon.
-		const float polyArea = dtCalcPolyArea(p, tile->verts);
+		const float polyArea = dtCalcPolySurfaceArea(p, tile->verts);
 
 		// Choose random polygon weighted by area, using reservoir sampling.
 		areaSum += polyArea;
@@ -364,7 +364,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 		if (bestPoly->getType() == DT_POLYTYPE_GROUND)
 		{
 			// Calc area of the polygon.
-			const float polyArea = dtCalcPolyArea(bestPoly, bestTile->verts);
+			const float polyArea = dtCalcPolySurfaceArea(bestPoly, bestTile->verts);
 
 			// Choose random polygon weighted by area, using reservoir sampling.
 			areaSum += polyArea;
