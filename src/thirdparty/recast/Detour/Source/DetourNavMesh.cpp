@@ -1701,11 +1701,11 @@ float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts)
 
 	// Only run if we have more than 2 verts since poly's with 2 verts
 	// (off-mesh connections) don't have any surface area.
-	for (int j = 2; j < poly->vertCount; ++j)
+	for (int i = 2; i < poly->vertCount; ++i)
 	{
 		const float* va = &verts[poly->verts[0]*3];
-		const float* vb = &verts[poly->verts[j]*3];
-		const float* vc = &verts[poly->verts[j-1]*3];
+		const float* vb = &verts[poly->verts[i]*3];
+		const float* vc = &verts[poly->verts[i-1]*3];
 		polyArea += dtTriArea2D(va,vb,vc);
 	}
 
