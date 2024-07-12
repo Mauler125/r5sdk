@@ -509,6 +509,7 @@ inline bool uright(const unsigned short* a, const unsigned short* b, const unsig
 	return ((int)b[0] - (int)a[0]) * ((int)c[1] - (int)a[1]) -
 		   ((int)c[0] - (int)a[0]) * ((int)b[1] - (int)a[1]) > 0;
 }
+
 static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 							 const unsigned short* verts, int& ea, int& eb,
 							 const int nvp)
@@ -559,7 +560,7 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 	if (!uright(&verts[va*3], &verts[vb*3], &verts[vc*3]))
 		return -1;
 #else
-	if (!uleft(&verts[va * 3], &verts[vb * 3], &verts[vc * 3]))
+	if (!uleft(&verts[va*3], &verts[vb*3], &verts[vc*3]))
 		return -1;
 #endif
 	va = pb[(eb+nb-1) % nb];
@@ -1359,7 +1360,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 		}
 	}
 
-	// Just allocate the mesh flags array. The user is resposible to fill it.
+	// Just allocate the mesh flags array. The user is responsible to fill it.
 	mesh.flags = (unsigned short*)rdAlloc(sizeof(unsigned short)*mesh.npolys, RD_ALLOC_PERM);
 	if (!mesh.flags)
 	{

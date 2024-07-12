@@ -163,7 +163,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 					const unsigned char nr = srcReg[ai];
 					if (nr != 0xff)
 					{
-						// Set neighbour when first valid neighbour is encoutered.
+						// Set neighbour when first valid neighbour is encountered.
 						if (sweeps[sid].ns == 0)
 							sweeps[sid].nei = nr;
 						
@@ -175,7 +175,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 						}
 						else
 						{
-							// This is hit if there is nore than one neighbour.
+							// This is hit if there is more than one neighbour.
 							// Invalidate the neighbour.
 							sweeps[sid].nei = 0xff;
 						}
