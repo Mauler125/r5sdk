@@ -40,14 +40,27 @@
 class NavMeshTileTool : public EditorTool
 {
 	Editor_TileMesh* m_editor;
+	dtNavMesh* m_navMesh;
 	float m_hitPos[3];
+
+	enum TextOverlayDrawMode
+	{
+		TO_DRAW_DISABLED = -1,
+		TO_DRAW_POLY_GROUPS,
+		TO_DRAW_POLY_SURF_AREAS
+	};
+
+	TextOverlayDrawMode m_textOverlayDrawMode;
+
 	bool m_hitPosSet;
 	
 public:
 
 	NavMeshTileTool() :
 		m_editor(0),
-		m_hitPosSet(false)
+		m_navMesh(0),
+		m_hitPosSet(false),
+		m_textOverlayDrawMode(TO_DRAW_DISABLED)
 	{
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
@@ -61,6 +74,7 @@ public:
 	virtual void init(Editor* editor)
 	{
 		m_editor = (Editor_TileMesh*)editor;
+		m_navMesh = editor->getNavMesh();
 	}
 	
 	virtual void reset() {}
@@ -78,6 +92,15 @@ public:
 			if (m_editor)
 				m_editor->removeAllTiles();
 		}
+
+		ImGui::Separator();
+		ImGui::Text("Debug Options");
+
+		if (ImGui::RadioButton("Show Poly Groups", m_textOverlayDrawMode == TO_DRAW_POLY_GROUPS))
+			toggleTextOverlayDrawMode(TO_DRAW_POLY_GROUPS);
+
+		if (ImGui::RadioButton("Show Poly Surface Areas", m_textOverlayDrawMode == TO_DRAW_POLY_SURF_AREAS))
+			toggleTextOverlayDrawMode(TO_DRAW_POLY_SURF_AREAS);
 	}
 
 	virtual void handleClick(const float* /*s*/, const float* p, bool shift)
@@ -130,10 +153,52 @@ public:
 
 			ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "(%d,%d)", tx,ty);
 		}
+
+		if (m_navMesh && m_textOverlayDrawMode != TO_DRAW_DISABLED)
+		{
+			for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
+			{
+				const dtMeshTile* tile = m_navMesh->getTile(i);
+				if (!tile->header) continue;
+
+				for (int j = 0; j < tile->header->polyCount; j++)
+				{
+					const dtPoly* poly = &tile->polys[j];
+					unsigned short value = 0;
+
+					switch (m_textOverlayDrawMode)
+					{
+					case TO_DRAW_POLY_GROUPS:
+						value = poly->groupId;
+						break;
+					case TO_DRAW_POLY_SURF_AREAS:
+						value = poly->surfaceArea;
+						break;
+					default:
+						// Unhandled text overlay mode.
+						rdAssert(0);
+					}
+
+					if (gluProject((GLdouble)poly->center[0], (GLdouble)poly->center[1], (GLdouble)poly->center[2] + 30,
+						model, proj, view, &x, &y, &z))
+					{
+						ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+							ImVec2((float)x, h - (float)y), ImVec4(0, 0, 0, 0.8f), "%hu (%d,%d)", value, i, j);
+					}
+				}
+			}
+		}
 		
 		// Tool help
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40), 
 			ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
+	}
+
+	void toggleTextOverlayDrawMode(const TextOverlayDrawMode drawMode)
+	{
+		m_textOverlayDrawMode == drawMode
+			? m_textOverlayDrawMode = TO_DRAW_DISABLED
+			: m_textOverlayDrawMode = drawMode;
 	}
 };
 
