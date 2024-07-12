@@ -172,7 +172,7 @@ void Editor_TileMesh::handleSettings()
 	Editor::handleCommonSettings();
 	
 	ImGui::Text("Tiling");
-	ImGui::SliderInt("Tile Size", &m_tileSize, 8, 1024);
+	ImGui::SliderInt("Tile Size", &m_tileSize, 8, 2048);
 
 	ImGui::Checkbox("Build All Tiles", &m_buildAll);
 	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
