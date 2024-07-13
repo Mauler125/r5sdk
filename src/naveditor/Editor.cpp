@@ -439,7 +439,7 @@ void Editor::renderNavMeshDebugMenu()
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
 }
 
-// NOTE: the climb height should never equal or exceed the agen't height, see https://groups.google.com/g/recastnavigation/c/L5rBamxcOBk/m/5xGLj6YP25kJ
+// NOTE: the climb height should never equal or exceed the agent's height, see https://groups.google.com/g/recastnavigation/c/L5rBamxcOBk/m/5xGLj6YP25kJ
 // Quote: "you will get into trouble in cases where there is an overhand which is low enough to step over and high enough for the agent to walk under."
 const hulldef hulls[NAVMESH_COUNT] = {
 	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , 32 },
