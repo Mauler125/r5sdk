@@ -532,14 +532,14 @@ static bool walkContour(dtTileCacheLayer& layer, int x, int y, dtTempContour& co
 
 static float distancePtSeg(const int x, const int y,
 						   const int px, const int py,
-						   const int qx, const int qz)
+						   const int qx, const int qy)
 {
 	float pqx = (float)(qx - px);
-	float pqz = (float)(qz - py);
+	float pqy = (float)(qy - py);
 	float dx = (float)(x - px);
 	float dy = (float)(y - py);
-	float d = pqx*pqx + pqz*pqz;
-	float t = pqx*dx + pqz*dy;
+	float d = pqx*pqx + pqy*pqy;
+	float t = pqx*dx + pqy*dy;
 	if (d > 0)
 		t /= d;
 	if (t < 0)
@@ -548,7 +548,7 @@ static float distancePtSeg(const int x, const int y,
 		t = 1;
 	
 	dx = px + t*pqx - x;
-	dy = py + t*pqz - y;
+	dy = py + t*pqy - y;
 	
 	return dx*dx + dy*dy;
 }

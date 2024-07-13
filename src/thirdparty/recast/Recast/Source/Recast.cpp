@@ -482,12 +482,12 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 	// Find neighbour connections.
 	const int MAX_LAYERS = RC_NOT_CONNECTED - 1;
 	int maxLayerIndex = 0;
-	const int zStride = xSize; // for readability
+	const int yStride = xSize; // for readability
 	for (int y = 0; y < ySize; ++y)
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
-			const rcCompactCell& cell = compactHeightfield.cells[x + y * zStride];
+			const rcCompactCell& cell = compactHeightfield.cells[x + y * yStride];
 			for (int i = (int)cell.index, ni = (int)(cell.index + cell.count); i < ni; ++i)
 			{
 				rcCompactSpan& span = compactHeightfield.spans[i];
@@ -496,16 +496,16 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 				{
 					rcSetCon(span, dir, RC_NOT_CONNECTED);
 					const int neighborX = x + rcGetDirOffsetX(dir);
-					const int neighborZ = y + rcGetDirOffsetY(dir);
+					const int neighborY = y + rcGetDirOffsetY(dir);
 					// First check that the neighbour cell is in bounds.
-					if (neighborX < 0 || neighborZ < 0 || neighborX >= xSize || neighborZ >= ySize)
+					if (neighborX < 0 || neighborY < 0 || neighborX >= xSize || neighborY >= ySize)
 					{
 						continue;
 					}
 
 					// Iterate over all neighbour spans and check if any of the is
 					// accessible from current cell.
-					const rcCompactCell& neighborCell = compactHeightfield.cells[neighborX + neighborZ * zStride];
+					const rcCompactCell& neighborCell = compactHeightfield.cells[neighborX + neighborY * yStride];
 					for (int k = (int)neighborCell.index, nk = (int)(neighborCell.index + neighborCell.count); k < nk; ++k)
 					{
 						const rcCompactSpan& neighborSpan = compactHeightfield.spans[k];
