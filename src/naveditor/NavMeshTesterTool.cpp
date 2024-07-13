@@ -1435,38 +1435,6 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
 			ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "End");
 	}
-
-	// Useful utility to draw all polygroup id's at the center of the polygons.
-	// The code has been commented as this is very expensive, and we need to add
-	// an option to only render a range of group id's.
-	//if (m_navMesh)
-	//{
-	//	std::set<unsigned short> contained;
-
-	//	for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
-	//	{
-	//		const dtMeshTile* tile = m_navMesh->getTile(i);
-	//		if (!tile->header) continue;
-
-	//		for (int j = 0; j < tile->header->polyCount; j++)
-	//		{
-	//			const dtPoly* poly = &tile->polys[j];
-	//			const unsigned int groupId = poly->groupId;
-
-	//			if (groupId == DT_STRAY_POLY_GROUP)
-	//				continue; // These are already rendered in red.
-
-	//			auto p = contained.insert(poly->groupId);
-
-	//			if ((p.second) && gluProject((GLdouble)poly->center[0], (GLdouble)poly->center[1], (GLdouble)poly->center[2] + 30,
-	//				model, proj, view, &x, &y, &z))
-	//			{
-	//				ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, 
-	//					ImVec2((float)x, h-(float)y), ImVec4(0, 0, 0, 0.8f), "%hu", poly->groupId);
-	//			}
-	//		}
-	//	}
-	//}
 	
 	// Tool help
 	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40),
