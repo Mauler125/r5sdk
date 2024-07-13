@@ -224,8 +224,8 @@ void Editor::handleCommonSettings()
 	ImGui::Text("Agent");
 	ImGui::SliderFloat("Height", &m_agentHeight, 0.1f, 500.0f);
 	ImGui::SliderFloat("Radius", &m_agentRadius, 0.0f, 500.0f);
-	ImGui::SliderFloat("Max Climb", &m_agentMaxClimb, 0.1f, 120.0f);
-	ImGui::SliderFloat("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f); // ImGui_Upgrade: Slider step was 1.0f
+	ImGui::SliderFloat("Max Climb", &m_agentMaxClimb, 0.1f, 250.0f);
+	ImGui::SliderFloat("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f);
 
 	ImGui::PopItemWidth();
 	ImGui::PushItemWidth(140.f);
@@ -439,12 +439,14 @@ void Editor::renderNavMeshDebugMenu()
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
 }
 
+// NOTE: the climb height should never equal or exceed the agen't height, see https://groups.google.com/g/recastnavigation/c/L5rBamxcOBk/m/5xGLj6YP25kJ
+// Quote: "you will get into trouble in cases where there is an overhand which is low enough to step over and high enough for the agent to walk under."
 const hulldef hulls[NAVMESH_COUNT] = {
-	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , 45, 32 },
-	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Width(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), 50, 32 },
-	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Width(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , 55, 32 },
-	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , 60, 64 },
-	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), 65, 64 },
+	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , 32 },
+	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Width(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), 32 },
+	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Width(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , 32 },
+	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , 64 },
+	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), 64 },
 };
 
 void Editor::selectNavMeshType(const NavMeshType_e navMeshType)
