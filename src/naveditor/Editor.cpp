@@ -206,8 +206,8 @@ void Editor::handleCommonSettings()
 	ImGui::PushItemWidth(180.f);
 	ImGui::Text("Rasterization");
 
-	ImGui::SliderFloat("Cell Size", &m_cellSize, 0.1f, 100.0f);
-	ImGui::SliderFloat("Cell Height", &m_cellHeight, 0.1f, 100.0f);
+	ImGui::SliderFloat("Cell Size", &m_cellSize, 12.1f, 100.0f);
+	ImGui::SliderFloat("Cell Height", &m_cellHeight, 0.4f, 100.0f);
 	
 	if (m_geom)
 	{
