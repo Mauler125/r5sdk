@@ -21,6 +21,7 @@
 #include "Shared/Include/SharedAssert.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
+#include "Detour/Include/DetourNavMeshBuilder.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
@@ -308,6 +309,20 @@ void Editor::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
+void Editor::buildStaticPathingData()
+{
+	dtDisjointSet data;
+
+	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
+	{
+		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build disjoint poly groups.");
+	}
+
+	if (!dtCreateTraversalTableData(m_navMesh, data, NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType)))
+	{
+		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traversal table data.");
+	}
+}
 
 void Editor::updateToolStates(const float dt)
 {

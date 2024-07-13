@@ -207,6 +207,8 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
+	void buildStaticPathingData();
+
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	Editor(const Editor&);

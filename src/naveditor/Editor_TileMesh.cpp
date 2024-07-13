@@ -113,6 +113,8 @@ public:
 				m_editor->removeTile(m_hitPos);
 			else
 				m_editor->buildTile(m_hitPos);
+
+			m_editor->buildStaticPathingData();
 		}
 	}
 
@@ -521,17 +523,7 @@ void Editor_TileMesh::buildAllTiles()
 		}
 	}
 
-	dtDisjointSet data;
-
-	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
-	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
-	}
-
-	if (!dtCreateTraversalTableData(m_navMesh, data, NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType)))
-	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
-	}
+	buildStaticPathingData();
 	
 	// Start the build process.	
 	m_ctx->stopTimer(RC_TIMER_TEMP);
