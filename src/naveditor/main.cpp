@@ -322,19 +322,19 @@ void draw_background(const GLfloat width, const GLfloat height)
 	glBegin(GL_QUADS);
 
 	// top-left
-	glColor3f(0.4f, 0.4f, 0.4f);
+	glColor3f(0.40f, 0.42f, 0.44f);
 	glVertex2f(0.0f, 0.0f);
 
 	// top-right
-	glColor3f(0.4f, 0.4f, 0.4f);
+	glColor3f(0.40f, 0.42f, 0.44f);
 	glVertex2f(width, 0.0f);
 
 	// bottom-right
-	glColor3f(0.1f, 0.1f, 0.1f);
+	glColor3f(0.10f, 0.12f, 0.14f);
 	glVertex2f(width, height);
 
 	// bottom-left
-	glColor3f(0.1f, 0.1f, 0.1f);
+	glColor3f(0.10f, 0.12f, 0.14f);
 	glVertex2f(0.0f, height);
 
 	glEnd();

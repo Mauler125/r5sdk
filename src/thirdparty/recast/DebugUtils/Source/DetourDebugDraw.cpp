@@ -182,11 +182,11 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	
 	// Draw inner poly boundaries
 	if (flags & DU_DRAWNAVMESH_INNERBOUND)
-		drawPolyBoundaries(dd, tile, 1.5f, true);
+		drawPolyBoundaries(dd, tile, 2.5f, true);
 	
 	// Draw outer poly boundaries
 	if (flags & DU_DRAWNAVMESH_OUTERBOUND)
-		drawPolyBoundaries(dd, tile, 2.5f, false);
+		drawPolyBoundaries(dd, tile, 4.5f, false);
 
 	// Draw poly centers
 	if (flags & DU_DRAWNAVMESH_POLYCENTERS)
@@ -253,7 +253,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	if (flags & DU_DRAWNAVMESH_VERTS)
 	{
 		const unsigned int vcol = duRGBA(0,0,0,196);
-		dd->begin(DU_DRAW_POINTS, 3.0f);
+		dd->begin(DU_DRAW_POINTS, 5.0f);
 		for (int i = 0; i < tile->header->vertCount; ++i)
 		{
 			const float* v = &tile->verts[i*3];
@@ -835,7 +835,7 @@ void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyM
 	
 	// Draw boundary edges
 	const unsigned int colb = duRGBA(0,48,64,220);
-	dd->begin(DU_DRAW_LINES, 2.5f);
+	dd->begin(DU_DRAW_LINES, 4.5f);
 	for (int i = 0; i < lmesh.npolys; ++i)
 	{
 		const unsigned short* p = &lmesh.polys[i*nvp*2];
@@ -887,7 +887,7 @@ void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyM
 	}
 	dd->end();
 	
-	dd->begin(DU_DRAW_POINTS, 3.0f);
+	dd->begin(DU_DRAW_POINTS, 5.0f);
 	const unsigned int colv = duRGBA(0,0,0,220);
 	for (int i = 0; i < lmesh.nverts; ++i)
 	{
