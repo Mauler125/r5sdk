@@ -2578,8 +2578,8 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			}
 			
 			// Check for partial edge links.
-			const int v1 = poly->verts[link->edge];
-			const int v0 = poly->verts[(link->edge+1) % poly->vertCount];
+			const int v0 = poly->verts[link->edge];
+			const int v1 = poly->verts[(link->edge+1) % poly->vertCount];
 			const float* left = &tile->verts[v0*3];
 			const float* right = &tile->verts[v1*3];
 			
