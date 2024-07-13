@@ -669,7 +669,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
-	// and array which can hold the max number of triangles you need to process.
+	// an array which can hold the max number of triangles you need to process.
 	m_triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
 	if (!m_triareas)
 	{
@@ -970,12 +970,26 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
 		params.buildBvTree = true;
-		
-		if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+
+		const bool navMeshBuildSuccess = dtCreateNavMeshData(&params, &navData, &navDataSize);
+
+		// Restore poly areas.
+		for (int i = 0; i < m_pmesh->npolys; ++i)
+		{
+			// The game's poly area (ground) shares the same value as
+			// RC_NULL_AREA, if we try to render the recast polymesh cache
+			// without restoring this, the renderer will draw it as NULL area
+			// even though it's walkable. The other values will get color ID'd
+			// by the renderer so we don't need to check on those.
+			if (m_pmesh->areas[i] == EDITOR_POLYAREA_GROUND)
+				m_pmesh->areas[i] = RC_WALKABLE_AREA;
+		}
+
+		if (!navMeshBuildSuccess)
 		{
 			m_ctx->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
 			return 0;
-		}		
+		}
 	}
 	m_tileMemUsage = navDataSize/1024.0f;
 	
