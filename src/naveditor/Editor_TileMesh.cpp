@@ -147,6 +147,13 @@ public:
 	{
 		GLdouble x, y, z;
 		const int h = view[3];
+		const float* drawOffset = m_editor->getDetourDrawOffset();
+
+		// NOTE: don't add the render offset here as we want to keep the overlay at the hit position, this
+		// way we can have the navmesh on the side and hit a specific location on the input geometry, and
+		// see which tile we build as this will be drawn on the hit position, while we can enumerate all
+		// the tiles using the debug options in the NavMeshTileTool which will always be aligned with the
+		// navmesh.
 		if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
 									  model, proj, view, &x, &y, &z))
 		{
@@ -181,7 +188,7 @@ public:
 						rdAssert(0);
 					}
 
-					if (gluProject((GLdouble)poly->center[0], (GLdouble)poly->center[1], (GLdouble)poly->center[2] + 30,
+					if (gluProject((GLdouble)poly->center[0]+drawOffset[0], (GLdouble)poly->center[1]+drawOffset[1], (GLdouble)poly->center[2]+drawOffset[2]+30,
 						model, proj, view, &x, &y, &z))
 					{
 						ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
@@ -301,9 +308,11 @@ void Editor_TileMesh::handleTools()
 
 void Editor_TileMesh::handleDebugMode()
 {
-	Editor::renderNavMeshDebugMenu();
+	Editor::renderMeshOffsetOptions();
 	ImGui::Separator();
-	Editor_StaticTileMeshCommon::renderTileMeshRenderOptions();
+	Editor_StaticTileMeshCommon::renderRecastDebugMenu();
+	ImGui::Separator();
+	Editor::renderDetourDebugMenu();
 }
 
 void Editor_TileMesh::handleRender()
@@ -315,9 +324,16 @@ void Editor_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 {
 	GLdouble x, y, z;
 	const int h = view[3];
+	const float* drawOffset = getDetourDrawOffset();
+
+	float projectPos[3];
+	dtVset(projectPos, 
+		((m_lastBuiltTileBmin[0]+m_lastBuiltTileBmax[0])/2)+drawOffset[0],
+		((m_lastBuiltTileBmin[1]+m_lastBuiltTileBmax[1])/2)+drawOffset[1],
+		((m_lastBuiltTileBmin[2]+m_lastBuiltTileBmax[2])/2)+drawOffset[2]);
 	
 	// Draw start and end point labels
-	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_lastBuiltTileBmin[0]+m_lastBuiltTileBmax[0])/2, (GLdouble)(m_lastBuiltTileBmin[1]+m_lastBuiltTileBmax[1])/2, (GLdouble)(m_lastBuiltTileBmin[2]+m_lastBuiltTileBmax[2])/2,
+	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)projectPos[0], (GLdouble)projectPos[1], (GLdouble)projectPos[2],
 											 model, proj, view, &x, &y, &z))
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-(float)(y-25)),

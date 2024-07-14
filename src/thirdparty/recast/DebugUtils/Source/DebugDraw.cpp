@@ -19,6 +19,7 @@
 #define _USE_MATH_DEFINES
 #include <string.h>
 #include "DebugUtils/Include/DebugDraw.h"
+#include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourMath.h"
 #include "Detour/Include/DetourNavMesh.h"
 
@@ -77,94 +78,98 @@ void duCalcBoxColors(unsigned int* colors, unsigned int colTop, unsigned int col
 }
 
 void duDebugDrawCylinderWire(struct duDebugDraw* dd, float minx, float miny, float minz,
-							 float maxx, float maxy, float maxz, unsigned int col, const float lineWidth)
+							 float maxx, float maxy, float maxz, unsigned int col,
+							 const float lineWidth, const float* offset)
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->begin(DU_DRAW_LINES, lineWidth, offset);
 	duAppendCylinderWire(dd, minx,miny,minz, maxx,maxy,maxz, col);
 	dd->end();
 }
 
 void duDebugDrawBoxWire(struct duDebugDraw* dd, float minx, float miny, float minz,
-						float maxx, float maxy, float maxz, unsigned int col, const float lineWidth)
+						float maxx, float maxy, float maxz, unsigned int col, 
+						const float lineWidth, const float* offset)
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->begin(DU_DRAW_LINES, lineWidth, offset);
 	duAppendBoxWire(dd, minx,miny,minz, maxx,maxy,maxz, col);
 	dd->end();
 }
 
 void duDebugDrawArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
 					const float x1, const float y1, const float z1, const float h,
-					const float as0, const float as1, unsigned int col, const float lineWidth)
+					const float as0, const float as1, unsigned int col,
+					const float lineWidth, const float* offset)
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->begin(DU_DRAW_LINES, lineWidth, offset);
 	duAppendArc(dd, x0,y0,z0, x1,y1,z1, h, as0, as1, col);
 	dd->end();
 }
 
 void duDebugDrawArrow(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
 					  const float x1, const float y1, const float z1,
-					  const float as0, const float as1, unsigned int col, const float lineWidth)
+					  const float as0, const float as1, unsigned int col,
+					  const float lineWidth, const float* offset)
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->begin(DU_DRAW_LINES, lineWidth, offset);
 	duAppendArrow(dd, x0,y0,z0, x1,y1,z1, as0, as1, col);
 	dd->end();
 }
 
 void duDebugDrawCircle(struct duDebugDraw* dd, const float x, const float y, const float z,
-					   const float r, unsigned int col, const float lineWidth)
+					   const float r, unsigned int col, const float lineWidth, const float* offset)
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->begin(DU_DRAW_LINES, lineWidth, offset);
 	duAppendCircle(dd, x,y,z, r, col);
 	dd->end();
 }
 
 void duDebugDrawCross(struct duDebugDraw* dd, const float x, const float y, const float z,
-					  const float size, unsigned int col, const float lineWidth)
+					  const float size, unsigned int col, const float lineWidth, const float* offset)
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->begin(DU_DRAW_LINES, lineWidth, offset);
 	duAppendCross(dd, x,y,z, size, col);
 	dd->end();
 }
 
 void duDebugDrawBox(struct duDebugDraw* dd, float minx, float miny, float minz,
-					float maxx, float maxy, float maxz, const unsigned int* fcol)
+					float maxx, float maxy, float maxz, const unsigned int* fcol, const float* offset)
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_QUADS);
+	dd->begin(DU_DRAW_QUADS, 1.0f, offset);
 	duAppendBox(dd, minx,miny,minz, maxx,maxy,maxz, fcol);
 	dd->end();
 }
 
 void duDebugDrawCylinder(struct duDebugDraw* dd, float minx, float miny, float minz,
-						 float maxx, float maxy, float maxz, unsigned int col)
+						 float maxx, float maxy, float maxz, unsigned int col, const float* offset)
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_TRIS);
+	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
 	duAppendCylinder(dd, minx,miny,minz, maxx,maxy,maxz, col);
 	dd->end();
 }
 
 void duDebugDrawGridXZ(struct duDebugDraw* dd, const float ox, const float oy, const float oz,
 					   const int w, const int h, const float size,
-					   const unsigned int col, const float lineWidth)
+					   const unsigned int col, const float lineWidth, const float* offset)
 {
 	if (!dd) return;
 
-	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->begin(DU_DRAW_LINES, lineWidth, offset);
 	for (int i = 0; i <= h; ++i)
 	{
 		dd->vertex(ox,oy,oz+i*size, col);
@@ -180,11 +185,11 @@ void duDebugDrawGridXZ(struct duDebugDraw* dd, const float ox, const float oy, c
 		 
 void duDebugDrawGridXY(struct duDebugDraw* dd, const float ox, const float oy, const float oz,
 	const int w, const int h, const float size,
-	const unsigned int col, const float lineWidth)
+	const unsigned int col, const float lineWidth, const float* offset)
 {
 	if (!dd) return;
 
-	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->begin(DU_DRAW_LINES, lineWidth, offset);
 	for (int i = 0; i <= h; ++i)
 	{
 		dd->vertex(ox,oy+i*size,oz, col);
@@ -541,17 +546,18 @@ void duAppendCross(struct duDebugDraw* dd, const float x, const float y, const f
 }
 
 duDisplayList::duDisplayList(int cap) :
+	m_prim(DU_DRAW_LINES),
+	m_primSize(1.0f),
 	m_pos(0),
 	m_color(0),
 	m_size(0),
 	m_cap(0),
-	m_depthMask(true),
-	m_prim(DU_DRAW_LINES),
-	m_primSize(1.0f)
+	m_depthMask(true)
 {
 	if (cap < 8)
 		cap = 8;
 	resize(cap);
+	dtVset(m_drawOffset, 0.0f,0.0f,0.0f);
 }
 
 duDisplayList::~duDisplayList()
@@ -587,11 +593,13 @@ void duDisplayList::depthMask(bool state)
 	m_depthMask = state;
 }
 
-void duDisplayList::begin(duDebugDrawPrimitives prim, float size)
+void duDisplayList::begin(const duDebugDrawPrimitives prim, const float size, const float* offset)
 {
 	clear();
 	m_prim = prim;
 	m_primSize = size;
+	if (offset)
+		dtVcopy(m_drawOffset, offset);
 }
 
 void duDisplayList::vertex(const float x, const float y, const float z, unsigned int color)
@@ -599,9 +607,8 @@ void duDisplayList::vertex(const float x, const float y, const float z, unsigned
 	if (m_size+1 >= m_cap)
 		resize(m_cap*2);
 	float* p = &m_pos[m_size*3];
-	p[0] = x;
-	p[1] = y;
-	p[2] = z;
+	dtVset(p,x,y,z);
+	dtVadd(p,p,m_drawOffset);
 	m_color[m_size] = color;
 	m_size++;
 }
@@ -613,6 +620,7 @@ void duDisplayList::vertex(const float* pos, unsigned int color)
 
 void duDisplayList::end()
 {
+	dtVset(m_drawOffset, 0.0f,0.0f,0.0f);
 }
 
 void duDisplayList::draw(struct duDebugDraw* dd)

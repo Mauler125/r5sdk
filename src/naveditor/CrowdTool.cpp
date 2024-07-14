@@ -196,12 +196,15 @@ void CrowdToolState::handleRender()
 	dtCrowd* crowd = m_editor->getCrowd();
 	if (!nav || !crowd)
 		return;
+
+	const float* drawOffset = m_editor->getDetourDrawOffset();
+	const unsigned int drawFlags = m_editor->getNavMeshDrawFlags();
 	
 	if (m_toolParams.m_showNodes && crowd->getPathQueue())
 	{
 		const dtNavMeshQuery* navquery = crowd->getPathQueue()->getNavQuery();
 		if (navquery)
-			duDebugDrawNavMeshNodes(&dd, *navquery);
+			duDebugDrawNavMeshNodes(&dd, *navquery, drawOffset);
 	}
 
 	dd.depthMask(false);
@@ -219,12 +222,12 @@ void CrowdToolState::handleRender()
 			const dtPolyRef* path = ag->corridor.getPath();
 			const int npath = ag->corridor.getPathCount();			
 			for (int j = 0; j < npath; ++j)
-				duDebugDrawNavMeshPoly(&dd, *nav, path[j], duRGBA(255,255,255,24));
+				duDebugDrawNavMeshPoly(&dd, *nav, path[j], drawOffset, drawFlags, duRGBA(255,255,255,24));
 		}
 	}
 	
 	if (m_targetRef)
-		duDebugDrawCross(&dd, m_targetPos[0],m_targetPos[1],m_targetPos[2]+0.1f, rad, duRGBA(255,255,255,192), 2.0f);
+		duDebugDrawCross(&dd, m_targetPos[0],m_targetPos[1],m_targetPos[2]+0.1f, rad, duRGBA(255,255,255,192), 2.0f, drawOffset);
 	
 	// Occupancy grid.
 	if (m_toolParams.m_showGrid)
@@ -239,7 +242,7 @@ void CrowdToolState::handleRender()
 		}
 		gridz += 1.0f;
 		
-		dd.begin(DU_DRAW_QUADS);
+		dd.begin(DU_DRAW_QUADS,1.0f,drawOffset);
 		const dtProximityGrid* grid = crowd->getGrid();
 		const int* bounds = grid->getBounds();
 		const float cs = grid->getCellSize();
@@ -269,7 +272,7 @@ void CrowdToolState::handleRender()
 		const AgentTrail* trail = &m_trails[i];
 		const float* pos = ag->npos;
 		
-		dd.begin(DU_DRAW_LINES,3.0f);
+		dd.begin(DU_DRAW_LINES,3.0f,drawOffset);
 		float prev[3], preva = 1;
 		dtVcopy(prev, pos);
 		for (int j = 0; j < AGENT_MAX_TRAIL-1; ++j)
@@ -302,7 +305,7 @@ void CrowdToolState::handleRender()
 		{
 			if (ag->ncorners)
 			{
-				dd.begin(DU_DRAW_LINES, 2.0f);
+				dd.begin(DU_DRAW_LINES, 2.0f,drawOffset);
 				for (int j = 0; j < ag->ncorners; ++j)
 				{
 					const float* va = j == 0 ? agentPos : &ag->cornerVerts[(j-1)*3];
@@ -332,7 +335,7 @@ void CrowdToolState::handleRender()
 					const float* tgt = &ag->cornerVerts[0];
 					const float z = ag->npos[2]+off;
 
-					dd.begin(DU_DRAW_LINES, 2.0f);
+					dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
 
 					dd.vertex(ag->npos[0],ag->npos[1],z, duRGBA(255,0,0,192));
 					dd.vertex(pos[0],pos[1],z, duRGBA(255,0,0,192));
@@ -347,11 +350,11 @@ void CrowdToolState::handleRender()
 		if (m_toolParams.m_showCollisionSegments)
 		{
 			const float* center = ag->boundary.getCenter();
-			duDebugDrawCross(&dd, center[0],center[1],center[2]+agentRadius, 0.2f, duRGBA(192,0,128,255), 2.0f);
+			duDebugDrawCross(&dd, center[0],center[1],center[2]+agentRadius, 0.2f, duRGBA(192,0,128,255), 2.0f, drawOffset);
 			duDebugDrawCircle(&dd, center[0],center[1],center[2]+agentRadius, ag->params.collisionQueryRange,
-							  duRGBA(192,0,128,128), 2.0f);
+							  duRGBA(192,0,128,128), 2.0f, drawOffset);
 			
-			dd.begin(DU_DRAW_LINES, 3.0f);
+			dd.begin(DU_DRAW_LINES, 3.0f, drawOffset);
 			for (int j = 0; j < ag->boundary.getSegmentCount(); ++j)
 			{
 				const float* s = ag->boundary.getSegment(j);
@@ -367,9 +370,9 @@ void CrowdToolState::handleRender()
 		if (m_toolParams.m_showNeis)
 		{
 			duDebugDrawCircle(&dd, agentPos[0],agentPos[1],agentPos[2]+agentRadius, ag->params.collisionQueryRange,
-							  duRGBA(0,192,128,128), 2.0f);
+							  duRGBA(0,192,128,128), 2.0f, drawOffset);
 			
-			dd.begin(DU_DRAW_LINES, 2.0f);
+			dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
 			for (int j = 0; j < ag->nneis; ++j)
 			{
 				// Get 'n'th active agent.
@@ -386,7 +389,7 @@ void CrowdToolState::handleRender()
 		
 		if (m_toolParams.m_showOpt)
 		{
-			dd.begin(DU_DRAW_LINES, 2.0f);
+			dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
 			dd.vertex(m_agentDebug.optStart[0],m_agentDebug.optStart[1],m_agentDebug.optStart[2]+0.3f, duRGBA(0,128,0,192));
 			dd.vertex(m_agentDebug.optEnd[0],m_agentDebug.optEnd[1],m_agentDebug.optEnd[2]+0.3f, duRGBA(0,128,0,192));
 			dd.end();
@@ -406,7 +409,7 @@ void CrowdToolState::handleRender()
 		if (m_agentDebug.idx == i)
 			col = duRGBA(255,0,0,128);
 			
-		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2], radius, col, 2.0f);
+		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2], radius, col, 2.0f, drawOffset);
 	}
 	
 	for (int i = 0; i < crowd->getAgentCount(); ++i)
@@ -429,7 +432,7 @@ void CrowdToolState::handleRender()
 			col = duLerpCol(col, duRGBA(64,255,0,128), 128);
 		
 		duDebugDrawCylinder(&dd, pos[0]-radius, pos[1]-radius, pos[2]+radius*0.1f,
-							pos[0]+radius, pos[1]+radius, pos[2]+height, col);
+							pos[0]+radius, pos[1]+radius, pos[2]+height, col, drawOffset);
 	}
 	
 	if (m_toolParams.m_showVO)
@@ -449,9 +452,9 @@ void CrowdToolState::handleRender()
 			const float dy = ag->npos[1];
 			const float dz = ag->npos[2]+ag->params.height;
 			
-			duDebugDrawCircle(&dd, dx,dy,dz, ag->params.maxSpeed, duRGBA(255,255,255,64), 2.0f);
+			duDebugDrawCircle(&dd, dx,dy,dz, ag->params.maxSpeed, duRGBA(255,255,255,64), 2.0f, drawOffset);
 			
-			dd.begin(DU_DRAW_QUADS);
+			dd.begin(DU_DRAW_QUADS, 1.0f, drawOffset);
 			for (int j = 0; j < vod->getSampleCount(); ++j)
 			{
 				const float* p = vod->getSampleVelocity(j);
@@ -491,15 +494,15 @@ void CrowdToolState::handleRender()
 		else if (ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
 			col = duLerpCol(col, duRGBA(64,255,0,192), 128);
 		
-		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2]+height, radius, col, 2.0f);
+		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2]+height, radius, col, 2.0f, drawOffset);
 		
 		duDebugDrawArrow(&dd, pos[0],pos[1],pos[2]+height,
 						 pos[0]+dvel[0],pos[1]+dvel[1],pos[2]+height+dvel[2],
-						 0.0f, 30.0f, duRGBA(0,192,255,192), (m_agentDebug.idx == i) ? 2.0f : 1.0f);
+						 0.0f, 30.0f, duRGBA(0,192,255,192), (m_agentDebug.idx == i) ? 2.0f : 1.0f, drawOffset);
 		
 		duDebugDrawArrow(&dd, pos[0],pos[1],pos[2]+height,
 						 pos[0]+vel[0],pos[1]+vel[1],pos[2]+height+vel[2],
-						 0.0f, 30.0f, duRGBA(0,0,0,160), 2.0f);
+						 0.0f, 30.0f, duRGBA(0,0,0,160), 2.0f, drawOffset);
 	}
 	
 	dd.depthMask(true);
@@ -514,9 +517,10 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 	const int windowHeight = view[3];
+	const float* drawOffset = m_editor->getDetourDrawOffset();
 	
 	// Draw start and end point labels
-	if (m_targetRef && gluProject((GLdouble)m_targetPos[0], (GLdouble)m_targetPos[1], (GLdouble)m_targetPos[2],
+	if (m_targetRef && gluProject((GLdouble)m_targetPos[0]+drawOffset[0], (GLdouble)m_targetPos[1]+drawOffset[1], (GLdouble)m_targetPos[2]+drawOffset[2],
 								  model, proj, view, &x, &y, &z))
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
@@ -541,7 +545,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						const dtNode* node = pool->getNodeAtIdx(j+1);
 						if (!node) continue;
 
-						if (gluProject((GLdouble)node->pos[0],(GLdouble)node->pos[1],(GLdouble)node->pos[2]+off,
+						if (gluProject((GLdouble)node->pos[0]+drawOffset[0],(GLdouble)node->pos[1]+drawOffset[1],(GLdouble)node->pos[2]+drawOffset[2]+off,
 									   model, proj, view, &x, &y, &z))
 						{
 							const float heuristic = node->total;// - node->cost;
@@ -565,7 +569,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				if (!ag->active) continue;
 				const float* pos = ag->npos;
 				const float h = ag->params.height;
-				if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2]+h,
+				if (gluProject((GLdouble)pos[0]+drawOffset[0], (GLdouble)pos[1]+drawOffset[1], (GLdouble)pos[2]+drawOffset[2]+h,
 							   model, proj, view, &x, &y, &z))
 				{
 					const TraverseAnimType_e animType = ag->params.traverseAnimType;
@@ -599,7 +603,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						const dtCrowdAgent* nei = crowd->getAgent(ag->neis[j].idx);
 						if (!nei->active) continue;
 						
-						if (gluProject((GLdouble)nei->npos[0], (GLdouble)nei->npos[1], (GLdouble)nei->npos[2]+radius,
+						if (gluProject((GLdouble)nei->npos[0]+drawOffset[0], (GLdouble)nei->npos[1]+drawOffset[1], (GLdouble)nei->npos[2]+drawOffset[2]+radius,
 									   model, proj, view, &x, &y, &z))
 						{
 							ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, 

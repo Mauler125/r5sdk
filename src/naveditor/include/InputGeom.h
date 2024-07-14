@@ -133,7 +133,7 @@ public:
 	void addOffMeshConnection(const float* spos, const float* epos, const float rad,
 							  unsigned char bidir, unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
-	void drawOffMeshConnections(struct duDebugDraw* dd, bool hilight = false);
+	void drawOffMeshConnections(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}
 
 	/// @name Box Volumes.
@@ -143,7 +143,7 @@ public:
 	void addConvexVolume(const float* verts, const int nverts,
 						 const float minh, const float maxh, unsigned char area);
 	void deleteConvexVolume(int i);
-	void drawConvexVolumes(struct duDebugDraw* dd, bool hilight = false);
+	void drawConvexVolumes(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}
 	
 private:

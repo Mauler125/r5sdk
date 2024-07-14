@@ -45,7 +45,7 @@ public:
 	Editor_StaticTileMeshCommon();
 	void cleanup();
 
-	void renderTileMeshRenderOptions();
+	void renderRecastDebugMenu();
 	void renderTileMeshData();
 
 	void renderIntermediateTileMeshOptions();
@@ -82,7 +82,7 @@ class Editor_DynamicTileMeshCommon : public Editor
 public:
 	Editor_DynamicTileMeshCommon();
 
-	void renderTileMeshRenderOptions();
+	void renderRecastRenderOptions();
 	void renderTileMeshData();
 
 	inline unsigned int getTileMeshDrawFlags() const { return m_tileMeshDrawFlags; }

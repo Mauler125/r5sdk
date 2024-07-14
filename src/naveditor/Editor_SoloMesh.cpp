@@ -118,9 +118,11 @@ void Editor_SoloMesh::handleTools()
 
 void Editor_SoloMesh::handleDebugMode()
 {
-	Editor::renderNavMeshDebugMenu();
+	Editor::renderMeshOffsetOptions();
 	ImGui::Separator();
-	Editor_StaticTileMeshCommon::renderTileMeshRenderOptions();
+	Editor_StaticTileMeshCommon::renderRecastDebugMenu();
+	ImGui::Separator();
+	Editor::renderDetourDebugMenu();
 }
 
 void Editor_SoloMesh::handleRender()

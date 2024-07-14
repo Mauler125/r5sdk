@@ -146,6 +146,8 @@ protected:
 	BuildContext* m_ctx;
 
 	EditorDebugDraw m_dd;
+	float m_recastDrawOffset[3];
+	float m_detourDrawOffset[3];
 	
 	dtNavMesh* loadAll(std::string path);
 	void saveAll(std::string path, const dtNavMesh* mesh);
@@ -163,6 +165,8 @@ public:
 	void setToolState(int type, EditorToolState* s) { m_toolStates[type] = s; }
 
 	EditorDebugDraw& getDebugDraw() { return m_dd; }
+	const float* getRecastDrawOffset() const { return m_recastDrawOffset; }
+	const float* getDetourDrawOffset() const { return m_detourDrawOffset; }
 
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -199,7 +203,8 @@ public:
 	void renderToolStates();
 	void renderOverlayToolStates(double* proj, double* model, int* view);
 
-	void renderNavMeshDebugMenu();
+	void renderMeshOffsetOptions();
+	void renderDetourDebugMenu();
 	void renderIntermediateTileMeshOptions();
 
 	void selectNavMeshType(const NavMeshType_e navMeshType);

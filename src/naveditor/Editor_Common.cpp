@@ -55,7 +55,7 @@ static void EditorCommon_DrawInputGeometry(duDebugDraw* const dd, const InputGeo
 {
 	duDebugDrawTriMeshSlope(dd, geom->getMesh()->getVerts(), geom->getMesh()->getVertCount(),
 		geom->getMesh()->getTris(), geom->getMesh()->getNormals(), geom->getMesh()->getTriCount(),
-		maxSlope, textureScale);
+		maxSlope, textureScale, nullptr);
 }
 
 static void EditorCommon_DrawBoundingBox(duDebugDraw* const dd, const InputGeom* const geom)
@@ -63,7 +63,7 @@ static void EditorCommon_DrawBoundingBox(duDebugDraw* const dd, const InputGeom*
 	// Draw bounds
 	const float* const bmin = geom->getNavMeshBoundsMin();
 	const float* const bmax = geom->getNavMeshBoundsMax();
-	duDebugDrawBoxWire(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duRGBA(255, 255, 255, 128), 1.0f);
+	duDebugDrawBoxWire(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duRGBA(255, 255, 255, 128), 1.0f, nullptr);
 }
 
 static void EditorCommon_DrawTilingGrid(duDebugDraw* const dd, const InputGeom* const geom, const int tileSize, const float cellSize)
@@ -78,7 +78,7 @@ static void EditorCommon_DrawTilingGrid(duDebugDraw* const dd, const InputGeom* 
 	const int th = (gh + tileSize - 1) / tileSize;
 	const float s = tileSize * cellSize;
 
-	duDebugDrawGridXY(dd, bmax[0], bmin[1], bmin[2], tw, th, s, duRGBA(0, 0, 0, 64), 1.0f);
+	duDebugDrawGridXY(dd, bmax[0], bmin[1], bmin[2], tw, th, s, duRGBA(0, 0, 0, 64), 1.0f, nullptr);
 }
 
 int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, const int tileSize,
@@ -162,9 +162,9 @@ void Editor_StaticTileMeshCommon::cleanup()
 	m_dmesh = 0;
 }
 
-void Editor_StaticTileMeshCommon::renderTileMeshRenderOptions()
+void Editor_StaticTileMeshCommon::renderRecastDebugMenu()
 {
-	ImGui::Text("TileMesh Render Options");
+	ImGui::Text("Recast Render Options");
 
 	bool isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_INPUT_MESH;
 
@@ -271,14 +271,14 @@ void Editor_StaticTileMeshCommon::renderTileMeshRenderOptions()
 
 	ImGui::EndDisabled();
 
-	if (intermediateDataUnavailable)
-	{
-		ImGui::Separator();
+	//if (intermediateDataUnavailable) // todo(amos): tool tip
+	//{
+	//	ImGui::Separator();
 
-		ImGui::Text("Tick 'Keep Intermediate Results'");
-		ImGui::Text("rebuild some tiles to see");
-		ImGui::Text("more debug mode options.");
-	}
+	//	ImGui::Text("Tick 'Keep Intermediate Results'");
+	//	ImGui::Text("rebuild some tiles to see");
+	//	ImGui::Text("more debug mode options.");
+	//}
 }
 
 void Editor_StaticTileMeshCommon::renderTileMeshData()
@@ -300,19 +300,26 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 	// Tiling grid.
 	EditorCommon_DrawTilingGrid(&m_dd, m_geom, m_tileSize, m_cellSize);
 
+	const float* recastDrawOffset = getRecastDrawOffset();
+	const float* detourDrawOffset = getDetourDrawOffset();
+
+	const unsigned int recastDrawFlags = getTileMeshDrawFlags();
+	const unsigned int detourDrawFlags = getNavMeshDrawFlags();
+
 	if (m_drawActiveTile)
 	{
 		// Draw active tile
-		duDebugDrawBoxWire(&m_dd, m_lastBuiltTileBmin[0], m_lastBuiltTileBmin[1], m_lastBuiltTileBmin[2],
-			m_lastBuiltTileBmax[0], m_lastBuiltTileBmax[1], m_lastBuiltTileBmax[2], m_tileCol, 1.0f);
+		// NOTE: only perform offset in x-y
+		duDebugDrawBoxWire(&m_dd, m_lastBuiltTileBmin[0]+detourDrawOffset[0], m_lastBuiltTileBmin[1]+detourDrawOffset[1], m_lastBuiltTileBmin[2],
+			m_lastBuiltTileBmax[0]+detourDrawOffset[0], m_lastBuiltTileBmax[1]+detourDrawOffset[1], m_lastBuiltTileBmax[2], m_tileCol, 1.0f, nullptr);
 	}
 
 	if (m_navMesh && m_navQuery)
 	{
 		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH)
 		{
-			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
-			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, duRGBA(0, 0, 0, 128));
+			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, m_navMeshDrawFlags);
+			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, detourDrawOffset, detourDrawFlags, duRGBA(0, 0, 0, 128));
 		}
 	}
 
@@ -320,74 +327,74 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 
 	if (m_chf)
 	{
-		if (getTileMeshDrawFlags() & TM_DRAWFLAGS_COMPACT)
-			duDebugDrawCompactHeightfieldSolid(&m_dd, *m_chf);
+		if (recastDrawFlags & TM_DRAWFLAGS_COMPACT)
+			duDebugDrawCompactHeightfieldSolid(&m_dd, *m_chf, recastDrawOffset);
 
-		if (getTileMeshDrawFlags() & TM_DRAWFLAGS_COMPACT_DISTANCE)
-			duDebugDrawCompactHeightfieldDistance(&m_dd, *m_chf);
-		if (getTileMeshDrawFlags() & TM_DRAWFLAGS_COMPACT_REGIONS)
-			duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
+		if (recastDrawFlags & TM_DRAWFLAGS_COMPACT_DISTANCE)
+			duDebugDrawCompactHeightfieldDistance(&m_dd, *m_chf, recastDrawOffset);
+		if (recastDrawFlags & TM_DRAWFLAGS_COMPACT_REGIONS)
+			duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf, recastDrawOffset);
 	}
 
 	if (m_solid)
 	{
-		if (getTileMeshDrawFlags() & TM_DRAWFLAGS_VOXELS)
+		if (recastDrawFlags & TM_DRAWFLAGS_VOXELS)
 		{
 			glEnable(GL_FOG);
-			duDebugDrawHeightfieldSolid(&m_dd, *m_solid);
+			duDebugDrawHeightfieldSolid(&m_dd, *m_solid, recastDrawOffset);
 			glDisable(GL_FOG);
 		}
-		if (getTileMeshDrawFlags() & TM_DRAWFLAGS_VOXELS_WALKABLE)
+		if (recastDrawFlags & TM_DRAWFLAGS_VOXELS_WALKABLE)
 		{
 			glEnable(GL_FOG);
-			duDebugDrawHeightfieldWalkable(&m_dd, *m_solid);
+			duDebugDrawHeightfieldWalkable(&m_dd, *m_solid, recastDrawOffset);
 			glDisable(GL_FOG);
 		}
 	}
 
 	if (m_cset)
 	{
-		if (getTileMeshDrawFlags() & TM_DRAWFLAGS_RAW_CONTOURS)
+		if (recastDrawFlags & TM_DRAWFLAGS_RAW_CONTOURS)
 		{
 			glDepthMask(GL_FALSE);
-			duDebugDrawRawContours(&m_dd, *m_cset);
+			duDebugDrawRawContours(&m_dd, *m_cset, recastDrawOffset);
 			glDepthMask(GL_TRUE);
 		}
-		if (getTileMeshDrawFlags() & TM_DRAWFLAGS_CONTOURS)
+		if (recastDrawFlags & TM_DRAWFLAGS_CONTOURS)
 		{
 			glDepthMask(GL_FALSE);
-			duDebugDrawContours(&m_dd, *m_cset);
+			duDebugDrawContours(&m_dd, *m_cset, recastDrawOffset);
 			glDepthMask(GL_TRUE);
 		}
 	}
 
 	if ((m_chf &&m_cset) && 
-		(getTileMeshDrawFlags() & TM_DRAWFLAGS_REGION_CONNECTIONS))
+		(recastDrawFlags & TM_DRAWFLAGS_REGION_CONNECTIONS))
 	{
-		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
+		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf, recastDrawOffset);
 
 		glDepthMask(GL_FALSE);
-		duDebugDrawRegionConnections(&m_dd, *m_cset);
+		duDebugDrawRegionConnections(&m_dd, *m_cset, recastDrawOffset);
 		glDepthMask(GL_TRUE);
 	}
 
-	if (m_pmesh && (getTileMeshDrawFlags() & TM_DRAWFLAGS_POLYMESH))
+	if (m_pmesh && (recastDrawFlags & TM_DRAWFLAGS_POLYMESH))
 	{
 		glDepthMask(GL_FALSE);
-		duDebugDrawPolyMesh(&m_dd, *m_pmesh);
+		duDebugDrawPolyMesh(&m_dd, *m_pmesh, recastDrawOffset);
 		glDepthMask(GL_TRUE);
 	}
 
-	if (m_dmesh && (getTileMeshDrawFlags() & TM_DRAWFLAGS_POLYMESH_DETAIL))
+	if (m_dmesh && (recastDrawFlags & TM_DRAWFLAGS_POLYMESH_DETAIL))
 	{
 		glDepthMask(GL_FALSE);
-		duDebugDrawPolyMeshDetail(&m_dd, *m_dmesh);
+		duDebugDrawPolyMeshDetail(&m_dd, *m_dmesh, recastDrawOffset);
 		glDepthMask(GL_TRUE);
 	}
 
 	// TODO: also add flags for this
-	m_geom->drawConvexVolumes(&m_dd);
-	m_geom->drawOffMeshConnections(&m_dd);
+	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset);
+	m_geom->drawOffMeshConnections(&m_dd, recastDrawOffset);
 
 	if (m_tool)
 		m_tool->handleRender();
@@ -441,7 +448,7 @@ void Editor_StaticTileMeshCommon::renderIntermediateTileMeshOptions()
 		ImGui::Separator();
 }
 
-void drawTiles(duDebugDraw* dd, dtTileCache* tc)
+void drawTiles(duDebugDraw* dd, dtTileCache* tc, const float* offset)
 {
 	unsigned int fcol[6];
 	float bmin[3], bmax[3];
@@ -455,7 +462,7 @@ void drawTiles(duDebugDraw* dd, dtTileCache* tc)
 
 		const unsigned int col = duIntToCol(i, 64);
 		duCalcBoxColors(fcol, col, col);
-		duDebugDrawBox(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], fcol);
+		duDebugDrawBox(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], fcol, offset);
 	}
 
 	for (int i = 0; i < tc->getTileCount(); ++i)
@@ -468,11 +475,11 @@ void drawTiles(duDebugDraw* dd, dtTileCache* tc)
 		const unsigned int col = duIntToCol(i, 255);
 		const float pad = tc->getParams()->cs * 0.1f;
 		duDebugDrawBoxWire(dd, bmin[0] - pad, bmin[1] - pad, bmin[2] - pad,
-			bmax[0] + pad, bmax[1] + pad, bmax[2] + pad, col, 2.0f);
+			bmax[0] + pad, bmax[1] + pad, bmax[2] + pad, col, 2.0f, offset);
 	}
 }
 
-void drawObstacles(duDebugDraw* dd, const dtTileCache* tc)
+void drawObstacles(duDebugDraw* dd, const dtTileCache* tc, const float* offset)
 {
 	// Draw obstacles
 	for (int i = 0; i < tc->getObstacleCount(); ++i)
@@ -490,8 +497,8 @@ void drawObstacles(duDebugDraw* dd, const dtTileCache* tc)
 		else if (ob->state == DT_OBSTACLE_REMOVING)
 			col = duRGBA(220, 0, 0, 128);
 
-		duDebugDrawCylinder(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], col);
-		duDebugDrawCylinderWire(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duDarkenCol(col), 2);
+		duDebugDrawCylinder(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], col, offset);
+		duDebugDrawCylinderWire(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duDarkenCol(col), 2.0f, offset);
 	}
 }
 
@@ -510,9 +517,9 @@ Editor_DynamicTileMeshCommon::Editor_DynamicTileMeshCommon()
 {
 }
 
-void Editor_DynamicTileMeshCommon::renderTileMeshRenderOptions()
+void Editor_DynamicTileMeshCommon::renderRecastRenderOptions()
 {
-	ImGui::Text("TileMesh Render Options");
+	ImGui::Text("Recast Render Options");
 
 	bool isEnabled = m_tileMeshDrawFlags & TM_DRAWFLAGS_INPUT_MESH;
 
@@ -551,10 +558,14 @@ void Editor_DynamicTileMeshCommon::renderTileMeshData()
 		return;
 
 	const float texScale = 1.0f / (m_cellSize * 10.0f);
-	const unsigned int drawFlags = getTileMeshDrawFlags();
+	const unsigned int recastDrawFlags = getTileMeshDrawFlags();
+	const unsigned int detourDrawFlags = getNavMeshDrawFlags();
+
+	const float* recastDrawOffset = getRecastDrawOffset();
+	const float* detourDrawOffset = getDetourDrawOffset();
 
 	// Draw input mesh
-	if (getTileMeshDrawFlags() & TM_DRAWFLAGS_INPUT_MESH)
+	if (recastDrawFlags & TM_DRAWFLAGS_INPUT_MESH)
 		EditorCommon_DrawInputGeometry(&m_dd, m_geom, m_agentMaxSlope, texScale);
 
 	// Draw bounds
@@ -563,26 +574,24 @@ void Editor_DynamicTileMeshCommon::renderTileMeshData()
 	// Tiling grid.
 	EditorCommon_DrawTilingGrid(&m_dd, m_geom, m_tileSize, m_cellSize);
 
-	if (m_tileCache && drawFlags & TM_DRAWFLAGS_TILE_CACHE_BOUNDS)
-		drawTiles(&m_dd, m_tileCache);
+	if (m_tileCache && recastDrawFlags & TM_DRAWFLAGS_TILE_CACHE_BOUNDS)
+		drawTiles(&m_dd, m_tileCache, detourDrawOffset);
 
-	if (m_tileCache && drawFlags & TM_DRAWFLAGS_TILE_CACHE_OBSTACLES)
-		drawObstacles(&m_dd, m_tileCache);
-
-	const bool navMeshRenderingEnabled = (drawFlags & TM_DRAWFLAGS_NAVMESH) != 0;
+	if (m_tileCache && recastDrawFlags & TM_DRAWFLAGS_TILE_CACHE_OBSTACLES)
+		drawObstacles(&m_dd, m_tileCache, detourDrawOffset);
 
 	if (m_navMesh && m_navQuery)
 	{
-		if (drawFlags & TM_DRAWFLAGS_NAVMESH)
+		if (recastDrawFlags & TM_DRAWFLAGS_NAVMESH)
 		{
-			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
-			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, duRGBA(0, 0, 0, 128));
+			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, detourDrawFlags);
+			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, detourDrawOffset, detourDrawFlags, duRGBA(0, 0, 0, 128));
 		}
 	}
 
 	// TODO: also add flags for this
-	m_geom->drawConvexVolumes(&m_dd);
-	m_geom->drawOffMeshConnections(&m_dd);
+	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset);
+	m_geom->drawOffMeshConnections(&m_dd, recastDrawOffset);
 
 	if (m_tool)
 		m_tool->handleRender();

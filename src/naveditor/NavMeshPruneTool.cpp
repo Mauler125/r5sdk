@@ -285,6 +285,9 @@ void NavMeshPruneTool::handleRender()
 	}
 
 	const dtNavMesh* nav = m_editor->getNavMesh();
+	const float* drawOffset = m_editor->getDetourDrawOffset();
+	const unsigned int drawFlags = m_editor->getNavMeshDrawFlags();
+
 	if (m_flags && nav)
 	{
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
@@ -297,7 +300,7 @@ void NavMeshPruneTool::handleRender()
 				const dtPolyRef ref = base | (unsigned int)j;
 				if (m_flags->getFlags(ref))
 				{
-					duDebugDrawNavMeshPoly(&dd, *nav, ref, duRGBA(255,255,255,128));
+					duDebugDrawNavMeshPoly(&dd, *nav, ref, drawOffset, drawFlags, duRGBA(255,255,255,128));
 				}
 			}
 		}

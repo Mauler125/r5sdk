@@ -184,15 +184,15 @@ void Editor_Debug::handleRender()
 {
 	if (m_chf)
 	{
-		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
-//		duDebugDrawCompactHeightfieldSolid(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf, m_recastDrawOffset);
+//		duDebugDrawCompactHeightfieldSolid(&dd, *m_chf, m_recastRenderOffset);
 	}
 		
 	if (m_navMesh)
-		duDebugDrawNavMesh(&m_dd, *m_navMesh, DU_DRAWNAVMESH_OFFMESHCONS);
+		duDebugDrawNavMesh(&m_dd, *m_navMesh, m_detourDrawOffset, DU_DRAWNAVMESH_OFFMESHCONS);
 
 	if (m_ref && m_navMesh)
-		duDebugDrawNavMeshPoly(&m_dd, *m_navMesh, m_ref, duRGBA(255,0,0,128));
+		duDebugDrawNavMeshPoly(&m_dd, *m_navMesh, m_ref, m_detourDrawOffset, m_navMeshDrawFlags, duRGBA(255,0,0,128));
 
 /*	float bmin[3], bmax[3];
 	rcVsub(bmin, m_center, m_halfExtents);
@@ -202,13 +202,13 @@ void Editor_Debug::handleRender()
 
 	if (m_cset)
 	{
-		duDebugDrawRawContours(&m_dd, *m_cset, 0.25f);
-		duDebugDrawContours(&m_dd, *m_cset);
+		duDebugDrawRawContours(&m_dd, *m_cset, m_recastDrawOffset, 0.25f);
+		duDebugDrawContours(&m_dd, *m_cset, m_recastDrawOffset);
 	}
 	
 	if (m_pmesh)
 	{
-		duDebugDrawPolyMesh(&m_dd, *m_pmesh);
+		duDebugDrawPolyMesh(&m_dd, *m_pmesh, m_recastDrawOffset);
 	}
 	
 	/*

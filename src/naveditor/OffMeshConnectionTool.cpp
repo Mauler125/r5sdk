@@ -138,11 +138,11 @@ void OffMeshConnectionTool::handleRender()
 	const float s = m_editor->getAgentRadius();
 	
 	if (m_hitPosSet)
-		duDebugDrawCross(&dd, m_hitPos[0],m_hitPos[1],m_hitPos[2]+0.1f, s, duRGBA(0,0,0,128), 2.0f);
+		duDebugDrawCross(&dd, m_hitPos[0],m_hitPos[1],m_hitPos[2]+0.1f, s, duRGBA(0,0,0,128), 2.0f, nullptr);
 
 	InputGeom* geom = m_editor->getInputGeom();
 	if (geom)
-		geom->drawOffMeshConnections(&dd, true);
+		geom->drawOffMeshConnections(&dd, m_editor->getRecastDrawOffset(), true);
 }
 
 void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)

@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Recast/Include/Recast.h"
+#include "Detour/Include/DetourCommon.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/EditorInterfaces.h"
@@ -195,7 +196,7 @@ void DebugDrawGL::texture(bool state)
 	}
 }
 
-void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
+void DebugDrawGL::begin(const duDebugDrawPrimitives prim, const float size, const float* offset)
 {
 	switch (prim)
 	{
@@ -214,32 +215,55 @@ void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
 			glBegin(GL_QUADS);
 			break;
 	};
+
+	if (offset)
+		dtVcopy(m_drawOffset,offset);
 }
 
 void DebugDrawGL::vertex(const float* pos, unsigned int color)
 {
 	glColor4ubv((GLubyte*)&color);
-	glVertex3fv(pos);
+
+	float opos[3];
+	dtVadd(opos,pos,m_drawOffset);
+
+	glVertex3fv(opos);
 }
 
 void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned int color)
 {
 	glColor4ubv((GLubyte*)&color);
-	glVertex3f(x,y,z);
+
+	float opos[3];
+
+	dtVset(opos, x,y,z);
+	dtVadd(opos,opos,m_drawOffset);
+
+	glVertex3fv(opos);
 }
 
 void DebugDrawGL::vertex(const float* pos, unsigned int color, const float* uv)
 {
 	glColor4ubv((GLubyte*)&color);
 	glTexCoord2fv(uv);
-	glVertex3fv(pos);
+
+	float opos[3];
+	dtVadd(opos,pos,m_drawOffset);
+
+	glVertex3fv(opos);
 }
 
 void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
 {
 	glColor4ubv((GLubyte*)&color);
 	glTexCoord2f(u,v);
-	glVertex3f(x,y,z);
+
+	float opos[3];
+
+	dtVset(opos, x,y,z);
+	dtVadd(opos,opos,m_drawOffset);
+
+	glVertex3fv(opos);
 }
 
 void DebugDrawGL::end()
@@ -247,6 +271,8 @@ void DebugDrawGL::end()
 	glEnd();
 	glLineWidth(1.0f);
 	glPointSize(1.0f);
+
+	dtVset(m_drawOffset, 0.0f,0.0f,0.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

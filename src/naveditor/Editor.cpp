@@ -19,6 +19,7 @@
 #include "Pch.h"
 #include "Recast/Include/Recast.h"
 #include "Shared/Include/SharedAssert.h"
+#include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
@@ -32,6 +33,7 @@
 
 #include "game/server/ai_navmesh.h"
 #include "game/server/ai_hull.h"
+#include "coordsize.h"
 
 unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 {
@@ -79,6 +81,9 @@ Editor::Editor() :
 
 	for (int i = 0; i < MAX_TOOLS; i++)
 		m_toolStates[i] = 0;
+
+	dtVset(m_recastDrawOffset, 0.0f,0.0f,20.0f);
+	dtVset(m_detourDrawOffset, 0.0f,0.0f,30.0f);
 }
 
 Editor::~Editor()
@@ -118,11 +123,11 @@ void Editor::handleRender()
 	
 	// Draw mesh
 	duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0, 1.0f);
+					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0, 1.0f, nullptr);
 	// Draw bounds
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
-	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
+	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f, nullptr);
 }
 
 void Editor::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
@@ -369,9 +374,21 @@ void Editor::renderOverlayToolStates(double* proj, double* model, int* view)
 	}
 }
 
-void Editor::renderNavMeshDebugMenu()
+void Editor::renderMeshOffsetOptions()
 {
-	ImGui::Text("NavMesh Render Options");
+	ImGui::Text("Render Offsets");
+
+	ImGui::PushItemWidth(230);
+
+	ImGui::SliderFloat3("Recast##RenderOffset", m_recastDrawOffset, -500, 500);
+	ImGui::SliderFloat3("Detour##RenderOffset", m_detourDrawOffset, -500, 500);
+
+	ImGui::PopItemWidth();
+}
+
+void Editor::renderDetourDebugMenu()
+{
+	ImGui::Text("Detour Render Options");
 
 	bool isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OFFMESHCONS);
 

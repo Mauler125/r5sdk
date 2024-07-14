@@ -261,6 +261,7 @@ void ConvexVolumeTool::handleUpdate(const float /*dt*/)
 void ConvexVolumeTool::handleRender()
 {
 	duDebugDraw& dd = m_editor->getDebugDraw();
+	const float* drawOffset = m_editor->getDetourDrawOffset();
 	
 	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;
@@ -269,7 +270,7 @@ void ConvexVolumeTool::handleRender()
 	minh -= m_boxDescent;
 	maxh = minh + m_boxHeight;
 
-	dd.begin(DU_DRAW_POINTS, 4.0f);
+	dd.begin(DU_DRAW_POINTS, 4.0f, drawOffset);
 	for (int i = 0; i < m_npts; ++i)
 	{
 		unsigned int col = duRGBA(255,255,255,255);
@@ -279,7 +280,7 @@ void ConvexVolumeTool::handleRender()
 	}
 	dd.end();
 
-	dd.begin(DU_DRAW_LINES, 2.0f);
+	dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
 	for (int i = 0, j = m_nhull-1; i < m_nhull; j = i++)
 	{
 		const float* vi = &m_pts[m_hull[j]*3];

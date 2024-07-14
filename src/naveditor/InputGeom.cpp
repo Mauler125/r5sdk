@@ -560,13 +560,13 @@ void InputGeom::deleteOffMeshConnection(int i)
 	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];
 }
 
-void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
+void InputGeom::drawOffMeshConnections(duDebugDraw* dd, const float* offset, bool hilight)
 {
 	unsigned int conColor = duRGBA(192,0,128,192);
 	unsigned int baseColor = duRGBA(0,0,0,64);
 	dd->depthMask(false);
 
-	dd->begin(DU_DRAW_LINES, 2.0f);
+	dd->begin(DU_DRAW_LINES, 2.0f, offset);
 	for (int i = 0; i < m_offMeshConCount; ++i)
 	{
 		float* v = &m_offMeshConVerts[i*3*2];
@@ -617,11 +617,11 @@ void InputGeom::deleteConvexVolume(int i)
 	m_volumes[i] = m_volumes[m_volumeCount];
 }
 
-void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
+void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, bool /*hilight*/)
 {
 	dd->depthMask(false);
 
-	dd->begin(DU_DRAW_TRIS);
+	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
 	
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
@@ -654,7 +654,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	
 	dd->end();
 
-	dd->begin(DU_DRAW_LINES, 2.0f);
+	dd->begin(DU_DRAW_LINES, 2.0f, offset);
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
@@ -679,7 +679,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	}
 	dd->end();
 
-	dd->begin(DU_DRAW_POINTS, 3.0f);
+	dd->begin(DU_DRAW_POINTS, 3.0f, offset);
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
