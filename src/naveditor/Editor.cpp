@@ -183,7 +183,16 @@ void Editor::resetCommonSettings()
 
 	m_cellSize = 16.0f;
 	m_cellHeight = 5.85f;
-	m_agentMaxSlope = 45.0f; // todo(amos) put into hull def!
+
+	// todo(amos): check if this applies for all hulls, and check if this is the
+	// actual value used by the game. This seems to generate slopes very close
+	// to the walkable slopes in-game. The slopes generated for the map
+	// mp_rr_canyonlands_staging.bsp where pretty much identical. If this is
+	// confirmed, move this value to a game header instead and define it as a
+	// constant. The value originates from here under "Player Collision Hull":
+	// https://developer.valvesoftware.com/wiki/Pl/Dimensions
+	m_agentMaxSlope = 45.573f;
+
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
 	m_edgeMaxLen = 12;
