@@ -852,34 +852,37 @@ int not_main(int argc, char** argv)
 		rayEnd[1] = (float)y;
 		rayEnd[2] = (float)z;
 		
-		// Handle keyboard movement.
-		const Uint8* keystate = SDL_GetKeyboardState(NULL);
-		moveFront	= rcClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
-		moveLeft	= rcClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
-		moveBack	= rcClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
-		moveRight	= rcClamp(moveRight	+ dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT	]) ? 1 : -1), 0.0f, 1.0f);
-		moveUp		= rcClamp(moveUp	+ dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP	]) ? 1 : -1), 0.0f, 1.0f);
-		moveDown	= rcClamp(moveDown	+ dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1 : -1), 0.0f, 1.0f);
-		
-		float keybSpeed = 8800.0f;
-		if (SDL_GetModState() & KMOD_SHIFT)
+		if (!mouseOverMenu)
 		{
-			keybSpeed *= 2.0f;
+			// Handle keyboard movement.
+			const Uint8* keystate = SDL_GetKeyboardState(NULL);
+			moveFront	= rcClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
+			moveLeft	= rcClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
+			moveBack	= rcClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
+			moveRight	= rcClamp(moveRight	+ dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT	]) ? 1 : -1), 0.0f, 1.0f);
+			moveUp		= rcClamp(moveUp	+ dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP	]) ? 1 : -1), 0.0f, 1.0f);
+			moveDown	= rcClamp(moveDown	+ dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1 : -1), 0.0f, 1.0f);
+			
+			float keybSpeed = 8800.0f;
+			if (SDL_GetModState() & KMOD_SHIFT)
+			{
+				keybSpeed *= 2.0f;
+			}
+			
+			float movex = (moveRight - moveLeft) * keybSpeed * dt;
+			float movey = (moveBack - moveFront) * keybSpeed * dt + scrollZoom * 2.0f;
+			scrollZoom = 0;
+			
+			cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
+			cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
+			cameraPos[2] += movex * static_cast<float>(modelviewMatrix[8]);
+
+			cameraPos[0] += movey * static_cast<float>(modelviewMatrix[2]);
+			cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
+			cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
+
+			cameraPos[2] += (moveUp - moveDown) * keybSpeed * dt;
 		}
-		
-		float movex = (moveRight - moveLeft) * keybSpeed * dt;
-		float movey = (moveBack - moveFront) * keybSpeed * dt + scrollZoom * 2.0f;
-		scrollZoom = 0;
-		
-		cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
-		cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
-		cameraPos[2] += movex * static_cast<float>(modelviewMatrix[8]);
-
-		cameraPos[0] += movey * static_cast<float>(modelviewMatrix[2]);
-		cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
-		cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
-
-		cameraPos[2] += (moveUp - moveDown) * keybSpeed * dt;
 
 		glEnable(GL_FOG);
 
@@ -899,7 +902,7 @@ int not_main(int argc, char** argv)
 		glLoadIdentity();
 		
 		ImGuiIO& io = ImGui::GetIO();
-		mouseOverMenu = io.WantCaptureMouse;
+		mouseOverMenu = io.WantCaptureMouse||io.WantCaptureKeyboard;
 		
 		ImGui_ImplOpenGL2_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
