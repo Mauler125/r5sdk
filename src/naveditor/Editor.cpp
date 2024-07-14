@@ -40,7 +40,7 @@ unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 	switch(area)
 	{
 	// Ground (0) : light blue
-	case EDITOR_POLYAREA_GROUND: return duRGBA(0, 195, 255, 255);
+	case EDITOR_POLYAREA_GROUND: return duRGBA(0, 192, 215, 255);
 	// Water : blue
 	case EDITOR_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
 	// Road : brown
