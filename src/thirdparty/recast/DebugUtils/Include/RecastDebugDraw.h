@@ -33,7 +33,6 @@ void duDebugDrawCompactHeightfieldDistance(struct duDebugDraw* dd, const struct 
 
 void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLayer& layer, const int idx, const float* offset);
 void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLayerSet& lset, const float* offset);
-void duDebugDrawHeightfieldLayersRegions(duDebugDraw* dd, const struct rcHeightfieldLayerSet& lset, const float* offset);
 
 void duDebugDrawRegionConnections(struct duDebugDraw* dd, const struct rcContourSet& cset, const float* offset, const float alpha = 1.0f);
 void duDebugDrawRawContours(struct duDebugDraw* dd, const struct rcContourSet& cset, const float* offset, const float alpha = 1.0f);
