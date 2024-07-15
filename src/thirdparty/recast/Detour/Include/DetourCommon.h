@@ -269,13 +269,13 @@ inline void dtVnormalize(float* v)
 	v[2] *= d;
 }
 
-/// Performs a 'sloppy' colocation check of the specified points.
+/// Performs a 'sloppy' collocation check of the specified points.
 ///  @param[in]		p0	A point. [(x, y, z)]
 ///  @param[in]		p1	A point. [(x, y, z)]
 /// @return True if the points are considered to be at the same location.
 ///
 /// Basically, this function will return true if the specified points are 
-/// close enough to eachother to be considered colocated.
+/// close enough to each other to be considered collocated.
 inline bool dtVequal(const float* p0, const float* p1)
 {
 	static const float thr = dtSqr(1.0f/16384.0f);

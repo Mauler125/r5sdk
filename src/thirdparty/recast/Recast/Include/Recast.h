@@ -764,6 +764,16 @@ inline void rcVmax(float* mx, const float* v)
 	mx[2] = rcMax(mx[2], v[2]);
 }
 
+/// Sets the vector elements to the specified values.
+///  @param[out]	dest	The result vector. [(x, y, z)]
+///  @param[in]		x		The x-value of the vector.
+///  @param[in]		y		The y-value of the vector.
+///  @param[in]		z		The z-value of the vector.
+inline void rcVset(float* dest, const float x, const float y, const float z)
+{
+	dest[0] = x; dest[1] = y; dest[2] = z;
+}
+
 /// Performs a vector copy.
 /// @param[out]		dest	The result. [(x, y, z)]
 /// @param[in]		v		The vector to copy. [(x, y, z)]
@@ -816,6 +826,20 @@ inline void rcVnormalize(float* v)
 	v[0] *= d;
 	v[1] *= d;
 	v[2] *= d;
+}
+
+/// Performs a 'sloppy' collocation check of the specified points.
+///  @param[in]		p0	A point. [(x, y, z)]
+///  @param[in]		p1	A point. [(x, y, z)]
+/// @return True if the points are considered to be at the same location.
+///
+/// Basically, this function will return true if the specified points are 
+/// close enough to each other to be considered collocated.
+inline bool rcVequal(const float* p0, const float* p1)
+{
+	static const float thr = rcSqr(1.0f/16384.0f);
+	const float d = rcVdistSqr(p0, p1);
+	return d < thr;
 }
 
 /// @}
