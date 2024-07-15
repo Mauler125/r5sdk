@@ -201,6 +201,8 @@ dtPathCorridor::dtPathCorridor() :
 	m_npath(0),
 	m_maxPath(0)
 {
+	rdVset(m_pos, 0.0f,0.0f,0.0f);
+	rdVset(m_target, 0.0f,0.0f,0.0f);
 }
 
 dtPathCorridor::~dtPathCorridor()

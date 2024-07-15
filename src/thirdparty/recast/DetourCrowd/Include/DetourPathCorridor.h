@@ -25,12 +25,12 @@
 /// @ingroup crowd, detour
 class dtPathCorridor
 {
-	float m_pos[3];
-	float m_target[3];
-	
 	dtPolyRef* m_path;
 	int m_npath;
 	int m_maxPath;
+
+	float m_pos[3];
+	float m_target[3];
 	
 public:
 	dtPathCorridor();
