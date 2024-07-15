@@ -820,7 +820,7 @@ int not_main(int argc, char** argv)
 		// Compute the projection matrix.
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(75.0f, (float)width/(float)height, 1.0f, camr);
+		gluPerspective(85.0f, (float)width/(float)height, 25.0f, camr);
 		GLdouble projectionMatrix[16];
 		glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
 		
@@ -832,7 +832,7 @@ int not_main(int argc, char** argv)
 		const float mXZY_to_XYZ[16] =
 		{
 			1,0,0,0,
-			0,0,-1,0, //tbh not sure why this is needed, the tri flips again? something is very stupid...
+			0,0,-1,0,
 			0,1,0,0,
 			0,0,0,1
 		};

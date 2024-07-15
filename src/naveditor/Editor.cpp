@@ -82,8 +82,8 @@ Editor::Editor() :
 	for (int i = 0; i < MAX_TOOLS; i++)
 		m_toolStates[i] = 0;
 
-	dtVset(m_recastDrawOffset, 0.0f,0.0f,20.0f);
-	dtVset(m_detourDrawOffset, 0.0f,0.0f,30.0f);
+	dtVset(m_recastDrawOffset, 0.0f,0.0f,4.0f);
+	dtVset(m_detourDrawOffset, 0.0f,0.0f,8.0f);
 }
 
 Editor::~Editor()
