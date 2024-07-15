@@ -262,7 +262,8 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->end();
 	}
 
-	dd->depthMask(true);
+	if (!depthTest)
+		dd->depthMask(true);
 }
 
 void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags)
@@ -482,7 +483,8 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 	if (dtStatusFailed(mesh.getTileAndPolyByRef(ref, &tile, &poly)))
 		return;
 	
-	dd->depthMask(false);
+	const bool depthTest = drawFlags & DU_DRAWNAVMESH_DEPTH_MASK;
+	dd->depthMask(depthTest);
 	
 	const unsigned int c = duTransCol(col, 64);
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
@@ -524,8 +526,8 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 		dd->end();
 	}
 	
-	dd->depthMask(true);
-
+	if (!depthTest)
+		dd->depthMask(true);
 }
 
 static void debugDrawTileCachePortals(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch, const float* offset)
@@ -830,7 +832,7 @@ void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyM
 				const float x = orig[0] + v[0]*cs;
 				const float y = orig[1] + v[1]*cs;
 				const float z = orig[2] +(v[2]+1)*ch + 0.1f;
-				dd->vertex(x, y, z, coln);
+				dd->vertex(x,y,z, coln);
 			}
 		}
 	}
@@ -884,7 +886,7 @@ void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyM
 				const float x = orig[0] + v[0]*cs;
 				const float y = orig[1] + v[1]*cs;
 				const float z = orig[2] +(v[2]+1)*ch + 0.1f;
-				dd->vertex(x, y, z, col);
+				dd->vertex(x,y,z, col);
 			}
 		}
 	}
