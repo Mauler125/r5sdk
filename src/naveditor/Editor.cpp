@@ -252,6 +252,25 @@ void Editor::handleCommonSettings()
 	ImGui::PopItemWidth();
 
 	ImGui::Separator();
+	ImGui::Text("Bounding");
+
+	float* navMeshBMin = m_geom->getNavMeshBoundsMin();
+	float* navMeshBMax = m_geom->getNavMeshBoundsMax();
+
+	ImGui::PushItemWidth(230);
+
+	ImGui::SliderFloat3("Mins##BuildSettings", navMeshBMin, -MAX_COORD_FLOAT, MAX_COORD_FLOAT);
+	ImGui::SliderFloat3("Maxs##BuildSettings", navMeshBMax, -MAX_COORD_FLOAT, MAX_COORD_FLOAT);
+
+	ImGui::PopItemWidth();
+
+	if (ImGui::Button("Reset##BuildSettings", ImVec2(120, 0)))
+	{
+		dtVcopy(navMeshBMin, m_geom->getOriginalNavMeshBoundsMin());
+		dtVcopy(navMeshBMax, m_geom->getOriginalNavMeshBoundsMax());
+	}
+
+	ImGui::Separator();
 	ImGui::Text("Partitioning");
 
 	bool isEnabled = m_partitionType == EDITOR_PARTITION_WATERSHED;

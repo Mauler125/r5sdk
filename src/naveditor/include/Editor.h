@@ -136,6 +136,9 @@ protected:
 	float m_detailSampleMaxError;
 	int m_partitionType;
 
+	float m_navMeshBMin[3];
+	float m_navMeshBMax[3];
+
 	NavMeshType_e m_selectedNavMeshType;
 	NavMeshType_e m_loadedNavMeshType;
 	const char* m_navmeshName;

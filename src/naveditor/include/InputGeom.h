@@ -65,6 +65,9 @@ struct BuildSettings
 	// Bounds of the area to mesh
 	float navMeshBMin[3];
 	float navMeshBMax[3];
+	// Original bounds of the area to mesh.
+	float origNavMeshBMin[3];
+	float origNavMeshBMax[3];
 	// Size of the tiles in voxels
 	int tileSize;
 };
@@ -74,6 +77,7 @@ class InputGeom
 	rcChunkyTriMesh* m_chunkyMesh;
 	IMeshLoader* m_mesh;
 	float m_meshBMin[3], m_meshBMax[3];
+	float m_navMeshBMin[3], m_navMeshBMax[3];
 	BuildSettings m_buildSettings;
 	bool m_hasBuildSettings;
 	
@@ -113,8 +117,16 @@ public:
 	const IMeshLoader* getMesh() const { return m_mesh; }
 	const float* getMeshBoundsMin() const { return m_meshBMin; }
 	const float* getMeshBoundsMax() const { return m_meshBMax; }
-	const float* getNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_meshBMin; }
-	const float* getNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_meshBMax; }
+
+	float* getNavMeshBoundsMin() { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_navMeshBMin; }
+	float* getNavMeshBoundsMax() { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_navMeshBMax; }
+
+	const float* getNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_navMeshBMin; }
+	const float* getNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_navMeshBMax; }
+
+	const float* getOriginalNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.origNavMeshBMin : m_meshBMin; }
+	const float* getOriginalNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.origNavMeshBMax : m_meshBMax; }
+
 	const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
 	const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : 0; }
 	bool raycastMesh(float* src, float* dst, float& tmin);

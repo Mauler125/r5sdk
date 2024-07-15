@@ -498,7 +498,7 @@ void Editor_TileMesh::removeTile(const float* pos)
 	getTilePos(pos, tx, ty);
 	getTileExtents(tx, ty, m_lastBuiltTileBmin, m_lastBuiltTileBmax);
 	
-	m_tileCol = duRGBA(128,32,16,64);
+	m_tileCol = duRGBA(255,0,0,180);
 	
 	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
 }
@@ -545,7 +545,7 @@ void Editor_TileMesh::buildAllTiles()
 	m_ctx->stopTimer(RC_TIMER_TEMP);
 
 	m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TEMP)/1000.0f;
-	
+	m_tileCol = duRGBA(0,0,0,64);
 }
 
 void Editor_TileMesh::removeAllTiles()

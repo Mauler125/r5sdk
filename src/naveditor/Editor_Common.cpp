@@ -61,9 +61,15 @@ static void EditorCommon_DrawInputGeometry(duDebugDraw* const dd, const InputGeo
 static void EditorCommon_DrawBoundingBox(duDebugDraw* const dd, const InputGeom* const geom)
 {
 	// Draw bounds
-	const float* const bmin = geom->getNavMeshBoundsMin();
-	const float* const bmax = geom->getNavMeshBoundsMax();
-	duDebugDrawBoxWire(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duRGBA(255, 255, 255, 128), 1.0f, nullptr);
+	const float* const origBmin = geom->getOriginalNavMeshBoundsMin();
+	const float* const origBmax = geom->getOriginalNavMeshBoundsMax();
+	duDebugDrawBoxWire(dd, origBmin[0], origBmin[1], origBmin[2], origBmax[0], origBmax[1], origBmax[2], duRGBA(255, 255, 255, 170), 1.0f, nullptr);
+
+	const float* const navBmin = geom->getNavMeshBoundsMin();
+	const float* const navBmax = geom->getNavMeshBoundsMax();
+
+	if (!rcVequal(origBmin, navBmin) || !rcVequal(origBmax, navBmax))
+		duDebugDrawBoxWire(dd, navBmin[0], navBmin[1], navBmin[2], navBmax[0], navBmax[1], navBmax[2], duRGBA(0, 255, 0, 215), 1.0f, nullptr);
 }
 
 static void EditorCommon_DrawTilingGrid(duDebugDraw* const dd, const InputGeom* const geom, const int tileSize, const float cellSize)
@@ -130,7 +136,7 @@ Editor_StaticTileMeshCommon::Editor_StaticTileMeshCommon()
 	, m_pmesh(nullptr)
 	, m_dmesh(nullptr)
 	, m_tileMeshDrawFlags(TM_DRAWFLAGS_INPUT_MESH|TM_DRAWFLAGS_NAVMESH)
-	, m_tileCol(duRGBA(0, 0, 0, 32))
+	, m_tileCol(duRGBA(0, 0, 0, 64))
 	, m_totalBuildTimeMs(0.0f)
 	, m_drawActiveTile(false)
 	, m_keepInterResults(false)

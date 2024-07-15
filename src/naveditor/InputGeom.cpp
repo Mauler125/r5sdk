@@ -111,6 +111,10 @@ InputGeom::InputGeom() :
 	m_offMeshConCount(0),
 	m_volumeCount(0)
 {
+	rcVset(m_meshBMin, 0.0f, 0.0f, 0.0f);
+	rcVset(m_meshBMax, 0.0f, 0.0f, 0.0f);
+	rcVset(m_navMeshBMin, 0.0f, 0.0f, 0.0f);
+	rcVset(m_navMeshBMax, 0.0f, 0.0f, 0.0f);
 }
 
 InputGeom::~InputGeom()
@@ -144,6 +148,8 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	}
 
 	rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
+	rcVcopy(m_navMeshBMin, m_meshBMin);
+	rcVcopy(m_navMeshBMax, m_meshBMax);
 
 	m_chunkyMesh = new rcChunkyTriMesh;
 	if (!m_chunkyMesh)
@@ -184,6 +190,8 @@ bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath)
 	}
 
 	rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
+	rcVcopy(m_navMeshBMin, m_meshBMin);
+	rcVcopy(m_navMeshBMax, m_meshBMax);
 
 	m_chunkyMesh = new rcChunkyTriMesh;
 	if (!m_chunkyMesh)
@@ -334,6 +342,11 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 							&m_buildSettings.navMeshBMax[1],
 							&m_buildSettings.navMeshBMax[2],
 							&m_buildSettings.tileSize);
+
+			// Copy the original values over so we can reset to them in the
+			// editor after changes have been made.
+			rcVcopy(m_buildSettings.origNavMeshBMin, m_buildSettings.navMeshBMin);
+			rcVcopy(m_buildSettings.origNavMeshBMax, m_buildSettings.navMeshBMax);
 		}
 	}
 	
