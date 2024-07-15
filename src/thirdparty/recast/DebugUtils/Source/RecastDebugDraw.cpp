@@ -405,8 +405,8 @@ void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLaye
 				col = duLerpCol(color, dd->areaToCol(area), 32);
 			
 			const float fx = layer.bmin[0] + x*cs;
-			const float fz = layer.bmin[1] + y*cs;
-			const float fy = layer.bmin[2] +(lh+1)*ch;
+			const float fy = layer.bmin[1] + y*cs;
+			const float fz = layer.bmin[2] +(lh+1)*ch;
 			
 			dd->vertex(fx, fy, fz, col);
 			dd->vertex(fx+cs, fy, fz, col);
