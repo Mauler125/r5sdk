@@ -7,6 +7,7 @@ add_sources( SOURCE_GROUP "Builder"
     "Editor_Common.cpp"
     "Editor_SoloMesh.cpp"
     "Editor_TileMesh.cpp"
+    "Editor_TempObstacles.cpp"
     "InputGeom.cpp"
 )
 

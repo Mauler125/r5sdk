@@ -16,13 +16,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "Shared/Include/SharedAlloc.h"
 #include "Shared/Include/SharedAssert.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Recast/Include/Recast.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
-#include "Detour/Include/DetourCommon.h"
 #include "DetourTileCache/Include/DetourTileCache.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
@@ -46,7 +45,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 	static const float EPS = 1e-6f;
 	
 	float d[3];
-	rcVsub(d, sq, sp);
+	rdVsub(d, sq, sp);
 	tmin = 0;  // set to -FLT_MAX to get first hit on line
 	tmax = FLT_MAX;		// set to max distance ray can travel (for segment)
 	
@@ -66,7 +65,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 			float t1 = (amin[i] - sp[i]) * ood;
 			float t2 = (amax[i] - sp[i]) * ood;
 			// Make t1 be intersection with near plane, t2 with far plane
-			if (t1 > t2) rcSwap(t1, t2);
+			if (t1 > t2) rdSwap(t1, t2);
 			// Compute the intersection of slab intersections intervals
 			if (t1 > tmin) tmin = t1;
 			if (t2 < tmax) tmax = t2;
@@ -80,7 +79,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 
 static int calcLayerBufferSize(const int gridWidth, const int gridHeight)
 {
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int headerSize = rdAlign4(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = gridWidth * gridHeight;
 	return headerSize + gridSize*4;
 }
@@ -136,7 +135,7 @@ struct LinearAllocator : public dtTileCacheAlloc
 	
 	virtual void reset()
 	{
-		high = dtMax(high, top);
+		high = rdMax(high, top);
 		top = 0;
 	}
 	
@@ -418,7 +417,7 @@ int Editor_TempObstacles::rasterizeTileLayers(
 	}
 	
 	rc.ntiles = 0;
-	for (int i = 0; i < rcMin(rc.lset->nlayers, MAX_LAYERS); ++i)
+	for (int i = 0; i < rdMin(rc.lset->nlayers, MAX_LAYERS); ++i)
 	{
 		TileCacheData* tile = &rc.tiles[rc.ntiles++];
 		const rcHeightfieldLayer* layer = &rc.lset->layers[i];
@@ -432,8 +431,8 @@ int Editor_TempObstacles::rasterizeTileLayers(
 		header.tx = tx;
 		header.ty = ty;
 		header.tlayer = i;
-		dtVcopy(header.bmin, layer->bmin);
-		dtVcopy(header.bmax, layer->bmax);
+		rdVcopy(header.bmin, layer->bmin);
+		rdVcopy(header.bmax, layer->bmax);
 		
 		// Tile info.
 		header.width = (unsigned char)layer->width;
@@ -455,7 +454,7 @@ int Editor_TempObstacles::rasterizeTileLayers(
 
 	// Transfer ownership of tile data from build context to the caller.
 	int n = 0;
-	for (int i = 0; i < rcMin(rc.ntiles, maxTiles); ++i)
+	for (int i = 0; i < rdMin(rc.ntiles, maxTiles); ++i)
 	{
 		tiles[n++] = rc.tiles[i];
 		rc.tiles[i].data = 0;
@@ -473,7 +472,7 @@ enum DrawDetailType
 	DRAWDETAIL_MESH,
 };
 
-void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, int type)
+void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, int type, const float* drawOffset)
 {
 	struct TileCacheBuildContext
 	{
@@ -517,7 +516,7 @@ void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, in
 			return;
 		if (type == DRAWDETAIL_AREAS)
 		{
-			duDebugDrawTileCacheLayerAreas(dd, *bc.layer, params->cs, params->ch);
+			duDebugDrawTileCacheLayerAreas(dd, *bc.layer, params->cs, params->ch, drawOffset);
 			continue;
 		}
 
@@ -527,7 +526,7 @@ void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, in
 			return;
 		if (type == DRAWDETAIL_REGIONS)
 		{
-			duDebugDrawTileCacheLayerRegions(dd, *bc.layer, params->cs, params->ch);
+			duDebugDrawTileCacheLayerRegions(dd, *bc.layer, params->cs, params->ch, drawOffset);
 			continue;
 		}
 		
@@ -540,7 +539,7 @@ void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, in
 			return;
 		if (type == DRAWDETAIL_CONTOURS)
 		{
-			duDebugDrawTileCacheContours(dd, *bc.lcset, tile->header->bmin, params->cs, params->ch);
+			duDebugDrawTileCacheContours(dd, *bc.lcset, tile->header->bmin, params->cs, params->ch, drawOffset);
 			continue;
 		}
 		
@@ -553,7 +552,7 @@ void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, in
 
 		if (type == DRAWDETAIL_MESH)
 		{
-			duDebugDrawTileCachePolyMesh(dd, *bc.lmesh, tile->header->bmin, params->cs, params->ch);
+			duDebugDrawTileCachePolyMesh(dd, *bc.lmesh, tile->header->bmin, params->cs, params->ch, drawOffset);
 			continue;
 		}
 
@@ -680,7 +679,7 @@ public:
 	virtual void handleClick(const float* /*s*/, const float* p, bool /*shift*/)
 	{
 		m_hitPosSet = true;
-		rcVcopy(m_hitPos,p);
+		rdVcopy(m_hitPos,p);
 	}
 
 	virtual void handleToggle() {}
@@ -920,9 +919,9 @@ void Editor_TempObstacles::handleTools()
 
 void Editor_TempObstacles::handleDebugMode()
 {
-	Editor::renderNavMeshDebugMenu();
+	Editor_DynamicTileMeshCommon::renderRecastRenderOptions();
 	ImGui::Separator();
-	Editor_DynamicTileMeshCommon::renderTileMeshRenderOptions();
+	Editor::renderDetourDebugMenu();
 }
 
 void Editor_TempObstacles::handleRender()
@@ -933,7 +932,7 @@ void Editor_TempObstacles::handleRender()
 void Editor_TempObstacles::renderCachedTile(const int tx, const int ty, const int type)
 {
 	if (m_tileCache)
-		drawDetail(&m_dd,m_tileCache,tx,ty,type);
+		drawDetail(&m_dd,m_tileCache,tx,ty,type, getDetourDrawOffset());
 }
 
 void Editor_TempObstacles::renderCachedTileOverlay(const int tx, const int ty, double* proj, double* model, int* view)
@@ -997,7 +996,7 @@ void Editor_TempObstacles::addTempObstacle(const float* pos)
 	if (!m_tileCache)
 		return;
 	float p[3];
-	dtVcopy(p, pos);
+	rdVcopy(p, pos);
 	p[2] -= 0.5f;
 	m_tileCache->addObstacle(p, 1.0f, 2.0f, 0);
 }
@@ -1054,8 +1053,8 @@ bool Editor_TempObstacles::handleBuild()
 	cfg.walkableRadius = (int)ceilf(m_agentRadius / cfg.cs);
 	cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	cfg.maxSimplificationError = m_edgeMaxError;
-	cfg.minRegionArea = rcSqr(m_regionMinSize);		// Note: area = size*size
-	cfg.mergeRegionArea = rcSqr(m_regionMergeSize);	// Note: area = size*size
+	cfg.minRegionArea = rdSqr(m_regionMinSize);		// Note: area = size*size
+	cfg.mergeRegionArea = rdSqr(m_regionMergeSize);	// Note: area = size*size
 	cfg.maxVertsPerPoly = m_vertsPerPoly;
 	cfg.tileSize = m_tileSize;
 	cfg.borderSize = cfg.walkableRadius + 3; // Reserve enough padding.
@@ -1063,13 +1062,13 @@ bool Editor_TempObstacles::handleBuild()
 	cfg.height = cfg.tileSize + cfg.borderSize*2;
 	cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
-	rcVcopy(cfg.bmin, bmin);
-	rcVcopy(cfg.bmax, bmax);
+	rdVcopy(cfg.bmin, bmin);
+	rdVcopy(cfg.bmax, bmax);
 	
 	// Tile cache params.
 	dtTileCacheParams tcparams;
 	memset(&tcparams, 0, sizeof(tcparams));
-	rcVcopy(tcparams.orig, bmin);
+	rdVcopy(tcparams.orig, bmin);
 	tcparams.cs = m_cellSize;
 	tcparams.ch = m_cellHeight;
 	tcparams.width = m_tileSize;
@@ -1107,7 +1106,7 @@ bool Editor_TempObstacles::handleBuild()
 
 	dtNavMeshParams params;
 	memset(&params, 0, sizeof(params));
-	rcVcopy(params.orig, bmin);
+	rdVcopy(params.orig, bmin);
 	params.tileWidth = m_tileSize*m_cellSize;
 	params.tileHeight = m_tileSize*m_cellSize;
 	params.maxTiles = m_maxTiles;
