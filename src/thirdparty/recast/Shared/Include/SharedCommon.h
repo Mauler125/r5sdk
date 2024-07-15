@@ -301,7 +301,7 @@ inline bool rdVisfinite(const float* v)
 ///  @param[in]		v	A point. [(x, y, z)]
 inline bool rdVisfinite2D(const float* v)
 {
-	bool result = rdMathIsfinite(v[0]) && rdMathIsfinite(v[2]);
+	bool result = rdMathIsfinite(v[0]) && rdMathIsfinite(v[1]);
 	return result;
 }
 
