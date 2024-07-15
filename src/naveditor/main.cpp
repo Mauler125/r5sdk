@@ -646,7 +646,7 @@ int not_main(int argc, char** argv)
 					break;
 				
 				case SDL_MOUSEWHEEL:
-					if (event.wheel.y < 0)
+					if (event.wheel.x < 0 || event.wheel.y < 0)
 					{
 						// wheel down
 						if (mouseOverMenu)
@@ -658,7 +658,7 @@ int not_main(int argc, char** argv)
 							scrollZoom += 120.0f;
 						}
 					}
-					else
+					else if (event.wheel.x > 0 || event.wheel.y > 0)
 					{
 						if (mouseOverMenu)
 						{
