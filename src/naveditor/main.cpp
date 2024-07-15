@@ -564,7 +564,7 @@ int not_main(int argc, char** argv)
 	float scrollZoom = 0;
 	bool rotate = false;
 	bool movedDuringRotate = false;
-	bool mouseOverMenu = false;
+	bool focusOnMenu = false;
 
 	bool showMenu = !presentationMode;
 	bool showLog = false;
@@ -649,7 +649,7 @@ int not_main(int argc, char** argv)
 					if (event.wheel.x < 0 || event.wheel.y < 0)
 					{
 						// wheel down
-						if (mouseOverMenu)
+						if (focusOnMenu)
 						{
 							mouseScroll++;
 						}
@@ -660,7 +660,7 @@ int not_main(int argc, char** argv)
 					}
 					else if (event.wheel.x > 0 || event.wheel.y > 0)
 					{
-						if (mouseOverMenu)
+						if (focusOnMenu)
 						{
 							mouseScroll--;
 						}
@@ -673,7 +673,7 @@ int not_main(int argc, char** argv)
 				case SDL_MOUSEBUTTONDOWN:
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
-						if (!mouseOverMenu)
+						if (!focusOnMenu)
 						{
 							// Rotate view
 							rotate = true;
@@ -691,7 +691,7 @@ int not_main(int argc, char** argv)
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
 						rotate = false;
-						if (!mouseOverMenu)
+						if (!focusOnMenu)
 						{
 							if (!movedDuringRotate)
 							{
@@ -702,7 +702,7 @@ int not_main(int argc, char** argv)
 					}
 					else if (event.button.button == SDL_BUTTON_LEFT)
 					{
-						if (!mouseOverMenu)
+						if (!focusOnMenu)
 						{
 							processHitTest = true;
 							processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
@@ -852,7 +852,7 @@ int not_main(int argc, char** argv)
 		rayEnd[1] = (float)y;
 		rayEnd[2] = (float)z;
 		
-		if (!mouseOverMenu)
+		if (!focusOnMenu)
 		{
 			// Handle keyboard movement.
 			const Uint8* keystate = SDL_GetKeyboardState(NULL);
@@ -902,7 +902,7 @@ int not_main(int argc, char** argv)
 		glLoadIdentity();
 		
 		ImGuiIO& io = ImGui::GetIO();
-		mouseOverMenu = io.WantCaptureMouse||io.WantCaptureKeyboard;
+		focusOnMenu = io.WantCaptureMouse||io.WantCaptureKeyboard;
 		
 		ImGui_ImplOpenGL2_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
