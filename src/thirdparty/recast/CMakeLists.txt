@@ -10,11 +10,14 @@ start_sources()
 add_sources( SOURCE_GROUP "Source"
     "Shared/Source/SharedAlloc.cpp"
     "Shared/Source/SharedAssert.cpp"
+    "Shared/Source/SharedCommon.cpp"
 )
 
 add_sources( SOURCE_GROUP "Include"
     "Shared/Include/SharedAlloc.h"
     "Shared/Include/SharedAssert.h"
+    "Shared/Include/SharedCommon.h"
+    "Shared/Include/SharedMath.h"
 )
 
 end_sources()
@@ -56,7 +59,6 @@ add_module( "lib" "libdetour" "navsharedcommon" ${FOLDER_CONTEXT} TRUE TRUE )
 start_sources()
 
 add_sources( SOURCE_GROUP "Source"
-    "Detour/Source/DetourCommon.cpp"
     "Detour/Source/DetourNavMesh.cpp"
     "Detour/Source/DetourNavMeshBuilder.cpp"
     "Detour/Source/DetourNavMeshQuery.cpp"
@@ -64,8 +66,6 @@ add_sources( SOURCE_GROUP "Source"
 )
 
 add_sources( SOURCE_GROUP "Include"
-    "Detour/Include/DetourCommon.h"
-    "Detour/Include/DetourMath.h"
     "Detour/Include/DetourNavMesh.h"
     "Detour/Include/DetourNavMeshBuilder.h"
     "Detour/Include/DetourNavMeshQuery.h"

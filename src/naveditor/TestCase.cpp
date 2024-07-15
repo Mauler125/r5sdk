@@ -17,7 +17,7 @@
 //
 
 #include "Pch.h"
-#include "Detour/Include/DetourCommon.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "NavEditor/Include/TestCase.h"
@@ -276,12 +276,12 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			if (t > 1)
 			{
 				// No hit
-				dtVcopy(hitPos, iter->epos);
+				rdVcopy(hitPos, iter->epos);
 			}
 			else
 			{
 				// Hit
-				dtVlerp(hitPos, iter->spos, iter->epos, t);
+				rdVlerp(hitPos, iter->spos, iter->epos, t);
 			}
 			// Adjust height.
 			if (iter->npolys > 0)
@@ -290,7 +290,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 				navquery->getPolyHeight(polys[iter->npolys-1], hitPos, &h);
 				hitPos[2] = h;
 			}
-			dtVcopy(&iter->straight[3], hitPos);
+			rdVcopy(&iter->straight[3], hitPos);
 
 			if (iter->npolys)
 			{
@@ -321,8 +321,8 @@ void TestCase::handleRender()
 	for (Test* iter = m_tests; iter; iter = iter->next)
 	{
 		float dir[3];
-		dtVsub(dir, iter->epos, iter->spos);
-		dtVnormalize(dir);
+		rdVsub(dir, iter->epos, iter->spos);
+		rdVnormalize(dir);
 		glColor4ub(128,25,0,192);
 		glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]-0.3f);
 		glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]+0.3f);
@@ -387,20 +387,20 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		float pt[3], dir[3];
 		if (iter->nstraight)
 		{
-			dtVcopy(pt, &iter->straight[3]);
-			if (dtVdist(pt, iter->spos) > LABEL_DIST)
+			rdVcopy(pt, &iter->straight[3]);
+			if (rdVdist(pt, iter->spos) > LABEL_DIST)
 			{
-				dtVsub(dir, pt, iter->spos);
-				dtVnormalize(dir);
-				dtVmad(pt, iter->spos, dir, LABEL_DIST);
+				rdVsub(dir, pt, iter->spos);
+				rdVnormalize(dir);
+				rdVmad(pt, iter->spos, dir, LABEL_DIST);
 			}
 			pt[2]+=0.5f;
 		}
 		else
 		{
-			dtVsub(dir, iter->epos, iter->spos);
-			dtVnormalize(dir);
-			dtVmad(pt, iter->spos, dir, LABEL_DIST);
+			rdVsub(dir, iter->epos, iter->spos);
+			rdVnormalize(dir);
+			rdVmad(pt, iter->spos, dir, LABEL_DIST);
 			pt[2]+=0.5f;
 		}
 		

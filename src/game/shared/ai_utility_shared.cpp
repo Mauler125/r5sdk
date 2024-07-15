@@ -18,7 +18,7 @@
 #include "game/server/ai_networkmanager.h"
 #include "game/server/ai_network.h"
 #include "game/client/viewrender.h"
-#include "thirdparty/recast/Detour/Include/DetourCommon.h"
+#include "thirdparty/recast/Shared/Include/SharedCommon.h"
 #include "thirdparty/recast/Detour/Include/DetourNavMesh.h"
 
 static ConVar ai_script_nodes_draw_range("ai_script_nodes_draw_range", "0", FCVAR_DEVELOPMENTONLY, "Debug draw AIN script nodes ranging from shift index to this cvar");
@@ -543,8 +543,8 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                         if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
                             continue;
 
-                        if (distancePtLine2d(tv[n], v0, v1) < thr &&
-                            distancePtLine2d(tv[m], v0, v1) < thr)
+                        if (rdDistancePtLine2d(tv[n], v0, v1) < thr &&
+                            rdDistancePtLine2d(tv[m], v0, v1) < thr)
                         {
                             v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, bDepthBuffer);
                         }

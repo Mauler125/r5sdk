@@ -72,8 +72,8 @@ static bool circumCircle(const float* p1, const float* p2, const float* p3,
 	// Calculate the circle relative to p1, to avoid some precision issues.
 	const float v1[3] = {0,0,0};
 	float v2[3], v3[3];
-	rcVsub(v2, p2,p1);
-	rcVsub(v3, p3,p1);
+	rdVsub(v2, p2,p1);
+	rdVsub(v3, p3,p1);
 	
 	const float cp = vcross2(v1, v2, v3);
 	if (fabsf(cp) > EPS)
@@ -85,11 +85,11 @@ static bool circumCircle(const float* p1, const float* p2, const float* p3,
 		c[1] = (v1Sq*(v3[0]-v2[0]) + v2Sq*(v1[0]-v3[0]) + v3Sq*(v2[0]-v1[0])) / (2*cp);
 		c[2] = 0;
 		r = vdist2(c, v1);
-		rcVadd(c, c, p1);
+		rdVadd(c, c, p1);
 		return true;
 	}
 	
-	rcVcopy(c, p1);
+	rdVcopy(c, p1);
 	r = 0;
 	return false;
 }
@@ -97,9 +97,9 @@ static bool circumCircle(const float* p1, const float* p2, const float* p3,
 static float distPtTri(const float* p, const float* a, const float* b, const float* c)
 {
 	float v0[3], v1[3], v2[3];
-	rcVsub(v0, c,a);
-	rcVsub(v1, b,a);
-	rcVsub(v2, p,a);
+	rdVsub(v0, c,a);
+	rdVsub(v1, b,a);
+	rdVsub(v2, p,a);
 	
 	const float dot00 = vdot2(v0, v0);
 	const float dot01 = vdot2(v0, v1);
@@ -195,7 +195,7 @@ static float distToPoly(int nvert, const float* verts, const float* p)
 		if (((vi[1] > p[1]) != (vj[1] > p[1])) &&
 			(p[0] < (vj[0]-vi[0]) * (p[1]-vi[1]) / (vj[1]-vi[1]) + vi[0]) )
 			c = !c;
-		dmin = rcMin(dmin, distancePtSeg2d(p, vj, vi));
+		dmin = rdMin(dmin, distancePtSeg2d(p, vj, vi));
 	}
 	return c ? -dmin : dmin;
 }
@@ -207,8 +207,8 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 {
 	int ix = (int)floorf(fx*ics + 0.01f);
 	int iy = (int)floorf(fy*ics + 0.01f);
-	ix = rcClamp(ix-hp.xmin, 0, hp.width - 1);
-	iy = rcClamp(iy-hp.ymin, 0, hp.height - 1);
+	ix = rdClamp(ix-hp.xmin, 0, hp.width - 1);
+	iy = rdClamp(iy-hp.ymin, 0, hp.height - 1);
 	unsigned short h = hp.data[ix+iy*hp.width];
 	if (h == RC_UNSET_HEIGHT)
 	{
@@ -649,11 +649,11 @@ static float polyMinExtent(const float* verts, const int nverts)
 		{
 			if (j == i || j == ni) continue;
 			float d = distancePtSeg2d(&verts[j*3], p1,p2);
-			maxEdgeDist = rcMax(maxEdgeDist, d);
+			maxEdgeDist = rdMax(maxEdgeDist, d);
 		}
-		minDist = rcMin(minDist, maxEdgeDist);
+		minDist = rdMin(minDist, maxEdgeDist);
 	}
-	return rcSqrt(minDist);
+	return rdMathSqrtf(minDist);
 }
 
 // Last time I checked the if version got compiled using cmov, which was a lot faster than module (with idiv).
@@ -795,7 +795,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	nverts = nin;
 	
 	for (int i = 0; i < nin; ++i)
-		rcVcopy(&verts[i*3], &in[i*3]);
+		rdVcopy(&verts[i*3], &in[i*3]);
 	
 	edges.clear();
 	tris.clear();
@@ -822,7 +822,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			{
 				if (vj[1] > vi[1])
 				{
-					rcSwap(vj,vi);
+					rdSwap(vj,vi);
 					swapped = true;
 				}
 			}
@@ -830,7 +830,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			{
 				if (vj[0] > vi[0])
 				{
-					rcSwap(vj,vi);
+					rdSwap(vj,vi);
 					swapped = true;
 				}
 			}
@@ -876,7 +876,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				}
 				// If the max deviation is larger than accepted error,
 				// add new point, else continue to next segment.
-				if (maxi != -1 && maxd > rcSqr(sampleMaxError))
+				if (maxi != -1 && maxd > rdSqr(sampleMaxError))
 				{
 					for (int m = nidx; m > k; --m)
 						idx[m] = idx[m-1];
@@ -895,7 +895,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			{
 				for (int k = nidx-2; k > 0; --k)
 				{
-					rcVcopy(&verts[nverts*3], &edge[idx[k]*3]);
+					rdVcopy(&verts[nverts*3], &edge[idx[k]*3]);
 					hull[nhull++] = nverts;
 					nverts++;
 				}
@@ -904,7 +904,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			{
 				for (int k = 1; k < nidx-1; ++k)
 				{
-					rcVcopy(&verts[nverts*3], &edge[idx[k]*3]);
+					rdVcopy(&verts[nverts*3], &edge[idx[k]*3]);
 					hull[nhull++] = nverts;
 					nverts++;
 				}
@@ -937,12 +937,12 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	{
 		// Create sample locations in a grid.
 		float bmin[3], bmax[3];
-		rcVcopy(bmin, in);
-		rcVcopy(bmax, in);
+		rdVcopy(bmin, in);
+		rdVcopy(bmax, in);
 		for (int i = 1; i < nin; ++i)
 		{
-			rcVmin(bmin, &in[i*3]);
-			rcVmax(bmax, &in[i*3]);
+			rdVmin(bmin, &in[i*3]);
+			rdVmax(bmax, &in[i*3]);
 		}
 		int x0 = (int)floorf(bmin[0]/sampleDist);
 		int x1 = (int)ceilf(bmax[0]/sampleDist);
@@ -995,7 +995,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				{
 					bestd = d;
 					besti = i;
-					rcVcopy(bestpt,pt);
+					rdVcopy(bestpt,pt);
 				}
 			}
 			// If the max error is within accepted threshold, stop tessellating.
@@ -1004,7 +1004,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			// Mark sample as added.
 			samples[besti*4+3] = 1;
 			// Add the new sample point.
-			rcVcopy(&verts[nverts*3],bestpt);
+			rdVcopy(&verts[nverts*3],bestpt);
 			nverts++;
 			
 			// Create new triangulation.
@@ -1058,7 +1058,7 @@ static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& 
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni && dmin > 0; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				int d = rcAbs(az - (int)s.z);
+				int d = rdAbs(az - (int)s.z);
 				if (d < dmin)
 				{
 					startCellX = ax;
@@ -1119,7 +1119,7 @@ static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& 
 			directDir = rcGetDirForOffset(pcx > cx ? 1 : -1, 0);
 
 		// Push the direct dir last so we start with this on next iteration
-		rcSwap(dirs[directDir], dirs[3]);
+		rdSwap(dirs[directDir], dirs[3]);
 
 		const rcCompactSpan& cs = chf.spans[ci];
 		for (int i = 0; i < 4; i++)
@@ -1145,7 +1145,7 @@ static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& 
 			array.push((int)chf.cells[(newX+bs)+(newY+bs)*chf.width].index + rcGetCon(cs, dir));
 		}
 
-		rcSwap(dirs[directDir], dirs[3]);
+		rdSwap(dirs[directDir], dirs[3]);
 	}
 
 	array.clear();
@@ -1306,7 +1306,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	const float ch = mesh.ch;
 	const float* orig = mesh.bmin;
 	const int borderSize = mesh.borderSize;
-	const int heightSearchRadius = rcMax(1, (int)ceilf(mesh.maxEdgeError));
+	const int heightSearchRadius = rdMax(1, (int)ceilf(mesh.maxEdgeError));
 	
 	rdIntArray edges(64);
 	rdIntArray tris(512);
@@ -1346,19 +1346,19 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		{
 			if(p[j] == RC_MESH_NULL_IDX) break;
 			const unsigned short* v = &mesh.verts[p[j]*3];
-			xmin = rcMin(xmin, (int)v[0]);
-			xmax = rcMax(xmax, (int)v[0]);
-			ymin = rcMin(ymin, (int)v[1]);
-			ymax = rcMax(ymax, (int)v[1]);
+			xmin = rdMin(xmin, (int)v[0]);
+			xmax = rdMax(xmax, (int)v[0]);
+			ymin = rdMin(ymin, (int)v[1]);
+			ymax = rdMax(ymax, (int)v[1]);
 			nPolyVerts++;
 		}
-		xmin = rcMax(0,xmin-1);
-		xmax = rcMin(chf.width,xmax+1);
-		ymin = rcMax(0,ymin-1);
-		ymax = rcMin(chf.height,ymax+1);
+		xmin = rdMax(0,xmin-1);
+		xmax = rdMin(chf.width,xmax+1);
+		ymin = rdMax(0,ymin-1);
+		ymax = rdMin(chf.height,ymax+1);
 		if (xmin >= xmax || ymin >= ymax) continue;
-		maxhw = rcMax(maxhw, xmax-xmin);
-		maxhh = rcMax(maxhh, ymax-ymin);
+		maxhw = rdMax(maxhw, xmax-xmin);
+		maxhh = rdMax(maxhh, ymax-ymin);
 	}
 	
 	hp.data = (unsigned short*)rdAlloc(sizeof(unsigned short)*maxhw*maxhh, RD_ALLOC_TEMP);
@@ -1570,7 +1570,7 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 		
 		for (int k = 0; k < dm->nverts; ++k)
 		{
-			rcVcopy(&mesh.verts[mesh.nverts*3], &dm->verts[k*3]);
+			rdVcopy(&mesh.verts[mesh.nverts*3], &dm->verts[k*3]);
 			mesh.nverts++;
 		}
 		for (int k = 0; k < dm->ntris; ++k)

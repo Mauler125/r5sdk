@@ -19,8 +19,8 @@
 #include "DebugUtils/Include/DebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "Detour/Include/DetourNavMesh.h"
-#include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNode.h"
+#include "Shared/Include/SharedCommon.h"
 
 static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd, const unsigned int alpha)
 {
@@ -111,8 +111,8 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 					if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
 						continue;
 
-					if (distancePtLine2d(tv[n],v0,v1) < thr &&
-						distancePtLine2d(tv[m],v0,v1) < thr)
+					if (rdDistancePtLine2d(tv[n],v0,v1) < thr &&
+						rdDistancePtLine2d(tv[m],v0,v1) < thr)
 					{
 						dd->vertex(tv[n], c);
 						dd->vertex(tv[m], c);

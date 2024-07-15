@@ -1,6 +1,6 @@
 #include "Pch.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Recast/Include/Recast.h"
-#include "Detour/Include/DetourCommon.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/EditorInterfaces.h"
@@ -38,7 +38,7 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 	// Store category
 	*cat = (char)category;
 	// Store message
-	const int count = rcMin(len+1, maxtext);
+	const int count = rdMin(len+1, maxtext);
 	memcpy(text, msg, count);
 	text[count-1] = '\0';
 	m_textPoolSize += 1 + count;
@@ -217,7 +217,7 @@ void DebugDrawGL::begin(const duDebugDrawPrimitives prim, const float size, cons
 	};
 
 	if (offset)
-		dtVcopy(m_drawOffset,offset);
+		rdVcopy(m_drawOffset,offset);
 }
 
 void DebugDrawGL::vertex(const float* pos, unsigned int color)
@@ -225,7 +225,7 @@ void DebugDrawGL::vertex(const float* pos, unsigned int color)
 	glColor4ubv((GLubyte*)&color);
 
 	float opos[3];
-	dtVadd(opos,pos,m_drawOffset);
+	rdVadd(opos,pos,m_drawOffset);
 
 	glVertex3fv(opos);
 }
@@ -236,8 +236,8 @@ void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned i
 
 	float opos[3];
 
-	dtVset(opos, x,y,z);
-	dtVadd(opos,opos,m_drawOffset);
+	rdVset(opos, x,y,z);
+	rdVadd(opos,opos,m_drawOffset);
 
 	glVertex3fv(opos);
 }
@@ -248,7 +248,7 @@ void DebugDrawGL::vertex(const float* pos, unsigned int color, const float* uv)
 	glTexCoord2fv(uv);
 
 	float opos[3];
-	dtVadd(opos,pos,m_drawOffset);
+	rdVadd(opos,pos,m_drawOffset);
 
 	glVertex3fv(opos);
 }
@@ -260,8 +260,8 @@ void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned i
 
 	float opos[3];
 
-	dtVset(opos, x,y,z);
-	dtVadd(opos,opos,m_drawOffset);
+	rdVset(opos, x,y,z);
+	rdVadd(opos,opos,m_drawOffset);
 
 	glVertex3fv(opos);
 }
@@ -272,7 +272,7 @@ void DebugDrawGL::end()
 	glLineWidth(1.0f);
 	glPointSize(1.0f);
 
-	dtVset(m_drawOffset, 0.0f,0.0f,0.0f);
+	rdVset(m_drawOffset, 0.0f,0.0f,0.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -185,8 +185,8 @@ bool Editor_SoloMesh::handleBuild()
 	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
 	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
-	m_cfg.minRegionArea = rcSqr(m_regionMinSize);		// Note: area = size*size
-	m_cfg.mergeRegionArea = rcSqr(m_regionMergeSize);	// Note: area = size*size
+	m_cfg.minRegionArea = rdSqr(m_regionMinSize);		// Note: area = size*size
+	m_cfg.mergeRegionArea = rdSqr(m_regionMergeSize);	// Note: area = size*size
 	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
 	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
@@ -194,8 +194,8 @@ bool Editor_SoloMesh::handleBuild()
 	// Set the area where the navigation will be build.
 	// Here the bounds of the input mesh are used, but the
 	// area could be specified by an user defined box, etc.
-	rcVcopy(m_cfg.bmin, bmin);
-	rcVcopy(m_cfg.bmax, bmax);
+	rdVcopy(m_cfg.bmin, bmin);
+	rdVcopy(m_cfg.bmax, bmax);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 
 	// Reset build times gathering.
@@ -490,8 +490,8 @@ bool Editor_SoloMesh::handleBuild()
 		params.walkableHeight = m_agentHeight;
 		params.walkableRadius = m_agentRadius;
 		params.walkableClimb = m_agentMaxClimb;
-		rcVcopy(params.bmin, m_pmesh->bmin);
-		rcVcopy(params.bmax, m_pmesh->bmax);
+		rdVcopy(params.bmin, m_pmesh->bmin);
+		rdVcopy(params.bmax, m_pmesh->bmax);
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
 		params.buildBvTree = true;

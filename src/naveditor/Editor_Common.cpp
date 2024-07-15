@@ -24,32 +24,6 @@
 #include "Include/InputGeom.h"
 #include <DetourTileCache/Include/DetourTileCache.h>
 
-// todo(amos): move these to common math.
-inline unsigned int nextPow2(unsigned int v)
-{
-	v--;
-	v |= v >> 1;
-	v |= v >> 2;
-	v |= v >> 4;
-	v |= v >> 8;
-	v |= v >> 16;
-	v++;
-	return v;
-}
-
-// todo(amos): move these to common math.
-inline unsigned int ilog2(unsigned int v)
-{
-	unsigned int r;
-	unsigned int shift;
-	r = (v > 0xffff) << 4; v >>= r;
-	shift = (v > 0xff) << 3; v >>= shift; r |= shift;
-	shift = (v > 0xf) << 2; v >>= shift; r |= shift;
-	shift = (v > 0x3) << 1; v >>= shift; r |= shift;
-	r |= (v >> 1);
-	return r;
-}
-
 static void EditorCommon_DrawInputGeometry(duDebugDraw* const dd, const InputGeom* const geom,
 	const float maxSlope, const float textureScale)
 {
@@ -68,7 +42,7 @@ static void EditorCommon_DrawBoundingBox(duDebugDraw* const dd, const InputGeom*
 	const float* const navBmin = geom->getNavMeshBoundsMin();
 	const float* const navBmax = geom->getNavMeshBoundsMax();
 
-	if (!rcVequal(origBmin, navBmin) || !rcVequal(origBmax, navBmax))
+	if (!rdVequal(origBmin, navBmin) || !rdVequal(origBmax, navBmax))
 		duDebugDrawBoxWire(dd, navBmin[0], navBmin[1], navBmin[2], navBmax[0], navBmax[1], navBmax[2], duRGBA(0, 255, 0, 215), 1.0f, nullptr);
 }
 
@@ -107,7 +81,7 @@ int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, const i
 
 		// Max tiles and max polys affect how the tile IDs are calculated.
 		// There are 28 bits available for identifying a tile and a polygon.
-		int tileBits = rcMin((int)ilog2(nextPow2(tw*th)), 16);
+		int tileBits = rdMin((int)rdIlog2(rdNextPow2(tw*th)), 16);
 		int polyBits = 28 - tileBits;
 
 		maxTiles = 1 << tileBits;

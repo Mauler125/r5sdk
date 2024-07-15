@@ -45,7 +45,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 				// span just below it, mark the span above it walkable too.
 				if (!walkable && previousWasWalkable)
 				{
-					if (rcAbs((int)span->smax - (int)previousSpan->smax) <= walkableClimb)
+					if (rdAbs((int)span->smax - (int)previousSpan->smax) <= walkableClimb)
 					{
 						span->area = previousArea;
 					}
@@ -100,7 +100,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 					// Skip neighbours which are out of bounds.
 					if (dx < 0 || dy < 0 || dx >= xSize || dy >= zSize)
 					{
-						minNeighborHeight = rcMin(minNeighborHeight, -walkableClimb - bot);
+						minNeighborHeight = rdMin(minNeighborHeight, -walkableClimb - bot);
 						continue;
 					}
 
@@ -110,9 +110,9 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 					int neighborTop = neighborSpan ? (int)neighborSpan->smin : MAX_HEIGHT;
 					
 					// Skip neighbour if the gap between the spans is too small.
-					if (rcMin(top, neighborTop) - rcMax(bot, neighborBot) > walkableHeight)
+					if (rdMin(top, neighborTop) - rdMax(bot, neighborBot) > walkableHeight)
 					{
-						minNeighborHeight = rcMin(minNeighborHeight, neighborBot - bot);
+						minNeighborHeight = rdMin(minNeighborHeight, neighborBot - bot);
 					}
 
 					// Rest of the spans.
@@ -122,12 +122,12 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 						neighborTop = neighborSpan->next ? (int)neighborSpan->next->smin : MAX_HEIGHT;
 						
 						// Skip neighbour if the gap between the spans is too small.
-						if (rcMin(top, neighborTop) - rcMax(bot, neighborBot) > walkableHeight)
+						if (rdMin(top, neighborTop) - rdMax(bot, neighborBot) > walkableHeight)
 						{
-							minNeighborHeight = rcMin(minNeighborHeight, neighborBot - bot);
+							minNeighborHeight = rdMin(minNeighborHeight, neighborBot - bot);
 
 							// Find min/max accessible neighbour height. 
-							if (rcAbs(neighborBot - bot) <= walkableClimb)
+							if (rdAbs(neighborBot - bot) <= walkableClimb)
 							{
 								if (neighborBot < accessibleNeighborMinHeight) accessibleNeighborMinHeight = neighborBot;
 								if (neighborBot > accessibleNeighborMaxHeight) accessibleNeighborMaxHeight = neighborBot;

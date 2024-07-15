@@ -186,7 +186,7 @@ static void calculateDistanceField(rcCompactHeightfield& chf, unsigned short* sr
 	
 	maxDist = 0;
 	for (int i = 0; i < chf.spanCount; ++i)
-		maxDist = rcMax(src[i], maxDist);
+		maxDist = rdMax(src[i], maxDist);
 	
 }
 
@@ -1081,8 +1081,8 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 				reg.spanCount++;
 				reg.areaType = area;
 				
-				reg.zmin = rcMin(reg.zmin, s.z);
-				reg.zmax = rcMax(reg.zmax, s.z);
+				reg.zmin = rdMin(reg.zmin, s.z);
+				reg.zmax = rdMax(reg.zmax, s.z);
 				
 				// Collect all region layers.
 				lregs.push(ri);
@@ -1184,8 +1184,8 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 				// Merge current layers to root.
 				for (int k = 0; k < regn.floors.size(); ++k)
 					addUniqueFloorRegion(root, regn.floors[k]);
-				root.zmin = rcMin(root.zmin, regn.zmin);
-				root.zmax = rcMax(root.zmax, regn.zmax);
+				root.zmin = rdMin(root.zmin, regn.zmin);
+				root.zmax = rdMax(root.zmax, regn.zmax);
 				root.spanCount += regn.spanCount;
 				regn.spanCount = 0;
 				root.connectsToBorder = root.connectsToBorder || regn.connectsToBorder;
@@ -1296,7 +1296,7 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 
 		// Blur
 		if (boxBlur(chf, 1, src, dst) != src)
-			rcSwap(src, dst);
+			rdSwap(src, dst);
 
 		// Store distance.
 		chf.dist = src;
@@ -1374,7 +1374,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
 
-	const int nsweeps = rcMax(chf.width,chf.height);
+	const int nsweeps = rdMax(chf.width,chf.height);
 	rdScopedDelete<rcSweepSpan> sweeps((rcSweepSpan*)rdAlloc(sizeof(rcSweepSpan)*nsweeps, RD_ALLOC_TEMP));
 	if (!sweeps)
 	{
@@ -1387,8 +1387,8 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	if (borderSize > 0)
 	{
 		// Make sure border will not overflow.
-		const int bw = rcMin(w, borderSize);
-		const int bh = rcMin(h, borderSize);
+		const int bw = rdMin(w, borderSize);
+		const int bh = rdMin(h, borderSize);
 		// Paint regions
 		paintRectRegion(0, bw, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
@@ -1574,8 +1574,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	if (borderSize > 0)
 	{
 		// Make sure border will not overflow.
-		const int bw = rcMin(w, borderSize);
-		const int bh = rcMin(h, borderSize);
+		const int bw = rdMin(w, borderSize);
+		const int bh = rdMin(h, borderSize);
 		
 		// Paint regions
 		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
@@ -1683,7 +1683,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
 	
-	const int nsweeps = rcMax(chf.width,chf.height);
+	const int nsweeps = rdMax(chf.width,chf.height);
 	rdScopedDelete<rcSweepSpan> sweeps((rcSweepSpan*)rdAlloc(sizeof(rcSweepSpan)*nsweeps, RD_ALLOC_TEMP));
 	if (!sweeps)
 	{
@@ -1696,8 +1696,8 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	if (borderSize > 0)
 	{
 		// Make sure border will not overflow.
-		const int bw = rcMin(w, borderSize);
-		const int bh = rcMin(h, borderSize);
+		const int bw = rdMin(w, borderSize);
+		const int bh = rdMin(h, borderSize);
 		// Paint regions
 		paintRectRegion(0, bw, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;

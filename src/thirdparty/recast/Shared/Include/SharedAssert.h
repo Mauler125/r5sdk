@@ -36,11 +36,11 @@
 ///  @see rdAssertFailSetCustom
 typedef void (rdAssertFailFunc)(const char* expression, const char* file, int line);
 
-/// Sets the base custom assertion failure function to be used by Detour.
+/// Sets the base custom assertion failure function to be used by Recast & Detour.
 ///  @param[in]		assertFailFunc	The function to be invoked in case of failure of #rdAssert
 void rdAssertFailSetCustom(rdAssertFailFunc *assertFailFunc);
 
-/// Gets the base custom assertion failure function to be used by Detour.
+/// Gets the base custom assertion failure function to be used by Recast & Detour.
 rdAssertFailFunc* rdAssertFailGetCustom();
 
 #	include <assert.h> 

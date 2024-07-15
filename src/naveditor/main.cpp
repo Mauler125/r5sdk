@@ -161,9 +161,9 @@ void update_camera(const float* bmin, const float* bmax,float* cameraPos,float* 
 	// Reset camera and fog to match the mesh bounds.
 	if (bmin && bmax)
 	{
-		camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-			rcSqr(bmax[1] - bmin[1]) +
-			rcSqr(bmax[2] - bmin[2])) / 2;
+		camr = sqrtf(rdSqr(bmax[0] - bmin[0]) +
+			rdSqr(bmax[1] - bmin[1]) +
+			rdSqr(bmax[2] - bmin[2])) / 2;
 		cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
 		cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
 		cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
@@ -288,7 +288,7 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 	else
 	{
 		float aspect = 16.0f / 9.0f;
-		width = rcMin(displayMode.w, static_cast<int>((displayMode.h * aspect))) - 80;
+		width = rdMin(displayMode.w, static_cast<int>((displayMode.h * aspect))) - 80;
 		height = displayMode.h - 80;
 	}
 
@@ -635,8 +635,8 @@ int not_main(int argc, char** argv)
 							BuildSettings settings;
 							memset(&settings, 0, sizeof(settings));
 
-							rcVcopy(settings.navMeshBMin, geom->getNavMeshBoundsMin());
-							rcVcopy(settings.navMeshBMax, geom->getNavMeshBoundsMax());
+							rdVcopy(settings.navMeshBMin, geom->getNavMeshBoundsMin());
+							rdVcopy(settings.navMeshBMax, geom->getNavMeshBoundsMax());
 
 							editor->collectSettings(settings);
 
@@ -781,7 +781,7 @@ int not_main(int argc, char** argv)
 		// Update editor simulation.
 		const float SIM_RATE = 20;
 		const float DELTA_TIME = 1.0f / SIM_RATE;
-		timeAcc = rcClamp(timeAcc + dt, -1.0f, 1.0f);
+		timeAcc = rdClamp(timeAcc + dt, -1.0f, 1.0f);
 		int simIter = 0;
 		while (timeAcc > DELTA_TIME)
 		{
@@ -856,12 +856,12 @@ int not_main(int argc, char** argv)
 		{
 			// Handle keyboard movement.
 			const Uint8* keystate = SDL_GetKeyboardState(NULL);
-			moveFront	= rcClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
-			moveLeft	= rcClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
-			moveBack	= rcClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
-			moveRight	= rcClamp(moveRight	+ dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT	]) ? 1 : -1), 0.0f, 1.0f);
-			moveUp		= rcClamp(moveUp	+ dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP	]) ? 1 : -1), 0.0f, 1.0f);
-			moveDown	= rcClamp(moveDown	+ dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1 : -1), 0.0f, 1.0f);
+			moveFront	= rdClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
+			moveLeft	= rdClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
+			moveBack	= rdClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
+			moveRight	= rdClamp(moveRight	+ dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT	]) ? 1 : -1), 0.0f, 1.0f);
+			moveUp		= rdClamp(moveUp	+ dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP	]) ? 1 : -1), 0.0f, 1.0f);
+			moveDown	= rdClamp(moveDown	+ dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1 : -1), 0.0f, 1.0f);
 			
 			float keybSpeed = 8800.0f;
 			if (SDL_GetModState() & KMOD_SHIFT)
@@ -1261,7 +1261,7 @@ int not_main(int argc, char** argv)
 			const float r = 25.0f;
 			for (int i = 0; i < 20; ++i)
 			{
-				const float a = (float)i / 20.0f * RC_PI*2;
+				const float a = (float)i / 20.0f * RD_PI*2;
 				const float fx = (float)x + cosf(a)*r;
 				const float fy = (float)y + sinf(a)*r;
 				glVertex2f(fx,fy);

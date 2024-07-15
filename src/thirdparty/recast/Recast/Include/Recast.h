@@ -18,12 +18,8 @@
  
 #ifndef RECAST_H
 #define RECAST_H
-
-/// The value of PI used by Recast.
-static const float RC_PI = 3.14159265f;
-
-/// Used to ignore unused function parameters and silence any compiler warnings.
-template<class T> void rcIgnoreUnused(const T&) { }
+#include "Shared/Include/SharedMath.h"
+#include "Shared/Include/SharedCommon.h"
 
 /// Recast log categories.
 /// @see rcContext
@@ -166,23 +162,23 @@ protected:
 	/// @param[in]		category	The category of the message.
 	/// @param[in]		msg			The formatted message.
 	/// @param[in]		len			The length of the formatted message.
-	virtual void doLog(const rcLogCategory category, const char* msg, const int len) { rcIgnoreUnused(category); rcIgnoreUnused(msg); rcIgnoreUnused(len); }
+	virtual void doLog(const rcLogCategory category, const char* msg, const int len) { rdIgnoreUnused(category); rdIgnoreUnused(msg); rdIgnoreUnused(len); }
 
 	/// Clears all timers. (Resets all to unused.)
 	virtual void doResetTimers() {}
 
 	/// Starts the specified performance timer.
 	/// @param[in]		label	The category of timer.
-	virtual void doStartTimer(const rcTimerLabel label) { rcIgnoreUnused(label); }
+	virtual void doStartTimer(const rcTimerLabel label) { rdIgnoreUnused(label); }
 
 	/// Stops the specified performance timer.
 	/// @param[in]		label	The category of the timer.
-	virtual void doStopTimer(const rcTimerLabel label) { rcIgnoreUnused(label); }
+	virtual void doStopTimer(const rcTimerLabel label) { rdIgnoreUnused(label); }
 
 	/// Returns the total accumulated time of the specified performance timer.
 	/// @param[in]		label	The category of the timer.
 	/// @return The accumulated time of the timer, or -1 if timers are disabled or the timer has never been started.
-	virtual int doGetAccumulatedTime(const rcTimerLabel label) const { rcIgnoreUnused(label); return -1; }
+	virtual int doGetAccumulatedTime(const rcTimerLabel label) const { rdIgnoreUnused(label); return -1; }
 	
 	/// True if logging is enabled.
 	bool m_logEnabled;
@@ -641,207 +637,6 @@ static const unsigned char RC_WALKABLE_AREA = 63;
 /// to another span. (Has no neighbor.)
 static const int RC_NOT_CONNECTED = 0x3f;
 
-/// @name General helper functions
-/// @{
-
-/// Swaps the values of the two parameters.
-/// @param[in,out]	a	Value A
-/// @param[in,out]	b	Value B
-template<class T> inline void rcSwap(T& a, T& b) { T t = a; a = b; b = t; }
-
-/// Returns the minimum of two values.
-/// @param[in]		a	Value A
-/// @param[in]		b	Value B
-/// @return The minimum of the two values.
-template<class T> inline T rcMin(T a, T b) { return a < b ? a : b; }
-
-/// Returns the maximum of two values.
-/// @param[in]		a	Value A
-/// @param[in]		b	Value B
-/// @return The maximum of the two values.
-template<class T> inline T rcMax(T a, T b) { return a > b ? a : b; }
-
-/// Returns the absolute value.
-/// @param[in]		a	The value.
-/// @return The absolute value of the specified value.
-template<class T> inline T rcAbs(T a) { return a < 0 ? -a : a; }
-
-/// Returns the square of the value.
-/// @param[in]		a	The value.
-/// @return The square of the value.
-template<class T> inline T rcSqr(T a) { return a*a; }
-
-/// Clamps the value to the specified range.
-/// @param[in]		value			The value to clamp.
-/// @param[in]		minInclusive	The minimum permitted return value.
-/// @param[in]		maxInclusive	The maximum permitted return value.
-/// @return The value, clamped to the specified range.
-template<class T> inline T rcClamp(T value, T minInclusive, T maxInclusive)
-{
-	return value < minInclusive ? minInclusive: (value > maxInclusive ? maxInclusive : value);
-}
-
-/// Returns the square root of the value.
-///  @param[in]		x	The value.
-///  @return The square root of the vlaue.
-float rcSqrt(float x);
-
-/// @}
-/// @name Vector helper functions.
-/// @{
-
-/// Derives the cross product of two vectors. (@p v1 x @p v2)
-/// @param[out]		dest	The cross product. [(x, y, z)]
-/// @param[in]		v1		A Vector [(x, y, z)]
-/// @param[in]		v2		A vector [(x, y, z)]
-inline void rcVcross(float* dest, const float* v1, const float* v2)
-{
-	dest[0] = v1[1]*v2[2] - v1[2]*v2[1];
-	dest[1] = v1[2]*v2[0] - v1[0]*v2[2];
-	dest[2] = v1[0]*v2[1] - v1[1]*v2[0];
-}
-
-/// Derives the dot product of two vectors. (@p v1 . @p v2)
-/// @param[in]		v1	A Vector [(x, y, z)]
-/// @param[in]		v2	A vector [(x, y, z)]
-/// @return The dot product.
-inline float rcVdot(const float* v1, const float* v2)
-{
-	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
-}
-
-/// Performs a scaled vector addition. (@p v1 + (@p v2 * @p s))
-/// @param[out]		dest	The result vector. [(x, y, z)]
-/// @param[in]		v1		The base vector. [(x, y, z)]
-/// @param[in]		v2		The vector to scale and add to @p v1. [(x, y, z)]
-/// @param[in]		s		The amount to scale @p v2 by before adding to @p v1.
-inline void rcVmad(float* dest, const float* v1, const float* v2, const float s)
-{
-	dest[0] = v1[0]+v2[0]*s;
-	dest[1] = v1[1]+v2[1]*s;
-	dest[2] = v1[2]+v2[2]*s;
-}
-
-/// Performs a vector addition. (@p v1 + @p v2)
-/// @param[out]		dest	The result vector. [(x, y, z)]
-/// @param[in]		v1		The base vector. [(x, y, z)]
-/// @param[in]		v2		The vector to add to @p v1. [(x, y, z)]
-inline void rcVadd(float* dest, const float* v1, const float* v2)
-{
-	dest[0] = v1[0]+v2[0];
-	dest[1] = v1[1]+v2[1];
-	dest[2] = v1[2]+v2[2];
-}
-
-/// Performs a vector subtraction. (@p v1 - @p v2)
-/// @param[out]		dest	The result vector. [(x, y, z)]
-/// @param[in]		v1		The base vector. [(x, y, z)]
-/// @param[in]		v2		The vector to subtract from @p v1. [(x, y, z)]
-inline void rcVsub(float* dest, const float* v1, const float* v2)
-{
-	dest[0] = v1[0]-v2[0];
-	dest[1] = v1[1]-v2[1];
-	dest[2] = v1[2]-v2[2];
-}
-
-/// Selects the minimum value of each element from the specified vectors.
-/// @param[in,out]	mn	A vector.  (Will be updated with the result.) [(x, y, z)]
-/// @param[in]		v	A vector. [(x, y, z)]
-inline void rcVmin(float* mn, const float* v)
-{
-	mn[0] = rcMin(mn[0], v[0]);
-	mn[1] = rcMin(mn[1], v[1]);
-	mn[2] = rcMin(mn[2], v[2]);
-}
-
-/// Selects the maximum value of each element from the specified vectors.
-/// @param[in,out]	mx	A vector.  (Will be updated with the result.) [(x, y, z)]
-/// @param[in]		v	A vector. [(x, y, z)]
-inline void rcVmax(float* mx, const float* v)
-{
-	mx[0] = rcMax(mx[0], v[0]);
-	mx[1] = rcMax(mx[1], v[1]);
-	mx[2] = rcMax(mx[2], v[2]);
-}
-
-/// Sets the vector elements to the specified values.
-///  @param[out]	dest	The result vector. [(x, y, z)]
-///  @param[in]		x		The x-value of the vector.
-///  @param[in]		y		The y-value of the vector.
-///  @param[in]		z		The z-value of the vector.
-inline void rcVset(float* dest, const float x, const float y, const float z)
-{
-	dest[0] = x; dest[1] = y; dest[2] = z;
-}
-
-/// Performs a vector copy.
-/// @param[out]		dest	The result. [(x, y, z)]
-/// @param[in]		v		The vector to copy. [(x, y, z)]
-inline void rcVcopy(float* dest, const float* v)
-{
-	dest[0] = v[0];
-	dest[1] = v[1];
-	dest[2] = v[2];
-}
-
-/// Performs a vector swap.
-/// @param[out]		dest	The result. [(x, y, z)]
-/// @param[in]		v		The vector to swap. [(x, y, z)]
-inline void rcVswap(float* dest, const float* v)
-{
-	dest[0] = v[0];
-	dest[2] = v[1];
-	dest[1] = v[2];
-}
-
-/// Returns the distance between two points.
-/// @param[in]		v1	A point. [(x, y, z)]
-/// @param[in]		v2	A point. [(x, y, z)]
-/// @return The distance between the two points.
-inline float rcVdist(const float* v1, const float* v2)
-{
-	float dx = v2[0] - v1[0];
-	float dy = v2[1] - v1[1];
-	float dz = v2[2] - v1[2];
-	return rcSqrt(dx*dx + dy*dy + dz*dz);
-}
-
-/// Returns the square of the distance between two points.
-/// @param[in]		v1	A point. [(x, y, z)]
-/// @param[in]		v2	A point. [(x, y, z)]
-/// @return The square of the distance between the two points.
-inline float rcVdistSqr(const float* v1, const float* v2)
-{
-	float dx = v2[0] - v1[0];
-	float dy = v2[1] - v1[1];
-	float dz = v2[2] - v1[2];
-	return dx*dx + dy*dy + dz*dz;
-}
-
-/// Normalizes the vector.
-/// @param[in,out]	v	The vector to normalize. [(x, y, z)]
-inline void rcVnormalize(float* v)
-{
-	float d = 1.0f / rcSqrt(rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]));
-	v[0] *= d;
-	v[1] *= d;
-	v[2] *= d;
-}
-
-/// Performs a 'sloppy' collocation check of the specified points.
-///  @param[in]		p0	A point. [(x, y, z)]
-///  @param[in]		p1	A point. [(x, y, z)]
-/// @return True if the points are considered to be at the same location.
-///
-/// Basically, this function will return true if the specified points are 
-/// close enough to each other to be considered collocated.
-inline bool rcVequal(const float* p0, const float* p1)
-{
-	static const float thr = rcSqr(1.0f/16384.0f);
-	const float d = rcVdistSqr(p0, p1);
-	return d < thr;
-}
-
 /// @}
 /// @name Heightfield Functions
 /// @see rcHeightfield
@@ -1037,7 +832,7 @@ bool rcRasterizeTriangles(rcContext* context,
 /// Allows the formation of walkable regions that will flow over low lying 
 /// objects such as curbs, and up structures such as stairways. 
 /// 
-/// Two neighboring spans are walkable if: <tt>rcAbs(currentSpan.smax - neighborSpan.smax) < waklableClimb</tt>
+/// Two neighboring spans are walkable if: <tt>rdAbs(currentSpan.smax - neighborSpan.smax) < waklableClimb</tt>
 /// 
 /// @warning Will override the effect of #rcFilterLedgeSpans.  So if both filters are used, call
 /// #rcFilterLedgeSpans after calling this filter. 
@@ -1058,7 +853,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, int walkableClimb, 
 /// This method removes the impact of the overestimation of conservative voxelization 
 /// so the resulting mesh will not have regions hanging in the air over ledges.
 /// 
-/// A span is a ledge if: <tt>rcAbs(currentSpan.smax - neighborSpan.smax) > walkableClimb</tt>
+/// A span is a ledge if: <tt>rdAbs(currentSpan.smax - neighborSpan.smax) > walkableClimb</tt>
 /// 
 /// @see rcHeightfield, rcConfig
 /// 

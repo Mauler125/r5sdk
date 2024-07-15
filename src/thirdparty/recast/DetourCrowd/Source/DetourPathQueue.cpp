@@ -21,7 +21,7 @@
 #include "Detour\Include\DetourNavMesh.h"
 #include "Detour\Include\DetourNavMeshQuery.h"
 #include "Shared\Include\SharedAlloc.h"
-#include "Detour\Include\DetourCommon.h"
+#include "Shared\Include\SharedCommon.h"
 
 
 dtPathQueue::dtPathQueue() :
@@ -155,9 +155,9 @@ dtPathQueueRef dtPathQueue::request(dtPolyRef startRef, dtPolyRef endRef,
 	
 	PathQuery& q = m_queue[slot];
 	q.ref = ref;
-	dtVcopy(q.startPos, startPos);
+	rdVcopy(q.startPos, startPos);
 	q.startRef = startRef;
-	dtVcopy(q.endPos, endPos);
+	rdVcopy(q.endPos, endPos);
 	q.endRef = endRef;
 	
 	q.status = 0;
@@ -190,7 +190,7 @@ dtStatus dtPathQueue::getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pa
 			q.ref = DT_PATHQ_INVALID;
 			q.status = 0;
 			// Copy path
-			int n = dtMin(q.npath, maxPath);
+			int n = rdMin(q.npath, maxPath);
 			memcpy(path, q.path, sizeof(dtPolyRef)*n);
 			*pathSize = n;
 			return details | DT_SUCCESS;

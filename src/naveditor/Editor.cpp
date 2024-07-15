@@ -19,7 +19,7 @@
 #include "Pch.h"
 #include "Recast/Include/Recast.h"
 #include "Shared/Include/SharedAssert.h"
-#include "Detour/Include/DetourCommon.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
@@ -82,8 +82,8 @@ Editor::Editor() :
 	for (int i = 0; i < MAX_TOOLS; i++)
 		m_toolStates[i] = 0;
 
-	dtVset(m_recastDrawOffset, 0.0f,0.0f,4.0f);
-	dtVset(m_detourDrawOffset, 0.0f,0.0f,8.0f);
+	rdVset(m_recastDrawOffset, 0.0f,0.0f,4.0f);
+	rdVset(m_detourDrawOffset, 0.0f,0.0f,8.0f);
 }
 
 Editor::~Editor()
@@ -266,8 +266,8 @@ void Editor::handleCommonSettings()
 
 	if (ImGui::Button("Reset##BuildSettings", ImVec2(120, 0)))
 	{
-		dtVcopy(navMeshBMin, m_geom->getOriginalNavMeshBoundsMin());
-		dtVcopy(navMeshBMax, m_geom->getOriginalNavMeshBoundsMax());
+		rdVcopy(navMeshBMin, m_geom->getOriginalNavMeshBoundsMin());
+		rdVcopy(navMeshBMax, m_geom->getOriginalNavMeshBoundsMax());
 	}
 
 	ImGui::Separator();

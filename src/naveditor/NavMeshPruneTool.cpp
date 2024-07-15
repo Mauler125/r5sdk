@@ -17,8 +17,8 @@
 //
 
 #include "Pch.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
-#include "Detour/Include/DetourCommon.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/NavMeshPruneTool.h"
 #include "NavEditor/Include/InputGeom.h"
@@ -226,8 +226,8 @@ void NavMeshPruneTool::handleMenu()
 
 void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 {
-	rcIgnoreUnused(s);
-	rcIgnoreUnused(shift);
+	rdIgnoreUnused(s);
+	rdIgnoreUnused(shift);
 
 	if (!m_editor) return;
 	InputGeom* geom = m_editor->getInputGeom();
@@ -237,7 +237,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	dtNavMeshQuery* query = m_editor->getNavMeshQuery();
 	if (!query) return;
 	
-	dtVcopy(m_hitPos, p);
+	rdVcopy(m_hitPos, p);
 	m_hitPosSet = true;
 	
 	if (!m_flags)
@@ -309,9 +309,9 @@ void NavMeshPruneTool::handleRender()
 
 void NavMeshPruneTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	rcIgnoreUnused(model);
-	rcIgnoreUnused(proj);
-	rcIgnoreUnused(view);
+	rdIgnoreUnused(model);
+	rdIgnoreUnused(proj);
+	rdIgnoreUnused(view);
 
 	// Tool help
 	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Click fill area.");

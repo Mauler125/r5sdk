@@ -55,9 +55,9 @@ void duDebugDrawTriMesh(duDebugDraw* dd, const float* verts, int /*nverts*/,
 		const float* vc = &verts[tris[i+2]*3];
 		
 		int ax = 0, ay = 0;
-		if (rcAbs(norm[1]) > rcAbs(norm[ax]))
+		if (rdAbs(norm[1]) > rdAbs(norm[ax]))
 			ax = 1;
-		if (rcAbs(norm[2]) > rcAbs(norm[ax]))
+		if (rdAbs(norm[2]) > rdAbs(norm[ax]))
 			ax = 2;
 		ax = (1<<ax)&3; // +1 mod 3
 		ay = (1<<ax)&3; // +1 mod 3
@@ -112,9 +112,9 @@ void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int /*nverts*/
 		const float* vc = &verts[tris[i+2]*3];
 		
 		int ax = 0, ay = 0;
-		if (rcAbs(norm[1]) > rcAbs(norm[ax]))
+		if (rdAbs(norm[1]) > rdAbs(norm[ax]))
 			ax = 1;
-		if (rcAbs(norm[2]) > rcAbs(norm[ax]))
+		if (rdAbs(norm[2]) > rdAbs(norm[ax]))
 			ax = 2;
 		ax = (1<<ax)&3; // +1 mod 3
 		ay = (1<<ax)&3; // +1 mod 3

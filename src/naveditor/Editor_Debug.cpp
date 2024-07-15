@@ -79,7 +79,7 @@ Editor_Debug::Editor_Debug() :
 		int maxSpans = 0;
 		for (int i = 0; i < m_chf->width*m_chf->height; ++i)
 		{
-			maxSpans = rcMax(maxSpans, (int)m_chf->cells[i].count);
+			maxSpans = rdMax(maxSpans, (int)m_chf->cells[i].count);
 		}
 		printf("maxSpans = %d\n", maxSpans);
 	}*/
@@ -195,8 +195,8 @@ void Editor_Debug::handleRender()
 		duDebugDrawNavMeshPoly(&m_dd, *m_navMesh, m_ref, m_detourDrawOffset, m_navMeshDrawFlags, duRGBA(255,0,0,128));
 
 /*	float bmin[3], bmax[3];
-	rcVsub(bmin, m_center, m_halfExtents);
-	rcVadd(bmax, m_center, m_halfExtents);
+	rdVsub(bmin, m_center, m_halfExtents);
+	rdVadd(bmax, m_center, m_halfExtents);
 	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 	duDebugDrawCross(&dd, m_center[0], m_center[1], m_center[2], 1.0f, duRGBA(255,255,255,128), 2.0f);*/
 

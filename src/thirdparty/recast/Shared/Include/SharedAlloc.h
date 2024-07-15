@@ -41,7 +41,7 @@ typedef void* (rdAllocFunc)(size_t size, rdAllocHint hint);
 /// @see rdAllocSetCustom
 typedef void (rdFreeFunc)(void* ptr);
 
-/// Sets the base custom allocation functions to be used by Recast.
+/// Sets the base custom allocation functions to be used by Recast & Detour.
 ///  @param[in]		allocFunc	The memory allocation function to be used by #rdAlloc
 ///  @param[in]		freeFunc	The memory de-allocation function to be used by #rdFree
 ///  
@@ -69,7 +69,7 @@ void rdFree(void* ptr);
 
 /// An implementation of operator new usable for placement new. The default one is part of STL (which we don't use).
 /// rdNewTag is a dummy type used to differentiate our operator from the STL one, in case users import both Recast
-/// and STL.
+/// & Detour and STL.
 struct rdNewTag {};
 inline void* operator new(size_t, const rdNewTag&, void* p) { return p; }
 inline void operator delete(void*, const rdNewTag&, void*) {}

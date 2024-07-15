@@ -17,7 +17,7 @@
 //
 
 #include "Pch.h"
-#include "Detour/Include/DetourCommon.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNode.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
 #include "DetourCrowd/Include/DetourObstacleAvoidance.h"
@@ -35,7 +35,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 	static const float EPS = 1e-6f;
 	
 	float d[3];
-	dtVsub(d, sq, sp);
+	rdVsub(d, sq, sp);
 	tmin = 0;  // set to -FLT_MAX to get first hit on line
 	tmax = FLT_MAX;		// set to max distance ray can travel (for segment)
 	
@@ -55,7 +55,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 			float t1 = (amin[i] - sp[i]) * ood;
 			float t2 = (amax[i] - sp[i]) * ood;
 			// Make t1 be intersection with near plane, t2 with far plane
-			if (t1 > t2) dtSwap(t1, t2);
+			if (t1 > t2) rdSwap(t1, t2);
 			// Compute the intersection of slab intersections intervals
 			if (t1 > tmin) tmin = t1;
 			if (t2 < tmax) tmax = t2;
@@ -238,7 +238,7 @@ void CrowdToolState::handleRender()
 			const dtCrowdAgent* ag = crowd->getAgent(i);
 			if (!ag->active) continue;
 			const float* pos = ag->corridor.getPos();
-			gridz = dtMax(gridz, pos[2]);
+			gridz = rdMax(gridz, pos[2]);
 		}
 		gridz += 1.0f;
 		
@@ -252,7 +252,7 @@ void CrowdToolState::handleRender()
 			{
 				const int count = grid->getItemCountAt(x,y);
 				if (!count) continue;
-				unsigned int col = duRGBA(128,0,0,dtMin(count*40,255));
+				unsigned int col = duRGBA(128,0,0,rdMin(count*40,255));
 
 				dd.vertex(x*cs+cs,y*cs,gridz, col);
 				dd.vertex(x*cs+cs,y*cs+cs,gridz,col);
@@ -274,7 +274,7 @@ void CrowdToolState::handleRender()
 		
 		dd.begin(DU_DRAW_LINES,3.0f,drawOffset);
 		float prev[3], preva = 1;
-		dtVcopy(prev, pos);
+		rdVcopy(prev, pos);
 		for (int j = 0; j < AGENT_MAX_TRAIL-1; ++j)
 		{
 			const int idx = (trail->htrail + AGENT_MAX_TRAIL-j) % AGENT_MAX_TRAIL;
@@ -283,7 +283,7 @@ void CrowdToolState::handleRender()
 			dd.vertex(prev[0],prev[1],prev[2]+0.1f, duRGBA(0,0,0,(int)(128*preva)));
 			dd.vertex(v[0],v[1],v[2]+0.1f, duRGBA(0,0,0,(int)(128*a)));
 			preva = a;
-			dtVcopy(prev, v);
+			rdVcopy(prev, v);
 		}
 		dd.end();
 		
@@ -359,7 +359,7 @@ void CrowdToolState::handleRender()
 			{
 				const float* s = ag->boundary.getSegment(j);
 				unsigned int col = duRGBA(192,0,128,192);
-				if (dtTriArea2D(agentPos, s, s+3) < 0.0f)
+				if (rdTriArea2D(agentPos, s, s+3) < 0.0f)
 					col = duDarkenCol(col);
 				
 				duAppendArrow(&dd, s[0],s[1],s[2]+0.2f, s[3],s[4],s[5]+0.2f, 0.0f, 30.0f, col);
@@ -707,7 +707,7 @@ void CrowdToolState::addAgent(const float* p)
 		// Init trail
 		AgentTrail* trail = &m_trails[idx];
 		for (int i = 0; i < AGENT_MAX_TRAIL; ++i)
-			dtVcopy(&trail->trail[i*3], p);
+			rdVcopy(&trail->trail[i*3], p);
 		trail->htrail = 0;
 	}
 }
@@ -730,10 +730,10 @@ void CrowdToolState::hilightAgent(const int idx)
 
 static void calcVel(float* vel, const float* pos, const float* tgt, const float speed)
 {
-	dtVsub(vel, tgt, pos);
+	rdVsub(vel, tgt, pos);
 	vel[2] = 0.0;
-	dtVnormalize(vel);
-	dtVscale(vel, vel, speed);
+	rdVnormalize(vel);
+	rdVscale(vel, vel, speed);
 }
 
 void CrowdToolState::setMoveTarget(const float* p, bool adjust)
@@ -882,7 +882,7 @@ void CrowdToolState::updateTick(const float dt)
 			continue;
 		// Update agent movement trail.
 		trail->htrail = (trail->htrail + 1) % AGENT_MAX_TRAIL;
-		dtVcopy(&trail->trail[trail->htrail*3], ag->npos);
+		rdVcopy(&trail->trail[trail->htrail*3], ag->npos);
 	}
 	
 	m_agentDebug.vod->normalizeSamples();
@@ -1114,7 +1114,7 @@ void CrowdTool::handleToggle()
 
 void CrowdTool::handleUpdate(const float dt)
 {
-	rcIgnoreUnused(dt);
+	rdIgnoreUnused(dt);
 }
 
 void CrowdTool::handleRender()
@@ -1123,9 +1123,9 @@ void CrowdTool::handleRender()
 
 void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	rcIgnoreUnused(model);
-	rcIgnoreUnused(proj);
-	rcIgnoreUnused(view);
+	rdIgnoreUnused(model);
+	rdIgnoreUnused(proj);
+	rdIgnoreUnused(view);
 
 	// Tool help
 	float ty = 40;

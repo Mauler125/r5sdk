@@ -18,8 +18,8 @@
 
 #include "Pch.h"
 #include "Shared/Include/SharedAssert.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Recast/Include/Recast.h"
-#include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
@@ -106,7 +106,7 @@ public:
 	virtual void handleClick(const float* /*s*/, const float* p, bool shift)
 	{
 		m_hitPosSet = true;
-		rcVcopy(m_hitPos,p);
+		rdVcopy(m_hitPos,p);
 		if (m_editor)
 		{
 			if (shift)
@@ -327,7 +327,7 @@ void Editor_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 	const float* drawOffset = getDetourDrawOffset();
 
 	float projectPos[3];
-	dtVset(projectPos, 
+	rdVset(projectPos, 
 		((m_lastBuiltTileBmin[0]+m_lastBuiltTileBmax[0])/2)+drawOffset[0],
 		((m_lastBuiltTileBmin[1]+m_lastBuiltTileBmax[1])/2)+drawOffset[1],
 		((m_lastBuiltTileBmin[2]+m_lastBuiltTileBmax[2])/2)+drawOffset[2]);
@@ -387,7 +387,7 @@ bool Editor_TileMesh::handleBuild()
 	m_loadedNavMeshType = m_selectedNavMeshType;
 
 	dtNavMeshParams params;
-	rcVcopy(params.orig, m_geom->getNavMeshBoundsMin());
+	rdVcopy(params.orig, m_geom->getNavMeshBoundsMin());
 
 	params.orig[0] = m_geom->getNavMeshBoundsMax()[0];
 
@@ -614,8 +614,8 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
 	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
-	m_cfg.minRegionArea = rcSqr(m_regionMinSize);		// Note: area = size*size
-	m_cfg.mergeRegionArea = rcSqr(m_regionMergeSize);	// Note: area = size*size
+	m_cfg.minRegionArea = rdSqr(m_regionMinSize);		// Note: area = size*size
+	m_cfg.mergeRegionArea = rdSqr(m_regionMergeSize);	// Note: area = size*size
 	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
 	m_cfg.tileSize = m_tileSize;
 	m_cfg.borderSize = m_cfg.walkableRadius + 3; // Reserve enough padding.
@@ -645,8 +645,8 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// For example if you build a navmesh for terrain, and want the navmesh tiles to match the terrain tile size
 	// you will need to pass in data from neighbour terrain tiles too! In a simple case, just pass in all the 8 neighbours,
 	// or use the bounding box below to only pass in a sliver of each of the 8 neighbours.
-	rcVcopy(m_cfg.bmin, bmin);
-	rcVcopy(m_cfg.bmax, bmax);
+	rdVcopy(m_cfg.bmin, bmin);
+	rdVcopy(m_cfg.bmax, bmax);
 	m_cfg.bmin[0] -= m_cfg.borderSize*m_cfg.cs;
 	m_cfg.bmin[1] -= m_cfg.borderSize*m_cfg.cs;
 	m_cfg.bmax[0] += m_cfg.borderSize*m_cfg.cs;
@@ -973,8 +973,8 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.tileX = tx;
 		params.tileY = ty;
 		params.tileLayer = 0;
-		rcVcopy(params.bmin, m_pmesh->bmin);
-		rcVcopy(params.bmax, m_pmesh->bmax);
+		rdVcopy(params.bmin, m_pmesh->bmin);
+		rdVcopy(params.bmax, m_pmesh->bmax);
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
 		params.buildBvTree = true;

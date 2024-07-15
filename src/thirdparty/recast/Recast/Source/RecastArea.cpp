@@ -109,7 +109,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					const int ay = y + rcGetDirOffsetY(0);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 0);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					nd = (unsigned char)rdMin((int)dist[ai]+2, 255);
 					if (nd < dist[i])
 						dist[i] = nd;
 					
@@ -119,7 +119,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						const int aax = ax + rcGetDirOffsetX(3);
 						const int aay = ay + rcGetDirOffsetY(3);
 						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 3);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						nd = (unsigned char)rdMin((int)dist[aai]+3, 255);
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -131,7 +131,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					const int ay = y + rcGetDirOffsetY(3);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					nd = (unsigned char)rdMin((int)dist[ai]+2, 255);
 					if (nd < dist[i])
 						dist[i] = nd;
 					
@@ -141,7 +141,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						const int aax = ax + rcGetDirOffsetX(2);
 						const int aay = ay + rcGetDirOffsetY(2);
 						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 2);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						nd = (unsigned char)rdMin((int)dist[aai]+3, 255);
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -167,7 +167,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					const int ay = y + rcGetDirOffsetY(2);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 2);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					nd = (unsigned char)rdMin((int)dist[ai]+2, 255);
 					if (nd < dist[i])
 						dist[i] = nd;
 					
@@ -177,7 +177,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						const int aax = ax + rcGetDirOffsetX(1);
 						const int aay = ay + rcGetDirOffsetY(1);
 						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 1);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						nd = (unsigned char)rdMin((int)dist[aai]+3, 255);
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -189,7 +189,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					const int ay = y + rcGetDirOffsetY(1);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 1);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					nd = (unsigned char)rdMin((int)dist[ai]+2, 255);
 					if (nd < dist[i])
 						dist[i] = nd;
 					
@@ -199,7 +199,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						const int aax = ax + rcGetDirOffsetX(0);
 						const int aay = ay + rcGetDirOffsetY(0);
 						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 0);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						nd = (unsigned char)rdMin((int)dist[aai]+3, 255);
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -387,12 +387,12 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 	rcScopedTimer timer(ctx, RC_TIMER_MARK_CONVEXPOLY_AREA);
 
 	float bmin[3], bmax[3];
-	rcVcopy(bmin, verts);
-	rcVcopy(bmax, verts);
+	rdVcopy(bmin, verts);
+	rdVcopy(bmax, verts);
 	for (int i = 1; i < nverts; ++i)
 	{
-		rcVmin(bmin, &verts[i*3]);
-		rcVmax(bmax, &verts[i*3]);
+		rdVmin(bmin, &verts[i*3]);
+		rdVmax(bmax, &verts[i*3]);
 	}
 	bmin[2] = hmin;
 	bmax[2] = hmax;
@@ -463,7 +463,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 		float d0 = dx0*dx0 + dy0*dy0;
 		if (d0 > 1e-6f)
 		{
-			d0 = 1.0f/rcSqrt(d0);
+			d0 = 1.0f/rdMathSqrtf(d0);
 			dx0 *= d0;
 			dy0 *= d0;
 		}
@@ -472,7 +472,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 		float d1 = dx1*dx1 + dy1*dy1;
 		if (d1 > 1e-6f)
 		{
-			d1 = 1.0f/rcSqrt(d1);
+			d1 = 1.0f/rdMathSqrtf(d1);
 			dx1 *= d1;
 			dy1 *= d1;
 		}

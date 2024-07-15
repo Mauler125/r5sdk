@@ -143,7 +143,7 @@ static unsigned short addVertex(unsigned short x, unsigned short y, unsigned sho
 	while (i != -1)
 	{
 		const unsigned short* v = &verts[i*3];
-		if (v[0] == x && v[1] == y && (rcAbs(v[2] - z) <= 2))
+		if (v[0] == x && v[1] == y && (rdAbs(v[2] - z) <= 2))
 			return (unsigned short)i;
 		i = nextVert[i]; // next
 	}
@@ -530,13 +530,13 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 		unsigned short va0 = pa[i];
 		unsigned short va1 = pa[(i+1) % na];
 		if (va0 > va1)
-			rcSwap(va0, va1);
+			rdSwap(va0, va1);
 		for (int j = 0; j < nb; ++j)
 		{
 			unsigned short vb0 = pb[j];
 			unsigned short vb1 = pb[(j+1) % nb];
 			if (vb0 > vb1)
-				rcSwap(vb0, vb1);
+				rdSwap(vb0, vb1);
 			if (va0 == vb0 && va1 == vb1)
 			{
 				ea = i;
@@ -675,7 +675,7 @@ static bool canRemoveVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned sho
 				// Arrange edge so that a=rem.
 				int a = p[j], b = p[k];
 				if (b == rem)
-					rcSwap(a,b);
+					rdSwap(a,b);
 					
 				// Check if the edge exists
 				bool exists = false;
@@ -1058,8 +1058,8 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_POLYMESH);
 
-	rcVcopy(mesh.bmin, cset.bmin);
-	rcVcopy(mesh.bmax, cset.bmax);
+	rdVcopy(mesh.bmin, cset.bmin);
+	rdVcopy(mesh.bmax, cset.bmax);
 	mesh.cs = cset.cs;
 	mesh.ch = cset.ch;
 	mesh.borderSize = cset.borderSize;
@@ -1074,7 +1074,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 		if (cset.conts[i].nverts < 3) continue;
 		maxVertices += cset.conts[i].nverts;
 		maxTris += cset.conts[i].nverts - 2;
-		maxVertsPerCont = rcMax(maxVertsPerCont, cset.conts[i].nverts);
+		maxVertsPerCont = rdMax(maxVertsPerCont, cset.conts[i].nverts);
 	}
 	
 	if (maxVertices >= 0xfffe)
@@ -1394,17 +1394,17 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 	mesh.nvp = meshes[0]->nvp;
 	mesh.cs = meshes[0]->cs;
 	mesh.ch = meshes[0]->ch;
-	rcVcopy(mesh.bmin, meshes[0]->bmin);
-	rcVcopy(mesh.bmax, meshes[0]->bmax);
+	rdVcopy(mesh.bmin, meshes[0]->bmin);
+	rdVcopy(mesh.bmax, meshes[0]->bmax);
 
 	int maxVerts = 0;
 	int maxPolys = 0;
 	int maxVertsPerMesh = 0;
 	for (int i = 0; i < nmeshes; ++i)
 	{
-		rcVmin(mesh.bmin, meshes[i]->bmin);
-		rcVmax(mesh.bmax, meshes[i]->bmax);
-		maxVertsPerMesh = rcMax(maxVertsPerMesh, meshes[i]->nverts);
+		rdVmin(mesh.bmin, meshes[i]->bmin);
+		rdVmax(mesh.bmax, meshes[i]->bmax);
+		maxVertsPerMesh = rdMax(maxVertsPerMesh, meshes[i]->nverts);
 		maxVerts += meshes[i]->nverts;
 		maxPolys += meshes[i]->npolys;
 	}
@@ -1575,8 +1575,8 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst)
 	dst.npolys = src.npolys;
 	dst.maxpolys = src.npolys;
 	dst.nvp = src.nvp;
-	rcVcopy(dst.bmin, src.bmin);
-	rcVcopy(dst.bmax, src.bmax);
+	rdVcopy(dst.bmin, src.bmin);
+	rdVcopy(dst.bmax, src.bmax);
 	dst.cs = src.cs;
 	dst.ch = src.ch;
 	dst.borderSize = src.borderSize;

@@ -88,7 +88,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		for (int i = 0; i < geom->getOffMeshConnectionCount()*2; ++i)
 		{
 			const float* v = &verts[i*3];
-			float d = rcVdistSqr(p, v);
+			float d = rdVdistSqr(p, v);
 			if (d < nearestDist)
 			{
 				nearestDist = d;
@@ -107,7 +107,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		// Create	
 		if (!m_hitPosSet)
 		{
-			rcVcopy(m_hitPos, p);
+			rdVcopy(m_hitPos, p);
 			m_hitPosSet = true;
 		}
 		else

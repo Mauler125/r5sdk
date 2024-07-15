@@ -21,12 +21,12 @@
 #include <string.h>
 #include <float.h>
 #include <map>
-#include "Detour/Include/DetourNavMesh.h"
-#include "Detour/Include/DetourCommon.h"
-#include "Detour/Include/DetourMath.h"
-#include "Detour/Include/DetourNavMeshBuilder.h"
+#include "Shared/Include/SharedMath.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Shared/Include/SharedAlloc.h"
 #include "Shared/Include/SharedAssert.h"
+#include "Detour/Include/DetourNavMesh.h"
+#include "Detour/Include/DetourNavMeshBuilder.h"
 
 static unsigned short MESH_NULL_IDX = 0xffff;
 
@@ -187,23 +187,23 @@ static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nn
 			float bmax[3];
 
 			const float* dv = &params->detailVerts[vb*3];
-			dtVcopy(bmin, dv);
-			dtVcopy(bmax, dv);
+			rdVcopy(bmin, dv);
+			rdVcopy(bmax, dv);
 
 			for (int j = 1; j < ndv; j++)
 			{
-				dtVmin(bmin, &dv[j * 3]);
-				dtVmax(bmax, &dv[j * 3]);
+				rdVmin(bmin, &dv[j * 3]);
+				rdVmax(bmax, &dv[j * 3]);
 			}
 
 			// BV-tree uses cs for all dimensions
-			it.bmin[0] = (unsigned short)dtClamp((int)((bmin[0] - params->bmin[0])*quantFactor), 0, 0xffff);
-			it.bmin[1] = (unsigned short)dtClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-			it.bmin[2] = (unsigned short)dtClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
+			it.bmin[0] = (unsigned short)rdClamp((int)((bmin[0] - params->bmin[0])*quantFactor), 0, 0xffff);
+			it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
+			it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
 
-			it.bmax[0] = (unsigned short)dtClamp((int)((bmax[0] - params->bmin[0])*quantFactor), 0, 0xffff);
-			it.bmax[1] = (unsigned short)dtClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-			it.bmax[2] = (unsigned short)dtClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
+			it.bmax[0] = (unsigned short)rdClamp((int)((bmax[0] - params->bmin[0])*quantFactor), 0, 0xffff);
+			it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
+			it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
 		}
 		else
 		{
@@ -228,8 +228,8 @@ static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nn
 				if (z > it.bmax[2]) it.bmax[2] = z;
 			}
 			// Remap z
-			it.bmin[2] = (unsigned short)dtMathFloorf((float)it.bmin[2] * params->ch / params->cs);
-			it.bmax[2] = (unsigned short)dtMathCeilf((float)it.bmax[2] * params->ch / params->cs);
+			it.bmin[2] = (unsigned short)rdMathFloorf((float)it.bmin[2] * params->ch / params->cs);
+			it.bmax[2] = (unsigned short)rdMathCeilf((float)it.bmax[2] * params->ch / params->cs);
 		}
 	}
 	
@@ -559,8 +559,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			for (int i = 0; i < params->detailVertsCount; ++i)
 			{
 				const float h = params->detailVerts[i*3+2];
-				hmin = dtMin(hmin,h);
-				hmax = dtMax(hmax,h);
+				hmin = rdMin(hmin,h);
+				hmax = rdMax(hmax,h);
 			}
 		}
 		else
@@ -569,15 +569,15 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			{
 				const unsigned short* iv = &params->verts[i*3];
 				const float h = params->bmin[2] + iv[2] * params->ch;
-				hmin = dtMin(hmin,h);
-				hmax = dtMax(hmax,h);
+				hmin = rdMin(hmin,h);
+				hmax = rdMax(hmax,h);
 			}
 		}
 		hmin -= params->walkableClimb;
 		hmax += params->walkableClimb;
 		float bmin[3], bmax[3];
-		dtVcopy(bmin, params->bmin);
-		dtVcopy(bmax, params->bmax);
+		rdVcopy(bmin, params->bmin);
+		rdVcopy(bmax, params->bmax);
 		bmin[2] = hmin;
 		bmax[2] = hmax;
 
@@ -672,15 +672,15 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	}
 	int sth_per_poly_thingy = 0;
 	// Calculate data size
-	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
-	const int vertsSize = dtAlign4(sizeof(float)*3*totVertCount);
-	const int polysSize = dtAlign4(sizeof(dtPoly)*totPolyCount);
-	const int linksSize = dtAlign4(sizeof(dtLink)*maxLinkCount);
-	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*params->polyCount);
-	const int detailVertsSize = dtAlign4(sizeof(float)*3*uniqueDetailVertCount);
-	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*detailTriCount);
-	const int bvTreeSize = params->buildBvTree ? dtAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
-	const int offMeshConsSize = dtAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
+	const int headerSize = rdAlign4(sizeof(dtMeshHeader));
+	const int vertsSize = rdAlign4(sizeof(float)*3*totVertCount);
+	const int polysSize = rdAlign4(sizeof(dtPoly)*totPolyCount);
+	const int linksSize = rdAlign4(sizeof(dtLink)*maxLinkCount);
+	const int detailMeshesSize = rdAlign4(sizeof(dtPolyDetail)*params->polyCount);
+	const int detailVertsSize = rdAlign4(sizeof(float)*3*uniqueDetailVertCount);
+	const int detailTrisSize = rdAlign4(sizeof(unsigned char)*4*detailTriCount);
+	const int bvTreeSize = params->buildBvTree ? rdAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
+	const int offMeshConsSize = rdAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 	
 	const int sthSize = sth_per_poly_thingy * totPolyCount * 4;
 
@@ -706,18 +706,18 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	// linksSize == sizeof(dtLink) * maxLinkCount
 	// detailMeshesSize = sizeof(dtPolyDetail)*params->polyCount
 	
-	dtMeshHeader* header = dtGetThenAdvanceBufferPointer<dtMeshHeader>(d, headerSize);
-	float* navVerts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
-	dtPoly* navPolys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
+	dtMeshHeader* header = rdGetThenAdvanceBufferPointer<dtMeshHeader>(d, headerSize);
+	float* navVerts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
+	dtPoly* navPolys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
 	//d += sthSize; //dunno hope it crashes
-	unsigned int* some_arr = dtGetThenAdvanceBufferPointer<unsigned int>(d, sthSize);
+	unsigned int* some_arr = rdGetThenAdvanceBufferPointer<unsigned int>(d, sthSize);
 	d += linksSize; // Ignore links; just leave enough space for them. They'll be created on load.
-	//dtLink* links = dtGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
-	dtPolyDetail* navDMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
-	float* navDVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
-	unsigned char* navDTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
-	dtBVNode* navBvtree = dtGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
-	dtOffMeshConnection* offMeshCons = dtGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
+	//dtLink* links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
+	dtPolyDetail* navDMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
+	float* navDVerts = rdGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
+	unsigned char* navDTris = rdGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
+	dtBVNode* navBvtree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
+	dtOffMeshConnection* offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
 
 	for(int i=0;i<sth_per_poly_thingy*totPolyCount;i++)
 		some_arr[i] = rand();
@@ -732,8 +732,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->polyCount = totPolyCount;
 	header->vertCount = totVertCount;
 	header->maxLinkCount = maxLinkCount;
-	dtVcopy(header->bmin, params->bmin);
-	dtVcopy(header->bmax, params->bmax);
+	rdVcopy(header->bmin, params->bmin);
+	rdVcopy(header->bmax, params->bmax);
 	header->detailMeshCount = params->polyCount;
 	header->detailVertCount = uniqueDetailVertCount;
 	header->detailTriCount = detailTriCount;
@@ -769,8 +769,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		{
 			const float* linkv = &params->offMeshConVerts[i*2*3];
 			float* v = &navVerts[(offMeshVertsBase + n*2)*3];
-			dtVcopy(&v[0], &linkv[0]);
-			dtVcopy(&v[3], &linkv[3]);
+			rdVcopy(&v[0], &linkv[0]);
+			rdVcopy(&v[3], &linkv[3]);
 			n++;
 		}
 	}
@@ -810,11 +810,11 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 				// Normal connection
 				p->neis[j] = src[nvp+j]+1;
 			}
-			dtVadd(p->center, p->center, &navVerts[p->verts[j] * 3]);
+			rdVadd(p->center, p->center, &navVerts[p->verts[j] * 3]);
 			p->vertCount++;
 		}
-		dtVscale(p->center, p->center, 1 / (float)(p->vertCount));
-		p->surfaceArea = (unsigned short)dtMathFloorf(dtCalcPolySurfaceArea(p,navVerts) / DT_POLY_AREA_QUANT_FACTOR);
+		rdVscale(p->center, p->center, 1 / (float)(p->vertCount));
+		p->surfaceArea = (unsigned short)rdMathFloorf(dtCalcPolySurfaceArea(p,navVerts) / DT_POLY_AREA_QUANT_FACTOR);
 
 		src += nvp*2;
 	}
@@ -908,9 +908,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			// Copy connection end-points.
 			const float* endPts = &params->offMeshConVerts[i*2*3];
 			const float* refPos = &params->offMeshConRefPos[i*3];
-			dtVcopy(&con->pos[0], &endPts[0]);
-			dtVcopy(&con->pos[3], &endPts[3]);
-			dtVcopy(&con->refPos[0], &refPos[0]);
+			rdVcopy(&con->pos[0], &endPts[0]);
+			rdVcopy(&con->pos[3], &endPts[3]);
+			rdVcopy(&con->refPos[0], &refPos[0]);
 			con->rad = params->offMeshConRad[i];
 			con->refYaw = params->offMeshConRefYaw[i];
 			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
@@ -935,8 +935,8 @@ bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int /*dataSize*/)
 	
 	int swappedMagic = DT_NAVMESH_MAGIC;
 	int swappedVersion = DT_NAVMESH_VERSION;
-	dtSwapEndian(&swappedMagic);
-	dtSwapEndian(&swappedVersion);
+	rdSwapEndian(&swappedMagic);
+	rdSwapEndian(&swappedVersion);
 	
 	if ((header->magic != DT_NAVMESH_MAGIC || header->version != DT_NAVMESH_VERSION) &&
 		(header->magic != swappedMagic || header->version != swappedVersion))
@@ -944,31 +944,31 @@ bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int /*dataSize*/)
 		return false;
 	}
 		
-	dtSwapEndian(&header->magic);
-	dtSwapEndian(&header->version);
-	dtSwapEndian(&header->x);
-	dtSwapEndian(&header->y);
-	dtSwapEndian(&header->layer);
-	dtSwapEndian(&header->userId);
-	dtSwapEndian(&header->polyCount);
-	dtSwapEndian(&header->vertCount);
-	dtSwapEndian(&header->maxLinkCount);
-	dtSwapEndian(&header->detailMeshCount);
-	dtSwapEndian(&header->detailVertCount);
-	dtSwapEndian(&header->detailTriCount);
-	dtSwapEndian(&header->bvNodeCount);
-	dtSwapEndian(&header->offMeshConCount);
-	dtSwapEndian(&header->offMeshBase);
-	dtSwapEndian(&header->walkableHeight);
-	dtSwapEndian(&header->walkableRadius);
-	dtSwapEndian(&header->walkableClimb);
-	dtSwapEndian(&header->bmin[0]);
-	dtSwapEndian(&header->bmin[1]);
-	dtSwapEndian(&header->bmin[2]);
-	dtSwapEndian(&header->bmax[0]);
-	dtSwapEndian(&header->bmax[1]);
-	dtSwapEndian(&header->bmax[2]);
-	dtSwapEndian(&header->bvQuantFactor);
+	rdSwapEndian(&header->magic);
+	rdSwapEndian(&header->version);
+	rdSwapEndian(&header->x);
+	rdSwapEndian(&header->y);
+	rdSwapEndian(&header->layer);
+	rdSwapEndian(&header->userId);
+	rdSwapEndian(&header->polyCount);
+	rdSwapEndian(&header->vertCount);
+	rdSwapEndian(&header->maxLinkCount);
+	rdSwapEndian(&header->detailMeshCount);
+	rdSwapEndian(&header->detailVertCount);
+	rdSwapEndian(&header->detailTriCount);
+	rdSwapEndian(&header->bvNodeCount);
+	rdSwapEndian(&header->offMeshConCount);
+	rdSwapEndian(&header->offMeshBase);
+	rdSwapEndian(&header->walkableHeight);
+	rdSwapEndian(&header->walkableRadius);
+	rdSwapEndian(&header->walkableClimb);
+	rdSwapEndian(&header->bmin[0]);
+	rdSwapEndian(&header->bmin[1]);
+	rdSwapEndian(&header->bmin[2]);
+	rdSwapEndian(&header->bmax[0]);
+	rdSwapEndian(&header->bmax[1]);
+	rdSwapEndian(&header->bmax[2]);
+	rdSwapEndian(&header->bvQuantFactor);
 
 	// Freelist index and pointers are updated when tile is added, no need to swap.
 
@@ -991,32 +991,32 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 		return false;
 	
 	// Patch header pointers.
-	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
-	const int vertsSize = dtAlign4(sizeof(float)*3*header->vertCount);
-	const int polysSize = dtAlign4(sizeof(dtPoly)*header->polyCount);
-	const int linksSize = dtAlign4(sizeof(dtLink)*(header->maxLinkCount));
-	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*header->detailMeshCount);
-	const int detailVertsSize = dtAlign4(sizeof(float)*3*header->detailVertCount);
-	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*header->detailTriCount);
-	const int bvtreeSize = dtAlign4(sizeof(dtBVNode)*header->bvNodeCount);
-	const int offMeshLinksSize = dtAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
+	const int headerSize = rdAlign4(sizeof(dtMeshHeader));
+	const int vertsSize = rdAlign4(sizeof(float)*3*header->vertCount);
+	const int polysSize = rdAlign4(sizeof(dtPoly)*header->polyCount);
+	const int linksSize = rdAlign4(sizeof(dtLink)*(header->maxLinkCount));
+	const int detailMeshesSize = rdAlign4(sizeof(dtPolyDetail)*header->detailMeshCount);
+	const int detailVertsSize = rdAlign4(sizeof(float)*3*header->detailVertCount);
+	const int detailTrisSize = rdAlign4(sizeof(unsigned char)*4*header->detailTriCount);
+	const int bvtreeSize = rdAlign4(sizeof(dtBVNode)*header->bvNodeCount);
+	const int offMeshLinksSize = rdAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
 	
 	unsigned char* d = data + headerSize;
-	float* verts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
-	dtPoly* polys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
+	float* verts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
+	dtPoly* polys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
 	d += linksSize; // Ignore links; they technically should be endian-swapped but all their data is overwritten on load anyway.
-	//dtLink* links = dtGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
-	dtPolyDetail* detailMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
-	float* detailVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
+	//dtLink* links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
+	dtPolyDetail* detailMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
+	float* detailVerts = rdGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
 	d += detailTrisSize; // Ignore detail tris; single bytes can't be endian-swapped.
-	//unsigned char* detailTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
-	dtBVNode* bvTree = dtGetThenAdvanceBufferPointer<dtBVNode>(d, bvtreeSize);
-	dtOffMeshConnection* offMeshCons = dtGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshLinksSize);
+	//unsigned char* detailTris = rdGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
+	dtBVNode* bvTree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvtreeSize);
+	dtOffMeshConnection* offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshLinksSize);
 	
 	// Vertices
 	for (int i = 0; i < header->vertCount*3; ++i)
 	{
-		dtSwapEndian(&verts[i]);
+		rdSwapEndian(&verts[i]);
 	}
 
 	// Polys
@@ -1026,10 +1026,10 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 		// poly->firstLink is update when tile is added, no need to swap.
 		for (int j = 0; j < DT_VERTS_PER_POLYGON; ++j)
 		{
-			dtSwapEndian(&p->verts[j]);
-			dtSwapEndian(&p->neis[j]);
+			rdSwapEndian(&p->verts[j]);
+			rdSwapEndian(&p->neis[j]);
 		}
-		dtSwapEndian(&p->flags);
+		rdSwapEndian(&p->flags);
 	}
 
 	// Links are rebuild when tile is added, no need to swap.
@@ -1038,14 +1038,14 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 	for (int i = 0; i < header->detailMeshCount; ++i)
 	{
 		dtPolyDetail* pd = &detailMeshes[i];
-		dtSwapEndian(&pd->vertBase);
-		dtSwapEndian(&pd->triBase);
+		rdSwapEndian(&pd->vertBase);
+		rdSwapEndian(&pd->triBase);
 	}
 	
 	// Detail verts
 	for (int i = 0; i < header->detailVertCount*3; ++i)
 	{
-		dtSwapEndian(&detailVerts[i]);
+		rdSwapEndian(&detailVerts[i]);
 	}
 
 	// BV-tree
@@ -1054,10 +1054,10 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 		dtBVNode* node = &bvTree[i];
 		for (int j = 0; j < 3; ++j)
 		{
-			dtSwapEndian(&node->bmin[j]);
-			dtSwapEndian(&node->bmax[j]);
+			rdSwapEndian(&node->bmin[j]);
+			rdSwapEndian(&node->bmax[j]);
 		}
-		dtSwapEndian(&node->i);
+		rdSwapEndian(&node->i);
 	}
 
 	// Off-mesh Connections.
@@ -1065,9 +1065,9 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 	{
 		dtOffMeshConnection* con = &offMeshCons[i];
 		for (int j = 0; j < 6; ++j)
-			dtSwapEndian(&con->pos[j]);
-		dtSwapEndian(&con->rad);
-		dtSwapEndian(&con->poly);
+			rdSwapEndian(&con->pos[j]);
+		rdSwapEndian(&con->rad);
+		rdSwapEndian(&con->poly);
 	}
 	
 	return true;

@@ -45,7 +45,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ay = y + rcGetDirOffsetY(dir);
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
 		const rcCompactSpan& as = chf.spans[ai];
-		ch = rcMax(ch, (int)as.z);
+		ch = rdMax(ch, (int)as.z);
 		regs[1] = chf.spans[ai].reg | (chf.areas[ai] << 16);
 		if (rcGetCon(as, dirp) != RC_NOT_CONNECTED)
 		{
@@ -53,7 +53,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			const int ay2 = ay + rcGetDirOffsetY(dirp);
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dirp);
 			const rcCompactSpan& as2 = chf.spans[ai2];
-			ch = rcMax(ch, (int)as2.z);
+			ch = rdMax(ch, (int)as2.z);
 			regs[2] = chf.spans[ai2].reg | (chf.areas[ai2] << 16);
 		}
 	}
@@ -63,7 +63,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ay = y + rcGetDirOffsetY(dirp);
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dirp);
 		const rcCompactSpan& as = chf.spans[ai];
-		ch = rcMax(ch, (int)as.z);
+		ch = rdMax(ch, (int)as.z);
 		regs[3] = chf.spans[ai].reg | (chf.areas[ai] << 16);
 		if (rcGetCon(as, dir) != RC_NOT_CONNECTED)
 		{
@@ -71,7 +71,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			const int ay2 = ay + rcGetDirOffsetY(dir);
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dir);
 			const rcCompactSpan& as2 = chf.spans[ai2];
-			ch = rcMax(ch, (int)as2.z);
+			ch = rdMax(ch, (int)as2.z);
 			regs[2] = chf.spans[ai2].reg | (chf.areas[ai2] << 16);
 		}
 	}
@@ -317,8 +317,8 @@ static void simplifyContour(rdIntArray& points, rdIntArray& simplified,
 			cinc = pn-1;
 			ci = (bi+cinc) % pn;
 			endi = ai;
-			rcSwap(ax, bx);
-			rcSwap(ay, by);
+			rdSwap(ax, bx);
+			rdSwap(ay, by);
 		}
 		
 		// Tessellate only outer edges or edges between areas.
@@ -832,8 +832,8 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_CONTOURS);
 	
-	rcVcopy(cset.bmin, chf.bmin);
-	rcVcopy(cset.bmax, chf.bmax);
+	rdVcopy(cset.bmin, chf.bmin);
+	rdVcopy(cset.bmax, chf.bmax);
 	if (borderSize > 0)
 	{
 		// If the heightfield was build with bordersize, remove the offset.
@@ -850,7 +850,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 	cset.borderSize = chf.borderSize;
 	cset.maxError = maxError;
 	
-	int maxContours = rcMax((int)chf.maxRegions, 8);
+	int maxContours = rdMax((int)chf.maxRegions, 8);
 	cset.conts = (rcContour*)rdAlloc(sizeof(rcContour)*maxContours, RD_ALLOC_PERM);
 	if (!cset.conts)
 		return false;

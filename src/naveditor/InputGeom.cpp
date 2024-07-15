@@ -34,32 +34,32 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 {
 	float v, w;
 	float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
-	rcVsub(ab, b, a);
-	rcVsub(ac, c, a);
-	rcVsub(qp, sp, sq);
+	rdVsub(ab, b, a);
+	rdVsub(ac, c, a);
+	rdVsub(qp, sp, sq);
 	
 	// Compute triangle normal. Can be precalculated or cached if
 	// intersecting multiple segments against the same triangle
-	rcVcross(norm, ab, ac);
+	rdVcross(norm, ab, ac);
 	
 	// Compute denominator d. If d <= 0, segment is parallel to or points
 	// away from triangle, so exit early
-	float d = rcVdot(qp, norm);
+	float d = rdVdot(qp, norm);
 	if (d <= 0.0f) return false;
 	
 	// Compute intersection t value of pq with plane of triangle. A ray
 	// intersects if 0 <= t. Segment intersects if 0 <= t <= 1. Delay
 	// dividing by d until intersection has been found to pierce triangle
-	rcVsub(ap, sp, a);
-	t = rcVdot(ap, norm);
+	rdVsub(ap, sp, a);
+	t = rdVdot(ap, norm);
 	if (t < 0.0f) return false;
 	if (t > d) return false; // For segment; exclude this code line for a ray test
 	
 	// Compute barycentric coordinate components and test if within bounds
-	rcVcross(e, qp, ap);
-	v = rcVdot(ac, e);
+	rdVcross(e, qp, ap);
+	v = rdVdot(ac, e);
 	if (v < 0.0f || v > d) return false;
-	w = -rcVdot(ab, e);
+	w = -rdVdot(ab, e);
 	if (w < 0.0f || v + w > d) return false;
 	
 	// Segment/ray intersects triangle. Perform delayed division
@@ -111,10 +111,10 @@ InputGeom::InputGeom() :
 	m_offMeshConCount(0),
 	m_volumeCount(0)
 {
-	rcVset(m_meshBMin, 0.0f, 0.0f, 0.0f);
-	rcVset(m_meshBMax, 0.0f, 0.0f, 0.0f);
-	rcVset(m_navMeshBMin, 0.0f, 0.0f, 0.0f);
-	rcVset(m_navMeshBMax, 0.0f, 0.0f, 0.0f);
+	rdVset(m_meshBMin, 0.0f, 0.0f, 0.0f);
+	rdVset(m_meshBMax, 0.0f, 0.0f, 0.0f);
+	rdVset(m_navMeshBMin, 0.0f, 0.0f, 0.0f);
+	rdVset(m_navMeshBMax, 0.0f, 0.0f, 0.0f);
 }
 
 InputGeom::~InputGeom()
@@ -148,8 +148,8 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	}
 
 	rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
-	rcVcopy(m_navMeshBMin, m_meshBMin);
-	rcVcopy(m_navMeshBMax, m_meshBMax);
+	rdVcopy(m_navMeshBMin, m_meshBMin);
+	rdVcopy(m_navMeshBMax, m_meshBMax);
 
 	m_chunkyMesh = new rcChunkyTriMesh;
 	if (!m_chunkyMesh)
@@ -190,8 +190,8 @@ bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath)
 	}
 
 	rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
-	rcVcopy(m_navMeshBMin, m_meshBMin);
-	rcVcopy(m_navMeshBMax, m_meshBMax);
+	rdVcopy(m_navMeshBMin, m_meshBMin);
+	rdVcopy(m_navMeshBMax, m_meshBMax);
 
 	m_chunkyMesh = new rcChunkyTriMesh;
 	if (!m_chunkyMesh)
@@ -345,8 +345,8 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 
 			// Copy the original values over so we can reset to them in the
 			// editor after changes have been made.
-			rcVcopy(m_buildSettings.origNavMeshBMin, m_buildSettings.navMeshBMin);
-			rcVcopy(m_buildSettings.origNavMeshBMax, m_buildSettings.navMeshBMax);
+			rdVcopy(m_buildSettings.origNavMeshBMin, m_buildSettings.navMeshBMin);
+			rdVcopy(m_buildSettings.origNavMeshBMax, m_buildSettings.navMeshBMax);
 		}
 	}
 	
@@ -551,8 +551,8 @@ void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const
 	m_offMeshConAreas[m_offMeshConCount] = area;
 	m_offMeshConFlags[m_offMeshConCount] = flags;
 	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
-	rcVcopy(&verts[0], spos);
-	rcVcopy(&verts[3], epos);
+	rdVcopy(&verts[0], spos);
+	rdVcopy(&verts[3], epos);
 	m_offMeshConCount++;
 }
 
@@ -563,9 +563,9 @@ void InputGeom::deleteOffMeshConnection(int i)
 	float* vertsDst = &m_offMeshConVerts[i*3*2];
 	float* refSrc = &m_offMeshConRefPos[m_offMeshConCount*3];
 	float* refDst = &m_offMeshConRefPos[i*3];
-	rcVcopy(&vertsDst[0], &vertsSrc[0]);
-	rcVcopy(&vertsDst[3], &vertsSrc[3]);
-	rcVcopy(&refDst[0], &refSrc[0]);
+	rdVcopy(&vertsDst[0], &vertsSrc[0]);
+	rdVcopy(&vertsDst[3], &vertsSrc[3]);
+	rdVcopy(&refDst[0], &refSrc[0]);
 	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
 	m_offMeshConRefYaws[i] = m_offMeshConRefYaws[m_offMeshConCount];
 	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];

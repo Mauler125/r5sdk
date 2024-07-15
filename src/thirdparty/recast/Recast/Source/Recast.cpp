@@ -50,11 +50,6 @@ void rcDelete(T* ptr)
 }
 } // anonymous namespace
 
-float rcSqrt(float x)
-{
-	return sqrtf(x);
-}
-
 void rcContext::log(const rcLogCategory category, const char* format, ...)
 {
 	if (!m_logEnabled)
@@ -287,13 +282,13 @@ rcPolyMeshDetail::rcPolyMeshDetail()
 void rcCalcBounds(const float* verts, int numVerts, float* minBounds, float* maxBounds)
 {
 	// Calculate bounding box.
-	rcVcopy(minBounds, verts);
-	rcVcopy(maxBounds, verts);
+	rdVcopy(minBounds, verts);
+	rdVcopy(maxBounds, verts);
 	for (int i = 1; i < numVerts; ++i)
 	{
 		const float* v = &verts[i * 3];
-		rcVmin(minBounds, v);
-		rcVmax(maxBounds, v);
+		rdVmin(minBounds, v);
+		rdVmax(maxBounds, v);
 	}
 }
 
@@ -307,12 +302,12 @@ bool rcCreateHeightfield(rcContext* context, rcHeightfield& heightfield, int siz
                          const float* minBounds, const float* maxBounds,
                          float cellSize, float cellHeight)
 {
-	rcIgnoreUnused(context);
+	rdIgnoreUnused(context);
 
 	heightfield.width = sizeX;
 	heightfield.height = sizeZ;
-	rcVcopy(heightfield.bmin, minBounds);
-	rcVcopy(heightfield.bmax, maxBounds);
+	rdVcopy(heightfield.bmin, minBounds);
+	rdVcopy(heightfield.bmax, maxBounds);
 	heightfield.cs = cellSize;
 	heightfield.ch = cellHeight;
 	heightfield.spans = (rcSpan**)rdAlloc(sizeof(rcSpan*) * heightfield.width * heightfield.height, RD_ALLOC_PERM);
@@ -327,10 +322,10 @@ bool rcCreateHeightfield(rcContext* context, rcHeightfield& heightfield, int siz
 static void calcTriNormal(const float* v0, const float* v1, const float* v2, float* faceNormal)
 {
 	float e0[3], e1[3];
-	rcVsub(e0, v1, v0);
-	rcVsub(e1, v2, v0);
-	rcVcross(faceNormal, e0, e1);
-	rcVnormalize(faceNormal);
+	rdVsub(e0, v1, v0);
+	rdVsub(e1, v2, v0);
+	rdVcross(faceNormal, e0, e1);
+	rdVnormalize(faceNormal);
 }
 
 void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
@@ -338,10 +333,10 @@ void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
                              const int* tris, const int numTris,
                              unsigned char* triAreaIDs)
 {
-	rcIgnoreUnused(context);
-	rcIgnoreUnused(numVerts);
+	rdIgnoreUnused(context);
+	rdIgnoreUnused(numVerts);
 
-	const float walkableThr = cosf(walkableSlopeAngle / 180.0f * RC_PI);
+	const float walkableThr = cosf(walkableSlopeAngle / 180.0f * RD_PI);
 
 	float norm[3];
 
@@ -362,11 +357,11 @@ void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAng
                                 const int* tris, int numTris,
                                 unsigned char* triAreaIDs)
 {
-	rcIgnoreUnused(context);
-	rcIgnoreUnused(numVerts);
+	rdIgnoreUnused(context);
+	rdIgnoreUnused(numVerts);
 
 	// The minimum Z value for a face normal of a triangle with a walkable slope.
-	const float walkableLimitZ = cosf(walkableSlopeAngle / 180.0f * RC_PI);
+	const float walkableLimitZ = cosf(walkableSlopeAngle / 180.0f * RD_PI);
 
 	float faceNormal[3];
 	for (int i = 0; i < numTris; ++i)
@@ -383,7 +378,7 @@ void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAng
 
 int rcGetHeightFieldSpanCount(rcContext* context, const rcHeightfield& heightfield)
 {
-	rcIgnoreUnused(context);
+	rdIgnoreUnused(context);
 
 	const int numCols = heightfield.width * heightfield.height;
 	int spanCount = 0;
@@ -418,8 +413,8 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 	compactHeightfield.walkableHeight = walkableHeight;
 	compactHeightfield.walkableClimb = walkableClimb;
 	compactHeightfield.maxRegions = 0;
-	rcVcopy(compactHeightfield.bmin, heightfield.bmin);
-	rcVcopy(compactHeightfield.bmax, heightfield.bmax);
+	rdVcopy(compactHeightfield.bmin, heightfield.bmin);
+	rdVcopy(compactHeightfield.bmax, heightfield.bmax);
 	compactHeightfield.bmax[2] += walkableHeight * heightfield.ch;
 	compactHeightfield.cs = heightfield.cs;
 	compactHeightfield.ch = heightfield.ch;
@@ -470,8 +465,8 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 			{
 				const int bot = (int)span->smax;
 				const int top = span->next ? (int)span->next->smin : MAX_HEIGHT;
-				compactHeightfield.spans[currentCellIndex].z = (unsigned short)rcClamp(bot, 0, 0xffff);
-				compactHeightfield.spans[currentCellIndex].h = (unsigned char)rcClamp(top - bot, 0, 0xff);
+				compactHeightfield.spans[currentCellIndex].z = (unsigned short)rdClamp(bot, 0, 0xffff);
+				compactHeightfield.spans[currentCellIndex].h = (unsigned char)rdClamp(top - bot, 0, 0xff);
 				compactHeightfield.areas[currentCellIndex] = span->area;
 				currentCellIndex++;
 				cell.count++;
@@ -509,18 +504,18 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 					for (int k = (int)neighborCell.index, nk = (int)(neighborCell.index + neighborCell.count); k < nk; ++k)
 					{
 						const rcCompactSpan& neighborSpan = compactHeightfield.spans[k];
-						const int bot = rcMax(span.z, neighborSpan.z);
-						const int top = rcMin(span.z + span.h, neighborSpan.z + neighborSpan.h);
+						const int bot = rdMax(span.z, neighborSpan.z);
+						const int top = rdMin(span.z + span.h, neighborSpan.z + neighborSpan.h);
 
 						// Check that the gap between the spans is walkable,
 						// and that the climb height between the gaps is not too high.
-						if ((top - bot) >= walkableHeight && rcAbs((int)neighborSpan.z - (int)span.z) <= walkableClimb)
+						if ((top - bot) >= walkableHeight && rdAbs((int)neighborSpan.z - (int)span.z) <= walkableClimb)
 						{
 							// Mark direction as walkable.
 							const int layerIndex = k - (int)neighborCell.index;
 							if (layerIndex < 0 || layerIndex > MAX_LAYERS)
 							{
-								maxLayerIndex = rcMax(maxLayerIndex, layerIndex);
+								maxLayerIndex = rdMax(maxLayerIndex, layerIndex);
 								continue;
 							}
 							rcSetCon(span, dir, layerIndex);

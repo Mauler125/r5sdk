@@ -193,18 +193,18 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 		// Create
 
 		// If clicked on that last pt, create the shape.
-		if (m_npts && rcVdistSqr(p, &m_pts[(m_npts-1)*3]) < rcSqr(0.2f))
+		if (m_npts && rdVdistSqr(p, &m_pts[(m_npts-1)*3]) < rdSqr(0.2f))
 		{
 			if (m_nhull > 2)
 			{
 				// Create shape.
 				float verts[MAX_PTS*3];
 				for (int i = 0; i < m_nhull; ++i)
-					rcVcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
+					rdVcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
 					
 				float minh = FLT_MAX, maxh = 0;
 				for (int i = 0; i < m_nhull; ++i)
-					minh = rcMin(minh, verts[i*3+2]);
+					minh = rdMin(minh, verts[i*3+2]);
 				minh -= m_boxDescent;
 				maxh = minh + m_boxHeight;
 
@@ -229,7 +229,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 			// Add new point 
 			if (m_npts < MAX_PTS)
 			{
-				rcVcopy(&m_pts[m_npts*3], p);
+				rdVcopy(&m_pts[m_npts*3], p);
 				const float* f = &m_pts[m_npts * 3];
 
 				printf("<%f, %f, %f>\n", f[0], f[1], f[2]);
@@ -266,7 +266,7 @@ void ConvexVolumeTool::handleRender()
 	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;
 	for (int i = 0; i < m_npts; ++i)
-		minh = rcMin(minh, m_pts[i*3+2]);
+		minh = rdMin(minh, m_pts[i*3+2]);
 	minh -= m_boxDescent;
 	maxh = minh + m_boxHeight;
 

@@ -16,10 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Detour/Include/DetourCommon.h"
-#include "Detour/Include/DetourMath.h"
-#include "Detour/Include/DetourStatus.h"
+#include "Shared/Include/SharedMath.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Shared/Include/SharedAssert.h"
+#include "Detour/Include/DetourStatus.h"
 #include "DetourTileCache/Include/DetourTileCacheBuilder.h"
 #include <string.h>
 
@@ -152,7 +152,7 @@ inline bool isConnected(const dtTileCacheLayer& layer,
 						const int ia, const int ib, const int walkableClimb)
 {
 	if (layer.areas[ia] != layer.areas[ib]) return false;
-	if (dtAbs((int)layer.heights[ia] - (int)layer.heights[ib]) > walkableClimb) return false;
+	if (rdAbs((int)layer.heights[ia] - (int)layer.heights[ib]) > walkableClimb) return false;
 	return true;
 }
 
@@ -707,9 +707,9 @@ static unsigned char getCornerHeight(dtTileCacheLayer& layer,
 			{
 				const int idx  = px + py*w;
 				const int lh = (int)layer.heights[idx];
-				if (dtAbs(lh-z) <= walkableClimb && layer.areas[idx] != DT_TILECACHE_NULL_AREA)
+				if (rdAbs(lh-z) <= walkableClimb && layer.areas[idx] != DT_TILECACHE_NULL_AREA)
 				{
-					height = dtMax(height, (unsigned char)lh);
+					height = rdMax(height, (unsigned char)lh);
 					portal &= (layer.cons[idx] >> 4);
 					if (preg != 0xff && preg != layer.regs[idx])
 						allSameReg = false;
@@ -849,7 +849,7 @@ static unsigned short addVertex(unsigned short x, unsigned short y, unsigned sho
 	while (i != DT_TILECACHE_NULL_IDX)
 	{
 		const unsigned short* v = &verts[i*3];
-		if (v[0] == x && v[1] == y && (dtAbs(v[2] - z) <= 2))
+		if (v[0] == x && v[1] == y && (rdAbs(v[2] - z) <= 2))
 			return i;
 		i = nextVert[i]; // next
 	}
@@ -984,7 +984,7 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 				unsigned short zmin = (unsigned short)va[2];
 				unsigned short zmax = (unsigned short)vb[2];
 				if (zmin > zmax)
-					dtSwap(zmin, zmax);
+					rdSwap(zmin, zmax);
 				
 				for (int m = 0; m < edgeCount; ++m)
 				{
@@ -999,7 +999,7 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 						unsigned short ezmin = eva[2];
 						unsigned short ezmax = evb[2];
 						if (ezmin > ezmax)
-							dtSwap(ezmin, ezmax);
+							rdSwap(ezmin, ezmax);
 						if (overlapRangeExl(zmin,zmax, ezmin, ezmax))
 						{
 							// Reuse the other polyedge to store dir.
@@ -1015,7 +1015,7 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 				unsigned short xmin = (unsigned short)va[0];
 				unsigned short xmax = (unsigned short)vb[0];
 				if (xmin > xmax)
-					dtSwap(xmin, xmax);
+					rdSwap(xmin, xmax);
 				for (int m = 0; m < edgeCount; ++m)
 				{
 					rcEdge& e = edges[m];
@@ -1029,7 +1029,7 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 						unsigned short exmin = eva[0];
 						unsigned short exmax = evb[0];
 						if (exmin > exmax)
-							dtSwap(exmin, exmax);
+							rdSwap(exmin, exmax);
 						if (overlapRangeExl(xmin,xmax, exmin, exmax))
 						{
 							// Reuse the other polyedge to store dir.
@@ -1353,13 +1353,13 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 		unsigned short va0 = pa[i];
 		unsigned short va1 = pa[(i+1) % na];
 		if (va0 > va1)
-			dtSwap(va0, va1);
+			rdSwap(va0, va1);
 		for (int j = 0; j < nb; ++j)
 		{
 			unsigned short vb0 = pb[j];
 			unsigned short vb1 = pb[(j+1) % nb];
 			if (vb0 > vb1)
-				dtSwap(vb0, vb1);
+				rdSwap(vb0, vb1);
 			if (va0 == vb0 && va1 == vb1)
 			{
 				ea = i;
@@ -1497,7 +1497,7 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 				// Arrange edge so that a=rem.
 				int a = p[j], b = p[k];
 				if (b == rem)
-					dtSwap(a,b);
+					rdSwap(a,b);
 				
 				// Check if the edge exists
 				bool exists = false;
@@ -1806,7 +1806,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 		if (lcset.conts[i].nverts < 3) continue;
 		maxVertices += lcset.conts[i].nverts;
 		maxTris += lcset.conts[i].nverts - 2;
-		maxVertsPerCont = dtMax(maxVertsPerCont, lcset.conts[i].nverts);
+		maxVertsPerCont = rdMax(maxVertsPerCont, lcset.conts[i].nverts);
 	}
 
 	// TODO: warn about too many vertices?
@@ -2010,7 +2010,7 @@ dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const fl
 	bmax[0] = pos[0] + radius;
 	bmax[1] = pos[1] + radius;
 	bmax[2] = pos[2] + height;
-	const float r2 = dtSqr(radius/cs + 0.5f);
+	const float r2 = rdSqr(radius/cs + 0.5f);
 
 	const int w = (int)layer.header->width;
 	const int h = (int)layer.header->height;
@@ -2020,12 +2020,12 @@ dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const fl
 	const float px = (pos[0]-orig[0])*ics;
 	const float py = (pos[1]-orig[1])*ics;
 	
-	int minx = (int)dtMathFloorf((bmin[0]-orig[0])*ics);
-	int miny = (int)dtMathFloorf((bmin[1]-orig[1])*ich);
-	int minz = (int)dtMathFloorf((bmin[2]-orig[2])*ics);
-	int maxx = (int)dtMathFloorf((bmax[0]-orig[0])*ics);
-	int maxy = (int)dtMathFloorf((bmax[1]-orig[1])*ich);
-	int maxz = (int)dtMathFloorf((bmax[2]-orig[2])*ics);
+	int minx = (int)rdMathFloorf((bmin[0]-orig[0])*ics);
+	int miny = (int)rdMathFloorf((bmin[1]-orig[1])*ich);
+	int minz = (int)rdMathFloorf((bmin[2]-orig[2])*ics);
+	int maxx = (int)rdMathFloorf((bmax[0]-orig[0])*ics);
+	int maxy = (int)rdMathFloorf((bmax[1]-orig[1])*ich);
+	int maxz = (int)rdMathFloorf((bmax[2]-orig[2])*ics);
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
@@ -2105,7 +2105,7 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	float cx = (center[0] - orig[0])*ics;
 	float cy = (center[1] - orig[1])*ics;
 	
-	float maxr = 1.41f*dtMax(halfExtents[0], halfExtents[1]);
+	float maxr = 1.41f*rdMax(halfExtents[0], halfExtents[1]);
 	int minx = (int)floorf(cx - maxr*ics);
 	int maxx = (int)floorf(cx + maxr*ics);
 	int miny = (int)floorf(cy - maxr*ics);
@@ -2155,7 +2155,7 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   const unsigned char* cons,
 							   unsigned char** outData, int* outDataSize)
 {
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int headerSize = rdAlign4(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = (int)header->width * (int)header->height;
 	const int maxDataSize = headerSize + comp->maxCompressedSize(gridSize*3);
 	unsigned char* data = (unsigned char*)rdAlloc(maxDataSize, RD_ALLOC_PERM);
@@ -2226,8 +2226,8 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 	if (compressedHeader->version != DT_TILECACHE_VERSION)
 		return DT_FAILURE | DT_WRONG_VERSION;
 	
-	const int layerSize = dtAlign4(sizeof(dtTileCacheLayer));
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int layerSize = rdAlign4(sizeof(dtTileCacheLayer));
+	const int headerSize = rdAlign4(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = (int)compressedHeader->width * (int)compressedHeader->height;
 	const int bufferSize = layerSize + headerSize + gridSize*4;
 	
@@ -2268,13 +2268,13 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 
 bool dtTileCacheHeaderSwapEndian(unsigned char* data, const int dataSize)
 {
-	dtIgnoreUnused(dataSize);
+	rdIgnoreUnused(dataSize);
 	dtTileCacheLayerHeader* header = (dtTileCacheLayerHeader*)data;
 	
 	int swappedMagic = DT_TILECACHE_MAGIC;
 	int swappedVersion = DT_TILECACHE_VERSION;
-	dtSwapEndian(&swappedMagic);
-	dtSwapEndian(&swappedVersion);
+	rdSwapEndian(&swappedMagic);
+	rdSwapEndian(&swappedVersion);
 	
 	if ((header->magic != DT_TILECACHE_MAGIC || header->version != DT_TILECACHE_VERSION) &&
 		(header->magic != swappedMagic || header->version != swappedVersion))
@@ -2282,19 +2282,19 @@ bool dtTileCacheHeaderSwapEndian(unsigned char* data, const int dataSize)
 		return false;
 	}
 	
-	dtSwapEndian(&header->magic);
-	dtSwapEndian(&header->version);
-	dtSwapEndian(&header->tx);
-	dtSwapEndian(&header->ty);
-	dtSwapEndian(&header->tlayer);
-	dtSwapEndian(&header->bmin[0]);
-	dtSwapEndian(&header->bmin[1]);
-	dtSwapEndian(&header->bmin[2]);
-	dtSwapEndian(&header->bmax[0]);
-	dtSwapEndian(&header->bmax[1]);
-	dtSwapEndian(&header->bmax[2]);
-	dtSwapEndian(&header->hmin);
-	dtSwapEndian(&header->hmax);
+	rdSwapEndian(&header->magic);
+	rdSwapEndian(&header->version);
+	rdSwapEndian(&header->tx);
+	rdSwapEndian(&header->ty);
+	rdSwapEndian(&header->tlayer);
+	rdSwapEndian(&header->bmin[0]);
+	rdSwapEndian(&header->bmin[1]);
+	rdSwapEndian(&header->bmin[2]);
+	rdSwapEndian(&header->bmax[0]);
+	rdSwapEndian(&header->bmax[1]);
+	rdSwapEndian(&header->bmax[2]);
+	rdSwapEndian(&header->hmin);
+	rdSwapEndian(&header->hmax);
 	
 	// width, height, minx, maxx, miny, maxy are unsigned char, no need to swap.
 	

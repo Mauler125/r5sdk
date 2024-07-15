@@ -19,7 +19,7 @@
 #include "Detour/Include/DetourNode.h"
 #include "Shared/Include/SharedAlloc.h"
 #include "Shared/Include/SharedAssert.h"
-#include "Detour/Include/DetourCommon.h"
+#include "Shared/Include/SharedCommon.h"
 #include <string.h>
 
 #ifdef DT_POLYREF64
@@ -56,7 +56,7 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	m_hashSize(hashSize),
 	m_nodeCount(0)
 {
-	rdAssert(dtNextPow2(m_hashSize) == (unsigned int)m_hashSize);
+	rdAssert(rdNextPow2(m_hashSize) == (unsigned int)m_hashSize);
 	// pidx is special as 0 means "none" and 1 is the first node. For that reason
 	// we have 1 fewer nodes available than the number of values it can contain.
 	rdAssert(m_maxNodes > 0 && m_maxNodes <= DT_NULL_IDX && m_maxNodes <= (1 << DT_NODE_PARENT_BITS) - 1);

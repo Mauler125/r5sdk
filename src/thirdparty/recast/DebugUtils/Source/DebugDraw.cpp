@@ -18,9 +18,9 @@
 
 #define _USE_MATH_DEFINES
 #include <string.h>
+#include "Shared/Include/SharedMath.h"
+#include "Shared/Include/SharedCommon.h"
 #include "DebugUtils/Include/DebugDraw.h"
-#include "Detour/Include/DetourCommon.h"
-#include "Detour/Include/DetourMath.h"
 #include "Detour/Include/DetourNavMesh.h"
 
 
@@ -217,8 +217,8 @@ void duAppendCylinderWire(struct duDebugDraw* dd, float minx, float miny, float 
 		for (int i = 0; i < NUM_SEG; ++i)
 		{
 			const float a = (float)i/(float)NUM_SEG*DU_PI*2;
-			dir[i*2] = dtMathCosf(a);
-			dir[i*2+1] = dtMathSinf(a);
+			dir[i*2] = rdMathCosf(a);
+			dir[i*2+1] = rdMathSinf(a);
 		}
 	}
 	
@@ -557,7 +557,7 @@ duDisplayList::duDisplayList(int cap) :
 	if (cap < 8)
 		cap = 8;
 	resize(cap);
-	dtVset(m_drawOffset, 0.0f,0.0f,0.0f);
+	rdVset(m_drawOffset, 0.0f,0.0f,0.0f);
 }
 
 duDisplayList::~duDisplayList()
@@ -599,7 +599,7 @@ void duDisplayList::begin(const duDebugDrawPrimitives prim, const float size, co
 	m_prim = prim;
 	m_primSize = size;
 	if (offset)
-		dtVcopy(m_drawOffset, offset);
+		rdVcopy(m_drawOffset, offset);
 }
 
 void duDisplayList::vertex(const float x, const float y, const float z, unsigned int color)
@@ -607,8 +607,8 @@ void duDisplayList::vertex(const float x, const float y, const float z, unsigned
 	if (m_size+1 >= m_cap)
 		resize(m_cap*2);
 	float* p = &m_pos[m_size*3];
-	dtVset(p,x,y,z);
-	dtVadd(p,p,m_drawOffset);
+	rdVset(p,x,y,z);
+	rdVadd(p,p,m_drawOffset);
 	m_color[m_size] = color;
 	m_size++;
 }
@@ -620,7 +620,7 @@ void duDisplayList::vertex(const float* pos, unsigned int color)
 
 void duDisplayList::end()
 {
-	dtVset(m_drawOffset, 0.0f,0.0f,0.0f);
+	rdVset(m_drawOffset, 0.0f,0.0f,0.0f);
 }
 
 void duDisplayList::draw(struct duDebugDraw* dd)
