@@ -560,7 +560,8 @@ int not_main(int argc, char** argv)
 
 	float rayStart[3] = { 0.0f };
 	float rayEnd[3] = { 0.0f };
-	float scrollZoom = 0;
+	float scrollSide = 0.0f;
+	float scrollZoom = 0.0f;
 	bool rotate = false;
 	bool movedDuringRotate = false;
 	bool focusOnMenu = false;
@@ -645,7 +646,30 @@ int not_main(int argc, char** argv)
 					break;
 				
 				case SDL_MOUSEWHEEL:
-					if (event.wheel.x < 0 || event.wheel.y < 0)
+					if (event.wheel.x < 0)
+					{
+						// wheel down
+						if (focusOnMenu)
+						{
+							mouseScroll++;
+						}
+						else
+						{
+							scrollSide += 120.0f;
+						}
+					}
+					else if (event.wheel.x > 0)
+					{
+						if (focusOnMenu)
+						{
+							mouseScroll--;
+						}
+						else
+						{
+							scrollSide -= 120.0f;
+						}
+					}
+					else if (event.wheel.y < 0)
 					{
 						// wheel down
 						if (focusOnMenu)
@@ -657,7 +681,7 @@ int not_main(int argc, char** argv)
 							scrollZoom += 120.0f;
 						}
 					}
-					else if (event.wheel.x > 0 || event.wheel.y > 0)
+					else if (event.wheel.y > 0)
 					{
 						if (focusOnMenu)
 						{
@@ -868,9 +892,11 @@ int not_main(int argc, char** argv)
 				keybSpeed *= 2.0f;
 			}
 			
-			float movex = (moveRight - moveLeft) * keybSpeed * dt;
+			float movex = (moveRight - moveLeft) * keybSpeed * dt + scrollSide * 2.0f;
 			float movey = (moveBack - moveFront) * keybSpeed * dt + scrollZoom * 2.0f;
-			scrollZoom = 0;
+
+			scrollSide = 0.0f;
+			scrollZoom = 0.0f;
 			
 			cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
 			cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
