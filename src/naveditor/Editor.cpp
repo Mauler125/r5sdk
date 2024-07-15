@@ -51,8 +51,8 @@ unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 	case EDITOR_POLYAREA_GRASS: return duRGBA(0, 255, 0, 255);
 	// Jump : yellow
 	case EDITOR_POLYAREA_JUMP: return duRGBA(255, 255, 0, 255);
-	// Unexpected : red
-	default: return duRGBA(255, 0, 0, 255);
+	// Unexpected : orange
+	default: return duRGBA(255, 100, 10, 255);
 	}
 }
 
