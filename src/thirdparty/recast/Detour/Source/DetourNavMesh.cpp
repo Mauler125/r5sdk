@@ -779,7 +779,7 @@ bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const 
 	// ok.
 	float closest[3];
 	closestPointOnDetailEdges<false>(tile, poly, pos, closest);
-	*height = closest[1];
+	*height = closest[2];
 	return true;
 }
 
