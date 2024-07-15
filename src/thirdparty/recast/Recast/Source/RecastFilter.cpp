@@ -19,8 +19,6 @@
 #include "Recast/Include/Recast.h"
 #include "Shared/Include/SharedAssert.h"
 
-#include <stdlib.h>
-
 void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableClimb, rcHeightfield& heightfield)
 {
 	rdAssert(context);

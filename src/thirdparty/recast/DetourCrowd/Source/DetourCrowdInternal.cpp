@@ -16,11 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <string.h>
-#include <float.h>
-#include <stdlib.h>
-#include <new>
 #include "DetourCrowd\Include\DetourCrowd.h"
 #include "DetourCrowd\Include\DetourCrowdInternal.h"
 #include "DetourCrowd\Include\DetourObstacleAvoidance.h"

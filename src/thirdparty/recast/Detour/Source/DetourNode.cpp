@@ -20,7 +20,6 @@
 #include "Shared/Include/SharedAlloc.h"
 #include "Shared/Include/SharedAssert.h"
 #include "Shared/Include/SharedCommon.h"
-#include <string.h>
 
 #ifdef DT_POLYREF64
 // From Thomas Wang, https://gist.github.com/badboy/6267743

@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"

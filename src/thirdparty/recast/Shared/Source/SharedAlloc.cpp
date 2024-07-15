@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <stdlib.h>
 #include "Shared/Include/SharedAlloc.h"
 
 static void *rdAllocDefault(size_t size, rdAllocHint)

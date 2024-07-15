@@ -20,11 +20,6 @@
 #include "Shared/Include/SharedAlloc.h"
 #include "Shared/Include/SharedAssert.h"
 
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
-
 namespace
 {
 /// Allocates and constructs an object of the given type, returning a pointer.

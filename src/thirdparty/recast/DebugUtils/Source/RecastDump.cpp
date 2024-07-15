@@ -16,11 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
 #include "Recast/Include/Recast.h"
 #include "Shared/Include/SharedAlloc.h"
 #include "DebugUtils/Include/RecastDump.h"

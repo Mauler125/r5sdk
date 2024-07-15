@@ -1,4 +1,3 @@
-#include "Pch.h"
 #include "NavEditor/Include/ValueHistory.h"
 
 #ifdef WIN32

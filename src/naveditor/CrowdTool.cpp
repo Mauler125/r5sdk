@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNode.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
@@ -26,7 +25,7 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Editor.h"
 #include "NavEditor/Include/EditorInterfaces.h"
-#include "thirdparty/recast/DetourCrowd/Include/DetourCrowdInternal.h"
+#include "DetourCrowd/Include/DetourCrowdInternal.h"
 
 static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,

@@ -8,12 +8,14 @@ add_module( "lib" "navsharedcommon" "" ${FOLDER_CONTEXT} TRUE TRUE )
 start_sources()
 
 add_sources( SOURCE_GROUP "Source"
+    "Shared/Source/Pch.cpp"
     "Shared/Source/SharedAlloc.cpp"
     "Shared/Source/SharedAssert.cpp"
     "Shared/Source/SharedCommon.cpp"
 )
 
 add_sources( SOURCE_GROUP "Include"
+    "Shared/Include/Pch.h"
     "Shared/Include/SharedAlloc.h"
     "Shared/Include/SharedAssert.h"
     "Shared/Include/SharedCommon.h"
@@ -24,7 +26,7 @@ end_sources()
 whole_program_optimization()
 
 target_precompile_headers( ${PROJECT_NAME} PRIVATE
-    "Pch.h"
+    "Shared/Include/Pch.h"
 )
 
 # -----------------------------------------------------------------------------

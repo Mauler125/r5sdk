@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/ChunkyTriMesh.h"

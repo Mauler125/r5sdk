@@ -21,9 +21,6 @@
 #include "Shared\Include\SharedMath.h"
 #include "Shared\Include\SharedAlloc.h"
 #include "Shared\Include\SharedAssert.h"
-#include <string.h>
-#include <float.h>
-#include <new>
 
 static int sweepCircleCircle(const float* c0, const float r0, const float* v,
 							 const float* c1, const float r1,

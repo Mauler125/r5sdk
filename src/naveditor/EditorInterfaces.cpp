@@ -1,4 +1,3 @@
-#include "Pch.h"
 #include "Shared/Include/SharedCommon.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"

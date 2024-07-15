@@ -16,8 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <string.h>
-#include <new>
 #include "Shared\Include\SharedMath.h"
 #include "Shared\Include\SharedCommon.h"
 #include "DetourCrowd\Include\DetourProximityGrid.h"

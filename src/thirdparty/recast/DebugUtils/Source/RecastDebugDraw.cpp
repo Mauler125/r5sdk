@@ -16,8 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include "DebugUtils/Include/DebugDraw.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "Recast/Include/Recast.h"

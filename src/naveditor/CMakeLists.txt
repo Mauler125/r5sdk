@@ -20,12 +20,12 @@ add_sources( SOURCE_GROUP "Builder/Include"
 add_sources( SOURCE_GROUP "Core"
     "Editor.cpp"
     "main.cpp"
-    "../thirdparty/recast/Pch.cpp"
+    "Pch.cpp"
 )
 
 add_sources( SOURCE_GROUP "Core/Include"
     "include/Editor.h"
-    "../thirdparty/recast/Pch.h"
+    "include/Pch.h"
 )
 
 add_sources( SOURCE_GROUP "IO"
@@ -96,7 +96,7 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "_TOOLS"
 )
 target_precompile_headers( ${PROJECT_NAME} PRIVATE
-    "${ENGINE_SOURCE_DIR}/thirdparty/recast/Pch.h"
+    "Include/Pch.h"
 )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
     "navsharedcommon"

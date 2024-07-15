@@ -16,8 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <string.h>
 #include "Shared/Include/SharedMath.h"
 #include "Shared/Include/SharedCommon.h"
 #include "DebugUtils/Include/DebugDraw.h"

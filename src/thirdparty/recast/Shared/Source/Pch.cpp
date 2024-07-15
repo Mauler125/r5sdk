@@ -2,7 +2,7 @@
 // *.pch will be the pre-compiled header
 // Pch.obj will contain the pre-compiled type information
 
-#include "Pch.h"
+#include "Shared/Include/Pch.h"
 
 // TODO: reference any additional headers you need in PCH.H
 // and not in this file

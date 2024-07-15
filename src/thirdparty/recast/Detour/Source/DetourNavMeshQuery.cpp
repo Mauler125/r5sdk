@@ -16,8 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <float.h>
-#include <string.h>
 #include "Shared/Include/SharedMath.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "Detour/Include/DetourNavMesh.h"
@@ -25,7 +23,6 @@
 #include "Shared/Include/SharedCommon.h"
 #include "Shared/Include/SharedAlloc.h"
 #include "Shared/Include/SharedAssert.h"
-#include <new>
 
 /// @class dtQueryFilter
 ///

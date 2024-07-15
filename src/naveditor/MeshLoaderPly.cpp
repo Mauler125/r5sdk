@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "NavEditor/Include/MeshLoaderPly.h"
 
 bool rcMeshLoaderPly::load(const std::string& filename)

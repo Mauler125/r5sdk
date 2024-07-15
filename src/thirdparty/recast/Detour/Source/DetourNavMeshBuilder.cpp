@@ -16,11 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <float.h>
-#include <map>
 #include "Shared/Include/SharedMath.h"
 #include "Shared/Include/SharedCommon.h"
 #include "Shared/Include/SharedAlloc.h"

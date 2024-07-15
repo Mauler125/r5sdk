@@ -1,5 +1,5 @@
-#ifndef RDPCH_H
-#define RDPCH_H
+#ifndef NAVEDITORPCH_H
+#define NAVEDITORPCH_H
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -66,4 +66,4 @@
 #include "tier0/commonmacros.h"
 #include "common/sdkdefs.h"
 
-#endif // RDPCH_H
+#endif // NAVEDITORPCH_H
