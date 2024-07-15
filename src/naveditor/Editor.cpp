@@ -344,6 +344,8 @@ void Editor::handleUpdate(const float dt)
 
 void Editor::buildStaticPathingData()
 {
+	if (!m_navMesh) return;
+
 	dtDisjointSet data;
 
 	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
