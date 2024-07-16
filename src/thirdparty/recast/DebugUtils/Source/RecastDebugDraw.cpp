@@ -696,7 +696,7 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh, const f
 				const float x = orig[0] + v[0]*cs;
 				const float y = orig[1] + v[1]*cs;
 				const float z = orig[2] +(v[2]+1)*ch+0.1f;
-				dd->vertex(x, y, z, coln);
+				dd->vertex(x,y,z, coln);
 			}
 		}
 	}
@@ -724,7 +724,7 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh, const f
 				const float x = orig[0] + v[0]*cs;
 				const float y = orig[1] + v[1]*cs;
 				const float z = orig[2] +(v[2]+1)*ch+0.1f;
-				dd->vertex(x, y, z, col);
+				dd->vertex(x,y,z, col);
 			}
 		}
 	}
