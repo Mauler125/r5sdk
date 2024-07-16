@@ -1009,8 +1009,8 @@ int not_main(int argc, char** argv)
 						showEditor = false;
 						showTestCases = false;
 						showLevels = true;
-						scanDirectory(meshesFolder, ".obj", files);
-						scanDirectoryAppend(meshesFolder, ".gset", files);
+						scanDirectory(meshesFolder, ".gset", files);
+						scanDirectoryAppend(meshesFolder, ".obj", files);
 						scanDirectoryAppend(meshesFolder, ".ply", files);
 					}
 				}
