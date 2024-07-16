@@ -440,8 +440,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			}
 
 			// Snap the span to the heightfield height grid.
-			unsigned short spanMinCellIndex = (unsigned short)rdClamp((int)floorf(spanMin * inverseCellHeight), 0, RC_SPAN_MAX_HEIGHT);
-			unsigned short spanMaxCellIndex = (unsigned short)rdClamp((int)ceilf(spanMax * inverseCellHeight), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
+			unsigned short spanMinCellIndex = (unsigned short)rdClamp((int)rdMathFloorf(spanMin * inverseCellHeight), 0, RC_SPAN_MAX_HEIGHT);
+			unsigned short spanMaxCellIndex = (unsigned short)rdClamp((int)rdMathCeilf(spanMax * inverseCellHeight), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
 
 			if (!addSpan(hf, x, y, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))
 			{

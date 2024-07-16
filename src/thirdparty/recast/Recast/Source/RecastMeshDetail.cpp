@@ -46,7 +46,7 @@ inline float vdistSq2(const float* p, const float* q)
 
 inline float vdist2(const float* p, const float* q)
 {
-	return sqrtf(vdistSq2(p,q));
+	return rdMathSqrtf(vdistSq2(p,q));
 }
 
 inline float vcross2(const float* p1, const float* p2, const float* p3)
@@ -69,7 +69,7 @@ static bool circumCircle(const float* p1, const float* p2, const float* p3,
 	rdVsub(v3, p3,p1);
 	
 	const float cp = vcross2(v1, v2, v3);
-	if (fabsf(cp) > EPS)
+	if (rdMathFabsf(cp) > EPS)
 	{
 		const float v1Sq = vdot2(v1,v1);
 		const float v2Sq = vdot2(v2,v2);
@@ -110,7 +110,7 @@ static float distPtTri(const float* p, const float* a, const float* b, const flo
 	if (u >= -EPS && v >= -EPS && (u+v) <= 1+EPS)
 	{
 		const float z = a[2] + v0[2]*u + v1[2]*v;
-		return fabsf(z-p[2]);
+		return rdMathFabsf(z-p[2]);
 	}
 	return FLT_MAX;
 }
@@ -198,8 +198,8 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 								const float /*cs*/, const float ics, const float ch,
 								const int radius, const rcHeightPatch& hp)
 {
-	int ix = (int)floorf(fx*ics + 0.01f);
-	int iy = (int)floorf(fy*ics + 0.01f);
+	int ix = (int)rdMathFloorf(fx*ics + 0.01f);
+	int iy = (int)rdMathFloorf(fy*ics + 0.01f);
 	ix = rdClamp(ix-hp.xmin, 0, hp.width - 1);
 	iy = rdClamp(iy-hp.ymin, 0, hp.height - 1);
 	unsigned short h = hp.data[ix+iy*hp.width];
@@ -226,7 +226,7 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 				const unsigned short nh = hp.data[nx + ny*hp.width];
 				if (nh != RC_UNSET_HEIGHT)
 				{
-					const float d = fabsf(nh*ch - fz);
+					const float d = rdMathFabsf(nh*ch - fz);
 					if (d < dmin)
 					{
 						h = nh;
@@ -274,7 +274,7 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 
 	// No height found, return a reasonable fall back height.
 	if (h == RC_UNSET_HEIGHT)
-		h = (unsigned short)floorf(fz/ch);
+		h = (unsigned short)rdMathFloorf(fz/ch);
 
 	return h;
 }
@@ -811,7 +811,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			bool swapped = false;
 			// Make sure the segments are always handled in same order
 			// using lexological sort or else there will be seams.
-			if (fabsf(vj[0]-vi[0]) < 1e-6f)
+			if (rdMathFabsf(vj[0]-vi[0]) < 1e-6f)
 			{
 				if (vj[1] > vi[1])
 				{
@@ -831,8 +831,8 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			float dx = vi[0] - vj[0];
 			float dy = vi[1] - vj[1];
 			float dz = vi[2] - vj[2];
-			float d = sqrtf(dx*dx + dy*dy);
-			int nn = 1 + (int)floorf(d/sampleDist);
+			float d = rdMathSqrtf(dx*dx + dy*dy);
+			int nn = 1 + (int)rdMathFloorf(d/sampleDist);
 			if (nn >= MAX_VERTS_PER_EDGE) nn = MAX_VERTS_PER_EDGE-1;
 			if (nverts+nn >= MAX_VERTS)
 				nn = MAX_VERTS-1-nverts;
@@ -937,10 +937,10 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			rdVmin(bmin, &in[i*3]);
 			rdVmax(bmax, &in[i*3]);
 		}
-		int x0 = (int)floorf(bmin[0]/sampleDist);
-		int x1 = (int)ceilf(bmax[0]/sampleDist);
-		int y0 = (int)floorf(bmin[1]/sampleDist);
-		int y1 = (int)ceilf(bmax[1]/sampleDist);
+		int x0 = (int)rdMathFloorf(bmin[0]/sampleDist);
+		int x1 = (int)rdMathCeilf(bmax[0]/sampleDist);
+		int y0 = (int)rdMathFloorf(bmin[1]/sampleDist);
+		int y1 = (int)rdMathCeilf(bmax[1]/sampleDist);
 		samples.clear();
 		for (int y = y0; y < y1; ++y)
 		{
@@ -1299,7 +1299,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	const float ch = mesh.ch;
 	const float* orig = mesh.bmin;
 	const int borderSize = mesh.borderSize;
-	const int heightSearchRadius = rdMax(1, (int)ceilf(mesh.maxEdgeError));
+	const int heightSearchRadius = rdMax(1, (int)rdMathCeilf(mesh.maxEdgeError));
 	
 	rdIntArray edges(64);
 	rdIntArray tris(512);

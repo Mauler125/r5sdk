@@ -491,8 +491,8 @@ inline void dtNormalize2D(float* v)
 // vector normalization that ignores the z-component.
 inline void dtRorate2D(float* dest, const float* v, float ang)
 {
-	float c = cosf(ang);
-	float s = sinf(ang);
+	float c = rdMathCosf(ang);
+	float s = rdMathSinf(ang);
 	dest[0] = v[0]*c - v[1]*s;
 	dest[1] = v[0]*s + v[1]*c;
 	dest[2] = v[2];
@@ -527,8 +527,8 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	const int nd = rdClamp(ndivs, 1, DT_MAX_PATTERN_DIVS);
 	const int nr = rdClamp(nrings, 1, DT_MAX_PATTERN_RINGS);
 	const float da = (1.0f/nd) * RD_PI*2;
-	const float ca = cosf(da);
-	const float sa = sinf(da);
+	const float ca = rdMathCosf(da);
+	const float sa = rdMathSinf(da);
 
 	// desired direction
 	float ddir[6];

@@ -904,6 +904,3 @@ void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyM
 	}
 	dd->end();
 }
-
-
-

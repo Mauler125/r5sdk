@@ -348,8 +348,8 @@ void duAppendCylinder(struct duDebugDraw* dd, float minx, float miny, float minz
 		for (int i = 0; i < NUM_SEG; ++i)
 		{
 			const float a = (float)i/(float)NUM_SEG*DU_PI*2;
-			dir[i*2] = cosf(a);
-			dir[i*2+1] = sinf(a);
+			dir[i*2] = rdMathCosf(a);
+			dir[i*2+1] = rdMathSinf(a);
 		}
 	}
 	
@@ -395,50 +395,18 @@ inline void evalArc(const float x0, const float y0, const float z0,
 	res[2] = z0 + dz * u + h * (1-(u*2-1)*(u*2-1));
 }
 
-
-inline void vcross(float* dest, const float* v1, const float* v2)
-{
-	dest[0] = v1[1]*v2[2] - v1[2]*v2[1];
-	dest[1] = v1[2]*v2[0] - v1[0]*v2[2];
-	dest[2] = v1[0]*v2[1] - v1[1]*v2[0]; 
-}
-
-inline void vnormalize(float* v)
-{
-	float d = 1.0f / sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-	v[0] *= d;
-	v[1] *= d;
-	v[2] *= d;
-}
-
-inline void vsub(float* dest, const float* v1, const float* v2)
-{
-	dest[0] = v1[0]-v2[0];
-	dest[1] = v1[1]-v2[1];
-	dest[2] = v1[2]-v2[2];
-}
-
-inline float vdistSqr(const float* v1, const float* v2)
-{
-	const float x = v1[0]-v2[0];
-	const float y = v1[1]-v2[1];
-	const float z = v1[2]-v2[2];
-	return x*x + y*y + z*z;
-}
-
-
 void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
 					 const float s, unsigned int col)
 {
 	const float eps = 0.001f;
 	if (!dd) return;
-	if (vdistSqr(p,q) < eps*eps) return;
+	if (rdVdistSqr(p,q) < eps*eps) return;
 	float ax[3], ay[3] = {0,1,0}, az[3];
-	vsub(az, q, p);
-	vnormalize(az);
-	vcross(ax, ay, az);
-	vcross(ay, az, ax);
-	vnormalize(ay);
+	rdVsub(az, q, p);
+	rdVnormalize(az);
+	rdVcross(ax, ay, az);
+	rdVcross(ay, az, ax);
+	rdVnormalize(ay);
 
 	dd->vertex(p, col);
 	dd->vertex(p[0]+az[0]*s+ay[0]*s/2, p[1]+az[1]*s+ay[1]*s/2, p[2]+az[2]*s+ay[2]*s/2, col);
@@ -458,7 +426,7 @@ void duAppendArc(struct duDebugDraw* dd, const float x0, const float y0, const f
 	const float dx = x1 - x0;
 	const float dy = y1 - y0;
 	const float dz = z1 - z0;
-	const float len = sqrtf(dx*dx + dy*dy + dz*dz);
+	const float len = rdMathSqrtf(dx*dx + dy*dy + dz*dz);
 	float prev[3];
 	evalArc(x0,y0,z0, dx,dy,dz, len*h, PAD, prev);
 	for (int i = 1; i <= NUM_ARC_PTS; ++i)
@@ -519,8 +487,8 @@ void duAppendCircle(struct duDebugDraw* dd, const float x, const float y, const 
 		for (int i = 0; i < NUM_SEG; ++i)
 		{
 			const float a = (float)i/(float)NUM_SEG*DU_PI*2;
-			dir[i*2] = cosf(a);
-			dir[i*2+1] = sinf(a);
+			dir[i*2] = rdMathCosf(a);
+			dir[i*2+1] = rdMathSinf(a);
 		}
 	}
 	

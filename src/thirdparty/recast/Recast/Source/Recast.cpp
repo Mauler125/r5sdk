@@ -331,7 +331,7 @@ void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
 	rdIgnoreUnused(context);
 	rdIgnoreUnused(numVerts);
 
-	const float walkableThr = cosf(walkableSlopeAngle / 180.0f * RD_PI);
+	const float walkableThr = rdMathCosf(walkableSlopeAngle / 180.0f * RD_PI);
 
 	float norm[3];
 
@@ -356,7 +356,7 @@ void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAng
 	rdIgnoreUnused(numVerts);
 
 	// The minimum Z value for a face normal of a triangle with a walkable slope.
-	const float walkableLimitZ = cosf(walkableSlopeAngle / 180.0f * RD_PI);
+	const float walkableLimitZ = rdMathCosf(walkableSlopeAngle / 180.0f * RD_PI);
 
 	float faceNormal[3];
 	for (int i = 0; i < numTris; ++i)

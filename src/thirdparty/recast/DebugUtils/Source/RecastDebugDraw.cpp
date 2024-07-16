@@ -84,7 +84,7 @@ void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int /*nverts*/
 	if (!tris) return;
 	if (!normals) return;
 	
-	const float walkableThr = cosf(walkableSlopeAngle/180.0f*DU_PI);
+	const float walkableThr = rdMathCosf(walkableSlopeAngle/180.0f*DU_PI);
 	
 	float uva[2];
 	float uvb[2];

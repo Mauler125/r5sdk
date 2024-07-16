@@ -129,7 +129,7 @@ bool rdIntersectSegmentPoly2D(const float* p0, const float* p1,
 		rdVsub(diff, p0, &verts[j*3]);
 		const float n = rdVperp2D(edge, diff);
 		const float d = rdVperp2D(dir, edge);
-		if (fabsf(d) < EPS)
+		if (rdMathFabsf(d) < EPS)
 		{
 			// S is nearly parallel to this edge
 			if (n < 0)
@@ -212,7 +212,7 @@ bool rdClosestHeightPointTriangle(const float* p, const float* a, const float* b
 
 	// Compute scaled barycentric coordinates
 	float denom = v0[0] * v1[1] - v0[1] * v1[0];
-	if (fabsf(denom) < EPS)
+	if (rdMathFabsf(denom) < EPS)
 		return false;
 
 	float u = v1[1] * v2[0] - v1[0] * v2[1];
@@ -379,7 +379,7 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 	rdVsub(v,bq,bp);
 	rdVsub(w,ap,bp);
 	float d = vperpXY(u,v);
-	if (fabsf(d) < 1e-6f) return false;
+	if (rdMathFabsf(d) < 1e-6f) return false;
 	s = vperpXY(v,w) / d;
 	t = vperpXY(u,w) / d;
 	return true;

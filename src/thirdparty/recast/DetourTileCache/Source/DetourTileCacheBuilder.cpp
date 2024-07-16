@@ -2063,12 +2063,12 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	const float ics = 1.0f/cs;
 	const float ich = 1.0f/ch;
 
-	int minx = (int)floorf((bmin[0]-orig[0])*ics);
-	int miny = (int)floorf((bmin[1]-orig[1])*ics);
-	int minz = (int)floorf((bmin[2]-orig[2])*ich);
-	int maxx = (int)floorf((bmax[0]-orig[0])*ics);
-	int maxy = (int)floorf((bmax[1]-orig[1])*ics);
-	int maxz = (int)floorf((bmax[2]-orig[2])*ich);
+	int minx = (int)rdMathFloorf((bmin[0]-orig[0])*ics);
+	int miny = (int)rdMathFloorf((bmin[1]-orig[1])*ics);
+	int minz = (int)rdMathFloorf((bmin[2]-orig[2])*ich);
+	int maxx = (int)rdMathFloorf((bmax[0]-orig[0])*ics);
+	int maxy = (int)rdMathFloorf((bmax[1]-orig[1])*ics);
+	int maxz = (int)rdMathFloorf((bmax[2]-orig[2])*ich);
 	
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
@@ -2106,12 +2106,12 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	float cy = (center[1] - orig[1])*ics;
 	
 	float maxr = 1.41f*rdMax(halfExtents[0], halfExtents[1]);
-	int minx = (int)floorf(cx - maxr*ics);
-	int maxx = (int)floorf(cx + maxr*ics);
-	int miny = (int)floorf(cy - maxr*ics);
-	int maxy = (int)floorf(cy + maxr*ics);
-	int minz = (int)floorf((center[2]-halfExtents[2]-orig[2])*ich);
-	int maxz = (int)floorf((center[2]+halfExtents[2]-orig[2])*ich);
+	int minx = (int)rdMathFloorf(cx - maxr*ics);
+	int maxx = (int)rdMathFloorf(cx + maxr*ics);
+	int miny = (int)rdMathFloorf(cy - maxr*ics);
+	int maxy = (int)rdMathFloorf(cy + maxr*ics);
+	int minz = (int)rdMathFloorf((center[2]-halfExtents[2]-orig[2])*ich);
+	int maxz = (int)rdMathFloorf((center[2]+halfExtents[2]-orig[2])*ich);
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
