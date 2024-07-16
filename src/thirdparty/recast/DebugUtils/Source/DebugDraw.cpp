@@ -316,12 +316,12 @@ void duAppendBox(struct duDebugDraw* dd, float minx, float miny, float minz,
 	};
 	static const unsigned char inds[6*4] =
 	{
+		2, 6, 7, 3,
+		0, 4, 5, 1,
 		7, 6, 5, 4,
 		0, 1, 2, 3,
 		1, 5, 6, 2,
 		3, 7, 4, 0,
-		2, 6, 7, 3,
-		0, 4, 5, 1,
 	};
 	
 	const unsigned char* in = inds;
