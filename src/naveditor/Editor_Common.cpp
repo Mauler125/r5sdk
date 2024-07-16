@@ -405,6 +405,14 @@ void Editor_StaticTileMeshCommon::renderIntermediateTileMeshOptions()
 		m_navQuery->init(m_navMesh, 2048);
 
 		m_loadedNavMeshType = m_selectedNavMeshType;
+
+		if (m_tool)
+		{
+			m_tool->reset();
+			m_tool->init(this);
+		}
+
+		resetToolStates();
 		initToolStates(this);
 	}
 
