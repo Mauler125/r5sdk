@@ -65,11 +65,11 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 	rcScopedTimer timer(context, RC_TIMER_FILTER_BORDER);
 
 	const int xSize = heightfield.width;
-	const int zSize = heightfield.height;
+	const int ySize = heightfield.height;
 	const int MAX_HEIGHT = 0xffff; // TODO (graham): Move this to a more visible constant and update usages.
 	
 	// Mark border spans.
-	for (int y = 0; y < zSize; ++y)
+	for (int y = 0; y < ySize; ++y)
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
@@ -96,7 +96,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 					int dx = x + rcGetDirOffsetX(direction);
 					int dy = y + rcGetDirOffsetY(direction);
 					// Skip neighbours which are out of bounds.
-					if (dx < 0 || dy < 0 || dx >= xSize || dy >= zSize)
+					if (dx < 0 || dy < 0 || dx >= xSize || dy >= ySize)
 					{
 						minNeighborHeight = rdMin(minNeighborHeight, -walkableClimb - bot);
 						continue;
