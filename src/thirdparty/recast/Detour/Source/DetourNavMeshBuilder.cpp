@@ -545,7 +545,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		if (!offMeshConClass)
 			return false;
 
-		// Find tight heigh bounds, used for culling out off-mesh start locations.
+		// Find tight height bounds, used for culling out off-mesh start locations.
 		float hmin = FLT_MAX;
 		float hmax = -FLT_MAX;
 		
