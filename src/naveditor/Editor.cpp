@@ -250,23 +250,26 @@ void Editor::handleCommonSettings()
 
 	ImGui::PopItemWidth();
 
-	ImGui::Separator();
-	ImGui::Text("Bounding");
-
-	float* navMeshBMin = m_geom->getNavMeshBoundsMin();
-	float* navMeshBMax = m_geom->getNavMeshBoundsMax();
-
-	ImGui::PushItemWidth(230);
-
-	ImGui::SliderFloat3("Mins##BuildSettings", navMeshBMin, -MAX_COORD_FLOAT, MAX_COORD_FLOAT);
-	ImGui::SliderFloat3("Maxs##BuildSettings", navMeshBMax, -MAX_COORD_FLOAT, MAX_COORD_FLOAT);
-
-	ImGui::PopItemWidth();
-
-	if (ImGui::Button("Reset##BuildSettings", ImVec2(120, 0)))
+	if (m_geom)
 	{
-		rdVcopy(navMeshBMin, m_geom->getOriginalNavMeshBoundsMin());
-		rdVcopy(navMeshBMax, m_geom->getOriginalNavMeshBoundsMax());
+		ImGui::Separator();
+		ImGui::Text("Bounding");
+
+		float* navMeshBMin = m_geom->getNavMeshBoundsMin();
+		float* navMeshBMax = m_geom->getNavMeshBoundsMax();
+
+		ImGui::PushItemWidth(230);
+
+		ImGui::SliderFloat3("Mins##BuildSettings", navMeshBMin, -MAX_COORD_FLOAT, MAX_COORD_FLOAT);
+		ImGui::SliderFloat3("Maxs##BuildSettings", navMeshBMax, -MAX_COORD_FLOAT, MAX_COORD_FLOAT);
+
+		ImGui::PopItemWidth();
+
+		if (ImGui::Button("Reset##BuildSettings", ImVec2(120, 0)))
+		{
+			rdVcopy(navMeshBMin, m_geom->getOriginalNavMeshBoundsMin());
+			rdVcopy(navMeshBMax, m_geom->getOriginalNavMeshBoundsMax());
+		}
 	}
 
 	ImGui::Separator();
