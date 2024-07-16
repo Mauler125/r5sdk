@@ -1044,14 +1044,14 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	const int offMeshLinksSize = rdAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
 
 	const int polyCount = header->polyCount;
-	const int polyCountMultiplier = header->unkPerPoly;
+	const int unkPerPoly = header->unkPerPoly;
 	const int offMeshConCount = header->offMeshConCount;
 	
 	unsigned char* d = data + headerSize;
 	tile->verts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	tile->polys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
 	tile->polysEnd = &tile->polys[polyCount];
-	d = (unsigned char*)(tile->polysEnd) + polyCount * polyCountMultiplier;
+	d = (unsigned char*)(tile->polysEnd) + polyCount * unkPerPoly;
 	tile->links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	tile->detailMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
 	tile->detailVerts = rdGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
