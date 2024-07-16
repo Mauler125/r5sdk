@@ -35,8 +35,8 @@ static void EditorCommon_DrawInputGeometry(duDebugDraw* const dd, const InputGeo
 static void EditorCommon_DrawBoundingBox(duDebugDraw* const dd, const InputGeom* const geom)
 {
 	// Draw bounds
-	const float* const origBmin = geom->getOriginalNavMeshBoundsMin();
-	const float* const origBmax = geom->getOriginalNavMeshBoundsMax();
+	const float* const origBmin = geom->getMeshBoundsMin();
+	const float* const origBmax = geom->getMeshBoundsMax();
 	duDebugDrawBoxWire(dd, origBmin[0], origBmin[1], origBmin[2], origBmax[0], origBmax[1], origBmax[2], duRGBA(255, 255, 255, 170), 1.0f, nullptr);
 
 	const float* const navBmin = geom->getNavMeshBoundsMin();

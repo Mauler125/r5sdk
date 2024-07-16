@@ -530,8 +530,8 @@ int not_main(int argc, char** argv)
 			const float* bmax = 0;
 			if (geom)
 			{
-				bmin = geom->getNavMeshBoundsMin();
-				bmax = geom->getNavMeshBoundsMax();
+				bmin = geom->getOriginalNavMeshBoundsMin();
+				bmax = geom->getOriginalNavMeshBoundsMax();
 			}
 			if (!commandLine)
 			{
@@ -1068,8 +1068,8 @@ int not_main(int argc, char** argv)
 				const float* bmax = 0;
 				if (geom)
 				{
-					bmin = geom->getNavMeshBoundsMin();
-					bmax = geom->getNavMeshBoundsMax();
+					bmin = geom->getMeshBoundsMin();
+					bmax = geom->getMeshBoundsMax();
 				}
 				// Reset camera and fog to match the mesh bounds.
 				update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
@@ -1141,8 +1141,8 @@ int not_main(int argc, char** argv)
 				const float* bmax = 0;
 				if (geom)
 				{
-					bmin = geom->getNavMeshBoundsMin();
-					bmax = geom->getNavMeshBoundsMax();
+					bmin = geom->getMeshBoundsMin();
+					bmax = geom->getMeshBoundsMax();
 				}
 				// Reset camera and fog to match the mesh bounds.
 				update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
