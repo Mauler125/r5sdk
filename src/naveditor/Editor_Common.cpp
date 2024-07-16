@@ -383,7 +383,11 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 
 	// TODO: also add flags for this
 	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset);
-	m_geom->drawOffMeshConnections(&m_dd, recastDrawOffset);
+
+	// NOTE: commented out because this already gets rendered when the off-mesh
+	// connection tool is activated. And if we generated an off-mesh link, this
+	// would overlap with that as well.
+	//m_geom->drawOffMeshConnections(&m_dd, recastDrawOffset);
 
 	if (m_tool)
 		m_tool->handleRender();
@@ -588,7 +592,11 @@ void Editor_DynamicTileMeshCommon::renderTileMeshData()
 
 	// TODO: also add flags for this
 	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset);
-	m_geom->drawOffMeshConnections(&m_dd, recastDrawOffset);
+
+	// NOTE: commented out because this already gets rendered when the off-mesh
+	// connection tool is activated. And if we generated an off-mesh link, this
+	// would overlap with that as well.
+	//m_geom->drawOffMeshConnections(&m_dd, recastDrawOffset);
 
 	if (m_tool)
 		m_tool->handleRender();
