@@ -329,7 +329,7 @@ struct dtMeshHeader
 
 	unsigned int userId;	///< The user defined id of the tile.
 	int polyCount;			///< The number of polygons in the tile.
-	int polyCountMultiplier;
+	int unkPerPoly;
 	int vertCount;			///< The number of vertices in the tile.
 	int maxLinkCount;		///< The number of allocated links.
 

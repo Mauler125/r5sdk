@@ -665,7 +665,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			detailTriCount += nv-2;
 		}
 	}
-	int sth_per_poly_thingy = 0;
+
 	// Calculate data size
 	const int headerSize = rdAlign4(sizeof(dtMeshHeader));
 	const int vertsSize = rdAlign4(sizeof(float)*3*totVertCount);
@@ -677,11 +677,12 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	const int bvTreeSize = params->buildBvTree ? rdAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
 	const int offMeshConsSize = rdAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 	
-	const int sthSize = sth_per_poly_thingy * totPolyCount * 4;
+	int unkPerPoly = 0; // TODO: this data has to be reversed still from the NavMesh!
+	const int sthSize = unkPerPoly * totPolyCount;
 
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
 						 detailMeshesSize + detailVertsSize + detailTrisSize +
-						 bvTreeSize + offMeshConsSize+ sthSize;
+						 bvTreeSize + offMeshConsSize + sthSize;
 
 	//printf("%i %i %i %i(%i links) %i %i %i %i %i\n", headerSize, vertsSize, polysSize, linksSize, maxLinkCount, detailMeshesSize, detailVertsSize, detailTrisSize, bvTreeSize, offMeshConsSize);
 	//printf("%i\n", dataSize);
@@ -695,17 +696,11 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	memset(data, 0, dataSize);
 	
 	unsigned char* d = data;
-
-	// vertsSize == sizeof(float)  * detailVertCount * 3
-	// polysSize == sizeof(dtPoly) * polyCount
-	// linksSize == sizeof(dtLink) * maxLinkCount
-	// detailMeshesSize = sizeof(dtPolyDetail)*params->polyCount
 	
 	dtMeshHeader* header = rdGetThenAdvanceBufferPointer<dtMeshHeader>(d, headerSize);
 	float* navVerts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	dtPoly* navPolys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
-	//d += sthSize; //dunno hope it crashes
-	unsigned int* some_arr = rdGetThenAdvanceBufferPointer<unsigned int>(d, sthSize);
+	unsigned int* unknownArray = rdGetThenAdvanceBufferPointer<unsigned int>(d, sthSize);
 	d += linksSize; // Ignore links; just leave enough space for them. They'll be created on load.
 	//dtLink* links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	dtPolyDetail* navDMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
@@ -714,9 +709,10 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	dtBVNode* navBvtree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
 	dtOffMeshConnection* offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
 
-	for(int i=0;i<sth_per_poly_thingy*totPolyCount;i++)
-		some_arr[i] = rand();
-	
+	rdIgnoreUnused(unknownArray);
+	//for(int i=0;i<unkPerPoly*totPolyCount;i++)
+	//	unknownArray[i] = rand();
+
 	// Store header
 	header->magic = DT_NAVMESH_MAGIC;
 	header->version = DT_NAVMESH_VERSION;
@@ -740,7 +736,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->walkableClimb = params->walkableClimb;
 	header->offMeshConCount = storedOffMeshConCount;
 	header->bvNodeCount = params->buildBvTree ? params->polyCount*2 : 0;
-	header->polyCountMultiplier = sth_per_poly_thingy;
+	header->unkPerPoly = unkPerPoly;
 
 	const int offMeshVertsBase = params->vertCount;
 	const int offMeshPolyBase = params->polyCount;

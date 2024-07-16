@@ -1042,16 +1042,23 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	const int detailTrisSize = rdAlign4(sizeof(unsigned char)*4*header->detailTriCount);
 	const int bvtreeSize = rdAlign4(sizeof(dtBVNode)*header->bvNodeCount);
 	const int offMeshLinksSize = rdAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
+
+	const int polyCount = header->polyCount;
+	const int polyCountMultiplier = header->unkPerPoly;
+	const int offMeshConCount = header->offMeshConCount;
 	
 	unsigned char* d = data + headerSize;
 	tile->verts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	tile->polys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
+	tile->polysEnd = &tile->polys[polyCount];
+	d = (unsigned char*)(tile->polysEnd) + polyCount * polyCountMultiplier;
 	tile->links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	tile->detailMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
 	tile->detailVerts = rdGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
 	tile->detailTris = rdGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
 	tile->bvTree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvtreeSize);
 	tile->offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshLinksSize);
+	tile->offMeshConsEnd = &tile->offMeshCons[offMeshConCount];
 
 	// If there are no items in the bvtree, reset the tree pointer.
 	if (!bvtreeSize)
@@ -1065,8 +1072,6 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 
 	// Init tile.
 	tile->header = header;
-	tile->polysEnd = &tile->polys[polysSize];
-	tile->offMeshConsEnd = &tile->offMeshCons[offMeshLinksSize];
 	tile->data = data;
 	tile->dataSize = dataSize;
 	tile->flags = flags;
