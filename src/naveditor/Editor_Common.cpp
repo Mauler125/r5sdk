@@ -34,14 +34,23 @@ static void EditorCommon_DrawInputGeometry(duDebugDraw* const dd, const InputGeo
 
 static void EditorCommon_DrawBoundingBox(duDebugDraw* const dd, const InputGeom* const geom)
 {
-	// Draw bounds
 	const float* const origBmin = geom->getMeshBoundsMin();
 	const float* const origBmax = geom->getMeshBoundsMax();
+
+	// Draw Mesh bounds
 	duDebugDrawBoxWire(dd, origBmin[0], origBmin[1], origBmin[2], origBmax[0], origBmax[1], origBmax[2], duRGBA(255, 255, 255, 170), 1.0f, nullptr);
+
+	const float* const origNavBmin = geom->getOriginalNavMeshBoundsMin();
+	const float* const origNavBmax = geom->getOriginalNavMeshBoundsMax();
 
 	const float* const navBmin = geom->getNavMeshBoundsMin();
 	const float* const navBmax = geom->getNavMeshBoundsMax();
 
+	// Draw Original NavMesh bounds (e.g. when loading from a .gset with a predetermined NavMesh bound that differs from the mesh bound)
+	if ((!rdVequal(origBmin, origNavBmin) || !rdVequal(origBmax, origNavBmax)) && (!rdVequal(navBmin, origNavBmin) || !rdVequal(navBmax, origNavBmax)))
+		duDebugDrawBoxWire(dd, origNavBmin[0], origNavBmin[1], origNavBmin[2], origNavBmax[0], origNavBmax[1], origNavBmax[2], duRGBA(0, 80, 255, 215), 1.0f, nullptr);
+
+	// Draw NavMesh bounds
 	if (!rdVequal(origBmin, navBmin) || !rdVequal(origBmax, navBmax))
 		duDebugDrawBoxWire(dd, navBmin[0], navBmin[1], navBmin[2], navBmax[0], navBmax[1], navBmax[2], duRGBA(0, 255, 0, 215), 1.0f, nullptr);
 }
