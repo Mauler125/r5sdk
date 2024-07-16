@@ -54,18 +54,18 @@ enum EditorToolType
 enum EditorPolyAreas
 {
 	EDITOR_POLYAREA_GROUND,
-	EDITOR_POLYAREA_WATER,
+	EDITOR_POLYAREA_JUMP,
 	EDITOR_POLYAREA_ROAD,
 	EDITOR_POLYAREA_DOOR,
 	EDITOR_POLYAREA_GRASS,
-	EDITOR_POLYAREA_JUMP,
+	EDITOR_POLYAREA_WATER,
 };
 enum EditorPolyFlags
 {
 	EDITOR_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)
-	EDITOR_POLYFLAGS_SWIM		= 0x02,		// Ability to swim (water).
+	EDITOR_POLYFLAGS_JUMP		= 0x02,		// Ability to jump.
 	EDITOR_POLYFLAGS_DOOR		= 0x04,		// Ability to move through doors.
-	EDITOR_POLYFLAGS_JUMP		= 0x08,		// Ability to jump.
+	EDITOR_POLYFLAGS_SWIM		= 0x08,		// Ability to swim (water).
 	EDITOR_POLYFLAGS_DISABLED	= 0x10,		// Disabled polygon
 	EDITOR_POLYFLAGS_ALL		= 0xffff	// All abilities.
 };

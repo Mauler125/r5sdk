@@ -112,7 +112,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		else
 		{
 			const unsigned char area = EDITOR_POLYAREA_JUMP;
-			const unsigned short flags = EDITOR_POLYFLAGS_JUMP; 
+			const unsigned short flags = EDITOR_POLYFLAGS_WALK;
 			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
 			m_hitPosSet = false;
 		}

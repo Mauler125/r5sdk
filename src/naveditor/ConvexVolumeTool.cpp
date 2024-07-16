@@ -131,9 +131,9 @@ void ConvexVolumeTool::handleMenu()
 	if (ImGui::Checkbox("Clip", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_GROUND;
 
-	isEnabled = m_areaType == EDITOR_POLYAREA_WATER;
-	if (ImGui::Checkbox("Water", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_WATER;
+	isEnabled = m_areaType == EDITOR_POLYAREA_JUMP;
+	if (ImGui::Checkbox("Jump", &isEnabled))
+		m_areaType = EDITOR_POLYAREA_JUMP;
 
 	isEnabled = m_areaType == EDITOR_POLYAREA_ROAD;
 	if (ImGui::Checkbox("Road", &isEnabled))
@@ -147,9 +147,9 @@ void ConvexVolumeTool::handleMenu()
 	if (ImGui::Checkbox("Grass", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_GRASS;
 
-	isEnabled = m_areaType == EDITOR_POLYAREA_JUMP;
-	if (ImGui::Checkbox("Jump", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_JUMP;
+	isEnabled = m_areaType == EDITOR_POLYAREA_WATER;
+	if (ImGui::Checkbox("Water", &isEnabled))
+		m_areaType = EDITOR_POLYAREA_WATER;
 
 	ImGui::Unindent();
 
