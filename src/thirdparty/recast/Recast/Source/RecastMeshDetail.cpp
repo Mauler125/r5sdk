@@ -31,24 +31,6 @@ struct rcHeightPatch
 	int xmin, ymin, width, height;
 };
 
-
-inline float vdot2(const float* a, const float* b)
-{
-	return a[0]*b[0] + a[1]*b[1];
-}
-
-inline float vdistSq2(const float* p, const float* q)
-{
-	const float dx = q[0] - p[0];
-	const float dy = q[1] - p[1];
-	return dx*dx + dy*dy;
-}
-
-inline float vdist2(const float* p, const float* q)
-{
-	return rdMathSqrtf(vdistSq2(p,q));
-}
-
 inline float vcross2(const float* p1, const float* p2, const float* p3)
 {
 	const float u1 = p2[0] - p1[0];
@@ -71,13 +53,13 @@ static bool circumCircle(const float* p1, const float* p2, const float* p3,
 	const float cp = vcross2(v1, v2, v3);
 	if (rdMathFabsf(cp) > EPS)
 	{
-		const float v1Sq = vdot2(v1,v1);
-		const float v2Sq = vdot2(v2,v2);
-		const float v3Sq = vdot2(v3,v3);
+		const float v1Sq = rdVdot2D(v1,v1);
+		const float v2Sq = rdVdot2D(v2,v2);
+		const float v3Sq = rdVdot2D(v3,v3);
 		c[0] = (v1Sq*(v2[1]-v3[1]) + v2Sq*(v3[1]-v1[1]) + v3Sq*(v1[1]-v2[1])) / (2*cp);
 		c[1] = (v1Sq*(v3[0]-v2[0]) + v2Sq*(v1[0]-v3[0]) + v3Sq*(v2[0]-v1[0])) / (2*cp);
 		c[2] = 0;
-		r = vdist2(c, v1);
+		r = rdVdist2D(c, v1);
 		rdVadd(c, c, p1);
 		return true;
 	}
@@ -94,11 +76,11 @@ static float distPtTri(const float* p, const float* a, const float* b, const flo
 	rdVsub(v1, b,a);
 	rdVsub(v2, p,a);
 	
-	const float dot00 = vdot2(v0, v0);
-	const float dot01 = vdot2(v0, v1);
-	const float dot02 = vdot2(v0, v2);
-	const float dot11 = vdot2(v1, v1);
-	const float dot12 = vdot2(v1, v2);
+	const float dot00 = rdVdot2D(v0, v0);
+	const float dot01 = rdVdot2D(v0, v1);
+	const float dot02 = rdVdot2D(v0, v2);
+	const float dot11 = rdVdot2D(v1, v1);
+	const float dot12 = rdVdot2D(v1, v2);
 	
 	// Compute barycentric coordinates
 	const float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
@@ -455,7 +437,7 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 				circumCircle(&pts[s*3], &pts[t*3], &pts[u*3], c, r);
 				continue;
 			}
-			const float d = vdist2(c, &pts[u*3]);
+			const float d = rdVdist2D(c, &pts[u*3]);
 			const float tol = 0.001f;
 			if (d > r*(1+tol))
 			{
@@ -675,7 +657,7 @@ static void triangulateHull(const int /*nverts*/, const float* verts, const int 
 		const float* pv = &verts[hull[pi]*3];
 		const float* cv = &verts[hull[i]*3];
 		const float* nv = &verts[hull[ni]*3];
-		const float d = vdist2(pv,cv) + vdist2(cv,nv) + vdist2(nv,pv);
+		const float d = rdVdist2D(pv,cv) + rdVdist2D(cv,nv) + rdVdist2D(nv,pv);
 		if (d < dmin)
 		{
 			start = i;
@@ -705,8 +687,8 @@ static void triangulateHull(const int /*nverts*/, const float* verts, const int 
 		const float* nvleft = &verts[hull[nleft]*3];
 		const float* cvright = &verts[hull[right]*3];
 		const float* nvright = &verts[hull[nright]*3];
-		const float dleft = vdist2(cvleft, nvleft) + vdist2(nvleft, cvright);
-		const float dright = vdist2(cvright, nvright) + vdist2(cvleft, nvright);
+		const float dleft = rdVdist2D(cvleft, nvleft) + rdVdist2D(nvleft, cvright);
+		const float dright = rdVdist2D(cvright, nvright) + rdVdist2D(cvleft, nvright);
 		
 		if (dleft < dright)
 		{

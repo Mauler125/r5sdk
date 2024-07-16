@@ -89,6 +89,17 @@ inline void rdVcross(float* dest, const float* v1, const float* v2)
 	dest[2] = v1[0]*v2[1] - v1[1]*v2[0]; 
 }
 
+/// Derives the xy-plane 2D perp product of the two vectors. (uy*vx - ux*vy)
+///  @param[in]		u		The LHV vector [(x, y, z)]
+///  @param[in]		v		The RHV vector [(x, y, z)]
+/// @return The perp dot product on the xy-plane.
+///
+/// The vectors are projected onto the xy-plane, so the z-values are ignored.
+inline float rdVperp2D(const float* u, const float* v)
+{
+	return u[0]*v[1] - u[1]*v[0];
+}
+
 /// Derives the dot product of two vectors. (@p v1 . @p v2)
 ///  @param[in]		v1	A Vector [(x, y, z)]
 ///  @param[in]		v2	A vector [(x, y, z)]
@@ -96,6 +107,17 @@ inline void rdVcross(float* dest, const float* v1, const float* v2)
 inline float rdVdot(const float* v1, const float* v2)
 {
 	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+}
+
+/// Derives the dot product of two vectors on the xy-plane. (@p u . @p v)
+///  @param[in]		u		A vector [(x, y, z)]
+///  @param[in]		v		A vector [(x, y, z)]
+/// @return The dot product on the xy-plane.
+///
+/// The vectors are projected onto the xy-plane, so the z-values are ignored.
+inline float rdVdot2D(const float* u, const float* v)
+{
+	return u[0]*v[0] + u[1]*v[1];
 }
 
 /// Performs a scaled vector addition. (@p v1 + (@p v2 * @p s))
@@ -303,28 +325,6 @@ inline bool rdVisfinite2D(const float* v)
 {
 	bool result = rdMathIsfinite(v[0]) && rdMathIsfinite(v[1]);
 	return result;
-}
-
-/// Derives the dot product of two vectors on the xy-plane. (@p u . @p v)
-///  @param[in]		u		A vector [(x, y, z)]
-///  @param[in]		v		A vector [(x, y, z)]
-/// @return The dot product on the xy-plane.
-///
-/// The vectors are projected onto the xy-plane, so the z-values are ignored.
-inline float rdVdot2D(const float* u, const float* v)
-{
-	return u[0]*v[0] + u[1]*v[1];
-}
-
-/// Derives the xy-plane 2D perp product of the two vectors. (uy*vx - ux*vy)
-///  @param[in]		u		The LHV vector [(x, y, z)]
-///  @param[in]		v		The RHV vector [(x, y, z)]
-/// @return The perp dot product on the xy-plane.
-///
-/// The vectors are projected onto the xy-plane, so the z-values are ignored.
-inline float rdVperp2D(const float* u, const float* v)
-{
-	return u[0]*v[1] - u[1]*v[0];
 }
 
 /// @}

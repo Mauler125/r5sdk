@@ -368,8 +368,6 @@ void rdRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 	out[2] = a*pa[2] + b*pb[2] + c*pc[2];
 }
 
-inline float vperpXY(const float* a, const float* b) { return a[0]*b[1] - a[1]*b[0]; }
-
 bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 						 const float* bp, const float* bq,
 						 float& s, float& t)
@@ -378,10 +376,10 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 	rdVsub(u,aq,ap);
 	rdVsub(v,bq,bp);
 	rdVsub(w,ap,bp);
-	float d = vperpXY(u,v);
+	float d = rdVperp2D(u,v);
 	if (rdMathFabsf(d) < 1e-6f) return false;
-	s = vperpXY(v,w) / d;
-	t = vperpXY(u,w) / d;
+	s = rdVperp2D(v,w) / d;
+	t = rdVperp2D(u,w) / d;
 	return true;
 }
 
