@@ -258,14 +258,28 @@ void Editor::handleCommonSettings()
 		float* navMeshBMin = m_geom->getNavMeshBoundsMin();
 		float* navMeshBMax = m_geom->getNavMeshBoundsMax();
 
-		ImGui::PushItemWidth(230);
+		const float* meshBMin = m_geom->getMeshBoundsMin();
+		const float* meshBMax = m_geom->getMeshBoundsMax();
 
-		ImGui::SliderFloat3("Mins##BuildSettings", navMeshBMin, -MAX_COORD_FLOAT, MAX_COORD_FLOAT);
-		ImGui::SliderFloat3("Maxs##BuildSettings", navMeshBMax, -MAX_COORD_FLOAT, MAX_COORD_FLOAT);
+		ImGui::PushItemWidth(75);
+		ImGui::SliderFloat("##BoundingMinsX", &navMeshBMin[0], meshBMin[0], rdMin(meshBMax[0], navMeshBMax[0]));
+		ImGui::SameLine();
+		ImGui::SliderFloat("##BoundingMinsY", &navMeshBMin[1], meshBMin[1], rdMin(meshBMax[1], navMeshBMax[1]));
+		ImGui::SameLine();
+		ImGui::SliderFloat("##BoundingMinsZ", &navMeshBMin[2], meshBMin[2], rdMin(meshBMax[2], navMeshBMax[2]));
+		ImGui::SameLine();
+		ImGui::Text("Mins");
 
+		ImGui::SliderFloat("##BoundingMaxsX", &navMeshBMax[0], rdMax(meshBMin[0], navMeshBMin[0]), meshBMax[0]);
+		ImGui::SameLine();
+		ImGui::SliderFloat("##BoundingMaxsY", &navMeshBMax[1], rdMax(meshBMin[1], navMeshBMin[1]), meshBMax[1]);
+		ImGui::SameLine();
+		ImGui::SliderFloat("##BoundingMaxsZ", &navMeshBMax[2], rdMax(meshBMin[2], navMeshBMin[2]), meshBMax[2]);
+		ImGui::SameLine();
+		ImGui::Text("Maxs");
 		ImGui::PopItemWidth();
 
-		if (ImGui::Button("Reset##BuildSettings", ImVec2(120, 0)))
+		if (ImGui::Button("Reset##BoundingSettings", ImVec2(120, 0)))
 		{
 			rdVcopy(navMeshBMin, m_geom->getOriginalNavMeshBoundsMin());
 			rdVcopy(navMeshBMax, m_geom->getOriginalNavMeshBoundsMax());
