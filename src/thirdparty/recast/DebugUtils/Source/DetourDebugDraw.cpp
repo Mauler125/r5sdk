@@ -33,7 +33,7 @@ static unsigned int getPolyBoundaryColor(const dtPoly* poly, const bool inner)
 {
 	return poly->groupId == DT_STRAY_POLY_GROUP
 		? inner ? duRGBA(32,24,0,32) : duRGBA(32,24,0,220)
-		: inner ? duRGBA(0,48,64,32) : duRGBA(0,48,64,220);
+		: inner ? duRGBA(0,24,32,32) : duRGBA(0,24,32,220);
 }
 
 static void drawOffMeshConnectionRefPosition(duDebugDraw* dd, const dtOffMeshConnection* con)
