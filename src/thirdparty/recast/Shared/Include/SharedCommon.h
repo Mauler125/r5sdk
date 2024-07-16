@@ -20,7 +20,9 @@
 #define RECASTDETOURCOMMON_H
 
 #include "Shared/Include/SharedMath.h"
-#include <stddef.h>
+
+/// The total number of bits in an bit cell integer.
+static const int RD_BITS_PER_BIT_CELL = 32;
 
 /**
 @defgroup shared Shared
@@ -39,6 +41,11 @@ feature to find minor members.
 /// and this silences the warning.
 ///  @param [in] _ Unused parameter
 template<class T> void rdIgnoreUnused(const T&) { }
+
+/// Tests a specific bit in a bit cell
+///  @param[in]	i	The bit number
+///  @return The offset mask for the bit.
+inline int rdBitCellBit(const int i) { return (1 << ((i) & (RD_BITS_PER_BIT_CELL-1))); }
 
 /// Swaps the values of the two parameters.
 ///  @param[in,out]	a	Value A
