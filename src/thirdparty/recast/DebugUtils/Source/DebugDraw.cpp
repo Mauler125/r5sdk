@@ -69,10 +69,10 @@ void duCalcBoxColors(unsigned int* colors, unsigned int colTop, unsigned int col
 	
 	colors[0] = duMultCol(colTop, 250);
 	colors[1] = duMultCol(colSide, 140);
-	colors[2] = duMultCol(colSide, 165);
-	colors[3] = duMultCol(colSide, 217);
+	colors[2] = duMultCol(colSide, 185);
+	colors[3] = duMultCol(colSide, 227);
 	colors[4] = duMultCol(colSide, 165);
-	colors[5] = duMultCol(colSide, 217);
+	colors[5] = duMultCol(colSide, 207);
 }
 
 void duDebugDrawCylinderWire(struct duDebugDraw* dd, float minx, float miny, float minz,
