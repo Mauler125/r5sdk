@@ -37,7 +37,7 @@ class dtQueryFilter
 	float m_areaCost[DT_MAX_AREAS];		///< Cost per area type. (Used by default implementation.)
 	unsigned short m_includeFlags;		///< Flags for polygons that can be visited. (Used by default implementation.)
 	unsigned short m_excludeFlags;		///< Flags for polygons that should not be visited. (Used by default implementation.)
-	unsigned short m_unknownFlags;		///< Unknown.
+	unsigned int m_traverseFlags;		///< Flags for links dictating which traverse types are allowed to be used. (See [r5apex_ds + CA6FE9.])
 	
 public:
 	dtQueryFilter();
