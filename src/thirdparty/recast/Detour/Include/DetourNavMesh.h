@@ -387,7 +387,7 @@ struct dtMeshTile
 	int dataSize;							///< Size of the tile data.
 	int flags;								///< Tile flags. (See: #dtTileFlags)
 	dtMeshTile* next;						///< The next free tile, or the next tile in the spatial grid.
-	void* unknownVTableInstance; // See [r5apex_ds + F437D9] for usage
+	void* deleteCallback;					///< Custom destruction callback, called after free. (See [r5apex_ds + F437D9] for usage.)
 private:
 	dtMeshTile(const dtMeshTile&);
 	dtMeshTile& operator=(const dtMeshTile&);
@@ -449,7 +449,9 @@ public:
 	dtStatus init(unsigned char* data, const int dataSize, const int tableCount, const int flags);
 
 	/// The navigation mesh initialization params.
-	const dtNavMeshParams* getParams() const;
+	/// @note The parameters are created automatically when the single tile
+	/// initialization is performed.
+	const dtNavMeshParams* getParams() const { return &m_params; }
 
 	/// Adds a tile to the navigation mesh.
 	///  @param[in]		data		Data for the new tile mesh. (See: #dtCreateNavMeshData)
@@ -466,6 +468,11 @@ public:
 	///  @param[out]	dataSize	Size of the data associated with deleted tile.
 	/// @return The status flags for the operation.
 	dtStatus removeTile(dtTileRef ref, unsigned char** data, int* dataSize);
+
+	/// Connects the specified tile to the navigation mesh.
+	///  @param[in]		ref			The reference of the tile to connect.
+	/// @return The status flags for the operation.
+	dtStatus connectTile(const dtTileRef tileRef);
 
 	/// @}
 
@@ -570,6 +577,18 @@ public:
 	/// @return The specified off-mesh connection, or null if the polygon reference is not valid.
 	const dtOffMeshConnection* getOffMeshConnectionByRef(dtPolyRef ref) const;
 
+	/// The navigation mesh traversal tables.
+	int** getTraverseTables() const { return m_traversalTables; }
+	
+	/// Sets the traverse table slot.
+	///  @param[in]	index	The index of the traverse table.
+	///  @param[in]	table	The traverse table data.
+	void setTraverseTable(const int index, int* const table);
+
+	/// Sets the size of the traverse table.
+	///  @param[in]	size	The size of the traverse table.
+	void setTraverseTableSize(const int size) { m_params.traversalTableSize = size; }
+
 	/// @}
 
 	/// @{
@@ -599,6 +618,14 @@ public:
 	///  @param[out]	resultArea	The area id for the polygon.
 	/// @return The status flags for the operation.
 	dtStatus getPolyArea(dtPolyRef ref, unsigned char* resultArea) const;
+
+	/// Gets the polygon group count.
+	/// @return The total number of polygon groups.
+	int getPolyGroupCount() const { return m_params.polyGroupCount; }
+
+	/// Sets the polygon group count.
+	///  @param[in]		count		The polygon group count.
+	void setPolyGroupcount(const int count) { m_params.polyGroupCount = count; }
 
 	/// Gets the size of the buffer required by #storeTileState to store the specified tile's state.
 	///  @param[in]	tile	The tile.
@@ -713,7 +740,7 @@ public:
 	/// @}
 	/// Returns pointer to tile in the tile array.
 	dtMeshTile* getTile(int i);
-public:
+private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	dtNavMesh(const dtNavMesh&);
 	dtNavMesh& operator=(const dtNavMesh&);

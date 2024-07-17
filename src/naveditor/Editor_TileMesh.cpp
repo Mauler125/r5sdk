@@ -455,9 +455,12 @@ void Editor_TileMesh::buildTile(const float* pos)
 	if (data)
 	{
 		// Let the navmesh own the data.
-		dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
+		dtTileRef tileRef = 0;
+		dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,&tileRef);
 		if (dtStatusFailed(status))
 			rdFree(data);
+		else
+			m_navMesh->connectTile(tileRef);
 	}
 	
 	m_ctx->dumpLog("Build Tile (%d,%d):", tx,ty);
@@ -531,9 +534,13 @@ void Editor_TileMesh::buildAllTiles()
 				// Remove any previous data (navmesh owns and deletes the data).
 				m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y,0),0,0);
 				// Let the navmesh own the data.
-				dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
+
+				dtTileRef tileRef = 0;
+				dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,&tileRef);
 				if (dtStatusFailed(status))
 					rdFree(data);
+				else
+					m_navMesh->connectTile(tileRef);
 			}
 		}
 	}

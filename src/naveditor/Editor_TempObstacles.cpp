@@ -850,10 +850,10 @@ void Editor_TempObstacles::handleSettings()
 
 	if (m_navMesh)
 	{
-		const dtNavMeshParams& params = m_navMesh->m_params;
-		const float* origin = m_navMesh->m_orig;
+		const dtNavMeshParams& params = *m_navMesh->getParams();
+		//const float* origin = m_navMesh->m_orig;
 
-		ImGui::Text("Mesh Origin: \n\tX: %g \n\tY: %g \n\tZ: %g", origin[0], origin[1], origin[2]);
+		//ImGui::Text("Mesh Origin: \n\tX: %g \n\tY: %g \n\tZ: %g", origin[0], origin[1], origin[2]);
 		ImGui::Text("Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
 		ImGui::Text("Poly Group Count: %d", params.polyGroupCount);
 		ImGui::Text("Traversal Table Size: %d", params.traversalTableSize);

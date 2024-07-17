@@ -624,7 +624,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 				return 0;
 			}
 
-			mesh->m_traversalTables[i] = traversalTable;
+			mesh->setTraverseTable(i, traversalTable);
 		}
 	}
 
@@ -665,7 +665,9 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 		header.numTiles++;
 	}
 
-	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
+	const dtNavMeshParams* params = mesh->getParams();
+
+	memcpy(&header.params, params, sizeof(dtNavMeshParams));
 	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
 
 	// Store tiles.
@@ -684,13 +686,15 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 	}
 
 	// Only store if we have 3 or more poly groups.
-	if (mesh->m_params.polyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
+	if (params->polyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
 	{
-		rdAssert(mesh->m_traversalTables);
+		int** traverseTables = mesh->getTraverseTables();
+
+		rdAssert(traverseTables);
 
 		for (int i = 0; i < header.params.traversalTableCount; i++)
 		{
-			const int* const tableData = mesh->m_traversalTables[i];
+			const int* const tableData = traverseTables[i];
 			rdAssert(tableData);
 
 			fwrite(tableData, sizeof(int), (header.params.traversalTableSize/4), fp);

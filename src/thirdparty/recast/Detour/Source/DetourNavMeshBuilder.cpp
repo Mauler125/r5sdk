@@ -455,17 +455,15 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		}
 	}
 
-	nav->m_params.polyGroupCount = disjoint.getSetCount();
+	nav->setPolyGroupcount(disjoint.getSetCount());
 	return true;
 }
 
 // todo(amos): remove param 'tableCount' and make struct 'dtTraversalTableCreateParams'
 bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount)
 {
-	const int polyGroupCount = nav->m_params.polyGroupCount;
+	const int polyGroupCount = nav->getPolyGroupCount();
 	const int tableSize = calcTraversalTableSize(polyGroupCount);
-
-	rdAssert(nav->m_traversalTables);
 
 	// TODO: currently we allocate 5 buffers and just copy the same traversal
 	// tables in, this works fine since we don't generate jump links and
@@ -491,7 +489,7 @@ bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, c
 		if (!traversalTable)
 			return false;
 
-		nav->m_traversalTables[i] = traversalTable;
+		nav->setTraverseTable(i, traversalTable);
 		memset(traversalTable, 0, sizeof(int)*tableSize);
 
 		for (unsigned short j = 0; j < polyGroupCount; j++)
@@ -505,8 +503,7 @@ bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, c
 		}
 	}
 
-	nav->m_params.traversalTableSize = tableSize;
-	nav->m_params.traversalTableCount = tableCount;
+	nav->setTraverseTableSize(tableSize);
 
 	return true;
 }

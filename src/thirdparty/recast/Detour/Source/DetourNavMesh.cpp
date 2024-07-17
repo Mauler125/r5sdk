@@ -194,6 +194,7 @@ Notes:
 dtNavMesh::dtNavMesh() :
 	m_tileWidth(0),
 	m_tileHeight(0),
+	m_tileCount(0),
 	m_maxTiles(0),
 	m_tileLutSize(0),
 	m_tileLutMask(0),
@@ -322,16 +323,13 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int tabl
 	if (dtStatusFailed(status))
 		return status;
 
-	return addTile(data, dataSize, flags, 0, 0);
-}
+	dtTileRef tileRef;
+	status = addTile(data,dataSize,flags,0,&tileRef);
 
-/// @par
-///
-/// @note The parameters are created automatically when the single tile
-/// initialization is performed.
-const dtNavMeshParams* dtNavMesh::getParams() const
-{
-	return &m_params;
+	if (dtStatusFailed(status))
+		return status;
+
+	return connectTile(tileRef);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -531,9 +529,10 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				
 		// Link off-mesh connection to target poly.
 		unsigned int idx = allocLink(target);
+		dtLink* link = nullptr;
 		if (idx != DT_NULL_LINK)
 		{
-			dtLink* link = &target->links[idx];
+			link = &target->links[idx];
 			link->ref = ref;
 			link->edge = (unsigned char)1;
 			link->side = oppositeSide;
@@ -547,26 +546,37 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		}
 		
 		// Link target poly to off-mesh connection.
+		unsigned int tidx = DT_NULL_LINK;
+		dtLink* tlink = nullptr;
 		if (targetCon->flags & DT_OFFMESH_CON_BIDIR)
 		{
-			unsigned int tidx = allocLink(tile);
+			tidx = allocLink(tile);
 			if (tidx != DT_NULL_LINK)
 			{
 				const unsigned short landPolyIdx = (unsigned short)decodePolyIdPoly(ref);
 				dtPoly* landPoly = &tile->polys[landPolyIdx];
-				dtLink* link = &tile->links[tidx];
-				link->ref = getPolyRefBase(target) | (dtPolyRef)(targetCon->poly);
-				link->edge = 0xff;
-				link->side = (unsigned char)(side == -1 ? 0xff : side);
-				link->bmin = link->bmax = 0;
+				tlink = &tile->links[tidx];
+				tlink->ref = getPolyRefBase(target) | (dtPolyRef)(targetCon->poly);
+				tlink->edge = 0xff;
+				tlink->side = (unsigned char)(side == -1 ? 0xff : side);
+				tlink->bmin = tlink->bmax = 0;
 				// Add to linked list.
-				link->next = landPoly->firstLink;
+				tlink->next = landPoly->firstLink;
 				landPoly->firstLink = tidx;
-				link->jumpType = 0xFF;
-				link->otherUnk = 0;
-				link->reverseLinkIndex = 0xFFFF;
+				tlink->jumpType = 0xFF;
+				tlink->otherUnk = 0;
+				tlink->reverseLinkIndex = 0xFFFF;
 			}
 		}
+
+		// Set the reverse link indices if there is a possibility to reverse.
+		// NOTE: it appears that Titanfall 2 doesn't seem to do this on their
+		// navmeshes, so we probably shouldn't do it either. Commented for now.
+		//if (link && tlink)
+		//{
+		//	link->reverseLinkIndex = (unsigned short)tidx;
+		//	tlink->reverseLinkIndex = (unsigned short)idx;
+		//}
 	}
 }
 
@@ -1026,6 +1036,8 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	// Make sure we could allocate a tile.
 	if (!tile)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+	tile->deleteCallback = nullptr;
 	
 	// Insert tile into the position lut.
 	int h = computeTileHash(header->x, header->y, m_tileLutMask);
@@ -1064,18 +1076,34 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	if (!bvtreeSize)
 		tile->bvTree = 0;
 
-	// Build links freelist
-	tile->linksFreeList = 0;
-	tile->links[header->maxLinkCount-1].next = DT_NULL_LINK;
-	for (int i = 0; i < header->maxLinkCount-1; ++i)
-		tile->links[i].next = i+1;
-
 	// Init tile.
 	tile->header = header;
 	tile->data = data;
 	tile->dataSize = dataSize;
 	tile->flags = flags;
-	tile->unknownVTableInstance = nullptr;
+
+	m_tileCount++;
+
+	if (result)
+		*result = getTileRef(tile);
+	
+	return DT_SUCCESS;
+}
+
+dtStatus dtNavMesh::connectTile(const dtTileRef tileRef)
+{
+	const int tileIndex = (int)decodePolyIdTile((dtPolyRef)tileRef);
+	if (tileIndex >= m_maxTiles)
+		return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+	dtMeshTile* tile = &m_tiles[tileIndex];
+	const dtMeshHeader* header = tile->header;
+
+	// Build links freelist
+	tile->linksFreeList = 0;
+	tile->links[header->maxLinkCount - 1].next = DT_NULL_LINK;
+	for (int i = 0; i < header->maxLinkCount - 1; ++i)
+		tile->links[i].next = i + 1;
 
 	connectIntLinks(tile);
 
@@ -1113,10 +1141,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 			connectExtOffMeshLinks(neis[j], tile, rdOppositeTile(i));
 		}
 	}
-	
-	if (result)
-		*result = getTileRef(tile);
-	
+
 	return DT_SUCCESS;
 }
 
@@ -1436,6 +1461,8 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	tile->next = m_nextFree;
 	m_nextFree = tile;
 
+	m_tileCount--;
+
 	return DT_SUCCESS;
 }
 
@@ -1630,6 +1657,14 @@ const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(dtPolyRef ref) c
 	return &tile->offMeshCons[idx];
 }
 
+
+void dtNavMesh::setTraverseTable(const int index, int* const table)
+{
+	rdAssert(index >= 0 && index < m_params.traversalTableCount);
+	rdAssert(m_traversalTables);
+
+	m_traversalTables[index] = table;
+}
 
 dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)
 {
