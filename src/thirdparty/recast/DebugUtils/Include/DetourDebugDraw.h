@@ -46,9 +46,9 @@ void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);
 void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);
 void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& mesh, const unsigned short polyFlags, const float* offset,
-									  const unsigned int drawFlags, const unsigned int col);
+									  const unsigned int drawFlags, const unsigned int col, const bool soften = true);
 void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const float* offset,
-									  const unsigned int drawFlags, const unsigned int col);
+									  const unsigned int drawFlags, const unsigned int col, const bool soften = true);
 
 void duDebugDrawTileCacheLayerAreas(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch, const float* offset);
 void duDebugDrawTileCacheLayerRegions(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch, const float* offset);

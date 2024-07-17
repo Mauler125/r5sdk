@@ -461,7 +461,7 @@ void duDebugDrawNavMeshPortals(duDebugDraw* dd, const dtNavMesh& mesh, const flo
 }
 
 void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& mesh, const unsigned short polyFlags,
-									  const float* offset, const unsigned int drawFlags, const unsigned int col)
+									  const float* offset, const unsigned int drawFlags, const unsigned int col, const bool soften)
 {
 	if (!dd) return;
 	
@@ -475,12 +475,12 @@ void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& m
 		{
 			const dtPoly* p = &tile->polys[j];
 			if ((p->flags & polyFlags) == 0) continue;
-			duDebugDrawNavMeshPoly(dd, mesh, base|(dtPolyRef)j, offset, col, drawFlags);
+			duDebugDrawNavMeshPoly(dd, mesh, base|(dtPolyRef)j, offset, col, drawFlags, soften);
 		}
 	}
 }
 
-void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const float* offset, const unsigned int drawFlags, const unsigned int col)
+void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const float* offset, const unsigned int drawFlags, const unsigned int col, const bool soften)
 {
 	if (!dd) return;
 	
@@ -492,7 +492,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 	const bool depthTest = drawFlags & DU_DRAWNAVMESH_DEPTH_MASK;
 	dd->depthMask(depthTest);
 	
-	const unsigned int c = duTransCol(col, 64);
+	const unsigned int c = soften ? duTransCol(col, 64) : col;
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 
 	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
