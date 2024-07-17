@@ -36,11 +36,21 @@
 #include "game/server/ai_hull.h"
 
 
+#ifdef DT_POLYREF64
+const static int MAX_POLYREF_CHARS = 22;
+#define STR_TO_ID strtoull
+#else
+const static int MAX_POLYREF_CHARS = 11;
+#define STR_TO_ID strtoul
+#endif // DT_POLYREF64
+
 class NavMeshTileTool : public EditorTool
 {
 	Editor_TileMesh* m_editor;
 	dtNavMesh* m_navMesh;
 	float m_hitPos[3];
+
+	dtPolyRef m_markedPolyRef;
 
 	enum TextOverlayDrawMode
 	{
@@ -51,6 +61,7 @@ class NavMeshTileTool : public EditorTool
 
 	TextOverlayDrawMode m_textOverlayDrawMode;
 
+	char m_polyRefTextInput[MAX_POLYREF_CHARS];
 	bool m_hitPosSet;
 	
 public:
@@ -58,10 +69,12 @@ public:
 	NavMeshTileTool() :
 		m_editor(0),
 		m_navMesh(0),
-		m_hitPosSet(false),
-		m_textOverlayDrawMode(TO_DRAW_DISABLED)
+		m_markedPolyRef(0),
+		m_textOverlayDrawMode(TO_DRAW_DISABLED),
+		m_hitPosSet(false)
 	{
-		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
+		rdVset(m_hitPos, 0.0f,0.0f,0.0f);
+		memset(m_polyRefTextInput, '\0', sizeof(m_polyRefTextInput));
 	}
 
 	virtual ~NavMeshTileTool()
@@ -100,6 +113,25 @@ public:
 
 		if (ImGui::RadioButton("Show Poly Surface Areas", m_textOverlayDrawMode == TO_DRAW_POLY_SURF_AREAS))
 			toggleTextOverlayDrawMode(TO_DRAW_POLY_SURF_AREAS);
+
+		if (m_navMesh)
+		{
+			ImGui::PushItemWidth(83);
+			if (m_navMesh && ImGui::InputText("Mark Poly By Ref", m_polyRefTextInput, sizeof(m_polyRefTextInput), ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				char* pEnd = nullptr;
+				m_markedPolyRef = (dtPolyRef)STR_TO_ID(m_polyRefTextInput, &pEnd, 10);
+			}
+			ImGui::PopItemWidth();
+		}
+
+		if (m_markedPolyRef)
+		{
+			if (ImGui::Button("Clear Marker"))
+			{
+				m_markedPolyRef = 0;
+			}
+		}
 	}
 
 	virtual void handleClick(const float* /*s*/, const float* p, bool shift)
@@ -139,6 +171,12 @@ public:
 			glVertex3f(m_hitPos[0],m_hitPos[1],m_hitPos[2]+s+0.1f);
 			glEnd();
 			glLineWidth(1.0f);
+		}
+
+		if (m_markedPolyRef && m_editor && m_navMesh)
+		{
+			duDebugDrawNavMeshPoly(&m_editor->getDebugDraw(), *m_navMesh, m_markedPolyRef,
+				m_editor->getDetourDrawOffset(), m_editor->getNavMeshDrawFlags(), duRGBA(255, 0, 170, 190), false);
 		}
 	}
 	
@@ -209,7 +247,7 @@ public:
 			: m_textOverlayDrawMode = drawMode;
 	}
 };
-
+#undef STR_TO_ID
 
 
 
