@@ -216,9 +216,11 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			bool endSet = false;
 			for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
 			{
-				if (tile->links[k].edge == 0)
+				const dtLink& link = tile->links[k];
+
+				if (link.edge == 0)
 					startSet = true;
-				if (tile->links[k].edge == 1)
+				if (link.edge == 1)
 					endSet = true;
 			}
 			
