@@ -79,11 +79,20 @@ static const unsigned short DT_FIRST_USABLE_POLY_GROUP = 2;
 /// on the same (or connected) poly island before trying to compute a path).
 static const int DT_MIN_POLY_GROUP_COUNT = 3;
 
+/// The cached poly surface area quantization factor.
+static const float DT_POLY_AREA_QUANT_FACTOR = 100.f;
+
 /// The maximum number of traversal tables per navmesh that will be used for static pathing.
 static const int DT_MAX_TRAVERSAL_TABLES = 5;
 
-/// The cached poly surface area quantization factor.
-static const float DT_POLY_AREA_QUANT_FACTOR = 100.f;
+/// A value that indicates the link doesn't require a traverse action. (Jumping, climbing, etc.)
+static const unsigned char DT_NULL_TRAVERSE_TYPE = 0xff;
+
+/// A value that indicates the link doesn't contain a reverse traverse link.
+static const unsigned short DT_NULL_TRAVERSE_REVERSE_LINK = 0xffff;
+
+/// The cached traverse link distance quantization factor.
+static const float DT_TRAVERSE_DIST_QUANT_FACTOR = 10.f;
 
 /// @{
 /// @name Tile Serialization Constants
