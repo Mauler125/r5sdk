@@ -179,7 +179,7 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			dd->vertex(startPos, col);
 			dd->vertex(endPos, col);
 
-			const bool hasReverseLink = link->reverseLinkIndex != DT_NULL_TRAVERSE_REVERSE_LINK;
+			const bool hasReverseLink = link->reverseLink != DT_NULL_TRAVERSE_REVERSE_LINK;
 
 			if (hasReverseLink)
 			{

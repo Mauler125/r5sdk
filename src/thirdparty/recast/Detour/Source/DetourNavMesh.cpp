@@ -464,9 +464,9 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 					link->next = poly->firstLink;
 					poly->firstLink = idx;
 
-					link->jumpType = 0xFF;
-					link->otherUnk = 0;
-					link->reverseLinkIndex = 0xFFFF;
+					link->jumpType = DT_NULL_TRAVERSE_TYPE;
+					link->jumpDist = 0;
+					link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 
 					// Compress portal limits to a byte value.
 					if (dir == 0 || dir == 4)
@@ -540,9 +540,9 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			// Add to linked list.
 			link->next = targetPoly->firstLink;
 			targetPoly->firstLink = idx;
-			link->jumpType = 0xFF;
-			link->otherUnk = 0;
-			link->reverseLinkIndex = 0xFFFF;
+			link->jumpType = DT_NULL_TRAVERSE_TYPE;
+			link->jumpDist = 0;
+			link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 		}
 		
 		// Link target poly to off-mesh connection.
@@ -563,9 +563,9 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				// Add to linked list.
 				tlink->next = landPoly->firstLink;
 				landPoly->firstLink = tidx;
-				tlink->jumpType = 0xFF;
-				tlink->otherUnk = 0;
-				tlink->reverseLinkIndex = 0xFFFF;
+				tlink->jumpType = DT_NULL_TRAVERSE_TYPE;
+				tlink->jumpDist = 0;
+				tlink->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 			}
 		}
 
@@ -612,9 +612,9 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 				// Add to linked list.
 				link->next = poly->firstLink;
 				poly->firstLink = idx;
-				link->jumpType = 0xFF;
-				link->otherUnk = 0;
-				link->reverseLinkIndex = 0xFFFF;
+				link->jumpType = DT_NULL_TRAVERSE_TYPE;
+				link->jumpDist = 0;
+				link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 			}
 		}
 	}
@@ -658,9 +658,9 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 			// Add to linked list.
 			link->next = poly->firstLink;
 			poly->firstLink = idx;
-			link->jumpType = 0xFF;
-			link->otherUnk = 0;
-			link->reverseLinkIndex = 0xFFFF;
+			link->jumpType = DT_NULL_TRAVERSE_TYPE;
+			link->jumpDist = 0;
+			link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 		}
 
 		// Start end-point is always connect back to off-mesh connection. 
@@ -677,9 +677,9 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 			// Add to linked list.
 			link->next = landPoly->firstLink;
 			landPoly->firstLink = tidx;
-			link->jumpType = 0xFF;
-			link->otherUnk = 0;
-			link->reverseLinkIndex = 0xFFFF;
+			link->jumpType = DT_NULL_TRAVERSE_TYPE;
+			link->jumpDist = 0;
+			link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 		}
 	}
 }

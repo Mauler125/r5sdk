@@ -269,9 +269,9 @@ struct dtLink
 	unsigned char side;				///< If a boundary link, defines on which side the link is.
 	unsigned char bmin;				///< If a boundary link, defines the minimum sub-edge area.
 	unsigned char bmax;				///< If a boundary link, defines the maximum sub-edge area.
-	unsigned char jumpType;
-	unsigned char otherUnk;
-	unsigned short reverseLinkIndex;
+	unsigned char traverseType;		///< The traverse type for this link. (Jumping, climbing, etc.)
+	unsigned char traverseDist;		///< The traverse distance of this link. (Quantized by #DT_TRAVERSE_DIST_QUANT_FACTOR).
+	unsigned short reverseLink;		///< The reverse traversal link for this link. (Path returns through this link.)
 };
 
 /// Bounding volume node.
