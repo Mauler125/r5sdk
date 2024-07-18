@@ -274,6 +274,8 @@ struct dtLink
 	unsigned short reverseLink;		///< The reverse traversal link for this link. (Path returns through this link.)
 };
 
+unsigned char dtCalcLinkDistance(const float* spos, const float* epos);
+
 /// Bounding volume node.
 /// @note This structure is rarely if ever used by the end user.
 /// @see dtMeshTile

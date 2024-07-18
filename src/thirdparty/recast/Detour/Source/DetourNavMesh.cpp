@@ -213,9 +213,7 @@ dtNavMesh::dtNavMesh() :
 	m_polyBits = 0;
 #endif
 	memset(&m_params, 0, sizeof(dtNavMeshParams));
-	m_orig[0] = 0;
-	m_orig[1] = 0;
-	m_orig[2] = 0;
+	rdVset(m_orig, 0.0f,0.0f,0.0f);
 }
 
 dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this correctly
@@ -526,7 +524,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		// Make sure the location is on current mesh.
 		float* v = &target->verts[targetPoly->verts[1]*3];
 		rdVcopy(v, nearestPt);
-				
+
 		// Link off-mesh connection to target poly.
 		unsigned int idx = allocLink(target);
 		dtLink* link = nullptr;
@@ -569,14 +567,22 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			}
 		}
 
-		// Set the reverse link indices if there is a possibility to reverse.
-		// NOTE: it appears that Titanfall 2 doesn't seem to do this on their
-		// navmeshes, so we probably shouldn't do it either. Commented for now.
-		//if (link && tlink)
-		//{
-		//	link->reverseLinkIndex = (unsigned short)tidx;
-		//	tlink->reverseLinkIndex = (unsigned short)idx;
-		//}
+		// NOTE: this might not be correct; Titanfall 2 off-mesh link dtLink
+		// objects don't set these, however when setting these, the jump links
+		// do work. More research is needed, this might also be correct, just
+		// not the way they are done originally.
+		if (link && tlink)
+		{
+			const unsigned char linkDist = dtCalcLinkDistance(&targetCon->pos[0], &targetCon->pos[3]);
+
+			link->traverseType = targetCon->jumpType;
+			link->traverseDist = linkDist;
+			link->reverseLink = (unsigned short)tidx;
+
+			tlink->traverseType = targetCon->jumpType;
+			tlink->traverseDist = linkDist;
+			tlink->reverseLink = (unsigned short)idx;
+		}
 	}
 }
 
@@ -1729,6 +1735,11 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	*resultArea = poly->getArea();
 	
 	return DT_SUCCESS;
+}
+
+unsigned char dtCalcLinkDistance(const float* spos, const float* epos)
+{
+	return (unsigned char)rdVdist(spos, epos) / DT_TRAVERSE_DIST_QUANT_FACTOR;
 }
 
 float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts)
