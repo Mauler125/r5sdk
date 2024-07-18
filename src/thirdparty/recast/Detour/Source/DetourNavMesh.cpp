@@ -854,7 +854,7 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
 		rdVsub(diff, center, closestPtPoly);
 		if (posOverPoly)
 		{
-			d = rdAbs(diff[1]) - tile->header->walkableClimb;
+			d = rdAbs(diff[2]) - tile->header->walkableClimb;
 			d = d > 0 ? d*d : 0;			
 		}
 		else
