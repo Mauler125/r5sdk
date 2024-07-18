@@ -149,11 +149,11 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			const dtLink* link = &tile->links[j];
 
 			// Skip "normal" links (non-jumping ones).
-			if (link->jumpType == DT_NULL_TRAVERSE_TYPE || tile->links[i].ref == 0)
+			if (link->traverseType == DT_NULL_TRAVERSE_TYPE || tile->links[i].ref == 0)
 				continue;
 
 			// Filter, drawLinkType -1 means draw all
-			if (drawLinkType != -1 && link->jumpType != drawLinkType)
+			if (drawLinkType != -1 && link->traverseType != drawLinkType)
 				continue;
 
 			const dtPoly* endPoly;
@@ -172,7 +172,7 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			query->getEdgeMidPoint(link->ref, mesh.getPolyRefBase(tile) | (dtPolyRef)i, endPos);
 
 			// Unique color for each type.
-			const int col = duIntToCol(link->jumpType, 180);
+			const int col = duIntToCol(link->traverseType, 180);
 
 			dd->begin(DU_DRAW_LINES, 2.0f, offset);
 
