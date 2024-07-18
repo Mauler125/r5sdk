@@ -632,7 +632,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		dtOffMeshConnection* con = &tile->offMeshCons[i];
 		dtPoly* poly = &tile->polys[con->poly];
 	
-		const float halfExtents[3] = { con->rad, tile->header->walkableClimb, con->rad };
+		const float halfExtents[3] = { con->rad, con->rad, tile->header->walkableClimb };
 		
 		// Find polygon to connect to.
 		const float* p = &con->pos[0]; // First vertex
