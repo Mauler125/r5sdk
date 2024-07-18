@@ -53,7 +53,7 @@ static int isectRaySeg(const float* ap, const float* u,
 	rdVsub(v,bq,bp);
 	rdVsub(w,ap,bp);
 	float d = rdVperp2D(u,v);
-	if (rdMathFabsf(d) < 1e-6f) return 0;
+	if (rdMathFabsf(d) < RD_EPS) return 0;
 	d = 1.0f/d;
 	t = rdVperp2D(v,w) * d;
 	if (t < 0 || t > 1) return 0;

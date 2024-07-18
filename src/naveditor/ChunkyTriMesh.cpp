@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "Shared/Include/SharedMath.h"
 #include "NavEditor/Include/ChunkyTriMesh.h"
 
 struct BoundsItem
@@ -280,8 +281,6 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh * cm, float bmin[2], float 
 static bool checkOverlapSegment(const float p[2], const float q[2],
 								const float bmin[2], const float bmax[2])
 {
-	static const float EPSILON = 1e-6f;
-
 	float tmin = 0;
 	float tmax = 1;
 	float d[2];
@@ -290,7 +289,7 @@ static bool checkOverlapSegment(const float p[2], const float q[2],
 	
 	for (int i = 0; i < 2; i++)
 	{
-		if (fabsf(d[i]) < EPSILON)
+		if (fabsf(d[i]) < RD_EPS)
 		{
 			// Ray is parallel to slab. No hit if origin not within slab
 			if (p[i] < bmin[i] || p[i] > bmax[i])

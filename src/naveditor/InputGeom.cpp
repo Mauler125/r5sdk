@@ -459,8 +459,6 @@ static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,
 						 float& tmin, float& tmax)
 {
-	static const float EPS = 1e-6f;
-	
 	float d[3];
 	d[0] = sq[0] - sp[0];
 	d[1] = sq[1] - sp[1];
@@ -470,7 +468,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 	
 	for (int i = 0; i < 3; i++)
 	{
-		if (fabsf(d[i]) < EPS)
+		if (rdMathFabsf(d[i]) < RD_EPS)
 		{
 			if (sp[i] < amin[i] || sp[i] > amax[i])
 				return false;

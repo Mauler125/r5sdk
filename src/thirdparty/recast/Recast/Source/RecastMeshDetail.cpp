@@ -43,7 +43,6 @@ inline float vcross2(const float* p1, const float* p2, const float* p3)
 static bool circumCircle(const float* p1, const float* p2, const float* p3,
 						 float* c, float& r)
 {
-	static const float EPS = 1e-6f;
 	// Calculate the circle relative to p1, to avoid some precision issues.
 	const float v1[3] = {0,0,0};
 	float v2[3], v3[3];
@@ -51,7 +50,7 @@ static bool circumCircle(const float* p1, const float* p2, const float* p3,
 	rdVsub(v3, p3,p1);
 	
 	const float cp = vcross2(v1, v2, v3);
-	if (rdMathFabsf(cp) > EPS)
+	if (rdMathFabsf(cp) > RD_EPS)
 	{
 		const float v1Sq = rdVdot2D(v1,v1);
 		const float v2Sq = rdVdot2D(v2,v2);
@@ -793,7 +792,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			bool swapped = false;
 			// Make sure the segments are always handled in same order
 			// using lexological sort or else there will be seams.
-			if (rdMathFabsf(vj[0]-vi[0]) < 1e-6f)
+			if (rdMathFabsf(vj[0]-vi[0]) < RD_EPS)
 			{
 				if (vj[1] > vi[1])
 				{

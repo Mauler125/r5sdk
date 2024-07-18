@@ -203,7 +203,6 @@ void rdCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const floa
 
 bool rdClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
 {
-	const float EPS = 1e-6f;
 	float v0[3], v1[3], v2[3];
 
 	rdVsub(v0, c, a);
@@ -212,7 +211,7 @@ bool rdClosestHeightPointTriangle(const float* p, const float* a, const float* b
 
 	// Compute scaled barycentric coordinates
 	float denom = v0[0] * v1[1] - v0[1] * v1[0];
-	if (rdMathFabsf(denom) < EPS)
+	if (rdMathFabsf(denom) < RD_EPS)
 		return false;
 
 	float u = v1[1] * v2[0] - v1[0] * v2[1];
@@ -377,7 +376,7 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 	rdVsub(v,bq,bp);
 	rdVsub(w,ap,bp);
 	float d = rdVperp2D(u,v);
-	if (rdMathFabsf(d) < 1e-6f) return false;
+	if (rdMathFabsf(d) < RD_EPS) return false;
 	s = rdVperp2D(v,w) / d;
 	t = rdVperp2D(u,w) / d;
 	return true;

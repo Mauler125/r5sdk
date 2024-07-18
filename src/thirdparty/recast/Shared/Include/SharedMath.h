@@ -12,6 +12,9 @@ Members in this module are wrappers around the standard math library
 /// The value of PI used by Recast & Detour.
 static const float RD_PI = 3.14159265f;
 
+/// The value of Epsilon used by Recast & Detour.
+static const float RD_EPS = 1e-6f;
+
 inline float rdMathFabsf(float x) { return fabsf(x); }
 inline float rdMathSqrtf(float x) { return sqrtf(x); }
 inline float rdMathFloorf(float x) { return floorf(x); }

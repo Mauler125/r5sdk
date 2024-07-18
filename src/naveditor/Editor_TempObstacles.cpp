@@ -42,8 +42,6 @@ static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,
 						 float& tmin, float& tmax)
 {
-	static const float EPS = 1e-6f;
-	
 	float d[3];
 	rdVsub(d, sq, sp);
 	tmin = 0;  // set to -FLT_MAX to get first hit on line
@@ -52,7 +50,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 	// For all three slabs
 	for (int i = 0; i < 3; i++)
 	{
-		if (fabsf(d[i]) < EPS)
+		if (fabsf(d[i]) < RD_EPS)
 		{
 			// Ray is parallel to slab. No hit if origin not within slab
 			if (sp[i] < amin[i] || sp[i] > amax[i])
