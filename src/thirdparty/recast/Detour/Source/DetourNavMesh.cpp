@@ -464,8 +464,8 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 					link->next = poly->firstLink;
 					poly->firstLink = idx;
 
-					link->jumpType = DT_NULL_TRAVERSE_TYPE;
-					link->jumpDist = 0;
+					link->traverseType = DT_NULL_TRAVERSE_TYPE;
+					link->traverseDist = 0;
 					link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 
 					// Compress portal limits to a byte value.
@@ -540,8 +540,8 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			// Add to linked list.
 			link->next = targetPoly->firstLink;
 			targetPoly->firstLink = idx;
-			link->jumpType = DT_NULL_TRAVERSE_TYPE;
-			link->jumpDist = 0;
+			link->traverseType = DT_NULL_TRAVERSE_TYPE;
+			link->traverseDist = 0;
 			link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 		}
 		
@@ -563,8 +563,8 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				// Add to linked list.
 				tlink->next = landPoly->firstLink;
 				landPoly->firstLink = tidx;
-				tlink->jumpType = DT_NULL_TRAVERSE_TYPE;
-				tlink->jumpDist = 0;
+				tlink->traverseType = DT_NULL_TRAVERSE_TYPE;
+				tlink->traverseDist = 0;
 				tlink->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 			}
 		}
@@ -612,8 +612,8 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 				// Add to linked list.
 				link->next = poly->firstLink;
 				poly->firstLink = idx;
-				link->jumpType = DT_NULL_TRAVERSE_TYPE;
-				link->jumpDist = 0;
+				link->traverseType = DT_NULL_TRAVERSE_TYPE;
+				link->traverseDist = 0;
 				link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 			}
 		}
@@ -658,8 +658,8 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 			// Add to linked list.
 			link->next = poly->firstLink;
 			poly->firstLink = idx;
-			link->jumpType = DT_NULL_TRAVERSE_TYPE;
-			link->jumpDist = 0;
+			link->traverseType = DT_NULL_TRAVERSE_TYPE;
+			link->traverseDist = 0;
 			link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 		}
 
@@ -677,8 +677,8 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 			// Add to linked list.
 			link->next = landPoly->firstLink;
 			landPoly->firstLink = tidx;
-			link->jumpType = DT_NULL_TRAVERSE_TYPE;
-			link->jumpDist = 0;
+			link->traverseType = DT_NULL_TRAVERSE_TYPE;
+			link->traverseDist = 0;
 			link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 		}
 	}

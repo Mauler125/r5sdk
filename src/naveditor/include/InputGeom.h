@@ -87,12 +87,13 @@ class InputGeom
 	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
 	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
+	unsigned char m_offMeshConJumps[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
 	unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
-	unsigned int m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
+	unsigned short m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
 	float m_offMeshConRefPos[MAX_OFFMESH_CONNECTIONS*3];
 	float m_offMeshConRefYaws[MAX_OFFMESH_CONNECTIONS];
-	int m_offMeshConCount;
+	short m_offMeshConCount;
 	///@}
 
 	/// @name Convex Volumes.
@@ -137,13 +138,14 @@ public:
 	const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
 	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
 	const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
+	const unsigned char* getOffMeshConnectionJumps() const { return m_offMeshConJumps; }
 	const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
 	const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
-	const unsigned int* getOffMeshConnectionId() const { return m_offMeshConId; }
+	const unsigned short* getOffMeshConnectionId() const { return m_offMeshConId; }
 	const float* getOffMeshConnectionRefPos() const { return m_offMeshConRefPos; }
 	const float* getOffMeshConnectionRefYaws() const { return m_offMeshConRefYaws; }
 	void addOffMeshConnection(const float* spos, const float* epos, const float rad,
-							  unsigned char bidir, unsigned char area, unsigned short flags);
+							  unsigned char bidir, unsigned char jump, unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
 	void drawOffMeshConnections(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}

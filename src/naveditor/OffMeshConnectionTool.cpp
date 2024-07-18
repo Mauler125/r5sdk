@@ -31,6 +31,7 @@ OffMeshConnectionTool::OffMeshConnectionTool() :
 	m_editor(0),
 	m_hitPosSet(0),
 	m_bidir(true),
+	m_jumpType(0),
 	m_oldFlags(0)
 {
 }
@@ -69,6 +70,10 @@ void OffMeshConnectionTool::handleMenu()
 
 	if (ImGui::Checkbox("Bidirectional", &isBiDirectional))
 		m_bidir = true;
+
+	ImGui::PushItemWidth(140);
+	ImGui::SliderInt("Jump Type", &m_jumpType, 0, 31);
+	ImGui::PopItemWidth();
 }
 
 void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -113,7 +118,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		{
 			const unsigned char area = EDITOR_POLYAREA_JUMP;
 			const unsigned short flags = EDITOR_POLYFLAGS_WALK;
-			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
+			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, (unsigned char)m_jumpType, area, flags);
 			m_hitPosSet = false;
 		}
 	}
