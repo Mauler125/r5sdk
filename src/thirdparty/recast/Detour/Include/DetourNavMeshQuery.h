@@ -532,6 +532,25 @@ public:
 	/// @return The navigation mesh the query object is using.
 	const dtNavMesh* getAttachedNavMesh() const { return m_nav; }
 
+	/// Returns edge mid point between two polygons.
+	///  @param[in]		from		The reference to the start poly.
+	///  @param[in]		to			The reference to the end poly.
+	///  @param[out]	mid			The mid point of the edge.
+	/// @returns The status flags for the query.
+	dtStatus getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
+
+	/// Returns edge mid point between two polygons.
+	///  @param[in]		from		The reference to the start poly.
+	///  @param[in]		fromPoly	The start poly.
+	///  @param[in]		fromTile	The start tile.
+	///  @param[in]		to			The reference to the end poly.
+	///  @param[in]		toPoly		The end poly.
+	///  @param[in]		toTile		The end tile.
+	///  @param[out]	mid			The mid point of the edge.
+	/// @returns The status flags for the query.
+	dtStatus getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
+							 float* mid) const;
 	/// @}
 	
 private:
@@ -549,13 +568,7 @@ private:
 	dtStatus getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
 							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 							 float* left, float* right) const;
-	
-	/// Returns edge mid point between two polygons.
-	dtStatus getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
-	dtStatus getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
-							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
-							 float* mid) const;
-	
+
 	// Appends vertex to a straight path
 	dtStatus appendVertex(const float* pos, const unsigned char flags, const dtPolyRef ref,
 						  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
