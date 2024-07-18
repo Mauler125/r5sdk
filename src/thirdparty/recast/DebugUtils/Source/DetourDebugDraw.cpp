@@ -265,13 +265,16 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (p->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip regular polys.
 				continue;
 			
+			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
+
 			unsigned int col;
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
-			else
+			else if (con->unk1 == 1)
 				col = duDarkenCol(duTransCol(duRGBA(0,0,255,255), 220));
+			else
+				col = duDarkenCol(duTransCol(duRGBA(255,0,255,255), 220));
 
-			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
 			const float* va = &tile->verts[p->verts[0]*3];
 			const float* vb = &tile->verts[p->verts[1]*3];
 
