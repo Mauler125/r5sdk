@@ -133,8 +133,69 @@ static void drawPolyCenters(duDebugDraw* dd, const dtMeshTile* tile, const unsig
 	}
 }
 
+static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
+	const dtMeshTile* tile, const float* offset, const int drawLinkType)
+{
+	for (int i = 0; i < tile->header->polyCount; ++i)
+	{
+		const dtPoly* startPoly = &tile->polys[i];
+
+		if (startPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
+			continue;
+
+		// Iterate through links in the poly.
+		for (int j = startPoly->firstLink; j != -1; j = tile->links[j].next)
+		{
+			const dtLink* link = &tile->links[j];
+
+			// Skip "normal" links (non-jumping ones).
+			if (link->jumpType == DT_NULL_TRAVERSE_TYPE || tile->links[i].ref == 0)
+				continue;
+
+			// Filter, drawLinkType -1 means draw all
+			if (drawLinkType != -1 && link->jumpType != drawLinkType)
+				continue;
+
+			const dtPoly* endPoly;
+			const dtMeshTile* endTile;
+
+			if (dtStatusFailed(mesh.getTileAndPolyByRef(link->ref, &endTile, &endPoly)))
+				continue;
+
+			if (endPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
+				continue;
+
+			float startPos[3];
+			float endPos[3];
+
+			query->getEdgeMidPoint(mesh.getPolyRefBase(tile) | (dtPolyRef)i, link->ref, startPos);
+			query->getEdgeMidPoint(link->ref, mesh.getPolyRefBase(tile) | (dtPolyRef)i, endPos);
+
+			// Unique color for each type.
+			const int col = duIntToCol(link->jumpType, 180);
+
+			dd->begin(DU_DRAW_LINES, 2.0f, offset);
+
+			dd->vertex(startPos, col);
+			dd->vertex(endPos, col);
+
+			const bool hasReverseLink = link->reverseLinkIndex != DT_NULL_TRAVERSE_REVERSE_LINK;
+
+			if (hasReverseLink)
+			{
+				// If the reverse link is set, render white crosses to confirm
+				// the links are set properly.
+				duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, duRGBA(255,255,255,180));
+				duAppendCross(dd, endPos[0], endPos[1], endPos[2], 10.f, duRGBA(255,255,255,180));
+			}
+
+			dd->end();
+		}
+	}
+}
+
 static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
-						 const dtMeshTile* tile, const float* offset, unsigned int flags)
+						 const dtMeshTile* tile, const float* offset, unsigned int flags, const int linkTypes)
 {
 	// If the "Alpha" flag isn't set, force the colour to be opaque instead of semi-transparent.
 	const int tileAlpha = flags & DU_DRAWNAVMESH_ALPHA ? 170 : 255;
@@ -191,6 +252,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	// Draw poly centers
 	if (flags & DU_DRAWNAVMESH_POLYCENTERS)
 		drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f, offset);
+
+	if (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS)
+		drawTraverseLinks(dd, mesh, query, tile, offset, linkTypes);
 
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
 	{
@@ -272,7 +336,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->depthMask(true);
 }
 
-void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags)
+void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const int linkTypes)
 {
 	if (!dd) return;
 	
@@ -280,11 +344,11 @@ void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* off
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		drawMeshTile(dd, mesh, 0, tile, offset, flags);
+		drawMeshTile(dd, mesh, 0, tile, offset, flags, linkTypes);
 	}
 }
 
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags)
+void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const int linkTypes)
 {
 	if (!dd) return;
 
@@ -294,7 +358,7 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		drawMeshTile(dd, mesh, q, tile, offset, flags);
+		drawMeshTile(dd, mesh, q, tile, offset, flags, linkTypes);
 	}
 
 	if (flags & DU_DRAWNAVMESH_BVTREE)

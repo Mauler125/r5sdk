@@ -72,7 +72,8 @@ Editor::Editor() :
 	m_loadedNavMeshType(NAVMESH_SMALL),
 	m_navmeshName(NavMesh_GetNameForType(NAVMESH_SMALL)),
 	m_tool(0),
-	m_ctx(0)
+	m_ctx(0),
+	m_traverseLinkDrawTypes(-1)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
@@ -500,6 +501,18 @@ void Editor::renderDetourDebugMenu()
 
 	if (ImGui::Checkbox("Transparency", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TRAVERSE_LINKS);
+
+	if (ImGui::Checkbox("Traverse Links", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TRAVERSE_LINKS);
+
+	if (isEnabled)
+	{
+		ImGui::PushItemWidth(190);
+		ImGui::SliderInt("Traverse Type", &m_traverseLinkDrawTypes, -1, 31);
+		ImGui::PopItemWidth();
+	}
 }
 
 // NOTE: the climb height should never equal or exceed the agent's height, see https://groups.google.com/g/recastnavigation/c/L5rBamxcOBk/m/5xGLj6YP25kJ

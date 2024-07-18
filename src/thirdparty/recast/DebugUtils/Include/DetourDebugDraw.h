@@ -38,10 +38,11 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_POLYGROUPS  = 1 << 10, // Render poly group by color.
 	DU_DRAWNAVMESH_DEPTH_MASK  = 1 << 11, // Use depth mask.
 	DU_DRAWNAVMESH_ALPHA       = 1 << 12, // Use transparency.
+	DU_DRAWNAVMESH_TRAVERSE_LINKS = 1 << 13, // Render traverse links.
 };
 
-void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags);
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags);
+void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const int linkTypes = -1);
+void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const int linkTypes = -1);
 void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query, const float* offset);
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);
 void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);

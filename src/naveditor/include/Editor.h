@@ -115,7 +115,6 @@ protected:
 	class dtNavMeshQuery* m_navQuery;
 	class dtCrowd* m_crowd;
 
-	unsigned int m_navMeshDrawFlags;
 	bool m_filterLowHangingObstacles;
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
@@ -149,6 +148,8 @@ protected:
 	BuildContext* m_ctx;
 
 	EditorDebugDraw m_dd;
+	unsigned int m_navMeshDrawFlags;
+	int m_traverseLinkDrawTypes;
 	float m_recastDrawOffset[3];
 	float m_detourDrawOffset[3];
 	
