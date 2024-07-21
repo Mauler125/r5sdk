@@ -17,7 +17,6 @@
 //
 
 #include "NavEditor/include/GameUtils.h"
-#include "NavEditor/include/FileTypes.h"
 
 void coordGameSwap(float* c)
 {
@@ -39,11 +38,11 @@ void coordShortGameUnswap(unsigned short* c)
 	c[2] = std::numeric_limits<unsigned short>::max() - c[2];
 	std::swap(c[1], c[2]);
 }
-void patchHeaderGame(NavMeshSetHeader& h)
+void patchHeaderGame(dtNavMeshSetHeader& h)
 {
 	coordGameSwap(h.params.orig);
 }
-void unpatchHeaderGame(NavMeshSetHeader& h)
+void unpatchHeaderGame(dtNavMeshSetHeader& h)
 {
 	coordGameUnswap(h.params.orig);
 }

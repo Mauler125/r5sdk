@@ -25,7 +25,6 @@
 #include "DetourCrowd/Include/DetourCrowd.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
-#include "NavEditor/Include/FileTypes.h"
 #include "NavEditor/Include/GameUtils.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Editor.h"
@@ -554,19 +553,19 @@ dtNavMesh* Editor::loadAll(std::string path)
 		return 0;
 
 	// Read header.
-	NavMeshSetHeader header;
-	size_t readLen = fread(&header, sizeof(NavMeshSetHeader), 1, fp);
+	dtNavMeshSetHeader header;
+	size_t readLen = fread(&header, sizeof(dtNavMeshSetHeader), 1, fp);
 	if (readLen != 1)
 	{
 		fclose(fp);
 		return 0;
 	}
-	if (header.magic != NAVMESHSET_MAGIC) // todo(amos) check for tool mode since tilecache uses different constants!
+	if (header.magic != DT_NAVMESH_SET_MAGIC) // todo(amos) check for tool mode since tilecache uses different constants!
 	{
 		fclose(fp);
 		return 0;
 	}
-	if (header.version != NAVMESHSET_VERSION) // todo(amos) check for tool mode since tilecache uses different constants!
+	if (header.version != DT_NAVMESH_SET_VERSION) // todo(amos) check for tool mode since tilecache uses different constants!
 	{
 		fclose(fp);
 		return 0;
@@ -590,7 +589,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 	// Read tiles.
 	for (int i = 0; i < header.numTiles; ++i)
 	{
-		NavMeshTileHeader tileHeader;
+		dtNavMeshTileHeader tileHeader;
 		readLen = fread(&tileHeader, sizeof(tileHeader), 1, fp);
 		if (readLen != 1)
 		{
@@ -664,9 +663,9 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 		return;
 
 	// Store header.
-	NavMeshSetHeader header;
-	header.magic = NAVMESHSET_MAGIC;
-	header.version = NAVMESHSET_VERSION;
+	dtNavMeshSetHeader header;
+	header.magic = DT_NAVMESH_SET_MAGIC;
+	header.version = DT_NAVMESH_SET_VERSION;
 	header.numTiles = 0;
 
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
@@ -681,7 +680,7 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 	const dtNavMeshParams* params = mesh->getParams();
 
 	memcpy(&header.params, params, sizeof(dtNavMeshParams));
-	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
+	fwrite(&header, sizeof(dtNavMeshSetHeader), 1, fp);
 
 	// Store tiles.
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
@@ -690,7 +689,7 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 		if (!tile || !tile->header || !tile->dataSize)
 			continue;
 
-		NavMeshTileHeader tileHeader;
+		dtNavMeshTileHeader tileHeader;
 		tileHeader.tileRef = mesh->getTileRef(tile);
 		tileHeader.dataSize = tile->dataSize;
 

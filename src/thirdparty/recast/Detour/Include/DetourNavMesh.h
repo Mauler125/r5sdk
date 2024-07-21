@@ -22,6 +22,11 @@
 #include "Shared/Include/SharedAlloc.h"
 #include "Detour/Include/DetourStatus.h"
 
+// NOTE: these are defines as we need to be able to switch between code that is
+// dedicated for each version, during compile time.
+#define DT_NAVMESH_SET_VERSION 8 // Public versions: 5,7,8,9.
+#define DT_NAVMESH_SET_MAGIC ('M'<<24 | 'S'<<16 | 'E'<<8 | 'T')
+
 // Undefine (or define in a build config) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
 // Note: tiles build using 32bit refs are not compatible with 64bit refs!
@@ -845,6 +850,24 @@ int calcTraversalTableCellIndex(const int numPolyGroups,
 ///  @return the total size needed for the static traversal table.
 ///  @ingroup detour
 int calcTraversalTableSize(const int numPolyGroups);
+
+/// Defines a navigation mesh tile data block.
+/// @ingroup detour
+struct dtNavMeshTileHeader
+{
+	dtTileRef tileRef;					///< The tile reference for this tile.
+	int dataSize;						///< The total size of this tile.
+};
+
+/// Defines a navigation mesh set data block.
+/// @ingroup detour
+struct dtNavMeshSetHeader
+{
+	int magic;							///< Set magic number. (Used to identify the data format.)
+	int version;						///< Set data format version number.
+	int numTiles;						///< The total number of tiles in this set.
+	dtNavMeshParams params;				///< The initialization parameters for this set.
+};
 
 /// Allocates a navigation mesh object using the Detour allocator.
 /// @return A navigation mesh that is ready for initialization, or null on failure.

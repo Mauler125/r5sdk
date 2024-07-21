@@ -38,7 +38,6 @@ add_sources( SOURCE_GROUP "IO"
 
 add_sources( SOURCE_GROUP "IO/Include"
     "include/Filelist.h"
-    "include/FileTypes.h"
     "include/MeshLoaderBsp.h"
     "include/MeshLoaderObj.h"
     "include/MeshLoaderPly.h"
