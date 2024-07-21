@@ -267,7 +267,7 @@ static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, co
 static void setPolyGroupsTraversalReachability(int* const tableData, const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2, const bool isReachable)
 {
-	const int index = calcTraversalTableCellIndex(numPolyGroups, polyGroup1, polyGroup2);
+	const int index = dtCalcTraversalTableCellIndex(numPolyGroups, polyGroup1, polyGroup2);
 	const int value = 1<<(polyGroup2 & 31);
 
 	if (isReachable)
@@ -463,7 +463,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount)
 {
 	const int polyGroupCount = nav->getPolyGroupCount();
-	const int tableSize = calcTraversalTableSize(polyGroupCount);
+	const int tableSize = dtCalcTraversalTableSize(polyGroupCount);
 
 	// TODO: currently we allocate 5 buffers and just copy the same traversal
 	// tables in, this works fine since we don't generate jump links and

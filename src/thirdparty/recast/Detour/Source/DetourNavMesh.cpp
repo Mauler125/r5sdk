@@ -130,13 +130,13 @@ inline void freeLink(dtMeshTile* tile, unsigned int link)
 	tile->linksFreeList = link;
 }
 
-int calcTraversalTableCellIndex(const int numPolyGroups,
+int dtCalcTraversalTableCellIndex(const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2)
 {
 	return polyGroup1*((numPolyGroups+(RD_BITS_PER_BIT_CELL-1))/RD_BITS_PER_BIT_CELL)+(polyGroup2/RD_BITS_PER_BIT_CELL);
 }
 
-int calcTraversalTableSize(const int numPolyGroups)
+int dtCalcTraversalTableSize(const int numPolyGroups)
 {
 	return sizeof(int)*(numPolyGroups*((numPolyGroups+(RD_BITS_PER_BIT_CELL-1))/RD_BITS_PER_BIT_CELL));
 }
@@ -1351,7 +1351,7 @@ bool dtNavMesh::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goa
 		return true;
 
 	const int polyGroupCount = m_params.polyGroupCount;
-	const int fromPolyBitCell = traversalTable[calcTraversalTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
+	const int fromPolyBitCell = traversalTable[dtCalcTraversalTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
 
 	// Check if the bit corresponding to our goal poly is set, if it isn't then
 	// there are no available traversal links from the current poly to the goal.

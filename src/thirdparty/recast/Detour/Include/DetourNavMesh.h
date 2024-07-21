@@ -842,14 +842,14 @@ private:
 ///  @param[in]	polyGroup2		The poly group ID of the second island.
 ///  @return The cell index for the static traversal table.
 ///  @ingroup detour
-int calcTraversalTableCellIndex(const int numPolyGroups,
+int dtCalcTraversalTableCellIndex(const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2);
 
 /// Returns the total size needed for the static traversal table.
 ///  @param[in]	numPolyGroups	The total number of poly groups.
 ///  @return the total size needed for the static traversal table.
 ///  @ingroup detour
-int calcTraversalTableSize(const int numPolyGroups);
+int dtCalcTraversalTableSize(const int numPolyGroups);
 
 /// Defines a navigation mesh tile data block.
 /// @ingroup detour
