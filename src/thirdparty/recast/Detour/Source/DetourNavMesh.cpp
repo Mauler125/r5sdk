@@ -1069,7 +1069,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->verts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	tile->polys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
 	tile->polysEnd = &tile->polys[polyCount];
-	d = (unsigned char*)(tile->polysEnd) + polyCount * unkPerPoly;
+	d = (unsigned char*)(tile->polysEnd) + (polyCount * unkPerPoly) * sizeof(int);
 	tile->links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	tile->detailMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
 	tile->detailVerts = rdGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
