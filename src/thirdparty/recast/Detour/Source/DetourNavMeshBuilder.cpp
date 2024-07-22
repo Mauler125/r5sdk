@@ -674,12 +674,12 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	const int bvTreeSize = params->buildBvTree ? rdAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
 	const int offMeshConsSize = rdAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 	
-	int unkPerPoly = 0; // TODO: this data has to be reversed still from the NavMesh!
-	const int sthSize = unkPerPoly * totPolyCount;
+	int polyMapCount = 0; // TODO: this data has to be reversed still from the NavMesh!
+	const int polyMapSize = polyMapCount * totPolyCount;
 
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
 						 detailMeshesSize + detailVertsSize + detailTrisSize +
-						 bvTreeSize + offMeshConsSize + sthSize;
+						 bvTreeSize + offMeshConsSize + polyMapSize;
 
 	//printf("%i %i %i %i(%i links) %i %i %i %i %i\n", headerSize, vertsSize, polysSize, linksSize, maxLinkCount, detailMeshesSize, detailVertsSize, detailTrisSize, bvTreeSize, offMeshConsSize);
 	//printf("%i\n", dataSize);
@@ -697,7 +697,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	dtMeshHeader* header = rdGetThenAdvanceBufferPointer<dtMeshHeader>(d, headerSize);
 	float* navVerts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	dtPoly* navPolys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
-	unsigned int* unknownArray = rdGetThenAdvanceBufferPointer<unsigned int>(d, sthSize);
+	unsigned int* polyMap = rdGetThenAdvanceBufferPointer<unsigned int>(d, polyMapSize);
 	d += linksSize; // Ignore links; just leave enough space for them. They'll be created on load.
 	//dtLink* links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	dtPolyDetail* navDMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
@@ -706,7 +706,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	dtBVNode* navBvtree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
 	dtOffMeshConnection* offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
 
-	rdIgnoreUnused(unknownArray);
+	rdIgnoreUnused(polyMap);
 	//for(int i=0;i<unkPerPoly*totPolyCount;i++)
 	//	unknownArray[i] = rand();
 
@@ -727,13 +727,13 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->detailTriCount = detailTriCount;
 	header->bvQuantFactor = 1.0f / params->cs;
 	header->offMeshBase = params->polyCount;
-	header->offMeshEnds = -1;
+	header->maxCellCount = -1;
 	header->walkableHeight = params->walkableHeight;
 	header->walkableRadius = params->walkableRadius;
 	header->walkableClimb = params->walkableClimb;
 	header->offMeshConCount = storedOffMeshConCount;
 	header->bvNodeCount = params->buildBvTree ? params->polyCount*2 : 0;
-	header->unkPerPoly = unkPerPoly;
+	header->polyMapCount = polyMapCount;
 
 	const int offMeshVertsBase = params->vertCount;
 	const int offMeshPolyBase = params->polyCount;
@@ -903,10 +903,14 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			con->refYaw = params->offMeshConRefYaw[i];
 			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
 			con->side = offMeshConClass[i*2+1];
+#if DT_NAVMESH_SET_VERSION == 5
 			con->jumpType = params->offMeshConJumps[i];
 			con->unk1 = 1;
-			if (params->offMeshConUserID)
-				con->userId = params->offMeshConUserID[i];
+#endif
+			con->userId = params->offMeshConUserID[i];
+#if DT_NAVMESH_SET_VERSION >= 7
+			con->hintIdx = DT_NULL_HINT; // todo(amos): hints are currently not supported.
+#endif
 			n++;
 		}
 	}

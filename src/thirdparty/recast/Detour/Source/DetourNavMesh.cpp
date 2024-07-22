@@ -567,6 +567,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			}
 		}
 
+#if DT_NAVMESH_SET_VERSION == 5
 		// NOTE: this might not be correct; Titanfall 2 off-mesh link dtLink
 		// objects don't set these, however when setting these, the jump links
 		// do work. More research is needed, this might also be correct, just
@@ -583,6 +584,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			tlink->traverseDist = linkDist;
 			tlink->reverseLink = (unsigned short)idx;
 		}
+#endif
 	}
 }
 
@@ -1054,29 +1056,30 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	const int headerSize = rdAlign4(sizeof(dtMeshHeader));
 	const int vertsSize = rdAlign4(sizeof(float)*3*header->vertCount);
 	const int polysSize = rdAlign4(sizeof(dtPoly)*header->polyCount);
+	const int polyMapSize = rdAlign4(sizeof(int)*(header->polyCount*header->polyMapCount));
 	const int linksSize = rdAlign4(sizeof(dtLink)*(header->maxLinkCount));
 	const int detailMeshesSize = rdAlign4(sizeof(dtPolyDetail)*header->detailMeshCount);
 	const int detailVertsSize = rdAlign4(sizeof(float)*3*header->detailVertCount);
 	const int detailTrisSize = rdAlign4(sizeof(unsigned char)*4*header->detailTriCount);
 	const int bvtreeSize = rdAlign4(sizeof(dtBVNode)*header->bvNodeCount);
 	const int offMeshLinksSize = rdAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
-
-	const int polyCount = header->polyCount;
-	const int unkPerPoly = header->unkPerPoly;
-	const int offMeshConCount = header->offMeshConCount;
+#if DT_NAVMESH_SET_VERSION >= 8
+	const int probesSize = rdAlign4(sizeof(dtCell)*header->maxCellCount);
+#endif
 	
 	unsigned char* d = data + headerSize;
 	tile->verts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	tile->polys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
-	tile->polysEnd = &tile->polys[polyCount];
-	d = (unsigned char*)(tile->polysEnd) + (polyCount * unkPerPoly) * sizeof(int);
+	tile->polyMap = rdGetThenAdvanceBufferPointer<int>(d, polyMapSize);
 	tile->links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	tile->detailMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
 	tile->detailVerts = rdGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
 	tile->detailTris = rdGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
 	tile->bvTree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvtreeSize);
 	tile->offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshLinksSize);
-	tile->offMeshConsEnd = &tile->offMeshCons[offMeshConCount];
+#if DT_NAVMESH_SET_VERSION >= 8
+	tile->cells = rdGetThenAdvanceBufferPointer<dtCell>(d, probesSize);
+#endif
 
 	// If there are no items in the bvtree, reset the tree pointer.
 	if (!bvtreeSize)
@@ -1429,6 +1432,12 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	// Reset tile.
 	if (tile->flags & DT_TILE_FREE_DATA)
 	{
+		if (tile->flags & DT_CELL_FREE_DATA)
+		{
+			rdFree(tile->cells);
+			tile->cells = 0;
+		}
+
 		// Owns data
 		rdFree(tile->data);
 		tile->data = 0;
@@ -1777,4 +1786,19 @@ void dtCalcOffMeshRefPos(const float* spos, float yaw, float offset, float* res)
 	res[0] = spos[0]+dx;
 	res[1] = spos[1]+dy;
 	res[2] = spos[2];
+}
+
+int dtGetNavMeshVersionForSet(const int setVersion)
+{
+	// TODO: check r2tt (Titanfall 2 tech test). It might have a set version lower
+	// than 5, which might be interesting to reverse as well and support.
+	switch (setVersion)
+	{
+	case 5: return 13;
+	case 6: return 14;
+	case 7: return 15;
+	case 8: // 8 & 9 use the same navmesh version, but they are different!
+	case 9: return 16;
+	default: rdAssert(0); return -1; // Unsupported set version!
+	}
 }

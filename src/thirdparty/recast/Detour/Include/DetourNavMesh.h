@@ -24,8 +24,9 @@
 
 // NOTE: these are defines as we need to be able to switch between code that is
 // dedicated for each version, during compile time.
-#define DT_NAVMESH_SET_VERSION 8 // Public versions: 5,7,8,9.
+#define DT_NAVMESH_SET_VERSION 9 // Public versions: 5,7,8,9.
 #define DT_NAVMESH_SET_MAGIC ('M'<<24 | 'S'<<16 | 'E'<<8 | 'T')
+int dtGetNavMeshVersionForSet(const int setVersion);
 
 // Undefine (or define in a build config) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
@@ -99,6 +100,9 @@ static const unsigned short DT_NULL_TRAVERSE_REVERSE_LINK = 0xffff;
 /// The cached traverse link distance quantization factor.
 static const float DT_TRAVERSE_DIST_QUANT_FACTOR = 10.f;
 
+/// A value that indicates the link doesn't contain a hint index.
+static const unsigned short DT_NULL_HINT = 0xffff;
+
 /// @{
 /// @name Tile Serialization Constants
 /// These constants are used to detect whether a navigation tile's data
@@ -109,7 +113,7 @@ static const float DT_TRAVERSE_DIST_QUANT_FACTOR = 10.f;
 static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V';
 
 /// A version number used to detect compatibility of navigation tile data.
-static const int DT_NAVMESH_VERSION = 16;
+static const int DT_NAVMESH_VERSION = dtGetNavMeshVersionForSet(DT_NAVMESH_SET_VERSION);
 
 /// A magic number used to detect the compatibility of navigation tile states.
 static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S';
@@ -143,8 +147,8 @@ enum dtTileFlags
 	/// The navigation mesh owns the tile memory and is responsible for freeing it.
 	DT_TILE_FREE_DATA = 0x01,
 
-	/// The navigation mesh owns the offmesh connection memory and is responsible for freeing it.
-	DT_OFFMESH_FREE_DATA = 0x02,
+	/// The navigation mesh owns the cell memory and is responsible for freeing it.
+	DT_CELL_FREE_DATA = 0x02,
 };
 
 /// Vertex flags returned by dtNavMeshQuery::findStraightPath.
@@ -281,6 +285,23 @@ struct dtLink
 
 unsigned char dtCalcLinkDistance(const float* spos, const float* epos);
 
+/// Defines a cell in a tile.
+/// @note This is used to prevent entities from clipping into each other.
+/// @see dtMeshTile
+struct dtCell
+{
+	float pos[3];					///< The position of the cell.
+	unsigned int polyIndex;			///< The index of the poly this cell is on.
+	unsigned char pad;				
+	unsigned char occupystate[4];	///< The occupation state of this cell, -1 means not occupied. See [r5apex_ds + 0xEF86C9].
+
+#if DT_NAVMESH_SET_VERSION >= 9
+	unsigned char data[27]; // TODO: reverse this, always appears 0.
+#else
+	unsigned char data[52]; // TODO: reverse this, always appears 0.
+#endif
+};
+
 /// Bounding volume node.
 /// @note This structure is rarely if ever used by the end user.
 /// @see dtMeshTile
@@ -312,17 +333,29 @@ struct dtOffMeshConnection
 	/// End point side.
 	unsigned char side;
 
+#if DT_NAVMESH_SET_VERSION == 5
+	/// NOTE: this is unconfirmed, it might not be the jumpType.
 	unsigned char jumpType;
-
 	unsigned char unk1;
+#endif
 
 	/// The id of the off-mesh connection. (User assigned when the navigation mesh is built.)
 	unsigned short userId;
 
+#if DT_NAVMESH_SET_VERSION >= 7
+	/// The hint index of the off-mesh connection. (Or #DT_NULL_HINT if there is no hint.)
+	unsigned short hintIdx;
+#endif
 	/// The reference position set to the start of the off-mesh connection with an offset of DT_OFFMESH_CON_REFPOS_OFFSET
 	float refPos[3]; // See [r5apex_ds + F114CF], [r5apex_ds + F11B42], [r5apex_ds + F12447].
 	/// The reference yaw angle set towards the end position of the off-mesh connection.
 	float refYaw;    // See [r5apex_ds + F11527], [r5apex_ds + F11F90], [r5apex_ds + F12836].
+
+#if DT_NAVMESH_SET_VERSION >= 9
+	/// Off-mesh connections are always placed in pairs, in version 5 to 8, each connection for
+	/// the pair was a separate instance. In newer versions, this is squashed into 1 connection.
+	float secPos[6];
+#endif
 };
 
 /// Calculates the yaw angle in an off-mesh connection.
@@ -349,7 +382,7 @@ struct dtMeshHeader
 
 	unsigned int userId;	///< The user defined id of the tile.
 	int polyCount;			///< The number of polygons in the tile.
-	int unkPerPoly;
+	int polyMapCount;
 	int vertCount;			///< The number of vertices in the tile.
 	int maxLinkCount;		///< The number of allocated links.
 
@@ -362,7 +395,7 @@ struct dtMeshHeader
 	int bvNodeCount;			///< The number of bounding volume nodes. (Zero if bounding volumes are disabled.)
 	int offMeshConCount;		///< The number of off-mesh connections.
 	int offMeshBase;			///< The index of the first polygon which is an off-mesh connection.
-	int offMeshEnds;
+	int maxCellCount;			///< The number of allocated cells.
 
 	float walkableHeight;		///< The height of the agents using the tile.
 	float walkableRadius;		///< The radius of the agents using the tile.
@@ -383,7 +416,7 @@ struct dtMeshTile
 	unsigned int linksFreeList;			///Index to the next free link.
 	dtMeshHeader* header;				///The tile header.
 	dtPoly* polys;						///The tile polygons. [Size: dtMeshHeader::polyCount]
-	dtPoly* polysEnd;					///The tile polygons array end pointer.
+	int* polyMap;						///TODO: needs to be reversed.
 	float* verts;						///The tile vertices. [Size: dtMeshHeader::vertCount]
 	dtLink* links;						///The tile links. [Size: dtMeshHeader::maxLinkCount]
 	dtPolyDetail* detailMeshes;			///The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]
@@ -400,7 +433,7 @@ struct dtMeshTile
 	dtBVNode* bvTree;
 
 	dtOffMeshConnection* offMeshCons;		///< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
-	dtOffMeshConnection* offMeshConsEnd;	///< The tile off-mesh connections array end pointer.
+	dtCell* cells;							///< The tile cells. [Size: dtMeshHeader::tileCellCount]
 
 	unsigned char* data;					///< The tile data. (Not directly accessed under normal situations.)
 
@@ -437,10 +470,12 @@ struct dtNavMeshParams
 	int traversalTableSize;			///< The total size of the static traversal table. This is computed using calcTraversalTableSize(polyGroupcount).
 	int traversalTableCount;		///< The total number of traversal tables in this navmesh. Each TraverseAnimType uses its own table as their available jump links should match their behavior and abilities.
 
+#if DT_NAVMESH_SET_VERSION >= 7
 	// NOTE: this seems to be used for some wallrunning code. This allocates a buffer of size 0x30 * magicDataCount,
 	// then copies in the data 0x30 * magicDataCount at the end of the navmesh file (past the traversal tables).
 	// See [r5apex_ds + F43600] for buffer allocation and data copy, see note at dtNavMesh::m_someMagicData for usage.
 	int magicDataCount;
+#endif
 };
 
 /// A navigation mesh based on tiles of convex polygons.
