@@ -194,6 +194,17 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 	}
 }
 
+static void drawTileCells(duDebugDraw* dd, const dtMeshTile* tile, const float* offset)
+{
+#if DT_NAVMESH_SET_VERSION >= 8 
+	for (int i = 0; i < tile->header->maxCellCount; i++)
+	{
+		const dtCell& probe = tile->cells[i];
+		duDebugDrawCross(dd, probe.pos[0], probe.pos[1], probe.pos[2], 25.f, duRGBA(255,0,0,255), 2, offset);
+	}
+#endif
+}
+
 static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, const float* offset, unsigned int flags, const int linkTypes)
 {
@@ -256,6 +267,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	if (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS)
 		drawTraverseLinks(dd, mesh, query, tile, offset, linkTypes);
 
+	if (flags & DU_DRAWNAVMESH_CELLS)
+		drawTileCells(dd, tile, offset);
+
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
 	{
 		dd->begin(DU_DRAW_LINES, 2.0f, offset);
@@ -270,10 +284,8 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			unsigned int col;
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
-			else if (con->unk1 == 1)
-				col = duDarkenCol(duTransCol(duRGBA(0,0,255,255), 220));
 			else
-				col = duDarkenCol(duTransCol(duRGBA(255,0,255,255), 220));
+				col = duDarkenCol(duTransCol(duRGBA(0,0,255,255), 220));
 
 			const float* va = &tile->verts[p->verts[0]*3];
 			const float* vb = &tile->verts[p->verts[1]*3];

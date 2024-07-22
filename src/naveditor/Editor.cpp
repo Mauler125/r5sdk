@@ -466,6 +466,13 @@ void Editor::renderDetourDebugMenu()
 	if (ImGui::Checkbox("Tile ID Colors", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_COLOR_TILES);
 
+#if DT_NAVMESH_SET_VERSION >= 8
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_CELLS);
+
+	if (ImGui::Checkbox("Tile Cells", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_CELLS);
+#endif
+
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_VERTS);
 
 	if (ImGui::Checkbox("Vertex Points", &isEnabled))
