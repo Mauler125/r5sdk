@@ -197,7 +197,7 @@ void CAI_Utility::DrawNavMeshBVTree(
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = pMesh->getTile(i);
         if (!pTile->header)
             continue;
 
@@ -257,7 +257,7 @@ void CAI_Utility::DrawNavMeshPortals(const dtNavMesh* pMesh,
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = pMesh->getTile(i);
         if (!pTile->header)
             continue;
 
@@ -377,7 +377,7 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = pMesh->getTile(i);
         if (!pTile->header)
             continue;
 
@@ -466,7 +466,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = pMesh->getTile(i);
         if (!pTile->header)
             continue;
 
