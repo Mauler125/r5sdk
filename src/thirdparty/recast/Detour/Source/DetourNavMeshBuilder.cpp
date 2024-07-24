@@ -817,8 +817,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 #endif
 
 	rdIgnoreUnused(polyMap);
-	//for(int i=0;i<unkPerPoly*totPolyCount;i++)
-	//	unknownArray[i] = rand();
+	//for(int i=0;i<polyMapCount*totPolyCount;i++)
+	//	polyMap[i] = rand();
 
 	// Store header
 	header->magic = DT_NAVMESH_MAGIC;
