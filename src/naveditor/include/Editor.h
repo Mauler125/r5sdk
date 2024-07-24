@@ -52,15 +52,33 @@ enum EditorToolType
 
 /// These are just poly areas to use consistent values across the editors.
 /// The use should specify these base on his needs.
+//enum EditorPolyAreas // note: original poly area's for reference.
+//{
+//	EDITOR_POLYAREA_GROUND,
+//	EDITOR_POLYAREA_JUMP,
+//	EDITOR_POLYAREA_ROAD,
+//	EDITOR_POLYAREA_DOOR,
+//	EDITOR_POLYAREA_GRASS,
+//	EDITOR_POLYAREA_WATER,
+//};
+
+#if DT_NAVMESH_SET_VERSION >= 7
+enum EditorPolyAreas
+{
+	EDITOR_POLYAREA_JUMP,
+	EDITOR_POLYAREA_GROUND,
+	EDITOR_POLYAREA_RESERVED,
+	EDITOR_POLYAREA_DOOR, // rename to trigger
+};
+#else
 enum EditorPolyAreas
 {
 	EDITOR_POLYAREA_GROUND,
 	EDITOR_POLYAREA_JUMP,
-	EDITOR_POLYAREA_ROAD,
 	EDITOR_POLYAREA_DOOR,
-	EDITOR_POLYAREA_GRASS,
-	EDITOR_POLYAREA_WATER,
 };
+#endif
+
 enum EditorPolyFlags
 {
 	EDITOR_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)

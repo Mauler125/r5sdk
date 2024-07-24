@@ -91,7 +91,7 @@ static int pointInPoly(int nvert, const float* verts, const float* p) // todo(am
 
 ConvexVolumeTool::ConvexVolumeTool() :
 	m_editor(0),
-	m_areaType(EDITOR_POLYAREA_GROUND),
+	m_areaType(RC_NULL_AREA),
 	m_polyOffset(0.0f),
 	m_boxHeight(650.0f),
 	m_boxDescent(150.0f),
@@ -126,30 +126,14 @@ void ConvexVolumeTool::handleMenu()
 	ImGui::Text("Brushes");
 	ImGui::Indent();
 
-	bool isEnabled = m_areaType == EDITOR_POLYAREA_GROUND;
+	bool isEnabled = m_areaType == RC_NULL_AREA;
 
 	if (ImGui::Checkbox("Clip", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_GROUND;
-
-	isEnabled = m_areaType == EDITOR_POLYAREA_JUMP;
-	if (ImGui::Checkbox("Jump", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_JUMP;
-
-	isEnabled = m_areaType == EDITOR_POLYAREA_ROAD;
-	if (ImGui::Checkbox("Road", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_ROAD;
+		m_areaType = RC_NULL_AREA;
 
 	isEnabled = m_areaType == EDITOR_POLYAREA_DOOR;
-	if (ImGui::Checkbox("Door", &isEnabled))
+	if (ImGui::Checkbox("Trigger", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_DOOR;
-
-	isEnabled = m_areaType == EDITOR_POLYAREA_GRASS;
-	if (ImGui::Checkbox("Grass", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_GRASS;
-
-	isEnabled = m_areaType == EDITOR_POLYAREA_WATER;
-	if (ImGui::Checkbox("Water", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_WATER;
 
 	ImGui::Unindent();
 

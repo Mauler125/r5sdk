@@ -37,20 +37,14 @@ unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 {
 	switch(area)
 	{
-	// Ground (0) : light blue
+	// Ground : light blue
 	case EDITOR_POLYAREA_GROUND: return duRGBA(0, 192, 215, 255);
-	// Jump : yellow
-	case EDITOR_POLYAREA_JUMP: return duRGBA(255, 255, 0, 255);
-	// Road : brown
-	case EDITOR_POLYAREA_ROAD: return duRGBA(50, 20, 12, 255);
-	// Door : cyan
-	case EDITOR_POLYAREA_DOOR: return duRGBA(0, 255, 255, 255);
-	// Grass : green
-	case EDITOR_POLYAREA_GRASS: return duRGBA(0, 255, 0, 255);
-	// Water : blue
-	case EDITOR_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
-	// Unexpected : orange
-	default: return duRGBA(255, 100, 10, 255);
+	// Jump : purple
+	case EDITOR_POLYAREA_JUMP: return duRGBA(255, 0, 255, 255);
+	// Trigger : light green
+	case EDITOR_POLYAREA_DOOR: return duRGBA(20, 245, 0, 255);
+	// Unexpected : white
+	default: return duRGBA(255, 255, 255, 255);
 	}
 }
 

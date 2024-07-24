@@ -448,16 +448,18 @@ bool Editor_SoloMesh::handleBuild()
 			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
 				m_pmesh->areas[i] = EDITOR_POLYAREA_GROUND;
 				
-			if (m_pmesh->areas[i] == EDITOR_POLYAREA_GROUND ||
-				m_pmesh->areas[i] == EDITOR_POLYAREA_GRASS ||
-				m_pmesh->areas[i] == EDITOR_POLYAREA_ROAD)
+			if (m_pmesh->areas[i] == EDITOR_POLYAREA_GROUND
+				//||
+				//m_pmesh->areas[i] == EDITOR_POLYAREA_GRASS ||
+				//m_pmesh->areas[i] == EDITOR_POLYAREA_ROAD
+				)
 			{
 				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK;
 			}
-			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_WATER)
-			{
-				m_pmesh->flags[i] = EDITOR_POLYFLAGS_SWIM;
-			}
+			//else if (m_pmesh->areas[i] == EDITOR_POLYAREA_WATER)
+			//{
+			//	m_pmesh->flags[i] = EDITOR_POLYFLAGS_SWIM;
+			//}
 			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_DOOR)
 			{
 				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK | EDITOR_POLYFLAGS_DOOR;

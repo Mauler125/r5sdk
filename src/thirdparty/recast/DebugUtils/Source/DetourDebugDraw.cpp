@@ -287,9 +287,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 
 			unsigned int col;
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
-				col = duRGBA(255,196,0,220);
+				col = duRGBA(255, 196, 0, 220);
 			else
-				col = duDarkenCol(duTransCol(duRGBA(0,0,255,255), 220));
+				col = duDarkenCol(duTransCol(dd->areaToCol(p->getArea()), 220));
 
 			const float* va = &tile->verts[p->verts[0]*3];
 			const float* vb = &tile->verts[p->verts[1]*3];
