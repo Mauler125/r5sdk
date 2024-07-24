@@ -447,7 +447,9 @@ bool Editor_TileMesh::handleBuild()
 	params.polyGroupCount = 0;
 	params.traversalTableSize = 0;
 	params.traversalTableCount = NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType);
+#if DT_NAVMESH_SET_VERSION >= 8
 	params.magicDataCount = 0;
+#endif
 	
 	dtStatus status;
 	

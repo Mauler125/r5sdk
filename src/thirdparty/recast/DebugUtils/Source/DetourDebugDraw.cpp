@@ -202,6 +202,10 @@ static void drawTileCells(duDebugDraw* dd, const dtMeshTile* tile, const float* 
 		const dtCell& probe = tile->cells[i];
 		duDebugDrawCross(dd, probe.pos[0], probe.pos[1], probe.pos[2], 25.f, duRGBA(255,0,0,255), 2, offset);
 	}
+#else
+	rdIgnoreUnused(dd);
+	rdIgnoreUnused(tile);
+	rdIgnoreUnused(offset);
 #endif
 }
 

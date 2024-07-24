@@ -24,7 +24,7 @@
 
 // NOTE: these are defines as we need to be able to switch between code that is
 // dedicated for each version, during compile time.
-#define DT_NAVMESH_SET_VERSION 9 // Public versions: 5,7,8,9.
+#define DT_NAVMESH_SET_VERSION 8 // Public versions: 5,7,8,9.
 #define DT_NAVMESH_SET_MAGIC ('M'<<24 | 'S'<<16 | 'E'<<8 | 'T')
 int dtGetNavMeshVersionForSet(const int setVersion);
 
@@ -395,7 +395,9 @@ struct dtMeshHeader
 	int bvNodeCount;			///< The number of bounding volume nodes. (Zero if bounding volumes are disabled.)
 	int offMeshConCount;		///< The number of off-mesh connections.
 	int offMeshBase;			///< The index of the first polygon which is an off-mesh connection.
+#if DT_NAVMESH_SET_VERSION >= 8
 	int maxCellCount;			///< The number of allocated cells.
+#endif
 
 	float walkableHeight;		///< The height of the agents using the tile.
 	float walkableRadius;		///< The radius of the agents using the tile.

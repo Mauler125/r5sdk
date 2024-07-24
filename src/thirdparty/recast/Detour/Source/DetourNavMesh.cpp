@@ -315,7 +315,9 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int tabl
 	params.polyGroupCount = 0;
 	params.traversalTableSize = 0;
 	params.traversalTableCount = tableCount;
+#if DT_NAVMESH_SET_VERSION >= 7
 	params.magicDataCount = 0;
+#endif
 	
 	dtStatus status = init(&params);
 	if (dtStatusFailed(status))
