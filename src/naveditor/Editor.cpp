@@ -544,6 +544,9 @@ void Editor::selectNavMeshType(const NavMeshType_e navMeshType)
 
 bool Editor::loadAll(std::string path, const bool fullPath)
 {
+	dtFreeNavMesh(m_navMesh);
+	m_navMesh = nullptr;
+
 	const char* navMeshPath = nullptr;
 	char buffer[256];
 

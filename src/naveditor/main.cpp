@@ -1026,6 +1026,7 @@ int not_main(int argc, char** argv)
 					if (GetOpenFileNameA(&diag))
 					{
 						editor->loadAll(szFile, true);
+						editor->getNavMeshQuery()->init(editor->getNavMesh(), 2048);
 					}
 				}
 				if (ImGui::Button(meshName.empty() ? "Choose Level..." : meshName.c_str()))
