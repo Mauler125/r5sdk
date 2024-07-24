@@ -350,7 +350,7 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigne
 }
 
 
-static int pointInPoly(int nvert, const float* verts, const float* p)
+static int pointInPoly(int nvert, const float* verts, const float* p) // todo(amos) deduplicate.
 {
 	int i, j, c = 0;
 	for (i = 0, j = nvert-1; i < nvert; j = i++)
