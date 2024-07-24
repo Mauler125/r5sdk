@@ -548,20 +548,28 @@ void Editor::selectNavMeshType(const NavMeshType_e navMeshType)
 	m_selectedNavMeshType = navMeshType;
 }
 
-dtNavMesh* Editor::loadAll(std::string path)
+bool Editor::loadAll(std::string path, const bool fullPath)
 {
-	fs::path p = "..\\maps\\navmesh\\";
-	if (fs::is_directory(p))
-	{
-		path.insert(0, p.string());
-	}
-
+	const char* navMeshPath = nullptr;
 	char buffer[256];
-	sprintf(buffer, "%s_%s.nm", path.c_str(), m_navmeshName);
 
-	FILE* fp = fopen(buffer, "rb");
+	if (!fullPath) // Load from model name (e.g. "mp_rr_box").
+	{
+		fs::path p = "..\\maps\\navmesh\\";
+		if (fs::is_directory(p))
+		{
+			path.insert(0, p.string());
+		}
+
+		sprintf(buffer, "%s_%s.nm", path.c_str(), m_navmeshName);
+		navMeshPath = buffer;
+	}
+	else
+		navMeshPath = path.c_str();
+
+	FILE* fp = fopen(navMeshPath, "rb");
 	if (!fp)
-		return 0;
+		return false;
 
 	// Read header.
 	dtNavMeshSetHeader header;
@@ -569,24 +577,24 @@ dtNavMesh* Editor::loadAll(std::string path)
 	if (readLen != 1)
 	{
 		fclose(fp);
-		return 0;
+		return false;
 	}
 	if (header.magic != DT_NAVMESH_SET_MAGIC) // todo(amos) check for tool mode since tilecache uses different constants!
 	{
 		fclose(fp);
-		return 0;
+		return false;
 	}
 	if (header.version != DT_NAVMESH_SET_VERSION) // todo(amos) check for tool mode since tilecache uses different constants!
 	{
 		fclose(fp);
-		return 0;
+		return false;
 	}
 
 	dtNavMesh* mesh = dtAllocNavMesh();
 	if (!mesh)
 	{
 		fclose(fp);
-		return 0;
+		return false;
 	}
 
 
@@ -594,7 +602,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 	if (dtStatusFailed(status))
 	{
 		fclose(fp);
-		return 0;
+		return false;
 	}
 	
 	// Read tiles.
@@ -605,7 +613,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 		if (readLen != 1)
 		{
 			fclose(fp);
-			return 0;
+			return false;
 		}
 
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
@@ -622,7 +630,7 @@ dtNavMesh* Editor::loadAll(std::string path)
 		{
 			rdFree(data);
 			fclose(fp);
-			return 0;
+			return false;
 		}
 
 		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, NULL);
@@ -652,7 +660,9 @@ dtNavMesh* Editor::loadAll(std::string path)
 	}
 
 	fclose(fp);
-	return mesh;
+	m_navMesh = mesh;
+
+	return true;
 }
 
 void Editor::saveAll(std::string path, const dtNavMesh* mesh)

@@ -154,15 +154,15 @@ protected:
 	int m_traverseLinkDrawTypes;
 	float m_recastDrawOffset[3];
 	float m_detourDrawOffset[3];
-	
-	dtNavMesh* loadAll(std::string path);
-	void saveAll(std::string path, const dtNavMesh* mesh);
 
 public:
 	std::string m_modelName;
 
 	Editor();
 	virtual ~Editor();
+
+	bool loadAll(std::string path, const bool fullPath = false);
+	void saveAll(std::string path, const dtNavMesh* mesh);
 	
 	void setContext(BuildContext* ctx) { m_ctx = ctx; }
 	

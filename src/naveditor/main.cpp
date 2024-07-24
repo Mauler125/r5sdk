@@ -16,9 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Recast/Include/Recast.h"
 #include "Shared/Include/SharedAlloc.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
+#include "Recast/Include/Recast.h"
+#include "Detour/Include/DetourNavMeshQuery.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/TestCase.h"
 #include "NavEditor/Include/Filelist.h"
@@ -996,6 +997,35 @@ int not_main(int argc, char** argv)
 					{
 						geom_path = std::string(szFile);
 						meshName = geom_path.substr(geom_path.rfind("\\") + 1);
+					}
+				}
+				if (geom && editor && ImGui::Button("Load NavMesh..."))
+				{
+					char szFile[260];
+					OPENFILENAMEA diag = { 0 };
+					diag.lStructSize = sizeof(diag);
+
+					SDL_SysWMinfo sdlinfo;
+					SDL_version sdlver;
+					SDL_VERSION(&sdlver);
+					sdlinfo.version = sdlver;
+					SDL_GetWindowWMInfo(window, &sdlinfo);
+
+					diag.hwndOwner = sdlinfo.info.win.window;
+
+					diag.lpstrFile = szFile;
+					diag.lpstrFile[0] = 0;
+					diag.nMaxFile = sizeof(szFile);
+					diag.lpstrFilter = "NM\0*.nm\0";
+					diag.nFilterIndex = 1;
+					diag.lpstrFileTitle = NULL;
+					diag.nMaxFileTitle = 0;
+					diag.lpstrInitialDir = NULL;
+					diag.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+					if (GetOpenFileNameA(&diag))
+					{
+						editor->loadAll(szFile, true);
 					}
 				}
 				if (ImGui::Button(meshName.empty() ? "Choose Level..." : meshName.c_str()))

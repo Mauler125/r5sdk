@@ -832,7 +832,7 @@ void Editor_TempObstacles::handleSettings()
 	if (ImGui::Button("Load", ImVec2(123, 0)))
 	{
 		dtFreeNavMesh(m_navMesh);
-		m_navMesh = Editor::loadAll(m_modelName.c_str());
+		Editor::loadAll(m_modelName.c_str());
 		m_navQuery->init(m_navMesh, 2048);
 
 		m_loadedNavMeshType = m_selectedNavMeshType;
