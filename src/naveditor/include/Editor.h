@@ -31,6 +31,7 @@ struct hulldef
 	float height;
 	float climbHeight;
 	int tileSize;
+	int cellResolution;
 };
 extern const hulldef hulls[5];
 
@@ -131,6 +132,7 @@ protected:
 	int m_edgeMaxLen;
 	float m_edgeMaxError;
 	int m_vertsPerPoly;
+	int m_polyCellRes;
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	int m_partitionType;

@@ -56,6 +56,8 @@ struct BuildSettings
 	// Edge max error in voxels
 	float edgeMaxError;
 	int vertsPerPoly;
+	// The polygon cell resolution.
+	int polyCellRes;
 	// Detail sample distance in voxels
 	float detailSampleDist;
 	// Detail sample max error in voxel heights.

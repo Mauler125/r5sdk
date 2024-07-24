@@ -508,6 +508,100 @@ bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, c
 	return true;
 }
 
+static const unsigned short DT_MESH_NULL_IDX = 0xffff;
+static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos): deduplicate
+{
+	for (int i = 0; i < nvp; ++i)
+		if (p[i] == DT_MESH_NULL_IDX)
+			return i;
+	return nvp;
+}
+
+struct CellItem
+{
+	float pos[3];
+	int polyIndex;
+};
+
+bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellItem>& cellItems)
+{
+	const int nvp = params->nvp;
+	const int resolution = params->cellResolution;
+	const float stepX = (params->bmax[0]-params->bmin[0]) / resolution;
+	const float stepY = (params->bmax[1]-params->bmin[1]) / resolution;
+
+	for (int i = 0; i < params->polyCount; ++i)
+	{
+		const unsigned short* p = &params->polys[i*2*nvp];
+		const int nv = countPolyVerts(p, nvp);
+
+		if (nv < 3) // Don't generate cells for off-mesh connections.
+			continue;
+
+		const unsigned int vb = params->detailMeshes[i*4+0];
+		const unsigned int ndv = params->detailMeshes[i*4+1];
+		const unsigned int tb = params->detailMeshes[i*4+2];
+
+		float polyVerts[DT_VERTS_PER_POLYGON*3];
+
+		for (int j = 0; j < nv; ++j)
+		{
+			const unsigned short* polyVert = &params->verts[p[j]*3];
+			float* flPolyVert = &polyVerts[j*3];
+
+			flPolyVert[0] = params->bmin[0]+polyVert[0]*params->cs;
+			flPolyVert[1] = params->bmin[1]+polyVert[1]*params->cs;
+			flPolyVert[2] = params->bmin[2]+polyVert[2]*params->ch;
+		}
+
+		for (int j = 0; j <= resolution; j++)
+		{
+			for (int k = 0; k <= resolution; k++)
+			{
+				const float offsetX = (k % 2 == 0) ? 0.0f : stepX / 2.0f;
+
+				float targetCellPos[3];
+				targetCellPos[0] = params->bmin[0]+j*stepX+offsetX;
+				targetCellPos[1] = params->bmin[1]+k*stepY;
+				targetCellPos[2] = 0; // todo(amos): might need a proper fallback, but so far this never failed.
+
+				if (!rdPointInPolygon(targetCellPos, polyVerts, nv))
+					continue;
+
+				for (int l = 0; l < params->detailTriCount; ++l)
+				{
+					const unsigned char* t = &params->detailTris[(tb+l)*4];
+					float storage[3][3];
+					const float* v[3];
+
+					for (int m = 0; m < 3; ++m)
+					{
+						if (t[m] < nv)
+						{
+							for (int n = 0; n < 3; ++n)
+							{
+								storage[m][n] = params->bmin[n] + params->verts[p[t[m]]*3+n] * (n == 2 ? params->ch : params->cs);
+							}
+							v[m] = storage[m];
+						}
+						else
+						{
+							v[m] = &params->detailVerts[(vb+t[m])*3];
+						}
+					}
+
+					if (rdClosestHeightPointTriangle(targetCellPos, v[0],v[1],v[2], targetCellPos[2]))
+						break;
+				}
+
+				cellItems.push_back({ targetCellPos[0],targetCellPos[1],targetCellPos[2], i });
+			}
+		}
+	}
+
+	return true;
+}
+
 // TODO: Better error handling.
 
 /// @par
@@ -663,6 +757,11 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 
+#if DT_NAVMESH_SET_VERSION >= 8
+	rdTempVector<CellItem> cellItems;
+	createPolyMeshCells(params, cellItems);
+#endif
+
 	// Calculate data size
 	const int headerSize = rdAlign4(sizeof(dtMeshHeader));
 	const int vertsSize = rdAlign4(sizeof(float)*3*totVertCount);
@@ -673,13 +772,21 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	const int detailTrisSize = rdAlign4(sizeof(unsigned char)*4*detailTriCount);
 	const int bvTreeSize = params->buildBvTree ? rdAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
 	const int offMeshConsSize = rdAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
+#if DT_NAVMESH_SET_VERSION >= 8
+	const int cellsSize = rdAlign4(sizeof(dtCell)*(int)cellItems.size());
+#endif
 	
 	int polyMapCount = 0; // TODO: this data has to be reversed still from the NavMesh!
 	const int polyMapSize = polyMapCount * totPolyCount;
 
-	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
-						 detailMeshesSize + detailVertsSize + detailTrisSize +
-						 bvTreeSize + offMeshConsSize + polyMapSize;
+	const int dataSize = headerSize + vertsSize + polysSize + polyMapSize + linksSize +
+		detailMeshesSize + detailVertsSize + detailTrisSize +
+		bvTreeSize + offMeshConsSize
+#if DT_NAVMESH_SET_VERSION >= 8
+		+ cellsSize;
+#else
+		;
+#endif
 
 	//printf("%i %i %i %i(%i links) %i %i %i %i %i\n", headerSize, vertsSize, polysSize, linksSize, maxLinkCount, detailMeshesSize, detailVertsSize, detailTrisSize, bvTreeSize, offMeshConsSize);
 	//printf("%i\n", dataSize);
@@ -705,6 +812,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	unsigned char* navDTris = rdGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
 	dtBVNode* navBvtree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
 	dtOffMeshConnection* offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
+#if DT_NAVMESH_SET_VERSION >= 8
+	dtCell* navCells = rdGetThenAdvanceBufferPointer<dtCell>(d, cellsSize);
+#endif
 
 	rdIgnoreUnused(polyMap);
 	//for(int i=0;i<unkPerPoly*totPolyCount;i++)
@@ -718,6 +828,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->layer = params->tileLayer;
 	header->userId = params->userId;
 	header->polyCount = totPolyCount;
+	header->polyMapCount = polyMapCount;
 	header->vertCount = totVertCount;
 	header->maxLinkCount = maxLinkCount;
 	rdVcopy(header->bmin, params->bmin);
@@ -727,13 +838,14 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->detailTriCount = detailTriCount;
 	header->bvQuantFactor = 1.0f / params->cs;
 	header->offMeshBase = params->polyCount;
-	header->maxCellCount = -1;
+#if DT_NAVMESH_SET_VERSION >= 8
+	header->maxCellCount = (int)cellItems.size();
+#endif
 	header->walkableHeight = params->walkableHeight;
 	header->walkableRadius = params->walkableRadius;
 	header->walkableClimb = params->walkableClimb;
 	header->offMeshConCount = storedOffMeshConCount;
 	header->bvNodeCount = params->buildBvTree ? params->polyCount*2 : 0;
-	header->polyMapCount = polyMapCount;
 
 	const int offMeshVertsBase = params->vertCount;
 	const int offMeshPolyBase = params->polyCount;
@@ -762,13 +874,24 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			n++;
 		}
 	}
+
+#if DT_NAVMESH_SET_VERSION >= 8
+	// Polygon cells.
+	for (int i = 0; i < (int)cellItems.size(); i++)
+	{
+		const CellItem& cellItem = cellItems[i];
+		dtCell& cell = navCells[i];
+
+		rdVcopy(cell.pos, cellItem.pos);
+		cell.polyIndex = cellItem.polyIndex;
+	}
+#endif
 	
 	// Store polygons
 	// Mesh polys
 	const unsigned short* src = params->polys;
 	for (int i = 0; i < params->polyCount; ++i)
 	{
-		
 		dtPoly* p = &navPolys[i];
 		p->vertCount = 0;
 		p->flags = params->polyFlags[i];
@@ -806,6 +929,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 
 		src += nvp*2;
 	}
+
 	// Off-mesh connection vertices.
 	n = 0;
 	for (int i = 0; i < params->offMeshConCount; ++i)
@@ -953,6 +1077,9 @@ bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int /*dataSize*/)
 	rdSwapEndian(&header->bvNodeCount);
 	rdSwapEndian(&header->offMeshConCount);
 	rdSwapEndian(&header->offMeshBase);
+#if DT_NAVMESH_SET_VERSION >= 8
+	rdSwapEndian(&header->maxCellCount);
+#endif
 	rdSwapEndian(&header->walkableHeight);
 	rdSwapEndian(&header->walkableRadius);
 	rdSwapEndian(&header->walkableClimb);

@@ -38,6 +38,7 @@ struct dtNavMeshCreateParams
 	const unsigned char* polyAreas;			///< The user defined area ids assigned to each polygon. [Size: #polyCount]
 	int polyCount;							///< Number of polygons in the mesh. [Limit: >= 1]
 	int nvp;								///< Maximum number of vertices per polygon. [Limit: >= 3]
+	int cellResolution;						///< The resolution of the diamond cell grid [Limit: >= 1]
 
 	/// @}
 	/// @name Height Detail Attributes (Optional)

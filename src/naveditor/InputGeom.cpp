@@ -320,7 +320,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 		{
 			// Settings
 			m_hasBuildSettings = true;
-			sscanf(row + 1, "%f %f %f %f %f %f %d %d %d %f %d %f %f %d %f %f %f %f %f %f %d",
+			sscanf(row + 1, "%f %f %f %f %f %f %d %d %d %f %d %d %f %f %d %f %f %f %f %f %f %d",
 							&m_buildSettings.cellSize,
 							&m_buildSettings.cellHeight,
 							&m_buildSettings.agentHeight,
@@ -332,6 +332,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 							&m_buildSettings.edgeMaxLen,
 							&m_buildSettings.edgeMaxError,
 							&m_buildSettings.vertsPerPoly,
+							&m_buildSettings.polyCellRes,
 							&m_buildSettings.detailSampleDist,
 							&m_buildSettings.detailSampleMaxError,
 							&m_buildSettings.partitionType,
@@ -397,7 +398,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	if (settings)
 	{
 		fprintf(fp,
-			"s %f %f %f %f %f %f %d %d %d %f %d %f %f %d %f %f %f %f %f %f %d\n",
+			"s %f %f %f %f %f %f %d %d %d %f %d %d %f %f %d %f %f %f %f %f %f %d\n",
 			settings->cellSize,
 			settings->cellHeight,
 			settings->agentHeight,
@@ -409,6 +410,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 			settings->edgeMaxLen,
 			settings->edgeMaxError,
 			settings->vertsPerPoly,
+			settings->polyCellRes,
 			settings->detailSampleDist,
 			settings->detailSampleMaxError,
 			settings->partitionType,
