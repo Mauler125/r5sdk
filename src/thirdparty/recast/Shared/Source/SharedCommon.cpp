@@ -223,7 +223,7 @@ bool rdClosestHeightPointTriangle(const float* p, const float* a, const float* b
 		v = -v;
 	}
 
-	// If point lies inside the triangle, return interpolated ycoord.
+	// If point lies inside the triangle, return interpolated zcoord.
 	if (u >= 0.0f && v >= 0.0f && (u + v) <= denom) {
 		h = a[2] + (v0[2] * u + v1[2] * v) / denom;
 		return true;
