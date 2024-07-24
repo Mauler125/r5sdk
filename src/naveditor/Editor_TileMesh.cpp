@@ -233,17 +233,17 @@ public:
 					}
 				}
 
-				for (int j = 0; j < tile->header->maxCellCount; j++)
-				{
-					const dtCell* cell = &tile->cells[j];
+				//for (int j = 0; j < tile->header->maxCellCount; j++)
+				//{
+				//	const dtCell* cell = &tile->cells[j];
 
-					if (gluProject((GLdouble)cell->pos[0]+drawOffset[0], (GLdouble)cell->pos[1]+drawOffset[1], (GLdouble)cell->pos[2]+drawOffset[2]+30,
-						model, proj, view, &x, &y, &z))
-					{
-						ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
-							ImVec2((float)x, h - (float)y), ImVec4(0, 0.4, 0, 0.8f), "(%d,%d)", j, cell->flags);
-					}
-				}
+				//	if (gluProject((GLdouble)cell->pos[0]+drawOffset[0], (GLdouble)cell->pos[1]+drawOffset[1], (GLdouble)cell->pos[2]+drawOffset[2]+30,
+				//		model, proj, view, &x, &y, &z))
+				//	{
+				//		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+				//			ImVec2((float)x, h - (float)y), ImVec4(0, 0.4, 0, 0.8f), "(%d,%d)", j, cell->flags);
+				//	}
+				//}
 			}
 		}
 		
