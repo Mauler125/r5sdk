@@ -443,6 +443,7 @@ bool Editor_SoloMesh::handleBuild()
 		int navDataSize = 0;
 
 		// Update poly flags from areas.
+		// todo(amos): needs to be updated and/or done differently for r2 and r5.
 		for (int i = 0; i < m_pmesh->npolys; ++i)
 		{
 			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
@@ -462,7 +463,7 @@ bool Editor_SoloMesh::handleBuild()
 			//}
 			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_DOOR)
 			{
-				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK | EDITOR_POLYFLAGS_DOOR;
+				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
 		}
 

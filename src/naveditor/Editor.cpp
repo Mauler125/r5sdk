@@ -733,3 +733,22 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 
 	fclose(fp);
 }
+
+bool Editor::loadNavMesh(const char* path, const bool fullPath)
+{
+	const bool result = Editor::loadAll(path, fullPath);
+	m_navQuery->init(m_navMesh, 2048);
+
+	m_loadedNavMeshType = m_selectedNavMeshType;
+
+	if (m_tool)
+	{
+		m_tool->reset();
+		m_tool->init(this);
+	}
+
+	resetToolStates();
+	initToolStates(this);
+
+	return result;
+}

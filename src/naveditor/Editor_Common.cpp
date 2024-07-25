@@ -404,19 +404,7 @@ void Editor_StaticTileMeshCommon::renderIntermediateTileMeshOptions()
 
 	if (ImGui::Button("Load", ImVec2(123, 0)))
 	{
-		Editor::loadAll(m_modelName.c_str());
-		m_navQuery->init(m_navMesh, 2048);
-
-		m_loadedNavMeshType = m_selectedNavMeshType;
-
-		if (m_tool)
-		{
-			m_tool->reset();
-			m_tool->init(this);
-		}
-
-		resetToolStates();
-		initToolStates(this);
+		Editor::loadNavMesh(m_modelName.c_str());
 	}
 
 	if (ImGui::Button("Save", ImVec2(123, 0)))

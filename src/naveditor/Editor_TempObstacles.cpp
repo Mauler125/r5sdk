@@ -171,6 +171,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 						 unsigned char* polyAreas, unsigned short* polyFlags)
 	{
 		// Update poly flags from areas.
+		// todo(amos): needs to be updated and/or done differently for r2 and r5.
 		for (int i = 0; i < params->polyCount; ++i)
 		{
 			if (polyAreas[i] == DT_TILECACHE_WALKABLE_AREA)
@@ -190,7 +191,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 			//}
 			else if (polyAreas[i] == EDITOR_POLYAREA_DOOR)
 			{
-				polyFlags[i] = EDITOR_POLYFLAGS_WALK | EDITOR_POLYFLAGS_DOOR;
+				polyFlags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
 		}
 
@@ -833,11 +834,7 @@ void Editor_TempObstacles::handleSettings()
 
 	if (ImGui::Button("Load", ImVec2(123, 0)))
 	{
-		Editor::loadAll(m_modelName.c_str());
-		m_navQuery->init(m_navMesh, 2048);
-
-		m_loadedNavMeshType = m_selectedNavMeshType;
-		initToolStates(this);
+		Editor::loadNavMesh(m_modelName.c_str());
 	}
 
 	if (ImGui::Button("Save", ImVec2(123, 0)))
