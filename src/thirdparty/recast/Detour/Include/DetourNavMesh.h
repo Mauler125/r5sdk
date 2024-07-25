@@ -229,12 +229,14 @@ struct dtPoly
 	/// The poly surface area. (Quantized by #DT_POLY_AREA_QUANT_FACTOR).
 	unsigned short surfaceArea;
 
+#if DT_NAVMESH_SET_VERSION >= 7
 	// These 2 are most likely related, it needs to be reversed still.
 	// No use case has been found in the executable yet, its possible these are
 	// used internally in the editor. Dynamic reverse engineering required to
 	// confirm this.
 	unsigned short unk1;
 	unsigned short unk2;
+#endif
 
 	/// The center of the polygon; see abstracted script function 'Navmesh_RandomPositions'.
 	float center[3];

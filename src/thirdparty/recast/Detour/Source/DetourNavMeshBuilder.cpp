@@ -296,10 +296,12 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			dtPoly& poly = tile->polys[j];
 			poly.groupId = DT_NULL_POLY_GROUP;
 
+#if DT_NAVMESH_SET_VERSION >= 7
 			// NOTE: these fields are unknown and need to be reversed.
 			// It is possible these are used internally only.
 			poly.unk1 = (unsigned short)-1;
 			poly.unk2 = (unsigned short)-1;
+#endif
 		}
 	}
 
