@@ -339,15 +339,12 @@ struct dtOffMeshConnection
 	/// NOTE: this is unconfirmed, it might not be the jumpType.
 	unsigned char jumpType;
 	unsigned char unk1;
-#endif
-
-	/// The id of the off-mesh connection. (User assigned when the navigation mesh is built.)
-	unsigned short userId;
-
-#if DT_NAVMESH_SET_VERSION >= 7
+#elif DT_NAVMESH_SET_VERSION >= 7
 	/// The hint index of the off-mesh connection. (Or #DT_NULL_HINT if there is no hint.)
 	unsigned short hintIdx;
 #endif
+	/// The id of the off-mesh connection. (User assigned when the navigation mesh is built.)
+	unsigned short userId;
 	/// The reference position set to the start of the off-mesh connection with an offset of DT_OFFMESH_CON_REFPOS_OFFSET
 	float refPos[3]; // See [r5apex_ds + F114CF], [r5apex_ds + F11B42], [r5apex_ds + F12447].
 	/// The reference yaw angle set towards the end position of the off-mesh connection.
