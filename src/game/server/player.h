@@ -14,6 +14,7 @@
 #include "public/playerstate.h"
 
 #include "game/shared/animation.h"
+#include "game/shared/status_effect.h"
 #include "game/shared/takedamageinfo.h"
 #include "game/shared/usercmd.h"
 #include "game/shared/imovehelper.h"
@@ -192,22 +193,6 @@ struct CPlayerShared // !TODO: MOVE INTO SHARED!!!
 	float m_flNextCritUpdate;
 	float m_flTauntRemoveTime;
 	CTakeDamageInfo m_damageInfo;
-};
-
-struct StatusEffectTimedData
-{
-	char gap_0[8];
-	int seComboVars;
-	float seTimeEnd;
-	float seEaseOut;
-	float sePausedTimeRemaining;
-};
-
-struct StatusEffectEndlessData
-{
-	char gap_0[8];
-	int seComboVars;
-	char gap_c[4];
 };
 
 struct PushHistoryEntry

@@ -18,13 +18,19 @@ add_sources( SOURCE_GROUP "Entity"
     "shared/entitylist_base.h"
 )
 
-add_sources( SOURCE_GROUP "Prediction"
+add_sources( SOURCE_GROUP "Simulation"
     "shared/predictioncopy.h"
+    "shared/simtimer.cpp"
+    "shared/simtimer.h"
 )
 
 add_sources( SOURCE_GROUP "Animation"
     "shared/animation.cpp"
     "shared/animation.h"
+)
+
+add_sources( SOURCE_GROUP "Effects"
+    "shared/status_effect.h"
 )
 
 add_sources( SOURCE_GROUP "Collision"
@@ -49,6 +55,7 @@ add_sources( SOURCE_GROUP "Shared"
     "shared/shared_classnames.h"
     "shared/shareddefs.h"
     "shared/takedamageinfo.h"
+    "shared/shared_activity.h"
 )
 
 add_sources( SOURCE_GROUP "Script"
@@ -66,6 +73,8 @@ endif()
 if( ${PROJECT_NAME} STREQUAL "server_static" )
 
 add_sources( SOURCE_GROUP "AI"
+    "server/ai_basenpc.cpp"
+    "server/ai_basenpc.h"
     "server/ai_network.cpp"
     "server/ai_network.h"
     "server/ai_networkmanager.cpp"
@@ -73,6 +82,31 @@ add_sources( SOURCE_GROUP "AI"
     "server/ai_node.h"
     "server/ai_utility.cpp"
     "server/ai_utility.h"
+    "server/ai_task.h"
+    "server/ai_schedule.cpp"
+    "server/ai_schedule.h"
+    "server/ai_component.h"
+    "server/ai_senses.h"
+    "server/ai_localnavigator.h"
+    "server/ai_navigator.h"
+    "server/ai_navtypes.h"
+    "server/ai_movetypes.h"
+    "server/ai_moveprobe.h"
+    "server/ai_motor.h"
+    "server/ai_route.h"
+    "server/ai_interest.cpp"
+    "server/ai_interest.h"
+    "server/ai_waypoint.h"
+    "server/ai_pathfinder.h"
+    "server/ai_memory.h"
+    "server/ai_squad.h"
+    "server/ai_tacticalservices.h"
+    "server/ai_moveshoot.h"
+    "server/ai_battlelocation.h"
+    "server/ai_syncedmelee.h"
+    "server/ai_shootcover.h"
+    "server/ai_hint.h"
+    "server/ai_npcstate.h"
     "server/detour_impl.h"
 )
 
@@ -87,6 +121,8 @@ add_sources( SOURCE_GROUP "Entity"
     "server/entitylist.h"
     "server/entityoutput.cpp"
     "server/entityoutput.h"
+    "server/soundent.cpp"
+    "server/soundent.h"
 )
 
 add_sources( SOURCE_GROUP "Network"

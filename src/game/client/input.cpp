@@ -6,8 +6,9 @@
 #include "input.h"
 #include "common/global.h"
 #include "game/shared/weapon_types.h"
+#include "game/shared/shared_activity.h"
 
-void CInput::VSetCustomWeaponActivity(CInput* pInput, int weaponActivity)
+void CInput::VSetCustomWeaponActivity(CInput* pInput, sharedactivity_e weaponActivity)
 {
 	// Server only allows other custom weapon activities if cheats are enabled,
 	// don't bother simulating it on the client without the cheats cvar, as

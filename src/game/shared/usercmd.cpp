@@ -9,6 +9,7 @@
 #include "tier1/utlbuffer.h"
 #include "game/shared/in_buttons.h"
 #include "game/shared/weapon_types.h"
+#include "game/shared/shared_activity.h"
 
 ConVar usercmd_frametime_max("usercmd_frametime_max", "0.100"   , FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "The largest amount of simulation seconds a UserCmd can have." );
 ConVar usercmd_frametime_min("usercmd_frametime_min", "0.002857", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "The smallest amount of simulation seconds a UserCmd can have.");

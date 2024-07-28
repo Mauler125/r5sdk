@@ -1,6 +1,7 @@
 #ifndef CLIENT_INPUT_H
 #define CLIENT_INPUT_H
 #include "game/shared/weapon_types.h"
+#include "game/shared/shared_activity.h"
 #include "game/client/iinput.h"
 
 class CInput : public IInput
@@ -31,7 +32,7 @@ public:
 
 	virtual void sub_140701720() = 0;
 
-	virtual void SetCustomWeaponActivity( WeaponActivity_t weaponActivity ) = 0;
+	virtual void SetCustomWeaponActivity( sharedactivity_e weaponActivity ) = 0;
 	virtual void ActivateOffhandWeaponByIndex( char index /*TODO[ AMOS ]: needs enum, enumVal 6 = INVALID; see Script_ActivateOffhandWeaponByIndex*/ ) = 0;
 
 	virtual void ChangeControllerMode( bool newMode ) = 0;
@@ -42,11 +43,11 @@ public:
 	virtual void GetZoomAnchor( Vector2D& outAnchor ) = 0; // Used for SetBigMapZoomAnchor script func
 
 public: // Hook statics
-	static void VSetCustomWeaponActivity( CInput* pInput, int weaponActivity );
+	static void VSetCustomWeaponActivity( CInput* pInput, sharedactivity_e weaponActivity );
 private:
 };
 
-inline void(*v_CInput__SetCustomWeaponActivity)(CInput* pInput, int weaponActivity);
+inline void(*v_CInput__SetCustomWeaponActivity)(CInput* pInput, sharedactivity_e weaponActivity);
 
 inline IInput* g_pInput_VFTable = nullptr;
 inline CInput* g_pInput = nullptr;

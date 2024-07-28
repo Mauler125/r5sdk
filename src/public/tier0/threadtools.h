@@ -588,4 +588,9 @@ class VThreadTools : public IDetour
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif // !_TOOLS
+
+struct CThreadMutex // todo: implement
+{
+	CRITICAL_SECTION m_CriticalSection;
+};
 #endif // THREADTOOLS_H
