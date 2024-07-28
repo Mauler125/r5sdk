@@ -138,6 +138,7 @@
 #include "game/server/movehelper_server.h"
 #include "game/server/player.h"
 #include "game/server/player_command.h"
+#include "game/server/ai_basenpc.h"
 #include "game/server/physics_main.h"
 #include "game/server/vscript_server.h"
 #endif // !CLIENT_DLL
@@ -668,6 +669,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VBaseEntity);
 	REGISTER(VBaseAnimating);
 	REGISTER(VPlayer);
+	REGISTER(VAI_BaseNPC);
 	REGISTER(VPlayerMove);
 
 #endif // !CLIENT_DLL

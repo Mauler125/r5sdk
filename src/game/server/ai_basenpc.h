@@ -91,6 +91,17 @@ class CAI_BaseNPC : public CBaseCombatCharacter,
                     public IAI_BehaviorBridge
 {
 public:
+	// Hook statics
+	static void _TaskFail(CAI_BaseNPC* thisptr, const AI_TaskFailureCode_t code);
+
+public:
+	//-----------------------------------------------------
+	//
+	// Schedules & tasks
+	//
+	//-----------------------------------------------------
+	inline CAI_Schedule* GetCurSchedule() const { return m_pSchedule; }
+	float                GetTimeScheduleStarted() const { return m_ScheduleState.timeStarted; }
 
 private:
 	int m_threadedPostProcessJob;
@@ -430,5 +441,25 @@ private:
 };
 
 static_assert(sizeof(CAI_BaseNPC) == 0x6648);
+
+inline void(*CAI_BaseNPC__TaskFail)(CAI_BaseNPC* thisptr, const AI_TaskFailureCode_t code);
+
+///////////////////////////////////////////////////////////////////////////////
+class VAI_BaseNPC : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		LogFunAdr("CAI_BaseNPC::TaskFail", CAI_BaseNPC__TaskFail);
+	}
+	virtual void GetFun(void) const
+	{
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC ?? 48 8B D9 48 8B FA 48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 83 FF").GetPtr(CAI_BaseNPC__TaskFail);
+	}
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Detour(const bool bAttach) const;
+};
+///////////////////////////////////////////////////////////////////////////////
+
 
 #endif // AI_BASENPC_H

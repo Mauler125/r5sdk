@@ -14,7 +14,7 @@
 typedef intp AI_TaskFailureCode_t;
 
 //=========================================================
-// These are th efailure codes
+// These are the failure codes
 //=========================================================
 enum AI_BaseTaskFailureCodes_t
 {
