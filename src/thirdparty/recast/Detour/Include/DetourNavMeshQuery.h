@@ -143,8 +143,32 @@ struct dtRaycastHit
 	/// The maximum number of polygons the @p path array can hold.
 	int maxPath;
 
-	///  The cost of the path until hit.
+	/// The cost of the path until hit.
 	float pathCost;
+};
+
+/// Provides information about straight path generation
+/// filled by dtNavMeshQuery::findStraightPath
+/// @ingroup detour
+struct dtStraightPathResult
+{
+	/// The number of points in the straight path.
+	int pathCount;
+
+	/// The points describing the straight path.
+	float path[3][DT_STRAIGHT_PATH_RESOLUTION];
+
+	/// The array of polygon references that represent the path corridor.
+	dtPolyRef polys[DT_STRAIGHT_PATH_RESOLUTION];
+
+	/// The jumps describing each point.
+	unsigned char jumps[DT_STRAIGHT_PATH_RESOLUTION];
+
+	/// The flags describing each point.
+	unsigned char flags[DT_STRAIGHT_PATH_RESOLUTION];
+
+	/// Whether the end of the path is the goal destination.
+	bool pathEndIsGoal;
 };
 
 /// Provides custom polygon query behavior.

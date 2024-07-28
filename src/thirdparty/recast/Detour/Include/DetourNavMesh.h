@@ -136,6 +136,9 @@ static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 /// A value that determines the offset between the start pos and the ref pos in an off-mesh connection.
 static const float DT_OFFMESH_CON_REFPOS_OFFSET = 35.f;
 
+/// A value that determines the maximum number of points describing the straight path result.
+static const int DT_STRAIGHT_PATH_RESOLUTION = 5;
+
 /// The maximum number of user defined area ids.
 /// @ingroup detour
 static const int DT_MAX_AREAS = 32; // <-- confirmed 32 see [r5apex_ds.exe + 0xf47dda] '-> test    [rcx+80h], ax'.
