@@ -149,7 +149,7 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	m_maxAgentRadius = maxAgentRadius;
 
 	// Larger than agent radius because it is also used for agent recovery.
-	rdVset(m_agentPlacementHalfExtents, m_maxAgentRadius*2.0f, m_maxAgentRadius*1.5f, m_maxAgentRadius*2.0f);
+	rdVset(m_agentPlacementHalfExtents, m_maxAgentRadius*2.0f, m_maxAgentRadius*2.0f, m_maxAgentRadius*1.5f);
 	
 	m_grid = dtAllocProximityGrid();
 	if (!m_grid)
