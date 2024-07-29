@@ -8,6 +8,7 @@
 #define C_BASEANIMATING_H
 
 #include "c_baseentity.h"
+#include "game/shared/animation.h"
 
 struct C_SequenceTransitionerLayer
 {
@@ -32,19 +33,6 @@ struct C_SequenceTransitioner
 	C_SequenceTransitionerLayer m_sequenceTransitionerLayers[7];
 	char gap_50[336];
 	int m_sequenceTransitionerLayerCount;
-};
-
-struct PredictedAnimEventData
-{
-	void* _vftable;
-	float m_predictedAnimEventTimes[8];
-	int m_predictedAnimEventIndices[8];
-	int m_predictedAnimEventCount;
-	int m_predictedAnimEventTarget;
-	int m_predictedAnimEventSequence;
-	int m_predictedAnimEventModel;
-	float m_predictedAnimEventsReadyToFireTime;
-	char gap_5C[4];
 };
 
 class C_BaseAnimating : public C_BaseEntity
