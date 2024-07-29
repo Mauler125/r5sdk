@@ -140,8 +140,8 @@ private:
 	char m_Behaviors[32];
 	bool m_bCalledBehaviorSelectSchedule;
 	char gap_5a31[3];
-	char m_Conditions[12];
-	char m_CustomInterruptConditions[12];
+	CAI_ScheduleBits m_Conditions;
+	CAI_ScheduleBits m_CustomInterruptConditions;
 	bool m_bForceConditionsGather;
 	bool m_bConditionsGathered;
 	bool m_bInterruptableByScript;

@@ -9,6 +9,10 @@
 #ifdef _WIN32
 #pragma once
 #endif
+#include "mathlib/bitvec.h"
+
+#define	MAX_CONDITIONS 12*8
+typedef CBitVec<MAX_CONDITIONS> CAI_ScheduleBits;
 
 class CAI_Schedule
 {
