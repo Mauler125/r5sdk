@@ -11,7 +11,7 @@ public:
 	virtual C_BaseEntity*       GetBaseEntity(const int entNum) = 0;
 	virtual IClientNetworkable* GetClientNetworkable(const int entNum) = 0;
 	virtual IClientNetworkable* GetClientNetworkableFromHandle(const CBaseHandle& handle) = 0;
-	virtual void*               GetClientUnknownFromHandle(const CBaseHandle& handle) = 0;
+	virtual IClientUnknown*     GetClientUnknownFromHandle(const CBaseHandle& handle) = 0;
 	virtual IClientEntity*      GetClientEntity(const int entNum) = 0;
 	virtual IClientEntity*      GetClientEntityFromHandle(const CBaseHandle& handle) = 0;
 	virtual int                 NumberOfEntities(const bool includeNonNetworkable = false) = 0;
