@@ -336,7 +336,7 @@ enum Sides
 };
 
 #define ON_VIS_EPSILON  0.01    // necessary for vvis (flow.c) -- again look into moving later!
-#define	EQUAL_EPSILON	0.001   // necessary for vbsp (faces.c) -- should look into moving it there?
+#define EQUAL_EPSILON   0.001   // necessary for vbsp (faces.c) -- should look into moving it there?
 
 extern bool s_bMathlibInitialized;
 
@@ -1507,12 +1507,12 @@ void VectorYawRotate(const Vector3D& in, float flYaw, Vector3D& out);
 // For example, with biasAmt = 0.2, the curve looks like this:
 //
 // 1
-// |				  *
-// |				  *
-// |			     *
-// |			   **
-// |			 **
-// |	  	 ****
+// |                  *
+// |                  *
+// |                 *
+// |               **
+// |             **
+// |         ****
 // |*********
 // |___________________
 // 0                   1
@@ -1521,7 +1521,7 @@ void VectorYawRotate(const Vector3D& in, float flYaw, Vector3D& out);
 // With biasAmt = 0.8, the curve looks like this:
 //
 // 1
-// | 	**************
+// |    **************
 // |  **
 // | * 
 // | *
@@ -1541,9 +1541,9 @@ float Bias(float x, float biasAmt);
 // For example, with biasAmt = 0.2, the curve looks like this:
 //
 // 1
-// | 				  *
-// | 				 *
-// | 				**
+// |                  *
+// |                 *
+// |                **
 // |  ***************
 // | **
 // | *
@@ -1555,12 +1555,12 @@ float Bias(float x, float biasAmt);
 // With biasAmt = 0.8, the curve looks like this:
 //
 // 1
-// |  		    *****
-// |  		 ***
-// |  		*
-// | 		*
-// | 		*
-// |   	 ***
+// |            *****
+// |         ***
+// |        *
+// |        *
+// |        *
+// |     ***
 // |*****
 // |___________________
 // 0                   1
@@ -1574,13 +1574,13 @@ float Gain(float x, float biasAmt);
 // The curve looks like this:
 //
 // 1
-// |  		**
-// | 	   *  *
-// | 	  *	   *
-// | 	  *	   *
-// | 	 *		*
-// |   **		 **
-// |***			   ***
+// |        **
+// |       *  *
+// |      *    *
+// |      *    *
+// |     *      *
+// |   **        **
+// |***            ***
 // |___________________
 // 0                   1
 //
