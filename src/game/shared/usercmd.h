@@ -13,6 +13,8 @@
 #include "tier1/bitbuf.h"
 #include "mathlib/vector.h"
 
+#include "pingcmd.h"
+
 //-------------------------------------------------------------------------------------
 // Console variables
 //-------------------------------------------------------------------------------------
@@ -60,31 +62,34 @@ public:
 	byte impulse;
 	byte cycleslot;
 	byte weaponindex;
-	short weaponselect;
+	__unaligned __declspec(align(1)) __int16 weaponselect;
+
 	bool bUnk39;
 	short weaponactivity;
 	int nUnk3C;
 	bool controllermode;
 	bool fixangles;
 	bool setlastcycleslot;
-	char pad_0x0034[149];
+	char pad_0x0034[5];
+	char unkData[144];
 
 	// Zipline vars (see [r5apex_ds+8A6573] for read).
 	bool placedZiplineStation;
 	char unk[3];
-	int nUnkDC;
+	float fUnkDC;
 	Vector3D beginStationOrigin;
 	Vector3D stationWorldRelative;
 	float fUnkF8;
 	Vector3D endStationOrigin;
 	QAngle stationWorldAngles;
 
-	char pad_0x00114[112];
+	PingCommand_s m_pingCommands[NUM_PING_COMMANDS];
 	int32_t randomseed;
 	byte bUnk188;
 	bool bUnk189;
 	bool normalizepitch;
-	__int16 nUnk18B;
+	bool linkedButtonPairPress;
+	_BYTE gap18C;
 	char pad_0x0188[3];
 	Vector3D headposition;
 	float_t maxpitch;
@@ -101,6 +106,12 @@ public:
 #pragma pack(pop)
 
 static_assert(sizeof(CUserCmd) == 0x1DC);
+
+class CUserCmdExtended : public CUserCmd
+{
+	// todo: reverse engineer.
+	char unknown_extended[164];
+};
 
 int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from);
 

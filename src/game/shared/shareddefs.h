@@ -47,4 +47,12 @@ typedef enum // !TODO[ AMOS ]: Confirm this!
 	USE_TOGGLE = 3
 } USE_TYPE;
 
+
+#define MAX_SPLITSCREEN_PLAYERS 2
+
+inline bool IsSplitScreenSupported()
+{
+	return (MAX_SPLITSCREEN_PLAYERS > 1) ? true : false;
+}
+
 #endif // SHAREDDEFS_H

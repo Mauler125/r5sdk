@@ -40,9 +40,13 @@ add_sources( SOURCE_GROUP "Collision"
 
 add_sources( SOURCE_GROUP "Network"
     "shared/playernet_vars.h"
+    "shared/usermessages.h"
+)
+
+add_sources( SOURCE_GROUP "Input"
     "shared/usercmd.cpp"
     "shared/usercmd.h"
-    "shared/usermessages.h"
+    "shared/pingcmd.h"
 )
 
 add_sources( SOURCE_GROUP "Utility"
@@ -194,8 +198,10 @@ add_sources( SOURCE_GROUP "Player"
 )
 
 add_sources( SOURCE_GROUP "Input"
+    "client/in_main.cpp"
     "client/input.cpp"
     "client/input.h"
+    "client/kbutton.h"
 )
 
 add_sources( SOURCE_GROUP "Rendering"
