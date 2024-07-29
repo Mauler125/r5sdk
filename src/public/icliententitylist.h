@@ -37,3 +37,4 @@ public:
 	virtual int                 GetMaxEntities() = 0;
 };
 
+#define VCLIENTENTITYLIST_INTERFACE_VERSION "VClientEntityList003"
