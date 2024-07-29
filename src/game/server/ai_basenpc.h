@@ -142,6 +142,27 @@ public:
 	inline CAI_Schedule* GetCurSchedule() const { return m_pSchedule; }
 	float                GetTimeScheduleStarted() const { return m_ScheduleState.timeStarted; }
 
+public:
+	//-----------------------------------------------------
+	//
+	// Pathfinding, navigation & movement
+	//
+	//-----------------------------------------------------
+	CAI_Navigator*            GetNavigator() { return m_pNavigator; }
+	const CAI_Navigator*      GetNavigator() const { return m_pNavigator; }
+
+	CAI_LocalNavigator*       GetLocalNavigator() { return m_pLocalNavigator; }
+	const CAI_LocalNavigator* GetLocalNavigator() const { return m_pLocalNavigator; }
+
+	CAI_Pathfinder*           GetPathfinder() { return m_pPathfinder; }
+	const CAI_Pathfinder*     GetPathfinder() const { return m_pPathfinder; }
+
+	CAI_MoveProbe*            GetMoveProbe() { return m_pMoveProbe; }
+	const CAI_MoveProbe*      GetMoveProbe() const { return m_pMoveProbe; }
+
+	CAI_Motor*                GetMotor() { return m_pMotor; }
+	const CAI_Motor*          GetMotor() const { return m_pMotor; }
+
 private:
 	int m_threadedPostProcessJob;
 	bool m_bDoPostProcess;

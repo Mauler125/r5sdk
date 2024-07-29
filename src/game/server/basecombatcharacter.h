@@ -8,6 +8,7 @@
 #ifndef BASECOMBATCHARACTER_H
 #define BASECOMBATCHARACTER_H
 #include "baseanimatingoverlay.h"
+#include "game/server/ai_hull.h"
 
 struct WeaponDropInfo
 {
@@ -44,6 +45,11 @@ struct CTether
 //-----------------------------------------------------------------------------
 class CBaseCombatCharacter : public CBaseAnimatingOverlay
 {
+public:
+	// Nav hull type
+	Hull_e  GetHullType() const          { return m_eHull; }
+	void    SetHullType(Hull_e hullType) { m_eHull = hullType; }
+
 private:
 	bool m_bPreventWeaponPickup;
 	char gap_15b1[3];
@@ -63,7 +69,7 @@ private:
 	float m_sharedEnergyRegenRate;
 	float m_sharedEnergyRegenDelay;
 	float m_lastSharedEnergyTakeTime;
-	int m_eHull;
+	Hull_e m_eHull;
 	float m_fieldOfViewCos;
 	Vector3D m_HackedGunPos;
 	float m_impactEnergyScale;

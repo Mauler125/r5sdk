@@ -25,8 +25,19 @@ struct CTriDebugOverlay
 	OverlayLine_t** m_debugTriOverlayLine;
 };
 
-struct CAI_Pathfinder : public CAI_Component
+class CAI_Pathfinder : public CAI_Component
 {
+public:
+	CAI_Network* GetNetwork() { return m_pNetwork; }
+	const CAI_Network* GetNetwork() const { return m_pNetwork; }
+
+	dtNavMeshQuery* GetNavMeshQuery() { return &m_navQuery; }
+	const dtNavMeshQuery* GetNavMeshQuery() const { return &m_navQuery; }
+
+	dtQueryFilter* GetNavMeshFilter() { return &m_navFilter; }
+	const dtQueryFilter* GetNavMeshFilter() const { return &m_navFilter; }
+
+private:
 	CTriDebugOverlay m_TriDebugOverlay;
 	float m_flLimitDistFactor;
 	float m_flLastStaleLinkCheckTime;
