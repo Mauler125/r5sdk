@@ -22,7 +22,7 @@ public:
 	char m_clusterPath[32];
 	char m_clusterPathNoExclusions[32];
 	float m_goalTolerance;
-	int m_activity;
+	sharedactivity_e m_activity;
 	int m_sequence;
 	int m_scriptMoveSequence;
 	int m_target;
@@ -31,9 +31,9 @@ public:
 	char gap_71[3];
 	MovementTurn m_leftTurn;
 	MovementTurn m_rightTurn;
-	int m_arrivalActivity;
+	sharedactivity_e m_arrivalActivity;
 	int m_arrivalSequence;
-	int m_animArrivalAct;
+	sharedactivity_e m_animArrivalAct;
 	int m_animArrivalSequence;
 	float m_animArrivalDist;
 	float m_animArrivalYaw;

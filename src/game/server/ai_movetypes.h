@@ -19,11 +19,11 @@ class CAI_Path;
 
 struct MovementTurn
 {
-	int         turnAct;
-	int         sequence;
-	float       forwardDistance;
-	float       perpendicularDistance;
-	float       forwardMoveAdjust;
+	sharedactivity_e turnAct;
+	int              sequence;
+	float            forwardDistance;
+	float            perpendicularDistance;
+	float            forwardMoveAdjust;
 };
 static_assert(sizeof(MovementTurn) == 0x14);
 

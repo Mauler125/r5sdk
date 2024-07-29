@@ -50,8 +50,8 @@ private:
 	char m_utilityPath[32];
 	CAI_WaypointList* m_pClippedWaypoints;
 	float m_flTimeClipped;
-	int m_PreviousMoveActivity;
-	int m_PreviousArrivalActivity;
+	sharedactivity_e m_PreviousMoveActivity;
+	sharedactivity_e m_PreviousArrivalActivity;
 	int m_moveTransitionAnim;
 	ParticleContext m_particleContext;
 	Vector3D m_wallRunSurfacePos;
