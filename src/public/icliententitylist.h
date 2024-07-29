@@ -3,11 +3,13 @@
 #include "iclientnetworkable.h"
 #include "icliententity.h"
 
-class IClientEntityList // Fully reversed beside index 0 which is probably a destructor.
+class C_BaseEntity;
+
+class IClientEntityList
 {
 public:
-	virtual void*               sub_1405C5E70(int idx) = 0;
-	virtual IClientNetworkable* GetClientNetworkable(int entnum) = 0;
+	virtual C_BaseEntity*       GetBaseEntity(int entNum) = 0;
+	virtual IClientNetworkable* GetClientNetworkable(int entNum) = 0;
 	virtual IClientNetworkable* GetClientNetworkableFromHandle(const CBaseHandle& handle) = 0;
 	virtual void*               GetClientUnknownFromHandle(const CBaseHandle& handle) = 0;
 	virtual IClientEntity*      GetClientEntity(int entNum) = 0;
