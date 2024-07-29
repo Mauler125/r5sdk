@@ -33,6 +33,45 @@
 #include "ai_shootcover.h"
 
 //=============================================================================
+//
+// class CAI_Manager
+//
+// Central location for components of the AI to operate across all AIs without
+// iterating over the global list of entities.
+//
+//=============================================================================
+
+class CAI_Manager
+{
+public:
+	CAI_Manager();
+
+	CAI_BaseNPC** AccessAIs();
+	int				NumAIs();
+
+	void AddAI(CAI_BaseNPC* pAI);
+	void RemoveAI(CAI_BaseNPC* pAI);
+
+	bool FindAI(CAI_BaseNPC* pAI) { return (m_AIs.Find(pAI) != m_AIs.InvalidIndex()); }
+
+private:
+	enum
+	{
+		MAX_AIS = 256
+	};
+
+	typedef CUtlVector<CAI_BaseNPC*> CAIArray;
+
+	CThreadMutex m_Mutex; // Array mutex.
+	CAIArray m_Think;     // Array containing NPC's with pending jobs.
+	CAIArray m_AIs;       // Array containing all NPC's.
+};
+
+//-------------------------------------
+
+extern CAI_Manager* g_AI_Manager;
+
+//=============================================================================
 // Purpose: Some bridges a little more complicated to allow behavior to see 
 //			what base class would do or control order in which it's done
 //=============================================================================
@@ -442,6 +481,7 @@ private:
 
 static_assert(sizeof(CAI_BaseNPC) == 0x6648);
 
+inline void(*CAI_Manager__CAI_Manager)(); // No parameters, global initializer.
 inline void(*CAI_BaseNPC__TaskFail)(CAI_BaseNPC* thisptr, const AI_TaskFailureCode_t code);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -449,13 +489,19 @@ class VAI_BaseNPC : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("CAI_Manager::CAI_Manager", CAI_Manager__CAI_Manager);
 		LogFunAdr("CAI_BaseNPC::TaskFail", CAI_BaseNPC__TaskFail);
+		LogVarAdr("g_AI_Manager", g_AI_Manager);
 	}
 	virtual void GetFun(void) const
 	{
+		g_GameDll.FindPatternSIMD("48 83 EC ?? BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 33 C0 48 C7 05").GetPtr(CAI_Manager__CAI_Manager);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC ?? 48 8B D9 48 8B FA 48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 83 FF").GetPtr(CAI_BaseNPC__TaskFail);
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		CMemory(CAI_Manager__CAI_Manager).FindPatternSelf("48 8D").ResolveRelativeAddressSelf(3, 7).GetPtr(g_AI_Manager);
+	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;
 };
