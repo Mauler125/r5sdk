@@ -18,6 +18,9 @@
 #include "game/shared/takedamageinfo.h"
 #include "game/shared/usercmd.h"
 #include "game/shared/imovehelper.h"
+#include "game/shared/player_viewoffset.h"
+#include "game/shared/player_melee.h"
+#include "game/shared/r1/grapple.h"
 
 #include "playerlocaldata.h"
 #include "basecombatcharacter.h"
@@ -61,33 +64,6 @@ struct ThirdPersonViewData
 	float m_thirdPersonEntLookaheadLerpAheadRate;
 	float m_thirdPersonEntLookaheadLerpToCenterRate;
 };
-struct GrappleData
-{
-	char gap_0[8];
-	Vector3D m_grappleVel;
-	Vector3D m_grapplePoints[4];
-	int m_grapplePointCount;
-	bool m_grappleAttached;
-	bool m_grapplePulling;
-	bool m_grappleSwinging;
-	bool m_grappleRetracting;
-	bool m_grappleForcedRetracting;
-	bool m_grappleGracePeriodFinished;
-	char gap_4e[2];
-	float m_grappleUsedPower;
-	float m_grappleActivateTime;
-	float m_grapplePullTime;
-	float m_grappleAttachTime;
-	float m_grappleDetachTime;
-	int m_grappleMeleeTarget;
-	int m_grappleAutoAimTarget;
-	bool m_grappleHasGoodVelocity;
-	char gap_6d[3];
-	float m_grappleLastGoodVelocityTime;
-	float m_grappleSwingDetachLowSpeed;
-	float m_grappleSwingHoldTime;
-	char gap_7c[4];
-};
 struct PlayerZiplineData
 {
 	char gap_0[8];
@@ -104,14 +80,6 @@ struct PlayerZiplineData
 	float m_slidingZiplineAlpha;
 	Vector3D m_lastMoveDir2D;
 	bool m_ziplineReverse;
-};
-struct Player_ViewOffsetEntityData
-{
-	char gap_0[8];
-	int viewOffsetEntityHandle;
-	float lerpInDuration;
-	float lerpOutDuration;
-	bool stabilizePlayerEyeAngles;
 };
 struct CurrentData_Player
 {
@@ -161,23 +129,6 @@ struct MatchMetrics
 	char characterName[32];
 	char rankedPeriodName[32];
 	int rankedScore;
-};
-struct PlayerMelee_PlayerData
-{
-	char gap_0[8];
-	int meleeAttackParity;
-	bool attackActive;
-	bool attackRecoveryShouldBeQuick;
-	bool isSprintAttack;
-	char gap_f[1];
-	float attackStartTime;
-	int attackHitEntity;
-	float attackHitEntityTime;
-	float attackLastHitNonWorldEntity;
-	int scriptedState;
-	bool pendingMeleePress;
-	char gap_25[3];
-	Vector3D lungeBoost;
 };
 
 struct CPlayerShared // !TODO: MOVE INTO SHARED!!!

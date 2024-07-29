@@ -31,11 +31,18 @@ add_sources( SOURCE_GROUP "Animation"
 
 add_sources( SOURCE_GROUP "Effects"
     "shared/status_effect.h"
+    "shared/particleproperty.h"
+    "shared/particle_parse.h"
 )
 
-add_sources( SOURCE_GROUP "Collision"
+add_sources( SOURCE_GROUP "Physics"
     "shared/collisionproperty.cpp"
     "shared/collisionproperty.h"
+)
+
+add_sources( SOURCE_GROUP "Player"
+    "shared/player_viewoffset.h"
+    "shared/player_melee.h"
 )
 
 add_sources( SOURCE_GROUP "Network"
@@ -70,6 +77,7 @@ add_sources( SOURCE_GROUP "Script"
 add_sources( SOURCE_GROUP "Weapon"
     "shared/r1/weapon_bolt.cpp"
     "shared/r1/weapon_bolt.h"
+    "shared/r1/grapple.h"
 )
 
 endif()
@@ -190,11 +198,15 @@ if( ${PROJECT_NAME} STREQUAL "client_static" )
 add_sources( SOURCE_GROUP "Entity"
     "client/c_baseentity.cpp"
     "client/c_baseentity.h"
+    "client/c_baseanimating.h"
+    "client/c_baseanimatingoverlay.h"
+    "client/c_basecombatcharacter.h"
     "client/cliententitylist.h"
 )
 
 add_sources( SOURCE_GROUP "Player"
     "client/c_baseplayer.h"
+    "client/c_playerlocaldata.h"
 )
 
 add_sources( SOURCE_GROUP "Input"
@@ -212,6 +224,10 @@ add_sources( SOURCE_GROUP "Rendering"
     "client/spritemodel.cpp"
     "client/viewrender.cpp"
     "client/viewrender.h"
+)
+
+add_sources( SOURCE_GROUP "Animation"
+    "client/animationlayer.h"
 )
 
 add_sources( SOURCE_GROUP "Utility"
