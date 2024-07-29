@@ -59,8 +59,6 @@ public:
 	inline int		GetFlags(void) const { return m_fFlags; }
 
 protected:
-	CBaseHandle m_RefEHandle;
-	char gap_c[4];
 	void* m_collideable;
 	void* m_networkable;
 	int genericKeyValueCount;

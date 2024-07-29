@@ -3,6 +3,7 @@
 
 #include "game/shared/collisionproperty.h"
 #include "game/shared/particleproperty.h"
+#include "game/shared/predictioncopy.h"
 
 #include "vscript/ivscript.h"
 #include "icliententity.h"
@@ -12,9 +13,10 @@
 // How many data slots to use when in multiplayer.
 #define MULTIPLAYER_BACKUP 750
 
-class C_BaseEntity : public IClientEntity
+class C_BaseEntity : public IClientEntity, public IClientModelRenderable
 {
-	char pad0[8];
+protected:
+	char pad0[16];
 	void* unkHandle;
 	char pad1[16];
 	int m_iEFlags;
@@ -45,7 +47,7 @@ class C_BaseEntity : public IClientEntity
 	float m_flGravity;
 	float m_flProxyRandomValue;
 	Vector3D m_vecBaseVelocity;
-	int m_hGroundEntity;
+	EHANDLE m_hGroundEntity;
 	char gap_3e0[4];
 	float m_flMaxspeed;
 	int m_visibilityFlags;
@@ -60,7 +62,7 @@ class C_BaseEntity : public IClientEntity
 	Vector3D m_angNetworkAngles;
 	float m_flFriction;
 	char gap_438[4];
-	int m_hOwnerEntity;
+	EHANDLE m_hOwnerEntity;
 	bool m_bRenderWithViewModels;
 	unsigned __int8 m_nRenderFX;
 	char gap_442[15];

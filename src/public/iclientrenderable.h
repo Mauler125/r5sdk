@@ -11,14 +11,20 @@ enum
 	INVALID_CLIENT_RENDER_HANDLE = (ClientRenderHandle_t)0xffff,
 };
 
-class IClientRenderable
+//-----------------------------------------------------------------------------
+// Purpose: All client entities must implement this interface.
+//-----------------------------------------------------------------------------
+abstract_class IClientRenderable
 {
-	void* __vftable /*VFT*/;
+	// Gets at the containing class...
+	virtual IClientUnknown* GetIClientUnknown() = 0;
+	// TODO:
 };
 
 class IClientModelRenderable
 {
-	void* __vftable /*VFT*/;
+	// TODO:
+	virtual void InterfaceNeedsRebuild() = 0;
 };
 
 
