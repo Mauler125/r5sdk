@@ -15,6 +15,8 @@
 
 #include "vscript/languages/squirrel_re/vsquirrel.h"
 
+#include "ai_basenpc.h"
+
 static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! )");
 
 //-----------------------------------------------------------------------------
@@ -118,10 +120,6 @@ bool Detour_IsLoaded()
 //-----------------------------------------------------------------------------
 // Purpose: hot swaps the NavMesh with the current files on the disk
 // (All hulls will be reloaded! If NavMesh for hull no longer exist, it will be kept empty!!!)
-// 
-// TODO: Currently when hotswapping, the game crashes if there's AI in the world.
-// Loop over all CAI_BaseNPC instances, and call m_pPathfinder->m_navQuery.init()
-// to clear NavMesh cache !!!
 //-----------------------------------------------------------------------------
 void Detour_HotSwap()
 {
@@ -134,6 +132,21 @@ void Detour_HotSwap()
 
     if (!Detour_IsLoaded())
         Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
+
+    const int numAis = g_AI_Manager->NumAIs();
+    CAI_BaseNPC** const pAis = g_AI_Manager->AccessAIs();
+
+    // Reinitialize the AI's navmesh query to update the navmesh cache.
+    for (int i = 0; i < numAis; i++)
+    {
+        CAI_BaseNPC* const npc = pAis[i];
+        CAI_Pathfinder* const pathFinder = npc->GetPathfinder();
+
+        const NavMeshType_e navType = NAI_Hull::NavMeshType(npc->GetHullType());
+        const dtNavMesh* const navMesh = Detour_GetNavMeshByType(navType);
+
+        pathFinder->GetNavMeshQuery()->init(navMesh, 2048);
+    }
 
     g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapEnd");
 }
