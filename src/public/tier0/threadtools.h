@@ -273,7 +273,297 @@ typedef CInterlockedIntT<unsigned> CInterlockedUInt;
 
 #endif // !_TOOLS
 
-///////////////////////////////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+//
+// Platform independent for critical sections management
+//
+//-----------------------------------------------------------------------------
+
+struct CThreadMutex
+{
+public:
+	CThreadMutex();
+	~CThreadMutex();
+
+	//------------------------------------------------------
+	// Mutex acquisition/release. Const intentionally defeated.
+	//------------------------------------------------------
+	void Lock();
+	void Lock() const { (const_cast<CThreadMutex*>(this))->Lock(); }
+	void Unlock();
+	void Unlock() const { (const_cast<CThreadMutex*>(this))->Unlock(); }
+
+	void LockSilent(); // A Lock() operation which never spews.  Required by the logging system to prevent badness.
+	void UnlockSilent(); // An Unlock() operation which never spews.  Required by the logging system to prevent badness.
+
+	//------------------------------------------------------
+	// Use this to make deadlocks easier to track by asserting
+	// when it is expected that the current thread owns the mutex
+	//------------------------------------------------------
+	bool AssertOwnedByCurrentThread();
+
+	//------------------------------------------------------
+	// On windows with THREAD_MUTEX_TRACING_ENABLED defined, this returns
+	// true if the mutex is owned by the current thread.
+	//------------------------------------------------------
+	bool IsOwnedByCurrentThread_DebugOnly();
+
+	//------------------------------------------------------
+	// Enable tracing to track deadlock problems
+	//------------------------------------------------------
+	void SetTrace(bool);
+
+private:
+	// Disallow copying
+	CThreadMutex(const CThreadMutex&);
+	CThreadMutex& operator=(const CThreadMutex&);
+
+#if defined( _WIN32 )
+	// Efficient solution to breaking the windows.h dependency, invariant is tested.
+#ifdef _WIN64
+#define TT_SIZEOF_CRITICALSECTION 40
+#else
+#ifndef _X360
+#define TT_SIZEOF_CRITICALSECTION 24
+#else
+#define TT_SIZEOF_CRITICALSECTION 28
+#endif // !_X360
+#endif // _WIN64
+	byte m_CriticalSection[TT_SIZEOF_CRITICALSECTION];
+#elif defined( _PS3 )
+	sys_mutex_t m_Mutex;
+#elif defined(POSIX)
+	pthread_mutex_t m_Mutex;
+	pthread_mutexattr_t m_Attr;
+#else
+#error
+#endif
+
+#ifdef THREAD_MUTEX_TRACING_SUPPORTED
+	// Debugging (always herge to allow mixed debug/release builds w/o changing size)
+	uint	m_currentOwnerID;
+	uint16	m_lockCount;
+	bool	m_bTrace;
+#endif
+};
+
+//-----------------------------------------------------------------------------
+//
+// CThreadMutex. Inlining to reduce overhead and to allow client code
+// to decide debug status (tracing)
+//
+//-----------------------------------------------------------------------------
+
+#ifdef MSVC
+typedef struct _RTL_CRITICAL_SECTION RTL_CRITICAL_SECTION;
+typedef RTL_CRITICAL_SECTION CRITICAL_SECTION;
+
+#ifndef _X360
+extern "C"
+{
+	void __declspec(dllimport) __stdcall InitializeCriticalSection(CRITICAL_SECTION*);
+	void __declspec(dllimport) __stdcall EnterCriticalSection(CRITICAL_SECTION*);
+	void __declspec(dllimport) __stdcall LeaveCriticalSection(CRITICAL_SECTION*);
+	void __declspec(dllimport) __stdcall DeleteCriticalSection(CRITICAL_SECTION*);
+};
+#endif
+#endif
+
+//---------------------------------------------------------
+#if !defined(POSIX) || defined( _GAMECONSOLE )
+
+inline void CThreadMutex::Lock()
+{
+#if defined(_PS3)
+#ifndef NO_THREAD_SYNC
+	sys_mutex_lock(m_Mutex, 0);
+#endif
+#else
+#if defined( THREAD_MUTEX_TRACING_ENABLED )
+	uint thisThreadID = ThreadGetCurrentId();
+	if (m_bTrace && m_currentOwnerID && (m_currentOwnerID != thisThreadID))
+		Msg(eDLL_T::COMMON, _T("Thread %u about to wait for lock %p owned by %u\n"), ThreadGetCurrentId(), (CRITICAL_SECTION*)&m_CriticalSection, m_currentOwnerID);
+#endif
+
+	LockSilent();
+
+#ifdef THREAD_MUTEX_TRACING_ENABLED
+	if (m_lockCount == 0)
+	{
+		// we now own it for the first time.  Set owner information
+		m_currentOwnerID = thisThreadID;
+		if (m_bTrace)
+			Msg(eDLL_T::COMMON, _T("Thread %u now owns lock 0x%p\n"), m_currentOwnerID, (CRITICAL_SECTION*)&m_CriticalSection);
+	}
+	m_lockCount++;
+#endif
+#endif
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::Unlock()
+{
+#if defined( _PS3 )
+
+#ifndef NO_THREAD_SYNC
+	sys_mutex_unlock(m_Mutex);
+#endif
+
+#else
+#ifdef THREAD_MUTEX_TRACING_ENABLED
+	AssertMsg(m_lockCount >= 1, "Invalid unlock of thread lock");
+	m_lockCount--;
+	if (m_lockCount == 0)
+	{
+		if (m_bTrace)
+			Msg(eDLL_T::COMMON, _T("Thread %u releasing lock 0x%p\n"), m_currentOwnerID, (CRITICAL_SECTION*)&m_CriticalSection);
+		m_currentOwnerID = 0;
+	}
+#endif
+	UnlockSilent();
+#endif
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::LockSilent()
+{
+#ifdef MSVC
+	EnterCriticalSection((CRITICAL_SECTION*)&m_CriticalSection);
+#else
+	DebuggerBreak();	// should not be called - not defined for this platform/compiler!!!
+#endif
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::UnlockSilent()
+{
+#ifdef MSVC
+	LeaveCriticalSection((CRITICAL_SECTION*)&m_CriticalSection);
+#else
+	DebuggerBreak();	// should not be called - not defined for this platform/compiler!!!
+#endif
+}
+
+//---------------------------------------------------------
+
+inline bool CThreadMutex::AssertOwnedByCurrentThread()
+{
+#ifdef THREAD_MUTEX_TRACING_ENABLED
+#ifdef _WIN32
+	if (ThreadGetCurrentId() == m_currentOwnerID)
+		return true;
+	AssertMsg(0, "Expected thread %u as owner of lock 0x%p, but %u owns", ThreadGetCurrentId(), (CRITICAL_SECTION*)&m_CriticalSection, m_currentOwnerID);
+	return false;
+#elif defined( _PS3 )
+	return true;
+#endif
+#else
+	return true;
+#endif
+}
+
+//---------------------------------------------------------
+
+inline bool CThreadMutex::IsOwnedByCurrentThread_DebugOnly()
+{
+#if defined ( THREAD_MUTEX_TRACING_ENABLED ) && defined ( _WIN32 )
+	return ThreadGetCurrentId() == m_currentOwnerID;
+#else
+	return true;
+#endif
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::SetTrace(bool bTrace)
+{
+#ifdef _WIN32
+#ifdef THREAD_MUTEX_TRACING_ENABLED
+	m_bTrace = bTrace;
+#endif
+#elif defined _PS3
+	//EAPS3
+#endif
+	NOTE_UNUSED(bTrace);
+}
+
+//---------------------------------------------------------
+
+#elif defined(POSIX) && !defined( _GAMECONSOLE )
+
+inline CThreadMutex::CThreadMutex()
+{
+	// enable recursive locks as we need them
+	pthread_mutexattr_init(&m_Attr);
+	pthread_mutexattr_settype(&m_Attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&m_Mutex, &m_Attr);
+}
+
+//---------------------------------------------------------
+
+inline CThreadMutex::~CThreadMutex()
+{
+	pthread_mutex_destroy(&m_Mutex);
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::Lock()
+{
+	pthread_mutex_lock(&m_Mutex);
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::Unlock()
+{
+	pthread_mutex_unlock(&m_Mutex);
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::LockSilent()
+{
+	pthread_mutex_lock(&m_Mutex);
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::UnlockSilent()
+{
+	pthread_mutex_unlock(&m_Mutex);
+}
+
+//---------------------------------------------------------
+
+inline bool CThreadMutex::AssertOwnedByCurrentThread()
+{
+	return true;
+}
+
+//---------------------------------------------------------
+
+inline void CThreadMutex::SetTrace(bool fTrace)
+{
+}
+
+#else 
+#error
+#endif // POSIX
+
+//-----------------------------------------------------------------------------
+//
+// An alternative mutex that is useful for cases when thread contention is 
+// rare, but a mutex is required. Instances should be declared volatile.
+// Sleep of 0 may not be sufficient to keep high priority threads from starving 
+// lesser threads. This class is not a suitable replacement for a critical
+// section if the resource contention is high.
+//
+//-----------------------------------------------------------------------------
+
 class CThreadFastMutex
 {
 public:
@@ -333,6 +623,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 template <size_t size>	struct CAutoLockTypeDeducer {};
+template <> struct CAutoLockTypeDeducer<sizeof(CThreadMutex)> { typedef CThreadMutex Type_t; };
 template <> struct CAutoLockTypeDeducer<sizeof(CThreadFastMutex)> { typedef CThreadFastMutex Type_t; };
 
 #define AUTO_LOCK_( type, mutex ) \
@@ -589,8 +880,4 @@ class VThreadTools : public IDetour
 
 #endif // !_TOOLS
 
-struct CThreadMutex // todo: implement
-{
-	CRITICAL_SECTION m_CriticalSection;
-};
 #endif // THREADTOOLS_H
