@@ -1,4 +1,4 @@
-﻿//===== Copyright � 2005-2005, Valve Corporation, All rights reserved. ======//
+﻿//===== Copyright © 2005-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: A set of utilities to render standard shapes
 //

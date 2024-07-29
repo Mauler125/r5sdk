@@ -1,4 +1,4 @@
-//========= Copyright � 2011, Valve Corporation, All rights reserved. ============//
+//========= Copyright © 2011, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: common helpers for reuse among various Utl containers
 //

@@ -1,4 +1,4 @@
-//========== Copyright � 2005, Valve Corporation, All rights reserved. ========
+//========== Copyright © 2005, Valve Corporation, All rights reserved. ========
 //
 // Purpose: Tools for correctly implementing & handling reference counted
 //			objects

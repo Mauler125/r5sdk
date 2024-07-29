@@ -1,4 +1,4 @@
-﻿//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
+﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: Defines the more complete set of operations on the string_t defined
 // 			These should be used instead of direct manipulation to allow more
