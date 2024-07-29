@@ -101,11 +101,11 @@ namespace NAI_Hull
 	inline float Scale(const Hull_e id)  { return g_aiHullProperties[id].scale; }
 
 	inline int Bits(const Hull_e id) { return g_aiHullProperties[id].hullBit; }
-
 	inline const char* Name(const Hull_e id) { return g_aiHullProperties[id].hullName; }
 
 	inline unsigned int TraceMask(const Hull_e id) { return g_aiHullProperties[id].traceMask; };
 
+	inline NavMeshType_e NavMeshType(const Hull_e id) { return g_aiHullProperties[id].navMeshType; }
 	inline Hull_e LookupId(const char* const szName)
 	{
 		if (!szName)
