@@ -14,14 +14,9 @@
 #include "ehandle.h"
 
 #if defined( CLIENT_DLL )
-#include "game/client/c_baseentity.h"
-
 class C_BaseEntity;
 typedef CHandle<C_BaseEntity> EHANDLE;
-
 #else
-#include "game/server/baseentity.h"
-
 class CBaseEntity;
 typedef CHandle<CBaseEntity> EHANDLE;
 #endif
