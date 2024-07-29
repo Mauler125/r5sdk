@@ -201,6 +201,8 @@ add_sources( SOURCE_GROUP "Input"
     "client/in_main.cpp"
     "client/input.cpp"
     "client/input.h"
+    "client/gamepad.cpp"
+    "client/gamepad.h"
     "client/kbutton.h"
 )
 
