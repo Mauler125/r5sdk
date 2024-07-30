@@ -175,7 +175,7 @@ int CUniformRandomStream::RandomShortMax()
 // gaussian-distributed numbers at once)
 //
 //-----------------------------------------------------------------------------
-CGaussianRandomStream::CGaussianRandomStream(IUniformRandomStream* pUniformStream)
+CGaussianRandomStream::CGaussianRandomStream(IUniformRandomStream* const pUniformStream)
 {
 	AttachToStream(pUniformStream);
 }
@@ -184,7 +184,7 @@ CGaussianRandomStream::CGaussianRandomStream(IUniformRandomStream* pUniformStrea
 //-----------------------------------------------------------------------------
 // Attaches to a random uniform stream
 //-----------------------------------------------------------------------------
-void CGaussianRandomStream::AttachToStream(IUniformRandomStream* pUniformStream)
+void CGaussianRandomStream::AttachToStream(IUniformRandomStream* const pUniformStream)
 {
 	AUTO_LOCK( m_mutex );
 
@@ -196,7 +196,7 @@ void CGaussianRandomStream::AttachToStream(IUniformRandomStream* pUniformStream)
 //-----------------------------------------------------------------------------
 // Generates random numbers
 //-----------------------------------------------------------------------------
-float CGaussianRandomStream::RandomFloat(float flMean, float flStdDev)
+float CGaussianRandomStream::RandomFloat(const float flMean, const float flStdDev)
 {
 	AUTO_LOCK( m_mutex );
 

@@ -72,13 +72,13 @@ class CGaussianRandomStream
 public:
 	// Passing in NULL will cause the gaussian stream to use the
 	// installed global random number generator
-	CGaussianRandomStream(IUniformRandomStream* pUniformStream = NULL);
+	CGaussianRandomStream(IUniformRandomStream* const pUniformStream = NULL);
 
 	// Attaches to a random uniform stream
-	void	AttachToStream(IUniformRandomStream* pUniformStream = NULL);
+	void	AttachToStream(IUniformRandomStream* const pUniformStream = NULL);
 
 	// Generates random numbers
-	float	RandomFloat(float flMean = 0.0f, float flStdDev = 1.0f);
+	float	RandomFloat(const float flMean = 0.0f, const float flStdDev = 1.0f);
 
 private:
 	IUniformRandomStream* m_pUniformStream;
