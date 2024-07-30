@@ -24,9 +24,9 @@ struct WeaponDropInfo
 struct WeaponInventory
 {
 	void* __vftable;
-	int weapons[9];
-	int offhandWeapons[6];
-	int activeWeapons[3];
+	EHANDLE weapons[9];
+	EHANDLE offhandWeapons[6];
+	EHANDLE activeWeapons[3];
 };
 
 struct CTether
@@ -57,11 +57,11 @@ private:
 	float m_phaseShiftTimeEnd;
 	float m_flNextAttack;
 	float m_lastFiredTime;
-	int m_lastFiredWeapon;
+	EHANDLE m_lastFiredWeapon;
 	float m_raiseFromMeleeEndTime;
 	float m_nextFlamethrowerStatusEffectUpdateTime;
-	int m_lastFlamethrowerStatusEffectInflictor;
-	int m_lastFlamethrowerStatusEffectAttacker;
+	EHANDLE m_lastFlamethrowerStatusEffectInflictor;
+	EHANDLE m_lastFlamethrowerStatusEffectAttacker;
 	int m_sharedEnergyCount;
 	int m_sharedEnergyTotal;
 	int m_sharedEnergyLockoutThreshold;
@@ -94,14 +94,14 @@ private:
 	WeaponInventory m_inventory;
 	char m_selectedWeapons[2];
 	char gap_16da[2];
-	int m_latestPrimaryWeapons[2];
-	int m_latestPrimaryWeaponsIndexZeroOrOne[2];
+	EHANDLE m_latestPrimaryWeapons[2];
+	EHANDLE m_latestPrimaryWeaponsIndexZeroOrOne[2];
 	char m_latestNonOffhandWeapons[2];
 	char m_selectedOffhands[3];
 	char m_selectedOffhandsPendingHybridAction[3];
 	char m_lastCycleSlot;
 	char gap_16f5[3];
-	int m_weaponGettingSwitchedOut[2];
+	EHANDLE m_weaponGettingSwitchedOut[2];
 	bool m_showActiveWeapon3p[2];
 	char gap_1702[2];
 	int m_weaponPermission;
@@ -110,15 +110,15 @@ private:
 	bool m_hudInfo_visibilityTestAlwaysPasses;
 	bool m_weaponDisabledInScript;
 	char gap_170f[1];
-	int m_removeWeaponOnSelectSwitch;
-	int m_latestMeleeWeapon;
+	EHANDLE m_removeWeaponOnSelectSwitch;
+	EHANDLE m_latestMeleeWeapon;
 	bool m_doOffhandAnim;
 	bool m_wantInventoryChangedScriptCall;
 	bool m_doInventoryChangedScriptCall;
 	char gap_171b[1];
 	float m_cloakReactEndTime;
 	CTether m_tethers[2];
-	int m_titanSoul;
+	EHANDLE m_titanSoul;
 	Vector3D m_lastFootstepDamagePos;
 	bool m_lastFoostepDamageOnGround;
 	char gap_1781[3];
@@ -136,7 +136,7 @@ private:
 	char m_targetInfoIconName[64];
 	bool m_titanStepDamage;
 	char gap_5949[3];
-	int m_latest3pWeaponGettingEquipped[2];
+	EHANDLE m_latest3pWeaponGettingEquipped[2];
 	char gap_5954[12];
 };
 

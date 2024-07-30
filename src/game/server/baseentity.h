@@ -80,7 +80,7 @@ protected:
 	int touchStamp;
 	CUtlVector<thinkfunc_t> m_aThinkFunctions;
 	float m_entitySpawnTime;
-	int m_spawner;
+	EHANDLE m_spawner;
 	bool m_wantsDamageCallbacks;
 	bool m_wantsDeathCallbacks;
 	char gap_c2[2];
@@ -92,8 +92,8 @@ protected:
 	int m_networkedFlags;
 	char m_nRenderFX;
 	char m_nRenderMode;
-	__int16 m_nModelIndex;
-	int m_clrRender;
+	short m_nModelIndex;
+	color32 m_clrRender;
 	char m_clIntensity;
 	char gap_e5[3];
 	int m_desiredHibernationType;
@@ -129,8 +129,8 @@ protected:
 	int m_instanceNameIndex;
 	char m_scriptName[64];
 	char m_instanceName[64];
-	__int64 m_holdUsePrompt;
-	__int64 m_pressUsePrompt;
+	string_t m_holdUsePrompt;
+	string_t m_pressUsePrompt;
 	float m_attachmentLerpStartTime;
 	float m_attachmentLerpEndTime;
 	Vector3D m_attachmentLerpStartOrigin;
@@ -143,16 +143,16 @@ protected:
 	char m_MoveCollide;
 	char gap_30a[2];
 	int m_RestoreMoveTypeOnDetach;
-	int m_hMoveParent;
-	int m_hMoveChild;
-	int m_hMovePeer;
+	EHANDLE m_hMoveParent;
+	EHANDLE m_hMoveChild;
+	EHANDLE m_hMovePeer;
 	bool m_bIsActiveChild;
 	bool m_bPrevAbsOriginValid;
 	char gap_31e[2];
 	int m_descendantZiplineCount;
 	char gap_324[4];
 	CCollisionProperty m_Collision;
-	int m_hOwnerEntity;
+	EHANDLE m_hOwnerEntity;
 	int m_CollisionGroup;
 	int m_contents;
 	bool m_collideWithOwner;
@@ -161,10 +161,10 @@ protected:
 	char gap_3b4[4];
 	void* m_pPhysicsObject;
 	float m_flNavIgnoreUntilTime;
-	int m_hGroundEntity;
+	EHANDLE m_hGroundEntity;
 	float m_flGroundChangeTime;
 	Vector3D m_vecBaseVelocity;
-	int m_baseVelocityEnt;
+	EHANDLE m_baseVelocityEnt;
 	Vector3D m_vecAbsVelocity;
 	Vector3D m_vecAngVelocity;
 	char gap_3f4[12];
@@ -188,7 +188,7 @@ protected:
 	bool m_bClientSideRagdoll;
 	char m_lifeState;
 	char gap_49a[2];
-	int m_scriptNetData;
+	EHANDLE m_scriptNetData;
 	int m_phaseShiftFlags;
 	char m_baseTakeDamage;
 	char gap_4a5[3];
@@ -212,8 +212,8 @@ protected:
 	Vector3D m_vecViewOffset;
 	int m_ListByClass;
 	char gap_57c[4];
-	void* m_pPrevByClass;
-	void* m_pNextByClass;
+	CBaseEntity* m_pPrevByClass;
+	CBaseEntity* m_pNextByClass;
 	int m_iInitialTeamNum;
 	int m_iTeamNum;
 	int m_teamMemberIndex;
@@ -226,7 +226,7 @@ protected:
 	int m_spawnflags;
 	float m_flGravity;
 	float m_entityFadeDist;
-	int m_dissolveEffectEntityHandle;
+	EHANDLE m_dissolveEffectEntityHandle;
 	float m_fadeDist;
 	string_t m_iSignifierName;
 	int m_collectedInvalidateFlags;
@@ -243,7 +243,7 @@ protected:
 	char m_ScriptScope[32];
 	char m_hScriptInstance[8];
 	string_t m_iszScriptId;
-	int m_bossPlayer;
+	EHANDLE m_bossPlayer;
 	int m_usableType;
 	int m_usablePriority;
 	float m_usableDistanceOverride;
@@ -257,7 +257,7 @@ protected:
 	char gap_63d[3];
 	float m_spottedBeginTimes[128];
 	float m_spottedLatestTimes[128];
-	__int64 m_spottedByTeams[4];
+	i64 m_spottedByTeams[4]; // TODO: team handles are 64bit, create type in SDK
 	char m_minimapData[88];
 	int m_shieldHealth;
 	int m_shieldHealthMax;
@@ -271,7 +271,7 @@ protected:
 	bool m_inWater;
 	char gap_ad9[7];
 	void* m_statusEffectPlugin;
-	__int64 m_realmsBitMask;
+	i64 m_realmsBitMask;
 	char m_realmsTransmitMaskCached[16];
 	int m_realmsTransmitMaskCachedSerialNumber;
 };

@@ -4,7 +4,7 @@
 struct Player_ViewOffsetEntityData
 {
 	void* __vftable;
-	int viewOffsetEntityHandle;
+	EHANDLE viewOffsetEntityHandle;
 	float lerpInDuration;
 	float lerpOutDuration;
 	bool stabilizePlayerEyeAngles;

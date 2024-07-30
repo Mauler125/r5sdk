@@ -26,8 +26,8 @@ class CFogParams
 	float densityScale;
 	float halfAngleDeg;
 	float HDRColorScale;
-	int distColor;
-	int dirColor;
+	color32 distColor;
+	color32 dirColor;
 	Vector3D direction;
 	float minFadeTime;
 	bool forceOntoSky;

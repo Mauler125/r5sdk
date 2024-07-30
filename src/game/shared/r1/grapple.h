@@ -21,8 +21,8 @@ struct GrappleData
 	float m_grapplePullTime;
 	float m_grappleAttachTime;
 	float m_grappleDetachTime;
-	int m_grappleMeleeTarget;
-	int m_grappleAutoAimTarget;
+	EHANDLE m_grappleMeleeTarget;
+	EHANDLE m_grappleAutoAimTarget;
 	bool m_grappleHasGoodVelocity;
 	char gap_6d[3];
 	float m_grappleLastGoodVelocityTime;

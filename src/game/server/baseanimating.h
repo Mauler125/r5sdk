@@ -11,6 +11,7 @@
 #endif
 #include "baseentity.h"
 #include "public/studio.h"
+#include "public/datacache/idatacache.h"
 #include "game/shared/animation.h"
 
 
@@ -35,7 +36,7 @@ protected:
 	int m_nForceBone;
 	Vector3D m_vecForce;
 	int m_nSkin;
-	__int16 m_skinMod;
+	short m_skinMod;
 	char gap_b32[2];
 	int m_nBody;
 	int m_camoIndex;
@@ -79,8 +80,8 @@ protected:
 	int m_nNewSequenceParity;
 	int m_nResetEventsParity;
 	char gap_dac[4];
-	__int64 m_boneCacheHandle;
-	__int16 m_fBoneCacheFlags; // END CBASEANIMATING
+	memhandle_t m_boneCacheHandle;
+	short m_fBoneCacheFlags; // END CBASEANIMATING
 	char gap_dba[2];
 	int m_animNetworkFlags;
 	bool m_animActive;
@@ -97,12 +98,12 @@ protected:
 	float m_recordedAnimPlaybackRate;
 	float m_recordedAnimPlaybackTime;
 	matrix3x4_t m_recordedAnimTransform;
-	int m_recordedAnimPlaybackEnt;
+	EHANDLE m_recordedAnimPlaybackEnt;
 	float m_recordedAnimBlendTime;
 	Vector3D m_recordedAnimBlendOffset;
 	Vector3D m_recordedAnimBlendAngles;
 	AnimRelativeData m_animRelativeData;
-	int m_syncingWithEntity;
+	EHANDLE m_syncingWithEntity;
 	char gap_ec4[4];
 	PredictedAnimEventData m_predictedAnimEventData;
 	int m_animRefEntityAttachmentIndex;

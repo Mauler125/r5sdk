@@ -22,10 +22,10 @@ public:
 
 	int playerEntityIndex;
 	char gap_c[4];
-	__int64 currentClass;
-	__int64 requestedClass;
-	__int64 onDeathClass;
-	__int64 oldClass;
+	i64 currentClass;
+	i64 requestedClass;
+	i64 onDeathClass;
+	i64 oldClass;
 	string_t netname;
 	int fixangle;
 	QAngle anglechange;

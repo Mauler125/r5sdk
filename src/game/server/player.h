@@ -10,6 +10,7 @@
 #include "baseentity.h"
 #include "mathlib/mathlib.h"
 #include "mathlib/vector4d.h"
+#include "mathlib/bitvec.h"
 #include "public/studio.h"
 #include "public/playerstate.h"
 
@@ -218,7 +219,7 @@ private:
 	int m_StuckLast;
 	char gap_5a8c[4];
 	CPlayerLocalData m_Local;
-	int m_hColorCorrectionCtrl;
+	EHANDLE m_hColorCorrectionCtrl;
 	char gap_5dbc[4];
 	char m_hTriggerSoundscapeList[32];
 	CPlayerState pl;
@@ -233,24 +234,24 @@ private:
 	NucleusID_t m_platformUserId;
 	char m_hardware;
 	char gap_5ef1[7];
-	__int64 m_classModsActive;
-	__int64 m_classModsActiveOld;
+	i64 m_classModsActive;
+	i64 m_classModsActiveOld;
 	char m_classSettings[32];
 	int m_classSettingsScriptRefCount;
 	char m_modInventory[128];
-	__int16 m_consumableInventory[32];
+	short m_consumableInventory[32];
 	char gap_5fec[4];
-	__int64 m_passives[2];
+	i64 m_passives[2];
 	int m_bleedoutState;
 	float m_damageComboLatestUpdateTime;
 	int m_damageComboStartHealth;
 	float m_healResources_nextTickTime[10];
 	float m_healResources_healRatePerSecond[10];
-	__int16 m_healResources_remainingHeals[10];
-	__int16 m_healResources_totalHeals[10];
-	__int16 m_healResources_generation[10];
-	__int16 m_healResources_refId[10];
-	int m_healResources_healSource[10];
+	short m_healResources_remainingHeals[10];
+	short m_healResources_totalHeals[10];
+	short m_healResources_generation[10];
+	short m_healResources_refId[10];
+	EHANDLE m_healResources_healSource[10];
 	int m_healResources_healthTarget;
 	int m_communityId;
 	int m_nButtons;
@@ -271,10 +272,10 @@ private:
 	bool m_wantedToMatchmake;
 	bool m_playerWeaponSwitchOnEquipIsDisabled;
 	char gap_610e[2];
-	int m_skyCamera;
+	EHANDLE m_skyCamera;
 	Vector3D m_originalPlayerOrigin;
-	int m_playerVehicle;
-	int m_entitySyncingWithMe;
+	EHANDLE m_playerVehicle;
+	EHANDLE m_entitySyncingWithMe;
 	int m_playerFlags;
 	bool m_hasMic;
 	bool m_inPartyChat;
@@ -311,7 +312,7 @@ private:
 	Vector3D m_accumDamageImpulseVel;
 	float m_accumDamageImpulseTime;
 	float m_damageImpulseNoDecelEndTime;
-	int m_hDmgEntity;
+	EHANDLE m_hDmgEntity;
 	float m_DmgTake;
 	int m_bitsDamageType;
 	int m_bitsHUDDamage;
@@ -322,7 +323,7 @@ private:
 	float m_flDeathAnimTime;
 	int m_iObserverMode;
 	int m_iObserverLastMode;
-	int m_hObserverTarget;
+	EHANDLE m_hObserverTarget;
 	Vector3D m_observerModeStaticPosition;
 	Vector3D m_observerModeStaticAngles;
 	float m_observerModeStaticFOVOverride;
@@ -349,10 +350,10 @@ private:
 	int m_iConnected;
 	int m_iPlayerLocked;
 	int m_gameStats[12];
-	int m_firstPersonProxy;
-	int m_predictedFirstPersonProxy;
-	int m_grappleHook;
-	int m_petTitan;
+	EHANDLE m_firstPersonProxy;
+	EHANDLE m_predictedFirstPersonProxy;
+	EHANDLE m_grappleHook;
+	EHANDLE m_petTitan;
 	int m_petTitanMode;
 	int m_xp;
 	int m_generation;
@@ -361,15 +362,15 @@ private:
 	bool m_isPlayingRanked;
 	char gap_635d[3];
 	float m_skill_mu;
-	int m_hardpointEntity;
+	EHANDLE m_hardpointEntity;
 	float m_nextTitanRespawnAvailable;
 	bool m_activeViewmodelModifiers[35];
 	bool m_activeViewmodelModifiersChanged;
-	int m_hViewModels[3];
+	EHANDLE m_hViewModels[3];
 	CUserCmd m_LastCmd;
 	CUserCmd* m_pCurrentCommand;
 	float m_flStepSoundTime;
-	int m_hThirdPersonEnt;
+	EHANDLE m_hThirdPersonEnt;
 	bool m_thirdPersonShoulderView;
 	char gap_6589[7];
 	ThirdPersonViewData m_thirdPerson;
@@ -438,7 +439,7 @@ private:
 	bool m_grappleActive;
 	bool m_grappleNeedWindowCheck;
 	char gap_67ba[2];
-	int m_grappleNextWindowHint;
+	EHANDLE m_grappleNextWindowHint;
 	int m_landingType;
 	bool m_slowMoEnabled;
 	bool m_sliding;
@@ -448,8 +449,8 @@ private:
 	float m_lastSlideBoost;
 	bool m_ziplineAllowed;
 	char gap_67d1[3];
-	int m_activeZipline;
-	int m_lastZipline;
+	EHANDLE m_activeZipline;
+	EHANDLE m_lastZipline;
 	float m_lastZiplineDetachTime;
 	bool m_ziplineValid3pWeaponLayerAnim;
 	char gap_67e1[3];
@@ -457,8 +458,8 @@ private:
 	PlayerZiplineData m_zipline;
 	Vector3D m_ziplineViewOffsetPosition;
 	Vector3D m_ziplineViewOffsetVelocity;
-	int m_ziplineGrenadeEntity;
-	int m_ziplineGrenadeBeginStationEntity;
+	EHANDLE m_ziplineGrenadeEntity;
+	EHANDLE m_ziplineGrenadeBeginStationEntity;
 	int m_ziplineGrenadeBeginStationAttachmentIndex;
 	char gap_686c[4];
 	Player_ViewOffsetEntityData m_viewOffsetEntity;
@@ -469,7 +470,7 @@ private:
 	bool m_detachGrappleOnPlayAnimationEnd;
 	char gap_6919[3];
 	int m_playAnimationNext[2];
-	int m_playAnimationEntityBlocker;
+	EHANDLE m_playAnimationEntityBlocker;
 	bool m_playAnimationEntityBlockerCanTeleport;
 	bool m_playAnimationEntityBlockerDucking;
 	char gap_692a[2];
@@ -506,7 +507,7 @@ private:
 	float m_lastTimeDidDamageToOtherPlayer;
 	float m_lastTimeDidDamageToNPC;
 	char m_predictedTriggers[72];
-	int m_lastJumpPadTouched;
+	EHANDLE m_lastJumpPadTouched;
 	int m_launchCount;
 	char m_lastBodySound1p[32];
 	char m_lastBodySound3p[32];
@@ -527,27 +528,27 @@ private:
 	int m_lastUCmdSimulationTicks;
 	int m_lastUCmdSimulationRemainderTime; // Originally float???
 	float m_totalExtraClientCmdTimeAttempted;
-	int m_hPlayerViewEntity;
+	EHANDLE m_hPlayerViewEntity;
 	bool m_atLeastOneCommandRunThisServerFrame;
 	bool m_bGamePaused;
 	bool m_bPlayerUnderwater;
 	bool m_wasPhaseShiftedForTriggers;
 	bool m_bShouldDrawPlayerWhileUsingViewEntity;
 	char gap_6bf9[3];
-	int m_hConstraintEntity;
+	EHANDLE m_hConstraintEntity;
 	Vector3D m_vecConstraintCenter;
 	float m_flConstraintRadius;
 	float m_flConstraintWidth;
 	float m_flConstraintSpeedFactor;
 	bool m_bConstraintPastRadius;
 	char gap_6c19[7];
-	__int64 m_twitchRewardBits;
+	CBitVec<64> m_twitchRewardBits;
 	bool m_twitchRewardsUnfulfilled;
 	char gap_6c29[3];
 	float m_lastActiveTime;
 	float m_flLaggedMovementValue;
 	float m_lastMoveInputTime;
-	int m_ignoreEntityForMovementUntilNotTouching;
+	EHANDLE m_ignoreEntityForMovementUntilNotTouching;
 	Vector3D m_vNewVPhysicsPosition;
 	Vector3D m_vNewVPhysicsVelocity;
 	Vector3D m_vNewVPhysicsWishVel;
@@ -556,8 +557,8 @@ private:
 	Vector3D m_preMoveThinkAbsOrigin;
 	int m_nBodyPitchPoseParam;
 	char m_szNetworkIDString[64];
-	__int64 m_squad;
-	__int64 m_SquadName;
+	void* m_squad;
+	string_t m_SquadName;
 	char m_gameMovementUtil[56];
 	float m_flTimeAllSuitDevicesOff;
 	bool m_bIsStickySprinting;
@@ -588,12 +589,12 @@ private:
 	Vector3D m_viewConeSpecific;
 	Vector3D m_viewConeRelativeAngleMin;
 	Vector3D m_viewConeRelativeAngleMax;
-	int m_hReservedSpawnPoint;
-	int m_hLastSpawnPoint;
+	EHANDLE m_hReservedSpawnPoint;
+	EHANDLE m_hLastSpawnPoint;
 	MatchMetrics m_matchMetrics;
 	bool m_autoKickDisabled;
 	char gap_6e11[3];
-	int m_stuckCharacter;
+	EHANDLE m_stuckCharacter;
 	char m_title[32];
 	bool sentHUDScriptChecksum;
 	bool m_bIsFullyConnected;
@@ -601,7 +602,7 @@ private:
 	CTakeDamageInfo m_lastDeathInfo;
 	char gap_6ebc[4];
 	PlayerMelee_PlayerData m_melee;
-	int m_lungeTargetEntity;
+	EHANDLE m_lungeTargetEntity;
 	bool m_isLungingToPosition;
 	char gap_6efd[3];
 	Vector3D m_lungeTargetPosition;
@@ -622,7 +623,7 @@ private:
 	__int64 m_smartAmmoNextTarget;
 	__int64 m_smartAmmoPrevTarget;
 	float m_smartAmmoHighestLocksOnMeFractionValues[4];
-	int m_smartAmmoHighestLocksOnMeEntities[4];
+	EHANDLE m_smartAmmoHighestLocksOnMeEntities[4];
 	float m_smartAmmoPreviousHighestLockOnMeFractionValue;
 	float m_smartAmmoPendingHighestLocksOnMeFractionValues[4];
 	char gap_6f94[4];
@@ -630,10 +631,10 @@ private:
 	bool m_smartAmmoRemoveFromTargetList;
 	char gap_6fb9[3];
 	int m_delayedFlinchEvents;
-	__int64 m_delayedFlinchEventCount;
+	i64 m_delayedFlinchEventCount;
 	char m_extraWeaponModNames[512];
 	char m_extraWeaponModNamesArray[64];
-	__int64 m_extraWeaponModNameCount;
+	i64 m_extraWeaponModNameCount;
 	char m_pPlayerAISquad[8];
 	float m_flAreaCaptureScoreAccumulator;
 	float m_flCapPointScoreRate;
@@ -666,11 +667,11 @@ private:
 	float m_baseVelocityLastServerTime;
 	Vector3D m_pushedThisFrame;
 	Vector3D m_pushedThisSnapshotAccum;
-	int m_pusher;
+	EHANDLE m_pusher;
 	float m_pusherTouchTime;
 	float m_pusherUntouchTime;
 	Vector3D m_originRelativeToPusher;
-	int m_predictingEnts[4];
+	EHANDLE m_predictingEnts[4];
 	int m_predictingEntCount;
 	float m_lastCommandCountWarnTime;
 	Vector3D m_pushAwayFromTopAcceleration;
@@ -688,8 +689,8 @@ private:
 	PredictableServerEvent m_predictableServerEvents[16];
 	int m_predictableServerEventCount;
 	int m_predictableServerEventAcked;
-	int m_playerScriptNetDataGlobal;
-	int m_playerScriptNetDataExclusive;
+	EHANDLE m_playerScriptNetDataGlobal;
+	EHANDLE m_playerScriptNetDataExclusive;
 	int m_armorType;
 	int m_helmetType;
 	bool m_controllerModeActive;

@@ -10,7 +10,7 @@ struct PlayerMelee_PlayerData
 	bool isSprintAttack;
 	char gap_f[1];
 	float attackStartTime;
-	int attackHitEntity;
+	EHANDLE attackHitEntity;
 	float attackHitEntityTime;
 	float attackLastHitNonWorldEntity;
 	int scriptedState;

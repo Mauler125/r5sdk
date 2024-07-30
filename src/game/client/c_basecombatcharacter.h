@@ -12,9 +12,9 @@
 struct WeaponInventory_Client
 {
 	void* _vftable;
-	int weapons[9];
-	char gap_2c[24];
-	int activeWeapons[3];
+	EHANDLE weapons[9];
+	EHANDLE offhandWeapons[6];
+	EHANDLE activeWeapons[3];
 };
 
 class C_BaseCombatCharacter : public C_BaseAnimatingOverlay
