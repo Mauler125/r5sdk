@@ -16,6 +16,7 @@
 #define IR 2836
 #define NDIV (1+(IM-1)/NTAB)
 #define MAX_RANDOM_RANGE 0x7FFFFFFFUL
+#define MAX_RANDOM_RANGE_SHORT 0x7FFFUL
 
 // fran1 -- return a random floating-point number on the interval [0,1)
 //
@@ -43,27 +44,32 @@ void InstallUniformRandomStream(IUniformRandomStream* pStream)
 //-----------------------------------------------------------------------------
 // A couple of convenience functions to access the library's global uniform stream
 //-----------------------------------------------------------------------------
-void RandomSeed(int iSeed)
+void RandomSeed(const int iSeed)
 {
 	s_pUniformStream->SetSeed(iSeed);
 }
 
-float RandomFloat(float flMinVal, float flMaxVal)
+float RandomFloat(const float flMinVal, const float flMaxVal)
 {
 	return s_pUniformStream->RandomFloat(flMinVal, flMaxVal);
 }
 
-float RandomFloatExp(float flMinVal, float flMaxVal, float flExponent)
+float RandomFloatExp(const float flMinVal, const float flMaxVal, const float flExponent)
 {
 	return s_pUniformStream->RandomFloatExp(flMinVal, flMaxVal, flExponent);
 }
 
-int RandomInt(int iMinVal, int iMaxVal)
+int RandomInt(const int iMinVal, const int iMaxVal)
 {
 	return s_pUniformStream->RandomInt(iMinVal, iMaxVal);
 }
 
-float RandomGaussianFloat(float flMean, float flStdDev)
+int RandomShortMax()
+{
+	return s_pUniformStream->RandomShortMax();
+}
+
+float RandomGaussianFloat(const float flMean, const float flStdDev)
 {
 	return s_GaussianStream.RandomFloat(flMean, flStdDev);
 }
@@ -79,61 +85,37 @@ CUniformRandomStream::CUniformRandomStream()
 	SetSeed(0);
 }
 
-void CUniformRandomStream::SetSeed(int iSeed)
+void CUniformRandomStream::SetSeed(const int iSeed)
 {
-	std::lock_guard<std::mutex> l(m_mutex);
+	AUTO_LOCK( m_mutex );
+	m_idum = iSeed;
+}
 
-	m_idum = ((iSeed < 0) ? iSeed : -iSeed);
-	m_iy = 0;
+int CUniformRandomStream::GetSeed() const
+{
+	return m_idum;
 }
 
 int CUniformRandomStream::GenerateRandomNumber()
 {
-	std::lock_guard<std::mutex> l(m_mutex);
-	int j;
-	int k;
+	AUTO_LOCK( m_mutex );
 
-	if (m_idum <= 0 || !m_iy)
+	if (m_idum <= 0)
 	{
 		if (-(m_idum) < 1)
 			m_idum = 1;
 		else
 			m_idum = -(m_idum);
-
-		for (j = NTAB + 7; j >= 0; j--)
-		{
-			k = (m_idum) / IQ;
-			m_idum = IA * (m_idum - k * IQ) - IR * k;
-			if (m_idum < 0)
-				m_idum += IM;
-			if (j < NTAB)
-				m_iv[j] = m_idum;
-		}
-		m_iy = m_iv[0];
 	}
-	k = (m_idum) / IQ;
+	const int k = (m_idum) / IQ;
 	m_idum = IA * (m_idum - k * IQ) - IR * k;
 	if (m_idum < 0)
 		m_idum += IM;
-	j = m_iy / NDIV;
 
-	// We're seeing some strange memory corruption in the contents of s_pUniformStream. 
-	// Perhaps it's being caused by something writing past the end of this array? 
-	// Bounds-check in release to see if that's the case.
-	if (j >= NTAB || j < 0)
-	{
-		//DebuggerBreakIfDebugging();
-		//Warning(eDLL_T::COMMON, "CUniformRandomStream had an array overrun: tried to write to element %d of 0..31. Contact Tom or Elan.\n", j);
-		j = (j % NTAB) & 0x7fffffff;
-	}
-
-	m_iy = m_iv[j];
-	m_iv[j] = m_idum;
-
-	return m_iy;
+	return m_idum;
 }
 
-float CUniformRandomStream::RandomFloat(float flLow, float flHigh)
+float CUniformRandomStream::RandomFloat(const float flLow, const float flHigh)
 {
 	// float in [0,1)
 	float fl = float(AM) * GenerateRandomNumber();
@@ -144,7 +126,7 @@ float CUniformRandomStream::RandomFloat(float flLow, float flHigh)
 	return (fl * (flHigh - flLow)) + flLow; // float in [low,high)
 }
 
-float CUniformRandomStream::RandomFloatExp(float flMinVal, float flMaxVal, float flExponent)
+float CUniformRandomStream::RandomFloatExp(const float flMinVal, const float flMaxVal, const float flExponent)
 {
 	// float in [0,1)
 	float fl = float(AM) * GenerateRandomNumber();
@@ -159,9 +141,10 @@ float CUniformRandomStream::RandomFloatExp(float flMinVal, float flMaxVal, float
 	return (fl * (flMaxVal - flMinVal)) + flMinVal; // float in [low,high)
 }
 
-int CUniformRandomStream::RandomInt(int iLow, int iHigh)
+int CUniformRandomStream::RandomInt(const int iLow, const int iHigh)
 {
-	//ASSERT(lLow <= lHigh);
+	Assert(lLow <= lHigh);
+
 	unsigned int maxAcceptable;
 	unsigned int x = iHigh - iLow + 1;
 	unsigned int n;
@@ -185,6 +168,11 @@ int CUniformRandomStream::RandomInt(int iLow, int iHigh)
 	} while (n > maxAcceptable);
 
 	return iLow + (n % x);
+}
+
+int CUniformRandomStream::RandomShortMax()
+{
+	return RandomInt(0, MAX_RANDOM_RANGE_SHORT);
 }
 
 

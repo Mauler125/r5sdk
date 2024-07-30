@@ -23,12 +23,16 @@ class IUniformRandomStream
 {
 public:
 	// Sets the seed of the random number generator
-	virtual void	SetSeed(int iSeed) = 0;
+	virtual void	SetSeed(const int iSeed) = 0;
+	virtual int		GetSeed() const = 0;
 
 	// Generates random numbers
-	virtual float	RandomFloat(float flMinVal = 0.0f, float flMaxVal = 1.0f) = 0;
-	virtual int		RandomInt(int iMinVal, int iMaxVal) = 0;
-	virtual float	RandomFloatExp(float flMinVal = 0.0f, float flMaxVal = 1.0f, float flExponent = 1.0f) = 0;
+	virtual float	RandomFloat(const float flMinVal = 0.0f, const float flMaxVal = 1.0f) = 0;
+	virtual int		RandomInt(const int iMinVal, const int iMaxVal) = 0;
+	virtual float	RandomFloatExp(const float flMinVal = 0.0f, const float flMaxVal = 1.0f, const float flExponent = 1.0f) = 0;
+	virtual int		RandomShortMax() = 0;
+
+	virtual ~IUniformRandomStream() {};
 };
 
 
@@ -41,21 +45,22 @@ public:
 	CUniformRandomStream();
 
 	// Sets the seed of the random number generator
-	virtual void	SetSeed(int iSeed);
+	virtual void	SetSeed(const int iSeed);
+	virtual int		GetSeed() const;
 
 	// Generates random numbers
-	virtual float	RandomFloat(float flMinVal = 0.0f, float flMaxVal = 1.0f);
-	virtual int		RandomInt(int iMinVal, int iMaxVal);
-	virtual float	RandomFloatExp(float flMinVal = 0.0f, float flMaxVal = 1.0f, float flExponent = 1.0f);
+	virtual float	RandomFloat(const float flMinVal = 0.0f, const float flMaxVal = 1.0f);
+	virtual int		RandomInt(const int iMinVal, const int iMaxVal);
+	virtual float	RandomFloatExp(const float flMinVal = 0.0f, const float flMaxVal = 1.0f, const float flExponent = 1.0f);
+	virtual int		RandomShortMax();
+
+	virtual ~CUniformRandomStream() {};
 
 private:
 	int		GenerateRandomNumber();
 
 	int m_idum;
-	int m_iy;
-	int m_iv[NTAB];
-
-	std::mutex m_mutex;
+	CThreadMutex m_mutex;
 };
 
 
@@ -87,11 +92,12 @@ private:
 //-----------------------------------------------------------------------------
 // A couple of convenience functions to access the library's global uniform stream
 //-----------------------------------------------------------------------------
-void	RandomSeed(int iSeed);
-float	RandomFloat(float flMinVal = 0.0f, float flMaxVal = 1.0f);
-float	RandomFloatExp(float flMinVal = 0.0f, float flMaxVal = 1.0f, float flExponent = 1.0f);
-int	RandomInt(int iMinVal, int iMaxVal);
-float	RandomGaussianFloat(float flMean = 0.0f, float flStdDev = 1.0f);
+void	RandomSeed(const int iSeed);
+float	RandomFloat(const float flMinVal = 0.0f, const float flMaxVal = 1.0f);
+float	RandomFloatExp(const float flMinVal = 0.0f, const float flMaxVal = 1.0f, const float flExponent = 1.0f);
+int	RandomInt(const int iMinVal, const int iMaxVal);
+int	RandomShortMax();
+float	RandomGaussianFloat(const float flMean = 0.0f, const float flStdDev = 1.0f);
 
 
 //-----------------------------------------------------------------------------
