@@ -27,11 +27,13 @@ extern ConVar usercmd_dualwield_enable;
 // Forward declarations
 //-------------------------------------------------------------------------------------
 class CUserCmd;
+class CUserCmdExtended;
 
 inline CUserCmd*(*CUserCmd__CUserCmd)(CUserCmd* pUserCmd);
 inline void(*CUserCmd__Reset)(CUserCmd* pUserCmd);
 inline CUserCmd*(*CUserCmd__Copy)(CUserCmd* pDest, CUserCmd* pSource);
 inline int(*v_ReadUserCmd)(bf_read* buf, CUserCmd* move, CUserCmd* from);
+inline int(*v_ReadUserCmdExtended)(bf_read* buf, CUserCmdExtended* move, CUserCmdExtended* from);
 
 //-------------------------------------------------------------------------------------
 #pragma pack(push, 1)
@@ -107,6 +109,7 @@ public:
 
 static_assert(sizeof(CUserCmd) == 0x1DC);
 
+// The client-side input version of the UserCmd class
 class CUserCmdExtended : public CUserCmd
 {
 	// todo: reverse engineer.
@@ -114,6 +117,7 @@ class CUserCmdExtended : public CUserCmd
 };
 
 int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from);
+int ReadUserCmdExtended(bf_read* buf, CUserCmdExtended* move, CUserCmdExtended* from);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VUserCmd : public IDetour
@@ -124,6 +128,7 @@ class VUserCmd : public IDetour
 		LogFunAdr("CUserCmd::Reset", CUserCmd__Reset);
 		LogFunAdr("CUserCmd::Copy", CUserCmd__Copy);
 		LogFunAdr("ReadUserCmd", v_ReadUserCmd);
+		LogFunAdr("ReadUserCmdExtended", v_ReadUserCmdExtended);
 	}
 	virtual void GetFun(void) const
 	{
@@ -131,6 +136,7 @@ class VUserCmd : public IDetour
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B DF 66 83 FE FF").FollowNearCallSelf().GetPtr(CUserCmd__Reset);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 9B ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CUserCmd__Copy);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C6 48 81 C6 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(v_ReadUserCmd);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 4B ?? 4C 8D 35 ?? ?? ?? ?? 8B 53").FollowNearCallSelf().GetPtr(v_ReadUserCmdExtended);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
