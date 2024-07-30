@@ -20,9 +20,9 @@
 
 // fran1 -- return a random floating-point number on the interval [0,1)
 //
-#define AM (1.0/IM)
-#define EPS 1.2e-7
-#define RNMX (1.0-EPS)
+#define AM (1.0f/IM)
+#define EPS 1.2e-7f
+#define RNMX (1.0f-EPS)
 
 //-----------------------------------------------------------------------------
 // globals
@@ -118,22 +118,14 @@ int CUniformRandomStream::GenerateRandomNumber()
 float CUniformRandomStream::RandomFloat(const float flLow, const float flHigh)
 {
 	// float in [0,1)
-	float fl = float(AM) * GenerateRandomNumber();
-	if (fl > RNMX)
-	{
-		fl = float(RNMX);
-	}
+	const float fl = Min(AM * GenerateRandomNumber(), RNMX);
 	return (fl * (flHigh - flLow)) + flLow; // float in [low,high)
 }
 
 float CUniformRandomStream::RandomFloatExp(const float flMinVal, const float flMaxVal, const float flExponent)
 {
 	// float in [0,1)
-	float fl = float(AM) * GenerateRandomNumber();
-	if (fl > RNMX)
-	{
-		fl = float(RNMX);
-	}
+	float fl = Min(AM * GenerateRandomNumber(), RNMX);
 	if (flExponent != 1.0f)
 	{
 		fl = powf(fl, flExponent);
