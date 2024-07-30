@@ -51,7 +51,7 @@ int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from)
 	// time to the exact values that the client should be using to make sure
 	// it couldn't be circumvented by busting out the client side clamps.
 	if (host_timescale->GetFloat() == 1.0f)
-		move->frametime = clamp(move->frametime,
+		move->frametime = Clamp(move->frametime,
 			usercmd_frametime_min.GetFloat(),
 			usercmd_frametime_max.GetFloat());
 
