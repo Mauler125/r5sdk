@@ -12,6 +12,7 @@
 #include "public/edict.h"
 #include "game/server/detour_impl.h"
 #include "game/server/ai_networkmanager.h"
+#include "game/shared/util_shared.h"
 
 #include "vscript/languages/squirrel_re/vsquirrel.h"
 
@@ -145,7 +146,8 @@ void Detour_HotSwap()
         const NavMeshType_e navType = NAI_Hull::NavMeshType(npc->GetHullType());
         const dtNavMesh* const navMesh = Detour_GetNavMeshByType(navType);
 
-        pathFinder->GetNavMeshQuery()->init(navMesh, 2048);
+        if (dtStatusFailed(pathFinder->GetNavMeshQuery()->init(navMesh, 2048)))
+            Error(eDLL_T::SERVER, NOERROR, "%s - Failed to initialize Detour NavMesh query for %s\n", __FUNCTION__, UTIL_GetEntityScriptInfo(npc));
     }
 
     g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapEnd");
