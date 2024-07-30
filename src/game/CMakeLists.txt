@@ -75,9 +75,11 @@ add_sources( SOURCE_GROUP "Script"
 )
 
 add_sources( SOURCE_GROUP "Weapon"
+    "shared/r1/weapon_playerdata.h"
     "shared/r1/weapon_bolt.cpp"
     "shared/r1/weapon_bolt.h"
     "shared/r1/grapple.h"
+    "shared/r1/smartammo.h"
 )
 
 endif()
@@ -149,6 +151,10 @@ add_sources( SOURCE_GROUP "Player"
     "server/player_command.cpp"
     "server/player_command.h"
     "server/playerlocaldata.h"
+)
+
+add_sources( SOURCE_GROUP "Weapon"
+    "server/r1/weapon_x.h"
 )
 
 add_sources( SOURCE_GROUP "Script"
