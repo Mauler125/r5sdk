@@ -15,7 +15,7 @@
 
 class CFogParams
 {
-	char gap_0[8];
+	void* __vftable;
 	float botAlt;
 	float topAlt;
 	float halfDistBot;
@@ -38,7 +38,7 @@ class CFogParams
 
 struct sky3dparams_t
 {
-	char gap_0[8];
+	void* __vftable;
 	int scale;
 	int cellNum;
 	bool useWorldFog;
@@ -48,7 +48,7 @@ struct sky3dparams_t
 
 struct audioparams_t
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D localSound[8];
 	int soundscapeIndex;
 	int localBits;

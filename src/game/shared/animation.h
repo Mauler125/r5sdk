@@ -22,7 +22,7 @@ class CAnimationLayer
 
 struct PredictedAnimEventData
 {
-	char gap_0[8];
+	void* __vftable;
 	float m_predictedAnimEventTimes[8];
 	int m_predictedAnimEventIndices[8];
 	int m_predictedAnimEventCount;
@@ -35,7 +35,7 @@ struct PredictedAnimEventData
 
 struct AnimRelativeData
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D m_animInitialPos;
 	Vector3D m_animInitialVel;
 	Quaternion m_animInitialRot;
@@ -56,7 +56,7 @@ struct AnimRelativeData
 
 struct Player_AnimViewEntityData
 {
-	char gap_0[8];
+	void* __vftable;
 	int animViewEntityHandle;
 	float animViewEntityAngleLerpInDuration;
 	float animViewEntityOriginLerpInDuration;

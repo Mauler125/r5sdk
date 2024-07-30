@@ -23,7 +23,7 @@ struct WeaponDropInfo
 /* 1410 */
 struct WeaponInventory
 {
-	char gap_0[8];
+	void* __vftable;
 	int weapons[9];
 	int offhandWeapons[6];
 	int activeWeapons[3];
@@ -31,7 +31,7 @@ struct WeaponInventory
 
 struct CTether
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D pos;
 	float health;
 	float nextSoundTime;
@@ -118,7 +118,6 @@ private:
 	char gap_171b[1];
 	float m_cloakReactEndTime;
 	CTether m_tethers[2];
-	char gap_1768[8];
 	int m_titanSoul;
 	Vector3D m_lastFootstepDamagePos;
 	bool m_lastFoostepDamageOnGround;

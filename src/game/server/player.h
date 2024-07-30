@@ -36,7 +36,7 @@ enum PlayerConnectedState
 // TODO: Move to separate header file!!
 struct ThirdPersonViewData
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D m_thirdPersonEntViewOffset;
 	bool m_thirdPersonEntShouldViewAnglesFollowThirdPersonEnt;
 	bool m_thirdPersonEntPitchIsFreelook;
@@ -66,7 +66,7 @@ struct ThirdPersonViewData
 };
 struct PlayerZiplineData
 {
-	char gap_0[8];
+	void* __vftable;
 	bool m_ziplineReenableWeapons;
 	char gap_9[3];
 	float m_mountingZiplineDuration;
@@ -83,7 +83,7 @@ struct PlayerZiplineData
 };
 struct CurrentData_Player
 {
-	char gap_0[8];
+	void* __vftable;
 	float m_flHullHeight;
 	float m_traversalAnimProgress;
 	float m_sprintTiltFrac;
@@ -92,7 +92,7 @@ struct CurrentData_Player
 };
 struct CurrentData_LocalPlayer
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D m_viewConeAngleMin;
 	Vector3D m_viewConeAngleMax;
 	Vector3D m_stepSmoothingOffset;
@@ -133,7 +133,7 @@ struct MatchMetrics
 
 struct CPlayerShared // !TODO: MOVE INTO SHARED!!!
 {
-	char gap_0[8];
+	void* __vftable;
 	int m_nPlayerCond;
 	bool m_bLoadoutUnavailable;
 	char gap_d[3];
@@ -161,7 +161,7 @@ struct PredictableServerEvent
 
 struct CKnockBack
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D velocity;
 	float beginTime;
 	float endTime;
@@ -738,7 +738,6 @@ private:
 	bool m_forceWeaponReload;
 	char gap_7bd9[7];
 	CKnockBack m_playerKnockBacks[4];
-	char gap_7c50[16];
 	SpeedChangeHistoryEntry m_speedChangeHistory[32];
 	int m_speedChangeHistoryIndex;
 	bool m_hasValidTraceToKnockBackEyePosition;

@@ -8,7 +8,7 @@
 
 struct StatusEffectTimedData
 {
-	char gap_0[8];
+	void* __vftable;
 	int seComboVars;
 	float seTimeEnd;
 	float seEaseOut;
@@ -17,7 +17,7 @@ struct StatusEffectTimedData
 
 struct StatusEffectEndlessData
 {
-	char gap_0[8];
+	void* __vftable;
 	int seComboVars;
 	char gap_c[4];
 };

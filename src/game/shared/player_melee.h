@@ -3,7 +3,7 @@
 
 struct PlayerMelee_PlayerData
 {
-	char gap_0[8];
+	void* __vftable;
 	int meleeAttackParity;
 	bool attackActive;
 	bool attackRecoveryShouldBeQuick;

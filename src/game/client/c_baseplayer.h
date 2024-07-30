@@ -231,7 +231,6 @@ class C_Player : public C_BaseCombatCharacter
 	float m_slipAirRestrictTime;
 	char gap_2ae0[400];
 	PlayerMelee_PlayerData m_melee;
-	char gap_2c70[4];
 	bool m_useCredit;
 	char gap_2ca9[979];
 	float m_wallRunStartTime;

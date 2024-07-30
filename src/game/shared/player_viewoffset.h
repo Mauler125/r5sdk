@@ -3,7 +3,7 @@
 
 struct Player_ViewOffsetEntityData
 {
-	char gap_0[8];
+	void* __vftable;
 	int viewOffsetEntityHandle;
 	float lerpInDuration;
 	float lerpOutDuration;

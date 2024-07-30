@@ -19,7 +19,7 @@
 //-----------------------------------------------------------------------------
 class CPlayerLocalData
 {
-	char gap_0[8];
+	void* __vftable;
 	int m_iHideHUD;
 	Vector3D m_vecOverViewpoint;
 	bool m_duckToggleOn;

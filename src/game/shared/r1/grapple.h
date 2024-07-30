@@ -5,7 +5,7 @@
 
 struct GrappleData
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D m_grappleVel;
 	Vector3D m_grapplePoints[4];
 	int m_grapplePointCount;
