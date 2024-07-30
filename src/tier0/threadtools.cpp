@@ -14,7 +14,7 @@ CThreadMutex::CThreadMutex()
 #ifdef THREAD_MUTEX_TRACING_ENABLED
 	memset(&m_CriticalSection, 0, sizeof(m_CriticalSection));
 #endif
-	InitializeCriticalSectionAndSpinCount((CRITICAL_SECTION*)&m_CriticalSection, 4000);
+	InitializeCriticalSectionAndSpinCount(&m_CriticalSection, 4000);
 #ifdef THREAD_MUTEX_TRACING_SUPPORTED
 	// These need to be initialized unconditionally in case mixing release & debug object modules
 	// Lock and unlock may be emitted as COMDATs, in which case may get spurious output
@@ -25,7 +25,7 @@ CThreadMutex::CThreadMutex()
 
 CThreadMutex::~CThreadMutex()
 {
-	DeleteCriticalSection((CRITICAL_SECTION*)&m_CriticalSection);
+	DeleteCriticalSection(&m_CriticalSection);
 }
 
 #define INIT_SEM_COUNT 0

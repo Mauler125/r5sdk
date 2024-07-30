@@ -319,17 +319,7 @@ private:
 	CThreadMutex& operator=(const CThreadMutex&);
 
 #if defined( _WIN32 )
-	// Efficient solution to breaking the windows.h dependency, invariant is tested.
-#ifdef _WIN64
-#define TT_SIZEOF_CRITICALSECTION 40
-#else
-#ifndef _X360
-#define TT_SIZEOF_CRITICALSECTION 24
-#else
-#define TT_SIZEOF_CRITICALSECTION 28
-#endif // !_X360
-#endif // _WIN64
-	byte m_CriticalSection[TT_SIZEOF_CRITICALSECTION];
+	CRITICAL_SECTION m_CriticalSection;
 #elif defined( _PS3 )
 	sys_mutex_t m_Mutex;
 #elif defined(POSIX)
@@ -382,7 +372,7 @@ inline void CThreadMutex::Lock()
 #if defined( THREAD_MUTEX_TRACING_ENABLED )
 	uint thisThreadID = ThreadGetCurrentId();
 	if (m_bTrace && m_currentOwnerID && (m_currentOwnerID != thisThreadID))
-		Msg(eDLL_T::COMMON, _T("Thread %u about to wait for lock %p owned by %u\n"), ThreadGetCurrentId(), (CRITICAL_SECTION*)&m_CriticalSection, m_currentOwnerID);
+		Msg(eDLL_T::COMMON, _T("Thread %u about to wait for lock %p owned by %u\n"), ThreadGetCurrentId(), &m_CriticalSection, m_currentOwnerID);
 #endif
 
 	LockSilent();
@@ -393,7 +383,7 @@ inline void CThreadMutex::Lock()
 		// we now own it for the first time.  Set owner information
 		m_currentOwnerID = thisThreadID;
 		if (m_bTrace)
-			Msg(eDLL_T::COMMON, _T("Thread %u now owns lock 0x%p\n"), m_currentOwnerID, (CRITICAL_SECTION*)&m_CriticalSection);
+			Msg(eDLL_T::COMMON, _T("Thread %u now owns lock 0x%p\n"), m_currentOwnerID, &m_CriticalSection);
 	}
 	m_lockCount++;
 #endif
@@ -417,7 +407,7 @@ inline void CThreadMutex::Unlock()
 	if (m_lockCount == 0)
 	{
 		if (m_bTrace)
-			Msg(eDLL_T::COMMON, _T("Thread %u releasing lock 0x%p\n"), m_currentOwnerID, (CRITICAL_SECTION*)&m_CriticalSection);
+			Msg(eDLL_T::COMMON, _T("Thread %u releasing lock 0x%p\n"), m_currentOwnerID, &m_CriticalSection);
 		m_currentOwnerID = 0;
 	}
 #endif
@@ -430,7 +420,7 @@ inline void CThreadMutex::Unlock()
 inline void CThreadMutex::LockSilent()
 {
 #ifdef MSVC
-	EnterCriticalSection((CRITICAL_SECTION*)&m_CriticalSection);
+	EnterCriticalSection(&m_CriticalSection);
 #else
 	DebuggerBreak();	// should not be called - not defined for this platform/compiler!!!
 #endif
@@ -441,7 +431,7 @@ inline void CThreadMutex::LockSilent()
 inline void CThreadMutex::UnlockSilent()
 {
 #ifdef MSVC
-	LeaveCriticalSection((CRITICAL_SECTION*)&m_CriticalSection);
+	LeaveCriticalSection(&m_CriticalSection);
 #else
 	DebuggerBreak();	// should not be called - not defined for this platform/compiler!!!
 #endif
@@ -455,7 +445,7 @@ inline bool CThreadMutex::AssertOwnedByCurrentThread()
 #ifdef _WIN32
 	if (ThreadGetCurrentId() == m_currentOwnerID)
 		return true;
-	AssertMsg(0, "Expected thread %u as owner of lock 0x%p, but %u owns", ThreadGetCurrentId(), (CRITICAL_SECTION*)&m_CriticalSection, m_currentOwnerID);
+	AssertMsg(0, "Expected thread %u as owner of lock 0x%p, but %u owns", ThreadGetCurrentId(), &m_CriticalSection, m_currentOwnerID);
 	return false;
 #elif defined( _PS3 )
 	return true;
