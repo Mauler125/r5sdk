@@ -186,7 +186,7 @@ CGaussianRandomStream::CGaussianRandomStream(IUniformRandomStream* pUniformStrea
 //-----------------------------------------------------------------------------
 void CGaussianRandomStream::AttachToStream(IUniformRandomStream* pUniformStream)
 {
-	std::lock_guard<std::mutex> l(m_mutex);
+	AUTO_LOCK( m_mutex );
 
 	m_pUniformStream = pUniformStream;
 	m_bHaveValue = false;
@@ -198,7 +198,7 @@ void CGaussianRandomStream::AttachToStream(IUniformRandomStream* pUniformStream)
 //-----------------------------------------------------------------------------
 float CGaussianRandomStream::RandomFloat(float flMean, float flStdDev)
 {
-	std::lock_guard<std::mutex> l(m_mutex);
+	AUTO_LOCK( m_mutex );
 
 	IUniformRandomStream* pUniformStream = m_pUniformStream ? m_pUniformStream : s_pUniformStream;
 	float fac, rsq, v1, v2;

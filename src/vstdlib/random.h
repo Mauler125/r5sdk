@@ -85,7 +85,7 @@ private:
 	bool	m_bHaveValue;
 	float	m_flRandomValue;
 
-	std::mutex m_mutex;
+	CThreadMutex m_mutex;
 };
 
 
