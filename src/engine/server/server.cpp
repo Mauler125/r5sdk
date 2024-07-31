@@ -21,6 +21,7 @@
 #include "public/edict.h"
 #include "pluginsystem/pluginsystem.h"
 #include "rtech/liveapi/liveapi.h"
+#include "game/server/gameinterface.h"
 
 //---------------------------------------------------------------------------------
 // Console variables
@@ -44,7 +45,7 @@ static ConVar sv_maxPersonaNameLength("sv_maxPersonaNameLength", "16", FCVAR_REL
 int CServer::GetNumHumanPlayers(void) const
 {
 	int nHumans = 0;
-	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
 		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)
@@ -64,7 +65,7 @@ int CServer::GetNumHumanPlayers(void) const
 int CServer::GetNumFakeClients(void) const
 {
 	int nBots = 0;
-	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
 		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)
@@ -84,7 +85,7 @@ int CServer::GetNumFakeClients(void) const
 int CServer::GetNumClients(void) const
 {
 	int nClients = 0;
-	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
 		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)

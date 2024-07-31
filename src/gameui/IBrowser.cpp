@@ -37,6 +37,7 @@ History:
 #include "gameui/IBrowser.h"
 #include "public/edict.h"
 #include "game/shared/vscript_shared.h"
+#include "game/server/gameinterface.h"
 
 static ConCommand togglebrowser("togglebrowser", CBrowser::ToggleBrowser_f, "Show/hide the server browser", FCVAR_CLIENTDLL | FCVAR_RELEASE);
 
@@ -818,7 +819,7 @@ void CBrowser::UpdateHostingStatus(void)
             *g_nServerRemoteChecksum,
             SDK_VERSION,
             g_pServer->GetNumClients(),
-            g_ServerGlobalVariables->m_nMaxClients,
+            gpGlobals->maxClients,
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now().time_since_epoch()
                 ).count()

@@ -20,6 +20,17 @@
 #endif // !DEDICATED
 /*****************************************************************************/
 
+static CGlobalVarsBase dummyvars(true);
+// So stuff that might reference gpGlobals during DLL initialization won't have a NULL pointer.
+// Once the engine calls Init on this DLL, this pointer gets assigned to the shared data in the engine
+CGlobalVarsBase* gpGlobals = &dummyvars;
+
+int CHLClient::Init(CHLClient* thisptr, CreateInterfaceFn appSystemFactory, CGlobalVarsBase* pGlobals)
+{
+	gpGlobals = pGlobals;
+	return CHLClient__Init(thisptr, appSystemFactory, pGlobals);
+}
+
 #ifndef DEDICATED
 //-----------------------------------------------------------------------------
 // Purpose: pre frame stage notify hook
@@ -99,6 +110,7 @@ ClientClass* CHLClient::GetAllClasses()
 void VDll_Engine_Int::Detour(const bool bAttach) const
 {
 #ifndef DEDICATED
+	DetourSetup(&CHLClient__Init, &CHLClient::Init, bAttach);
 	DetourSetup(&CHLClient__FrameStageNotify, &CHLClient::FrameStageNotify, bAttach);
 #endif // !DEDICATED
 }

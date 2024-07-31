@@ -107,7 +107,7 @@ bool Detour_IsLoaded()
         if (!nav) // Failed to load...
         {
             Warning(eDLL_T::SERVER, "NavMesh '%s%s_%s%s' not loaded\n", 
-                NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, 
+                NAVMESH_PATH, gpGlobals->mapName.ToCStr(),
                 NavMesh_GetNameForType(NavMeshType_e(i)), NAVMESH_EXT);
 
             ret++;
@@ -167,7 +167,7 @@ static void Detour_HotSwap_f()
         return; // Only execute if server is initialized and active.
 
     Msg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n",
-        g_ServerGlobalVariables->m_pszMapName);
+        gpGlobals->mapName.ToCStr());
 
     CFastTimer timer;
 

@@ -24,14 +24,14 @@ bool CAI_InterestTarget_t::IsThis(CBaseEntity* pThis)
 
 bool CAI_InterestTarget_t::IsActive(void)
 {
-	if (m_flEndTime < (*g_pGlobals)->m_flCurTime) return false;
+	if (m_flEndTime < gpGlobals->curTime) return false;
 	if (m_eType == LOOKAT_ENTITY && m_hTarget == NULL) return false;
 	return true;
 };
 
 float CAI_InterestTarget_t::Interest(void)
 {
-	float t = ((*g_pGlobals)->m_flCurTime - m_flStartTime) / (m_flEndTime - m_flStartTime);
+	float t = (gpGlobals->curTime - m_flStartTime) / (m_flEndTime - m_flStartTime);
 
 	if (t < 0.0f || t > 1.0f)
 		return 0.0f;
@@ -67,7 +67,7 @@ void CAI_InterestTarget::Add(CBaseEntity* pTarget, float flImportance, float flD
 
 		if (target.m_hTarget == pTarget && target.m_rampDuration == 0)
 		{
-			if (target.m_flStartTime == (*g_pGlobals)->m_flCurTime)
+			if (target.m_flStartTime == gpGlobals->curTime)
 			{
 				flImportance = MAX(flImportance, target.m_flInterest);
 			}
@@ -107,7 +107,7 @@ void CAI_InterestTarget::Add(CBaseEntity* pTarget, const Vector3D& vecPosition, 
 
 		if (target.m_hTarget == pTarget)
 		{
-			if (target.m_flStartTime == (*g_pGlobals)->m_flCurTime)
+			if (target.m_flStartTime == gpGlobals->curTime)
 			{
 				flImportance = MAX(flImportance, target.m_flInterest);
 			}
@@ -128,7 +128,7 @@ void CAI_InterestTarget::Add(CAI_InterestTarget_t::CAI_InterestTarget_e type, CB
 	target.m_hTarget = pTarget;
 	target.m_vecPosition = vecPosition;
 	target.m_flInterest = flImportance;
-	target.m_flStartTime = (*g_pGlobals)->m_flCurTime;
-	target.m_flEndTime = (*g_pGlobals)->m_flCurTime + flDuration;
+	target.m_flStartTime = gpGlobals->curTime;
+	target.m_flEndTime = gpGlobals->curTime + flDuration;
 	target.m_rampDuration = flRamp / flDuration;
 }

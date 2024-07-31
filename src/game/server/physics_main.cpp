@@ -22,7 +22,7 @@ void Physics_RunBotSimulation(bool bSimulating)
 	if (!sv_simulateBots.GetBool())
 		return;
 
-	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	for (int i = 0; i < g_ServerGlobalVariables->maxClients; i++)
 	{
 		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)

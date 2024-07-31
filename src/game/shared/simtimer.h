@@ -34,7 +34,7 @@ public:
 
 	bool Expired() const
 	{
-		return ( (*g_pGlobals)->m_flCurTime - m_next > -ST_EPS );
+		return ( gpGlobals->curTime - m_next > -ST_EPS );
 	}
 
 	float Delay( float delayTime )
@@ -49,21 +49,21 @@ public:
 
 	void Set( float interval )
 	{
-		m_next = (*g_pGlobals)->m_flCurTime + interval;
+		m_next = gpGlobals->curTime + interval;
 	}
 
 	// TODO: get CUniformRandomStream global, see 141809528 for global!!!
 	//void Set( float minInterval, float maxInterval )
 	//{ 
 	//	if ( maxInterval > 0.0 )
-	//		m_next = (*g_pGlobals)->m_flCurTime + random->RandomFloat( minInterval, maxInterval );
+	//		m_next = gpGlobals->m_flCurTime + random->RandomFloat( minInterval, maxInterval );
 	//	else
-	//		m_next = (*g_pGlobals)->m_flCurTime + minInterval;
+	//		m_next = gpGlobals->m_flCurTime + minInterval;
 	//}
 
 	float GetRemaining() const
 	{
-		float result = m_next - (*g_pGlobals)->m_flCurTime;
+		float result = m_next - gpGlobals->curTime;
 		if (result < 0 )
 			return 0;
 		return result;
@@ -88,18 +88,18 @@ public:
 	void Set( float interval, bool startExpired = true )
 	{ 
 		m_interval = interval;
-		m_next = (startExpired) ? -1.0f : (*g_pGlobals)->m_flCurTime + m_interval;
+		m_next = (startExpired) ? -1.0f : gpGlobals->curTime + m_interval;
 	}
 
 	void Reset( float interval = -1.0f )
 	{
 		if ( interval == -1.0f )
 		{
-			m_next = (*g_pGlobals)->m_flCurTime + m_interval;
+			m_next = gpGlobals->curTime + m_interval;
 		}
 		else
 		{
-			m_next = (*g_pGlobals)->m_flCurTime + interval;
+			m_next = gpGlobals->curTime + interval;
 		}
 	}
 
@@ -139,18 +139,18 @@ public:
 	//	else
 	//	{
 	//		if ( m_maxInterval == 0 )
-	//			m_next = (*g_pGlobals)->m_flCurTime + m_minInterval;
+	//			m_next = gpGlobals->m_flCurTime + m_minInterval;
 	//		else
-	//			m_next = (*g_pGlobals)->m_flCurTime + random->RandomFloat( m_minInterval, m_maxInterval );
+	//			m_next = gpGlobals->m_flCurTime + random->RandomFloat( m_minInterval, m_maxInterval );
 	//	}
 	//}
 
 	//void Reset()
 	//{
 	//	if ( m_maxInterval == 0 )
-	//		m_next = (*g_pGlobals)->m_flCurTime + m_minInterval;
+	//		m_next = gpGlobals->m_flCurTime + m_minInterval;
 	//	else
-	//		m_next = (*g_pGlobals)->m_flCurTime + random->RandomFloat( m_minInterval, m_maxInterval );
+	//		m_next = gpGlobals->m_flCurTime + random->RandomFloat( m_minInterval, m_maxInterval );
 	//}
 
 	float GetMinInterval() const
@@ -241,7 +241,7 @@ public:
 	void Start( float intervalOverride )
 	{ 
 		m_fIsRunning = true;
-		m_next = (*g_pGlobals)->m_flCurTime + intervalOverride;
+		m_next = gpGlobals->curTime + intervalOverride;
 	}
 
 	void Start()
@@ -281,9 +281,9 @@ public:
 	//{ 
 	//	m_fIsRunning = true;
 	//	if ( maxOverride == 0 )
-	//		m_next = (*g_pGlobals)->m_flCurTime + minOverride;
+	//		m_next = gpGlobals->m_flCurTime + minOverride;
 	//	else
-	//		m_next = (*g_pGlobals)->m_flCurTime + random->RandomFloat( minOverride, maxOverride );
+	//		m_next = gpGlobals->m_flCurTime + random->RandomFloat( minOverride, maxOverride );
 	//}
 
 	//void Start()
@@ -325,21 +325,21 @@ public:
 
 	bool EnterThink()
 	{
-		if ( m_lastTime == (*g_pGlobals)->m_flCurTime)
+		if ( m_lastTime == gpGlobals->curTime)
 			return false;
-		m_lastTime = (*g_pGlobals)->m_flCurTime;
+		m_lastTime = gpGlobals->curTime;
 		return true;
 	}
 
 	bool DidThink() const
 	{
-		return ( (*g_pGlobals)->m_flCurTime == m_lastTime );
+		return ( gpGlobals->curTime == m_lastTime );
 
 	}
 
 	void SetDidThink()
 	{
-		m_lastTime = (*g_pGlobals)->m_flCurTime;
+		m_lastTime = gpGlobals->curTime;
 	}
 
 private:

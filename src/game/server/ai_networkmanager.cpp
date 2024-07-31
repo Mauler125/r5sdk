@@ -40,8 +40,8 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	char szMeshPath[MAX_PATH];
 	char szGraphPath[MAX_PATH];
 
-	V_snprintf(szMeshPath,  sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, NavMesh_GetNameForType(NAVMESH_LARGE), NAVMESH_EXT);
-	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, g_ServerGlobalVariables->m_pszMapName, AINETWORK_EXT);
+	V_snprintf(szMeshPath,  sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, gpGlobals->mapName.ToCStr(), NavMesh_GetNameForType(NAVMESH_LARGE), NAVMESH_EXT);
+	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, gpGlobals->mapName.ToCStr(), AINETWORK_EXT);
 
 	CFastTimer masterTimer;
 	CFastTimer timer;
@@ -69,7 +69,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	// Large NavMesh CRC.
 	DevMsg(eDLL_T::SERVER, " |-- AINet version: '%d'\n", AINET_VERSION_NUMBER);
-	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", g_ServerGlobalVariables->m_nMapVersion);
+	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", gpGlobals->mapVersion);
 	DevMsg(eDLL_T::SERVER, " |-- Runtime CRC: '0x%lX'\n", (*g_ppAINetworkManager)->GetRuntimeCRC());
 
 	CUtlBuffer buf;
@@ -78,7 +78,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	// Save the version numbers
 	// ---------------------------
 	buf.PutInt(AINET_VERSION_NUMBER);
-	buf.PutInt(g_ServerGlobalVariables->m_nMapVersion);
+	buf.PutInt(gpGlobals->mapVersion);
 	buf.PutInt((*g_ppAINetworkManager)->GetRuntimeCRC());
 
 	timer.End();
@@ -419,8 +419,8 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 	char szMeshPath[MAX_PATH];
 	char szGraphPath[MAX_PATH];
 
-	V_snprintf(szMeshPath, sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, NavMesh_GetNameForType(NAVMESH_LARGE), NAVMESH_EXT);
-	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, g_ServerGlobalVariables->m_pszMapName, AINETWORK_EXT);
+	V_snprintf(szMeshPath, sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, gpGlobals->mapName.ToCStr(), NavMesh_GetNameForType(NAVMESH_LARGE), NAVMESH_EXT);
+	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, gpGlobals->mapName.ToCStr(), AINETWORK_EXT);
 
 	int nAiNetVersion = NULL;
 	int nAiMapVersion = NULL;
@@ -474,10 +474,10 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pManager, CUtlBuff
 		}
 		// AIN file was build with a different version of the map, therefore,
 		// the path node positions might be invalid.
-		else if (nAiMapVersion != g_ServerGlobalVariables->m_nMapVersion)
+		else if (nAiMapVersion != gpGlobals->mapVersion)
 		{
 			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (map version: '%d' expected: '%d')\n", 
-				szGraphPath, nAiMapVersion, g_ServerGlobalVariables->m_nMapVersion);
+				szGraphPath, nAiMapVersion, gpGlobals->mapVersion);
 		}
 		// Data checksum is now what the runtime expects.
 		else if (nAiGraphCRC != nAiRuntimeCRC)

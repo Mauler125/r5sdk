@@ -20,6 +20,13 @@
 #include "game/server/util_server.h"
 #include "pluginsystem/pluginsystem.h"
 
+bool CServerGameDLL::DLLInit(CServerGameDLL* thisptr, CreateInterfaceFn appSystemFactory, CreateInterfaceFn physicsFactory,
+	CreateInterfaceFn fileSystemFactory, CGlobalVars* pGlobals)
+{
+	gpGlobals = pGlobals;
+	return CServerGameDLL__DLLInit(thisptr, appSystemFactory, physicsFactory, fileSystemFactory, pGlobals);
+}
+
 //-----------------------------------------------------------------------------
 // This is called when a new game is started. (restart, map)
 //-----------------------------------------------------------------------------
@@ -80,14 +87,13 @@ ServerClass* CServerGameDLL::GetAllServerClasses(void)
 
 static ConVar chat_debug("chat_debug", "0", FCVAR_RELEASE, "Enables chat-related debug printing.");
 
-void __fastcall CServerGameDLL::OnReceivedSayTextMessage(void* thisptr, int senderId, const char* text, bool isTeamChat)
+void CServerGameDLL::OnReceivedSayTextMessage(CServerGameDLL* thisptr, int senderId, const char* text, bool isTeamChat)
 {
-	const CGlobalVars* globals = *g_pGlobals;
 	if (senderId > 0)
 	{
-		if (senderId <= globals->m_nMaxPlayers && senderId != 0xFFFF)
+		if (senderId <= gpGlobals->maxPlayers && senderId != 0xFFFF)
 		{
-			CPlayer* player = reinterpret_cast<CPlayer*>(globals->m_pEdicts[senderId + 30728]);
+			CPlayer* player = reinterpret_cast<CPlayer*>(gpGlobals->m_pEdicts[senderId + 30728]);
 
 			if (player && player->IsConnected())
 			{
@@ -201,6 +207,7 @@ void RunFrameServer(double flFrameTime, bool bRunOverlays, bool bUniformUpdate)
 
 void VServerGameDLL::Detour(const bool bAttach) const
 {
+	DetourSetup(&CServerGameDLL__DLLInit, &CServerGameDLL::DLLInit, bAttach);
 	DetourSetup(&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage, bAttach);
 	DetourSetup(&CServerGameClients__ProcessUserCmds, CServerGameClients::ProcessUserCmds, bAttach);
 	DetourSetup(&v_RunFrameServer, &RunFrameServer, bAttach);
@@ -211,4 +218,4 @@ CServerGameClients* g_pServerGameClients = nullptr;
 CServerGameEnts* g_pServerGameEntities = nullptr;
 
 // Holds global variables shared between engine and game.
-CGlobalVars** g_pGlobals = nullptr;
+CGlobalVars* gpGlobals = nullptr;

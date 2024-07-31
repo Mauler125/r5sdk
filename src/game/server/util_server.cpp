@@ -13,13 +13,13 @@
 //-----------------------------------------------------------------------------
 CPlayer* UTIL_PlayerByIndex(int nIndex)
 {
-	if (nIndex < 1 || nIndex >(*g_pGlobals)->m_nMaxClients || nIndex == FL_EDICT_INVALID)
+	if (nIndex < 1 || nIndex >gpGlobals->maxClients || nIndex == FL_EDICT_INVALID)
 	{
 		assert(0);
 		return nullptr;
 	}
 
 	// !TODO: Improve this!!!
-	CPlayer* pPlayer = reinterpret_cast<CPlayer*>((*g_pGlobals)->m_pEdicts[nIndex + 0x7808]);
+	CPlayer* pPlayer = reinterpret_cast<CPlayer*>(gpGlobals->m_pEdicts[nIndex + 0x7808]);
 	return pPlayer;
 }

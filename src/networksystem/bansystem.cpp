@@ -13,6 +13,7 @@
 #include "engine/client/client.h"
 #include "filesystem/filesystem.h"
 #include "networksystem/bansystem.h"
+#include "game/server/gameinterface.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: loads and parses the banned list
@@ -311,7 +312,7 @@ void CBanSystem::AuthorPlayerByName(const char* playerName, const bool shouldBan
 	if (!reason)
 		reason = shouldBan ? "Banned from server" : "Kicked from server";
 
-	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
 		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)
@@ -362,7 +363,7 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 	if (!reason)
 		reason = shouldBan ? "Banned from server" : "Kicked from server";
 
-	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
 		CClient* pClient = g_pServer->GetClient(i);
 		if (!pClient)

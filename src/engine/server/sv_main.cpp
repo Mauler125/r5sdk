@@ -13,6 +13,7 @@
 #include "networksystem/bansystem.h"
 #include "engine/client/client.h"
 #include "server.h"
+#include "game/server/gameinterface.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if particular client is banned on the comp server
@@ -73,7 +74,7 @@ void SV_CheckClientsForBan(const CBanSystem::BannedList_t* const pBannedVec /*= 
 		? new CBanSystem::BannedList_t 
 		: nullptr;
 
-	for (int c = 0; c < g_ServerGlobalVariables->m_nMaxClients; c++) // Loop through all possible client instances.
+	for (int c = 0; c < gpGlobals->maxClients; c++) // Loop through all possible client instances.
 	{
 		CClient* const pClient = g_pServer->GetClient(c);
 
@@ -176,7 +177,7 @@ bool SV_CanBroadcastVoice()
 	if (!sv_voiceenable->GetBool())
 		return false;
 
-	if (g_ServerGlobalVariables->m_nMaxClients <= 0)
+	if (gpGlobals->maxClients <= 0)
 		return false;
 
 	return true;
@@ -192,7 +193,7 @@ void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data
 
 	SVC_VoiceData voiceData(cl->GetUserID(), nBytes, data);
 
-	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
 		CClient* const pClient = g_pServer->GetClient(i);
 
@@ -239,7 +240,7 @@ void SV_BroadcastDurangoVoiceData(CClient* const cl, const int nBytes, char* con
 
 	SVC_DurangoVoiceData voiceData(cl->GetUserID(), nBytes, data, unknown, useVoiceStream);
 
-	for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
 		CClient* const pClient = g_pServer->GetClient(i);
 
