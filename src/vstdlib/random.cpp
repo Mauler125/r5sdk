@@ -135,7 +135,7 @@ float CUniformRandomStream::RandomFloatExp(const float flMinVal, const float flM
 
 int CUniformRandomStream::RandomInt(const int iLow, const int iHigh)
 {
-	Assert(lLow <= lHigh);
+	Assert(iLow <= iHigh);
 
 	unsigned int maxAcceptable;
 	unsigned int x = iHigh - iLow + 1;
