@@ -104,7 +104,7 @@ bool CModAppSystemGroup::StaticCreate(CModAppSystemGroup* pModAppSystemGroup)
 
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-	g_pClientEntityList = (CClientEntityList*)g_FactorySystem.GetFactory(VCLIENTENTITYLIST_INTERFACE_VERSION);
+	g_pClientEntityList = (IClientEntityList*)g_FactorySystem.GetFactory(VCLIENTENTITYLIST_INTERFACE_VERSION);
 	g_pEngineTraceClient = (CEngineTraceClient*)g_FactorySystem.GetFactory(INTERFACEVERSION_ENGINETRACE_CLIENT);
 
 	g_ImGuiConfig.Load(); // Load ImGui configs.

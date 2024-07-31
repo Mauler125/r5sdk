@@ -207,7 +207,10 @@ add_sources( SOURCE_GROUP "Entity"
     "client/c_baseanimating.h"
     "client/c_baseanimatingoverlay.h"
     "client/c_basecombatcharacter.h"
+    "client/cliententitylist.cpp"
     "client/cliententitylist.h"
+    "client/entitylist_clientbase.h"
+    "client/icliententityinternal.h"
 )
 
 add_sources( SOURCE_GROUP "Player"

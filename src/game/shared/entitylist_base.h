@@ -26,5 +26,26 @@ public:
 	void			ClearLinks();
 };
 
+class CEntInfoList
+{
+public:
+	CEntInfoList();
+
+	const CEntInfo	*Head() const { return m_pHead; }
+	const CEntInfo	*Tail() const { return m_pTail; }
+	CEntInfo		*Head() { return m_pHead; }
+	CEntInfo		*Tail() { return m_pTail; }
+	//void			AddToHead( CEntInfo *pElement ) { LinkAfter( NULL, pElement ); }
+	//void			AddToTail( CEntInfo *pElement ) { LinkBefore( NULL, pElement ); }
+
+	//void LinkBefore( CEntInfo *pBefore, CEntInfo *pElement );
+	//void LinkAfter( CEntInfo *pBefore, CEntInfo *pElement );
+	//void Unlink( CEntInfo *pElement );
+	//bool IsInList( CEntInfo *pElement );
+
+private:
+	CEntInfo		*m_pHead;
+	CEntInfo		*m_pTail;
+};
 
 #endif // ENTITYLIST_BASE_H
