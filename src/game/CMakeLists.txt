@@ -14,8 +14,6 @@ add_sources( SOURCE_GROUP "AI"
 
 add_sources( SOURCE_GROUP "Entity"
     "shared/ehandle.h"
-    "shared/entitylist_base.cpp"
-    "shared/entitylist_base.h"
 )
 
 add_sources( SOURCE_GROUP "Simulation"
@@ -138,6 +136,7 @@ add_sources( SOURCE_GROUP "Entity"
     "server/entityoutput.h"
     "server/soundent.cpp"
     "server/soundent.h"
+    "server/entitylist_serverbase.h"
 )
 
 add_sources( SOURCE_GROUP "Network"

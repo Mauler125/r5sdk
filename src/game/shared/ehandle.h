@@ -34,7 +34,7 @@ inline IHandleEntity* CBaseHandle::Get() const
 	extern CBaseEntityList *g_pEntityList;
 	return g_pEntityList->LookupEntity( *this );
 }
-*/ // !TODO: Obtain ptr.
+*/ // !TODO: Obtain ptr. TODO: Move this out of shared code as the server's structure of BaseEntityList is different!
 
 // -------------------------------------------------------------------------------------------------- //
 // CHandle.

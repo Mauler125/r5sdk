@@ -141,6 +141,7 @@
 #include "game/server/ai_basenpc.h"
 #include "game/server/physics_main.h"
 #include "game/server/vscript_server.h"
+#include "game/server/entitylist.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
@@ -667,11 +668,11 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VServerGameDLL);
 	REGISTER(VMoveHelperServer);
 	REGISTER(VPhysics_Main); // REGISTER SERVER ONLY
-	REGISTER(VBaseEntity);
 	REGISTER(VBaseAnimating);
 	REGISTER(VPlayer);
 	REGISTER(VAI_BaseNPC);
 	REGISTER(VPlayerMove);
+	REGISTER(VServerEntityList);
 
 #endif // !CLIENT_DLL
 

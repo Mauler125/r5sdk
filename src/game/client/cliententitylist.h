@@ -16,7 +16,6 @@
 
 #include "public/icliententitylist.h"
 
-#include "entitylist_clientbase.h"
 #include "icliententityinternal.h"
 #include "entitylist_clientbase.h"
 #include "c_baseplayer.h"
