@@ -104,9 +104,9 @@ CHandle<T>::CHandle( const CBaseHandle &handle )
 
 
 template<class T>
-inline CHandle<T>::CHandle( T *pObj )
-	: CBaseHandle( INVALID_EHANDLE )
+CHandle<T>::CHandle( T *pObj )
 {
+	Term();
 	Set( pObj );
 }
 
@@ -188,10 +188,5 @@ T* CHandle<T>::operator -> () const
 {
 	return Get();
 }
-
-// specialization of EnsureValidValue for CHandle<T>
-template<typename T>
-FORCEINLINE void EnsureValidValue( CHandle<T> &x ) { x = INVALID_EHANDLE; }
-
 
 #endif // EHANDLE_H
