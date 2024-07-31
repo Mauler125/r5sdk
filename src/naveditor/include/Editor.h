@@ -181,6 +181,8 @@ public:
 
 	bool loadAll(std::string path, const bool fullPath = false);
 	void saveAll(std::string path, const dtNavMesh* mesh);
+
+	bool loadNavMesh(const char* path, const bool fullPath = false);
 	
 	void setContext(BuildContext* ctx) { m_ctx = ctx; }
 	
