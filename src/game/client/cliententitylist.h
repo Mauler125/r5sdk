@@ -62,4 +62,27 @@ COMPILE_TIME_ASSERT(sizeof(CClientEntityList) == 0x3800C0);
 
 inline IClientEntityList* g_pClientEntityList = nullptr;
 
+extern CClientEntityList* g_clientEntityList;
+
+///////////////////////////////////////////////////////////////////////////////
+int HSys_Error_Internal(char* fmt, va_list args);
+
+///////////////////////////////////////////////////////////////////////////////
+class VClientEntityList : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		LogVarAdr("g_clientEntityList", g_clientEntityList);
+	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const
+	{
+		g_GameDll.FindPatternSIMD("48 8D 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 44 89 0D").
+			ResolveRelativeAddressSelf(3, 7).ResolveRelativeAddressSelf(3, 7).GetPtr(g_clientEntityList);
+	}
+	virtual void GetCon(void) const { }
+	virtual void Detour(const bool bAttach) const { };
+};
+///////////////////////////////////////////////////////////////////////////////
+
 #endif // CLIENTENTITYLIST_H
