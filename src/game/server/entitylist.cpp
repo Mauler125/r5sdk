@@ -6,12 +6,8 @@
 #include "core/stdafx.h"
 #include "entitylist.h"
 
-IHandleEntity* LookupEntityByIndex(int iEntity)
-{
-	Assert(iEntity >= 0 && iEntity < NUM_ENT_ENTRIES); // Programmer error!
-
-	IHandleEntity* pHandle = reinterpret_cast<IHandleEntity*>(*&g_pEntityList[6 * iEntity]);
-	return pHandle; // !TODO: implement CBaseEntityList properly.
-}
-
-CEntInfo** g_pEntityList = nullptr;
+//-----------------------------------------------------------------------------
+// Purpose: a global list of all the entities in the game. All iteration through
+//          entities is done through this object.
+//-----------------------------------------------------------------------------
+CGlobalEntityList* g_serverEntityList = nullptr;

@@ -118,8 +118,8 @@ void __fastcall CServerGameDLL::OnReceivedSayTextMessage(void* thisptr, int send
 
 void DrawServerHitbox(int iEntity)
 {
-	IHandleEntity* pEntity = LookupEntityByIndex(iEntity);
-	CBaseAnimating* pAnimating = dynamic_cast<CBaseAnimating*>(pEntity);
+	const CEntInfo* pInfo = g_serverEntityList->GetEntInfoPtrByIndex(iEntity);
+	CBaseAnimating* pAnimating = dynamic_cast<CBaseAnimating*>(pInfo->m_pEntity);
 
 	if (pAnimating)
 	{

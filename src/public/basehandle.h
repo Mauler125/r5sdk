@@ -22,19 +22,15 @@ class IHandleEntity;
 // CBaseHandle.
 // -------------------------------------------------------------------------------------------------- //
 
-enum INVALID_EHANDLE_tag
-{
-	INVALID_EHANDLE
-};
-
 class CBaseHandle
 {
 friend class CBaseEntityList;
+friend class C_BaseEntityList;
 
 public:
 
 	CBaseHandle();
-	CBaseHandle( INVALID_EHANDLE_tag );
+	CBaseHandle( unsigned long value );
 	CBaseHandle( const CBaseHandle &other );
 	explicit CBaseHandle( IHandleEntity* pHandleObj );
 	CBaseHandle( int iEntry, int iSerialNumber );
@@ -89,10 +85,11 @@ inline CBaseHandle::CBaseHandle()
 	m_Index = INVALID_EHANDLE_INDEX;
 }
 
-inline CBaseHandle::CBaseHandle( INVALID_EHANDLE_tag )
+inline CBaseHandle::CBaseHandle( unsigned long value )
 {
-	m_Index = INVALID_EHANDLE_INDEX;
+	m_Index = value;
 }
+
 
 inline CBaseHandle::CBaseHandle( const CBaseHandle &other )
 {
@@ -138,7 +135,7 @@ inline int CBaseHandle::GetEntryIndex() const
 {
 	// There is a hack here: due to a bug in the original implementation of the 
 	// entity handle system, an attempt to look up an invalid entity index in 
-	// certain cirumstances might fall through to the the mask operation below.
+	// certain circumstances might fall through to the mask operation below.
 	// This would mask an invalid index to be in fact a lookup of entity number
 	// NUM_ENT_ENTRIES, so invalid ent indexes end up actually looking up the
 	// last slot in the entities array. Since this slot is always empty, the 
@@ -150,7 +147,7 @@ inline int CBaseHandle::GetEntryIndex() const
 	// retains the prior (bug-submarining) behavior.
 	if ( !IsValid() )
 		return NUM_ENT_ENTRIES-1;
-	return m_Index & ENT_ENTRY_MASK;
+	return m_Index;
 }
 
 inline int CBaseHandle::GetSerialNumber() const
@@ -193,12 +190,12 @@ inline bool CBaseHandle::operator <( const CBaseHandle &other ) const
 //	uint32 otherIndex = (pEntity) ? pEntity->GetRefEHandle().m_Index : INVALID_EHANDLE_INDEX;
 //	return m_Index < otherIndex;
 //}
-
-inline const CBaseHandle& CBaseHandle::operator=( const IHandleEntity *pEntity )
-{
-	return Set( pEntity );
-}
-
+//
+//inline const CBaseHandle& CBaseHandle::operator=( const IHandleEntity *pEntity )
+//{
+//	return Set( pEntity );
+//}
+//
 //inline const CBaseHandle& CBaseHandle::Set( const IHandleEntity *pEntity ) 
 //{ 
 //	if ( pEntity )

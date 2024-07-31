@@ -8,9 +8,6 @@
 //===========================================================================//
 #if !defined( CLIENTENTITYLIST_H )
 #define CLIENTENTITYLIST_H
-#ifdef _WIN32
-#pragma once
-#endif
 #include "tier1/utlvector.h"
 #include "tier1/utllinkedlist.h"
 
@@ -28,6 +25,10 @@ public:
 	virtual void OnEntityDeleted(C_BaseEntity* pEntity) {};
 };
 
+//-----------------------------------------------------------------------------
+// Purpose: a global list of all the entities in the game. All iteration through
+//          entities is done through this object.
+//-----------------------------------------------------------------------------
 class CClientEntityList : public C_BaseEntityList, public IClientEntityList
 {
 protected:
@@ -56,7 +57,6 @@ private:
 	// For fast iteration.
 	CUtlLinkedList<C_BaseEntity*, unsigned short> m_BaseEntities;
 };
-
 COMPILE_TIME_ASSERT(sizeof(CClientEntityList) == 0x3800C0);
 
 inline IClientEntityList* g_pClientEntityList = nullptr;

@@ -53,8 +53,8 @@ public:
 
 			CHandle();
 			CHandle( int iEntry, int iSerialNumber );
-	/*implicit*/ CHandle( T *pVal );
-	/*implicit*/ CHandle( INVALID_EHANDLE_tag );
+			CHandle( const CBaseHandle &handle );
+			CHandle( T *pVal );
 
 	// NOTE: The following two constructor functions are not type-safe, and can allow creating a
 	// CHandle<T> that doesn't actually point to an object of type T.
@@ -91,16 +91,17 @@ inline CHandle<T>::CHandle()
 }
 
 template<class T>
-inline CHandle<T>::CHandle( INVALID_EHANDLE_tag )
-	: CBaseHandle( INVALID_EHANDLE )
-{
-}
-
-template<class T>
 inline CHandle<T>::CHandle( int iEntry, int iSerialNumber )
 {
 	Init( iEntry, iSerialNumber );
 }
+
+template<class T>
+CHandle<T>::CHandle( const CBaseHandle &handle )
+	: CBaseHandle( handle )
+{
+}
+
 
 template<class T>
 inline CHandle<T>::CHandle( T *pObj )

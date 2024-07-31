@@ -37,13 +37,9 @@ private:
 	bool m_bClearingEntities;
 	CUtlVector<IEntityListener*>	m_entityListeners;
 };
+COMPILE_TIME_ASSERT(sizeof(CGlobalEntityList) == 0x380088);
 
-
-IHandleEntity* LookupEntityByIndex(int iEntity);
-
-
-
-extern CEntInfo** g_pEntityList;
+extern CGlobalEntityList* g_serverEntityList;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,14 +47,13 @@ class VServerEntityList : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("g_serverEntityList", g_pEntityList);
+		LogVarAdr("g_serverEntityList", g_serverEntityList);
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		void* CBaseEntity__GetBaseEntity;
-		g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30").GetPtr(CBaseEntity__GetBaseEntity);
-		g_pEntityList = CMemory(CBaseEntity__GetBaseEntity).FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEntInfo**>();
+		g_GameDll.FindPatternSIMD("48 8D 0D ?? ?? ?? ?? 66 0F 7F 05 ?? ?? ?? ?? 44 89 0D").
+			ResolveRelativeAddressSelf(3, 7).ResolveRelativeAddressSelf(3, 7).GetPtr(g_serverEntityList);
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const { }
