@@ -466,6 +466,7 @@ static const char *GTime2str(const char *beg, const char *end)
     break;
   case 2:
     sec1 = fracp[-2];
+    /* FALLTHROUGH */
   case 1:
     sec2 = fracp[-1];
     break;
@@ -473,32 +474,44 @@ static const char *GTime2str(const char *beg, const char *end)
     return (const char *) NULL;
   }
 
-  /* Scan for timezone, measure fractional seconds. */
+  /* Timezone follows optional fractional seconds. */
   tzp = fracp;
-  fracl = 0;
+  fracl = 0; /* no fractional seconds detected so far */
   if(fracp < end && (*fracp == '.' || *fracp == ',')) {
-    fracp++;
-    do
-      tzp++;
+    /* Have fractional seconds, e.g. "[.,]\d+". How many? */
+    fracp++; /* should be a digit char or BAD ARGUMENT */
+    tzp = fracp;
     while(tzp < end && *tzp >= '0' && *tzp <= '9');
-    /* Strip leading zeroes in fractional seconds. */
-    for(fracl = tzp - fracp - 1; fracl && fracp[fracl - 1] == '0'; fracl--)
-      ;
+      tzp++;
+    if(tzp == fracp) /* never looped, no digit after [.,] */
+      return (const char*)NULL;
+    fracl = tzp - fracp; /* number of fractional sec digits */
+    DEBUGASSERT(fracl > 0);
+    /* Strip trailing zeroes in fractional seconds.
+     * May reduce fracl to 0 if only '0's are present. */
+    while(fracl && fracp[fracl - 1] == '0')
+      fracl--;
   }
 
   /* Process timezone. */
-  if(tzp >= end)
-    ;           /* Nothing to do. */
+  if(tzp >= end) {
+    tzp = "";
+    tzl = 0;
+  }
   else if(*tzp == 'Z') {
-    tzp = " GMT";
-    end = tzp + 4;
+    sep = " ";
+    tzp = "GMT";
+    tzl = 3;
+  }
+  else if((*tzp == '+') || (*tzp == '-')) {
+    sep = " UTC";
+    tzl = end - tzp;
   }
   else {
     sep = " ";
-    tzp++;
+    tzl = end - tzp;
   }
 
-  tzl = end - tzp;
   return curl_maprintf("%.4s-%.2s-%.2s %.2s:%.2s:%c%c%s%.*s%s%.*s",
                        beg, beg + 4, beg + 6,
                        beg + 8, beg + 10, sec1, sec2,
