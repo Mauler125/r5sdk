@@ -36,7 +36,7 @@ public:
 	double m_dClockSpeedMillisecondsMultiplier;
 	double m_dClockSpeedSecondsMultiplier;
 };
-extern CClockSpeed* g_pClockSpeed;
+extern CClockSpeed g_ClockSpeed;
 /******************************************************************************/ 
 
 
@@ -230,8 +230,8 @@ inline void CCycleCount::Init(void)
 
 inline void CCycleCount::Init(float initTimeMsec)
 {
-	if (g_pClockSpeed->m_dClockSpeedMillisecondsMultiplier > 0)
-		Init((uint64_t)(initTimeMsec / g_pClockSpeed->m_dClockSpeedMillisecondsMultiplier));
+	if (g_ClockSpeed.m_dClockSpeedMillisecondsMultiplier > 0)
+		Init((uint64_t)(initTimeMsec / g_ClockSpeed.m_dClockSpeedMillisecondsMultiplier));
 	else
 		Init((uint64_t)0);
 }
@@ -286,37 +286,37 @@ inline uint64_t CCycleCount::GetLongCycles(void) const
 
 inline unsigned long CCycleCount::GetMicroseconds(void) const
 {
-	return (unsigned long)((m_Int64 * 1000000) / g_pClockSpeed->m_nClockSpeed);
+	return (unsigned long)((m_Int64 * 1000000) / g_ClockSpeed.m_nClockSpeed);
 }
 
 inline uint64_t CCycleCount::GetUlMicroseconds(void) const
 {
-	return ((m_Int64 * 1000000) / g_pClockSpeed->m_nClockSpeed);
+	return ((m_Int64 * 1000000) / g_ClockSpeed.m_nClockSpeed);
 }
 
 inline double CCycleCount::GetMicrosecondsF(void) const
 {
-	return (double)(m_Int64 * g_pClockSpeed->m_dClockSpeedMicrosecondsMultiplier);
+	return (double)(m_Int64 * g_ClockSpeed.m_dClockSpeedMicrosecondsMultiplier);
 }
 
 inline void	CCycleCount::SetMicroseconds(unsigned long nMicroseconds)
 {
-	m_Int64 = ((uint64_t)nMicroseconds * g_pClockSpeed->m_nClockSpeed) / 1000000;
+	m_Int64 = ((uint64_t)nMicroseconds * g_ClockSpeed.m_nClockSpeed) / 1000000;
 }
 
 inline unsigned long CCycleCount::GetMilliseconds(void) const
 {
-	return (unsigned long)((m_Int64 * 1000) / g_pClockSpeed->m_nClockSpeed);
+	return (unsigned long)((m_Int64 * 1000) / g_ClockSpeed.m_nClockSpeed);
 }
 
 inline double CCycleCount::GetMillisecondsF(void) const
 {
-	return (double)(m_Int64 * g_pClockSpeed->m_dClockSpeedMillisecondsMultiplier);
+	return (double)(m_Int64 * g_ClockSpeed.m_dClockSpeedMillisecondsMultiplier);
 }
 
 inline double CCycleCount::GetSeconds(void) const
 {
-	return (double)(m_Int64 * g_pClockSpeed->m_dClockSpeedSecondsMultiplier);
+	return (double)(m_Int64 * g_ClockSpeed.m_dClockSpeedSecondsMultiplier);
 }
 // -------------------------------------------------------------------------- // 
 
@@ -357,7 +357,7 @@ inline CCycleCount CFastTimer::GetDurationInProgress(void) const
 
 inline unsigned long CFastTimer::GetClockSpeed(void)
 {
-	return g_pClockSpeed->m_dwClockSpeed;
+	return g_ClockSpeed.m_dwClockSpeed;
 }
 
 inline CCycleCount const& CFastTimer::GetDuration(void) const
@@ -485,7 +485,7 @@ inline CAverageTimeMarker::~CAverageTimeMarker(void)
 //-----------------------------------------------------------------------------
 inline void CLimitTimer::SetLimit(uint64_t cMicroSecDuration)
 {
-	uint64_t dlCycles = ((uint64_t)cMicroSecDuration * (uint64_t)g_pClockSpeed->m_dwClockSpeed) / (uint64_t)1000000L;
+	uint64_t dlCycles = ((uint64_t)cMicroSecDuration * (uint64_t)g_ClockSpeed.m_dwClockSpeed) / (uint64_t)1000000L;
 	CCycleCount cycleCount;
 	cycleCount.Sample();
 	m_lCycleLimit = cycleCount.GetLongCycles() + dlCycles;
@@ -515,7 +515,7 @@ inline int CLimitTimer::CMicroSecOverage(void) const
 	if (lcCycles < m_lCycleLimit)
 		return 0;
 
-	return((int)((lcCycles - m_lCycleLimit) * (uint64_t)1000000L / g_pClockSpeed->m_dwClockSpeed));
+	return((int)((lcCycles - m_lCycleLimit) * (uint64_t)1000000L / g_ClockSpeed.m_dwClockSpeed));
 }
 
 //-----------------------------------------------------------------------------
@@ -531,7 +531,7 @@ inline uint64_t CLimitTimer::CMicroSecLeft(void) const
 	if (lcCycles >= m_lCycleLimit)
 		return 0;
 
-	return((uint64_t)((m_lCycleLimit - lcCycles) * (uint64_t)1000000L / g_pClockSpeed->m_dwClockSpeed));
+	return((uint64_t)((m_lCycleLimit - lcCycles) * (uint64_t)1000000L / g_ClockSpeed.m_dwClockSpeed));
 }
 // -------------------------------------------------------------------------- // 
 
