@@ -876,7 +876,7 @@ namespace VScriptCode
             CCommand cmd(3, c_args, cmd_source_t::kCommandSrcCode);
             CC_CreateFakePlayer_f(cmd);
 
-            for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
+            for (int i = 0; i < gpGlobals->maxClients; i++)
             {
                 CClient* pClient = g_pServer->GetClient(i);
 
