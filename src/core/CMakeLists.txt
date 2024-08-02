@@ -76,6 +76,7 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "libspdlog"
     "libdetour"
     "navdebugutils"
+    "navsharedcommon"
 
     "EAThread"
     "DirtySDK"

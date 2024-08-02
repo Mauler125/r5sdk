@@ -29,7 +29,8 @@ class OffMeshConnectionTool : public EditorTool
 	float m_hitPos[3];
 	bool m_hitPosSet;
 	bool m_bidir;
-	unsigned char m_oldFlags;
+	int m_jumpType;
+	unsigned int m_oldFlags;
 	
 public:
 	OffMeshConnectionTool();

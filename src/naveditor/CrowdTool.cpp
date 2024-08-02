@@ -16,8 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
-#include "Detour/Include/DetourCommon.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNode.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
 #include "DetourCrowd/Include/DetourObstacleAvoidance.h"
@@ -26,23 +25,21 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Editor.h"
 #include "NavEditor/Include/EditorInterfaces.h"
-#include "thirdparty/recast/DetourCrowd/Include/DetourCrowdInternal.h"
+#include "DetourCrowd/Include/DetourCrowdInternal.h"
 
 static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,
 						 float& tmin, float& tmax)
 {
-	static const float EPS = 1e-6f;
-	
 	float d[3];
-	dtVsub(d, sq, sp);
+	rdVsub(d, sq, sp);
 	tmin = 0;  // set to -FLT_MAX to get first hit on line
 	tmax = FLT_MAX;		// set to max distance ray can travel (for segment)
 	
 	// For all three slabs
 	for (int i = 0; i < 3; i++)
 	{
-		if (fabsf(d[i]) < EPS)
+		if (fabsf(d[i]) < RD_EPS)
 		{
 			// Ray is parallel to slab. No hit if origin not within slab
 			if (sp[i] < amin[i] || sp[i] > amax[i])
@@ -55,7 +52,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 			float t1 = (amin[i] - sp[i]) * ood;
 			float t2 = (amax[i] - sp[i]) * ood;
 			// Make t1 be intersection with near plane, t2 with far plane
-			if (t1 > t2) dtSwap(t1, t2);
+			if (t1 > t2) rdSwap(t1, t2);
 			// Compute the intersection of slab intersections intervals
 			if (t1 > tmin) tmin = t1;
 			if (t2 < tmax) tmax = t2;
@@ -85,31 +82,30 @@ CrowdToolState::CrowdToolState() :
 	m_nav(0),
 	m_crowd(0),
 	m_targetRef(0),
+	m_graphSampleTime(0.0f),
 	m_run(true)
 {
-	m_toolParams.m_expandSelectedDebugDraw = true;
 	m_toolParams.m_showCorners = false;
 	m_toolParams.m_showCollisionSegments = false;
 	m_toolParams.m_showPath = false;
 	m_toolParams.m_showVO = false;
 	m_toolParams.m_showOpt = false;
 	m_toolParams.m_showNeis = false;
-	m_toolParams.m_expandDebugDraw = false;
 	m_toolParams.m_showLabels = false;
 	m_toolParams.m_showGrid = false;
 	m_toolParams.m_showNodes = false;
 	m_toolParams.m_showPerfGraph = false;
 	m_toolParams.m_showDetailAll = false;
-	m_toolParams.m_expandOptions = true;
 	m_toolParams.m_anticipateTurns = true;
 	m_toolParams.m_optimizeVis = true;
 	m_toolParams.m_optimizeTopo = true;
 	m_toolParams.m_obstacleAvoidance = true;
-	m_toolParams.m_obstacleAvoidanceType = 3.0f;
+	m_toolParams.m_obstacleAvoidanceType = 3;
 	m_toolParams.m_separation = true;
 	m_toolParams.m_separationWeight = 20.0f;
 	m_toolParams.m_maxAcceleration = 800.f;
 	m_toolParams.m_maxSpeed = 200.f;
+	m_toolParams.m_traverseAnimType = ANIMTYPE_NONE;
 	
 	memset(m_trails, 0, sizeof(m_trails));
 	
@@ -135,6 +131,8 @@ void CrowdToolState::init(class Editor* editor)
 	
 	dtNavMesh* nav = m_editor->getNavMesh();
 	dtCrowd* crowd = m_editor->getCrowd();
+
+	m_toolParams.m_traverseAnimType = NavMesh_GetFirstTraverseAnimTypeForType(m_editor->getLoadedNavMeshType());
 	
 	if (nav && crowd && (m_nav != nav || m_crowd != crowd))
 	{
@@ -195,12 +193,15 @@ void CrowdToolState::handleRender()
 	dtCrowd* crowd = m_editor->getCrowd();
 	if (!nav || !crowd)
 		return;
+
+	const float* drawOffset = m_editor->getDetourDrawOffset();
+	const unsigned int drawFlags = m_editor->getNavMeshDrawFlags();
 	
 	if (m_toolParams.m_showNodes && crowd->getPathQueue())
 	{
 		const dtNavMeshQuery* navquery = crowd->getPathQueue()->getNavQuery();
 		if (navquery)
-			duDebugDrawNavMeshNodes(&dd, *navquery);
+			duDebugDrawNavMeshNodes(&dd, *navquery, drawOffset);
 	}
 
 	dd.depthMask(false);
@@ -218,12 +219,12 @@ void CrowdToolState::handleRender()
 			const dtPolyRef* path = ag->corridor.getPath();
 			const int npath = ag->corridor.getPathCount();			
 			for (int j = 0; j < npath; ++j)
-				duDebugDrawNavMeshPoly(&dd, *nav, path[j], duRGBA(255,255,255,24));
+				duDebugDrawNavMeshPoly(&dd, *nav, path[j], drawOffset, drawFlags, duRGBA(255,255,255,24));
 		}
 	}
 	
 	if (m_targetRef)
-		duDebugDrawCross(&dd, m_targetPos[0],m_targetPos[1],m_targetPos[2]+0.1f, rad, duRGBA(255,255,255,192), 2.0f);
+		duDebugDrawCross(&dd, m_targetPos[0],m_targetPos[1],m_targetPos[2]+0.1f, rad, duRGBA(255,255,255,192), 2.0f, drawOffset);
 	
 	// Occupancy grid.
 	if (m_toolParams.m_showGrid)
@@ -234,11 +235,11 @@ void CrowdToolState::handleRender()
 			const dtCrowdAgent* ag = crowd->getAgent(i);
 			if (!ag->active) continue;
 			const float* pos = ag->corridor.getPos();
-			gridz = dtMax(gridz, pos[2]);
+			gridz = rdMax(gridz, pos[2]);
 		}
 		gridz += 1.0f;
 		
-		dd.begin(DU_DRAW_QUADS);
+		dd.begin(DU_DRAW_QUADS,1.0f,drawOffset);
 		const dtProximityGrid* grid = crowd->getGrid();
 		const int* bounds = grid->getBounds();
 		const float cs = grid->getCellSize();
@@ -248,7 +249,7 @@ void CrowdToolState::handleRender()
 			{
 				const int count = grid->getItemCountAt(x,y);
 				if (!count) continue;
-				unsigned int col = duRGBA(128,0,0,dtMin(count*40,255));
+				unsigned int col = duRGBA(128,0,0,rdMin(count*40,255));
 
 				dd.vertex(x*cs+cs,y*cs,gridz, col);
 				dd.vertex(x*cs+cs,y*cs+cs,gridz,col);
@@ -268,9 +269,9 @@ void CrowdToolState::handleRender()
 		const AgentTrail* trail = &m_trails[i];
 		const float* pos = ag->npos;
 		
-		dd.begin(DU_DRAW_LINES,3.0f);
+		dd.begin(DU_DRAW_LINES,3.0f,drawOffset);
 		float prev[3], preva = 1;
-		dtVcopy(prev, pos);
+		rdVcopy(prev, pos);
 		for (int j = 0; j < AGENT_MAX_TRAIL-1; ++j)
 		{
 			const int idx = (trail->htrail + AGENT_MAX_TRAIL-j) % AGENT_MAX_TRAIL;
@@ -279,7 +280,7 @@ void CrowdToolState::handleRender()
 			dd.vertex(prev[0],prev[1],prev[2]+0.1f, duRGBA(0,0,0,(int)(128*preva)));
 			dd.vertex(v[0],v[1],v[2]+0.1f, duRGBA(0,0,0,(int)(128*a)));
 			preva = a;
-			dtVcopy(prev, v);
+			rdVcopy(prev, v);
 		}
 		dd.end();
 		
@@ -301,7 +302,7 @@ void CrowdToolState::handleRender()
 		{
 			if (ag->ncorners)
 			{
-				dd.begin(DU_DRAW_LINES, 2.0f);
+				dd.begin(DU_DRAW_LINES, 2.0f,drawOffset);
 				for (int j = 0; j < ag->ncorners; ++j)
 				{
 					const float* va = j == 0 ? agentPos : &ag->cornerVerts[(j-1)*3];
@@ -331,7 +332,7 @@ void CrowdToolState::handleRender()
 					const float* tgt = &ag->cornerVerts[0];
 					const float z = ag->npos[2]+off;
 
-					dd.begin(DU_DRAW_LINES, 2.0f);
+					dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
 
 					dd.vertex(ag->npos[0],ag->npos[1],z, duRGBA(255,0,0,192));
 					dd.vertex(pos[0],pos[1],z, duRGBA(255,0,0,192));
@@ -346,16 +347,16 @@ void CrowdToolState::handleRender()
 		if (m_toolParams.m_showCollisionSegments)
 		{
 			const float* center = ag->boundary.getCenter();
-			duDebugDrawCross(&dd, center[0],center[1],center[2]+agentRadius, 0.2f, duRGBA(192,0,128,255), 2.0f);
+			duDebugDrawCross(&dd, center[0],center[1],center[2]+agentRadius, 0.2f, duRGBA(192,0,128,255), 2.0f, drawOffset);
 			duDebugDrawCircle(&dd, center[0],center[1],center[2]+agentRadius, ag->params.collisionQueryRange,
-							  duRGBA(192,0,128,128), 2.0f);
+							  duRGBA(192,0,128,128), 2.0f, drawOffset);
 			
-			dd.begin(DU_DRAW_LINES, 3.0f);
+			dd.begin(DU_DRAW_LINES, 3.0f, drawOffset);
 			for (int j = 0; j < ag->boundary.getSegmentCount(); ++j)
 			{
 				const float* s = ag->boundary.getSegment(j);
 				unsigned int col = duRGBA(192,0,128,192);
-				if (dtTriArea2D(agentPos, s, s+3) < 0.0f)
+				if (rdTriArea2D(agentPos, s, s+3) < 0.0f)
 					col = duDarkenCol(col);
 				
 				duAppendArrow(&dd, s[0],s[1],s[2]+0.2f, s[3],s[4],s[5]+0.2f, 0.0f, 30.0f, col);
@@ -366,9 +367,9 @@ void CrowdToolState::handleRender()
 		if (m_toolParams.m_showNeis)
 		{
 			duDebugDrawCircle(&dd, agentPos[0],agentPos[1],agentPos[2]+agentRadius, ag->params.collisionQueryRange,
-							  duRGBA(0,192,128,128), 2.0f);
+							  duRGBA(0,192,128,128), 2.0f, drawOffset);
 			
-			dd.begin(DU_DRAW_LINES, 2.0f);
+			dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
 			for (int j = 0; j < ag->nneis; ++j)
 			{
 				// Get 'n'th active agent.
@@ -385,7 +386,7 @@ void CrowdToolState::handleRender()
 		
 		if (m_toolParams.m_showOpt)
 		{
-			dd.begin(DU_DRAW_LINES, 2.0f);
+			dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
 			dd.vertex(m_agentDebug.optStart[0],m_agentDebug.optStart[1],m_agentDebug.optStart[2]+0.3f, duRGBA(0,128,0,192));
 			dd.vertex(m_agentDebug.optEnd[0],m_agentDebug.optEnd[1],m_agentDebug.optEnd[2]+0.3f, duRGBA(0,128,0,192));
 			dd.end();
@@ -405,7 +406,7 @@ void CrowdToolState::handleRender()
 		if (m_agentDebug.idx == i)
 			col = duRGBA(255,0,0,128);
 			
-		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2], radius, col, 2.0f);
+		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2], radius, col, 2.0f, drawOffset);
 	}
 	
 	for (int i = 0; i < crowd->getAgentCount(); ++i)
@@ -428,7 +429,7 @@ void CrowdToolState::handleRender()
 			col = duLerpCol(col, duRGBA(64,255,0,128), 128);
 		
 		duDebugDrawCylinder(&dd, pos[0]-radius, pos[1]-radius, pos[2]+radius*0.1f,
-							pos[0]+radius, pos[1]+radius, pos[2]+height, col);
+							pos[0]+radius, pos[1]+radius, pos[2]+height, col, drawOffset);
 	}
 	
 	if (m_toolParams.m_showVO)
@@ -448,9 +449,9 @@ void CrowdToolState::handleRender()
 			const float dy = ag->npos[1];
 			const float dz = ag->npos[2]+ag->params.height;
 			
-			duDebugDrawCircle(&dd, dx,dy,dz, ag->params.maxSpeed, duRGBA(255,255,255,64), 2.0f);
+			duDebugDrawCircle(&dd, dx,dy,dz, ag->params.maxSpeed, duRGBA(255,255,255,64), 2.0f, drawOffset);
 			
-			dd.begin(DU_DRAW_QUADS);
+			dd.begin(DU_DRAW_QUADS, 1.0f, drawOffset);
 			for (int j = 0; j < vod->getSampleCount(); ++j)
 			{
 				const float* p = vod->getSampleVelocity(j);
@@ -490,34 +491,40 @@ void CrowdToolState::handleRender()
 		else if (ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
 			col = duLerpCol(col, duRGBA(64,255,0,192), 128);
 		
-		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2]+height, radius, col, 2.0f);
+		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2]+height, radius, col, 2.0f, drawOffset);
 		
 		duDebugDrawArrow(&dd, pos[0],pos[1],pos[2]+height,
 						 pos[0]+dvel[0],pos[1]+dvel[1],pos[2]+height+dvel[2],
-						 0.0f, 30.0f, duRGBA(0,192,255,192), (m_agentDebug.idx == i) ? 2.0f : 1.0f);
+						 0.0f, 30.0f, duRGBA(0,192,255,192), (m_agentDebug.idx == i) ? 2.0f : 1.0f, drawOffset);
 		
 		duDebugDrawArrow(&dd, pos[0],pos[1],pos[2]+height,
 						 pos[0]+vel[0],pos[1]+vel[1],pos[2]+height+vel[2],
-						 0.0f, 30.0f, duRGBA(0,0,0,160), 2.0f);
+						 0.0f, 30.0f, duRGBA(0,0,0,160), 2.0f, drawOffset);
 	}
 	
 	dd.depthMask(true);
 }
 
+namespace ImPlot
+{
+	extern void Demo_ShadedPlots();
+};
 
 void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
+	const int windowHeight = view[3];
+	const float* drawOffset = m_editor->getDetourDrawOffset();
 	
 	// Draw start and end point labels
-	if (m_targetRef && gluProject((GLdouble)m_targetPos[0], (GLdouble)m_targetPos[1], (GLdouble)m_targetPos[2],
+	if (m_targetRef && gluProject((GLdouble)m_targetPos[0]+drawOffset[0], (GLdouble)m_targetPos[1]+drawOffset[1], (GLdouble)m_targetPos[2]+drawOffset[2],
 								  model, proj, view, &x, &y, &z))
 	{
-		imguiDrawText((int)x, (int)(y+25), IMGUI_ALIGN_CENTER, "TARGET", imguiRGBA(0,0,0,220));
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+			ImVec2((float)x, windowHeight-((float)y+25)), ImVec4(0,0,0,0.8f), "TARGET");
 	}
 	
-	char label[32];
-	
+
 	if (m_toolParams.m_showNodes)
 	{
 		dtCrowd* crowd = m_editor->getCrowd();
@@ -535,12 +542,12 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						const dtNode* node = pool->getNodeAtIdx(j+1);
 						if (!node) continue;
 
-						if (gluProject((GLdouble)node->pos[0],(GLdouble)node->pos[1],(GLdouble)node->pos[2]+off,
+						if (gluProject((GLdouble)node->pos[0]+drawOffset[0],(GLdouble)node->pos[1]+drawOffset[1],(GLdouble)node->pos[2]+drawOffset[2]+off,
 									   model, proj, view, &x, &y, &z))
 						{
 							const float heuristic = node->total;// - node->cost;
-							snprintf(label, 32, "%.2f", heuristic);
-							imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
+							ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+								ImVec2((float)x, windowHeight-((float)y+25)), ImVec4(0,0,0,0.8f), "%.2f", heuristic);
 						}
 					}
 				}
@@ -559,13 +566,18 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				if (!ag->active) continue;
 				const float* pos = ag->npos;
 				const float h = ag->params.height;
-				if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2]+h,
+				if (gluProject((GLdouble)pos[0]+drawOffset[0], (GLdouble)pos[1]+drawOffset[1], (GLdouble)pos[2]+drawOffset[2]+h,
 							   model, proj, view, &x, &y, &z))
 				{
-					snprintf(label, 32, "%d", i);
-					imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
+					const TraverseAnimType_e animType = ag->params.traverseAnimType;
+					const char* animTypeName = animType == ANIMTYPE_NONE
+						? "none"
+						: g_traverseAnimTypeNames[animType];
+
+					ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
+						ImVec2((float)x, windowHeight-((float)y+15)), ImVec4(0,0,0,0.8f), "%s (%d)", animTypeName, i);
 				}
-			}			
+			}
 		}
 	}
 	if (m_agentDebug.idx != -1)
@@ -588,11 +600,11 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						const dtCrowdAgent* nei = crowd->getAgent(ag->neis[j].idx);
 						if (!nei->active) continue;
 						
-						if (gluProject((GLdouble)nei->npos[0], (GLdouble)nei->npos[1], (GLdouble)nei->npos[2]+radius,
+						if (gluProject((GLdouble)nei->npos[0]+drawOffset[0], (GLdouble)nei->npos[1]+drawOffset[1], (GLdouble)nei->npos[2]+drawOffset[2]+radius,
 									   model, proj, view, &x, &y, &z))
 						{
-							snprintf(label, 32, "%.3f", ag->neis[j].dist);
-							imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255,255,255,220));
+							ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, 
+								ImVec2((float)x, windowHeight-((float)y+15)), ImVec4(1.0f,1.0f,1.0f,0.8f), "%.3f", ag->neis[j].dist);
 						}
 					}
 				}
@@ -600,21 +612,53 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 		}
 	}
 	
-	
 	if (m_toolParams.m_showPerfGraph)
 	{
-		GraphParams gp;
-		gp.setRect(300, 10, 500, 200, 8);
-		gp.setValueRange(0.0f, 2.0f, 4, "ms");
-		
-		drawGraphBackground(&gp);
-		drawGraph(&gp, &m_crowdTotalTime, 1, "Total", duRGBA(255,128,0,255));
-		
-		gp.setRect(300, 10, 500, 50, 8);
-		gp.setValueRange(0.0f, 2000.0f, 1, "");
-		drawGraph(&gp, &m_crowdSampleCount, 0, "Sample Count", duRGBA(96,96,96,128));
+		static const ImPlotAxisFlags flags = ImPlotFlags_None;
+		ImVec2* totalSample = m_crowdTotalTime.getSampleBuffer();
+		ImVec2* crowdSample = m_crowdSampleCount.getSampleBuffer();
+
+		ImGui::SetNextWindowPos(ImVec2(250.f+30.f, 10.f), ImGuiCond_Once);
+		ImGui::SetNextWindowSizeConstraints(ImVec2(420, 200), ImVec2(FLT_MAX, FLT_MAX));
+
+		if (ImGui::Begin("Graph", nullptr))
+		{
+			static const float history = 4.0f;
+
+			ImVec2 windowSize = ImGui::GetWindowSize();
+			if (ImPlot::BeginPlot("##GraphPlotter", ImVec2(windowSize.x-16.f, windowSize.y-52.f)))
+			{
+				ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
+				ImPlot::SetupAxisLimits(ImAxis_X1, m_graphSampleTime - history, m_graphSampleTime, ImGuiCond_Always);
+				ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 2);
+				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
+
+				ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+				ImPlot::PlotShaded("Total Time", &totalSample[0].x, &totalSample[0].y, m_crowdTotalTime.getSampleCount(), -INFINITY, 0, m_crowdTotalTime.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PlotShaded("Sample Count", &crowdSample[0].x, &crowdSample[0].y, m_crowdSampleCount.getSampleCount(), -INFINITY, 0, m_crowdSampleCount.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PopStyleVar();
+
+				ImPlot::PlotLine("Total Time", &totalSample[0].x, &totalSample[0].y, m_crowdTotalTime.getSampleCount(), 0, m_crowdTotalTime.getSampleOffset(), 2 * sizeof(float));
+				ImPlot::PlotLine("Sample Count", &crowdSample[0].x, &crowdSample[0].y, m_crowdSampleCount.getSampleCount(), 0, m_crowdSampleCount.getSampleOffset(), 2 * sizeof(float));
+
+				ImPlot::EndPlot();
+
+				char labelBuffer[256];
+
+				snprintf(labelBuffer, sizeof(labelBuffer), "Total Time (avg %.2f ms).", m_crowdTotalTime.getAverage());
+				ImGui::Text(labelBuffer);
+
+				ImGui::SameLine();
+
+				snprintf(labelBuffer, sizeof(labelBuffer), "Sample Count (avg %.2f).", m_crowdSampleCount.getAverage());
+				ImGui::Text(labelBuffer);
+
+				ImGui::SameLine();
+			}
+		}
+
+		ImGui::End();
 	}
-	
 }
 
 void CrowdToolState::handleUpdate(const float dt)
@@ -649,6 +693,7 @@ void CrowdToolState::addAgent(const float* p)
 		ap.updateFlags |= DT_CROWD_SEPARATION;
 	ap.obstacleAvoidanceType = (unsigned char)m_toolParams.m_obstacleAvoidanceType;
 	ap.separationWeight = m_toolParams.m_separationWeight;
+	ap.traverseAnimType = m_toolParams.m_traverseAnimType;
 	
 	int idx = crowd->addAgent(p, &ap);
 	if (idx != -1)
@@ -659,7 +704,7 @@ void CrowdToolState::addAgent(const float* p)
 		// Init trail
 		AgentTrail* trail = &m_trails[idx];
 		for (int i = 0; i < AGENT_MAX_TRAIL; ++i)
-			dtVcopy(&trail->trail[i*3], p);
+			rdVcopy(&trail->trail[i*3], p);
 		trail->htrail = 0;
 	}
 }
@@ -682,10 +727,10 @@ void CrowdToolState::hilightAgent(const int idx)
 
 static void calcVel(float* vel, const float* pos, const float* tgt, const float speed)
 {
-	dtVsub(vel, tgt, pos);
+	rdVsub(vel, tgt, pos);
 	vel[2] = 0.0;
-	dtVnormalize(vel);
-	dtVscale(vel, vel, speed);
+	rdVnormalize(vel);
+	rdVscale(vel, vel, speed);
 }
 
 void CrowdToolState::setMoveTarget(const float* p, bool adjust)
@@ -834,13 +879,16 @@ void CrowdToolState::updateTick(const float dt)
 			continue;
 		// Update agent movement trail.
 		trail->htrail = (trail->htrail + 1) % AGENT_MAX_TRAIL;
-		dtVcopy(&trail->trail[trail->htrail*3], ag->npos);
+		rdVcopy(&trail->trail[trail->htrail*3], ag->npos);
 	}
 	
 	m_agentDebug.vod->normalizeSamples();
 	
-	m_crowdSampleCount.addSample((float)crowd->getVelocitySampleCount());
-	m_crowdTotalTime.addSample(getPerfTimeUsec(endTime - startTime) / 1000.0f);
+
+	m_graphSampleTime += ImGui::GetIO().DeltaTime;
+
+	m_crowdSampleCount.addSample(m_graphSampleTime, (float)crowd->getVelocitySampleCount());
+	m_crowdTotalTime.addSample(m_graphSampleTime, getPerfTimeUsec(endTime - startTime) / 1000.0f);
 }
 
 
@@ -882,106 +930,108 @@ void CrowdTool::handleMenu()
 		return;
 	CrowdToolParams* params = m_state->getToolParams();
 
-	if (imguiCheck("Create Agents", m_mode == TOOLMODE_CREATE))
+	bool isEnabled = m_mode == TOOLMODE_CREATE;
+
+	if (ImGui::Checkbox("Create Agents", &isEnabled))
 		m_mode = TOOLMODE_CREATE;
-	if (imguiCheck("Move Target", m_mode == TOOLMODE_MOVE_TARGET))
+
+	isEnabled = m_mode == TOOLMODE_MOVE_TARGET;
+
+	if (ImGui::Checkbox("Move Target", &isEnabled))
 		m_mode = TOOLMODE_MOVE_TARGET;
-	if (imguiCheck("Select Agent", m_mode == TOOLMODE_SELECT))
+
+	isEnabled = m_mode == TOOLMODE_SELECT;
+
+	if (ImGui::Checkbox("Select Agent", &isEnabled))
 		m_mode = TOOLMODE_SELECT;
-	if (imguiCheck("Toggle Polys", m_mode == TOOLMODE_TOGGLE_POLYS))
+
+	isEnabled = m_mode == TOOLMODE_TOGGLE_POLYS;
+
+	if (ImGui::Checkbox("Toggle Polys", &isEnabled))
 		m_mode = TOOLMODE_TOGGLE_POLYS;
 	
-	imguiSeparatorLine();
-		
-	if (imguiCollapse("Options", 0, params->m_expandOptions))
-		params->m_expandOptions = !params->m_expandOptions;
+	ImGui::Separator();
 	
-	if (params->m_expandOptions)
+	if (ImGui::CollapsingHeader("Options"))
 	{
-		imguiIndent();
-		if (imguiCheck("Optimize Visibility", params->m_optimizeVis))
-		{
-			params->m_optimizeVis = !params->m_optimizeVis;
+		if (ImGui::Checkbox("Optimize Visibility", &params->m_optimizeVis))
 			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Optimize Topology", params->m_optimizeTopo))
-		{
-			params->m_optimizeTopo = !params->m_optimizeTopo;
+
+		if (ImGui::Checkbox("Optimize Topology", &params->m_optimizeTopo))
 			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Anticipate Turns", params->m_anticipateTurns))
-		{
-			params->m_anticipateTurns = !params->m_anticipateTurns;
+
+		if (ImGui::Checkbox("Anticipate Turns", &params->m_anticipateTurns))
 			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Obstacle Avoidance", params->m_obstacleAvoidance))
-		{
-			params->m_obstacleAvoidance = !params->m_obstacleAvoidance;
+
+		if (ImGui::Checkbox("Obstacle Avoidance", &params->m_obstacleAvoidance))
 			m_state->updateAgentParams();
-		}
-		if (imguiSlider("Avoidance Quality", &params->m_obstacleAvoidanceType, 0.0f, 3.0f, 1.0f))
+
+		ImGui::PushItemWidth(90.f);
+		if (ImGui::SliderInt("Avoidance Quality", &params->m_obstacleAvoidanceType, 0, 3))
 		{
 			m_state->updateAgentParams();
 		}
-		if (imguiCheck("Separation", params->m_separation))
-		{
-			params->m_separation = !params->m_separation;
+		if (ImGui::Checkbox("Separation", &params->m_separation))
 			m_state->updateAgentParams();
-		}
-		if (imguiSlider("Separation Weight", &params->m_separationWeight, 0.0f, 200.0f, 0.01f))
+
+		if (ImGui::SliderFloat("Separation Weight", &params->m_separationWeight, 0.0f, 200.0f))
 		{
 			m_state->updateAgentParams();
 		}
-		if (imguiSlider("Max Acceleration", &params->m_maxAcceleration, 0.0f, 2000.0f, 0.01f))
+		if (ImGui::SliderFloat("Max Acceleration", &params->m_maxAcceleration, 0.0f, 2000.0f))
 		{
 			m_state->updateAgentParams();
 		}
-		if (imguiSlider("Max Speed", &params->m_maxSpeed, 0.0f, 2000.0f, 0.01f))
+		if (ImGui::SliderFloat("Max Speed", &params->m_maxSpeed, 0.0f, 2000.0f))
 		{
 			m_state->updateAgentParams();
 		}
-		
-		imguiUnindent();
+		ImGui::PopItemWidth();
 	}
 
-	if (imguiCollapse("Selected Debug Draw", 0, params->m_expandSelectedDebugDraw))
-		params->m_expandSelectedDebugDraw = !params->m_expandSelectedDebugDraw;
-		
-	if (params->m_expandSelectedDebugDraw)
+	if (ImGui::CollapsingHeader("Traverse Animation Type"))
 	{
-		imguiIndent();
-		if (imguiCheck("Show Corners", params->m_showCorners))
-			params->m_showCorners = !params->m_showCorners;
-		if (imguiCheck("Show Collision Segs", params->m_showCollisionSegments))
-			params->m_showCollisionSegments = !params->m_showCollisionSegments;
-		if (imguiCheck("Show Path", params->m_showPath))
-			params->m_showPath = !params->m_showPath;
-		if (imguiCheck("Show VO", params->m_showVO))
-			params->m_showVO = !params->m_showVO;
-		if (imguiCheck("Show Path Optimization", params->m_showOpt))
-			params->m_showOpt = !params->m_showOpt;
-		if (imguiCheck("Show Neighbours", params->m_showNeis))
-			params->m_showNeis = !params->m_showNeis;
-		imguiUnindent();
+		const NavMeshType_e loadedNavMeshType = m_editor->getLoadedNavMeshType();
+
+		// TODO: perhaps clamp with m_nav->m_params.traversalTableCount? Technically a navmesh should 
+		// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
+		const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
+		const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
+
+		for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
+		{
+			const bool noAnimtype = i == ANIMTYPE_NONE;
+
+			const TraverseAnimType_e animTypeIndex = noAnimtype ? ANIMTYPE_NONE : TraverseAnimType_e((int)baseType + i);
+			const char* animtypeName = noAnimtype ? "none" : g_traverseAnimTypeNames[animTypeIndex];
+
+			bool isAnimTypeEnabled = params->m_traverseAnimType == animTypeIndex;
+
+			if (ImGui::Checkbox(animtypeName, &isAnimTypeEnabled))
+			{
+				params->m_traverseAnimType = animTypeIndex;
+				m_state->updateAgentParams();
+			}
+		}
+	}
+
+	if (ImGui::CollapsingHeader("Selected Debug Draw"))
+	{
+		ImGui::Checkbox("Show Corners", &params->m_showCorners);
+		ImGui::Checkbox("Show Collision Segs", &params->m_showCollisionSegments);
+		ImGui::Checkbox("Show Path", &params->m_showPath);
+		ImGui::Checkbox("Show VO", &params->m_showVO);
+		ImGui::Checkbox("Show Path Optimization", &params->m_showOpt);
+		ImGui::Checkbox("Show Neighbours", &params->m_showNeis);
 	}
 		
-	if (imguiCollapse("Debug Draw", 0, params->m_expandDebugDraw))
-		params->m_expandDebugDraw = !params->m_expandDebugDraw;
-	
-	if (params->m_expandDebugDraw)
+	if (ImGui::CollapsingHeader("Debug Draw"))
 	{
-		imguiIndent();
-		if (imguiCheck("Show Labels", params->m_showLabels))
-			params->m_showLabels = !params->m_showLabels;
-		if (imguiCheck("Show Prox Grid", params->m_showGrid))
-			params->m_showGrid = !params->m_showGrid;
-		if (imguiCheck("Show Nodes", params->m_showNodes))
-			params->m_showNodes = !params->m_showNodes;
-		if (imguiCheck("Show Perf Graph", params->m_showPerfGraph))
-			params->m_showPerfGraph = !params->m_showPerfGraph;
-		if (imguiCheck("Show Detail All", params->m_showDetailAll))
-			params->m_showDetailAll = !params->m_showDetailAll;
-		imguiUnindent();
+		ImGui::Checkbox("Show Labels", &params->m_showLabels);
+		ImGui::Checkbox("Show Prox Grid", &params->m_showGrid);
+		ImGui::Checkbox("Show Nodes", &params->m_showNodes);
+		ImGui::Checkbox("Show Perf Graph", &params->m_showPerfGraph);
+		ImGui::Checkbox("Show Details For All", &params->m_showDetailAll);
 	}
 }
 
@@ -1061,7 +1111,7 @@ void CrowdTool::handleToggle()
 
 void CrowdTool::handleUpdate(const float dt)
 {
-	rcIgnoreUnused(dt);
+	rdIgnoreUnused(dt);
 }
 
 void CrowdTool::handleRender()
@@ -1070,33 +1120,46 @@ void CrowdTool::handleRender()
 
 void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	rcIgnoreUnused(model);
-	rcIgnoreUnused(proj);
+	rdIgnoreUnused(model);
+	rdIgnoreUnused(proj);
+	rdIgnoreUnused(view);
 
 	// Tool help
-	const int h = view[3];
-	int ty = h-40;
+	float ty = 40;
 	
 	if (m_mode == TOOLMODE_CREATE)
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "LMB: add agent.  Shift+LMB: remove agent.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: add agent.  Shift+LMB: remove agent.");
 	}
 	else if (m_mode == TOOLMODE_MOVE_TARGET)
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "LMB: set move target.  Shift+LMB: adjust set velocity.", imguiRGBA(255,255,255,192));	
-		ty -= 20;
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "Setting velocity will move the agents without pathfinder.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: set move target.  Shift+LMB: adjust set velocity.");
+
+		ty += 20;
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "Setting velocity will move the agents without pathfinder.");
 	}
 	else if (m_mode == TOOLMODE_SELECT)
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "LMB: select agent.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: select agent.");
 	}
-	ty -= 20;
-	imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "SPACE: Run/Pause simulation.  1: Step simulation.", imguiRGBA(255,255,255,192));	
-	ty -= 20;
 
+	ty += 20.f;
+	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+		ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "SPACE: Run/Pause simulation.  1: Step simulation.");
+
+	ty += 20.f;
 	if (m_state && m_state->isRunning())
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "- RUNNING -", imguiRGBA(255,32,16,255));	
-	else 
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "- PAUSED -", imguiRGBA(255,255,255,128));	
+	{
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(0.15f,1.0f,0.05f,0.8f), "- RUNNING -");
+	}
+	else
+	{
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, ty), ImVec4(1.0f,0.15f,0.05f,0.8f), "- PAUSED -");
+	}
 }

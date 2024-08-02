@@ -1,17 +1,17 @@
+#include "Shared/Include/SharedMath.h"
 #include "DetourTileCache/Include/DetourTileCache.h"
 #include "DetourTileCache/Include/DetourTileCacheBuilder.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
 #include "Detour/Include/DetourNavMesh.h"
-#include "Detour/Include/DetourCommon.h"
-#include "Detour/Include/DetourMath.h"
-#include "Detour/Include/DetourAlloc.h"
-#include "Detour/Include/DetourAssert.h"
+#include "Shared/Include/SharedCommon.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 #include <string.h>
 #include <new>
 
 dtTileCache* dtAllocTileCache()
 {
-	void* mem = dtAlloc(sizeof(dtTileCache), DT_ALLOC_PERM);
+	void* mem = rdAlloc(sizeof(dtTileCache), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtTileCache;
 }
@@ -20,7 +20,7 @@ void dtFreeTileCache(dtTileCache* tc)
 {
 	if (!tc) return;
 	tc->~dtTileCache();
-	dtFree(tc);
+	rdFree(tc);
 }
 
 static bool contains(const dtCompressedTileRef* a, const int n, const dtCompressedTileRef v)
@@ -86,15 +86,15 @@ dtTileCache::~dtTileCache()
 	{
 		if (m_tiles[i].flags & DT_COMPRESSEDTILE_FREE_DATA)
 		{
-			dtFree(m_tiles[i].data);
+			rdFree(m_tiles[i].data);
 			m_tiles[i].data = 0;
 		}
 	}
-	dtFree(m_obstacles);
+	rdFree(m_obstacles);
 	m_obstacles = 0;
-	dtFree(m_posLookup);
+	rdFree(m_posLookup);
 	m_posLookup = 0;
-	dtFree(m_tiles);
+	rdFree(m_tiles);
 	m_tiles = 0;
 	m_nreqs = 0;
 	m_nupdate = 0;
@@ -127,7 +127,7 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 	memcpy(&m_params, params, sizeof(m_params));
 	
 	// Alloc space for obstacles.
-	m_obstacles = (dtTileCacheObstacle*)dtAlloc(sizeof(dtTileCacheObstacle)*m_params.maxObstacles, DT_ALLOC_PERM);
+	m_obstacles = (dtTileCacheObstacle*)rdAlloc(sizeof(dtTileCacheObstacle)*m_params.maxObstacles, RD_ALLOC_PERM);
 	if (!m_obstacles)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(m_obstacles, 0, sizeof(dtTileCacheObstacle)*m_params.maxObstacles);
@@ -140,14 +140,14 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 	}
 	
 	// Init tiles
-	m_tileLutSize = dtNextPow2(m_params.maxTiles/4);
+	m_tileLutSize = rdNextPow2(m_params.maxTiles/4);
 	if (!m_tileLutSize) m_tileLutSize = 1;
 	m_tileLutMask = m_tileLutSize-1;
 	
-	m_tiles = (dtCompressedTile*)dtAlloc(sizeof(dtCompressedTile)*m_params.maxTiles, DT_ALLOC_PERM);
+	m_tiles = (dtCompressedTile*)rdAlloc(sizeof(dtCompressedTile)*m_params.maxTiles, RD_ALLOC_PERM);
 	if (!m_tiles)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
-	m_posLookup = (dtCompressedTile**)dtAlloc(sizeof(dtCompressedTile*)*m_tileLutSize, DT_ALLOC_PERM);
+	m_posLookup = (dtCompressedTile**)rdAlloc(sizeof(dtCompressedTile*)*m_tileLutSize, RD_ALLOC_PERM);
 	if (!m_posLookup)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(m_tiles, 0, sizeof(dtCompressedTile)*m_params.maxTiles);
@@ -161,12 +161,9 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 	}
 	
 	// Init ID generator values.
-	m_tileBits = dtIlog2(dtNextPow2((unsigned int)m_params.maxTiles));
-	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint and it will overflow.
-	m_saltBits = dtMin((unsigned int)31, 32 - m_tileBits);
-	if (m_saltBits < 10)
-		return DT_FAILURE | DT_INVALID_PARAM;
-	
+	m_tileBits = rdIlog2(rdNextPow2((unsigned int)m_params.maxTiles));
+	m_saltBits = 32 - m_tileBits;
+
 	return DT_SUCCESS;
 }
 
@@ -271,7 +268,7 @@ dtStatus dtTileCache::addTile(unsigned char* data, const int dataSize, unsigned 
 	m_posLookup[h] = tile;
 	
 	// Init tile.
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int headerSize = rdAlign4(sizeof(dtTileCacheLayerHeader));
 	tile->header = (dtTileCacheLayerHeader*)data;
 	tile->data = data;
 	tile->dataSize = dataSize;
@@ -319,7 +316,7 @@ dtStatus dtTileCache::removeTile(dtCompressedTileRef ref, unsigned char** data, 
 	if (tile->flags & DT_COMPRESSEDTILE_FREE_DATA)
 	{
 		// Owns data
-		dtFree(tile->data);
+		rdFree(tile->data);
 		tile->data = 0;
 		tile->dataSize = 0;
 		if (data) *data = 0;
@@ -371,7 +368,7 @@ dtStatus dtTileCache::addObstacle(const float* pos, const float radius, const fl
 	ob->salt = salt;
 	ob->state = DT_OBSTACLE_PROCESSING;
 	ob->type = DT_OBSTACLE_CYLINDER;
-	dtVcopy(ob->cylinder.pos, pos);
+	rdVcopy(ob->cylinder.pos, pos);
 	ob->cylinder.radius = radius;
 	ob->cylinder.height = height;
 	
@@ -406,8 +403,8 @@ dtStatus dtTileCache::addBoxObstacle(const float* bmin, const float* bmax, dtObs
 	ob->salt = salt;
 	ob->state = DT_OBSTACLE_PROCESSING;
 	ob->type = DT_OBSTACLE_BOX;
-	dtVcopy(ob->box.bmin, bmin);
-	dtVcopy(ob->box.bmax, bmax);
+	rdVcopy(ob->box.bmin, bmin);
+	rdVcopy(ob->box.bmax, bmax);
 	
 	ObstacleRequest* req = &m_reqs[m_nreqs++];
 	memset(req, 0, sizeof(ObstacleRequest));
@@ -440,11 +437,11 @@ dtStatus dtTileCache::addBoxObstacle(const float* center, const float* halfExten
 	ob->salt = salt;
 	ob->state = DT_OBSTACLE_PROCESSING;
 	ob->type = DT_OBSTACLE_ORIENTED_BOX;
-	dtVcopy(ob->orientedBox.center, center);
-	dtVcopy(ob->orientedBox.halfExtents, halfExtents);
+	rdVcopy(ob->orientedBox.center, center);
+	rdVcopy(ob->orientedBox.halfExtents, halfExtents);
 
-	float coshalf= cosf(0.5f*yRadians);
-	float sinhalf = sinf(-0.5f*yRadians);
+	float coshalf= rdMathCosf(0.5f*yRadians);
+	float sinhalf = rdMathSinf(-0.5f*yRadians);
 	ob->orientedBox.rotAux[0] = coshalf*sinhalf;
 	ob->orientedBox.rotAux[1] = coshalf*coshalf - 0.5f;
 
@@ -484,10 +481,10 @@ dtStatus dtTileCache::queryTiles(const float* bmin, const float* bmax,
 	
 	const float tw = m_params.width * m_params.cs;
 	const float th = m_params.height * m_params.cs;
-	const int tx0 = (int)dtMathFloorf((bmin[0]-m_params.orig[0]) / tw);
-	const int tx1 = (int)dtMathFloorf((bmax[0]-m_params.orig[0]) / tw);
-	const int ty0 = (int)dtMathFloorf((bmin[1]-m_params.orig[1]) / th);
-	const int ty1 = (int)dtMathFloorf((bmax[1]-m_params.orig[1]) / th);
+	const int tx0 = (int)rdMathFloorf((bmin[0]-m_params.orig[0]) / tw);
+	const int tx1 = (int)rdMathFloorf((bmax[0]-m_params.orig[0]) / tw);
+	const int ty0 = (int)rdMathFloorf((bmin[1]-m_params.orig[1]) / th);
+	const int ty1 = (int)rdMathFloorf((bmax[1]-m_params.orig[1]) / th);
 	
 	for (int ty = ty0; ty <= ty1; ++ty)
 	{
@@ -501,7 +498,7 @@ dtStatus dtTileCache::queryTiles(const float* bmin, const float* bmax,
 				float tbmin[3], tbmax[3];
 				calcTightTileBounds(tile->header, tbmin, tbmax);
 				
-				if (dtOverlapBounds(bmin,bmax, tbmin,tbmax))
+				if (rdOverlapBounds(bmin,bmax, tbmin,tbmax))
 				{
 					if (n < maxResults)
 						results[n++] = tiles[i];
@@ -651,8 +648,8 @@ dtStatus dtTileCache::buildNavMeshTilesAt(const int tx, const int ty, dtNavMesh*
 
 dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh* navmesh)
 {	
-	dtAssert(m_talloc);
-	dtAssert(m_tcomp);
+	rdAssert(m_talloc);
+	rdAssert(m_tcomp);
 	
 	unsigned int idx = decodeTileIdTile(ref);
 	if (idx > (unsigned int)m_params.maxTiles)
@@ -745,8 +742,8 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	params.cs = m_params.cs;
 	params.ch = m_params.ch;
 	params.buildBvTree = false;
-	dtVcopy(params.bmin, tile->header->bmin);
-	dtVcopy(params.bmax, tile->header->bmax);
+	rdVcopy(params.bmin, tile->header->bmin);
+	rdVcopy(params.bmax, tile->header->bmax);
 	
 	if (m_tmproc)
 	{
@@ -765,12 +762,15 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	if (navData)
 	{
 		// Let the navmesh own the data.
-		status = navmesh->addTile(navData,navDataSize,DT_TILE_FREE_DATA,0,0);
+		dtTileRef tileRef = 0;
+		status = navmesh->addTile(navData,navDataSize,DT_TILE_FREE_DATA,0,&tileRef);
 		if (dtStatusFailed(status))
 		{
-			dtFree(navData);
+			rdFree(navData);
 			return status;
 		}
+		else
+			navmesh->connectTile(tileRef);
 	}
 	
 	return DT_SUCCESS;
@@ -802,14 +802,14 @@ void dtTileCache::getObstacleBounds(const struct dtTileCacheObstacle* ob, float*
 	}
 	else if (ob->type == DT_OBSTACLE_BOX)
 	{
-		dtVcopy(bmin, ob->box.bmin);
-		dtVcopy(bmax, ob->box.bmax);
+		rdVcopy(bmin, ob->box.bmin);
+		rdVcopy(bmax, ob->box.bmax);
 	}
 	else if (ob->type == DT_OBSTACLE_ORIENTED_BOX)
 	{
 		const dtObstacleOrientedBox &orientedBox = ob->orientedBox;
 
-		float maxr = 1.41f*dtMax(orientedBox.halfExtents[0], orientedBox.halfExtents[1]);
+		float maxr = 1.41f*rdMax(orientedBox.halfExtents[0], orientedBox.halfExtents[1]);
 		bmin[0] = orientedBox.center[0] - maxr;
 		bmax[0] = orientedBox.center[0] + maxr;
 		bmin[1] = orientedBox.center[1] - maxr;

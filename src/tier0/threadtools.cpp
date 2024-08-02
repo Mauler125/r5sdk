@@ -1,4 +1,4 @@
-﻿//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
+﻿//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Thread tools
 //
@@ -8,6 +8,25 @@
 
 #include "tier0/threadtools.h"
 #include "tier0/jobthread.h"
+
+CThreadMutex::CThreadMutex()
+{
+#ifdef THREAD_MUTEX_TRACING_ENABLED
+	memset(&m_CriticalSection, 0, sizeof(m_CriticalSection));
+#endif
+	InitializeCriticalSectionAndSpinCount(&m_CriticalSection, 4000);
+#ifdef THREAD_MUTEX_TRACING_SUPPORTED
+	// These need to be initialized unconditionally in case mixing release & debug object modules
+	// Lock and unlock may be emitted as COMDATs, in which case may get spurious output
+	m_currentOwnerID = m_lockCount = 0;
+	m_bTrace = false;
+#endif
+}
+
+CThreadMutex::~CThreadMutex()
+{
+	DeleteCriticalSection(&m_CriticalSection);
+}
 
 #define INIT_SEM_COUNT 0
 #define MAX_SEM_COUNT 1

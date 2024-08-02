@@ -16,10 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
-#include "Detour/Include/DetourCommon.h"
-#include "Detour/Include/DetourAssert.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/NavMeshPruneTool.h"
 #include "NavEditor/Include/InputGeom.h"
@@ -33,7 +31,7 @@ class NavmeshFlags
 {
 	struct TileFlags
 	{
-		inline void purge() { dtFree(flags); }
+		inline void purge() { rdFree(flags); }
 		unsigned char* flags;
 		int nflags;
 		dtPolyRef base;
@@ -53,7 +51,7 @@ public:
 	{
 		for (int i = 0; i < m_ntiles; ++i)
 			m_tiles[i].purge();
-		dtFree(m_tiles);
+		rdFree(m_tiles);
 	}
 	
 	bool init(const dtNavMesh* nav)
@@ -61,7 +59,7 @@ public:
 		m_ntiles = nav->getMaxTiles();
 		if (!m_ntiles)
 			return true;
-		m_tiles = (TileFlags*)dtAlloc(sizeof(TileFlags)*m_ntiles, DT_ALLOC_TEMP);
+		m_tiles = (TileFlags*)rdAlloc(sizeof(TileFlags)*m_ntiles, RD_ALLOC_TEMP);
 		if (!m_tiles)
 		{
 			return false;
@@ -78,7 +76,7 @@ public:
 			tf->base = nav->getPolyRefBase(tile);
 			if (tf->nflags)
 			{
-				tf->flags = (unsigned char*)dtAlloc(tf->nflags, DT_ALLOC_TEMP);
+				tf->flags = (unsigned char*)rdAlloc(tf->nflags, RD_ALLOC_TEMP);
 				if (!tf->flags)
 					return false;
 				memset(tf->flags, 0, tf->nflags);
@@ -102,8 +100,8 @@ public:
 	
 	inline unsigned char getFlags(dtPolyRef ref)
 	{
-		dtAssert(m_nav);
-		dtAssert(m_ntiles);
+		rdAssert(m_nav);
+		rdAssert(m_ntiles);
 		// Assume the ref is valid, no bounds checks.
 		unsigned int salt, it, ip;
 		m_nav->decodePolyId(ref, salt, it, ip);
@@ -112,8 +110,8 @@ public:
 
 	inline void setFlags(dtPolyRef ref, unsigned char flags)
 	{
-		dtAssert(m_nav);
-		dtAssert(m_ntiles);
+		rdAssert(m_nav);
+		rdAssert(m_ntiles);
 		// Assume the ref is valid, no bounds checks.
 		unsigned int salt, it, ip;
 		m_nav->decodePolyId(ref, salt, it, ip);
@@ -139,7 +137,7 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 		openList.pop_back();
 
 		// Get current poly and tile.
-		// The API input has been cheked already, skip checking internal data.
+		// The API input has been checked already, skip checking internal data.
 		const dtMeshTile* tile = 0;
 		const dtPoly* poly = 0;
 		nav->getTileAndPolyByRefUnsafe(ref, &tile, &poly);
@@ -212,12 +210,12 @@ void NavMeshPruneTool::handleMenu()
 	if (!nav) return;
 	if (!m_flags) return;
 
-	if (imguiButton("Clear Selection"))
+	if (ImGui::Button("Clear Selection"))
 	{
 		m_flags->clearAllFlags();
 	}
 	
-	if (imguiButton("Prune Unselected"))
+	if (ImGui::Button("Prune Unselected"))
 	{
 		disableUnvisitedPolys(nav, m_flags);
 		delete m_flags;
@@ -227,8 +225,8 @@ void NavMeshPruneTool::handleMenu()
 
 void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 {
-	rcIgnoreUnused(s);
-	rcIgnoreUnused(shift);
+	rdIgnoreUnused(s);
+	rdIgnoreUnused(shift);
 
 	if (!m_editor) return;
 	InputGeom* geom = m_editor->getInputGeom();
@@ -238,7 +236,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	dtNavMeshQuery* query = m_editor->getNavMeshQuery();
 	if (!query) return;
 	
-	dtVcopy(m_hitPos, p);
+	rdVcopy(m_hitPos, p);
 	m_hitPosSet = true;
 	
 	if (!m_flags)
@@ -247,7 +245,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 		m_flags->init(nav);
 	}
 	
-	const float halfExtents[3] = { 2, 4, 2 };
+	const float halfExtents[3] = { 2, 2, 4 };
 	dtQueryFilter filter;
 	dtPolyRef ref = 0;
 	query->findNearestPoly(p, halfExtents, &filter, &ref, 0);
@@ -286,6 +284,9 @@ void NavMeshPruneTool::handleRender()
 	}
 
 	const dtNavMesh* nav = m_editor->getNavMesh();
+	const float* drawOffset = m_editor->getDetourDrawOffset();
+	const unsigned int drawFlags = m_editor->getNavMeshDrawFlags();
+
 	if (m_flags && nav)
 	{
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
@@ -298,7 +299,7 @@ void NavMeshPruneTool::handleRender()
 				const dtPolyRef ref = base | (unsigned int)j;
 				if (m_flags->getFlags(ref))
 				{
-					duDebugDrawNavMeshPoly(&dd, *nav, ref, duRGBA(255,255,255,128));
+					duDebugDrawNavMeshPoly(&dd, *nav, ref, drawOffset, drawFlags, duRGBA(255,255,255,128));
 				}
 			}
 		}
@@ -307,11 +308,10 @@ void NavMeshPruneTool::handleRender()
 
 void NavMeshPruneTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	rcIgnoreUnused(model);
-	rcIgnoreUnused(proj);
+	rdIgnoreUnused(model);
+	rdIgnoreUnused(proj);
+	rdIgnoreUnused(view);
 
 	// Tool help
-	const int h = view[3];
-
-	imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Click fill area.", imguiRGBA(255,255,255,192));
+	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Click fill area.");
 }

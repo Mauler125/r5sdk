@@ -4,8 +4,7 @@
 class IClientNetworkable
 {
 public:
-	void* __vftable /*VFT*/;
-	//virtual ~IClientNetworkable(void) = 0;
+	virtual ~IClientNetworkable(void) = 0;
 	// !TODO!
 };
 

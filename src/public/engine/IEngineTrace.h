@@ -1,4 +1,4 @@
-﻿//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
+﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -60,5 +60,7 @@ public:
 	virtual void TraceRay(const Ray_t& ray, unsigned int fMask, trace_t* pTrace) = 0;
 };
 
+#define INTERFACEVERSION_ENGINETRACE_SERVER	"EngineTraceServer004"
+#define INTERFACEVERSION_ENGINETRACE_CLIENT	"EngineTraceClient004"
 
 #endif // ENGINE_IENGINETRACE_H

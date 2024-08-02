@@ -95,7 +95,7 @@ static void HostState_KeepAlive()
 		*g_nServerRemoteChecksum,
 		SDK_VERSION,
 		g_pServer->GetNumClients(),
-		g_ServerGlobalVariables->m_nMaxClients,
+		gpGlobals->maxClients,
 		std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch()
 			).count()
@@ -147,7 +147,7 @@ void HostState_HandleAutoReload()
 {
 	if (host_autoReloadRate.GetBool())
 	{
-		if (g_ServerGlobalVariables->m_flCurTime > host_autoReloadRate.GetFloat())
+		if (gpGlobals->curTime > host_autoReloadRate.GetFloat())
 		{
 			// We should respect the game state, and the game isn't finished yet so
 			// don't reload the server now.
@@ -398,7 +398,7 @@ void CHostState::Think(void) const
 	{
 		SetConsoleTitleA(Format("%s - %d/%d Players (%s on %s) - %d%% Server CPU (%.3f msec on frame %d)",
 			hostname->GetString(), g_pServer->GetNumClients(),
-			g_ServerGlobalVariables->m_nMaxClients, v_Playlists_GetCurrent(), m_levelName,
+			gpGlobals->maxClients, v_Playlists_GetCurrent(), m_levelName,
 			static_cast<int>(g_pServer->GetCPUUsage() * 100.0f), (g_pEngine->GetFrameTime() * 1000.0f),
 			g_pServer->GetTick()).c_str());
 

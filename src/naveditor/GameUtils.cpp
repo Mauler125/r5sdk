@@ -16,9 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "pch.h"
 #include "NavEditor/include/GameUtils.h"
-#include "NavEditor/include/FileTypes.h"
 
 void coordGameSwap(float* c)
 {
@@ -40,11 +38,11 @@ void coordShortGameUnswap(unsigned short* c)
 	c[2] = std::numeric_limits<unsigned short>::max() - c[2];
 	std::swap(c[1], c[2]);
 }
-void patchHeaderGame(NavMeshSetHeader& h)
+void patchHeaderGame(dtNavMeshSetHeader& h)
 {
 	coordGameSwap(h.params.orig);
 }
-void unpatchHeaderGame(NavMeshSetHeader& h)
+void unpatchHeaderGame(dtNavMeshSetHeader& h)
 {
 	coordGameUnswap(h.params.orig);
 }
@@ -59,7 +57,7 @@ void patchTileGame(dtMeshTile* t)
 	for (size_t i = 0; i < t->header->detailVertCount * 3; i += 3)
 		coordGameSwap(t->detailVerts + i);
 	for (size_t i = 0; i < t->header->polyCount; i++)
-		coordGameSwap(t->polys[i].org);
+		coordGameSwap(t->polys[i].center);
 	//might be wrong because of coord change might break tree layout
 	for (size_t i = 0; i < t->header->bvNodeCount; i++)
 	{
@@ -70,7 +68,7 @@ void patchTileGame(dtMeshTile* t)
 	{
 		coordGameSwap(t->offMeshCons[i].pos);
 		coordGameSwap(t->offMeshCons[i].pos + 3);
-		coordGameSwap(t->offMeshCons[i].unk);
+		coordGameSwap(t->offMeshCons[i].refPos);
 	}
 }
 void unpatchTileGame(dtMeshTile* t)
@@ -83,7 +81,7 @@ void unpatchTileGame(dtMeshTile* t)
 	for (size_t i = 0; i < t->header->detailVertCount * 3; i += 3)
 		coordGameUnswap(t->detailVerts + i);
 	for (size_t i = 0; i < t->header->polyCount; i++)
-		coordGameUnswap(t->polys[i].org);
+		coordGameUnswap(t->polys[i].center);
 	//might be wrong because of coord change might break tree layout
 	for (size_t i = 0; i < t->header->bvNodeCount; i++)
 	{
@@ -94,81 +92,6 @@ void unpatchTileGame(dtMeshTile* t)
 	{
 		coordGameUnswap(t->offMeshCons[i].pos);
 		coordGameUnswap(t->offMeshCons[i].pos + 3);
-		coordGameUnswap(t->offMeshCons[i].unk);
+		coordGameUnswap(t->offMeshCons[i].refPos);
 	}
-}
-
-void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
-{
-	//clear all labels
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			poly.disjointSetId = (unsigned short)-1;
-		}
-	}
-	//first pass
-	std::set<int> nlabels;
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			unsigned int plink = poly.firstLink;
-			while (plink != DT_NULL_LINK)
-			{
-				const dtLink l = tile->links[plink];
-				const dtMeshTile* t;
-				const dtPoly* p;
-				mesh->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
-
-				if (p->disjointSetId != (unsigned short)-1)
-					nlabels.insert(p->disjointSetId);
-				plink = l.next;
-			}
-			if (nlabels.empty())
-			{
-				poly.disjointSetId = (unsigned short)data.insert_new();
-			}
-			else
-			{
-				auto l = *nlabels.begin();
-				poly.disjointSetId = (unsigned short)l;
-				for (const int nl : nlabels)
-					data.set_union(l, nl);
-			}
-			nlabels.clear();
-		}
-	}
-	//second pass
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			int id = data.find(poly.disjointSetId);
-			poly.disjointSetId = (unsigned short)id;
-		}
-	}
-}
-void setReachable(std::vector<int>& data, int count, int id1, int id2, bool value)
-{
-	int w = ((count + 31) / 32);
-	auto& cell = data[id1 * w + id2 / 32];
-	uint32_t value_mask = ~(1 << (id2 & 0x1f));
-	if (!value)
-		cell = (cell & value_mask);
-	else
-		cell = (cell & value_mask) | (1 << (id2 & 0x1f));
 }

@@ -1,4 +1,4 @@
-﻿//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
+﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -20,7 +20,7 @@ struct Ray_t;
 class ServerClass;
 class ICollideable;
 class IServerNetworkable;
-class Vector;
+class Vector3D;
 class QAngle;
 
 // This class is how the engine talks to entities in the game DLL.

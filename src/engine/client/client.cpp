@@ -19,6 +19,7 @@
 #include "jwt/include/decode.h"
 #include "mbedtls/include/mbedtls/sha256.h"
 #endif
+#include "game/server/gameinterface.h"
 
 // Absolute max string cmd length, any character past this will be NULLED.
 #define STRINGCMD_MAX_LEN 512
@@ -371,7 +372,7 @@ void CClient::WriteDataBlock(CClient* pClient, bf_write& buf)
 			buf.WriteUBitLong(net_NOP, 8 - remainingBits);
 		}
 
-		const bool isMultiplayer = g_ServerGlobalVariables->m_nGameMode < GameMode_t::PVE_MODE;
+		const bool isMultiplayer = gpGlobals->gameMode < GameMode_t::PVE_MODE;
 		pClient->m_DataBlock.sender.WriteDataBlock(buf.GetData(), buf.GetNumBytesWritten(), isMultiplayer, buf.GetDebugName());
 	}
 	else

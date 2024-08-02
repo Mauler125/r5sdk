@@ -19,7 +19,7 @@
 #ifndef DETOURTILECACHEBUILDER_H
 #define DETOURTILECACHEBUILDER_H
 
-#include "Detour/Include/DetourAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 #include "Detour/Include/DetourStatus.h"
 
 static const int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'L'<<8 | 'R'; ///< 'DTLR';
@@ -84,12 +84,12 @@ struct dtTileCacheAlloc
 	
 	virtual void* alloc(const size_t size)
 	{
-		return dtAlloc(size, DT_ALLOC_TEMP);
+		return rdAlloc(size, RD_ALLOC_TEMP);
 	}
 	
 	virtual void free(void* ptr)
 	{
-		dtFree(ptr);
+		rdFree(ptr);
 	}
 };
 

@@ -21,7 +21,7 @@ typedef enum _fieldtypes
 
 	FIELD_POSITION_VECTOR,	// A world coordinate (these are fixed up across level transitions automagically)
 	FIELD_TIME,				// a floating point time (these are fixed up automatically too!)
-	FIELD_TICK,				// an integer tick count( fixed up similarly to time)
+	FIELD_TICK,				// an integer tick count (fixed up similarly to time)
 	FIELD_MODELNAME,		// Engine string that is a model name (needs precache)
 	FIELD_SOUNDNAME,		// Engine string that is a sound name (needs precache)
 
@@ -42,6 +42,7 @@ typedef enum _fieldtypes
 	FIELD_INTEGER64,		// 64bit integer
 
 	FIELD_VECTOR4D,			// 4 floats
+	FIELD_UNTYPED,			// Untyped field, usually engine class pointers, intermediate types like memhandle_t, interface classes like IClientNetworkable*.
 
 	FIELD_TYPECOUNT,		// MUST BE LAST
 } fieldtype_t;

@@ -25,24 +25,38 @@
 
 enum DrawNavMeshFlags
 {
-	DU_DRAWNAVMESH_OFFMESHCONS = 0x01,
-	DU_DRAWNAVMESH_CLOSEDLIST = 0x02,
-	DU_DRAWNAVMESH_COLOR_TILES = 0x04,
+	DU_DRAWNAVMESH_OFFMESHCONS = 1 << 0,  // Render off-mesh connections.
+	DU_DRAWNAVMESH_NODES       = 1 << 1,  // Render navmesh query nodes.
+	DU_DRAWNAVMESH_BVTREE      = 1 << 2,  // Render BVTree.
+	DU_DRAWNAVMESH_PORTALS     = 1 << 3,  // Render portals.
+	DU_DRAWNAVMESH_CLOSEDLIST  = 1 << 4,  // Render navmesh with closed list.
+	DU_DRAWNAVMESH_COLOR_TILES = 1 << 5,  // Render tiles colored by their ID's.
+	DU_DRAWNAVMESH_CELLS       = 1 << 6,  // Render tile cells.
+	DU_DRAWNAVMESH_VERTS       = 1 << 7,  // Render vertex points.
+	DU_DRAWNAVMESH_INNERBOUND  = 1 << 8,  // Render inner poly boundaries.
+	DU_DRAWNAVMESH_OUTERBOUND  = 1 << 9,  // Render outer poly boundaries.
+	DU_DRAWNAVMESH_POLYCENTERS = 1 << 10, // Render poly centers.
+	DU_DRAWNAVMESH_POLYGROUPS  = 1 << 11, // Render poly group by color.
+	DU_DRAWNAVMESH_DEPTH_MASK  = 1 << 12, // Use depth mask.
+	DU_DRAWNAVMESH_ALPHA       = 1 << 13, // Use transparency.
+	DU_DRAWNAVMESH_TRAVERSE_LINKS = 1 << 14, // Render traverse links.
 };
 
-void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags);
-void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query);
-void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
-void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh);
-void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& mesh, const unsigned short polyFlags, const unsigned int col);
-void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col);
+void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const int linkTypes = -1);
+void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const int linkTypes = -1);
+void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query, const float* offset);
+void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);
+void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);
+void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& mesh, const unsigned short polyFlags, const float* offset,
+									  const unsigned int drawFlags, const unsigned int col, const bool soften = true);
+void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const float* offset,
+									  const unsigned int drawFlags, const unsigned int col, const bool soften = true);
 
-void duDebugDrawTileCacheLayerAreas(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch);
-void duDebugDrawTileCacheLayerRegions(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch);
+void duDebugDrawTileCacheLayerAreas(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch, const float* offset);
+void duDebugDrawTileCacheLayerRegions(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch, const float* offset);
 void duDebugDrawTileCacheContours(duDebugDraw* dd, const struct dtTileCacheContourSet& lcset,
-								  const float* orig, const float cs, const float ch);
+								  const float* orig, const float cs, const float ch, const float* offset);
 void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyMesh& lmesh,
-								  const float* orig, const float cs, const float ch);
+								  const float* orig, const float cs, const float ch, const float* offset);
 
 #endif // DETOURDEBUGDRAW_H

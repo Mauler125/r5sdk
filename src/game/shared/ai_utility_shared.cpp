@@ -18,7 +18,7 @@
 #include "game/server/ai_networkmanager.h"
 #include "game/server/ai_network.h"
 #include "game/client/viewrender.h"
-#include "thirdparty/recast/Detour/Include/DetourCommon.h"
+#include "thirdparty/recast/Shared/Include/SharedCommon.h"
 #include "thirdparty/recast/Detour/Include/DetourNavMesh.h"
 
 static ConVar ai_script_nodes_draw_range("ai_script_nodes_draw_range", "0", FCVAR_DEVELOPMENTONLY, "Debug draw AIN script nodes ranging from shift index to this cvar");
@@ -187,7 +187,7 @@ void CAI_Utility::DrawNavMeshBVTree(
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
+        pMesh = Detour_GetNavMeshByType(NavMeshType_e(navmesh_debug_type.GetInt()));
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -197,7 +197,7 @@ void CAI_Utility::DrawNavMeshBVTree(
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = pMesh->getTile(i);
         if (!pTile->header)
             continue;
 
@@ -248,7 +248,7 @@ void CAI_Utility::DrawNavMeshPortals(const dtNavMesh* pMesh,
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
+        pMesh = Detour_GetNavMeshByType(NavMeshType_e(navmesh_debug_type.GetInt()));
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -257,7 +257,7 @@ void CAI_Utility::DrawNavMeshPortals(const dtNavMesh* pMesh,
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = pMesh->getTile(i);
         if (!pTile->header)
             continue;
 
@@ -368,7 +368,7 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
     const bool bDepthBuffer) const
 {
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
+        pMesh = Detour_GetNavMeshByType(NavMeshType_e(navmesh_debug_type.GetInt()));
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -377,7 +377,7 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = pMesh->getTile(i);
         if (!pTile->header)
             continue;
 
@@ -388,7 +388,10 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
         {
             const dtPoly* pPoly = &pTile->polys[j];
 
-            Color col{ 110, 200, 220, 255 };
+            Color col = pPoly->groupId == DT_STRAY_POLY_GROUP
+                ? Color(220, 120, 0, 255)
+                : Color(0, 200, 220, 255);
+
             const unsigned int ip = (unsigned int)(pPoly - pTile->polys);
 
             if (pPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
@@ -452,7 +455,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
     Color col{ 20, 140, 255, 255 };
 
     if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type.GetInt());
+        pMesh = Detour_GetNavMeshByType(NavMeshType_e(navmesh_debug_type.GetInt()));
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
@@ -463,7 +466,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = pMesh->getTile(i);
         if (!pTile->header)
             continue;
 
@@ -503,12 +506,20 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                             col = Color(0, 0, 0, 255);
                     }
                     else
-                        col = Color(0, 48, 64, 255);
+                    {
+                        col = pPoly->groupId == DT_STRAY_POLY_GROUP
+                            ? Color(32, 24, 0, 255)
+                            : Color(0, 48, 64, 255);
+                    }
                 }
                 else
                 {
                     if (pPoly->neis[e] != 0)
                         continue;
+
+                    col = pPoly->groupId == DT_STRAY_POLY_GROUP
+                        ? Color(255, 20, 10, 255)
+                        : Color(20, 140, 255, 255);
                 }
 
                 const float* v0 = &pTile->verts[pPoly->verts[e] * 3];
@@ -532,8 +543,8 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                         if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
                             continue;
 
-                        if (distancePtLine2d(tv[n], v0, v1) < thr &&
-                            distancePtLine2d(tv[m], v0, v1) < thr)
+                        if (rdDistancePtLine2d(tv[n], v0, v1) < thr &&
+                            rdDistancePtLine2d(tv[m], v0, v1) < thr)
                         {
                             v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, bDepthBuffer);
                         }

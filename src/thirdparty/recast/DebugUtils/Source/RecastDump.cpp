@@ -16,13 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 #include "DebugUtils/Include/RecastDump.h"
 
 
@@ -60,7 +55,7 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
 	const float ch = pmesh.ch;
 	const float* orig = pmesh.bmin;
 	
-	ioprintf(io, "# Recast Navmesh\n");
+	ioprintf(io, "# Recast NavMesh\n");
 	ioprintf(io, "o NavMesh\n");
 
 	ioprintf(io, "\n");
@@ -102,7 +97,7 @@ bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, duFileIO* io)
 		return false;
 	}
 	
-	ioprintf(io, "# Recast Navmesh\n");
+	ioprintf(io, "# Recast NavMesh\n");
 	ioprintf(io, "o NavMesh\n");
 	
 	ioprintf(io, "\n");
@@ -211,7 +206,7 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 	
 	io->read(&cset.nconts, sizeof(cset.nconts));
 
-	cset.conts = (rcContour*)rcAlloc(sizeof(rcContour)*cset.nconts, RC_ALLOC_PERM);
+	cset.conts = (rcContour*)rdAlloc(sizeof(rcContour)*cset.nconts, RD_ALLOC_PERM);
 	if (!cset.conts)
 	{
 		printf("duReadContourSet: Could not alloc contours (%d)\n", cset.nconts);
@@ -237,13 +232,13 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 		io->read(&cont.reg, sizeof(cont.reg));
 		io->read(&cont.area, sizeof(cont.area));
 
-		cont.verts = (int*)rcAlloc(sizeof(int)*4*cont.nverts, RC_ALLOC_PERM);
+		cont.verts = (int*)rdAlloc(sizeof(int)*4*cont.nverts, RD_ALLOC_PERM);
 		if (!cont.verts)
 		{
 			printf("duReadContourSet: Could not alloc contour verts (%d)\n", cont.nverts);
 			return false;
 		}
-		cont.rverts = (int*)rcAlloc(sizeof(int)*4*cont.nrverts, RC_ALLOC_PERM);
+		cont.rverts = (int*)rdAlloc(sizeof(int)*4*cont.nrverts, RD_ALLOC_PERM);
 		if (!cont.rverts)
 		{
 			printf("duReadContourSet: Could not alloc contour rverts (%d)\n", cont.nrverts);
@@ -366,7 +361,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	
 	if (tmp & 1)
 	{
-		chf.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell)*chf.width*chf.height, RC_ALLOC_PERM);
+		chf.cells = (rcCompactCell*)rdAlloc(sizeof(rcCompactCell)*chf.width*chf.height, RD_ALLOC_PERM);
 		if (!chf.cells)
 		{
 			printf("duReadCompactHeightfield: Could not alloc cells (%d)\n", chf.width*chf.height);
@@ -376,7 +371,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 2)
 	{
-		chf.spans = (rcCompactSpan*)rcAlloc(sizeof(rcCompactSpan)*chf.spanCount, RC_ALLOC_PERM);
+		chf.spans = (rcCompactSpan*)rdAlloc(sizeof(rcCompactSpan)*chf.spanCount, RD_ALLOC_PERM);
 		if (!chf.spans)
 		{
 			printf("duReadCompactHeightfield: Could not alloc spans (%d)\n", chf.spanCount);
@@ -386,7 +381,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 4)
 	{
-		chf.dist = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_PERM);
+		chf.dist = (unsigned short*)rdAlloc(sizeof(unsigned short)*chf.spanCount, RD_ALLOC_PERM);
 		if (!chf.dist)
 		{
 			printf("duReadCompactHeightfield: Could not alloc dist (%d)\n", chf.spanCount);
@@ -396,7 +391,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 8)
 	{
-		chf.areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_PERM);
+		chf.areas = (unsigned char*)rdAlloc(sizeof(unsigned char)*chf.spanCount, RD_ALLOC_PERM);
 		if (!chf.areas)
 		{
 			printf("duReadCompactHeightfield: Could not alloc areas (%d)\n", chf.spanCount);

@@ -138,19 +138,23 @@
 #include "game/server/movehelper_server.h"
 #include "game/server/player.h"
 #include "game/server/player_command.h"
+#include "game/server/ai_basenpc.h"
 #include "game/server/physics_main.h"
 #include "game/server/vscript_server.h"
+#include "game/server/entitylist.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
 #include "game/client/input.h"
 #include "game/client/movehelper_client.h"
 #include "game/client/vscript_client.h"
+#include "game/client/cliententitylist.h"
 #endif // !DEDICATED
 #include "public/edict.h"
 #ifndef DEDICATED
 #include "public/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"
+#include "inputsystem/inputstacksystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
 
@@ -664,10 +668,11 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VServerGameDLL);
 	REGISTER(VMoveHelperServer);
 	REGISTER(VPhysics_Main); // REGISTER SERVER ONLY
-	REGISTER(VBaseEntity);
 	REGISTER(VBaseAnimating);
 	REGISTER(VPlayer);
+	REGISTER(VAI_BaseNPC);
 	REGISTER(VPlayerMove);
+	REGISTER(VServerEntityList);
 
 #endif // !CLIENT_DLL
 
@@ -675,6 +680,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(V_ViewRender);
 	REGISTER(VInput);
 	REGISTER(VMoveHelperClient);
+	REGISTER(VClientEntityList);
 #endif // !DEDICATED
 
 	// Public
@@ -682,6 +688,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 
 #ifndef DEDICATED
 	REGISTER(VInputSystem);
+	REGISTER(VInputStackSystem);
 	REGISTER(VDXGI);
 #endif // !DEDICATED
 }

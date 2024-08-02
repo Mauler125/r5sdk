@@ -12,6 +12,9 @@ class CInputSystem : public CTier1AppSystem< IInputSystem >
 public:
 	// !!!interface implemented in engine!!!
 public:
+	PlatWindow_t GetAttachedWindow() const;
+
+public:
 	// Hook statics:
 	static LRESULT WindowProc(void* unused, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -97,13 +100,13 @@ private:
 	InputState_t m_InputState[INPUT_STATE_COUNT];
 
 	// Current button state mutex
-	CRITICAL_SECTION m_InputStateMutex;
+	CThreadMutex m_InputStateMutex;
 	int unknown0;
 	short unknown1;
 	bool unknown2;
 
 	// Analog event mutex
-	CRITICAL_SECTION m_AnalogEventMutex;
+	CThreadMutex m_AnalogEventMutex;
 	int unknown3;
 	short unknown4;
 	bool unknown5;
@@ -138,7 +141,7 @@ private:
 
 	// Raw mouse input
 	bool m_bRawInputSupported;
-	CRITICAL_SECTION m_MouseAccumMutex;
+	CThreadMutex m_MouseAccumMutex;
 	int m_mouseRawAccumX;
 	int m_mouseRawAccumY;
 

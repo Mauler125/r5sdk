@@ -1,4 +1,4 @@
-﻿//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
+﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -10,6 +10,7 @@
 #ifdef _WIN32
 #pragma once
 #endif
+#include "tier1/string_t.h"
 #include "mathlib/mathlib.h"
 
 class CPlayerState
@@ -21,10 +22,10 @@ public:
 
 	int playerEntityIndex;
 	char gap_c[4];
-	__int64 currentClass;
-	__int64 requestedClass;
-	__int64 onDeathClass;
-	__int64 oldClass;
+	i64 currentClass;
+	i64 requestedClass;
+	i64 onDeathClass;
+	i64 oldClass;
 	string_t netname;
 	int fixangle;
 	QAngle anglechange;

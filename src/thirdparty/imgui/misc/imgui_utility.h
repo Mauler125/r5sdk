@@ -1,14 +1,7 @@
 #pragma once
+#include "imgui_style.h"
 
 constexpr char IMGUI_BIND_FILE[] = "keymap.vdf";
-
-enum class ImGuiStyle_t
-{
-    NONE = -1,
-    DEFAULT,
-    LEGACY,
-    MODERN
-};
 
 class ImGuiConfig
 {

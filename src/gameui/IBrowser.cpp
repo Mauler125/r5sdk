@@ -37,6 +37,7 @@ History:
 #include "gameui/IBrowser.h"
 #include "public/edict.h"
 #include "game/shared/vscript_shared.h"
+#include "game/server/gameinterface.h"
 
 static ConCommand togglebrowser("togglebrowser", CBrowser::ToggleBrowser_f, "Show/hide the server browser", FCVAR_CLIENTDLL | FCVAR_RELEASE);
 
@@ -591,7 +592,9 @@ void CBrowser::DrawHostPanel(void)
     ImGui::Spacing();
 
     const ImVec2 contentRegionMax = ImGui::GetContentRegionAvail();
+
     const bool serverActive = g_pServer->IsActive();
+    const bool clientActive = g_pClientState->IsActive();
 
     if (!g_pHostState->m_bActiveGame)
     {
@@ -665,7 +668,7 @@ void CBrowser::DrawHostPanel(void)
             ImGui::Separator();
             ImGui::Spacing();
 
-            if (ImGui::Button("AI network rebuild", ImVec2(contentRegionMax.x, 32)))
+            if (ImGui::Button("Rebuild AI network", ImVec2(contentRegionMax.x, 32)))
             {
                 ProcessCommand("BuildAINFile");
             }
@@ -679,9 +682,9 @@ void CBrowser::DrawHostPanel(void)
             ImGui::Separator();
             ImGui::Spacing();
 
-            if (ImGui::Button("AI settings reparse", ImVec2(contentRegionMax.x, 32)))
+            if (ImGui::Button("Reparse AI settings", ImVec2(contentRegionMax.x, 32)))
             {
-                Msg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
+                Msg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", clientActive ? "server and client" : "server");
                 ProcessCommand("aisettings_reparse");
 
                 if (g_pClientState->IsActive())
@@ -690,11 +693,54 @@ void CBrowser::DrawHostPanel(void)
                 }
             }
 
-            if (ImGui::Button("Weapon settings reparse", ImVec2(contentRegionMax.x, 32)))
+            if (ImGui::Button("Reparse Weapon settings", ImVec2(contentRegionMax.x, 32)))
             {
-                Msg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
+                Msg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", clientActive ? "server and client" : "server");
                 ProcessCommand("weapon_reparse");
             }
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    if (ImGui::Button("Reparse all scripts", ImVec2(contentRegionMax.x, 32)))
+    {
+        Msg(eDLL_T::ENGINE, "Reparsing all scripts on %s\n", "server and client");
+
+        // NOTE: the following are already called during "reload" or "reconnect".
+        //"aisettings_reparse"
+        //"aisettings_reparse_client"
+
+        //"damagedefs_reparse"
+        //"damagedefs_reparse_client"
+
+        //"playerSettings_reparse"
+        //"fx_impact_reparse"
+
+        ProcessCommand("ReloadAimAssistSettings");
+        ProcessCommand("reload_localization");
+
+        ProcessCommand("playlist_reload");
+        ProcessCommand("banlist_reload");
+
+        ProcessCommand("weapon_reparse");
+
+        // Recompile all UI scripts
+        ProcessCommand("uiscript_reset");
+
+        if (serverActive)
+        {
+            // If we hit this code path, we are connected to a listen server,
+            // reconnect to it to recompile all server and client side scripts.
+            ProcessCommand("reload");
+        }
+        else if (clientActive)
+        {
+            // If we hit this code path, we are connected to a remote server,
+            // reconnect to it to recompile all client side scripts.
+            ProcessCommand("reconnect");
         }
     }
 #endif // !CLIENT_DLL
@@ -773,7 +819,7 @@ void CBrowser::UpdateHostingStatus(void)
             *g_nServerRemoteChecksum,
             SDK_VERSION,
             g_pServer->GetNumClients(),
-            g_ServerGlobalVariables->m_nMaxClients,
+            gpGlobals->maxClients,
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now().time_since_epoch()
                 ).count()

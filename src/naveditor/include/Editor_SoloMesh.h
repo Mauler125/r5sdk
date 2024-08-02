@@ -16,51 +16,17 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTSAMPLESOLOMESH_H
-#define RECASTSAMPLESOLOMESH_H
+#ifndef RECASTEDITORSOLOMESH_H
+#define RECASTEDITORSOLOMESH_H
 
 #include "Recast/Include/Recast.h"
 #include "Detour/Include/DetourNavMesh.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
+#include "NavEditor/Include/Editor_Common.h"
 
-class Editor_SoloMesh : public Sample
+class Editor_SoloMesh : public Editor_StaticTileMeshCommon
 {
 protected:
-	bool m_keepInterResults;
-	float m_totalBuildTimeMs;
-
-	unsigned char* m_triareas;
-	rcHeightfield* m_solid;
-	rcCompactHeightfield* m_chf;
-	rcContourSet* m_cset;
-	rcPolyMesh* m_pmesh;
-	rcConfig m_cfg;	
-	rcPolyMeshDetail* m_dmesh;
-	
-	enum DrawMode
-	{
-		DRAWMODE_NAVMESH,
-		DRAWMODE_NAVMESH_TRANS,
-		DRAWMODE_NAVMESH_BVTREE,
-		DRAWMODE_NAVMESH_NODES,
-		DRAWMODE_NAVMESH_INVIS,
-		DRAWMODE_MESH,
-		DRAWMODE_VOXELS,
-		DRAWMODE_VOXELS_WALKABLE,
-		DRAWMODE_COMPACT,
-		DRAWMODE_COMPACT_DISTANCE,
-		DRAWMODE_COMPACT_REGIONS,
-		DRAWMODE_REGION_CONNECTIONS,
-		DRAWMODE_RAW_CONTOURS,
-		DRAWMODE_BOTH_CONTOURS,
-		DRAWMODE_CONTOURS,
-		DRAWMODE_POLYMESH,
-		DRAWMODE_POLYMESH_DETAIL,
-		MAX_DRAWMODE
-	};
-	
-	DrawMode m_drawMode;
-	
 	void cleanup();
 
 public:
@@ -83,4 +49,4 @@ private:
 };
 
 
-#endif // RECASTSAMPLESOLOMESHSIMPLE_H
+#endif // RECASTEDITORSOLOMESH_H

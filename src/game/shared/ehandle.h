@@ -1,4 +1,4 @@
-﻿//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
+﻿//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -34,7 +34,7 @@ inline IHandleEntity* CBaseHandle::Get() const
 	extern CBaseEntityList *g_pEntityList;
 	return g_pEntityList->LookupEntity( *this );
 }
-*/ // !TODO: Obtain ptr.
+*/ // !TODO: Obtain ptr. TODO: Move this out of shared code as the server's structure of BaseEntityList is different!
 
 // -------------------------------------------------------------------------------------------------- //
 // CHandle.
@@ -53,8 +53,8 @@ public:
 
 			CHandle();
 			CHandle( int iEntry, int iSerialNumber );
-	/*implicit*/ CHandle( T *pVal );
-	/*implicit*/ CHandle( INVALID_EHANDLE_tag );
+			CHandle( const CBaseHandle &handle );
+			CHandle( T *pVal );
 
 	// NOTE: The following two constructor functions are not type-safe, and can allow creating a
 	// CHandle<T> that doesn't actually point to an object of type T.
@@ -91,21 +91,22 @@ inline CHandle<T>::CHandle()
 }
 
 template<class T>
-inline CHandle<T>::CHandle( INVALID_EHANDLE_tag )
-	: CBaseHandle( INVALID_EHANDLE )
-{
-}
-
-template<class T>
 inline CHandle<T>::CHandle( int iEntry, int iSerialNumber )
 {
 	Init( iEntry, iSerialNumber );
 }
 
 template<class T>
-inline CHandle<T>::CHandle( T *pObj )
-	: CBaseHandle( INVALID_EHANDLE )
+CHandle<T>::CHandle( const CBaseHandle &handle )
+	: CBaseHandle( handle )
 {
+}
+
+
+template<class T>
+CHandle<T>::CHandle( T *pObj )
+{
+	Term();
 	Set( pObj );
 }
 
@@ -187,10 +188,5 @@ T* CHandle<T>::operator -> () const
 {
 	return Get();
 }
-
-// specialization of EnsureValidValue for CHandle<T>
-template<typename T>
-FORCEINLINE void EnsureValidValue( CHandle<T> &x ) { x = INVALID_EHANDLE; }
-
 
 #endif // EHANDLE_H

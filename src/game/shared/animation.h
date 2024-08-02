@@ -3,6 +3,7 @@
 #include "mathlib/vector.h"
 #include "public/studio.h"
 #include "public/ihandleentity.h"
+#include "predictioncopy.h"
 
 class CAnimationLayer
 {
@@ -22,11 +23,11 @@ class CAnimationLayer
 
 struct PredictedAnimEventData
 {
-	char gap_0[8];
+	void* __vftable;
 	float m_predictedAnimEventTimes[8];
 	int m_predictedAnimEventIndices[8];
 	int m_predictedAnimEventCount;
-	int m_predictedAnimEventTarget;
+	EHANDLE m_predictedAnimEventTarget;
 	int m_predictedAnimEventSequence;
 	int m_predictedAnimEventModel;
 	float m_predictedAnimEventsReadyToFireTime;
@@ -35,7 +36,7 @@ struct PredictedAnimEventData
 
 struct AnimRelativeData
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D m_animInitialPos;
 	Vector3D m_animInitialVel;
 	Quaternion m_animInitialRot;
@@ -56,8 +57,8 @@ struct AnimRelativeData
 
 struct Player_AnimViewEntityData
 {
-	char gap_0[8];
-	int animViewEntityHandle;
+	void* __vftable;
+	EHANDLE animViewEntityHandle;
 	float animViewEntityAngleLerpInDuration;
 	float animViewEntityOriginLerpInDuration;
 	float animViewEntityLerpOutDuration;

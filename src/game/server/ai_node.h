@@ -6,7 +6,7 @@
 #pragma once
 #include "mathlib/vector.h"
 #include "mathlib/bitvec.h"
-constexpr int MAX_HULLS = 5;
+#include "game/server/ai_navmesh.h"
 
 constexpr int NOT_CACHED = -2;			// Returned if data not in cache
 constexpr int NO_NODE    = -1;			// Returned when no node meets the qualification
@@ -31,7 +31,7 @@ struct CAI_NodeLink
 {
 	short m_iSrcID;
 	short m_iDestID;
-	byte m_iAcceptedMoveTypes[MAX_HULLS];
+	byte m_iAcceptedMoveTypes[NAVMESH_COUNT];
 	byte m_LinkInfo;
 	char unk1; // maps => unk0 on disk
 	char unk2[5];
@@ -58,20 +58,20 @@ public:
 	int				SetInfo(int info) { return m_eNodeInfo = info; }
 	int				GetInfo() const { return m_eNodeInfo; }
 
-	int        m_iID;                  // ID for this node
-	Vector3D   m_vOrigin;              // location of this node in space
-	float      m_flVOffset[MAX_HULLS]; // vertical offset for each hull type, assuming ground node, 0 otherwise
-	float      m_flYaw;                // NPC on this node should face this yaw to face the hint, or climb a ladder
+	int        m_iID;                      // ID for this node
+	Vector3D   m_vOrigin;                  // location of this node in space
+	float      m_flVOffset[NAVMESH_COUNT]; // vertical offset for each hull type, assuming ground node, 0 otherwise
+	float      m_flYaw;                    // NPC on this node should face this yaw to face the hint, or climb a ladder
 
-	NodeType_e m_eNodeType; // The type of node; always 2 in buildainfile.
-	int        m_eNodeInfo; // bits that tell us more about this nodes
+	NodeType_e m_eNodeType;  // The type of node; always 2 in buildainfile.
+	int        m_eNodeInfo;  // bits that tell us more about this nodes
 
-	int unk2[MAX_HULLS]; // Maps directly to unk2 in disk struct, despite being ints rather than shorts
+	int unk2[NAVMESH_COUNT]; // Maps directly to unk2 in disk struct, despite being ints rather than shorts
 
 	// View server.dll+393672 for context
-	char unk3[MAX_HULLS];  // Should map to unk3 on disk
-	char pad[3];           // Aligns next bytes
-	float unk4[MAX_HULLS]; // I have no clue, calculated using some kind float function magic
+	char unk3[NAVMESH_COUNT];  // Should map to unk3 on disk
+	char pad[3];               // Aligns next bytes
+	float unk4[NAVMESH_COUNT]; // I have no clue, calculated using some kind float function magic
 
 	CUtlVector<CAI_NodeLink*> m_Links;
 	short unk6;    // Should match up to unk4 on disk
@@ -131,7 +131,7 @@ struct CAI_ClusterLink
 static_assert(sizeof(CAI_ClusterLink) == 12);
 
 //=============================================================================
-//	>> CAI_ScriptNode
+//	>> CAI_TraverseNode
 //=============================================================================
 struct CAI_TraverseNode
 {
@@ -147,11 +147,11 @@ struct CAI_ScriptNode
 {
 	Vector3D m_vOrigin;
 
-	// Might be wrong; seems to be used for clamping.
-	// See [r5apex_ds + 0xF28A6E]
-	int m_nMin;
-	int m_nMax;
+	// 64 bits of data slots, used by abstracted script function
+	// NavMeshNode_GetBooleanData and NavMeshNode_GetBooleanData
+	CBitVec<64> m_DataSlots;
 };
+static_assert(sizeof(CAI_ScriptNode) == 20);
 
 //=============================================================================
 //	>> CAI_HullData
@@ -166,3 +166,4 @@ struct CAI_HullData
 	// just part of this struct.
 	char unk3[8];
 };
+static_assert(sizeof(CAI_HullData) == 24);

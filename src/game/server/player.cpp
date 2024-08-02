@@ -23,8 +23,8 @@ void CPlayer::RunNullCommand(void)
 {
 	CUserCmd cmd;
 
-	float flOldFrameTime = (*g_pGlobals)->m_flFrameTime;
-	float flOldCurTime = (*g_pGlobals)->m_flCurTime;
+	float flOldFrameTime = gpGlobals->frameTime;
+	float flOldCurTime = gpGlobals->curTime;
 
 	cmd.frametime = flOldFrameTime;
 	cmd.command_time = flOldCurTime;
@@ -32,14 +32,14 @@ void CPlayer::RunNullCommand(void)
 	pl.fixangle = FIXANGLE_NONE;
 	EyeAngles(&cmd.viewangles);
 
-	SetTimeBase((*g_pGlobals)->m_flCurTime);
+	SetTimeBase(gpGlobals->curTime);
 	MoveHelperServer()->SetHost(this);
 
 	PlayerRunCommand(&cmd, MoveHelperServer());
 	SetLastUserCommand(&cmd);
 
-	(*g_pGlobals)->m_flFrameTime = flOldFrameTime;
-	(*g_pGlobals)->m_flCurTime = flOldCurTime;
+	gpGlobals->frameTime = flOldFrameTime;
+	gpGlobals->curTime = flOldCurTime;
 
 	MoveHelperServer()->SetHost(NULL);
 }
@@ -79,7 +79,7 @@ void CPlayer::SetLastUCmdSimulationRemainderTime(int nRemainderTime)
 
 		if (nEdict != FL_EDICT_INVALID)
 		{
-			_InterlockedOr16((SHORT*)(*g_pGlobals)->m_pEdicts + nEdict + 32, 0x200u);
+			_InterlockedOr16((SHORT*)gpGlobals->m_pEdicts + nEdict + 32, 0x200u);
 		}
 
 		m_lastUCmdSimulationRemainderTime = nRemainderTime;
@@ -98,7 +98,7 @@ void CPlayer::SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime)
 
 		if (nEdict != FL_EDICT_INVALID)
 		{
-			_InterlockedOr16((SHORT*)(*g_pGlobals)->m_pEdicts + nEdict + 32, 0x200u);
+			_InterlockedOr16((SHORT*)gpGlobals->m_pEdicts + nEdict + 32, 0x200u);
 		}
 
 		m_totalExtraClientCmdTimeAttempted = flAttemptedTime;
@@ -127,7 +127,7 @@ void CPlayer::ProcessUserCmds(CUserCmd* cmds, int numCmds, int totalCmds,
 	CUserCmd* lastCmd = &m_Commands[MAX_QUEUED_COMMANDS_PROCESS];
 
 	const float maxUnlag = sv_maxunlag->GetFloat();
-	const float currTime = (*g_pGlobals)->m_flCurTime;
+	const float currTime = gpGlobals->curTime;
 
 	for (int i = totalCmds - 1; i >= 0; i--)
 	{
@@ -206,7 +206,7 @@ bool Player_PhysicsSimulate(CPlayer* player, int numPerIteration, bool adjustTim
 	CClientExtended* const cle = g_pServer->GetClientExtended(player->GetEdict() - 1);
 	const int numUserCmdProcessTicksMax = sv_maxUserCmdProcessTicks.GetInt();
 
-	if (numUserCmdProcessTicksMax && (*g_pGlobals)->m_nGameMode != GameMode_t::SP_MODE) // don't apply this filter in SP games
+	if (numUserCmdProcessTicksMax && gpGlobals->gameMode != GameMode_t::SP_MODE) // don't apply this filter in SP games
 		cle->InitializeMovementTimeForUserCmdProcessing(numUserCmdProcessTicksMax, TICK_INTERVAL);
 	else // Otherwise we don't care to track time
 		cle->SetRemainingMovementTimeForUserCmdProcessing(FLT_MAX);
@@ -236,7 +236,7 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 	const int numPlayers = g_pServer->GetNumClients();
 
 	// Already at max, don't create.
-	if (numPlayers >= g_ServerGlobalVariables->m_nMaxClients)
+	if (numPlayers >= g_ServerGlobalVariables->maxClients)
 		return;
 
 	const char* playerName = args.Arg(1);

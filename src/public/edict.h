@@ -1,4 +1,5 @@
 #pragma once
+#include "tier1/string_t.h"
 #include "public/globalvars_base.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_main.h"
@@ -24,11 +25,11 @@ class CGlobalVars : public CGlobalVarsBase
 {
 public:
 	// Current map
-	const char*     m_pszMapName;
-	int             m_nMapVersion;
-	const char*     m_pszStartSpot;   // Seems empty at all times.
-	MapLoadType_t   m_eLoadType;      // How the current map was loaded.
-	bool            m_bMapLoadFailed; // Map has failed to load, we need to kick back to the main menu (unused?).
+	string_t        mapName;
+	int             mapVersion;
+	string_t        startSpot;   // Seems empty at all times.
+	MapLoadType_t   eLoadType;      // How the current map was loaded.
+	bool            bMapLoadFailed; // Map has failed to load, we need to kick back to the main menu (unused?).
 
 	int64_t*        m_pEdicts;        // r5apex_ds.exe 'CBaseServer::Clear() + 0x7E'
 	void*           m_pUnk1;          // r5apex_ds.exe 'CBaseServer::Clear() + 0x93'

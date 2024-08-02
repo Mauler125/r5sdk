@@ -19,11 +19,14 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
-// Only use types for function prototypes
-#ifndef GAMESDK
-#include "Detour/Include/DetourAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 #include "Detour/Include/DetourStatus.h"
-#endif // !GAMESDK
+
+// NOTE: these are defines as we need to be able to switch between code that is
+// dedicated for each version, during compile time.
+#define DT_NAVMESH_SET_VERSION 8 // Public versions: 5,7,8,9.
+#define DT_NAVMESH_SET_MAGIC ('M'<<24 | 'S'<<16 | 'E'<<8 | 'T')
+int dtGetNavMeshVersionForSet(const int setVersion);
 
 // Undefine (or define in a build config) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
@@ -63,6 +66,43 @@ typedef unsigned int dtTileRef;
 /// @ingroup detour
 static const int DT_VERTS_PER_POLYGON = 6;
 
+/// A value that indicates that this poly hasn't been assigned to a group yet.
+static const unsigned short DT_NULL_POLY_GROUP = 0;
+
+/// A poly group that holds all unconnected stray polys (not linked to anything).
+/// These are considered 'trash' by the game engine; see [r5apex_ds + CA88B2]. 
+/// For reference, Titanfall 2 single player NavMeshes also marked everything unconnected as '1'.
+static const unsigned short DT_STRAY_POLY_GROUP = 1;
+
+/// The first non-reserved poly group; DT_STRAY_POLY_GROUP and below are reserved.
+static const unsigned short DT_FIRST_USABLE_POLY_GROUP = 2;
+
+/// The minimum required number of poly groups for static pathing logic to work.
+/// (E.g. if we have 2 poly groups, group id 1 (DT_STRAY_POLY_GROUP), and group
+/// id 2, then 1 is never reachable as its considered 'trash' by design, and 2
+/// is always reachable as that's the only group id. If group id 3 is involved
+/// then code can use the static patching logic to quickly query if we are even
+/// on the same (or connected) poly island before trying to compute a path).
+static const int DT_MIN_POLY_GROUP_COUNT = 3;
+
+/// The cached poly surface area quantization factor.
+static const float DT_POLY_AREA_QUANT_FACTOR = 100.f;
+
+/// The maximum number of traversal tables per navmesh that will be used for static pathing.
+static const int DT_MAX_TRAVERSAL_TABLES = 5;
+
+/// A value that indicates the link doesn't require a traverse action. (Jumping, climbing, etc.)
+static const unsigned char DT_NULL_TRAVERSE_TYPE = 0xff;
+
+/// A value that indicates the link doesn't contain a reverse traverse link.
+static const unsigned short DT_NULL_TRAVERSE_REVERSE_LINK = 0xffff;
+
+/// The cached traverse link distance quantization factor.
+static const float DT_TRAVERSE_DIST_QUANT_FACTOR = 10.f;
+
+/// A value that indicates the link doesn't contain a hint index.
+static const unsigned short DT_NULL_HINT = 0xffff;
+
 /// @{
 /// @name Tile Serialization Constants
 /// These constants are used to detect whether a navigation tile's data
@@ -70,13 +110,13 @@ static const int DT_VERTS_PER_POLYGON = 6;
 ///
 
 /// A magic number used to detect compatibility of navigation tile data.
-static const int DT_NAVMESH_MAGIC = 'D' << 24 | 'N' << 16 | 'A' << 8 | 'V';
+static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V';
 
 /// A version number used to detect compatibility of navigation tile data.
-static const int DT_NAVMESH_VERSION = 16;
+static const int DT_NAVMESH_VERSION = dtGetNavMeshVersionForSet(DT_NAVMESH_SET_VERSION);
 
 /// A magic number used to detect the compatibility of navigation tile states.
-static const int DT_NAVMESH_STATE_MAGIC = 'D' << 24 | 'N' << 16 | 'M' << 8 | 'S';
+static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S';
 
 /// A version number used to detect compatibility of navigation tile states.
 static const int DT_NAVMESH_STATE_VERSION = 1;
@@ -93,6 +133,12 @@ static const unsigned int DT_NULL_LINK = 0xffffffff;
 /// A flag that indicates that an off-mesh connection can be traversed in both directions. (Is bidirectional.)
 static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
+/// A value that determines the offset between the start pos and the ref pos in an off-mesh connection.
+static const float DT_OFFMESH_CON_REFPOS_OFFSET = 35.f;
+
+/// A value that determines the maximum number of points describing the straight path result.
+static const int DT_STRAIGHT_PATH_RESOLUTION = 5;
+
 /// The maximum number of user defined area ids.
 /// @ingroup detour
 static const int DT_MAX_AREAS = 32; // <-- confirmed 32 see [r5apex_ds.exe + 0xf47dda] '-> test    [rcx+80h], ax'.
@@ -104,8 +150,8 @@ enum dtTileFlags
 	/// The navigation mesh owns the tile memory and is responsible for freeing it.
 	DT_TILE_FREE_DATA = 0x01,
 
-	/// The navigation mesh owns the offmesh connection memory and is responsible for freeing it.
-	DT_OFFMESH_FREE_DATA = 0x02,
+	/// The navigation mesh owns the cell memory and is responsible for freeing it.
+	DT_CELL_FREE_DATA = 0x02,
 };
 
 /// Vertex flags returned by dtNavMeshQuery::findStraightPath.
@@ -180,10 +226,23 @@ struct dtPoly
 	/// @note Use the structure's set and get methods to access this value.
 	unsigned char areaAndtype;
 
-	unsigned short disjointSetId;
-	unsigned short unk;						//IDK but looks filled
-	unsigned int unk1;						//!TODO: debug this if you ever find where this gets used in the engine..
-	float org[3];							// Seems to be used for AIN file generation (build from large navmesh).
+	/// The poly group id determining to which island it belongs, and to which it connects.
+	unsigned short groupId;
+
+	/// The poly surface area. (Quantized by #DT_POLY_AREA_QUANT_FACTOR).
+	unsigned short surfaceArea;
+
+#if DT_NAVMESH_SET_VERSION >= 7
+	// These 2 are most likely related, it needs to be reversed still.
+	// No use case has been found in the executable yet, its possible these are
+	// used internally in the editor. Dynamic reverse engineering required to
+	// confirm this.
+	unsigned short unk1;
+	unsigned short unk2;
+#endif
+
+	/// The center of the polygon; see abstracted script function 'Navmesh_RandomPositions'.
+	float center[3];
 
 	/// Sets the user defined area id. [Limit: < #DT_MAX_AREAS]
 	inline void setArea(unsigned char a) { areaAndtype = (areaAndtype & 0xc0) | (a & 0x3f); }
@@ -197,6 +256,12 @@ struct dtPoly
 	/// Gets the polygon type. (See: #dtPolyTypes)
 	inline unsigned char getType() const { return areaAndtype >> 6; }
 };
+
+/// Calculates the surface area of the polygon.
+///  @param[in]		poly	The polygon.
+///  @param[in]		verts	The polygon vertices.
+/// @return The total surface are of the polygon.
+float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts);
 
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
 struct dtPolyDetail
@@ -218,7 +283,28 @@ struct dtLink
 	unsigned char side;				///< If a boundary link, defines on which side the link is.
 	unsigned char bmin;				///< If a boundary link, defines the minimum sub-edge area.
 	unsigned char bmax;				///< If a boundary link, defines the maximum sub-edge area.
-	unsigned int flags;
+	unsigned char traverseType;		///< The traverse type for this link. (Jumping, climbing, etc.)
+	unsigned char traverseDist;		///< The traverse distance of this link. (Quantized by #DT_TRAVERSE_DIST_QUANT_FACTOR).
+	unsigned short reverseLink;		///< The reverse traversal link for this link. (Path returns through this link.)
+};
+
+unsigned char dtCalcLinkDistance(const float* spos, const float* epos);
+
+/// Defines a cell in a tile.
+/// @note This is used to prevent entities from clipping into each other.
+/// @see dtMeshTile
+struct dtCell
+{
+	float pos[3];					///< The position of the cell.
+	unsigned int polyIndex;			///< The index of the poly this cell is on.
+	unsigned char pad;				
+	unsigned char occupystate[4];	///< The occupation state of this cell, -1 means not occupied. See [r5apex_ds + 0xEF86C9].
+
+#if DT_NAVMESH_SET_VERSION >= 9
+	unsigned char data[27]; // TODO: reverse this, always appears 0.
+#else
+	unsigned char data[52]; // TODO: reverse this, always appears 0.
+#endif
 };
 
 /// Bounding volume node.
@@ -252,12 +338,39 @@ struct dtOffMeshConnection
 	/// End point side.
 	unsigned char side;
 
-	/// The id of the offmesh connection. (User assigned when the navigation mesh is built.)
-	unsigned int userId;
+#if DT_NAVMESH_SET_VERSION == 5
+	/// NOTE: this is unconfirmed, it might not be the jumpType.
+	unsigned char jumpType;
+	unsigned char unk1;
+#elif DT_NAVMESH_SET_VERSION >= 7
+	/// The hint index of the off-mesh connection. (Or #DT_NULL_HINT if there is no hint.)
+	unsigned short hintIdx;
+#endif
+	/// The id of the off-mesh connection. (User assigned when the navigation mesh is built.)
+	unsigned short userId;
+	/// The reference position set to the start of the off-mesh connection with an offset of DT_OFFMESH_CON_REFPOS_OFFSET
+	float refPos[3]; // See [r5apex_ds + F114CF], [r5apex_ds + F11B42], [r5apex_ds + F12447].
+	/// The reference yaw angle set towards the end position of the off-mesh connection.
+	float refYaw;    // See [r5apex_ds + F11527], [r5apex_ds + F11F90], [r5apex_ds + F12836].
 
-	float unk[3];
-	float traverseYaw;
+#if DT_NAVMESH_SET_VERSION >= 9
+	/// Off-mesh connections are always placed in pairs, in version 5 to 8, each connection for
+	/// the pair was a separate instance. In newer versions, this is squashed into 1 connection.
+	float secPos[6];
+#endif
 };
+
+/// Calculates the yaw angle in an off-mesh connection.
+/// @param	spos[in]		The start position of the off mesh connection.
+/// @param	epos[in]		The end position of the off mesh connection.
+///								returns the yaw angle on the XY plane.
+extern float dtCalcOffMeshRefYaw(const float* spos, const float* epos);
+/// Calculates the ref position in an off-mesh connection.
+/// @param	spos[in]		The start position of the off mesh connection.
+/// @param	yaw[in]			The yaw angle of the off-mesh connection.
+/// @param	offset[in]		The desired offset from the start position.
+/// @param	res[in]			The output ref position.
+extern void dtCalcOffMeshRefPos(const float* spos, float yaw, float offset, float* res);
 
 /// Provides high level information related to a dtMeshTile object.
 /// @ingroup detour
@@ -271,7 +384,7 @@ struct dtMeshHeader
 
 	unsigned int userId;	///< The user defined id of the tile.
 	int polyCount;			///< The number of polygons in the tile.
-	int polyCountMultiplier;
+	int polyMapCount;
 	int vertCount;			///< The number of vertices in the tile.
 	int maxLinkCount;		///< The number of allocated links.
 
@@ -284,7 +397,9 @@ struct dtMeshHeader
 	int bvNodeCount;			///< The number of bounding volume nodes. (Zero if bounding volumes are disabled.)
 	int offMeshConCount;		///< The number of off-mesh connections.
 	int offMeshBase;			///< The index of the first polygon which is an off-mesh connection.
-	int offMeshEnds;
+#if DT_NAVMESH_SET_VERSION >= 8
+	int maxCellCount;			///< The number of allocated cells.
+#endif
 
 	float walkableHeight;		///< The height of the agents using the tile.
 	float walkableRadius;		///< The radius of the agents using the tile.
@@ -305,7 +420,7 @@ struct dtMeshTile
 	unsigned int linksFreeList;			///Index to the next free link.
 	dtMeshHeader* header;				///The tile header.
 	dtPoly* polys;						///The tile polygons. [Size: dtMeshHeader::polyCount]
-	dtPoly* polysEnd;					///The tile polygons array end pointer.
+	int* polyMap;						///TODO: needs to be reversed.
 	float* verts;						///The tile vertices. [Size: dtMeshHeader::vertCount]
 	dtLink* links;						///The tile links. [Size: dtMeshHeader::maxLinkCount]
 	dtPolyDetail* detailMeshes;			///The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]
@@ -322,14 +437,14 @@ struct dtMeshTile
 	dtBVNode* bvTree;
 
 	dtOffMeshConnection* offMeshCons;		///< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
-	dtOffMeshConnection* offMeshConsEnd;	///< The tile off-mesh connections array end pointer.
+	dtCell* cells;							///< The tile cells. [Size: dtMeshHeader::tileCellCount]
 
 	unsigned char* data;					///< The tile data. (Not directly accessed under normal situations.)
 
 	int dataSize;							///< Size of the tile data.
 	int flags;								///< Tile flags. (See: #dtTileFlags)
 	dtMeshTile* next;						///< The next free tile, or the next tile in the spatial grid.
-	void* unknownVTableInstance; // See [r5apex_ds + F437D9] for usage
+	void* deleteCallback;					///< Custom destruction callback, called after free. (See [r5apex_ds + F437D9] for usage.)
 private:
 	dtMeshTile(const dtMeshTile&);
 	dtMeshTile& operator=(const dtMeshTile&);
@@ -337,7 +452,7 @@ private:
 
 /// Get flags for edge in detail triangle.
 /// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
-/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0,
+/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0.
 ///								returns flags for edge AB.
 inline int dtGetDetailTriEdgeFlags(unsigned char triFlags, int edgeIndex)
 {
@@ -355,15 +470,18 @@ struct dtNavMeshParams
 	float tileHeight;				///< The height of each tile. (Along the z-axis.)
 	int maxTiles;					///< The maximum number of tiles the navigation mesh can contain. This and maxPolys are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 	int maxPolys;					///< The maximum number of polygons each tile can contain. This and maxTiles are used to calculate how many bits are needed to identify tiles and polygons uniquely.
-//	
-//// i hate this
-	int disjointPolyGroupCount = 0;
-	int reachabilityTableSize = 0;
-	int reachabilityTableCount = 0;
-	int allocSize = 0;
+	int polyGroupCount;				///< The total number of disjoint polygon groups.
+	int traversalTableSize;			///< The total size of the static traversal table. This is computed using calcTraversalTableSize(polyGroupcount).
+	int traversalTableCount;		///< The total number of traversal tables in this navmesh. Each TraverseAnimType uses its own table as their available jump links should match their behavior and abilities.
+
+#if DT_NAVMESH_SET_VERSION >= 7
+	// NOTE: this seems to be used for some wallrunning code. This allocates a buffer of size 0x30 * magicDataCount,
+	// then copies in the data 0x30 * magicDataCount at the end of the navmesh file (past the traversal tables).
+	// See [r5apex_ds + F43600] for buffer allocation and data copy, see note at dtNavMesh::m_someMagicData for usage.
+	int magicDataCount;
+#endif
 };
 
-#pragma pack(push, 4)
 /// A navigation mesh based on tiles of convex polygons.
 /// @ingroup detour
 class dtNavMesh
@@ -383,13 +501,16 @@ public:
 	/// Initializes the navigation mesh for single tile use.
 	///  @param[in]	data		Data of the new tile. (See: #dtCreateNavMeshData)
 	///  @param[in]	dataSize	The data size of the new tile.
+	///  @param[in]	tableCount	The number of traversal tables this navmesh will use.
 	///  @param[in]	flags		The tile flags. (See: #dtTileFlags)
 	/// @return The status flags for the operation.
 	///  @see dtCreateNavMeshData
-	dtStatus init(unsigned char* data, const int dataSize, const int flags);
+	dtStatus init(unsigned char* data, const int dataSize, const int tableCount, const int flags);
 
 	/// The navigation mesh initialization params.
-	const dtNavMeshParams* getParams() const;
+	/// @note The parameters are created automatically when the single tile
+	/// initialization is performed.
+	const dtNavMeshParams* getParams() const { return &m_params; }
 
 	/// Adds a tile to the navigation mesh.
 	///  @param[in]		data		Data for the new tile mesh. (See: #dtCreateNavMeshData)
@@ -406,6 +527,11 @@ public:
 	///  @param[out]	dataSize	Size of the data associated with deleted tile.
 	/// @return The status flags for the operation.
 	dtStatus removeTile(dtTileRef ref, unsigned char** data, int* dataSize);
+
+	/// Connects the specified tile to the navigation mesh.
+	///  @param[in]		ref			The reference of the tile to connect.
+	/// @return The status flags for the operation.
+	dtStatus connectTile(const dtTileRef tileRef);
 
 	/// @}
 
@@ -478,6 +604,15 @@ public:
 	///  @param[out]	poly	The polygon.
 	void getTileAndPolyByRefUnsafe(const dtPolyRef ref, const dtMeshTile** tile, const dtPoly** poly) const;
 
+	/// Returns whether goal poly is reachable from start poly
+	///  @param[in]		fromRef		The reference to the start poly.
+	///  @param[in]		goalRef		The reference to the goal poly.
+	///  @param[in]		checkDisjointGroupsOnly	Whether to only check disjoint poly groups.
+	///  @param[in]		traversalTableIndex		Traversal table to use for checking if islands are linked together.
+	/// @return True if goal polygon is reachable from start polygon.
+	bool isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef,
+		const bool checkDisjointGroupsOnly, const int traversalTableIndex) const;
+
 	/// Checks the validity of a polygon reference.
 	///  @param[in]	ref		The polygon reference to check.
 	/// @return True if polygon reference is valid for the navigation mesh.
@@ -500,6 +635,18 @@ public:
 	///  @param[in]	ref		The polygon reference of the off-mesh connection.
 	/// @return The specified off-mesh connection, or null if the polygon reference is not valid.
 	const dtOffMeshConnection* getOffMeshConnectionByRef(dtPolyRef ref) const;
+
+	/// The navigation mesh traversal tables.
+	int** getTraverseTables() const { return m_traversalTables; }
+	
+	/// Sets the traverse table slot.
+	///  @param[in]	index	The index of the traverse table.
+	///  @param[in]	table	The traverse table data.
+	void setTraverseTable(const int index, int* const table);
+
+	/// Sets the size of the traverse table.
+	///  @param[in]	size	The size of the traverse table.
+	void setTraverseTableSize(const int size) { m_params.traversalTableSize = size; }
 
 	/// @}
 
@@ -530,6 +677,14 @@ public:
 	///  @param[out]	resultArea	The area id for the polygon.
 	/// @return The status flags for the operation.
 	dtStatus getPolyArea(dtPolyRef ref, unsigned char* resultArea) const;
+
+	/// Gets the polygon group count.
+	/// @return The total number of polygon groups.
+	int getPolyGroupCount() const { return m_params.polyGroupCount; }
+
+	/// Sets the polygon group count.
+	///  @param[in]		count		The polygon group count.
+	void setPolyGroupcount(const int count) { m_params.polyGroupCount = count; }
 
 	/// Gets the size of the buffer required by #storeTileState to store the specified tile's state.
 	///  @param[in]	tile	The tile.
@@ -564,9 +719,9 @@ public:
 	inline dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
 	{
 #ifdef DT_POLYREF64
-		return ((dtPolyRef)salt << (DT_POLY_BITS + DT_TILE_BITS)) | ((dtPolyRef)it << DT_POLY_BITS) | (dtPolyRef)ip;
+		return ((dtPolyRef)salt << (DT_POLY_BITS+DT_TILE_BITS)) | ((dtPolyRef)it << DT_POLY_BITS) | (dtPolyRef)ip;
 #else
-		return ((dtPolyRef)salt << (m_polyBits + m_tileBits)) | ((dtPolyRef)it << m_polyBits) | (dtPolyRef)ip;
+		return ((dtPolyRef)salt << (m_polyBits+m_tileBits)) | ((dtPolyRef)it << m_polyBits) | (dtPolyRef)ip;
 #endif
 	}
 
@@ -580,17 +735,17 @@ public:
 	inline void decodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
 	{
 #ifdef DT_POLYREF64
-		const dtPolyRef saltMask = ((dtPolyRef)1 << DT_SALT_BITS) - 1;
-		const dtPolyRef tileMask = ((dtPolyRef)1 << DT_TILE_BITS) - 1;
-		const dtPolyRef polyMask = ((dtPolyRef)1 << DT_POLY_BITS) - 1;
-		salt = (unsigned int)((ref >> (DT_POLY_BITS + DT_TILE_BITS)) & saltMask);
+		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
+		salt = (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
 		it = (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
 		ip = (unsigned int)(ref & polyMask);
 #else
-		const dtPolyRef saltMask = ((dtPolyRef)1 << m_saltBits) - 1;
-		const dtPolyRef tileMask = ((dtPolyRef)1 << m_tileBits) - 1;
-		const dtPolyRef polyMask = ((dtPolyRef)1 << m_polyBits) - 1;
-		salt = (unsigned int)((ref >> (m_polyBits + m_tileBits)) & saltMask);
+		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
+		salt = (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
 		it = (unsigned int)((ref >> m_polyBits) & tileMask);
 		ip = (unsigned int)(ref & polyMask);
 #endif
@@ -603,11 +758,11 @@ public:
 	inline unsigned int decodePolyIdSalt(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
-		const dtPolyRef saltMask = ((dtPolyRef)1 << DT_SALT_BITS) - 1;
-		return (unsigned int)((ref >> (DT_POLY_BITS + DT_TILE_BITS)) & saltMask);
+		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+		return (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
 #else
-		const dtPolyRef saltMask = ((dtPolyRef)1 << m_saltBits) - 1;
-		return (unsigned int)((ref >> (m_polyBits + m_tileBits)) & saltMask);
+		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
+		return (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
 #endif
 	}
 
@@ -618,10 +773,10 @@ public:
 	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
-		const dtPolyRef tileMask = ((dtPolyRef)1 << DT_TILE_BITS) - 1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
 		return (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
 #else
-		const dtPolyRef tileMask = ((dtPolyRef)1 << m_tileBits) - 1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
 		return (unsigned int)((ref >> m_polyBits) & tileMask);
 #endif
 	}
@@ -633,10 +788,10 @@ public:
 	inline unsigned int decodePolyIdPoly(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
-		const dtPolyRef polyMask = ((dtPolyRef)1 << DT_POLY_BITS) - 1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
 		return (unsigned int)(ref & polyMask);
 #else
-		const dtPolyRef polyMask = ((dtPolyRef)1 << m_polyBits) - 1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
 		return (unsigned int)(ref & polyMask);
 #endif
 	}
@@ -644,7 +799,7 @@ public:
 	/// @}
 	/// Returns pointer to tile in the tile array.
 	dtMeshTile* getTile(int i);
-public:
+private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	dtNavMesh(const dtNavMesh&);
 	dtNavMesh& operator=(const dtNavMesh&);
@@ -694,8 +849,11 @@ public:
 	dtMeshTile** m_posLookup;			///< Tile hash lookup.
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
-	dtPolyRef** m_setTables;			///< Array of set tables.
-	void* m_unk0;						///< FIXME: unknown structure pointer.
+	int** m_traversalTables;					///< Array of set tables.
+
+	///< FIXME: unknown structure pointer, used for some wallrunning code, see [r5apex_ds + F12687] for usage.
+	///< See note at dtNavMeshParams::magicDataCount for buffer allocation.
+	void* m_someMagicData;
 
 	char m_meshFlags;	// Maybe.
 	char m_tileFlags;	// Maybe.
@@ -716,7 +874,39 @@ public:
 #endif
 	friend class dtNavMeshQuery;
 };
-#pragma pack(pop)
+
+/// Returns the cell index for the static traversal table.
+///  @param[in]	numPolyGroups	The total number of poly groups.
+///  @param[in]	polyGroup1		The poly group ID of the first island.
+///  @param[in]	polyGroup2		The poly group ID of the second island.
+///  @return The cell index for the static traversal table.
+///  @ingroup detour
+int dtCalcTraversalTableCellIndex(const int numPolyGroups,
+	const unsigned short polyGroup1, const unsigned short polyGroup2);
+
+/// Returns the total size needed for the static traversal table.
+///  @param[in]	numPolyGroups	The total number of poly groups.
+///  @return the total size needed for the static traversal table.
+///  @ingroup detour
+int dtCalcTraversalTableSize(const int numPolyGroups);
+
+/// Defines a navigation mesh tile data block.
+/// @ingroup detour
+struct dtNavMeshTileHeader
+{
+	dtTileRef tileRef;					///< The tile reference for this tile.
+	int dataSize;						///< The total size of this tile.
+};
+
+/// Defines a navigation mesh set data block.
+/// @ingroup detour
+struct dtNavMeshSetHeader
+{
+	int magic;							///< Set magic number. (Used to identify the data format.)
+	int version;						///< Set data format version number.
+	int numTiles;						///< The total number of tiles in this set.
+	dtNavMeshParams params;				///< The initialization parameters for this set.
+};
 
 /// Allocates a navigation mesh object using the Detour allocator.
 /// @return A navigation mesh that is ready for initialization, or null on failure.

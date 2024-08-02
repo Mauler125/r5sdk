@@ -1,4 +1,4 @@
-﻿//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
+﻿//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -35,6 +35,9 @@ public:
 	virtual void ClientFullyConnect(edict_t nEntity, bool bRestore) = 0;
 };
 
+#define INTERFACEVERSION_SERVERGAMECLIENTS_NEW    "ServerGameClients004"
+#define INTERFACEVERSION_SERVERGAMECLIENTS        "ServerGameClients003"
+
 //-----------------------------------------------------------------------------
 // Purpose: Interface to get at server entities
 //-----------------------------------------------------------------------------
@@ -44,6 +47,8 @@ public:
 	virtual ~IServerGameEnts() = 0;
 	// !TODO
 };
+
+#define INTERFACEVERSION_SERVERGAMEENTS           "ServerGameEnts002"
 
 //-----------------------------------------------------------------------------
 // Purpose: Interface the engine exposes to the game DLL
@@ -165,5 +170,7 @@ public:
 
 	// !TODO: the rest..
 };
+
+#define INTERFACEVERSION_SERVERGAMEDLL             "ServerGameDLL005"
 
 #endif // EIFACE_H

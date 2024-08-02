@@ -4,34 +4,29 @@ add_module( "exe" "recast" "" ${FOLDER_CONTEXT} TRUE TRUE )
 start_sources()
 
 add_sources( SOURCE_GROUP "Builder"
+    "Editor_Common.cpp"
+    "Editor_SoloMesh.cpp"
     "Editor_TileMesh.cpp"
+    "Editor_TempObstacles.cpp"
     "InputGeom.cpp"
 )
 
 add_sources( SOURCE_GROUP "Builder/Include"
+    "Include/Editor_Common.h"
+    "Include/Editor_SoloMesh.h"
     "include/Editor_TileMesh.h"
     "include/InputGeom.h"
-)
-
-add_sources( SOURCE_GROUP "Contrib"
-    "imgui.cpp"
-    "imguiRenderGL.cpp"
-)
-
-add_sources( SOURCE_GROUP "Contrib/Include"
-    "include/imgui.h"
-    "include/imguiRenderGL.h"
 )
 
 add_sources( SOURCE_GROUP "Core"
     "Editor.cpp"
     "main.cpp"
-    "../thirdparty/recast/Pch.cpp"
+    "Pch.cpp"
 )
 
 add_sources( SOURCE_GROUP "Core/Include"
     "include/Editor.h"
-    "../thirdparty/recast/Pch.h"
+    "include/Pch.h"
 )
 
 add_sources( SOURCE_GROUP "IO"
@@ -43,7 +38,6 @@ add_sources( SOURCE_GROUP "IO"
 
 add_sources( SOURCE_GROUP "IO/Include"
     "include/Filelist.h"
-    "include/FileTypes.h"
     "include/MeshLoaderBsp.h"
     "include/MeshLoaderObj.h"
     "include/MeshLoaderPly.h"
@@ -85,27 +79,34 @@ add_sources( SOURCE_GROUP "Utils/Include"
     "include/ValueHistory.h"
 )
 
+add_sources( SOURCE_GROUP "Resource"
+    "Include/Icon.h"
+    "Include/DroidSans.h"
+)
+
 end_sources( "${BUILD_OUTPUT_DIR}/bin/" )
 whole_program_optimization()
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES
-    VS_DEBUGGER_COMMAND "naveditor.exe"
     VS_DEBUGGER_COMMAND_ARGUMENTS "-console"
     VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)../../../${BUILD_OUTPUT_DIR}/bin/"
 )
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
     "WIN32"
+    "_TOOLS"
 )
 target_precompile_headers( ${PROJECT_NAME} PRIVATE
-    "${ENGINE_SOURCE_DIR}/thirdparty/recast/Pch.h"
+    "Include/Pch.h"
 )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "navsharedcommon"
     "navdebugutils"
-    "libsdl2"
     "libdetour"
     "libdetourcrowd"
     "libdetourtilecache"
     "librecast"
+    "libsdl2"
+    "libimgui"
     "FastLZ"
     "Rpcrt4.lib"
     "ws2_32.lib"

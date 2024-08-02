@@ -23,15 +23,15 @@
 
 enum dtNodeFlags
 {
-	DT_NODE_OPEN = 0x01,
-	DT_NODE_CLOSED = 0x02,
-	DT_NODE_PARENT_DETACHED = 0x04, // parent of the node is not adjacent. Found using raycast.
+	DT_NODE_OPEN			= (1<<0),
+	DT_NODE_CLOSED			= (1<<1),
+	DT_NODE_PARENT_DETACHED = (1<<2), // parent of the node is not adjacent. Found using raycast.
 };
 
 typedef unsigned short dtNodeIndex;
 static const dtNodeIndex DT_NULL_IDX = (dtNodeIndex)~0;
 
-static const int DT_NODE_PARENT_BITS = 24;
+static const int DT_NODE_PARENT_BITS = 19;
 static const int DT_NODE_STATE_BITS = 2;
 struct dtNode
 {

@@ -16,18 +16,16 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <string.h>
-#include <new>
+#include "Shared\Include\SharedMath.h"
+#include "Shared\Include\SharedCommon.h"
 #include "DetourCrowd\Include\DetourProximityGrid.h"
-#include "Detour\Include\DetourCommon.h"
-#include "Detour\Include\DetourMath.h"
-#include "Detour\Include\DetourAlloc.h"
-#include "Detour\Include\DetourAssert.h"
+#include "Shared\Include\SharedAlloc.h"
+#include "Shared\Include\SharedAssert.h"
 
 
 dtProximityGrid* dtAllocProximityGrid()
 {
-	void* mem = dtAlloc(sizeof(dtProximityGrid), DT_ALLOC_PERM);
+	void* mem = rdAlloc(sizeof(dtProximityGrid), RD_ALLOC_PERM);
 	if (!mem) return 0;
 	return new(mem) dtProximityGrid;
 }
@@ -36,7 +34,7 @@ void dtFreeProximityGrid(dtProximityGrid* ptr)
 {
 	if (!ptr) return;
 	ptr->~dtProximityGrid();
-	dtFree(ptr);
+	rdFree(ptr);
 }
 
 
@@ -59,28 +57,28 @@ dtProximityGrid::dtProximityGrid() :
 
 dtProximityGrid::~dtProximityGrid()
 {
-	dtFree(m_buckets);
-	dtFree(m_pool);
+	rdFree(m_buckets);
+	rdFree(m_pool);
 }
 
 bool dtProximityGrid::init(const int poolSize, const float cellSize)
 {
-	dtAssert(poolSize > 0);
-	dtAssert(cellSize > 0.0f);
+	rdAssert(poolSize > 0);
+	rdAssert(cellSize > 0.0f);
 	
 	m_cellSize = cellSize;
 	m_invCellSize = 1.0f / m_cellSize;
 	
 	// Allocate hashs buckets
-	m_bucketsSize = dtNextPow2(poolSize);
-	m_buckets = (unsigned short*)dtAlloc(sizeof(unsigned short)*m_bucketsSize, DT_ALLOC_PERM);
+	m_bucketsSize = rdNextPow2(poolSize);
+	m_buckets = (unsigned short*)rdAlloc(sizeof(unsigned short)*m_bucketsSize, RD_ALLOC_PERM);
 	if (!m_buckets)
 		return false;
 	
 	// Allocate pool of items.
 	m_poolSize = poolSize;
 	m_poolHead = 0;
-	m_pool = (Item*)dtAlloc(sizeof(Item)*m_poolSize, DT_ALLOC_PERM);
+	m_pool = (Item*)rdAlloc(sizeof(Item)*m_poolSize, RD_ALLOC_PERM);
 	if (!m_pool)
 		return false;
 	
@@ -103,15 +101,15 @@ void dtProximityGrid::addItem(const unsigned short id,
 							  const float minx, const float miny,
 							  const float maxx, const float maxy)
 {
-	const int iminx = (int)dtMathFloorf(minx * m_invCellSize);
-	const int iminy = (int)dtMathFloorf(miny * m_invCellSize);
-	const int imaxx = (int)dtMathFloorf(maxx * m_invCellSize);
-	const int imaxy = (int)dtMathFloorf(maxy * m_invCellSize);
+	const int iminx = (int)rdMathFloorf(minx * m_invCellSize);
+	const int iminy = (int)rdMathFloorf(miny * m_invCellSize);
+	const int imaxx = (int)rdMathFloorf(maxx * m_invCellSize);
+	const int imaxy = (int)rdMathFloorf(maxy * m_invCellSize);
 	
-	m_bounds[0] = dtMin(m_bounds[0], iminx);
-	m_bounds[1] = dtMin(m_bounds[1], iminy);
-	m_bounds[2] = dtMax(m_bounds[2], imaxx);
-	m_bounds[3] = dtMax(m_bounds[3], imaxy);
+	m_bounds[0] = rdMin(m_bounds[0], iminx);
+	m_bounds[1] = rdMin(m_bounds[1], iminy);
+	m_bounds[2] = rdMax(m_bounds[2], imaxx);
+	m_bounds[3] = rdMax(m_bounds[3], imaxy);
 	
 	for (int y = iminy; y <= imaxy; ++y)
 	{
@@ -137,10 +135,10 @@ int dtProximityGrid::queryItems(const float minx, const float miny,
 								const float maxx, const float maxy,
 								unsigned short* ids, const int maxIds) const
 {
-	const int iminx = (int)dtMathFloorf(minx * m_invCellSize);
-	const int iminy = (int)dtMathFloorf(miny * m_invCellSize);
-	const int imaxx = (int)dtMathFloorf(maxx * m_invCellSize);
-	const int imaxy = (int)dtMathFloorf(maxy * m_invCellSize);
+	const int iminx = (int)rdMathFloorf(minx * m_invCellSize);
+	const int iminy = (int)rdMathFloorf(miny * m_invCellSize);
+	const int imaxx = (int)rdMathFloorf(maxx * m_invCellSize);
+	const int imaxy = (int)rdMathFloorf(maxy * m_invCellSize);
 	
 	int n = 0;
 	

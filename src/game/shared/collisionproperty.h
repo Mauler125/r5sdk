@@ -1,4 +1,4 @@
-﻿//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
+﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -10,7 +10,8 @@
 
 #include "mathlib/vector.h"
 #include "engine/ICollideable.h"
-#include "game/server/baseentity.h"
+
+class CBaseEntity;
 
 class CCollisionProperty : public ICollideable
 {
@@ -37,5 +38,7 @@ class CCollisionProperty : public ICollideable
 	Vector3D m_vecSurroundingMaxs;
 	float m_hitboxTestRadius;
 };
+
+static_assert(sizeof(CCollisionProperty) == 0x78);
 
 #endif // COLLISIONPROPERTY_H

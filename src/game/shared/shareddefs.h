@@ -14,7 +14,7 @@
 #ifndef CLIENT_DLL
 #include "game/server/gameinterface.h"
 
-#define TICK_INTERVAL			((*g_pGlobals)->m_flTickInterval)
+#define TICK_INTERVAL			(gpGlobals->tickInterval)
 
 #define TIME_TO_TICKS( dt )		( (int)( 0.5f + (float)(dt) / TICK_INTERVAL ) )
 #define TICKS_TO_TIME( t )		( TICK_INTERVAL *( t ) )
@@ -46,5 +46,13 @@ typedef enum // !TODO[ AMOS ]: Confirm this!
 	USE_SET = 2,
 	USE_TOGGLE = 3
 } USE_TYPE;
+
+
+#define MAX_SPLITSCREEN_PLAYERS 2
+
+inline bool IsSplitScreenSupported()
+{
+	return (MAX_SPLITSCREEN_PLAYERS > 1) ? true : false;
+}
 
 #endif // SHAREDDEFS_H

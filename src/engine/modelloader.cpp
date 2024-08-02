@@ -94,61 +94,38 @@ bool IsLumpTypeExternal(int lumpType)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns whether or not the lump type is only used on the client
+// Purpose: returns whether or not the lump type should be loaded on the server
 // Input  : lumpType - 
 //-----------------------------------------------------------------------------
-bool IsLumpTypeClientOnly(int lumpType)
+bool IsLumpTypeForServer(int lumpType)
 {
 	switch (lumpType)
 	{
+	case LUMP_ENTITIES:
+	case LUMP_PLANES:
 	case LUMP_TEXTURE_DATA:
-	case LUMP_LIGHTPROBE_PARENT_INFOS:
-	case LUMP_SHADOW_ENVIRONMENTS:
-	case LUMP_VERTEX_NORMALS:
+	case LUMP_VERTICES:
+	case LUMP_MODELS:
+	case LUMP_SURFACE_NAMES:
+	case LUMP_CONTENTS_MASKS:
+	case LUMP_SURFACE_PROPERTIES:
+	case LUMP_BVH_NODES:
+	case LUMP_BVH_LEAF_DATA:
+	case LUMP_PACKED_VERTICES:
+	case LUMP_ENTITY_PARTITIONS:
+	case LUMP_GAME_LUMP:
 	case LUMP_LEAF_WATER_DATA:
-	case LUMP_UNKNOWN_38:
-	case LUMP_CUBEMAPS:
+	case LUMP_PAKFILE:
 	case LUMP_WORLD_LIGHTS:
 	case LUMP_WORLD_LIGHT_PARENT_INFOS:
-	case LUMP_VERTEX_UNLIT:
-	case LUMP_VERTEX_LIT_FLAT:
-	case LUMP_VERTEX_LIT_BUMP:
-	case LUMP_VERTEX_UNLIT_TS:
-	case LUMP_VERTEX_BLINN_PHONG:
-	case LUMP_VERTEX_RESERVED_5:
-	case LUMP_VERTEX_RESERVED_6:
-	case LUMP_VERTEX_RESERVED_7:
-	case LUMP_MESH_INDICES:
 	case LUMP_MESHES:
-	case LUMP_MESH_BOUNDS:
 	case LUMP_MATERIAL_SORT:
-	case LUMP_LIGHTMAP_HEADERS:
 	case LUMP_TWEAK_LIGHTS:
-	case LUMP_UNKNOWN_97:
-	case LUMP_LIGHTMAP_DATA_SKY:
-	case LUMP_CSM_AABB_NODES:
-	case LUMP_CSM_OBJ_REFERENCES:
-	case LUMP_LIGHTPROBES:
-	case LUMP_STATIC_PROP_LIGHTPROBE_INDICES:
-	case LUMP_LIGHTPROBE_TREE:
-	case LUMP_LIGHTPROBE_REFERENCES:
-	case LUMP_LIGHTMAP_DATA_REAL_TIME_LIGHTS:
-	case LUMP_PORTALS:
-	case LUMP_PORTAL_VERTICES:
-	case LUMP_PORTAL_EDGES:
-	case LUMP_PORTAL_VERTEX_EDGES:
-	case LUMP_PORTAL_VERTEX_REFERENCES:
-	case LUMP_PORTAL_EDGE_REFERENCES:
-	case LUMP_PORTAL_EDGE_INTERSECT_AT_EDGE:
-	case LUMP_PORTAL_EDGE_INTERSECT_AT_VERTEX:
-	case LUMP_PORTAL_EDGE_INTERSECT_HEADER:
-	case LUMP_OCCLUSION_MESH_VERTICES:
-	case LUMP_OCCLUSION_MESH_INDICES:
-	case LUMP_LIGHTMAP_DATA_RTL_PAGE:
-	case LUMP_SHADOW_MESH_OPAQUE_VERTICES:
-	case LUMP_SHADOW_MESH_ALPHA_VERTICES:
-	case LUMP_SHADOW_MESH_INDICES:
-	case LUMP_SHADOW_MESHES:
+	case LUMP_LEVEL_INFO:
+		// Used on the server at [r5apex_ds + E05940] for sky_camera entity.
+		// If this lump isn't loaded, the engine will freeze in a loop in a
+		// function at [r5apex_ds + 3157F0] (called from CVEngineServer code).
+	case LUMP_CELL_BSP_NODES:
 		return true;
 	default:
 		return false;
@@ -223,7 +200,7 @@ void CMapLoadHelper::Constructor(CMapLoadHelper* loader, int lumpToLoad)
 	// the client is heavily inline in code, which makes
 	// it hard to patch it out from there.. to fix this,
 	// we just check from here and return if its cl only
-	if (IsLumpTypeClientOnly(lumpToLoad))
+	if (!IsLumpTypeForServer(lumpToLoad))
 		return;
 #endif // DEDICATED
 

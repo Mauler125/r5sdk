@@ -107,10 +107,10 @@ void CoreMsg(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	const UINT exitCode, const char* pszLogger, const char* pszFormat, ...);
 
 // These functions do not return.
-PLATFORM_INTERFACE void Msg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
-PLATFORM_INTERFACE void NetMsg(LogType_t logType, eDLL_T context, const char* uptime, const char* fmt, ...) FMTFUNCTION(4, 5);
-PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
-PLATFORM_INTERFACE void Error(eDLL_T context, const UINT code, const char* fmt, ...) FMTFUNCTION(3, 4);
+DLL_EXPORT void Msg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
+DLL_EXPORT void NetMsg(LogType_t logType, eDLL_T context, const char* uptime, const char* fmt, ...) FMTFUNCTION(4, 5);
+DLL_EXPORT void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
+DLL_EXPORT void Error(eDLL_T context, const UINT code, const char* fmt, ...) FMTFUNCTION(3, 4);
 
 // TODO[ AMOS ]: export to DLL?
 void Plat_FatalError(eDLL_T context, const char* fmt, ...);
@@ -119,8 +119,8 @@ void Plat_FatalError(eDLL_T context, const char* fmt, ...);
 #define DevMsg( ... ) ((void)0)
 #define DevWarning( ... ) ((void)0)
 #else // DBGFLAG_STRINGS_STRIP
-PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
-PLATFORM_INTERFACE void DevWarning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
+DLL_EXPORT void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
+DLL_EXPORT void DevWarning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 #endif
 
 // You can use this macro like a runtime assert macro.

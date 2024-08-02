@@ -47,15 +47,17 @@ struct BuildSettings
 	float agentMaxSlope;
 	// Region minimum size in voxels.
 	// regionMinSize = sqrt(regionMinArea)
-	float regionMinSize;
+	int regionMinSize;
 	// Region merge size in voxels.
 	// regionMergeSize = sqrt(regionMergeArea)
-	float regionMergeSize;
+	int regionMergeSize;
 	// Edge max length in world units
-	float edgeMaxLen;
+	int edgeMaxLen;
 	// Edge max error in voxels
 	float edgeMaxError;
-	float vertsPerPoly;
+	int vertsPerPoly;
+	// The polygon cell resolution.
+	int polyCellRes;
 	// Detail sample distance in voxels
 	float detailSampleDist;
 	// Detail sample max error in voxel heights.
@@ -65,8 +67,11 @@ struct BuildSettings
 	// Bounds of the area to mesh
 	float navMeshBMin[3];
 	float navMeshBMax[3];
+	// Original bounds of the area to mesh.
+	float origNavMeshBMin[3];
+	float origNavMeshBMax[3];
 	// Size of the tiles in voxels
-	float tileSize;
+	int tileSize;
 };
 
 class InputGeom
@@ -74,6 +79,7 @@ class InputGeom
 	rcChunkyTriMesh* m_chunkyMesh;
 	IMeshLoader* m_mesh;
 	float m_meshBMin[3], m_meshBMax[3];
+	float m_navMeshBMin[3], m_navMeshBMax[3];
 	BuildSettings m_buildSettings;
 	bool m_hasBuildSettings;
 	
@@ -83,10 +89,13 @@ class InputGeom
 	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
 	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
+	unsigned char m_offMeshConJumps[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
 	unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
-	unsigned int m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
-	int m_offMeshConCount;
+	unsigned short m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
+	float m_offMeshConRefPos[MAX_OFFMESH_CONNECTIONS*3];
+	float m_offMeshConRefYaws[MAX_OFFMESH_CONNECTIONS];
+	short m_offMeshConCount;
 	///@}
 
 	/// @name Convex Volumes.
@@ -111,8 +120,16 @@ public:
 	const IMeshLoader* getMesh() const { return m_mesh; }
 	const float* getMeshBoundsMin() const { return m_meshBMin; }
 	const float* getMeshBoundsMax() const { return m_meshBMax; }
-	const float* getNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_meshBMin; }
-	const float* getNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_meshBMax; }
+
+	float* getNavMeshBoundsMin() { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_navMeshBMin; }
+	float* getNavMeshBoundsMax() { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_navMeshBMax; }
+
+	const float* getNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_navMeshBMin; }
+	const float* getNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_navMeshBMax; }
+
+	const float* getOriginalNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.origNavMeshBMin : m_meshBMin; }
+	const float* getOriginalNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.origNavMeshBMax : m_meshBMax; }
+
 	const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
 	const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : 0; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
@@ -123,13 +140,16 @@ public:
 	const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
 	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
 	const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
+	const unsigned char* getOffMeshConnectionJumps() const { return m_offMeshConJumps; }
 	const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
 	const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
-	const unsigned int* getOffMeshConnectionId() const { return m_offMeshConId; }
+	const unsigned short* getOffMeshConnectionId() const { return m_offMeshConId; }
+	const float* getOffMeshConnectionRefPos() const { return m_offMeshConRefPos; }
+	const float* getOffMeshConnectionRefYaws() const { return m_offMeshConRefYaws; }
 	void addOffMeshConnection(const float* spos, const float* epos, const float rad,
-							  unsigned char bidir, unsigned char area, unsigned short flags);
+							  unsigned char bidir, unsigned char jump, unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
-	void drawOffMeshConnections(struct duDebugDraw* dd, bool hilight = false);
+	void drawOffMeshConnections(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}
 
 	/// @name Box Volumes.
@@ -139,7 +159,7 @@ public:
 	void addConvexVolume(const float* verts, const int nverts,
 						 const float minh, const float maxh, unsigned char area);
 	void deleteConvexVolume(int i);
-	void drawConvexVolumes(struct duDebugDraw* dd, bool hilight = false);
+	void drawConvexVolumes(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}
 	
 private:

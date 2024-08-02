@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
@@ -32,6 +31,7 @@ OffMeshConnectionTool::OffMeshConnectionTool() :
 	m_editor(0),
 	m_hitPosSet(0),
 	m_bidir(true),
+	m_jumpType(0),
 	m_oldFlags(0)
 {
 }
@@ -61,10 +61,19 @@ void OffMeshConnectionTool::reset()
 
 void OffMeshConnectionTool::handleMenu()
 {
-	if (imguiCheck("One Way", !m_bidir))
+	bool isOneWay = !m_bidir;
+
+	if (ImGui::Checkbox("One Way", &isOneWay))
 		m_bidir = false;
-	if (imguiCheck("Bidirectional", m_bidir))
+
+	bool isBiDirectional = m_bidir;
+
+	if (ImGui::Checkbox("Bidirectional", &isBiDirectional))
 		m_bidir = true;
+
+	ImGui::PushItemWidth(140);
+	ImGui::SliderInt("Jump Type", &m_jumpType, 0, 31);
+	ImGui::PopItemWidth();
 }
 
 void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -83,7 +92,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		for (int i = 0; i < geom->getOffMeshConnectionCount()*2; ++i)
 		{
 			const float* v = &verts[i*3];
-			float d = rcVdistSqr(p, v);
+			float d = rdVdistSqr(p, v);
 			if (d < nearestDist)
 			{
 				nearestDist = d;
@@ -102,14 +111,14 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		// Create	
 		if (!m_hitPosSet)
 		{
-			rcVcopy(m_hitPos, p);
+			rdVcopy(m_hitPos, p);
 			m_hitPosSet = true;
 		}
 		else
 		{
 			const unsigned char area = EDITOR_POLYAREA_JUMP;
-			const unsigned short flags = EDITOR_POLYFLAGS_JUMP; 
-			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
+			const unsigned short flags = EDITOR_POLYFLAGS_WALK;
+			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, (unsigned char)m_jumpType, area, flags);
 			m_hitPosSet = false;
 		}
 	}
@@ -133,32 +142,34 @@ void OffMeshConnectionTool::handleRender()
 	const float s = m_editor->getAgentRadius();
 	
 	if (m_hitPosSet)
-		duDebugDrawCross(&dd, m_hitPos[0],m_hitPos[1],m_hitPos[2]+0.1f, s, duRGBA(0,0,0,128), 2.0f);
+		duDebugDrawCross(&dd, m_hitPos[0],m_hitPos[1],m_hitPos[2]+0.1f, s, duRGBA(0,0,0,128), 2.0f, nullptr);
 
 	InputGeom* geom = m_editor->getInputGeom();
 	if (geom)
-		geom->drawOffMeshConnections(&dd, true);
+		geom->drawOffMeshConnections(&dd, m_editor->getRecastDrawOffset(), true);
 }
 
 void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
+	const int h = view[3];
 	
 	// Draw start and end point labels
 	if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
 								model, proj, view, &x, &y, &z))
 	{
-		imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0,0,0,220));
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "Start");
 	}
 	
 	// Tool help
-	const int h = view[3];
 	if (!m_hitPosSet)
 	{
-		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.");
 	}
 	else
 	{
-		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Set connection end point and finish.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, 
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Set connection end point and finish.");
 	}
 }

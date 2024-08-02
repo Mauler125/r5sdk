@@ -22,15 +22,16 @@
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/EditorInterfaces.h"
 
+#include "game/server/ai_navmesh.h"
+
 struct hulldef
 {
 	const char* name;
 	float radius;
 	float height;
-	float climb_height;
-
-	float tile_size;
-	//TODO: voxel size, tile size
+	float climbHeight;
+	int tileSize;
+	int cellResolution;
 };
 extern const hulldef hulls[5];
 
@@ -51,21 +52,39 @@ enum EditorToolType
 
 /// These are just poly areas to use consistent values across the editors.
 /// The use should specify these base on his needs.
+//enum EditorPolyAreas // note: original poly area's for reference.
+//{
+//	EDITOR_POLYAREA_GROUND,
+//	EDITOR_POLYAREA_JUMP,
+//	EDITOR_POLYAREA_ROAD,
+//	EDITOR_POLYAREA_DOOR,
+//	EDITOR_POLYAREA_GRASS,
+//	EDITOR_POLYAREA_WATER,
+//};
+
+#if DT_NAVMESH_SET_VERSION >= 7
+enum EditorPolyAreas
+{
+	EDITOR_POLYAREA_JUMP,
+	EDITOR_POLYAREA_GROUND,
+	EDITOR_POLYAREA_RESERVED,
+	EDITOR_POLYAREA_DOOR, // rename to trigger
+};
+#else
 enum EditorPolyAreas
 {
 	EDITOR_POLYAREA_GROUND,
-	EDITOR_POLYAREA_WATER,
-	EDITOR_POLYAREA_ROAD,
-	EDITOR_POLYAREA_DOOR,
-	EDITOR_POLYAREA_GRASS,
 	EDITOR_POLYAREA_JUMP,
+	EDITOR_POLYAREA_DOOR,
 };
+#endif
+
 enum EditorPolyFlags
 {
 	EDITOR_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)
-	EDITOR_POLYFLAGS_SWIM		= 0x02,		// Ability to swim (water).
+	EDITOR_POLYFLAGS_JUMP		= 0x02,		// Ability to jump.
 	EDITOR_POLYFLAGS_DOOR		= 0x04,		// Ability to move through doors.
-	EDITOR_POLYFLAGS_JUMP		= 0x08,		// Ability to jump.
+	EDITOR_POLYFLAGS_SWIM		= 0x08,		// Ability to swim (water).
 	EDITOR_POLYFLAGS_DISABLED	= 0x10,		// Disabled polygon
 	EDITOR_POLYFLAGS_ALL		= 0xffff	// All abilities.
 };
@@ -115,27 +134,33 @@ protected:
 	class dtNavMeshQuery* m_navQuery;
 	class dtCrowd* m_crowd;
 
-	unsigned char m_navMeshDrawFlags;
 	bool m_filterLowHangingObstacles;
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
 
+	int m_tileSize;
 	float m_cellSize;
 	float m_cellHeight;
 	float m_agentHeight;
 	float m_agentRadius;
 	float m_agentMaxClimb;
 	float m_agentMaxSlope;
-	float m_regionMinSize;
-	float m_regionMergeSize;
-	float m_edgeMaxLen;
+	int m_regionMinSize;
+	int m_regionMergeSize;
+	int m_edgeMaxLen;
 	float m_edgeMaxError;
-	float m_vertsPerPoly;
+	int m_vertsPerPoly;
+	int m_polyCellRes;
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	int m_partitionType;
-	int m_reachabilityTableCount;
-	const char* m_navmeshName = "unnamed";
+
+	float m_navMeshBMin[3];
+	float m_navMeshBMax[3];
+
+	NavMeshType_e m_selectedNavMeshType;
+	NavMeshType_e m_loadedNavMeshType;
+	const char* m_navmeshName;
 	
 	EditorTool* m_tool;
 	EditorToolState* m_toolStates[MAX_TOOLS];
@@ -143,15 +168,21 @@ protected:
 	BuildContext* m_ctx;
 
 	EditorDebugDraw m_dd;
-	
-	dtNavMesh* loadAll(std::string path);
-	void saveAll(std::string path, dtNavMesh* mesh);
+	unsigned int m_navMeshDrawFlags;
+	int m_traverseLinkDrawTypes;
+	float m_recastDrawOffset[3];
+	float m_detourDrawOffset[3];
 
 public:
 	std::string m_modelName;
 
 	Editor();
 	virtual ~Editor();
+
+	bool loadAll(std::string path, const bool fullPath = false);
+	void saveAll(std::string path, const dtNavMesh* mesh);
+
+	bool loadNavMesh(const char* path, const bool fullPath = false);
 	
 	void setContext(BuildContext* ctx) { m_ctx = ctx; }
 	
@@ -160,6 +191,8 @@ public:
 	void setToolState(int type, EditorToolState* s) { m_toolStates[type] = s; }
 
 	EditorDebugDraw& getDebugDraw() { return m_dd; }
+	const float* getRecastDrawOffset() const { return m_recastDrawOffset; }
+	const float* getDetourDrawOffset() const { return m_detourDrawOffset; }
 
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -182,8 +215,13 @@ public:
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
 	
-	unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
-	void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
+	inline unsigned int getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
+	inline void setNavMeshDrawFlags(unsigned int flags) { m_navMeshDrawFlags = flags; }
+
+	inline void toggleNavMeshDrawFlag(unsigned int flag) { m_navMeshDrawFlags ^= flag; }
+
+	inline NavMeshType_e getSelectedNavMeshType() const { return m_selectedNavMeshType; }
+	inline NavMeshType_e getLoadedNavMeshType() const { return m_loadedNavMeshType; }
 
 	void updateToolStates(const float dt);
 	void initToolStates(Editor* editor);
@@ -191,8 +229,16 @@ public:
 	void renderToolStates();
 	void renderOverlayToolStates(double* proj, double* model, int* view);
 
+	void renderMeshOffsetOptions();
+	void renderDetourDebugMenu();
+	void renderIntermediateTileMeshOptions();
+
+	void selectNavMeshType(const NavMeshType_e navMeshType);
+
 	void resetCommonSettings();
 	void handleCommonSettings();
+
+	void buildStaticPathingData();
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

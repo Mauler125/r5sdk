@@ -1,5 +1,6 @@
 #pragma once
 #ifndef DEDICATED // We should think about not including this file at all in dedicated tbh.
+#include "public/globalvars_base.h"
 #include "public/client_class.h"
 #include "public/icliententitylist.h"
 #endif // !DEDICATED
@@ -30,6 +31,7 @@ enum class ClientFrameStage_t : int
 class CHLClient
 {
 public:
+	static int Init(CHLClient* thisptr, CreateInterfaceFn appSystemFactory, CGlobalVarsBase* pGlobals);
 	static void FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t curStage);
 
 #ifndef DEDICATED
@@ -57,6 +59,7 @@ public:
 
 /* ==== CHLCLIENT ======================================================================================================================================================= */
 #ifndef DEDICATED
+inline int(*CHLClient__Init)(CHLClient* thisptr, CreateInterfaceFn appSystemFactory, CGlobalVarsBase* pGlobals);
 inline void*(*CHLClient__PostInit)(void);
 inline void*(*CHLClient__LevelShutdown)(CHLClient* thisptr);
 inline void(*CHLClient__HudProcessInput)(CHLClient* thisptr, bool bActive);
@@ -73,6 +76,7 @@ class VDll_Engine_Int : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef DEDICATED
+		LogFunAdr("CHLClient::Init", CHLClient__Init);
 		LogFunAdr("CHLClient::PostInit", CHLClient__PostInit);
 		LogFunAdr("CHLClient::LevelShutdown", CHLClient__LevelShutdown);
 		LogFunAdr("CHLClient::HudProcessInput", CHLClient__HudProcessInput);
@@ -85,8 +89,9 @@ class VDll_Engine_Int : public IDetour
 	virtual void GetFun(void) const
 	{
 #ifndef DEDICATED
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??").GetPtr(CHLClient__LevelShutdown);
+		g_GameDll.FindPatternSIMD("40 53 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 49 8B D8 75").GetPtr(CHLClient__Init);
 		g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??").GetPtr(CHLClient__PostInit);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??").GetPtr(CHLClient__LevelShutdown);
 		g_GameDll.FindPatternSIMD("48 83 EC 28 89 15 ?? ?? ?? ??").GetPtr(CHLClient__FrameStageNotify);
 		g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ??").GetPtr(CHLClient__GetAllClasses);
 #endif // !DEDICATED

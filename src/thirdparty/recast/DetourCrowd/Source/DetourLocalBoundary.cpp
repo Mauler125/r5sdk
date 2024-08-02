@@ -16,19 +16,17 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <float.h>
-#include <string.h>
 #include "DetourCrowd\Include\DetourLocalBoundary.h"
 #include "Detour\Include\DetourNavMeshQuery.h"
-#include "Detour\Include\DetourCommon.h"
-#include "Detour\Include\DetourAssert.h"
+#include "Shared\Include\SharedCommon.h"
+#include "Shared\Include\SharedAssert.h"
 
 
 dtLocalBoundary::dtLocalBoundary() :
 	m_nsegs(0),
 	m_npolys(0)
 {
-	dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+	rdVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
 }
 
 dtLocalBoundary::~dtLocalBoundary()
@@ -37,7 +35,7 @@ dtLocalBoundary::~dtLocalBoundary()
 
 void dtLocalBoundary::reset()
 {
-	dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+	rdVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
 	m_npolys = 0;
 	m_nsegs = 0;
 }
@@ -67,8 +65,8 @@ void dtLocalBoundary::addSegment(const float dist, const float* s)
 			if (dist <= m_segs[i].d)
 				break;
 		const int tgt = i+1;
-		const int n = dtMin(m_nsegs-i, MAX_LOCAL_SEGS-tgt);
-		dtAssert(tgt+n <= MAX_LOCAL_SEGS);
+		const int n = rdMin(m_nsegs-i, MAX_LOCAL_SEGS-tgt);
+		rdAssert(tgt+n <= MAX_LOCAL_SEGS);
 		if (n > 0)
 			memmove(&m_segs[tgt], &m_segs[i], sizeof(Segment)*n);
 		seg = &m_segs[i];
@@ -88,13 +86,13 @@ void dtLocalBoundary::update(dtPolyRef ref, const float* pos, const float collis
 	
 	if (!ref)
 	{
-		dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+		rdVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
 		m_nsegs = 0;
 		m_npolys = 0;
 		return;
 	}
 	
-	dtVcopy(m_center, pos);
+	rdVcopy(m_center, pos);
 	
 	// First query non-overlapping polygons.
 	navquery->findLocalNeighbourhood(ref, pos, collisionQueryRange,
@@ -112,8 +110,8 @@ void dtLocalBoundary::update(dtPolyRef ref, const float* pos, const float collis
 			const float* s = &segs[k*6];
 			// Skip too distant segments.
 			float tseg;
-			const float distSqr = dtDistancePtSegSqr2D(pos, s, s+3, tseg);
-			if (distSqr > dtSqr(collisionQueryRange))
+			const float distSqr = rdDistancePtSegSqr2D(pos, s, s+3, tseg);
+			if (distSqr > rdSqr(collisionQueryRange))
 				continue;
 			addSegment(distSqr, s);
 		}

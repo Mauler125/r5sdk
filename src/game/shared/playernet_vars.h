@@ -1,4 +1,4 @@
-﻿//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
+﻿//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -15,7 +15,7 @@
 
 class CFogParams
 {
-	char gap_0[8];
+	void* __vftable;
 	float botAlt;
 	float topAlt;
 	float halfDistBot;
@@ -26,8 +26,8 @@ class CFogParams
 	float densityScale;
 	float halfAngleDeg;
 	float HDRColorScale;
-	int distColor;
-	int dirColor;
+	color32 distColor;
+	color32 dirColor;
 	Vector3D direction;
 	float minFadeTime;
 	bool forceOntoSky;
@@ -38,7 +38,7 @@ class CFogParams
 
 struct sky3dparams_t
 {
-	char gap_0[8];
+	void* __vftable;
 	int scale;
 	int cellNum;
 	bool useWorldFog;
@@ -48,7 +48,7 @@ struct sky3dparams_t
 
 struct audioparams_t
 {
-	char gap_0[8];
+	void* __vftable;
 	Vector3D localSound[8];
 	int soundscapeIndex;
 	int localBits;

@@ -288,6 +288,16 @@ bool NET_ReadMessageType(int* outType, bf_read* buffer)
 	return !buffer->IsOverflowed();
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: checks whether the provided address is the local server.
+// Input  : &netAdr - 
+// Output : true if equal, false otherwise
+//-----------------------------------------------------------------------------
+bool NET_IsRemoteLocal(const CNetAdr& netAdr)
+{
+	return (g_pNetAdr->ComparePort(netAdr) && g_pNetAdr->CompareAdr(netAdr));
+}
+
 #endif // !_TOOLS
 
 //-----------------------------------------------------------------------------

@@ -16,12 +16,11 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <string.h>
 #include "DetourCrowd\Include\DetourPathQueue.h"
 #include "Detour\Include\DetourNavMesh.h"
 #include "Detour\Include\DetourNavMeshQuery.h"
-#include "Detour\Include\DetourAlloc.h"
-#include "Detour\Include\DetourCommon.h"
+#include "Shared\Include\SharedAlloc.h"
+#include "Shared\Include\SharedCommon.h"
 
 
 dtPathQueue::dtPathQueue() :
@@ -45,7 +44,7 @@ void dtPathQueue::purge()
 	m_navquery = 0;
 	for (int i = 0; i < MAX_QUEUE; ++i)
 	{
-		dtFree(m_queue[i].path);
+		rdFree(m_queue[i].path);
 		m_queue[i].path = 0;
 	}
 }
@@ -64,7 +63,7 @@ bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, dtNa
 	for (int i = 0; i < MAX_QUEUE; ++i)
 	{
 		m_queue[i].ref = DT_PATHQ_INVALID;
-		m_queue[i].path = (dtPolyRef*)dtAlloc(sizeof(dtPolyRef)*m_maxPathSize, DT_ALLOC_PERM);
+		m_queue[i].path = (dtPolyRef*)rdAlloc(sizeof(dtPolyRef)*m_maxPathSize, RD_ALLOC_PERM);
 		if (!m_queue[i].path)
 			return false;
 	}
@@ -111,18 +110,18 @@ void dtPathQueue::update(const int maxIters)
 		// Handle query start.
 		if (q.status == 0)
 		{
-			q.status = m_navquery->initSlicedFindPath(q.startRef, q.endRef, q.startPos, q.endPos, q.filter);
+			q.status = m_navquery->initSlicedFindPath(q.startRef, q.endRef, q.startPos, q.endPos);
 		}		
 		// Handle query in progress.
 		if (dtStatusInProgress(q.status))
 		{
 			int iters = 0;
-			q.status = m_navquery->updateSlicedFindPath(iterCount, &iters);
+			q.status = m_navquery->updateSlicedFindPath(iterCount, &iters, q.filter);
 			iterCount -= iters;
 		}
 		if (dtStatusSucceed(q.status))
 		{
-			q.status = m_navquery->finalizeSlicedFindPath(q.path, &q.npath, m_maxPathSize);
+			q.status = m_navquery->finalizeSlicedFindPath(q.path, &q.npath, m_maxPathSize, q.filter);
 		}
 
 		if (iterCount <= 0)
@@ -155,9 +154,9 @@ dtPathQueueRef dtPathQueue::request(dtPolyRef startRef, dtPolyRef endRef,
 	
 	PathQuery& q = m_queue[slot];
 	q.ref = ref;
-	dtVcopy(q.startPos, startPos);
+	rdVcopy(q.startPos, startPos);
 	q.startRef = startRef;
-	dtVcopy(q.endPos, endPos);
+	rdVcopy(q.endPos, endPos);
 	q.endRef = endRef;
 	
 	q.status = 0;
@@ -190,7 +189,7 @@ dtStatus dtPathQueue::getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pa
 			q.ref = DT_PATHQ_INVALID;
 			q.status = 0;
 			// Copy path
-			int n = dtMin(q.npath, maxPath);
+			int n = rdMin(q.npath, maxPath);
 			memcpy(path, q.path, sizeof(dtPolyRef)*n);
 			*pathSize = n;
 			return details | DT_SUCCESS;

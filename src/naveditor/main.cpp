@@ -16,16 +16,18 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
-#include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
+#include "Recast/Include/Recast.h"
+#include "Detour/Include/DetourNavMeshQuery.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/TestCase.h"
 #include "NavEditor/Include/Filelist.h"
+#include "NavEditor/Include/Editor_SoloMesh.h"
 #include "NavEditor/Include/Editor_TileMesh.h"
 #include "NavEditor/Include/Editor_Debug.h"
 #include "NavEditor/include/DroidSans.h"
+#include "NavEditor/include/Icon.h"
 
 using std::string;
 using std::vector;
@@ -35,10 +37,11 @@ struct SampleItem
 	Editor* (*create)();
 	const string name;
 };
+Editor* createSolo() { return new Editor_SoloMesh(); }
 Editor* createTile() { return new Editor_TileMesh(); }
 Editor* createDebug() { return new Editor_Debug(); }
 
-void save_ply(std::vector<float>& pts,std::vector<int>& colors,rcIntArray& tris)
+void save_ply(std::vector<float>& pts,std::vector<int>& colors,rdIntArray& tris)
 {
 	static int counter = 0;
 	char fname[255];
@@ -119,6 +122,15 @@ void generate_points(float* pts, int count, float dx, float dy, float dz)
 	}
 }
 
+void get_model_name(const std::string& nameIn, std::string& nameOut)
+{
+	const size_t charPos = nameIn.find_last_of(".");
+
+	nameOut = charPos == string::npos 
+		? nameIn
+		: nameIn.substr(0, charPos);
+}
+
 void auto_load(const char* path, BuildContext& ctx, Editor*& editor,InputGeom*& geom, string& meshName)
 {
 	string geom_path = std::string(path);
@@ -140,7 +152,7 @@ void auto_load(const char* path, BuildContext& ctx, Editor*& editor,InputGeom*& 
 	if (editor && geom)
 	{
 		editor->handleMeshChanged(geom);
-		editor->m_modelName = meshName.substr(0, meshName.size() - 4);
+		get_model_name(meshName, editor->m_modelName);
 	}
 }
 
@@ -149,9 +161,9 @@ void update_camera(const float* bmin, const float* bmax,float* cameraPos,float* 
 	// Reset camera and fog to match the mesh bounds.
 	if (bmin && bmax)
 	{
-		camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-			rcSqr(bmax[1] - bmin[1]) +
-			rcSqr(bmax[2] - bmin[2])) / 2;
+		camr = sqrtf(rdSqr(bmax[0] - bmin[0]) +
+			rdSqr(bmax[1] - bmin[1]) +
+			rdSqr(bmax[2] - bmin[2])) / 2;
 		cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
 		cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
 		cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
@@ -163,13 +175,88 @@ void update_camera(const float* bmin, const float* bmax,float* cameraPos,float* 
 	glFogf(GL_FOG_END, camr * 1.25f);
 }
 
+bool imgui_init(SDL_Window* window, SDL_Renderer* /*renderer*/, SDL_GLContext context)
+{
+	IMGUI_CHECKVERSION();
+	ImGuiContext* const imguiContext = ImGui::CreateContext();
+
+	if (!imguiContext)
+		return false;
+
+	ImPlotContext* const implotContext = ImPlot::CreateContext();
+
+	if (!implotContext)
+		return false;
+
+	// Disable ctrl+tab menu.
+	imguiContext->ConfigNavWindowingKeyNext = 0;
+	imguiContext->ConfigNavWindowingKeyPrev = 0;
+
+	ImGui_SetStyle(ImGuiStyle_t::DEFAULT);
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Colors[ImGuiCol_Separator] = ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
+
+	if (!ImGui_ImplSDL2_InitForOpenGL(window, context))
+	{
+		return false;
+	}
+
+	if (!ImGui_ImplOpenGL2_Init())
+	{
+		return false;
+	}
+
+	ImFontConfig fontCfg;
+	ImGuiIO& imguiIo = ImGui::GetIO();
+
+	fontCfg.FontDataOwnedByAtlas = false;
+	imguiIo.Fonts->AddFontFromMemoryTTF((void*)g_droidSansData, g_droidSansDataSize, 15, &fontCfg);
+
+	return true;
+}
+
+void imgui_shutdown()
+{
+	ImGui_ImplOpenGL2_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+
+	ImGui::DestroyContext();
+}
+
+bool window_decoration_init(SDL_Window* window)
+{
+	SDL_RWops* const rw = SDL_RWFromMem((void*)g_recastNavigationIcon, sizeof(g_recastNavigationIcon));
+
+	if (!rw)
+	{
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to create r/w structure from icon data: %s", SDL_GetError());
+		return false;
+	}
+
+	SDL_Surface* const surface = SDL_LoadBMP_RW(rw, 1);
+
+	if (!surface)
+	{
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to load icon data from r/w structure: %s", SDL_GetError());
+		return false;
+	}
+
+	SDL_SetWindowIcon(window, surface);
+	SDL_FreeSurface(surface);
+
+	SDL_SetWindowTitle(window, "Recast Navigation");
+	return true;
+}
+
 bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &height, bool presentationMode)
 {
+	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
+
 	// Init SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
-		printf("Could not initialise SDL.\n");
-		printf("Error: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_PRIORITY_CRITICAL, "Failed to initialise SDL: %s\n", SDL_GetError());
 		return false;
 	}
 
@@ -201,30 +288,56 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 	else
 	{
 		float aspect = 16.0f / 9.0f;
-		width = rcMin(displayMode.w, static_cast<int>((displayMode.h * aspect))) - 80;
+		width = rdMin(displayMode.w, static_cast<int>((displayMode.h * aspect))) - 80;
 		height = displayMode.h - 80;
 	}
 
-	int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
+	const int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
 
 	if (errorCode != 0 || !window || !renderer)
 	{
-		printf("Could not initialise SDL OpenGL.\n");
-		printf("Error: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to initialise SDL OpenGL: %s\n", SDL_GetError());
+		SDL_Quit();
 		return false;
 	}
 
-	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	SDL_GL_CreateContext(window);
+	window_decoration_init(window);
 
-	if (!imguiRenderGLInit(droidsans_data))
+	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	SDL_GLContext context = SDL_GL_CreateContext(window);
+
+	if (!imgui_init(window, renderer, context))
 	{
-		printf("Could not initialise GUI renderer.\n");
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "failed to initialise GUI renderer.\n");
 		SDL_Quit();
 		return false;
 	}
 
 	return true;
+}
+
+// Gradient background
+void draw_background(const GLfloat width, const GLfloat height)
+{
+	glBegin(GL_QUADS);
+
+	// top-left
+	glColor3f(0.40f, 0.42f, 0.44f);
+	glVertex2f(0.0f, 0.0f);
+
+	// top-right
+	glColor3f(0.40f, 0.42f, 0.44f);
+	glVertex2f(width, 0.0f);
+
+	// bottom-right
+	glColor3f(0.10f, 0.12f, 0.14f);
+	glVertex2f(width, height);
+
+	// bottom-left
+	glColor3f(0.10f, 0.12f, 0.14f);
+	glVertex2f(0.0f, height);
+
+	glEnd();
 }
 
 #if 1
@@ -238,7 +351,7 @@ int main(int argc, char** argv)
 
 extern void delaunayHull(rcContext* ctx, const int npts, const float* pts,
 	const int nhull, const int* hull,
-	rcIntArray& tris, rcIntArray& edges);
+	rdIntArray& tris, rdIntArray& edges);
 
 int main_test_delaunay(int /*argc*/, char** /*argv*/)
 {
@@ -254,15 +367,15 @@ int main_test_delaunay(int /*argc*/, char** /*argv*/)
 	for (auto h : hull)
 		colors[h] = 0xffff0000;
 
-	rcIntArray tris;
+	rdIntArray tris;
 	save_ply(pts, colors, tris);
 
-	rcIntArray edges;
+	rdIntArray edges;
 	delaunayHull(&ctx, pts.size()/3, pts.data(), hull.size(), hull.data(), tris, edges);
 	save_ply(pts, colors, tris);
 	return 0;
 }
-void compact_tris(rcIntArray& tris)
+void compact_tris(rdIntArray& tris)
 {
 	int j = 3;
 	for (int i = 4; i < tris.size(); i++)
@@ -288,10 +401,10 @@ int main(int argc, char** argv)
 	for (auto h : hull)
 		colors[h] = 0xffff0000;
 
-	rcIntArray tris;
+	rdIntArray tris;
 	//save_ply(pts, colors, tris);
 
-	rcIntArray edges;
+	rdIntArray edges;
 	delaunayHull(&ctx, pts.size() / 3, pts.data(), hull.size(), hull.data(), tris, edges);
 	compact_tris(tris);
 	save_ply(pts, colors, tris);
@@ -390,7 +503,7 @@ int not_main(int argc, char** argv)
 	
 	vector<string> files;
 	const string meshesFolder = "Levels";
-	string meshName = "Choose Level...";
+	string meshName;
 	const string testCasesFolder = "TestCases";
 	
 	float markerPosition[3] = {0, 0, 0};
@@ -418,8 +531,8 @@ int not_main(int argc, char** argv)
 			const float* bmax = 0;
 			if (geom)
 			{
-				bmin = geom->getNavMeshBoundsMin();
-				bmax = geom->getNavMeshBoundsMax();
+				bmin = geom->getOriginalNavMeshBoundsMin();
+				bmax = geom->getOriginalNavMeshBoundsMax();
 			}
 			if (!commandLine)
 			{
@@ -448,10 +561,11 @@ int not_main(int argc, char** argv)
 
 	float rayStart[3] = { 0.0f };
 	float rayEnd[3] = { 0.0f };
-	float scrollZoom = 0;
+	float scrollSide = 0.0f;
+	float scrollZoom = 0.0f;
 	bool rotate = false;
 	bool movedDuringRotate = false;
-	bool mouseOverMenu = false;
+	bool focusOnMenu = false;
 
 	bool showMenu = !presentationMode;
 	bool showLog = false;
@@ -461,9 +575,7 @@ int not_main(int argc, char** argv)
 	bool showTestCases = false;
 
 	// Window scroll positions.
-	int propScroll = 0;
-	int logScroll = 0;
-	int toolsScroll = 0;
+	//int propScroll = 0;
 
 	float t = 0.0f;
 	float timeAcc = 0.0f;
@@ -483,6 +595,8 @@ int not_main(int argc, char** argv)
 		
 		while (SDL_PollEvent(&event))
 		{
+			ImGui_ImplSDL2_ProcessEvent(&event);
+
 			switch (event.type)
 			{
 				case SDL_KEYDOWN:
@@ -493,10 +607,12 @@ int not_main(int argc, char** argv)
 					}
 					else if (event.key.keysym.sym == SDLK_t)
 					{
-						showLevels = false;
-						showEditor = false;
-						showTestCases = true;
-						scanDirectory(testCasesFolder, ".txt", files);
+						showLevels ^= false;
+						showEditor ^= false;
+						showTestCases ^= true;
+
+						if (showTestCases)
+							scanDirectory(testCasesFolder, ".txt", files);
 					}
 					else if (event.key.keysym.sym == SDLK_TAB)
 					{
@@ -520,8 +636,8 @@ int not_main(int argc, char** argv)
 							BuildSettings settings;
 							memset(&settings, 0, sizeof(settings));
 
-							rcVcopy(settings.navMeshBMin, geom->getNavMeshBoundsMin());
-							rcVcopy(settings.navMeshBMax, geom->getNavMeshBoundsMax());
+							rdVcopy(settings.navMeshBMin, geom->getNavMeshBoundsMin());
+							rdVcopy(settings.navMeshBMax, geom->getNavMeshBoundsMax());
 
 							editor->collectSettings(settings);
 
@@ -531,10 +647,33 @@ int not_main(int argc, char** argv)
 					break;
 				
 				case SDL_MOUSEWHEEL:
-					if (event.wheel.y < 0)
+					if (event.wheel.x < 0)
 					{
 						// wheel down
-						if (mouseOverMenu)
+						if (focusOnMenu)
+						{
+							mouseScroll++;
+						}
+						else
+						{
+							scrollSide += 120.0f;
+						}
+					}
+					else if (event.wheel.x > 0)
+					{
+						if (focusOnMenu)
+						{
+							mouseScroll--;
+						}
+						else
+						{
+							scrollSide -= 120.0f;
+						}
+					}
+					else if (event.wheel.y < 0)
+					{
+						// wheel down
+						if (focusOnMenu)
 						{
 							mouseScroll++;
 						}
@@ -543,9 +682,9 @@ int not_main(int argc, char** argv)
 							scrollZoom += 120.0f;
 						}
 					}
-					else
+					else if (event.wheel.y > 0)
 					{
-						if (mouseOverMenu)
+						if (focusOnMenu)
 						{
 							mouseScroll--;
 						}
@@ -558,7 +697,7 @@ int not_main(int argc, char** argv)
 				case SDL_MOUSEBUTTONDOWN:
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
-						if (!mouseOverMenu)
+						if (!focusOnMenu)
 						{
 							// Rotate view
 							rotate = true;
@@ -576,7 +715,7 @@ int not_main(int argc, char** argv)
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
 						rotate = false;
-						if (!mouseOverMenu)
+						if (!focusOnMenu)
 						{
 							if (!movedDuringRotate)
 							{
@@ -587,7 +726,7 @@ int not_main(int argc, char** argv)
 					}
 					else if (event.button.button == SDL_BUTTON_LEFT)
 					{
-						if (!mouseOverMenu)
+						if (!focusOnMenu)
 						{
 							processHitTest = true;
 							processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
@@ -621,12 +760,6 @@ int not_main(int argc, char** argv)
 					break;
 			}
 		}
-
-		unsigned char mouseButtonMask = 0;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_LMASK)
-			mouseButtonMask |= IMGUI_MBUT_LEFT;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_RMASK)
-			mouseButtonMask |= IMGUI_MBUT_RIGHT;
 		
 		Uint32 time = SDL_GetTicks();
 		float dt = (time - prevFrameTime) / 1000.0f;
@@ -672,7 +805,7 @@ int not_main(int argc, char** argv)
 		// Update editor simulation.
 		const float SIM_RATE = 20;
 		const float DELTA_TIME = 1.0f / SIM_RATE;
-		timeAcc = rcClamp(timeAcc + dt, -1.0f, 1.0f);
+		timeAcc = rdClamp(timeAcc + dt, -1.0f, 1.0f);
 		int simIter = 0;
 		while (timeAcc > DELTA_TIME)
 		{
@@ -699,8 +832,10 @@ int not_main(int argc, char** argv)
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		
 		// Clear the screen
-		glClearColor(0.20f, 0.21f, 0.22f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
+		draw_background((GLfloat)width, (GLfloat)height);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_TEXTURE_2D);
@@ -709,7 +844,7 @@ int not_main(int argc, char** argv)
 		// Compute the projection matrix.
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(75.0f, (float)width/(float)height, 1.0f, camr);
+		gluPerspective(85.0f, (float)width/(float)height, 25.0f, camr);
 		GLdouble projectionMatrix[16];
 		glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
 		
@@ -721,7 +856,7 @@ int not_main(int argc, char** argv)
 		const float mXZY_to_XYZ[16] =
 		{
 			1,0,0,0,
-			0,0,-1,0, //tbh not sure why this is needed, the tri flips again? something is very stupid...
+			0,0,-1,0,
 			0,1,0,0,
 			0,0,0,1
 		};
@@ -741,34 +876,39 @@ int not_main(int argc, char** argv)
 		rayEnd[1] = (float)y;
 		rayEnd[2] = (float)z;
 		
-		// Handle keyboard movement.
-		const Uint8* keystate = SDL_GetKeyboardState(NULL);
-		moveFront	= rcClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
-		moveLeft	= rcClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
-		moveBack	= rcClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
-		moveRight	= rcClamp(moveRight	+ dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT	]) ? 1 : -1), 0.0f, 1.0f);
-		moveUp		= rcClamp(moveUp	+ dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP	]) ? 1 : -1), 0.0f, 1.0f);
-		moveDown	= rcClamp(moveDown	+ dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1 : -1), 0.0f, 1.0f);
-		
-		float keybSpeed = 8800.0f;
-		if (SDL_GetModState() & KMOD_SHIFT)
+		if (!focusOnMenu)
 		{
-			keybSpeed *= 2.0f;
+			// Handle keyboard movement.
+			const Uint8* keystate = SDL_GetKeyboardState(NULL);
+			moveFront	= rdClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
+			moveLeft	= rdClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
+			moveBack	= rdClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
+			moveRight	= rdClamp(moveRight	+ dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT	]) ? 1 : -1), 0.0f, 1.0f);
+			moveUp		= rdClamp(moveUp	+ dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP	]) ? 1 : -1), 0.0f, 1.0f);
+			moveDown	= rdClamp(moveDown	+ dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1 : -1), 0.0f, 1.0f);
+			
+			float keybSpeed = 8800.0f;
+			if (SDL_GetModState() & KMOD_SHIFT)
+			{
+				keybSpeed *= 2.0f;
+			}
+			
+			float movex = (moveRight - moveLeft) * keybSpeed * dt + scrollSide * 2.0f;
+			float movey = (moveBack - moveFront) * keybSpeed * dt + scrollZoom * 2.0f;
+
+			scrollSide = 0.0f;
+			scrollZoom = 0.0f;
+			
+			cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
+			cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
+			cameraPos[2] += movex * static_cast<float>(modelviewMatrix[8]);
+
+			cameraPos[0] += movey * static_cast<float>(modelviewMatrix[2]);
+			cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
+			cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
+
+			cameraPos[2] += (moveUp - moveDown) * keybSpeed * dt;
 		}
-		
-		float movex = (moveRight - moveLeft) * keybSpeed * dt;
-		float movey = (moveBack - moveFront) * keybSpeed * dt + scrollZoom * 2.0f;
-		scrollZoom = 0;
-		
-		cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
-		cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
-		cameraPos[2] += movex * static_cast<float>(modelviewMatrix[8]);
-
-		cameraPos[0] += movey * static_cast<float>(modelviewMatrix[2]);
-		cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
-		cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
-
-		cameraPos[1] += (moveUp - moveDown) * keybSpeed * dt;
 
 		glEnable(GL_FOG);
 
@@ -787,9 +927,13 @@ int not_main(int argc, char** argv)
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
-		mouseOverMenu = false;
+		ImGuiIO& io = ImGui::GetIO();
+		focusOnMenu = io.WantCaptureMouse||io.WantCaptureKeyboard;
 		
-		imguiBeginFrame(mousePos[0], mousePos[1], mouseButtonMask, mouseScroll);
+		ImGui_ImplOpenGL2_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+
+		ImGui::NewFrame();
 		
 		if (editor)
 		{
@@ -798,117 +942,150 @@ int not_main(int argc, char** argv)
 		}
 		if (test)
 		{
-			if (test->handleRenderOverlay(reinterpret_cast<double*>(projectionMatrix), reinterpret_cast<double*>(modelviewMatrix), reinterpret_cast<int*>(viewport)))
-				mouseOverMenu = true;
+			test->handleRenderOverlay(reinterpret_cast<double*>(projectionMatrix), reinterpret_cast<double*>(modelviewMatrix), reinterpret_cast<int*>(viewport));
 		}
 
 		// Help text.
 		if (showMenu)
 		{
-			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
-			imguiDrawText(280, height-20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255,255,255,128));
+			ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, 
+				ImVec2(280, 20), ImVec4(1.0f,1.0f,1.0f,0.5f), "W/S/A/D: Move  RMB: Rotate");
 		}
 		string geom_path;
+
+		const ImGuiWindowFlags baseWindowFlags = ImGuiWindowFlags_None;
+
 		if (showMenu)
 		{
-			if (imguiBeginScrollArea("Properties", width-250-10, 10, 250, height-20, &propScroll))
-				mouseOverMenu = true;
+			ImGui::SetNextWindowPos(ImVec2((float)width-300-10, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(300, (float)height-20), ImGuiCond_Once);
+			ImGui::SetNextWindowSizeConstraints(ImVec2(300, 300), ImVec2(FLT_MAX, FLT_MAX));
 
-			if (imguiCheck("Show Log", showLog))
-				showLog = !showLog;
-			if (imguiCheck("Show Tools", showTools))
-				showTools = !showTools;
-
-			imguiSeparator();
-			imguiLabel("Input Level");
-
-			if (imguiButton("Load Level..."))
+			if (ImGui::Begin("Properties", nullptr, baseWindowFlags))
 			{
-				char szFile[260];
-				OPENFILENAMEA diag = { 0 };
-				diag.lStructSize = sizeof(diag);
+				ImGui::Checkbox("Show Log", &showLog);
+				ImGui::Checkbox("Show Tools", &showTools);
 
-				SDL_SysWMinfo sdlinfo;
-				SDL_version sdlver;
-				SDL_VERSION(&sdlver);
-				sdlinfo.version = sdlver;
-				SDL_GetWindowWMInfo(window, &sdlinfo);
+				ImGui::Separator();
+				ImGui::Text("Input Level");
 
-				diag.hwndOwner = sdlinfo.info.win.window;
-
-				diag.lpstrFile = szFile;
-				diag.lpstrFile[0] = 0;
-				diag.nMaxFile = sizeof(szFile);
-				diag.lpstrFilter = "OBJ\0*.obj\0Ply\0*.ply\0All\0*.*\0"; //TODO: BSP\0*.bsp\0
-				diag.nFilterIndex = 1;
-				diag.lpstrFileTitle = NULL;
-				diag.nMaxFileTitle = 0;
-				diag.lpstrInitialDir = NULL;
-				diag.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-				if (GetOpenFileNameA(&diag))
+				if (ImGui::Button("Load Project..."))
 				{
-					geom_path = std::string(szFile);
-					meshName = geom_path.substr(geom_path.rfind("\\")+1);
-				}
-			}
-			if (imguiButton(meshName.c_str()))
-			{
-				if (showLevels)
-				{
-					showLevels = false;
-				}
-				else
-				{
-					showEditor = false;
-					showTestCases = false;
-					showLevels = true;
-					scanDirectory(meshesFolder, ".obj", files);
-					scanDirectoryAppend(meshesFolder, ".gset", files);
-					scanDirectoryAppend(meshesFolder, ".ply", files);
-				}
-			}
-			if (geom)
-			{
-				char text[64];
-				snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
-						 geom->getMesh()->getVertCount()/1000.0f,
-						 geom->getMesh()->getTriCount()/1000.0f);
-				imguiValue(text);
-			}
-			imguiSeparator();
+					char szFile[260];
+					OPENFILENAMEA diag = { 0 };
+					diag.lStructSize = sizeof(diag);
 
-			if (geom && editor)
-			{
-				imguiSeparatorLine();
-				
-				editor->handleSettings();
+					SDL_SysWMinfo sdlinfo;
+					SDL_version sdlver;
+					SDL_VERSION(&sdlver);
+					sdlinfo.version = sdlver;
+					SDL_GetWindowWMInfo(window, &sdlinfo);
 
-				if (imguiButton("Build"))
-				{
-					ctx.resetLog();
-					if (!editor->handleBuild())
+					diag.hwndOwner = sdlinfo.info.win.window;
+
+					diag.lpstrFile = szFile;
+					diag.lpstrFile[0] = 0;
+					diag.nMaxFile = sizeof(szFile);
+					diag.lpstrFilter = "GSET\0*.gset\0OBJ\0*.obj\0Ply\0*.ply\0"; //TODO: BSP\0*.bsp\0
+					diag.nFilterIndex = 1;
+					diag.lpstrFileTitle = NULL;
+					diag.nMaxFileTitle = 0;
+					diag.lpstrInitialDir = NULL;
+					diag.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+					if (GetOpenFileNameA(&diag))
 					{
-						showLog = true;
-						logScroll = 0;
+						geom_path = std::string(szFile);
+						meshName = geom_path.substr(geom_path.rfind("\\") + 1);
 					}
-					ctx.dumpLog("Build log %s:", meshName.c_str());
-					
-					// Clear test.
-					delete test;
-					test = 0;
+				}
+				if (geom && editor && ImGui::Button("Load NavMesh..."))
+				{
+					char szFile[260];
+					OPENFILENAMEA diag = { 0 };
+					diag.lStructSize = sizeof(diag);
+
+					SDL_SysWMinfo sdlinfo;
+					SDL_version sdlver;
+					SDL_VERSION(&sdlver);
+					sdlinfo.version = sdlver;
+					SDL_GetWindowWMInfo(window, &sdlinfo);
+
+					diag.hwndOwner = sdlinfo.info.win.window;
+
+					diag.lpstrFile = szFile;
+					diag.lpstrFile[0] = 0;
+					diag.nMaxFile = sizeof(szFile);
+					diag.lpstrFilter = "NM\0*.nm\0";
+					diag.nFilterIndex = 1;
+					diag.lpstrFileTitle = NULL;
+					diag.nMaxFileTitle = 0;
+					diag.lpstrInitialDir = NULL;
+					diag.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+					if (GetOpenFileNameA(&diag))
+					{
+						editor->loadNavMesh(szFile, true);
+					}
+				}
+				if (ImGui::Button(meshName.empty() ? "Choose Level..." : meshName.c_str()))
+				{
+					if (showLevels)
+					{
+						showLevels = false;
+					}
+					else
+					{
+						showEditor = false;
+						showTestCases = false;
+						showLevels = true;
+						scanDirectory(meshesFolder, ".gset", files);
+						scanDirectoryAppend(meshesFolder, ".obj", files);
+						scanDirectoryAppend(meshesFolder, ".ply", files);
+					}
+				}
+				if (geom)
+				{
+					char text[64];
+					snprintf(text, sizeof(text), "Verts: %.1fk",
+						geom->getMesh()->getVertCount() / 1000.0f);
+					ImGui::Text(text);
+
+					snprintf(text, sizeof(text), "Tris: %.1fk",
+						geom->getMesh()->getTriCount() / 1000.0f);
+					ImGui::Text(text);
 				}
 
-				imguiSeparator();
-			}
-			
-			if (editor)
-			{
-				imguiSeparatorLine();
-				editor->handleDebugMode();
-			}
+				ImGui::Separator();
 
-			imguiEndScrollArea();
+				if (geom && editor)
+				{
+
+					editor->handleSettings();
+
+					if (ImGui::Button("Build", ImVec2(165, 0)))
+					{
+						ctx.resetLog();
+						if (!editor->handleBuild())
+						{
+							showLog = true;
+						}
+						ctx.dumpLog("Build log %s:", meshName.c_str());
+
+						// Clear test.
+						delete test;
+						test = 0;
+					}
+
+					ImGui::Separator();
+				}
+
+				if (editor)
+				{
+					editor->handleDebugMode();
+				}
+			}
+			ImGui::End();
 		}
 		
 		// Editor selection dialog.
@@ -921,47 +1098,48 @@ int not_main(int argc, char** argv)
 				const float* bmax = 0;
 				if (geom)
 				{
-					bmin = geom->getNavMeshBoundsMin();
-					bmax = geom->getNavMeshBoundsMax();
+					bmin = geom->getMeshBoundsMin();
+					bmax = geom->getMeshBoundsMax();
 				}
 				// Reset camera and fog to match the mesh bounds.
 				update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
 			}
 			
-			imguiEndScrollArea();
+			//ImGui::EndChild();
 		}
 
 		// Level selection dialog.
 		if (showLevels)
 		{
-			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Level", width - 10 - 250 - 10 - 200, height - 10 - 450, 200, 450, &levelScroll))
-				mouseOverMenu = true;
-			
-			vector<string>::const_iterator fileIter = files.begin();
-			vector<string>::const_iterator filesEnd = files.end();
-			vector<string>::const_iterator levelToLoad = filesEnd;
-			for (; fileIter != filesEnd; ++fileIter)
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-300, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(250.f, 450.f), ImGuiCond_Once);
+			if (ImGui::Begin("Choose Level", nullptr, baseWindowFlags))
 			{
-				if (imguiItem(fileIter->c_str()))
+				vector<string>::const_iterator fileIter = files.begin();
+				vector<string>::const_iterator filesEnd = files.end();
+				vector<string>::const_iterator levelToLoad = filesEnd;
+				for (; fileIter != filesEnd; ++fileIter)
 				{
-					levelToLoad = fileIter;
+					// was imguiItem
+					if (ImGui::MenuItem(fileIter->c_str()))
+					{
+						levelToLoad = fileIter;
+					}
+				}
+
+				if (levelToLoad != filesEnd)
+				{
+					meshName = *levelToLoad;
+					showLevels = false;
+
+					delete geom;
+					geom = 0;
+
+					geom_path = meshesFolder + "/" + meshName;
 				}
 			}
 			
-			if (levelToLoad != filesEnd)
-			{
-				meshName = *levelToLoad;
-				showLevels = false;
-				
-				delete geom;
-				geom = 0;
-				
-				geom_path= meshesFolder + "/" + meshName;
-			}
-			
-			imguiEndScrollArea();
-			
+			ImGui::End();
 		}
 		if (!geom_path.empty())
 		{
@@ -979,13 +1157,12 @@ int not_main(int argc, char** argv)
 				}
 
 				showLog = true;
-				logScroll = 0;
 				ctx.dumpLog("Geom load log %s:", meshName.c_str());
 			}
 			if (editor && geom)
 			{
 				editor->handleMeshChanged(geom);
-				editor->m_modelName = meshName.substr(0, meshName.size() - 4);
+				get_model_name(meshName, editor->m_modelName);
 			}
 
 			if (geom || editor)
@@ -994,8 +1171,8 @@ int not_main(int argc, char** argv)
 				const float* bmax = 0;
 				if (geom)
 				{
-					bmin = geom->getNavMeshBoundsMin();
-					bmax = geom->getNavMeshBoundsMax();
+					bmin = geom->getMeshBoundsMin();
+					bmax = geom->getMeshBoundsMax();
 				}
 				// Reset camera and fog to match the mesh bounds.
 				update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
@@ -1004,117 +1181,127 @@ int not_main(int argc, char** argv)
 		// Test cases
 		if (showTestCases)
 		{
-			static int testScroll = 0;
-			if (imguiBeginScrollArea("Choose Test To Run", width-10-250-10-200, height-10-450, 200, 450, &testScroll))
-				mouseOverMenu = true;
+			ImGui::SetNextWindowPos(ImVec2((float)width-10-250-10-300, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(250.f, 450.f), ImGuiCond_Once);
 
-			vector<string>::const_iterator fileIter = files.begin();
-			vector<string>::const_iterator filesEnd = files.end();
-			vector<string>::const_iterator testToLoad = filesEnd;
-			for (; fileIter != filesEnd; ++fileIter)
+			if (ImGui::Begin("Choose Test To Run", nullptr, baseWindowFlags))
 			{
-				if (imguiItem(fileIter->c_str()))
+				vector<string>::const_iterator fileIter = files.begin();
+				vector<string>::const_iterator filesEnd = files.end();
+				vector<string>::const_iterator testToLoad = filesEnd;
+				for (; fileIter != filesEnd; ++fileIter)
 				{
-					testToLoad = fileIter;
+					if (ImGui::MenuItem(fileIter->c_str()))
+					{
+						testToLoad = fileIter;
+					}
+				}
+
+				if (testToLoad != filesEnd)
+				{
+					string path = testCasesFolder + "/" + *testToLoad;
+					test = new TestCase;
+					if (test)
+					{
+						// Load the test.
+						if (!test->load(path))
+						{
+							delete test;
+							test = 0;
+						}
+
+						if (editor)
+						{
+							editor->setContext(&ctx);
+							showEditor = false;
+						}
+
+						// Load geom.
+						meshName = test->getGeomFileName();
+
+
+						path = meshesFolder + "/" + meshName;
+
+						delete geom;
+						geom = new InputGeom;
+						if (!geom || !geom->load(&ctx, path))
+						{
+							delete geom;
+							geom = 0;
+							delete editor;
+							editor = 0;
+							showLog = true;
+							ctx.dumpLog("Geom load log %s:", meshName.c_str());
+						}
+						if (editor && geom)
+						{
+							editor->handleMeshChanged(geom);
+							get_model_name(meshName, editor->m_modelName);
+						}
+
+						// This will ensure that tile & poly bits are updated in tiled editor.
+						if (editor)
+							editor->handleSettings();
+
+						ctx.resetLog();
+						if (editor && !editor->handleBuild())
+						{
+							ctx.dumpLog("Build log %s:", meshName.c_str());
+						}
+
+						if (geom || editor)
+						{
+							const float* bmin = 0;
+							const float* bmax = 0;
+							if (geom)
+							{
+								bmin = geom->getNavMeshBoundsMin();
+								bmax = geom->getNavMeshBoundsMax();
+							}
+							// Reset camera and fog to match the mesh bounds.
+							update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
+						}
+
+						// Do the tests.
+						if (editor)
+							test->doTests(editor->getNavMesh(), editor->getNavMeshQuery());
+					}
 				}
 			}
-			
-			if (testToLoad != filesEnd)
-			{
-				string path = testCasesFolder + "/" + *testToLoad;
-				test = new TestCase;
-				if (test)
-				{
-					// Load the test.
-					if (!test->load(path))
-					{
-						delete test;
-						test = 0;
-					}
 
-					if (editor)
-					{
-						editor->setContext(&ctx);
-						showEditor = false;
-					}
-
-					// Load geom.
-					meshName = test->getGeomFileName();
-					
-					
-					path = meshesFolder + "/" + meshName;
-					
-					delete geom;
-					geom = new InputGeom;
-					if (!geom || !geom->load(&ctx, path))
-					{
-						delete geom;
-						geom = 0;
-						delete editor;
-						editor = 0;
-						showLog = true;
-						logScroll = 0;
-						ctx.dumpLog("Geom load log %s:", meshName.c_str());
-					}
-					if (editor && geom)
-					{
-						editor->handleMeshChanged(geom);
-						editor->m_modelName = meshName.substr(0, meshName.size() - 4);
-					}
-
-					// This will ensure that tile & poly bits are updated in tiled editor.
-					if (editor)
-						editor->handleSettings();
-
-					ctx.resetLog();
-					if (editor && !editor->handleBuild())
-					{
-						ctx.dumpLog("Build log %s:", meshName.c_str());
-					}
-					
-					if (geom || editor)
-					{
-						const float* bmin = 0;
-						const float* bmax = 0;
-						if (geom)
-						{
-							bmin = geom->getNavMeshBoundsMin();
-							bmax = geom->getNavMeshBoundsMax();
-						}
-						// Reset camera and fog to match the mesh bounds.
-						update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
-					}
-					
-					// Do the tests.
-					if (editor)
-						test->doTests(editor->getNavMesh(), editor->getNavMeshQuery());
-				}
-			}				
-				
-			imguiEndScrollArea();
+			ImGui::End();
 		}
 
 		
 		// Log
 		if (showLog && showMenu)
 		{
-			if (imguiBeginScrollArea("Log", 250 + 20, 10, width - 300 - 250, 200, &logScroll))
-				mouseOverMenu = true;
-			for (int i = 0; i < ctx.getLogCount(); ++i)
-				imguiLabel(ctx.getLogText(i));
-			imguiEndScrollArea();
+			ImGui::SetNextWindowPos(ImVec2(250.f+30.f, height-450.f-10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(200.f, 450.f), ImGuiCond_Once);
+
+			if (ImGui::Begin("Log"))
+			{
+				for (int i = 0; i < ctx.getLogCount(); ++i)
+					ImGui::Text(ctx.getLogText(i));
+			}
+
+			ImGui::End();
 		}
 		
 		// Left column tools menu
 		if (!showTestCases && showTools && showMenu) // && geom && editor)
 		{
-			if (imguiBeginScrollArea("Tools", 10, 10, 250, height - 20, &toolsScroll))
-				mouseOverMenu = true;
+			ImGui::SetNextWindowPos(ImVec2(10.f, 10.f), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(260, (float)height-20), ImGuiCond_Once);
+			ImGui::SetNextWindowSizeConstraints(ImVec2(260, 300), ImVec2(FLT_MAX, FLT_MAX));
 
-			if (editor)
-				editor->handleTools();
+			if (ImGui::Begin("Tools", nullptr, baseWindowFlags))
+			{
+				if (editor)
+					editor->handleTools();
+			}
 			
-			imguiEndScrollArea();
+			ImGui::End();
 		}
 		
 		// Marker
@@ -1129,7 +1316,7 @@ int not_main(int argc, char** argv)
 			const float r = 25.0f;
 			for (int i = 0; i < 20; ++i)
 			{
-				const float a = (float)i / 20.0f * RC_PI*2;
+				const float a = (float)i / 20.0f * RD_PI*2;
 				const float fx = (float)x + cosf(a)*r;
 				const float fy = (float)y + sinf(a)*r;
 				glVertex2f(fx,fy);
@@ -1138,16 +1325,16 @@ int not_main(int argc, char** argv)
 			glLineWidth(1.0f);
 		}
 		
-		imguiEndFrame();
-		imguiRenderGLDraw();		
-		
+		ImGui::EndFrame();
+
+		ImGui::Render();
 		glEnable(GL_DEPTH_TEST);
+
+		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 		SDL_GL_SwapWindow(window);
-		
 	}
 	
-	imguiRenderGLDestroy();
-	
+	imgui_shutdown();
 	SDL_Quit();
 	
 	delete editor;

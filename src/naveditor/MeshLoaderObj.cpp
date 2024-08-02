@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "NavEditor/Include/MeshLoaderObj.h"
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
@@ -48,18 +47,11 @@ void rcMeshLoaderObj::addVertex(float x, float y, float z, int& cap)
 		m_verts = nv;
 	}
 	float* dst = &m_verts[m_vertCount*3];
-	if (m_flipAxis)
-	{
-		*dst++ = x * m_scale;
-		*dst++ = z * m_scale;
-		*dst++ = -y * m_scale;
-	}
-	else
-	{
-		*dst++ = x * m_scale;
-		*dst++ = y * m_scale;
-		*dst++ = z * m_scale;
-	}
+
+	*dst++ = x * m_scale;
+	*dst++ = y * m_scale;
+	*dst++ = z * m_scale;
+
 	m_vertCount++;
 }
 
@@ -211,10 +203,8 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 				const int c = face[i];
 				if (a < 0 || a >= m_vertCount || b < 0 || b >= m_vertCount || c < 0 || c >= m_vertCount)
 					continue;
-				if(m_flipTris)
-					addTriangle(a, c, b, tcap);
-				else
-					addTriangle(a, b, c, tcap);
+
+				addTriangle(a, b, c, tcap);
 			}
 		}
 	}

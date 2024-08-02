@@ -16,20 +16,15 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <string.h>
-#include <float.h>
-#include <stdlib.h>
-#include <new>
 #include "DetourCrowd\Include\DetourCrowd.h"
 #include "DetourCrowd\Include\DetourCrowdInternal.h"
 #include "DetourCrowd\Include\DetourObstacleAvoidance.h"
 #include "Detour\Include\DetourNavMesh.h"
 #include "Detour\Include\DetourNavMeshQuery.h"
-#include "Detour\Include\DetourCommon.h"
-#include "Detour\Include\DetourMath.h"
-#include "Detour\Include\DetourAssert.h"
-#include "Detour\Include\DetourAlloc.h"
+#include "Shared\Include\SharedCommon.h"
+#include "Shared\Include\SharedMath.h"
+#include "Shared\Include\SharedAssert.h"
+#include "Shared\Include\SharedAlloc.h"
 
 
 void integrate(dtCrowdAgent* ag, const float dt)
@@ -37,17 +32,17 @@ void integrate(dtCrowdAgent* ag, const float dt)
 	// Fake dynamic constraint.
 	const float maxDelta = ag->params.maxAcceleration * dt;
 	float dv[3];
-	dtVsub(dv, ag->nvel, ag->vel);
-	float ds = dtVlen(dv);
+	rdVsub(dv, ag->nvel, ag->vel);
+	float ds = rdVlen(dv);
 	if (ds > maxDelta)
-		dtVscale(dv, dv, maxDelta/ds);
-	dtVadd(ag->vel, ag->vel, dv);
+		rdVscale(dv, dv, maxDelta/ds);
+	rdVadd(ag->vel, ag->vel, dv);
 	
 	// Integrate
-	if (dtVlen(ag->vel) > 0.0001f)
-		dtVmad(ag->npos, ag->npos, ag->vel, dt);
+	if (rdVlen(ag->vel) > 0.0001f)
+		rdVmad(ag->npos, ag->npos, ag->vel, dt);
 	else
-		dtVset(ag->vel,0,0,0);
+		rdVset(ag->vel,0,0,0);
 }
 
 bool overOffmeshConnection(const dtCrowdAgent* ag, const float radius)
@@ -58,7 +53,7 @@ bool overOffmeshConnection(const dtCrowdAgent* ag, const float radius)
 	const bool offMeshConnection = (ag->cornerFlags[ag->ncorners-1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
 	if (offMeshConnection)
 	{
-		const float distSq = dtVdist2DSqr(ag->npos, &ag->cornerVerts[(ag->ncorners-1)*3]);
+		const float distSq = rdVdist2DSqr(ag->npos, &ag->cornerVerts[(ag->ncorners-1)*3]);
 		if (distSq < radius*radius)
 			return true;
 	}
@@ -73,7 +68,7 @@ float getDistanceToGoal(const dtCrowdAgent* ag, const float range)
 	
 	const bool endOfPath = (ag->cornerFlags[ag->ncorners-1] & DT_STRAIGHTPATH_END) ? true : false;
 	if (endOfPath)
-		return dtMin(dtVdist2D(ag->npos, &ag->cornerVerts[(ag->ncorners-1)*3]), range);
+		return rdMin(rdVdist2D(ag->npos, &ag->cornerVerts[(ag->ncorners-1)*3]), range);
 	
 	return range;
 }
@@ -82,43 +77,43 @@ void calcSmoothSteerDirection(const dtCrowdAgent* ag, float* dir)
 {
 	if (!ag->ncorners)
 	{
-		dtVset(dir, 0,0,0);
+		rdVset(dir, 0,0,0);
 		return;
 	}
 	
 	const int ip0 = 0;
-	const int ip1 = dtMin(1, ag->ncorners-1);
+	const int ip1 = rdMin(1, ag->ncorners-1);
 	const float* p0 = &ag->cornerVerts[ip0*3];
 	const float* p1 = &ag->cornerVerts[ip1*3];
 	
 	float dir0[3], dir1[3];
-	dtVsub(dir0, p0, ag->npos);
-	dtVsub(dir1, p1, ag->npos);
+	rdVsub(dir0, p0, ag->npos);
+	rdVsub(dir1, p1, ag->npos);
 	dir0[2] = 0;
 	dir1[2] = 0;
 	
-	float len0 = dtVlen(dir0);
-	float len1 = dtVlen(dir1);
+	float len0 = rdVlen(dir0);
+	float len1 = rdVlen(dir1);
 	if (len1 > 0.001f)
-		dtVscale(dir1,dir1,1.0f/len1);
+		rdVscale(dir1,dir1,1.0f/len1);
 	
 	dir[0] = dir0[0] - dir1[0]*len0*0.5f;
 	dir[1] = dir0[1] - dir1[1]*len0*0.5f;
 	dir[2] = 0;
 	
-	dtVnormalize(dir);
+	rdVnormalize(dir);
 }
 
 void calcStraightSteerDirection(const dtCrowdAgent* ag, float* dir)
 {
 	if (!ag->ncorners)
 	{
-		dtVset(dir, 0,0,0);
+		rdVset(dir, 0,0,0);
 		return;
 	}
-	dtVsub(dir, &ag->cornerVerts[0], ag->npos);
+	rdVsub(dir, &ag->cornerVerts[0], ag->npos);
 	dir[2] = 0;
-	dtVnormalize(dir);
+	rdVnormalize(dir);
 }
 
 int addNeighbour(const int idx, const float dist,
@@ -144,9 +139,9 @@ int addNeighbour(const int idx, const float dist,
 				break;
 		
 		const int tgt = i+1;
-		const int n = dtMin(nneis-i, maxNeis-tgt);
+		const int n = rdMin(nneis-i, maxNeis-tgt);
 		
-		dtAssert(tgt+n <= maxNeis);
+		rdAssert(tgt+n <= maxNeis);
 		
 		if (n > 0)
 			memmove(&neis[tgt], &neis[i], sizeof(dtCrowdNeighbour)*n);
@@ -158,7 +153,7 @@ int addNeighbour(const int idx, const float dist,
 	nei->idx = idx;
 	nei->dist = dist;
 	
-	return dtMin(nneis+1, maxNeis);
+	return rdMin(nneis+1, maxNeis);
 }
 
 int getNeighbours(const float* pos, const float height, const float range,
@@ -181,12 +176,12 @@ int getNeighbours(const float* pos, const float height, const float range,
 		
 		// Check for overlap.
 		float diff[3];
-		dtVsub(diff, pos, ag->npos);
-		if (dtMathFabsf(diff[2]) >= (height+ag->params.height)/2.0f)
+		rdVsub(diff, pos, ag->npos);
+		if (rdMathFabsf(diff[2]) >= (height+ag->params.height)/2.0f)
 			continue;
 		diff[2] = 0;
-		const float distSqr = dtVlenSqr(diff);
-		if (distSqr > dtSqr(range))
+		const float distSqr = rdVlenSqr(diff);
+		if (distSqr > rdSqr(range))
 			continue;
 		
 		n = addNeighbour(ids[i], distSqr, result, n, maxResult);
@@ -216,9 +211,9 @@ int addToOptQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents,
 				break;
 		
 		const int tgt = i+1;
-		const int n = dtMin(nagents-i, maxAgents-tgt);
+		const int n = rdMin(nagents-i, maxAgents-tgt);
 		
-		dtAssert(tgt+n <= maxAgents);
+		rdAssert(tgt+n <= maxAgents);
 		
 		if (n > 0)
 			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);
@@ -227,7 +222,7 @@ int addToOptQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents,
 	
 	agents[slot] = newag;
 	
-	return dtMin(nagents+1, maxAgents);
+	return rdMin(nagents+1, maxAgents);
 }
 
 int addToPathQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents, const int maxAgents)
@@ -252,9 +247,9 @@ int addToPathQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents
 				break;
 		
 		const int tgt = i+1;
-		const int n = dtMin(nagents-i, maxAgents-tgt);
+		const int n = rdMin(nagents-i, maxAgents-tgt);
 		
-		dtAssert(tgt+n <= maxAgents);
+		rdAssert(tgt+n <= maxAgents);
 		
 		if (n > 0)
 			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);
@@ -263,5 +258,5 @@ int addToPathQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents
 	
 	agents[slot] = newag;
 	
-	return dtMin(nagents+1, maxAgents);
+	return rdMin(nagents+1, maxAgents);
 }

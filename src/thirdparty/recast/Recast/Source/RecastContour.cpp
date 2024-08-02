@@ -16,13 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 
 
 static int getCornerHeight(int x, int y, int i, int dir,
@@ -45,7 +41,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ay = y + rcGetDirOffsetY(dir);
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
 		const rcCompactSpan& as = chf.spans[ai];
-		ch = rcMax(ch, (int)as.z);
+		ch = rdMax(ch, (int)as.z);
 		regs[1] = chf.spans[ai].reg | (chf.areas[ai] << 16);
 		if (rcGetCon(as, dirp) != RC_NOT_CONNECTED)
 		{
@@ -53,7 +49,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			const int ay2 = ay + rcGetDirOffsetY(dirp);
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dirp);
 			const rcCompactSpan& as2 = chf.spans[ai2];
-			ch = rcMax(ch, (int)as2.z);
+			ch = rdMax(ch, (int)as2.z);
 			regs[2] = chf.spans[ai2].reg | (chf.areas[ai2] << 16);
 		}
 	}
@@ -63,7 +59,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ay = y + rcGetDirOffsetY(dirp);
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dirp);
 		const rcCompactSpan& as = chf.spans[ai];
-		ch = rcMax(ch, (int)as.z);
+		ch = rdMax(ch, (int)as.z);
 		regs[3] = chf.spans[ai].reg | (chf.areas[ai] << 16);
 		if (rcGetCon(as, dir) != RC_NOT_CONNECTED)
 		{
@@ -71,7 +67,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			const int ay2 = ay + rcGetDirOffsetY(dir);
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dir);
 			const rcCompactSpan& as2 = chf.spans[ai2];
-			ch = rcMax(ch, (int)as2.z);
+			ch = rdMax(ch, (int)as2.z);
 			regs[2] = chf.spans[ai2].reg | (chf.areas[ai2] << 16);
 		}
 	}
@@ -101,8 +97,8 @@ static int getCornerHeight(int x, int y, int i, int dir,
 }
 
 static void walkContour(int x, int y, int i,
-						rcCompactHeightfield& chf,
-						unsigned char* flags, rcIntArray& points)
+						const rcCompactHeightfield& chf,
+						unsigned char* flags, rdIntArray& points)
 {
 	// Choose the first non-connected edge
 	unsigned char dir = 0;
@@ -183,16 +179,16 @@ static void walkContour(int x, int y, int i,
 	}
 }
 
-static float distancePtSeg(const int x, const int z,
-						   const int px, const int pz,
-						   const int qx, const int qz)
+static float distancePtSeg(const int x, const int y,
+						   const int px, const int py,
+						   const int qx, const int qy)
 {
 	float pqx = (float)(qx - px);
-	float pqz = (float)(qz - pz);
+	float pqy = (float)(qy - py);
 	float dx = (float)(x - px);
-	float dz = (float)(z - pz);
-	float d = pqx*pqx + pqz*pqz;
-	float t = pqx*dx + pqz*dz;
+	float dy = (float)(y - py);
+	float d = pqx*pqx + pqy*pqy;
+	float t = pqx*dx + pqy*dy;
 	if (d > 0)
 		t /= d;
 	if (t < 0)
@@ -201,12 +197,12 @@ static float distancePtSeg(const int x, const int z,
 		t = 1;
 	
 	dx = px + t*pqx - x;
-	dz = pz + t*pqz - z;
+	dy = py + t*pqy - y;
 	
-	return dx*dx + dz*dz;
+	return dx*dx + dy*dy;
 }
 
-static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
+static void simplifyContour(rdIntArray& points, rdIntArray& simplified,
 							const float maxError, const int maxEdgeLen, const int buildFlags)
 {
 	// Add initial points.
@@ -317,8 +313,8 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 			cinc = pn-1;
 			ci = (bi+cinc) % pn;
 			endi = ai;
-			rcSwap(ax, bx);
-			rcSwap(ay, by);
+			rdSwap(ax, bx);
+			rdSwap(ay, by);
 		}
 		
 		// Tessellate only outer edges or edges between areas.
@@ -395,11 +391,11 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 			if (tess)
 			{
 				int dx = bx - ax;
-				int dz = by - ay;
-				if (dx*dx + dz*dz > maxEdgeLen*maxEdgeLen)
+				int dy = by - ay;
+				if (dx*dx + dy*dy > maxEdgeLen*maxEdgeLen)
 				{
 					// Round based on the segments in lexilogical order so that the
-					// max tesselation is consistent regardles in which direction
+					// max tessellation is consistent regardless in which direction
 					// segments are traversed.
 					const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
 					if (n > 1)
@@ -481,7 +477,7 @@ inline bool xorb(bool x, bool y)
 	return !x ^ !y;
 }
 
-// Returns true iff c is strictly to the left of the directed
+// Returns true if c is strictly to the left of the directed
 // line through a to b.
 inline bool left(const int* a, const int* b, const int* c)
 {
@@ -498,7 +494,7 @@ inline bool collinear(const int* a, const int* b, const int* c)
 	return area2(a, b, c) == 0;
 }
 
-//	Returns true iff ab properly intersects cd: they share
+//	Returns true if ab properly intersects cd: they share
 //	a point interior to both segments.  The properness of the
 //	intersection is ensured by using strict leftness.
 static bool intersectProp(const int* a, const int* b, const int* c, const int* d)
@@ -511,8 +507,8 @@ static bool intersectProp(const int* a, const int* b, const int* c, const int* d
 	return xorb(left(a,b,c), left(a,b,d)) && xorb(left(c,d,a), left(c,d,b));
 }
 
-// Returns T iff (a,b,c) are collinear and point c lies
-// on the closed segement ab.
+// Returns T if (a,b,c) are collinear and point c lies
+// on the closed segment ab.
 static bool between(const int* a, const int* b, const int* c)
 {
 	if (!collinear(a, b, c))
@@ -524,7 +520,7 @@ static bool between(const int* a, const int* b, const int* c)
 		return	((a[1] <= c[1]) && (c[1] <= b[1])) || ((a[1] >= c[1]) && (c[1] >= b[1]));
 }
 
-// Returns true iff segments ab and cd intersect, properly or improperly.
+// Returns true if segments ab and cd intersect, properly or improperly.
 static bool intersect(const int* a, const int* b, const int* c, const int* d)
 {
 	if (intersectProp(a, b, c, d))
@@ -541,7 +537,7 @@ static bool vequal(const int* a, const int* b)
 	return a[0] == b[0] && a[1] == b[1];
 }
 
-static bool intersectSegCountour(const int* d0, const int* d1, int i, int n, const int* verts)
+static bool intersectSegContour(const int* d0, const int* d1, int i, int n, const int* verts)
 {
 	// For each edge (k,k+1) of P
 	for (int k = 0; k < n; k++)
@@ -576,7 +572,7 @@ static bool	inCone(int i, int n, const int* verts, const int* pj)
 }
 
 
-static void removeDegenerateSegments(rcIntArray& simplified)
+static void removeDegenerateSegments(rdIntArray& simplified)
 {
 	// Remove adjacent vertices which are equal on xy-plane,
 	// or else the triangulator will get confused.
@@ -605,7 +601,7 @@ static void removeDegenerateSegments(rcIntArray& simplified)
 static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 {
 	const int maxVerts = ca.nverts + cb.nverts + 2;
-	int* verts = (int*)rcAlloc(sizeof(int)*maxVerts*4, RC_ALLOC_PERM);
+	int* verts = (int*)rdAlloc(sizeof(int)*maxVerts*4, RD_ALLOC_PERM);
 	if (!verts)
 		return false;
 	
@@ -635,11 +631,11 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 		nv++;
 	}
 	
-	rcFree(ca.verts);
+	rdFree(ca.verts);
 	ca.verts = verts;
 	ca.nverts = nv;
 	
-	rcFree(cb.verts);
+	rdFree(cb.verts);
 	cb.verts = 0;
 	cb.nverts = 0;
 	
@@ -730,7 +726,7 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 	for (int i = 0; i < region.nholes; i++)
 		maxVerts += region.holes[i].contour->nverts;
 	
-	rcScopedDelete<rcPotentialDiagonal> diags((rcPotentialDiagonal*)rcAlloc(sizeof(rcPotentialDiagonal)*maxVerts, RC_ALLOC_TEMP));
+	rdScopedDelete<rcPotentialDiagonal> diags((rcPotentialDiagonal*)rdAlloc(sizeof(rcPotentialDiagonal)*maxVerts, RD_ALLOC_TEMP));
 	if (!diags)
 	{
 		ctx->log(RC_LOG_WARNING, "mergeRegionHoles: Failed to allocated diags %d.", maxVerts);
@@ -749,7 +745,7 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 		for (int iter = 0; iter < hole->nverts; iter++)
 		{
 			// Find potential diagonals.
-			// The 'best' vertex must be in the cone described by 3 cosequtive vertices of the outline.
+			// The 'best' vertex must be in the cone described by 3 consecutive vertices of the outline.
 			// ..o j-1
 			//   |
 			//   |   * best
@@ -777,9 +773,9 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 			for (int j = 0; j < ndiags; j++)
 			{
 				const int* pt = &outline->verts[diags[j].vert*4];
-				bool intersect = intersectSegCountour(pt, corner, diags[j].vert, outline->nverts, outline->verts);
+				bool intersect = intersectSegContour(pt, corner, diags[j].vert, outline->nverts, outline->verts);
 				for (int k = i; k < region.nholes && !intersect; k++)
-					intersect |= intersectSegCountour(pt, corner, -1, region.holes[k].contour->nverts, region.holes[k].contour->verts);
+					intersect |= intersectSegContour(pt, corner, -1, region.holes[k].contour->nverts, region.holes[k].contour->verts);
 				if (!intersect)
 				{
 					index = diags[j].vert;
@@ -820,11 +816,11 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 /// See the #rcConfig documentation for more information on the configuration parameters.
 ///
 /// @see rcAllocContourSet, rcCompactHeightfield, rcContourSet, rcConfig
-bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
+bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
 					 rcContourSet& cset, const int buildFlags)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	const int w = chf.width;
 	const int h = chf.height;
@@ -832,8 +828,8 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_CONTOURS);
 	
-	rcVcopy(cset.bmin, chf.bmin);
-	rcVcopy(cset.bmax, chf.bmax);
+	rdVcopy(cset.bmin, chf.bmin);
+	rdVcopy(cset.bmax, chf.bmax);
 	if (borderSize > 0)
 	{
 		// If the heightfield was build with bordersize, remove the offset.
@@ -850,13 +846,13 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	cset.borderSize = chf.borderSize;
 	cset.maxError = maxError;
 	
-	int maxContours = rcMax((int)chf.maxRegions, 8);
-	cset.conts = (rcContour*)rcAlloc(sizeof(rcContour)*maxContours, RC_ALLOC_PERM);
+	int maxContours = rdMax((int)chf.maxRegions, 8);
+	cset.conts = (rcContour*)rdAlloc(sizeof(rcContour)*maxContours, RD_ALLOC_PERM);
 	if (!cset.conts)
 		return false;
 	cset.nconts = 0;
 	
-	rcScopedDelete<unsigned char> flags((unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP));
+	rdScopedDelete<unsigned char> flags((unsigned char*)rdAlloc(sizeof(unsigned char)*chf.spanCount, RD_ALLOC_TEMP));
 	if (!flags)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'flags' (%d).", chf.spanCount);
@@ -900,8 +896,8 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 	
-	rcIntArray verts(256);
-	rcIntArray simplified(64);
+	rdIntArray verts(256);
+	rdIntArray simplified(64);
 	
 	for (int y = 0; y < h; ++y)
 	{
@@ -943,7 +939,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 						// This happens when a region has holes.
 						const int oldMax = maxContours;
 						maxContours *= 2;
-						rcContour* newConts = (rcContour*)rcAlloc(sizeof(rcContour)*maxContours, RC_ALLOC_PERM);
+						rcContour* newConts = (rcContour*)rdAlloc(sizeof(rcContour)*maxContours, RD_ALLOC_PERM);
 						for (int j = 0; j < cset.nconts; ++j)
 						{
 							newConts[j] = cset.conts[j];
@@ -951,7 +947,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 							cset.conts[j].verts = 0;
 							cset.conts[j].rverts = 0;
 						}
-						rcFree(cset.conts);
+						rdFree(cset.conts);
 						cset.conts = newConts;
 						
 						ctx->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax, maxContours);
@@ -960,7 +956,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					rcContour* cont = &cset.conts[cset.nconts++];
 					
 					cont->nverts = simplified.size()/4;
-					cont->verts = (int*)rcAlloc(sizeof(int)*cont->nverts*4, RC_ALLOC_PERM);
+					cont->verts = (int*)rdAlloc(sizeof(int)*cont->nverts*4, RD_ALLOC_PERM);
 					if (!cont->verts)
 					{
 						ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'verts' (%d).", cont->nverts);
@@ -979,7 +975,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					}
 					
 					cont->nrverts = verts.size()/4;
-					cont->rverts = (int*)rcAlloc(sizeof(int)*cont->nrverts*4, RC_ALLOC_PERM);
+					cont->rverts = (int*)rdAlloc(sizeof(int)*cont->nrverts*4, RD_ALLOC_PERM);
 					if (!cont->rverts)
 					{
 						ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'rverts' (%d).", cont->nrverts);
@@ -1008,7 +1004,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	if (cset.nconts > 0)
 	{
 		// Calculate winding of all polygons.
-		rcScopedDelete<signed char> winding((signed char*)rcAlloc(sizeof(signed char)*cset.nconts, RC_ALLOC_TEMP));
+		rdScopedDelete<signed char> winding((signed char*)rdAlloc(sizeof(signed char)*cset.nconts, RD_ALLOC_TEMP));
 		if (!winding)
 		{
 			ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'hole' (%d).", cset.nconts);
@@ -1029,7 +1025,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 			// Collect outline contour and holes contours per region.
 			// We assume that there is one outline and multiple holes.
 			const int nregions = chf.maxRegions+1;
-			rcScopedDelete<rcContourRegion> regions((rcContourRegion*)rcAlloc(sizeof(rcContourRegion)*nregions, RC_ALLOC_TEMP));
+			rdScopedDelete<rcContourRegion> regions((rcContourRegion*)rdAlloc(sizeof(rcContourRegion)*nregions, RD_ALLOC_TEMP));
 			if (!regions)
 			{
 				ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'regions' (%d).", nregions);
@@ -1037,7 +1033,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 			}
 			memset(regions, 0, sizeof(rcContourRegion)*nregions);
 			
-			rcScopedDelete<rcContourHole> holes((rcContourHole*)rcAlloc(sizeof(rcContourHole)*cset.nconts, RC_ALLOC_TEMP));
+			rdScopedDelete<rcContourHole> holes((rcContourHole*)rdAlloc(sizeof(rcContourHole)*cset.nconts, RD_ALLOC_TEMP));
 			if (!holes)
 			{
 				ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'holes' (%d).", cset.nconts);
@@ -1091,7 +1087,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 				else
 				{
 					// The region does not have an outline.
-					// This can happen if the contour becaomes selfoverlapping because of
+					// This can happen if the contour becomes selfoverlapping because of
 					// too aggressive simplification settings.
 					ctx->log(RC_LOG_ERROR, "rcBuildContours: Bad outline for region %d, contour simplification is likely too aggressive.", i);
 				}

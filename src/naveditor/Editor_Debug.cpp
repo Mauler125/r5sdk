@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
@@ -79,7 +78,7 @@ Editor_Debug::Editor_Debug() :
 		int maxSpans = 0;
 		for (int i = 0; i < m_chf->width*m_chf->height; ++i)
 		{
-			maxSpans = rcMax(maxSpans, (int)m_chf->cells[i].count);
+			maxSpans = rdMax(maxSpans, (int)m_chf->cells[i].count);
 		}
 		printf("maxSpans = %d\n", maxSpans);
 	}*/
@@ -184,31 +183,31 @@ void Editor_Debug::handleRender()
 {
 	if (m_chf)
 	{
-		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
-//		duDebugDrawCompactHeightfieldSolid(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf, m_recastDrawOffset);
+//		duDebugDrawCompactHeightfieldSolid(&dd, *m_chf, m_recastRenderOffset);
 	}
 		
 	if (m_navMesh)
-		duDebugDrawNavMesh(&m_dd, *m_navMesh, DU_DRAWNAVMESH_OFFMESHCONS);
+		duDebugDrawNavMesh(&m_dd, *m_navMesh, m_detourDrawOffset, DU_DRAWNAVMESH_OFFMESHCONS);
 
 	if (m_ref && m_navMesh)
-		duDebugDrawNavMeshPoly(&m_dd, *m_navMesh, m_ref, duRGBA(255,0,0,128));
+		duDebugDrawNavMeshPoly(&m_dd, *m_navMesh, m_ref, m_detourDrawOffset, m_navMeshDrawFlags, duRGBA(255,0,0,128));
 
 /*	float bmin[3], bmax[3];
-	rcVsub(bmin, m_center, m_halfExtents);
-	rcVadd(bmax, m_center, m_halfExtents);
+	rdVsub(bmin, m_center, m_halfExtents);
+	rdVadd(bmax, m_center, m_halfExtents);
 	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 	duDebugDrawCross(&dd, m_center[0], m_center[1], m_center[2], 1.0f, duRGBA(255,255,255,128), 2.0f);*/
 
 	if (m_cset)
 	{
-		duDebugDrawRawContours(&m_dd, *m_cset, 0.25f);
-		duDebugDrawContours(&m_dd, *m_cset);
+		duDebugDrawRawContours(&m_dd, *m_cset, m_recastDrawOffset, 0.25f);
+		duDebugDrawContours(&m_dd, *m_cset, m_recastDrawOffset);
 	}
 	
 	if (m_pmesh)
 	{
-		duDebugDrawPolyMesh(&m_dd, *m_pmesh);
+		duDebugDrawPolyMesh(&m_dd, *m_pmesh, m_recastDrawOffset);
 	}
 	
 	/*

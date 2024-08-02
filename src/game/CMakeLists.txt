@@ -14,12 +14,12 @@ add_sources( SOURCE_GROUP "AI"
 
 add_sources( SOURCE_GROUP "Entity"
     "shared/ehandle.h"
-    "shared/entitylist_base.cpp"
-    "shared/entitylist_base.h"
 )
 
-add_sources( SOURCE_GROUP "Prediction"
+add_sources( SOURCE_GROUP "Simulation"
     "shared/predictioncopy.h"
+    "shared/simtimer.cpp"
+    "shared/simtimer.h"
 )
 
 add_sources( SOURCE_GROUP "Animation"
@@ -27,16 +27,31 @@ add_sources( SOURCE_GROUP "Animation"
     "shared/animation.h"
 )
 
-add_sources( SOURCE_GROUP "Collision"
+add_sources( SOURCE_GROUP "Effects"
+    "shared/status_effect.h"
+    "shared/particleproperty.h"
+    "shared/particle_parse.h"
+)
+
+add_sources( SOURCE_GROUP "Physics"
     "shared/collisionproperty.cpp"
     "shared/collisionproperty.h"
 )
 
+add_sources( SOURCE_GROUP "Player"
+    "shared/player_viewoffset.h"
+    "shared/player_melee.h"
+)
+
 add_sources( SOURCE_GROUP "Network"
     "shared/playernet_vars.h"
+    "shared/usermessages.h"
+)
+
+add_sources( SOURCE_GROUP "Input"
     "shared/usercmd.cpp"
     "shared/usercmd.h"
-    "shared/usermessages.h"
+    "shared/pingcmd.h"
 )
 
 add_sources( SOURCE_GROUP "Utility"
@@ -49,6 +64,7 @@ add_sources( SOURCE_GROUP "Shared"
     "shared/shared_classnames.h"
     "shared/shareddefs.h"
     "shared/takedamageinfo.h"
+    "shared/shared_activity.h"
 )
 
 add_sources( SOURCE_GROUP "Script"
@@ -57,8 +73,11 @@ add_sources( SOURCE_GROUP "Script"
 )
 
 add_sources( SOURCE_GROUP "Weapon"
+    "shared/r1/weapon_playerdata.h"
     "shared/r1/weapon_bolt.cpp"
     "shared/r1/weapon_bolt.h"
+    "shared/r1/grapple.h"
+    "shared/r1/smartammo.h"
 )
 
 endif()
@@ -66,6 +85,8 @@ endif()
 if( ${PROJECT_NAME} STREQUAL "server_static" )
 
 add_sources( SOURCE_GROUP "AI"
+    "server/ai_basenpc.cpp"
+    "server/ai_basenpc.h"
     "server/ai_network.cpp"
     "server/ai_network.h"
     "server/ai_networkmanager.cpp"
@@ -73,6 +94,32 @@ add_sources( SOURCE_GROUP "AI"
     "server/ai_node.h"
     "server/ai_utility.cpp"
     "server/ai_utility.h"
+    "server/ai_task.cpp"
+    "server/ai_task.h"
+    "server/ai_schedule.cpp"
+    "server/ai_schedule.h"
+    "server/ai_component.h"
+    "server/ai_senses.h"
+    "server/ai_localnavigator.h"
+    "server/ai_navigator.h"
+    "server/ai_navtypes.h"
+    "server/ai_movetypes.h"
+    "server/ai_moveprobe.h"
+    "server/ai_motor.h"
+    "server/ai_route.h"
+    "server/ai_interest.cpp"
+    "server/ai_interest.h"
+    "server/ai_waypoint.h"
+    "server/ai_pathfinder.h"
+    "server/ai_memory.h"
+    "server/ai_squad.h"
+    "server/ai_tacticalservices.h"
+    "server/ai_moveshoot.h"
+    "server/ai_battlelocation.h"
+    "server/ai_syncedmelee.h"
+    "server/ai_shootcover.h"
+    "server/ai_hint.h"
+    "server/ai_npcstate.h"
     "server/detour_impl.h"
 )
 
@@ -87,6 +134,9 @@ add_sources( SOURCE_GROUP "Entity"
     "server/entitylist.h"
     "server/entityoutput.cpp"
     "server/entityoutput.h"
+    "server/soundent.cpp"
+    "server/soundent.h"
+    "server/entitylist_serverbase.h"
 )
 
 add_sources( SOURCE_GROUP "Network"
@@ -100,6 +150,10 @@ add_sources( SOURCE_GROUP "Player"
     "server/player_command.cpp"
     "server/player_command.h"
     "server/playerlocaldata.h"
+)
+
+add_sources( SOURCE_GROUP "Weapon"
+    "server/r1/weapon_x.h"
 )
 
 add_sources( SOURCE_GROUP "Script"
@@ -139,6 +193,12 @@ add_sources( SOURCE_GROUP "Public"
     "${ENGINE_SOURCE_DIR}/public/iserverunknown.h"
 )
 
+add_sources( SOURCE_GROUP "Public/AI"
+    "${ENGINE_SOURCE_DIR}/public/game/server/ai_agent.h"
+    "${ENGINE_SOURCE_DIR}/public/game/server/ai_hull.h"
+    "${ENGINE_SOURCE_DIR}/public/game/server/ai_navmesh.h"
+)
+
 endif()
 
 if( ${PROJECT_NAME} STREQUAL "client_static" )
@@ -146,16 +206,27 @@ if( ${PROJECT_NAME} STREQUAL "client_static" )
 add_sources( SOURCE_GROUP "Entity"
     "client/c_baseentity.cpp"
     "client/c_baseentity.h"
+    "client/c_baseanimating.h"
+    "client/c_baseanimatingoverlay.h"
+    "client/c_basecombatcharacter.h"
+    "client/cliententitylist.cpp"
     "client/cliententitylist.h"
+    "client/entitylist_clientbase.h"
+    "client/icliententityinternal.h"
 )
 
 add_sources( SOURCE_GROUP "Player"
     "client/c_baseplayer.h"
+    "client/c_playerlocaldata.h"
 )
 
 add_sources( SOURCE_GROUP "Input"
+    "client/in_main.cpp"
     "client/input.cpp"
     "client/input.h"
+    "client/gamepad.cpp"
+    "client/gamepad.h"
+    "client/kbutton.h"
 )
 
 add_sources( SOURCE_GROUP "Rendering"
@@ -164,6 +235,10 @@ add_sources( SOURCE_GROUP "Rendering"
     "client/spritemodel.cpp"
     "client/viewrender.cpp"
     "client/viewrender.h"
+)
+
+add_sources( SOURCE_GROUP "Animation"
+    "client/animationlayer.h"
 )
 
 add_sources( SOURCE_GROUP "Utility"

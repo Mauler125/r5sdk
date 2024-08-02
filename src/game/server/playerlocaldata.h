@@ -1,4 +1,4 @@
-﻿//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
+﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -19,7 +19,7 @@
 //-----------------------------------------------------------------------------
 class CPlayerLocalData
 {
-	char gap_0[8];
+	void* __vftable;
 	int m_iHideHUD;
 	Vector3D m_vecOverViewpoint;
 	bool m_duckToggleOn;
@@ -52,7 +52,7 @@ class CPlayerLocalData
 	float m_airSlowMoFrac;
 	int predictableFlags;
 	int m_bitsActiveDevices;
-	int m_hSkyCamera;
+	EHANDLE m_hSkyCamera;
 	sky3dparams_t m_skybox3d;
 	CFogParams m_fog;
 	audioparams_t m_audio;
@@ -68,7 +68,7 @@ class CPlayerLocalData
 	float m_meleePressTime;
 	int m_meleeDisabledCounter;
 	int m_meleeInputIndex;
-	int lastAttacker;
+	EHANDLE lastAttacker;
 	int attackedCount;
 	int m_trackedChildProjectileCount;
 	bool m_oneHandedWeaponUsage;
@@ -80,7 +80,7 @@ class CPlayerLocalData
 	float m_hotDropImpactTime;
 	float m_outOfBoundsDeadTime;
 	int m_objectiveIndex;
-	int m_objectiveEntity;
+	EHANDLE m_objectiveEntity;
 	float m_objectiveEndTime;
 	int m_cinematicEventFlags;
 	bool m_forcedDialogueOnly;
@@ -120,9 +120,9 @@ class CPlayerLocalData
 	Vector3D m_playerLocalGravityPoint;
 	Vector3D m_playerLocalGravityLineStart;
 	Vector3D m_playerLocalGravityLineEnd;
-	int m_playerLocalGravityEntity;
-	int m_playerLocalGravityLineStartEntity;
-	int m_playerLocalGravityLineEndEntity;
+	EHANDLE m_playerLocalGravityEntity;
+	EHANDLE m_playerLocalGravityLineStartEntity;
+	EHANDLE m_playerLocalGravityLineEndEntity;
 	float m_playerFloatLookStartTime;
 	float m_playerFloatLookEndTime;
 	float m_wallrunLatestFloorHeight;

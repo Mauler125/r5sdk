@@ -37,7 +37,7 @@ class dtQueryFilter
 	float m_areaCost[DT_MAX_AREAS];		///< Cost per area type. (Used by default implementation.)
 	unsigned short m_includeFlags;		///< Flags for polygons that can be visited. (Used by default implementation.)
 	unsigned short m_excludeFlags;		///< Flags for polygons that should not be visited. (Used by default implementation.)
-	unsigned short m_unknownFlags;		///< Unknown.
+	unsigned int m_traverseFlags;		///< Flags for links dictating which traverse types are allowed to be used. (See [r5apex_ds + CA6FE9.])
 	
 public:
 	dtQueryFilter();
@@ -143,8 +143,32 @@ struct dtRaycastHit
 	/// The maximum number of polygons the @p path array can hold.
 	int maxPath;
 
-	///  The cost of the path until hit.
+	/// The cost of the path until hit.
 	float pathCost;
+};
+
+/// Provides information about straight path generation
+/// filled by dtNavMeshQuery::findStraightPath
+/// @ingroup detour
+struct dtStraightPathResult
+{
+	/// The number of points in the straight path.
+	int pathCount;
+
+	/// The points describing the straight path.
+	float path[3][DT_STRAIGHT_PATH_RESOLUTION];
+
+	/// The array of polygon references that represent the path corridor.
+	dtPolyRef polys[DT_STRAIGHT_PATH_RESOLUTION];
+
+	/// The jumps describing each point.
+	unsigned char jumps[DT_STRAIGHT_PATH_RESOLUTION];
+
+	/// The flags describing each point.
+	unsigned char flags[DT_STRAIGHT_PATH_RESOLUTION];
+
+	/// Whether the end of the path is the goal destination.
+	bool pathEndIsGoal;
 };
 
 /// Provides custom polygon query behavior.
@@ -223,26 +247,27 @@ public:
 	///  @param[in]		endRef		The reference id of the end polygon.
 	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
 	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]
-	///  @param[in]		filter		The polygon filter to apply to the query.
 	///  @param[in]		options		query options (see: #dtFindPathOptions)
 	/// @returns The status flags for the query.
 	dtStatus initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
 								const float* startPos, const float* endPos,
-								const dtQueryFilter* filter, const unsigned int options = 0);
+								const unsigned int options = 0);
 
 	/// Updates an in-progress sliced path query.
 	///  @param[in]		maxIter		The maximum number of iterations to perform.
 	///  @param[out]	doneIters	The actual number of iterations completed. [opt]
+	///  @param[in]		filter		The polygon filter to apply to the query.
 	/// @returns The status flags for the query.
-	dtStatus updateSlicedFindPath(const int maxIter, int* doneIters);
+	dtStatus updateSlicedFindPath(const int maxIter, int* doneIters, const dtQueryFilter* filter);
 
 	/// Finalizes and returns the results of a sliced path query.
 	///  @param[out]	path		An ordered list of polygon references representing the path. (Start to end.) 
 	///  							[(polyRef) * @p pathCount]
 	///  @param[out]	pathCount	The number of polygons returned in the @p path array.
 	///  @param[in]		maxPath		The max number of polygons the path array can hold. [Limit: >= 1]
+	///  @param[in]		filter		The polygon filter to apply to the query.
 	/// @returns The status flags for the query.
-	dtStatus finalizeSlicedFindPath(dtPolyRef* path, int* pathCount, const int maxPath);
+	dtStatus finalizeSlicedFindPath(dtPolyRef* path, int* pathCount, const int maxPath, const dtQueryFilter* filter);
 	
 	/// Finalizes and returns the results of an incomplete sliced path query, returning the path to the furthest
 	/// polygon on the existing path that was visited during the search.
@@ -252,9 +277,11 @@ public:
 	///  								[(polyRef) * @p pathCount]
 	///  @param[out]	pathCount		The number of polygons returned in the @p path array.
 	///  @param[in]		maxPath			The max number of polygons the @p path array can hold. [Limit: >= 1]
+	///  @param[in]		filter		The polygon filter to apply to the query.
 	/// @returns The status flags for the query.
 	dtStatus finalizeSlicedFindPathPartial(const dtPolyRef* existing, const int existingSize,
-										   dtPolyRef* path, int* pathCount, const int maxPath);
+										   dtPolyRef* path, int* pathCount, const int maxPath,
+										   const dtQueryFilter* filter);
 
 	///@}
 	/// @name Dijkstra Search Functions
@@ -502,6 +529,15 @@ public:
 	/// @name Miscellaneous Functions
 	/// @{
 
+	/// Returns whether goal poly is reachable from start poly
+	///  @param[in]		fromRef		The reference to the start poly.
+	///  @param[in]		goalRef		The reference to the goal poly.
+	///  @param[in]		checkDisjointGroupsOnly	Whether to only check disjoint poly groups.
+	///  @param[in]		traversalTableIndex		Traversal table to use for checking if islands are linked together.
+	/// @return True if goal polygon is reachable from start polygon.
+	bool isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef,
+		const bool checkDisjointGroupsOnly, const int traversalTableIndex) const;
+
 	/// Returns true if the polygon reference is valid and passes the filter restrictions.
 	///  @param[in]		ref			The polygon reference to check.
 	///  @param[in]		filter		The filter to apply.
@@ -514,12 +550,31 @@ public:
 	
 	/// Gets the node pool.
 	/// @returns The node pool.
-	class dtNodePool* getNodePool() const { return m_query.m_nodePool; }
+	class dtNodePool* getNodePool() const { return m_nodePool; }
 	
 	/// Gets the navigation mesh the query object is using.
 	/// @return The navigation mesh the query object is using.
 	const dtNavMesh* getAttachedNavMesh() const { return m_nav; }
 
+	/// Returns edge mid point between two polygons.
+	///  @param[in]		from		The reference to the start poly.
+	///  @param[in]		to			The reference to the end poly.
+	///  @param[out]	mid			The mid point of the edge.
+	/// @returns The status flags for the query.
+	dtStatus getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
+
+	/// Returns edge mid point between two polygons.
+	///  @param[in]		from		The reference to the start poly.
+	///  @param[in]		fromPoly	The start poly.
+	///  @param[in]		fromTile	The start tile.
+	///  @param[in]		to			The reference to the end poly.
+	///  @param[in]		toPoly		The end poly.
+	///  @param[in]		toTile		The end tile.
+	///  @param[out]	mid			The mid point of the edge.
+	/// @returns The status flags for the query.
+	dtStatus getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
+							 float* mid) const;
 	/// @}
 	
 private:
@@ -537,13 +592,7 @@ private:
 	dtStatus getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
 							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 							 float* left, float* right) const;
-	
-	/// Returns edge mid point between two polygons.
-	dtStatus getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
-	dtStatus getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
-							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
-							 float* mid) const;
-	
+
 	// Appends vertex to a straight path
 	dtStatus appendVertex(const float* pos, const unsigned char flags, const dtPolyRef ref,
 						  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
@@ -568,14 +617,13 @@ private:
 		float startPos[3], endPos[3];
 		unsigned int options;
 		float raycastLimitSqr;
-
-		class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
-		class dtNodePool* m_nodePool;		///< Pointer to node pool.
-		class dtNodeQueue* m_openList;		///< Pointer to open list queue.
 	};
 
 	dtQueryData m_query;				///< Sliced query state.
-	const dtQueryFilter* m_queryFilter;	///< Pointer to query filter.
+	
+	class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
+	class dtNodePool* m_nodePool;		///< Pointer to node pool.
+	class dtNodeQueue* m_openList;		///< Pointer to open list queue.
 };
 
 /// Allocates a query object using the Detour allocator.

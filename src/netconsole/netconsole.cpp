@@ -384,7 +384,7 @@ bool CNetCon::Connect(const char* pHostName, const int nPort)
 		Msg(eDLL_T::CLIENT, "Attempting connection to '%s'\n", pHostName);
 	}
 
-	return CL_NetConConnect(this, pHostName, SOCKET_ERROR);
+	return NetconClient_Connect(this, pHostName, SOCKET_ERROR);
 }
 
 //-----------------------------------------------------------------------------
@@ -417,7 +417,7 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 {
 	netcon::response response;
 
-	if (!SH_NetConUnpackEnvelope(this, pMsgBuf, nMsgLen, &response, true))
+	if (!NetconShared_UnpackEnvelope(this, pMsgBuf, nMsgLen, &response, true))
 	{
 		Disconnect("received invalid message");
 		return false;
@@ -472,7 +472,7 @@ bool CNetCon::ProcessMessage(const char* pMsgBuf, const int nMsgLen)
 bool CNetCon::Serialize(vector<char>& vecBuf, const char* szReqBuf,
 	const char* szReqVal, const netcon::request_e requestType) const
 {
-	return CL_NetConSerialize(this, vecBuf, szReqBuf, szReqVal, requestType, m_bEncryptFrames, true);
+	return NetconClient_Serialize(this, vecBuf, szReqBuf, szReqVal, requestType, m_bEncryptFrames, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -481,7 +481,7 @@ bool CNetCon::Serialize(vector<char>& vecBuf, const char* szReqBuf,
 //-----------------------------------------------------------------------------
 SocketHandle_t CNetCon::GetSocket(void)
 {
-	return SH_GetNetConSocketHandle(this, 0);
+	return NetconShared_GetSocketHandle(this, 0);
 }
 
 //-----------------------------------------------------------------------------

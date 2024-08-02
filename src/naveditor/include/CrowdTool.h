@@ -25,11 +25,12 @@
 #include "NavEditor/Include/ValueHistory.h"
 #include "NavEditor/Include/Editor.h"
 
+#include "game/server/ai_navmesh.h"
+
 // Tool to create crowds.
 
 struct CrowdToolParams
 {
-	bool m_expandSelectedDebugDraw;
 	bool m_showCorners;
 	bool m_showCollisionSegments;
 	bool m_showPath;
@@ -37,24 +38,24 @@ struct CrowdToolParams
 	bool m_showOpt;
 	bool m_showNeis;
 	
-	bool m_expandDebugDraw;
 	bool m_showLabels;
 	bool m_showGrid;
 	bool m_showNodes;
 	bool m_showPerfGraph;
 	bool m_showDetailAll;
 	
-	bool m_expandOptions;
 	bool m_anticipateTurns;
 	bool m_optimizeVis;
 	bool m_optimizeTopo;
 	bool m_obstacleAvoidance;
-	float m_obstacleAvoidanceType;
+	int m_obstacleAvoidanceType;
 	bool m_separation;
 	float m_separationWeight;
 
 	float m_maxAcceleration;
 	float m_maxSpeed;
+
+	TraverseAnimType_e m_traverseAnimType;
 };
 
 class CrowdToolState : public EditorToolState
@@ -80,6 +81,7 @@ class CrowdToolState : public EditorToolState
 	
 	ValueHistory m_crowdTotalTime;
 	ValueHistory m_crowdSampleCount;
+	float m_graphSampleTime;
 
 	CrowdToolParams m_toolParams;
 

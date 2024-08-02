@@ -19,7 +19,7 @@
 #ifndef DETOURNAVMESHBUILDER_H
 #define DETOURNAVMESHBUILDER_H
 
-#include "Detour/Include/DetourAlloc.h"
+#include "Shared/Include/SharedAlloc.h"
 
 /// Represents the source data used to build an navigation mesh tile.
 /// @ingroup detour
@@ -37,7 +37,8 @@ struct dtNavMeshCreateParams
 	const unsigned short* polyFlags;		///< The user defined flags assigned to each polygon. [Size: #polyCount]
 	const unsigned char* polyAreas;			///< The user defined area ids assigned to each polygon. [Size: #polyCount]
 	int polyCount;							///< Number of polygons in the mesh. [Limit: >= 1]
-	int nvp;								///< Number maximum number of vertices per polygon. [Limit: >= 3]
+	int nvp;								///< Maximum number of vertices per polygon. [Limit: >= 3]
+	int cellResolution;						///< The resolution of the diamond cell grid [Limit: >= 1]
 
 	/// @}
 	/// @name Height Detail Attributes (Optional)
@@ -69,9 +70,15 @@ struct dtNavMeshCreateParams
 	///
 	/// 0 = Travel only from endpoint A to endpoint B.<br/>
 	/// #DT_OFFMESH_CON_BIDIR = Bidirectional travel.
-	const unsigned char* offMeshConDir;	
+	const unsigned char* offMeshConDir;
+	/// The user defined jump type of the off-mesh connection. [Size: #offMeshConCount]
+	const unsigned char* offMeshConJumps;
 	/// The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
-	const unsigned int* offMeshConUserID;
+	const unsigned short* offMeshConUserID;
+	/// Off-mesh connection reference positions. [(x, y, z) * #offMeshConCount] [Unit: wu]
+	const float* offMeshConRefPos;
+	/// Off-mesh connection reference yaw. [Size: #offMeshConCount] [Unit: wu]
+	const float* offMeshConRefYaw;
 	/// The number of off-mesh connections. [Limit: >= 0]
 	int offMeshConCount;
 
@@ -103,6 +110,86 @@ struct dtNavMeshCreateParams
 
 	/// @}
 };
+
+/// Disjoint set algorithm used to build the static pathing data for the navmesh.
+/// @ingroup detour
+class dtDisjointSet
+{
+public:
+	dtDisjointSet() = default;
+	dtDisjointSet(const int size)
+	{
+		init(size);
+	}
+
+	void init(const int size)
+	{
+		rank.resize(size);
+		parent.resize(size);
+
+		for (int i = 0; i < parent.size(); i++)
+			parent[i] = i;
+	}
+	int insertNew()
+	{
+		rank.push(0);
+
+		const int newId = parent.size();
+		parent.push(newId);
+
+		return newId;
+	}
+	int find(const int id) const
+	{
+		int& parentRef = parent[id];
+
+		if (parentRef != id)
+			parentRef = find(parentRef);
+
+		return parentRef;
+	}
+	void setUnion(const int x, const int y)
+	{
+		const int sx = find(x);
+		const int sy = find(y);
+
+		if (sx == sy) // Same set already.
+			return;
+
+		int& rankSx = rank[sx];
+		int& rankSy = rank[sy];
+
+		if (rankSx < rankSy)
+			parent[sx] = sy;
+		else if (rankSx > rankSy)
+			parent[sy] = sx;
+		else
+		{
+			parent[sy] = sx;
+			rankSx += 1;
+		}
+	}
+
+	inline int getSetCount() const { return parent.size(); }
+
+private:
+	rdIntArray rank;
+	mutable rdIntArray parent;
+};
+
+/// Builds navigation mesh disjoint poly groups from the provided navmesh.
+/// @ingroup detour
+///  @param[in]		nav			The navigation mesh to use.
+///  @param[Out]	disjoint	The disjoint set data.
+/// @return True if the disjoint set data was successfully created.
+bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint);
+
+/// Builds navigation mesh static traversal table from the provided navmesh.
+/// @ingroup detour
+///  @param[in]		nav			The navigation mesh to use.
+///  @param[in]		disjoint	The disjoint set data.
+/// @return True if the static traversal table was successfully created.
+bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount);
 
 /// Builds navigation mesh tile data from the provided tile creation data.
 /// @ingroup detour

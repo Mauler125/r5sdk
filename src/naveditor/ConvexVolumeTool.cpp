@@ -16,14 +16,15 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "NavEditor/Include/ConvexVolumeTool.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Editor.h"
-#include <naveditor/include/GameUtils.h>
+#include "naveditor/include/GameUtils.h"
+
+#include "coordsize.h"
 
 // Quick and dirty convex hull.
 
@@ -73,7 +74,7 @@ static int convexhull(const float* pts, int npts, int* out)
 	return i;
 }
 
-static int pointInPoly(int nvert, const float* verts, const float* p)
+static int pointInPoly(int nvert, const float* verts, const float* p) // todo(amos) deduplicate.
 {
 	int i, j, c = 0;
 	for (i = 0, j = nvert-1; i < nvert; j = i++)
@@ -90,7 +91,7 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 
 ConvexVolumeTool::ConvexVolumeTool() :
 	m_editor(0),
-	m_areaType(EDITOR_POLYAREA_GROUND),
+	m_areaType(RC_NULL_AREA),
 	m_polyOffset(0.0f),
 	m_boxHeight(650.0f),
 	m_boxDescent(150.0f),
@@ -112,31 +113,33 @@ void ConvexVolumeTool::reset()
 
 void ConvexVolumeTool::handleMenu()
 {
-	imguiSlider("Shape Height", &m_boxHeight, 0.1f, 2000.0f, 0.1f);
-	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, 2000.0f, 0.1f);
-	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, 1000.0f, 0.1f);
+	ImGui::PushItemWidth(120.f);
 
-	imguiSeparator();
+	ImGui::SliderFloat("Shape Height", &m_boxHeight, 0.1f, MAX_COORD_FLOAT);
+	ImGui::SliderFloat("Shape Descent", &m_boxDescent, 0.1f, MAX_COORD_FLOAT);
+	ImGui::SliderFloat("Poly Offset", &m_polyOffset, 0.0f, MAX_COORD_FLOAT/2);
 
-	imguiLabel("Area Type");
-	imguiIndent();
-	if (imguiCheck("Ground", m_areaType == EDITOR_POLYAREA_GROUND))
-		m_areaType = EDITOR_POLYAREA_GROUND;
-	if (imguiCheck("Water", m_areaType == EDITOR_POLYAREA_WATER))
-		m_areaType = EDITOR_POLYAREA_WATER;
-	if (imguiCheck("Road", m_areaType == EDITOR_POLYAREA_ROAD))
-		m_areaType = EDITOR_POLYAREA_ROAD;
-	if (imguiCheck("Door", m_areaType == EDITOR_POLYAREA_DOOR))
+	ImGui::PopItemWidth();
+
+	ImGui::Separator();
+
+	ImGui::Text("Brushes");
+	ImGui::Indent();
+
+	bool isEnabled = m_areaType == RC_NULL_AREA;
+
+	if (ImGui::Checkbox("Clip", &isEnabled))
+		m_areaType = RC_NULL_AREA;
+
+	isEnabled = m_areaType == EDITOR_POLYAREA_DOOR;
+	if (ImGui::Checkbox("Trigger", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_DOOR;
-	if (imguiCheck("Grass", m_areaType == EDITOR_POLYAREA_GRASS))
-		m_areaType = EDITOR_POLYAREA_GRASS;
-	if (imguiCheck("Jump", m_areaType == EDITOR_POLYAREA_JUMP))
-		m_areaType = EDITOR_POLYAREA_JUMP;
-	imguiUnindent();
 
-	imguiSeparator();
+	ImGui::Unindent();
 
-	if (imguiButton("Clear Shape"))
+	ImGui::Separator();
+
+	if (ImGui::Button("Clear Shape"))
 	{
 		m_npts = 0;
 		m_nhull = 0;
@@ -173,18 +176,18 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 		// Create
 
 		// If clicked on that last pt, create the shape.
-		if (m_npts && rcVdistSqr(p, &m_pts[(m_npts-1)*3]) < rcSqr(0.2f))
+		if (m_npts && rdVdistSqr(p, &m_pts[(m_npts-1)*3]) < rdSqr(0.2f))
 		{
 			if (m_nhull > 2)
 			{
 				// Create shape.
 				float verts[MAX_PTS*3];
 				for (int i = 0; i < m_nhull; ++i)
-					rcVcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
+					rdVcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
 					
 				float minh = FLT_MAX, maxh = 0;
 				for (int i = 0; i < m_nhull; ++i)
-					minh = rcMin(minh, verts[i*3+2]);
+					minh = rdMin(minh, verts[i*3+2]);
 				minh -= m_boxDescent;
 				maxh = minh + m_boxHeight;
 
@@ -209,7 +212,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 			// Add new point 
 			if (m_npts < MAX_PTS)
 			{
-				rcVcopy(&m_pts[m_npts*3], p);
+				rdVcopy(&m_pts[m_npts*3], p);
 				const float* f = &m_pts[m_npts * 3];
 
 				printf("<%f, %f, %f>\n", f[0], f[1], f[2]);
@@ -241,15 +244,16 @@ void ConvexVolumeTool::handleUpdate(const float /*dt*/)
 void ConvexVolumeTool::handleRender()
 {
 	duDebugDraw& dd = m_editor->getDebugDraw();
+	const float* drawOffset = m_editor->getDetourDrawOffset();
 	
 	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;
 	for (int i = 0; i < m_npts; ++i)
-		minh = rcMin(minh, m_pts[i*3+2]);
+		minh = rdMin(minh, m_pts[i*3+2]);
 	minh -= m_boxDescent;
 	maxh = minh + m_boxHeight;
 
-	dd.begin(DU_DRAW_POINTS, 4.0f);
+	dd.begin(DU_DRAW_POINTS, 4.0f, drawOffset);
 	for (int i = 0; i < m_npts; ++i)
 	{
 		unsigned int col = duRGBA(255,255,255,255);
@@ -259,7 +263,7 @@ void ConvexVolumeTool::handleRender()
 	}
 	dd.end();
 
-	dd.begin(DU_DRAW_LINES, 2.0f);
+	dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
 	for (int i = 0, j = m_nhull-1; i < m_nhull; j = i++)
 	{
 		const float* vi = &m_pts[m_hull[j]*3];
@@ -274,18 +278,17 @@ void ConvexVolumeTool::handleRender()
 	dd.end();	
 }
 
-void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
+void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
 	// Tool help
-	const int h = view[3];
 	if (!m_npts)
 	{
-		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).");
 	}
 	else
 	{
-		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "Click LMB to add new points. Click on the red point to finish the shape.", imguiRGBA(255,255,255,192));	
-		imguiDrawText(280, h-60, IMGUI_ALIGN_LEFT, "The shape will be convex hull of all added points.", imguiRGBA(255,255,255,192));	
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
+			ImVec2(280, 60), ImVec4(1.0f,1.0f,1.0f,0.75f), "The shape will be convex hull of all added points.");
 	}
-	
 }

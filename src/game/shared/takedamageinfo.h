@@ -1,4 +1,4 @@
-﻿//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
+﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -30,10 +30,10 @@ class CTakeDamageInfo
 	Vector3D m_vecDamageForceDirection;
 	Vector3D m_vecDamagePosition;
 	Vector3D m_vecReportedPosition;
-	int m_hInflictor;
-	int m_hAttacker;
-	int m_hWeapon;
-	__int16 m_hWeaponFileInfo;
+	EHANDLE m_hInflictor;
+	EHANDLE m_hAttacker;
+	EHANDLE m_hWeapon;
+	short m_hWeaponFileInfo;
 	bool m_forceKill;
 	char gap_37[1];
 	float m_flDamage;

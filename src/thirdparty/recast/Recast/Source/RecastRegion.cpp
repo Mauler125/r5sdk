@@ -16,15 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <float.h>
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 
 namespace
 {
@@ -186,7 +180,7 @@ static void calculateDistanceField(rcCompactHeightfield& chf, unsigned short* sr
 	
 	maxDist = 0;
 	for (int i = 0; i < chf.spanCount; ++i)
-		maxDist = rcMax(src[i], maxDist);
+		maxDist = rdMax(src[i], maxDist);
 	
 }
 
@@ -254,7 +248,7 @@ static bool floodRegion(int x, int y, int i,
 						unsigned short level, unsigned short r,
 						rcCompactHeightfield& chf,
 						unsigned short* srcReg, unsigned short* srcDist,
-						rcTempVector<LevelStackEntry>& stack)
+						rdTempVector<LevelStackEntry>& stack)
 {
 	const int w = chf.width;
 	
@@ -362,7 +356,7 @@ struct DirtyEntry
 static void expandRegions(int maxIter, unsigned short level,
 					      rcCompactHeightfield& chf,
 					      unsigned short* srcReg, unsigned short* srcDist,
-					      rcTempVector<LevelStackEntry>& stack,
+					      rdTempVector<LevelStackEntry>& stack,
 					      bool fillStack)
 {
 	const int w = chf.width;
@@ -398,7 +392,7 @@ static void expandRegions(int maxIter, unsigned short level,
 		}
 	}
 
-	rcTempVector<DirtyEntry> dirtyEntries;
+	rdTempVector<DirtyEntry> dirtyEntries;
 	int iter = 0;
 	while (stack.size() > 0)
 	{
@@ -471,7 +465,7 @@ static void expandRegions(int maxIter, unsigned short level,
 static void sortCellsByLevel(unsigned short startLevel,
 							  rcCompactHeightfield& chf,
 							  const unsigned short* srcReg,
-							  unsigned int nbStacks, rcTempVector<LevelStackEntry>* stacks,
+							  unsigned int nbStacks, rdTempVector<LevelStackEntry>* stacks,
 							  unsigned short loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
 {
 	const int w = chf.width;
@@ -506,8 +500,8 @@ static void sortCellsByLevel(unsigned short startLevel,
 }
 
 
-static void appendStacks(const rcTempVector<LevelStackEntry>& srcStack,
-						 rcTempVector<LevelStackEntry>& dstStack,
+static void appendStacks(const rdTempVector<LevelStackEntry>& srcStack,
+						 rdTempVector<LevelStackEntry>& dstStack,
 						 const unsigned short* srcReg)
 {
 	for (int j=0; j<srcStack.size(); j++)
@@ -541,8 +535,8 @@ struct rcRegion
 	bool overlap;
 	bool connectsToBorder;
 	unsigned short zmin, zmax;
-	rcIntArray connections;
-	rcIntArray floors;
+	rdIntArray connections;
+	rdIntArray floors;
 };
 
 static void removeAdjacentNeighbours(rcRegion& reg)
@@ -617,11 +611,11 @@ static bool mergeRegions(rcRegion& rega, rcRegion& regb)
 	unsigned short bid = regb.id;
 	
 	// Duplicate current neighbourhood.
-	rcIntArray acon;
+	rdIntArray acon;
 	acon.resize(rega.connections.size());
 	for (int i = 0; i < rega.connections.size(); ++i)
 		acon[i] = rega.connections[i];
-	rcIntArray& bcon = regb.connections;
+	rdIntArray& bcon = regb.connections;
 	
 	// Find insertion point on A.
 	int insa = -1;
@@ -700,7 +694,7 @@ static bool isSolidEdge(rcCompactHeightfield& chf, const unsigned short* srcReg,
 static void walkContour(int x, int y, int i, int dir,
 						rcCompactHeightfield& chf,
 						const unsigned short* srcReg,
-						rcIntArray& cont)
+						rdIntArray& cont)
 {
 	int startDir = dir;
 	int starti = i;
@@ -789,13 +783,13 @@ static void walkContour(int x, int y, int i, int dir,
 static bool mergeAndFilterRegions(rcContext* ctx, int minRegionArea, int mergeRegionSize,
 								  unsigned short& maxRegionId,
 								  rcCompactHeightfield& chf,
-								  unsigned short* srcReg, rcIntArray& overlaps)
+								  unsigned short* srcReg, rdIntArray& overlaps)
 {
 	const int w = chf.width;
 	const int h = chf.height;
 	
 	const int nreg = maxRegionId+1;
-	rcTempVector<rcRegion> regions;
+	rdTempVector<rcRegion> regions;
 	if (!regions.reserve(nreg)) {
 		ctx->log(RC_LOG_ERROR, "mergeAndFilterRegions: Out of memory 'regions' (%d).", nreg);
 		return false;
@@ -860,8 +854,8 @@ static bool mergeAndFilterRegions(rcContext* ctx, int minRegionArea, int mergeRe
 	}
 
 	// Remove too small regions.
-	rcIntArray stack(32);
-	rcIntArray trace(32);
+	rdIntArray stack(32);
+	rdIntArray trace(32);
 	for (int i = 0; i < nreg; ++i)
 	{
 		rcRegion& reg = regions[i];
@@ -1050,7 +1044,7 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 	const int h = chf.height;
 	
 	const int nreg = maxRegionId+1;
-	rcTempVector<rcRegion> regions;
+	rdTempVector<rcRegion> regions;
 	
 	// Construct regions
 	if (!regions.reserve(nreg)) {
@@ -1061,7 +1055,7 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 		regions.push_back(rcRegion((unsigned short) i));
 	
 	// Find region neighbours and overlapping regions.
-	rcIntArray lregs(32);
+	rdIntArray lregs(32);
 	for (int y = 0; y < h; ++y)
 	{
 		for (int x = 0; x < w; ++x)
@@ -1081,8 +1075,8 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 				reg.spanCount++;
 				reg.areaType = area;
 				
-				reg.zmin = rcMin(reg.zmin, s.z);
-				reg.zmax = rcMax(reg.zmax, s.z);
+				reg.zmin = rdMin(reg.zmin, s.z);
+				reg.zmax = rdMax(reg.zmax, s.z);
 				
 				// Collect all region layers.
 				lregs.push(ri);
@@ -1130,7 +1124,7 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 		regions[i].id = 0;
 
 	// Merge montone regions to create non-overlapping areas.
-	rcIntArray stack(32);
+	rdIntArray stack(32);
 	for (int i = 1; i < nreg; ++i)
 	{
 		rcRegion& root = regions[i];
@@ -1184,8 +1178,8 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 				// Merge current layers to root.
 				for (int k = 0; k < regn.floors.size(); ++k)
 					addUniqueFloorRegion(root, regn.floors[k]);
-				root.zmin = rcMin(root.zmin, regn.zmin);
-				root.zmax = rcMax(root.zmax, regn.zmax);
+				root.zmin = rdMin(root.zmin, regn.zmin);
+				root.zmax = rdMax(root.zmax, regn.zmax);
 				root.spanCount += regn.spanCount;
 				regn.spanCount = 0;
 				root.connectsToBorder = root.connectsToBorder || regn.connectsToBorder;
@@ -1258,27 +1252,27 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 /// @see rcCompactHeightfield, rcBuildRegions, rcBuildRegionsMonotone
 bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_DISTANCEFIELD);
 	
 	if (chf.dist)
 	{
-		rcFree(chf.dist);
+		rdFree(chf.dist);
 		chf.dist = 0;
 	}
 	
-	unsigned short* src = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);
+	unsigned short* src = (unsigned short*)rdAlloc(sizeof(unsigned short)*chf.spanCount, RD_ALLOC_TEMP);
 	if (!src)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'src' (%d).", chf.spanCount);
 		return false;
 	}
-	unsigned short* dst = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);
+	unsigned short* dst = (unsigned short*)rdAlloc(sizeof(unsigned short)*chf.spanCount, RD_ALLOC_TEMP);
 	if (!dst)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'dst' (%d).", chf.spanCount);
-		rcFree(src);
+		rdFree(src);
 		return false;
 	}
 	
@@ -1296,13 +1290,13 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 
 		// Blur
 		if (boxBlur(chf, 1, src, dst) != src)
-			rcSwap(src, dst);
+			rdSwap(src, dst);
 
 		// Store distance.
 		chf.dist = src;
 	}
 	
-	rcFree(dst);
+	rdFree(dst);
 	
 	return true;
 }
@@ -1358,7 +1352,7 @@ struct rcSweepSpan
 bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 							const int borderSize, const int minRegionArea, const int mergeRegionArea)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
 	
@@ -1366,7 +1360,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	const int h = chf.height;
 	unsigned short id = 1;
 	
-	rcScopedDelete<unsigned short> srcReg((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP));
+	rdScopedDelete<unsigned short> srcReg((unsigned short*)rdAlloc(sizeof(unsigned short)*chf.spanCount, RD_ALLOC_TEMP));
 	if (!srcReg)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount);
@@ -1374,8 +1368,8 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
 
-	const int nsweeps = rcMax(chf.width,chf.height);
-	rcScopedDelete<rcSweepSpan> sweeps((rcSweepSpan*)rcAlloc(sizeof(rcSweepSpan)*nsweeps, RC_ALLOC_TEMP));
+	const int nsweeps = rdMax(chf.width,chf.height);
+	rdScopedDelete<rcSweepSpan> sweeps((rcSweepSpan*)rdAlloc(sizeof(rcSweepSpan)*nsweeps, RD_ALLOC_TEMP));
 	if (!sweeps)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'sweeps' (%d).", nsweeps);
@@ -1387,8 +1381,8 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	if (borderSize > 0)
 	{
 		// Make sure border will not overflow.
-		const int bw = rcMin(w, borderSize);
-		const int bh = rcMin(h, borderSize);
+		const int bw = rdMin(w, borderSize);
+		const int bh = rdMin(h, borderSize);
 		// Paint regions
 		paintRectRegion(0, bw, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
@@ -1398,7 +1392,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 
 	chf.borderSize = borderSize;
 	
-	rcIntArray prev(256);
+	rdIntArray prev(256);
 
 	// Sweep one line at a time.
 	for (int y = borderSize; y < h-borderSize; ++y)
@@ -1494,7 +1488,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 		rcScopedTimer timerFilter(ctx, RC_TIMER_BUILD_REGIONS_FILTER);
 
 		// Merge regions and filter out small regions.
-		rcIntArray overlaps;
+		rdIntArray overlaps;
 		chf.maxRegions = id;
 		if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))
 			return false;
@@ -1531,14 +1525,14 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 					const int borderSize, const int minRegionArea, const int mergeRegionArea)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
 	
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcScopedDelete<unsigned short> buf((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount*2, RC_ALLOC_TEMP));
+	rdScopedDelete<unsigned short> buf((unsigned short*)rdAlloc(sizeof(unsigned short)*chf.spanCount*2, RD_ALLOC_TEMP));
 	if (!buf)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'tmp' (%d).", chf.spanCount*4);
@@ -1549,11 +1543,11 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 
 	const int LOG_NB_STACKS = 3;
 	const int NB_STACKS = 1 << LOG_NB_STACKS;
-	rcTempVector<LevelStackEntry> lvlStacks[NB_STACKS];
+	rdTempVector<LevelStackEntry> lvlStacks[NB_STACKS];
 	for (int i=0; i<NB_STACKS; ++i)
 		lvlStacks[i].reserve(256);
 
-	rcTempVector<LevelStackEntry> stack;
+	rdTempVector<LevelStackEntry> stack;
 	stack.reserve(256);
 	
 	unsigned short* srcReg = buf;
@@ -1574,8 +1568,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	if (borderSize > 0)
 	{
 		// Make sure border will not overflow.
-		const int bw = rcMin(w, borderSize);
-		const int bh = rcMin(h, borderSize);
+		const int bw = rdMin(w, borderSize);
+		const int bh = rdMin(h, borderSize);
 		
 		// Paint regions
 		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
@@ -1644,7 +1638,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		rcScopedTimer timerFilter(ctx, RC_TIMER_BUILD_REGIONS_FILTER);
 
 		// Merge regions and filter out small regions.
-		rcIntArray overlaps;
+		rdIntArray overlaps;
 		chf.maxRegions = regionId;
 		if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))
 			return false;
@@ -1667,7 +1661,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 						 const int borderSize, const int minRegionArea)
 {
-	rcAssert(ctx);
+	rdAssert(ctx);
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
 	
@@ -1675,7 +1669,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	const int h = chf.height;
 	unsigned short id = 1;
 	
-	rcScopedDelete<unsigned short> srcReg((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP));
+	rdScopedDelete<unsigned short> srcReg((unsigned short*)rdAlloc(sizeof(unsigned short)*chf.spanCount, RD_ALLOC_TEMP));
 	if (!srcReg)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildLayerRegions: Out of memory 'src' (%d).", chf.spanCount);
@@ -1683,8 +1677,8 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
 	
-	const int nsweeps = rcMax(chf.width,chf.height);
-	rcScopedDelete<rcSweepSpan> sweeps((rcSweepSpan*)rcAlloc(sizeof(rcSweepSpan)*nsweeps, RC_ALLOC_TEMP));
+	const int nsweeps = rdMax(chf.width,chf.height);
+	rdScopedDelete<rcSweepSpan> sweeps((rcSweepSpan*)rdAlloc(sizeof(rcSweepSpan)*nsweeps, RD_ALLOC_TEMP));
 	if (!sweeps)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildLayerRegions: Out of memory 'sweeps' (%d).", nsweeps);
@@ -1696,8 +1690,8 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	if (borderSize > 0)
 	{
 		// Make sure border will not overflow.
-		const int bw = rcMin(w, borderSize);
-		const int bh = rcMin(h, borderSize);
+		const int bw = rdMin(w, borderSize);
+		const int bh = rdMin(h, borderSize);
 		// Paint regions
 		paintRectRegion(0, bw, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
@@ -1707,7 +1701,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 
 	chf.borderSize = borderSize;
 	
-	rcIntArray prev(256);
+	rdIntArray prev(256);
 	
 	// Sweep one line at a time.
 	for (int y = borderSize; y < h-borderSize; ++y)

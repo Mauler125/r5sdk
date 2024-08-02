@@ -162,7 +162,7 @@ void ConCommandBase::SetUsageText(const char* const usageText)
 {
 	const char* const szCustomString = m_pszCustomUsageString;
 
-	// If a custom usage string has been set, return that instead
+	// If a custom usage string has already been set, release it first
 	if (szCustomString)
 		delete[] szCustomString;
 

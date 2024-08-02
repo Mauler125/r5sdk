@@ -23,6 +23,8 @@
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "NavEditor/Include/Editor.h"
 
+#include "game/server/ai_navmesh.h"
+
 class NavMeshTesterTool : public EditorTool
 {
 	Editor* m_editor;
@@ -47,6 +49,7 @@ class NavMeshTesterTool : public EditorTool
 	};
 	
 	ToolMode m_toolMode;
+	TraverseAnimType_e m_traverseAnimType;
 
 	int m_straightPathOptions;
 	

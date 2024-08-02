@@ -16,11 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
 #include "Recast/Include/Recast.h"
-#include "Recast/Include/RecastAlloc.h"
-#include "Recast/Include/RecastAssert.h"
+#include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedAssert.h"
 
 /// Check whether two bounding boxes overlap
 ///
@@ -49,7 +47,7 @@ static rcSpan* allocSpan(rcHeightfield& hf)
 	{
 		// Create new page.
 		// Allocate memory for the new pool.
-		rcSpanPool* spanPool = (rcSpanPool*)rcAlloc(sizeof(rcSpanPool), RC_ALLOC_PERM);
+		rcSpanPool* spanPool = (rcSpanPool*)rdAlloc(sizeof(rcSpanPool), RD_ALLOC_PERM);
 		if (spanPool == NULL)
 		{
 			return NULL;
@@ -98,13 +96,13 @@ static void freeSpan(rcHeightfield& hf, rcSpan* span)
 ///
 /// @param[in]	hf					Heightfield to add spans to
 /// @param[in]	x					The new span's column cell x index
-/// @param[in]	z					The new span's column cell z index
+/// @param[in]	y					The new span's column cell y index
 /// @param[in]	min					The new span's minimum cell index
 /// @param[in]	max					The new span's maximum cell index
 /// @param[in]	areaID				The new span's area type ID
 /// @param[in]	flagMergeThreshold	How close two spans maximum extents need to be to merge area type IDs
 static bool addSpan(rcHeightfield& hf,
-                    const int x, const int z,
+                    const int x, const int y,
                     const unsigned short min, const unsigned short max,
                     const unsigned char areaID, const int flagMergeThreshold)
 {
@@ -119,7 +117,7 @@ static bool addSpan(rcHeightfield& hf,
 	newSpan->area = areaID;
 	newSpan->next = NULL;
 	
-	const int columnIndex = x + z * hf.width;
+	const int columnIndex = x + y * hf.width;
 	rcSpan* previousSpan = NULL;
 	rcSpan* currentSpan = hf.spans[columnIndex];
 	
@@ -151,10 +149,10 @@ static bool addSpan(rcHeightfield& hf,
 			}
 			
 			// Merge flags.
-			if (rcAbs((int)newSpan->smax - (int)currentSpan->smax) <= flagMergeThreshold)
+			if (rdAbs((int)newSpan->smax - (int)currentSpan->smax) <= flagMergeThreshold)
 			{
 				// Higher area ID numbers indicate higher resolution priority.
-				newSpan->area = rcMax(newSpan->area, currentSpan->area);
+				newSpan->area = rdMax(newSpan->area, currentSpan->area);
 			}
 			
 			// Remove the current span since it's now merged with newSpan.
@@ -194,7 +192,7 @@ bool rcAddSpan(rcContext* context, rcHeightfield& heightfield,
                const unsigned short spanMin, const unsigned short spanMax,
                const unsigned char areaID, const int flagMergeThreshold)
 {
-	rcAssert(context);
+	rdAssert(context);
 
 	if (!addSpan(heightfield, x, z, spanMin, spanMax, areaID, flagMergeThreshold))
 	{
@@ -228,7 +226,7 @@ static void dividePoly(const float* inVerts, int inVertsCount,
                        float* outVerts2, int* outVerts2Count,
                        float axisOffset, rcAxis axis)
 {
-	rcAssert(inVertsCount <= 12);
+	rdAssert(inVertsCount <= 12);
 	
 	// How far positive or negative away from the separating axis is each vertex.
 	float inVertAxisDelta[12];
@@ -250,7 +248,7 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 			outVerts1[poly1Vert * 3 + 0] = inVerts[inVertB * 3 + 0] + (inVerts[inVertA * 3 + 0] - inVerts[inVertB * 3 + 0]) * s;
 			outVerts1[poly1Vert * 3 + 1] = inVerts[inVertB * 3 + 1] + (inVerts[inVertA * 3 + 1] - inVerts[inVertB * 3 + 1]) * s;
 			outVerts1[poly1Vert * 3 + 2] = inVerts[inVertB * 3 + 2] + (inVerts[inVertA * 3 + 2] - inVerts[inVertB * 3 + 2]) * s;
-			rcVcopy(&outVerts2[poly2Vert * 3], &outVerts1[poly1Vert * 3]);
+			rdVcopy(&outVerts2[poly2Vert * 3], &outVerts1[poly1Vert * 3]);
 			poly1Vert++;
 			poly2Vert++;
 			
@@ -258,12 +256,12 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 			// since these were already added above
 			if (inVertAxisDelta[inVertA] > 0)
 			{
-				rcVcopy(&outVerts1[poly1Vert * 3], &inVerts[inVertA * 3]);
+				rdVcopy(&outVerts1[poly1Vert * 3], &inVerts[inVertA * 3]);
 				poly1Vert++;
 			}
 			else if (inVertAxisDelta[inVertA] < 0)
 			{
-				rcVcopy(&outVerts2[poly2Vert * 3], &inVerts[inVertA * 3]);
+				rdVcopy(&outVerts2[poly2Vert * 3], &inVerts[inVertA * 3]);
 				poly2Vert++;
 			}
 		}
@@ -272,14 +270,14 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 			// add the inVertA point to the right polygon. Addition is done even for points on the dividing line
 			if (inVertAxisDelta[inVertA] >= 0)
 			{
-				rcVcopy(&outVerts1[poly1Vert * 3], &inVerts[inVertA * 3]);
+				rdVcopy(&outVerts1[poly1Vert * 3], &inVerts[inVertA * 3]);
 				poly1Vert++;
 				if (inVertAxisDelta[inVertA] != 0)
 				{
 					continue;
 				}
 			}
-			rcVcopy(&outVerts2[poly2Vert * 3], &inVerts[inVertA * 3]);
+			rdVcopy(&outVerts2[poly2Vert * 3], &inVerts[inVertA * 3]);
 			poly2Vert++;
 		}
 	}
@@ -312,14 +310,14 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 {
 	// Calculate the bounding box of the triangle.
 	float triBBMin[3];
-	rcVcopy(triBBMin, v0);
-	rcVmin(triBBMin, v1);
-	rcVmin(triBBMin, v2);
+	rdVcopy(triBBMin, v0);
+	rdVmin(triBBMin, v1);
+	rdVmin(triBBMin, v2);
 
 	float triBBMax[3];
-	rcVcopy(triBBMax, v0);
-	rcVmax(triBBMax, v1);
-	rcVmax(triBBMax, v2);
+	rdVcopy(triBBMax, v0);
+	rdVmax(triBBMax, v1);
+	rdVmax(triBBMax, v2);
 
 	// If the triangle does not touch the bounding box of the heightfield, skip the triangle.
 	if (!overlapBounds(triBBMin, triBBMax, hfBBMin, hfBBMax))
@@ -331,13 +329,13 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	const int h = hf.height;
 	const float bz = hfBBMax[2] - hfBBMin[2];
 
-	// Calculate the footprint of the triangle on the grid's z-axis
-	int z0 = (int)((triBBMin[1] - hfBBMin[1]) * inverseCellSize);
-	int z1 = (int)((triBBMax[1] - hfBBMin[1]) * inverseCellSize);
+	// Calculate the footprint of the triangle on the grid's y-axis
+	int y0 = (int)((triBBMin[1] - hfBBMin[1]) * inverseCellSize);
+	int y1 = (int)((triBBMax[1] - hfBBMin[1]) * inverseCellSize);
 
 	// use -1 rather than 0 to cut the polygon properly at the start of the tile
-	z0 = rcClamp(z0, -1, h - 1);
-	z1 = rcClamp(z1, 0, h - 1);
+	y0 = rdClamp(y0, -1, h - 1);
+	y1 = rdClamp(y1, 0, h - 1);
 
 	// Clip the triangle into all grid cells it touches.
 	float buf[7 * 3 * 4];
@@ -346,24 +344,24 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	float* p1 = inRow + 7 * 3;
 	float* p2 = p1 + 7 * 3;
 
-	rcVcopy(&in[0], v0);
-	rcVcopy(&in[1 * 3], v1);
-	rcVcopy(&in[2 * 3], v2);
+	rdVcopy(&in[0], v0);
+	rdVcopy(&in[1 * 3], v1);
+	rdVcopy(&in[2 * 3], v2);
 	int nvRow;
 	int nvIn = 3;
 
-	for (int z = z0; z <= z1; ++z)
+	for (int y = y0; y <= y1; ++y)
 	{
 		// Clip polygon to row. Store the remaining polygon as well
-		const float cellY = hfBBMin[1] + (float)z * cellSize;
+		const float cellY = hfBBMin[1] + (float)y * cellSize;
 		dividePoly(in, nvIn, inRow, &nvRow, p1, &nvIn, cellY + cellSize, RC_AXIS_Y);
-		rcSwap(in, p1);
+		rdSwap(in, p1);
 		
 		if (nvRow < 3)
 		{
 			continue;
 		}
-		if (z < 0)
+		if (y < 0)
 		{
 			continue;
 		}
@@ -388,8 +386,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 		{
 			continue;
 		}
-		x0 = rcClamp(x0, -1, w - 1);
-		x1 = rcClamp(x1, 0, w - 1);
+		x0 = rdClamp(x0, -1, w - 1);
+		x1 = rdClamp(x1, 0, w - 1);
 
 		int nv;
 		int nv2 = nvRow;
@@ -399,7 +397,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			// Clip polygon to column. store the remaining polygon as well
 			const float cx = hfBBMin[0] + (float)x * cellSize;
 			dividePoly(inRow, nv2, p1, &nv, p2, &nv2, cx + cellSize, RC_AXIS_X);
-			rcSwap(inRow, p2);
+			rdSwap(inRow, p2);
 			
 			if (nv < 3)
 			{
@@ -415,8 +413,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			float spanMax = p1[2];
 			for (int vert = 1; vert < nv; ++vert)
 			{
-				spanMin = rcMin(spanMin, p1[vert * 3 + 2]);
-				spanMax = rcMax(spanMax, p1[vert * 3 + 2]);
+				spanMin = rdMin(spanMin, p1[vert * 3 + 2]);
+				spanMax = rdMax(spanMax, p1[vert * 3 + 2]);
 			}
 			spanMin -= hfBBMin[2];
 			spanMax -= hfBBMin[2];
@@ -442,10 +440,10 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			}
 
 			// Snap the span to the heightfield height grid.
-			unsigned short spanMinCellIndex = (unsigned short)rcClamp((int)floorf(spanMin * inverseCellHeight), 0, RC_SPAN_MAX_HEIGHT);
-			unsigned short spanMaxCellIndex = (unsigned short)rcClamp((int)ceilf(spanMax * inverseCellHeight), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
+			unsigned short spanMinCellIndex = (unsigned short)rdClamp((int)rdMathFloorf(spanMin * inverseCellHeight), 0, RC_SPAN_MAX_HEIGHT);
+			unsigned short spanMaxCellIndex = (unsigned short)rdClamp((int)rdMathCeilf(spanMax * inverseCellHeight), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
 
-			if (!addSpan(hf, x, z, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))
+			if (!addSpan(hf, x, y, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))
 			{
 				return false;
 			}
@@ -459,7 +457,7 @@ bool rcRasterizeTriangle(rcContext* context,
                          const float* v0, const float* v1, const float* v2,
                          const unsigned char areaID, rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rdAssert(context != NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 
@@ -480,7 +478,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const int* tris, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rdAssert(context != NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 	
@@ -507,7 +505,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const unsigned short* tris, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rdAssert(context != NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 
@@ -533,7 +531,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rdAssert(context != NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 	

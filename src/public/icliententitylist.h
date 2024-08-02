@@ -3,18 +3,38 @@
 #include "iclientnetworkable.h"
 #include "icliententity.h"
 
-class IClientEntityList // Fully reversed beside index 0 which is probably a destructor.
+class C_BaseEntity;
+
+//-----------------------------------------------------------------------------
+// Purpose: Exposes IClientEntity's to engine
+//-----------------------------------------------------------------------------
+class IClientEntityList
 {
 public:
-	virtual int                 sub_1405C5E70() = 0;
-	virtual IClientNetworkable* GetClientNetworkable() = 0;
-	virtual IClientNetworkable* GetClientNetworkableFromHandle(CBaseHandle handle) = 0;
-	virtual void*               GetClientUnknownFromHandle(CBaseHandle handle) = 0;
-	virtual IClientEntity*      GetClientEntity(int entNum) = 0;
-	virtual IClientEntity*      GetClientEntityFromHandle(CBaseHandle handle) = 0; // behaves weird on r5 and doesn't really wanna work.
-	virtual int                 NumberOfEntities(bool includeNonNetworkable = false) = 0;
+	virtual C_BaseEntity*       GetBaseEntity(const int entNum) = 0;
+
+	// Get IClientNetworkable interface for specified entity
+	virtual IClientNetworkable* GetClientNetworkable(const int entNum) = 0;
+	virtual IClientNetworkable* GetClientNetworkableFromHandle(const CBaseHandle& handle) = 0;
+	virtual IClientUnknown*     GetClientUnknownFromHandle(const CBaseHandle& handle) = 0;
+
+	// NOTE: This function is only a convenience wrapper.
+	// It returns GetClientNetworkable( entnum )->GetIClientEntity().
+	virtual IClientEntity*      GetClientEntity(const int entNum) = 0;
+	virtual IClientEntity*      GetClientEntityFromHandle(const CBaseHandle& handle) = 0;
+
+	// Returns number of entities currently in use
+	virtual int                 NumberOfEntities(const bool includeNonNetworkable = false) = 0;
+
+	// Returns number of non networkable entities
 	virtual int                 GetNumClientNonNetworkable() = 0;
+
+	// Returns highest index actually used
 	virtual int                 GetHighestEntityIndex() = 0;
-	virtual void                SetMaxEntities(int maxEnts) = 0;
+
+	// Sizes entity list to specified size
+	virtual void                SetMaxEntities(const int maxEnts) = 0;
 	virtual int                 GetMaxEntities() = 0;
 };
+
+#define VCLIENTENTITYLIST_INTERFACE_VERSION "VClientEntityList003"

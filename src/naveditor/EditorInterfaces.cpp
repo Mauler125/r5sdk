@@ -1,4 +1,4 @@
-#include "Pch.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
@@ -37,7 +37,7 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 	// Store category
 	*cat = (char)category;
 	// Store message
-	const int count = rcMin(len+1, maxtext);
+	const int count = rdMin(len+1, maxtext);
 	memcpy(text, msg, count);
 	text[count-1] = '\0';
 	m_textPoolSize += 1 + count;
@@ -195,7 +195,7 @@ void DebugDrawGL::texture(bool state)
 	}
 }
 
-void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
+void DebugDrawGL::begin(const duDebugDrawPrimitives prim, const float size, const float* offset)
 {
 	switch (prim)
 	{
@@ -214,32 +214,55 @@ void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
 			glBegin(GL_QUADS);
 			break;
 	};
+
+	if (offset)
+		rdVcopy(m_drawOffset,offset);
 }
 
 void DebugDrawGL::vertex(const float* pos, unsigned int color)
 {
 	glColor4ubv((GLubyte*)&color);
-	glVertex3fv(pos);
+
+	float opos[3];
+	rdVadd(opos,pos,m_drawOffset);
+
+	glVertex3fv(opos);
 }
 
 void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned int color)
 {
 	glColor4ubv((GLubyte*)&color);
-	glVertex3f(x,y,z);
+
+	float opos[3];
+
+	rdVset(opos, x,y,z);
+	rdVadd(opos,opos,m_drawOffset);
+
+	glVertex3fv(opos);
 }
 
 void DebugDrawGL::vertex(const float* pos, unsigned int color, const float* uv)
 {
 	glColor4ubv((GLubyte*)&color);
 	glTexCoord2fv(uv);
-	glVertex3fv(pos);
+
+	float opos[3];
+	rdVadd(opos,pos,m_drawOffset);
+
+	glVertex3fv(opos);
 }
 
 void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
 {
 	glColor4ubv((GLubyte*)&color);
 	glTexCoord2f(u,v);
-	glVertex3f(x,y,z);
+
+	float opos[3];
+
+	rdVset(opos, x,y,z);
+	rdVadd(opos,opos,m_drawOffset);
+
+	glVertex3fv(opos);
 }
 
 void DebugDrawGL::end()
@@ -247,6 +270,8 @@ void DebugDrawGL::end()
 	glEnd();
 	glLineWidth(1.0f);
 	glPointSize(1.0f);
+
+	rdVset(m_drawOffset, 0.0f,0.0f,0.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "NavEditor/Include/MeshLoaderPly.h"
 
 bool rcMeshLoaderPly::load(const std::string& filename)
@@ -79,21 +78,9 @@ end_header
 
 	for (size_t i = 0; i < m_vertCount; i++)
 	{
-		//TODO: m_scale?
-		if (m_flipAxis)
-		{
-			input.read((char*)&m_verts[i * 3 + 0], sizeof(float));
-			input.read((char*)&m_verts[i * 3 + 2], sizeof(float));
-			input.read((char*)&m_verts[i * 3 + 1], sizeof(float));
-			m_verts[i * 3 + 1] *= -1;
-		}
-		else
-		{
-			input.read((char*)&m_verts[i * 3 + 0], sizeof(float));
-			input.read((char*)&m_verts[i * 3 + 1], sizeof(float));
-			input.read((char*)&m_verts[i * 3 + 2], sizeof(float));
-		}
-		
+		input.read((char*)&m_verts[i * 3 + 0], sizeof(float));
+		input.read((char*)&m_verts[i * 3 + 1], sizeof(float));
+		input.read((char*)&m_verts[i * 3 + 2], sizeof(float));
 	}
 
 	for (size_t i = 0; i < m_triCount; i++)
@@ -102,18 +89,10 @@ end_header
 		input.read(&count, 1);
 		if (count != 3)
 			return false;
-		if (m_flipTris)
-		{
-			input.read((char*)&m_tris[i * 3 + 0], sizeof(int));
-			input.read((char*)&m_tris[i * 3 + 2], sizeof(int));
-			input.read((char*)&m_tris[i * 3 + 1], sizeof(int));
-		}
-		else
-		{
-			input.read((char*)&m_tris[i * 3 + 0], sizeof(int));
-			input.read((char*)&m_tris[i * 3 + 1], sizeof(int));
-			input.read((char*)&m_tris[i * 3 + 2], sizeof(int));
-		}
+
+		input.read((char*)&m_tris[i * 3 + 0], sizeof(int));
+		input.read((char*)&m_tris[i * 3 + 1], sizeof(int));
+		input.read((char*)&m_tris[i * 3 + 2], sizeof(int));
 	}
 
 	// Calculate normals.

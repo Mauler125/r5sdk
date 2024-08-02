@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
 #include "NavEditor/Include/Filelist.h"
 
 using std::vector;

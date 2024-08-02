@@ -1,4 +1,4 @@
-﻿//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
+﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -13,6 +13,8 @@
 #include "tier1/bitbuf.h"
 #include "mathlib/vector.h"
 
+#include "pingcmd.h"
+
 //-------------------------------------------------------------------------------------
 // Console variables
 //-------------------------------------------------------------------------------------
@@ -25,11 +27,13 @@ extern ConVar usercmd_dualwield_enable;
 // Forward declarations
 //-------------------------------------------------------------------------------------
 class CUserCmd;
+class CUserCmdExtended;
 
 inline CUserCmd*(*CUserCmd__CUserCmd)(CUserCmd* pUserCmd);
 inline void(*CUserCmd__Reset)(CUserCmd* pUserCmd);
 inline CUserCmd*(*CUserCmd__Copy)(CUserCmd* pDest, CUserCmd* pSource);
 inline int(*v_ReadUserCmd)(bf_read* buf, CUserCmd* move, CUserCmd* from);
+inline int(*v_ReadUserCmdExtended)(bf_read* buf, CUserCmdExtended* move, CUserCmdExtended* from);
 
 //-------------------------------------------------------------------------------------
 #pragma pack(push, 1)
@@ -60,31 +64,34 @@ public:
 	byte impulse;
 	byte cycleslot;
 	byte weaponindex;
-	short weaponselect;
+	__unaligned __declspec(align(1)) __int16 weaponselect;
+
 	bool bUnk39;
 	short weaponactivity;
 	int nUnk3C;
 	bool controllermode;
 	bool fixangles;
 	bool setlastcycleslot;
-	char pad_0x0034[149];
+	char pad_0x0034[5];
+	char unkData[144];
 
 	// Zipline vars (see [r5apex_ds+8A6573] for read).
 	bool placedZiplineStation;
 	char unk[3];
-	int nUnkDC;
+	float fUnkDC;
 	Vector3D beginStationOrigin;
 	Vector3D stationWorldRelative;
 	float fUnkF8;
 	Vector3D endStationOrigin;
 	QAngle stationWorldAngles;
 
-	char pad_0x00114[112];
+	PingCommand_s m_pingCommands[NUM_PING_COMMANDS];
 	int32_t randomseed;
 	byte bUnk188;
 	bool bUnk189;
 	bool normalizepitch;
-	__int16 nUnk18B;
+	bool linkedButtonPairPress;
+	_BYTE gap18C;
 	char pad_0x0188[3];
 	Vector3D headposition;
 	float_t maxpitch;
@@ -102,7 +109,15 @@ public:
 
 static_assert(sizeof(CUserCmd) == 0x1DC);
 
+// The client-side input version of the UserCmd class
+class CUserCmdExtended : public CUserCmd
+{
+	// todo: reverse engineer.
+	char unknown_extended[164];
+};
+
 int ReadUserCmd(bf_read* buf, CUserCmd* move, CUserCmd* from);
+int ReadUserCmdExtended(bf_read* buf, CUserCmdExtended* move, CUserCmdExtended* from);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VUserCmd : public IDetour
@@ -113,6 +128,7 @@ class VUserCmd : public IDetour
 		LogFunAdr("CUserCmd::Reset", CUserCmd__Reset);
 		LogFunAdr("CUserCmd::Copy", CUserCmd__Copy);
 		LogFunAdr("ReadUserCmd", v_ReadUserCmd);
+		LogFunAdr("ReadUserCmdExtended", v_ReadUserCmdExtended);
 	}
 	virtual void GetFun(void) const
 	{
@@ -120,6 +136,7 @@ class VUserCmd : public IDetour
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B DF 66 83 FE FF").FollowNearCallSelf().GetPtr(CUserCmd__Reset);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 9B ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CUserCmd__Copy);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C6 48 81 C6 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(v_ReadUserCmd);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 4B ?? 4C 8D 35 ?? ?? ?? ?? 8B 53").FollowNearCallSelf().GetPtr(v_ReadUserCmdExtended);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

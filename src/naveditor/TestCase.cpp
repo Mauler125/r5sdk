@@ -16,8 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
-#include "Detour/Include/DetourCommon.h"
+#include "Shared/Include/SharedCommon.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "NavEditor/Include/TestCase.h"
@@ -276,12 +275,12 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			if (t > 1)
 			{
 				// No hit
-				dtVcopy(hitPos, iter->epos);
+				rdVcopy(hitPos, iter->epos);
 			}
 			else
 			{
 				// Hit
-				dtVlerp(hitPos, iter->spos, iter->epos, t);
+				rdVlerp(hitPos, iter->spos, iter->epos, t);
 			}
 			// Adjust height.
 			if (iter->npolys > 0)
@@ -290,7 +289,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 				navquery->getPolyHeight(polys[iter->npolys-1], hitPos, &h);
 				hitPos[2] = h;
 			}
-			dtVcopy(&iter->straight[3], hitPos);
+			rdVcopy(&iter->straight[3], hitPos);
 
 			if (iter->npolys)
 			{
@@ -321,8 +320,8 @@ void TestCase::handleRender()
 	for (Test* iter = m_tests; iter; iter = iter->next)
 	{
 		float dir[3];
-		dtVsub(dir, iter->epos, iter->spos);
-		dtVnormalize(dir);
+		rdVsub(dir, iter->epos, iter->spos);
+		rdVnormalize(dir);
 		glColor4ub(128,25,0,192);
 		glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]-0.3f);
 		glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]+0.3f);
@@ -376,7 +375,8 @@ void TestCase::handleRender()
 bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
-	char text[64], subtext[64];
+	const int h = view[3];
+	char text[256];
 	int n = 0;
 
 	static const float LABEL_DIST = 1.0f;
@@ -386,66 +386,65 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		float pt[3], dir[3];
 		if (iter->nstraight)
 		{
-			dtVcopy(pt, &iter->straight[3]);
-			if (dtVdist(pt, iter->spos) > LABEL_DIST)
+			rdVcopy(pt, &iter->straight[3]);
+			if (rdVdist(pt, iter->spos) > LABEL_DIST)
 			{
-				dtVsub(dir, pt, iter->spos);
-				dtVnormalize(dir);
-				dtVmad(pt, iter->spos, dir, LABEL_DIST);
+				rdVsub(dir, pt, iter->spos);
+				rdVnormalize(dir);
+				rdVmad(pt, iter->spos, dir, LABEL_DIST);
 			}
 			pt[2]+=0.5f;
 		}
 		else
 		{
-			dtVsub(dir, iter->epos, iter->spos);
-			dtVnormalize(dir);
-			dtVmad(pt, iter->spos, dir, LABEL_DIST);
+			rdVsub(dir, iter->epos, iter->spos);
+			rdVnormalize(dir);
+			rdVmad(pt, iter->spos, dir, LABEL_DIST);
 			pt[2]+=0.5f;
 		}
 		
 		if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2],
 					   model, proj, view, &x, &y, &z))
 		{
-			snprintf(text, 64, "Path %d\n", n);
-			unsigned int col = imguiRGBA(0,0,0,128);
+			ImVec4 col = ImVec4(0.0f,0.0f,0.0f,0.5f);
 			if (iter->expand)
-				col = imguiRGBA(255,192,0,220);
-			imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, text, col);
+				col = ImVec4(1.0f,0.75f,0.0f,0.85f);
+
+			ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-((float)y-25)), col, "Path %d\n", n);
 		}
 		n++;
 	}
 	
-	static int resScroll = 0;
-	bool mouseOverMenu = imguiBeginScrollArea("Test Results", 10, view[3] - 10 - 350, 200, 350, &resScroll);
-//		mouseOverMenu = true;
-		
-	n = 0;
-	for (Test* iter = m_tests; iter; iter = iter->next)
+	if (ImGui::BeginChild("Test Results", ImVec2(200, 350)))
 	{
-		const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
-		snprintf(subtext, 64, "%.4f ms", (float)total/1000.0f);
-		snprintf(text, 64, "Path %d", n);
-		
-		if (imguiCollapse(text, subtext, iter->expand))
-			iter->expand = !iter->expand;
-		if (iter->expand)
+		n = 0;
+		for (Test* iter = m_tests; iter; iter = iter->next)
 		{
-			snprintf(text, 64, "Poly: %.4f ms", (float)iter->findNearestPolyTime/1000.0f);
-			imguiValue(text);
+			const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
+			snprintf(text, sizeof(text), "Path %d %.4f ms", n, (float)total / 1000.0f);
 
-			snprintf(text, 64, "Path: %.4f ms", (float)iter->findPathTime/1000.0f);
-			imguiValue(text);
+			if (ImGui::CollapsingHeader(text))
+			{
+				iter->expand = true;
 
-			snprintf(text, 64, "Straight: %.4f ms", (float)iter->findStraightPathTime/1000.0f);
-			imguiValue(text);
-			
-			imguiSeparator();
+				snprintf(text, sizeof(text), "Poly: %.4f ms", (float)iter->findNearestPolyTime / 1000.0f);
+				ImGui::Text(text);
+
+				snprintf(text, sizeof(text), "Path: %.4f ms", (float)iter->findPathTime / 1000.0f);
+				ImGui::Text(text);
+
+				snprintf(text, sizeof(text), "Straight: %.4f ms", (float)iter->findStraightPathTime / 1000.0f);
+				ImGui::Text(text);
+
+				ImGui::Separator();
+			}
+			else
+				iter->expand = false;
+
+			n++;
 		}
-		
-		n++;
 	}
 
-	imguiEndScrollArea();
-	
-	return mouseOverMenu;
+	ImGui::EndChild();
+	return true;
 }

@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Pch.h"
+#include "Shared/Include/SharedMath.h"
 #include "NavEditor/Include/ChunkyTriMesh.h"
 
 struct BoundsItem
@@ -242,32 +242,32 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm,
 	return n;
 }
 
-int rcGetChunksOverlappingRect(const rcChunkyTriMesh * cm, float bmin[2], float bmax[2], int * ids, const int maxIds, int& count_returned, int & current_idx)
+int rcGetChunksOverlappingRect(const rcChunkyTriMesh * cm, float bmin[2], float bmax[2], int * ids, const int maxIds, int& currentCount, int& currentNode)
 {
 	// Traverse tree
-	while (current_idx < cm->nnodes)
+	while (currentNode < cm->nnodes)
 	{
-		const rcChunkyTriMeshNode* node = &cm->nodes[current_idx];
+		const rcChunkyTriMeshNode* node = &cm->nodes[currentNode];
 		const bool overlap = checkOverlapRect(bmin, bmax, node->bmin, node->bmax);
 		const bool isLeafNode = node->i >= 0;
 
 		if (isLeafNode && overlap)
 		{
-			if (count_returned < maxIds)
+			if (currentCount < maxIds)
 			{
-				ids[count_returned] = current_idx;
-				count_returned++;
+				ids[currentCount] = currentNode;
+				currentCount++;
 			}
 		}
 
 		if (overlap || isLeafNode)
-			current_idx++;
+			currentNode++;
 		else
 		{
 			const int escapeIndex = -node->i;
-			current_idx += escapeIndex;
+			currentNode += escapeIndex;
 		}
-		if (count_returned == maxIds)
+		if (currentCount == maxIds)
 		{
 			return 0;
 		}
@@ -281,8 +281,6 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh * cm, float bmin[2], float 
 static bool checkOverlapSegment(const float p[2], const float q[2],
 								const float bmin[2], const float bmax[2])
 {
-	static const float EPSILON = 1e-6f;
-
 	float tmin = 0;
 	float tmax = 1;
 	float d[2];
@@ -291,7 +289,7 @@ static bool checkOverlapSegment(const float p[2], const float q[2],
 	
 	for (int i = 0; i < 2; i++)
 	{
-		if (fabsf(d[i]) < EPSILON)
+		if (fabsf(d[i]) < RD_EPS)
 		{
 			// Ray is parallel to slab. No hit if origin not within slab
 			if (p[i] < bmin[i] || p[i] > bmax[i])
