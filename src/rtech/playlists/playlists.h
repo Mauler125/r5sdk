@@ -14,9 +14,7 @@ inline const char* (*v_Playlists_GetCurrent)(void);
 inline void(*v_Playlists_Download_f)(void);
 
 extern KeyValues** g_pPlaylistKeyValues;
-
-extern vector<string> g_vAllPlaylists;
-extern std::mutex g_PlaylistsVecMutex;
+extern CUtlVector<CUtlString> g_vecAllPlaylists;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VPlaylists : public IDetour
