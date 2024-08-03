@@ -53,7 +53,7 @@ private:
 	float m_flTickInterval;
 
 	characterset_t m_CharacterSet;
-	mutable std::mutex m_Mutex;
+	mutable CThreadMutex m_Mutex;
 };
 
 //-----------------------------------------------------------------------------
