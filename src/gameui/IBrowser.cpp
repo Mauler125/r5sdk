@@ -545,7 +545,7 @@ void CBrowser::DrawHostPanel(void)
 
     if (ImGui::BeginCombo("Map", details.map.c_str()))
     {
-        g_InstalledMapsMutex.lock();
+        g_InstalledMapsMutex.Lock();
 
         FOR_EACH_VEC(g_InstalledMaps, i)
         {
@@ -558,7 +558,7 @@ void CBrowser::DrawHostPanel(void)
             }
         }
 
-        g_InstalledMapsMutex.unlock();
+        g_InstalledMapsMutex.Unlock();
         ImGui::EndCombo();
     }
 

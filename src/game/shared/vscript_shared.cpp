@@ -36,7 +36,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetAvailableMaps(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
+            AUTO_LOCK(g_InstalledMapsMutex);
 
             if (g_InstalledMaps.IsEmpty())
                 SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
