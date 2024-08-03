@@ -19,7 +19,7 @@ public:
 		ref--;
 	}
 
-	T Get()
+	T Get() const
 	{
 		return ref;
 	}
