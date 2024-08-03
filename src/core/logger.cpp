@@ -13,7 +13,7 @@
 #include "vscript/languages/squirrel_re/include/sqstdaux.h"
 #endif // !_TOOLS
 static const std::regex s_AnsiRowRegex("\\\033\\[.*?m");
-std::mutex g_LogMutex;
+static std::mutex s_LogMutex;
 
 #if !defined (DEDICATED) && !defined (_TOOLS)
 ImVec4 CheckForWarnings(LogType_t type, eDLL_T context, const ImVec4& defaultCol)
@@ -259,7 +259,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	//-------------------------------------------------------------------------
 	// Emit to all interfaces
 	//-------------------------------------------------------------------------
-	std::lock_guard<std::mutex> lock(g_LogMutex);
+	std::lock_guard<std::mutex> lock(s_LogMutex);
 	if (bToConsole)
 	{
 		g_TermLogger->debug(message);
