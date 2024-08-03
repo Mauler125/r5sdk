@@ -213,7 +213,7 @@ add_sources( SOURCE_GROUP "Entity"
 )
 
 add_sources( SOURCE_GROUP "Player"
-    "client/c_baseplayer.h"
+    "client/c_player.h"
     "client/c_playerlocaldata.h"
 )
 

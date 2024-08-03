@@ -10,7 +10,7 @@
 #include "tier1/utlvector.h"
 #include "public/gametrace.h"
 #include "game/shared/imovehelper.h"
-#include "c_baseplayer.h"
+#include "c_player.h"
 
 class CMoveHelperClient : public IMoveHelper
 {
