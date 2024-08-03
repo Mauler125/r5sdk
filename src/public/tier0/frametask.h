@@ -22,7 +22,7 @@ public:
     void Dispatch(std::function<void()> functor, unsigned int frames);
 
 private:
-    mutable std::mutex m_Mutex;
+    mutable CThreadMutex m_Mutex;
     std::list<QueuedTasks_s> m_QueuedTasks;
 };
 

@@ -12,7 +12,7 @@
 //-----------------------------------------------------------------------------
 void CFrameTask::RunFrame()
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
 
     for (QueuedTasks_s& delay : m_QueuedTasks)
     {
@@ -49,7 +49,7 @@ bool CFrameTask::IsFinished() const
 //-----------------------------------------------------------------------------
 void CFrameTask::Dispatch(std::function<void()> functor, unsigned int frames)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
+    AUTO_LOCK(m_Mutex);
     m_QueuedTasks.emplace_back(frames, functor);
 }
 
