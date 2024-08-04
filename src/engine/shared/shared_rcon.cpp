@@ -319,8 +319,8 @@ SocketHandle_t NetconShared_GetSocketHandle(CNetConBase* pBase, const int iSocke
 #include "engine/client/cl_rcon.h"
 #endif // !DEDICATED
 
-void RCON_KeyChanged_f(IConVar* pConVar, const char* pOldString);
-void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString);
+void RCON_KeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
+void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
 
 ConVar rcon_debug("rcon_debug", "0", FCVAR_RELEASE, "Show rcon debug information ( !slower! )");
 ConVar rcon_encryptframes("rcon_encryptframes", "1", FCVAR_RELEASE, "Whether to encrypt RCON messages");
@@ -329,7 +329,7 @@ ConVar rcon_key("rcon_key", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | F
 //-----------------------------------------------------------------------------
 // Purpose: change RCON key on server and client
 //-----------------------------------------------------------------------------
-void RCON_KeyChanged_f(IConVar* pConVar, const char* pOldString)
+void RCON_KeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{

@@ -950,7 +950,8 @@ void ConVar::ChangeStringValue(const char* tempVal)
 	// Invoke any necessary callback function
 	for (int i = 0; i < m_fnChangeCallbacks.Count(); ++i)
 	{
-		m_fnChangeCallbacks[i](this, pszOldValue);
+		const CVChange_t& targetCB = m_fnChangeCallbacks[i];
+		targetCB.m_pCallback(this, pszOldValue, NULL, targetCB.m_pUserData);
 	}
 
 	if (g_pCVar)
@@ -982,7 +983,7 @@ void ConVar::Create(const char* pName, const char* pDefaultValue, int flags /*= 
 
 	if (callback)
 	{
-		m_fnChangeCallbacks.AddToTail(callback);
+		InstallChangeCallback(callback, NULL, false);
 	}
 
 	m_Value.m_iStringLength = strlen(m_pszDefaultValue) + 1;
@@ -1059,9 +1060,10 @@ void ConVar::SetDefault(const char* pszDefault)
 //-----------------------------------------------------------------------------
 // Purpose: Install a change callback (there shouldn't already be one....)
 // Input  : callback - 
+//			userData - 
 //			bInvoke - 
 //-----------------------------------------------------------------------------
-void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=true*/)
+void ConVar::InstallChangeCallback(FnChangeCallback_t callback, ChangeUserData_t userData, bool bInvoke /*=true*/)
 {
 	if (!callback)
 	{
@@ -1070,7 +1072,9 @@ void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=
 		return;
 	}
 
-	if (m_pParent->m_fnChangeCallbacks.Find(callback)
+	const CVChange_t newCB{ callback, userData };
+
+	if (m_pParent->m_fnChangeCallbacks.Find(newCB)
 		!= m_pParent->m_fnChangeCallbacks.InvalidIndex())
 	{
 		// Same ptr added twice, sigh...
@@ -1079,12 +1083,12 @@ void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=
 		return;
 	}
 
-	m_pParent->m_fnChangeCallbacks.AddToTail(callback);
+	m_pParent->m_fnChangeCallbacks.AddToTail(newCB);
 
 	// Call it immediately to set the initial value...
 	if (bInvoke)
 	{
-		callback(this, m_Value.m_pszString);
+		callback(this, m_Value.m_pszString, NULL, userData);
 	}
 }
 
@@ -1092,7 +1096,8 @@ void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=
 // Purpose: Install a change callback (there shouldn't already be one....)
 // Input  : callback - 
 //-----------------------------------------------------------------------------
-void ConVar::RemoveChangeCallback(FnChangeCallback_t callback)
+void ConVar::RemoveChangeCallback(FnChangeCallback_t callback, ChangeUserData_t userData)
 {
-	m_pParent->m_fnChangeCallbacks.FindAndRemove(callback);
+	const CVChange_t targetCB{ callback, userData };
+	m_pParent->m_fnChangeCallbacks.FindAndRemove(targetCB);
 }

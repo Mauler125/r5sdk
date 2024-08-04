@@ -273,11 +273,10 @@ void ConVar_InitShipped(void)
 	base_tickinterval_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
 	mp_gamemode->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
-	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);
+	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, nullptr, false);
 	net_usesocketsforloopback->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #ifndef DEDICATED
-	language_cvar->InstallChangeCallback(LanguageChanged_f, false);
+	language_cvar->InstallChangeCallback(LanguageChanged_f, nullptr, false);
 #endif // !DEDICATED
 }
 

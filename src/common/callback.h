@@ -9,7 +9,7 @@ inline void(*v__UIScript_Reset_f)();
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
-void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString);
+void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
 #ifndef CLIENT_DLL
 void Host_Changelevel_f(const CCommand& args);
 #endif // !CLIENT_DLL
@@ -19,9 +19,9 @@ void VPK_Mount_f(const CCommand& args);
 void VPK_Unmount_f(const CCommand& args);
 #ifndef DEDICATED
 
-void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString);
+void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
 #endif // !DEDICATED
-void LanguageChanged_f(IConVar* pConVar, const char* pOldString);
+void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
 #ifndef DEDICATED
 void Mat_CrossHair_f(const CCommand& args);
 void Line_f(const CCommand& args);

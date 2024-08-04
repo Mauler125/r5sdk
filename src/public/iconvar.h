@@ -96,11 +96,11 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Called when a ConVar changes value
+// Called and provided when a ConVar changes value
 // NOTE: For FCVAR_NEVER_AS_STRING ConVars, pOldValue == NULL
 //-----------------------------------------------------------------------------
-typedef void (*FnChangeCallback_t)(IConVar* var, const char* pOldValue);
-
+typedef void* ChangeUserData_t;
+typedef void (*FnChangeCallback_t)(IConVar* var, const char* pOldValue, float flOldValue, ChangeUserData_t pUserData);
 
 //-----------------------------------------------------------------------------
 // Abstract interface for ConVars

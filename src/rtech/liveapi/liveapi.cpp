@@ -14,19 +14,19 @@
 //-----------------------------------------------------------------------------
 // change callbacks
 //-----------------------------------------------------------------------------
-static void LiveAPI_EnabledChangedCallback(IConVar* var, const char* pOldValue)
+static void LiveAPI_EnabledChangedCallback(IConVar* var, const char* pOldValue, float flOldValue, ChangeUserData_t pUserData)
 {
 	LiveAPISystem()->ToggleInit();
 }
-static void LiveAPI_WebSocketEnabledChangedCallback(IConVar* var, const char* pOldValue)
+static void LiveAPI_WebSocketEnabledChangedCallback(IConVar* var, const char* pOldValue, float flOldValue, ChangeUserData_t pUserData)
 {
 	LiveAPISystem()->ToggleInitWebSocket();
 }
-static void LiveAPI_ParamsChangedCallback(IConVar* var, const char* pOldValue)
+static void LiveAPI_ParamsChangedCallback(IConVar* var, const char* pOldValue, float flOldValue, ChangeUserData_t pUserData)
 {
 	LiveAPISystem()->UpdateParams();
 }
-static void LiveAPI_AddressChangedCallback(IConVar* var, const char* pOldValue)
+static void LiveAPI_AddressChangedCallback(IConVar* var, const char* pOldValue, float flOldValue, ChangeUserData_t pUserData)
 {
 	LiveAPISystem()->RebootWebSocket();
 }

@@ -37,7 +37,7 @@ static void NET_GenerateKey_f()
 	NET_GenerateKey();
 }
 
-void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString)
+void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{
