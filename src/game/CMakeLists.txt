@@ -153,6 +153,7 @@ add_sources( SOURCE_GROUP "Player"
 )
 
 add_sources( SOURCE_GROUP "Weapon"
+    "server/r1/weapon_x.cpp"
     "server/r1/weapon_x.h"
 )
 
@@ -219,6 +220,7 @@ add_sources( SOURCE_GROUP "Player"
 )
 
 add_sources( SOURCE_GROUP "Weapon"
+    "client/r1/c_weapon_x.cpp"
     "client/r1/c_weapon_x.h"
 )
 

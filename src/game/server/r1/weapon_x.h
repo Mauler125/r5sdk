@@ -14,6 +14,10 @@
 
 class CWeaponX : CBaseAnimating
 {
+public:
+	float GetZoomFOVInterpAmount(const float curTime) const;
+
+private:
 	EHANDLE m_weaponOwner;
 	float m_lastPrimaryAttack;
 	float m_nextReadyTime;

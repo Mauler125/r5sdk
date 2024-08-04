@@ -8,6 +8,11 @@
 
 class C_WeaponX : C_BaseAnimating
 {
+public:
+	float GetZoomFOVInterpAmount(const float curTime) const;
+	inline bool HasTargetZoomFOV() { return m_playerData.GetTargetZoomFOV() == *(float*)&m_modVars[3120]; }
+
+private:
 	EHANDLE m_weaponOwner;
 	float m_lastPrimaryAttack;
 	float m_nextReadyTime;

@@ -3,6 +3,11 @@
 
 class WeaponPlayerData
 {
+public:
+	inline float GetZoomFOVInterpAmount(const float curTime) const;
+	inline float GetTargetZoomFOV() const { return m_targetZoomFOV; }
+
+private:
 	void* __vftable;
 	float m_moveSpread;
 	float m_spreadStartTime;
@@ -70,8 +75,21 @@ class WeaponPlayerData
 	int m_charmAttachment;
 	int m_charmScriptIndex;
 };
-
 // Client's class is identical.
 typedef WeaponPlayerData WeaponPlayerData_Client;
+
+
+float WeaponPlayerData::GetZoomFOVInterpAmount(const float curTime) const
+{
+	const float zoomLerpTime = m_zoomFOVLerpTime;
+
+	if (zoomLerpTime <= 0.0f)
+		return 1.0f;
+
+	const float endLerptime = m_zoomFOVLerpEndTime;
+	const float finalLerpTime = Min(Max((curTime - (endLerptime - zoomLerpTime)) / zoomLerpTime, 0.0f), 1.0f);
+
+	return (3.0f - (finalLerpTime + finalLerpTime)) * (finalLerpTime * finalLerpTime);
+}
 
 #endif // SHARED_WEAPON_PLAYERDATA_H
