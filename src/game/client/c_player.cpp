@@ -97,8 +97,22 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     if (!runAimAssist)
         sub_1405B0E00(player, input);
 
-    //TODO:
-    //sub_1405AD760(player, &runAimAssist);
+    // NOTE: in the decompiler and disassembler, it appears that this
+    // 'runAimAssist' param is always a bool, but this function below
+    // indexes beyond the size of bool, just 2 bytes.. Looking at the
+    // stack, there always seem to be space for it and nothing gets
+    // smashed, nor does that area contain random data; the 4 bytes
+    // are always free. Comparing this with the original code results
+    // in identical results. Keeping it like this for now as even though
+    // it looks off, it actually is correct.
+    // Also, even though the function below does set 2 extra bools next
+    // to the address of 'runAimAssist', only 'runAimAssist' is ever used
+    // based on my hardware breakpoint tests. So its possible the function
+    // below technically expects an array of bools or something but then
+    // the original code only passes in the 'runAimAssist' which is stored
+    // on the stack, and only having the below call work properly due to
+    // stack alignment.
+    sub_1405AD760(player, (unsigned char*)&runAimAssist);
 
     const bool gamePadCustomEnabled = gamepad_custom_enabled->GetBool();
 
@@ -111,7 +125,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
         || v11 > 0.050000001
         || !gamePadCustomEnabled && (unsigned int)C_Player__GetAimSpeed(player, useActiveWeapon) == 7
         || (v19 = *(_QWORD*)&player->pl.lastPlayerView_angle.x, v70.z = player->pl.lastPlayerView_angle.z, *(_QWORD*)&v70.x = v19, *(float*)&v19 < -50.0)
-        || sub_1405AD4E0(player) < 0.00000011920929) // FLT_EPSILON
+        || sub_1405AD4E0(player) < FLT_EPSILON)
     {
         m_bAutoAim_UnknownBool1AC = 0;
         m_bAutoAim_UnknownBool1AD = 0;
@@ -257,10 +271,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
         || ((player->m_melee.scriptedState - 3) & 0xFFFFFFFA) == 0
         || sub_1409DC4E0(player)
         || (player->m_latestMeleeWeapon.IsValid())
-        && (player->CheckMeleeWeapon()) // TODO: verify assembly
-        //&& (v52 = (unsigned __int16)m_latestMeleeWeapon, cl_entitylist.m_EntPtrArray[v52].m_SerialNumber == player->m_latestMeleeWeapon.GetSerialNumber())
-        //&& (pWeapon = (C_WeaponX*)cl_entitylist.m_EntPtrArray[v52].m_pEntity) != 0i64
-        //&& *(float*)&pWeapon->m_modVars[600] >(float)(player->m_currentFramePlayer__timeBase - player->m_melee.attackLastHitNonWorldEntity)
+        && (player->CheckMeleeWeapon())
         || player->m_MoveType == MOVETYPE_TRAVERSE && !player->m_traversalType
         || (bZooming = input->m_bZooming, v55 = player->m_bZooming, input->m_bZooming = v55, bZooming) && !v55)
     {
@@ -299,16 +310,11 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     if (m_bAutoAim_UnknownBool1AD && runAimAssist)
     {
         sub_1405AF1F0(input, player, (QAngle*)&v70, &v69, v14, v13, inputSampleFrametime_c, a5, (QAngle*)&a9);
-
         v65->unk2 = a9;
-
-        //v67 = HIDWORD(a9);
-        //LODWORD(v65->unk2) = (_DWORD)a9;
-        //HIDWORD(v65->unk2) = v67;
     }
 }
 
 void V_Player::Detour(const bool bAttach) const
 {
-    //DetourSetup(&C_Player__CurveLook, C_Player::CurveLook, bAttach);
+    DetourSetup(&C_Player__CurveLook, C_Player::CurveLook, bAttach);
 }
