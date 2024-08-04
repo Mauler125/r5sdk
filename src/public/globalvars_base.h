@@ -53,7 +53,7 @@ public:
 	float m_flCurTimeUnknown2; // Empty on server.
 	float lastFrameTimeSincePause; // Last frame time since pause, empty on server.
 	float m_flCurTimeUnknown3; // Empty on server.
-	float lastCurTimeSincePause;   // Last current time since pause, empty on server.
+	float exactCurTime;   // Empty on server.
 	float m_flUnknown4;
 
 	float frameTime;  // Time spent on last server or client frame (has nothing to do with think intervals)
