@@ -19,6 +19,7 @@ struct WeaponInventory_Client
 
 class C_BaseCombatCharacter : public C_BaseAnimatingOverlay
 {
+protected:
 	float m_flNextAttack;
 	float m_lastFiredTime;
 	int m_lastFiredWeapon;
@@ -41,7 +42,7 @@ class C_BaseCombatCharacter : public C_BaseAnimatingOverlay
 	char m_selectedOffhandsPendingHybridAction[3];
 	char m_lastCycleSlot;
 	char gap_171d[3];
-	int m_latestMeleeWeapon;
+	EHANDLE m_latestMeleeWeapon;
 	int m_weaponPermission;
 	float m_weaponDelayEnableTime;
 	bool m_weaponDisabledInScript;

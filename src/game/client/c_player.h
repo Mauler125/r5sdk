@@ -1,5 +1,5 @@
-#ifndef C_BASEPLAYER_H
-#define C_BASEPLAYER_H
+#ifndef C_PLAYER_H
+#define C_PLAYER_H
 
 #include "icliententity.h"
 #include "icliententitylist.h"
@@ -11,16 +11,23 @@
 #include "playerstate.h"
 #include "vscript/ivscript.h"
 
+#include "input.h"
+#include "gamepad.h"
+
 #include "c_baseentity.h"
 #include "c_baseanimating.h"
 #include "c_baseanimatingoverlay.h"
 #include "c_basecombatcharacter.h"
 #include "c_playerlocaldata.h"
+#include "r1/c_weapon_x.h"
 
 #include "game/shared/r1/grapple.h"
 #include "game/shared/status_effect.h"
 #include "game/shared/player_viewoffset.h"
 #include "game/shared/player_melee.h"
+
+class CInput;
+struct CInput::UserInput_t;
 
 
 struct PlayerZiplineData_Client
@@ -50,8 +57,19 @@ class C_KnockBack
 	float endTime;
 };
 
+struct JoyAngle_t
+{
+	QAngle pitch;
+	float unk1;
+	void* unk2;
+};
+
 class C_Player : public C_BaseCombatCharacter
 {
+public:
+	static void CurveLook(C_Player* player, CInput::UserInput_t* input, float a3, float a4, float a5, int a6, float inputSampleFrametime, bool runAimAssist, JoyAngle_t* a9);
+	bool CheckMeleeWeapon();
+private:
 	bool unk;
 	bool m_bZooming;
 	char gap_1882[2];
@@ -327,4 +345,74 @@ class C_Player : public C_BaseCombatCharacter
 
 static_assert(sizeof(C_Player) == 0x41C0);
 
-#endif // C_BASEPLAYER_H
+// move to combatcharacter!
+inline C_WeaponX* (*C_BaseCombatCharacter__GetActiveWeapon)(C_BaseCombatCharacter* thisptr);
+
+inline float (*sub_1408A0600)(C_Player* player);
+inline void (*sub_1405B0E00)(C_Player* player, CInput::UserInput_t* input);
+inline void (*sub_1405AD760)(C_Player* player, unsigned char* unknown);
+inline int (*sub_14066D190)(C_Player* player);
+inline float (*sub_1405AD4E0)(C_Player* player);
+inline QAngle* (*sub_1406257E0)(QAngle* angle, C_Player* player);
+inline void (*sub_1405B03A0)(CInput::UserInput_t* input, C_Player* player, QAngle* angle);
+inline float (*sub_1405B0BC0)(C_Player* player, CInput::UserInput_t* input, int a3);
+inline void (*sub_1405AEA10)(void* a1, char a2, char a3);
+inline void (*sub_1405AF810)(C_Player* player, CInput::UserInput_t* input, __int64 a3, char a4, char a5, Vector3D* a6, QAngle* a7, QAngle* a8, float a9);
+inline C_BaseEntity* (*sub_1409DC4E0)(C_Player* player);
+inline float (*sub_1405D4300)(C_Player* player);
+inline QAngle* (*sub_1405AF1F0)(CInput::UserInput_t* a1, C_Player* a2, QAngle* a3, QAngle* a4, float a5, float a6, float a7, float a8, QAngle* a9);
+
+inline float (*C_Player__GetZoomFrac)(C_Player* thisptr);
+inline int (*C_Player__GetAimSpeed)(C_Player* thisptr, bool useActiveWeapon);
+inline bool (*C_Player__IsInTimeShift)(C_Player* thisptr);
+
+inline void (*C_Player__CurveLook)(C_Player* player, CInput::UserInput_t* input, float a3, float a4, float a5, int a6, float inputSampleFrametime, bool runAimAssist, JoyAngle_t* outAngles);
+
+
+inline double* double_14D413928;
+inline double* double_14D4151B8;
+
+inline int* dword_1423880E0;
+inline float* dword_16A2A1640;
+
+///////////////////////////////////////////////////////////////////////////////
+class V_Player : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+	}
+	virtual void GetFun(void) const
+	{
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F 2F 05 ?? ?? ?? ?? 76 ?? 0F 28 CF").FollowNearCallSelf().GetPtr(sub_1408A0600);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8D 95 ?? ?? ?? ?? 48 8B CB E8 ?? ?? ?? ?? 48 8B 05").FollowNearCallSelf().GetPtr(sub_1405B0E00);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 83 78 ?? ?? 74 ?? 48 8B 05").FollowNearCallSelf().GetPtr(sub_1405AD760);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? FF C8 83 F8").FollowNearCallSelf().GetPtr(sub_14066D190);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? F3 0F 10 35 ?? ?? ?? ?? 0F 28 E7").FollowNearCallSelf().GetPtr(sub_1405AD4E0);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? F3 44 0F 10 26").FollowNearCallSelf().GetPtr(sub_1406257E0);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 45 33 C0 48 8B D7 48 8B CB").FollowNearCallSelf().GetPtr(sub_1405B03A0);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? F3 0F 11 85").FollowNearCallSelf().GetPtr(sub_1405B0BC0);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8D 35 ?? ?? ?? ?? EB").FollowNearCallSelf().GetPtr(sub_1405AEA10);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? F3 0F 59 3D ?? ?? ?? ?? 41 0F 28 CA").FollowNearCallSelf().GetPtr(sub_1405AF810);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 85 C0 0F 85 ?? ?? ?? ?? 8B 8B").FollowNearCallSelf().GetPtr(sub_1409DC4E0);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? F3 0F 59 B5").FollowNearCallSelf().GetPtr(sub_1405D4300);
+
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F 2F 87").FollowNearCallSelf().GetPtr(C_Player__GetZoomFrac);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 83 F8 ?? 74 ?? F2 0F 10 8B").FollowNearCallSelf().GetPtr(C_Player__GetAimSpeed);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 3A D8 75").FollowNearCallSelf().GetPtr(C_Player__IsInTimeShift);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? F3 0F 10 15 ?? ?? ?? ?? 48 8D 45").FollowNearCallSelf().GetPtr(C_Player__CurveLook);
+
+		g_GameDll.FindPatternSIMD("48 83 EC ?? 48 8B 01 FF 90 ?? ?? ?? ?? 48 83 C0 ?? 4C 8D 40").GetPtr(C_BaseCombatCharacter__GetActiveWeapon);
+	}
+	virtual void GetVar(void) const
+	{
+		CMemory(C_Player__CurveLook).OffsetSelf(0xFC).FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(4, 8).GetPtr(double_14D413928);
+		CMemory(C_Player__CurveLook).OffsetSelf(0x140).FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(4, 8).GetPtr(double_14D4151B8);
+		CMemory(C_Player__CurveLook).OffsetSelf(0x350).FindPatternSelf("44 8B").ResolveRelativeAddressSelf(3, 7).GetPtr(dword_1423880E0);
+		CMemory(C_Player__CurveLook).OffsetSelf(0x380).FindPatternSelf("48 8D").ResolveRelativeAddressSelf(3, 7).GetPtr(dword_16A2A1640);
+	}
+	virtual void GetCon(void) const { }
+	virtual void Detour(const bool bAttach) const;
+};
+///////////////////////////////////////////////////////////////////////////////
+
+#endif // C_PLAYER_H

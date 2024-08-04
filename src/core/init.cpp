@@ -146,9 +146,11 @@
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
 #include "game/client/input.h"
+#include "game/client/gamepad.h"
 #include "game/client/movehelper_client.h"
 #include "game/client/vscript_client.h"
 #include "game/client/cliententitylist.h"
+#include "game/client/c_player.h"
 #endif // !DEDICATED
 #include "public/edict.h"
 #ifndef DEDICATED
@@ -679,8 +681,10 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #ifndef DEDICATED
 	REGISTER(V_ViewRender);
 	REGISTER(VInput);
+	REGISTER(V_GamePad);
 	REGISTER(VMoveHelperClient);
 	REGISTER(VClientEntityList);
+	REGISTER(V_Player);
 #endif // !DEDICATED
 
 	// Public

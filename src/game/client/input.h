@@ -29,6 +29,7 @@ public:
 
 class CInput : public IInput
 {
+	friend class C_Player;
 public:
 	virtual void sub_140701C40() = 0;
 	virtual void sub_140701D60() = 0;
@@ -76,7 +77,10 @@ protected:
 		unsigned int ControlMap;
 	} joy_axis_t;
 
-private:
+	// NOTE: this has to be public because we otherwise couldn't properly set
+	// the prototypes for functions we obtain from the engine through our sig
+	// scanner.
+public:
 	struct UserInput_t
 	{
 		float m_flAccumulatedMouseXMovement;
@@ -166,6 +170,7 @@ private:
 		_BYTE gap200_endsAt_E30[3120];
 	};
 
+private:
 	// Has the mouse been initialized?
 	bool m_fMouseInitialized;
 	// Is the mosue active?

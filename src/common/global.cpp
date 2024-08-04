@@ -116,6 +116,10 @@ ConVar* cl_threaded_bone_setup             = nullptr;
 
 ConVar* origin_disconnectWhenOffline       = nullptr;
 ConVar* discord_updatePresence = nullptr;
+
+ConVar* gamepad_custom_enabled             = nullptr;
+ConVar* gamepad_custom_assist_on           = nullptr;
+ConVar* gamepad_look_curve                 = nullptr;
 #endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
@@ -191,6 +195,10 @@ void ConVar_InitShipped(void)
 #ifndef DEDICATED
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
 	discord_updatePresence           = g_pCVar->FindVar("discord_updatePresence");
+
+	gamepad_custom_enabled           = g_pCVar->FindVar("gamepad_custom_enabled");
+	gamepad_custom_assist_on         = g_pCVar->FindVar("gamepad_custom_assist_on");
+	gamepad_look_curve               = g_pCVar->FindVar("gamepad_look_curve");
 #endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	ip_cvar                          = g_pCVar->FindVar("ip");

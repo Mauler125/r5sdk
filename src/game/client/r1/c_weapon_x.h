@@ -44,6 +44,9 @@ class C_WeaponX : C_BaseAnimating
 	char gap_1339[7];
 	SmartAmmo_WeaponData_Client m_smartAmmo;
 	char unk_pad[560];
+
+	// TODO: reverse this properly and make this private !!!
+public:
 	char m_modVars[4432];
 };
 
