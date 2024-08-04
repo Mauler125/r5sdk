@@ -356,14 +356,14 @@ inline float (*sub_1405AD4E0)(C_Player* player);
 inline QAngle* (*sub_1406257E0)(QAngle* angle, C_Player* player);
 inline void (*sub_1405B03A0)(CInput::UserInput_t* input, C_Player* player, QAngle* angle);
 inline float (*sub_1405B0BC0)(C_Player* player, CInput::UserInput_t* input, int a3);
-inline void (*sub_1405AEA10)(void* a1, char a2, char a3);
+inline void (*sub_1405AEA10)(void* a1, bool isZoomed, char a3);
 inline void (*sub_1405AF810)(C_Player* player, CInput::UserInput_t* input, __int64 a3, char a4, char a5, Vector3D* a6, QAngle* a7, QAngle* a8, float a9);
 inline C_BaseEntity* (*sub_1409DC4E0)(C_Player* player);
 inline float (*sub_1405D4300)(C_Player* player);
 inline QAngle* (*sub_1405AF1F0)(CInput::UserInput_t* a1, C_Player* a2, QAngle* a3, QAngle* a4, float a5, float a6, float a7, float a8, QAngle* a9);
 
 inline float (*C_Player__GetZoomFrac)(C_Player* thisptr);
-inline int (*C_Player__GetAimSpeed)(C_Player* thisptr, bool useActiveWeapon);
+inline int (*C_Player__GetAimSpeed)(C_Player* thisptr, bool isZoomed);
 inline bool (*C_Player__IsInTimeShift)(C_Player* thisptr);
 
 inline void (*C_Player__CurveLook)(C_Player* player, CInput::UserInput_t* input, float a3, float a4, float a5, int a6, float inputSampleFrametime, bool runAimAssist, JoyAngle_t* outAngles);

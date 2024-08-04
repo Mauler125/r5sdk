@@ -20,7 +20,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     float v12; // xmm11_4
     float v13; // xmm14_4
     float v14; // xmm15_4
-    bool useActiveWeapon; // si
+    bool isZoomed; // si
     C_WeaponX* activeWeapon; // rax
     float v17; // xmm0_4
     float v18; // xmm0_4
@@ -83,11 +83,11 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     if (player->m_bZooming)
     {
         activeWeapon = C_BaseCombatCharacter__GetActiveWeapon(player);
-        useActiveWeapon = !activeWeapon || activeWeapon->m_modVars[3100];
+        isZoomed = !activeWeapon || activeWeapon->m_modVars[3100];
     }
     else
     {
-        useActiveWeapon = 0;
+        isZoomed = false;
     }
 
     v17 = fabs(v13);
@@ -123,7 +123,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
         || (unsigned int)sub_14066D190(player)
         || C_Player__IsInTimeShift(player)
         || v11 > 0.050000001
-        || !gamePadCustomEnabled && (unsigned int)C_Player__GetAimSpeed(player, useActiveWeapon) == 7
+        || !gamePadCustomEnabled && (unsigned int)C_Player__GetAimSpeed(player, isZoomed) == 7
         || (v19 = *(_QWORD*)&player->pl.lastPlayerView_angle.x, v70.z = player->pl.lastPlayerView_angle.z, *(_QWORD*)&v70.x = v19, *(float*)&v19 < -50.0)
         || sub_1405AD4E0(player) < FLT_EPSILON)
     {
@@ -169,7 +169,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     selectedGamePadLookCurve = 1;
     v33 = sub_1405B0BC0(player, input, 0);
     a5 = sub_1405B0BC0(player, input, 1);
-    customAimSpeed = C_Player__GetAimSpeed(player, useActiveWeapon);
+    customAimSpeed = C_Player__GetAimSpeed(player, isZoomed);
     v37 = *(_DWORD*)((unsigned int)(*dword_1423880E0) + *(_QWORD*)&player->gap_21a0[16]);
 
     bool v35 = m_bAutoAim_UnknownBool1B1; // r9
@@ -190,21 +190,21 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
 
     if (gamePadCustomEnabled)
     {
-        sub_1405AEA10(nullptr, useActiveWeapon, v37 == 1);
+        sub_1405AEA10(nullptr, isZoomed, v37 == 1);
         v38 = dword_16A2A1640;
     }
     else
     {
         if (v37 == 1)
         {
-            if (useActiveWeapon)
+            if (isZoomed)
                 v39 = (char*)g_lookSensitivity_TitanZoomed;
             else
                 v39 = (char*)g_lookSensitivity_Titan;
         }
         else
         {
-            v25 = !useActiveWeapon;
+            v25 = !isZoomed;
             v39 = (char*)g_lookSensitivity_Zoomed;
             if (v25)
                 v39 = (char*)g_lookSensitivity;
@@ -300,7 +300,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
 
     float adsScalar = 1.0f;
 
-    if (GamePad_UseAdvancedAdsScalarsPerScope() && pWeapon)
+    if (isZoomed && pWeapon && GamePad_UseAdvancedAdsScalarsPerScope())
     {
         const float interpAmount = pWeapon->HasTargetZoomFOV()
             ? pWeapon->GetZoomFOVInterpAmount(g_ClientGlobalVariables->exactCurTime)
