@@ -1,4 +1,5 @@
 #include "input.h"
+#include "edict.h"
 #include "r1/c_weapon_x.h"
 #include "c_player.h"
 #include "cliententitylist.h"
@@ -61,7 +62,6 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     float v58; // xmm0_4
     float v59; // xmm8_4
     float v60; // xmm9_4
-    C_WeaponX* v61; // r14
     float v62; // xmm10_4
     float v63; // xmm0_4
     float v64; // xmm6_4
@@ -271,7 +271,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
         || ((player->m_melee.scriptedState - 3) & 0xFFFFFFFA) == 0
         || sub_1409DC4E0(player)
         || (player->m_latestMeleeWeapon.IsValid())
-        && (player->CheckMeleeWeapon())
+        || (player->CheckMeleeWeapon())
         || player->m_MoveType == MOVETYPE_TRAVERSE && !player->m_traversalType
         || (bZooming = input->m_bZooming, v55 = player->m_bZooming, input->m_bZooming = v55, bZooming) && !v55)
     {
@@ -292,11 +292,25 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
 
     v59 = v31 * v12;
     v60 = v49 * v12;
-    v61 = C_BaseCombatCharacter__GetActiveWeapon(player);
-    if (v61 && C_Player__GetZoomFrac(player) >= 0.99000001 && v61->m_modVars[412])
+    C_WeaponX* pWeapon = C_BaseCombatCharacter__GetActiveWeapon(player);
+    if (pWeapon && C_Player__GetZoomFrac(player) >= 0.99000001 && pWeapon->m_modVars[412])
         v62 = *v38;
     else
         v62 = v38[1];
+
+    float adsScalar = 1.0f;
+
+    if (GamePad_UseAdvancedAdsScalarsPerScope() && pWeapon)
+    {
+        const float interpAmount = pWeapon->HasTargetZoomFOV()
+            ? pWeapon->GetZoomFOVInterpAmount(g_ClientGlobalVariables->exactCurTime)
+            : 1.0f - pWeapon->GetZoomFOVInterpAmount(g_ClientGlobalVariables->exactCurTime);
+
+        const float baseScalar1 = GamePad_GetAdvancedAdsScalarForOptic((WeaponScopeZoomLevel_e)pWeapon->m_modVars[0xA0C]);
+        const float baseScalar2 = GamePad_GetAdvancedAdsScalarForOptic((WeaponScopeZoomLevel_e)pWeapon->m_modVars[0xA10]);
+
+        adsScalar = ((baseScalar2 - baseScalar1) * interpAmount) + baseScalar1;
+    }
 
     v63 = sub_1405D4300(player);
     v64 = (float)(v50 * inputSampleFrametime) * *v38;
@@ -304,9 +318,14 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     v66 = (float)(v48 * inputSampleFrametime) * v62;
     a9->unk1 = v71.y;
     v65->unk2 = 0i64;
+
+    const float pitchX = ((v66 * adsScalar) + v59) * v63;
+    const float pitchY = ((v64 * adsScalar) + v60) * v63;
+
+    v65->pitch.x = pitchX * inputSampleFrametime_c;
+    v65->pitch.y = (pitchY * inputSampleFrametime_c) * -1.0f;
     v65->pitch.z = v71.x;
-    v65->pitch.x = (float)((float)(v66 + v59) * v63) * inputSampleFrametime_c;
-    v65->pitch.y = (float)((float)((float)(v64 + v60) * v63) * inputSampleFrametime_c) * -1.0f;
+
     if (m_bAutoAim_UnknownBool1AD && runAimAssist)
     {
         sub_1405AF1F0(input, player, (QAngle*)&v70, &v69, v14, v13, inputSampleFrametime_c, a5, (QAngle*)&a9);
