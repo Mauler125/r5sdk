@@ -387,7 +387,6 @@ namespace VScriptCode
                 LOGGER::Logger::LogState LogState = logger.intToLogState(flag);
                 bool state = logger.getLogState(LogState);
                 sq_pushbool(v, state);
-                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
             else
             {
@@ -418,7 +417,7 @@ namespace VScriptCode
                 }
 
                 LOGGER::pMkosLogger->LogEvent(logString, encrypt);
-                return SQ_OK;
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
             else
             {
