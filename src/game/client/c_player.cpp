@@ -28,7 +28,6 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     bool m_bAutoAim_UnknownBool1AC; // r13
     bool m_bAutoAim_UnknownBool1AD; // r15
     bool m_bAutoAim_UnknownBool1B1; // r14
-    vec_t z; // eax
     QAngle* v24; // rax
     bool v25; // zf
     QAngle v26; // xmm0_12
@@ -40,12 +39,10 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     int selectedGamePadLookCurve; // r12d
     float v33; // xmm7_4
     int customAimSpeed; // eax
-    char v36; // r10
     int v37; // edx
     float* v38; // rsi
     char* v39; // rsi
     float v40; // xmm6_4
-    float m_flUnknownFloat1B4; // xmm6_4
     float v42; // xmm0_4
     float v43; // xmm0_4
     float v44; // xmm10_4
@@ -69,7 +66,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     float v66; // xmm7_4
     QAngle v68; // [rsp+68h] [rbp-A0h] BYREF
     QAngle v69; // [rsp+78h] [rbp-90h] BYREF
-    Vector3D v70; // [rsp+88h] [rbp-80h] BYREF
+    Vector3D v70;
     QAngle v71; // [rsp+178h] [rbp+70h] BYREF
     float m_flUnknownFloat1B8; // [rsp+188h] [rbp+80h]
     float v73; // [rsp+190h] [rbp+88h]
@@ -124,26 +121,24 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
         || C_Player__IsInTimeShift(player)
         || v11 > 0.050000001
         || !gamePadCustomEnabled && (unsigned int)C_Player__GetAimSpeed(player, isZoomed) == 7
-        || (v19 = *(_QWORD*)&player->pl.lastPlayerView_angle.x, v70.z = player->pl.lastPlayerView_angle.z, *(_QWORD*)&v70.x = v19, *(float*)&v19 < -50.0)
+        || (v19 = *(_QWORD*)&player->pl.lastPlayerView_angle.x, v70.z = player->pl.lastPlayerView_angle.z, *(_QWORD*)&v70.x = v19, *(float*)&v19 < -50.0f)
         || sub_1405AD4E0(player) < FLT_EPSILON)
     {
-        m_bAutoAim_UnknownBool1AC = 0;
-        m_bAutoAim_UnknownBool1AD = 0;
-        runAimAssist = 0;
-        m_bAutoAim_UnknownBool1B1 = 0;
+        m_bAutoAim_UnknownBool1AC = false;
+        m_bAutoAim_UnknownBool1AD = false;
+        runAimAssist = false;
+        m_bAutoAim_UnknownBool1B1 = false;
     }
     else
     {
         m_bAutoAim_UnknownBool1AC = input->m_bAutoAim_UnknownBool1AC;
         m_bAutoAim_UnknownBool1AD = input->m_bAutoAim_UnknownBool1AD;
-        m_bAutoAim_UnknownBool1B1 = input->m_bAutoAim_UnknownBool1B1;
         runAimAssist = input->m_bAutoAim_UnknownBool1B0;
+        m_bAutoAim_UnknownBool1B1 = input->m_bAutoAim_UnknownBool1B1;
     }
 
-    z = input->m_vecUnknown1BC.z;
+    v70 = input->m_vecUnknown1BC;
     m_flUnknownFloat1B8 = input->m_flUnknownFloat1B8;
-    *(_QWORD*)&v70.x = *(_QWORD*)&input->m_vecUnknown1BC.x;
-    v70.z = z;
     v24 = sub_1406257E0(&v69, player);
     v25 = !input->m_bUnknown1D4;
     *(_QWORD*)&v26.x = *(_QWORD*)&v24->x;
@@ -159,7 +154,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     *(_QWORD*)&v69.x = v28;
     v69.z = v29;
     if (m_bAutoAim_UnknownBool1AD && m_bAutoAim_UnknownBool1B1)
-        input->m_flUnknownFloat1B4 = 0.0;
+        input->m_flUnknownFloat1B4 = 0.0f;
     else
         input->m_flUnknownFloat1B4 = inputSampleFrametime + input->m_flUnknownFloat1B4;
 
@@ -169,24 +164,17 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     selectedGamePadLookCurve = 1;
     v33 = sub_1405B0BC0(player, input, 0);
     a5 = sub_1405B0BC0(player, input, 1);
-    customAimSpeed = C_Player__GetAimSpeed(player, isZoomed);
-    v37 = *(_DWORD*)((unsigned int)(*dword_1423880E0) + *(_QWORD*)&player->gap_21a0[16]);
 
     bool v35 = m_bAutoAim_UnknownBool1B1; // r9
+    bool v36 = runAimAssist;
 
-    if (m_bAutoAim_UnknownBool1AC && m_bAutoAim_UnknownBool1AD)
+    if (!m_bAutoAim_UnknownBool1AD || !m_bAutoAim_UnknownBool1B1)
     {
-        v36 = true;
+        v35 = false;
     }
-    else
-    {
-        v36 = false;
 
-        if (!m_bAutoAim_UnknownBool1AC)
-        {
-            v35 = false;
-        }
-    }
+    customAimSpeed = C_Player__GetAimSpeed(player, isZoomed);
+    v37 = *(_DWORD*)((unsigned int)(*dword_1423880E0) + *(_QWORD*)&player->gap_21a0[16]);
 
     if (gamePadCustomEnabled)
     {
@@ -219,10 +207,10 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     }
     else
     {
-        m_flUnknownFloat1B4 = input->m_flUnknownFloat1B4;
-        if (m_flUnknownFloat1B4 <= 0.2)
+        float m_flUnknownFloat1B4 = input->m_flUnknownFloat1B4;
+        if (m_flUnknownFloat1B4 <= 0.2f)
         {
-            if (m_flUnknownFloat1B4 > 0.1)
+            if (m_flUnknownFloat1B4 > 0.1f)
                 v40 = (float)((float)((float)(m_flUnknownFloat1B4 - 0.1f) / 0.1f) * 0.35000002f) + 0.64999998f;
             else
                 v40 = 0.64999998f;
@@ -235,8 +223,8 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
 
     v42 = m_flUnknownFloat1B8;
     sub_1405AF810(player, input, (__int64)v38, m_bAutoAim_UnknownBool1AC, v36, &v70, &v69, &v68, m_flUnknownFloat1B8);
-    inputSampleFrametime = (float)((float)(v42 * (float)(1.0 - v40)) + v40) * (float)(1.0 - (float)(v33 * 0.94999999f));
-    v43 = sqrtf((float)(a3 * a3) + (float)(v73 * v73));
+    inputSampleFrametime = ((v42 * (1.0f - v40)) + v40) * (1.0f - (v33 * 0.94999999f));
+    v43 = sqrtf((a3 * a3) + (v73 * v73));
     v44 = v43;
 
     const int gamePadLookCurve = gamepad_look_curve->GetInt();
@@ -244,13 +232,13 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     if (gamePadLookCurve <= 4u)
         selectedGamePadLookCurve = gamePadLookCurve;
 
-    v45 = fabs((float)(v43 - 0.0f));
+    v45 = fabs((v43 - 0.0f));
     if (v45 > 0.001f)
     {
         if (gamePadCustomEnabled)
             v47 = GamePad_CalcOuterDeadzoneCustom(v43);
         else
-            v47 = GamePad_CalcOuterDeadzone(g_aimCurveConfig[selectedGamePadLookCurve], v43);
+            v47 = GamePad_CalcOuterDeadzone(&g_aimCurveConfig[selectedGamePadLookCurve], v43);
 
         v46 = v47 / v44;
     }
@@ -293,8 +281,8 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     v59 = v31 * v12;
     v60 = v49 * v12;
     C_WeaponX* pWeapon = C_BaseCombatCharacter__GetActiveWeapon(player);
-    if (pWeapon && C_Player__GetZoomFrac(player) >= 0.99000001 && pWeapon->m_modVars[412])
-        v62 = *v38;
+    if (pWeapon && C_Player__GetZoomFrac(player) >= 0.99000001f && pWeapon->m_modVars[412])
+        v62 = v38[0];
     else
         v62 = v38[1];
 
@@ -317,7 +305,8 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     v65 = a9;
     v66 = (float)(v48 * inputSampleFrametime) * v62;
     a9->unk1 = v71.y;
-    v65->unk2 = 0i64;
+
+    v65->unk2.Init();
 
     const float pitchX = ((v66 * adsScalar) + v59) * v63;
     const float pitchY = ((v64 * adsScalar) + v60) * v63;
@@ -328,8 +317,7 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
 
     if (m_bAutoAim_UnknownBool1AD && runAimAssist)
     {
-        sub_1405AF1F0(input, player, (QAngle*)&v70, &v69, v14, v13, inputSampleFrametime_c, a5, (QAngle*)&a9);
-        v65->unk2 = a9;
+        sub_1405AF1F0(input, player, (QAngle*)&v70, &v69, v14, v13, inputSampleFrametime_c, a5, &v65->unk2);
     }
 }
 

@@ -61,7 +61,7 @@ struct JoyAngle_t
 {
 	QAngle pitch;
 	float unk1;
-	void* unk2;
+	Vector2D unk2;
 };
 
 class C_Player : public C_BaseCombatCharacter
@@ -360,7 +360,7 @@ inline void (*sub_1405AEA10)(void* a1, bool isZoomed, char a3);
 inline void (*sub_1405AF810)(C_Player* player, CInput::UserInput_t* input, __int64 a3, char a4, char a5, Vector3D* a6, QAngle* a7, QAngle* a8, float a9);
 inline C_BaseEntity* (*sub_1409DC4E0)(C_Player* player);
 inline float (*sub_1405D4300)(C_Player* player);
-inline QAngle* (*sub_1405AF1F0)(CInput::UserInput_t* a1, C_Player* a2, QAngle* a3, QAngle* a4, float a5, float a6, float a7, float a8, QAngle* a9);
+inline QAngle* (*sub_1405AF1F0)(CInput::UserInput_t* a1, C_Player* a2, QAngle* a3, QAngle* a4, float a5, float a6, float a7, float a8, Vector2D* a9);
 
 inline float (*C_Player__GetZoomFrac)(C_Player* thisptr);
 inline int (*C_Player__GetAimSpeed)(C_Player* thisptr, bool isZoomed);

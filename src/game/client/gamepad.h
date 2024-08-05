@@ -39,7 +39,7 @@ inline char* g_lookSensitivity_Titan;
 inline char* g_lookSensitivity_Zoomed;
 inline char* g_lookSensitivity;
 
-inline AimCurveConfig_s** g_aimCurveConfig;
+inline AimCurveConfig_s* g_aimCurveConfig;
 
 ///////////////////////////////////////////////////////////////////////////////
 class V_GamePad : public IDetour
