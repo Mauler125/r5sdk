@@ -43,6 +43,14 @@ add_sources( SOURCE_GROUP "Player"
     "shared/player_melee.h"
 )
 
+add_sources( SOURCE_GROUP "Weapon"
+    "shared/r1/weapon_playerdata.h"
+    "shared/r1/weapon_bolt.cpp"
+    "shared/r1/weapon_bolt.h"
+    "shared/r1/grapple.h"
+    "shared/r1/smartammo.h"
+)
+
 add_sources( SOURCE_GROUP "Network"
     "shared/playernet_vars.h"
     "shared/usermessages.h"
@@ -70,14 +78,6 @@ add_sources( SOURCE_GROUP "Shared"
 add_sources( SOURCE_GROUP "Script"
     "shared/vscript_shared.cpp"
     "shared/vscript_shared.h"
-)
-
-add_sources( SOURCE_GROUP "Weapon"
-    "shared/r1/weapon_playerdata.h"
-    "shared/r1/weapon_bolt.cpp"
-    "shared/r1/weapon_bolt.h"
-    "shared/r1/grapple.h"
-    "shared/r1/smartammo.h"
 )
 
 endif()
@@ -153,6 +153,7 @@ add_sources( SOURCE_GROUP "Player"
 )
 
 add_sources( SOURCE_GROUP "Weapon"
+    "server/r1/weapon_x.cpp"
     "server/r1/weapon_x.h"
 )
 
@@ -216,8 +217,14 @@ add_sources( SOURCE_GROUP "Entity"
 )
 
 add_sources( SOURCE_GROUP "Player"
-    "client/c_baseplayer.h"
+    "client/c_player.cpp"
+    "client/c_player.h"
     "client/c_playerlocaldata.h"
+)
+
+add_sources( SOURCE_GROUP "Weapon"
+    "client/r1/c_weapon_x.cpp"
+    "client/r1/c_weapon_x.h"
 )
 
 add_sources( SOURCE_GROUP "Input"

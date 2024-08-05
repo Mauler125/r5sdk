@@ -122,7 +122,7 @@ void Mod_GetAllInstalledMaps()
     AddFilesToList(fileList, "vpk", "vpk", nullptr, '/');
 
     std::cmatch regexMatches;
-    std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
+    AUTO_LOCK(g_InstalledMapsMutex);
 
     g_InstalledMaps.Purge(); // Clear current list.
 

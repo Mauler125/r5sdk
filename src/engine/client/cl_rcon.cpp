@@ -18,8 +18,8 @@
 //-----------------------------------------------------------------------------
 // Purpose: console variables
 //-----------------------------------------------------------------------------
-static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString);
-static void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString);
+static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
+static void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
 
 static ConVar cl_rcon_address("cl_rcon_address", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address (rcon client is disabled if empty)", &RCON_AddressChanged_f);
 static ConVar cl_rcon_inputonly("cl_rcon_inputonly", "0", FCVAR_RELEASE, "Tells the rcon server whether or not we are input only.", RCON_InputOnlyChanged_f);
@@ -254,7 +254,7 @@ RCON_AddressChanged_f
   to it
 =====================
 */
-static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString)
+static void RCON_AddressChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{
@@ -290,7 +290,7 @@ RCON_InputOnlyChanged_f
   changes
 =====================
 */
-static void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString)
+static void RCON_InputOnlyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	RCONClient()->RequestConsoleLog(RCONClient()->ShouldReceive());
 }

@@ -78,7 +78,7 @@
 MP_GameMode_Changed_f
 =====================
 */
-void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString)
+void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	v_SetupGamemode(mp_gamemode->GetString());
 }
@@ -228,7 +228,7 @@ void VPK_Unmount_f(const CCommand& args)
 	FileSystem()->UnmountVPKFile(args.Arg(1));
 }
 
-void LanguageChanged_f(IConVar* pConVar, const char* pOldString)
+void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{

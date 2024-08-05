@@ -36,7 +36,7 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetAvailableMaps(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_InstalledMapsMutex);
+            AUTO_LOCK(g_InstalledMapsMutex);
 
             if (g_InstalledMaps.IsEmpty())
                 SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
@@ -59,15 +59,13 @@ namespace VScriptCode
         //-----------------------------------------------------------------------------
         SQRESULT GetAvailablePlaylists(HSQUIRRELVM v)
         {
-            std::lock_guard<std::mutex> l(g_PlaylistsVecMutex);
-
-            if (g_vAllPlaylists.empty())
+            if (g_vecAllPlaylists.IsEmpty())
                 SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
 
             sq_newarray(v, 0);
-            for (const string& it : g_vAllPlaylists)
+            for (const CUtlString& it : g_vecAllPlaylists)
             {
-                sq_pushstring(v, it.c_str(), -1);
+                sq_pushstring(v, it.String(), -1);
                 sq_arrayappend(v, -2);
             }
 

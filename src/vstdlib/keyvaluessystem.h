@@ -104,7 +104,7 @@ private:
 	CUtlRBTree<MemoryLeakTracker_t, int> m_KeyValuesTrackingList;
 	CUtlMap<HKeySymbol, bool> m_KvConditionalSymbolTable;
 
-	CThreadFastMutex m_Mutex;
+	CThreadMutex m_Mutex;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

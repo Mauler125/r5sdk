@@ -7,5 +7,3 @@
 
 #include "core/stdafx.h"
 #include "game/client/c_baseentity.h"
-#include "game/client/c_baseplayer.h"
-

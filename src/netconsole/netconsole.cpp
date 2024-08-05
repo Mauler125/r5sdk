@@ -46,7 +46,7 @@ CNetCon::~CNetCon(void)
 //-----------------------------------------------------------------------------
 bool CNetCon::Init(const bool bAnsiColor, const char* pAdr, const char* pKey)
 {
-	std::lock_guard<std::mutex> l(m_Mutex);
+	AUTO_LOCK(m_Mutex);
 
 	g_CoreMsgVCallback = &EngineLoggerSink;
 	TermSetup(bAnsiColor);
@@ -123,7 +123,7 @@ bool CNetCon::Shutdown(void)
 
 	m_bInitialized = false;
 
-	std::lock_guard<std::mutex> l(m_Mutex);
+	AUTO_LOCK(m_Mutex);
 	bool bResult = false;
 
 	GetSocketCreator()->CloseAllAcceptedSockets();
@@ -220,7 +220,7 @@ void CNetCon::RunInput(const string& lineInput)
 		return;
 	}
 
-	std::lock_guard<std::mutex> l(m_Mutex);
+	AUTO_LOCK(m_Mutex);
 
 	if (IsConnected())
 	{
@@ -311,7 +311,7 @@ bool CNetCon::RunFrame(void)
 {
 	if (IsInitialized())
 	{
-		std::lock_guard<std::mutex> l(m_Mutex);
+		AUTO_LOCK(m_Mutex);
 
 		if (IsConnected())
 		{

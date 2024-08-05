@@ -15,7 +15,7 @@
 
 #include "icliententityinternal.h"
 #include "entitylist_clientbase.h"
-#include "c_baseplayer.h"
+#include "c_player.h"
 
 // Implement this class and register with entlist to receive entity create/delete notification
 class IClientEntityListener

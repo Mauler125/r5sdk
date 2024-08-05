@@ -528,24 +528,26 @@ void CBrowser::DrawHostPanel(void)
     ImGui::InputTextWithHint("##ServerHost_ServerDesc", "Server description (optional)", &details.description);
     ImGui::Spacing();
 
-    if (ImGui::BeginCombo("Mode", details.playlist.c_str()))
+    const char* const selectedPlaylists = details.playlist.c_str();
+
+    if (ImGui::BeginCombo("Mode", selectedPlaylists))
     {
-        g_PlaylistsVecMutex.lock();
-        for (const string& svPlaylist : g_vAllPlaylists)
+        for (const CUtlString& svPlaylist : g_vecAllPlaylists)
         {
-            if (ImGui::Selectable(svPlaylist.c_str(), svPlaylist == details.playlist))
+            const char* const cachedPlaylists = svPlaylist.String();
+
+            if (ImGui::Selectable(cachedPlaylists, (strcmp(cachedPlaylists, selectedPlaylists) == 0)))
             {
                 details.playlist = svPlaylist;
             }
         }
 
-        g_PlaylistsVecMutex.unlock();
         ImGui::EndCombo();
     }
 
     if (ImGui::BeginCombo("Map", details.map.c_str()))
     {
-        g_InstalledMapsMutex.lock();
+        g_InstalledMapsMutex.Lock();
 
         FOR_EACH_VEC(g_InstalledMaps, i)
         {
@@ -558,7 +560,7 @@ void CBrowser::DrawHostPanel(void)
             }
         }
 
-        g_InstalledMapsMutex.unlock();
+        g_InstalledMapsMutex.Unlock();
         ImGui::EndCombo();
     }
 

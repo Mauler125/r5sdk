@@ -19,4 +19,4 @@ void VKeyValues::Detour(const bool bAttach) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::mutex g_InstalledMapsMutex;
+CThreadMutex g_InstalledMapsMutex;

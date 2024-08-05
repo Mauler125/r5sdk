@@ -177,7 +177,7 @@ void CEngineAPI::PumpMessages()
 //-----------------------------------------------------------------------------
 // Purpose: force update NVIDIA Reflex Low Latency parameters
 //-----------------------------------------------------------------------------
-static void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString)
+static void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
     GFX_MarkLowLatencyParametersOutOfDate();
 }

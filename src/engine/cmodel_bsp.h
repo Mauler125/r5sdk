@@ -129,7 +129,7 @@ inline bool* g_pPakPrecacheJobFinished;
 inline void(*Mod_UnloadPendingAndPrecacheRequestedPaks)(void);
 
 extern CUtlVector<CUtlString> g_InstalledMaps;
-extern std::mutex g_InstalledMapsMutex;
+extern CThreadMutex g_InstalledMapsMutex;
 
 bool Mod_LevelHasChanged(const char* pszLevelName);
 void Mod_GetAllInstalledMaps();

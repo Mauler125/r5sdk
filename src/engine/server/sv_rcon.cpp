@@ -29,10 +29,10 @@ static const char s_BannedMessage[]  = "Go away.\n";
 //-----------------------------------------------------------------------------
 // Purpose: console variables
 //-----------------------------------------------------------------------------
-static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString);
-static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString);
-static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString);
-static void RCON_UseLoopbackSocketChanged_f(IConVar* pConVar, const char* pOldString);
+static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
+static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
+static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
+static void RCON_UseLoopbackSocketChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
 
 static ConVar sv_rcon_password("sv_rcon_password", "", FCVAR_RELEASE, "Remote server access password (rcon server is disabled if empty)", &RCON_PasswordChanged_f);
 static ConVar sv_rcon_sendlogs("sv_rcon_sendlogs", "0", FCVAR_RELEASE, "Network console logs to connected and authenticated sockets");
@@ -674,7 +674,7 @@ int CRConServer::GetAuthenticatedCount(void) const
 //-----------------------------------------------------------------------------
 // Purpose: change RCON password on server and drop all connections
 //-----------------------------------------------------------------------------
-static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString)
+static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{
@@ -697,7 +697,7 @@ static void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString)
 //-----------------------------------------------------------------------------
 // Purpose: change whitelist address on RCON server
 //-----------------------------------------------------------------------------
-static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString)
+static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{
@@ -714,7 +714,7 @@ static void RCON_WhiteListAddresChanged_f(IConVar* pConVar, const char* pOldStri
 //-----------------------------------------------------------------------------
 // Purpose: change max connection count on RCON server
 //-----------------------------------------------------------------------------
-static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString)
+static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	if (!RCONServer()->IsInitialized())
 		return; // Not initialized; no sockets at this point.
@@ -753,7 +753,7 @@ static void RCON_ConnectionCountChanged_f(IConVar* pConVar, const char* pOldStri
 //-----------------------------------------------------------------------------
 // Purpose: change whether to bind on loopback socket
 //-----------------------------------------------------------------------------
-static void RCON_UseLoopbackSocketChanged_f(IConVar* pConVar, const char* pOldString)
+static void RCON_UseLoopbackSocketChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{

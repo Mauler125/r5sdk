@@ -7,7 +7,7 @@
 #include <game/server/player.h>
 #else
 #include <game/client/c_baseentity.h>
-#include <game/client/c_baseplayer.h>
+#include <game/client/c_player.h>
 #endif
 
 CBaseEntity* CreateWeaponBolt(Vector3D* origin, Vector3D* end, __int64 unused, float scale, CPlayer* unkEnt,

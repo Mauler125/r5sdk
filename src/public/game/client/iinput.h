@@ -33,7 +33,7 @@ public:
 	virtual void		EncodeUserCmdToBuffer( int slot, bf_write& buf, int sequenceNumber ) = 0;
 	virtual void		DecodeUserCmdFromBuffer( int slot, bf_read& buf, int sequenceNumber ) = 0;
 
-	virtual CUserCmd	*GetUserCmd( int slot, int sequenceNumber ) = 0; // TODO[ AMOS ]: CUserCmdExteded*
+	virtual CUserCmdExtended	*GetUserCmd( int slot, int sequenceNumber ) = 0;
 
 	virtual void MakeWeaponSelection( int secondary, int primary ) = 0;
 

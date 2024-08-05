@@ -191,11 +191,11 @@ public:
 	virtual bool                IsRegistered(void) const;
 
 	// Install a change callback (there shouldn't already be one....)
-	void                        InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke);
-	void                        RemoveChangeCallback(FnChangeCallback_t callback);
+	void                        InstallChangeCallback(FnChangeCallback_t callback, ChangeUserData_t userData, bool bInvoke);
+	void                        RemoveChangeCallback(FnChangeCallback_t callback, ChangeUserData_t userData);
 
 	int                         GetChangeCallbackCount() const { return m_pParent->m_fnChangeCallbacks.Count(); }
-	FnChangeCallback_t          GetChangeCallback(int slot) const { return m_pParent->m_fnChangeCallbacks[slot]; }
+	FnChangeCallback_t          GetChangeCallback(int slot) const { return m_pParent->m_fnChangeCallbacks[slot].m_pCallback; }
 
 	FORCEINLINE bool            GetBool(void) const;
 	FORCEINLINE float           GetFloat(void) const;
@@ -254,14 +254,24 @@ private:
 		const char* pHelpString = 0, bool bMin = false, float fMin = 0.0, bool bMax = false, float fMax = false,
 		FnChangeCallback_t callback = 0, const char* pszUsageString = 0);
 
-//protected:
-public: // TODO: make protected!
+protected:
 	struct CVValue_t
 	{
 		char*      m_pszString;
 		size_t     m_iStringLength;
 		float      m_fValue;
 		int        m_nValue;
+	};
+
+	struct CVChange_t
+	{
+		bool operator ==(const CVChange_t& other) const
+		{
+			return (other.m_pCallback == m_pCallback && !m_pUserData);
+		}
+
+		FnChangeCallback_t m_pCallback;
+		ChangeUserData_t   m_pUserData; // Typically used for syncing cvars with VGUI sliders.
 	};
 
 	ConVar*        m_pParent;         //0x0048
@@ -271,7 +281,7 @@ public: // TODO: make protected!
 	float          m_fMinVal;         //0x0074
 	bool           m_bHasMax;         //0x0078
 	float          m_fMaxVal;         //0x007C
-	CUtlVector<FnChangeCallback_t> m_fnChangeCallbacks; //0x0080
+	CUtlVector<CVChange_t> m_fnChangeCallbacks; //0x0080
 };
 static_assert(sizeof(ConVar) == 0xA0);
 

@@ -7,9 +7,8 @@
 #include "engine/cmodel_bsp.h"
 #include "playlists.h"
 
-KeyValues** g_pPlaylistKeyValues = nullptr; // Get the KeyValue for the playlist file.
-vector<string> g_vAllPlaylists = { "<<null>>" };
-std::mutex g_PlaylistsVecMutex;
+KeyValues** g_pPlaylistKeyValues = nullptr; // The KeyValue for the playlist file.
+CUtlVector<CUtlString> g_vecAllPlaylists;   // Cached playlists entries.
 
 /*
 =====================
@@ -19,7 +18,6 @@ Host_ReloadPlaylists_f
 static void Host_ReloadPlaylists_f()
 {
 	v_Playlists_Download_f();
-	Playlists_SDKInit(); // Re-Init playlist.
 }
 
 static ConCommand playlist_reload("playlist_reload", Host_ReloadPlaylists_f, "Reloads the playlists file", FCVAR_RELEASE);
@@ -34,12 +32,11 @@ void Playlists_SDKInit(void)
 		KeyValues* pPlaylists = (*g_pPlaylistKeyValues)->FindKey("Playlists");
 		if (pPlaylists)
 		{
-			std::lock_guard<std::mutex> l(g_PlaylistsVecMutex);
-			g_vAllPlaylists.clear();
+			g_vecAllPlaylists.Purge();
 
 			for (KeyValues* pSubKey = pPlaylists->GetFirstTrueSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextTrueSubKey())
 			{
-				g_vAllPlaylists.push_back(pSubKey->GetName()); // Get all playlists.
+				g_vecAllPlaylists.AddToTail(pSubKey->GetName()); // Get all playlists.
 			}
 		}
 	}
@@ -53,6 +50,8 @@ void Playlists_SDKInit(void)
 //-----------------------------------------------------------------------------
 bool Playlists_Load(const char* pszPlaylist)
 {
+	ThreadJoinServerJob();
+
 	const bool bResults = v_Playlists_Load(pszPlaylist);
 	Playlists_SDKInit();
 
