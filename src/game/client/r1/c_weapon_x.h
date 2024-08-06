@@ -12,6 +12,7 @@ public:
 	float GetZoomFOVInterpAmount(const float curTime) const;
 	inline bool HasTargetZoomFOV() { return m_playerData.GetTargetZoomFOV() == *(float*)&m_modVars[3120]; }
 
+	inline bool IsWeaponMelee() const { return (unsigned int)(*(_DWORD*)&m_modVars[3952] - 4) <= 1; }
 private:
 	EHANDLE m_weaponOwner;
 	float m_lastPrimaryAttack;
