@@ -20,8 +20,6 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     float v12; // xmm11_4
     float v13; // xmm14_4
     float v14; // xmm15_4
-    bool isZoomed; // si
-    C_WeaponX* activeWeapon; // rax
     float v17; // xmm0_4
     float v18; // xmm0_4
     __int64 v19; // xmm1_8
@@ -75,15 +73,10 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     v13 = (float)(1.0f - v11) * a3;
     v14 = (float)(1.0f - v11) * a4;
 
-    if (player->m_bZooming)
-    {
-        activeWeapon = C_BaseCombatCharacter__GetActiveWeapon(player);
-        isZoomed = !activeWeapon || activeWeapon->m_modVars[3100];
-    }
-    else
-    {
-        isZoomed = false;
-    }
+    const C_WeaponX* activeWeapon = C_BaseCombatCharacter__GetActiveWeapon(player);
+    const bool isZoomed = player->m_bZooming
+        ? !activeWeapon || activeWeapon->m_modVars[3100]
+        : false;
 
     v17 = fabs(v13);
     if (v17 > 0.050000001 || (v18 = fabs(v14), v18 > 0.050000001))
@@ -271,22 +264,22 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
 
     v59 = v31 * v12;
     v60 = v49 * v12;
-    C_WeaponX* pWeapon = C_BaseCombatCharacter__GetActiveWeapon(player);
-    if (pWeapon && C_Player__GetZoomFrac(player) >= 0.99000001f && pWeapon->m_modVars[412])
+
+    if (activeWeapon && C_Player__GetZoomFrac(player) >= 0.99000001f && activeWeapon->m_modVars[412])
         v62 = v38[0];
     else
         v62 = v38[1];
 
     float adsScalar = 1.0f;
 
-    if (isZoomed && pWeapon && GamePad_UseAdvancedAdsScalarsPerScope())
+    if (isZoomed && activeWeapon && GamePad_UseAdvancedAdsScalarsPerScope())
     {
-        const float interpAmount = pWeapon->HasTargetZoomFOV()
-            ? pWeapon->GetZoomFOVInterpAmount(g_ClientGlobalVariables->exactCurTime)
-            : 1.0f - pWeapon->GetZoomFOVInterpAmount(g_ClientGlobalVariables->exactCurTime);
+        const float interpAmount = activeWeapon->HasTargetZoomFOV()
+            ? activeWeapon->GetZoomFOVInterpAmount(g_ClientGlobalVariables->exactCurTime)
+            : 1.0f - activeWeapon->GetZoomFOVInterpAmount(g_ClientGlobalVariables->exactCurTime);
 
-        const float baseScalar1 = GamePad_GetAdvancedAdsScalarForOptic((WeaponScopeZoomLevel_e)pWeapon->m_modVars[0xA0C]);
-        const float baseScalar2 = GamePad_GetAdvancedAdsScalarForOptic((WeaponScopeZoomLevel_e)pWeapon->m_modVars[0xA10]);
+        const float baseScalar1 = GamePad_GetAdvancedAdsScalarForOptic((WeaponScopeZoomLevel_e)activeWeapon->m_modVars[0xA0C]);
+        const float baseScalar2 = GamePad_GetAdvancedAdsScalarForOptic((WeaponScopeZoomLevel_e)activeWeapon->m_modVars[0xA10]);
 
         adsScalar = ((baseScalar2 - baseScalar1) * interpAmount) + baseScalar1;
     }
