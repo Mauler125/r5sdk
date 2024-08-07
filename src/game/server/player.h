@@ -751,6 +751,7 @@ static_assert(sizeof(CPlayer) == 0x7EF0);
 inline QAngle*(*CPlayer__EyeAngles)(CPlayer* pPlayer, QAngle* pAngles);
 inline void(*CPlayer__PlayerRunCommand)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover);
 inline bool(*CPlayer__PhysicsSimulate)(CPlayer* pPlayer, int numPerIteration, bool adjustTimeBase);
+inline void(*CPlayer__ApplyViewPunch)(CPlayer* pPlayer, const CTakeDamageInfo* inputInfo);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VPlayer : public IDetour
@@ -760,12 +761,14 @@ class VPlayer : public IDetour
 		LogFunAdr("CPlayer::EyeAngles", CPlayer__EyeAngles);
 		LogFunAdr("CPlayer::PlayerRunCommand", CPlayer__PlayerRunCommand);
 		LogFunAdr("CPlayer::PhysicsSimulate", CPlayer__PhysicsSimulate);
+		LogFunAdr("CPlayer::ApplyViewPunch", CPlayer__ApplyViewPunch);
 	}
 	virtual void GetFun(void) const
 	{
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 F2 0F 10 05 ?? ?? ?? ??").GetPtr(CPlayer__EyeAngles);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 03 49 81 C6 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CPlayer__PlayerRunCommand);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ?? 84 C0 74 06").FollowNearCallSelf().GetPtr(CPlayer__PhysicsSimulate);
+		g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B ?? 49 89 6B ?? 49 89 7B ?? 41 54 41 56 41 57 48 81 EC").GetPtr(CPlayer__ApplyViewPunch);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
