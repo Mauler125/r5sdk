@@ -195,7 +195,8 @@ void CPlayer::SetLastUserCommand(CUserCmd* pUserCmd)
 	m_LastCmd.Copy(pUserCmd);
 }
 
-static ConVar player_applyViewPunch("player_applyViewPunch", "0", FCVAR_RELEASE, "Whether to apply view punch from damage.");
+static ConVar player_applyViewPunch("player_applyViewPunch", "1", FCVAR_RELEASE, "Whether to apply view punch from damage.");
+static ConVar player_applyViewPunchDuringAim("player_applyViewPunchDuringAim", "0", FCVAR_RELEASE, "Whether to apply view punch from damage while aiming.");
 
 //------------------------------------------------------------------------------
 // Purpose: applies view punch to player view angles when taking damage
@@ -204,8 +205,13 @@ static ConVar player_applyViewPunch("player_applyViewPunch", "0", FCVAR_RELEASE,
 //------------------------------------------------------------------------------
 void Player_ApplyViewPunch(CPlayer* thisptr, const CTakeDamageInfo* inputInfo)
 {
-	if (player_applyViewPunch.GetBool())
-		CPlayer__ApplyViewPunch(thisptr, inputInfo);
+	if (!player_applyViewPunch.GetBool())
+		return;
+
+	if (thisptr->IsZooming() && !player_applyViewPunchDuringAim.GetBool())
+		return;
+
+	CPlayer__ApplyViewPunch(thisptr, inputInfo);
 }
 
 //------------------------------------------------------------------------------

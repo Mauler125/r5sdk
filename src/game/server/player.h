@@ -200,7 +200,8 @@ public:
 
 	inline NucleusID_t GetPlatformUserId() const { return m_platformUserId; };
 
-	inline const char* GetNetName() const { return m_szNetname; };
+	inline const char* GetNetName() const { return m_szNetname; }
+	inline bool IsZooming() { return m_bZooming; }
 
 private:
 	char m_szNetname[256];
