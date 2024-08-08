@@ -1030,8 +1030,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
 			con->side = offMeshConClass[i*2+1];
 #if DT_NAVMESH_SET_VERSION == 5
-			con->jumpType = params->offMeshConJumps[i];
-			con->unk1 = 1;
+			con->jumpType = 0; // unknown
+			con->unk1 = 1; // unknown
 #endif
 			con->userId = params->offMeshConUserID[i];
 #if DT_NAVMESH_SET_VERSION >= 7
