@@ -195,6 +195,25 @@ void CPlayer::SetLastUserCommand(CUserCmd* pUserCmd)
 	m_LastCmd.Copy(pUserCmd);
 }
 
+static ConVar player_applyViewPunch("player_applyViewPunch", "1", FCVAR_RELEASE, "Whether to apply view punch from damage.");
+static ConVar player_applyViewPunchDuringAim("player_applyViewPunchDuringAim", "0", FCVAR_RELEASE, "Whether to apply view punch from damage while aiming.");
+
+//------------------------------------------------------------------------------
+// Purpose: applies view punch to player view angles when taking damage
+// Input  : *player (this) - 
+//			inputInfo - 
+//------------------------------------------------------------------------------
+void Player_ApplyViewPunch(CPlayer* thisptr, const CTakeDamageInfo* inputInfo)
+{
+	if (!player_applyViewPunch.GetBool())
+		return;
+
+	if (thisptr->IsZooming() && !player_applyViewPunchDuringAim.GetBool())
+		return;
+
+	CPlayer__ApplyViewPunch(thisptr, inputInfo);
+}
+
 //------------------------------------------------------------------------------
 // Purpose: run physics simulation for player
 // Input  : *player (this) - 
@@ -263,4 +282,5 @@ static ConCommand sv_addbot("sv_addbot", CC_CreateFakePlayer_f, "Creates a bot o
 void VPlayer::Detour(const bool bAttach) const
 {
 	DetourSetup(&CPlayer__PhysicsSimulate, &Player_PhysicsSimulate, bAttach);
+	DetourSetup(&CPlayer__ApplyViewPunch, &Player_ApplyViewPunch, bAttach);
 }
