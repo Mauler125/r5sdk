@@ -171,6 +171,7 @@ protected:
 	EditorDebugDraw m_dd;
 	unsigned int m_navMeshDrawFlags;
 	int m_traverseLinkDrawTypes;
+	int m_traverseLinkDrawDistances;
 	float m_recastDrawOffset[3];
 	float m_detourDrawOffset[3];
 

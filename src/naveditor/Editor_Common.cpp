@@ -307,7 +307,7 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 	{
 		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH)
 		{
-			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, m_navMeshDrawFlags, m_traverseLinkDrawTypes);
+			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, m_navMeshDrawFlags, m_traverseLinkDrawTypes, m_traverseLinkDrawDistances);
 			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, detourDrawOffset, detourDrawFlags, duRGBA(0, 0, 0, 128));
 		}
 	}
