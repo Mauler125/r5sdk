@@ -195,7 +195,7 @@ void CPlayer::SetLastUserCommand(CUserCmd* pUserCmd)
 	m_LastCmd.Copy(pUserCmd);
 }
 
-static ConVar player_applyViewPunch("player_applyViewPunch", "1", FCVAR_RELEASE, "Whether to apply view punch from damage.");
+static ConVar player_applyViewPunch("player_applyViewPunch", "0", FCVAR_RELEASE, "Whether to apply view punch from damage.");
 static ConVar player_applyViewPunchDuringAim("player_applyViewPunchDuringAim", "0", FCVAR_RELEASE, "Whether to apply view punch from damage while aiming.");
 
 //------------------------------------------------------------------------------
