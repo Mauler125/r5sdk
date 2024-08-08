@@ -143,13 +143,16 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 		if (startPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
 			continue;
 
+		if (tile->links[i].ref == 0)
+			continue;
+
 		// Iterate through links in the poly.
 		for (int j = startPoly->firstLink; j != -1; j = tile->links[j].next)
 		{
 			const dtLink* link = &tile->links[j];
 
 			// Skip "normal" links (non-jumping ones).
-			if (link->traverseType == DT_NULL_TRAVERSE_TYPE || tile->links[i].ref == 0)
+			if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
 				continue;
 
 			// Filter, drawLinkType -1 means draw all
