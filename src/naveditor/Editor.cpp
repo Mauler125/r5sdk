@@ -353,6 +353,12 @@ void Editor::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
+void Editor::buildTraverseLinks()
+{
+	if (!m_navMesh) return;
+	dtCreateTraverseLinks(m_navMesh);
+}
+
 void Editor::buildStaticPathingData()
 {
 	if (!m_navMesh) return;

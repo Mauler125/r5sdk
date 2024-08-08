@@ -115,19 +115,19 @@ inline int computeTileHash(int x, int y, const int mask)
 	return (int)(n & mask);
 }
 
-inline unsigned int allocLink(dtMeshTile* tile)
+unsigned int dtMeshTile::allocLink()
 {
-	if (tile->linksFreeList == DT_NULL_LINK)
+	if (linksFreeList == DT_NULL_LINK)
 		return DT_NULL_LINK;
-	unsigned int link = tile->linksFreeList;
-	tile->linksFreeList = tile->links[link].next;
+	unsigned int link = linksFreeList;
+	linksFreeList = links[link].next;
 	return link;
 }
 
-inline void freeLink(dtMeshTile* tile, unsigned int link)
+void dtMeshTile::freeLink(unsigned int link)
 {
-	tile->links[link].next = tile->linksFreeList;
-	tile->linksFreeList = link;
+	links[link].next = linksFreeList;
+	linksFreeList = link;
 }
 
 int dtCalcTraversalTableCellIndex(const int numPolyGroups,
@@ -409,7 +409,7 @@ void dtNavMesh::unconnectLinks(dtMeshTile* tile, dtMeshTile* target)
 					poly->firstLink = nj;
 				else
 					tile->links[pj].next = nj;
-				freeLink(tile, j);
+				tile->freeLink(j);
 				j = nj;
 			}
 			else
@@ -453,7 +453,7 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 			int nnei = findConnectingPolys(va,vb, target, rdOppositeTile(dir), nei,neia,4);
 			for (int k = 0; k < nnei; ++k)
 			{
-				unsigned int idx = allocLink(tile);
+				unsigned int idx = tile->allocLink();
 				if (idx != DT_NULL_LINK)
 				{
 					dtLink* link = &tile->links[idx];
@@ -528,7 +528,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		rdVcopy(v, nearestPt);
 
 		// Link off-mesh connection to target poly.
-		unsigned int idx = allocLink(target);
+		unsigned int idx = target->allocLink();
 		dtLink* link = nullptr;
 		if (idx != DT_NULL_LINK)
 		{
@@ -550,7 +550,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		dtLink* tlink = nullptr;
 		if (targetCon->flags & DT_OFFMESH_CON_BIDIR)
 		{
-			tidx = allocLink(tile);
+			tidx = tile->allocLink();
 			if (tidx != DT_NULL_LINK)
 			{
 				const unsigned short landPolyIdx = (unsigned short)decodePolyIdPoly(ref);
@@ -611,7 +611,7 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 			// Skip hard and non-internal edges.
 			if (poly->neis[j] == 0 || (poly->neis[j] & DT_EXT_LINK)) continue;
 
-			unsigned int idx = allocLink(tile);
+			unsigned int idx = tile->allocLink();
 			if (idx != DT_NULL_LINK)
 			{
 				dtLink* link = &tile->links[idx];
@@ -657,7 +657,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		rdVcopy(v, nearestPt);
 
 		// Link off-mesh connection to target poly.
-		unsigned int idx = allocLink(tile);
+		unsigned int idx = tile->allocLink();
 		if (idx != DT_NULL_LINK)
 		{
 			dtLink* link = &tile->links[idx];
@@ -674,7 +674,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		}
 
 		// Start end-point is always connect back to off-mesh connection. 
-		unsigned int tidx = allocLink(tile);
+		unsigned int tidx = tile->allocLink();
 		if (tidx != DT_NULL_LINK)
 		{
 			const unsigned short landPolyIdx = (unsigned short)decodePolyIdPoly(ref);

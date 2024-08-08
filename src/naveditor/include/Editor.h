@@ -239,6 +239,7 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
+	void buildTraverseLinks();
 	void buildStaticPathingData();
 
 private:

@@ -461,6 +461,103 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 	return true;
 }
 
+// TODO: create lookup table and look for distance + slope to determine the
+// correct jumpType.
+// TODO: make sure we don't generate duplicate pairs of jump types between
+// 2 polygons.
+static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const tile)
+{
+	for (int i = 0; i < tile->header->polyCount; ++i)
+	{
+		dtPoly* const startPoly = &tile->polys[i];
+
+		for (int j = 0; j < startPoly->vertCount; ++j)
+		{
+			// Hard edges only!
+			if (startPoly->neis[j] != 0)
+				continue;
+
+			// Polygon 1 edge
+			const float* const startPolySpos = &tile->verts[startPoly->verts[j] * 3];
+			const float* const startPolyEpos = &tile->verts[startPoly->verts[(j + 1) % startPoly->vertCount] * 3];
+
+			for (int k = 0; k < tile->header->polyCount; ++k)
+			{
+				if (i == k) continue; // Skip self
+
+				dtPoly* const endPoly = &tile->polys[k];
+
+				for (int m = 0; m < endPoly->vertCount; ++m)
+				{
+					// Hard edges only!
+					if (endPoly->neis[m] != 0)
+						continue;
+
+					// Polygon 2 edge
+					const float* const endPolySpos = &tile->verts[endPoly->verts[m] * 3];
+					const float* const endPolyEpos = &tile->verts[endPoly->verts[(m + 1) % endPoly->vertCount] * 3];
+
+					// TODO: calculate edge midpoint first !!!
+					const unsigned char dist1 = dtCalcLinkDistance(startPolySpos, endPolyEpos);
+					const unsigned char dist2 = dtCalcLinkDistance(startPolyEpos, endPolySpos);
+
+					// TODO: needs lookup table for distance !!!
+					if ((dist1 >= 10 && dist1 <= 30) && (dist2 >= 10 && dist2 <= 30))
+					{
+						const unsigned int idx = tile->allocLink();
+
+						if (idx == DT_NULL_LINK) // TODO: should move on to next tile.
+							continue;
+
+						dtLink* const forwardLink = &tile->links[idx];
+
+						forwardLink->ref = nav->getPolyRefBase(tile) | (unsigned int)k;
+						forwardLink->edge = (unsigned char)j;
+						forwardLink->side = 0xFF;
+						forwardLink->next = startPoly->firstLink;
+						startPoly->firstLink = idx;
+						forwardLink->traverseType = 1;
+						forwardLink->traverseDist = dist1;
+
+						const unsigned int tidx = tile->allocLink();
+
+						if (tidx == DT_NULL_LINK) // TODO: should move on to next tile.
+							continue;
+
+						dtLink* const reverseLink = &tile->links[tidx];
+
+						reverseLink->ref = nav->getPolyRefBase(tile) | (unsigned int)i;
+						reverseLink->edge = (unsigned char)m;
+						reverseLink->side = 0xFF;
+						reverseLink->next = endPoly->firstLink;
+						endPoly->firstLink = tidx;
+						reverseLink->traverseType = 1;
+						reverseLink->traverseDist = dist2;
+
+						forwardLink->reverseLink = (unsigned short)tidx;
+						reverseLink->reverseLink = (unsigned short)idx;
+					}
+				}
+			}
+		}
+	}
+}
+
+bool dtCreateTraverseLinks(dtNavMesh* nav)
+{
+	rdAssert(nav);
+
+	for (int i = 0; i < nav->getMaxTiles(); i++)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile->header) continue;
+
+		connectTileTraverseLinks(nav, tile);
+	}
+
+	return true;
+}
+
 // todo(amos): remove param 'tableCount' and make struct 'dtTraversalTableCreateParams'
 bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount)
 {
@@ -876,18 +973,6 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			n++;
 		}
 	}
-
-#if DT_NAVMESH_SET_VERSION >= 8
-	// Polygon cells.
-	for (int i = 0; i < (int)cellItems.size(); i++)
-	{
-		const CellItem& cellItem = cellItems[i];
-		dtCell& cell = navCells[i];
-
-		rdVcopy(cell.pos, cellItem.pos);
-		cell.polyIndex = cellItem.polyIndex;
-	}
-#endif
 	
 	// Store polygons
 	// Mesh polys
@@ -1040,9 +1125,21 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			n++;
 		}
 	}
-		
+
+#if DT_NAVMESH_SET_VERSION >= 8
+	// Polygon cells.
+	for (int i = 0; i < (int)cellItems.size(); i++)
+	{
+		const CellItem& cellItem = cellItems[i];
+		dtCell& cell = navCells[i];
+
+		rdVcopy(cell.pos, cellItem.pos);
+		cell.polyIndex = cellItem.polyIndex;
+	}
+#endif
+
 	rdFree(offMeshConClass);
-	
+
 	*outData = data;
 	*outDataSize = dataSize;
 	

@@ -415,6 +415,10 @@ struct dtMeshHeader
 /// @ingroup detour
 struct dtMeshTile
 {
+public:
+	unsigned int allocLink();
+	void freeLink(unsigned int link);
+
 	unsigned int salt;					///Counter describing modifications to the tile.
 
 	unsigned int linksFreeList;			///Index to the next free link.
