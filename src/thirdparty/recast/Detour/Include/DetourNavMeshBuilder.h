@@ -71,8 +71,6 @@ struct dtNavMeshCreateParams
 	/// 0 = Travel only from endpoint A to endpoint B.<br/>
 	/// #DT_OFFMESH_CON_BIDIR = Bidirectional travel.
 	const unsigned char* offMeshConDir;
-	/// The user defined jump type of the off-mesh connection. [Size: #offMeshConCount]
-	const unsigned char* offMeshConJumps;
 	/// The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
 	const unsigned short* offMeshConUserID;
 	/// Off-mesh connection reference positions. [(x, y, z) * #offMeshConCount] [Unit: wu]

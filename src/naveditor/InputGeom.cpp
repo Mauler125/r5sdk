@@ -284,17 +284,16 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 				float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
 				float rad;
 				float yaw;
-				int bidir, area = 0, jump = 0, flags = 0;
-				sscanf(row+1, "%f %f %f %f %f %f %f %d %d %d %d %f %f %f %f",
+				int bidir, area = 0, flags = 0;
+				sscanf(row+1, "%f %f %f %f %f %f %f %d %d %d %f %f %f %f",
 					   &verts[0], &verts[1], &verts[2],
 					   &verts[3], &verts[4], &verts[5],
 					   &rad,
-					   &bidir, &jump, &area, &flags,
+					   &bidir, &area, &flags,
 					   &refs[0], &refs[1], &refs[2],
 					   &yaw);
 				m_offMeshConRads[m_offMeshConCount] = rad;
 				m_offMeshConDirs[m_offMeshConCount] = (unsigned char)bidir;
-				m_offMeshConJumps[m_offMeshConCount] = (unsigned char)jump;
 				m_offMeshConAreas[m_offMeshConCount] = (unsigned char)area;
 				m_offMeshConFlags[m_offMeshConCount] = (unsigned short)flags;
 				m_offMeshConRefYaws[m_offMeshConCount] = yaw;
@@ -431,14 +430,13 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 		const float rad = m_offMeshConRads[i];
 		const float yaw = m_offMeshConRefYaws[i];
 		const int bidir = m_offMeshConDirs[i];
-		const int jump = m_offMeshConJumps[i];
 		const int area = m_offMeshConAreas[i];
 		const int flags = m_offMeshConFlags[i];
-		fprintf(fp, "c %f %f %f %f %f %f %f %d %d %d %d %f %f %f %f\n",
+		fprintf(fp, "c %f %f %f %f %f %f %f %d %d %d %f %f %f %f\n",
 				verts[0], verts[1], verts[2],
 				verts[3], verts[4], verts[5],
 				rad,
-				bidir, jump, area, flags,
+				bidir, area, flags,
 				refs[0], refs[1], refs[2],
 				yaw);
 	}
@@ -537,7 +535,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 }
 
 void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad,
-									 unsigned char bidir, unsigned char jump, unsigned char area, unsigned short flags)
+									 unsigned char bidir, unsigned char area, unsigned short flags)
 {
 	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
 	float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
@@ -549,7 +547,6 @@ void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const
 	m_offMeshConRads[m_offMeshConCount] = rad;
 	m_offMeshConRefYaws[m_offMeshConCount] = yaw;
 	m_offMeshConDirs[m_offMeshConCount] = bidir;
-	m_offMeshConJumps[m_offMeshConCount] = jump;
 	m_offMeshConAreas[m_offMeshConCount] = area;
 	m_offMeshConFlags[m_offMeshConCount] = flags;
 	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
@@ -571,7 +568,6 @@ void InputGeom::deleteOffMeshConnection(int i)
 	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
 	m_offMeshConRefYaws[i] = m_offMeshConRefYaws[m_offMeshConCount];
 	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
-	m_offMeshConJumps[i] = m_offMeshConJumps[m_offMeshConCount];
 	m_offMeshConAreas[i] = m_offMeshConAreas[m_offMeshConCount];
 	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];
 }
