@@ -386,6 +386,12 @@ inline bool rdOverlapBounds(const float* amin, const float* amax,
 	return overlap;
 }
 
+/// Derives the slope angle from 2 points.
+///  @param[in]		v1	The start vector. [(x, y, z)]
+///  @param[in]		v2	The end vector. [(x, y, z)]
+/// @return The slope angle between the 2 points.
+float rdCalcSlopeAngle(const float* v1, const float* v2);
+
 /// Derives the closest point on a triangle from the specified reference point.
 ///  @param[out]	closest	The closest point on the triangle.	
 ///  @param[in]		p		The reference point from which to test. [(x, y, z)]

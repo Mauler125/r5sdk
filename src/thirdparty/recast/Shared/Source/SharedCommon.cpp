@@ -21,6 +21,19 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
+float rdCalcSlopeAngle(const float* v1, const float* v2)
+{
+	const float deltaX = v2[0] - v1[0];
+	const float deltaY = v2[1] - v1[1];
+	const float deltaZ = v2[2] - v1[2];
+
+	const float horizontalDistance = rdMathSqrtf((deltaX*deltaX)+(deltaY*deltaY));
+	const float slopeAngleRadians = rdMathAtan2f(deltaZ, horizontalDistance);
+	const float slopeAngleDegrees = slopeAngleRadians*(180.0f/RD_PI);
+
+	return slopeAngleDegrees;
+}
+
 void rdClosestPtPointTriangle(float* closest, const float* p,
 							  const float* a, const float* b, const float* c)
 {
