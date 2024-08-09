@@ -24,6 +24,8 @@
 
 #include "game/server/ai_navmesh.h"
 
+struct dtMeshTile;
+
 struct hulldef
 {
 	const char* name;
@@ -242,6 +244,8 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
+	void connectTileTraverseLinks(dtMeshTile* const tile); // Make private.
+	bool createTraverseLinks();
 	void buildStaticPathingData();
 
 private:

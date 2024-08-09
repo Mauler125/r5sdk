@@ -354,6 +354,321 @@ void Editor::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
+enum TraverseType_e // todo(amos): move elsewhere
+{
+	TRAVERSE_UNUSED_0 = 0,
+
+	TRAVERSE_CROSS_GAP_SMALL,
+	TRAVERSE_CLIMB_OBJECT_SMALL,
+	TRAVERSE_CROSS_GAP_MEDIUM,
+
+	TRAVERSE_UNUSED_4,
+	TRAVERSE_UNUSED_5,
+	TRAVERSE_UNUSED_6,
+
+	TRAVERSE_CROSS_GAP_LARGE,
+
+	TRAVERSE_CLIMB_WALL_MEDIUM,
+	TRAVERSE_CLIMB_WALL_TALL,
+	TRAVERSE_CLIMB_BUILDING,
+
+	TRAVERSE_JUMP_SHORT,
+	TRAVERSE_JUMP_MEDIUM,
+	TRAVERSE_JUMP_LARGE,
+
+	TRAVERSE_UNUSED_14,
+	TRAVERSE_UNUSED_15,
+
+	TRAVERSE_UNKNOWN_16, // USED!!!
+	TRAVERSE_UNKNOWN_17, // USED!!!
+
+	TRAVERSE_UNKNOWN_18,
+	TRAVERSE_UNKNOWN_19, // NOTE: does not exists in MSET5!!!
+
+	TRAVERSE_CLIMB_TARGET_SMALL,
+	TRAVERSE_CLIMB_TARGET_LARGE,
+
+	TRAVERSE_UNUSED_22,
+	TRAVERSE_UNUSED_23,
+
+	TRAVERSE_UNKNOWN_24,
+
+	TRAVERSE_UNUSED_25,
+	TRAVERSE_UNUSED_26,
+	TRAVERSE_UNUSED_27,
+	TRAVERSE_UNUSED_28,
+	TRAVERSE_UNUSED_29,
+	TRAVERSE_UNUSED_30,
+	TRAVERSE_UNUSED_31,
+
+	// These aren't traverse type!
+	NUM_TRAVERSE_TYPES,
+	INVALID_TRAVERSE_TYPE = DT_NULL_TRAVERSE_TYPE
+};
+
+struct TraverseType_s // todo(amos): move elsewhere
+{
+	float minSlope;
+	float maxSlope;
+
+	unsigned char minDist;
+	unsigned char maxDist;
+
+	bool forceSamePolyGroup;
+	bool forceDifferentPolyGroup;
+};
+
+static TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move elsewhere
+{
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0.0f, 67.f, 2, 12, false, false },
+	{5.0f, 78.f, 5, 16, false, false },
+	{0.0f, 38.f, 11, 22, false, false },
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0.0f, 6.5f, 80, 107, false, true},
+	{19.0f, 84.0f, 7, 21, false, false},
+	{27.0f, 87.5f, 16, 45, false, false},
+	{44.0f, 89.5f, 33, 225, false, false},
+	{0.0f, 7.0f, 41, 79, false, false},
+	{2.2f, 47.0f, 41, 100, false, false},
+	{5.7f, 58.5f, 81, 179, false, false},
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0.0f, 12.5f, 22, 41, false, false},
+	{4.6f, 53.0f, 21, 58, false, false},
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{29.0f, 47.0f, 16, 40, false, false}, // Maps to type 19 in MSET 5
+	{46.5f, 89.0f, 33, 199, false, false}, // Maps to type 20 in MSET 5
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0.0f, 89.0f, 5, 251, false, false}, // Does not exist in MSET 5
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+};
+
+TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char traverseDist, const bool samePolyGroup)
+{
+	TraverseType_e bestTraverseType = INVALID_TRAVERSE_TYPE;
+
+	for (int i = 0; i < NUM_TRAVERSE_TYPES; ++i)
+	{
+		const TraverseType_s& traverseType = s_traverseTypes[i];
+
+		// Skip unused types...
+		if (traverseType.minSlope == 0.0f && traverseType.maxSlope == 0.0f &&
+			traverseType.minDist == 0 && traverseType.maxDist == 0)
+		{
+			continue;
+		}
+
+		if (slopeAngle < traverseType.minSlope ||
+			slopeAngle > traverseType.maxSlope)
+		{
+			continue;
+		}
+
+		if (traverseDist < traverseType.minDist ||
+			traverseDist > traverseType.maxDist)
+		{
+			continue;
+		}
+
+		// NOTE: currently only type 7 is enforced in this check, perhaps we
+		// should limit some other types on same/diff poly groups as well?
+		if ((traverseType.forceSamePolyGroup && !samePolyGroup) ||
+			(traverseType.forceDifferentPolyGroup && samePolyGroup))
+		{
+			continue;
+		}
+
+		bestTraverseType = (TraverseType_e)i;
+		break;
+	}
+
+	return bestTraverseType;
+}
+
+bool CanOverlapPoly(const TraverseType_e traverseType)
+{
+	// todo(amos): find the best threshold...
+	return s_traverseTypes[traverseType].minSlope > 5.0f;
+}
+
+// TODO: create lookup table and look for distance + slope to determine the
+// correct jumpType.
+// TODO: make sure we don't generate duplicate pairs of jump types between
+// 2 polygons.
+void Editor::connectTileTraverseLinks(dtMeshTile* const tile)
+{
+	for (int i = 0; i < tile->header->polyCount; ++i)
+	{
+		dtPoly* const startPoly = &tile->polys[i];
+
+		for (int j = 0; j < startPoly->vertCount; ++j)
+		{
+			// Hard edges only!
+			if (startPoly->neis[j] != 0)
+				continue;
+
+			// Polygon 1 edge
+			const float* const startPolySpos = &tile->verts[startPoly->verts[j] * 3];
+			const float* const startPolyEpos = &tile->verts[startPoly->verts[(j + 1) % startPoly->vertCount] * 3];
+
+			float startPolyEdgeMid[3];
+			rdVsad(startPolyEdgeMid, startPolySpos, startPolyEpos, 0.5f);
+
+			float startEdgeDir[3];
+			rdVsub(startEdgeDir, startPolyEpos, startPolySpos);
+
+			for (int k = 0; k < tile->header->polyCount; ++k)
+			{
+				if (i == k) continue; // Skip self
+
+				dtPoly* const endPoly = &tile->polys[k];
+
+				for (int m = 0; m < endPoly->vertCount; ++m)
+				{
+					// Hard edges only!
+					if (endPoly->neis[m] != 0)
+						continue;
+
+					// Polygon 2 edge
+					const float* const endPolySpos = &tile->verts[endPoly->verts[m] * 3];
+					const float* const endPolyEpos = &tile->verts[endPoly->verts[(m + 1) % endPoly->vertCount] * 3];
+
+					float endPolyEdgeMid[3];
+					rdVsad(endPolyEdgeMid, endPolySpos, endPolyEpos, 0.5f);
+
+					float endEdgeDir[3];
+					rdVsub(endEdgeDir, endPolyEpos, endPolySpos);
+
+					const float dotProduct = rdVdot(startEdgeDir, endEdgeDir);
+
+					// Edges facing the same direction should not be linked.
+					// Doing so causes links to go through from underneath
+					// geometry. E.g. we have an HVAC on a roof, and we try
+					// to link our roof poly edge facing north to the edge
+					// of the poly on the HVAC also facing north, the link
+					// will go through the HVAC and thus cause the NPC to
+					// jump through it.
+					if (dotProduct > 0)
+						continue;
+
+					float t, s;
+					if (rdIntersectSegSeg2D(startPolySpos, startPolyEpos, endPolySpos, endPolyEpos, t, s))
+						continue;
+
+					const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
+					const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPolyEdgeMid, endPolyEdgeMid));
+					const bool samePolyGroup = startPoly->groupId == endPoly->groupId;
+
+					const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, distance, samePolyGroup);
+
+					if (!CanOverlapPoly(traverseType))
+					{
+						bool overlaps = false;
+
+						float linkMidPoint[3];
+						rdVsad(linkMidPoint, startPolyEdgeMid, endPolyEdgeMid, 0.5f);
+
+						for (int e = 0; e < tile->header->polyCount; e++)
+						{
+							const dtPoly* posTestPoly = &tile->polys[e];
+							float polyVerts[DT_VERTS_PER_POLYGON * 3];
+
+							const int nverts = posTestPoly->vertCount;
+							for (int o = 0; o < nverts; ++o)
+								rdVcopy(&polyVerts[o * 3], &tile->verts[posTestPoly->verts[o] * 3]);
+
+							if (rdPointInPolygon(linkMidPoint, polyVerts, nverts))
+							{
+								overlaps = true;
+								break;
+							}
+						}
+
+						if (overlaps)
+							continue;
+					}
+
+					if (traverseType != DT_NULL_TRAVERSE_TYPE)
+					{
+						// Need at least 2 links
+						const unsigned int forwardIdx = tile->allocLink();
+
+						if (forwardIdx == DT_NULL_LINK) // TODO: should move on to next tile.
+							continue;
+
+						const unsigned int reverseIdx = tile->allocLink();
+
+						if (reverseIdx == DT_NULL_LINK) // TODO: should move on to next tile.
+						{
+							tile->freeLink(forwardIdx);
+							continue;
+						}
+
+						dtLink* const forwardLink = &tile->links[forwardIdx];
+
+						forwardLink->ref = m_navMesh->getPolyRefBase(tile) | (dtPolyRef)k;
+						forwardLink->edge = (unsigned char)j;
+						forwardLink->side = 0xFF;
+						forwardLink->next = startPoly->firstLink;
+						startPoly->firstLink = forwardIdx;
+						forwardLink->traverseType = (unsigned char)traverseType;
+						forwardLink->traverseDist = distance;
+
+						dtLink* const reverseLink = &tile->links[reverseIdx];
+
+						reverseLink->ref = m_navMesh->getPolyRefBase(tile) | (dtPolyRef)i;
+						reverseLink->edge = (unsigned char)m;
+						reverseLink->side = 0xFF;
+						reverseLink->next = endPoly->firstLink;
+						endPoly->firstLink = reverseIdx;
+						reverseLink->traverseType = (unsigned char)traverseType;
+						reverseLink->traverseDist = distance;
+
+						forwardLink->reverseLink = (unsigned short)reverseIdx;
+						reverseLink->reverseLink = (unsigned short)forwardIdx;
+					}
+				}
+			}
+		}
+	}
+}
+
+bool Editor::createTraverseLinks()
+{
+	rdAssert(m_navMesh);
+
+	for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
+	{
+		dtMeshTile* tile = m_navMesh->getTile(i);
+		if (!tile->header) continue;
+
+		connectTileTraverseLinks(tile);
+	}
+
+	return true;
+}
+
 void Editor::buildStaticPathingData()
 {
 	if (!m_navMesh) return;
@@ -365,7 +680,7 @@ void Editor::buildStaticPathingData()
 		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build disjoint poly groups.");
 	}
 
-	if (!dtCreateTraverseLinks(m_navMesh))
+	if (!createTraverseLinks())
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traverse links.");
 	}
