@@ -401,7 +401,7 @@ float rdCalcSlopeAngle(const float* v1, const float* v2);
 void rdClosestPtPointTriangle(float* closest, const float* p,
 							  const float* a, const float* b, const float* c);
 
-/// Derives the y-axis height of the closest point on the triangle from the specified reference point.
+/// Derives the z-axis height of the closest point on the triangle from the specified reference point.
 ///  @param[in]		p		The reference point from which to test. [(x, y, z)]
 ///  @param[in]		a		Vertex A of triangle ABC. [(x, y, z)]
 ///  @param[in]		b		Vertex B of triangle ABC. [(x, y, z)]
