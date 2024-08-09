@@ -521,6 +521,10 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 					if (dotProduct > 0)
 						continue;
 
+					float t, s;
+					if (rdIntersectSegSeg2D(startPolySpos, startPolyEpos, endPolySpos, endPolyEpos, t, s))
+						continue;
+
 					const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
 
 					// TODO: needs lookup table for distance !!!
