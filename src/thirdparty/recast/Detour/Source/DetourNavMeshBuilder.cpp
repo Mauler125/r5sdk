@@ -461,6 +461,158 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 	return true;
 }
 
+enum TraverseType_e // todo(amos): move elsewhere
+{
+	TRAVERSE_UNUSED_0 = 0,
+
+	TRAVERSE_CROSS_GAP_SMALL,
+	TRAVERSE_CLIMB_OBJECT_SMALL,
+	TRAVERSE_CROSS_GAP_MEDIUM,
+
+	TRAVERSE_UNUSED_4,
+	TRAVERSE_UNUSED_5,
+	TRAVERSE_UNUSED_6,
+
+	TRAVERSE_CROSS_GAP_LARGE,
+
+	TRAVERSE_CLIMB_WALL_MEDIUM,
+	TRAVERSE_CLIMB_WALL_TALL,
+	TRAVERSE_CLIMB_BUILDING,
+
+	TRAVERSE_JUMP_SHORT,
+	TRAVERSE_JUMP_MEDIUM,
+	TRAVERSE_JUMP_LARGE,
+
+	TRAVERSE_UNUSED_14,
+	TRAVERSE_UNUSED_15,
+
+	TRAVERSE_UNKNOWN_16, // USED!!!
+	TRAVERSE_UNKNOWN_17, // USED!!!
+
+	TRAVERSE_UNKNOWN_18,
+	TRAVERSE_UNKNOWN_19, // NOTE: does not exists in MSET5!!!
+
+	TRAVERSE_CLIMB_TARGET_SMALL,
+	TRAVERSE_CLIMB_TARGET_LARGE,
+
+	TRAVERSE_UNUSED_22,
+	TRAVERSE_UNUSED_23,
+
+	TRAVERSE_UNKNOWN_24,
+
+	TRAVERSE_UNUSED_25,
+	TRAVERSE_UNUSED_26,
+	TRAVERSE_UNUSED_27,
+	TRAVERSE_UNUSED_28,
+	TRAVERSE_UNUSED_29,
+	TRAVERSE_UNUSED_30,
+	TRAVERSE_UNUSED_31,
+
+	// These aren't traverse type!
+	NUM_TRAVERSE_TYPES,
+	INVALID_TRAVERSE_TYPE = DT_NULL_TRAVERSE_TYPE
+};
+
+struct TraverseType_s // todo(amos): move elsewhere
+{
+	float minSlope;
+	float maxSlope;
+
+	unsigned char minDist;
+	unsigned char maxDist;
+
+	bool forceSamePolyGroup;
+	bool forceDifferentPolyGroup;
+};
+
+static TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move elsewhere
+{
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0.0f, 67.f, 2, 12, false, false },
+	{5.0f, 78.f, 5, 16, false, false },
+	{0.0f, 38.f, 11, 22, false, false },
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0.0f, 6.5f, 80, 107, false, true},
+	{19.0f, 84.0f, 7, 21, false, false},
+	{27.0f, 87.5f, 16, 45, false, false},
+	{44.0f, 89.5f, 33, 225, false, false},
+	{0.0f, 7.0f, 41, 79, false, false},
+	{2.2f, 47.0f, 41, 100, false, false},
+	{5.7f, 58.5f, 81, 179, false, false},
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0.0f, 12.5f, 22, 41, false, false},
+	{4.6f, 53.0f, 21, 58, false, false},
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{29.0f, 47.0f, 16, 40, false, false}, // Maps to type 19 in MSET 5
+	{46.5f, 89.0f, 33, 199, false, false}, // Maps to type 20 in MSET 5
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0.0f, 89.0f, 5, 251, false, false}, // Does not exist in MSET 5
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+};
+
+TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char traverseDist, const bool samePolyGroup)
+{
+	TraverseType_e bestTraverseType = INVALID_TRAVERSE_TYPE;
+
+	for (int i = 0; i < NUM_TRAVERSE_TYPES; ++i)
+	{
+		const TraverseType_s& traverseType = s_traverseTypes[i];
+
+		// Skip unused types...
+		if (traverseType.minSlope == 0.0f && traverseType.maxSlope == 0.0f &&
+			traverseType.minDist == 0 && traverseType.maxDist == 0)
+		{
+			continue;
+		}
+
+		if (slopeAngle < traverseType.minSlope ||
+			slopeAngle > traverseType.maxSlope)
+		{
+			continue;
+		}
+
+		if (traverseDist < traverseType.minDist || 
+			traverseDist > traverseType.maxDist)
+		{
+			continue;
+		}
+
+		// NOTE: currently only type 7 is enforced in this check, perhaps we
+		// should limit some other types on same/diff poly groups as well?
+		if ((traverseType.forceSamePolyGroup && !samePolyGroup) ||
+			(traverseType.forceDifferentPolyGroup && samePolyGroup))
+		{
+			continue;
+		}
+
+		bestTraverseType = (TraverseType_e)i;
+		break;
+	}
+
+	return bestTraverseType;
+}
+
 // TODO: create lookup table and look for distance + slope to determine the
 // correct jumpType.
 // TODO: make sure we don't generate duplicate pairs of jump types between
@@ -526,9 +678,12 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 						continue;
 
 					const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
+					const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPolyEdgeMid, endPolyEdgeMid));
+					const bool samePolyGroup = startPoly->groupId == endPoly->groupId;
 
-					// TODO: needs lookup table for distance !!!
-					if (distance >= 10 && distance <= 30)
+					const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, distance, samePolyGroup);
+
+					if (traverseType != DT_NULL_TRAVERSE_TYPE)
 					{
 						// Need at least 2 links
 						const unsigned int forwardIdx = tile->allocLink();
@@ -551,7 +706,7 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 						forwardLink->side = 0xFF;
 						forwardLink->next = startPoly->firstLink;
 						startPoly->firstLink = forwardIdx;
-						forwardLink->traverseType = 1;
+						forwardLink->traverseType = (unsigned char)traverseType;
 						forwardLink->traverseDist = distance;
 
 						dtLink* const reverseLink = &tile->links[reverseIdx];
@@ -561,7 +716,7 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 						reverseLink->side = 0xFF;
 						reverseLink->next = endPoly->firstLink;
 						endPoly->firstLink = reverseIdx;
-						reverseLink->traverseType = 1;
+						reverseLink->traverseType = (unsigned char)traverseType;
 						reverseLink->traverseDist = distance;
 
 						forwardLink->reverseLink = (unsigned short)reverseIdx;
