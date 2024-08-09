@@ -481,6 +481,13 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 			const float* const startPolySpos = &tile->verts[startPoly->verts[j] * 3];
 			const float* const startPolyEpos = &tile->verts[startPoly->verts[(j + 1) % startPoly->vertCount] * 3];
 
+			float startPolyEdgeMid[3];
+
+			startPolyEdgeMid[0] = (startPolySpos[0]+startPolyEpos[0])*0.5f;
+			startPolyEdgeMid[1] = (startPolySpos[1]+startPolyEpos[1])*0.5f;
+			startPolyEdgeMid[2] = (startPolySpos[2]+startPolyEpos[2])*0.5f;
+
+
 			for (int k = 0; k < tile->header->polyCount; ++k)
 			{
 				if (i == k) continue; // Skip self
@@ -497,12 +504,17 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 					const float* const endPolySpos = &tile->verts[endPoly->verts[m] * 3];
 					const float* const endPolyEpos = &tile->verts[endPoly->verts[(m + 1) % endPoly->vertCount] * 3];
 
+					float endPolyEdgeMid[3];
+
+					endPolyEdgeMid[0] = (endPolySpos[0]+endPolyEpos[0])*0.5f;
+					endPolyEdgeMid[1] = (endPolySpos[1]+endPolyEpos[1])*0.5f;
+					endPolyEdgeMid[2] = (endPolySpos[2]+endPolyEpos[2])*0.5f;
+
 					// TODO: calculate edge midpoint first !!!
-					const unsigned char dist1 = dtCalcLinkDistance(startPolySpos, endPolyEpos);
-					const unsigned char dist2 = dtCalcLinkDistance(startPolyEpos, endPolySpos);
+					const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
 
 					// TODO: needs lookup table for distance !!!
-					if ((dist1 >= 10 && dist1 <= 30) && (dist2 >= 10 && dist2 <= 30))
+					if (distance >= 10 && distance <= 30)
 					{
 						const unsigned int idx = tile->allocLink();
 
@@ -517,7 +529,7 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 						forwardLink->next = startPoly->firstLink;
 						startPoly->firstLink = idx;
 						forwardLink->traverseType = 1;
-						forwardLink->traverseDist = dist1;
+						forwardLink->traverseDist = distance;
 
 						const unsigned int tidx = tile->allocLink();
 
@@ -532,7 +544,7 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 						reverseLink->next = endPoly->firstLink;
 						endPoly->firstLink = tidx;
 						reverseLink->traverseType = 1;
-						reverseLink->traverseDist = dist2;
+						reverseLink->traverseDist = distance;
 
 						forwardLink->reverseLink = (unsigned short)tidx;
 						reverseLink->reverseLink = (unsigned short)idx;
