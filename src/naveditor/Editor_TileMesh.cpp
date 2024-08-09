@@ -172,7 +172,6 @@ public:
 			else
 				m_editor->buildTile(m_hitPos);
 
-			m_editor->buildTraverseLinks();
 			m_editor->buildStaticPathingData();
 		}
 	}
@@ -625,7 +624,6 @@ void Editor_TileMesh::buildAllTiles()
 		}
 	}
 
-	buildTraverseLinks();
 	buildStaticPathingData();
 	
 	// Start the build process.	

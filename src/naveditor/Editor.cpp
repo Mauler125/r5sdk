@@ -354,12 +354,6 @@ void Editor::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
-void Editor::buildTraverseLinks()
-{
-	if (!m_navMesh) return;
-	dtCreateTraverseLinks(m_navMesh);
-}
-
 void Editor::buildStaticPathingData()
 {
 	if (!m_navMesh) return;
@@ -369,6 +363,11 @@ void Editor::buildStaticPathingData()
 	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build disjoint poly groups.");
+	}
+
+	if (!dtCreateTraverseLinks(m_navMesh))
+	{
+		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traverse links.");
 	}
 
 	if (!dtCreateTraversalTableData(m_navMesh, data, NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType)))
@@ -519,7 +518,7 @@ void Editor::renderDetourDebugMenu()
 	{
 		ImGui::PushItemWidth(190);
 		ImGui::SliderInt("Traverse Type", &m_traverseLinkDrawTypes, -1, 31);
-		ImGui::SliderInt("Traverse Distance", &m_traverseLinkDrawDistances, -1, 255);
+		ImGui::SliderInt("Traverse Dist", &m_traverseLinkDrawDistances, -1, 255);
 		ImGui::PopItemWidth();
 	}
 }
