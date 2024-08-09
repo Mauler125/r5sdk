@@ -613,6 +613,12 @@ TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char t
 	return bestTraverseType;
 }
 
+bool CanOverlapPoly(const TraverseType_e traverseType)
+{
+	// todo(amos): find the best threshold...
+	return s_traverseTypes[traverseType].minSlope > 5.0f;
+}
+
 // TODO: create lookup table and look for distance + slope to determine the
 // correct jumpType.
 // TODO: make sure we don't generate duplicate pairs of jump types between
@@ -682,6 +688,33 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 					const bool samePolyGroup = startPoly->groupId == endPoly->groupId;
 
 					const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, distance, samePolyGroup);
+
+					if (!CanOverlapPoly(traverseType))
+					{
+						bool overlaps = false;
+
+						float linkMidPoint[3];
+						rdVsad(linkMidPoint, startPolyEdgeMid, endPolyEdgeMid, 0.5f);
+
+						for (int e = 0; e < tile->header->polyCount; e++)
+						{
+							const dtPoly* posTestPoly = &tile->polys[e];
+							float polyVerts[DT_VERTS_PER_POLYGON*3];
+
+							const int nverts = posTestPoly->vertCount;
+							for (int o = 0; o < nverts; ++o)
+								rdVcopy(&polyVerts[o * 3], &tile->verts[posTestPoly->verts[o] * 3]);
+
+							if (rdPointInPolygon(linkMidPoint, polyVerts, nverts))
+							{
+								overlaps = true;
+								break;
+							}
+						}
+
+						if (overlaps)
+							continue;
+					}
 
 					if (traverseType != DT_NULL_TRAVERSE_TYPE)
 					{
