@@ -188,12 +188,12 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint);
 /// @return True if the traverse links were successfully created.
 bool dtCreateTraverseLinks(dtNavMesh* nav);
 
-/// Builds navigation mesh static traversal table from the provided navmesh.
+/// Builds navigation mesh static traverse table from the provided navmesh.
 /// @ingroup detour
 ///  @param[in]		nav			The navigation mesh to use.
 ///  @param[in]		disjoint	The disjoint set data.
-/// @return True if the static traversal table was successfully created.
-bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount);
+/// @return True if the static traverse table was successfully created.
+bool dtCreateTraverseTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount);
 
 /// Builds navigation mesh tile data from the provided tile creation data.
 /// @ingroup detour

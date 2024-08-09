@@ -466,9 +466,9 @@ void NavMeshTesterTool::handleMenu()
 
 	const NavMeshType_e loadedNavMeshType = m_editor->getLoadedNavMeshType();
 
-	// TODO: perhaps clamp with m_nav->m_params.traversalTableCount? Technically a navmesh should 
+	// TODO: perhaps clamp with m_nav->m_params.traverseTableCount? Technically a navmesh should 
 	// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
-	const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
+	const int traverseTableCount = NavMesh_GetTraverseTableCountForNavMeshType(loadedNavMeshType);
 	const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
 
 	for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
@@ -519,11 +519,11 @@ void NavMeshTesterTool::handleToggle()
 		return;
 
 	const bool hasAnimType = m_traverseAnimType != ANIMTYPE_NONE;
-	const int traversalTableIndex = hasAnimType
-		? NavMesh_GetTraversalTableIndexForAnimType(m_traverseAnimType)
+	const int traverseTableIndex = hasAnimType
+		? NavMesh_GetTraverseTableIndexForAnimType(m_traverseAnimType)
 		: NULL;
 
-	if (!m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex))
+	if (!m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traverseTableIndex))
 	{
 		printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);
 
@@ -739,11 +739,11 @@ void NavMeshTesterTool::recalc()
 	if (m_startRef && m_endRef)
 	{
 		const bool hasAnimType = m_traverseAnimType != ANIMTYPE_NONE;
-		const int traversalTableIndex = hasAnimType
-			? NavMesh_GetTraversalTableIndexForAnimType(m_traverseAnimType)
+		const int traverseTableIndex = hasAnimType
+			? NavMesh_GetTraverseTableIndexForAnimType(m_traverseAnimType)
 			: NULL;
 
-		isReachable = m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex);
+		isReachable = m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traverseTableIndex);
 
 		if (!isReachable)
 			printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);

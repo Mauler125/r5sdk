@@ -267,7 +267,7 @@ static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, co
 static void setPolyGroupsTraversalReachability(int* const tableData, const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2, const bool isReachable)
 {
-	const int index = dtCalcTraversalTableCellIndex(numPolyGroups, polyGroup1, polyGroup2);
+	const int index = dtCalcTraverseTableCellIndex(numPolyGroups, polyGroup1, polyGroup2);
 	const int value = 1<<(polyGroup2 & 31);
 
 	if (isReachable)
@@ -322,7 +322,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			// under the same group id.
 			// NOTE: when we implement jump links, we will have to check on
 			// these here as well! They also shouldn't merge 2 islands together.
-			// Ultimately, the jump links should only be used during traversal
+			// Ultimately, the jump links should only be used during traverse
 			// table building to mark linked islands as reachable.
 			if (poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
 			{
@@ -586,13 +586,13 @@ bool dtCreateTraverseLinks(dtNavMesh* nav)
 	return true;
 }
 
-// todo(amos): remove param 'tableCount' and make struct 'dtTraversalTableCreateParams'
-bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount)
+// todo(amos): remove param 'tableCount' and make struct 'dtTraverseTableCreateParams'
+bool dtCreateTraverseTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount)
 {
 	const int polyGroupCount = nav->getPolyGroupCount();
-	const int tableSize = dtCalcTraversalTableSize(polyGroupCount);
+	const int tableSize = dtCalcTraverseTableSize(polyGroupCount);
 
-	// TODO: currently we allocate 5 buffers and just copy the same traversal
+	// TODO: currently we allocate 5 buffers and just copy the same traverse
 	// tables in, this works fine since we don't generate jump links and
 	// therefore all poly islands should be marked unreachable from each other.
 	// But when we generate jump links, we need to take into consideration that
@@ -605,19 +605,19 @@ bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, c
 	// table. The 'dtLink::jumpType' field probably determines what belongs to
 	// what TraverseAnimType, which we could use to set the traversability. 
 	// More reasearch is needed for the jump links and flags... For other
-	// navmeshes, e.g. the '_large' one, they all contain only 1 traversal
+	// navmeshes, e.g. the '_large' one, they all contain only 1 traverse
 	// table as they only support one TraverseAnimType each. but also here
 	// we have to "reverse" the properties from existing Titanfall 2 single
 	// player navmeshes and determine the traversability in this loop below.
 	for (int i = 0; i < tableCount; i++)
 	{
-		int* const traversalTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
+		int* const traverseTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
 
-		if (!traversalTable)
+		if (!traverseTable)
 			return false;
 
-		nav->setTraverseTable(i, traversalTable);
-		memset(traversalTable, 0, sizeof(int)*tableSize);
+		nav->setTraverseTable(i, traverseTable);
+		memset(traverseTable, 0, sizeof(int)*tableSize);
 
 		for (unsigned short j = 0; j < polyGroupCount; j++)
 		{
@@ -625,7 +625,7 @@ bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, c
 			{
 				// Only reachable if its the same polygroup or if they are linked!
 				const bool isReachable = j == k || disjoint.find(j) == disjoint.find(k);
-				setPolyGroupsTraversalReachability(traversalTable, polyGroupCount, j, k, isReachable);
+				setPolyGroupsTraversalReachability(traverseTable, polyGroupCount, j, k, isReachable);
 			}
 		}
 	}

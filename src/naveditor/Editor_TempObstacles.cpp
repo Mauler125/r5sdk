@@ -852,8 +852,8 @@ void Editor_TempObstacles::handleSettings()
 		//ImGui::Text("Mesh Origin: \n\tX: %g \n\tY: %g \n\tZ: %g", origin[0], origin[1], origin[2]);
 		ImGui::Text("Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
 		ImGui::Text("Poly Group Count: %d", params.polyGroupCount);
-		ImGui::Text("Traversal Table Size: %d", params.traversalTableSize);
-		ImGui::Text("Traversal Table Count: %d", params.traversalTableCount);
+		ImGui::Text("Traversal Table Size: %d", params.traverseTableSize);
+		ImGui::Text("Traversal Table Count: %d", params.traverseTableCount);
 		ImGui::Text("Max Tiles: %d", params.maxTiles);
 		ImGui::Text("Max Polys: %d", params.maxPolys);
 

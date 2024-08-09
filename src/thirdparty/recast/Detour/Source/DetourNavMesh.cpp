@@ -130,13 +130,13 @@ void dtMeshTile::freeLink(unsigned int link)
 	linksFreeList = link;
 }
 
-int dtCalcTraversalTableCellIndex(const int numPolyGroups,
+int dtCalcTraverseTableCellIndex(const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2)
 {
 	return polyGroup1*((numPolyGroups+(RD_BITS_PER_BIT_CELL-1))/RD_BITS_PER_BIT_CELL)+(polyGroup2/RD_BITS_PER_BIT_CELL);
 }
 
-int dtCalcTraversalTableSize(const int numPolyGroups)
+int dtCalcTraverseTableSize(const int numPolyGroups)
 {
 	return sizeof(int)*(numPolyGroups*((numPolyGroups+(RD_BITS_PER_BIT_CELL-1))/RD_BITS_PER_BIT_CELL));
 }
@@ -201,7 +201,7 @@ dtNavMesh::dtNavMesh() :
 	m_posLookup(0),
 	m_nextFree(0),
 	m_tiles(0),
-	m_traversalTables(0),
+	m_traverseTables(0),
 	m_someMagicData(0),
 	m_meshFlags(0),
 	m_tileFlags(0),
@@ -231,15 +231,15 @@ dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this c
 	rdFree(m_posLookup);
 	rdFree(m_tiles);
 
-	for (int i = 0; i < m_params.traversalTableCount; i++)
+	for (int i = 0; i < m_params.traverseTableCount; i++)
 	{
-		int* traversalTable = m_traversalTables[i];
+		int* traverseTable = m_traverseTables[i];
 
-		if (traversalTable)
-			rdFree(traversalTable);
+		if (traverseTable)
+			rdFree(traverseTable);
 	}
 
-	rdFree(m_traversalTables);
+	rdFree(m_traverseTables);
 }
 		
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
@@ -265,17 +265,17 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	memset(m_tiles, 0, sizeof(dtMeshTile) * m_maxTiles);
 	memset(m_posLookup, 0, sizeof(dtMeshTile*) * m_tileLutSize);
 
-	const int traversalTableCount = params->traversalTableCount;
-	if (traversalTableCount)
+	const int traverseTableCount = params->traverseTableCount;
+	if (traverseTableCount)
 	{
-		rdAssert(traversalTableCount > 0 && traversalTableCount <= DT_MAX_TRAVERSAL_TABLES);
-		const int setTableBufSize = sizeof(int**)*traversalTableCount;
+		rdAssert(traverseTableCount > 0 && traverseTableCount <= DT_MAX_TRAVERSE_TABLES);
+		const int setTableBufSize = sizeof(int**)*traverseTableCount;
 
-		m_traversalTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
-		if (!m_traversalTables)
+		m_traverseTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
+		if (!m_traverseTables)
 			return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-		memset(m_traversalTables, 0, setTableBufSize);
+		memset(m_traverseTables, 0, setTableBufSize);
 	}
 
 	m_nextFree = 0;
@@ -313,8 +313,8 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int tabl
 	params.maxTiles = 1;
 	params.maxPolys = header->polyCount;
 	params.polyGroupCount = 0;
-	params.traversalTableSize = 0;
-	params.traversalTableCount = tableCount;
+	params.traverseTableSize = 0;
+	params.traverseTableCount = tableCount;
 #if DT_NAVMESH_SET_VERSION >= 7
 	params.magicDataCount = 0;
 #endif
@@ -1323,7 +1323,7 @@ void dtNavMesh::getTileAndPolyByRefUnsafe(const dtPolyRef ref, const dtMeshTile*
 }
 
 bool dtNavMesh::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef, 
-	const bool checkDisjointGroupsOnly, const int traversalTableIndex) const
+	const bool checkDisjointGroupsOnly, const int traverseTableIndex) const
 {
 	// Same poly is always reachable.
 	if (fromRef == goalRef)
@@ -1340,26 +1340,26 @@ bool dtNavMesh::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goa
 	const unsigned short fromPolyGroupId = fromPoly->groupId;
 	const unsigned short goalPolyGroupId = goalPoly->groupId;
 
-	// If we don't have an anim type, then we shouldn't use the traversal tables
+	// If we don't have an anim type, then we shouldn't use the traverse tables
 	// since these are used for linking isolated poly islands together (which 
 	// requires jumping or some form of animation). So instead, check if we are
 	// on the same poly island.
 	if (checkDisjointGroupsOnly)
 		return fromPolyGroupId == goalPolyGroupId;
 
-	rdAssert(traversalTableIndex >= 0 && traversalTableIndex < m_params.traversalTableCount);
-	const int* const traversalTable = m_traversalTables[traversalTableIndex];
+	rdAssert(traverseTableIndex >= 0 && traverseTableIndex < m_params.traverseTableCount);
+	const int* const traverseTable = m_traverseTables[traverseTableIndex];
 
-	// Traversal table doesn't exist, attempt the path finding anyways (this is
+	// Traverse table doesn't exist, attempt the path finding anyways (this is
 	// a bug in the NavMesh, rebuild it!).
-	if (!traversalTable)
+	if (!traverseTable)
 		return true;
 
 	const int polyGroupCount = m_params.polyGroupCount;
-	const int fromPolyBitCell = traversalTable[dtCalcTraversalTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
+	const int fromPolyBitCell = traverseTable[dtCalcTraverseTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
 
 	// Check if the bit corresponding to our goal poly is set, if it isn't then
-	// there are no available traversal links from the current poly to the goal.
+	// there are no available traverse links from the current poly to the goal.
 	return fromPolyBitCell & rdBitCellBit(goalPolyGroupId);
 }
 
@@ -1677,10 +1677,10 @@ const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(dtPolyRef ref) c
 
 void dtNavMesh::setTraverseTable(const int index, int* const table)
 {
-	rdAssert(index >= 0 && index < m_params.traversalTableCount);
-	rdAssert(m_traversalTables);
+	rdAssert(index >= 0 && index < m_params.traverseTableCount);
+	rdAssert(m_traverseTables);
 
-	m_traversalTables[index] = table;
+	m_traverseTables[index] = table;
 }
 
 dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)

@@ -458,12 +458,12 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 		const TraverseAnimType_e animType = ag->params.traverseAnimType;
 
 		const bool hasAnimType = animType != ANIMTYPE_NONE;
-		const int traversalTableIndex = hasAnimType
-			? NavMesh_GetTraversalTableIndexForAnimType(animType)
+		const int traverseTableIndex = hasAnimType
+			? NavMesh_GetTraverseTableIndexForAnimType(animType)
 			: NULL;
 
 		// Don't fire off the request if the goal is unreachable.
-		if (!m_navquery->isGoalPolyReachable(path[0], ag->targetRef, !hasAnimType, traversalTableIndex))
+		if (!m_navquery->isGoalPolyReachable(path[0], ag->targetRef, !hasAnimType, traverseTableIndex))
 			continue;
 
 		if (ag->targetState == DT_CROWDAGENT_TARGET_REQUESTING)

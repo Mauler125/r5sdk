@@ -67,11 +67,11 @@ bool Detour_IsGoalPolyReachable(dtNavMesh* const nav, const dtPolyRef fromRef,
         return true;
 
     const bool hasAnimType = animType != ANIMTYPE_NONE;
-    const int traversalTableIndex = hasAnimType
-        ? NavMesh_GetTraversalTableIndexForAnimType(animType)
+    const int traverseTableIndex = hasAnimType
+        ? NavMesh_GetTraverseTableIndexForAnimType(animType)
         : NULL;
 
-    return nav->isGoalPolyReachable(fromRef, goalRef, !hasAnimType, traversalTableIndex);
+    return nav->isGoalPolyReachable(fromRef, goalRef, !hasAnimType, traverseTableIndex);
 }
 
 //-----------------------------------------------------------------------------

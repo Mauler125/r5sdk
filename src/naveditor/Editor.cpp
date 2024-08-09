@@ -370,9 +370,9 @@ void Editor::buildStaticPathingData()
 		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traverse links.");
 	}
 
-	if (!dtCreateTraversalTableData(m_navMesh, data, NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType)))
+	if (!dtCreateTraverseTableData(m_navMesh, data, NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType)))
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traversal table data.");
+		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traverse table data.");
 	}
 }
 
@@ -641,23 +641,23 @@ bool Editor::loadAll(std::string path, const bool fullPath)
 	// Read read static pathing data.
 	if (header.params.polyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
 	{
-		for (int i = 0; i < header.params.traversalTableCount; i++)
+		for (int i = 0; i < header.params.traverseTableCount; i++)
 		{
-			int* traversalTable = (int*)rdAlloc(header.params.traversalTableSize, RD_ALLOC_PERM);
-			if (!traversalTable)
+			int* traverseTable = (int*)rdAlloc(header.params.traverseTableSize, RD_ALLOC_PERM);
+			if (!traverseTable)
 				break;
 
-			memset(traversalTable, 0, header.params.traversalTableSize);
-			readLen = fread(traversalTable, header.params.traversalTableSize, 1, fp);
+			memset(traverseTable, 0, header.params.traverseTableSize);
+			readLen = fread(traverseTable, header.params.traverseTableSize, 1, fp);
 
 			if (readLen != 1)
 			{
-				rdFree(traversalTable);
+				rdFree(traverseTable);
 				fclose(fp);
 				return 0;
 			}
 
-			mesh->setTraverseTable(i, traversalTable);
+			mesh->setTraverseTable(i, traverseTable);
 		}
 	}
 
@@ -727,12 +727,12 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 
 		rdAssert(traverseTables);
 
-		for (int i = 0; i < header.params.traversalTableCount; i++)
+		for (int i = 0; i < header.params.traverseTableCount; i++)
 		{
 			const int* const tableData = traverseTables[i];
 			rdAssert(tableData);
 
-			fwrite(tableData, sizeof(int), (header.params.traversalTableSize/4), fp);
+			fwrite(tableData, sizeof(int), (header.params.traverseTableSize/4), fp);
 		}
 	}
 
