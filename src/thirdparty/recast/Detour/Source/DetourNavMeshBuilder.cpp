@@ -487,6 +487,8 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 			startPolyEdgeMid[1] = (startPolySpos[1]+startPolyEpos[1])*0.5f;
 			startPolyEdgeMid[2] = (startPolySpos[2]+startPolyEpos[2])*0.5f;
 
+			float startEdgeDir[3];
+			rdVsub(startEdgeDir, startPolyEpos, startPolySpos);
 
 			for (int k = 0; k < tile->header->polyCount; ++k)
 			{
@@ -510,7 +512,21 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 					endPolyEdgeMid[1] = (endPolySpos[1]+endPolyEpos[1])*0.5f;
 					endPolyEdgeMid[2] = (endPolySpos[2]+endPolyEpos[2])*0.5f;
 
-					// TODO: calculate edge midpoint first !!!
+					float endEdgeDir[3];
+					rdVsub(endEdgeDir, endPolyEpos, endPolySpos);
+
+					const float dotProduct = rdVdot(startEdgeDir, endEdgeDir);
+
+					// Edges facing the same direction should not be linked.
+					// Doing so causes links to go through from underneath
+					// geometry. E.g. we have an HVAC on a roof, and we try
+					// to link our roof poly edge facing north to the edge
+					// of the poly on the HVAC also facing north, the link
+					// will go through the HVAC and thus cause the NPC to
+					// jump through it.
+					if (dotProduct > 0)
+						continue;
+
 					const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
 
 					// TODO: needs lookup table for distance !!!
