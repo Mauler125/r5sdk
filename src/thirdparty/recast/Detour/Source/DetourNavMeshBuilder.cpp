@@ -526,38 +526,42 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 					// TODO: needs lookup table for distance !!!
 					if (distance >= 10 && distance <= 30)
 					{
-						const unsigned int idx = tile->allocLink();
+						// Need at least 2 links
+						const unsigned int forwardIdx = tile->allocLink();
 
-						if (idx == DT_NULL_LINK) // TODO: should move on to next tile.
+						if (forwardIdx == DT_NULL_LINK) // TODO: should move on to next tile.
 							continue;
 
-						dtLink* const forwardLink = &tile->links[idx];
+						const unsigned int reverseIdx = tile->allocLink();
 
-						forwardLink->ref = nav->getPolyRefBase(tile) | (unsigned int)k;
+						if (reverseIdx == DT_NULL_LINK) // TODO: should move on to next tile.
+						{
+							tile->freeLink(forwardIdx);
+							continue;
+						}
+
+						dtLink* const forwardLink = &tile->links[forwardIdx];
+
+						forwardLink->ref = nav->getPolyRefBase(tile) | (dtPolyRef)k;
 						forwardLink->edge = (unsigned char)j;
 						forwardLink->side = 0xFF;
 						forwardLink->next = startPoly->firstLink;
-						startPoly->firstLink = idx;
+						startPoly->firstLink = forwardIdx;
 						forwardLink->traverseType = 1;
 						forwardLink->traverseDist = distance;
 
-						const unsigned int tidx = tile->allocLink();
+						dtLink* const reverseLink = &tile->links[reverseIdx];
 
-						if (tidx == DT_NULL_LINK) // TODO: should move on to next tile.
-							continue;
-
-						dtLink* const reverseLink = &tile->links[tidx];
-
-						reverseLink->ref = nav->getPolyRefBase(tile) | (unsigned int)i;
+						reverseLink->ref = nav->getPolyRefBase(tile) | (dtPolyRef)i;
 						reverseLink->edge = (unsigned char)m;
 						reverseLink->side = 0xFF;
 						reverseLink->next = endPoly->firstLink;
-						endPoly->firstLink = tidx;
+						endPoly->firstLink = reverseIdx;
 						reverseLink->traverseType = 1;
 						reverseLink->traverseDist = distance;
 
-						forwardLink->reverseLink = (unsigned short)tidx;
-						reverseLink->reverseLink = (unsigned short)idx;
+						forwardLink->reverseLink = (unsigned short)reverseIdx;
+						reverseLink->reverseLink = (unsigned short)forwardIdx;
 					}
 				}
 			}
