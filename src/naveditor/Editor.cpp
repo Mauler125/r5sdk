@@ -576,6 +576,28 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const tile)
 					if (rdIntersectSegSeg2D(startPolySpos, startPolyEpos, endPolySpos, endPolyEpos, t, s))
 						continue;
 
+					float raycastStartPos[3];
+					float raycastEndPos[3];
+
+					float hitTime;
+
+					rdVcopy(raycastStartPos, startPolyEdgeMid);
+					rdVcopy(raycastEndPos, endPolyEdgeMid);
+
+					// note(amos): offset the ray heights so we don't clip into
+					// ledges. Realistically, we need at least the height of the
+					// agent anyways to be able to properly perform a jump
+					// without clipping into geometry.
+					raycastStartPos[2] += m_agentHeight;
+					raycastEndPos[2] += m_agentHeight;
+
+					// note(amos): perform 2 raycasts as we have to take the
+					// face normal into account. Path must be clear from both
+					// directions.
+					if (m_geom->raycastMesh(raycastStartPos, raycastEndPos, hitTime) ||
+						m_geom->raycastMesh(raycastEndPos, raycastStartPos, hitTime))
+						continue;
+
 					const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
 					const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPolyEdgeMid, endPolyEdgeMid));
 					const bool samePolyGroup = startPoly->groupId == endPoly->groupId;
