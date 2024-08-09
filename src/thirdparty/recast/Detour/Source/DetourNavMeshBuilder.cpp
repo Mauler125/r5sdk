@@ -634,7 +634,7 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 			const float* const startPolyEpos = &tile->verts[startPoly->verts[(j + 1) % startPoly->vertCount] * 3];
 
 			float startPolyEdgeMid[3];
-			rdVmad(startPolyEdgeMid, startPolySpos, startPolyEpos, 0.5f);
+			rdVsad(startPolyEdgeMid, startPolySpos, startPolyEpos, 0.5f);
 
 			float startEdgeDir[3];
 			rdVsub(startEdgeDir, startPolyEpos, startPolySpos);
@@ -656,7 +656,7 @@ static void connectTileTraverseLinks(dtNavMesh* const nav, dtMeshTile* const til
 					const float* const endPolyEpos = &tile->verts[endPoly->verts[(m + 1) % endPoly->vertCount] * 3];
 
 					float endPolyEdgeMid[3];
-					rdVmad(endPolyEdgeMid, endPolySpos, endPolyEpos, 0.5f);
+					rdVsad(endPolyEdgeMid, endPolySpos, endPolyEpos, 0.5f);
 
 					float endEdgeDir[3];
 					rdVsub(endEdgeDir, endPolyEpos, endPolySpos);
