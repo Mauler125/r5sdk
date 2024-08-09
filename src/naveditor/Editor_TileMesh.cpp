@@ -23,6 +23,7 @@
 #include "Detour/Include/DetourNavMeshBuilder.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
+#include "DebugUtils/Include/DetourDump.h"
 #include "NavEditor/Include/NavMeshTesterTool.h"
 #include "NavEditor/Include/NavMeshPruneTool.h"
 #include "NavEditor/Include/OffMeshConnectionTool.h"
@@ -49,6 +50,7 @@ class NavMeshTileTool : public EditorTool
 	Editor_TileMesh* m_editor;
 	dtNavMesh* m_navMesh;
 	float m_hitPos[3];
+	int m_selectedTraverseType;
 
 	dtPolyRef m_markedPolyRef;
 
@@ -69,6 +71,7 @@ public:
 	NavMeshTileTool() :
 		m_editor(0),
 		m_navMesh(0),
+		m_selectedTraverseType(-1),
 		m_markedPolyRef(0),
 		m_textOverlayDrawMode(TO_DRAW_DISABLED),
 		m_hitPosSet(false)
@@ -130,6 +133,30 @@ public:
 			if (ImGui::Button("Clear Marker"))
 			{
 				m_markedPolyRef = 0;
+			}
+		}
+
+		dtNavMeshQuery* query = m_editor->getNavMeshQuery();
+
+		if (query && m_navMesh)
+		{
+			ImGui::PushItemWidth(83);
+			ImGui::SliderInt("Selected Traverse Type", &m_selectedTraverseType, -1, 31);
+			ImGui::PopItemWidth();
+
+			if (ImGui::Button("Dump Traverse Links"))
+			{
+				FileIO io;
+
+				const char* modelName = m_editor->getModelName();
+				char buf[512];
+
+				snprintf(buf, sizeof(buf), "%s_%d.txt", modelName, m_selectedTraverseType);
+
+				if (io.openForWrite(buf))
+				{
+					duDumpTraverseLinkDetail(*m_navMesh, query, m_selectedTraverseType, &io);
+				}
 			}
 		}
 	}

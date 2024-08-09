@@ -225,6 +225,8 @@ public:
 	inline NavMeshType_e getSelectedNavMeshType() const { return m_selectedNavMeshType; }
 	inline NavMeshType_e getLoadedNavMeshType() const { return m_loadedNavMeshType; }
 
+	inline const char* getModelName() const { return m_modelName.c_str(); }
+
 	void updateToolStates(const float dt);
 	void initToolStates(Editor* editor);
 	void resetToolStates();
