@@ -433,6 +433,7 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 float rdDistancePtLine2d(const float* pt, const float* p, const float* q);
 
 unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax);
+unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax);
 
 /// Determines if the specified point is inside the convex polygon on the xy-plane.
 ///  @param[in]		pt		The point to check. [(x, y, z)]

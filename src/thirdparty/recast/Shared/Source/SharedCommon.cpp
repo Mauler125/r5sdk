@@ -436,3 +436,51 @@ unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, c
 
 	return 0xff;
 }
+
+unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax)
+{
+	const float distXP = rdMathFabsf(pt[0]-bmax[0]);
+	const float distXM = rdMathFabsf(pt[0]-bmin[0]);
+	const float distZP = rdMathFabsf(pt[1]-bmax[1]);
+	const float distZM = rdMathFabsf(pt[1]-bmin[1]);
+
+	unsigned char outcode = XP;
+	float minDist = distXP;
+
+	// Determine closest.
+	if (distZP < minDist)
+	{
+		minDist = distZP;
+		outcode = ZP;
+	}
+	if (distXM < minDist)
+	{
+		minDist = distXM;
+		outcode = XM;
+	}
+	if (distZM < minDist)
+	{
+		minDist = distZM;
+		outcode = ZM;
+	}
+
+	// Diagonal cases.
+	if (rdMathFabsf(distXP-minDist) < RD_EPS && outcode != XP) outcode |= XP;
+	if (rdMathFabsf(distXM-minDist) < RD_EPS && outcode != XM) outcode |= XM;
+	if (rdMathFabsf(distZP-minDist) < RD_EPS && outcode != ZP) outcode |= ZP;
+	if (rdMathFabsf(distZM-minDist) < RD_EPS && outcode != ZM) outcode |= ZM;
+
+	switch (outcode)
+	{
+	case XP: return 0;
+	case XP|ZP: return 1;
+	case ZP: return 2;
+	case XM|ZP: return 3;
+	case XM: return 4;
+	case XM|ZM: return 5;
+	case ZM: return 6;
+	case XP|ZM: return 7;
+	}
+
+	return 0xff;
+}
