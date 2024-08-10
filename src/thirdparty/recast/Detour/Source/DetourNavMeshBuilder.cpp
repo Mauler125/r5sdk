@@ -236,34 +236,6 @@ static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nn
 	return curNode;
 }
 
-static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, const float* bmax)
-{
-	static const unsigned char XP = 1<<0;
-	static const unsigned char ZP = 1<<1;
-	static const unsigned char XM = 1<<2;
-	static const unsigned char ZM = 1<<3;	
-
-	unsigned char outcode = 0; 
-	outcode |= (pt[0] >= bmax[0]) ? XP : 0;
-	outcode |= (pt[1] >= bmax[1]) ? ZP : 0;
-	outcode |= (pt[0] < bmin[0])  ? XM : 0;
-	outcode |= (pt[1] < bmin[1])  ? ZM : 0;
-
-	switch (outcode)
-	{
-	case XP: return 0;
-	case XP|ZP: return 1;
-	case ZP: return 2;
-	case XM|ZP: return 3;
-	case XM: return 4;
-	case XM|ZM: return 5;
-	case ZM: return 6;
-	case XP|ZM: return 7;
-	};
-
-	return 0xff;	
-}
-
 static void setPolyGroupsTraversalReachability(int* const tableData, const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2, const bool isReachable)
 {
@@ -673,8 +645,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		{
 			const float* p0 = &params->offMeshConVerts[(i*2+0)*3];
 			const float* p1 = &params->offMeshConVerts[(i*2+1)*3];
-			offMeshConClass[i*2+0] = classifyOffMeshPoint(p0, bmin, bmax);
-			offMeshConClass[i*2+1] = classifyOffMeshPoint(p1, bmin, bmax);
+			offMeshConClass[i*2+0] = rdClassifyPointOutsideBounds(p0, bmin, bmax);
+			offMeshConClass[i*2+1] = rdClassifyPointOutsideBounds(p1, bmin, bmax);
 
 			// Zero out off-mesh start positions which are not even potentially touching the mesh.
 			if (offMeshConClass[i*2+0] == 0xff)

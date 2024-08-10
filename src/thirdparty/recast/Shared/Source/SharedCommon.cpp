@@ -408,3 +408,31 @@ float rdDistancePtLine2d(const float* pt, const float* p, const float* q)
 	dy = p[1] + t * pqy - pt[1];
 	return dx * dx + dy * dy;
 }
+
+static const unsigned char XP = 1 << 0;
+static const unsigned char ZP = 1 << 1;
+static const unsigned char XM = 1 << 2;
+static const unsigned char ZM = 1 << 3;
+
+unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax)
+{
+	unsigned char outcode = 0; 
+	outcode |= (pt[0] >= bmax[0]) ? XP : 0;
+	outcode |= (pt[1] >= bmax[1]) ? ZP : 0;
+	outcode |= (pt[0] < bmin[0])  ? XM : 0;
+	outcode |= (pt[1] < bmin[1])  ? ZM : 0;
+
+	switch (outcode)
+	{
+	case XP: return 0;
+	case XP|ZP: return 1;
+	case ZP: return 2;
+	case XM|ZP: return 3;
+	case XM: return 4;
+	case XM|ZM: return 5;
+	case ZM: return 6;
+	case XP|ZM: return 7;
+	};
+
+	return 0xff;
+}
