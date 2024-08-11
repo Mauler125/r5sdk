@@ -223,11 +223,12 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	const bool depthTest = flags & DU_DRAWNAVMESH_DEPTH_MASK;
 
 	dtPolyRef base = mesh.getPolyRefBase(tile);
+	const dtMeshHeader* header = tile->header;
 
 	dd->depthMask(depthTest);
 
 	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
-	for (int i = 0; i < tile->header->polyCount; ++i)
+	for (int i = 0; i < header->polyCount; ++i)
 	{
 		const dtPoly* p = &tile->polys[i];
 		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
@@ -281,21 +282,18 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		drawTileCells(dd, tile, offset);
 
 	if (flags & DU_DRAWNAVMESH_TILE_BOUNDS)
-	{
-		const dtMeshHeader* header = tile->header;
 		duDebugDrawBoxWire(dd, header->bmin[0], header->bmin[1], header->bmin[2], header->bmax[0], header->bmax[1], header->bmax[2], duRGBA(255,255,255,128), 1.0f, offset);
-	}
 
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
 	{
 		dd->begin(DU_DRAW_LINES, 2.0f, offset);
-		for (int i = 0; i < tile->header->polyCount; ++i)
+		for (int i = 0; i < header->polyCount; ++i)
 		{
 			const dtPoly* p = &tile->polys[i];
 			if (p->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip regular polys.
 				continue;
 			
-			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
+			const dtOffMeshConnection* con = &tile->offMeshCons[i - header->offMeshBase];
 
 			unsigned int col;
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
