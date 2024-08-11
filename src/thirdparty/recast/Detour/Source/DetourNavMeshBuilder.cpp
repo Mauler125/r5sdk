@@ -431,7 +431,7 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		}
 	}
 
-	// Apply the new mapping to all polys.
+	// Fifth pass to apply the new mapping to all polys.
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
 		dtMeshTile* tile = nav->getTile(i);
@@ -442,6 +442,49 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			dtPoly& poly = tile->polys[j];
 			if (poly.groupId != DT_STRAY_POLY_GROUP)
 				poly.groupId = groupMap[poly.groupId];
+		}
+	}
+
+	// Sixth pass to handle traverse linked poly's.
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+
+			for (int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+			{
+				const dtLink* link = &tile->links[k];
+
+				// Skip normal links.
+				if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
+					continue;
+
+				// note(amos): here we want to possible change several things up.
+				// Ideally we create a disjoint set for each anim type (5 for small,
+				// 1 for everything beyond) and determine the traversability here
+				// with use of a lookup table that has to be made still.
+				// Anim type 0 (HUMAN) for example, cannot jump as high as anim type
+				// 2 (STALKER).
+
+				const dtPoly* landPoly;
+				const dtMeshTile* landTile;
+
+				if (dtStatusFailed(nav->getTileAndPolyByRef(link->ref, &landTile, &landPoly)))
+				{
+					rdAssert(0); // Invalid traverse link generated, code bug.
+					continue;
+				}
+
+				rdAssert(landPoly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
+				rdAssert(landPoly->groupId != DT_STRAY_POLY_GROUP);
+
+				if (poly.groupId != landPoly->groupId)
+					disjoint.setUnion(poly.groupId, landPoly->groupId);
+			}
 		}
 	}
 
