@@ -171,9 +171,9 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			const int drawAnimType = traverseLinkParams.traverseAnimType;
 			const dtPolyRef basePolyRef = mesh.getPolyRefBase(tile) | (dtPolyRef)i;
 
-			if (drawAnimType != -1 && 
-				!mesh.isGoalPolyReachable(basePolyRef, link->ref, false, drawAnimType) && 
-				!mesh.isGoalPolyReachable(link->ref, basePolyRef, false, drawAnimType))
+			if (drawAnimType != -2 &&
+				!mesh.isGoalPolyReachable(basePolyRef, link->ref, drawAnimType == -1, drawAnimType) &&
+				!mesh.isGoalPolyReachable(link->ref, basePolyRef, drawAnimType == -1, drawAnimType))
 				continue;
 
 			const dtPoly* endPoly;

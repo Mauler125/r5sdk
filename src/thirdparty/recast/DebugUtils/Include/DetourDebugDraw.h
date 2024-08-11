@@ -48,11 +48,14 @@ struct duDrawTraverseLinkParams
 	duDrawTraverseLinkParams() :
 		traverseLinkType(-1),
 		traverseLinkDistance(-1),
-		traverseAnimType(-1)
+		traverseAnimType(-2)
 	{}
 
 	int traverseLinkType;
 	int traverseLinkDistance;
+
+	// -2 means all, -1 means disjoint poly groups only, anything above
+	// refers to an actual anim type and indexes into the traverse tables.
 	int traverseAnimType;
 };
 

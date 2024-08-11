@@ -862,12 +862,12 @@ void Editor::renderDetourDebugMenu()
 	if (ImGui::Checkbox("Traverse Links", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TRAVERSE_LINKS);
 
-	if (isEnabled)
+	if (isEnabled && m_navMesh) // Supplemental options only available with a valid navmesh!
 	{
 		ImGui::PushItemWidth(190);
 		ImGui::SliderInt("Traverse Type", &m_traverseLinkParams.traverseLinkType, -1, 31);
 		ImGui::SliderInt("Traverse Dist", &m_traverseLinkParams.traverseLinkDistance, -1, 255);
-		ImGui::SliderInt("Traverse Anim", &m_traverseLinkParams.traverseAnimType, -1, m_navMesh->getParams()->traverseTableCount-1);
+		ImGui::SliderInt("Traverse Anim", &m_traverseLinkParams.traverseAnimType, -2, m_navMesh->getParams()->traverseTableCount-1);
 		ImGui::PopItemWidth();
 	}
 }
