@@ -179,7 +179,7 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			query->getEdgeMidPoint(link->ref, mesh.getPolyRefBase(tile) | (dtPolyRef)i, endPos);
 
 			// Unique color for each type.
-			const int col = duIntToCol(link->traverseType, 180);
+			const int col = duIntToCol(link->traverseType, 128);
 
 			dd->begin(DU_DRAW_LINES, 2.0f, offset);
 
@@ -193,7 +193,6 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 				// If the reverse link is set, render white crosses to confirm
 				// the links are set properly.
 				duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, duRGBA(255,255,255,180));
-				duAppendCross(dd, endPos[0], endPos[1], endPos[2], 10.f, duRGBA(255,255,255,180));
 			}
 
 			dd->end();
