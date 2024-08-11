@@ -934,7 +934,7 @@ dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* halfExt
 /// far as possible from the start polygon toward the end polygon.
 ///
 /// The start and end positions are used to calculate traversal costs. 
-/// (The y-values impact the result.)
+/// (The z-values impact the result.)
 ///
 dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 								  const float* startPos, const float* endPos,
@@ -2429,7 +2429,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 ///
 /// <b>Use Case Restriction</b>
 ///
-/// The raycast ignores the y-value of the end position. (2D check.) This 
+/// The raycast ignores the z-value of the end position. (2D check.) This 
 /// places significant limits on how it can be used. For example:
 ///
 /// Consider a scene where there is a main floor with a second floor balcony 
@@ -2687,7 +2687,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 /// 
 /// The value of the center point is used as the start position for cost 
 /// calculations. It is not projected onto the surface of the mesh, so its 
-/// y-value will effect the costs.
+/// z-value will effect the costs.
 ///
 /// Intersection tests occur in 2D. All polygons and the search circle are 
 /// projected onto the xy-plane. So the z-value of the center point does not 
@@ -3058,7 +3058,7 @@ dtStatus dtNavMeshQuery::getPathFromDijkstraSearch(dtPolyRef endRef, dtPolyRef* 
 /// method applies to this method.
 ///
 /// The value of the center point is used as the start point for cost calculations. 
-/// It is not projected onto the surface of the mesh, so its y-value will effect 
+/// It is not projected onto the surface of the mesh, so its z-value will effect 
 /// the costs.
 /// 
 /// Intersection tests occur in 2D. All polygons and the search circle are 
