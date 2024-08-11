@@ -241,9 +241,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			col = duRGBA(255,196,0,64);
 		else
 		{
-			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
+			if (flags & DU_DRAWNAVMESH_TILE_COLORS)
 				col = duIntToCol(mesh.decodePolyIdTile(base), tileAlpha);
-			else if (flags & DU_DRAWNAVMESH_POLYGROUPS)
+			else if (flags & DU_DRAWNAVMESH_POLY_GROUPS)
 				col = duIntToCol(p->groupId, tileAlpha);
 			else
 				col = getPolySurfaceColor(p, dd, tileAlpha);
@@ -264,21 +264,21 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	dd->end();
 	
 	// Draw inner poly boundaries
-	if (flags & DU_DRAWNAVMESH_INNERBOUND)
+	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_INNER)
 		drawPolyBoundaries(dd, tile, 1.5f, offset, true);
 	
 	// Draw outer poly boundaries
-	if (flags & DU_DRAWNAVMESH_OUTERBOUND)
+	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_OUTER)
 		drawPolyBoundaries(dd, tile, 3.5f, offset, false);
 
 	// Draw poly centers
-	if (flags & DU_DRAWNAVMESH_POLYCENTERS)
+	if (flags & DU_DRAWNAVMESH_POLY_CENTERS)
 		drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f, offset);
 
 	if (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS)
 		drawTraverseLinks(dd, mesh, query, tile, offset, linkTypes, linkDistance);
 
-	if (flags & DU_DRAWNAVMESH_CELLS)
+	if (flags & DU_DRAWNAVMESH_TILE_CELLS)
 		drawTileCells(dd, tile, offset);
 
 	if (flags & DU_DRAWNAVMESH_TILE_BOUNDS)
@@ -349,7 +349,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->end();
 	}
 	
-	if (flags & DU_DRAWNAVMESH_VERTS)
+	if (flags & DU_DRAWNAVMESH_POLY_VERTS)
 	{
 		const unsigned int vcol = duRGBA(0,0,0,220);
 		dd->begin(DU_DRAW_POINTS, 4.0f, offset);
@@ -381,7 +381,7 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 {
 	if (!dd) return;
 
-	const dtNavMeshQuery* q = (flags & DU_DRAWNAVMESH_CLOSEDLIST) ? &query : 0;
+	const dtNavMeshQuery* q = (flags & DU_DRAWNAVMESH_WITH_CLOSED_LIST) ? &query : 0;
 	
 	for (int i = 0; i < mesh.getMaxTiles(); ++i)
 	{
@@ -394,7 +394,7 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 		duDebugDrawNavMeshBVTree(dd, mesh, offset);
 	if (flags & DU_DRAWNAVMESH_PORTALS)
 		duDebugDrawNavMeshPortals(dd, mesh, offset);
-	if (flags & DU_DRAWNAVMESH_NODES)
+	if (flags & DU_DRAWNAVMESH_QUERY_NODES)
 		duDebugDrawNavMeshNodes(dd, query, offset);
 }
 

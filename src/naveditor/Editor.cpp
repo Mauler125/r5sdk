@@ -54,8 +54,8 @@ Editor::Editor() :
 	m_navQuery(0),
 	m_crowd(0),
 	m_navMeshDrawFlags(
-		DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST|
-		DU_DRAWNAVMESH_OUTERBOUND|DU_DRAWNAVMESH_ALPHA),
+		DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_WITH_CLOSED_LIST|
+		DU_DRAWNAVMESH_POLY_BOUNDS_OUTER|DU_DRAWNAVMESH_ALPHA),
 	m_filterLowHangingObstacles(true),
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
@@ -782,10 +782,10 @@ void Editor::renderDetourDebugMenu()
 	if (ImGui::Checkbox("Off-Mesh Connections", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OFFMESHCONS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_NODES);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_QUERY_NODES);
 
 	if (ImGui::Checkbox("Query Nodes", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_NODES);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_QUERY_NODES);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_BVTREE);
 
@@ -797,15 +797,15 @@ void Editor::renderDetourDebugMenu()
 	if (ImGui::Checkbox("Portals", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_PORTALS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_CLOSEDLIST);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_WITH_CLOSED_LIST);
 
 	if (ImGui::Checkbox("Closed List", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_CLOSEDLIST);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_WITH_CLOSED_LIST);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_COLOR_TILES);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TILE_COLORS);
 
 	if (ImGui::Checkbox("Tile ID Colors", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_COLOR_TILES);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_COLORS);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TILE_BOUNDS);
 
@@ -813,36 +813,36 @@ void Editor::renderDetourDebugMenu()
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_BOUNDS);
 
 #if DT_NAVMESH_SET_VERSION >= 8
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_CELLS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TILE_CELLS);
 
 	if (ImGui::Checkbox("Tile Cells", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_CELLS);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_CELLS);
 #endif
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_VERTS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_VERTS);
 
 	if (ImGui::Checkbox("Vertex Points", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_VERTS);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_VERTS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_INNERBOUND);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_BOUNDS_INNER);
 
 	if (ImGui::Checkbox("Inner Poly Boundaries", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_INNERBOUND);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_BOUNDS_INNER);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OUTERBOUND);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_BOUNDS_OUTER);
 
 	if (ImGui::Checkbox("Outer Poly Boundaries", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OUTERBOUND);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_BOUNDS_OUTER);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYCENTERS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_CENTERS);
 
 	if (ImGui::Checkbox("Poly Centers", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYCENTERS);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_CENTERS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLYGROUPS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_GROUPS);
 
 	if (ImGui::Checkbox("Poly Group Colors", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLYGROUPS);
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_GROUPS);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_DEPTH_MASK);
 
