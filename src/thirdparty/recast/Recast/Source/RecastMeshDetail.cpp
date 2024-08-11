@@ -381,8 +381,6 @@ static bool overlapEdges(const float* pts, const int* edges, int nedges, int s1,
 
 static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges, int& nedges, const int maxEdges, int& nfaces, int e)
 {
-	static const float EPS = 1e-5f; // todo(amos): typo? use RD_EPS (1e-6f)?
-	
 	int* edge = &edges[e*4];
 	
 	// Cache s and t.
@@ -424,9 +422,9 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 	{
 		if (u == s || u == t) continue;
 #if 0
-		if (vcross2(&pts[t*3], &pts[s*3], &pts[u*3]) > EPS)
+		if (vcross2(&pts[t*3], &pts[s*3], &pts[u*3]) > RD_EPS)
 #else
-		if (vcross2(&pts[s*3], &pts[t*3], &pts[u*3]) > EPS)
+		if (vcross2(&pts[s*3], &pts[t*3], &pts[u*3]) > RD_EPS)
 #endif
 		{
 			if (r < 0)
