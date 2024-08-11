@@ -70,6 +70,14 @@ static void EditorCommon_DrawTilingGrid(duDebugDraw* const dd, const InputGeom* 
 	duDebugDrawGridXY(dd, bmax[0], bmin[1], bmin[2], tw, th, s, duRGBA(0, 0, 0, 64), 1.0f, nullptr);
 }
 
+#if DT_NAVMESH_SET_VERSION == 5
+#define MIN_TILE_BITS 14
+#define MAX_TILE_BITS 22
+#else
+#define MIN_TILE_BITS 16
+#define MAX_TILE_BITS 28
+#endif
+
 int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, const int tileSize,
 	const float cellSize, int& maxTiles, int& maxPolysPerTile)
 {
@@ -89,9 +97,9 @@ int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, const i
 		ImGui::Text("Tile Sizes: %g x %g (%g)", tw* cellSize, th*cellSize, tileSize*cellSize);
 
 		// Max tiles and max polys affect how the tile IDs are calculated.
-		// There are 28 bits available for identifying a tile and a polygon.
-		int tileBits = rdMin((int)rdIlog2(rdNextPow2(tw*th)), 16);
-		int polyBits = 28 - tileBits;
+		// There are MAX_TILE_BITS bits available for identifying a tile and a polygon.
+		const int tileBits = rdMin((int)rdIlog2(rdNextPow2(tw*th)), MIN_TILE_BITS);
+		const int polyBits = MAX_TILE_BITS - tileBits;
 
 		maxTiles = 1 << tileBits;
 		maxPolysPerTile = 1 << polyBits;
