@@ -347,10 +347,67 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		}
 	}
 
-	// Third pass to handle off-mesh connections.
+	nav->setPolyGroupcount(disjoint.getSetCount());
+	return true;
+}
+
+bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
+{
+	// Third pass to mark all unlinked poly's.
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+
+			// This poly isn't connected to anything, mark it so the game
+			// won't consider this poly in path generation.
+			if (poly.firstLink == DT_NULL_LINK)
+				poly.groupId = DT_STRAY_POLY_GROUP;
+		}
+	}
+
+	// Gather all unique polygroups and map them to a contiguous range.
+	std::map<unsigned short, unsigned short> groupMap;
+	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
+
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			unsigned short oldId = poly.groupId;
+			if (oldId != DT_STRAY_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
+				groupMap[oldId] = (unsigned short)disjoint.insertNew();
+		}
+	}
+
+	// Fourth pass to apply the new mapping to all polys.
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			if (poly.groupId != DT_STRAY_POLY_GROUP)
+				poly.groupId = groupMap[poly.groupId];
+		}
+	}
+
+	// Fifth pass to handle off-mesh connections.
 	// note(amos): this has to happen after the first and second pass as these
 	// are for grouping directly connected polygons together, else groups linked
 	// through off-mesh connections will be merged into a single group!
+	// This also has to happen after the remap as otherwise this information
+	// will be lost!
 	// 
 	// todo(amos): should off-mesh links be marked reachable for all traverse
 	// anim types? Research needed on Titanfall 2. For now, mark connected
@@ -387,61 +444,6 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 
 				plink = l.next;
 			}
-		}
-	}
-
-	nav->setPolyGroupcount(disjoint.getSetCount());
-	return true;
-}
-
-bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
-{
-	// Fourth pass to mark all unlinked poly's.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-
-			// This poly isn't connected to anything, mark it so the game
-			// won't consider this poly in path generation.
-			if (poly.firstLink == DT_NULL_LINK)
-				poly.groupId = DT_STRAY_POLY_GROUP;
-		}
-	}
-
-	// Gather all unique polygroups and map them to a contiguous range.
-	std::map<unsigned short, unsigned short> groupMap;
-	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
-
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			unsigned short oldId = poly.groupId;
-			if (oldId != DT_STRAY_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
-				groupMap[oldId] = (unsigned short)disjoint.insertNew();
-		}
-	}
-
-	// Fifth pass to apply the new mapping to all polys.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_STRAY_POLY_GROUP)
-				poly.groupId = groupMap[poly.groupId];
 		}
 	}
 
