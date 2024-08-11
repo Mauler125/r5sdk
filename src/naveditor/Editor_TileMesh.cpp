@@ -71,7 +71,7 @@ public:
 	NavMeshTileTool() :
 		m_editor(0),
 		m_navMesh(0),
-		m_selectedTraverseType(-1),
+		m_selectedTraverseType(-2),
 		m_markedPolyRef(0),
 		m_textOverlayDrawMode(TO_DRAW_DISABLED),
 		m_hitPosSet(false)
@@ -141,21 +141,32 @@ public:
 		if (query && m_navMesh)
 		{
 			ImGui::PushItemWidth(83);
-			ImGui::SliderInt("Selected Traverse Type", &m_selectedTraverseType, -1, 31);
+			ImGui::SliderInt("Selected Traverse Type", &m_selectedTraverseType, -2, 31);
 			ImGui::PopItemWidth();
 
 			if (ImGui::Button("Dump Traverse Links"))
 			{
-				FileIO io;
-
 				const char* modelName = m_editor->getModelName();
 				char buf[512];
 
-				snprintf(buf, sizeof(buf), "%s_%d.txt", modelName, m_selectedTraverseType);
-
-				if (io.openForWrite(buf))
+				if (m_selectedTraverseType == -2)
 				{
-					duDumpTraverseLinkDetail(*m_navMesh, query, m_selectedTraverseType, &io);
+					for (int i = -1; i < 32; i++)
+					{
+						snprintf(buf, sizeof(buf), "%s_%d.txt", modelName, i);
+						FileIO io;
+
+						if (io.openForWrite(buf))
+							duDumpTraverseLinkDetail(*m_navMesh, query, i, &io);
+					}
+				}
+				else
+				{
+					snprintf(buf, sizeof(buf), "%s_%d.txt", modelName, m_selectedTraverseType);
+					FileIO io;
+
+					if (io.openForWrite(buf))
+						duDumpTraverseLinkDetail(*m_navMesh, query, m_selectedTraverseType, &io);
 				}
 			}
 		}
