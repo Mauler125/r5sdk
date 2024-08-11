@@ -651,23 +651,26 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const tile)
 
 						forwardLink->ref = m_navMesh->getPolyRefBase(tile) | (dtPolyRef)k;
 						forwardLink->edge = (unsigned char)j;
-						forwardLink->side = 0xFF;
+						forwardLink->side = 0xff;
+						forwardLink->bmin = 0;
+						forwardLink->bmax = 255;
 						forwardLink->next = startPoly->firstLink;
 						startPoly->firstLink = forwardIdx;
 						forwardLink->traverseType = (unsigned char)traverseType;
 						forwardLink->traverseDist = distance;
+						forwardLink->reverseLink = (unsigned short)reverseIdx;
 
 						dtLink* const reverseLink = &tile->links[reverseIdx];
 
 						reverseLink->ref = m_navMesh->getPolyRefBase(tile) | (dtPolyRef)i;
 						reverseLink->edge = (unsigned char)m;
-						reverseLink->side = 0xFF;
+						reverseLink->side = 0xff;
+						reverseLink->bmin = 0;
+						reverseLink->bmax = 255;
 						reverseLink->next = endPoly->firstLink;
 						endPoly->firstLink = reverseIdx;
 						reverseLink->traverseType = (unsigned char)traverseType;
 						reverseLink->traverseDist = distance;
-
-						forwardLink->reverseLink = (unsigned short)reverseIdx;
 						reverseLink->reverseLink = (unsigned short)forwardIdx;
 					}
 				}
