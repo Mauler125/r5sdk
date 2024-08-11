@@ -1069,6 +1069,12 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 		fwrite(tile->data, tile->dataSize, 1, fp);
 	}
 
+#if DT_NAVMESH_SET_VERSION == 5
+	int mset5Unkown = 0;
+	for (int i = 0; i < params->polyGroupCount; i++)
+		fwrite(&mset5Unkown, sizeof(int), 1, fp);
+#endif
+
 	// Only store if we have 3 or more poly groups.
 	if (params->polyGroupCount >= DT_MIN_POLY_GROUP_COUNT)
 	{
