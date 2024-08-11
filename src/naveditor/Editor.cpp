@@ -804,6 +804,11 @@ void Editor::renderDetourDebugMenu()
 	if (ImGui::Checkbox("Tile ID Colors", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_COLOR_TILES);
 
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TILE_BOUNDS);
+
+	if (ImGui::Checkbox("Tile Bounds", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_BOUNDS);
+
 #if DT_NAVMESH_SET_VERSION >= 8
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_CELLS);
 

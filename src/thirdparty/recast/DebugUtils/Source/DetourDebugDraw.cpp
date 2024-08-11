@@ -281,6 +281,12 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	if (flags & DU_DRAWNAVMESH_CELLS)
 		drawTileCells(dd, tile, offset);
 
+	if (flags & DU_DRAWNAVMESH_TILE_BOUNDS)
+	{
+		const dtMeshHeader* header = tile->header;
+		duDebugDrawBoxWire(dd, header->bmin[0], header->bmin[1], header->bmin[2], header->bmax[0], header->bmax[1], header->bmax[2], duRGBA(255,255,255,128), 1.0f, offset);
+	}
+
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
 	{
 		dd->begin(DU_DRAW_LINES, 2.0f, offset);
