@@ -353,7 +353,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	{
 		const unsigned int vcol = duRGBA(0,0,0,220);
 		dd->begin(DU_DRAW_POINTS, 4.0f, offset);
-		for (int i = 0; i < tile->header->vertCount; ++i)
+		for (int i = 0; i < header->vertCount; ++i)
 		{
 			const float* v = &tile->verts[i*3];
 			dd->vertex(v[0], v[1], v[2], vcol);
