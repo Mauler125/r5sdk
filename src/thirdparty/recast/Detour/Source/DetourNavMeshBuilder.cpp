@@ -598,7 +598,7 @@ bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellI
 				float targetCellPos[3];
 				targetCellPos[0] = params->bmin[0]+j*stepX+offsetX;
 				targetCellPos[1] = params->bmin[1]+k*stepY;
-				targetCellPos[2] = 0; // todo(amos): might need a proper fallback, but so far this never failed.
+				targetCellPos[2] = params->bmax[2]; // note(amos): might need a better fallback, but so far this never failed.
 
 				if (!rdPointInPolygon(targetCellPos, polyVerts, nv))
 					continue;
