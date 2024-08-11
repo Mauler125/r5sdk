@@ -182,6 +182,13 @@ private:
 /// @return True if the disjoint set data was successfully created.
 bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint);
 
+/// Updates navigation mesh disjoint poly groups from the provided navmesh.
+/// @ingroup detour
+///  @param[in]		nav			The navigation mesh to use.
+///  @param[Out]	disjoint	The disjoint set data.
+/// @return True if the disjoint set data was successfully updated.
+bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint);
+
 /// Builds navigation mesh static traverse table from the provided navmesh.
 /// @ingroup detour
 ///  @param[in]		nav			The navigation mesh to use.

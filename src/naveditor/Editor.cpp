@@ -710,6 +710,11 @@ void Editor::buildStaticPathingData()
 		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traverse links.");
 	}
 
+	if (!dtUpdateDisjointPolyGroups(m_navMesh, data))
+	{
+		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to update disjoint poly groups.");
+	}
+
 	if (!dtCreateTraverseTableData(m_navMesh, data, NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType)))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traverse table data.");
