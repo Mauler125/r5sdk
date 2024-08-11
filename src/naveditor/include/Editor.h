@@ -21,6 +21,8 @@
 
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/EditorInterfaces.h"
+#include "DebugUtils/Include/RecastDebugDraw.h"
+#include "DebugUtils/Include/DetourDebugDraw.h"
 
 #include "game/server/ai_navmesh.h"
 
@@ -172,8 +174,7 @@ protected:
 
 	EditorDebugDraw m_dd;
 	unsigned int m_navMeshDrawFlags;
-	int m_traverseLinkDrawTypes;
-	int m_traverseLinkDrawDistances;
+	duDrawTraverseLinkParams m_traverseLinkParams;
 	float m_recastDrawOffset[3];
 	float m_detourDrawOffset[3];
 

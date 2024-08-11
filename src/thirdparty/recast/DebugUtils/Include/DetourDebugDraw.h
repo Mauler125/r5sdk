@@ -43,8 +43,21 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_TRAVERSE_LINKS     = 1 << 15, // Render traverse links.
 };
 
-void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const int linkTypes = -1, const int linkDistance = -1);
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const int linkTypes = -1, const int linkDistance = -1);
+struct duDrawTraverseLinkParams
+{
+	duDrawTraverseLinkParams() :
+		traverseLinkType(-1),
+		traverseLinkDistance(-1),
+		traverseAnimType(-1)
+	{}
+
+	int traverseLinkType;
+	int traverseLinkDistance;
+	int traverseAnimType;
+};
+
+void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams);
+void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams);
 void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query, const float* offset);
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);
 void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);

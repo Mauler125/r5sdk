@@ -22,7 +22,7 @@
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "Include/InputGeom.h"
-#include <DetourTileCache/Include/DetourTileCache.h>
+#include "DetourTileCache/Include/DetourTileCache.h"
 
 static void EditorCommon_DrawInputGeometry(duDebugDraw* const dd, const InputGeom* const geom,
 	const float maxSlope, const float textureScale)
@@ -307,7 +307,7 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 	{
 		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH)
 		{
-			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, m_navMeshDrawFlags, m_traverseLinkDrawTypes, m_traverseLinkDrawDistances);
+			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, m_navMeshDrawFlags, m_traverseLinkParams);
 			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, detourDrawOffset, detourDrawFlags, duRGBA(0, 0, 0, 128));
 		}
 	}
@@ -572,7 +572,7 @@ void Editor_DynamicTileMeshCommon::renderTileMeshData()
 	{
 		if (recastDrawFlags & TM_DRAWFLAGS_NAVMESH)
 		{
-			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, detourDrawFlags);
+			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, detourDrawFlags, m_traverseLinkParams);
 			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, detourDrawOffset, detourDrawFlags, duRGBA(0, 0, 0, 128));
 		}
 	}

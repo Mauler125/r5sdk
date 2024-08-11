@@ -63,9 +63,7 @@ Editor::Editor() :
 	m_loadedNavMeshType(NAVMESH_SMALL),
 	m_navmeshName(NavMesh_GetNameForType(NAVMESH_SMALL)),
 	m_tool(0),
-	m_ctx(0),
-	m_traverseLinkDrawTypes(-1),
-	m_traverseLinkDrawDistances(-1)
+	m_ctx(0)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
@@ -867,8 +865,9 @@ void Editor::renderDetourDebugMenu()
 	if (isEnabled)
 	{
 		ImGui::PushItemWidth(190);
-		ImGui::SliderInt("Traverse Type", &m_traverseLinkDrawTypes, -1, 31);
-		ImGui::SliderInt("Traverse Dist", &m_traverseLinkDrawDistances, -1, 255);
+		ImGui::SliderInt("Traverse Type", &m_traverseLinkParams.traverseLinkType, -1, 31);
+		ImGui::SliderInt("Traverse Dist", &m_traverseLinkParams.traverseLinkDistance, -1, 255);
+		ImGui::SliderInt("Traverse Anim", &m_traverseLinkParams.traverseAnimType, -1, m_navMesh->getParams()->traverseTableCount-1);
 		ImGui::PopItemWidth();
 	}
 }
