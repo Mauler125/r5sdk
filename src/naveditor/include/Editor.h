@@ -245,7 +245,7 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
-	void connectTileTraverseLinks(dtMeshTile* const tile); // Make private.
+	void connectTileTraverseLinks(dtMeshTile* const startTile, dtMeshTile* const endTile); // Make private.
 	bool createTraverseLinks();
 	void buildStaticPathingData();
 

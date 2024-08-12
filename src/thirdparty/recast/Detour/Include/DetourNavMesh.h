@@ -97,6 +97,9 @@ static const unsigned char DT_NULL_TRAVERSE_TYPE = 0xff;
 /// A value that indicates the link doesn't contain a reverse traverse link.
 static const unsigned short DT_NULL_TRAVERSE_REVERSE_LINK = 0xffff;
 
+/// The maximum traverse distance for a traverse link. (Quantized value should not overflow #dtLink::traverseDist.)
+static const float DT_TRAVERSE_DIST_MAX = 2550.0f;
+
 /// The cached traverse link distance quantization factor.
 static const float DT_TRAVERSE_DIST_QUANT_FACTOR = 0.1f;
 
@@ -809,7 +812,7 @@ private:
 	dtNavMesh& operator=(const dtNavMesh&);
 
 
-
+public:
 	/// Returns neighbour tile based on side.
 	int getTilesAt(const int x, const int y,
 		dtMeshTile** tiles, const int maxTiles) const;
@@ -818,6 +821,7 @@ private:
 	int getNeighbourTilesAt(const int x, const int y, const int side,
 		dtMeshTile** tiles, const int maxTiles) const;
 
+private:
 	/// Returns all polygons in neighbour tile based on portal defined by the segment.
 	int findConnectingPolys(const float* va, const float* vb,
 		const dtMeshTile* tile, int side,

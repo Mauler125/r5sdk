@@ -1750,7 +1750,9 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 
 unsigned char dtCalcLinkDistance(const float* spos, const float* epos)
 {
-	return (unsigned char)rdMathFloorf(rdVdist(spos, epos) * DT_TRAVERSE_DIST_QUANT_FACTOR);
+	const float distance = rdMathFabsf(rdVdist(spos, epos));
+	if (distance > DT_TRAVERSE_DIST_MAX) return (unsigned char)0;
+	return (unsigned char)(distance * DT_TRAVERSE_DIST_QUANT_FACTOR);
 }
 
 float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts)
