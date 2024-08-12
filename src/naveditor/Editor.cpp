@@ -561,73 +561,73 @@ static bool traverseLinkInLOS(InputGeom* geom, const float* startPos, const floa
 // correct jumpType.
 // TODO: make sure we don't generate duplicate pairs of jump types between
 // 2 polygons.
-void Editor::connectTileTraverseLinks(dtMeshTile* const startTile, const bool linkToNeighbor)
+void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor)
 {
-	for (int i = 0; i < startTile->header->polyCount; ++i)
+	for (int i = 0; i < baseTile->header->polyCount; ++i)
 	{
-		dtPoly* const startPoly = &startTile->polys[i];
+		dtPoly* const basePoly = &baseTile->polys[i];
 
-		for (int j = 0; j < startPoly->vertCount; ++j)
+		for (int j = 0; j < basePoly->vertCount; ++j)
 		{
 			// Hard edges only!
-			if (startPoly->neis[j] != 0)
+			if (basePoly->neis[j] != 0)
 				continue;
 
 			// Polygon 1 edge
-			const float* const startPolySpos = &startTile->verts[startPoly->verts[j] * 3];
-			const float* const startPolyEpos = &startTile->verts[startPoly->verts[(j + 1) % startPoly->vertCount] * 3];
+			const float* const basePolySpos = &baseTile->verts[basePoly->verts[j] * 3];
+			const float* const basePolyEpos = &baseTile->verts[basePoly->verts[(j + 1) % basePoly->vertCount] * 3];
 
-			float startPolyEdgeMid[3];
-			rdVsad(startPolyEdgeMid, startPolySpos, startPolyEpos, 0.5f);
+			float basePolyEdgeMid[3];
+			rdVsad(basePolyEdgeMid, basePolySpos, basePolyEpos, 0.5f);
 
-			unsigned char side = (unsigned char)rdOppositeTile(rdClassifyPointInsideBounds(startPolyEdgeMid, startTile->header->bmin, startTile->header->bmax));
+			unsigned char side = (unsigned char)rdOppositeTile(rdClassifyPointInsideBounds(basePolyEdgeMid, baseTile->header->bmin, baseTile->header->bmax));
 			const int MAX_NEIS = 32; // Max neighbors
 
 			dtMeshTile* neis[MAX_NEIS];
 			int nneis;
 
-			if (linkToNeighbor) // Retrieve the neighboring tiles on the side of our start edge.
-				nneis = m_navMesh->getNeighbourTilesAt(startTile->header->x, startTile->header->y, side, neis, MAX_NEIS);
+			if (linkToNeighbor) // Retrieve the neighboring tiles on the side of our base poly edge.
+				nneis = m_navMesh->getNeighbourTilesAt(baseTile->header->x, baseTile->header->y, side, neis, MAX_NEIS);
 			else
 			{
 				// Internal links.
 				nneis = 1;
-				neis[0] = startTile;
+				neis[0] = baseTile;
 			}
 
 			for (int k = 0; k < nneis; ++k)
 			{
-				dtMeshTile* endTile = neis[k];
-				const bool external = startTile != endTile;
+				dtMeshTile* landTile = neis[k];
+				const bool external = baseTile != landTile;
 
 				if (!external && i == k) continue; // Skip self
 
-				for (int m = 0; m < endTile->header->polyCount; ++m)
+				for (int m = 0; m < landTile->header->polyCount; ++m)
 				{
-					dtPoly* const endPoly = &endTile->polys[m];
+					dtPoly* const landPoly = &landTile->polys[m];
 
-					for (int n = 0; n < endPoly->vertCount; ++n)
+					for (int n = 0; n < landPoly->vertCount; ++n)
 					{
-						if (endPoly->neis[n] != 0)
+						if (landPoly->neis[n] != 0)
 							continue;
 
 						// Polygon 2 edge
-						const float* const endPolySpos = &endTile->verts[endPoly->verts[n] * 3];
-						const float* const endPolyEpos = &endTile->verts[endPoly->verts[(n + 1) % endPoly->vertCount] * 3];
+						const float* const landPolySpos = &landTile->verts[landPoly->verts[n] * 3];
+						const float* const landPolyEpos = &landTile->verts[landPoly->verts[(n + 1) % landPoly->vertCount] * 3];
 
-						float endPolyEdgeMid[3];
-						rdVsad(endPolyEdgeMid, endPolySpos, endPolyEpos, 0.5f);
+						float landPolyEdgeMid[3];
+						rdVsad(landPolyEdgeMid, landPolySpos, landPolyEpos, 0.5f);
 
-						const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
+						const unsigned char distance = dtCalcLinkDistance(basePolyEdgeMid, landPolyEdgeMid);
 
 						if (distance == 0)
 							continue;
 
-						float startEdgeDir[3], endEdgeDir[3];
-						rdVsub(startEdgeDir, startPolyEpos, startPolySpos);
-						rdVsub(endEdgeDir, endPolyEpos, endPolySpos);
+						float baseEdgeDir[3], landEdgeDir[3];
+						rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
+						rdVsub(landEdgeDir, landPolyEpos, landPolySpos);
 
-						const float dotProduct = rdVdot(startEdgeDir, endEdgeDir);
+						const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
 
 						// Edges facing the same direction should not be linked.
 						// Doing so causes links to go through from underneath
@@ -640,11 +640,11 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const startTile, const bool li
 							continue;
 
 						float t, s;
-						if (rdIntersectSegSeg2D(startPolySpos, startPolyEpos, endPolySpos, endPolyEpos, t, s))
+						if (rdIntersectSegSeg2D(basePolySpos, basePolyEpos, landPolySpos, landPolyEpos, t, s))
 							continue;
 
-						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPolyEdgeMid, endPolyEdgeMid));
-						const bool samePolyGroup = startPoly->groupId == endPoly->groupId;
+						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
+						const bool samePolyGroup = basePoly->groupId == landPoly->groupId;
 
 						const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, distance, samePolyGroup);
 
@@ -654,54 +654,54 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const startTile, const bool li
 						if (!CanOverlapPoly(traverseType))
 						{
 							float linkMidPoint[3];
-							rdVsad(linkMidPoint, startPolyEdgeMid, endPolyEdgeMid, 0.5f);
+							rdVsad(linkMidPoint, basePolyEdgeMid, landPolyEdgeMid, 0.5f);
 
-							if (traverseLinkInPolygon(startTile, linkMidPoint) || traverseLinkInPolygon(endTile, linkMidPoint))
+							if (traverseLinkInPolygon(baseTile, linkMidPoint) || traverseLinkInPolygon(landTile, linkMidPoint))
 								continue;
 						}
 
-						if (!traverseLinkInLOS(m_geom, startPolyEdgeMid, endPolyEdgeMid, m_agentHeight))
+						if (!traverseLinkInLOS(m_geom, basePolyEdgeMid, landPolyEdgeMid, m_agentHeight))
 							continue;
 
 						// Need at least 2 links
 						// todo(amos): perhaps optimize this so we check this before raycasting
 						// etc.. must also check if the tile isn't external because if so, we need
 						// space for 2 links in the same tile.
-						const unsigned int forwardIdx = startTile->allocLink();
+						const unsigned int forwardIdx = baseTile->allocLink();
 
 						if (forwardIdx == DT_NULL_LINK) // TODO: should move on to next tile.
 							continue;
 
-						const unsigned int reverseIdx = endTile->allocLink();
+						const unsigned int reverseIdx = landTile->allocLink();
 
 						if (reverseIdx == DT_NULL_LINK) // TODO: should move on to next tile.
 						{
-							startTile->freeLink(forwardIdx);
+							baseTile->freeLink(forwardIdx);
 							continue;
 						}
 
-						dtLink* const forwardLink = &startTile->links[forwardIdx];
+						dtLink* const forwardLink = &baseTile->links[forwardIdx];
 
-						forwardLink->ref = m_navMesh->getPolyRefBase(endTile) | (dtPolyRef)m;
+						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)m;
 						forwardLink->edge = (unsigned char)j;
 						forwardLink->side = side;
 						forwardLink->bmin = 0;
 						forwardLink->bmax = 255;
-						forwardLink->next = startPoly->firstLink;
-						startPoly->firstLink = forwardIdx;
+						forwardLink->next = basePoly->firstLink;
+						basePoly->firstLink = forwardIdx;
 						forwardLink->traverseType = (unsigned char)traverseType;
 						forwardLink->traverseDist = distance;
 						forwardLink->reverseLink = (unsigned short)reverseIdx;
 
-						dtLink* const reverseLink = &endTile->links[reverseIdx];
+						dtLink* const reverseLink = &landTile->links[reverseIdx];
 
-						reverseLink->ref = m_navMesh->getPolyRefBase(startTile) | (dtPolyRef)i;
+						reverseLink->ref = m_navMesh->getPolyRefBase(baseTile) | (dtPolyRef)i;
 						reverseLink->edge = (unsigned char)n;
 						reverseLink->side = (unsigned char)rdOppositeTile(side);
 						reverseLink->bmin = 0;
 						reverseLink->bmax = 255;
-						reverseLink->next = endPoly->firstLink;
-						endPoly->firstLink = reverseIdx;
+						reverseLink->next = landPoly->firstLink;
+						landPoly->firstLink = reverseIdx;
 						reverseLink->traverseType = (unsigned char)traverseType;
 						reverseLink->traverseDist = distance;
 						reverseLink->reverseLink = (unsigned short)forwardIdx;
@@ -719,12 +719,12 @@ bool Editor::createTraverseLinks()
 
 	for (int i = 0; i < maxTiles; i++)
 	{
-		dtMeshTile* startTile = m_navMesh->getTile(i);
-		if (!startTile || !startTile->header)
+		dtMeshTile* baseTile = m_navMesh->getTile(i);
+		if (!baseTile || !baseTile->header)
 			continue;
 
-		connectTileTraverseLinks(startTile, true);
-		connectTileTraverseLinks(startTile, false);
+		connectTileTraverseLinks(baseTile, true);
+		connectTileTraverseLinks(baseTile, false);
 	}
 
 	return true;
