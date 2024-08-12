@@ -406,8 +406,8 @@ enum TraverseType_e // todo(amos): move elsewhere
 
 struct TraverseType_s // todo(amos): move elsewhere
 {
-	float minSlope;
-	float maxSlope;
+	float minSlope; // todo(amos): use height difference instead of slope angles.
+	float maxSlope; // todo(amos): use height difference instead of slope angles.
 
 	unsigned char minDist;
 	unsigned char maxDist;
@@ -504,10 +504,13 @@ TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char t
 	return bestTraverseType;
 }
 
+// todo(amos): find the best threshold...
+// todo(amos): use height difference instead of slope angles.
+#define TRAVERSE_OVERLAP_SLOPE_THRESHOLD 5.0f
+
 bool CanOverlapPoly(const TraverseType_e traverseType)
 {
-	// todo(amos): find the best threshold...
-	return s_traverseTypes[traverseType].minSlope > 5.0f;
+	return s_traverseTypes[traverseType].minSlope >= TRAVERSE_OVERLAP_SLOPE_THRESHOLD;
 }
 
 static bool traverseLinkInPolygon(const dtMeshTile* tile, const float* midPoint)
@@ -623,27 +626,36 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						if (distance == 0)
 							continue;
 
-						float baseEdgeDir[3], landEdgeDir[3];
-						rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
-						rdVsub(landEdgeDir, landPolyEpos, landPolySpos);
+						// todo(amos): use height difference instead of slope angles.
+						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
 
-						const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
+						if (slopeAngle < TRAVERSE_OVERLAP_SLOPE_THRESHOLD)
+						{
+							float baseEdgeDir[3], landEdgeDir[3];
+							rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
+							rdVsub(landEdgeDir, landPolyEpos, landPolySpos);
 
-						// Edges facing the same direction should not be linked.
-						// Doing so causes links to go through from underneath
-						// geometry. E.g. we have an HVAC on a roof, and we try
-						// to link our roof poly edge facing north to the edge
-						// of the poly on the HVAC also facing north, the link
-						// will go through the HVAC and thus cause the NPC to
-						// jump through it.
-						if (dotProduct > 0)
-							continue;
+							const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
+
+							// Edges facing the same direction should not be linked.
+							// Doing so causes links to go through from underneath
+							// geometry. E.g. we have an HVAC on a roof, and we try
+							// to link our roof poly edge facing north to the edge
+							// of the poly on the HVAC also facing north, the link
+							// will go through the HVAC and thus cause the NPC to
+							// jump through it.
+							// Another case where this is necessary is when having
+							// a land edge that connects with the base edge, this
+							// prevents the algorithm from establishing a parallel
+							// traverse link.
+							if (dotProduct > 0)
+								continue;
+						}
 
 						float t, s;
 						if (rdIntersectSegSeg2D(basePolySpos, basePolyEpos, landPolySpos, landPolyEpos, t, s))
 							continue;
 
-						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
 						const bool samePolyGroup = basePoly->groupId == landPoly->groupId;
 
 						const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, distance, samePolyGroup);
