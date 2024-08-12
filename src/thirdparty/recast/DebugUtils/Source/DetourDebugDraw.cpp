@@ -46,13 +46,16 @@ static void drawOffMeshConnectionRefPosition(duDebugDraw* dd, const dtOffMeshCon
 }
 
 static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
-							   const float linew, const float* offset, bool inner)
+							   const float linew, const float* offset, const int flags, bool inner)
 {
-	static const float thr = 0.01f*0.01f;
-
 	dd->begin(DU_DRAW_LINES, linew, offset);
 
-	for (int i = 0; i < tile->header->polyCount; ++i)
+	const dtMeshHeader* header = tile->header;
+	const float walkableRadius = header->walkableRadius;
+
+	static const float thr = 0.01f*0.01f;
+
+	for (int i = 0; i < header->polyCount; ++i)
 	{
 		const dtPoly* p = &tile->polys[i];
 		
@@ -92,7 +95,25 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 			
 			const float* v0 = &tile->verts[p->verts[j]*3];
 			const float* v1 = &tile->verts[p->verts[(j+1) % nj]*3];
-			
+
+			if (!inner && flags & DU_DRAWNAVMESH_TRAVERSE_RAY_OFFSET)
+			{
+				float perp[3];
+				rdPerpDirPtEdge2D(v0, v1, false, perp);
+
+				float mid[3];
+				rdVsad(mid, v0, v1, 0.5f);
+
+				float perpEnd[3] = {
+				mid[0] + perp[0] * walkableRadius,
+				mid[1] + perp[1] * walkableRadius,
+				mid[2]
+				};
+
+				dd->vertex(mid, c);
+				dd->vertex(perpEnd, c);
+			}
+
 			// Draw detail mesh edges which align with the actual poly edge.
 			// This is really slow.
 			for (int k = 0; k < pd->triCount; ++k)
@@ -278,11 +299,11 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	
 	// Draw inner poly boundaries
 	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_INNER)
-		drawPolyBoundaries(dd, tile, 1.5f, offset, true);
+		drawPolyBoundaries(dd, tile, 1.5f, offset, flags, true);
 	
 	// Draw outer poly boundaries
 	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_OUTER)
-		drawPolyBoundaries(dd, tile, 3.5f, offset, false);
+		drawPolyBoundaries(dd, tile, 3.5f, offset, flags, false);
 
 	// Draw poly centers
 	if (flags & DU_DRAWNAVMESH_POLY_CENTERS)

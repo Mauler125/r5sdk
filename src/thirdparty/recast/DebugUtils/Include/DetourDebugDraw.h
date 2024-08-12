@@ -40,7 +40,8 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_POLY_GROUPS        = 1 << 12, // Render poly group by color.
 	DU_DRAWNAVMESH_DEPTH_MASK         = 1 << 13, // Use depth mask.
 	DU_DRAWNAVMESH_ALPHA              = 1 << 14, // Use transparency.
-	DU_DRAWNAVMESH_TRAVERSE_LINKS     = 1 << 15, // Render traverse links.
+	DU_DRAWNAVMESH_TRAVERSE_RAY_OFFSET= 1 << 15, // Render traverse link raycast offset.
+	DU_DRAWNAVMESH_TRAVERSE_LINKS     = 1 << 16, // Render traverse links.
 };
 
 struct duDrawTraverseLinkParams

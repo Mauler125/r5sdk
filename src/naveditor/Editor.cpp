@@ -533,28 +533,62 @@ static bool traverseLinkInPolygon(const dtMeshTile* tile, const float* midPoint)
 	return false;
 }
 
-static bool traverseLinkInLOS(InputGeom* geom, const float* basePos, const float* landPos, const float heightOffset)
+static bool traverseLinkInLOS(InputGeom* geom, const float* lowPos, const float* highPos, const float* edgeDir, const float offsetAmount)
 {
-	float rayBasePos[3];
-	float rayLandPos[3];
+	// We offset the highest point with at least the
+	// walkable radius, and perform a raycast test
+	// from the highest point to the lowest. The
+	// offsetting is necessary to account for the
+	// gap between the edge of the navmesh and the
+	// edge of the geometry shown below:
+	// 
+	//                          geom    upper navmesh
+	//                          ^       ^
+	//                     gap  |       |
+	//                     ^    |       |
+	//                     |    |       |
+	//           offset <-----> | +++++++++++++...
+	//                / =======================...
+	//               /
+	//     ray <----/     lower navmesh
+	//             /      ^
+	//     geom   /       |
+	//     ^     /        |
+	//     |    +++++++++++++++++++++++++++++++...
+	// ========================================...
+	// 
+	// We only want the raycast test to fail if the
+	// ledge is larger than usual, when the low and
+	// high positions are angled in such way no LOS
+	// is possible, or when there's an actual object
+	// between the 2 positions.
+	float perp[3];
+	rdPerpDirEdge2D(edgeDir, false, perp);
+
+	float targetRayPos[3] = {
+		highPos[0] + perp[0] * offsetAmount,
+		highPos[1] + perp[1] * offsetAmount,
+		highPos[2]
+	};
 
 	float hitTime;
 
-	rdVcopy(rayBasePos, basePos);
-	rdVcopy(rayLandPos, landPos);
-
-	// note(amos): offset the ray heights so we don't clip into
-	// ledges. Realistically, we need at least the height of the
-	// agent anyways to be able to properly perform a jump
-	// without clipping into geometry.
-	rayBasePos[2] += heightOffset;
-	rayLandPos[2] += heightOffset;
-
 	// note(amos): perform 2 raycasts as we have to take the
 	// face normal into account. Path must be clear from both
-	// directions.
-	if (geom->raycastMesh(rayBasePos, rayLandPos, hitTime) ||
-		geom->raycastMesh(rayLandPos, rayBasePos, hitTime))
+	// directions. We cast from the upper position first as
+	// an optimization attempt because if there's a ledge, the
+	// raycast test from the lower pos is more likely to pass
+	// due to mesh normals, e.g. when the higher mesh is generated
+	// on a single sided plane, and we have a ledge between our
+	// lower and higher pos, the test from below will pass while
+	// the test from above won't. Doing the test from below won't
+	// matter besides burning CPU time as we will never get here if
+	// the mesh normals of that plane were flipped as there
+	// won't be any navmesh on the higher pos in the first place.
+	// Its still possible there's something blocking on the lower
+	// pos' side, but this is a lot less likely to happen.
+	if (geom->raycastMesh(targetRayPos, lowPos, hitTime) ||
+		geom->raycastMesh(lowPos, targetRayPos, hitTime))
 		return false;
 
 	return true;
@@ -626,14 +660,15 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						if (distance == 0)
 							continue;
 
+						float baseEdgeDir[3], landEdgeDir[3];
+						rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
+						rdVsub(landEdgeDir, landPolyEpos, landPolySpos);
+
 						// todo(amos): use height difference instead of slope angles.
 						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
 
 						if (slopeAngle < TRAVERSE_OVERLAP_SLOPE_THRESHOLD)
 						{
-							float baseEdgeDir[3], landEdgeDir[3];
-							rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
-							rdVsub(landEdgeDir, landPolyEpos, landPolySpos);
 
 							const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
 
@@ -672,7 +707,13 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 								continue;
 						}
 
-						if (!traverseLinkInLOS(m_geom, basePolyEdgeMid, landPolyEdgeMid, m_agentHeight))
+						const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
+						float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
+						float* const higherEdgeMid = basePolyHigher ? basePolyEdgeMid : landPolyEdgeMid;
+						float* const higherEdgeDir = basePolyHigher ? baseEdgeDir : landEdgeDir;
+						float walkableRadius = basePolyHigher ? baseTile->header->walkableRadius : landTile->header->walkableRadius;
+
+						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, higherEdgeDir, walkableRadius))
 							continue;
 
 						// Need at least 2 links
@@ -906,6 +947,11 @@ void Editor::renderDetourDebugMenu()
 
 	if (ImGui::Checkbox("Transparency", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
+
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TRAVERSE_RAY_OFFSET);
+
+	if (ImGui::Checkbox("Traverse Ray Offsets", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TRAVERSE_RAY_OFFSET);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TRAVERSE_LINKS);
 
