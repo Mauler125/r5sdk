@@ -409,6 +409,29 @@ float rdDistancePtLine2d(const float* pt, const float* p, const float* q)
 	return dx * dx + dy * dy;
 }
 
+void rdPerpDirEdge2D(const float* dir, const bool inner, float* out)
+{
+	if (inner)
+	{
+		out[0] = -dir[1];
+		out[1] = dir[0];
+	}
+	else
+	{
+		out[0] = dir[1];
+		out[1] = -dir[0];
+	}
+
+	rdVnormalize2D(out);
+}
+
+void rdPerpDirPtEdge2D(const float* v1, const float* v2, const bool inner, float* out)
+{
+	float dir[3];
+	rdVsub(dir, v2, v1);
+	rdPerpDirEdge2D(dir, inner, out);
+}
+
 static const unsigned char XP = 1 << 0;
 static const unsigned char ZP = 1 << 1;
 static const unsigned char XM = 1 << 2;

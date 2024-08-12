@@ -310,6 +310,15 @@ inline void rdVnormalize(float* v)
 	v[2] *= d;
 }
 
+/// Normalizes the vector on the xy-plane.
+///  @param[in,out]	v	The vector to normalize. [(x, y, z)]
+inline void rdVnormalize2D(float* v)
+{
+	float d = 1.0f / rdMathSqrtf(rdSqr(v[0]) + rdSqr(v[1]));
+	v[0] *= d;
+	v[1] *= d;
+}
+
 /// Performs a 'sloppy' collocation check of the specified points.
 ///  @param[in]		p0	A point. [(x, y, z)]
 ///  @param[in]		p1	A point. [(x, y, z)]
@@ -431,6 +440,19 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 						 float& s, float& t);
 
 float rdDistancePtLine2d(const float* pt, const float* p, const float* q);
+
+/// Derives the perpendicular direction of an edge
+///  @param[in]		dir		The direction of the edge. [(x, y, z)]
+///  @param[in]		inner	Whether to face towards the poly or away from it.
+///  @param[out]	out		The resulting direction. [(x, y)]
+void rdPerpDirEdge2D(const float* dir, const bool inner, float* out);
+
+/// Derives the perpendicular direction of an edge
+///  @param[in]		v1		First vert of the polygon edge. [(x, y, z)]
+///  @param[in]		v2		Second vert of the polygon vert. [(x, y, z)]
+///  @param[in]		inner	Whether to face towards the poly or away from it.
+///  @param[out]	out		The resulting direction. [(x, y)]
+void rdPerpDirPtEdge2D(const float* v1, const float* v2, const bool inner, float* out);
 
 unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax);
 unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax);
