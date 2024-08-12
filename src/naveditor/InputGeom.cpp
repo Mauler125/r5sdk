@@ -489,7 +489,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 }
 
 
-bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
+bool InputGeom::raycastMesh(const float* src, const float* dst, float& tmin) const
 {
 	// Prune hit ray.
 	float btmin, btmax;
