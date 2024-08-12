@@ -561,7 +561,7 @@ static bool traverseLinkInLOS(InputGeom* geom, const float* startPos, const floa
 // correct jumpType.
 // TODO: make sure we don't generate duplicate pairs of jump types between
 // 2 polygons.
-void Editor::connectTileTraverseLinks(dtMeshTile* const startTile, dtMeshTile* const endTile)
+void Editor::connectTileTraverseLinks(dtMeshTile* const startTile, const bool linkToNeighbor)
 {
 	for (int i = 0; i < startTile->header->polyCount; ++i)
 	{
@@ -580,115 +580,132 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const startTile, dtMeshTile* c
 			float startPolyEdgeMid[3];
 			rdVsad(startPolyEdgeMid, startPolySpos, startPolyEpos, 0.5f);
 
-			float startEdgeDir[3];
-			rdVsub(startEdgeDir, startPolyEpos, startPolySpos);
+			unsigned char side = (unsigned char)rdOppositeTile(rdClassifyPointInsideBounds(startPolyEdgeMid, startTile->header->bmin, startTile->header->bmax));
+			const int MAX_NEIS = 32; // Max neighbors
 
-			for (int k = 0; k < endTile->header->polyCount; ++k)
+			dtMeshTile* neis[MAX_NEIS];
+			int nneis;
+
+			if (linkToNeighbor) // Retrieve the neighboring tiles on the side of our start edge.
+				nneis = m_navMesh->getNeighbourTilesAt(startTile->header->x, startTile->header->y, side, neis, MAX_NEIS);
+			else
 			{
+				// Internal links.
+				nneis = 1;
+				neis[0] = startTile;
+			}
+
+			for (int k = 0; k < nneis; ++k)
+			{
+				dtMeshTile* endTile = neis[k];
 				const bool external = startTile != endTile;
+
 				if (!external && i == k) continue; // Skip self
 
-				dtPoly* const endPoly = &endTile->polys[k];
-
-				for (int m = 0; m < endPoly->vertCount; ++m)
+				for (int m = 0; m < endTile->header->polyCount; ++m)
 				{
-					// Hard edges only!
-					if (endPoly->neis[m] != 0)
-						continue;
+					dtPoly* const endPoly = &endTile->polys[m];
 
-					// Polygon 2 edge
-					const float* const endPolySpos = &endTile->verts[endPoly->verts[m] * 3];
-					const float* const endPolyEpos = &endTile->verts[endPoly->verts[(m + 1) % endPoly->vertCount] * 3];
-
-					float endPolyEdgeMid[3];
-					rdVsad(endPolyEdgeMid, endPolySpos, endPolyEpos, 0.5f);
-
-					const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
-
-					if (distance == 0)
-						continue;
-
-					float endEdgeDir[3];
-					rdVsub(endEdgeDir, endPolyEpos, endPolySpos);
-
-					const float dotProduct = rdVdot(startEdgeDir, endEdgeDir);
-
-					// Edges facing the same direction should not be linked.
-					// Doing so causes links to go through from underneath
-					// geometry. E.g. we have an HVAC on a roof, and we try
-					// to link our roof poly edge facing north to the edge
-					// of the poly on the HVAC also facing north, the link
-					// will go through the HVAC and thus cause the NPC to
-					// jump through it.
-					if (dotProduct > 0)
-						continue;
-
-					float t, s;
-					if (rdIntersectSegSeg2D(startPolySpos, startPolyEpos, endPolySpos, endPolyEpos, t, s))
-						continue;
-
-					const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPolyEdgeMid, endPolyEdgeMid));
-					const bool samePolyGroup = startPoly->groupId == endPoly->groupId;
-
-					const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, distance, samePolyGroup);
-
-					if (traverseType == DT_NULL_TRAVERSE_TYPE)
-						continue;
-
-					if (!CanOverlapPoly(traverseType))
+					for (int n = 0; n < endPoly->vertCount; ++n)
 					{
-						float linkMidPoint[3];
-						rdVsad(linkMidPoint, startPolyEdgeMid, endPolyEdgeMid, 0.5f);
-
-						if (traverseLinkInPolygon(startTile, linkMidPoint) || traverseLinkInPolygon(endTile, linkMidPoint))
+						if (endPoly->neis[n] != 0)
 							continue;
+
+						// Polygon 2 edge
+						const float* const endPolySpos = &endTile->verts[endPoly->verts[n] * 3];
+						const float* const endPolyEpos = &endTile->verts[endPoly->verts[(n + 1) % endPoly->vertCount] * 3];
+
+						float endPolyEdgeMid[3];
+						rdVsad(endPolyEdgeMid, endPolySpos, endPolyEpos, 0.5f);
+
+						const unsigned char distance = dtCalcLinkDistance(startPolyEdgeMid, endPolyEdgeMid);
+
+						if (distance == 0)
+							continue;
+
+						float startEdgeDir[3], endEdgeDir[3];
+						rdVsub(startEdgeDir, startPolyEpos, startPolySpos);
+						rdVsub(endEdgeDir, endPolyEpos, endPolySpos);
+
+						const float dotProduct = rdVdot(startEdgeDir, endEdgeDir);
+
+						// Edges facing the same direction should not be linked.
+						// Doing so causes links to go through from underneath
+						// geometry. E.g. we have an HVAC on a roof, and we try
+						// to link our roof poly edge facing north to the edge
+						// of the poly on the HVAC also facing north, the link
+						// will go through the HVAC and thus cause the NPC to
+						// jump through it.
+						if (dotProduct > 0)
+							continue;
+
+						float t, s;
+						if (rdIntersectSegSeg2D(startPolySpos, startPolyEpos, endPolySpos, endPolyEpos, t, s))
+							continue;
+
+						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPolyEdgeMid, endPolyEdgeMid));
+						const bool samePolyGroup = startPoly->groupId == endPoly->groupId;
+
+						const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, distance, samePolyGroup);
+
+						if (traverseType == DT_NULL_TRAVERSE_TYPE)
+							continue;
+
+						if (!CanOverlapPoly(traverseType))
+						{
+							float linkMidPoint[3];
+							rdVsad(linkMidPoint, startPolyEdgeMid, endPolyEdgeMid, 0.5f);
+
+							if (traverseLinkInPolygon(startTile, linkMidPoint) || traverseLinkInPolygon(endTile, linkMidPoint))
+								continue;
+						}
+
+						if (!traverseLinkInLOS(m_geom, startPolyEdgeMid, endPolyEdgeMid, m_agentHeight))
+							continue;
+
+						// Need at least 2 links
+						// todo(amos): perhaps optimize this so we check this before raycasting
+						// etc.. must also check if the tile isn't external because if so, we need
+						// space for 2 links in the same tile.
+						const unsigned int forwardIdx = startTile->allocLink();
+
+						if (forwardIdx == DT_NULL_LINK) // TODO: should move on to next tile.
+							continue;
+
+						const unsigned int reverseIdx = endTile->allocLink();
+
+						if (reverseIdx == DT_NULL_LINK) // TODO: should move on to next tile.
+						{
+							startTile->freeLink(forwardIdx);
+							continue;
+						}
+
+						dtLink* const forwardLink = &startTile->links[forwardIdx];
+
+						forwardLink->ref = m_navMesh->getPolyRefBase(endTile) | (dtPolyRef)m;
+						forwardLink->edge = (unsigned char)j;
+						forwardLink->side = side;
+						forwardLink->bmin = 0;
+						forwardLink->bmax = 255;
+						forwardLink->next = startPoly->firstLink;
+						startPoly->firstLink = forwardIdx;
+						forwardLink->traverseType = (unsigned char)traverseType;
+						forwardLink->traverseDist = distance;
+						forwardLink->reverseLink = (unsigned short)reverseIdx;
+
+						dtLink* const reverseLink = &endTile->links[reverseIdx];
+
+						reverseLink->ref = m_navMesh->getPolyRefBase(startTile) | (dtPolyRef)i;
+						reverseLink->edge = (unsigned char)n;
+						reverseLink->side = (unsigned char)rdOppositeTile(side);
+						reverseLink->bmin = 0;
+						reverseLink->bmax = 255;
+						reverseLink->next = endPoly->firstLink;
+						endPoly->firstLink = reverseIdx;
+						reverseLink->traverseType = (unsigned char)traverseType;
+						reverseLink->traverseDist = distance;
+						reverseLink->reverseLink = (unsigned short)forwardIdx;
 					}
-
-					if (!traverseLinkInLOS(m_geom, startPolyEdgeMid, endPolyEdgeMid, m_agentHeight))
-						continue;
-
-					// Need at least 2 links
-					// todo(amos): perhaps optimize this so we check this before raycasting
-					// etc.. must also check if the tile isn't external because if so, we need
-					// space for 2 links in the same tile.
-					const unsigned int forwardIdx = startTile->allocLink();
-
-					if (forwardIdx == DT_NULL_LINK) // TODO: should move on to next tile.
-						continue;
-
-					const unsigned int reverseIdx = endTile->allocLink();
-
-					if (reverseIdx == DT_NULL_LINK) // TODO: should move on to next tile.
-					{
-						startTile->freeLink(forwardIdx);
-						continue;
-					}
-
-					dtLink* const forwardLink = &startTile->links[forwardIdx];
-
-					forwardLink->ref = m_navMesh->getPolyRefBase(endTile) | (dtPolyRef)k;
-					forwardLink->edge = (unsigned char)j;
-					forwardLink->side = 0xff;
-					forwardLink->bmin = 0;
-					forwardLink->bmax = 255;
-					forwardLink->next = startPoly->firstLink;
-					startPoly->firstLink = forwardIdx;
-					forwardLink->traverseType = (unsigned char)traverseType;
-					forwardLink->traverseDist = distance;
-					forwardLink->reverseLink = (unsigned short)reverseIdx;
-
-					dtLink* const reverseLink = &endTile->links[reverseIdx];
-
-					reverseLink->ref = m_navMesh->getPolyRefBase(startTile) | (dtPolyRef)i;
-					reverseLink->edge = (unsigned char)m;
-					reverseLink->side = 0xff;
-					reverseLink->bmin = 0;
-					reverseLink->bmax = 255;
-					reverseLink->next = endPoly->firstLink;
-					endPoly->firstLink = reverseIdx;
-					reverseLink->traverseType = (unsigned char)traverseType;
-					reverseLink->traverseDist = distance;
-					reverseLink->reverseLink = (unsigned short)forwardIdx;
 				}
 			}
 		}
@@ -699,7 +716,6 @@ bool Editor::createTraverseLinks()
 {
 	rdAssert(m_navMesh);
 	const int maxTiles = m_navMesh->getMaxTiles();
-	const int MAX_NEIS = 32; // Max neighbors
 
 	for (int i = 0; i < maxTiles; i++)
 	{
@@ -707,16 +723,8 @@ bool Editor::createTraverseLinks()
 		if (!startTile || !startTile->header)
 			continue;
 
-		for (int dir = 0; dir < 8; ++dir)
-		{
-			dtMeshTile* edgeNeis[MAX_NEIS];
-			int numEdgeNeis = m_navMesh->getNeighbourTilesAt(startTile->header->x, startTile->header->y, dir, edgeNeis, MAX_NEIS);
-
-			for (int j = 0; j < numEdgeNeis; ++j)
-			{
-				connectTileTraverseLinks(startTile, edgeNeis[j]);
-			}
-		}
+		connectTileTraverseLinks(startTile, true);
+		connectTileTraverseLinks(startTile, false);
 	}
 
 	return true;
