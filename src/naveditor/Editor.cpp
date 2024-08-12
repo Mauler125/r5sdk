@@ -533,28 +533,28 @@ static bool traverseLinkInPolygon(const dtMeshTile* tile, const float* midPoint)
 	return false;
 }
 
-static bool traverseLinkInLOS(InputGeom* geom, const float* startPos, const float* endPoint, const float heightOffset)
+static bool traverseLinkInLOS(InputGeom* geom, const float* basePos, const float* landPos, const float heightOffset)
 {
-	float rayStartPos[3];
-	float rayEndPos[3];
+	float rayBasetPos[3];
+	float rayLandPos[3];
 
 	float hitTime;
 
-	rdVcopy(rayStartPos, startPos);
-	rdVcopy(rayEndPos, endPoint);
+	rdVcopy(rayBasetPos, basePos);
+	rdVcopy(rayLandPos, landPos);
 
 	// note(amos): offset the ray heights so we don't clip into
 	// ledges. Realistically, we need at least the height of the
 	// agent anyways to be able to properly perform a jump
 	// without clipping into geometry.
-	rayStartPos[2] += heightOffset;
-	rayEndPos[2] += heightOffset;
+	rayBasetPos[2] += heightOffset;
+	rayLandPos[2] += heightOffset;
 
 	// note(amos): perform 2 raycasts as we have to take the
 	// face normal into account. Path must be clear from both
 	// directions.
-	if (geom->raycastMesh(rayStartPos, rayEndPos, hitTime) ||
-		geom->raycastMesh(rayEndPos, rayStartPos, hitTime))
+	if (geom->raycastMesh(rayBasetPos, rayLandPos, hitTime) ||
+		geom->raycastMesh(rayLandPos, rayBasetPos, hitTime))
 		return false;
 
 	return true;
