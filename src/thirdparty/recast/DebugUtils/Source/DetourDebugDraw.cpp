@@ -96,7 +96,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 			const float* v0 = &tile->verts[p->verts[j]*3];
 			const float* v1 = &tile->verts[p->verts[(j+1) % nj]*3];
 
-			if (!inner && flags & DU_DRAWNAVMESH_TRAVERSE_RAY_OFFSET)
+			if (!inner && flags & DU_DRAWNAVMESH_LEDGE_SPANS)
 			{
 				float perp[3];
 				rdPerpDirPtEdge2D(v0, v1, false, perp);

@@ -38,9 +38,9 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_POLY_BOUNDS_OUTER  = 1 << 10, // Render outer poly boundaries.
 	DU_DRAWNAVMESH_POLY_CENTERS       = 1 << 11, // Render poly centers.
 	DU_DRAWNAVMESH_POLY_GROUPS        = 1 << 12, // Render poly group by color.
-	DU_DRAWNAVMESH_DEPTH_MASK         = 1 << 13, // Use depth mask.
-	DU_DRAWNAVMESH_ALPHA              = 1 << 14, // Use transparency.
-	DU_DRAWNAVMESH_TRAVERSE_RAY_OFFSET= 1 << 15, // Render traverse link raycast offset.
+	DU_DRAWNAVMESH_LEDGE_SPANS        = 1 << 13, // Render ledge spans.
+	DU_DRAWNAVMESH_DEPTH_MASK         = 1 << 14, // Use depth mask.
+	DU_DRAWNAVMESH_ALPHA              = 1 << 15, // Use transparency.
 	DU_DRAWNAVMESH_TRAVERSE_LINKS     = 1 << 16, // Render traverse links.
 };
 

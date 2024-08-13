@@ -299,9 +299,9 @@ void Editor::handleCommonSettings()
 	
 	ImGui::Separator();
 	ImGui::Text("Filtering");
-	ImGui::Checkbox("Low Hanging Obstacles", &m_filterLowHangingObstacles);
-	ImGui::Checkbox("Ledge Spans", &m_filterLedgeSpans);
-	ImGui::Checkbox("Walkable Low Height Spans", &m_filterWalkableLowHeightSpans);
+	ImGui::Checkbox("Low Hanging Obstacles##FilterSettings", &m_filterLowHangingObstacles);
+	ImGui::Checkbox("Ledge Spans##FilterSettings", &m_filterLedgeSpans);
+	ImGui::Checkbox("Walkable Low Height Spans##FilterSettings", &m_filterWalkableLowHeightSpans);
 
 	ImGui::PushItemWidth(145.f);
 	ImGui::Separator();
@@ -983,6 +983,11 @@ void Editor::renderDetourDebugMenu()
 	if (ImGui::Checkbox("Poly Group Colors", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_GROUPS);
 
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_LEDGE_SPANS);
+
+	if (ImGui::Checkbox("Ledge Spans", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_LEDGE_SPANS);
+
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_DEPTH_MASK);
 
 	if (ImGui::Checkbox("Depth Mask", &isEnabled))
@@ -992,11 +997,6 @@ void Editor::renderDetourDebugMenu()
 
 	if (ImGui::Checkbox("Transparency", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TRAVERSE_RAY_OFFSET);
-
-	if (ImGui::Checkbox("Traverse Ray Offsets", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TRAVERSE_RAY_OFFSET);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TRAVERSE_LINKS);
 
