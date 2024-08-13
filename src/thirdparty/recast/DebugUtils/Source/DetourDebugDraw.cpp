@@ -212,13 +212,37 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			query->getEdgeMidPoint(basePolyRef, link->ref, startPos);
 			query->getEdgeMidPoint(link->ref, basePolyRef, endPos);
 
+			const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPos, endPos));
+			const float offsetAmount = rdCalcLedgeSpanOffsetAmount(tile->header->walkableRadius, 
+				slopeAngle, rdCalcMaxLOSAngle(tile->header->walkableRadius, traverseLinkParams.cellHeight));
+
+			const bool startPointHighest = startPos[2] > endPos[2];
+			float* highestPos = startPointHighest ? startPos : endPos;
+
+			const dtPolyRef lowPolyRef = startPointHighest ? link->ref : basePolyRef;
+			const dtPolyRef highPolyRef = startPointHighest ? basePolyRef : link->ref;
+
+			float normal[3];
+			query->getEdgeNormal(highPolyRef, lowPolyRef, normal);
+
+			// The offset between the height point and the ray point
+			// used to account for the ledge span.
+			const float offsetEndPos[3] = {
+				highestPos[0] + normal[0] * offsetAmount,
+				highestPos[1] + normal[1] * offsetAmount,
+				highestPos[2]
+			};
+
 			// Unique color for each type.
 			const int col = duIntToCol(link->traverseType, 128);
 
 			dd->begin(DU_DRAW_LINES, 2.0f, offset);
 
-			dd->vertex(startPos, col);
-			dd->vertex(endPos, col);
+			const float* targetStartPos = startPointHighest ? offsetEndPos : startPos;
+			const float* targetEndPos = startPointHighest ? startPos : offsetEndPos;
+
+			dd->vertex(targetStartPos, col);
+			dd->vertex(targetEndPos, col);
 
 			const bool hasReverseLink = link->reverseLink != DT_NULL_TRAVERSE_REVERSE_LINK;
 

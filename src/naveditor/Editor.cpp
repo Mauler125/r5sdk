@@ -175,6 +175,7 @@ void Editor::resetCommonSettings()
 
 	m_cellSize = 16.0f;
 	m_cellHeight = 5.85f;
+	m_traverseLinkParams.cellHeight = m_cellHeight;
 
 	// todo(amos): check if this applies for all hulls, and check if this is the
 	// actual value used by the game. This seems to generate slopes very close
@@ -213,7 +214,9 @@ void Editor::handleCommonSettings()
 	ImGui::Text("Rasterization");
 
 	ImGui::SliderFloat("Cell Size", &m_cellSize, 12.1f, 100.0f);
-	ImGui::SliderFloat("Cell Height", &m_cellHeight, 0.4f, 100.0f);
+	
+	if (ImGui::SliderFloat("Cell Height", &m_cellHeight, 0.4f, 100.0f))
+		m_traverseLinkParams.cellHeight = m_cellHeight;
 	
 	if (m_geom)
 	{

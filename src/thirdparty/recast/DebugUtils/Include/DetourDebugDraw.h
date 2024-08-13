@@ -49,7 +49,8 @@ struct duDrawTraverseLinkParams
 	duDrawTraverseLinkParams() :
 		traverseLinkType(-1),
 		traverseLinkDistance(-1),
-		traverseAnimType(-2)
+		traverseAnimType(-2),
+		cellHeight(0.0f)
 	{}
 
 	int traverseLinkType;
@@ -58,6 +59,10 @@ struct duDrawTraverseLinkParams
 	// -2 means all, -1 means disjoint poly groups only, anything above
 	// refers to an actual anim type and indexes into the traverse tables.
 	int traverseAnimType;
+
+	// Used to determine the max LOS angle, this information is lost after
+	// the mesh tile has been build so we have to cache it from the editor.
+	float cellHeight;
 };
 
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams);
