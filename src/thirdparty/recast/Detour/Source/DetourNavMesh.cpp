@@ -568,25 +568,6 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				tlink->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 			}
 		}
-
-#if DT_NAVMESH_SET_VERSION == 5
-		// NOTE: this might not be correct; Titanfall 2 off-mesh link dtLink
-		// objects don't set these, however when setting these, the jump links
-		// do work. More research is needed, this might also be correct, just
-		// not the way they are done originally.
-		if (link && tlink)
-		{
-			const unsigned char linkDist = dtCalcLinkDistance(&targetCon->pos[0], &targetCon->pos[3]);
-
-			link->traverseType = targetCon->jumpType;
-			link->traverseDist = linkDist;
-			link->reverseLink = (unsigned short)tidx;
-
-			tlink->traverseType = targetCon->jumpType;
-			tlink->traverseDist = linkDist;
-			tlink->reverseLink = (unsigned short)idx;
-		}
-#endif
 	}
 }
 
@@ -1748,9 +1729,13 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	return DT_SUCCESS;
 }
 
-unsigned char dtCalcLinkDistance(const float* spos, const float* epos)
+float dtCalcLinkDistance(const float* spos, const float* epos)
 {
-	const float distance = rdMathFabsf(rdVdist(spos, epos));
+	return rdMathFabsf(rdVdist(spos, epos));
+}
+
+unsigned char dtQuantLinkDistance(const float distance)
+{
 	if (distance > DT_TRAVERSE_DIST_MAX) return (unsigned char)0;
 	return (unsigned char)(distance * DT_TRAVERSE_DIST_QUANT_FACTOR);
 }

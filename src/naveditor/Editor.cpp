@@ -508,33 +508,80 @@ TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char t
 // todo(amos): use height difference instead of slope angles.
 #define TRAVERSE_OVERLAP_SLOPE_THRESHOLD 5.0f
 
-bool CanOverlapPoly(const TraverseType_e traverseType)
+static bool polyEdgeFaceAgainst(const float* v1, const float* v2, const float* n1, const float* n2)
 {
-	return s_traverseTypes[traverseType].minSlope >= TRAVERSE_OVERLAP_SLOPE_THRESHOLD;
+	const float delta[2] = { v2[0] - v1[0], v2[1] - v1[1] };
+	return (rdVdot2D(delta, n1) >= 0 && rdVdot2D(delta, n2) < 0);
 }
 
-static bool traverseLinkInPolygon(const dtMeshTile* tile, const float* midPoint)
+static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float* basePos, const float* offsetPos)
 {
-	const int polyCount = tile->header->polyCount;
+	float hitTime;
 
-	for (int i = 0; i < polyCount; i++)
-	{
-		const dtPoly* poly = &tile->polys[i];
-		float verts[DT_VERTS_PER_POLYGON*3];
-
-		const int nverts = poly->vertCount;
-		for (int j = 0; j < nverts; ++j)
-			rdVcopy(&verts[j*3], &tile->verts[poly->verts[j]*3]);
-
-		if (rdPointInPolygon(midPoint, verts, nverts))
-			return true;
-	}
+	// We need to fire a raycast from out initial
+	// high pos to our offset position to make
+	// sure we didn't clip into geometry:
+	// 
+	//                        object geom
+	//                        ^
+	//     outer navmesh      |
+	//     ^                  |
+	//     |          !-----------------------!
+	//     |      gap !     / potential clip  !
+	//     |      ^   !    /                  !
+	//     |      |   !   /  inner navmesh    !
+	//     |      |   !  /   ^                !
+	//     |      |   ! /    |                !
+	//   ++++++ <---> !/   +++++++++++++++    !
+	// ========================================...
+	// 
+	// Otherwise we create links between a mesh
+	// inside and outside an object, causing the
+	// ai to traverse inside of it.
+	if (geom->raycastMesh(basePos, offsetPos, hitTime) ||
+		geom->raycastMesh(offsetPos, basePos, hitTime))
+		return true;
 
 	return false;
 }
 
-static bool traverseLinkInLOS(InputGeom* geom, const float* lowPos, const float* highPos, const float* edgeDir, const float offsetAmount)
+static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const float* highPos, const float* lowDir, const float* highDir, const float offsetAmount)
 {
+	float lowPerp[3];
+	rdPerpDirEdge2D(lowDir, false, lowPerp);
+
+	float highPerp[3];
+	rdPerpDirEdge2D(highDir, false, highPerp);
+
+	// Detect overhangs to avoid links like these:
+	// 
+	//        geom             upper navmesh
+	//    gap ^                ^
+	//    ^   |                |
+	//    |   |                |
+	//  <---> | +++++++++++++++++++++++++++++++...
+	//  \======================================...
+	//   \        |
+	//    \       |
+	//     \      |---> overhang
+	//      \
+	//       \
+	//        \-----> link
+	//     gap \               lower navmesh
+	//       ^  \              ^
+	//       |   \             |
+	//     <----> +++++++++++++++++++++++++++++...
+	//     ====================================...
+	// 
+	// The AI would otherwise attempt to initiate
+	// the jump from the lower navmesh, causing it
+	// to clip through geometry.
+	if (!polyEdgeFaceAgainst(lowPos, highPos, lowPerp, highPerp))
+		return false;
+
+	const float* targetRayPos = highPos;
+	const bool hasOffset = offsetAmount > 0;
+
 	// We offset the highest point with at least the
 	// walkable radius, and perform a raycast test
 	// from the highest point to the lowest. The
@@ -562,14 +609,19 @@ static bool traverseLinkInLOS(InputGeom* geom, const float* lowPos, const float*
 	// high positions are angled in such way no LOS
 	// is possible, or when there's an actual object
 	// between the 2 positions.
-	float perp[3];
-	rdPerpDirEdge2D(edgeDir, false, perp);
+	float offsetRayPos[3];
 
-	float targetRayPos[3] = {
-		highPos[0] + perp[0] * offsetAmount,
-		highPos[1] + perp[1] * offsetAmount,
-		highPos[2]
-	};
+	if (hasOffset)
+	{
+		offsetRayPos[0] = highPos[0] + highPerp[0] * offsetAmount;
+		offsetRayPos[1] = highPos[1] + highPerp[1] * offsetAmount;
+		offsetRayPos[2] = highPos[2];
+
+		if (traverseLinkOffsetIntersectsGeom(geom, highPos, offsetRayPos))
+			return false;
+
+		targetRayPos = offsetRayPos;
+	}
 
 	float hitTime;
 
@@ -655,10 +707,11 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						float landPolyEdgeMid[3];
 						rdVsad(landPolyEdgeMid, landPolySpos, landPolyEpos, 0.5f);
 
-						const unsigned char distance = dtCalcLinkDistance(basePolyEdgeMid, landPolyEdgeMid);
+						const float dist = dtCalcLinkDistance(basePolyEdgeMid, landPolyEdgeMid);
+						const unsigned char quantDist = dtQuantLinkDistance(dist);
 
-						if (distance == 0)
-							continue;
+						if (quantDist == 0)
+							continue; // Link distance is greater than maximum supported.
 
 						float baseEdgeDir[3], landEdgeDir[3];
 						rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
@@ -669,7 +722,6 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						if (slopeAngle < TRAVERSE_OVERLAP_SLOPE_THRESHOLD)
 						{
-
 							const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
 
 							// Edges facing the same direction should not be linked.
@@ -687,33 +739,26 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 								continue;
 						}
 
-						float t, s;
-						if (rdIntersectSegSeg2D(basePolySpos, basePolyEpos, landPolySpos, landPolyEpos, t, s))
-							continue;
-
 						const bool samePolyGroup = basePoly->groupId == landPoly->groupId;
 
-						const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, distance, samePolyGroup);
+						const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, quantDist, samePolyGroup);
 
 						if (traverseType == DT_NULL_TRAVERSE_TYPE)
 							continue;
 
-						if (!CanOverlapPoly(traverseType))
-						{
-							float linkMidPoint[3];
-							rdVsad(linkMidPoint, basePolyEdgeMid, landPolyEdgeMid, 0.5f);
-
-							if (traverseLinkInPolygon(baseTile, linkMidPoint) || traverseLinkInPolygon(landTile, linkMidPoint))
-								continue;
-						}
-
 						const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
 						float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
 						float* const higherEdgeMid = basePolyHigher ? basePolyEdgeMid : landPolyEdgeMid;
+						float* const lowerEdgeDir = basePolyHigher ? landEdgeDir : baseEdgeDir;
 						float* const higherEdgeDir = basePolyHigher ? baseEdgeDir : landEdgeDir;
-						float walkableRadius = basePolyHigher ? baseTile->header->walkableRadius : landTile->header->walkableRadius;
 
-						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, higherEdgeDir, walkableRadius))
+						const float walkableRadius = basePolyHigher ? baseTile->header->walkableRadius : landTile->header->walkableRadius;
+						const float heightDiff = higherEdgeMid[2] - lowerEdgeMid[2];
+
+						const float maxAngle = rdCalcMaxLOSAngle(walkableRadius, m_cellHeight);
+						const float offsetAmount = rdCalcLedgeSpanOffsetAmount(walkableRadius/*+4.0f*/, slopeAngle, maxAngle);
+
+						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
 							continue;
 
 						// Need at least 2 links
@@ -743,7 +788,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						forwardLink->next = basePoly->firstLink;
 						basePoly->firstLink = forwardIdx;
 						forwardLink->traverseType = (unsigned char)traverseType;
-						forwardLink->traverseDist = distance;
+						forwardLink->traverseDist = quantDist;
 						forwardLink->reverseLink = (unsigned short)reverseIdx;
 
 						dtLink* const reverseLink = &landTile->links[reverseIdx];
@@ -756,7 +801,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						reverseLink->next = landPoly->firstLink;
 						landPoly->firstLink = reverseIdx;
 						reverseLink->traverseType = (unsigned char)traverseType;
-						reverseLink->traverseDist = distance;
+						reverseLink->traverseDist = quantDist;
 						reverseLink->reverseLink = (unsigned short)forwardIdx;
 					}
 				}

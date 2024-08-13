@@ -291,7 +291,8 @@ struct dtLink
 	unsigned short reverseLink;		///< The reverse traversal link for this link. (Path returns through this link.)
 };
 
-unsigned char dtCalcLinkDistance(const float* spos, const float* epos);
+float dtCalcLinkDistance(const float* spos, const float* epos);
+unsigned char dtQuantLinkDistance(const float distance);
 
 /// Defines a cell in a tile.
 /// @note This is used to prevent entities from clipping into each other.
