@@ -98,20 +98,20 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 
 			if (!inner && flags & DU_DRAWNAVMESH_LEDGE_SPANS)
 			{
-				float perp[3];
-				rdPerpDirPtEdge2D(v0, v1, false, perp);
+				float normal[3];
+				rdCalcEdgeNormalPt2D(v0, v1, false, normal);
 
 				float mid[3];
 				rdVsad(mid, v0, v1, 0.5f);
 
-				float perpEnd[3] = {
-				mid[0] + perp[0] * walkableRadius,
-				mid[1] + perp[1] * walkableRadius,
-				mid[2]
+				float ledgeEnd[3] = {
+					mid[0] + normal[0] * walkableRadius,
+					mid[1] + normal[1] * walkableRadius,
+					mid[2]
 				};
 
 				dd->vertex(mid, c);
-				dd->vertex(perpEnd, c);
+				dd->vertex(ledgeEnd, c);
 			}
 
 			// Draw detail mesh edges which align with the actual poly edge.

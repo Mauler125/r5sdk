@@ -441,18 +441,18 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 
 float rdDistancePtLine2d(const float* pt, const float* p, const float* q);
 
-/// Derives the perpendicular direction of an edge
+/// Derives the normal of an edge
 ///  @param[in]		dir		The direction of the edge. [(x, y, z)]
-///  @param[in]		inner	Whether to face towards the poly or away from it.
-///  @param[out]	out		The resulting direction. [(x, y)]
-void rdPerpDirEdge2D(const float* dir, const bool inner, float* out);
+///  @param[in]		invert	Whether to invert the results.
+///  @param[out]	out		The resulting normal. [(x, y)]
+void rdCalcEdgeNormal2D(const float* dir, const bool inner, float* out);
 
-/// Derives the perpendicular direction of an edge
+/// Derives the normal of an edge
 ///  @param[in]		v1		First vert of the polygon edge. [(x, y, z)]
-///  @param[in]		v2		Second vert of the polygon vert. [(x, y, z)]
-///  @param[in]		inner	Whether to face towards the poly or away from it.
-///  @param[out]	out		The resulting direction. [(x, y)]
-void rdPerpDirPtEdge2D(const float* v1, const float* v2, const bool inner, float* out);
+///  @param[in]		v2		Second vert of the polygon edge. [(x, y, z)]
+///  @param[in]		invert	Whether to invert the results.
+///  @param[out]	out		The resulting normal. [(x, y)]
+void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool inner, float* out);
 
 /// Derives the maximum angle in which an object on an elevated surface can be seen from below.
 ///  @param[in]		ledgeSpan		The distance between the edge of the object and the edge of the ledge.

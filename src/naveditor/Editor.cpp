@@ -550,11 +550,11 @@ static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float*
 
 static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const float* highPos, const float* lowDir, const float* highDir, const float offsetAmount)
 {
-	float lowPerp[3];
-	rdPerpDirEdge2D(lowDir, false, lowPerp);
+	float lowNormal[3];
+	rdCalcEdgeNormal2D(lowDir, false, lowNormal);
 
-	float highPerp[3];
-	rdPerpDirEdge2D(highDir, false, highPerp);
+	float highNormal[3];
+	rdCalcEdgeNormal2D(highDir, false, highNormal);
 
 	// Detect overhangs to avoid links like these:
 	// 
@@ -579,7 +579,7 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 	// The AI would otherwise attempt to initiate
 	// the jump from the lower navmesh, causing it
 	// to clip through geometry.
-	if (!polyEdgeFaceAgainst(lowPos, highPos, lowPerp, highPerp))
+	if (!polyEdgeFaceAgainst(lowPos, highPos, lowNormal, highNormal))
 		return false;
 
 	const float* targetRayPos = highPos;
@@ -616,8 +616,8 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 
 	if (hasOffset)
 	{
-		offsetRayPos[0] = highPos[0] + highPerp[0] * offsetAmount;
-		offsetRayPos[1] = highPos[1] + highPerp[1] * offsetAmount;
+		offsetRayPos[0] = highPos[0] + highNormal[0] * offsetAmount;
+		offsetRayPos[1] = highPos[1] + highNormal[1] * offsetAmount;
 		offsetRayPos[2] = highPos[2];
 
 		if (traverseLinkOffsetIntersectsGeom(geom, highPos, offsetRayPos))

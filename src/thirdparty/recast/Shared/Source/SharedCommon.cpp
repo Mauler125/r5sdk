@@ -409,9 +409,9 @@ float rdDistancePtLine2d(const float* pt, const float* p, const float* q)
 	return dx * dx + dy * dy;
 }
 
-void rdPerpDirEdge2D(const float* dir, const bool inner, float* out)
+void rdCalcEdgeNormal2D(const float* dir, const bool invert, float* out)
 {
-	if (inner)
+	if (invert)
 	{
 		out[0] = -dir[1];
 		out[1] = dir[0];
@@ -425,11 +425,11 @@ void rdPerpDirEdge2D(const float* dir, const bool inner, float* out)
 	rdVnormalize2D(out);
 }
 
-void rdPerpDirPtEdge2D(const float* v1, const float* v2, const bool inner, float* out)
+void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool invert, float* out)
 {
 	float dir[3];
 	rdVsub(dir, v2, v1);
-	rdPerpDirEdge2D(dir, inner, out);
+	rdCalcEdgeNormal2D(dir, invert, out);
 }
 
 float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight)
