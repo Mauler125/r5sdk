@@ -454,6 +454,19 @@ void rdPerpDirEdge2D(const float* dir, const bool inner, float* out);
 ///  @param[out]	out		The resulting direction. [(x, y)]
 void rdPerpDirPtEdge2D(const float* v1, const float* v2, const bool inner, float* out);
 
+/// Derives the maximum angle in which an object on an elevated surface can be seen from below.
+///  @param[in]		ledgeSpan		The distance between the edge of the object and the edge of the ledge.
+///  @param[in]		objectHeight	The height of the object.
+/// @return The maximum angle before LOS gets blocked.
+float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight);
+
+/// Determines the amount we need to offset an object to maintain LOS from an angle, with a maximum.
+///  @param[in]		ledgeSpan	The distance between the edge of the object and the edge of the ledge.
+///  @param[in]		slopeAngle	The slope angle to test.
+///  @param[in]		maxAngle	The maximum angle in degrees.
+/// @return The amount we need to offset to maintain LOS.
+float rdCalcLedgeSpanOffsetAmount(const float ledgeSpan, const float slopeAngle, const float maxAngle);
+
 unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax);
 unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax);
 

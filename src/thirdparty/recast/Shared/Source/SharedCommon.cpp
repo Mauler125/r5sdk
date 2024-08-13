@@ -432,6 +432,22 @@ void rdPerpDirPtEdge2D(const float* v1, const float* v2, const bool inner, float
 	rdPerpDirEdge2D(dir, inner, out);
 }
 
+float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight)
+{
+	const float angleRad = rdMathAtan2f(objectHeight, ledgeSpan);
+	const float angleDeg = angleRad * (180.0f/RD_PI);
+
+	return angleDeg;
+}
+
+float rdCalcLedgeSpanOffsetAmount(const float ledgeSpan, const float slopeAngle, const float maxAngle)
+{
+	const float clampedAngle = rdClamp(slopeAngle, slopeAngle, maxAngle);
+	const float offset = ledgeSpan * (clampedAngle / maxAngle);
+
+	return offset;
+}
+
 static const unsigned char XP = 1 << 0;
 static const unsigned char ZP = 1 << 1;
 static const unsigned char XM = 1 << 2;
