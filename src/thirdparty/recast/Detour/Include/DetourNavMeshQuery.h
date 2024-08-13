@@ -575,6 +575,26 @@ public:
 	dtStatus getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
 							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 							 float* mid) const;
+
+	/// Returns edge normal between two polygons.
+	///  @param[in]		from		The reference to the start poly.
+	///  @param[in]		to			The reference to the end poly.
+	///  @param[out]	norm		The normal of the edge.
+	/// @returns The status flags for the query.
+	dtStatus getEdgeNormal(dtPolyRef from, dtPolyRef to, float* norm) const;
+
+	/// Returns edge normal between two polygons.
+	///  @param[in]		from		The reference to the start poly.
+	///  @param[in]		fromPoly	The start poly.
+	///  @param[in]		fromTile	The start tile.
+	///  @param[in]		to			The reference to the end poly.
+	///  @param[in]		toPoly		The end poly.
+	///  @param[in]		toTile		The end tile.
+	///  @param[out]	norm		The normal point of the edge.
+	/// @returns The status flags for the query.
+	dtStatus getEdgeNormal(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
+							 float* mid) const;
 	/// @}
 	
 private:
