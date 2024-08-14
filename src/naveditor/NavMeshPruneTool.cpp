@@ -169,9 +169,13 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 			const dtPolyRef ref = base | (unsigned int)j;
 			if (!flags->getFlags(ref))
 			{
-				unsigned short f = 0;
-				nav->getPolyFlags(ref, &f);
-				nav->setPolyFlags(ref, f | EDITOR_POLYFLAGS_DISABLED);
+				const dtMeshTile* targetTile;
+				dtPoly* targetPoly;
+
+				nav->getTileAndPolyByRefUnsafe(ref, &targetTile, (const dtPoly**)&targetPoly);
+				targetPoly->groupId = DT_UNLINKED_POLY_GROUP;
+				targetPoly->firstLink = DT_NULL_LINK;
+				targetPoly->flags = 0;
 			}
 		}
 	}
@@ -218,6 +222,7 @@ void NavMeshPruneTool::handleMenu()
 	if (ImGui::Button("Prune Unselected"))
 	{
 		disableUnvisitedPolys(nav, m_flags);
+		m_editor->updateStaticPathingData();
 		delete m_flags;
 		m_flags = 0;
 	}
