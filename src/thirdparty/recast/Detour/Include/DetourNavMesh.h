@@ -69,20 +69,20 @@ static const int DT_VERTS_PER_POLYGON = 6;
 /// A value that indicates that this poly hasn't been assigned to a group yet.
 static const unsigned short DT_NULL_POLY_GROUP = 0;
 
-/// A poly group that holds all unconnected stray polys (not linked to anything).
+/// A poly group that holds all unconnected polys (not linked to anything).
 /// These are considered 'trash' by the game engine; see [r5apex_ds + CA88B2]. 
 /// For reference, Titanfall 2 single player NavMeshes also marked everything unconnected as '1'.
-static const unsigned short DT_STRAY_POLY_GROUP = 1;
+static const unsigned short DT_UNLINKED_POLY_GROUP = 1;
 
-/// The first non-reserved poly group; DT_STRAY_POLY_GROUP and below are reserved.
+/// The first non-reserved poly group; #DT_UNLINKED_POLY_GROUP and below are reserved.
 static const unsigned short DT_FIRST_USABLE_POLY_GROUP = 2;
 
 /// The minimum required number of poly groups for static pathing logic to work.
-/// (E.g. if we have 2 poly groups, group id 1 (DT_STRAY_POLY_GROUP), and group
-/// id 2, then 1 is never reachable as its considered 'trash' by design, and 2
-/// is always reachable as that's the only group id. If group id 3 is involved
-/// then code can use the static patching logic to quickly query if we are even
-/// on the same (or connected) poly island before trying to compute a path).
+/// (E.g. if we have 2 poly groups, group id 1 (#DT_UNLINKED_POLY_GROUP), and
+/// group id 2, then 1 is never reachable as its considered 'trash' by design,
+/// and 2 is always reachable as that's the only group id. If group id 3 is
+/// involved then code can use the static patching logic to quickly query if we 
+/// are even on the same (or connected) poly island before trying to compute a path).
 static const int DT_MIN_POLY_GROUP_COUNT = 3;
 
 /// The cached poly surface area quantization factor.

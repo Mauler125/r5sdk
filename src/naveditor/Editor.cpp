@@ -659,7 +659,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 	{
 		dtPoly* const basePoly = &baseTile->polys[i];
 
-		if (basePoly->groupId == DT_STRAY_POLY_GROUP)
+		if (basePoly->groupId == DT_UNLINKED_POLY_GROUP)
 			continue;
 
 		for (int j = 0; j < basePoly->vertCount; ++j)
@@ -701,7 +701,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 				{
 					dtPoly* const landPoly = &landTile->polys[m];
 
-					if (landPoly->groupId == DT_STRAY_POLY_GROUP)
+					if (landPoly->groupId == DT_UNLINKED_POLY_GROUP)
 						continue;
 
 					for (int n = 0; n < landPoly->vertCount; ++n)

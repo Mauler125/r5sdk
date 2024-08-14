@@ -254,7 +254,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 
 	// Reserve the first poly groups
 	// 0 = DT_NULL_POLY_GROUP.
-	// 1 = DT_STRAY_POLY_GROUP.
+	// 1 = DT_UNLINKED_POLY_GROUP.
 	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
 
 	// Clear all labels.
@@ -267,7 +267,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		{
 			dtPoly& poly = tile->polys[j];
 
-			if (poly.groupId != DT_STRAY_POLY_GROUP)
+			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
 				poly.groupId = DT_NULL_POLY_GROUP;
 
 #if DT_NAVMESH_SET_VERSION >= 7
@@ -341,7 +341,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_STRAY_POLY_GROUP)
+			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
 			{
 				const int id = disjoint.find(poly.groupId);
 				poly.groupId = (unsigned short)id;
@@ -368,7 +368,7 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			// This poly isn't connected to anything, mark it so the game
 			// won't consider this poly in path generation.
 			if (poly.firstLink == DT_NULL_LINK)
-				poly.groupId = DT_STRAY_POLY_GROUP;
+				poly.groupId = DT_UNLINKED_POLY_GROUP;
 		}
 	}
 
@@ -385,7 +385,7 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		{
 			dtPoly& poly = tile->polys[j];
 			unsigned short oldId = poly.groupId;
-			if (oldId != DT_STRAY_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
+			if (oldId != DT_UNLINKED_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
 				groupMap[oldId] = (unsigned short)disjoint.insertNew();
 		}
 	}
@@ -399,7 +399,7 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_STRAY_POLY_GROUP)
+			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
 				poly.groupId = groupMap[poly.groupId];
 		}
 	}
@@ -484,7 +484,7 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 				}
 
 				rdAssert(landPoly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
-				rdAssert(landPoly->groupId != DT_STRAY_POLY_GROUP);
+				rdAssert(landPoly->groupId != DT_UNLINKED_POLY_GROUP);
 
 				if (poly.groupId != landPoly->groupId)
 					disjoint.setUnion(poly.groupId, landPoly->groupId);
