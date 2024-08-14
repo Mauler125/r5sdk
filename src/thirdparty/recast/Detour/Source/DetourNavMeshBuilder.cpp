@@ -266,7 +266,9 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			poly.groupId = DT_NULL_POLY_GROUP;
+
+			if (poly.groupId != DT_STRAY_POLY_GROUP)
+				poly.groupId = DT_NULL_POLY_GROUP;
 
 #if DT_NAVMESH_SET_VERSION >= 7
 			// NOTE: these fields are unknown and need to be reversed.
@@ -341,7 +343,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			dtPoly& poly = tile->polys[j];
 			if (poly.groupId != DT_STRAY_POLY_GROUP)
 			{
-				int id = disjoint.find(poly.groupId);
+				const int id = disjoint.find(poly.groupId);
 				poly.groupId = (unsigned short)id;
 			}
 		}
@@ -500,23 +502,16 @@ bool dtCreateTraverseTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, co
 	const int polyGroupCount = nav->getPolyGroupCount();
 	const int tableSize = dtCalcTraverseTableSize(polyGroupCount);
 
-	// TODO: currently we allocate 5 buffers and just copy the same traverse
-	// tables in, this works fine since we don't generate jump links and
-	// therefore all poly islands should be marked unreachable from each other.
-	// But when we generate jump links, we need to take into consideration that
-	// the '_small' navmesh supports 5 animation types (dictated by the field
-	// "TraverseAnimType" in the NPC's settings file, and each of them have
-	// different properties in regards to how far they can jump, or the angle,
-	// ect... For example the "frag_drone" anim type can take far further jumps
-	// than the "human" one. The human indexes into the first table while 
-	// frag_drone indexes into the fourth. We have to set different links per
-	// table. The 'dtLink::jumpType' field probably determines what belongs to
-	// what TraverseAnimType, which we could use to set the traversability. 
-	// More reasearch is needed for the jump links and flags... For other
-	// navmeshes, e.g. the '_large' one, they all contain only 1 traverse
-	// table as they only support one TraverseAnimType each. but also here
-	// we have to "reverse" the properties from existing Titanfall 2 single
-	// player navmeshes and determine the traversability in this loop below.
+	nav->freeTraverseTables();
+
+	if (!nav->allocTraverseTables(tableCount))
+		return false;
+
+	nav->setTraverseTableSize(tableSize);
+	nav->setTraverseTableCount(tableCount);
+
+	// TODO: figure out which jump type belongs to which traverse anim type
+	// and determine reachability from here...
 	for (int i = 0; i < tableCount; i++)
 	{
 		int* const traverseTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
@@ -537,8 +532,6 @@ bool dtCreateTraverseTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, co
 			}
 		}
 	}
-
-	nav->setTraverseTableSize(tableSize);
 
 	return true;
 }

@@ -24,6 +24,8 @@
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 
+#include "Detour/Include/DetourNavMeshBuilder.h"
+
 #include "game/server/ai_navmesh.h"
 
 struct dtMeshTile;
@@ -171,6 +173,7 @@ protected:
 	EditorToolState* m_toolStates[MAX_TOOLS];
 	
 	BuildContext* m_ctx;
+	dtDisjointSet m_djs;
 
 	EditorDebugDraw m_dd;
 	unsigned int m_navMeshDrawFlags;
@@ -248,6 +251,9 @@ public:
 	void connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor); // Make private.
 	bool createTraverseLinks();
 	void buildStaticPathingData();
+
+	bool createStaticPathingData();
+	bool updateStaticPathingData();
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

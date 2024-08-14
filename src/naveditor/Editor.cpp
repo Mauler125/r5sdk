@@ -659,6 +659,9 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 	{
 		dtPoly* const basePoly = &baseTile->polys[i];
 
+		if (basePoly->groupId == DT_STRAY_POLY_GROUP)
+			continue;
+
 		for (int j = 0; j < basePoly->vertCount; ++j)
 		{
 			// Hard edges only!
@@ -697,6 +700,9 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 				for (int m = 0; m < landTile->header->polyCount; ++m)
 				{
 					dtPoly* const landPoly = &landTile->polys[m];
+
+					if (landPoly->groupId == DT_STRAY_POLY_GROUP)
+						continue;
 
 					for (int n = 0; n < landPoly->vertCount; ++n)
 					{
@@ -831,31 +837,48 @@ bool Editor::createTraverseLinks()
 	return true;
 }
 
-void Editor::buildStaticPathingData()
+bool Editor::createStaticPathingData()
 {
-	if (!m_navMesh) return;
+	if (!m_navMesh) return false;
 
-	dtDisjointSet data;
-
-	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
+	if (!dtCreateDisjointPolyGroups(m_navMesh, m_djs))
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build disjoint poly groups.");
+		m_ctx->log(RC_LOG_ERROR, "createStaticPathingData: Failed to build disjoint poly groups.");
+		return false;
 	}
 
 	if (!createTraverseLinks())
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traverse links.");
+		m_ctx->log(RC_LOG_ERROR, "createStaticPathingData: Failed to build traverse links.");
+		return false;
 	}
 
-	if (!dtUpdateDisjointPolyGroups(m_navMesh, data))
+	return true;
+}
+
+bool Editor::updateStaticPathingData()
+{
+	if (!m_navMesh) return false;
+
+	if (!dtUpdateDisjointPolyGroups(m_navMesh, m_djs))
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to update disjoint poly groups.");
+		m_ctx->log(RC_LOG_ERROR, "updateStaticPathingData: Failed to update disjoint poly groups.");
+		return false;
 	}
 
-	if (!dtCreateTraverseTableData(m_navMesh, data, NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType)))
+	if (!dtCreateTraverseTableData(m_navMesh, m_djs, NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType)))
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildStaticPathingData: Failed to build traverse table data.");
+		m_ctx->log(RC_LOG_ERROR, "updateStaticPathingData: Failed to build traverse table data.");
+		return false;
 	}
+
+	return true;
+}
+
+void Editor::buildStaticPathingData()
+{
+	createStaticPathingData();
+	updateStaticPathingData();
 }
 
 void Editor::updateToolStates(const float dt)

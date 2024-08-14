@@ -644,6 +644,9 @@ public:
 	/// @return The specified off-mesh connection, or null if the polygon reference is not valid.
 	const dtOffMeshConnection* getOffMeshConnectionByRef(dtPolyRef ref) const;
 
+	bool allocTraverseTables(const int count);
+	void freeTraverseTables();
+
 	/// The navigation mesh traverse tables.
 	int** getTraverseTables() const { return m_traverseTables; }
 	
@@ -651,6 +654,10 @@ public:
 	///  @param[in]	index	The index of the traverse table.
 	///  @param[in]	table	The traverse table data.
 	void setTraverseTable(const int index, int* const table);
+
+	/// Sets the number of the traverse tables.
+	///  @param[in]	count	The number of the traverse tables.
+	void setTraverseTableCount(const int count) { m_params.traverseTableCount = count; }
 
 	/// Sets the size of the traverse table.
 	///  @param[in]	size	The size of the traverse table.

@@ -231,15 +231,7 @@ dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this c
 	rdFree(m_posLookup);
 	rdFree(m_tiles);
 
-	for (int i = 0; i < m_params.traverseTableCount; i++)
-	{
-		int* traverseTable = m_traverseTables[i];
-
-		if (traverseTable)
-			rdFree(traverseTable);
-	}
-
-	rdFree(m_traverseTables);
+	freeTraverseTables();
 }
 		
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
@@ -268,14 +260,8 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	const int traverseTableCount = params->traverseTableCount;
 	if (traverseTableCount)
 	{
-		rdAssert(traverseTableCount > 0 && traverseTableCount <= DT_MAX_TRAVERSE_TABLES);
-		const int setTableBufSize = sizeof(int**)*traverseTableCount;
-
-		m_traverseTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
-		if (!m_traverseTables)
+		if (!allocTraverseTables(params->traverseTableCount))
 			return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-		memset(m_traverseTables, 0, setTableBufSize);
 	}
 
 	m_nextFree = 0;
@@ -1655,11 +1641,39 @@ const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(dtPolyRef ref) c
 	return &tile->offMeshCons[idx];
 }
 
+bool dtNavMesh::allocTraverseTables(const int count)
+{
+	rdAssert(count > 0 && count <= DT_MAX_TRAVERSE_TABLES);
+	const int setTableBufSize = sizeof(int**) * count;
+
+	m_traverseTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
+	if (!m_traverseTables)
+		return false;
+
+	memset(m_traverseTables, 0, setTableBufSize);
+	return true;
+}
+
+void dtNavMesh::freeTraverseTables()
+{
+	for (int i = 0; i < m_params.traverseTableCount; i++)
+	{
+		int* traverseTable = m_traverseTables[i];
+
+		if (traverseTable)
+			rdFree(traverseTable);
+	}
+
+	rdFree(m_traverseTables);
+}
 
 void dtNavMesh::setTraverseTable(const int index, int* const table)
 {
 	rdAssert(index >= 0 && index < m_params.traverseTableCount);
 	rdAssert(m_traverseTables);
+
+	if (m_traverseTables[index])
+		rdFree(m_traverseTables[index]);
 
 	m_traverseTables[index] = table;
 }

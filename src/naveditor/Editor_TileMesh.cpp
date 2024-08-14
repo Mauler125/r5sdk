@@ -484,7 +484,7 @@ bool Editor_TileMesh::handleBuild()
 	params.maxPolys = m_maxPolysPerTile;
 	params.polyGroupCount = 0;
 	params.traverseTableSize = 0;
-	params.traverseTableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
+	params.traverseTableCount = 0;
 #if DT_NAVMESH_SET_VERSION >= 8
 	params.magicDataCount = 0;
 #endif
