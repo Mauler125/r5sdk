@@ -423,6 +423,8 @@ public:
 	unsigned int allocLink();
 	void freeLink(unsigned int link);
 
+	bool linkCountAvailable(const int count) const;
+
 	unsigned int salt;					///Counter describing modifications to the tile.
 
 	unsigned int linksFreeList;			///Index to the next free link.

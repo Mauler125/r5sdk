@@ -651,6 +651,12 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 // 2 polygons.
 void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor)
 {
+	// If we link to the same tile, we need at least 2 links.
+	if (!baseTile->linkCountAvailable(linkToNeighbor ? 1 : 2))
+		return;
+
+	bool firstBaseTileLinkUsed = false;
+
 	for (int i = 0; i < baseTile->header->polyCount; ++i)
 	{
 		dtPoly* const basePoly = &baseTile->polys[i];
@@ -689,9 +695,20 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 			for (int k = 0; k < nneis; ++k)
 			{
 				dtMeshTile* landTile = neis[k];
-				const bool external = baseTile != landTile;
+				const bool sameTile = baseTile == landTile;
 
-				if (!external && i == k) continue; // Skip self
+				// Don't connect to same tile edges yet, leave that for the second pass.
+				if (linkToNeighbor && sameTile)
+					continue;
+
+				// Skip same polygon.
+				if (sameTile && i == k)
+					continue;
+
+				if (!landTile->linkCountAvailable(1))
+					continue;
+
+				bool firstLandTileLinkUsed = false;
 
 				for (int m = 0; m < landTile->header->polyCount; ++m)
 				{
@@ -704,6 +721,19 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 					{
 						if (landPoly->neis[n] != 0)
 							continue;
+
+						// We need at least 2 links available, figure out if
+						// we link to the same tile or another one.
+						if (linkToNeighbor)
+						{
+							if (firstLandTileLinkUsed && !landTile->linkCountAvailable(1))
+								continue;
+
+							else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(1))
+								return;
+						}
+						else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(2))
+							return;
 
 						// Polygon 2 edge
 						const float* const landPolySpos = &landTile->verts[landPoly->verts[n] * 3];
@@ -766,22 +796,14 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
 							continue;
 
-						// Need at least 2 links
-						// todo(amos): perhaps optimize this so we check this before raycasting
-						// etc.. must also check if the tile isn't external because if so, we need
-						// space for 2 links in the same tile.
 						const unsigned int forwardIdx = baseTile->allocLink();
-
-						if (forwardIdx == DT_NULL_LINK)
-							return; // Move on to next base tile.
-
 						const unsigned int reverseIdx = landTile->allocLink();
 
-						if (reverseIdx == DT_NULL_LINK)
-						{
-							baseTile->freeLink(forwardIdx);
-							break; // Move on to next neighbor tile.
-						}
+						// Allocated 2 new links, need to check for enough space on subsequent runs.
+						// This optimization saves a lot of time generating navmeshes for larger or
+						// more complicated geometry.
+						firstBaseTileLinkUsed = true;
+						firstLandTileLinkUsed = true;
 
 						dtLink* const forwardLink = &baseTile->links[forwardIdx];
 

@@ -130,6 +130,25 @@ void dtMeshTile::freeLink(unsigned int link)
 	linksFreeList = link;
 }
 
+bool dtMeshTile::linkCountAvailable(const int count) const
+{
+	rdAssert(count > 0);
+	unsigned int link = linksFreeList;
+
+	if (link == DT_NULL_LINK)
+		return false;
+
+	for (int i = 1; i < count; i++)
+	{
+		link = links[link].next;
+
+		if (link == DT_NULL_LINK)
+			return false;
+	}
+
+	return true;
+}
+
 int dtCalcTraverseTableCellIndex(const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2)
 {
