@@ -519,8 +519,6 @@ static bool polyEdgeFaceAgainst(const float* v1, const float* v2, const float* n
 
 static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float* basePos, const float* offsetPos)
 {
-	float hitTime;
-
 	// We need to fire a raycast from out initial
 	// high pos to our offset position to make
 	// sure we didn't clip into geometry:
@@ -541,8 +539,8 @@ static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float*
 	// Otherwise we create links between a mesh
 	// inside and outside an object, causing the
 	// ai to traverse inside of it.
-	if (geom->raycastMesh(basePos, offsetPos, hitTime) ||
-		geom->raycastMesh(offsetPos, basePos, hitTime))
+	if (geom->raycastMesh(basePos, offsetPos) ||
+		geom->raycastMesh(offsetPos, basePos))
 		return true;
 
 	return false;
@@ -626,8 +624,6 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 		targetRayPos = offsetRayPos;
 	}
 
-	float hitTime;
-
 	// note(amos): perform 2 raycasts as we have to take the
 	// face normal into account. Path must be clear from both
 	// directions. We cast from the upper position first as
@@ -642,8 +638,8 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 	// won't be any navmesh on the higher pos in the first place.
 	// Its still possible there's something blocking on the lower
 	// pos' side, but this is a lot less likely to happen.
-	if (geom->raycastMesh(targetRayPos, lowPos, hitTime) ||
-		geom->raycastMesh(lowPos, targetRayPos, hitTime))
+	if (geom->raycastMesh(targetRayPos, lowPos) ||
+		geom->raycastMesh(lowPos, targetRayPos))
 		return false;
 
 	return true;
