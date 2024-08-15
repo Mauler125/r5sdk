@@ -772,15 +772,15 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						// space for 2 links in the same tile.
 						const unsigned int forwardIdx = baseTile->allocLink();
 
-						if (forwardIdx == DT_NULL_LINK) // TODO: should move on to next tile.
-							continue;
+						if (forwardIdx == DT_NULL_LINK)
+							return; // Move on to next base tile.
 
 						const unsigned int reverseIdx = landTile->allocLink();
 
-						if (reverseIdx == DT_NULL_LINK) // TODO: should move on to next tile.
+						if (reverseIdx == DT_NULL_LINK)
 						{
 							baseTile->freeLink(forwardIdx);
-							continue;
+							break; // Move on to next neighbor tile.
 						}
 
 						dtLink* const forwardLink = &baseTile->links[forwardIdx];
