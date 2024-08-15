@@ -837,11 +837,11 @@ bool Editor::createTraverseLinks()
 	return true;
 }
 
-bool Editor::createStaticPathingData()
+bool Editor::createStaticPathingData(const dtTraverseTableCreateParams* params)
 {
-	if (!m_navMesh) return false;
+	if (!params->nav) return false;
 
-	if (!dtCreateDisjointPolyGroups(m_navMesh, m_djs))
+	if (!dtCreateDisjointPolyGroups(params))
 	{
 		m_ctx->log(RC_LOG_ERROR, "createStaticPathingData: Failed to build disjoint poly groups.");
 		return false;
@@ -856,17 +856,19 @@ bool Editor::createStaticPathingData()
 	return true;
 }
 
-bool Editor::updateStaticPathingData()
+bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
 {
-	if (!m_navMesh) return false;
+	if (!params->nav) return false;
 
-	if (!dtUpdateDisjointPolyGroups(m_navMesh, m_djs))
+	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
+
+	if (!dtUpdateDisjointPolyGroups(params))
 	{
 		m_ctx->log(RC_LOG_ERROR, "updateStaticPathingData: Failed to update disjoint poly groups.");
 		return false;
 	}
 
-	if (!dtCreateTraverseTableData(m_navMesh, m_djs, NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType)))
+	if (!dtCreateTraverseTableData(params))
 	{
 		m_ctx->log(RC_LOG_ERROR, "updateStaticPathingData: Failed to build traverse table data.");
 		return false;
@@ -875,10 +877,52 @@ bool Editor::updateStaticPathingData()
 	return true;
 }
 
+// TODO: this lookup table isn't correct, needs to be fixed.
+static const int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT] = {
+	0x0000013F, // ANIMTYPE_HUMAN
+	0x0000013F, // ANIMTYPE_SPECTRE
+	0x00000000, // ANIMTYPE_STALKER
+	0x0033FFFF, // ANIMTYPE_FRAG_DRONE
+	0x00000000, // ANIMTYPE_PILOT
+	0x00000000, // ANIMTYPE_PROWLER
+	0x00000000, // ANIMTYPE_SUPER_SPECTRE
+	0x00000000, // ANIMTYPE_TITAN
+	0x00000000, // ANIMTYPE_GOLIATH
+};
+
+bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex)
+{
+	// TODO: always link off-mesh connected polygon islands together?
+	// Research needed.
+	if (link->reverseLink == DT_NULL_TRAVERSE_REVERSE_LINK)
+		return true;
+
+	const NavMeshType_e navMeshType = (NavMeshType_e)params->navMeshType;
+
+	// Only the _small NavMesh has more than 1 table.
+	const int traverseAnimType = navMeshType == NAVMESH_SMALL
+		? tableIndex
+		: NavMesh_GetFirstTraverseAnimTypeForType(navMeshType);
+
+	return rdBitCellBit(link->traverseType) & s_traverseAnimTraverseFlags[traverseAnimType];
+}
+
+void Editor::createTraverseTableParams(dtTraverseTableCreateParams* params)
+{
+	params->nav = m_navMesh;
+	params->sets = m_djs;
+	params->tableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
+	params->navMeshType = m_selectedNavMeshType;
+	params->canTraverse = animTypeSupportsTraverseLink;
+}
+
 void Editor::buildStaticPathingData()
 {
-	createStaticPathingData();
-	updateStaticPathingData();
+	dtTraverseTableCreateParams params;
+	createTraverseTableParams(&params);
+
+	createStaticPathingData(&params);
+	updateStaticPathingData(&params);
 }
 
 void Editor::updateToolStates(const float dt)

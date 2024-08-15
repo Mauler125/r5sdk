@@ -222,7 +222,11 @@ void NavMeshPruneTool::handleMenu()
 	if (ImGui::Button("Prune Unselected"))
 	{
 		disableUnvisitedPolys(nav, m_flags);
-		m_editor->updateStaticPathingData();
+		dtTraverseTableCreateParams params;
+
+		m_editor->createTraverseTableParams(&params);
+		m_editor->updateStaticPathingData(&params);
+
 		delete m_flags;
 		m_flags = 0;
 	}

@@ -248,14 +248,17 @@ static void setPolyGroupsTraversalReachability(int* const tableData, const int n
 		tableData[index] &= ~value;
 }
 
-bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
+bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 {
+	dtNavMesh* nav = params->nav;
+	dtDisjointSet& set = params->sets[0];
+
 	rdAssert(nav);
 
 	// Reserve the first poly groups
 	// 0 = DT_NULL_POLY_GROUP.
 	// 1 = DT_UNLINKED_POLY_GROUP.
-	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
+	set.init(DT_FIRST_USABLE_POLY_GROUP);
 
 	// Clear all labels.
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
@@ -317,14 +320,14 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			const bool noLinkedGroups = linkedGroups.empty();
 
 			if (noLinkedGroups)
-				poly.groupId = (unsigned short)disjoint.insertNew();
+				poly.groupId = (unsigned short)set.insertNew();
 			else
 			{
 				const unsigned short rootGroup = *linkedGroups.begin();
 				poly.groupId = rootGroup;
 
 				for (const int linkedGroup : linkedGroups)
-					disjoint.setUnion(rootGroup, linkedGroup);
+					set.setUnion(rootGroup, linkedGroup);
 			}
 
 			if (!noLinkedGroups)
@@ -343,66 +346,20 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			dtPoly& poly = tile->polys[j];
 			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
 			{
-				const int id = disjoint.find(poly.groupId);
+				const int id = set.find(poly.groupId);
 				poly.groupId = (unsigned short)id;
 			}
 		}
 	}
 
-	nav->setPolyGroupcount(disjoint.getSetCount());
+	nav->setPolyGroupcount(set.getSetCount());
 	return true;
 }
 
-bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
+static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* params, const int tableIndex)
 {
-	// Third pass to mark all unlinked poly's.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-
-			// This poly isn't connected to anything, mark it so the game
-			// won't consider this poly in path generation.
-			if (poly.firstLink == DT_NULL_LINK)
-				poly.groupId = DT_UNLINKED_POLY_GROUP;
-		}
-	}
-
-	// Gather all unique polygroups and map them to a contiguous range.
-	std::map<unsigned short, unsigned short> groupMap;
-	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
-
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			unsigned short oldId = poly.groupId;
-			if (oldId != DT_UNLINKED_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
-				groupMap[oldId] = (unsigned short)disjoint.insertNew();
-		}
-	}
-
-	// Fourth pass to apply the new mapping to all polys.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
-				poly.groupId = groupMap[poly.groupId];
-		}
-	}
+	dtNavMesh* nav = params->nav;
+	dtDisjointSet& set = params->sets[tableIndex];
 
 	// Fifth pass to handle off-mesh connections.
 	// note(amos): this has to happen after the first and second pass as these
@@ -431,7 +388,7 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 
 			while (plink != DT_NULL_LINK)
 			{
-				const dtLink l = tile->links[plink];
+				const dtLink& l = tile->links[plink];
 				const dtMeshTile* t;
 				const dtPoly* p;
 				nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
@@ -440,8 +397,8 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 				{
 					if (firstGroupId == DT_NULL_POLY_GROUP)
 						firstGroupId = p->groupId;
-					else
-						disjoint.setUnion(firstGroupId, p->groupId);
+					else if (params->canTraverse(params, &l, tableIndex))
+						set.setUnion(firstGroupId, p->groupId);
 				}
 
 				plink = l.next;
@@ -486,21 +443,89 @@ bool dtUpdateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 				rdAssert(landPoly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
 				rdAssert(landPoly->groupId != DT_UNLINKED_POLY_GROUP);
 
-				if (poly.groupId != landPoly->groupId)
-					disjoint.setUnion(poly.groupId, landPoly->groupId);
+				if (poly.groupId != landPoly->groupId && params->canTraverse(params, link, tableIndex))
+					set.setUnion(poly.groupId, landPoly->groupId);
 			}
 		}
 	}
+}
 
-	nav->setPolyGroupcount(disjoint.getSetCount());
+bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
+{
+	dtNavMesh* nav = params->nav;
+	dtDisjointSet& set = params->sets[0];
+
+	// Third pass to mark all unlinked poly's.
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+
+			// This poly isn't connected to anything, mark it so the game
+			// won't consider this poly in path generation.
+			if (poly.firstLink == DT_NULL_LINK)
+				poly.groupId = DT_UNLINKED_POLY_GROUP;
+		}
+	}
+
+	// Gather all unique polygroups and map them to a contiguous range.
+	std::map<unsigned short, unsigned short> groupMap;
+	set.init(DT_FIRST_USABLE_POLY_GROUP);
+
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			unsigned short oldId = poly.groupId;
+			if (oldId != DT_UNLINKED_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
+				groupMap[oldId] = (unsigned short)set.insertNew();
+		}
+	}
+
+	// Fourth pass to apply the new mapping to all polys.
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
+				poly.groupId = groupMap[poly.groupId];
+		}
+	}
+
+	// Copy base disjoint set results to sets for each traverse table.
+	for (int i = 0; i < params->tableCount; i++)
+	{
+		dtDisjointSet& targetSet = params->sets[i];
+
+		if (i > 0) // Don't copy the base into itself.
+			set.copy(targetSet);
+
+		unionTraverseLinkedPolyGroups(params, i);
+	}
+
+	nav->setPolyGroupcount(set.getSetCount());
 	return true;
 }
 
-// todo(amos): remove param 'tableCount' and make struct 'dtTraverseTableCreateParams'
-bool dtCreateTraverseTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount)
+bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 {
+	dtNavMesh* nav = params->nav;
+
 	const int polyGroupCount = nav->getPolyGroupCount();
 	const int tableSize = dtCalcTraverseTableSize(polyGroupCount);
+	const int tableCount = params->tableCount;
 
 	nav->freeTraverseTables();
 
@@ -510,8 +535,6 @@ bool dtCreateTraverseTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, co
 	nav->setTraverseTableSize(tableSize);
 	nav->setTraverseTableCount(tableCount);
 
-	// TODO: figure out which jump type belongs to which traverse anim type
-	// and determine reachability from here...
 	for (int i = 0; i < tableCount; i++)
 	{
 		int* const traverseTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
@@ -522,12 +545,14 @@ bool dtCreateTraverseTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, co
 		nav->setTraverseTable(i, traverseTable);
 		memset(traverseTable, 0, sizeof(int)*tableSize);
 
+		const dtDisjointSet& set = params->sets[i];
+
 		for (unsigned short j = 0; j < polyGroupCount; j++)
 		{
 			for (unsigned short k = 0; k < polyGroupCount; k++)
 			{
 				// Only reachable if its the same polygroup or if they are linked!
-				const bool isReachable = j == k || disjoint.find(j) == disjoint.find(k);
+				const bool isReachable = j == k || set.find(j) == set.find(k);
 				setPolyGroupsTraversalReachability(traverseTable, polyGroupCount, j, k, isReachable);
 			}
 		}

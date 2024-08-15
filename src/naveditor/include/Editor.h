@@ -173,7 +173,7 @@ protected:
 	EditorToolState* m_toolStates[MAX_TOOLS];
 	
 	BuildContext* m_ctx;
-	dtDisjointSet m_djs;
+	dtDisjointSet m_djs[DT_MAX_TRAVERSE_TABLES];
 
 	EditorDebugDraw m_dd;
 	unsigned int m_navMeshDrawFlags;
@@ -250,10 +250,13 @@ public:
 
 	void connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor); // Make private.
 	bool createTraverseLinks();
+
+	void createTraverseTableParams(dtTraverseTableCreateParams* params);
+
 	void buildStaticPathingData();
 
-	bool createStaticPathingData();
-	bool updateStaticPathingData();
+	bool createStaticPathingData(const dtTraverseTableCreateParams* params);
+	bool updateStaticPathingData(const dtTraverseTableCreateParams* params);
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

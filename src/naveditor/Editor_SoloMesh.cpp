@@ -530,17 +530,17 @@ bool Editor_SoloMesh::handleBuild()
 		}
 	}
 
-	dtDisjointSet data;
+	//dtDisjointSet data;
 
-	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
-	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
-	}
+	//if (!dtCreateDisjointPolyGroups(m_navMesh, data))
+	//{
+	//	m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
+	//}
 
-	if (!dtCreateTraverseTableData(m_navMesh, data, traverseTableCount))
-	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
-	}
+	//if (!dtCreateTraverseTableData(m_navMesh, data, traverseTableCount))
+	//{
+	//	m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
+	//}
 	
 	m_ctx->stopTimer(RC_TIMER_TOTAL);
 
