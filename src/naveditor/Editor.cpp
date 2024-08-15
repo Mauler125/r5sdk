@@ -820,6 +820,7 @@ bool Editor::createTraverseLinks()
 	rdAssert(m_navMesh);
 	const int maxTiles = m_navMesh->getMaxTiles();
 
+	// First pass to connect edges between external tiles together.
 	for (int i = 0; i < maxTiles; i++)
 	{
 		dtMeshTile* baseTile = m_navMesh->getTile(i);
@@ -827,6 +828,15 @@ bool Editor::createTraverseLinks()
 			continue;
 
 		connectTileTraverseLinks(baseTile, true);
+	}
+
+	// Second pass to use remaining links to connect internal edges on the same tile together.
+	for (int i = 0; i < maxTiles; i++)
+	{
+		dtMeshTile* baseTile = m_navMesh->getTile(i);
+		if (!baseTile || !baseTile->header)
+			continue;
+
 		connectTileTraverseLinks(baseTile, false);
 	}
 
@@ -877,16 +887,21 @@ bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
 static const int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT] = {
 	0x0000013F, // ANIMTYPE_HUMAN
 	0x0000013F, // ANIMTYPE_SPECTRE
-	0x00000000, // ANIMTYPE_STALKER
-	0x0033FFFF, // ANIMTYPE_FRAG_DRONE
-	0x00000000, // ANIMTYPE_PILOT
-	0x00000000, // ANIMTYPE_PROWLER
-	0x00000000, // ANIMTYPE_SUPER_SPECTRE
-	0x00000000, // ANIMTYPE_TITAN
-	0x00000000, // ANIMTYPE_GOLIATH
+#if DT_NAVMESH_SET_VERSION == 5
+	0x001BDF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
+	0x001BFFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
+#else
+	0x0033DF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
+	0x0033FFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
+#endif
+	0x0000013F, // ANIMTYPE_PILOT          // Unknown, but most likely the same as ANIMTYPE_HUMAN, this also doesn't exist for MSET 5
+	0x00033F87, // ANIMTYPE_PROWLER
+	0x00033F82, // ANIMTYPE_SUPER_SPECTRE
+	0000003000, // ANIMTYPE_TITAN
+	0000003000, // ANIMTYPE_GOLIATH // Doesn't exist in MSET 5
 };
 
-bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex)
+static bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex)
 {
 	// TODO: always link off-mesh connected polygon islands together?
 	// Research needed.
