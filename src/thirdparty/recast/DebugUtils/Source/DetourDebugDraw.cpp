@@ -24,14 +24,14 @@
 
 static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd, const unsigned int alpha)
 {
-	return poly->groupId == DT_STRAY_POLY_GROUP
+	return poly->groupId == DT_UNLINKED_POLY_GROUP
 		? duTransCol(duRGBA(240,20,10,255), alpha)
 		: duTransCol(dd->areaToCol(poly->getArea()), alpha);
 }
 
 static unsigned int getPolyBoundaryColor(const dtPoly* poly, const bool inner)
 {
-	return poly->groupId == DT_STRAY_POLY_GROUP
+	return poly->groupId == DT_UNLINKED_POLY_GROUP
 		? inner ? duRGBA(32,24,0,32) : duRGBA(32,24,0,220)
 		: inner ? duRGBA(0,24,32,32) : duRGBA(0,24,32,220);
 }
@@ -46,13 +46,16 @@ static void drawOffMeshConnectionRefPosition(duDebugDraw* dd, const dtOffMeshCon
 }
 
 static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
-							   const float linew, const float* offset, bool inner)
+							   const float linew, const float* offset, const int flags, bool inner)
 {
-	static const float thr = 0.01f*0.01f;
-
 	dd->begin(DU_DRAW_LINES, linew, offset);
 
-	for (int i = 0; i < tile->header->polyCount; ++i)
+	const dtMeshHeader* header = tile->header;
+	const float walkableRadius = header->walkableRadius;
+
+	static const float thr = 0.01f*0.01f;
+
+	for (int i = 0; i < header->polyCount; ++i)
 	{
 		const dtPoly* p = &tile->polys[i];
 		
@@ -92,7 +95,25 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 			
 			const float* v0 = &tile->verts[p->verts[j]*3];
 			const float* v1 = &tile->verts[p->verts[(j+1) % nj]*3];
-			
+
+			if (!inner && flags & DU_DRAWNAVMESH_LEDGE_SPANS)
+			{
+				float normal[3];
+				rdCalcEdgeNormalPt2D(v0, v1, false, normal);
+
+				float mid[3];
+				rdVsad(mid, v0, v1, 0.5f);
+
+				float ledgeEnd[3] = {
+					mid[0] + normal[0] * walkableRadius,
+					mid[1] + normal[1] * walkableRadius,
+					mid[2]
+				};
+
+				dd->vertex(mid, c);
+				dd->vertex(ledgeEnd, c);
+			}
+
 			// Draw detail mesh edges which align with the actual poly edge.
 			// This is really slow.
 			for (int k = 0; k < pd->triCount; ++k)
@@ -134,7 +155,7 @@ static void drawPolyCenters(duDebugDraw* dd, const dtMeshTile* tile, const unsig
 }
 
 static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
-	const dtMeshTile* tile, const float* offset, const int drawLinkType)
+	const dtMeshTile* tile, const float* offset, const duDrawTraverseLinkParams& traverseLinkParams)
 {
 	for (int i = 0; i < tile->header->polyCount; ++i)
 	{
@@ -143,17 +164,37 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 		if (startPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
 			continue;
 
+		if (tile->links[i].ref == 0)
+			continue;
+
 		// Iterate through links in the poly.
-		for (int j = startPoly->firstLink; j != -1; j = tile->links[j].next)
+		for (int j = startPoly->firstLink; j != DT_NULL_LINK; j = tile->links[j].next)
 		{
 			const dtLink* link = &tile->links[j];
 
 			// Skip "normal" links (non-jumping ones).
-			if (link->traverseType == DT_NULL_TRAVERSE_TYPE || tile->links[i].ref == 0)
+			if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
 				continue;
 
-			// Filter, drawLinkType -1 means draw all
+			// Filter, drawLinkType -1 means draw all types
+			const int drawLinkType = traverseLinkParams.traverseLinkType;
+
 			if (drawLinkType != -1 && link->traverseType != drawLinkType)
+				continue;
+
+			// Filter, drawLinkDistance -1 means draw all distances
+			const int drawLinkDistance = traverseLinkParams.traverseLinkDistance;
+
+			if (drawLinkDistance != -1 && link->traverseDist > drawLinkDistance)
+				continue;
+
+			// Filter, drawAnimType -1 means draw all distances
+			const int drawAnimType = traverseLinkParams.traverseAnimType;
+			const dtPolyRef basePolyRef = mesh.getPolyRefBase(tile) | (dtPolyRef)i;
+
+			if (drawAnimType != -2 &&
+				!mesh.isGoalPolyReachable(basePolyRef, link->ref, drawAnimType == -1, drawAnimType) &&
+				!mesh.isGoalPolyReachable(link->ref, basePolyRef, drawAnimType == -1, drawAnimType))
 				continue;
 
 			const dtPoly* endPoly;
@@ -168,16 +209,40 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			float startPos[3];
 			float endPos[3];
 
-			query->getEdgeMidPoint(mesh.getPolyRefBase(tile) | (dtPolyRef)i, link->ref, startPos);
-			query->getEdgeMidPoint(link->ref, mesh.getPolyRefBase(tile) | (dtPolyRef)i, endPos);
+			query->getEdgeMidPoint(basePolyRef, link->ref, startPos);
+			query->getEdgeMidPoint(link->ref, basePolyRef, endPos);
+
+			const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPos, endPos));
+			const float offsetAmount = rdCalcLedgeSpanOffsetAmount(tile->header->walkableRadius, 
+				slopeAngle, rdCalcMaxLOSAngle(tile->header->walkableRadius, traverseLinkParams.cellHeight));
+
+			const bool startPointHighest = startPos[2] > endPos[2];
+			float* highestPos = startPointHighest ? startPos : endPos;
+
+			const dtPolyRef lowPolyRef = startPointHighest ? link->ref : basePolyRef;
+			const dtPolyRef highPolyRef = startPointHighest ? basePolyRef : link->ref;
+
+			float normal[3];
+			query->getEdgeNormal(highPolyRef, lowPolyRef, normal);
+
+			// The offset between the height point and the ray point
+			// used to account for the ledge span.
+			const float offsetEndPos[3] = {
+				highestPos[0] + normal[0] * offsetAmount,
+				highestPos[1] + normal[1] * offsetAmount,
+				highestPos[2]
+			};
 
 			// Unique color for each type.
-			const int col = duIntToCol(link->traverseType, 180);
+			const int col = duIntToCol(link->traverseType, 128);
 
 			dd->begin(DU_DRAW_LINES, 2.0f, offset);
 
-			dd->vertex(startPos, col);
-			dd->vertex(endPos, col);
+			const float* targetStartPos = startPointHighest ? offsetEndPos : startPos;
+			const float* targetEndPos = startPointHighest ? startPos : offsetEndPos;
+
+			dd->vertex(targetStartPos, col);
+			dd->vertex(targetEndPos, col);
 
 			const bool hasReverseLink = link->reverseLink != DT_NULL_TRAVERSE_REVERSE_LINK;
 
@@ -186,7 +251,6 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 				// If the reverse link is set, render white crosses to confirm
 				// the links are set properly.
 				duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, duRGBA(255,255,255,180));
-				duAppendCross(dd, endPos[0], endPos[1], endPos[2], 10.f, duRGBA(255,255,255,180));
 			}
 
 			dd->end();
@@ -210,18 +274,19 @@ static void drawTileCells(duDebugDraw* dd, const dtMeshTile* tile, const float* 
 }
 
 static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
-						 const dtMeshTile* tile, const float* offset, unsigned int flags, const int linkTypes)
+						 const dtMeshTile* tile, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams)
 {
 	// If the "Alpha" flag isn't set, force the colour to be opaque instead of semi-transparent.
 	const int tileAlpha = flags & DU_DRAWNAVMESH_ALPHA ? 170 : 255;
 	const bool depthTest = flags & DU_DRAWNAVMESH_DEPTH_MASK;
 
 	dtPolyRef base = mesh.getPolyRefBase(tile);
+	const dtMeshHeader* header = tile->header;
 
 	dd->depthMask(depthTest);
 
 	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
-	for (int i = 0; i < tile->header->polyCount; ++i)
+	for (int i = 0; i < header->polyCount; ++i)
 	{
 		const dtPoly* p = &tile->polys[i];
 		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
@@ -234,9 +299,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			col = duRGBA(255,196,0,64);
 		else
 		{
-			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
+			if (flags & DU_DRAWNAVMESH_TILE_COLORS)
 				col = duIntToCol(mesh.decodePolyIdTile(base), tileAlpha);
-			else if (flags & DU_DRAWNAVMESH_POLYGROUPS)
+			else if (flags & DU_DRAWNAVMESH_POLY_GROUPS)
 				col = duIntToCol(p->groupId, tileAlpha);
 			else
 				col = getPolySurfaceColor(p, dd, tileAlpha);
@@ -257,33 +322,36 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	dd->end();
 	
 	// Draw inner poly boundaries
-	if (flags & DU_DRAWNAVMESH_INNERBOUND)
-		drawPolyBoundaries(dd, tile, 1.5f, offset, true);
+	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_INNER)
+		drawPolyBoundaries(dd, tile, 1.5f, offset, flags, true);
 	
 	// Draw outer poly boundaries
-	if (flags & DU_DRAWNAVMESH_OUTERBOUND)
-		drawPolyBoundaries(dd, tile, 3.5f, offset, false);
+	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_OUTER)
+		drawPolyBoundaries(dd, tile, 3.5f, offset, flags, false);
 
 	// Draw poly centers
-	if (flags & DU_DRAWNAVMESH_POLYCENTERS)
+	if (flags & DU_DRAWNAVMESH_POLY_CENTERS)
 		drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f, offset);
 
 	if (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS)
-		drawTraverseLinks(dd, mesh, query, tile, offset, linkTypes);
+		drawTraverseLinks(dd, mesh, query, tile, offset, traverseLinkParams);
 
-	if (flags & DU_DRAWNAVMESH_CELLS)
+	if (flags & DU_DRAWNAVMESH_TILE_CELLS)
 		drawTileCells(dd, tile, offset);
+
+	if (flags & DU_DRAWNAVMESH_TILE_BOUNDS)
+		duDebugDrawBoxWire(dd, header->bmin[0], header->bmin[1], header->bmin[2], header->bmax[0], header->bmax[1], header->bmax[2], duRGBA(255,255,255,128), 1.0f, offset);
 
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
 	{
 		dd->begin(DU_DRAW_LINES, 2.0f, offset);
-		for (int i = 0; i < tile->header->polyCount; ++i)
+		for (int i = 0; i < header->polyCount; ++i)
 		{
 			const dtPoly* p = &tile->polys[i];
 			if (p->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip regular polys.
 				continue;
 			
-			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
+			const dtOffMeshConnection* con = &tile->offMeshCons[i - header->offMeshBase];
 
 			unsigned int col;
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
@@ -339,11 +407,11 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->end();
 	}
 	
-	if (flags & DU_DRAWNAVMESH_VERTS)
+	if (flags & DU_DRAWNAVMESH_POLY_VERTS)
 	{
 		const unsigned int vcol = duRGBA(0,0,0,220);
 		dd->begin(DU_DRAW_POINTS, 4.0f, offset);
-		for (int i = 0; i < tile->header->vertCount; ++i)
+		for (int i = 0; i < header->vertCount; ++i)
 		{
 			const float* v = &tile->verts[i*3];
 			dd->vertex(v[0], v[1], v[2], vcol);
@@ -355,7 +423,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->depthMask(true);
 }
 
-void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const int linkTypes)
+void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams)
 {
 	if (!dd) return;
 	
@@ -363,28 +431,28 @@ void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* off
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		drawMeshTile(dd, mesh, 0, tile, offset, flags, linkTypes);
+		drawMeshTile(dd, mesh, 0, tile, offset, flags, traverseLinkParams);
 	}
 }
 
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const int linkTypes)
+void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams)
 {
 	if (!dd) return;
 
-	const dtNavMeshQuery* q = (flags & DU_DRAWNAVMESH_CLOSEDLIST) ? &query : 0;
+	const dtNavMeshQuery* q = (flags & DU_DRAWNAVMESH_WITH_CLOSED_LIST) ? &query : 0;
 	
 	for (int i = 0; i < mesh.getMaxTiles(); ++i)
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		drawMeshTile(dd, mesh, q, tile, offset, flags, linkTypes);
+		drawMeshTile(dd, mesh, q, tile, offset, flags, traverseLinkParams);
 	}
 
 	if (flags & DU_DRAWNAVMESH_BVTREE)
 		duDebugDrawNavMeshBVTree(dd, mesh, offset);
 	if (flags & DU_DRAWNAVMESH_PORTALS)
 		duDebugDrawNavMeshPortals(dd, mesh, offset);
-	if (flags & DU_DRAWNAVMESH_NODES)
+	if (flags & DU_DRAWNAVMESH_QUERY_NODES)
 		duDebugDrawNavMeshNodes(dd, query, offset);
 }
 

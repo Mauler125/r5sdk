@@ -21,8 +21,14 @@
 
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/EditorInterfaces.h"
+#include "DebugUtils/Include/RecastDebugDraw.h"
+#include "DebugUtils/Include/DetourDebugDraw.h"
+
+#include "Detour/Include/DetourNavMeshBuilder.h"
 
 #include "game/server/ai_navmesh.h"
+
+struct dtMeshTile;
 
 struct hulldef
 {
@@ -167,10 +173,11 @@ protected:
 	EditorToolState* m_toolStates[MAX_TOOLS];
 	
 	BuildContext* m_ctx;
+	dtDisjointSet m_djs[DT_MAX_TRAVERSE_TABLES];
 
 	EditorDebugDraw m_dd;
 	unsigned int m_navMeshDrawFlags;
-	int m_traverseLinkDrawTypes;
+	duDrawTraverseLinkParams m_traverseLinkParams;
 	float m_recastDrawOffset[3];
 	float m_detourDrawOffset[3];
 
@@ -224,6 +231,8 @@ public:
 	inline NavMeshType_e getSelectedNavMeshType() const { return m_selectedNavMeshType; }
 	inline NavMeshType_e getLoadedNavMeshType() const { return m_loadedNavMeshType; }
 
+	inline const char* getModelName() const { return m_modelName.c_str(); }
+
 	void updateToolStates(const float dt);
 	void initToolStates(Editor* editor);
 	void resetToolStates();
@@ -239,7 +248,15 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
+	void connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor); // Make private.
+	bool createTraverseLinks();
+
+	void createTraverseTableParams(dtTraverseTableCreateParams* params);
+
 	void buildStaticPathingData();
+
+	bool createStaticPathingData(const dtTraverseTableCreateParams* params);
+	bool updateStaticPathingData(const dtTraverseTableCreateParams* params);
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

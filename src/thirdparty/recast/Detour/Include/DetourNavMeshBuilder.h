@@ -120,6 +120,19 @@ public:
 		init(size);
 	}
 
+	void copy(dtDisjointSet& other)
+	{
+		other.rank.resize(rank.size());
+
+		for (int i = 0; i < other.rank.size(); i++)
+			other.rank[i] =  rank[i];
+
+		other.parent.resize(parent.size());
+
+		for (int i = 0; i < other.parent.size(); i++)
+			other.parent[i] = parent[i];
+	}
+
 	void init(const int size)
 	{
 		rank.resize(size);
@@ -175,19 +188,39 @@ private:
 	mutable rdIntArray parent;
 };
 
-/// Builds navigation mesh disjoint poly groups from the provided navmesh.
-/// @ingroup detour
-///  @param[in]		nav			The navigation mesh to use.
-///  @param[Out]	disjoint	The disjoint set data.
-/// @return True if the disjoint set data was successfully created.
-bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint);
+struct dtLink;
 
-/// Builds navigation mesh static traversal table from the provided navmesh.
+/// Parameters used to build traverse links.
 /// @ingroup detour
-///  @param[in]		nav			The navigation mesh to use.
-///  @param[in]		disjoint	The disjoint set data.
-/// @return True if the static traversal table was successfully created.
-bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount);
+struct dtTraverseTableCreateParams
+{
+	dtNavMesh* nav;				///< The navmesh.
+	dtDisjointSet* sets;		///< The disjoint polygroup sets.
+	int tableCount;				///< The number of traverse tables this navmesh should contain.
+	int navMeshType;			///< The navmesh type [_small, _extra_large].
+
+	///< The user installed callback which is used to determine if an animType
+	/// an use this traverse link.
+	bool (*canTraverse)(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex);
+};
+
+/// Builds navigation mesh disjoint poly groups from the provided parameters.
+/// @ingroup detour
+///  @param[in]		params		The build parameters.
+/// @return True if the disjoint set data was successfully created.
+bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params);
+
+/// Updates navigation mesh disjoint poly groups from the provided parameters.
+/// @ingroup detour
+///  @param[in]		params		The build parameters.
+/// @return True if the disjoint set data was successfully updated.
+bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params);
+
+/// Builds navigation mesh static traverse table from the provided parameters.
+/// @ingroup detour
+///  @param[in]		params		The build parameters.
+/// @return True if the static traverse table was successfully created.
+bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params);
 
 /// Builds navigation mesh tile data from the provided tile creation data.
 /// @ingroup detour

@@ -21,6 +21,19 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
+float rdCalcSlopeAngle(const float* v1, const float* v2)
+{
+	const float deltaX = v2[0] - v1[0];
+	const float deltaY = v2[1] - v1[1];
+	const float deltaZ = v2[2] - v1[2];
+
+	const float horizontalDistance = rdMathSqrtf((deltaX*deltaX)+(deltaY*deltaY));
+	const float slopeAngleRadians = rdMathAtan2f(deltaZ, horizontalDistance);
+	const float slopeAngleDegrees = slopeAngleRadians*(180.0f/RD_PI);
+
+	return slopeAngleDegrees;
+}
+
 void rdClosestPtPointTriangle(float* closest, const float* p,
 							  const float* a, const float* b, const float* c)
 {
@@ -394,4 +407,119 @@ float rdDistancePtLine2d(const float* pt, const float* p, const float* q)
 	dx = p[0] + t * pqx - pt[0];
 	dy = p[1] + t * pqy - pt[1];
 	return dx * dx + dy * dy;
+}
+
+void rdCalcEdgeNormal2D(const float* dir, const bool invert, float* out)
+{
+	if (invert)
+	{
+		out[0] = -dir[1];
+		out[1] = dir[0];
+	}
+	else
+	{
+		out[0] = dir[1];
+		out[1] = -dir[0];
+	}
+
+	rdVnormalize2D(out);
+}
+
+void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool invert, float* out)
+{
+	float dir[3];
+	rdVsub(dir, v2, v1);
+	rdCalcEdgeNormal2D(dir, invert, out);
+}
+
+float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight)
+{
+	const float angleRad = rdMathAtan2f(objectHeight, ledgeSpan);
+	const float angleDeg = angleRad * (180.0f/RD_PI);
+
+	return angleDeg;
+}
+
+float rdCalcLedgeSpanOffsetAmount(const float ledgeSpan, const float slopeAngle, const float maxAngle)
+{
+	const float clampedAngle = rdClamp(slopeAngle, slopeAngle, maxAngle);
+	const float offset = ledgeSpan * (clampedAngle / maxAngle);
+
+	return offset;
+}
+
+static const unsigned char XP = 1 << 0;
+static const unsigned char ZP = 1 << 1;
+static const unsigned char XM = 1 << 2;
+static const unsigned char ZM = 1 << 3;
+
+unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax)
+{
+	unsigned char outcode = 0; 
+	outcode |= (pt[0] >= bmax[0]) ? XP : 0;
+	outcode |= (pt[1] >= bmax[1]) ? ZP : 0;
+	outcode |= (pt[0] < bmin[0])  ? XM : 0;
+	outcode |= (pt[1] < bmin[1])  ? ZM : 0;
+
+	switch (outcode)
+	{
+	case XP: return 0;
+	case XP|ZP: return 1;
+	case ZP: return 2;
+	case XM|ZP: return 3;
+	case XM: return 4;
+	case XM|ZM: return 5;
+	case ZM: return 6;
+	case XP|ZM: return 7;
+	};
+
+	return 0xff;
+}
+
+unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax)
+{
+	const float distXP = rdMathFabsf(pt[0]-bmax[0]);
+	const float distXM = rdMathFabsf(pt[0]-bmin[0]);
+	const float distZP = rdMathFabsf(pt[1]-bmax[1]);
+	const float distZM = rdMathFabsf(pt[1]-bmin[1]);
+
+	unsigned char outcode = XP;
+	float minDist = distXP;
+
+	// Determine closest.
+	if (distZP < minDist)
+	{
+		minDist = distZP;
+		outcode = ZP;
+	}
+	if (distXM < minDist)
+	{
+		minDist = distXM;
+		outcode = XM;
+	}
+	if (distZM < minDist)
+	{
+		minDist = distZM;
+		outcode = ZM;
+	}
+
+	// Diagonal cases.
+	if (rdMathFabsf(distXP-minDist) < RD_EPS && outcode != XP) outcode |= XP;
+	if (rdMathFabsf(distXM-minDist) < RD_EPS && outcode != XM) outcode |= XM;
+	if (rdMathFabsf(distZP-minDist) < RD_EPS && outcode != ZP) outcode |= ZP;
+	if (rdMathFabsf(distZM-minDist) < RD_EPS && outcode != ZM) outcode |= ZM;
+
+	switch (outcode)
+	{
+	case XP: return 0;
+	case XP|ZP: return 1;
+	case ZP: return 2;
+	case XM|ZP: return 3;
+	case XM: return 4;
+	case XM|ZM: return 5;
+	case ZM: return 6;
+	case XP|ZM: return 7;
+	}
+
+	return 0xff;
 }

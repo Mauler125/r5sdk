@@ -934,7 +934,7 @@ dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* halfExt
 /// far as possible from the start polygon toward the end polygon.
 ///
 /// The start and end positions are used to calculate traversal costs. 
-/// (The y-values impact the result.)
+/// (The z-values impact the result.)
 ///
 dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 								  const float* startPos, const float* endPos,
@@ -2325,9 +2325,7 @@ dtStatus dtNavMeshQuery::getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mi
 	unsigned char fromType, toType;
 	if (dtStatusFailed(getPortalPoints(from, to, left,right, fromType, toType)))
 		return DT_FAILURE | DT_INVALID_PARAM;
-	mid[0] = (left[0]+right[0])*0.5f;
-	mid[1] = (left[1]+right[1])*0.5f;
-	mid[2] = (left[2]+right[2])*0.5f;
+	rdVsad(mid, left,right, 0.5f);
 	return DT_SUCCESS;
 }
 
@@ -2338,13 +2336,34 @@ dtStatus dtNavMeshQuery::getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly,
 	float left[3], right[3];
 	if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right)))
 		return DT_FAILURE | DT_INVALID_PARAM;
-	mid[0] = (left[0]+right[0])*0.5f;
-	mid[1] = (left[1]+right[1])*0.5f;
-	mid[2] = (left[2]+right[2])*0.5f;
+	rdVsad(mid, left,right, 0.5f);
 	return DT_SUCCESS;
 }
 
+dtStatus dtNavMeshQuery::getEdgeNormal(dtPolyRef from, dtPolyRef to, float* norm) const
+{
+	float left[3], right[3];
+	unsigned char fromType, toType;
+	if (dtStatusFailed(getPortalPoints(from, to, left,right, fromType, toType)))
+		return DT_FAILURE | DT_INVALID_PARAM;
+	float dir[3];
+	rdVsub(dir, right,left);
+	rdCalcEdgeNormal2D(dir, false, norm);
+	return DT_SUCCESS;
+}
 
+dtStatus dtNavMeshQuery::getEdgeNormal(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+										 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
+										 float* norm) const
+{
+	float left[3], right[3];
+	if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right)))
+		return DT_FAILURE | DT_INVALID_PARAM;
+	float dir[3];
+	rdVsub(dir, right,left);
+	rdCalcEdgeNormal2D(dir, false, norm);
+	return DT_SUCCESS;
+}
 
 /// @par
 ///
@@ -2429,7 +2448,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 ///
 /// <b>Use Case Restriction</b>
 ///
-/// The raycast ignores the y-value of the end position. (2D check.) This 
+/// The raycast ignores the z-value of the end position. (2D check.) This 
 /// places significant limits on how it can be used. For example:
 ///
 /// Consider a scene where there is a main floor with a second floor balcony 
@@ -2687,7 +2706,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 /// 
 /// The value of the center point is used as the start position for cost 
 /// calculations. It is not projected onto the surface of the mesh, so its 
-/// y-value will effect the costs.
+/// z-value will effect the costs.
 ///
 /// Intersection tests occur in 2D. All polygons and the search circle are 
 /// projected onto the xy-plane. So the z-value of the center point does not 
@@ -3058,7 +3077,7 @@ dtStatus dtNavMeshQuery::getPathFromDijkstraSearch(dtPolyRef endRef, dtPolyRef* 
 /// method applies to this method.
 ///
 /// The value of the center point is used as the start point for cost calculations. 
-/// It is not projected onto the surface of the mesh, so its y-value will effect 
+/// It is not projected onto the surface of the mesh, so its z-value will effect 
 /// the costs.
 /// 
 /// Intersection tests occur in 2D. All polygons and the search circle are 
@@ -3634,10 +3653,10 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 }
 
 bool dtNavMeshQuery::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef,
-	const bool checkDisjointGroupsOnly, const int traversalTableIndex) const
+	const bool checkDisjointGroupsOnly, const int traverseTableIndex) const
 {
 	rdAssert(m_nav);
-	return m_nav->isGoalPolyReachable(fromRef, goalRef, checkDisjointGroupsOnly, traversalTableIndex);
+	return m_nav->isGoalPolyReachable(fromRef, goalRef, checkDisjointGroupsOnly, traverseTableIndex);
 }
 
 bool dtNavMeshQuery::isValidPolyRef(dtPolyRef ref, const dtQueryFilter* filter) const

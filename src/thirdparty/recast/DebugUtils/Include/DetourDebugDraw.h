@@ -25,25 +25,48 @@
 
 enum DrawNavMeshFlags
 {
-	DU_DRAWNAVMESH_OFFMESHCONS = 1 << 0,  // Render off-mesh connections.
-	DU_DRAWNAVMESH_NODES       = 1 << 1,  // Render navmesh query nodes.
-	DU_DRAWNAVMESH_BVTREE      = 1 << 2,  // Render BVTree.
-	DU_DRAWNAVMESH_PORTALS     = 1 << 3,  // Render portals.
-	DU_DRAWNAVMESH_CLOSEDLIST  = 1 << 4,  // Render navmesh with closed list.
-	DU_DRAWNAVMESH_COLOR_TILES = 1 << 5,  // Render tiles colored by their ID's.
-	DU_DRAWNAVMESH_CELLS       = 1 << 6,  // Render tile cells.
-	DU_DRAWNAVMESH_VERTS       = 1 << 7,  // Render vertex points.
-	DU_DRAWNAVMESH_INNERBOUND  = 1 << 8,  // Render inner poly boundaries.
-	DU_DRAWNAVMESH_OUTERBOUND  = 1 << 9,  // Render outer poly boundaries.
-	DU_DRAWNAVMESH_POLYCENTERS = 1 << 10, // Render poly centers.
-	DU_DRAWNAVMESH_POLYGROUPS  = 1 << 11, // Render poly group by color.
-	DU_DRAWNAVMESH_DEPTH_MASK  = 1 << 12, // Use depth mask.
-	DU_DRAWNAVMESH_ALPHA       = 1 << 13, // Use transparency.
-	DU_DRAWNAVMESH_TRAVERSE_LINKS = 1 << 14, // Render traverse links.
+	DU_DRAWNAVMESH_OFFMESHCONS        = 1 << 0,  // Render off-mesh connections.
+	DU_DRAWNAVMESH_QUERY_NODES        = 1 << 1,  // Render navmesh query nodes.
+	DU_DRAWNAVMESH_BVTREE             = 1 << 2,  // Render BVTree.
+	DU_DRAWNAVMESH_PORTALS            = 1 << 3,  // Render portals.
+	DU_DRAWNAVMESH_WITH_CLOSED_LIST   = 1 << 4,  // Render navmesh with closed list.
+	DU_DRAWNAVMESH_TILE_COLORS        = 1 << 5,  // Render tiles colored by their ID's.
+	DU_DRAWNAVMESH_TILE_BOUNDS        = 1 << 6,  // Render tile boundaries.
+	DU_DRAWNAVMESH_TILE_CELLS         = 1 << 7,  // Render tile cells.
+	DU_DRAWNAVMESH_POLY_VERTS         = 1 << 8,  // Render vertex points.
+	DU_DRAWNAVMESH_POLY_BOUNDS_INNER  = 1 << 9,  // Render inner poly boundaries.
+	DU_DRAWNAVMESH_POLY_BOUNDS_OUTER  = 1 << 10, // Render outer poly boundaries.
+	DU_DRAWNAVMESH_POLY_CENTERS       = 1 << 11, // Render poly centers.
+	DU_DRAWNAVMESH_POLY_GROUPS        = 1 << 12, // Render poly group by color.
+	DU_DRAWNAVMESH_LEDGE_SPANS        = 1 << 13, // Render ledge spans.
+	DU_DRAWNAVMESH_DEPTH_MASK         = 1 << 14, // Use depth mask.
+	DU_DRAWNAVMESH_ALPHA              = 1 << 15, // Use transparency.
+	DU_DRAWNAVMESH_TRAVERSE_LINKS     = 1 << 16, // Render traverse links.
 };
 
-void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const int linkTypes = -1);
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const int linkTypes = -1);
+struct duDrawTraverseLinkParams
+{
+	duDrawTraverseLinkParams() :
+		traverseLinkType(-1),
+		traverseLinkDistance(-1),
+		traverseAnimType(-2),
+		cellHeight(0.0f)
+	{}
+
+	int traverseLinkType;
+	int traverseLinkDistance;
+
+	// -2 means all, -1 means disjoint poly groups only, anything above
+	// refers to an actual anim type and indexes into the traverse tables.
+	int traverseAnimType;
+
+	// Used to determine the max LOS angle, this information is lost after
+	// the mesh tile has been build so we have to cache it from the editor.
+	float cellHeight;
+};
+
+void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams);
+void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams);
 void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query, const float* offset);
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);
 void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh, const float* offset);

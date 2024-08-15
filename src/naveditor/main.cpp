@@ -771,7 +771,7 @@ int not_main(int argc, char** argv)
 		if (processHitTest && geom && editor)
 		{
 			float hitTime;
-			bool hit = geom->raycastMesh(rayStart, rayEnd, hitTime);
+			bool hit = geom->raycastMesh(rayStart, rayEnd, &hitTime);
 			
 			if (hit)
 			{

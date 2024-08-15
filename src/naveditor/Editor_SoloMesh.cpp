@@ -435,7 +435,7 @@ bool Editor_SoloMesh::handleBuild()
 	// The GUI may allow more max points per polygon than Detour can handle.
 	// Only build the detour navmesh if we do not exceed the limit.
 
-	const int traversalTableCount = NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType);
+	const int traverseTableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
 
 	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
 	{
@@ -514,7 +514,7 @@ bool Editor_SoloMesh::handleBuild()
 		
 		dtStatus status;
 		
-		status = m_navMesh->init(navData, navDataSize, traversalTableCount, DT_TILE_FREE_DATA);
+		status = m_navMesh->init(navData, navDataSize, traverseTableCount, DT_TILE_FREE_DATA);
 		if (dtStatusFailed(status))
 		{
 			rdFree(navData);
@@ -530,17 +530,17 @@ bool Editor_SoloMesh::handleBuild()
 		}
 	}
 
-	dtDisjointSet data;
+	//dtDisjointSet data;
 
-	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
-	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
-	}
+	//if (!dtCreateDisjointPolyGroups(m_navMesh, data))
+	//{
+	//	m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
+	//}
 
-	if (!dtCreateTraversalTableData(m_navMesh, data, traversalTableCount))
-	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
-	}
+	//if (!dtCreateTraverseTableData(m_navMesh, data, traverseTableCount))
+	//{
+	//	m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
+	//}
 	
 	m_ctx->stopTimer(RC_TIMER_TOTAL);
 

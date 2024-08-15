@@ -39,13 +39,16 @@ start_sources()
 add_sources( SOURCE_GROUP "Source"
     "DebugUtils/Source/DebugDraw.cpp"
     "DebugUtils/Source/DetourDebugDraw.cpp"
+    "DebugUtils/Source/DetourDump.cpp"
     "DebugUtils/Source/RecastDebugDraw.cpp"
     "DebugUtils/Source/RecastDump.cpp"
 )
 
 add_sources( SOURCE_GROUP "Include"
+    "DebugUtils/Include/FileIO.h"
     "DebugUtils/Include/DebugDraw.h"
     "DebugUtils/Include/DetourDebugDraw.h"
+    "DebugUtils/Include/DetourDump.h"
     "DebugUtils/Include/RecastDebugDraw.h"
     "DebugUtils/Include/RecastDump.h"
 )

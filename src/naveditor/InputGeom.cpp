@@ -27,9 +27,9 @@
 #include "NavEditor/Include/Editor.h"
 #include <naveditor/include/GameUtils.h>
 
-static bool intersectSegmentTriangle(const float* sp, const float* sq,
+static inline bool intersectSegmentTriangle(const float* sp, const float* sq,
 									 const float* a, const float* b, const float* c,
-									 float &t)
+									 float &t, const bool delayedDiv)
 {
 	float v, w;
 	float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
@@ -61,8 +61,11 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 	w = -rdVdot(ab, e);
 	if (w < 0.0f || v + w > d) return false;
 	
-	// Segment/ray intersects triangle. Perform delayed division
-	t /= d;
+	if (delayedDiv)
+	{
+		// Segment/ray intersects triangle. Perform delayed division
+		t /= d;
+	}
 	
 	return true;
 }
@@ -489,7 +492,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 }
 
 
-bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
+bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) const
 {
 	// Prune hit ray.
 	float btmin, btmax;
@@ -506,7 +509,9 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	if (!ncid)
 		return false;
 	
-	tmin = 1.0f;
+	float localtmin = 1.0f;
+	const bool calcTmin = tmin != nullptr;
+
 	bool hit = false;
 	const float* verts = m_mesh->getVerts();
 	
@@ -522,14 +527,20 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 			if (intersectSegmentTriangle(src, dst,
 										 &verts[tris[j]*3],
 										 &verts[tris[j+1]*3],
-										 &verts[tris[j+2]*3], t))
+										 &verts[tris[j+2]*3], t, calcTmin))
 			{
-				if (t < tmin)
-					tmin = t;
 				hit = true;
+
+				if (calcTmin && t < localtmin)
+					localtmin = t;
+				else
+					break;
 			}
 		}
 	}
+
+	if (calcTmin)
+		*tmin = localtmin;
 	
 	return hit;
 }

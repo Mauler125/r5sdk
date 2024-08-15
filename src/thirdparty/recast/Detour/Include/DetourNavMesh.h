@@ -69,33 +69,36 @@ static const int DT_VERTS_PER_POLYGON = 6;
 /// A value that indicates that this poly hasn't been assigned to a group yet.
 static const unsigned short DT_NULL_POLY_GROUP = 0;
 
-/// A poly group that holds all unconnected stray polys (not linked to anything).
+/// A poly group that holds all unconnected polys (not linked to anything).
 /// These are considered 'trash' by the game engine; see [r5apex_ds + CA88B2]. 
 /// For reference, Titanfall 2 single player NavMeshes also marked everything unconnected as '1'.
-static const unsigned short DT_STRAY_POLY_GROUP = 1;
+static const unsigned short DT_UNLINKED_POLY_GROUP = 1;
 
-/// The first non-reserved poly group; DT_STRAY_POLY_GROUP and below are reserved.
+/// The first non-reserved poly group; #DT_UNLINKED_POLY_GROUP and below are reserved.
 static const unsigned short DT_FIRST_USABLE_POLY_GROUP = 2;
 
 /// The minimum required number of poly groups for static pathing logic to work.
-/// (E.g. if we have 2 poly groups, group id 1 (DT_STRAY_POLY_GROUP), and group
-/// id 2, then 1 is never reachable as its considered 'trash' by design, and 2
-/// is always reachable as that's the only group id. If group id 3 is involved
-/// then code can use the static patching logic to quickly query if we are even
-/// on the same (or connected) poly island before trying to compute a path).
+/// (E.g. if we have 2 poly groups, group id 1 (#DT_UNLINKED_POLY_GROUP), and
+/// group id 2, then 1 is never reachable as its considered 'trash' by design,
+/// and 2 is always reachable as that's the only group id. If group id 3 is
+/// involved then code can use the static patching logic to quickly query if we 
+/// are even on the same (or connected) poly island before trying to compute a path).
 static const int DT_MIN_POLY_GROUP_COUNT = 3;
 
 /// The cached poly surface area quantization factor.
 static const float DT_POLY_AREA_QUANT_FACTOR = 0.01f;
 
 /// The maximum number of traversal tables per navmesh that will be used for static pathing.
-static const int DT_MAX_TRAVERSAL_TABLES = 5;
+static const int DT_MAX_TRAVERSE_TABLES = 5;
 
 /// A value that indicates the link doesn't require a traverse action. (Jumping, climbing, etc.)
 static const unsigned char DT_NULL_TRAVERSE_TYPE = 0xff;
 
 /// A value that indicates the link doesn't contain a reverse traverse link.
 static const unsigned short DT_NULL_TRAVERSE_REVERSE_LINK = 0xffff;
+
+/// The maximum traverse distance for a traverse link. (Quantized value should not overflow #dtLink::traverseDist.)
+static const float DT_TRAVERSE_DIST_MAX = 2550.0f;
 
 /// The cached traverse link distance quantization factor.
 static const float DT_TRAVERSE_DIST_QUANT_FACTOR = 0.1f;
@@ -288,7 +291,8 @@ struct dtLink
 	unsigned short reverseLink;		///< The reverse traversal link for this link. (Path returns through this link.)
 };
 
-unsigned char dtCalcLinkDistance(const float* spos, const float* epos);
+float dtCalcLinkDistance(const float* spos, const float* epos);
+unsigned char dtQuantLinkDistance(const float distance);
 
 /// Defines a cell in a tile.
 /// @note This is used to prevent entities from clipping into each other.
@@ -415,6 +419,10 @@ struct dtMeshHeader
 /// @ingroup detour
 struct dtMeshTile
 {
+public:
+	unsigned int allocLink();
+	void freeLink(unsigned int link);
+
 	unsigned int salt;					///Counter describing modifications to the tile.
 
 	unsigned int linksFreeList;			///Index to the next free link.
@@ -471,12 +479,12 @@ struct dtNavMeshParams
 	int maxTiles;					///< The maximum number of tiles the navigation mesh can contain. This and maxPolys are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 	int maxPolys;					///< The maximum number of polygons each tile can contain. This and maxTiles are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 	int polyGroupCount;				///< The total number of disjoint polygon groups.
-	int traversalTableSize;			///< The total size of the static traversal table. This is computed using calcTraversalTableSize(polyGroupcount).
-	int traversalTableCount;		///< The total number of traversal tables in this navmesh. Each TraverseAnimType uses its own table as their available jump links should match their behavior and abilities.
+	int traverseTableSize;			///< The total size of the static traverse table. This is computed using calcTraverseTableSize(polyGroupcount).
+	int traverseTableCount;			///< The total number of traverse tables in this navmesh. Each TraverseAnimType uses its own table as their available jump links should match their behavior and abilities.
 
 #if DT_NAVMESH_SET_VERSION >= 7
 	// NOTE: this seems to be used for some wallrunning code. This allocates a buffer of size 0x30 * magicDataCount,
-	// then copies in the data 0x30 * magicDataCount at the end of the navmesh file (past the traversal tables).
+	// then copies in the data 0x30 * magicDataCount at the end of the navmesh file (past the traverse tables).
 	// See [r5apex_ds + F43600] for buffer allocation and data copy, see note at dtNavMesh::m_someMagicData for usage.
 	int magicDataCount;
 #endif
@@ -501,7 +509,7 @@ public:
 	/// Initializes the navigation mesh for single tile use.
 	///  @param[in]	data		Data of the new tile. (See: #dtCreateNavMeshData)
 	///  @param[in]	dataSize	The data size of the new tile.
-	///  @param[in]	tableCount	The number of traversal tables this navmesh will use.
+	///  @param[in]	tableCount	The number of traverse tables this navmesh will use.
 	///  @param[in]	flags		The tile flags. (See: #dtTileFlags)
 	/// @return The status flags for the operation.
 	///  @see dtCreateNavMeshData
@@ -608,10 +616,10 @@ public:
 	///  @param[in]		fromRef		The reference to the start poly.
 	///  @param[in]		goalRef		The reference to the goal poly.
 	///  @param[in]		checkDisjointGroupsOnly	Whether to only check disjoint poly groups.
-	///  @param[in]		traversalTableIndex		Traversal table to use for checking if islands are linked together.
+	///  @param[in]		traverseTableIndex		Traverse table to use for checking if islands are linked together.
 	/// @return True if goal polygon is reachable from start polygon.
 	bool isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef,
-		const bool checkDisjointGroupsOnly, const int traversalTableIndex) const;
+		const bool checkDisjointGroupsOnly, const int traverseTableIndex) const;
 
 	/// Checks the validity of a polygon reference.
 	///  @param[in]	ref		The polygon reference to check.
@@ -636,17 +644,24 @@ public:
 	/// @return The specified off-mesh connection, or null if the polygon reference is not valid.
 	const dtOffMeshConnection* getOffMeshConnectionByRef(dtPolyRef ref) const;
 
-	/// The navigation mesh traversal tables.
-	int** getTraverseTables() const { return m_traversalTables; }
+	bool allocTraverseTables(const int count);
+	void freeTraverseTables();
+
+	/// The navigation mesh traverse tables.
+	int** getTraverseTables() const { return m_traverseTables; }
 	
 	/// Sets the traverse table slot.
 	///  @param[in]	index	The index of the traverse table.
 	///  @param[in]	table	The traverse table data.
 	void setTraverseTable(const int index, int* const table);
 
+	/// Sets the number of the traverse tables.
+	///  @param[in]	count	The number of the traverse tables.
+	void setTraverseTableCount(const int count) { m_params.traverseTableCount = count; }
+
 	/// Sets the size of the traverse table.
 	///  @param[in]	size	The size of the traverse table.
-	void setTraverseTableSize(const int size) { m_params.traversalTableSize = size; }
+	void setTraverseTableSize(const int size) { m_params.traverseTableSize = size; }
 
 	/// @}
 
@@ -805,7 +820,7 @@ private:
 	dtNavMesh& operator=(const dtNavMesh&);
 
 
-
+public:
 	/// Returns neighbour tile based on side.
 	int getTilesAt(const int x, const int y,
 		dtMeshTile** tiles, const int maxTiles) const;
@@ -814,6 +829,7 @@ private:
 	int getNeighbourTilesAt(const int x, const int y, const int side,
 		dtMeshTile** tiles, const int maxTiles) const;
 
+private:
 	/// Returns all polygons in neighbour tile based on portal defined by the segment.
 	int findConnectingPolys(const float* va, const float* vb,
 		const dtMeshTile* tile, int side,
@@ -849,7 +865,7 @@ private:
 	dtMeshTile** m_posLookup;			///< Tile hash lookup.
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
-	int** m_traversalTables;					///< Array of set tables.
+	int** m_traverseTables;				///< Array of traverse tables.
 
 	///< FIXME: unknown structure pointer, used for some wallrunning code, see [r5apex_ds + F12687] for usage.
 	///< See note at dtNavMeshParams::magicDataCount for buffer allocation.
@@ -875,20 +891,20 @@ private:
 	friend class dtNavMeshQuery;
 };
 
-/// Returns the cell index for the static traversal table.
+/// Returns the cell index for the static traverse table.
 ///  @param[in]	numPolyGroups	The total number of poly groups.
 ///  @param[in]	polyGroup1		The poly group ID of the first island.
 ///  @param[in]	polyGroup2		The poly group ID of the second island.
-///  @return The cell index for the static traversal table.
+///  @return The cell index for the static traverse table.
 ///  @ingroup detour
-int dtCalcTraversalTableCellIndex(const int numPolyGroups,
+int dtCalcTraverseTableCellIndex(const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2);
 
-/// Returns the total size needed for the static traversal table.
+/// Returns the total size needed for the static traverse table.
 ///  @param[in]	numPolyGroups	The total number of poly groups.
-///  @return the total size needed for the static traversal table.
+///  @return the total size needed for the static traverse table.
 ///  @ingroup detour
-int dtCalcTraversalTableSize(const int numPolyGroups);
+int dtCalcTraverseTableSize(const int numPolyGroups);
 
 /// Defines a navigation mesh tile data block.
 /// @ingroup detour

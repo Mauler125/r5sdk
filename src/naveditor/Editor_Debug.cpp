@@ -188,7 +188,7 @@ void Editor_Debug::handleRender()
 	}
 		
 	if (m_navMesh)
-		duDebugDrawNavMesh(&m_dd, *m_navMesh, m_detourDrawOffset, DU_DRAWNAVMESH_OFFMESHCONS);
+		duDebugDrawNavMesh(&m_dd, *m_navMesh, m_detourDrawOffset, DU_DRAWNAVMESH_OFFMESHCONS, m_traverseLinkParams);
 
 	if (m_ref && m_navMesh)
 		duDebugDrawNavMeshPoly(&m_dd, *m_navMesh, m_ref, m_detourDrawOffset, m_navMeshDrawFlags, duRGBA(255,0,0,128));

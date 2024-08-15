@@ -533,10 +533,10 @@ public:
 	///  @param[in]		fromRef		The reference to the start poly.
 	///  @param[in]		goalRef		The reference to the goal poly.
 	///  @param[in]		checkDisjointGroupsOnly	Whether to only check disjoint poly groups.
-	///  @param[in]		traversalTableIndex		Traversal table to use for checking if islands are linked together.
+	///  @param[in]		traverseTableIndex		Traverse table to use for checking if islands are linked together.
 	/// @return True if goal polygon is reachable from start polygon.
 	bool isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef,
-		const bool checkDisjointGroupsOnly, const int traversalTableIndex) const;
+		const bool checkDisjointGroupsOnly, const int traverseTableIndex) const;
 
 	/// Returns true if the polygon reference is valid and passes the filter restrictions.
 	///  @param[in]		ref			The polygon reference to check.
@@ -573,6 +573,26 @@ public:
 	///  @param[out]	mid			The mid point of the edge.
 	/// @returns The status flags for the query.
 	dtStatus getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
+							 float* mid) const;
+
+	/// Returns edge normal between two polygons.
+	///  @param[in]		from		The reference to the start poly.
+	///  @param[in]		to			The reference to the end poly.
+	///  @param[out]	norm		The normal of the edge.
+	/// @returns The status flags for the query.
+	dtStatus getEdgeNormal(dtPolyRef from, dtPolyRef to, float* norm) const;
+
+	/// Returns edge normal between two polygons.
+	///  @param[in]		from		The reference to the start poly.
+	///  @param[in]		fromPoly	The start poly.
+	///  @param[in]		fromTile	The start tile.
+	///  @param[in]		to			The reference to the end poly.
+	///  @param[in]		toPoly		The end poly.
+	///  @param[in]		toTile		The end tile.
+	///  @param[out]	norm		The normal point of the edge.
+	/// @returns The status flags for the query.
+	dtStatus getEdgeNormal(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
 							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 							 float* mid) const;
 	/// @}

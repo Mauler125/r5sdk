@@ -368,7 +368,7 @@ static int pointInPoly(int nvert, const float* verts, const float* p) // todo(am
 ///
 /// The value of spacial parameters are in world units.
 /// 
-/// The y-values of the polygon vertices are ignored. So the polygon is effectively 
+/// The z-values of the polygon vertices are ignored. So the polygon is effectively 
 /// projected onto the xy-plane at @p hmin, then extruded to @p hmax.
 /// 
 /// @see rcCompactHeightfield, rcMedianFilterWalkableArea

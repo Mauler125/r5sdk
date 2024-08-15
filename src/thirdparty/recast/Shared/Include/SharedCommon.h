@@ -139,6 +139,18 @@ inline void rdVmad(float* dest, const float* v1, const float* v2, const float s)
 	dest[2] = v1[2]+v2[2]*s;
 }
 
+/// Performs a scaled vector addition. ((@p v1 + @p v2) * @p s)
+///  @param[out]	dest	The result vector. [(x, y, z)]
+///  @param[in]		v1		The base vector. [(x, y, z)]
+///  @param[in]		v2		The vector to add to @p v1. [(x, y, z)]
+///  @param[in]		s		The amount to scale the addition result of @p v1 and @p v2.
+inline void rdVsad(float* dest, const float* v1, const float* v2, const float s)
+{
+	dest[0] = (v1[0]+v2[0])*s;
+	dest[1] = (v1[1]+v2[1])*s;
+	dest[2] = (v1[2]+v2[2])*s;
+}
+
 /// Performs a linear interpolation between two vectors. (@p v1 toward @p v2)
 ///  @param[out]	dest	The result vector. [(x, y, x)]
 ///  @param[in]		v1		The starting vector.
@@ -298,6 +310,15 @@ inline void rdVnormalize(float* v)
 	v[2] *= d;
 }
 
+/// Normalizes the vector on the xy-plane.
+///  @param[in,out]	v	The vector to normalize. [(x, y, z)]
+inline void rdVnormalize2D(float* v)
+{
+	float d = 1.0f / rdMathSqrtf(rdSqr(v[0]) + rdSqr(v[1]));
+	v[0] *= d;
+	v[1] *= d;
+}
+
 /// Performs a 'sloppy' collocation check of the specified points.
 ///  @param[in]		p0	A point. [(x, y, z)]
 ///  @param[in]		p1	A point. [(x, y, z)]
@@ -386,6 +407,12 @@ inline bool rdOverlapBounds(const float* amin, const float* amax,
 	return overlap;
 }
 
+/// Derives the slope angle from 2 points.
+///  @param[in]		v1	The start vector. [(x, y, z)]
+///  @param[in]		v2	The end vector. [(x, y, z)]
+/// @return The slope angle between the 2 points.
+float rdCalcSlopeAngle(const float* v1, const float* v2);
+
 /// Derives the closest point on a triangle from the specified reference point.
 ///  @param[out]	closest	The closest point on the triangle.	
 ///  @param[in]		p		The reference point from which to test. [(x, y, z)]
@@ -395,7 +422,7 @@ inline bool rdOverlapBounds(const float* amin, const float* amax,
 void rdClosestPtPointTriangle(float* closest, const float* p,
 							  const float* a, const float* b, const float* c);
 
-/// Derives the y-axis height of the closest point on the triangle from the specified reference point.
+/// Derives the z-axis height of the closest point on the triangle from the specified reference point.
 ///  @param[in]		p		The reference point from which to test. [(x, y, z)]
 ///  @param[in]		a		Vertex A of triangle ABC. [(x, y, z)]
 ///  @param[in]		b		Vertex B of triangle ABC. [(x, y, z)]
@@ -413,6 +440,35 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 						 float& s, float& t);
 
 float rdDistancePtLine2d(const float* pt, const float* p, const float* q);
+
+/// Derives the normal of an edge
+///  @param[in]		dir		The direction of the edge. [(x, y, z)]
+///  @param[in]		invert	Whether to invert the results.
+///  @param[out]	out		The resulting normal. [(x, y)]
+void rdCalcEdgeNormal2D(const float* dir, const bool inner, float* out);
+
+/// Derives the normal of an edge
+///  @param[in]		v1		First vert of the polygon edge. [(x, y, z)]
+///  @param[in]		v2		Second vert of the polygon edge. [(x, y, z)]
+///  @param[in]		invert	Whether to invert the results.
+///  @param[out]	out		The resulting normal. [(x, y)]
+void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool inner, float* out);
+
+/// Derives the maximum angle in which an object on an elevated surface can be seen from below.
+///  @param[in]		ledgeSpan		The distance between the edge of the object and the edge of the ledge.
+///  @param[in]		objectHeight	The height of the object.
+/// @return The maximum angle before LOS gets blocked.
+float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight);
+
+/// Determines the amount we need to offset an object to maintain LOS from an angle, with a maximum.
+///  @param[in]		ledgeSpan	The distance between the edge of the object and the edge of the ledge.
+///  @param[in]		slopeAngle	The slope angle to test.
+///  @param[in]		maxAngle	The maximum angle in degrees.
+/// @return The amount we need to offset to maintain LOS.
+float rdCalcLedgeSpanOffsetAmount(const float ledgeSpan, const float slopeAngle, const float maxAngle);
+
+unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax);
+unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax);
 
 /// Determines if the specified point is inside the convex polygon on the xy-plane.
 ///  @param[in]		pt		The point to check. [(x, y, z)]

@@ -115,28 +115,28 @@ inline int computeTileHash(int x, int y, const int mask)
 	return (int)(n & mask);
 }
 
-inline unsigned int allocLink(dtMeshTile* tile)
+unsigned int dtMeshTile::allocLink()
 {
-	if (tile->linksFreeList == DT_NULL_LINK)
+	if (linksFreeList == DT_NULL_LINK)
 		return DT_NULL_LINK;
-	unsigned int link = tile->linksFreeList;
-	tile->linksFreeList = tile->links[link].next;
+	unsigned int link = linksFreeList;
+	linksFreeList = links[link].next;
 	return link;
 }
 
-inline void freeLink(dtMeshTile* tile, unsigned int link)
+void dtMeshTile::freeLink(unsigned int link)
 {
-	tile->links[link].next = tile->linksFreeList;
-	tile->linksFreeList = link;
+	links[link].next = linksFreeList;
+	linksFreeList = link;
 }
 
-int dtCalcTraversalTableCellIndex(const int numPolyGroups,
+int dtCalcTraverseTableCellIndex(const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2)
 {
 	return polyGroup1*((numPolyGroups+(RD_BITS_PER_BIT_CELL-1))/RD_BITS_PER_BIT_CELL)+(polyGroup2/RD_BITS_PER_BIT_CELL);
 }
 
-int dtCalcTraversalTableSize(const int numPolyGroups)
+int dtCalcTraverseTableSize(const int numPolyGroups)
 {
 	return sizeof(int)*(numPolyGroups*((numPolyGroups+(RD_BITS_PER_BIT_CELL-1))/RD_BITS_PER_BIT_CELL));
 }
@@ -201,7 +201,7 @@ dtNavMesh::dtNavMesh() :
 	m_posLookup(0),
 	m_nextFree(0),
 	m_tiles(0),
-	m_traversalTables(0),
+	m_traverseTables(0),
 	m_someMagicData(0),
 	m_meshFlags(0),
 	m_tileFlags(0),
@@ -231,15 +231,7 @@ dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this c
 	rdFree(m_posLookup);
 	rdFree(m_tiles);
 
-	for (int i = 0; i < m_params.traversalTableCount; i++)
-	{
-		int* traversalTable = m_traversalTables[i];
-
-		if (traversalTable)
-			rdFree(traversalTable);
-	}
-
-	rdFree(m_traversalTables);
+	freeTraverseTables();
 }
 		
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
@@ -265,17 +257,11 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	memset(m_tiles, 0, sizeof(dtMeshTile) * m_maxTiles);
 	memset(m_posLookup, 0, sizeof(dtMeshTile*) * m_tileLutSize);
 
-	const int traversalTableCount = params->traversalTableCount;
-	if (traversalTableCount)
+	const int traverseTableCount = params->traverseTableCount;
+	if (traverseTableCount)
 	{
-		rdAssert(traversalTableCount > 0 && traversalTableCount <= DT_MAX_TRAVERSAL_TABLES);
-		const int setTableBufSize = sizeof(int**)*traversalTableCount;
-
-		m_traversalTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
-		if (!m_traversalTables)
+		if (!allocTraverseTables(params->traverseTableCount))
 			return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-		memset(m_traversalTables, 0, setTableBufSize);
 	}
 
 	m_nextFree = 0;
@@ -313,8 +299,8 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int tabl
 	params.maxTiles = 1;
 	params.maxPolys = header->polyCount;
 	params.polyGroupCount = 0;
-	params.traversalTableSize = 0;
-	params.traversalTableCount = tableCount;
+	params.traverseTableSize = 0;
+	params.traverseTableCount = tableCount;
 #if DT_NAVMESH_SET_VERSION >= 7
 	params.magicDataCount = 0;
 #endif
@@ -409,7 +395,7 @@ void dtNavMesh::unconnectLinks(dtMeshTile* tile, dtMeshTile* target)
 					poly->firstLink = nj;
 				else
 					tile->links[pj].next = nj;
-				freeLink(tile, j);
+				tile->freeLink(j);
 				j = nj;
 			}
 			else
@@ -453,7 +439,7 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 			int nnei = findConnectingPolys(va,vb, target, rdOppositeTile(dir), nei,neia,4);
 			for (int k = 0; k < nnei; ++k)
 			{
-				unsigned int idx = allocLink(tile);
+				unsigned int idx = tile->allocLink();
 				if (idx != DT_NULL_LINK)
 				{
 					dtLink* link = &tile->links[idx];
@@ -528,7 +514,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		rdVcopy(v, nearestPt);
 
 		// Link off-mesh connection to target poly.
-		unsigned int idx = allocLink(target);
+		unsigned int idx = target->allocLink();
 		dtLink* link = nullptr;
 		if (idx != DT_NULL_LINK)
 		{
@@ -550,7 +536,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		dtLink* tlink = nullptr;
 		if (targetCon->flags & DT_OFFMESH_CON_BIDIR)
 		{
-			tidx = allocLink(tile);
+			tidx = tile->allocLink();
 			if (tidx != DT_NULL_LINK)
 			{
 				const unsigned short landPolyIdx = (unsigned short)decodePolyIdPoly(ref);
@@ -568,25 +554,6 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				tlink->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 			}
 		}
-
-#if DT_NAVMESH_SET_VERSION == 5
-		// NOTE: this might not be correct; Titanfall 2 off-mesh link dtLink
-		// objects don't set these, however when setting these, the jump links
-		// do work. More research is needed, this might also be correct, just
-		// not the way they are done originally.
-		if (link && tlink)
-		{
-			const unsigned char linkDist = dtCalcLinkDistance(&targetCon->pos[0], &targetCon->pos[3]);
-
-			link->traverseType = targetCon->jumpType;
-			link->traverseDist = linkDist;
-			link->reverseLink = (unsigned short)tidx;
-
-			tlink->traverseType = targetCon->jumpType;
-			tlink->traverseDist = linkDist;
-			tlink->reverseLink = (unsigned short)idx;
-		}
-#endif
 	}
 }
 
@@ -611,7 +578,7 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 			// Skip hard and non-internal edges.
 			if (poly->neis[j] == 0 || (poly->neis[j] & DT_EXT_LINK)) continue;
 
-			unsigned int idx = allocLink(tile);
+			unsigned int idx = tile->allocLink();
 			if (idx != DT_NULL_LINK)
 			{
 				dtLink* link = &tile->links[idx];
@@ -657,7 +624,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		rdVcopy(v, nearestPt);
 
 		// Link off-mesh connection to target poly.
-		unsigned int idx = allocLink(tile);
+		unsigned int idx = tile->allocLink();
 		if (idx != DT_NULL_LINK)
 		{
 			dtLink* link = &tile->links[idx];
@@ -674,7 +641,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		}
 
 		// Start end-point is always connect back to off-mesh connection. 
-		unsigned int tidx = allocLink(tile);
+		unsigned int tidx = tile->allocLink();
 		if (tidx != DT_NULL_LINK)
 		{
 			const unsigned short landPolyIdx = (unsigned short)decodePolyIdPoly(ref);
@@ -1323,7 +1290,7 @@ void dtNavMesh::getTileAndPolyByRefUnsafe(const dtPolyRef ref, const dtMeshTile*
 }
 
 bool dtNavMesh::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goalRef, 
-	const bool checkDisjointGroupsOnly, const int traversalTableIndex) const
+	const bool checkDisjointGroupsOnly, const int traverseTableIndex) const
 {
 	// Same poly is always reachable.
 	if (fromRef == goalRef)
@@ -1340,26 +1307,26 @@ bool dtNavMesh::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goa
 	const unsigned short fromPolyGroupId = fromPoly->groupId;
 	const unsigned short goalPolyGroupId = goalPoly->groupId;
 
-	// If we don't have an anim type, then we shouldn't use the traversal tables
+	// If we don't have an anim type, then we shouldn't use the traverse tables
 	// since these are used for linking isolated poly islands together (which 
 	// requires jumping or some form of animation). So instead, check if we are
 	// on the same poly island.
 	if (checkDisjointGroupsOnly)
 		return fromPolyGroupId == goalPolyGroupId;
 
-	rdAssert(traversalTableIndex >= 0 && traversalTableIndex < m_params.traversalTableCount);
-	const int* const traversalTable = m_traversalTables[traversalTableIndex];
+	rdAssert(traverseTableIndex >= 0 && traverseTableIndex < m_params.traverseTableCount);
+	const int* const traverseTable = m_traverseTables[traverseTableIndex];
 
-	// Traversal table doesn't exist, attempt the path finding anyways (this is
+	// Traverse table doesn't exist, attempt the path finding anyways (this is
 	// a bug in the NavMesh, rebuild it!).
-	if (!traversalTable)
+	if (!traverseTable)
 		return true;
 
 	const int polyGroupCount = m_params.polyGroupCount;
-	const int fromPolyBitCell = traversalTable[dtCalcTraversalTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
+	const int fromPolyBitCell = traverseTable[dtCalcTraverseTableCellIndex(polyGroupCount, fromPolyGroupId, goalPolyGroupId)];
 
 	// Check if the bit corresponding to our goal poly is set, if it isn't then
-	// there are no available traversal links from the current poly to the goal.
+	// there are no available traverse links from the current poly to the goal.
 	return fromPolyBitCell & rdBitCellBit(goalPolyGroupId);
 }
 
@@ -1674,13 +1641,41 @@ const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(dtPolyRef ref) c
 	return &tile->offMeshCons[idx];
 }
 
+bool dtNavMesh::allocTraverseTables(const int count)
+{
+	rdAssert(count > 0 && count <= DT_MAX_TRAVERSE_TABLES);
+	const int setTableBufSize = sizeof(int**) * count;
+
+	m_traverseTables = (int**)rdAlloc(setTableBufSize, RD_ALLOC_PERM);
+	if (!m_traverseTables)
+		return false;
+
+	memset(m_traverseTables, 0, setTableBufSize);
+	return true;
+}
+
+void dtNavMesh::freeTraverseTables()
+{
+	for (int i = 0; i < m_params.traverseTableCount; i++)
+	{
+		int* traverseTable = m_traverseTables[i];
+
+		if (traverseTable)
+			rdFree(traverseTable);
+	}
+
+	rdFree(m_traverseTables);
+}
 
 void dtNavMesh::setTraverseTable(const int index, int* const table)
 {
-	rdAssert(index >= 0 && index < m_params.traversalTableCount);
-	rdAssert(m_traversalTables);
+	rdAssert(index >= 0 && index < m_params.traverseTableCount);
+	rdAssert(m_traverseTables);
 
-	m_traversalTables[index] = table;
+	if (m_traverseTables[index])
+		rdFree(m_traverseTables[index]);
+
+	m_traverseTables[index] = table;
 }
 
 dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)
@@ -1748,9 +1743,15 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	return DT_SUCCESS;
 }
 
-unsigned char dtCalcLinkDistance(const float* spos, const float* epos)
+float dtCalcLinkDistance(const float* spos, const float* epos)
 {
-	return (unsigned char)rdMathFloorf(rdVdist(spos, epos) * DT_TRAVERSE_DIST_QUANT_FACTOR);
+	return rdMathFabsf(rdVdist(spos, epos));
+}
+
+unsigned char dtQuantLinkDistance(const float distance)
+{
+	if (distance > DT_TRAVERSE_DIST_MAX) return (unsigned char)0;
+	return (unsigned char)(distance * DT_TRAVERSE_DIST_QUANT_FACTOR);
 }
 
 float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts)

@@ -131,7 +131,7 @@ public:
 
 	const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
 	const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : 0; }
-	bool raycastMesh(float* src, float* dst, float& tmin);
+	bool raycastMesh(const float* src, const float* dst, float* tmin = nullptr) const;
 
 	/// @name Off-Mesh connections.
 	///@{
