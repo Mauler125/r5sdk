@@ -419,7 +419,7 @@ struct TraverseType_s // todo(amos): move elsewhere
 	bool forceDifferentPolyGroup;
 };
 
-static TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move elsewhere
+static const TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move elsewhere
 {
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
@@ -446,10 +446,17 @@ static TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move 
 	{512, 1024, 21, 58, false, false}, //17
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+#if DT_NAVMESH_SET_VERSION > 5
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+#endif
 
 	{256, 640, 16, 40, false, false}, // Maps to type 19 in MSET 5
 	{640, 1024, 33, 199, false, false}, // Maps to type 20 in MSET 5
+
+#if DT_NAVMESH_SET_VERSION == 5
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+#endif
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
@@ -641,6 +648,24 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 	return true;
 }
 
+// TODO: this lookup table isn't correct, needs to be fixed.
+static const int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT] = {
+	0x0000013F, // ANIMTYPE_HUMAN
+	0x0000013F, // ANIMTYPE_SPECTRE
+#if DT_NAVMESH_SET_VERSION == 5
+	0x001BDF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
+	0x001BFFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
+#else
+	0x0033DF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
+	0x0033FFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
+#endif
+	0x0000013F, // ANIMTYPE_PILOT          // Unknown, but most likely the same as ANIMTYPE_HUMAN, this also doesn't exist for MSET 5
+	0x00033F87, // ANIMTYPE_PROWLER
+	0x00033F82, // ANIMTYPE_SUPER_SPECTRE
+	0000003000, // ANIMTYPE_TITAN
+	0000003000, // ANIMTYPE_GOLIATH // Doesn't exist in MSET 5
+};
+
 // TODO: create lookup table and look for distance + slope to determine the
 // correct jumpType.
 // TODO: make sure we don't generate duplicate pairs of jump types between
@@ -774,6 +799,15 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						if (traverseType == DT_NULL_TRAVERSE_TYPE)
 							continue;
 
+						if (m_selectedNavMeshType > NavMeshType_e::NAVMESH_SMALL)
+						{
+							const int traverseTableIndex = NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+							const bool traverseTypeSupported = rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[traverseTableIndex];
+
+							if (!traverseTypeSupported)
+								continue;
+						}
+
 						const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
 						float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
 						float* const higherEdgeMid = basePolyHigher ? basePolyEdgeMid : landPolyEdgeMid;
@@ -901,24 +935,6 @@ bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
 
 	return true;
 }
-
-// TODO: this lookup table isn't correct, needs to be fixed.
-static const int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT] = {
-	0x0000013F, // ANIMTYPE_HUMAN
-	0x0000013F, // ANIMTYPE_SPECTRE
-#if DT_NAVMESH_SET_VERSION == 5
-	0x001BDF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
-	0x001BFFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
-#else
-	0x0033DF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
-	0x0033FFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
-#endif
-	0x0000013F, // ANIMTYPE_PILOT          // Unknown, but most likely the same as ANIMTYPE_HUMAN, this also doesn't exist for MSET 5
-	0x00033F87, // ANIMTYPE_PROWLER
-	0x00033F82, // ANIMTYPE_SUPER_SPECTRE
-	0000003000, // ANIMTYPE_TITAN
-	0000003000, // ANIMTYPE_GOLIATH // Doesn't exist in MSET 5
-};
 
 static bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex)
 {
