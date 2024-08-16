@@ -200,7 +200,7 @@ struct dtTraverseTableCreateParams
 	int navMeshType;			///< The navmesh type [_small, _extra_large].
 
 	///< The user installed callback which is used to determine if an animType
-	/// an use this traverse link.
+	/// can use this traverse link.
 	bool (*canTraverse)(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex);
 };
 
