@@ -616,35 +616,112 @@ bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellI
 				float targetCellPos[3];
 				targetCellPos[0] = params->bmin[0]+j*stepX+offsetX;
 				targetCellPos[1] = params->bmin[1]+k*stepY;
-				targetCellPos[2] = params->bmax[2]; // note(amos): might need a better fallback, but so far this never failed.
+				targetCellPos[2] = params->bmax[2];
+
+				bool heightPointSet = false;
 
 				if (!rdPointInPolygon(targetCellPos, polyVerts, nv))
 					continue;
 
 				for (int l = 0; l < params->detailTriCount; ++l)
 				{
-					const unsigned char* t = &params->detailTris[(tb+l)*4];
+					const unsigned char* tris = &params->detailTris[(tb+l)*4];
 					float storage[3][3];
 					const float* v[3];
 
 					for (int m = 0; m < 3; ++m)
 					{
-						if (t[m] < nv)
+						if (tris[m] < nv)
 						{
 							for (int n = 0; n < 3; ++n)
 							{
-								storage[m][n] = params->bmin[n] + params->verts[p[t[m]]*3+n] * (n == 2 ? params->ch : params->cs);
+								storage[m][n] = params->bmin[n] + params->verts[p[tris[m]]*3+n] * (n == 2 ? params->ch : params->cs);
 							}
 							v[m] = storage[m];
 						}
 						else
 						{
-							v[m] = &params->detailVerts[(vb+t[m])*3];
+							v[m] = &params->detailVerts[(vb+tris[m])*3];
 						}
 					}
 
-					if (rdClosestHeightPointTriangle(targetCellPos, v[0],v[1],v[2], targetCellPos[2]))
+					if (rdClosestHeightPointTriangle(targetCellPos, v[0], v[1], v[2], targetCellPos[2]))
+					{
+						heightPointSet = true;
 						break;
+					}
+				}
+
+				// NOTE: this is very rare, but does happen when for example, our target pos
+				// is right on a poly edge; see call to closestPointOnDetailEdges in
+				// dtNavMesh::getPolyHeight. This is largely based on the implementation of
+				// closestPointOnDetailEdges.
+				if (!heightPointSet)
+				{
+					bool onlyBoundary = false;
+
+					float dmin = FLT_MAX;
+					float tmin = 0;
+					const float* pmin = 0;
+					const float* pmax = 0;
+
+					for (int l = 0; l < params->detailTriCount; l++)
+					{
+						const unsigned char* tris = &params->detailTris[(tb + l) * 4];
+
+						const int ANY_BOUNDARY_EDGE =
+							(DT_DETAIL_EDGE_BOUNDARY << 0) |
+							(DT_DETAIL_EDGE_BOUNDARY << 2) |
+							(DT_DETAIL_EDGE_BOUNDARY << 4);
+
+						if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
+							continue;
+
+						float storage[3][3];
+						const float* v[3];
+
+						for (int m = 0; m < 3; ++m)
+						{
+							if (tris[m] < nv)
+							{
+								for (int n = 0; n < 3; ++n)
+								{
+									storage[m][n] = params->bmin[n] + params->verts[p[tris[m]]*3+n] * (n == 2 ? params->ch : params->cs);
+								}
+								v[m] = storage[m];
+							}
+							else
+							{
+								v[m] = &params->detailVerts[(vb + tris[m]) * 3];
+							}
+						}
+
+						for (int m = 0, n = 2; m < 3; n = m++)
+						{
+							if ((dtGetDetailTriEdgeFlags(tris[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0 &&
+								(onlyBoundary || tris[n] < tris[m]))
+							{
+								// Only looking at boundary edges and this is internal, or
+								// this is an inner edge that we will see again or have already seen.
+								continue;
+							}
+
+							float t;
+							float d = rdDistancePtSegSqr2D(targetCellPos, v[n], v[m], t);
+							if (d < dmin)
+							{
+								dmin = d;
+								tmin = t;
+								pmin = v[n];
+								pmax = v[m];
+							}
+						}
+					}
+
+					float closest[3];
+					rdVlerp(closest, pmin, pmax, tmin);
+
+					targetCellPos[2] = closest[2];
 				}
 
 				cellItems.push_back({ targetCellPos[0],targetCellPos[1],targetCellPos[2], i });
