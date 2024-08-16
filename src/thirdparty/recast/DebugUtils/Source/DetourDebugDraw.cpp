@@ -273,6 +273,15 @@ static void drawTileCells(duDebugDraw* dd, const dtMeshTile* tile, const float* 
 #endif
 }
 
+static void drawTileBounds(duDebugDraw* dd, const dtMeshTile* tile, const float* offset)
+{
+	float bmin[3];
+	float bmax[3];
+
+	tile->getTightBounds(bmin, bmax);
+	duDebugDrawBoxWire(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f,offset);
+}
+
 static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams)
 {
@@ -340,7 +349,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		drawTileCells(dd, tile, offset);
 
 	if (flags & DU_DRAWNAVMESH_TILE_BOUNDS)
-		duDebugDrawBoxWire(dd, header->bmin[0], header->bmin[1], header->bmin[2], header->bmax[0], header->bmax[1], header->bmax[2], duRGBA(255,255,255,128), 1.0f, offset);
+		drawTileBounds(dd, tile, offset);
 
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
 	{
