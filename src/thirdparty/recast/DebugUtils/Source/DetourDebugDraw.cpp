@@ -168,7 +168,7 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			continue;
 
 		// Iterate through links in the poly.
-		for (int j = startPoly->firstLink; j != DT_NULL_LINK; j = tile->links[j].next)
+		for (unsigned int j = startPoly->firstLink; j != DT_NULL_LINK; j = tile->links[j].next)
 		{
 			const dtLink* link = &tile->links[j];
 
