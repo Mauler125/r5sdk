@@ -1341,6 +1341,7 @@ bool Editor::loadNavMesh(const char* path, const bool fullPath)
 	m_navQuery->init(m_navMesh, 2048);
 
 	m_loadedNavMeshType = m_selectedNavMeshType;
+	m_traverseLinkParams.traverseAnimType = -2;
 
 	if (m_tool)
 	{
