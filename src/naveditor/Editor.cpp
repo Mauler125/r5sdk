@@ -789,6 +789,10 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
 							continue;
 
+						const unsigned char landSide = linkToNeighbor
+							? rdClassifyPointOutsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax)
+							: rdClassifyPointInsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax);
+
 						const unsigned int forwardIdx = baseTile->allocLink();
 						const unsigned int reverseIdx = landTile->allocLink();
 
@@ -802,7 +806,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)m;
 						forwardLink->edge = (unsigned char)j;
-						forwardLink->side = (unsigned char)rdOppositeTile(baseSide);
+						forwardLink->side = landSide;
 						forwardLink->bmin = 0;
 						forwardLink->bmax = 255;
 						forwardLink->next = basePoly->firstLink;
