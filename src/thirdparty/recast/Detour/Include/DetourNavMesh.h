@@ -425,6 +425,8 @@ public:
 
 	bool linkCountAvailable(const int count) const;
 
+	void getTightBounds(float* bminOut, float* bmaxOut) const;
+
 	unsigned int salt;					///Counter describing modifications to the tile.
 
 	unsigned int linksFreeList;			///Index to the next free link.
