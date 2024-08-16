@@ -673,7 +673,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 			float basePolyEdgeMid[3];
 			rdVsad(basePolyEdgeMid, basePolySpos, basePolyEpos, 0.5f);
 
-			unsigned char side = (unsigned char)rdOppositeTile(rdClassifyPointInsideBounds(basePolyEdgeMid, baseTile->header->bmin, baseTile->header->bmax));
+			unsigned char side = rdClassifyPointInsideBounds(basePolyEdgeMid, baseTile->header->bmin, baseTile->header->bmax);
 			const int MAX_NEIS = 32; // Max neighbors
 
 			dtMeshTile* neis[MAX_NEIS];
@@ -800,7 +800,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)m;
 						forwardLink->edge = (unsigned char)j;
-						forwardLink->side = side;
+						forwardLink->side = (unsigned char)rdOppositeTile(side);
 						forwardLink->bmin = 0;
 						forwardLink->bmax = 255;
 						forwardLink->next = basePoly->firstLink;
@@ -813,7 +813,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						reverseLink->ref = m_navMesh->getPolyRefBase(baseTile) | (dtPolyRef)i;
 						reverseLink->edge = (unsigned char)n;
-						reverseLink->side = (unsigned char)rdOppositeTile(side);
+						reverseLink->side = side;
 						reverseLink->bmin = 0;
 						reverseLink->bmax = 255;
 						reverseLink->next = landPoly->firstLink;
