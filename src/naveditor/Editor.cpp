@@ -651,9 +651,10 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 	if (!baseTile->linkCountAvailable(linkToNeighbor ? 1 : 2))
 		return;
 
+	const dtMeshHeader* baseHeader = baseTile->header;
 	bool firstBaseTileLinkUsed = false;
 
-	for (int i = 0; i < baseTile->header->polyCount; ++i)
+	for (int i = 0; i < baseHeader->polyCount; ++i)
 	{
 		dtPoly* const basePoly = &baseTile->polys[i];
 
@@ -673,14 +674,14 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 			float basePolyEdgeMid[3];
 			rdVsad(basePolyEdgeMid, basePolySpos, basePolyEpos, 0.5f);
 
-			unsigned char side = rdClassifyPointInsideBounds(basePolyEdgeMid, baseTile->header->bmin, baseTile->header->bmax);
+			unsigned char baseSide = rdClassifyPointInsideBounds(basePolyEdgeMid, baseHeader->bmin, baseHeader->bmax);
 			const int MAX_NEIS = 32; // Max neighbors
 
 			dtMeshTile* neis[MAX_NEIS];
 			int nneis;
 
 			if (linkToNeighbor) // Retrieve the neighboring tiles on the side of our base poly edge.
-				nneis = m_navMesh->getNeighbourTilesAt(baseTile->header->x, baseTile->header->y, side, neis, MAX_NEIS);
+				nneis = m_navMesh->getNeighbourTilesAt(baseHeader->x, baseHeader->y, baseSide, neis, MAX_NEIS);
 			else
 			{
 				// Internal links.
@@ -704,9 +705,10 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 				if (!landTile->linkCountAvailable(1))
 					continue;
 
+				const dtMeshHeader* landHeader = landTile->header;
 				bool firstLandTileLinkUsed = false;
 
-				for (int m = 0; m < landTile->header->polyCount; ++m)
+				for (int m = 0; m < landHeader->polyCount; ++m)
 				{
 					dtPoly* const landPoly = &landTile->polys[m];
 
@@ -778,7 +780,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						float* const lowerEdgeDir = basePolyHigher ? landEdgeDir : baseEdgeDir;
 						float* const higherEdgeDir = basePolyHigher ? baseEdgeDir : landEdgeDir;
 
-						const float walkableRadius = basePolyHigher ? baseTile->header->walkableRadius : landTile->header->walkableRadius;
+						const float walkableRadius = basePolyHigher ? baseHeader->walkableRadius : landHeader->walkableRadius;
 
 						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
 						const float maxAngle = rdCalcMaxLOSAngle(walkableRadius, m_cellHeight);
@@ -800,7 +802,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)m;
 						forwardLink->edge = (unsigned char)j;
-						forwardLink->side = (unsigned char)rdOppositeTile(side);
+						forwardLink->side = (unsigned char)rdOppositeTile(baseSide);
 						forwardLink->bmin = 0;
 						forwardLink->bmax = 255;
 						forwardLink->next = basePoly->firstLink;
@@ -813,7 +815,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						reverseLink->ref = m_navMesh->getPolyRefBase(baseTile) | (dtPolyRef)i;
 						reverseLink->edge = (unsigned char)n;
-						reverseLink->side = side;
+						reverseLink->side = baseSide;
 						reverseLink->bmin = 0;
 						reverseLink->bmax = 255;
 						reverseLink->next = landPoly->firstLink;
