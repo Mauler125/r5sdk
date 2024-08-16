@@ -409,8 +409,8 @@ enum TraverseType_e // todo(amos): move elsewhere
 
 struct TraverseType_s // todo(amos): move elsewhere
 {
-	float minSlope; // todo(amos): use height difference instead of slope angles.
-	float maxSlope; // todo(amos): use height difference instead of slope angles.
+	float minElevation;
+	float maxElevation;
 
 	unsigned char minDist;
 	unsigned char maxDist;
@@ -423,38 +423,38 @@ static TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move 
 {
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{0.0f, 67.f, 2, 12, false, false },
-	{5.0f, 78.f, 5, 16, false, false },
-	{0.0f, 38.f, 11, 22, false, false },
+	{0, 32, 2, 12, false, false }, //1
+	{32, 40, 5, 16, false, false }, //2
+	{0, 16, 11, 22, false, false },//3
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{0.0f, 6.5f, 80, 107, false, true},
-	{19.0f, 84.0f, 7, 21, false, false},
-	{27.0f, 87.5f, 16, 45, false, false},
-	{44.0f, 89.5f, 33, 225, false, false},
-	{0.0f, 7.0f, 41, 79, false, false},
-	{2.2f, 47.0f, 41, 100, false, false},
-	{5.7f, 58.5f, 81, 179, false, false},
+	{0, 40, 80, 107, false, true},    //7
+	{40, 128, 7, 21, false, false},   //8
+	{128, 256, 16, 45, false, false},  //9
+	{256, 640, 33, 225, false, false}, //10
+	{0, 40, 41, 79, false, false},    //11
+	{128, 256, 41, 100, false, false},  //12
+	{256, 512, 81, 179, false, false},  //13
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{0.0f, 12.5f, 22, 41, false, false},
-	{4.6f, 53.0f, 21, 58, false, false},
+	{0, 64, 22, 41, false, false}, //16
+	{512, 1024, 21, 58, false, false}, //17
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{29.0f, 47.0f, 16, 40, false, false}, // Maps to type 19 in MSET 5
-	{46.5f, 89.0f, 33, 199, false, false}, // Maps to type 20 in MSET 5
+	{256, 640, 16, 40, false, false}, // Maps to type 19 in MSET 5
+	{640, 1024, 33, 199, false, false}, // Maps to type 20 in MSET 5
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{0.0f, 89.0f, 5, 251, false, false}, // Does not exist in MSET 5
+	{0, 0, 0, 0, false, false}, // Does not exist in MSET 5 ~ 8.
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
@@ -465,23 +465,23 @@ static TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 };
 
-TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char traverseDist, const bool samePolyGroup)
+TraverseType_e GetBestTraverseType(const float elevation, const unsigned char traverseDist, const bool samePolyGroup)
 {
 	TraverseType_e bestTraverseType = INVALID_TRAVERSE_TYPE;
 
-	for (int i = 0; i < NUM_TRAVERSE_TYPES; ++i)
+	for (int i = NUM_TRAVERSE_TYPES-1; i >= 0; --i)
 	{
 		const TraverseType_s& traverseType = s_traverseTypes[i];
 
 		// Skip unused types...
-		if (traverseType.minSlope == 0.0f && traverseType.maxSlope == 0.0f &&
+		if (traverseType.minElevation == 0.0f && traverseType.maxElevation == 0.0f &&
 			traverseType.minDist == 0 && traverseType.maxDist == 0)
 		{
 			continue;
 		}
 
-		if (slopeAngle < traverseType.minSlope ||
-			slopeAngle > traverseType.maxSlope)
+		if (elevation < traverseType.minElevation ||
+			elevation > traverseType.maxElevation)
 		{
 			continue;
 		}
@@ -506,10 +506,6 @@ TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char t
 
 	return bestTraverseType;
 }
-
-// todo(amos): find the best threshold...
-// todo(amos): use height difference instead of slope angles.
-#define TRAVERSE_OVERLAP_SLOPE_THRESHOLD 5.0f
 
 static bool polyEdgeFaceAgainst(const float* v1, const float* v2, const float* n1, const float* n2)
 {
@@ -768,11 +764,10 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						if (dotProduct > 0)
 							continue;
 
-						// todo(amos): should we use height difference instead of slope angles?
-						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
+						const float elevation = rdMathFabsf(basePolyEdgeMid[2]-landPolyEdgeMid[2]);
 						const bool samePolyGroup = basePoly->groupId == landPoly->groupId;
 
-						const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, quantDist, samePolyGroup);
+						const TraverseType_e traverseType = GetBestTraverseType(elevation, quantDist, samePolyGroup);
 
 						if (traverseType == DT_NULL_TRAVERSE_TYPE)
 							continue;
@@ -784,8 +779,8 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						float* const higherEdgeDir = basePolyHigher ? baseEdgeDir : landEdgeDir;
 
 						const float walkableRadius = basePolyHigher ? baseTile->header->walkableRadius : landTile->header->walkableRadius;
-						const float heightDiff = higherEdgeMid[2] - lowerEdgeMid[2];
 
+						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
 						const float maxAngle = rdCalcMaxLOSAngle(walkableRadius, m_cellHeight);
 						const float offsetAmount = rdCalcLedgeSpanOffsetAmount(walkableRadius, slopeAngle, maxAngle);
 
