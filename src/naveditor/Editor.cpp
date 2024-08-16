@@ -752,28 +752,24 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
 						rdVsub(landEdgeDir, landPolyEpos, landPolySpos);
 
-						// todo(amos): use height difference instead of slope angles.
+						const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
+
+						// Edges facing the same direction should not be linked.
+						// Doing so causes links to go through from underneath
+						// geometry. E.g. we have an HVAC on a roof, and we try
+						// to link our roof poly edge facing north to the edge
+						// of the poly on the HVAC also facing north, the link
+						// will go through the HVAC and thus cause the NPC to
+						// jump through it.
+						// Another case where this is necessary is when having
+						// a land edge that connects with the base edge, this
+						// prevents the algorithm from establishing a parallel
+						// traverse link.
+						if (dotProduct > 0)
+							continue;
+
+						// todo(amos): should we use height difference instead of slope angles?
 						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
-
-						if (slopeAngle < TRAVERSE_OVERLAP_SLOPE_THRESHOLD)
-						{
-							const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
-
-							// Edges facing the same direction should not be linked.
-							// Doing so causes links to go through from underneath
-							// geometry. E.g. we have an HVAC on a roof, and we try
-							// to link our roof poly edge facing north to the edge
-							// of the poly on the HVAC also facing north, the link
-							// will go through the HVAC and thus cause the NPC to
-							// jump through it.
-							// Another case where this is necessary is when having
-							// a land edge that connects with the base edge, this
-							// prevents the algorithm from establishing a parallel
-							// traverse link.
-							if (dotProduct > 0)
-								continue;
-						}
-
 						const bool samePolyGroup = basePoly->groupId == landPoly->groupId;
 
 						const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, quantDist, samePolyGroup);
@@ -791,7 +787,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						const float heightDiff = higherEdgeMid[2] - lowerEdgeMid[2];
 
 						const float maxAngle = rdCalcMaxLOSAngle(walkableRadius, m_cellHeight);
-						const float offsetAmount = rdCalcLedgeSpanOffsetAmount(walkableRadius/*+4.0f*/, slopeAngle, maxAngle);
+						const float offsetAmount = rdCalcLedgeSpanOffsetAmount(walkableRadius, slopeAngle, maxAngle);
 
 						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
 							continue;
