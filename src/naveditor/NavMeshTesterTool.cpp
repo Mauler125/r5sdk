@@ -199,7 +199,7 @@ void NavMeshTesterTool::init(Editor* editor)
 		m_filter.setAreaCost(EDITOR_POLYAREA_GROUND, 1.0f);
 		m_filter.setAreaCost(EDITOR_POLYAREA_JUMP, 1.5f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_ROAD, 1.0f);
-		m_filter.setAreaCost(EDITOR_POLYAREA_DOOR, 1.0f);
+		m_filter.setAreaCost(EDITOR_POLYAREA_TRIGGER, 1.0f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_GRASS, 2.0f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_WATER, 10.0f);
 	}
@@ -394,27 +394,11 @@ void NavMeshTesterTool::handleMenu()
 		recalc();
 	}
 
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_JUMP) != 0;
+	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_SKIP) != 0;
 
-	if (ImGui::Checkbox("Jump##IncludeFlags", &isEnabled))
+	if (ImGui::Checkbox("Skip##IncludeFlags", &isEnabled))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_JUMP);
-		recalc();
-	}
-
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_DOOR) != 0;
-
-	if (ImGui::Checkbox("Door##IncludeFlags", &isEnabled))
-	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_DOOR);
-		recalc();
-	}
-
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_SWIM) != 0;
-
-	if (ImGui::Checkbox("Swim##IncludeFlags", &isEnabled))
-	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_SWIM);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_SKIP);
 		recalc();
 	}
 
@@ -433,27 +417,11 @@ void NavMeshTesterTool::handleMenu()
 		recalc();
 	}
 
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_JUMP) != 0;
+	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_SKIP) != 0;
 
-	if (ImGui::Checkbox("Jump##ExcludeFlags", &isEnabled))
+	if (ImGui::Checkbox("Skip##ExcludeFlags", &isEnabled))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_JUMP);
-		recalc();
-	}
-
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_DOOR) != 0;
-
-	if (ImGui::Checkbox("Door##ExcludeFlags", &isEnabled))
-	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_DOOR);
-		recalc();
-	}
-
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_SWIM) != 0;
-
-	if (ImGui::Checkbox("Swim##ExcludeFlags", &isEnabled))
-	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_SWIM);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_SKIP);
 		recalc();
 	}
 

@@ -189,7 +189,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 			//{
 			//	polyFlags[i] = EDITOR_POLYFLAGS_SWIM;
 			//}
-			else if (polyAreas[i] == EDITOR_POLYAREA_DOOR)
+			else if (polyAreas[i] == EDITOR_POLYAREA_TRIGGER)
 			{
 				polyFlags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}

@@ -42,7 +42,7 @@ unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 	// Jump : purple
 	case EDITOR_POLYAREA_JUMP: return duRGBA(255, 0, 255, 255);
 	// Trigger : light green
-	case EDITOR_POLYAREA_DOOR: return duRGBA(20, 245, 0, 255);
+	case EDITOR_POLYAREA_TRIGGER: return duRGBA(20, 245, 0, 255);
 	// Unexpected : white
 	default: return duRGBA(255, 255, 255, 255);
 	}
