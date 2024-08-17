@@ -680,7 +680,7 @@ namespace VScriptCode
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
                 v_SQVM_ScriptError("Failed to retrieve 'player_oid' parameter.");
                 sq_pushinteger(v, -1);
-                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
             const char* statsJson = LOGGER::GetPlayerJsonData(player_oid);
@@ -775,8 +775,10 @@ namespace VScriptCode
             if (SQ_SUCCEEDED(sq_getstring(v, 2, &player_oid)) && player_oid)
             {
                 LOGGER::TaskManager::getInstance().ResetPlayerStats(player_oid);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
-            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+            
+            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
 
 
@@ -793,8 +795,11 @@ namespace VScriptCode
 
                 std::string settings = LOGGER::FetchGlobalSettings(query);
                 sq_pushstring(v, settings.c_str(), -1);
+                
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
-            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+            
+            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
 
 
@@ -811,8 +816,10 @@ namespace VScriptCode
             {
                 const char* setting_value = LOGGER::GetSetting(setting_key);
                 sq_pushstring(v, setting_value, -1);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
-            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
 
 
@@ -854,6 +861,11 @@ namespace VScriptCode
             if (!g_pServer->IsActive())
             {
                 SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+                
+                //return array with -1 at element[0]
+                sq_newarray(v, 0);
+                sq_pushinteger(v, -1);
+                sq_arrayappend(v, -2);
             }
 
             const SQChar* ImmutableName = nullptr;
