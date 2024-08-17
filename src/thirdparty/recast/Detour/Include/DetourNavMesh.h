@@ -302,7 +302,7 @@ struct dtCell
 	float pos[3];					///< The position of the cell.
 	unsigned int polyIndex;			///< The index of the poly this cell is on.
 	unsigned char pad;				
-	unsigned char occupystate[4];	///< The occupation state of this cell, -1 means not occupied. See [r5apex_ds + 0xEF86C9].
+	unsigned char occupyState[4];	///< The occupation state of this cell, -1 means not occupied. See [r5apex_ds + 0xEF86C9].
 
 #if DT_NAVMESH_SET_VERSION >= 9
 	unsigned char data[27]; // TODO: reverse this, always appears 0.

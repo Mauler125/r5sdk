@@ -1166,6 +1166,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 
 		rdVcopy(cell.pos, cellItem.pos);
 		cell.polyIndex = cellItem.polyIndex;
+
+		int* state = (int*)((uintptr_t)&cell.occupyState & ~0x3);
+		*state = -1;
 	}
 #endif
 
