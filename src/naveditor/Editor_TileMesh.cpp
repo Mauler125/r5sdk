@@ -56,12 +56,21 @@ class NavMeshTileTool : public EditorTool
 
 	enum TextOverlayDrawMode
 	{
-		TO_DRAW_DISABLED = -1,
-		TO_DRAW_POLY_GROUPS,
-		TO_DRAW_POLY_SURF_AREAS
+		TO_DRAW_MODE_DISABLED = -1,
+		TO_DRAW_MODE_POLY_FLAGS,
+		TO_DRAW_MODE_POLY_GROUPS,
+		TO_DRAW_MODE_POLY_SURF_AREAS
 	};
 
 	TextOverlayDrawMode m_textOverlayDrawMode;
+
+	enum TextOverlayDrawFlags
+	{
+		TO_DRAW_FLAGS_NONE = 1 << 0,
+		TO_DRAW_FLAGS_INDICES = 1 << 1
+	};
+
+	int m_textOverlayDrawFlags;
 
 	char m_polyRefTextInput[MAX_POLYREF_CHARS];
 	bool m_hitPosSet;
@@ -73,7 +82,8 @@ public:
 		m_navMesh(0),
 		m_selectedTraverseType(-2),
 		m_markedPolyRef(0),
-		m_textOverlayDrawMode(TO_DRAW_DISABLED),
+		m_textOverlayDrawMode(TO_DRAW_MODE_DISABLED),
+		m_textOverlayDrawFlags(TO_DRAW_FLAGS_NONE),
 		m_hitPosSet(false)
 	{
 		rdVset(m_hitPos, 0.0f,0.0f,0.0f);
@@ -111,11 +121,17 @@ public:
 		ImGui::Separator();
 		ImGui::Text("Debug Options");
 
-		if (ImGui::RadioButton("Show Poly Groups", m_textOverlayDrawMode == TO_DRAW_POLY_GROUPS))
-			toggleTextOverlayDrawMode(TO_DRAW_POLY_GROUPS);
+		if (ImGui::RadioButton("Show Poly Flags", m_textOverlayDrawMode == TO_DRAW_MODE_POLY_FLAGS))
+			toggleTextOverlayDrawMode(TO_DRAW_MODE_POLY_FLAGS);
 
-		if (ImGui::RadioButton("Show Poly Surface Areas", m_textOverlayDrawMode == TO_DRAW_POLY_SURF_AREAS))
-			toggleTextOverlayDrawMode(TO_DRAW_POLY_SURF_AREAS);
+		if (ImGui::RadioButton("Show Poly Groups", m_textOverlayDrawMode == TO_DRAW_MODE_POLY_GROUPS))
+			toggleTextOverlayDrawMode(TO_DRAW_MODE_POLY_GROUPS);
+
+		if (ImGui::RadioButton("Show Poly Surface Areas", m_textOverlayDrawMode == TO_DRAW_MODE_POLY_SURF_AREAS))
+			toggleTextOverlayDrawMode(TO_DRAW_MODE_POLY_SURF_AREAS);
+
+		if (ImGui::RadioButton("Show Tile And Poly Indices", m_textOverlayDrawFlags & TO_DRAW_FLAGS_INDICES))
+			toggleTextOverlayDrawFlags(TO_DRAW_FLAGS_INDICES);
 
 		if (m_navMesh)
 		{
@@ -238,7 +254,7 @@ public:
 			ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter, ImVec2((float)x, h-((float)y-25)), ImVec4(0,0,0,0.8f), "(%d,%d)", tx,ty);
 		}
 
-		if (m_navMesh && m_textOverlayDrawMode != TO_DRAW_DISABLED)
+		if (m_navMesh && m_textOverlayDrawMode != TO_DRAW_MODE_DISABLED)
 		{
 			for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
 			{
@@ -250,12 +266,30 @@ public:
 					const dtPoly* poly = &tile->polys[j];
 					unsigned short value = 0;
 
+					const float* pos;
+					if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+					{
+						const unsigned int ip = (unsigned int)(poly - tile->polys);
+						dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
+
+						// Render on end position to prevent clutter, because
+						// we already render ref positions on the start pos.
+						pos = &con->pos[3];
+					}
+					else
+					{
+						pos = poly->center;
+					}
+
 					switch (m_textOverlayDrawMode)
 					{
-					case TO_DRAW_POLY_GROUPS:
+					case TO_DRAW_MODE_POLY_FLAGS:
+						value = poly->flags;
+						break;
+					case TO_DRAW_MODE_POLY_GROUPS:
 						value = poly->groupId;
 						break;
-					case TO_DRAW_POLY_SURF_AREAS:
+					case TO_DRAW_MODE_POLY_SURF_AREAS:
 						value = poly->surfaceArea;
 						break;
 					default:
@@ -263,11 +297,15 @@ public:
 						rdAssert(0);
 					}
 
-					if (gluProject((GLdouble)poly->center[0]+drawOffset[0], (GLdouble)poly->center[1]+drawOffset[1], (GLdouble)poly->center[2]+drawOffset[2]+30,
+					if (gluProject((GLdouble)pos[0]+drawOffset[0], (GLdouble)pos[1]+drawOffset[1], (GLdouble)pos[2]+drawOffset[2]+30,
 						model, proj, view, &x, &y, &z))
 					{
+						const char* format = (m_textOverlayDrawFlags & TO_DRAW_FLAGS_INDICES)
+							? "%hu (%d,%d)"
+							: "%hu";
+
 						ImGui_RenderText(ImGuiTextAlign_e::kAlignCenter,
-							ImVec2((float)x, h - (float)y), ImVec4(0, 0, 0, 0.8f), "%hu (%d,%d)", value, i, j);
+							ImVec2((float)x, h - (float)y), ImVec4(0, 0, 0, 0.8f), format, value, i, j);
 					}
 				}
 
@@ -293,9 +331,11 @@ public:
 	void toggleTextOverlayDrawMode(const TextOverlayDrawMode drawMode)
 	{
 		m_textOverlayDrawMode == drawMode
-			? m_textOverlayDrawMode = TO_DRAW_DISABLED
+			? m_textOverlayDrawMode = TO_DRAW_MODE_DISABLED
 			: m_textOverlayDrawMode = drawMode;
 	}
+
+	void toggleTextOverlayDrawFlags(unsigned int flag) { m_textOverlayDrawFlags ^= flag; }
 };
 #undef STR_TO_ID
 
@@ -1037,9 +1077,9 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			//{
 			//	m_pmesh->flags[i] = EDITOR_POLYFLAGS_SWIM;
 			//}
-			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_DOOR)
+			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_TRIGGER)
 			{
-				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK | EDITOR_POLYFLAGS_DOOR;
+				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
 		}
 		

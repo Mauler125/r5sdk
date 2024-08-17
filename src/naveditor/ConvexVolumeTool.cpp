@@ -131,9 +131,9 @@ void ConvexVolumeTool::handleMenu()
 	if (ImGui::Checkbox("Clip", &isEnabled))
 		m_areaType = RC_NULL_AREA;
 
-	isEnabled = m_areaType == EDITOR_POLYAREA_DOOR;
+	isEnabled = m_areaType == EDITOR_POLYAREA_TRIGGER;
 	if (ImGui::Checkbox("Trigger", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_DOOR;
+		m_areaType = EDITOR_POLYAREA_TRIGGER; // todo(amos): also allow setting flags and store this in .gset.
 
 	ImGui::Unindent();
 
