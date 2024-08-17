@@ -510,3 +510,4 @@ static ConVar serverbrowser_gamemodeFilter("serverbrowser_gamemodeFilter", "0", 
 static ConVar promo_version_accepted("promo_version_accepted", "0", FCVAR_RELEASE, "The accepted promo version.");
 
 static ConVar player_setting_damage_closes_deathbox_menu("player_setting_damage_closes_deathbox_menu", "1", FCVAR_ARCHIVE | FCVAR_RELEASE, "Controls whether death box automatically closes when taking damage (used for menus).");
+static ConVar show_motd_on_server_first_join("show_motd_on_server_first_join", "0", FCVAR_ARCHIVE | FCVAR_RELEASE, "Controls whether or not the server message of the day shows on first join for that server.");
