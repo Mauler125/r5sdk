@@ -130,6 +130,59 @@ void dtMeshTile::freeLink(unsigned int link)
 	linksFreeList = link;
 }
 
+bool dtMeshTile::linkCountAvailable(const int count) const
+{
+	rdAssert(count > 0);
+	unsigned int link = linksFreeList;
+
+	if (link == DT_NULL_LINK)
+		return false;
+
+	for (int i = 1; i < count; i++)
+	{
+		link = links[link].next;
+
+		if (link == DT_NULL_LINK)
+			return false;
+	}
+
+	return true;
+}
+
+void dtMeshTile::getTightBounds(float* bminOut, float* bmaxOut) const
+{
+	float hmin = FLT_MAX;
+	float hmax = -FLT_MAX;
+
+	if (detailVerts && header->detailVertCount)
+	{
+		for (int i = 0; i < header->detailVertCount; ++i)
+		{
+			const float h = detailVerts[i*3+2];
+			hmin = rdMin(hmin, h);
+			hmax = rdMax(hmax, h);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < header->vertCount; ++i)
+		{
+			const float h = verts[i*3+2];
+			hmin = rdMin(hmin, h);
+			hmax = rdMax(hmax, h);
+		}
+	}
+
+	hmin -= header->walkableClimb;
+	hmax += header->walkableClimb;
+
+	rdVcopy(bminOut, header->bmin);
+	rdVcopy(bmaxOut, header->bmax);
+
+	bminOut[2] = hmin;
+	bmaxOut[2] = hmax;
+}
+
 int dtCalcTraverseTableCellIndex(const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2)
 {

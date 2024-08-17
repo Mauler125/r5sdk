@@ -22,6 +22,7 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 
 	rdTempVector<unsigned char> distanceVec;
 	rdTempVector<float> slopeVec;
+	rdTempVector<float> elevationVec;
 
 	int totTraverseLinkCount = 0;
 	const int tileCount = mesh.getTileCount();
@@ -44,7 +45,7 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 				continue;
 
 			// Iterate through links in the poly.
-			for (int k = startPoly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+			for (unsigned int k = startPoly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
 			{
 				const dtLink* link = &tile->links[k];
 
@@ -83,9 +84,10 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 				query->getEdgeMidPoint(mesh.getPolyRefBase(tile) | (dtPolyRef)j, link->ref, startPos);
 				query->getEdgeMidPoint(link->ref, mesh.getPolyRefBase(tile) | (dtPolyRef)j, endPos);
 
-				// note(amos): the lowest slope is the highest slope in reverse
-				// as we always have a reverse link; store the absolute value!!
-				const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPos, endPos));
+				// note(amos): the lowest is the highest in reverse as we
+				// always have a reverse link; store the absolute value!!
+				const float slope = rdMathFabsf(rdCalcSlopeAngle(startPos, endPos));
+				const float elevation = rdMathFabsf(startPos[2] - endPos[2]);
 
 				//const bool hasReverseLink = link->reverseLink != DT_NULL_TRAVERSE_REVERSE_LINK;
 
@@ -95,7 +97,9 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 				io->write(buf, bufCount);
 				bufCount = snprintf(buf, sizeof(buf), "\t\tendPos: <%g, %g, %g>\n", endPos[0], endPos[1], endPos[2]);
 				io->write(buf, bufCount);
-				bufCount = snprintf(buf, sizeof(buf), "\t\tslopeAngle: %g\n", slopeAngle);
+				bufCount = snprintf(buf, sizeof(buf), "\t\tslope: %g\n", slope);
+				io->write(buf, bufCount);
+				bufCount = snprintf(buf, sizeof(buf), "\t\televation: %g\n", elevation);
 				io->write(buf, bufCount);
 				bufCount = snprintf(buf, sizeof(buf), "\t\ttraverseType: %hhu\n", link->traverseType);
 				io->write(buf, bufCount);
@@ -107,7 +111,8 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 				io->write("\t}\n", 3);
 
 				distanceVec.push_back(link->traverseDist);
-				slopeVec.push_back(slopeAngle);
+				slopeVec.push_back(slope);
+				elevationVec.push_back(elevation);
 
 				totTraverseLinkCount++;
 			}
@@ -119,23 +124,24 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 
 	std::sort(distanceVec.begin(), distanceVec.end());
 	std::sort(slopeVec.begin(), slopeVec.end());
+	std::sort(elevationVec.begin(), elevationVec.end());
 
 	if (distanceVec.size() > 0)
 	{
-		const int lowestDist = distanceVec[0];
-		const int highestDist = distanceVec[distanceVec.size()-1];
+		const int lowestDistance = distanceVec[0];
+		const int highestDistance = distanceVec[distanceVec.size()-1];
 
-		bufCount = snprintf(buf, sizeof(buf), "lowestDist: %d\n", lowestDist);
+		bufCount = snprintf(buf, sizeof(buf), "lowestDistance: %d\n", lowestDistance);
 		io->write(buf, bufCount);
 
-		bufCount = snprintf(buf, sizeof(buf), "highestDist: %d\n", highestDist);
+		bufCount = snprintf(buf, sizeof(buf), "highestDistance: %d\n", highestDistance);
 		io->write(buf, bufCount);
 	}
 
 	if (slopeVec.size() > 0)
 	{
 		const float lowestSlope = slopeVec[0];
-		const float highestSlope = slopeVec[slopeVec.size()-1];
+		const float highestSlope = slopeVec[slopeVec.size() - 1];
 
 		bufCount = snprintf(buf, sizeof(buf), "lowestSlope: %g\n", lowestSlope);
 		io->write(buf, bufCount);
@@ -144,7 +150,19 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 		io->write(buf, bufCount);
 	}
 
-	bufCount = snprintf(buf, sizeof(buf), "totalLinkCount: %d\n", totTraverseLinkCount);
+	if (elevationVec.size() > 0)
+	{
+		const float lowestElevation = elevationVec[0];
+		const float highestElevation = elevationVec[elevationVec.size()-1];
+
+		bufCount = snprintf(buf, sizeof(buf), "lowestElevation: %g\n", lowestElevation);
+		io->write(buf, bufCount);
+
+		bufCount = snprintf(buf, sizeof(buf), "highestElevation: %g\n", highestElevation);
+		io->write(buf, bufCount);
+	}
+
+	bufCount = snprintf(buf, sizeof(buf), "traverseLinkCount: %d\n", totTraverseLinkCount);
 	io->write(buf, bufCount);
 
 	return true;

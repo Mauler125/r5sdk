@@ -409,8 +409,8 @@ enum TraverseType_e // todo(amos): move elsewhere
 
 struct TraverseType_s // todo(amos): move elsewhere
 {
-	float minSlope; // todo(amos): use height difference instead of slope angles.
-	float maxSlope; // todo(amos): use height difference instead of slope angles.
+	float minElevation;
+	float maxElevation;
 
 	unsigned char minDist;
 	unsigned char maxDist;
@@ -419,42 +419,49 @@ struct TraverseType_s // todo(amos): move elsewhere
 	bool forceDifferentPolyGroup;
 };
 
-static TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move elsewhere
+static const TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move elsewhere
 {
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{0.0f, 67.f, 2, 12, false, false },
-	{5.0f, 78.f, 5, 16, false, false },
-	{0.0f, 38.f, 11, 22, false, false },
+	{0, 32, 2, 12, false, false }, //1
+	{32, 40, 5, 16, false, false }, //2
+	{0, 16, 11, 22, false, false },//3
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{0.0f, 6.5f, 80, 107, false, true},
-	{19.0f, 84.0f, 7, 21, false, false},
-	{27.0f, 87.5f, 16, 45, false, false},
-	{44.0f, 89.5f, 33, 225, false, false},
-	{0.0f, 7.0f, 41, 79, false, false},
-	{2.2f, 47.0f, 41, 100, false, false},
-	{5.7f, 58.5f, 81, 179, false, false},
+	{0, 40, 80, 107, false, true},    //7
+	{40, 128, 7, 21, false, false},   //8
+	{128, 256, 16, 45, false, false},  //9
+	{256, 640, 33, 225, false, false}, //10
+	{0, 40, 41, 79, false, false},    //11
+	{128, 256, 41, 100, false, false},  //12
+	{256, 512, 81, 179, false, false},  //13
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{0.0f, 12.5f, 22, 41, false, false},
-	{4.6f, 53.0f, 21, 58, false, false},
+	{0, 64, 22, 41, false, false}, //16
+	{512, 1024, 21, 58, false, false}, //17
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+#if DT_NAVMESH_SET_VERSION > 5
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+#endif
+
+	{256, 640, 16, 40, false, false}, // Maps to type 19 in MSET 5
+	{640, 1024, 33, 199, false, false}, // Maps to type 20 in MSET 5
+
+#if DT_NAVMESH_SET_VERSION == 5
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+#endif
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 
-	{29.0f, 47.0f, 16, 40, false, false}, // Maps to type 19 in MSET 5
-	{46.5f, 89.0f, 33, 199, false, false}, // Maps to type 20 in MSET 5
-
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-
-	{0.0f, 89.0f, 5, 251, false, false}, // Does not exist in MSET 5
+	{0, 0, 0, 0, false, false}, // Does not exist in MSET 5 ~ 8.
 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
@@ -465,23 +472,23 @@ static TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move 
 	{0.0f, 0.0f, 0, 0, false, false}, // Unused
 };
 
-TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char traverseDist, const bool samePolyGroup)
+TraverseType_e GetBestTraverseType(const float elevation, const unsigned char traverseDist, const bool samePolyGroup)
 {
 	TraverseType_e bestTraverseType = INVALID_TRAVERSE_TYPE;
 
-	for (int i = 0; i < NUM_TRAVERSE_TYPES; ++i)
+	for (int i = NUM_TRAVERSE_TYPES-1; i >= 0; --i)
 	{
 		const TraverseType_s& traverseType = s_traverseTypes[i];
 
 		// Skip unused types...
-		if (traverseType.minSlope == 0.0f && traverseType.maxSlope == 0.0f &&
+		if (traverseType.minElevation == 0.0f && traverseType.maxElevation == 0.0f &&
 			traverseType.minDist == 0 && traverseType.maxDist == 0)
 		{
 			continue;
 		}
 
-		if (slopeAngle < traverseType.minSlope ||
-			slopeAngle > traverseType.maxSlope)
+		if (elevation < traverseType.minElevation ||
+			elevation > traverseType.maxElevation)
 		{
 			continue;
 		}
@@ -506,10 +513,6 @@ TraverseType_e GetBestTraverseType(const float slopeAngle, const unsigned char t
 
 	return bestTraverseType;
 }
-
-// todo(amos): find the best threshold...
-// todo(amos): use height difference instead of slope angles.
-#define TRAVERSE_OVERLAP_SLOPE_THRESHOLD 5.0f
 
 static bool polyEdgeFaceAgainst(const float* v1, const float* v2, const float* n1, const float* n2)
 {
@@ -645,13 +648,38 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 	return true;
 }
 
+// TODO: this lookup table isn't correct, needs to be fixed.
+static const int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT] = {
+	0x0000013F, // ANIMTYPE_HUMAN
+	0x0000013F, // ANIMTYPE_SPECTRE
+#if DT_NAVMESH_SET_VERSION == 5
+	0x001BDF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
+	0x001BFFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
+#else
+	0x0033DF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
+	0x0033FFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
+#endif
+	0x0000013F, // ANIMTYPE_PILOT          // Unknown, but most likely the same as ANIMTYPE_HUMAN, this also doesn't exist for MSET 5
+	0x00033F87, // ANIMTYPE_PROWLER
+	0x00033F82, // ANIMTYPE_SUPER_SPECTRE
+	0000003000, // ANIMTYPE_TITAN
+	0000003000, // ANIMTYPE_GOLIATH // Doesn't exist in MSET 5
+};
+
 // TODO: create lookup table and look for distance + slope to determine the
 // correct jumpType.
 // TODO: make sure we don't generate duplicate pairs of jump types between
 // 2 polygons.
 void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor)
 {
-	for (int i = 0; i < baseTile->header->polyCount; ++i)
+	// If we link to the same tile, we need at least 2 links.
+	if (!baseTile->linkCountAvailable(linkToNeighbor ? 1 : 2))
+		return;
+
+	const dtMeshHeader* baseHeader = baseTile->header;
+	bool firstBaseTileLinkUsed = false;
+
+	for (int i = 0; i < baseHeader->polyCount; ++i)
 	{
 		dtPoly* const basePoly = &baseTile->polys[i];
 
@@ -671,14 +699,14 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 			float basePolyEdgeMid[3];
 			rdVsad(basePolyEdgeMid, basePolySpos, basePolyEpos, 0.5f);
 
-			unsigned char side = (unsigned char)rdOppositeTile(rdClassifyPointInsideBounds(basePolyEdgeMid, baseTile->header->bmin, baseTile->header->bmax));
+			unsigned char baseSide = rdClassifyPointInsideBounds(basePolyEdgeMid, baseHeader->bmin, baseHeader->bmax);
 			const int MAX_NEIS = 32; // Max neighbors
 
 			dtMeshTile* neis[MAX_NEIS];
 			int nneis;
 
 			if (linkToNeighbor) // Retrieve the neighboring tiles on the side of our base poly edge.
-				nneis = m_navMesh->getNeighbourTilesAt(baseTile->header->x, baseTile->header->y, side, neis, MAX_NEIS);
+				nneis = m_navMesh->getNeighbourTilesAt(baseHeader->x, baseHeader->y, baseSide, neis, MAX_NEIS);
 			else
 			{
 				// Internal links.
@@ -689,11 +717,23 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 			for (int k = 0; k < nneis; ++k)
 			{
 				dtMeshTile* landTile = neis[k];
-				const bool external = baseTile != landTile;
+				const bool sameTile = baseTile == landTile;
 
-				if (!external && i == k) continue; // Skip self
+				// Don't connect to same tile edges yet, leave that for the second pass.
+				if (linkToNeighbor && sameTile)
+					continue;
 
-				for (int m = 0; m < landTile->header->polyCount; ++m)
+				// Skip same polygon.
+				if (sameTile && i == k)
+					continue;
+
+				if (!landTile->linkCountAvailable(1))
+					continue;
+
+				const dtMeshHeader* landHeader = landTile->header;
+				bool firstLandTileLinkUsed = false;
+
+				for (int m = 0; m < landHeader->polyCount; ++m)
 				{
 					dtPoly* const landPoly = &landTile->polys[m];
 
@@ -704,6 +744,19 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 					{
 						if (landPoly->neis[n] != 0)
 							continue;
+
+						// We need at least 2 links available, figure out if
+						// we link to the same tile or another one.
+						if (linkToNeighbor)
+						{
+							if (firstLandTileLinkUsed && !landTile->linkCountAvailable(1))
+								continue;
+
+							else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(1))
+								return;
+						}
+						else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(2))
+							return;
 
 						// Polygon 2 edge
 						const float* const landPolySpos = &landTile->verts[landPoly->verts[n] * 3];
@@ -722,34 +775,38 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
 						rdVsub(landEdgeDir, landPolyEpos, landPolySpos);
 
-						// todo(amos): use height difference instead of slope angles.
-						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
+						const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
 
-						if (slopeAngle < TRAVERSE_OVERLAP_SLOPE_THRESHOLD)
-						{
-							const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
+						// Edges facing the same direction should not be linked.
+						// Doing so causes links to go through from underneath
+						// geometry. E.g. we have an HVAC on a roof, and we try
+						// to link our roof poly edge facing north to the edge
+						// of the poly on the HVAC also facing north, the link
+						// will go through the HVAC and thus cause the NPC to
+						// jump through it.
+						// Another case where this is necessary is when having
+						// a land edge that connects with the base edge, this
+						// prevents the algorithm from establishing a parallel
+						// traverse link.
+						if (dotProduct > 0)
+							continue;
 
-							// Edges facing the same direction should not be linked.
-							// Doing so causes links to go through from underneath
-							// geometry. E.g. we have an HVAC on a roof, and we try
-							// to link our roof poly edge facing north to the edge
-							// of the poly on the HVAC also facing north, the link
-							// will go through the HVAC and thus cause the NPC to
-							// jump through it.
-							// Another case where this is necessary is when having
-							// a land edge that connects with the base edge, this
-							// prevents the algorithm from establishing a parallel
-							// traverse link.
-							if (dotProduct > 0)
-								continue;
-						}
-
+						const float elevation = rdMathFabsf(basePolyEdgeMid[2]-landPolyEdgeMid[2]);
 						const bool samePolyGroup = basePoly->groupId == landPoly->groupId;
 
-						const TraverseType_e traverseType = GetBestTraverseType(slopeAngle, quantDist, samePolyGroup);
+						const TraverseType_e traverseType = GetBestTraverseType(elevation, quantDist, samePolyGroup);
 
 						if (traverseType == DT_NULL_TRAVERSE_TYPE)
 							continue;
+
+						if (m_selectedNavMeshType > NavMeshType_e::NAVMESH_SMALL)
+						{
+							const int traverseTableIndex = NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+							const bool traverseTypeSupported = rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[traverseTableIndex];
+
+							if (!traverseTypeSupported)
+								continue;
+						}
 
 						const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
 						float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
@@ -757,37 +814,33 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						float* const lowerEdgeDir = basePolyHigher ? landEdgeDir : baseEdgeDir;
 						float* const higherEdgeDir = basePolyHigher ? baseEdgeDir : landEdgeDir;
 
-						const float walkableRadius = basePolyHigher ? baseTile->header->walkableRadius : landTile->header->walkableRadius;
-						const float heightDiff = higherEdgeMid[2] - lowerEdgeMid[2];
+						const float walkableRadius = basePolyHigher ? baseHeader->walkableRadius : landHeader->walkableRadius;
 
+						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
 						const float maxAngle = rdCalcMaxLOSAngle(walkableRadius, m_cellHeight);
-						const float offsetAmount = rdCalcLedgeSpanOffsetAmount(walkableRadius/*+4.0f*/, slopeAngle, maxAngle);
+						const float offsetAmount = rdCalcLedgeSpanOffsetAmount(walkableRadius, slopeAngle, maxAngle);
 
 						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
 							continue;
 
-						// Need at least 2 links
-						// todo(amos): perhaps optimize this so we check this before raycasting
-						// etc.. must also check if the tile isn't external because if so, we need
-						// space for 2 links in the same tile.
+						const unsigned char landSide = linkToNeighbor
+							? rdClassifyPointOutsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax)
+							: rdClassifyPointInsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax);
+
 						const unsigned int forwardIdx = baseTile->allocLink();
-
-						if (forwardIdx == DT_NULL_LINK)
-							return; // Move on to next base tile.
-
 						const unsigned int reverseIdx = landTile->allocLink();
 
-						if (reverseIdx == DT_NULL_LINK)
-						{
-							baseTile->freeLink(forwardIdx);
-							break; // Move on to next neighbor tile.
-						}
+						// Allocated 2 new links, need to check for enough space on subsequent runs.
+						// This optimization saves a lot of time generating navmeshes for larger or
+						// more complicated geometry.
+						firstBaseTileLinkUsed = true;
+						firstLandTileLinkUsed = true;
 
 						dtLink* const forwardLink = &baseTile->links[forwardIdx];
 
 						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)m;
 						forwardLink->edge = (unsigned char)j;
-						forwardLink->side = side;
+						forwardLink->side = landSide;
 						forwardLink->bmin = 0;
 						forwardLink->bmax = 255;
 						forwardLink->next = basePoly->firstLink;
@@ -800,7 +853,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						reverseLink->ref = m_navMesh->getPolyRefBase(baseTile) | (dtPolyRef)i;
 						reverseLink->edge = (unsigned char)n;
-						reverseLink->side = (unsigned char)rdOppositeTile(side);
+						reverseLink->side = baseSide;
 						reverseLink->bmin = 0;
 						reverseLink->bmax = 255;
 						reverseLink->next = landPoly->firstLink;
@@ -882,24 +935,6 @@ bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
 
 	return true;
 }
-
-// TODO: this lookup table isn't correct, needs to be fixed.
-static const int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT] = {
-	0x0000013F, // ANIMTYPE_HUMAN
-	0x0000013F, // ANIMTYPE_SPECTRE
-#if DT_NAVMESH_SET_VERSION == 5
-	0x001BDF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
-	0x001BFFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
-#else
-	0x0033DF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
-	0x0033FFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
-#endif
-	0x0000013F, // ANIMTYPE_PILOT          // Unknown, but most likely the same as ANIMTYPE_HUMAN, this also doesn't exist for MSET 5
-	0x00033F87, // ANIMTYPE_PROWLER
-	0x00033F82, // ANIMTYPE_SUPER_SPECTRE
-	0000003000, // ANIMTYPE_TITAN
-	0000003000, // ANIMTYPE_GOLIATH // Doesn't exist in MSET 5
-};
 
 static bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex)
 {
@@ -1322,6 +1357,7 @@ bool Editor::loadNavMesh(const char* path, const bool fullPath)
 	m_navQuery->init(m_navMesh, 2048);
 
 	m_loadedNavMeshType = m_selectedNavMeshType;
+	m_traverseLinkParams.traverseAnimType = -2;
 
 	if (m_tool)
 	{
