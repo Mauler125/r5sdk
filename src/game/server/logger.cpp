@@ -2247,7 +2247,7 @@ namespace LOGGER
 
         {
             std::unique_lock<std::mutex> lock(mtx);
-            cvLog.notify_all();
+            cvLog.notify_one();
         }
 
         setLogState(LogState::Safe, true);
@@ -2293,13 +2293,12 @@ namespace LOGGER
             for (std::string& line : lines)
             {
                 logQueue.push(line);
-                cvLog.notify_one();
             }
         }
 
         {
             std::unique_lock<std::mutex> lock(mtx);
-            cvLog.notify_all();
+            cvLog.notify_one();
         }
     }
 
