@@ -237,9 +237,8 @@ void CBrowser::DrawBrowserPanel(void)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 0.f });  windowStyleVars++;
 
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable))
+    if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY, { 0, -fFooterHeight }))
     {
         int frameStyleVars = 0;
         if (m_surfaceStyle == ImGuiStyle_t::MODERN)
@@ -257,6 +256,8 @@ void CBrowser::DrawBrowserPanel(void)
         ImGui::TableSetupColumn("Players", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
+
+        ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
 
         g_ServerListManager.m_Mutex.Lock();
@@ -330,7 +331,6 @@ void CBrowser::DrawBrowserPanel(void)
         ImGui::PopStyleVar(frameStyleVars);
     }
 
-    ImGui::EndChild();
     ImGui::PopStyleVar(windowStyleVars);
 
     ImGui::Separator();
