@@ -48,6 +48,81 @@ unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 	}
 }
 
+static int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT];
+
+static void initTraverseMasks()
+{
+	s_traverseAnimTraverseFlags[ANIMTYPE_HUMAN] = 0x0000013F;
+	s_traverseAnimTraverseFlags[ANIMTYPE_SPECTRE] = 0x0000013F;
+#if DT_NAVMESH_SET_VERSION == 5
+	s_traverseAnimTraverseFlags[ANIMTYPE_STALKER] = 0x001BDF7F;
+	s_traverseAnimTraverseFlags[ANIMTYPE_FRAG_DRONE] = 0x001BFFFF;
+#else
+	s_traverseAnimTraverseFlags[ANIMTYPE_STALKER] = 0x0033DF7F;
+	s_traverseAnimTraverseFlags[ANIMTYPE_FRAG_DRONE] = 0x0033FFFF;
+#endif
+	s_traverseAnimTraverseFlags[ANIMTYPE_PILOT] = 0x0000013F;
+	s_traverseAnimTraverseFlags[ANIMTYPE_PROWLER] = 0x00033F87;
+	s_traverseAnimTraverseFlags[ANIMTYPE_SUPER_SPECTRE] = 0x00033F82;
+	s_traverseAnimTraverseFlags[ANIMTYPE_TITAN] = 0000003000;
+	s_traverseAnimTraverseFlags[ANIMTYPE_GOLIATH] = 0000003000;
+}
+
+TraverseType_s s_traverseTable[NUM_TRAVERSE_TYPES];
+
+static void initTraverseTableParams()
+{
+	s_traverseTable[0] = { 0.0f, 0.0f, 0, 0 }; // Unused
+
+	s_traverseTable[1] = { 0,  48,  10,  120 }; //1
+	s_traverseTable[2] = { 48, 96,  120, 160 }; //2
+	s_traverseTable[3] = { 96, 128, 160, 220 }; //3
+
+	s_traverseTable[4] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[5] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[6] = { 0.0f, 0.0f, 0, 0 }; // Unused
+
+	s_traverseTable[7] = { 0,   96,  800, 1030 }; //7
+	s_traverseTable[8] = { 64,  168, 70,  210 };  //8
+	s_traverseTable[9] = { 168, 384, 210, 450 };  //9
+	s_traverseTable[10] = { 384, 672, 450, 860 }; //10
+	s_traverseTable[11] = { 0,   56,  410, 940 };  //11
+	s_traverseTable[12] = { 348, 640, 640, 930 }; //12
+	s_traverseTable[13] = { 256, 640, 810, 1220 }; //13
+
+	s_traverseTable[14] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[15] = { 0.0f, 0.0f, 0, 0 }; // Off-mesh links?
+
+	s_traverseTable[16] = { 0,   104, 220, 410 };
+	s_traverseTable[17] = { 104, 416, 410, 640 };
+
+	s_traverseTable[18] = { 0.0f, 0.0f, 0, 0 }; // Off-mesh links?
+
+#if DT_NAVMESH_SET_VERSION > 5
+	s_traverseTable[19] = { 0.0f, 0.0f, 0, 0 };   // Unused
+	s_traverseTable[20] = { 0, 104,  220, 410 };  // Maps to type 19 in MSET 5
+	s_traverseTable[21] = { 104, 416, 410, 640 }; // Maps to type 20 in MSET 5
+#else
+	s_traverseTable[19] = { 0, 104,  220, 410 };  // Maps to type 19 in MSET 5
+	s_traverseTable[20] = { 104, 416, 410, 640 }; // Maps to type 20 in MSET 5
+	s_traverseTable[21] = { 0.0f, 0.0f, 0, 0 };   // Unused
+#endif
+
+	s_traverseTable[22] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[23] = { 0.0f, 0.0f, 0, 0 }; // Unused
+
+	s_traverseTable[24] = { 0, 0, 0, 0 }; // Does not exist in MSET 5 ~ 8.
+
+	s_traverseTable[25] = { 0.0f, 0.0f, 0, 0 }; // Unused
+
+	s_traverseTable[26] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[27] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[28] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[29] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[30] = { 0.0f, 0.0f, 0, 0 }; // Unused
+	s_traverseTable[31] = { 0.0f, 0.0f, 0, 0 }; // Unused
+}
+
 Editor::Editor() :
 	m_geom(0),
 	m_navMesh(0),
@@ -74,6 +149,9 @@ Editor::Editor() :
 
 	rdVset(m_recastDrawOffset, 0.0f,0.0f,4.0f);
 	rdVset(m_detourDrawOffset, 0.0f,0.0f,8.0f);
+
+	initTraverseMasks();
+	initTraverseTableParams();
 }
 
 Editor::~Editor()
@@ -167,7 +245,6 @@ void Editor::collectSettings(BuildSettings& settings)
 	settings.detailSampleMaxError = m_detailSampleMaxError;
 	settings.partitionType = m_partitionType;
 }
-
 
 void Editor::resetCommonSettings()
 {
@@ -323,6 +400,151 @@ void Editor::handleCommonSettings()
 	ImGui::PopItemWidth();
 	
 	ImGui::Separator();
+	ImGui::Text("Traversability");
+
+	static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit | 
+		/*ImGuiTableFlags_ScrollX |*/ 
+		ImGuiTableFlags_ScrollY | 
+		ImGuiTableFlags_BordersInner | 
+		ImGuiTableFlags_BordersOuter |
+		ImGuiTableFlags_Hideable |
+		/*ImGuiTableFlags_Resizable |*/
+		/*ImGuiTableFlags_Reorderable |*/
+		ImGuiTableFlags_HighlightHoveredColumn;
+
+	static ImGuiTableColumnFlags columnFlags = ImGuiTableColumnFlags_AngledHeader |
+		ImGuiTableColumnFlags_WidthStretch;
+
+	static int frozenCols = 1;
+	static int frozenRows = 2;
+	const float textBaseHeight = ImGui::GetTextLineHeightWithSpacing();
+
+	const char* columnNames[] = { "Type", "minElev", "maxElev", "minDist", "maxDist" };
+	const int columnsCount = IM_ARRAYSIZE(columnNames);
+	const int rowsCount = NUM_TRAVERSE_TYPES;
+
+	if (ImGui::BeginTable("TraverseTableFineTuner", columnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12)+10.f)))
+	{
+		ImGui::TableSetupColumn(columnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
+		for (int n = 1; n < columnsCount; n++)
+			ImGui::TableSetupColumn(columnNames[n], columnFlags, 100);
+		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
+
+		ImGui::TableAngledHeadersRow();
+		ImGui::TableHeadersRow();
+
+		ImGuiListClipper clipper;
+		clipper.Begin(rowsCount);
+
+		while (clipper.Step())
+		{
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+			{
+				ImGui::PushID(row);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%d", row);
+
+				for (int column = 1; column < columnsCount; column++)
+				{
+					if (!ImGui::TableSetColumnIndex(column))
+						continue;
+
+					ImGui::PushID(column);
+					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
+					TraverseType_s& trav = s_traverseTable[row];
+
+					switch (column)
+					{
+					case 1:
+						trav.minElev = rdClamp(trav.minElev, 0.0f, trav.maxElev);
+						ImGui::SliderFloat("", &trav.minElev, 0, trav.maxElev);
+						break;
+					case 2:
+						ImGui::SliderFloat("", &trav.maxElev, 0, DT_TRAVERSE_DIST_MAX);
+						break;
+					case 3:
+						trav.minDist = rdClamp(trav.minDist, 0.0f, trav.maxDist);
+						ImGui::SliderFloat("", &trav.minDist, 0, trav.maxDist);
+						break;
+					case 4:
+						ImGui::SliderFloat("", &trav.maxDist, 0, DT_TRAVERSE_DIST_MAX);
+						break;
+					}
+
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::EndTable();
+	}
+	if (ImGui::Button("Reset Traverse Table Parameters"))
+		initTraverseTableParams();
+
+	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
+	const int numColumns = numTraverseTables + 1;
+
+	if (ImGui::BeginTable("TraverseTableMaskSelector", numColumns, tableFlags, ImVec2(0.0f, (textBaseHeight*12)+20.f)))
+	{
+		ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
+		const bool smallNavMesh = m_selectedNavMeshType == NAVMESH_SMALL;
+
+		for (int n = 0; n < numTraverseTables; n++)
+		{
+			const int i = smallNavMesh
+				? NavMesh_GetTraverseTableIndexForAnimType(TraverseAnimType_e(n))
+				: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+
+			ImGui::TableSetupColumn(g_traverseAnimTypeNames[i], columnFlags);
+		}
+
+		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
+
+		ImGui::TableAngledHeadersRow();
+		ImGui::TableHeadersRow();
+
+		ImGuiListClipper clipper;
+		clipper.Begin(rowsCount);
+
+		while (clipper.Step())
+		{
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+			{
+				ImGui::PushID(row);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%d", row);
+
+				for (int column = 0; column < numTraverseTables; column++)
+				{
+					if (!ImGui::TableSetColumnIndex(column + 1))
+						continue;
+
+					ImGui::PushID(column + 1);
+					const int j = smallNavMesh
+						? column
+						: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+
+					int* flags = &s_traverseAnimTraverseFlags[j];
+
+					ImGui::CheckboxFlags("", flags, 1 << row);
+					ImGui::PopID();
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::EndTable();
+	}
+	if (ImGui::Button("Reset Traverse Table Masks"))
+		initTraverseMasks();
+
+	ImGui::Separator();
 }
 
 void Editor::handleClick(const float* s, const float* p, bool shift)
@@ -355,154 +577,29 @@ void Editor::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
-enum TraverseType_e // todo(amos): move elsewhere
-{
-	TRAVERSE_UNUSED_0 = 0,
-
-	TRAVERSE_CROSS_GAP_SMALL,
-	TRAVERSE_CLIMB_OBJECT_SMALL,
-	TRAVERSE_CROSS_GAP_MEDIUM,
-
-	TRAVERSE_UNUSED_4,
-	TRAVERSE_UNUSED_5,
-	TRAVERSE_UNUSED_6,
-
-	TRAVERSE_CROSS_GAP_LARGE,
-
-	TRAVERSE_CLIMB_WALL_MEDIUM,
-	TRAVERSE_CLIMB_WALL_TALL,
-	TRAVERSE_CLIMB_BUILDING,
-
-	TRAVERSE_JUMP_SHORT,
-	TRAVERSE_JUMP_MEDIUM,
-	TRAVERSE_JUMP_LARGE,
-
-	TRAVERSE_UNUSED_14,
-	TRAVERSE_UNUSED_15,
-
-	TRAVERSE_UNKNOWN_16, // USED!!!
-	TRAVERSE_UNKNOWN_17, // USED!!!
-
-	TRAVERSE_UNKNOWN_18,
-	TRAVERSE_UNKNOWN_19, // NOTE: does not exists in MSET5!!!
-
-	TRAVERSE_CLIMB_TARGET_SMALL,
-	TRAVERSE_CLIMB_TARGET_LARGE,
-
-	TRAVERSE_UNUSED_22,
-	TRAVERSE_UNUSED_23,
-
-	TRAVERSE_UNKNOWN_24,
-
-	TRAVERSE_UNUSED_25,
-	TRAVERSE_UNUSED_26,
-	TRAVERSE_UNUSED_27,
-	TRAVERSE_UNUSED_28,
-	TRAVERSE_UNUSED_29,
-	TRAVERSE_UNUSED_30,
-	TRAVERSE_UNUSED_31,
-
-	// These aren't traverse type!
-	NUM_TRAVERSE_TYPES,
-	INVALID_TRAVERSE_TYPE = DT_NULL_TRAVERSE_TYPE
-};
-
-struct TraverseType_s // todo(amos): move elsewhere
-{
-	float minElevation;
-	float maxElevation;
-
-	unsigned char minDist;
-	unsigned char maxDist;
-
-	bool forceSamePolyGroup;
-	bool forceDifferentPolyGroup;
-};
-
-static const TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move elsewhere
-{
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-
-	{0, 32, 2, 12, false, false }, //1
-	{32, 40, 5, 16, false, false }, //2
-	{0, 16, 11, 22, false, false },//3
-
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-
-	{0, 40, 80, 107, false, true},    //7
-	{40, 128, 7, 21, false, false},   //8
-	{128, 256, 16, 45, false, false},  //9
-	{256, 640, 33, 225, false, false}, //10
-	{0, 40, 41, 79, false, false},    //11
-	{128, 256, 41, 100, false, false},  //12
-	{256, 512, 81, 179, false, false},  //13
-
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-
-	{0, 64, 22, 41, false, false}, //16
-	{512, 1024, 21, 58, false, false}, //17
-
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-
-#if DT_NAVMESH_SET_VERSION > 5
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-#endif
-
-	{256, 640, 16, 40, false, false}, // Maps to type 19 in MSET 5
-	{640, 1024, 33, 199, false, false}, // Maps to type 20 in MSET 5
-
-#if DT_NAVMESH_SET_VERSION == 5
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-#endif
-
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-
-	{0, 0, 0, 0, false, false}, // Does not exist in MSET 5 ~ 8.
-
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-	{0.0f, 0.0f, 0, 0, false, false}, // Unused
-};
-
-TraverseType_e GetBestTraverseType(const float elevation, const unsigned char traverseDist, const bool samePolyGroup)
+TraverseType_e GetBestTraverseType(const float elevation, const float traverseDist)
 {
 	TraverseType_e bestTraverseType = INVALID_TRAVERSE_TYPE;
 
 	for (int i = NUM_TRAVERSE_TYPES-1; i >= 0; --i)
 	{
-		const TraverseType_s& traverseType = s_traverseTypes[i];
+		const TraverseType_s& traverseType = s_traverseTable[i];
 
 		// Skip unused types...
-		if (traverseType.minElevation == 0.0f && traverseType.maxElevation == 0.0f &&
+		if (traverseType.minElev == 0.0f && traverseType.maxElev == 0.0f &&
 			traverseType.minDist == 0 && traverseType.maxDist == 0)
 		{
 			continue;
 		}
 
-		if (elevation < traverseType.minElevation ||
-			elevation > traverseType.maxElevation)
+		if (elevation < traverseType.minElev ||
+			elevation > traverseType.maxElev)
 		{
 			continue;
 		}
 
 		if (traverseDist < traverseType.minDist ||
 			traverseDist > traverseType.maxDist)
-		{
-			continue;
-		}
-
-		// NOTE: currently only type 7 is enforced in this check, perhaps we
-		// should limit some other types on same/diff poly groups as well?
-		if ((traverseType.forceSamePolyGroup && !samePolyGroup) ||
-			(traverseType.forceDifferentPolyGroup && samePolyGroup))
 		{
 			continue;
 		}
@@ -648,24 +745,6 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 	return true;
 }
 
-// TODO: this lookup table isn't correct, needs to be fixed.
-static const int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT] = {
-	0x0000013F, // ANIMTYPE_HUMAN
-	0x0000013F, // ANIMTYPE_SPECTRE
-#if DT_NAVMESH_SET_VERSION == 5
-	0x001BDF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
-	0x001BFFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
-#else
-	0x0033DF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
-	0x0033FFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
-#endif
-	0x0000013F, // ANIMTYPE_PILOT          // Unknown, but most likely the same as ANIMTYPE_HUMAN, this also doesn't exist for MSET 5
-	0x00033F87, // ANIMTYPE_PROWLER
-	0x00033F82, // ANIMTYPE_SUPER_SPECTRE
-	0000003000, // ANIMTYPE_TITAN
-	0000003000, // ANIMTYPE_GOLIATH // Doesn't exist in MSET 5
-};
-
 // TODO: create lookup table and look for distance + slope to determine the
 // correct jumpType.
 // TODO: make sure we don't generate duplicate pairs of jump types between
@@ -733,16 +812,16 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 				const dtMeshHeader* landHeader = landTile->header;
 				bool firstLandTileLinkUsed = false;
 
-				for (int m = 0; m < landHeader->polyCount; ++m)
+				for (int l = 0; l < landHeader->polyCount; ++l)
 				{
-					dtPoly* const landPoly = &landTile->polys[m];
+					dtPoly* const landPoly = &landTile->polys[l];
 
 					if (landPoly->groupId == DT_UNLINKED_POLY_GROUP)
 						continue;
 
-					for (int n = 0; n < landPoly->vertCount; ++n)
+					for (int m = 0; m < landPoly->vertCount; ++m)
 					{
-						if (landPoly->neis[n] != 0)
+						if (landPoly->neis[m] != 0)
 							continue;
 
 						// We need at least 2 links available, figure out if
@@ -759,8 +838,8 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 							return;
 
 						// Polygon 2 edge
-						const float* const landPolySpos = &landTile->verts[landPoly->verts[n] * 3];
-						const float* const landPolyEpos = &landTile->verts[landPoly->verts[(n + 1) % landPoly->vertCount] * 3];
+						const float* const landPolySpos = &landTile->verts[landPoly->verts[m] * 3];
+						const float* const landPolyEpos = &landTile->verts[landPoly->verts[(m + 1) % landPoly->vertCount] * 3];
 
 						float landPolyEdgeMid[3];
 						rdVsad(landPolyEdgeMid, landPolySpos, landPolyEpos, 0.5f);
@@ -792,14 +871,29 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 							continue;
 
 						const float elevation = rdMathFabsf(basePolyEdgeMid[2]-landPolyEdgeMid[2]);
-						const bool samePolyGroup = basePoly->groupId == landPoly->groupId;
-
-						const TraverseType_e traverseType = GetBestTraverseType(elevation, quantDist, samePolyGroup);
+						const TraverseType_e traverseType = GetBestTraverseType(elevation, dist);
 
 						if (traverseType == DT_NULL_TRAVERSE_TYPE)
 							continue;
 
-						if (m_selectedNavMeshType > NavMeshType_e::NAVMESH_SMALL)
+						if (m_selectedNavMeshType == NavMeshType_e::NAVMESH_SMALL)
+						{
+							const int tableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
+							bool traverseTypeSupported = false;
+
+							for (int n = 0; n < tableCount; n++)
+							{
+								if (rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[n])
+								{
+									traverseTypeSupported = true;
+									break;
+								}
+							}
+
+							if (!traverseTypeSupported)
+								continue;
+						}
+						else
 						{
 							const int traverseTableIndex = NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
 							const bool traverseTypeSupported = rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[traverseTableIndex];
@@ -807,6 +901,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 							if (!traverseTypeSupported)
 								continue;
 						}
+
 
 						const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
 						float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
@@ -838,7 +933,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						dtLink* const forwardLink = &baseTile->links[forwardIdx];
 
-						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)m;
+						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)l;
 						forwardLink->edge = (unsigned char)j;
 						forwardLink->side = landSide;
 						forwardLink->bmin = 0;
@@ -852,7 +947,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						dtLink* const reverseLink = &landTile->links[reverseIdx];
 
 						reverseLink->ref = m_navMesh->getPolyRefBase(baseTile) | (dtPolyRef)i;
-						reverseLink->edge = (unsigned char)n;
+						reverseLink->edge = (unsigned char)m;
 						reverseLink->side = baseSide;
 						reverseLink->bmin = 0;
 						reverseLink->bmax = 255;
