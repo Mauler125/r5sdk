@@ -134,6 +134,7 @@ Editor::Editor() :
 	m_filterLowHangingObstacles(true),
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
+	m_traverseRayDynamicOffset(true),
 	m_selectedNavMeshType(NAVMESH_SMALL),
 	m_loadedNavMeshType(NAVMESH_SMALL),
 	m_navmeshName(NavMesh_GetNameForType(NAVMESH_SMALL)),
@@ -267,6 +268,8 @@ void Editor::resetCommonSettings()
 	// constant. The value originates from here under "Player Collision Hull":
 	// https://developer.valvesoftware.com/wiki/Pl/Dimensions
 	m_agentMaxSlope = 45.573f;
+
+	m_traverseRayExtraOffset = 0.0f;
 
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
@@ -552,6 +555,12 @@ void Editor::handleCommonSettings()
 	if (ImGui::Button("Reset Traverse Table Masks"))
 		initTraverseMasks();
 
+	if (ImGui::Checkbox("Dynamic Traverse Ray Offset", &m_traverseRayDynamicOffset))
+		m_traverseLinkParams.dynamicOffset = m_traverseRayDynamicOffset;
+
+	if (ImGui::SliderFloat("Extra Offset", &m_traverseRayExtraOffset, 0, 128))
+		m_traverseLinkParams.extraOffset = m_traverseRayExtraOffset;
+
 	ImGui::Separator();
 }
 
@@ -801,7 +810,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 				neis[0] = baseTile;
 			}
 
-			for (int k = 0; k < nneis; ++k)
+			for (int k = nneis-1; k >= 0; --k)
 			{
 				dtMeshTile* landTile = neis[k];
 				const bool sameTile = baseTile == landTile;
@@ -921,7 +930,9 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
 						const float maxAngle = rdCalcMaxLOSAngle(walkableRadius, m_cellHeight);
-						const float offsetAmount = rdCalcLedgeSpanOffsetAmount(walkableRadius, slopeAngle, maxAngle);
+						const float offsetAmount = m_traverseRayDynamicOffset
+							? rdCalcLedgeSpanOffsetAmount(walkableRadius, slopeAngle, maxAngle) + m_traverseRayExtraOffset
+							: walkableRadius + m_traverseRayExtraOffset;
 
 						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
 							continue;

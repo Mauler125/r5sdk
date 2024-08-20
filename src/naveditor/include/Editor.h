@@ -240,6 +240,7 @@ protected:
 	bool m_filterLowHangingObstacles;
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
+	bool m_traverseRayDynamicOffset;
 
 	int m_minTileBits;
 	int m_maxTileBits;
@@ -250,6 +251,7 @@ protected:
 	float m_agentRadius;
 	float m_agentMaxClimb;
 	float m_agentMaxSlope;
+	float m_traverseRayExtraOffset;
 	int m_regionMinSize;
 	int m_regionMergeSize;
 	int m_edgeMaxLen;
