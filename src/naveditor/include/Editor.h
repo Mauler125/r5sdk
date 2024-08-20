@@ -241,6 +241,8 @@ protected:
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
 
+	int m_minTileBits;
+	int m_maxTileBits;
 	int m_tileSize;
 	float m_cellSize;
 	float m_cellHeight;

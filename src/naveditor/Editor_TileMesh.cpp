@@ -349,9 +349,6 @@ Editor_TileMesh::Editor_TileMesh() :
 	m_tileMemUsage(0),
 	m_tileTriCount(0)
 {
-	resetCommonSettings();
-	selectNavMeshType(NAVMESH_SMALL);
-
 	memset(m_lastBuiltTileBmin, 0, sizeof(m_lastBuiltTileBmin));
 	memset(m_lastBuiltTileBmax, 0, sizeof(m_lastBuiltTileBmax));
 	
@@ -372,12 +369,14 @@ void Editor_TileMesh::handleSettings()
 	Editor::handleCommonSettings();
 	
 	ImGui::Text("Tiling");
+	ImGui::SliderInt("Min Tile Bits", &m_minTileBits, 14, 32);
+	ImGui::SliderInt("Max Tile Bits", &m_maxTileBits, 22, 32);
 	ImGui::SliderInt("Tile Size", &m_tileSize, 8, 2048);
 
 	ImGui::Checkbox("Build All Tiles", &m_buildAll);
 	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
 	
-	EditorCommon_SetAndRenderTileProperties(m_geom, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
+	EditorCommon_SetAndRenderTileProperties(m_geom, m_minTileBits, m_maxTileBits, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
 	
 	ImGui::Separator();
 	Editor_StaticTileMeshCommon::renderIntermediateTileMeshOptions();
