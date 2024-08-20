@@ -762,10 +762,6 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 	return true;
 }
 
-// TODO: create lookup table and look for distance + slope to determine the
-// correct jumpType.
-// TODO: make sure we don't generate duplicate pairs of jump types between
-// 2 polygons.
 void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor)
 {
 	// If we link to the same tile, we need at least 2 links.
@@ -919,6 +915,17 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 								continue;
 						}
 
+						const TraverseLinkPolyPair linkedPolyPair(basePoly, landPoly);
+						auto linkedIt = m_traverseLinkPolyMap.find(linkedPolyPair);
+
+						bool traverseLinkFound = false;
+
+						if (linkedIt != m_traverseLinkPolyMap.end())
+							traverseLinkFound = true;
+
+						// These 2 polygons are already linked with the same traverse type.
+						if (traverseLinkFound && (rdBitCellBit(traverseType) & linkedIt->second))
+							continue;
 
 						const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
 						float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
@@ -981,6 +988,11 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						reverseLink->traverseType = (unsigned char)traverseType;
 						reverseLink->traverseDist = quantDist;
 						reverseLink->reverseLink = (unsigned short)forwardIdx;
+
+						if (traverseLinkFound)
+							linkedIt->second |= 1 << traverseType;
+						else
+							m_traverseLinkPolyMap.emplace(linkedPolyPair, 1 << traverseType);
 					}
 				}
 			}
@@ -1013,6 +1025,7 @@ bool Editor::createTraverseLinks()
 		connectTileTraverseLinks(baseTile, false);
 	}
 
+	m_traverseLinkPolyMap.clear();
 	return true;
 }
 

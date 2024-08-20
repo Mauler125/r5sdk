@@ -192,6 +192,31 @@ enum EditorPolyFlags
 	EDITOR_POLYFLAGS_ALL				= 0xffff	// All abilities.
 };
 
+struct TraverseLinkPolyPair
+{
+	TraverseLinkPolyPair(const dtPoly* p1, const dtPoly* p2)
+	{
+		if (p1 > p2)
+			rdSwap(p1, p2);
+
+		poly1 = p1;
+		poly2 = p2;
+	}
+
+	bool operator<(const TraverseLinkPolyPair& other) const
+	{
+		if (poly1 < other.poly1)
+			return true;
+		if (poly1 > other.poly1)
+			return false;
+
+		return poly2 < other.poly2;
+	}
+
+	const dtPoly* poly1;
+	const dtPoly* poly2;
+};
+
 class EditorDebugDraw : public DebugDrawGL
 {
 public:
@@ -274,6 +299,7 @@ protected:
 	
 	BuildContext* m_ctx;
 	dtDisjointSet m_djs[DT_MAX_TRAVERSE_TABLES];
+	std::map<TraverseLinkPolyPair, unsigned int> m_traverseLinkPolyMap;
 
 	EditorDebugDraw m_dd;
 	unsigned int m_navMeshDrawFlags;
