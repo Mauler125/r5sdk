@@ -213,12 +213,18 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			query->getEdgeMidPoint(link->ref, basePolyRef, endPos);
 
 			const float walkableRadius = tile->header->walkableRadius;
+			float offsetAmount;
 
-			const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPos, endPos));
-			const float offsetAmount = traverseLinkParams.dynamicOffset 
-				? rdCalcLedgeSpanOffsetAmount(walkableRadius, slopeAngle, 
-				  rdCalcMaxLOSAngle(walkableRadius, traverseLinkParams.cellHeight)) + traverseLinkParams.extraOffset
-				: walkableRadius + traverseLinkParams.extraOffset;
+			if (traverseLinkParams.dynamicOffset)
+			{
+				const float totLedgeSpan = walkableRadius+traverseLinkParams.extraOffset;
+				const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPos, endPos));
+				const float maxAngle = rdCalcMaxLOSAngle(totLedgeSpan, traverseLinkParams.cellHeight);
+
+				offsetAmount = rdCalcLedgeSpanOffsetAmount(totLedgeSpan, slopeAngle, maxAngle);
+			}
+			else
+				offsetAmount = walkableRadius + traverseLinkParams.extraOffset;
 
 			const bool startPointHighest = startPos[2] > endPos[2];
 			float* highestPos = startPointHighest ? startPos : endPos;

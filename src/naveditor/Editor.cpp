@@ -927,12 +927,18 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 						float* const higherEdgeDir = basePolyHigher ? baseEdgeDir : landEdgeDir;
 
 						const float walkableRadius = basePolyHigher ? baseHeader->walkableRadius : landHeader->walkableRadius;
+						float offsetAmount;
 
-						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
-						const float maxAngle = rdCalcMaxLOSAngle(walkableRadius, m_cellHeight);
-						const float offsetAmount = m_traverseRayDynamicOffset
-							? rdCalcLedgeSpanOffsetAmount(walkableRadius, slopeAngle, maxAngle) + m_traverseRayExtraOffset
-							: walkableRadius + m_traverseRayExtraOffset;
+						if (m_traverseRayDynamicOffset)
+						{
+							const float totLedgeSpan = walkableRadius+m_traverseRayExtraOffset;
+							const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
+							const float maxAngle = rdCalcMaxLOSAngle(totLedgeSpan, m_cellHeight);
+
+							offsetAmount = rdCalcLedgeSpanOffsetAmount(totLedgeSpan, slopeAngle, maxAngle);
+						}
+						else
+							offsetAmount = walkableRadius + m_traverseRayExtraOffset;
 
 						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
 							continue;
