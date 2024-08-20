@@ -249,8 +249,8 @@ void Editor::resetCommonSettings()
 	selectNavMeshType(NAVMESH_SMALL);
 
 #if DT_NAVMESH_SET_VERSION == 5
-	m_minTileBits 14
-		m_maxTileBits 22
+	m_minTileBits = 14;
+	m_maxTileBits = 22;
 #else
 	m_minTileBits = 16;
 	m_maxTileBits = 28;
