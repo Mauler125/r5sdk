@@ -108,8 +108,8 @@ inline int longestAxis(unsigned short x, unsigned short y, unsigned short z)
 
 static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNode, dtBVNode* nodes)
 {
-	int inum = imax - imin;
-	int icur = curNode;
+	const int inum = imax - imin;
+	const int icur = curNode;
 	
 	dtBVNode& node = nodes[curNode++];
 	
@@ -131,7 +131,7 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 		// Split
 		calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
 		
-		int	axis = longestAxis(node.bmax[0] - node.bmin[0],
+		const int	axis = longestAxis(node.bmax[0] - node.bmin[0],
 							   node.bmax[1] - node.bmin[1],
 							   node.bmax[2] - node.bmin[2]);
 		
@@ -151,7 +151,7 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 			qsort(items+imin, inum, sizeof(BVItem), compareItemZ);
 		}
 		
-		int isplit = imin+inum/2;
+		const int isplit = imin+inum/2;
 		
 		// Left
 		subdivide(items, nitems, imin, isplit, curNode, nodes);
