@@ -233,14 +233,13 @@ void CBrowser::DrawBrowserPanel(void)
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "%s", m_serverListMessage.c_str());
     ImGui::Separator();
 
-    int windowStyleVars = 0; // Eliminate borders around server list table.
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 0.f });  windowStyleVars++;
+    int frameStyleVars = 0; // Eliminate borders around server list table.
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 0.f });  frameStyleVars++;
 
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
     if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY, { 0, -fFooterHeight }))
     {
-        int frameStyleVars = 0;
         if (m_surfaceStyle == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); frameStyleVars++;
@@ -327,11 +326,13 @@ void CBrowser::DrawBrowserPanel(void)
         filteredServers.clear();
         g_ServerListManager.m_Mutex.Unlock();
 
+        ImGui::PopStyleVar(frameStyleVars);
         ImGui::EndTable();
+    }
+    else
+    {
         ImGui::PopStyleVar(frameStyleVars);
     }
-
-    ImGui::PopStyleVar(windowStyleVars);
 
     ImGui::Separator();
 
