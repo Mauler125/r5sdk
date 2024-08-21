@@ -579,6 +579,9 @@ struct CellItem
 
 bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellItem>& cellItems)
 {
+	if (!params->detailMeshes)
+		return false;
+
 	const int nvp = params->nvp;
 	const int resolution = params->cellResolution;
 	const float stepX = (params->bmax[0]-params->bmin[0]) / resolution;
@@ -593,7 +596,6 @@ bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellI
 			continue;
 
 		const unsigned int vb = params->detailMeshes[i*4+0];
-		const unsigned int ndv = params->detailMeshes[i*4+1];
 		const unsigned int tb = params->detailMeshes[i*4+2];
 
 		float polyVerts[DT_VERTS_PER_POLYGON*3];
