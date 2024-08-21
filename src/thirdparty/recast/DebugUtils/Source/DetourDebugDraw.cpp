@@ -524,10 +524,11 @@ static void drawMeshTileBVTree(duDebugDraw* dd, const dtMeshTile* tile, const fl
 		const dtBVNode* n = &tile->bvTree[i];
 		if (n->i < 0) // Leaf indices are positive.
 			continue;
-		duAppendBoxWire(dd, tile->header->bmin[0] + n->bmin[0]*cs,
+		duAppendBoxWire(dd, 
+						tile->header->bmax[0] - n->bmax[0]*cs,
 						tile->header->bmin[1] + n->bmin[1]*cs,
 						tile->header->bmin[2] + n->bmin[2]*cs,
-						tile->header->bmin[0] + n->bmax[0]*cs,
+						tile->header->bmax[0] - n->bmin[0]*cs,
 						tile->header->bmin[1] + n->bmax[1]*cs,
 						tile->header->bmin[2] + n->bmax[2]*cs,
 						duRGBA(255,255,255,128));

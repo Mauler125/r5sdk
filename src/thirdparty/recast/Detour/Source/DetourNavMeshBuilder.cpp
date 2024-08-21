@@ -164,6 +164,15 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 	}
 }
 
+static const unsigned short DT_MESH_NULL_IDX = 0xffff;
+static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos): deduplicate
+{
+	for (int i = 0; i < nvp; ++i)
+		if (p[i] == DT_MESH_NULL_IDX)
+			return i;
+	return nvp;
+}
+
 static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nnodes*/)
 {
 	// Build tree
@@ -173,59 +182,60 @@ static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nn
 	{
 		BVItem& it = items[i];
 		it.i = i;
+
+		float polyVerts[DT_VERTS_PER_POLYGON*3];
+
+		const float* targetVert;
+		int vertCount;
+
 		// Calc polygon bounds. Use detail meshes if available.
 		if (params->detailMeshes)
 		{
-			int vb = (int)params->detailMeshes[i*4+0];
-			int ndv = (int)params->detailMeshes[i*4+1];
-			float bmin[3];
-			float bmax[3];
+			const int vb = (int)params->detailMeshes[i*4+0];
+			vertCount = (int)params->detailMeshes[i*4+1];
 
-			const float* dv = &params->detailVerts[vb*3];
-			rdVcopy(bmin, dv);
-			rdVcopy(bmax, dv);
-
-			for (int j = 1; j < ndv; j++)
-			{
-				rdVmin(bmin, &dv[j * 3]);
-				rdVmax(bmax, &dv[j * 3]);
-			}
-
-			// BV-tree uses cs for all dimensions
-			it.bmin[0] = (unsigned short)rdClamp((int)((bmin[0] - params->bmin[0])*quantFactor), 0, 0xffff);
-			it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-			it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
-
-			it.bmax[0] = (unsigned short)rdClamp((int)((bmax[0] - params->bmin[0])*quantFactor), 0, 0xffff);
-			it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-			it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
+			targetVert = &params->detailVerts[vb*3];
 		}
 		else
 		{
-			const unsigned short* p = &params->polys[i*params->nvp * 2];
-			it.bmin[0] = it.bmax[0] = params->verts[p[0] * 3 + 0];
-			it.bmin[1] = it.bmax[1] = params->verts[p[0] * 3 + 1];
-			it.bmin[2] = it.bmax[2] = params->verts[p[0] * 3 + 2];
+			const int nvp = params->nvp;
 
-			for (int j = 1; j < params->nvp; ++j)
+			const unsigned short* p = &params->polys[i*nvp * 2];
+			vertCount = countPolyVerts(p, nvp);
+
+			for (int j = 0; j < vertCount; ++j)
 			{
-				if (p[j] == MESH_NULL_IDX) break;
-				unsigned short x = params->verts[p[j] * 3 + 0];
-				unsigned short y = params->verts[p[j] * 3 + 1];
-				unsigned short z = params->verts[p[j] * 3 + 2];
+				const unsigned short* polyVert = &params->verts[p[j] * 3];
+				float* flPolyVert = &polyVerts[j * 3];
 
-				if (x < it.bmin[0]) it.bmin[0] = x;
-				if (y < it.bmin[1]) it.bmin[1] = y;
-				if (z < it.bmin[2]) it.bmin[2] = z;
-
-				if (x > it.bmax[0]) it.bmax[0] = x;
-				if (y > it.bmax[1]) it.bmax[1] = y;
-				if (z > it.bmax[2]) it.bmax[2] = z;
+				flPolyVert[0] = params->bmin[0]+polyVert[0]*params->cs;
+				flPolyVert[1] = params->bmin[1]+polyVert[1]*params->cs;
+				flPolyVert[2] = params->bmin[2]+polyVert[2]*params->ch;
 			}
-			// Remap z
-			it.bmin[2] = (unsigned short)rdMathFloorf((float)it.bmin[2] * params->ch / params->cs);
-			it.bmax[2] = (unsigned short)rdMathCeilf((float)it.bmax[2] * params->ch / params->cs);
+
+			targetVert = polyVerts;
 		}
+
+		float bmin[3];
+		float bmax[3];
+
+		rdVcopy(bmin, targetVert);
+		rdVcopy(bmax, targetVert);
+
+		for (int j = 1; j < vertCount; j++)
+		{
+			rdVmin(bmin, &targetVert[j * 3]);
+			rdVmax(bmax, &targetVert[j * 3]);
+		}
+
+		// BV-tree uses cs for all dimensions
+		it.bmin[0] = (unsigned short)rdClamp((int)((params->bmax[0] - bmax[0])*quantFactor), 0, 0xffff);
+		it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
+		it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
+
+		it.bmax[0] = (unsigned short)rdClamp((int)((params->bmax[0] - bmin[0])*quantFactor), 0, 0xffff);
+		it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
+		it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
 	}
 	
 	int curNode = 0;
@@ -559,15 +569,6 @@ bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 	}
 
 	return true;
-}
-
-static const unsigned short DT_MESH_NULL_IDX = 0xffff;
-static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos): deduplicate
-{
-	for (int i = 0; i < nvp; ++i)
-		if (p[i] == DT_MESH_NULL_IDX)
-			return i;
-	return nvp;
 }
 
 struct CellItem
