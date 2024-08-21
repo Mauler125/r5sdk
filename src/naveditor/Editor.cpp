@@ -100,11 +100,11 @@ static void initTraverseTableParams()
 
 #if DT_NAVMESH_SET_VERSION > 5
 	s_traverseTable[19] = { 0.0f, 0.0f, 0, 0 };   // Unused
-	s_traverseTable[20] = { 0, 104,  220, 410 };  // Maps to type 19 in MSET 5
-	s_traverseTable[21] = { 104, 416, 410, 640 }; // Maps to type 20 in MSET 5
+	s_traverseTable[20] = { 120, 330, 160, 400 };  // Maps to type 19 in MSET 5
+	s_traverseTable[21] = { 104, 416, 330, 640 }; // Maps to type 20 in MSET 5
 #else
-	s_traverseTable[19] = { 0, 104,  220, 410 };  // Maps to type 19 in MSET 5
-	s_traverseTable[20] = { 104, 416, 410, 640 }; // Maps to type 20 in MSET 5
+	s_traverseTable[19] = { 120, 330, 160, 400 };  // Maps to type 19 in MSET 5
+	s_traverseTable[20] = { 104, 416, 330, 640 }; // Maps to type 20 in MSET 5
 	s_traverseTable[21] = { 0.0f, 0.0f, 0, 0 };   // Unused
 #endif
 
@@ -599,6 +599,7 @@ void Editor::handleUpdate(const float dt)
 TraverseType_e GetBestTraverseType(const float elevation, const float traverseDist)
 {
 	TraverseType_e bestTraverseType = INVALID_TRAVERSE_TYPE;
+	float smallestDiff = FLT_MAX;
 
 	for (int i = NUM_TRAVERSE_TYPES-1; i >= 0; --i)
 	{
@@ -623,8 +624,18 @@ TraverseType_e GetBestTraverseType(const float elevation, const float traverseDi
 			continue;
 		}
 
-		bestTraverseType = (TraverseType_e)i;
-		break;
+		const float midElev = (traverseType.minElev+traverseType.maxElev) / 2.0f;
+		const float midDist = (traverseType.minDist+traverseType.maxDist) / 2.0f;
+		const float elevDiff = rdMathFabsf(elevation-midElev);
+		const float distDiff = rdMathFabsf(traverseDist-midDist);
+
+		const float totalDiff = elevDiff+distDiff;
+
+		if (totalDiff < smallestDiff)
+		{
+			smallestDiff = totalDiff;
+			bestTraverseType = (TraverseType_e)i;
+		}
 	}
 
 	return bestTraverseType;
