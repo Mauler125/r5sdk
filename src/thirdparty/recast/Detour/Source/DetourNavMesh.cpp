@@ -1021,7 +1021,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 #endif
 		
 	// Make sure the location is free.
-	if (getTileAt(header->x, header->y, header->layer))
+	if (!header->userId != 1 && getTileAt(header->x, header->y, header->layer))
 		return DT_FAILURE | DT_ALREADY_OCCUPIED;
 		
 	// Allocate a tile.
@@ -1070,9 +1070,12 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->deleteCallback = nullptr;
 	
 	// Insert tile into the position lut.
-	int h = computeTileHash(header->x, header->y, m_tileLutMask);
-	tile->next = m_posLookup[h];
-	m_posLookup[h] = tile;
+	if (header->userId != 1)
+	{
+		int h = computeTileHash(header->x, header->y, m_tileLutMask);
+		tile->next = m_posLookup[h];
+		m_posLookup[h] = tile;
+	}
 	
 	// Patch header pointers.
 	const int headerSize = rdAlign4(sizeof(dtMeshHeader));
