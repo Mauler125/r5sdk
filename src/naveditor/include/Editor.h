@@ -266,6 +266,7 @@ protected:
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
 	bool m_traverseRayDynamicOffset;
+	bool m_buildBvTree;
 
 	int m_minTileBits;
 	int m_maxTileBits;

@@ -1154,7 +1154,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		rdVcopy(params.bmax, m_pmesh->bmax);
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
-		params.buildBvTree = true;
+		params.buildBvTree = m_buildBvTree;
 
 		const bool navMeshBuildSuccess = dtCreateNavMeshData(&params, &navData, &navDataSize);
 

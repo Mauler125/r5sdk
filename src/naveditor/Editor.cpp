@@ -135,6 +135,7 @@ Editor::Editor() :
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
 	m_traverseRayDynamicOffset(true),
+	m_buildBvTree(true),
 	m_selectedNavMeshType(NAVMESH_SMALL),
 	m_loadedNavMeshType(NAVMESH_SMALL),
 	m_navmeshName(NavMesh_GetNameForType(NAVMESH_SMALL)),
@@ -369,6 +370,8 @@ void Editor::handleCommonSettings()
 			rdVcopy(navMeshBMin, m_geom->getOriginalNavMeshBoundsMin());
 			rdVcopy(navMeshBMax, m_geom->getOriginalNavMeshBoundsMax());
 		}
+
+		ImGui::Checkbox("Build BVTree", &m_buildBvTree);
 	}
 
 	ImGui::Separator();
