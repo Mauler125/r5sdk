@@ -794,6 +794,9 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 		if (basePoly->groupId == DT_UNLINKED_POLY_GROUP)
 			continue;
 
+		if (basePoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+			continue;
+
 		for (int j = 0; j < basePoly->vertCount; ++j)
 		{
 			// Hard edges only!
@@ -866,6 +869,9 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 					dtPoly* const landPoly = &landTile->polys[l];
 
 					if (landPoly->groupId == DT_UNLINKED_POLY_GROUP)
+						continue;
+
+					if (landPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 						continue;
 
 					for (int m = 0; m < landPoly->vertCount; ++m)

@@ -426,6 +426,9 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 		{
 			dtPoly& poly = tile->polys[j];
 
+			if (poly.getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+				continue;
+
 			for (int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
 			{
 				const dtLink* link = &tile->links[k];
@@ -433,13 +436,6 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 				// Skip normal links.
 				if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
 					continue;
-
-				// note(amos): here we want to possible change several things up.
-				// Ideally we create a disjoint set for each anim type (5 for small,
-				// 1 for everything beyond) and determine the traversability here
-				// with use of a lookup table that has to be made still.
-				// Anim type 0 (HUMAN) for example, cannot jump as high as anim type
-				// 2 (STALKER).
 
 				const dtPoly* landPoly;
 				const dtMeshTile* landTile;
