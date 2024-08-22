@@ -534,10 +534,12 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 
 void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* target)
 {
-	if (!target) 
+	const dtMeshHeader* targetHeader = target->header;
+
+	if (!targetHeader)
 		return;
 
-	for (int i = 0; i < target->header->offMeshConCount; ++i)
+	for (int i = 0; i < targetHeader->offMeshConCount; ++i)
 	{
 		dtOffMeshConnection* targetCon = &target->offMeshCons[i];
 
@@ -546,7 +548,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* target)
 		if (targetPoly->firstLink == DT_NULL_LINK)
 			continue;
 
-		const float halfExtents[3] = { targetCon->rad, targetCon->rad, target->header->walkableClimb };
+		const float halfExtents[3] = { targetCon->rad, targetCon->rad, targetHeader->walkableClimb };
 
 		float bmin[3], bmax[3];
 		rdVsub(bmin, &targetCon->pos[3], halfExtents);
@@ -591,11 +593,15 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* target)
 						dtLink* link = &target->links[idx];
 						link->ref = ref;
 						link->edge = (unsigned char)1;
-						link->side = sameTile ? 0xff : rdClassifyPointOutsideBounds(nearestPt, target->header->bmin, target->header->bmax);
+						link->side = sameTile ? 0xff : rdClassifyPointOutsideBounds(nearestPt, targetHeader->bmin, targetHeader->bmax);
 						link->bmin = link->bmax = 0;
 						// Add to linked list.
 						link->next = targetPoly->firstLink;
 						targetPoly->firstLink = idx;
+
+						link->traverseType = DT_NULL_TRAVERSE_TYPE;
+						link->traverseDist = 0;
+						link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 					}
 
 					// Link target poly to off-mesh connection.
@@ -609,11 +615,15 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* target)
 							dtLink* link = &tile->links[tidx];
 							link->ref = getPolyRefBase(target) | (dtPolyRef)(targetCon->poly);
 							link->edge = 0xff;
-							link->side = sameTile ? 0xff : rdClassifyPointInsideBounds(nearestPt, target->header->bmin, target->header->bmax);
+							link->side = sameTile ? 0xff : rdClassifyPointInsideBounds(nearestPt, targetHeader->bmin, targetHeader->bmax);
 							link->bmin = link->bmax = 0;
 							// Add to linked list.
 							link->next = landPoly->firstLink;
 							landPoly->firstLink = tidx;
+
+							link->traverseType = DT_NULL_TRAVERSE_TYPE;
+							link->traverseDist = 0;
+							link->reverseLink = DT_NULL_TRAVERSE_REVERSE_LINK;
 						}
 					}
 				}
@@ -1473,7 +1483,12 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	for (int i = 0; i < m_tileCount; ++i)
 	{
 		dtMeshTile* offTile = &m_tiles[i];
-		if (!offTile->header->offMeshConCount)
+		const dtMeshHeader* offHeader = offTile->header;
+
+		if (!offHeader)
+			continue;
+
+		if (!offHeader->offMeshConCount)
 			continue;
 
 		unconnectLinks(offTile, tile);
