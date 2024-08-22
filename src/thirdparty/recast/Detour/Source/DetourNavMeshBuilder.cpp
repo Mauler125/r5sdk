@@ -437,14 +437,10 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 				if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
 					continue;
 
-				const dtPoly* landPoly;
 				const dtMeshTile* landTile;
+				const dtPoly* landPoly;
 
-				if (dtStatusFailed(nav->getTileAndPolyByRef(link->ref, &landTile, &landPoly)))
-				{
-					rdAssert(0); // Invalid traverse link generated, code bug.
-					continue;
-				}
+				nav->getTileAndPolyByRefUnsafe(link->ref, &landTile, &landPoly);
 
 				rdAssert(landPoly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
 				rdAssert(landPoly->groupId != DT_UNLINKED_POLY_GROUP);
