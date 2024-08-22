@@ -847,7 +847,7 @@ private:
 	/// Builds external polygon links for a tile.
 	void connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side);
 	/// Builds external polygon links for a tile.
-	void connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int side);
+	void connectExtOffMeshLinks(dtMeshTile* target);
 
 	/// Removes external links at specified side.
 	void unconnectLinks(dtMeshTile* tile, dtMeshTile* target);
