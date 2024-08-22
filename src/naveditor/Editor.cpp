@@ -271,7 +271,6 @@ void Editor::resetCommonSettings()
 	m_agentMaxSlope = 45.573f;
 
 	m_traverseRayExtraOffset = 0.0f;
-	m_maxTraverseNeighbors = 4;
 
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
@@ -565,7 +564,6 @@ void Editor::handleCommonSettings()
 	if (ImGui::SliderFloat("Extra Offset", &m_traverseRayExtraOffset, 0, 128))
 		m_traverseLinkParams.extraOffset = m_traverseRayExtraOffset;
 
-	ImGui::SliderInt("Neighbors", &m_maxTraverseNeighbors, 0, 32);
 	ImGui::Separator();
 }
 
@@ -813,24 +811,17 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 			unsigned char baseSide = rdClassifyPointInsideBounds(basePolyEdgeMid, baseHeader->bmin, baseHeader->bmax);
 
 			const int MAX_NEIS = 32; // Max neighbors
-			const int numLookupNeighbors = rdMin(m_maxTraverseNeighbors, MAX_NEIS);
 
 			dtMeshTile* neis[MAX_NEIS];
 			int nneis = 0;
 
 			if (linkToNeighbor) // Retrieve the neighboring tiles on the side of our base poly edge.
 			{
-				const dtMeshHeader* neiTileHeader = baseHeader;
+				nneis = m_navMesh->getNeighbourTilesAt(baseHeader->x, baseHeader->y, baseSide, neis, MAX_NEIS);
 
-				// Extend towards the furthest neighbor specified or possible.
-				for (int k = 0; k < numLookupNeighbors; k++)
-				{
-					if (!m_navMesh->getNeighbourTilesAt(neiTileHeader->x, neiTileHeader->y, baseSide, &neis[k], 1))
-						break;
-
-					neiTileHeader = neis[k]->header;
-					nneis++;
-				}
+				// No neighbors, nothing to link to on this side.
+				if (!nneis)
+					continue;
 			}
 			else
 			{
@@ -839,12 +830,6 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 				neis[0] = baseTile;
 			}
 
-			// note(amos): we run the loop in reverse here as we want to link
-			// edges to the furthest neighbor tiles first, this yields better
-			// results as when we start from closest first (which will have a
-			// bunch more edges eligible for linking) we would probably burn
-			// through all available links by the time we reach the furthest
-			// neighbor tile.
 			for (int k = nneis-1; k >= 0; --k)
 			{
 				dtMeshTile* landTile = neis[k];

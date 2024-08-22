@@ -278,7 +278,6 @@ protected:
 	float m_agentMaxClimb;
 	float m_agentMaxSlope;
 	float m_traverseRayExtraOffset;
-	int m_maxTraverseNeighbors;
 	int m_regionMinSize;
 	int m_regionMergeSize;
 	int m_edgeMaxLen;
