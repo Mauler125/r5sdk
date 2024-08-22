@@ -514,8 +514,8 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 						float tmax = (neia[k*2+1]-va[1]) / (vb[1]-va[1]);
 						if (tmin > tmax)
 							rdSwap(tmin,tmax);
-						link->bmin = (unsigned char)(rdClamp(tmin, 0.0f, 1.0f)*255.0f);
-						link->bmax = (unsigned char)(rdClamp(tmax, 0.0f, 1.0f)*255.0f);
+						link->bmin = (unsigned char)rdMathRoundf(rdClamp(tmin, 0.0f, 1.0f)*255.0f);
+						link->bmax = (unsigned char)rdMathRoundf(rdClamp(tmax, 0.0f, 1.0f)*255.0f);
 					}
 					else if (dir == 2 || dir == 6)
 					{
@@ -523,8 +523,8 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 						float tmax = (neia[k*2+1]-va[0]) / (vb[0]-va[0]);
 						if (tmin > tmax)
 							rdSwap(tmin,tmax);
-						link->bmin = (unsigned char)(rdClamp(tmin, 0.0f, 1.0f)*255.0f);
-						link->bmax = (unsigned char)(rdClamp(tmax, 0.0f, 1.0f)*255.0f);
+						link->bmin = (unsigned char)rdMathRoundf(rdClamp(tmin, 0.0f, 1.0f)*255.0f);
+						link->bmax = (unsigned char)rdMathRoundf(rdClamp(tmax, 0.0f, 1.0f)*255.0f);
 					}
 				}
 			}
