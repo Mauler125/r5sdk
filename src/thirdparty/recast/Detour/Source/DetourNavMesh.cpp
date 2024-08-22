@@ -1490,7 +1490,7 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 			const dtLink& link = tile->links[k];
 
 			unsigned int salt, it, ip;
-			decodePolyId(ref, salt, it, ip);
+			decodePolyId(link.ref, salt, it, ip);
 
 			dtMeshTile* landTile = &m_tiles[it];
 			unconnectLinks(landTile, tile);
