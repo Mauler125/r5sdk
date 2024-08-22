@@ -130,7 +130,7 @@ Editor::Editor() :
 	m_crowd(0),
 	m_navMeshDrawFlags(
 		DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_WITH_CLOSED_LIST|
-		DU_DRAWNAVMESH_POLY_BOUNDS_OUTER|DU_DRAWNAVMESH_ALPHA),
+		DU_DRAWNAVMESH_POLY_FACES|DU_DRAWNAVMESH_POLY_BOUNDS_OUTER|DU_DRAWNAVMESH_ALPHA),
 	m_filterLowHangingObstacles(true),
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
@@ -1234,9 +1234,14 @@ void Editor::renderDetourDebugMenu()
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_CELLS);
 #endif
 
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_FACES);
+
+	if (ImGui::Checkbox("Poly Faces", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_FACES);
+
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_VERTS);
 
-	if (ImGui::Checkbox("Vertex Points", &isEnabled))
+	if (ImGui::Checkbox("Poly Verts", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_VERTS);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_BOUNDS_INNER);
