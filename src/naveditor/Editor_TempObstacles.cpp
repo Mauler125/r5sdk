@@ -814,7 +814,7 @@ void Editor_TempObstacles::handleSettings()
 
 	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
 
-	const int gridSize = EditorCommon_SetAndRenderTileProperties(m_geom, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
+	const int gridSize = EditorCommon_SetAndRenderTileProperties(m_geom, m_minTileBits, m_maxTileBits, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
 	ImGui::Separator();
 	
 	ImGui::Text("Tile Cache");

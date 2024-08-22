@@ -40,7 +40,11 @@ OffMeshConnectionTool::~OffMeshConnectionTool()
 {
 	if (m_editor)
 	{
-		m_editor->setNavMeshDrawFlags(m_oldFlags);
+		if (m_oldFlags & DU_DRAWNAVMESH_OFFMESHCONS)
+		{
+			const unsigned int curFlags = m_editor->getNavMeshDrawFlags();
+			m_editor->setNavMeshDrawFlags(curFlags | DU_DRAWNAVMESH_OFFMESHCONS);
+		}
 	}
 }
 
