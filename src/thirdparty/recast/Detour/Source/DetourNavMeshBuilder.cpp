@@ -108,8 +108,8 @@ inline int longestAxis(unsigned short x, unsigned short y, unsigned short z)
 
 static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNode, dtBVNode* nodes)
 {
-	const int inum = imax - imin;
-	const int icur = curNode;
+	int inum = imax - imin;
+	int icur = curNode;
 	
 	dtBVNode& node = nodes[curNode++];
 	
@@ -131,7 +131,7 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 		// Split
 		calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
 		
-		const int	axis = longestAxis(node.bmax[0] - node.bmin[0],
+		int	axis = longestAxis(node.bmax[0] - node.bmin[0],
 							   node.bmax[1] - node.bmin[1],
 							   node.bmax[2] - node.bmin[2]);
 		
@@ -151,7 +151,7 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 			qsort(items+imin, inum, sizeof(BVItem), compareItemZ);
 		}
 		
-		const int isplit = imin+inum/2;
+		int isplit = imin+inum/2;
 		
 		// Left
 		subdivide(items, nitems, imin, isplit, curNode, nodes);
@@ -164,15 +164,6 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 	}
 }
 
-static const unsigned short DT_MESH_NULL_IDX = 0xffff;
-static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos): deduplicate
-{
-	for (int i = 0; i < nvp; ++i)
-		if (p[i] == DT_MESH_NULL_IDX)
-			return i;
-	return nvp;
-}
-
 static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nnodes*/)
 {
 	// Build tree
@@ -182,60 +173,59 @@ static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nn
 	{
 		BVItem& it = items[i];
 		it.i = i;
-
-		float polyVerts[DT_VERTS_PER_POLYGON*3];
-
-		const float* targetVert;
-		int vertCount;
-
 		// Calc polygon bounds. Use detail meshes if available.
 		if (params->detailMeshes)
 		{
-			const int vb = (int)params->detailMeshes[i*4+0];
-			vertCount = (int)params->detailMeshes[i*4+1];
+			int vb = (int)params->detailMeshes[i*4+0];
+			int ndv = (int)params->detailMeshes[i*4+1];
+			float bmin[3];
+			float bmax[3];
 
-			targetVert = &params->detailVerts[vb*3];
+			const float* dv = &params->detailVerts[vb*3];
+			rdVcopy(bmin, dv);
+			rdVcopy(bmax, dv);
+
+			for (int j = 1; j < ndv; j++)
+			{
+				rdVmin(bmin, &dv[j * 3]);
+				rdVmax(bmax, &dv[j * 3]);
+			}
+
+			// BV-tree uses cs for all dimensions
+			it.bmin[0] = (unsigned short)rdClamp((int)((bmin[0] - params->bmin[0])*quantFactor), 0, 0xffff);
+			it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
+			it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
+
+			it.bmax[0] = (unsigned short)rdClamp((int)((bmax[0] - params->bmin[0])*quantFactor), 0, 0xffff);
+			it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
+			it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
 		}
 		else
 		{
-			const int nvp = params->nvp;
+			const unsigned short* p = &params->polys[i*params->nvp * 2];
+			it.bmin[0] = it.bmax[0] = params->verts[p[0] * 3 + 0];
+			it.bmin[1] = it.bmax[1] = params->verts[p[0] * 3 + 1];
+			it.bmin[2] = it.bmax[2] = params->verts[p[0] * 3 + 2];
 
-			const unsigned short* p = &params->polys[i*nvp * 2];
-			vertCount = countPolyVerts(p, nvp);
-
-			for (int j = 0; j < vertCount; ++j)
+			for (int j = 1; j < params->nvp; ++j)
 			{
-				const unsigned short* polyVert = &params->verts[p[j] * 3];
-				float* flPolyVert = &polyVerts[j * 3];
+				if (p[j] == MESH_NULL_IDX) break;
+				unsigned short x = params->verts[p[j] * 3 + 0];
+				unsigned short y = params->verts[p[j] * 3 + 1];
+				unsigned short z = params->verts[p[j] * 3 + 2];
 
-				flPolyVert[0] = params->bmin[0]+polyVert[0]*params->cs;
-				flPolyVert[1] = params->bmin[1]+polyVert[1]*params->cs;
-				flPolyVert[2] = params->bmin[2]+polyVert[2]*params->ch;
+				if (x < it.bmin[0]) it.bmin[0] = x;
+				if (y < it.bmin[1]) it.bmin[1] = y;
+				if (z < it.bmin[2]) it.bmin[2] = z;
+
+				if (x > it.bmax[0]) it.bmax[0] = x;
+				if (y > it.bmax[1]) it.bmax[1] = y;
+				if (z > it.bmax[2]) it.bmax[2] = z;
 			}
-
-			targetVert = polyVerts;
+			// Remap z
+			it.bmin[2] = (unsigned short)rdMathFloorf((float)it.bmin[2] * params->ch / params->cs);
+			it.bmax[2] = (unsigned short)rdMathCeilf((float)it.bmax[2] * params->ch / params->cs);
 		}
-
-		float bmin[3];
-		float bmax[3];
-
-		rdVcopy(bmin, targetVert);
-		rdVcopy(bmax, targetVert);
-
-		for (int j = 1; j < vertCount; j++)
-		{
-			rdVmin(bmin, &targetVert[j * 3]);
-			rdVmax(bmax, &targetVert[j * 3]);
-		}
-
-		// BV-tree uses cs for all dimensions
-		it.bmin[0] = (unsigned short)rdClamp((int)((params->bmax[0] - bmax[0])*quantFactor), 0, 0xffff);
-		it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-		it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
-
-		it.bmax[0] = (unsigned short)rdClamp((int)((params->bmax[0] - bmin[0])*quantFactor), 0, 0xffff);
-		it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-		it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
 	}
 	
 	int curNode = 0;
@@ -426,9 +416,6 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 		{
 			dtPoly& poly = tile->polys[j];
 
-			if (poly.getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-				continue;
-
 			for (int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
 			{
 				const dtLink* link = &tile->links[k];
@@ -437,10 +424,21 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 				if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
 					continue;
 
-				const dtMeshTile* landTile;
-				const dtPoly* landPoly;
+				// note(amos): here we want to possible change several things up.
+				// Ideally we create a disjoint set for each anim type (5 for small,
+				// 1 for everything beyond) and determine the traversability here
+				// with use of a lookup table that has to be made still.
+				// Anim type 0 (HUMAN) for example, cannot jump as high as anim type
+				// 2 (STALKER).
 
-				nav->getTileAndPolyByRefUnsafe(link->ref, &landTile, &landPoly);
+				const dtPoly* landPoly;
+				const dtMeshTile* landTile;
+
+				if (dtStatusFailed(nav->getTileAndPolyByRef(link->ref, &landTile, &landPoly)))
+				{
+					rdAssert(0); // Invalid traverse link generated, code bug.
+					continue;
+				}
 
 				rdAssert(landPoly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
 				rdAssert(landPoly->groupId != DT_UNLINKED_POLY_GROUP);
@@ -563,6 +561,15 @@ bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 	return true;
 }
 
+static const unsigned short DT_MESH_NULL_IDX = 0xffff;
+static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos): deduplicate
+{
+	for (int i = 0; i < nvp; ++i)
+		if (p[i] == DT_MESH_NULL_IDX)
+			return i;
+	return nvp;
+}
+
 struct CellItem
 {
 	float pos[3];
@@ -571,9 +578,6 @@ struct CellItem
 
 bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellItem>& cellItems)
 {
-	if (!params->detailMeshes)
-		return false;
-
 	const int nvp = params->nvp;
 	const int resolution = params->cellResolution;
 	const float stepX = (params->bmax[0]-params->bmin[0]) / resolution;
@@ -588,6 +592,7 @@ bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellI
 			continue;
 
 		const unsigned int vb = params->detailMeshes[i*4+0];
+		const unsigned int ndv = params->detailMeshes[i*4+1];
 		const unsigned int tb = params->detailMeshes[i*4+2];
 
 		float polyVerts[DT_VERTS_PER_POLYGON*3];

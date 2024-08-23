@@ -1407,10 +1407,6 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		{
 			verts[j*3+0] += orig[0];
 			verts[j*3+1] += orig[1];
-
-			// note(amos): the offset appears to be necessary, otherwise BVTrees
-			// are built below the polygon.
-			// see https://github.com/recastnavigation/recastnavigation/issues/647
 			verts[j*3+2] += orig[2] + chf.ch; // Is this offset necessary?
 		}
 		// Offset poly too, will be used to flag checking.

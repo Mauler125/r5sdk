@@ -233,13 +233,15 @@ void CBrowser::DrawBrowserPanel(void)
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "%s", m_serverListMessage.c_str());
     ImGui::Separator();
 
-    int frameStyleVars = 0; // Eliminate borders around server list table.
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 0.f });  frameStyleVars++;
+    int windowStyleVars = 0; // Eliminate borders around server list table.
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 1.f, 0.f });  windowStyleVars++;
 
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY, { 0, -fFooterHeight }))
+    if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable))
     {
+        int frameStyleVars = 0;
         if (m_surfaceStyle == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); frameStyleVars++;
@@ -255,8 +257,6 @@ void CBrowser::DrawBrowserPanel(void)
         ImGui::TableSetupColumn("Players", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
-
-        ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
 
         g_ServerListManager.m_Mutex.Lock();
@@ -326,13 +326,12 @@ void CBrowser::DrawBrowserPanel(void)
         filteredServers.clear();
         g_ServerListManager.m_Mutex.Unlock();
 
-        ImGui::PopStyleVar(frameStyleVars);
         ImGui::EndTable();
-    }
-    else
-    {
         ImGui::PopStyleVar(frameStyleVars);
     }
+
+    ImGui::EndChild();
+    ImGui::PopStyleVar(windowStyleVars);
 
     ImGui::Separator();
 

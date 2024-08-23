@@ -41,66 +41,6 @@ struct hulldef
 };
 extern const hulldef hulls[5];
 
-struct TraverseType_s
-{
-	float minElev;
-	float maxElev;
-	float minDist;
-	float maxDist;
-};
-
-enum TraverseType_e // todo(amos): move elsewhere
-{
-	TRAVERSE_UNUSED_0 = 0,
-
-	TRAVERSE_CROSS_GAP_SMALL,
-	TRAVERSE_CLIMB_OBJECT_SMALL,
-	TRAVERSE_CROSS_GAP_MEDIUM,
-
-	TRAVERSE_UNUSED_4,
-	TRAVERSE_UNUSED_5,
-	TRAVERSE_UNUSED_6,
-
-	TRAVERSE_CROSS_GAP_LARGE,
-
-	TRAVERSE_CLIMB_WALL_MEDIUM,
-	TRAVERSE_CLIMB_WALL_TALL,
-	TRAVERSE_CLIMB_BUILDING,
-
-	TRAVERSE_JUMP_SHORT,
-	TRAVERSE_JUMP_MEDIUM,
-	TRAVERSE_JUMP_LARGE,
-
-	TRAVERSE_UNUSED_14,
-	TRAVERSE_UNUSED_15,
-
-	TRAVERSE_UNKNOWN_16, // USED!!!
-	TRAVERSE_UNKNOWN_17, // USED!!!
-
-	TRAVERSE_UNKNOWN_18,
-	TRAVERSE_UNKNOWN_19, // NOTE: does not exists in MSET5!!!
-
-	TRAVERSE_CLIMB_TARGET_SMALL,
-	TRAVERSE_CLIMB_TARGET_LARGE,
-
-	TRAVERSE_UNUSED_22,
-	TRAVERSE_UNUSED_23,
-
-	TRAVERSE_UNKNOWN_24,
-
-	TRAVERSE_UNUSED_25,
-	TRAVERSE_UNUSED_26,
-	TRAVERSE_UNUSED_27,
-	TRAVERSE_UNUSED_28,
-	TRAVERSE_UNUSED_29,
-	TRAVERSE_UNUSED_30,
-	TRAVERSE_UNUSED_31,
-
-	// These aren't traverse type!
-	NUM_TRAVERSE_TYPES,
-	INVALID_TRAVERSE_TYPE = DT_NULL_TRAVERSE_TYPE
-};
-
 /// Tool types.
 enum EditorToolType
 {
@@ -192,31 +132,6 @@ enum EditorPolyFlags
 	EDITOR_POLYFLAGS_ALL				= 0xffff	// All abilities.
 };
 
-struct TraverseLinkPolyPair
-{
-	TraverseLinkPolyPair(const dtPoly* p1, const dtPoly* p2)
-	{
-		if (p1 > p2)
-			rdSwap(p1, p2);
-
-		poly1 = p1;
-		poly2 = p2;
-	}
-
-	bool operator<(const TraverseLinkPolyPair& other) const
-	{
-		if (poly1 < other.poly1)
-			return true;
-		if (poly1 > other.poly1)
-			return false;
-
-		return poly2 < other.poly2;
-	}
-
-	const dtPoly* poly1;
-	const dtPoly* poly2;
-};
-
 class EditorDebugDraw : public DebugDrawGL
 {
 public:
@@ -265,11 +180,7 @@ protected:
 	bool m_filterLowHangingObstacles;
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
-	bool m_traverseRayDynamicOffset;
-	bool m_buildBvTree;
 
-	int m_minTileBits;
-	int m_maxTileBits;
 	int m_tileSize;
 	float m_cellSize;
 	float m_cellHeight;
@@ -277,7 +188,6 @@ protected:
 	float m_agentRadius;
 	float m_agentMaxClimb;
 	float m_agentMaxSlope;
-	float m_traverseRayExtraOffset;
 	int m_regionMinSize;
 	int m_regionMergeSize;
 	int m_edgeMaxLen;
@@ -300,7 +210,6 @@ protected:
 	
 	BuildContext* m_ctx;
 	dtDisjointSet m_djs[DT_MAX_TRAVERSE_TABLES];
-	std::map<TraverseLinkPolyPair, unsigned int> m_traverseLinkPolyMap;
 
 	EditorDebugDraw m_dd;
 	unsigned int m_navMeshDrawFlags;

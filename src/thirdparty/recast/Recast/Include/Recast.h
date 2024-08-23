@@ -1050,6 +1050,7 @@ inline int rcGetDirOffsetX(int direction)
 	return offset[direction & 0x03];
 }
 
+// TODO (graham): Rename this to rcGetDirOffsetZ
 /// Gets the standard height (y-axis) offset for the specified direction.
 /// @param[in]		direction		The direction. [Limits: 0 <= value < 4]
 /// @return The height offset to apply to the current cell position to move in the direction.

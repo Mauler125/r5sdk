@@ -722,10 +722,10 @@ void dtNavMeshQuery::queryPolygonsInTile(const dtMeshTile* tile, const float* qm
 		// Calculate quantized box
 		unsigned short bmin[3], bmax[3];
 		// dtClamp query box to world box.
-		float minx = -(rdClamp(qmax[0], tbmin[0], tbmax[0]) - tbmax[0]);
+		float minx = rdClamp(qmin[0], tbmin[0], tbmax[0]) - tbmin[0];
 		float miny = rdClamp(qmin[1], tbmin[1], tbmax[1]) - tbmin[1];
 		float minz = rdClamp(qmin[2], tbmin[2], tbmax[2]) - tbmin[2];
-		float maxx = -(rdClamp(qmin[0], tbmin[0], tbmax[0]) - tbmax[0]);
+		float maxx = rdClamp(qmax[0], tbmin[0], tbmax[0]) - tbmin[0];
 		float maxy = rdClamp(qmax[1], tbmin[1], tbmax[1]) - tbmin[1];
 		float maxz = rdClamp(qmax[2], tbmin[2], tbmax[2]) - tbmin[2];
 		// Quantize

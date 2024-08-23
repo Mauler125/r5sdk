@@ -50,18 +50,9 @@ class NavMeshTileTool : public EditorTool
 	Editor_TileMesh* m_editor;
 	dtNavMesh* m_navMesh;
 	float m_hitPos[3];
-	float m_nearestPos[3];
 	int m_selectedTraverseType;
 
 	dtPolyRef m_markedPolyRef;
-
-	enum TileToolCursorMode
-	{
-		TT_CURSOR_MODE_DEBUG = 0,
-		TT_CURSOR_MODE_BUILD
-	};
-
-	TileToolCursorMode m_cursorMode;
 
 	enum TextOverlayDrawMode
 	{
@@ -91,13 +82,11 @@ public:
 		m_navMesh(0),
 		m_selectedTraverseType(-2),
 		m_markedPolyRef(0),
-		m_cursorMode(TT_CURSOR_MODE_DEBUG),
 		m_textOverlayDrawMode(TO_DRAW_MODE_DISABLED),
 		m_textOverlayDrawFlags(TO_DRAW_FLAGS_NONE),
 		m_hitPosSet(false)
 	{
 		rdVset(m_hitPos, 0.0f,0.0f,0.0f);
-		rdVset(m_nearestPos, 0.0f,0.0f,0.0f);
 		memset(m_polyRefTextInput, '\0', sizeof(m_polyRefTextInput));
 	}
 
@@ -117,16 +106,7 @@ public:
 
 	virtual void handleMenu()
 	{
-		ImGui::Text("Cursor Mode");
-		if (ImGui::RadioButton("Debug##TileTool", m_cursorMode == TT_CURSOR_MODE_DEBUG))
-			m_cursorMode = TT_CURSOR_MODE_DEBUG;
-
-		if (ImGui::RadioButton("Build##TileTool", m_cursorMode == TT_CURSOR_MODE_BUILD))
-			m_cursorMode = TT_CURSOR_MODE_BUILD;
-
-		ImGui::Separator();
 		ImGui::Text("Create Tiles");
-
 		if (ImGui::Button("Create All"))
 		{
 			if (m_editor)
@@ -169,7 +149,6 @@ public:
 			if (ImGui::Button("Clear Marker"))
 			{
 				m_markedPolyRef = 0;
-				rdVset(m_nearestPos, 0.0f,0.0f,0.0f);
 			}
 		}
 
@@ -215,26 +194,12 @@ public:
 		rdVcopy(m_hitPos,p);
 		if (m_editor)
 		{
-			if (m_cursorMode == TT_CURSOR_MODE_BUILD)
-			{
-				if (shift)
-					m_editor->removeTile(m_hitPos);
-				else
-					m_editor->buildTile(m_hitPos);
+			if (shift)
+				m_editor->removeTile(m_hitPos);
+			else
+				m_editor->buildTile(m_hitPos);
 
-				m_editor->buildStaticPathingData();
-			}
-			else if (m_cursorMode == TT_CURSOR_MODE_DEBUG)
-			{
-				const float halfExtents[3] = { 2, 2, 4 };
-				dtQueryFilter filter;
-
-				if (dtStatusFailed(m_editor->getNavMeshQuery()->findNearestPoly(m_hitPos, halfExtents, &filter, &m_markedPolyRef, m_nearestPos)))
-				{
-					m_markedPolyRef = 0;
-					rdVset(m_nearestPos, 0.0f, 0.0f, 0.0f);
-				}
-			}
+			m_editor->buildStaticPathingData();
 		}
 	}
 
@@ -264,11 +229,8 @@ public:
 
 		if (m_markedPolyRef && m_editor && m_navMesh)
 		{
-			const float* debugDrawOffset = m_editor->getDetourDrawOffset();
 			duDebugDrawNavMeshPoly(&m_editor->getDebugDraw(), *m_navMesh, m_markedPolyRef,
-				debugDrawOffset, m_editor->getNavMeshDrawFlags(), duRGBA(255, 0, 170, 190), false);
-
-			duDebugDrawCross(&m_editor->getDebugDraw(), m_nearestPos[0], m_nearestPos[1], m_nearestPos[2], 20.f, duRGBA(0,0,255,255), 2, debugDrawOffset);
+				m_editor->getDetourDrawOffset(), m_editor->getNavMeshDrawFlags(), duRGBA(255, 0, 170, 190), false);
 		}
 	}
 	
@@ -387,6 +349,9 @@ Editor_TileMesh::Editor_TileMesh() :
 	m_tileMemUsage(0),
 	m_tileTriCount(0)
 {
+	resetCommonSettings();
+	selectNavMeshType(NAVMESH_SMALL);
+
 	memset(m_lastBuiltTileBmin, 0, sizeof(m_lastBuiltTileBmin));
 	memset(m_lastBuiltTileBmax, 0, sizeof(m_lastBuiltTileBmax));
 	
@@ -407,14 +372,12 @@ void Editor_TileMesh::handleSettings()
 	Editor::handleCommonSettings();
 	
 	ImGui::Text("Tiling");
-	ImGui::SliderInt("Min Tile Bits", &m_minTileBits, 14, 32);
-	ImGui::SliderInt("Max Tile Bits", &m_maxTileBits, 22, 32);
 	ImGui::SliderInt("Tile Size", &m_tileSize, 8, 2048);
 
 	ImGui::Checkbox("Build All Tiles", &m_buildAll);
 	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
 	
-	EditorCommon_SetAndRenderTileProperties(m_geom, m_minTileBits, m_maxTileBits, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
+	EditorCommon_SetAndRenderTileProperties(m_geom, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
 	
 	ImGui::Separator();
 	Editor_StaticTileMeshCommon::renderIntermediateTileMeshOptions();
@@ -1154,7 +1117,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		rdVcopy(params.bmax, m_pmesh->bmax);
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
-		params.buildBvTree = m_buildBvTree;
+		params.buildBvTree = true;
 
 		const bool navMeshBuildSuccess = dtCreateNavMeshData(&params, &navData, &navDataSize);
 
