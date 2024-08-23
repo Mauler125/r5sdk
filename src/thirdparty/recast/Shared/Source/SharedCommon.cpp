@@ -456,9 +456,9 @@ static const unsigned char ZM = 1 << 3;
 unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax)
 {
 	unsigned char outcode = 0; 
-	outcode |= (pt[0] >= bmax[0]) ? XP : 0;
+	outcode |= (pt[0] >= bmax[0]) ? XM : 0;
 	outcode |= (pt[1] >= bmax[1]) ? ZP : 0;
-	outcode |= (pt[0] < bmin[0])  ? XM : 0;
+	outcode |= (pt[0] < bmin[0])  ? XP : 0;
 	outcode |= (pt[1] < bmin[1])  ? ZM : 0;
 
 	switch (outcode)
@@ -478,48 +478,28 @@ unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, c
 
 unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax)
 {
-	const float distXP = rdMathFabsf(pt[0]-bmax[0]);
-	const float distXM = rdMathFabsf(pt[0]-bmin[0]);
-	const float distZP = rdMathFabsf(pt[1]-bmax[1]);
-	const float distZM = rdMathFabsf(pt[1]-bmin[1]);
+	float center[2];
+	center[0] = (bmin[0]+bmax[0]) * 0.5f;
+	center[1] = (bmin[1]+bmax[1]) * 0.5f;
 
-	unsigned char outcode = XP;
-	float minDist = distXP;
+	float dir[2];
+	dir[0] = pt[0]-center[0];
+	dir[1] = pt[1]-center[1];
 
-	// Determine closest.
-	if (distZP < minDist)
+	float boxSize[2];
+	boxSize[0] = bmax[0]-bmin[0];
+	boxSize[1] = bmax[1]-bmin[1];
+
+	const float len = rdSqr(dir[0]*dir[0] + dir[1]*dir[1]);
+	if (len > RD_EPS)
 	{
-		minDist = distZP;
-		outcode = ZP;
-	}
-	if (distXM < minDist)
-	{
-		minDist = distXM;
-		outcode = XM;
-	}
-	if (distZM < minDist)
-	{
-		minDist = distZM;
-		outcode = ZM;
+		dir[0] /= len;
+		dir[1] /= len;
 	}
 
-	// Diagonal cases.
-	if (rdMathFabsf(distXP-minDist) < RD_EPS && outcode != XP) outcode |= XP;
-	if (rdMathFabsf(distXM-minDist) < RD_EPS && outcode != XM) outcode |= XM;
-	if (rdMathFabsf(distZP-minDist) < RD_EPS && outcode != ZP) outcode |= ZP;
-	if (rdMathFabsf(distZM-minDist) < RD_EPS && outcode != ZM) outcode |= ZM;
+	float newPt[2];
+	newPt[0] = center[0]+dir[0] * boxSize[0];
+	newPt[1] = center[1]+dir[1] * boxSize[1];
 
-	switch (outcode)
-	{
-	case XP: return 0;
-	case XP|ZP: return 1;
-	case ZP: return 2;
-	case XM|ZP: return 3;
-	case XM: return 4;
-	case XM|ZM: return 5;
-	case ZM: return 6;
-	case XP|ZM: return 7;
-	}
-
-	return 0xff;
+	return rdClassifyPointOutsideBounds(newPt, bmin, bmax);
 }
