@@ -490,7 +490,7 @@ unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, co
 	boxSize[0] = bmax[0]-bmin[0];
 	boxSize[1] = bmax[1]-bmin[1];
 
-	const float len = rdSqr(dir[0]*dir[0] + dir[1]*dir[1]);
+	const float len = rdMathSqrtf(dir[0]*dir[0] + dir[1]*dir[1]);
 	if (len > RD_EPS)
 	{
 		dir[0] /= len;
