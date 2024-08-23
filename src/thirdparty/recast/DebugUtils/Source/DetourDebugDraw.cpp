@@ -211,7 +211,10 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 	{
 		const dtPoly* startPoly = &tile->polys[i];
 
-		if (startPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
+		// Start poly's that are off-mesh links should be skipped
+		// as only the links connecting base/land poly's to the
+		// off-mesh connection contain traverse type information.
+		if (startPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 			continue;
 
 		if (tile->links[i].ref == 0)
@@ -247,13 +250,24 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 				!mesh.isGoalPolyReachable(link->ref, basePolyRef, drawAnimType == -1, drawAnimType))
 				continue;
 
-			const dtPoly* endPoly;
-			const dtMeshTile* endTile;
+			unsigned int salt, it, ip;
+			mesh.decodePolyId(link->ref, salt, it, ip);
+			const dtMeshTile* endTile = mesh.getTile(it);
+			const dtPoly* endPoly = &endTile->polys[ip];
 
-			mesh.getTileAndPolyByRefUnsafe(link->ref, &endTile, &endPoly);
+			if (endPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+			{
+				const dtOffMeshConnection* con = &endTile->offMeshCons[ip - endTile->header->offMeshBase];
 
-			if (endPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
+				dd->begin(DU_DRAW_LINES, 2.0f, offset);
+				const int col = duIntToCol(-link->traverseType, 128);
+
+				dd->vertex(&con->pos[0], col);
+				dd->vertex(&con->pos[3], col);
+
+				dd->end();
 				continue;
+			}
 
 			float startPos[3];
 			float endPos[3];
