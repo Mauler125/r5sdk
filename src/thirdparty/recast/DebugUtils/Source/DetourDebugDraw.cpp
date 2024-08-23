@@ -458,7 +458,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	if (flags & DU_DRAWNAVMESH_POLY_CENTERS)
 		drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f, offset);
 
-	if (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS)
+	if (query && (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS))
 		drawTraverseLinks(dd, mesh, query, tile, offset, traverseLinkParams);
 
 	if (flags & DU_DRAWNAVMESH_TILE_CELLS)
