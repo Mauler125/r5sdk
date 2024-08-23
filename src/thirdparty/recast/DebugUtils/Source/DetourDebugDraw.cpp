@@ -433,7 +433,7 @@ static void drawOffMeshLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNav
 	dd->end();
 }
 
-static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
+void duDebugDrawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams)
 {
 	const bool depthTest = flags & DU_DRAWNAVMESH_DEPTH_MASK;
@@ -482,7 +482,7 @@ void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* off
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		drawMeshTile(dd, mesh, 0, tile, offset, flags, traverseLinkParams);
+		duDebugDrawMeshTile(dd, mesh, 0, tile, offset, flags, traverseLinkParams);
 	}
 }
 
@@ -496,7 +496,7 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		drawMeshTile(dd, mesh, q, tile, offset, flags, traverseLinkParams);
+		duDebugDrawMeshTile(dd, mesh, q, tile, offset, flags, traverseLinkParams);
 	}
 
 	if (flags & DU_DRAWNAVMESH_BVTREE)
