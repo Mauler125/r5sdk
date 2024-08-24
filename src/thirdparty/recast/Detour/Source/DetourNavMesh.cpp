@@ -1890,16 +1890,16 @@ float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
 	const float dx = epos[0]-spos[0];
 	const float dy = epos[1]-spos[1];
 
-	const float yaw = rdMathAtan2f(dy, dx) * (180.0f/RD_PI);
-	return yaw;
+	const float yawDeg = rdMathAtan2f(dy, dx);
+	return yawDeg * (180.0f/RD_PI);
 }
 
-void dtCalcOffMeshRefPos(const float* spos, float yaw, float offset, float* res)
+void dtCalcOffMeshRefPos(const float* spos, float yawRad, float offset, float* res)
 {
-	const float yawRad = yaw * (RD_PI/180.0f);
+	const float yawDeg = yawRad * (RD_PI/180.0f);
 
-	const float dx = offset*rdMathCosf(yawRad);
-	const float dy = offset*rdMathSinf(yawRad);
+	const float dx = offset*rdMathCosf(yawDeg);
+	const float dy = offset*rdMathSinf(yawDeg);
 
 	res[0] = spos[0]+dx;
 	res[1] = spos[1]+dy;

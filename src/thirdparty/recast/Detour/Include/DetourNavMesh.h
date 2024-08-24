@@ -367,14 +367,14 @@ struct dtOffMeshConnection
 /// Calculates the yaw angle in an off-mesh connection.
 /// @param	spos[in]		The start position of the off mesh connection.
 /// @param	epos[in]		The end position of the off mesh connection.
-///								returns the yaw angle on the XY plane.
+///								returns the yaw angle on the XY plane in radians.
 extern float dtCalcOffMeshRefYaw(const float* spos, const float* epos);
 /// Calculates the ref position in an off-mesh connection.
 /// @param	spos[in]		The start position of the off mesh connection.
-/// @param	yaw[in]			The yaw angle of the off-mesh connection.
+/// @param	yawRad[in]		The yaw angle of the off-mesh connection in radians.
 /// @param	offset[in]		The desired offset from the start position.
 /// @param	res[in]			The output ref position.
-extern void dtCalcOffMeshRefPos(const float* spos, float yaw, float offset, float* res);
+extern void dtCalcOffMeshRefPos(const float* spos, float yawRad, float offset, float* res);
 
 /// Provides high level information related to a dtMeshTile object.
 /// @ingroup detour
