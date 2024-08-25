@@ -31,6 +31,8 @@ OffMeshConnectionTool::OffMeshConnectionTool() :
 	m_editor(0),
 	m_hitPosSet(0),
 	m_bidir(true),
+	m_invertVertexLookupOrder(false),
+	m_traverseType(0),
 	m_oldFlags(0)
 {
 	rdVset(m_hitPos, 0.0f,0.0f,0.0f);
@@ -65,15 +67,12 @@ void OffMeshConnectionTool::reset()
 
 void OffMeshConnectionTool::handleMenu()
 {
-	bool isOneWay = !m_bidir;
+	ImGui::Checkbox("Bidirectional", &m_bidir);
+	ImGui::Checkbox("Invert Lookup Order", &m_invertVertexLookupOrder);
 
-	if (ImGui::Checkbox("One Way", &isOneWay))
-		m_bidir = false;
-
-	bool isBiDirectional = m_bidir;
-
-	if (ImGui::Checkbox("Bidirectional", &isBiDirectional))
-		m_bidir = true;
+	ImGui::PushItemWidth(140);
+	ImGui::SliderInt("Traverse Type##OffMeshConnectionTool", &m_traverseType, 0, DT_MAX_TRAVERSE_TYPES-1, "%d", ImGuiSliderFlags_NoInput);
+	ImGui::PopItemWidth();
 }
 
 void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -118,7 +117,8 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		{
 			const unsigned char area = EDITOR_POLYAREA_JUMP;
 			const unsigned short flags = EDITOR_POLYFLAGS_WALK;
-			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
+			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, 
+				(unsigned char)m_traverseType, m_invertVertexLookupOrder ? 1 : 0, area, flags);
 			m_hitPosSet = false;
 		}
 	}

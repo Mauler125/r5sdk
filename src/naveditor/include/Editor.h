@@ -380,6 +380,7 @@ public:
 
 	void createTraverseTableParams(dtTraverseTableCreateParams* params);
 
+	void connectOffMeshLinks();
 	void buildStaticPathingData();
 
 	bool createStaticPathingData(const dtTraverseTableCreateParams* params);

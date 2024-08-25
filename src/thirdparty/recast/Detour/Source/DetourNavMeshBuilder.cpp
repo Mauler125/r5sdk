@@ -433,8 +433,10 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 			{
 				const dtLink* link = &tile->links[k];
 
-				// Skip normal links.
-				if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
+				// Skip normal and off-mesh links.
+				if (link->traverseType == DT_NULL_TRAVERSE_TYPE || 
+					(link->traverseType & DT_OFFMESH_CON_TRAVERSE_ON_VERT) ||
+					(link->traverseType & DT_OFFMESH_CON_TRAVERSE_ON_POLY))
 					continue;
 
 				const dtMeshTile* landTile;
@@ -1141,14 +1143,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			con->refYaw = params->offMeshConRefYaw[i];
 			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
 			con->side = offMeshConClass[i*2+1];
-#if DT_NAVMESH_SET_VERSION == 5
-			con->jumpType = 0; // unknown
-			con->unk1 = 1; // unknown
-#endif
-			con->userId = params->offMeshConUserID[i];
-#if DT_NAVMESH_SET_VERSION >= 7
-			con->hintIdx = DT_NULL_HINT; // todo(amos): hints are currently not supported.
-#endif
+			con->setTraverseType(params->offMeshConJumps[i], params->offMeshConOrders[i]);
 			n++;
 		}
 	}

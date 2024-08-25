@@ -51,6 +51,7 @@ class NavMeshTileTool : public EditorTool
 	dtNavMesh* m_navMesh;
 	float m_hitPos[3];
 	float m_nearestPos[3];
+	int m_selectedSide;
 	int m_selectedTraverseType;
 
 	dtTileRef m_markedTileRef;
@@ -91,6 +92,7 @@ public:
 	NavMeshTileTool() :
 		m_editor(0),
 		m_navMesh(0),
+		m_selectedSide(-1),
 		m_selectedTraverseType(-2),
 		m_markedTileRef(0),
 		m_markedPolyRef(0),
@@ -179,6 +181,7 @@ public:
 				char* pEnd = nullptr;
 				m_markedPolyRef = (dtPolyRef)STR_TO_ID(m_polyRefTextInput, &pEnd, 10);
 			}
+			ImGui::SliderInt("Tile Side", &m_selectedSide, -1, 8, "%d", ImGuiSliderFlags_NoInput);
 			ImGui::PopItemWidth();
 		}
 
@@ -296,12 +299,14 @@ public:
 		{
 			const dtMeshTile* tile = m_navMesh->getTileByRef(m_markedTileRef);
 
-			if (tile)
+			if (tile && tile->header)
 			{
 				duDrawTraverseLinkParams params;
 				duDebugDrawMeshTile(&m_editor->getDebugDraw(), *m_navMesh, 0, tile, debugDrawOffset, m_editor->getNavMeshDrawFlags(), params);
 
-				const unsigned char side = rdClassifyPointInsideBounds(m_hitPos, tile->header->bmin, tile->header->bmax);
+				const int side = (m_selectedSide != -1) 
+					? m_selectedSide
+					: rdClassifyPointInsideBounds(m_hitPos, tile->header->bmin, tile->header->bmax);
 
 				const int MAX_NEIS = 32; // Max neighbors
 				dtMeshTile* neis[MAX_NEIS];
@@ -675,13 +680,54 @@ void Editor_TileMesh::buildTile(const float* pos)
 	// Add tile, or leave the location empty.
 	if (data)
 	{
+		const dtMeshHeader* header = (const dtMeshHeader*)data;
+
 		// Let the navmesh own the data.
 		dtTileRef tileRef = 0;
 		dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,&tileRef);
-		if (dtStatusFailed(status))
+		bool failure = false;
+
+		if (dtStatusFailed(status) || dtStatusFailed(m_navMesh->connectTile(tileRef)))
+		{
 			rdFree(data);
-		else
-			m_navMesh->connectTile(tileRef);
+			failure = true;
+		}
+		else if (header->offMeshConCount)
+		{
+			m_navMesh->baseOffMeshLinks(tileRef);
+			m_navMesh->connectExtOffMeshLinks(tileRef);
+		}
+
+		if (!failure)
+		{
+			// If there are external off-mesh links landing on
+			// this tile, connect them.
+			for (int i = 0; i < m_navMesh->getTileCount(); i++)
+			{
+				dtMeshTile* target = m_navMesh->getTile(i);
+				const dtTileRef targetRef = m_navMesh->getTileRef(target);
+
+				// Connection to self has already been done above.
+				if (targetRef == tileRef)
+					continue;
+
+				const dtMeshHeader* targetHeader = target->header;
+
+				if (!targetHeader)
+					continue;
+
+				for (int j = 0; j < targetHeader->offMeshConCount; j++)
+				{
+					const dtOffMeshConnection* con = &target->offMeshCons[j];
+
+					int landTx, landTy;
+					getTilePos(&con->pos[3], landTx, landTy);
+
+					if (landTx == tx && landTy == ty)
+						m_navMesh->connectExtOffMeshLinks(targetRef);
+				}
+			}
+		}
 	}
 	
 	m_ctx->dumpLog("Build Tile (%d,%d):", tx,ty);
@@ -722,7 +768,6 @@ void Editor_TileMesh::removeTile(const float* pos)
 	getTileExtents(tx, ty, m_lastBuiltTileBmin, m_lastBuiltTileBmax);
 	
 	m_tileCol = duRGBA(255,0,0,180);
-	
 	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
 }
 
@@ -766,6 +811,7 @@ void Editor_TileMesh::buildAllTiles()
 		}
 	}
 
+	connectOffMeshLinks();
 	buildStaticPathingData();
 	
 	// Start the build process.	
@@ -1191,6 +1237,8 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
 		params.offMeshConRad = m_geom->getOffMeshConnectionRads();
 		params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
+		params.offMeshConJumps = m_geom->getOffMeshConnectionJumps();
+		params.offMeshConOrders = m_geom->getOffMeshConnectionOrders();
 		params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
 		params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
 		params.offMeshConUserID = m_geom->getOffMeshConnectionId();

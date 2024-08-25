@@ -1131,6 +1131,32 @@ void Editor::buildStaticPathingData()
 	updateStaticPathingData(&params);
 }
 
+void Editor::connectOffMeshLinks()
+{
+	for (int i = 0; i < m_navMesh->getTileCount(); i++)
+	{
+		dtMeshTile* target = m_navMesh->getTile(i);
+		const dtMeshHeader* header = target->header;
+
+		if (!header)
+			continue;
+
+		const int offMeshConCount = header->offMeshConCount;
+
+		if (!offMeshConCount)
+			continue;
+
+		const dtTileRef targetRef = m_navMesh->getTileRef(target);
+
+		// Base off-mesh connections to their starting polygons 
+		// and connect connections inside the tile.
+		m_navMesh->baseOffMeshLinks(targetRef);
+
+		// Connect off-mesh polygons to outer tiles.
+		m_navMesh->connectExtOffMeshLinks(targetRef);
+	}
+}
+
 void Editor::updateToolStates(const float dt)
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
@@ -1287,8 +1313,8 @@ void Editor::renderDetourDebugMenu()
 	if (isEnabled && m_navMesh) // Supplemental options only available with a valid navmesh!
 	{
 		ImGui::PushItemWidth(190);
-		ImGui::SliderInt("Traverse Type", &m_traverseLinkParams.traverseLinkType, -1, 31);
-		ImGui::SliderInt("Traverse Dist", &m_traverseLinkParams.traverseLinkDistance, -1, 255);
+		ImGui::SliderInt("Traverse Type", &m_traverseLinkParams.traverseLinkType, -1, DT_MAX_TRAVERSE_TYPES-1);
+		ImGui::SliderInt("Traverse Dist", &m_traverseLinkParams.traverseLinkDistance, -1, dtQuantLinkDistance(DT_TRAVERSE_DIST_MAX));
 		ImGui::SliderInt("Traverse Anim", &m_traverseLinkParams.traverseAnimType, -2, m_navMesh->getParams()->traverseTableCount-1);
 		ImGui::PopItemWidth();
 	}

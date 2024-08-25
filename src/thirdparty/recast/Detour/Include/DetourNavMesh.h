@@ -94,6 +94,8 @@ static const int DT_MAX_TRAVERSE_TABLES = 5;
 /// A value that indicates the link doesn't require a traverse action. (Jumping, climbing, etc.)
 static const unsigned char DT_NULL_TRAVERSE_TYPE = 0xff;
 
+static const unsigned char DT_MAX_TRAVERSE_TYPES = 32;
+
 /// A value that indicates the link doesn't contain a reverse traverse link.
 static const unsigned short DT_NULL_TRAVERSE_REVERSE_LINK = 0xffff;
 
@@ -138,6 +140,12 @@ static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
 /// A value that determines the offset between the start pos and the ref pos in an off-mesh connection.
 static const float DT_OFFMESH_CON_REFPOS_OFFSET = 35.f;
+
+/// A flag that indicates that the off-mesh link should be traversed from or towards the off-mesh vert.
+static const unsigned char DT_OFFMESH_CON_TRAVERSE_ON_VERT = 1<<6;
+
+/// A flag that indicates that the off-mesh link can be traversed from or towards the polygon it connects to.
+static const unsigned char DT_OFFMESH_CON_TRAVERSE_ON_POLY = 1<<7;
 
 /// A value that determines the maximum number of points describing the straight path result.
 static const int DT_STRAIGHT_PATH_RESOLUTION = 5;
@@ -325,6 +333,14 @@ struct dtBVNode
 /// An off-mesh connection is a user defined traversable connection made up to two vertices.
 struct dtOffMeshConnection
 {
+	unsigned char getTraverseType() { return traverseContext & 0xff; }
+	unsigned char getVertLookupOrder() { return (traverseContext >> 8) & 0xff; }
+	void setTraverseType(unsigned char type, unsigned char order) { traverseContext = type | (order << 8); }
+
+	/// The hint index of the off-mesh connection. (Or #DT_NULL_HINT if there is no hint.)
+	unsigned short getHintIndex() { return traverseContext; };
+	void setHintIndex(unsigned short index) { traverseContext = index; };
+
 	/// The endpoints of the connection. [(ax, ay, az, bx, by, bz)]
 	float pos[6];
 
@@ -342,14 +358,11 @@ struct dtOffMeshConnection
 	/// End point side.
 	unsigned char side;
 
-#if DT_NAVMESH_SET_VERSION == 5
-	/// NOTE: this is unconfirmed, it might not be the jumpType.
-	unsigned char jumpType;
-	unsigned char unk1;
-#elif DT_NAVMESH_SET_VERSION >= 7
-	/// The hint index of the off-mesh connection. (Or #DT_NULL_HINT if there is no hint.)
-	unsigned short hintIdx;
-#endif
+	/// The traverse types or hint indices. (If the off-mesh connection is used for wall running,
+	/// it needs a corresponding probe which this field will reference. Otherwise this field will
+	/// contain the traverse type and lookup order.)
+	unsigned short traverseContext;
+
 	/// The id of the off-mesh connection. (User assigned when the navigation mesh is built.)
 	unsigned short userId;
 	/// The reference position set to the start of the off-mesh connection with an offset of DT_OFFMESH_CON_REFPOS_OFFSET
@@ -833,6 +846,13 @@ public:
 	int getNeighbourTilesAt(const int x, const int y, const int side,
 		dtMeshTile** tiles, const int maxTiles) const;
 
+	/// Builds external polygon links for a tile.
+	dtStatus connectExtOffMeshLinks(const dtTileRef tileRef);
+	/// Builds internal polygons links for a tile.
+	dtStatus baseOffMeshLinks(const dtTileRef tileRef);
+
+	dtPolyRef clampOffMeshVertToPoly(const dtOffMeshConnection* con, dtMeshTile* conTile, const dtMeshTile* lookupTile, const bool start);
+
 private:
 	/// Returns all polygons in neighbour tile based on portal defined by the segment.
 	int findConnectingPolys(const float* va, const float* vb,
@@ -841,13 +861,9 @@ private:
 
 	/// Builds internal polygons links for a tile.
 	void connectIntLinks(dtMeshTile* tile);
-	/// Builds internal polygons links for a tile.
-	void baseOffMeshLinks(dtMeshTile* tile);
 
 	/// Builds external polygon links for a tile.
 	void connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side);
-	/// Builds external polygon links for a tile.
-	void connectExtOffMeshLinks(dtMeshTile* target);
 
 	/// Removes external links at specified side.
 	void unconnectLinks(dtMeshTile* tile, dtMeshTile* target);
