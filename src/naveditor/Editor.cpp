@@ -259,7 +259,7 @@ void Editor::resetCommonSettings()
 
 	m_cellSize = 16.0f;
 	m_cellHeight = 5.85f;
-	m_traverseLinkParams.cellHeight = m_cellHeight;
+	m_traverseLinkDrawParams.cellHeight = m_cellHeight;
 
 	// todo(amos): check if this applies for all hulls, and check if this is the
 	// actual value used by the game. This seems to generate slopes very close
@@ -305,7 +305,7 @@ void Editor::handleCommonSettings()
 	ImGui::SliderFloat("Cell Size", &m_cellSize, 12.1f, 100.0f);
 	
 	if (ImGui::SliderFloat("Cell Height", &m_cellHeight, 0.4f, 100.0f))
-		m_traverseLinkParams.cellHeight = m_cellHeight;
+		m_traverseLinkDrawParams.cellHeight = m_cellHeight;
 	
 	if (m_geom)
 	{
@@ -559,10 +559,10 @@ void Editor::handleCommonSettings()
 		initTraverseMasks();
 
 	if (ImGui::Checkbox("Dynamic Traverse Ray Offset", &m_traverseRayDynamicOffset))
-		m_traverseLinkParams.dynamicOffset = m_traverseRayDynamicOffset;
+		m_traverseLinkDrawParams.dynamicOffset = m_traverseRayDynamicOffset;
 
 	if (ImGui::SliderFloat("Extra Offset", &m_traverseRayExtraOffset, 0, 128))
-		m_traverseLinkParams.extraOffset = m_traverseRayExtraOffset;
+		m_traverseLinkDrawParams.extraOffset = m_traverseRayExtraOffset;
 
 	ImGui::Separator();
 }
@@ -1321,9 +1321,9 @@ void Editor::renderDetourDebugMenu()
 	if (isEnabled && m_navMesh) // Supplemental options only available with a valid navmesh!
 	{
 		ImGui::PushItemWidth(190);
-		ImGui::SliderInt("Traverse Type", &m_traverseLinkParams.traverseLinkType, -1, DT_MAX_TRAVERSE_TYPES-1);
-		ImGui::SliderInt("Traverse Dist", &m_traverseLinkParams.traverseLinkDistance, -1, dtQuantLinkDistance(DT_TRAVERSE_DIST_MAX));
-		ImGui::SliderInt("Traverse Anim", &m_traverseLinkParams.traverseAnimType, -2, m_navMesh->getParams()->traverseTableCount-1);
+		ImGui::SliderInt("Traverse Type", &m_traverseLinkDrawParams.traverseLinkType, -1, DT_MAX_TRAVERSE_TYPES-1);
+		ImGui::SliderInt("Traverse Dist", &m_traverseLinkDrawParams.traverseLinkDistance, -1, dtQuantLinkDistance(DT_TRAVERSE_DIST_MAX));
+		ImGui::SliderInt("Traverse Anim", &m_traverseLinkDrawParams.traverseAnimType, -2, m_navMesh->getParams()->traverseTableCount-1);
 		ImGui::PopItemWidth();
 	}
 }
@@ -1556,7 +1556,7 @@ bool Editor::loadNavMesh(const char* path, const bool fullPath)
 	m_navQuery->init(m_navMesh, 2048);
 
 	m_loadedNavMeshType = m_selectedNavMeshType;
-	m_traverseLinkParams.traverseAnimType = -2;
+	m_traverseLinkDrawParams.traverseAnimType = -2;
 
 	if (m_tool)
 	{

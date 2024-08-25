@@ -605,7 +605,7 @@ bool Editor_TileMesh::handleBuild()
 	}
 
 	m_loadedNavMeshType = m_selectedNavMeshType;
-	m_traverseLinkParams.traverseAnimType = -2;
+	m_traverseLinkDrawParams.traverseAnimType = -2;
 
 	dtNavMeshParams params;
 	rdVcopy(params.orig, m_geom->getNavMeshBoundsMin());
