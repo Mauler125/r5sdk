@@ -243,8 +243,6 @@ public:
 					m_editor->removeTile(m_hitPos);
 				else
 					m_editor->buildTile(m_hitPos);
-
-				m_editor->buildStaticPathingData();
 			}
 			else if (m_cursorMode == TT_CURSOR_MODE_DEBUG)
 			{
@@ -727,6 +725,18 @@ void Editor_TileMesh::buildTile(const float* pos)
 						m_navMesh->connectExtOffMeshLinks(targetRef);
 				}
 			}
+
+			dtMeshTile* tile = (dtMeshTile*)m_navMesh->getTileByRef(tileRef);
+
+			// Reconnect the traverse links.
+			connectTileTraverseLinks(tile, true);
+			connectTileTraverseLinks(tile, false);
+
+			dtTraverseTableCreateParams params;
+			createTraverseTableParams(&params);
+
+			dtCreateDisjointPolyGroups(&params);
+			updateStaticPathingData(&params);
 		}
 	}
 	
@@ -768,7 +778,34 @@ void Editor_TileMesh::removeTile(const float* pos)
 	getTileExtents(tx, ty, m_lastBuiltTileBmin, m_lastBuiltTileBmax);
 	
 	m_tileCol = duRGBA(255,0,0,180);
-	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
+	const dtTileRef tileRef = m_navMesh->getTileRefAt(tx,ty, 0);
+
+	if (dtStatusSucceed(m_navMesh->removeTile(tileRef, 0, 0)))
+	{
+		// Update traverse link map so the next time we rebuild this
+		// tile, the polygon pairs will be marked as available.
+		const unsigned int tileId = m_navMesh->decodePolyIdTile(tileRef);
+
+		for (auto it = m_traverseLinkPolyMap.cbegin(); it != m_traverseLinkPolyMap.cend();)
+		{
+			const TraverseLinkPolyPair& pair = it->first;
+
+			if (m_navMesh->decodePolyIdTile(pair.poly1) == tileId || 
+				m_navMesh->decodePolyIdTile(pair.poly2) == tileId)
+			{
+				it = m_traverseLinkPolyMap.erase(it);
+				continue;
+			}
+
+			++it;
+		}
+
+		dtTraverseTableCreateParams params;
+		createTraverseTableParams(&params);
+
+		dtCreateDisjointPolyGroups(&params);
+		updateStaticPathingData(&params);
+	}
 }
 
 void Editor_TileMesh::buildAllTiles()
@@ -837,6 +874,8 @@ void Editor_TileMesh::removeAllTiles()
 	for (int y = 0; y < th; ++y)
 		for (int x = 0; x < tw; ++x)
 			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y,0),0,0);
+
+	m_traverseLinkPolyMap.clear();
 }
 
 void Editor_TileMesh::buildAllHulls()

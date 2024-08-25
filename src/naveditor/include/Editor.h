@@ -194,7 +194,7 @@ enum EditorPolyFlags
 
 struct TraverseLinkPolyPair
 {
-	TraverseLinkPolyPair(const dtPoly* p1, const dtPoly* p2)
+	TraverseLinkPolyPair(dtPolyRef p1, dtPolyRef p2)
 	{
 		if (p1 > p2)
 			rdSwap(p1, p2);
@@ -213,8 +213,8 @@ struct TraverseLinkPolyPair
 		return poly2 < other.poly2;
 	}
 
-	const dtPoly* poly1;
-	const dtPoly* poly2;
+	dtPolyRef poly1;
+	dtPolyRef poly2;
 };
 
 class EditorDebugDraw : public DebugDrawGL

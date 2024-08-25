@@ -316,6 +316,15 @@ bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 				while (plink != DT_NULL_LINK)
 				{
 					const dtLink l = tile->links[plink];
+
+					// Polygons linked with traverse links are not necessarily on
+					// the same group, these should be skipped.
+					if (l.traverseType != DT_NULL_TRAVERSE_TYPE)
+					{
+						plink = l.next;
+						continue;
+					}
+
 					const dtMeshTile* t;
 					const dtPoly* p;
 					nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);

@@ -783,6 +783,8 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 		return;
 
 	const dtMeshHeader* baseHeader = baseTile->header;
+	const dtPolyRef basePolyRefBase = m_navMesh->getPolyRefBase(baseTile);
+
 	bool firstBaseTileLinkUsed = false;
 
 	for (int i = 0; i < baseHeader->polyCount; ++i)
@@ -847,6 +849,8 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 					continue;
 
 				const dtMeshHeader* landHeader = landTile->header;
+				const dtPolyRef landPolyRefBase = m_navMesh->getPolyRefBase(landTile);
+
 				bool firstLandTileLinkUsed = false;
 
 				for (int l = 0; l < landHeader->polyCount; ++l)
@@ -942,7 +946,10 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 								continue;
 						}
 
-						const TraverseLinkPolyPair linkedPolyPair(basePoly, landPoly);
+						const dtPolyRef basePolyRef = basePolyRefBase | i;
+						const dtPolyRef landPolyRef = landPolyRefBase | l;
+
+						const TraverseLinkPolyPair linkedPolyPair(basePolyRef, landPolyRef);
 						auto linkedIt = m_traverseLinkPolyMap.find(linkedPolyPair);
 
 						bool traverseLinkFound = false;
@@ -992,7 +999,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						dtLink* const forwardLink = &baseTile->links[forwardIdx];
 
-						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)l;
+						forwardLink->ref = landPolyRef;
 						forwardLink->edge = (unsigned char)j;
 						forwardLink->side = landSide;
 						forwardLink->bmin = 0;
@@ -1005,7 +1012,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						dtLink* const reverseLink = &landTile->links[reverseIdx];
 
-						reverseLink->ref = m_navMesh->getPolyRefBase(baseTile) | (dtPolyRef)i;
+						reverseLink->ref = basePolyRef;
 						reverseLink->edge = (unsigned char)m;
 						reverseLink->side = baseSide;
 						reverseLink->bmin = 0;
@@ -1030,6 +1037,8 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 bool Editor::createTraverseLinks()
 {
 	rdAssert(m_navMesh);
+	m_traverseLinkPolyMap.clear();
+
 	const int maxTiles = m_navMesh->getMaxTiles();
 
 	// First pass to connect edges between external tiles together.
@@ -1052,7 +1061,6 @@ bool Editor::createTraverseLinks()
 		connectTileTraverseLinks(baseTile, false);
 	}
 
-	m_traverseLinkPolyMap.clear();
 	return true;
 }
 
