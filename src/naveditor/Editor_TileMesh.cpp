@@ -52,6 +52,7 @@ class NavMeshTileTool : public EditorTool
 	float m_hitPos[3];
 	int m_selectedTraverseType;
 
+	dtTileRef m_markedTileRef;
 	dtPolyRef m_markedPolyRef;
 
 	enum TextOverlayDrawMode
@@ -72,6 +73,7 @@ class NavMeshTileTool : public EditorTool
 
 	int m_textOverlayDrawFlags;
 
+	char m_tileRefTextInput[MAX_POLYREF_CHARS];
 	char m_polyRefTextInput[MAX_POLYREF_CHARS];
 	bool m_hitPosSet;
 	
@@ -81,12 +83,15 @@ public:
 		m_editor(0),
 		m_navMesh(0),
 		m_selectedTraverseType(-2),
+		m_markedTileRef(0),
 		m_markedPolyRef(0),
 		m_textOverlayDrawMode(TO_DRAW_MODE_DISABLED),
 		m_textOverlayDrawFlags(TO_DRAW_FLAGS_NONE),
 		m_hitPosSet(false)
 	{
 		rdVset(m_hitPos, 0.0f,0.0f,0.0f);
+		rdVset(m_nearestPos, 0.0f,0.0f,0.0f);
+		memset(m_tileRefTextInput, '\0', sizeof(m_tileRefTextInput));
 		memset(m_polyRefTextInput, '\0', sizeof(m_polyRefTextInput));
 	}
 
@@ -133,9 +138,23 @@ public:
 		if (ImGui::RadioButton("Show Tile And Poly Indices", m_textOverlayDrawFlags & TO_DRAW_FLAGS_INDICES))
 			toggleTextOverlayDrawFlags(TO_DRAW_FLAGS_INDICES);
 
+
+		const bool hasMarker = m_markedTileRef || m_markedPolyRef;
+
+		if (m_navMesh || hasMarker)
+		{
+			ImGui::Separator();
+			ImGui::Text("Markers");
+		}
+
 		if (m_navMesh)
 		{
 			ImGui::PushItemWidth(83);
+			if (m_navMesh && ImGui::InputText("Mark Tile By Ref", m_tileRefTextInput, sizeof(m_tileRefTextInput), ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				char* pEnd = nullptr;
+				m_markedTileRef = (dtPolyRef)STR_TO_ID(m_tileRefTextInput, &pEnd, 10);
+			}
 			if (m_navMesh && ImGui::InputText("Mark Poly By Ref", m_polyRefTextInput, sizeof(m_polyRefTextInput), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
 				char* pEnd = nullptr;
@@ -144,18 +163,20 @@ public:
 			ImGui::PopItemWidth();
 		}
 
-		if (m_markedPolyRef)
+		if (hasMarker && ImGui::Button("Clear Markers"))
 		{
-			if (ImGui::Button("Clear Marker"))
-			{
-				m_markedPolyRef = 0;
-			}
+			m_markedTileRef = 0;
+			m_markedPolyRef = 0;
+			rdVset(m_nearestPos, 0.0f, 0.0f, 0.0f);
 		}
 
 		dtNavMeshQuery* query = m_editor->getNavMeshQuery();
 
 		if (query && m_navMesh)
 		{
+			ImGui::Separator();
+			ImGui::Text("Dumpers");
+
 			ImGui::PushItemWidth(83);
 			ImGui::SliderInt("Selected Traverse Type", &m_selectedTraverseType, -2, 31);
 			ImGui::PopItemWidth();
@@ -199,7 +220,28 @@ public:
 			else
 				m_editor->buildTile(m_hitPos);
 
-			m_editor->buildStaticPathingData();
+				m_editor->buildStaticPathingData();
+			}
+			else if (m_cursorMode == TT_CURSOR_MODE_DEBUG)
+			{
+				const float halfExtents[3] = { 2, 2, 4 };
+				dtQueryFilter filter;
+
+				if (shift)
+				{
+					if (dtStatusFailed(m_editor->getNavMeshQuery()->findNearestPoly(m_hitPos, halfExtents, &filter, &m_markedPolyRef, m_nearestPos)))
+					{
+						m_markedPolyRef = 0;
+						rdVset(m_nearestPos, 0.0f, 0.0f, 0.0f);
+					}
+				}
+				else
+				{
+					int tx, ty;
+					m_editor->getTilePos(m_hitPos, tx, ty);
+					m_markedTileRef = m_navMesh->getTileRefAt(tx, ty, 0);
+				}
+			}
 		}
 	}
 
@@ -227,11 +269,39 @@ public:
 			glLineWidth(1.0f);
 		}
 
+		const float* debugDrawOffset = m_editor->getDetourDrawOffset();
+
+		if (m_markedTileRef && m_editor && m_navMesh)
+		{
+			const dtMeshTile* tile = m_navMesh->getTileByRef(m_markedTileRef);
+
+			if (tile)
+			{
+				duDrawTraverseLinkParams params;
+				duDebugDrawMeshTile(&m_editor->getDebugDraw(), *m_navMesh, 0, tile, debugDrawOffset, m_editor->getNavMeshDrawFlags(), params);
+
+				const unsigned char side = rdClassifyPointInsideBounds(m_hitPos, tile->header->bmin, tile->header->bmax);
+
+				const int MAX_NEIS = 32; // Max neighbors
+				dtMeshTile* neis[MAX_NEIS];
+
+				const int nneis = m_navMesh->getNeighbourTilesAt(tile->header->x, tile->header->y, side, neis, MAX_NEIS);
+
+				for (int i = 0; i < nneis; i++)
+				{
+					duDebugDrawMeshTile(&m_editor->getDebugDraw(), *m_navMesh, 0, neis[i], debugDrawOffset, m_editor->getNavMeshDrawFlags(), params);
+				}
+			}
+		}
+
 		if (m_markedPolyRef && m_editor && m_navMesh)
 		{
 			duDebugDrawNavMeshPoly(&m_editor->getDebugDraw(), *m_navMesh, m_markedPolyRef,
-				m_editor->getDetourDrawOffset(), m_editor->getNavMeshDrawFlags(), duRGBA(255, 0, 170, 190), false);
+				debugDrawOffset, m_editor->getNavMeshDrawFlags(), duRGBA(255, 0, 170, 190), false);
 		}
+
+		if (m_markedTileRef || m_markedPolyRef)
+			duDebugDrawCross(&m_editor->getDebugDraw(), m_nearestPos[0], m_nearestPos[1], m_nearestPos[2], 20.f, duRGBA(0, 0, 255, 255), 2, debugDrawOffset);
 	}
 	
 	virtual void handleRenderOverlay(double* proj, double* model, int* view)
