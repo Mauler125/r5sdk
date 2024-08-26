@@ -180,9 +180,10 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 				continue;
 
 			// Filter, drawLinkType -1 means draw all types
-			const int drawLinkType = traverseLinkParams.traverseLinkType;
+			const int drawTraverseType = traverseLinkParams.traverseLinkType;
+			const unsigned char linkTraverseType = link->traverseType & (DT_MAX_TRAVERSE_TYPES-1);
 
-			if (drawLinkType != -1 && link->traverseType != drawLinkType)
+			if (drawTraverseType != -1 && linkTraverseType != drawTraverseType)
 				continue;
 
 			// Filter, drawLinkDistance -1 means draw all distances
@@ -205,15 +206,27 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			const dtMeshTile* endTile = mesh.getTile(it);
 			const dtPoly* endPoly = &endTile->polys[ip];
 
+			const dtTileRef tileRef = mesh.getTileRef(tile);
+			rdIgnoreUnused(tileRef);
+
 			if (endPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 			{
 				const dtOffMeshConnection* con = &endTile->offMeshCons[ip - endTile->header->offMeshBase];
 
 				dd->begin(DU_DRAW_LINES, 2.0f, offset);
-				const int col = duIntToCol(-link->traverseType, 128);
+				const int col = duIntToCol(linkTraverseType, 128);
 
 				dd->vertex(&con->pos[0], col);
 				dd->vertex(&con->pos[3], col);
+
+				const float* polyVerts = endTile->verts;
+				const bool vertOrder = !(link->traverseType & DT_OFFMESH_CON_TRAVERSE_ON_VERT);
+
+				const float* baseVert = &polyVerts[endPoly->verts[vertOrder?1:0]*3];
+				const float* landVert = &polyVerts[endPoly->verts[vertOrder?0:1]*3];
+
+				duAppendCross(dd, baseVert[0], baseVert[1], baseVert[2], con->rad, duRGBA(220,32,16,196));
+				duAppendCross(dd, landVert[0], landVert[1], landVert[2], con->rad, duRGBA(32,220,16,196));
 
 				dd->end();
 				continue;
@@ -247,7 +260,7 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			};
 
 			// Unique color for each type.
-			const int col = duIntToCol(link->traverseType, 128);
+			const int col = duIntToCol(linkTraverseType, 128);
 
 			dd->begin(DU_DRAW_LINES, 2.0f, offset);
 
