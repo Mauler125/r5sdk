@@ -523,6 +523,19 @@ namespace VScriptCode
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
+        std::string SanitizeString(const std::string& input)
+        {
+            //appropriate
+            auto isDisallowed = [](unsigned char c) {
+                return !std::isalnum(c) && c != '-' && c != '_';
+                };
+
+            if (std::any_of(input.begin(), input.end(), isDisallowed)) {
+                return "";
+            }
+            return input;
+        }
+
         //-----------------------------------------------------------------------------
         // Purpose: facilitates communication between sqvm and logger api calls 
         // for ea account verification
@@ -556,7 +569,12 @@ namespace VScriptCode
                 Msg(eDLL_T::SERVER, "Error: Value out of range for conversion: %s\n", e.what());
             }
 
-            sq_pushinteger(v, status_num);
+            std::string command = "CodeCallback_VerifyEaAccount(\"" + SanitizeString(OID) + "\", " + status + ")";
+
+            g_TaskQueue.Dispatch([command] {
+                g_pServerScript->Run(command.c_str());
+                }, 0);
+
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
@@ -1032,7 +1050,7 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
   
     
     //for verification
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, EA_Verify__internal, "Verifys EA Account on R5R.DEV", "int", "string, string, string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, EA_Verify__internal, "Verifys EA Account on R5R.DEV", "void", "string, string, string");
 
     // for stat updates
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, _STATSHOOK_UpdatePlayerCount__internal, "Updates LIVE player count on R5R.DEV", "void", "string, string, string, string, string");
