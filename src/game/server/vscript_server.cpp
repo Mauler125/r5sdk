@@ -18,7 +18,8 @@
 #include "vscript_server.h"
 #include <engine/host_state.h>
 #include <networksystem/hostmanager.h>
-
+#include "game/shared/vscript_shared.h"
+#include "player.h"
 /*
 =====================
 SQVM_ServerScript_f
@@ -34,7 +35,7 @@ static void SQVM_ServerScript_f(const CCommand& args)
         Script_Execute(args.ArgS(), SQCONTEXT::SERVER);
     }
 }
-static ConCommand script("script", SQVM_ServerScript_f, "Run input code as SERVER script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL | FCVAR_CHEAT | FCVAR_SERVER_FRAME_THREAD);
+static ConCommand script("script", SQVM_ServerScript_f, "Run input code as SERVER script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL | FCVAR_SERVER_FRAME_THREAD);
 
 namespace VScriptCode
 {
@@ -275,6 +276,53 @@ namespace VScriptCode
             sq_pushbool(v, ::IsDedicated());
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
+        SQRESULT SetPlayerClassVar(HSQUIRRELVM v) {
+            typedef void (*SetClassVars_t)(CCommand&);
+            static SetClassVars_t SetClassVars = g_GameDll.FindPatternSIMD("41 56 48 83 EC ? 8B 05 ? ? ? ? 4C 8B F1 FF C0").RCast<SetClassVars_t>();
+            static int* nCommandClient = g_GameDll.FindPatternSIMD("89 15 ? ? ? ? C3 CC CC CC CC CC CC CC CC CC 40 53 48 83 EC").ResolveRelativeAddressSelf(2, 6).RCast<int*>();
+            const SQChar* pKey = NULL;
+            const SQChar* pVal = NULL;
+            const SQCONTEXT context = v->GetContext();
+            if (SQ_FAILED(sq_getstring(v, 2, &pKey)) || !VALID_CHARSTAR(pKey))
+            {
+                v_SQVM_ScriptError("Empty or null key");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+            if (SQ_FAILED(sq_getstring(v, 3, &pVal)) || !VALID_CHARSTAR(pVal))
+            {
+                v_SQVM_ScriptError("Empty or null value");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+            CPlayer* player = nullptr;
+            if (SQ_FAILED(sq_getthisentity(v, (void**)(&player))) || !player) {
+                v_SQVM_ScriptError("Empty or null player");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            // Create an array of C-style strings
+            const char* args[4];
+            char cmdbuf[256];
+            V_snprintf(cmdbuf, sizeof(cmdbuf), "_setClassVarServer %s %s", pKey, pVal);
+
+            // Split the command into separate arguments
+            args[0] = "_setClassVarServer";
+            args[1] = pKey;
+            args[2] = pVal;
+            args[3] = nullptr;  // Null-terminate the array
+
+            // Create the CCommand object with the array of arguments
+            CCommand command(3, args, cmd_source_t::kCommandSrcCode);
+
+            int bak = *nCommandClient;
+            *nCommandClient = player->GetEntityIndex() - 1;
+            SetClassVars(command);
+            *nCommandClient = bak;
+#pragma warning(disable : 4312)
+            g_pEngineServer->ClientCommand(reinterpret_cast<edict_t*>(player->GetEntityIndex()), "set %s %s", pKey, pVal);
+#pragma warning(default : 4312)
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
     }
 }
 
@@ -284,6 +332,17 @@ namespace VScriptCode
 //---------------------------------------------------------------------------------
 void Script_RegisterServerFunctions(CSquirrelVM* s)
 {
+    static bool bHasRegisteredServerScriptFuncs = false;
+    if (!bHasRegisteredServerScriptFuncs) {
+        bHasRegisteredServerScriptFuncs = true;
+        //ScriptFunctionBinding_t SetPlayerClassVarBinding;
+        //SetPlayerClassVarBinding.Init("SetPlayerClassVar", "ScriptSetPlayerClassVar", "Sets a player's class settings vars (takes key and value)", "void", "string, string", 0, VScriptCode::Shared::SetPlayerClassVar);
+        //
+        //g_CPlayer_ScriptDesc->m_FunctionBindings.AddToTail(SetPlayerClassVarBinding);
+        int index = g_CPlayer_ScriptDesc->m_FunctionBindings.AddToTail();
+        ScriptFunctionBinding_t& binding = g_CPlayer_ScriptDesc->m_FunctionBindings.Element(index);
+        binding.Init("SetPlayerClassVar", "ScriptSetPlayerClassVar", "Sets a player's class settings vars (takes key and value)", "void", "string, string", 0, VScriptCode::Server::SetPlayerClassVar);
+    }
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreServerFunctions(s);
     Script_RegisterAdminPanelFunctions(s);

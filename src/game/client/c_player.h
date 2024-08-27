@@ -367,6 +367,7 @@ inline int (*C_Player__GetAimSpeed)(C_Player* thisptr, bool isZoomed);
 inline bool (*C_Player__IsInTimeShift)(C_Player* thisptr);
 
 inline void (*C_Player__CurveLook)(C_Player* player, CInput::UserInput_t* input, float a3, float a4, float a5, int a6, float inputSampleFrametime, bool runAimAssist, JoyAngle_t* outAngles);
+inline void (*Set_Cmd_F)(const CCommand& args);
 
 
 inline double* double_14D413928;
@@ -403,6 +404,7 @@ class V_Player : public IDetour
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? F3 0F 10 15 ?? ?? ?? ?? 48 8D 45").FollowNearCallSelf().GetPtr(C_Player__CurveLook);
 
 		g_GameDll.FindPatternSIMD("48 83 EC ?? 48 8B 01 FF 90 ?? ?? ?? ?? 48 83 C0 ?? 4C 8D 40").GetPtr(C_BaseCombatCharacter__GetActiveWeapon);
+		g_GameDll.FindPatternSIMD("4C 8B DC 57 48 81 EC ? ? ? ? 8B 05").GetPtr(Set_Cmd_F);
 	}
 	virtual void GetVar(void) const
 	{

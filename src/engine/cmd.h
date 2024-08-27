@@ -39,7 +39,9 @@ inline bool(*v_Cmd_ForwardToServer)(const CCommand* pCommand);
 
 extern CCommandBuffer** s_pCommandBuffer;
 extern LPCRITICAL_SECTION s_pCommandBufferMutex;
-
+inline cmd_source_t* cmd_source;
+inline int* g_iFilterCommandsByServerCanExecute;
+inline int* g_iFilterCommandsByClientCmdCanExecute;
 extern CUtlVector<int>* g_pExecutionMarkers;
 
 
@@ -71,6 +73,9 @@ class VCmd : public IDetour
 		s_pCommandBuffer      = CMemory(Cbuf_AddText).FindPattern("48 8D 05").ResolveRelativeAddressSelf(3, 7).RCast<CCommandBuffer**>();
 		s_pCommandBufferMutex = CMemory(Cbuf_AddText).FindPattern("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<LPCRITICAL_SECTION>();
 		g_pExecutionMarkers   = CMemory(Cbuf_AddExecutionMarker).FindPattern("48 8B 0D").ResolveRelativeAddressSelf(3, 7).RCast<CUtlVector<int>*>();
+		cmd_source = g_GameDll.FindPatternSIMD("44 89 35 ? ? ? ? 48 8B D3").ResolveRelativeAddressSelf(3, 7).RCast<cmd_source_t*>();
+		g_iFilterCommandsByServerCanExecute = g_GameDll.FindPatternSIMD("FF 05 ? ? ? ? E9 ? ? ? ? 80 FB ? 75").ResolveRelativeAddressSelf(2, 6).RCast<int*>();
+		g_iFilterCommandsByClientCmdCanExecute = g_GameDll.FindPatternSIMD("FF 05 ? ? ? ? E9 ? ? ? ? 80 FB ? 0F 85").ResolveRelativeAddressSelf(2, 6).RCast<int*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;

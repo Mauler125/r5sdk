@@ -3,7 +3,7 @@
 #include "r1/c_weapon_x.h"
 #include "c_player.h"
 #include "cliententitylist.h"
-
+#include "engine/cmd.h"
 bool C_Player::CheckMeleeWeapon()
 {
     const C_EntInfo* pInfo = g_clientEntityList->GetEntInfoPtr(m_latestMeleeWeapon);
@@ -305,7 +305,19 @@ void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3,
     }
 }
 
+static void Set_Cmd_F_Hook(const CCommand& args)
+{
+    if (*g_iFilterCommandsByServerCanExecute == 0 && !sv_cheats->GetBool())
+    {
+        Warning(eDLL_T::CLIENT, "set can only be executed from console if sv_cheats is 1!");
+        return;
+    }
+    Set_Cmd_F(args);
+}
+
+
 void V_Player::Detour(const bool bAttach) const
 {
     DetourSetup(&C_Player__CurveLook, C_Player::CurveLook, bAttach);
+    DetourSetup(&Set_Cmd_F, Set_Cmd_F_Hook, bAttach);
 }

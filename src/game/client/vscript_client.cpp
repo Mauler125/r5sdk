@@ -21,6 +21,7 @@
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
 #include "vscript_client.h"
+#include <engine/cmd.h>
 
 /*
 =====================
@@ -54,7 +55,7 @@ static void SQVM_UIScript_f(const CCommand& args)
     }
 }
 
-static ConCommand script_client("script_client", SQVM_ClientScript_f, "Run input code as CLIENT script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL | FCVAR_CHEAT);
+static ConCommand script_client("script_client", SQVM_ClientScript_f, "Run input code as CLIENT script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL);
 static ConCommand script_ui("script_ui", SQVM_UIScript_f, "Run input code as UI script on the VM", FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL | FCVAR_CHEAT);
 
 //-----------------------------------------------------------------------------
@@ -443,6 +444,28 @@ namespace VScriptCode
             sq_pushbool(v, ::IsClientDLL());
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+        SQRESULT SetPlayerClassVar(HSQUIRRELVM v) {
+            const SQChar* pKey = NULL;
+            const SQChar* pVal = NULL;
+            const SQCONTEXT context = v->GetContext();
+            if (SQ_FAILED(sq_getstring(v, 2, &pKey)) || !VALID_CHARSTAR(pKey))
+            {
+                v_SQVM_ScriptError("Empty or null key");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+            if (SQ_FAILED(sq_getstring(v, 3, &pVal)) || !VALID_CHARSTAR(pVal))
+            {
+                v_SQVM_ScriptError("Empty or null value");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+            char cmdbuf[256];
+            V_snprintf(cmdbuf, 256, "set %s %s", pKey, pVal);
+            Cbuf_AddTextWithMarkers(cmdbuf,
+                eCmdExecutionMarker_Enable_FCVAR_SERVER_CAN_EXECUTE,
+                eCmdExecutionMarker_Disable_FCVAR_SERVER_CAN_EXECUTE);
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
     }
 }
 
@@ -452,6 +475,13 @@ namespace VScriptCode
 //---------------------------------------------------------------------------------
 void Script_RegisterClientFunctions(CSquirrelVM* s)
 {
+    static bool bHasRegisteredClientScriptFuncs = false;
+    if (!bHasRegisteredClientScriptFuncs) {
+        bHasRegisteredClientScriptFuncs = true;
+        int index = g_C_Player_ScriptDesc->m_FunctionBindings.AddToTail();
+        ScriptFunctionBinding_t& binding = g_C_Player_ScriptDesc->m_FunctionBindings.Element(index);
+        binding.Init("SetPlayerClassVar", "ScriptSetPlayerClassVar", "Sets a player's class settings vars (takes key and value)", "void", "string, string", 0, VScriptCode::Client::SetPlayerClassVar);
+    }
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreClientFunctions(s);
 }
