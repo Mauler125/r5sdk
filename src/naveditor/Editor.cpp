@@ -1354,6 +1354,11 @@ void Editor::renderDetourDebugMenu()
 	if (ImGui::Checkbox("Poly Faces", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_FACES);
 
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_EDGES);
+
+	if (ImGui::Checkbox("Poly Edges", &isEnabled))
+		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_EDGES);
+
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_VERTS);
 
 	if (ImGui::Checkbox("Poly Verts", &isEnabled))

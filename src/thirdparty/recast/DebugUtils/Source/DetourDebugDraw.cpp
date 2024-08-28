@@ -43,7 +43,7 @@ static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd, con
 		: duTransCol(dd->areaToCol(poly->getArea()), alpha);
 }
 
-static void drawPolyFaces(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query, const dtMeshTile* tile, const float* offset, unsigned int flags)
+static void drawPolyMeshFaces(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query, const dtMeshTile* tile, const float* offset, unsigned int flags)
 {
 	const dtMeshHeader* header = tile->header;
 	const dtPolyRef base = mesh.getPolyRefBase(tile);
@@ -88,6 +88,34 @@ static void drawPolyFaces(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMes
 	dd->end();
 }
 
+static void drawPolyMeshEdges(duDebugDraw* dd, const dtMeshTile* tile, const float* offset)
+{
+	const dtMeshHeader* header = tile->header;
+	unsigned int c = duRGBA(0,0,0,48);
+
+	for (int i = 0; i < header->polyCount; ++i)
+	{
+		const dtPoly* p = &tile->polys[i];
+		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) continue;
+
+		const dtPolyDetail* pd = &tile->detailMeshes[i];
+
+		dd->begin(DU_DRAW_LINES, 1.0f, offset);
+		for (int k = 0; k < pd->triCount; ++k)
+		{
+			const unsigned char* t = &tile->detailTris[(pd->triBase+k)*4];
+			for (int m = 0; m < 3; ++m)
+			{
+				if (t[m] < p->vertCount)
+					dd->vertex(&tile->verts[p->verts[t[m]]*3], c);
+				else
+					dd->vertex(&tile->detailVerts[(pd->vertBase+t[m]-p->vertCount)*3], c);
+			}
+		}
+		dd->end();
+	}
+}
+
 static unsigned int getPolyBoundaryColor(const dtPoly* poly, const bool inner)
 {
 	return poly->groupId == DT_UNLINKED_POLY_GROUP
@@ -110,8 +138,6 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 		const dtPoly* p = &tile->polys[i];
 		
 		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) continue;
-		
-		const dtPolyDetail* pd = &tile->detailMeshes[i];
 		
 		for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
 		{
@@ -163,6 +189,8 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 				dd->vertex(mid, c);
 				dd->vertex(ledgeEnd, c);
 			}
+
+			const dtPolyDetail* pd = &tile->detailMeshes[i];
 
 			// Draw detail mesh edges which align with the actual poly edge.
 			// This is really slow.
@@ -452,12 +480,15 @@ void duDebugDrawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	const bool depthTest = flags & DU_DRAWNAVMESH_DEPTH_MASK;
 
 	dd->depthMask(depthTest);
-	
-	if (flags & DU_DRAWNAVMESH_POLY_VERTS)
-		drawPolyVerts(dd, tile, offset);
 
 	if (flags & DU_DRAWNAVMESH_POLY_FACES)
-		drawPolyFaces(dd, mesh, query, tile, offset, flags);
+		drawPolyMeshFaces(dd, mesh, query, tile, offset, flags);
+
+	if (flags & DU_DRAWNAVMESH_POLY_EDGES)
+		drawPolyMeshEdges(dd, tile, offset);
+
+	if (flags & DU_DRAWNAVMESH_POLY_VERTS)
+		drawPolyVerts(dd, tile, offset);
 
 	// Draw inner poly boundaries
 	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_INNER)
@@ -746,6 +777,25 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 			}
 		}
 		dd->end();
+
+		if (drawFlags & DU_DRAWNAVMESH_POLY_EDGES)
+		{
+			const unsigned int edgeCol = duRGBA(0,0,0,48);
+
+			dd->begin(DU_DRAW_LINES, 1.0f, offset);
+			for (int i = 0; i < pd->triCount; ++i)
+			{
+				const unsigned char* t = &tile->detailTris[(pd->triBase+i)*4];
+				for (int j = 0; j < 3; ++j)
+				{
+					if (t[j] < poly->vertCount)
+						dd->vertex(&tile->verts[poly->verts[t[j]]*3], edgeCol);
+					else
+						dd->vertex(&tile->detailVerts[(pd->vertBase+t[j]-poly->vertCount)*3], edgeCol);
+				}
+			}
+			dd->end();
+		}
 	}
 	
 	if (!depthTest)
