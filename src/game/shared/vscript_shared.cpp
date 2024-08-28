@@ -751,7 +751,7 @@ bool isValidPlayerSettingsKeyValue(std::string_view value) {
 
     for (size_t i = 0; i < len; i++) {
         char c = value.at(i);
-        if (!(isalnum(c) || c == '+' || c == '-' || c == '/' || c == '*' || c == '_' || c == '.')) {
+        if (!(isalnum(c) || c == '+' || c == '-' || c == '/' || c == '*' || c == '_' || c == '.' || c == ' ')) {
             return false;
         }
     }
