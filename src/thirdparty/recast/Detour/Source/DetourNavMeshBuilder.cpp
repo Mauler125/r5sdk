@@ -378,51 +378,6 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 	dtNavMesh* nav = params->nav;
 	dtDisjointSet& set = params->sets[tableIndex];
 
-	// Fifth pass to handle off-mesh connections.
-	// note(amos): this has to happen after the first and second pass as these
-	// are for grouping directly connected polygons together, else groups linked
-	// through off-mesh connections will be merged into a single group!
-	// This also has to happen after the remap as otherwise this information
-	// will be lost!
-	// 
-	// todo(amos): should off-mesh links be marked reachable for all traverse
-	// anim types? Research needed on Titanfall 2. For now, mark connected
-	// poly groups with off-mesh connections reachable.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-
-			if (poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
-				continue;
-
-			unsigned int plink = poly.firstLink;
-			unsigned short firstGroupId = DT_NULL_POLY_GROUP;
-
-			while (plink != DT_NULL_LINK)
-			{
-				const dtLink& l = tile->links[plink];
-				const dtMeshTile* t;
-				const dtPoly* p;
-				nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
-
-				if (p->groupId != DT_NULL_POLY_GROUP)
-				{
-					if (firstGroupId == DT_NULL_POLY_GROUP)
-						firstGroupId = p->groupId;
-					else if (params->canTraverse(params, &l, tableIndex))
-						set.setUnion(firstGroupId, p->groupId);
-				}
-
-				plink = l.next;
-			}
-		}
-	}
-
 	// Sixth pass to handle traverse linked poly's.
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
@@ -433,25 +388,14 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 		{
 			dtPoly& poly = tile->polys[j];
 
-			if (poly.getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-				continue;
-
 			for (int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
 			{
 				const dtLink* link = &tile->links[k];
-
-				// Skip normal and off-mesh links.
-				if (link->traverseType == DT_NULL_TRAVERSE_TYPE || 
-					(link->traverseType & DT_OFFMESH_CON_TRAVERSE_ON_VERT) ||
-					(link->traverseType & DT_OFFMESH_CON_TRAVERSE_ON_POLY))
-					continue;
 
 				const dtMeshTile* landTile;
 				const dtPoly* landPoly;
 
 				nav->getTileAndPolyByRefUnsafe(link->ref, &landTile, &landPoly);
-
-				rdAssert(landPoly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
 				rdAssert(landPoly->groupId != DT_UNLINKED_POLY_GROUP);
 
 				if (poly.groupId != landPoly->groupId && params->canTraverse(params, link, tableIndex))

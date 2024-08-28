@@ -1200,11 +1200,6 @@ bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
 
 static bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex)
 {
-	// TODO: always link off-mesh connected polygon islands together?
-	// Research needed.
-	if (link->reverseLink == DT_NULL_TRAVERSE_REVERSE_LINK)
-		return true;
-
 	const NavMeshType_e navMeshType = (NavMeshType_e)params->navMeshType;
 
 	// Only the _small NavMesh has more than 1 table.
