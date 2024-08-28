@@ -280,9 +280,7 @@ bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 		{
 			dtPoly& poly = tile->polys[j];
 
-			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
-				poly.groupId = DT_NULL_POLY_GROUP;
-
+			poly.groupId = DT_NULL_POLY_GROUP;
 #if DT_NAVMESH_SET_VERSION >= 7
 			// NOTE: these fields are unknown and need to be reversed.
 			// It is possible these are used internally only.
