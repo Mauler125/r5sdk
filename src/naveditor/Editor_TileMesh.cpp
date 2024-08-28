@@ -874,6 +874,7 @@ void Editor_TileMesh::removeAllTiles()
 			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y,0),0,0);
 
 	m_traverseLinkPolyMap.clear();
+	buildStaticPathingData();
 }
 
 void Editor_TileMesh::buildAllHulls()
