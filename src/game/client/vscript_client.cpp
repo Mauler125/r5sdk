@@ -22,6 +22,8 @@
 
 #include "vscript_client.h"
 #include <engine/cmd.h>
+#include "c_player.h"
+#include <engine/client/vengineclient_impl.h>
 
 /*
 =====================
@@ -447,7 +449,11 @@ namespace VScriptCode
         SQRESULT SetPlayerClassVar(HSQUIRRELVM v) {
             const SQChar* pKey = NULL;
             const SQChar* pVal = NULL;
-            const SQCONTEXT context = v->GetContext();
+            C_Player* player = nullptr;
+            if (SQ_FAILED(sq_getthisentity(v, (void**)(&player))) || !player || g_pEngineClient->GetLocalPlayer() != (player->GetIndex())) {
+                v_SQVM_ScriptError("Empty, null, or non-local player");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
             if (SQ_FAILED(sq_getstring(v, 2, &pKey)) || !VALID_CHARSTAR(pKey))
             {
                 v_SQVM_ScriptError("Empty or null key");
@@ -458,6 +464,19 @@ namespace VScriptCode
                 v_SQVM_ScriptError("Empty or null value");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
+
+            // Check if the key is valid
+            if (!isValidPlayerSettingsKeyName(pKey)) {
+                v_SQVM_ScriptError("Invalid key name");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            // Check if the value is valid
+            if (!isValidPlayerSettingsKeyValue(pVal)) {
+                v_SQVM_ScriptError("Invalid value");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
             char cmdbuf[256];
             V_snprintf(cmdbuf, 256, "set %s %s", pKey, pVal);
             Cbuf_AddTextWithMarkers(cmdbuf,

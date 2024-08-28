@@ -299,6 +299,17 @@ namespace VScriptCode
                 v_SQVM_ScriptError("Empty or null player");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
+            // Check if the key is valid
+            if (!isValidPlayerSettingsKeyName(pKey)) {
+                v_SQVM_ScriptError("Invalid key name");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            // Check if the value is valid
+            if (!isValidPlayerSettingsKeyValue(pVal)) {
+                v_SQVM_ScriptError("Invalid value");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
 
             // Create an array of C-style strings
             const char* args[4];

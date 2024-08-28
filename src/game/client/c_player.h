@@ -69,6 +69,7 @@ class C_Player : public C_BaseCombatCharacter
 public:
 	static void CurveLook(C_Player* player, CInput::UserInput_t* input, float a3, float a4, float a5, int a6, float inputSampleFrametime, bool runAimAssist, JoyAngle_t* a9);
 	bool CheckMeleeWeapon();
+	inline int GetIndex() { return pl.playerEntityIndex; };
 private:
 	bool unk;
 	bool m_bZooming;

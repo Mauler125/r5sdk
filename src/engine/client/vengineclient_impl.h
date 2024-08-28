@@ -35,7 +35,7 @@ class HVEngineClient : public IDetour
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const 
 	{
-		g_pEngineClientVFTable = g_GameDll.GetVirtualMethodTable(".?AVCEngineClient@@");
+		g_pEngineClientVFTable = g_GameDll.FindPatternSIMD("48 8B 05 ? ? ? ? FF 90 ? ? ? ? 4C 8D 05 ? ? ? ?").ResolveRelativeAddressSelf(0x3, 0x7);
 		g_pEngineClient = g_pEngineClientVFTable.RCast<CEngineClient*>();
 	}
 	virtual void Detour(const bool bAttach) const;

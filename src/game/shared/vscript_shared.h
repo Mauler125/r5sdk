@@ -73,6 +73,8 @@ sq_getthisentityType sq_getthisentity;
 
 ScriptClassDesc_t* g_C_Player_ScriptDesc;
 ScriptClassDesc_t* g_CPlayer_ScriptDesc;
+bool isValidPlayerSettingsKeyName(std::string_view key);
+bool isValidPlayerSettingsKeyValue(std::string_view value);
 
 class VScriptShared : public IDetour
 {
