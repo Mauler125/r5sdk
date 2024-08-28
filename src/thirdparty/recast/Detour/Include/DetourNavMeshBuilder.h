@@ -60,8 +60,12 @@ struct dtNavMeshCreateParams
 
 	/// Off-mesh connection vertices. [(ax, ay, az, bx, by, bz) * #offMeshConCount] [Unit: wu]
 	const float* offMeshConVerts;
+	/// Off-mesh connection reference positions. [(x, y, z) * #offMeshConCount] [Unit: wu]
+	const float* offMeshConRefPos;
 	/// Off-mesh connection radii. [Size: #offMeshConCount] [Unit: wu]
 	const float* offMeshConRad;
+	/// Off-mesh connection reference yaw. [Size: #offMeshConCount] [Unit: wu]
+	const float* offMeshConRefYaw;
 	/// User defined flags assigned to the off-mesh connections. [Size: #offMeshConCount]
 	const unsigned short* offMeshConFlags;
 	/// User defined area ids assigned to the off-mesh connections. [Size: #offMeshConCount]
@@ -77,10 +81,6 @@ struct dtNavMeshCreateParams
 	const unsigned char* offMeshConOrders;
 	/// The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
 	const unsigned short* offMeshConUserID;
-	/// Off-mesh connection reference positions. [(x, y, z) * #offMeshConCount] [Unit: wu]
-	const float* offMeshConRefPos;
-	/// Off-mesh connection reference yaw. [Size: #offMeshConCount] [Unit: wu]
-	const float* offMeshConRefYaw;
 	/// The number of off-mesh connections. [Limit: >= 0]
 	int offMeshConCount;
 

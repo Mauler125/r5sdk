@@ -1274,15 +1274,15 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.detailTris = m_dmesh->tris;
 		params.detailTriCount = m_dmesh->ntris;
 		params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
+		params.offMeshConRefPos = m_geom->getOffMeshConnectionRefPos();
 		params.offMeshConRad = m_geom->getOffMeshConnectionRads();
+		params.offMeshConRefYaw = m_geom->getOffMeshConnectionRefYaws();
 		params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
 		params.offMeshConJumps = m_geom->getOffMeshConnectionJumps();
 		params.offMeshConOrders = m_geom->getOffMeshConnectionOrders();
 		params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
 		params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
 		params.offMeshConUserID = m_geom->getOffMeshConnectionId();
-		params.offMeshConRefPos = m_geom->getOffMeshConnectionRefPos();
-		params.offMeshConRefYaw = m_geom->getOffMeshConnectionRefYaws();
 		params.offMeshConCount = m_geom->getOffMeshConnectionCount();
 		params.walkableHeight = m_agentHeight;
 		params.walkableRadius = m_agentRadius;
