@@ -116,7 +116,7 @@ ConVar* cl_threaded_bone_setup             = nullptr;
 
 ConVar* origin_disconnectWhenOffline       = nullptr;
 ConVar* discord_updatePresence = nullptr;
-ConCommand* set = nullptr;
+ConCommand* set_conCmd = nullptr;
 ConVar* gamepad_custom_enabled             = nullptr;
 ConVar* gamepad_custom_assist_on           = nullptr;
 ConVar* gamepad_look_curve                 = nullptr;
@@ -195,7 +195,7 @@ void ConVar_InitShipped(void)
 #ifndef DEDICATED
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
 	discord_updatePresence           = g_pCVar->FindVar("discord_updatePresence");
-	set = g_pCVar->FindCommand("set");
+	set_conCmd = g_pCVar->FindCommand("set");
 
 	gamepad_custom_enabled           = g_pCVar->FindVar("gamepad_custom_enabled");
 	gamepad_custom_assist_on         = g_pCVar->FindVar("gamepad_custom_assist_on");
@@ -266,8 +266,8 @@ void ConVar_InitShipped(void)
 	rui_defaultDebugFontFace->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	origin_disconnectWhenOffline->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	discord_updatePresence->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-	set->RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
-	set->AddFlags(FCVAR_SERVER_CAN_EXECUTE);
+	set_conCmd->RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+	set_conCmd->AddFlags(FCVAR_SERVER_CAN_EXECUTE);
 #endif // !DEDICATED
 	fps_max->AddFlags(FCVAR_ARCHIVE);
 	fps_max_vsync->RemoveFlags(FCVAR_DEVELOPMENTONLY);
