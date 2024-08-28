@@ -469,6 +469,7 @@ float rdCalcLedgeSpanOffsetAmount(const float ledgeSpan, const float slopeAngle,
 
 unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax);
 unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax);
+unsigned char rdClassifyDirection(const float* dir, const float* bmin, const float* bmax);
 
 /// Determines if the specified point is inside the convex polygon on the xy-plane.
 ///  @param[in]		pt		The point to check. [(x, y, z)]

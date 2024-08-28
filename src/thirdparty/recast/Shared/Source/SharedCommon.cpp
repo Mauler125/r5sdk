@@ -503,3 +503,29 @@ unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, co
 
 	return rdClassifyPointOutsideBounds(newPt, bmin, bmax);
 }
+
+unsigned char rdClassifyDirection(const float* dir, const float* bmin, const float* bmax)
+{
+	const float len = rdMathSqrtf(dir[0]*dir[0] + dir[1]*dir[1]);
+	float dirNorm[2] = { 0.0f, 0.0f };
+
+	if (len > RD_EPS)
+	{
+		dirNorm[0] = dir[0] / len;
+		dirNorm[1] = dir[1] / len;
+	}
+
+	float center[2];
+	center[0] = (bmin[0]+bmax[0]) * 0.5f;
+	center[1] = (bmin[1]+bmax[1]) * 0.5f;
+
+	float boxSize[2];
+	boxSize[0] = bmax[0]-bmin[0];
+	boxSize[1] = bmax[1]-bmin[1];
+
+	float newPt[2];
+	newPt[0] = center[0]+dirNorm[0] * boxSize[0];
+	newPt[1] = center[1]+dirNorm[1] * boxSize[1];
+
+	return rdClassifyPointOutsideBounds(newPt, bmin, bmax);
+}
