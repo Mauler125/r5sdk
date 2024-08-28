@@ -314,7 +314,7 @@ namespace VScriptCode
             // Create an array of C-style strings
             const char* args[4];
             char cmdbuf[256];
-            V_snprintf(cmdbuf, sizeof(cmdbuf), "_setClassVarServer %s %s", pKey, pVal);
+            V_snprintf(cmdbuf, sizeof(cmdbuf), "_setClassVarServer \"%s\" \"%s\"", pKey, pVal);
 
             // Split the command into separate arguments
             args[0] = "_setClassVarServer";
@@ -330,7 +330,7 @@ namespace VScriptCode
             SetClassVars(command);
             *nCommandClient = bak;
 #pragma warning(disable : 4312)
-            g_pEngineServer->ClientCommand(reinterpret_cast<edict_t*>(player->GetEntityIndex()), "set %s %s", pKey, pVal);
+            g_pEngineServer->ClientCommand(reinterpret_cast<edict_t*>(player->GetEntityIndex()), "set \"%s\" \"%s\"", pKey, pVal);
 #pragma warning(default : 4312)
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }

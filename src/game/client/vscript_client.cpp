@@ -478,7 +478,7 @@ namespace VScriptCode
             }
 
             char cmdbuf[256];
-            V_snprintf(cmdbuf, 256, "set %s %s", pKey, pVal);
+            V_snprintf(cmdbuf, 256, "set \"%s\" \"%s\"", pKey, pVal);
             Cbuf_AddTextWithMarkers(cmdbuf,
                 eCmdExecutionMarker_Enable_FCVAR_SERVER_CAN_EXECUTE,
                 eCmdExecutionMarker_Disable_FCVAR_SERVER_CAN_EXECUTE);
