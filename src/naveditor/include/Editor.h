@@ -43,10 +43,14 @@ extern const hulldef hulls[5];
 
 struct TraverseType_s
 {
-	float minElev;
-	float maxElev;
 	float minDist;
 	float maxDist;
+	float minElev;
+	float maxElev;
+	float minSlope;
+	float maxSlope;
+	float ovlpTrig;
+	bool ovlpExcl;
 };
 
 enum TraverseType_e // todo(amos): move elsewhere
@@ -278,6 +282,7 @@ protected:
 	float m_agentMaxClimb;
 	float m_agentMaxSlope;
 	float m_traverseRayExtraOffset;
+	float m_traverseEdgeMinOverlap;
 	int m_regionMinSize;
 	int m_regionMergeSize;
 	int m_edgeMaxLen;

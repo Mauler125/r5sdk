@@ -729,8 +729,8 @@ void Editor_TileMesh::buildTile(const float* pos)
 			dtMeshTile* tile = (dtMeshTile*)m_navMesh->getTileByRef(tileRef);
 
 			// Reconnect the traverse links.
-			connectTileTraverseLinks(tile, true);
 			connectTileTraverseLinks(tile, false);
+			connectTileTraverseLinks(tile, true);
 
 			dtTraverseTableCreateParams params;
 			createTraverseTableParams(&params);
