@@ -645,7 +645,7 @@ dtStatus dtNavMesh::connectExtOffMeshLinks(const dtTileRef tileRef)
 						dtPoly* landPoly = &neiTile->polys[landPolyIdx];
 
 						if (!connectOffMeshLink(neiTile, landPoly, conPolyRef, side, 0xff, traverseType,
-							invertVertLookup ? DT_OFFMESH_CON_TRAVERSE_ON_POLY : DT_OFFMESH_CON_TRAVERSE_ON_POLY))
+							invertVertLookup ? DT_OFFMESH_CON_TRAVERSE_ON_POLY : DT_OFFMESH_CON_TRAVERSE_ON_VERT))
 							return DT_FAILURE | DT_OUT_OF_MEMORY;
 					}
 				}
