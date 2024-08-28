@@ -244,7 +244,7 @@ public:
 				else
 					m_editor->buildTile(m_hitPos);
 			}
-			else if (m_cursorMode == TT_CURSOR_MODE_DEBUG)
+			else if (m_cursorMode == TT_CURSOR_MODE_DEBUG && m_navMesh)
 			{
 				const float halfExtents[3] = { 2, 2, 4 };
 				dtQueryFilter filter;
