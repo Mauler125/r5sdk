@@ -304,16 +304,20 @@ public:
 
 				const int side = (m_selectedSide != -1) 
 					? m_selectedSide
-					: rdClassifyPointInsideBounds(m_hitPos, tile->header->bmin, tile->header->bmax);
+					: rdClassifyPointOutsideBounds(m_hitPos, tile->header->bmin, tile->header->bmax);
 
-				const int MAX_NEIS = 32; // Max neighbors
-				dtMeshTile* neis[MAX_NEIS];
-
-				const int nneis = m_navMesh->getNeighbourTilesAt(tile->header->x, tile->header->y, side, neis, MAX_NEIS);
-
-				for (int i = 0; i < nneis; i++)
+				if (side != 0xff)
 				{
-					duDebugDrawMeshTile(&m_editor->getDebugDraw(), *m_navMesh, 0, neis[i], debugDrawOffset, m_editor->getNavMeshDrawFlags(), params);
+					const int MAX_NEIS = 32; // Max neighbors
+					dtMeshTile* neis[MAX_NEIS];
+
+					const int nneis = m_navMesh->getNeighbourTilesAt(tile->header->x, tile->header->y, side, neis, MAX_NEIS);
+
+					for (int i = 0; i < nneis; i++)
+					{
+						const dtMeshTile* neiTile = neis[i];
+						duDebugDrawMeshTile(&m_editor->getDebugDraw(), *m_navMesh, 0, neiTile, debugDrawOffset, m_editor->getNavMeshDrawFlags(), params);
+					}
 				}
 			}
 		}
