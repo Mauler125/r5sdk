@@ -1168,20 +1168,12 @@ bool Editor::createStaticPathingData(const dtTraverseTableCreateParams* params)
 		return false;
 	}
 
-	if (!createTraverseLinks())
-	{
-		m_ctx->log(RC_LOG_ERROR, "createStaticPathingData: Failed to build traverse links.");
-		return false;
-	}
-
 	return true;
 }
 
 bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
 {
 	if (!params->nav) return false;
-
-	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
 
 	if (!dtUpdateDisjointPolyGroups(params))
 	{

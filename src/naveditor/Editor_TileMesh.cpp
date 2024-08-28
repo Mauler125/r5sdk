@@ -736,11 +736,7 @@ void Editor_TileMesh::buildTile(const float* pos)
 			connectTileTraverseLinks(tile, false);
 			connectTileTraverseLinks(tile, true);
 
-			dtTraverseTableCreateParams params;
-			createTraverseTableParams(&params);
-
-			dtCreateDisjointPolyGroups(&params);
-			updateStaticPathingData(&params);
+			buildStaticPathingData();
 		}
 	}
 	
@@ -804,11 +800,7 @@ void Editor_TileMesh::removeTile(const float* pos)
 			++it;
 		}
 
-		dtTraverseTableCreateParams params;
-		createTraverseTableParams(&params);
-
-		dtCreateDisjointPolyGroups(&params);
-		updateStaticPathingData(&params);
+		buildStaticPathingData();
 	}
 }
 
@@ -853,6 +845,8 @@ void Editor_TileMesh::buildAllTiles()
 	}
 
 	connectOffMeshLinks();
+	createTraverseLinks();
+
 	buildStaticPathingData();
 	
 	// Start the build process.	
