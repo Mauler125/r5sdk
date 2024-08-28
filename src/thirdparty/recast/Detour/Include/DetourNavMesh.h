@@ -273,6 +273,7 @@ struct dtPoly
 ///  @param[in]		verts	The polygon vertices.
 /// @return The total surface are of the polygon.
 float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts);
+unsigned short dtQuantPolySurfaceArea(const float area);
 
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
 struct dtPolyDetail

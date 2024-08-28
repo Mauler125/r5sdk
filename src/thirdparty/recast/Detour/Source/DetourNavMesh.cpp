@@ -1865,7 +1865,7 @@ float dtCalcLinkDistance(const float* spos, const float* epos)
 unsigned char dtQuantLinkDistance(const float distance)
 {
 	if (distance > DT_TRAVERSE_DIST_MAX) return (unsigned char)0;
-	return (unsigned char)(distance * DT_TRAVERSE_DIST_QUANT_FACTOR);
+	return (unsigned char)(rdMathRoundf(distance * DT_TRAVERSE_DIST_QUANT_FACTOR));
 }
 
 float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts)
@@ -1883,6 +1883,11 @@ float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts)
 	}
 
 	return polyArea;
+}
+
+unsigned short dtQuantPolySurfaceArea(const float area)
+{
+	return (unsigned short)rdMathRoundf(area * DT_POLY_AREA_QUANT_FACTOR);
 }
 
 float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
