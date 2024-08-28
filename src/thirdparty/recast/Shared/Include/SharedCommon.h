@@ -319,6 +319,40 @@ inline void rdVnormalize2D(float* v)
 	v[1] *= d;
 }
 
+/// Derives the magnitude of the vector.
+///  @param[in]		v	A vector. [(x, y, z)]
+/// @return The magnitude of the vector.
+inline float rdVmag(const float* v)
+{
+	return rdMathSqrtf(rdVdot(v, v));
+}
+
+/// Derives the magnitude of the vector on the xy-plane.
+///  @param[in]		v	A vector. [(x, y, z)]
+/// @return The magnitude of the vector on the xy-plane.
+inline float rdVmag2D(const float* v)
+{
+	return rdMathSqrtf(rdVdot2D(v, v));
+}
+
+/// Derives the scalar projection of the specified point into the vector.
+///  @param[in]		p	A point. [(x, y, z)]
+///  @param[in]		v	A vector. [(x, y, z)]
+/// @return The scalar projection of the specified point into the vector.
+inline float rdVproj(const float* p, const float* v)
+{
+	return rdVdot(p, v) / rdVmag(v);
+}
+
+/// Derives the scalar projection of the specified point into the vector on the xy-plane.
+///  @param[in]		p	A point. [(x, y, z)]
+///  @param[in]		v	A vector. [(x, y, z)]
+/// @return The scalar projection of the specified point into the vector on the xy-plane.
+inline float rdVproj2D(const float* p, const float* v)
+{
+	return rdVdot2D(p, v) / rdVmag2D(v);
+}
+
 /// Performs a 'sloppy' collocation check of the specified points.
 ///  @param[in]		p0	A point. [(x, y, z)]
 ///  @param[in]		p1	A point. [(x, y, z)]
