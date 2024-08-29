@@ -432,6 +432,28 @@ void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool invert, f
 	rdCalcEdgeNormal2D(dir, invert, out);
 }
 
+bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,
+	const float* subEdgeEnd, float& tmin, float& tmax)
+{
+	const float edgeLen = rdVdist2D(edgeStart, edgeEnd);
+	const float subEdgeStartDist = rdVdist2D(edgeStart, subEdgeStart);
+	const float subEdgeEndDist = rdVdist2D(edgeStart, subEdgeEnd);
+
+	tmin = subEdgeStartDist / edgeLen;
+	tmax = subEdgeEndDist / edgeLen;
+
+	// note(amos): If the min is larger than the max, we most likely have a
+	// malformed detail polygon, e.g. a triangle that is flipped causing its
+	// boundary edge's start vert to be closer to the end vert of the polygon
+	// when comparing the distances in the same winding order. This can happen
+	// on more complex geometry or when the error tollerance is raised. Either
+	// way return false to notify caller that the calculation has failed.
+	if (tmin > tmax)
+		return false;
+
+	return true;
+}
+
 float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight)
 {
 	const float angleRad = rdMathAtan2f(objectHeight, ledgeSpan);

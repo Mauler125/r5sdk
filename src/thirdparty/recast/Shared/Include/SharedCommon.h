@@ -488,6 +488,15 @@ void rdCalcEdgeNormal2D(const float* dir, const bool inner, float* out);
 ///  @param[out]	out		The resulting normal. [(x, y)]
 void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool inner, float* out);
 
+///  @param[in]		edgeStart		First vert of the polygon edge. [(x, y, z)]
+///  @param[in]		edgeEnd			Second vert of the polygon edge. [(x, y, z)]
+///  @param[in]		subEdgeStart	First vert of the detail edge. [(x, y, z)]
+///  @param[in]		subEdgeEnd		Second vert of the detail edge. [(x, y, z)]
+///  @param[out]	tmin			The normalized distance ratio from polygon edge start to detail edge start.
+///  @param[out]	tmax			The normalized distance ratio from polygon edge start to detail edge end.
+bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,
+	const float* subEdgeEnd, float& tmin, float& tmax);
+
 /// Derives the maximum angle in which an object on an elevated surface can be seen from below.
 ///  @param[in]		ledgeSpan		The distance between the edge of the object and the edge of the ledge.
 ///  @param[in]		objectHeight	The height of the object.
