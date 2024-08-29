@@ -35,6 +35,7 @@
 
 #include "game/server/ai_navmesh.h"
 #include "game/server/ai_hull.h"
+#include "coordsize.h"
 
 
 #ifdef DT_POLYREF64
@@ -184,6 +185,10 @@ public:
 			ImGui::SliderInt("Tile Side", &m_selectedSide, -1, 8, "%d", ImGuiSliderFlags_NoInput);
 			ImGui::PopItemWidth();
 		}
+
+		ImGui::PushItemWidth(180);
+		ImGui::SliderFloat3("Cursor", m_hitPos, MIN_COORD_FLOAT, MAX_COORD_FLOAT);
+		ImGui::PopItemWidth();
 
 		if (hasMarker && ImGui::Button("Clear Markers"))
 		{
