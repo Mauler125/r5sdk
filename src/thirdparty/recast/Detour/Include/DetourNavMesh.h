@@ -284,6 +284,15 @@ struct dtPolyDetail
 	unsigned char triCount;			///< The number of triangles in the sub-mesh.
 };
 
+/// Get flags for edge in detail triangle.
+/// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
+/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0.
+///								returns flags for edge AB.
+inline int dtGetDetailTriEdgeFlags(unsigned char triFlags, int edgeIndex)
+{
+	return (triFlags >> (edgeIndex * 2)) & 0x3;
+}
+
 /// Defines a link between polygons.
 /// @note This structure is rarely if ever used by the end user.
 /// @see dtMeshTile
@@ -475,15 +484,6 @@ private:
 	dtMeshTile(const dtMeshTile&);
 	dtMeshTile& operator=(const dtMeshTile&);
 };
-
-/// Get flags for edge in detail triangle.
-/// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
-/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0.
-///								returns flags for edge AB.
-inline int dtGetDetailTriEdgeFlags(unsigned char triFlags, int edgeIndex)
-{
-	return (triFlags >> (edgeIndex * 2)) & 0x3;
-}
 
 /// Configuration parameters used to define multi-tile navigation meshes.
 /// The values are used to allocate space during the initialization of a navigation mesh.
