@@ -210,8 +210,8 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 					if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
 						continue;
 
-					if (rdDistancePtLine2d(tv[n],v0,v1) < thr &&
-						rdDistancePtLine2d(tv[m],v0,v1) < thr)
+					if (rdDistancePtLine2D(tv[n],v0,v1) < thr &&
+						rdDistancePtLine2D(tv[m],v0,v1) < thr)
 					{
 						dd->vertex(tv[n], c);
 						dd->vertex(tv[m], c);

@@ -395,7 +395,7 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 	return true;
 }
 
-float rdDistancePtLine2d(const float* pt, const float* p, const float* q)
+float rdDistancePtLine2D(const float* pt, const float* p, const float* q)
 {
 	float pqx = q[0] - p[0];
 	float pqy = q[1] - p[1];

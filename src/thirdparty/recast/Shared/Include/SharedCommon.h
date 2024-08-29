@@ -473,7 +473,7 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 						 const float* bp, const float* bq,
 						 float& s, float& t);
 
-float rdDistancePtLine2d(const float* pt, const float* p, const float* q);
+float rdDistancePtLine2D(const float* pt, const float* p, const float* q);
 
 /// Derives the normal of an edge
 ///  @param[in]		dir		The direction of the edge. [(x, y, z)]

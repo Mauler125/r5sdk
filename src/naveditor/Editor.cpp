@@ -928,8 +928,8 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 					if ((dtGetDetailTriEdgeFlags(baseTri[3], m) & DT_DETAIL_EDGE_BOUNDARY) == 0)
 						continue;
 
-					if (rdDistancePtLine2d(baseTriVerts[m], basePolySpos, basePolyEpos) >= detailEdgeAlignThresh ||
-						rdDistancePtLine2d(baseTriVerts[l], basePolySpos, basePolyEpos) >= detailEdgeAlignThresh)
+					if (rdDistancePtLine2D(baseTriVerts[m], basePolySpos, basePolyEpos) >= detailEdgeAlignThresh ||
+						rdDistancePtLine2D(baseTriVerts[l], basePolySpos, basePolyEpos) >= detailEdgeAlignThresh)
 						continue;
 
 					const float* baseDetailPolyEdgeSpos = baseTriVerts[m];
@@ -1043,8 +1043,8 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 										if ((dtGetDetailTriEdgeFlags(landTri[3], s) & DT_DETAIL_EDGE_BOUNDARY) == 0)
 											continue;
 
-										if (rdDistancePtLine2d(landTriVerts[s], landPolySpos, landPolyEpos) >= detailEdgeAlignThresh ||
-											rdDistancePtLine2d(landTriVerts[r], landPolySpos, landPolyEpos) >= detailEdgeAlignThresh)
+										if (rdDistancePtLine2D(landTriVerts[s], landPolySpos, landPolyEpos) >= detailEdgeAlignThresh ||
+											rdDistancePtLine2D(landTriVerts[r], landPolySpos, landPolyEpos) >= detailEdgeAlignThresh)
 											continue;
 
 										const float* landDetailPolyEdgeSpos = landTriVerts[s];
