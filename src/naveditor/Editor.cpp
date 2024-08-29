@@ -82,7 +82,7 @@ static void initTraverseTableParams()
 	s_traverseTable[5]  = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
 	s_traverseTable[6]  = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
 
-	s_traverseTable[7]  = { 800.f, 1030.f, 0.f,   96.f,  0.0f, 6.5f,  -1.f, false };
+	s_traverseTable[7]  = { 800.f, 1030.f, 0.f,   96.f,  0.0f, 6.5f,  0.f, true };
 	s_traverseTable[8]  = { 70.f,  220.f,  48.f,  220.f, 19.f, 84.f,  0.f,  false };
 	s_traverseTable[9]  = { 210.f, 450.f,  168.f, 384.f, 27.f, 87.5f, 0.f,  false };
 	s_traverseTable[10] = { 450.f, 860.f,  384.f, 672.f, 44.f, 89.5f, 0.f,  false };
