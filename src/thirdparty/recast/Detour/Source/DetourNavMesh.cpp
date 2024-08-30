@@ -1868,6 +1868,23 @@ unsigned char dtQuantLinkDistance(const float distance)
 	return (unsigned char)(rdMathRoundf(distance * DT_TRAVERSE_DIST_QUANT_FACTOR));
 }
 
+float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts)
+{
+	float polyArea = 0.0f;
+
+	// Only run if we have more than 2 verts since poly's with 2 verts
+	// (off-mesh connections) don't have any surface area.
+	for (int i = 2; i < poly->vertCount; ++i)
+	{
+		const float* va = &verts[poly->verts[0]*3];
+		const float* vb = &verts[poly->verts[i]*3];
+		const float* vc = &verts[poly->verts[i-1]*3];
+		polyArea += rdTriArea2D(va,vb,vc);
+	}
+
+	return polyArea;
+}
+
 float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
 {
 	const float dx = epos[0]-spos[0];

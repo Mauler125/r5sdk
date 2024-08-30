@@ -265,6 +265,12 @@ struct dtPoly
 	inline unsigned char getType() const { return areaAndtype >> 6; }
 };
 
+/// Calculates the surface area of the polygon.
+///  @param[in]		poly	The polygon.
+///  @param[in]		verts	The polygon vertices.
+/// @return The total surface are of the polygon.
+float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts);
+
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
 struct dtPolyDetail
 {
