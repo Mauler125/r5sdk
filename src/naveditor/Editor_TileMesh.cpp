@@ -1260,6 +1260,25 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			{
 				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
+
+			if (m_pmesh->surfa[i] <= NAVMESH_SMALL_POLYGON_THRESHOLD)
+				m_pmesh->flags[i] |= EDITOR_POLYFLAGS_TOO_SMALL;
+
+			const int nvp = m_pmesh->nvp;
+			const unsigned short* p = &m_pmesh->polys[i*nvp*2];
+
+			// If polygon connects to a polygon on a neighbouring tile, flag it.
+			for (int j = 0; j < nvp; ++j)
+			{
+				if (p[j] == RC_MESH_NULL_IDX)
+					break;
+				if ((p[nvp+j] & 0x8000) == 0)
+					continue;
+				if ((p[nvp+j] & 0xf) == 0xf)
+					continue;
+
+				m_pmesh->flags[i] |= EDITOR_POLYFLAGS_HAS_NEIGHBOUR;
+			}
 		}
 		
 		dtNavMeshCreateParams params;
