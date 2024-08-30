@@ -394,11 +394,11 @@ void NavMeshTesterTool::handleMenu()
 		recalc();
 	}
 
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_SKIP) != 0;
+	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_TOO_SMALL) != 0;
 
 	if (ImGui::Checkbox("Skip##IncludeFlags", &isEnabled))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_SKIP);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_TOO_SMALL);
 		recalc();
 	}
 
@@ -417,11 +417,11 @@ void NavMeshTesterTool::handleMenu()
 		recalc();
 	}
 
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_SKIP) != 0;
+	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_TOO_SMALL) != 0;
 
 	if (ImGui::Checkbox("Skip##ExcludeFlags", &isEnabled))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_SKIP);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_TOO_SMALL);
 		recalc();
 	}
 

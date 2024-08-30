@@ -1110,6 +1110,12 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.areas' (%d).", maxTris);
 		return false;
 	}
+	mesh.surfa = (unsigned short*)rdAlloc(sizeof(unsigned short)*maxTris, RD_ALLOC_PERM);
+	if (!mesh.surfa)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.surfa' (%d).", maxTris);
+		return false;
+	}
 	
 	mesh.nverts = 0;
 	mesh.npolys = 0;
@@ -1353,6 +1359,36 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 #endif
 			}
 		}
+	}
+
+	// Calculate polygon surface area's.
+	for (int i = 0; i < mesh.npolys; i++)
+	{
+		const unsigned short* p = &mesh.polys[i*2*nvp];
+		unsigned short vi[3];
+		float fv[3][2];
+		float polyArea = 0.0f;
+		for (int j = 2; j < nvp; ++j)
+		{
+			if (p[j] == RC_MESH_NULL_IDX)
+				break;
+
+			vi[0] = p[0];
+			vi[1] = p[j];
+			vi[2] = p[j-1];
+
+			for (int k = 0; k < 3; k++)
+			{
+				const unsigned short* v = &mesh.verts[vi[k]*3];
+
+				fv[k][0] = mesh.bmin[0] + v[0]*mesh.cs;
+				fv[k][1] = mesh.bmin[1] + v[1]*mesh.cs;
+			}
+
+			polyArea += rdTriArea2D(fv[0], fv[1], fv[2]);
+		}
+
+		mesh.surfa[i] = (unsigned short)rdMathRoundf(polyArea*RC_POLY_SURFAREA_QUANT_FACTOR);
 	}
 
 	// Just allocate the mesh flags array. The user is responsible to fill it.
