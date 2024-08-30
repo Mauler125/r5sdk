@@ -1267,8 +1267,9 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.verts = m_pmesh->verts;
 		params.vertCount = m_pmesh->nverts;
 		params.polys = m_pmesh->polys;
-		params.polyAreas = m_pmesh->areas;
 		params.polyFlags = m_pmesh->flags;
+		params.polyAreas = m_pmesh->areas;
+		params.surfAreas = m_pmesh->surfa;
 		params.polyCount = m_pmesh->npolys;
 		params.nvp = m_pmesh->nvp;
 		params.cellResolution = m_polyCellRes;

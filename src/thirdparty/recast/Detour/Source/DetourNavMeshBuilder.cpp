@@ -960,10 +960,11 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	for (int i = 0; i < params->polyCount; ++i)
 	{
 		dtPoly* p = &navPolys[i];
-		p->vertCount = 0;
 		p->flags = params->polyFlags[i];
+		p->vertCount = 0;
 		p->setArea(params->polyAreas[i]);
 		p->setType(DT_POLYTYPE_GROUND);
+		p->surfaceArea = params->surfAreas[i];
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (src[j] == MESH_NULL_IDX) break;
@@ -992,8 +993,6 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			p->vertCount++;
 		}
 		rdVscale(p->center, p->center, 1 / (float)(p->vertCount));
-		p->surfaceArea = dtQuantPolySurfaceArea(dtCalcPolySurfaceArea(p,navVerts));
-
 		src += nvp*2;
 	}
 

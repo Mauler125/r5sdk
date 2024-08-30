@@ -85,9 +85,6 @@ static const unsigned short DT_FIRST_USABLE_POLY_GROUP = 2;
 /// are even on the same (or connected) poly island before trying to compute a path).
 static const int DT_MIN_POLY_GROUP_COUNT = 3;
 
-/// The cached poly surface area quantization factor.
-static const float DT_POLY_AREA_QUANT_FACTOR = 0.01f;
-
 /// The maximum number of traversal tables per navmesh that will be used for static pathing.
 static const int DT_MAX_TRAVERSE_TABLES = 5;
 
@@ -267,13 +264,6 @@ struct dtPoly
 	/// Gets the polygon type. (See: #dtPolyTypes)
 	inline unsigned char getType() const { return areaAndtype >> 6; }
 };
-
-/// Calculates the surface area of the polygon.
-///  @param[in]		poly	The polygon.
-///  @param[in]		verts	The polygon vertices.
-/// @return The total surface are of the polygon.
-float dtCalcPolySurfaceArea(const dtPoly* poly, const float* verts);
-unsigned short dtQuantPolySurfaceArea(const float area);
 
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
 struct dtPolyDetail
