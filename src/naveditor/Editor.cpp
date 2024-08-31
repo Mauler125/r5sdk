@@ -414,207 +414,8 @@ void Editor::handleCommonSettings()
 	ImGui::Separator();
 	ImGui::Text("Traversability");
 
-	static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit | 
-		/*ImGuiTableFlags_ScrollX |*/ 
-		ImGuiTableFlags_ScrollY | 
-		ImGuiTableFlags_BordersInner | 
-		ImGuiTableFlags_BordersOuter |
-		ImGuiTableFlags_Hideable |
-		/*ImGuiTableFlags_Resizable |*/
-		/*ImGuiTableFlags_Reorderable |*/
-		ImGuiTableFlags_HighlightHoveredColumn;
-
-	static ImGuiTableColumnFlags columnFlags = ImGuiTableColumnFlags_AngledHeader |
-		ImGuiTableColumnFlags_WidthStretch;
-
-	static int frozenCols = 1;
-	static int frozenRows = 2;
-	const int rowsCount = NUM_TRAVERSE_TYPES;
-	const float textBaseHeight = ImGui::GetTextLineHeightWithSpacing();
-
-	const char* linearColumnNames[] = { "Type", "minDist", "maxDist", "minElev", "maxElev"};
-	const int linearColumnsCount = IM_ARRAYSIZE(linearColumnNames);
-
-	if (ImGui::BeginTable("TraverseTableLinearFineTuner", linearColumnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12)+10.f)))
-	{
-		ImGui::TableSetupColumn(linearColumnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
-		for (int n = 1; n < linearColumnsCount; n++)
-			ImGui::TableSetupColumn(linearColumnNames[n], columnFlags, 100);
-		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
-
-		ImGui::TableAngledHeadersRow();
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper;
-		clipper.Begin(rowsCount);
-
-		while (clipper.Step())
-		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-				ImGui::PushID(row);
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("%d", row);
-
-				for (int column = 1; column < linearColumnsCount; column++)
-				{
-					if (!ImGui::TableSetColumnIndex(column))
-						continue;
-
-					ImGui::PushID(column);
-					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
-					TraverseType_s& trav = s_traverseTable[row];
-
-					switch (column)
-					{
-					case 1:
-						ImGui::SliderFloat("", &trav.minDist, 0, trav.maxDist, "%g");
-						break;
-					case 2:
-						ImGui::SliderFloat("", &trav.maxDist, 0, DT_TRAVERSE_DIST_MAX, "%g");
-						break;
-					case 3:
-						ImGui::SliderFloat("", &trav.minElev, 0, trav.maxElev, "%g");
-						break;
-					case 4:
-						ImGui::SliderFloat("", &trav.maxElev, 0, DT_TRAVERSE_DIST_MAX, "%g");
-						break;
-					}
-
-					ImGui::PopItemWidth();
-					ImGui::PopID();
-				}
-				ImGui::PopID();
-			}
-		}
-
-		ImGui::EndTable();
-	}
-
-	const char* angularColumnNames[] = { "Type", "minSlope", "maxSlope", "ovlpTrig", "ovlpExcl" };
-	const int angularColumnsCount = IM_ARRAYSIZE(angularColumnNames);
-
-	if (ImGui::BeginTable("TraverseTableAngularFineTuner", angularColumnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12) + 10.f)))
-	{
-		ImGui::TableSetupColumn(angularColumnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
-		for (int n = 1; n < angularColumnsCount; n++)
-			ImGui::TableSetupColumn(angularColumnNames[n], columnFlags, 100);
-		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
-
-		ImGui::TableAngledHeadersRow();
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper;
-		clipper.Begin(rowsCount);
-
-		while (clipper.Step())
-		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-				ImGui::PushID(row);
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("%d", row);
-
-				for (int column = 1; column < angularColumnsCount; column++)
-				{
-					if (!ImGui::TableSetColumnIndex(column))
-						continue;
-
-					ImGui::PushID(column);
-					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
-					TraverseType_s& trav = s_traverseTable[row];
-
-					switch (column)
-					{
-					case 1:
-						ImGui::SliderFloat("", &trav.minSlope, 0, trav.maxSlope, "%g");
-						break;
-					case 2:
-						ImGui::SliderFloat("", &trav.maxSlope, 0, 360, "%g");
-						break;
-					case 3:
-						ImGui::SliderFloat("", &trav.ovlpTrig, 0, trav.maxElev, "%g");
-						break;
-					case 4:
-						ImGui::Checkbox("", &trav.ovlpExcl);
-						break;
-					}
-
-					ImGui::PopItemWidth();
-					ImGui::PopID();
-				}
-				ImGui::PopID();
-			}
-		}
-
-		ImGui::EndTable();
-	}
-
-	if (ImGui::Button("Reset Traverse Table Parameters"))
-		initTraverseTableParams();
-
-	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
-	const int numColumns = numTraverseTables + 1;
-
-	if (ImGui::BeginTable("TraverseTableMaskSelector", numColumns, tableFlags, ImVec2(0.0f, (textBaseHeight*12)+20.f)))
-	{
-		ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
-		const bool smallNavMesh = m_selectedNavMeshType == NAVMESH_SMALL;
-
-		for (int n = 0; n < numTraverseTables; n++)
-		{
-			const int i = smallNavMesh
-				? NavMesh_GetTraverseTableIndexForAnimType(TraverseAnimType_e(n))
-				: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
-
-			ImGui::TableSetupColumn(g_traverseAnimTypeNames[i], columnFlags);
-		}
-
-		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
-
-		ImGui::TableAngledHeadersRow();
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper;
-		clipper.Begin(rowsCount);
-
-		while (clipper.Step())
-		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-				ImGui::PushID(row);
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("%d", row);
-
-				for (int column = 0; column < numTraverseTables; column++)
-				{
-					if (!ImGui::TableSetColumnIndex(column + 1))
-						continue;
-
-					ImGui::PushID(column + 1);
-					const int j = smallNavMesh
-						? column
-						: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
-
-					int* flags = &s_traverseAnimTraverseFlags[j];
-
-					ImGui::CheckboxFlags("", flags, 1 << row);
-					ImGui::PopID();
-				}
-				ImGui::PopID();
-			}
-		}
-
-		ImGui::EndTable();
-	}
-	if (ImGui::Button("Reset Traverse Table Masks"))
-		initTraverseMasks();
+	if (ImGui::CollapsingHeader("Traverse Table Fine Tuner"))
+		renderTraverseTableFineTuners();
 
 	if (ImGui::Checkbox("Dynamic Traverse Ray Offset", &m_traverseRayDynamicOffset))
 		m_traverseLinkDrawParams.dynamicOffset = m_traverseRayDynamicOffset;
@@ -1486,6 +1287,211 @@ void Editor::renderDetourDebugMenu()
 		ImGui::SliderInt("Traverse Anim", &m_traverseLinkDrawParams.traverseAnimType, -2, m_navMesh->getParams()->traverseTableCount-1);
 		ImGui::PopItemWidth();
 	}
+}
+
+void Editor::renderTraverseTableFineTuners()
+{
+	static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit |
+		/*ImGuiTableFlags_ScrollX |*/
+		ImGuiTableFlags_ScrollY |
+		ImGuiTableFlags_BordersInner |
+		ImGuiTableFlags_BordersOuter |
+		ImGuiTableFlags_Hideable |
+		/*ImGuiTableFlags_Resizable |*/
+		/*ImGuiTableFlags_Reorderable |*/
+		ImGuiTableFlags_HighlightHoveredColumn;
+
+	static ImGuiTableColumnFlags columnFlags = ImGuiTableColumnFlags_AngledHeader |
+		ImGuiTableColumnFlags_WidthStretch;
+
+	static int frozenCols = 1;
+	static int frozenRows = 2;
+	const int rowsCount = NUM_TRAVERSE_TYPES;
+	const float textBaseHeight = ImGui::GetTextLineHeightWithSpacing();
+
+	const char* linearColumnNames[] = { "Type", "minDist", "maxDist", "minElev", "maxElev" };
+	const int linearColumnsCount = IM_ARRAYSIZE(linearColumnNames);
+
+	if (ImGui::BeginTable("TraverseTableLinearFineTuner", linearColumnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12) + 10.f)))
+	{
+		ImGui::TableSetupColumn(linearColumnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
+		for (int n = 1; n < linearColumnsCount; n++)
+			ImGui::TableSetupColumn(linearColumnNames[n], columnFlags, 100);
+		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
+
+		ImGui::TableAngledHeadersRow();
+		ImGui::TableHeadersRow();
+
+		ImGuiListClipper clipper;
+		clipper.Begin(rowsCount);
+
+		while (clipper.Step())
+		{
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+			{
+				ImGui::PushID(row);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%d", row);
+
+				for (int column = 1; column < linearColumnsCount; column++)
+				{
+					if (!ImGui::TableSetColumnIndex(column))
+						continue;
+
+					ImGui::PushID(column);
+					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
+					TraverseType_s& trav = s_traverseTable[row];
+
+					switch (column)
+					{
+					case 1:
+						ImGui::SliderFloat("", &trav.minDist, 0, trav.maxDist, "%g");
+						break;
+					case 2:
+						ImGui::SliderFloat("", &trav.maxDist, 0, DT_TRAVERSE_DIST_MAX, "%g");
+						break;
+					case 3:
+						ImGui::SliderFloat("", &trav.minElev, 0, trav.maxElev, "%g");
+						break;
+					case 4:
+						ImGui::SliderFloat("", &trav.maxElev, 0, DT_TRAVERSE_DIST_MAX, "%g");
+						break;
+					}
+
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::EndTable();
+	}
+
+	const char* angularColumnNames[] = { "Type", "minSlope", "maxSlope", "ovlpTrig", "ovlpExcl" };
+	const int angularColumnsCount = IM_ARRAYSIZE(angularColumnNames);
+
+	if (ImGui::BeginTable("TraverseTableAngularFineTuner", angularColumnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12) + 10.f)))
+	{
+		ImGui::TableSetupColumn(angularColumnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
+		for (int n = 1; n < angularColumnsCount; n++)
+			ImGui::TableSetupColumn(angularColumnNames[n], columnFlags, 100);
+		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
+
+		ImGui::TableAngledHeadersRow();
+		ImGui::TableHeadersRow();
+
+		ImGuiListClipper clipper;
+		clipper.Begin(rowsCount);
+
+		while (clipper.Step())
+		{
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+			{
+				ImGui::PushID(row);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%d", row);
+
+				for (int column = 1; column < angularColumnsCount; column++)
+				{
+					if (!ImGui::TableSetColumnIndex(column))
+						continue;
+
+					ImGui::PushID(column);
+					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
+					TraverseType_s& trav = s_traverseTable[row];
+
+					switch (column)
+					{
+					case 1:
+						ImGui::SliderFloat("", &trav.minSlope, 0, trav.maxSlope, "%g");
+						break;
+					case 2:
+						ImGui::SliderFloat("", &trav.maxSlope, 0, 360, "%g");
+						break;
+					case 3:
+						ImGui::SliderFloat("", &trav.ovlpTrig, 0, trav.maxElev, "%g");
+						break;
+					case 4:
+						ImGui::Checkbox("", &trav.ovlpExcl);
+						break;
+					}
+
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::EndTable();
+	}
+
+	if (ImGui::Button("Reset Traverse Table Parameters"))
+		initTraverseTableParams();
+
+	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
+	const int numColumns = numTraverseTables + 1;
+
+	if (ImGui::BeginTable("TraverseTableMaskSelector", numColumns, tableFlags, ImVec2(0.0f, (textBaseHeight * 12) + 20.f)))
+	{
+		ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
+		const bool smallNavMesh = m_selectedNavMeshType == NAVMESH_SMALL;
+
+		for (int n = 0; n < numTraverseTables; n++)
+		{
+			const int i = smallNavMesh
+				? NavMesh_GetTraverseTableIndexForAnimType(TraverseAnimType_e(n))
+				: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+
+			ImGui::TableSetupColumn(g_traverseAnimTypeNames[i], columnFlags);
+		}
+
+		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
+
+		ImGui::TableAngledHeadersRow();
+		ImGui::TableHeadersRow();
+
+		ImGuiListClipper clipper;
+		clipper.Begin(rowsCount);
+
+		while (clipper.Step())
+		{
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+			{
+				ImGui::PushID(row);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%d", row);
+
+				for (int column = 0; column < numTraverseTables; column++)
+				{
+					if (!ImGui::TableSetColumnIndex(column + 1))
+						continue;
+
+					ImGui::PushID(column + 1);
+					const int j = smallNavMesh
+						? column
+						: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+
+					int* flags = &s_traverseAnimTraverseFlags[j];
+
+					ImGui::CheckboxFlags("", flags, 1 << row);
+					ImGui::PopID();
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::EndTable();
+	}
+	if (ImGui::Button("Reset Traverse Table Masks"))
+		initTraverseMasks();
 }
 
 // NOTE: the climb height should never equal or exceed the agent's height, see https://groups.google.com/g/recastnavigation/c/L5rBamxcOBk/m/5xGLj6YP25kJ

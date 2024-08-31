@@ -377,6 +377,7 @@ public:
 
 	void renderMeshOffsetOptions();
 	void renderDetourDebugMenu();
+	void renderTraverseTableFineTuners();
 	void renderIntermediateTileMeshOptions();
 
 	void selectNavMeshType(const NavMeshType_e navMeshType);
