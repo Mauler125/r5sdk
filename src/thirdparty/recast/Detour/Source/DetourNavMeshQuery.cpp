@@ -59,43 +59,54 @@
 
 dtQueryFilter::dtQueryFilter() :
 	m_includeFlags(0xffff),
-	m_excludeFlags(0)
+	m_excludeFlags(0),
+	m_traverseFlags(0)
 {
-	for (int i = 0; i < DT_MAX_AREAS; ++i)
-		m_areaCost[i] = 1.0f;
+	for (int i = 0; i < DT_MAX_TRAVERSE_TYPES; ++i)
+		m_traverseCost[i] = 1.0f;
 }
 
-#ifdef DT_VIRTUAL_QUERYFILTER
+#ifndef DT_VIRTUAL_QUERYFILTER
+rdForceInline
+#endif
 bool dtQueryFilter::passFilter(const dtPolyRef /*ref*/,
-							   const dtMeshTile* /*tile*/,
-							   const dtPoly* poly) const
-{
-	return (poly->flags & m_includeFlags) != 0 && (poly->flags & m_excludeFlags) == 0;
-}
-
-float dtQueryFilter::getCost(const float* pa, const float* pb,
-							 const dtPolyRef /*prevRef*/, const dtMeshTile* /*prevTile*/, const dtPoly* /*prevPoly*/,
-							 const dtPolyRef /*curRef*/, const dtMeshTile* /*curTile*/, const dtPoly* curPoly,
-							 const dtPolyRef /*nextRef*/, const dtMeshTile* /*nextTile*/, const dtPoly* /*nextPoly*/) const
-{
-	return rdVdist(pa, pb) * m_areaCost[curPoly->getArea()];
-}
-#else
-inline bool dtQueryFilter::passFilter(const dtPolyRef /*ref*/,
 									  const dtMeshTile* /*tile*/,
 									  const dtPoly* poly) const
 {
 	return (poly->flags & m_includeFlags) != 0 && (poly->flags & m_excludeFlags) == 0;
 }
 
-inline float dtQueryFilter::getCost(const float* pa, const float* pb,
+#ifndef DT_VIRTUAL_QUERYFILTER
+rdForceInline
+#endif
+bool dtQueryFilter::traverseFilter(const dtPolyRef /*ref*/,
+	const dtMeshTile* tile,
+	const dtPoly* poly) const
+{
+	const dtLink* link = &tile->links[poly->firstLink];
+
+	if (link->hasTraverseType())
+	{
+		if (!(rdBitCellBit(link->getTraverseType()) & m_traverseFlags))
+			return false;
+	}
+
+	return true;
+}
+
+#ifndef DT_VIRTUAL_QUERYFILTER
+rdForceInline
+#endif
+float dtQueryFilter::getCost(const float* pa, const float* pb, const dtLink* link,
 									const dtPolyRef /*prevRef*/, const dtMeshTile* /*prevTile*/, const dtPoly* /*prevPoly*/,
-									const dtPolyRef /*curRef*/, const dtMeshTile* /*curTile*/, const dtPoly* curPoly,
+									const dtPolyRef /*curRef*/, const dtMeshTile* /*curTile*/, const dtPoly* /*curPoly*/,
 									const dtPolyRef /*nextRef*/, const dtMeshTile* /*nextTile*/, const dtPoly* /*nextPoly*/) const
 {
-	return rdVdist(pa, pb) * m_areaCost[curPoly->getArea()];
+	if (link && link->hasTraverseType())
+		return m_traverseCost[link->getTraverseType()];
+
+	return rdVdist(pa, pb);
 }
-#endif	
 	
 static const float H_SCALE = 0.999f; // Search heuristic scale.
 
@@ -399,6 +410,9 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 			
 			// Do not advance if the polygon is excluded by the filter.
 			if (!filter->passFilter(neighbourRef, neighbourTile, neighbourPoly))
+				continue;
+
+			if (!filter->traverseFilter(bestRef, bestTile, bestPoly))
 				continue;
 			
 			// Find edge and calc distance to the edge.
@@ -1015,14 +1029,15 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
-			dtPolyRef neighbourRef = bestTile->links[i].ref;
+			const dtLink& bestLink = bestTile->links[i];
+			dtPolyRef neighbourRef = bestLink.ref;
 			
 			// Skip invalid ids and do not expand back to where we came from.
 			if (!neighbourRef || neighbourRef == parentRef)
 				continue;
 			
 			// Get neighbour poly and tile.
-			// The API input has been cheked already, skip checking internal data.
+			// The API input has been checked already, skip checking internal data.
 			const dtMeshTile* neighbourTile = 0;
 			const dtPoly* neighbourPoly = 0;
 			m_nav->getTileAndPolyByRefUnsafe(neighbourRef, &neighbourTile, &neighbourPoly);			
@@ -1032,8 +1047,8 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 
 			// deal explicitly with crossing tile boundaries
 			unsigned char crossSide = 0;
-			if (bestTile->links[i].side != 0xff)
-				crossSide = bestTile->links[i].side >> 1;
+			if (bestLink.side != 0xff)
+				crossSide = bestLink.side >> 1;
 
 			// get the node
 			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, crossSide);
@@ -1059,11 +1074,11 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			if (neighbourRef == endRef)
 			{
 				// Cost
-				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos,
+				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos, &bestLink,
 													  parentRef, parentTile, parentPoly,
 													  bestRef, bestTile, bestPoly,
 													  neighbourRef, neighbourTile, neighbourPoly);
-				const float endCost = filter->getCost(neighbourNode->pos, endPos,
+				const float endCost = filter->getCost(neighbourNode->pos, endPos, 0,
 													  bestRef, bestTile, bestPoly,
 													  neighbourRef, neighbourTile, neighbourPoly,
 													  0, 0, 0);
@@ -1074,7 +1089,7 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			else
 			{
 				// Cost
-				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos,
+				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos, &bestLink,
 													  parentRef, parentTile, parentPoly,
 													  bestRef, bestTile, bestPoly,
 													  neighbourRef, neighbourTile, neighbourPoly);
@@ -1332,7 +1347,8 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters,
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
-			dtPolyRef neighbourRef = bestTile->links[i].ref;
+			const dtLink& bestLink = bestTile->links[i];
+			dtPolyRef neighbourRef = bestLink.ref;
 			
 			// Skip invalid ids and do not expand back to where we came from.
 			if (!neighbourRef || neighbourRef == parentRef)
@@ -1349,8 +1365,8 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters,
 			
 			unsigned char crossSide = 0; // See https://github.com/recastnavigation/recastnavigation/issues/438
 
-			if (bestTile->links[i].side != 0xff)
-				crossSide = bestTile->links[i].side >> 1;
+			if (bestLink.side != 0xff)
+				crossSide = bestLink.side >> 1;
 
 			// get the neighbor node
 			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, crossSide);
@@ -1394,7 +1410,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters,
 			else
 			{
 				// No shortcut found.
-				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos,
+				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos, &bestLink,
 															  parentRef, parentTile, parentPoly,
 															bestRef, bestTile, bestPoly,
 															neighbourRef, neighbourTile, neighbourPoly);
@@ -1404,7 +1420,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters,
 			// Special case for last node.
 			if (neighbourRef == m_query.endRef)
 			{
-				const float endCost = filter->getCost(neighbourNode->pos, m_query.endPos,
+				const float endCost = filter->getCost(neighbourNode->pos, m_query.endPos, 0,
 															  bestRef, bestTile, bestPoly,
 															  neighbourRef, neighbourTile, neighbourPoly,
 															  0, 0, 0);
@@ -2529,7 +2545,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			return status;
 		}
 
-		hit->hitEdgeIndex = segMax;
+		hit->startRef = startRef;
 
 		// Keep track of furthest t so far.
 		if (tmax > hit->t)
@@ -2549,7 +2565,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			
 			// add the cost
 			if (options & DT_RAYCAST_USE_COSTS)
-				hit->pathCost += filter->getCost(curPos, endPos, prevRef, prevTile, prevPoly, curRef, tile, poly, curRef, tile, poly);
+				hit->pathCost += filter->getCost(curPos, endPos, 0, prevRef, prevTile, prevPoly, curRef, tile, poly, curRef, tile, poly);
 			return status;
 		}
 
@@ -2561,7 +2577,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			const dtLink* link = &tile->links[i];
 			
 			// Find link which contains this edge.
-			if ((int)link->edge != segMax)
+			if ((int)link->edge != segMax || link->hasTraverseType())
 				continue;
 			
 			// Get pointer to the next polygon.
@@ -2649,7 +2665,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			float s = rdSqr(eDir[0]) > rdSqr(eDir[1]) ? diff[0] / eDir[0] : diff[1] / eDir[1];
 			curPos[2] = e1[2] + eDir[2] * s;
 
-			hit->pathCost += filter->getCost(lastPos, curPos, prevRef, prevTile, prevPoly, curRef, tile, poly, nextRef, nextTile, nextPoly);
+			hit->pathCost += filter->getCost(lastPos, curPos, 0, prevRef, prevTile, prevPoly, curRef, tile, poly, nextRef, nextTile, nextPoly);
 		}
 
 		if (!nextRef)
@@ -2663,9 +2679,9 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			const float* vb = &verts[b*3];
 			const float dx = vb[0] - va[0];
 			const float dy = vb[1] - va[1];
-			hit->hitNormal[0] = -dy;
-			hit->hitNormal[1] = dx;
-			hit->hitNormal[2] = 0;
+			hit->hitNormal[0] = dy;
+			hit->hitNormal[1] = 0.0f;
+			hit->hitNormal[2] = -dx;
 			rdVnormalize(hit->hitNormal);
 			
 			hit->pathCount = n;
@@ -2835,7 +2851,7 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 				rdVlerp(neighbourNode->pos, va, vb, 0.5f);
 			
 			float cost = filter->getCost(
-				bestNode->pos, neighbourNode->pos,
+				bestNode->pos, neighbourNode->pos, link,
 				parentRef, parentTile, parentPoly,
 				bestRef, bestTile, bestPoly,
 				neighbourRef, neighbourTile, neighbourPoly);
@@ -3018,7 +3034,7 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 				rdVlerp(neighbourNode->pos, va, vb, 0.5f);
 			
 			float cost = filter->getCost(
-				bestNode->pos, neighbourNode->pos,
+				bestNode->pos, neighbourNode->pos, link,
 				parentRef, parentTile, parentPoly,
 				bestRef, bestTile, bestPoly,
 				neighbourRef, neighbourTile, neighbourPoly);
@@ -3182,6 +3198,9 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 			
 			// Do not advance if the polygon is excluded by the filter.
 			if (!filter->passFilter(neighbourRef, neighbourTile, neighbourPoly))
+				continue;
+
+			if (!filter->traverseFilter(curRef, curTile, curPoly))
 				continue;
 			
 			// Find edge and calc distance to the edge.

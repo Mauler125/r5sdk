@@ -21,6 +21,8 @@
 
 #include "Shared/Include/SharedMath.h"
 
+#define rdForceInline __forceinline
+
 /// The total number of bits in an bit cell integer.
 static const int RD_BITS_PER_BIT_CELL = 32;
 

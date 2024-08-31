@@ -34,10 +34,10 @@
 /// @ingroup detour
 class dtQueryFilter
 {
-	float m_areaCost[DT_MAX_AREAS];		///< Cost per area type. (Used by default implementation.)
-	unsigned short m_includeFlags;		///< Flags for polygons that can be visited. (Used by default implementation.)
-	unsigned short m_excludeFlags;		///< Flags for polygons that should not be visited. (Used by default implementation.)
-	unsigned int m_traverseFlags;		///< Flags for links dictating which traverse types are allowed to be used. (See [r5apex_ds + CA6FE9.])
+	float m_traverseCost[DT_MAX_TRAVERSE_TYPES];	///< Cost per traverse type. (Used by default implementation.)
+	unsigned short m_includeFlags;					///< Flags for polygons that can be visited. (Used by default implementation.)
+	unsigned short m_excludeFlags;					///< Flags for polygons that should not be visited. (Used by default implementation.)
+	unsigned int m_traverseFlags;					///< Flags for links dictating which traverse types are allowed to be used. (See [r5apex_ds + CA6FE9.])
 	
 public:
 	dtQueryFilter();
@@ -51,14 +51,19 @@ public:
 	///  @param[in]		tile	The tile containing the polygon.
 	///  @param[in]		poly  The polygon to test.
 #ifdef DT_VIRTUAL_QUERYFILTER
-	virtual bool passFilter(const dtPolyRef ref,
+	virtual
+#endif
+		bool passFilter(const dtPolyRef ref,
 							const dtMeshTile* tile,
 							const dtPoly* poly) const;
-#else
-	bool passFilter(const dtPolyRef ref,
-					const dtMeshTile* tile,
-					const dtPoly* poly) const;
+
+#ifdef DT_VIRTUAL_QUERYFILTER
+	virtual
 #endif
+	bool traverseFilter(const dtPolyRef ref,
+			const dtMeshTile* tile,
+			const dtPoly* poly) const;
+
 
 	/// Returns cost to move from the beginning to the end of a line segment
 	/// that is fully contained within a polygon.
@@ -74,16 +79,12 @@ public:
 	///  @param[in]		nextTile	The tile containing the next polygon. [opt]
 	///  @param[in]		nextPoly	The next polygon. [opt]
 #ifdef DT_VIRTUAL_QUERYFILTER
-	virtual float getCost(const float* pa, const float* pb,
+	virtual 
+#endif
+	float getCost(const float* pa, const float* pb, const dtLink* link,
 						  const dtPolyRef prevRef, const dtMeshTile* prevTile, const dtPoly* prevPoly,
 						  const dtPolyRef curRef, const dtMeshTile* curTile, const dtPoly* curPoly,
 						  const dtPolyRef nextRef, const dtMeshTile* nextTile, const dtPoly* nextPoly) const;
-#else
-	float getCost(const float* pa, const float* pb,
-				  const dtPolyRef prevRef, const dtMeshTile* prevTile, const dtPoly* prevPoly,
-				  const dtPolyRef curRef, const dtMeshTile* curTile, const dtPoly* curPoly,
-				  const dtPolyRef nextRef, const dtMeshTile* nextTile, const dtPoly* nextPoly) const;
-#endif
 
 	/// @name Getters and setters for the default implementation data.
 	///@{
@@ -91,12 +92,12 @@ public:
 	/// Returns the traversal cost of the area.
 	///  @param[in]		i		The id of the area.
 	/// @returns The traversal cost of the area.
-	inline float getAreaCost(const int i) const { return m_areaCost[i]; }
+	inline float getAreaCost(const int i) const { return m_traverseCost[i]; }
 
 	/// Sets the traversal cost of the area.
 	///  @param[in]		i		The id of the area.
 	///  @param[in]		cost	The new cost of traversing the area.
-	inline void setAreaCost(const int i, const float cost) { m_areaCost[i] = cost; } 
+	inline void setAreaCost(const int i, const float cost) { m_traverseCost[i] = cost; } 
 
 	/// Returns the include flags for the filter.
 	/// Any polygons that include one or more of these flags will be
@@ -125,17 +126,14 @@ public:
 /// @ingroup detour
 struct dtRaycastHit
 {
+	/// Pointer to an array of reference ids of the visited polygons. [opt]
+	dtPolyRef* path;
+
 	/// The hit parameter. (FLT_MAX if no wall hit.)
 	float t; 
 	
 	/// hitNormal	The normal of the nearest wall hit. [(x, y, z)]
 	float hitNormal[3];
-
-	/// The index of the edge on the final polygon where the wall was hit.
-	int hitEdgeIndex;
-	
-	/// Pointer to an array of reference ids of the visited polygons. [opt]
-	dtPolyRef* path;
 	
 	/// The number of visited polygons. [opt]
 	int pathCount;
@@ -145,6 +143,9 @@ struct dtRaycastHit
 
 	/// The cost of the path until hit.
 	float pathCost;
+
+	/// The reference of the start polygon.
+	dtPolyRef startRef;
 };
 
 /// Provides information about straight path generation
@@ -552,6 +553,11 @@ public:
 	/// @returns The node pool.
 	class dtNodePool* getNodePool() const { return m_nodePool; }
 	
+	/// Sets the navigation mesh the query object is using.
+	/// Only use this directly after init, before the query has been used!
+	///  @param[in]		nav			The navigation mesh to attach.
+	const void attachNavMeshUnsafe(const dtNavMesh* nav) { m_nav = nav; }
+
 	/// Gets the navigation mesh the query object is using.
 	/// @return The navigation mesh the query object is using.
 	const dtNavMesh* getAttachedNavMesh() const { return m_nav; }

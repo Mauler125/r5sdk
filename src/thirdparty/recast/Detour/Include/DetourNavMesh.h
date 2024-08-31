@@ -300,6 +300,9 @@ inline int dtGetDetailTriEdgeFlags(unsigned char triFlags, int edgeIndex)
 /// @see dtMeshTile
 struct dtLink
 {
+	inline bool hasTraverseType() const { return traverseType != DT_NULL_TRAVERSE_TYPE; }
+	inline unsigned char getTraverseType() const {return traverseType & (DT_MAX_TRAVERSE_TYPES-1); }
+
 	dtPolyRef ref;					///< Neighbour reference. (The neighbor that is linked to.)
 	unsigned int next;				///< Index of the next link.
 	unsigned char edge;				///< Index of the polygon edge that owns this link.
