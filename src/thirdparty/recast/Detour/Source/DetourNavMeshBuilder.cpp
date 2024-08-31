@@ -369,7 +369,7 @@ bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 		}
 	}
 
-	nav->setPolyGroupcount(set.getSetCount());
+	nav->setPolyGroupCount(set.getSetCount());
 	return true;
 }
 
@@ -470,7 +470,7 @@ bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 		unionTraverseLinkedPolyGroups(params, i);
 	}
 
-	nav->setPolyGroupcount(set.getSetCount());
+	nav->setPolyGroupCount(set.getSetCount());
 	return true;
 }
 

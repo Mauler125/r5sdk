@@ -719,7 +719,7 @@ public:
 
 	/// Sets the polygon group count.
 	///  @param[in]		count		The polygon group count.
-	void setPolyGroupcount(const int count) { m_params.polyGroupCount = count; }
+	void setPolyGroupCount(const int count) { m_params.polyGroupCount = count; }
 
 	/// Gets the size of the buffer required by #storeTileState to store the specified tile's state.
 	///  @param[in]	tile	The tile.
