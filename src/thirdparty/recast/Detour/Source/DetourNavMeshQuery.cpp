@@ -2268,10 +2268,10 @@ dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly,
 										 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 										 const dtLink* inLink, float* left, float* right) const
 {
-	// Find the link that points to the 'to' polygon.
 	const dtLink* link = inLink;
 	if (!link)
 	{
+		// Find the link that points to the 'to' polygon.
 		for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromTile->links[i].next)
 		{
 			if (fromTile->links[i].ref == to)
