@@ -26,6 +26,7 @@
 class dtPathCorridor
 {
 	dtPolyRef* m_path;
+	unsigned char* m_jumpTypes;
 	int m_npath;
 	int m_maxPath;
 
@@ -49,15 +50,16 @@ public:
 	/// Finds the corners in the corridor from the position toward the target. (The straightened path.)
 	///  @param[out]	cornerVerts		The corner vertices. [(x, y, z) * cornerCount] [Size: <= maxCorners]
 	///  @param[out]	cornerFlags		The flag for each corner. [(flag) * cornerCount] [Size: <= maxCorners]
-	///  @param[out]	cornerPolys		The polygon reference for each corner. [(polyRef) * cornerCount] 
+	///  @param[out]	cornerPolys		The polygon reference for each corner. [(polyRef) * cornerCount]
+	///  @param[out]	cornerJumps		The jump types for each corner. [(jumpType) * cornerCount]
 	///  								[Size: <= @p maxCorners]
 	///  @param[in]		maxCorners		The maximum number of corners the buffers can hold.
 	///  @param[in]		navquery		The query object used to build the corridor.
 	///  @param[in]		filter			The filter to apply to the operation.
 	/// @return The number of corners returned in the corner buffers. [0 <= value <= @p maxCorners]
 	int findCorners(float* cornerVerts, unsigned char* cornerFlags,
-					dtPolyRef* cornerPolys, const int maxCorners,
-					dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+					dtPolyRef* cornerPolys, unsigned char* cornerJumps,
+					const int maxCorners, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	
 	/// Attempts to optimize the path if the specified point is visible from the current position.
 	///  @param[in]		next					The point to search toward. [(x, y, z])

@@ -198,6 +198,7 @@ may be needed.  E.g. If you move the target, check #getLastPoly() to see if it i
 
 dtPathCorridor::dtPathCorridor() :
 	m_path(0),
+	m_jumpTypes(0),
 	m_npath(0),
 	m_maxPath(0)
 {
@@ -208,6 +209,7 @@ dtPathCorridor::dtPathCorridor() :
 dtPathCorridor::~dtPathCorridor()
 {
 	rdFree(m_path);
+	rdFree(m_jumpTypes);
 }
 
 /// @par
@@ -250,8 +252,8 @@ So if 10 corners are needed, the buffers should be sized for 11 corners.
 If the target is within range, it will be the last corner and have a polygon reference id of zero.
 */
 int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
-							  dtPolyRef* cornerPolys, const int maxCorners,
-							  dtNavMeshQuery* navquery, const dtQueryFilter* /*filter*/)
+							  dtPolyRef* cornerPolys, unsigned char* cornerJumps,
+							  const int maxCorners, dtNavMeshQuery* navquery, const dtQueryFilter* /*filter*/)
 {
 	rdAssert(m_path);
 	rdAssert(m_npath);
@@ -259,8 +261,8 @@ int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 	static const float MIN_TARGET_DIST = 0.01f;
 	
 	int ncorners = 0;
-	navquery->findStraightPath(m_pos, m_target, m_path, m_npath,
-							   cornerVerts, cornerFlags, cornerPolys, &ncorners, maxCorners);
+	navquery->findStraightPath(m_pos, m_target, m_path, m_jumpTypes, m_npath,
+							   cornerVerts, cornerFlags, cornerPolys, cornerJumps, &ncorners, maxCorners);
 	
 	// Prune points in the beginning of the path which are too close.
 	while (ncorners)

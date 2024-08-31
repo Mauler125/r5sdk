@@ -226,14 +226,16 @@ public:
 	///  @param[out]	straightPath		Points describing the straight path. [(x, y, z) * @p straightPathCount].
 	///  @param[out]	straightPathFlags	Flags describing each point. (See: #dtStraightPathFlags) [opt]
 	///  @param[out]	straightPathRefs	The reference id of the polygon that is being entered at each point. [opt]
+	///  @param[out]	straightPathJumps	The jump types that is being entered at each point. [opt]
 	///  @param[out]	straightPathCount	The number of points in the straight path.
 	///  @param[in]		maxStraightPath		The maximum number of points the straight path arrays can hold.  [Limit: > 0]
 	///  @param[in]		options				Query options. (see: #dtStraightPathOptions)
 	/// @returns The status flags for the query.
 	dtStatus findStraightPath(const float* startPos, const float* endPos,
-							  const dtPolyRef* path, const int pathSize,
+							  const dtPolyRef* path, const unsigned char* jumpTypes, const int pathSize,
 							  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-							  int* straightPathCount, const int maxStraightPath, const int options = 0) const;
+							  unsigned char* straightPathJumps, int* straightPathCount, const int maxStraightPath,
+							  const int options = 0) const;
 
 	///@}
 	/// @name Sliced Pathfinding Functions
@@ -621,13 +623,15 @@ private:
 
 	// Appends vertex to a straight path
 	dtStatus appendVertex(const float* pos, const unsigned char flags, const dtPolyRef ref,
-						  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-						  int* straightPathCount, const int maxStraightPath) const;
+						  const unsigned char jump,  float* straightPath, unsigned char* straightPathFlags,
+						  dtPolyRef* straightPathRefs, unsigned char* straightPathJumps, int* straightPathCount,
+						  const int maxStraightPath) const;
 
 	// Appends intermediate portal points to a straight path.
 	dtStatus appendPortals(const int startIdx, const int endIdx, const float* endPos, const dtPolyRef* path,
 						   float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-						   int* straightPathCount, const int maxStraightPath, const int options) const;
+						   unsigned char* straightPathJumps, int* straightPathCount, const int maxStraightPath,
+						   const int options) const;
 
 	// Gets the path leading to the specified end node.
 	dtStatus getPathToNode(struct dtNode* endNode, dtPolyRef* path, int* pathCount, int maxPath) const;
