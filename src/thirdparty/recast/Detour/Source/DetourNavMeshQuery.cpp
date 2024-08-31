@@ -417,7 +417,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 			
 			// Find edge and calc distance to the edge.
 			float va[3], vb[3];
-			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, va, vb))
+			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, link, va, vb))
 				continue;
 			
 			// If the circle is not touching the next polygon, skip it.
@@ -1741,7 +1741,7 @@ dtStatus dtNavMeshQuery::appendPortals(const int startIdx, const int endIdx, con
 			return DT_FAILURE | DT_INVALID_PARAM;
 		
 		float left[3], right[3];
-		if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right)))
+		if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, 0, left, right)))
 			break;
 	
 		if (options & DT_STRAIGHTPATH_AREA_CROSSINGS)
@@ -2257,22 +2257,25 @@ dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, dtPolyRef to, float* le
 		return DT_FAILURE | DT_INVALID_PARAM;
 	toType = toPoly->getType();
 		
-	return getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right);
+	return getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, 0, left, right);
 }
 
 // Returns portal points between two polygons.
 dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
 										 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
-										 float* left, float* right) const
+										 const dtLink* inLink, float* left, float* right) const
 {
 	// Find the link that points to the 'to' polygon.
-	const dtLink* link = 0;
-	for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromTile->links[i].next)
+	const dtLink* link = inLink;
+	if (!link)
 	{
-		if (fromTile->links[i].ref == to)
+		for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromTile->links[i].next)
 		{
-			link = &fromTile->links[i];
-			break;
+			if (fromTile->links[i].ref == to)
+			{
+				link = &fromTile->links[i];
+				break;
+			}
 		}
 	}
 	if (!link)
@@ -2350,7 +2353,7 @@ dtStatus dtNavMeshQuery::getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly,
 										 float* mid) const
 {
 	float left[3], right[3];
-	if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right)))
+	if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, 0, left, right)))
 		return DT_FAILURE | DT_INVALID_PARAM;
 	rdVsad(mid, left,right, 0.5f);
 	return DT_SUCCESS;
@@ -2373,7 +2376,7 @@ dtStatus dtNavMeshQuery::getEdgeNormal(dtPolyRef from, const dtPoly* fromPoly, c
 										 float* norm) const
 {
 	float left[3], right[3];
-	if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right)))
+	if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, 0, left, right)))
 		return DT_FAILURE | DT_INVALID_PARAM;
 	float dir[3];
 	rdVsub(dir, right,left);
@@ -2827,7 +2830,7 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 			
 			// Find edge and calc distance to the edge.
 			float va[3], vb[3];
-			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, va, vb))
+			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, link, va, vb))
 				continue;
 			
 			// If the circle is not touching the next polygon, skip it.
@@ -3008,7 +3011,7 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 			
 			// Find edge and calc distance to the edge.
 			float va[3], vb[3];
-			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, va, vb))
+			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, link, va, vb))
 				continue;
 			
 			// If the poly is not touching the edge to the next polygon, skip the connection it.
@@ -3205,7 +3208,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 			
 			// Find edge and calc distance to the edge.
 			float va[3], vb[3];
-			if (!getPortalPoints(curRef, curPoly, curTile, neighbourRef, neighbourPoly, neighbourTile, va, vb))
+			if (!getPortalPoints(curRef, curPoly, curTile, neighbourRef, neighbourPoly, neighbourTile, link, va, vb))
 				continue;
 			
 			// If the circle is not touching the next polygon, skip it.
