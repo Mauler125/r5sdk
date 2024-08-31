@@ -377,8 +377,8 @@ static void drawTileCells(duDebugDraw* dd, const dtMeshTile* tile, const float* 
 #if DT_NAVMESH_SET_VERSION >= 8 
 	for (int i = 0; i < tile->header->maxCellCount; i++)
 	{
-		const dtCell& probe = tile->cells[i];
-		duDebugDrawCross(dd, probe.pos[0], probe.pos[1], probe.pos[2], 25.f, duRGBA(255,0,0,255), 2, offset);
+		const dtCell& cell = tile->cells[i];
+		duDebugDrawCross(dd, cell.pos[0], cell.pos[1], cell.pos[2], 25.f, duRGBA(255,0,0,255), 2, offset);
 	}
 #else
 	rdIgnoreUnused(dd);

@@ -322,6 +322,8 @@ unsigned char dtQuantLinkDistance(const float distance);
 /// @see dtMeshTile
 struct dtCell
 {
+	inline void setOccupied() { *(int*)((uintptr_t)&occupyState & ~0x3) = -1; }
+
 	float pos[3];					///< The position of the cell.
 	unsigned int polyIndex;			///< The index of the poly this cell is on.
 	unsigned char pad;				
