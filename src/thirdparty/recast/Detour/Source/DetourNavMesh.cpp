@@ -1045,7 +1045,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 #endif
 		
 	// Make sure the location is free.
-	if (!header->userId != 1 && getTileAt(header->x, header->y, header->layer))
+	if (!header->userId != DT_UNLINKED_TILE_USER_ID && getTileAt(header->x, header->y, header->layer))
 		return DT_FAILURE | DT_ALREADY_OCCUPIED;
 		
 	// Allocate a tile.
@@ -1094,7 +1094,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->deleteCallback = nullptr;
 	
 	// Insert tile into the position lut.
-	if (header->userId != 1)
+	if (header->userId != DT_UNLINKED_TILE_USER_ID)
 	{
 		int h = computeTileHash(header->x, header->y, m_tileLutMask);
 		tile->next = m_posLookup[h];
@@ -1113,7 +1113,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	const int bvtreeSize = rdAlign4(sizeof(dtBVNode)*header->bvNodeCount);
 	const int offMeshLinksSize = rdAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
 #if DT_NAVMESH_SET_VERSION >= 8
-	const int probesSize = rdAlign4(sizeof(dtCell)*header->maxCellCount);
+	const int cellsSize = rdAlign4(sizeof(dtCell)*header->maxCellCount);
 #endif
 	
 	unsigned char* d = data + headerSize;
@@ -1127,7 +1127,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->bvTree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvtreeSize);
 	tile->offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshLinksSize);
 #if DT_NAVMESH_SET_VERSION >= 8
-	tile->cells = rdGetThenAdvanceBufferPointer<dtCell>(d, probesSize);
+	tile->cells = rdGetThenAdvanceBufferPointer<dtCell>(d, cellsSize);
 #endif
 
 	// If there are no items in the bvtree, reset the tree pointer.

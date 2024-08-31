@@ -62,6 +62,12 @@ typedef uint64_t dtTileRef;
 typedef unsigned int dtTileRef;
 #endif
 
+/// A value that indicates that this tile doesn't contain any polygons with valid links
+/// to the rest of the reachable area's of the navigation mesh, this tile will not be
+/// added to the position lookup table.
+/// @ingroup detour
+static const int DT_UNLINKED_TILE_USER_ID = 1;
+
 /// The maximum number of vertices per navigation polygon.
 /// @ingroup detour
 static const int DT_VERTS_PER_POLYGON = 6;
