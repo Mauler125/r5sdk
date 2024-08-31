@@ -388,7 +388,7 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 		{
 			dtPoly& poly = tile->polys[j];
 
-			for (int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+			for (unsigned int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
 			{
 				const dtLink* link = &tile->links[k];
 
