@@ -2134,7 +2134,9 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 							const dtMeshTile* neiTile = 0;
 							const dtPoly* neiPoly = 0;
 							m_nav->getTileAndPolyByRefUnsafe(link->ref, &neiTile, &neiPoly);
-							if (filter->passFilter(link->ref, neiTile, neiPoly))
+
+							if (filter->passFilter(link->ref, neiTile, neiPoly) && 
+								filter->traverseFilter(curRef, curTile, curPoly))
 							{
 								if (nneis < MAX_NEIS)
 									neis[nneis++] = link->ref;
@@ -2147,7 +2149,8 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 			{
 				const unsigned int idx = (unsigned int)(curPoly->neis[j]-1);
 				const dtPolyRef ref = m_nav->getPolyRefBase(curTile) | idx;
-				if (filter->passFilter(ref, curTile, &curTile->polys[idx]))
+				if (filter->passFilter(ref, curTile, &curTile->polys[idx]) &&
+					filter->traverseFilter(curRef, curTile, curPoly))
 				{
 					// Internal edge, encode id.
 					neis[nneis++] = ref;
