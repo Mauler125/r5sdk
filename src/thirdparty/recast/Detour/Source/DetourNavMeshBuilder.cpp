@@ -560,6 +560,7 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 
 		const unsigned int vb = params->detailMeshes[i*4+0];
 		const unsigned int tb = params->detailMeshes[i*4+2];
+		const unsigned int tc = params->detailMeshes[i*4+3];
 
 		float polyVerts[DT_VERTS_PER_POLYGON*3];
 
@@ -589,7 +590,7 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 				if (!rdPointInPolygon(targetCellPos, polyVerts, nv))
 					continue;
 
-				for (int l = 0; l < params->detailTriCount; ++l)
+				for (unsigned int l = 0; l < tc; ++l)
 				{
 					const unsigned char* tris = &params->detailTris[(tb+l)*4];
 					float storage[3][3];
@@ -634,9 +635,9 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 					const float* pmin = 0;
 					const float* pmax = 0;
 
-					for (int l = 0; l < params->detailTriCount; l++)
+					for (unsigned int l = 0; l < tc; l++)
 					{
-						const unsigned char* tris = &params->detailTris[(tb + l) * 4];
+						const unsigned char* tris = &params->detailTris[(tb+l)*4];
 
 						const int ANY_BOUNDARY_EDGE =
 							(DT_DETAIL_EDGE_BOUNDARY << 0) |
@@ -658,7 +659,7 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 							}
 							else
 							{
-								v[m] = &params->detailVerts[(vb + tris[m]) * 3];
+								v[m] = &params->detailVerts[(vb+tris[m])*3];
 							}
 						}
 
