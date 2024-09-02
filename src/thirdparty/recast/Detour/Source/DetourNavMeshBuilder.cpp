@@ -174,11 +174,19 @@ static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos):
 	return nvp;
 }
 
-static void createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& nodes)
+static bool createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& nodes)
 {
+	BVItem* items = (BVItem*)rdAlloc(sizeof(BVItem)*params->polyCount, RD_ALLOC_TEMP);
+
+	if (!items)
+		return false;
+
+	// note(amos): reserve enough memory here to avoid reallocation during subdivisions.
+	if (!nodes.reserve(params->polyCount*2))
+		return false;
+
 	// Build tree
 	float quantFactor = 1 / params->cs;
-	BVItem* items = (BVItem*)rdAlloc(sizeof(BVItem)*params->polyCount, RD_ALLOC_TEMP);
 	for (int i = 0; i < params->polyCount; i++)
 	{
 		BVItem& it = items[i];
@@ -238,12 +246,11 @@ static void createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& no
 		it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
 		it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
 	}
-	
-	// note(amos): reserve enough memory here to avoid reallocation during subdivisions.
-	nodes.reserve(params->polyCount*2);
 
 	subdivide(items, params->polyCount, 0, params->polyCount, nodes);
 	rdFree(items);
+
+	return true;
 }
 
 static void setPolyGroupsTraversalReachability(int* const tableData, const int numPolyGroups,
@@ -536,11 +543,8 @@ struct CellItem
 	int polyIndex;
 };
 
-bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellItem>& cellItems)
+static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellItem>& cellItems)
 {
-	if (!params->detailMeshes)
-		return false;
-
 	const int nvp = params->nvp;
 	const int resolution = params->cellResolution;
 	const float stepX = (params->bmax[0]-params->bmin[0]) / resolution;
@@ -686,7 +690,19 @@ bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellI
 					targetCellPos[2] = closest[2];
 				}
 
-				cellItems.push_back({ targetCellPos[0],targetCellPos[1],targetCellPos[2], i });
+				const rdSizeType newCount = cellItems.size()+1;
+
+				if (!cellItems.reserve(newCount))
+					return false;
+
+				cellItems.resize(newCount);
+				CellItem& cell = cellItems[newCount-1];
+
+				cell.pos[0] = targetCellPos[0];
+				cell.pos[1] = targetCellPos[1];
+				cell.pos[2] = targetCellPos[2];
+
+				cell.polyIndex = i;
 			}
 		}
 	}
@@ -853,11 +869,18 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	// Create BVtree.
 	rdTempVector<BVItem> treeItems;
 	if (params->buildBvTree)
-		createBVTree(params, treeItems);
+	{
+		if (!createBVTree(params, treeItems))
+			return false;
+	}
 
 #if DT_NAVMESH_SET_VERSION >= 8
 	rdTempVector<CellItem> cellItems;
-	createPolyMeshCells(params, cellItems);
+	if (params->detailMeshes)
+	{
+		if (!createPolyMeshCells(params, cellItems))
+			return false;
+	}
 #endif
 
 	// Calculate data size
