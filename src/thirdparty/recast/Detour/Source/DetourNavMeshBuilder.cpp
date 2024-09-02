@@ -106,12 +106,13 @@ inline int longestAxis(unsigned short x, unsigned short y, unsigned short z)
 	return axis;
 }
 
-static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNode, dtBVNode* nodes)
+static void subdivide(BVItem* items, int nitems, int imin, int imax, rdTempVector<BVItem>& nodes)
 {
 	const int inum = imax - imin;
-	const int icur = curNode;
-	
-	dtBVNode& node = nodes[curNode++];
+	const int icur = (int)nodes.size();
+
+	nodes.resize(icur+1);
+	BVItem& node = nodes[icur];
 	
 	if (inum == 1)
 	{
@@ -154,11 +155,11 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 		const int isplit = imin+inum/2;
 		
 		// Left
-		subdivide(items, nitems, imin, isplit, curNode, nodes);
+		subdivide(items, nitems, imin, isplit, nodes);
 		// Right
-		subdivide(items, nitems, isplit, imax, curNode, nodes);
+		subdivide(items, nitems, isplit, imax, nodes);
 		
-		int iescape = curNode - icur;
+		int iescape = (int)nodes.size() - icur;
 		// Negative index means escape.
 		node.i = -iescape;
 	}
@@ -173,7 +174,7 @@ static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos):
 	return nvp;
 }
 
-static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nnodes*/)
+static void createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& nodes)
 {
 	// Build tree
 	float quantFactor = 1 / params->cs;
@@ -238,12 +239,11 @@ static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nn
 		it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
 	}
 	
-	int curNode = 0;
-	subdivide(items, params->polyCount, 0, params->polyCount, curNode, nodes);
-	
+	// note(amos): reserve enough memory here to avoid reallocation during subdivisions.
+	nodes.reserve(params->polyCount*2);
+
+	subdivide(items, params->polyCount, 0, params->polyCount, nodes);
 	rdFree(items);
-	
-	return curNode;
 }
 
 static void setPolyGroupsTraversalReachability(int* const tableData, const int numPolyGroups,
@@ -850,6 +850,11 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 
+	// Create BVtree.
+	rdTempVector<BVItem> treeItems;
+	if (params->buildBvTree)
+		createBVTree(params, treeItems);
+
 #if DT_NAVMESH_SET_VERSION >= 8
 	rdTempVector<CellItem> cellItems;
 	createPolyMeshCells(params, cellItems);
@@ -863,7 +868,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	const int detailMeshesSize = rdAlign4(sizeof(dtPolyDetail)*params->polyCount);
 	const int detailVertsSize = rdAlign4(sizeof(float)*3*uniqueDetailVertCount);
 	const int detailTrisSize = rdAlign4(sizeof(unsigned char)*4*detailTriCount);
-	const int bvTreeSize = params->buildBvTree ? rdAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
+	const int bvTreeSize = rdAlign4(sizeof(dtBVNode)*(int)treeItems.size());
 	const int offMeshConsSize = rdAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 #if DT_NAVMESH_SET_VERSION >= 8
 	const int cellsSize = rdAlign4(sizeof(dtCell)*(int)cellItems.size());
@@ -938,7 +943,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->walkableRadius = params->walkableRadius;
 	header->walkableClimb = params->walkableClimb;
 	header->offMeshConCount = storedOffMeshConCount;
-	header->bvNodeCount = params->buildBvTree ? params->polyCount*2 : 0;
+	header->bvNodeCount = (int)treeItems.size();
 
 	const int offMeshVertsBase = params->vertCount;
 	const int offMeshPolyBase = params->polyCount;
@@ -1082,10 +1087,19 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 
-	// Store and create BVtree.
-	if (params->buildBvTree)
+	// Store BVTree.
+	for (int i = 0; i < (int)treeItems.size(); i++)
 	{
-		createBVTree(params, navBvtree, 2*params->polyCount);
+		dtBVNode& node = navBvtree[i];
+		BVItem& item = treeItems[i];
+
+		node.bmin[0] = item.bmin[0];
+		node.bmin[1] = item.bmin[1];
+		node.bmin[2] = item.bmin[2];
+		node.bmax[0] = item.bmax[0];
+		node.bmax[1] = item.bmax[1];
+		node.bmax[2] = item.bmax[2];
+		node.i = item.i;
 	}
 	
 	// Store Off-Mesh connections.
