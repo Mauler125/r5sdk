@@ -626,6 +626,9 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 				{
 					bool onlyBoundary = false;
 
+					float storage[3][3];
+					const float* v[3];
+
 					float dmin = FLT_MAX;
 					float tmin = 0;
 					const float* pmin = 0;
@@ -642,9 +645,6 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 
 						if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
 							continue;
-
-						float storage[3][3];
-						const float* v[3];
 
 						for (int m = 0; m < 3; ++m)
 						{
