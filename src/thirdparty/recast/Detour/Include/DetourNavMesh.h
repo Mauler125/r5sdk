@@ -66,7 +66,11 @@ typedef unsigned int dtTileRef;
 /// to the rest of the reachable area's of the navigation mesh, this tile will not be
 /// added to the position lookup table.
 /// @ingroup detour
-static const int DT_UNLINKED_TILE_USER_ID = 1;
+static const int DT_FULL_UNLINKED_TILE_USER_ID = 1;
+
+/// A value that indicates that this tile contains at least 1 polygon that doesn't link
+/// to anything (tagged as #DT_UNLINKED_POLY_GROUP), and 1 that does link to something.
+static const int DT_SEMI_UNLINKED_TILE_USER_ID = 2;
 
 /// The maximum number of vertices per navigation polygon.
 /// @ingroup detour
@@ -899,9 +903,8 @@ private:
 	///< See note at dtNavMeshParams::magicDataCount for buffer allocation.
 	void* m_someMagicData;
 
-	char m_meshFlags;	// Maybe.
-	char m_tileFlags;	// Maybe.
-	int m_unk1;			// FIXME:
+	int m_unused0;
+	int m_unused1;
 
 	dtNavMeshParams m_params;			///< Current initialization params. TODO: do not store this info twice.
 	float m_orig[3];					///< Origin of the tile (0,0)

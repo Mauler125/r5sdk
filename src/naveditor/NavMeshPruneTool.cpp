@@ -128,7 +128,7 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 
 	flags->setFlags(start, flag);
 		
-	std::vector<dtPolyRef> openList;
+	rdPermVector<dtPolyRef> openList;
 	openList.push_back(start);
 
 	while (openList.size())
@@ -161,7 +161,7 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 {
 	for (int i = 0; i < nav->getTileCount(); ++i)
 	{
-		const dtMeshTile* tile = ((const dtNavMesh*)nav)->getTile(i);
+		const dtMeshTile* tile = nav->getTile(i);
 		dtMeshHeader* header = tile->header;
 
 		if (!header) continue;
@@ -178,23 +178,45 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 				dtPoly* targetPoly;
 
 				nav->getTileAndPolyByRefUnsafe(ref, &targetTile, (const dtPoly**)&targetPoly);
+
 				targetPoly->groupId = DT_UNLINKED_POLY_GROUP;
 				targetPoly->firstLink = DT_NULL_LINK;
-				targetPoly->flags = 0;
+				targetPoly->flags = EDITOR_POLYFLAGS_DISABLED;
 
 				numUnlinkedPolys++;
 			}
 		}
 
 		if (numUnlinkedPolys == header->polyCount)
-			header->userId = DT_UNLINKED_TILE_USER_ID;
+		{
+			header->userId = DT_FULL_UNLINKED_TILE_USER_ID;
+			continue;
+		}
 	}
+}
+
+static void removeUnlinkedTiles(dtNavMesh* nav)
+{
+	for (int i = nav->getTileCount(); i-- > 0;)
+	{
+		const dtMeshTile* tile = nav->getTile(i);
+		const dtMeshHeader* header = tile->header;
+
+		if (!header) continue;
+
+		if (header->userId == DT_FULL_UNLINKED_TILE_USER_ID)
+		{
+			const int polyCount = header->polyCount;
+			nav->removeTile(nav->getTileRef(tile), 0, 0);
+		}
+	};
 }
 
 NavMeshPruneTool::NavMeshPruneTool() :
 	m_editor(0),
 	m_flags(0),
-	m_hitPosSet(false)
+	m_hitPosSet(false),
+	m_ranPruneTool(false)
 {
 	m_hitPos[0] = 0.0f;
 	m_hitPos[1] = 0.0f;
@@ -214,6 +236,7 @@ void NavMeshPruneTool::init(Editor* editor)
 void NavMeshPruneTool::reset()
 {
 	m_hitPosSet = false;
+	m_ranPruneTool = false;
 	delete m_flags;
 	m_flags = 0;
 }
@@ -222,6 +245,14 @@ void NavMeshPruneTool::handleMenu()
 {
 	dtNavMesh* nav = m_editor->getNavMesh();
 	if (!nav) return;
+
+	// todo(amos): once tile rebuilding is done, also remove unlinked polygons!
+	if (m_ranPruneTool && ImGui::Button("Remove Unlinked Tiles"))
+	{
+		removeUnlinkedTiles(nav);
+		m_ranPruneTool = false;
+	}
+
 	if (!m_flags) return;
 
 	if (ImGui::Button("Clear Selection"))
@@ -239,6 +270,8 @@ void NavMeshPruneTool::handleMenu()
 
 		delete m_flags;
 		m_flags = 0;
+
+		m_ranPruneTool = true;
 	}
 }
 

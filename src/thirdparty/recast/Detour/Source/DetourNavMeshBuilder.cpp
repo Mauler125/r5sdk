@@ -416,6 +416,7 @@ bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 		dtMeshTile* tile = nav->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
 		const int pcount = tile->header->polyCount;
+		int numUnlinkedPolys = 0;
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
@@ -423,8 +424,21 @@ bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 			// This poly isn't connected to anything, mark it so the game
 			// won't consider this poly in path generation.
 			if (poly.firstLink == DT_NULL_LINK)
+			{
 				poly.groupId = DT_UNLINKED_POLY_GROUP;
+				numUnlinkedPolys++;
+			}
 		}
+
+		if (numUnlinkedPolys)
+		{
+			tile->header->userId = (numUnlinkedPolys == tile->header->polyCount)
+				? DT_FULL_UNLINKED_TILE_USER_ID
+				: DT_SEMI_UNLINKED_TILE_USER_ID;
+		}
+		else if (tile->header->userId == DT_FULL_UNLINKED_TILE_USER_ID 
+			|| tile->header->userId == DT_SEMI_UNLINKED_TILE_USER_ID)
+			tile->header->userId = 0;
 	}
 
 	// Gather all unique polygroups and map them to a contiguous range.

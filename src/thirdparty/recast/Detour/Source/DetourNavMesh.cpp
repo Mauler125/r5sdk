@@ -256,9 +256,8 @@ dtNavMesh::dtNavMesh() :
 	m_tiles(0),
 	m_traverseTables(0),
 	m_someMagicData(0),
-	m_meshFlags(0),
-	m_tileFlags(0),
-	m_unk1(0)
+	m_unused0(0),
+	m_unused1(0)
 {
 #ifndef DT_POLYREF64
 	m_saltBits = 0;
@@ -1045,7 +1044,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 #endif
 		
 	// Make sure the location is free.
-	if (!header->userId != DT_UNLINKED_TILE_USER_ID && getTileAt(header->x, header->y, header->layer))
+	if (!header->userId != DT_FULL_UNLINKED_TILE_USER_ID && getTileAt(header->x, header->y, header->layer))
 		return DT_FAILURE | DT_ALREADY_OCCUPIED;
 		
 	// Allocate a tile.
@@ -1094,7 +1093,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->deleteCallback = nullptr;
 	
 	// Insert tile into the position lut.
-	if (header->userId != DT_UNLINKED_TILE_USER_ID)
+	if (header->userId != DT_FULL_UNLINKED_TILE_USER_ID)
 	{
 		int h = computeTileHash(header->x, header->y, m_tileLutMask);
 		tile->next = m_posLookup[h];
