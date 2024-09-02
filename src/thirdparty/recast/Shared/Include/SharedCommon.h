@@ -479,16 +479,14 @@ float rdDistancePtLine2D(const float* pt, const float* p, const float* q);
 
 /// Derives the normal of an edge
 ///  @param[in]		dir		The direction of the edge. [(x, y, z)]
-///  @param[in]		invert	Whether to invert the results.
 ///  @param[out]	out		The resulting normal. [(x, y)]
-void rdCalcEdgeNormal2D(const float* dir, const bool inner, float* out);
+void rdCalcEdgeNormal2D(const float* dir, float* out);
 
 /// Derives the normal of an edge
 ///  @param[in]		v1		First vert of the polygon edge. [(x, y, z)]
 ///  @param[in]		v2		Second vert of the polygon edge. [(x, y, z)]
-///  @param[in]		invert	Whether to invert the results.
 ///  @param[out]	out		The resulting normal. [(x, y)]
-void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool inner, float* out);
+void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, float* out);
 
 ///  @param[in]		edgeStart		First vert of the polygon edge. [(x, y, z)]
 ///  @param[in]		edgeEnd			Second vert of the polygon edge. [(x, y, z)]

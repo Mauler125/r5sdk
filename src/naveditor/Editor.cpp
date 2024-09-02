@@ -579,10 +579,10 @@ static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float*
 static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const float* highPos, const float* lowDir, const float* highDir, const float offsetAmount)
 {
 	float lowNormal[3];
-	rdCalcEdgeNormal2D(lowDir, false, lowNormal);
+	rdCalcEdgeNormal2D(lowDir, lowNormal);
 
 	float highNormal[3];
-	rdCalcEdgeNormal2D(highDir, false, highNormal);
+	rdCalcEdgeNormal2D(highDir, highNormal);
 
 	// Detect overhangs to avoid links like these:
 	// 

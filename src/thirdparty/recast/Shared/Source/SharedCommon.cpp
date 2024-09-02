@@ -409,27 +409,18 @@ float rdDistancePtLine2D(const float* pt, const float* p, const float* q)
 	return dx * dx + dy * dy;
 }
 
-void rdCalcEdgeNormal2D(const float* dir, const bool invert, float* out)
+void rdCalcEdgeNormal2D(const float* dir, float* out)
 {
-	if (invert)
-	{
-		out[0] = -dir[1];
-		out[1] = dir[0];
-	}
-	else
-	{
-		out[0] = dir[1];
-		out[1] = -dir[0];
-	}
-
+	out[0] = dir[1];
+	out[1] = -dir[0];
 	rdVnormalize2D(out);
 }
 
-void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool invert, float* out)
+void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, float* out)
 {
 	float dir[3];
 	rdVsub(dir, v2, v1);
-	rdCalcEdgeNormal2D(dir, invert, out);
+	rdCalcEdgeNormal2D(dir, out);
 }
 
 bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,

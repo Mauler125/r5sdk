@@ -2381,7 +2381,7 @@ dtStatus dtNavMeshQuery::getEdgeNormal(dtPolyRef from, dtPolyRef to, float* norm
 		return DT_FAILURE | DT_INVALID_PARAM;
 	float dir[3];
 	rdVsub(dir, right,left);
-	rdCalcEdgeNormal2D(dir, false, norm);
+	rdCalcEdgeNormal2D(dir, norm);
 	return DT_SUCCESS;
 }
 
@@ -2394,7 +2394,7 @@ dtStatus dtNavMeshQuery::getEdgeNormal(dtPolyRef from, const dtPoly* fromPoly, c
 		return DT_FAILURE | DT_INVALID_PARAM;
 	float dir[3];
 	rdVsub(dir, right,left);
-	rdCalcEdgeNormal2D(dir, false, norm);
+	rdCalcEdgeNormal2D(dir, norm);
 	return DT_SUCCESS;
 }
 

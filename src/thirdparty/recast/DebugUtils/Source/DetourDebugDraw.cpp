@@ -175,7 +175,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 			if (!inner && flags & DU_DRAWNAVMESH_LEDGE_SPANS)
 			{
 				float normal[3];
-				rdCalcEdgeNormalPt2D(v0, v1, false, normal);
+				rdCalcEdgeNormalPt2D(v0, v1, normal);
 
 				float mid[3];
 				rdVsad(mid, v0, v1, 0.5f);
