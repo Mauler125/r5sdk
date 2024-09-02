@@ -205,10 +205,7 @@ static void removeUnlinkedTiles(dtNavMesh* nav)
 		if (!header) continue;
 
 		if (header->userId == DT_FULL_UNLINKED_TILE_USER_ID)
-		{
-			const int polyCount = header->polyCount;
 			nav->removeTile(nav->getTileRef(tile), 0, 0);
-		}
 	};
 }
 

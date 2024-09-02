@@ -631,8 +631,6 @@ dtStatus dtNavMesh::connectExtOffMeshLinks(const dtTileRef tileRef)
 					if (!landPolyRef)
 						continue;
 
-					const bool sameTile = tile == neiTile;
-
 					// Link off-mesh connection to target poly.
 					if (!connectOffMeshLink(tile, conPoly, landPolyRef, oppositeSide, 1, DT_NULL_TRAVERSE_TYPE, 0))
 						return DT_FAILURE | DT_OUT_OF_MEMORY;
