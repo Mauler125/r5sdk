@@ -221,6 +221,12 @@ bool dtPathCorridor::init(const int maxPath)
 	m_path = (dtPolyRef*)rdAlloc(sizeof(dtPolyRef)*maxPath, RD_ALLOC_PERM);
 	if (!m_path)
 		return false;
+
+	rdAssert(!m_jumpTypes);
+	m_jumpTypes = (unsigned char*)rdAlloc(sizeof(unsigned char)*maxPath, RD_ALLOC_PERM);
+	if (!m_jumpTypes)
+		return false;
+
 	m_npath = 0;
 	m_maxPath = maxPath;
 	return true;
@@ -233,9 +239,11 @@ bool dtPathCorridor::init(const int maxPath)
 void dtPathCorridor::reset(dtPolyRef ref, const float* pos)
 {
 	rdAssert(m_path);
+	rdAssert(m_jumpTypes);
 	rdVcopy(m_pos, pos);
 	rdVcopy(m_target, pos);
 	m_path[0] = ref;
+	m_jumpTypes[0] = DT_NULL_TRAVERSE_TYPE;
 	m_npath = 1;
 }
 
@@ -529,9 +537,9 @@ bool dtPathCorridor::fixPathStart(dtPolyRef safeRef, const float* safePos)
 	rdVcopy(m_pos, safePos);
 	if (m_npath < 3 && m_npath > 0)
 	{
-		m_path[2] = m_path[m_npath-1];
 		m_path[0] = safeRef;
 		m_path[1] = 0;
+		m_path[2] = m_path[m_npath-1];
 		m_npath = 3;
 	}
 	else

@@ -1805,7 +1805,7 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 
 	if (!startPos || !rdVisfinite(startPos) ||
 		!endPos || !rdVisfinite(endPos) ||
-		!path || pathSize <= 0 || !path[0] ||
+		!path || !jumpTypes || pathSize <= 0 || !path[0] ||
 		maxStraightPath <= 0)
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
