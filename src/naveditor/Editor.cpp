@@ -498,6 +498,9 @@ unsigned char GetBestTraverseType(void* userData, const float traverseDist, cons
 			continue;
 		}
 
+		if (!traverseTypeSupported(userData, (unsigned char)i))
+			continue;
+
 		if (traverseDist < traverseType.minDist ||
 			traverseDist > traverseType.maxDist)
 		{
@@ -542,9 +545,6 @@ unsigned char GetBestTraverseType(void* userData, const float traverseDist, cons
 			bestTraverseType = (TraverseType_e)i;
 		}
 	}
-
-	if (!traverseTypeSupported(userData, (unsigned char)bestTraverseType))
-		return DT_NULL_TRAVERSE_TYPE;
 
 	return (unsigned char)bestTraverseType;
 }
