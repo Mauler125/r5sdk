@@ -358,6 +358,8 @@ public:
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
+
+	inline float getCellHeight() const { return m_cellHeight; }
 	
 	inline unsigned int getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
 	inline void setNavMeshDrawFlags(unsigned int flags) { m_navMeshDrawFlags = flags; }
@@ -366,6 +368,11 @@ public:
 
 	inline NavMeshType_e getSelectedNavMeshType() const { return m_selectedNavMeshType; }
 	inline NavMeshType_e getLoadedNavMeshType() const { return m_loadedNavMeshType; }
+
+	inline bool useDynamicTraverseRayOffset() const { return m_traverseRayDynamicOffset; }
+	inline float getTraverseRayExtraOffset() const { return m_traverseRayExtraOffset; }
+
+	inline std::map<TraverseLinkPolyPair, unsigned int>& getTraverseLinkPolyMap() { return m_traverseLinkPolyMap; }
 
 	inline const char* getModelName() const { return m_modelName.c_str(); }
 
@@ -387,6 +394,8 @@ public:
 
 	void connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor); // Make private.
 	bool createTraverseLinks();
+
+	void createTraverseLinkParams(dtTraverseLinkConnectParams& params);
 
 	void createTraverseTableParams(dtTraverseTableCreateParams* params);
 

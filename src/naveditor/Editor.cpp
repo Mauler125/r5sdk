@@ -460,7 +460,29 @@ void Editor::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
-TraverseType_e GetBestTraverseType(const float traverseDist, const float elevation, const float slope, const bool baseOverlaps, const bool landOverlaps)
+bool traverseTypeSupported(void* userData, const unsigned char traverseType)
+{
+	const Editor* editor = (const Editor*)userData;
+	const NavMeshType_e navMeshType = editor->getSelectedNavMeshType();
+
+	if (navMeshType == NavMeshType_e::NAVMESH_SMALL)
+	{
+		const int tableCount = NavMesh_GetTraverseTableCountForNavMeshType(navMeshType);
+
+		for (int t = 0; t < tableCount; t++)
+		{
+			if (rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[t])
+				return true;
+		}
+
+		return false;
+	}
+
+	const int traverseTableIndex = NavMesh_GetFirstTraverseAnimTypeForType(navMeshType);
+	return rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[traverseTableIndex];
+}
+
+unsigned char GetBestTraverseType(void* userData, const float traverseDist, const float elevation, const float slope, const bool baseOverlaps, const bool landOverlaps)
 {
 	TraverseType_e bestTraverseType = INVALID_TRAVERSE_TYPE;
 	float smallestDiff = FLT_MAX;
@@ -521,27 +543,10 @@ TraverseType_e GetBestTraverseType(const float traverseDist, const float elevati
 		}
 	}
 
-	return bestTraverseType;
-}
+	if (!traverseTypeSupported(userData, (unsigned char)bestTraverseType))
+		return DT_NULL_TRAVERSE_TYPE;
 
-float calcEdgeOverlap(const float* edge1Start, const float* edge1End, const float* edge2Start, const float* edge2End, const float* targetEdgeVec)
-{
-	float min1 = rdVproj2D(edge1Start, targetEdgeVec);
-	float max1 = rdVproj2D(edge1End, targetEdgeVec);
-
-	if (min1 > max1)
-		rdSwap(min1, max1);
-
-	float min2 = rdVproj2D(edge2Start, targetEdgeVec);
-	float max2 = rdVproj2D(edge2End, targetEdgeVec);
-
-	if (min2 > max2)
-		rdSwap(min2, max2);
-
-	const float start = rdMax(min1, min2);
-	const float end = rdMin(max1, max2);
-
-	return rdMax(0.0f, end - start);
+	return (unsigned char)bestTraverseType;
 }
 
 static bool polyEdgeFaceAgainst(const float* v1, const float* v2, const float* n1, const float* n2)
@@ -579,8 +584,26 @@ static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float*
 	return false;
 }
 
-static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const float* highPos, const float* lowDir, const float* highDir, const float offsetAmount)
+static bool traverseLinkInLOS(void* userData, const float* lowPos, const float* highPos, const float* lowDir,
+	const float* highDir, const float walkableRadius, const float slopeAngle)
 {
+	Editor* editor = (Editor*)userData;
+	InputGeom* geom = editor->getInputGeom();
+
+	const float extraOffset = editor->getTraverseRayExtraOffset();
+	const float cellHeight = editor->getCellHeight();
+	float offsetAmount;
+
+	if (editor->useDynamicTraverseRayOffset())
+	{
+		const float totLedgeSpan = walkableRadius + extraOffset;
+		const float maxAngle = rdCalcMaxLOSAngle(totLedgeSpan, cellHeight);
+
+		offsetAmount = rdCalcLedgeSpanOffsetAmount(totLedgeSpan, slopeAngle, maxAngle);
+	}
+	else
+		offsetAmount = walkableRadius + extraOffset;
+
 	float lowNormal[3];
 	rdCalcEdgeNormal2D(lowDir, lowNormal);
 
@@ -678,348 +701,56 @@ static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const 
 	return true;
 }
 
-void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor)
+static unsigned int* findFromPolyMap(void* userData, const dtPolyRef basePolyRef, const dtPolyRef landPolyRef)
 {
-	const dtMeshHeader* baseHeader = baseTile->header;
+	Editor* editor = (Editor*)userData;
+	auto it = editor->getTraverseLinkPolyMap().find(TraverseLinkPolyPair(basePolyRef, landPolyRef));
 
-	if (!baseHeader->detailMeshCount)
-		return; // Detail meshes are required for traverse links.
+	if (it == editor->getTraverseLinkPolyMap().end())
+		return nullptr;
 
-	// If we link to the same tile, we need at least 2 links.
-	if (!baseTile->linkCountAvailable(linkToNeighbor ? 1 : 2))
-		return;
+	return &it->second;
+}
 
-	static const float detailEdgeAlignThresh = 0.01f*0.01f;
+static int addToPolyMap(void* userData, const dtPolyRef basePolyRef, const dtPolyRef landPolyRef, const unsigned int traverseTypeBit)
+{
+	Editor* editor = (Editor*)userData;
 
-	const dtPolyRef basePolyRefBase = m_navMesh->getPolyRefBase(baseTile);
-	bool firstBaseTileLinkUsed = false;
-
-	for (int i = 0; i < baseHeader->polyCount; ++i)
+	try
 	{
-		dtPoly* const basePoly = &baseTile->polys[i];
-
-		if (basePoly->groupId == DT_UNLINKED_POLY_GROUP)
-			continue;
-
-		if (basePoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-			continue;
-
-		dtPolyDetail* const baseDetail = &baseTile->detailMeshes[i];
-
-		for (int j = 0; j < basePoly->vertCount; ++j)
+		auto ret = editor->getTraverseLinkPolyMap().emplace(TraverseLinkPolyPair(basePolyRef, landPolyRef), traverseTypeBit);
+		if (!ret.second)
 		{
-			// Hard edges only!
-			if (basePoly->neis[j] != 0)
-				continue;
-
-			// Polygon 1 edge
-			const float* const basePolySpos = &baseTile->verts[basePoly->verts[j]*3];
-			const float* const basePolyEpos = &baseTile->verts[basePoly->verts[(j+1)%basePoly->vertCount]*3];
-
-			for (int k = 0; k < baseDetail->triCount; ++k)
-			{
-				const unsigned char* baseTri = &baseTile->detailTris[(baseDetail->triBase+k)*4];
-				const float* baseTriVerts[3];
-				for (int l = 0; l < 3; ++l)
-				{
-					if (baseTri[l] < basePoly->vertCount)
-						baseTriVerts[l] = &baseTile->verts[basePoly->verts[baseTri[l]]*3];
-					else
-						baseTriVerts[l] = &baseTile->detailVerts[(baseDetail->vertBase+(baseTri[l]-basePoly->vertCount))*3];
-				}
-				for (int l = 0, m = 2; l < 3; m = l++)
-				{
-					if ((dtGetDetailTriEdgeFlags(baseTri[3], m) & DT_DETAIL_EDGE_BOUNDARY) == 0)
-						continue;
-
-					if (rdDistancePtLine2D(baseTriVerts[m], basePolySpos, basePolyEpos) >= detailEdgeAlignThresh ||
-						rdDistancePtLine2D(baseTriVerts[l], basePolySpos, basePolyEpos) >= detailEdgeAlignThresh)
-						continue;
-
-					const float* baseDetailPolyEdgeSpos = baseTriVerts[m];
-					const float* baseDetailPolyEdgeEpos = baseTriVerts[l];
-
-					float baseTmin;
-					float baseTmax;
-					if (!rdCalcSubEdgeArea2D(basePolySpos, basePolyEpos, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, baseTmin, baseTmax))
-						continue;
-
-					float baseEdgeDir[3];
-					rdVsub(baseEdgeDir, baseDetailPolyEdgeEpos, baseDetailPolyEdgeSpos);
-
-					unsigned char baseSide = rdClassifyDirection(baseEdgeDir, baseHeader->bmin, baseHeader->bmax);
-
-					const int MAX_NEIS = 32; // Max neighbors
-					dtMeshTile* neis[MAX_NEIS];
-
-					int nneis = 0;
-
-					if (linkToNeighbor) // Retrieve the neighboring tiles on the side of our base poly edge.
-					{
-						nneis = m_navMesh->getNeighbourTilesAt(baseHeader->x, baseHeader->y, baseSide, neis, MAX_NEIS);
-
-						// No neighbors, nothing to link to on this side.
-						if (!nneis)
-							continue;
-					}
-					else
-					{
-						// Internal links.
-						nneis = 1;
-						neis[0] = baseTile;
-					}
-
-					float basePolyEdgeMid[3];
-					if (nneis)
-						rdVsad(basePolyEdgeMid, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, 0.5f);
-
-					for (int n = nneis - 1; n >= 0; --n)
-					{
-						dtMeshTile* landTile = neis[n];
-						const bool sameTile = baseTile == landTile;
-
-						// Don't connect to same tile edges yet, leave that for the second pass.
-						if (linkToNeighbor && sameTile)
-							continue;
-
-						const dtMeshHeader* landHeader = landTile->header;
-
-						if (!landHeader->detailMeshCount)
-							continue; // Detail meshes are required for traverse links.
-
-						// Skip same polygon.
-						if (sameTile && i == n)
-							continue;
-
-						if (!landTile->linkCountAvailable(1))
-							continue;
-
-						const dtPolyRef landPolyRefBase = m_navMesh->getPolyRefBase(landTile);
-						bool firstLandTileLinkUsed = false;
-
-						for (int o = 0; o < landHeader->polyCount; ++o)
-						{
-							dtPoly* const landPoly = &landTile->polys[o];
-
-							if (landPoly->groupId == DT_UNLINKED_POLY_GROUP)
-								continue;
-
-							if (landPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-								continue;
-
-							dtPolyDetail* const landDetail = &landTile->detailMeshes[o];
-
-							for (int p = 0; p < landPoly->vertCount; ++p)
-							{
-								if (landPoly->neis[p] != 0)
-									continue;
-
-								// Polygon 2 edge
-								const float* const landPolySpos = &landTile->verts[landPoly->verts[p]*3];
-								const float* const landPolyEpos = &landTile->verts[landPoly->verts[(p+1)%landPoly->vertCount]*3];
-
-								for (int q = 0; q < landDetail->triCount; ++q)
-								{
-									const unsigned char* landTri = &landTile->detailTris[(landDetail->triBase+q)*4];
-									const float* landTriVerts[3];
-									for (int r = 0; r < 3; ++r)
-									{
-										if (landTri[r] < landPoly->vertCount)
-											landTriVerts[r] = &landTile->verts[landPoly->verts[landTri[r]]*3];
-										else
-											landTriVerts[r] = &landTile->detailVerts[(landDetail->vertBase+(landTri[r]-landPoly->vertCount))*3];
-									}
-									for (int r = 0, s = 2; r < 3; s = r++)
-									{
-										// We need at least 2 links available, figure out if
-										// we link to the same tile or another one.
-										if (linkToNeighbor)
-										{
-											if (firstLandTileLinkUsed && !landTile->linkCountAvailable(1))
-												continue;
-
-											else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(1))
-												return;
-										}
-										else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(2))
-											return;
-
-										if ((dtGetDetailTriEdgeFlags(landTri[3], s) & DT_DETAIL_EDGE_BOUNDARY) == 0)
-											continue;
-
-										if (rdDistancePtLine2D(landTriVerts[s], landPolySpos, landPolyEpos) >= detailEdgeAlignThresh ||
-											rdDistancePtLine2D(landTriVerts[r], landPolySpos, landPolyEpos) >= detailEdgeAlignThresh)
-											continue;
-
-										const float* landDetailPolyEdgeSpos = landTriVerts[s];
-										const float* landDetailPolyEdgeEpos = landTriVerts[r];
-
-										float landTmin;
-										float landTmax;
-										if (!rdCalcSubEdgeArea2D(landPolySpos, landPolyEpos, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, landTmin, landTmax))
-											continue;
-
-										float landPolyEdgeMid[3];
-										rdVsad(landPolyEdgeMid, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, 0.5f);
-
-										const float dist = dtCalcLinkDistance(basePolyEdgeMid, landPolyEdgeMid);
-										const unsigned char quantDist = dtQuantLinkDistance(dist);
-
-										if (quantDist == 0)
-											continue; // Link distance is greater than maximum supported.
-
-										float landEdgeDir[3];
-										rdVsub(landEdgeDir, landDetailPolyEdgeEpos, landDetailPolyEdgeSpos);
-
-										const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
-
-										// Edges facing the same direction should not be linked.
-										// Doing so causes links to go through from underneath
-										// geometry. E.g. we have an HVAC on a roof, and we try
-										// to link our roof poly edge facing north to the edge
-										// of the poly on the HVAC also facing north, the link
-										// will go through the HVAC and thus cause the NPC to
-										// jump through it.
-										// Another case where this is necessary is when having
-										// a land edge that connects with the base edge, this
-										// prevents the algorithm from establishing a parallel
-										// traverse link.
-										if (dotProduct > 0)
-											continue;
-
-										const float elevation = rdMathFabsf(basePolyEdgeMid[2] - landPolyEdgeMid[2]);
-										const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
-										const bool baseOverlaps = calcEdgeOverlap(baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, baseEdgeDir) > m_traverseEdgeMinOverlap;
-										const bool landOverlaps = calcEdgeOverlap(landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, landEdgeDir) > m_traverseEdgeMinOverlap;
-
-										const TraverseType_e traverseType = GetBestTraverseType(dist, elevation, slopeAngle, baseOverlaps, landOverlaps);
-
-										if (traverseType == DT_NULL_TRAVERSE_TYPE)
-											continue;
-
-										if (m_selectedNavMeshType == NavMeshType_e::NAVMESH_SMALL)
-										{
-											const int tableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
-											bool traverseTypeSupported = false;
-
-											for (int t = 0; t < tableCount; t++)
-											{
-												if (rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[t])
-												{
-													traverseTypeSupported = true;
-													break;
-												}
-											}
-
-											if (!traverseTypeSupported)
-												continue;
-										}
-										else
-										{
-											const int traverseTableIndex = NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
-											const bool traverseTypeSupported = rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[traverseTableIndex];
-
-											if (!traverseTypeSupported)
-												continue;
-										}
-
-										const dtPolyRef basePolyRef = basePolyRefBase | i;
-										const dtPolyRef landPolyRef = landPolyRefBase | o;
-
-										const TraverseLinkPolyPair linkedPolyPair(basePolyRef, landPolyRef);
-										auto linkedIt = m_traverseLinkPolyMap.find(linkedPolyPair);
-
-										bool traverseLinkFound = false;
-
-										if (linkedIt != m_traverseLinkPolyMap.end())
-											traverseLinkFound = true;
-
-										// These 2 polygons are already linked with the same traverse type.
-										if (traverseLinkFound && (rdBitCellBit(traverseType) & linkedIt->second))
-											continue;
-
-										const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
-										float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
-										float* const higherEdgeMid = basePolyHigher ? basePolyEdgeMid : landPolyEdgeMid;
-										float* const lowerEdgeDir = basePolyHigher ? landEdgeDir : baseEdgeDir;
-										float* const higherEdgeDir = basePolyHigher ? baseEdgeDir : landEdgeDir;
-
-										const float walkableRadius = basePolyHigher ? baseHeader->walkableRadius : landHeader->walkableRadius;
-										float offsetAmount;
-
-										if (m_traverseRayDynamicOffset)
-										{
-											const float totLedgeSpan = walkableRadius + m_traverseRayExtraOffset;
-											const float maxAngle = rdCalcMaxLOSAngle(totLedgeSpan, m_cellHeight);
-
-											offsetAmount = rdCalcLedgeSpanOffsetAmount(totLedgeSpan, slopeAngle, maxAngle);
-										}
-										else
-											offsetAmount = walkableRadius + m_traverseRayExtraOffset;
-
-										if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
-											continue;
-
-										const unsigned char landSide = linkToNeighbor
-											? rdClassifyPointOutsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax)
-											: rdClassifyPointInsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax);
-
-										const unsigned int forwardIdx = baseTile->allocLink();
-										const unsigned int reverseIdx = landTile->allocLink();
-
-										// Allocated 2 new links, need to check for enough space on subsequent runs.
-										// This optimization saves a lot of time generating navmeshes for larger or
-										// more complicated geometry.
-										firstBaseTileLinkUsed = true;
-										firstLandTileLinkUsed = true;
-
-										// Calculate the portal limits.
-
-										dtLink* const forwardLink = &baseTile->links[forwardIdx];
-
-										forwardLink->ref = landPolyRef;
-										forwardLink->edge = (unsigned char)j;
-										forwardLink->side = landSide;
-										forwardLink->bmin = (unsigned char)rdMathRoundf(baseTmin * 255.f);
-										forwardLink->bmax = (unsigned char)rdMathRoundf(baseTmax * 255.f);
-										forwardLink->next = basePoly->firstLink;
-										basePoly->firstLink = forwardIdx;
-										forwardLink->traverseType = (unsigned char)traverseType;
-										forwardLink->traverseDist = quantDist;
-										forwardLink->reverseLink = (unsigned short)reverseIdx;
-
-										dtLink* const reverseLink = &landTile->links[reverseIdx];
-
-										reverseLink->ref = basePolyRef;
-										reverseLink->edge = (unsigned char)p;
-										reverseLink->side = baseSide;
-										reverseLink->bmin = (unsigned char)rdMathRoundf(landTmin * 255.f);
-										reverseLink->bmax = (unsigned char)rdMathRoundf(landTmax * 255.f);
-										reverseLink->next = landPoly->firstLink;
-										landPoly->firstLink = reverseIdx;
-										reverseLink->traverseType = (unsigned char)traverseType;
-										reverseLink->traverseDist = quantDist;
-										reverseLink->reverseLink = (unsigned short)forwardIdx;
-
-										if (traverseLinkFound)
-											linkedIt->second |= 1 << traverseType;
-										else
-											m_traverseLinkPolyMap.emplace(linkedPolyPair, 1 << traverseType);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			rdAssert(ret.second); // Called 'addToPolyMap' while poly link already exists.
+			return 1;
 		}
 	}
+	catch (const std::bad_alloc& /*e*/)
+	{
+		return -1;
+	}
+
+	return 0;
+}
+
+void Editor::createTraverseLinkParams(dtTraverseLinkConnectParams& params)
+{
+	params.getTraverseType = &GetBestTraverseType;
+	params.traverseLinkInLOS = &traverseLinkInLOS;
+	params.findPolyLink = &findFromPolyMap;
+	params.addPolyLink = &addToPolyMap;
+
+	params.userData = this;
+	params.minEdgeOverlap = m_traverseEdgeMinOverlap;
 }
 
 bool Editor::createTraverseLinks()
 {
 	rdAssert(m_navMesh);
 	m_traverseLinkPolyMap.clear();
+
+	dtTraverseLinkConnectParams params;
+	createTraverseLinkParams(params);
 
 	const int maxTiles = m_navMesh->getMaxTiles();
 
@@ -1029,8 +760,12 @@ bool Editor::createTraverseLinks()
 		if (!baseTile || !baseTile->header)
 			continue;
 
-		connectTileTraverseLinks(baseTile, false);
-		connectTileTraverseLinks(baseTile, true);
+		const dtTileRef baseTileRef = m_navMesh->getTileRef(baseTile);
+
+		params.linkToNeighbor = false;
+		m_navMesh->connectTraverseLinks(baseTileRef, params);
+		params.linkToNeighbor = true;
+		m_navMesh->connectTraverseLinks(baseTileRef, params);
 	}
 
 	return true;

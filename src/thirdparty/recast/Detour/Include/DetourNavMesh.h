@@ -496,6 +496,59 @@ private:
 	dtMeshTile& operator=(const dtMeshTile&);
 };
 
+/// Configuration parameters used to create traverse links between polygon edges.
+/// @ingroup detour
+struct dtTraverseLinkConnectParams
+{
+	/// User defined callback that returns the desired traverse type based on
+	/// the provided spatial and logical characteristics of this potential link.
+	///  @param[in]		userData		Pointer to user defined data.
+	///  @param[in]		traverseDist	The total distance in length of the traverse link. [Unit: wu]
+	///  @param[in]		elevation		The elevation difference between base and land position. [Unit: wu]
+	///  @param[in]		slopeAngle		The slope angle from base to land position. [Unit: Degrees]
+	///  @param[in]		baseOverlaps	Whether the projection of the base edge overlaps with the land edge.
+	///  @param[in]		landOverlaps	Whether the projection of the land edge overlaps with the base edge.
+	/// @return The desired traverse type for provided spatial and logical characteristics.
+	unsigned char(*getTraverseType)(void* userData, const float traverseDist, const float elevation,
+		const float slopeAngle, const bool baseOverlaps, const bool landOverlaps);
+
+	/// User defined callback that returns whether a traverse link based on
+	/// provided spatial characteristics is clear in terms of line-of-sight.
+	///  @param[in]		userData		Pointer to user defined data.
+	///  @param[in]		lowerEdgeMid	The mid point of the lower edge from which the link starts. [(x, y, z)] [Unit: wu]
+	///  @param[in]		higherEdgeMid	The mid point of the higher edge to which the link ends. [(x, y, z)] [Unit: wu]
+	///  @param[in]		lowerEdgeDir	The vector direction of the lower edge. [(x, y, z)] [Unit: wu]
+	///  @param[in]		higherEdgeDir	The vector direction of the higher edge. [(x, y, z)] [Unit: wu]
+	///  @param[in]		walkableRadius	The walkable radius defined by the tile hosting the link. [Unit: wu]
+	///  @param[in]		slopeAngle		The slope angle from lower to higher edge mid points. [Unit: Degrees]
+	/// @return True if the link between the lower and higher edge mid points don't collide with anything.
+	bool(*traverseLinkInLOS)(void* userData, const float* lowerEdgeMid, const float* higherEdgeMid,
+		const float* lowerEdgeDir, const float* higherEdgeDir, const float walkableRadius, const float slopeAngle);
+
+	/// User defined callback that looks if a link between these 2 polygons
+	/// have already been established. A traverse type can only be used once
+	/// between 2 polygons, but the 2 polygons can have more than one link.
+	///  @param[in]		userData		Pointer to user defined data.
+	///  @param[in]		basePolyRef		The reference of the polygon on the base tile.
+	///  @param[in]		landPolyRef		The reference of the polygon on the land tile.
+	/// @return Pointer to the bit cell, null if no link was found.
+	unsigned int*(*findPolyLink)(void* userData, const dtPolyRef basePolyRef, const dtPolyRef landPolyRef);
+
+	/// User defined callback that adds a new polygon pair to the list. On
+	/// subsequent lookups, the bit cell of this pair should be returned and
+	/// used instead, see #findPolyLink.
+	///  @param[in]		userData		Pointer to user defined data.
+	///  @param[in]		basePolyRef		The reference of the polygon on the base tile.
+	///  @param[in]		landPolyRef		The reference of the polygon on the land tile.
+	///  @param[in]		traverseTypeBit	The traverse type bit index to be stored initially in the bit cell.
+	/// @return -1 if out-of-memory, 1 if link was already present, 0 on success.
+	int(*addPolyLink)(void* userData, const dtPolyRef basePolyRef, const dtPolyRef landPolyRef, const unsigned int traverseTypeBit);
+
+	void* userData;					///< The user defined data that will be provided to all callbacks, for example: your editor's class instance.
+	float minEdgeOverlap;			///< The minimum amount of projection overlap required between the 2 edges before they are considered overlapping.
+	bool linkToNeighbor;			///< Whether to link to polygons in neighboring tiles. Limits linkage to internal polygons if false.
+};
+
 /// Configuration parameters used to define multi-tile navigation meshes.
 /// The values are used to allocate space during the initialization of a navigation mesh.
 /// @see dtNavMesh::init()
@@ -858,6 +911,8 @@ public:
 	int getNeighbourTilesAt(const int x, const int y, const int side,
 		dtMeshTile** tiles, const int maxTiles) const;
 
+	/// Builds external polygon links for a tile.
+	dtStatus connectTraverseLinks(const dtTileRef tileRef, const dtTraverseLinkConnectParams& params);
 	/// Builds external polygon links for a tile.
 	dtStatus connectExtOffMeshLinks(const dtTileRef tileRef);
 	/// Builds internal polygons links for a tile.

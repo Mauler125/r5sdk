@@ -735,11 +735,14 @@ void Editor_TileMesh::buildTile(const float* pos)
 				}
 			}
 
-			dtMeshTile* tile = (dtMeshTile*)m_navMesh->getTileByRef(tileRef);
-
 			// Reconnect the traverse links.
-			connectTileTraverseLinks(tile, false);
-			connectTileTraverseLinks(tile, true);
+			dtTraverseLinkConnectParams params;
+			createTraverseLinkParams(params);
+
+			params.linkToNeighbor = false;
+			m_navMesh->connectTraverseLinks(tileRef, params);
+			params.linkToNeighbor = true;
+			m_navMesh->connectTraverseLinks(tileRef, params);
 
 			buildStaticPathingData();
 		}

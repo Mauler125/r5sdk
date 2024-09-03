@@ -487,14 +487,26 @@ void rdCalcEdgeNormal2D(const float* dir, float* out);
 ///  @param[out]	out		The resulting normal. [(x, y)]
 void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, float* out);
 
+/// Derives the sub-edge area of an edge.
 ///  @param[in]		edgeStart		First vert of the polygon edge. [(x, y, z)]
 ///  @param[in]		edgeEnd			Second vert of the polygon edge. [(x, y, z)]
 ///  @param[in]		subEdgeStart	First vert of the detail edge. [(x, y, z)]
 ///  @param[in]		subEdgeEnd		Second vert of the detail edge. [(x, y, z)]
 ///  @param[out]	tmin			The normalized distance ratio from polygon edge start to detail edge start.
 ///  @param[out]	tmax			The normalized distance ratio from polygon edge start to detail edge end.
+/// @return False if tmin and tmax don't correspond to the winding order of the edge.
 bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,
 	const float* subEdgeEnd, float& tmin, float& tmax);
+
+/// Derives the overlap between 2 edges.
+///  @param[in]		edge1Start		Start vert of the first edge. [(x, y, z)]
+///  @param[in]		edge1End		End vert of the first edge. [(x, y, z)]
+///  @param[in]		edge2Start		Start vert of the second edge. [(x, y, z)]
+///  @param[in]		edge2End		End vert of the second edge. [(x, y, z)]
+///  @param[in]		targetEdgeVec	The projection direction. [(x, y, z)]
+/// @return The length of the overlap.
+float rdCalcEdgeOverlap2D(const float* edge1Start, const float* edge1End,
+	const float* edge2Start, const float* edge2End, const float* targetEdgeVec);
 
 /// Derives the maximum angle in which an object on an elevated surface can be seen from below.
 ///  @param[in]		ledgeSpan		The distance between the edge of the object and the edge of the ledge.

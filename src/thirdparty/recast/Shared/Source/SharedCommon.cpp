@@ -445,6 +445,27 @@ bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const flo
 	return true;
 }
 
+float rdCalcEdgeOverlap2D(const float* edge1Start, const float* edge1End,
+	const float* edge2Start, const float* edge2End, const float* targetEdgeVec)
+{
+	float min1 = rdVproj2D(edge1Start, targetEdgeVec);
+	float max1 = rdVproj2D(edge1End, targetEdgeVec);
+
+	if (min1 > max1)
+		rdSwap(min1, max1);
+
+	float min2 = rdVproj2D(edge2Start, targetEdgeVec);
+	float max2 = rdVproj2D(edge2End, targetEdgeVec);
+
+	if (min2 > max2)
+		rdSwap(min2, max2);
+
+	const float start = rdMax(min1, min2);
+	const float end = rdMin(max1, max2);
+
+	return rdMax(0.0f, end - start);
+}
+
 float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight)
 {
 	const float angleRad = rdMathAtan2f(objectHeight, ledgeSpan);
