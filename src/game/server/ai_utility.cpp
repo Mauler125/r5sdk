@@ -120,19 +120,47 @@ bool Detour_IsLoaded()
 
 //-----------------------------------------------------------------------------
 // Purpose: hot swaps the NavMesh with the current files on the disk
-// (All hulls will be reloaded! If NavMesh for hull no longer exist, it will be kept empty!!!)
+// (All types will be reloaded! If NavMesh for type no longer exist, it will be kept empty!!!)
 //-----------------------------------------------------------------------------
 void Detour_HotSwap()
 {
     Assert(ThreadInMainOrServerFrameThread());
     g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapBegin");
 
+    const dtNavMesh* queryNav = g_pNavMeshQuery->getAttachedNavMesh();
+    NavMeshType_e queryNavType = NAVMESH_INVALID;
+
+    // Figure out which NavMesh type is attached to the global query.
+    for (int i = 0; i < NAVMESH_COUNT; i++)
+    {
+        const NavMeshType_e in = (NavMeshType_e)i;
+
+        if (queryNav != Detour_GetNavMeshByType(in))
+            continue;
+
+        queryNavType = in;
+        break;
+    }
+
     // Free and re-init NavMesh.
     Detour_LevelShutdown();
     v_Detour_LevelInit();
 
     if (!Detour_IsLoaded())
-        Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
+        Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh: %s\n", __FUNCTION__, 
+            "one or more missing NavMesh types, Detour logic may be unavailable");
+
+    // Attach the new NavMesh to the global Detour query.
+    if (queryNavType != NAVMESH_INVALID)
+    {
+        const dtNavMesh* newQueryNav = Detour_GetNavMeshByType(queryNavType);
+
+        if (newQueryNav)
+            g_pNavMeshQuery->attachNavMeshUnsafe(newQueryNav);
+        else
+            Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh: %s\n", __FUNCTION__, 
+                "previously attached NavMesh type is no longer available for global Detour query");
+    }
 
     const int numAis = g_AI_Manager->NumAIs();
     CAI_BaseNPC** const pAis = g_AI_Manager->AccessAIs();
