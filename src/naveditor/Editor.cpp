@@ -402,7 +402,10 @@ void Editor::handleCommonSettings()
 	ImGui::SliderInt("Max Edge Length", &m_edgeMaxLen, 0, 50); // todo(amos): increase due to larger scale maps?
 	ImGui::SliderFloat("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f);
 	ImGui::SliderInt("Verts Per Poly", &m_vertsPerPoly, 3, 6);
+
+#if DT_NAVMESH_SET_VERSION >= 8
 	ImGui::SliderInt("Poly Cell Resolution", &m_polyCellRes, 1, 16);
+#endif
 
 	ImGui::Separator();
 	ImGui::Text("Detail Mesh");

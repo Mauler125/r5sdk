@@ -537,6 +537,7 @@ bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 	return true;
 }
 
+#if DT_NAVMESH_SET_VERSION >= 8
 struct CellItem
 {
 	float pos[3];
@@ -710,6 +711,7 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 
 	return true;
 }
+#endif // DT_NAVMESH_SET_VERSION >= 8
 
 // TODO: Better error handling.
 
