@@ -74,7 +74,7 @@ static void initTraverseTableParams()
 {
 	s_traverseTable[0] =  { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
 
-	s_traverseTable[1]  = { 10.f,  120.f, 0.f,  48.f,  0.f, 67.f, -1.f, false };
+	s_traverseTable[1]  = { 10.f,  120.f, 0.f,  48.f,  0.f, 67.f, 0.f, false };
 	s_traverseTable[2]  = { 120.f, 160.f, 48.f, 96.f,  5.f, 78.f, 0.f, false };
 	s_traverseTable[3]  = { 160.f, 220.f, 0.f,  128.f, 0.f, 38.f, 0.f, false };
 
