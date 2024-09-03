@@ -75,6 +75,37 @@ bool Detour_IsGoalPolyReachable(dtNavMesh* const nav, const dtPolyRef fromRef,
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: finds the nearest polygon to specified center point.
+// Input  : *query - 
+//          *center - 
+//          *halfExtents - 
+//          *filter - 
+//          *nearestRef - 
+//          *nearestPt - 
+// Output: The status flags for the query.
+//-----------------------------------------------------------------------------
+dtStatus Detour_FindNearestPoly(dtNavMeshQuery* query, const float* center, const float* halfExtents,
+    const dtQueryFilter* filter, dtPolyRef* nearestRef, float* nearestPt)
+{
+    return query->findNearestPoly(center, halfExtents, filter, nearestRef, nearestPt);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds a tile to the NavMesh.
+// Input  : *nav - 
+//          *unused - 
+//          *data - 
+//          *dataSize - 
+//          *flags - 
+//          *lastRef - 
+// Output: The status flags for the operation.
+//-----------------------------------------------------------------------------
+dtStatus Detour_AddTile(dtNavMesh* nav, void* unused, unsigned char* data, int dataSize, int flags, dtTileRef lastRef)
+{
+    return nav->addTile(data, dataSize, flags, lastRef, nullptr);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: initialize NavMesh and Detour query singleton for level
 //-----------------------------------------------------------------------------
 void Detour_LevelInit()
@@ -213,4 +244,6 @@ void VRecast::Detour(const bool bAttach) const
 {
 	DetourSetup(&v_Detour_IsGoalPolyReachable, &Detour_IsGoalPolyReachable, bAttach);
 	DetourSetup(&v_Detour_LevelInit, &Detour_LevelInit, bAttach);
+	//DetourSetup(&dtNavMesh__addTile, &Detour_AddTile, bAttach);
+	//DetourSetup(&dtNavMeshQuery__findNearestPoly, &Detour_FindNearestPoly, bAttach);
 }

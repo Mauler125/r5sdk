@@ -11,7 +11,10 @@ inline void(*v_Detour_LevelInit)(void);
 inline void(*v_Detour_FreeNavMesh)(dtNavMesh* mesh);
 inline bool(*v_Detour_IsGoalPolyReachable)(dtNavMesh* const nav, const dtPolyRef fromPoly, const dtPolyRef goalPoly, const TraverseAnimType_e animType);
 inline dtStatus(*dtNavMesh__Init)(dtNavMesh* thisptr, unsigned char* data, int flags);
-inline dtStatus(*dtNavMesh__addTile)(dtNavMesh* thisptr, unsigned char* data, dtMeshHeader* header, int dataSize, int flags, dtTileRef lastRef);
+inline dtStatus(*dtNavMesh__addTile)(dtNavMesh* thisptr, void* unused, unsigned char* data, int dataSize, int flags, dtTileRef lastRef);
+inline dtStatus(*dtNavMeshQuery__findNearestPoly)(dtNavMeshQuery* query, const float* center, const float* halfExtents,
+	const dtQueryFilter* filter,
+	dtPolyRef* nearestRef, float* nearestPt);
 
 
 constexpr const char* NAVMESH_PATH = "maps/navmesh/";
@@ -36,6 +39,7 @@ class VRecast : public IDetour
 		LogFunAdr("Detour_IsGoalPolyReachable", v_Detour_IsGoalPolyReachable);
 		LogFunAdr("dtNavMesh::Init", dtNavMesh__Init);
 		LogFunAdr("dtNavMesh::addTile", dtNavMesh__addTile);
+		LogFunAdr("dtNavMeshQuery::findNearestPoly", dtNavMeshQuery__findNearestPoly);
 		LogVarAdr("g_pNavMesh[ NavMeshType_e::NAVMESH_COUNT ]", g_pNavMesh);
 		LogVarAdr("g_pNavMeshQuery", g_pNavMeshQuery);
 	}
@@ -46,6 +50,7 @@ class VRecast : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 49 63 F1").GetPtr(v_Detour_IsGoalPolyReachable);
 		g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 53 41 56 48 81 EC ?? ?? ?? ?? 0F 10 11").GetPtr(dtNavMesh__Init);
 		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 41 55").GetPtr(dtNavMesh__addTile);
+		g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B ?? 41 54 41 57").GetPtr(dtNavMeshQuery__findNearestPoly);
 	}
 	virtual void GetVar(void) const
 	{
