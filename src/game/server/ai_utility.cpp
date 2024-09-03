@@ -22,7 +22,7 @@ static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DE
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the navmesh by type from global array [small, med_short, medium, large, extra_large]
-// input  : navMeshType - 
+// Input  : navMeshType - 
 // Output : pointer to navmesh
 //-----------------------------------------------------------------------------
 dtNavMesh* Detour_GetNavMeshByType(const NavMeshType_e navMeshType)
@@ -33,7 +33,7 @@ dtNavMesh* Detour_GetNavMeshByType(const NavMeshType_e navMeshType)
 
 //-----------------------------------------------------------------------------
 // Purpose: free's the navmesh by type from global array [small, med_short, medium, large, extra_large]
-// input  : navMeshType - 
+// Input  : navMeshType - 
 //-----------------------------------------------------------------------------
 void Detour_FreeNavMeshByType(const NavMeshType_e navMeshType)
 {
@@ -54,7 +54,7 @@ void Detour_FreeNavMeshByType(const NavMeshType_e navMeshType)
 //-----------------------------------------------------------------------------
 // Purpose: determines whether goal poly is reachable from agent poly
 //          (only checks static pathing)
-// input  : *nav - 
+// Input  : *nav - 
 //			fromRef - 
 //			goalRef - 
 //			animType - 
