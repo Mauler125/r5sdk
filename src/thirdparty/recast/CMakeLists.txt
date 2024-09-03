@@ -19,6 +19,7 @@ add_sources( SOURCE_GROUP "Include"
     "Shared/Include/SharedAlloc.h"
     "Shared/Include/SharedAssert.h"
     "Shared/Include/SharedCommon.h"
+    "Shared/Include/SharedDefs.h"
     "Shared/Include/SharedMath.h"
 )
 

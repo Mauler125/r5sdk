@@ -19,9 +19,8 @@
 #ifndef RECASTDETOURCOMMON_H
 #define RECASTDETOURCOMMON_H
 
+#include "Shared/Include/SharedDefs.h"
 #include "Shared/Include/SharedMath.h"
-
-#define rdForceInline __forceinline
 
 /// The total number of bits in an bit cell integer.
 static const int RD_BITS_PER_BIT_CELL = 32;
@@ -615,7 +614,7 @@ void rdRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 							   const float s, const float t, float* out);
 
 template<typename TypeToRetrieveAs>
-TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(const unsigned char*& buffer, const size_t distanceToAdvance)
+TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(const unsigned char*& buffer, const rdSizeType distanceToAdvance)
 {
 	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
 	buffer += distanceToAdvance;
@@ -623,7 +622,7 @@ TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(const unsigned char*& buffer, co
 }
 
 template<typename TypeToRetrieveAs>
-TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(unsigned char*& buffer, const size_t distanceToAdvance)
+TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(unsigned char*& buffer, const rdSizeType distanceToAdvance)
 {
 	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
 	buffer += distanceToAdvance;

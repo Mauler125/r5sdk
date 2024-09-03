@@ -16,16 +16,29 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef FILE_IO_H
-#define FILE_IO_H
+#ifndef RECASTDETOURDEFS_H
+#define RECASTDETOURDEFS_H
 
-struct duFileIO
-{
-	virtual ~duFileIO() = 0;
-	virtual bool isWriting() const = 0;
-	virtual bool isReading() const = 0;
-	virtual bool write(const void* ptr, const rdSizeType size) = 0;
-	virtual bool read(void* ptr, const rdSizeType size) = 0;
-};
+/// Signed to avoid warnings when comparing to int loop indexes, and common error with comparing to zero.
+/// MSVC2010 has a bug where ssize_t is unsigned (!!!).
+typedef intptr_t rdSizeType;
+#define RD_SIZE_MAX INTPTR_MAX
 
-#endif // FILE_IO_H
+/// Macros to hint to the compiler about the likeliest branch. Please add a benchmark that demonstrates a performance
+/// improvement before introducing use cases.
+#if defined(__GNUC__) || defined(__clang__)
+#define rdLikely(x) __builtin_expect((x), true)
+#define rdUnlikely(x) __builtin_expect((x), false)
+#else
+#define rdLikely(x) (x)
+#define rdUnlikely(x) (x)
+#endif
+
+/// Macros to forcefully inline a function.
+#if defined(__GNUC__) || defined(__clang__)
+#define rdForceInline static inline
+#else
+#define rdForceInline __forceinline
+#endif
+
+#endif // RECASTDETOURDEFS_H
