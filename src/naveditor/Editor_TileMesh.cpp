@@ -1108,7 +1108,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// (Optional) Mark areas.
 	const ConvexVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
-		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_chf);
+		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned short)vols[i].flags, (unsigned char)vols[i].area, *m_chf);
 	
 	
 	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
@@ -1253,7 +1253,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 				//m_pmesh->areas[i] == EDITOR_POLYAREA_ROAD
 				)
 			{
-				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK;
+				m_pmesh->flags[i] |= EDITOR_POLYFLAGS_WALK;
 			}
 			//else if (m_pmesh->areas[i] == EDITOR_POLYAREA_WATER)
 			//{
@@ -1261,7 +1261,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			//}
 			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_TRIGGER)
 			{
-				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
+				m_pmesh->flags[i] |= EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
 
 			if (m_pmesh->surfa[i] <= NAVMESH_SMALL_POLYGON_THRESHOLD)

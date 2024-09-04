@@ -312,7 +312,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 			if (m_volumeCount < MAX_VOLUMES)
 			{
 				ConvexVolume* vol = &m_volumes[m_volumeCount++];
-				sscanf(row+1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
+				sscanf(row+1, "%d %hu %hhu %f %f", &vol->nverts, &vol->flags, &vol->area, &vol->hmin, &vol->hmax);
 				for (int i = 0; i < vol->nverts; ++i)
 				{
 					row[0] = '\0';
@@ -453,7 +453,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		ConvexVolume* vol = &m_volumes[i];
-		fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
+		fprintf(fp, "v %d %hu %hhu %f %f\n", vol->nverts, vol->flags, vol->area, vol->hmin, vol->hmax);
 		for (int j = 0; j < vol->nverts; ++j)
 			fprintf(fp, "%f %f %f\n", vol->verts[j*3+0], vol->verts[j*3+1], vol->verts[j*3+2]);
 	}
@@ -637,7 +637,7 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, const float* offset, boo
 }
 
 void InputGeom::addConvexVolume(const float* verts, const int nverts,
-								const float minh, const float maxh, unsigned char area)
+								const float minh, const float maxh, unsigned short flags, unsigned char area)
 {
 	if (m_volumeCount >= MAX_VOLUMES) return;
 	ConvexVolume* vol = &m_volumes[m_volumeCount++];
@@ -646,6 +646,7 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts,
 	vol->hmin = minh;
 	vol->hmax = maxh;
 	vol->nverts = nverts;
+	vol->flags = flags;
 	vol->area = area;
 }
 

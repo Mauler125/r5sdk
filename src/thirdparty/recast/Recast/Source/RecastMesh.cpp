@@ -1104,6 +1104,12 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.regs' (%d).", maxTris);
 		return false;
 	}
+	mesh.flags = (unsigned short*)rdAlloc(sizeof(unsigned short)*maxTris, RD_ALLOC_PERM);
+	if (!mesh.flags)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.flags' (%d).", maxTris);
+		return false;
+	}
 	mesh.areas = (unsigned char*)rdAlloc(sizeof(unsigned char)*maxTris, RD_ALLOC_PERM);
 	if (!mesh.areas)
 	{
@@ -1125,6 +1131,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 	memset(mesh.verts, 0, sizeof(unsigned short)*maxVertices*3);
 	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxTris*nvp*2);
 	memset(mesh.regs, 0, sizeof(unsigned short)*maxTris);
+	memset(mesh.flags, 0, sizeof(unsigned short)*maxTris);
 	memset(mesh.areas, 0, sizeof(unsigned char)*maxTris);
 	
 	rdScopedDelete<int> nextVert((int*)rdAlloc(sizeof(int)*maxVertices, RD_ALLOC_TEMP));
@@ -1279,6 +1286,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 			for (int k = 0; k < nvp; ++k)
 				p[k] = q[k];
 			mesh.regs[mesh.npolys] = cont.reg;
+			mesh.flags[mesh.npolys] = cont.flags;
 			mesh.areas[mesh.npolys] = cont.area;
 			mesh.npolys++;
 			if (mesh.npolys > maxTris)
@@ -1390,15 +1398,6 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 
 		mesh.surfa[i] = (unsigned short)rdMathRoundf(polyArea*RC_POLY_SURFAREA_QUANT_FACTOR);
 	}
-
-	// Just allocate the mesh flags array. The user is responsible to fill it.
-	mesh.flags = (unsigned short*)rdAlloc(sizeof(unsigned short)*mesh.npolys, RD_ALLOC_PERM);
-	if (!mesh.flags)
-	{
-		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.flags' (%d).", mesh.npolys);
-		return false;
-	}
-	memset(mesh.flags, 0, sizeof(unsigned short) * mesh.npolys);
 	
 	if (mesh.nverts > 0xffff)
 	{

@@ -364,6 +364,7 @@ struct rcCompactHeightfield
 	rcCompactCell* cells;		///< Array of cells. [Size: #width*#height]
 	rcCompactSpan* spans;		///< Array of spans. [Size: #spanCount]
 	unsigned short* dist;		///< Array containing border distance data. [Size: #spanCount]
+	unsigned short* flags;		///< Array containing flags data. [Size: #spanCount]
 	unsigned char* areas;		///< Array containing area id data. [Size: #spanCount]
 	
 private:
@@ -414,10 +415,11 @@ private:
 struct rcContour
 {
 	int* verts;			///< Simplified contour vertex and connection data. [Size: 4 * #nverts]
-	int nverts;			///< The number of vertices in the simplified contour. 
 	int* rverts;		///< Raw contour vertex and connection data. [Size: 4 * #nrverts]
+	int nverts;			///< The number of vertices in the simplified contour. 
 	int nrverts;		///< The number of vertices in the raw contour. 
 	unsigned short reg;	///< The region id of the contour.
+	unsigned short flags;///< The flags of the contour.
 	unsigned char area;	///< The area id of the contour.
 };
 
@@ -939,9 +941,11 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf);
 /// @param[in,out]	ctx		The build context to use during the operation.
 /// @param[in]		bmin	The minimum of the bounding box. [(x, y, z)]
 /// @param[in]		bmax	The maximum of the bounding box. [(x, y, z)]
+/// @param[in]		flags	The flags to apply. [Limit: <= #RC_WALKABLE_AREA]
 /// @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
 /// @param[in,out]	chf		A populated compact heightfield.
-void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigned char areaId,
+void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax,
+				   unsigned short flags, unsigned char areaId,
 				   rcCompactHeightfield& chf);
 
 /// Applies the area id to the all spans within the specified convex polygon. 
@@ -951,10 +955,12 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigne
 /// @param[in]		nverts	The number of vertices in the polygon.
 /// @param[in]		hmin	The height of the base of the polygon.
 /// @param[in]		hmax	The height of the top of the polygon.
+/// @param[in]		flags	The flags to apply. [Limit: <= #RC_WALKABLE_AREA]
 /// @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
 /// @param[in,out]	chf		A populated compact heightfield.
 void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
-						  const float hmin, const float hmax, unsigned char areaId,
+						  const float hmin, const float hmax, 
+						  unsigned short flags, unsigned char areaId,
 						  rcCompactHeightfield& chf);
 
 /// Helper function to offset voncex polygons for rcMarkConvexPolyArea.

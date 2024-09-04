@@ -92,6 +92,7 @@ static int pointInPoly(int nvert, const float* verts, const float* p) // todo(am
 ConvexVolumeTool::ConvexVolumeTool() :
 	m_editor(0),
 	m_areaType(RC_NULL_AREA),
+	m_polyFlags(0),
 	m_polyOffset(0.0f),
 	m_boxHeight(650.0f),
 	m_boxDescent(150.0f),
@@ -135,8 +136,21 @@ void ConvexVolumeTool::handleMenu()
 	if (ImGui::Checkbox("Trigger", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_TRIGGER; // todo(amos): also allow setting flags and store this in .gset.
 
-	ImGui::Unindent();
+	if (m_areaType == EDITOR_POLYAREA_TRIGGER)
+	{
+		ImGui::Text("Poly Flags");
+		ImGui::Indent();
 
+		for (int i = 0; i < V_ARRAYSIZE(g_navMeshPolyFlagNames); i++)
+		{
+			const char* flagName = g_navMeshPolyFlagNames[i];
+			ImGui::CheckboxFlags(flagName, &m_polyFlags, 1<<i);
+		}
+
+		ImGui::Unindent();
+	}
+
+	ImGui::Unindent();
 	ImGui::Separator();
 
 	if (ImGui::Button("Clear Shape"))
@@ -196,11 +210,11 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 					float offset[MAX_PTS*2*3];
 					int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS*2);
 					if (noffset > 0)
-						geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned char)m_areaType);
+						geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
 				}
 				else
 				{
-					geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned char)m_areaType);
+					geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
 				}
 			}
 			
