@@ -621,11 +621,6 @@ enum rcBuildContoursFlags
 /// @see rcContour::verts, rcContour::rverts
 static const int RC_CONTOUR_REG_MASK = 0xffff;
 
-/// An value which indicates an invalid index within a mesh.
-/// @note This does not necessarily indicate an error.
-/// @see rcPolyMesh::polys
-static const unsigned short RC_MESH_NULL_IDX = 0xffff;
-
 /// Represents the null area.
 /// When a data element is given this value it is considered to no longer be 
 /// assigned to a usable area.  (E.g. It is un-walkable.)

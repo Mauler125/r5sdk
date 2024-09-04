@@ -23,8 +23,6 @@
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
 
-static unsigned short MESH_NULL_IDX = 0xffff;
-
 
 struct BVItem
 {
@@ -165,15 +163,6 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, rdTempVecto
 	}
 }
 
-static const unsigned short DT_MESH_NULL_IDX = 0xffff;
-static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos): deduplicate
-{
-	for (int i = 0; i < nvp; ++i)
-		if (p[i] == DT_MESH_NULL_IDX)
-			return i;
-	return nvp;
-}
-
 static bool createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& nodes)
 {
 	BVItem* items = (BVItem*)rdAlloc(sizeof(BVItem)*params->polyCount, RD_ALLOC_TEMP);
@@ -210,7 +199,7 @@ static bool createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& no
 			const int nvp = params->nvp;
 
 			const unsigned short* p = &params->polys[i*nvp * 2];
-			vertCount = countPolyVerts(p, nvp);
+			vertCount = rdCountPolyVerts(p, nvp);
 
 			for (int j = 0; j < vertCount; ++j)
 			{
@@ -554,7 +543,7 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 	for (int i = 0; i < params->polyCount; ++i)
 	{
 		const unsigned short* p = &params->polys[i*2*nvp];
-		const int nv = countPolyVerts(p, nvp);
+		const int nv = rdCountPolyVerts(p, nvp);
 
 		if (nv < 3) // Don't generate cells for off-mesh connections.
 			continue;
@@ -816,7 +805,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		const unsigned short* p = &params->polys[i*2*nvp];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (p[j] == MESH_NULL_IDX) break;
+			if (p[j] == RD_MESH_NULL_IDX) break;
 			edgeCount++;
 			
 			if (p[nvp+j] & 0x8000)
@@ -844,7 +833,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			int nv = 0;
 			for (int j = 0; j < nvp; ++j)
 			{
-				if (p[j] == MESH_NULL_IDX) break;
+				if (p[j] == RD_MESH_NULL_IDX) break;
 				nv++;
 			}
 			ndv -= nv;
@@ -862,7 +851,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			int nv = 0;
 			for (int j = 0; j < nvp; ++j)
 			{
-				if (p[j] == MESH_NULL_IDX) break;
+				if (p[j] == RD_MESH_NULL_IDX) break;
 				nv++;
 			}
 			detailTriCount += nv-2;
@@ -1012,7 +1001,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		p->surfaceArea = params->surfAreas[i];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (src[j] == MESH_NULL_IDX) break;
+			if (src[j] == RD_MESH_NULL_IDX) break;
 			p->verts[j] = src[j];
 			if (src[nvp+j] & 0x8000)
 			{

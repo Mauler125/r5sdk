@@ -353,21 +353,6 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax,
 	}
 }
 
-
-static int pointInPoly(int nvert, const float* verts, const float* p) // todo(amos) deduplicate.
-{
-	int i, j, c = 0;
-	for (i = 0, j = nvert-1; i < nvert; j = i++)
-	{
-		const float* vi = &verts[i*3];
-		const float* vj = &verts[j*3];
-		if (((vi[1] > p[1]) != (vj[1] > p[1])) &&
-			(p[0] < (vj[0]-vi[0]) * (p[1]-vi[1]) / (vj[1]-vi[1]) + vi[0]) )
-			c = !c;
-	}
-	return c;
-}
-
 /// @par
 ///
 /// The value of spacial parameters are in world units.
@@ -432,7 +417,7 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 					p[1] = chf.bmin[1] + (y+0.5f)*chf.cs;
 					p[2] = 0; 
 
-					if (pointInPoly(nverts, verts, p))
+					if (rdPointInPolygon(p, verts, nverts))
 					{
 						chf.flags[i] = flags;
 						chf.areas[i] = areaId;

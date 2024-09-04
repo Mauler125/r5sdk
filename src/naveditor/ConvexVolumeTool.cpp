@@ -74,20 +74,6 @@ static int convexhull(const float* pts, int npts, int* out)
 	return i;
 }
 
-static int pointInPoly(int nvert, const float* verts, const float* p) // todo(amos) deduplicate.
-{
-	int i, j, c = 0;
-	for (i = 0, j = nvert-1; i < nvert; j = i++)
-	{
-		const float* vi = &verts[i*3];
-		const float* vj = &verts[j*3];
-		if (((vi[1] > p[1]) != (vj[1] > p[1])) &&
-			(p[0] < (vj[0]-vi[0]) * (p[1]-vi[1]) / (vj[1]-vi[1]) + vi[0]) )
-			c = !c;
-	}
-	return c;
-}
-
 
 ConvexVolumeTool::ConvexVolumeTool() :
 	m_editor(0),
@@ -173,7 +159,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 		const ConvexVolume* vols = geom->getConvexVolumes();
 		for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
 		{
-			if (pointInPoly(vols[i].nverts, vols[i].verts, p) &&
+			if (rdPointInPolygon(p, vols[i].verts, vols[i].nverts) &&
 							p[1] >= vols[i].hmin && p[1] <= vols[i].hmax)
 			{
 				nearestIndex = i;

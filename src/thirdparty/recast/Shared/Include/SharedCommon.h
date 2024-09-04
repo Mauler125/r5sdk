@@ -19,11 +19,9 @@
 #ifndef RECASTDETOURCOMMON_H
 #define RECASTDETOURCOMMON_H
 
+#include "Shared/Include/SharedConst.h"
 #include "Shared/Include/SharedDefs.h"
 #include "Shared/Include/SharedMath.h"
-
-/// The total number of bits in an bit cell integer.
-static const int RD_BITS_PER_BIT_CELL = 32;
 
 /**
 @defgroup shared Shared
@@ -624,6 +622,18 @@ inline void rdSwapEndian(float* v)
 
 void rdRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 							   const float s, const float t, float* out);
+
+/// Counts the number of vertices in the polygon.
+///  @param[in]		p	The polygon.
+///  @param[in]		nvp	The total number of verts per polygon.
+/// @return The number of vertices in the polygon.
+inline int rdCountPolyVerts(const unsigned short* p, const int nvp)
+{
+	for (int i = 0; i < nvp; ++i)
+		if (p[i] == RD_MESH_NULL_IDX)
+			return i;
+	return nvp;
+}
 
 template<typename TypeToRetrieveAs>
 TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(const unsigned char*& buffer, const rdSizeType distanceToAdvance)

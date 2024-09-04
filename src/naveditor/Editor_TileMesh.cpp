@@ -1273,7 +1273,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			// If polygon connects to a polygon on a neighbouring tile, flag it.
 			for (int j = 0; j < nvp; ++j)
 			{
-				if (p[j] == RC_MESH_NULL_IDX)
+				if (p[j] == RD_MESH_NULL_IDX)
 					break;
 				if ((p[nvp+j] & 0x8000) == 0)
 					continue;
