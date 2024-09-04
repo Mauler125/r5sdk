@@ -284,15 +284,14 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			const dtMeshTile* endTile = mesh.getTile(it);
 			const dtPoly* endPoly = &endTile->polys[ip];
 
-			const dtTileRef tileRef = mesh.getTileRef(tile);
-			rdIgnoreUnused(tileRef);
+			// Unique color for each type.
+			const int col = duIntToCol(linkTraverseType, 196);
 
 			if (endPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 			{
 				const dtOffMeshConnection* con = &endTile->offMeshCons[ip - endTile->header->offMeshBase];
 
 				dd->begin(DU_DRAW_LINES, 2.0f, offset);
-				const int col = duIntToCol(linkTraverseType, 128);
 
 				dd->vertex(&con->pos[0], col);
 				dd->vertex(&con->pos[3], col);
@@ -347,9 +346,6 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 				highestPos[2]
 			};
 
-			// Unique color for each type.
-			const int col = duIntToCol(linkTraverseType, 128);
-
 			dd->begin(DU_DRAW_LINES, 2.0f, offset);
 
 			const float* targetStartPos = startPointHighest ? offsetEndPos : startPos;
@@ -364,7 +360,7 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			{
 				// If the reverse link is set, render white crosses to confirm
 				// the links are set properly.
-				duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, duRGBA(255,255,255,180));
+				duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, duRGBA(255,255,255,196));
 			}
 
 			dd->end();
