@@ -200,6 +200,24 @@ enum EditorPolyFlags
 	EDITOR_POLYFLAGS_ALL				= 0xffff	// All abilities.
 };
 
+inline static const char* const g_navMeshPolyFlagNames[] =
+{
+	"walk",
+	"too_small",
+	"has_neighbour",
+	"jump",
+	"jump_linked",
+	"unused_8",
+	"obstacle",
+	"unused_128",
+	"disabled",
+	"hazard",
+	"door",
+	"unused_2048",
+	"unused_4096",
+	"door_breachable"
+};
+
 struct TraverseLinkPolyPair
 {
 	TraverseLinkPolyPair(dtPolyRef p1, dtPolyRef p2)
