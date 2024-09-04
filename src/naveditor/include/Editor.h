@@ -215,7 +215,10 @@ inline static const char* const g_navMeshPolyFlagNames[] =
 	"door",
 	"unused_2048",
 	"unused_4096",
-	"door_breachable"
+	"door_breachable",
+	"unused_16384",
+	"unused_32768",
+	"all"
 };
 
 struct TraverseLinkPolyPair
