@@ -2203,7 +2203,7 @@ float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
 
 void dtCalcOffMeshRefPos(const float* spos, float yawRad, float offset, float* res)
 {
-	const float yawDeg = yawRad * (RD_PI/180.0f);
+	const float yawDeg = yawRad * (180.0f/RD_PI);
 
 	const float dx = offset*rdMathCosf(yawDeg);
 	const float dy = offset*rdMathSinf(yawDeg);
