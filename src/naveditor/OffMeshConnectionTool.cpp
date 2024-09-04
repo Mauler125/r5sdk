@@ -29,6 +29,7 @@
 
 OffMeshConnectionTool::OffMeshConnectionTool() :
 	m_editor(0),
+	m_lastSelectedAgentRadius(0),
 	m_radius(0),
 	m_hitPosSet(0),
 	m_bidir(true),
