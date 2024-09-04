@@ -513,12 +513,44 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) con
 	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, cid, 4096);
 	if (!ncid)
 		return false;
-	
-	float localtmin = 1.0f;
-	const bool calcTmin = tmin != nullptr;
 
 	bool hit = false;
+	const int nvol = m_volumeCount;
+
+	float tsmin = 0.0f, tsmax = 0.0f;
+	int segMin = 0, segMax = 0;
+
+	const bool calcTmin = tmin != nullptr;
+
+	for (int i = 0; i < nvol; i++)
+	{
+		const ConvexVolume& vol = m_volumes[i];
+
+		if (vol.area != RC_NULL_AREA)
+			continue; // Clip brushes only.
+
+		if ((src[2] >= vol.hmin && src[2] <= vol.hmax) ||
+			(dst[2] >= vol.hmin && dst[2] <= vol.hmax))
+		{
+			if (rdIntersectSegmentPoly2D(src, dst, vol.verts, vol.nverts,
+				tsmin, tsmax, segMin, segMax))
+			{
+				hit = true;
+				break;
+			}
+		}
+	}
+
+	if (hit)
+	{
+		if (calcTmin)
+			*tmin = tsmin;
+
+		return true;
+	}
+
 	const float* verts = m_mesh->getVerts();
+	float localtmin = 1.0f;
 	
 	for (int i = 0; i < ncid; ++i)
 	{
