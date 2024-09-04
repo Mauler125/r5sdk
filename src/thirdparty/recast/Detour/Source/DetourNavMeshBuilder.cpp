@@ -630,9 +630,9 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 						const unsigned char* tris = &params->detailTris[(tb+l)*4];
 
 						const int ANY_BOUNDARY_EDGE =
-							(DT_DETAIL_EDGE_BOUNDARY << 0) |
-							(DT_DETAIL_EDGE_BOUNDARY << 2) |
-							(DT_DETAIL_EDGE_BOUNDARY << 4);
+							(RD_DETAIL_EDGE_BOUNDARY << 0) |
+							(RD_DETAIL_EDGE_BOUNDARY << 2) |
+							(RD_DETAIL_EDGE_BOUNDARY << 4);
 
 						if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
 							continue;
@@ -655,7 +655,7 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 
 						for (int m = 0, n = 2; m < 3; n = m++)
 						{
-							if ((dtGetDetailTriEdgeFlags(tris[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0 &&
+							if ((dtGetDetailTriEdgeFlags(tris[3], n) & RD_DETAIL_EDGE_BOUNDARY) == 0 &&
 								(onlyBoundary || tris[n] < tris[m]))
 							{
 								// Only looking at boundary edges and this is internal, or

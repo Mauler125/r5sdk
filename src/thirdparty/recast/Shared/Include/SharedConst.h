@@ -27,4 +27,11 @@ static const int RD_BITS_PER_BIT_CELL = 32;
 /// @see rcPolyMesh::polys
 static const unsigned short RD_MESH_NULL_IDX = 0xffff;
 
+/// Detail triangle edge flags used for various functions and fields.
+/// For an example, see dtNavMesh::connectTraverseLinks().
+enum rdDetailTriEdgeFlags
+{
+	RD_DETAIL_EDGE_BOUNDARY = 1<<0,		///< Detail triangle edge is part of the poly boundary
+};
+
 #endif // RECASTDETOURCONST_H

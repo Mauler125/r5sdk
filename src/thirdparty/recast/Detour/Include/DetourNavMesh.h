@@ -200,11 +200,6 @@ enum dtRaycastOptions
 	DT_RAYCAST_USE_COSTS = 0x01,		///< Raycast should calculate movement cost along the ray and fill RaycastHit::cost
 };
 
-enum dtDetailTriEdgeFlags
-{
-	DT_DETAIL_EDGE_BOUNDARY = 0x01,		///< Detail triangle edge is part of the poly boundary
-};
-
 
 /// Limit raycasting during any angle pahfinding
 /// The limit is given as a multiple of the character radius

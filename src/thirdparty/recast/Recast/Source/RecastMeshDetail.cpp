@@ -735,18 +735,15 @@ static bool onHull(int a, int b, int nhull, int* hull)
 // Find edges that lie on hull and mark them as such.
 static void setTriFlags(rdIntArray& tris, int nhull, int* hull)
 {
-	// Matches DT_DETAIL_EDGE_BOUNDARY
-	const int DETAIL_EDGE_BOUNDARY = 0x1;
-
 	for (int i = 0; i < tris.size(); i += 4)
 	{
 		int a = tris[i + 0];
 		int b = tris[i + 1];
 		int c = tris[i + 2];
 		unsigned short flags = 0;
-		flags |= (onHull(a, c, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 0;
-		flags |= (onHull(c, b, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 2;
-		flags |= (onHull(b, a, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 4;
+		flags |= (onHull(a, c, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 0;
+		flags |= (onHull(c, b, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 2;
+		flags |= (onHull(b, a, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 4;
 		tris[i + 3] = (int)flags;
 	}
 }

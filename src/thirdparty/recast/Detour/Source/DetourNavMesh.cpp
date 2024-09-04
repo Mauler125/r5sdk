@@ -794,7 +794,7 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 				}
 				for (int l = 0, m = 2; l < 3; m = l++)
 				{
-					if ((dtGetDetailTriEdgeFlags(baseTri[3], m) & DT_DETAIL_EDGE_BOUNDARY) == 0)
+					if ((dtGetDetailTriEdgeFlags(baseTri[3], m) & RD_DETAIL_EDGE_BOUNDARY) == 0)
 						continue;
 
 					if (rdDistancePtLine2D(baseTriVerts[m], basePolySpos, basePolyEpos) >= detailEdgeAlignThresh ||
@@ -909,7 +909,7 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 										else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(2))
 											return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-										if ((dtGetDetailTriEdgeFlags(landTri[3], s) & DT_DETAIL_EDGE_BOUNDARY) == 0)
+										if ((dtGetDetailTriEdgeFlags(landTri[3], s) & RD_DETAIL_EDGE_BOUNDARY) == 0)
 											continue;
 
 										if (rdDistancePtLine2D(landTriVerts[s], landPolySpos, landPolyEpos) >= detailEdgeAlignThresh ||
@@ -1062,9 +1062,9 @@ namespace
 		{
 			const unsigned char* tris = &tile->detailTris[(pd->triBase + i) * 4];
 			const int ANY_BOUNDARY_EDGE =
-				(DT_DETAIL_EDGE_BOUNDARY << 0) |
-				(DT_DETAIL_EDGE_BOUNDARY << 2) |
-				(DT_DETAIL_EDGE_BOUNDARY << 4);
+				(RD_DETAIL_EDGE_BOUNDARY << 0) |
+				(RD_DETAIL_EDGE_BOUNDARY << 2) |
+				(RD_DETAIL_EDGE_BOUNDARY << 4);
 			if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
 				continue;
 
@@ -1079,7 +1079,7 @@ namespace
 
 			for (int k = 0, j = 2; k < 3; j = k++)
 			{
-				if ((dtGetDetailTriEdgeFlags(tris[3], j) & DT_DETAIL_EDGE_BOUNDARY) == 0 &&
+				if ((dtGetDetailTriEdgeFlags(tris[3], j) & RD_DETAIL_EDGE_BOUNDARY) == 0 &&
 					(onlyBoundary || tris[j] < tris[k]))
 				{
 					// Only looking at boundary edges and this is internal, or
