@@ -94,9 +94,17 @@ string Format(const char* szFormat, ...);
 template <typename Iter, typename Compare>
 Iter ExtremeElementABS(Iter first, Iter last, Compare compare)
 {
-    auto abs_compare = [compare](LONG a, LONG b)
+    using ValueType = typename std::iterator_traits<Iter>::value_type;
+    auto abs_compare = [compare](ValueType a, ValueType b)
     {
-        return compare(abs(a), abs(b));
+        if constexpr (std::is_signed_v<ValueType>)
+        {
+            return compare(abs(a), abs(b));
+        }
+        else
+        {
+            return compare(a, b);
+        }
     };
 
     return std::min_element(first, last, abs_compare);
