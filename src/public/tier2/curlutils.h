@@ -26,6 +26,7 @@ struct CURLParams
 		, verifyPeer(false)
 		, followRedirect(false)
 		, verbose(false)
+		, failOnError(true)
 	{}
 
 	void* readFunction;
@@ -36,6 +37,7 @@ struct CURLParams
 	bool verifyPeer;
 	bool followRedirect;
 	bool verbose;
+	bool failOnError;
 };
 
 size_t CURLReadFileCallback(void* data, const size_t size, const size_t nmemb, FILE* stream);

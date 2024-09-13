@@ -30,6 +30,7 @@ void CURLInitCommonOptions(CURL* curl, const char* remote,
 {
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, params.timeout);
     curl_easy_setopt(curl, CURLOPT_VERBOSE, params.verbose);
+    curl_easy_setopt(curl, CURLOPT_FAILONERROR, params.failOnError);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, params.followRedirect);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, params.verifyPeer);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
