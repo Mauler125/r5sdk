@@ -38,7 +38,7 @@ static HMODULE s_hModuleHandle = NULL;
 // UTILITY
 //#############################################################################
 
-void Crash_Callback()
+void Crash_Callback(const CCrashHandler* handler)
 {
     // Shutdown SpdLog to flush all buffers.
     SpdLog_Shutdown();
