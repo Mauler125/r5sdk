@@ -7,6 +7,7 @@
 #include "tier0/basetypes.h"
 #include "tier0/crashhandler.h"
 #include "tier0/commandline.h"
+#include "tier2/crashreporter.h"
 /*****************************************************************************/
 #ifndef DEDICATED
 #include "windows/id3dx.h"
@@ -40,10 +41,8 @@ static HMODULE s_hModuleHandle = NULL;
 
 void Crash_Callback(const CCrashHandler* handler)
 {
-    // Shutdown SpdLog to flush all buffers.
-    SpdLog_Shutdown();
-
-    // TODO[ AMOS ]: This is where we want to call backtrace from.
+    CrashReporter_SubmitToCollector(handler);
+    SpdLog_Shutdown(); // Shutdown SpdLog to flush all buffers.
 }
 
 void Show_Emblem()
