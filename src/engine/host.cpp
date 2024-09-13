@@ -48,7 +48,7 @@ void Host_CountRealTimePackets()
 {
 	v_Host_CountRealTimePackets();
 #ifndef DEDICATED
-	GFX_SetLatencyMarker(D3D11Device(), SIMULATION_START, MaterialSystem()->GetCurrentFrameCount());
+	GeForce_SetLatencyMarker(D3D11Device(), SIMULATION_START, MaterialSystem()->GetCurrentFrameCount());
 #endif // !DEDICATED
 }
 

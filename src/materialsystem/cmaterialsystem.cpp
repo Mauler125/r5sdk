@@ -49,9 +49,9 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 	return INIT_FAILED;
 #else
 	// Initialize as usual.
-	GFX_EnableLowLatencySDK(!CommandLine()->CheckParm("-gfx_nvnDisableLowLatency"));
+	GeForce_EnableLowLatencySDK(!CommandLine()->CheckParm("-gfx_nvnDisableLowLatency"));
 
-	if (GFX_IsLowLatencySDKEnabled())
+	if (GeForce_IsLowLatencySDKEnabled())
 	{
 		PCLSTATS_INIT(0);
 	}
@@ -66,7 +66,7 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 {
 #ifndef MATERIALSYSTEM_NODX
-	if (GFX_IsLowLatencySDKEnabled())
+	if (GeForce_IsLowLatencySDKEnabled())
 	{
 		PCLSTATS_SHUTDOWN();
 	}

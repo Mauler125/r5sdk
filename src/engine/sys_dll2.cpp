@@ -179,10 +179,10 @@ void CEngineAPI::PumpMessages()
 //-----------------------------------------------------------------------------
 static void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
-    GFX_MarkLowLatencyParametersOutOfDate();
+    GeForce_MarkLowLatencyParametersOutOfDate();
 }
 
-static ConVar fps_max_gfx("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f, GFX_NVN_Changed_f);
+static ConVar fps_max_gfx("fps_max_nvn", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f, GFX_NVN_Changed_f);
 static ConVar gfx_nvnUseLowLatency("gfx_nvnUseLowLatency", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK.", GFX_NVN_Changed_f);
 static ConVar gfx_nvnUseLowLatencyBoost("gfx_nvnUseLowLatencyBoost", "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", GFX_NVN_Changed_f);
 
@@ -213,7 +213,7 @@ void CEngineAPI::UpdateLowLatencyParameters()
             fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
     }
 
-    GFX_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
+    GeForce_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
         bUseLowLatencyBoost, bUseMarkersToOptimize, fpsMax);
 #endif // !DEDICATED
 }
@@ -221,14 +221,14 @@ void CEngineAPI::UpdateLowLatencyParameters()
 void CEngineAPI::RunLowLatencyFrame()
 {
 #ifndef DEDICATED
-    if (GFX_IsLowLatencySDKEnabled())
+    if (GeForce_IsLowLatencySDKEnabled())
     {
-        if (GFX_HasPendingLowLatencyParameterUpdates())
+        if (GeForce_HasPendingLowLatencyParameterUpdates())
         {
             UpdateLowLatencyParameters();
         }
 
-        GFX_RunLowLatencyFrame(D3D11Device());
+        GeForce_RunLowLatencyFrame(D3D11Device());
     }
 #endif // !DEDICATED
 }
