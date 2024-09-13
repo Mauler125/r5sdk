@@ -171,9 +171,10 @@ void CCrashHandler::FormatSystemInfo()
 	m_Buffer.AppendFormat("\tcpu_model = \"%s\"\n", pi.m_szProcessorBrand);
 	m_Buffer.AppendFormat("\tcpu_speed = %010lld // clock cycles\n", pi.m_Speed);
 
+	DISPLAY_DEVICE& dd = m_HardWareInfo.displayDevice;
+
 	for (DWORD i = 0; ; i++)
 	{
-		DISPLAY_DEVICE dd = { sizeof(dd), {0} };
 		const BOOL f = EnumDisplayDevices(NULL, i, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
 
 		if (!f)
@@ -185,16 +186,28 @@ void CCrashHandler::FormatSystemInfo()
 		{
 			m_Buffer.AppendFormat("\tgpu_model = \"%s\"\n", dd.DeviceString);
 			m_Buffer.AppendFormat("\tgpu_flags = 0x%08X // primary device\n", dd.StateFlags);
+
+			break;
 		}
 	}
 
-	MEMORYSTATUSEX statex{};
-	statex.dwLength = sizeof(statex);
+	MEMORYSTATUSEX& statex = m_HardWareInfo.memoryStatus;
 
 	if (GlobalMemoryStatusEx(&statex))
 	{
-		m_Buffer.AppendFormat("\tram_total = [%010d, %010d] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024);
-		m_Buffer.AppendFormat("\tram_avail = [%010d, %010d] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024);
+		m_Buffer.AppendFormat("\tram_total = [%.2lf, %.2lf] // physical/virtual (MiB)\n", (f64)(statex.ullTotalPhys / (1024.0 * 1024.0)), (f64)(statex.ullTotalVirtual / (1024.0 * 1024.0)));
+		m_Buffer.AppendFormat("\tram_avail = [%.2lf, %.2lf] // physical/virtual (MiB)\n", (f64)(statex.ullAvailPhys / (1024.0 * 1024.0)), (f64)(statex.ullAvailVirtual / (1024.0 * 1024.0)));
+	}
+
+	DWORD sectorsPerCluster, bytesPerSector, freeClusters, totalClusters;
+
+	if (GetDiskFreeSpaceA(NULL, &sectorsPerCluster, &bytesPerSector, &freeClusters, &totalClusters))
+	{
+		m_HardWareInfo.totalDiskSpace = (u64)totalClusters * sectorsPerCluster * bytesPerSector;
+		m_HardWareInfo.availDiskSpace = (u64)freeClusters * sectorsPerCluster * bytesPerSector;
+
+		m_Buffer.AppendFormat("\tdsk_total = %.2lf // (MiB)\n", (f64)(m_HardWareInfo.totalDiskSpace / (1024.0 * 1024.0)));
+		m_Buffer.AppendFormat("\tdsk_avail = %.2lf // (MiB)\n", (f64)(m_HardWareInfo.availDiskSpace / (1024.0 * 1024.0)));
 	}
 
 	m_Buffer.Append("}\n");
@@ -366,7 +379,7 @@ void CCrashHandler::FormatFPU(const char* const pszRegister, const M128A* const 
 		*reinterpret_cast<const FLOAT*>(&nVec[2]),
 		*reinterpret_cast<const FLOAT*>(&nVec[3]));
 
-	const LONG nHighest = abs(LONG(*MaxElementABS(std::begin(nVec), std::end(nVec))));
+	const DWORD nHighest = *MaxElementABS(std::begin(nVec), std::end(nVec));
 
 	if (nHighest >= 1000000)
 	{
@@ -531,11 +544,11 @@ void CCrashHandler::CreateMessageProcess()
 //-----------------------------------------------------------------------------
 // Purpose: calls the crash callback
 //-----------------------------------------------------------------------------
-void CCrashHandler::CrashCallback()
+void CCrashHandler::CrashCallback() const
 {
 	if (m_pCrashCallback)
 	{
-		((void(*)(void))m_pCrashCallback)();
+		m_pCrashCallback(this);
 	}
 }
 
@@ -548,11 +561,9 @@ long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* const pExceptionIn
 {
 	g_CrashHandler.Start();
 
-	// If the exception couldn't be handled, run the crash callback and
-	// terminate the process
+	// If the exception couldn't be handled, terminate the process
 	if (g_CrashHandler.GetExit())
 	{
-		g_CrashHandler.CrashCallback();
 		ExitProcess(EXIT_FAILURE);
 	}
 
@@ -590,6 +601,9 @@ long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* const pExceptionIn
 	// Display the message to the user.
 	g_CrashHandler.CreateMessageProcess();
 
+	// Run the crash callback
+	g_CrashHandler.CrashCallback();
+
 	// End it here, the next recursive call terminates the process.
 	g_CrashHandler.End();
 
@@ -625,7 +639,6 @@ void CCrashHandler::Reset()
 	m_Buffer.Clear();
 	m_CrashingModule.Clear();
 	m_MessageCmdLine.Clear();
-
 	m_nCrashMsgFlags = 0;
 }
 
