@@ -12,6 +12,7 @@
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"
 #include "geforce/reflex.h"
+#include "radeon/antilag.h"
 #ifndef MATERIALSYSTEM_NODX
 #include "gameui/imgui_system.h"
 #include "materialsystem/cmaterialglue.h"
@@ -33,6 +34,10 @@ void CMaterialSystem::Disconnect(CMaterialSystem* thisptr)
 	CMaterialSystem__Disconnect(thisptr);
 }
 
+#ifndef MATERIALSYSTEM_NODX
+static bool s_useLowLatency = false;
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: initialization of the material system
 //-----------------------------------------------------------------------------
@@ -49,10 +54,14 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 	return INIT_FAILED;
 #else
 	// Initialize as usual.
-	GeForce_EnableLowLatencySDK(!CommandLine()->CheckParm("-gfx_nvnDisableLowLatency"));
+	s_useLowLatency = !CommandLine()->CheckParm("-gfx_disableLowLatency");
 
-	if (GeForce_IsLowLatencySDKEnabled())
+	GeForce_EnableLowLatencySDK(s_useLowLatency);
+	Radeon_EnableLowLatencySDK(s_useLowLatency);
+
+	if (s_useLowLatency)
 	{
+		Radeon_InitLowLatencySDK();
 		PCLSTATS_INIT(0);
 	}
 
@@ -66,9 +75,10 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 {
 #ifndef MATERIALSYSTEM_NODX
-	if (GeForce_IsLowLatencySDKEnabled())
+	if (s_useLowLatency)
 	{
 		PCLSTATS_SHUTDOWN();
+		Radeon_ShutdownLowLatencySDK();
 	}
 #endif
 
