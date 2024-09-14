@@ -198,7 +198,6 @@ static ConVar gfx_nvnUseLowLatencyBoost("gfx_nvnUseLowLatencyBoost", "0", FCVAR_
 static ConVar gfx_nvnUseMarkersToOptimize("gfx_nvnUseMarkersToOptimize", "0", FCVAR_RELEASE, "Use NVIDIA Reflex Low Latency markers to optimize (requires Low Latency Boost to be enabled).", GFX_NVN_Changed_f);
 
 static ConVar gfx_ffxUseLowLatency("gfx_ffxUseLowLatency", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables AMD Anti-Lag 2 Low Latency SDK.", GFX_FFX_Changed_f);
-#endif // !DEDICATED
 
 static float NormalizeFrameRate(const float fpsMax)
 {
@@ -216,6 +215,7 @@ static float NormalizeFrameRate(const float fpsMax)
     else
         return 0.0f; // Don't let the low-latency SDK limit the frame rate.
 }
+#endif // !DEDICATED
 
 void CEngineAPI::UpdateLowLatencyParameters()
 {
