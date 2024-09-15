@@ -16,6 +16,9 @@ static bool s_ReflexModeInfoUpToDate = false;
 // If not, the Low Latency SDK will not run.
 static NvAPI_Status s_ReflexModeUpdateStatus = NvAPI_Status::NVAPI_OK;
 
+// True if the PCL stats system was initialized.
+bool g_PCLStatsAvailable = false;
+
 //-----------------------------------------------------------------------------
 // Purpose: enable/disable low latency SDK
 // Input  : enable - 
@@ -133,6 +136,9 @@ void GeForce_SetLatencyMarker(IUnknown* const device,
 		NvAPI_D3D_SetLatencyMarker(device, &params);
 	}
 
-	// PCLStats runs separately and is supported on non-NVIDIA hardware.
-	PCLSTATS_MARKER(markerType, frameID);
+	if (g_PCLStatsAvailable)
+	{
+		// PCLStats runs separately and is supported on non-NVIDIA hardware.
+		PCLSTATS_MARKER(markerType, frameID);
+	}
 }

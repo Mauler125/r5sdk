@@ -1,6 +1,8 @@
 #ifndef GFSDK_REFLEX_H
 #define GFSDK_REFLEX_H
 
+extern bool g_PCLStatsAvailable;
+
 void GeForce_EnableLowLatencySDK(const bool enable);
 bool GeForce_IsLowLatencySDKEnabled(void);
 

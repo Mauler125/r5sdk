@@ -63,6 +63,8 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 	{
 		Radeon_InitLowLatencySDK();
 		PCLSTATS_INIT(0);
+
+		g_PCLStatsAvailable = true;
 	}
 
 	return CMaterialSystem__Init(thisptr);
@@ -77,7 +79,9 @@ int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 #ifndef MATERIALSYSTEM_NODX
 	if (s_useLowLatency)
 	{
-		PCLSTATS_SHUTDOWN();
+		if (g_PCLStatsAvailable)
+			PCLSTATS_SHUTDOWN();
+
 		Radeon_ShutdownLowLatencySDK();
 	}
 #endif
