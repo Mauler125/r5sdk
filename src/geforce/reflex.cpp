@@ -20,7 +20,7 @@ static NvAPI_Status s_ReflexModeUpdateStatus = NvAPI_Status::NVAPI_OK;
 // Purpose: enable/disable low latency SDK
 // Input  : enable - 
 //-----------------------------------------------------------------------------
-void GFX_EnableLowLatencySDK(const bool enable)
+void GeForce_EnableLowLatencySDK(const bool enable)
 {
 	s_LowLatencySDKEnabled = enable;
 }
@@ -28,7 +28,7 @@ void GFX_EnableLowLatencySDK(const bool enable)
 //-----------------------------------------------------------------------------
 // Purpose: whether we should run the low latency SDK
 //-----------------------------------------------------------------------------
-bool GFX_IsLowLatencySDKEnabled(void)
+bool GeForce_IsLowLatencySDKEnabled(void)
 {
 	if (!s_LowLatencySDKEnabled)
 		return false;
@@ -42,7 +42,7 @@ bool GFX_IsLowLatencySDKEnabled(void)
 //-----------------------------------------------------------------------------
 // Purpose: mark the parameters as out-of-date; force update next frame
 //-----------------------------------------------------------------------------
-void GFX_MarkLowLatencyParametersOutOfDate(void)
+void GeForce_MarkLowLatencyParametersOutOfDate(void)
 {
 	s_ReflexModeInfoUpToDate = false;
 }
@@ -50,7 +50,7 @@ void GFX_MarkLowLatencyParametersOutOfDate(void)
 //-----------------------------------------------------------------------------
 // Purpose: mark the parameters as up-to-date
 //-----------------------------------------------------------------------------
-void GFX_MarkLowLatencyParametersUpToDate(void)
+void GeForce_MarkLowLatencyParametersUpToDate(void)
 {
 	s_ReflexModeInfoUpToDate = true;
 }
@@ -58,7 +58,7 @@ void GFX_MarkLowLatencyParametersUpToDate(void)
 //-----------------------------------------------------------------------------
 // Purpose: has the user requested any changes to the low latency parameters?
 //-----------------------------------------------------------------------------
-bool GFX_HasPendingLowLatencyParameterUpdates(void)
+bool GeForce_HasPendingLowLatencyParameterUpdates(void)
 {
 	return s_ReflexModeInfoUpToDate == false;
 }
@@ -66,7 +66,7 @@ bool GFX_HasPendingLowLatencyParameterUpdates(void)
 //-----------------------------------------------------------------------------
 // Purpose: returns whether the call to 'NvAPI_D3D_SetSleepMode' was successful
 //-----------------------------------------------------------------------------
-bool GFX_ParameterUpdateWasSuccessful(void)
+bool GeForce_ParameterUpdateWasSuccessful(void)
 {
 	return s_ReflexModeUpdateStatus == NvAPI_Status::NVAPI_OK;
 }
@@ -79,7 +79,7 @@ bool GFX_ParameterUpdateWasSuccessful(void)
 //          useMarkersToOptimize - 
 //          maxFramesPerSecond   - 
 //-----------------------------------------------------------------------------
-void GFX_UpdateLowLatencyParameters(IUnknown* const device, const bool useLowLatencyMode,
+void GeForce_UpdateLowLatencyParameters(IUnknown* const device, const bool useLowLatencyMode,
 	const bool useLowLatencyBoost, const bool useMarkersToOptimize,
 	const float maxFramesPerSecond)
 {
@@ -97,18 +97,18 @@ void GFX_UpdateLowLatencyParameters(IUnknown* const device, const bool useLowLat
 	params.bUseMarkersToOptimize = useMarkersToOptimize;
 
 	s_ReflexModeUpdateStatus = NvAPI_D3D_SetSleepMode(device, &params);
-	GFX_MarkLowLatencyParametersUpToDate();
+	GeForce_MarkLowLatencyParametersUpToDate();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: runs a frame of the low latency sdk
 // Input  : *device              - 
 //-----------------------------------------------------------------------------
-void GFX_RunLowLatencyFrame(IUnknown* const device)
+void GeForce_RunLowLatencyFrame(IUnknown* const device)
 {
 	Assert(device);
 
-	if (GFX_ParameterUpdateWasSuccessful())
+	if (GeForce_ParameterUpdateWasSuccessful())
 		NvAPI_D3D_Sleep(device);
 }
 
@@ -118,12 +118,12 @@ void GFX_RunLowLatencyFrame(IUnknown* const device)
 //          frameNumber    - 
 //          markerType     - 
 //-----------------------------------------------------------------------------
-void GFX_SetLatencyMarker(IUnknown* const device,
+void GeForce_SetLatencyMarker(IUnknown* const device,
 	const NV_LATENCY_MARKER_TYPE markerType, const NvU64 frameID)
 {
 	Assert(device);
 
-	if (GFX_ParameterUpdateWasSuccessful() && GFX_IsLowLatencySDKEnabled())
+	if (GeForce_ParameterUpdateWasSuccessful() && GeForce_IsLowLatencySDKEnabled())
 	{
 		NV_LATENCY_MARKER_PARAMS params = {};
 		params.version = NV_LATENCY_MARKER_PARAMS_VER1;
