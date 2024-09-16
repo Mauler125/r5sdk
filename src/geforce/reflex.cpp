@@ -9,6 +9,8 @@
 
 static bool s_LowLatencySDKEnabled = false;
 
+static bool s_LowLatencyAvailable = false;
+
 // If false, the system will call 'NvAPI_D3D_SetSleepMode' to update the parameters.
 static bool s_ReflexModeInfoUpToDate = false;
 
@@ -31,15 +33,32 @@ void GeForce_EnableLowLatencySDK(const bool enable)
 //-----------------------------------------------------------------------------
 // Purpose: whether we should run the low latency SDK
 //-----------------------------------------------------------------------------
-bool GeForce_IsLowLatencySDKEnabled(void)
+bool GeForce_IsLowLatencySDKAvailable(void)
 {
-	if (!s_LowLatencySDKEnabled)
+	if (!s_LowLatencySDKEnabled || !s_LowLatencyAvailable)
 		return false;
 
 	const MaterialAdapterInfo_t& adapterInfo = g_pMaterialAdapterMgr->GetAdapterInfo();
 	// Only run on NVIDIA display drivers; AMD and Intel are not
 	// supported by NVIDIA Reflex.
 	return adapterInfo.m_VendorID == NVIDIA_VENDOR_ID;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: initialize the low latency SDK
+//-----------------------------------------------------------------------------
+bool GeForce_InitLowLatencySDK(void)
+{
+	s_LowLatencyAvailable = true;
+	return s_LowLatencyAvailable;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: shutdown the low latency SDK
+//-----------------------------------------------------------------------------
+void GeForce_ShutdownLowLatencySDK(void)
+{
+	s_LowLatencyAvailable = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -126,7 +145,7 @@ void GeForce_SetLatencyMarker(IUnknown* const device,
 {
 	Assert(device);
 
-	if (GeForce_ParameterUpdateWasSuccessful() && GeForce_IsLowLatencySDKEnabled())
+	if (GeForce_ParameterUpdateWasSuccessful() && GeForce_IsLowLatencySDKAvailable())
 	{
 		NV_LATENCY_MARKER_PARAMS params = {};
 		params.version = NV_LATENCY_MARKER_PARAMS_VER1;
