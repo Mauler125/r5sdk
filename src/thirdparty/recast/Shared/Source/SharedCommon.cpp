@@ -409,27 +409,18 @@ float rdDistancePtLine2D(const float* pt, const float* p, const float* q)
 	return dx * dx + dy * dy;
 }
 
-void rdCalcEdgeNormal2D(const float* dir, const bool invert, float* out)
+void rdCalcEdgeNormal2D(const float* dir, float* out)
 {
-	if (invert)
-	{
-		out[0] = -dir[1];
-		out[1] = dir[0];
-	}
-	else
-	{
-		out[0] = dir[1];
-		out[1] = -dir[0];
-	}
-
+	out[0] = dir[1];
+	out[1] = -dir[0];
 	rdVnormalize2D(out);
 }
 
-void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool invert, float* out)
+void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, float* out)
 {
 	float dir[3];
 	rdVsub(dir, v2, v1);
-	rdCalcEdgeNormal2D(dir, invert, out);
+	rdCalcEdgeNormal2D(dir, out);
 }
 
 bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,
@@ -452,6 +443,27 @@ bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const flo
 		return false;
 
 	return true;
+}
+
+float rdCalcEdgeOverlap2D(const float* edge1Start, const float* edge1End,
+	const float* edge2Start, const float* edge2End, const float* targetEdgeVec)
+{
+	float min1 = rdVproj2D(edge1Start, targetEdgeVec);
+	float max1 = rdVproj2D(edge1End, targetEdgeVec);
+
+	if (min1 > max1)
+		rdSwap(min1, max1);
+
+	float min2 = rdVproj2D(edge2Start, targetEdgeVec);
+	float max2 = rdVproj2D(edge2End, targetEdgeVec);
+
+	if (min2 > max2)
+		rdSwap(min2, max2);
+
+	const float start = rdMax(min1, min2);
+	const float end = rdMin(max1, max2);
+
+	return rdMax(0.0f, end - start);
 }
 
 float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight)

@@ -16,16 +16,22 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef FILE_IO_H
-#define FILE_IO_H
+#ifndef RECASTDETOURCONST_H
+#define RECASTDETOURCONST_H
 
-struct duFileIO
+/// The total number of bits in an bit cell integer.
+static const int RD_BITS_PER_BIT_CELL = 32;
+
+/// An value which indicates an invalid index within a mesh.
+/// @note This does not necessarily indicate an error.
+/// @see rcPolyMesh::polys
+static const unsigned short RD_MESH_NULL_IDX = 0xffff;
+
+/// Detail triangle edge flags used for various functions and fields.
+/// For an example, see dtNavMesh::connectTraverseLinks().
+enum rdDetailTriEdgeFlags
 {
-	virtual ~duFileIO() = 0;
-	virtual bool isWriting() const = 0;
-	virtual bool isReading() const = 0;
-	virtual bool write(const void* ptr, const rdSizeType size) = 0;
-	virtual bool read(void* ptr, const rdSizeType size) = 0;
+	RD_DETAIL_EDGE_BOUNDARY = 1<<0,		///< Detail triangle edge is part of the poly boundary
 };
 
-#endif // FILE_IO_H
+#endif // RECASTDETOURCONST_H

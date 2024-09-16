@@ -911,10 +911,11 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 					flags[i] = 0;
 					continue;
 				}
-				const unsigned short reg = chf.spans[i].reg;
-				if (!reg || (reg & RC_BORDER_REG))
+				const unsigned short chfReg = chf.spans[i].reg;
+				if (!chfReg || (chfReg & RC_BORDER_REG))
 					continue;
-				const unsigned char area = chf.areas[i];
+				const unsigned short chfFlags = chf.flags[i];
+				const unsigned char chfArea = chf.areas[i];
 				
 				verts.clear();
 				simplified.clear();
@@ -993,8 +994,9 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 						}
 					}
 					
-					cont->reg = reg;
-					cont->area = area;
+					cont->reg = chfReg;
+					cont->flags = chfFlags;
+					cont->area = chfArea;
 				}
 			}
 		}

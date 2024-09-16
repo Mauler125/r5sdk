@@ -135,6 +135,7 @@ rcCompactHeightfield::rcCompactHeightfield()
 , cells()
 , spans()
 , dist()
+, flags()
 , areas()
 {
 }
@@ -144,6 +145,7 @@ rcCompactHeightfield::~rcCompactHeightfield()
 	rdFree(cells);
 	rdFree(spans);
 	rdFree(dist);
+	rdFree(flags);
 	rdFree(areas);
 }
 
@@ -429,6 +431,13 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 		return false;
 	}
 	memset(compactHeightfield.spans, 0, sizeof(rcCompactSpan) * spanCount);
+	compactHeightfield.flags = (unsigned short*)rdAlloc(sizeof(unsigned short) * spanCount, RD_ALLOC_PERM);
+	if (!compactHeightfield.flags)
+	{
+		context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.flags' (%d)", spanCount);
+		return false;
+	}
+	memset(compactHeightfield.flags, RC_NULL_AREA, sizeof(unsigned short) * spanCount);
 	compactHeightfield.areas = (unsigned char*)rdAlloc(sizeof(unsigned char) * spanCount, RD_ALLOC_PERM);
 	if (!compactHeightfield.areas)
 	{

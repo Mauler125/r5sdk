@@ -23,6 +23,7 @@
 #include "windows/id3dx.h"
 #include "client/vengineclient_impl.h"
 #include "geforce/reflex.h"
+#include "radeon/antilag.h"
 #endif // !DEDICATED
 #include "filesystem/filesystem.h"
 constexpr char DFS_ENABLE_PATH[] = "/vpk/enable.txt";
@@ -179,15 +180,41 @@ void CEngineAPI::PumpMessages()
 //-----------------------------------------------------------------------------
 static void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
-    GFX_MarkLowLatencyParametersOutOfDate();
+    GeForce_MarkLowLatencyParametersOutOfDate();
 }
 
-static ConVar fps_max_gfx("fps_max_gfx", "0", FCVAR_RELEASE, "Frame rate limiter using NVIDIA Reflex Low Latency SDK. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f, GFX_NVN_Changed_f);
+static void GFX_FFX_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
+{
+    const ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName());
+    Radeon_EnableLowLatencySDK(pConVarRef->GetBool());
+}
+
+static ConVar fps_max_low_latency("fps_max_low_latency", "0", FCVAR_RELEASE, "Frame rate limiter using Low Latency SDK. -1 indicates the use of desktop refresh. 0 is disabled.", true, -1.f, true, 295.f, GFX_NVN_Changed_f);
+
 static ConVar gfx_nvnUseLowLatency("gfx_nvnUseLowLatency", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency SDK.", GFX_NVN_Changed_f);
 static ConVar gfx_nvnUseLowLatencyBoost("gfx_nvnUseLowLatencyBoost", "0", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables NVIDIA Reflex Low Latency Boost.", GFX_NVN_Changed_f);
 
 // NOTE: defaulted to 0 as it causes rubber banding on some hardware.
 static ConVar gfx_nvnUseMarkersToOptimize("gfx_nvnUseMarkersToOptimize", "0", FCVAR_RELEASE, "Use NVIDIA Reflex Low Latency markers to optimize (requires Low Latency Boost to be enabled).", GFX_NVN_Changed_f);
+
+static ConVar gfx_ffxUseLowLatency("gfx_ffxUseLowLatency", "1", FCVAR_RELEASE | FCVAR_ARCHIVE, "Enables AMD Anti-Lag 2 Low Latency SDK.", GFX_FFX_Changed_f);
+
+static float NormalizeFrameRate(const float fpsMax)
+{
+    if (fpsMax != -1.0f)
+        return fpsMax;
+
+    const float globalFps = fps_max->GetFloat();
+
+    // Make sure the global fps limiter is 'unlimited'
+    // before we let the low-latency frame limiter cap
+    // it to the desktop's refresh rate; not adhering
+    // to this will result in a major performance drop.
+    if (globalFps == 0.0f)
+        return g_pGame->GetTVRefreshRate();
+    else
+        return 0.0f; // Don't let the low-latency SDK limit the frame rate.
+}
 #endif // !DEDICATED
 
 void CEngineAPI::UpdateLowLatencyParameters()
@@ -197,23 +224,9 @@ void CEngineAPI::UpdateLowLatencyParameters()
     const bool bUseLowLatencyBoost = gfx_nvnUseLowLatencyBoost.GetBool();
     const bool bUseMarkersToOptimize = gfx_nvnUseMarkersToOptimize.GetBool();
 
-    float fpsMax = fps_max_gfx.GetFloat();
+    const float fpsMax = NormalizeFrameRate(fps_max_low_latency.GetFloat());
 
-    if (fpsMax == -1.0f)
-    {
-        const float globalFps = fps_max->GetFloat();
-
-        // Make sure the global fps limiter is 'unlimited'
-        // before we let the gfx frame limiter cap it to
-        // the desktop's refresh rate; not adhering to
-        // this will result in a major performance drop.
-        if (globalFps == 0.0f)
-            fpsMax = g_pGame->GetTVRefreshRate();
-        else
-            fpsMax = 0.0f; // Don't let NVIDIA limit the frame rate.
-    }
-
-    GFX_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
+    GeForce_UpdateLowLatencyParameters(D3D11Device(), bUseLowLatencyMode,
         bUseLowLatencyBoost, bUseMarkersToOptimize, fpsMax);
 #endif // !DEDICATED
 }
@@ -221,14 +234,20 @@ void CEngineAPI::UpdateLowLatencyParameters()
 void CEngineAPI::RunLowLatencyFrame()
 {
 #ifndef DEDICATED
-    if (GFX_IsLowLatencySDKEnabled())
+    if (GeForce_IsLowLatencySDKEnabled())
     {
-        if (GFX_HasPendingLowLatencyParameterUpdates())
+        if (GeForce_HasPendingLowLatencyParameterUpdates())
         {
             UpdateLowLatencyParameters();
         }
 
-        GFX_RunLowLatencyFrame(D3D11Device());
+        GeForce_RunLowLatencyFrame(D3D11Device());
+    }
+
+    if (Radeon_IsLowLatencySDKAvailable())
+    {
+        const float maxFps = NormalizeFrameRate(fps_max_low_latency.GetFloat());
+        Radeon_RunLowLatencyFrame((unsigned int)maxFps);
     }
 #endif // !DEDICATED
 }
@@ -266,7 +285,7 @@ bool CEngineAPI::MainLoop()
         if (g_pEngine->Frame())
         {
 #ifndef DEDICATED
-            // Only run reflex if we ran an actual engine frame.
+            // Only run low-latency if we ran an actual engine frame.
             bRunLowLatency = true;
 #endif // !DEDICATED
         }

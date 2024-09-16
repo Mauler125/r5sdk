@@ -17,7 +17,8 @@ enum NavMeshType_e
 	NAVMESH_EXTRA_LARGE,
 
 	// Not a NavMesh!
-	NAVMESH_COUNT
+	NAVMESH_COUNT,
+	NAVMESH_INVALID = -1,
 };
 
 inline const char* const g_navMeshNames[NAVMESH_COUNT] = {

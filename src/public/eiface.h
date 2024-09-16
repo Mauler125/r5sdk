@@ -97,7 +97,7 @@ public:
 	virtual bool		EmptyEdictSlotsAvailable(void) const = 0;
 
 	// Fade out the client's volume level toward silence (or fadePercent)
-	virtual void        FadeClientVolume(const edict_t* pEdict, float flFadePercent, float flFadeOutSeconds, float flHoldTime, float flFadeInSeconds) = 0;
+	virtual void        FadeClientVolume(const edict_t pEdict, float flFadePercent, float flFadeOutSeconds, float flHoldTime, float flFadeInSeconds) = 0;
 
 	// Issue a command to the command parser as if it was typed at the server console.	
 	virtual void		ServerCommand(const char* szCommand) = 0;
@@ -105,7 +105,7 @@ public:
 	// Execute any commands currently in the command parser immediately (instead of once per frame)
 	virtual void		ServerExecute(void) = 0;
 	// Issue the specified command to the specified client (mimics that client typing the command at the console).
-	virtual void		ClientCommand(edict_t* pEdict, PRINTF_FORMAT_STRING const char* szFmt, ...) FMTFUNCTION(3, 4) = 0;
+	virtual void		ClientCommand(const edict_t pEdict, PRINTF_FORMAT_STRING const char* szFmt, ...) FMTFUNCTION(3, 4) = 0;
 
 	// Set the lightstyle to the specified value and network the change to any connected clients.  Note that val must not 
 	//  change place in memory (use MAKE_STRING) for anything that's not compiled into your mod.
@@ -116,7 +116,7 @@ public:
 	virtual void		MessageCancel(void) = 0;
 
 	// Print szMsg to the client console.
-	virtual void		ClientPrintf(edict_t nEdict, const char* szMsg) = 0;
+	virtual void		ClientPrintf(const edict_t nEdict, const char* szMsg) = 0;
 
 	// SINGLE PLAYER/LISTEN SERVER ONLY (just matching the client .dll api for this)
 	// Prints the formatted string to the notification area of the screen ( down the right hand edge

@@ -4,6 +4,7 @@ add_module( "lib" "tier2" "vpc" ${FOLDER_CONTEXT} TRUE TRUE )
 start_sources()
 
 add_sources( SOURCE_GROUP "Utility"
+    "crashreporter.cpp"
     "cryptutils.cpp"
     "curlutils.cpp"
     "fileutils.cpp"
