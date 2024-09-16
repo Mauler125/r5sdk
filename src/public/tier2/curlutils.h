@@ -6,13 +6,13 @@ struct CURLProgress
 	CURLProgress()
 		: curl(nullptr)
 		, name(nullptr)
-		, cust(nullptr)
+		, user(nullptr)
 		, size(0)
 	{}
 
 	CURL* curl;
 	const char* name;
-	void* cust; // custom pointer to anything, todo(amos): rename to 'user'.
+	void* user; // custom pointer to anything.
 	size_t size;
 };
 
@@ -47,9 +47,9 @@ size_t CURLWriteStringCallback(char* contents, const size_t size, const size_t n
 curl_slist* CURLSlistAppend(curl_slist* slist, const char* string);
 
 bool CURLUploadFile(const char* remote, const char* filePath, const char* options,
-	void* customPointer, const bool usePost, const curl_slist* slist, const CURLParams& params);
+	void* userData, const bool usePost, const curl_slist* slist, const CURLParams& params);
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
-	const char* options, curl_off_t dataSize, void* customPointer, const CURLParams& params);
+	const char* options, curl_off_t dataSize, void* userData, const CURLParams& params);
 
 CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse,
 	curl_slist*& slist, const CURLParams& params);
