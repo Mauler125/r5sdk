@@ -14,9 +14,9 @@
 static ConVar script_profile_codecalls("script_profile_codecalls", "0", FCVAR_DEVELOPMENTONLY, "Prints duration of native calls to script functions.", "0 = none, 1 = slow calls, 2 = all ( !slower! )");
 
 // Callbacks for registering abstracted script functions.
-void(*ServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
-void(*ClientScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
-void(*UiScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+void(*ServerScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
+void(*ClientScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
+void(*UiScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
 
 // Callbacks for registering script enums.
 void(*ServerScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
@@ -24,11 +24,11 @@ void(*ClientScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
 void(*UIScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
 
 // Admin panel functions, NULL on client only builds.
-void(*CoreServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
-void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
+void(*CoreServerScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
+void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
 
 // Registering constants in scripts.
-void(*ScriptConstantRegister_Callback)(CSquirrelVM* s) = nullptr;
+void(*ScriptConstantRegister_Callback)(CSquirrelVM* const s) = nullptr;
 
 //---------------------------------------------------------------------------------
 // Purpose: Initialises a Squirrel VM instance
