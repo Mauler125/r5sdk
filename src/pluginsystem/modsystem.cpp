@@ -156,7 +156,7 @@ void CModSystem::WriteModStatusList()
 	kv.RecursiveSaveToFile(buf, 0);
 
 	if (!FileSystem()->WriteFile(MOD_STATUS_LIST_FILE, "PLATFORM", buf))
-		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to write mod status list '%s'\n", MOD_STATUS_LIST_FILE);
+		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to write mod status list '%s'.\n", MOD_STATUS_LIST_FILE);
 }
 
 //-----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ CModSystem::ModInstance_t::ModInstance_t(const CUtlString& basePath)
 	}
 
 	// parse any additional info from mod.vdf
-	//ParseConVars();
+	ParseConVars();
 	ParseLocalizationFiles();
 
 	// add mod folder to search paths so files can be easily loaded from here
@@ -209,6 +209,8 @@ CModSystem::ModInstance_t::~ModInstance_t()
 {
 	if (m_SettingsKV)
 		delete m_SettingsKV;
+
+	m_ConVars.PurgeAndDeleteElements();
 }
 
 //-----------------------------------------------------------------------------
@@ -279,56 +281,76 @@ bool CModSystem::ModInstance_t::ParseSettings()
 //-----------------------------------------------------------------------------
 // Purpose: parses and registers convars listed in settings KV
 //-----------------------------------------------------------------------------
-//void CModSystem::ModInstance_t::ParseConVars()
-//{
-//	Assert(m_SettingsKV);
-//	KeyValues* pConVars = m_SettingsKV->FindKey("ConVars");
-//
-//	if (pConVars)
-//	{
-//		for (KeyValues* pSubKey = pConVars->GetFirstSubKey();
-//			pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
-//		{
-//			const char* pszName = pSubKey->GetName();
-//			const char* pszFlagsString = pSubKey->GetString("flags", "NONE");
-//			const char* pszHelpString = pSubKey->GetString("helpText");
-//			const char* pszUsageString = pSubKey->GetString("usageText");
-//
-//			KeyValues* pValues = pSubKey->FindKey("Values");
-//
-//			const char* pszDefaultValue = "0";
-//			bool bMin = false;
-//			bool bMax = false;
-//			float fMin = 0.f;
-//			float fMax = 0.f;
-//
-//			if (pValues)
-//			{
-//				pszDefaultValue = pValues->GetString("default", "0");
-//
-//				// minimum cvar value
-//				if (pValues->FindKey("min"))
-//				{
-//					bMin = true; // has min value
-//					fMin = pValues->GetFloat("min", 0.f);
-//				}
-//
-//				// maximum cvar value
-//				if (pValues->FindKey("max"))
-//				{
-//					bMax = true; // has max value
-//					fMax = pValues->GetFloat("max", 1.f);
-//				}
-//			}
-//
-//			int flags = FCVAR_NONE;
-//
-//			if (ConVar_ParseFlagString(pszFlagsString, flags, pszName))
-//				ConVar::StaticCreate(pszName, pszDefaultValue, flags,
-//					pszHelpString, bMin, fMin, bMax, fMax, nullptr, pszUsageString);
-//		}
-//	}
-//}
+void CModSystem::ModInstance_t::ParseConVars()
+{
+	Assert(m_SettingsKV);
+	KeyValues* pConVars = m_SettingsKV->FindKey("ConVars");
+
+	if (pConVars)
+	{
+		for (KeyValues* pSubKey = pConVars->GetFirstSubKey();
+			pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
+		{
+			const char* pszName = pSubKey->GetName();
+			const char* pszFlagsString = pSubKey->GetString("flags", "NONE");
+			const char* pszHelpString = pSubKey->GetString("helpText");
+			const char* pszUsageString = pSubKey->GetString("usageText");
+
+			KeyValues* pValues = pSubKey->FindKey("Values");
+
+			const char* pszDefaultValue = "0";
+			bool bMin = false;
+			bool bMax = false;
+			float fMin = 0.f;
+			float fMax = 0.f;
+
+			if (pValues)
+			{
+				pszDefaultValue = pValues->GetString("default", "0");
+
+				// minimum cvar value
+				if (pValues->FindKey("min"))
+				{
+					bMin = true; // has min value
+					fMin = pValues->GetFloat("min", 0.f);
+				}
+
+				// maximum cvar value
+				if (pValues->FindKey("max"))
+				{
+					bMax = true; // has max value
+					fMax = pValues->GetFloat("max", 1.f);
+				}
+			}
+
+			int flags = FCVAR_NONE;
+
+			if (ConVar_ParseFlagString(pszFlagsString, flags, pszName))
+			{
+				if (g_pCVar->FindCommandBase(pszName) != nullptr)
+				{
+					Warning(eDLL_T::ENGINE, NO_ERROR, "Failed to register ConVar '%s' for mod '%s' ('%s'); already registered.\n",
+						pszName, m_Name.String(), m_ModID.String());
+
+					continue;
+				}
+
+				ConVar* cvar = new ConVar(pszName, pszDefaultValue, flags, pszHelpString, bMin, fMin, bMax, fMax, nullptr, pszUsageString);
+
+				if (!cvar)
+				{
+					// Quit as we ran out of memory.
+					Error(eDLL_T::ENGINE, EXIT_FAILURE, "Failed to register ConVar '%s' for mod '%s' ('%s'); allocation failure.\n",
+						pszName, m_Name.String(), m_ModID.String());
+
+					return;
+				}
+
+				m_ConVars.AddToTail(cvar);
+			}
+		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: parses and stores localization file paths in a vector
