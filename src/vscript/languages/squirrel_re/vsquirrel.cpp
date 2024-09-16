@@ -3,10 +3,15 @@
 // Purpose: VSquirrel VM
 //
 //===============================================================================//
-#include "core/stdafx.h"
+#include "tier0/fasttimer.h"
 #include "vscript/vscript.h"
 #include "pluginsystem/modsystem.h"
+#include "sqclosure.h"
+#include "sqfuncproto.h"
+#include "sqstring.h"
 #include "vsquirrel.h"
+
+static ConVar script_profile_codecalls("script_profile_codecalls", "0", FCVAR_DEVELOPMENTONLY, "Prints duration of native calls to script functions.", "0 = none, 1 = slow calls, 2 = all ( !slower! )");
 
 // Callbacks for registering abstracted script functions.
 void(*ServerScriptRegister_Callback)(CSquirrelVM* s) = nullptr;
@@ -141,8 +146,50 @@ bool CSquirrelVM::Run(const SQChar* const script)
 //---------------------------------------------------------------------------------
 ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope)
 {
+	const SQObjectPtr* const f = reinterpret_cast<SQObjectPtr*>(hFunction);
+
+	const SQClosure* const closure = _closure(*f);
+	const SQFunctionProto* const fp = _funcproto(closure->_function);
+
+	// Only bother doing a timer if the funcproto is not nullptr.
+	// This should always be true unless something has gone badly wrong.
+	const bool hasFuncProto = fp != nullptr;
+	const char* functionName = hasFuncProto ? _stringval(fp->_funcname) : "(no funcproto)";
+
+	Assert(hasFuncProto);
+	CFastTimer callTimer;
+
+	// Start a timer for any named function call
+	if (hasFuncProto)
+		callTimer.Start();
+
 	// NOTE: pArgs and pReturn are most likely of type 'ScriptVariant_t', needs to be reversed.
-	return CSquirrelVM__ExecuteFunction(this, hFunction, pArgs, nArgs, pReturn, hScope);
+	const ScriptStatus_t result = CSquirrelVM__ExecuteFunction(this, hFunction, pArgs, nArgs, pReturn, hScope);
+
+	if (hasFuncProto)
+	{
+		// End the timer as soon as possible after the call has completed to make sure the time is accurate.
+		callTimer.End();
+
+		const int printMode = script_profile_codecalls.GetInt();
+
+		// If print mode is not "none"
+		if (printMode > 0)
+		{
+			const double durationMS = callTimer.GetDuration().GetMillisecondsF();
+
+			// If printMode is set to "all", or the duration is greater than or equal to one millisecond.
+			if (printMode == 2 || (printMode == 1 && durationMS >= 1.f))
+				Msg(this->GetNativeContext(), "Script function '%s' took %.3fms\n", functionName, durationMS);
+		}
+	}
+
+	return result;
+}
+
+ScriptStatus_t Script_ExecuteFunction(CSquirrelVM* s, HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope)
+{
+	return s->ExecuteFunction(hFunction, pArgs, nArgs, pReturn, hScope);
 }
 
 //---------------------------------------------------------------------------------
@@ -288,4 +335,5 @@ void VSquirrel::Detour(const bool bAttach) const
 {
 	DetourSetup(&CSquirrelVM__Init, &CSquirrelVM::Init, bAttach);
 	DetourSetup(&CSquirrelVM__DestroySignalEntryListHead, &CSquirrelVM::DestroySignalEntryListHead, bAttach);
+	DetourSetup(&CSquirrelVM__ExecuteFunction, &Script_ExecuteFunction, bAttach);
 }
