@@ -123,7 +123,7 @@ void CModSystem::LoadModStatusList(CUtlMap<CUtlString, bool>& enabledList)
 	if (!FileSystem()->FileExists(MOD_STATUS_LIST_FILE, "PLATFORM"))
 		return;
 
-	KeyValues* pModList = FileSystem()->LoadKeyValues(
+	const KeyValues* pModList = FileSystem()->LoadKeyValues(
 		IFileSystem::TYPE_COMMON, MOD_STATUS_LIST_FILE, "PLATFORM");
 
 	for (KeyValues* pSubKey = pModList->GetFirstSubKey();
@@ -143,7 +143,7 @@ void CModSystem::WriteModStatusList()
 
 	FOR_EACH_VEC(m_ModList, i)
 	{
-		ModInstance_t* mod = m_ModList[i];
+		const ModInstance_t* mod = m_ModList[i];
 		bool enabled = false;
 
 		if (mod->m_iState == eModState::ENABLED)
@@ -194,7 +194,7 @@ CModSystem::ModInstance_t::ModInstance_t(const CUtlString& basePath)
 	//         clashing problems, research required.
 	FileSystem()->AddSearchPath(m_BasePath.Get(), "PLATFORM", SearchPathAdd_t::PATH_ADD_TO_TAIL);
 
-	CUtlString scriptsRsonPath = m_BasePath + GAME_SCRIPT_COMPILELIST;
+	const CUtlString scriptsRsonPath = m_BasePath + GAME_SCRIPT_COMPILELIST;
 
 	if (FileSystem()->FileExists(scriptsRsonPath.Get(), "PLATFORM"))
 		m_bHasScriptCompileList = true;
@@ -237,7 +237,7 @@ KeyValues* CModSystem::ModInstance_t::GetRequiredSettingsKey(
 //-----------------------------------------------------------------------------
 bool CModSystem::ModInstance_t::ParseSettings()
 {
-	CUtlString settingsPath = m_BasePath + MOD_SETTINGS_FILE;
+	const CUtlString settingsPath = m_BasePath + MOD_SETTINGS_FILE;
 	const char* pSettingsPath = settingsPath.Get();
 
 	m_SettingsKV = FileSystem()->LoadKeyValues(
@@ -284,7 +284,7 @@ bool CModSystem::ModInstance_t::ParseSettings()
 void CModSystem::ModInstance_t::ParseConVars()
 {
 	Assert(m_SettingsKV);
-	KeyValues* pConVars = m_SettingsKV->FindKey("ConVars");
+	const KeyValues* pConVars = m_SettingsKV->FindKey("ConVars");
 
 	if (pConVars)
 	{
@@ -359,7 +359,7 @@ void CModSystem::ModInstance_t::ParseLocalizationFiles()
 {
 	Assert(m_SettingsKV);
 
-	KeyValues* pLocalizationFiles = m_SettingsKV->FindKey("LocalizationFiles");
+	const KeyValues* pLocalizationFiles = m_SettingsKV->FindKey("LocalizationFiles");
 
 	if (pLocalizationFiles)
 	{
