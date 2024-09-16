@@ -26,10 +26,7 @@ static ConVar modsystem_debug("modsystem_debug", "0", FCVAR_RELEASE, "Debug the 
 CModSystem::~CModSystem()
 {
 	// clear all allocated mod instances.
-	FOR_EACH_VEC(m_ModList, i)
-	{
-		delete m_ModList.Element(i);
-	}
+	m_ModList.PurgeAndDeleteElements();
 }
 
 //-----------------------------------------------------------------------------
