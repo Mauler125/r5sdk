@@ -191,6 +191,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	
 	static const int MAX_POLYS = 256;
 	dtPolyRef polys[MAX_POLYS];
+	unsigned char jumps[MAX_POLYS];
 	float straight[MAX_POLYS*3];
 	const float polyPickExt[3] = {2,4,2};
 	
@@ -235,8 +236,8 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			{
 				TimeVal findStraightPathStart = getPerfTime();
 				
-				navquery->findStraightPath(iter->spos, iter->epos, polys, iter->npolys,
-										   straight, 0, 0, &iter->nstraight, MAX_POLYS);
+				navquery->findStraightPath(iter->spos, iter->epos, polys, jumps, iter->npolys,
+										   straight, 0, 0, 0, &iter->nstraight, MAX_POLYS);
 				TimeVal findStraightPathEnd = getPerfTime();
 				iter->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
 			}

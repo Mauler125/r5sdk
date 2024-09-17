@@ -27,6 +27,7 @@ class ConvexVolumeTool : public EditorTool
 {
 	Editor* m_editor;
 	int m_areaType;
+	int m_polyFlags;
 	float m_polyOffset;
 	float m_boxHeight;
 	float m_boxDescent;

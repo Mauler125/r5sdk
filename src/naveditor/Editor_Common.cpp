@@ -22,7 +22,7 @@
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "Include/InputGeom.h"
-#include <DetourTileCache/Include/DetourTileCache.h>
+#include "DetourTileCache/Include/DetourTileCache.h"
 
 static void EditorCommon_DrawInputGeometry(duDebugDraw* const dd, const InputGeom* const geom,
 	const float maxSlope, const float textureScale)
@@ -70,7 +70,8 @@ static void EditorCommon_DrawTilingGrid(duDebugDraw* const dd, const InputGeom* 
 	duDebugDrawGridXY(dd, bmax[0], bmin[1], bmin[2], tw, th, s, duRGBA(0, 0, 0, 64), 1.0f, nullptr);
 }
 
-int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, const int tileSize,
+int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, 
+	const int minTilebits, const int maxTileBits, const int tileSize,
 	const float cellSize, int& maxTiles, int& maxPolysPerTile)
 {
 	int gridSize = 1;
@@ -86,12 +87,12 @@ int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, const i
 		const int th = (gh + ts-1) / ts;
 
 		ImGui::Text("Tiles: %d x %d", tw, th);
-		ImGui::Text("Tile Sizes: %g x %g (%g)", tw* cellSize, th*cellSize, tileSize*cellSize);
+		ImGui::Text("Tile Sizes: %g x %g (%g)", tw*cellSize, th*cellSize, tileSize*cellSize);
 
 		// Max tiles and max polys affect how the tile IDs are calculated.
-		// There are 28 bits available for identifying a tile and a polygon.
-		int tileBits = rdMin((int)rdIlog2(rdNextPow2(tw*th)), 16);
-		int polyBits = 28 - tileBits;
+		// There are MAX_TILE_BITS bits available for identifying a tile and a polygon.
+		const int tileBits = rdMin((int)rdIlog2(rdNextPow2(tw*th)), minTilebits);
+		const int polyBits = maxTileBits - tileBits;
 
 		maxTiles = 1 << tileBits;
 		maxPolysPerTile = 1 << polyBits;
@@ -169,8 +170,6 @@ void Editor_StaticTileMeshCommon::renderRecastDebugMenu()
 	const bool hasCset = m_cset != 0;
 	const bool hasSolid = m_solid != 0;
 	const bool hasDMesh = m_dmesh != 0;
-
-	const bool intermediateDataUnavailable = !hasChf || !hasCset || !hasSolid || !hasDMesh;
 
 	isEnabled = getTileMeshDrawFlags() & TM_DRAWFLAGS_NAVMESH;
 	//ImGui::BeginDisabled(!hasNavMesh);
@@ -307,7 +306,7 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 	{
 		if (m_tileMeshDrawFlags & TM_DRAWFLAGS_NAVMESH)
 		{
-			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, m_navMeshDrawFlags, m_traverseLinkDrawTypes);
+			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, m_navMeshDrawFlags, m_traverseLinkDrawParams);
 			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, detourDrawOffset, detourDrawFlags, duRGBA(0, 0, 0, 128));
 		}
 	}
@@ -425,8 +424,8 @@ void Editor_StaticTileMeshCommon::renderIntermediateTileMeshOptions()
 		//ImGui::Text("Mesh Origin: \n\tX: %g \n\tY: %g \n\tZ: %g", origin[0], origin[1], origin[2]);
 		ImGui::Text("Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
 		ImGui::Text("Poly Group Count: %d", params.polyGroupCount);
-		ImGui::Text("Traversal Table Size: %d", params.traversalTableSize);
-		ImGui::Text("Traversal Table Count: %d", params.traversalTableCount);
+		ImGui::Text("Traversal Table Size: %d", params.traverseTableSize);
+		ImGui::Text("Traversal Table Count: %d", params.traverseTableCount);
 		ImGui::Text("Max Tiles: %d", params.maxTiles);
 		ImGui::Text("Max Polys: %d", params.maxPolys);
 
@@ -572,7 +571,7 @@ void Editor_DynamicTileMeshCommon::renderTileMeshData()
 	{
 		if (recastDrawFlags & TM_DRAWFLAGS_NAVMESH)
 		{
-			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, detourDrawFlags);
+			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, detourDrawOffset, detourDrawFlags, m_traverseLinkDrawParams);
 			duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, detourDrawOffset, detourDrawFlags, duRGBA(0, 0, 0, 128));
 		}
 	}

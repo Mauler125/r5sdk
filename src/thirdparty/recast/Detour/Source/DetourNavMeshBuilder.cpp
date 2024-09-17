@@ -23,8 +23,6 @@
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
 
-static unsigned short MESH_NULL_IDX = 0xffff;
-
 
 struct BVItem
 {
@@ -106,12 +104,13 @@ inline int longestAxis(unsigned short x, unsigned short y, unsigned short z)
 	return axis;
 }
 
-static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNode, dtBVNode* nodes)
+static void subdivide(BVItem* items, int nitems, int imin, int imax, rdTempVector<BVItem>& nodes)
 {
-	int inum = imax - imin;
-	int icur = curNode;
-	
-	dtBVNode& node = nodes[curNode++];
+	const int inum = imax - imin;
+	const int icur = (int)nodes.size();
+
+	nodes.resize(icur+1);
+	BVItem& node = nodes[icur];
 	
 	if (inum == 1)
 	{
@@ -131,7 +130,7 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 		// Split
 		calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
 		
-		int	axis = longestAxis(node.bmax[0] - node.bmin[0],
+		const int	axis = longestAxis(node.bmax[0] - node.bmin[0],
 							   node.bmax[1] - node.bmin[1],
 							   node.bmax[2] - node.bmin[2]);
 		
@@ -151,123 +150,102 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 			qsort(items+imin, inum, sizeof(BVItem), compareItemZ);
 		}
 		
-		int isplit = imin+inum/2;
+		const int isplit = imin+inum/2;
 		
 		// Left
-		subdivide(items, nitems, imin, isplit, curNode, nodes);
+		subdivide(items, nitems, imin, isplit, nodes);
 		// Right
-		subdivide(items, nitems, isplit, imax, curNode, nodes);
+		subdivide(items, nitems, isplit, imax, nodes);
 		
-		int iescape = curNode - icur;
+		int iescape = (int)nodes.size() - icur;
 		// Negative index means escape.
 		node.i = -iescape;
 	}
 }
 
-static int createBVTree(dtNavMeshCreateParams* params, dtBVNode* nodes, int /*nnodes*/)
+static bool createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& nodes)
 {
+	BVItem* items = (BVItem*)rdAlloc(sizeof(BVItem)*params->polyCount, RD_ALLOC_TEMP);
+
+	if (!items)
+		return false;
+
+	// note(amos): reserve enough memory here to avoid reallocation during subdivisions.
+	if (!nodes.reserve(params->polyCount*2))
+		return false;
+
 	// Build tree
 	float quantFactor = 1 / params->cs;
-	BVItem* items = (BVItem*)rdAlloc(sizeof(BVItem)*params->polyCount, RD_ALLOC_TEMP);
 	for (int i = 0; i < params->polyCount; i++)
 	{
 		BVItem& it = items[i];
 		it.i = i;
+
+		float polyVerts[DT_VERTS_PER_POLYGON*3];
+
+		const float* targetVert;
+		int vertCount;
+
 		// Calc polygon bounds. Use detail meshes if available.
 		if (params->detailMeshes)
 		{
-			int vb = (int)params->detailMeshes[i*4+0];
-			int ndv = (int)params->detailMeshes[i*4+1];
-			float bmin[3];
-			float bmax[3];
+			const int vb = (int)params->detailMeshes[i*4+0];
+			vertCount = (int)params->detailMeshes[i*4+1];
 
-			const float* dv = &params->detailVerts[vb*3];
-			rdVcopy(bmin, dv);
-			rdVcopy(bmax, dv);
-
-			for (int j = 1; j < ndv; j++)
-			{
-				rdVmin(bmin, &dv[j * 3]);
-				rdVmax(bmax, &dv[j * 3]);
-			}
-
-			// BV-tree uses cs for all dimensions
-			it.bmin[0] = (unsigned short)rdClamp((int)((bmin[0] - params->bmin[0])*quantFactor), 0, 0xffff);
-			it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-			it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
-
-			it.bmax[0] = (unsigned short)rdClamp((int)((bmax[0] - params->bmin[0])*quantFactor), 0, 0xffff);
-			it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-			it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
+			targetVert = &params->detailVerts[vb*3];
 		}
 		else
 		{
-			const unsigned short* p = &params->polys[i*params->nvp * 2];
-			it.bmin[0] = it.bmax[0] = params->verts[p[0] * 3 + 0];
-			it.bmin[1] = it.bmax[1] = params->verts[p[0] * 3 + 1];
-			it.bmin[2] = it.bmax[2] = params->verts[p[0] * 3 + 2];
+			const int nvp = params->nvp;
 
-			for (int j = 1; j < params->nvp; ++j)
+			const unsigned short* p = &params->polys[i*nvp * 2];
+			vertCount = rdCountPolyVerts(p, nvp);
+
+			for (int j = 0; j < vertCount; ++j)
 			{
-				if (p[j] == MESH_NULL_IDX) break;
-				unsigned short x = params->verts[p[j] * 3 + 0];
-				unsigned short y = params->verts[p[j] * 3 + 1];
-				unsigned short z = params->verts[p[j] * 3 + 2];
+				const unsigned short* polyVert = &params->verts[p[j] * 3];
+				float* flPolyVert = &polyVerts[j * 3];
 
-				if (x < it.bmin[0]) it.bmin[0] = x;
-				if (y < it.bmin[1]) it.bmin[1] = y;
-				if (z < it.bmin[2]) it.bmin[2] = z;
-
-				if (x > it.bmax[0]) it.bmax[0] = x;
-				if (y > it.bmax[1]) it.bmax[1] = y;
-				if (z > it.bmax[2]) it.bmax[2] = z;
+				flPolyVert[0] = params->bmin[0]+polyVert[0]*params->cs;
+				flPolyVert[1] = params->bmin[1]+polyVert[1]*params->cs;
+				flPolyVert[2] = params->bmin[2]+polyVert[2]*params->ch;
 			}
-			// Remap z
-			it.bmin[2] = (unsigned short)rdMathFloorf((float)it.bmin[2] * params->ch / params->cs);
-			it.bmax[2] = (unsigned short)rdMathCeilf((float)it.bmax[2] * params->ch / params->cs);
+
+			targetVert = polyVerts;
 		}
+
+		float bmin[3];
+		float bmax[3];
+
+		rdVcopy(bmin, targetVert);
+		rdVcopy(bmax, targetVert);
+
+		for (int j = 1; j < vertCount; j++)
+		{
+			rdVmin(bmin, &targetVert[j * 3]);
+			rdVmax(bmax, &targetVert[j * 3]);
+		}
+
+		// BV-tree uses cs for all dimensions
+		it.bmin[0] = (unsigned short)rdClamp((int)((params->bmax[0] - bmax[0])*quantFactor), 0, 0xffff);
+		it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
+		it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
+
+		it.bmax[0] = (unsigned short)rdClamp((int)((params->bmax[0] - bmin[0])*quantFactor), 0, 0xffff);
+		it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
+		it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
 	}
-	
-	int curNode = 0;
-	subdivide(items, params->polyCount, 0, params->polyCount, curNode, nodes);
-	
+
+	subdivide(items, params->polyCount, 0, params->polyCount, nodes);
 	rdFree(items);
-	
-	return curNode;
-}
 
-static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, const float* bmax)
-{
-	static const unsigned char XP = 1<<0;
-	static const unsigned char ZP = 1<<1;
-	static const unsigned char XM = 1<<2;
-	static const unsigned char ZM = 1<<3;	
-
-	unsigned char outcode = 0; 
-	outcode |= (pt[0] >= bmax[0]) ? XP : 0;
-	outcode |= (pt[1] >= bmax[1]) ? ZP : 0;
-	outcode |= (pt[0] < bmin[0])  ? XM : 0;
-	outcode |= (pt[1] < bmin[1])  ? ZM : 0;
-
-	switch (outcode)
-	{
-	case XP: return 0;
-	case XP|ZP: return 1;
-	case ZP: return 2;
-	case XM|ZP: return 3;
-	case XM: return 4;
-	case XM|ZM: return 5;
-	case ZM: return 6;
-	case XP|ZM: return 7;
-	};
-
-	return 0xff;	
+	return true;
 }
 
 static void setPolyGroupsTraversalReachability(int* const tableData, const int numPolyGroups,
 	const unsigned short polyGroup1, const unsigned short polyGroup2, const bool isReachable)
 {
-	const int index = dtCalcTraversalTableCellIndex(numPolyGroups, polyGroup1, polyGroup2);
+	const int index = dtCalcTraverseTableCellIndex(numPolyGroups, polyGroup1, polyGroup2);
 	const int value = 1<<(polyGroup2 & 31);
 
 	if (isReachable)
@@ -276,14 +254,17 @@ static void setPolyGroupsTraversalReachability(int* const tableData, const int n
 		tableData[index] &= ~value;
 }
 
-bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
+bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 {
+	dtNavMesh* nav = params->nav;
+	dtDisjointSet& set = params->sets[0];
+
 	rdAssert(nav);
 
 	// Reserve the first poly groups
 	// 0 = DT_NULL_POLY_GROUP.
-	// 1 = DT_STRAY_POLY_GROUP.
-	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
+	// 1 = DT_UNLINKED_POLY_GROUP.
+	set.init(DT_FIRST_USABLE_POLY_GROUP);
 
 	// Clear all labels.
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
@@ -294,8 +275,8 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			poly.groupId = DT_NULL_POLY_GROUP;
 
+			poly.groupId = DT_NULL_POLY_GROUP;
 #if DT_NAVMESH_SET_VERSION >= 7
 			// NOTE: these fields are unknown and need to be reversed.
 			// It is possible these are used internally only.
@@ -305,7 +286,7 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		}
 	}
 
-	// First pass to group linked and unlinked poly islands.
+	// First pass to group poly islands.
 	std::set<unsigned short> linkedGroups;
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
@@ -322,13 +303,22 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			// under the same group id.
 			// NOTE: when we implement jump links, we will have to check on
 			// these here as well! They also shouldn't merge 2 islands together.
-			// Ultimately, the jump links should only be used during traversal
+			// Ultimately, the jump links should only be used during traverse
 			// table building to mark linked islands as reachable.
 			if (poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
 			{
 				while (plink != DT_NULL_LINK)
 				{
 					const dtLink l = tile->links[plink];
+
+					// Polygons linked with traverse links are not necessarily on
+					// the same group, these should be skipped.
+					if (l.traverseType != DT_NULL_TRAVERSE_TYPE)
+					{
+						plink = l.next;
+						continue;
+					}
+
 					const dtMeshTile* t;
 					const dtPoly* p;
 					nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
@@ -343,21 +333,14 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 			const bool noLinkedGroups = linkedGroups.empty();
 
 			if (noLinkedGroups)
-			{
-				// This poly isn't connected to anything, mark it so the game
-				// won't consider this poly in path generation.
-				if (poly.firstLink == DT_NULL_LINK)
-					poly.groupId = DT_STRAY_POLY_GROUP;
-				else
-					poly.groupId = (unsigned short)disjoint.insertNew();
-			}
+				poly.groupId = (unsigned short)set.insertNew();
 			else
 			{
 				const unsigned short rootGroup = *linkedGroups.begin();
 				poly.groupId = rootGroup;
 
 				for (const int linkedGroup : linkedGroups)
-					disjoint.setUnion(rootGroup, linkedGroup);
+					set.setUnion(rootGroup, linkedGroup);
 			}
 
 			if (!noLinkedGroups)
@@ -374,17 +357,89 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_STRAY_POLY_GROUP)
+			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
 			{
-				int id = disjoint.find(poly.groupId);
+				const int id = set.find(poly.groupId);
 				poly.groupId = (unsigned short)id;
 			}
 		}
 	}
 
+	nav->setPolyGroupCount(set.getSetCount());
+	return true;
+}
+
+static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* params, const int tableIndex)
+{
+	dtNavMesh* nav = params->nav;
+	dtDisjointSet& set = params->sets[tableIndex];
+
+	// Sixth pass to handle traverse linked poly's.
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+
+			for (unsigned int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+			{
+				const dtLink* link = &tile->links[k];
+
+				const dtMeshTile* landTile;
+				const dtPoly* landPoly;
+
+				nav->getTileAndPolyByRefUnsafe(link->ref, &landTile, &landPoly);
+				rdAssert(landPoly->groupId != DT_UNLINKED_POLY_GROUP);
+
+				if (poly.groupId != landPoly->groupId && params->canTraverse(params, link, tableIndex))
+					set.setUnion(poly.groupId, landPoly->groupId);
+			}
+		}
+	}
+}
+
+bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
+{
+	dtNavMesh* nav = params->nav;
+	dtDisjointSet& set = params->sets[0];
+
+	// Third pass to mark all unlinked poly's.
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		const int pcount = tile->header->polyCount;
+		int numUnlinkedPolys = 0;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+
+			// This poly isn't connected to anything, mark it so the game
+			// won't consider this poly in path generation.
+			if (poly.firstLink == DT_NULL_LINK)
+			{
+				poly.groupId = DT_UNLINKED_POLY_GROUP;
+				numUnlinkedPolys++;
+			}
+		}
+
+		if (numUnlinkedPolys)
+		{
+			tile->header->userId = (numUnlinkedPolys == tile->header->polyCount)
+				? DT_FULL_UNLINKED_TILE_USER_ID
+				: DT_SEMI_UNLINKED_TILE_USER_ID;
+		}
+		else if (tile->header->userId == DT_FULL_UNLINKED_TILE_USER_ID 
+			|| tile->header->userId == DT_SEMI_UNLINKED_TILE_USER_ID)
+			tile->header->userId = 0;
+	}
+
 	// Gather all unique polygroups and map them to a contiguous range.
 	std::map<unsigned short, unsigned short> groupMap;
-	disjoint.init(DT_FIRST_USABLE_POLY_GROUP);
+	set.init(DT_FIRST_USABLE_POLY_GROUP);
 
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
@@ -395,8 +450,8 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		{
 			dtPoly& poly = tile->polys[j];
 			unsigned short oldId = poly.groupId;
-			if (oldId != DT_STRAY_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
-				groupMap[oldId] = (unsigned short)disjoint.insertNew();
+			if (oldId != DT_UNLINKED_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
+				groupMap[oldId] = (unsigned short)set.insertNew();
 		}
 	}
 
@@ -409,123 +464,76 @@ bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint)
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_STRAY_POLY_GROUP)
+			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
 				poly.groupId = groupMap[poly.groupId];
 		}
 	}
 
-	// Third pass to handle off-mesh connections.
-	// note(amos): this has to happen after the first and second pass as these
-	// are for grouping directly connected polygons together, else groups linked
-	// through off-mesh connections will be merged into a single group!
-	// 
-	// todo(amos): should off-mesh links be marked reachable for all traverse
-	// anim types? Research needed on Titanfall 2. For now, mark connected
-	// poly groups with off-mesh connections reachable.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	// Copy base disjoint set results to sets for each traverse table.
+	for (int i = 0; i < params->tableCount; i++)
 	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
+		dtDisjointSet& targetSet = params->sets[i];
 
-			if (poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
-				continue;
+		if (i > 0) // Don't copy the base into itself.
+			set.copy(targetSet);
 
-			unsigned int plink = poly.firstLink;
-			unsigned short firstGroupId = DT_NULL_POLY_GROUP;
-
-			while (plink != DT_NULL_LINK)
-			{
-				const dtLink l = tile->links[plink];
-				const dtMeshTile* t;
-				const dtPoly* p;
-				nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
-
-				if (p->groupId != DT_NULL_POLY_GROUP)
-				{
-					if (firstGroupId == DT_NULL_POLY_GROUP)
-						firstGroupId = p->groupId;
-					else
-						disjoint.setUnion(firstGroupId, p->groupId);
-				}
-
-				plink = l.next;
-			}
-		}
+		unionTraverseLinkedPolyGroups(params, i);
 	}
 
-	nav->setPolyGroupcount(disjoint.getSetCount());
+	nav->setPolyGroupCount(set.getSetCount());
 	return true;
 }
 
-// todo(amos): remove param 'tableCount' and make struct 'dtTraversalTableCreateParams'
-bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount)
+bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 {
-	const int polyGroupCount = nav->getPolyGroupCount();
-	const int tableSize = dtCalcTraversalTableSize(polyGroupCount);
+	dtNavMesh* nav = params->nav;
 
-	// TODO: currently we allocate 5 buffers and just copy the same traversal
-	// tables in, this works fine since we don't generate jump links and
-	// therefore all poly islands should be marked unreachable from each other.
-	// But when we generate jump links, we need to take into consideration that
-	// the '_small' navmesh supports 5 animation types (dictated by the field
-	// "TraverseAnimType" in the NPC's settings file, and each of them have
-	// different properties in regards to how far they can jump, or the angle,
-	// ect... For example the "frag_drone" anim type can take far further jumps
-	// than the "human" one. The human indexes into the first table while 
-	// frag_drone indexes into the fourth. We have to set different links per
-	// table. The 'dtLink::jumpType' field probably determines what belongs to
-	// what TraverseAnimType, which we could use to set the traversability. 
-	// More reasearch is needed for the jump links and flags... For other
-	// navmeshes, e.g. the '_large' one, they all contain only 1 traversal
-	// table as they only support one TraverseAnimType each. but also here
-	// we have to "reverse" the properties from existing Titanfall 2 single
-	// player navmeshes and determine the traversability in this loop below.
+	const int polyGroupCount = nav->getPolyGroupCount();
+	const int tableSize = dtCalcTraverseTableSize(polyGroupCount);
+	const int tableCount = params->tableCount;
+
+	nav->freeTraverseTables();
+
+	if (!nav->allocTraverseTables(tableCount))
+		return false;
+
+	nav->setTraverseTableSize(tableSize);
+	nav->setTraverseTableCount(tableCount);
+
 	for (int i = 0; i < tableCount; i++)
 	{
-		int* const traversalTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
+		int* const traverseTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
 
-		if (!traversalTable)
+		if (!traverseTable)
 			return false;
 
-		nav->setTraverseTable(i, traversalTable);
-		memset(traversalTable, 0, sizeof(int)*tableSize);
+		nav->setTraverseTable(i, traverseTable);
+		memset(traverseTable, 0, sizeof(int)*tableSize);
+
+		const dtDisjointSet& set = params->sets[i];
 
 		for (unsigned short j = 0; j < polyGroupCount; j++)
 		{
 			for (unsigned short k = 0; k < polyGroupCount; k++)
 			{
 				// Only reachable if its the same polygroup or if they are linked!
-				const bool isReachable = j == k || disjoint.find(j) == disjoint.find(k);
-				setPolyGroupsTraversalReachability(traversalTable, polyGroupCount, j, k, isReachable);
+				const bool isReachable = j == k || set.find(j) == set.find(k);
+				setPolyGroupsTraversalReachability(traverseTable, polyGroupCount, j, k, isReachable);
 			}
 		}
 	}
 
-	nav->setTraverseTableSize(tableSize);
-
 	return true;
 }
 
-static const unsigned short DT_MESH_NULL_IDX = 0xffff;
-static int countPolyVerts(const unsigned short* p, const int nvp) // todo(amos): deduplicate
-{
-	for (int i = 0; i < nvp; ++i)
-		if (p[i] == DT_MESH_NULL_IDX)
-			return i;
-	return nvp;
-}
-
+#if DT_NAVMESH_SET_VERSION >= 8
 struct CellItem
 {
 	float pos[3];
 	int polyIndex;
 };
 
-bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellItem>& cellItems)
+static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellItem>& cellItems)
 {
 	const int nvp = params->nvp;
 	const int resolution = params->cellResolution;
@@ -535,14 +543,14 @@ bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellI
 	for (int i = 0; i < params->polyCount; ++i)
 	{
 		const unsigned short* p = &params->polys[i*2*nvp];
-		const int nv = countPolyVerts(p, nvp);
+		const int nv = rdCountPolyVerts(p, nvp);
 
 		if (nv < 3) // Don't generate cells for off-mesh connections.
 			continue;
 
 		const unsigned int vb = params->detailMeshes[i*4+0];
-		const unsigned int ndv = params->detailMeshes[i*4+1];
 		const unsigned int tb = params->detailMeshes[i*4+2];
+		const unsigned int tc = params->detailMeshes[i*4+3];
 
 		float polyVerts[DT_VERTS_PER_POLYGON*3];
 
@@ -565,44 +573,134 @@ bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVector<CellI
 				float targetCellPos[3];
 				targetCellPos[0] = params->bmin[0]+j*stepX+offsetX;
 				targetCellPos[1] = params->bmin[1]+k*stepY;
-				targetCellPos[2] = 0; // todo(amos): might need a proper fallback, but so far this never failed.
+				targetCellPos[2] = params->bmax[2];
+
+				bool heightPointSet = false;
 
 				if (!rdPointInPolygon(targetCellPos, polyVerts, nv))
 					continue;
 
-				for (int l = 0; l < params->detailTriCount; ++l)
+				for (unsigned int l = 0; l < tc; ++l)
 				{
-					const unsigned char* t = &params->detailTris[(tb+l)*4];
+					const unsigned char* tris = &params->detailTris[(tb+l)*4];
 					float storage[3][3];
 					const float* v[3];
 
 					for (int m = 0; m < 3; ++m)
 					{
-						if (t[m] < nv)
+						if (tris[m] < nv)
 						{
 							for (int n = 0; n < 3; ++n)
 							{
-								storage[m][n] = params->bmin[n] + params->verts[p[t[m]]*3+n] * (n == 2 ? params->ch : params->cs);
+								storage[m][n] = params->bmin[n] + params->verts[p[tris[m]]*3+n] * (n == 2 ? params->ch : params->cs);
 							}
 							v[m] = storage[m];
 						}
 						else
 						{
-							v[m] = &params->detailVerts[(vb+t[m])*3];
+							v[m] = &params->detailVerts[(vb+tris[m])*3];
 						}
 					}
 
-					if (rdClosestHeightPointTriangle(targetCellPos, v[0],v[1],v[2], targetCellPos[2]))
+					if (rdClosestHeightPointTriangle(targetCellPos, v[0], v[1], v[2], targetCellPos[2]))
+					{
+						heightPointSet = true;
 						break;
+					}
 				}
 
-				cellItems.push_back({ targetCellPos[0],targetCellPos[1],targetCellPos[2], i });
+				// NOTE: this is very rare, but does happen when for example, our target pos
+				// is right on a poly edge; see call to closestPointOnDetailEdges in
+				// dtNavMesh::getPolyHeight. This is largely based on the implementation of
+				// closestPointOnDetailEdges.
+				if (!heightPointSet)
+				{
+					bool onlyBoundary = false;
+
+					float storage[3][3];
+					const float* v[3];
+
+					float dmin = FLT_MAX;
+					float tmin = 0;
+					const float* pmin = 0;
+					const float* pmax = 0;
+
+					for (unsigned int l = 0; l < tc; l++)
+					{
+						const unsigned char* tris = &params->detailTris[(tb+l)*4];
+
+						const int ANY_BOUNDARY_EDGE =
+							(RD_DETAIL_EDGE_BOUNDARY << 0) |
+							(RD_DETAIL_EDGE_BOUNDARY << 2) |
+							(RD_DETAIL_EDGE_BOUNDARY << 4);
+
+						if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
+							continue;
+
+						for (int m = 0; m < 3; ++m)
+						{
+							if (tris[m] < nv)
+							{
+								for (int n = 0; n < 3; ++n)
+								{
+									storage[m][n] = params->bmin[n] + params->verts[p[tris[m]]*3+n] * (n == 2 ? params->ch : params->cs);
+								}
+								v[m] = storage[m];
+							}
+							else
+							{
+								v[m] = &params->detailVerts[(vb+tris[m])*3];
+							}
+						}
+
+						for (int m = 0, n = 2; m < 3; n = m++)
+						{
+							if ((dtGetDetailTriEdgeFlags(tris[3], n) & RD_DETAIL_EDGE_BOUNDARY) == 0 &&
+								(onlyBoundary || tris[n] < tris[m]))
+							{
+								// Only looking at boundary edges and this is internal, or
+								// this is an inner edge that we will see again or have already seen.
+								continue;
+							}
+
+							float t;
+							float d = rdDistancePtSegSqr2D(targetCellPos, v[n], v[m], t);
+							if (d < dmin)
+							{
+								dmin = d;
+								tmin = t;
+								pmin = v[n];
+								pmax = v[m];
+							}
+						}
+					}
+
+					float closest[3];
+					rdVlerp(closest, pmin, pmax, tmin);
+
+					targetCellPos[2] = closest[2];
+				}
+
+				const rdSizeType newCount = cellItems.size()+1;
+
+				if (!cellItems.reserve(newCount))
+					return false;
+
+				cellItems.resize(newCount);
+				CellItem& cell = cellItems[newCount-1];
+
+				cell.pos[0] = targetCellPos[0];
+				cell.pos[1] = targetCellPos[1];
+				cell.pos[2] = targetCellPos[2];
+
+				cell.polyIndex = i;
 			}
 		}
 	}
 
 	return true;
 }
+#endif // DT_NAVMESH_SET_VERSION >= 8
 
 // TODO: Better error handling.
 
@@ -630,7 +728,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	// whose start point is inside the tile.
 	unsigned char* offMeshConClass = 0;
 	int storedOffMeshConCount = 0;
-	int offMeshConLinkCount = 0;
+	int baseOffMeshConLinkCount = 0;
+	int landOffMeshConLinkCount = 0;
 	
 	if (params->offMeshConCount > 0)
 	{
@@ -673,8 +772,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		{
 			const float* p0 = &params->offMeshConVerts[(i*2+0)*3];
 			const float* p1 = &params->offMeshConVerts[(i*2+1)*3];
-			offMeshConClass[i*2+0] = classifyOffMeshPoint(p0, bmin, bmax);
-			offMeshConClass[i*2+1] = classifyOffMeshPoint(p1, bmin, bmax);
+			offMeshConClass[i*2+0] = rdClassifyPointOutsideBounds(p0, bmin, bmax);
+			offMeshConClass[i*2+1] = rdClassifyPointOutsideBounds(p1, bmin, bmax);
 
 			// Zero out off-mesh start positions which are not even potentially touching the mesh.
 			if (offMeshConClass[i*2+0] == 0xff)
@@ -685,9 +784,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 
 			// Count how many links should be allocated for off-mesh connections.
 			if (offMeshConClass[i*2+0] == 0xff)
-				offMeshConLinkCount++;
-			if (offMeshConClass[i*2+1] == 0xff)
-				offMeshConLinkCount++;
+				baseOffMeshConLinkCount++;
+			if (offMeshConClass[i*2+1] == 0xff && params->offMeshConDir[i])
+				landOffMeshConLinkCount++;
 
 			if (offMeshConClass[i*2+0] == 0xff)
 				storedOffMeshConCount++;
@@ -706,7 +805,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		const unsigned short* p = &params->polys[i*2*nvp];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (p[j] == MESH_NULL_IDX) break;
+			if (p[j] == RD_MESH_NULL_IDX) break;
 			edgeCount++;
 			
 			if (p[nvp+j] & 0x8000)
@@ -718,7 +817,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 
-	const int maxLinkCount = edgeCount + portalCount*2 + offMeshConLinkCount*2;
+	const int maxLinkCount = edgeCount + portalCount*2 + baseOffMeshConLinkCount*3 + landOffMeshConLinkCount;
 	
 	// Find unique detail vertices.
 	int uniqueDetailVertCount = 0;
@@ -734,7 +833,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			int nv = 0;
 			for (int j = 0; j < nvp; ++j)
 			{
-				if (p[j] == MESH_NULL_IDX) break;
+				if (p[j] == RD_MESH_NULL_IDX) break;
 				nv++;
 			}
 			ndv -= nv;
@@ -752,16 +851,28 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			int nv = 0;
 			for (int j = 0; j < nvp; ++j)
 			{
-				if (p[j] == MESH_NULL_IDX) break;
+				if (p[j] == RD_MESH_NULL_IDX) break;
 				nv++;
 			}
 			detailTriCount += nv-2;
 		}
 	}
 
+	// Create BVtree.
+	rdTempVector<BVItem> treeItems;
+	if (params->buildBvTree)
+	{
+		if (!createBVTree(params, treeItems))
+			return false;
+	}
+
 #if DT_NAVMESH_SET_VERSION >= 8
 	rdTempVector<CellItem> cellItems;
-	createPolyMeshCells(params, cellItems);
+	if (params->detailMeshes)
+	{
+		if (!createPolyMeshCells(params, cellItems))
+			return false;
+	}
 #endif
 
 	// Calculate data size
@@ -772,7 +883,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	const int detailMeshesSize = rdAlign4(sizeof(dtPolyDetail)*params->polyCount);
 	const int detailVertsSize = rdAlign4(sizeof(float)*3*uniqueDetailVertCount);
 	const int detailTrisSize = rdAlign4(sizeof(unsigned char)*4*detailTriCount);
-	const int bvTreeSize = params->buildBvTree ? rdAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
+	const int bvTreeSize = rdAlign4(sizeof(dtBVNode)*(int)treeItems.size());
 	const int offMeshConsSize = rdAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 #if DT_NAVMESH_SET_VERSION >= 8
 	const int cellsSize = rdAlign4(sizeof(dtCell)*(int)cellItems.size());
@@ -847,7 +958,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->walkableRadius = params->walkableRadius;
 	header->walkableClimb = params->walkableClimb;
 	header->offMeshConCount = storedOffMeshConCount;
-	header->bvNodeCount = params->buildBvTree ? params->polyCount*2 : 0;
+	header->bvNodeCount = (int)treeItems.size();
 
 	const int offMeshVertsBase = params->vertCount;
 	const int offMeshPolyBase = params->polyCount;
@@ -876,18 +987,6 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			n++;
 		}
 	}
-
-#if DT_NAVMESH_SET_VERSION >= 8
-	// Polygon cells.
-	for (int i = 0; i < (int)cellItems.size(); i++)
-	{
-		const CellItem& cellItem = cellItems[i];
-		dtCell& cell = navCells[i];
-
-		rdVcopy(cell.pos, cellItem.pos);
-		cell.polyIndex = cellItem.polyIndex;
-	}
-#endif
 	
 	// Store polygons
 	// Mesh polys
@@ -895,13 +994,14 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	for (int i = 0; i < params->polyCount; ++i)
 	{
 		dtPoly* p = &navPolys[i];
-		p->vertCount = 0;
 		p->flags = params->polyFlags[i];
+		p->vertCount = 0;
 		p->setArea(params->polyAreas[i]);
 		p->setType(DT_POLYTYPE_GROUND);
+		p->surfaceArea = params->surfAreas[i];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (src[j] == MESH_NULL_IDX) break;
+			if (src[j] == RD_MESH_NULL_IDX) break;
 			p->verts[j] = src[j];
 			if (src[nvp+j] & 0x8000)
 			{
@@ -927,8 +1027,6 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			p->vertCount++;
 		}
 		rdVscale(p->center, p->center, 1 / (float)(p->vertCount));
-		p->surfaceArea = (unsigned short)rdMathFloorf(dtCalcPolySurfaceArea(p,navVerts) / DT_POLY_AREA_QUANT_FACTOR);
-
 		src += nvp*2;
 	}
 
@@ -1004,10 +1102,19 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 
-	// Store and create BVtree.
-	if (params->buildBvTree)
+	// Store BVTree.
+	for (int i = 0; i < (int)treeItems.size(); i++)
 	{
-		createBVTree(params, navBvtree, 2*params->polyCount);
+		dtBVNode& node = navBvtree[i];
+		BVItem& item = treeItems[i];
+
+		node.bmin[0] = item.bmin[0];
+		node.bmin[1] = item.bmin[1];
+		node.bmin[2] = item.bmin[2];
+		node.bmax[0] = item.bmax[0];
+		node.bmax[1] = item.bmax[1];
+		node.bmax[2] = item.bmax[2];
+		node.i = item.i;
 	}
 	
 	// Store Off-Mesh connections.
@@ -1029,20 +1136,26 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			con->refYaw = params->offMeshConRefYaw[i];
 			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
 			con->side = offMeshConClass[i*2+1];
-#if DT_NAVMESH_SET_VERSION == 5
-			con->jumpType = params->offMeshConJumps[i];
-			con->unk1 = 1;
-#endif
-			con->userId = params->offMeshConUserID[i];
-#if DT_NAVMESH_SET_VERSION >= 7
-			con->hintIdx = DT_NULL_HINT; // todo(amos): hints are currently not supported.
-#endif
+			con->setTraverseType(params->offMeshConJumps[i], params->offMeshConOrders[i]);
 			n++;
 		}
 	}
-		
+
+#if DT_NAVMESH_SET_VERSION >= 8
+	// Polygon cells.
+	for (int i = 0; i < (int)cellItems.size(); i++)
+	{
+		const CellItem& cellItem = cellItems[i];
+		dtCell& cell = navCells[i];
+
+		rdVcopy(cell.pos, cellItem.pos);
+		cell.polyIndex = cellItem.polyIndex;
+		cell.setOccupied();
+	}
+#endif
+
 	rdFree(offMeshConClass);
-	
+
 	*outData = data;
 	*outDataSize = dataSize;
 	

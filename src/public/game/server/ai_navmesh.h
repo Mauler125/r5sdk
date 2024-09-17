@@ -17,7 +17,8 @@ enum NavMeshType_e
 	NAVMESH_EXTRA_LARGE,
 
 	// Not a NavMesh!
-	NAVMESH_COUNT
+	NAVMESH_COUNT,
+	NAVMESH_INVALID = -1,
 };
 
 inline const char* const g_navMeshNames[NAVMESH_COUNT] = {
@@ -43,7 +44,7 @@ inline const int g_navMeshTraverseTableCountIndicesPerType[NAVMESH_COUNT] = {
 	1, 1, 1, 1
 };
 
-inline int NavMesh_GetTraversalTableCountForNavMeshType(const NavMeshType_e navMeshType)
+inline int NavMesh_GetTraverseTableCountForNavMeshType(const NavMeshType_e navMeshType)
 {
 	Assert(navMeshType >= 0 && navMeshType < NAVMESH_COUNT);
 	return g_navMeshTraverseTableCountIndicesPerType[navMeshType];
@@ -59,7 +60,7 @@ inline const int g_navMeshTraverseTableIndicesPerType[ANIMTYPE_COUNT] = {
 	-5, -6, -7, -8
 };
 
-inline int NavMesh_GetTraversalTableIndexForAnimType(const TraverseAnimType_e animType)
+inline int NavMesh_GetTraverseTableIndexForAnimType(const TraverseAnimType_e animType)
 {
 	Assert(animType >= 0 && animType < ANIMTYPE_COUNT);
 	return animType + g_navMeshTraverseTableIndicesPerType[animType];

@@ -381,8 +381,6 @@ static bool overlapEdges(const float* pts, const int* edges, int nedges, int s1,
 
 static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges, int& nedges, const int maxEdges, int& nfaces, int e)
 {
-	static const float EPS = 1e-5f;
-	
 	int* edge = &edges[e*4];
 	
 	// Cache s and t.
@@ -424,9 +422,9 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 	{
 		if (u == s || u == t) continue;
 #if 0
-		if (vcross2(&pts[t*3], &pts[s*3], &pts[u*3]) > EPS)
+		if (vcross2(&pts[t*3], &pts[s*3], &pts[u*3]) > RD_EPS)
 #else
-		if (vcross2(&pts[s*3], &pts[t*3], &pts[u*3]) > EPS)
+		if (vcross2(&pts[s*3], &pts[t*3], &pts[u*3]) > RD_EPS)
 #endif
 		{
 			if (r < 0)
@@ -737,18 +735,15 @@ static bool onHull(int a, int b, int nhull, int* hull)
 // Find edges that lie on hull and mark them as such.
 static void setTriFlags(rdIntArray& tris, int nhull, int* hull)
 {
-	// Matches DT_DETAIL_EDGE_BOUNDARY
-	const int DETAIL_EDGE_BOUNDARY = 0x1;
-
 	for (int i = 0; i < tris.size(); i += 4)
 	{
 		int a = tris[i + 0];
 		int b = tris[i + 1];
 		int c = tris[i + 2];
 		unsigned short flags = 0;
-		flags |= (onHull(a, c, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 0;
-		flags |= (onHull(c, b, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 2;
-		flags |= (onHull(b, a, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 4;
+		flags |= (onHull(a, c, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 0;
+		flags |= (onHull(c, b, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 2;
+		flags |= (onHull(b, a, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 4;
 		tris[i + 3] = (int)flags;
 	}
 }
@@ -1318,7 +1313,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		ymax = 0;
 		for (int j = 0; j < nvp; ++j)
 		{
-			if(p[j] == RC_MESH_NULL_IDX) break;
+			if(p[j] == RD_MESH_NULL_IDX) break;
 			const unsigned short* v = &mesh.verts[p[j]*3];
 			xmin = rdMin(xmin, (int)v[0]);
 			xmax = rdMax(xmax, (int)v[0]);
@@ -1378,7 +1373,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		int npoly = 0;
 		for (int j = 0; j < nvp; ++j)
 		{
-			if(p[j] == RC_MESH_NULL_IDX) break;
+			if(p[j] == RD_MESH_NULL_IDX) break;
 			const unsigned short* v = &mesh.verts[p[j]*3];
 			poly[j*3+0] = v[0]*cs;
 			poly[j*3+1] = v[1]*cs;
@@ -1409,6 +1404,10 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		{
 			verts[j*3+0] += orig[0];
 			verts[j*3+1] += orig[1];
+
+			// note(amos): the offset appears to be necessary, otherwise BVTrees
+			// are built below the polygon.
+			// see https://github.com/recastnavigation/recastnavigation/issues/647
 			verts[j*3+2] += orig[2] + chf.ch; // Is this offset necessary?
 		}
 		// Offset poly too, will be used to flag checking.

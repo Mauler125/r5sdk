@@ -28,7 +28,8 @@ struct ConvexVolume
 	float verts[MAX_CONVEXVOL_PTS*3];
 	float hmin, hmax;
 	int nverts;
-	int area;
+	unsigned short flags;
+	unsigned char area;
 };
 
 struct BuildSettings
@@ -85,16 +86,17 @@ class InputGeom
 	
 	/// @name Off-Mesh connections.
 	///@{
-	static const int MAX_OFFMESH_CONNECTIONS = 256;
+	static const int MAX_OFFMESH_CONNECTIONS = 1024;
 	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
+	float m_offMeshConRefPos[MAX_OFFMESH_CONNECTIONS*3];
 	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
+	float m_offMeshConRefYaws[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConJumps[MAX_OFFMESH_CONNECTIONS];
+	unsigned char m_offMeshConOrders[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
 	unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
 	unsigned short m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
-	float m_offMeshConRefPos[MAX_OFFMESH_CONNECTIONS*3];
-	float m_offMeshConRefYaws[MAX_OFFMESH_CONNECTIONS];
 	short m_offMeshConCount;
 	///@}
 
@@ -132,7 +134,7 @@ public:
 
 	const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
 	const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : 0; }
-	bool raycastMesh(float* src, float* dst, float& tmin);
+	bool raycastMesh(const float* src, const float* dst, float* tmin = nullptr) const;
 
 	/// @name Off-Mesh connections.
 	///@{
@@ -141,13 +143,15 @@ public:
 	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
 	const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
 	const unsigned char* getOffMeshConnectionJumps() const { return m_offMeshConJumps; }
+	const unsigned char* getOffMeshConnectionOrders() const { return m_offMeshConOrders; }
 	const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
 	const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
 	const unsigned short* getOffMeshConnectionId() const { return m_offMeshConId; }
 	const float* getOffMeshConnectionRefPos() const { return m_offMeshConRefPos; }
 	const float* getOffMeshConnectionRefYaws() const { return m_offMeshConRefYaws; }
 	void addOffMeshConnection(const float* spos, const float* epos, const float rad,
-							  unsigned char bidir, unsigned char jump, unsigned char area, unsigned short flags);
+							  unsigned char bidir, unsigned char jump, unsigned char order, 
+							  unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
 	void drawOffMeshConnections(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}
@@ -157,7 +161,7 @@ public:
 	int getConvexVolumeCount() const { return m_volumeCount; }
 	const ConvexVolume* getConvexVolumes() const { return m_volumes; }
 	void addConvexVolume(const float* verts, const int nverts,
-						 const float minh, const float maxh, unsigned char area);
+						 const float minh, const float maxh, unsigned short flags, unsigned char area);
 	void deleteConvexVolume(int i);
 	void drawConvexVolumes(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}

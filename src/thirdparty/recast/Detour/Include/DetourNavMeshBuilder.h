@@ -36,6 +36,7 @@ struct dtNavMeshCreateParams
 	const unsigned short* polys;			///< The polygon data. [Size: #polyCount * 2 * #nvp]
 	const unsigned short* polyFlags;		///< The user defined flags assigned to each polygon. [Size: #polyCount]
 	const unsigned char* polyAreas;			///< The user defined area ids assigned to each polygon. [Size: #polyCount]
+	const unsigned short* surfAreas;		///< The surface area amount for each polygon. [Size: #polyCount]
 	int polyCount;							///< Number of polygons in the mesh. [Limit: >= 1]
 	int nvp;								///< Maximum number of vertices per polygon. [Limit: >= 3]
 	int cellResolution;						///< The resolution of the diamond cell grid [Limit: >= 1]
@@ -60,8 +61,12 @@ struct dtNavMeshCreateParams
 
 	/// Off-mesh connection vertices. [(ax, ay, az, bx, by, bz) * #offMeshConCount] [Unit: wu]
 	const float* offMeshConVerts;
+	/// Off-mesh connection reference positions. [(x, y, z) * #offMeshConCount] [Unit: wu]
+	const float* offMeshConRefPos;
 	/// Off-mesh connection radii. [Size: #offMeshConCount] [Unit: wu]
 	const float* offMeshConRad;
+	/// Off-mesh connection reference yaw. [Size: #offMeshConCount] [Unit: wu]
+	const float* offMeshConRefYaw;
 	/// User defined flags assigned to the off-mesh connections. [Size: #offMeshConCount]
 	const unsigned short* offMeshConFlags;
 	/// User defined area ids assigned to the off-mesh connections. [Size: #offMeshConCount]
@@ -73,12 +78,10 @@ struct dtNavMeshCreateParams
 	const unsigned char* offMeshConDir;
 	/// The user defined jump type of the off-mesh connection. [Size: #offMeshConCount]
 	const unsigned char* offMeshConJumps;
+	/// The user defined lookup order of the off-mesh connection poly verts. [Size: #offMeshConCount]
+	const unsigned char* offMeshConOrders;
 	/// The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
 	const unsigned short* offMeshConUserID;
-	/// Off-mesh connection reference positions. [(x, y, z) * #offMeshConCount] [Unit: wu]
-	const float* offMeshConRefPos;
-	/// Off-mesh connection reference yaw. [Size: #offMeshConCount] [Unit: wu]
-	const float* offMeshConRefYaw;
 	/// The number of off-mesh connections. [Limit: >= 0]
 	int offMeshConCount;
 
@@ -120,6 +123,19 @@ public:
 	dtDisjointSet(const int size)
 	{
 		init(size);
+	}
+
+	void copy(dtDisjointSet& other)
+	{
+		other.rank.resize(rank.size());
+
+		for (int i = 0; i < other.rank.size(); i++)
+			other.rank[i] =  rank[i];
+
+		other.parent.resize(parent.size());
+
+		for (int i = 0; i < other.parent.size(); i++)
+			other.parent[i] = parent[i];
 	}
 
 	void init(const int size)
@@ -177,19 +193,39 @@ private:
 	mutable rdIntArray parent;
 };
 
-/// Builds navigation mesh disjoint poly groups from the provided navmesh.
-/// @ingroup detour
-///  @param[in]		nav			The navigation mesh to use.
-///  @param[Out]	disjoint	The disjoint set data.
-/// @return True if the disjoint set data was successfully created.
-bool dtCreateDisjointPolyGroups(dtNavMesh* nav, dtDisjointSet& disjoint);
+struct dtLink;
 
-/// Builds navigation mesh static traversal table from the provided navmesh.
+/// Parameters used to build traverse links.
 /// @ingroup detour
-///  @param[in]		nav			The navigation mesh to use.
-///  @param[in]		disjoint	The disjoint set data.
-/// @return True if the static traversal table was successfully created.
-bool dtCreateTraversalTableData(dtNavMesh* nav, const dtDisjointSet& disjoint, const int tableCount);
+struct dtTraverseTableCreateParams
+{
+	dtNavMesh* nav;				///< The navmesh.
+	dtDisjointSet* sets;		///< The disjoint polygroup sets.
+	int tableCount;				///< The number of traverse tables this navmesh should contain.
+	int navMeshType;			///< The navmesh type [_small, _extra_large].
+
+	///< The user installed callback which is used to determine if an animType
+	/// can use this traverse link.
+	bool (*canTraverse)(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex);
+};
+
+/// Builds navigation mesh disjoint poly groups from the provided parameters.
+/// @ingroup detour
+///  @param[in]		params		The build parameters.
+/// @return True if the disjoint set data was successfully created.
+bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params);
+
+/// Updates navigation mesh disjoint poly groups from the provided parameters.
+/// @ingroup detour
+///  @param[in]		params		The build parameters.
+/// @return True if the disjoint set data was successfully updated.
+bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params);
+
+/// Builds navigation mesh static traverse table from the provided parameters.
+/// @ingroup detour
+///  @param[in]		params		The build parameters.
+/// @return True if the static traverse table was successfully created.
+bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params);
 
 /// Builds navigation mesh tile data from the provided tile creation data.
 /// @ingroup detour

@@ -21,8 +21,14 @@
 
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/EditorInterfaces.h"
+#include "DebugUtils/Include/RecastDebugDraw.h"
+#include "DebugUtils/Include/DetourDebugDraw.h"
+
+#include "Detour/Include/DetourNavMeshBuilder.h"
 
 #include "game/server/ai_navmesh.h"
+
+struct dtMeshTile;
 
 struct hulldef
 {
@@ -35,6 +41,70 @@ struct hulldef
 };
 extern const hulldef hulls[5];
 
+struct TraverseType_s
+{
+	float minDist;
+	float maxDist;
+	float minElev;
+	float maxElev;
+	float minSlope;
+	float maxSlope;
+	float ovlpTrig;
+	bool ovlpExcl;
+};
+
+enum TraverseType_e // todo(amos): move elsewhere
+{
+	TRAVERSE_UNUSED_0 = 0,
+
+	TRAVERSE_CROSS_GAP_SMALL,
+	TRAVERSE_CLIMB_OBJECT_SMALL,
+	TRAVERSE_CROSS_GAP_MEDIUM,
+
+	TRAVERSE_UNUSED_4,
+	TRAVERSE_UNUSED_5,
+	TRAVERSE_UNUSED_6,
+
+	TRAVERSE_CROSS_GAP_LARGE,
+
+	TRAVERSE_CLIMB_WALL_MEDIUM,
+	TRAVERSE_CLIMB_WALL_TALL,
+	TRAVERSE_CLIMB_BUILDING,
+
+	TRAVERSE_JUMP_SHORT,
+	TRAVERSE_JUMP_MEDIUM,
+	TRAVERSE_JUMP_LARGE,
+
+	TRAVERSE_UNUSED_14,
+	TRAVERSE_UNUSED_15,
+
+	TRAVERSE_UNKNOWN_16, // USED!!!
+	TRAVERSE_UNKNOWN_17, // USED!!!
+
+	TRAVERSE_UNKNOWN_18,
+	TRAVERSE_UNKNOWN_19, // NOTE: does not exists in MSET5!!!
+
+	TRAVERSE_CLIMB_TARGET_SMALL,
+	TRAVERSE_CLIMB_TARGET_LARGE,
+
+	TRAVERSE_UNUSED_22,
+	TRAVERSE_UNUSED_23,
+
+	TRAVERSE_UNKNOWN_24,
+
+	TRAVERSE_UNUSED_25,
+	TRAVERSE_UNUSED_26,
+	TRAVERSE_UNUSED_27,
+	TRAVERSE_UNUSED_28,
+	TRAVERSE_UNUSED_29,
+	TRAVERSE_UNUSED_30,
+	TRAVERSE_UNUSED_31,
+
+	// These aren't traverse type!
+	NUM_TRAVERSE_TYPES,
+	INVALID_TRAVERSE_TYPE = DT_NULL_TRAVERSE_TYPE
+};
+
 /// Tool types.
 enum EditorToolType
 {
@@ -45,6 +115,7 @@ enum EditorToolType
 	TOOL_NAVMESH_TESTER,
 	TOOL_NAVMESH_PRUNE,
 	TOOL_OFFMESH_CONNECTION,
+	TOOL_TRAVERSE_LINK,
 	TOOL_CONVEX_VOLUME,
 	TOOL_CROWD,
 	MAX_TOOLS
@@ -62,31 +133,117 @@ enum EditorToolType
 //	EDITOR_POLYAREA_WATER,
 //};
 
-#if DT_NAVMESH_SET_VERSION >= 7
+#if DT_NAVMESH_SET_VERSION >= 9
 enum EditorPolyAreas
 {
 	EDITOR_POLYAREA_JUMP,
 	EDITOR_POLYAREA_GROUND,
 	EDITOR_POLYAREA_RESERVED,
-	EDITOR_POLYAREA_DOOR, // rename to trigger
+	EDITOR_POLYAREA_TRIGGER,
 };
 #else
 enum EditorPolyAreas
 {
 	EDITOR_POLYAREA_GROUND,
 	EDITOR_POLYAREA_JUMP,
-	EDITOR_POLYAREA_DOOR,
+
+	// NOTE: not sure if anything beyond EDITOR_POLYAREA_JUMP belongs to MSET5,
+	// this needs to be confirmed, for now its been kept in for MSET5.
+	EDITOR_POLYAREA_JUMP_REVERSE,
+	EDITOR_POLYAREA_TRIGGER,
+	EDITOR_POLYAREA_WALLJUMP_LEFT,
+	EDITOR_POLYAREA_WALLJUMP_RIGHT,
+	EDITOR_POLYAREA_WALLJUMP_LEFT_REVERSE,
+	EDITOR_POLYAREA_WALLJUMP_RIGHT_REVERSE,
 };
 #endif
 
+//enum EditorPolyFlags // note: original poly flags for reference.
+//{
+//	// Most common polygon flags.
+//	EDITOR_POLYFLAGS_WALK		= 1<<0,		// Ability to walk (ground, grass, road)
+//	EDITOR_POLYFLAGS_JUMP		= 1<<1,		// Ability to jump.
+//	EDITOR_POLYFLAGS_DOOR		= 1<<2,		// Ability to move through doors.
+//	EDITOR_POLYFLAGS_SWIM		= 1<<3,		// Ability to swim (water).
+//	EDITOR_POLYFLAGS_DISABLED	= 1<<4,		// Disabled polygon
+//	EDITOR_POLYFLAGS_ALL		= 0xffff	// All abilities.
+//};
+
+// Polygon surface area's that aren't larger than this amount will be flagged
+// as 'EDITOR_POLYFLAGS_TOO_SMALL'.
+static const unsigned short NAVMESH_SMALL_POLYGON_THRESHOLD = 120;
+
 enum EditorPolyFlags
 {
-	EDITOR_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)
-	EDITOR_POLYFLAGS_JUMP		= 0x02,		// Ability to jump.
-	EDITOR_POLYFLAGS_DOOR		= 0x04,		// Ability to move through doors.
-	EDITOR_POLYFLAGS_SWIM		= 0x08,		// Ability to swim (water).
-	EDITOR_POLYFLAGS_DISABLED	= 0x10,		// Disabled polygon
-	EDITOR_POLYFLAGS_ALL		= 0xffff	// All abilities.
+	// Most common polygon flags.
+	EDITOR_POLYFLAGS_WALK				= 1<<0,		// Ability to walk (ground, grass, road).
+	EDITOR_POLYFLAGS_TOO_SMALL			= 1<<1,     // This polygon's surface area is too small; it will be ignored during AIN script nodes generation, NavMesh_RandomPositions, dtNavMeshQuery::findLocalNeighbourhood, etc.
+	EDITOR_POLYFLAGS_HAS_NEIGHBOUR		= 1<<2,     // This polygon is connected to a polygon on a neighbouring tile.
+
+	// Off-mesh connection flags
+	EDITOR_POLYFLAGS_JUMP				= 1<<3,		// Ability to jump (exclusively used on off-mesh connection polygons).
+	EDITOR_POLYFLAGS_JUMP_LINKED		= 1<<4,		// Off-mesh connections who's start and end verts link to other polygons need this flag.
+
+	EDITOR_POLYFLAGS_UNK2				= 1<<5,		// Unknown, no use cases found yet.
+
+	// Only used along with poly area 'EDITOR_POLYAREA_TRIGGER'.
+	EDITOR_POLYFLAGS_OBSTACLE			= 1<<6,		// Unknown, used for small road blocks and other small but easily climbable obstacles.
+	EDITOR_POLYFLAGS_UNK4				= 1<<7,		// Unknown, no use cases found yet.
+	EDITOR_POLYFLAGS_DISABLED			= 1<<8,		// Used for ToggleNPCPathsForEntity. Also, see [r5apex_ds + 0xC96EA8]. Used for toggling poly's when a door closes during runtime.
+													// Also used to disable poly's in the navmesh file itself when we do happen to build navmesh on lava or other very hazardous areas.
+	EDITOR_POLYFLAGS_HAZARD				= 1<<9,		// see [r5apex_ds + 0xC96ED0], used for hostile objects such as electric fences.
+	EDITOR_POLYFLAGS_DOOR				= 1<<10,	// See [r5apex_ds + 0xECBAE0], used for large bunker style doors (vertical and horizontal opening ones), perhaps also shooting cover hint?.
+	EDITOR_POLYFLAGS_UNK8				= 1<<11,	// Unknown, no use cases found yet.
+	EDITOR_POLYFLAGS_UNK9				= 1<<12,	// Unknown, no use cases found yet.
+	EDITOR_POLYFLAGS_DOOR_BREACHABLE	= 1<<13,	// Used for doors that need to be breached, such as the Explosive Holds doors.
+
+	EDITOR_POLYFLAGS_ALL				= 0xffff	// All abilities.
+};
+
+inline static const char* const g_navMeshPolyFlagNames[] =
+{
+	"walk",
+	"too_small",
+	"has_neighbour",
+	"jump",
+	"jump_linked",
+	"unused_8",
+	"obstacle",
+	"unused_128",
+	"disabled",
+	"hazard",
+	"door",
+	"unused_2048",
+	"unused_4096",
+	"door_breachable",
+	"unused_16384",
+	"unused_32768",
+	"all"
+};
+
+struct TraverseLinkPolyPair
+{
+	TraverseLinkPolyPair(dtPolyRef p1, dtPolyRef p2)
+	{
+		if (p1 > p2)
+			rdSwap(p1, p2);
+
+		poly1 = p1;
+		poly2 = p2;
+	}
+
+	bool operator<(const TraverseLinkPolyPair& other) const
+	{
+		if (poly1 < other.poly1)
+			return true;
+		if (poly1 > other.poly1)
+			return false;
+
+		return poly2 < other.poly2;
+	}
+
+	dtPolyRef poly1;
+	dtPolyRef poly2;
 };
 
 class EditorDebugDraw : public DebugDrawGL
@@ -137,7 +294,11 @@ protected:
 	bool m_filterLowHangingObstacles;
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
+	bool m_traverseRayDynamicOffset;
+	bool m_buildBvTree;
 
+	int m_minTileBits;
+	int m_maxTileBits;
 	int m_tileSize;
 	float m_cellSize;
 	float m_cellHeight;
@@ -145,6 +306,8 @@ protected:
 	float m_agentRadius;
 	float m_agentMaxClimb;
 	float m_agentMaxSlope;
+	float m_traverseRayExtraOffset;
+	float m_traverseEdgeMinOverlap;
 	int m_regionMinSize;
 	int m_regionMergeSize;
 	int m_edgeMaxLen;
@@ -166,10 +329,12 @@ protected:
 	EditorToolState* m_toolStates[MAX_TOOLS];
 	
 	BuildContext* m_ctx;
+	dtDisjointSet m_djs[DT_MAX_TRAVERSE_TABLES];
+	std::map<TraverseLinkPolyPair, unsigned int> m_traverseLinkPolyMap;
 
 	EditorDebugDraw m_dd;
 	unsigned int m_navMeshDrawFlags;
-	int m_traverseLinkDrawTypes;
+	duDrawTraverseLinkParams m_traverseLinkDrawParams;
 	float m_recastDrawOffset[3];
 	float m_detourDrawOffset[3];
 
@@ -214,6 +379,8 @@ public:
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
+
+	inline float getCellHeight() const { return m_cellHeight; }
 	
 	inline unsigned int getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
 	inline void setNavMeshDrawFlags(unsigned int flags) { m_navMeshDrawFlags = flags; }
@@ -223,6 +390,13 @@ public:
 	inline NavMeshType_e getSelectedNavMeshType() const { return m_selectedNavMeshType; }
 	inline NavMeshType_e getLoadedNavMeshType() const { return m_loadedNavMeshType; }
 
+	inline bool useDynamicTraverseRayOffset() const { return m_traverseRayDynamicOffset; }
+	inline float getTraverseRayExtraOffset() const { return m_traverseRayExtraOffset; }
+
+	inline std::map<TraverseLinkPolyPair, unsigned int>& getTraverseLinkPolyMap() { return m_traverseLinkPolyMap; }
+
+	inline const char* getModelName() const { return m_modelName.c_str(); }
+
 	void updateToolStates(const float dt);
 	void initToolStates(Editor* editor);
 	void resetToolStates();
@@ -231,6 +405,7 @@ public:
 
 	void renderMeshOffsetOptions();
 	void renderDetourDebugMenu();
+	void renderTraverseTableFineTuners();
 	void renderIntermediateTileMeshOptions();
 
 	void selectNavMeshType(const NavMeshType_e navMeshType);
@@ -238,7 +413,18 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
+	void connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor); // Make private.
+	bool createTraverseLinks();
+
+	void createTraverseLinkParams(dtTraverseLinkConnectParams& params);
+
+	void createTraverseTableParams(dtTraverseTableCreateParams* params);
+
+	void connectOffMeshLinks();
 	void buildStaticPathingData();
+
+	bool createStaticPathingData(const dtTraverseTableCreateParams* params);
+	bool updateStaticPathingData(const dtTraverseTableCreateParams* params);
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

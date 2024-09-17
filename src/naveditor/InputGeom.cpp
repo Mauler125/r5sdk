@@ -27,9 +27,9 @@
 #include "NavEditor/Include/Editor.h"
 #include <naveditor/include/GameUtils.h>
 
-static bool intersectSegmentTriangle(const float* sp, const float* sq,
+static inline bool intersectSegmentTriangle(const float* sp, const float* sq,
 									 const float* a, const float* b, const float* c,
-									 float &t)
+									 float &t, const bool delayedDiv)
 {
 	float v, w;
 	float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
@@ -61,8 +61,11 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 	w = -rdVdot(ab, e);
 	if (w < 0.0f || v + w > d) return false;
 	
-	// Segment/ray intersects triangle. Perform delayed division
-	t /= d;
+	if (delayedDiv)
+	{
+		// Segment/ray intersects triangle. Perform delayed division
+		t /= d;
+	}
 	
 	return true;
 }
@@ -284,20 +287,22 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 				float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
 				float rad;
 				float yaw;
-				int bidir, area = 0, jump = 0, flags = 0;
-				sscanf(row+1, "%f %f %f %f %f %f %f %d %d %d %d %f %f %f %f",
+				int bidir = 0, jump = 0, order = 0, area = 0, flags = 0;
+				sscanf(row+1, "%f %f %f %f %f %f %f %f %f %f %f %d %d %d %d %d",
 					   &verts[0], &verts[1], &verts[2],
 					   &verts[3], &verts[4], &verts[5],
-					   &rad,
-					   &bidir, &jump, &area, &flags,
 					   &refs[0], &refs[1], &refs[2],
-					   &yaw);
+					   &rad,
+					   &yaw,
+					   &bidir, &jump, &order, &area, &flags);
+
 				m_offMeshConRads[m_offMeshConCount] = rad;
+				m_offMeshConRefYaws[m_offMeshConCount] = yaw;
 				m_offMeshConDirs[m_offMeshConCount] = (unsigned char)bidir;
 				m_offMeshConJumps[m_offMeshConCount] = (unsigned char)jump;
+				m_offMeshConOrders[m_offMeshConCount] = (unsigned char)order;
 				m_offMeshConAreas[m_offMeshConCount] = (unsigned char)area;
 				m_offMeshConFlags[m_offMeshConCount] = (unsigned short)flags;
-				m_offMeshConRefYaws[m_offMeshConCount] = yaw;
 				m_offMeshConCount++;
 			}
 		}
@@ -307,7 +312,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 			if (m_volumeCount < MAX_VOLUMES)
 			{
 				ConvexVolume* vol = &m_volumes[m_volumeCount++];
-				sscanf(row+1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
+				sscanf(row+1, "%d %hu %hhu %f %f", &vol->nverts, &vol->flags, &vol->area, &vol->hmin, &vol->hmax);
 				for (int i = 0; i < vol->nverts; ++i)
 				{
 					row[0] = '\0';
@@ -432,22 +437,23 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 		const float yaw = m_offMeshConRefYaws[i];
 		const int bidir = m_offMeshConDirs[i];
 		const int jump = m_offMeshConJumps[i];
+		const int order = m_offMeshConOrders[i];
 		const int area = m_offMeshConAreas[i];
 		const int flags = m_offMeshConFlags[i];
-		fprintf(fp, "c %f %f %f %f %f %f %f %d %d %d %d %f %f %f %f\n",
+		fprintf(fp, "c %f %f %f %f %f %f %f %f %f %f %f %d %d %d %d %d\n",
 				verts[0], verts[1], verts[2],
 				verts[3], verts[4], verts[5],
-				rad,
-				bidir, jump, area, flags,
 				refs[0], refs[1], refs[2],
-				yaw);
+				rad,
+				yaw,
+				bidir, jump, order, area, flags);
 	}
 
 	// Convex volumes
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		ConvexVolume* vol = &m_volumes[i];
-		fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
+		fprintf(fp, "v %d %hu %hhu %f %f\n", vol->nverts, vol->flags, vol->area, vol->hmin, vol->hmax);
 		for (int j = 0; j < vol->nverts; ++j)
 			fprintf(fp, "%f %f %f\n", vol->verts[j*3+0], vol->verts[j*3+1], vol->verts[j*3+2]);
 	}
@@ -491,7 +497,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 }
 
 
-bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
+bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) const
 {
 	// Prune hit ray.
 	float btmin, btmax;
@@ -507,10 +513,44 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, cid, 4096);
 	if (!ncid)
 		return false;
-	
-	tmin = 1.0f;
+
 	bool hit = false;
+	const int nvol = m_volumeCount;
+
+	float tsmin = 0.0f, tsmax = 0.0f;
+	int segMin = 0, segMax = 0;
+
+	const bool calcTmin = tmin != nullptr;
+
+	for (int i = 0; i < nvol; i++)
+	{
+		const ConvexVolume& vol = m_volumes[i];
+
+		if (vol.area != RC_NULL_AREA)
+			continue; // Clip brushes only.
+
+		if ((src[2] >= vol.hmin && src[2] <= vol.hmax) ||
+			(dst[2] >= vol.hmin && dst[2] <= vol.hmax))
+		{
+			if (rdIntersectSegmentPoly2D(src, dst, vol.verts, vol.nverts,
+				tsmin, tsmax, segMin, segMax))
+			{
+				hit = true;
+				break;
+			}
+		}
+	}
+
+	if (hit)
+	{
+		if (calcTmin)
+			*tmin = tsmin;
+
+		return true;
+	}
+
 	const float* verts = m_mesh->getVerts();
+	float localtmin = 1.0f;
 	
 	for (int i = 0; i < ncid; ++i)
 	{
@@ -524,54 +564,68 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 			if (intersectSegmentTriangle(src, dst,
 										 &verts[tris[j]*3],
 										 &verts[tris[j+1]*3],
-										 &verts[tris[j+2]*3], t))
+										 &verts[tris[j+2]*3], t, calcTmin))
 			{
-				if (t < tmin)
-					tmin = t;
 				hit = true;
+
+				if (calcTmin && t < localtmin)
+					localtmin = t;
+				else
+					break;
 			}
 		}
 	}
+
+	if (calcTmin)
+		*tmin = localtmin;
 	
 	return hit;
 }
 
 void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad,
-									 unsigned char bidir, unsigned char jump, unsigned char area, unsigned short flags)
+									 unsigned char bidir, unsigned char jump, unsigned char order,
+									 unsigned char area, unsigned short flags)
 {
 	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
-	float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
-	float* verts = &m_offMeshConVerts[m_offMeshConCount*3*2];
-	float yaw = dtCalcOffMeshRefYaw(spos, epos);
+	rdAssert(jump < DT_MAX_TRAVERSE_TYPES);
 
+	float* verts = &m_offMeshConVerts[m_offMeshConCount*3*2];
+	rdVcopy(&verts[0], spos);
+	rdVcopy(&verts[3], epos);
+
+	float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
+	const float yaw = dtCalcOffMeshRefYaw(spos, epos);
 	dtCalcOffMeshRefPos(spos, yaw, DT_OFFMESH_CON_REFPOS_OFFSET, refs);
 
 	m_offMeshConRads[m_offMeshConCount] = rad;
 	m_offMeshConRefYaws[m_offMeshConCount] = yaw;
 	m_offMeshConDirs[m_offMeshConCount] = bidir;
 	m_offMeshConJumps[m_offMeshConCount] = jump;
+	m_offMeshConOrders[m_offMeshConCount] = order;
 	m_offMeshConAreas[m_offMeshConCount] = area;
 	m_offMeshConFlags[m_offMeshConCount] = flags;
 	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
-	rdVcopy(&verts[0], spos);
-	rdVcopy(&verts[3], epos);
 	m_offMeshConCount++;
 }
 
 void InputGeom::deleteOffMeshConnection(int i)
 {
 	m_offMeshConCount--;
+
 	float* vertsSrc = &m_offMeshConVerts[m_offMeshConCount*3*2];
 	float* vertsDst = &m_offMeshConVerts[i*3*2];
-	float* refSrc = &m_offMeshConRefPos[m_offMeshConCount*3];
-	float* refDst = &m_offMeshConRefPos[i*3];
 	rdVcopy(&vertsDst[0], &vertsSrc[0]);
 	rdVcopy(&vertsDst[3], &vertsSrc[3]);
+
+	float* refSrc = &m_offMeshConRefPos[m_offMeshConCount*3];
+	float* refDst = &m_offMeshConRefPos[i*3];
 	rdVcopy(&refDst[0], &refSrc[0]);
+
 	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
 	m_offMeshConRefYaws[i] = m_offMeshConRefYaws[m_offMeshConCount];
 	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
 	m_offMeshConJumps[i] = m_offMeshConJumps[m_offMeshConCount];
+	m_offMeshConOrders[i] = m_offMeshConOrders[m_offMeshConCount];
 	m_offMeshConAreas[i] = m_offMeshConAreas[m_offMeshConCount];
 	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];
 }
@@ -615,7 +669,7 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, const float* offset, boo
 }
 
 void InputGeom::addConvexVolume(const float* verts, const int nverts,
-								const float minh, const float maxh, unsigned char area)
+								const float minh, const float maxh, unsigned short flags, unsigned char area)
 {
 	if (m_volumeCount >= MAX_VOLUMES) return;
 	ConvexVolume* vol = &m_volumes[m_volumeCount++];
@@ -624,6 +678,7 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts,
 	vol->hmin = minh;
 	vol->hmax = maxh;
 	vol->nverts = nverts;
+	vol->flags = flags;
 	vol->area = area;
 }
 

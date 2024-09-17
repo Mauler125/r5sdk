@@ -458,12 +458,12 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 		const TraverseAnimType_e animType = ag->params.traverseAnimType;
 
 		const bool hasAnimType = animType != ANIMTYPE_NONE;
-		const int traversalTableIndex = hasAnimType
-			? NavMesh_GetTraversalTableIndexForAnimType(animType)
+		const int traverseTableIndex = hasAnimType
+			? NavMesh_GetTraverseTableIndexForAnimType(animType)
 			: NULL;
 
 		// Don't fire off the request if the goal is unreachable.
-		if (!m_navquery->isGoalPolyReachable(path[0], ag->targetRef, !hasAnimType, traversalTableIndex))
+		if (!m_navquery->isGoalPolyReachable(path[0], ag->targetRef, !hasAnimType, traverseTableIndex))
 			continue;
 
 		if (ag->targetState == DT_CROWDAGENT_TARGET_REQUESTING)
@@ -879,7 +879,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 			continue;
 		
 		// Find corners for steering
-		ag->ncorners = ag->corridor.findCorners(ag->cornerVerts, ag->cornerFlags, ag->cornerPolys,
+		ag->ncorners = ag->corridor.findCorners(ag->cornerVerts, ag->cornerFlags, ag->cornerPolys, ag->cornerJumps,
 												DT_CROWDAGENT_MAX_CORNERS, m_navquery, &m_filters[ag->params.queryFilterType]);
 		
 		// Check to see if the corner after the next corner is directly visible,

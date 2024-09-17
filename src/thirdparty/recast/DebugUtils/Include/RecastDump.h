@@ -19,14 +19,7 @@
 #ifndef RECAST_DUMP_H
 #define RECAST_DUMP_H
 
-struct duFileIO
-{
-	virtual ~duFileIO() = 0;
-	virtual bool isWriting() const = 0;
-	virtual bool isReading() const = 0;
-	virtual bool write(const void* ptr, const size_t size) = 0;
-	virtual bool read(void* ptr, const size_t size) = 0;
-};
+#include "FileIO.h"
 
 bool duDumpPolyMeshToObj(struct rcPolyMesh& pmesh, duFileIO* io);
 bool duDumpPolyMeshDetailToObj(struct rcPolyMeshDetail& dmesh, duFileIO* io);

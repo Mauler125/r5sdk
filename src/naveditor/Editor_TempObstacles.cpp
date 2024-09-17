@@ -189,7 +189,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 			//{
 			//	polyFlags[i] = EDITOR_POLYFLAGS_SWIM;
 			//}
-			else if (polyAreas[i] == EDITOR_POLYAREA_DOOR)
+			else if (polyAreas[i] == EDITOR_POLYAREA_TRIGGER)
 			{
 				polyFlags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
@@ -201,7 +201,6 @@ struct MeshProcess : public dtTileCacheMeshProcess
 			params->offMeshConVerts = m_geom->getOffMeshConnectionVerts();
 			params->offMeshConRad = m_geom->getOffMeshConnectionRads();
 			params->offMeshConDir = m_geom->getOffMeshConnectionDirs();
-			params->offMeshConJumps = m_geom->getOffMeshConnectionJumps();
 			params->offMeshConAreas = m_geom->getOffMeshConnectionAreas();
 			params->offMeshConFlags = m_geom->getOffMeshConnectionFlags();
 			params->offMeshConUserID = m_geom->getOffMeshConnectionId();
@@ -403,6 +402,7 @@ int Editor_TempObstacles::rasterizeTileLayers(
 	{
 		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts,
 							 vols[i].hmin, vols[i].hmax,
+							 (unsigned short)vols[i].flags,
 							 (unsigned char)vols[i].area, *rc.chf);
 	}
 	
@@ -815,7 +815,7 @@ void Editor_TempObstacles::handleSettings()
 
 	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
 
-	const int gridSize = EditorCommon_SetAndRenderTileProperties(m_geom, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
+	const int gridSize = EditorCommon_SetAndRenderTileProperties(m_geom, m_minTileBits, m_maxTileBits, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
 	ImGui::Separator();
 	
 	ImGui::Text("Tile Cache");
@@ -853,8 +853,8 @@ void Editor_TempObstacles::handleSettings()
 		//ImGui::Text("Mesh Origin: \n\tX: %g \n\tY: %g \n\tZ: %g", origin[0], origin[1], origin[2]);
 		ImGui::Text("Tile Dimensions: %g x %g", params.tileWidth, params.tileHeight);
 		ImGui::Text("Poly Group Count: %d", params.polyGroupCount);
-		ImGui::Text("Traversal Table Size: %d", params.traversalTableSize);
-		ImGui::Text("Traversal Table Count: %d", params.traversalTableCount);
+		ImGui::Text("Traversal Table Size: %d", params.traverseTableSize);
+		ImGui::Text("Traversal Table Count: %d", params.traverseTableCount);
 		ImGui::Text("Max Tiles: %d", params.maxTiles);
 		ImGui::Text("Max Polys: %d", params.maxPolys);
 

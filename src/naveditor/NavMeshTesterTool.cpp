@@ -106,7 +106,7 @@ static int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
 
 static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, const float* endPos,
 						   const float minTargetDist,
-						   const dtPolyRef* path, const int pathSize,
+						   const dtPolyRef* path, const unsigned char* jumpTypes, const int pathSize,
 						   float* steerPos, unsigned char& steerPosFlag, dtPolyRef& steerPosRef,
 						   float* outPoints = 0, int* outPointCount = 0)							 
 {
@@ -115,9 +115,10 @@ static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, cons
 	float steerPath[MAX_STEER_POINTS*3];
 	unsigned char steerPathFlags[MAX_STEER_POINTS];
 	dtPolyRef steerPathPolys[MAX_STEER_POINTS];
+	unsigned char steerPathJumps[MAX_STEER_POINTS];
 	int nsteerPath = 0;
-	navQuery->findStraightPath(startPos, endPos, path, pathSize,
-							   steerPath, steerPathFlags, steerPathPolys, &nsteerPath, MAX_STEER_POINTS);
+	navQuery->findStraightPath(startPos, endPos, path, jumpTypes, pathSize,
+							   steerPath, steerPathFlags, steerPathPolys, steerPathJumps, &nsteerPath, MAX_STEER_POINTS);
 	if (!nsteerPath)
 		return false;
 		
@@ -199,7 +200,7 @@ void NavMeshTesterTool::init(Editor* editor)
 		m_filter.setAreaCost(EDITOR_POLYAREA_GROUND, 1.0f);
 		m_filter.setAreaCost(EDITOR_POLYAREA_JUMP, 1.5f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_ROAD, 1.0f);
-		m_filter.setAreaCost(EDITOR_POLYAREA_DOOR, 1.0f);
+		m_filter.setAreaCost(EDITOR_POLYAREA_TRIGGER, 1.0f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_GRASS, 2.0f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_WATER, 10.0f);
 	}
@@ -394,27 +395,11 @@ void NavMeshTesterTool::handleMenu()
 		recalc();
 	}
 
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_JUMP) != 0;
+	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_TOO_SMALL) != 0;
 
-	if (ImGui::Checkbox("Jump##IncludeFlags", &isEnabled))
+	if (ImGui::Checkbox("Skip##IncludeFlags", &isEnabled))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_JUMP);
-		recalc();
-	}
-
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_DOOR) != 0;
-
-	if (ImGui::Checkbox("Door##IncludeFlags", &isEnabled))
-	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_DOOR);
-		recalc();
-	}
-
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_SWIM) != 0;
-
-	if (ImGui::Checkbox("Swim##IncludeFlags", &isEnabled))
-	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_SWIM);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_TOO_SMALL);
 		recalc();
 	}
 
@@ -433,27 +418,11 @@ void NavMeshTesterTool::handleMenu()
 		recalc();
 	}
 
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_JUMP) != 0;
+	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_TOO_SMALL) != 0;
 
-	if (ImGui::Checkbox("Jump##ExcludeFlags", &isEnabled))
+	if (ImGui::Checkbox("Skip##ExcludeFlags", &isEnabled))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_JUMP);
-		recalc();
-	}
-
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_DOOR) != 0;
-
-	if (ImGui::Checkbox("Door##ExcludeFlags", &isEnabled))
-	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_DOOR);
-		recalc();
-	}
-
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_SWIM) != 0;
-
-	if (ImGui::Checkbox("Swim##ExcludeFlags", &isEnabled))
-	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_SWIM);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_TOO_SMALL);
 		recalc();
 	}
 
@@ -466,9 +435,9 @@ void NavMeshTesterTool::handleMenu()
 
 	const NavMeshType_e loadedNavMeshType = m_editor->getLoadedNavMeshType();
 
-	// TODO: perhaps clamp with m_nav->m_params.traversalTableCount? Technically a navmesh should 
+	// TODO: perhaps clamp with m_nav->m_params.traverseTableCount? Technically a navmesh should 
 	// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
-	const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
+	const int traverseTableCount = NavMesh_GetTraverseTableCountForNavMeshType(loadedNavMeshType);
 	const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
 
 	for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)
@@ -519,11 +488,11 @@ void NavMeshTesterTool::handleToggle()
 		return;
 
 	const bool hasAnimType = m_traverseAnimType != ANIMTYPE_NONE;
-	const int traversalTableIndex = hasAnimType
-		? NavMesh_GetTraversalTableIndexForAnimType(m_traverseAnimType)
+	const int traverseTableIndex = hasAnimType
+		? NavMesh_GetTraverseTableIndexForAnimType(m_traverseAnimType)
 		: NULL;
 
-	if (!m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex))
+	if (!m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traverseTableIndex))
 	{
 		printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);
 
@@ -576,7 +545,7 @@ void NavMeshTesterTool::handleToggle()
 	dtPolyRef steerPosRef;
 		
 	if (!getSteerTarget(m_navQuery, m_iterPos, m_targetPos, SLOP,
-						m_pathIterPolys, m_pathIterPolyCount, steerPos, steerPosFlag, steerPosRef,
+						m_pathIterPolys, m_jumpTypes, m_pathIterPolyCount, steerPos, steerPosFlag, steerPosRef,
 						m_steerPoints, &m_steerPointCount))
 		return;
 		
@@ -693,9 +662,9 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 				if (m_polys[m_npolys-1] != m_endRef)
 				m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos, 0);
 
-				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
+				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_jumpTypes, m_npolys,
 											 m_straightPath, m_straightPathFlags,
-											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS, DT_STRAIGHTPATH_ALL_CROSSINGS);
+											 m_straightPathPolys, m_straightPathJumps, &m_nstraightPath, MAX_POLYS, DT_STRAIGHTPATH_ALL_CROSSINGS);
 			}
 			 
 			m_pathFindStatus = DT_FAILURE;
@@ -739,11 +708,11 @@ void NavMeshTesterTool::recalc()
 	if (m_startRef && m_endRef)
 	{
 		const bool hasAnimType = m_traverseAnimType != ANIMTYPE_NONE;
-		const int traversalTableIndex = hasAnimType
-			? NavMesh_GetTraversalTableIndexForAnimType(m_traverseAnimType)
+		const int traverseTableIndex = hasAnimType
+			? NavMesh_GetTraverseTableIndexForAnimType(m_traverseAnimType)
 			: NULL;
 
-		isReachable = m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traversalTableIndex);
+		isReachable = m_navMesh->isGoalPolyReachable(m_startRef, m_endRef, !hasAnimType, traverseTableIndex);
 
 		if (!isReachable)
 			printf("%s: end poly '%d' is unreachable from start poly '%d'\n", "m_navMesh->isGoalPolyReachable", m_startRef, m_endRef);
@@ -770,6 +739,7 @@ void NavMeshTesterTool::recalc()
 				dtPolyRef polys[MAX_POLYS];
 				memcpy(polys, m_polys, sizeof(dtPolyRef)*m_npolys); 
 				int npolys = m_npolys;
+				unsigned char* jumpTypes = m_jumpTypes;
 				
 				float iterPos[3], targetPos[3];
 				m_navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos, 0);
@@ -793,7 +763,7 @@ void NavMeshTesterTool::recalc()
 					dtPolyRef steerPosRef;
 					
 					if (!getSteerTarget(m_navQuery, iterPos, targetPos, SLOP,
-										polys, npolys, steerPos, steerPosFlag, steerPosRef))
+										polys, jumpTypes, npolys, steerPos, steerPosFlag, steerPosRef))
 						break;
 					
 					bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END) ? true : false;
@@ -914,9 +884,9 @@ void NavMeshTesterTool::recalc()
 				if (m_polys[m_npolys-1] != m_endRef)
 					m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos, 0);
 				
-				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
+				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_jumpTypes, m_npolys,
 											 m_straightPath, m_straightPathFlags,
-											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS, m_straightPathOptions);
+											 m_straightPathPolys, m_straightPathJumps, &m_nstraightPath, MAX_POLYS, m_straightPathOptions);
 			}
 		}
 		else

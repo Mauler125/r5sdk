@@ -1,43 +1,13 @@
+/*	see copyright notice in squirrel.h */
 #ifndef _SQCLOSURE_H_
 #define _SQCLOSURE_H_
 
-#define SQ_MALLOC(size) new char[size]
-struct SQFunctionProto;
-
-struct SQClosure
+struct SQClosure : public SQCollectable
 {
-    void Release() {}
-    void Mark() {}
-    void Finalize() {}
-
-    SQFunctionProto* _function;
-    SQObjectPtr _env;
-    std::vector<SQObjectPtr> _outervalues;
-    std::vector<SQObjectPtr> _defaultparams;
-
-    SQClosure(SQSharedState* ss, SQFunctionProto* func) : _function(func) {}
-
-    static SQClosure* Create(SQSharedState* ss, SQFunctionProto* func) {
-        void* mem = SQ_MALLOC(sizeof(SQClosure));
-        if (!mem) return nullptr;
-        return new (mem) SQClosure(ss, func);
-    }
-
-  
+public:
+	char gap_40[16];
+	SQObjectPtr _function;
 };
-
-
-struct SQNativeClosure : public SQClosure {
-    SQFUNCTION _nativeFunction;
-    SQObjectPtr _name;
-
-    SQNativeClosure(SQSharedState* ss, SQFUNCTION func) : SQClosure(ss, nullptr), _nativeFunction(func) {}
-
-    static SQNativeClosure* Create(SQSharedState* ss, SQFUNCTION func) {
-        return new SQNativeClosure(ss, func);
-    }
-};
-
-
+static_assert(offsetof(SQClosure, _function) == 0x50);
 
 #endif //_SQCLOSURE_H_

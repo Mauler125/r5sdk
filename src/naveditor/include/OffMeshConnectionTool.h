@@ -27,9 +27,12 @@ class OffMeshConnectionTool : public EditorTool
 {
 	Editor* m_editor;
 	float m_hitPos[3];
+	float m_lastSelectedAgentRadius;
+	float m_radius;
 	bool m_hitPosSet;
 	bool m_bidir;
-	int m_jumpType;
+	bool m_invertVertexLookupOrder;
+	int m_traverseType;
 	unsigned int m_oldFlags;
 	
 public:

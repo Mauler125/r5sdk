@@ -301,7 +301,7 @@ bool Editor_SoloMesh::handleBuild()
 	// (Optional) Mark areas.
 	const ConvexVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
-		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_chf);
+		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned short)vols[i].flags, (unsigned char)vols[i].area, *m_chf);
 
 	
 	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
@@ -435,7 +435,7 @@ bool Editor_SoloMesh::handleBuild()
 	// The GUI may allow more max points per polygon than Detour can handle.
 	// Only build the detour navmesh if we do not exceed the limit.
 
-	const int traversalTableCount = NavMesh_GetTraversalTableCountForNavMeshType(m_selectedNavMeshType);
+	const int traverseTableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
 
 	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
 	{
@@ -461,7 +461,7 @@ bool Editor_SoloMesh::handleBuild()
 			//{
 			//	m_pmesh->flags[i] = EDITOR_POLYFLAGS_SWIM;
 			//}
-			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_DOOR)
+			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_TRIGGER)
 			{
 				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
@@ -485,7 +485,6 @@ bool Editor_SoloMesh::handleBuild()
 		params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
 		params.offMeshConRad = m_geom->getOffMeshConnectionRads();
 		params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
-		params.offMeshConJumps = m_geom->getOffMeshConnectionJumps();
 		params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
 		params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
 		params.offMeshConUserID = m_geom->getOffMeshConnectionId();
@@ -515,7 +514,7 @@ bool Editor_SoloMesh::handleBuild()
 		
 		dtStatus status;
 		
-		status = m_navMesh->init(navData, navDataSize, traversalTableCount, DT_TILE_FREE_DATA);
+		status = m_navMesh->init(navData, navDataSize, traverseTableCount, DT_TILE_FREE_DATA);
 		if (dtStatusFailed(status))
 		{
 			rdFree(navData);
@@ -531,17 +530,17 @@ bool Editor_SoloMesh::handleBuild()
 		}
 	}
 
-	dtDisjointSet data;
+	//dtDisjointSet data;
 
-	if (!dtCreateDisjointPolyGroups(m_navMesh, data))
-	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
-	}
+	//if (!dtCreateDisjointPolyGroups(m_navMesh, data))
+	//{
+	//	m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build disjoint poly groups.");
+	//}
 
-	if (!dtCreateTraversalTableData(m_navMesh, data, traversalTableCount))
-	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
-	}
+	//if (!dtCreateTraverseTableData(m_navMesh, data, traverseTableCount))
+	//{
+	//	m_ctx->log(RC_LOG_ERROR, "buildNavigation: Failed to build traversal table data.");
+	//}
 	
 	m_ctx->stopTimer(RC_TIMER_TOTAL);
 

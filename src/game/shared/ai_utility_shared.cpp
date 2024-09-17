@@ -82,15 +82,15 @@ void CAI_Utility::RunRenderFrame(void)
     const bool bUseDepthBuffer = r_debug_draw_depth_test.GetBool();
 
     if (iScriptNodeIndex > -1)
-        g_pAIUtility->DrawAIScriptNetwork(*g_pAINetwork, vCamera, iScriptNodeIndex, flCameraRange, bUseDepthBuffer);
+        g_AIUtility.DrawAIScriptNetwork(*g_pAINetwork, vCamera, iScriptNodeIndex, flCameraRange, bUseDepthBuffer);
     if (iNavMeshBVTreeIndex > -1)
-        g_pAIUtility->DrawNavMeshBVTree(nullptr, vCamera, vCullPlane, iNavMeshBVTreeIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+        g_AIUtility.DrawNavMeshBVTree(nullptr, vCamera, vCullPlane, iNavMeshBVTreeIndex, flCameraRange, nTileRange, bUseDepthBuffer);
     if (iNavMeshPortalIndex > -1)
-        g_pAIUtility->DrawNavMeshPortals(nullptr, vCamera, vCullPlane, iNavMeshPortalIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+        g_AIUtility.DrawNavMeshPortals(nullptr, vCamera, vCullPlane, iNavMeshPortalIndex, flCameraRange, nTileRange, bUseDepthBuffer);
     if (iNavMeshPolyIndex > -1)
-        g_pAIUtility->DrawNavMeshPolys(nullptr, vCamera, vCullPlane, iNavMeshPolyIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+        g_AIUtility.DrawNavMeshPolys(nullptr, vCamera, vCullPlane, iNavMeshPolyIndex, flCameraRange, nTileRange, bUseDepthBuffer);
     if (iNavMeshPolyBoundIndex > -1)
-        g_pAIUtility->DrawNavMeshPolyBoundaries(nullptr, vCamera, vCullPlane, iNavMeshPolyBoundIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+        g_AIUtility.DrawNavMeshPolyBoundaries(nullptr, vCamera, vCullPlane, iNavMeshPolyBoundIndex, flCameraRange, nTileRange, bUseDepthBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -205,9 +205,8 @@ void CAI_Utility::DrawNavMeshBVTree(
             continue;
 
         const float flCellSize = 1.0f / pTile->header->bvQuantFactor;
-
-        const fltx4 xTileAABB = LoadGatherSIMD(pTile->header->bmin[0], pTile->header->bmin[1], pTile->header->bmin[2], 0.0f);
-        const fltx4 xCellSize = LoadGatherSIMD(flCellSize, flCellSize, flCellSize, 0.0f);
+        const float* tileBmin = pTile->header->bmin;
+        const float* tileBmax = pTile->header->bmax;
 
         for (int j = 0, nc = pTile->header->bvNodeCount; j < nc; ++j)
         {
@@ -219,11 +218,15 @@ void CAI_Utility::DrawNavMeshBVTree(
             vTransforms.xmm[1] = LoadGatherSIMD(0.0f, 1.0f, 0.0f, 0.0f);
             vTransforms.xmm[2] = LoadGatherSIMD(0.0f, 0.0f, 1.0f, 0.0f);
 
-            // Formula: tile->header->bm##[axis]+node->bm##[axis]*cs;
-            const fltx4 xMins = MaddSIMD(LoadGatherSIMD(pNode->bmin[0], pNode->bmin[1], pNode->bmin[2], 0.0f), xCellSize, xTileAABB);
-            const fltx4 xMaxs = MaddSIMD(LoadGatherSIMD(pNode->bmax[0], pNode->bmax[1], pNode->bmax[2], 0.0f), xCellSize, xTileAABB);
+            const Vector3D mins(tileBmax[0]-pNode->bmax[0]*flCellSize,
+                                tileBmin[1]+pNode->bmin[1]*flCellSize,
+                                tileBmin[2]+pNode->bmin[2]*flCellSize);
 
-            v_RenderBox(vTransforms.mat, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs),
+            const Vector3D maxs(tileBmax[0]-pNode->bmin[0]*flCellSize,
+                                tileBmin[1]+pNode->bmax[1]*flCellSize,
+                                tileBmin[2]+pNode->bmax[2]*flCellSize);
+
+            v_RenderBox(vTransforms.mat, mins, maxs,
                 Color(188, 188, 188, 255), bDepthBuffer);
         }
     }
@@ -388,7 +391,7 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
         {
             const dtPoly* pPoly = &pTile->polys[j];
 
-            Color col = pPoly->groupId == DT_STRAY_POLY_GROUP
+            Color col = pPoly->groupId == DT_UNLINKED_POLY_GROUP
                 ? Color(220, 120, 0, 255)
                 : Color(0, 200, 220, 255);
 
@@ -507,7 +510,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                     }
                     else
                     {
-                        col = pPoly->groupId == DT_STRAY_POLY_GROUP
+                        col = pPoly->groupId == DT_UNLINKED_POLY_GROUP
                             ? Color(32, 24, 0, 255)
                             : Color(0, 48, 64, 255);
                     }
@@ -517,7 +520,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                     if (pPoly->neis[e] != 0)
                         continue;
 
-                    col = pPoly->groupId == DT_STRAY_POLY_GROUP
+                    col = pPoly->groupId == DT_UNLINKED_POLY_GROUP
                         ? Color(255, 20, 10, 255)
                         : Color(20, 140, 255, 255);
                 }
@@ -540,11 +543,11 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                     }
                     for (int m = 0, n = 2; m < 3; n = m++)
                     {
-                        if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
+                        if ((dtGetDetailTriEdgeFlags(t[3], n) & RD_DETAIL_EDGE_BOUNDARY) == 0)
                             continue;
 
-                        if (rdDistancePtLine2d(tv[n], v0, v1) < thr &&
-                            rdDistancePtLine2d(tv[m], v0, v1) < thr)
+                        if (rdDistancePtLine2D(tv[n], v0, v1) < thr &&
+                            rdDistancePtLine2D(tv[m], v0, v1) < thr)
                         {
                             v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, bDepthBuffer);
                         }
@@ -720,4 +723,4 @@ int CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector
     return result;
 }
 
-CAI_Utility* g_pAIUtility = new (CAI_Utility);
+CAI_Utility g_AIUtility;

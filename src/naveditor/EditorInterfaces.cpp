@@ -315,14 +315,14 @@ bool FileIO::isReading() const
 	return m_mode == 2;
 }
 
-bool FileIO::write(const void* ptr, const size_t size)
+bool FileIO::write(const void* ptr, const rdSizeType size)
 {
 	if (!m_fp || m_mode != 1) return false;
 	fwrite(ptr, size, 1, m_fp);
 	return true;
 }
 
-bool FileIO::read(void* ptr, const size_t size)
+bool FileIO::read(void* ptr, const rdSizeType size)
 {
 	if (!m_fp || m_mode != 2) return false;
 	size_t readLen = fread(ptr, size, 1, m_fp);

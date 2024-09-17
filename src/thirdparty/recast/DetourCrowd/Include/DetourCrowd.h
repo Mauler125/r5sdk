@@ -92,8 +92,8 @@ struct dtCrowdAgentParams
 	/// How aggressive the agent manager should be at avoiding collisions with this agent. [Limit: >= 0]
 	float separationWeight;
 
-	/// The traversal animation type, which is used to determine which traversal table this agent will use.
-	/// [Limit: ANIMTYPE_NONE >= value <= #dtNavMeshParams::traversalTableCount]
+	/// The traverse animation type, which is used to determine which traversal table this agent will use.
+	/// [Limit: ANIMTYPE_NONE >= value <= #dtNavMeshParams::traverseTableCount]
 	TraverseAnimType_e traverseAnimType;
 
 	/// Flags that impact steering behavior. (See: #UpdateFlags)
@@ -169,6 +169,9 @@ struct dtCrowdAgent
 
 	/// The reference id of the polygon being entered at the corner. [(polyRef) * #ncorners]
 	dtPolyRef cornerPolys[DT_CROWDAGENT_MAX_CORNERS];
+
+	/// The jump types encountered at the corner. [(jumpType) * #ncorners]
+	unsigned char cornerJumps[DT_CROWDAGENT_MAX_CORNERS];
 
 	/// The number of corners.
 	int ncorners;

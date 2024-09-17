@@ -993,9 +993,9 @@ void CrowdTool::handleMenu()
 	{
 		const NavMeshType_e loadedNavMeshType = m_editor->getLoadedNavMeshType();
 
-		// TODO: perhaps clamp with m_nav->m_params.traversalTableCount? Technically a navmesh should 
+		// TODO: perhaps clamp with m_nav->m_params.traverseTableCount? Technically a navmesh should 
 		// contain all the traversal tables it supports, so if we crash the navmesh is technically corrupt.
-		const int traverseTableCount = NavMesh_GetTraversalTableCountForNavMeshType(loadedNavMeshType);
+		const int traverseTableCount = NavMesh_GetTraverseTableCountForNavMeshType(loadedNavMeshType);
 		const TraverseAnimType_e baseType = NavMesh_GetFirstTraverseAnimTypeForType(loadedNavMeshType);
 
 		for (int i = ANIMTYPE_NONE; i < traverseTableCount; i++)

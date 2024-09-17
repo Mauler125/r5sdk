@@ -29,18 +29,26 @@
 
 OffMeshConnectionTool::OffMeshConnectionTool() :
 	m_editor(0),
+	m_lastSelectedAgentRadius(0),
+	m_radius(0),
 	m_hitPosSet(0),
 	m_bidir(true),
-	m_jumpType(0),
+	m_invertVertexLookupOrder(false),
+	m_traverseType(0),
 	m_oldFlags(0)
 {
+	rdVset(m_hitPos, 0.0f,0.0f,0.0f);
 }
 
 OffMeshConnectionTool::~OffMeshConnectionTool()
 {
 	if (m_editor)
 	{
-		m_editor->setNavMeshDrawFlags(m_oldFlags);
+		if (m_oldFlags & DU_DRAWNAVMESH_OFFMESHCONS)
+		{
+			const unsigned int curFlags = m_editor->getNavMeshDrawFlags();
+			m_editor->setNavMeshDrawFlags(curFlags | DU_DRAWNAVMESH_OFFMESHCONS);
+		}
 	}
 }
 
@@ -51,28 +59,29 @@ void OffMeshConnectionTool::init(Editor* editor)
 		m_editor = editor;
 		m_oldFlags = m_editor->getNavMeshDrawFlags();
 		m_editor->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAWNAVMESH_OFFMESHCONS);
+
+		const float agentRadius = m_editor->getAgentRadius();
+		m_radius = agentRadius;
+		m_lastSelectedAgentRadius = agentRadius;
 	}
 }
 
 void OffMeshConnectionTool::reset()
 {
+	const float agentRadius = m_editor->getAgentRadius();
+	m_radius = agentRadius;
+	m_lastSelectedAgentRadius = agentRadius;
 	m_hitPosSet = false;
 }
 
 void OffMeshConnectionTool::handleMenu()
 {
-	bool isOneWay = !m_bidir;
-
-	if (ImGui::Checkbox("One Way", &isOneWay))
-		m_bidir = false;
-
-	bool isBiDirectional = m_bidir;
-
-	if (ImGui::Checkbox("Bidirectional", &isBiDirectional))
-		m_bidir = true;
+	ImGui::Checkbox("Bidirectional", &m_bidir);
+	ImGui::Checkbox("Invert Lookup Order", &m_invertVertexLookupOrder);
 
 	ImGui::PushItemWidth(140);
-	ImGui::SliderInt("Jump Type", &m_jumpType, 0, 31);
+	ImGui::SliderInt("Traverse Type##OffMeshConnectionTool", &m_traverseType, 0, DT_MAX_TRAVERSE_TYPES-1, "%d", ImGuiSliderFlags_NoInput);
+	ImGui::SliderFloat("Radius##OffMeshConnectionTool", &m_radius, 0, 512);
 	ImGui::PopItemWidth();
 }
 
@@ -101,7 +110,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		}
 		// If end point close enough, delete it.
 		if (nearestIndex != -1 &&
-			sqrtf(nearestDist) < m_editor->getAgentRadius())
+			sqrtf(nearestDist) < m_radius)
 		{
 			geom->deleteOffMeshConnection(nearestIndex);
 		}
@@ -118,7 +127,8 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		{
 			const unsigned char area = EDITOR_POLYAREA_JUMP;
 			const unsigned short flags = EDITOR_POLYFLAGS_WALK;
-			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, (unsigned char)m_jumpType, area, flags);
+			geom->addOffMeshConnection(m_hitPos, p, m_radius, m_bidir ? 1 : 0,
+				(unsigned char)m_traverseType, m_invertVertexLookupOrder ? 1 : 0, area, flags);
 			m_hitPosSet = false;
 		}
 	}
@@ -134,6 +144,13 @@ void OffMeshConnectionTool::handleStep()
 
 void OffMeshConnectionTool::handleUpdate(const float /*dt*/)
 {
+	const float agentRadius = m_editor->getAgentRadius();
+
+	if (m_lastSelectedAgentRadius < agentRadius || m_lastSelectedAgentRadius > agentRadius)
+	{
+		m_lastSelectedAgentRadius = agentRadius;
+		m_radius = agentRadius;
+	}
 }
 
 void OffMeshConnectionTool::handleRender()

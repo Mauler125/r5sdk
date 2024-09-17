@@ -47,16 +47,16 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 	}
 	
 	for (int i = 0; i < nverts; i++)
-		firstEdge[i] = RC_MESH_NULL_IDX;
+		firstEdge[i] = RD_MESH_NULL_IDX;
 	
 	for (int i = 0; i < npolys; ++i)
 	{
 		unsigned short* t = &polys[i*vertsPerPoly*2];
 		for (int j = 0; j < vertsPerPoly; ++j)
 		{
-			if (t[j] == RC_MESH_NULL_IDX) break;
+			if (t[j] == RD_MESH_NULL_IDX) break;
 			unsigned short v0 = t[j];
-			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == RC_MESH_NULL_IDX) ? t[0] : t[j+1];
+			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == RD_MESH_NULL_IDX) ? t[0] : t[j+1];
 			if (v0 < v1)
 			{
 				rcEdge& edge = edges[edgeCount];
@@ -79,12 +79,12 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 		unsigned short* t = &polys[i*vertsPerPoly*2];
 		for (int j = 0; j < vertsPerPoly; ++j)
 		{
-			if (t[j] == RC_MESH_NULL_IDX) break;
+			if (t[j] == RD_MESH_NULL_IDX) break;
 			unsigned short v0 = t[j];
-			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == RC_MESH_NULL_IDX) ? t[0] : t[j+1];
+			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == RD_MESH_NULL_IDX) ? t[0] : t[j+1];
 			if (v0 > v1)
 			{
-				for (unsigned short e = firstEdge[v1]; e != RC_MESH_NULL_IDX; e = nextEdge[e])
+				for (unsigned short e = firstEdge[v1]; e != RD_MESH_NULL_IDX; e = nextEdge[e])
 				{
 					rcEdge& edge = edges[e];
 					if (edge.vert[1] == v0 && edge.poly[0] == edge.poly[1])
@@ -486,14 +486,6 @@ static int triangulate(int n, const int* verts, int* indices, int* tris)
 	return ntris;
 }
 
-static int countPolyVerts(const unsigned short* p, const int nvp)
-{
-	for (int i = 0; i < nvp; ++i)
-		if (p[i] == RC_MESH_NULL_IDX)
-			return i;
-	return nvp;
-}
-
 inline bool uleft(const unsigned short* a, const unsigned short* b, const unsigned short* c)
 {
 	return ((int)b[0] - (int)a[0]) * ((int)c[1] - (int)a[1]) -
@@ -509,8 +501,8 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 							 const unsigned short* verts, int& ea, int& eb,
 							 const int nvp)
 {
-	const int na = countPolyVerts(pa, nvp);
-	const int nb = countPolyVerts(pb, nvp);
+	const int na = rdCountPolyVerts(pa, nvp);
+	const int nb = rdCountPolyVerts(pb, nvp);
 	
 	// If the merged polygon would be too big, do not merge.
 	if (na+nb-2 > nvp)
@@ -580,8 +572,8 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 static void mergePolyVerts(unsigned short* pa, unsigned short* pb, int ea, int eb,
 						   unsigned short* tmp, const int nvp)
 {
-	const int na = countPolyVerts(pa, nvp);
-	const int nb = countPolyVerts(pb, nvp);
+	const int na = rdCountPolyVerts(pa, nvp);
+	const int nb = rdCountPolyVerts(pb, nvp);
 	
 	// Merge polygons.
 	memset(tmp, 0xff, sizeof(unsigned short)*nvp);
@@ -621,7 +613,7 @@ static bool canRemoveVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned sho
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		unsigned short* p = &mesh.polys[i*nvp*2];
-		const int nv = countPolyVerts(p, nvp);
+		const int nv = rdCountPolyVerts(p, nvp);
 		int numRemoved = 0;
 		int numVerts = 0;
 		for (int j = 0; j < nv; ++j)
@@ -660,7 +652,7 @@ static bool canRemoveVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned sho
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		unsigned short* p = &mesh.polys[i*nvp*2];
-		const int nv = countPolyVerts(p, nvp);
+		const int nv = rdCountPolyVerts(p, nvp);
 
 		// Collect edges which touches the removed vertex.
 		for (int j = 0, k = nv-1; j < nv; k = j++)
@@ -730,7 +722,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		unsigned short* p = &mesh.polys[i*nvp*2];
-		const int nv = countPolyVerts(p, nvp);
+		const int nv = rdCountPolyVerts(p, nvp);
 		for (int j = 0; j < nv; ++j)
 		{
 			if (p[j] == rem)
@@ -773,7 +765,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		unsigned short* p = &mesh.polys[i*nvp*2];
-		const int nv = countPolyVerts(p, nvp);
+		const int nv = rdCountPolyVerts(p, nvp);
 		bool hasRem = false;
 		for (int j = 0; j < nv; ++j)
 			if (p[j] == rem) hasRem = true;
@@ -817,7 +809,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		unsigned short* p = &mesh.polys[i*nvp*2];
-		const int nv = countPolyVerts(p, nvp);
+		const int nv = rdCountPolyVerts(p, nvp);
 		for (int j = 0; j < nv; ++j)
 			if (p[j] > rem) p[j]--;
 	}
@@ -1104,10 +1096,22 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.regs' (%d).", maxTris);
 		return false;
 	}
+	mesh.flags = (unsigned short*)rdAlloc(sizeof(unsigned short)*maxTris, RD_ALLOC_PERM);
+	if (!mesh.flags)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.flags' (%d).", maxTris);
+		return false;
+	}
 	mesh.areas = (unsigned char*)rdAlloc(sizeof(unsigned char)*maxTris, RD_ALLOC_PERM);
 	if (!mesh.areas)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.areas' (%d).", maxTris);
+		return false;
+	}
+	mesh.surfa = (unsigned short*)rdAlloc(sizeof(unsigned short)*maxTris, RD_ALLOC_PERM);
+	if (!mesh.surfa)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.surfa' (%d).", maxTris);
 		return false;
 	}
 	
@@ -1119,6 +1123,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 	memset(mesh.verts, 0, sizeof(unsigned short)*maxVertices*3);
 	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxTris*nvp*2);
 	memset(mesh.regs, 0, sizeof(unsigned short)*maxTris);
+	memset(mesh.flags, 0, sizeof(unsigned short)*maxTris);
 	memset(mesh.areas, 0, sizeof(unsigned char)*maxTris);
 	
 	rdScopedDelete<int> nextVert((int*)rdAlloc(sizeof(int)*maxVertices, RD_ALLOC_TEMP));
@@ -1273,6 +1278,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 			for (int k = 0; k < nvp; ++k)
 				p[k] = q[k];
 			mesh.regs[mesh.npolys] = cont.reg;
+			mesh.flags[mesh.npolys] = cont.flags;
 			mesh.areas[mesh.npolys] = cont.area;
 			mesh.npolys++;
 			if (mesh.npolys > maxTris)
@@ -1323,12 +1329,12 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 			unsigned short* p = &mesh.polys[i*2*nvp];
 			for (int j = 0; j < nvp; ++j)
 			{
-				if (p[j] == RC_MESH_NULL_IDX) break;
+				if (p[j] == RD_MESH_NULL_IDX) break;
 				// Skip connected edges.
-				if (p[nvp+j] != RC_MESH_NULL_IDX)
+				if (p[nvp+j] != RD_MESH_NULL_IDX)
 					continue;
 				int nj = j+1;
-				if (nj >= nvp || p[nj] == RC_MESH_NULL_IDX) nj = 0;
+				if (nj >= nvp || p[nj] == RD_MESH_NULL_IDX) nj = 0;
 				const unsigned short* va = &mesh.verts[p[j]*3];
 				const unsigned short* vb = &mesh.verts[p[nj]*3];
 
@@ -1355,14 +1361,35 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 		}
 	}
 
-	// Just allocate the mesh flags array. The user is responsible to fill it.
-	mesh.flags = (unsigned short*)rdAlloc(sizeof(unsigned short)*mesh.npolys, RD_ALLOC_PERM);
-	if (!mesh.flags)
+	// Calculate polygon surface area's.
+	for (int i = 0; i < mesh.npolys; i++)
 	{
-		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.flags' (%d).", mesh.npolys);
-		return false;
+		const unsigned short* p = &mesh.polys[i*2*nvp];
+		unsigned short vi[3];
+		float fv[3][2];
+		float polyArea = 0.0f;
+		for (int j = 2; j < nvp; ++j)
+		{
+			if (p[j] == RD_MESH_NULL_IDX)
+				break;
+
+			vi[0] = p[0];
+			vi[1] = p[j];
+			vi[2] = p[j-1];
+
+			for (int k = 0; k < 3; k++)
+			{
+				const unsigned short* v = &mesh.verts[vi[k]*3];
+
+				fv[k][0] = mesh.bmin[0] + v[0]*mesh.cs;
+				fv[k][1] = mesh.bmin[1] + v[1]*mesh.cs;
+			}
+
+			polyArea += rdTriArea2D(fv[0], fv[1], fv[2]);
+		}
+
+		mesh.surfa[i] = (unsigned short)rdMathRoundf(polyArea*RC_POLY_SURFAREA_QUANT_FACTOR);
 	}
-	memset(mesh.flags, 0, sizeof(unsigned short) * mesh.npolys);
 	
 	if (mesh.nverts > 0xffff)
 	{
@@ -1500,7 +1527,7 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 			mesh.npolys++;
 			for (int k = 0; k < mesh.nvp; ++k)
 			{
-				if (src[k] == RC_MESH_NULL_IDX) break;
+				if (src[k] == RD_MESH_NULL_IDX) break;
 				tgt[k] = vremap[src[k]];
 			}
 
