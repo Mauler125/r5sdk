@@ -546,9 +546,12 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) con
 }
 
 void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad,
-									 unsigned char bidir, unsigned char area, unsigned short flags)
+									 unsigned char bidir, unsigned char jump, unsigned char order,
+									 unsigned char area, unsigned short flags)
 {
 	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
+	rdAssert(jump < DT_MAX_TRAVERSE_TYPES);
+
 	float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
 	float* verts = &m_offMeshConVerts[m_offMeshConCount*3*2];
 	float yaw = dtCalcOffMeshRefYaw(spos, epos);
@@ -558,6 +561,8 @@ void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const
 	m_offMeshConRads[m_offMeshConCount] = rad;
 	m_offMeshConRefYaws[m_offMeshConCount] = yaw;
 	m_offMeshConDirs[m_offMeshConCount] = bidir;
+	m_offMeshConJumps[m_offMeshConCount] = jump;
+	m_offMeshConOrders[m_offMeshConCount] = order;
 	m_offMeshConAreas[m_offMeshConCount] = area;
 	m_offMeshConFlags[m_offMeshConCount] = flags;
 	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
@@ -579,6 +584,8 @@ void InputGeom::deleteOffMeshConnection(int i)
 	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
 	m_offMeshConRefYaws[i] = m_offMeshConRefYaws[m_offMeshConCount];
 	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
+	m_offMeshConJumps[i] = m_offMeshConJumps[m_offMeshConCount];
+	m_offMeshConOrders[i] = m_offMeshConOrders[m_offMeshConCount];
 	m_offMeshConAreas[i] = m_offMeshConAreas[m_offMeshConCount];
 	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];
 }
