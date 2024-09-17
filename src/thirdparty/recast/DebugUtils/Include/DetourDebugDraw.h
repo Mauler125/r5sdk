@@ -33,17 +33,15 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_TILE_COLORS        = 1 << 5,  // Render tiles colored by their ID's.
 	DU_DRAWNAVMESH_TILE_BOUNDS        = 1 << 6,  // Render tile boundaries.
 	DU_DRAWNAVMESH_TILE_CELLS         = 1 << 7,  // Render tile cells.
-	DU_DRAWNAVMESH_POLY_FACES         = 1 << 8,  // Render poly faces.
-	DU_DRAWNAVMESH_POLY_EDGES         = 1 << 9,  // Render poly edges.
-	DU_DRAWNAVMESH_POLY_VERTS         = 1 << 10, // Render poly verts.
-	DU_DRAWNAVMESH_POLY_BOUNDS_INNER  = 1 << 11, // Render inner poly boundaries.
-	DU_DRAWNAVMESH_POLY_BOUNDS_OUTER  = 1 << 12, // Render outer poly boundaries.
-	DU_DRAWNAVMESH_POLY_CENTERS       = 1 << 13, // Render poly centers.
-	DU_DRAWNAVMESH_POLY_GROUPS        = 1 << 14, // Render poly group by color.
-	DU_DRAWNAVMESH_LEDGE_SPANS        = 1 << 15, // Render ledge spans.
-	DU_DRAWNAVMESH_DEPTH_MASK         = 1 << 16, // Use depth mask.
-	DU_DRAWNAVMESH_ALPHA              = 1 << 17, // Use transparency.
-	DU_DRAWNAVMESH_TRAVERSE_LINKS     = 1 << 18, // Render traverse links.
+	DU_DRAWNAVMESH_POLY_VERTS         = 1 << 8,  // Render vertex points.
+	DU_DRAWNAVMESH_POLY_BOUNDS_INNER  = 1 << 9,  // Render inner poly boundaries.
+	DU_DRAWNAVMESH_POLY_BOUNDS_OUTER  = 1 << 10, // Render outer poly boundaries.
+	DU_DRAWNAVMESH_POLY_CENTERS       = 1 << 11, // Render poly centers.
+	DU_DRAWNAVMESH_POLY_GROUPS        = 1 << 12, // Render poly group by color.
+	DU_DRAWNAVMESH_LEDGE_SPANS        = 1 << 13, // Render ledge spans.
+	DU_DRAWNAVMESH_DEPTH_MASK         = 1 << 14, // Use depth mask.
+	DU_DRAWNAVMESH_ALPHA              = 1 << 15, // Use transparency.
+	DU_DRAWNAVMESH_TRAVERSE_LINKS     = 1 << 16, // Render traverse links.
 };
 
 struct duDrawTraverseLinkParams
@@ -52,9 +50,7 @@ struct duDrawTraverseLinkParams
 		traverseLinkType(-1),
 		traverseLinkDistance(-1),
 		traverseAnimType(-2),
-		cellHeight(0.0f),
-		extraOffset(0.0f),
-		dynamicOffset(false)
+		cellHeight(0.0f)
 	{}
 
 	int traverseLinkType;
@@ -67,9 +63,6 @@ struct duDrawTraverseLinkParams
 	// Used to determine the max LOS angle, this information is lost after
 	// the mesh tile has been build so we have to cache it from the editor.
 	float cellHeight;
-
-	float extraOffset;
-	bool dynamicOffset;
 };
 
 void duDebugDrawMeshTile(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query, const dtMeshTile* tile, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams);

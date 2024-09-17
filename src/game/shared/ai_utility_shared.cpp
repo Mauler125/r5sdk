@@ -205,8 +205,9 @@ void CAI_Utility::DrawNavMeshBVTree(
             continue;
 
         const float flCellSize = 1.0f / pTile->header->bvQuantFactor;
-        const float* tileBmin = pTile->header->bmin;
-        const float* tileBmax = pTile->header->bmax;
+
+        const fltx4 xTileAABB = LoadGatherSIMD(pTile->header->bmin[0], pTile->header->bmin[1], pTile->header->bmin[2], 0.0f);
+        const fltx4 xCellSize = LoadGatherSIMD(flCellSize, flCellSize, flCellSize, 0.0f);
 
         for (int j = 0, nc = pTile->header->bvNodeCount; j < nc; ++j)
         {
@@ -218,15 +219,11 @@ void CAI_Utility::DrawNavMeshBVTree(
             vTransforms.xmm[1] = LoadGatherSIMD(0.0f, 1.0f, 0.0f, 0.0f);
             vTransforms.xmm[2] = LoadGatherSIMD(0.0f, 0.0f, 1.0f, 0.0f);
 
-            const Vector3D mins(tileBmax[0]-pNode->bmax[0]*flCellSize,
-                                tileBmin[1]+pNode->bmin[1]*flCellSize,
-                                tileBmin[2]+pNode->bmin[2]*flCellSize);
+            // Formula: tile->header->bm##[axis]+node->bm##[axis]*cs;
+            const fltx4 xMins = MaddSIMD(LoadGatherSIMD(pNode->bmin[0], pNode->bmin[1], pNode->bmin[2], 0.0f), xCellSize, xTileAABB);
+            const fltx4 xMaxs = MaddSIMD(LoadGatherSIMD(pNode->bmax[0], pNode->bmax[1], pNode->bmax[2], 0.0f), xCellSize, xTileAABB);
 
-            const Vector3D maxs(tileBmax[0]-pNode->bmin[0]*flCellSize,
-                                tileBmin[1]+pNode->bmax[1]*flCellSize,
-                                tileBmin[2]+pNode->bmax[2]*flCellSize);
-
-            v_RenderBox(vTransforms.mat, mins, maxs,
+            v_RenderBox(vTransforms.mat, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs),
                 Color(188, 188, 188, 255), bDepthBuffer);
         }
     }

@@ -39,84 +39,13 @@ unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 	{
 	// Ground : light blue
 	case EDITOR_POLYAREA_GROUND: return duRGBA(0, 192, 215, 255);
-	// Jump : blue
-	case EDITOR_POLYAREA_JUMP: return duRGBA(0, 0, 255, 255);
+	// Jump : purple
+	case EDITOR_POLYAREA_JUMP: return duRGBA(255, 0, 255, 255);
 	// Trigger : light green
 	case EDITOR_POLYAREA_TRIGGER: return duRGBA(20, 245, 0, 255);
 	// Unexpected : white
 	default: return duRGBA(255, 255, 255, 255);
 	}
-}
-
-static int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT];
-
-static void initTraverseMasks()
-{
-	s_traverseAnimTraverseFlags[ANIMTYPE_HUMAN] = 0x0000013F;
-	s_traverseAnimTraverseFlags[ANIMTYPE_SPECTRE] = 0x0000013F;
-#if DT_NAVMESH_SET_VERSION == 5
-	s_traverseAnimTraverseFlags[ANIMTYPE_STALKER] = 0x001BDF7F;
-	s_traverseAnimTraverseFlags[ANIMTYPE_FRAG_DRONE] = 0x001BFFFF;
-#else
-	s_traverseAnimTraverseFlags[ANIMTYPE_STALKER] = 0x0033DF7F;
-	s_traverseAnimTraverseFlags[ANIMTYPE_FRAG_DRONE] = 0x0033FFFF;
-#endif
-	s_traverseAnimTraverseFlags[ANIMTYPE_PILOT] = 0x0000013F;
-	s_traverseAnimTraverseFlags[ANIMTYPE_PROWLER] = 0x00033F87;
-	s_traverseAnimTraverseFlags[ANIMTYPE_SUPER_SPECTRE] = 0x00033F82;
-	s_traverseAnimTraverseFlags[ANIMTYPE_TITAN] = 0000003000;
-	s_traverseAnimTraverseFlags[ANIMTYPE_GOLIATH] = 0000003000;
-}
-
-TraverseType_s s_traverseTable[NUM_TRAVERSE_TYPES];
-
-static void initTraverseTableParams()
-{
-	s_traverseTable[0] =  { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-
-	s_traverseTable[1]  = { 10.f,  120.f, 0.f,  48.f,  0.f, 67.f, 0.f, false };
-	s_traverseTable[2]  = { 120.f, 160.f, 48.f, 96.f,  5.f, 78.f, 0.f, false };
-	s_traverseTable[3]  = { 160.f, 220.f, 0.f,  128.f, 0.f, 38.f, 0.f, false };
-
-	s_traverseTable[4]  = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[5]  = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[6]  = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-
-	s_traverseTable[7]  = { 800.f, 1030.f, 0.f,   96.f,  0.0f, 6.5f,  0.f, true };
-	s_traverseTable[8]  = { 70.f,  220.f,  48.f,  220.f, 19.f, 84.f,  0.f,  false };
-	s_traverseTable[9]  = { 210.f, 450.f,  168.f, 384.f, 27.f, 87.5f, 0.f,  false };
-	s_traverseTable[10] = { 450.f, 860.f,  384.f, 672.f, 44.f, 89.5f, 0.f,  false };
-	s_traverseTable[11] = { 410.f, 940.f,  0.f,   56.f,  0.f , 7.f,   0.f,  true };
-	s_traverseTable[12] = { 640.f, 930.f,  348.f, 640.f, 2.2f, 47.f,  0.f,  true };
-	s_traverseTable[13] = { 810.f, 1220.f, 256.f, 640.f, 5.7f, 58.5f, 0.f,  true };
-
-	s_traverseTable[14] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1, false }; // Unused
-	s_traverseTable[15] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1, false }; // Off-mesh links only, see 'level_script.ent'
-
-	s_traverseTable[16] = { 220.f, 410.f, 0.f,   104.f, 0.f,  12.5f, 0.f, false };
-	s_traverseTable[17] = { 410.f, 640.f, 104.f, 416.f, 4.6f, 53.f,  0.f, true };
-
-	s_traverseTable[18] = { 0.0f, 0.0f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Off-mesh links only, see 'level_script.ent'
-
-#if DT_NAVMESH_SET_VERSION > 5
-	s_traverseTable[19] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false };    // Unused
-	s_traverseTable[20] = { 256.f, 400.f,  256.f, 330.f,  34.f, 89.f, 0.f, false }; // Maps to type 19 in MSET 5
-	s_traverseTable[21] = { 0.f,   1250.f, 340.f, 1250.f, 46.f, 89.f, 0.f, false }; // Maps to type 20 in MSET 5
-#else
-	s_traverseTable[19] = { 256.f, 400.f,  256.f, 330.f,  34.f, 89.f, 0.f, false }; // Maps to type 19 in MSET 5
-	s_traverseTable[20] = { 0.f,   1250.f, 340.f, 1250.f, 46.f, 89.f, 0.f, false }; // Maps to type 20 in MSET 5
-	s_traverseTable[21] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false };    // Unused
-#endif
-	s_traverseTable[22] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[23] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[24] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Does not exist in MSET 5 ~ 8.
-	s_traverseTable[25] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[26] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[27] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[28] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[29] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[30] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
-	s_traverseTable[31] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, false }; // Unused
 }
 
 Editor::Editor() :
@@ -126,12 +55,10 @@ Editor::Editor() :
 	m_crowd(0),
 	m_navMeshDrawFlags(
 		DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_WITH_CLOSED_LIST|
-		DU_DRAWNAVMESH_POLY_FACES|DU_DRAWNAVMESH_POLY_BOUNDS_OUTER|DU_DRAWNAVMESH_ALPHA),
+		DU_DRAWNAVMESH_POLY_BOUNDS_OUTER|DU_DRAWNAVMESH_ALPHA),
 	m_filterLowHangingObstacles(true),
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
-	m_traverseRayDynamicOffset(true),
-	m_buildBvTree(true),
 	m_selectedNavMeshType(NAVMESH_SMALL),
 	m_loadedNavMeshType(NAVMESH_SMALL),
 	m_navmeshName(NavMesh_GetNameForType(NAVMESH_SMALL)),
@@ -241,21 +168,13 @@ void Editor::collectSettings(BuildSettings& settings)
 	settings.partitionType = m_partitionType;
 }
 
+
 void Editor::resetCommonSettings()
 {
 	selectNavMeshType(NAVMESH_SMALL);
 
-#if DT_NAVMESH_SET_VERSION == 5
-	m_minTileBits = 14;
-	m_maxTileBits = 22;
-#else
-	m_minTileBits = 16;
-	m_maxTileBits = 28;
-#endif
-
 	m_cellSize = 16.0f;
 	m_cellHeight = 5.85f;
-	m_traverseLinkDrawParams.dynamicOffset = m_traverseRayDynamicOffset;
 	m_traverseLinkDrawParams.cellHeight = m_cellHeight;
 
 	// todo(amos): check if this applies for all hulls, and check if this is the
@@ -267,9 +186,6 @@ void Editor::resetCommonSettings()
 	// https://developer.valvesoftware.com/wiki/Pl/Dimensions
 	m_agentMaxSlope = 45.573f;
 
-	m_traverseRayExtraOffset = 8.0f;
-	m_traverseEdgeMinOverlap = RD_EPS;
-
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
 	m_edgeMaxLen = 12;
@@ -278,9 +194,6 @@ void Editor::resetCommonSettings()
 	m_detailSampleDist = 6.0f;
 	m_detailSampleMaxError = 1.0f;
 	m_partitionType = EDITOR_PARTITION_WATERSHED;
-
-	initTraverseMasks();
-	initTraverseTableParams();
 }
 void Editor::handleCommonSettings()
 {
@@ -367,8 +280,6 @@ void Editor::handleCommonSettings()
 			rdVcopy(navMeshBMin, m_geom->getOriginalNavMeshBoundsMin());
 			rdVcopy(navMeshBMax, m_geom->getOriginalNavMeshBoundsMax());
 		}
-
-		ImGui::Checkbox("Build BVTree", &m_buildBvTree);
 	}
 
 	ImGui::Separator();
@@ -402,10 +313,7 @@ void Editor::handleCommonSettings()
 	ImGui::SliderInt("Max Edge Length", &m_edgeMaxLen, 0, 50); // todo(amos): increase due to larger scale maps?
 	ImGui::SliderFloat("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f);
 	ImGui::SliderInt("Verts Per Poly", &m_vertsPerPoly, 3, 6);
-
-#if DT_NAVMESH_SET_VERSION >= 8
 	ImGui::SliderInt("Poly Cell Resolution", &m_polyCellRes, 1, 16);
-#endif
 
 	ImGui::Separator();
 	ImGui::Text("Detail Mesh");
@@ -417,8 +325,147 @@ void Editor::handleCommonSettings()
 	ImGui::Separator();
 	ImGui::Text("Traversability");
 
-	if (ImGui::CollapsingHeader("Traverse Table Fine Tuner"))
-		renderTraverseTableFineTuners();
+	static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit | 
+		/*ImGuiTableFlags_ScrollX |*/ 
+		ImGuiTableFlags_ScrollY | 
+		ImGuiTableFlags_BordersInner | 
+		ImGuiTableFlags_BordersOuter |
+		ImGuiTableFlags_Hideable |
+		/*ImGuiTableFlags_Resizable |*/
+		/*ImGuiTableFlags_Reorderable |*/
+		ImGuiTableFlags_HighlightHoveredColumn;
+
+	static ImGuiTableColumnFlags columnFlags = ImGuiTableColumnFlags_AngledHeader |
+		ImGuiTableColumnFlags_WidthStretch;
+
+	static int frozenCols = 1;
+	static int frozenRows = 2;
+	const float textBaseHeight = ImGui::GetTextLineHeightWithSpacing();
+
+	const char* columnNames[] = { "Type", "minElev", "maxElev", "minDist", "maxDist" };
+	const int columnsCount = IM_ARRAYSIZE(columnNames);
+	const int rowsCount = NUM_TRAVERSE_TYPES;
+
+	if (ImGui::BeginTable("TraverseTableFineTuner", columnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12)+10.f)))
+	{
+		ImGui::TableSetupColumn(columnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
+		for (int n = 1; n < columnsCount; n++)
+			ImGui::TableSetupColumn(columnNames[n], columnFlags, 100);
+		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
+
+		ImGui::TableAngledHeadersRow();
+		ImGui::TableHeadersRow();
+
+		ImGuiListClipper clipper;
+		clipper.Begin(rowsCount);
+
+		while (clipper.Step())
+		{
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+			{
+				ImGui::PushID(row);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%d", row);
+
+				for (int column = 1; column < columnsCount; column++)
+				{
+					if (!ImGui::TableSetColumnIndex(column))
+						continue;
+
+					ImGui::PushID(column);
+					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
+					TraverseType_s& trav = s_traverseTable[row];
+
+					switch (column)
+					{
+					case 1:
+						trav.minElev = rdClamp(trav.minElev, 0.0f, trav.maxElev);
+						ImGui::SliderFloat("", &trav.minElev, 0, trav.maxElev);
+						break;
+					case 2:
+						ImGui::SliderFloat("", &trav.maxElev, 0, DT_TRAVERSE_DIST_MAX);
+						break;
+					case 3:
+						trav.minDist = rdClamp(trav.minDist, 0.0f, trav.maxDist);
+						ImGui::SliderFloat("", &trav.minDist, 0, trav.maxDist);
+						break;
+					case 4:
+						ImGui::SliderFloat("", &trav.maxDist, 0, DT_TRAVERSE_DIST_MAX);
+						break;
+					}
+
+					ImGui::PopItemWidth();
+					ImGui::PopID();
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::EndTable();
+	}
+	if (ImGui::Button("Reset Traverse Table Parameters"))
+		initTraverseTableParams();
+
+	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
+	const int numColumns = numTraverseTables + 1;
+
+	if (ImGui::BeginTable("TraverseTableMaskSelector", numColumns, tableFlags, ImVec2(0.0f, (textBaseHeight*12)+20.f)))
+	{
+		ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
+		const bool smallNavMesh = m_selectedNavMeshType == NAVMESH_SMALL;
+
+		for (int n = 0; n < numTraverseTables; n++)
+		{
+			const int i = smallNavMesh
+				? NavMesh_GetTraverseTableIndexForAnimType(TraverseAnimType_e(n))
+				: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+
+			ImGui::TableSetupColumn(g_traverseAnimTypeNames[i], columnFlags);
+		}
+
+		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
+
+		ImGui::TableAngledHeadersRow();
+		ImGui::TableHeadersRow();
+
+		ImGuiListClipper clipper;
+		clipper.Begin(rowsCount);
+
+		while (clipper.Step())
+		{
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+			{
+				ImGui::PushID(row);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%d", row);
+
+				for (int column = 0; column < numTraverseTables; column++)
+				{
+					if (!ImGui::TableSetColumnIndex(column + 1))
+						continue;
+
+					ImGui::PushID(column + 1);
+					const int j = smallNavMesh
+						? column
+						: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+
+					int* flags = &s_traverseAnimTraverseFlags[j];
+
+					ImGui::CheckboxFlags("", flags, 1 << row);
+					ImGui::PopID();
+				}
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::EndTable();
+	}
+	if (ImGui::Button("Reset Traverse Table Masks"))
+		initTraverseMasks();
 
 	if (ImGui::Checkbox("Dynamic Traverse Ray Offset", &m_traverseRayDynamicOffset))
 		m_traverseLinkDrawParams.dynamicOffset = m_traverseRayDynamicOffset;
@@ -426,7 +473,6 @@ void Editor::handleCommonSettings()
 	if (ImGui::SliderFloat("Extra Offset", &m_traverseRayExtraOffset, 0, 128))
 		m_traverseLinkDrawParams.extraOffset = m_traverseRayExtraOffset;
 
-	ImGui::SliderFloat("Min Overlap", &m_traverseEdgeMinOverlap, 0.0f, m_tileSize*m_cellSize, "%g");
 	ImGui::Separator();
 }
 
@@ -460,46 +506,143 @@ void Editor::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
-bool traverseTypeSupported(void* userData, const unsigned char traverseType)
+enum TraverseType_e // todo(amos): move elsewhere
 {
-	const Editor* editor = (const Editor*)userData;
-	const NavMeshType_e navMeshType = editor->getSelectedNavMeshType();
+	TRAVERSE_UNUSED_0 = 0,
 
-	if (navMeshType == NavMeshType_e::NAVMESH_SMALL)
-	{
-		const int tableCount = NavMesh_GetTraverseTableCountForNavMeshType(navMeshType);
+	TRAVERSE_CROSS_GAP_SMALL,
+	TRAVERSE_CLIMB_OBJECT_SMALL,
+	TRAVERSE_CROSS_GAP_MEDIUM,
 
-		for (int t = 0; t < tableCount; t++)
-		{
-			if (rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[t])
-				return true;
-		}
+	TRAVERSE_UNUSED_4,
+	TRAVERSE_UNUSED_5,
+	TRAVERSE_UNUSED_6,
 
-		return false;
-	}
+	TRAVERSE_CROSS_GAP_LARGE,
 
-	const int traverseTableIndex = NavMesh_GetFirstTraverseAnimTypeForType(navMeshType);
-	return rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[traverseTableIndex];
-}
+	TRAVERSE_CLIMB_WALL_MEDIUM,
+	TRAVERSE_CLIMB_WALL_TALL,
+	TRAVERSE_CLIMB_BUILDING,
 
-unsigned char GetBestTraverseType(void* userData, const float traverseDist, const float elevation, const float slope, const bool baseOverlaps, const bool landOverlaps)
+	TRAVERSE_JUMP_SHORT,
+	TRAVERSE_JUMP_MEDIUM,
+	TRAVERSE_JUMP_LARGE,
+
+	TRAVERSE_UNUSED_14,
+	TRAVERSE_UNUSED_15,
+
+	TRAVERSE_UNKNOWN_16, // USED!!!
+	TRAVERSE_UNKNOWN_17, // USED!!!
+
+	TRAVERSE_UNKNOWN_18,
+	TRAVERSE_UNKNOWN_19, // NOTE: does not exists in MSET5!!!
+
+	TRAVERSE_CLIMB_TARGET_SMALL,
+	TRAVERSE_CLIMB_TARGET_LARGE,
+
+	TRAVERSE_UNUSED_22,
+	TRAVERSE_UNUSED_23,
+
+	TRAVERSE_UNKNOWN_24,
+
+	TRAVERSE_UNUSED_25,
+	TRAVERSE_UNUSED_26,
+	TRAVERSE_UNUSED_27,
+	TRAVERSE_UNUSED_28,
+	TRAVERSE_UNUSED_29,
+	TRAVERSE_UNUSED_30,
+	TRAVERSE_UNUSED_31,
+
+	// These aren't traverse type!
+	NUM_TRAVERSE_TYPES,
+	INVALID_TRAVERSE_TYPE = DT_NULL_TRAVERSE_TYPE
+};
+
+struct TraverseType_s // todo(amos): move elsewhere
+{
+	float minElevation;
+	float maxElevation;
+
+	unsigned char minDist;
+	unsigned char maxDist;
+
+	bool forceSamePolyGroup;
+	bool forceDifferentPolyGroup;
+};
+
+static const TraverseType_s s_traverseTypes[NUM_TRAVERSE_TYPES] = // todo(amos): move elsewhere
+{
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0, 32, 2, 12, false, false }, //1
+	{32, 40, 5, 16, false, false }, //2
+	{0, 16, 11, 22, false, false },//3
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0, 40, 80, 107, false, true},    //7
+	{40, 128, 7, 21, false, false},   //8
+	{128, 256, 16, 45, false, false},  //9
+	{256, 640, 33, 225, false, false}, //10
+	{0, 40, 41, 79, false, false},    //11
+	{128, 256, 41, 100, false, false},  //12
+	{256, 512, 81, 179, false, false},  //13
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0, 64, 22, 41, false, false}, //16
+	{512, 1024, 21, 58, false, false}, //17
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+#if DT_NAVMESH_SET_VERSION > 5
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+#endif
+
+	{256, 640, 16, 40, false, false}, // Maps to type 19 in MSET 5
+	{640, 1024, 33, 199, false, false}, // Maps to type 20 in MSET 5
+
+#if DT_NAVMESH_SET_VERSION == 5
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+#endif
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+
+	{0, 0, 0, 0, false, false}, // Does not exist in MSET 5 ~ 8.
+
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+	{0.0f, 0.0f, 0, 0, false, false}, // Unused
+};
+
+TraverseType_e GetBestTraverseType(const float elevation, const unsigned char traverseDist, const bool samePolyGroup)
 {
 	TraverseType_e bestTraverseType = INVALID_TRAVERSE_TYPE;
-	float smallestDiff = FLT_MAX;
 
 	for (int i = NUM_TRAVERSE_TYPES-1; i >= 0; --i)
 	{
-		const TraverseType_s& traverseType = s_traverseTable[i];
+		const TraverseType_s& traverseType = s_traverseTypes[i];
 
 		// Skip unused types...
-		if (traverseType.minDist == 0.0f && traverseType.maxDist == 0.0f &&
-			traverseType.minElev == 0.0f && traverseType.maxElev == 0.0f)
+		if (traverseType.minElevation == 0.0f && traverseType.maxElevation == 0.0f &&
+			traverseType.minDist == 0 && traverseType.maxDist == 0)
 		{
 			continue;
 		}
 
-		if (!traverseTypeSupported(userData, (unsigned char)i))
+		if (elevation < traverseType.minElevation ||
+			elevation > traverseType.maxElevation)
+		{
 			continue;
+		}
 
 		if (traverseDist < traverseType.minDist ||
 			traverseDist > traverseType.maxDist)
@@ -507,46 +650,19 @@ unsigned char GetBestTraverseType(void* userData, const float traverseDist, cons
 			continue;
 		}
 
-		if (elevation < traverseType.minElev ||
-			elevation > traverseType.maxElev)
+		// NOTE: currently only type 7 is enforced in this check, perhaps we
+		// should limit some other types on same/diff poly groups as well?
+		if ((traverseType.forceSamePolyGroup && !samePolyGroup) ||
+			(traverseType.forceDifferentPolyGroup && samePolyGroup))
 		{
 			continue;
 		}
 
-		if (slope < traverseType.minSlope ||
-			slope > traverseType.maxSlope)
-		{
-			continue;
-		}
-
-		if (traverseType.ovlpTrig > -1 && elevation >= traverseType.ovlpTrig)
-		{
-			const bool overlaps = traverseType.ovlpExcl 
-				? (baseOverlaps || landOverlaps) 
-				: (baseOverlaps && landOverlaps);
-
-			if (!overlaps)
-				continue;
-		}
-
-		const float midDist = (traverseType.minDist+traverseType.maxDist) / 2.0f;
-		const float midElev = (traverseType.minElev+traverseType.maxElev) / 2.0f;
-		const float midSlope = (traverseType.minSlope+traverseType.maxSlope) / 2.0f;
-
-		const float distDiff = rdMathFabsf(traverseDist-midDist);
-		const float elevDiff = rdMathFabsf(elevation-midElev);
-		const float slopeDiff = rdMathFabsf(slope-midSlope);
-
-		const float totalDiff = elevDiff+distDiff+slopeDiff;
-
-		if (totalDiff < smallestDiff)
-		{
-			smallestDiff = totalDiff;
-			bestTraverseType = (TraverseType_e)i;
-		}
+		bestTraverseType = (TraverseType_e)i;
+		break;
 	}
 
-	return (unsigned char)bestTraverseType;
+	return bestTraverseType;
 }
 
 static bool polyEdgeFaceAgainst(const float* v1, const float* v2, const float* n1, const float* n2)
@@ -584,31 +700,13 @@ static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float*
 	return false;
 }
 
-static bool traverseLinkInLOS(void* userData, const float* lowPos, const float* highPos, const float* lowDir,
-	const float* highDir, const float walkableRadius, const float slopeAngle)
+static bool traverseLinkInLOS(const InputGeom* geom, const float* lowPos, const float* highPos, const float* lowDir, const float* highDir, const float offsetAmount)
 {
-	Editor* editor = (Editor*)userData;
-	InputGeom* geom = editor->getInputGeom();
-
-	const float extraOffset = editor->getTraverseRayExtraOffset();
-	const float cellHeight = editor->getCellHeight();
-	float offsetAmount;
-
-	if (editor->useDynamicTraverseRayOffset())
-	{
-		const float totLedgeSpan = walkableRadius + extraOffset;
-		const float maxAngle = rdCalcMaxLOSAngle(totLedgeSpan, cellHeight);
-
-		offsetAmount = rdCalcLedgeSpanOffsetAmount(totLedgeSpan, slopeAngle, maxAngle);
-	}
-	else
-		offsetAmount = walkableRadius + extraOffset;
-
 	float lowNormal[3];
-	rdCalcEdgeNormal2D(lowDir, lowNormal);
+	rdCalcEdgeNormal2D(lowDir, false, lowNormal);
 
 	float highNormal[3];
-	rdCalcEdgeNormal2D(highDir, highNormal);
+	rdCalcEdgeNormal2D(highDir, false, highNormal);
 
 	// Detect overhangs to avoid links like these:
 	// 
@@ -701,47 +799,243 @@ static bool traverseLinkInLOS(void* userData, const float* lowPos, const float* 
 	return true;
 }
 
-static unsigned int* findFromPolyMap(void* userData, const dtPolyRef basePolyRef, const dtPolyRef landPolyRef)
+// TODO: this lookup table isn't correct, needs to be fixed.
+static const int s_traverseAnimTraverseFlags[TraverseAnimType_e::ANIMTYPE_COUNT] = {
+	0x0000013F, // ANIMTYPE_HUMAN
+	0x0000013F, // ANIMTYPE_SPECTRE
+#if DT_NAVMESH_SET_VERSION == 5
+	0x001BDF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
+	0x001BFFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
+#else
+	0x0033DF7F, // ANIMTYPE_STALKER        // MSET 5 = 001BDF7F
+	0x0033FFFF, // ANIMTYPE_FRAG_DRONE     // MSET 5 = 001BFFFF
+#endif
+	0x0000013F, // ANIMTYPE_PILOT          // Unknown, but most likely the same as ANIMTYPE_HUMAN, this also doesn't exist for MSET 5
+	0x00033F87, // ANIMTYPE_PROWLER
+	0x00033F82, // ANIMTYPE_SUPER_SPECTRE
+	0000003000, // ANIMTYPE_TITAN
+	0000003000, // ANIMTYPE_GOLIATH // Doesn't exist in MSET 5
+};
+
+// TODO: create lookup table and look for distance + slope to determine the
+// correct jumpType.
+// TODO: make sure we don't generate duplicate pairs of jump types between
+// 2 polygons.
+void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor)
 {
-	Editor* editor = (Editor*)userData;
-	auto it = editor->getTraverseLinkPolyMap().find(TraverseLinkPolyPair(basePolyRef, landPolyRef));
+	// If we link to the same tile, we need at least 2 links.
+	if (!baseTile->linkCountAvailable(linkToNeighbor ? 1 : 2))
+		return;
 
-	if (it == editor->getTraverseLinkPolyMap().end())
-		return nullptr;
+	const dtMeshHeader* baseHeader = baseTile->header;
+	const dtPolyRef basePolyRefBase = m_navMesh->getPolyRefBase(baseTile);
 
-	return &it->second;
-}
+	bool firstBaseTileLinkUsed = false;
 
-static int addToPolyMap(void* userData, const dtPolyRef basePolyRef, const dtPolyRef landPolyRef, const unsigned int traverseTypeBit)
-{
-	Editor* editor = (Editor*)userData;
-
-	try
+	for (int i = 0; i < baseHeader->polyCount; ++i)
 	{
-		auto ret = editor->getTraverseLinkPolyMap().emplace(TraverseLinkPolyPair(basePolyRef, landPolyRef), traverseTypeBit);
-		if (!ret.second)
+		dtPoly* const basePoly = &baseTile->polys[i];
+
+		if (basePoly->groupId == DT_UNLINKED_POLY_GROUP)
+			continue;
+
+		for (int j = 0; j < basePoly->vertCount; ++j)
 		{
-			rdAssert(ret.second); // Called 'addToPolyMap' while poly link already exists.
-			return 1;
+			// Hard edges only!
+			if (basePoly->neis[j] != 0)
+				continue;
+
+			// Polygon 1 edge
+			const float* const basePolySpos = &baseTile->verts[basePoly->verts[j] * 3];
+			const float* const basePolyEpos = &baseTile->verts[basePoly->verts[(j + 1) % basePoly->vertCount] * 3];
+
+			float basePolyEdgeMid[3];
+			rdVsad(basePolyEdgeMid, basePolySpos, basePolyEpos, 0.5f);
+
+			unsigned char baseSide = rdClassifyPointInsideBounds(basePolyEdgeMid, baseHeader->bmin, baseHeader->bmax);
+			const int MAX_NEIS = 32; // Max neighbors
+
+			dtMeshTile* neis[MAX_NEIS];
+			int nneis;
+
+			if (linkToNeighbor) // Retrieve the neighboring tiles on the side of our base poly edge.
+				nneis = m_navMesh->getNeighbourTilesAt(baseHeader->x, baseHeader->y, baseSide, neis, MAX_NEIS);
+			else
+			{
+				// Internal links.
+				nneis = 1;
+				neis[0] = baseTile;
+			}
+
+			for (int k = 0; k < nneis; ++k)
+			{
+				dtMeshTile* landTile = neis[k];
+				const bool sameTile = baseTile == landTile;
+
+				// Don't connect to same tile edges yet, leave that for the second pass.
+				if (linkToNeighbor && sameTile)
+					continue;
+
+				// Skip same polygon.
+				if (sameTile && i == k)
+					continue;
+
+				if (!landTile->linkCountAvailable(1))
+					continue;
+
+				const dtMeshHeader* landHeader = landTile->header;
+				const dtPolyRef landPolyRefBase = m_navMesh->getPolyRefBase(landTile);
+
+				bool firstLandTileLinkUsed = false;
+
+				for (int m = 0; m < landHeader->polyCount; ++m)
+				{
+					dtPoly* const landPoly = &landTile->polys[m];
+
+					if (landPoly->groupId == DT_UNLINKED_POLY_GROUP)
+						continue;
+
+					for (int n = 0; n < landPoly->vertCount; ++n)
+					{
+						if (landPoly->neis[n] != 0)
+							continue;
+
+						// We need at least 2 links available, figure out if
+						// we link to the same tile or another one.
+						if (linkToNeighbor)
+						{
+							if (firstLandTileLinkUsed && !landTile->linkCountAvailable(1))
+								continue;
+
+							else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(1))
+								return;
+						}
+						else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(2))
+							return;
+
+						// Polygon 2 edge
+						const float* const landPolySpos = &landTile->verts[landPoly->verts[n] * 3];
+						const float* const landPolyEpos = &landTile->verts[landPoly->verts[(n + 1) % landPoly->vertCount] * 3];
+
+						float landPolyEdgeMid[3];
+						rdVsad(landPolyEdgeMid, landPolySpos, landPolyEpos, 0.5f);
+
+						const float dist = dtCalcLinkDistance(basePolyEdgeMid, landPolyEdgeMid);
+						const unsigned char quantDist = dtQuantLinkDistance(dist);
+
+						if (quantDist == 0)
+							continue; // Link distance is greater than maximum supported.
+
+						float baseEdgeDir[3], landEdgeDir[3];
+						rdVsub(baseEdgeDir, basePolyEpos, basePolySpos);
+						rdVsub(landEdgeDir, landPolyEpos, landPolySpos);
+
+						const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
+
+						// Edges facing the same direction should not be linked.
+						// Doing so causes links to go through from underneath
+						// geometry. E.g. we have an HVAC on a roof, and we try
+						// to link our roof poly edge facing north to the edge
+						// of the poly on the HVAC also facing north, the link
+						// will go through the HVAC and thus cause the NPC to
+						// jump through it.
+						// Another case where this is necessary is when having
+						// a land edge that connects with the base edge, this
+						// prevents the algorithm from establishing a parallel
+						// traverse link.
+						if (dotProduct > 0)
+							continue;
+
+						const float elevation = rdMathFabsf(basePolyEdgeMid[2]-landPolyEdgeMid[2]);
+						const bool samePolyGroup = basePoly->groupId == landPoly->groupId;
+
+						const TraverseType_e traverseType = GetBestTraverseType(elevation, quantDist, samePolyGroup);
+
+						if (traverseType == DT_NULL_TRAVERSE_TYPE)
+							continue;
+
+						if (m_selectedNavMeshType > NavMeshType_e::NAVMESH_SMALL)
+						{
+							const int traverseTableIndex = NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
+							const bool traverseTypeSupported = rdBitCellBit(traverseType) & s_traverseAnimTraverseFlags[traverseTableIndex];
+
+							if (!traverseTypeSupported)
+								continue;
+						}
+
+						const dtPolyRef basePolyRef = basePolyRefBase | i;
+						const dtPolyRef landPolyRef = landPolyRefBase | l;
+
+						const TraverseLinkPolyPair linkedPolyPair(basePolyRef, landPolyRef);
+						auto linkedIt = m_traverseLinkPolyMap.find(linkedPolyPair);
+
+						bool traverseLinkFound = false;
+
+						if (linkedIt != m_traverseLinkPolyMap.end())
+							traverseLinkFound = true;
+
+						// These 2 polygons are already linked with the same traverse type.
+						if (traverseLinkFound && (rdBitCellBit(traverseType) & linkedIt->second))
+							continue;
+
+						const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
+						float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
+						float* const higherEdgeMid = basePolyHigher ? basePolyEdgeMid : landPolyEdgeMid;
+						float* const lowerEdgeDir = basePolyHigher ? landEdgeDir : baseEdgeDir;
+						float* const higherEdgeDir = basePolyHigher ? baseEdgeDir : landEdgeDir;
+
+						const float walkableRadius = basePolyHigher ? baseHeader->walkableRadius : landHeader->walkableRadius;
+
+						const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));
+						const float maxAngle = rdCalcMaxLOSAngle(walkableRadius, m_cellHeight);
+						const float offsetAmount = rdCalcLedgeSpanOffsetAmount(walkableRadius, slopeAngle, maxAngle);
+
+						if (!traverseLinkInLOS(m_geom, lowerEdgeMid, higherEdgeMid, lowerEdgeDir, higherEdgeDir, offsetAmount))
+							continue;
+
+						const unsigned char landSide = linkToNeighbor
+							? rdClassifyPointOutsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax)
+							: rdClassifyPointInsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax);
+
+						const unsigned int forwardIdx = baseTile->allocLink();
+						const unsigned int reverseIdx = landTile->allocLink();
+
+						// Allocated 2 new links, need to check for enough space on subsequent runs.
+						// This optimization saves a lot of time generating navmeshes for larger or
+						// more complicated geometry.
+						firstBaseTileLinkUsed = true;
+						firstLandTileLinkUsed = true;
+
+						dtLink* const forwardLink = &baseTile->links[forwardIdx];
+
+						forwardLink->ref = landPolyRef;
+						forwardLink->edge = (unsigned char)j;
+						forwardLink->side = landSide;
+						forwardLink->bmin = 0;
+						forwardLink->bmax = 255;
+						forwardLink->next = basePoly->firstLink;
+						basePoly->firstLink = forwardIdx;
+						forwardLink->traverseType = (unsigned char)traverseType;
+						forwardLink->traverseDist = quantDist;
+						forwardLink->reverseLink = (unsigned short)reverseIdx;
+
+						dtLink* const reverseLink = &landTile->links[reverseIdx];
+
+						reverseLink->ref = basePolyRef;
+						reverseLink->edge = (unsigned char)m;
+						reverseLink->side = baseSide;
+						reverseLink->bmin = 0;
+						reverseLink->bmax = 255;
+						reverseLink->next = landPoly->firstLink;
+						landPoly->firstLink = reverseIdx;
+						reverseLink->traverseType = (unsigned char)traverseType;
+						reverseLink->traverseDist = quantDist;
+						reverseLink->reverseLink = (unsigned short)forwardIdx;
+					}
+				}
+			}
 		}
 	}
-	catch (const std::bad_alloc& /*e*/)
-	{
-		return -1;
-	}
-
-	return 0;
-}
-
-void Editor::createTraverseLinkParams(dtTraverseLinkConnectParams& params)
-{
-	params.getTraverseType = &GetBestTraverseType;
-	params.traverseLinkInLOS = &traverseLinkInLOS;
-	params.findPolyLink = &findFromPolyMap;
-	params.addPolyLink = &addToPolyMap;
-
-	params.userData = this;
-	params.minEdgeOverlap = m_traverseEdgeMinOverlap;
 }
 
 bool Editor::createTraverseLinks()
@@ -749,23 +1043,26 @@ bool Editor::createTraverseLinks()
 	rdAssert(m_navMesh);
 	m_traverseLinkPolyMap.clear();
 
-	dtTraverseLinkConnectParams params;
-	createTraverseLinkParams(params);
-
 	const int maxTiles = m_navMesh->getMaxTiles();
 
+	// First pass to connect edges between external tiles together.
 	for (int i = 0; i < maxTiles; i++)
 	{
 		dtMeshTile* baseTile = m_navMesh->getTile(i);
 		if (!baseTile || !baseTile->header)
 			continue;
 
-		const dtTileRef baseTileRef = m_navMesh->getTileRef(baseTile);
+		connectTileTraverseLinks(baseTile, true);
+	}
 
-		params.linkToNeighbor = false;
-		m_navMesh->connectTraverseLinks(baseTileRef, params);
-		params.linkToNeighbor = true;
-		m_navMesh->connectTraverseLinks(baseTileRef, params);
+	// Second pass to use remaining links to connect internal edges on the same tile together.
+	for (int i = 0; i < maxTiles; i++)
+	{
+		dtMeshTile* baseTile = m_navMesh->getTile(i);
+		if (!baseTile || !baseTile->header)
+			continue;
+
+		connectTileTraverseLinks(baseTile, false);
 	}
 
 	return true;
@@ -781,12 +1078,20 @@ bool Editor::createStaticPathingData(const dtTraverseTableCreateParams* params)
 		return false;
 	}
 
+	if (!createTraverseLinks())
+	{
+		m_ctx->log(RC_LOG_ERROR, "createStaticPathingData: Failed to build traverse links.");
+		return false;
+	}
+
 	return true;
 }
 
 bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
 {
 	if (!params->nav) return false;
+
+	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
 
 	if (!dtUpdateDisjointPolyGroups(params))
 	{
@@ -805,6 +1110,11 @@ bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
 
 static bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex)
 {
+	// TODO: always link off-mesh connected polygon islands together?
+	// Research needed.
+	if (link->reverseLink == DT_NULL_TRAVERSE_REVERSE_LINK)
+		return true;
+
 	const NavMeshType_e navMeshType = (NavMeshType_e)params->navMeshType;
 
 	// Only the _small NavMesh has more than 1 table.
@@ -962,19 +1272,9 @@ void Editor::renderDetourDebugMenu()
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_CELLS);
 #endif
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_FACES);
-
-	if (ImGui::Checkbox("Poly Faces", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_FACES);
-
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_EDGES);
-
-	if (ImGui::Checkbox("Poly Edges", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_EDGES);
-
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_VERTS);
 
-	if (ImGui::Checkbox("Poly Verts", &isEnabled))
+	if (ImGui::Checkbox("Vertex Points", &isEnabled))
 		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_VERTS);
 
 	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_BOUNDS_INNER);
@@ -1025,211 +1325,6 @@ void Editor::renderDetourDebugMenu()
 		ImGui::SliderInt("Traverse Anim", &m_traverseLinkDrawParams.traverseAnimType, -2, m_navMesh->getParams()->traverseTableCount-1);
 		ImGui::PopItemWidth();
 	}
-}
-
-void Editor::renderTraverseTableFineTuners()
-{
-	static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit |
-		/*ImGuiTableFlags_ScrollX |*/
-		ImGuiTableFlags_ScrollY |
-		ImGuiTableFlags_BordersInner |
-		ImGuiTableFlags_BordersOuter |
-		ImGuiTableFlags_Hideable |
-		/*ImGuiTableFlags_Resizable |*/
-		/*ImGuiTableFlags_Reorderable |*/
-		ImGuiTableFlags_HighlightHoveredColumn;
-
-	static ImGuiTableColumnFlags columnFlags = ImGuiTableColumnFlags_AngledHeader |
-		ImGuiTableColumnFlags_WidthStretch;
-
-	static int frozenCols = 1;
-	static int frozenRows = 2;
-	const int rowsCount = NUM_TRAVERSE_TYPES;
-	const float textBaseHeight = ImGui::GetTextLineHeightWithSpacing();
-
-	const char* linearColumnNames[] = { "Type", "minDist", "maxDist", "minElev", "maxElev" };
-	const int linearColumnsCount = IM_ARRAYSIZE(linearColumnNames);
-
-	if (ImGui::BeginTable("TraverseTableLinearFineTuner", linearColumnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12) + 10.f)))
-	{
-		ImGui::TableSetupColumn(linearColumnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
-		for (int n = 1; n < linearColumnsCount; n++)
-			ImGui::TableSetupColumn(linearColumnNames[n], columnFlags, 100);
-		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
-
-		ImGui::TableAngledHeadersRow();
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper;
-		clipper.Begin(rowsCount);
-
-		while (clipper.Step())
-		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-				ImGui::PushID(row);
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("%d", row);
-
-				for (int column = 1; column < linearColumnsCount; column++)
-				{
-					if (!ImGui::TableSetColumnIndex(column))
-						continue;
-
-					ImGui::PushID(column);
-					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
-					TraverseType_s& trav = s_traverseTable[row];
-
-					switch (column)
-					{
-					case 1:
-						ImGui::SliderFloat("", &trav.minDist, 0, trav.maxDist, "%g");
-						break;
-					case 2:
-						ImGui::SliderFloat("", &trav.maxDist, 0, DT_TRAVERSE_DIST_MAX, "%g");
-						break;
-					case 3:
-						ImGui::SliderFloat("", &trav.minElev, 0, trav.maxElev, "%g");
-						break;
-					case 4:
-						ImGui::SliderFloat("", &trav.maxElev, 0, DT_TRAVERSE_DIST_MAX, "%g");
-						break;
-					}
-
-					ImGui::PopItemWidth();
-					ImGui::PopID();
-				}
-				ImGui::PopID();
-			}
-		}
-
-		ImGui::EndTable();
-	}
-
-	const char* angularColumnNames[] = { "Type", "minSlope", "maxSlope", "ovlpTrig", "ovlpExcl" };
-	const int angularColumnsCount = IM_ARRAYSIZE(angularColumnNames);
-
-	if (ImGui::BeginTable("TraverseTableAngularFineTuner", angularColumnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12) + 10.f)))
-	{
-		ImGui::TableSetupColumn(angularColumnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
-		for (int n = 1; n < angularColumnsCount; n++)
-			ImGui::TableSetupColumn(angularColumnNames[n], columnFlags, 100);
-		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
-
-		ImGui::TableAngledHeadersRow();
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper;
-		clipper.Begin(rowsCount);
-
-		while (clipper.Step())
-		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-				ImGui::PushID(row);
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("%d", row);
-
-				for (int column = 1; column < angularColumnsCount; column++)
-				{
-					if (!ImGui::TableSetColumnIndex(column))
-						continue;
-
-					ImGui::PushID(column);
-					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
-					TraverseType_s& trav = s_traverseTable[row];
-
-					switch (column)
-					{
-					case 1:
-						ImGui::SliderFloat("", &trav.minSlope, 0, trav.maxSlope, "%g");
-						break;
-					case 2:
-						ImGui::SliderFloat("", &trav.maxSlope, 0, 360, "%g");
-						break;
-					case 3:
-						ImGui::SliderFloat("", &trav.ovlpTrig, 0, trav.maxElev, "%g");
-						break;
-					case 4:
-						ImGui::Checkbox("", &trav.ovlpExcl);
-						break;
-					}
-
-					ImGui::PopItemWidth();
-					ImGui::PopID();
-				}
-				ImGui::PopID();
-			}
-		}
-
-		ImGui::EndTable();
-	}
-
-	if (ImGui::Button("Reset Traverse Table Parameters"))
-		initTraverseTableParams();
-
-	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
-	const int numColumns = numTraverseTables + 1;
-
-	if (ImGui::BeginTable("TraverseTableMaskSelector", numColumns, tableFlags, ImVec2(0.0f, (textBaseHeight * 12) + 20.f)))
-	{
-		ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
-		const bool smallNavMesh = m_selectedNavMeshType == NAVMESH_SMALL;
-
-		for (int n = 0; n < numTraverseTables; n++)
-		{
-			const int i = smallNavMesh
-				? NavMesh_GetTraverseTableIndexForAnimType(TraverseAnimType_e(n))
-				: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
-
-			ImGui::TableSetupColumn(g_traverseAnimTypeNames[i], columnFlags);
-		}
-
-		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
-
-		ImGui::TableAngledHeadersRow();
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper;
-		clipper.Begin(rowsCount);
-
-		while (clipper.Step())
-		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-				ImGui::PushID(row);
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("%d", row);
-
-				for (int column = 0; column < numTraverseTables; column++)
-				{
-					if (!ImGui::TableSetColumnIndex(column + 1))
-						continue;
-
-					ImGui::PushID(column + 1);
-					const int j = smallNavMesh
-						? column
-						: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
-
-					int* flags = &s_traverseAnimTraverseFlags[j];
-
-					ImGui::CheckboxFlags("", flags, 1 << row);
-					ImGui::PopID();
-				}
-				ImGui::PopID();
-			}
-		}
-
-		ImGui::EndTable();
-	}
-	if (ImGui::Button("Reset Traverse Table Masks"))
-		initTraverseMasks();
 }
 
 // NOTE: the climb height should never equal or exceed the agent's height, see https://groups.google.com/g/recastnavigation/c/L5rBamxcOBk/m/5xGLj6YP25kJ

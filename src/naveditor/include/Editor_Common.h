@@ -107,8 +107,7 @@ protected:
 	bool m_keepInterResults;
 };
 
-int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, 
-	const int minTilebits, const int maxTileBits, const int tileSize,
+int EditorCommon_SetAndRenderTileProperties(const InputGeom* const geom, const int tileSize,
 	const float cellSize, int& maxTiles, int& maxPolysPerTile);
 
 #endif // RECASTEDITORCOMMON_H
