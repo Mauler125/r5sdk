@@ -421,23 +421,23 @@ namespace LOGGER
 
             switch (res)
             {
-                case CURLE_COULDNT_CONNECT:
-                case CURLE_COULDNT_RESOLVE_HOST:
-                case CURLE_COULDNT_RESOLVE_PROXY:
+            case CURLE_COULDNT_CONNECT:
+            case CURLE_COULDNT_RESOLVE_HOST:
+            case CURLE_COULDNT_RESOLVE_PROXY:
 
-                    ReturnHandle(handle);
-                    return true;
-                    break;
+                ReturnHandle(handle);
+                return true;
+                break;
 
-                case CURLE_SSL_CONNECT_ERROR:
-                case CURLE_SSL_CIPHER:
-                case CURLE_SSL_CACERT:
+            case CURLE_SSL_CONNECT_ERROR:
+            case CURLE_SSL_CIPHER:
+            case CURLE_SSL_CACERT:
 
-                    DiscardHandle(handle);
-                    return false;
+                DiscardHandle(handle);
+                return false;
 
-                default:
-                    DiscardHandle(handle);
+            default:
+                DiscardHandle(handle);
             }
         }
 
@@ -2247,7 +2247,7 @@ namespace LOGGER
 
         {
             std::unique_lock<std::mutex> lock(mtx);
-            cvLog.notify_one();
+            cvLog.notify_all();
         }
 
         setLogState(LogState::Safe, true);
@@ -2293,12 +2293,13 @@ namespace LOGGER
             for (std::string& line : lines)
             {
                 logQueue.push(line);
+                cvLog.notify_one();
             }
         }
 
         {
             std::unique_lock<std::mutex> lock(mtx);
-            cvLog.notify_one();
+            cvLog.notify_all();
         }
     }
 

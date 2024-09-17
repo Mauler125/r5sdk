@@ -22,6 +22,20 @@
 #include "Detour/Include/DetourNode.h"
 #include "Shared/Include/SharedCommon.h"
 
+static void drawPolyVerts(duDebugDraw* dd, const dtMeshTile* tile, const float* offset)
+{
+	const dtMeshHeader* header = tile->header;
+	const unsigned int vcol = duRGBA(0, 0, 0, 220);
+
+	dd->begin(DU_DRAW_POINTS, 4.0f, offset);
+	for (int i = 0; i < header->vertCount; ++i)
+	{
+		const float* v = &tile->verts[i * 3];
+		dd->vertex(v[0], v[1], v[2], vcol);
+	}
+	dd->end();
+}
+
 static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd, const unsigned int alpha)
 {
 	return poly->groupId == DT_UNLINKED_POLY_GROUP
@@ -29,20 +43,84 @@ static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd, con
 		: duTransCol(dd->areaToCol(poly->getArea()), alpha);
 }
 
+static void drawPolyMeshFaces(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query, const dtMeshTile* tile, const float* offset, unsigned int flags)
+{
+	const dtMeshHeader* header = tile->header;
+	const dtPolyRef base = mesh.getPolyRefBase(tile);
+
+	// If the "Alpha" flag isn't set, force the colour to be opaque instead of semi-transparent.
+	const int tileAlpha = flags & DU_DRAWNAVMESH_ALPHA ? 170 : 255;
+
+	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
+	for (int i = 0; i < header->polyCount; ++i)
+	{
+		const dtPoly* p = &tile->polys[i];
+		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
+			continue;
+			
+		const dtPolyDetail* pd = &tile->detailMeshes[i];
+
+		unsigned int col;
+		if (query && query->isInClosedList(base | (dtPolyRef)i))
+			col = duRGBA(255,196,0,64);
+		else
+		{
+			if (flags & DU_DRAWNAVMESH_TILE_COLORS)
+				col = duIntToCol(mesh.decodePolyIdTile(base), tileAlpha);
+			else if (flags & DU_DRAWNAVMESH_POLY_GROUPS)
+				col = duIntToCol(p->groupId, tileAlpha);
+			else
+				col = getPolySurfaceColor(p, dd, tileAlpha);
+		}
+		
+		for (int j = 0; j < pd->triCount; ++j)
+		{
+			const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
+			for (int k = 0; k < 3; ++k)
+			{
+				if (t[k] < p->vertCount)
+					dd->vertex(&tile->verts[p->verts[t[k]]*3], col);
+				else
+					dd->vertex(&tile->detailVerts[(pd->vertBase+t[k]-p->vertCount)*3], col);
+			}
+		}
+	}
+	dd->end();
+}
+
+static void drawPolyMeshEdges(duDebugDraw* dd, const dtMeshTile* tile, const float* offset)
+{
+	const dtMeshHeader* header = tile->header;
+	unsigned int c = duRGBA(0,0,0,48);
+
+	for (int i = 0; i < header->polyCount; ++i)
+	{
+		const dtPoly* p = &tile->polys[i];
+		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) continue;
+
+		const dtPolyDetail* pd = &tile->detailMeshes[i];
+
+		dd->begin(DU_DRAW_LINES, 1.0f, offset);
+		for (int k = 0; k < pd->triCount; ++k)
+		{
+			const unsigned char* t = &tile->detailTris[(pd->triBase+k)*4];
+			for (int m = 0; m < 3; ++m)
+			{
+				if (t[m] < p->vertCount)
+					dd->vertex(&tile->verts[p->verts[t[m]]*3], c);
+				else
+					dd->vertex(&tile->detailVerts[(pd->vertBase+t[m]-p->vertCount)*3], c);
+			}
+		}
+		dd->end();
+	}
+}
+
 static unsigned int getPolyBoundaryColor(const dtPoly* poly, const bool inner)
 {
 	return poly->groupId == DT_UNLINKED_POLY_GROUP
 		? inner ? duRGBA(32,24,0,32) : duRGBA(32,24,0,220)
 		: inner ? duRGBA(0,24,32,32) : duRGBA(0,24,32,220);
-}
-
-static void drawOffMeshConnectionRefPosition(duDebugDraw* dd, const dtOffMeshConnection* con)
-{
-	float refPosDir[3];
-	dtCalcOffMeshRefPos(con->refPos, con->refYaw, DT_OFFMESH_CON_REFPOS_OFFSET, refPosDir);
-
-	duAppendArrow(dd, con->refPos[0], con->refPos[1], con->refPos[2],
-		refPosDir[0], refPosDir[1], refPosDir[2], 0.f, 10.f, duRGBA(255,255,0,255));
 }
 
 static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
@@ -60,8 +138,6 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 		const dtPoly* p = &tile->polys[i];
 		
 		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) continue;
-		
-		const dtPolyDetail* pd = &tile->detailMeshes[i];
 		
 		for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
 		{
@@ -114,6 +190,8 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 				dd->vertex(ledgeEnd, c);
 			}
 
+			const dtPolyDetail* pd = &tile->detailMeshes[i];
+
 			// Draw detail mesh edges which align with the actual poly edge.
 			// This is really slow.
 			for (int k = 0; k < pd->triCount; ++k)
@@ -132,8 +210,8 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 					if ((dtGetDetailTriEdgeFlags(t[3], n) & RD_DETAIL_EDGE_BOUNDARY) == 0)
 						continue;
 
-					if (rdDistancePtLine2d(tv[n],v0,v1) < thr &&
-						rdDistancePtLine2d(tv[m],v0,v1) < thr)
+					if (rdDistancePtLine2D(tv[n],v0,v1) < thr &&
+						rdDistancePtLine2D(tv[m],v0,v1) < thr)
 					{
 						dd->vertex(tv[n], c);
 						dd->vertex(tv[m], c);
@@ -237,9 +315,19 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			query->getEdgeMidPoint(basePolyRef, link->ref, startPos);
 			query->getEdgeMidPoint(link->ref, basePolyRef, endPos);
 
-			const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPos, endPos));
-			const float offsetAmount = rdCalcLedgeSpanOffsetAmount(tile->header->walkableRadius, 
-				slopeAngle, rdCalcMaxLOSAngle(tile->header->walkableRadius, traverseLinkParams.cellHeight));
+			const float walkableRadius = tile->header->walkableRadius;
+			float offsetAmount;
+
+			if (traverseLinkParams.dynamicOffset)
+			{
+				const float totLedgeSpan = walkableRadius+traverseLinkParams.extraOffset;
+				const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(startPos, endPos));
+				const float maxAngle = rdCalcMaxLOSAngle(totLedgeSpan, traverseLinkParams.cellHeight);
+
+				offsetAmount = rdCalcLedgeSpanOffsetAmount(totLedgeSpan, slopeAngle, maxAngle);
+			}
+			else
+				offsetAmount = walkableRadius + traverseLinkParams.extraOffset;
 
 			const bool startPointHighest = startPos[2] > endPos[2];
 			float* highestPos = startPointHighest ? startPos : endPos;
@@ -385,51 +473,19 @@ static void drawOffMeshLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNav
 void duDebugDrawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams)
 {
-	// If the "Alpha" flag isn't set, force the colour to be opaque instead of semi-transparent.
-	const int tileAlpha = flags & DU_DRAWNAVMESH_ALPHA ? 170 : 255;
 	const bool depthTest = flags & DU_DRAWNAVMESH_DEPTH_MASK;
-
-	dtPolyRef base = mesh.getPolyRefBase(tile);
-	const dtMeshHeader* header = tile->header;
 
 	dd->depthMask(depthTest);
 
-	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
-	for (int i = 0; i < header->polyCount; ++i)
-	{
-		const dtPoly* p = &tile->polys[i];
-		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
-			continue;
-			
-		const dtPolyDetail* pd = &tile->detailMeshes[i];
+	if (flags & DU_DRAWNAVMESH_POLY_FACES)
+		drawPolyMeshFaces(dd, mesh, query, tile, offset, flags);
 
-		unsigned int col;
-		if (query && query->isInClosedList(base | (dtPolyRef)i))
-			col = duRGBA(255,196,0,64);
-		else
-		{
-			if (flags & DU_DRAWNAVMESH_TILE_COLORS)
-				col = duIntToCol(mesh.decodePolyIdTile(base), tileAlpha);
-			else if (flags & DU_DRAWNAVMESH_POLY_GROUPS)
-				col = duIntToCol(p->groupId, tileAlpha);
-			else
-				col = getPolySurfaceColor(p, dd, tileAlpha);
-		}
-		
-		for (int j = 0; j < pd->triCount; ++j)
-		{
-			const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
-			for (int k = 0; k < 3; ++k)
-			{
-				if (t[k] < p->vertCount)
-					dd->vertex(&tile->verts[p->verts[t[k]]*3], col);
-				else
-					dd->vertex(&tile->detailVerts[(pd->vertBase+t[k]-p->vertCount)*3], col);
-			}
-		}
-	}
-	dd->end();
-	
+	if (flags & DU_DRAWNAVMESH_POLY_EDGES)
+		drawPolyMeshEdges(dd, tile, offset);
+
+	if (flags & DU_DRAWNAVMESH_POLY_VERTS)
+		drawPolyVerts(dd, tile, offset);
+
 	// Draw inner poly boundaries
 	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_INNER)
 		drawPolyBoundaries(dd, tile, 1.5f, offset, flags, true);
@@ -452,81 +508,7 @@ void duDebugDrawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		drawTileBounds(dd, tile, offset);
 
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
-	{
-		dd->begin(DU_DRAW_LINES, 2.0f, offset);
-		for (int i = 0; i < header->polyCount; ++i)
-		{
-			const dtPoly* p = &tile->polys[i];
-			if (p->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip regular polys.
-				continue;
-			
-			const dtOffMeshConnection* con = &tile->offMeshCons[i - header->offMeshBase];
-
-			unsigned int col;
-			if (query && query->isInClosedList(base | (dtPolyRef)i))
-				col = duRGBA(255, 196, 0, 220);
-			else
-				col = duDarkenCol(duTransCol(dd->areaToCol(p->getArea()), 220));
-
-			const float* va = &tile->verts[p->verts[0]*3];
-			const float* vb = &tile->verts[p->verts[1]*3];
-
-			// Check to see if start and end end-points have links.
-			bool startSet = false;
-			bool endSet = false;
-			for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
-			{
-				const dtLink& link = tile->links[k];
-
-				if (link.edge == 0)
-					startSet = true;
-				if (link.edge == 1)
-					endSet = true;
-			}
-			
-			// End points and their on-mesh locations.
-			dd->vertex(va[0],va[1],va[2], col);
-			dd->vertex(con->pos[0],con->pos[1],con->pos[2], col);
-			duAppendCircle(dd, con->pos[0],con->pos[1],con->pos[2]+5.0f, con->rad, duRGBA(220,32,16,196));
-
-			if (startSet)
-				duAppendCross(dd, con->pos[0],con->pos[1],con->pos[2]+5.0f, con->rad, duRGBA(220,220,16,196));
-
-			dd->vertex(vb[0],vb[1],vb[2], col);
-			dd->vertex(con->pos[3],con->pos[4],con->pos[5], col);
-			duAppendCircle(dd, con->pos[3],con->pos[4],con->pos[5]+5.0f, con->rad, duRGBA(32,220,16,196));
-
-			if (endSet)
-				duAppendCross(dd, con->pos[3],con->pos[4],con->pos[5]+5.0f, con->rad, duRGBA(220,220,16,196));
-			
-			// End point vertices.
-			dd->vertex(con->pos[0],con->pos[1],con->pos[2], duRGBA(0,48,64,196));
-			dd->vertex(con->pos[0],con->pos[1],con->pos[2]+10.0f, duRGBA(0,48,64,196));
-			
-			dd->vertex(con->pos[3],con->pos[4],con->pos[5], duRGBA(0,48,64,196));
-			dd->vertex(con->pos[3],con->pos[4],con->pos[5]+10.0f, duRGBA(0,48,64,196));
-			
-			// Connection arc.
-			duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
-						(con->flags & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, col);
-
-			// Reference positions.
-			drawOffMeshConnectionRefPosition(dd, con);
-		}
-		dd->end();
-	}
-	
-	if (flags & DU_DRAWNAVMESH_POLY_VERTS)
-	{
-		const unsigned int vcol = duRGBA(0,0,0,220);
-		dd->begin(DU_DRAW_POINTS, 4.0f, offset);
-		for (int i = 0; i < header->vertCount; ++i)
-		{
-			const float* v = &tile->verts[i*3];
-			dd->vertex(v[0], v[1], v[2], vcol);
-		}
-		dd->end();
-	}
+		drawOffMeshLinks(dd, mesh, query, tile, offset);
 
 	if (!depthTest)
 		dd->depthMask(true);
@@ -614,10 +596,11 @@ static void drawMeshTileBVTree(duDebugDraw* dd, const dtMeshTile* tile, const fl
 		const dtBVNode* n = &tile->bvTree[i];
 		if (n->i < 0) // Leaf indices are positive.
 			continue;
-		duAppendBoxWire(dd, tile->header->bmin[0] + n->bmin[0]*cs,
+		duAppendBoxWire(dd, 
+						tile->header->bmax[0] - n->bmax[0]*cs,
 						tile->header->bmin[1] + n->bmin[1]*cs,
 						tile->header->bmin[2] + n->bmin[2]*cs,
-						tile->header->bmin[0] + n->bmax[0]*cs,
+						tile->header->bmax[0] - n->bmin[0]*cs,
 						tile->header->bmin[1] + n->bmax[1]*cs,
 						tile->header->bmin[2] + n->bmax[2]*cs,
 						duRGBA(255,255,255,128));
@@ -790,6 +773,25 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 			}
 		}
 		dd->end();
+
+		if (drawFlags & DU_DRAWNAVMESH_POLY_EDGES)
+		{
+			const unsigned int edgeCol = duRGBA(0,0,0,48);
+
+			dd->begin(DU_DRAW_LINES, 1.0f, offset);
+			for (int i = 0; i < pd->triCount; ++i)
+			{
+				const unsigned char* t = &tile->detailTris[(pd->triBase+i)*4];
+				for (int j = 0; j < 3; ++j)
+				{
+					if (t[j] < poly->vertCount)
+						dd->vertex(&tile->verts[poly->verts[t[j]]*3], edgeCol);
+					else
+						dd->vertex(&tile->detailVerts[(pd->vertBase+t[j]-poly->vertCount)*3], edgeCol);
+				}
+			}
+			dd->end();
+		}
 	}
 	
 	if (!depthTest)
