@@ -136,7 +136,7 @@ static_assert(sizeof(CAI_ClusterLink) == 12);
 struct CAI_TraverseNode
 {
 	Quaternion m_Quat;
-	int m_Index_MAYBE;
+	int m_TraverseType; // Indexes into g_traverseActivities in engine code.
 };
 static_assert(sizeof(CAI_TraverseNode) == 20);
 

@@ -212,7 +212,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 		const CAI_TraverseNode& traverseExNode = (*g_pAITraverseNodes)[i];
 		buf.Put(&traverseExNode.m_Quat, sizeof(Quaternion));
-		buf.PutInt(traverseExNode.m_Index_MAYBE);
+		buf.PutInt(traverseExNode.m_TraverseType);
 	}
 
 	timer.End();
