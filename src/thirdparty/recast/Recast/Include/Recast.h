@@ -457,7 +457,6 @@ struct rcPolyMesh
 	unsigned short* regs;	///< The region id assigned to each polygon. [Length: #maxpolys]
 	unsigned short* flags;	///< The user defined flags for each polygon. [Length: #maxpolys]
 	unsigned char* areas;	///< The area id assigned to each polygon. [Length: #maxpolys]
-	unsigned short* surfa;	///< The surface area amount for each polygon. [Length: #maxpolys]
 	int nverts;				///< The number of vertices.
 	int npolys;				///< The number of polygons.
 	int maxpolys;			///< The number of allocated polygons.
@@ -633,10 +632,6 @@ static const unsigned char RC_NULL_AREA = 0;
 /// This is also the maximum allowed area id, and the only non-null area id 
 /// recognized by some steps in the build process. 
 static const unsigned char RC_WALKABLE_AREA = 63;
-
-/// The cached polygon surface area quantization factor.
-/// @see rcPolyMesh::surfa
-static const float RC_POLY_SURFAREA_QUANT_FACTOR = 0.01f;
 
 /// The value returned by #rcGetCon if the specified direction is not connected
 /// to another span. (Has no neighbor.)

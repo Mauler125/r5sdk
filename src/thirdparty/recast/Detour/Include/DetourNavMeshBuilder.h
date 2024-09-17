@@ -36,7 +36,6 @@ struct dtNavMeshCreateParams
 	const unsigned short* polys;			///< The polygon data. [Size: #polyCount * 2 * #nvp]
 	const unsigned short* polyFlags;		///< The user defined flags assigned to each polygon. [Size: #polyCount]
 	const unsigned char* polyAreas;			///< The user defined area ids assigned to each polygon. [Size: #polyCount]
-	const unsigned short* surfAreas;		///< The surface area amount for each polygon. [Size: #polyCount]
 	int polyCount;							///< Number of polygons in the mesh. [Limit: >= 1]
 	int nvp;								///< Maximum number of vertices per polygon. [Limit: >= 3]
 	int cellResolution;						///< The resolution of the diamond cell grid [Limit: >= 1]
@@ -61,12 +60,8 @@ struct dtNavMeshCreateParams
 
 	/// Off-mesh connection vertices. [(ax, ay, az, bx, by, bz) * #offMeshConCount] [Unit: wu]
 	const float* offMeshConVerts;
-	/// Off-mesh connection reference positions. [(x, y, z) * #offMeshConCount] [Unit: wu]
-	const float* offMeshConRefPos;
 	/// Off-mesh connection radii. [Size: #offMeshConCount] [Unit: wu]
 	const float* offMeshConRad;
-	/// Off-mesh connection reference yaw. [Size: #offMeshConCount] [Unit: wu]
-	const float* offMeshConRefYaw;
 	/// User defined flags assigned to the off-mesh connections. [Size: #offMeshConCount]
 	const unsigned short* offMeshConFlags;
 	/// User defined area ids assigned to the off-mesh connections. [Size: #offMeshConCount]
@@ -82,6 +77,10 @@ struct dtNavMeshCreateParams
 	const unsigned char* offMeshConOrders;
 	/// The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
 	const unsigned short* offMeshConUserID;
+	/// Off-mesh connection reference positions. [(x, y, z) * #offMeshConCount] [Unit: wu]
+	const float* offMeshConRefPos;
+	/// Off-mesh connection reference yaw. [Size: #offMeshConCount] [Unit: wu]
+	const float* offMeshConRefYaw;
 	/// The number of off-mesh connections. [Limit: >= 0]
 	int offMeshConCount;
 

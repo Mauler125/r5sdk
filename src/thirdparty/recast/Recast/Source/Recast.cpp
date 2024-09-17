@@ -225,7 +225,6 @@ rcPolyMesh::rcPolyMesh()
 , regs()
 , flags()
 , areas()
-, surfa()
 , nverts()
 , npolys()
 , maxpolys()
@@ -246,7 +245,6 @@ rcPolyMesh::~rcPolyMesh()
 	rdFree(regs);
 	rdFree(flags);
 	rdFree(areas);
-	rdFree(surfa);
 }
 
 rcPolyMeshDetail* rcAllocPolyMeshDetail()

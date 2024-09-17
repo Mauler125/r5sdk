@@ -85,17 +85,17 @@ class InputGeom
 	
 	/// @name Off-Mesh connections.
 	///@{
-	static const int MAX_OFFMESH_CONNECTIONS = 1024;
+	static const int MAX_OFFMESH_CONNECTIONS = 256;
 	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
-	float m_offMeshConRefPos[MAX_OFFMESH_CONNECTIONS*3];
 	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
-	float m_offMeshConRefYaws[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConJumps[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConOrders[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
 	unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
 	unsigned short m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
+	float m_offMeshConRefPos[MAX_OFFMESH_CONNECTIONS*3];
+	float m_offMeshConRefYaws[MAX_OFFMESH_CONNECTIONS];
 	short m_offMeshConCount;
 	///@}
 
