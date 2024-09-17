@@ -43,10 +43,14 @@ extern const hulldef hulls[5];
 
 struct TraverseType_s
 {
-	float minElev;
-	float maxElev;
 	float minDist;
 	float maxDist;
+	float minElev;
+	float maxElev;
+	float minSlope;
+	float maxSlope;
+	float ovlpTrig;
+	bool ovlpExcl;
 };
 
 enum TraverseType_e // todo(amos): move elsewhere
@@ -165,12 +169,16 @@ enum EditorPolyAreas
 //	EDITOR_POLYFLAGS_ALL		= 0xffff	// All abilities.
 //};
 
+// Polygon surface area's that aren't larger than this amount will be flagged
+// as 'EDITOR_POLYFLAGS_TOO_SMALL'.
+static const unsigned short NAVMESH_SMALL_POLYGON_THRESHOLD = 120;
+
 enum EditorPolyFlags
 {
 	// Most common polygon flags.
 	EDITOR_POLYFLAGS_WALK				= 1<<0,		// Ability to walk (ground, grass, road).
-	EDITOR_POLYFLAGS_SKIP				= 1<<1,     // Skipped during AIN script nodes generation, NavMesh_RandomPositions, dtNavMeshQuery::findLocalNeighbourhood, etc.
-	EDITOR_POLYFLAGS_UNK0				= 1<<2,     // Unknown, most polygon have this flag.
+	EDITOR_POLYFLAGS_TOO_SMALL			= 1<<1,     // This polygon's surface area is too small; it will be ignored during AIN script nodes generation, NavMesh_RandomPositions, dtNavMeshQuery::findLocalNeighbourhood, etc.
+	EDITOR_POLYFLAGS_HAS_NEIGHBOUR		= 1<<2,     // This polygon is connected to a polygon on a neighbouring tile.
 
 	// Off-mesh connection flags
 	EDITOR_POLYFLAGS_JUMP				= 1<<3,		// Ability to jump (exclusively used on off-mesh connection polygons).
@@ -278,6 +286,7 @@ protected:
 	float m_agentMaxClimb;
 	float m_agentMaxSlope;
 	float m_traverseRayExtraOffset;
+	float m_traverseEdgeMinOverlap;
 	int m_regionMinSize;
 	int m_regionMergeSize;
 	int m_edgeMaxLen;

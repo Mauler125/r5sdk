@@ -395,7 +395,7 @@ bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 	return true;
 }
 
-float rdDistancePtLine2d(const float* pt, const float* p, const float* q)
+float rdDistancePtLine2D(const float* pt, const float* p, const float* q)
 {
 	float pqx = q[0] - p[0];
 	float pqy = q[1] - p[1];
@@ -432,6 +432,28 @@ void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool invert, f
 	rdCalcEdgeNormal2D(dir, invert, out);
 }
 
+bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,
+	const float* subEdgeEnd, float& tmin, float& tmax)
+{
+	const float edgeLen = rdVdist2D(edgeStart, edgeEnd);
+	const float subEdgeStartDist = rdVdist2D(edgeStart, subEdgeStart);
+	const float subEdgeEndDist = rdVdist2D(edgeStart, subEdgeEnd);
+
+	tmin = subEdgeStartDist / edgeLen;
+	tmax = subEdgeEndDist / edgeLen;
+
+	// note(amos): If the min is larger than the max, we most likely have a
+	// malformed detail polygon, e.g. a triangle that is flipped causing its
+	// boundary edge's start vert to be closer to the end vert of the polygon
+	// when comparing the distances in the same winding order. This can happen
+	// on more complex geometry or when the error tollerance is raised. Either
+	// way return false to notify caller that the calculation has failed.
+	if (tmin > tmax)
+		return false;
+
+	return true;
+}
+
 float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight)
 {
 	const float angleRad = rdMathAtan2f(objectHeight, ledgeSpan);
@@ -449,28 +471,28 @@ float rdCalcLedgeSpanOffsetAmount(const float ledgeSpan, const float slopeAngle,
 }
 
 static const unsigned char XP = 1 << 0;
-static const unsigned char ZP = 1 << 1;
+static const unsigned char YP = 1 << 1;
 static const unsigned char XM = 1 << 2;
-static const unsigned char ZM = 1 << 3;
+static const unsigned char YM = 1 << 3;
 
 unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, const float* bmax)
 {
 	unsigned char outcode = 0; 
 	outcode |= (pt[0] >= bmax[0]) ? XM : 0;
-	outcode |= (pt[1] >= bmax[1]) ? ZP : 0;
+	outcode |= (pt[1] >= bmax[1]) ? YP : 0;
 	outcode |= (pt[0] < bmin[0])  ? XP : 0;
-	outcode |= (pt[1] < bmin[1])  ? ZM : 0;
+	outcode |= (pt[1] < bmin[1])  ? YM : 0;
 
 	switch (outcode)
 	{
 	case XP: return 0;
-	case XP|ZP: return 1;
-	case ZP: return 2;
-	case XM|ZP: return 3;
+	case XP|YP: return 1;
+	case YP: return 2;
+	case XM|YP: return 3;
 	case XM: return 4;
-	case XM|ZM: return 5;
-	case ZM: return 6;
-	case XP|ZM: return 7;
+	case XM|YM: return 5;
+	case YM: return 6;
+	case XP|YM: return 7;
 	};
 
 	return 0xff;
@@ -500,6 +522,32 @@ unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, co
 	float newPt[2];
 	newPt[0] = center[0]+dir[0] * boxSize[0];
 	newPt[1] = center[1]+dir[1] * boxSize[1];
+
+	return rdClassifyPointOutsideBounds(newPt, bmin, bmax);
+}
+
+unsigned char rdClassifyDirection(const float* dir, const float* bmin, const float* bmax)
+{
+	const float len = rdMathSqrtf(dir[0]*dir[0] + dir[1]*dir[1]);
+	float dirNorm[2] = { 0.0f, 0.0f };
+
+	if (len > RD_EPS)
+	{
+		dirNorm[0] = dir[0] / len;
+		dirNorm[1] = dir[1] / len;
+	}
+
+	float center[2];
+	center[0] = (bmin[0]+bmax[0]) * 0.5f;
+	center[1] = (bmin[1]+bmax[1]) * 0.5f;
+
+	float boxSize[2];
+	boxSize[0] = bmax[0]-bmin[0];
+	boxSize[1] = bmax[1]-bmin[1];
+
+	float newPt[2];
+	newPt[0] = center[0]+dirNorm[0] * boxSize[0];
+	newPt[1] = center[1]+dirNorm[1] * boxSize[1];
 
 	return rdClassifyPointOutsideBounds(newPt, bmin, bmax);
 }

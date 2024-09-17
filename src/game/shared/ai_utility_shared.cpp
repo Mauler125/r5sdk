@@ -543,8 +543,8 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                         if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
                             continue;
 
-                        if (rdDistancePtLine2d(tv[n], v0, v1) < thr &&
-                            rdDistancePtLine2d(tv[m], v0, v1) < thr)
+                        if (rdDistancePtLine2D(tv[n], v0, v1) < thr &&
+                            rdDistancePtLine2D(tv[m], v0, v1) < thr)
                         {
                             v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, bDepthBuffer);
                         }
