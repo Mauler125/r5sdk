@@ -161,10 +161,7 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 	{
 		const dtPoly* startPoly = &tile->polys[i];
 
-		// Start poly's that are off-mesh links should be skipped
-		// as only the links connecting base/land poly's to the
-		// off-mesh connection contain traverse type information.
-		if (startPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+		if (startPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
 			continue;
 
 		if (tile->links[i].ref == 0)
@@ -200,24 +197,14 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 				!mesh.isGoalPolyReachable(link->ref, basePolyRef, drawAnimType == -1, drawAnimType))
 				continue;
 
-			unsigned int salt, it, ip;
-			mesh.decodePolyId(link->ref, salt, it, ip);
-			const dtMeshTile* endTile = mesh.getTile(it);
-			const dtPoly* endPoly = &endTile->polys[ip];
+			const dtPoly* endPoly;
+			const dtMeshTile* endTile;
 
-			if (endPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-			{
-				const dtOffMeshConnection* con = &endTile->offMeshCons[ip - endTile->header->offMeshBase];
-
-				dd->begin(DU_DRAW_LINES, 2.0f, offset);
-				const int col = duIntToCol(-link->traverseType, 128);
-
-				dd->vertex(&con->pos[0], col);
-				dd->vertex(&con->pos[3], col);
-
-				dd->end();
+			if (dtStatusFailed(mesh.getTileAndPolyByRef(link->ref, &endTile, &endPoly)))
 				continue;
-			}
+
+			if (endPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
+				continue;
 
 			float startPos[3];
 			float endPos[3];
@@ -295,85 +282,7 @@ static void drawTileBounds(duDebugDraw* dd, const dtMeshTile* tile, const float*
 	duDebugDrawBoxWire(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f,offset);
 }
 
-static void drawOffMeshConnectionRefPosition(duDebugDraw* dd, const dtOffMeshConnection* con)
-{
-	float refPosDir[3];
-	dtCalcOffMeshRefPos(con->refPos, con->refYaw, DT_OFFMESH_CON_REFPOS_OFFSET, refPosDir);
-
-	duAppendArrow(dd, con->refPos[0], con->refPos[1], con->refPos[2],
-		refPosDir[0], refPosDir[1], refPosDir[2], 0.f, 10.f, duRGBA(255,255,0,255));
-}
-
-static void drawOffMeshLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
-	const dtMeshTile* tile, const float* offset)
-{
-	const dtMeshHeader* header = tile->header;
-	const dtPolyRef base = mesh.getPolyRefBase(tile);
-
-	dd->begin(DU_DRAW_LINES, 2.0f, offset);
-	for (int i = 0; i < header->polyCount; ++i)
-	{
-		const dtPoly* p = &tile->polys[i];
-		if (p->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip regular polys.
-			continue;
-		
-		const dtOffMeshConnection* con = &tile->offMeshCons[i - header->offMeshBase];
-
-		unsigned int col;
-		if (query && query->isInClosedList(base | (dtPolyRef)i))
-			col = duRGBA(255,196,0,220);
-		else
-			col = duDarkenCol(duTransCol(dd->areaToCol(p->getArea()), 220));
-
-		const float* va = &tile->verts[p->verts[0]*3];
-		const float* vb = &tile->verts[p->verts[1]*3];
-
-		// Check to see if start and end end-points have links.
-		bool startSet = false;
-		bool endSet = false;
-		for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
-		{
-			const dtLink& link = tile->links[k];
-
-			if (link.edge == 0)
-				startSet = true;
-			if (link.edge == 1)
-				endSet = true;
-		}
-		
-		// End points and their on-mesh locations.
-		dd->vertex(va[0],va[1],va[2], col);
-		dd->vertex(con->pos[0],con->pos[1],con->pos[2], col);
-		duAppendCircle(dd, con->pos[0],con->pos[1],con->pos[2]+5.0f, con->rad, duRGBA(220,32,16,196));
-
-		if (startSet)
-			duAppendCross(dd, con->pos[0],con->pos[1],con->pos[2]+5.0f, con->rad, duRGBA(220,220,16,196));
-
-		dd->vertex(vb[0],vb[1],vb[2], col);
-		dd->vertex(con->pos[3],con->pos[4],con->pos[5], col);
-		duAppendCircle(dd, con->pos[3],con->pos[4],con->pos[5]+5.0f, con->rad, duRGBA(32,220,16,196));
-
-		if (endSet)
-			duAppendCross(dd, con->pos[3],con->pos[4],con->pos[5]+5.0f, con->rad, duRGBA(220,220,16,196));
-		
-		// End point vertices.
-		dd->vertex(con->pos[0],con->pos[1],con->pos[2], duRGBA(0,48,64,196));
-		dd->vertex(con->pos[0],con->pos[1],con->pos[2]+10.0f, duRGBA(0,48,64,196));
-		
-		dd->vertex(con->pos[3],con->pos[4],con->pos[5], duRGBA(0,48,64,196));
-		dd->vertex(con->pos[3],con->pos[4],con->pos[5]+10.0f, duRGBA(0,48,64,196));
-		
-		// Connection arc.
-		duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
-					(con->flags & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, col);
-
-		// Reference positions.
-		drawOffMeshConnectionRefPosition(dd, con);
-	}
-	dd->end();
-}
-
-void duDebugDrawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
+static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams)
 {
 	// If the "Alpha" flag isn't set, force the colour to be opaque instead of semi-transparent.
@@ -433,7 +342,7 @@ void duDebugDrawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	if (flags & DU_DRAWNAVMESH_POLY_CENTERS)
 		drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f, offset);
 
-	if (query && (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS))
+	if (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS)
 		drawTraverseLinks(dd, mesh, query, tile, offset, traverseLinkParams);
 
 	if (flags & DU_DRAWNAVMESH_TILE_CELLS)
@@ -531,7 +440,7 @@ void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, const float* off
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		duDebugDrawMeshTile(dd, mesh, 0, tile, offset, flags, traverseLinkParams);
+		drawMeshTile(dd, mesh, 0, tile, offset, flags, traverseLinkParams);
 	}
 }
 
@@ -545,7 +454,7 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		duDebugDrawMeshTile(dd, mesh, q, tile, offset, flags, traverseLinkParams);
+		drawMeshTile(dd, mesh, q, tile, offset, flags, traverseLinkParams);
 	}
 
 	if (flags & DU_DRAWNAVMESH_BVTREE)
