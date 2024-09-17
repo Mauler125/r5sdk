@@ -523,6 +523,19 @@ namespace VScriptCode
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
+        std::string SanitizeString(const std::string& input)
+        {
+            //appropriate
+            auto isDisallowed = [](unsigned char c) {
+                return !std::isalnum(c) && c != '-' && c != '_';
+                };
+
+            if (std::any_of(input.begin(), input.end(), isDisallowed)) {
+                return "";
+            }
+            return input;
+        }
+
         //-----------------------------------------------------------------------------
         // Purpose: facilitates communication between sqvm and logger api calls 
         // for ea account verification
@@ -556,7 +569,11 @@ namespace VScriptCode
                 Msg(eDLL_T::SERVER, "Error: Value out of range for conversion: %s\n", e.what());
             }
 
-            sq_pushinteger(v, status_num);
+            std::string command = "CodeCallback_VerifyEaAccount(\"" + SanitizeString(OID) + "\", " + status + ")";
+
+            g_TaskQueue.Dispatch([command] {
+                g_pServerScript->Run(command.c_str());
+                }, 0);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
@@ -680,7 +697,7 @@ namespace VScriptCode
                 Error(eDLL_T::SERVER, NO_ERROR, "Failed to retrieve 'player_oid' parameter.");
                 v_SQVM_ScriptError("Failed to retrieve 'player_oid' parameter.");
                 sq_pushinteger(v, -1);
-                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
             const char* statsJson = LOGGER::GetPlayerJsonData(player_oid);
@@ -776,6 +793,7 @@ namespace VScriptCode
             {
                 LOGGER::TaskManager::getInstance().ResetPlayerStats(player_oid);
             }
+
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
 
@@ -783,6 +801,7 @@ namespace VScriptCode
         SQRESULT FetchGlobalSettingsFromR5RDEV__internal(HSQUIRRELVM v)
         {
             const SQChar* query = nullptr;
+            
             if (SQ_SUCCEEDED(sq_getstring(v, 2, &query)) && query)
             {
                 if (std::strcmp(query, "") == 0)
@@ -794,7 +813,8 @@ namespace VScriptCode
                 std::string settings = LOGGER::FetchGlobalSettings(query);
                 sq_pushstring(v, settings.c_str(), -1);
             }
-            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
 
 
@@ -807,12 +827,15 @@ namespace VScriptCode
         SQRESULT SQ_GetSetting__internal(HSQUIRRELVM v)
         {
             const SQChar* setting_key = nullptr;
+            
             if (SQ_SUCCEEDED(sq_getstring(v, 2, &setting_key)) && setting_key)
             {
                 const char* setting_value = LOGGER::GetSetting(setting_key);
                 sq_pushstring(v, setting_value, -1);
+                SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
-            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
         }
 
 
@@ -853,6 +876,10 @@ namespace VScriptCode
         {
             if (!g_pServer->IsActive())
             {
+                //return array with -1 at element[0]
+                sq_newarray(v, 0);
+                sq_pushinteger(v, -1);
+                sq_arrayappend(v, -2);
                 SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
             }
 
@@ -1020,7 +1047,7 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
   
     
     //for verification
-    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, EA_Verify__internal, "Verifys EA Account on R5R.DEV", "int", "string, string, string");
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, EA_Verify__internal, "Verifys EA Account on R5R.DEV", "void", "string, string, string");
 
     // for stat updates
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, _STATSHOOK_UpdatePlayerCount__internal, "Updates LIVE player count on R5R.DEV", "void", "string, string, string, string, string");
