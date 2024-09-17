@@ -50,20 +50,10 @@ class NavMeshTileTool : public EditorTool
 	Editor_TileMesh* m_editor;
 	dtNavMesh* m_navMesh;
 	float m_hitPos[3];
-	float m_nearestPos[3];
-	int m_selectedSide;
 	int m_selectedTraverseType;
 
 	dtTileRef m_markedTileRef;
 	dtPolyRef m_markedPolyRef;
-
-	enum TileToolCursorMode
-	{
-		TT_CURSOR_MODE_DEBUG = 0,
-		TT_CURSOR_MODE_BUILD
-	};
-
-	TileToolCursorMode m_cursorMode;
 
 	enum TextOverlayDrawMode
 	{
@@ -92,11 +82,9 @@ public:
 	NavMeshTileTool() :
 		m_editor(0),
 		m_navMesh(0),
-		m_selectedSide(-1),
 		m_selectedTraverseType(-2),
 		m_markedTileRef(0),
 		m_markedPolyRef(0),
-		m_cursorMode(TT_CURSOR_MODE_DEBUG),
 		m_textOverlayDrawMode(TO_DRAW_MODE_DISABLED),
 		m_textOverlayDrawFlags(TO_DRAW_FLAGS_NONE),
 		m_hitPosSet(false)
@@ -123,16 +111,7 @@ public:
 
 	virtual void handleMenu()
 	{
-		ImGui::Text("Cursor Mode");
-		if (ImGui::RadioButton("Debug##TileTool", m_cursorMode == TT_CURSOR_MODE_DEBUG))
-			m_cursorMode = TT_CURSOR_MODE_DEBUG;
-
-		if (ImGui::RadioButton("Build##TileTool", m_cursorMode == TT_CURSOR_MODE_BUILD))
-			m_cursorMode = TT_CURSOR_MODE_BUILD;
-
-		ImGui::Separator();
 		ImGui::Text("Create Tiles");
-
 		if (ImGui::Button("Create All"))
 		{
 			if (m_editor)
@@ -181,7 +160,6 @@ public:
 				char* pEnd = nullptr;
 				m_markedPolyRef = (dtPolyRef)STR_TO_ID(m_polyRefTextInput, &pEnd, 10);
 			}
-			ImGui::SliderInt("Tile Side", &m_selectedSide, -1, 8, "%d", ImGuiSliderFlags_NoInput);
 			ImGui::PopItemWidth();
 		}
 
@@ -237,12 +215,12 @@ public:
 		rdVcopy(m_hitPos,p);
 		if (m_editor)
 		{
-			if (m_cursorMode == TT_CURSOR_MODE_BUILD)
-			{
-				if (shift)
-					m_editor->removeTile(m_hitPos);
-				else
-					m_editor->buildTile(m_hitPos);
+			if (shift)
+				m_editor->removeTile(m_hitPos);
+			else
+				m_editor->buildTile(m_hitPos);
+
+				m_editor->buildStaticPathingData();
 			}
 			else if (m_cursorMode == TT_CURSOR_MODE_DEBUG)
 			{
@@ -297,14 +275,12 @@ public:
 		{
 			const dtMeshTile* tile = m_navMesh->getTileByRef(m_markedTileRef);
 
-			if (tile && tile->header)
+			if (tile)
 			{
 				duDrawTraverseLinkParams params;
 				duDebugDrawMeshTile(&m_editor->getDebugDraw(), *m_navMesh, 0, tile, debugDrawOffset, m_editor->getNavMeshDrawFlags(), params);
 
-				const int side = (m_selectedSide != -1) 
-					? m_selectedSide
-					: rdClassifyPointInsideBounds(m_hitPos, tile->header->bmin, tile->header->bmax);
+				const unsigned char side = rdClassifyPointInsideBounds(m_hitPos, tile->header->bmin, tile->header->bmax);
 
 				const int MAX_NEIS = 32; // Max neighbors
 				dtMeshTile* neis[MAX_NEIS];
@@ -443,6 +419,9 @@ Editor_TileMesh::Editor_TileMesh() :
 	m_tileMemUsage(0),
 	m_tileTriCount(0)
 {
+	resetCommonSettings();
+	selectNavMeshType(NAVMESH_SMALL);
+
 	memset(m_lastBuiltTileBmin, 0, sizeof(m_lastBuiltTileBmin));
 	memset(m_lastBuiltTileBmax, 0, sizeof(m_lastBuiltTileBmax));
 	
@@ -463,14 +442,12 @@ void Editor_TileMesh::handleSettings()
 	Editor::handleCommonSettings();
 	
 	ImGui::Text("Tiling");
-	ImGui::SliderInt("Min Tile Bits", &m_minTileBits, 14, 32);
-	ImGui::SliderInt("Max Tile Bits", &m_maxTileBits, 22, 32);
 	ImGui::SliderInt("Tile Size", &m_tileSize, 8, 2048);
 
 	ImGui::Checkbox("Build All Tiles", &m_buildAll);
 	ImGui::Checkbox("Keep Intermediate Results", &m_keepInterResults);
 	
-	EditorCommon_SetAndRenderTileProperties(m_geom, m_minTileBits, m_maxTileBits, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
+	EditorCommon_SetAndRenderTileProperties(m_geom, m_tileSize, m_cellSize, m_maxTiles, m_maxPolysPerTile);
 	
 	ImGui::Separator();
 	Editor_StaticTileMeshCommon::renderIntermediateTileMeshOptions();
@@ -605,7 +582,7 @@ bool Editor_TileMesh::handleBuild()
 	}
 
 	m_loadedNavMeshType = m_selectedNavMeshType;
-	m_traverseLinkDrawParams.traverseAnimType = -2;
+	m_traverseLinkParams.traverseAnimType = -2;
 
 	dtNavMeshParams params;
 	rdVcopy(params.orig, m_geom->getNavMeshBoundsMin());
@@ -678,66 +655,13 @@ void Editor_TileMesh::buildTile(const float* pos)
 	// Add tile, or leave the location empty.
 	if (data)
 	{
-		const dtMeshHeader* header = (const dtMeshHeader*)data;
-
 		// Let the navmesh own the data.
 		dtTileRef tileRef = 0;
 		dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,&tileRef);
-		bool failure = false;
-
-		if (dtStatusFailed(status) || dtStatusFailed(m_navMesh->connectTile(tileRef)))
-		{
+		if (dtStatusFailed(status))
 			rdFree(data);
-			failure = true;
-		}
-		else if (header->offMeshConCount)
-		{
-			m_navMesh->baseOffMeshLinks(tileRef);
-			m_navMesh->connectExtOffMeshLinks(tileRef);
-		}
-
-		if (!failure)
-		{
-			// If there are external off-mesh links landing on
-			// this tile, connect them.
-			for (int i = 0; i < m_navMesh->getTileCount(); i++)
-			{
-				dtMeshTile* target = m_navMesh->getTile(i);
-				const dtTileRef targetRef = m_navMesh->getTileRef(target);
-
-				// Connection to self has already been done above.
-				if (targetRef == tileRef)
-					continue;
-
-				const dtMeshHeader* targetHeader = target->header;
-
-				if (!targetHeader)
-					continue;
-
-				for (int j = 0; j < targetHeader->offMeshConCount; j++)
-				{
-					const dtOffMeshConnection* con = &target->offMeshCons[j];
-
-					int landTx, landTy;
-					getTilePos(&con->pos[3], landTx, landTy);
-
-					if (landTx == tx && landTy == ty)
-						m_navMesh->connectExtOffMeshLinks(targetRef);
-				}
-			}
-
-			dtMeshTile* tile = (dtMeshTile*)m_navMesh->getTileByRef(tileRef);
-
-			// Reconnect the traverse links.
-			connectTileTraverseLinks(tile, true);
-			connectTileTraverseLinks(tile, false);
-
-			dtTraverseTableCreateParams params;
-			createTraverseTableParams(&params);
-
-			dtCreateDisjointPolyGroups(&params);
-			updateStaticPathingData(&params);
-		}
+		else
+			m_navMesh->connectTile(tileRef);
 	}
 	
 	m_ctx->dumpLog("Build Tile (%d,%d):", tx,ty);
@@ -778,34 +702,8 @@ void Editor_TileMesh::removeTile(const float* pos)
 	getTileExtents(tx, ty, m_lastBuiltTileBmin, m_lastBuiltTileBmax);
 	
 	m_tileCol = duRGBA(255,0,0,180);
-	const dtTileRef tileRef = m_navMesh->getTileRefAt(tx,ty, 0);
-
-	if (dtStatusSucceed(m_navMesh->removeTile(tileRef, 0, 0)))
-	{
-		// Update traverse link map so the next time we rebuild this
-		// tile, the polygon pairs will be marked as available.
-		const unsigned int tileId = m_navMesh->decodePolyIdTile(tileRef);
-
-		for (auto it = m_traverseLinkPolyMap.cbegin(); it != m_traverseLinkPolyMap.cend();)
-		{
-			const TraverseLinkPolyPair& pair = it->first;
-
-			if (m_navMesh->decodePolyIdTile(pair.poly1) == tileId || 
-				m_navMesh->decodePolyIdTile(pair.poly2) == tileId)
-			{
-				it = m_traverseLinkPolyMap.erase(it);
-				continue;
-			}
-
-			++it;
-		}
-
-		dtTraverseTableCreateParams params;
-		createTraverseTableParams(&params);
-
-		dtCreateDisjointPolyGroups(&params);
-		updateStaticPathingData(&params);
-	}
+	
+	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
 }
 
 void Editor_TileMesh::buildAllTiles()
@@ -848,7 +746,6 @@ void Editor_TileMesh::buildAllTiles()
 		}
 	}
 
-	connectOffMeshLinks();
 	buildStaticPathingData();
 	
 	// Start the build process.	
@@ -874,8 +771,6 @@ void Editor_TileMesh::removeAllTiles()
 	for (int y = 0; y < th; ++y)
 		for (int x = 0; x < tw; ++x)
 			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y,0),0,0);
-
-	m_traverseLinkPolyMap.clear();
 }
 
 void Editor_TileMesh::buildAllHulls()
@@ -1276,8 +1171,6 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
 		params.offMeshConRad = m_geom->getOffMeshConnectionRads();
 		params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
-		params.offMeshConJumps = m_geom->getOffMeshConnectionJumps();
-		params.offMeshConOrders = m_geom->getOffMeshConnectionOrders();
 		params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
 		params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
 		params.offMeshConUserID = m_geom->getOffMeshConnectionId();
@@ -1294,7 +1187,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		rdVcopy(params.bmax, m_pmesh->bmax);
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
-		params.buildBvTree = m_buildBvTree;
+		params.buildBvTree = true;
 
 		const bool navMeshBuildSuccess = dtCreateNavMeshData(&params, &navData, &navDataSize);
 

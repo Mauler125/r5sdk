@@ -175,7 +175,7 @@ void Editor::resetCommonSettings()
 
 	m_cellSize = 16.0f;
 	m_cellHeight = 5.85f;
-	m_traverseLinkDrawParams.cellHeight = m_cellHeight;
+	m_traverseLinkParams.cellHeight = m_cellHeight;
 
 	// todo(amos): check if this applies for all hulls, and check if this is the
 	// actual value used by the game. This seems to generate slopes very close
@@ -216,7 +216,7 @@ void Editor::handleCommonSettings()
 	ImGui::SliderFloat("Cell Size", &m_cellSize, 12.1f, 100.0f);
 	
 	if (ImGui::SliderFloat("Cell Height", &m_cellHeight, 0.4f, 100.0f))
-		m_traverseLinkDrawParams.cellHeight = m_cellHeight;
+		m_traverseLinkParams.cellHeight = m_cellHeight;
 	
 	if (m_geom)
 	{
@@ -322,157 +322,6 @@ void Editor::handleCommonSettings()
 
 	ImGui::PopItemWidth();
 	
-	ImGui::Separator();
-	ImGui::Text("Traversability");
-
-	static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit | 
-		/*ImGuiTableFlags_ScrollX |*/ 
-		ImGuiTableFlags_ScrollY | 
-		ImGuiTableFlags_BordersInner | 
-		ImGuiTableFlags_BordersOuter |
-		ImGuiTableFlags_Hideable |
-		/*ImGuiTableFlags_Resizable |*/
-		/*ImGuiTableFlags_Reorderable |*/
-		ImGuiTableFlags_HighlightHoveredColumn;
-
-	static ImGuiTableColumnFlags columnFlags = ImGuiTableColumnFlags_AngledHeader |
-		ImGuiTableColumnFlags_WidthStretch;
-
-	static int frozenCols = 1;
-	static int frozenRows = 2;
-	const float textBaseHeight = ImGui::GetTextLineHeightWithSpacing();
-
-	const char* columnNames[] = { "Type", "minElev", "maxElev", "minDist", "maxDist" };
-	const int columnsCount = IM_ARRAYSIZE(columnNames);
-	const int rowsCount = NUM_TRAVERSE_TYPES;
-
-	if (ImGui::BeginTable("TraverseTableFineTuner", columnsCount, tableFlags, ImVec2(0.0f, (textBaseHeight * 12)+10.f)))
-	{
-		ImGui::TableSetupColumn(columnNames[0], ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
-		for (int n = 1; n < columnsCount; n++)
-			ImGui::TableSetupColumn(columnNames[n], columnFlags, 100);
-		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
-
-		ImGui::TableAngledHeadersRow();
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper;
-		clipper.Begin(rowsCount);
-
-		while (clipper.Step())
-		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-				ImGui::PushID(row);
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("%d", row);
-
-				for (int column = 1; column < columnsCount; column++)
-				{
-					if (!ImGui::TableSetColumnIndex(column))
-						continue;
-
-					ImGui::PushID(column);
-					ImGui::PushItemWidth(-FLT_MIN); // Right align cells.
-					TraverseType_s& trav = s_traverseTable[row];
-
-					switch (column)
-					{
-					case 1:
-						trav.minElev = rdClamp(trav.minElev, 0.0f, trav.maxElev);
-						ImGui::SliderFloat("", &trav.minElev, 0, trav.maxElev);
-						break;
-					case 2:
-						ImGui::SliderFloat("", &trav.maxElev, 0, DT_TRAVERSE_DIST_MAX);
-						break;
-					case 3:
-						trav.minDist = rdClamp(trav.minDist, 0.0f, trav.maxDist);
-						ImGui::SliderFloat("", &trav.minDist, 0, trav.maxDist);
-						break;
-					case 4:
-						ImGui::SliderFloat("", &trav.maxDist, 0, DT_TRAVERSE_DIST_MAX);
-						break;
-					}
-
-					ImGui::PopItemWidth();
-					ImGui::PopID();
-				}
-				ImGui::PopID();
-			}
-		}
-
-		ImGui::EndTable();
-	}
-	if (ImGui::Button("Reset Traverse Table Parameters"))
-		initTraverseTableParams();
-
-	const int numTraverseTables = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
-	const int numColumns = numTraverseTables + 1;
-
-	if (ImGui::BeginTable("TraverseTableMaskSelector", numColumns, tableFlags, ImVec2(0.0f, (textBaseHeight*12)+20.f)))
-	{
-		ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
-		const bool smallNavMesh = m_selectedNavMeshType == NAVMESH_SMALL;
-
-		for (int n = 0; n < numTraverseTables; n++)
-		{
-			const int i = smallNavMesh
-				? NavMesh_GetTraverseTableIndexForAnimType(TraverseAnimType_e(n))
-				: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
-
-			ImGui::TableSetupColumn(g_traverseAnimTypeNames[i], columnFlags);
-		}
-
-		ImGui::TableSetupScrollFreeze(frozenCols, frozenRows);
-
-		ImGui::TableAngledHeadersRow();
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper;
-		clipper.Begin(rowsCount);
-
-		while (clipper.Step())
-		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-				ImGui::PushID(row);
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("%d", row);
-
-				for (int column = 0; column < numTraverseTables; column++)
-				{
-					if (!ImGui::TableSetColumnIndex(column + 1))
-						continue;
-
-					ImGui::PushID(column + 1);
-					const int j = smallNavMesh
-						? column
-						: NavMesh_GetFirstTraverseAnimTypeForType(m_selectedNavMeshType);
-
-					int* flags = &s_traverseAnimTraverseFlags[j];
-
-					ImGui::CheckboxFlags("", flags, 1 << row);
-					ImGui::PopID();
-				}
-				ImGui::PopID();
-			}
-		}
-
-		ImGui::EndTable();
-	}
-	if (ImGui::Button("Reset Traverse Table Masks"))
-		initTraverseMasks();
-
-	if (ImGui::Checkbox("Dynamic Traverse Ray Offset", &m_traverseRayDynamicOffset))
-		m_traverseLinkDrawParams.dynamicOffset = m_traverseRayDynamicOffset;
-
-	if (ImGui::SliderFloat("Extra Offset", &m_traverseRayExtraOffset, 0, 128))
-		m_traverseLinkDrawParams.extraOffset = m_traverseRayExtraOffset;
-
 	ImGui::Separator();
 }
 
@@ -828,8 +677,6 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 		return;
 
 	const dtMeshHeader* baseHeader = baseTile->header;
-	const dtPolyRef basePolyRefBase = m_navMesh->getPolyRefBase(baseTile);
-
 	bool firstBaseTileLinkUsed = false;
 
 	for (int i = 0; i < baseHeader->polyCount; ++i)
@@ -884,8 +731,6 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 					continue;
 
 				const dtMeshHeader* landHeader = landTile->header;
-				const dtPolyRef landPolyRefBase = m_navMesh->getPolyRefBase(landTile);
-
 				bool firstLandTileLinkUsed = false;
 
 				for (int m = 0; m < landHeader->polyCount; ++m)
@@ -963,21 +808,6 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 								continue;
 						}
 
-						const dtPolyRef basePolyRef = basePolyRefBase | i;
-						const dtPolyRef landPolyRef = landPolyRefBase | l;
-
-						const TraverseLinkPolyPair linkedPolyPair(basePolyRef, landPolyRef);
-						auto linkedIt = m_traverseLinkPolyMap.find(linkedPolyPair);
-
-						bool traverseLinkFound = false;
-
-						if (linkedIt != m_traverseLinkPolyMap.end())
-							traverseLinkFound = true;
-
-						// These 2 polygons are already linked with the same traverse type.
-						if (traverseLinkFound && (rdBitCellBit(traverseType) & linkedIt->second))
-							continue;
-
 						const bool basePolyHigher = basePolyEdgeMid[2] > landPolyEdgeMid[2];
 						float* const lowerEdgeMid = basePolyHigher ? landPolyEdgeMid : basePolyEdgeMid;
 						float* const higherEdgeMid = basePolyHigher ? basePolyEdgeMid : landPolyEdgeMid;
@@ -1008,7 +838,7 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						dtLink* const forwardLink = &baseTile->links[forwardIdx];
 
-						forwardLink->ref = landPolyRef;
+						forwardLink->ref = m_navMesh->getPolyRefBase(landTile) | (dtPolyRef)m;
 						forwardLink->edge = (unsigned char)j;
 						forwardLink->side = landSide;
 						forwardLink->bmin = 0;
@@ -1021,8 +851,8 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 
 						dtLink* const reverseLink = &landTile->links[reverseIdx];
 
-						reverseLink->ref = basePolyRef;
-						reverseLink->edge = (unsigned char)m;
+						reverseLink->ref = m_navMesh->getPolyRefBase(baseTile) | (dtPolyRef)i;
+						reverseLink->edge = (unsigned char)n;
 						reverseLink->side = baseSide;
 						reverseLink->bmin = 0;
 						reverseLink->bmax = 255;
@@ -1041,8 +871,6 @@ void Editor::connectTileTraverseLinks(dtMeshTile* const baseTile, const bool lin
 bool Editor::createTraverseLinks()
 {
 	rdAssert(m_navMesh);
-	m_traverseLinkPolyMap.clear();
-
 	const int maxTiles = m_navMesh->getMaxTiles();
 
 	// First pass to connect edges between external tiles together.
@@ -1141,32 +969,6 @@ void Editor::buildStaticPathingData()
 
 	createStaticPathingData(&params);
 	updateStaticPathingData(&params);
-}
-
-void Editor::connectOffMeshLinks()
-{
-	for (int i = 0; i < m_navMesh->getTileCount(); i++)
-	{
-		dtMeshTile* target = m_navMesh->getTile(i);
-		const dtMeshHeader* header = target->header;
-
-		if (!header)
-			continue;
-
-		const int offMeshConCount = header->offMeshConCount;
-
-		if (!offMeshConCount)
-			continue;
-
-		const dtTileRef targetRef = m_navMesh->getTileRef(target);
-
-		// Base off-mesh connections to their starting polygons 
-		// and connect connections inside the tile.
-		m_navMesh->baseOffMeshLinks(targetRef);
-
-		// Connect off-mesh polygons to outer tiles.
-		m_navMesh->connectExtOffMeshLinks(targetRef);
-	}
 }
 
 void Editor::updateToolStates(const float dt)
@@ -1320,9 +1122,9 @@ void Editor::renderDetourDebugMenu()
 	if (isEnabled && m_navMesh) // Supplemental options only available with a valid navmesh!
 	{
 		ImGui::PushItemWidth(190);
-		ImGui::SliderInt("Traverse Type", &m_traverseLinkDrawParams.traverseLinkType, -1, DT_MAX_TRAVERSE_TYPES-1);
-		ImGui::SliderInt("Traverse Dist", &m_traverseLinkDrawParams.traverseLinkDistance, -1, dtQuantLinkDistance(DT_TRAVERSE_DIST_MAX));
-		ImGui::SliderInt("Traverse Anim", &m_traverseLinkDrawParams.traverseAnimType, -2, m_navMesh->getParams()->traverseTableCount-1);
+		ImGui::SliderInt("Traverse Type", &m_traverseLinkParams.traverseLinkType, -1, 31);
+		ImGui::SliderInt("Traverse Dist", &m_traverseLinkParams.traverseLinkDistance, -1, 255);
+		ImGui::SliderInt("Traverse Anim", &m_traverseLinkParams.traverseAnimType, -2, m_navMesh->getParams()->traverseTableCount-1);
 		ImGui::PopItemWidth();
 	}
 }
@@ -1555,7 +1357,7 @@ bool Editor::loadNavMesh(const char* path, const bool fullPath)
 	m_navQuery->init(m_navMesh, 2048);
 
 	m_loadedNavMeshType = m_selectedNavMeshType;
-	m_traverseLinkDrawParams.traverseAnimType = -2;
+	m_traverseLinkParams.traverseAnimType = -2;
 
 	if (m_tool)
 	{
