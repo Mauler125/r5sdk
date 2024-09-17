@@ -66,5 +66,5 @@ private:
 	Color m_LinkColor;
 };
 
-extern CAI_Utility g_AIUtility;
+extern CAI_Utility* g_pAIUtility;
 #endif // AI_UTILITY_SHARED_H

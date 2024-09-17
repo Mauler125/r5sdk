@@ -127,12 +127,10 @@ void ConvexVolumeTool::handleMenu()
 		ImGui::Text("Poly Flags");
 		ImGui::Indent();
 
-		const int numPolyFlags = V_ARRAYSIZE(g_navMeshPolyFlagNames);
-
-		for (int i = 0; i < numPolyFlags; i++)
+		for (int i = 0; i < V_ARRAYSIZE(g_navMeshPolyFlagNames); i++)
 		{
 			const char* flagName = g_navMeshPolyFlagNames[i];
-			ImGui::CheckboxFlags(flagName, &m_polyFlags, i == (numPolyFlags-1) ? EDITOR_POLYFLAGS_ALL : 1<<i);
+			ImGui::CheckboxFlags(flagName, &m_polyFlags, 1<<i);
 		}
 
 		ImGui::Unindent();

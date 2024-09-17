@@ -97,7 +97,7 @@ curl_slist* CURLSlistAppend(curl_slist* slist, const char* string)
 }
 
 bool CURLUploadFile(const char* remote, const char* filePath,
-    const char* options, void* userData, const bool usePost,
+    const char* options, void* customPointer, const bool usePost,
     const curl_slist* slist, const CURLParams& params)
 {
     CURL* curl = EasyInit();
@@ -123,7 +123,7 @@ bool CURLUploadFile(const char* remote, const char* filePath,
 
     progressData.curl = curl;
     progressData.name = filePath;
-    progressData.user = userData;
+    progressData.cust = customPointer;
     progressData.size = fileStatus.st_size;
 
     string response;
@@ -172,7 +172,7 @@ bool CURLUploadFile(const char* remote, const char* filePath,
 }
 
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
-    const char* options, curl_off_t dataSize, void* userData, const CURLParams& params)
+    const char* options, curl_off_t dataSize, void* customPointer, const CURLParams& params)
 {
     CURL* curl = EasyInit();
     if (!curl)
@@ -196,7 +196,7 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
 
     progressData.curl = curl;
     progressData.name = fileName;
-    progressData.user = userData;
+    progressData.cust = customPointer;
     progressData.size = dataSize;
 
     CURLInitCommonOptions(curl, remote, nullptr, file, params, &progressData);

@@ -11,7 +11,6 @@
 #include "rtech/pak/pakstate.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"
-#include "engine/sys_dll2.h"
 #include "geforce/reflex.h"
 #include "radeon/antilag.h"
 #ifndef MATERIALSYSTEM_NODX
@@ -62,10 +61,9 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 
 	if (s_useLowLatency)
 	{
-		GeForce_InitLowLatencySDK();
 		Radeon_InitLowLatencySDK();
-
 		PCLSTATS_INIT(0);
+
 		g_PCLStatsAvailable = true;
 	}
 
@@ -85,7 +83,6 @@ int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 			PCLSTATS_SHUTDOWN();
 
 		Radeon_ShutdownLowLatencySDK();
-		GeForce_ShutdownLowLatencySDK();
 	}
 #endif
 

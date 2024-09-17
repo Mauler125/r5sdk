@@ -234,7 +234,7 @@ void CEngineAPI::UpdateLowLatencyParameters()
 void CEngineAPI::RunLowLatencyFrame()
 {
 #ifndef DEDICATED
-    if (GeForce_IsLowLatencySDKAvailable())
+    if (GeForce_IsLowLatencySDKEnabled())
     {
         if (GeForce_HasPendingLowLatencyParameterUpdates())
         {

@@ -82,15 +82,15 @@ void CAI_Utility::RunRenderFrame(void)
     const bool bUseDepthBuffer = r_debug_draw_depth_test.GetBool();
 
     if (iScriptNodeIndex > -1)
-        g_AIUtility.DrawAIScriptNetwork(*g_pAINetwork, vCamera, iScriptNodeIndex, flCameraRange, bUseDepthBuffer);
+        g_pAIUtility->DrawAIScriptNetwork(*g_pAINetwork, vCamera, iScriptNodeIndex, flCameraRange, bUseDepthBuffer);
     if (iNavMeshBVTreeIndex > -1)
-        g_AIUtility.DrawNavMeshBVTree(nullptr, vCamera, vCullPlane, iNavMeshBVTreeIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+        g_pAIUtility->DrawNavMeshBVTree(nullptr, vCamera, vCullPlane, iNavMeshBVTreeIndex, flCameraRange, nTileRange, bUseDepthBuffer);
     if (iNavMeshPortalIndex > -1)
-        g_AIUtility.DrawNavMeshPortals(nullptr, vCamera, vCullPlane, iNavMeshPortalIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+        g_pAIUtility->DrawNavMeshPortals(nullptr, vCamera, vCullPlane, iNavMeshPortalIndex, flCameraRange, nTileRange, bUseDepthBuffer);
     if (iNavMeshPolyIndex > -1)
-        g_AIUtility.DrawNavMeshPolys(nullptr, vCamera, vCullPlane, iNavMeshPolyIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+        g_pAIUtility->DrawNavMeshPolys(nullptr, vCamera, vCullPlane, iNavMeshPolyIndex, flCameraRange, nTileRange, bUseDepthBuffer);
     if (iNavMeshPolyBoundIndex > -1)
-        g_AIUtility.DrawNavMeshPolyBoundaries(nullptr, vCamera, vCullPlane, iNavMeshPolyBoundIndex, flCameraRange, nTileRange, bUseDepthBuffer);
+        g_pAIUtility->DrawNavMeshPolyBoundaries(nullptr, vCamera, vCullPlane, iNavMeshPolyBoundIndex, flCameraRange, nTileRange, bUseDepthBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -720,4 +720,4 @@ int CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector
     return result;
 }
 
-CAI_Utility g_AIUtility;
+CAI_Utility* g_pAIUtility = new (CAI_Utility);

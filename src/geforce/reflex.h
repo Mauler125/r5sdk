@@ -4,10 +4,7 @@
 extern bool g_PCLStatsAvailable;
 
 void GeForce_EnableLowLatencySDK(const bool enable);
-bool GeForce_IsLowLatencySDKAvailable(void);
-
-bool GeForce_InitLowLatencySDK(void);
-void GeForce_ShutdownLowLatencySDK(void);
+bool GeForce_IsLowLatencySDKEnabled(void);
 
 void GeForce_MarkLowLatencyParametersOutOfDate(void);
 bool GeForce_HasPendingLowLatencyParameterUpdates(void);

@@ -297,7 +297,7 @@ void DrawAllOverlays(bool bRender)
 #ifndef CLIENT_DLL
     if (bOverlayEnabled)
     {
-        g_AIUtility.RunRenderFrame();
+        g_pAIUtility->RunRenderFrame();
     }
 #endif // !CLIENT_DLL
 

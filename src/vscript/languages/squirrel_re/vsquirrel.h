@@ -56,18 +56,18 @@ private:
 	int64_t unk_D0;
 };
 
-extern void(*ServerScriptRegister_Callback)(CSquirrelVM* const s);
-extern void(*ClientScriptRegister_Callback)(CSquirrelVM* const s);
-extern void(*UiScriptRegister_Callback)(CSquirrelVM* const s);
+extern void(*ServerScriptRegister_Callback)(CSquirrelVM* s);
+extern void(*ClientScriptRegister_Callback)(CSquirrelVM* s);
+extern void(*UiScriptRegister_Callback)(CSquirrelVM* s);
 
 extern void(*ServerScriptRegisterEnum_Callback)(CSquirrelVM* const s);
 extern void(*ClientScriptRegisterEnum_Callback)(CSquirrelVM* const s);
 extern void(*UIScriptRegisterEnum_Callback)(CSquirrelVM* const s);
 
-extern void(*CoreServerScriptRegister_Callback)(CSquirrelVM* const s);
-extern void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* const s);
+extern void(*CoreServerScriptRegister_Callback)(CSquirrelVM* s);
+extern void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* s);
 
-extern void(*ScriptConstantRegister_Callback)(CSquirrelVM* const s);
+extern void(*ScriptConstantRegister_Callback)(CSquirrelVM* s);
 
 inline bool(*CSquirrelVM__Init)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime);
 inline bool(*CSquirrelVM__DestroySignalEntryListHead)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
