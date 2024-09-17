@@ -41,11 +41,6 @@ feature to find minor members.
 ///  @param [in] _ Unused parameter
 template<class T> void rdIgnoreUnused(const T&) { }
 
-/// Tests a specific bit in a bit cell
-///  @param[in]	i	The bit number
-///  @return The offset mask for the bit.
-inline int rdBitCellBit(const int i) { return (1 << ((i) & (RD_BITS_PER_BIT_CELL-1))); }
-
 /// Swaps the values of the two parameters.
 ///  @param[in,out]	a	Value A
 ///  @param[in,out]	b	Value B
@@ -79,6 +74,21 @@ template<class T> inline T rdAbs(T a) { return a < 0 ? -a : a; }
 ///  @param[in]		a	The value.
 ///  @return The square of the value.
 template<class T> inline T rdSqr(T a) { return a * a; }
+
+/// Converts value from Degrees to Radians.
+///  @param[in]		x	The value to convert.
+///  @return The input value as Radians.
+inline float rdDegToRad(const float x) { return x * (RD_PI/180.0f); }
+
+/// Converts value from Radians to Degrees.
+///  @param[in]		x	The value to convert.
+///  @return The input value as Degrees.
+inline float rdRadToDeg(const float x) { return x * (180.0f/RD_PI); }
+
+/// Tests a specific bit in a bit cell
+///  @param[in]		i	The bit number
+///  @return The offset mask for the bit.
+inline int rdBitCellBit(const int i) { return (1 << ((i) & (RD_BITS_PER_BIT_CELL-1))); }
 
 /// @}
 /// @name Vector helper functions.

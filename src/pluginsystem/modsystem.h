@@ -29,7 +29,7 @@ public:
 		~ModInstance_t();
 
 		bool ParseSettings();
-		//void ParseConVars();
+		void ParseConVars();
 		void ParseLocalizationFiles();
 
 		inline void SetState(eModState state) { m_iState = state; };
@@ -52,6 +52,7 @@ public:
 		bool m_bHasScriptCompileList; // if this mod has a scripts.rson file that exists
 
 		CUtlVector<CUtlString> m_LocalizationFiles;
+		CUtlVector<ConVar*> m_ConVars;
 
 		CUtlString m_Name;
 		CUtlString m_ModID;
