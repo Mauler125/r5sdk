@@ -28,6 +28,8 @@ void Radeon_EnableLowLatencySDK(const bool enable)
 //-----------------------------------------------------------------------------
 bool Radeon_IsLowLatencySDKAvailable(void)
 {
+	// NOTE: don't check on s_LowLatencySDKEnabled here as this needs to be
+	// provided to the driver itself.
 	if (!s_LowLatencyAvailable)
 		return false;
 

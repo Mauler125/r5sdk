@@ -29,7 +29,7 @@ float rdCalcSlopeAngle(const float* v1, const float* v2)
 
 	const float horizontalDistance = rdMathSqrtf((deltaX*deltaX)+(deltaY*deltaY));
 	const float slopeAngleRadians = rdMathAtan2f(deltaZ, horizontalDistance);
-	const float slopeAngleDegrees = slopeAngleRadians*(180.0f/RD_PI);
+	const float slopeAngleDegrees = rdRadToDeg(slopeAngleRadians);
 
 	return slopeAngleDegrees;
 }
@@ -469,7 +469,7 @@ float rdCalcEdgeOverlap2D(const float* edge1Start, const float* edge1End,
 float rdCalcMaxLOSAngle(const float ledgeSpan, const float objectHeight)
 {
 	const float angleRad = rdMathAtan2f(objectHeight, ledgeSpan);
-	const float angleDeg = angleRad * (180.0f/RD_PI);
+	const float angleDeg = rdRadToDeg(angleRad);
 
 	return angleDeg;
 }
