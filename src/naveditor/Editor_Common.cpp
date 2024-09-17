@@ -178,6 +178,8 @@ void Editor_StaticTileMeshCommon::renderRecastDebugMenu()
 	const bool hasSolid = m_solid != 0;
 	const bool hasDMesh = m_dmesh != 0;
 
+	const bool intermediateDataUnavailable = !hasChf || !hasCset || !hasSolid || !hasDMesh;
+
 	isEnabled = getTileMeshDrawFlags() & TM_DRAWFLAGS_NAVMESH;
 	//ImGui::BeginDisabled(!hasNavMesh);
 

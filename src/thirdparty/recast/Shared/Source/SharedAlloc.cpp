@@ -18,7 +18,7 @@
 
 #include "Shared/Include/SharedAlloc.h"
 
-static void *rdAllocDefault(rdSizeType size, rdAllocHint)
+static void *rdAllocDefault(size_t size, rdAllocHint)
 {
 	return malloc(size);
 }
@@ -37,7 +37,7 @@ void rdAllocSetCustom(rdAllocFunc *allocFunc, rdFreeFunc *freeFunc)
 	sFreeFunc = freeFunc ? freeFunc : rdFreeDefault;
 }
 
-void* rdAlloc(rdSizeType size, rdAllocHint hint)
+void* rdAlloc(size_t size, rdAllocHint hint)
 {
 	return sAllocFunc(size, hint);
 }

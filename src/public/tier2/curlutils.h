@@ -12,24 +12,21 @@ struct CURLProgress
 
 	CURL* curl;
 	const char* name;
-	void* cust; // custom pointer to anything, todo(amos): rename to 'user'.
+	void* cust; // custom pointer to anything.
 	size_t size;
 };
 
 struct CURLParams
 {
 	CURLParams()
-		: readFunction(nullptr)
-		, writeFunction(nullptr)
+		: writeFunction(nullptr)
 		, statusFunction(nullptr)
 		, timeout(0)
 		, verifyPeer(false)
 		, followRedirect(false)
 		, verbose(false)
-		, failOnError(true)
 	{}
 
-	void* readFunction;
 	void* writeFunction;
 	void* statusFunction;
 
@@ -37,17 +34,11 @@ struct CURLParams
 	bool verifyPeer;
 	bool followRedirect;
 	bool verbose;
-	bool failOnError;
 };
 
-size_t CURLReadFileCallback(void* data, const size_t size, const size_t nmemb, FILE* stream);
-size_t CURLWriteFileCallback(void* data, const size_t size, const size_t nmemb, FILE* stream);
 size_t CURLWriteStringCallback(char* contents, const size_t size, const size_t nmemb, string* userp);
+size_t CURLWriteFileCallback(void* data, const size_t size, const size_t nmemb, FILE* userp);
 
-curl_slist* CURLSlistAppend(curl_slist* slist, const char* string);
-
-bool CURLUploadFile(const char* remote, const char* filePath, const char* options,
-	void* customPointer, const bool usePost, const curl_slist* slist, const CURLParams& params);
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
 	const char* options, curl_off_t dataSize, void* customPointer, const CURLParams& params);
 

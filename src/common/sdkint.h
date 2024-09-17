@@ -53,7 +53,7 @@ typedef          float     float32;
 typedef         double     float64;
 
 typedef        float32     f32;
-typedef        float64     f64;
+typedef        float32     f64;
 //-----------------------------------------------------------------------------
 // 8-bit <--> 64-bit wide boolean type
 typedef           int8     b8;

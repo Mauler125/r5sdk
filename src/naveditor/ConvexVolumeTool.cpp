@@ -74,11 +74,24 @@ static int convexhull(const float* pts, int npts, int* out)
 	return i;
 }
 
+static int pointInPoly(int nvert, const float* verts, const float* p) // todo(amos) deduplicate.
+{
+	int i, j, c = 0;
+	for (i = 0, j = nvert-1; i < nvert; j = i++)
+	{
+		const float* vi = &verts[i*3];
+		const float* vj = &verts[j*3];
+		if (((vi[1] > p[1]) != (vj[1] > p[1])) &&
+			(p[0] < (vj[0]-vi[0]) * (p[1]-vi[1]) / (vj[1]-vi[1]) + vi[0]) )
+			c = !c;
+	}
+	return c;
+}
+
 
 ConvexVolumeTool::ConvexVolumeTool() :
 	m_editor(0),
 	m_areaType(RC_NULL_AREA),
-	m_polyFlags(0),
 	m_polyOffset(0.0f),
 	m_boxHeight(650.0f),
 	m_boxDescent(150.0f),
@@ -122,21 +135,8 @@ void ConvexVolumeTool::handleMenu()
 	if (ImGui::Checkbox("Trigger", &isEnabled))
 		m_areaType = EDITOR_POLYAREA_TRIGGER; // todo(amos): also allow setting flags and store this in .gset.
 
-	if (m_areaType == EDITOR_POLYAREA_TRIGGER)
-	{
-		ImGui::Text("Poly Flags");
-		ImGui::Indent();
-
-		for (int i = 0; i < V_ARRAYSIZE(g_navMeshPolyFlagNames); i++)
-		{
-			const char* flagName = g_navMeshPolyFlagNames[i];
-			ImGui::CheckboxFlags(flagName, &m_polyFlags, 1<<i);
-		}
-
-		ImGui::Unindent();
-	}
-
 	ImGui::Unindent();
+
 	ImGui::Separator();
 
 	if (ImGui::Button("Clear Shape"))
@@ -159,7 +159,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 		const ConvexVolume* vols = geom->getConvexVolumes();
 		for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
 		{
-			if (rdPointInPolygon(p, vols[i].verts, vols[i].nverts) &&
+			if (pointInPoly(vols[i].nverts, vols[i].verts, p) &&
 							p[1] >= vols[i].hmin && p[1] <= vols[i].hmax)
 			{
 				nearestIndex = i;
@@ -196,11 +196,11 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 					float offset[MAX_PTS*2*3];
 					int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS*2);
 					if (noffset > 0)
-						geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+						geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned char)m_areaType);
 				}
 				else
 				{
-					geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+					geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned char)m_areaType);
 				}
 			}
 			

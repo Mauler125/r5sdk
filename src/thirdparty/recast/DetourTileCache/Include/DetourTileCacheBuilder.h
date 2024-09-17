@@ -82,7 +82,7 @@ struct dtTileCacheAlloc
 
 	virtual void reset() {}
 	
-	virtual void* alloc(const rdSizeType size)
+	virtual void* alloc(const size_t size)
 	{
 		return rdAlloc(size, RD_ALLOC_TEMP);
 	}

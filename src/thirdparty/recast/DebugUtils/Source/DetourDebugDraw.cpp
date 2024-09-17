@@ -99,7 +99,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 			if (!inner && flags & DU_DRAWNAVMESH_LEDGE_SPANS)
 			{
 				float normal[3];
-				rdCalcEdgeNormalPt2D(v0, v1, normal);
+				rdCalcEdgeNormalPt2D(v0, v1, false, normal);
 
 				float mid[3];
 				rdVsad(mid, v0, v1, 0.5f);
@@ -129,7 +129,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 				}
 				for (int m = 0, n = 2; m < 3; n=m++)
 				{
-					if ((dtGetDetailTriEdgeFlags(t[3], n) & RD_DETAIL_EDGE_BOUNDARY) == 0)
+					if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
 						continue;
 
 					if (rdDistancePtLine2d(tv[n],v0,v1) < thr &&
@@ -206,14 +206,15 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			const dtMeshTile* endTile = mesh.getTile(it);
 			const dtPoly* endPoly = &endTile->polys[ip];
 
-			// Unique color for each type.
-			const int col = duIntToCol(linkTraverseType, 196);
+			const dtTileRef tileRef = mesh.getTileRef(tile);
+			rdIgnoreUnused(tileRef);
 
 			if (endPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 			{
 				const dtOffMeshConnection* con = &endTile->offMeshCons[ip - endTile->header->offMeshBase];
 
 				dd->begin(DU_DRAW_LINES, 2.0f, offset);
+				const int col = duIntToCol(linkTraverseType, 128);
 
 				dd->vertex(&con->pos[0], col);
 				dd->vertex(&con->pos[3], col);
@@ -258,6 +259,9 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 				highestPos[2]
 			};
 
+			// Unique color for each type.
+			const int col = duIntToCol(linkTraverseType, 128);
+
 			dd->begin(DU_DRAW_LINES, 2.0f, offset);
 
 			const float* targetStartPos = startPointHighest ? offsetEndPos : startPos;
@@ -272,7 +276,7 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			{
 				// If the reverse link is set, render white crosses to confirm
 				// the links are set properly.
-				duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, duRGBA(255,255,255,196));
+				duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, duRGBA(255,255,255,180));
 			}
 
 			dd->end();
@@ -285,8 +289,8 @@ static void drawTileCells(duDebugDraw* dd, const dtMeshTile* tile, const float* 
 #if DT_NAVMESH_SET_VERSION >= 8 
 	for (int i = 0; i < tile->header->maxCellCount; i++)
 	{
-		const dtCell& cell = tile->cells[i];
-		duDebugDrawCross(dd, cell.pos[0], cell.pos[1], cell.pos[2], 25.f, duRGBA(255,0,0,255), 2, offset);
+		const dtCell& probe = tile->cells[i];
+		duDebugDrawCross(dd, probe.pos[0], probe.pos[1], probe.pos[2], 25.f, duRGBA(255,0,0,255), 2, offset);
 	}
 #else
 	rdIgnoreUnused(dd);

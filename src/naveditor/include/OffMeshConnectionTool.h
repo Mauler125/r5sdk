@@ -27,8 +27,6 @@ class OffMeshConnectionTool : public EditorTool
 {
 	Editor* m_editor;
 	float m_hitPos[3];
-	float m_lastSelectedAgentRadius;
-	float m_radius;
 	bool m_hitPosSet;
 	bool m_bidir;
 	bool m_invertVertexLookupOrder;

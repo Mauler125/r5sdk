@@ -17,7 +17,7 @@ static ConVar r_drawWorldMeshesDepthAtTheEnd("r_drawWorldMeshesDepthAtTheEnd", "
 
 void* R_DrawDepthOfField(const float scalar)
 {
-	GeForce_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_START, MaterialSystem()->GetCurrentFrameCount());
+	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_START, MaterialSystem()->GetCurrentFrameCount());
 	return V_DrawDepthOfField(scalar);
 }
 

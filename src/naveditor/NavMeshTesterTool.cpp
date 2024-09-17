@@ -106,7 +106,7 @@ static int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
 
 static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, const float* endPos,
 						   const float minTargetDist,
-						   const dtPolyRef* path, const unsigned char* jumpTypes, const int pathSize,
+						   const dtPolyRef* path, const int pathSize,
 						   float* steerPos, unsigned char& steerPosFlag, dtPolyRef& steerPosRef,
 						   float* outPoints = 0, int* outPointCount = 0)							 
 {
@@ -115,10 +115,9 @@ static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, cons
 	float steerPath[MAX_STEER_POINTS*3];
 	unsigned char steerPathFlags[MAX_STEER_POINTS];
 	dtPolyRef steerPathPolys[MAX_STEER_POINTS];
-	unsigned char steerPathJumps[MAX_STEER_POINTS];
 	int nsteerPath = 0;
-	navQuery->findStraightPath(startPos, endPos, path, jumpTypes, pathSize,
-							   steerPath, steerPathFlags, steerPathPolys, steerPathJumps, &nsteerPath, MAX_STEER_POINTS);
+	navQuery->findStraightPath(startPos, endPos, path, pathSize,
+							   steerPath, steerPathFlags, steerPathPolys, &nsteerPath, MAX_STEER_POINTS);
 	if (!nsteerPath)
 		return false;
 		
@@ -545,7 +544,7 @@ void NavMeshTesterTool::handleToggle()
 	dtPolyRef steerPosRef;
 		
 	if (!getSteerTarget(m_navQuery, m_iterPos, m_targetPos, SLOP,
-						m_pathIterPolys, m_jumpTypes, m_pathIterPolyCount, steerPos, steerPosFlag, steerPosRef,
+						m_pathIterPolys, m_pathIterPolyCount, steerPos, steerPosFlag, steerPosRef,
 						m_steerPoints, &m_steerPointCount))
 		return;
 		
@@ -662,9 +661,9 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 				if (m_polys[m_npolys-1] != m_endRef)
 				m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos, 0);
 
-				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_jumpTypes, m_npolys,
+				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
 											 m_straightPath, m_straightPathFlags,
-											 m_straightPathPolys, m_straightPathJumps, &m_nstraightPath, MAX_POLYS, DT_STRAIGHTPATH_ALL_CROSSINGS);
+											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS, DT_STRAIGHTPATH_ALL_CROSSINGS);
 			}
 			 
 			m_pathFindStatus = DT_FAILURE;
@@ -739,7 +738,6 @@ void NavMeshTesterTool::recalc()
 				dtPolyRef polys[MAX_POLYS];
 				memcpy(polys, m_polys, sizeof(dtPolyRef)*m_npolys); 
 				int npolys = m_npolys;
-				unsigned char* jumpTypes = m_jumpTypes;
 				
 				float iterPos[3], targetPos[3];
 				m_navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos, 0);
@@ -763,7 +761,7 @@ void NavMeshTesterTool::recalc()
 					dtPolyRef steerPosRef;
 					
 					if (!getSteerTarget(m_navQuery, iterPos, targetPos, SLOP,
-										polys, jumpTypes, npolys, steerPos, steerPosFlag, steerPosRef))
+										polys, npolys, steerPos, steerPosFlag, steerPosRef))
 						break;
 					
 					bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END) ? true : false;
@@ -884,9 +882,9 @@ void NavMeshTesterTool::recalc()
 				if (m_polys[m_npolys-1] != m_endRef)
 					m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos, 0);
 				
-				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_jumpTypes, m_npolys,
+				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
 											 m_straightPath, m_straightPathFlags,
-											 m_straightPathPolys, m_straightPathJumps, &m_nstraightPath, MAX_POLYS, m_straightPathOptions);
+											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS, m_straightPathOptions);
 			}
 		}
 		else

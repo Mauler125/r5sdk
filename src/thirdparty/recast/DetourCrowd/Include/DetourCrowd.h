@@ -170,9 +170,6 @@ struct dtCrowdAgent
 	/// The reference id of the polygon being entered at the corner. [(polyRef) * #ncorners]
 	dtPolyRef cornerPolys[DT_CROWDAGENT_MAX_CORNERS];
 
-	/// The jump types encountered at the corner. [(jumpType) * #ncorners]
-	unsigned char cornerJumps[DT_CROWDAGENT_MAX_CORNERS];
-
 	/// The number of corners.
 	int ncorners;
 	

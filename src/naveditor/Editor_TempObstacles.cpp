@@ -402,7 +402,6 @@ int Editor_TempObstacles::rasterizeTileLayers(
 	{
 		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts,
 							 vols[i].hmin, vols[i].hmax,
-							 (unsigned short)vols[i].flags,
 							 (unsigned char)vols[i].area, *rc.chf);
 	}
 	

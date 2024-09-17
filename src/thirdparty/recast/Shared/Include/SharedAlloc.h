@@ -19,7 +19,6 @@
 #ifndef RECASTDETOURALLOC_H
 #define RECASTDETOURALLOC_H
 
-#include "SharedDefs.h"
 #include "SharedAssert.h"
 
 /// Provides hint values to the memory allocator on how long the
@@ -35,7 +34,7 @@ enum rdAllocHint
 //  @param[in]		rdAllocHint	A hint to the allocator on how long the memory is expected to be in use.
 //  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 ///  @see rdAllocSetCustom
-typedef void* (rdAllocFunc)(rdSizeType size, rdAllocHint hint);
+typedef void* (rdAllocFunc)(size_t size, rdAllocHint hint);
 
 /// A memory deallocation function.
 ///  @param[in]		ptr		A pointer to a memory block previously allocated using #rdAllocFunc.
@@ -56,7 +55,7 @@ void rdAllocSetCustom(rdAllocFunc *allocFunc, rdFreeFunc *freeFunc);
 /// @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 /// 
 /// @see rdFree, rdAllocSetCustom
-void* rdAlloc(rdSizeType size, rdAllocHint hint);
+void* rdAlloc(size_t size, rdAllocHint hint);
 
 /// Deallocates a memory block.  If @p ptr is NULL, this does nothing.
 ///
@@ -74,6 +73,21 @@ void rdFree(void* ptr);
 struct rdNewTag {};
 inline void* operator new(size_t, const rdNewTag&, void* p) { return p; }
 inline void operator delete(void*, const rdNewTag&, void*) {}
+
+/// Signed to avoid warnings when comparing to int loop indexes, and common error with comparing to zero.
+/// MSVC2010 has a bug where ssize_t is unsigned (!!!).
+typedef intptr_t rdSizeType;
+#define RD_SIZE_MAX INTPTR_MAX
+
+/// Macros to hint to the compiler about the likeliest branch. Please add a benchmark that demonstrates a performance
+/// improvement before introducing use cases.
+#if defined(__GNUC__) || defined(__clang__)
+#define rdLikely(x) __builtin_expect((x), true)
+#define rdUnlikely(x) __builtin_expect((x), false)
+#else
+#define rdLikely(x) (x)
+#define rdUnlikely(x) (x)
+#endif
 
 /// Variable-sized storage type. Mimics the interface of std::vector<T> with some notable differences:
 ///  * Uses rdAlloc()/rdFree() to handle storage.

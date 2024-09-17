@@ -24,8 +24,8 @@ struct duFileIO
 	virtual ~duFileIO() = 0;
 	virtual bool isWriting() const = 0;
 	virtual bool isReading() const = 0;
-	virtual bool write(const void* ptr, const rdSizeType size) = 0;
-	virtual bool read(void* ptr, const rdSizeType size) = 0;
+	virtual bool write(const void* ptr, const size_t size) = 0;
+	virtual bool read(void* ptr, const size_t size) = 0;
 };
 
 #endif // FILE_IO_H

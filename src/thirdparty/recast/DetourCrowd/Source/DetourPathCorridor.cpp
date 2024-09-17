@@ -198,7 +198,6 @@ may be needed.  E.g. If you move the target, check #getLastPoly() to see if it i
 
 dtPathCorridor::dtPathCorridor() :
 	m_path(0),
-	m_jumpTypes(0),
 	m_npath(0),
 	m_maxPath(0)
 {
@@ -209,7 +208,6 @@ dtPathCorridor::dtPathCorridor() :
 dtPathCorridor::~dtPathCorridor()
 {
 	rdFree(m_path);
-	rdFree(m_jumpTypes);
 }
 
 /// @par
@@ -221,12 +219,6 @@ bool dtPathCorridor::init(const int maxPath)
 	m_path = (dtPolyRef*)rdAlloc(sizeof(dtPolyRef)*maxPath, RD_ALLOC_PERM);
 	if (!m_path)
 		return false;
-
-	rdAssert(!m_jumpTypes);
-	m_jumpTypes = (unsigned char*)rdAlloc(sizeof(unsigned char)*maxPath, RD_ALLOC_PERM);
-	if (!m_jumpTypes)
-		return false;
-
 	m_npath = 0;
 	m_maxPath = maxPath;
 	return true;
@@ -239,11 +231,9 @@ bool dtPathCorridor::init(const int maxPath)
 void dtPathCorridor::reset(dtPolyRef ref, const float* pos)
 {
 	rdAssert(m_path);
-	rdAssert(m_jumpTypes);
 	rdVcopy(m_pos, pos);
 	rdVcopy(m_target, pos);
 	m_path[0] = ref;
-	m_jumpTypes[0] = DT_NULL_TRAVERSE_TYPE;
 	m_npath = 1;
 }
 
@@ -260,8 +250,8 @@ So if 10 corners are needed, the buffers should be sized for 11 corners.
 If the target is within range, it will be the last corner and have a polygon reference id of zero.
 */
 int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
-							  dtPolyRef* cornerPolys, unsigned char* cornerJumps,
-							  const int maxCorners, dtNavMeshQuery* navquery, const dtQueryFilter* /*filter*/)
+							  dtPolyRef* cornerPolys, const int maxCorners,
+							  dtNavMeshQuery* navquery, const dtQueryFilter* /*filter*/)
 {
 	rdAssert(m_path);
 	rdAssert(m_npath);
@@ -269,8 +259,8 @@ int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 	static const float MIN_TARGET_DIST = 0.01f;
 	
 	int ncorners = 0;
-	navquery->findStraightPath(m_pos, m_target, m_path, m_jumpTypes, m_npath,
-							   cornerVerts, cornerFlags, cornerPolys, cornerJumps, &ncorners, maxCorners);
+	navquery->findStraightPath(m_pos, m_target, m_path, m_npath,
+							   cornerVerts, cornerFlags, cornerPolys, &ncorners, maxCorners);
 	
 	// Prune points in the beginning of the path which are too close.
 	while (ncorners)
@@ -537,9 +527,9 @@ bool dtPathCorridor::fixPathStart(dtPolyRef safeRef, const float* safePos)
 	rdVcopy(m_pos, safePos);
 	if (m_npath < 3 && m_npath > 0)
 	{
+		m_path[2] = m_path[m_npath-1];
 		m_path[0] = safeRef;
 		m_path[1] = 0;
-		m_path[2] = m_path[m_npath-1];
 		m_npath = 3;
 	}
 	else

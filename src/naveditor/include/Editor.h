@@ -200,27 +200,6 @@ enum EditorPolyFlags
 	EDITOR_POLYFLAGS_ALL				= 0xffff	// All abilities.
 };
 
-inline static const char* const g_navMeshPolyFlagNames[] =
-{
-	"walk",
-	"too_small",
-	"has_neighbour",
-	"jump",
-	"jump_linked",
-	"unused_8",
-	"obstacle",
-	"unused_128",
-	"disabled",
-	"hazard",
-	"door",
-	"unused_2048",
-	"unused_4096",
-	"door_breachable",
-	"unused_16384",
-	"unused_32768",
-	"all"
-};
-
 struct TraverseLinkPolyPair
 {
 	TraverseLinkPolyPair(dtPolyRef p1, dtPolyRef p2)
@@ -379,8 +358,6 @@ public:
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
-
-	inline float getCellHeight() const { return m_cellHeight; }
 	
 	inline unsigned int getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
 	inline void setNavMeshDrawFlags(unsigned int flags) { m_navMeshDrawFlags = flags; }
@@ -389,11 +366,6 @@ public:
 
 	inline NavMeshType_e getSelectedNavMeshType() const { return m_selectedNavMeshType; }
 	inline NavMeshType_e getLoadedNavMeshType() const { return m_loadedNavMeshType; }
-
-	inline bool useDynamicTraverseRayOffset() const { return m_traverseRayDynamicOffset; }
-	inline float getTraverseRayExtraOffset() const { return m_traverseRayExtraOffset; }
-
-	inline std::map<TraverseLinkPolyPair, unsigned int>& getTraverseLinkPolyMap() { return m_traverseLinkPolyMap; }
 
 	inline const char* getModelName() const { return m_modelName.c_str(); }
 
@@ -405,7 +377,6 @@ public:
 
 	void renderMeshOffsetOptions();
 	void renderDetourDebugMenu();
-	void renderTraverseTableFineTuners();
 	void renderIntermediateTileMeshOptions();
 
 	void selectNavMeshType(const NavMeshType_e navMeshType);
@@ -415,8 +386,6 @@ public:
 
 	void connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor); // Make private.
 	bool createTraverseLinks();
-
-	void createTraverseLinkParams(dtTraverseLinkConnectParams& params);
 
 	void createTraverseTableParams(dtTraverseTableCreateParams* params);
 

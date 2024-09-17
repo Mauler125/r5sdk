@@ -529,7 +529,7 @@ struct rcRegion
 	
 	int spanCount;					// Number of spans belonging to this region
 	unsigned short id;				// ID of the region
-	unsigned char areaType;			// Area type.
+	unsigned char areaType;			// Are type.
 	bool remap;
 	bool visited;
 	bool overlap;

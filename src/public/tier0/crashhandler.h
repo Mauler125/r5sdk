@@ -4,26 +4,6 @@
 
 #define CRASHMESSAGE_MSG_EXECUTABLE "bin\\crashmsg.exe"
 
-class CCrashHandler;
-typedef void (*CrashCallback_t)(const CCrashHandler* handler);
-
-struct CrashHardWareInfo_s
-{
-	CrashHardWareInfo_s()
-	{
-		displayDevice = { sizeof(displayDevice), {0} };
-		memoryStatus = { sizeof(memoryStatus) , {0} };
-		availDiskSpace = 0;
-		totalDiskSpace = 0;
-	}
-
-	DISPLAY_DEVICE displayDevice;
-	MEMORYSTATUSEX memoryStatus;
-
-	size_t totalDiskSpace;
-	size_t availDiskSpace;
-};
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -49,12 +29,6 @@ public:
 
 	inline bool IsValid() const { return m_hExceptionHandler != nullptr; };
 
-	inline bool CrashingModuleNameKnown() const { return m_CrashingModule.Length() > 0; }
-	inline const char* GetCrashingModuleName() const { return m_CrashingModule.String(); }
-
-	inline const EXCEPTION_POINTERS* GetExceptionPointers() const { return m_pExceptionPointers; }
-	inline const CrashHardWareInfo_s& GetHardwareInfo() const { return m_HardWareInfo; }
-
 	//-------------------------------------------------------------------------
 	// Formatters: 
 	//-------------------------------------------------------------------------
@@ -72,13 +46,13 @@ public:
 	const char* ExceptionToString(const DWORD nExceptionCode) const;
 
 	void SetExceptionPointers(EXCEPTION_POINTERS* const pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; }
-	void SetCrashCallback(CrashCallback_t pCrashCallback) { m_pCrashCallback = pCrashCallback; }
+	void SetCrashCallback(PVOID pCrashCallback) { m_pCrashCallback = pCrashCallback; }
 
 	void CaptureCallStack();
 	void WriteFile();
 
 	void CreateMessageProcess();
-	void CrashCallback() const;
+	void CrashCallback();
 
 private:
 
@@ -109,7 +83,7 @@ private:
 	HMODULE m_ppModuleHandles[MAX_MODULE_HANDLES];
 
 	// Custom crash callback that's called after the logs have been written.
-	CrashCallback_t m_pCrashCallback;
+	PVOID m_pCrashCallback;
 
 	// Current exception handler, only kept here for tracking as we need the
 	// handle if we want to remove this handler.
@@ -135,9 +109,6 @@ private:
 
 	// Set when crashmsg.exe is created to prevent recursive messages.
 	bool m_bMessageCreated;
-	
-	// Cached hardware info this application crashed on.
-	CrashHardWareInfo_s m_HardWareInfo;
 
 	mutable RTL_SRWLOCK m_Lock;
 };

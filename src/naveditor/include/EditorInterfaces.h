@@ -90,8 +90,8 @@ public:
 	bool openForRead(const char* path);
 	virtual bool isWriting() const;
 	virtual bool isReading() const;
-	virtual bool write(const void* ptr, const rdSizeType size);
-	virtual bool read(void* ptr, const rdSizeType size);
+	virtual bool write(const void* ptr, const size_t size);
+	virtual bool read(void* ptr, const size_t size);
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	FileIO(const FileIO&);

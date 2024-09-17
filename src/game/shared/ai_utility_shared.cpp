@@ -540,7 +540,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
                     }
                     for (int m = 0, n = 2; m < 3; n = m++)
                     {
-                        if ((dtGetDetailTriEdgeFlags(t[3], n) & RD_DETAIL_EDGE_BOUNDARY) == 0)
+                        if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
                             continue;
 
                         if (rdDistancePtLine2D(tv[n], v0, v1) < thr &&

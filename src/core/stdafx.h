@@ -44,8 +44,6 @@
 #include "thirdparty/nvapi/pclstats.h"
 #include "thirdparty/nvapi/nvapi.h"
 #include "thirdparty/nvapi/nvapi_lite_common.h"
-
-#include "thirdparty/fidelityfx/ffx_antilag2_dx11.h"
 #endif // !DEDICATED && !PLUGINSDK
 
 

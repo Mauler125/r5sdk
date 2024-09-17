@@ -340,7 +340,7 @@ bool CNetCon::GetQuitting(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: set whether we should quit
-// Input  : bQuit
+// input : bQuit
 //-----------------------------------------------------------------------------
 void CNetCon::SetQuitting(const bool bQuit)
 {
@@ -358,7 +358,7 @@ bool CNetCon::GetPrompting(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: set whether we should prompt the connect message
-// Input  : bPrompt
+// input : bPrompt
 //-----------------------------------------------------------------------------
 void CNetCon::SetPrompting(const bool bPrompt)
 {

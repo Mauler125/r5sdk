@@ -119,11 +119,11 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	// for simulation start/end and render submit start. The render thread (here)
 	// continues after to finish the frame.
 	const NvU64 frameID = (NvU64)MaterialSystem()->GetCurrentFrameCount() - 1;
-	GeForce_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_END, frameID);
+	GFX_SetLatencyMarker(D3D11Device(), RENDERSUBMIT_END, frameID);
 
-	GeForce_SetLatencyMarker(D3D11Device(), PRESENT_START, frameID);
+	GFX_SetLatencyMarker(D3D11Device(), PRESENT_START, frameID);
 	const HRESULT result = s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
-	GeForce_SetLatencyMarker(D3D11Device(), PRESENT_END, frameID);
+	GFX_SetLatencyMarker(D3D11Device(), PRESENT_END, frameID);
 
 	return result;
 }

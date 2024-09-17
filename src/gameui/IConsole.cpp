@@ -1107,7 +1107,7 @@ void CConsole::AddLog(const ImU32 color, const char* fmt, ...) /*IM_FMTARGS(2)*/
 
 //-----------------------------------------------------------------------------
 // Purpose: removes lines from console with sanitized start and end indices
-// Input  : nStart - 
+// input  : nStart - 
 //          nEnd - 
 //-----------------------------------------------------------------------------
 void CConsole::RemoveLog(int nStart, int nEnd)

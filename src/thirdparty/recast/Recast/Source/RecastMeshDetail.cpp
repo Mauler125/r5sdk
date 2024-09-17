@@ -735,15 +735,18 @@ static bool onHull(int a, int b, int nhull, int* hull)
 // Find edges that lie on hull and mark them as such.
 static void setTriFlags(rdIntArray& tris, int nhull, int* hull)
 {
+	// Matches DT_DETAIL_EDGE_BOUNDARY
+	const int DETAIL_EDGE_BOUNDARY = 0x1;
+
 	for (int i = 0; i < tris.size(); i += 4)
 	{
 		int a = tris[i + 0];
 		int b = tris[i + 1];
 		int c = tris[i + 2];
 		unsigned short flags = 0;
-		flags |= (onHull(a, c, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 0;
-		flags |= (onHull(c, b, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 2;
-		flags |= (onHull(b, a, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 4;
+		flags |= (onHull(a, c, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 0;
+		flags |= (onHull(c, b, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 2;
+		flags |= (onHull(b, a, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 4;
 		tris[i + 3] = (int)flags;
 	}
 }
@@ -1313,7 +1316,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		ymax = 0;
 		for (int j = 0; j < nvp; ++j)
 		{
-			if(p[j] == RD_MESH_NULL_IDX) break;
+			if(p[j] == RC_MESH_NULL_IDX) break;
 			const unsigned short* v = &mesh.verts[p[j]*3];
 			xmin = rdMin(xmin, (int)v[0]);
 			xmax = rdMax(xmax, (int)v[0]);
@@ -1373,7 +1376,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		int npoly = 0;
 		for (int j = 0; j < nvp; ++j)
 		{
-			if(p[j] == RD_MESH_NULL_IDX) break;
+			if(p[j] == RC_MESH_NULL_IDX) break;
 			const unsigned short* v = &mesh.verts[p[j]*3];
 			poly[j*3+0] = v[0]*cs;
 			poly[j*3+1] = v[1]*cs;
