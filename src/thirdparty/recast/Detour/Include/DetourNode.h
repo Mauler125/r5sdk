@@ -33,6 +33,8 @@ static const dtNodeIndex DT_NULL_IDX = (dtNodeIndex)~0;
 
 static const int DT_NODE_PARENT_BITS = 19;
 static const int DT_NODE_STATE_BITS = 2;
+static const int DT_NODE_FLAGS_BITS = 3;
+static const int DT_NODE_JUMPT_BITS = 8;
 struct dtNode
 {
 	float pos[3];								///< Position of the node.
@@ -40,7 +42,8 @@ struct dtNode
 	float total;								///< Cost up to the node.
 	unsigned int pidx : DT_NODE_PARENT_BITS;	///< Index to parent node.
 	unsigned int state : DT_NODE_STATE_BITS;	///< extra state information. A polyRef can have multiple nodes with different extra info. see DT_MAX_STATES_PER_NODE
-	unsigned int flags : 3;						///< Node flags. A combination of dtNodeFlags.
+	unsigned int flags : DT_NODE_FLAGS_BITS;	///< Node flags. A combination of dtNodeFlags.
+	unsigned int jumpt : DT_NODE_JUMPT_BITS;	///< Node jump type.
 	dtPolyRef id;								///< Polygon ref the node corresponds to.
 };
 

@@ -19,10 +19,9 @@
 #ifndef RECASTDETOURCOMMON_H
 #define RECASTDETOURCOMMON_H
 
+#include "Shared/Include/SharedConst.h"
+#include "Shared/Include/SharedDefs.h"
 #include "Shared/Include/SharedMath.h"
-
-/// The total number of bits in an bit cell integer.
-static const int RD_BITS_PER_BIT_CELL = 32;
 
 /**
 @defgroup shared Shared
@@ -477,25 +476,35 @@ float rdDistancePtLine2D(const float* pt, const float* p, const float* q);
 
 /// Derives the normal of an edge
 ///  @param[in]		dir		The direction of the edge. [(x, y, z)]
-///  @param[in]		invert	Whether to invert the results.
 ///  @param[out]	out		The resulting normal. [(x, y)]
-void rdCalcEdgeNormal2D(const float* dir, const bool inner, float* out);
+void rdCalcEdgeNormal2D(const float* dir, float* out);
 
 /// Derives the normal of an edge
 ///  @param[in]		v1		First vert of the polygon edge. [(x, y, z)]
 ///  @param[in]		v2		Second vert of the polygon edge. [(x, y, z)]
-///  @param[in]		invert	Whether to invert the results.
 ///  @param[out]	out		The resulting normal. [(x, y)]
-void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, const bool inner, float* out);
+void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, float* out);
 
+/// Derives the sub-edge area of an edge.
 ///  @param[in]		edgeStart		First vert of the polygon edge. [(x, y, z)]
 ///  @param[in]		edgeEnd			Second vert of the polygon edge. [(x, y, z)]
 ///  @param[in]		subEdgeStart	First vert of the detail edge. [(x, y, z)]
 ///  @param[in]		subEdgeEnd		Second vert of the detail edge. [(x, y, z)]
 ///  @param[out]	tmin			The normalized distance ratio from polygon edge start to detail edge start.
 ///  @param[out]	tmax			The normalized distance ratio from polygon edge start to detail edge end.
+/// @return False if tmin and tmax don't correspond to the winding order of the edge.
 bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,
 	const float* subEdgeEnd, float& tmin, float& tmax);
+
+/// Derives the overlap between 2 edges.
+///  @param[in]		edge1Start		Start vert of the first edge. [(x, y, z)]
+///  @param[in]		edge1End		End vert of the first edge. [(x, y, z)]
+///  @param[in]		edge2Start		Start vert of the second edge. [(x, y, z)]
+///  @param[in]		edge2End		End vert of the second edge. [(x, y, z)]
+///  @param[in]		targetEdgeVec	The projection direction. [(x, y, z)]
+/// @return The length of the overlap.
+float rdCalcEdgeOverlap2D(const float* edge1Start, const float* edge1End,
+	const float* edge2Start, const float* edge2End, const float* targetEdgeVec);
 
 /// Derives the maximum angle in which an object on an elevated surface can be seen from below.
 ///  @param[in]		ledgeSpan		The distance between the edge of the object and the edge of the ledge.
@@ -614,8 +623,20 @@ inline void rdSwapEndian(float* v)
 void rdRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 							   const float s, const float t, float* out);
 
+/// Counts the number of vertices in the polygon.
+///  @param[in]		p	The polygon.
+///  @param[in]		nvp	The total number of verts per polygon.
+/// @return The number of vertices in the polygon.
+inline int rdCountPolyVerts(const unsigned short* p, const int nvp)
+{
+	for (int i = 0; i < nvp; ++i)
+		if (p[i] == RD_MESH_NULL_IDX)
+			return i;
+	return nvp;
+}
+
 template<typename TypeToRetrieveAs>
-TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(const unsigned char*& buffer, const size_t distanceToAdvance)
+TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(const unsigned char*& buffer, const rdSizeType distanceToAdvance)
 {
 	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
 	buffer += distanceToAdvance;
@@ -623,7 +644,7 @@ TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(const unsigned char*& buffer, co
 }
 
 template<typename TypeToRetrieveAs>
-TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(unsigned char*& buffer, const size_t distanceToAdvance)
+TypeToRetrieveAs* rdGetThenAdvanceBufferPointer(unsigned char*& buffer, const rdSizeType distanceToAdvance)
 {
 	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
 	buffer += distanceToAdvance;

@@ -22,7 +22,7 @@ static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DE
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the navmesh by type from global array [small, med_short, medium, large, extra_large]
-// input  : navMeshType - 
+// Input  : navMeshType - 
 // Output : pointer to navmesh
 //-----------------------------------------------------------------------------
 dtNavMesh* Detour_GetNavMeshByType(const NavMeshType_e navMeshType)
@@ -33,7 +33,7 @@ dtNavMesh* Detour_GetNavMeshByType(const NavMeshType_e navMeshType)
 
 //-----------------------------------------------------------------------------
 // Purpose: free's the navmesh by type from global array [small, med_short, medium, large, extra_large]
-// input  : navMeshType - 
+// Input  : navMeshType - 
 //-----------------------------------------------------------------------------
 void Detour_FreeNavMeshByType(const NavMeshType_e navMeshType)
 {
@@ -54,7 +54,7 @@ void Detour_FreeNavMeshByType(const NavMeshType_e navMeshType)
 //-----------------------------------------------------------------------------
 // Purpose: determines whether goal poly is reachable from agent poly
 //          (only checks static pathing)
-// input  : *nav - 
+// Input  : *nav - 
 //			fromRef - 
 //			goalRef - 
 //			animType - 
@@ -72,6 +72,37 @@ bool Detour_IsGoalPolyReachable(dtNavMesh* const nav, const dtPolyRef fromRef,
         : NULL;
 
     return nav->isGoalPolyReachable(fromRef, goalRef, !hasAnimType, traverseTableIndex);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: finds the nearest polygon to specified center point.
+// Input  : *query - 
+//          *center - 
+//          *halfExtents - 
+//          *filter - 
+//          *nearestRef - 
+//          *nearestPt - 
+// Output: The status flags for the query.
+//-----------------------------------------------------------------------------
+dtStatus Detour_FindNearestPoly(dtNavMeshQuery* query, const float* center, const float* halfExtents,
+    const dtQueryFilter* filter, dtPolyRef* nearestRef, float* nearestPt)
+{
+    return query->findNearestPoly(center, halfExtents, filter, nearestRef, nearestPt);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds a tile to the NavMesh.
+// Input  : *nav - 
+//          *unused - 
+//          *data - 
+//          *dataSize - 
+//          *flags - 
+//          *lastRef - 
+// Output: The status flags for the operation.
+//-----------------------------------------------------------------------------
+dtStatus Detour_AddTile(dtNavMesh* nav, void* unused, unsigned char* data, int dataSize, int flags, dtTileRef lastRef)
+{
+    return nav->addTile(data, dataSize, flags, lastRef, nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -120,19 +151,47 @@ bool Detour_IsLoaded()
 
 //-----------------------------------------------------------------------------
 // Purpose: hot swaps the NavMesh with the current files on the disk
-// (All hulls will be reloaded! If NavMesh for hull no longer exist, it will be kept empty!!!)
+// (All types will be reloaded! If NavMesh for type no longer exist, it will be kept empty!!!)
 //-----------------------------------------------------------------------------
 void Detour_HotSwap()
 {
     Assert(ThreadInMainOrServerFrameThread());
     g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapBegin");
 
+    const dtNavMesh* queryNav = g_pNavMeshQuery->getAttachedNavMesh();
+    NavMeshType_e queryNavType = NAVMESH_INVALID;
+
+    // Figure out which NavMesh type is attached to the global query.
+    for (int i = 0; i < NAVMESH_COUNT; i++)
+    {
+        const NavMeshType_e in = (NavMeshType_e)i;
+
+        if (queryNav != Detour_GetNavMeshByType(in))
+            continue;
+
+        queryNavType = in;
+        break;
+    }
+
     // Free and re-init NavMesh.
     Detour_LevelShutdown();
     v_Detour_LevelInit();
 
     if (!Detour_IsLoaded())
-        Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
+        Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh: %s\n", __FUNCTION__, 
+            "one or more missing NavMesh types, Detour logic may be unavailable");
+
+    // Attach the new NavMesh to the global Detour query.
+    if (queryNavType != NAVMESH_INVALID)
+    {
+        const dtNavMesh* newQueryNav = Detour_GetNavMeshByType(queryNavType);
+
+        if (newQueryNav)
+            g_pNavMeshQuery->attachNavMeshUnsafe(newQueryNav);
+        else
+            Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh: %s\n", __FUNCTION__, 
+                "previously attached NavMesh type is no longer available for global Detour query");
+    }
 
     const int numAis = g_AI_Manager->NumAIs();
     CAI_BaseNPC** const pAis = g_AI_Manager->AccessAIs();
@@ -185,4 +244,6 @@ void VRecast::Detour(const bool bAttach) const
 {
 	DetourSetup(&v_Detour_IsGoalPolyReachable, &Detour_IsGoalPolyReachable, bAttach);
 	DetourSetup(&v_Detour_LevelInit, &Detour_LevelInit, bAttach);
+	//DetourSetup(&dtNavMesh__addTile, &Detour_AddTile, bAttach);
+	//DetourSetup(&dtNavMeshQuery__findNearestPoly, &Detour_FindNearestPoly, bAttach);
 }
