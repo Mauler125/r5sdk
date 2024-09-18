@@ -401,6 +401,9 @@ struct dtOffMeshConnection
 	/// The traverse type.
 	unsigned char traverseType;
 
+	/// The id of the off-mesh connection. (User assigned when the navigation mesh is built.)
+	unsigned short userId;
+
 	/// The hint index.
 	unsigned short hintIndex;
 #else
@@ -414,10 +417,11 @@ struct dtOffMeshConnection
 
 	/// The traverse type and lookup order.
 	unsigned short traverseContext;
-#endif
 
 	/// The id of the off-mesh connection. (User assigned when the navigation mesh is built.)
 	unsigned short userId;
+#endif
+
 	/// The reference position set to the start of the off-mesh connection with an offset of DT_OFFMESH_CON_REFPOS_OFFSET
 	float refPos[3]; // See [r5apex_ds + F114CF], [r5apex_ds + F11B42], [r5apex_ds + F12447].
 	/// The reference yaw angle set towards the end position of the off-mesh connection.
