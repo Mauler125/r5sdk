@@ -175,23 +175,23 @@ struct MeshProcess : public dtTileCacheMeshProcess
 		for (int i = 0; i < params->polyCount; ++i)
 		{
 			if (polyAreas[i] == DT_TILECACHE_WALKABLE_AREA)
-				polyAreas[i] = EDITOR_POLYAREA_GROUND;
+				polyAreas[i] = DT_POLYAREA_GROUND;
 
-			if (polyAreas[i] == EDITOR_POLYAREA_GROUND
+			if (polyAreas[i] == DT_POLYAREA_GROUND
 				//||
 				//polyAreas[i] == EDITOR_POLYAREA_GRASS ||
 				//polyAreas[i] == EDITOR_POLYAREA_ROAD
 				)
 			{
-				polyFlags[i] = EDITOR_POLYFLAGS_WALK;
+				polyFlags[i] = DT_POLYFLAGS_WALK;
 			}
 			//else if (polyAreas[i] == EDITOR_POLYAREA_WATER)
 			//{
 			//	polyFlags[i] = EDITOR_POLYFLAGS_SWIM;
 			//}
-			else if (polyAreas[i] == EDITOR_POLYAREA_TRIGGER)
+			else if (polyAreas[i] == DT_POLYAREA_TRIGGER)
 			{
-				polyFlags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
+				polyFlags[i] = DT_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
 		}
 

@@ -447,23 +447,23 @@ bool Editor_SoloMesh::handleBuild()
 		for (int i = 0; i < m_pmesh->npolys; ++i)
 		{
 			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
-				m_pmesh->areas[i] = EDITOR_POLYAREA_GROUND;
+				m_pmesh->areas[i] = DT_POLYAREA_GROUND;
 				
-			if (m_pmesh->areas[i] == EDITOR_POLYAREA_GROUND
+			if (m_pmesh->areas[i] == DT_POLYAREA_GROUND
 				//||
 				//m_pmesh->areas[i] == EDITOR_POLYAREA_GRASS ||
 				//m_pmesh->areas[i] == EDITOR_POLYAREA_ROAD
 				)
 			{
-				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK;
+				m_pmesh->flags[i] = DT_POLYFLAGS_WALK;
 			}
 			//else if (m_pmesh->areas[i] == EDITOR_POLYAREA_WATER)
 			//{
 			//	m_pmesh->flags[i] = EDITOR_POLYFLAGS_SWIM;
 			//}
-			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_TRIGGER)
+			else if (m_pmesh->areas[i] == DT_POLYAREA_TRIGGER)
 			{
-				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
+				m_pmesh->flags[i] = DT_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
 			}
 		}
 

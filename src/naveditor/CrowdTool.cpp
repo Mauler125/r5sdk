@@ -142,7 +142,7 @@ void CrowdToolState::init(class Editor* editor)
 		crowd->init(MAX_AGENTS, m_editor->getAgentRadius(), nav);
 		
 		// Make polygons with 'disabled' flag invalid.
-		crowd->getEditableFilter(0)->setExcludeFlags(EDITOR_POLYFLAGS_DISABLED);
+		crowd->getEditableFilter(0)->setExcludeFlags(DT_POLYFLAGS_DISABLED);
 		
 		// Setup local avoidance params to different qualities.
 		dtObstacleAvoidanceParams params;
@@ -1085,7 +1085,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 				unsigned short flags = 0;
 				if (dtStatusSucceed(nav->getPolyFlags(ref, &flags)))
 				{
-					flags ^= EDITOR_POLYFLAGS_DISABLED;
+					flags ^= DT_POLYFLAGS_DISABLED;
 					nav->setPolyFlags(ref, flags);
 				}
 			}

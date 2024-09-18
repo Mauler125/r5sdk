@@ -1242,27 +1242,14 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		for (int i = 0; i < m_pmesh->npolys; ++i)
 		{
 			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
-				m_pmesh->areas[i] = EDITOR_POLYAREA_GROUND;
-			
-			if (m_pmesh->areas[i] == EDITOR_POLYAREA_GROUND
-				//||
-				//m_pmesh->areas[i] == EDITOR_POLYAREA_GRASS ||
-				//m_pmesh->areas[i] == EDITOR_POLYAREA_ROAD
-				)
-			{
-				m_pmesh->flags[i] |= EDITOR_POLYFLAGS_WALK;
-			}
-			//else if (m_pmesh->areas[i] == EDITOR_POLYAREA_WATER)
-			//{
-			//	m_pmesh->flags[i] = EDITOR_POLYFLAGS_SWIM;
-			//}
-			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_TRIGGER)
-			{
-				m_pmesh->flags[i] |= EDITOR_POLYFLAGS_WALK /*| EDITOR_POLYFLAGS_DOOR*/;
-			}
+				m_pmesh->areas[i] = DT_POLYAREA_GROUND;
+		
+			if (m_pmesh->areas[i] == DT_POLYAREA_GROUND ||
+				m_pmesh->areas[i] == DT_POLYAREA_TRIGGER)
+				m_pmesh->flags[i] |= DT_POLYFLAGS_WALK;
 
-			if (m_pmesh->surfa[i] <= NAVMESH_SMALL_POLYGON_THRESHOLD)
-				m_pmesh->flags[i] |= EDITOR_POLYFLAGS_TOO_SMALL;
+			if (m_pmesh->surfa[i] <= RC_POLY_SURFAREA_TOO_SMALL_THRESHOLD)
+				m_pmesh->flags[i] |= DT_POLYFLAGS_TOO_SMALL;
 
 			const int nvp = m_pmesh->nvp;
 			const unsigned short* p = &m_pmesh->polys[i*nvp*2];
@@ -1277,7 +1264,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 				if ((p[nvp+j] & 0xf) == 0xf)
 					continue;
 
-				m_pmesh->flags[i] |= EDITOR_POLYFLAGS_HAS_NEIGHBOUR;
+				m_pmesh->flags[i] |= DT_POLYFLAGS_HAS_NEIGHBOUR;
 			}
 		}
 		
@@ -1330,7 +1317,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			// without restoring this, the renderer will draw it as NULL area
 			// even though it's walkable. The other values will get color ID'd
 			// by the renderer so we don't need to check on those.
-			if (m_pmesh->areas[i] == EDITOR_POLYAREA_GROUND)
+			if (m_pmesh->areas[i] == DT_POLYAREA_GROUND)
 				m_pmesh->areas[i] = RC_WALKABLE_AREA;
 		}
 

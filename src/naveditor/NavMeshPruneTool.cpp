@@ -181,7 +181,7 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 
 				targetPoly->groupId = DT_UNLINKED_POLY_GROUP;
 				targetPoly->firstLink = DT_NULL_LINK;
-				targetPoly->flags = EDITOR_POLYFLAGS_DISABLED;
+				targetPoly->flags = DT_POLYFLAGS_DISABLED;
 
 				numUnlinkedPolys++;
 			}

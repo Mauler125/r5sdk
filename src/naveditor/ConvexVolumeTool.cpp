@@ -118,11 +118,11 @@ void ConvexVolumeTool::handleMenu()
 	if (ImGui::Checkbox("Clip", &isEnabled))
 		m_areaType = RC_NULL_AREA;
 
-	isEnabled = m_areaType == EDITOR_POLYAREA_TRIGGER;
+	isEnabled = m_areaType == DT_POLYAREA_TRIGGER;
 	if (ImGui::Checkbox("Trigger", &isEnabled))
-		m_areaType = EDITOR_POLYAREA_TRIGGER; // todo(amos): also allow setting flags and store this in .gset.
+		m_areaType = DT_POLYAREA_TRIGGER; // todo(amos): also allow setting flags and store this in .gset.
 
-	if (m_areaType == EDITOR_POLYAREA_TRIGGER)
+	if (m_areaType == DT_POLYAREA_TRIGGER)
 	{
 		ImGui::Text("Poly Flags");
 		ImGui::Indent();
@@ -132,7 +132,7 @@ void ConvexVolumeTool::handleMenu()
 		for (int i = 0; i < numPolyFlags; i++)
 		{
 			const char* flagName = g_navMeshPolyFlagNames[i];
-			ImGui::CheckboxFlags(flagName, &m_polyFlags, i == (numPolyFlags-1) ? EDITOR_POLYFLAGS_ALL : 1<<i);
+			ImGui::CheckboxFlags(flagName, &m_polyFlags, i == (numPolyFlags-1) ? DT_POLYFLAGS_ALL : 1<<i);
 		}
 
 		ImGui::Unindent();

@@ -635,6 +635,9 @@ static const unsigned char RC_WALKABLE_AREA = 63;
 /// @see rcPolyMesh::surfa
 static const float RC_POLY_SURFAREA_QUANT_FACTOR = 0.01f;
 
+// Polygons with surface areas not larger than this amount should be flagged.
+static const unsigned short RC_POLY_SURFAREA_TOO_SMALL_THRESHOLD = 120;
+
 /// The value returned by #rcGetCon if the specified direction is not connected
 /// to another span. (Has no neighbor.)
 static const int RC_NOT_CONNECTED = 0x3f;

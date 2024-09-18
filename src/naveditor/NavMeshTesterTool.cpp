@@ -176,7 +176,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_pathIterPolyCount(0),
 	m_steerPointCount(0)
 {
-	m_filter.setIncludeFlags(EDITOR_POLYFLAGS_ALL ^ EDITOR_POLYFLAGS_DISABLED);
+	m_filter.setIncludeFlags(DT_POLYFLAGS_ALL ^ DT_POLYFLAGS_DISABLED);
 	m_filter.setExcludeFlags(0);
 
 	m_polyPickExt[0] = 2;
@@ -197,10 +197,10 @@ void NavMeshTesterTool::init(Editor* editor)
 	if (m_navQuery)
 	{
 		// Change costs.
-		m_filter.setAreaCost(EDITOR_POLYAREA_GROUND, 1.0f);
-		m_filter.setAreaCost(EDITOR_POLYAREA_JUMP, 1.5f);
+		m_filter.setAreaCost(DT_POLYAREA_GROUND, 1.0f);
+		m_filter.setAreaCost(DT_POLYAREA_JUMP, 1.5f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_ROAD, 1.0f);
-		m_filter.setAreaCost(EDITOR_POLYAREA_TRIGGER, 1.0f);
+		m_filter.setAreaCost(DT_POLYAREA_TRIGGER, 1.0f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_GRASS, 2.0f);
 		//m_filter.setAreaCost(EDITOR_POLYAREA_WATER, 10.0f);
 	}
@@ -387,19 +387,19 @@ void NavMeshTesterTool::handleMenu()
 
 	ImGui::Indent();
 
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_WALK) != 0;
+	isEnabled = (m_filter.getIncludeFlags() & DT_POLYFLAGS_WALK) != 0;
 
 	if (ImGui::Checkbox("Walk##IncludeFlags", &isEnabled))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_WALK);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ DT_POLYFLAGS_WALK);
 		recalc();
 	}
 
-	isEnabled = (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_TOO_SMALL) != 0;
+	isEnabled = (m_filter.getIncludeFlags() & DT_POLYFLAGS_TOO_SMALL) != 0;
 
 	if (ImGui::Checkbox("Skip##IncludeFlags", &isEnabled))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_TOO_SMALL);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ DT_POLYFLAGS_TOO_SMALL);
 		recalc();
 	}
 
@@ -410,19 +410,19 @@ void NavMeshTesterTool::handleMenu()
 	
 	ImGui::Indent();
 
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_WALK) != 0;
+	isEnabled = (m_filter.getExcludeFlags() & DT_POLYFLAGS_WALK) != 0;
 
 	if (ImGui::Checkbox("Walk##ExcludeFlags", &isEnabled))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_WALK);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ DT_POLYFLAGS_WALK);
 		recalc();
 	}
 
-	isEnabled = (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_TOO_SMALL) != 0;
+	isEnabled = (m_filter.getExcludeFlags() & DT_POLYFLAGS_TOO_SMALL) != 0;
 
 	if (ImGui::Checkbox("Skip##ExcludeFlags", &isEnabled))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_TOO_SMALL);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ DT_POLYFLAGS_TOO_SMALL);
 		recalc();
 	}
 

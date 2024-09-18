@@ -214,6 +214,69 @@ enum dtPolyTypes
 	DT_POLYTYPE_OFFMESH_CONNECTION = 1,
 };
 
+enum dtPolyAreas
+{
+#if DT_NAVMESH_SET_VERSION >= 9
+	DT_POLYAREA_JUMP,
+	DT_POLYAREA_GROUND,
+#else
+	DT_POLYAREA_GROUND,
+	DT_POLYAREA_JUMP,
+#endif
+	// NOTE: not sure if anything beyond DT_POLYAREA_JUMP belongs to MSET5,
+	// this needs to be confirmed, for now its been kept in for MSET5.
+	DT_POLYAREA_JUMP_REVERSE,
+	DT_POLYAREA_TRIGGER,
+	DT_POLYAREA_WALLJUMP_LEFT,
+	DT_POLYAREA_WALLJUMP_RIGHT,
+	DT_POLYAREA_WALLJUMP_LEFT_REVERSE,
+	DT_POLYAREA_WALLJUMP_RIGHT_REVERSE,
+};
+
+enum dtPolyFlags
+{
+	/// Most common polygon flags.
+
+	/// Ability to walk (ground, grass, road).
+	DT_POLYFLAGS_WALK            = 1<<0,
+	/// This polygon's surface area is too small; it will be ignored during AIN script nodes generation, NavMesh_RandomPositions, dtNavMeshQuery::findLocalNeighbourhood, etc.
+	DT_POLYFLAGS_TOO_SMALL       = 1<<1,
+	/// This polygon is connected to a polygon on a neighbouring tile.
+	DT_POLYFLAGS_HAS_NEIGHBOUR   = 1<<2,
+
+	/// Off-mesh connection flags
+
+	/// Ability to jump (exclusively used on off-mesh connection polygons).
+	DT_POLYFLAGS_JUMP            = 1<<3,
+	/// Off-mesh connections who's start and end verts link to other polygons need this flag.
+	DT_POLYFLAGS_JUMP_LINKED     = 1<<4,
+
+	/// Unknown, no use cases found yet.
+	DT_POLYFLAGS_UNK2            = 1<<5,
+
+	/// Only used along with poly area 'DT_POLYAREA_TRIGGER'.
+
+	/// Unknown, used for small road blocks and other small but easily climbable obstacles.
+	DT_POLYFLAGS_OBSTACLE        = 1<<6,
+	/// Unknown, no use cases found yet.
+	DT_POLYFLAGS_UNK4            = 1<<7,
+	/// Used for ToggleNPCPathsForEntity. Also, see [r5apex_ds + 0xC96EA8]. Used for toggling poly's when a door closes during runtime.
+	/// Also used to disable poly's in the navmesh file itself when we do happen to build navmesh on lava or other very hazardous areas.
+	DT_POLYFLAGS_DISABLED        = 1<<8,
+	/// see [r5apex_ds + 0xC96ED0], used for hostile objects such as electric fences.
+	DT_POLYFLAGS_HAZARD          = 1<<9,
+	/// See [r5apex_ds + 0xECBAE0], used for large bunker style doors (vertical and horizontal opening ones), perhaps also shooting cover hint?.
+	DT_POLYFLAGS_DOOR            = 1<<10,
+	/// Unknown, no use cases found yet.
+	DT_POLYFLAGS_UNK8            = 1<<11,
+	/// Unknown, no use cases found yet.
+	DT_POLYFLAGS_UNK9            = 1<<12,
+	/// Used for doors that need to be breached, such as the Explosive Holds doors.
+	DT_POLYFLAGS_DOOR_BREACHABLE = 1<<13,
+
+	/// All abilities.
+	DT_POLYFLAGS_ALL             = 0xffff
+};
 
 /// Defines a polygon within a dtMeshTile object.
 /// @ingroup detour
