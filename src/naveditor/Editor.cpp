@@ -850,12 +850,8 @@ void Editor::connectOffMeshLinks()
 
 		const dtTileRef targetRef = m_navMesh->getTileRef(target);
 
-		// Base off-mesh connections to their starting polygons 
-		// and connect connections inside the tile.
-		m_navMesh->baseOffMeshLinks(targetRef);
-
-		// Connect off-mesh polygons to outer tiles.
-		m_navMesh->connectExtOffMeshLinks(targetRef);
+		// Connect off-mesh polygons to inner and outer tiles.
+		m_navMesh->connectOffMeshLinks(targetRef);
 	}
 }
 

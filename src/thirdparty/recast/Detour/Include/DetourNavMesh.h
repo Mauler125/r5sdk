@@ -950,9 +950,7 @@ public:
 	/// Builds external polygon links for a tile.
 	dtStatus connectTraverseLinks(const dtTileRef tileRef, const dtTraverseLinkConnectParams& params);
 	/// Builds external polygon links for a tile.
-	dtStatus connectExtOffMeshLinks(const dtTileRef tileRef);
-	/// Builds internal polygons links for a tile.
-	dtStatus baseOffMeshLinks(const dtTileRef tileRef);
+	dtStatus connectOffMeshLinks(const dtTileRef tileRef);
 
 	dtPolyRef clampOffMeshVertToPoly(const dtOffMeshConnection* con, dtMeshTile* conTile, const dtMeshTile* lookupTile, const bool start);
 

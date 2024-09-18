@@ -577,7 +577,7 @@ static bool connectOffMeshLink(dtMeshTile* tile, dtPoly* fromPoly, const dtPolyR
 	return true;
 }
 
-dtStatus dtNavMesh::connectExtOffMeshLinks(const dtTileRef tileRef)
+dtStatus dtNavMesh::connectOffMeshLinks(const dtTileRef tileRef)
 {
 	const int tileIndex = (int)decodePolyIdTile((dtPolyRef)tileRef);
 	if (tileIndex >= m_maxTiles)
@@ -594,6 +594,28 @@ dtStatus dtNavMesh::connectExtOffMeshLinks(const dtTileRef tileRef)
 		dtOffMeshConnection* con = &tile->offMeshCons[i];
 		dtPoly* conPoly = &tile->polys[con->poly];
 
+		const dtPolyRef basePolyRef = clampOffMeshVertToPoly(con, tile, tile, true);
+
+		if (!basePolyRef)
+			continue;
+
+		const unsigned char traverseType = con->getTraverseType();
+		const bool invertVertLookup = con->getVertLookupOrder();
+
+		// Start end-point is always connect back to off-mesh connection.
+		const unsigned short basePolyIdx = (unsigned short)decodePolyIdPoly(basePolyRef);
+		dtPoly* basePoly = &tile->polys[basePolyIdx];
+
+		const dtPolyRef conPolyRef = base | (dtPolyRef)(con->poly);
+
+		if (!connectOffMeshLink(tile, basePoly, conPolyRef, 0xff, 0xff, traverseType,
+			invertVertLookup ? DT_OFFMESH_CON_TRAVERSE_ON_VERT : DT_OFFMESH_CON_TRAVERSE_ON_POLY))
+			return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+		// Link off-mesh connection to target poly.
+		if (!connectOffMeshLink(tile, conPoly, basePolyRef, 0xff, 0, DT_NULL_TRAVERSE_TYPE, 0))
+			return DT_FAILURE | DT_OUT_OF_MEMORY;
+
 		// connect to land points.
 		const float halfExtents[3] = { con->rad, con->rad, header->walkableClimb };
 		float bmin[3], bmax[3];
@@ -608,19 +630,15 @@ dtStatus dtNavMesh::connectExtOffMeshLinks(const dtTileRef tileRef)
 		static const int MAX_NEIS = 32;
 		dtMeshTile* neis[MAX_NEIS];
 
-		const dtPolyRef conPolyRef = base | (dtPolyRef)(con->poly);
-
 		const unsigned char side = rdClassifyPointOutsideBounds(&con->pos[3], header->bmin, header->bmax);
 		const unsigned char oppositeSide = (side == 0xff) ? 0xff : (unsigned char)rdOppositeTile(side);
-
-		const unsigned char traverseType = con->getTraverseType();
-		const bool invertVertLookup = con->getVertLookupOrder();
 
 #if DT_NAVMESH_SET_VERSION >= 7
 		// NOTE: need to remove the vert lookup inversion flag from here as the
 		// engine uses this value directly to index into the activity array.
 		con->setTraverseType(traverseType, 0);
 #endif
+		bool breakOut = false;
 
 		for (int y = miny; y <= maxy; ++y)
 		{
@@ -653,8 +671,18 @@ dtStatus dtNavMesh::connectExtOffMeshLinks(const dtTileRef tileRef)
 							invertVertLookup ? DT_OFFMESH_CON_TRAVERSE_ON_POLY : DT_OFFMESH_CON_TRAVERSE_ON_VERT))
 							return DT_FAILURE | DT_OUT_OF_MEMORY;
 					}
+
+					// Off-mesh links have been established, break out entirely.
+					breakOut = true;
+					break;
 				}
+
+				if (breakOut)
+					break;
 			}
+
+			if (breakOut)
+				break;
 		}
 	}
 
@@ -699,48 +727,6 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 			}
 		}
 	}
-}
-
-dtStatus dtNavMesh::baseOffMeshLinks(const dtTileRef tileRef)
-{
-	const int tileIndex = (int)decodePolyIdTile((dtPolyRef)tileRef);
-	if (tileIndex >= m_maxTiles)
-		return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-	dtMeshTile* tile = &m_tiles[tileIndex];
-	const dtMeshHeader* header = tile->header;
-	
-	dtPolyRef base = getPolyRefBase(tile);
-	
-	for (int i = 0; i < header->offMeshConCount; ++i)
-	{
-		// Base off-mesh connection start points.
-		dtOffMeshConnection* con = &tile->offMeshCons[i];
-		dtPoly* conPoly = &tile->polys[con->poly];
-
-		const dtPolyRef basePolyRef = clampOffMeshVertToPoly(con, tile, tile, true);
-
-		if (!basePolyRef)
-			continue;
-
-		const unsigned char traverseType = con->getTraverseType();
-		const bool invertVertLookup = con->getVertLookupOrder();
-
-		// Link off-mesh connection to target poly.
-		if (!connectOffMeshLink(tile, conPoly, basePolyRef, 0xff, 0, DT_NULL_TRAVERSE_TYPE, 0))
-			return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-		// Start end-point is always connect back to off-mesh connection.
-		const unsigned short basePolyIdx = (unsigned short)decodePolyIdPoly(basePolyRef);
-		dtPoly* basePoly = &tile->polys[basePolyIdx];
-
-		const dtPolyRef conPolyRef = base | (dtPolyRef)(con->poly);
-		if (!connectOffMeshLink(tile, basePoly, conPolyRef, 0xff, 0xff, traverseType,
-			invertVertLookup ? DT_OFFMESH_CON_TRAVERSE_ON_VERT : DT_OFFMESH_CON_TRAVERSE_ON_POLY))
-			return DT_FAILURE | DT_OUT_OF_MEMORY;
-	}
-
-	return DT_SUCCESS;
 }
 
 dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraverseLinkConnectParams& params)

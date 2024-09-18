@@ -700,10 +700,7 @@ void Editor_TileMesh::buildTile(const float* pos)
 			failure = true;
 		}
 		else if (header->offMeshConCount)
-		{
-			m_navMesh->baseOffMeshLinks(tileRef);
-			m_navMesh->connectExtOffMeshLinks(tileRef);
-		}
+			m_navMesh->connectOffMeshLinks(tileRef);
 
 		if (!failure)
 		{
@@ -731,7 +728,7 @@ void Editor_TileMesh::buildTile(const float* pos)
 					getTilePos(&con->pos[3], landTx, landTy);
 
 					if (landTx == tx && landTy == ty)
-						m_navMesh->connectExtOffMeshLinks(targetRef);
+						m_navMesh->connectOffMeshLinks(targetRef);
 				}
 			}
 
