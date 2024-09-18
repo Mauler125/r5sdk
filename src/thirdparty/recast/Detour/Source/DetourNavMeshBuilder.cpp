@@ -1134,6 +1134,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			con->poly = (unsigned short)(offMeshPolyBase + n);
 			con->side = offMeshConClass[i*2+1];
 			con->setTraverseType(params->offMeshConJumps[i], params->offMeshConOrders[i]);
+			con->userId = params->offMeshConUserID[i];
 #if DT_NAVMESH_SET_VERSION >= 7
 			con->hintIndex = DT_NULL_HINT;
 #else
