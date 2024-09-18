@@ -616,6 +616,12 @@ dtStatus dtNavMesh::connectExtOffMeshLinks(const dtTileRef tileRef)
 		const unsigned char traverseType = con->getTraverseType();
 		const bool invertVertLookup = con->getVertLookupOrder();
 
+#if DT_NAVMESH_SET_VERSION >= 7
+		// NOTE: need to remove the vert lookup inversion flag from here as the
+		// engine uses this value directly to index into the activity array.
+		con->setTraverseType(traverseType, 0);
+#endif
+
 		for (int y = miny; y <= maxy; ++y)
 		{
 			for (int x = minx; x <= maxx; ++x)
@@ -636,7 +642,9 @@ dtStatus dtNavMesh::connectExtOffMeshLinks(const dtTileRef tileRef)
 						return DT_FAILURE | DT_OUT_OF_MEMORY;
 
 					// Link target poly to off-mesh connection.
+#if DT_NAVMESH_SET_VERSION < 7
 					if (con->flags & DT_OFFMESH_CON_BIDIR)
+#endif
 					{
 						const unsigned int landPolyIdx = decodePolyIdPoly(landPolyRef);
 						dtPoly* landPoly = &neiTile->polys[landPolyIdx];

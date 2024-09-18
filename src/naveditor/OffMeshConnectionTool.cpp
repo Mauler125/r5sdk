@@ -76,7 +76,10 @@ void OffMeshConnectionTool::reset()
 
 void OffMeshConnectionTool::handleMenu()
 {
+	// On newer navmesh sets, off-mesh links are always bidirectional.
+#if DT_NAVMESH_SET_VERSION < 7
 	ImGui::Checkbox("Bidirectional", &m_bidir);
+#endif
 	ImGui::Checkbox("Invert Lookup Order", &m_invertVertexLookupOrder);
 
 	ImGui::PushItemWidth(140);

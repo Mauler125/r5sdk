@@ -1125,18 +1125,22 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		if (offMeshConClass[i*2+0] == 0xff)
 		{
 			dtOffMeshConnection* con = &offMeshCons[n];
-			con->poly = (unsigned short)(offMeshPolyBase + n);
 			// Copy connection end-points.
 			const float* endPts = &params->offMeshConVerts[i*2*3];
 			const float* refPos = &params->offMeshConRefPos[i*3];
 			rdVcopy(&con->pos[0], &endPts[0]);
 			rdVcopy(&con->pos[3], &endPts[3]);
-			rdVcopy(&con->refPos[0], &refPos[0]);
 			con->rad = params->offMeshConRad[i];
-			con->refYaw = params->offMeshConRefYaw[i];
-			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
+			con->poly = (unsigned short)(offMeshPolyBase + n);
 			con->side = offMeshConClass[i*2+1];
 			con->setTraverseType(params->offMeshConJumps[i], params->offMeshConOrders[i]);
+#if DT_NAVMESH_SET_VERSION >= 7
+			con->hintIndex = DT_NULL_HINT;
+#else
+			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
+#endif
+			rdVcopy(&con->refPos[0], &refPos[0]);
+			con->refYaw = params->offMeshConRefYaw[i];
 			n++;
 		}
 	}

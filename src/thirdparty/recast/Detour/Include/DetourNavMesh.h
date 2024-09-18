@@ -349,13 +349,41 @@ struct dtBVNode
 /// An off-mesh connection is a user defined traversable connection made up to two vertices.
 struct dtOffMeshConnection
 {
-	unsigned char getTraverseType() { return traverseContext & 0xff; }
-	unsigned char getVertLookupOrder() { return (traverseContext >> 8) & 0xff; }
-	void setTraverseType(unsigned char type, unsigned char order) { traverseContext = type | (order << 8); }
+	unsigned char getTraverseType() 
+	{ 
+#if DT_NAVMESH_SET_VERSION >= 7
+		return traverseType & (DT_MAX_TRAVERSE_TYPES-1);
+#else
+		return traverseContext & 0xff;
+#endif
+	}
 
+	unsigned char getVertLookupOrder()
+	{
+#if DT_NAVMESH_SET_VERSION >= 7
+		return traverseType & (1<<6);
+#else
+		return (traverseContext >> 8) & 0xff;
+#endif
+	}
+
+	void setTraverseType(unsigned char type, unsigned char order)
+	{
+#if DT_NAVMESH_SET_VERSION >= 7
+		traverseType = type & (DT_MAX_TRAVERSE_TYPES-1);
+
+		if (order) // Inverted, mark it.
+			traverseType |= (1<<6);
+#else
+		traverseContext = type | (order<<8);
+#endif
+	}
+
+#if DT_NAVMESH_SET_VERSION < 7
 	/// The hint index of the off-mesh connection. (Or #DT_NULL_HINT if there is no hint.)
 	unsigned short getHintIndex() { return traverseContext; };
 	void setHintIndex(unsigned short index) { traverseContext = index; };
+#endif
 
 	/// The endpoints of the connection. [(ax, ay, az, bx, by, bz)]
 	float pos[6];
@@ -366,18 +394,27 @@ struct dtOffMeshConnection
 	/// The polygon reference of the connection within the tile.
 	unsigned short poly;
 
-	/// Link flags. 
-	/// @note These are not the connection's user defined flags. Those are assigned via the 
+#if DT_NAVMESH_SET_VERSION >= 7
+	/// End point side.
+	unsigned char side;
+
+	/// The traverse type.
+	unsigned char traverseType;
+
+	/// The hint index.
+	unsigned short hintIndex;
+#else
+	/// Link flags.
+	/// @note These are not the connection's user defined flags. Those are assigned via the
 	/// connection's dtPoly definition. These are link flags used for internal purposes.
 	unsigned char flags;
 
 	/// End point side.
 	unsigned char side;
 
-	/// The traverse types or hint indices. (If the off-mesh connection is used for wall running,
-	/// it needs a corresponding probe which this field will reference. Otherwise this field will
-	/// contain the traverse type and lookup order.)
+	/// The traverse type and lookup order.
 	unsigned short traverseContext;
+#endif
 
 	/// The id of the off-mesh connection. (User assigned when the navigation mesh is built.)
 	unsigned short userId;

@@ -462,7 +462,12 @@ static void drawOffMeshLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNav
 		
 		// Connection arc.
 		duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
-					(con->flags & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, col);
+#if DT_NAVMESH_SET_VERSION >= 7
+					30.f,
+#else
+					(con->flags & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 
+#endif
+			30.0f, col);
 
 		// Reference positions.
 		drawOffMeshConnectionRefPosition(dd, con);
@@ -748,7 +753,12 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 
 			// Connection arc.
 			duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
-						(con->flags & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, c);
+#if DT_NAVMESH_SET_VERSION >= 7
+						30.f,
+#else
+						(con->flags & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f,
+#endif
+				30.0f, c);
 
 			// Reference positions.
 			drawOffMeshConnectionRefPosition(dd, con);
