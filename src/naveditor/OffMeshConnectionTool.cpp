@@ -128,8 +128,13 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		}
 		else
 		{
-			const unsigned char area = EDITOR_POLYAREA_JUMP;
-			const unsigned short flags = EDITOR_POLYFLAGS_WALK;
+			const unsigned char area = DT_POLYAREA_JUMP;
+			const unsigned short flags = DT_POLYFLAGS_WALK
+#if DT_NAVMESH_SET_VERSION >= 7
+				| DT_POLYFLAGS_JUMP;
+#else
+				;
+#endif;
 			geom->addOffMeshConnection(m_hitPos, p, m_radius, m_bidir ? 1 : 0,
 				(unsigned char)m_traverseType, m_invertVertexLookupOrder ? 1 : 0, area, flags);
 			m_hitPosSet = false;

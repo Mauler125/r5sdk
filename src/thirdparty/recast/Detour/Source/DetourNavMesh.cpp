@@ -672,7 +672,11 @@ dtStatus dtNavMesh::connectOffMeshLinks(const dtTileRef tileRef)
 							return DT_FAILURE | DT_OUT_OF_MEMORY;
 					}
 
-					// Off-mesh links have been established, break out entirely.
+#if DT_NAVMESH_SET_VERSION >= 7
+					// Off-mesh link is fully linked, mark it.
+					conPoly->flags |= DT_POLYFLAGS_JUMP_LINKED;
+#endif
+					// All links have been established, break out entirely.
 					breakOut = true;
 					break;
 				}
