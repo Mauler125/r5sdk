@@ -74,9 +74,7 @@ ConVarFlags g_ConVarFlags;
 //-----------------------------------------------------------------------------
 bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName)
 {
-	size_t len = V_strlen(pszFlags);
-	int flags = FCVAR_NONE;
-
+	const size_t len = V_strlen(pszFlags);
 	CUtlString sFlag;
 
 	for (size_t i = 0; i < len; ++i)
@@ -94,7 +92,7 @@ bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszCo
 			if (sFlag == "")
 				continue;
 
-			int find = g_ConVarFlags.m_StringToFlags.FindElement(sFlag.Get(), -1);
+			const int find = g_ConVarFlags.m_StringToFlags.FindElement(sFlag.Get(), -1);
 			if (find == -1)
 			{
 				Warning(eDLL_T::COMMON,
@@ -104,11 +102,10 @@ bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszCo
 				return false;
 			}
 
-			flags |= find;
+			nFlags |= find;
 			sFlag = "";
 		}
 	}
-	nFlags = flags;
 
 	return true;
 }
