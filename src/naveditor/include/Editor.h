@@ -357,16 +357,13 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
-	void connectTileTraverseLinks(dtMeshTile* const baseTile, const bool linkToNeighbor); // Make private.
-	bool createTraverseLinks();
-
 	void createTraverseLinkParams(dtTraverseLinkConnectParams& params);
-
 	void createTraverseTableParams(dtTraverseTableCreateParams* params);
 
+	bool createTraverseLinks();
 	void connectOffMeshLinks();
-	void buildStaticPathingData();
 
+	void buildStaticPathingData();
 	bool createStaticPathingData(const dtTraverseTableCreateParams* params);
 	bool updateStaticPathingData(const dtTraverseTableCreateParams* params);
 
