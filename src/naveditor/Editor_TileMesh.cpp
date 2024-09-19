@@ -1104,8 +1104,15 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 
 	// (Optional) Mark areas.
 	const ConvexVolume* vols = m_geom->getConvexVolumes();
-	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
-		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned short)vols[i].flags, (unsigned char)vols[i].area, *m_chf);
+	for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i)
+	{
+		const ConvexVolume& vol = vols[i];
+
+		if (vol.bbox)
+			rcMarkBoxArea(m_ctx, &vol.verts[0], &vol.verts[3], vol.flags, vol.area, *m_chf);
+		else
+			rcMarkConvexPolyArea(m_ctx, vol.verts, vol.nverts, vol.hmin, vol.hmax, vol.flags, vol.area, *m_chf);
+	}
 	
 	
 	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.

@@ -30,6 +30,7 @@ struct ConvexVolume
 	int nverts;
 	unsigned short flags;
 	unsigned char area;
+	bool bbox;
 };
 
 struct BuildSettings
@@ -163,6 +164,7 @@ public:
 	void addConvexVolume(const float* verts, const int nverts,
 						 const float minh, const float maxh, unsigned short flags, unsigned char area);
 	void deleteConvexVolume(int i);
+	void drawBoxVolumes(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	void drawConvexVolumes(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}
 	

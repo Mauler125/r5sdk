@@ -306,6 +306,20 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 				m_offMeshConCount++;
 			}
 		}
+		else if (row[0] == 'b')
+		{
+			// Box volumes
+			if (m_volumeCount < MAX_VOLUMES)
+			{
+				ConvexVolume* vol = &m_volumes[m_volumeCount++];
+
+				sscanf(row+1, "%hu %hhu %f %f %f %f %f %f", &vol->flags, &vol->area, 
+					&vol->verts[0], &vol->verts[1], &vol->verts[2],
+					&vol->verts[3], &vol->verts[4], &vol->verts[5]);
+
+				vol->bbox = true;
+			}
+		}
 		else if (row[0] == 'v')
 		{
 			// Convex volumes
@@ -319,6 +333,8 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 					src = parseRow(src, srcEnd, row, sizeof(row)/sizeof(char));
 					sscanf(row, "%f %f %f", &vol->verts[i*3+0], &vol->verts[i*3+1], &vol->verts[i*3+2]);
 				}
+
+				vol->bbox = false;
 			}
 		}
 		else if (row[0] == 's')
@@ -453,9 +469,18 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		ConvexVolume* vol = &m_volumes[i];
-		fprintf(fp, "v %d %hu %hhu %f %f\n", vol->nverts, vol->flags, vol->area, vol->hmin, vol->hmax);
-		for (int j = 0; j < vol->nverts; ++j)
-			fprintf(fp, "%f %f %f\n", vol->verts[j*3+0], vol->verts[j*3+1], vol->verts[j*3+2]);
+		if (vol->bbox)
+		{
+			fprintf(fp, "b %hu %hhu %f %f %f %f %f %f\n", vol->flags, vol->area,
+				vol->verts[0], vol->verts[1], vol->verts[2],
+				vol->verts[3], vol->verts[4], vol->verts[5]);
+		}
+		else
+		{
+			fprintf(fp, "v %d %hu %hhu %f %f\n", vol->nverts, vol->flags, vol->area, vol->hmin, vol->hmax);
+				for (int j = 0; j < vol->nverts; ++j)
+					fprintf(fp, "%f %f %f\n", vol->verts[j*3+0], vol->verts[j*3+1], vol->verts[j*3+2]);
+		}
 	}
 	
 	fclose(fp);
@@ -688,15 +713,48 @@ void InputGeom::deleteConvexVolume(int i)
 	m_volumes[i] = m_volumes[m_volumeCount];
 }
 
+void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, const float* offset, bool /*hilight*/)
+{
+	for (int i = 0; i < m_volumeCount; ++i)
+	{
+		const ConvexVolume* vol = &m_volumes[i];
+
+		if (!vol->bbox)
+			continue;
+
+		const unsigned int faceCol = vol->area == RC_NULL_AREA
+			? duRGBA(255, 0, 0, 128) // Use red for visibility (null acts as deletion).
+			: duTransCol(dd->areaToCol(vol->area), 64);
+
+		unsigned int fcol[6] = { faceCol, 0, faceCol, faceCol, faceCol, faceCol };
+
+		duDebugDrawBox(dd, 
+			vol->verts[0],vol->verts[1],vol->verts[2],
+			vol->verts[3],vol->verts[4],vol->verts[5], 
+			fcol, offset);
+
+		const unsigned int wireCol = vol->area == RC_NULL_AREA
+			? duRGBA(255, 0, 0, 220)
+			: duTransCol(dd->areaToCol(vol->area), 220);
+
+		duDebugDrawBoxWire(dd,
+			vol->verts[0],vol->verts[1],vol->verts[2],
+			vol->verts[3],vol->verts[4],vol->verts[5], 
+			wireCol, 2.0f, offset);
+	}
+}
+
 void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, bool /*hilight*/)
 {
-	dd->depthMask(false);
-
 	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
 	
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
+
+		if (vol->bbox)
+			continue;
+
 		unsigned int col;
 
 		if (vol->area == RC_NULL_AREA)
@@ -729,6 +787,10 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, b
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
+
+		if (vol->bbox)
+			continue;
+
 		unsigned int col;
 
 		if (vol->area == RC_NULL_AREA)
@@ -754,6 +816,10 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, b
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
+
+		if (vol->bbox)
+			continue;
+
 		unsigned int col;
 
 		if (vol->area == RC_NULL_AREA)
@@ -769,6 +835,4 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, b
 		}
 	}
 	dd->end();
-
-	dd->depthMask(true);
 }
