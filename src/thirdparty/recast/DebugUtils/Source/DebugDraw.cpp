@@ -21,6 +21,15 @@
 #include "DebugUtils/Include/DebugDraw.h"
 #include "Detour/Include/DetourNavMesh.h"
 
+static const unsigned char BOX_FACE_INDICES[6*4] =
+{
+	2, 6, 7, 3,
+	0, 4, 5, 1,
+	7, 6, 5, 4,
+	0, 1, 2, 3,
+	1, 5, 6, 2,
+	3, 7, 4, 0,
+};
 
 duDebugDraw::~duDebugDraw()
 {
@@ -61,6 +70,21 @@ void duIntToCol(int i, float* col)
 	col[0] = 1 - r*63.0f/255.0f;
 	col[1] = 1 - g*63.0f/255.0f;
 	col[2] = 1 - b*63.0f/255.0f;
+}
+
+const unsigned char* duSetBoxVerts(float minx, float miny, float minz, float maxx,
+	float maxy, float maxz, float* verts)
+{
+	rdVset(&verts[0], minx, miny, minz);
+	rdVset(&verts[3], maxx, miny, minz);
+	rdVset(&verts[6], maxx, miny, maxz);
+	rdVset(&verts[9], minx, miny, maxz);
+	rdVset(&verts[12], minx, maxy, minz);
+	rdVset(&verts[15], maxx, maxy, minz);
+	rdVset(&verts[18], maxx, maxy, maxz);
+	rdVset(&verts[21], minx, maxy, maxz);
+
+	return BOX_FACE_INDICES;
 }
 
 void duCalcBoxColors(unsigned int* colors, unsigned int colTop, unsigned int colSide)
@@ -303,28 +327,10 @@ void duAppendBox(struct duDebugDraw* dd, float minx, float miny, float minz,
 				 float maxx, float maxy, float maxz, const unsigned int* fcol)
 {
 	if (!dd) return;
-	const float verts[8*3] =
-	{
-		minx, miny, minz,
-		maxx, miny, minz,
-		maxx, miny, maxz,
-		minx, miny, maxz,
-		minx, maxy, minz,
-		maxx, maxy, minz,
-		maxx, maxy, maxz,
-		minx, maxy, maxz,
-	};
-	static const unsigned char inds[6*4] =
-	{
-		2, 6, 7, 3,
-		0, 4, 5, 1,
-		7, 6, 5, 4,
-		0, 1, 2, 3,
-		1, 5, 6, 2,
-		3, 7, 4, 0,
-	};
-	
-	const unsigned char* in = inds;
+
+	float verts[8*3];
+	const unsigned char* in = duSetBoxVerts(minx, miny, minz, maxx, maxy, maxz, verts);
+
 	for (int i = 0; i < 6; ++i)
 	{
 		dd->vertex(&verts[*in*3], fcol[i]); in++;

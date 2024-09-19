@@ -125,6 +125,8 @@ inline unsigned int duTransCol(unsigned int c, unsigned int a)
 	return (a<<24) | (c & 0x00ffffff);
 }
 
+const unsigned char* duSetBoxVerts(float minx, float miny, float minz, float maxx,
+								   float maxy, float maxz, float* verts);
 
 void duCalcBoxColors(unsigned int* colors, unsigned int colTop, unsigned int colSide);
 
