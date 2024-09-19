@@ -1002,7 +1002,7 @@ private:
 
 
 public:
-	/// Returns neighbour tile based on side.
+	/// Returns tile based on position.
 	int getTilesAt(const int x, const int y,
 		dtMeshTile** tiles, const int maxTiles) const;
 
