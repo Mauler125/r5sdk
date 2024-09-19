@@ -939,7 +939,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf);
 /// @param[in,out]	ctx		The build context to use during the operation.
 /// @param[in]		bmin	The minimum of the bounding box. [(x, y, z)]
 /// @param[in]		bmax	The maximum of the bounding box. [(x, y, z)]
-/// @param[in]		flags	The flags to apply. [Limit: <= #RC_WALKABLE_AREA]
+/// @param[in]		flags	The flags to apply.
 /// @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
 /// @param[in,out]	chf		A populated compact heightfield.
 void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax,
@@ -949,11 +949,11 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax,
 /// Applies the area id to the all spans within the specified convex polygon. 
 /// @ingroup recast
 /// @param[in,out]	ctx		The build context to use during the operation.
-/// @param[in]		verts	The vertices of the polygon [Fomr: (x, y, z) * @p nverts]
+/// @param[in]		verts	The vertices of the polygon [Form: (x, y, z) * @p nverts]
 /// @param[in]		nverts	The number of vertices in the polygon.
 /// @param[in]		hmin	The height of the base of the polygon.
 /// @param[in]		hmax	The height of the top of the polygon.
-/// @param[in]		flags	The flags to apply. [Limit: <= #RC_WALKABLE_AREA]
+/// @param[in]		flags	The flags to apply.
 /// @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
 /// @param[in,out]	chf		A populated compact heightfield.
 void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
@@ -978,10 +978,12 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 /// @param[in]		pos		The center of the base of the cylinder. [Form: (x, y, z)] 
 /// @param[in]		r		The radius of the cylinder.
 /// @param[in]		h		The height of the cylinder.
+/// @param[in]		flags	The flags to apply.
 /// @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
 /// @param[in,out]	chf	A populated compact heightfield.
 void rcMarkCylinderArea(rcContext* ctx, const float* pos,
-						const float r, const float h, unsigned char areaId,
+						const float r, const float h, 
+						unsigned short flags, unsigned char areaId,
 						rcCompactHeightfield& chf);
 
 /// Builds the distance field for the specified compact heightfield. 

@@ -512,7 +512,8 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 /// 
 /// @see rcCompactHeightfield, rcMedianFilterWalkableArea
 void rcMarkCylinderArea(rcContext* ctx, const float* pos,
-						const float r, const float h, unsigned char areaId,
+						const float r, const float h, 
+						unsigned short flags, unsigned char areaId,
 						rcCompactHeightfield& chf)
 {
 	rdAssert(ctx);
@@ -567,6 +568,7 @@ void rcMarkCylinderArea(rcContext* ctx, const float* pos,
 					
 					if (dx*dx + dy*dy < r2)
 					{
+						chf.flags[i] = flags;
 						chf.areas[i] = areaId;
 					}
 				}
