@@ -180,6 +180,91 @@ bool rdIntersectSegmentPoly2D(const float* p0, const float* p1,
 	return true;
 }
 
+bool rdIntersectSegmentAABB(const float* sp, const float* sq,
+						 const float* amin, const float* amax,
+						 float& tmin, float& tmax)
+{
+	float d[3];
+	rdVsub(d, sq, sp);
+	tmin = 0;  // set to -FLT_MAX to get first hit on line
+	tmax = FLT_MAX;		// set to max distance ray can travel (for segment)
+	
+	// For all three slabs
+	for (int i = 0; i < 3; i++)
+	{
+		if (rdMathFabsf(d[i]) < RD_EPS)
+		{
+			// Ray is parallel to slab. No hit if origin not within slab
+			if (sp[i] < amin[i] || sp[i] > amax[i])
+				return false;
+		}
+		else
+		{
+			// Compute intersection t value of ray with near and far plane of slab
+			const float ood = 1.0f / d[i];
+			float t1 = (amin[i]-sp[i]) * ood;
+			float t2 = (amax[i]-sp[i]) * ood;
+			// Make t1 be intersection with near plane, t2 with far plane
+			if (t1 > t2) rdSwap(t1, t2);
+			// Compute the intersection of slab intersections intervals
+			if (t1 > tmin) tmin = t1;
+			if (t2 < tmax) tmax = t2;
+			// Exit with no collision as soon as slab intersection becomes empty
+			if (tmin > tmax) return false;
+		}
+	}
+	
+	return true;
+}
+
+bool rdIntersectSegmentCylinder(const float* sp, const float* sq, const float* position,
+								const float radius, const float height,
+								float& tmin, float& tmax)
+{
+	const float cx = position[0];
+	const float cy = position[1];
+	const float cz = position[2];
+	const float topZ = cz + height;
+
+	// Horizontal (x-y plane) intersection test with infinite cylinder
+	const float dx = sq[0]-sp[0];
+	const float dy = sq[1]-sp[1];
+
+	const float px = sp[0]-cx;
+	const float py = sp[1]-cy;
+
+	const float a = dx*dx + dy*dy;
+	const float b = 2.0f * (px*dx + py*dy);
+	const float c = px*px + py*py - radius*radius;
+	
+	// Discriminant for solving quadratic equation
+	float disc = b*b - 4.0f * a*c;
+
+	if (disc < 0.0f)
+		return false; // No intersection in the horizontal plane
+
+	disc = rdMathSqrtf(disc);
+	float t0 = (-b-disc) / (2.0f*a);
+	float t1 = (-b+disc) / (2.0f*a);
+
+	if (t0 > t1) rdSwap(t0, t1);
+
+	tmin = rdMax(0.0f, t0);
+	tmax = rdMin(1.0f, t1);
+
+	if (tmin > tmax)
+		return false; // No intersection in the [tmin, tmax] range
+
+	// Vertical (z-axis) intersection test
+	const float z0 = sp[2] + tmin * (sq[2]-sp[2]);
+	const float z1 = sp[2] + tmax * (sq[2]-sp[2]);
+
+	if ((z0 < cz && z1 < cz) || (z0 > topZ && z1 > topZ))
+		return false; // No intersection with the vertical height of the cylinder
+
+	return true;
+}
+
 float rdDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t)
 {
 	float pqx = q[0] - p[0];

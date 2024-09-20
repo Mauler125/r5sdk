@@ -478,6 +478,14 @@ bool rdIntersectSegmentPoly2D(const float* p0, const float* p1,
 							  float& tmin, float& tmax,
 							  int& segMin, int& segMax);
 
+bool rdIntersectSegmentAABB(const float* sp, const float* sq,
+						 const float* amin, const float* amax,
+						 float& tmin, float& tmax);
+
+bool rdIntersectSegmentCylinder(const float* sp, const float* sq, const float* position,
+								const float radius, const float height,
+								float& tmin, float& tmax);
+
 bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 						 const float* bp, const float* bq,
 						 float& s, float& t);
