@@ -369,25 +369,25 @@ void duAppendCylinder(struct duDebugDraw* dd, float minx, float miny, float minz
 	for (int i = 2; i < NUM_SEG; ++i)
 	{
 		const int a = 0, b = i-1, c = i;
-		dd->vertex(cx+dir[a*2+0]*rx, cy+dir[a*2+1]*ry, minz, col2);
-		dd->vertex(cx+dir[b*2+0]*rx, cy+dir[b*2+1]*ry, minz, col2);
 		dd->vertex(cx+dir[c*2+0]*rx, cy+dir[c*2+1]*ry, minz, col2);
+		dd->vertex(cx+dir[b*2+0]*rx, cy+dir[b*2+1]*ry, minz, col2);
+		dd->vertex(cx+dir[a*2+0]*rx, cy+dir[a*2+1]*ry, minz, col2);
 	}
 	for (int i = 2; i < NUM_SEG; ++i)
 	{
 		const int a = 0, b = i, c = i-1;
-		dd->vertex(cx+dir[a*2+0]*rx, cy+dir[a*2+1]*ry, maxz, col);
-		dd->vertex(cx+dir[b*2+0]*rx, cy+dir[b*2+1]*ry, maxz, col);
 		dd->vertex(cx+dir[c*2+0]*rx, cy+dir[c*2+1]*ry, maxz, col);
+		dd->vertex(cx+dir[b*2+0]*rx, cy+dir[b*2+1]*ry, maxz, col);
+		dd->vertex(cx+dir[a*2+0]*rx, cy+dir[a*2+1]*ry, maxz, col);
 	}
 	for (int i = 0, j = NUM_SEG-1; i < NUM_SEG; j = i++)
 	{
 		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, minz, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, maxz, col);
 		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, minz, col2);
-		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, maxz, col);
 
-		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, minz, col2);
 		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, maxz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, minz, col2);
 		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, maxz, col);
 	}
 }
