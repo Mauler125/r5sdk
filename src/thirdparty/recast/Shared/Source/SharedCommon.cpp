@@ -256,8 +256,25 @@ bool rdIntersectSegmentCylinder(const float* sp, const float* sq, const float* p
 		return false; // No intersection in the [tmin, tmax] range
 
 	// Vertical (z-axis) intersection test
-	const float z0 = sp[2] + tmin * (sq[2]-sp[2]);
-	const float z1 = sp[2] + tmax * (sq[2]-sp[2]);
+	const float dz = sq[2]-sp[2];
+
+	if (dz != 0.0f)
+	{
+		float tCapMin = (cz-sp[2]) / dz;
+		float tCapMax = (topZ-sp[2]) / dz;
+
+		if (tCapMin > tCapMax) rdSwap(tCapMin, tCapMax);
+
+		// Update tmin and tmax for cap intersections
+		tmin = rdMax(tmin, tCapMin);
+		tmax = rdMin(tmax, tCapMax);
+
+		if (tmin > tmax)
+			return false;
+	}
+
+	const float z0 = sp[2] + tmin*dz;
+	const float z1 = sp[2] + tmax*dz;
 
 	if ((z0 < cz && z1 < cz) || (z0 > topZ && z1 > topZ))
 		return false; // No intersection with the vertical height of the cylinder
