@@ -329,6 +329,33 @@ bool rdClosestHeightPointTriangle(const float* p, const float* a, const float* b
 	return false;
 }
 
+bool rdPointInAABB(const float* pt, const float* bmin, const float* bmax)
+{
+	if (pt[0] >= bmin[0] && pt[0] <= bmax[0] &&
+		pt[1] >= bmin[1] && pt[1] <= bmax[1] &&
+		pt[2] >= bmin[2] && pt[2] <= bmax[2])
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool rdPointInCylinder(const float* pt, const float* pos, const float radius, const float height)
+{
+	const float dx = pt[0] - pos[0];
+	const float dy = pt[1] - pos[1];
+	const float distSquared = dx*dx + dy*dy;
+
+	if (distSquared <= radius * radius &&
+		pt[2] >= pos[2] && pt[2] <= (pos[2] + height))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// @par
 ///
 /// All points are projected onto the xy-plane, so the z-values are ignored.

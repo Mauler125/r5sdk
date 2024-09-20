@@ -541,6 +541,21 @@ unsigned char rdClassifyPointOutsideBounds(const float* pt, const float* bmin, c
 unsigned char rdClassifyPointInsideBounds(const float* pt, const float* bmin, const float* bmax);
 unsigned char rdClassifyDirection(const float* dir, const float* bmin, const float* bmax);
 
+/// Determines if the specified point is inside the axis-aligned bounding box.
+///  @param[in]		pt		The point to check. [(x, y, z)]
+///  @param[in]		bmin	Minimum bounds of the box. [(x, y, z)]
+///  @param[in]		bmax	Maximum bounds of the box. [(x, y, z)]
+/// @return True if the point is inside the axis-aligned bounding box.
+bool rdPointInAABB(const float* pt, const float* bmin, const float* bmax);
+
+/// Determines if the specified point is inside the cylinder on the xy-plane.
+///  @param[in]		pt		The point to check. [(x, y, z)]
+///  @param[in]		pos		The position of the cylinder. [(x, y, z)]
+///  @param[in]		radius	The radius of the cylinder.
+///  @param[in]		height	The height of the cylinder.
+/// @return True if the point is inside the cylinder.
+bool rdPointInCylinder(const float* pt, const float* pos, const float radius, const float height);
+
 /// Determines if the specified point is inside the convex polygon on the xy-plane.
 ///  @param[in]		pt		The point to check. [(x, y, z)]
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * @p nverts]
