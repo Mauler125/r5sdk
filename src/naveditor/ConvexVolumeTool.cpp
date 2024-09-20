@@ -202,7 +202,7 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift
 		for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
 		{
 			if (rdPointInPolygon(p, vols[i].verts, vols[i].nverts) &&
-							p[1] >= vols[i].hmin && p[1] <= vols[i].hmax)
+							p[2] >= vols[i].hmin && p[2] <= vols[i].hmax)
 			{
 				nearestIndex = i;
 			}
