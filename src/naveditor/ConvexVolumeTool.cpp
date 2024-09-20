@@ -199,13 +199,36 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift
 		// Delete
 		int nearestIndex = -1;
 		const ShapeVolume* vols = geom->getConvexVolumes();
+
 		for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
 		{
-			if (rdPointInPolygon(p, vols[i].verts, vols[i].nverts) &&
-							p[2] >= vols[i].hmin && p[2] <= vols[i].hmax)
+			const ShapeVolume& vol = vols[i];
+
+			if (vol.type == VOLUME_BOX)
 			{
-				nearestIndex = i;
+				if (rdPointInAABB(p, &vol.verts[0], &vol.verts[3]))
+				{
+					nearestIndex = i;
+				}
 			}
+			else if (vol.type == VOLUME_CYLINDER)
+			{
+				if (rdPointInCylinder(p, &vol.verts[0], vol.verts[3], vol.verts[4]))
+				{
+					nearestIndex = i;
+				}
+			}
+			else if (vol.type == VOLUME_CONVEX)
+			{
+				if (rdPointInPolygon(p, vol.verts, vol.nverts) &&
+					p[2] >= vol.hmin && p[2] <= vol.hmax)
+				{
+					nearestIndex = i;
+				}
+			}
+
+			if (nearestIndex != -1)
+				break;
 		}
 		// If end point close enough, delete it.
 		if (nearestIndex != -1)
