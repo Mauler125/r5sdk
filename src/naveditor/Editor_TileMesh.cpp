@@ -513,10 +513,10 @@ void Editor_TileMesh::handleTools()
 		setTool(new OffMeshConnectionTool);
 	}
 
-	isEnabled = type == TOOL_CONVEX_VOLUME;
-	if (ImGui::Checkbox("Create Convex Volumes", &isEnabled))
+	isEnabled = type == TOOL_SHAPE_VOLUME;
+	if (ImGui::Checkbox("Create Shape Volumes", &isEnabled))
 	{
-		setTool(new ConvexVolumeTool);
+		setTool(new ShapeVolumeTool);
 	}
 
 	isEnabled = type == TOOL_CROWD;
@@ -1103,15 +1103,23 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 
 	// (Optional) Mark areas.
-	const ConvexVolume* vols = m_geom->getConvexVolumes();
+	const ShapeVolume* vols = m_geom->getConvexVolumes();
 	for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i)
 	{
-		const ConvexVolume& vol = vols[i];
+		const ShapeVolume& vol = vols[i];
 
-		if (vol.bbox)
+		switch (vol.type)
+		{
+		case VOLUME_BOX:
 			rcMarkBoxArea(m_ctx, &vol.verts[0], &vol.verts[3], vol.flags, vol.area, *m_chf);
-		else
+			break;
+		case VOLUME_CYLINDER:
+			rcMarkCylinderArea(m_ctx, &vol.verts[0], vol.verts[3], vol.verts[4], vol.flags, vol.area, *m_chf);
+			break;
+		case VOLUME_CONVEX:
 			rcMarkConvexPolyArea(m_ctx, vol.verts, vol.nverts, vol.hmin, vol.hmax, vol.flags, vol.area, *m_chf);
+			break;
+		}
 	}
 	
 	

@@ -21,16 +21,24 @@
 
 #include "NavEditor/Include/Editor.h"
 
-// Tool to create convex volumess for InputGeom
+// Tool to create shape volumes for InputGeom
 
-class ConvexVolumeTool : public EditorTool
+class ShapeVolumeTool : public EditorTool
 {
 	Editor* m_editor;
+	int m_selectedPrimitive;
 	int m_areaType;
 	int m_polyFlags;
-	float m_polyOffset;
-	float m_boxHeight;
+
 	float m_boxDescent;
+	float m_boxAscent;
+
+	float m_cylinderRadius;
+	float m_cylinderHeight;
+
+	float m_convexOffset;
+	float m_convexHeight;
+	float m_convexDescent;
 	
 	static const int MAX_PTS = 12;
 	float m_pts[MAX_PTS*3];
@@ -39,9 +47,9 @@ class ConvexVolumeTool : public EditorTool
 	int m_nhull;
 	
 public:
-	ConvexVolumeTool();
+	ShapeVolumeTool();
 	
-	virtual int type() { return TOOL_CONVEX_VOLUME; }
+	virtual int type() { return TOOL_SHAPE_VOLUME; }
 	virtual void init(Editor* editor);
 	virtual void reset();
 	virtual void handleMenu();

@@ -38,43 +38,6 @@
 static const int EXPECTED_LAYERS_PER_TILE = 4;
 
 
-static bool isectSegAABB(const float* sp, const float* sq,
-						 const float* amin, const float* amax,
-						 float& tmin, float& tmax)
-{
-	float d[3];
-	rdVsub(d, sq, sp);
-	tmin = 0;  // set to -FLT_MAX to get first hit on line
-	tmax = FLT_MAX;		// set to max distance ray can travel (for segment)
-	
-	// For all three slabs
-	for (int i = 0; i < 3; i++)
-	{
-		if (fabsf(d[i]) < RD_EPS)
-		{
-			// Ray is parallel to slab. No hit if origin not within slab
-			if (sp[i] < amin[i] || sp[i] > amax[i])
-				return false;
-		}
-		else
-		{
-			// Compute intersection t value of ray with near and far plane of slab
-			const float ood = 1.0f / d[i];
-			float t1 = (amin[i] - sp[i]) * ood;
-			float t2 = (amax[i] - sp[i]) * ood;
-			// Make t1 be intersection with near plane, t2 with far plane
-			if (t1 > t2) rdSwap(t1, t2);
-			// Compute the intersection of slab intersections intervals
-			if (t1 > tmin) tmin = t1;
-			if (t2 < tmax) tmax = t2;
-			// Exit with no collision as soon as slab intersection becomes empty
-			if (tmin > tmax) return false;
-		}
-	}
-	
-	return true;
-}
-
 static int calcLayerBufferSize(const int gridWidth, const int gridHeight)
 {
 	const int headerSize = rdAlign4(sizeof(dtTileCacheLayerHeader));
@@ -397,7 +360,7 @@ int Editor_TempObstacles::rasterizeTileLayers(
 	}
 	
 	// (Optional) Mark areas.
-	const ConvexVolume* vols = m_geom->getConvexVolumes();
+	const ShapeVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
 	{
 		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts,
@@ -610,7 +573,7 @@ dtObstacleRef hitTestObstacle(const dtTileCache* tc, const float* sp, const floa
 		float bmin[3], bmax[3], t0,t1;
 		tc->getObstacleBounds(ob, bmin,bmax);
 		
-		if (isectSegAABB(sp,sq, bmin,bmax, t0,t1))
+		if (rdIntersectSegmentAABB(sp,sq, bmin,bmax, t0,t1))
 		{
 			if (t0 < tmin)
 			{
@@ -892,10 +855,10 @@ void Editor_TempObstacles::handleTools()
 		setTool(new OffMeshConnectionTool);
 	}
 
-	enabled = type == TOOL_CONVEX_VOLUME;
-	if (ImGui::Checkbox("Create Convex Volumes", &enabled))
+	enabled = type == TOOL_SHAPE_VOLUME;
+	if (ImGui::Checkbox("Create Shape Volumes", &enabled))
 	{
-		setTool(new ConvexVolumeTool);
+		setTool(new ShapeVolumeTool);
 	}
 
 	enabled = type == TOOL_CROWD;

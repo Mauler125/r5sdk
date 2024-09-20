@@ -92,10 +92,10 @@ void Editor_SoloMesh::handleTools()
 		setTool(new OffMeshConnectionTool);
 	}
 
-	enabled = type == TOOL_CONVEX_VOLUME;
-	if (ImGui::Checkbox("Create Convex Volumes", &enabled))
+	enabled = type == TOOL_SHAPE_VOLUME;
+	if (ImGui::Checkbox("Create Shape Volumes", &enabled))
 	{
-		setTool(new ConvexVolumeTool);
+		setTool(new ShapeVolumeTool);
 	}
 
 	enabled = type == TOOL_CROWD;
@@ -299,7 +299,7 @@ bool Editor_SoloMesh::handleBuild()
 	}
 
 	// (Optional) Mark areas.
-	const ConvexVolume* vols = m_geom->getConvexVolumes();
+	const ShapeVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
 		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned short)vols[i].flags, (unsigned char)vols[i].area, *m_chf);
 

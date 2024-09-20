@@ -22,15 +22,22 @@
 #include "NavEditor/Include/ChunkyTriMesh.h"
 #include "NavEditor/Include/MeshLoaderObj.h"
 
-static const int MAX_CONVEXVOL_PTS = 12;
-struct ConvexVolume
+enum VolumeType : unsigned char
 {
-	float verts[MAX_CONVEXVOL_PTS*3];
+	VOLUME_BOX,
+	VOLUME_CYLINDER,
+	VOLUME_CONVEX
+};
+
+static const int MAX_SHAPEVOL_PTS = 12;
+struct ShapeVolume
+{
+	float verts[MAX_SHAPEVOL_PTS*3];
 	float hmin, hmax;
 	int nverts;
 	unsigned short flags;
 	unsigned char area;
-	bool bbox;
+	unsigned char type;
 };
 
 struct BuildSettings
@@ -104,7 +111,7 @@ class InputGeom
 	/// @name Convex Volumes.
 	///@{
 	static const int MAX_VOLUMES = 256;
-	ConvexVolume m_volumes[MAX_VOLUMES];
+	ShapeVolume m_volumes[MAX_VOLUMES];
 	int m_volumeCount;
 	///@}
 	
@@ -160,11 +167,16 @@ public:
 	/// @name Box Volumes.
 	///@{
 	int getConvexVolumeCount() const { return m_volumeCount; }
-	const ConvexVolume* getConvexVolumes() const { return m_volumes; }
+	const ShapeVolume* getConvexVolumes() const { return m_volumes; }
+	void addBoxVolume(const float* bmin, const float* bmax,
+						 unsigned short flags, unsigned char area);
+	void addCylinderVolume(const float* pos, const float radius,
+						 const float height, unsigned short flags, unsigned char area);
 	void addConvexVolume(const float* verts, const int nverts,
 						 const float minh, const float maxh, unsigned short flags, unsigned char area);
 	void deleteConvexVolume(int i);
 	void drawBoxVolumes(struct duDebugDraw* dd, const float* offset, bool hilight = false);
+	void drawCylinderVolumes(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	void drawConvexVolumes(struct duDebugDraw* dd, const float* offset, bool hilight = false);
 	///@}
 	

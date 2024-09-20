@@ -382,6 +382,7 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 
 	// TODO: also add flags for this
 	m_geom->drawBoxVolumes(&m_dd, recastDrawOffset);
+	m_geom->drawCylinderVolumes(&m_dd, recastDrawOffset);
 	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset);
 
 	// NOTE: commented out because this already gets rendered when the off-mesh
@@ -579,6 +580,7 @@ void Editor_DynamicTileMeshCommon::renderTileMeshData()
 
 	// TODO: also add flags for this
 	m_geom->drawBoxVolumes(&m_dd, recastDrawOffset);
+	m_geom->drawCylinderVolumes(&m_dd, recastDrawOffset);
 	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset);
 
 	// NOTE: commented out because this already gets rendered when the off-mesh

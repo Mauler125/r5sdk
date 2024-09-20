@@ -75,36 +75,76 @@ static int convexhull(const float* pts, int npts, int* out)
 }
 
 
-ConvexVolumeTool::ConvexVolumeTool() :
+ShapeVolumeTool::ShapeVolumeTool() :
 	m_editor(0),
+	m_selectedPrimitive(VOLUME_CONVEX),
 	m_areaType(RC_NULL_AREA),
 	m_polyFlags(0),
-	m_polyOffset(0.0f),
-	m_boxHeight(650.0f),
-	m_boxDescent(150.0f),
+	m_boxDescent(32),
+	m_boxAscent(32),
+	m_cylinderRadius(64),
+	m_cylinderHeight(128),
+	m_convexOffset(0.0f),
+	m_convexHeight(650.0f),
+	m_convexDescent(150.0f),
 	m_npts(0),
 	m_nhull(0)
 {
 }
 
-void ConvexVolumeTool::init(Editor* editor)
+void ShapeVolumeTool::init(Editor* editor)
 {
 	m_editor = editor;
 }
 
-void ConvexVolumeTool::reset()
+void ShapeVolumeTool::reset()
 {
 	m_npts = 0;
 	m_nhull = 0;
 }
 
-void ConvexVolumeTool::handleMenu()
+static const char* s_primitiveNames[] = {
+	"Box",
+	"Cylinder",
+	"Convex"
+};
+
+void ShapeVolumeTool::handleMenu()
 {
+	if (ImGui::BeginCombo("Primitive", s_primitiveNames[m_selectedPrimitive]))
+	{
+		for (int i = 0; i < V_ARRAYSIZE(s_primitiveNames); i++)
+		{
+			if (ImGui::Selectable(s_primitiveNames[i], i == m_selectedPrimitive))
+			{
+				m_selectedPrimitive = i;
+
+				m_npts = 0;
+				m_nhull = 0;
+			}
+		}
+
+		ImGui::EndCombo();
+	}
+
 	ImGui::PushItemWidth(120.f);
 
-	ImGui::SliderFloat("Shape Height", &m_boxHeight, 0.1f, MAX_COORD_FLOAT);
-	ImGui::SliderFloat("Shape Descent", &m_boxDescent, 0.1f, MAX_COORD_FLOAT);
-	ImGui::SliderFloat("Poly Offset", &m_polyOffset, 0.0f, MAX_COORD_FLOAT/2);
+	switch (m_selectedPrimitive)
+	{
+	case VOLUME_BOX:
+		ImGui::SliderFloat("Box Descent", &m_boxDescent, 0.1f, 4000);
+		ImGui::SliderFloat("Box Ascent", &m_boxAscent, 0.1f, 4000);
+		break;
+	case VOLUME_CYLINDER:
+		ImGui::SliderFloat("Cylinder Radius", &m_cylinderRadius, 0.1f, 4000);
+		ImGui::SliderFloat("Cylinder Height", &m_cylinderHeight, 0.1f, 4000);
+		break;
+	case VOLUME_CONVEX:
+		ImGui::SliderFloat("Convex Height", &m_convexHeight, 0.1f, 4000);
+		ImGui::SliderFloat("Convex Descent", &m_convexDescent, 0.1f, 4000);
+		ImGui::SliderFloat("Convex Offset", &m_convexOffset, 0.0f, 2000);
+		break;
+	}
 
 	ImGui::PopItemWidth();
 
@@ -148,7 +188,7 @@ void ConvexVolumeTool::handleMenu()
 	}
 }
 
-void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
 {
 	if (!m_editor) return;
 	InputGeom* geom = m_editor->getInputGeom();
@@ -158,7 +198,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 	{
 		// Delete
 		int nearestIndex = -1;
-		const ConvexVolume* vols = geom->getConvexVolumes();
+		const ShapeVolume* vols = geom->getConvexVolumes();
 		for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
 		{
 			if (rdPointInPolygon(p, vols[i].verts, vols[i].nverts) &&
@@ -173,77 +213,106 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 			geom->deleteConvexVolume(nearestIndex);
 		}
 	}
-	else
+	else // Create
 	{
-		// Create
-
-		// If clicked on that last pt, create the shape.
-		if (m_npts && rdVdistSqr(p, &m_pts[(m_npts-1)*3]) < rdSqr(0.2f))
+		switch (m_selectedPrimitive)
 		{
-			if (m_nhull > 2)
-			{
-				// Create shape.
-				float verts[MAX_PTS*3];
-				for (int i = 0; i < m_nhull; ++i)
-					rdVcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
-					
-				float minh = FLT_MAX, maxh = 0;
-				for (int i = 0; i < m_nhull; ++i)
-					minh = rdMin(minh, verts[i*3+2]);
-				minh -= m_boxDescent;
-				maxh = minh + m_boxHeight;
+		case VOLUME_BOX:
+			rdVcopy(&m_pts[m_npts*3], p);
+			m_npts++;
 
-				if (m_polyOffset > 0.01f)
-				{
-					float offset[MAX_PTS*2*3];
-					int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS*2);
-					if (noffset > 0)
-						geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
-				}
-				else
-				{
-					geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
-				}
+			if (m_npts > 1)
+			{
+				float* bmin = &m_pts[0*3];
+				float* bmax = &m_pts[1*3];
+				
+				if (bmin[0] > bmax[0])
+					rdSwap(bmin[0], bmax[0]);
+				if (bmin[1] > bmax[1])
+					rdSwap(bmin[1], bmax[1]);
+				if (bmin[2] > bmax[2])
+					rdSwap(bmin[2], bmax[2]);
+
+				bmin[2] -= m_boxDescent;
+				bmax[2] += m_boxAscent;
+
+				geom->addBoxVolume(&m_pts[0*3], &m_pts[1*3], (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+
+				m_npts = 0;
+				m_nhull = 0;
 			}
-			
-			m_npts = 0;
-			m_nhull = 0;
+			break;
+		case VOLUME_CYLINDER:
+			geom->addCylinderVolume(p, m_cylinderRadius, m_cylinderHeight, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+			break;
+		case VOLUME_CONVEX:
+			// If clicked on that last pt, create the shape.
+			if (m_npts && rdVdistSqr(p, &m_pts[(m_npts-1)*3]) < rdSqr(0.2f))
+			{
+				if (m_nhull > 2)
+				{
+					// Create shape.
+					float verts[MAX_PTS*3];
+					for (int i = 0; i < m_nhull; ++i)
+						rdVcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
+						
+					float minh = FLT_MAX, maxh = 0;
+					for (int i = 0; i < m_nhull; ++i)
+						minh = rdMin(minh, verts[i*3+2]);
+					minh -= m_convexDescent;
+					maxh = minh + m_convexHeight;
+
+					if (m_convexOffset > 0.01f)
+					{
+						float offset[MAX_PTS*2*3];
+						const int noffset = rcOffsetPoly(verts, m_nhull, m_convexOffset, offset, MAX_PTS*2);
+						if (noffset > 0)
+							geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+					}
+					else
+					{
+						geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+					}
+				}
+				
+				m_npts = 0;
+				m_nhull = 0;
+			}
+			else
+			{
+				// Add new point 
+				if (m_npts < MAX_PTS)
+				{
+					rdVcopy(&m_pts[m_npts*3], p);
+					m_npts++;
+
+					// Update hull.
+					if (m_npts > 1)
+						m_nhull = convexhull(m_pts, m_npts, m_hull);
+					else
+						m_nhull = 0;
+				}
+			}		
+			break;
 		}
-		else
-		{
-			// Add new point 
-			if (m_npts < MAX_PTS)
-			{
-				rdVcopy(&m_pts[m_npts*3], p);
-				const float* f = &m_pts[m_npts * 3];
-
-				printf("<%f, %f, %f>\n", f[0], f[1], f[2]);
-
-				m_npts++;
-				// Update hull.
-				if (m_npts > 1)
-					m_nhull = convexhull(m_pts, m_npts, m_hull);
-				else
-					m_nhull = 0;
-			}
-		}		
 	}
-	
+
+	printf("<%f, %f, %f>\n", p[0], p[1], p[2]);
 }
 
-void ConvexVolumeTool::handleToggle()
+void ShapeVolumeTool::handleToggle()
 {
 }
 
-void ConvexVolumeTool::handleStep()
+void ShapeVolumeTool::handleStep()
 {
 }
 
-void ConvexVolumeTool::handleUpdate(const float /*dt*/)
+void ShapeVolumeTool::handleUpdate(const float /*dt*/)
 {
 }
 
-void ConvexVolumeTool::handleRender()
+void ShapeVolumeTool::handleRender()
 {
 	duDebugDraw& dd = m_editor->getDebugDraw();
 	const float* drawOffset = m_editor->getDetourDrawOffset();
@@ -252,8 +321,8 @@ void ConvexVolumeTool::handleRender()
 	float minh = FLT_MAX, maxh = 0;
 	for (int i = 0; i < m_npts; ++i)
 		minh = rdMin(minh, m_pts[i*3+2]);
-	minh -= m_boxDescent;
-	maxh = minh + m_boxHeight;
+	minh -= m_convexDescent;
+	maxh = minh + m_convexHeight;
 
 	dd.begin(DU_DRAW_POINTS, 4.0f, drawOffset);
 	for (int i = 0; i < m_npts; ++i)
@@ -261,26 +330,30 @@ void ConvexVolumeTool::handleRender()
 		unsigned int col = duRGBA(255,255,255,255);
 		if (i == m_npts-1)
 			col = duRGBA(240,32,16,255);
-		dd.vertex(m_pts[i*3+0],m_pts[i*3+1],m_pts[i*3+2]+0.1f, col);//Needs to be flipped (y = z).
+
+		dd.vertex(m_pts[i*3+0],m_pts[i*3+1],m_pts[i*3+2]+0.1f, col);
 	}
 	dd.end();
 
-	dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
-	for (int i = 0, j = m_nhull-1; i < m_nhull; j = i++)
+	if (m_selectedPrimitive == VOLUME_CONVEX)
 	{
-		const float* vi = &m_pts[m_hull[j]*3];
-		const float* vj = &m_pts[m_hull[i]*3];
-		dd.vertex(vj[0],vj[1],minh, duRGBA(255, 255, 255, 64));
-		dd.vertex(vi[0],vi[1],minh, duRGBA(255, 255, 255, 64));
-		dd.vertex(vj[0],vj[1],maxh, duRGBA(255, 255, 255, 64));
-		dd.vertex(vi[0],vi[1],maxh, duRGBA(255, 255, 255, 64));
-		dd.vertex(vj[0],vj[1],minh, duRGBA(255, 255, 255, 64));
-		dd.vertex(vj[0],vj[1],maxh, duRGBA(255,255,255,64));
+		dd.begin(DU_DRAW_LINES, 2.0f, drawOffset);
+		for (int i = 0, j = m_nhull-1; i < m_nhull; j = i++)
+		{
+			const float* vi = &m_pts[m_hull[j]*3];
+			const float* vj = &m_pts[m_hull[i]*3];
+			dd.vertex(vj[0],vj[1],minh, duRGBA(255,255,255,64));
+			dd.vertex(vi[0],vi[1],minh, duRGBA(255,255,255,64));
+			dd.vertex(vj[0],vj[1],maxh, duRGBA(255,255,255,64));
+			dd.vertex(vi[0],vi[1],maxh, duRGBA(255,255,255,64));
+			dd.vertex(vj[0],vj[1],minh, duRGBA(255,255,255,64));
+			dd.vertex(vj[0],vj[1],maxh, duRGBA(255,255,255,64));
+		}
+		dd.end();
 	}
-	dd.end();	
 }
 
-void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
+void ShapeVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
 	// Tool help
 	if (!m_npts)
