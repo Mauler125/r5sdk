@@ -508,7 +508,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	return true;
 }
 
-bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) const
+bool InputGeom::raycastMesh(const float* src, const float* dst, const unsigned int mask, float* tmin) const
 {
 	// Prune hit ray.
 	float btmin = 0, btmax = 1;
@@ -518,6 +518,9 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) con
 	bool hit = false;
 	const int nvol = m_volumeCount;
 
+	const bool traceClip = mask & TRACE_CLIP;
+	const bool traceTrigger = mask & TRACE_TRIGGER;
+
 	float isectTmin = 1.0f;
 
 	for (int i = 0; i < nvol; i++)
@@ -526,8 +529,11 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) con
 		float tsmin = 0.0f, tsmax = 1.0f;
 		bool isect = false;
 
-		if (vol.area != RC_NULL_AREA)
-			continue; // Clip brushes only.
+		if (vol.area == RC_NULL_AREA && !traceClip)
+			continue;
+
+		if (vol.area == DT_POLYAREA_TRIGGER && !traceTrigger)
+			continue;
 
 		if (vol.type == VOLUME_BOX)
 		{
@@ -565,6 +571,11 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) con
 
 		return true;
 	}
+
+	const bool traceWorld = mask & TRACE_WORLD;
+
+	if (!traceWorld)
+		return false;
 
 	float p[2], q[2];
 	p[0] = src[0] + (dst[0]-src[0]) * btmin;

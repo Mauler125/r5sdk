@@ -29,6 +29,14 @@ enum VolumeType : unsigned char
 	VOLUME_CONVEX
 };
 
+enum TraceMask : unsigned int
+{
+	TRACE_WORLD   = 1<<0, // The imported world geometry.
+	TRACE_CLIP    = 1<<1, // Clip brushes.
+	TRACE_TRIGGER = 1<<2, // Trigger brushes.
+	TRACE_ALL = 0xffffffff
+};
+
 static const int MAX_SHAPEVOL_PTS = 12;
 struct ShapeVolume
 {
@@ -142,7 +150,7 @@ public:
 
 	const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
 	const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : 0; }
-	bool raycastMesh(const float* src, const float* dst, float* tmin = nullptr) const;
+	bool raycastMesh(const float* src, const float* dst, const unsigned int mask, float* tmin = nullptr) const;
 
 	/// @name Off-Mesh connections.
 	///@{

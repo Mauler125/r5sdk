@@ -382,7 +382,7 @@ void ShapeVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, i
 	if (!m_npts)
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).");
+			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click on a shape).");
 	}
 	else
 	{
