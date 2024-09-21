@@ -282,6 +282,48 @@ bool rdIntersectSegmentCylinder(const float* sp, const float* sq, const float* p
 	return true;
 }
 
+bool rdIntersectSegmentConvexHull(const float* sp, const float* sq,
+								  const float* verts, const int nverts,
+								  const float hmin, const float hmax,
+								  float& tmin, float& tmax)
+{
+	int segMin, segMax;
+	if (!rdIntersectSegmentPoly2D(sp, sq, verts, nverts, tmin, tmax, segMin, segMax))
+		return false; // No intersection with the polygon base
+
+	tmin = rdMax(0.0f, tmin);
+	tmax = rdMin(1.0f, tmax);
+
+	if (tmin > tmax)
+		return false; // No valid intersection range
+
+	// Vertical (z-axis) intersection test
+	const float dz = sq[2]-sp[2];
+
+	if (dz != 0.0f)
+	{
+		float tCapMin = (hmin-sp[2]) / dz;
+		float tCapMax = (hmax-sp[2]) / dz;
+
+		if (tCapMin > tCapMax) rdSwap(tCapMin, tCapMax);
+
+		// Update tmin and tmax for cap intersections
+		tmin = rdMax(tmin, tCapMin);
+		tmax = rdMin(tmax, tCapMax);
+
+		if (tmin > tmax)
+			return false;
+	}
+
+	const float z0 = sp[2] + tmin*dz;
+	const float z1 = sp[2] + tmax*dz;
+
+	if ((z0 < hmin && z1 < hmin) || (z0 > hmax && z1 > hmax))
+		return false; // No intersection within the vertical bounds
+
+	return true;
+}
+
 float rdDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t)
 {
 	float pqx = q[0] - p[0];

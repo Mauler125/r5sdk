@@ -486,6 +486,10 @@ bool rdIntersectSegmentCylinder(const float* sp, const float* sq, const float* p
 								const float radius, const float height,
 								float& tmin, float& tmax);
 
+bool rdIntersectSegmentConvexHull(const float* sp, const float* sq, const float* verts,
+								  int nverts, float hmin, float hmax,
+								  float& tmin, float& tmax);
+
 bool rdIntersectSegSeg2D(const float* ap, const float* aq,
 						 const float* bp, const float* bq,
 						 float& s, float& t);
