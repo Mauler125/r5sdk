@@ -16,8 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef CONVEXVOLUMETOOL_H
-#define CONVEXVOLUMETOOL_H
+#ifndef SHAPEVOLUMETOOL_H
+#define SHAPEVOLUMETOOL_H
 
 #include "NavEditor/Include/Editor.h"
 
@@ -61,4 +61,4 @@ public:
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 };
 
-#endif // CONVEXVOLUMETOOL_H
+#endif // SHAPEVOLUMETOOL_H

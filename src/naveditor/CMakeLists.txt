@@ -45,20 +45,20 @@ add_sources( SOURCE_GROUP "IO/Include"
 
 add_sources( SOURCE_GROUP "Tools"
     "ChunkyTriMesh.cpp"
-    "ConvexVolumeTool.cpp"
     "CrowdTool.cpp"
     "NavMeshPruneTool.cpp"
     "NavMeshTesterTool.cpp"
     "OffMeshConnectionTool.cpp"
+    "ShapeVolumeTool.cpp"
 )
 
 add_sources( SOURCE_GROUP "Tools/Include"
     "include/ChunkyTriMesh.h"
-    "include/ConvexVolumeTool.h"
     "include/CrowdTool.h"
     "include/NavMeshPruneTool.h"
     "include/NavMeshTesterTool.h"
     "include/OffMeshConnectionTool.h"
+    "include/ShapeVolumeTool.h"
 )
 
 add_sources( SOURCE_GROUP "Utils"
