@@ -145,8 +145,8 @@ Editor::Editor() :
 	for (int i = 0; i < MAX_TOOLS; i++)
 		m_toolStates[i] = 0;
 
-	rdVset(m_recastDrawOffset, 0.0f,0.0f,4.0f);
-	rdVset(m_detourDrawOffset, 0.0f,0.0f,8.0f);
+	rdVset(m_recastDrawOffset, 0.0f,0.0f,0.0f);
+	rdVset(m_detourDrawOffset, 0.0f,0.0f,4.0f);
 }
 
 Editor::~Editor()
