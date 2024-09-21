@@ -562,7 +562,7 @@ void drawDetailOverlay(const dtTileCache* tc, const int tx, const int ty, double
 		
 dtObstacleRef hitTestObstacle(const dtTileCache* tc, const float* sp, const float* sq)
 {
-	float tmin = FLT_MAX;
+	float tmin = 1;
 	const dtTileCacheObstacle* obmin = 0;
 	for (int i = 0; i < tc->getObstacleCount(); ++i)
 	{

@@ -186,8 +186,8 @@ bool rdIntersectSegmentAABB(const float* sp, const float* sq,
 {
 	float d[3];
 	rdVsub(d, sq, sp);
-	tmin = 0;  // set to -FLT_MAX to get first hit on line
-	tmax = FLT_MAX;		// set to max distance ray can travel (for segment)
+	tmin = 0; // set to 0 to get first hit on line
+	tmax = 1; // set to max distance ray can travel (for segment)
 	
 	// For all three slabs
 	for (int i = 0; i < 3; i++)
@@ -221,6 +221,9 @@ bool rdIntersectSegmentCylinder(const float* sp, const float* sq, const float* p
 								const float radius, const float height,
 								float& tmin, float& tmax)
 {
+	tmin = 0;
+	tmax = 1;
+
 	const float cx = position[0];
 	const float cy = position[1];
 	const float cz = position[2];
@@ -249,8 +252,8 @@ bool rdIntersectSegmentCylinder(const float* sp, const float* sq, const float* p
 
 	if (t0 > t1) rdSwap(t0, t1);
 
-	tmin = rdMax(0.0f, t0);
-	tmax = rdMin(1.0f, t1);
+	tmin = rdMax(tmin, t0);
+	tmax = rdMin(tmax, t1);
 
 	if (tmin > tmax)
 		return false; // No intersection in the [tmin, tmax] range

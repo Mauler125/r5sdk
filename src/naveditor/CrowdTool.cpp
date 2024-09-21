@@ -758,7 +758,7 @@ int CrowdToolState::hitTestAgents(const float* s, const float* p)
 	dtCrowd* crowd = m_editor->getCrowd();
 	
 	int isel = -1;
-	float tsel = FLT_MAX;
+	float tsel = 1;
 
 	for (int i = 0; i < crowd->getAgentCount(); ++i)
 	{
