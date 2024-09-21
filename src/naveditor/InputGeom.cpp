@@ -511,31 +511,20 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) const
 {
 	// Prune hit ray.
-	float btmin, btmax;
+	float btmin = 0, btmax = 1;
 	if (!rdIntersectSegmentAABB(src, dst, m_meshBMin, m_meshBMax, btmin, btmax))
-		return false;
-	float p[2], q[2];
-	p[0] = src[0] + (dst[0]-src[0])*btmin;
-	p[1] = src[1] + (dst[1]-src[1])*btmin;
-	q[0] = src[0] + (dst[0]-src[0])*btmax;
-	q[1] = src[1] + (dst[1]-src[1])*btmax;
-	
-	int cid[4096]; //stack is crying for help
-	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, cid, 4096);
-	if (!ncid)
 		return false;
 
 	bool hit = false;
 	const int nvol = m_volumeCount;
 
-	float tsmin = 0.0f, tsmax = 0.0f;
-	int segMin = 0, segMax = 0;
-
-	const bool calcTmin = tmin != nullptr;
+	float isectTmin = 1.0f;
 
 	for (int i = 0; i < nvol; i++)
 	{
 		const ShapeVolume& vol = m_volumes[i];
+		float tsmin = 0.0f, tsmax = 1.0f;
+		bool isect = false;
 
 		if (vol.area != RC_NULL_AREA)
 			continue; // Clip brushes only.
@@ -543,44 +532,52 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) con
 		if (vol.type == VOLUME_BOX)
 		{
 			if (rdIntersectSegmentAABB(src, dst, &vol.verts[0], &vol.verts[3], tsmin, tsmax))
-			{
-				hit = true;
-				break;
-			}
+				isect = true;
 		}
 		else if (vol.type == VOLUME_CYLINDER)
 		{
 			if (rdIntersectSegmentCylinder(src, dst, &vol.verts[0], vol.verts[3], vol.verts[4], tsmin, tsmax))
-			{
-				hit = true;
-				break;
-			}
+				isect = true;
 		}
 		else if (vol.type == VOLUME_CONVEX)
 		{
-			if ((src[2] >= vol.hmin && src[2] <= vol.hmax) ||
-				(dst[2] >= vol.hmin && dst[2] <= vol.hmax))
-			{
-				if (rdIntersectSegmentPoly2D(src, dst, vol.verts, vol.nverts,
-					tsmin, tsmax, segMin, segMax))
-				{
-					hit = true;
-					break;
-				}
-			}
+			if (rdIntersectSegmentConvexHull(src, dst, vol.verts, vol.nverts, vol.hmin, vol.hmax, tsmin, tsmax))
+				isect = true;
+		}
+
+		if (isect)
+		{
+			hit = true;
+
+			// Caller isn't interested in finding the closest intersection; return out.
+			if (!tmin)
+				return true;
+
+			if (tsmin < isectTmin)
+				isectTmin = tsmin;
 		}
 	}
 
 	if (hit)
 	{
-		if (calcTmin)
-			*tmin = tsmin;
+		if (tmin)
+			*tmin = isectTmin;
 
 		return true;
 	}
 
+	float p[2], q[2];
+	p[0] = src[0] + (dst[0]-src[0]) * btmin;
+	p[1] = src[1] + (dst[1]-src[1]) * btmin;
+	q[0] = src[0] + (dst[0]-src[0]) * btmax;
+	q[1] = src[1] + (dst[1]-src[1]) * btmax;
+	
+	int cid[512];
+	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, cid, 512);
+	if (!ncid)
+		return false;
+
 	const float* verts = m_mesh->getVerts();
-	float localtmin = 1.0f;
 	
 	for (int i = 0; i < ncid; ++i)
 	{
@@ -594,20 +591,24 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float* tmin) con
 			if (intersectSegmentTriangle(src, dst,
 										 &verts[tris[j]*3],
 										 &verts[tris[j+1]*3],
-										 &verts[tris[j+2]*3], t, calcTmin))
+										 &verts[tris[j+2]*3], t, tmin != nullptr))
 			{
+				// Caller isn't interested in finding the closest intersection; return out.
+				if (!tmin)
+					return true;
+
 				hit = true;
 
-				if (calcTmin && t < localtmin)
-					localtmin = t;
+				if (t < isectTmin)
+					isectTmin = t;
 				else
 					break;
 			}
 		}
 	}
 
-	if (calcTmin)
-		*tmin = localtmin;
+	if (tmin)
+		*tmin = isectTmin;
 	
 	return hit;
 }
