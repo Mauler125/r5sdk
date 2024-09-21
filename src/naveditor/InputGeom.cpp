@@ -758,7 +758,10 @@ void InputGeom::deleteConvexVolume(int i)
 	m_volumes[i] = m_volumes[m_volumeCount];
 }
 
-void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, const float* offset, bool /*hilight*/)
+static const int FACE_ALPHA = 168;
+static const int WIRE_ALPHA = 220;
+
+void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, const float* offset, const int hilightIdx)
 {
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
@@ -767,9 +770,11 @@ void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, const float* offset, bool
 		if (vol->type != VOLUME_BOX)
 			continue;
 
+		const int faceAlpha = hilightIdx == i ? WIRE_ALPHA : FACE_ALPHA;
+
 		const unsigned int faceCol = vol->area == RC_NULL_AREA
-			? duRGBA(255, 0, 0, 168) // Use red for visibility (null acts as deletion).
-			: duTransCol(dd->areaToCol(vol->area), 168);
+			? duRGBA(255, 0, 0, faceAlpha) // Use red for visibility (null acts as deletion).
+			: duTransCol(dd->areaToCol(vol->area), faceAlpha);
 
 		unsigned int fcol[6] = { faceCol, faceCol, faceCol, faceCol, faceCol, faceCol };
 
@@ -779,8 +784,8 @@ void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, const float* offset, bool
 			fcol, offset);
 
 		const unsigned int wireCol = vol->area == RC_NULL_AREA
-			? duRGBA(255, 0, 0, 220)
-			: duTransCol(dd->areaToCol(vol->area), 220);
+			? duRGBA(255, 0, 0, WIRE_ALPHA)
+			: duTransCol(dd->areaToCol(vol->area), WIRE_ALPHA);
 
 		duDebugDrawBoxWire(dd,
 			vol->verts[0],vol->verts[1],vol->verts[2],
@@ -789,7 +794,7 @@ void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, const float* offset, bool
 	}
 }
 
-void InputGeom::drawCylinderVolumes(struct duDebugDraw* dd, const float* offset, bool /*hilight*/)
+void InputGeom::drawCylinderVolumes(struct duDebugDraw* dd, const float* offset, const int hilightIdx)
 {
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
@@ -798,9 +803,11 @@ void InputGeom::drawCylinderVolumes(struct duDebugDraw* dd, const float* offset,
 		if (vol->type != VOLUME_CYLINDER)
 			continue;
 
+		const int faceAlpha = hilightIdx == i ? WIRE_ALPHA : FACE_ALPHA;
+
 		const unsigned int faceCol = vol->area == RC_NULL_AREA
-			? duRGBA(255, 0, 0, 168) // Use red for visibility (null acts as deletion).
-			: duTransCol(dd->areaToCol(vol->area), 168);
+			? duRGBA(255, 0, 0, faceAlpha) // Use red for visibility (null acts as deletion).
+			: duTransCol(dd->areaToCol(vol->area), faceAlpha);
 
 		const float radius = vol->verts[3];
 		const float height = vol->verts[4];
@@ -810,8 +817,8 @@ void InputGeom::drawCylinderVolumes(struct duDebugDraw* dd, const float* offset,
 			vol->verts[0]+radius,vol->verts[1]+radius,vol->verts[2]+height, faceCol, offset);
 
 		const unsigned int wireCol = vol->area == RC_NULL_AREA
-			? duRGBA(255, 0, 0, 220)
-			: duTransCol(dd->areaToCol(vol->area), 220);
+			? duRGBA(255, 0, 0, WIRE_ALPHA)
+			: duTransCol(dd->areaToCol(vol->area), WIRE_ALPHA);
 
 		duDebugDrawCylinderWire(dd, 
 			vol->verts[0]-radius,vol->verts[1]-radius,vol->verts[2]+0.1f,
@@ -819,7 +826,7 @@ void InputGeom::drawCylinderVolumes(struct duDebugDraw* dd, const float* offset,
 	}
 }
 
-void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, bool /*hilight*/)
+void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, const int hilightIdx)
 {
 	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
 	
@@ -831,11 +838,12 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, b
 			continue;
 
 		unsigned int col;
+		const int faceAlpha = hilightIdx == i ? WIRE_ALPHA : FACE_ALPHA;
 
 		if (vol->area == RC_NULL_AREA)
-			col = duRGBA(255, 0, 0, 168); // Use red for visibility (null acts as deletion).
+			col = duRGBA(255, 0, 0, faceAlpha); // Use red for visibility (null acts as deletion).
 		else
-			col = duTransCol(dd->areaToCol(vol->area), 168);
+			col = duTransCol(dd->areaToCol(vol->area), faceAlpha);
 
 		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
 		{
@@ -869,9 +877,9 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, b
 		unsigned int col;
 
 		if (vol->area == RC_NULL_AREA)
-			col = duRGBA(255, 0, 0, 220);
+			col = duRGBA(255, 0, 0, WIRE_ALPHA);
 		else
-			col = duTransCol(dd->areaToCol(vol->area), 220);
+			col = duTransCol(dd->areaToCol(vol->area), WIRE_ALPHA);
 
 		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
 		{
@@ -898,9 +906,9 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, const float* offset, b
 		unsigned int col;
 
 		if (vol->area == RC_NULL_AREA)
-			col = duDarkenCol(duRGBA(255, 0, 0, 220));
+			col = duDarkenCol(duRGBA(255, 0, 0, WIRE_ALPHA));
 		else
-			col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
+			col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), WIRE_ALPHA));
 
 		for (int j = 0; j < vol->nverts; ++j)
 		{
