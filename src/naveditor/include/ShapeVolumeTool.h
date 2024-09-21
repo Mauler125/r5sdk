@@ -20,6 +20,7 @@
 #define SHAPEVOLUMETOOL_H
 
 #include "NavEditor/Include/Editor.h"
+#include "NavEditor/Include/InputGeom.h"
 
 // Tool to create shape volumes for InputGeom
 
@@ -40,10 +41,9 @@ class ShapeVolumeTool : public EditorTool
 	float m_convexHeight;
 	float m_convexDescent;
 	
-	static const int MAX_PTS = 12;
-	float m_pts[MAX_PTS*3];
+	float m_pts[MAX_SHAPEVOL_PTS*3];
 	int m_npts;
-	int m_hull[MAX_PTS];
+	int m_hull[MAX_SHAPEVOL_PTS];
 	int m_nhull;
 	
 public:

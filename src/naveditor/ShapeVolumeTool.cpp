@@ -275,7 +275,7 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift
 				if (m_nhull > 2)
 				{
 					// Create shape.
-					float verts[MAX_PTS*3];
+					float verts[MAX_SHAPEVOL_PTS*3];
 					for (int i = 0; i < m_nhull; ++i)
 						rdVcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
 						
@@ -287,8 +287,8 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift
 
 					if (m_convexOffset > 0.01f)
 					{
-						float offset[MAX_PTS*2*3];
-						const int noffset = rcOffsetPoly(verts, m_nhull, m_convexOffset, offset, MAX_PTS*2);
+						float offset[MAX_SHAPEVOL_PTS*2*3];
+						const int noffset = rcOffsetPoly(verts, m_nhull, m_convexOffset, offset, MAX_SHAPEVOL_PTS*2);
 						if (noffset > 0)
 							geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
 					}
@@ -304,7 +304,7 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift
 			else
 			{
 				// Add new point 
-				if (m_npts < MAX_PTS)
+				if (m_npts < MAX_SHAPEVOL_PTS)
 				{
 					rdVcopy(&m_pts[m_npts*3], p);
 					m_npts++;
