@@ -191,11 +191,11 @@ public:
 	///@{
 	int getConvexVolumeCount() const { return m_volumeCount; } // todo(amos): rename to 'getShapeVolumeCount'
 	ShapeVolume* getConvexVolumes() { return m_volumes; } // todo(amos): rename to 'getShapeVolumes'
-	void addBoxVolume(const float* bmin, const float* bmax,
+	int addBoxVolume(const float* bmin, const float* bmax,
 						 unsigned short flags, unsigned char area);
-	void addCylinderVolume(const float* pos, const float radius,
+	int addCylinderVolume(const float* pos, const float radius,
 						 const float height, unsigned short flags, unsigned char area);
-	void addConvexVolume(const float* verts, const int nverts,
+	int addConvexVolume(const float* verts, const int nverts,
 						 const float minh, const float maxh, unsigned short flags, unsigned char area);
 	void deleteConvexVolume(int i); // todo(amos): rename to 'deleteShapeVolumes'
 	void drawBoxVolumes(struct duDebugDraw* dd, const float* offset, const int hilightIdx = -1);

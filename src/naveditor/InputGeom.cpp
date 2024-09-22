@@ -728,10 +728,10 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, const float* offset, boo
 	dd->depthMask(true);
 }
 
-void InputGeom::addBoxVolume(const float* bmin, const float* bmax,
+int InputGeom::addBoxVolume(const float* bmin, const float* bmax,
 						 unsigned short flags, unsigned char area)
 {
-	if (m_volumeCount >= MAX_VOLUMES) return;
+	if (m_volumeCount >= MAX_VOLUMES) return -1;
 	ShapeVolume* vol = &m_volumes[m_volumeCount++];
 	rdVcopy(&vol->verts[0], bmin);
 	rdVcopy(&vol->verts[3], bmax);
@@ -741,12 +741,14 @@ void InputGeom::addBoxVolume(const float* bmin, const float* bmax,
 	vol->flags = flags;
 	vol->area = area;
 	vol->type = VOLUME_BOX;
+
+	return m_volumeCount-1;
 }
 
-void InputGeom::addCylinderVolume(const float* pos, const float radius,
+int InputGeom::addCylinderVolume(const float* pos, const float radius,
 						 const float height, unsigned short flags, unsigned char area)
 {
-	if (m_volumeCount >= MAX_VOLUMES) return;
+	if (m_volumeCount >= MAX_VOLUMES) return -1;
 	ShapeVolume* vol = &m_volumes[m_volumeCount++];
 	rdVcopy(vol->verts, pos);
 	vol->verts[3] = radius;
@@ -757,12 +759,14 @@ void InputGeom::addCylinderVolume(const float* pos, const float radius,
 	vol->flags = flags;
 	vol->area = area;
 	vol->type = VOLUME_CYLINDER;
+
+	return m_volumeCount-1;
 }
 
-void InputGeom::addConvexVolume(const float* verts, const int nverts,
+int InputGeom::addConvexVolume(const float* verts, const int nverts,
 								const float minh, const float maxh, unsigned short flags, unsigned char area)
 {
-	if (m_volumeCount >= MAX_VOLUMES) return;
+	if (m_volumeCount >= MAX_VOLUMES) return -1;
 	ShapeVolume* vol = &m_volumes[m_volumeCount++];
 	memcpy(vol->verts, verts, sizeof(float)*3*nverts);
 	vol->hmin = minh;
@@ -771,6 +775,8 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts,
 	vol->flags = flags;
 	vol->area = area;
 	vol->type = VOLUME_CONVEX;
+
+	return m_volumeCount-1;
 }
 
 void InputGeom::deleteConvexVolume(int i)

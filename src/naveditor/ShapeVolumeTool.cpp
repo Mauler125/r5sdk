@@ -368,14 +368,14 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, const int 
 				bmin[2] -= m_boxDescent;
 				bmax[2] += m_boxAscent;
 
-				geom->addBoxVolume(&m_pts[0*3], &m_pts[1*3], (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+				m_selectedVolumeIndex = geom->addBoxVolume(&m_pts[0*3], &m_pts[1*3], (unsigned short)m_polyFlags, (unsigned char)m_areaType);
 
 				m_npts = 0;
 				m_nhull = 0;
 			}
 			break;
 		case VOLUME_CYLINDER:
-			geom->addCylinderVolume(p, m_cylinderRadius, m_cylinderHeight, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+			m_selectedVolumeIndex = geom->addCylinderVolume(p, m_cylinderRadius, m_cylinderHeight, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
 			break;
 		case VOLUME_CONVEX:
 			// If clicked on that last pt, create the shape.
@@ -399,11 +399,11 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, const int 
 						float offset[MAX_SHAPEVOL_PTS*2*3];
 						const int noffset = rcOffsetPoly(verts, m_nhull, m_convexOffset, offset, MAX_SHAPEVOL_PTS*2);
 						if (noffset > 0)
-							geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+							m_selectedVolumeIndex = geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
 					}
 					else
 					{
-						geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
+						m_selectedVolumeIndex = geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned short)m_polyFlags, (unsigned char)m_areaType);
 					}
 				}
 				
