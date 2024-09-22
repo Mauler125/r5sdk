@@ -88,7 +88,7 @@ void OffMeshConnectionTool::handleMenu()
 	ImGui::PopItemWidth();
 }
 
-void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, const int /*v*/, bool shift)
 {
 	if (!m_editor) return;
 	InputGeom* geom = m_editor->getInputGeom();

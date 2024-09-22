@@ -351,7 +351,7 @@ void ShapeVolumeTool::handleMenu()
 	ImGui::PopItemWidth();
 }
 
-void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, const int /*v*/, bool shift)
 {
 	if (!m_editor) return;
 	InputGeom* geom = m_editor->getInputGeom();

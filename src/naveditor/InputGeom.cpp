@@ -514,8 +514,11 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	return true;
 }
 
-bool InputGeom::raycastMesh(const float* src, const float* dst, const unsigned int mask, float* tmin) const
+bool InputGeom::raycastMesh(const float* src, const float* dst, const unsigned int mask, int* vidx, float* tmin) const
 {
+	if (vidx)
+		*vidx = -1;
+
 	// Prune hit ray.
 	float btmin = 0, btmax = 1;
 	if (!rdIntersectSegmentAABB(src, dst, m_meshBMin, m_meshBMax, btmin, btmax))
@@ -528,6 +531,7 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, const unsigned i
 	const bool traceTrigger = mask & TRACE_TRIGGER;
 
 	float isectTmin = 1.0f;
+	int isectVolIdx = -1;
 
 	for (int i = 0; i < nvol; i++)
 	{
@@ -561,17 +565,25 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, const unsigned i
 		{
 			hit = true;
 
-			// Caller isn't interested in finding the closest intersection; return out.
+			// Caller isn't interested in finding the closest intersection; break out.
 			if (!tmin)
-				return true;
-
-			if (tsmin < isectTmin)
+			{
+				isectVolIdx = i;
+				break;
+			}
+			else if (tsmin < isectTmin)
+			{
 				isectTmin = tsmin;
+				isectVolIdx = i;
+			}
 		}
 	}
 
 	if (hit)
 	{
+		if (vidx)
+			*vidx = isectVolIdx;
+
 		if (tmin)
 			*tmin = isectTmin;
 

@@ -998,7 +998,7 @@ void CrowdTool::handleMenu()
 	}
 }
 
-void CrowdTool::handleClick(const float* s, const float* p, bool shift)
+void CrowdTool::handleClick(const float* s, const float* p, const int /*v*/, bool shift)
 {
 	if (!m_editor) return;
 	if (!m_state) return;

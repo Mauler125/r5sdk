@@ -236,7 +236,7 @@ public:
 		}
 	}
 
-	virtual void handleClick(const float* /*s*/, const float* p, bool shift)
+	virtual void handleClick(const float* /*s*/, const float* p, const int /*v*/, bool shift)
 	{
 		m_hitPosSet = true;
 		rdVcopy(m_hitPos,p);

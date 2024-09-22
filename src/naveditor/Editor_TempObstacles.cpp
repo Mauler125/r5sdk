@@ -641,7 +641,7 @@ public:
 			m_drawType = DRAWDETAIL_MESH;
 	}
 
-	virtual void handleClick(const float* /*s*/, const float* p, bool /*shift*/)
+	virtual void handleClick(const float* /*s*/, const float* p, const int /*v*/, bool /*shift*/)
 	{
 		m_hitPosSet = true;
 		rdVcopy(m_hitPos,p);
@@ -727,7 +727,7 @@ public:
 		ImGui::Text("Shift+LMB to remove an obstacle.");
 	}
 	
-	virtual void handleClick(const float* s, const float* p, bool shift)
+	virtual void handleClick(const float* s, const float* p, const int /*v*/, bool shift)
 	{
 		if (m_editor)
 		{

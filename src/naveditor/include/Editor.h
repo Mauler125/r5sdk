@@ -210,7 +210,7 @@ struct EditorTool
 	virtual void init(class Editor* editor) = 0;
 	virtual void reset() = 0;
 	virtual void handleMenu() = 0;
-	virtual void handleClick(const float* s, const float* p, bool shift) = 0;
+	virtual void handleClick(const float* s, const float* p, const int v, bool shift) = 0;
 	virtual void handleRender() = 0;
 	virtual void handleRenderOverlay(double* proj, double* model, int* view) = 0;
 	virtual void handleToggle() = 0;
@@ -306,7 +306,7 @@ public:
 	virtual void handleSettings();
 	virtual void handleTools();
 	virtual void handleDebugMode();
-	virtual void handleClick(const float* s, const float* p, bool shift);
+	virtual void handleClick(const float* s, const float* p, const int v, bool shift);
 	virtual void handleToggle();
 	virtual void handleStep();
 	virtual void handleRender();

@@ -459,7 +459,7 @@ void NavMeshTesterTool::handleMenu()
 	ImGui::Separator();
 }
 
-void NavMeshTesterTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void NavMeshTesterTool::handleClick(const float* /*s*/, const float* p, const int /*v*/, bool shift)
 {
 	if (!shift)
 	{

@@ -430,10 +430,10 @@ void Editor::handleCommonSettings()
 	ImGui::Separator();
 }
 
-void Editor::handleClick(const float* s, const float* p, bool shift)
+void Editor::handleClick(const float* s, const float* p, const int v, bool shift)
 {
 	if (m_tool)
-		m_tool->handleClick(s, p, shift);
+		m_tool->handleClick(s, p, v, shift);
 }
 
 void Editor::handleToggle()

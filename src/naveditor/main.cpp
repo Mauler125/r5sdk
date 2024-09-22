@@ -771,7 +771,9 @@ int not_main(int argc, char** argv)
 		if (processHitTest && geom && editor)
 		{
 			float hitTime;
-			bool hit = geom->raycastMesh(rayStart, rayEnd, TRACE_ALL, &hitTime);
+			int volumeIndex;
+
+			bool hit = geom->raycastMesh(rayStart, rayEnd, TRACE_ALL, &volumeIndex, &hitTime);
 			
 			if (hit)
 			{
@@ -789,7 +791,7 @@ int not_main(int argc, char** argv)
 					pos[0] = rayStart[0] + (rayEnd[0] - rayStart[0]) * hitTime;
 					pos[1] = rayStart[1] + (rayEnd[1] - rayStart[1]) * hitTime;
 					pos[2] = rayStart[2] + (rayEnd[2] - rayStart[2]) * hitTime;
-					editor->handleClick(rayStart, pos, processHitTestShift);
+					editor->handleClick(rayStart, pos, volumeIndex, processHitTestShift);
 				}
 			}
 			else

@@ -339,10 +339,10 @@ const float* Editor_Debug::getBoundsMax()
 	return 0;
 }
 
-void Editor_Debug::handleClick(const float* s, const float* p, bool shift)
+void Editor_Debug::handleClick(const float* s, const float* p, const int v, bool shift)
 {
 	if (m_tool)
-		m_tool->handleClick(s, p, shift);
+		m_tool->handleClick(s, p, v, shift);
 }
 
 void Editor_Debug::handleToggle()
