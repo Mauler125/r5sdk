@@ -23,6 +23,7 @@
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "Include/InputGeom.h"
 #include "DetourTileCache/Include/DetourTileCache.h"
+#include "include/ShapeVolumeTool.h"
 
 static void EditorCommon_DrawInputGeometry(duDebugDraw* const dd, const InputGeom* const geom,
 	const float maxSlope, const float textureScale)
@@ -380,10 +381,17 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 		glDepthMask(GL_TRUE);
 	}
 
+	int selectedVolumeIndex = -1;
+	if (m_tool->type() == TOOL_SHAPE_VOLUME)
+	{
+		const ShapeVolumeTool* volTool = (const ShapeVolumeTool*)m_tool;
+		selectedVolumeIndex = volTool->getSelectedVolumeIndex();
+	}
+
 	// TODO: also add flags for this
-	m_geom->drawBoxVolumes(&m_dd, recastDrawOffset);
-	m_geom->drawCylinderVolumes(&m_dd, recastDrawOffset);
-	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset);
+	m_geom->drawBoxVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+	m_geom->drawCylinderVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
 
 	// NOTE: commented out because this already gets rendered when the off-mesh
 	// connection tool is activated. And if we generated an off-mesh link, this

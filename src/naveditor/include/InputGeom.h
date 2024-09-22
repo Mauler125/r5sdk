@@ -24,7 +24,8 @@
 
 enum VolumeType : unsigned char
 {
-	VOLUME_BOX,
+	VOLUME_INVALID = 0xff,
+	VOLUME_BOX = 0,
 	VOLUME_CYLINDER,
 	VOLUME_CONVEX
 };
@@ -40,6 +41,20 @@ enum TraceMask : unsigned int
 static const int MAX_SHAPEVOL_PTS = 12;
 struct ShapeVolume
 {
+	ShapeVolume()
+	{
+		for (int i = 0; i < MAX_SHAPEVOL_PTS; i++)
+		{
+			rdVset(&verts[i*3], 0.f,0.f,0.f);
+		}
+		hmin = 0.f;
+		hmax = 0.f;
+		nverts = 0;
+		flags = 0;
+		area = 0;
+		type = VOLUME_INVALID;
+	}
+
 	float verts[MAX_SHAPEVOL_PTS*3];
 	float hmin, hmax;
 	int nverts;
@@ -175,7 +190,7 @@ public:
 	/// @name Shape Volumes.
 	///@{
 	int getConvexVolumeCount() const { return m_volumeCount; } // todo(amos): rename to 'getShapeVolumeCount'
-	const ShapeVolume* getConvexVolumes() const { return m_volumes; } // todo(amos): rename to 'getShapeVolumes'
+	ShapeVolume* getConvexVolumes() { return m_volumes; } // todo(amos): rename to 'getShapeVolumes'
 	void addBoxVolume(const float* bmin, const float* bmax,
 						 unsigned short flags, unsigned char area);
 	void addCylinderVolume(const float* pos, const float radius,

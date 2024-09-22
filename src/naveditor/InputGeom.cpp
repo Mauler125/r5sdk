@@ -317,6 +317,9 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 					&vol->verts[0], &vol->verts[1], &vol->verts[2],
 					&vol->verts[3], &vol->verts[4], &vol->verts[5]);
 
+				vol->hmin = 0.0f;
+				vol->hmax = 0.0f;
+				vol->nverts = 6;
 				vol->type = VOLUME_BOX;
 			}
 		}
@@ -331,6 +334,9 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 					&vol->verts[0], &vol->verts[1], &vol->verts[2],
 					&vol->verts[3], &vol->verts[4]);
 
+				vol->hmin = 0.0f;
+				vol->hmax = 0.0f;
+				vol->nverts = 5;
 				vol->type = VOLUME_CYLINDER;
 			}
 		}
@@ -715,9 +721,11 @@ void InputGeom::addBoxVolume(const float* bmin, const float* bmax,
 {
 	if (m_volumeCount >= MAX_VOLUMES) return;
 	ShapeVolume* vol = &m_volumes[m_volumeCount++];
-	memset(vol, 0, sizeof(ShapeVolume));
 	rdVcopy(&vol->verts[0], bmin);
 	rdVcopy(&vol->verts[3], bmax);
+	vol->hmin = 0.0f;
+	vol->hmax = 0.0f;
+	vol->nverts = 6;
 	vol->flags = flags;
 	vol->area = area;
 	vol->type = VOLUME_BOX;
@@ -728,10 +736,12 @@ void InputGeom::addCylinderVolume(const float* pos, const float radius,
 {
 	if (m_volumeCount >= MAX_VOLUMES) return;
 	ShapeVolume* vol = &m_volumes[m_volumeCount++];
-	memset(vol, 0, sizeof(ShapeVolume));
 	rdVcopy(vol->verts, pos);
 	vol->verts[3] = radius;
 	vol->verts[4] = height;
+	vol->hmin = 0.0f;
+	vol->hmax = 0.0f;
+	vol->nverts = 5;
 	vol->flags = flags;
 	vol->area = area;
 	vol->type = VOLUME_CYLINDER;
@@ -742,7 +752,6 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts,
 {
 	if (m_volumeCount >= MAX_VOLUMES) return;
 	ShapeVolume* vol = &m_volumes[m_volumeCount++];
-	memset(vol, 0, sizeof(ShapeVolume));
 	memcpy(vol->verts, verts, sizeof(float)*3*nverts);
 	vol->hmin = minh;
 	vol->hmax = maxh;

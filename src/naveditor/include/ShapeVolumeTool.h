@@ -27,7 +27,10 @@
 class ShapeVolumeTool : public EditorTool
 {
 	Editor* m_editor;
+
+	int m_selectedVolumeIndex;
 	int m_selectedPrimitive;
+
 	int m_areaType;
 	int m_polyFlags;
 
@@ -45,10 +48,16 @@ class ShapeVolumeTool : public EditorTool
 	int m_npts;
 	int m_hull[MAX_SHAPEVOL_PTS];
 	int m_nhull;
+
+	ShapeVolume m_shapeCopy;
+	int m_copiedShapeIndex;
 	
 public:
 	ShapeVolumeTool();
 	
+	int getVolumeAtPos(const float* p);
+	inline int getSelectedVolumeIndex() const { return m_selectedVolumeIndex; };
+
 	virtual int type() { return TOOL_SHAPE_VOLUME; }
 	virtual void init(Editor* editor);
 	virtual void reset();

@@ -74,8 +74,30 @@ static int convexhull(const float* pts, int npts, int* out)
 	return i;
 }
 
+static bool isValidVolumeIndex(const int index, const InputGeom* geom)
+{
+	return index > -1 && index < geom->getConvexVolumeCount();
+}
+
+void handleVolumeFlags(int& flags, const char* buttonId)
+{
+	ImGui::Text("Poly Flags");
+	ImGui::Indent();
+
+	const int numPolyFlags = V_ARRAYSIZE(g_navMeshPolyFlagNames);
+	char buttonName[64];
+
+	for (int i = 0; i < numPolyFlags; i++)
+	{
+		snprintf(buttonName, sizeof(buttonName), "%s##%s", g_navMeshPolyFlagNames[i], buttonId);
+		ImGui::CheckboxFlags(buttonName, &flags, i == (numPolyFlags - 1) ? DT_POLYFLAGS_ALL : 1 << i);
+	}
+
+	ImGui::Unindent();
+}
 
 ShapeVolumeTool::ShapeVolumeTool() :
+	m_selectedVolumeIndex(-1),
 	m_editor(0),
 	m_selectedPrimitive(VOLUME_CONVEX),
 	m_areaType(RC_NULL_AREA),
@@ -88,8 +110,52 @@ ShapeVolumeTool::ShapeVolumeTool() :
 	m_convexHeight(650.0f),
 	m_convexDescent(150.0f),
 	m_npts(0),
-	m_nhull(0)
+	m_nhull(0),
+	m_copiedShapeIndex(-1)
 {
+}
+
+int ShapeVolumeTool::getVolumeAtPos(const float* p)
+{
+	InputGeom* geom = m_editor->getInputGeom();
+	rdAssert(geom);
+
+	// Delete
+	int nearestIndex = -1;
+	const ShapeVolume* vols = geom->getConvexVolumes();
+
+	for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
+	{
+		const ShapeVolume& vol = vols[i];
+
+		if (vol.type == VOLUME_BOX)
+		{
+			if (rdPointInAABB(p, &vol.verts[0], &vol.verts[3]))
+			{
+				nearestIndex = i;
+			}
+		}
+		else if (vol.type == VOLUME_CYLINDER)
+		{
+			if (rdPointInCylinder(p, &vol.verts[0], vol.verts[3], vol.verts[4]))
+			{
+				nearestIndex = i;
+			}
+		}
+		else if (vol.type == VOLUME_CONVEX)
+		{
+			if (rdPointInPolygon(p, vol.verts, vol.nverts) &&
+				p[2] >= vol.hmin && p[2] <= vol.hmax)
+			{
+				nearestIndex = i;
+			}
+		}
+
+		if (nearestIndex != -1)
+			break;
+	}
+
+	return nearestIndex;
 }
 
 void ShapeVolumeTool::init(Editor* editor)
@@ -111,7 +177,9 @@ static const char* s_primitiveNames[] = {
 
 void ShapeVolumeTool::handleMenu()
 {
-	if (ImGui::BeginCombo("Primitive", s_primitiveNames[m_selectedPrimitive]))
+	ImGui::Text("Create Shape");
+
+	if (ImGui::BeginCombo("Primitive##ShapeVolumeCreate", s_primitiveNames[m_selectedPrimitive]))
 	{
 		for (int i = 0; i < V_ARRAYSIZE(s_primitiveNames); i++)
 		{
@@ -132,21 +200,27 @@ void ShapeVolumeTool::handleMenu()
 	switch (m_selectedPrimitive)
 	{
 	case VOLUME_BOX:
-		ImGui::SliderFloat("Box Descent", &m_boxDescent, 0.1f, 4000);
-		ImGui::SliderFloat("Box Ascent", &m_boxAscent, 0.1f, 4000);
+		ImGui::SliderFloat("Descent##ShapeVolumeCreate", &m_boxDescent, 0.1f, 4000);
+		ImGui::SliderFloat("Ascent##ShapeVolumeCreate", &m_boxAscent, 0.1f, 4000);
 		break;
 	case VOLUME_CYLINDER:
-		ImGui::SliderFloat("Cylinder Radius", &m_cylinderRadius, 0.1f, 4000);
-		ImGui::SliderFloat("Cylinder Height", &m_cylinderHeight, 0.1f, 4000);
+		ImGui::SliderFloat("Radius##ShapeVolumeCreate", &m_cylinderRadius, 0.1f, 4000);
+		ImGui::SliderFloat("Height##ShapeVolumeCreate", &m_cylinderHeight, 0.1f, 4000);
 		break;
 	case VOLUME_CONVEX:
-		ImGui::SliderFloat("Convex Height", &m_convexHeight, 0.1f, 4000);
-		ImGui::SliderFloat("Convex Descent", &m_convexDescent, 0.1f, 4000);
-		ImGui::SliderFloat("Convex Offset", &m_convexOffset, 0.0f, 2000);
+		ImGui::SliderFloat("Height##ShapeVolumeCreate", &m_convexHeight, 0.1f, 4000);
+		ImGui::SliderFloat("Descent##ShapeVolumeCreate", &m_convexDescent, 0.1f, 4000);
+		ImGui::SliderFloat("Offset##ShapeVolumeCreate", &m_convexOffset, 0.0f, 2000);
 		break;
 	}
 
 	ImGui::PopItemWidth();
+
+	if ((m_npts || m_nhull) && ImGui::Button("Clear Shape##ShapeVolumeCreate"))
+	{
+		m_npts = 0;
+		m_nhull = 0;
+	}
 
 	ImGui::Separator();
 
@@ -155,37 +229,126 @@ void ShapeVolumeTool::handleMenu()
 
 	bool isEnabled = m_areaType == RC_NULL_AREA;
 
-	if (ImGui::Checkbox("Clip", &isEnabled))
+	if (ImGui::Checkbox("Clip##ShapeVolumeCreate", &isEnabled))
 		m_areaType = RC_NULL_AREA;
 
 	isEnabled = m_areaType == DT_POLYAREA_TRIGGER;
-	if (ImGui::Checkbox("Trigger", &isEnabled))
-		m_areaType = DT_POLYAREA_TRIGGER; // todo(amos): also allow setting flags and store this in .gset.
+	if (ImGui::Checkbox("Trigger##ShapeVolumeCreate", &isEnabled))
+		m_areaType = DT_POLYAREA_TRIGGER;
 
 	if (m_areaType == DT_POLYAREA_TRIGGER)
 	{
-		ImGui::Text("Poly Flags");
-		ImGui::Indent();
-
-		const int numPolyFlags = V_ARRAYSIZE(g_navMeshPolyFlagNames);
-
-		for (int i = 0; i < numPolyFlags; i++)
-		{
-			const char* flagName = g_navMeshPolyFlagNames[i];
-			ImGui::CheckboxFlags(flagName, &m_polyFlags, i == (numPolyFlags-1) ? DT_POLYFLAGS_ALL : 1<<i);
-		}
-
-		ImGui::Unindent();
+		handleVolumeFlags(m_polyFlags, "ShapeVolumeCreate");
 	}
 
 	ImGui::Unindent();
-	ImGui::Separator();
 
-	if (ImGui::Button("Clear Shape"))
+	InputGeom* geom = m_editor->getInputGeom();
+
+	if (!geom || !isValidVolumeIndex(m_selectedVolumeIndex, geom))
+		return;
+
+	ImGui::Separator();
+	ImGui::Text("Modify Shape");
+
+	ShapeVolume& vol = geom->getConvexVolumes()[m_selectedVolumeIndex];
+
+	if (m_selectedVolumeIndex != m_copiedShapeIndex)
 	{
-		m_npts = 0;
-		m_nhull = 0;
+		m_shapeCopy = vol;
+		m_copiedShapeIndex = m_selectedVolumeIndex;
 	}
+
+	if (vol.area == DT_POLYAREA_TRIGGER)
+	{
+		int flags = vol.flags;
+		handleVolumeFlags(flags, "ShapeVolumeModify");
+
+		if (flags != vol.flags)
+			vol.flags = (unsigned short)flags;
+	}
+
+	ImGui::PushItemWidth(120.f);
+
+	switch (vol.type)
+	{
+	case VOLUME_BOX:
+
+		ImGui::PushItemWidth(60);
+		ImGui::SliderFloat("##ShapeBoxMinsX", &vol.verts[0], m_shapeCopy.verts[0]-4000, vol.verts[3]);
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ShapeBoxMinsY", &vol.verts[1], m_shapeCopy.verts[1]-4000, vol.verts[4]);
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ShapeBoxMinsZ", &vol.verts[2], m_shapeCopy.verts[2]-4000, vol.verts[5]);
+		ImGui::SameLine();
+		ImGui::Text("Mins");
+
+		ImGui::SliderFloat("##ShapeBoxMaxsX", &vol.verts[3], vol.verts[0], m_shapeCopy.verts[3]+4000);
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ShapeBoxMaxsY", &vol.verts[4], vol.verts[1], m_shapeCopy.verts[4]+4000);
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ShapeBoxMaxsZ", &vol.verts[5], vol.verts[2], m_shapeCopy.verts[5]+4000);
+		ImGui::SameLine();
+		ImGui::Text("Maxs");
+		ImGui::PopItemWidth();
+		break;
+	case VOLUME_CYLINDER:
+
+		ImGui::PushItemWidth(55);
+		ImGui::SliderFloat("##ShapeCylinderX", &vol.verts[0], m_shapeCopy.verts[0]-4000, m_shapeCopy.verts[0]+4000);
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ShapeCylinderY", &vol.verts[1], m_shapeCopy.verts[1]-4000, m_shapeCopy.verts[1]+4000);
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ShapeCylinderZ", &vol.verts[2], m_shapeCopy.verts[2]-4000, m_shapeCopy.verts[2]+4000);
+		ImGui::SameLine();
+		ImGui::Text("Position");
+		ImGui::PopItemWidth();
+
+		ImGui::SliderFloat("Radius##ShapeVolumeModify", &vol.verts[3], 0.1f, 4000);
+		ImGui::SliderFloat("Height##ShapeVolumeModify", &vol.verts[4], 0.1f, 4000);
+		break;
+	case VOLUME_CONVEX:
+		ImGui::SliderFloat("Descent##ShapeVolumeModify", &vol.hmin, m_shapeCopy.hmin-4000, m_shapeCopy.hmin+4000);
+		ImGui::SliderFloat("Ascent##ShapeVolumeModify", &vol.hmax, m_shapeCopy.hmax-4000, m_shapeCopy.hmax+4000);
+
+		char sliderId[64];
+
+		for (int i = 0; i < vol.nverts; i++)
+		{
+			const int len = snprintf(sliderId, sizeof(sliderId), "##(%d)ShapeConvexX", i);
+			if (len < 0)
+			{
+				rdAssert(0);
+				break;
+			}
+
+			ImGui::PushItemWidth(55);
+			ImGui::SliderFloat(sliderId, &vol.verts[(i*3)+0], m_shapeCopy.verts[(i*3)+0]-4000, m_shapeCopy.verts[(i*3)+0]+4000);
+			ImGui::SameLine();
+			sliderId[len] = 'Y';
+			ImGui::SliderFloat(sliderId, &vol.verts[(i*3)+1], m_shapeCopy.verts[(i*3)+1]-4000, m_shapeCopy.verts[(i*3)+1]+4000);
+			ImGui::SameLine();
+			sliderId[len] = 'Z';
+			ImGui::SliderFloat(sliderId, &vol.verts[(i*3)+2], m_shapeCopy.verts[(i*3)+2]-4000, m_shapeCopy.verts[(i*3)+2]+4000);
+			ImGui::SameLine();
+
+			snprintf(sliderId, sizeof(sliderId), "Vert #%d", i);
+
+			ImGui::Text(sliderId);
+			ImGui::PopItemWidth();
+		}
+		break;
+	}
+
+	if (ImGui::Button("Delete Shape##ShapeVolumeModify"))
+	{
+		geom->deleteConvexVolume(m_selectedVolumeIndex);
+		m_selectedVolumeIndex = -1;
+
+		return;
+	}
+
+	ImGui::PopItemWidth();
 }
 
 void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -196,45 +359,7 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift
 	
 	if (shift)
 	{
-		// Delete
-		int nearestIndex = -1;
-		const ShapeVolume* vols = geom->getConvexVolumes();
-
-		for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
-		{
-			const ShapeVolume& vol = vols[i];
-
-			if (vol.type == VOLUME_BOX)
-			{
-				if (rdPointInAABB(p, &vol.verts[0], &vol.verts[3]))
-				{
-					nearestIndex = i;
-				}
-			}
-			else if (vol.type == VOLUME_CYLINDER)
-			{
-				if (rdPointInCylinder(p, &vol.verts[0], vol.verts[3], vol.verts[4]))
-				{
-					nearestIndex = i;
-				}
-			}
-			else if (vol.type == VOLUME_CONVEX)
-			{
-				if (rdPointInPolygon(p, vol.verts, vol.nverts) &&
-					p[2] >= vol.hmin && p[2] <= vol.hmax)
-				{
-					nearestIndex = i;
-				}
-			}
-
-			if (nearestIndex != -1)
-				break;
-		}
-		// If end point close enough, delete it.
-		if (nearestIndex != -1)
-		{
-			geom->deleteConvexVolume(nearestIndex);
-		}
+		m_selectedVolumeIndex = getVolumeAtPos(p);
 	}
 	else // Create
 	{
