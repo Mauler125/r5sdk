@@ -81,8 +81,8 @@ static bool isValidVolumeIndex(const int index, const InputGeom* geom)
 
 void handleVolumeFlags(int& flags, const char* buttonId)
 {
-	ImGui::Text("Poly Flags");
 	ImGui::Indent();
+	ImGui::Text("Poly Flags");
 
 	const int numPolyFlags = V_ARRAYSIZE(g_navMeshPolyFlagNames);
 	char buttonName[64];
@@ -94,6 +94,46 @@ void handleVolumeFlags(int& flags, const char* buttonId)
 	}
 
 	ImGui::Unindent();
+}
+
+static const char* getBrushNameForArea(const unsigned char area)
+{
+	switch (area)
+	{
+	case DT_POLYAREA_GROUND:
+		return "Clip";
+	case DT_POLYAREA_TRIGGER:
+		return "Trigger";
+	default:
+		return "Invalid";
+	}
+}
+
+bool handleBrushTypes(int& area, const char* buttonId)
+{
+	bool ret = false;
+
+	char buttonName[64];
+	snprintf(buttonName, sizeof(buttonName), "Brush##%s", buttonId);
+
+	if (ImGui::BeginCombo(buttonName, getBrushNameForArea((unsigned char)area)))
+	{
+		if (ImGui::Selectable(getBrushNameForArea(DT_POLYAREA_GROUND), area == DT_POLYAREA_GROUND))
+		{
+			area = DT_POLYAREA_GROUND;
+			ret = true;
+		}
+
+		if (ImGui::Selectable(getBrushNameForArea(DT_POLYAREA_TRIGGER), area == DT_POLYAREA_TRIGGER))
+		{
+			area = DT_POLYAREA_TRIGGER;
+			ret = true;
+		}
+
+		ImGui::EndCombo();
+	}
+
+	return ret;
 }
 
 ShapeVolumeTool::ShapeVolumeTool() :
@@ -175,26 +215,13 @@ void ShapeVolumeTool::handleMenu()
 		m_nhull = 0;
 	}
 
-	ImGui::Separator();
-
-	ImGui::Text("Brushes");
-	ImGui::Indent();
-
-	bool isEnabled = m_areaType == RC_NULL_AREA;
-
-	if (ImGui::Checkbox("Clip##ShapeVolumeCreate", &isEnabled))
-		m_areaType = RC_NULL_AREA;
-
-	isEnabled = m_areaType == DT_POLYAREA_TRIGGER;
-	if (ImGui::Checkbox("Trigger##ShapeVolumeCreate", &isEnabled))
-		m_areaType = DT_POLYAREA_TRIGGER;
+	handleBrushTypes(m_areaType, "ShapeVolumeCreate");
 
 	if (m_areaType == DT_POLYAREA_TRIGGER)
 	{
+		ImGui::Separator();
 		handleVolumeFlags(m_polyFlags, "ShapeVolumeCreate");
 	}
-
-	ImGui::Unindent();
 
 	InputGeom* geom = m_editor->getInputGeom();
 
@@ -212,8 +239,16 @@ void ShapeVolumeTool::handleMenu()
 		m_copiedShapeIndex = m_selectedVolumeIndex;
 	}
 
+	int volArea = vol.area;
+	handleBrushTypes(volArea, "ShapeVolumeModify");
+
+	if (volArea != vol.area)
+		vol.area = (unsigned char)volArea;
+
 	if (vol.area == DT_POLYAREA_TRIGGER)
 	{
+		ImGui::Separator();
+
 		int flags = vol.flags;
 		handleVolumeFlags(flags, "ShapeVolumeModify");
 
