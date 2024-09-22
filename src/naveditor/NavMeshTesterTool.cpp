@@ -1413,7 +1413,7 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 	}
 	
 	// Tool help
-	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40),
+	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(300, 40),
 		ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB+SHIFT: Set start location  LMB: Set end location");
 }
 

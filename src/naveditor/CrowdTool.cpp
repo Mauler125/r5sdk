@@ -929,7 +929,7 @@ void CrowdTool::handleMenu()
 		if (ImGui::Checkbox("Obstacle Avoidance", &params->m_obstacleAvoidance))
 			m_state->updateAgentParams();
 
-		ImGui::PushItemWidth(90.f);
+		ImGui::PushItemWidth(120.f);
 		if (ImGui::SliderInt("Avoidance Quality", &params->m_obstacleAvoidanceType, 0, 3))
 		{
 			m_state->updateAgentParams();
@@ -1093,36 +1093,36 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 	if (m_mode == TOOLMODE_CREATE)
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: add agent.  Shift+LMB: remove agent.");
+			ImVec2(300, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: add agent.  Shift+LMB: remove agent.");
 	}
 	else if (m_mode == TOOLMODE_MOVE_TARGET)
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: set move target.  Shift+LMB: adjust set velocity.");
+			ImVec2(300, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: set move target.  Shift+LMB: adjust set velocity.");
 
 		ty += 20;
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "Setting velocity will move the agents without pathfinder.");
+			ImVec2(300, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "Setting velocity will move the agents without pathfinder.");
 	}
 	else if (m_mode == TOOLMODE_SELECT)
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: select agent.");
+			ImVec2(300, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: select agent.");
 	}
 
 	ty += 20.f;
 	ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-		ImVec2(280, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "SPACE: Run/Pause simulation.  1: Step simulation.");
+		ImVec2(300, ty), ImVec4(1.0f,1.0f,1.0f,0.75f), "SPACE: Run/Pause simulation.  1: Step simulation.");
 
 	ty += 20.f;
 	if (m_state && m_state->isRunning())
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, ty), ImVec4(0.15f,1.0f,0.05f,0.8f), "- RUNNING -");
+			ImVec2(300, ty), ImVec4(0.15f,1.0f,0.05f,0.8f), "- RUNNING -");
 	}
 	else
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, ty), ImVec4(1.0f,0.15f,0.05f,0.8f), "- PAUSED -");
+			ImVec2(300, ty), ImVec4(1.0f,0.15f,0.05f,0.8f), "- PAUSED -");
 	}
 }

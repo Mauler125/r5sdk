@@ -186,7 +186,7 @@ public:
 			ImGui::PopItemWidth();
 		}
 
-		ImGui::PushItemWidth(180);
+		ImGui::PushItemWidth(185);
 		ImGui::SliderFloat3("Cursor", m_hitPos, MIN_COORD_FLOAT, MAX_COORD_FLOAT);
 		ImGui::PopItemWidth();
 
@@ -427,7 +427,7 @@ public:
 		}
 		
 		// Tool help
-		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(280, 40), 
+		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, ImVec2(300, 40),
 			ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
 	}
 

@@ -152,8 +152,6 @@ void ShapeVolumeTool::handleMenu()
 		ImGui::EndCombo();
 	}
 
-	ImGui::PushItemWidth(120.f);
-
 	switch (m_selectedPrimitive)
 	{
 	case VOLUME_BOX:
@@ -170,8 +168,6 @@ void ShapeVolumeTool::handleMenu()
 		ImGui::SliderFloat("Offset##ShapeVolumeCreate", &m_convexOffset, 0.0f, 2000);
 		break;
 	}
-
-	ImGui::PopItemWidth();
 
 	if ((m_npts || m_nhull) && ImGui::Button("Clear Shape##ShapeVolumeCreate"))
 	{
@@ -225,8 +221,6 @@ void ShapeVolumeTool::handleMenu()
 			vol.flags = (unsigned short)flags;
 	}
 
-	ImGui::PushItemWidth(120.f);
-
 	switch (vol.type)
 	{
 	case VOLUME_BOX:
@@ -279,7 +273,7 @@ void ShapeVolumeTool::handleMenu()
 				break;
 			}
 
-			ImGui::PushItemWidth(55);
+			ImGui::PushItemWidth(60);
 			ImGui::SliderFloat(sliderId, &vol.verts[(i*3)+0], m_shapeCopy.verts[(i*3)+0]-4000, m_shapeCopy.verts[(i*3)+0]+4000);
 			ImGui::SameLine();
 			sliderId[len] = 'Y';
@@ -304,8 +298,6 @@ void ShapeVolumeTool::handleMenu()
 
 		return;
 	}
-
-	ImGui::PopItemWidth();
 }
 
 void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, const int v, bool shift)
@@ -464,11 +456,11 @@ void ShapeVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, i
 	if (!m_npts)
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click on a shape).");
+			ImVec2(300, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click on a shape).");
 	}
 	else
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, 60), ImVec4(1.0f,1.0f,1.0f,0.75f), "The shape will be convex hull of all added points.");
+			ImVec2(300, 60), ImVec4(1.0f,1.0f,1.0f,0.75f), "The shape will be convex hull of all added points.");
 	}
 }

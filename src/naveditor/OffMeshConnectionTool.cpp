@@ -190,11 +190,11 @@ void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int
 	if (!m_hitPosSet)
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft,
-			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.");
+			ImVec2(300, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.");
 	}
 	else
 	{
 		ImGui_RenderText(ImGuiTextAlign_e::kAlignLeft, 
-			ImVec2(280, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Set connection end point and finish.");
+			ImVec2(300, 40), ImVec4(1.0f,1.0f,1.0f,0.75f), "LMB: Set connection end point and finish.");
 	}
 }
