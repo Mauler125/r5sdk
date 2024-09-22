@@ -115,49 +115,6 @@ ShapeVolumeTool::ShapeVolumeTool() :
 {
 }
 
-int ShapeVolumeTool::getVolumeAtPos(const float* p)
-{
-	InputGeom* geom = m_editor->getInputGeom();
-	rdAssert(geom);
-
-	// Delete
-	int nearestIndex = -1;
-	const ShapeVolume* vols = geom->getConvexVolumes();
-
-	for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
-	{
-		const ShapeVolume& vol = vols[i];
-
-		if (vol.type == VOLUME_BOX)
-		{
-			if (rdPointInAABB(p, &vol.verts[0], &vol.verts[3]))
-			{
-				nearestIndex = i;
-			}
-		}
-		else if (vol.type == VOLUME_CYLINDER)
-		{
-			if (rdPointInCylinder(p, &vol.verts[0], vol.verts[3], vol.verts[4]))
-			{
-				nearestIndex = i;
-			}
-		}
-		else if (vol.type == VOLUME_CONVEX)
-		{
-			if (rdPointInPolygon(p, vol.verts, vol.nverts) &&
-				p[2] >= vol.hmin && p[2] <= vol.hmax)
-			{
-				nearestIndex = i;
-			}
-		}
-
-		if (nearestIndex != -1)
-			break;
-	}
-
-	return nearestIndex;
-}
-
 void ShapeVolumeTool::init(Editor* editor)
 {
 	m_editor = editor;
@@ -351,7 +308,7 @@ void ShapeVolumeTool::handleMenu()
 	ImGui::PopItemWidth();
 }
 
-void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, const int /*v*/, bool shift)
+void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, const int v, bool shift)
 {
 	if (!m_editor) return;
 	InputGeom* geom = m_editor->getInputGeom();
@@ -359,7 +316,7 @@ void ShapeVolumeTool::handleClick(const float* /*s*/, const float* p, const int 
 	
 	if (shift)
 	{
-		m_selectedVolumeIndex = getVolumeAtPos(p);
+		m_selectedVolumeIndex = v;
 	}
 	else // Create
 	{

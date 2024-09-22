@@ -54,8 +54,7 @@ class ShapeVolumeTool : public EditorTool
 	
 public:
 	ShapeVolumeTool();
-	
-	int getVolumeAtPos(const float* p);
+
 	inline int getSelectedVolumeIndex() const { return m_selectedVolumeIndex; };
 
 	virtual int type() { return TOOL_SHAPE_VOLUME; }
