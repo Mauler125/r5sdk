@@ -78,7 +78,7 @@ static int convexhull(const float* pts, int npts, int* out)
 
 static bool isValidVolumeIndex(const int index, const InputGeom* geom)
 {
-	return index > -1 && index < geom->getConvexVolumeCount();
+	return index > -1 && index < geom->getShapeVolumeCount();
 }
 
 void handleVolumeFlags(int& flags, const char* buttonId)
@@ -233,7 +233,7 @@ void ShapeVolumeTool::handleMenu()
 	ImGui::Separator();
 	ImGui::Text("Modify Shape");
 
-	ShapeVolume& vol = geom->getConvexVolumes()[m_selectedVolumeIndex];
+	ShapeVolume& vol = geom->getShapeVolumes()[m_selectedVolumeIndex];
 
 	if (m_selectedVolumeIndex != m_copiedShapeIndex)
 	{
@@ -330,7 +330,7 @@ void ShapeVolumeTool::handleMenu()
 
 	if (ImGui::Button("Delete Shape##ShapeVolumeModify"))
 	{
-		geom->deleteConvexVolume(m_selectedVolumeIndex);
+		geom->deleteShapeVolume(m_selectedVolumeIndex);
 		m_selectedVolumeIndex = -1;
 
 		return;

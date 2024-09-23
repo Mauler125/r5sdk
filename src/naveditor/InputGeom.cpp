@@ -779,7 +779,7 @@ int InputGeom::addConvexVolume(const float* verts, const int nverts,
 	return m_volumeCount-1;
 }
 
-void InputGeom::deleteConvexVolume(int i)
+void InputGeom::deleteShapeVolume(int i)
 {
 	m_volumeCount--;
 	m_volumes[i] = m_volumes[m_volumeCount];
