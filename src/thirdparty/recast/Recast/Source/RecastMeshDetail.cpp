@@ -1549,8 +1549,8 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 		for (int k = 0; k < dm->ntris; ++k)
 		{
 			mesh.tris[mesh.ntris*4+0] = dm->tris[k*4+0];
-			mesh.tris[mesh.ntris*4+1] = dm->tris[k*4+1]; // TODO: flip 1 with 2?
-			mesh.tris[mesh.ntris*4+2] = dm->tris[k*4+2]; // TODO: flip 2 with 1?
+			mesh.tris[mesh.ntris*4+1] = dm->tris[k*4+1];
+			mesh.tris[mesh.ntris*4+2] = dm->tris[k*4+2];
 			mesh.tris[mesh.ntris*4+3] = dm->tris[k*4+3];
 			mesh.ntris++;
 		}
