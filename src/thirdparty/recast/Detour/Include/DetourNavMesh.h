@@ -1015,7 +1015,7 @@ public:
 	/// Builds external polygon links for a tile.
 	dtStatus connectOffMeshLinks(const dtTileRef tileRef);
 
-	dtPolyRef clampOffMeshVertToPoly(const dtOffMeshConnection* con, dtMeshTile* conTile, const dtMeshTile* lookupTile, const bool start);
+	dtPolyRef clampOffMeshVertToPoly(dtOffMeshConnection* con, dtMeshTile* conTile, const dtMeshTile* lookupTile, const bool start);
 
 private:
 	/// Returns all polygons in neighbour tile based on portal defined by the segment.

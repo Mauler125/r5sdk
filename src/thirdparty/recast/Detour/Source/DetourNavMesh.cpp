@@ -531,7 +531,7 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 	}
 }
 
-dtPolyRef dtNavMesh::clampOffMeshVertToPoly(const dtOffMeshConnection* con, dtMeshTile* conTile, 
+dtPolyRef dtNavMesh::clampOffMeshVertToPoly(dtOffMeshConnection* con, dtMeshTile* conTile, 
 	const dtMeshTile* lookupTile, const bool start)
 {
 	const float* p = start ? &con->pos[0] : &con->pos[3];
@@ -548,8 +548,12 @@ dtPolyRef dtNavMesh::clampOffMeshVertToPoly(const dtOffMeshConnection* con, dtMe
 	const dtPoly* poly = &conTile->polys[con->poly];
 
 	// Make sure the location is on current mesh.
-	float* v = &conTile->verts[poly->verts[start?0:1]*3];
-	rdVcopy(v, nearestPt);
+	float* polyVert = &conTile->verts[poly->verts[start?0:1]*3];
+	rdVcopy(polyVert, nearestPt);
+
+	// Update the off-mesh connection positions as well.
+	float* conPos = &con->pos[start?0:3];
+	rdVcopy(conPos, nearestPt);
 
 	return ref;
 }
