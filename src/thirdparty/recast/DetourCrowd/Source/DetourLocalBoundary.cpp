@@ -82,7 +82,7 @@ void dtLocalBoundary::addSegment(const float dist, const float* s)
 void dtLocalBoundary::update(dtPolyRef ref, const float* pos, const float collisionQueryRange,
 							 dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
-	static const int MAX_SEGS_PER_POLY = DT_VERTS_PER_POLYGON*3;
+	static const int MAX_SEGS_PER_POLY = RD_VERTS_PER_POLYGON*3;
 	
 	if (!ref)
 	{

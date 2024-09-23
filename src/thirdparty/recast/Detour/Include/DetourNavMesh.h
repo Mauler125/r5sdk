@@ -20,6 +20,7 @@
 #define DETOURNAVMESH_H
 
 #include "Shared/Include/SharedAlloc.h"
+#include "Shared/Include/SharedConst.h"
 #include "Detour/Include/DetourStatus.h"
 
 // NOTE: these are defines as we need to be able to switch between code that is
@@ -71,10 +72,6 @@ static const int DT_FULL_UNLINKED_TILE_USER_ID = 1;
 /// A value that indicates that this tile contains at least 1 polygon that doesn't link
 /// to anything (tagged as #DT_UNLINKED_POLY_GROUP), and 1 that does link to something.
 static const int DT_SEMI_UNLINKED_TILE_USER_ID = 2;
-
-/// The maximum number of vertices per navigation polygon.
-/// @ingroup detour
-static const int DT_VERTS_PER_POLYGON = 6;
 
 /// A value that indicates that this poly hasn't been assigned to a group yet.
 static const unsigned short DT_NULL_POLY_GROUP = 0;
@@ -287,10 +284,10 @@ struct dtPoly
 
 	/// The indices of the polygon's vertices.
 	/// The actual vertices are located in dtMeshTile::verts.
-	unsigned short verts[DT_VERTS_PER_POLYGON];
+	unsigned short verts[RD_VERTS_PER_POLYGON];
 
 	/// Packed data representing neighbor polygons references and flags for each edge.
-	unsigned short neis[DT_VERTS_PER_POLYGON];
+	unsigned short neis[RD_VERTS_PER_POLYGON];
 
 	/// The user defined polygon flags.
 	unsigned short flags;

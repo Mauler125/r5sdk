@@ -360,8 +360,8 @@ int Editor_TempObstacles::rasterizeTileLayers(
 	}
 	
 	// (Optional) Mark areas.
-	const ShapeVolume* vols = m_geom->getConvexVolumes();
-	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
+	const ShapeVolume* vols = m_geom->getShapeVolumes();
+	for (int i  = 0; i < m_geom->getShapeVolumeCount(); ++i)
 	{
 		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts,
 							 vols[i].hmin, vols[i].hmax,

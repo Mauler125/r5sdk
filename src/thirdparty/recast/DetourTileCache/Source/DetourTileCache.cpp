@@ -732,7 +732,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	params.polyAreas = bc.lmesh->areas;
 	params.polyFlags = bc.lmesh->flags;
 	params.polyCount = bc.lmesh->npolys;
-	params.nvp = DT_VERTS_PER_POLYGON;
+	params.nvp = RD_VERTS_PER_POLYGON;
 	params.walkableHeight = m_params.walkableHeight;
 	params.walkableRadius = m_params.walkableRadius;
 	params.walkableClimb = m_params.walkableClimb;

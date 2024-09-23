@@ -1101,7 +1101,7 @@ bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const 
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 	const dtPolyDetail* pd = &tile->detailMeshes[ip];
 	
-	float verts[DT_VERTS_PER_POLYGON*3];	
+	float verts[RD_VERTS_PER_POLYGON*3];	
 	const int nv = poly->vertCount;
 	for (int i = 0; i < nv; ++i)
 		rdVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);

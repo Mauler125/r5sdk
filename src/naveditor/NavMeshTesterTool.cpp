@@ -1316,7 +1316,7 @@ void NavMeshTesterTool::handleRender()
 				dd.depthMask(true);
 			}
 
-			static const int MAX_SEGS = DT_VERTS_PER_POLYGON*4;
+			static const int MAX_SEGS = RD_VERTS_PER_POLYGON*4;
 			float segs[MAX_SEGS*6];
 			dtPolyRef refs[MAX_SEGS];
 			memset(refs, 0, sizeof(dtPolyRef)*MAX_SEGS); 

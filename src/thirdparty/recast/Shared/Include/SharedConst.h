@@ -27,6 +27,9 @@ static const int RD_BITS_PER_BIT_CELL = 32;
 /// @see rcPolyMesh::polys
 static const unsigned short RD_MESH_NULL_IDX = 0xffff;
 
+/// The maximum number of vertices per navigation polygon.
+static const int RD_VERTS_PER_POLYGON = 6;
+
 /// Detail triangle edge flags used for various functions and fields.
 /// For an example, see dtNavMesh::connectTraverseLinks().
 enum rdDetailTriEdgeFlags

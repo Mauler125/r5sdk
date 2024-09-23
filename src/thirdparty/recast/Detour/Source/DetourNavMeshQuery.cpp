@@ -288,8 +288,8 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 
 	// Randomly pick point on polygon.
 	const float* v = &tile->verts[poly->verts[0]*3];
-	float verts[3*DT_VERTS_PER_POLYGON];
-	float areas[DT_VERTS_PER_POLYGON];
+	float verts[3*RD_VERTS_PER_POLYGON];
+	float areas[RD_VERTS_PER_POLYGON];
 	rdVcopy(&verts[0*3],v);
 	for (int j = 1; j < poly->vertCount; ++j)
 	{
@@ -468,8 +468,8 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 	
 	// Randomly pick point on polygon.
 	const float* v = &randomTile->verts[randomPoly->verts[0]*3];
-	float verts[3*DT_VERTS_PER_POLYGON];
-	float areas[DT_VERTS_PER_POLYGON];
+	float verts[3*RD_VERTS_PER_POLYGON];
+	float areas[RD_VERTS_PER_POLYGON];
 	rdVcopy(&verts[0*3],v);
 	for (int j = 1; j < randomPoly->vertCount; ++j)
 	{
@@ -540,9 +540,9 @@ dtStatus dtNavMeshQuery::closestPointOnPolyBoundary(dtPolyRef ref, const float* 
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	// Collect vertices.
-	float verts[DT_VERTS_PER_POLYGON*3];	
-	float edged[DT_VERTS_PER_POLYGON];
-	float edget[DT_VERTS_PER_POLYGON];
+	float verts[RD_VERTS_PER_POLYGON*3];	
+	float edged[RD_VERTS_PER_POLYGON];
+	float edget[RD_VERTS_PER_POLYGON];
 	int nv = 0;
 	for (int i = 0; i < (int)poly->vertCount; ++i)
 	{
@@ -2094,7 +2094,7 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 	rdVlerp(searchPos, startPos, endPos, 0.5f);
 	searchRadSqr = rdSqr(rdVdist(startPos, endPos)/2.0f + 0.001f);
 	
-	float verts[DT_VERTS_PER_POLYGON*3];
+	float verts[RD_VERTS_PER_POLYGON*3];
 	
 	while (nstack)
 	{
@@ -2518,7 +2518,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 	}
 	
 	float dir[3], curPos[3], lastPos[3];
-	float verts[DT_VERTS_PER_POLYGON*3+3];	
+	float verts[RD_VERTS_PER_POLYGON*3+3];	
 	int n = 0;
 
 	rdVcopy(curPos, startPos);
@@ -3155,8 +3155,8 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 	
 	const float radiusSqr = rdSqr(radius);
 	
-	float pa[DT_VERTS_PER_POLYGON*3];
-	float pb[DT_VERTS_PER_POLYGON*3];
+	float pa[RD_VERTS_PER_POLYGON*3];
+	float pb[RD_VERTS_PER_POLYGON*3];
 	
 	dtStatus status = DT_SUCCESS;
 	

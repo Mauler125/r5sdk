@@ -49,7 +49,6 @@ inline int getDirOffsetY(int dir)
 	return offset[dir&0x03];
 }
 
-static const int MAX_VERTS_PER_POLY = 6;	// TODO: use the DT_VERTS_PER_POLYGON
 static const int MAX_REM_EDGES = 48;		// TODO: make this an expression.
 
 
@@ -882,7 +881,7 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 	// Based on code by Eric Lengyel from:
 	// http://www.terathon.com/code/edges.php
 	
-	const int maxEdgeCount = npolys*MAX_VERTS_PER_POLY;
+	const int maxEdgeCount = npolys*RD_VERTS_PER_POLYGON;
 	dtFixedArray<unsigned short> firstEdge(alloc, nverts + maxEdgeCount);
 	if (!firstEdge)
 		return false;
@@ -898,12 +897,12 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 	
 	for (int i = 0; i < npolys; ++i)
 	{
-		unsigned short* t = &polys[i*MAX_VERTS_PER_POLY*2];
-		for (int j = 0; j < MAX_VERTS_PER_POLY; ++j)
+		unsigned short* t = &polys[i*RD_VERTS_PER_POLYGON*2];
+		for (int j = 0; j < RD_VERTS_PER_POLYGON; ++j)
 		{
 			if (t[j] == DT_TILECACHE_NULL_IDX) break;
 			unsigned short v0 = t[j];
-			unsigned short v1 = (j+1 >= MAX_VERTS_PER_POLY || t[j+1] == DT_TILECACHE_NULL_IDX) ? t[0] : t[j+1];
+			unsigned short v1 = (j+1 >= RD_VERTS_PER_POLYGON || t[j+1] == DT_TILECACHE_NULL_IDX) ? t[0] : t[j+1];
 			if (v0 < v1)
 			{
 				rcEdge& edge = edges[edgeCount];
@@ -923,12 +922,12 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 	
 	for (int i = 0; i < npolys; ++i)
 	{
-		unsigned short* t = &polys[i*MAX_VERTS_PER_POLY*2];
-		for (int j = 0; j < MAX_VERTS_PER_POLY; ++j)
+		unsigned short* t = &polys[i*RD_VERTS_PER_POLYGON*2];
+		for (int j = 0; j < RD_VERTS_PER_POLYGON; ++j)
 		{
 			if (t[j] == DT_TILECACHE_NULL_IDX) break;
 			unsigned short v0 = t[j];
-			unsigned short v1 = (j+1 >= MAX_VERTS_PER_POLY || t[j+1] == DT_TILECACHE_NULL_IDX) ? t[0] : t[j+1];
+			unsigned short v1 = (j+1 >= RD_VERTS_PER_POLYGON || t[j+1] == DT_TILECACHE_NULL_IDX) ? t[0] : t[j+1];
 			if (v0 > v1)
 			{
 				bool found = false;
@@ -1048,15 +1047,15 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 		const rcEdge& e = edges[i];
 		if (e.poly[0] != e.poly[1])
 		{
-			unsigned short* p0 = &polys[e.poly[0]*MAX_VERTS_PER_POLY*2];
-			unsigned short* p1 = &polys[e.poly[1]*MAX_VERTS_PER_POLY*2];
-			p0[MAX_VERTS_PER_POLY + e.polyEdge[0]] = e.poly[1];
-			p1[MAX_VERTS_PER_POLY + e.polyEdge[1]] = e.poly[0];
+			unsigned short* p0 = &polys[e.poly[0]*RD_VERTS_PER_POLYGON*2];
+			unsigned short* p1 = &polys[e.poly[1]*RD_VERTS_PER_POLYGON*2];
+			p0[RD_VERTS_PER_POLYGON + e.polyEdge[0]] = e.poly[1];
+			p1[RD_VERTS_PER_POLYGON + e.polyEdge[1]] = e.poly[0];
 		}
 		else if (e.polyEdge[1] != 0xff)
 		{
-			unsigned short* p0 = &polys[e.poly[0]*MAX_VERTS_PER_POLY*2];
-			p0[MAX_VERTS_PER_POLY + e.polyEdge[0]] = 0x8000 | (unsigned short)e.polyEdge[1];
+			unsigned short* p0 = &polys[e.poly[0]*RD_VERTS_PER_POLYGON*2];
+			p0[RD_VERTS_PER_POLYGON + e.polyEdge[0]] = 0x8000 | (unsigned short)e.polyEdge[1];
 		}
 	}
 	
@@ -1317,10 +1316,10 @@ static int triangulate(int n, const unsigned char* verts, unsigned short* indice
 
 static int countPolyVerts(const unsigned short* p)
 {
-	for (int i = 0; i < MAX_VERTS_PER_POLY; ++i)
+	for (int i = 0; i < RD_VERTS_PER_POLYGON; ++i)
 		if (p[i] == DT_TILECACHE_NULL_IDX)
 			return i;
-	return MAX_VERTS_PER_POLY;
+	return RD_VERTS_PER_POLYGON;
 }
 
 inline bool uleft(const unsigned short* a, const unsigned short* b, const unsigned short* c)
@@ -1341,7 +1340,7 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 	const int nb = countPolyVerts(pb);
 	
 	// If the merged polygon would be too big, do not merge.
-	if (na+nb-2 > MAX_VERTS_PER_POLY)
+	if (na+nb-2 > RD_VERTS_PER_POLYGON)
 		return -1;
 	
 	// Check if the polygons share an edge.
@@ -1407,13 +1406,13 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 
 static void mergePolys(unsigned short* pa, unsigned short* pb, int ea, int eb)
 {
-	unsigned short tmp[MAX_VERTS_PER_POLY*2];
+	unsigned short tmp[RD_VERTS_PER_POLYGON*2];
 	
 	const int na = countPolyVerts(pa);
 	const int nb = countPolyVerts(pb);
 	
 	// Merge polygons.
-	memset(tmp, 0xff, sizeof(unsigned short)*MAX_VERTS_PER_POLY*2);
+	memset(tmp, 0xff, sizeof(unsigned short)*RD_VERTS_PER_POLYGON*2);
 	int n = 0;
 	// Add pa
 	for (int i = 0; i < na-1; ++i)
@@ -1422,7 +1421,7 @@ static void mergePolys(unsigned short* pa, unsigned short* pb, int ea, int eb)
 	for (int i = 0; i < nb-1; ++i)
 		tmp[n++] = pb[(eb+1+i) % nb];
 	
-	memcpy(pa, tmp, sizeof(unsigned short)*MAX_VERTS_PER_POLY);
+	memcpy(pa, tmp, sizeof(unsigned short)*RD_VERTS_PER_POLYGON);
 }
 
 
@@ -1448,7 +1447,7 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 	int numRemainingEdges = 0;
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
-		unsigned short* p = &mesh.polys[i*MAX_VERTS_PER_POLY*2];
+		unsigned short* p = &mesh.polys[i*RD_VERTS_PER_POLYGON*2];
 		const int nv = countPolyVerts(p);
 		int numRemoved = 0;
 		int numVerts = 0;
@@ -1486,7 +1485,7 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 	
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
-		unsigned short* p = &mesh.polys[i*MAX_VERTS_PER_POLY*2];
+		unsigned short* p = &mesh.polys[i*RD_VERTS_PER_POLYGON*2];
 		const int nv = countPolyVerts(p);
 		
 		// Collect edges which touches the removed vertex.
@@ -1554,7 +1553,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 	int numRemovedVerts = 0;
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
-		unsigned short* p = &mesh.polys[i*MAX_VERTS_PER_POLY*2];
+		unsigned short* p = &mesh.polys[i*RD_VERTS_PER_POLYGON*2];
 		const int nv = countPolyVerts(p);
 		for (int j = 0; j < nv; ++j)
 		{
@@ -1572,7 +1571,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 	
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
-		unsigned short* p = &mesh.polys[i*MAX_VERTS_PER_POLY*2];
+		unsigned short* p = &mesh.polys[i*RD_VERTS_PER_POLYGON*2];
 		const int nv = countPolyVerts(p);
 		bool hasRem = false;
 		for (int j = 0; j < nv; ++j)
@@ -1594,9 +1593,9 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 				}
 			}
 			// Remove the polygon.
-			unsigned short* p2 = &mesh.polys[(mesh.npolys-1)*MAX_VERTS_PER_POLY*2];
-			memcpy(p,p2,sizeof(unsigned short)*MAX_VERTS_PER_POLY);
-			memset(p+MAX_VERTS_PER_POLY,0xff,sizeof(unsigned short)*MAX_VERTS_PER_POLY);
+			unsigned short* p2 = &mesh.polys[(mesh.npolys-1)*RD_VERTS_PER_POLYGON*2];
+			memcpy(p,p2,sizeof(unsigned short)*RD_VERTS_PER_POLYGON);
+			memset(p+RD_VERTS_PER_POLYGON,0xff,sizeof(unsigned short)*RD_VERTS_PER_POLYGON);
 			mesh.areas[i] = mesh.areas[mesh.npolys-1];
 			mesh.npolys--;
 			--i;
@@ -1615,7 +1614,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 	// Adjust indices to match the removed vertex layout.
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
-		unsigned short* p = &mesh.polys[i*MAX_VERTS_PER_POLY*2];
+		unsigned short* p = &mesh.polys[i*RD_VERTS_PER_POLYGON*2];
 		const int nv = countPolyVerts(p);
 		for (int j = 0; j < nv; ++j)
 			if (p[j] > rem) p[j]--;
@@ -1705,20 +1704,20 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 	if (ntris > MAX_REM_EDGES)
 		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 	
-	unsigned short polys[MAX_REM_EDGES*MAX_VERTS_PER_POLY];
+	unsigned short polys[MAX_REM_EDGES*RD_VERTS_PER_POLYGON];
 	unsigned char pareas[MAX_REM_EDGES];
 	
 	// Build initial polygons.
 	int npolys = 0;
-	memset(polys, 0xff, ntris*MAX_VERTS_PER_POLY*sizeof(unsigned short));
+	memset(polys, 0xff, ntris*RD_VERTS_PER_POLYGON*sizeof(unsigned short));
 	for (int j = 0; j < ntris; ++j)
 	{
 		unsigned short* t = &tris[j*3];
 		if (t[0] != t[1] && t[0] != t[2] && t[1] != t[2])
 		{
-			polys[npolys*MAX_VERTS_PER_POLY+0] = hole[t[0]];
-			polys[npolys*MAX_VERTS_PER_POLY+1] = hole[t[1]];
-			polys[npolys*MAX_VERTS_PER_POLY+2] = hole[t[2]];
+			polys[npolys*RD_VERTS_PER_POLYGON+0] = hole[t[0]];
+			polys[npolys*RD_VERTS_PER_POLYGON+1] = hole[t[1]];
+			polys[npolys*RD_VERTS_PER_POLYGON+2] = hole[t[2]];
 			pareas[npolys] = (unsigned char)harea[t[0]];
 			npolys++;
 		}
@@ -1727,7 +1726,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 		return DT_SUCCESS;
 	
 	// Merge polygons.
-	int maxVertsPerPoly = MAX_VERTS_PER_POLY;
+	int maxVertsPerPoly = RD_VERTS_PER_POLYGON;
 	if (maxVertsPerPoly > 3)
 	{
 		for (;;)
@@ -1738,10 +1737,10 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 			
 			for (int j = 0; j < npolys-1; ++j)
 			{
-				unsigned short* pj = &polys[j*MAX_VERTS_PER_POLY];
+				unsigned short* pj = &polys[j*RD_VERTS_PER_POLYGON];
 				for (int k = j+1; k < npolys; ++k)
 				{
-					unsigned short* pk = &polys[k*MAX_VERTS_PER_POLY];
+					unsigned short* pk = &polys[k*RD_VERTS_PER_POLYGON];
 					int ea, eb;
 					int v = getPolyMergeValue(pj, pk, mesh.verts, ea, eb);
 					if (v > bestMergeVal)
@@ -1758,10 +1757,10 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 			if (bestMergeVal > 0)
 			{
 				// Found best, merge.
-				unsigned short* pa = &polys[bestPa*MAX_VERTS_PER_POLY];
-				unsigned short* pb = &polys[bestPb*MAX_VERTS_PER_POLY];
+				unsigned short* pa = &polys[bestPa*RD_VERTS_PER_POLYGON];
+				unsigned short* pb = &polys[bestPb*RD_VERTS_PER_POLYGON];
 				mergePolys(pa, pb, bestEa, bestEb);
-				memcpy(pb, &polys[(npolys-1)*MAX_VERTS_PER_POLY], sizeof(unsigned short)*MAX_VERTS_PER_POLY);
+				memcpy(pb, &polys[(npolys-1)*RD_VERTS_PER_POLYGON], sizeof(unsigned short)*RD_VERTS_PER_POLYGON);
 				pareas[bestPb] = pareas[npolys-1];
 				npolys--;
 			}
@@ -1777,10 +1776,10 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 	for (int i = 0; i < npolys; ++i)
 	{
 		if (mesh.npolys >= maxTris) break;
-		unsigned short* p = &mesh.polys[mesh.npolys*MAX_VERTS_PER_POLY*2];
-		memset(p,0xff,sizeof(unsigned short)*MAX_VERTS_PER_POLY*2);
-		for (int j = 0; j < MAX_VERTS_PER_POLY; ++j)
-			p[j] = polys[i*MAX_VERTS_PER_POLY+j];
+		unsigned short* p = &mesh.polys[mesh.npolys*RD_VERTS_PER_POLYGON*2];
+		memset(p,0xff,sizeof(unsigned short)*RD_VERTS_PER_POLYGON*2);
+		for (int j = 0; j < RD_VERTS_PER_POLYGON; ++j)
+			p[j] = polys[i*RD_VERTS_PER_POLYGON+j];
 		mesh.areas[mesh.npolys] = pareas[i];
 		mesh.npolys++;
 		if (mesh.npolys > maxTris)
@@ -1811,7 +1810,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 
 	// TODO: warn about too many vertices?
 	
-	mesh.nvp = MAX_VERTS_PER_POLY;
+	mesh.nvp = RD_VERTS_PER_POLYGON;
 	
 	dtFixedArray<unsigned char> vflags(alloc, maxVertices);
 	if (!vflags)
@@ -1822,7 +1821,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 	if (!mesh.verts)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	
-	mesh.polys = (unsigned short*)alloc->alloc(sizeof(unsigned short)*maxTris*MAX_VERTS_PER_POLY*2);
+	mesh.polys = (unsigned short*)alloc->alloc(sizeof(unsigned short)*maxTris*RD_VERTS_PER_POLYGON*2);
 	if (!mesh.polys)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 
@@ -1841,7 +1840,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 	mesh.npolys = 0;
 	
 	memset(mesh.verts, 0, sizeof(unsigned short)*maxVertices*3);
-	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxTris*MAX_VERTS_PER_POLY*2);
+	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxTris*RD_VERTS_PER_POLYGON*2);
 	memset(mesh.areas, 0, sizeof(unsigned char)*maxTris);
 	
 	unsigned short firstVert[VERTEX_BUCKET_COUNT2];
@@ -1861,7 +1860,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 	if (!tris)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-	dtFixedArray<unsigned short> polys(alloc, maxVertsPerCont*MAX_VERTS_PER_POLY);
+	dtFixedArray<unsigned short> polys(alloc, maxVertsPerCont*RD_VERTS_PER_POLYGON);
 	if (!polys)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	
@@ -1899,15 +1898,15 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 		
 		// Build initial polygons.
 		int npolys = 0;
-		memset(polys, 0xff, sizeof(unsigned short) * maxVertsPerCont * MAX_VERTS_PER_POLY);
+		memset(polys, 0xff, sizeof(unsigned short) * maxVertsPerCont * RD_VERTS_PER_POLYGON);
 		for (int j = 0; j < ntris; ++j)
 		{
 			const unsigned short* t = &tris[j*3];
 			if (t[0] != t[1] && t[0] != t[2] && t[1] != t[2])
 			{
-				polys[npolys*MAX_VERTS_PER_POLY+0] = indices[t[0]];
-				polys[npolys*MAX_VERTS_PER_POLY+1] = indices[t[1]];
-				polys[npolys*MAX_VERTS_PER_POLY+2] = indices[t[2]];
+				polys[npolys*RD_VERTS_PER_POLYGON+0] = indices[t[0]];
+				polys[npolys*RD_VERTS_PER_POLYGON+1] = indices[t[1]];
+				polys[npolys*RD_VERTS_PER_POLYGON+2] = indices[t[2]];
 				npolys++;
 			}
 		}
@@ -1915,7 +1914,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 			continue;
 		
 		// Merge polygons.
-		int maxVertsPerPoly =MAX_VERTS_PER_POLY ;
+		int maxVertsPerPoly =RD_VERTS_PER_POLYGON ;
 		if (maxVertsPerPoly > 3)
 		{
 			for(;;)
@@ -1926,10 +1925,10 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 				
 				for (int j = 0; j < npolys-1; ++j)
 				{
-					unsigned short* pj = &polys[j*MAX_VERTS_PER_POLY];
+					unsigned short* pj = &polys[j*RD_VERTS_PER_POLYGON];
 					for (int k = j+1; k < npolys; ++k)
 					{
-						unsigned short* pk = &polys[k*MAX_VERTS_PER_POLY];
+						unsigned short* pk = &polys[k*RD_VERTS_PER_POLYGON];
 						int ea, eb;
 						int v = getPolyMergeValue(pj, pk, mesh.verts, ea, eb);
 						if (v > bestMergeVal)
@@ -1946,10 +1945,10 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 				if (bestMergeVal > 0)
 				{
 					// Found best, merge.
-					unsigned short* pa = &polys[bestPa*MAX_VERTS_PER_POLY];
-					unsigned short* pb = &polys[bestPb*MAX_VERTS_PER_POLY];
+					unsigned short* pa = &polys[bestPa*RD_VERTS_PER_POLYGON];
+					unsigned short* pb = &polys[bestPb*RD_VERTS_PER_POLYGON];
 					mergePolys(pa, pb, bestEa, bestEb);
-					memcpy(pb, &polys[(npolys-1)*MAX_VERTS_PER_POLY], sizeof(unsigned short)*MAX_VERTS_PER_POLY);
+					memcpy(pb, &polys[(npolys-1)*RD_VERTS_PER_POLYGON], sizeof(unsigned short)*RD_VERTS_PER_POLYGON);
 					npolys--;
 				}
 				else
@@ -1963,9 +1962,9 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 		// Store polygons.
 		for (int j = 0; j < npolys; ++j)
 		{
-			unsigned short* p = &mesh.polys[mesh.npolys*MAX_VERTS_PER_POLY*2];
-			unsigned short* q = &polys[j*MAX_VERTS_PER_POLY];
-			for (int k = 0; k < MAX_VERTS_PER_POLY; ++k)
+			unsigned short* p = &mesh.polys[mesh.npolys*RD_VERTS_PER_POLYGON*2];
+			unsigned short* q = &polys[j*RD_VERTS_PER_POLYGON];
+			for (int k = 0; k < RD_VERTS_PER_POLYGON; ++k)
 				p[k] = q[k];
 			mesh.areas[mesh.npolys] = cont.area;
 			mesh.npolys++;

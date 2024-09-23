@@ -299,8 +299,8 @@ bool Editor_SoloMesh::handleBuild()
 	}
 
 	// (Optional) Mark areas.
-	const ShapeVolume* vols = m_geom->getConvexVolumes();
-	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
+	const ShapeVolume* vols = m_geom->getShapeVolumes();
+	for (int i  = 0; i < m_geom->getShapeVolumeCount(); ++i)
 		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned short)vols[i].flags, (unsigned char)vols[i].area, *m_chf);
 
 	
@@ -437,7 +437,7 @@ bool Editor_SoloMesh::handleBuild()
 
 	const int traverseTableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
 
-	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
+	if (m_cfg.maxVertsPerPoly <= RD_VERTS_PER_POLYGON)
 	{
 		unsigned char* navData = 0;
 		int navDataSize = 0;
