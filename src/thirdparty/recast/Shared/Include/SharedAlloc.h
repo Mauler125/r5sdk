@@ -21,6 +21,7 @@
 
 #include "SharedDefs.h"
 #include "SharedAssert.h"
+#include "SharedCommon.h"
 
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
@@ -243,18 +244,9 @@ void rdVectorBase<T, H>::resize_impl(rdSizeType size, const T* value) {
 }
 template <typename T, rdAllocHint H>
 void rdVectorBase<T, H>::swap(rdVectorBase<T, H>& other) {
-	// TODO: Reorganize headers so we can use rcSwap here.
-	rdSizeType tmp_cap = other.m_cap;
-	rdSizeType tmp_size = other.m_size;
-	T* tmp_data = other.m_data;
-
-	other.m_cap = m_cap;
-	other.m_size = m_size;
-	other.m_data = m_data;
-
-	m_cap = tmp_cap;
-	m_size = tmp_size;
-	m_data = tmp_data;
+	rdSwap(m_cap, other.m_cap);
+	rdSwap(m_size, other.m_size);
+	rdSwap(m_data, other.m_data);
 }
 // static
 template <typename T, rdAllocHint H>
