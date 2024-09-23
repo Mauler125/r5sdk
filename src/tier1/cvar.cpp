@@ -74,37 +74,24 @@ ConVarFlags g_ConVarFlags;
 //-----------------------------------------------------------------------------
 bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName)
 {
-	const size_t len = V_strlen(pszFlags);
-	CUtlString sFlag;
+	nFlags = FCVAR_NONE;
+	const CUtlStringList flagList(pszFlags, "|");
 
-	for (size_t i = 0; i < len; ++i)
+	FOR_EACH_VEC(flagList, i)
 	{
-		char c = pszFlags[i];
+		const char* sflag = flagList[i];
+		const int find = g_ConVarFlags.m_StringToFlags.FindElement(sflag, -1);
 
-		if (V_isspace(c))
-			continue;
-
-		if (c != '|')
-			sFlag += c;
-
-		if (c == '|' || i == len - 1)
+		if (find == -1)
 		{
-			if (sFlag == "")
-				continue;
+			Warning(eDLL_T::COMMON,
+				"%s: Attempted to parse invalid flag '%s' for convar '%s'\n",
+				__FUNCTION__, sflag, pszConVarName);
 
-			const int find = g_ConVarFlags.m_StringToFlags.FindElement(sFlag.Get(), -1);
-			if (find == -1)
-			{
-				Warning(eDLL_T::COMMON,
-					"%s: Attempted to parse invalid flag '%s' for convar '%s'\n",
-					__FUNCTION__, sFlag.Get(), pszConVarName);
-
-				return false;
-			}
-
-			nFlags |= find;
-			sFlag = "";
+			return false;
 		}
+
+		nFlags |= find;
 	}
 
 	return true;

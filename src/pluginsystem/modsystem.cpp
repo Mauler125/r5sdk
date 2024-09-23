@@ -320,8 +320,7 @@ void CModSystem::ModInstance_t::ParseConVars()
 				}
 			}
 
-			int flags = FCVAR_NONE;
-
+			int flags;
 			if (ConVar_ParseFlagString(pszFlagsString, flags, pszName))
 			{
 				if (g_pCVar->FindCommandBase(pszName) != nullptr)
