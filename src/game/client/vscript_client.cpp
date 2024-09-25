@@ -513,3 +513,98 @@ static ConVar promo_version_accepted("promo_version_accepted", "0", FCVAR_RELEAS
 
 static ConVar player_setting_damage_closes_deathbox_menu("player_setting_damage_closes_deathbox_menu", "1", FCVAR_ARCHIVE | FCVAR_RELEASE, "Controls whether death box automatically closes when taking damage (used for menus).");
 static ConVar show_motd_on_server_first_join("show_motd_on_server_first_join", "0", FCVAR_ARCHIVE | FCVAR_RELEASE, "Controls whether or not the server message of the day shows on first join for that server.");
+
+//---------------------------------------------------------------------------------
+// Purpose: script code class function registration
+//---------------------------------------------------------------------------------
+static void Script_RegisterClientEntityClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterClientPlayerClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterClientAIClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterClientWeaponClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterClientProjectileClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterClientTitanSoulClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterClientPlayerDecoyClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterClientFirstPersonProxyClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+
+void VScriptClient::Detour(const bool bAttach) const
+{
+    DetourSetup(&v_Script_RegisterClientEntityClassFuncs, &Script_RegisterClientEntityClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterClientPlayerClassFuncs, &Script_RegisterClientPlayerClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterClientAIClassFuncs, &Script_RegisterClientAIClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterClientWeaponClassFuncs, &Script_RegisterClientWeaponClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterClientProjectileClassFuncs, &Script_RegisterClientProjectileClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterClientTitanSoulClassFuncs, &Script_RegisterClientTitanSoulClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterClientPlayerDecoyClassFuncs, &Script_RegisterClientPlayerDecoyClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterClientFirstPersonProxyClassFuncs, &Script_RegisterClientFirstPersonProxyClassFuncs, bAttach);
+}

@@ -334,3 +334,109 @@ void Script_RegisterAdminPanelFunctions(CSquirrelVM* s)
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, UnbanPlayer, "Unbans a player from the server by nucleus id or ip address", "void", "string");
 }
+
+//---------------------------------------------------------------------------------
+// Purpose: script code class function registration
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerEntityClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerPlayerClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerAIClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerWeaponClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerProjectileClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerTitanSoulClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerPlayerDecoyClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerSpawnpointClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerFirstPersonProxyClassFuncs()
+{
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+
+void VScriptServer::Detour(const bool bAttach) const
+{
+    DetourSetup(&v_Script_RegisterServerEntityClassFuncs, &Script_RegisterServerEntityClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerPlayerClassFuncs, &Script_RegisterServerPlayerClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerAIClassFuncs, &Script_RegisterServerAIClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerWeaponClassFuncs, &Script_RegisterServerWeaponClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerProjectileClassFuncs, &Script_RegisterServerProjectileClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerTitanSoulClassFuncs, &Script_RegisterServerTitanSoulClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerPlayerDecoyClassFuncs, &Script_RegisterServerPlayerDecoyClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerSpawnpointClassFuncs, &Script_RegisterServerSpawnpointClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerFirstPersonProxyClassFuncs, &Script_RegisterServerFirstPersonProxyClassFuncs, bAttach);
+}
