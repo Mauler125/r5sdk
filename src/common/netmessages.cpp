@@ -12,6 +12,7 @@
 #include "tier1/cvar.h"
 #include "engine/net.h"
 #include "common/netmessages.h"
+#include "common/callback.h"
 #include "game/shared/usermessages.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +63,37 @@ bool SVC_UserMessage::ProcessImpl()
 	}
 
 	return SVC_UserMessage_Process(this); // Need to return original.
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+// Net message to change class settings vars on the client
+///////////////////////////////////////////////////////////////////////////////////
+bool SVC_SetClassVar::ReadFromBuffer(bf_read* buffer)
+{
+	const bool set = buffer->ReadString(m_szSetting, sizeof(m_szSetting));
+	const bool var = buffer->ReadString(m_szVariable, sizeof(m_szVariable));
+
+	return set && var;
+}
+bool SVC_SetClassVar::WriteToBuffer(bf_write* buffer)
+{
+	const bool set = buffer->WriteString(m_szSetting);
+	const bool var = buffer->WriteString(m_szVariable);
+
+	return set && var;
+}
+bool SVC_SetClassVar::Process(void)
+{
+	const char* pArgs[3] = {
+		"_setClassVarClient",
+		m_szSetting,
+		m_szVariable
+	};
+
+	CCommand command((int)V_ARRAYSIZE(pArgs), pArgs, cmd_source_t::kCommandSrcCode);
+	v__setClassVarClient_f(command);
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +154,7 @@ bool Base_CmdKeyValues::WriteToBufferImpl(Base_CmdKeyValues* thisptr, bf_write* 
 // determine whether or not the message should be copied into the replay buffer,
 // regardless of the 'CNetMessage::m_Group' type.
 ///////////////////////////////////////////////////////////////////////////////////
-bool ShouldReplayMessage(const CNetMessage* msg)
+bool ShouldReplayMessage(const CNetMessage* msg) // todo(amos): rename to 'CanReplayMessage'
 {
 	switch (msg->GetType())
 	{

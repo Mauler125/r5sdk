@@ -4,6 +4,8 @@ inline bool(*v_SetupGamemode)(const char* pszPlayList);
 
 /* ==== CONCOMMANDCALLBACK ============================================================================================================================================== */
 inline void(*v__Cmd_Exec_f)(const CCommand& args);
+inline bool(*v__setClassVarServer_f)(const CCommand& args);
+inline bool(*v__setClassVarClient_f)(const CCommand& args);
 #ifndef DEDICATED
 inline void(*v__UIScript_Reset_f)();
 #endif // !DEDICATED
@@ -41,6 +43,8 @@ class VCallback : public IDetour
 	{
 		LogFunAdr("SetupGamemode", v_SetupGamemode);
 		LogFunAdr("Cmd_Exec_f", v__Cmd_Exec_f);
+		LogFunAdr("SetClassVarServer_f", v__setClassVarServer_f);
+		LogFunAdr("SetClassVarClient_f", v__setClassVarClient_f);
 #ifndef DEDICATED
 		LogFunAdr("UIScript_Reset_f", v__UIScript_Reset_f);
 #endif // !DEDICATED
@@ -49,6 +53,8 @@ class VCallback : public IDetour
 	{
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 48 C7 C0 ?? ?? ?? ??").GetPtr(v_SetupGamemode);
 		g_GameDll.FindPatternSIMD("40 55 53 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9").GetPtr(v__Cmd_Exec_f);
+		g_GameDll.FindPatternSIMD("41 56 48 83 EC ?? 8B 05 ?? ?? ?? ?? 4C 8B F1 FF C0").GetPtr(v__setClassVarServer_f);
+		g_GameDll.FindPatternSIMD("4C 8B DC 57 48 81 EC ?? ?? ?? ?? 8B 05").GetPtr(v__setClassVarClient_f);
 #ifndef DEDICATED
 		g_GameDll.FindPatternSIMD("40 55 41 54 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 45 33 E4 48 8D 0D").GetPtr(v__UIScript_Reset_f);
 #endif // !DEDICATED
