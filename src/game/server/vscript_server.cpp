@@ -18,6 +18,7 @@
 #include "vscript_server.h"
 #include <engine/host_state.h>
 #include <networksystem/hostmanager.h>
+#include "player.h"
 
 /*
 =====================
@@ -275,6 +276,98 @@ namespace VScriptCode
             sq_pushbool(v, ::IsDedicated());
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: sets a class var on the server and each client
+        // TODO: currently, this relies on the client running _secClassVarServer
+        // for its player class vars to be adjusted on the server as well. Not really
+        // exploitable on the client as omitting this will prevent the server from
+        // setting it in their player instance effectively screwing up the prediction,
+        // but it might be nice to run it from the server and propagate all changes to
+        // each client individually from an architectural point of view.
+        // Furthermore (only for SetClassVarSynced, not the individual one from 
+        // PlayerStruct) it might also be good to research potential ways to track
+        // class var changes and sync them back to clients connecting after this has
+        // been called.
+        //-----------------------------------------------------------------------------
+        SQRESULT SetClassVarSynced(HSQUIRRELVM v)
+        {
+            const SQChar* key = nullptr;
+            sq_getstring(v, 2, &key);
+
+            if (!VALID_CHARSTAR(key))
+            {
+                v_SQVM_ScriptError("Empty or null class key");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            const SQChar* val = nullptr;
+            sq_getstring(v, 3, &val);
+
+            if (!VALID_CHARSTAR(val))
+            {
+                v_SQVM_ScriptError("Empty or null class var");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            SVC_SetClassVar msg(key, val);
+            bool failure = false;
+
+            for (int i = 0; i < gpGlobals->maxClients; i++)
+            {
+                CClient* const client = g_pServer->GetClient(i);
+
+                // is this client fully connected
+                if (client->GetSignonState() != SIGNONSTATE::SIGNONSTATE_FULL)
+                    continue;
+
+                if (!client->SendNetMsgEx(&msg, false, true, false))
+                    failure = true;
+            }
+
+            sq_pushbool(v, !failure);
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+    }
+
+    namespace PlayerEntity
+    {
+        //-----------------------------------------------------------------------------
+        // Purpose: sets a class var on the server and each client
+        //-----------------------------------------------------------------------------
+        SQRESULT ScriptSetClassVar(HSQUIRRELVM v)
+        {
+            CPlayer* player = nullptr;
+
+            if (!v_sq_getentity(v, (SQEntity*)&player))
+                return SQ_ERROR;
+
+            const SQChar* key = nullptr;
+            sq_getstring(v, 2, &key);
+
+            if (!VALID_CHARSTAR(key))
+            {
+                v_SQVM_ScriptError("Empty or null class key");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            const SQChar* val = nullptr;
+            sq_getstring(v, 3, &val);
+
+            if (!VALID_CHARSTAR(val))
+            {
+                v_SQVM_ScriptError("Empty or null class var");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            CClient* const client = g_pServer->GetClient(player->GetEdict() - 1);
+            SVC_SetClassVar msg(key, val);
+
+            const bool success = client->SendNetMsgEx(&msg, false, true, false);
+            sq_pushbool(v, success);
+
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
     }
 }
 
@@ -311,6 +404,8 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SetAutoReloadState, "Set whether we can auto-reload the server", "void", "bool");
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetServerID, "Gets the current server ID", "string", "");
+
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SetClassVarSynced, "Change a variable in the class settings for server and all connected clients", "bool", "string, string");
 }
 
 //---------------------------------------------------------------------------------
@@ -358,6 +453,14 @@ static void Script_RegisterServerPlayerClassFuncs()
         return;
 
     initialized = true;
+
+    g_serverScriptPlayerStruct->AddFunction("SetClassVar",
+        "ScriptSetClassVar",
+        "Change a variable in the player's class settings",
+        "bool",
+        "string, string",
+        5,
+        VScriptCode::PlayerEntity::ScriptSetClassVar);
 }
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerAIClassFuncs()
