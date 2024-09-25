@@ -100,4 +100,36 @@ struct ScriptFunctionBinding_t
 };
 static_assert(sizeof(ScriptFunctionBinding_t) == 0x68);
 
+//---------------------------------------------------------
+
+struct ScriptClassDescriptor_t
+{
+	void AddFunction(const SQChar* scriptName, const SQChar* nativeName,
+		const SQChar* helpString, const SQChar* returnString,
+		const SQChar* parameters, const ScriptDataType_t returnType,
+		const ScriptFunctionBindingStorageType_t function)
+	{
+		const int index = m_FunctionBindings.AddToTail();
+		ScriptFunctionBinding_t& binding = m_FunctionBindings.Element(index);
+
+		binding.Init(scriptName, nativeName, helpString, returnString, parameters, returnType, function);
+	}
+
+	const char* m_ScriptName;
+	const char* m_Classname;
+	const char* m_Description;
+
+	ScriptClassDescriptor_t* m_BaseDesc;
+	CUtlVector<ScriptFunctionBinding_t> m_FunctionBindings;
+
+	// TODO: CUtlMemory?
+	ssize_t m_Unk1;
+	ssize_t m_Unk2;
+	void* m_Unk3;
+
+	ScriptClassDescriptor_t* m_NextDesc;
+};
+
+static_assert(sizeof(ScriptClassDescriptor_t) == 0x60);
+
 #endif // IVSCRIPT_H
