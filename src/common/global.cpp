@@ -273,6 +273,12 @@ void ConVar_InitShipped(void)
 	base_tickinterval_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
 	mp_gamemode->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+
+#ifdef DEDICATED 
+	// The base callback is for client builds only, must be removed from the
+	// dedicated server as it features client globals.
+	mp_gamemode->RemoveChangeCallback(mp_gamemode->GetChangeCallback(0), 0);
+#endif // DEDICATED
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, nullptr, false);
 	net_usesocketsforloopback->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #ifndef DEDICATED
