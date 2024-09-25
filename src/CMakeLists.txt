@@ -24,7 +24,7 @@ add_subdirectory( protoc )
 set( FOLDER_CONTEXT "Respawn" )
 add_subdirectory( rtech )
 
-set( FOLDER_CONTEXT "Thirdparty" )
+set( FOLDER_CONTEXT "Thirdparty/Debugging" )
 add_subdirectory( thirdparty/detours )
 add_subdirectory( thirdparty/spdlog )
 
