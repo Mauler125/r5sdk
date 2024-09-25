@@ -7,6 +7,21 @@
 #define MAX_FLOWS         2 // in & out
 #include "tier1/NetAdr.h"
 
+#define REGISTER_NET_MSG( name )				\
+	NET_##name * p##name = new NET_##name();	\
+	p##name->m_pMessageHandler = this;			\
+	chan->RegisterMessage( p##name );			\
+
+#define REGISTER_SVC_MSG( name )				\
+	SVC_##name * p##name = new SVC_##name();	\
+	p##name->m_pMessageHandler = this;			\
+	chan->RegisterMessage( p##name );			\
+
+#define REGISTER_CLC_MSG( name )				\
+	CLC_##name * p##name = new CLC_##name();	\
+	p##name->m_pMessageHandler = this;			\
+	chan->RegisterMessage( p##name );			\
+
 class IClientMessageHandler
 {
 public:

@@ -36,6 +36,7 @@ class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServe
 {
 	friend class ClientDataBlockReceiver;
 public: // Hook statics.
+	static bool VConnectionStart(CClientState* pClient, CNetChan* pChan);
 	static void VConnectionClosing(CClientState* thisptr, const char* szReason);
 	static bool _ProcessStringCmd(CClientState* thisptr, NET_StringCmd* msg);
 	static bool VProcessServerTick(CClientState* thisptr, SVC_ServerTick* msg);
@@ -65,6 +66,8 @@ public:
 	bool Authenticate(connectparams_t* connectParams, char* const reasonBuf, const size_t reasonBufLen) const;
 
 	void Reconnect();
+
+	void RegisterNetMsgs(CNetChan* chan);
 
 protected:
 	FORCEINLINE CClientState* GetShiftedBasePointer(void)
@@ -225,6 +228,7 @@ extern CClientState** g_pClientState_Shifted; // Shifted by 0x10 forward!
 inline void(*CClientState__RunFrame)(CClientState* thisptr);
 inline void(*CClientState__Connect)(CClientState* thisptr, connectparams_t* connectParams);
 inline void(*CClientState__Disconnect)(CClientState* thisptr, bool bSendTrackingContext);
+inline bool(*CClientState__ConnectionStart)(CClientState* thisptr, CNetChan* chan);
 inline void(*CClientState__ConnectionClosing)(CClientState* thisptr, const char* szReason);
 inline bool(*CClientState__HookClientStringTable)(CClientState* thisptr, const char* tableName);
 
@@ -241,6 +245,7 @@ class VClientState : public IDetour
 		LogFunAdr("CClientState::RunFrame", CClientState__RunFrame);
 		LogFunAdr("CClientState::Connect", CClientState__Connect);
 		LogFunAdr("CClientState::Disconnect", CClientState__Disconnect);
+		LogFunAdr("CClientState::ConnectionStart", CClientState__ConnectionStart);
 		LogFunAdr("CClientState::ConnectionClosing", CClientState__ConnectionClosing);
 		LogFunAdr("CClientState::HookClientStringTable", CClientState__HookClientStringTable);
 		LogFunAdr("CClientState::ProcessStringCmd", CClientState__ProcessStringCmd);
@@ -255,6 +260,7 @@ class VClientState : public IDetour
 		g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 48 8B D9 7D 0B").GetPtr(CClientState__RunFrame);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B 32").GetPtr(CClientState__Connect);
 		g_GameDll.FindPatternSIMD("40 56 57 41 54 41 55 41 57 48 83 EC 30 44 0F B6 FA").GetPtr(CClientState__Disconnect);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 48 8B F2").GetPtr(CClientState__ConnectionStart);
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B DA 0F 8E ?? ?? ?? ??").GetPtr(CClientState__ConnectionClosing);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 48 8B FA 48 8B 89 ?? ?? ?? ?? 48 85 C9 0F 84 ?? ?? ?? ??").GetPtr(CClientState__HookClientStringTable);
 		g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? ?? 48 8B DA").GetPtr(CClientState__ProcessStringCmd);

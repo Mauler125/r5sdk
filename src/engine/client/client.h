@@ -104,6 +104,7 @@ public:
 	inline bool IsFakeClient(void) const { return m_bFakePlayer; }
 	inline bool IsHumanPlayer(void) const { if (!IsConnected() || IsFakeClient()) { return false; } return true; }
 
+	void RegisterNetMsgs(CNetChan* chan);
 	bool SendNetMsgEx(CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice);
 
 	bool Authenticate(const char* const playerName, char* const reasonBuf, const size_t reasonBufLen);
@@ -116,6 +117,8 @@ public: // Hook statics:
 	static void VClear(CClient* pClient);
 	static bool VConnect(CClient* pClient, const char* szName, CNetChan* pNetChan, bool bFakePlayer,
 		CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize);
+
+	static bool VConnectionStart(CClient* pClient, CNetChan* pChan);
 
 	static void VActivatePlayer(CClient* pClient);
 	static void* VSendSnapshot(CClient* pClient, CClientFrame* pFrame, int nTick, int nTickAck);
@@ -291,6 +294,7 @@ private:
 /* ==== CBASECLIENT ===================================================================================================================================================== */
 inline bool(*CClient__Connect)(CClient* pClient, const char* szName, CNetChan* pNetChan, bool bFakePlayer, CUtlVector<NET_SetConVar::cvar_t>* conVars, char* szMessage, int nMessageSize);
 inline bool(*CClient__Disconnect)(CClient* pClient, const Reputation_t nRepLvl, const char* szReason, ...);
+inline bool(*CClient__ConnectionStart)(CClient* pClient, CNetChan* pChan);
 inline void(*CClient__Clear)(CClient* pClient);
 inline void(*CClient__ActivatePlayer)(CClient* pClient);
 inline bool(*CClient__SetSignonState)(CClient* pClient, SIGNONSTATE signon);
@@ -309,6 +313,7 @@ class VClient : public IDetour
 	{
 		LogFunAdr("CClient::Connect", CClient__Connect);
 		LogFunAdr("CClient::Disconnect", CClient__Disconnect);
+		LogFunAdr("CClient::ConnectionStart", CClient__ConnectionStart);
 		LogFunAdr("CClient::Clear", CClient__Clear);
 		LogFunAdr("CClient::ActivatePlayer", CClient__ActivatePlayer);
 		LogFunAdr("CClient::SetSignonState", CClient__SetSignonState);
@@ -324,6 +329,7 @@ class VClient : public IDetour
 	{
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9").GetPtr(CClient__Connect);
 		g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2").GetPtr(CClient__Disconnect);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 48 8B EA 4C 8B F1").GetPtr(CClient__ConnectionStart);
 		g_GameDll.FindPatternSIMD("40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74").GetPtr(CClient__Clear);
 		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 81 B0 03 ?? ?? 48 8B D9 C6").GetPtr(CClient__ActivatePlayer);
 		g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__SendNetMsgEx);

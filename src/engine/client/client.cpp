@@ -265,6 +265,18 @@ bool CClient::VConnect(CClient* pClient, const char* szName, CNetChan* pNetChan,
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: registers net messages
+// Input  : *pClient - 
+//			*pChan - 
+// Output : true if setup was successful, false otherwise
+//---------------------------------------------------------------------------------
+bool CClient::VConnectionStart(CClient* pClient, CNetChan* pChan)
+{
+	pClient->RegisterNetMsgs(pChan);
+	return CClient__ConnectionStart(pClient, pChan);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: disconnect client
 // Input  : nRepLvl - 
 //			*szReason - 
@@ -307,6 +319,14 @@ void CClient::VActivatePlayer(CClient* pClient)
 			pClient->GetUserID(), pNetChan->GetName(), pNetChan->GetAddress(), pClient->GetNucleusID());
 	}
 #endif // !CLIENT_DLL
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: registers net messages
+// Input  : *chan
+//---------------------------------------------------------------------------------
+void CClient::RegisterNetMsgs(CNetChan* chan)
+{
 }
 
 //---------------------------------------------------------------------------------
@@ -618,6 +638,7 @@ void VClient::Detour(const bool bAttach) const
 #ifndef CLIENT_DLL
 	DetourSetup(&CClient__Clear, &CClient::VClear, bAttach);
 	DetourSetup(&CClient__Connect, &CClient::VConnect, bAttach);
+	DetourSetup(&CClient__ConnectionStart, &CClient::VConnectionStart, bAttach);
 	DetourSetup(&CClient__ActivatePlayer, &CClient::VActivatePlayer, bAttach);
 	DetourSetup(&CClient__SendNetMsgEx, &CClient::VSendNetMsgEx, bAttach);
 	//DetourSetup(&CClient__SendSnapshot, &CClient::VSendSnapshot, bAttach);
