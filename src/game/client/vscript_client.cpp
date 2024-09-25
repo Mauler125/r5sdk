@@ -519,6 +519,7 @@ static ConVar show_motd_on_server_first_join("show_motd_on_server_first_join", "
 //---------------------------------------------------------------------------------
 static void Script_RegisterClientEntityClassFuncs()
 {
+    v_Script_RegisterClientEntityClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -529,6 +530,7 @@ static void Script_RegisterClientEntityClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterClientPlayerClassFuncs()
 {
+    v_Script_RegisterClientPlayerClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -539,6 +541,7 @@ static void Script_RegisterClientPlayerClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterClientAIClassFuncs()
 {
+    v_Script_RegisterClientAIClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -549,6 +552,7 @@ static void Script_RegisterClientAIClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterClientWeaponClassFuncs()
 {
+    v_Script_RegisterClientWeaponClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -559,6 +563,7 @@ static void Script_RegisterClientWeaponClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterClientProjectileClassFuncs()
 {
+    v_Script_RegisterClientProjectileClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -569,6 +574,7 @@ static void Script_RegisterClientProjectileClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterClientTitanSoulClassFuncs()
 {
+    v_Script_RegisterClientTitanSoulClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -579,6 +585,7 @@ static void Script_RegisterClientTitanSoulClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterClientPlayerDecoyClassFuncs()
 {
+    v_Script_RegisterClientPlayerDecoyClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -589,6 +596,7 @@ static void Script_RegisterClientPlayerDecoyClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterClientFirstPersonProxyClassFuncs()
 {
+    v_Script_RegisterClientFirstPersonProxyClassFuncs();
     static bool initialized = false;
 
     if (initialized)

@@ -340,6 +340,7 @@ void Script_RegisterAdminPanelFunctions(CSquirrelVM* s)
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerEntityClassFuncs()
 {
+    v_Script_RegisterServerEntityClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -350,6 +351,7 @@ static void Script_RegisterServerEntityClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerPlayerClassFuncs()
 {
+    v_Script_RegisterServerPlayerClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -360,6 +362,7 @@ static void Script_RegisterServerPlayerClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerAIClassFuncs()
 {
+    v_Script_RegisterServerAIClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -370,6 +373,7 @@ static void Script_RegisterServerAIClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerWeaponClassFuncs()
 {
+    v_Script_RegisterServerWeaponClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -380,6 +384,7 @@ static void Script_RegisterServerWeaponClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerProjectileClassFuncs()
 {
+    v_Script_RegisterServerProjectileClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -390,6 +395,7 @@ static void Script_RegisterServerProjectileClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerTitanSoulClassFuncs()
 {
+    v_Script_RegisterServerTitanSoulClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -400,6 +406,7 @@ static void Script_RegisterServerTitanSoulClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerPlayerDecoyClassFuncs()
 {
+    v_Script_RegisterServerPlayerDecoyClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -410,6 +417,7 @@ static void Script_RegisterServerPlayerDecoyClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerSpawnpointClassFuncs()
 {
+    v_Script_RegisterServerSpawnpointClassFuncs();
     static bool initialized = false;
 
     if (initialized)
@@ -420,6 +428,7 @@ static void Script_RegisterServerSpawnpointClassFuncs()
 //---------------------------------------------------------------------------------
 static void Script_RegisterServerFirstPersonProxyClassFuncs()
 {
+    v_Script_RegisterServerFirstPersonProxyClassFuncs();
     static bool initialized = false;
 
     if (initialized)
