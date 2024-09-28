@@ -385,6 +385,7 @@ void ConCommand_InitShipped(void)
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
 	ConCommand* give = g_pCVar->FindCommand("give");
+	ConCommand* set = g_pCVar->FindCommand("set");
 #endif // !DEDICATED
 
 	help->m_fnCommandCallback = CVHelp_f;
@@ -403,6 +404,7 @@ void ConCommand_InitShipped(void)
 #ifndef DEDICATED
 	mat_crosshair->m_fnCommandCallback = Mat_CrossHair_f;
 	give->m_fnCompletionCallback = Game_Give_f_CompletionFunc;
+	set->m_fnCommandCallback = Set_f;
 #endif // !DEDICATED
 
 	/// ------------------------------------------------------ [ FLAG REMOVAL ]
@@ -474,6 +476,7 @@ void ConCommand_PurgeShipped(void)
 		"getpos_bind",
 		"connect",
 		"silent_connect",
+		"set",
 		"ping",
 		"gameui_activate",
 		"gameui_hide",

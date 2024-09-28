@@ -19,6 +19,7 @@
 #include <engine/host_state.h>
 #include <networksystem/hostmanager.h>
 #include "player.h"
+#include <common/callback.h>
 
 /*
 =====================
@@ -279,16 +280,8 @@ namespace VScriptCode
 
         //-----------------------------------------------------------------------------
         // Purpose: sets a class var on the server and each client
-        // TODO: currently, this relies on the client running _secClassVarServer
-        // for its player class vars to be adjusted on the server as well. Not really
-        // exploitable on the client as omitting this will prevent the server from
-        // setting it in their player instance effectively screwing up the prediction,
-        // but it might be nice to run it from the server and propagate all changes to
-        // each client individually from an architectural point of view.
-        // Furthermore (only for SetClassVarSynced, not the individual one from 
-        // PlayerStruct) it might also be good to research potential ways to track
-        // class var changes and sync them back to clients connecting after this has
-        // been called.
+        // TODO: it might also be good to research potential ways to track class var
+        // changes and sync them back to clients connecting after this has been called.
         //-----------------------------------------------------------------------------
         SQRESULT SetClassVarSynced(HSQUIRRELVM v)
         {
@@ -310,8 +303,17 @@ namespace VScriptCode
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
+            const char* pArgs[3] = {
+                "_setClassVarServer",
+                key,
+                val
+            };
+
             SVC_SetClassVar msg(key, val);
+            const CCommand cmd((int)V_ARRAYSIZE(pArgs), pArgs, cmd_source_t::kCommandSrcCode);
+
             bool failure = false;
+            const int oldIdx = *g_nCommandClientIndex;
 
             for (int i = 0; i < gpGlobals->maxClients; i++)
             {
@@ -321,9 +323,16 @@ namespace VScriptCode
                 if (client->GetSignonState() != SIGNONSTATE::SIGNONSTATE_FULL)
                     continue;
 
-                if (!client->SendNetMsgEx(&msg, false, true, false))
+                if (client->SendNetMsgEx(&msg, false, true, false))
+                {
+                    *g_nCommandClientIndex = client->GetUserID();
+                    v__setClassVarServer_f(cmd);
+                }
+                else // Not all clients have their class var set.
                     failure = true;
             }
+
+            *g_nCommandClientIndex = oldIdx;
 
             sq_pushbool(v, !failure);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
@@ -364,8 +373,25 @@ namespace VScriptCode
             SVC_SetClassVar msg(key, val);
 
             const bool success = client->SendNetMsgEx(&msg, false, true, false);
-            sq_pushbool(v, success);
 
+            if (success)
+            {
+                const char* pArgs[3] = {
+                    "_setClassVarServer",
+                    key,
+                    val
+                };
+
+                const CCommand cmd((int)V_ARRAYSIZE(pArgs), pArgs, cmd_source_t::kCommandSrcCode);
+                const int oldIdx = *g_nCommandClientIndex;
+
+                *g_nCommandClientIndex = client->GetUserID();
+                v__setClassVarServer_f(cmd);
+
+                *g_nCommandClientIndex = oldIdx;
+            }
+
+            sq_pushbool(v, success);
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
     }

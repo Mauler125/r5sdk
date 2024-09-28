@@ -4,11 +4,15 @@ inline bool(*v_SetupGamemode)(const char* pszPlayList);
 
 /* ==== CONCOMMANDCALLBACK ============================================================================================================================================== */
 inline void(*v__Cmd_Exec_f)(const CCommand& args);
-inline bool(*v__setClassVarServer_f)(const CCommand& args);
-inline bool(*v__setClassVarClient_f)(const CCommand& args);
+inline void(*v__setClassVarServer_f)(const CCommand& args);
+inline void(*v__setClassVarClient_f)(const CCommand& args);
 #ifndef DEDICATED
 inline void(*v__UIScript_Reset_f)();
 #endif // !DEDICATED
+
+#ifndef CLIENT_DLL
+inline int* g_nCommandClientIndex = nullptr;
+#endif // !CLIENT_DLL
 
 ///////////////////////////////////////////////////////////////////////////////
 void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
@@ -25,6 +29,7 @@ void GFX_NVN_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValu
 #endif // !DEDICATED
 void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData);
 #ifndef DEDICATED
+void Set_f(const CCommand& args);
 void Mat_CrossHair_f(const CCommand& args);
 void Line_f(const CCommand& args);
 void Sphere_f(const CCommand& args);
@@ -36,6 +41,7 @@ void CVHelp_f(const CCommand& args);
 void CVList_f(const CCommand& args);
 void CVDiff_f(const CCommand& args);
 void CVFlag_f(const CCommand& args);
+
 ///////////////////////////////////////////////////////////////////////////////
 class VCallback : public IDetour
 {
@@ -59,7 +65,12 @@ class VCallback : public IDetour
 		g_GameDll.FindPatternSIMD("40 55 41 54 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 45 33 E4 48 8D 0D").GetPtr(v__UIScript_Reset_f);
 #endif // !DEDICATED
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+#ifndef CLIENT_DLL
+		CMemory(v__setClassVarServer_f).FindPatternSelf("8B 05").ResolveRelativeAddressSelf(2, 6).GetPtr(g_nCommandClientIndex);
+#endif // !CLIENT_DLL
+	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;
 };
