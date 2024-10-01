@@ -123,7 +123,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* pPattern, const char* szMask,
 	const uint8_t* pEnd = pData + nSize - nMaskLen;
 
 	size_t nOccurrenceCount = 0;
-	int nMasks[64]; // 64*16 = enough masks for 1024 bytes.
+	int nMasks[128]; // 128*16 = enough masks for 2048 bytes.
 	const int iNumMasks = static_cast<int>(ceil(static_cast<float>(nMaskLen) / 16.f));
 
 	memset(nMasks, '\0', iNumMasks * sizeof(int));

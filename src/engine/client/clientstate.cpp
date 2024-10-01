@@ -162,6 +162,18 @@ float CClientState::GetFrameTime() const
     return m_flFrameTime;
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: registers net messages
+// Input  : *pClient - 
+//			*pChan - 
+// Output : true if setup was successful, false otherwise
+//---------------------------------------------------------------------------------
+bool CClientState::VConnectionStart(CClientState* pClient, CNetChan* pChan)
+{
+    pClient->RegisterNetMsgs(pChan);
+    return CClientState__ConnectionStart(pClient, pChan);
+}
+
 //------------------------------------------------------------------------------
 // Purpose: called when connection to the server has been closed
 //------------------------------------------------------------------------------
@@ -491,8 +503,18 @@ void CClientState::Reconnect()
     Cbuf_AddText(ECommandTarget_t::CBUF_FIRST_PLAYER, buf, cmd_source_t::kCommandSrcCode);
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: registers net messages
+// Input  : *chan
+//---------------------------------------------------------------------------------
+void CClientState::RegisterNetMsgs(CNetChan* chan)
+{
+    REGISTER_SVC_MSG(SetClassVar);
+}
+
 void VClientState::Detour(const bool bAttach) const
 {
+    DetourSetup(&CClientState__ConnectionStart, &CClientState::VConnectionStart, bAttach);
     DetourSetup(&CClientState__ConnectionClosing, &CClientState::VConnectionClosing, bAttach);
     DetourSetup(&CClientState__ProcessStringCmd, &CClientState::_ProcessStringCmd, bAttach);
     DetourSetup(&CClientState__ProcessServerTick, &CClientState::VProcessServerTick, bAttach);

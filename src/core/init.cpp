@@ -647,6 +647,12 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 	REGISTER(VSquirrel);
 	REGISTER(VScript);
 	REGISTER(VScriptShared);
+#ifndef CLIENT_DLL
+	REGISTER(VScriptServer);
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
+	REGISTER(VScriptClient);
+#endif // !DEDICATED
 
 	// Squirrel
 	REGISTER(VSquirrelAPI);

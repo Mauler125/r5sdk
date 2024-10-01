@@ -18,6 +18,8 @@
 #include "vscript_server.h"
 #include <engine/host_state.h>
 #include <networksystem/hostmanager.h>
+#include "player.h"
+#include <common/callback.h>
 
 /*
 =====================
@@ -275,6 +277,123 @@ namespace VScriptCode
             sq_pushbool(v, ::IsDedicated());
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
         }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: sets a class var on the server and each client
+        // TODO: it might also be good to research potential ways to track class var
+        // changes and sync them back to clients connecting after this has been called.
+        //-----------------------------------------------------------------------------
+        SQRESULT SetClassVarSynced(HSQUIRRELVM v)
+        {
+            const SQChar* key = nullptr;
+            sq_getstring(v, 2, &key);
+
+            if (!VALID_CHARSTAR(key))
+            {
+                v_SQVM_ScriptError("Empty or null class key");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            const SQChar* val = nullptr;
+            sq_getstring(v, 3, &val);
+
+            if (!VALID_CHARSTAR(val))
+            {
+                v_SQVM_ScriptError("Empty or null class var");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            const char* pArgs[3] = {
+                "_setClassVarServer",
+                key,
+                val
+            };
+
+            SVC_SetClassVar msg(key, val);
+            const CCommand cmd((int)V_ARRAYSIZE(pArgs), pArgs, cmd_source_t::kCommandSrcCode);
+
+            bool failure = false;
+            const int oldIdx = *g_nCommandClientIndex;
+
+            for (int i = 0; i < gpGlobals->maxClients; i++)
+            {
+                CClient* const client = g_pServer->GetClient(i);
+
+                // is this client fully connected
+                if (client->GetSignonState() != SIGNONSTATE::SIGNONSTATE_FULL)
+                    continue;
+
+                if (client->SendNetMsgEx(&msg, false, true, false))
+                {
+                    *g_nCommandClientIndex = client->GetUserID();
+                    v__setClassVarServer_f(cmd);
+                }
+                else // Not all clients have their class var set.
+                    failure = true;
+            }
+
+            *g_nCommandClientIndex = oldIdx;
+
+            sq_pushbool(v, !failure);
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+    }
+
+    namespace PlayerEntity
+    {
+        //-----------------------------------------------------------------------------
+        // Purpose: sets a class var on the server and each client
+        //-----------------------------------------------------------------------------
+        SQRESULT ScriptSetClassVar(HSQUIRRELVM v)
+        {
+            CPlayer* player = nullptr;
+
+            if (!v_sq_getentity(v, (SQEntity*)&player))
+                return SQ_ERROR;
+
+            const SQChar* key = nullptr;
+            sq_getstring(v, 2, &key);
+
+            if (!VALID_CHARSTAR(key))
+            {
+                v_SQVM_ScriptError("Empty or null class key");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            const SQChar* val = nullptr;
+            sq_getstring(v, 3, &val);
+
+            if (!VALID_CHARSTAR(val))
+            {
+                v_SQVM_ScriptError("Empty or null class var");
+                SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
+            }
+
+            CClient* const client = g_pServer->GetClient(player->GetEdict() - 1);
+            SVC_SetClassVar msg(key, val);
+
+            const bool success = client->SendNetMsgEx(&msg, false, true, false);
+
+            if (success)
+            {
+                const char* pArgs[3] = {
+                    "_setClassVarServer",
+                    key,
+                    val
+                };
+
+                const CCommand cmd((int)V_ARRAYSIZE(pArgs), pArgs, cmd_source_t::kCommandSrcCode);
+                const int oldIdx = *g_nCommandClientIndex;
+
+                *g_nCommandClientIndex = client->GetUserID();
+                v__setClassVarServer_f(cmd);
+
+                *g_nCommandClientIndex = oldIdx;
+            }
+
+            sq_pushbool(v, success);
+            SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
     }
 }
 
@@ -311,6 +430,8 @@ void Script_RegisterCoreServerFunctions(CSquirrelVM* s)
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SetAutoReloadState, "Set whether we can auto-reload the server", "void", "bool");
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, GetServerID, "Gets the current server ID", "string", "");
+
+    DEFINE_SERVER_SCRIPTFUNC_NAMED(s, SetClassVarSynced, "Change a variable in the class settings for server and all connected clients", "bool", "string, string");
 }
 
 //---------------------------------------------------------------------------------
@@ -333,4 +454,127 @@ void Script_RegisterAdminPanelFunctions(CSquirrelVM* s)
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, BanPlayerById, "Bans a player from the server by handle or nucleus id", "void", "string, string");
 
     DEFINE_SERVER_SCRIPTFUNC_NAMED(s, UnbanPlayer, "Unbans a player from the server by nucleus id or ip address", "void", "string");
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: script code class function registration
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerEntityClassFuncs()
+{
+    v_Script_RegisterServerEntityClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerPlayerClassFuncs()
+{
+    v_Script_RegisterServerPlayerClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+
+    g_serverScriptPlayerStruct->AddFunction("SetClassVar",
+        "ScriptSetClassVar",
+        "Change a variable in the player's class settings",
+        "bool",
+        "string, string",
+        5,
+        VScriptCode::PlayerEntity::ScriptSetClassVar);
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerAIClassFuncs()
+{
+    v_Script_RegisterServerAIClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerWeaponClassFuncs()
+{
+    v_Script_RegisterServerWeaponClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerProjectileClassFuncs()
+{
+    v_Script_RegisterServerProjectileClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerTitanSoulClassFuncs()
+{
+    v_Script_RegisterServerTitanSoulClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerPlayerDecoyClassFuncs()
+{
+    v_Script_RegisterServerPlayerDecoyClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerSpawnpointClassFuncs()
+{
+    v_Script_RegisterServerSpawnpointClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+//---------------------------------------------------------------------------------
+static void Script_RegisterServerFirstPersonProxyClassFuncs()
+{
+    v_Script_RegisterServerFirstPersonProxyClassFuncs();
+    static bool initialized = false;
+
+    if (initialized)
+        return;
+
+    initialized = true;
+}
+
+void VScriptServer::Detour(const bool bAttach) const
+{
+    DetourSetup(&v_Script_RegisterServerEntityClassFuncs, &Script_RegisterServerEntityClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerPlayerClassFuncs, &Script_RegisterServerPlayerClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerAIClassFuncs, &Script_RegisterServerAIClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerWeaponClassFuncs, &Script_RegisterServerWeaponClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerProjectileClassFuncs, &Script_RegisterServerProjectileClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerTitanSoulClassFuncs, &Script_RegisterServerTitanSoulClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerPlayerDecoyClassFuncs, &Script_RegisterServerPlayerDecoyClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerSpawnpointClassFuncs, &Script_RegisterServerSpawnpointClassFuncs, bAttach);
+    DetourSetup(&v_Script_RegisterServerFirstPersonProxyClassFuncs, &Script_RegisterServerFirstPersonProxyClassFuncs, bAttach);
 }

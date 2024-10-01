@@ -23,6 +23,7 @@
 #endif // !DEDICATED
 #include "engine/client/client.h"
 #include "engine/net.h"
+#include "engine/cmd.h"
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/enginetrace.h"
@@ -256,6 +257,33 @@ void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValu
 }
 
 #ifndef DEDICATED
+void setClassVarClient_f(const CCommand& args)
+{
+	v__setClassVarClient_f(args);
+}
+
+static ConCommand _setClassVarClient("_setClassVarClient", setClassVarClient_f, "Set a class var on the client", FCVAR_DEVELOPMENTONLY|FCVAR_CLIENTDLL|FCVAR_CHEAT|FCVAR_SERVER_CAN_EXECUTE);
+
+/*
+=====================
+Set_f
+
+  Set a class var on the server & client.
+=====================
+*/
+void Set_f(const CCommand& args)
+{
+	v__setClassVarClient_f(args);
+
+	const char* key = args.Arg(1);
+	const char* val = args.Arg(2);
+
+	char buf[256];
+	V_snprintf(buf, sizeof(buf), "_setClassVarServer %s \"%s\"\n", key, val);
+
+	Cbuf_AddText(ECommandTarget_t::CBUF_FIRST_PLAYER, buf, cmd_source_t::kCommandSrcInvalid);
+}
+
 /*
 =====================
 Mat_CrossHair_f
@@ -582,7 +610,6 @@ void UIScript_Reset_f()
 	v__UIScript_Reset_f();
 }
 #endif // !DEDICATED
-
 
 void VCallback::Detour(const bool bAttach) const
 {

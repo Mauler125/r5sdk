@@ -162,6 +162,15 @@ enum NetMessageType
 	clc_AntiCheat                   = 63,
 	clc_AntiCheatChallenge          = 64,
 	clc_GamepadMsg                  = 65,
+
+	// NOTE: if you make new netmessages, the order should be as follows:
+	// - NET (messages shared between server & client).
+	// - SVC (messages originating from the server).
+	// - CLC (messages originating from the client.
+	// Reorder message indices to retain consistency here.
+	// --------------------------------------------------------------------
+	// From here on, SDK netmessages are enumerated.
+	svc_SetClassVar                 = 66,
 };
 
 //-------------------------------------------------------------------------
@@ -176,10 +185,16 @@ enum NetMessageGroup
 class CNetMessage : public INetMessage
 {
 public:
+	virtual void	SetNetChannel(CNetChan* netchan) { m_NetChannel = netchan; }
+	virtual void	SetReliable(bool state) { m_bReliable = state; }
+	virtual bool	IsReliable(void) const { return m_bReliable; }
+	virtual int		GetGroup(void) const { return m_nGroup; }
+	virtual CNetChan* GetNetChannel(void) const { return m_NetChannel; }
+
 	int m_nGroup;
 	bool m_bReliable;
 	CNetChan* m_NetChannel;
-	INetMessageHandler* m_pMessageHandler;
+	INetChannelHandler* m_pMessageHandler;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -443,6 +458,43 @@ private:
 	int			m_nLength;	// data length in bits
 	bf_read		m_DataIn;
 	bf_write	m_DataOut;
+};
+
+class SVC_SetClassVar : public CNetMessage
+{
+public:
+	SVC_SetClassVar() = default;
+	SVC_SetClassVar(const char* setting, const char* var)
+	{
+		V_strncpy(m_szSetting, setting, sizeof(m_szSetting));
+		V_strncpy(m_szVariable, var, sizeof(m_szVariable));
+
+		m_szSetting[sizeof(m_szSetting) - 1] = '\0';
+		m_szVariable[sizeof(m_szVariable) - 1] = '\0';
+
+		m_nGroup = 2; // must be set to 2 to avoid being copied into replay buffer
+	}
+
+	virtual bool	ReadFromBuffer(bf_read* buffer);
+	virtual bool	WriteToBuffer(bf_write* buffer);
+
+	virtual bool	Process(void);
+
+	virtual int				GetType(void) const { return svc_SetClassVar; };
+	virtual const char*		GetName(void) const { return "svc_SetClassVar"; };
+
+	virtual const char*		ToString(void) const
+	{
+		static char szBuf[4096];
+		V_snprintf(szBuf, sizeof(szBuf), "%s: setting \"%s\", variable \"%s\"", this->GetName(), m_szSetting, m_szVariable);
+
+		return szBuf;
+	};
+
+	virtual size_t			GetSize(void) const { return sizeof(SVC_SetClassVar); }
+
+	char m_szSetting[128];
+	char m_szVariable[128];
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
