@@ -644,7 +644,7 @@ public:
 	bf_write	m_DataOut;
 };
 
-bool ShouldReplayMessage(const CNetMessage* msg);
+bool CanReplayMessage(const CNetMessage* msg);
 
 ///////////////////////////////////////////////////////////////////////////////
 class V_NetMessages : public IDetour

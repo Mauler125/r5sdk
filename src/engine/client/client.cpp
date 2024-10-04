@@ -339,7 +339,7 @@ void CClient::RegisterNetMsgs(CNetChan* chan)
 //---------------------------------------------------------------------------------
 bool CClient::SendNetMsgEx(CNetMessage* pMsg, bool bLocal, bool bForceReliable, bool bVoice)
 {
-	if (!ShouldReplayMessage(pMsg))
+	if (!CanReplayMessage(pMsg))
 	{
 		// Don't copy the message into the replay buffer.
 		pMsg->m_nGroup = NetMessageGroup::NoReplay;

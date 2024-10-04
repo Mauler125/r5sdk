@@ -151,10 +151,10 @@ bool Base_CmdKeyValues::WriteToBufferImpl(Base_CmdKeyValues* thisptr, bf_write* 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-// determine whether or not the message should be copied into the replay buffer,
+// determine whether or not the message can be copied into the replay buffer,
 // regardless of the 'CNetMessage::m_Group' type.
 ///////////////////////////////////////////////////////////////////////////////////
-bool ShouldReplayMessage(const CNetMessage* msg) // todo(amos): rename to 'CanReplayMessage'
+bool CanReplayMessage(const CNetMessage* msg)
 {
 	switch (msg->GetType())
 	{
