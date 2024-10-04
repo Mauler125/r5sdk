@@ -222,20 +222,26 @@ NavMeshPruneTool::NavMeshPruneTool() :
 
 NavMeshPruneTool::~NavMeshPruneTool()
 {
-	delete m_flags;
+	if (m_flags)
+		delete m_flags;
 }
 
 void NavMeshPruneTool::init(Editor* editor)
 {
 	m_editor = editor;
+	reset();
 }
 
 void NavMeshPruneTool::reset()
 {
 	m_hitPosSet = false;
 	m_ranPruneTool = false;
-	delete m_flags;
-	m_flags = 0;
+
+	if (m_flags)
+	{
+		delete m_flags;
+		m_flags = 0;
+	}
 }
 
 void NavMeshPruneTool::handleMenu()
