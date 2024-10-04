@@ -51,8 +51,6 @@
 #	include <cstring>
 #endif
 
-// todo(amos): we need to make a new PCH dedicated for the recast editor and
-// move the SDL2 and ImGui includes there!
 #include "thirdparty/imgui/imgui.h"
 #include "thirdparty/imgui/imgui_internal.h"
 #include "thirdparty/imgui/misc/imgui_style.h"
