@@ -154,7 +154,7 @@ void DrawServerHitboxes(bool bRunOverlays)
 	}
 }
 
-void CServerGameClients::ProcessUserCmds(CServerGameClients* thisp, edict_t edict,
+void CServerGameClients::_ProcessUserCmds(CServerGameClients* thisp, edict_t edict,
 	bf_read* buf, int numCmds, int totalCmds, int droppedPackets, bool ignore, bool paused)
 {
 	int i;
@@ -209,7 +209,7 @@ void VServerGameDLL::Detour(const bool bAttach) const
 {
 	DetourSetup(&CServerGameDLL__DLLInit, &CServerGameDLL::DLLInit, bAttach);
 	DetourSetup(&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage, bAttach);
-	DetourSetup(&CServerGameClients__ProcessUserCmds, CServerGameClients::ProcessUserCmds, bAttach);
+	DetourSetup(&CServerGameClients__ProcessUserCmds, CServerGameClients::_ProcessUserCmds, bAttach);
 	DetourSetup(&v_RunFrameServer, &RunFrameServer, bAttach);
 }
 

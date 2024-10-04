@@ -38,7 +38,7 @@ public: // Hook statics
 class CServerGameClients : public IServerGameClients
 {
 public:
-	static void ProcessUserCmds(CServerGameClients* thisp, edict_t edict, bf_read* buf,
+	static void _ProcessUserCmds(CServerGameClients* thisp, edict_t edict, bf_read* buf,
 		int numCmds, int totalCmds, int droppedPackets, bool ignore, bool paused);
 private:
 };

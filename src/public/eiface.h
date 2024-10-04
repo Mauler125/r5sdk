@@ -8,6 +8,7 @@
 #ifndef EIFACE_H
 #define EIFACE_H
 #include "edict.h"
+#include "tier1/cmd.h"
 #include "tier1/bitbuf.h"
 #include "tier1/keyvalues.h"
 
@@ -31,8 +32,29 @@ public:
 
 	// Client is going active
 	// If bLoadGame is true, don't spawn the player because its state is already setup.
-	virtual void ClientActive(edict_t nEntity, bool bLoadGame) = 0;
-	virtual void ClientFullyConnect(edict_t nEntity, bool bRestore) = 0;
+	virtual void			ClientActive(edict_t nEntity, bool bLoadGame) = 0;
+
+	virtual void			ClientFullyConnect(edict_t nEntity, bool bRestore) = 0;
+
+	// Client is disconnecting from server
+	virtual void			ClientDisconnect(edict_t nEntity, void* unk) = 0;
+
+	// Client is connected and should be put in the game
+	virtual void			ClientPutInServer(edict_t nEntity, const char* playername) = 0;
+
+	// The client has typed a command at the console
+	virtual void			ClientCommand(edict_t nEntity, const CCommand& args) = 0;
+
+	// A player changed one/several replicated cvars (name etc)
+	virtual void			ClientSettingsChanged(edict_t nEntity) = 0;
+
+	// A block of CUserCmds has arrived from the user, decode them and buffer for execution during player simulation
+	virtual void			ProcessUsercmds(edict_t nEntity, bf_read* buf, int numCmds, int totalCmds, int droppedPackets, bool ignore, bool paused) = 0;
+
+	virtual void*			sub_140D5F910(edict_t nEntity) = 0;
+
+	// The client has submitted a keyvalues command
+	virtual void			ClientCommandKeyValues(edict_t nEntity, KeyValues* pKeyValues) = 0;
 };
 
 #define INTERFACEVERSION_SERVERGAMECLIENTS_NEW    "ServerGameClients004"
