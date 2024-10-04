@@ -53,7 +53,7 @@ public:
 	int				GetModelIndex(void) const; // Virtual in-engine!
 	string_t		GetModelName(void) const;  // Virtual in-engine!
 
-	inline edict_t GetEdict(void) { return NetworkProp()->GetEdict(); }
+	inline edict_t GetEdict(void) const { return NetworkProp()->GetEdict(); }
 	inline string_t GetEntityName(void) const { return m_iName; }
 
 	inline int		GetFlags(void) const { return m_fFlags; }
