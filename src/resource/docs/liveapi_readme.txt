@@ -79,7 +79,7 @@ LiveAPI_WriteLogUsingCustomFields()
   NOTE: with tables, the key must be a string as this will be used to determine the custom field names, the values can
   be any of the aforementioned types.
 - Tables and arrays cannot be nested into them selfs as this would cause infinite recursion, and the maximum nesting
-  depth of a table or array is 64.
+  depth of a table or array is 128.
 
 For more technical information about the scripting API of the system, see the file
 `platform/scripts/vscripts/_live_api.gnut` (relative from the game executable `r5apex_ds.exe`).
