@@ -77,7 +77,7 @@ public:
 	void CaptureCallStack();
 	void WriteFile();
 
-	void CreateMessageProcess();
+	void CreateMessageProcess() const;
 	void CrashCallback() const;
 
 private:
@@ -125,9 +125,6 @@ private:
 	// Buffer containing the module name we crashed in.
 	CFmtStrQuietTruncationN<256> m_CrashingModule;
 
-	// Buffer containing cmd line arguments for the external crash message
-	// process.
-	CFmtStrQuietTruncationN<256> m_MessageCmdLine;
 	uint8_t m_nCrashMsgFlags;
 
 	// Set when called to prevent recursive calls.

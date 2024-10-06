@@ -502,15 +502,9 @@ void CCrashHandler::WriteFile()
 // Purpose: creates the crashmsg process displaying the error to the user
 // the process has to be separate as the current process is getting killed
 //-----------------------------------------------------------------------------
-void CCrashHandler::CreateMessageProcess()
+void CCrashHandler::CreateMessageProcess() const
 {
-	if (m_bMessageCreated)
-	{
-		// Crash message already displayed.
-		return;
-	}
-
-	m_bMessageCreated = true;
+	CFmtStrQuietTruncationN<256> messageCmdLine;
 
 	const PEXCEPTION_RECORD pExceptionRecord = m_pExceptionPointers->ExceptionRecord;
 	const PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
@@ -519,12 +513,11 @@ void CCrashHandler::CreateMessageProcess()
 		pExceptionRecord->ExceptionInformation[0] == 8 &&
 		pExceptionRecord->ExceptionInformation[1] != pContextRecord->Rip)
 	{
-		m_MessageCmdLine.Clear();
-		m_MessageCmdLine.Append(CRASHMESSAGE_MSG_EXECUTABLE" overclock");
+		messageCmdLine.Append(CRASHMESSAGE_MSG_EXECUTABLE" overclock");
 	}
 	else
 	{
-		m_MessageCmdLine.Format(CRASHMESSAGE_MSG_EXECUTABLE" crash %hhu \"%s\"",
+		messageCmdLine.Format(CRASHMESSAGE_MSG_EXECUTABLE" crash %hhu \"%s\"",
 			m_nCrashMsgFlags, m_CrashingModule.String());
 	}
 
@@ -533,7 +526,7 @@ void CCrashHandler::CreateMessageProcess()
 
 	startupInfo.cb = sizeof(STARTUPINFOA);
 
-	if (CreateProcessA(NULL, (LPSTR)m_MessageCmdLine.String(),
+	if (CreateProcessA(NULL, (LPSTR)messageCmdLine.String(),
 		NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
 	{
 		CloseHandle(processInfo.hProcess);
@@ -598,9 +591,6 @@ long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* const pExceptionIn
 
 	g_CrashHandler.WriteFile();
 
-	// Display the message to the user.
-	g_CrashHandler.CreateMessageProcess();
-
 	// Run the crash callback
 	g_CrashHandler.CrashCallback();
 
@@ -638,7 +628,6 @@ void CCrashHandler::Reset()
 {
 	m_Buffer.Clear();
 	m_CrashingModule.Clear();
-	m_MessageCmdLine.Clear();
 	m_nCrashMsgFlags = 0;
 }
 
