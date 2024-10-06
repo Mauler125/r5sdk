@@ -345,4 +345,6 @@ FORCEINLINE const char* ConVar::GetString(void) const
 void ConVar_Register(int nCVarFlag = 0, IConCommandBaseAccessor* pAccessor = NULL);
 void ConVar_Unregister();
 
+bool ConVar_IsRegistered();
+
 #endif // CONVAR_H

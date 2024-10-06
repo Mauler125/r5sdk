@@ -76,6 +76,11 @@ void ConVar_Unregister()
 	s_bRegistered = false;
 }
 
+bool ConVar_IsRegistered()
+{
+	return s_bRegistered;
+}
+
 ConCommandBase::~ConCommandBase(void)
 {
 	if (m_pszCustomUsageString)
