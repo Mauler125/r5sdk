@@ -581,10 +581,8 @@ void CheckSystemCPUForSSE2()
 
 	if (!(pi.m_bSSE && pi.m_bSSE2))
 	{
-		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-		{
-			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
-		}
+		MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK);
+		TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
 	}
 }
 
@@ -594,10 +592,8 @@ void CheckSystemCPUForSSE3()
 
 	if (!pi.m_bSSE3)
 	{
-		if (MessageBoxA(NULL, "SSE3 is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-		{
-			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
-		}
+		MessageBoxA(NULL, "SSE3 is required.", "Unsupported CPU", MB_ICONERROR | MB_OK);
+		TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
 	}
 }
 
@@ -607,10 +603,8 @@ void CheckSystemCPUForSupplementalSSE3()
 
 	if (!pi.m_bSSSE3)
 	{
-		if (MessageBoxA(NULL, "SSSE3 (Supplemental SSE3 Instructions) is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-		{
-			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
-		}
+		MessageBoxA(NULL, "SSSE3 (Supplemental SSE3 Instructions) is required.", "Unsupported CPU", MB_ICONERROR | MB_OK);
+		TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
 	}
 }
 
@@ -620,10 +614,8 @@ void CheckSystemCPUForPopCount()
 
 	if (!pi.m_bPOPCNT)
 	{
-		if (MessageBoxA(NULL, "POPCNT is required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-		{
-			TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
-		}
+		MessageBoxA(NULL, "POPCNT is required.", "Unsupported CPU", MB_ICONERROR | MB_OK);
+		TerminateProcess(GetCurrentProcess(), 0xFFFFFFFF);
 	}
 }
 
