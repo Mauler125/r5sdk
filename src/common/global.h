@@ -135,6 +135,15 @@ extern ConVar* rui_defaultDebugFontFace;
 extern ConVar* miles_language;
 #endif
 
+//-----------------------------------------------------------------------------
+// Purpose: checks if the accepted EULA is up to date.
+// Output : true on success, false on failure.
+//-----------------------------------------------------------------------------
+inline bool IsEULAUpToDate()
+{
+    return (eula_version_accepted->GetInt() == eula_version->GetInt());
+}
+
 void ConVar_InitShipped(void);
 void ConVar_PurgeShipped(void);
 void ConVar_PurgeHostNames(void);
