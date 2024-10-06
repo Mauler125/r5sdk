@@ -1,4 +1,7 @@
 #include "tier0/utility.h"
+#ifndef _TOOLS
+#include "tier0/commandline.h"
+#endif // !_TOOLS
 #include "init.h"
 #include "logdef.h"
 #include "logger.h"
@@ -320,10 +323,12 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 
 	if (exitCode) // Terminate the process if an exit code was passed.
 	{
-		if (MessageBoxA(NULL, Format("%s- %s", pszUpTime, formatted.c_str()).c_str(),
-			"SDK Error", MB_ICONERROR | MB_OK))
+#ifndef _TOOLS
+		if (!CommandLine()->CheckParm("-nomessagebox"))
+#endif // !_TOOLS
 		{
-			TerminateProcess(GetCurrentProcess(), exitCode);
+			MessageBoxA(NULL, Format("%s- %s", pszUpTime, formatted.c_str()).c_str(), "SDK Error", MB_ICONERROR | MB_OK);
 		}
+		TerminateProcess(GetCurrentProcess(), exitCode);
 	}
 }

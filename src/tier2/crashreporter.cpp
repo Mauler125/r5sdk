@@ -5,6 +5,7 @@
 //=============================================================================//
 #include "tier0/crashhandler.h"
 #include "tier0/cpu.h"
+#include "tier0/commandline.h"
 #include "tier2/curlutils.h"
 #include "tier2/crashreporter.h"
 
@@ -69,7 +70,8 @@ static inline string CrashReporter_FormatAttributes(const CCrashHandler* const h
 
 void CrashReporter_SubmitToCollector(const CCrashHandler* const handler)
 {
-	handler->CreateMessageProcess();
+	if (!CommandLine()->CheckParm("-nomessagebox"))
+		handler->CreateMessageProcess();
 
 	if (!CrashReporter_ShouldSubmitReport())
 		return;
