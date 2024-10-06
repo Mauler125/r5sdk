@@ -515,3 +515,22 @@ void ConCommand_PurgeShipped(void)
 	}
 #endif // DEDICATED
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if the accepted EULA is up to date.
+// Output : true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool IsEULAUpToDate()
+{
+#ifdef DEDICATED
+	// Users of the dedicated servers are by default agreeing to the EULA
+	// when using it. They can use it offline (not using the r5reloaded
+	// master servers) to not accept it. The challenge of implementing
+	// something that allows the dedi operator to agree to the EULA upon
+	// launch is that it will break the automation of spinning up dedi
+	// instances.
+	return true;
+#else
+	return (eula_version_accepted->GetInt() == eula_version->GetInt());
+#endif // DEDICATED
+}
