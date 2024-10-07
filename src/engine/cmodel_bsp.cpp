@@ -59,9 +59,12 @@ PakHandle_t CustomPakData_t::LoadAndAddPak(const char* const pakFile)
 //-----------------------------------------------------------------------------
 void CustomPakData_t::UnloadAndRemoveAll()
 {
-    for (; numHandles-1 >= CustomPakData_t::PAK_TYPE_COUNT; numHandles--)
+    // Base SDK paks should not be unloaded here, but only right before base
+    // engine paks are unloaded. Only unload user requested and level settings
+    // paks from here.
+    for (size_t i = CustomPakData_t::PAK_TYPE_COUNT; i < numHandles; i++)
     {
-        const PakHandle_t pakId = handles[numHandles-1];
+        const PakHandle_t pakId = handles[i];
 
         if (pakId == PAK_INVALID_HANDLE)
         {
@@ -70,7 +73,7 @@ void CustomPakData_t::UnloadAndRemoveAll()
         }
 
         g_pakLoadApi->UnloadAsync(pakId);
-        handles[numHandles-1] = PAK_INVALID_HANDLE;
+        handles[i] = PAK_INVALID_HANDLE;
     }
 }
 
