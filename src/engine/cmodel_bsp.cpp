@@ -230,8 +230,9 @@ void Mod_QueuedPakCacheFrame()
 
     const int numToProcess = startIndex;
 
-    if (startIndex <= 4)
+    if (startIndex <= CommonPakData_t::PAK_TYPE_LEVEL)
     {
+        bool keepLoaded = false;
         int numLeftToProcess = 4;
         CommonPakData_t* data = &g_commonPakData[4];
 
@@ -242,10 +243,6 @@ void Mod_QueuedPakCacheFrame()
                 PakLoadedInfo_s* const pakInfo = Pak_GetPakInfo(data->pakId);
                 PakStatus_e status;
 
-                // TODO: revisit this, this appears incorrect but also the way
-                // respawn does this. it this always supposed to be true on
-                // retail builds?
-                bool keepLoaded = true;
                 data->keepLoaded = true;
 
                 if (pakInfo->handle == data->pakId)
@@ -287,26 +284,18 @@ void Mod_QueuedPakCacheFrame()
                         break;
                     }
 
-                    // The old gather props is set if a model couldn't be
-                    // loaded properly. If we unload level assets, we just
-                    // enable the new implementation again and re-evaluate
-                    // on the next level load. If we load a missing/bad
-                    // model again, we toggle the old implementation as
-                    // otherwise the fallback models won't render; the new
-                    // gather props solution does not attempt to obtain
-                    // studio hardware data on bad mdl handles. See
-                    // 'GatherStaticPropsSecondPass_PreInit()' for details.
-                    g_StudioMdlFallbackHandler.DisableLegacyGatherProps();
-
                     g_pakLoadApi->UnloadAsync(data->pakId);
 
-                    Mod_UnloadPakFile(); // Unload mod pak files.
-
-                    if (s_pLevelSetKV)
+                    if (numLeftToProcess == CommonPakData_t::PAK_TYPE_LEVEL)
                     {
-                        // Delete current level settings if we drop all paks..
-                        s_pLevelSetKV->DeleteThis();
-                        s_pLevelSetKV = nullptr;
+                        Mod_UnloadPakFile(); // Unload mod pak files.
+
+                        if (s_pLevelSetKV)
+                        {
+                            // Delete current level settings if we drop all paks..
+                            s_pLevelSetKV->DeleteThis();
+                            s_pLevelSetKV = nullptr;
+                        }
                     }
                 }
 
@@ -519,6 +508,17 @@ void Mod_UnloadPakFile(void)
 
     g_StudioMdlFallbackHandler.ClearBadModelHandleCache();
     g_StudioMdlFallbackHandler.ClearSuppresionList();
+
+    // The old gather props is set if a model couldn't be
+    // loaded properly. If we unload level assets, we just
+    // enable the new implementation again and re-evaluate
+    // on the next level load. If we load a missing/bad
+    // model again, we toggle the old implementation as
+    // otherwise the fallback models won't render; the new
+    // gather props solution does not attempt to obtain
+    // studio hardware data on bad mdl handles. See
+    // 'GatherStaticPropsSecondPass_PreInit()' for details.
+    g_StudioMdlFallbackHandler.DisableLegacyGatherProps();
 }
 
 void VModel_BSP::Detour(const bool bAttach) const
