@@ -5,9 +5,9 @@
 #include "filesystem/filesystem.h"
 #include "vscript/ivscript.h"
 
-#define MOD_STATUS_LIST_FILE "mods.vdf"
-#define MOD_SETTINGS_FILE "mod.vdf"
 #define MOD_BASE_DIRECTORY "mods"
+#define MOD_STATUS_LIST_FILE MOD_BASE_DIRECTORY"/mods.vdf"
+#define MOD_SETTINGS_FILE "mod.vdf"
 
 class CModAppSystemGroup;
 
