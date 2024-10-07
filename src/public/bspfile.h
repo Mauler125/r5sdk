@@ -12,10 +12,10 @@
 
 enum
 {
-	LUMP_ENTITIES                        = 0x0000,
-	LUMP_PLANES                          = 0x0001,
-	LUMP_TEXTURE_DATA                    = 0x0002,
-	LUMP_VERTICES                        = 0x0003,
+	LUMP_ENTITIES                        = 0x0000, // SV
+	LUMP_PLANES                          = 0x0001, // SV
+	LUMP_TEXTURE_DATA                    = 0x0002, // SV
+	LUMP_VERTICES                        = 0x0003, // SV
 	LUMP_LIGHTPROBE_PARENT_INFOS         = 0x0004,
 	LUMP_SHADOW_ENVIRONMENTS             = 0x0005,
 	LUMP_UNUSED_6                        = 0x0006,
@@ -26,17 +26,17 @@ enum
 	LUMP_UNUSED_11                       = 0x000B,
 	LUMP_UNUSED_12                       = 0x000C,
 	LUMP_UNUSED_13                       = 0x000D,
-	LUMP_MODELS                          = 0x000E,
-	LUMP_SURFACE_NAMES                   = 0x000F,
-	LUMP_CONTENTS_MASKS                  = 0x0010,
-	LUMP_SURFACE_PROPERTIES              = 0x0011,
-	LUMP_BVH_NODES                       = 0x0012,
-	LUMP_BVH_LEAF_DATA                   = 0x0013,
-	LUMP_PACKED_VERTICES                 = 0x0014,
+	LUMP_MODELS                          = 0x000E, // SV
+	LUMP_SURFACE_NAMES                   = 0x000F, // SV
+	LUMP_CONTENTS_MASKS                  = 0x0010, // SV
+	LUMP_SURFACE_PROPERTIES              = 0x0011, // SV
+	LUMP_BVH_NODES                       = 0x0012, // SV
+	LUMP_BVH_LEAF_DATA                   = 0x0013, // SV
+	LUMP_PACKED_VERTICES                 = 0x0014, // SV
 	LUMP_UNUSED_21                       = 0x0015,
 	LUMP_UNUSED_22                       = 0x0016,
 	LUMP_UNUSED_23                       = 0x0017,
-	LUMP_ENTITY_PARTITIONS               = 0x0018,
+	LUMP_ENTITY_PARTITIONS               = 0x0018, // SV
 	LUMP_UNUSED_25                       = 0x0019,
 	LUMP_UNUSED_26                       = 0x001A,
 	LUMP_UNUSED_27                       = 0x001B,
@@ -49,8 +49,8 @@ enum
 	LUMP_UNUSED_34                       = 0x0022,
 
 	// The game lump is a method of adding game-specific lumps.
-	LUMP_GAME_LUMP                       = 0x0023,
-	LUMP_LEAF_WATER_DATA                 = 0x0024, // see 'Mod_LoadLeafs'
+	LUMP_GAME_LUMP                       = 0x0023, // SV
+	LUMP_LEAF_WATER_DATA                 = 0x0024, // SV // see 'Mod_LoadLeafs'
 	LUMP_UNKNOWN_37                      = 0x0025, // connected to VIS lumps
 	LUMP_UNKNOWN_38                      = 0x0026, // connected to CSM lumps
 	LUMP_UNKNOWN_39                      = 0x0027, // connected to VIS lumps
@@ -58,7 +58,7 @@ enum
 	// A pak file can be embedded in a .bsp now, and the file system will search the pak
 	//  file first for any referenced names, before deferring to the game directory 
 	//  file system/pak files and finally the base directory file system/pak files.
-	LUMP_PAKFILE                         = 0x0028,
+	LUMP_PAKFILE                         = 0x0028, // SV
 	LUMP_UNUSED_41                       = 0x0029,
 
 	// A map can have a number of cubemap entities in it which cause cubemap renders
@@ -75,8 +75,8 @@ enum
 	LUMP_UNUSED_51                       = 0x0033,
 	LUMP_UNUSED_52                       = 0x0034,
 	LUMP_UNUSED_53                       = 0x0035,
-	LUMP_WORLD_LIGHTS                    = 0x0036,
-	LUMP_WORLD_LIGHT_PARENT_INFOS        = 0x0037,
+	LUMP_WORLD_LIGHTS                    = 0x0036, // SV
+	LUMP_WORLD_LIGHT_PARENT_INFOS        = 0x0037, // SV
 	LUMP_UNUSED_56                       = 0x0038,
 	LUMP_UNUSED_57                       = 0x0039,
 	LUMP_UNUSED_58                       = 0x003A,
@@ -101,12 +101,12 @@ enum
 	LUMP_VERTEX_RESERVED_6               = 0x004D,
 	LUMP_VERTEX_RESERVED_7               = 0x004E,
 	LUMP_MESH_INDICES                    = 0x004F,
-	LUMP_MESHES                          = 0x0050,
+	LUMP_MESHES                          = 0x0050, // SV
 	LUMP_MESH_BOUNDS                     = 0x0051,
-	LUMP_MATERIAL_SORT                   = 0x0052,
+	LUMP_MATERIAL_SORT                   = 0x0052, // SV
 	LUMP_LIGHTMAP_HEADERS                = 0x0053,
 	LUMP_UNUSED_84                       = 0x0054,
-	LUMP_TWEAK_LIGHTS                    = 0x0055,
+	LUMP_TWEAK_LIGHTS                    = 0x0055, // SV
 	LUMP_UNUSED_86                       = 0x0056,
 	LUMP_UNUSED_87                       = 0x0057,
 	LUMP_UNUSED_88                       = 0x0058,
@@ -127,7 +127,7 @@ enum
 	LUMP_LIGHTPROBE_TREE                 = 0x0067,
 	LUMP_LIGHTPROBE_REFERENCES           = 0x0068,
 	LUMP_LIGHTMAP_DATA_REAL_TIME_LIGHTS  = 0x0069,
-	LUMP_CELL_BSP_NODES                  = 0x006A,
+	LUMP_CELL_BSP_NODES                  = 0x006A, // SV
 	LUMP_CELLS                           = 0x006B,
 	LUMP_PORTALS                         = 0x006C,
 	LUMP_PORTAL_VERTICES                 = 0x006D,
@@ -144,7 +144,7 @@ enum
 	LUMP_OBJ_REFERENCES                  = 0x0078,
 	LUMP_OBJ_REFERENCE_BOUNDS            = 0x0079,
 	LUMP_LIGHTMAP_DATA_RTL_PAGE          = 0x007A,
-	LUMP_LEVEL_INFO                      = 0x007B,
+	LUMP_LEVEL_INFO                      = 0x007B, // SV
 	LUMP_SHADOW_MESH_OPAQUE_VERTICES     = 0x007C,
 	LUMP_SHADOW_MESH_ALPHA_VERTICES      = 0x007D,
 	LUMP_SHADOW_MESH_INDICES             = 0x007E,
