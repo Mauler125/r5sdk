@@ -24,6 +24,7 @@ del /Q "%~dp0..\platform\cfg\englishserver_build_vpk.cfg"
 del /Q "%~dp0..\platform\cfg\englishserver_extract_vpk.cfg"
 del /Q "%~dp0..\platform\cfg\system\launcher.vdf"
 del /Q "%~dp0..\platform\cfg\system\keymap.vdf"
+del /Q "%~dp0..\platform\cfg\system\layout.ini"
 REM Remove deprecated pak files (these are no longer used).
 del /Q "%~dp0..\paks\Win32\common_empty.rpak"
 del /Q "%~dp0..\paks\Win32\common_sdk2.rpak"
