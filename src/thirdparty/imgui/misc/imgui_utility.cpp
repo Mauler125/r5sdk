@@ -18,10 +18,10 @@ void ImGuiConfig::Load()
     Msg(eDLL_T::MS, "Loading ImGui config file '%s'\n", svPath.c_str());
 
     FileSystem()->CreateDirHierarchy(SDK_USER_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
+
     KeyValues* pKeyMapKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_COMMON, svPath.c_str(), "PLATFORM");
     if (!pKeyMapKV)
     {
-        //Warning(eDLL_T::FS, "Failed to parse VPK build manifest: '%s'\n", svPathOut.c_str());
         return;
     }
 
