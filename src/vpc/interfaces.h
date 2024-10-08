@@ -49,7 +49,7 @@ public:
 };
 
 extern CFactorySystem g_FactorySystem;
-PLATFORM_INTERFACE IFactorySystem* GetFactorySystem();
+DLL_EXPORT IFactorySystem* GetFactorySystem();
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void*(*v_CreateInterfaceInternal)(const char* pName, int* pReturnCode);
