@@ -139,6 +139,7 @@
 #define SDK_ARRAYSIZE(arr) ((sizeof(arr) / sizeof(*arr))) // Name due to IMGUI implementation and NT implementation that we shouldn't share across everywhere.
 
 #define SDK_SYSTEM_CFG_PATH "cfg/system/"
+#define SDK_USER_CFG_PATH "cfg/user/"
 
 #define VALID_CHARSTAR(star) (star && star[0]) // Check if char* is valid and not empty.
 

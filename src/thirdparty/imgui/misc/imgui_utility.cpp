@@ -14,10 +14,10 @@
 
 void ImGuiConfig::Load()
 {
-    const string svPath = Format(SDK_SYSTEM_CFG_PATH"%s", IMGUI_BIND_FILE);
+    const string svPath = Format(SDK_USER_CFG_PATH"%s", IMGUI_BIND_FILE);
     Msg(eDLL_T::MS, "Loading ImGui config file '%s'\n", svPath.c_str());
 
-    FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
+    FileSystem()->CreateDirHierarchy(SDK_USER_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
     KeyValues* pKeyMapKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_COMMON, svPath.c_str(), "PLATFORM");
     if (!pKeyMapKV)
     {
@@ -44,10 +44,10 @@ void ImGuiConfig::Load()
 
 void ImGuiConfig::Save()
 {
-    const string svPath = Format(SDK_SYSTEM_CFG_PATH"%s", IMGUI_BIND_FILE);
+    const string svPath = Format(SDK_USER_CFG_PATH"%s", IMGUI_BIND_FILE);
     Msg(eDLL_T::MS, "Saving ImGui config file '%s'\n", svPath.c_str());
 
-    FileSystem()->CreateDirHierarchy(SDK_SYSTEM_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
+    FileSystem()->CreateDirHierarchy(SDK_USER_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
 
     KeyValues kv("KeyMap");
     KeyValues* pKeyMapKV = kv.FindKey("KeyMap", true);

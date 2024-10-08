@@ -563,7 +563,7 @@ void CSurface::Setup()
 void CSurface::LoadSettings()
 {
 	CUtlString settingsPath;
-	settingsPath.Format("platform/" SDK_SYSTEM_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
+	settingsPath.Format("platform/" SDK_USER_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
 
 	const char* pSettingsPath = settingsPath.String();
 
@@ -624,7 +624,7 @@ void CSurface::LoadSettings()
 void CSurface::SaveSettings()
 {
 	CUtlString settingsPath;
-	settingsPath.Format("platform/" SDK_SYSTEM_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
+	settingsPath.Format("platform/" SDK_USER_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
 
 	CUtlString settingsDir = settingsPath.DirName();
 
