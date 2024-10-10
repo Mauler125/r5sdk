@@ -108,6 +108,12 @@ struct BuildSettings
 
 class InputGeom
 {
+	enum MeshFormat
+	{
+		MESH_OBJ,
+		MESH_PLY
+	};
+
 	rcChunkyTriMesh* m_chunkyMesh;
 	IMeshLoader* m_mesh;
 	float m_meshBMin[3], m_meshBMax[3];
@@ -138,8 +144,7 @@ class InputGeom
 	int m_volumeCount;
 	///@}
 	
-	bool loadMesh(class rcContext* ctx, const std::string& filepath);
-	bool loadPlyMesh(class rcContext* ctx, const std::string& filepath);
+	bool loadMesh(class rcContext* ctx, const std::string& filepath, const MeshFormat format);
 	bool loadGeomSet(class rcContext* ctx, const std::string& filepath);
 public:
 	InputGeom();

@@ -125,7 +125,7 @@ InputGeom::~InputGeom()
 	delete m_mesh;
 }
 		
-bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
+bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath, const MeshFormat format)
 {
 	if (m_mesh)
 	{
@@ -137,49 +137,18 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	m_offMeshConCount = 0;
 	m_volumeCount = 0;
 	
-	m_mesh = new rcMeshLoaderObj;
-	if (!m_mesh)
+	switch (format)
 	{
-		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
-		return false;
-	}
-	if (!m_mesh->load(filepath))
-	{
-		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
-		return false;
+	case MESH_OBJ:
+		m_mesh = new rcMeshLoaderObj;
+		break;
+	case MESH_PLY:
+		m_mesh = new rcMeshLoaderPly;
+		break;
+	default: // Unhandled mesh format.
+		assert(0);
 	}
 
-	rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
-	rdVcopy(m_navMeshBMin, m_meshBMin);
-	rdVcopy(m_navMeshBMax, m_meshBMax);
-
-	m_chunkyMesh = new rcChunkyTriMesh;
-	if (!m_chunkyMesh)
-	{
-		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
-		return false;
-	}
-	if (!rcCreateChunkyTriMesh(m_mesh->getVerts(), m_mesh->getTris(), m_mesh->getTriCount(), 256, m_chunkyMesh))
-	{
-		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
-		return false;
-	}		
-
-	return true;
-}
-bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath)
-{
-	if (m_mesh)
-	{
-		delete m_chunkyMesh;
-		m_chunkyMesh = 0;
-		delete m_mesh;
-		m_mesh = 0;
-	}
-	m_offMeshConCount = 0;
-	m_volumeCount = 0;
-
-	m_mesh = new rcMeshLoaderPly;
 	if (!m_mesh)
 	{
 		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
@@ -209,6 +178,7 @@ bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath)
 
 	return true;
 }
+
 bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 {
 	//NB(warmist): tf2 not implemented here
@@ -271,7 +241,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 				name++;
 			if (*name)
 			{
-				if (!loadMesh(ctx, name))
+				if (!load(ctx, name))
 				{
 					delete [] buf;
 					return false;
@@ -410,9 +380,9 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath)
 	if (extension == ".gset")
 		return loadGeomSet(ctx, filepath);
 	if (extension == ".obj")
-		return loadMesh(ctx, filepath);
+		return loadMesh(ctx, filepath, MESH_OBJ);
 	if (extension == ".ply")
-		return loadPlyMesh(ctx, filepath);
+		return loadMesh(ctx, filepath, MESH_PLY);
 
 	return false;
 }
