@@ -294,18 +294,20 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, const int /*v
 	rdVcopy(m_hitPos, p);
 	m_hitPosSet = true;
 	
-	if (!m_flags)
-	{
-		m_flags = new NavmeshFlags;
-		m_flags->init(nav);
-	}
-	
 	const float halfExtents[3] = { 2, 2, 4 };
 	dtQueryFilter filter;
 	dtPolyRef ref = 0;
-	query->findNearestPoly(p, halfExtents, &filter, &ref, 0);
 
-	floodNavmesh(nav, m_flags, ref, 1);
+	if (dtStatusSucceed(query->findNearestPoly(p, halfExtents, &filter, &ref, 0)) && ref)
+	{
+		if (!m_flags)
+		{
+			m_flags = new NavmeshFlags;
+			m_flags->init(nav);
+		}
+
+		floodNavmesh(nav, m_flags, ref, 1);
+	}
 }
 
 void NavMeshPruneTool::handleToggle()
