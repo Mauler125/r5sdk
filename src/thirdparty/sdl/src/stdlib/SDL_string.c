@@ -1086,7 +1086,7 @@ SDL_strncmp(const char *str1, const char *str2, size_t maxlen)
 #if defined(HAVE_STRNCMP)
     return strncmp(str1, str2, maxlen);
 #else
-    while (*str1 && *str2 && maxlen) {
+    while (maxlen && *str1 && *str2) {
         if (*str1 != *str2)
             break;
         ++str1;
