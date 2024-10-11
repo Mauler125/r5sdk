@@ -18,6 +18,14 @@
 
 #include "NavEditor/Include/MeshLoaderObj.h"
 
+#ifdef _WIN32
+#define ftell64 _ftelli64
+#define fseeki64 _fseeki64
+#else
+#define ftell64 ftello
+#define fseeki64 fseeko
+#endif
+
 rcMeshLoaderObj::rcMeshLoaderObj() :
 	m_scale(1.0f),
 	m_verts(0),
@@ -139,18 +147,18 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 	FILE* fp = fopen(filename.c_str(), "rb");
 	if (!fp)
 		return false;
-	if (fseek(fp, 0, SEEK_END) != 0)
+	if (fseeki64(fp, 0, SEEK_END) != 0)
 	{
 		fclose(fp);
 		return false;
 	}
-	long bufSize = ftell(fp);
+	const ssize_t bufSize = ftell64(fp);
 	if (bufSize < 0)
 	{
 		fclose(fp);
 		return false;
 	}
-	if (fseek(fp, 0, SEEK_SET) != 0)
+	if (fseeki64(fp, 0, SEEK_SET) != 0)
 	{
 		fclose(fp);
 		return false;
@@ -161,7 +169,7 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 		fclose(fp);
 		return false;
 	}
-	size_t readLen = fread(buf, bufSize, 1, fp);
+	const size_t readLen = fread(buf, bufSize, 1, fp);
 	fclose(fp);
 
 	if (readLen != 1)
