@@ -764,9 +764,11 @@ Editor_TempObstacles::Editor_TempObstacles()
 
 Editor_TempObstacles::~Editor_TempObstacles()
 {
-	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
 	dtFreeTileCache(m_tileCache);
+
+	delete m_talloc;
+	delete m_tcomp;
+	delete m_tmproc;
 }
 
 void Editor_TempObstacles::handleSettings()

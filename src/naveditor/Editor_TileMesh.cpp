@@ -463,8 +463,6 @@ Editor_TileMesh::Editor_TileMesh() :
 Editor_TileMesh::~Editor_TileMesh()
 {
 	cleanup();
-	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
 }
 
 void Editor_TileMesh::handleSettings()
