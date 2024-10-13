@@ -1425,6 +1425,15 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 				if (!previd)
 				{
 					previd = rid++;
+
+					// todo(amos): figure out why this happens on very complex and large
+					// input geometry.
+					if (previd >= nsweeps)
+					{
+						ctx->log(RC_LOG_ERROR, "rcBuildLayerRegions: Sweep index out of bounds: previd (%d), nsweeps (%d).", previd, nsweeps);
+						return false;
+					}
+
 					sweeps[previd].rid = previd;
 					sweeps[previd].ns = 0;
 					sweeps[previd].nei = 0;
@@ -1734,6 +1743,15 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 				if (!previd)
 				{
 					previd = rid++;
+
+					// todo(amos): figure out why this happens on very complex and large
+					// input geometry.
+					if (previd >= nsweeps)
+					{
+						ctx->log(RC_LOG_ERROR, "rcBuildLayerRegions: Sweep index out of bounds: previd (%d), nsweeps (%d).", previd, nsweeps);
+						return false;
+					}
+
 					sweeps[previd].rid = previd;
 					sweeps[previd].ns = 0;
 					sweeps[previd].nei = 0;
