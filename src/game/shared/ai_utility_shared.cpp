@@ -192,7 +192,7 @@ void CAI_Utility::DrawNavMeshBVTree(
         return; // NavMesh for hull not loaded.
 
     OverlayBox_t::Transforms vTransforms;
-    for (int i = iBVTreeIndex, nt = pMesh->getTileCount(); i < nt; ++i)
+    for (int i = iBVTreeIndex, nt = pMesh->getMaxTiles(); i < nt; ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;
@@ -255,7 +255,7 @@ void CAI_Utility::DrawNavMeshPortals(const dtNavMesh* pMesh,
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    for (int i = iPortalIndex, nt = pMesh->getTileCount(); i < nt; ++i)
+    for (int i = iPortalIndex, nt = pMesh->getMaxTiles(); i < nt; ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;
@@ -375,7 +375,7 @@ void CAI_Utility::DrawNavMeshPolys(const dtNavMesh* pMesh,
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    for (int i = iPolyIndex; i < pMesh->getTileCount(); ++i)
+    for (int i = iPolyIndex; i < pMesh->getMaxTiles(); ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;
@@ -464,7 +464,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(const dtNavMesh* pMesh,
 
     const bool bDrawInner = navmesh_draw_poly_bounds_inner.GetBool();
 
-    for (int i = iBoundaryIndex, nt = pMesh->getTileCount(); i < nt; ++i)
+    for (int i = iBoundaryIndex, nt = pMesh->getMaxTiles(); i < nt; ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;

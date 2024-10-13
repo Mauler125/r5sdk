@@ -159,7 +159,7 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 
 static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 {
-	for (int i = 0; i < nav->getTileCount(); ++i)
+	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
 		const dtMeshTile* tile = nav->getTile(i);
 		dtMeshHeader* header = tile->header;
@@ -197,7 +197,7 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 
 static void removeUnlinkedTiles(dtNavMesh* nav)
 {
-	for (int i = nav->getTileCount(); i-- > 0;)
+	for (int i = nav->getMaxTiles(); i-- > 0;)
 	{
 		const dtMeshTile* tile = nav->getTile(i);
 		const dtMeshHeader* header = tile->header;

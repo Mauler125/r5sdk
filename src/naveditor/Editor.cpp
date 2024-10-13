@@ -844,7 +844,7 @@ void Editor::buildStaticPathingData()
 
 void Editor::connectOffMeshLinks()
 {
-	for (int i = 0; i < m_navMesh->getTileCount(); i++)
+	for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
 	{
 		dtMeshTile* target = m_navMesh->getTile(i);
 		const dtMeshHeader* header = target->header;

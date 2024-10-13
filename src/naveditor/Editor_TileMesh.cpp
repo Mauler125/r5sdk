@@ -706,18 +706,18 @@ void Editor_TileMesh::buildTile(const float* pos)
 		{
 			// If there are external off-mesh links landing on
 			// this tile, connect them.
-			for (int i = 0; i < m_navMesh->getTileCount(); i++)
+			for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
 			{
 				dtMeshTile* target = m_navMesh->getTile(i);
+				const dtMeshHeader* targetHeader = target->header;
+
+				if (!targetHeader)
+					continue;
+
 				const dtTileRef targetRef = m_navMesh->getTileRef(target);
 
 				// Connection to self has already been done above.
 				if (targetRef == tileRef)
-					continue;
-
-				const dtMeshHeader* targetHeader = target->header;
-
-				if (!targetHeader)
 					continue;
 
 				for (int j = 0; j < targetHeader->offMeshConCount; j++)

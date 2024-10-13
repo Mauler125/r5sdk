@@ -25,12 +25,15 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 	rdTempVector<float> elevationVec;
 
 	int totTraverseLinkCount = 0;
-	const int tileCount = mesh.getTileCount();
+	const int tileCount = mesh.getMaxTiles();
 
 	for (int i = 0; i < tileCount; i++)
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		const dtMeshHeader* header = tile->header;
+
+		if (!header)
+			continue;
 
 		bool writeTileDetail = false;
 
