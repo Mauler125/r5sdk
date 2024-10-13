@@ -207,6 +207,10 @@ struct dtTraverseTableCreateParams
 	///< The user installed callback which is used to determine if an animType
 	/// can use this traverse link.
 	bool (*canTraverse)(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex);
+
+	///< Collapses all unique linked poly groups into #DT_FIRST_USABLE_POLY_GROUP.
+	/// Must be set if there are more than UINT16_MAX polygon islands.
+	bool collapseGroups;
 };
 
 /// Builds navigation mesh disjoint poly groups from the provided parameters.

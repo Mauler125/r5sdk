@@ -131,6 +131,7 @@ Editor::Editor() :
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
 	m_traverseRayDynamicOffset(true),
+	m_collapseLinkedPolyGroups(true),
 	m_buildBvTree(true),
 	m_selectedNavMeshType(NAVMESH_SMALL),
 	m_loadedNavMeshType(NAVMESH_SMALL),
@@ -419,6 +420,8 @@ void Editor::handleCommonSettings()
 
 	if (ImGui::CollapsingHeader("Traverse Table Fine Tuner"))
 		renderTraverseTableFineTuners();
+
+	ImGui::Checkbox("Collapse Linked Poly Groups", &m_collapseLinkedPolyGroups);
 
 	if (ImGui::Checkbox("Dynamic Traverse Ray Offset", &m_traverseRayDynamicOffset))
 		m_traverseLinkDrawParams.dynamicOffset = m_traverseRayDynamicOffset;
@@ -827,6 +830,7 @@ void Editor::createTraverseTableParams(dtTraverseTableCreateParams* params)
 	params->tableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
 	params->navMeshType = m_selectedNavMeshType;
 	params->canTraverse = animTypeSupportsTraverseLink;
+	params->collapseGroups = m_collapseLinkedPolyGroups;
 }
 
 void Editor::buildStaticPathingData()

@@ -298,6 +298,14 @@ bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 			dtPoly& poly = tile->polys[j];
 			unsigned int plink = poly.firstLink;
 
+			if (params->collapseGroups)
+			{
+				if (plink != DT_NULL_LINK)
+					poly.groupId = DT_FIRST_USABLE_POLY_GROUP;
+
+				continue;
+			}
+
 			// Off-mesh connections need their own ID's, skip the assignment
 			// here since else we will be marking 2 (or more) poly islands 
 			// under the same group id.
@@ -359,7 +367,10 @@ bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 			dtPoly& poly = tile->polys[j];
 			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
 			{
-				const int id = set.find(poly.groupId);
+				const int id = params->collapseGroups
+					? DT_FIRST_USABLE_POLY_GROUP
+					: set.find(poly.groupId);
+
 				poly.groupId = (unsigned short)id;
 			}
 		}
@@ -437,35 +448,38 @@ bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 			tile->header->userId = 0;
 	}
 
-	// Gather all unique polygroups and map them to a contiguous range.
-	std::map<unsigned short, unsigned short> groupMap;
-	set.init(DT_FIRST_USABLE_POLY_GROUP);
-
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	if (!params->collapseGroups)
 	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
+		// Gather all unique polygroups and map them to a contiguous range.
+		std::map<unsigned short, unsigned short> groupMap;
+		set.init(DT_FIRST_USABLE_POLY_GROUP);
+
+		for (int i = 0; i < nav->getMaxTiles(); ++i)
 		{
-			dtPoly& poly = tile->polys[j];
-			unsigned short oldId = poly.groupId;
-			if (oldId != DT_UNLINKED_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
-				groupMap[oldId] = (unsigned short)set.insertNew();
+			dtMeshTile* tile = nav->getTile(i);
+			if (!tile || !tile->header || !tile->dataSize) continue;
+			const int pcount = tile->header->polyCount;
+			for (int j = 0; j < pcount; j++)
+			{
+				dtPoly& poly = tile->polys[j];
+				unsigned short oldId = poly.groupId;
+				if (oldId != DT_UNLINKED_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
+					groupMap[oldId] = (unsigned short)set.insertNew();
+			}
 		}
-	}
 
-	// Fourth pass to apply the new mapping to all polys.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
+		// Fourth pass to apply the new mapping to all polys.
+		for (int i = 0; i < nav->getMaxTiles(); ++i)
 		{
-			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
-				poly.groupId = groupMap[poly.groupId];
+			dtMeshTile* tile = nav->getTile(i);
+			if (!tile || !tile->header || !tile->dataSize) continue;
+			const int pcount = tile->header->polyCount;
+			for (int j = 0; j < pcount; j++)
+			{
+				dtPoly& poly = tile->polys[j];
+				if (poly.groupId != DT_UNLINKED_POLY_GROUP)
+					poly.groupId = groupMap[poly.groupId];
+			}
 		}
 	}
 
