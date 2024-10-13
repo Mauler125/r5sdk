@@ -278,7 +278,7 @@ void Editor::resetCommonSettings()
 	m_vertsPerPoly = 6;
 	m_detailSampleDist = 6.0f;
 	m_detailSampleMaxError = 1.0f;
-	m_partitionType = EDITOR_PARTITION_LAYERS;
+	m_partitionType = EDITOR_PARTITION_WATERSHED;
 
 	initTraverseMasks();
 	initTraverseTableParams();
