@@ -101,15 +101,24 @@ static void drawPolyMeshEdges(duDebugDraw* dd, const dtMeshTile* tile, const flo
 		const dtPolyDetail* pd = &tile->detailMeshes[i];
 
 		dd->begin(DU_DRAW_LINES, 1.0f, offset);
-		for (int k = 0; k < pd->triCount; ++k)
+		for (int j = 0; j < pd->triCount; ++j)
 		{
-			const unsigned char* t = &tile->detailTris[(pd->triBase+k)*4];
-			for (int m = 0; m < 3; ++m)
+			const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
+			const float* tv[3];
+			for (int k = 0; k < 3; ++k)
 			{
-				if (t[m] < p->vertCount)
-					dd->vertex(&tile->verts[p->verts[t[m]]*3], c);
+				if (t[k] < p->vertCount)
+					tv[k] = &tile->verts[p->verts[t[k]]*3];
 				else
-					dd->vertex(&tile->detailVerts[(pd->vertBase+t[m]-p->vertCount)*3], c);
+					tv[k] = &tile->detailVerts[(pd->vertBase+(t[k]-p->vertCount))*3];
+			}
+			for (int k = 0, l = 2; k < 3; l = k++)
+			{
+				if ((dtGetDetailTriEdgeFlags(t[3], l) & RD_DETAIL_EDGE_BOUNDARY))
+					continue;
+
+				dd->vertex(tv[l], c);
+				dd->vertex(tv[k], c);
 			}
 		}
 		dd->end();
