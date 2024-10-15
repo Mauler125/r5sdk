@@ -562,7 +562,7 @@ public:
 	unsigned int linksFreeList;			///Index to the next free link.
 	dtMeshHeader* header;				///The tile header.
 	dtPoly* polys;						///The tile polygons. [Size: dtMeshHeader::polyCount]
-	int* polyMap;						///TODO: needs to be reversed.
+	unsigned int* polyMap;				///TODO: needs to be reversed.
 	float* verts;						///The tile vertices. [Size: dtMeshHeader::vertCount]
 	dtLink* links;						///The tile links. [Size: dtMeshHeader::maxLinkCount]
 	dtPolyDetail* detailMeshes;			///The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]

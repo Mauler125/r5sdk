@@ -157,11 +157,11 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 	}
 }
 
-static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
+void NavMeshPruneTool::pruneUnvisitedTilesAndPolys(dtNavMesh* nav, NavmeshFlags* flags)
 {
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
-		const dtMeshTile* tile = nav->getTile(i);
+		dtMeshTile* tile = nav->getTile(i);
 		dtMeshHeader* header = tile->header;
 
 		if (!header) continue;
@@ -190,23 +190,14 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 		if (numUnlinkedPolys == header->polyCount)
 		{
 			header->userId = DT_FULL_UNLINKED_TILE_USER_ID;
-			continue;
+			nav->removeTile(nav->getTileRef(tile), 0, 0);
+		}
+		else
+		{
+			header->userId = DT_SEMI_UNLINKED_TILE_USER_ID;
+			dtUpdateNavMeshData(nav, (unsigned int)i);
 		}
 	}
-}
-
-static void removeUnlinkedTiles(dtNavMesh* nav)
-{
-	for (int i = nav->getMaxTiles(); i-- > 0;)
-	{
-		const dtMeshTile* tile = nav->getTile(i);
-		const dtMeshHeader* header = tile->header;
-
-		if (!header) continue;
-
-		if (header->userId == DT_FULL_UNLINKED_TILE_USER_ID)
-			nav->removeTile(nav->getTileRef(tile), 0, 0);
-	};
 }
 
 NavMeshPruneTool::NavMeshPruneTool() :
@@ -249,13 +240,6 @@ void NavMeshPruneTool::handleMenu()
 	dtNavMesh* nav = m_editor->getNavMesh();
 	if (!nav) return;
 
-	// todo(amos): once tile rebuilding is done, also remove unlinked polygons!
-	if (m_ranPruneTool && ImGui::Button("Remove Unlinked Tiles"))
-	{
-		removeUnlinkedTiles(nav);
-		m_ranPruneTool = false;
-	}
-
 	if (!m_flags) return;
 
 	if (ImGui::Button("Clear Selection"))
@@ -265,7 +249,7 @@ void NavMeshPruneTool::handleMenu()
 	
 	if (ImGui::Button("Prune Unselected"))
 	{
-		disableUnvisitedPolys(nav, m_flags);
+		pruneUnvisitedTilesAndPolys(nav, m_flags);
 		dtTraverseTableCreateParams params;
 
 		m_editor->createTraverseTableParams(&params);
@@ -294,7 +278,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, const int /*v
 	rdVcopy(m_hitPos, p);
 	m_hitPosSet = true;
 	
-	const float halfExtents[3] = { 2, 2, 4 };
+	const float halfExtents[3] = { 64, 64, 128 };
 	dtQueryFilter filter;
 	dtPolyRef ref = 0;
 

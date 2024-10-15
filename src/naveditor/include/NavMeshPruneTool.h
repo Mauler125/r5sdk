@@ -48,6 +48,8 @@ public:
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 
+	void pruneUnvisitedTilesAndPolys(dtNavMesh* nav, NavmeshFlags* flags);
+
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	NavMeshPruneTool(const NavMeshPruneTool&);

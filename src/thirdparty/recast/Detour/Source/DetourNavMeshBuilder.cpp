@@ -190,15 +190,15 @@ static bool createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& no
 		if (params->detailMeshes)
 		{
 			const int vb = (int)params->detailMeshes[i*4+0];
-			vertCount = (int)params->detailMeshes[i*4+1];
 
+			vertCount = (int)params->detailMeshes[i*4+1];
 			targetVert = &params->detailVerts[vb*3];
 		}
 		else
 		{
 			const int nvp = params->nvp;
-
 			const unsigned short* p = &params->polys[i*nvp * 2];
+
 			vertCount = rdCountPolyVerts(p, nvp);
 
 			for (int j = 0; j < vertCount; ++j)
@@ -237,6 +237,74 @@ static bool createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& no
 	}
 
 	subdivide(items, params->polyCount, 0, params->polyCount, nodes);
+	rdFree(items);
+
+	return true;
+}
+
+static bool rebuildBVTree(dtMeshTile* tile, const unsigned short* oldPolyIndices, const int polyCount, rdTempVector<BVItem>& nodes)
+{
+	BVItem* items = (BVItem*)rdAlloc(sizeof(BVItem)*polyCount, RD_ALLOC_TEMP);
+
+	if (!items)
+		return false;
+
+	// note(amos): reserve enough memory here to avoid reallocation during subdivisions.
+	if (!nodes.reserve(polyCount * 2))
+		return false;
+
+	const dtMeshHeader* header = tile->header;
+	const float quantFactor = header->bvQuantFactor;
+
+	for (int i = 0; i < polyCount; i++)
+	{
+		BVItem& it = items[i];
+		it.i = i;
+
+		const int oldPolyIndex = oldPolyIndices[i];
+		const dtPoly& poly = tile->polys[oldPolyIndex];
+
+		rdAssert(poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
+
+		//if (poly.getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+		//	continue;
+
+		const dtPolyDetail& detail = tile->detailMeshes[oldPolyIndex];
+
+		float bmin[3];
+		float bmax[3];
+
+		rdVset(bmin, FLT_MAX, FLT_MAX, FLT_MAX);
+		rdVset(bmax, -FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+		for (int j = 0; j < detail.triCount; ++j)
+		{
+			const unsigned char* t = &tile->detailTris[(detail.triBase + j) * 4];
+			float triVerts[3][3];
+
+			for (int k = 0; k < 3; ++k)
+			{
+				if (t[k] < poly.vertCount)
+					rdVcopy(triVerts[k], &tile->verts[poly.verts[t[k]] * 3]);
+				else
+					rdVcopy(triVerts[k], &tile->detailVerts[(detail.vertBase + t[k] - poly.vertCount) * 3]);
+
+				rdVmin(bmin, triVerts[k]);
+				rdVmax(bmax, triVerts[k]);
+			}
+		}
+
+		// BV-tree uses cs for all dimensions
+		it.bmin[0] = (unsigned short)rdClamp((int)((header->bmax[0] - bmax[0]) * quantFactor), 0, 0xffff);
+		it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - header->bmin[1]) * quantFactor), 0, 0xffff);
+		it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - header->bmin[2]) * quantFactor), 0, 0xffff);
+
+		it.bmax[0] = (unsigned short)rdClamp((int)((header->bmax[0] - bmin[0]) * quantFactor), 0, 0xffff);
+		it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - header->bmin[1]) * quantFactor), 0, 0xffff);
+		it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - header->bmin[2]) * quantFactor), 0, 0xffff);
+	}
+
+	subdivide(items, polyCount, 0, polyCount, nodes);
 	rdFree(items);
 
 	return true;
@@ -382,8 +450,15 @@ bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 
 static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* params, const int tableIndex)
 {
-	dtNavMesh* nav = params->nav;
+	if (params->collapseGroups)
+		return;
+
 	dtDisjointSet& set = params->sets[tableIndex];
+
+	if (!set.getSetCount())
+		return;
+
+	dtNavMesh* nav = params->nav;
 
 	// Sixth pass to handle traverse linked poly's.
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
@@ -513,6 +588,9 @@ bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 
 	nav->setTraverseTableSize(tableSize);
 	nav->setTraverseTableCount(tableCount);
+
+	if (!tableSize)
+		return true;
 
 	for (int i = 0; i < tableCount; i++)
 	{
@@ -703,10 +781,7 @@ static bool createPolyMeshCells(const dtNavMeshCreateParams* params, rdTempVecto
 				cellItems.resize(newCount);
 				CellItem& cell = cellItems[newCount-1];
 
-				cell.pos[0] = targetCellPos[0];
-				cell.pos[1] = targetCellPos[1];
-				cell.pos[2] = targetCellPos[2];
-
+				rdVcopy(cell.pos, targetCellPos);
 				cell.polyIndex = i;
 			}
 		}
@@ -1120,7 +1195,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	for (int i = 0; i < (int)treeItems.size(); i++)
 	{
 		dtBVNode& node = navBvtree[i];
-		BVItem& item = treeItems[i];
+		const BVItem& item = treeItems[i];
 
 		node.bmin[0] = item.bmin[0];
 		node.bmin[1] = item.bmin[1];
@@ -1161,7 +1236,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	}
 
 #if DT_NAVMESH_SET_VERSION >= 8
-	// Polygon cells.
+	// Store polygon cells.
 	for (int i = 0; i < (int)cellItems.size(); i++)
 	{
 		const CellItem& cellItem = cellItems[i];
@@ -1226,6 +1301,473 @@ bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int /*dataSize*/)
 	rdSwapEndian(&header->bvQuantFactor);
 
 	// Freelist index and pointers are updated when tile is added, no need to swap.
+
+	return true;
+}
+
+/// @par
+/// 
+/// This function will remove all polygons marked #DT_UNLINKED_POLY_GROUP from
+/// the tile. Its associated data, such as the detail polygons, links, cells,
+/// etc will also be removed. The BVTree is the only data that needs to be
+/// rebuilt as we have to re-subdivide the bounding volumes with only the
+/// polygons that remain to exist. Off-mesh connections that lack the poly flag
+/// #DT_POLYFLAGS_JUMP_LINKED will also be removed.
+bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
+{
+	dtMeshTile* tile = nav->getTile(tileIndex);
+	const dtMeshHeader* header = tile->header;
+
+	// Remove the tile instead of updating it!
+	rdAssert(header->userId != DT_FULL_UNLINKED_TILE_USER_ID);
+
+	rdScopedDelete<unsigned short> oldPolyIdMap((unsigned short*)rdAlloc(sizeof(unsigned short)*header->polyCount, RD_ALLOC_TEMP));
+	rdScopedDelete<unsigned short> newPolyIdMap((unsigned short*)rdAlloc(sizeof(unsigned short)*header->polyCount, RD_ALLOC_TEMP));
+
+	rdScopedDelete<unsigned short> oldVertIdMap((unsigned short*)rdAlloc(sizeof(unsigned short)*header->vertCount, RD_ALLOC_TEMP));
+	rdScopedDelete<unsigned short> newVertIdMap((unsigned short*)rdAlloc(sizeof(unsigned short)*header->vertCount, RD_ALLOC_TEMP));
+
+	memset(newVertIdMap, 0xff, sizeof(unsigned short)*header->vertCount);
+
+	rdScopedDelete<int> oldOffMeshConnIdMap((int*)rdAlloc(sizeof(int)*header->offMeshConCount, RD_ALLOC_TEMP));
+	rdScopedDelete<int> newOffMeshConnIdMap((int*)rdAlloc(sizeof(int)*header->offMeshConCount, RD_ALLOC_TEMP));
+
+	rdScopedDelete<unsigned int> oldLinkIdMap((unsigned int*)rdAlloc(sizeof(unsigned int)*header->maxLinkCount, RD_ALLOC_TEMP));
+	rdScopedDelete<unsigned int> newLinkIdMap((unsigned int*)rdAlloc(sizeof(unsigned int)*header->maxLinkCount, RD_ALLOC_TEMP));
+
+	memset(newLinkIdMap, 0xff, sizeof(unsigned int)*header->maxLinkCount);
+
+	int totPolyCount = 0, offMeshConCount = 0, detailTriCount = 0, portalCount = 0, detailVertCount = 0, vertCount = 0, maxLinkCount = 0;
+
+	// Iterate through this tile's polys, indexing them by their new poly ids
+	for (int i = 0; i < header->polyCount; i++)
+	{
+		const dtPoly& poly = tile->polys[i];
+
+		// Unlinked polygon, drop it.
+		if (poly.groupId == DT_UNLINKED_POLY_GROUP)
+			continue;
+
+		const bool isOffMeshConn = poly.getType() == DT_POLYTYPE_OFFMESH_CONNECTION;
+
+		if (isOffMeshConn)
+		{
+			// Unlinked off-mesh connection, drop it.
+			if (!(poly.flags & DT_POLYFLAGS_JUMP_LINKED))
+				continue;
+
+			for (int c = 0; c < header->offMeshConCount; c++)
+			{
+				const dtOffMeshConnection& conn = tile->offMeshCons[c];
+
+				if (conn.poly != i)
+					continue;
+
+				oldOffMeshConnIdMap[c] = offMeshConCount;
+				newOffMeshConnIdMap[offMeshConCount] = c;
+
+				offMeshConCount++;
+				break;
+			}
+		}
+		else
+		{
+			for (int j = 0; j < poly.vertCount; j++)
+			{
+				if (poly.neis[j] == RD_MESH_NULL_IDX)
+					continue;
+
+				if (poly.neis[j] & DT_EXT_LINK)
+					portalCount++;
+			}
+		}
+
+		oldPolyIdMap[totPolyCount] = (unsigned short)i;
+		newPolyIdMap[i] = (unsigned short)totPolyCount++;
+
+		// Flag this poly's vertices so we can throw out those that end up being
+		// eliminated. Skip vertices which have already been identified as this
+		// will also prevent us from creating duplicates (and will remove them if
+		// there are any in the input).
+		for (unsigned int v = 0; v < poly.vertCount; v++)
+		{
+			if (newVertIdMap[poly.verts[v]] != 0xffff)
+				continue;
+
+			oldVertIdMap[vertCount] = poly.verts[v];
+			newVertIdMap[poly.verts[v]] = (unsigned short)vertCount++;
+		}
+
+		// Off-mesh links don't have detail meshes.
+		if (!isOffMeshConn)
+		{
+			detailVertCount += tile->detailMeshes[i].vertCount;
+			detailTriCount += tile->detailMeshes[i].triCount;
+		}
+
+		// Flag all links connected to this polygon.
+		for (unsigned int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+		{
+			const dtLink& link = tile->links[k];
+
+			// Skip invalid and visited.
+			if (!link.ref || newLinkIdMap[k] != 0xffffffff)
+				continue;
+
+			oldLinkIdMap[maxLinkCount] = k;
+			newLinkIdMap[k] = maxLinkCount++;
+		}
+	}
+
+	if (!totPolyCount)
+	{
+		// This happens when all polygons in a tile are marked unreachable. The
+		// tile itself has to be removed entirely.
+		rdAssert(0);
+		return false;
+	}
+
+	// Count without off-mesh link polygons.
+	const int polyCount = totPolyCount - offMeshConCount;
+
+	rdTempVector<BVItem> treeItems;
+	if (header->bvNodeCount)
+	{
+		if (!rebuildBVTree(tile, oldPolyIdMap, polyCount, treeItems))
+		{
+			rdAssert(0);
+			return false;
+		}
+	}
+
+#if DT_NAVMESH_SET_VERSION >= 8
+	rdTempVector<CellItem> cellItems(header->maxCellCount);
+	int numCellsKept = 0;
+
+	for (int i = 0; i < header->maxCellCount; i++)
+	{
+		const dtCell& cell = tile->cells[i];
+		const dtPoly& poly = tile->polys[cell.polyIndex];
+
+		// Don't copy cells residing on dead polygons.
+		if (poly.groupId == DT_UNLINKED_POLY_GROUP)
+			continue;
+
+		CellItem& newCell = cellItems[numCellsKept++];
+
+		rdVcopy(newCell.pos, cell.pos);
+		newCell.polyIndex = newPolyIdMap[cell.polyIndex];
+	}
+#endif
+	const int polyMapCount = header->polyMapCount;
+
+	const int headerSize = rdAlign4(sizeof(dtMeshHeader));
+	const int vertsSize = rdAlign4(sizeof(float)*3*vertCount);
+	const int polysSize = rdAlign4(sizeof(dtPoly)*totPolyCount);
+	const int polyMapSize = rdAlign4(sizeof(int)*(polyMapCount*totPolyCount));
+	const int linksSize = rdAlign4(sizeof(dtLink)*maxLinkCount);
+	const int detailMeshesSize = rdAlign4(sizeof(dtPolyDetail)*polyCount);
+	const int detailVertsSize = rdAlign4(sizeof(float)*3*detailVertCount);
+	const int detailTrisSize = rdAlign4(sizeof(unsigned char)*4*detailTriCount);
+	const int bvTreeSize = rdAlign4(sizeof(dtBVNode)*(int)treeItems.size());
+	const int offMeshConsSize = rdAlign4(sizeof(dtOffMeshConnection)*offMeshConCount);
+#if DT_NAVMESH_SET_VERSION >= 8
+	const int cellsSize = rdAlign4(sizeof(dtCell)*numCellsKept);
+#endif
+
+	const unsigned int dataSize = headerSize + vertsSize + polysSize + polyMapSize + linksSize +
+		detailMeshesSize + detailVertsSize + detailTrisSize + 
+		bvTreeSize + offMeshConsSize
+#if DT_NAVMESH_SET_VERSION >= 8
+		+ cellsSize
+#endif
+		;
+
+	unsigned char* data = new unsigned char[dataSize];
+
+	if (!data)
+		return false;
+
+	memset(data, 0, dataSize);
+	unsigned char* d = data;
+
+	dtMeshHeader* newHeader = rdGetThenAdvanceBufferPointer<dtMeshHeader>(d, headerSize);
+	float* navVerts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
+	dtPoly* navPolys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
+	unsigned int* polyMap = rdGetThenAdvanceBufferPointer<unsigned int>(d, polyMapSize);
+	dtLink* links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
+	dtPolyDetail* navDMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
+	float* navDVerts = rdGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
+	unsigned char* navDTris = rdGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
+	dtBVNode* navBvtree = rdGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
+	dtOffMeshConnection* offMeshCons = rdGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
+#if DT_NAVMESH_SET_VERSION >= 8
+	dtCell* navCells = rdGetThenAdvanceBufferPointer<dtCell>(d, cellsSize);
+#endif
+
+	// Store header
+	newHeader->magic = DT_NAVMESH_MAGIC;
+	newHeader->version = DT_NAVMESH_VERSION;
+	newHeader->x = header->x;
+	newHeader->y = header->y;
+	newHeader->layer = header->layer;
+	newHeader->userId = 0;
+	newHeader->polyCount = totPolyCount;
+	newHeader->polyMapCount = polyMapCount;
+	newHeader->vertCount = vertCount;
+	newHeader->maxLinkCount = maxLinkCount;
+	newHeader->detailMeshCount = polyCount;
+	newHeader->detailVertCount = detailVertCount;
+	newHeader->detailTriCount = detailTriCount;
+	newHeader->bvNodeCount = (int)treeItems.size();
+	newHeader->offMeshConCount = offMeshConCount;
+	newHeader->offMeshBase = polyCount;
+#if DT_NAVMESH_SET_VERSION >= 8
+	newHeader->maxCellCount = numCellsKept;
+#endif
+	newHeader->walkableHeight = header->walkableHeight;
+	newHeader->walkableRadius = header->walkableRadius;
+	newHeader->walkableClimb = header->walkableClimb;
+	rdVcopy(newHeader->bmin, header->bmin);
+	rdVcopy(newHeader->bmax, header->bmax);
+	newHeader->bvQuantFactor = header->bvQuantFactor;
+
+	// Store vertices.
+	for (int i = 0; i < vertCount; i++)
+		rdVcopy(&navVerts[i*3], &tile->verts[oldVertIdMap[i]*3]);
+
+	// Store polygons.
+	for (int i = 0; i < totPolyCount; i++)
+	{
+		const dtPoly& ip = tile->polys[oldPolyIdMap[i]];
+		dtPoly& p = navPolys[i];
+
+		rdAssert(ip.groupId != DT_UNLINKED_POLY_GROUP);
+
+		p.firstLink = newLinkIdMap[ip.firstLink];
+		p.flags = ip.flags;
+		p.vertCount = ip.vertCount;
+		p.areaAndtype = ip.areaAndtype;
+		p.groupId = ip.groupId;
+		p.surfaceArea = ip.surfaceArea;
+#if DT_NAVMESH_SET_VERSION >= 7
+		p.unk1 = ip.unk1;
+		p.unk2 = ip.unk2;
+#endif
+		rdVcopy(p.center, ip.center);
+
+		for (int v = 0; v < p.vertCount; v++)
+			p.verts[v] = newVertIdMap[ip.verts[v]];
+
+		for (int n = 0; n < RD_VERTS_PER_POLYGON; n++)
+		{
+			// if this is a portal, leave these values unchanged
+			if (ip.neis[n] & DT_EXT_LINK || !ip.neis[n])
+				p.neis[n] = ip.neis[n];
+			else
+				p.neis[n] = newPolyIdMap[ip.neis[n]-1]+1;
+		}
+	}
+
+	// Store polymap.
+	for (int i = 0; i < polyMapCount; i++)
+	{
+		unsigned int* oldPolyMapBase = &tile->polyMap[i*header->polyCount];
+		unsigned int* newPolyMapBase = &polyMap[i*totPolyCount];
+
+		for (int j = 0; j < totPolyCount; j++)
+			newPolyMapBase[j] = oldPolyMapBase[oldPolyIdMap[j]];
+	}
+
+	// Fix up internal references and store links.
+	const dtPolyRef polyRefBase = nav->getPolyRefBase(tile);
+
+	for (int i = 0; i < maxLinkCount; i++)
+	{
+		const unsigned int oldIdx = oldLinkIdMap[i];
+
+		const dtLink& oldLink = tile->links[oldIdx];
+		dtLink& newLink = links[i];
+
+		unsigned int salt, it, ip;
+		nav->decodePolyId(oldLink.ref, salt, it, ip);
+
+		const bool sameTile = it == tileIndex;
+
+		const dtPolyRef newRef = sameTile
+			? (polyRefBase | (dtPolyRef)newPolyIdMap[ip])
+			: oldLink.ref;
+
+		const bool nullLink = oldLink.next == DT_NULL_LINK;
+
+		const unsigned int newNext = nullLink
+			? DT_NULL_LINK
+			: newLinkIdMap[oldLink.next];
+
+		const unsigned short newReverseLink = !sameTile
+			? oldLink.reverseLink
+			: oldLink.reverseLink == DT_NULL_TRAVERSE_REVERSE_LINK
+			? DT_NULL_TRAVERSE_REVERSE_LINK
+			: (unsigned short)newLinkIdMap[oldLink.reverseLink];
+
+		newLink.ref = newRef;
+		newLink.next = newNext;
+		newLink.edge = oldLink.edge;
+		newLink.side = oldLink.side;
+		newLink.bmin = oldLink.bmin;
+		newLink.bmax = oldLink.bmax;
+		newLink.traverseType = oldLink.traverseType;
+		newLink.traverseDist = oldLink.traverseDist;
+		newLink.reverseLink = newReverseLink;
+	}
+
+	// Fix up external reverences from neighboring tiles.
+	static const int MAX_NEIS = 32;
+	dtMeshTile* neis[MAX_NEIS];
+
+	for (int i = 0; i < 8; ++i)
+	{
+		const int nneis = nav->getNeighbourTilesAt(header->x, header->y, i, neis, MAX_NEIS);
+		for (int j = 0; j < nneis; ++j)
+		{
+			const dtMeshTile* neiTile = neis[j];
+			const dtMeshHeader* neiHdr = neiTile->header;
+
+			for (int k = 0; k < neiHdr->polyCount; k++)
+			{
+				const dtPoly& neiPoly = neiTile->polys[k];
+
+				for (unsigned int l = neiPoly.firstLink; l != DT_NULL_LINK; l = neiTile->links[l].next)
+				{
+					dtLink& neiLink = neiTile->links[l];
+
+					unsigned int salt, it, ip;
+					nav->decodePolyId(neiLink.ref, salt, it, ip);
+
+					if (it != tileIndex)
+						continue;
+
+					const dtPolyRef newRef = (polyRefBase | (dtPolyRef)newPolyIdMap[ip]);
+					neiLink.ref = newRef;
+
+					if (neiLink.reverseLink != DT_NULL_TRAVERSE_REVERSE_LINK)
+						neiLink.reverseLink = (unsigned short)newLinkIdMap[neiLink.reverseLink];
+				}
+			}
+		}
+	}
+
+	// Store detail meshes.
+	unsigned int vbase = 0;
+	unsigned int tbase = 0;
+	for (int i = 0; i < polyCount; i++)
+	{
+		const int oldPolyId = oldPolyIdMap[i];
+		const dtPoly& oldPoly = tile->polys[oldPolyId];
+
+		rdAssert(oldPoly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
+
+		const dtPolyDetail& oldDetail = tile->detailMeshes[oldPolyId];
+		dtPolyDetail& newDetail = navDMeshes[i];
+
+		const unsigned int vertBase = oldDetail.vertBase;
+		const unsigned char dVertCount = oldDetail.vertCount;
+		const unsigned int triBase = oldDetail.triBase;
+		const unsigned char triCount = oldDetail.triCount;
+
+		newDetail.vertBase = vbase;
+		newDetail.vertCount = dVertCount;
+		newDetail.triBase = tbase;
+		newDetail.triCount = triCount;
+
+		for (unsigned char j = 0; j < triCount; j++)
+		{
+			// Copy four bytes (first 3 for vertex indices for the triangle, 4th for flags)
+			memcpy(&navDTris[tbase++*4], &tile->detailTris[(triBase+j)*4], sizeof(unsigned char)*4);
+		}
+
+		for (unsigned char j = 0; j < dVertCount; j++)
+			rdVcopy(&navDVerts[vbase++*3], &tile->detailVerts[(vertBase+j)*3]);
+	}
+
+	// Store BVTree.
+	if (bvTreeSize)
+	{
+		for (int i = 0; i < (int)treeItems.size(); i++)
+		{
+			const BVItem& item = treeItems[i];
+			dtBVNode& node = navBvtree[i];
+
+			node.bmin[0] = item.bmin[0];
+			node.bmin[1] = item.bmin[1];
+			node.bmin[2] = item.bmin[2];
+			node.bmax[0] = item.bmax[0];
+			node.bmax[1] = item.bmax[1];
+			node.bmax[2] = item.bmax[2];
+			node.i = item.i;
+		}
+	}
+
+	// Store Off-Mesh connections.
+	for (int i = 0; i < offMeshConCount; i++)
+	{
+		const dtOffMeshConnection& oldConn = tile->offMeshCons[oldOffMeshConnIdMap[i]];
+		dtOffMeshConnection& newConn = offMeshCons[i];
+
+		rdVcopy(&newConn.pos[0], &oldConn.pos[0]);
+		rdVcopy(&newConn.pos[3], &oldConn.pos[3]);
+		newConn.rad = oldConn.rad;
+		newConn.poly = newPolyIdMap[oldConn.poly];
+		newConn.side = oldConn.side;
+		newConn.userId = oldConn.userId;
+#if DT_NAVMESH_SET_VERSION >= 7
+		newConn.traverseType = oldConn.traverseType;
+		newConn.hintIndex = oldConn.hintIndex;
+#else
+		newConn.flags = oldConn.flags;
+		newConn.traverseContext = oldConn.traverseContext;
+#endif
+		rdVcopy(newConn.refPos, oldConn.refPos);
+		newConn.refYaw = oldConn.refYaw;
+#if DT_NAVMESH_SET_VERSION >= 9
+		rdVcopy(&newConn.secPos[0], &oldConn.secPos[0]);
+		rdVcopy(&newConn.secPos[3], &oldConn.secPos[3]);
+#endif
+	}
+
+#if DT_NAVMESH_SET_VERSION >= 8
+	// Store polygon cells.
+	for (int i = 0; i < numCellsKept; i++)
+	{
+		const CellItem& cellItem = cellItems[i];
+		dtCell& cell = navCells[i];
+
+		rdVcopy(cell.pos, cellItem.pos);
+		cell.polyIndex = cellItem.polyIndex;
+		cell.setOccupied();
+	}
+#endif
+
+	// Free old data.
+	rdFree(tile->data);
+
+	// Store tile.
+	tile->linksFreeList = DT_NULL_LINK; // All null links are pruned at this point.
+	tile->header = newHeader;
+	tile->verts = navVerts;
+	tile->polys = navPolys;
+	tile->polyMap = polyMap;
+	tile->links = links;
+	tile->detailMeshes = navDMeshes;
+	tile->detailVerts = navDVerts;
+	tile->detailTris = navDTris;
+	tile->bvTree = navBvtree;
+	tile->offMeshCons = offMeshCons;
+#if DT_NAVMESH_SET_VERSION >= 8
+	tile->cells = navCells;
+#endif
+	tile->data = data;
+	tile->dataSize = dataSize;
 
 	return true;
 }

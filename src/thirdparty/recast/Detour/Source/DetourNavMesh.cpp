@@ -191,6 +191,11 @@ int dtCalcTraverseTableCellIndex(const int numPolyGroups,
 
 int dtCalcTraverseTableSize(const int numPolyGroups)
 {
+	// If we only have 2 poly groups, we don't need a traverse table as group
+	// 1 is for unlinked polygons and group 2 for linked polygons.
+	if (numPolyGroups <= 2)
+		return 0;
+
 	return sizeof(int)*(numPolyGroups*((numPolyGroups+(RD_BITS_PER_BIT_CELL-1))/RD_BITS_PER_BIT_CELL));
 }
 
@@ -1414,7 +1419,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	unsigned char* d = data + headerSize;
 	tile->verts = rdGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	tile->polys = rdGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
-	tile->polyMap = rdGetThenAdvanceBufferPointer<int>(d, polyMapSize);
+	tile->polyMap = rdGetThenAdvanceBufferPointer<unsigned int>(d, polyMapSize);
 	tile->links = rdGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	tile->detailMeshes = rdGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
 	tile->detailVerts = rdGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
@@ -1616,11 +1621,13 @@ int dtNavMesh::getMaxTiles() const
 
 dtMeshTile* dtNavMesh::getTile(int i)
 {
+	rdAssert(i >= 0 && i < m_maxTiles);
 	return &m_tiles[i];
 }
 
 const dtMeshTile* dtNavMesh::getTile(int i) const
 {
+	rdAssert(i >= 0 && i < m_maxTiles);
 	return &m_tiles[i];
 }
 

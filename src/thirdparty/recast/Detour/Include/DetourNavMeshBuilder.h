@@ -25,7 +25,6 @@
 /// @ingroup detour
 struct dtNavMeshCreateParams
 {
-
 	/// @name Polygon Mesh Attributes
 	/// Used to create the base navigation graph.
 	/// See #rcPolyMesh for details related to these attributes.
@@ -239,12 +238,20 @@ bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params);
 /// @return True if the tile data was successfully created.
 bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData, int* outDataSize);
 
-/// Swaps the endianess of the tile data's header (#dtMeshHeader).
+/// Updates navigation mesh tiles by removing all unlinked polygons.
+/// @ingroup detour
+/// @param[in]		nav			The navmesh containing the tile.
+/// @param[in]		tileIndex	The index of the tile to update.
+/// @return True if the tile data was successfully updated.
+class dtNavMesh;
+bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex);
+
+/// Swaps the endianness of the tile data's header (#dtMeshHeader).
 ///  @param[in,out]	data		The tile data array.
 ///  @param[in]		dataSize	The size of the data array.
 bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize);
 
-/// Swaps endianess of the tile data.
+/// Swaps endianness of the tile data.
 ///  @param[in,out]	data		The tile data array.
 ///  @param[in]		dataSize	The size of the data array.
 bool dtNavMeshDataSwapEndian(unsigned char* data, const int dataSize);
