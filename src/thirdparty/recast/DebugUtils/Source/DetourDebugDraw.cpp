@@ -354,14 +354,21 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			dd->vertex(targetStartPos, col);
 			dd->vertex(targetEndPos, col);
 
-			const bool hasReverseLink = link->reverseLink != DT_NULL_TRAVERSE_REVERSE_LINK;
+			bool hasValidReverseLink = false;
 
-			if (hasReverseLink)
+			if (link->reverseLink != DT_NULL_TRAVERSE_REVERSE_LINK)
 			{
-				// If the reverse link is set, render white crosses to confirm
-				// the links are set properly.
-				duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, duRGBA(255,255,255,196));
+				dtLink& reverseLink = endTile->links[link->reverseLink];
+
+				if (reverseLink.ref == basePolyRef)
+					hasValidReverseLink = true;
 			}
+
+			// If the reverse link is set, render light crosses to confirm
+			// the links are set properly, else render dark which will make
+			// them look incomplete.
+			const unsigned int crossCol = hasValidReverseLink ? duRGBA(255, 255, 255, 196) : duRGBA(0, 0, 0, 196);
+			duAppendCross(dd, startPos[0], startPos[1], startPos[2], 10.f, crossCol);
 
 			dd->end();
 		}
