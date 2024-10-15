@@ -1405,10 +1405,15 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 			verts[j*3+0] += orig[0];
 			verts[j*3+1] += orig[1];
 
-			// note(amos): the offset appears to be necessary, otherwise BVTrees
+			// note(amos): the offset appears to be necessary, otherwise BVTree's
 			// are built below the polygon.
 			// see https://github.com/recastnavigation/recastnavigation/issues/647
-			verts[j*3+2] += orig[2] + chf.ch; // Is this offset necessary?
+			// note(amos): this offset actually appears unnecessary, the BVTree's
+			// appeared under the polygon as we were rendering them incorrectly,
+			// and at the time of the initial comment, the BVTree wasn't computed
+			// correctly after the coordinate system conversion. Commented out
+			// the cell height offset.
+			verts[j*3+2] += orig[2]/* + chf.ch*/; // Is this offset necessary?
 		}
 		// Offset poly too, will be used to flag checking.
 		for (int j = 0; j < npoly; ++j)
