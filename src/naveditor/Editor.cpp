@@ -255,7 +255,7 @@ void Editor::resetCommonSettings()
 #endif
 
 	m_cellSize = 16.0f;
-	m_cellHeight = 5.85f;
+	m_cellHeight = 32.0f;
 	m_traverseLinkDrawParams.dynamicOffset = m_traverseRayDynamicOffset;
 	m_traverseLinkDrawParams.cellHeight = m_cellHeight;
 
