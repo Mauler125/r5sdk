@@ -322,150 +322,27 @@ static void setPolyGroupsTraversalReachability(int* const tableData, const int n
 		tableData[index] &= ~value;
 }
 
-bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
-{
-	dtNavMesh* nav = params->nav;
-	dtDisjointSet& set = params->sets[0];
-
-	rdAssert(nav);
-
-	// Reserve the first poly groups
-	// 0 = DT_NULL_POLY_GROUP.
-	// 1 = DT_UNLINKED_POLY_GROUP.
-	set.init(DT_FIRST_USABLE_POLY_GROUP);
-
-	// Clear all labels.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-
-			poly.groupId = DT_NULL_POLY_GROUP;
-#if DT_NAVMESH_SET_VERSION >= 7
-			// NOTE: these fields are unknown and need to be reversed.
-			// It is possible these are used internally only.
-			poly.unk1 = (unsigned short)-1;
-			poly.unk2 = (unsigned short)-1;
-#endif
-		}
-	}
-
-	// First pass to group poly islands.
-	std::set<unsigned short> linkedGroups;
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			unsigned int plink = poly.firstLink;
-
-			if (params->collapseGroups)
-			{
-				if (plink != DT_NULL_LINK)
-					poly.groupId = DT_FIRST_USABLE_POLY_GROUP;
-
-				continue;
-			}
-
-			// Off-mesh connections need their own ID's, skip the assignment
-			// here since else we will be marking 2 (or more) poly islands 
-			// under the same group id.
-			// NOTE: when we implement jump links, we will have to check on
-			// these here as well! They also shouldn't merge 2 islands together.
-			// Ultimately, the jump links should only be used during traverse
-			// table building to mark linked islands as reachable.
-			if (poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
-			{
-				while (plink != DT_NULL_LINK)
-				{
-					const dtLink l = tile->links[plink];
-
-					// Polygons linked with traverse links are not necessarily on
-					// the same group, these should be skipped.
-					if (l.traverseType != DT_NULL_TRAVERSE_TYPE)
-					{
-						plink = l.next;
-						continue;
-					}
-
-					const dtMeshTile* t;
-					const dtPoly* p;
-					nav->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
-
-					if (p->groupId != DT_NULL_POLY_GROUP)
-						linkedGroups.insert(p->groupId);
-
-					plink = l.next;
-				}
-			}
-
-			const bool noLinkedGroups = linkedGroups.empty();
-
-			if (noLinkedGroups)
-				poly.groupId = (unsigned short)set.insertNew();
-			else
-			{
-				const unsigned short rootGroup = *linkedGroups.begin();
-				poly.groupId = rootGroup;
-
-				for (const int linkedGroup : linkedGroups)
-					set.setUnion(rootGroup, linkedGroup);
-			}
-
-			if (!noLinkedGroups)
-				linkedGroups.clear();
-		}
-	}
-
-	// Second pass to ensure all poly's have their root disjoint set ID.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-			if (poly.groupId != DT_UNLINKED_POLY_GROUP)
-			{
-				const int id = params->collapseGroups
-					? DT_FIRST_USABLE_POLY_GROUP
-					: set.find(poly.groupId);
-
-				poly.groupId = (unsigned short)id;
-			}
-		}
-	}
-
-	nav->setPolyGroupCount(set.getSetCount());
-	return true;
-}
-
 static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* params, const int tableIndex)
 {
-	if (params->collapseGroups)
-		return;
-
+	rdAssert(!params->collapseGroups);
 	dtDisjointSet& set = params->sets[tableIndex];
 
 	if (!set.getSetCount())
 		return;
 
 	dtNavMesh* nav = params->nav;
+	const int maxTiles = nav->getMaxTiles();
 
-	// Sixth pass to handle traverse linked poly's.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
+	// Handle traverse linked poly's.
+	for (int i = 0; i < maxTiles; ++i)
 	{
 		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
+		const dtMeshHeader* header = tile->header;
+
+		if (!header)
+			continue;
+
+		const int pcount = header->polyCount;
 		for (int j = 0; j < pcount; j++)
 		{
 			dtPoly& poly = tile->polys[j];
@@ -487,76 +364,76 @@ static void unionTraverseLinkedPolyGroups(const dtTraverseTableCreateParams* par
 	}
 }
 
-bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
+static bool floodPolygonIsland(dtNavMesh* nav, dtDisjointSet& set, const dtPolyRef startRef)
 {
-	dtNavMesh* nav = params->nav;
+	std::set<dtPolyRef> visitedPolys;
+	rdPermVector<dtPolyRef> openList;
+
+	openList.push_back(startRef);
+
+	while (!openList.empty())
+	{
+		dtPolyRef polyRef = openList.back();
+		openList.pop_back();
+
+		// Skip already visited polygons.
+		if (visitedPolys.find(polyRef) != visitedPolys.end())
+			continue;
+
+		visitedPolys.insert(polyRef);
+		unsigned int salt, it, ip;
+
+		nav->decodePolyId(polyRef, salt, it, ip);
+
+		dtMeshTile* currentTile = nav->getTile(it);
+		dtPoly* poly = &currentTile->polys[ip];
+
+		if (poly->groupId == DT_NULL_POLY_GROUP)
+		{
+			const int newGroup = set.insertNew();
+
+			// Overflow, too many polygon islands.
+			if (newGroup == -1)
+				return false;
+
+			poly->groupId = (unsigned short)newGroup;
+		}
+
+		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = currentTile->links[i].next)
+		{
+			const dtLink& link = currentTile->links[i];
+
+			// Skip traverse links as these can join separate islands together.
+			if (link.traverseType != DT_NULL_TRAVERSE_TYPE)
+				continue;
+
+			const dtPolyRef neiRef = link.ref;
+
+			if (visitedPolys.find(neiRef) == visitedPolys.end())
+			{
+				nav->decodePolyId(neiRef, salt, it, ip);
+
+				dtMeshTile* neiTile = nav->getTile(it);
+				dtPoly* neiPoly = &neiTile->polys[ip];
+
+				if (neiPoly->groupId != DT_NULL_POLY_GROUP)
+					continue;
+
+				if (neiPoly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
+				{
+					neiPoly->groupId = poly->groupId;
+					openList.push_back(neiRef);
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+static void copyBaseDisjointSets(const dtTraverseTableCreateParams* params)
+{
 	dtDisjointSet& set = params->sets[0];
-
-	// Third pass to mark all unlinked poly's.
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = nav->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		const int pcount = tile->header->polyCount;
-		int numUnlinkedPolys = 0;
-		for (int j = 0; j < pcount; j++)
-		{
-			dtPoly& poly = tile->polys[j];
-
-			// This poly isn't connected to anything, mark it so the game
-			// won't consider this poly in path generation.
-			if (poly.firstLink == DT_NULL_LINK)
-			{
-				poly.groupId = DT_UNLINKED_POLY_GROUP;
-				numUnlinkedPolys++;
-			}
-		}
-
-		if (numUnlinkedPolys)
-		{
-			tile->header->userId = (numUnlinkedPolys == tile->header->polyCount)
-				? DT_FULL_UNLINKED_TILE_USER_ID
-				: DT_SEMI_UNLINKED_TILE_USER_ID;
-		}
-		else if (tile->header->userId == DT_FULL_UNLINKED_TILE_USER_ID 
-			|| tile->header->userId == DT_SEMI_UNLINKED_TILE_USER_ID)
-			tile->header->userId = 0;
-	}
-
-	if (!params->collapseGroups)
-	{
-		// Gather all unique polygroups and map them to a contiguous range.
-		std::map<unsigned short, unsigned short> groupMap;
-		set.init(DT_FIRST_USABLE_POLY_GROUP);
-
-		for (int i = 0; i < nav->getMaxTiles(); ++i)
-		{
-			dtMeshTile* tile = nav->getTile(i);
-			if (!tile || !tile->header || !tile->dataSize) continue;
-			const int pcount = tile->header->polyCount;
-			for (int j = 0; j < pcount; j++)
-			{
-				dtPoly& poly = tile->polys[j];
-				unsigned short oldId = poly.groupId;
-				if (oldId != DT_UNLINKED_POLY_GROUP && groupMap.find(oldId) == groupMap.end())
-					groupMap[oldId] = (unsigned short)set.insertNew();
-			}
-		}
-
-		// Fourth pass to apply the new mapping to all polys.
-		for (int i = 0; i < nav->getMaxTiles(); ++i)
-		{
-			dtMeshTile* tile = nav->getTile(i);
-			if (!tile || !tile->header || !tile->dataSize) continue;
-			const int pcount = tile->header->polyCount;
-			for (int j = 0; j < pcount; j++)
-			{
-				dtPoly& poly = tile->polys[j];
-				if (poly.groupId != DT_UNLINKED_POLY_GROUP)
-					poly.groupId = groupMap[poly.groupId];
-			}
-		}
-	}
 
 	// Copy base disjoint set results to sets for each traverse table.
 	for (int i = 0; i < params->tableCount; i++)
@@ -568,53 +445,162 @@ bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 
 		unionTraverseLinkedPolyGroups(params, i);
 	}
+}
 
-	nav->setPolyGroupCount(set.getSetCount());
-	return true;
+bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
+{
+	dtNavMesh* nav = params->nav;
+	dtDisjointSet& set = params->sets[0];
+
+	rdAssert(nav);
+
+	// Reserve the first poly groups
+	// 0 = DT_NULL_POLY_GROUP.
+	// 1 = DT_UNLINKED_POLY_GROUP.
+	set.init(DT_FIRST_USABLE_POLY_GROUP, DT_MAX_POLY_GROUP_COUNT);
+
+	const int maxTiles = nav->getMaxTiles();
+
+	// Clear all labels.
+	for (int i = 0; i < maxTiles; ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		const dtMeshHeader* header = tile->header;
+		if (!header)
+			continue;
+
+		const int pcount = header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			dtPoly& poly = tile->polys[j];
+
+			poly.groupId = DT_NULL_POLY_GROUP;
+#if DT_NAVMESH_SET_VERSION >= 7
+			// NOTE: these fields are unknown and need to be reversed.
+			// It is possible these are used internally only.
+			poly.unk1 = (unsigned short)-1;
+			poly.unk2 = (unsigned short)-1;
+#endif
+		}
+	}
+
+	// True if we have more than DT_MAX_POLY_GROUPS polygon islands.
+	bool failure = false;
+
+	// Mark polygon islands and unlinked polygons.
+	for (int i = 0; i < maxTiles; ++i)
+	{
+		dtMeshTile* tile = nav->getTile(i);
+		const dtMeshHeader* header = tile->header;
+
+		if (!header)
+			continue;
+
+		const int pcount = header->polyCount;
+		for (int j = 0; j < pcount; ++j)
+		{
+			dtPoly& poly = tile->polys[j];
+
+			// Skip if the polygon is already part of an island.
+			if (poly.groupId != DT_NULL_POLY_GROUP)
+				continue;
+
+			if (poly.firstLink == DT_NULL_LINK)
+			{
+				poly.groupId = DT_UNLINKED_POLY_GROUP;
+				continue;
+			}
+
+			if (failure)
+				continue;
+
+			if (params->collapseGroups)
+			{
+				poly.groupId = DT_FIRST_USABLE_POLY_GROUP;
+				continue;
+			}
+
+			// Off-mesh connections need their own ID's, skip the assignment
+			// here since else we will be marking 2 (or more) poly islands
+			// under the same group id.
+			if (poly.getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+			{
+				const int newId = set.insertNew();
+
+				if (newId == -1)
+				{
+					failure = true;
+					continue;
+				}
+
+				poly.groupId = (unsigned short)newId;
+				continue;
+			}
+
+			const dtPolyRef polyRefBase = nav->getPolyRefBase(tile);
+
+			if (!floodPolygonIsland(nav, set, polyRefBase | j))
+				failure = true;
+		}
+	}
+
+	return !failure;
 }
 
 bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 {
+	const dtDisjointSet& baseSet = params->sets[0];
+	const int polyGroupCount = baseSet.getSetCount();
+
 	dtNavMesh* nav = params->nav;
 
-	const int polyGroupCount = nav->getPolyGroupCount();
-	const int tableSize = dtCalcTraverseTableSize(polyGroupCount);
-	const int tableCount = params->tableCount;
+	if (polyGroupCount < DT_MIN_POLY_GROUP_COUNT)
+	{
+		nav->setTraverseTableCount(0);
+		nav->setTraverseTableSize(0);
+		nav->setPolyGroupCount(polyGroupCount);
+
+		return true;
+	}
 
 	nav->freeTraverseTables();
+	const int tableCount = params->tableCount;
 
 	if (!nav->allocTraverseTables(tableCount))
 		return false;
 
-	nav->setTraverseTableSize(tableSize);
 	nav->setTraverseTableCount(tableCount);
+	copyBaseDisjointSets(params);
 
-	if (!tableSize)
-		return true;
+	const int tableSize = dtCalcTraverseTableSize(polyGroupCount);
+	nav->setTraverseTableSize(tableSize);
 
 	for (int i = 0; i < tableCount; i++)
 	{
-		int* const traverseTable = (int*)rdAlloc(sizeof(int)*tableSize, RD_ALLOC_PERM);
+		const rdSizeType bufferSize = sizeof(int)*tableSize;
+		int* const traverseTable = (int*)rdAlloc(bufferSize, RD_ALLOC_PERM);
 
 		if (!traverseTable)
 			return false;
 
+		memset(traverseTable, 0, bufferSize);
 		nav->setTraverseTable(i, traverseTable);
-		memset(traverseTable, 0, sizeof(int)*tableSize);
 
 		const dtDisjointSet& set = params->sets[i];
+		rdAssert(set.getSetCount() >= DT_MIN_POLY_GROUP_COUNT);
 
 		for (unsigned short j = 0; j < polyGroupCount; j++)
 		{
 			for (unsigned short k = 0; k < polyGroupCount; k++)
 			{
-				// Only reachable if its the same polygroup or if they are linked!
+				// Only reachable if its the same poly group or if they are linked!
 				const bool isReachable = j == k || set.find(j) == set.find(k);
 				setPolyGroupsTraversalReachability(traverseTable, polyGroupCount, j, k, isReachable);
 			}
 		}
 	}
 
+	nav->setPolyGroupCount(baseSet.getSetCount());
 	return true;
 }
 

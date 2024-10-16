@@ -359,14 +359,11 @@ public:
 	void handleCommonSettings();
 
 	void createTraverseLinkParams(dtTraverseLinkConnectParams& params);
-	void createTraverseTableParams(dtTraverseTableCreateParams* params);
 
 	bool createTraverseLinks();
 	void connectOffMeshLinks();
 
-	void buildStaticPathingData();
-	bool createStaticPathingData(const dtTraverseTableCreateParams* params);
-	bool updateStaticPathingData(const dtTraverseTableCreateParams* params);
+	bool createStaticPathingData();
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

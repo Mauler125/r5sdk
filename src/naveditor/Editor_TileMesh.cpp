@@ -739,7 +739,7 @@ void Editor_TileMesh::buildTile(const float* pos)
 			params.linkToNeighbor = true;
 			m_navMesh->connectTraverseLinks(tileRef, params);
 
-			buildStaticPathingData();
+			createStaticPathingData();
 		}
 	}
 	
@@ -803,7 +803,7 @@ void Editor_TileMesh::removeTile(const float* pos)
 			++it;
 		}
 
-		buildStaticPathingData();
+		createStaticPathingData();
 	}
 }
 
@@ -850,7 +850,7 @@ void Editor_TileMesh::buildAllTiles()
 	connectOffMeshLinks();
 	createTraverseLinks();
 
-	buildStaticPathingData();
+	createStaticPathingData();
 	
 	// Start the build process.	
 	m_ctx->stopTimer(RC_TIMER_TEMP);
@@ -877,7 +877,7 @@ void Editor_TileMesh::removeAllTiles()
 			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y,0),0,0);
 
 	m_traverseLinkPolyMap.clear();
-	buildStaticPathingData();
+	createStaticPathingData();
 }
 
 void Editor_TileMesh::buildAllHulls()

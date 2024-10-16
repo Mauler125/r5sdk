@@ -120,7 +120,7 @@ public:
 	
 };
 
-static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, unsigned char flag)
+static void floodNavMesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, unsigned char flag)
 {
 	// If already visited, skip.
 	if (flags->getFlags(start))
@@ -203,8 +203,7 @@ void NavMeshPruneTool::pruneUnvisitedTilesAndPolys(dtNavMesh* nav, NavmeshFlags*
 NavMeshPruneTool::NavMeshPruneTool() :
 	m_editor(0),
 	m_flags(0),
-	m_hitPosSet(false),
-	m_ranPruneTool(false)
+	m_hitPosSet(false)
 {
 	m_hitPos[0] = 0.0f;
 	m_hitPos[1] = 0.0f;
@@ -226,7 +225,6 @@ void NavMeshPruneTool::init(Editor* editor)
 void NavMeshPruneTool::reset()
 {
 	m_hitPosSet = false;
-	m_ranPruneTool = false;
 
 	if (m_flags)
 	{
@@ -240,25 +238,23 @@ void NavMeshPruneTool::handleMenu()
 	dtNavMesh* nav = m_editor->getNavMesh();
 	if (!nav) return;
 
-	if (!m_flags) return;
+	if (!m_hitPosSet) return;
 
 	if (ImGui::Button("Clear Selection"))
 	{
 		m_flags->clearAllFlags();
+		m_hitPosSet = false;
 	}
 	
 	if (ImGui::Button("Prune Unselected"))
 	{
 		pruneUnvisitedTilesAndPolys(nav, m_flags);
-		dtTraverseTableCreateParams params;
-
-		m_editor->createTraverseTableParams(&params);
-		m_editor->updateStaticPathingData(&params);
+		m_editor->createStaticPathingData();
 
 		delete m_flags;
 		m_flags = 0;
 
-		m_ranPruneTool = true;
+		m_hitPosSet = false;
 	}
 }
 
@@ -290,7 +286,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, const int /*v
 			m_flags->init(nav);
 		}
 
-		floodNavmesh(nav, m_flags, ref, 1);
+		floodNavMesh(nav, m_flags, ref, 1);
 	}
 }
 

@@ -131,7 +131,7 @@ Editor::Editor() :
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
 	m_traverseRayDynamicOffset(true),
-	m_collapseLinkedPolyGroups(true),
+	m_collapseLinkedPolyGroups(false),
 	m_buildBvTree(true),
 	m_selectedNavMeshType(NAVMESH_SMALL),
 	m_loadedNavMeshType(NAVMESH_SMALL),
@@ -430,6 +430,10 @@ void Editor::handleCommonSettings()
 		m_traverseLinkDrawParams.extraOffset = m_traverseRayExtraOffset;
 
 	ImGui::SliderFloat("Min Overlap", &m_traverseEdgeMinOverlap, 0.0f, m_tileSize*m_cellSize, "%g");
+
+	if (ImGui::Button("Rebuild Static Pathing Data"))
+		createStaticPathingData();
+
 	ImGui::Separator();
 }
 
@@ -779,38 +783,6 @@ bool Editor::createTraverseLinks()
 	return true;
 }
 
-bool Editor::createStaticPathingData(const dtTraverseTableCreateParams* params)
-{
-	if (!params->nav) return false;
-
-	if (!dtCreateDisjointPolyGroups(params))
-	{
-		m_ctx->log(RC_LOG_ERROR, "createStaticPathingData: Failed to build disjoint poly groups.");
-		return false;
-	}
-
-	return true;
-}
-
-bool Editor::updateStaticPathingData(const dtTraverseTableCreateParams* params)
-{
-	if (!params->nav) return false;
-
-	if (!dtUpdateDisjointPolyGroups(params))
-	{
-		m_ctx->log(RC_LOG_ERROR, "updateStaticPathingData: Failed to update disjoint poly groups.");
-		return false;
-	}
-
-	if (!dtCreateTraverseTableData(params))
-	{
-		m_ctx->log(RC_LOG_ERROR, "updateStaticPathingData: Failed to build traverse table data.");
-		return false;
-	}
-
-	return true;
-}
-
 static bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* params, const dtLink* link, const int tableIndex)
 {
 	const NavMeshType_e navMeshType = (NavMeshType_e)params->navMeshType;
@@ -823,23 +795,32 @@ static bool animTypeSupportsTraverseLink(const dtTraverseTableCreateParams* para
 	return rdBitCellBit(link->traverseType) & s_traverseAnimTraverseFlags[traverseAnimType];
 }
 
-void Editor::createTraverseTableParams(dtTraverseTableCreateParams* params)
+bool Editor::createStaticPathingData()
 {
-	params->nav = m_navMesh;
-	params->sets = m_djs;
-	params->tableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
-	params->navMeshType = m_selectedNavMeshType;
-	params->canTraverse = animTypeSupportsTraverseLink;
-	params->collapseGroups = m_collapseLinkedPolyGroups;
-}
+	if (!m_navMesh)
+		return false;
 
-void Editor::buildStaticPathingData()
-{
 	dtTraverseTableCreateParams params;
-	createTraverseTableParams(&params);
+	params.nav = m_navMesh;
+	params.sets = m_djs;
+	params.tableCount = NavMesh_GetTraverseTableCountForNavMeshType(m_selectedNavMeshType);
+	params.navMeshType = m_selectedNavMeshType;
+	params.canTraverse = animTypeSupportsTraverseLink;
+	params.collapseGroups = m_collapseLinkedPolyGroups;
 
-	createStaticPathingData(&params);
-	updateStaticPathingData(&params);
+	if (!dtCreateDisjointPolyGroups(&params))
+	{
+		m_ctx->log(RC_LOG_ERROR, "createStaticPathingData: Failed to build disjoint poly groups.");
+		return false;
+	}
+
+	if (!dtCreateTraverseTableData(&params))
+	{
+		m_ctx->log(RC_LOG_ERROR, "createStaticPathingData: Failed to build traverse table data.");
+		return false;
+	}
+
+	return true;
 }
 
 void Editor::connectOffMeshLinks()

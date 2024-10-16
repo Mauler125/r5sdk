@@ -31,7 +31,6 @@ class NavMeshPruneTool : public EditorTool
 
 	float m_hitPos[3];
 	bool m_hitPosSet;
-	bool m_ranPruneTool;
 	
 public:
 	NavMeshPruneTool();

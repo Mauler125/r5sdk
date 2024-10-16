@@ -119,9 +119,9 @@ class dtDisjointSet
 {
 public:
 	dtDisjointSet() = default;
-	dtDisjointSet(const int size)
+	dtDisjointSet(const int size, const int max = -1)
 	{
-		init(size);
+		init(size, max);
 	}
 
 	void copy(dtDisjointSet& other)
@@ -137,19 +137,25 @@ public:
 			other.parent[i] = parent[i];
 	}
 
-	void init(const int size)
+	void init(const int size, const int max = -1)
 	{
+		rdAssert(size <= max);
+
 		rank.resize(size);
 		parent.resize(size);
+		limit = max;
 
 		for (int i = 0; i < parent.size(); i++)
 			parent[i] = i;
 	}
 	int insertNew()
 	{
-		rank.push(0);
-
 		const int newId = parent.size();
+
+		if (limit > 0 && newId > limit)
+			return -1; // Limit has been reached.
+
+		rank.push(0);
 		parent.push(newId);
 
 		return newId;
@@ -190,6 +196,7 @@ public:
 private:
 	rdIntArray rank;
 	mutable rdIntArray parent;
+	int limit;
 };
 
 struct dtLink;
@@ -217,12 +224,6 @@ struct dtTraverseTableCreateParams
 ///  @param[in]		params		The build parameters.
 /// @return True if the disjoint set data was successfully created.
 bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params);
-
-/// Updates navigation mesh disjoint poly groups from the provided parameters.
-/// @ingroup detour
-///  @param[in]		params		The build parameters.
-/// @return True if the disjoint set data was successfully updated.
-bool dtUpdateDisjointPolyGroups(const dtTraverseTableCreateParams* params);
 
 /// Builds navigation mesh static traverse table from the provided parameters.
 /// @ingroup detour
