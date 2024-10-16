@@ -1647,6 +1647,9 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 					if (it != tileIndex)
 						continue;
 
+					if (salt != tile->salt || ip >= (unsigned int)header->polyCount)
+						continue;
+
 					const dtPolyRef newRef = (polyRefBase | (dtPolyRef)newPolyIdMap[ip]);
 					neiLink.ref = newRef;
 
