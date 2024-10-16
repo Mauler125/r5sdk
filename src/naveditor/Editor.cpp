@@ -254,8 +254,8 @@ void Editor::resetCommonSettings()
 	m_maxTileBits = 28;
 #endif
 
-	m_cellSize = 16.0f;
-	m_cellHeight = 32.0f;
+	m_cellSize = 8.0f;
+	m_cellHeight = 2.0f;
 	m_traverseLinkDrawParams.dynamicOffset = m_traverseRayDynamicOffset;
 	m_traverseLinkDrawParams.cellHeight = m_cellHeight;
 
@@ -271,13 +271,13 @@ void Editor::resetCommonSettings()
 	m_traverseRayExtraOffset = 8.0f;
 	m_traverseEdgeMinOverlap = RD_EPS;
 
-	m_regionMinSize = 8;
+	m_regionMinSize = 4;
 	m_regionMergeSize = 20;
-	m_edgeMaxLen = 12;
-	m_edgeMaxError = 1.3f;
+	m_edgeMaxLen = 7;
+	m_edgeMaxError = 1.7f;
 	m_vertsPerPoly = 6;
-	m_detailSampleDist = 6.0f;
-	m_detailSampleMaxError = 1.0f;
+	m_detailSampleDist = 16.0f;
+	m_detailSampleMaxError = 4.0f;
 	m_partitionType = EDITOR_PARTITION_WATERSHED;
 
 	initTraverseMasks();
@@ -329,8 +329,8 @@ void Editor::handleCommonSettings()
 	
 	ImGui::Separator();
 	ImGui::Text("Region");
-	ImGui::SliderInt("Min Region Size", &m_regionMinSize, 0, 750); // todo(amos): increase because of larger map scale?
-	ImGui::SliderInt("Merged Region Size", &m_regionMergeSize, 0, 750); // todo(amos): increase because of larger map scale?
+	ImGui::SliderInt("Min Region Size", &m_regionMinSize, 0, 150);
+	ImGui::SliderInt("Merged Region Size", &m_regionMergeSize, 0, 150);
 
 	ImGui::PopItemWidth();
 
@@ -410,8 +410,8 @@ void Editor::handleCommonSettings()
 
 	ImGui::Separator();
 	ImGui::Text("Detail Mesh");
-	ImGui::SliderFloat("Sample Distance", &m_detailSampleDist, 1.0f, 16.0f);
-	ImGui::SliderFloat("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f);
+	ImGui::SliderFloat("Sample Distance", &m_detailSampleDist, 1.0f, 128.0f);
+	ImGui::SliderFloat("Max Sample Error", &m_detailSampleMaxError, 0.0f, 128.0f);
 
 	ImGui::PopItemWidth();
 	
@@ -1240,11 +1240,11 @@ void Editor::renderTraverseTableFineTuners()
 // NOTE: the climb height should never equal or exceed the agent's height, see https://groups.google.com/g/recastnavigation/c/L5rBamxcOBk/m/5xGLj6YP25kJ
 // Quote: "you will get into trouble in cases where there is an overhand which is low enough to step over and high enough for the agent to walk under."
 const hulldef hulls[NAVMESH_COUNT] = {
-	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , 32, 8 },
-	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Width(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), 32, 4 },
-	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Width(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , 32, 4 },
-	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , 60, 2 },
-	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), 60, 2 },
+	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)   * NAI_Hull::Scale(HULL_HUMAN)  , 64, 8 },
+	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Width(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER) * NAI_Hull::Scale(HULL_PROWLER), 64, 4 },
+	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Width(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM)  * NAI_Hull::Scale(HULL_MEDIUM) , 64, 4 },
+	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)   * NAI_Hull::Scale(HULL_TITAN)  , 120, 2 },
+	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH) * NAI_Hull::Scale(HULL_GOLIATH), 120, 2 },
 };
 
 void Editor::selectNavMeshType(const NavMeshType_e navMeshType)
