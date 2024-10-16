@@ -226,7 +226,7 @@ struct rcConfig
 	/// The xy-plane cell size to use for fields. [Limit: > 0] [Units: wu] 
 	float cs;
 
-	/// The y-axis cell size to use for fields. [Limit: > 0] [Units: wu]
+	/// The z-axis cell size to use for fields. [Limit: > 0] [Units: wu]
 	float ch;
 
 	/// The minimum bounds of the field's AABB. [(x, y, z)] [Units: wu]
