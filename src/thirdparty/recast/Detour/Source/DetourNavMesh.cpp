@@ -493,6 +493,14 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 			dtPolyRef nei[4];
 			float neia[4*2];
 			int nnei = findConnectingPolys(va,vb, target, rdOppositeTile(dir), nei,neia,4);
+
+			// If the portal edge has no neighbor, mark the edge as a boundary edge.
+			if (!nnei)
+			{
+				poly->neis[j] = 0;
+				continue;
+			}
+
 			for (int k = 0; k < nnei; ++k)
 			{
 				unsigned int idx = tile->allocLink();
