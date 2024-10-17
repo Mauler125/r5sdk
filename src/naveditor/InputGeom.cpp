@@ -273,6 +273,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 				m_offMeshConOrders[m_offMeshConCount] = (unsigned char)order;
 				m_offMeshConAreas[m_offMeshConCount] = (unsigned char)area;
 				m_offMeshConFlags[m_offMeshConCount] = (unsigned short)flags;
+				m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
 				m_offMeshConCount++;
 			}
 		}
