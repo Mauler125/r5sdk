@@ -1164,9 +1164,6 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst);
 /// @returns True if the operation completed successfully.
 bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int nmeshes, rcPolyMeshDetail& mesh);
 
-void rcFlipPolyMesh(rcPolyMesh& mesh);
-void rcFlipPolyMeshDetail(rcPolyMeshDetail& mdetail, int poly_tris);
-
 /// @}
 
 #endif // RECAST_H

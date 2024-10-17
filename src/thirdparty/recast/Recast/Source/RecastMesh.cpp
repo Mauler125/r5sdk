@@ -184,7 +184,7 @@ inline bool leftOn(const int* a, const int* b, const int* c)
 {
 	return area2(a, b, c) <= 0;
 }
-#define REVERSE_DIRECTION 1
+#define REVERSE_DIRECTION 0
 inline bool right(const int* a, const int* b, const int* c)
 {
 	return area2(a, b, c) > 0;
@@ -254,7 +254,7 @@ static bool vequal(const int* a, const int* b)
 #endif
 // Returns T if (v_i, v_j) is a proper internal *or* external
 // diagonal of P, *ignoring edges incident to v_i and v_j*.
-static bool diagonalie(int i, int j, int n, const int* verts, int* indices)
+static bool diagonalie(int i, int j, int n, const int* verts, const int* indices)
 {
 	const int* d0 = &verts[(indices[i] & 0x0fffffff) * 4];
 	const int* d1 = &verts[(indices[j] & 0x0fffffff) * 4];
@@ -281,7 +281,7 @@ static bool diagonalie(int i, int j, int n, const int* verts, int* indices)
 
 // Returns true if the diagonal (i,j) is strictly internal to the 
 // polygon P in the neighborhood of the i endpoint.
-static bool	inCone(int i, int j, int n, const int* verts, int* indices)
+static bool	inCone(int i, int j, int n, const int* verts, const int* indices)
 {
 	const int* pi = &verts[(indices[i] & 0x0fffffff) * 4];
 	const int* pj = &verts[(indices[j] & 0x0fffffff) * 4];
@@ -306,13 +306,13 @@ static bool	inCone(int i, int j, int n, const int* verts, int* indices)
 
 // Returns T if (v_i, v_j) is a proper internal
 // diagonal of P.
-static bool diagonal(int i, int j, int n, const int* verts, int* indices)
+static bool diagonal(int i, int j, int n, const int* verts, const int* indices)
 {
 	return inCone(i, j, n, verts, indices) && diagonalie(i, j, n, verts, indices);
 }
 
 
-static bool diagonalieLoose(int i, int j, int n, const int* verts, int* indices)
+static bool diagonalieLoose(int i, int j, int n, const int* verts, const int* indices)
 {
 	const int* d0 = &verts[(indices[i] & 0x0fffffff) * 4];
 	const int* d1 = &verts[(indices[j] & 0x0fffffff) * 4];
@@ -337,7 +337,7 @@ static bool diagonalieLoose(int i, int j, int n, const int* verts, int* indices)
 	return true;
 }
 
-static bool	inConeLoose(int i, int j, int n, const int* verts, int* indices)
+static bool	inConeLoose(int i, int j, int n, const int* verts, const int* indices)
 {
 	const int* pi = &verts[(indices[i] & 0x0fffffff) * 4];
 	const int* pj = &verts[(indices[j] & 0x0fffffff) * 4];
@@ -360,7 +360,7 @@ static bool	inConeLoose(int i, int j, int n, const int* verts, int* indices)
 #endif
 }
 
-static bool diagonalLoose(int i, int j, int n, const int* verts, int* indices)
+static bool diagonalLoose(int i, int j, int n, const int* verts, const int* indices)
 {
 	return inConeLoose(i, j, n, verts, indices) && diagonalieLoose(i, j, n, verts, indices);
 }
@@ -670,10 +670,10 @@ static bool canRemoveVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned sho
 				{
 					int* e = &edges[m * 3];
 #if REVERSE_DIRECTION
-					if (e[2] == b)
+					if (e[0] == b)
 					{
 						// Exists, increment vertex share count.
-						e[1]++;
+						e[2]++;
 						exists = true;
 					}
 #else
@@ -689,7 +689,7 @@ static bool canRemoveVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned sho
 				if (!exists)
 				{
 					int* e = &edges[nedges*3];
-					e[0] = a;
+					e[0] = a; // todo for REVERSE_DIRECTION, figure out if we need to flip here as well.
 					e[1] = b;
 					e[2] = 1;
 					nedges++;
@@ -1033,6 +1033,77 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 	return true;
 }
 
+void flipPolyMesh(rcPolyMesh& mesh)
+{
+	for (int i = 0; i < mesh.npolys; i++)
+	{
+		const int nvp = mesh.nvp;
+
+		auto polyBegin = mesh.polys+2*nvp*i;
+		auto neisBegins = mesh.polys+2*nvp*i+nvp;
+
+		int curCount = 0;
+
+		for (int j = 0; j < nvp; j++)
+		{
+			if (polyBegin[j] != 0xffff)
+				curCount++;
+			else
+				break;
+		}
+
+		// Flip order of vertexes
+		for (int j = 0; j < curCount/2; j++)
+		{
+			rdSwap(polyBegin[j], polyBegin[curCount-j-1]);
+			rdSwap(neisBegins[j], neisBegins[curCount-j-1]);
+		}
+
+		if (curCount)
+		{
+			// Shift neis directions left, this is needed because the neis index edges
+			// not vertexes
+			const unsigned short zval = neisBegins[0];
+			for (int j = 0; j < curCount-1; j++)
+			{
+				neisBegins[j] = neisBegins[j + 1];
+			}
+			neisBegins[curCount-1] = zval;
+		}
+
+		// Flip neis directions.
+		/*
+		original code for reference
+		cur.x ==0 && next.x ==0 -> 0
+		cur.y ==h && next.x ==h -> 1
+		cur.x ==w && next.x ==w -> 2
+		cur.y ==0 && next.y ==0 -> 3
+
+			   3
+			  ###
+			0 ### 2
+			  ###
+			   1
+		*/
+
+		//const int lkup[4] = { 0,1,2,3 }; // NOOP
+		const int lkup[4] = { 2,1,0,3 }; // flip x only
+		//const int lkup[4] = { 0,3,2,1 }; // flip y only
+		//const int lkup[4] = { 2,3,0,1 }; // flip x and y
+		//const int lkup[4] = { 3,0,1,2 }; // exchange x/y (90 deg)
+		//const int lkup[4] = { 1,2,3,0 }; // -90 deg
+		//const int lkup[4] = { 2,3,0,1 }; // 180 deg
+
+		for (int j = 0; j < curCount; j++)
+		{
+			if ((neisBegins[j] & 0x8000) && (neisBegins[j] != 0xffff))
+			{
+				neisBegins[j] = (unsigned short)lkup[neisBegins[j] & 0x3] | 0x8000;
+			}
+		}
+	}
+}
+
 /// @par
 ///
 /// @note If the mesh data is to be used to construct a Detour navigation mesh, then the upper 
@@ -1374,9 +1445,13 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 				break;
 
 			vi[0] = p[0];
+#if REVERSE_DIRECTION
 			vi[1] = p[j];
 			vi[2] = p[j-1];
-
+#else
+			vi[1] = p[j-1];
+			vi[2] = p[j];
+#endif
 			for (int k = 0; k < 3; k++)
 			{
 				const unsigned short* v = &mesh.verts[vi[k]*3];
@@ -1400,6 +1475,10 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: The resulting mesh has too many polygons %d (max %d). Data can be corrupted.", mesh.npolys, 0xffff);
 	}
 	
+#if !REVERSE_DIRECTION
+	flipPolyMesh(mesh);
+#endif // !REVERSE_DIRECTION
+
 	return true;
 }
 
@@ -1645,85 +1724,4 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst)
 	memcpy(dst.flags, src.flags, sizeof(unsigned short)*src.npolys);
 	
 	return true;
-}
-void shift_left(unsigned short* arr, int count)
-{
-	if (count == 0)return;
-	auto zval = arr[0];
-	for (int i = 0; i < count-1; i++)
-	{
-		arr[i] = arr[i + 1];
-	}
-	arr[count - 1] = zval;
-}
-void flip_neis_direction(unsigned short* arr, int count)
-{
-	//const int lkup[4] = { 0,1,2,3 }; //NOOP
-	const int lkup[4] = { 2,1,0,3 };// flip x only
-	//const int lkup[4] = { 0,3,2,1 }; //flip y only
-	//const int lkup[4] = { 2,3,0,1 };  //flip x and y
-	//const int lkup[4] = { 3,0,1,2 }; //exchange x/y (90 deg)
-	//const int lkup[4] = { 1,2,3,0 }; //-90 deg
-	//const int lkup[4] = { 2,3,0,1 }; //180 deg
-
-	
-	for (int i = 0; i < count; i++)
-	{
-		if ((arr[i] & 0x8000) && (arr[i] != 0xffff))
-		{
-			arr[i] = (unsigned short)lkup[arr[i] & 0x3] | 0x8000;
-		}
-	}
-
-	/* original code for reference
-	cur.x ==0 && next.x ==0 -> 0
-	cur.y ==h && next.x ==h -> 1
-	cur.x ==w && next.x ==w -> 2
-	cur.y ==0 && next.y ==0 -> 3
-
-		   3
-		  ###
-		0 ### 2
-		  ###
-		   1
-	
-	if ((int)va[0] == 0 && (int)vb[0] == 0)
-		p[nvp+j] = 0x8000 | 0;
-	else if ((int)va[1] == h && (int)vb[1] == h)
-		p[nvp+j] = 0x8000 | 1;
-	else if ((int)va[0] == w && (int)vb[0] == w)
-		p[nvp+j] = 0x8000 | 2;
-	else if ((int)va[1] == 0 && (int)vb[1] == 0)
-		p[nvp+j] = 0x8000 | 3;
-	*/
-}
-void rcFlipPolyMesh(rcPolyMesh& /*mesh*/)
-{
-#if !REVERSE_DIRECTION
-	for (int i = 0; i < mesh.npolys; i++)
-	{
-		int max_verts = mesh.nvp;
-		auto poly_begin = mesh.polys + 2 * max_verts*i;
-		auto poly_begin_neis = mesh.polys + 2 * max_verts*i+max_verts;//i.e. every second thing in this array is poly neis
-		int cur_count = 0;
-		for (int j = 0; j < max_verts; j++)
-		{
-			if (poly_begin[j] != 0xffff)
-				cur_count++;
-			else
-				break;
-		}
-		//flip order of vertexes
-		///*
-		for (int j = 0; j < cur_count / 2; j++)
-		{
-			std::swap(poly_begin[j], poly_begin[cur_count - j - 1]);
-			std::swap(poly_begin_neis[j], poly_begin_neis[cur_count - j - 1]);
-			
-		}
-		//*/
-		shift_left(poly_begin_neis, cur_count); //this is needed because the neis index edges not vertexes
-		flip_neis_direction(poly_begin_neis, cur_count);
-	}
-#endif // !REVERSE_DIRECTION
 }

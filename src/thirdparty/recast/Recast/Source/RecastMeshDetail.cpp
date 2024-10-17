@@ -21,7 +21,7 @@
 #include "Shared/Include/SharedAssert.h"
 
 static const unsigned RC_UNSET_HEIGHT = 0xffff;
-#define REVERSE_DIRECTION 1
+#define REVERSE_DIRECTION 1 // REVERSE_DIRECTION 0 is broken, 1 is producing correct results.
 
 struct rcHeightPatch
 {
@@ -296,32 +296,13 @@ static int addEdge(rcContext* ctx, int* edges, int& nedges, const int maxEdges, 
 	if (e == EV_UNDEF)
 	{
 		int* edge = &edges[nedges*4];
-		edge[0] = s;
-		edge[1] = t;
-		edge[2] = l;
-		edge[3] = r;
-		return nedges++;
-	}
-	else
-	{
-		return EV_UNDEF;
-	}
-}
-static int addEdgeFlipped(rcContext* ctx, int* edges, int& nedges, const int maxEdges, int s, int t, int l, int r)
-{
-	if (nedges >= maxEdges)
-	{
-		ctx->log(RC_LOG_ERROR, "addEdge: Too many edges (%d/%d).", nedges, maxEdges);
-		return EV_UNDEF;
-	}
-
-	// Add edge if not already in the triangulation.
-	int e = findEdge(edges, nedges, s, t);
-	if (e == EV_UNDEF)
-	{
-		int* edge = &edges[nedges * 4];
+#if REVERSE_DIRECTION
 		edge[0] = t;
 		edge[1] = s;
+#else
+		edge[0] = s;
+		edge[1] = t;
+#endif
 		edge[2] = l;
 		edge[3] = r;
 		return nedges++;
@@ -464,10 +445,8 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 	
 #if REVERSE_DIRECTION
 #define updateFace updateRightFace
-#define addEdgeN addEdgeFlipped
 #else
 #define updateFace updateLeftFace
-#define addEdgeN addEdge
 #endif
 	// Add new triangle or update edge info if s-t is on hull.
 	if (pt < npts)
@@ -478,14 +457,14 @@ static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges
 		// Add new edge or update face info of old edge.
 		e = findEdge(edges, nedges, pt, s);
 		if (e == EV_UNDEF)
-			addEdgeN(ctx, edges, nedges, maxEdges, pt, s, nfaces, EV_UNDEF);
+			addEdge(ctx, edges, nedges, maxEdges, pt, s, nfaces, EV_UNDEF);
 		else
 			updateFace(&edges[e*4], pt, s, nfaces);
 		
 		// Add new edge or update face info of old edge.
 		e = findEdge(edges, nedges, t, pt);
 		if (e == EV_UNDEF)
-			addEdgeN(ctx, edges, nedges, maxEdges, t, pt, nfaces, EV_UNDEF);
+			addEdge(ctx, edges, nedges, maxEdges, t, pt, nfaces, EV_UNDEF);
 		else
 			updateFace(&edges[e*4], t, pt, nfaces);
 		
@@ -510,7 +489,7 @@ void delaunayHull(rcContext* ctx, const int npts, const float* pts,
 	edges.resize(maxEdges*4);
 	
 	for (int i = 0, j = nhull-1; i < nhull; j=i++)
-		addEdge(ctx, &edges[0], nedges, maxEdges, hull[j],hull[i], EV_HULL, EV_UNDEF);
+		addEdge(ctx, &edges[0], nedges, maxEdges, hull[i],hull[j], EV_HULL, EV_UNDEF);
 	
 	int currentEdge = 0;
 	while (currentEdge < nedges)
@@ -737,13 +716,19 @@ static void setTriFlags(rdIntArray& tris, int nhull, int* hull)
 {
 	for (int i = 0; i < tris.size(); i += 4)
 	{
-		int a = tris[i + 0];
-		int b = tris[i + 1];
-		int c = tris[i + 2];
+		int a = tris[i+0];
+		int b = tris[i+1];
+		int c = tris[i+2];
 		unsigned short flags = 0;
+#if REVERSE_DIRECTION
 		flags |= (onHull(a, c, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 0;
 		flags |= (onHull(c, b, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 2;
 		flags |= (onHull(b, a, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 4;
+#else
+		flags |= (onHull(a, b, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 0;
+		flags |= (onHull(b, c, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 2;
+		flags |= (onHull(c, a, nhull, hull) ? RD_DETAIL_EDGE_BOUNDARY : 0) << 4;
+#endif
 		tris[i + 3] = (int)flags;
 	}
 }
@@ -1254,6 +1239,40 @@ static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 	}
 }
 
+void flipPolyMeshDetail(rcPolyMeshDetail& mdetail, const int nverts)
+{
+	for (int i = 0; i < mdetail.ntris; i++)
+	{
+		unsigned char* t = mdetail.tris + i * 4;
+		bool skip = false;
+
+		for (int j = 0; j < 3; j++)
+		{
+			// Vert is a poly vert not a detail vert, skip it.
+			if (t[j] < nverts)
+			{
+				skip = true;
+				break;
+			}
+		}
+
+		if (skip)
+			continue;
+
+		rdSwap(t[0], t[2]);
+
+		// Flip tri flags.
+		const unsigned char tf = t[3];
+
+		unsigned char flags = 0;
+		flags |= ((tf >> 2) & 0b11) << 0;
+		flags |= ((tf >> 0) & 0b11) << 2;
+		flags |= ((tf >> 4) & 0b11) << 4;
+
+		t[3] = flags;
+	}
+}
+
 /// @par
 ///
 /// See the #rcConfig documentation for more information on the configuration parameters.
@@ -1476,14 +1495,25 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		{
 			const int* t = &tris[j*4];
 
+#if REVERSE_DIRECTION
 			dmesh.tris[dmesh.ntris*4+0] = (unsigned char)t[0];
 			dmesh.tris[dmesh.ntris*4+1] = (unsigned char)t[2];
 			dmesh.tris[dmesh.ntris*4+2] = (unsigned char)t[1];
 			dmesh.tris[dmesh.ntris*4+3] = (unsigned char)t[3];
+#else
+			dmesh.tris[dmesh.ntris*4+0] = (unsigned char)t[0];
+			dmesh.tris[dmesh.ntris*4+1] = (unsigned char)t[1];
+			dmesh.tris[dmesh.ntris*4+2] = (unsigned char)t[2];
+			dmesh.tris[dmesh.ntris*4+3] = (unsigned char)t[3];
+#endif // !REVERSE_DIRECTION
 			dmesh.ntris++;
 		}
 	}
 	
+#ifndef REVERSE_DIRECTION
+	flipPolyMeshDetail(dmesh, mesh.nverts)
+#endif // !REVERSE_DIRECTION
+
 	return true;
 }
 
@@ -1562,31 +1592,4 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 	}
 	
 	return true;
-}
-#if !REVERSE_DIRECTION
-static unsigned char flip_flags(unsigned char flags_in)
-{
-	unsigned char flags = 0;
-	flags |= ((flags_in >>2) & 0b11) << 0;
-	flags |= ((flags_in >>0) & 0b11) << 2;
-	flags |= ((flags_in >>4) & 0b11) << 4;
-	return flags;
-}
-#endif // !REVERSE_DIRECTION
-void rcFlipPolyMeshDetail(rcPolyMeshDetail& /*mdetail*/,int /*poly_tris*/)
-{
-#if !REVERSE_DIRECTION
-	for (int i = 0; i < mdetail.ntris; i++)
-	{
-		auto tri_begin = mdetail.tris + i * 4;
-		bool skip = false;
-		for (int j = 0; j < 3; j++)
-			if (tri_begin[j] < poly_tris)
-				skip = true;
-		if (skip)
-			continue;
-		std::swap(tri_begin[0], tri_begin[2]);
-		tri_begin[3]=flip_flags(tri_begin[3]);
-	}
-#endif // !REVERSE_DIRECTION
 }

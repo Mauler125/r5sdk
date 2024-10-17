@@ -1222,7 +1222,6 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		return 0;
 	}
 	
-	//rcFlipPolyMesh(*m_pmesh);
 	if (!rcBuildPolyMeshDetail(m_ctx, *m_pmesh, *m_chf,
 							   m_cfg.detailSampleDist, m_cfg.detailSampleMaxError,
 							   *m_dmesh))
@@ -1231,7 +1230,6 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		return 0;
 	}
 	
-	//rcFlipPolyMeshDetail(*m_dmesh,m_pmesh->nverts);
 	if (!m_keepInterResults)
 	{
 		rcFreeCompactHeightfield(m_chf);
