@@ -125,11 +125,11 @@ static void drawPolyMeshEdges(duDebugDraw* dd, const dtMeshTile* tile, const flo
 	}
 }
 
-static unsigned int getPolyBoundaryColor(const dtPoly* poly, const bool inner)
+static unsigned int getPolyBoundaryColor(const bool inner, const bool linked)
 {
-	return poly->groupId == DT_UNLINKED_POLY_GROUP
-		? inner ? duRGBA(32,24,0,32) : duRGBA(32,24,0,220)
-		: inner ? duRGBA(0,24,32,32) : duRGBA(0,24,32,220);
+	return linked
+		? inner ? duRGBA(0,24,32,32) : duRGBA(0,24,32,220)
+		: inner ? duRGBA(32,24,0,32) : duRGBA(32,24,0,220);
 }
 
 static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
@@ -147,10 +147,12 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 		const dtPoly* p = &tile->polys[i];
 		
 		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) continue;
+
+		const bool isLinked = p->groupId != DT_UNLINKED_POLY_GROUP;
 		
 		for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
 		{
-			unsigned int c = getPolyBoundaryColor(p, inner);
+			unsigned int c = getPolyBoundaryColor(inner, isLinked);
 			if (inner)
 			{
 				if (p->neis[j] == 0) continue;
@@ -168,7 +170,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 					if (con)
 						c = duRGBA(255,255,255,48);
 					else
-						c = duRGBA(0,0,0,48);
+						c = isLinked ? duRGBA(255,0,0,255) : duRGBA(0,0,255,255);
 				}
 				else
 					c = duRGBA(0,48,64,32);
