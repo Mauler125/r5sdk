@@ -1362,19 +1362,13 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 			if (!(poly.flags & DT_POLYFLAGS_JUMP_LINKED))
 				continue;
 
-			for (int c = 0; c < header->offMeshConCount; c++)
-			{
-				const dtOffMeshConnection& conn = tile->offMeshCons[c];
+			const int conIdx = i-header->offMeshBase;
 
-				if (conn.poly != i)
-					continue;
+			const dtOffMeshConnection& conn = tile->offMeshCons[conIdx];
+			rdAssert(conn.poly == i);
 
-				oldOffMeshConnIdMap[c] = offMeshConCount;
-				newOffMeshConnIdMap[offMeshConCount] = c;
-
-				offMeshConCount++;
-				break;
-			}
+			oldOffMeshConnIdMap[offMeshConCount] = conIdx;
+			newOffMeshConnIdMap[conIdx] = offMeshConCount++;
 		}
 		else
 		{
