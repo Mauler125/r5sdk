@@ -238,7 +238,7 @@ void NavMeshPruneTool::handleMenu()
 	dtNavMesh* nav = m_editor->getNavMesh();
 	if (!nav) return;
 
-	if (!m_hitPosSet) return;
+	if (!m_flags || !m_hitPosSet) return;
 
 	if (ImGui::Button("Clear Selection"))
 	{
