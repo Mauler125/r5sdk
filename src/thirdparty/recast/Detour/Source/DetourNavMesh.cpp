@@ -191,10 +191,6 @@ int dtCalcTraverseTableCellIndex(const int numPolyGroups,
 
 int dtCalcTraverseTableSize(const int numPolyGroups)
 {
-	// If we only have 2 poly groups, we don't need a traverse table.
-	if (numPolyGroups < DT_MIN_POLY_GROUP_COUNT)
-		return 0;
-
 	return sizeof(int)*(numPolyGroups*((numPolyGroups+(RD_BITS_PER_BIT_CELL-1))/RD_BITS_PER_BIT_CELL));
 }
 

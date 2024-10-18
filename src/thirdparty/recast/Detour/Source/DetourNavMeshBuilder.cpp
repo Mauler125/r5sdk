@@ -549,19 +549,7 @@ bool dtCreateDisjointPolyGroups(const dtTraverseTableCreateParams* params)
 
 bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 {
-	const dtDisjointSet& baseSet = params->sets[0];
-	const int polyGroupCount = baseSet.getSetCount();
-
 	dtNavMesh* nav = params->nav;
-
-	if (polyGroupCount < DT_MIN_POLY_GROUP_COUNT)
-	{
-		nav->setTraverseTableCount(0);
-		nav->setTraverseTableSize(0);
-		nav->setPolyGroupCount(polyGroupCount);
-
-		return true;
-	}
 
 	nav->freeTraverseTables();
 	const int tableCount = params->tableCount;
@@ -571,6 +559,9 @@ bool dtCreateTraverseTableData(const dtTraverseTableCreateParams* params)
 
 	nav->setTraverseTableCount(tableCount);
 	copyBaseDisjointSets(params);
+
+	const dtDisjointSet& baseSet = params->sets[0];
+	const int polyGroupCount = baseSet.getSetCount();
 
 	const int tableSize = dtCalcTraverseTableSize(polyGroupCount);
 	nav->setTraverseTableSize(tableSize);
