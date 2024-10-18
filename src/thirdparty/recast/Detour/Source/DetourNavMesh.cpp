@@ -806,8 +806,7 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 
 					float baseTmin;
 					float baseTmax;
-					if (!rdCalcSubEdgeArea2D(basePolySpos, basePolyEpos, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, baseTmin, baseTmax))
-						continue;
+					rdCalcSubEdgeArea2D(basePolySpos, basePolyEpos, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, baseTmin, baseTmax);
 
 					float baseEdgeDir[3];
 					rdVsub(baseEdgeDir, baseDetailPolyEdgeEpos, baseDetailPolyEdgeSpos);
@@ -862,7 +861,9 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 						const dtPolyRef landPolyRefBase = getPolyRefBase(landTile);
 						bool firstLandTileLinkUsed = false;
 
-						for (int o = 0; o < landHeader->polyCount; ++o)
+						bool moveToNextTile = false;
+
+						for (int o = 0; (o < landHeader->polyCount) && !moveToNextTile; ++o)
 						{
 							dtPoly* const landPoly = &landTile->polys[o];
 
@@ -874,7 +875,7 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 
 							dtPolyDetail* const landDetail = &landTile->detailMeshes[o];
 
-							for (int p = 0; p < landPoly->vertCount; ++p)
+							for (int p = 0; (p < landPoly->vertCount) && !moveToNextTile; ++p)
 							{
 								if (landPoly->neis[p] != 0)
 									continue;
@@ -883,7 +884,7 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 								const float* const landPolySpos = &landTile->verts[landPoly->verts[p]*3];
 								const float* const landPolyEpos = &landTile->verts[landPoly->verts[(p+1)%landPoly->vertCount]*3];
 
-								for (int q = 0; q < landDetail->triCount; ++q)
+								for (int q = 0; (q < landDetail->triCount) && !moveToNextTile; ++q)
 								{
 									const unsigned char* landTri = &landTile->detailTris[(landDetail->triBase+q)*4];
 									const float* landTriVerts[3];
@@ -901,7 +902,10 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 										if (params.linkToNeighbor)
 										{
 											if (firstLandTileLinkUsed && !landTile->linkCountAvailable(1))
-												continue;
+											{
+												moveToNextTile = true;
+												break;
+											}
 
 											else if (firstBaseTileLinkUsed && !baseTile->linkCountAvailable(1))
 												return DT_FAILURE | DT_OUT_OF_MEMORY;
@@ -921,8 +925,7 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 
 										float landTmin;
 										float landTmax;
-										if (!rdCalcSubEdgeArea2D(landPolySpos, landPolyEpos, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, landTmin, landTmax))
-											continue;
+										rdCalcSubEdgeArea2D(landPolySpos, landPolyEpos, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, landTmin, landTmax);
 
 										float landPolyEdgeMid[3];
 										rdVsad(landPolyEdgeMid, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, 0.5f);
@@ -935,22 +938,6 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 
 										float landEdgeDir[3];
 										rdVsub(landEdgeDir, landDetailPolyEdgeEpos, landDetailPolyEdgeSpos);
-
-										const float dotProduct = rdVdot(baseEdgeDir, landEdgeDir);
-
-										// Edges facing the same direction should not be linked.
-										// Doing so causes links to go through from underneath
-										// geometry. E.g. we have an HVAC on a roof, and we try
-										// to link our roof poly edge facing north to the edge
-										// of the poly on the HVAC also facing north, the link
-										// will go through the HVAC and thus cause the NPC to
-										// jump through it.
-										// Another case where this is necessary is when having
-										// a land edge that connects with the base edge, this
-										// prevents the algorithm from establishing a parallel
-										// traverse link.
-										if (dotProduct > 0)
-											continue;
 
 										const float elevation = rdMathFabsf(basePolyEdgeMid[2] - landPolyEdgeMid[2]);
 										const float slopeAngle = rdMathFabsf(rdCalcSlopeAngle(basePolyEdgeMid, landPolyEdgeMid));

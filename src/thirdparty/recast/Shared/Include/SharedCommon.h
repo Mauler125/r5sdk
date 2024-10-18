@@ -514,8 +514,7 @@ void rdCalcEdgeNormalPt2D(const float* v1, const float* v2, float* out);
 ///  @param[in]		subEdgeEnd		Second vert of the detail edge. [(x, y, z)]
 ///  @param[out]	tmin			The normalized distance ratio from polygon edge start to detail edge start.
 ///  @param[out]	tmax			The normalized distance ratio from polygon edge start to detail edge end.
-/// @return False if tmin and tmax don't correspond to the winding order of the edge.
-bool rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,
+void rdCalcSubEdgeArea2D(const float* edgeStart, const float* edgeEnd, const float* subEdgeStart,
 	const float* subEdgeEnd, float& tmin, float& tmax);
 
 /// Derives the overlap between 2 edges.
