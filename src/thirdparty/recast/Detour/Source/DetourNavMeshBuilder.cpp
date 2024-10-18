@@ -875,24 +875,53 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	// Find portal edges which are at tile borders.
 	int edgeCount = 0;
 	int portalCount = 0;
+	int detailBoundCount = 0;
 	for (int i = 0; i < params->polyCount; ++i)
 	{
 		const unsigned short* p = &params->polys[i*2*nvp];
+		int numPolyBounds = 0;
+
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (p[j] == RD_MESH_NULL_IDX) break;
 			edgeCount++;
 			
-			if (p[nvp+j] & 0x8000)
+			if (!p[nvp+j])
+				numPolyBounds++;
+			else if (p[nvp+j] & 0x8000)
 			{
 				unsigned short dir = p[nvp+j] & 0xf;
 				if (dir != 0xf)
 					portalCount++;
 			}
 		}
+
+		int numDetailBounds = 0;
+
+		if (params->detailMeshes)
+		{
+			const unsigned int tb = params->detailMeshes[i*4+2];
+			const unsigned int tc = params->detailMeshes[i*4+3];
+
+			for (unsigned int j = 0; j < tc; j++)
+			{
+				const unsigned char* tris = &params->detailTris[(tb+j)*4];
+
+				const int ANY_BOUNDARY_EDGE =
+					(RD_DETAIL_EDGE_BOUNDARY << 0) |
+					(RD_DETAIL_EDGE_BOUNDARY << 2) |
+					(RD_DETAIL_EDGE_BOUNDARY << 4);
+
+				if ((tris[3] & ANY_BOUNDARY_EDGE))
+					numDetailBounds++;
+			}
+		}
+
+		// Subtract as polygon bounds are already counted in edgeCount.
+		detailBoundCount += (numDetailBounds-numPolyBounds);
 	}
 
-	const int maxLinkCount = edgeCount + portalCount*2 + baseOffMeshConLinkCount*3 + landOffMeshConLinkCount;
+	const int maxLinkCount = edgeCount + detailBoundCount*4 + portalCount*2 + baseOffMeshConLinkCount*3 + landOffMeshConLinkCount;
 	
 	// Find unique detail vertices.
 	int uniqueDetailVertCount = 0;
