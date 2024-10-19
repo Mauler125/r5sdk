@@ -1356,7 +1356,51 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 		{
 			// Unlinked off-mesh connection, drop it.
 			if (!(poly.flags & DT_POLYFLAGS_JUMP_LINKED))
+			{
+				if (poly.firstLink == DT_NULL_LINK)
+					continue; // Off-mesh link also doesn't have a base.
+
+				// Find and remove the link connecting the poly 
+				// the off-mesh connection is basing from. This
+				// is necessary as otherwise we would still keep
+				// this link while we drop the off-mesh connection.
+				const dtLink& link = tile->links[poly.firstLink];
+
+				unsigned int salt, it, ip;
+				nav->decodePolyId(link.ref, salt, it, ip);
+
+				if (it != tileIndex)
+					continue;
+
+				dtPoly& basePoly = tile->polys[ip];
+
+				unsigned int j = basePoly.firstLink;
+				unsigned int pj = DT_NULL_LINK;
+				while (j != DT_NULL_LINK)
+				{
+					if (nav->decodePolyIdPoly(tile->links[j].ref) == (unsigned int)i)
+					{
+						// Remove link.
+						unsigned int nk = tile->links[j].next;
+						if (pj == DT_NULL_LINK)
+							basePoly.firstLink = nk;
+						else
+							tile->links[pj].next = nk;
+						tile->freeLink(j);
+						j = nk;
+
+						break;
+					}
+					else
+					{
+						// Advance
+						pj = j;
+						j = tile->links[j].next;
+					}
+				}
+
 				continue;
+			}
 
 			const int conIdx = i-header->offMeshBase;
 
@@ -1400,13 +1444,6 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 			detailVertCount += tile->detailMeshes[i].vertCount;
 			detailTriCount += tile->detailMeshes[i].triCount;
 		}
-
-		// Flag all links connected to this polygon.
-		for (unsigned int k = poly.firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
-		{
-			oldLinkIdMap[maxLinkCount] = k;
-			newLinkIdMap[k] = maxLinkCount++;
-		}
 	}
 
 	if (!totPolyCount)
@@ -1415,6 +1452,24 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 		// tile itself has to be removed entirely.
 		rdAssert(0);
 		return false;
+	}
+
+	// Flag links that need to be kept, this has to run separately from the
+	// first loop, since we typically process off-mesh connection polygons
+	// after normal ones, and dropping off-mesh connection links will happen
+	// after we flagged links from some polygons, meaning that if we process
+	// this during the first iteration, dead off-mesh connection links will
+	// still make it into the rebuilt tile.
+	for (int i = 0; i < header->polyCount; i++)
+	{
+		const dtPoly& poly = tile->polys[i];
+
+		// Flag all links connected to this polygon.
+		for (unsigned int j = poly.firstLink; j != DT_NULL_LINK; j = tile->links[j].next)
+		{
+			oldLinkIdMap[maxLinkCount] = j;
+			newLinkIdMap[j] = maxLinkCount++;
+		}
 	}
 
 	// Count without off-mesh link polygons.
@@ -1641,6 +1696,9 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 					if (it != tileIndex)
 						continue;
 
+					// Polygons that are not part of the selection should not
+					// have their refs fixed, these links will be removed once
+					// that tile gets processed.
 					if (salt != tile->salt || ip >= (unsigned int)header->polyCount)
 						continue;
 
@@ -1663,6 +1721,9 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 		// reason for an off-mesh link to be removed is if it can't be based, or
 		// can't be linked to the land-side tile.
 		const dtOffMeshConnection& con = tile->offMeshCons[oldOffMeshConnIdMap[i]];
+		const dtPoly& offMeshPoly = tile->polys[con.poly];
+
+		rdAssert((offMeshPoly.flags & DT_POLYFLAGS_JUMP_LINKED));
 
 		// Find tiles the query touches.
 		int tx, ty;
@@ -1724,20 +1785,12 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 		if (processedExtTiles.find(offTile) != processedExtTiles.end())
 			continue;
 
+		processedExtTiles.insert(offTile);
+
 		for (int j = 0; j < conCount; j++)
 		{
 			const dtOffMeshConnection& con = offTile->offMeshCons[j];
-			const float* landPos = &con.pos[3];
-
-			int tx, ty;
-			nav->calcTileLoc(landPos, &tx, &ty);
-
-			const dtMeshTile* landTile = nav->getTileAt(tx, ty, header->layer);
-
-			if (landTile != tile)
-				continue;
-
-			dtPoly& offMeshPoly = offTile->polys[con.poly];
+			const dtPoly& offMeshPoly = offTile->polys[con.poly];
 
 			// This off-mesh link is dead and will be removed when its origin
 			// tile gets processed.
@@ -1745,9 +1798,18 @@ bool dtUpdateNavMeshData(dtNavMesh* nav, const unsigned int tileIndex)
 				continue;
 
 			dtLink& offMeshLink = offTile->links[offMeshPoly.firstLink];
-			const unsigned int polyIdx = nav->decodePolyIdPoly(offMeshLink.ref);
 
-			offMeshLink.ref = polyRefBase | (dtPolyRef)newPolyIdMap[polyIdx];
+			unsigned int salt, it, ip;
+			nav->decodePolyId(offMeshLink.ref, salt, it, ip);
+
+			if (it != tileIndex)
+				continue;
+
+			if (salt != tile->salt || ip >= (unsigned int)header->polyCount)
+				continue;
+
+			const dtPolyRef newRef = polyRefBase | (dtPolyRef)newPolyIdMap[ip];
+			offMeshLink.ref = newRef;
 		}
 	}
 
