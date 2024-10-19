@@ -56,7 +56,10 @@ class NavMeshTileTool : public EditorTool
 	int m_selectedTraverseType;
 
 	dtTileRef m_markedTileRef;
+	dtTileRef m_lastMarkedTileRef;
+
 	dtPolyRef m_markedPolyRef;
+	dtPolyRef m_lastMarkedPolyRef;
 
 	enum TileToolCursorMode
 	{
@@ -96,7 +99,9 @@ public:
 		m_selectedSide(-1),
 		m_selectedTraverseType(-2),
 		m_markedTileRef(0),
+		m_lastMarkedTileRef(0),
 		m_markedPolyRef(0),
+		m_lastMarkedPolyRef(0),
 		m_cursorMode(TT_CURSOR_MODE_DEBUG),
 		m_textOverlayDrawMode(TO_DRAW_MODE_DISABLED),
 		m_textOverlayDrawFlags(TO_DRAW_FLAGS_NONE),
@@ -301,22 +306,34 @@ public:
 		if (m_markedTileRef && m_editor && m_navMesh)
 		{
 			const dtMeshTile* tile = m_navMesh->getTileByRef(m_markedTileRef);
+			const dtMeshHeader* header = tile->header;
 
-			if (tile && tile->header)
+			if (tile && header)
 			{
+				if (m_markedTileRef != m_lastMarkedTileRef)
+				{
+					m_lastMarkedTileRef = m_markedTileRef;
+
+					float bmin[3];
+					float bmax[3];
+					tile->getTightBounds(bmin, bmax);
+
+					rdVsad(m_nearestPos, bmin, bmax, 0.5f);
+				}
+
 				duDrawTraverseLinkParams params;
 				duDebugDrawMeshTile(&m_editor->getDebugDraw(), *m_navMesh, 0, tile, debugDrawOffset, m_editor->getNavMeshDrawFlags(), params);
 
 				const int side = (m_selectedSide != -1) 
 					? m_selectedSide
-					: rdClassifyPointOutsideBounds(m_hitPos, tile->header->bmin, tile->header->bmax);
+					: rdClassifyPointOutsideBounds(m_hitPos, header->bmin, header->bmax);
 
 				if (side != 0xff)
 				{
 					const int MAX_NEIS = 32; // Max neighbors
 					dtMeshTile* neis[MAX_NEIS];
 
-					const int nneis = m_navMesh->getNeighbourTilesAt(tile->header->x, tile->header->y, side, neis, MAX_NEIS);
+					const int nneis = m_navMesh->getNeighbourTilesAt(header->x, header->y, side, neis, MAX_NEIS);
 
 					for (int i = 0; i < nneis; i++)
 					{
@@ -329,6 +346,17 @@ public:
 
 		if (m_markedPolyRef && m_editor && m_navMesh)
 		{
+			const dtMeshTile* tile;
+			const dtPoly* poly;
+			if (dtStatusSucceed(m_navMesh->getTileAndPolyByRef(m_markedPolyRef, &tile, &poly)))
+			{
+				if (m_markedPolyRef != m_lastMarkedPolyRef)
+				{
+					m_lastMarkedPolyRef = m_markedPolyRef;
+					rdVcopy(m_nearestPos, poly->center);
+				}
+			}
+
 			duDebugDrawNavMeshPoly(&m_editor->getDebugDraw(), *m_navMesh, m_markedPolyRef,
 				debugDrawOffset, m_editor->getNavMeshDrawFlags(), duRGBA(255, 0, 170, 190), false);
 		}
