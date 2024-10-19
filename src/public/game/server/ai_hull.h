@@ -31,12 +31,12 @@ enum Hull_e
 struct Hull_s
 {
 	Hull_s(const char* pName, int bit, const Vector3D& _mins, const Vector3D& _maxs,
-		  const float _height, const float _scale, const float _unk10, const float _unk11, 
+		  const float _stepHeight, const float _scale, const float _unk10, const float _unk11,
 		  const unsigned int _traceMask, NavMeshType_e _navMeshType)
 
 		: hullName(pName), hullBit(bit)
 		, mins(_mins), maxs(_maxs)
-		, height(_height), scale(_scale)
+		, stepHeight(_stepHeight), scale(_scale)
 		, unk10(_unk10), unk11(_unk11)
 		, traceMask(_traceMask), navMeshType(_navMeshType) {}
 
@@ -46,7 +46,7 @@ struct Hull_s
 	Vector3D mins;
 	Vector3D maxs;
 
-	float height; // IK Height?
+	float stepHeight;
 	float scale;  // Some scale?
 
 	float unk10;
@@ -99,6 +99,8 @@ namespace NAI_Hull
 	inline float Width(const Hull_e id)  { return (g_aiHullProperties[id].maxs.y - g_aiHullProperties[id].mins.y); }
 	inline float Height(const Hull_e id) { return (g_aiHullProperties[id].maxs.z - g_aiHullProperties[id].mins.z); }
 	inline float Scale(const Hull_e id)  { return g_aiHullProperties[id].scale; }
+
+	inline float StepHeight(const Hull_e id) { return g_aiHullProperties[id].stepHeight; }
 
 	inline int Bits(const Hull_e id) { return g_aiHullProperties[id].hullBit; }
 	inline const char* Name(const Hull_e id) { return g_aiHullProperties[id].hullName; }
