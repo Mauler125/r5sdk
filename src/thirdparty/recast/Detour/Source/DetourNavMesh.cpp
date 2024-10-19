@@ -620,18 +620,18 @@ dtStatus dtNavMesh::connectOffMeshLinks(const dtTileRef tileRef)
 		con->setTraverseType(traverseType, 0);
 #endif
 
+		// Link off-mesh connection to target poly.
+		if (!connectOffMeshLink(tile, conPoly, basePolyRef, 0xff, 0, DT_NULL_TRAVERSE_TYPE, 0))
+			return DT_FAILURE | DT_OUT_OF_MEMORY;
+
 		// Start end-point is always connect back to off-mesh connection.
-		const unsigned short basePolyIdx = (unsigned short)decodePolyIdPoly(basePolyRef);
+		const unsigned int basePolyIdx = decodePolyIdPoly(basePolyRef);
 		dtPoly* basePoly = &tile->polys[basePolyIdx];
 
 		const dtPolyRef conPolyRef = base | (dtPolyRef)(con->poly);
 
 		if (!connectOffMeshLink(tile, basePoly, conPolyRef, 0xff, 0xff, traverseType,
 			invertVertLookup ? DT_OFFMESH_CON_TRAVERSE_ON_VERT : DT_OFFMESH_CON_TRAVERSE_ON_POLY))
-			return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-		// Link off-mesh connection to target poly.
-		if (!connectOffMeshLink(tile, conPoly, basePolyRef, 0xff, 0, DT_NULL_TRAVERSE_TYPE, 0))
 			return DT_FAILURE | DT_OUT_OF_MEMORY;
 
 		// connect to land points.
@@ -679,10 +679,9 @@ dtStatus dtNavMesh::connectOffMeshLinks(const dtTileRef tileRef)
 					return DT_FAILURE | DT_OUT_OF_MEMORY;
 			}
 
-#if DT_NAVMESH_SET_VERSION >= 7
 			// Off-mesh link is fully linked, mark it.
 			conPoly->flags |= DT_POLYFLAGS_JUMP_LINKED;
-#endif
+
 			// All links have been established, break out entirely.
 			break;
 		}
@@ -1743,7 +1742,7 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	}
 
 	// Disconnect from off-mesh links originating from other tiles.
-	for (int i = 0; i < m_tileCount; ++i)
+	for (int i = 0; i < m_maxTiles; ++i)
 	{
 		dtMeshTile* offTile = &m_tiles[i];
 
@@ -2182,16 +2181,16 @@ float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
 	const float dx = epos[0]-spos[0];
 	const float dy = epos[1]-spos[1];
 
-	const float yawDeg = rdMathAtan2f(dy, dx);
-	return rdDegToRad(yawDeg);
+	const float yawRad = rdMathAtan2f(dy, dx);
+	return rdRadToDeg(yawRad);
 }
 
-void dtCalcOffMeshRefPos(const float* spos, float yawRad, float offset, float* res)
+void dtCalcOffMeshRefPos(const float* spos, float yawDeg, float offset, float* res)
 {
-	const float yawDeg = rdRadToDeg(yawRad);
+	const float yawRad = rdDegToRad(yawDeg);
 
-	const float dx = offset*rdMathCosf(yawDeg);
-	const float dy = offset*rdMathSinf(yawDeg);
+	const float dx = offset*rdMathCosf(yawRad);
+	const float dy = offset*rdMathSinf(yawRad);
 
 	res[0] = spos[0]+dx;
 	res[1] = spos[1]+dy;
