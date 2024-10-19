@@ -557,8 +557,8 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, const unsigned i
 
 		if (tmin)
 			*tmin = isectTmin;
-
-		return true;
+		else
+			return true;
 	}
 
 	const bool traceWorld = mask & TRACE_WORLD;
