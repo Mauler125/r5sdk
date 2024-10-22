@@ -306,10 +306,11 @@ public:
 		if (m_markedTileRef && m_editor && m_navMesh)
 		{
 			const dtMeshTile* tile = m_navMesh->getTileByRef(m_markedTileRef);
-			const dtMeshHeader* header = tile->header;
 
-			if (tile && header)
+			if (tile && tile->header)
 			{
+				const dtMeshHeader* header = tile->header;
+
 				if (m_markedTileRef != m_lastMarkedTileRef)
 				{
 					m_lastMarkedTileRef = m_markedTileRef;
