@@ -1252,7 +1252,7 @@ bool Editor::loadAll(std::string path, const bool fullPath)
 
 	if (!fullPath) // Load from model name (e.g. "mp_rr_box").
 	{
-		fs::path p = "..\\maps\\navmesh\\";
+		fs::path p = "..\\platform\\maps\\navmesh\\";
 		if (fs::is_directory(p))
 		{
 			path.insert(0, p.string());
@@ -1367,7 +1367,7 @@ void Editor::saveAll(std::string path, const dtNavMesh* mesh)
 	if (!mesh)
 		return;
 
-	fs::path p = "..\\maps\\navmesh\\";
+	fs::path p = "..\\platform\\maps\\navmesh\\";
 	if (fs::is_directory(p))
 	{
 		path.insert(0, p.string());
