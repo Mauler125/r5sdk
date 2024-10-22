@@ -1680,10 +1680,8 @@ bool dtNavMesh::isGoalPolyReachable(const dtPolyRef fromRef, const dtPolyRef goa
 	const unsigned short fromPolyGroupId = fromPoly->groupId;
 	const unsigned short goalPolyGroupId = goalPoly->groupId;
 
-	// If we don't have an anim type, then we shouldn't use the traverse tables
-	// since these are used for linking isolated poly islands together (which 
-	// requires jumping or some form of animation). So instead, check if we are
-	// on the same poly island.
+	// If we don't utilize traverse portals, check if we are on the same island as
+	// its impossible to reach the goal if we aren't.
 	if (checkDisjointGroupsOnly)
 		return fromPolyGroupId == goalPolyGroupId;
 
