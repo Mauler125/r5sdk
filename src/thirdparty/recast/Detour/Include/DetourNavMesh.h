@@ -347,6 +347,18 @@ struct dtPolyDetail
 	unsigned char triCount;			///< The number of triangles in the sub-mesh.
 };
 
+/// Defines the vertical triangle of a wall hint.
+struct dtTriangleSurface
+{
+	float pos[3];					///< The surface position of the triangle. [(x, y, z)]
+	float minDist;					///< The minimum distance between the agent's and triangle position before they are considered close enough.
+	unsigned short vertAIndex;		///< The index of the first vert connecting A->B.
+	unsigned short vertBIndex;		///< The index of the second vert connecting B->C.
+	unsigned short vertCIndex;		///< The index of the third vert connecting C->A.
+	float surfArea;					///< The surface area of the triangle. (Note: this field was unused by the engine and therefore re-purposed).
+	unsigned char edgeFlags;		///< The edge flags, use #dtGetDetailTriEdgeFlags to retrieve them.
+};
+
 /// Get flags for edge in detail triangle.
 /// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
 /// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0.
@@ -395,6 +407,18 @@ struct dtCell
 #else
 	unsigned char data[52]; // TODO: reverse this, always appears 0.
 #endif
+};
+
+/// Defines a hint in the navmesh.
+/// @note This is used to define wall surface triangles to help with special movements such as wall running.
+/// @see dtOffMeshConnection
+struct dtHint
+{
+	float* verts;					///< The triangle vertices. [Size: (x, y, z) * dtHint::vertCount]
+	dtTriangleSurface* triangle;	///< The triangles. [Size: dtHint::vertCount]
+	char unk[24]; // Editor only.
+	int vertCount;					///< The number of vertices in the hint.
+	int triCount;					///< The number of triangles in the hint.
 };
 
 /// Bounding volume node.
@@ -547,6 +571,14 @@ struct dtMeshHeader
 	float bvQuantFactor;
 };
 
+/// Navigation mesh tile memory tracker base class.
+/// @ingroup detour
+class dtMeshTileMemoryTracker
+{
+public:
+	virtual void destroy(const int flags) = 0;
+};
+
 /// Defines a navigation mesh tile.
 /// @ingroup detour
 struct dtMeshTile
@@ -588,7 +620,7 @@ public:
 	int dataSize;							///< Size of the tile data.
 	int flags;								///< Tile flags. (See: #dtTileFlags)
 	dtMeshTile* next;						///< The next free tile, or the next tile in the spatial grid.
-	void* deleteCallback;					///< Custom destruction callback, called after free. (See [r5apex_ds + F437D9] for usage.)
+	dtMeshTileMemoryTracker* tracker;		///< The tiles memory tracker, called after destruction. (See [r5apex_ds + F437D9] for usage.)
 private:
 	dtMeshTile(const dtMeshTile&);
 	dtMeshTile& operator=(const dtMeshTile&);
@@ -655,18 +687,14 @@ struct dtNavMeshParams
 {
 	float orig[3];					///< The world space origin of the navigation mesh's tile space. [(x, y, z)]
 	float tileWidth;				///< The width of each tile. (Along the x-axis.)
-	float tileHeight;				///< The height of each tile. (Along the z-axis.)
+	float tileHeight;				///< The height of each tile. (Along the y-axis.)
 	int maxTiles;					///< The maximum number of tiles the navigation mesh can contain. This and maxPolys are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 	int maxPolys;					///< The maximum number of polygons each tile can contain. This and maxTiles are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 	int polyGroupCount;				///< The total number of disjoint polygon groups.
 	int traverseTableSize;			///< The total size of the static traverse table. This is computed using calcTraverseTableSize(polyGroupcount).
 	int traverseTableCount;			///< The total number of traverse tables in this navmesh. Each TraverseAnimType uses its own table as their available jump links should match their behavior and abilities.
-
 #if DT_NAVMESH_SET_VERSION >= 7
-	// NOTE: this seems to be used for some wallrunning code. This allocates a buffer of size 0x30 * magicDataCount,
-	// then copies in the data 0x30 * magicDataCount at the end of the navmesh file (past the traverse tables).
-	// See [r5apex_ds + F43600] for buffer allocation and data copy, see note at dtNavMesh::m_someMagicData for usage.
-	int magicDataCount;
+	int hintCount;					///< The total number of hints in the navmesh.
 #endif
 };
 
@@ -770,8 +798,8 @@ public:
 	/// @return The maximum number of tiles supported by the navigation mesh.
 	int getMaxTiles() const;
 
-	/// The number of tiles added to this mesh by dtNavMesh::addTile
-	/// @return The number of tiles added to this mesh by dtNavMesh::addTile
+	/// The number of tiles added to this mesh by #addTile.
+	/// @return The number of tiles added to this mesh by #addTile.
 	int getTileCount() const { return m_tileCount; };
 
 	/// Gets the tile at the specified index.
@@ -842,6 +870,8 @@ public:
 	/// Sets the size of the traverse table.
 	///  @param[in]	size	The size of the traverse table.
 	void setTraverseTableSize(const int size) { m_params.traverseTableSize = size; }
+
+	void freeHints();
 
 	/// @}
 
@@ -1049,10 +1079,7 @@ private:
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
 	int** m_traverseTables;				///< Array of traverse tables.
-
-	///< FIXME: unknown structure pointer, used for some wallrunning code, see [r5apex_ds + F12687] for usage.
-	///< See note at dtNavMeshParams::magicDataCount for buffer allocation.
-	void* m_someMagicData;
+	dtHint* m_hints;					///< List of hints.
 
 	int m_unused0;
 	int m_unused1;

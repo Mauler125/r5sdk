@@ -44,9 +44,7 @@ void Detour_FreeNavMeshByType(const NavMeshType_e navMeshType)
     {
         // Frees tiles, polys, tris, anything dynamically
         // allocated for this navmesh, and the navmesh itself.
-        v_Detour_FreeNavMesh(nav);
-        free(nav);
-
+        delete nav;
         g_pNavMesh[navMeshType] = nullptr;
     }
 }

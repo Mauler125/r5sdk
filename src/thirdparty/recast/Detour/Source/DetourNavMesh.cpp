@@ -255,7 +255,7 @@ dtNavMesh::dtNavMesh() :
 	m_nextFree(0),
 	m_tiles(0),
 	m_traverseTables(0),
-	m_someMagicData(0),
+	m_hints(0),
 	m_unused0(0),
 	m_unused1(0)
 {
@@ -268,15 +268,24 @@ dtNavMesh::dtNavMesh() :
 	rdVset(m_orig, 0.0f,0.0f,0.0f);
 }
 
-dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this correctly
+dtNavMesh::~dtNavMesh()
 {
 	for (int i = 0; i < m_maxTiles; ++i)
 	{
-		if (m_tiles[i].flags & DT_TILE_FREE_DATA)
+		dtMeshTile& tile = m_tiles[i];
+		const int flags = tile.flags;
+
+		if (flags & DT_TILE_FREE_DATA)
 		{
-			rdFree(m_tiles[i].data);
-			m_tiles[i].data = 0;
-			m_tiles[i].dataSize = 0;
+			if (flags & DT_CELL_FREE_DATA)
+				rdFree(tile.cells);
+
+			rdFree(tile.data);
+			tile.data = 0;
+			tile.dataSize = 0;
+
+			if (tile.tracker)
+				tile.tracker->destroy(1);
 		}
 	}
 
@@ -284,8 +293,9 @@ dtNavMesh::~dtNavMesh() // TODO: see [r5apex_ds + F43720] to re-implement this c
 	rdFree(m_tiles);
 
 	freeTraverseTables();
+	freeHints();
 }
-		
+
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 {
 	memcpy(&m_params, params, sizeof(dtNavMeshParams));
@@ -354,7 +364,7 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int tabl
 	params.traverseTableSize = 0;
 	params.traverseTableCount = tableCount;
 #if DT_NAVMESH_SET_VERSION >= 7
-	params.magicDataCount = 0;
+	params.hintCount = 0;
 #endif
 	
 	dtStatus status = init(&params);
@@ -1380,7 +1390,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	if (!tile)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-	tile->deleteCallback = nullptr;
+	tile->tracker = nullptr;
 	
 	// Insert tile into the position lut.
 	if (header->userId != DT_FULL_UNLINKED_TILE_USER_ID)
@@ -2081,6 +2091,19 @@ void dtNavMesh::setTraverseTable(const int index, int* const table)
 		rdFree(m_traverseTables[index]);
 
 	m_traverseTables[index] = table;
+}
+
+void dtNavMesh::freeHints()
+{
+	for (int i = 0; i < m_params.hintCount; i++)
+	{
+		dtHint& hint = m_hints[i];
+
+		rdFree(hint.verts);
+		rdFree(hint.triangle);
+	}
+
+	rdFree(m_hints);
 }
 
 dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)

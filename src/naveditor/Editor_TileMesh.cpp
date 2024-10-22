@@ -655,7 +655,7 @@ bool Editor_TileMesh::handleBuild()
 	params.traverseTableSize = 0;
 	params.traverseTableCount = 0;
 #if DT_NAVMESH_SET_VERSION >= 8
-	params.magicDataCount = 0;
+	params.hintCount = 0;
 #endif
 	
 	dtStatus status;
