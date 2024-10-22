@@ -413,7 +413,8 @@ static void drawTileBounds(duDebugDraw* dd, const dtMeshTile* tile, const float*
 static void drawOffMeshConnectionRefPosition(duDebugDraw* dd, const dtOffMeshConnection* con)
 {
 	float refPosDir[3];
-	dtCalcOffMeshRefPos(con->refPos, con->refYaw, DT_OFFMESH_CON_REFPOS_OFFSET, refPosDir);
+	const float arrowLength[3] = { 35.f, 35.f, 0.f };
+	dtCalcOffMeshRefPos(con->refPos, con->refYaw, arrowLength, refPosDir);
 
 	duAppendArrow(dd, con->refPos[0], con->refPos[1], con->refPos[2],
 		refPosDir[0], refPosDir[1], refPosDir[2], 0.f, 10.f, duRGBA(255,255,0,255));

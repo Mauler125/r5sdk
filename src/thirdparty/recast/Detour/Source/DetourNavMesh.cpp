@@ -2206,16 +2206,16 @@ float dtCalcOffMeshRefYaw(const float* spos, const float* epos)
 	return rdRadToDeg(yawRad);
 }
 
-void dtCalcOffMeshRefPos(const float* spos, float yawDeg, float offset, float* res)
+void dtCalcOffMeshRefPos(const float* spos, const float yawDeg, const float* offset, float* res)
 {
 	const float yawRad = rdDegToRad(yawDeg);
 
-	const float dx = offset*rdMathCosf(yawRad);
-	const float dy = offset*rdMathSinf(yawRad);
+	const float dx = offset[0]*rdMathCosf(yawRad);
+	const float dy = offset[1]*rdMathSinf(yawRad);
 
 	res[0] = spos[0]+dx;
 	res[1] = spos[1]+dy;
-	res[2] = spos[2];
+	res[2] = spos[2]+offset[2];
 }
 
 int dtGetNavMeshVersionForSet(const int setVersion)

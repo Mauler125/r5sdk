@@ -530,7 +530,7 @@ extern float dtCalcOffMeshRefYaw(const float* spos, const float* epos);
 /// @param	yawRad[in]		The yaw angle of the off-mesh connection in radians.
 /// @param	offset[in]		The desired offset from the start position.
 /// @param	res[in]			The output ref position.
-extern void dtCalcOffMeshRefPos(const float* spos, float yawRad, float offset, float* res);
+extern void dtCalcOffMeshRefPos(const float* spos, const float yawDeg, const float* offset, float* res);
 
 /// Provides high level information related to a dtMeshTile object.
 /// @ingroup detour

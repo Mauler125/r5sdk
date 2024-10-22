@@ -266,6 +266,13 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 					   &yaw,
 					   &bidir, &jump, &order, &area, &flags);
 
+				if (std::isnan(yaw))
+				{
+					const float offset[3] = { 0.0f,0.0f,rad };
+					yaw = dtCalcOffMeshRefYaw(&verts[0], &verts[3]);
+					dtCalcOffMeshRefPos(verts, yaw, offset, refs);
+				}
+
 				m_offMeshConRads[m_offMeshConCount] = rad;
 				m_offMeshConRefYaws[m_offMeshConCount] = yaw;
 				m_offMeshConDirs[m_offMeshConCount] = (unsigned char)bidir;
@@ -613,11 +620,11 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, const unsigned i
 	return hit;
 }
 
-void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad,
+int InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad,
 									 unsigned char bidir, unsigned char jump, unsigned char order,
 									 unsigned char area, unsigned short flags)
 {
-	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
+	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return -1;
 	rdAssert(jump < DT_MAX_TRAVERSE_TYPES);
 
 	float* verts = &m_offMeshConVerts[m_offMeshConCount*3*2];
@@ -626,7 +633,8 @@ void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const
 
 	float* refs = &m_offMeshConRefPos[m_offMeshConCount*3];
 	const float yaw = dtCalcOffMeshRefYaw(spos, epos);
-	dtCalcOffMeshRefPos(spos, yaw, DT_OFFMESH_CON_REFPOS_OFFSET, refs);
+	const float offset[3] = { 0.0f,0.0f,rad };
+	dtCalcOffMeshRefPos(spos, yaw, offset, refs);
 
 	m_offMeshConRads[m_offMeshConCount] = rad;
 	m_offMeshConRefYaws[m_offMeshConCount] = yaw;
@@ -636,7 +644,8 @@ void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const
 	m_offMeshConAreas[m_offMeshConCount] = area;
 	m_offMeshConFlags[m_offMeshConCount] = flags;
 	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
-	m_offMeshConCount++;
+
+	return m_offMeshConCount++;
 }
 
 void InputGeom::deleteOffMeshConnection(int i)
@@ -661,10 +670,9 @@ void InputGeom::deleteOffMeshConnection(int i)
 	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];
 }
 
-void InputGeom::drawOffMeshConnections(duDebugDraw* dd, const float* offset, bool hilight)
+void InputGeom::drawOffMeshConnections(duDebugDraw* dd, const float* offset, const int hilightIdx)
 {
-	unsigned int conColor = duRGBA(192,0,128,192);
-	unsigned int baseColor = duRGBA(0,0,0,64);
+	const unsigned int baseColor = duRGBA(0,0,0,64);
 	dd->depthMask(false);
 
 	dd->begin(DU_DRAW_LINES, 2.0f, offset);
@@ -681,16 +689,16 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, const float* offset, boo
 		duAppendCircle(dd, v[0],v[1],v[2]+5.0f, m_offMeshConRads[i], baseColor);
 		duAppendCircle(dd, v[3],v[4],v[5]+5.0f, m_offMeshConRads[i], baseColor);
 
-		if (hilight)
-		{
-			duAppendArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f,
-						(m_offMeshConDirs[i]&DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, conColor);
-		}
+		const unsigned int conColor = hilightIdx == i ? duRGBA(192,0,128,192) : duRGBA(152,0,78,192);
+
+		duAppendArc(dd, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f,
+			(m_offMeshConDirs[i] & DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, conColor);
 
 		float* r = &m_offMeshConRefPos[i*3];
 		float refPosDir[3];
 
-		dtCalcOffMeshRefPos(r, m_offMeshConRefYaws[i], DT_OFFMESH_CON_REFPOS_OFFSET, refPosDir);
+		const float arrowLength[3] = { 35.f, 35.f, 0.f };
+		dtCalcOffMeshRefPos(r, m_offMeshConRefYaws[i], arrowLength, refPosDir);
 
 		duAppendArrow(dd, r[0],r[1],r[2], refPosDir[0],refPosDir[1],refPosDir[2], 0.f, 10.f, duRGBA(255,255,0,255));
 	}	

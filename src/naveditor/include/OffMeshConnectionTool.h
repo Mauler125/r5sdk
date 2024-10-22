@@ -23,10 +23,25 @@
 
 // Tool to create off-mesh connection for InputGeom
 
+// TODO: eventually this needs to be the type for off-mesh connections in InputGeom!
+struct OffMeshConnection
+{
+	float pos[6];
+	float refPos[3];
+	float rad;
+	float refYaw;
+	unsigned char dir;
+	unsigned char jump;
+	unsigned char order;
+	unsigned char area;
+	unsigned short flags;
+};
+
 class OffMeshConnectionTool : public EditorTool
 {
 	Editor* m_editor;
 	float m_hitPos[3];
+	float m_refOffset[3];
 	float m_lastSelectedAgentRadius;
 	float m_radius;
 	bool m_hitPosSet;
@@ -34,10 +49,17 @@ class OffMeshConnectionTool : public EditorTool
 	bool m_invertVertexLookupOrder;
 	int m_traverseType;
 	unsigned int m_oldFlags;
+
+	int m_selectedOffMeshIndex;
+	int m_copiedOffMeshIndex;
+
+	OffMeshConnection m_copyOffMeshInstance;
 	
 public:
 	OffMeshConnectionTool();
 	~OffMeshConnectionTool();
+
+	void renderModifyMenu();
 	
 	virtual int type() { return TOOL_OFFMESH_CONNECTION; }
 	virtual void init(Editor* editor);

@@ -174,28 +174,28 @@ public:
 
 	/// @name Off-Mesh connections.
 	///@{
-	int getOffMeshConnectionCount() const { return m_offMeshConCount; }
-	const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
-	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
-	const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
-	const unsigned char* getOffMeshConnectionJumps() const { return m_offMeshConJumps; }
-	const unsigned char* getOffMeshConnectionOrders() const { return m_offMeshConOrders; }
-	const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
-	const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
-	const unsigned short* getOffMeshConnectionId() const { return m_offMeshConId; }
-	const float* getOffMeshConnectionRefPos() const { return m_offMeshConRefPos; }
-	const float* getOffMeshConnectionRefYaws() const { return m_offMeshConRefYaws; }
-	void addOffMeshConnection(const float* spos, const float* epos, const float rad,
+	int getOffMeshConnectionCount() { return m_offMeshConCount; }
+	float* getOffMeshConnectionVerts() { return m_offMeshConVerts; }
+	float* getOffMeshConnectionRads() { return m_offMeshConRads; }
+	unsigned char* getOffMeshConnectionDirs() { return m_offMeshConDirs; }
+	unsigned char* getOffMeshConnectionJumps() { return m_offMeshConJumps; }
+	unsigned char* getOffMeshConnectionOrders() { return m_offMeshConOrders; }
+	unsigned char* getOffMeshConnectionAreas() { return m_offMeshConAreas; }
+	unsigned short* getOffMeshConnectionFlags() { return m_offMeshConFlags; }
+	unsigned short* getOffMeshConnectionId() { return m_offMeshConId; }
+	float* getOffMeshConnectionRefPos() { return m_offMeshConRefPos; }
+	float* getOffMeshConnectionRefYaws() { return m_offMeshConRefYaws; }
+	int addOffMeshConnection(const float* spos, const float* epos, const float rad,
 							  unsigned char bidir, unsigned char jump, unsigned char order, 
 							  unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
-	void drawOffMeshConnections(struct duDebugDraw* dd, const float* offset, bool hilight = false);
+	void drawOffMeshConnections(struct duDebugDraw* dd, const float* offset, const int hilightIdx = -1);
 	///@}
 
 	/// @name Shape Volumes.
 	///@{
-	int getShapeVolumeCount() const { return m_volumeCount; } // todo(amos): rename to 'getShapeVolumeCount'
-	ShapeVolume* getShapeVolumes() { return m_volumes; } // todo(amos): rename to 'getShapeVolumes'
+	int getShapeVolumeCount() const { return m_volumeCount; }
+	ShapeVolume* getShapeVolumes() { return m_volumes; }
 	int addBoxVolume(const float* bmin, const float* bmax,
 						 unsigned short flags, unsigned char area);
 	int addCylinderVolume(const float* pos, const float radius,
