@@ -328,6 +328,11 @@ void ShapeVolumeTool::handleMenu()
 			vol.flags = (unsigned short)flags;
 	}
 
+	if (ImGui::Button("Reset Shape##ShapeVolumeModify"))
+	{
+		vol = m_shapeCopy;
+	}
+
 	if (ImGui::Button("Delete Shape##ShapeVolumeModify"))
 	{
 		geom->deleteShapeVolume(m_selectedVolumeIndex);
