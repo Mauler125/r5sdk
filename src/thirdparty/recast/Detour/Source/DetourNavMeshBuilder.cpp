@@ -442,7 +442,8 @@ static void copyBaseDisjointSets(const dtTraverseTableCreateParams* params)
 		if (i > 0) // Don't copy the base into itself.
 			set.copy(targetSet);
 
-		unionTraverseLinkedPolyGroups(params, i);
+		if (!params->collapseGroups)
+			unionTraverseLinkedPolyGroups(params, i);
 	}
 }
 
