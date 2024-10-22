@@ -293,7 +293,9 @@ dtNavMesh::~dtNavMesh()
 	rdFree(m_tiles);
 
 	freeTraverseTables();
+#if DT_NAVMESH_SET_VERSION >= 7
 	freeHints();
+#endif
 }
 
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
@@ -2091,6 +2093,7 @@ void dtNavMesh::setTraverseTable(const int index, int* const table)
 	m_traverseTables[index] = table;
 }
 
+#if DT_NAVMESH_SET_VERSION >= 7
 void dtNavMesh::freeHints()
 {
 	for (int i = 0; i < m_params.hintCount; i++)
@@ -2103,6 +2106,7 @@ void dtNavMesh::freeHints()
 
 	rdFree(m_hints);
 }
+#endif
 
 dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)
 {

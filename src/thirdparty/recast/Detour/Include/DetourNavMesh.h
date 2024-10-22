@@ -871,7 +871,9 @@ public:
 	///  @param[in]	size	The size of the traverse table.
 	void setTraverseTableSize(const int size) { m_params.traverseTableSize = size; }
 
+#if DT_NAVMESH_SET_VERSION >= 7
 	void freeHints();
+#endif
 
 	/// @}
 
