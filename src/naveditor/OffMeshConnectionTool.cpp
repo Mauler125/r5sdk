@@ -48,10 +48,10 @@ OffMeshConnectionTool::~OffMeshConnectionTool()
 {
 	if (m_editor)
 	{
-		if (m_oldFlags & DU_DRAWNAVMESH_OFFMESHCONS)
+		if (m_oldFlags & DU_DRAW_DETOURMESH_OFFMESHCONS)
 		{
 			const unsigned int curFlags = m_editor->getNavMeshDrawFlags();
-			m_editor->setNavMeshDrawFlags(curFlags | DU_DRAWNAVMESH_OFFMESHCONS);
+			m_editor->setNavMeshDrawFlags(curFlags | DU_DRAW_DETOURMESH_OFFMESHCONS);
 		}
 	}
 }
@@ -62,7 +62,7 @@ void OffMeshConnectionTool::init(Editor* editor)
 	{
 		m_editor = editor;
 		m_oldFlags = m_editor->getNavMeshDrawFlags();
-		m_editor->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAWNAVMESH_OFFMESHCONS);
+		m_editor->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAW_DETOURMESH_OFFMESHCONS);
 
 		const float agentRadius = m_editor->getAgentRadius();
 		m_radius = agentRadius;

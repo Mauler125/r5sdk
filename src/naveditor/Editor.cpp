@@ -140,8 +140,8 @@ Editor::Editor() :
 	m_navQuery(0),
 	m_crowd(0),
 	m_navMeshDrawFlags(
-		DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_WITH_CLOSED_LIST|
-		DU_DRAWNAVMESH_POLY_FACES|DU_DRAWNAVMESH_POLY_BOUNDS_OUTER|DU_DRAWNAVMESH_ALPHA),
+		DU_DRAW_DETOURMESH_OFFMESHCONS|DU_DRAW_DETOURMESH_WITH_CLOSED_LIST|
+		DU_DRAW_DETOURMESH_POLY_FACES|DU_DRAW_DETOURMESH_POLY_BOUNDS_OUTER|DU_DRAW_DETOURMESH_ALPHA),
 	m_filterLowHangingObstacles(true),
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
@@ -921,102 +921,102 @@ void Editor::renderDetourDebugMenu()
 {
 	ImGui::Text("Detour Render Options");
 
-	bool isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_OFFMESHCONS);
+	bool isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_OFFMESHCONS);
 
 	if (ImGui::Checkbox("Off-Mesh Connections", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_OFFMESHCONS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_OFFMESHCONS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_QUERY_NODES);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_QUERY_NODES);
 
 	if (ImGui::Checkbox("Query Nodes", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_QUERY_NODES);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_QUERY_NODES);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_BVTREE);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_BVTREE);
 
 	if (ImGui::Checkbox("BVTree", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_BVTREE);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_BVTREE);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_PORTALS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_PORTALS);
 
 	if (ImGui::Checkbox("Portals", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_PORTALS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_PORTALS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_WITH_CLOSED_LIST);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_WITH_CLOSED_LIST);
 
 	if (ImGui::Checkbox("Closed List", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_WITH_CLOSED_LIST);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_WITH_CLOSED_LIST);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TILE_COLORS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_TILE_COLORS);
 
 	if (ImGui::Checkbox("Tile ID Colors", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_COLORS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_TILE_COLORS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TILE_BOUNDS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_TILE_BOUNDS);
 
 	if (ImGui::Checkbox("Tile Bounds", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_BOUNDS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_TILE_BOUNDS);
 
 #if DT_NAVMESH_SET_VERSION >= 8
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TILE_CELLS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_TILE_CELLS);
 
 	if (ImGui::Checkbox("Tile Cells", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TILE_CELLS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_TILE_CELLS);
 #endif
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_FACES);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_POLY_FACES);
 
 	if (ImGui::Checkbox("Poly Faces", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_FACES);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_POLY_FACES);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_EDGES);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_POLY_EDGES);
 
 	if (ImGui::Checkbox("Poly Edges", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_EDGES);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_POLY_EDGES);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_VERTS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_POLY_VERTS);
 
 	if (ImGui::Checkbox("Poly Verts", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_VERTS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_POLY_VERTS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_BOUNDS_INNER);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_POLY_BOUNDS_INNER);
 
 	if (ImGui::Checkbox("Inner Poly Boundaries", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_BOUNDS_INNER);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_POLY_BOUNDS_INNER);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_BOUNDS_OUTER);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_POLY_BOUNDS_OUTER);
 
 	if (ImGui::Checkbox("Outer Poly Boundaries", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_BOUNDS_OUTER);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_POLY_BOUNDS_OUTER);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_CENTERS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_POLY_CENTERS);
 
 	if (ImGui::Checkbox("Poly Centers", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_CENTERS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_POLY_CENTERS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_POLY_GROUPS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_POLY_GROUPS);
 
 	if (ImGui::Checkbox("Poly Group Colors", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_POLY_GROUPS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_POLY_GROUPS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_LEDGE_SPANS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_LEDGE_SPANS);
 
 	if (ImGui::Checkbox("Ledge Spans", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_LEDGE_SPANS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_LEDGE_SPANS);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_DEPTH_MASK);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_DEPTH_MASK);
 
 	if (ImGui::Checkbox("Depth Mask", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_DEPTH_MASK);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_DEPTH_MASK);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_ALPHA);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_ALPHA);
 
 	if (ImGui::Checkbox("Transparency", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_ALPHA);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_ALPHA);
 
-	isEnabled = (getNavMeshDrawFlags() & DU_DRAWNAVMESH_TRAVERSE_LINKS);
+	isEnabled = (getNavMeshDrawFlags() & DU_DRAW_DETOURMESH_TRAVERSE_LINKS);
 
 	if (ImGui::Checkbox("Traverse Links", &isEnabled))
-		toggleNavMeshDrawFlag(DU_DRAWNAVMESH_TRAVERSE_LINKS);
+		toggleNavMeshDrawFlag(DU_DRAW_DETOURMESH_TRAVERSE_LINKS);
 
 	if (isEnabled && m_navMesh) // Supplemental options only available with a valid navmesh!
 	{

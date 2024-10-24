@@ -21,24 +21,6 @@
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/ChunkyTriMesh.h"
 
-enum DrawTileMeshFlags
-{
-	TM_DRAWFLAGS_INPUT_MESH           = (1<<0),
-	TM_DRAWFLAGS_NAVMESH              = (1<<1),
-	TM_DRAWFLAGS_VOXELS               = (1<<2),
-	TM_DRAWFLAGS_VOXELS_WALKABLE      = (1<<3),
-	TM_DRAWFLAGS_COMPACT              = (1<<4),
-	TM_DRAWFLAGS_COMPACT_DISTANCE     = (1<<5),
-	TM_DRAWFLAGS_COMPACT_REGIONS      = (1<<6),
-	TM_DRAWFLAGS_REGION_CONNECTIONS   = (1<<7),
-	TM_DRAWFLAGS_RAW_CONTOURS         = (1<<8),
-	TM_DRAWFLAGS_CONTOURS             = (1<<9),
-	TM_DRAWFLAGS_POLYMESH             = (1<<10),
-	TM_DRAWFLAGS_POLYMESH_DETAIL      = (1<<11),
-	TM_DRAWFLAGS_TILE_CACHE_BOUNDS    = (1<<12),
-	TM_DRAWFLAGS_TILE_CACHE_OBSTACLES = (1<<13),
-};
-
 class Editor_StaticTileMeshCommon : public Editor
 {
 public:

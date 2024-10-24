@@ -56,7 +56,7 @@ static void drawPolyMeshFaces(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 	const dtPolyRef base = mesh.getPolyRefBase(tile);
 
 	// If the "Alpha" flag isn't set, force the colour to be opaque instead of semi-transparent.
-	const int tileAlpha = flags & DU_DRAWNAVMESH_ALPHA ? 170 : 255;
+	const int tileAlpha = flags & DU_DRAW_DETOURMESH_ALPHA ? 170 : 255;
 
 	dd->begin(DU_DRAW_TRIS, 1.0f, offset);
 	for (int i = 0; i < header->polyCount; ++i)
@@ -72,9 +72,9 @@ static void drawPolyMeshFaces(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			col = duRGBA(255,196,0,64);
 		else
 		{
-			if (flags & DU_DRAWNAVMESH_TILE_COLORS)
+			if (flags & DU_DRAW_DETOURMESH_TILE_COLORS)
 				col = duIntToCol(mesh.decodePolyIdTile(base), tileAlpha);
-			else if (flags & DU_DRAWNAVMESH_POLY_GROUPS)
+			else if (flags & DU_DRAW_DETOURMESH_POLY_GROUPS)
 				col = duIntToCol(p->groupId, tileAlpha);
 			else
 				col = getPolySurfaceColor(dd, p, tileAlpha);
@@ -183,7 +183,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 			const float* v0 = &tile->verts[p->verts[j]*3];
 			const float* v1 = &tile->verts[p->verts[(j+1) % nj]*3];
 
-			if (!inner && flags & DU_DRAWNAVMESH_LEDGE_SPANS)
+			if (!inner && flags & DU_DRAW_DETOURMESH_LEDGE_SPANS)
 			{
 				float normal[3];
 				rdCalcEdgeNormalPt2D(v0, v1, normal);
@@ -497,41 +497,41 @@ static void drawOffMeshLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNav
 void duDebugDrawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
 						 const dtMeshTile* tile, const float* offset, unsigned int flags, const duDrawTraverseLinkParams& traverseLinkParams)
 {
-	const bool depthTest = flags & DU_DRAWNAVMESH_DEPTH_MASK;
+	const bool depthTest = flags & DU_DRAW_DETOURMESH_DEPTH_MASK;
 
 	dd->depthMask(depthTest);
 
-	if (flags & DU_DRAWNAVMESH_POLY_FACES)
+	if (flags & DU_DRAW_DETOURMESH_POLY_FACES)
 		drawPolyMeshFaces(dd, mesh, query, tile, offset, flags);
 
-	if (flags & DU_DRAWNAVMESH_POLY_EDGES)
+	if (flags & DU_DRAW_DETOURMESH_POLY_EDGES)
 		drawPolyMeshEdges(dd, tile, offset);
 
-	if (flags & DU_DRAWNAVMESH_POLY_VERTS)
+	if (flags & DU_DRAW_DETOURMESH_POLY_VERTS)
 		drawPolyVerts(dd, tile, offset);
 
 	// Draw inner poly boundaries
-	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_INNER)
+	if (flags & DU_DRAW_DETOURMESH_POLY_BOUNDS_INNER)
 		drawPolyBoundaries(dd, tile, 1.5f, offset, flags, true);
 	
 	// Draw outer poly boundaries
-	if (flags & DU_DRAWNAVMESH_POLY_BOUNDS_OUTER)
+	if (flags & DU_DRAW_DETOURMESH_POLY_BOUNDS_OUTER)
 		drawPolyBoundaries(dd, tile, 3.5f, offset, flags, false);
 
 	// Draw poly centers
-	if (flags & DU_DRAWNAVMESH_POLY_CENTERS)
+	if (flags & DU_DRAW_DETOURMESH_POLY_CENTERS)
 		drawPolyCenters(dd, tile, duRGBA(255, 255, 255, 100), 1.0f, offset);
 
-	if (query && (flags & DU_DRAWNAVMESH_TRAVERSE_LINKS))
+	if (query && (flags & DU_DRAW_DETOURMESH_TRAVERSE_LINKS))
 		drawTraverseLinks(dd, mesh, query, tile, offset, traverseLinkParams);
 
-	if (flags & DU_DRAWNAVMESH_TILE_CELLS)
+	if (flags & DU_DRAW_DETOURMESH_TILE_CELLS)
 		drawTileCells(dd, tile, offset);
 
-	if (flags & DU_DRAWNAVMESH_TILE_BOUNDS)
+	if (flags & DU_DRAW_DETOURMESH_TILE_BOUNDS)
 		drawTileBounds(dd, tile, offset);
 
-	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
+	if (flags & DU_DRAW_DETOURMESH_OFFMESHCONS)
 		drawOffMeshLinks(dd, mesh, query, tile, offset);
 
 	if (!depthTest)
@@ -554,7 +554,7 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 {
 	if (!dd) return;
 
-	const dtNavMeshQuery* q = (flags & DU_DRAWNAVMESH_WITH_CLOSED_LIST) ? &query : 0;
+	const dtNavMeshQuery* q = (flags & DU_DRAW_DETOURMESH_WITH_CLOSED_LIST) ? &query : 0;
 	
 	for (int i = 0; i < mesh.getMaxTiles(); ++i)
 	{
@@ -563,11 +563,11 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 		duDebugDrawMeshTile(dd, mesh, q, tile, offset, flags, traverseLinkParams);
 	}
 
-	if (flags & DU_DRAWNAVMESH_BVTREE)
+	if (flags & DU_DRAW_DETOURMESH_BVTREE)
 		duDebugDrawNavMeshBVTree(dd, mesh, offset);
-	if (flags & DU_DRAWNAVMESH_PORTALS)
+	if (flags & DU_DRAW_DETOURMESH_PORTALS)
 		duDebugDrawNavMeshPortals(dd, mesh, offset);
-	if (flags & DU_DRAWNAVMESH_QUERY_NODES)
+	if (flags & DU_DRAW_DETOURMESH_QUERY_NODES)
 		duDebugDrawNavMeshNodes(dd, query, offset);
 }
 
@@ -756,7 +756,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 	if (dtStatusFailed(mesh.getTileAndPolyByRef(ref, &tile, &poly)))
 		return;
 	
-	const bool depthTest = drawFlags & DU_DRAWNAVMESH_DEPTH_MASK;
+	const bool depthTest = drawFlags & DU_DRAW_DETOURMESH_DEPTH_MASK;
 	dd->depthMask(depthTest);
 	
 	const unsigned int c = soften ? duTransCol(col, 64) : col;
@@ -764,7 +764,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 
 	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
-		if (drawFlags & DU_DRAWNAVMESH_OFFMESHCONS)
+		if (drawFlags & DU_DRAW_DETOURMESH_OFFMESHCONS)
 		{
 			dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
 
@@ -803,7 +803,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 		}
 		dd->end();
 
-		if (drawFlags & DU_DRAWNAVMESH_POLY_EDGES)
+		if (drawFlags & DU_DRAW_DETOURMESH_POLY_EDGES)
 		{
 			const unsigned int edgeCol = duRGBA(0,0,0,48);
 

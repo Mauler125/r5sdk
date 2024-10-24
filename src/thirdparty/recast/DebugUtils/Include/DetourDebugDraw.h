@@ -23,27 +23,29 @@
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "DetourTileCache/Include/DetourTileCacheBuilder.h"
 
-enum DrawNavMeshFlags
+enum DrawDetourMeshFlags
 {
-	DU_DRAWNAVMESH_OFFMESHCONS        = 1 << 0,  // Render off-mesh connections.
-	DU_DRAWNAVMESH_QUERY_NODES        = 1 << 1,  // Render navmesh query nodes.
-	DU_DRAWNAVMESH_BVTREE             = 1 << 2,  // Render BVTree.
-	DU_DRAWNAVMESH_PORTALS            = 1 << 3,  // Render portals.
-	DU_DRAWNAVMESH_WITH_CLOSED_LIST   = 1 << 4,  // Render navmesh with closed list.
-	DU_DRAWNAVMESH_TILE_COLORS        = 1 << 5,  // Render tiles colored by their ID's.
-	DU_DRAWNAVMESH_TILE_BOUNDS        = 1 << 6,  // Render tile boundaries.
-	DU_DRAWNAVMESH_TILE_CELLS         = 1 << 7,  // Render tile cells.
-	DU_DRAWNAVMESH_POLY_FACES         = 1 << 8,  // Render poly faces.
-	DU_DRAWNAVMESH_POLY_EDGES         = 1 << 9,  // Render poly edges.
-	DU_DRAWNAVMESH_POLY_VERTS         = 1 << 10, // Render poly verts.
-	DU_DRAWNAVMESH_POLY_BOUNDS_INNER  = 1 << 11, // Render inner poly boundaries.
-	DU_DRAWNAVMESH_POLY_BOUNDS_OUTER  = 1 << 12, // Render outer poly boundaries.
-	DU_DRAWNAVMESH_POLY_CENTERS       = 1 << 13, // Render poly centers.
-	DU_DRAWNAVMESH_POLY_GROUPS        = 1 << 14, // Render poly group by color.
-	DU_DRAWNAVMESH_LEDGE_SPANS        = 1 << 15, // Render ledge spans.
-	DU_DRAWNAVMESH_DEPTH_MASK         = 1 << 16, // Use depth mask.
-	DU_DRAWNAVMESH_ALPHA              = 1 << 17, // Use transparency.
-	DU_DRAWNAVMESH_TRAVERSE_LINKS     = 1 << 18, // Render traverse links.
+	DU_DRAW_DETOURMESH_OFFMESHCONS          = 1<<0,  // Render off-mesh connections.
+	DU_DRAW_DETOURMESH_QUERY_NODES          = 1<<1,  // Render navmesh query nodes.
+	DU_DRAW_DETOURMESH_BVTREE               = 1<<2,  // Render BVTree.
+	DU_DRAW_DETOURMESH_PORTALS              = 1<<3,  // Render portals.
+	DU_DRAW_DETOURMESH_WITH_CLOSED_LIST     = 1<<4,  // Render navmesh with closed list.
+	DU_DRAW_DETOURMESH_TILE_COLORS          = 1<<5,  // Render tiles colored by their ID's.
+	DU_DRAW_DETOURMESH_TILE_BOUNDS          = 1<<6,  // Render tile boundaries.
+	DU_DRAW_DETOURMESH_TILE_CELLS           = 1<<7,  // Render tile cells.
+	DU_DRAW_DETOURMESH_POLY_FACES           = 1<<8,  // Render poly faces.
+	DU_DRAW_DETOURMESH_POLY_EDGES           = 1<<9,  // Render poly edges.
+	DU_DRAW_DETOURMESH_POLY_VERTS           = 1<<10, // Render poly verts.
+	DU_DRAW_DETOURMESH_POLY_BOUNDS_INNER    = 1<<11, // Render inner poly boundaries.
+	DU_DRAW_DETOURMESH_POLY_BOUNDS_OUTER    = 1<<12, // Render outer poly boundaries.
+	DU_DRAW_DETOURMESH_POLY_CENTERS         = 1<<13, // Render poly centers.
+	DU_DRAW_DETOURMESH_POLY_GROUPS          = 1<<14, // Render poly group by color.
+	DU_DRAW_DETOURMESH_LEDGE_SPANS          = 1<<15, // Render ledge spans.
+	DU_DRAW_DETOURMESH_DEPTH_MASK           = 1<<16, // Use depth mask.
+	DU_DRAW_DETOURMESH_ALPHA                = 1<<17, // Use transparency.
+	DU_DRAW_DETOURMESH_TRAVERSE_LINKS       = 1<<18, // Render traverse links.
+	DU_DRAW_DETOURMESH_TILE_CACHE_BOUNDS    = 1<<19,
+	DU_DRAW_DETOURMESH_TILE_CACHE_OBSTACLES = 1<<20,
 };
 
 struct duDrawTraverseLinkParams

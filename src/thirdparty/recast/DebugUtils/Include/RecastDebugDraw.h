@@ -19,6 +19,22 @@
 #ifndef RECAST_DEBUGDRAW_H
 #define RECAST_DEBUGDRAW_H
 
+enum DrawRecastMeshFlags
+{
+	DU_DRAW_RECASTMESH_INPUT_MESH           = 1<<0,
+	DU_DRAW_RECASTMESH_NAVMESH              = 1<<1,
+	DU_DRAW_RECASTMESH_VOXELS               = 1<<2,
+	DU_DRAW_RECASTMESH_VOXELS_WALKABLE      = 1<<3,
+	DU_DRAW_RECASTMESH_COMPACT              = 1<<4,
+	DU_DRAW_RECASTMESH_COMPACT_DISTANCE     = 1<<5,
+	DU_DRAW_RECASTMESH_COMPACT_REGIONS      = 1<<6,
+	DU_DRAW_RECASTMESH_REGION_CONNECTIONS   = 1<<7,
+	DU_DRAW_RECASTMESH_RAW_CONTOURS         = 1<<8,
+	DU_DRAW_RECASTMESH_CONTOURS             = 1<<9,
+	DU_DRAW_RECASTMESH_POLYMESH             = 1<<10,
+	DU_DRAW_RECASTMESH_POLYMESH_DETAIL      = 1<<11,
+};
+
 void duDebugDrawTriMesh(struct duDebugDraw* dd, const float* verts, int nverts, const int* tris, const float* normals, int ntris,
 						const unsigned char* flags, const float texScale, const float* offset);
 void duDebugDrawTriMeshSlope(struct duDebugDraw* dd, const float* verts, int nverts, const int* tris, const float* normals, int ntris,
