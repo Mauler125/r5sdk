@@ -163,7 +163,19 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, rdTempVecto
 	}
 }
 
-static bool createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& nodes)
+inline static void quantItem(BVItem& it, const float* tileBmin, const float* tileBmax, 
+	const float* polyBmin, const float* polyBmax, const float quantFactor)
+{
+	it.bmin[0] = (unsigned short)rdClamp((int)rdMathFloorf((tileBmax[0] - polyBmax[0])*quantFactor), 0, 0xffff);
+	it.bmin[1] = (unsigned short)rdClamp((int)rdMathFloorf((polyBmin[1] - tileBmin[1])*quantFactor), 0, 0xffff);
+	it.bmin[2] = (unsigned short)rdClamp((int)rdMathFloorf((polyBmin[2] - tileBmin[2])*quantFactor), 0, 0xffff);
+
+	it.bmax[0] = (unsigned short)rdClamp((int)rdMathCeilf((tileBmax[0] - polyBmin[0])*quantFactor), 0, 0xffff);
+	it.bmax[1] = (unsigned short)rdClamp((int)rdMathCeilf((polyBmax[1] - tileBmin[1])*quantFactor), 0, 0xffff);
+	it.bmax[2] = (unsigned short)rdClamp((int)rdMathCeilf((polyBmax[2] - tileBmin[2])*quantFactor), 0, 0xffff);
+}
+
+static bool createBVTree(const dtNavMeshCreateParams* params, rdTempVector<BVItem>& nodes)
 {
 	BVItem* items = (BVItem*)rdAlloc(sizeof(BVItem)*params->polyCount, RD_ALLOC_TEMP);
 
@@ -227,13 +239,7 @@ static bool createBVTree(dtNavMeshCreateParams* params, rdTempVector<BVItem>& no
 		}
 
 		// BV-tree uses cs for all dimensions
-		it.bmin[0] = (unsigned short)rdClamp((int)((params->bmax[0] - bmax[0])*quantFactor), 0, 0xffff);
-		it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-		it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - params->bmin[2])*quantFactor), 0, 0xffff);
-
-		it.bmax[0] = (unsigned short)rdClamp((int)((params->bmax[0] - bmin[0])*quantFactor), 0, 0xffff);
-		it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - params->bmin[1])*quantFactor), 0, 0xffff);
-		it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - params->bmin[2])*quantFactor), 0, 0xffff);
+		quantItem(it, params->bmin, params->bmax, bmin, bmax, quantFactor);
 	}
 
 	subdivide(items, params->polyCount, 0, params->polyCount, nodes);
@@ -295,13 +301,7 @@ static bool rebuildBVTree(dtMeshTile* tile, const unsigned short* oldPolyIndices
 		}
 
 		// BV-tree uses cs for all dimensions
-		it.bmin[0] = (unsigned short)rdClamp((int)((header->bmax[0] - bmax[0]) * quantFactor), 0, 0xffff);
-		it.bmin[1] = (unsigned short)rdClamp((int)((bmin[1] - header->bmin[1]) * quantFactor), 0, 0xffff);
-		it.bmin[2] = (unsigned short)rdClamp((int)((bmin[2] - header->bmin[2]) * quantFactor), 0, 0xffff);
-
-		it.bmax[0] = (unsigned short)rdClamp((int)((header->bmax[0] - bmin[0]) * quantFactor), 0, 0xffff);
-		it.bmax[1] = (unsigned short)rdClamp((int)((bmax[1] - header->bmin[1]) * quantFactor), 0, 0xffff);
-		it.bmax[2] = (unsigned short)rdClamp((int)((bmax[2] - header->bmin[2]) * quantFactor), 0, 0xffff);
+		quantItem(it, header->bmin, header->bmax, bmin, bmax, quantFactor);
 	}
 
 	subdivide(items, polyCount, 0, polyCount, nodes);
