@@ -260,6 +260,11 @@ void Editor_StaticTileMeshCommon::renderRecastDebugMenu()
 
 	ImGui::EndDisabled();
 
+	isEnabled = getTileMeshDrawFlags() & DU_DRAW_RECASTMESH_SHAPE_VOLUMES;
+
+	if (ImGui::Checkbox("Shape Volumes", &isEnabled))
+		toggleTileMeshDrawFlag(DU_DRAW_RECASTMESH_SHAPE_VOLUMES);
+
 	//if (intermediateDataUnavailable) // todo(amos): tool tip
 	//{
 	//	ImGui::Separator();
@@ -382,16 +387,20 @@ void Editor_StaticTileMeshCommon::renderTileMeshData()
 	}
 
 	int selectedVolumeIndex = -1;
-	if (m_tool->type() == TOOL_SHAPE_VOLUME)
+	const bool isShapeVolumeTool = (m_tool->type() == TOOL_SHAPE_VOLUME);
+
+	if (isShapeVolumeTool)
 	{
 		const ShapeVolumeTool* volTool = (const ShapeVolumeTool*)m_tool;
 		selectedVolumeIndex = volTool->getSelectedVolumeIndex();
 	}
 
-	// TODO: also add flags for this
-	m_geom->drawBoxVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
-	m_geom->drawCylinderVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
-	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+	if ((recastDrawFlags & DU_DRAW_RECASTMESH_SHAPE_VOLUMES) || isShapeVolumeTool)
+	{
+		m_geom->drawBoxVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+		m_geom->drawCylinderVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+		m_geom->drawConvexVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+	}
 
 	// NOTE: commented out because this already gets rendered when the off-mesh
 	// connection tool is activated. And if we generated an off-mesh link, this
@@ -586,10 +595,21 @@ void Editor_DynamicTileMeshCommon::renderTileMeshData()
 		}
 	}
 
-	// TODO: also add flags for this
-	m_geom->drawBoxVolumes(&m_dd, recastDrawOffset);
-	m_geom->drawCylinderVolumes(&m_dd, recastDrawOffset);
-	m_geom->drawConvexVolumes(&m_dd, recastDrawOffset);
+	int selectedVolumeIndex = -1;
+	const bool isShapeVolumeTool = (m_tool->type() == TOOL_SHAPE_VOLUME);
+
+	if (isShapeVolumeTool)
+	{
+		const ShapeVolumeTool* volTool = (const ShapeVolumeTool*)m_tool;
+		selectedVolumeIndex = volTool->getSelectedVolumeIndex();
+	}
+	
+	if ((recastDrawFlags & DU_DRAW_RECASTMESH_SHAPE_VOLUMES) || isShapeVolumeTool)
+	{
+		m_geom->drawBoxVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+		m_geom->drawCylinderVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+		m_geom->drawConvexVolumes(&m_dd, recastDrawOffset, selectedVolumeIndex);
+	}
 
 	// NOTE: commented out because this already gets rendered when the off-mesh
 	// connection tool is activated. And if we generated an off-mesh link, this

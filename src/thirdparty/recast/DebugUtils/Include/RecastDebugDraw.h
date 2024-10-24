@@ -33,6 +33,7 @@ enum DrawRecastMeshFlags
 	DU_DRAW_RECASTMESH_CONTOURS             = 1<<9,
 	DU_DRAW_RECASTMESH_POLYMESH             = 1<<10,
 	DU_DRAW_RECASTMESH_POLYMESH_DETAIL      = 1<<11,
+	DU_DRAW_RECASTMESH_SHAPE_VOLUMES        = 1<<12,
 };
 
 void duDebugDrawTriMesh(struct duDebugDraw* dd, const float* verts, int nverts, const int* tris, const float* normals, int ntris,
