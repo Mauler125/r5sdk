@@ -36,11 +36,18 @@ static void drawPolyVerts(duDebugDraw* dd, const dtMeshTile* tile, const float* 
 	dd->end();
 }
 
-static unsigned int getPolySurfaceColor(const dtPoly* poly, duDebugDraw* dd, const unsigned int alpha)
+static unsigned int getPolySurfaceColor(const duDebugDraw* dd, const dtPoly* poly, const unsigned int alpha)
 {
 	return poly->groupId == DT_UNLINKED_POLY_GROUP
-		? duTransCol(duRGBA(240,20,10,255), alpha)
-		: duTransCol(dd->areaToCol(poly->getArea()), alpha);
+		? duRGBA(240,20,10, alpha)
+		: duTransCol(dd->areaToFaceCol(poly->getArea()), alpha);
+}
+
+static unsigned int getPolyBoundaryColor(const duDebugDraw* dd, const dtPoly* poly, const bool inner)
+{
+	return poly->groupId == DT_UNLINKED_POLY_GROUP
+		? duRGBA(32,24,0, inner ? 32 : 220)
+		: duTransCol(dd->areaToEdgeCol(poly->getArea()), inner ? 32 : 220);
 }
 
 static void drawPolyMeshFaces(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query, const dtMeshTile* tile, const float* offset, unsigned int flags)
@@ -70,7 +77,7 @@ static void drawPolyMeshFaces(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			else if (flags & DU_DRAWNAVMESH_POLY_GROUPS)
 				col = duIntToCol(p->groupId, tileAlpha);
 			else
-				col = getPolySurfaceColor(p, dd, tileAlpha);
+				col = getPolySurfaceColor(dd, p, tileAlpha);
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -125,13 +132,6 @@ static void drawPolyMeshEdges(duDebugDraw* dd, const dtMeshTile* tile, const flo
 	}
 }
 
-static unsigned int getPolyBoundaryColor(const bool inner, const bool linked)
-{
-	return linked
-		? inner ? duRGBA(0,24,32,32) : duRGBA(0,24,32,220)
-		: inner ? duRGBA(32,24,0,32) : duRGBA(32,24,0,220);
-}
-
 static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 							   const float linew, const float* offset, const int flags, bool inner)
 {
@@ -152,7 +152,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 		
 		for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
 		{
-			unsigned int c = getPolyBoundaryColor(inner, isLinked);
+			unsigned int c = getPolyBoundaryColor(dd, p, inner);
 			if (inner)
 			{
 				if (p->neis[j] == 0) continue;
@@ -439,7 +439,7 @@ static void drawOffMeshLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNav
 		if (query && query->isInClosedList(base | (dtPolyRef)i))
 			col = duRGBA(255,196,0,220);
 		else
-			col = duDarkenCol(duTransCol(dd->areaToCol(p->getArea()), 220));
+			col = duDarkenCol(duTransCol(dd->areaToFaceCol(p->getArea()), 220));
 
 		const float* va = &tile->verts[p->verts[0]*3];
 		const float* vb = &tile->verts[p->verts[1]*3];
@@ -905,7 +905,7 @@ void duDebugDrawTileCacheLayerAreas(struct duDebugDraw* dd, const dtTileCacheLay
 			else if (area == 0)
 				col = duLerpCol(color, duRGBA(0,0,0,64), 32);
 			else
-				col = duLerpCol(color, dd->areaToCol(area), 32);
+				col = duLerpCol(color, dd->areaToFaceCol(area), 32);
 			
 			const float fx = bmin[0] + x*cs;
 			const float fy = bmin[1] + y*cs;
@@ -1089,7 +1089,7 @@ void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyM
 		else if (area == DT_TILECACHE_NULL_AREA)
 			color = duRGBA(0,0,0,64);
 		else
-			color = dd->areaToCol(area);
+			color = dd->areaToFaceCol(area);
 		
 		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)

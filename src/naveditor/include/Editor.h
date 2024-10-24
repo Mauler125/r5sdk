@@ -193,7 +193,8 @@ struct TraverseLinkPolyPair
 class EditorDebugDraw : public DebugDrawGL
 {
 public:
-	virtual unsigned int areaToCol(unsigned int area);
+	virtual unsigned int areaToFaceCol(const unsigned int area) const;
+	virtual unsigned int areaToEdgeCol(const unsigned int area) const;
 };
 
 enum EditorPartitionType

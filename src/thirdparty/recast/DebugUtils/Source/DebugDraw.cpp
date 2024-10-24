@@ -36,7 +36,7 @@ duDebugDraw::~duDebugDraw()
 	// Empty
 }
 
-unsigned int duDebugDraw::areaToCol(unsigned int area)
+unsigned int duDebugDraw::areaToFaceCol(const unsigned int area) const
 {
 	if (area == 0)
 	{
@@ -46,6 +46,19 @@ unsigned int duDebugDraw::areaToCol(unsigned int area)
 	else
 	{
 		return duIntToCol(area, 255);
+	}
+}
+
+unsigned int duDebugDraw::areaToEdgeCol(const unsigned int area) const
+{
+	if (area == 0)
+	{
+		// Treat zero area type as default.
+		return duRGBA(0, 48, 64, 255);
+	}
+	else
+	{
+		return duDarkenCol(duIntToCol(area, 255));
 	}
 }
 

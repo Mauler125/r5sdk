@@ -196,7 +196,7 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf, co
 				else if (s->area == RC_NULL_AREA)
 					fcol[0] = duRGBA(64,64,64,255);
 				else
-					fcol[0] = duMultCol(dd->areaToCol(s->area), 200);
+					fcol[0] = duMultCol(dd->areaToFaceCol(s->area), 200);
 				
 				duAppendBox(dd, fx, fy, orig[2] + s->smin*ch, fx+cs, fy+cs, orig[2] + s->smax*ch, fcol);
 				s = s->next;
@@ -235,7 +235,7 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 				else if (area == RC_NULL_AREA)
 					color = duRGBA(0,0,0,64);
 				else
-					color = dd->areaToCol(area);
+					color = dd->areaToFaceCol(area);
 				
 				const float fz = chf.bmin[2] + (s.z+1)*ch;
 				dd->vertex(fx, fy, fz, color);
@@ -402,7 +402,7 @@ void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLaye
 			else if (area == RC_NULL_AREA)
 				col = duLerpCol(color, duRGBA(0,0,0,64), 32);
 			else
-				col = duLerpCol(color, dd->areaToCol(area), 32);
+				col = duLerpCol(color, dd->areaToFaceCol(area), 32);
 			
 			const float fx = layer.bmin[0] + x*cs;
 			const float fy = layer.bmin[1] + y*cs;
@@ -656,7 +656,7 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh, const f
 		else if (area == RC_NULL_AREA)
 			color = duRGBA(0,0,0,64);
 		else
-			color = duTransCol(dd->areaToCol(area), 170);
+			color = duTransCol(dd->areaToFaceCol(area), 170);
 		
 		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)
@@ -678,11 +678,12 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh, const f
 	dd->end();
 
 	// Draw neighbours edges
-	const unsigned int coln = duRGBA(0,48,64,32);
 	dd->begin(DU_DRAW_LINES, 1.5f, offset);
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		const unsigned short* p = &mesh.polys[i*nvp*2];
+		const unsigned int coln = duTransCol(dd->areaToEdgeCol(mesh.areas[i]), 32);
+
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (p[j] == RD_MESH_NULL_IDX) break;
@@ -703,11 +704,11 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh, const f
 	dd->end();
 	
 	// Draw boundary edges
-	const unsigned int colb = duRGBA(0,48,64,220);
 	dd->begin(DU_DRAW_LINES, 3.5f, offset);
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		const unsigned short* p = &mesh.polys[i*nvp*2];
+		const unsigned int colb = duTransCol(dd->areaToEdgeCol(mesh.areas[i]), 220);
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (p[j] == RD_MESH_NULL_IDX) break;
