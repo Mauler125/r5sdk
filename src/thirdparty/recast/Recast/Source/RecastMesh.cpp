@@ -457,18 +457,16 @@ static int triangulate(int n, const int* verts, int* indices, int* tris)
 		for (int k = i1; k < n; k++)
 			indices[k] = indices[k+1];
 		
-		if (i1 >= n) i1 = 0;
-		i = REV_STEP_DIR(i1,n);
 		// Update diagonal flags.
-		if (diagonal(REV_STEP_DIR(i, n), i1, n, verts, indices))
-			indices[i] |= 0x80000000;
-		else
-			indices[i] &= 0x0fffffff;
-		
-		if (diagonal(i, STEP_DIR(i1, n), n, verts, indices))
-			indices[i1] |= 0x80000000;
-		else
-			indices[i1] &= 0x0fffffff;
+		for (int k = 0; k < n; k++) // See https://github.com/recastnavigation/recastnavigation/pull/734
+		{
+			const int k1 = STEP_DIR(k, n);
+			const int k2 = STEP_DIR(k1, n);
+			if (diagonal(k, k2, n, verts, indices))
+				indices[k1] |= 0x80000000;
+			else
+				indices[k1] &= 0x0fffffff;
+		}
 	}
 	
 	// Append the remaining triangle.
