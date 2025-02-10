@@ -21,6 +21,8 @@
 #include "rtech/pak/paktools.h"
 #include "rtech/pak/pakstream.h"
 
+#include "rtech/playlists/playlists.h"
+
 #include "vpklib/packedstore.h"
 #include "datacache/mdlcache.h"
 #include "filesystem/filesystem.h"
@@ -637,33 +639,57 @@ KeyValues* Mod_GetLevelSettings(const char* const pszLevelName)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: loads paks specified inside the level settings file
-// Input  : *pszLevelName - 
+// Purpose: loads paks specified inside the level settings file. This version
+//          supports both normal pak entries (boolean key/value pairs) as well
+//          as gamemode/playlist groups that contain extra pak entries.
 //-----------------------------------------------------------------------------
 void Mod_LoadLevelPaks(const char* const pszLevelName)
 {
     KeyValues* const pSettingsKV = Mod_GetLevelSettings(pszLevelName);
-
     if (!pSettingsKV)
         return;
 
     KeyValues* const pPakListKV = pSettingsKV->FindKey("PakList");
-
     if (!pPakListKV)
         return;
 
     char szPathBuffer[MAX_PATH];
 
-    for (KeyValues* pSubKey = pPakListKV->GetFirstSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
+    const char* pszCurrentPlaylist = v_Playlists_GetCurrent();
+
+    for (KeyValues* pEntry = pPakListKV->GetFirstSubKey(); pEntry != nullptr; pEntry = pEntry->GetNextKey())
     {
-        if (!pSubKey->GetBool())
-            continue;
+        if (pEntry->GetFirstSubKey())
+        {
+            if (pszCurrentPlaylist && Q_stricmp(pszCurrentPlaylist, pEntry->GetName()) != 0)
+                continue; // not the active gamemode, skip this group
 
-        snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pSubKey->GetName());
-        const PakHandle_t nPakId = s_customPakData.LoadAndAddPak(szPathBuffer);
+            for (KeyValues* pPak = pEntry->GetFirstSubKey(); pPak != nullptr; pPak = pPak->GetNextKey())
+            {
+                snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pPak->GetName());
+                const PakHandle_t nPakId = s_customPakData.LoadAndAddPak(szPathBuffer);
 
-        if (nPakId == PAK_INVALID_HANDLE)
-            Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, szPathBuffer, nPakId);
+                if (nPakId == PAK_INVALID_HANDLE)
+                {
+                    Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' (result: %d)\n",
+                        __FUNCTION__, szPathBuffer, nPakId);
+                }
+            }
+        }
+        else
+        {
+            if (!pEntry->GetBool())
+                continue;
+
+            snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pEntry->GetName());
+            const PakHandle_t nPakId = s_customPakData.LoadAndAddPak(szPathBuffer);
+
+            if (nPakId == PAK_INVALID_HANDLE)
+            {
+                Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' (result: %d)\n",
+                    __FUNCTION__, szPathBuffer, nPakId);
+            }
+        }
     }
 }
 
