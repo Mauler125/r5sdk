@@ -56,6 +56,9 @@ target_precompile_headers( ${PROJECT_NAME} PRIVATE
 )
 target_link_options( ${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" )
 target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "Rpcrt4.lib"
+    "boost_regex"
+
     "tier0"
     "tier1"
 
@@ -65,5 +68,4 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "libdetours"
     "libcppkore"
     "libspdlog"
-    "Rpcrt4.lib"
 )

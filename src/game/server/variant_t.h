@@ -58,7 +58,7 @@ public:
 	void SetOther( void *data );
 	bool Convert( fieldtype_t newType );
 
-	// !TODO[AMOS]: If found, make this a ptrand link it to the one in the game engine!
+	// !TODO[AMOS]: If found, make this a ptr and link it to the one in the game engine!
 	//static typedescription_t m_SaveBool[];
 	//static typedescription_t m_SaveInt[];
 	//static typedescription_t m_SaveFloat[];

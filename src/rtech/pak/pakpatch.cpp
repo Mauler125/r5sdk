@@ -79,7 +79,6 @@ static bool PATCH_CMD_0(PakFile_s* const pak, size_t* const numAvailableBytes)
     pak->memoryData.numPatchBytesToProcess -= m_patchSrcSize;
     *numAvailableBytes = v4 - m_patchSrcSize;
 
-
     return pak->memoryData.numPatchBytesToProcess == 0;
 }
 
@@ -87,7 +86,6 @@ static bool PATCH_CMD_1(PakFile_s* const pak, size_t* const pNumBytesAvailable)
 {
     const size_t numBytesToProcess = pak->memoryData.numPatchBytesToProcess;
     const size_t numBytesAvailable = *pNumBytesAvailable;
-    //const size_t processedPatchedDataSize = pak->memoryData.processedPatchedDataSize;
 
     if (*pNumBytesAvailable > numBytesToProcess)
     {

@@ -31,7 +31,6 @@
 #include <cmath>
 #include <cctype>
 #include <cinttypes>
-#include <regex>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -47,9 +46,11 @@
 #include <set>
 #include <unordered_set>
 #include <functional>
-#include <charconv>
-
 #include <smmintrin.h>
+
+// Boost includes.
+#include "boost/charconv.hpp"
+#include "boost/regex.hpp"
 
 // Core includes.
 #include "core/assert.h"

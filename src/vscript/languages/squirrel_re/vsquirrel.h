@@ -22,8 +22,9 @@ public:
 	void CompileModScripts();
 	void SetAsCompiler(RSON::Node_t* rson);
 
-	SQRESULT RegisterFunction(const SQChar* scriptname, const SQChar* nativename, const SQChar* helpstring, const SQChar* returntype, const SQChar* parameters, void* functor);
-	HSCRIPT FindFunction(const char* const pszFunctionName, const char* const pszFunctionSig, void* pUnk);
+	SQRESULT RegisterFunction(ScriptFunctionBinding_t* const binding, const bool useTypeCompiler);
+	const HSCRIPT FindFunction(const char* const pszFunctionName, const char* const pszFunctionSig, HSCRIPT hScope);
+	
 	SQRESULT RegisterConstant(const SQChar* name, SQInteger value);
 
 	FORCEINLINE HSQUIRRELVM GetVM() const { return m_hVM; }
@@ -32,7 +33,7 @@ public:
 
 	bool Run(const SQChar* const script);
 
-	ScriptStatus_t ExecuteFunction(HSCRIPT hFunction, ScriptVariant_t* pArgs, unsigned int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope);
+	ScriptStatus_t ExecuteFunction(HSCRIPT hFunction, const ScriptVariant_t* const pArgs, unsigned int nArgs, ScriptVariant_t* const pReturn, HSCRIPT hScope);
 	bool ExecuteCodeCallback(const SQChar* const name);
 
 private:
@@ -72,8 +73,10 @@ extern void(*ScriptConstantRegister_Callback)(CSquirrelVM* const s);
 
 inline bool(*CSquirrelVM__Init)(CSquirrelVM* s, SQCONTEXT context, SQFloat curtime);
 inline bool(*CSquirrelVM__DestroySignalEntryListHead)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f);
-inline SQRESULT(*CSquirrelVM__RegisterFunction)(CSquirrelVM* s, ScriptFunctionBinding_t* binding, SQInteger a1);
-inline HSCRIPT(*CSqurrelVM__FindFunction)(CSquirrelVM* s, const char* const pszFunctionName, const char* const pszFunctionSig, void* pUnk);
+
+inline SQRESULT(*CSquirrelVM__RegisterFunction)(CSquirrelVM* s, ScriptFunctionBinding_t* binding, const bool useTypeCompiler);
+inline HSCRIPT(*CSquirrelVM__FindFunction)(CSquirrelVM* s, const char* const pszFunctionName, const char* const pszFunctionSig, HSCRIPT hScope);
+
 inline SQRESULT(*CSquirrelVM__RegisterConstant)(CSquirrelVM* s, const SQChar* name, SQInteger value);
 
 #ifndef DEDICATED
@@ -83,7 +86,9 @@ inline bool(*CSquirrelVM__PrecompileClientScripts)(CSquirrelVM* vm, SQCONTEXT co
 #ifndef CLIENT_DLL
 inline bool(*CSquirrelVM__PrecompileServerScripts)(CSquirrelVM* vm, SQCONTEXT context, char** scriptArray, int scriptCount);
 #endif
-inline ScriptStatus_t(*CSquirrelVM__ExecuteFunction)(CSquirrelVM* s, HSCRIPT hFunction, ScriptVariant_t* pArgs, unsigned int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope);
+
+inline ScriptStatus_t(*CSquirrelVM__ExecuteFunction)(CSquirrelVM* s, HSCRIPT hFunction, const ScriptVariant_t* const pArgs, unsigned int nArgs, ScriptVariant_t* const pReturn, HSCRIPT hScope);
+
 inline bool(*CSquirrelVM__ExecuteCodeCallback)(CSquirrelVM* s, const SQChar* callbackName);
 
 inline bool(*CSquirrelVM__ThrowError)(CSquirrelVM* vm, HSQUIRRELVM v);
@@ -99,23 +104,57 @@ inline CSquirrelVM* g_pUIScript;
 inline bool* g_bUIScriptInitialized;
 #endif // !DEDICATED
 
-#define DEFINE_SCRIPTENUM_NAMED(s, enumName, startValue, ...) \
-	HSQUIRRELVM const v = s->GetVM(); \
-	const eDLL_T context = static_cast<eDLL_T>(s->GetContext());\
-	sq_startconsttable(v); \
-	sq_pushstring(v, enumName, -1); \
-	sq_newtable(v); \
-	const char* const enumFields[] = { __VA_ARGS__ }; \
-	int enumValue = startValue; \
-	for (int i = 0; i < V_ARRAYSIZE(enumFields); i++) { \
-		sq_pushstring(v, enumFields[i], -1); \
-		sq_pushinteger(v, enumValue++); \
-		if (sq_newslot(v, -3) < 0) \
-			Error(context, EXIT_FAILURE, "Error adding entry '%s' for enum '%s'.", enumFields[i], enumName); \
-	} \
-	if (sq_newslot(v, -3) < 0) \
-		Error(context, EXIT_FAILURE, "Error adding enum '%s' to const table.", enumName); \
-	sq_endconsttable(v); \
+template<typename... Args>
+FORCEINLINE void Script_RegisterEnumTable(CSquirrelVM* const s, const SQChar* const enumName, const int startValue, const Args... names)
+{
+	HSQUIRRELVM const v = s->GetVM();
+
+	sq_startconsttable(v);
+	sq_pushstring(v, enumName, -1);
+	sq_newtable(v);
+
+	int enumValue = startValue;
+
+	([&] {
+		sq_pushstring(v, names, -1);
+		sq_pushinteger(v, enumValue++);
+
+		if (sq_newslot(v, -3) < 0)
+			Error(s->GetNativeContext(), EXIT_FAILURE, "Error adding entry '%s' for enum '%s'.", names, enumName);
+
+		}(), ...);
+
+	if (sq_newslot(v, -3) < 0)
+		Error(s->GetNativeContext(), EXIT_FAILURE, "Error adding enum '%s' to const table.", enumName);
+
+	sq_endconsttable(v);
+}
+
+template<typename... Args>
+FORCEINLINE void Script_RegisterFuncNamed(CSquirrelVM* const s, 
+	const SQChar* const scriptName, const SQChar* const nativeName, const SQChar* const helpString,
+	const SQChar* const returnType, const SQChar* const parameters, const ScriptFunctionBindingStorageType_t function, const Args... fieldTypes)
+{
+	static ScriptFunctionBinding_t binding;
+	binding.Init(scriptName, nativeName, helpString, returnType, parameters, function);
+
+	const int fieldCount = sizeof...(Args);
+
+	if (fieldCount > 0)
+	{
+		binding.m_Parameters.SetCount(fieldCount);
+		int index = 0; (void)index;
+
+		([&]() mutable {
+			if (index == (fieldCount-1)) // Last arg is the return type.
+				binding.m_ReturnType = fieldTypes;
+			else
+				binding.m_Parameters[index++] = fieldTypes;
+			}(), ...);
+	}
+
+	s->RegisterFunction(&binding, fieldCount == 0);
+}
 
 // Use this to return from any script func
 #define SCRIPT_CHECK_AND_RETURN(v, val) \
@@ -139,7 +178,8 @@ class VSquirrel : public IDetour
 
 		LogFunAdr("CSquirrelVM::RegisterConstant", CSquirrelVM__RegisterConstant);
 		LogFunAdr("CSquirrelVM::RegisterFunction", CSquirrelVM__RegisterFunction);
-		LogFunAdr("CSqurrelVM::FindFunction", CSqurrelVM__FindFunction);
+		LogFunAdr("CSquirrelVM::FindFunction", CSquirrelVM__FindFunction);
+
 #ifndef CLIENT_DLL
 		LogFunAdr("CSquirrelVM::PrecompileServerScripts", CSquirrelVM__PrecompileServerScripts);
 #endif // !CLIENT_DLL
@@ -156,7 +196,7 @@ class VSquirrel : public IDetour
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42").GetPtr(CSquirrelVM__DestroySignalEntryListHead);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 4C 8B").GetPtr(CSquirrelVM__RegisterConstant);
 		g_GameDll.FindPatternSIMD("48 83 EC 38 45 0F B6 C8").GetPtr(CSquirrelVM__RegisterFunction);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B 59 ? 49 8B F1").GetPtr(CSqurrelVM__FindFunction);
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B 59 ? 49 8B F1").GetPtr(CSquirrelVM__FindFunction);
 
 #ifndef CLIENT_DLL
 		// sv scripts.rson compiling

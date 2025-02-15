@@ -29,6 +29,7 @@
 static CKeyValuesSystem s_KeyValuesSystem;
 static CFileSystem_Stdio s_FullFileSystem;
 static bool s_bUseAnsiColors = true;
+static characterset_t s_BreakSetWithoutColons;
 
 //-----------------------------------------------------------------------------
 // Purpose: keyvalues singleton accessor
@@ -63,6 +64,10 @@ static void ReVPK_Init()
         Console_ColorInit();
 
     SpdLog_Init(s_bUseAnsiColors);
+
+    // Character set without colon used for absolute paths as we don't want to
+    // break on ':' characters found in an absolute path, i.e. C:\Windows\.
+    CharacterSetBuild(&s_BreakSetWithoutColons, "{}()'");
 }
 
 //-----------------------------------------------------------------------------
@@ -276,7 +281,7 @@ int main(int argc, char* argv[])
         str.Append(' ');
     }
 
-    args.Tokenize(str.Get(), cmd_source_t::kCommandSrcCode);
+    args.Tokenize(str.Get(), cmd_source_t::kCommandSrcCode, &s_BreakSetWithoutColons);
 
     if (!args.ArgC()) {
         ReVPK_Usage();

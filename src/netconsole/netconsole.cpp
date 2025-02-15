@@ -27,10 +27,9 @@ CNetCon::CNetCon(void)
 	, m_bEncryptFrames(false)
 	, m_flTickInterval(0.05f)
 {
-	// Empty character set used for ip addresses if we still need to initiate a
-	// connection, as we don't want to break on ':' characters found in an IPv6
-	// address.
-	CharacterSetBuild(&m_CharacterSet, "");
+	// Character set without colon used for ip addresses as we don't want to
+	// break on ':' characters found in an IPv6 address.
+	CharacterSetBuild(&m_CharacterSet, "{}()'");
 }
 
 //-----------------------------------------------------------------------------

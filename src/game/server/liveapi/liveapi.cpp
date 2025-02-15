@@ -1925,29 +1925,29 @@ static bool LiveAPI_SetCustomTableFields(HSQUIRRELVM const v, google::protobuf::
 		const SQObjectType valueType = sq_type(node.val);
 		const SQString* const key = _string(node.key);
 
-		const std::string_view keyView(key->_val, key->_len);
+		const std::string_view keyView(key->_val, (size_t)key->_len);
 
 		switch (valueType)
 		{
 		case OT_BOOL:
-			(*structData->mutable_fields())[keyView].set_bool_value(_bool(node.val));
+			(*structData->mutable_fields())[std::string(keyView)].set_bool_value(_bool(node.val));
 			break;
 		case OT_INTEGER:
-			(*structData->mutable_fields())[keyView].set_number_value(_integer(node.val));
+			(*structData->mutable_fields())[std::string(keyView)].set_number_value(_integer(node.val));
 			break;
 		case OT_FLOAT:
-			(*structData->mutable_fields())[keyView].set_number_value(_float(node.val));
+			(*structData->mutable_fields())[std::string(keyView)].set_number_value(_float(node.val));
 			break;
 		case OT_STRING:
-			(*structData->mutable_fields())[keyView].set_string_value(_string(node.val)->_val, _string(node.val)->_len);
+			(*structData->mutable_fields())[std::string(keyView)].set_string_value(_string(node.val)->_val, _string(node.val)->_len);
 			break;
 		case OT_VECTOR:
-			LiveAPI_SetCustomVectorField((*structData->mutable_fields())[keyView].mutable_struct_value(), _vector3d(node.val));
+			LiveAPI_SetCustomVectorField((*structData->mutable_fields())[std::string(keyView)].mutable_struct_value(), _vector3d(node.val));
 			break;
 		case OT_ARRAY:
 			LIVEAPI_CHECK_RECURSION_DEPTH(v, counter.Get());
 
-			if (!LiveAPI_SetCustomArrayFields(v, (*structData->mutable_fields())[keyView].mutable_list_value(), _array(node.val)))
+			if (!LiveAPI_SetCustomArrayFields(v, (*structData->mutable_fields())[std::string(keyView)].mutable_list_value(), _array(node.val)))
 				return false;
 
 			break;
@@ -1960,7 +1960,7 @@ static bool LiveAPI_SetCustomTableFields(HSQUIRRELVM const v, google::protobuf::
 				return false;
 			}
 
-			if (!LiveAPI_SetCustomTableFields(v, (*structData->mutable_fields())[keyView].mutable_struct_value(), _table(node.val)))
+			if (!LiveAPI_SetCustomTableFields(v, (*structData->mutable_fields())[std::string(keyView)].mutable_struct_value(), _table(node.val)))
 				return false;
 
 			break;
@@ -2304,7 +2304,7 @@ void Script_RegisterLiveAPIFunctions(CSquirrelVM* const s)
 
 void Script_RegisterLiveAPIEnums(CSquirrelVM* const s)
 {
-	DEFINE_SCRIPTENUM_NAMED(s, "eLiveAPI_EventTypes", 0,
+	Script_RegisterEnumTable(s, "eLiveAPI_EventTypes", 0,
 		"ammoUsed",
 		"arenasItemDeselected",
 		"arenasItemSelected",

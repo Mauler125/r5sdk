@@ -557,10 +557,10 @@ bool IsEqualNoCase(const string& svInput, const string& svSecond)
 // For checking if input is a valid Base64.
 bool IsValidBase64(const string& svInput, string* const psvOutput)
 {
-    static const std::regex rx(R"((?:[A-Za-z0-9+\/]{4}?)*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=))");
-    std::smatch mh;
+    static const boost::regex rx(R"((?:[A-Za-z0-9+\/]{4}?)*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=))");
+    boost::smatch mh;
 
-    if (std::regex_search(svInput, mh, rx))
+    if (boost::regex_search(svInput, mh, rx))
     {
         if (psvOutput)
         {

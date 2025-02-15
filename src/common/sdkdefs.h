@@ -3,7 +3,6 @@
 
 // Common type declarations to reduce code verbosity.
 using std::pair;
-using std::regex;
 using std::string;
 using std::wstring;
 using std::u16string;

@@ -15,7 +15,7 @@
 #ifndef _TOOLS
 #include "vscript/languages/squirrel_re/include/sqstdaux.h"
 #endif // !_TOOLS
-static const std::regex s_AnsiRowRegex("\\\033\\[.*?m");
+static const boost::regex s_AnsiRowRegex(R"(\x1b\[[\d;]+m)");
 static std::mutex s_LogMutex;
 
 #if !defined (DEDICATED) && !defined (_TOOLS)
@@ -320,7 +320,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 			}
 
 			// Remove anything else that was passed in as a format argument.
-			message = std::regex_replace(message, s_AnsiRowRegex, "");
+			message = boost::regex_replace(message, s_AnsiRowRegex, "");
 		}
 	}
 

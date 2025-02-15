@@ -95,8 +95,8 @@ bool PackedStore_GetDirBaseName(const CUtlString& dirFileName, CUtlString& dirBa
 {
 	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
 
-	std::cmatch regexMatches;
-	const bool result = std::regex_search(baseFileName, regexMatches, g_VpkDirFileRegex);
+	boost::cmatch regexMatches;
+	const bool result = boost::regex_search(baseFileName, regexMatches, g_VpkDirFileRegex);
 
 	if (!result || regexMatches.size() < 3)
 		return false;
@@ -112,12 +112,12 @@ bool PackedStore_GetDirBaseName(const CUtlString& dirFileName, CUtlString& dirBa
 //          &dirBaseName  - <- part of directory file name as string
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool PackedStore_GetDirNameParts(const CUtlString& dirFileName, const size_t nCaptureGroup, CUtlString& dirNameParts)
+bool PackedStore_GetDirNameParts(const CUtlString& dirFileName, const int nCaptureGroup, CUtlString& dirNameParts)
 {
 	const char* baseFileName = V_UnqualifiedFileName(dirFileName.String());
 
-	std::cmatch regexMatches;
-	const bool result = std::regex_search(baseFileName, regexMatches, g_VpkDirFileRegex);
+	boost::cmatch regexMatches;
+	const bool result = boost::regex_search(baseFileName, regexMatches, g_VpkDirFileRegex);
 
 	if (!result || regexMatches.size() < (nCaptureGroup + 1))
 		return false;
@@ -867,8 +867,8 @@ VPKDir_t::VPKDir_t(const CUtlString& dirFilePath, bool bSanitizeName)
 		return;
 	}
 
-	std::cmatch regexMatches;
-	const bool result = std::regex_search(dirFilePath.String(), regexMatches, g_VpkPackFileRegex);
+	boost::cmatch regexMatches;
+	const bool result = boost::regex_search(dirFilePath.String(), regexMatches, g_VpkPackFileRegex);
 
 	if (!result || regexMatches.empty()) // Not a block file, or not following the naming scheme.
 	{

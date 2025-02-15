@@ -236,12 +236,13 @@ bool CIOStream::ReadString(std::string& out)
 // Purpose: reads a string from the file into a fixed size buffer
 // Input  : *buf - 
 //			len - 
-// Output : true on success, false otherwise
+//			nullterminate - 
+// Output : the length of the string read
 //-----------------------------------------------------------------------------
-bool CIOStream::ReadString(char* const buf, const size_t len)
+size_t CIOStream::ReadString(char* const buf, const size_t len, const bool nullterminate)
 {
 	if (!IsReadable())
-		return false;
+		return 0;
 
 	size_t i = 0;
 
@@ -255,7 +256,10 @@ bool CIOStream::ReadString(char* const buf, const size_t len)
 		buf[i++] = c;
 	}
 
-	return true;
+	if (nullterminate)
+		buf[i] = '\0';
+
+	return i;
 }
 
 //-----------------------------------------------------------------------------

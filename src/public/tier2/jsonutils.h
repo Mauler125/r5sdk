@@ -322,16 +322,40 @@ template <class V>
 inline bool JSON_StringToNumber(const char* const str, const size_t len, V& num)
 {
     const char* const end = &str[len];
-    std::from_chars_result result;
+    boost::charconv::from_chars_result result;
 
     if constexpr ((std::is_same<V, int32_t>::value) || (std::is_same<V, int64_t>::value) ||
         (std::is_same<V, uint32_t>::value) || (std::is_same<V, uint64_t>::value))
     {
-        result = std::from_chars(str, end, num, 0);
+        int ofs = 0;
+        int base = 10;
+
+        // Note: char_conv doesn't auto detect the base, and it expects the
+        // numeric string without the "0x" (base16) or "0b" (base8) prefix.
+        if (len > 1)
+        {
+            if (str[0] == '0')
+            {
+                if (str[1] == 'x' || str[1] == 'X')
+                {
+                    ofs = 2; // Hexadecimal, skip "0x".
+                    base = 16;
+                }
+                else if (str[1] == 'b' || str[1] == 'B')
+                {
+                    ofs = 2; // Binary, skip "0b".
+                    base = 2;
+                }
+                else // Octal doesn't need skipping.
+                    base = 8;
+            }
+        }
+
+        result = boost::charconv::from_chars(&str[ofs], end, num, base);
     }
     else if constexpr ((std::is_same<V, float>::value) || (std::is_same<V, double>::value))
     {
-        result = std::from_chars(str, end, num, std::chars_format::general);
+        result = boost::charconv::from_chars(str, end, num, boost::charconv::chars_format::general);
     }
     else
         static_assert(std::is_same_v<V, void>, "Cannot classify numeric type; unsupported.");

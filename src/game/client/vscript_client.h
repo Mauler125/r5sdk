@@ -39,18 +39,17 @@ void Script_RegisterUIFunctions(CSquirrelVM* s);
 void Script_RegisterUIServerFunctions(CSquirrelVM* s);
 void Script_RegisterCoreClientFunctions(CSquirrelVM* s);
 
-#define DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
-	returnType, parameters)                                             \
-	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
-	helpString, returnType, parameters, VScriptCode::Client::##functionName);   \
+#define DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, functionName, helpString, returnType, parameters, ...) \
+	Script_RegisterFuncNamed(s, MKSTRING(functionName), MKSTRING(Client_Script_##functionName),  \
+	helpString, returnType, parameters, VScriptCode::Client::##functionName, __VA_ARGS__)        \
 
-#define DEFINE_UI_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
-	returnType, parameters)                                             \
-	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
-	helpString, returnType, parameters, VScriptCode::Ui::##functionName);   \
+#define DEFINE_UI_SCRIPTFUNC_NAMED(s, functionName, helpString, returnType, parameters, ...)     \
+	Script_RegisterFuncNamed(s, MKSTRING(functionName), MKSTRING(UI_Script_##functionName),      \
+	helpString, returnType, parameters, VScriptCode::Ui::##functionName, __VA_ARGS__)            \
 
 inline void (*v_Script_RegisterClientEntityClassFuncs)();
 inline void (*v_Script_RegisterClientPlayerClassFuncs)();
+inline void (*v_Script_RegisterClientCombatCharacterClassFuncs)();
 inline void (*v_Script_RegisterClientAIClassFuncs)();
 inline void (*v_Script_RegisterClientWeaponClassFuncs)();
 inline void (*v_Script_RegisterClientProjectileClassFuncs)();
@@ -60,6 +59,7 @@ inline void (*v_Script_RegisterClientFirstPersonProxyClassFuncs)();
 
 inline ScriptClassDescriptor_t* g_clientScriptEntityStruct;
 inline ScriptClassDescriptor_t* g_clientScriptPlayerStruct;
+inline ScriptClassDescriptor_t* g_clientScriptCombatCharacterStruct; // todo: verify.
 inline ScriptClassDescriptor_t* g_clientScriptAIStruct;
 inline ScriptClassDescriptor_t* g_clientScriptWeaponStruct;
 inline ScriptClassDescriptor_t* g_clientScriptProjectileStruct;
@@ -74,6 +74,7 @@ class VScriptClient : public IDetour
 	{
 		LogFunAdr("Script_RegisterClientEntityClassFuncs", v_Script_RegisterClientEntityClassFuncs);
 		LogFunAdr("Script_RegisterClientPlayerClassFuncs", v_Script_RegisterClientPlayerClassFuncs);
+		LogFunAdr("Script_RegisterClientCombatCharacterClassFuncs", v_Script_RegisterClientCombatCharacterClassFuncs);
 		LogFunAdr("Script_RegisterClientAIClassFuncs", v_Script_RegisterClientAIClassFuncs);
 		LogFunAdr("Script_RegisterClientWeaponClassFuncs", v_Script_RegisterClientWeaponClassFuncs);
 		LogFunAdr("Script_RegisterClientProjectileClassFuncs", v_Script_RegisterClientProjectileClassFuncs);
@@ -83,6 +84,7 @@ class VScriptClient : public IDetour
 
 		LogVarAdr("g_clientScriptEntityStruct", g_clientScriptEntityStruct);
 		LogVarAdr("g_clientScriptPlayerStruct", g_clientScriptPlayerStruct);
+		LogVarAdr("g_clientScriptCombatCharacterStruct", g_clientScriptCombatCharacterStruct);
 		LogVarAdr("g_clientScriptAIStruct", g_clientScriptAIStruct);
 		LogVarAdr("g_clientScriptWeaponStruct", g_clientScriptWeaponStruct);
 		LogVarAdr("g_clientScriptProjectileStruct", g_clientScriptProjectileStruct);
@@ -97,6 +99,9 @@ class VScriptClient : public IDetour
 
 		g_GameDll.FindPatternSIMD("40 55 48 8B EC 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 5C 24 ?? 48 89 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 C7 05 ?? ?? ?? ?? ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 63 C8 48 6B C1 ?? 48 8D 0D ?? ?? ?? ?? 48 03 05 ?? ?? ?? ?? 48 89 48 ?? 48 8D 0D ?? ?? ?? ?? 48 C7 40 ?? ?? ?? ?? ?? C7 40 ?? ?? ?? ?? ?? C6 40 ?? ?? 48 C7 40 ?? ?? ?? ?? ?? 48 C7 40 ?? ?? ?? ?? ?? 48 89 08 48 8D 0D ?? ?? ?? ?? 48 89 48 ?? 48 8D 0D ?? ?? ?? ?? C7 40 ?? ?? ?? ?? ?? C7 40 ?? ?? ?? ?? ?? 48 89 48 ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 63 C8 48 6B C1 ?? 48 8D 0D ?? ?? ?? ?? 48 03 05 ?? ?? ?? ?? 48 89 48 ?? 48 8D 0D ?? ?? ?? ?? 48 C7 40 ?? ?? ?? ?? ?? C7 40 ?? ?? ?? ?? ?? C6 40 ?? ?? 48 C7 40 ?? ?? ?? ?? ?? 48 C7 40 ?? ?? ?? ?? ?? 48 89 08 48 8D 0D ?? ?? ?? ?? 48 89 48 ?? 48 8D 0D ?? ?? ?? ?? C7 40 ?? ?? ?? ?? ?? C7 40 ?? ?? ?? ?? ?? 48 89 48 ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 63 C8 4C 8D 45 ?? 48 6B D9 ?? 48 8D 05")
 			.GetPtr(v_Script_RegisterClientPlayerClassFuncs);
+
+		g_GameDll.FindPatternSIMD("48 8B C4 55 48 8B EC 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 48 89 58 ?? 48 8D 0D ?? ?? ?? ?? 48 89 70 ?? 48 89 78 ?? 4C 89 70 ?? 4C 89 78")
+			.GetPtr(v_Script_RegisterClientCombatCharacterClassFuncs);
 
 		g_GameDll.FindPatternSIMD("48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 5C 24 ?? 48 63 1D")
 			.GetPtr(v_Script_RegisterClientAIClassFuncs);
@@ -120,6 +125,7 @@ class VScriptClient : public IDetour
 	{
 		CMemory(v_Script_RegisterClientEntityClassFuncs).FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 150, 2).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_clientScriptEntityStruct);
 		CMemory(v_Script_RegisterClientPlayerClassFuncs).FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 150, 2).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_clientScriptPlayerStruct);
+		CMemory(v_Script_RegisterClientCombatCharacterClassFuncs).FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 150, 2).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_clientScriptCombatCharacterStruct);
 		CMemory(v_Script_RegisterClientAIClassFuncs).FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 150, 2).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_clientScriptAIStruct);
 		CMemory(v_Script_RegisterClientWeaponClassFuncs).FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 150, 2).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_clientScriptWeaponStruct);
 		CMemory(v_Script_RegisterClientProjectileClassFuncs).FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 150, 2).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_clientScriptProjectileStruct);

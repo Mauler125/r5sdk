@@ -760,37 +760,40 @@ void CSurface::ParseMaps()
 	}
 
 	fs::directory_iterator directoryIterator(vpkPath);
-	std::cmatch regexMatches;
+	boost::cmatch regexMatches;
 
 	for (const fs::directory_entry& directoryEntry : directoryIterator)
 	{
-		std::string fileName = directoryEntry.path().u8string();
-		std::regex_search(fileName.c_str(), regexMatches, g_VpkDirFileRegex);
+		const std::string fileName = directoryEntry.path().u8string();
+		const char* const pFileName = fileName.c_str();
 
-		if (!regexMatches.empty())
+		const bool result = boost::regex_search(pFileName, &pFileName[fileName.length()], regexMatches, g_VpkDirFileRegex);
+
+		if (!result || regexMatches.empty())
 		{
-			const std::sub_match<const char*>& match = regexMatches[2];
+			continue;
+		}
 
-			if (match.compare("frontend") == 0)
-			{
-				continue;
-			}
-			else if (match.compare("mp_common") == 0)
-			{
-				if (!this->m_MapCombo->Items.Contains("mp_lobby"))
-				{
-					this->m_MapCombo->Items.Add("mp_lobby");
-				}
-				continue;
-			}
-			else
-			{
-				const string mapName = match.str();
+		const boost::sub_match<const char*>& match = regexMatches[2];
+		const std::string mapName = match.str();
 
-				if (!this->m_MapCombo->Items.Contains(match.str().c_str()))
-				{
-					this->m_MapCombo->Items.Add(match.str().c_str());
-				}
+		if (mapName.compare("frontend") == 0)
+		{
+			continue;
+		}
+		else if (mapName.compare("mp_common") == 0)
+		{
+			if (!this->m_MapCombo->Items.Contains("mp_lobby"))
+			{
+				this->m_MapCombo->Items.Add("mp_lobby");
+			}
+			continue;
+		}
+		else
+		{
+			if (!this->m_MapCombo->Items.Contains(mapName.c_str()))
+			{
+				this->m_MapCombo->Items.Add(mapName.c_str());
 			}
 		}
 	}

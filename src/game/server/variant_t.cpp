@@ -15,9 +15,10 @@ const char* variant_t::ToString(void) const
 {
 	static char szBuf[512];
 
-	switch (fieldType)
+	switch ((ScriptDataType_t)fieldType)
 	{
 	case FIELD_STRING:
+	case FIELD_CSTRING:
 	{
 		return(STRING(iszVal));
 	}

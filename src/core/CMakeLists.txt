@@ -44,6 +44,9 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "iphlpapi.lib"
     "Winmm.lib"
 
+    "boost_charconv"
+    "boost_regex"
+
     "vpc"
     "memoverride"
     "tier0"

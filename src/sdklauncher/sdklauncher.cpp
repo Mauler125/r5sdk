@@ -305,13 +305,15 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, 
 
         if (cfgFile.Open(cfgFileName.String(), CIOStream::Mode_e::Read))
         {
-            if (!cfgFile.ReadString(commandLine.Access(), commandLine.GetMaxLength()))
+            const size_t len = cfgFile.ReadString(commandLine.Access(), commandLine.GetMaxLength(), true);
+
+            if (len > 0)
             {
-                Error(eDLL_T::COMMON, 0, "Failed to read file '%s'!\n", szConfig);
+                commandLine.SetLength(len);
             }
             else
             {
-                commandLine.SetLength(strlen(commandLine.String()));
+                Error(eDLL_T::COMMON, 0, "Failed to read file '%s'!\n", szConfig);
             }
         }
         else // Failed to open config file.

@@ -30,6 +30,9 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries( ${PROJECT_NAME} PRIVATE
+    "Rpcrt4.lib"
+    "boost_regex"
+
     "vpc"
     "tier0"
     "tier1"
@@ -40,5 +43,4 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
 
     "libspdlog"
     "liblzham"
-    "Rpcrt4.lib"
 )

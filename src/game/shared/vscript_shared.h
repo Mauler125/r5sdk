@@ -25,10 +25,9 @@ namespace VScriptCode
 void Script_RegisterCommonAbstractions(CSquirrelVM* s);
 void Script_RegisterListenServerConstants(CSquirrelVM* s);
 
-#define DEFINE_SHARED_SCRIPTFUNC_NAMED(s, functionName, helpString,          \
-	returnType, parameters)                                                  \
-	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName),      \
-	helpString, returnType, parameters, VScriptCode::Shared::##functionName);\
+#define DEFINE_SHARED_SCRIPTFUNC_NAMED(s, functionName, helpString, returnType, parameters, ...)          \
+	Script_RegisterFuncNamed(s, MKSTRING(functionName), MKSTRING(SHARED_SCRIPT( Script_##functionName )), \
+	helpString, returnType, parameters, VScriptCode::Shared::##functionName, __VA_ARGS__)                 \
 
 ///////////////////////////////////////////////////////////////////////////////
 class VScriptShared : public IDetour

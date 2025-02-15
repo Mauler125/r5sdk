@@ -33,13 +33,13 @@ void Script_RegisterAdminServerFunctions(CSquirrelVM* s);
 
 void Script_RegisterServerEnums(CSquirrelVM* const s);
 
-#define DEFINE_SERVER_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
-	returnType, parameters)                                             \
-	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
-	helpString, returnType, parameters, VScriptCode::Server::##functionName);   \
+#define DEFINE_SERVER_SCRIPTFUNC_NAMED(s, functionName, helpString, returnType, parameters, ...) \
+	Script_RegisterFuncNamed(s, MKSTRING(functionName), MKSTRING(Server_Script_##functionName),  \
+	helpString, returnType, parameters, VScriptCode::Server::##functionName, __VA_ARGS__)        \
 
 inline void (*v_Script_RegisterServerEntityClassFuncs)();
 inline void (*v_Script_RegisterServerPlayerClassFuncs)();
+inline void (*v_Script_RegisterServerCombatCharacterClassFuncs)();
 inline void (*v_Script_RegisterServerAIClassFuncs)();
 inline void (*v_Script_RegisterServerWeaponClassFuncs)();
 inline void (*v_Script_RegisterServerProjectileClassFuncs)();
@@ -50,6 +50,7 @@ inline void (*v_Script_RegisterServerFirstPersonProxyClassFuncs)();
 
 inline ScriptClassDescriptor_t* g_serverScriptEntityStruct;
 inline ScriptClassDescriptor_t* g_serverScriptPlayerStruct;
+inline ScriptClassDescriptor_t* g_serverScriptCombatCharacterStruct; // todo: verify.
 inline ScriptClassDescriptor_t* g_serverScriptAIStruct;
 inline ScriptClassDescriptor_t* g_serverScriptWeaponStruct;
 inline ScriptClassDescriptor_t* g_serverScriptProjectileStruct;
@@ -65,6 +66,7 @@ class VScriptServer : public IDetour
 	{
 		LogFunAdr("Script_RegisterServerEntityClassFuncs", v_Script_RegisterServerEntityClassFuncs);
 		LogFunAdr("Script_RegisterServerPlayerClassFuncs", v_Script_RegisterServerPlayerClassFuncs);
+		LogFunAdr("Script_RegisterServerCombatCharacterClassFuncs", v_Script_RegisterServerCombatCharacterClassFuncs);
 		LogFunAdr("Script_RegisterServerAIClassFuncs", v_Script_RegisterServerAIClassFuncs);
 		LogFunAdr("Script_RegisterServerWeaponClassFuncs", v_Script_RegisterServerWeaponClassFuncs);
 		LogFunAdr("Script_RegisterServerProjectileClassFuncs", v_Script_RegisterServerProjectileClassFuncs);
@@ -75,6 +77,7 @@ class VScriptServer : public IDetour
 
 		LogVarAdr("g_serverScriptEntityStruct", g_serverScriptEntityStruct);
 		LogVarAdr("g_serverScriptPlayerStruct", g_serverScriptPlayerStruct);
+		LogVarAdr("g_serverScriptCombatCharacterStruct", g_serverScriptCombatCharacterStruct);
 		LogVarAdr("g_serverScriptAIStruct", g_serverScriptAIStruct);
 		LogVarAdr("g_serverScriptWeaponStruct", g_serverScriptWeaponStruct);
 		LogVarAdr("g_serverScriptProjectileStruct", g_serverScriptProjectileStruct);
@@ -90,6 +93,9 @@ class VScriptServer : public IDetour
 
 		g_GameDll.FindPatternSIMD("48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 5C 24 ?? 48 89 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 33 D2 48 8D 05 ?? ?? ?? ?? 48 89 05")
 			.GetPtr(v_Script_RegisterServerPlayerClassFuncs);
+
+		g_GameDll.FindPatternSIMD("48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 48 89 5C 24 ?? 48 8D 05 ?? ?? ?? ?? 48 89 6C 24 ?? 48 8D 15 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 05")
+			.GetPtr(v_Script_RegisterServerCombatCharacterClassFuncs);
 
 		g_GameDll.FindPatternSIMD("40 55 48 8B EC 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 5C 24 ?? 48 89 05 ?? ?? ?? ?? 48 8D 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? C6 05")
 			.GetPtr(v_Script_RegisterServerAIClassFuncs);
@@ -116,6 +122,7 @@ class VScriptServer : public IDetour
 	{
 		CMemory(v_Script_RegisterServerEntityClassFuncs).Offset(0x50).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_serverScriptEntityStruct);
 		CMemory(v_Script_RegisterServerPlayerClassFuncs).Offset(0x50).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_serverScriptPlayerStruct);
+		CMemory(v_Script_RegisterServerCombatCharacterClassFuncs).Offset(0x50).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_serverScriptCombatCharacterStruct);
 		CMemory(v_Script_RegisterServerAIClassFuncs).Offset(0x50).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_serverScriptAIStruct);
 		CMemory(v_Script_RegisterServerWeaponClassFuncs).Offset(0x50).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_serverScriptWeaponStruct);
 		CMemory(v_Script_RegisterServerProjectileClassFuncs).Offset(0x50).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_serverScriptProjectileStruct);

@@ -80,7 +80,7 @@ public:
 		return value;
 	}
 	bool ReadString(std::string& svOut);
-	bool ReadString(char* const pBuf, const size_t nLen);
+	size_t ReadString(char* const pBuf, const size_t nLen, const bool nullterminate);
 
 	//-----------------------------------------------------------------------------
 	// Purpose: writes any value to the file

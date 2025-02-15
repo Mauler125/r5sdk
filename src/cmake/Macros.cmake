@@ -88,6 +88,22 @@ macro( add_module MODULE_TYPE MODULE_NAME REUSE_PCH FOLDER_NAME WARNINGS_AS_ERRO
 endmacro()
 
 # -----------------------------------------------------------------------------
+# Add vendored subdirectories to the project
+# -----------------------------------------------------------------------------
+macro( add_vendored_subdirectory PROJECT_DIR )
+
+    get_directory_property( old_compile_options COMPILE_OPTIONS )
+    add_compile_options( -w ) # For vendored projects, disable warnings.
+
+    set( CMAKE_FOLDER ${FOLDER_CONTEXT} ) # Put it in the filter.
+    add_subdirectory( ${PROJECT_DIR} )
+    unset( CMAKE_FOLDER )
+
+    # Recover our original compile options.
+    set_directory_properties( PROPERTIES COMPILE_OPTIONS "${old_compile_options}" )
+endmacro()
+
+# -----------------------------------------------------------------------------
 # Initialize global compiler defines
 # -----------------------------------------------------------------------------
 macro( define_compiler_variables )

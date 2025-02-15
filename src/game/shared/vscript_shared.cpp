@@ -97,7 +97,7 @@ void Script_RegisterCommonAbstractions(CSquirrelVM* s)
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailableMaps, "Gets an array of all available maps", "array< string >", "");
     DEFINE_SHARED_SCRIPTFUNC_NAMED(s, GetAvailablePlaylists, "Gets an array of all available playlists", "array< string >", "");
 
-    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, ScriptError, "", "void", "string format, ...")
+    DEFINE_SHARED_SCRIPTFUNC_NAMED(s, ScriptError, "Throws a script error", "void", "string format, ...");
 }
 
 //---------------------------------------------------------------------------------

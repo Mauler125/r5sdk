@@ -38,6 +38,7 @@ macro( apply_project_settings )
         "SPDLOG_COMPILED_LIB"
         "SPDLOG_NO_EXCEPTIONS"
         "CURL_STATICLIB"
+        "BOOST_ALL_NO_LIB"
 
         # Must be explicitly defined to toggle SIMD optimizations for RapidJSON.
         # Don't set this to anything higher than SSE2, as the game supports from
@@ -105,6 +106,7 @@ macro( apply_project_settings )
         "${ENGINE_SOURCE_DIR}/"
         "${ENGINE_SOURCE_DIR}/public/"
         "${THIRDPARTY_SOURCE_DIR}/"
+        "${THIRDPARTY_SOURCE_DIR}/boost/"
         "${THIRDPARTY_SOURCE_DIR}/imgui/"
         "${THIRDPARTY_SOURCE_DIR}/recast/"
     )

@@ -145,7 +145,7 @@ bool CSquirrelVM::Run(const SQChar* const script)
 //			hScope - 
 // Output : SCRIPT_DONE on success, SCRIPT_ERROR otherwise
 //---------------------------------------------------------------------------------
-ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, ScriptVariant_t* pArgs, unsigned int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope)
+ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, const ScriptVariant_t* const pArgs, unsigned int nArgs, ScriptVariant_t* const pReturn, HSCRIPT hScope)
 {
 	const SQObjectPtr* const f = reinterpret_cast<SQObjectPtr*>(hFunction);
 
@@ -188,7 +188,7 @@ ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, ScriptVariant_t* 
 	return result;
 }
 
-ScriptStatus_t Script_ExecuteFunction(CSquirrelVM* s, HSCRIPT hFunction, ScriptVariant_t* pArgs, unsigned int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope)
+ScriptStatus_t Script_ExecuteFunction(CSquirrelVM* s, HSCRIPT hFunction, const ScriptVariant_t* const pArgs, unsigned int nArgs, ScriptVariant_t* const pReturn, HSCRIPT hScope)
 {
 	return s->ExecuteFunction(hFunction, pArgs, nArgs, pReturn, hScope);
 }
@@ -205,34 +205,25 @@ bool CSquirrelVM::ExecuteCodeCallback(const SQChar* const name)
 
 //---------------------------------------------------------------------------------
 // Purpose: registers a code function
-// Input  : *s - 
-//			*scriptName - 
-//			*nativeName - 
-//			*helpString - 
-//			*returnString - 
-//			*parameters - 
-//			*function - 
+// Input  : *binding - 
+//			useTypeCompiler - 
 //---------------------------------------------------------------------------------
-SQRESULT CSquirrelVM::RegisterFunction(const SQChar* scriptName, const SQChar* nativeName,
-	const SQChar* helpString, const SQChar* returnString, const SQChar* parameters, void* function)
+SQRESULT CSquirrelVM::RegisterFunction(ScriptFunctionBinding_t* const binding, const bool useTypeCompiler)
 {
-	ScriptFunctionBinding_t binding;
-	binding.Init(scriptName, nativeName, helpString, returnString, parameters, 5, function);
-
-	SQRESULT results = CSquirrelVM__RegisterFunction(this, &binding, 1);
+	SQRESULT results = CSquirrelVM__RegisterFunction(this, binding, useTypeCompiler);
 	return results;
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: Finds a global script function in the squirrelvm
+// Purpose: Finds a function in the squirrel VM
 // Input  : *pszFunctionName - 
 //			*pszFunctionSig - 
-//			*pUnk - 
-// Output : Handle to the found script function
+//			 hScope - 
+// Output: Function handle on success NULL on failure
 //---------------------------------------------------------------------------------
-HSCRIPT CSquirrelVM::FindFunction(const char* const pszFunctionName, const char* const pszFunctionSig, void* pUnk)
+const HSCRIPT CSquirrelVM::FindFunction(const char* const pszFunctionName, const char* const pszFunctionSig, HSCRIPT hScope)
 {
-	return CSqurrelVM__FindFunction(this, pszFunctionName, pszFunctionSig, pUnk);
+	return CSquirrelVM__FindFunction(this, pszFunctionName, pszFunctionSig, hScope);
 }
 
 //---------------------------------------------------------------------------------
