@@ -10,6 +10,7 @@
 #include "rtech/playlists/playlists.h"
 #include "engine/cmd.h"
 #include "hostmanager.h"
+#include "engine/server/server.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -62,7 +63,7 @@ static void HostManager_HandleCommandInternal(const char* const map, const char*
 //-----------------------------------------------------------------------------
 void CServerHostManager::LaunchServer(const char* const map, const char* const mode) const
 {
-    HostManager_HandleCommandInternal(map, mode, false);
+    HostManager_HandleCommandInternal(map, mode, g_pServer->IsActive());
 }
 
 //-----------------------------------------------------------------------------

@@ -107,17 +107,19 @@ namespace VScriptCode
 
         static void RequestForServerBrowserListThreaded()
         {
-            string serverMessage; // Refresh list.
+            string serverMessage;
             size_t iCount;
 
             HSCRIPT onRequestComplete = g_pUIScript->FindFunction("ServerBrowser_Requested_RefreshServerListing", "void functionref(bool)", nullptr);
 
-            // TODO: return error string on failure?
-            g_ServerListManager.RefreshServerList(serverMessage, iCount);
+            bool success = g_ServerListManager.RefreshServerList(serverMessage, iCount);
             
-            g_TaskQueue.Dispatch([onRequestComplete] {
+            g_TaskQueue.Dispatch([onRequestComplete, success] {
                 Assert(ThreadInMainThread());
-                ScriptVariant_t args[1] = { true };
+
+				Msg(eDLL_T::UI, "Server list refresh complete: %s\n", success ? "Success" : "Failed");
+
+                ScriptVariant_t args[1] = { success };
                 g_pUIScript->ExecuteFunction(onRequestComplete, args, SDK_ARRAYSIZE(args), nullptr, 0);
                 }, 0);
         }
@@ -504,12 +506,15 @@ namespace VScriptCode
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 
-            hostname->SetValue(serverName);
-            hostdesc.SetValue(serverDescription);
+            NetGameServer_t& details = g_ServerHostManager.GetDetails();
 
-            pylon_host_visibility.SetValue((int)serverVisibility);
+			details.name = serverName;
+			details.description = serverDescription;
+			details.map = serverMapName;
+			details.playlist = serverPlaylist;
 
             // Launch server.
+            g_ServerHostManager.SetVisibility(ServerVisibility_e(serverVisibility));
             g_ServerHostManager.LaunchServer(serverMapName, serverPlaylist);
 
             SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
