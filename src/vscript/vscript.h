@@ -13,7 +13,7 @@
 //-----------------------------------------------------------------------------
 class CSquirrelVM;
 
-inline RSON::Node_t* (*v_Script_LoadScriptList)(const SQChar* rsonfile);
+inline RSON::Node_t*(*v_Script_LoadScriptList)(const SQChar* rsonfile);
 inline SQBool(*v_Script_LoadScriptFile)(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags);
 inline SQBool(*v_Script_ParseScriptList)(SQCONTEXT ctx, const char* scriptListPath, RSON::Node_t* rson, char** scriptArray, int* pScriptCount, char** precompiledScriptArray, int precompiledScriptCount);
 inline SQBool(*v_Script_PrecompileServerScripts)(CSquirrelVM* vm /*This parameter is not used internally (the client variant does use it)!*/);
