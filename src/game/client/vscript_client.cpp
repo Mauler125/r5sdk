@@ -561,8 +561,7 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreClientFunctions(s);
 
-    DEFINE_UI_SCRIPTFUNC_NAMED(s, RequestServerBrowserList, "Refreshes the public server list and returns the count", "void", "");
-    DEFINE_UI_SCRIPTFUNC_NAMED(s, RefreshServerList, "Refreshes the public server list and returns the count", "int", "");
+    DEFINE_UI_SCRIPTFUNC_NAMED(s, RequestServerBrowserList, "Refreshes the public server list", "void", "");
     DEFINE_UI_SCRIPTFUNC_NAMED(s, GetServerCount, "Gets the number of public servers", "int", "");
 
     // Functions for retrieving server browser data
