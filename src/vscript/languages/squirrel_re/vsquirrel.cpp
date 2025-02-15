@@ -145,7 +145,7 @@ bool CSquirrelVM::Run(const SQChar* const script)
 //			hScope - 
 // Output : SCRIPT_DONE on success, SCRIPT_ERROR otherwise
 //---------------------------------------------------------------------------------
-ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope)
+ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, ScriptVariant_t* pArgs, unsigned int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope)
 {
 	const SQObjectPtr* const f = reinterpret_cast<SQObjectPtr*>(hFunction);
 
@@ -188,7 +188,7 @@ ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, void** pArgs, uns
 	return result;
 }
 
-ScriptStatus_t Script_ExecuteFunction(CSquirrelVM* s, HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope)
+ScriptStatus_t Script_ExecuteFunction(CSquirrelVM* s, HSCRIPT hFunction, ScriptVariant_t* pArgs, unsigned int nArgs, ScriptVariant_t* pReturn, HSCRIPT hScope)
 {
 	return s->ExecuteFunction(hFunction, pArgs, nArgs, pReturn, hScope);
 }
@@ -221,6 +221,18 @@ SQRESULT CSquirrelVM::RegisterFunction(const SQChar* scriptName, const SQChar* n
 
 	SQRESULT results = CSquirrelVM__RegisterFunction(this, &binding, 1);
 	return results;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: Finds a global script function in the squirrelvm
+// Input  : *pszFunctionName - 
+//			*pszFunctionSig - 
+//			*pUnk - 
+// Output : Handle to the found script function
+//---------------------------------------------------------------------------------
+HSCRIPT CSquirrelVM::FindFunction(const char* const pszFunctionName, const char* const pszFunctionSig, void* pUnk)
+{
+	return CSqurrelVM__FindFunction(this, pszFunctionName, pszFunctionSig, pUnk);
 }
 
 //---------------------------------------------------------------------------------

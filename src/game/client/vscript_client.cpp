@@ -22,6 +22,7 @@
 #include "vscript/languages/squirrel_re/include/sqvm.h"
 
 #include "vscript_client.h"
+#include <tier0/frametask.h>
 
 /*
 =====================
@@ -94,6 +95,33 @@ namespace VScriptCode
     }
     namespace Ui
     {
+        //-----------------------------------------------------------------------------
+        // Purpose: refreshes the server list
+        //-----------------------------------------------------------------------------
+        SQRESULT RequestServerBrowserList(HSQUIRRELVM v)
+        {
+			std::thread(RequestForServerBrowserListThreaded).detach();
+
+			SCRIPT_CHECK_AND_RETURN(v, SQ_OK);
+        }
+
+        static void RequestForServerBrowserListThreaded()
+        {
+            string serverMessage; // Refresh list.
+            size_t iCount;
+
+            HSCRIPT onRequestComplete = g_pUIScript->FindFunction("ServerBrowser_Requested_RefreshServerListing", "void functionref(bool)", nullptr);
+
+            // TODO: return error string on failure?
+            g_ServerListManager.RefreshServerList(serverMessage, iCount);
+            
+            g_TaskQueue.Dispatch([onRequestComplete] {
+                Assert(ThreadInMainThread());
+                ScriptVariant_t args[1] = { true };
+                g_pUIScript->ExecuteFunction(onRequestComplete, args, SDK_ARRAYSIZE(args), nullptr, 0);
+                }, 0);
+        }
+
         //-----------------------------------------------------------------------------
         // Purpose: refreshes the server list
         //-----------------------------------------------------------------------------
@@ -528,6 +556,7 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
     Script_RegisterCommonAbstractions(s);
     Script_RegisterCoreClientFunctions(s);
 
+    DEFINE_UI_SCRIPTFUNC_NAMED(s, RequestServerBrowserList, "Refreshes the public server list and returns the count", "void", "");
     DEFINE_UI_SCRIPTFUNC_NAMED(s, RefreshServerList, "Refreshes the public server list and returns the count", "int", "");
     DEFINE_UI_SCRIPTFUNC_NAMED(s, GetServerCount, "Gets the number of public servers", "int", "");
 
