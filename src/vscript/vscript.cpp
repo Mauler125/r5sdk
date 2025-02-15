@@ -56,7 +56,7 @@ SQBool Script_LoadScriptFile(HSQUIRRELVM v, const SQChar* path, const SQChar* na
 	const char* modPath = strstr(path, MOD_SCRIPT_PATH_IDENTIFIER);
 
 	if (modPath)
-		path = &modPath[sizeof(MOD_SCRIPT_PATH_IDENTIFIER) - 1]; // skip "::MOD::"
+		path = &modPath[sizeof(MOD_SCRIPT_PATH_IDENTIFIER)-1]; // skip "::MOD::"
 
 	///////////////////////////////////////////////////////////////////////////////
 
