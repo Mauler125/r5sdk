@@ -20,8 +20,8 @@ public:
 	void SetDisabled(const bool bDisabled);
 	void InvalidateMap();
 
-	void AddEntry(const char* szPattern, const uint64_t nRVA);
-	bool FindEntry(const char* szPattern, uint64_t& nRVA);
+	void AddEntry(const char* szPattern, const size_t nPatternLen, const uint64_t nRVA);
+	bool FindEntry(const char* szPattern, const size_t nPatternLen, uint64_t& nRVA);
 
 	bool ReadCache(const char* szCacheFile);
 	bool WriteCache(const char* szCacheFile) const;

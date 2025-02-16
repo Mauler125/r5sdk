@@ -102,9 +102,9 @@ class VNet : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pNetAdr = g_GameDll.FindPatternSIMD("C7 05 ?? ?? ?? ?? ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 66 89 05 ?? ?? ?? ?? 88 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 33 C0").ResolveRelativeAddressSelf(0x2, 0xA).RCast<netadr_t*>();
-		g_pNetKey = g_GameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ?? ?? ?? ?? ?? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).RCast<netkey_t*>();
-		g_pNetTime = CMemory(v_NET_Init).Offset(0xA).FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
+		g_pNetAdr = CMemory(v_NET_Config).FindPatternSelf("89 05 AC").ResolveRelativeAddressSelf(2, 6).RCast<netadr_t*>();
+		g_pNetKey = CMemory(v_NET_Init).OffsetSelf(0x300).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<CNetKey*>();
+		g_pNetTime = CMemory(v_NET_Config).FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(4, 8).RCast<double*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;

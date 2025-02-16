@@ -27,7 +27,12 @@ public:
 
 	void LoadSections();
 
-	CMemory FindPatternSIMD(const char* szPattern, const ModuleSections_t* moduleSection = nullptr) const;
+	template<size_t N>
+	CMemory FindPatternSIMD(const char(&szPattern)[N], const ModuleSections_t* moduleSection = nullptr) const
+	{
+		return FindPatternSIMD_Impl(szPattern, N - 1, moduleSection);
+	}
+	CMemory FindPatternSIMD_Impl(const char* szPattern, const size_t patternLen, const ModuleSections_t* moduleSection = nullptr) const;
 	CMemory FindString(const char* szString, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
 	CMemory FindStringReadOnly(const char* szString, bool nullTerminator) const;
 	CMemory FindFreeDataPage(const size_t nSize) const;
@@ -70,7 +75,7 @@ public:
 	void                 UnlinkFromPEB(void) const;
 
 private:
-	CMemory FindPatternSIMD(const uint8_t* pPattern, const char* szMask,
+	CMemory FindPatternSIMD(const uint8_t* pPattern, const char* szMask, const size_t nPatternLen,
 		const ModuleSections_t* moduleSection = nullptr, const size_t nOccurrence = 0) const;
 
 	QWORD                m_pModuleBase;
