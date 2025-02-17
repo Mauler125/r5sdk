@@ -15,6 +15,8 @@
 #include "engine/host_cmd.h"
 #include "engine/cmodel_bsp.h"
 
+#include "rtech/playlists/playlists.h"
+
 #include "rtech/rson.h"
 #include "rtech/pak/pakstate.h"
 #include "rtech/pak/pakparse.h"
