@@ -28,7 +28,7 @@ class V_Weapon_Bolt : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 70").GetPtr(v_CreateWeaponBolt);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 70").GetPtr(v_CreateWeaponBolt);
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;

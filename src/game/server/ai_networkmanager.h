@@ -133,20 +133,20 @@ class VAI_NetworkManager : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 4C 89 74 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ??").GetPtr(CAI_NetworkManager__InitializeAINetworks);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 48 8B 0D ?? ?? ?? ?? 8B 41 6C").GetPtr(CAI_NetworkManager__DelayedInit);
-		g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B FA").GetPtr(CAI_NetworkManager__LoadNetworkGraph);
-		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 38 8B B2 ?? ?? ?? ??").GetPtr(CAI_NetworkBuilder__Build);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 4C 89 74 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ??").GetPtr(CAI_NetworkManager__InitializeAINetworks);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 48 8B D9 48 8B 0D ?? ?? ?? ?? 8B 41 6C").GetPtr(CAI_NetworkManager__DelayedInit);
+		Module_FindPattern(g_GameDll, "4C 89 44 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B FA").GetPtr(CAI_NetworkManager__LoadNetworkGraph);
+		Module_FindPattern(g_GameDll, "48 89 54 24 ?? 48 89 4C 24 ?? 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 38 8B B2 ?? ?? ?? ??").GetPtr(CAI_NetworkBuilder__Build);
 	}
 	virtual void GetVar(void) const
 	{
 		g_ppAINetworkManager = CMemory(CAI_NetworkManager__InitializeAINetworks).FindPattern("48 89 05", CMemory::Direction::DOWN)
 			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_NetworkManager**>();
-		g_pAIPathClusters = g_GameDll.FindPatternSIMD("F3 0F 10 52 ?? 4C 8B CA")
+		g_pAIPathClusters = Module_FindPattern(g_GameDll, "F3 0F 10 52 ?? 4C 8B CA")
 			.FindPatternSelf("48 8B 35", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_Cluster*>*>();
-		g_pAIClusterLinks = g_GameDll.FindPatternSIMD("F3 0F 10 52 ?? 4C 8B CA")
+		g_pAIClusterLinks = Module_FindPattern(g_GameDll, "F3 0F 10 52 ?? 4C 8B CA")
 			.FindPatternSelf("4C 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_ClusterLink*>*>();
-		g_pAITraverseNodes = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 56 48 8B EC 48 81 EC ?? ?? ?? ??").OffsetSelf(0x2EF)
+		g_pAITraverseNodes = Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 55 56 57 41 54 41 56 48 8B EC 48 81 EC ?? ?? ?? ??").OffsetSelf(0x2EF)
 			.FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CUtlVector<CAI_TraverseNode>*>();
 	}
 	virtual void GetCon(void) const { }

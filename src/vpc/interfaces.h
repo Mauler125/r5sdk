@@ -63,11 +63,11 @@ class VFactory : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B FA").GetPtr(v_CreateInterfaceInternal);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B FA").GetPtr(v_CreateInterfaceInternal);
 	}
 	virtual void GetVar(void) const
 	{
-		s_ppInterfaceRegs = g_GameDll.FindPatternSIMD("E9 ?? ?? ?? ?? CC CC 89 91 ?? ?? ?? ??")
+		s_ppInterfaceRegs = Module_FindPattern(g_GameDll, "E9 ?? ?? ?? ?? CC CC 89 91 ?? ?? ?? ??")
 			.FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<InterfaceReg**>();
 	}
 	virtual void GetCon(void) const { }

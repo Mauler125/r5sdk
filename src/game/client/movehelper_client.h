@@ -40,7 +40,7 @@ class VMoveHelperClient : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		const CMemory pFunc = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 80 3D ?? ?? ?? ?? ?? 48 8B D9 74 1A");
+		const CMemory pFunc = Module_FindPattern(g_GameDll, "40 53 48 83 EC 30 80 3D ?? ?? ?? ?? ?? 48 8B D9 74 1A");
 		s_MoveHelperClient = pFunc.FindPattern("4C 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMoveHelperClient*>();
 	}
 	virtual void GetCon(void) const { }

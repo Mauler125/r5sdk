@@ -857,10 +857,10 @@ class VThreadTools : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_GameDll.FindPatternSIMD("66 89 54 24 ?? 53 55 56 57 41 54 48 81 EC ?? ?? ?? ??")
+		Module_FindPattern(g_GameDll, "66 89 54 24 ?? 53 55 56 57 41 54 48 81 EC ?? ?? ?? ??")
 			.FindPatternSelf("39 05").ResolveRelativeAddressSelf(2, 6).GetPtr(g_CurrentServerFrameJobID);
 
-		g_GameDll.FindPatternSIMD("48 83 EC 28 FF 15 ?? ?? ?? ?? 8B 0D ?? ?? ?? ??")
+		Module_FindPattern(g_GameDll, "48 83 EC 28 FF 15 ?? ?? ?? ?? 8B 0D ?? ?? ?? ??")
 			.FindPatternSelf("8B 0D").ResolveRelativeAddressSelf(2, 6).GetPtr(g_AllocatedServerFrameJobID);
 	}
 	virtual void GetCon(void) const { }

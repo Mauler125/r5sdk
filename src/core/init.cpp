@@ -488,7 +488,7 @@ void DetourInit() // Run the sigscan
 
 	g_SigCache.WriteCache(SIGDB_FILE);
 	g_SigCache.InvalidateMap();
-		}
+}
 
 void DetourAddress() // Test the sigscan results
 {

@@ -42,9 +42,9 @@ class VClientDataBlockReceiver : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 4C 8B 51 08").GetPtr(ClientDataBlockReceiver__AcknowledgeTransmission);
+		Module_FindPattern(g_GameDll, "40 53 48 81 EC ?? ?? ?? ?? 4C 8B 51 08").GetPtr(ClientDataBlockReceiver__AcknowledgeTransmission);
 
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 0F B7 44 24 ??")
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 0F B7 44 24 ??")
 			.GetPtr(ClientDataBlockReceiver__ProcessDataBlock);
 	}
 	virtual void GetVar(void) const { }

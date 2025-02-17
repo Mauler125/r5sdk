@@ -109,7 +109,7 @@ class VAppSystemGroup : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B 81 ?? ?? ?? ?? 48 8B F9").GetPtr(CAppSystemGroup__Destroy);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B 81 ?? ?? ?? ?? 48 8B F9").GetPtr(CAppSystemGroup__Destroy);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

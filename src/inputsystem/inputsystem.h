@@ -184,14 +184,14 @@ class VInputSystem : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 55 56 41 54 41 55 48 83 EC 48").GetPtr(CInputSystem__WindowProc);
+		Module_FindPattern(g_GameDll, "48 89 4C 24 ?? 55 56 41 54 41 55 48 83 EC 48").GetPtr(CInputSystem__WindowProc);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pInputSystem = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 85 C9 74 11")
+		g_pInputSystem = Module_FindPattern(g_GameDll, "48 83 EC 28 48 8B 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 85 C9 74 11")
 			.FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CInputSystem*>();
 
-		const CMemory l_EngineApi_PumpMessages = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 48 81 EC ?? ?? ?? ?? 45 33 C9");
+		const CMemory l_EngineApi_PumpMessages = Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 55 48 81 EC ?? ?? ?? ?? 45 33 C9");
 		g_fnSyncRTWithIn = l_EngineApi_PumpMessages.FindPattern("74 06").FindPatternSelf("FF 15").ResolveRelativeAddressSelf(2, 6).RCast<bool(**)(void)>();
 	}
 	virtual void GetCon(void) const { }

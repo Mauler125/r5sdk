@@ -42,9 +42,9 @@ class VStaticPropMgr : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 44 89 40 18 48 89 50 10 55").GetPtr(CStaticProp__Init);
-		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8D 6C 24 ?? 48 8B 05 ?? ?? ?? ?? 4C 8B F9").GetPtr(v_GatherStaticPropsSecondPass_PreInit);
-		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8D 6C 24 ?? 48 8B 05 ?? ?? ?? ?? 4C 8B F1").GetPtr(v_GatherStaticPropsSecondPass_PostInit);
+		Module_FindPattern(g_GameDll, "48 8B C4 44 89 40 18 48 89 50 10 55").GetPtr(CStaticProp__Init);
+		Module_FindPattern(g_GameDll, "48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8D 6C 24 ?? 48 8B 05 ?? ?? ?? ?? 4C 8B F9").GetPtr(v_GatherStaticPropsSecondPass_PreInit);
+		Module_FindPattern(g_GameDll, "48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8D 6C 24 ?? 48 8B 05 ?? ?? ?? ?? 4C 8B F1").GetPtr(v_GatherStaticPropsSecondPass_PostInit);
 	}
 	virtual void GetVar(void) const
 	{

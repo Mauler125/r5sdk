@@ -32,7 +32,7 @@ class V_PakStream : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_GameDll.FindPatternSIMD("F3 0F 10 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC 48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ??")
+		Module_FindPattern(g_GameDll, "F3 0F 10 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC 48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ??")
 			.ResolveRelativeAddress(0x4, 0x8).GetPtr(g_pStreamingDownloadProgress);
 	}
 	virtual void GetCon(void) const { }

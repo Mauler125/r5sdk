@@ -116,16 +116,16 @@ class VJobThread : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 08 48 89 78 10 55 48 8D 68 A1 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 48 8D 1D ?? ?? ?? ??").GetPtr(JT_ParallelCall);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 80 3D ?? ?? ?? ?? ??").GetPtr(JT_HelpWithAnything);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 89 4C 24 ?? 4C 89 44 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 60").GetPtr(JT_HelpWithJobTypes);
-		g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 4C 89 44 24 ?? 48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(JT_HelpWithJobTypesOrSleep);
-		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 8B F9").GetPtr(JT_WaitForJobAndOnlyHelpWithJobTypes);
-		g_GameDll.FindPatternSIMD("48 83 EC 08 65 48 8B 04 25 ?? ?? ?? ?? 4C 8B C1").GetPtr(JT_AcquireFifoLockOrHelp);
-		g_GameDll.FindPatternSIMD("48 83 EC 28 44 8B 11").GetPtr(JT_ReleaseFifoLock);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 65 48 8B 04 25 ?? ?? ?? ?? BA ?? ?? ?? ??").GetPtr(JT_AllocateJob);
-		g_GameDll.FindPatternSIMD("8B D1 48 8D 05 ?? ?? ?? ?? 81 E2 ?? ?? ?? ?? 48 C1 E2 06 48 03 D0 E9 ?? ?? ?? ??").GetPtr(JT_EndJobGroup);
-		g_GameDll.FindPatternSIMD("48 89 74 24 ? 57 48 83 EC 20 0F B6 F1").GetPtr(JTGuts_AddJob_Internal);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 89 58 08 48 89 78 10 55 48 8D 68 A1 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 48 8D 1D ?? ?? ?? ??").GetPtr(JT_ParallelCall);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 80 3D ?? ?? ?? ?? ??").GetPtr(JT_HelpWithAnything);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 4C 89 4C 24 ?? 4C 89 44 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 60").GetPtr(JT_HelpWithJobTypes);
+		Module_FindPattern(g_GameDll, "4C 89 4C 24 ?? 4C 89 44 24 ?? 48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(JT_HelpWithJobTypesOrSleep);
+		Module_FindPattern(g_GameDll, "48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 8B F9").GetPtr(JT_WaitForJobAndOnlyHelpWithJobTypes);
+		Module_FindPattern(g_GameDll, "48 83 EC 08 65 48 8B 04 25 ?? ?? ?? ?? 4C 8B C1").GetPtr(JT_AcquireFifoLockOrHelp);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 44 8B 11").GetPtr(JT_ReleaseFifoLock);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 65 48 8B 04 25 ?? ?? ?? ?? BA ?? ?? ?? ??").GetPtr(JT_AllocateJob);
+		Module_FindPattern(g_GameDll, "8B D1 48 8D 05 ?? ?? ?? ?? 81 E2 ?? ?? ?? ?? 48 C1 E2 06 48 03 D0 E9 ?? ?? ?? ??").GetPtr(JT_EndJobGroup);
+		Module_FindPattern(g_GameDll, "48 89 74 24 ? 57 48 83 EC 20 0F B6 F1").GetPtr(JTGuts_AddJob_Internal);
 	}
 	virtual void GetVar(void) const
 	{

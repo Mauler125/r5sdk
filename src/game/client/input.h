@@ -210,12 +210,12 @@ class VInput : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("89 91 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC F3 0F 11 89 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC F3 0F 10 81 ?? ?? ?? ??")
+		Module_FindPattern(g_GameDll, "89 91 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC F3 0F 11 89 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC F3 0F 10 81 ?? ?? ?? ??")
 			.GetPtr(v_CInput__SetCustomWeaponActivity);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pInput = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 5D 57").FollowNearCallSelf().
+		g_pInput = Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 48 8B 5D 57").FollowNearCallSelf().
 			FindPatternSelf("48 8B 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CInput*>();
 	}
 	virtual void GetCon(void) const

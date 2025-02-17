@@ -17,7 +17,7 @@ class V_PakAlloc : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 54 41 56 41 57 48 83 EC 40 48 8B C2 49 8B D9").GetPtr(sub_140442740);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 54 41 56 41 57 48 83 EC 40 48 8B C2 49 8B D9").GetPtr(sub_140442740);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

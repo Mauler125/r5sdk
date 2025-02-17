@@ -18,10 +18,10 @@ class VGL_RSurf : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 83 EC 48 0F 28 E8").GetPtr(V_DrawDepthOfField);
-		g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 57 41 55").GetPtr(V_DrawWorldMeshes);
-		g_GameDll.FindPatternSIMD("40 56 57 B8 ?? ?? ?? ??").GetPtr(V_DrawWorldMeshesDepthOnly);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 41 8B F9").GetPtr(V_DrawWorldMeshesDepthAtTheEnd);
+		Module_FindPattern(g_GameDll, "48 83 EC 48 0F 28 E8").GetPtr(V_DrawDepthOfField);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 89 48 08 53 57 41 55").GetPtr(V_DrawWorldMeshes);
+		Module_FindPattern(g_GameDll, "40 56 57 B8 ?? ?? ?? ??").GetPtr(V_DrawWorldMeshesDepthOnly);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 41 8B F9").GetPtr(V_DrawWorldMeshesDepthAtTheEnd);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

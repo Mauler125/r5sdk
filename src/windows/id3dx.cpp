@@ -397,19 +397,19 @@ void VDXGI::GetAdr(void) const
 
 void VDXGI::GetFun(void) const
 {
-	g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60").FollowNearCallSelf().GetPtr(v_CreateTextureResource);
+	Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60").FollowNearCallSelf().GetPtr(v_CreateTextureResource);
 }
 
 void VDXGI::GetVar(void) const
 {
-	CMemory base = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 4B 08 48 83 EC 58");
+	CMemory base = Module_FindPattern(g_GameDll, "4C 8B DC 49 89 4B 08 48 83 EC 58");
 
 	// Grab device pointers..
 	g_ppGameDevice = base.FindPattern("48 8D 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11Device**>();
 	g_ppImmediateContext = base.FindPattern("48 89 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddressSelf(0x3, 0x7).RCast<ID3D11DeviceContext**>();
 
 	// Grab swap chain..
-	base = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 0D ?? ?? ?? ?? 45 33 C0 33 D2");
+	base = Module_FindPattern(g_GameDll, "48 83 EC 28 48 8B 0D ?? ?? ?? ?? 45 33 C0 33 D2");
 	g_ppSwapChain = base.FindPattern("48 8B 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<IDXGISwapChain**>();
 }
 

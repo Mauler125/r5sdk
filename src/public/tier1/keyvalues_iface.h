@@ -30,10 +30,10 @@ class VKeyValues : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45").GetPtr(KeyValues__FindKey);
-		g_GameDll.FindPatternSIMD("48 8B C4 55 53 57 41 54 48 8D 68 A1").GetPtr(KeyValues__ReadKeyValuesFile);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 89 4C 24 ?? 48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(KeyValues__LoadFromFile);
-		g_GameDll.FindPatternSIMD("48 8B C4 53 ?? 57 41 55 41 ?? 48 83").GetPtr(KeyValues__RecursiveSaveToFile);
+		Module_FindPattern(g_GameDll, "40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45").GetPtr(KeyValues__FindKey);
+		Module_FindPattern(g_GameDll, "48 8B C4 55 53 57 41 54 48 8D 68 A1").GetPtr(KeyValues__ReadKeyValuesFile);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 4C 89 4C 24 ?? 48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(KeyValues__LoadFromFile);
+		Module_FindPattern(g_GameDll, "48 8B C4 53 ?? 57 41 55 41 ?? 48 83").GetPtr(KeyValues__RecursiveSaveToFile);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

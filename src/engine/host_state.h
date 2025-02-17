@@ -77,10 +77,10 @@ class VHostState : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 20 F3 0F 11 54 24 18").GetPtr(CHostState__FrameUpdate);
-		g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 0F 29 70 C8 45 33 E4").GetPtr(CHostState__State_Run);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ??").GetPtr(CHostState__State_GameShutDown);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8B F2 8B 0D ?? ?? ?? ??").GetPtr(v_HostState_ChangeLevelMP);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 08 48 89 6C 24 20 F3 0F 11 54 24 18").GetPtr(CHostState__FrameUpdate);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 0F 29 70 C8 45 33 E4").GetPtr(CHostState__State_Run);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ??").GetPtr(CHostState__State_GameShutDown);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8B F2 8B 0D ?? ?? ?? ??").GetPtr(v_HostState_ChangeLevelMP);
 	}
 	virtual void GetVar(void) const
 	{

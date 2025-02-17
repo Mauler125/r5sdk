@@ -12,7 +12,7 @@ class VFPSPanel : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 55 56 41 ?? 48 8D A8 ?? FD FF FF 48 81 EC 80").GetPtr(CFPSPanel__Paint);
+		Module_FindPattern(g_GameDll, "48 8B C4 55 56 41 ?? 48 8D A8 ?? FD FF FF 48 81 EC 80").GetPtr(CFPSPanel__Paint);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -132,8 +132,8 @@ class VRSON : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 89 45 60 48 8B D8").FollowNearCallSelf().GetPtr(RSON_LoadFromBuffer);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 83 EF 01 75 E7").FollowNearCallSelf().GetPtr(RSON_Free);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 48 89 45 60 48 8B D8").FollowNearCallSelf().GetPtr(RSON_LoadFromBuffer);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 48 83 EF 01 75 E7").FollowNearCallSelf().GetPtr(RSON_Free);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -122,22 +122,22 @@ class VMaterialSystem : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??").GetPtr(CMaterialSystem__Init);
-		g_GameDll.FindPatternSIMD("48 83 EC 58 48 89 6C 24 ??").GetPtr(CMaterialSystem__Shutdown);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??").GetPtr(CMaterialSystem__Init);
+		Module_FindPattern(g_GameDll, "48 83 EC 58 48 89 6C 24 ??").GetPtr(CMaterialSystem__Shutdown);
 
-		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 56 48 83 EC 50").GetPtr(CMaterialSystem__Connect);
-		g_GameDll.FindPatternSIMD("48 83 EC 28 8B 0D ?? ?? ?? ?? 48 89 6C 24 ??").GetPtr(CMaterialSystem__Disconnect);
+		Module_FindPattern(g_GameDll, "48 89 54 24 ?? 56 48 83 EC 50").GetPtr(CMaterialSystem__Connect);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 8B 0D ?? ?? ?? ?? 48 89 6C 24 ??").GetPtr(CMaterialSystem__Disconnect);
 #ifndef MATERIALSYSTEM_NODX
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 40 65 48 8B 04 25 ?? ?? ?? ??").GetPtr(CMaterialSystem__SwapBuffers);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 40 65 48 8B 04 25 ?? ?? ?? ??").GetPtr(CMaterialSystem__SwapBuffers);
 
-		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??").GetPtr(CMaterialSystem__FindMaterialEx);
-		g_GameDll.FindPatternSIMD("8B 05 ?? ?? ?? ?? 89 02 8B 05 ?? ?? ?? ?? 41 89 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 8B 05 ?? ?? ?? ??").GetPtr(CMaterialSystem__GetScreenSize);
+		Module_FindPattern(g_GameDll, "44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??").GetPtr(CMaterialSystem__FindMaterialEx);
+		Module_FindPattern(g_GameDll, "8B 05 ?? ?? ?? ?? 89 02 8B 05 ?? ?? ?? ?? 41 89 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 8B 05 ?? ?? ?? ??").GetPtr(CMaterialSystem__GetScreenSize);
 
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC ?? 48 8B 02 48 8B CA 49 8B F9").GetPtr(CMaterialSystem__CreditModelTextures);
-		g_GameDll.FindPatternSIMD("48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 44 0F 29 44 24").GetPtr(CMaterialSystem__UpdateStreamCamera);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC ?? 48 8B 02 48 8B CA 49 8B F9").GetPtr(CMaterialSystem__CreditModelTextures);
+		Module_FindPattern(g_GameDll, "48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 44 0F 29 44 24").GetPtr(CMaterialSystem__UpdateStreamCamera);
 
-		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56").GetPtr(v_DispatchDrawCall);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 8B 15 ?? ?? ?? ??").GetPtr(v_SpinPresent);
+		Module_FindPattern(g_GameDll, "44 89 4C 24 ?? 44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56").GetPtr(v_DispatchDrawCall);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 8B 15 ?? ?? ?? ??").GetPtr(v_SpinPresent);
 #endif // !MATERIALSYSTEM_NODX
 	}
 	virtual void GetVar(void) const
@@ -146,7 +146,7 @@ class VMaterialSystem : public IDetour
 		CMemory(v_DispatchDrawCall).FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(s_pRenderContext);
 		CMemory(CMaterialSystem__Disconnect).FindPattern("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_pMaterialAdapterMgr);
 #endif // !MATERIALSYSTEM_NODX
-		g_pMaterialSystem = g_GameDll.FindPatternSIMD("8B 41 28 85 C0 7F 18").FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<CMaterialSystem*>();
+		g_pMaterialSystem = Module_FindPattern(g_GameDll, "8B 41 28 85 C0 7F 18").FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<CMaterialSystem*>();
 	}
 	virtual void GetCon(void) const
 	{

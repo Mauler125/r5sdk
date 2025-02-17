@@ -17,7 +17,7 @@ class VParticles : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 55 53 56 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 33 F6").GetPtr(v_ParticleSystem_Init);
+		Module_FindPattern(g_GameDll, "48 89 4C 24 ?? 55 53 56 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 33 F6").GetPtr(v_ParticleSystem_Init);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

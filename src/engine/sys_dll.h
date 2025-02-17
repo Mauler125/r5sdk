@@ -69,13 +69,13 @@ class VSys_Dll : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 80 B9 ?? ?? ?? ?? ?? BB ?? ?? ?? ??").GetPtr(CModAppSystemGroup__Main);
-		g_GameDll.FindPatternSIMD("48 8B C4 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60").GetPtr(CModAppSystemGroup__Create);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 80 B9 ?? ?? ?? ?? ?? BB ?? ?? ?? ??").GetPtr(CModAppSystemGroup__Main);
+		Module_FindPattern(g_GameDll, "48 8B C4 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60").GetPtr(CModAppSystemGroup__Create);
 
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 E8 ?? ?? ?? ?? 33 C9").GetPtr(CSourceAppSystemGroup__Create);
-		g_GameDll.FindPatternSIMD("48 89 74 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??").GetPtr(CSourceAppSystemGroup__PreInit);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 E8 ?? ?? ?? ?? 33 C9").GetPtr(CSourceAppSystemGroup__Create);
+		Module_FindPattern(g_GameDll, "48 89 74 24 ?? 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??").GetPtr(CSourceAppSystemGroup__PreInit);
 
-		g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 74 24 10 57 48 81 EC 30 08 ?? ?? 48 8B DA 48 8B F9 E8 ?? ?? ?? FF 33 F6 48").GetPtr(Sys_Error_Internal);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 08 48 89 74 24 10 57 48 81 EC 30 08 ?? ?? 48 8B DA 48 8B F9 E8 ?? ?? ?? FF 33 F6 48").GetPtr(Sys_Error_Internal);
 	}
 	virtual void GetVar(void) const
 	{

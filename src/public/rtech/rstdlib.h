@@ -126,8 +126,8 @@ class V_ReSTD : public IDetour
 	}
 	virtual void GetFun(void) const 
 	{
-		g_GameDll.FindPatternSIMD("44 8B 51 0C 4C 8B C1").GetPtr(v_RHashMap_FindSlot);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 44 8B 59 0C").GetPtr(v_RHashMap_FreeSlot);
+		Module_FindPattern(g_GameDll, "44 8B 51 0C 4C 8B C1").GetPtr(v_RHashMap_FindSlot);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 44 8B 59 0C").GetPtr(v_RHashMap_FreeSlot);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

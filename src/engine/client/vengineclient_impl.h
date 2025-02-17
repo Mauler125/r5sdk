@@ -30,7 +30,7 @@ class HVEngineClient : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 80 3D ?? ?? ?? ?? ?? 48 8B DA 74 0C").GetPtr(CEngineClient__ClientCmd);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 80 3D ?? ?? ?? ?? ?? 48 8B DA 74 0C").GetPtr(CEngineClient__ClientCmd);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const 

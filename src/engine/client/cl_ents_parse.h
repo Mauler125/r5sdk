@@ -17,8 +17,8 @@ class V_CL_Ents_Parse : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 55 53 41 54 41 55 41 57 48 8D AC 24").GetPtr(v_CL_CopyNewEntity);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 70 4C 63 51 28").GetPtr(v_CL_CopyExistingEntity);
+		Module_FindPattern(g_GameDll, "40 55 53 41 54 41 55 41 57 48 8D AC 24").GetPtr(v_CL_CopyNewEntity);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 70 4C 63 51 28").GetPtr(v_CL_CopyExistingEntity);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

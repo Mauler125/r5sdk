@@ -93,14 +93,14 @@ class VEngineVGui : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("41 55 41 56 48 83 EC 78 44 8B EA").GetPtr(CEngineVGui__Paint);
-		g_GameDll.FindPatternSIMD("40 53 57 48 81 EC ?? ?? ?? ?? 48 8B F9").GetPtr(CEngineVGui__RenderStart);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01").GetPtr(CEngineVGui__RenderEnd);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 40 48 63 01").GetPtr(v_UIEventDispatcher);
+		Module_FindPattern(g_GameDll, "41 55 41 56 48 83 EC 78 44 8B EA").GetPtr(CEngineVGui__Paint);
+		Module_FindPattern(g_GameDll, "40 53 57 48 81 EC ?? ?? ?? ?? 48 8B F9").GetPtr(CEngineVGui__RenderStart);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01").GetPtr(CEngineVGui__RenderEnd);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 40 48 63 01").GetPtr(v_UIEventDispatcher);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pEngineVGui = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 48 89 50 10 4C 89 40 18 4C 89 48 20 53 57 48 81 EC ?? ?? ?? ?? 48 8B D9 48 8D 78 10 E8 ?? ?? ?? ?? 48 89 7C 24 ?? 48 8D 54 24 ?? 33 FF 4C 8B CB 41 B8 ?? ?? ?? ?? 48 89 7C 24 ?? 48 8B 08 48 83 C9 01 E8 ?? ?? ?? ?? 85 C0 48 8D 54 24 ??")
+		g_pEngineVGui = Module_FindPattern(g_GameDll, "48 8B C4 48 89 48 08 48 89 50 10 4C 89 40 18 4C 89 48 20 53 57 48 81 EC ?? ?? ?? ?? 48 8B D9 48 8D 78 10 E8 ?? ?? ?? ?? 48 89 7C 24 ?? 48 8D 54 24 ?? 33 FF 4C 8B CB 41 B8 ?? ?? ?? ?? 48 89 7C 24 ?? 48 8B 08 48 83 C9 01 E8 ?? ?? ?? ?? 85 C0 48 8D 54 24 ??")
 			.FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngineVGui*>();
 	}
 	virtual void GetCon(void) const { }

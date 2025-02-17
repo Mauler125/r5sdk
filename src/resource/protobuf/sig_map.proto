@@ -3,5 +3,5 @@ option optimize_for = LITE_RUNTIME;
 
 message SigMap_Pb
 {
-	map<string,uint64> sMap = 1;
+	map<uint64,uint64> sMap = 1;
 }

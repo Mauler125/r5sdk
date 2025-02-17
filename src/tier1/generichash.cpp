@@ -370,7 +370,7 @@ uint32 MurmurHash2LowerCase(char const* pString, uint32 nSeed)
 //-----------------------------------------------------------------------------
 // Murmur hash, 64 bit- endian neutral
 //-----------------------------------------------------------------------------
-uint64 MurmurHash64(const void* key, int len, uint32 seed)
+uint64 MurmurHash64(const void* key, size_t len, uint32 seed)
 {
 	// 'm' and 'r' are mixing constants generated offline.
 	// They're not really 'magic', they just happen to work well.
@@ -380,8 +380,8 @@ uint64 MurmurHash64(const void* key, int len, uint32 seed)
 
 	// Initialize the hash to a 'random' value
 
-	uint32 h1 = seed ^ len;
-	uint32 h2 = 0;
+	uint64 h1 = seed ^ len;
+	uint64 h2 = 0;
 
 	// Mix 4 bytes at a time into the hash
 

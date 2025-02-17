@@ -275,28 +275,28 @@ class VSquirrelAPI : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 83 EC 28 8B 51 ?? 44 8B C2").GetPtr(v_sq_pushroottable);
-		g_GameDll.FindPatternSIMD("48 83 EC 38 33 C0 48 C7 44 24 20 08 ?? ?? 01 48").GetPtr(v_sq_pushbool);
-		g_GameDll.FindPatternSIMD("40 56 48 83 EC 30 48 8B F1 48 85 D2 0F 84 8F ??").GetPtr(v_sq_pushstring);
-		g_GameDll.FindPatternSIMD("48 83 EC 38 33 C0 48 C7 44 24 20 02 ?? ?? 05 48").GetPtr(v_sq_pushinteger);
-		g_GameDll.FindPatternSIMD("48 83 EC 38 8B 51 78 33 C0").GetPtr(v_sq_pushfloat);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 40").GetPtr(v_sq_newarray);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 20").GetPtr(v_sq_newtable);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 44 8B 49 ?? 48 8B D9 41 8B C1").GetPtr(v_sq_newslot);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 41 ?? 48 8B D9 2B 41 ?? 83 F8 02 7D").GetPtr(v_sq_arrayappend);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60 48 8B 59 60").GetPtr(v_sq_pushstructure);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 50 41 8B E9 49 8B F8").GetPtr(v_sq_compilebuffer);
-		g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B 08 49 89 6B 10 49 89 73 18 57 48 83 EC 50 8B F2").GetPtr(v_sq_call);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40 48 8B F9 8B 49 78").GetPtr(v_sq_get);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 41 ?? 48 8B FA 48 8B D9 F7 00").GetPtr(v_sq_getentity);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 8B 51 ?? 44 8B C2").GetPtr(v_sq_pushroottable);
+		Module_FindPattern(g_GameDll, "48 83 EC 38 33 C0 48 C7 44 24 20 08 ?? ?? 01 48").GetPtr(v_sq_pushbool);
+		Module_FindPattern(g_GameDll, "40 56 48 83 EC 30 48 8B F1 48 85 D2 0F 84 8F ??").GetPtr(v_sq_pushstring);
+		Module_FindPattern(g_GameDll, "48 83 EC 38 33 C0 48 C7 44 24 20 02 ?? ?? 05 48").GetPtr(v_sq_pushinteger);
+		Module_FindPattern(g_GameDll, "48 83 EC 38 8B 51 78 33 C0").GetPtr(v_sq_pushfloat);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 40").GetPtr(v_sq_newarray);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 20").GetPtr(v_sq_newtable);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 30 44 8B 49 ?? 48 8B D9 41 8B C1").GetPtr(v_sq_newslot);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 8B 41 ?? 48 8B D9 2B 41 ?? 83 F8 02 7D").GetPtr(v_sq_arrayappend);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60 48 8B 59 60").GetPtr(v_sq_pushstructure);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 50 41 8B E9 49 8B F8").GetPtr(v_sq_compilebuffer);
+		Module_FindPattern(g_GameDll, "4C 8B DC 49 89 5B 08 49 89 6B 10 49 89 73 18 57 48 83 EC 50 8B F2").GetPtr(v_sq_call);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40 48 8B F9 8B 49 78").GetPtr(v_sq_get);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 41 ?? 48 8B FA 48 8B D9 F7 00").GetPtr(v_sq_getentity);
 
-		g_GameDll.FindPatternSIMD("8B 51 78 4C 8B 49 60 44 8B C2 49 C1 E0 04 4C 03 81 ?? ?? ?? ?? 8D 42 01 89 41 78 41 F7 81 ?? ?? ?? ?? ?? ?? ?? ?? 74 0A 49 8B 81 ?? ?? ?? ?? FF 40 08 41 F7 00 ?? ?? ?? ?? 41 0F 10 81 ?? ?? ?? ?? 74 15").GetPtr(v_sq_startconsttable);
-		g_GameDll.FindPatternSIMD("8B 41 78 45 33 C0 FF C8 8B D0 89 41 78 48 C1 E2 04 48 03 91 ?? ?? ?? ?? 8B 02 48 C7 02 ?? ?? ?? ?? 25 ?? ?? ?? ?? 74 15").GetPtr(v_sq_endconsttable);
+		Module_FindPattern(g_GameDll, "8B 51 78 4C 8B 49 60 44 8B C2 49 C1 E0 04 4C 03 81 ?? ?? ?? ?? 8D 42 01 89 41 78 41 F7 81 ?? ?? ?? ?? ?? ?? ?? ?? 74 0A 49 8B 81 ?? ?? ?? ?? FF 40 08 41 F7 00 ?? ?? ?? ?? 41 0F 10 81 ?? ?? ?? ?? 74 15").GetPtr(v_sq_startconsttable);
+		Module_FindPattern(g_GameDll, "8B 41 78 45 33 C0 FF C8 8B D0 89 41 78 48 C1 E2 04 48 03 91 ?? ?? ?? ?? 8B 02 48 C7 02 ?? ?? ?? ?? 25 ?? ?? ?? ?? 74 15").GetPtr(v_sq_endconsttable);
 
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 41 8D 4D FF").FollowNearCallSelf().GetPtr(v_StringTable__Add);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 41 8D 4D FF").FollowNearCallSelf().GetPtr(v_StringTable__Add);
 
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? FF 40 10 FF C6").FollowNearCallSelf().GetPtr(v_RefTable__Get);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 40 84 7D BC").FollowNearCallSelf().GetPtr(v_RefTable__Release);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? FF 40 10 FF C6").FollowNearCallSelf().GetPtr(v_RefTable__Get);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 40 84 7D BC").FollowNearCallSelf().GetPtr(v_RefTable__Release);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

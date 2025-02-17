@@ -130,9 +130,12 @@ void SDK_Init()
 #ifndef DEDICATED
     ImguiSystem()->SetEnabled(!CommandLine()->CheckParm("-noimgui"));
 #endif  // !DEDICATED
-
     SpdLog_Init(bAnsiColor);
     Show_Emblem();
+
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+    curl_global_init(CURL_GLOBAL_ALL);
+    lzham_enable_fail_exceptions(true);
 
     Winsock_Startup(); // Initialize Winsock.
     DirtySDK_Startup();
@@ -143,10 +146,6 @@ void SDK_Init()
 #ifndef DEDICATED
     Input_Init();
 #endif // !DEDICATED
-
-    GOOGLE_PROTOBUF_VERIFY_VERSION;
-    curl_global_init(CURL_GLOBAL_ALL);
-    lzham_enable_fail_exceptions(true);
 
     g_bSdkInitialized = true;
 }
@@ -180,8 +179,6 @@ void SDK_Shutdown()
 
     Msg(eDLL_T::NONE, "GameSDK shutdown initiated\n");
 
-    curl_global_cleanup();
-
 #ifndef DEDICATED
     Input_Shutdown();
 #endif // !DEDICATED
@@ -191,6 +188,9 @@ void SDK_Shutdown()
 
     DirtySDK_Shutdown();
     Winsock_Shutdown();
+
+    curl_global_cleanup();
+    google::protobuf::ShutdownProtobufLibrary();
 
     SpdLog_Shutdown();
 

@@ -54,7 +54,7 @@ void Dedicated_Init()
 //		p_CHLClient_LevelShutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Return early in 'CHLClient::LevelShutdown()' during DLL shutdown.
 //		p_CHLClient_HudProcessInput.Patch({ 0xC3 });                             // FUN --> RET | Return early in 'CHLClient::HudProcessInput()' to prevent infinite loop.
 //
-//		g_GameDll.FindPatternSIMD("41 85 C8 0F 84").Offset(0x40).Patch({ 0xEB, 0x23 }); // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
+//		Module_FindPattern(g_GameDll, "41 85 C8 0F 84").Offset(0x40).Patch({ 0xEB, 0x23 }); // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
 //	}
 //
 //	//-------------------------------------------------------------------------

@@ -39,7 +39,7 @@ class VMoveHelperServer : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		const CMemory pFunc = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 85 C0 0F 84 ?? ?? ?? ?? 48 8B 47 10").FollowNearCallSelf();
+		const CMemory pFunc = Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 85 C0 0F 84 ?? ?? ?? ?? 48 8B 47 10").FollowNearCallSelf();
 		s_MoveHelperServer = pFunc.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMoveHelperServer*>();
 	}
 	virtual void GetCon(void) const { }

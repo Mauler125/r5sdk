@@ -62,16 +62,16 @@ class VHost : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 18 48 89 70 20 F3 0F 11 48 ??").GetPtr(v_Host_RunFrame);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 34").GetPtr(v_Host_RunFrame_Render);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 65 48 8B 04 25 ?? ?? ?? ?? 33 DB").GetPtr(v_Host_CountRealTimePackets);
-		g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 83 78 6C 00 75 07 B0 01").GetPtr(v_Host_ShouldRun);
-		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 48 89 54 24 ?? 4C 89 44 24 ?? 4C 89 4C 24 ?? 53 57 48 81 EC ?? ?? ?? ??").GetPtr(v_Host_Error);
-		//g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 65 48 8B 04 25 ?? ?? ?? ?? BB ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ??").GetPtr(v_VCR_EnterPausedState);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 89 58 18 48 89 70 20 F3 0F 11 48 ??").GetPtr(v_Host_RunFrame);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 48 85 C9 75 34").GetPtr(v_Host_RunFrame_Render);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 30 65 48 8B 04 25 ?? ?? ?? ?? 33 DB").GetPtr(v_Host_CountRealTimePackets);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 48 8B 05 ?? ?? ?? ?? 83 78 6C 00 75 07 B0 01").GetPtr(v_Host_ShouldRun);
+		Module_FindPattern(g_GameDll, "48 89 4C 24 ?? 48 89 54 24 ?? 4C 89 44 24 ?? 4C 89 4C 24 ?? 53 57 48 81 EC ?? ?? ?? ??").GetPtr(v_Host_Error);
+		//Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 65 48 8B 04 25 ?? ?? ?? ?? BB ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ??").GetPtr(v_VCR_EnterPausedState);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pCommonHostState = g_GameDll.FindPatternSIMD("48 83 EC 28 84 C9 75 0B")
+		g_pCommonHostState = Module_FindPattern(g_GameDll, "48 83 EC 28 84 C9 75 0B")
 			.FindPatternSelf("48 8B 15").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CCommonHostState*>();
 
 		const CMemory hostErrorBase(v_Host_Error);

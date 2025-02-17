@@ -327,20 +327,20 @@ class VClient : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9").GetPtr(CClient__Connect);
-		g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2").GetPtr(CClient__Disconnect);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 48 8B EA 4C 8B F1").GetPtr(CClient__ConnectionStart);
-		g_GameDll.FindPatternSIMD("40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74").GetPtr(CClient__Clear);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 81 B0 03 ?? ?? 48 8B D9 C6").GetPtr(CClient__ActivatePlayer);
-		g_GameDll.FindPatternSIMD("40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__SendNetMsgEx);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(CClient__SendSnapshot);
-		g_GameDll.FindPatternSIMD("40 53 57 48 83 EC 38 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__WriteDataBlock);
-		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20").GetPtr(CClient__ProcessStringCmd);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9").GetPtr(CClient__Connect);
+		Module_FindPattern(g_GameDll, "48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2").GetPtr(CClient__Disconnect);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 48 8B EA 4C 8B F1").GetPtr(CClient__ConnectionStart);
+		Module_FindPattern(g_GameDll, "40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74").GetPtr(CClient__Clear);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 8B 81 B0 03 ?? ?? 48 8B D9 C6").GetPtr(CClient__ActivatePlayer);
+		Module_FindPattern(g_GameDll, "40 53 55 56 57 41 56 48 83 EC 40 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__SendNetMsgEx);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 55 56 41 55 41 56 41 57 48 8D 6C 24 ??").GetPtr(CClient__SendSnapshot);
+		Module_FindPattern(g_GameDll, "40 53 57 48 83 EC 38 48 8B 05 ?? ?? ?? ??").GetPtr(CClient__WriteDataBlock);
+		Module_FindPattern(g_GameDll, "48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20").GetPtr(CClient__ProcessStringCmd);
 
-		g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 C2 20").GetPtr(CClient__ProcessSetConVar);
-		g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2").GetPtr(CClient__SetSignonState);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 44 8B 42 20").GetPtr(CClient__ProcessVoiceData);
-		g_GameDll.FindPatternSIMD("40 53 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 44 8B 42 20").GetPtr(CClient__ProcessDurangoVoiceData);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 48 83 C2 20").GetPtr(CClient__ProcessSetConVar);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2").GetPtr(CClient__SetSignonState);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 44 8B 42 20").GetPtr(CClient__ProcessVoiceData);
+		Module_FindPattern(g_GameDll, "40 53 57 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 44 8B 42 20").GetPtr(CClient__ProcessDurangoVoiceData);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

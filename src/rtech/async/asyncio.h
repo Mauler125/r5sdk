@@ -79,20 +79,20 @@ class V_AsyncIO : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 89 85 08 01 ?? ??").FollowNearCallSelf().GetPtr(v_FS_OpenAsyncFile);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B D9 48 8D 35 ?? ?? ?? ??").GetPtr(v_FS_CloseAsyncFile);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 89 85 08 01 ?? ??").FollowNearCallSelf().GetPtr(v_FS_OpenAsyncFile);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B D9 48 8D 35 ?? ?? ?? ??").GetPtr(v_FS_CloseAsyncFile);
 
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 4C 89 64 24 ?? 41 55 41 56 41 57 48 83 EC 20 8B C1").GetPtr(v_FS_ReadAsyncFile);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 0F B6 79").GetPtr(v_FS_CheckAsyncRequest);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 4C 89 64 24 ?? 41 55 41 56 41 57 48 83 EC 20 8B C1").GetPtr(v_FS_ReadAsyncFile);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 0F B6 79").GetPtr(v_FS_CheckAsyncRequest);
 	}
 	virtual void GetVar(void) const
 	{
-		const CMemory streamDbBase = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9");
+		const CMemory streamDbBase = Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9");
 
 		g_pAsyncFileSlots = streamDbBase.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<AsyncHandleTracker_s*>();
 		g_pAsyncFileSlotMgr = streamDbBase.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(0x3, 0x7).RCast<RHashMap_MT*>();
 
-		g_pAsyncStatusSlots = g_GameDll.FindPatternSIMD("0F B6 C9 48 8D 05 ?? ?? ?? ??").FindPatternSelf("48 8D 05").ResolveRelativeAddress(0x3, 0x7).RCast<AsyncHandleStatus_s*>();
+		g_pAsyncStatusSlots = Module_FindPattern(g_GameDll, "0F B6 C9 48 8D 05 ?? ?? ?? ??").FindPatternSelf("48 8D 05").ResolveRelativeAddress(0x3, 0x7).RCast<AsyncHandleStatus_s*>();
 		g_pAsyncStatusSlotMgr = streamDbBase.Offset(0x190).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(0x3, 0x7).RCast<RHashMap_MT*>();
 	}
 	virtual void GetCon(void) const { }

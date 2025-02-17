@@ -104,7 +104,7 @@ void CModule::LoadSections()
 //          nOccurrence    - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const uint8_t* pPattern, const char* szMask, const size_t nPatternLen,
+CMemory CModule::FindPatternSIMD(const uint8_t* pPattern, const char* pMask, const size_t nPatternLen,
 								 const ModuleSections_t* moduleSection, const size_t nOccurrence) const
 {
 	const ModuleSections_t& executableCode = GetSectionByName(".text");
@@ -133,7 +133,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* pPattern, const char* szMask, co
 
 		for (intptr_t j = chunkLen - 1; j >= 0; --j)
 		{
-			if (szMask[i * 16 + j] == 'x')
+			if (pMask[i * 16 + j] == 'x')
 			{
 				_bittestandset(reinterpret_cast<LONG*>(&nMasks[i]), static_cast<LONG>(j));
 			}
@@ -187,22 +187,20 @@ CMemory CModule::FindPatternSIMD(const uint8_t* pPattern, const char* szMask, co
 //          *moduleSection - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD_Impl(const char* szPattern, const size_t patternLen,
-	const ModuleSections_t* moduleSection) const
+CMemory CModule::FindPatternSIMD_Impl(const uint8_t* szPattern, const char* szMask,
+	const size_t patternLen, const ModuleSections_t* moduleSection) const
 {
-	uint64_t nRVA;
-	if (g_SigCache.FindEntry(szPattern, patternLen, nRVA))
-	{
-		return CMemory(nRVA + GetModuleBase());
-	}
+	// Commented as CSigCache expects s8* and we are now u8*. Class needs a
+	// refactor to utilize raw bufs and hash it instead.
+	//uint64_t nRVA;
+	//if (g_SigCache.FindEntry(szPattern, patternLen, nRVA))
+	//{
+	//	return CMemory(nRVA + GetModuleBase());
+	//}
 
-	const pair<vector<uint8_t>, string>
-		patternInfo = PatternToMaskedBytes(szPattern);
+	const CMemory memory = FindPatternSIMD(szPattern, szMask, patternLen, moduleSection);
+	//g_SigCache.AddEntry(szPattern, patternLen, GetRVA(memory.GetPtr()));
 
-	const CMemory memory = FindPatternSIMD(patternInfo.first.data(),
-		patternInfo.second.c_str(), patternInfo.second.length(), moduleSection);
-
-	g_SigCache.AddEntry(szPattern, patternLen, GetRVA(memory.GetPtr()));
 	return memory;
 }
 

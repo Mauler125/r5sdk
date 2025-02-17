@@ -52,7 +52,7 @@ class VServerEntityList : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8D 0D ?? ?? ?? ?? 66 0F 7F 05 ?? ?? ?? ?? 44 89 0D").
+		Module_FindPattern(g_GameDll, "48 8D 0D ?? ?? ?? ?? 66 0F 7F 05 ?? ?? ?? ?? 44 89 0D").
 			ResolveRelativeAddressSelf(3, 7).ResolveRelativeAddressSelf(3, 7).GetPtr(g_serverEntityList);
 	}
 	virtual void GetCon(void) const { }

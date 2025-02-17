@@ -20,11 +20,11 @@ class VGL_Screen : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 83 EC 38 0F 29 74 24 ?? 48 89 5C 24 ??").GetPtr(v_SCR_BeginLoadingPlaque);
+		Module_FindPattern(g_GameDll, "48 83 EC 38 0F 29 74 24 ?? 48 89 5C 24 ??").GetPtr(v_SCR_BeginLoadingPlaque);
 	}
 	virtual void GetVar(void) const
 	{
-		scr_drawloading = g_GameDll.FindPatternSIMD("0F B6 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC 28").ResolveRelativeAddressSelf(0x3, 0x7).RCast<bool*>();
+		scr_drawloading = Module_FindPattern(g_GameDll, "0F B6 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC 28").ResolveRelativeAddressSelf(0x3, 0x7).RCast<bool*>();
 		scr_engineevent_loadingstarted = CMemory(v_SCR_BeginLoadingPlaque).Offset(0x60).FindPatternSelf("C6 05 ?? ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }

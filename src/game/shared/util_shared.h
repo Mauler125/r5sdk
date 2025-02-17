@@ -49,7 +49,7 @@ class VUtil_Shared : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 5E ??").FollowNearCallSelf().GetPtr(v_UTIL_GetEntityScriptInfo);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 4C 8B 5E ??").FollowNearCallSelf().GetPtr(v_UTIL_GetEntityScriptInfo);
 	}
 	virtual void GetCon(void) const
 	{

@@ -27,9 +27,9 @@ class VPlatform : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 4C").GetPtr(v_InitTime);
-		g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 05 E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 1D").GetPtr(v_Plat_FloatTime);
-		g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 05 E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 2A").GetPtr(v_Plat_MSTime);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 4C").GetPtr(v_InitTime);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 05 E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 1D").GetPtr(v_Plat_FloatTime);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 05 E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 2A").GetPtr(v_Plat_MSTime);
 	}
 	virtual void GetVar(void) const
 	{
@@ -38,7 +38,7 @@ class VPlatform : public IDetour
 		g_pPerformanceFrequency = CMemory(v_InitTime).FindPattern("48 F7").ResolveRelativeAddressSelf(0x3, 0x7).RCast<LARGE_INTEGER*>();
 		g_pClockStart = CMemory(v_InitTime).FindPattern("48 8D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<LARGE_INTEGER*>();
 
-		g_flErrorTimeStamp = g_GameDll.FindPatternSIMD("0F 57 C0 F2 0F 11 05 ?? ?? ?? ?? C3").FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
+		g_flErrorTimeStamp = Module_FindPattern(g_GameDll, "0F 57 C0 F2 0F 11 05 ?? ?? ?? ?? C3").FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const { }

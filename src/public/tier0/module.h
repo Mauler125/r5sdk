@@ -1,6 +1,7 @@
 #ifndef MODULE_H
 #define MODULE_H
 #include "windows/tebpeb64.h"
+#include "tier0/sigmaker.h"
 
 class CModule
 {
@@ -27,12 +28,13 @@ public:
 
 	void LoadSections();
 
-	template<size_t N>
-	CMemory FindPatternSIMD(const char(&szPattern)[N], const ModuleSections_t* moduleSection = nullptr) const
+	template<class PatternArray, class MaskArray>
+	CMemory FindPatternSIMD(const PatternArray& pattern, const MaskArray& mask, const ModuleSections_t* moduleSection = nullptr) const
 	{
-		return FindPatternSIMD_Impl(szPattern, N - 1, moduleSection);
+		return FindPatternSIMD_Impl(pattern.data(), mask.data(), pattern.size(), moduleSection);
 	}
-	CMemory FindPatternSIMD_Impl(const char* szPattern, const size_t patternLen, const ModuleSections_t* moduleSection = nullptr) const;
+
+	CMemory FindPatternSIMD_Impl(const uint8_t* szPattern, const char* szMask, const size_t patternLen, const ModuleSections_t* moduleSection = nullptr) const;
 	CMemory FindString(const char* szString, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
 	CMemory FindStringReadOnly(const char* szString, bool nullTerminator) const;
 	CMemory FindFreeDataPage(const size_t nSize) const;
@@ -83,5 +85,12 @@ private:
 	string               m_ModuleName;
 	ModuleSectionsMap_t  m_ModuleSections;
 };
+
+// Helper to turn "48 BC ??" into "\x48\xBC\x00", "xx?" at compile time while discarding
+// the original string literals from the binary.
+#define Module_FindPattern( moduleHandle, pattern ) ([&]() { \
+	static constexpr auto sig = SigMaker_CreateCodeSignature( SigMaker_CaptureStrSignature( pattern ) ); \
+	return moduleHandle.FindPatternSIMD( sig.GetData(), sig.GetMask() ); \
+}())
 
 #endif // MODULE_H

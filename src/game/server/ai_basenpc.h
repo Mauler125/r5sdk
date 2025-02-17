@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//====== Copyright Â© 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: Base NPC character with AI
 //
@@ -516,8 +516,8 @@ class VAI_BaseNPC : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 83 EC ?? BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 33 C0 48 C7 05").GetPtr(CAI_Manager__CAI_Manager);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC ?? 48 8B D9 48 8B FA 48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 83 FF").GetPtr(CAI_BaseNPC__TaskFail);
+		Module_FindPattern(g_GameDll, "48 83 EC ?? BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 33 C0 48 C7 05").GetPtr(CAI_Manager__CAI_Manager);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 57 48 83 EC ?? 48 8B D9 48 8B FA 48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 83 FF").GetPtr(CAI_BaseNPC__TaskFail);
 	}
 	virtual void GetVar(void) const
 	{

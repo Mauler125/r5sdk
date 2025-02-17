@@ -97,15 +97,15 @@ class VSquirrelVM : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 48 89 50 10 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC 30 08 ?? ?? 48 8B DA 48 8D 70 18 48 8B F9 E8 ?? ?? ?? FF 48 89 74 24 28 48 8D 54 24 30 33").GetPtr(v_SQVM_PrintFunc);
-		g_GameDll.FindPatternSIMD("4C 89 4C 24 20 44 89 44 24 18 89 54 24 10 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC ?? 48 8B").GetPtr(v_SQVM_sprintf);
-		g_GameDll.FindPatternSIMD("48 8B C4 55 56 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 83 65 90 FC").GetPtr(v_SQVM_GetErrorLine);
-		g_GameDll.FindPatternSIMD("48 83 EC 38 F2 0F 10 05 ?? ?? ?? ??").GetPtr(v_SQVM_LogicError);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 33 DB 48 8D 44 24 ?? 4C 8D 4C 24 ??").GetPtr(v_SQVM_WarningCmd);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B D9 4C 8B F2").GetPtr(v_SQVM_CompileError);
-		g_GameDll.FindPatternSIMD("E9 ?? ?? ?? ?? F7 D2").FollowNearCallSelf().GetPtr(v_SQVM_ScriptError);
-		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 4C 89 44 24 ?? 4C 89 4C 24 ?? 53 56 57 48 83 EC 40").GetPtr(v_SQVM_RaiseError);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 50 45 33 ED").GetPtr(v_SQVM_PrintObjVal);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 89 50 10 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC 30 08 ?? ?? 48 8B DA 48 8D 70 18 48 8B F9 E8 ?? ?? ?? FF 48 89 74 24 28 48 8D 54 24 30 33").GetPtr(v_SQVM_PrintFunc);
+		Module_FindPattern(g_GameDll, "4C 89 4C 24 20 44 89 44 24 18 89 54 24 10 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC ?? 48 8B").GetPtr(v_SQVM_sprintf);
+		Module_FindPattern(g_GameDll, "48 8B C4 55 56 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 83 65 90 FC").GetPtr(v_SQVM_GetErrorLine);
+		Module_FindPattern(g_GameDll, "48 83 EC 38 F2 0F 10 05 ?? ?? ?? ??").GetPtr(v_SQVM_LogicError);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 30 33 DB 48 8D 44 24 ?? 4C 8D 4C 24 ??").GetPtr(v_SQVM_WarningCmd);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B D9 4C 8B F2").GetPtr(v_SQVM_CompileError);
+		Module_FindPattern(g_GameDll, "E9 ?? ?? ?? ?? F7 D2").FollowNearCallSelf().GetPtr(v_SQVM_ScriptError);
+		Module_FindPattern(g_GameDll, "48 89 54 24 ?? 4C 89 44 24 ?? 4C 89 4C 24 ?? 53 56 57 48 83 EC 40").GetPtr(v_SQVM_RaiseError);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 50 45 33 ED").GetPtr(v_SQVM_PrintObjVal);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

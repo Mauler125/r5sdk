@@ -49,9 +49,9 @@ class V_GamePad : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 8B 5C 24 ?? 48 83 C4 ?? 5E").FollowNearCallSelf().GetPtr(GamePad_LoadAimAssistScripts);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? EB ?? 49 63 C4").FollowNearCallSelf().GetPtr(GamePad_CalcOuterDeadzoneCustom);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F 28 F0 F3 41 0F 5E F2").FollowNearCallSelf().GetPtr(GamePad_CalcOuterDeadzone);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 8B 5C 24 ?? 48 83 C4 ?? 5E").FollowNearCallSelf().GetPtr(GamePad_LoadAimAssistScripts);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? EB ?? 49 63 C4").FollowNearCallSelf().GetPtr(GamePad_CalcOuterDeadzoneCustom);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 0F 28 F0 F3 41 0F 5E F2").FollowNearCallSelf().GetPtr(GamePad_CalcOuterDeadzone);
 	}
 	virtual void GetVar(void) const
 	{

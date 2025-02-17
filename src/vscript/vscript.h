@@ -43,14 +43,14 @@ class VScript : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B 08 57 48 81 EC A0 ?? ?? ?? 33").GetPtr(v_Script_LoadScriptList);
-		g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 55 41 56 48 8D 68").GetPtr(v_Script_LoadScriptFile);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 33 DB 88 05 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(v_Script_PrecompileServerScripts);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8D 84 24 ?? ?? ?? ?? 44 89 64 24 ?? 4C 89 64 24 ?? 4C 8D 8C 24 ?? ?? ?? ?? 4C 8B C5").FollowNearCallSelf().GetPtr(v_Script_SetServerPrecompiler);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 88 05 ?? ?? ?? ?? 33 C0").FollowNearCallSelf().GetPtr(v_Script_PrecompileClientScripts);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8D 84 24 ?? ?? ?? ?? 44 89 64 24 ?? 4C 89 64 24 ?? 4C 8D 8C 24 ?? ?? ?? ?? 4C 8B C6").FollowNearCallSelf().GetPtr(v_Script_SetClientPrecompiler);
+		Module_FindPattern(g_GameDll, "4C 8B DC 49 89 5B 08 57 48 81 EC A0 ?? ?? ?? 33").GetPtr(v_Script_LoadScriptList);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 89 48 08 55 41 56 48 8D 68").GetPtr(v_Script_LoadScriptFile);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 33 DB 88 05 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(v_Script_PrecompileServerScripts);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 48 8D 84 24 ?? ?? ?? ?? 44 89 64 24 ?? 4C 89 64 24 ?? 4C 8D 8C 24 ?? ?? ?? ?? 4C 8B C5").FollowNearCallSelf().GetPtr(v_Script_SetServerPrecompiler);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 88 05 ?? ?? ?? ?? 33 C0").FollowNearCallSelf().GetPtr(v_Script_PrecompileClientScripts);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 48 8D 84 24 ?? ?? ?? ?? 44 89 64 24 ?? 4C 89 64 24 ?? 4C 8D 8C 24 ?? ?? ?? ?? 4C 8B C6").FollowNearCallSelf().GetPtr(v_Script_SetClientPrecompiler);
 
-		g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 55 41 56").GetPtr(v_Script_ParseScriptList);
+		Module_FindPattern(g_GameDll, "4C 89 4C 24 ?? 55 41 56").GetPtr(v_Script_ParseScriptList);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

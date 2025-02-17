@@ -28,7 +28,7 @@ class HVEngineServer : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("3B 15 ?? ?? ?? ?? 7D 33").GetPtr(CVEngineServer__PersistenceAvailable);
+		Module_FindPattern(g_GameDll, "3B 15 ?? ?? ?? ?? 7D 33").GetPtr(CVEngineServer__PersistenceAvailable);
 	}
 	virtual void GetVar(void) const
 	{

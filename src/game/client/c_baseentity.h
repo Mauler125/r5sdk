@@ -103,7 +103,7 @@ class VC_BaseEntity : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 56 48 83 EC ?? 80 B9 ?? ?? ?? ?? ?? 48 8B F1 75").GetPtr(v_C_BaseEntity__GetScriptInstance);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 56 48 83 EC ?? 80 B9 ?? ?? ?? ?? ?? 48 8B F1 75").GetPtr(v_C_BaseEntity__GetScriptInstance);
 	}
 	virtual void GetVar(void) const {}
 	virtual void GetCon(void) const {}

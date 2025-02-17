@@ -189,29 +189,29 @@ class VSquirrel : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F 28 74 24 ?? 48 89 1D ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CSquirrelVM__Init);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42").GetPtr(CSquirrelVM__DestroySignalEntryListHead);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 4C 8B").GetPtr(CSquirrelVM__RegisterConstant);
-		g_GameDll.FindPatternSIMD("48 83 EC 38 45 0F B6 C8").GetPtr(CSquirrelVM__RegisterFunction);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B 59 ? 49 8B F1").GetPtr(CSquirrelVM__FindFunction);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 0F 28 74 24 ?? 48 89 1D ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CSquirrelVM__Init);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42").GetPtr(CSquirrelVM__DestroySignalEntryListHead);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 4C 8B").GetPtr(CSquirrelVM__RegisterConstant);
+		Module_FindPattern(g_GameDll, "48 83 EC 38 45 0F B6 C8").GetPtr(CSquirrelVM__RegisterFunction);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B 59 ? 49 8B F1").GetPtr(CSquirrelVM__FindFunction);
 
 #ifndef CLIENT_DLL
 		// sv scripts.rson compiling
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F B6 F0 48 85 DB").FollowNearCallSelf().GetPtr(CSquirrelVM__PrecompileServerScripts);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 0F B6 F0 48 85 DB").FollowNearCallSelf().GetPtr(CSquirrelVM__PrecompileServerScripts);
 #endif
 
 #ifndef DEDICATED
 		// cl/ui scripts.rson compiling
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 44 0F B6 F0 48 85 DB").FollowNearCallSelf().GetPtr(CSquirrelVM__PrecompileClientScripts);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 44 0F B6 F0 48 85 DB").FollowNearCallSelf().GetPtr(CSquirrelVM__PrecompileClientScripts);
 #endif
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 83 FB 5C").FollowNearCallSelf().GetPtr(CSquirrelVM__ExecuteFunction);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? C6 47 1C 01").FollowNearCallSelf().GetPtr(CSquirrelVM__ExecuteCodeCallback);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? BB ?? ?? ?? ?? 8B C3").FollowNearCallSelf().GetPtr(CSquirrelVM__ThrowError);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 83 FB 5C").FollowNearCallSelf().GetPtr(CSquirrelVM__ExecuteFunction);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? C6 47 1C 01").FollowNearCallSelf().GetPtr(CSquirrelVM__ExecuteCodeCallback);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? BB ?? ?? ?? ?? 8B C3").FollowNearCallSelf().GetPtr(CSquirrelVM__ThrowError);
 	}
 	virtual void GetVar(void) const
 	{
 #ifndef DEDICATED
-		CMemory p_Script_InitUIVM = g_GameDll.FindPatternSIMD("48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 74 ?? 32 C0");
+		CMemory p_Script_InitUIVM = Module_FindPattern(g_GameDll, "48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 74 ?? 32 C0");
 		p_Script_InitUIVM.Offset(0x10).FindPatternSelf("80 3D").ResolveRelativeAddressSelf(2, 7).GetPtr(g_bUIScriptInitialized);
 #endif
 	}

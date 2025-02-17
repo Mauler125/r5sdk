@@ -49,22 +49,22 @@ class V_PakParse : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B D9 E8 ?? ?? ?? ??").GetPtr(v_Pak_Initialize);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 89 03 8B 0B").FollowNearCallSelf().GetPtr(v_Pak_LoadAsync);
-		g_GameDll.FindPatternSIMD("40 53 55 48 83 EC 38 48 89 74 24 ??").GetPtr(v_Pak_WaitAsync);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 85 FF 74 0C").FollowNearCallSelf().GetPtr(v_Pak_UnloadAsync);
-		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 8B 44 24 ?? 4C 8D 35 ?? ?? ?? ??").GetPtr(v_Pak_RegisterAsset);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B D9 E8 ?? ?? ?? ??").GetPtr(v_Pak_Initialize);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 89 03 8B 0B").FollowNearCallSelf().GetPtr(v_Pak_LoadAsync);
+		Module_FindPattern(g_GameDll, "40 53 55 48 83 EC 38 48 89 74 24 ??").GetPtr(v_Pak_WaitAsync);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 85 FF 74 0C").FollowNearCallSelf().GetPtr(v_Pak_UnloadAsync);
+		Module_FindPattern(g_GameDll, "48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 8B 44 24 ?? 4C 8D 35 ?? ?? ?? ??").GetPtr(v_Pak_RegisterAsset);
 
-		g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 56 41 55").GetPtr(v_Pak_StartLoadingPak);
-		g_GameDll.FindPatternSIMD("40 53 55 56 41 54 41 56 48 81 EC ?? ?? ?? ??").GetPtr(v_Pak_ProcessPakFile);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 48 8B CF E8 ?? ?? ?? ?? 44 0F B7 05 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(v_Pak_ProcessAssets);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 86 ?? ?? ?? ?? 42 8B 0C B0").FollowNearCallSelf().GetPtr(v_Pak_ResolveAssetRelations);
+		Module_FindPattern(g_GameDll, "48 89 4C 24 ?? 56 41 55").GetPtr(v_Pak_StartLoadingPak);
+		Module_FindPattern(g_GameDll, "40 53 55 56 41 54 41 56 48 81 EC ?? ?? ?? ??").GetPtr(v_Pak_ProcessPakFile);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 48 8B CF E8 ?? ?? ?? ?? 44 0F B7 05 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(v_Pak_ProcessAssets);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 48 8B 86 ?? ?? ?? ?? 42 8B 0C B0").FollowNearCallSelf().GetPtr(v_Pak_ResolveAssetRelations);
 
-		g_GameDll.FindPatternSIMD("40 53 56 48 83 EC 58 44 8B 09").GetPtr(v_Pak_RunAssetLoadingJobs);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 20 44 8B 0D ?? ?? ?? ?? 4C 8B E9").GetPtr(Pak_TrackAsset);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 41 8B E9").GetPtr(Pak_ProcessAssetRelationsAndResolveDependencies);
+		Module_FindPattern(g_GameDll, "40 53 56 48 83 EC 58 44 8B 09").GetPtr(v_Pak_RunAssetLoadingJobs);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 20 44 8B 0D ?? ?? ?? ?? 4C 8B E9").GetPtr(Pak_TrackAsset);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 41 8B E9").GetPtr(Pak_ProcessAssetRelationsAndResolveDependencies);
 
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? EB 14 48 8D 0D ?? ?? ?? ??").FollowNearCallSelf().GetPtr(sub_14043D870);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? EB 14 48 8D 0D ?? ?? ?? ??").FollowNearCallSelf().GetPtr(sub_14043D870);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

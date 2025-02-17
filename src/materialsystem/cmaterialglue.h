@@ -111,7 +111,7 @@ class VMaterialGlue : public IDetour
 	virtual void GetFun(void) const
 	{
 #ifndef DEDICATED
-		g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC 58 48 83 3D ?? ?? ?? ?? ??").GetPtr(v_GetMaterialAtCrossHair);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 83 EC 58 48 83 3D ?? ?? ?? ?? ??").GetPtr(v_GetMaterialAtCrossHair);
 #endif // !DEDICATED
 	}
 	virtual void GetVar(void) const { }

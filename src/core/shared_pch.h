@@ -45,6 +45,7 @@
 #include <unordered_map>
 #include <set>
 #include <unordered_set>
+#include <array>
 #include <functional>
 #include <smmintrin.h>
 

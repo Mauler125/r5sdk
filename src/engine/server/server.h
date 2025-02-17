@@ -142,19 +142,19 @@ class VServer : public IDetour
 	virtual void GetFun(void) const
 	{
 #ifndef CLIENT_DLL
-		g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 56 41 54 41 56").GetPtr(CServer__FrameJob);
-		g_GameDll.FindPatternSIMD("40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??").GetPtr(CServer__ConnectClient);
+		Module_FindPattern(g_GameDll, "48 89 6C 24 ?? 56 41 54 41 56").GetPtr(CServer__FrameJob);
+		Module_FindPattern(g_GameDll, "40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??").GetPtr(CServer__ConnectClient);
 
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 88 05 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CServer__RunFrame);
-		g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9").GetPtr(CServer__RejectConnection);
-		g_GameDll.FindPatternSIMD("4C 8B DC 45 88 43 18 56").GetPtr(CServer__BroadcastMessage);
-		g_GameDll.FindPatternSIMD("48 8B C4 53 55 56 57 41 54 41 55 41 57").GetPtr(CServer__SpawnServer);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 88 05 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CServer__RunFrame);
+		Module_FindPattern(g_GameDll, "4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9").GetPtr(CServer__RejectConnection);
+		Module_FindPattern(g_GameDll, "4C 8B DC 45 88 43 18 56").GetPtr(CServer__BroadcastMessage);
+		Module_FindPattern(g_GameDll, "48 8B C4 53 55 56 57 41 54 41 55 41 57").GetPtr(CServer__SpawnServer);
 #endif // !CLIENT_DLL
 	}
 	virtual void GetVar(void) const
 	{
 #ifndef CLIENT_DLL
-		g_pServer = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 0F BF D1").FindPatternSelf("48 8D 3D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CServer*>();
+		g_pServer = Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 57 48 83 EC 20 48 0F BF D1").FindPatternSelf("48 8D 3D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CServer*>();
 #endif // !CLIENT_DLL
 	}
 	virtual void GetCon(void) const { }

@@ -310,6 +310,9 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, 
             if (len > 0)
             {
                 commandLine.SetLength(len);
+
+                if (commandLine[len - 1] != '\n')
+                    commandLine.Append('\n');
             }
             else
             {

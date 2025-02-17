@@ -41,7 +41,7 @@ class VCommandLine : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 53 41 55 B8 ?? ?? ?? ??").GetPtr(CCommandLine__CreateCmdLine);
+		Module_FindPattern(g_GameDll, "48 89 54 24 ?? 48 89 4C 24 ?? 53 41 55 B8 ?? ?? ?? ??").GetPtr(CCommandLine__CreateCmdLine);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -60,15 +60,15 @@ class VKeys : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 56").GetPtr(v_Input_Event);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 63 41 08").GetPtr(v_Key_Event);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 56").GetPtr(v_Input_Event);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 63 41 08").GetPtr(v_Key_Event);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pKeyInfo = g_GameDll.FindPatternSIMD("48 83 EC 28 33 D2 48 8D 0D ?? ?? ?? ?? 41 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 33 C0 C6 05 ?? ?? ?? ?? ??")
+		g_pKeyInfo = Module_FindPattern(g_GameDll, "48 83 EC 28 33 D2 48 8D 0D ?? ?? ?? ?? 41 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 33 C0 C6 05 ?? ?? ?? ?? ??")
 			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(3, 7).RCast<KeyInfo_t*>();
 
-		CMemory l_EngineApi_PumpMessages = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 48 81 EC ?? ?? ?? ?? 45 33 C9");
+		CMemory l_EngineApi_PumpMessages = Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 55 48 81 EC ?? ?? ?? ?? 45 33 C9");
 
 		// NOTE: g_nKeyEventCount's pattern is found earlier, thus searched for earlier to offset base for g_pKeyEventTicks.
 		g_nKeyEventCount = l_EngineApi_PumpMessages.FindPatternSelf("0F B7 15").ResolveRelativeAddressSelf(3, 7).RCast<short*>();

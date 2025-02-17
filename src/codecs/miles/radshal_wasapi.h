@@ -12,7 +12,7 @@ class VRadShal : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_WASAPI_GetAudioDevice = g_RadAudioSystemDll.FindPatternSIMD("48 8B C4 48 89 58 20 55 56 41 54");
+		p_WASAPI_GetAudioDevice = Module_FindPattern(g_RadAudioSystemDll, "48 8B C4 48 89 58 20 55 56 41 54");
 		// 0x18005AD10 // 48 8B C4 48 89 58 20 55 56 41 54 //
 	}
 	virtual void GetVar(void) const { }

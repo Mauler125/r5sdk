@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//====== Copyright Â© 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -56,7 +56,7 @@ class VPlayerMove : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 55 53 56 57 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 44 0F 29 50 ??").GetPtr(CPlayerMove__RunCommand);
+		Module_FindPattern(g_GameDll, "48 8B C4 55 53 56 57 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 44 0F 29 50 ??").GetPtr(CPlayerMove__RunCommand);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

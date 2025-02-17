@@ -58,13 +58,13 @@ PROTOBUF_NAMESPACE_CLOSE
 // ===================================================================
 
 class SigMap_Pb_SMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntryLite<SigMap_Pb_SMapEntry_DoNotUse, 
-    std::string, uint64_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+    uint64_t, uint64_t,
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> {
 public:
   typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntryLite<SigMap_Pb_SMapEntry_DoNotUse, 
-    std::string, uint64_t,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+    uint64_t, uint64_t,
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> SuperType;
   SigMap_Pb_SMapEntry_DoNotUse();
   explicit PROTOBUF_CONSTEXPR SigMap_Pb_SMapEntry_DoNotUse(
@@ -72,9 +72,7 @@ public:
   explicit SigMap_Pb_SMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   void MergeFrom(const SigMap_Pb_SMapEntry_DoNotUse& other);
   static const SigMap_Pb_SMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const SigMap_Pb_SMapEntry_DoNotUse*>(&_SigMap_Pb_SMapEntry_DoNotUse_default_instance_); }
-  static bool ValidateKey(std::string* s) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE, "SigMap_Pb.SMapEntry.key");
- }
+  static bool ValidateKey(void*) { return true; }
   static bool ValidateValue(void*) { return true; }
   friend struct ::TableStruct_sig_5fmap_2eproto;
 };
@@ -187,21 +185,21 @@ class SigMap_Pb final :
   enum : int {
     kSMapFieldNumber = 1,
   };
-  // map<string, uint64> sMap = 1;
+  // map<uint64, uint64> sMap = 1;
   int smap_size() const;
   private:
   int _internal_smap_size() const;
   public:
   void clear_smap();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >&
+  const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
       _internal_smap() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >*
+  ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >*
       _internal_mutable_smap();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >&
+  const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
       smap() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >*
+  ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >*
       mutable_smap();
 
   // @@protoc_insertion_point(class_scope:SigMap_Pb)
@@ -214,8 +212,8 @@ class SigMap_Pb final :
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::MapFieldLite<
         SigMap_Pb_SMapEntry_DoNotUse,
-        std::string, uint64_t,
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
+        uint64_t, uint64_t,
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64,
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_UINT64> smap_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -235,7 +233,7 @@ class SigMap_Pb final :
 
 // SigMap_Pb
 
-// map<string, uint64> sMap = 1;
+// map<uint64, uint64> sMap = 1;
 inline int SigMap_Pb::_internal_smap_size() const {
   return _impl_.smap_.size();
 }
@@ -245,20 +243,20 @@ inline int SigMap_Pb::smap_size() const {
 inline void SigMap_Pb::clear_smap() {
   _impl_.smap_.Clear();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >&
+inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 SigMap_Pb::_internal_smap() const {
   return _impl_.smap_.GetMap();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >&
+inline const ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >&
 SigMap_Pb::smap() const {
   // @@protoc_insertion_point(field_map:SigMap_Pb.sMap)
   return _internal_smap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >*
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >*
 SigMap_Pb::_internal_mutable_smap() {
   return _impl_.smap_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >*
+inline ::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >*
 SigMap_Pb::mutable_smap() {
   // @@protoc_insertion_point(field_mutable_map:SigMap_Pb.sMap)
   return _internal_mutable_smap();

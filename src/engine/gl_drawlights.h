@@ -11,7 +11,7 @@ class VGL_DrawLights : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 55 57 48 8D 68 A1 48 81 EC ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ??").GetPtr(v_DrawLightSprites);
+		Module_FindPattern(g_GameDll, "48 8B C4 55 57 48 8D 68 A1 48 81 EC ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ??").GetPtr(v_DrawLightSprites);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

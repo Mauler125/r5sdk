@@ -58,20 +58,20 @@ class VHostCmd : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("88 4C 24 08 53 55 56 57 48 83 EC 68").GetPtr(v_Host_Init);
+		Module_FindPattern(g_GameDll, "88 4C 24 08 53 55 56 57 48 83 EC 68").GetPtr(v_Host_Init);
 #ifndef DEDICATED
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9").GetPtr(v_Host_Init_DuringVideo);
-		g_GameDll.FindPatternSIMD("48 8B C4 41 56 48 81 EC ?? ?? ?? ?? 45 33 F6").GetPtr(v_Host_Init_PostVideo);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9").GetPtr(v_Host_Init_DuringVideo);
+		Module_FindPattern(g_GameDll, "48 8B C4 41 56 48 81 EC ?? ?? ?? ?? 45 33 F6").GetPtr(v_Host_Init_PostVideo);
 #endif // !DEDICATED
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 48 8D 3D").GetPtr(v_Host_SetupUIMaterials);
-		g_GameDll.FindPatternSIMD("48 8B C4 ?? 41 54 41 55 48 81 EC 70 04 ?? ?? F2 0F 10 05 ?? ?? ?? 0B").GetPtr(v_Host_NewGame);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 0F B6 D9").GetPtr(v_Host_Disconnect);
-		g_GameDll.FindPatternSIMD("40 56 57 41 56 48 81 EC ?? ?? ?? ??").GetPtr(v_Host_ChangeLevel);
-		g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 8B 15 ?? ?? ?? ??").GetPtr(v_Host_Shutdown);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 60 48 8B A9 ?? ?? ?? ??").GetPtr(v_Host_Status_PrintClient);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 48 8D 3D").GetPtr(v_Host_SetupUIMaterials);
+		Module_FindPattern(g_GameDll, "48 8B C4 ?? 41 54 41 55 48 81 EC 70 04 ?? ?? F2 0F 10 05 ?? ?? ?? 0B").GetPtr(v_Host_NewGame);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 30 0F B6 D9").GetPtr(v_Host_Disconnect);
+		Module_FindPattern(g_GameDll, "40 56 57 41 56 48 81 EC ?? ?? ?? ??").GetPtr(v_Host_ChangeLevel);
+		Module_FindPattern(g_GameDll, "48 8B C4 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 8B 15 ?? ?? ?? ??").GetPtr(v_Host_Shutdown);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 60 48 8B A9 ?? ?? ?? ??").GetPtr(v_Host_Status_PrintClient);
 
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B E9 48 85 DB").GetPtr(v_SetLaunchOptions);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 40 38 3D ?? ?? ?? ?? 48 8D 15 ?? ?? ?? ?? 48 8B CE").FollowNearCallSelf().GetPtr(v_DFS_InitializeFeatureFlagDefinitions);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B E9 48 85 DB").GetPtr(v_SetLaunchOptions);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 40 38 3D ?? ?? ?? ?? 48 8D 15 ?? ?? ?? ?? 48 8B CE").FollowNearCallSelf().GetPtr(v_DFS_InitializeFeatureFlagDefinitions);
 	}
 	virtual void GetVar(void) const
 	{

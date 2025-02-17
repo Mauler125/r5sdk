@@ -120,7 +120,7 @@ const char* SigMap_Pb::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // map<string, uint64> sMap = 1;
+      // map<uint64, uint64> sMap = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
@@ -162,28 +162,19 @@ uint8_t* SigMap_Pb::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // map<string, uint64> sMap = 1;
+  // map<uint64, uint64> sMap = 1;
   if (!this->_internal_smap().empty()) {
-    using MapType = ::_pb::Map<std::string, uint64_t>;
+    using MapType = ::_pb::Map<uint64_t, uint64_t>;
     using WireHelper = SigMap_Pb_SMapEntry_DoNotUse::Funcs;
     const auto& map_field = this->_internal_smap();
-    auto check_utf8 = [](const MapType::value_type& entry) {
-      (void)entry;
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-        entry.first.data(), static_cast<int>(entry.first.length()),
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-        "SigMap_Pb.SMapEntry.key");
-    };
 
     if (stream->IsSerializationDeterministic() && map_field.size() > 1) {
-      for (const auto& entry : ::_pbi::MapSorterPtr<MapType>(map_field)) {
+      for (const auto& entry : ::_pbi::MapSorterFlat<MapType>(map_field)) {
         target = WireHelper::InternalSerialize(1, entry.first, entry.second, target, stream);
-        check_utf8(entry);
       }
     } else {
       for (const auto& entry : map_field) {
         target = WireHelper::InternalSerialize(1, entry.first, entry.second, target, stream);
-        check_utf8(entry);
       }
     }
   }
@@ -204,10 +195,10 @@ size_t SigMap_Pb::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // map<string, uint64> sMap = 1;
+  // map<uint64, uint64> sMap = 1;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_smap_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >::const_iterator
+  for (::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
       it = this->_internal_smap().begin();
       it != this->_internal_smap().end(); ++it) {
     total_size += SigMap_Pb_SMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);

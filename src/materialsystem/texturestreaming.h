@@ -177,15 +177,15 @@ class VTextureStreaming : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9").GetPtr(v_StreamDB_Init);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9").GetPtr(v_StreamDB_Init);
 
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? EB ?? 48 8B CF E8 ?? ?? ?? ?? 4C 8D 25").FollowNearCallSelf().GetPtr(v_StreamDB_CreditWorldTextures);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8D 25 ?? ?? ?? ?? 4C 89 64 24").FollowNearCallSelf().GetPtr(v_StreamDB_CreditWorldTextures_Legacy);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? EB ?? 48 8B CF E8 ?? ?? ?? ?? 4C 8D 25").FollowNearCallSelf().GetPtr(v_StreamDB_CreditWorldTextures);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 4C 8D 25 ?? ?? ?? ?? 4C 89 64 24").FollowNearCallSelf().GetPtr(v_StreamDB_CreditWorldTextures_Legacy);
 
-		g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 89 54 24 ?? 48 89 4C 24 ?? 55 56").GetPtr(v_StreamDB_CreditModelTextures);
+		Module_FindPattern(g_GameDll, "4C 89 44 24 ?? 89 54 24 ?? 48 89 4C 24 ?? 55 56").GetPtr(v_StreamDB_CreditModelTextures);
 
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 80 7C 24 ?? ?? 0F 84 ?? ?? ?? ?? 48 89 9C 24 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(TextureStreamMgr_GetStreamOverlay);
-		g_GameDll.FindPatternSIMD("41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 ??").GetPtr(TextureStreamMgr_DrawStreamOverlayToInterface);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 80 7C 24 ?? ?? 0F 84 ?? ?? ?? ?? 48 89 9C 24 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(TextureStreamMgr_GetStreamOverlay);
+		Module_FindPattern(g_GameDll, "41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 ??").GetPtr(TextureStreamMgr_DrawStreamOverlayToInterface);
 	}
 	virtual void GetVar(void) const
 	{

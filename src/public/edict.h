@@ -61,11 +61,11 @@ class VEdict : public IDetour
 	virtual void GetVar(void) const
 	{
 #ifndef CLIENT_DLL
-		g_ServerGlobalVariables = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ??")
+		g_ServerGlobalVariables = Module_FindPattern(g_GameDll, "48 81 EC ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ??")
 			.FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		g_ClientGlobalVariables = g_GameDll.FindPatternSIMD("48 8B C4 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60")
+		g_ClientGlobalVariables = Module_FindPattern(g_GameDll, "48 8B C4 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60")
 			.FindPatternSelf("4C 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 8000).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVarsBase*>();
 #endif // !DEDICATED
 	}

@@ -366,12 +366,12 @@ class V_Player : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 0F 2F 87").FollowNearCallSelf().GetPtr(C_Player__GetZoomFrac);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 83 F8 ?? 74 ?? F2 0F 10 8B").FollowNearCallSelf().GetPtr(C_Player__GetAimSpeed);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 3A D8 75").FollowNearCallSelf().GetPtr(C_Player__IsInTimeShift);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? F3 0F 10 15 ?? ?? ?? ?? 48 8D 45").FollowNearCallSelf().GetPtr(C_Player__CurveLook);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 0F 2F 87").FollowNearCallSelf().GetPtr(C_Player__GetZoomFrac);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 83 F8 ?? 74 ?? F2 0F 10 8B").FollowNearCallSelf().GetPtr(C_Player__GetAimSpeed);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 3A D8 75").FollowNearCallSelf().GetPtr(C_Player__IsInTimeShift);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? F3 0F 10 15 ?? ?? ?? ?? 48 8D 45").FollowNearCallSelf().GetPtr(C_Player__CurveLook);
 
-		g_GameDll.FindPatternSIMD("48 83 EC ?? 48 8B 01 FF 90 ?? ?? ?? ?? 48 83 C0 ?? 4C 8D 40").GetPtr(C_BaseCombatCharacter__GetActiveWeapon);
+		Module_FindPattern(g_GameDll, "48 83 EC ?? 48 8B 01 FF 90 ?? ?? ?? ?? 48 83 C0 ?? 4C 8D 40").GetPtr(C_BaseCombatCharacter__GetActiveWeapon);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

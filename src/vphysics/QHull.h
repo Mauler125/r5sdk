@@ -16,8 +16,8 @@ class VQHull : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 4C 24 08 48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 53 B8 40 27 ?? ?? ?? ?? ?? ?? ?? 48").GetPtr(v_QHull_PrintFunc);
-		g_GameDll.FindPatternSIMD("48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 53 56 57 48 83 EC 30 48 8B FA 48 8D 74 24 60 48 8B").GetPtr(v_speex_warning_int);
+		Module_FindPattern(g_GameDll, "48 89 4C 24 08 48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 53 B8 40 27 ?? ?? ?? ?? ?? ?? ?? 48").GetPtr(v_QHull_PrintFunc);
+		Module_FindPattern(g_GameDll, "48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 53 56 57 48 83 EC 30 48 8B FA 48 8D 74 24 60 48 8B").GetPtr(v_speex_warning_int);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

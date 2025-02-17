@@ -61,10 +61,10 @@ class MilesCore : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B DA 48 8D 15 ?? ?? ?? ??").GetPtr(v_AIL_LogFunc);
-		g_GameDll.FindPatternSIMD("0F B6 11 4C 8B C1").GetPtr(v_CSOM_AddEventToQueue);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 48 8B DA 48 8D 15 ?? ?? ?? ??").GetPtr(v_AIL_LogFunc);
+		Module_FindPattern(g_GameDll, "0F B6 11 4C 8B C1").GetPtr(v_CSOM_AddEventToQueue);
 		
-		CMemory milesInitializeFunc = g_GameDll.FindPatternSIMD("40 53 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??");
+		CMemory milesInitializeFunc = Module_FindPattern(g_GameDll, "40 53 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??");
 		milesInitializeFunc.GetPtr(v_Miles_Initialize);
 
 		g_milesGlobals = milesInitializeFunc.FindPatternSelf("48 8D", CMemory::Direction::DOWN, 0x50).ResolveRelativeAddressSelf(0x3, 0x7).RCast<MilesGlobalState_t*>();

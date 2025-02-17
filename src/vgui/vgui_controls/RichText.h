@@ -38,7 +38,7 @@ class VVGUIRichText : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 53 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9").GetPtr(vgui__RichText__SetText);
+		Module_FindPattern(g_GameDll, "40 53 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9").GetPtr(vgui__RichText__SetText);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

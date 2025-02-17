@@ -21,14 +21,14 @@ class VMatSystemSurface : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("4C 8B DC 48 83 EC 68 49 8D 43 58 0F 57 C0").GetPtr(CMatSystemSurface__DrawColoredText);
+		Module_FindPattern(g_GameDll, "4C 8B DC 48 83 EC 68 49 8D 43 58 0F 57 C0").GetPtr(CMatSystemSurface__DrawColoredText);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pMatSystemSurface = g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??")
+		g_pMatSystemSurface = Module_FindPattern(g_GameDll, "48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??")
 			.FindPatternSelf("48 83 3D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x8).RCast<CMatSystemSurface*>();
 
-		g_pVGuiSurface = g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 8B 81 ?? ?? ?? ??")
+		g_pVGuiSurface = Module_FindPattern(g_GameDll, "48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 8B 81 ?? ?? ?? ??")
 			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMatSystemSurface*>();
 	}
 	virtual void GetCon(void) const { }

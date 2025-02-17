@@ -262,12 +262,12 @@ class VNetChan : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("88 54 24 10 53 55 57").GetPtr(CNetChan__Clear);
-		g_GameDll.FindPatternSIMD("48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9").GetPtr(CNetChan__Shutdown);
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B D9 75 15 48 8B 05 ?? ?? ?? ??").GetPtr(CNetChan__CanPacket);
-		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 89 54 24 10 56").GetPtr(CNetChan__FlowNewPacket);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 56 41 57 48 83 EC 70").GetPtr(CNetChan__SendDatagram);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA").GetPtr(CNetChan__ProcessMessages);
+		Module_FindPattern(g_GameDll, "88 54 24 10 53 55 57").GetPtr(CNetChan__Clear);
+		Module_FindPattern(g_GameDll, "48 89 6C 24 18 56 57 41 56 48 83 EC 30 83 B9").GetPtr(CNetChan__Shutdown);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 83 B9 ?? ?? ?? ?? ?? 48 8B D9 75 15 48 8B 05 ?? ?? ?? ??").GetPtr(CNetChan__CanPacket);
+		Module_FindPattern(g_GameDll, "44 89 4C 24 ?? 44 89 44 24 ?? 89 54 24 10 56").GetPtr(CNetChan__FlowNewPacket);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 55 56 57 41 56 41 57 48 83 EC 70").GetPtr(CNetChan__SendDatagram);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA").GetPtr(CNetChan__ProcessMessages);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

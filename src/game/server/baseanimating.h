@@ -150,7 +150,7 @@ class VBaseAnimating : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 20 0F BF 41 58").GetPtr(CBaseAnimating__LockStudioHdr);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 20 0F BF 41 58").GetPtr(CBaseAnimating__LockStudioHdr);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

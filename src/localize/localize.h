@@ -30,12 +30,12 @@ class VLocalize : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 49 FF C4").FollowNearCallSelf().GetPtr(CLocalize__AddFile);
-		g_GameDll.FindPatternSIMD("4C 8B DC 53 48 81 EC ?? ?? ?? ?? 33 C0").GetPtr(CLocalize__LoadLocalizationFileLists);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 49 FF C4").FollowNearCallSelf().GetPtr(CLocalize__AddFile);
+		Module_FindPattern(g_GameDll, "4C 8B DC 53 48 81 EC ?? ?? ?? ?? 33 C0").GetPtr(CLocalize__LoadLocalizationFileLists);
 	}
 	virtual void GetVar(void) const
 	{
-		g_ppVGuiLocalize = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 48 8B 01 FF 50 40 40 38 2D ?? ?? ?? ??").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CLocalize**>();
+		g_ppVGuiLocalize = Module_FindPattern(g_GameDll, "48 8B 0D ?? ?? ?? ?? 48 8B 01 FF 50 40 40 38 2D ?? ?? ?? ??").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CLocalize**>();
 		g_ppLocalize = g_ppVGuiLocalize; // these are set to the same thing in CSourceAppSystemGroup::Create
 	}
 	virtual void GetCon(void) const { }

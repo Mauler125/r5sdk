@@ -19,8 +19,8 @@ class VSquirrelAUX : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 53 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? FF 05 ?? ?? ?? ??").GetPtr(v_sqstd_aux_printerror);
-		g_GameDll.FindPatternSIMD("48 8B C4 55 48 8B EC 48 83 EC 70 41 0F 10 ??").GetPtr(v_sqstd_aux_badlogic);
+		Module_FindPattern(g_GameDll, "40 53 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? FF 05 ?? ?? ?? ??").GetPtr(v_sqstd_aux_printerror);
+		Module_FindPattern(g_GameDll, "48 8B C4 55 48 8B EC 48 83 EC 70 41 0F 10 ??").GetPtr(v_sqstd_aux_badlogic);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

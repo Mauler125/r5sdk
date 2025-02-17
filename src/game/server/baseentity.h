@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright Â© 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -291,7 +291,7 @@ class VCBaseEntity : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 56 41 56 48 81 EC ?? ?? ?? ?? 48 83 B9").GetPtr(v_CBaseEntity__GetScriptInstance);
+		Module_FindPattern(g_GameDll, "48 8B C4 56 41 56 48 81 EC ?? ?? ?? ?? 48 83 B9").GetPtr(v_CBaseEntity__GetScriptInstance);
 	}
 	virtual void GetVar(void) const {}
 	virtual void GetCon(void) const {}

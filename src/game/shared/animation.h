@@ -93,7 +93,7 @@ class VAnimation : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 4C 8B C2 48 8B 89 ?? ?? ?? ??").GetPtr(CStudioHdr__LookupSequence);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 20 48 8B D9 4C 8B C2 48 8B 89 ?? ?? ?? ??").GetPtr(CStudioHdr__LookupSequence);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

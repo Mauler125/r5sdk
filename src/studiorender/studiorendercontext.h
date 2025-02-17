@@ -16,8 +16,8 @@ class VStudioRenderContext : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 48 89 54 24 ?? 48 89 4C 24 ?? 53 55 56 57 48 83 EC 78").GetPtr(CStudioRenderContext__LoadModel);
-		g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 55 56 41 55").GetPtr(CStudioRenderContext__LoadMaterials);
+		Module_FindPattern(g_GameDll, "4C 89 44 24 ?? 48 89 54 24 ?? 48 89 4C 24 ?? 53 55 56 57 48 83 EC 78").GetPtr(CStudioRenderContext__LoadModel);
+		Module_FindPattern(g_GameDll, "48 8B C4 4C 89 40 18 55 56 41 55").GetPtr(CStudioRenderContext__LoadMaterials);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -766,10 +766,10 @@ class VPlayer : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 F2 0F 10 05 ?? ?? ?? ??").GetPtr(CPlayer__EyeAngles);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 03 49 81 C6 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CPlayer__PlayerRunCommand);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ?? 84 C0 74 06").FollowNearCallSelf().GetPtr(CPlayer__PhysicsSimulate);
-		g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B ?? 49 89 6B ?? 49 89 7B ?? 41 54 41 56 41 57 48 81 EC").GetPtr(CPlayer__ApplyViewPunch);
+		Module_FindPattern(g_GameDll, "40 53 48 83 EC 30 F2 0F 10 05 ?? ?? ?? ??").GetPtr(CPlayer__EyeAngles);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 8B 03 49 81 C6 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CPlayer__PlayerRunCommand);
+		Module_FindPattern(g_GameDll, "E8 ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ?? 84 C0 74 06").FollowNearCallSelf().GetPtr(CPlayer__PhysicsSimulate);
+		Module_FindPattern(g_GameDll, "4C 8B DC 49 89 5B ?? 49 89 6B ?? 49 89 7B ?? 41 54 41 56 41 57 48 81 EC").GetPtr(CPlayer__ApplyViewPunch);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

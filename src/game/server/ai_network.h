@@ -67,13 +67,13 @@ class VAI_Network : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 48 8B B9 ?? ?? ?? ?? 48 8B F2 0F 29 74 24 ??").GetPtr(CAI_Network__AddPathNode);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 57 41 56 48 83 EC 20 49 63 E8").GetPtr(CAI_Network__CreateNodeLink);
-		g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 48 83 EC 18").GetPtr(CAI_Network__DebugConnectMsg);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 48 8B B9 ?? ?? ?? ?? 48 8B F2 0F 29 74 24 ??").GetPtr(CAI_Network__AddPathNode);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 55 57 41 56 48 83 EC 20 49 63 E8").GetPtr(CAI_Network__CreateNodeLink);
+		Module_FindPattern(g_GameDll, "4C 89 4C 24 ?? 48 83 EC 18").GetPtr(CAI_Network__DebugConnectMsg);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pAINetwork = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 63 91 ?? ?? ?? ??").FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_Network**>();
+		g_pAINetwork = Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 4C 63 91 ?? ?? ?? ??").FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_Network**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;

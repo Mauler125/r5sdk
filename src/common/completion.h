@@ -27,7 +27,7 @@ class VCompletion : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 55 41 54").GetPtr(CBaseAutoCompleteFileList__AutoCompletionFunc);
+		Module_FindPattern(g_GameDll, "48 8B C4 4C 89 40 18 55 41 54").GetPtr(CBaseAutoCompleteFileList__AutoCompletionFunc);
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -121,25 +121,25 @@ class VModelLoader : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		g_GameDll.FindPatternSIMD("40 55 41 57 48 83 EC 48 80 3A 2A").GetPtr(CModelLoader__FindModel);
-		g_GameDll.FindPatternSIMD("40 53 57 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??").GetPtr(CModelLoader__LoadModel);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B F9 33 ED").GetPtr(CModelLoader__UnloadModel);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 57 48 81 EC ?? ?? ?? ??").GetPtr(CModelLoader__Studio_LoadModel);
-		g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 57").GetPtr(CModelLoader__Map_LoadModelGuts); // BSP.
-		g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 48 8B DA 48 85 D2 0F 84 ?? ?? ?? ?? 80 3A ?? 0F 84 ?? ?? ?? ?? 4C 8B CA").GetPtr(CModelLoader__Map_IsValid);
+		Module_FindPattern(g_GameDll, "40 55 41 57 48 83 EC 48 80 3A 2A").GetPtr(CModelLoader__FindModel);
+		Module_FindPattern(g_GameDll, "40 53 57 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??").GetPtr(CModelLoader__LoadModel);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B F9 33 ED").GetPtr(CModelLoader__UnloadModel);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 55 56 57 41 54 41 57 48 81 EC ?? ?? ?? ??").GetPtr(CModelLoader__Studio_LoadModel);
+		Module_FindPattern(g_GameDll, "48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 57").GetPtr(CModelLoader__Map_LoadModelGuts); // BSP.
+		Module_FindPattern(g_GameDll, "40 53 48 81 EC ?? ?? ?? ?? 48 8B DA 48 85 D2 0F 84 ?? ?? ?? ?? 80 3A ?? 0F 84 ?? ?? ?? ?? 4C 8B CA").GetPtr(CModelLoader__Map_IsValid);
 
 #ifndef DEDICATED
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B BC 24 ?? ?? ?? ??").GetPtr(v_GetSpriteInfo);
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 4D 8B F1 48 8B F2").GetPtr(v_BuildSpriteLoadName);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B BC 24 ?? ?? ?? ??").GetPtr(v_GetSpriteInfo);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 4D 8B F1 48 8B F2").GetPtr(v_BuildSpriteLoadName);
 #endif // !DEDICATED
 		
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC 60").GetPtr(CMapLoadHelper__CMapLoadHelper);
-		g_GameDll.FindPatternSIMD("40 ?? 57 48 83 EC 48 33 ?? 48 8D").GetPtr(v_AddGameLump);
-		g_GameDll.FindPatternSIMD("48 83 EC 28 8B 05 ?? ?? ?? ?? FF C8").GetPtr(v_Map_LoadModel);
+		Module_FindPattern(g_GameDll, "48 89 5C 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC 60").GetPtr(CMapLoadHelper__CMapLoadHelper);
+		Module_FindPattern(g_GameDll, "40 ?? 57 48 83 EC 48 33 ?? 48 8D").GetPtr(v_AddGameLump);
+		Module_FindPattern(g_GameDll, "48 83 EC 28 8B 05 ?? ?? ?? ?? FF C8").GetPtr(v_Map_LoadModel);
 	}
 	virtual void GetVar(void) const
 	{
-		g_pModelLoader = g_GameDll.FindPatternSIMD(
+		g_pModelLoader = Module_FindPattern(g_GameDll, 
 			"48 89 4C 24 ?? 53 55 56 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ??").FindPatternSelf("48 ?? 0D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(3, 7).RCast<CModelLoader*>();
 
 		s_MapFileHandle = CMemory(v_Map_LoadModel).FindPattern("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<FileHandle_t*>();
