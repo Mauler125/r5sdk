@@ -487,7 +487,7 @@ void CreateDirectories(string svInput, string* pszOutput, bool bWindows)
 
     if (pszOutput)
     {
-        *pszOutput = fspPathOut.u8string();
+        *pszOutput = fspPathOut.string();
     }
 
     fspPathOut = fspPathOut.parent_path();
@@ -994,39 +994,6 @@ vector<uint16_t> PatternToBytes(const char* const szInput)
     }
 
     return vBytes;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// For converting a string pattern with wildcards to an array of bytes and mask.
-pair<vector<uint8_t>, string> PatternToMaskedBytes(const char* const szInput)
-{
-    vector<uint8_t> vBytes;
-    string svMask;
-
-    const char* const pszPatternEnd = szInput + strlen(szInput);
-
-    for (const char* pszCurrentByte = szInput; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
-    {
-        if (*pszCurrentByte == '?')
-        {
-            ++pszCurrentByte;
-
-            if (*pszCurrentByte == '?')
-            {
-                ++pszCurrentByte; // Skip double wildcard.
-            }
-
-            vBytes.push_back(0); // Push the byte back as invalid.
-            svMask += '?';
-        }
-        else
-        {
-            vBytes.push_back(uint8_t(strtoul(pszCurrentByte, const_cast<char**>(&pszCurrentByte), 16)));
-            svMask += 'x';
-        }
-    }
-
-    return make_pair(vBytes, svMask);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

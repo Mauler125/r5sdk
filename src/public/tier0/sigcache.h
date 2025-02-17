@@ -1,13 +1,13 @@
-#ifndef SIGCACHE_H
-#define SIGCACHE_H
+#ifndef TIER0_SIGCACHE_H
+#define TIER0_SIGCACHE_H
 
 #include "protoc/sig_map.pb.h"
 
 #define SIGDB_MAGIC	(('p'<<24)+('a'<<16)+('M'<<8)+'S')
-#define SIGDB_DICT_SIZE 20
+#define SIGDB_MURMUR_SEED 0x3F0D4710
 
-#define SIGDB_MAJOR_VERSION 0x2 // Increment when library changes are made.
-#define SIGDB_MINOR_VERSION 0xF // Increment when SDK updates are released.
+#define SIGDB_MAJOR_VERSION 0x3 // Increment when library changes are made.
+#define SIGDB_MINOR_VERSION 0x0 // Increment when SDK updates are released.
 
 class CSigCache
 {
@@ -20,32 +20,28 @@ public:
 	void SetDisabled(const bool bDisabled);
 	void InvalidateMap();
 
-	void AddEntry(const char* szPattern, const size_t nPatternLen, const uint64_t nRVA);
-	bool FindEntry(const char* szPattern, const size_t nPatternLen, uint64_t& nRVA);
+	void AddEntry(const void* const pPattern, const size_t nPatternLen, const u64 nRVA);
+	bool FindEntry(const void* const pPattern, const size_t nPatternLen, u64& nRVA);
 
-	bool ReadCache(const char* szCacheFile);
-	bool WriteCache(const char* szCacheFile) const;
+	bool ReadCache(const char* const szCacheFile);
+	bool WriteCache(const char* const szCacheFile) const;
 
 private:
-	bool CompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
-	bool DecompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
-
 	SigMap_Pb m_Cache;
 	bool m_bInitialized;
 	bool m_bDisabled;
 };
+
 extern CSigCache g_SigCache;
 
 #pragma pack(push, 1)
-struct SigDBHeader_t
+struct SigDBHeader_s
 {
-	int m_nMagic;
-	uint16_t m_nMajorVersion;
-	uint16_t m_nMinorVersion;
-	uint64_t m_nBlobSizeMem;
-	uint64_t m_nBlobSizeDisk;
-	uint32_t m_nBlobChecksum;
+	s32 magic;
+	u16 majorVersion;
+	u16 minorVersion;
+	u64 blobSize;
 };
 #pragma pack(pop)
 
-#endif // !SIGCACHE_H
+#endif // TIER0_SIGCACHE_H

@@ -880,7 +880,7 @@ namespace lzham
                      if (LZHAM_BUILTIN_EXPECT(static_cast<int>(sym) < 0, 0))
                      {
                         // Handle special symbols.
-                        if (static_cast<int>(sym) == (CLZDecompBase::cLZXSpecialCodeEndOfBlockCode - CLZDecompBase::cLZXNumSpecialLengths))
+                        if (static_cast<int>(sym) == ((int)CLZDecompBase::cLZXSpecialCodeEndOfBlockCode - (int)CLZDecompBase::cLZXNumSpecialLengths))
                            break;
                         else
                         {

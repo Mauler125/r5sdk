@@ -30,5 +30,5 @@ float CClockDriftMgr::GetCurrentClockDifference() const
 	for (int i = 0; i < NUM_CLOCKDRIFT_SAMPLES; i++)
 		total += m_ClockOffsets[i];
 
-	return total / NUM_CLOCKDRIFT_SAMPLES;
+	return total / (float)NUM_CLOCKDRIFT_SAMPLES;
 }

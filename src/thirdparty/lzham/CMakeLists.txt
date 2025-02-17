@@ -67,6 +67,8 @@ add_sources( SOURCE_GROUP "Include"
 end_sources()
 whole_program_optimization()
 
+thirdparty_suppress_warnings()
+
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
 	"WIN32"
 )

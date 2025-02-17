@@ -17,7 +17,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 #include "tier0/sigcache.h"
-#include "tier0/binstream.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: whether or not to disable the caching of signatures
@@ -43,33 +42,36 @@ void CSigCache::InvalidateMap()
 
 //-----------------------------------------------------------------------------
 // Purpose: creates a map of a pattern and relative virtual address
-// Input  : *szPattern  - (key)
-//			nPatternLen - 
-//			nRVA        - (value)
+// Input  : *pPattern   - (key)
+//          nPatternLen - 
+//          nRVA        - (value)
 //-----------------------------------------------------------------------------
-void CSigCache::AddEntry(const char* szPattern, const size_t nPatternLen, const uint64_t nRVA)
+void CSigCache::AddEntry(const void* pPattern, const size_t nPatternLen, const u64 nRVA)
 {
 	if (m_bDisabled)
 	{
 		return;
 	}
 
-	(*m_Cache.mutable_smap())[std::move(std::string(szPattern, nPatternLen))] = nRVA;
+	const u64 hash = MurmurHash64(pPattern, nPatternLen, SIGDB_MURMUR_SEED);
+	(*m_Cache.mutable_smap())[hash] = nRVA;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: finds a pattern key in the cache map and sets its value to nRVA
-// Input  : &szPattern  - (key)
-//			nPatternLen - 
-//			&nRVA       - (value)
+// Input  : *pPattern   - (key)
+//          nPatternLen - 
+//          &nRVA       - (value)
 // Output : true if key is found, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::FindEntry(const char* szPattern, const size_t nPatternLen, uint64_t& nRVA)
+bool CSigCache::FindEntry(const void* pPattern, const size_t nPatternLen, u64& nRVA)
 {
 	if (!m_bDisabled && m_bInitialized)
 	{
-		google::protobuf::Map<string, uint64_t>* sMap = m_Cache.mutable_smap();
-		const auto p = sMap->find(std::move(std::string(szPattern, nPatternLen)));
+		const u64 hash = MurmurHash64(pPattern, nPatternLen, SIGDB_MURMUR_SEED);
+		google::protobuf::Map< u64, u64 >* const sMap = m_Cache.mutable_smap();
+
+		const auto p = sMap->find(hash);
 
 		if (p != sMap->end())
 		{
@@ -83,9 +85,10 @@ bool CSigCache::FindEntry(const char* szPattern, const size_t nPatternLen, uint6
 
 //-----------------------------------------------------------------------------
 // Purpose: loads the cache map from the disk
+// Input  : *szCacheFile - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::ReadCache(const char* szCacheFile)
+bool CSigCache::ReadCache(const char* const szCacheFile)
 {
 	Assert(!m_bInitialized); // Recursive load.
 
@@ -94,62 +97,32 @@ bool CSigCache::ReadCache(const char* szCacheFile)
 		return false;
 	}
 
-	CIOStream reader;
-	if (!reader.Open(szCacheFile, CIOStream::Mode_e::Read))
-	{
-		return false;
-	}
-	if (reader.GetSize() <= sizeof(SigDBHeader_t))
-	{
-		return false;
-	}
+	std::ifstream reader(szCacheFile, std::ios::in | std::ios::binary);
 
-	SigDBHeader_t header;
-	header.m_nMagic = reader.Read<int>();
-
-	if (header.m_nMagic != SIGDB_MAGIC)
+	if (!reader)
 	{
 		return false;
 	}
 
-	header.m_nMajorVersion = reader.Read<uint16_t>();
-	if (header.m_nMajorVersion != SIGDB_MAJOR_VERSION)
+	SigDBHeader_s header;
+	reader.read((char*)&header, sizeof(SigDBHeader_s));
+
+	if (reader.eof())
+	{
+		Error(eDLL_T::COMMON, NO_ERROR, "%s - Cache map '%s' appears truncated\n", __FUNCTION__, szCacheFile);
+		return false;
+	}
+
+	if (header.magic != SIGDB_MAGIC ||
+		header.majorVersion != SIGDB_MAJOR_VERSION ||
+		header.minorVersion != SIGDB_MINOR_VERSION)
 	{
 		return false;
 	}
 
-	header.m_nMinorVersion = reader.Read<uint16_t>();
-	if (header.m_nMinorVersion != SIGDB_MINOR_VERSION)
+	if (!m_Cache.ParseFromIstream(&reader))
 	{
-		return false;
-	}
-
-	header.m_nBlobSizeMem = reader.Read<uint64_t>();
-	header.m_nBlobSizeDisk = reader.Read<uint64_t>();
-	header.m_nBlobChecksum = reader.Read<uint32_t>();
-
-	std::unique_ptr<uint8_t[]> pSrcBuf(new uint8_t[header.m_nBlobSizeDisk]);
-	std::unique_ptr<uint8_t[]> pDstBuf(new uint8_t[header.m_nBlobSizeMem]);
-
-	reader.Read<uint8_t>(*pSrcBuf.get(), header.m_nBlobSizeDisk);
-	uint32_t nAdler32;
-
-	if (!DecompressBlob(header.m_nBlobSizeDisk, header.m_nBlobSizeMem, 
-		nAdler32, pSrcBuf.get(), pDstBuf.get()))
-	{
-		return false;
-	}
-
-	if (header.m_nBlobChecksum != nAdler32)
-	{
-		return false;
-	}
-
-#pragma warning(push)           // Disabled type conversion warning, as it is possible
-#pragma warning(disable : 4244) // for Protobuf to migrate this code to feature size_t.
-	if (!m_Cache.ParseFromArray(pDstBuf.get(), header.m_nBlobSizeMem))
-#pragma warning(pop)
-	{
+		Error(eDLL_T::COMMON, NO_ERROR, "%s - Stream deserialization failed for '%s'\n", __FUNCTION__, szCacheFile);
 		return false;
 	}
 
@@ -159,9 +132,10 @@ bool CSigCache::ReadCache(const char* szCacheFile)
 
 //-----------------------------------------------------------------------------
 // Purpose: writes the cache map to the disk
+// Input  : *szCacheFile - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::WriteCache(const char* szCacheFile) const
+bool CSigCache::WriteCache(const char* const szCacheFile) const
 {
 	if (m_bDisabled || m_bInitialized)
 	{
@@ -169,91 +143,33 @@ bool CSigCache::WriteCache(const char* szCacheFile) const
 		return false;
 	}
 
-	CIOStream writer;
-	if (!writer.Open(szCacheFile, CIOStream::Mode_e::Write))
+	std::ofstream writer(szCacheFile, std::ios::out | std::ios::binary);
+
+	if (!writer)
 	{
-		Error(eDLL_T::COMMON, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", 
-			__FUNCTION__, szCacheFile);
+		Error(eDLL_T::COMMON, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, szCacheFile);
 		return false;
 	}
 
-	SigDBHeader_t header;
-	header.m_nMagic = SIGDB_MAGIC;
-	header.m_nMajorVersion = SIGDB_MAJOR_VERSION;
-	header.m_nMinorVersion = SIGDB_MINOR_VERSION;
+	SigDBHeader_s header;
 
-	const string svBuffer = m_Cache.SerializeAsString();
-	std::unique_ptr<uint8_t[]> pBuffer(new uint8_t[svBuffer.size()]);
+	header.magic = -1; // Magic is only written if serialization succeeded.
+	header.majorVersion = SIGDB_MAJOR_VERSION;
+	header.minorVersion = SIGDB_MINOR_VERSION;
+	header.blobSize = m_Cache.ByteSizeLong();
 
-	header.m_nBlobSizeMem = svBuffer.size();
-	uint64_t nCompSize = svBuffer.size();
-
-	if (!CompressBlob(svBuffer.size(), nCompSize, header.m_nBlobChecksum, 
-		reinterpret_cast<const uint8_t*>(svBuffer.data()), pBuffer.get()))
+	writer.write((const char*)&header, sizeof(SigDBHeader_s));
+	
+	if (!m_Cache.SerializeToOstream(&writer))
 	{
+		Error(eDLL_T::COMMON, NO_ERROR, "%s - Stream serialization failed for '%s'\n", __FUNCTION__, szCacheFile);
 		return false;
 	}
 
-	header.m_nBlobSizeDisk = nCompSize;
+	writer.seekp(0);
 
-	writer.Write(header);
-	writer.Write(pBuffer.get(), nCompSize);
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: decompresses the blob containing the signature map
-// Input  : nSrcLen - 
-//			&nDstLen - 
-//			&nAdler - 
-//			*pSrcBuf - 
-//			*pDstBuf - 
-// Output : true on success, false otherwise
-//-----------------------------------------------------------------------------
-bool CSigCache::DecompressBlob(const size_t nSrcLen, size_t& nDstLen, 
-	uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
-{
-	lzham_decompress_params lzDecompParams{};
-	lzDecompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
-	lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED | lzham_decompress_flags::LZHAM_DECOMP_FLAG_COMPUTE_ADLER32;
-	lzDecompParams.m_struct_size = sizeof(lzham_decompress_params);
-
-	lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&lzDecompParams, pDstBuf, &nDstLen, pSrcBuf, nSrcLen, &nAdler);
-
-	if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
-	{
-		Error(eDLL_T::COMMON, NO_ERROR, "Failed to decompress blob: status = %08x\n", lzDecompStatus);
-		return false;
-	}
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: compresses the blob containing the signature map
-// Input  : nSrcLen - 
-//			&nDstLen - 
-//			&nAdler - 
-//			*pSrcBuf - 
-//			*pDstBuf - 
-// Output : true on success, false otherwise
-//-----------------------------------------------------------------------------
-bool CSigCache::CompressBlob(const size_t nSrcLen, size_t& nDstLen, 
-	uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
-{
-	lzham_compress_params lzCompParams{};
-	lzCompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
-	lzCompParams.m_level = lzham_compress_level::LZHAM_COMP_LEVEL_FASTEST;
-	lzCompParams.m_compress_flags = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
-
-	lzham_compress_status_t lzCompStatus = lzham_compress_memory(&lzCompParams, pDstBuf, &nDstLen, pSrcBuf, nSrcLen, &nAdler);
-
-	if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
-	{
-		Error(eDLL_T::COMMON, NO_ERROR, "Failed to compress blob: status = %08x\n", lzCompStatus);
-		return false;
-	}
+	header.magic = SIGDB_MAGIC;
+	writer.write((const char*)&header.magic, sizeof(header.magic));
 
 	return true;
 }

@@ -190,16 +190,14 @@ CMemory CModule::FindPatternSIMD(const uint8_t* pPattern, const char* pMask, con
 CMemory CModule::FindPatternSIMD_Impl(const uint8_t* szPattern, const char* szMask,
 	const size_t patternLen, const ModuleSections_t* moduleSection) const
 {
-	// Commented as CSigCache expects s8* and we are now u8*. Class needs a
-	// refactor to utilize raw bufs and hash it instead.
-	//uint64_t nRVA;
-	//if (g_SigCache.FindEntry(szPattern, patternLen, nRVA))
-	//{
-	//	return CMemory(nRVA + GetModuleBase());
-	//}
+	uint64_t nRVA;
+	if (g_SigCache.FindEntry(szPattern, patternLen, nRVA))
+	{
+		return CMemory(nRVA + GetModuleBase());
+	}
 
 	const CMemory memory = FindPatternSIMD(szPattern, szMask, patternLen, moduleSection);
-	//g_SigCache.AddEntry(szPattern, patternLen, GetRVA(memory.GetPtr()));
+	g_SigCache.AddEntry(szPattern, patternLen, GetRVA(memory.GetPtr()));
 
 	return memory;
 }
