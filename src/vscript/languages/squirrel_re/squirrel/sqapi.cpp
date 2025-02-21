@@ -9,6 +9,7 @@
 #include "sqvm.h"
 #include "sqarray.h"
 #include "sqstring.h"
+#include "sqtable.h"
 
 //---------------------------------------------------------------------------------
 bool sq_aux_gettypedarg(HSQUIRRELVM v, SQInteger idx, SQObjectType type, SQObjectPtr** o)
@@ -212,6 +213,106 @@ SQBool sq_release(HSQUIRRELVM v, SQObject* po)
 {
 	if (!ISREFCOUNTED(sq_type(*po))) return SQTrue;
 	return _ss(v)->_refs_table.Release(*po);
+}
+
+//---------------------------------------------------------------------------------
+void sq_pushuserpointer(HSQUIRRELVM v, void* p)
+{
+	SQObjectPtr obj;
+	obj._type = OT_USERPOINTER;
+	obj._unVal.pUserPointer = p;
+	v->Push(obj);
+}
+
+//---------------------------------------------------------------------------------
+void sq_pushnull(HSQUIRRELVM v) 
+{
+	v->Push(_null_);
+}
+
+//---------------------------------------------------------------------------------
+SQObjectType sq_gettype(HSQUIRRELVM v, SQInteger idx) 
+{
+	return sq_type(stack_get(v, idx));
+}
+
+
+//---------------------------------------------------------------------------------
+SQRESULT sq_next(HSQUIRRELVM v, SQInteger idx) 
+{
+	SQObjectPtr& o = stack_get(v, idx);
+	if (o._type == OT_TABLE) 
+	{
+		SQTable* table = _table(o);
+		SQObjectPtr key, value;
+		
+		if (table->Next(key, value)) 
+		{
+			v->Push(key);
+			v->Push(value);
+			return SQ_OK;
+		}
+		return SQ_ERROR;
+	}
+	else if (o._type == OT_ARRAY)
+	{
+		SQArray* arr = _array(o);
+		SQInteger arrSize = (SQInteger)arr->Size();
+
+		SQInteger keyIndex = (v->_top - 1);
+
+		if (keyIndex < 0)
+			return SQ_ERROR;
+
+		SQObjectPtr& currentKeyObj = stack_get(v, keyIndex);
+		SQInteger nextIndex = 0;
+
+		if (sq_type(currentKeyObj) == OT_NULL)
+			nextIndex = 0;
+		else if (sq_type(currentKeyObj) == OT_INTEGER)
+		{
+			SQInteger i = _integer(currentKeyObj);
+			nextIndex = i + 1;
+		}
+		else
+			return SQ_ERROR;
+
+		if (nextIndex < arrSize)
+		{
+			SQObjectPtr val;
+			bool gotVal = arr->Get(nextIndex, val);
+
+			if (!gotVal)
+				return SQ_ERROR;
+
+			v->Push(SQObjectPtr(nextIndex));
+			v->Push(val);
+			return SQ_OK;
+		}
+		else
+			return SQ_ERROR;
+	}
+
+	return SQ_ERROR;
+}
+
+SQRESULT sq_getarraysize(HSQUIRRELVM v, SQInteger idx, SQInteger* outSize) 
+{
+	SQObject obj = stack_get(v, idx);
+	if (sq_type(obj) != OT_ARRAY)
+		return SQ_ERROR;
+	SQArray* arr = _array(obj);
+	*outSize = (SQInteger)arr->Size();
+	return SQ_OK;
+}
+
+SQInteger sq_absindex(HSQUIRRELVM v, SQInteger idx)
+{
+	if (idx >= 0)
+		return idx;
+
+	SQInteger absIdx = sq_gettop(v) + idx + 1;
+	return ( absIdx > 0 ) ? absIdx : 0;
 }
 
 void VSquirrelAPI::Detour(const bool bAttach) const
